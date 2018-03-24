@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -70,7 +70,7 @@ public:
      *  Function to obtain the Cartesian state of the ground station in the local frame (body-fixed, not topocentric) at a
      *  given time.  Adds all position variations to the nominal state (at the requested time) and returns the state. NOTE:
      *  poisition variations are as yet not included.
-     *  \param secondsSinceEpoch Secons since reference epoch at which the position is to be retrieved.
+     *  \param secondsSinceEpoch Seconds since reference epoch at which the position is to be retrieved.
      *  \param inputReferenceEpoch Reference epoch julian day
      *  \return Cartesian state of station in local frame at requested time.
      */
@@ -83,7 +83,7 @@ public:
       *  Function to obtain the Cartesian position of the ground station in the local frame (body-fixed, not topocentric) at a
       *  given time.  Adds all position variations to the nominal state (at the requested time) and returns the state. NOTE:
       *  poisition variations are as yet not included.
-      *  \param secondsSinceEpoch Secons since reference epoch at which the position is to be retrieved.
+      *  \param secondsSinceEpoch Seconds since reference epoch at which the position is to be retrieved.
       *  \param inputReferenceEpoch Reference epoch julian day
       *  \return Cartesian position of station in local frame at requested time.
       */

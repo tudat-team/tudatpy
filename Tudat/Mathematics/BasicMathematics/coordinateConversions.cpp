@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -66,7 +66,7 @@ Eigen::Vector3d convertCylindricalToCartesian( const double radius,
     // If radius < 0, then give warning.
     if ( radius < 0.0 )
     {
-        std::cerr << "Warning: cylindrical radial coordinate is negative!, This could give incorrect results!"<<std::endl;
+        std::cerr << "Warning: cylindrical radial coordinate is negative!, This could give incorrect results!" << std::endl;
     }
 
     // Compute and set Cartesian coordinates.
@@ -86,7 +86,7 @@ Eigen::Vector3d convertCylindricalToCartesian( const Eigen::Vector3d& cylindrica
     // If radius < 0, then give warning.
     if ( cylindricalCoordinates( 0 ) < 0.0 )
     {
-        std::cerr << "Warning: cylindrical radial coordinate is negative!, This could give incorrect results!"<<std::endl;
+        std::cerr << "Warning: cylindrical radial coordinate is negative!, This could give incorrect results!" << std::endl;
     }
 
     // Compute and set Cartesian coordinates.
@@ -118,7 +118,7 @@ Eigen::Vector6d convertCylindricalToCartesianState(
     if ( std::fabs(cylindricalState( 0 )) <= std::numeric_limits< double >::epsilon( )
          && std::fabs(cylindricalState( 4 )) > std::numeric_limits< double >::epsilon( ) )
     {
-        std::cerr << "Warning: cylindrical velocity Vtheta (r*thetadot) does not equal zero while the radius (r) is zero! Vtheta is taken equal to zero!"<<std::endl;
+        std::cerr << "Warning: cylindrical velocity Vtheta (r*thetadot) does not equal zero while the radius (r) is zero! Vtheta is taken equal to zero!" << std::endl;
 
         // Compute and set Cartesian velocities.
         cartesianState.tail( 3 )

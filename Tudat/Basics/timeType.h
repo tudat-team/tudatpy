@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -703,7 +703,7 @@ public:
      */
     friend bool operator<= ( const Time& timeToCompare1, const Time& timeToCompare2 )
     {
-        if( timeToCompare1.getFullPeriods( ) <= timeToCompare2.getFullPeriods( ) )
+        if( timeToCompare1.getFullPeriods( ) < timeToCompare2.getFullPeriods( ) )
         {
             return true;
         }
@@ -911,9 +911,9 @@ public:
     }
 
     //!Output operator for Time object
-    friend std::ostream& operator<<( std::ostream& stream, const Time& timeToPrint )
+    friend std::ostream& operator << ( std::ostream& stream, const Time& timeToPrint )
     {
-        stream<<"("<<timeToPrint.getFullPeriods( )<<", "<<timeToPrint.getSecondsIntoFullPeriod( )<<") ";
+        stream << "(" << timeToPrint.getFullPeriods( ) << ", " << timeToPrint.getSecondsIntoFullPeriod( ) << ") ";
         return stream;
     }
 

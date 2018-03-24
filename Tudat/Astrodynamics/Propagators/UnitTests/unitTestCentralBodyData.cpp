@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -64,8 +64,8 @@ BOOST_AUTO_TEST_CASE( testCentralBodyData )
 
     // Create central bodies object.
     boost::shared_ptr< CentralBodyData< double > > centralBodyData
-        = boost::make_shared< CentralBodyData< double > >( centralBodies, bodiesToIntegrate,
-                                                           stateFunctions );
+        = boost::make_shared< CentralBodyData< double > >(
+                centralBodies, bodiesToIntegrate, stateFunctions, boost::lambda::constant( Eigen::Vector6d::Zero( ) ), "SSB" );
 
     // Get update order.
     std::vector< int > updateOrder = centralBodyData->getUpdateOrder( );

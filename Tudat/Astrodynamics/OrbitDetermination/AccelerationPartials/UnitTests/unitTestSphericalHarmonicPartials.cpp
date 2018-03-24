@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -214,7 +214,7 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicPartials )
 
     Eigen::Vector3d perturbedSphericalPosition;
     Eigen::Vector3d sphericalStatePerturbation;
-    sphericalStatePerturbation<<10.0, 1.0E-7, 1.0E-8;
+    sphericalStatePerturbation << 10.0, 1.0E-7, 1.0E-8;
 
     for( unsigned parameter = 0; parameter < 3; parameter++ )
     {
@@ -348,7 +348,7 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicPartials )
                 cumulativeSphericalHessian, numericalTotalSphericalGradient, 1.0E-6 );
 
     Eigen::Vector3d cartesianStatePerturbation;
-    cartesianStatePerturbation<<10.0, 10.0, 10.0;
+    cartesianStatePerturbation << 10.0, 10.0, 10.0;
 
     for( unsigned parameter = 0; parameter < 3; parameter++ )
     {
@@ -452,10 +452,7 @@ std::vector< boost::shared_ptr< GravityFieldVariationSettings > > getEarthGravit
 BOOST_AUTO_TEST_CASE( testSphericalHarmonicAccelerationPartial )
 {
     //Load spice kernels.
-    std::string kernelsPath = input_output::getSpiceKernelPath( );
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "pck00009.tpc" );
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "de-403-masses.tpc" );
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "de421.bsp" );
+    spice_interface::loadStandardSpiceKernels( );
 
     // Create empty bodies, earth and vehicle.
     boost::shared_ptr< Body > earth = boost::make_shared< Body >( );
@@ -520,6 +517,7 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicAccelerationPartial )
                     "Earth", bodyMap, gravityFieldVariationSettings ) );
 
 
+    setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );
 
 
     // Set current state of vehicle and earth.
@@ -565,9 +563,9 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicAccelerationPartial )
 
     // Declare perturbations in position for numerical partial/
     Eigen::Vector3d positionPerturbation;
-    positionPerturbation<<10.0, 10.0, 10.0;
+    positionPerturbation << 10.0, 10.0, 10.0;
     Eigen::Vector3d velocityPerturbation;
-    velocityPerturbation<< 1.0E-3, 1.0E-3, 1.0E-3;
+    velocityPerturbation << 1.0E-3, 1.0E-3, 1.0E-3;
 
     // Create state access/modification functions for bodies.
     boost::function< void( Eigen::Vector6d ) > earthStateSetFunction =
@@ -726,7 +724,6 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicAccelerationPartial )
 
 
 
-
     std::map< int, boost::shared_ptr< EstimatableParameter< Eigen::VectorXd > > > vectorParameters =
             parameterSet->getVectorParameters( );
     std::map< int, boost::shared_ptr< EstimatableParameter< Eigen::VectorXd > > >::iterator vectorParametersIterator =
@@ -782,15 +779,18 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicAccelerationPartial )
                 vectorParametersIterator->second, gravitationalAcceleration, Eigen::VectorXd::Constant( 4, 10.0 ), sphericalHarmonicFieldUpdate );
 
 
+
+
     Eigen::VectorXd nominalTidalParameter = vectorParametersIterator->second->getParameterValue( );
-    vectorParametersIterator->second->setParameterValue( nominalTidalParameter + Eigen::VectorXd::Constant( 1, 1.0 ) );
+
+    vectorParametersIterator->second->setParameterValue( nominalTidalParameter + Eigen::VectorXd::Constant( nominalTidalParameter.rows( ), 1.0 ) );
     earthGravityField->update( testTime );
     Eigen::MatrixXd upperturbedCosineCoefficients =
             earthGravityField->getCosineCoefficients( ).block( 0, 0, 3, 3 );
     Eigen::MatrixXd upperturbedSineCoefficients =
             earthGravityField->getSineCoefficients( ).block( 0, 0, 3, 3 );
 
-    vectorParametersIterator->second->setParameterValue( nominalTidalParameter - Eigen::VectorXd::Constant( 1, 1.0 ) );
+    vectorParametersIterator->second->setParameterValue( nominalTidalParameter - Eigen::VectorXd::Constant( nominalTidalParameter.rows( ), 1.0 ) );
     earthGravityField->update( testTime );
     Eigen::MatrixXd downperturbedCosineCoefficients =
             earthGravityField->getCosineCoefficients( ).block( 0, 0, 3, 3 );
@@ -814,8 +814,10 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicAccelerationPartial )
     BOOST_CHECK_EQUAL( testPartialWrtCosineCoefficients.cols( ), 17 );
     BOOST_CHECK_EQUAL( testPartialWrtSineCoefficients.cols( ), 13 );
 
+
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( partialWrtDegreeTwoLoveNumberAtSeparateOrders, testPartialWrtDegreeTwoOrderTwoLoveNumberAtSeparateOrders, 1.0E-6 );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( partialWrtComplexDegreeTwoLoveNumber, testPartialWrtComplexDegreeTwoLoveNumber, 1.0E-6 );
+
 
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( partialWrtDegreeThreeLoveNumber, testPartialWrtDegreeThreeLoveNumber, 1.0E-6 );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( partialWrtComplexDegreeThreeLoveNumberAtSeparateOrder, testPartialWrtComplexDegreeThreeLoveNumberAtSeparateOrder, 1.0E-6 );

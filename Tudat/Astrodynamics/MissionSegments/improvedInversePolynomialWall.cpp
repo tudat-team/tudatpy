@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -152,8 +152,7 @@ double ImprovedInversePolynomialWall::computeDerivative(
     // Throw runtime error, when order is higher that 3.
     else
     {
-        throw std::runtime_error(
-                            "Derivatives of order higher than 3 are not supported." );
+        throw std::runtime_error( "Derivatives of order higher than 3 are not supported." );
     }
 }
 
@@ -167,8 +166,7 @@ double ImprovedInversePolynomialWall::computeDefiniteIntegral(
     TUDAT_UNUSED_PARAMETER( upperBound );
 
     // Throw runtime error, when trying to compute the integral of the function.
-    throw std::runtime_error(
-                        "Cannot compute the integral, this is not supported for this function class." );
+    throw std::runtime_error( "Cannot compute the integral, this is not supported for this function class." );
 }
 
 } // namespace mission_segments

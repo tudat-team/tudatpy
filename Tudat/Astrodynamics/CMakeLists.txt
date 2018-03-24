@@ -1,4 +1,4 @@
- #    Copyright (c) 2010-2017, Delft University of Technology
+ #    Copyright (c) 2010-2018, Delft University of Technology
  #    All rigths reserved
  #
  #    This file is part of the Tudat. Redistribution and use in source and
@@ -24,6 +24,9 @@ set(PROPAGATORSDIR "${ASTRODYNAMICSDIR}/Propagators")
 set(RELATIVITYDIR "${ASTRODYNAMICSDIR}/Relativity")
 set(SYSTEMMODELSDIR "${ASTRODYNAMICSDIR}/SystemModels")
 set(PROPULSIONDIR "${ASTRODYNAMICSDIR}/Propulsion")
+if(USE_SOFA)
+  set(EARTHORIENTATIONDIR "${ASTRODYNAMICSDIR}/EarthOrientation")
+endif()
 
 # Add subdirectories.
 add_subdirectory("${SRCROOT}${AERODYNAMICSDIR}")
@@ -40,7 +43,9 @@ add_subdirectory("${SRCROOT}${RELATIVITYDIR}")
 add_subdirectory("${SRCROOT}${SYSTEMMODELSDIR}")
 add_subdirectory("${SRCROOT}${PROPULSIONDIR}")
 add_subdirectory("${SRCROOT}${GROUNDSTATIONSDIR}")
-
+if(USE_SOFA)
+  add_subdirectory("${SRCROOT}${EARTHORIENTATIONDIR}")
+endif()
 
 # Get target properties for static libraries.
 get_target_property(AERODYNAMICSSOURCES tudat_aerodynamics SOURCES)
@@ -57,3 +62,6 @@ get_target_property(PROPAGATORSDIR tudat_propagators SOURCES)
 get_target_property(SYSTEMMODELSSOURCES tudat_system_models SOURCES)
 get_target_property(PROPULSIONSOURCES tudat_propulsion SOURCES)
 get_target_property(GROUNDSTATIONSSOURCES tudat_ground_stations SOURCES)
+if(USE_SOFA)
+  get_target_property(EARTHORIENTATIONSOURCES tudat_earth_orientation SOURCES)
+endif()

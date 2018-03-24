@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -51,10 +51,7 @@ BOOST_AUTO_TEST_CASE( test_ParameterPostFitResiduals )
     std::vector< std::string > targetBodies = { "Mercury", "Venus" };
 
     // Load Spice kernels.
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "de-403-masses.tpc" );
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "pck00009.tpc" );
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "naif0009.tls" );
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "planetaryOrbitKernel.tm" );
+    spice_interface::loadStandardSpiceKernels( );
 
     // Set simulation times
     double simulationStartEpoch = 0.0;
@@ -86,6 +83,14 @@ BOOST_AUTO_TEST_CASE( test_ParameterPostFitResiduals )
                       0.0, 0.0, 0.0,
                       sunNormalizedJ2 , 0.0, 0.0 ).finished( ),
                     Eigen::Matrix3d::Zero( ), "IAU_Sun" );
+
+//        // Setting approximate ephemeris for Jupiter to prevent having to use large Spice kernel.
+//        double jupiterGravitationalParameter = getBodyGravitationalParameter( "Jupiter" );
+//        bodySettings[ "Jupiter" ]->ephemerisSettings = boost::make_shared< KeplerEphemerisSettings >(
+//                    convertCartesianToKeplerianElements(
+//                        getBodyCartesianStateAtEpoch(
+//                            "Jupiter", "SSB", "ECLIPJ2000", "None", simulationStartEpoch ),
+//                        jupiterGravitationalParameter ), simulationStartEpoch, jupiterGravitationalParameter );
 
         // Update environment settings of target body
         std::vector< std::string > currentTargetBodies;
@@ -176,7 +181,7 @@ BOOST_AUTO_TEST_CASE( test_ParameterPostFitResiduals )
                     6.0 * 3600.0, boost::assign::list_of( -sunNormalizedJ2 ), boost::assign::list_of( 0 ) );
 
         // Get pre- and postfit residuals with RMS
-        Eigen::VectorXd prefitResiduals = estimationOutput.first->firstIterationResiduals_;
+        Eigen::VectorXd prefitResiduals = estimationOutput.first->residualHistory_.at( 0 );
         Eigen::VectorXd postfitResiduals = estimationOutput.first->residuals_;
         double prefitRms = linear_algebra::getVectorEntryRootMeanSquare(
                     prefitResiduals );
@@ -197,10 +202,10 @@ BOOST_AUTO_TEST_CASE( test_ParameterPostFitResiduals )
         {
             BOOST_CHECK_EQUAL( finalPrefitDifference.norm( ) > 400.0, true );
 
-            BOOST_CHECK_EQUAL( initialPostfitDifference.norm( ) > 50.0, true );
+            BOOST_CHECK_EQUAL( initialPostfitDifference.norm( ) > 40.0, true );
             BOOST_CHECK_EQUAL( initialPostfitDifference.norm( ) < 60.0, true );
 
-            BOOST_CHECK_EQUAL( finalPostfitDifference.norm( ) > 50.0, true );
+            BOOST_CHECK_EQUAL( finalPostfitDifference.norm( ) > 40.0, true );
             BOOST_CHECK_EQUAL( finalPostfitDifference.norm( ) < 60.0, true );
 
             BOOST_CHECK_EQUAL( prefitRms / postfitRms > 8.0, true );
@@ -226,14 +231,14 @@ BOOST_AUTO_TEST_CASE( test_ParameterPostFitResiduals )
                     parameterCorrections.at( 1 ).segment( 0, 6 ) - estimationOutput.second.segment( 6, 6 );
             for( unsigned int index = 0; index < 3; index++ )
             {
-                BOOST_CHECK_SMALL( std::fabs( mercuryPositionAdjustmentDifference( index ) ), 5.0E-2 );
-                BOOST_CHECK_SMALL( std::fabs( mercuryPositionAdjustmentDifference( index + 3 ) ), 5.0E-8 );
-                BOOST_CHECK_SMALL( std::fabs( marsPositionAdjustmentDifference( index ) ), 5.0E-2 );
-                BOOST_CHECK_SMALL( std::fabs( marsPositionAdjustmentDifference( index + 3 ) ), 5.0E-8 );
+                BOOST_CHECK_SMALL( std::fabs( mercuryPositionAdjustmentDifference( index ) ), 2.0E-1 );
+                BOOST_CHECK_SMALL( std::fabs( mercuryPositionAdjustmentDifference( index + 3 ) ), 1.0E-7 );
+                BOOST_CHECK_SMALL( std::fabs( marsPositionAdjustmentDifference( index ) ), 1.0E-1 );
+                BOOST_CHECK_SMALL( std::fabs( marsPositionAdjustmentDifference( index + 3 ) ), 1.0E-7 );
             }
         }
 
-        std::cout<<"Parameter difference "<<estimationOutput.second.transpose( )<<std::endl<<std::endl;
+        std::cout << "Parameter difference " << estimationOutput.second.transpose( ) << std::endl << std::endl;
 
         parameterCorrections.push_back( estimationOutput.second );
     }
@@ -244,9 +249,7 @@ BOOST_AUTO_TEST_CASE( test_ParameterPostFitResidualsApollo )
 {
 
     // Load Spice kernels.
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "pck00009.tpc" );
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "de-403-masses.tpc" );
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "de421.bsp" );
+    spice_interface::loadStandardSpiceKernels( );
 
     // Set simulation start and end epoch.
     const double simulationStartEpoch = 0.0;
@@ -287,7 +290,7 @@ BOOST_AUTO_TEST_CASE( test_ParameterPostFitResidualsApollo )
     std::map< std::string, std::vector< boost::shared_ptr< AccelerationSettings > > > accelerationsOfApollo;
     accelerationsOfApollo[ "Earth" ].push_back( boost::make_shared< SphericalHarmonicAccelerationSettings >( 2, 0 ) );
     accelerationsOfApollo[ "Earth" ].push_back( boost::make_shared< AccelerationSettings >( aerodynamic ) );
-    accelerationMap[  "Apollo" ] = accelerationsOfApollo;
+    accelerationMap[ "Apollo" ] = accelerationsOfApollo;
 
     bodiesToPropagate.push_back( "Apollo" );
     centralBodies.push_back( "Earth" );
@@ -355,7 +358,7 @@ BOOST_AUTO_TEST_CASE( test_ParameterPostFitResidualsApollo )
                 1.0, boost::assign::list_of( -earthC20 ), boost::assign::list_of( 0 ) );
 
     // Get pre- and postfit residuals with RMS
-    Eigen::VectorXd prefitResiduals = estimationOutput.first->firstIterationResiduals_;
+    Eigen::VectorXd prefitResiduals = estimationOutput.first->residualHistory_.at( 0 );
     Eigen::VectorXd postfitResiduals = estimationOutput.first->residuals_;
     double prefitRms = linear_algebra::getVectorEntryRootMeanSquare(
                 prefitResiduals );
@@ -382,7 +385,7 @@ BOOST_AUTO_TEST_CASE( test_ParameterPostFitResidualsApollo )
 
     BOOST_CHECK_EQUAL( prefitRms / postfitRms > 40.0, true );
 
-    std::cout<<"Parameter difference "<<estimationOutput.second.transpose( )<<std::endl;
+    std::cout << "Parameter difference " << estimationOutput.second.transpose( ) << std::endl;
 
     BOOST_AUTO_TEST_SUITE_END( )
 

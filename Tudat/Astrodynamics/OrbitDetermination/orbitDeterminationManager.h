@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -111,19 +111,19 @@ public:
         bool isConverged = 0;
         if( numberOfIterations >= maximumNumberOfIterations_ )
         {
-            std::cout<<"Maximum number of iterations reached"<<std::endl;
+            std::cout << "Maximum number of iterations reached" << std::endl;
             isConverged = 1;
         }
         if( rmsResidualHistory[ rmsResidualHistory.size( ) - 1 ] < minimumResidual_ )
         {
-            std::cout<<"Required residual level achieved"<<std::endl;
+            std::cout << "Required residual level achieved" << std::endl;
             isConverged = 1;
         }
         if( ( std::distance( rmsResidualHistory.begin( ), std::max_element(
                                  rmsResidualHistory.begin( ), rmsResidualHistory.end( ) ) ) - rmsResidualHistory.size( ) ) <
                 numberOfIterationsWithoutImprovement_ )
         {
-            std::cout<<"Too many iterations without parameter improvement"<<std::endl;
+            std::cout << "Too many iterations without parameter improvement" << std::endl;
             isConverged = 1;
         }
         if( rmsResidualHistory.size( ) > 1 )
@@ -254,10 +254,10 @@ public:
     getObservationSimulators( ) const
     {
         std::map< observation_models::ObservableType,
-        boost::shared_ptr< observation_models::ObservationSimulatorBase< ObservationScalarType, TimeType > > > observationSimulators;
+                boost::shared_ptr< observation_models::ObservationSimulatorBase< ObservationScalarType, TimeType > > > observationSimulators;
 
         for( typename std::map< observation_models::ObservableType,
-        boost::shared_ptr< observation_models::ObservationManagerBase< ObservationScalarType, TimeType > > >::const_iterator
+             boost::shared_ptr< observation_models::ObservationManagerBase< ObservationScalarType, TimeType > > >::const_iterator
              managerIterator = observationManagers_.begin( ); managerIterator != observationManagers_.end( );
              managerIterator++ )
         {
@@ -384,6 +384,13 @@ public:
         }
     }
 
+    //! Function to normalize the matrix of partial derivatives so that each column is in the range [-1,1]
+    /*!
+     * Function to normalize the matrix of partial derivatives so that each column is in the range [-1,1]
+     * \param observationMatrix Matrix of partial derivatives. Matrix modified by this function, and normalized matrix is
+     * returned by reference
+     * \return Vector with scaling values used for normalization
+     */
     Eigen::VectorXd normalizeObservationMatrix( Eigen::MatrixXd& observationMatrix )
     {
         Eigen::VectorXd normalizationTerms = Eigen::VectorXd( observationMatrix.cols( ) );
@@ -401,37 +408,41 @@ public:
             {
                 normalizationTerms( i ) = maximum;
             }
+            if( normalizationTerms( i ) == 0.0 )
+            {
+                normalizationTerms( i ) = 1.0;
+            }
             currentVector = currentVector / normalizationTerms( i );
 
             observationMatrix.block( 0, i, observationMatrix.rows( ), 1 ) = currentVector;
         }
 
-//        for( unsigned int i = 0; i < observationLinkParameterIndices_.size( ); i++ )
-//        {
-//            int currentColumn = observationLinkParameterIndices_.at( i );
-//            int startIndex = -1;
-//            int endIndex = -1;
-//            std::vector< double > partialMaximum;
-//            bool isInRange = 0;
+        //        for( unsigned int i = 0; i < observationLinkParameterIndices_.size( ); i++ )
+        //        {
+        //            int currentColumn = observationLinkParameterIndices_.at( i );
+        //            int startIndex = -1;
+        //            int endIndex = -1;
+        //            std::vector< double > partialMaximum;
+        //            bool isInRange = 0;
 
-//            for( int j = 0; j < observationMatrix.rows( ); j++ )
-//            {
-//                if( observationMatrix( j, currentColumn ) != 0.0 )
-//                {
-//                   if( isInRange == 0 )
-//                   {
-//                       isInRange = 1;
-//                       startIndex = j;
-//                   }
-//                }
-//                else if( ( startIndex != -1 ) && isInRange && ( observationMatrix( j, currentColumn ) == 0.0 ) )
-//                {
-//                    isInRange = 0;
-//                    endIndex = j;
-//                }
+        //            for( int j = 0; j < observationMatrix.rows( ); j++ )
+        //            {
+        //                if( observationMatrix( j, currentColumn ) != 0.0 )
+        //                {
+        //                   if( isInRange == 0 )
+        //                   {
+        //                       isInRange = 1;
+        //                       startIndex = j;
+        //                   }
+        //                }
+        //                else if( ( startIndex != -1 ) && isInRange && ( observationMatrix( j, currentColumn ) == 0.0 ) )
+        //                {
+        //                    isInRange = 0;
+        //                    endIndex = j;
+        //                }
 
-//            }
-//        }
+        //            }
+        //        }
         return normalizationTerms;
     }
 
@@ -443,24 +454,12 @@ public:
      *  \param podInput Object containing all measurement data, associated metadata, including measurement weight, and a priori
      *  estimate for covariance matrix and parameter adjustment.
      *  \param convergenceChecker Object used to check convergence/termination of algorithm
-     *  \param reintegrateEquationsOnFirstIteration Boolean denoting whether the dynamics and variational equations are to
-     *  be reintegrated on first iteration, or if existing values are to be used to perform first iteration.
-     *  \param reintegrateVariationalEquations Boolean denoting whether the variational equations are to be reintegrated
-     *  when first calling this object (e.g. before 1st iteration of algorithm)
-     *  \param saveInformationmatrix Boolean denoting whether to save the partials matrix in the output
-     *  \param printOutput Boolean denoting whether to print output to th terminal when running the estimation.
-     *  \param saveResidualsFromFirstIteration Boolean denoting whether the residuals from the 1st iteration are to be saved
      *  \return Object containing estimated parameter value and associateed data, such as residuals and observation partials.
      */
     boost::shared_ptr< PodOutput< ObservationScalarType > > estimateParameters(
             const boost::shared_ptr< PodInput< ObservationScalarType, TimeType > >& podInput,
             const boost::shared_ptr< EstimationConvergenceChecker > convergenceChecker =
-            boost::make_shared< EstimationConvergenceChecker >( ),
-            const bool reintegrateEquationsOnFirstIteration = 1,
-            const bool reintegrateVariationalEquations = 1,
-            const bool saveInformationmatrix = 1,
-            const bool printOutput = 1,
-            const bool saveResidualsFromFirstIteration = 0  )
+            boost::make_shared< EstimationConvergenceChecker >( ) )
     {
         currentParameterEstimate_ = parametersToEstimate_->template getFullParameterValues< ObservationScalarType >( );
 
@@ -471,15 +470,18 @@ public:
         int totalNumberOfObservations = observationNumberPair.second;
 
         // Declare variables to be returned (i.e. results from best iteration)
-        double bestResidual =  std::numeric_limits< double >::max( );
-        ParameterVectorType bestParameterEstimate = ParameterVectorType::Zero( parameterVectorSize );
-        Eigen::VectorXd bestTransformationData = Eigen::VectorXd::Zero( parameterVectorSize );
-        Eigen::VectorXd bestResiduals = Eigen::VectorXd::Zero( totalNumberOfObservations );
-        Eigen::MatrixXd bestInformationMatrix = Eigen::MatrixXd::Zero( totalNumberOfObservations, parameterVectorSize );
-        Eigen::VectorXd bestWeightsMatrixDiagonal = Eigen::VectorXd::Zero( totalNumberOfObservations );
-        Eigen::MatrixXd bestInverseNormalizedCovarianceMatrix = Eigen::MatrixXd::Zero( parameterVectorSize, parameterVectorSize );
+        double bestResidual = TUDAT_NAN;
+        ParameterVectorType bestParameterEstimate = ParameterVectorType::Constant( parameterVectorSize, TUDAT_NAN );
+        Eigen::VectorXd bestTransformationData = Eigen::VectorXd::Constant( parameterVectorSize, TUDAT_NAN );
+        Eigen::VectorXd bestResiduals = Eigen::VectorXd::Constant( totalNumberOfObservations, TUDAT_NAN );
+        Eigen::MatrixXd bestInformationMatrix = Eigen::MatrixXd::Constant( totalNumberOfObservations, parameterVectorSize, TUDAT_NAN );
+        Eigen::VectorXd bestWeightsMatrixDiagonal = Eigen::VectorXd::Constant( totalNumberOfObservations, TUDAT_NAN );
+        Eigen::MatrixXd bestInverseNormalizedCovarianceMatrix = Eigen::MatrixXd::Constant( parameterVectorSize, parameterVectorSize, TUDAT_NAN );
 
-        Eigen::VectorXd firstIterationResiduals = Eigen::VectorXd::Zero( 0 );
+        std::vector< Eigen::VectorXd > residualHistory;
+        std::vector< Eigen::VectorXd > parameterHistory;
+        std::vector< std::vector< std::map< TimeType, Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > > > dynamicsHistoryPerIteration;
+        std::vector< std::vector< std::map< TimeType, Eigen::VectorXd > > > dependentVariableHistoryPerIteration;
 
         // Declare residual bookkeeping variables
         std::vector< double > rmsResidualHistory;
@@ -494,20 +496,39 @@ public:
 
         int numberOfEstimatedParameters = parameterVectorSize;
 
+        bool exceptionDuringPropagation = false, exceptionDuringInversion = false;
         // Iterate until convergence (at least once)
         int numberOfIterations = 0;
         do
         {
-            // Re-integrate equations of motion and variational equations with new parameter estimate.
-            if( ( numberOfIterations > 0 ) ||( reintegrateEquationsOnFirstIteration ) )
+            try
             {
-                resetParameterEstimate( newParameterEstimate, reintegrateVariationalEquations );
+                // Re-integrate equations of motion and variational equations with new parameter estimate.
+                if( ( numberOfIterations > 0 ) ||( podInput->getReintegrateEquationsOnFirstIteration( ) ) )
+                {
+                    resetParameterEstimate( newParameterEstimate, podInput->getReintegrateVariationalEquations( ) );
+                }
+
+                if( podInput->getSaveStateHistoryForEachIteration( ) )
+                {
+                    dynamicsHistoryPerIteration.push_back(
+                                variationalEquationsSolver_->getDynamicsSimulatorBase( )->getEquationsOfMotionNumericalSolutionBase( ) );
+                    dependentVariableHistoryPerIteration.push_back(
+                                variationalEquationsSolver_->getDynamicsSimulatorBase( )->getDependentVariableNumericalSolutionBase( ) );
+                }
             }
+            catch( std::runtime_error )
+            {
+                std::cerr<<"Error when resetting parameters during parameter estimation, terminating estimation"<<std::endl;
+                exceptionDuringPropagation = true;
+                break;
+            }
+
             oldParameterEstimate = newParameterEstimate;
 
-            if( printOutput )
+            if( podInput->getPrintOutput( ) )
             {
-                std::cout<<"Calculating residuals and partials "<<totalNumberOfObservations<<std::endl;
+                std::cout << "Calculating residuals and partials " << totalNumberOfObservations << std::endl;
             }
             // Calculate residuals and observation matrix for current parameter estimate.
             std::pair< Eigen::VectorXd, Eigen::MatrixXd > residualsAndPartials;
@@ -530,45 +551,65 @@ public:
             }
 
             // Perform least squares calculation for correction to parameter vector.
-            std::pair< Eigen::VectorXd, Eigen::MatrixXd > leastSquaresOutput =
-                    linear_algebra::performLeastSquaresAdjustmentFromInformationMatrix(
-                        residualsAndPartials.second.block( 0, 0, residualsAndPartials.second.rows( ), numberOfEstimatedParameters ),
-                        residualsAndPartials.first, getConcatenatedWeightsVector( podInput->getWeightsMatrixDiagonals( ) ),
-                        normalizedInverseAprioriCovarianceMatrix );
+            std::pair< Eigen::VectorXd, Eigen::MatrixXd > leastSquaresOutput;
+            try
+            {
+                leastSquaresOutput =
+                        linear_algebra::performLeastSquaresAdjustmentFromInformationMatrix(
+                            residualsAndPartials.second.block( 0, 0, residualsAndPartials.second.rows( ), numberOfEstimatedParameters ),
+                            residualsAndPartials.first, getConcatenatedWeightsVector( podInput->getWeightsMatrixDiagonals( ) ),
+                            normalizedInverseAprioriCovarianceMatrix );
+            }
+            catch( std::runtime_error )
+            {
+                std::cerr<<"Error when solving normal equations during parameter estimation, terminating estimation"<<std::endl;
+                exceptionDuringInversion = true;
+                break;
+            }
+
+
             ParameterVectorType parameterAddition =
                     ( leastSquaresOutput.first.cwiseQuotient( transformationData.segment( 0, numberOfEstimatedParameters ) ) ).
                     template cast< ObservationScalarType >( );
 
-            if( numberOfIterations == 0 && saveResidualsFromFirstIteration )
-            {
-                firstIterationResiduals = residualsAndPartials.first;
-            }
 
             // Update value of parameter vector
             newParameterEstimate = oldParameterEstimate + parameterAddition;
+
+            if( podInput->getSaveResidualsAndParametersFromEachIteration( ) )
+            {
+                residualHistory.push_back( residualsAndPartials.first );
+                if( numberOfIterations == 0 )
+                {
+                    parameterHistory.push_back( oldParameterEstimate.template cast< double >( ) );
+                }
+                parameterHistory.push_back( newParameterEstimate.template cast< double >( ) );
+            }
+
             oldParameterEstimate = newParameterEstimate;
 
-            if( printOutput )
+
+            if( podInput->getPrintOutput( ) )
             {
-                std::cout<<"Parameter update"<<parameterAddition.transpose( )<<std::endl;
+                std::cout << "Parameter update" << parameterAddition.transpose( ) << std::endl;
             }
 
             // Calculate mean residual for current iteration.
             residualRms = linear_algebra::getVectorEntryRootMeanSquare( residualsAndPartials.first );
 
             rmsResidualHistory.push_back( residualRms );
-            if( printOutput )
+            if( podInput->getPrintOutput( ) )
             {
-                std::cout<<"Current residual: "<<residualRms<<std::endl;
+                std::cout << "Current residual: " << residualRms << std::endl;
             }
 
             // If current iteration is better than previous one, update 'best' data.
-            if( residualRms < bestResidual )
+            if( residualRms < bestResidual || !( bestResidual == bestResidual ) )
             {
                 bestResidual = residualRms;
                 bestParameterEstimate = oldParameterEstimate;
                 bestResiduals = residualsAndPartials.first;
-                if( saveInformationmatrix )
+                if( podInput->getSaveInformationMatrix( ) )
                 {
                     bestInformationMatrix = residualsAndPartials.second;
                 }
@@ -584,12 +625,15 @@ public:
             // Check for convergence
         } while( convergenceChecker->isEstimationConverged( numberOfIterations, rmsResidualHistory ) == false );
 
-
-        std::cout<<"Final residual: "<<bestResidual<<std::endl;
+        if( podInput->getPrintOutput( ) )
+        {
+            std::cout << "Final residual: " << bestResidual << std::endl;
+        }
 
         return boost::make_shared< PodOutput< ObservationScalarType > >(
                     bestParameterEstimate, bestResiduals, bestInformationMatrix, bestWeightsMatrixDiagonal, bestTransformationData,
-                    bestInverseNormalizedCovarianceMatrix, bestResidual, firstIterationResiduals );
+                    bestInverseNormalizedCovarianceMatrix, bestResidual, residualHistory, parameterHistory, exceptionDuringInversion,
+                    exceptionDuringPropagation );
     }
 
     //! Function to reset the current parameter estimate.
@@ -687,7 +731,7 @@ public:
         if( observationManagers_.count( observableType ) == 0 )
         {
             throw std::runtime_error(
-                        "Error when retrieving observation manager of type " + boost::lexical_cast< std::string >(
+                        "Error when retrieving observation manager of type " + std::to_string(
                             observableType ) + ", manager not found" );
         }
 
@@ -824,32 +868,32 @@ protected:
         // Set current parameter estimate from body initial states and parameter set.
         currentParameterEstimate_ = parametersToEstimate_->template getFullParameterValues< ObservationScalarType >( );
 
-        std::map< int, boost::shared_ptr< estimatable_parameters::EstimatableParameter< double > > > doubleParameters =
-                parametersToEstimate_->getDoubleParameters( );
-        for( std::map< int, boost::shared_ptr< estimatable_parameters::EstimatableParameter< double > > >::iterator
-             parameterIterator = doubleParameters.begin( ); parameterIterator != doubleParameters.end( ); parameterIterator++ )
-        {
-            if( estimatable_parameters::isParameterObservationLinkProperty(
-                        parameterIterator->second->getParameterName( ).first ) )
-            {
-                observationLinkParameterIndices_.push_back( parameterIterator->first );
-            }
-        }
+        //        std::map< int, boost::shared_ptr< estimatable_parameters::EstimatableParameter< double > > > doubleParameters =
+        //                parametersToEstimate_->getDoubleParameters( );
+        //        for( std::map< int, boost::shared_ptr< estimatable_parameters::EstimatableParameter< double > > >::iterator
+        //             parameterIterator = doubleParameters.begin( ); parameterIterator != doubleParameters.end( ); parameterIterator++ )
+        //        {
+        //            if( estimatable_parameters::isParameterObservationLinkProperty(
+        //                        parameterIterator->second->getParameterName( ).first ) )
+        //            {
+        //                observationLinkParameterIndices_.push_back( parameterIterator->first );
+        //            }
+        //        }
 
-        std::map< int, boost::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > > vectorParameters =
-                parametersToEstimate_->getVectorParameters( );
-        for( std::map< int, boost::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > >::iterator
-             parameterIterator = vectorParameters.begin( ); parameterIterator != vectorParameters.end( ); parameterIterator++ )
-        {
-            if( estimatable_parameters::isParameterObservationLinkProperty(
-                        parameterIterator->second->getParameterName( ).first ) )
-            {
-                for( int i = 0; i < parameterIterator->second->getParameterSize( ); i++ )
-                {
-                    observationLinkParameterIndices_.push_back( parameterIterator->first + i );
-                }
-            }
-        }
+        //        std::map< int, boost::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > > vectorParameters =
+        //                parametersToEstimate_->getVectorParameters( );
+        //        for( std::map< int, boost::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > >::iterator
+        //             parameterIterator = vectorParameters.begin( ); parameterIterator != vectorParameters.end( ); parameterIterator++ )
+        //        {
+        //            if( estimatable_parameters::isParameterObservationLinkProperty(
+        //                        parameterIterator->second->getParameterName( ).first ) )
+        //            {
+        //                for( int i = 0; i < parameterIterator->second->getParameterSize( ); i++ )
+        //                {
+        //                    observationLinkParameterIndices_.push_back( parameterIterator->first + i );
+        //                }
+        //            }
+        //        }
 
     }
 
@@ -870,7 +914,7 @@ protected:
     //! Current values of the vector of estimated parameters
     ParameterVectorType currentParameterEstimate_;
 
-    std::vector< int > observationLinkParameterIndices_;
+    //std::vector< int > observationLinkParameterIndices_;
 
     //! Object used to interpolate the numerically integrated result of the state transition/sensitivity matrices.
     boost::shared_ptr< propagators::CombinedStateTransitionAndSensitivityMatrixInterface >

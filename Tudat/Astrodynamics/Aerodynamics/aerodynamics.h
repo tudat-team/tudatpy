@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -72,7 +72,7 @@ inline Eigen::Vector6d concatenateForceAndMomentCoefficients(
         momentCoefficientFunction,
         const std::vector< double >& independentVariables )
 {
-    return ( Eigen::Vector6d( )<<forceCoefficientFunction( independentVariables ),
+    return ( Eigen::Vector6d( ) << forceCoefficientFunction( independentVariables ),
              momentCoefficientFunction( independentVariables ) ).finished( );
 }
 

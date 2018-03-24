@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -14,7 +14,7 @@
  *      The required kernels are:
  *           de421.bsp
  *           pck00009.tpc
- *           naif0009.tls
+ *           naif0012.tls
  *           de-403-masses.tpc
  *      They can be found in a single zip file on the wiki at
  *      http://tudat.tudelft.nl/projects/tudat/wiki/SpiceInterface/ on the Tudat website or,
@@ -27,7 +27,6 @@
 #include <boost/test/unit_test.hpp>
 #include <boost/make_shared.hpp>
 #include <boost/bind.hpp>
-#include <boost/exception/all.hpp>
 #include <boost/function.hpp>
 #include <boost/shared_ptr.hpp>
 
@@ -40,7 +39,6 @@
 #include "Tudat/External/SpiceInterface/spiceRotationalEphemeris.h"
 
 #include <limits>
-#include <iostream>
 #include <stdexcept>
 
 namespace tudat
@@ -59,36 +57,8 @@ BOOST_AUTO_TEST_CASE( testSpiceWrappers_1 )
     using namespace input_output;
     using namespace physical_constants;
 
-    // Check if spice kernels exist.
-    if ( !boost::filesystem::exists( getSpiceKernelPath( ) + "de421.bsp" ) )
-    {        
-        std::cerr << "SPICE kernel de421.bsp not found in "<<getSpiceKernelPath( )
-                  << std::endl;
-    }
-
-    if ( !boost::filesystem::exists( getSpiceKernelPath( ) + "pck00009.tpc" ) )
-    {
-        std::cerr << "SPICE kernel pck00009.tpc not found in "<<getSpiceKernelPath( )
-                  << std::endl;
-    }
-
-    if ( !boost::filesystem::exists( getSpiceKernelPath( ) + "naif0009.tls" ) )
-    {
-        std::cerr << "SPICE kernel naif0009.tls not found in "<<getSpiceKernelPath( )
-                  << std::endl;
-    }
-
-    if ( !boost::filesystem::exists( getSpiceKernelPath( ) + "de-403-masses.tpc" ) )
-    {
-        std::cerr << "SPICE kernel de-403-masses.tpc not found in "<<
-                     getSpiceKernelPath( )<< std::endl;
-    }
-
     // Load spice kernels.
-    loadSpiceKernelInTudat( getSpiceKernelPath( ) + "pck00009.tpc" );
-    loadSpiceKernelInTudat( getSpiceKernelPath( ) + "de-403-masses.tpc" );
-    loadSpiceKernelInTudat( getSpiceKernelPath( ) + "de421.bsp" );
-    loadSpiceKernelInTudat( getSpiceKernelPath( ) + "naif0009.tls" );
+    spice_interface::loadStandardSpiceKernels( );
 
     // Exact ephemeris time at J2000.
     const double ephemerisTimeOneYearAfterJ2000 = JULIAN_YEAR;
@@ -122,7 +92,7 @@ BOOST_AUTO_TEST_CASE( testSpiceWrappers_2 )
     using namespace physical_constants;
 
     // Create settings at which states are to be evaluated.
-    const std::string abberationCorrections = "NONE";
+    const std::string aberrationCorrections = "NONE";
     const std::string observer = "Solar System Barycenter";
     const std::string target = "Mars";
     const std::string referenceFrame = "J2000";
@@ -130,17 +100,17 @@ BOOST_AUTO_TEST_CASE( testSpiceWrappers_2 )
 
     // Get state from wrapper for state:
     const Eigen::Vector6d wrapperState = getBodyCartesianStateAtEpoch(
-                target, observer, referenceFrame, abberationCorrections, ephemerisTime );
+                target, observer, referenceFrame, aberrationCorrections, ephemerisTime );
 
     // Get position from wrapper for position:
     const Eigen::Vector3d wrapperPosition = getBodyCartesianPositionAtEpoch(
-                target, observer, referenceFrame, abberationCorrections, ephemerisTime );
+                target, observer, referenceFrame, aberrationCorrections, ephemerisTime );
 
     // Get state directly from spice.
     double directSpiceState[ 6 ];
     double directLightTime;
     spkezr_c( target.c_str( ), ephemerisTime, referenceFrame.c_str( ),
-              abberationCorrections.c_str( ), observer.c_str( ),
+              aberrationCorrections.c_str( ), observer.c_str( ),
               directSpiceState, &directLightTime );
 
     // Compare direct and wrapped results for state.
@@ -302,7 +272,7 @@ BOOST_AUTO_TEST_CASE( testSpiceWrappers_4 )
     double sunGravitationalParameterSpice = getBodyGravitationalParameter( "Sun" );
 
     // Set Sun's gravitational parameter as read manually from kernel.
-    const double sunGravitationalParameter = 132712440023.310 * 1.0e9;
+    const double sunGravitationalParameter = 132712440041.9393 * 1.0e9;
 
     // Check if results are the same.
     BOOST_CHECK_CLOSE_FRACTION( sunGravitationalParameterSpice, sunGravitationalParameter,
@@ -344,7 +314,7 @@ BOOST_AUTO_TEST_CASE( testSpiceWrappers_5 )
     using namespace ephemerides;
 
     // Create settings at which states are to be evaluated.
-    std::string abberationCorrections = "NONE";
+    std::string aberrationCorrections = "NONE";
     const std::string observer = "Moon";
     const std::string target = "Mars";
     const std::string referenceFrame = "IAU_EARTH";
@@ -357,34 +327,34 @@ BOOST_AUTO_TEST_CASE( testSpiceWrappers_5 )
 
     // Check calculated state with no aberration corrections.
     directState = getBodyCartesianStateAtEpoch( target, observer, referenceFrame,
-                                                abberationCorrections, ephemerisTime );
+                                                aberrationCorrections, ephemerisTime );
     ephemerisState = spiceEphemeris.getCartesianState( ephemerisTime );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( directState, ephemerisState,
                                        std::numeric_limits< double >::epsilon( ) );
 
     // Check calculated state with light time correction.
     spiceEphemeris = SpiceEphemeris( target, observer, 0, 1, 0, referenceFrame );
-    abberationCorrections = "LT";
+    aberrationCorrections = "LT";
     directState = getBodyCartesianStateAtEpoch( target, observer, referenceFrame,
-                                                abberationCorrections, ephemerisTime );
+                                                aberrationCorrections, ephemerisTime );
     ephemerisState = spiceEphemeris.getCartesianState( ephemerisTime );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( directState, ephemerisState,
                                        std::numeric_limits< double >::epsilon( ) );
 
     // Check calculated state with converged light time correction.
     spiceEphemeris = SpiceEphemeris( target, observer, 0, 1, 1, referenceFrame );
-    abberationCorrections = "CN";
+    aberrationCorrections = "CN";
     directState = getBodyCartesianStateAtEpoch( target, observer, referenceFrame,
-                                                abberationCorrections, ephemerisTime );
+                                                aberrationCorrections, ephemerisTime );
     ephemerisState = spiceEphemeris.getCartesianState( ephemerisTime );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( directState, ephemerisState,
                                        std::numeric_limits< double >::epsilon( ) );
 
     // Check calculated state with light time correction and stellar aberration.
     spiceEphemeris = SpiceEphemeris( target, observer, 1, 1, 0, referenceFrame );
-    abberationCorrections = "LT+S";
+    aberrationCorrections = "LT+S";
     directState = getBodyCartesianStateAtEpoch( target, observer, referenceFrame,
-                                                abberationCorrections, ephemerisTime );
+                                                aberrationCorrections, ephemerisTime );
     ephemerisState = spiceEphemeris.getCartesianState( ephemerisTime );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( directState, ephemerisState,
                                        std::numeric_limits< double >::epsilon( ) );
@@ -447,7 +417,7 @@ BOOST_AUTO_TEST_CASE( testSpiceWrappers_6 )
     using namespace physical_constants;
 
     // Create settings at which states are to be evaluated.
-    const std::string abberationCorrections = "NONE";
+    const std::string aberrationCorrections = "NONE";
     const std::string observer = "Solar System Barycenter";
     const std::string target = "Mars";
     const std::string referenceFrame = "ECLIPJ2000";
@@ -455,7 +425,7 @@ BOOST_AUTO_TEST_CASE( testSpiceWrappers_6 )
 
     // Get state from wrapper for state:
     const Eigen::Vector6d wrapperState = getBodyCartesianStateAtEpoch(
-                target, observer, referenceFrame, abberationCorrections,
+                target, observer, referenceFrame, aberrationCorrections,
                 convertJulianDateToEphemerisTime( julianDay ) );
 
     // Set state as retrieved from Horizons (see Issue wiki-knowledgebase-spice interface)
@@ -491,11 +461,7 @@ BOOST_AUTO_TEST_CASE( testSpiceWrappers_7 )
     BOOST_CHECK_EQUAL( spiceKernelsLoaded, 0 );
 
     // Load Spice kernels.
-    // Load spice kernels.
-    loadSpiceKernelInTudat( getSpiceKernelPath( ) + "de421.bsp" );
-    loadSpiceKernelInTudat( getSpiceKernelPath( ) + "pck00009.tpc" );
-    loadSpiceKernelInTudat( getSpiceKernelPath( ) + "naif0009.tls" );
-    loadSpiceKernelInTudat( getSpiceKernelPath( ) + "de-403-masses.tpc" );
+    spice_interface::loadStandardSpiceKernels( );
 
     // Get ammount of loaded Spice kernels.
     spiceKernelsLoaded = getTotalCountOfKernelsLoaded( );

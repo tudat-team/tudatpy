@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -15,18 +15,15 @@
 #include <boost/make_shared.hpp>
 #include <boost/shared_ptr.hpp>
 
-#include <Tudat/Astrodynamics/Aerodynamics/UnitTests/testApolloCapsuleCoefficients.h>
-#include <Tudat/Astrodynamics/BasicAstrodynamics/accelerationModel.h>
-
+#include "Tudat/Astrodynamics/Aerodynamics/UnitTests/testApolloCapsuleCoefficients.h"
+#include "Tudat/Astrodynamics/BasicAstrodynamics/accelerationModel.h"
 #include "Tudat/SimulationSetup/PropagationSetup/dynamicsSimulator.h"
-#include <Tudat/Astrodynamics/BasicAstrodynamics/unitConversions.h>
-#include <Tudat/External/SpiceInterface/spiceInterface.h>
-#include <Tudat/SimulationSetup/EnvironmentSetup/body.h>
+#include "Tudat/Astrodynamics/BasicAstrodynamics/unitConversions.h"
+#include "Tudat/External/SpiceInterface/spiceInterface.h"
+#include "Tudat/SimulationSetup/EnvironmentSetup/body.h"
 #include "Tudat/SimulationSetup/PropagationSetup/createNumericalSimulator.h"
-#include <Tudat/SimulationSetup/EnvironmentSetup/defaultBodies.h>
-#include <Tudat/InputOutput/basicInputOutput.h>
-
-#include <iostream>
+#include "Tudat/SimulationSetup/EnvironmentSetup/defaultBodies.h"
+#include "Tudat/InputOutput/basicInputOutput.h"
 #include <limits>
 #include <string>
 
@@ -114,10 +111,7 @@ void performSimulation( const int testType )
     using namespace input_output;
 
     // Load Spice kernels.
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "pck00009.tpc" );
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "de-403-masses.tpc" );
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "de421.bsp" );
-
+    spice_interface::loadStandardSpiceKernels( );
 
     // Set simulation start epoch.
     const double simulationStartEpoch = 0.0;

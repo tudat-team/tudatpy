@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -19,11 +19,7 @@
 #include <string>
 #include <vector>
 
-#include <boost/shared_ptr.hpp>
-#include <boost/test/unit_test.hpp>
-
 #include "Tudat/Basics/testMacros.h"
-#include "Tudat/InputOutput/solarActivityData.h"
 #include "Tudat/InputOutput/solarActivityData.h"
 #include "Tudat/InputOutput/parsedDataVectorUtilities.h"
 #include "Tudat/InputOutput/parseSolarActivityData.h"
@@ -50,7 +46,7 @@ SolarActivityData::SolarActivityData( ) : year( 0 ), month( 0 ), day( 0 ),
     planetaryEquivalentAmplitudeVector( Eigen::VectorXd::Zero( 8 ) ), dataType( 0 ) { }
 
 //! Overload ostream to print class information.
-std::ostream& operator<<( std::ostream& stream,
+std::ostream& operator << ( std::ostream& stream,
                           SolarActivityData& solarActivityData )
 {
     stream << "This is a Solar Activity data object." << std::endl;
@@ -61,7 +57,7 @@ std::ostream& operator<<( std::ostream& stream,
     stream << "Day: " << solarActivityData.day << std::endl;
     stream << "BSRN: " << solarActivityData.bartelsSolarRotationNumber << std::endl;
     stream << "ND: " << solarActivityData.dayOfBartelsCycle << std::endl;
-    stream << "Kp (0000-0300 UT): " << solarActivityData.planetaryRangeIndexVector(0)<< std::endl;
+    stream << "Kp (0000-0300 UT): " << solarActivityData.planetaryRangeIndexVector(0) << std::endl;
     stream << "Kp (0300-0600 UT): " << solarActivityData.planetaryRangeIndexVector(1) << std::endl;
     stream << "Kp (0600-0900 UT): " << solarActivityData.planetaryRangeIndexVector(2) << std::endl;
     stream << "Kp (0900-1200 UT): " << solarActivityData.planetaryRangeIndexVector(3) << std::endl;
@@ -81,7 +77,7 @@ std::ostream& operator<<( std::ostream& stream,
     stream << "Ap-average: " << solarActivityData.planetaryEquivalentAmplitudeAverage << std::endl;
     stream << "Cp: " << solarActivityData.planetaryDailyCharacterFigure << std::endl;
     stream << "C9: " << solarActivityData.planetaryDailyCharacterFigureConverted << std::endl;
-    stream << "ISN: "<< solarActivityData.internationalSunspotNumber << std::endl;
+    stream << "ISN: " << solarActivityData.internationalSunspotNumber << std::endl;
     stream << "F10.7 (Adjusted): " << solarActivityData.solarRadioFlux107Adjusted << std::endl;
     stream << "Q: " << solarActivityData.fluxQualifier << std::endl;
     stream << "Ctr81 (Adjusted): " << solarActivityData.centered81DaySolarRadioFlux107Adjusted << std::endl;

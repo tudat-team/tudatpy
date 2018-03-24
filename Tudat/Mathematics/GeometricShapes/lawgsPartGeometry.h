@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -15,8 +15,6 @@
 
 #ifndef TUDAT_LAWGS_PART_GEOMETRY_H
 #define TUDAT_LAWGS_PART_GEOMETRY_H
-
-#include <iostream>
 
 #include <boost/shared_ptr.hpp>
 
@@ -139,7 +137,7 @@ public:
      * \param lawgsPartGeometry Lawgs part geometry.
      * \return Stream object.
      */
-    friend std::ostream& operator<<( std::ostream& stream, LawgsPartGeometry& lawgsPartGeometry );
+    friend std::ostream& operator << ( std::ostream& stream, LawgsPartGeometry& lawgsPartGeometry );
 
 protected:
 

@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -36,9 +36,9 @@ void checkTranslationalStatesFeasibility(
             if( std::find( bodiesToIntegrate.begin( ), bodiesToIntegrate.end( ), ephemerisOrigin )
                 != bodiesToIntegrate.end( ) )
             {
-                std::cerr<< "Warning, found non-integrated body with an integrated body as ephemeris origin" +
-                            bodyIterator->second->getEphemeris( )->getReferenceFrameOrigin( ) + " " +
-                            bodyIterator->first<<std::endl;
+                std::cerr << "Warning, found non-integrated body with an integrated body as ephemeris origin" +
+                             bodyIterator->second->getEphemeris( )->getReferenceFrameOrigin( ) + " " +
+                             bodyIterator->first << std::endl;
             }
         }
 

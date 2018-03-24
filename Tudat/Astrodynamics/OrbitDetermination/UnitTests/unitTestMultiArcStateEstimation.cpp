@@ -1,3 +1,14 @@
+/*    Copyright (c) 2010-2018, Delft University of Technology
+ *    All rigths reserved
+ *
+ *    This file is part of the Tudat. Redistribution and use in source and
+ *    binary forms, with or without modification, are permitted exclusively
+ *    under the terms of the Modified BSD license. You should have received
+ *    a copy of the license with this file. If not, please or visit:
+ *    http://tudat.tudelft.nl/LICENSE.
+ *
+ */
+
 #define BOOST_TEST_MAIN
 
 #include <string>
@@ -20,7 +31,7 @@ namespace tudat
 {
 namespace unit_tests
 {
-BOOST_AUTO_TEST_SUITE( test_clock_parameter_estimation )
+BOOST_AUTO_TEST_SUITE( test_multi_arc_state_estimation )
 
 //Using declarations.
 using namespace tudat::observation_models;
@@ -41,10 +52,7 @@ Eigen::VectorXd  executeParameterEstimation(
 {
     //Load spice kernels.f
     std::string kernelsPath = input_output::getSpiceKernelPath( );
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "de-403-masses.tpc");
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "naif0009.tls");
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "pck00009.tpc");
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "de421.bsp");
+    spice_interface::loadStandardSpiceKernels( );
 
     //Define setting for total number of bodies and those which need to be integrated numerically.
     //The first numberOfNumericalBodies from the bodyNames vector will be integrated numerically.
@@ -80,7 +88,7 @@ Eigen::VectorXd  executeParameterEstimation(
     std::pair< std::string, std::string > grazStation = std::pair< std::string, std::string >( "Earth", "" );
     std::pair< std::string, std::string > mslStation = std::pair< std::string, std::string >( "Mars", "MarsStation" );
 
-    createGroundStation( bodyMap.at( "Mars" ), "MarsStation", ( Eigen::Vector3d( )<< 100.0, 0.5, 2.1 ).finished( ),
+    createGroundStation( bodyMap.at( "Mars" ), "MarsStation", ( Eigen::Vector3d( ) << 100.0, 0.5, 2.1 ).finished( ),
                          coordinate_conversions::geodetic_position );
 
     std::vector< std::pair< std::string, std::string > > groundStations;
@@ -234,7 +242,7 @@ Eigen::VectorXd  executeParameterEstimation(
 
 
     Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > truthParameters = initialParameterEstimate;
-    std::cout<<"Truth "<<std::setprecision( 16 )<<truthParameters.transpose( )<<std::endl;
+    std::cout << "Truth " << std::setprecision( 16 ) << truthParameters.transpose( ) << std::endl;
 
     for( unsigned int i = 0; i < numberOfNumericalBodies * integrationArcStartTimes.size( ); i++ )
     {
@@ -245,7 +253,8 @@ Eigen::VectorXd  executeParameterEstimation(
         initialParameterEstimate[ 4 + 6 * i ] += 1.0E-5;
         initialParameterEstimate[ 5 + 6 * i ] += 1.0E-5;
     }
-    for( unsigned int i = numberOfNumericalBodies * integrationArcStartTimes.size( ); i < initialParameterEstimate.rows( ); i++ )
+    for( unsigned int i = numberOfNumericalBodies * integrationArcStartTimes.size( );
+         i < static_cast< unsigned int >( initialParameterEstimate.rows( ) ); i++ )
     {
         initialParameterEstimate[ i ] *= ( 1.0 + 1.0E-6 );
     }
@@ -272,7 +281,7 @@ BOOST_AUTO_TEST_CASE( test_MultiArcStateEstimation )
                     testCase );
         int numberOfEstimatedArcs = ( parameterError.rows( ) - 3 ) / 6;
 
-        std::cout<<parameterError.transpose( )<<std::endl;
+        std::cout << parameterError.transpose( ) << std::endl;
         for( int i = 0; i < numberOfEstimatedArcs; i++ )
         {
             for( unsigned int j = 0; j < 3; j++ )

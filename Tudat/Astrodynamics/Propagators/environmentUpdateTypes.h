@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -25,7 +25,8 @@ namespace propagators
 //! Enum defining types of environment model updates that can be done.
 enum EnvironmentModelsToUpdate
 {
-    body_transational_state_update = 0,
+    body_translational_state_update = 0,
+    body_transational_state_update = body_translational_state_update,  // deprecated (typo)
     body_rotational_state_update = 1,
     body_mass_update = 2,
     spherical_harmonic_gravity_field_update = 3,

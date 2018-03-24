@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -193,7 +193,7 @@ public:
     //! Constructor.
     /*!
      *  Constructor.
-     *  \param densityScaleHeight Scale heigh for density profile of atmosphere.
+     *  \param densityScaleHeight Scale height for density profile of atmosphere.
      *  \param constantTemperature Constant atmospheric temperature.
      *  \param densityAtZeroAltitude Atmospheric density at ground level.
      *  \param specificGasConstant Specific gas constant for (constant) atmospheric chemical
@@ -310,7 +310,7 @@ private:
     /*!
      *  File containing atmospheric properties, file should contain
      *  four columns of atmospheric data with altitude, density, pressure and temperature,
-     *  respecrively.
+     *  respectively.
      */
     std::string atmosphereFile_;
 };

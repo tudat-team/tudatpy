@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -61,11 +61,11 @@ public:
      *  \param independentVariableNames Vector with identifiers the physical meaning of each
      *  independent variable of the aerodynamic coefficients.
      *  \param areCoefficientsInAerodynamicFrame Boolean to define whether the aerodynamic
-     *  coefficients are defined in the aerodynamic frame (lift, drag, side force) or in the body
+     *  coefficients are defined in the aerodynamic frame (drag, side, lift force) or in the body
      *  frame (typically denoted as Cx, Cy, Cz) (default true).
      *  \param areCoefficientsInNegativeAxisDirection Boolean to define whether the aerodynamic
      *  coefficients are positiver along tyhe positive axes of the body or aerodynamic frame
-     *  (see areCoefficientsInAerodynamicFrame). Note that for (lift, drag, side force), the
+     *  (see areCoefficientsInAerodynamicFrame). Note that for (drag, side, lift force), the
      *  coefficients are typically defined in negative direction (default true).
      */
     AerodynamicCoefficientGenerator(
@@ -179,8 +179,8 @@ public:
         {
             std::string errorMessage =
                     "Error in AerodynamicCoefficientGenerator, number of input variables is inconsistent " +
-                    boost::lexical_cast< std::string >( independentVariables.size( ) ) + ", " +
-                    boost::lexical_cast< std::string >( numberOfIndependentVariables_ );
+                    std::to_string( independentVariables.size( ) ) + ", " +
+                    std::to_string( numberOfIndependentVariables_ );
             throw std::runtime_error( errorMessage );
         }
 

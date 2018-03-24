@@ -1,4 +1,4 @@
- #    Copyright (c) 2010-2017, Delft University of Technology
+ #    Copyright (c) 2010-2018, Delft University of Technology
  #    All rigths reserved
  #
  #    This file is part of the Tudat. Redistribution and use in source and
@@ -33,6 +33,7 @@ set(ORBIT_DETERMINATION_HEADERS
   "${SRCROOT}${ORBITDETERMINATIONDIR}/orbitDeterminationManager.h"
   "${SRCROOT}${ORBITDETERMINATIONDIR}/podInputOutputTypes.h"
   "${SRCROOT}${ORBITDETERMINATIONDIR}/podProcessing.h"
+  "${SRCROOT}${ORBITDETERMINATIONDIR}/determinePostFitParameterInfluence.h"
   "${SRCROOT}${ORBITDETERMINATIONDIR}/UnitTests/orbitDeterminationTestCases.h"
 )
 
@@ -41,6 +42,8 @@ set(ORBIT_DETERMINATION_HEADERS
 add_library(tudat_orbit_determination STATIC ${ORBIT_DETERMINATION_SOURCES} ${ORBIT_DETERMINATION_HEADERS})
 setup_tudat_library_target(tudat_orbit_determination "${SRCROOT}{ORBITDETERMINATIONDIR}")
 
+if( COMPILE_PROPAGATION_TESTS )
+
 add_executable(test_EstimationFromPositionDoubleDouble "${SRCROOT}${ORBITDETERMINATIONDIR}/UnitTests/unitTestEstimationFromIdealDataDoubleDouble.cpp")
 setup_custom_test_program(test_EstimationFromPositionDoubleDouble "${SRCROOT}${ORBITDETERMINATIONDIR}")
 target_link_libraries(test_EstimationFromPositionDoubleDouble ${TUDAT_ESTIMATION_LIBRARIES} ${Boost_LIBRARIES})
@@ -48,6 +51,11 @@ target_link_libraries(test_EstimationFromPositionDoubleDouble ${TUDAT_ESTIMATION
 add_executable(test_EstimationInput "${SRCROOT}${ORBITDETERMINATIONDIR}/UnitTests/unitTestEstimationInput.cpp")
 setup_custom_test_program(test_EstimationInput "${SRCROOT}${ORBITDETERMINATIONDIR}")
 target_link_libraries(test_EstimationInput ${TUDAT_ESTIMATION_LIBRARIES} ${Boost_LIBRARIES})
+
+
+add_executable(test_TidalPropertyEstimation "${SRCROOT}${ORBITDETERMINATIONDIR}/UnitTests/unitTestTidalPropertyEstimation.cpp")
+setup_custom_test_program(test_TidalPropertyEstimation "${SRCROOT}${ORBITDETERMINATIONDIR}")
+target_link_libraries(test_TidalPropertyEstimation ${TUDAT_ESTIMATION_LIBRARIES} ${Boost_LIBRARIES})
 
 if( COMPILE_HIGH_ACCURACY_ESTIMATION_TESTS )
 
@@ -70,6 +78,12 @@ if( COMPILE_HIGH_ACCURACY_ESTIMATION_TESTS )
     add_executable(test_ParameterInfluenceDetermination "${SRCROOT}${ORBITDETERMINATIONDIR}/UnitTests/unitTestParameterInfluenceDetermination.cpp")
     setup_custom_test_program(test_ParameterInfluenceDetermination "${SRCROOT}${ORBITDETERMINATIONDIR}")
     target_link_libraries(test_ParameterInfluenceDetermination ${TUDAT_ESTIMATION_LIBRARIES} ${Boost_LIBRARIES})
+
+    add_executable(test_BiasEstimation "${SRCROOT}${ORBITDETERMINATIONDIR}/UnitTests/unitTestBiasEstimation.cpp")
+    setup_custom_test_program(test_BiasEstimation "${SRCROOT}${ORBITDETERMINATIONDIR}")
+    target_link_libraries(test_BiasEstimation ${TUDAT_ESTIMATION_LIBRARIES} ${Boost_LIBRARIES})
+endif( )
+
 endif( )
 
 

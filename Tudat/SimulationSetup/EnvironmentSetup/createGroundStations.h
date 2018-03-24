@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -19,6 +19,42 @@ namespace tudat
 
 namespace simulation_setup
 {
+
+class GroundStationSettings
+{
+public:
+    GroundStationSettings(
+            const std::string& stationName,
+            const Eigen::Vector3d& groundStationPosition,
+            const coordinate_conversions::PositionElementTypes positionElementType =
+            coordinate_conversions::cartesian_position ):
+        stationName_( stationName ),
+        groundStationPosition_( groundStationPosition ),
+        positionElementType_( positionElementType ){ }
+
+    std::string getStationName( )
+    {
+        return stationName_;
+    }
+
+    Eigen::Vector3d getGroundStationPosition( )
+    {
+        return groundStationPosition_;
+    }
+
+    coordinate_conversions::PositionElementTypes getPositionElementType( )
+    {
+        return positionElementType_;
+    }
+
+protected:
+
+    std::string stationName_;
+
+    Eigen::Vector3d groundStationPosition_;
+
+    coordinate_conversions::PositionElementTypes positionElementType_;
+};
 
 //! Function to create a ground station from pre-defined station state object, and add it to a Body object
 /*!
@@ -60,6 +96,11 @@ void createGroundStations(
         const std::map< std::pair< std::string, std::string >, Eigen::Vector3d >& groundStationsWithPosition,
         const coordinate_conversions::PositionElementTypes positionElementType =
         coordinate_conversions::cartesian_position );
+
+void createGroundStation(
+        const boost::shared_ptr< Body >& body,
+        const std::string& bodyName,
+        const boost::shared_ptr< GroundStationSettings > groundStationSettings );
 
 
 } // namespace simulation_setup

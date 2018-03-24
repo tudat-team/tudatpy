@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -10,8 +10,6 @@
 
 #ifndef TUDAT_EMPIRICALACCELERATIONPARTIAL_H
 #define TUDAT_EMPIRICALACCELERATIONPARTIAL_H
-
-#include <iostream>
 
 #include <boost/function.hpp>
 #include <boost/lambda/lambda.hpp>
@@ -51,7 +49,7 @@ public:
             std::string acceleratedBody,
             std::string acceleratingBody ):
         AccelerationPartial( acceleratedBody, acceleratingBody, basic_astrodynamics::empirical_acceleration ),
-        empiricalAcceleration_( empiricalAcceleration ){ cartesianStateElementPerturbations<<0.1, 0.1, 0.1, 0.001, 0.001, 0.001; }
+        empiricalAcceleration_( empiricalAcceleration ){ cartesianStateElementPerturbations << 0.1, 0.1, 0.1, 0.001, 0.001, 0.001; }
 
     //! Function for calculating the partial of the acceleration w.r.t. the position of body undergoing acceleration..
     /*!

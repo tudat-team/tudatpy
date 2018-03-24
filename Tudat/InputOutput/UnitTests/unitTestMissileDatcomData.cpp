@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -20,8 +20,6 @@
 
 #include <boost/test/floating_point_comparison.hpp>
 #include <boost/test/unit_test.hpp>
-#include <boost/lexical_cast.hpp>
-
 #include "Tudat/Basics/testMacros.h"
 #include "Tudat/InputOutput/matrixTextFileReader.h"
 
@@ -57,12 +55,12 @@ BOOST_AUTO_TEST_CASE( testMissileDatcomData )
     for ( int i = 0; i < 5; i++ )
     {
         // Read file just written
-        totalPath = outputFileName + "_" + boost::lexical_cast< std::string >( i );
+        totalPath = outputFileName + "_" + std::to_string( i );
         tudatFile = readMatrixFromFile( totalPath );
 
         // Read benchmark file
         totalPath = getTudatRootPath( ) + "InputOutput/UnitTests/benchmark_"
-                + boost::lexical_cast< std::string >( i );
+                + std::to_string( i );
         benchmarkFile = readMatrixFromFile( totalPath );
 
         // Iterate over all entries and check values.

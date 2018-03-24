@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -20,8 +20,7 @@
 #include <Eigen/SVD>
 #include <Eigen/Geometry>
 
-#include <Tudat/Basics/basicTypedefs.h>
-
+#include "Tudat/Basics/basicTypedefs.h"
 namespace tudat
 {
 
@@ -73,8 +72,13 @@ double computeAngleBetweenVectors( const Eigen::VectorXd& vector0,
  * \param vector1 Second vector.
  * \return Difference between vectors
  */
-Eigen::Vector3d computeVectorDifference( const Eigen::Vector3d& vector0,
-                                         const Eigen::Vector3d& vector1 );
+template< int VectorSize >
+Eigen::Matrix< double, VectorSize, 1 > computeVectorDifference(
+        const Eigen::Matrix< double, VectorSize, 1 >& vector0,
+        const Eigen::Matrix< double, VectorSize, 1 >& vector1 )
+{
+    return ( vector0 - vector1 );
+}
 
 //! Computes norm of the the difference between two 3d vectors.
 /*!

@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -18,6 +18,7 @@
 #include "Tudat/Astrodynamics/Gravitation/sphericalHarmonicsGravityModel.h"
 #include "Tudat/Astrodynamics/Gravitation/mutualSphericalHarmonicGravityModel.h"
 #include "Tudat/Astrodynamics/Gravitation/thirdBodyPerturbation.h"
+#include "Tudat/Astrodynamics/Gravitation/directTidalDissipationAcceleration.h"
 #include "Tudat/Astrodynamics/Aerodynamics/aerodynamicAcceleration.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/massRateModel.h"
 #include "Tudat/Astrodynamics/Propulsion/thrustAccelerationModel.h"
@@ -37,21 +38,25 @@ namespace basic_astrodynamics
 /*!
  *  List of accelerations available in simulations. Acceleration models not defined by this
  *  given enum cannot be used for automatic acceleration model setup.
+ *
  */
 enum AvailableAcceleration
 {
     undefined_acceleration,
-    central_gravity,
+    point_mass_gravity,
+    central_gravity = point_mass_gravity,  // deprecated
     aerodynamic,
     cannon_ball_radiation_pressure,
     spherical_harmonic_gravity,
     mutual_spherical_harmonic_gravity,
-    third_body_central_gravity,
+    third_body_point_mass_gravity,
+    third_body_central_gravity = third_body_point_mass_gravity,  // deprecated
     third_body_spherical_harmonic_gravity,
     third_body_mutual_spherical_harmonic_gravity,
     thrust_acceleration,
     relativistic_correction_acceleration,
-    empirical_acceleration
+    empirical_acceleration,
+    direct_tidal_dissipation_acceleration
 };
 
 //! Function to get a string representing a 'named identification' of an acceleration type

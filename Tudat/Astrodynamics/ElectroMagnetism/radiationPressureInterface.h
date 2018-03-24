@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -15,6 +15,7 @@
 #include <vector>
 
 #include <boost/function.hpp>
+#include <boost/lambda/lambda.hpp>
 
 #include <Eigen/Core>
 
@@ -73,7 +74,9 @@ public:
             const double sourceRadius = 0.0 ):
         sourcePower_( sourcePower ), sourcePositionFunction_( sourcePositionFunction ),
         targetPositionFunction_( targetPositionFunction ),
-        radiationPressureCoefficient_( radiationPressureCoefficient ), area_( area ),
+        radiationPressureCoefficient_( radiationPressureCoefficient ),
+        radiationPressureCoefficientFunction_( boost::lambda::constant( radiationPressureCoefficient ) ),
+        area_( area ),
         occultingBodyPositions_( occultingBodyPositions ),
         occultingBodyRadii_( occultingBodyRadii ),
         sourceRadius_( sourceRadius ),
@@ -152,14 +155,26 @@ public:
         return radiationPressureCoefficient_;
     }
 
-    //! Function to reset the radiation pressure coefficient of the target body.
+    //! Function to reset a constant radiation pressure coefficient of the target body.
     /*!
-     *  Function to reset the radiation pressure coefficient of the target body.
+     *  Function to reset a constant radiation pressure coefficient of the target body.
      *  \param radiationPressureCoefficient The new radiation pressure coefficient of the target body.
      */
     void resetRadiationPressureCoefficient( const double radiationPressureCoefficient )
     {
         radiationPressureCoefficient_ = radiationPressureCoefficient;
+        radiationPressureCoefficientFunction_ = boost::lambda::constant( radiationPressureCoefficient );
+    }
+
+    //! Function to reset the function to obtain the radiation pressure coefficient of the target body.
+    /*!
+     *  Function to reset the function to obtain the radiation pressure coefficient of the target body.
+     *  \param radiationPressureCoefficientFunction New function to obtain the radiation pressure coefficient of the target body.
+     */
+    void resetRadiationPressureCoefficientFunction(
+            const boost::function< double( const double ) > radiationPressureCoefficientFunction )
+    {
+        radiationPressureCoefficientFunction_ = radiationPressureCoefficientFunction;
     }
 
     //! Function to return the function returning the current total power (in W) emitted by the
@@ -231,6 +246,9 @@ protected:
 
     //! Radiation pressure coefficient of the target body.
     double radiationPressureCoefficient_;
+
+    //! Function to reset a constant radiation pressure coefficient of the target body.
+    boost::function< double( const double ) > radiationPressureCoefficientFunction_;
 
     //! Reflecting area of the target body.
     double area_;

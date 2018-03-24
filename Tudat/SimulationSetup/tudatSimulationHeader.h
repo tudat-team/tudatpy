@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -21,6 +21,7 @@
 #include "Tudat/Astrodynamics/ReferenceFrames/referenceFrameTransformations.h"
 
 #include "Tudat/InputOutput/basicInputOutput.h"
+#include "Tudat/InputOutput/mapTextFileReader.h"
 
 #include "Tudat/Mathematics/BasicMathematics/linearAlgebra.h"
 #include "Tudat/Basics/basicTypedefs.h"

@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -16,11 +16,10 @@
 #include <boost/make_shared.hpp>
 #include <boost/bind.hpp>
 
-#include <Tudat/Mathematics/BasicMathematics/leastSquaresEstimation.h>
-#include <Tudat/External/SpiceInterface/spiceInterface.h>
-#include <Tudat/SimulationSetup/tudatSimulationHeader.h>
-#include <Tudat/Mathematics/Statistics/basicStatistics.h>
-
+#include "Tudat/Mathematics/BasicMathematics/leastSquaresEstimation.h"
+#include "Tudat/External/SpiceInterface/spiceInterface.h"
+#include "Tudat/SimulationSetup/tudatSimulationHeader.h"
+#include "Tudat/Mathematics/Statistics/basicStatistics.h"
 namespace tudat
 {
 
@@ -153,7 +152,7 @@ void testSchwarzschildPropagation(
     {
         std::vector< double > fitOutput = linear_algebra::getLeastSquaresPolynomialFit(
                     elementMaps[ elementIndex ], polynomialPowers );
-        //std::cout<<theoreticalSchwarzschildPericenterPrecession<<" "<<fitOutput.at( 1 )<<std::endl;
+        //std::cout << theoreticalSchwarzschildPericenterPrecession << " " << fitOutput.at( 1 ) << std::endl;
         if( elementIndex != 1 )
         {
             BOOST_CHECK_CLOSE_FRACTION( asterixInitialStateInKeplerianElements( elementIndex ), fitOutput.at( 0 ), 1.0E-8 );
@@ -214,9 +213,7 @@ void testDeSitterPropagation(
 BOOST_AUTO_TEST_CASE( testLenseThirring )
 {
     // Load Spice kernels.
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "pck00009.tpc" );
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "de-403-masses.tpc" );
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "de421.bsp" );
+    spice_interface::loadStandardSpiceKernels( );
 
     // Set simulation end epoch.
     const double simulationEndEpoch = 0.25 * tudat::physical_constants::JULIAN_YEAR;

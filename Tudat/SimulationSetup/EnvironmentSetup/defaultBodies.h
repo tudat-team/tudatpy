@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -48,16 +48,18 @@ boost::shared_ptr< EphemerisSettings > getDefaultEphemerisSettings(
 //! Function to create default settings for a body's ephemeris.
 /*!
  *  Function to create default settings for a body's ephemeris. Currently set to a
- *  creating a 6th order Lagrange interpolator from Spice, with a 300 s time step.
+ *  creating a 6th order Lagrange interpolator from Spice.
  *  \param bodyName Name of body for which default ephemeris settings are to be retrieved.
  *  \param initialTime Start time at which ephemeris is to be created.
  *  \param finalTime End time up to which ephemeris is to be created.
+ *  \param timeStep Time step with which interpolated data from Spice should be created.
  *  \return Default settings for a body's ephemeris.
  */
 boost::shared_ptr< EphemerisSettings > getDefaultEphemerisSettings(
         const std::string& bodyName,
         const double initialTime,
-        const double finalTime );
+        const double finalTime,
+        const double timeStep = 300.0 );
 
 //! Function to create default settings for a body's gravity field model.
 /*!
@@ -139,11 +141,13 @@ boost::shared_ptr< RotationModelSettings > getDefaultRotationModelSettings(
  *  \param finalTime End time up to which environment models in body are to be created
  *  (included as some environment models require e.g., interpolators to be created over
  *  a certain time period).
+ *  \param timeStep Time step with which interpolated data from Spice should be created.
  */
 boost::shared_ptr< BodySettings > getDefaultSingleBodySettings(
         const std::string& body,
         const double initialTime,
-        const double finalTime );
+        const double finalTime,
+        const double timeStep = 300.0 );
 
 //! Function to create default settings from which to create a set of body objects.
 /*!
@@ -158,12 +162,14 @@ boost::shared_ptr< BodySettings > getDefaultSingleBodySettings(
  *  \param finalTime End time up to which environment models in body are to be created
  *  (included as some environment models require e.g., interpolators to be created over
  *  a certain time period).
+ *  \param timeStep Time step with which interpolated data from Spice should be created.
  *  \return Default settings from which to create a set of body objects.
  */
 std::map< std::string, boost::shared_ptr< BodySettings > > getDefaultBodySettings(
         const std::vector< std::string >& bodies,
         const double initialTime,
-        const double finalTime );
+        const double finalTime,
+        const double timeStep = 300.0 );
 
 //! Function to create default settings from which to create a set of body objects, without stringent limitations on
 //! time-interval of validity of environment.

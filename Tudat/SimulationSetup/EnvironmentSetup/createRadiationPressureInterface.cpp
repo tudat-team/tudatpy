@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -139,7 +139,7 @@ boost::shared_ptr< electro_magnetism::RadiationPressureInterface > createRadiati
     }
     default:
         throw std::runtime_error(
-                    "Error, radiation pressure type" + boost::lexical_cast< std::string >(
+                    "Error, radiation pressure type" + std::to_string(
                         radiationPressureInterfaceSettings->getRadiationPressureType( ) ) +
                     "not recognized for body" + bodyName );
     }

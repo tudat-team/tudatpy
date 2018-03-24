@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -46,7 +46,7 @@ TwoLineElementData::TwoLineElementData( )
 { }
 
 //! Overload ostream to print class information.
-std::ostream& operator<<( std::ostream& stream,
+std::ostream& operator << ( std::ostream& stream,
                           TwoLineElementData& twoLineElementData )
 {
 

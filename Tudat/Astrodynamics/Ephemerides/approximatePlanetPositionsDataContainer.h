@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -65,7 +65,7 @@ public:
      *          positions data container.
      * \return Stream object.
      */
-    friend std::ostream& operator<<( std::ostream& stream,
+    friend std::ostream& operator << ( std::ostream& stream,
                                      ApproximatePlanetPositionsDataContainer&
                                      approximatePlanetPositionsDataContainer )
     {
@@ -84,7 +84,7 @@ public:
         stream << "The longitude of perihelion in degrees is set to: "
                << approximatePlanetPositionsDataContainer.longitudeOfPerihelion_ << std::endl;
         stream << "The longitude of the ascending node in degrees is set to: "
-               << approximatePlanetPositionsDataContainer.longitudeOfAscendingNode_<< std::endl;
+               << approximatePlanetPositionsDataContainer.longitudeOfAscendingNode_ << std::endl;
         stream << "The rate of change of semi-major axis AU per century is set to: "
                << approximatePlanetPositionsDataContainer.rateOfChangeOfSemiMajorAxis_ << std::endl;
         stream << "The rate of change of eccentricity in radians per century is set to: "

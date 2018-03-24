@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -10,10 +10,9 @@
  */
 
 
-#include <boost/lexical_cast.hpp>
-
 #include "Tudat/Astrodynamics/BasicAstrodynamics/unitConversions.h"
 #include "Tudat/External/SpiceInterface/spiceInterface.h"
+#include "Tudat/InputOutput/basicInputOutput.h"
 
 namespace tudat
 {
@@ -45,7 +44,7 @@ double convertDateStringToEphemerisTime( const std::string& dateString )
 //! Get Cartesian state of a body, as observed from another body.
 Vector6d getBodyCartesianStateAtEpoch(
         const std::string& targetBodyName, const std::string& observerBodyName,
-        const std::string& referenceFrameName, const std::string& abberationCorrections,
+        const std::string& referenceFrameName, const std::string& aberrationCorrections,
         const double ephemerisTime )
 {
 
@@ -55,7 +54,7 @@ Vector6d getBodyCartesianStateAtEpoch(
 
     // Call Spice function to calculate state and light-time.
     spkezr_c( targetBodyName.c_str( ), ephemerisTime, referenceFrameName.c_str( ),
-              abberationCorrections.c_str( ), observerBodyName.c_str( ), stateAtEpoch,
+              aberrationCorrections.c_str( ), observerBodyName.c_str( ), stateAtEpoch,
               &lightTime );
 
     // Put result in Eigen Vector.
@@ -74,7 +73,7 @@ Vector6d getBodyCartesianStateAtEpoch(
 Eigen::Vector3d getBodyCartesianPositionAtEpoch( const std::string& targetBodyName,
                                                  const std::string& observerBodyName,
                                                  const std::string& referenceFrameName,
-                                                 const std::string& abberationCorrections,
+                                                 const std::string& aberrationCorrections,
                                                  const double ephemerisTime )
 {
     // Declare variables for cartesian position and light-time to be determined by Spice.
@@ -83,7 +82,7 @@ Eigen::Vector3d getBodyCartesianPositionAtEpoch( const std::string& targetBodyNa
 
     // Call Spice function to calculate position and light-time.
     spkpos_c( targetBodyName.c_str( ), ephemerisTime, referenceFrameName.c_str( ),
-              abberationCorrections.c_str( ), observerBodyName.c_str( ), positionAtEpoch,
+              aberrationCorrections.c_str( ), observerBodyName.c_str( ), positionAtEpoch,
               &lightTime );
 
     // Put result in Eigen Vector.
@@ -162,7 +161,7 @@ Eigen::Vector3d getAngularVelocityVectorOfFrameInOriginalFrame( const std::strin
     // Calculate angular velocity vector.
     xf2rav_c( stateTransition, rotation, angularVelocity );
 
-    return ( Eigen::Vector3d( )<<angularVelocity[ 0 ], angularVelocity[ 1 ], angularVelocity[ 2 ] ).
+    return ( Eigen::Vector3d( ) << angularVelocity[ 0 ], angularVelocity[ 1 ], angularVelocity[ 2 ] ).
             finished( );
 }
 
@@ -281,5 +280,25 @@ int getTotalCountOfKernelsLoaded( )
 //! Clear all Spice kernels.
 void clearSpiceKernels( ) { kclear_c( ); }
 
+void loadStandardSpiceKernels( const std::vector< std::string > alternativeEphemerisKernels  )
+{
+    std::string kernelPath = input_output::getSpiceKernelPath( );
+
+    loadSpiceKernelInTudat( kernelPath + "pck00010.tpc" );
+    loadSpiceKernelInTudat( kernelPath + "gm_de431.tpc" );
+
+    if( alternativeEphemerisKernels.size( ) == 0  )
+    {
+        loadSpiceKernelInTudat( kernelPath + "de430_small.bsp" );
+    }
+    else
+    {
+        for( unsigned int i = 0; i < alternativeEphemerisKernels.size( ); i++ )
+        {
+            loadSpiceKernelInTudat( alternativeEphemerisKernels.at( i ) );
+        }
+    }
+    loadSpiceKernelInTudat( kernelPath + "naif0012.tls" );
+}
 } // namespace spice_interface
 } // namespace tudat

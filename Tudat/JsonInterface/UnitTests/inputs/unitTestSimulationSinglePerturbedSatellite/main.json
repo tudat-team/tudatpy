@@ -1,0 +1,127 @@
+{
+  "initialEpoch": 0,
+  "finalEpoch": 3600,
+  "globalFrameOrigin": "SSB",
+  "globalFrameOrientation": "J2000",
+  "spice": {
+    "useStandardKernels": true
+  },
+  "bodies": {
+    "Sun": {
+      "useDefaultSettings": true
+    },
+    "Earth": {
+      "useDefaultSettings": true
+    },
+    "Moon": {
+      "useDefaultSettings": true
+    },
+    "Mars": {
+      "useDefaultSettings": true
+    },
+    "Venus": {
+      "useDefaultSettings": true
+    },
+    "asterix": {
+      "initialState": {
+        "semiMajorAxis": 7.5E+6,
+        "eccentricity": 0.1,
+        "inclination": 1.4888,
+        "argumentOfPeriapsis": 4.1137,
+        "longitudeOfAscendingNode": 0.4084,
+        "trueAnomaly": 2.4412,
+        "type": "keplerian"
+      },
+      "mass": 400,
+      "referenceArea": 4,
+      "aerodynamics": {
+        "forceCoefficients": [
+          1.2,
+          0,
+          0
+        ]
+      },
+      "radiationPressure": {
+        "Sun": {
+          "radiationPressureCoefficient": 1.2,
+          "occultingBodies": [
+            "Earth"
+          ]
+        }
+      }
+    }
+  },
+  "propagators": [
+    {
+      "centralBodies": [
+        "Earth"
+      ],
+      "accelerations": {
+        "asterix": {
+          "Earth": [
+            {
+              "maximumDegree": 5,
+              "maximumOrder": 5,
+              "type": "sphericalHarmonicGravity"
+            },
+            {
+              "type": "aerodynamic"
+            }
+          ],
+          "Sun": [
+            {
+              "type": "pointMassGravity"
+            },
+            {
+              "type": "cannonBallRadiationPressure"
+            }
+          ],
+          "Moon": [
+            {
+              "type": "pointMassGravity"
+            }
+          ],
+          "Mars": [
+            {
+              "type": "pointMassGravity"
+            }
+          ],
+          "Venus": [
+            {
+              "type": "pointMassGravity"
+            }
+          ]
+        }
+      },
+      "integratedStateType": "translational",
+      "bodiesToPropagate": [
+        "asterix"
+      ]
+    }
+  ],
+  "integrator": {
+    "type": "rungeKutta4",
+    "stepSize": 10
+  },
+    "export": [
+        {
+            "file": "kepler_output.dat",
+            "variables": [
+                {
+                    "body": "asterix",
+                    "dependentVariableType": "keplerElements",
+                    "relativeToBody": "Earth"
+                }
+            ]
+        },
+        {
+            "file": "cartesian_output.dat",
+            "variables": [
+                {
+                    "type": "state"
+                }
+            ]
+        }
+    ]
+}
+

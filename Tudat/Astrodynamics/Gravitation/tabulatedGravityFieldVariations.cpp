@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -69,7 +69,7 @@ void TabulatedGravityFieldVariations::resetCoefficientInterpolator(
         if( cosineIterator->first != sineIterator->first )
         {
             std::string errorMessage = "Error when resetting tabulated gravity field corrections, sine and cosine data time differ by" +
-                    boost::lexical_cast< std::string >(  cosineIterator->first - sineIterator->first );
+                    std::to_string(  cosineIterator->first - sineIterator->first );
             throw std::runtime_error( errorMessage );
         }
         // Check whether matrix sizes are consistent.

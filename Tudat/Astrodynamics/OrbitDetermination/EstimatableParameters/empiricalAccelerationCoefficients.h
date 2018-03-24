@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -161,6 +161,29 @@ public:
     int getParameterSize( )
     {
         return parameterSize_;
+    }
+
+    std::string getParameterDescription( )
+    {
+        std::string parameterDescription = ", components in RSW frame, functional shapes; ";
+
+        for( std::map< basic_astrodynamics::EmpiricalAccelerationFunctionalShapes, std::vector< int > >::const_iterator
+             indexIterator = accelerationIndices_.begin( ); indexIterator != accelerationIndices_.end( ); indexIterator++ )
+        {
+            parameterDescription += "(";
+            basic_astrodynamics::getEmpiricalAccelerationFunctionalShapeString( indexIterator->first ) + ": index ";
+            for( unsigned int i = 0; i < indexIterator->second.size( ); i++ )
+            {
+                parameterDescription += std::to_string( indexIterator->second.at( i ) );
+                if( i != indexIterator->second.size( ) - 1 )
+                {
+                    parameterDescription += ", ";
+                }
+            }
+            parameterDescription += ")";
+        }
+
+        return parameterDescription;
     }
 
     //! Function to retrieve list of components in empirical accelerations that are to be estimated.

@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -13,7 +13,6 @@
 #include <limits>
 #include <string>
 
-#include <boost/format.hpp>
 #include <boost/test/unit_test.hpp>
 #include <boost/make_shared.hpp>
 
@@ -50,11 +49,7 @@ double ignoreInputeVariable( boost::function< double( ) > inputFreeFunction, con
 BOOST_AUTO_TEST_CASE( testObservationNoiseModels )
 {
     //Load spice kernels.
-    std::string kernelsPath = input_output::getSpiceKernelPath( );
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "de-403-masses.tpc");
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "naif0009.tls");
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "pck00009.tpc");
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "de421.bsp");
+    spice_interface::loadStandardSpiceKernels( );
 
     // Define bodies in simulation
     std::vector< std::string > bodyNames;
@@ -73,9 +68,11 @@ BOOST_AUTO_TEST_CASE( testObservationNoiseModels )
                 spice_interface::computeRotationQuaternionBetweenFrames(
                     "ECLIPJ2000", "IAU_Earth", initialEphemerisTime ),
                 initialEphemerisTime, 2.0 * mathematical_constants::PI /
-                ( physical_constants::JULIAN_DAY + 40.0 * 60.0 ) );
+                ( physical_constants::JULIAN_DAY ) );
 
     NamedBodyMap bodyMap = createBodies( bodySettings );
+
+    setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );
 
     // Creatre ground stations: same position, but different representation
     std::vector< std::string > groundStationNames;
@@ -135,13 +132,13 @@ BOOST_AUTO_TEST_CASE( testObservationNoiseModels )
             boost::shared_ptr< ObservationBiasSettings > biasSettings;
             if( ( currentObservable == one_way_range ) && ( i == 0 ) )
             {
-                biasSettings = boost::make_shared< ConstantRelativeObservationBiasSettings >(
-                            Eigen::Vector1d::Constant( rangeBias1 ) );
+                biasSettings = boost::make_shared< ConstantObservationBiasSettings >(
+                            Eigen::Vector1d::Constant( rangeBias1 ), false );
             }
             else if( ( currentObservable == one_way_range ) && ( i == 1 ) )
             {
-                biasSettings = boost::make_shared< ConstantRelativeObservationBiasSettings >(
-                            Eigen::Vector1d::Constant( rangeBias2 ) );
+                biasSettings = boost::make_shared< ConstantObservationBiasSettings >(
+                            Eigen::Vector1d::Constant( rangeBias2 ), false );
             }
 
             // Create observation settings

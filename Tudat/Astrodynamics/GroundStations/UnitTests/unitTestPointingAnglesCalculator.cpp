@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -87,7 +87,7 @@ BOOST_AUTO_TEST_CASE( test_PointingAnglesCalculator )
             double testLongitude = 84.0 * degreesToRadians;
             double testRadius = 8.0E7;
             Eigen::Vector3d testSphericalPoint;
-            testSphericalPoint<<testRadius, mathematical_constants::PI / 2.0 - testLatitude, testLongitude;
+            testSphericalPoint << testRadius, mathematical_constants::PI / 2.0 - testLatitude, testLongitude;
             Eigen::Vector3d testCartesianPoint = coordinate_conversions::convertSphericalToCartesian( testSphericalPoint );
 
             // Compute azimuth/elevation angles from PointingAnglesCalculator
@@ -115,7 +115,7 @@ BOOST_AUTO_TEST_CASE( test_PointingAnglesCalculator )
             double testLongitude = 234.0 * degreesToRadians;
             double testRadius = 8.0E7;
             Eigen::Vector3d testSphericalPoint;
-            testSphericalPoint<<testRadius, mathematical_constants::PI / 2.0 - testLatitude, testLongitude;
+            testSphericalPoint << testRadius, mathematical_constants::PI / 2.0 - testLatitude, testLongitude;
             Eigen::Vector3d testCartesianPoint = coordinate_conversions::convertSphericalToCartesian( testSphericalPoint );
 
             // Compute azimuth/elevation angles from PointingAnglesCalculator
@@ -168,7 +168,7 @@ BOOST_AUTO_TEST_CASE( test_PointingAnglesCalculator )
                 stationState->getRotationFromBodyFixedToTopocentricFrame( 0.0 ) * inertialToBodyFixedFrame *
                 testCartesianPoint ;
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                    testPointInLocalFrame, expectedTestPointInLocalFrame, std::numeric_limits< double >::epsilon( ) );
+                    testPointInLocalFrame, expectedTestPointInLocalFrame, ( 10.0 * std::numeric_limits< double >::epsilon( ) ) );
     }
 
 }

@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -80,6 +80,7 @@ protected:
 
     //! Last time at which the updateMembers was evaluated (or NaN if next call is to recompute torque).
     double currentTime_;
+
 private:
 
 };

@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -23,12 +23,14 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/trim.hpp>
 #include <boost/algorithm/string/trim_all.hpp>
-#include <boost/format.hpp>
 #include <boost/iostreams/device/file.hpp>
 #include <boost/iostreams/copy.hpp>
 #include <boost/iostreams/filtering_stream.hpp>
 #include <boost/lexical_cast.hpp>
 
+#include <Eigen/Core>
+
+#include "Tudat/InputOutput/matrixTextFileReader.h"
 #include "Tudat/InputOutput/streamFilters.h"
 
 
@@ -38,7 +40,56 @@ namespace tudat
 namespace input_output
 {
 
-//! Read the file and return the data map.
+//! Read a map of Eigen vectors from a text file.
+/*!
+ * Read a textfile whith separated (space, tab, comma etc...) values.
+ * The first element of each line is a key.
+ * Successive elements in the current line are the associated values, converted to Eigen column vector.
+ * \remarks The scalar type of `EigenVectorType` is used for the keys of the returned map.
+ * \param relativePath Relative path to file.
+ * \param separators Separators used, every character in the string will be used as separators.
+ *         (multiple seperators possible).
+ * \param skipLinesCharacter Skip lines starting with this character.
+ * \return The map with data as read from the file.
+ */
+template< typename EigenVectorType = Eigen::VectorXd >
+std::map< typename EigenVectorType::Scalar, EigenVectorType > readEigenVectorMapFromFile(
+        const std::string& relativePath,
+        const std::string& separators = "\t ;,",
+        const std::string& skipLinesCharacter = "%" )
+{
+    // Load data into matrix
+    Eigen::Matrix< typename EigenVectorType::Scalar, Eigen::Dynamic, Eigen::Dynamic > matrix =
+            readMatrixFromFile< typename EigenVectorType::Scalar >( relativePath, separators, skipLinesCharacter );
+
+    // Fill map using Eigen matrix
+    std::map< typename EigenVectorType::Scalar, EigenVectorType > map;
+    for ( int i = 0; i < matrix.rows( ); i++ )
+    {
+        const Eigen::Matrix< typename EigenVectorType::Scalar, Eigen::Dynamic, 1 > dynamicSizeColumnVector =
+                matrix.row( i ).rightCols( matrix.cols( ) - 1 ).transpose( );
+        EigenVectorType columnVector;
+        if ( columnVector.rows( ) == 0 )
+        {
+            columnVector = EigenVectorType( dynamicSizeColumnVector.rows( ) );
+        }
+        else if ( dynamicSizeColumnVector.rows( ) != columnVector.rows( ) )
+        {
+            std::cerr << "The size of the vectors in \"" << relativePath << "\" (" << dynamicSizeColumnVector.rows( )
+                      << ") is not consistent with the requested size (" << columnVector.rows( ) << ")." << std::endl;
+            throw;
+        }
+        for ( int j = 0; j < columnVector.rows( ); j++ )
+        {
+            columnVector( j ) = dynamicSizeColumnVector( j );
+        }
+        map[ matrix( i, 0 ) ] = columnVector;
+    }
+    return map;
+}
+
+
+//! Read a map of std vector from a text file.
 /*!
  * Read a textfile whith separated (space, tab, comma etc...) values.
  * The first element of each line is a key.

@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -74,9 +74,8 @@ boost::shared_ptr< GravityFieldSettings > getPhobosGravityFieldSettings( )
 boost::shared_ptr< GravityFieldSettings > getMarsGravityFieldSettings( )
 {
     std::pair< Eigen::MatrixXd, Eigen::MatrixXd > coefficients;
-    std::pair< double, double > moonGravityFieldSettings =
-            readGravityFieldFile( input_output::getTudatRootPath( ) + "Astrodynamics/Gravitation/gglp_lpe200_sha.tab",
-                                  50, 50, coefficients, 1, 0 );
+    std::pair< double, double > moonGravityFieldSettings = readGravityFieldFile(
+                input_output::getGravityModelsPath( ) + "Moon/lpe200.txt", 50, 50, coefficients, 0, 1 );
 
     return boost::make_shared< SphericalHarmonicsGravityFieldSettings >
             ( moonGravityFieldSettings.first, moonGravityFieldSettings.second,
@@ -87,14 +86,7 @@ boost::shared_ptr< GravityFieldSettings > getMarsGravityFieldSettings( )
 BOOST_AUTO_TEST_CASE( testMutualSphericalHarmonicGravityPartials )
 {
     // Load spice kernel.
-    std::string kernelsPath = input_output::getSpiceKernelPath( );
-
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "pck00009.tpc");
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "de-403-masses.tpc");
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "de421.bsp");
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "mar097short.bsp");
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "naif0009.tls");
-
+    spice_interface::loadStandardSpiceKernels( { input_output::getSpiceKernelPath( ) + "de430_mar097_small.bsp" } );
 
     std::vector< std::string > bodyList;
     bodyList.push_back( "Sun" );
@@ -300,9 +292,9 @@ BOOST_AUTO_TEST_CASE( testMutualSphericalHarmonicGravityPartials )
 
         // Set perturbations in position and velocity for numerical partial
         Eigen::Vector3d positionPerturbation;
-        positionPerturbation<< 100.0, 100.0, 100.0;
+        positionPerturbation << 100.0, 100.0, 100.0;
         Eigen::Vector3d velocityPerturbation;
-        velocityPerturbation<< 1.0, 1.0, 1.0;
+        velocityPerturbation << 1.0, 1.0, 1.0;
 
         // Calculate numerical partials.
         Eigen::Matrix3d testPartialWrtPhobosPosition = calculateAccelerationWrtStatePartials(
@@ -315,9 +307,9 @@ BOOST_AUTO_TEST_CASE( testMutualSphericalHarmonicGravityPartials )
                     marsStateSetFunction, accelerationModel, mars->getState( ), velocityPerturbation, 3 );
 
         Eigen::Vector3d testPartialWrtMarsGravitationalParameter = calculateAccelerationWrtParameterPartials(
-                    marsGravitationalParameterObject, accelerationModel, 1.0E12 );
+                    marsGravitationalParameterObject, accelerationModel, 1.0E14 );
         Eigen::Vector3d testPartialWrtPhobosGravitationalParameter = calculateAccelerationWrtParameterPartials(
-                    phobosGravitationalParameterObject, accelerationModel, 1.0E12 );
+                    phobosGravitationalParameterObject, accelerationModel, 1.0E14 );
 
         Eigen::Vector3d testPartialWrtMarsRotationRate = calculateAccelerationWrtParameterPartials(
                     marsRotationRate, accelerationModel, 1.0E-9, &emptyFunction, 1.0E6, boost::bind(

@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -60,6 +60,27 @@ void createGroundStations(
         }
     }
 }
+
+void createGroundStation(
+        const boost::shared_ptr< Body >& body,
+        const std::string& bodyName,
+        const boost::shared_ptr< GroundStationSettings > groundStationSettings )
+{
+
+    if( body->getGroundStationMap( ).count( groundStationSettings->getStationName( ) ) != 0 )
+    {
+        throw std::runtime_error(
+                    "Error when creating ground station " + groundStationSettings->getStationName( ) +
+                    " on body " + bodyName + ", station already exists." );
+    }
+    else
+    {
+        createGroundStation( body, groundStationSettings->getStationName( ),
+                             groundStationSettings->getGroundStationPosition( ),
+                             groundStationSettings->getPositionElementType( ) );
+    }
+}
+
 
 }
 

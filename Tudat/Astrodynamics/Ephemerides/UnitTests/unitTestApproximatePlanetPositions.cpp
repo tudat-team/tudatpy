@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -129,8 +129,8 @@ BOOST_AUTO_TEST_SUITE_END( )
 //        isApproximatePlanetPositionsErroneous = true;
 
 //        // Generate error statements.
-//        cerr << "The computed relative error in position of the  "<< endl;
-//        cerr << "coplanar circular position of Mars ( " << errorSemiMajorAxis << " )"<< endl;
+//        cerr << "The computed relative error in position of the  " << endl;
+//        cerr << "coplanar circular position of Mars ( " << errorSemiMajorAxis << " )" << endl;
 //        cerr << "using the ApproximatePlanetPositionsCircularCoplanar class, exceeds "
 //             << "the maximum expected error " << endl;
 //        cerr << "( " << errorTolerance_ << " )." << endl;
@@ -150,7 +150,7 @@ BOOST_AUTO_TEST_SUITE_END( )
 //        isApproximatePlanetPositionsErroneous = true;
 
 //        // Generate error statements.
-//        cerr << "The computed error in position vector of the  "<< endl;
+//        cerr << "The computed error in position vector of the  " << endl;
 //        cerr << "coplanar circular position of Mars ( "
 //             << errorPositionVector << " meters )" << endl;
 //        cerr << "using the ApproximatePlanetPositionsCircularCoplanar class, exceeds "
@@ -177,7 +177,7 @@ BOOST_AUTO_TEST_SUITE_END( )
         isApproximatePlanetPositionsErroneous = true;
 
         // Generate error statements.
-        cerr << "The computed error in velocity of the "<< endl;
+        cerr << "The computed error in velocity of the " << endl;
         cerr << "coplanar circular position of Mars "
              << "( " << errorVelocity.norm( ) << " meters per second )" << endl;
         cerr << "using the ApproximatePlanetPositionsCircularCoplanar class, exceeds "

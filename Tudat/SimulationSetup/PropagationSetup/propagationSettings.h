@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -18,8 +18,6 @@
 #include <unordered_map>
 
 #include <boost/make_shared.hpp>
-#include <boost/lexical_cast.hpp>
-
 #include <Eigen/Core>
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/accelerationModelTypes.h"
@@ -31,6 +29,9 @@
 #include "Tudat/Astrodynamics/Propagators/nBodyStateDerivative.h"
 #include "Tudat/SimulationSetup/PropagationSetup/propagationOutputSettings.h"
 #include "Tudat/SimulationSetup/PropagationSetup/propagationTerminationSettings.h"
+#include "Tudat/SimulationSetup/PropagationSetup/createAccelerationModels.h"
+#include "Tudat/SimulationSetup/PropagationSetup/createTorqueModel.h"
+#include "Tudat/SimulationSetup/PropagationSetup/createMassRateModels.h"
 
 namespace tudat
 {
@@ -97,6 +98,21 @@ public:
     {
         return isMultiArc_;
     }
+
+    //! Function to create the integrated state models (e.g. acceleration/torque/mass-rate models).
+    /*!
+     * Function to create the integrated state models (e.g. acceleration/torque/mass-rate models).
+     *
+     * Derived classes must provide an implementation for this method. This function will use the provided
+     * body map and the member containing the acceleration/torque/mass-rate settings to create the
+     * actual models and assign them to the corresponding model map members.
+     *
+     * The implementation for MultiArc and MultiType (hybrid state) propagations will call the
+     * `resetIntegratedStateModels` method of each of the fundamental propagators that they contain.
+     *
+     * \param bodyMap Map of bodies in the propagation, with keys the names of the bodies.
+     */
+    virtual void resetIntegratedStateModels( const simulation_setup::NamedBodyMap& bodyMap ) = 0;
 
 
 protected:
@@ -183,6 +199,17 @@ public:
         return dependentVariablesToSave_;
     }
 
+    //! Function to reset settings for the dependent variables that are to be saved during propagation
+    /*!
+     * Function to reset settings for the dependent variables that are to be saved during propagation.
+     * \param dependentVariablesToSave Settings for the dependent variables that are to be saved during propagation.
+     */
+    void resetDependentVariablesToSave(
+            const boost::shared_ptr< DependentVariableSaveSettings >& dependentVariablesToSave )
+    {
+        dependentVariablesToSave_ = dependentVariablesToSave;
+    }
+
     //! Function to retrieve how often the current state and time are to be printed to console
     /*!
      * Function to retrieve how often the current state and time are to be printed to console
@@ -192,6 +219,18 @@ public:
     {
         return printInterval_;
     }
+
+    //! Function to modify settings for creating the object that checks whether the propagation is finished.
+    /*!
+     * Function to modify settings for creating the object that checks whether the propagation is finished.
+     * \param terminationSettings new settings for creating the object that checks whether the propagation is finished.
+     */
+    void setTerminationSettings(
+            boost::shared_ptr< PropagationTerminationSettings > terminationSettings )
+    {
+        terminationSettings_ = terminationSettings;
+    }
+
 
 
 protected:
@@ -341,6 +380,24 @@ public:
         return initialStateList_;
     }
 
+    //! Function to create the integrated state models (e.g. acceleration/torque/mass-rate models).
+    /*!
+     * Function to create the integrated state models (e.g. acceleration/torque/mass-rate models) for
+     * each fo the propagators existing in each propagation arc.
+     * \param bodyMap Map of bodies in the propagation, with keys the names of the bodies.
+     */
+    virtual void resetIntegratedStateModels( const simulation_setup::NamedBodyMap& bodyMap )
+    {
+        for ( boost::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > singleArcSettings :
+              singleArcSettings_ )
+        {
+            if ( singleArcSettings )
+            {
+                singleArcSettings->resetIntegratedStateModels( bodyMap );
+            }
+        }
+    }
+
     //! Function to reset the initial state used as input for numerical integration
     /*!
      * Function to reset the initial state used as input for numerical integration
@@ -350,7 +407,7 @@ public:
     {
         if( this->stateSize_ != this->initialStates_.rows( ) )
         {
-            std::cerr<<"Warning when resetting multi-arc initial states, size is incomparible with original size."<<std::endl;
+            std::cerr << "Warning when resetting multi-arc initial states, size is incomparible with original size." << std::endl;
         }
 
         this->initialStates_ = initialBodyStates;
@@ -374,7 +431,7 @@ public:
     {
         if( initialStateList_.size( ) != initialStateList.size( ) )
         {
-            std::cerr<<"Warning when resetting multi-arc initial state list, size is incomparible with original size."<<std::endl;
+            std::cerr << "Warning when resetting multi-arc initial state list, size is incomparible with original size." << std::endl;
         }
 
         initialStateList_ = initialStateList;
@@ -467,6 +524,12 @@ public:
                 multiArcPropagatorSettings_->getInitialStates( );
     }
 
+    void resetIntegratedStateModels( const simulation_setup::NamedBodyMap& bodyMap )
+    {
+        singleArcPropagatorSettings_->resetIntegratedStateModels( bodyMap );
+        multiArcPropagatorSettings_->resetIntegratedStateModels( bodyMap );
+    }
+
 protected:
 
     //! Settings for single-arc propagation component
@@ -493,9 +556,9 @@ class TranslationalStatePropagatorSettings: public SingleArcPropagatorSettings< 
 {
 public:
 
-    //! Constructor for generic stopping conditions.
+    //! Constructor for generic stopping conditions, providing an alreay-created accelerations map.
     /*!
-     * Constructor for generic stopping conditions.
+     * Constructor for generic stopping conditions, providing an alreay-created accelerations map.
      * \param centralBodies List of bodies w.r.t. which the bodies in bodiesToIntegrate_ are propagated.
      * \param accelerationsMap A map containing the list of accelerations acting on each body, identifying
      *  the body being acted on and the body acted on by an acceleration. The map has as key a string denoting
@@ -523,12 +586,47 @@ public:
         SingleArcPropagatorSettings< StateScalarType >( transational_state, initialBodyStates, terminationSettings,
                                                         dependentVariablesToSave, printInterval ),
         centralBodies_( centralBodies ),
-        accelerationsMap_( accelerationsMap ), bodiesToIntegrate_( bodiesToIntegrate ),
-        propagator_( propagator ){ }
+        bodiesToIntegrate_( bodiesToIntegrate ),
+        propagator_( propagator ),
+        accelerationsMap_( accelerationsMap ) { }
 
-    //! Constructor for fixed propagation time stopping conditions.
+    //! Constructor for generic stopping conditions, providing settings to create accelerations map.
     /*!
-     * Constructor for fixed propagation time stopping conditions.
+     * Constructor for generic stopping conditions, providing settings to create accelerations map.
+     * \param centralBodies List of bodies w.r.t. which the bodies in bodiesToIntegrate_ are propagated.
+     * \param accelerationSettingsMap A map containing settings for the accelerations acting on each body, identifying
+     *  the body being acted on and the body acted on by an acceleration. The map has as key a string denoting
+     *  the name of the body the list of accelerations, provided as the value corresponding to a key, is acting on.
+     *  This map-value is again a map with string as key, denoting the body exerting the acceleration, and as value
+     *  a pointer to an acceleration model.
+     * \param bodiesToIntegrate List of bodies for which the translational state is to be propagated.
+     * \param initialBodyStates Initial state used as input for numerical integration
+     * \param terminationSettings Settings for creating the object that checks whether the propagation is finished.
+     * \param propagator Type of translational state propagator to be used
+     * \param dependentVariablesToSave Settings for the dependent variables that are to be saved during propagation
+     * (default none).
+     * \param printInterval Variable indicating how often (once per printInterval_ seconds or propagation independenty
+     * variable) the current state and time are to be printed to console (default never).
+     */
+    TranslationalStatePropagatorSettings( const std::vector< std::string >& centralBodies,
+                                          const simulation_setup::SelectedAccelerationMap& accelerationSettingsMap,
+                                          const std::vector< std::string >& bodiesToIntegrate,
+                                          const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& initialBodyStates,
+                                          const boost::shared_ptr< PropagationTerminationSettings > terminationSettings,
+                                          const TranslationalPropagatorType propagator = cowell,
+                                          const boost::shared_ptr< DependentVariableSaveSettings > dependentVariablesToSave =
+            boost::shared_ptr< DependentVariableSaveSettings >( ),
+                                          const double printInterval = TUDAT_NAN ):
+        SingleArcPropagatorSettings< StateScalarType >( transational_state, initialBodyStates, terminationSettings,
+                                                        dependentVariablesToSave, printInterval ),
+        centralBodies_( centralBodies ),
+        bodiesToIntegrate_( bodiesToIntegrate ),
+        propagator_( propagator ),
+        accelerationSettingsMap_( accelerationSettingsMap ) { }
+
+    //! Constructor for fixed propagation time stopping conditions, providing an alreay-created accelerations map.
+    /*!
+     * Constructor for fixed propagation time stopping conditions, providing an alreay-created accelerations map.
      * \param centralBodies List of bodies w.r.t. which the bodies in bodiesToIntegrate_ are propagated.
      * \param accelerationsMap A map containing the list of accelerations acting on each body, identifying
      *  the body being acted on and the body acted on by an acceleration. The map has as key a string denoting
@@ -557,14 +655,108 @@ public:
             transational_state, initialBodyStates,  boost::make_shared< PropagationTimeTerminationSettings >( endTime ),
             dependentVariablesToSave, printInterval ),
         centralBodies_( centralBodies ),
-        accelerationsMap_( accelerationsMap ), bodiesToIntegrate_( bodiesToIntegrate ),
-        propagator_( propagator ){ }
+        bodiesToIntegrate_( bodiesToIntegrate ),
+        propagator_( propagator ),
+        accelerationsMap_( accelerationsMap ) { }
+
+
+    //! Constructor for fixed propagation time stopping conditions, providing settings to create accelerations map.
+    /*!
+     * Constructor for fixed propagation time stopping conditions, providing settings to create accelerations map.
+     * \param centralBodies List of bodies w.r.t. which the bodies in bodiesToIntegrate_ are propagated.
+     * \param accelerationSettingsMap A map containing settings for the accelerations acting on each body, identifying
+     *  the body being acted on and the body acted on by an acceleration. The map has as key a string denoting
+     *  the name of the body the list of accelerations, provided as the value corresponding to a key, is acting on.
+     *  This map-value is again a map with string as key, denoting the body exerting the acceleration, and as value
+     *  a pointer to an acceleration model.
+     * \param bodiesToIntegrate List of bodies for which the translational state is to be propagated.
+     * \param initialBodyStates Initial state used as input for numerical integration
+     * \param endTime Time at which to stop the numerical propagation
+     * \param propagator Type of translational state propagator to be used
+     * \param dependentVariablesToSave Settings for the dependent variables that are to be saved during propagation
+     * (default none).
+     * \param printInterval Variable indicating how often (once per printInterval_ seconds or propagation independenty
+     * variable) the current state and time are to be printed to console (default never).
+     */
+    TranslationalStatePropagatorSettings( const std::vector< std::string >& centralBodies,
+                                          const simulation_setup::SelectedAccelerationMap& accelerationSettingsMap,
+                                          const std::vector< std::string >& bodiesToIntegrate,
+                                          const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& initialBodyStates,
+                                          const double endTime,
+                                          const TranslationalPropagatorType propagator = cowell,
+                                          const boost::shared_ptr< DependentVariableSaveSettings > dependentVariablesToSave =
+            boost::shared_ptr< DependentVariableSaveSettings >( ),
+                                          const double printInterval = TUDAT_NAN ):
+        SingleArcPropagatorSettings< StateScalarType >(
+            transational_state, initialBodyStates,  boost::make_shared< PropagationTimeTerminationSettings >( endTime ),
+            dependentVariablesToSave, printInterval ),
+        centralBodies_( centralBodies ),
+        bodiesToIntegrate_( bodiesToIntegrate ),
+        propagator_( propagator ),
+        accelerationSettingsMap_( accelerationSettingsMap ) { }
+
+
 
     //! Destructor
     ~TranslationalStatePropagatorSettings( ){ }
 
     //! List of bodies w.r.t. which the bodies in bodiesToIntegrate_ are propagated.
     std::vector< std::string > centralBodies_;
+
+    //! List of bodies for which the translational state is to be propagated.
+    std::vector< std::string > bodiesToIntegrate_;
+
+    //! Type of translational state propagator to be used
+    TranslationalPropagatorType propagator_;
+
+    //! Function to create the acceleration models.
+    /*!
+     * Function to create the acceleration models.
+     * \param bodyMap Map of bodies in the propagation, with keys the names of the bodies.
+     */
+    virtual void resetIntegratedStateModels( const simulation_setup::NamedBodyMap& bodyMap )
+    {
+        accelerationsMap_ = simulation_setup::createAccelerationModelsMap(
+                    bodyMap, accelerationSettingsMap_, bodiesToIntegrate_, centralBodies_ );
+    }
+
+    //! Function to get the acceleration settings map.
+    /*!
+     * Function to get the acceleration settings map.
+     * \return The acceleration settings map.
+     */
+    simulation_setup::SelectedAccelerationMap getAccelerationSettingsMap( ) const
+    {
+        return accelerationSettingsMap_;
+    }
+
+    //! Function to get the accelerations map.
+    /*!
+     * Function to get the accelerations map.
+     * \return The accelerations map.
+     */
+    basic_astrodynamics::AccelerationMap getAccelerationsMap( ) const
+    {
+        if ( accelerationsMap_.size( ) == 0 && accelerationSettingsMap_.size( ) != 0 )
+        {
+            std::cerr << "Unconsistent sizes for map of aceleration settings and map of acceleration models. "
+                      << "Did you forget to call resetIntegratedStateModels on the propagator?" << std::endl;
+        }
+        return accelerationsMap_;
+    }
+
+
+private:
+
+    //! A map containing the list of settings for the accelerations acting on each body
+    /*!
+     *  A map containing the list of settings for the accelerations acting on each body, identifying
+     *  the body being acted on and the body acted on by an acceleration. The map has as key a string denoting
+     *  the name of the body the list of accelerations, provided as the value corresponding to a key, is acting on.
+     *  This map-value is again a map with string as key, denoting the body exerting the acceleration, and as value
+     *  a pointer to an acceleration settings object.
+     */
+    simulation_setup::SelectedAccelerationMap accelerationSettingsMap_;
 
     //! A map containing the list of accelerations acting on each body
     /*!
@@ -576,12 +768,6 @@ public:
      */
     basic_astrodynamics::AccelerationMap accelerationsMap_;
 
-    //! List of bodies for which the translational state is to be propagated.
-    std::vector< std::string > bodiesToIntegrate_;
-
-    //! Type of translational state propagator to be used
-    TranslationalPropagatorType propagator_;
-
 };
 
 //! Class for defining settings for propagating rotational dynamics.
@@ -590,9 +776,9 @@ class RotationalStatePropagatorSettings: public SingleArcPropagatorSettings< Sta
 {
 public:
 
-    //! Constructor
+    //! Constructor with already-created torque models.
     /*!
-     * Constructor
+     * Constructor with already-created torque models.
      * \param torqueModelMap List of torque models that are to be used in propagation
      * \param bodiesToIntegrate List of bodies that are to be propagated numerically.
      * \param initialBodyStates Initial state used as input for numerical integration
@@ -612,16 +798,81 @@ public:
                                        const double printInterval = TUDAT_NAN ):
         SingleArcPropagatorSettings< StateScalarType >( rotational_state, initialBodyStates, terminationSettings,
                                                         dependentVariablesToSave, printInterval ),
-        torqueModelMap_( torqueModelMap ), bodiesToIntegrate_( bodiesToIntegrate ){ }
+        bodiesToIntegrate_( bodiesToIntegrate ), torqueModelMap_( torqueModelMap ) { }
+
+    //! Constructor with settings for torque models.
+    /*!
+     * Constructor with settings for torque models.
+     * \param torqueSettingsMap List of settings for torque models that are to be used in propagation
+     * \param bodiesToIntegrate List of bodies that are to be propagated numerically.
+     * \param initialBodyStates Initial state used as input for numerical integration
+     * \param terminationSettings Settings for creating the object that checks whether the propagation is finished.
+     * \param dependentVariablesToSave Settings for the dependent variables that are to be saved during propagation
+     * (default none).
+     * \param printInterval Variable indicating how often (once per printInterval_ seconds or propagation independenty
+     * variable) the current state and time are to be printed to console (default never).
+     *
+     */
+    RotationalStatePropagatorSettings( const simulation_setup::SelectedTorqueMap& torqueSettingsMap,
+                                       const std::vector< std::string >& bodiesToIntegrate,
+                                       const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& initialBodyStates,
+                                       const boost::shared_ptr< PropagationTerminationSettings > terminationSettings,
+                                       const boost::shared_ptr< DependentVariableSaveSettings > dependentVariablesToSave =
+            boost::shared_ptr< DependentVariableSaveSettings >( ),
+                                       const double printInterval = TUDAT_NAN ):
+        SingleArcPropagatorSettings< StateScalarType >( rotational_state, initialBodyStates, terminationSettings,
+                                                        dependentVariablesToSave, printInterval ),
+        bodiesToIntegrate_( bodiesToIntegrate ), torqueSettingsMap_( torqueSettingsMap ) { }
 
     //! Destructor
     ~RotationalStatePropagatorSettings( ){ }
 
-    //! Tist of torque models that are to be used in propagation
-    basic_astrodynamics::TorqueModelMap torqueModelMap_;
-
     //! List of bodies that are to be propagated numerically.
     std::vector< std::string > bodiesToIntegrate_;
+
+    //! Function to create the torque models.
+    /*!
+     * Function to create the torque models.
+     * \param bodyMap Map of bodies in the propagation, with keys the names of the bodies.
+     */
+    virtual void resetIntegratedStateModels( const simulation_setup::NamedBodyMap& bodyMap )
+    {
+        torqueModelMap_ = simulation_setup::createTorqueModelsMap( bodyMap, torqueSettingsMap_ );
+    }
+
+    //! Function to get the torque settings map.
+    /*!
+     * Function to get the torque settings map.
+     * \return The torque settings map.
+     */
+    simulation_setup::SelectedTorqueMap getTorqueSettingsMap( ) const
+    {
+        return torqueSettingsMap_;
+    }
+
+    //! Function to get the torque models map.
+    /*!
+     * Function to get the torque models map.
+     * \return The torque models map.
+     */
+    basic_astrodynamics::TorqueModelMap getTorqueModelsMap( ) const
+    {
+        if ( torqueModelMap_.size( ) == 0 && torqueSettingsMap_.size( ) != 0 )
+        {
+            std::cerr << "Unconsistent sizes for map of torque settings and map of torque models. "
+                      << "Did you forget to call resetIntegratedStateModels on the propagator?" << std::endl;
+        }
+        return torqueModelMap_;
+    }
+
+
+private:
+
+    //! List of torque settings that are to be used to create the torque models
+    simulation_setup::SelectedTorqueMap torqueSettingsMap_;
+
+    //! List of torque models that are to be used in propagation
+    basic_astrodynamics::TorqueModelMap torqueModelMap_;
 
 };
 
@@ -651,7 +902,7 @@ public:
      */
     MassPropagatorSettings(
             const std::vector< std::string > bodiesWithMassToPropagate,
-            const std::map< std::string, boost::shared_ptr< basic_astrodynamics::MassRateModel > > massRateModels,
+            const std::map< std::string, boost::shared_ptr< basic_astrodynamics::MassRateModel > >& massRateModels,
             const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& initialBodyMasses,
             const boost::shared_ptr< PropagationTerminationSettings > terminationSettings,
             const boost::shared_ptr< DependentVariableSaveSettings > dependentVariablesToSave =
@@ -668,9 +919,9 @@ public:
         }
     }
 
-    //! Constructor of mass state propagator settings
+    //! Constructor of mass state propagator settings, with already-created mass rate models.
     /*!
-     * Constructor  of mass state propagator settings
+     * Constructor  of mass state propagator settings, with already-created mass rate models.
      * \param bodiesWithMassToPropagate List of bodies for which the mass is to be propagated.
      * \param massRateModels List of mass rate models per propagated body.
      * \param initialBodyMasses Initial masses used as input for numerical integration.
@@ -682,7 +933,7 @@ public:
      */
     MassPropagatorSettings(
             const std::vector< std::string > bodiesWithMassToPropagate,
-            const std::map< std::string, std::vector< boost::shared_ptr< basic_astrodynamics::MassRateModel > > >
+            const std::map< std::string, std::vector< boost::shared_ptr< basic_astrodynamics::MassRateModel > > >&
             massRateModels,
             const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& initialBodyMasses,
             const boost::shared_ptr< PropagationTerminationSettings > terminationSettings,
@@ -691,14 +942,93 @@ public:
             const double printInterval = TUDAT_NAN ):
         SingleArcPropagatorSettings< StateScalarType >( body_mass_state, initialBodyMasses, terminationSettings,
                                                         dependentVariablesToSave, printInterval ),
-        bodiesWithMassToPropagate_( bodiesWithMassToPropagate ), massRateModels_( massRateModels )
-    { }
+        bodiesWithMassToPropagate_( bodiesWithMassToPropagate ), massRateModels_( massRateModels ) { }
+
+    //! Constructor of mass state propagator settings, with settings for mass rate models.
+    /*!
+     * Constructor  of mass state propagator settings, with settings for mass rate models.
+     * \param bodiesWithMassToPropagate List of bodies for which the mass is to be propagated.
+     * \param massRateSettings List of settings for mass rate models per propagated body.
+     * \param initialBodyMasses Initial masses used as input for numerical integration.
+     * \param terminationSettings Settings for creating the object that checks whether the propagation is finished.
+     * \param dependentVariablesToSave Settings for the dependent variables that are to be saved during propagation
+     * (default none).
+     * \param printInterval Variable indicating how often (once per printInterval_ seconds or propagation independenty
+     * variable) the current state and time are to be printed to console (default never).
+     */
+    MassPropagatorSettings(
+            const std::vector< std::string > bodiesWithMassToPropagate,
+            const simulation_setup::SelectedMassRateModelMap& massRateSettings,
+            const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& initialBodyMasses,
+            const boost::shared_ptr< PropagationTerminationSettings > terminationSettings,
+            const boost::shared_ptr< DependentVariableSaveSettings > dependentVariablesToSave =
+            boost::shared_ptr< DependentVariableSaveSettings >( ),
+            const double printInterval = TUDAT_NAN ):
+        SingleArcPropagatorSettings< StateScalarType >( body_mass_state, initialBodyMasses, terminationSettings,
+                                                        dependentVariablesToSave, printInterval ),
+        bodiesWithMassToPropagate_( bodiesWithMassToPropagate ), massRateSettingsMap_( massRateSettings ) { }
 
     //! List of bodies for which the mass is to be propagated.
     std::vector< std::string > bodiesWithMassToPropagate_;
 
+    //! Function to create the mass-rate models with support for thrust-acceleration-based mass-rate models.
+    /*!
+     * Function to create the mass-rate models, with the possibility to specify an acceleration map for setting up
+     * mass-rate models determined from thrust accelerations.
+     * \param bodyMap Map of bodies in the propagation, with keys the names of the bodies.
+     * \param accelerationMap Map of accelerations in the propagation.
+     */
+    void resetIntegratedStateModels(
+            const simulation_setup::NamedBodyMap& bodyMap,
+            const basic_astrodynamics::AccelerationMap& accelerationMap )
+    {
+        massRateModels_ = simulation_setup::createMassRateModelsMap( bodyMap, massRateSettingsMap_, accelerationMap );
+    }
+
+    //! Function to create the mass-rate models.
+    /*!
+     * Function to create the mass-rate models.
+     * \param bodyMap Map of bodies in the propagation, with keys the names of the bodies.
+     */
+    virtual void resetIntegratedStateModels( const simulation_setup::NamedBodyMap& bodyMap )
+    {
+        resetIntegratedStateModels( bodyMap, basic_astrodynamics::AccelerationMap( ) );
+    }
+
+    //! Function to get the mass-rate settings map.
+    /*!
+     * Function to get the mass-rate settings map.
+     * \return The mass-rate settings map.
+     */
+    simulation_setup::SelectedMassRateModelMap getMassRateSettingsMap( ) const
+    {
+        return massRateSettingsMap_;
+    }
+
+    //! Function to get the mass-rate models map.
+    /*!
+     * Function to get the mass-rate models map.
+     * \return The mass-rate models map.
+     */
+    basic_astrodynamics::MassRateModelMap getMassRateModelsMap( ) const
+    {
+        if ( massRateModels_.size( ) == 0 && massRateSettingsMap_.size( ) != 0 )
+        {
+            std::cerr << "Unconsistent sizes for map of mass-rate settings and map of mass-rate models. "
+                      << "Did you forget to call resetIntegratedStateModels on the propagator?" << std::endl;
+        }
+        return massRateModels_;
+    }
+
+
+private:
+
+    //! List of mass rate settings per propagated body.
+    simulation_setup::SelectedMassRateModelMap massRateSettingsMap_;
+
     //! List of mass rate models per propagated body.
-    std::map< std::string, std::vector< boost::shared_ptr< basic_astrodynamics::MassRateModel > > > massRateModels_;
+    basic_astrodynamics::MassRateModelMap massRateModels_;
+
 };
 
 //! Function to evaluate a floating point state-derivative function as though it was a vector state function
@@ -792,6 +1122,16 @@ public:
     //! Size of the state that is propagated.
     int stateSize_;
 
+    //! Function to create the integrated state models. Always throws an error.
+    /*!
+     * Function to create the integrated state models. This method always throws a `runtime_error` because
+     * the integrated state models cannot be created automatically for `CustomStatePropagatorSettings`.
+     * \param bodyMap Map of bodies in the propagation, with keys the names of the bodies.
+     */
+    virtual void resetIntegratedStateModels( const simulation_setup::NamedBodyMap& bodyMap )
+    {
+        throw std::runtime_error( "Could not create integrated state models for custom state propagator." );
+    }
 };
 
 //! Function to create multi-arc propagator settings by merging an existing multi-arc with single-arc settings
@@ -843,8 +1183,8 @@ boost::shared_ptr< MultiArcPropagatorSettings< StateScalarType > > getExtendedMu
         fullCentralBodies.insert( fullCentralBodies.end( ), multiArcCentralBodies.begin( ), multiArcCentralBodies.end( ) );
 
         // Create full accelerations map
-        basic_astrodynamics::AccelerationMap multiArcAccelerationsMap = firstArcTranslationalSettings->accelerationsMap_;
-        basic_astrodynamics::AccelerationMap fullAccelerationsMap = singleArcTranslationalSettings->accelerationsMap_;
+        basic_astrodynamics::AccelerationMap multiArcAccelerationsMap = firstArcTranslationalSettings->getAccelerationsMap( );
+        basic_astrodynamics::AccelerationMap fullAccelerationsMap = singleArcTranslationalSettings->getAccelerationsMap( );
         fullAccelerationsMap.insert( multiArcAccelerationsMap.begin( ), multiArcAccelerationsMap.end( ) );
 
         // Create full list of propagated bodies
@@ -1037,7 +1377,7 @@ public:
             boost::shared_ptr< DependentVariableSaveSettings >( ),
             const double printInterval = TUDAT_NAN ):
         SingleArcPropagatorSettings< StateScalarType >(
-            hybrid, Eigen::VectorXd::Zero( 0 ),
+            hybrid, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >::Zero( 0 ),
             terminationSettings, dependentVariablesToSave, printInterval )
     {
         for( unsigned int i = 0; i < propagatorSettingsVector.size( ); i++ )
@@ -1090,11 +1430,14 @@ public:
         // Check consistency
         if( currentStartIndex != initialBodyStates.rows( ) )
         {
-            std::string errorMessage = "Error when resetting multi-type state, total size is incompatible "+
-                    boost::lexical_cast< std::string >( currentStartIndex ) +
-                    boost::lexical_cast< std::string >( initialBodyStates.rows( ) );
+            std::string errorMessage = "Error when resetting multi-type state, total size is incompatible " +
+                    std::to_string( currentStartIndex ) +
+                    std::to_string( initialBodyStates.rows( ) );
             throw std::runtime_error( errorMessage );
         }
+
+        this->initialStates_ = createCombinedInitialState< StateScalarType >( propagatorSettingsMap_ );
+
     }
 
     //! List of propagator settings to use
@@ -1105,6 +1448,62 @@ public:
 
     std::map< IntegratedStateType, std::vector< boost::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > > >
     propagatorSettingsMap_;
+
+    //! Function to create the integrated state models (e.g. acceleration/torque/mass-rate models).
+    /*!
+     * Function to create the integrated state models (e.g. acceleration/torque/mass-rate models) for
+     * each fo the propagators state types contained in `propagatorSettingsMap_`.
+     * \param bodyMap Map of bodies in the propagation, with keys the names of the bodies.
+     */
+    virtual void resetIntegratedStateModels( const simulation_setup::NamedBodyMap& bodyMap )
+    {
+        std::vector< boost::shared_ptr< TranslationalStatePropagatorSettings< StateScalarType > > >
+                vectorOfTranslationalSettings;
+        if ( propagatorSettingsMap_.count( translational_state ) > 0 )
+        {
+            for ( boost::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > translationalSettings :
+                  propagatorSettingsMap_.at( translational_state ) )
+            {
+                vectorOfTranslationalSettings.push_back(
+                            boost::dynamic_pointer_cast< TranslationalStatePropagatorSettings< StateScalarType > >(
+                                translationalSettings ) );
+            }
+        }
+
+        for ( auto entry : propagatorSettingsMap_ )
+        {
+            for ( unsigned int i = 0; i < entry.second.size( ); ++i )
+            {
+                boost::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > singleArcSettings =
+                        entry.second.at( i );
+                if ( singleArcSettings )
+                {
+                    boost::shared_ptr< MassPropagatorSettings< StateScalarType > > massPropagatorSettings
+                            = boost::dynamic_pointer_cast< MassPropagatorSettings< StateScalarType > >(
+                                singleArcSettings );
+                    if ( massPropagatorSettings && vectorOfTranslationalSettings.size( ) > 0 )
+                    {
+                        if ( entry.second.size( ) != vectorOfTranslationalSettings.size( ) )
+                        {
+                            throw std::runtime_error( "Could not create integrated state model for mass "
+                                                      "propagator settings because a one-to-one relationship "
+                                                      "between the specified mass-rate propagators and the "
+                                                      "tranlational propagators could not be inferred. Create "
+                                                      "the models manually or provide one translational "
+                                                      "propagator settings for each mass rate propagator settings, "
+                                                      "or provide no translational propagator settings at all." );
+                        }
+                        massPropagatorSettings->resetIntegratedStateModels(
+                                    bodyMap, vectorOfTranslationalSettings.at( i )->getAccelerationsMap( ) );
+                    }
+                    else
+                    {
+                        singleArcSettings->resetIntegratedStateModels( bodyMap );
+                    }
+                }
+            }
+        }
+    }
 
 };
 
@@ -1149,10 +1548,10 @@ std::map< IntegratedStateType, std::vector< std::pair< std::string, std::string 
                             || singleTypeIntegratedStateList.size( ) != 1 )
                     {
                         std::string errorMessage = "Error when making integrated state list for hybrid propagator, inconsistency encountered " +
-                                boost::lexical_cast< std::string >( singleTypeIntegratedStateList.begin( )->first ) + " " +
-                                boost::lexical_cast< std::string >( typeIterator->first ) + " " +
-                                boost::lexical_cast< std::string >( singleTypeIntegratedStateList.size( ) ) + " " +
-                                boost::lexical_cast< std::string >( singleTypeIntegratedStateList.begin( )->second.size( ) );
+                                std::to_string( singleTypeIntegratedStateList.begin( )->first ) + " " +
+                                std::to_string( typeIterator->first ) + " " +
+                                std::to_string( singleTypeIntegratedStateList.size( ) ) + " " +
+                                std::to_string( singleTypeIntegratedStateList.begin( )->second.size( ) );
                         throw std::runtime_error( errorMessage );
                     }
                     else
@@ -1239,7 +1638,7 @@ std::map< IntegratedStateType, std::vector< std::pair< std::string, std::string 
     }
     default:
         throw std::runtime_error( "Error, could not process integrated state type in getIntegratedTypeAndBodyList " +
-                                  boost::lexical_cast< std::string >( propagatorSettings->getStateType( ) ) );
+                                  std::to_string( propagatorSettings->getStateType( ) ) );
     }
 
     return integratedStateList;

@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -104,7 +104,7 @@ public:
      * Function to retrieve boolean denoting whether the ephemeris that is to be created is a multi-arc ephemeris
      * \return Boolean denoting whether the ephemeris that is to be created is a multi-arc ephemeris
      */
-    double getMakeMultiArcEphemeris( )
+    bool getMakeMultiArcEphemeris( )
     {
         return makeMultiArcEphemeris_;
     }
@@ -162,11 +162,11 @@ public:
     /*! Constructor, sets the properties from which the Spice ephemeris is to be retrieved.
      * \param frameOrigin Name of body relative to which the ephemeris is to be calculated
      *        (optional "SSB" by default).
-     * \param correctForStellarAbberation Boolean whether to correct for stellar Abberation in
+     * \param correctForStellarAberration Boolean whether to correct for stellar Aberration in
      *          retrieved values of (observed state) (optional "ECLIPJ2000" by defalut).
-     * \param correctForLightTimeAbberation Boolean whether to correct for light time in
+     * \param correctForLightTimeAberration Boolean whether to correct for light time in
      *          retrieved values of (observed state) (optional false by default).
-     * \param convergeLighTimeAbberation Boolean whether to use single iteration or max. 3
+     * \param convergeLighTimeAberration Boolean whether to use single iteration or max. 3
      *          iterations for calculating light time (optional false by default).
      * \param frameOrientation Orientatioan of the reference frame in which the epehemeris is to be
      *          calculated (optional false by default).
@@ -177,26 +177,26 @@ public:
      */
     DirectSpiceEphemerisSettings( const std::string frameOrigin = "SSB",
                                   const std::string frameOrientation = "ECLIPJ2000",
-                                  const bool correctForStellarAbberation = false,
-                                  const bool correctForLightTimeAbberation = false,
-                                  const bool convergeLighTimeAbberation = false,
+                                  const bool correctForStellarAberration = false,
+                                  const bool correctForLightTimeAberration = false,
+                                  const bool convergeLighTimeAberration = false,
                                   const EphemerisType ephemerisType = direct_spice_ephemeris ):
         EphemerisSettings( ephemerisType, frameOrigin, frameOrientation ),
-        correctForStellarAbberation_( correctForStellarAbberation ),
-        correctForLightTimeAbberation_( correctForLightTimeAbberation ),
-        convergeLighTimeAbberation_( convergeLighTimeAbberation ){ }
+        correctForStellarAberration_( correctForStellarAberration ),
+        correctForLightTimeAberration_( correctForLightTimeAberration ),
+        convergeLighTimeAberration_( convergeLighTimeAberration ){ }
 
 
     //! Destructor
     virtual ~DirectSpiceEphemerisSettings( ){ }
 
-    //! Returns whether to correct for stellar abberation in retrieved values of (observed state).
+    //! Returns whether to correct for stellar aberration in retrieved values of (observed state).
     /*!
-     *  Returns whether to correct for stellar abberation in retrieved values of (observed state).
-     *  \return Boolean defining whether to correct for stellar abberation in retrieved
+     *  Returns whether to correct for stellar aberration in retrieved values of (observed state).
+     *  \return Boolean defining whether to correct for stellar aberration in retrieved
      *  values of (observed state).
      */
-    bool getCorrectForStellarAbberation( ){ return correctForStellarAbberation_; }
+    bool getCorrectForStellarAberration( ){ return correctForStellarAberration_; }
 
     //! Returns whether to correct for light time in retrieved values of (observed state).
     /*!
@@ -204,7 +204,7 @@ public:
      *  \return Boolean defining whether to correct for light time in retrieved values of
      *  (observed state).
      */
-    bool getCorrectForLightTimeAbberation( ){ return correctForLightTimeAbberation_; }
+    bool getCorrectForLightTimeAberration( ){ return correctForLightTimeAberration_; }
 
     //! Returns whether to use single iteration or max. 3 iterations for calculating light time.
     /*!
@@ -212,17 +212,17 @@ public:
      *  \return Boolean defining whether to use single iteration or max. 3 iterations for
      *  calculating light time.
      */
-    bool getConvergeLighTimeAbberation( ){ return convergeLighTimeAbberation_; }
+    bool getConvergeLighTimeAberration( ){ return convergeLighTimeAberration_; }
 protected:
 
-    //! Boolean whether to correct for stellar abberation in retrieved values of (observed state).
-    bool correctForStellarAbberation_;
+    //! Boolean whether to correct for stellar aberration in retrieved values of (observed state).
+    bool correctForStellarAberration_;
 
     //! Boolean whether to correct for light time in retrieved values of (observed state).
-    bool correctForLightTimeAbberation_;
+    bool correctForLightTimeAberration_;
 
     //! Boolean whether to use single iteration or max. 3 iterations for calculating light time.
-    bool convergeLighTimeAbberation_;
+    bool convergeLighTimeAberration_;
 };
 
 //! EphemerisSettings derived class for defining settings of a ephemeris interpolated from Spice
@@ -310,7 +310,7 @@ private:
     //! Initial time from which interpolated data from Spice should be created.
     double initialTime_;
 
-    //! Final time from which interpolated data from Spice should be created.
+    //! Final time until which interpolated data from Spice should be created.
     double finalTime_;
 
     //! Time step with which interpolated data from Spice should be created.

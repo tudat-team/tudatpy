@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -12,9 +12,8 @@
 
 #include <boost/test/unit_test.hpp>
 
-#include <Tudat/SimulationSetup/tudatSimulationHeader.h>
-
-#include "applicationOutput.h"
+#include "Tudat/SimulationSetup/tudatSimulationHeader.h"
+#include "Tudat/Astrodynamics/Aerodynamics/UnitTests/applicationOutput.h"
 #include "Tudat/InputOutput/basicInputOutput.h"
 
 
@@ -50,9 +49,7 @@ BOOST_AUTO_TEST_CASE( testTabulatedDragCoefficient )
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     // Load Spice kernels.
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "pck00009.tpc" );
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "de-403-masses.tpc" );
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "de421.bsp" );
+    spice_interface::loadStandardSpiceKernels( );
 
     // Set simulation time settings.
     const double simulationStartEpoch = 0.0;
@@ -164,11 +161,11 @@ BOOST_AUTO_TEST_CASE( testTabulatedDragCoefficient )
     double meanEarthRadius = 6371.0E3;
     double perigeeAltitude = 150.0E3;
     double apogeeAltitude = 35780.0E3;
-    double semiMajorAixs= (apogeeAltitude + perigeeAltitude)/2 + meanEarthRadius;
+    double semiMajorAixs= (apogeeAltitude + perigeeAltitude) / 2.0 + meanEarthRadius;
     double eccentricity = (apogeeAltitude - perigeeAltitude)/(apogeeAltitude + perigeeAltitude + 2*meanEarthRadius);
 
     // Set Keplerian elements for Vehicle.
-    Eigen::Vector6d vehicleInitialStateInKeplerianElements;
+    Eigen::Vector6d vehicleInitialStateInKeplerianElements = Eigen::Vector6d::Zero( );
     vehicleInitialStateInKeplerianElements( semiMajorAxisIndex ) = semiMajorAixs;
     vehicleInitialStateInKeplerianElements( eccentricityIndex ) = eccentricity;
     vehicleInitialStateInKeplerianElements( inclinationIndex ) = mathematical_constants::PI / 180.0 * 23.4;

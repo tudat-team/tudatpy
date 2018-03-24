@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -25,8 +25,7 @@ Eigen::Vector3d computeLorentzForceDueToStaticMagneticField(
         const double chargeOfBodySubjectToAcceleration )
 {
     //Return Lorentz force due to static magnetic field
-    return chargeOfBodySubjectToAcceleration * velocityOfBodySubjectToAcceleration
-    	   .cross( localMagneticField );
+    return chargeOfBodySubjectToAcceleration * velocityOfBodySubjectToAcceleration.cross( localMagneticField );
 
 }
 

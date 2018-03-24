@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -133,14 +133,14 @@ std::map< propagators::EnvironmentModelsToUpdate,
         environmentModelsToUpdate = createTranslationalEquationsOfMotionEnvironmentUpdaterSettings(
                     boost::dynamic_pointer_cast<
                     TranslationalStatePropagatorSettings< StateScalarType > >(
-                        propagatorSettings )->accelerationsMap_,
+                        propagatorSettings )->getAccelerationsMap( ),
                     bodyMap );
         break;
     }
     case rotational_state:
     {
         environmentModelsToUpdate = createRotationalEquationsOfMotionEnvironmentUpdaterSettings(
-                    boost::dynamic_pointer_cast< RotationalStatePropagatorSettings< StateScalarType > >( propagatorSettings )->torqueModelMap_,
+                    boost::dynamic_pointer_cast< RotationalStatePropagatorSettings< StateScalarType > >( propagatorSettings )->getTorqueModelsMap( ),
                     bodyMap );
         break;
     }
@@ -150,7 +150,7 @@ std::map< propagators::EnvironmentModelsToUpdate,
         environmentModelsToUpdate = createMassPropagationEnvironmentUpdaterSettings(
                     boost::dynamic_pointer_cast<
                     MassPropagatorSettings< StateScalarType > >(
-                        propagatorSettings )->massRateModels_, bodyMap );
+                        propagatorSettings )->getMassRateModelsMap( ), bodyMap );
         break;
     }
     case custom_state:
@@ -160,7 +160,7 @@ std::map< propagators::EnvironmentModelsToUpdate,
     default:
     {
         throw std::runtime_error( "Error, cannot create environment updates for type " +
-                                  boost::lexical_cast< std::string >( propagatorSettings->getStateType( ) ) );
+                                  std::to_string( propagatorSettings->getStateType( ) ) );
     }
     }
     return environmentModelsToUpdate;

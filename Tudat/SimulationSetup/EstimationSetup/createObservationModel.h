@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -23,6 +23,7 @@
 #include "Tudat/Astrodynamics/ObservationModels/nWayRangeObservationModel.h"
 #include "Tudat/Astrodynamics/ObservationModels/oneWayRangeObservationModel.h"
 #include "Tudat/Astrodynamics/ObservationModels/oneWayDopplerObservationModel.h"
+#include "Tudat/Astrodynamics/ObservationModels/twoWayDopplerObservationModel.h"
 #include "Tudat/Astrodynamics/ObservationModels/oneWayDifferencedRangeRateObservationModel.h"
 #include "Tudat/Astrodynamics/ObservationModels/angularPositionObservationModel.h"
 #include "Tudat/Astrodynamics/ObservationModels/positionObservationModel.h"
@@ -85,7 +86,7 @@ public:
     std::vector< boost::shared_ptr< ObservationBiasSettings > > biasSettingsList_;
 };
 
-//! Class for defining settings for the creation of a constant additive observation bias model
+//! Class for defining settings for the creation of a constant absolute or relative observation bias model
 class ConstantObservationBiasSettings: public ObservationBiasSettings
 {
 public:
@@ -95,11 +96,13 @@ public:
      * Constuctor
      * \param observationBias Constant bias that is to be added to the observable. The size of this vector must be equal to the
      * size of the observable to which it is assigned.
+     * \param useAbsoluteBias Boolean to denote whether an absolute or relative bias is to be created.
      */
     ConstantObservationBiasSettings(
-            const Eigen::VectorXd& observationBias ):
-        ObservationBiasSettings( constant_absolute_bias ), observationBias_( observationBias )
-    { }
+            const Eigen::VectorXd& observationBias,
+            const bool useAbsoluteBias ):
+        ObservationBiasSettings( ( useAbsoluteBias == true ) ? ( constant_absolute_bias ) : ( constant_relative_bias ) ),
+        observationBias_( observationBias ), useAbsoluteBias_( useAbsoluteBias ){ }
 
     //! Destructor
     ~ConstantObservationBiasSettings( ){ }
@@ -111,23 +114,64 @@ public:
      */
     Eigen::VectorXd observationBias_;
 
+    //! Boolean to denote whether an absolute or relative bias is to be created.
+    bool useAbsoluteBias_;
 };
 
-//! Class for defining settings for the creation of a constant relative observation bias model
-class ConstantRelativeObservationBiasSettings: public ObservationBiasSettings
+//! Class for defining settings for the creation of an arc-wise constant absolute or relative observation bias model
+class ArcWiseConstantObservationBiasSettings: public ObservationBiasSettings
 {
 public:
 
-    ConstantRelativeObservationBiasSettings(
-            const Eigen::VectorXd& relativeObservationBias ):
-        ObservationBiasSettings( constant_relative_bias ), relativeObservationBias_( relativeObservationBias )
-    { }
+    //! Constuctor
+    /*!
+     * Constuctor
+     * \param arcStartTimes Start times for arcs in which biases (observationBiases) are used
+     * \param observationBiases List of observation biases per arc
+     * \param linkEndForTime Link end at which time is to be evaluated to determine current time (and current arc)
+     * \param useAbsoluteBias Boolean to denote whether an absolute or relative bias is to be created.
+     */
+    ArcWiseConstantObservationBiasSettings(
+            const std::vector< double >& arcStartTimes,
+            const std::vector< Eigen::VectorXd >& observationBiases,
+            const LinkEndType linkEndForTime,
+            const bool useAbsoluteBias ):
+        ObservationBiasSettings( ( useAbsoluteBias == true ) ?
+                                     ( arc_wise_constant_absolute_bias ) : ( arc_wise_constant_relative_bias ) ),
+        arcStartTimes_( arcStartTimes ), observationBiases_( observationBiases ), linkEndForTime_( linkEndForTime ),
+        useAbsoluteBias_( useAbsoluteBias ){ }
+
+    //! Constuctor
+    /*!
+     * Constuctor
+     * \param observationBiases Map of observation biases per arc, with bias as map value, and arc start time as map key
+     * \param linkEndForTime Link end at which time is to be evaluated to determine current time (and current arc)
+     * \param useAbsoluteBias Boolean to denote whether an absolute or relative bias is to be created.
+     */
+    ArcWiseConstantObservationBiasSettings(
+            const std::map< double, Eigen::VectorXd >& observationBiases,
+            const LinkEndType linkEndForTime,
+            const bool useAbsoluteBias  ):
+        ObservationBiasSettings( ( useAbsoluteBias == true ) ?
+                                     ( arc_wise_constant_absolute_bias ) : ( arc_wise_constant_relative_bias ) ),
+        arcStartTimes_( utilities::createVectorFromMapKeys( observationBiases ) ),
+        observationBiases_( utilities::createVectorFromMapValues( observationBiases ) ), linkEndForTime_( linkEndForTime ),
+        useAbsoluteBias_( useAbsoluteBias ){ }
 
     //! Destructor
-    ~ConstantRelativeObservationBiasSettings( ){ }
+    ~ArcWiseConstantObservationBiasSettings( ){ }
 
-    Eigen::VectorXd relativeObservationBias_;
+    //! Start times for arcs in which biases (observationBiases) are used
+    std::vector< double > arcStartTimes_;
 
+    //! List of observation biases per arc
+    std::vector< Eigen::VectorXd > observationBiases_;
+
+    //! Link end at which time is to be evaluated to determine current time (and current arc)
+    LinkEndType linkEndForTime_;
+
+    //! Boolean to denote whether an absolute or relative bias is to be created.
+    bool useAbsoluteBias_;
 };
 
 //! Class used for defining the settings for an observation model that is to be created.
@@ -238,7 +282,7 @@ public:
 };
 
 //! Class to define the settings for one-way Doppler observable
-class OneWayDopperObservationSettings: public ObservationSettings
+class OneWayDopplerObservationSettings: public ObservationSettings
 {
 public:
 
@@ -251,7 +295,7 @@ public:
      * \param receiverProperTimeRateSettings Settings for proper time rate at receiver
      * \param biasSettings Settings for the observation bias model that is to be used (default none: NUL
      */
-    OneWayDopperObservationSettings(
+    OneWayDopplerObservationSettings(
             const boost::shared_ptr< LightTimeCorrectionSettings > lightTimeCorrections,
             const boost::shared_ptr< DopplerProperTimeRateSettings > transmitterProperTimeRateSettings = NULL,
             const boost::shared_ptr< DopplerProperTimeRateSettings > receiverProperTimeRateSettings = NULL,
@@ -269,7 +313,7 @@ public:
      * \param receiverProperTimeRateSettings Settings for proper time rate at receiver
      * \param biasSettings Settings for the observation bias model that is to be used (default none: NUL
      */
-    OneWayDopperObservationSettings(
+    OneWayDopplerObservationSettings(
             const std::vector< boost::shared_ptr< LightTimeCorrectionSettings > > lightTimeCorrectionsList =
             std::vector< boost::shared_ptr< LightTimeCorrectionSettings > >( ),
             const boost::shared_ptr< DopplerProperTimeRateSettings > transmitterProperTimeRateSettings = NULL,
@@ -280,7 +324,7 @@ public:
         receiverProperTimeRateSettings_( receiverProperTimeRateSettings ){ }
 
     //! Destructor
-    ~OneWayDopperObservationSettings( ){ }
+    ~OneWayDopplerObservationSettings( ){ }
 
     //! Settings for proper time rate at transmitter
     boost::shared_ptr< DopplerProperTimeRateSettings > transmitterProperTimeRateSettings_;
@@ -288,6 +332,41 @@ public:
     //! Settings for proper time rate at receiver
     boost::shared_ptr< DopplerProperTimeRateSettings > receiverProperTimeRateSettings_;
 };
+
+
+
+//! Class to define the settings for one-way Doppler observable
+class TwoWayDopplerObservationSettings: public ObservationSettings
+{
+public:
+
+    //! Constructor
+    /*!
+     * Constructor
+     * \param uplinkOneWayDopplerSettings Settings for the one-way Doppler model of the uplink
+     * \param downlinkOneWayDopplerSettings Settings for the one-way Doppler model of the downlink
+     * \param biasSettings Settings for the observation bias model that is to be used (default none: NUL
+     */
+    TwoWayDopplerObservationSettings(
+            const boost::shared_ptr< OneWayDopplerObservationSettings > uplinkOneWayDopplerSettings,
+            const boost::shared_ptr< OneWayDopplerObservationSettings > downlinkOneWayDopplerSettings,
+            const boost::shared_ptr< ObservationBiasSettings > biasSettings = NULL ):
+        ObservationSettings( two_way_doppler, boost::shared_ptr< LightTimeCorrectionSettings >( ), biasSettings ),
+        uplinkOneWayDopplerSettings_( uplinkOneWayDopplerSettings ),
+        downlinkOneWayDopplerSettings_( downlinkOneWayDopplerSettings ){ }
+
+    //! Destructor
+    ~TwoWayDopplerObservationSettings( ){ }
+
+    //! Settings for the one-way Doppler model of the uplink
+    boost::shared_ptr< OneWayDopplerObservationSettings > uplinkOneWayDopplerSettings_;
+
+    //! Settings for the one-way Doppler model of the downlink
+    boost::shared_ptr< OneWayDopplerObservationSettings > downlinkOneWayDopplerSettings_;
+};
+
+
+
 
 //! Class to define the settings for one-way differenced range-rate (e.g. closed-loop Doppler) observable
 class OneWayDifferencedRangeRateObservationSettings: public ObservationSettings
@@ -426,7 +505,7 @@ boost::shared_ptr< DopplerProperTimeRateInterface > createOneWayDopplerProperTim
         else if( linkEnds.count( linkEndForCalculator ) == 0 )
         {
             std::string errorMessage = "Error when creating one-way Doppler proper time calculator, did not find link end " +
-                    boost::lexical_cast< std::string >( linkEndForCalculator );
+                    std::to_string( linkEndForCalculator );
             throw std::runtime_error( errorMessage );
         }
         else
@@ -467,7 +546,7 @@ boost::shared_ptr< DopplerProperTimeRateInterface > createOneWayDopplerProperTim
     }
     default:
         std::string errorMessage = "Error when creating one-way Doppler proper time calculator, did not recognize type " +
-                boost::lexical_cast< std::string >( properTimeRateSettings->dopplerProperTimeRateType_ );
+                std::to_string( properTimeRateSettings->dopplerProperTimeRateType_ );
         throw std::runtime_error( errorMessage );
     }
     return properTimeRateInterface;
@@ -497,6 +576,7 @@ SortedObservationSettingsMap convertUnsortedToSortedObservationSettingsMap(
  *  Function to create an object that computes an observation bias, which can represent any type of system-dependent influence
  *  on the observed value (e.g. absolute bias, relative bias, clock drift, etc.)
  *  \param linkEnds Observation link ends for which the bias is to be created.
+ *  \param observableType Observable type for which bias is to be created
  *  \param biasSettings Settings for teh observation bias that is to be created.
  *  \param bodyMap List of body objects that comprises the environment.
  *  \return Object that computes an observation bias according to requested settings.
@@ -504,6 +584,7 @@ SortedObservationSettingsMap convertUnsortedToSortedObservationSettingsMap(
 template< int ObservationSize = 1 >
 boost::shared_ptr< ObservationBias< ObservationSize > > createObservationBiasCalculator(
         const LinkEnds linkEnds,
+        const ObservableType observableType,
         const boost::shared_ptr< ObservationBiasSettings > biasSettings,
         const simulation_setup::NamedBodyMap &bodyMap )
 {
@@ -520,6 +601,11 @@ boost::shared_ptr< ObservationBias< ObservationSize > > createObservationBiasCal
             throw std::runtime_error( "Error when making constant observation bias, settings are inconsistent" );
         }
 
+        if( !constantBiasSettings->useAbsoluteBias_ )
+        {
+            throw std::runtime_error( "Error when making constant observation bias, class settings are inconsistent" );
+        }
+
         // Check if size of bias is consistent with requested observable size
         if( constantBiasSettings->observationBias_.rows( ) != ObservationSize )
         {
@@ -529,23 +615,94 @@ boost::shared_ptr< ObservationBias< ObservationSize > > createObservationBiasCal
                     constantBiasSettings->observationBias_ );
         break;
     }
+    case arc_wise_constant_absolute_bias:
+    {
+        // Check input consistency
+        boost::shared_ptr< ArcWiseConstantObservationBiasSettings > arcwiseBiasSettings = boost::dynamic_pointer_cast<
+                ArcWiseConstantObservationBiasSettings >( biasSettings );
+        if( arcwiseBiasSettings == NULL )
+        {
+            throw std::runtime_error( "Error when making arc-wise observation bias, settings are inconsistent" );
+        }
+        else if( !arcwiseBiasSettings->useAbsoluteBias_ )
+        {
+            throw std::runtime_error( "Error when making arc-wise observation bias, class contents are inconsistent" );
+        }
+
+        std::vector< Eigen::Matrix< double, ObservationSize, 1 > > observationBiases;
+        for( unsigned int i = 0; i < arcwiseBiasSettings->observationBiases_.size( ); i++ )
+        {
+            // Check if size of bias is consistent with requested observable size
+            if( arcwiseBiasSettings->observationBiases_.at( i ).rows( ) != ObservationSize )
+            {
+                throw std::runtime_error( "Error when making arc-wise observation bias, bias size is inconsistent" );
+            }
+            else
+            {
+                observationBiases.push_back( arcwiseBiasSettings->observationBiases_.at( i ) );
+            }
+        }
+        observationBias = boost::make_shared< ConstantArcWiseObservationBias< ObservationSize > >(
+                    arcwiseBiasSettings->arcStartTimes_, observationBiases,
+                    observation_models::getLinkEndIndicesForLinkEndTypeAtObservable(
+                        observableType, arcwiseBiasSettings->linkEndForTime_, linkEnds.size( ) ).at( 0 ) );
+        break;
+    }
     case constant_relative_bias:
     {
         // Check input consistency
-        boost::shared_ptr< ConstantRelativeObservationBiasSettings > constantBiasSettings = boost::dynamic_pointer_cast<
-                ConstantRelativeObservationBiasSettings >( biasSettings );
+        boost::shared_ptr< ConstantObservationBiasSettings > constantBiasSettings = boost::dynamic_pointer_cast<
+                ConstantObservationBiasSettings >( biasSettings );
         if( constantBiasSettings == NULL )
         {
             throw std::runtime_error( "Error when making constant relative observation bias, settings are inconsistent" );
         }
 
+        if( constantBiasSettings->useAbsoluteBias_ )
+        {
+            throw std::runtime_error( "Error when making constant relative observation bias, class settings are inconsistent" );
+        }
+
         // Check if size of bias is consistent with requested observable size
-        if( constantBiasSettings->relativeObservationBias_.rows( ) != ObservationSize )
+        if( constantBiasSettings->observationBias_.rows( ) != ObservationSize )
         {
             throw std::runtime_error( "Error when making constant relative observation bias, bias size is inconsistent" );
         }
         observationBias = boost::make_shared< ConstantRelativeObservationBias< ObservationSize > >(
-                    constantBiasSettings->relativeObservationBias_ );
+                    constantBiasSettings->observationBias_ );
+        break;
+    }
+    case arc_wise_constant_relative_bias:
+    {
+        // Check input consistency
+        boost::shared_ptr< ArcWiseConstantObservationBiasSettings > arcwiseBiasSettings = boost::dynamic_pointer_cast<
+                ArcWiseConstantObservationBiasSettings >( biasSettings );
+        if( arcwiseBiasSettings == NULL )
+        {
+            throw std::runtime_error( "Error when making arc-wise relative observation bias, settings are inconsistent" );
+        }
+        else if( arcwiseBiasSettings->useAbsoluteBias_ )
+        {
+            throw std::runtime_error( "Error when making arc-wise relative observation bias, class contents are inconsistent" );
+        }
+
+        std::vector< Eigen::Matrix< double, ObservationSize, 1 > > observationBiases;
+        for( unsigned int i = 0; i < arcwiseBiasSettings->observationBiases_.size( ); i++ )
+        {
+            // Check if size of bias is consistent with requested observable size
+            if( arcwiseBiasSettings->observationBiases_.at( i ).rows( ) != ObservationSize )
+            {
+                throw std::runtime_error( "Error when making arc-wise observation bias, bias size is inconsistent" );
+            }
+            else
+            {
+                observationBiases.push_back( arcwiseBiasSettings->observationBiases_.at( i ) );
+            }
+        }
+        observationBias = boost::make_shared< ConstantRelativeArcWiseObservationBias< ObservationSize > >(
+                    arcwiseBiasSettings->arcStartTimes_, observationBiases,
+                    observation_models::getLinkEndIndicesForLinkEndTypeAtObservable(
+                        observableType, arcwiseBiasSettings->linkEndForTime_, linkEnds.size( ) ).at( 0 ) );
         break;
     }
     case multiple_observation_biases:
@@ -563,7 +720,7 @@ boost::shared_ptr< ObservationBias< ObservationSize > > createObservationBiasCal
         for( unsigned int i = 0; i < multiBiasSettings->biasSettingsList_.size( ); i++ )
         {
             observationBiasList.push_back( createObservationBiasCalculator< ObservationSize >(
-                                               linkEnds, multiBiasSettings->biasSettingsList_.at( i ) , bodyMap ) );
+                                               linkEnds, observableType, multiBiasSettings->biasSettingsList_.at( i ) , bodyMap ) );
         }
 
         // Create combined bias object
@@ -574,7 +731,7 @@ boost::shared_ptr< ObservationBias< ObservationSize > > createObservationBiasCal
     default:
     {
         std::string errorMessage = "Error when making observation bias, bias type " +
-                boost::lexical_cast< std::string >( biasSettings->observationBiasType_  ) + " not recognized";
+                std::to_string( biasSettings->observationBiasType_  ) + " not recognized";
         throw std::runtime_error( errorMessage );
     }
     }
@@ -643,7 +800,7 @@ public:
             {
                 std::string errorMessage =
                         "Error when making 1 way range model, " +
-                        boost::lexical_cast< std::string >( linkEnds.size( ) ) + " link ends found";
+                        std::to_string( linkEnds.size( ) ) + " link ends found";
                 throw std::runtime_error( errorMessage );
             }
             if( linkEnds.count( receiver ) == 0 )
@@ -660,7 +817,7 @@ public:
             {
                 observationBias =
                         createObservationBiasCalculator(
-                            linkEnds, observationSettings->biasSettings_,bodyMap );
+                            linkEnds, observationSettings->observableType_, observationSettings->biasSettings_,bodyMap );
             }
 
             // Create observation model
@@ -680,7 +837,7 @@ public:
             {
                 std::string errorMessage =
                         "Error when making 1 way Doppler model, " +
-                        boost::lexical_cast< std::string >( linkEnds.size( ) ) + " link ends found";
+                        std::to_string( linkEnds.size( ) ) + " link ends found";
                 throw std::runtime_error( errorMessage );
             }
             if( linkEnds.count( receiver ) == 0 )
@@ -697,10 +854,10 @@ public:
             {
                 observationBias =
                         createObservationBiasCalculator(
-                            linkEnds, observationSettings->biasSettings_,bodyMap );
+                            linkEnds, observationSettings->observableType_, observationSettings->biasSettings_,bodyMap );
             }
 
-            if( boost::dynamic_pointer_cast< OneWayDopperObservationSettings >( observationSettings ) == NULL )
+            if( boost::dynamic_pointer_cast< OneWayDopplerObservationSettings >( observationSettings ) == NULL )
             {
                 // Create observation model
                 observationModel = boost::make_shared< OneWayDopplerObservationModel<
@@ -712,8 +869,8 @@ public:
             }
             else
             {
-                boost::shared_ptr< OneWayDopperObservationSettings > oneWayDopplerSettings =
-                        boost::dynamic_pointer_cast< OneWayDopperObservationSettings >( observationSettings );
+                boost::shared_ptr< OneWayDopplerObservationSettings > oneWayDopplerSettings =
+                        boost::dynamic_pointer_cast< OneWayDopplerObservationSettings >( observationSettings );
                 // Create observation model
                 observationModel = boost::make_shared< OneWayDopplerObservationModel<
                         ObservationScalarType, TimeType > >(
@@ -729,6 +886,83 @@ public:
 
             break;
         }
+
+        case two_way_doppler:
+        {
+            // Check consistency input.
+            if( linkEnds.size( ) != 3 )
+            {
+                std::string errorMessage =
+                        "Error when making 2 way Doppler model, " +
+                        std::to_string( linkEnds.size( ) ) + " link ends found";
+                throw std::runtime_error( errorMessage );
+            }
+            if( linkEnds.count( receiver ) == 0 )
+            {
+                throw std::runtime_error( "Error when making 2 way Doppler model, no receiver found" );
+            }
+
+            if( linkEnds.count( reflector1 ) == 0 )
+            {
+                throw std::runtime_error( "Error when making 2 way Doppler model, no retransmitter found" );
+            }
+
+            if( linkEnds.count( transmitter ) == 0 )
+            {
+                throw std::runtime_error( "Error when making 2 way Doppler model, no transmitter found" );
+            }
+
+            boost::shared_ptr< ObservationBias< 1 > > observationBias;
+            if( observationSettings->biasSettings_ != NULL )
+            {
+                observationBias =
+                        createObservationBiasCalculator(
+                            linkEnds, observationSettings->observableType_, observationSettings->biasSettings_,bodyMap );
+            }
+
+            // Create observation model
+
+            LinkEnds uplinkLinkEnds;
+            uplinkLinkEnds[ transmitter ] = linkEnds.at( transmitter );
+            uplinkLinkEnds[ receiver ] = linkEnds.at( reflector1 );
+
+            LinkEnds downlinkLinkEnds;
+            downlinkLinkEnds[ transmitter ] = linkEnds.at( reflector1 );
+            downlinkLinkEnds[ receiver ] = linkEnds.at( receiver );
+
+            boost::shared_ptr< TwoWayDopplerObservationSettings > twoWayDopplerSettings =
+                    boost::dynamic_pointer_cast< TwoWayDopplerObservationSettings >( observationSettings );
+
+            if( twoWayDopplerSettings == NULL )
+            {
+                observationModel = boost::make_shared< TwoWayDopplerObservationModel<
+                        ObservationScalarType, TimeType > >(
+                            boost::dynamic_pointer_cast< OneWayDopplerObservationModel< ObservationScalarType, TimeType > >(
+                                ObservationModelCreator< 1, ObservationScalarType, TimeType >::createObservationModel(
+                                    uplinkLinkEnds, boost::make_shared< ObservationSettings >(
+                                        one_way_doppler, observationSettings->lightTimeCorrectionsList_ ), bodyMap ) ),
+                            boost::dynamic_pointer_cast< OneWayDopplerObservationModel< ObservationScalarType, TimeType > >(
+                                ObservationModelCreator< 1, ObservationScalarType, TimeType >::createObservationModel(
+                                    downlinkLinkEnds, boost::make_shared< ObservationSettings >(
+                                        one_way_doppler, observationSettings->lightTimeCorrectionsList_ ), bodyMap ) ),
+                            observationBias );
+            }
+            else
+            {
+                observationModel = boost::make_shared< TwoWayDopplerObservationModel<
+                        ObservationScalarType, TimeType > >(
+                            boost::dynamic_pointer_cast< OneWayDopplerObservationModel< ObservationScalarType, TimeType > >(
+                                ObservationModelCreator< 1, ObservationScalarType, TimeType >::createObservationModel(
+                                    uplinkLinkEnds, twoWayDopplerSettings->uplinkOneWayDopplerSettings_, bodyMap ) ),
+                            boost::dynamic_pointer_cast< OneWayDopplerObservationModel< ObservationScalarType, TimeType > >(
+                                ObservationModelCreator< 1, ObservationScalarType, TimeType >::createObservationModel(
+                                    downlinkLinkEnds, twoWayDopplerSettings->downlinkOneWayDopplerSettings_, bodyMap ) ),
+                            observationBias );
+            }
+
+            break;
+        }
+
         case one_way_differenced_range:
         {
             boost::shared_ptr< OneWayDifferencedRangeRateObservationSettings > rangeRateObservationSettings =
@@ -742,7 +976,7 @@ public:
             {
                 std::string errorMessage =
                         "Error when making 1 way range model, " +
-                        boost::lexical_cast< std::string >( linkEnds.size( ) ) + " link ends found";
+                        std::to_string( linkEnds.size( ) ) + " link ends found";
                 throw std::runtime_error( errorMessage );
             }
             if( linkEnds.count( receiver ) == 0 )
@@ -759,7 +993,7 @@ public:
             {
                 observationBias =
                         createObservationBiasCalculator(
-                            linkEnds, observationSettings->biasSettings_,bodyMap );
+                            linkEnds, observationSettings->observableType_, observationSettings->biasSettings_,bodyMap );
             }
 
             // Create observation model
@@ -778,19 +1012,12 @@ public:
         }
         case n_way_range:
         {
-            boost::shared_ptr< NWayRangeObservationSettings > nWayRangeObservationSettings =
-                    boost::dynamic_pointer_cast< NWayRangeObservationSettings >( observationSettings );
-            if( nWayRangeObservationSettings == NULL )
-            {
-                throw std::runtime_error( "Error when making differenced n-way range, input type is inconsistent" );
-            }
-
             // Check consistency input.
             if( linkEnds.size( ) < 2 )
             {
                 std::string errorMessage =
                         "Error when making n way range model, " +
-                        boost::lexical_cast< std::string >( linkEnds.size( ) ) + " link ends found";
+                        std::to_string( linkEnds.size( ) ) + " link ends found";
                 throw std::runtime_error( errorMessage );
             }
             if( linkEnds.count( receiver ) == 0 )
@@ -801,11 +1028,6 @@ public:
             if( linkEnds.count( transmitter ) == 0 )
             {
                 throw std::runtime_error( "Error when making n way range model, no transmitter found" );
-            }
-
-            if( linkEnds.size( ) != ( nWayRangeObservationSettings->oneWayRangeObsevationSettings_.size( ) + 1 ) )
-            {
-                throw std::runtime_error( "Error when making n way range model, input is inconsistent" );
             }
 
             // Check link end consistency.
@@ -820,7 +1042,7 @@ public:
                     if( linkEnds.count( previousLinkEndType ) == 0 )
                     {
                         throw std::runtime_error( "Error when making n-way range model, did not find link end type " +
-                                                  boost::lexical_cast< std::string >( previousLinkEndType ) );
+                                                  std::to_string( previousLinkEndType ) );
                     }
                 }
             }
@@ -831,7 +1053,27 @@ public:
             {
                 observationBias =
                         createObservationBiasCalculator(
-                            linkEnds, observationSettings->biasSettings_, bodyMap );
+                            linkEnds, observationSettings->observableType_, observationSettings->biasSettings_, bodyMap );
+            }
+
+            std::vector< boost::shared_ptr< LightTimeCorrectionSettings > > lightTimeCorrectionsList;
+
+            boost::function< std::vector< double >( const double ) > retransmissionTimesFunction_;
+
+            boost::shared_ptr< NWayRangeObservationSettings > nWayRangeObservationSettings =
+                    boost::dynamic_pointer_cast< NWayRangeObservationSettings >( observationSettings );
+
+            if( nWayRangeObservationSettings == NULL )
+            {
+                lightTimeCorrectionsList = observationSettings->lightTimeCorrectionsList_;
+            }
+            else if( nWayRangeObservationSettings->oneWayRangeObsevationSettings_.size( ) != linkEnds.size( ) - 1 )
+            {
+                throw std::runtime_error( "Error whaen making n-way range, input data is inconsistent" );
+            }
+            else
+            {
+                retransmissionTimesFunction_ = nWayRangeObservationSettings->retransmissionTimesFunction_;
             }
 
             // Define light-time calculator list
@@ -841,17 +1083,28 @@ public:
             LinkEnds::const_iterator transmitterIterator = linkEnds.begin( );
             LinkEnds::const_iterator receiverIterator = linkEnds.begin( );
             receiverIterator++;
-            for( unsigned int i = 0; i < nWayRangeObservationSettings->oneWayRangeObsevationSettings_.size( ); i++ )
+            for( unsigned int i = 0; i < linkEnds.size( ) - 1; i++ )
             {
-                if( nWayRangeObservationSettings->oneWayRangeObsevationSettings_.at( i )->observableType_ != one_way_range )
+                if( nWayRangeObservationSettings != NULL )
                 {
-                    throw std::runtime_error( "Error in n-way observable creation, consituent link is not of type 1-way" );
+                    if( nWayRangeObservationSettings->oneWayRangeObsevationSettings_.at( i )->observableType_ != one_way_range )
+                    {
+                        throw std::runtime_error( "Error in n-way observable creation, consituent link is not of type 1-way" );
+                    }
+                    lightTimeCalculators.push_back(
+                                createLightTimeCalculator< ObservationScalarType, TimeType >(
+                                    transmitterIterator->second, receiverIterator->second,
+                                    bodyMap, nWayRangeObservationSettings->oneWayRangeObsevationSettings_.at( i )->
+                                    lightTimeCorrectionsList_ ) );
                 }
-                lightTimeCalculators.push_back(
-                            createLightTimeCalculator< ObservationScalarType, TimeType >(
-                                transmitterIterator->second, receiverIterator->second,
-                                bodyMap, nWayRangeObservationSettings->oneWayRangeObsevationSettings_.at( i )
-                                ->lightTimeCorrectionsList_ ) );
+                else
+                {
+                    lightTimeCalculators.push_back(
+                                createLightTimeCalculator< ObservationScalarType, TimeType >(
+                                    transmitterIterator->second, receiverIterator->second,
+                                    bodyMap, observationSettings->lightTimeCorrectionsList_ ) );
+                }
+
                 transmitterIterator++;
                 receiverIterator++;
             }
@@ -859,14 +1112,13 @@ public:
             // Create observation model
             observationModel = boost::make_shared< NWayRangeObservationModel<
                     ObservationScalarType, TimeType > >(
-                        lightTimeCalculators, nWayRangeObservationSettings->retransmissionTimesFunction_,
+                        lightTimeCalculators, retransmissionTimesFunction_,
                         observationBias );
-
             break;
         }
 
         default:
-            std::string errorMessage = "Error, observable " + boost::lexical_cast< std::string >(
+            std::string errorMessage = "Error, observable " + std::to_string(
                         observationSettings->observableType_ ) +
                     "  not recognized when making size 1 observation model.";
             throw std::runtime_error( errorMessage );
@@ -910,7 +1162,7 @@ public:
             {
                 std::string errorMessage =
                         "Error when making angular position model, " +
-                        boost::lexical_cast< std::string >( linkEnds.size( ) ) + " link ends found";
+                        std::to_string( linkEnds.size( ) ) + " link ends found";
                 throw std::runtime_error( errorMessage );
             }
             if( linkEnds.count( receiver ) == 0 )
@@ -928,7 +1180,7 @@ public:
             {
                 observationBias =
                         createObservationBiasCalculator< 2 >(
-                            linkEnds, observationSettings->biasSettings_,bodyMap );
+                            linkEnds, observationSettings->observableType_, observationSettings->biasSettings_,bodyMap );
             }
 
             // Create observation model
@@ -942,7 +1194,7 @@ public:
             break;
         }
         default:
-            std::string errorMessage = "Error, observable " + boost::lexical_cast< std::string >(
+            std::string errorMessage = "Error, observable " + std::to_string(
                         observationSettings->observableType_ ) +
                     "  not recognized when making size 2 observation model.";
             throw std::runtime_error( errorMessage );
@@ -988,7 +1240,7 @@ public:
             {
                 std::string errorMessage =
                         "Error when making position observable model, " +
-                        boost::lexical_cast< std::string >( linkEnds.size( ) ) + " link ends found";
+                        std::to_string( linkEnds.size( ) ) + " link ends found";
                 throw std::runtime_error( errorMessage );
             }
 
@@ -1011,7 +1263,7 @@ public:
             {
                 observationBias =
                         createObservationBiasCalculator< 3 >(
-                            linkEnds, observationSettings->biasSettings_,bodyMap );
+                            linkEnds, observationSettings->observableType_, observationSettings->biasSettings_,bodyMap );
             }
 
 
@@ -1026,7 +1278,7 @@ public:
             break;
         }
         default:
-            std::string errorMessage = "Error, observable " + boost::lexical_cast< std::string >(
+            std::string errorMessage = "Error, observable " + std::to_string(
                         observationSettings->observableType_ ) +
                     "  not recognized when making size 3 observation model.";
             throw std::runtime_error( errorMessage );
@@ -1083,7 +1335,7 @@ boost::shared_ptr< ObservationSimulatorBase< ObservationScalarType, TimeType > >
         const simulation_setup::NamedBodyMap& bodyMap )
 {
     std::map< ObservableType,
-    boost::shared_ptr< ObservationSimulatorBase< ObservationScalarType, TimeType > > > observationSimulators;
+            boost::shared_ptr< ObservationSimulatorBase< ObservationScalarType, TimeType > > > observationSimulators;
 
     // Iterate over all observables
     typedef std::map< ObservableType, std::map< LinkEnds, boost::shared_ptr< ObservationSettings > > >
@@ -1175,13 +1427,16 @@ std::vector< std::pair< int, int > > getLinkEndIndicesForObservationViability(
  * \param observationViabilitySettings Object that defines the settings for the creation of the viability check creation
  * (settings must be compatible with minimum elevation angle check).  Ground station must ve specified by
  * associatedLinkEnd_.second in observationViabilitySettings.
+ * \param stationName Name of the ground station for which calculator is to be computed (if no station is explicitly given in
+ * observationViabilitySettings).
  * \return Object to check if a minimum elevation angle condition is met for an observation
  */
 boost::shared_ptr< MinimumElevationAngleCalculator > createMinimumElevationAngleCalculator(
         const simulation_setup::NamedBodyMap& bodyMap,
         const LinkEnds linkEnds,
         const ObservableType observationType,
-        const boost::shared_ptr< ObservationViabilitySettings > observationViabilitySettings );
+        const boost::shared_ptr< ObservationViabilitySettings > observationViabilitySettings,
+        const std::string& stationName );
 
 //! Function to create an object to check if a body avoidance angle condition is met for an observation
 /*!

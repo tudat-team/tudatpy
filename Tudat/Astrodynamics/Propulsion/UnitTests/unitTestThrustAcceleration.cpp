@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -19,17 +19,16 @@
 #include "Tudat/Astrodynamics/BasicAstrodynamics/sphericalStateConversions.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/unitConversions.h"
 #include "Tudat/Astrodynamics/ReferenceFrames/referenceFrameTransformations.h"
-#include <Tudat/Basics/testMacros.h>
+#include "Tudat/Basics/testMacros.h"
 #include "Tudat/SimulationSetup/PropagationSetup/dynamicsSimulator.h"
-#include <Tudat/External/SpiceInterface/spiceEphemeris.h>
-#include <Tudat/External/SpiceInterface/spiceRotationalEphemeris.h>
-#include <Tudat/InputOutput/basicInputOutput.h>
-#include <Tudat/InputOutput/multiDimensionalArrayReader.h>
-#include <Tudat/SimulationSetup/EnvironmentSetup/body.h>
+#include "Tudat/External/SpiceInterface/spiceEphemeris.h"
+#include "Tudat/External/SpiceInterface/spiceRotationalEphemeris.h"
+#include "Tudat/InputOutput/basicInputOutput.h"
+#include "Tudat/InputOutput/multiDimensionalArrayReader.h"
+#include "Tudat/SimulationSetup/EnvironmentSetup/body.h"
 #include "Tudat/SimulationSetup/PropagationSetup/createNumericalSimulator.h"
-#include <Tudat/SimulationSetup/PropagationSetup/createMassRateModels.h>
-#include <Tudat/SimulationSetup/EnvironmentSetup/defaultBodies.h>
-
+#include "Tudat/SimulationSetup/PropagationSetup/createMassRateModels.h"
+#include "Tudat/SimulationSetup/EnvironmentSetup/defaultBodies.h"
 #include <limits>
 #include <string>
 
@@ -399,10 +398,7 @@ BOOST_AUTO_TEST_CASE( testRadialAndVelocityThrustAcceleration )
     using namespace basic_astrodynamics;
 
     //Load spice kernels.
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "pck00009.tpc" );
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "de-403-masses.tpc" );
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "de421.bsp" );
-
+    spice_interface::loadStandardSpiceKernels( );
 
     double thrustMagnitude = 1.0E3;
     double specificImpulse = 250.0;
@@ -577,10 +573,8 @@ BOOST_AUTO_TEST_CASE( testThrustAccelerationFromExistingRotation )
     using namespace basic_astrodynamics;
 
     //Load spice kernels.
-    std::string kernelsPath = input_output::getSpiceKernelPath( );
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "pck00009.tpc" );
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "de-403-masses.tpc" );
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "de421.bsp" );
+    spice_interface::loadStandardSpiceKernels( );
+
 
 
     double thrustMagnitude = 1.0E3;
@@ -705,9 +699,7 @@ BOOST_AUTO_TEST_CASE( testConcurrentThrustAndAerodynamicAcceleration )
     using namespace input_output;
 
     // Load Spice kernels.
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "pck00009.tpc" );
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "de-403-masses.tpc" );
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "de421.bsp" );
+    spice_interface::loadStandardSpiceKernels( );
 
 
     // Set simulation start epoch.
@@ -995,6 +987,7 @@ BOOST_AUTO_TEST_CASE( testInterpolatedThrustVector )
     using namespace gravitation;
     using namespace numerical_integrators;
     using namespace unit_conversions;
+    using namespace interpolators;
 
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1002,9 +995,7 @@ BOOST_AUTO_TEST_CASE( testInterpolatedThrustVector )
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     // Load Spice kernels.
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "pck00009.tpc" );
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "de-403-masses.tpc" );
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "de421.bsp" );
+    spice_interface::loadStandardSpiceKernels( );
 
     // Set simulation end epoch.
     const double simulationEndEpoch = tudat::physical_constants::JULIAN_DAY;
@@ -1053,9 +1044,10 @@ BOOST_AUTO_TEST_CASE( testInterpolatedThrustVector )
     randomThrustMap[ 8.0E4 ] = 20.0 * Eigen::MatrixXd::Random( 3, 1 );
     randomThrustMap[ 9.0E4 ] = 20.0 * Eigen::MatrixXd::Random( 3, 1 );
 
-    boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Vector3d > > thrustInterpolator =
-            boost::make_shared< interpolators::LinearInterpolator< double, Eigen::Vector3d > >(
-                randomThrustMap );
+    boost::shared_ptr< DataInterpolationSettings< double, Eigen::Vector3d > > thrustDataInterpolation =
+            boost::make_shared< DataInterpolationSettings< double, Eigen::Vector3d > >(
+                boost::make_shared< DataMapSettings< double, Eigen::Vector3d > >( randomThrustMap ),
+                boost::make_shared< InterpolatorSettings >( linear_interpolator ) );
 
     for( unsigned int testCase = 0; testCase < 2; testCase++ )
     {
@@ -1069,19 +1061,14 @@ BOOST_AUTO_TEST_CASE( testInterpolatedThrustVector )
         std::map< std::string, std::vector< boost::shared_ptr< AccelerationSettings > > > accelerationsOfAsterix;
         accelerationsOfAsterix[ "Earth" ].push_back( boost::make_shared< AccelerationSettings >(
                                                          basic_astrodynamics::central_gravity ) );
-        if( testCase == 0 )
-        {
-            accelerationsOfAsterix[ "Asterix" ].push_back( boost::make_shared< ThrustAccelerationSettings >(
-                                                               thrustInterpolator, boost::lambda::constant( 300.0 ),
-                                                               inertial_thurst_frame, "Earth" ) );
-        }
-        else if( testCase == 1 )
-        {
-            accelerationsOfAsterix[ "Asterix" ].push_back( boost::make_shared< ThrustAccelerationSettings >(
-                                                               thrustInterpolator, boost::lambda::constant( 300.0 ),
-                                                               lvlh_thrust_frame, "Earth" ) );
-        }
-        accelerationMap[  "Asterix" ] = accelerationsOfAsterix;
+
+        boost::shared_ptr< ThrustAccelerationSettings > thrustSettings =
+                boost::make_shared< ThrustAccelerationSettings >(
+                    thrustDataInterpolation, boost::lambda::constant( 300.0 ),
+                    testCase == 0 ? inertial_thurst_frame : lvlh_thrust_frame, "Earth" );
+
+        accelerationsOfAsterix[ "Asterix" ].push_back( thrustSettings );
+        accelerationMap[ "Asterix" ] = accelerationsOfAsterix;
         bodiesToPropagate.push_back( "Asterix" );
         centralBodies.push_back( "Earth" );
 
@@ -1135,11 +1122,16 @@ BOOST_AUTO_TEST_CASE( testInterpolatedThrustVector )
         ///////////////////////             PROPAGATE ORBIT            /////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+
         // Create simulation object and propagate dynamics.
         SingleArcDynamicsSimulator< > dynamicsSimulator(
                     bodyMap, integratorSettings, propagatorSettings, true, false, false );
         std::map< double, Eigen::VectorXd > integrationResult = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
         std::map< double, Eigen::VectorXd > dependentVariableResult = dynamicsSimulator.getDependentVariableHistory( );
+
+
+        boost::shared_ptr< OneDimensionalInterpolator< double, Eigen::Vector3d > > thrustInterpolator =
+                thrustSettings->interpolatorInterface_->getThrustInterpolator( );
 
         Eigen::Vector3d thrustDifference;
 
@@ -1247,9 +1239,7 @@ BOOST_AUTO_TEST_CASE( testConcurrentThrustAndAerodynamicAccelerationWithEnvironm
     using namespace input_output;
 
     // Load Spice kernels.
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "pck00009.tpc" );
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "de-403-masses.tpc" );
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "de421.bsp" );
+    spice_interface::loadStandardSpiceKernels( );
 
 
     // Set simulation start epoch.
@@ -1597,10 +1587,7 @@ BOOST_AUTO_TEST_CASE( testAccelerationLimitedGuidedThrust )
     using namespace input_output;
 
     // Load Spice kernels.
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "pck00009.tpc" );
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "de-403-masses.tpc" );
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "de421.bsp" );
-
+    spice_interface::loadStandardSpiceKernels( );
 
     // Set simulation start epoch.
     const double simulationStartEpoch = 0.0;
@@ -1757,6 +1744,212 @@ BOOST_AUTO_TEST_CASE( testAccelerationLimitedGuidedThrust )
                     ( variableIterator->second( 0 ) ) <=
                     physical_constants::SEA_LEVEL_GRAVITATIONAL_ACCELERATION * (
                         1.0 + 4.0 * std::numeric_limits< double >::epsilon( ) ), true );
+    }
+}
+
+//! Test to check whether the mee-costate based thrust guidance is working correctly
+BOOST_AUTO_TEST_CASE( testMeeCostateBasedThrust )
+{
+    using namespace tudat;
+    using namespace ephemerides;
+    using namespace interpolators;
+    using namespace numerical_integrators;
+    using namespace spice_interface;
+    using namespace simulation_setup;
+    using namespace basic_astrodynamics;
+    using namespace orbital_element_conversions;
+    using namespace propagators;
+    using namespace aerodynamics;
+    using namespace basic_mathematics;
+    using namespace input_output;
+    using namespace unit_conversions;
+
+    // Load Spice kernels.
+    spice_interface::loadStandardSpiceKernels( );
+
+    // Set simulation start epoch.
+    const double simulationStartEpoch = 0.0;
+
+    // Set simulation end epoch.
+    const double simulationEndEpoch = 24.0 * 3600.0;
+
+    // Set numerical integration fixed step size.
+    const double fixedStepSize = 15.0;
+
+
+    // Set spherical elements for Apollo.
+    Eigen::Vector6d asterixInitialStateInKeplerianElements;
+    asterixInitialStateInKeplerianElements( semiMajorAxisIndex ) = 7500.0E3;
+    asterixInitialStateInKeplerianElements( eccentricityIndex ) = 0.1;
+    asterixInitialStateInKeplerianElements( inclinationIndex ) = 0.5;
+    asterixInitialStateInKeplerianElements( argumentOfPeriapsisIndex ) = 0.5;
+    asterixInitialStateInKeplerianElements( longitudeOfAscendingNodeIndex ) = 0.5;
+    asterixInitialStateInKeplerianElements( trueAnomalyIndex ) = convertDegreesToRadians( 139.87 );
+
+    // Convert asterix state from spherical elements to Cartesian elements.
+    Vector6d asterixInitialState = orbital_element_conversions::convertKeplerianToCartesianElements(
+                asterixInitialStateInKeplerianElements, getBodyGravitationalParameter( "Earth" ) );
+
+    // Define simulation body settings.
+    std::map< std::string, boost::shared_ptr< BodySettings > > bodySettings =
+            getDefaultBodySettings( { "Earth" }, simulationStartEpoch - 1.0E4,
+                                    simulationEndEpoch + 1.0E4 );
+    bodySettings[ "Earth" ]->gravityFieldSettings =
+            boost::make_shared< simulation_setup::GravityFieldSettings >( central_spice );
+
+    // Create Earth object
+    simulation_setup::NamedBodyMap bodyMap = simulation_setup::createBodies( bodySettings );
+
+    // Create vehicle objects.
+    bodyMap[ "Asterix" ] = boost::make_shared< simulation_setup::Body >( );
+
+    // Finalize body creation.
+    setGlobalFrameBodyEphemerides( bodyMap, "Earth", "ECLIPJ2000" );
+
+    double vehicleMass = 5.0E5;
+
+    // Run simulations for a single MEE costate not equal to zero, for each of the first 5 elements
+    for( unsigned int i = 0; i < 5; i++ )
+    {
+        bodyMap[ "Asterix" ]->setConstantBodyMass( vehicleMass );
+
+        // Define propagator settings variables.
+        SelectedAccelerationMap accelerationMap;
+        std::vector< std::string > bodiesToPropagate;
+        std::vector< std::string > centralBodies;
+
+        // Define acceleration model settings.
+        std::map< std::string, std::vector< boost::shared_ptr< AccelerationSettings > > > accelerationsOfAsterix;
+        accelerationsOfAsterix[ "Earth" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );
+
+        Eigen::VectorXd costates = Eigen::VectorXd::Zero( 5 );
+        costates( i ) = 100.0;
+
+        boost::shared_ptr< ThrustDirectionGuidanceSettings > thrustDirectionGuidanceSettings =
+                boost::make_shared< MeeCostateBasedThrustDirectionSettings >(
+                    "Asterix", "Earth", boost::lambda::constant( costates ) );
+        boost::shared_ptr< ThrustEngineSettings > thrustMagnitudeSettings =
+                boost::make_shared< ConstantThrustEngineSettings >( 1.0E4, 30000.0 );
+
+        accelerationsOfAsterix[ "Asterix" ].push_back(
+                    boost::make_shared< ThrustAccelerationSettings >(
+                        thrustDirectionGuidanceSettings, thrustMagnitudeSettings ) );
+
+        accelerationMap[ "Asterix" ] = accelerationsOfAsterix;
+
+        bodiesToPropagate.push_back( "Asterix" );
+        centralBodies.push_back( "Earth" );
+
+        // Set initial state
+        Eigen::Vector6d systemInitialState = asterixInitialState;
+
+
+        // Create acceleration models and propagation settings.
+        basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
+                    bodyMap, accelerationMap, bodiesToPropagate, centralBodies );
+
+        // Define list of dependent variables to save.
+        std::vector< boost::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariables;
+        dependentVariables.push_back(
+                    boost::make_shared< SingleDependentVariableSaveSettings >(
+                        modified_equinocial_state_dependent_variable, "Asterix", "Earth" ) );
+        dependentVariables.push_back(
+                    boost::make_shared< SingleAccelerationDependentVariableSaveSettings >(
+                        thrust_acceleration, "Asterix", "Asterix" ) );
+
+        // Create propagator/integrator settings
+        boost::shared_ptr< TranslationalStatePropagatorSettings< double > > translationalPropagatorSettings =
+                boost::make_shared< TranslationalStatePropagatorSettings< double > >
+                ( centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState,
+                  boost::make_shared< propagators::PropagationTimeTerminationSettings >( simulationEndEpoch ), cowell,
+                  boost::make_shared< DependentVariableSaveSettings >( dependentVariables ) );
+        std::map< std::string, boost::shared_ptr< basic_astrodynamics::MassRateModel > > massRateModels;
+        massRateModels[ "Asterix" ] = createMassRateModel(
+                    "Asterix", boost::make_shared< FromThrustMassModelSettings >( 1 ),
+                    bodyMap, accelerationModelMap );
+        boost::shared_ptr< MassPropagatorSettings< double > > massPropagatorSettings =
+                boost::make_shared< MassPropagatorSettings< double > >(
+                    boost::assign::list_of( "Asterix" ), massRateModels,
+                    ( Eigen::Matrix< double, 1, 1 >( ) << vehicleMass ).finished( ),
+                    boost::make_shared< propagators::PropagationTimeTerminationSettings >( simulationEndEpoch ) );
+        std::vector< boost::shared_ptr< SingleArcPropagatorSettings< double > > > propagatorSettingsVector;
+        propagatorSettingsVector.push_back( translationalPropagatorSettings );
+        propagatorSettingsVector.push_back( massPropagatorSettings );
+        boost::shared_ptr< SingleArcPropagatorSettings< double > > propagatorSettings =
+                boost::make_shared< MultiTypePropagatorSettings< double > >(
+                    propagatorSettingsVector, boost::make_shared< propagators::PropagationTimeTerminationSettings >(
+                        simulationEndEpoch ),
+                    boost::make_shared< DependentVariableSaveSettings >( dependentVariables ) );
+
+        boost::shared_ptr< IntegratorSettings< > > integratorSettings =
+                boost::make_shared< IntegratorSettings< > >
+                ( rungeKutta4, simulationStartEpoch, fixedStepSize );
+
+        // Create simulation object and propagate dynamics.
+        SingleArcDynamicsSimulator< > dynamicsSimulator(
+                    bodyMap, integratorSettings, propagatorSettings, true, false, false );
+
+        // Retrieve change in Modified Equinoctial Elements
+        std::map< double, Eigen::VectorXd > dependentVariableSolution =
+                dynamicsSimulator.getDependentVariableHistory( );
+        Eigen::Vector6d finalModifiedEquinoctialElementsError =
+                dependentVariableSolution.rbegin( )->second.segment( 0, 6 ) -
+                dependentVariableSolution.begin( )->second.segment( 0, 6 );
+
+        // Test whether MEE rates are within reasonable bounds (values are determined empirically)
+        BOOST_CHECK_EQUAL( ( finalModifiedEquinoctialElementsError( i ) < 0 ), true );
+        if( i == 0 )
+        {
+            BOOST_CHECK_EQUAL( ( std::fabs( finalModifiedEquinoctialElementsError( 0 ) ) > 2.5E6 ), true );
+        }
+        else if( i < 3 )
+        {
+            BOOST_CHECK_EQUAL( ( std::fabs( finalModifiedEquinoctialElementsError( 0 ) ) < 2E5 ), true );
+        }
+        else
+        {
+            BOOST_CHECK_EQUAL( ( std::fabs( finalModifiedEquinoctialElementsError( 0 ) ) < 0.1 ), true );
+        }
+
+        if( i == 1 )
+        {
+            BOOST_CHECK_EQUAL( ( std::fabs( finalModifiedEquinoctialElementsError( 1 ) ) > 0.1 ), true );
+        }
+        else
+        {
+            BOOST_CHECK_EQUAL( ( std::fabs( finalModifiedEquinoctialElementsError( 1 ) ) < 0.025 ), true );
+        }
+
+        if( i == 2 )
+        {
+            BOOST_CHECK_EQUAL( ( std::fabs( finalModifiedEquinoctialElementsError( 2 ) ) > 0.1 ), true );
+        }
+        else
+        {
+            BOOST_CHECK_EQUAL( ( std::fabs( finalModifiedEquinoctialElementsError( 2 ) ) < 0.025 ), true );
+        }
+
+        if( i == 3 )
+        {
+            BOOST_CHECK_EQUAL( ( std::fabs( finalModifiedEquinoctialElementsError( 3 ) ) > 0.075 ), true );
+        }
+        else
+        {
+            BOOST_CHECK_EQUAL( ( std::fabs( finalModifiedEquinoctialElementsError( 3 ) ) < 0.005 ), true );
+        }
+
+        if( i == 4 )
+        {
+            BOOST_CHECK_EQUAL( ( std::fabs( finalModifiedEquinoctialElementsError( 4 ) ) > 0.075 ), true );
+        }
+        else
+        {
+            BOOST_CHECK_EQUAL( ( std::fabs( finalModifiedEquinoctialElementsError( 4 ) ) < 0.005 ), true );
+        }
+
+//        std::cout<<finalModifiedEquinoctialElementsError.transpose( )<<std::endl;
+//        input_output::writeDataMapToTextFile( dependentVariableSolution, "meeThrustDep_" + std::to_string( i ) + ".dat" );
+//        input_output::writeDataMapToTextFile( numericalSolution, "meeThrustState_" + std::to_string( i ) + ".dat" );
     }
 }
 

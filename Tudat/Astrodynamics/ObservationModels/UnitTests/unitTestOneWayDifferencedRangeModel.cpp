@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -13,7 +13,6 @@
 #include <limits>
 #include <string>
 
-#include <boost/format.hpp>
 #include <boost/test/unit_test.hpp>
 #include <boost/make_shared.hpp>
 
@@ -48,11 +47,7 @@ double integrationTimeFunction( const double currentObservationTime )
 BOOST_AUTO_TEST_CASE( testOneWayDoppplerModel )
 {
     // Load Spice kernels
-    std::string kernelsPath = input_output::getSpiceKernelPath( );
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "de-403-masses.tpc");
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "naif0009.tls");
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "pck00009.tpc");
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "de421.bsp");
+    spice_interface::loadStandardSpiceKernels( );
 
     // Define bodies to use.
     std::vector< std::string > bodiesToCreate;
@@ -101,7 +96,7 @@ BOOST_AUTO_TEST_CASE( testOneWayDoppplerModel )
         for( double observationTime = 86400.0; observationTime <= 86400.0; observationTime += observationTime )
         {
 
-            std::cout<<"TEST: ************************************* "<<testCase<<" "<< observationTime<<std::endl;
+            std::cout << "TEST: ************************************* " << testCase << " " << observationTime << std::endl;
             double dopplerCountInterval = integrationTimeFunction( observationTime );
             double arcStartObservationTime = observationTime - dopplerCountInterval;
             double arcEndObservationTime = observationTime;

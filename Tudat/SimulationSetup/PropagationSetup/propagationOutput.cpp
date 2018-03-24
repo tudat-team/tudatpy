@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -86,38 +86,52 @@ double computeEquilibriumFayRiddellHeatFluxFromProperties(
 }
 
 
-//! Function to evaluate a set of double and vector-returning functions and concatenate the results.
-Eigen::VectorXd evaluateListOfFunctions(
-        const std::vector< boost::function< double( ) > >& doubleFunctionList,
+//! Function to return a vector containing only one value given by doubleFunction
+Eigen::VectorXd getVectorFromDoubleFunction( const boost::function< double( ) >& doubleFunction )
+{
+    Eigen::VectorXd vector( 1 );
+    vector << doubleFunction( );
+    return vector;
+}
+
+//! Function to evaluate a set of vector-returning functions and concatenate the results.
+Eigen::VectorXd evaluateListOfVectorFunctions(
         const std::vector< std::pair< boost::function< Eigen::VectorXd( ) >, int > > vectorFunctionList,
-        const int totalSize)
+        const int totalSize )
 {
     Eigen::VectorXd variableList = Eigen::VectorXd::Zero( totalSize );
     int currentIndex = 0;
 
-    for( unsigned int i = 0; i < doubleFunctionList.size( ); i++ )
+    for( std::pair< boost::function< Eigen::VectorXd( ) >, int > vectorFunction: vectorFunctionList )
     {
-        variableList( i ) = doubleFunctionList.at( i )( );
-        currentIndex++;
-    }
-
-    for( unsigned int i = 0; i < vectorFunctionList.size( ); i++ )
-    {
-        variableList.segment( currentIndex, vectorFunctionList.at( i ).second ) =
-                vectorFunctionList.at( i ).first( );
-        currentIndex += vectorFunctionList.at( i ).second;
+        variableList.segment( currentIndex, vectorFunction.second ) = vectorFunction.first( );
+        currentIndex += vectorFunction.second;
     }
 
     // Check consistency with input
     if( currentIndex != totalSize )
     {
         std::string errorMessage = "Error when evaluating lists of functions, sizes are inconsistent: " +
-                boost::lexical_cast< std::string >( currentIndex ) + " and " +
-                boost::lexical_cast< std::string >( totalSize );
+                std::to_string( currentIndex ) + " and " +
+                std::to_string( totalSize );
         throw std::runtime_error( errorMessage );
     }
 
     return variableList;
+}
+
+//! Funtion to get the size of a dependent variable save settings
+int getDependentVariableSaveSize(
+        const boost::shared_ptr< SingleDependentVariableSaveSettings >& singleDependentVariableSaveSettings )
+{
+    if ( singleDependentVariableSaveSettings->componentIndex_ >= 0 )
+    {
+        return 1;
+    }
+    else
+    {
+        return getDependentVariableSize( singleDependentVariableSaveSettings->dependentVariableType_ );
+    }
 }
 
 //! Funtion to get the size of a dependent variable
@@ -223,9 +237,15 @@ int getDependentVariableSize(
     case single_torque_norm_dependent_variable:
         variableSize = 3;
         break;
+    case keplerian_state_dependent_variable:
+        variableSize = 6;
+        break;
+    case modified_equinocial_state_dependent_variable:
+        variableSize = 6;
+        break;
     default:
         std::string errorMessage = "Error, did not recognize dependent variable size of type: " +
-                boost::lexical_cast< std::string >( dependentVariableSettings );
+                std::to_string( dependentVariableSettings );
         throw std::runtime_error( errorMessage );
     }
     return variableSize;

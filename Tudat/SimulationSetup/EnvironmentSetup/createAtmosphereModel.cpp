@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -9,7 +9,6 @@
  */
 
 #include <boost/make_shared.hpp>
-#include <boost/lexical_cast.hpp>
 #include <boost/bind.hpp>
 
 #include "Tudat/Astrodynamics/Aerodynamics/exponentialAtmosphere.h"
@@ -122,7 +121,7 @@ boost::shared_ptr< aerodynamics::AtmosphereModel > createAtmosphereModel(
         if( nrlmsise00AtmosphereSettings == NULL )
         {
             // Use default space weather file stored in tudatBundle.
-            spaceWeatherFilePath = input_output::getTudatRootPath( ) + "Astrodynamics/Aerodynamics/sw19571001.txt";
+            spaceWeatherFilePath = input_output::getSpaceWeatherDataPath( ) + "sw19571001.txt";
         }
         else
         {
@@ -143,7 +142,7 @@ boost::shared_ptr< aerodynamics::AtmosphereModel > createAtmosphereModel(
     default:
         throw std::runtime_error(
                     "Error, did not recognize atmosphere model settings type " +
-                    boost::lexical_cast< std::string >( atmosphereSettings->getAtmosphereType( ) ) );
+                    std::to_string( atmosphereSettings->getAtmosphereType( ) ) );
     }
 
     if( atmosphereSettings->getWindSettings( ) != NULL )

@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -139,6 +139,7 @@ std::pair< boost::shared_ptr< PodOutput< StateScalarType > >, Eigen::VectorXd > 
     boost::shared_ptr< PodInput< StateScalarType, TimeType > > podInput =
             boost::make_shared< PodInput< StateScalarType, TimeType > >(
                 observationsAndTimes, initialStateParametersToEstimate->getParameterSetSize( ) );
+    podInput->defineEstimationSettings( true, true, false, true, true );
 
     // Create parameters that are to be perturbed
     std::vector< boost::shared_ptr< EstimatableParameterSettings > > perturbedParameterSettingsList;
@@ -164,8 +165,7 @@ std::pair< boost::shared_ptr< PodOutput< StateScalarType > >, Eigen::VectorXd > 
 
     // Fit nominal dynamics to pertrubed dynamical model
     boost::shared_ptr< PodOutput< StateScalarType > > podOutput = orbitDeterminationManager.estimateParameters(
-                podInput, boost::make_shared< EstimationConvergenceChecker >( numberOfIterations ),
-                true, true, false, true, true );
+                podInput, boost::make_shared< EstimationConvergenceChecker >( numberOfIterations ) );
 
     // Reset parameter to nominal value
     perturbedParameters->resetParameterValues( unperturbedParameterVector );

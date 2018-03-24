@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -8,12 +8,10 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#include <Tudat/Mathematics/Statistics/kernelDensityDistribution.h>
-#include <Tudat/Mathematics/BasicMathematics/mathematicalConstants.h>
-#include <Tudat/Mathematics/Statistics/basicStatistics.h>
-
-#include <Tudat/InputOutput/matrixTextFileReader.h>
-
+#include "Tudat/Mathematics/Statistics/kernelDensityDistribution.h"
+#include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
+#include "Tudat/Mathematics/Statistics/basicStatistics.h"
+#include "Tudat/InputOutput/matrixTextFileReader.h"
 namespace tudat
 {
 
@@ -70,8 +68,8 @@ KernelDensityDistribution::KernelDensityDistribution(
     if( ( standardDeviation.rows( ) > 0 ) && ( standardDeviation.rows( ) != dimensions_  ) )
     {
         std::string errorMessage = "Error when creating KernelDensityDistribution, manual standard deviation size is inconsistent, should have size : " +
-                boost::lexical_cast< std::string >( dimensions_ ) + "but has size " +
-                boost::lexical_cast< std::string >( standardDeviation.rows( ) );
+                std::to_string( dimensions_ ) + "but has size " +
+                std::to_string( standardDeviation.rows( ) );
         throw std::runtime_error( errorMessage );
 
     }
@@ -79,8 +77,8 @@ KernelDensityDistribution::KernelDensityDistribution(
     if( ( manualBandwidth.rows( ) > 0 ) && ( manualBandwidth.rows( ) != dimensions_  ) )
     {
         std::string errorMessage = "Error when creating KernelDensityDistribution, manual bandwidth size is inconsistent, should have size : " +
-                boost::lexical_cast< std::string >( dimensions_ ) + "but has size " +
-                boost::lexical_cast< std::string >( manualBandwidth.rows( ) );
+                std::to_string( dimensions_ ) + "but has size " +
+                std::to_string( manualBandwidth.rows( ) );
         throw std::runtime_error( errorMessage );
     }
 
@@ -89,9 +87,9 @@ KernelDensityDistribution::KernelDensityDistribution(
         if( dataSamples_.at( i ).rows( ) != dimensions_ )
         {
             std::string errorMessage = "Error when creating KernelDensityDistribution, samples size is inconsistent, should have size : " +
-                    boost::lexical_cast< std::string >( dimensions_ ) + "but entry " +
-                    boost::lexical_cast< std::string >( i ) + " has size " +
-                    boost::lexical_cast< std::string >( dataSamples_.at( i ).rows( ) );
+                    std::to_string( dimensions_ ) + "but entry " +
+                    std::to_string( i ) + " has size " +
+                    std::to_string( dataSamples_.at( i ).rows( ) );
             throw std::runtime_error( errorMessage );
         }
     }
@@ -138,8 +136,8 @@ void KernelDensityDistribution::generateKernelPointerMatrix( )
         if( bandWidth_( i ) < 10.0 * std::numeric_limits< double >::epsilon( ) )
         {
             std::string errorMessage = "Error in kernel density distribution, index " +
-                    boost::lexical_cast< std::string >( i ) + "has bandwidth " +
-                    boost::lexical_cast< std::string >( bandWidth_( i ) );
+                    std::to_string( i ) + "has bandwidth " +
+                    std::to_string( bandWidth_( i ) );
             throw std::runtime_error( errorMessage );
         }
     }

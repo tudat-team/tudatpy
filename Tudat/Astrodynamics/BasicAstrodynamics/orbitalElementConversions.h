@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -25,10 +25,9 @@
 #ifndef TUDAT_ORBITAL_ELEMENT_CONVERSIONS_H
 #define TUDAT_ORBITAL_ELEMENT_CONVERSIONS_H
 
-#include <boost/exception/all.hpp>
+#include <boost/function.hpp>
 #include <boost/math/special_functions/atanh.hpp>
 
-#include <iostream>
 #include <cmath>
 #include <limits>
 
@@ -44,6 +43,14 @@ namespace tudat
 namespace orbital_element_conversions
 {
 
+//! Function to compute orbit semi-latus rectum.
+/*!
+ * Function to compute orbit semi-latus rectum.
+ * \param eccentricity Eccentricity of orbit
+ * \param semiMajorAxis Semi-major axis of orbit (in Tudat, this input must equal semi-latus rectum for parabolic orbits)
+ * \param tolerance Eccentricity tolerance for which orbit is deemed to be parabolic.
+ * \return Orbit semi-latus rectum
+ */
 template< typename ScalarType = double >
 ScalarType computeSemiLatusRectum(
         const ScalarType eccentricity,
@@ -71,8 +78,15 @@ ScalarType computeSemiLatusRectum(
     return semiLatusRectum;
 }
 
+//! Function to compute orbit angular momentum per unit mass
+/*!
+ * Function to compute orbit angular momentum per unit mass
+ * \param semiLatusRectum Semi-latus rectum of orbit
+ * \param centralBodyGravitationalParameter Gravitational parameter of central body
+ * \return Orbital angular momentum
+ */
 template< typename ScalarType = double >
-ScalarType computeOrbitalAngularMomentum(
+ScalarType computeOrbitalAngularMomentumPerUnitMass(
         const ScalarType semiLatusRectum,
         const ScalarType centralBodyGravitationalParameter )
 {
@@ -427,7 +441,23 @@ Eigen::Matrix< ScalarType, 6, 1 > convertCartesianToKeplerianElements(
     return computedKeplerianElements_;
 }
 
-
+//! Convert Cartesian to Keplerian orbital elements.
+/*!
+ * Converts Cartesian to Keplerian orbital elements, using function pointers to retrieve the cartesian state and gravitational
+ * parameter.
+ * \param cartesianElementsFunction Function that returns vector containing Cartesian elements.
+ * \param centralBodyGravitationalParameterFunction Function that returns  gravitational parameter of central body.
+ * \return Converted state in Keplerian elements.
+ * \sa convertCartesianToKeplerianElements
+ */
+template< typename ScalarType = double >
+Eigen::Matrix< ScalarType, 6, 1 > convertCartesianToKeplerianElementsFromFunctions(
+        const boost::function< Eigen::Matrix< ScalarType, 6, 1 >( ) > cartesianElementsFunction,
+        const boost::function< ScalarType( ) > centralBodyGravitationalParameterFunction )
+{
+    return convertCartesianToKeplerianElements(
+                cartesianElementsFunction( ), centralBodyGravitationalParameterFunction( ) );
+}
 
 //! Convert true anomaly to (elliptical) eccentric anomaly.
 /*!

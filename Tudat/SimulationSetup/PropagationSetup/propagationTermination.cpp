@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -17,7 +17,7 @@ namespace propagators
 {
 
 //! Function to check whether the propagation is to be be stopped
-bool FixedTimePropagationTerminationCondition::checkStopCondition( const double time  )
+bool FixedTimePropagationTerminationCondition::checkStopCondition( const double time, const double cpuTime )
 {
     bool stopPropagation = 0;
 
@@ -34,7 +34,13 @@ bool FixedTimePropagationTerminationCondition::checkStopCondition( const double 
 }
 
 //! Function to check whether the propagation is to be be stopped
-bool SingleVariableLimitPropagationTerminationCondition::checkStopCondition( const double time  )
+bool FixedCPUTimePropagationTerminationCondition::checkStopCondition( const double time, const double cpuTime )
+{
+    return cpuTime >= cpuStopTime_;
+}
+
+//! Function to check whether the propagation is to be be stopped
+bool SingleVariableLimitPropagationTerminationCondition::checkStopCondition( const double time, const double cpuTime  )
 {
     bool stopPropagation = 0;
     double currentVariable = variableRetrievalFuntion_( );
@@ -50,36 +56,54 @@ bool SingleVariableLimitPropagationTerminationCondition::checkStopCondition( con
 }
 
 //! Function to check whether the propagation is to be be stopped
-bool HybridPropagationTerminationCondition::checkStopCondition( const double time )
+bool HybridPropagationTerminationCondition::checkStopCondition( const double time, const double cpuTime )
 {
     // Check if single condition is fulfilled.
+    bool stopPropagation = -1;
     if( fulFillSingleCondition_ )
     {
-        bool stopPropagation = 0;
+        stopPropagation = 0;
         for( unsigned int i = 0; i < propagationTerminationCondition_.size( ); i++ )
         {
-            if( propagationTerminationCondition_.at( i )->checkStopCondition( time ) )
+            if( propagationTerminationCondition_.at( i )->checkStopCondition( time, cpuTime ) )
             {
                 stopPropagation = 1;
                 break;
             }
         }
-        return stopPropagation;
     }
     // Check all conditions are fulfilled.
     else
     {
-        bool stopPropagation = 1;
+        stopPropagation = 1;
         for( unsigned int i = 0; i < propagationTerminationCondition_.size( ); i++ )
         {
-            if( !propagationTerminationCondition_.at( i )->checkStopCondition( time ) )
+            if( !propagationTerminationCondition_.at( i )->checkStopCondition( time, cpuTime ) )
             {
                 stopPropagation = 0;
                 break;
             }
         }
-        return stopPropagation;
     }
+
+    // Save if conditions were met
+    if( stopPropagation )
+    {
+        for( unsigned int i = 0; i < propagationTerminationCondition_.size( ); i++ )
+        {
+            if( propagationTerminationCondition_.at( i )->checkStopCondition( time, cpuTime ) )
+            {
+                isConditionMetWhenStopping_[ i ] = false;
+            }
+            else
+            {
+                isConditionMetWhenStopping_[ i ] = true;
+            }
+        }
+    }
+
+    return stopPropagation;
+
 }
 
 
@@ -100,7 +124,17 @@ boost::shared_ptr< PropagationTerminationCondition > createPropagationTerminatio
         boost::shared_ptr< PropagationTimeTerminationSettings > timeTerminationSettings =
                 boost::dynamic_pointer_cast< PropagationTimeTerminationSettings >( terminationSettings );
         propagationTerminationCondition = boost::make_shared< FixedTimePropagationTerminationCondition >(
-                    timeTerminationSettings->terminationTime_, ( initialTimeStep > 0 ) );
+                    timeTerminationSettings->terminationTime_, ( initialTimeStep > 0 ),
+                    timeTerminationSettings->terminateExactlyOnFinalCondition_ );
+        break;
+    }
+    case cpu_time_stopping_condition:
+    {
+        // Create stopping time termination condition.
+        boost::shared_ptr< PropagationCPUTimeTerminationSettings > cpuTimeTerminationSettings =
+                boost::dynamic_pointer_cast< PropagationCPUTimeTerminationSettings >( terminationSettings );
+        propagationTerminationCondition = boost::make_shared< FixedCPUTimePropagationTerminationCondition >(
+                    cpuTimeTerminationSettings->cpuTerminationTime_ );
         break;
     }
     case dependent_variable_stopping_condition:
@@ -110,8 +144,7 @@ boost::shared_ptr< PropagationTerminationCondition > createPropagationTerminatio
 
         // Get dependent variable function
         boost::function< double( ) > dependentVariableFunction;
-        if( getDependentVariableSize(
-                    dependentVariableTerminationSettings->dependentVariableSettings_->variableType_ ) == 1 )
+        if( getDependentVariableSaveSize( dependentVariableTerminationSettings->dependentVariableSettings_ ) == 1 )
         {
             dependentVariableFunction =
                     getDoubleDependentVariableFunction(
@@ -126,7 +159,9 @@ boost::shared_ptr< PropagationTerminationCondition > createPropagationTerminatio
         propagationTerminationCondition = boost::make_shared< SingleVariableLimitPropagationTerminationCondition >(
                     dependentVariableTerminationSettings->dependentVariableSettings_,
                     dependentVariableFunction, dependentVariableTerminationSettings->limitValue_,
-                    dependentVariableTerminationSettings->useAsLowerLimit_ );
+                    dependentVariableTerminationSettings->useAsLowerLimit_,
+                    dependentVariableTerminationSettings->terminateExactlyOnFinalCondition_,
+                    dependentVariableTerminationSettings->terminationRootFinderSettings_ );
         break;
     }
     case hybrid_stopping_condition:
@@ -144,11 +179,12 @@ boost::shared_ptr< PropagationTerminationCondition > createPropagationTerminatio
                             bodyMap, initialTimeStep ) );
         }
         propagationTerminationCondition = boost::make_shared< HybridPropagationTerminationCondition >(
-                    propagationTerminationConditionList, hybridTerminationSettings->fulFillSingleCondition_ );
+                    propagationTerminationConditionList, hybridTerminationSettings->fulFillSingleCondition_,
+                    hybridTerminationSettings->terminateExactlyOnFinalCondition_ );
         break;
     }
     default:
-        std::string errorMessage = "Error, stopping condition type " + boost::lexical_cast< std::string >(
+        std::string errorMessage = "Error, stopping condition type " + std::to_string(
                     terminationSettings->terminationType_ ) + "not recognized when making stopping conditions object";
         throw std::runtime_error( errorMessage );
         break;

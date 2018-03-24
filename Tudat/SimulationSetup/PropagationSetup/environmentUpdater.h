@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -99,9 +99,9 @@ public:
         if( integratedStatesToSet.size( ) + setIntegratedStatesFromEnvironment.size( ) != integratedStates_.size( ) )
         {
             throw std::runtime_error( "Error when updating environment, input size is inconsistent " +
-                                      boost::lexical_cast< std::string >( integratedStatesToSet.size( ) ) + " " +
-                                      boost::lexical_cast< std::string >( setIntegratedStatesFromEnvironment.size( ) ) + " " +
-                                      boost::lexical_cast< std::string >( integratedStates_.size( ) ) );
+                                      std::to_string( integratedStatesToSet.size( ) ) + " " +
+                                      std::to_string( setIntegratedStatesFromEnvironment.size( ) ) + " " +
+                                      std::to_string( integratedStates_.size( ) ) );
         }
 
         for( unsigned int i = 0; i < resetFunctionVector_.size( ); i++ )
@@ -185,7 +185,7 @@ private:
             }
             default:
                 throw std::runtime_error( "Error, could not find integrated state settings for " +
-                                          boost::lexical_cast< std::string >( integratedStateIterator_->first ) );
+                                          std::to_string( integratedStateIterator_->first ) );
             }
         }
     }
@@ -225,7 +225,7 @@ private:
                         integratedStates_.at( rotational_state );
                 for( unsigned int i = 0; i < bodiesWithIntegratedStates.size( ); i++ )
                 {
-                    bodyList_[ bodiesWithIntegratedStates[ i ].first ]->setCurrentRotationalStateToLocalFrameFromEphemeris(
+                    bodyList_[ bodiesWithIntegratedStates[ i ].first ]->template setCurrentRotationalStateToLocalFrameFromEphemeris< TimeType >(
                                 currentTime );
                 }
                 break;
@@ -245,7 +245,7 @@ private:
             }
             default:
                 throw std::runtime_error( "Error, could not find  state settings for " +
-                                          boost::lexical_cast< std::string >( statesToSet.at( i ) ) );
+                                          std::to_string( statesToSet.at( i ) ) );
             }
         }
     }
@@ -341,7 +341,7 @@ private:
                         if( centralRotationalUpdateIndexSet )
                         {
                             indices.push_back( centralRotationalUpdateIndex );
-                            updatesToMove.push_back( updateFunctionVector_.at( centralTranslationalUpdateIndex ) );
+                            updatesToMove.push_back( updateFunctionVector_.at( centralRotationalUpdateIndex ) );
                         }
 
                         if( vehicleTranslationalUpdateIndexSet )
@@ -489,7 +489,7 @@ private:
                             {
                                 boost::function< void( const TimeType ) > rotationalStateSetFunction =
                                         boost::bind( &simulation_setup::Body
-                                                     ::setCurrentRotationalStateToLocalFrameFromEphemeris,
+                                                     ::setCurrentRotationalStateToLocalFrameFromEphemeris< TimeType >,
                                                      bodyList_.at( currentBodies.at( i ) ), _1 );
                                 updateTimeFunctionList[ body_rotational_state_update ].push_back(
                                             std::make_pair( currentBodies.at( i ), rotationalStateSetFunction ) );
@@ -618,8 +618,8 @@ private:
                         }
                         else if( radiationPressureInterfaces.size( ) > 1 )
                         {
-                            std::cerr<<"Warning, requested radiation pressure update of "<<currentBodies.at( i )<<
-                                       ", but body has multiple radiation pressure interfaces: updating all."<<std::endl;
+                            std::cerr << "Warning, requested radiation pressure update of " << currentBodies.at( i ) <<
+                                       ", but body has multiple radiation pressure interfaces: updating all." << std::endl;
                         }
 
                         // Add each interface update function to update list.

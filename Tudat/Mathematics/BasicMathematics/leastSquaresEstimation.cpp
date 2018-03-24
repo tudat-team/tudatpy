@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -52,7 +52,7 @@ Eigen::VectorXd solveSystemOfEquationsWithSvd( const Eigen::MatrixXd matrixToInv
 
         if( conditionNumber > maximumAllowedConditionNumber )
         {
-            std::cerr<<"Warning when performing least squares, condition number is "<<conditionNumber<<std::endl;
+            std::cerr << "Warning when performing least squares, condition number is " << conditionNumber << std::endl;
         }
     }
     return svdDecomposition.solve( rightHandSideVector );
@@ -80,12 +80,6 @@ Eigen::MatrixXd calculateInverseOfUpdatedCovarianceMatrix(
         const Eigen::VectorXd& diagonalOfWeightMatrix,
         const Eigen::MatrixXd& inverseOfAPrioriCovarianceMatrix )
 {
-
-//    std::cout<<" SOLVING************************************************************** "<<std::endl<<std::endl<<
-//               inverseOfAPrioriCovarianceMatrix<<std::endl<<std::endl<<informationMatrix<<std::endl<<std::endl<<
-//               diagonalOfWeightMatrix.transpose( )<<std::endl<<std::endl;
-//    std::cout<<" SOLVED=============================================================== "<<std::endl<<std::endl;
-
     return inverseOfAPrioriCovarianceMatrix + informationMatrix.transpose( ) * multiplyInformationMatrixByDiagonalWeightMatrix(
                 informationMatrix, diagonalOfWeightMatrix );
 }

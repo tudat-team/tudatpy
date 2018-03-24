@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -321,6 +321,22 @@ public:
     //! Type of viability that is to be checked
     ObservationViabilityType observationViabilityType_;
 
+    std::pair< std::string, std::string > getAssociatedLinkEnd( )
+    {
+        return associatedLinkEnd_;
+    }
+
+    std::string getStringParameter( )
+    {
+        return stringParameter_;
+    }
+
+    double getDoubleParameter( )
+    {
+        return doubleParameter_;
+    }
+
+protected:
     //! Link end at which viability is to be checked
     std::pair< std::string, std::string > associatedLinkEnd_;
 

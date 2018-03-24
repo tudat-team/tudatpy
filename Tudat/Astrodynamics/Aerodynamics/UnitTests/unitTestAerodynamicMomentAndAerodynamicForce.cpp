@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -40,13 +40,12 @@
 #include "Tudat/Astrodynamics/Aerodynamics/aerodynamicAcceleration.h"
 #include "Tudat/Astrodynamics/ReferenceFrames/aerodynamicAngleCalculator.h"
 #include "Tudat/SimulationSetup/PropagationSetup/dynamicsSimulator.h"
-#include <Tudat/External/SpiceInterface/spiceEphemeris.h>
-#include <Tudat/External/SpiceInterface/spiceRotationalEphemeris.h>
-#include <Tudat/InputOutput/basicInputOutput.h>
-#include <Tudat/SimulationSetup/EnvironmentSetup/body.h>
-#include <Tudat/SimulationSetup/PropagationSetup/createNumericalSimulator.h>
-#include <Tudat/SimulationSetup/EnvironmentSetup/defaultBodies.h>
-
+#include "Tudat/External/SpiceInterface/spiceEphemeris.h"
+#include "Tudat/External/SpiceInterface/spiceRotationalEphemeris.h"
+#include "Tudat/InputOutput/basicInputOutput.h"
+#include "Tudat/SimulationSetup/EnvironmentSetup/body.h"
+#include "Tudat/SimulationSetup/PropagationSetup/createNumericalSimulator.h"
+#include "Tudat/SimulationSetup/EnvironmentSetup/defaultBodies.h"
 namespace tudat
 {
 
@@ -309,9 +308,7 @@ void testAerodynamicForceDirection( const bool includeThrustForce,
     using namespace basic_astrodynamics;
 
     //Load spice kernels.
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "pck00009.tpc" );
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "de-403-masses.tpc" );
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "de421.bsp" );
+    spice_interface::loadStandardSpiceKernels( );
 
     double thrustMagnitude = 1.0E3;
     double specificImpulse = 250.0;
@@ -362,7 +359,7 @@ void testAerodynamicForceDirection( const bool includeThrustForce,
         }
         else
         {
-            aerodynamicCoefficients = ( Eigen::Vector3d( )<<1.0, -0.1, 0.5 ).finished( );
+            aerodynamicCoefficients = ( Eigen::Vector3d( ) << 1.0, -0.1, 0.5 ).finished( );
 
         }
 

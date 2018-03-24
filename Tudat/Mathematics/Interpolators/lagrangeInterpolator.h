@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -14,6 +14,8 @@
 
 #ifndef TUDAT_LAGRANGEINTERPOLATOR_H
 #define TUDAT_LAGRANGEINTERPOLATOR_H
+
+#include <iostream>
 
 #include <boost/make_shared.hpp>
 
@@ -58,6 +60,7 @@ public:
     using OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >::dependentValues_;
     using OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >::independentValues_;
     using OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >::lookUpScheme_;
+    using Interpolator< IndependentVariableType, DependentVariableType >::interpolate;
 
     //! Constructor from vectors of independent/dependent data.
     /*!
@@ -223,9 +226,9 @@ public:
         if( targetIndependentVariableValue < independentValues_.at( 0 ) ||
                 targetIndependentVariableValue > independentValues_.at( independentValues_.size( ) -1 ) )
         {
-            std::cout<<"Warning in Lagrange interpolation, outside range "<<
-                       independentValues_.at( 0 ) <<" "<<independentValues_.at( independentValues_.size( ) -1 )<<" "<<
-                       targetIndependentVariableValue<<std::endl;
+            std::cout << "Warning in Lagrange interpolation, outside range " <<
+                       independentValues_.at( 0 ) << " " << independentValues_.at( independentValues_.size( ) -1 ) << " " <<
+                       targetIndependentVariableValue << std::endl;
         }
         // Determine the lower entry in the table corresponding to the target independent variable
         // value.

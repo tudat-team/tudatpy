@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -20,8 +20,6 @@
 
 #include <vector>
 #include <string>
-
-#include <boost/lexical_cast.hpp>
 
 namespace tudat
 {
@@ -121,7 +119,7 @@ void ParseSolarActivityData::parseStream( std::istream& fileContent)
         if ( validdata == true )
         {
             // add datatype at the end of the parsed line
-            line = line + " " + boost::lexical_cast< std::string >( dataType );
+            line = line + " " + std::to_string( dataType );
 
             parsedData->push_back( solarParser.parse( line )->at( 0 ) );
         }

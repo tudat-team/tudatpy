@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -11,8 +11,6 @@
 
 #ifndef TUDAT_CONICAL_FRUSTUM_H
 #define TUDAT_CONICAL_FRUSTUM_H
-
-#include <iostream>
 
 #include <boost/shared_ptr.hpp>
 
@@ -145,7 +143,7 @@ public:
      * \param conicalFrustum Conical frustum of which info is to be printed.
      * \return Stream with printed info.
      */
-    friend std::ostream &operator<<( std::ostream &stream, ConicalFrustum & conicalFrustum );
+    friend std::ostream &operator << ( std::ostream &stream, ConicalFrustum & conicalFrustum );
 
 protected:
 

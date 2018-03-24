@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -54,7 +54,7 @@ DifferencedOneWayRangeRatePartial::calculatePartial(
 
     if( arcStartPartials.size( ) != arcEndPartials.size( ) )
     {
-        std::cerr<<"Error when making differenced one way range rate partials, arc start and end partials inconsistent"<<std::endl;
+        std::cerr << "Error when making differenced one way range rate partials, arc start and end partials inconsistent" << std::endl;
     }
 
     // Retrieve arc length

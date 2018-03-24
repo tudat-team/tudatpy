@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -9,11 +9,7 @@
  *
  */
 
-#include <iostream>
-
 #include <boost/make_shared.hpp>
-#include <boost/lexical_cast.hpp>
-
 #include "Tudat/Astrodynamics/Gravitation/gravityFieldModel.h"
 
 namespace tudat
@@ -131,7 +127,7 @@ boost::shared_ptr< GravityFieldModel > getPredefinedCentralGravityField(
     default:
 
         std::string errorMessage = "Desired predefined central gravity field " +
-                boost::lexical_cast< std::string >( bodyWithPredefinedCentralGravityField ) +
+                std::to_string( bodyWithPredefinedCentralGravityField ) +
                 " does not exist";
         throw std::runtime_error( errorMessage );
     }

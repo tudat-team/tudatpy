@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -97,9 +97,10 @@ protected:
 
 };
 
-//! Global PPN parameter set, initialized upon compilation.
+//! Global PPN parameter set, initialized upon compilation (with values equal to GR).
 extern boost::shared_ptr< PPNParameterSet > ppnParameterSet;
 
+//! Global parameter denoting EP violation in proper time rate, initialized to GR value of 0 upon compilation.
 extern double equivalencePrincipleLpiViolationParameter;
 
 }

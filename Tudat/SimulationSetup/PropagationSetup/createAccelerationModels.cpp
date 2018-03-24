@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -12,8 +12,6 @@
 
 #include <boost/make_shared.hpp>
 #include <boost/bind.hpp>
-#include <boost/lexical_cast.hpp>
-
 #include "Tudat/Astrodynamics/Aerodynamics/flightConditions.h"
 #include "Tudat/Astrodynamics/Ephemerides/frameManager.h"
 #include "Tudat/Astrodynamics/Gravitation/sphericalHarmonicsGravityField.h"
@@ -92,7 +90,7 @@ boost::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > c
     default:
 
         std::string errorMessage = "Error when making gravitional acceleration model, cannot parse type " +
-                boost::lexical_cast< std::string >( accelerationSettings->accelerationType_ );
+                std::to_string( accelerationSettings->accelerationType_ );
         throw std::runtime_error( errorMessage );
     }
     return accelerationModel;
@@ -152,7 +150,7 @@ boost::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > c
     default:
 
         std::string errorMessage = "Error when making third-body gravitional acceleration model, cannot parse type " +
-                boost::lexical_cast< std::string >( accelerationSettings->accelerationType_ );
+                std::to_string( accelerationSettings->accelerationType_ );
         throw std::runtime_error( errorMessage );
     }
     return accelerationModel;
@@ -918,7 +916,7 @@ boost::shared_ptr< EmpiricalAcceleration > createEmpiricalAcceleration(
     if( empiricalSettings == NULL )
     {
         throw std::runtime_error( "Error, expected empirical acceleration settings when making acceleration model on " +
-                   nameOfBodyUndergoingAcceleration + " due to " + nameOfBodyExertingAcceleration );
+                                  nameOfBodyUndergoingAcceleration + " due to " + nameOfBodyExertingAcceleration );
     }
     else
     {
@@ -927,8 +925,8 @@ boost::shared_ptr< EmpiricalAcceleration > createEmpiricalAcceleration(
 
         if( gravityField == NULL )
         {
-             throw std::runtime_error( "Error " + nameOfBodyExertingAcceleration + " does not have a gravity field " +
-                       "when making empirical acceleration on" + nameOfBodyUndergoingAcceleration );
+            throw std::runtime_error( "Error " + nameOfBodyExertingAcceleration + " does not have a gravity field " +
+                                      "when making empirical acceleration on" + nameOfBodyUndergoingAcceleration );
         }
         else
         {
@@ -1044,6 +1042,124 @@ createThrustAcceleratioModel(
                 updateFunction, timeResetFunction, totalUpdateSettings );
 }
 
+//! Function to create a direct tical acceleration model, according to approach of Lainey et al. (2007, 2009, ...)
+boost::shared_ptr< gravitation::DirectTidalDissipationAcceleration > createDirectTidalDissipationAcceleration(
+        const boost::shared_ptr< Body > bodyUndergoingAcceleration,
+        const boost::shared_ptr< Body > bodyExertingAcceleration,
+        const std::string& nameOfBodyUndergoingAcceleration,
+        const std::string& nameOfBodyExertingAcceleration,
+        const  boost::shared_ptr< AccelerationSettings > accelerationSettings )
+{
+    // Check input consistency
+    boost::shared_ptr< DirectTidalDissipationAccelerationSettings > tidalAccelerationSettings =
+            boost::dynamic_pointer_cast< DirectTidalDissipationAccelerationSettings >( accelerationSettings );
+    if( tidalAccelerationSettings == NULL )
+    {
+        throw std::runtime_error( "Error when creating direct tidal dissipation acceleration, input is inconsistent" );
+    }
+
+    boost::function< double( ) > gravitationalParaterFunctionOfBodyExertingTide;
+    boost::function< double( ) > gravitationalParaterFunctionOfBodyUndergoingTide;
+
+    if( tidalAccelerationSettings->useTideRaisedOnPlanet_ )
+    {
+        if( bodyUndergoingAcceleration->getGravityFieldModel( ) == NULL )
+        {
+            throw std::runtime_error( "Error when creating direct tidal dissipation acceleration, satellite " +
+                                      nameOfBodyUndergoingAcceleration + " has no gravity field" );
+        }
+        else
+        {
+            gravitationalParaterFunctionOfBodyUndergoingTide = boost::bind(
+                        &GravityFieldModel::getGravitationalParameter, bodyUndergoingAcceleration->getGravityFieldModel( ) );
+        }
+    }
+    else
+    {
+        if( bodyExertingAcceleration->getGravityFieldModel( ) == NULL )
+        {
+            throw std::runtime_error( "Error when creating direct tidal dissipation acceleration, satellite " +
+                                      nameOfBodyExertingAcceleration + " has no gravity field" );
+        }
+        else
+        {
+            gravitationalParaterFunctionOfBodyExertingTide = boost::bind(
+                        &GravityFieldModel::getGravitationalParameter, bodyExertingAcceleration->getGravityFieldModel( ) );
+        }
+
+
+        if( bodyUndergoingAcceleration->getGravityFieldModel( ) == NULL )
+        {
+            throw std::runtime_error( "Error when creating direct tidal dissipation acceleration, satellite " +
+                                      nameOfBodyUndergoingAcceleration + " has no gravity field" );
+        }
+        else
+        {
+            gravitationalParaterFunctionOfBodyUndergoingTide = boost::bind(
+                        &GravityFieldModel::getGravitationalParameter, bodyUndergoingAcceleration->getGravityFieldModel( ) );
+        }
+    }
+
+    double referenceRadius = TUDAT_NAN;
+    if( tidalAccelerationSettings->useTideRaisedOnPlanet_ )
+    {
+        if( boost::dynamic_pointer_cast< gravitation::SphericalHarmonicsGravityField >(
+                    bodyExertingAcceleration->getGravityFieldModel( ) ) == NULL )
+        {
+            throw std::runtime_error( "Error when creating direct tidal dissipation acceleration, planet " +
+                                      nameOfBodyExertingAcceleration + " has no s.h. gravity field" );
+        }
+        else
+        {
+            referenceRadius = boost::dynamic_pointer_cast< gravitation::SphericalHarmonicsGravityField >(
+                        bodyExertingAcceleration->getGravityFieldModel( ) )->getReferenceRadius( );
+        }
+    }
+    else
+    {
+        if( boost::dynamic_pointer_cast< gravitation::SphericalHarmonicsGravityField >(
+                    bodyUndergoingAcceleration->getGravityFieldModel( ) ) == NULL )
+        {
+            throw std::runtime_error( "Error when creating direct tidal dissipation acceleration, planet " +
+                                      nameOfBodyUndergoingAcceleration + " has no s.h. gravity field" );
+        }
+        else
+        {
+            referenceRadius = boost::dynamic_pointer_cast< gravitation::SphericalHarmonicsGravityField >(
+                        bodyUndergoingAcceleration->getGravityFieldModel( ) )->getReferenceRadius( );
+        }
+    }
+    
+
+    if( tidalAccelerationSettings->useTideRaisedOnPlanet_ )
+    {
+        boost::function< Eigen::Vector3d( ) > planetAngularVelocityVectorFunction =
+                boost::bind( &Body::getCurrentAngularVelocityVectorInGlobalFrame, bodyExertingAcceleration );
+
+
+        return boost::make_shared< DirectTidalDissipationAcceleration >(
+                    boost::bind( &Body::getState, bodyUndergoingAcceleration ),
+                    boost::bind( &Body::getState, bodyExertingAcceleration ),
+                    gravitationalParaterFunctionOfBodyUndergoingTide,
+                    planetAngularVelocityVectorFunction,
+                    tidalAccelerationSettings->k2LoveNumber_,
+                    tidalAccelerationSettings->timeLag_,
+                    referenceRadius,
+                    tidalAccelerationSettings->includeDirectRadialComponent_);
+    }
+    else
+    {
+        return boost::make_shared< DirectTidalDissipationAcceleration >(
+                    boost::bind( &Body::getState, bodyUndergoingAcceleration ),
+                    boost::bind( &Body::getState, bodyExertingAcceleration ),
+                    gravitationalParaterFunctionOfBodyExertingTide,
+                    gravitationalParaterFunctionOfBodyUndergoingTide,
+                    tidalAccelerationSettings->k2LoveNumber_,
+                    tidalAccelerationSettings->timeLag_,
+                    referenceRadius,
+                    tidalAccelerationSettings->includeDirectRadialComponent_);
+    }
+}
 
 //! Function to create acceleration model object.
 boost::shared_ptr< AccelerationModel< Eigen::Vector3d > > createAccelerationModel(
@@ -1115,11 +1231,18 @@ boost::shared_ptr< AccelerationModel< Eigen::Vector3d > > createAccelerationMode
                     nameOfBodyExertingAcceleration,
                     accelerationSettings );
         break;
-
+    case direct_tidal_dissipation_acceleration:
+        accelerationModelPointer = createDirectTidalDissipationAcceleration(
+                    bodyUndergoingAcceleration,
+                    bodyExertingAcceleration,
+                    nameOfBodyUndergoingAcceleration,
+                    nameOfBodyExertingAcceleration,
+                    accelerationSettings );
+        break;
     default:
         throw std::runtime_error(
                     std::string( "Error, acceleration model ") +
-                    boost::lexical_cast< std::string >( accelerationSettings->accelerationType_ ) +
+                    std::to_string( accelerationSettings->accelerationType_ ) +
                     " not recognized when making acceleration model of" +
                     nameOfBodyExertingAcceleration + " on " +
                     nameOfBodyUndergoingAcceleration );
@@ -1221,6 +1344,153 @@ SelectedAccelerationList orderSelectedAccelerationMap( const SelectedAcceleratio
     }
 
     return orderedAccelerationsPerBody;
+}
+
+
+//! Function to create a set of acceleration models from a map of bodies and acceleration model types.
+basic_astrodynamics::AccelerationMap createAccelerationModelsMap(
+        const NamedBodyMap& bodyMap,
+        const SelectedAccelerationMap& selectedAccelerationPerBody,
+        const std::map< std::string, std::string >& centralBodies )
+{
+    // Declare return map.
+    basic_astrodynamics::AccelerationMap accelerationModelMap;
+
+    // Put selectedAccelerationPerBody in correct order
+    SelectedAccelerationList orderedAccelerationPerBody =
+            orderSelectedAccelerationMap( selectedAccelerationPerBody );
+
+    // Iterate over all bodies which are undergoing acceleration
+    for( SelectedAccelerationList::const_iterator bodyIterator =
+         orderedAccelerationPerBody.begin( ); bodyIterator != orderedAccelerationPerBody.end( );
+         bodyIterator++ )
+    {
+        boost::shared_ptr< Body > currentCentralBody;
+
+        // Retrieve name of body undergoing acceleration.
+        std::string bodyUndergoingAcceleration = bodyIterator->first;
+
+        // Retrieve name of current central body.
+        std::string currentCentralBodyName = centralBodies.at( bodyUndergoingAcceleration );
+
+        if( !ephemerides::isFrameInertial( currentCentralBodyName ) )
+        {
+            if( bodyMap.count( currentCentralBodyName ) == 0 )
+            {
+                throw std::runtime_error(
+                            std::string( "Error, could not find non-inertial central body ") +
+                            currentCentralBodyName + " of " + bodyUndergoingAcceleration +
+                            " when making acceleration model." );
+            }
+            else
+            {
+                currentCentralBody = bodyMap.at( currentCentralBodyName );
+            }
+        }
+
+        // Check if body undergoing acceleration is included in bodyMap
+        if( bodyMap.count( bodyUndergoingAcceleration ) ==  0 )
+        {
+            throw std::runtime_error(
+                        std::string( "Error when making acceleration models, requested forces" ) +
+                        "acting on body " + bodyUndergoingAcceleration  +
+                        ", but no such body found in map of bodies" );
+        }
+
+        // Declare map of acceleration models acting on current body.
+        basic_astrodynamics::SingleBodyAccelerationMap mapOfAccelerationsForBody;
+
+        // Retrieve list of required acceleration model types and bodies exerting accelerationd on
+        // current body.
+        std::vector< std::pair< std::string, boost::shared_ptr< AccelerationSettings > > >
+                accelerationsForBody = bodyIterator->second;
+
+        std::vector< std::pair< std::string, boost::shared_ptr< AccelerationSettings > > > thrustAccelerationSettings;
+
+        boost::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > currentAcceleration;
+        // Iterate over all bodies exerting an acceleration
+        for( unsigned int i = 0; i < accelerationsForBody.size( ); i++ )
+        {
+            // Retrieve name of body exerting acceleration.
+            std::string bodyExertingAcceleration = accelerationsForBody.at( i ).first;
+
+            // Check if body exerting acceleration is included in bodyMap
+            if( bodyMap.count( bodyExertingAcceleration ) ==  0 )
+            {
+                throw std::runtime_error(
+                            std::string( "Error when making acceleration models, requested forces ")
+                            + "acting on body " + bodyUndergoingAcceleration  + " due to body " +
+                            bodyExertingAcceleration +
+                            ", but no such body found in map of bodies" );
+            }
+
+            if( !( accelerationsForBody.at( i ).second->accelerationType_ == basic_astrodynamics::thrust_acceleration ) )
+            {
+                currentAcceleration = createAccelerationModel( bodyMap.at( bodyUndergoingAcceleration ),
+                                                               bodyMap.at( bodyExertingAcceleration ),
+                                                               accelerationsForBody.at( i ).second,
+                                                               bodyUndergoingAcceleration,
+                                                               bodyExertingAcceleration,
+                                                               currentCentralBody,
+                                                               currentCentralBodyName,
+                                                               bodyMap );
+
+
+                // Create acceleration model.
+                mapOfAccelerationsForBody[ bodyExertingAcceleration ].push_back(
+                            currentAcceleration );
+            }
+            else
+            {
+                thrustAccelerationSettings.push_back( accelerationsForBody.at( i ) );
+            }
+
+        }
+
+        for( unsigned int i = 0; i < thrustAccelerationSettings.size( ); i++ )
+        {
+            currentAcceleration = createAccelerationModel( bodyMap.at( bodyUndergoingAcceleration ),
+                                                           bodyMap.at( thrustAccelerationSettings.at( i ).first ),
+                                                           thrustAccelerationSettings.at( i ).second,
+                                                           bodyUndergoingAcceleration,
+                                                           thrustAccelerationSettings.at( i ).first,
+                                                           currentCentralBody,
+                                                           currentCentralBodyName,
+                                                           bodyMap );
+
+
+            // Create acceleration model.
+            mapOfAccelerationsForBody[ thrustAccelerationSettings.at( i ).first  ].push_back(
+                        currentAcceleration );
+        }
+
+
+        // Put acceleration models on current body in return map.
+        accelerationModelMap[ bodyUndergoingAcceleration ] = mapOfAccelerationsForBody;
+    }
+
+    return accelerationModelMap;
+}
+
+//! Function to create acceleration models from a map of bodies and acceleration model types.
+basic_astrodynamics::AccelerationMap createAccelerationModelsMap(
+        const NamedBodyMap& bodyMap,
+        const SelectedAccelerationMap& selectedAccelerationPerBody,
+        const std::vector< std::string >& propagatedBodies,
+        const std::vector< std::string >& centralBodies )
+{
+    if( centralBodies.size( ) != propagatedBodies.size( ) )
+    {
+        throw std::runtime_error( "Error, number of propagated bodies must equal number of central bodies" );
+    }
+
+    std::map< std::string, std::string > centralBodyMap;
+    for( unsigned int i = 0; i < propagatedBodies.size( ); i++ )
+    {
+        centralBodyMap[ propagatedBodies.at( i ) ] = centralBodies.at( i );
+    }
+
+    return createAccelerationModelsMap( bodyMap, selectedAccelerationPerBody, centralBodyMap );
 }
 
 } // namespace simulation_setup

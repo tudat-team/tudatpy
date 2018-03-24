@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -44,20 +44,20 @@ public:
      * Constructor, sets the input variables for the calls to the spice function to retrieve state.
      * \param targetBodyName Name of body of which the ephemeris is to be calculated.
      * \param observerBodyName Name of body relative to which the ephemeris is to be calculated.
-     * \param correctForStellarAbberation Boolean whether to correct for stellar Abberation in
+     * \param correctForStellarAberration Boolean whether to correct for stellar Aberration in
      *          retrieved values of (observed state).
-     * \param correctForLightTimeAbberation Boolean whether to correct for light time in
+     * \param correctForLightTimeAberration Boolean whether to correct for light time in
      *          retrieved values of (observed state).
-     * \param convergeLighTimeAbberation Boolean whether to use single iteration or max. 3
+     * \param convergeLighTimeAberration Boolean whether to use single iteration or max. 3
      *          iterations for calculating light time.
      * \param referenceFrameName Name of the reference frame in which the epehemeris is to be
      *          calculated.
      * \param referenceJulianDay Reference julian day w.r.t. which ephemeris is evaluated.
      */
     SpiceEphemeris( const std::string& targetBodyName, const std::string& observerBodyName,
-                    const bool correctForStellarAbberation = true,
-                    const bool correctForLightTimeAbberation = true,
-                    const bool convergeLighTimeAbberation = false,
+                    const bool correctForStellarAberration = true,
+                    const bool correctForLightTimeAberration = true,
+                    const bool convergeLighTimeAberration = false,
                     const std::string& referenceFrameName = "ECLIPJ2000",
                     const double referenceJulianDay = basic_astrodynamics::JULIAN_DAY_ON_J2000 );
 
@@ -103,7 +103,7 @@ private:
      * defines the corrections the same as the required input to the spkezr spice function
      * ( see corresponding spice documentation ).
      */
-    std::string abberationCorrections_;
+    std::string aberrationCorrections_;
 
     //! Offset of reference julian day (from J2000) w.r.t. which ephemeris is evaluated.
     double referenceDayOffSet_;

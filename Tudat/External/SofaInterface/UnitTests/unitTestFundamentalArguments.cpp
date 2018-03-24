@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -11,11 +11,9 @@
 #define BOOST_TEST_MAIN
 
 #include <limits>
-#include <string>
 #include <Eigen/LU>
 
 #include <boost/test/unit_test.hpp>
-#include <boost/make_shared.hpp>
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/timeConversions.h"
 #include "Tudat/External/SofaInterface/fundamentalArguments.h"
@@ -51,7 +49,7 @@ BOOST_AUTO_TEST_CASE( testSofaFundamentalArguments )
             ( - basic_astrodynamics::JULIAN_DAY_AT_0_MJD + basic_astrodynamics::JULIAN_DAY_ON_J2000 ) ) *
             physical_constants::JULIAN_DAY;
     Eigen::Matrix< double, 5, 1 > expectedFundamentalArgumentValues;
-    expectedFundamentalArgumentValues <<2.291187512612069099, 6.212931111003726414, 3.658025792050572989,
+    expectedFundamentalArgumentValues << 2.291187512612069099, 6.212931111003726414, 3.658025792050572989,
             4.554139562402433228, -0.5167379217231804489;
 
     // Calculate Delaunay arguments.
@@ -61,7 +59,7 @@ BOOST_AUTO_TEST_CASE( testSofaFundamentalArguments )
     // Compare against IERS results.
     for( unsigned int i = 0; i < 5; i++ )
     {
-        BOOST_CHECK_SMALL( expectedFundamentalArgumentValues( i ) - fundamentalArgumentValues( i ), 1.0E-13  );
+        BOOST_CHECK_SMALL( std::fabs( expectedFundamentalArgumentValues( i ) - fundamentalArgumentValues( i ) ), 2.0E-13  );
     }
 
     // Calculate Delaunay arguments with GMST.
@@ -69,16 +67,16 @@ BOOST_AUTO_TEST_CASE( testSofaFundamentalArguments )
             calculateDelaunayFundamentalArgumentsWithGmst( testSecondsSinceJ2000 );
     for( unsigned int i = 0; i < 5; i++ )
     {
-        BOOST_CHECK_SMALL( fundamentalArgumentValuesWithGmst( i + 1 ) - fundamentalArgumentValues( i ), 1.0E-15  );
+        BOOST_CHECK_SMALL( std::fabs( fundamentalArgumentValuesWithGmst( i + 1 ) - fundamentalArgumentValues( i ) ), 1.0E-15  );
     }
 
     // Manually compute GMST
     double expectedGmst = calculateGreenwichMeanSiderealTime(
                 testSecondsSinceJ2000,
                 convertTTtoUTC( testSecondsSinceJ2000 ),
-                basic_astrodynamics::JULIAN_DAY_ON_J2000, iau_2006 );
+                basic_astrodynamics::JULIAN_DAY_ON_J2000, basic_astrodynamics::iau_2006 );
 
-    BOOST_CHECK_SMALL( expectedGmst + mathematical_constants::PI - fundamentalArgumentValuesWithGmst( 0 ), 1.0E-15  );
+    BOOST_CHECK_SMALL( std::fabs( expectedGmst + mathematical_constants::PI - fundamentalArgumentValuesWithGmst( 0 ) ), 1.0E-15  );
 
     // Calculate Doodson arguments directly and from Delaunay arguments and compare.
     Eigen::Matrix< double, 6, 1 > doodsonArguments = calculateDoodsonFundamentalArguments( testSecondsSinceJ2000 );
@@ -86,7 +84,7 @@ BOOST_AUTO_TEST_CASE( testSofaFundamentalArguments )
             doodsonToDelaunayArguments * doodsonArguments.segment( 1, 5 );
     for( unsigned int i = 0; i < 5; i++ )
     {
-        BOOST_CHECK_SMALL( fundamentalArgumentValues( i ) - reconstructedFundamentalArguments( i ), 1.0E-15  );
+        BOOST_CHECK_SMALL( std::fabs( fundamentalArgumentValues( i ) - reconstructedFundamentalArguments( i ) ), 1.0E-15  );
     }
 }
 

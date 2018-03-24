@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -14,7 +14,7 @@
  *        last updated: 13 Dec, 2012, last accessed: 19th March, 2013.
  *      JPL, NASA. Introduction to SPICE, 
  *        http://naif.jpl.nasa.gov/pub/naif/toolkit_docs/C/info/intrdctn.html, last updated:
- *        29th Feb, 2008, last accessed: 22nd March, 2012.   		
+ *        29th Feb, 2008, last accessed: 22nd March, 2012. 
  *      EGM 2008 gravity field model, http://earth-info.nga.mil/GandG/wgs84/gravitymod/egm2008/
  *        last accessed: 21 March, 2013.
  *

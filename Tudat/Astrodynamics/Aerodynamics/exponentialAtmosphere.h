@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -17,7 +17,6 @@
 #ifndef TUDAT_EXPONENTIAL_ATMOSPHERE_H
 #define TUDAT_EXPONENTIAL_ATMOSPHERE_H
 
-#include <boost/lexical_cast.hpp>
 #include <boost/shared_ptr.hpp>
 
 #include <cmath>

@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -12,16 +12,33 @@
 #ifndef TUDAT_TIME_CONVERSIONS_H
 #define TUDAT_TIME_CONVERSIONS_H
 
-#include "boost/date_time/gregorian/gregorian.hpp"
+#include <boost/date_time/gregorian/gregorian.hpp>
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/physicalConstants.h"
-#include "Tudat/Astrodynamics/BasicAstrodynamics/timeConversions.h"
 
 namespace tudat
 {
 namespace basic_astrodynamics
 {
 
+//! List of time scales available
+/*!
+ *  List of time scales available. Two types of scales are included, earth-based time scales (which can be handled, in part, by SOFA),
+ *  which represent a unique specific scale, and three relativistic scales, of which only barycentric is unique. The bodycentric and
+ *  topocentric scales require additional identifiers to fully determine.
+ */
+enum TimeScales
+{
+    dummy_scale = -1,
+    tai_scale = 0,
+    tt_scale = 1,
+    tdb_scale = 2,
+    utc_scale = 3,
+    ut1_scale = 4,
+    body_centered_coordinate_time_scale = 5,
+    barycentric_coordinate_time_scale = 6,
+    local_proper_time_scale = 7
+};
 
 //! Julian day at J2000, i.e. 01-01-2000, at 12:00 (in TT).
 const static double JULIAN_DAY_ON_J2000 = 2451545.0;

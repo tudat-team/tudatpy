@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -49,10 +49,10 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureCalculation )
             boost::make_shared< electro_magnetism::RadiationPressureInterface >(
                 boost::lambda::constant( totalSolarPower ),
                 boost::lambda::constant(
-                    ( Eigen::Vector3d( )<<
+                    ( Eigen::Vector3d( ) <<
                       0.0, physical_constants::ASTRONOMICAL_UNIT / std::sqrt( 2.0 ), 0.0 ).finished( ) ),
                 boost::lambda::constant(
-                    ( Eigen::Vector3d( )<<
+                    ( Eigen::Vector3d( ) <<
                       physical_constants::ASTRONOMICAL_UNIT / std::sqrt( 2.0 ), 0.0, 0.0 ).finished( ) ),
                 1.0, 1.0 );
     radiationPressureInterface->updateInterface( );

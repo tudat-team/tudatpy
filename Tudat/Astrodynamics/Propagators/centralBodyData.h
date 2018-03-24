@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -14,7 +14,6 @@
 #include <vector>
 #include <map>
 
-#include <boost/lexical_cast.hpp>
 #include <boost/function.hpp>
 
 #include <Eigen/Core>
@@ -28,7 +27,7 @@ namespace propagators
 //! Types of integration origins that can be used in the simulations.
 enum OriginType
 {
-    inertial,// origin is inertial.
+    global_frame_origin,// origin is inertial.
     from_ephemeris, // origin is moving with origin of body which is not propagated.
     from_integration // origin is moving with origin of body which is propagated.
 };
@@ -53,13 +52,18 @@ public:
      *         bodiesToIntegrate vector of same index.
      *  \param bodiesToIntegrate Names of bodies that are to be integrated numerically.
      *  \param bodyStateFunctions List of functions for the origins of selected bodies.
+     *  \param globalFrameOriginBarycentricStateFunction State function of global frame origin w.r.t. barycenter
+     *  \param globalFrameOrigin Origin of global frame.
      */
     CentralBodyData( const std::vector< std::string >& centralBodies,
                      const std::vector< std::string >& bodiesToIntegrate,
                      const std::map< std::string,
                      boost::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType ) > >&
-                     bodyStateFunctions ):
-        centralBodies_( centralBodies )
+                     bodyStateFunctions,
+                     const boost::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType ) >
+                     globalFrameOriginBarycentricStateFunction,
+                     const std::string globalFrameOrigin ):
+        centralBodies_( centralBodies ), globalFrameOriginBarycentricStateFunction_( globalFrameOriginBarycentricStateFunction )
     {
         // Check consistency of input.
         if( centralBodies.size( ) != bodiesToIntegrate.size( ) )
@@ -75,11 +79,9 @@ public:
         for( unsigned int i = 0; i < bodiesToIntegrate.size( ); i++ )
         {
             // Check if central body is inertial.
-            if( ( centralBodies.at( i ) == "Inertial" ) ||
-                    ( centralBodies.at( i ) == "" ) ||
-                    ( centralBodies.at( i ) == "SSB" ) )
+            if( centralBodies.at( i ) == globalFrameOrigin )
             {
-                bodyOriginType_.at( i ) = inertial;
+                bodyOriginType_.at( i ) = global_frame_origin;
             }
             else
             {
@@ -94,7 +96,7 @@ public:
                         centralBodyIndex = j;
                         if( i == j )
                         {
-                            throw std::runtime_error( "Error, body "+ bodiesToIntegrate[ j ] +
+                            throw std::runtime_error( "Error, body " + bodiesToIntegrate[ j ] +
                                                       " cannot be its own central body" );
                         }
                     }
@@ -126,7 +128,7 @@ public:
         {
             // If body origin is not from another integrated body, order in update is irrelevant,
             // set at current index of vector.
-            if( bodyOriginType_.at( i ) == inertial || bodyOriginType_.at( i ) == from_ephemeris  )
+            if( bodyOriginType_.at( i ) == global_frame_origin || bodyOriginType_.at( i ) == from_ephemeris  )
             {
                 updateOrder_[ currentUpdateIndex ] = i;
                 currentUpdateIndex++;
@@ -240,6 +242,8 @@ private:
     //! index.
     std::vector< std::string > centralBodies_;
 
+    boost::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType ) > globalFrameOriginBarycentricStateFunction_;
+
     //! Order in which the body states are to be called when getting global states (taking into
     //! account frame origin dependencies).
     std::vector< int > updateOrder_;
@@ -280,20 +284,18 @@ private:
         // Check origin type.
         switch( bodyOriginType_[ bodyIndex ] )
         {
-        case inertial:
+        case global_frame_origin:
             originState.setZero( );
             break;
         case from_ephemeris:
-            originState
-                = centralBodiesFromEphemerides_.at( bodyIndex )( static_cast< double >( time ) );
+            originState = centralBodiesFromEphemerides_.at( bodyIndex )( static_cast< double >( time ) );
             break;
         case from_integration:
-            originState
-                = internalSolution.segment( centralBodiesFromIntegration_.at( bodyIndex ) * 6, 6 );
+            originState = internalSolution.segment( centralBodiesFromIntegration_.at( bodyIndex ) * 6, 6 );
             break;
         default:
             throw std::runtime_error( "Error, do not recognize boy origin type " +
-                              boost::lexical_cast< std::string >( bodyOriginType_[ bodyIndex ] ) );
+                              std::to_string( bodyOriginType_[ bodyIndex ] ) );
             break;
         }
     }

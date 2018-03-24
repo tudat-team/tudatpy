@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -20,11 +20,9 @@
  */
 
 #include <cmath>
-#include <iostream>
 #include <stdexcept>
 
 #include <boost/bind.hpp>
-#include <boost/exception/all.hpp>
 
 #include "Tudat/Astrodynamics/Gravitation/librationPoint.h"
 #include "Tudat/Mathematics/BasicMathematics/functionProxy.h"

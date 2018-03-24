@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -17,11 +17,8 @@
 #define TUDAT_CUBIC_SPLINE_INTERPOLATOR_H
 
 #include <cmath>
-#include <iostream>
-
 #include <Eigen/Core>
 
-#include <boost/exception/all.hpp>
 #include <boost/shared_ptr.hpp>
 
 #include "Tudat/Mathematics/Interpolators/oneDimensionalInterpolator.h"
@@ -117,6 +114,7 @@ public:
     independentValues_;
     using OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >::
     lookUpScheme_;
+    using Interpolator< IndependentVariableType, DependentVariableType >::interpolate;
 
     //! Cubic spline interpolator constructor.
     /*!
@@ -212,9 +210,6 @@ public:
      *  Default destructor
      */
     ~CubicSplineInterpolator( ){ }
-
-    // Statement required to prevent hiding of base class functions.
-    using Interpolator< IndependentVariableType, DependentVariableType >::interpolate;
 
     //! Interpolate.
     /*!

@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -22,8 +22,6 @@
 
 #include <boost/math/special_functions.hpp> // For asinh and acosh
 #include <boost/exception/all.hpp> // For exceptions in sanity checks
-#include <boost/format.hpp>
-
 #include <Eigen/Dense> // for cross product issues (can someone explain why, exactly?)
 
 #include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
@@ -160,7 +158,7 @@ void ZeroRevolutionLambertTargeterIzzo::sanityCheckTimeOfFlight( )
         // Throw exception.
         throw std::runtime_error(
                     "Time-of-flight specified in Lambert problem must be strictly positive. Specified time-of-flight in days." +
-                                         boost::lexical_cast< std::string >( timeOfFlight ) );
+                                         std::to_string( timeOfFlight ) );
     }
     // Else, do nothing and continue.
 }
@@ -173,8 +171,8 @@ void ZeroRevolutionLambertTargeterIzzo::sanityCheckGravitationalParameter( )
     {
         // Throw exception.
         throw std::runtime_error(
-                    "Gravitational parameter specified in Lambert problem must be strictly positive. Specified gravitational parameter: "+
-                    boost::lexical_cast< std::string >( gravitationalParameter ) );
+                    "Gravitational parameter specified in Lambert problem must be strictly positive. Specified gravitational parameter: " +
+                    std::to_string( gravitationalParameter ) );
     }
     // Else, do nothing and continue.
 }
@@ -199,8 +197,7 @@ void ZeroRevolutionLambertTargeterIzzo::transformDimensions( )
             / (distanceNormalizingValue * cartesianPositionAtArrival.norm( ) );
 
     // Normalized Cartesian position at arrival.
-    normalizedRadiusAtArrival = cartesianPositionAtArrival.norm( )
-            / distanceNormalizingValue;
+    normalizedRadiusAtArrival = cartesianPositionAtArrival.norm( ) / distanceNormalizingValue;
 
     // Chord.
     normalizedChord = std::sqrt( 1.0 + normalizedRadiusAtArrival
@@ -361,7 +358,7 @@ double ZeroRevolutionLambertTargeterIzzo::computeRootTimeOfFlight( )
     {
         throw std::runtime_error(
                     "Multi-Revolution Lambert targeter failed to converge to a solution. Reached the maximum number of iterations: " +
-                    boost::lexical_cast< std::string >( maximumNumberOfIterations ) );
+                    std::to_string( maximumNumberOfIterations ) );
     }
 
     // Recovering x parameter and returning it.
@@ -481,12 +478,10 @@ void ZeroRevolutionLambertTargeterIzzo::computeVelocities( const double xParamet
             radialUnitVectorAtArrival.cross( angularMomentumUnitVector );
 
     // Reconstruct non-dimensional velocity vectors.
-    cartesianVelocityAtDeparture <<
-                                    radialVelocityAtDeparture * radialUnitVectorAtDeparture
+    cartesianVelocityAtDeparture << radialVelocityAtDeparture * radialUnitVectorAtDeparture
                                     - transverseVelocityAtDeparture * transverseUnitVectorAtDeparture;
 
-    cartesianVelocityAtArrival <<
-                                  radialVelocityAtArrival * radialUnitVectorAtArrival
+    cartesianVelocityAtArrival << radialVelocityAtArrival * radialUnitVectorAtArrival
                                   - transverseVelocityAtArrival * transverseUnitVectorAtArrival;
 
     // Return to dimensions of initial problem definition.

@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -74,7 +74,7 @@ void writeErrorsToFile( std::vector< double > eccentricities, std::vector< doubl
               << "conversion of mean to hyperbolic eccentric anomaly has failed in" << std::endl
               << "one of the random tests. To ensure the data for which it failed is" << std::endl
               << "not lost, the corresponding input variables for these cases are" << std::endl
-              << "listed below. Please report a bug on the Tudat website "<< std::endl
+              << "listed below. Please report a bug on the Tudat website " << std::endl
               << "(tudat.tudelft.nl), with these values, so that someone will look" << std::endl
               << "into it and the code can be improved." << std::endl << std::endl
               << "Eccentricities:           Mean anomalies:" << std::endl;

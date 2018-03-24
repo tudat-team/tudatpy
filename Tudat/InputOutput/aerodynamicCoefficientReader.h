@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -9,8 +9,6 @@
  */
 
 #include <map>
-#include <iostream>
-
 #include "Tudat/Basics/utilities.h"
 
 #include "Tudat/InputOutput/multiDimensionalArrayReader.h"
@@ -72,7 +70,7 @@ boost::multi_array< Eigen::Vector3d, static_cast< size_t >( NumberOfDimensions )
     {
         index = utilities::getMultiArrayIndexArray( xComponents, p );
 
-        vectorVector[ i ] = ( Eigen::Vector3d( )<<xComponents( index ), yComponents( index ), zComponents( index ) ).finished( );
+        vectorVector[ i ] = ( Eigen::Vector3d( ) << xComponents( index ), yComponents( index ), zComponents( index ) ).finished( );
         ++p;
     }
 

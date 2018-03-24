@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -97,7 +97,7 @@ Eigen::Vector6d dummyControlIncrements(
         const std::vector< double > independentVariables )
 {
     Eigen::Vector6d randomControlIncrements =
-            ( Eigen::Vector6d( )<<1.0, -3.5, 2.1, 0.4, -0.75, 1.3 ).finished( );
+            ( Eigen::Vector6d( ) << 1.0, -3.5, 2.1, 0.4, -0.75, 1.3 ).finished( );
     for( unsigned int i = 0; i < 6; i++ )
     {
         randomControlIncrements( i ) *= (
@@ -198,9 +198,7 @@ BOOST_AUTO_TEST_CASE( testControlSurfaceIncrementInterfaceInPropagation )
     using namespace input_output;
 
     // Load Spice kernels.
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "pck00009.tpc" );
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "de-403-masses.tpc" );
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "de421.bsp" );
+    spice_interface::loadStandardSpiceKernels( );
 
 
     // Set simulation start epoch.

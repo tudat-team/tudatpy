@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -27,6 +27,44 @@ namespace tudat
 
 namespace utilities
 {
+
+//! Function to recalculate map keys as a linear function of original map keys.
+/*!
+ *  Function to recalculate map keys as a linear function of original map keys, i.e. new map key is constant * old key - offset or
+ *  ( old key - offset ) * constant, where the choise between these two is provided by an input boolean.
+ *  \param originalMap Orignal, unscaled map
+ *  \param offset Offset that is to be applied to (subtracted from) map keys
+ *  \param scale Value by which existing map keys are to be scaled (either before or agter application of offset variabled, depending on value
+ *  of isOffsetAppliedFirst input variable)
+ *  \param isOffsetAppliedFirst Boolean denoting order in which offset and scale are to be applied to existing map keys.
+ */
+template< typename S, typename T >
+std::map< S, T > linearlyScaleKeyOfMap(
+        const std::map< S, T >& originalMap, S offset, S scale, bool isOffsetAppliedFirst = true )
+{
+    // Declare new map
+    std::map< S, T > scaledMap;
+    double newKey;
+
+    // Iterate over old map and calculate new key values.
+    for( typename std::map< S, T >::const_iterator mapIterator = originalMap.begin( ); mapIterator != originalMap.end( ); mapIterator++ )
+    {
+        // Determine order in which modifications are to be applied
+        if( isOffsetAppliedFirst )
+        {
+            newKey = ( mapIterator->first - offset ) * scale;
+        }
+        else
+        {
+            newKey = mapIterator->first * scale - offset;
+
+        }
+
+        // Set scalted map key with corresponding value in new map
+        scaledMap[ newKey ] = mapIterator->second;
+    }
+    return scaledMap;
+}
 
 //! Function to create a vector from the values of a map
 /*!
@@ -144,7 +182,7 @@ void printMapContents( const std::map< S, T >& mapToPrint)
     for( typename std::map< S, T >::const_iterator mapIterator = mapToPrint.begin( );
          mapIterator != mapToPrint.end( ); mapIterator++ )
     {
-        std::cout<<mapIterator->first<<", "<<mapIterator->second<<std::endl;
+        std::cout << mapIterator->first << ", " << mapIterator->second << std::endl;
     }
 }
 
@@ -483,6 +521,24 @@ bool doStlVectorContentsMatch(
     }
 
     return doVectorsMatch;
+}
+
+//! Transform from map of std::vector (output of text file reader) to map of Eigen::Array
+template< typename MapKey, typename ScalarType >
+std::map< MapKey, Eigen::Array< ScalarType, Eigen::Dynamic, 1 > > convertSTLVectorMapToEigenVectorMap(
+        std::map< MapKey, std::vector< ScalarType > > stlVectorMap )
+{
+    std::map< MapKey, Eigen::Array< ScalarType, Eigen::Dynamic, 1 > > eigenMap;
+    for ( auto ent: stlVectorMap )
+    {
+        Eigen::Array< ScalarType, Eigen::Dynamic, 1 > array( ent.second.size( ) );
+        for ( int i = 0; i < array.rows( ); i++ )
+        {
+            array.row( i ) = ent.second.at( i );
+        }
+        eigenMap[ ent.first ] = array;
+    }
+    return eigenMap;
 }
 
 } // namespace utilities

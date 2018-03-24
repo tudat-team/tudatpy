@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -78,7 +78,7 @@ public:
             if( dynamicalStatesToEstimate_.count( partialTypeIterator->first ) == 0 )
             {
                 std::string errorMessage = "Error when making variational equations object, found no state to estimate of type " +
-                        boost::lexical_cast< std::string >( partialTypeIterator->first );
+                        std::to_string( partialTypeIterator->first );
                 throw std::runtime_error( errorMessage );
             }
             else if( dynamicalStatesToEstimate_.at( partialTypeIterator->first ).size( ) !=

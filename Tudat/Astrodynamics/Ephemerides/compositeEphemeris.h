@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -11,7 +11,6 @@
 #ifndef TUDAT_COMPOSITEEPHEMERIS_H
 #define TUDAT_COMPOSITEEPHEMERIS_H
 
-#include <iostream>
 #include <vector>
 
 #include <boost/bind.hpp>
@@ -65,7 +64,7 @@ public:
     CompositeEphemeris(
             const std::map< int, boost::function< StateType( const TimeType& ) > >
             translationalEphemerides,
-            const std::map< int, boost::function< StateType( const double, const StateType& ) > >
+            const std::map< int, boost::function< StateType( const TimeType, const StateType& ) > >
             rotationalEphemerides,
             const std::string referenceFrameOrigin = "SSB",
             const std::string referenceFrameOrientation = "ECLIPJ2000" ):
@@ -74,7 +73,7 @@ public:
         // Create iterators over ephemeris functions.
         typename std::map< int, boost::function< StateType( const TimeType& ) > >::const_iterator
                 translationIterator = translationalEphemerides.begin( );
-        typename std::map< int, boost::function< StateType( const double, const StateType& ) > >::const_iterator
+        typename std::map< int, boost::function< StateType( const TimeType, const StateType& ) > >::const_iterator
                 rotationIterator = rotationalEphemerides.begin( );
 
         // Check whether chain starts with translation.
@@ -135,7 +134,7 @@ public:
     CompositeEphemeris(
             const std::map< int, std::pair< boost::function< StateType( const TimeType& ) >, bool > >
             translationalEphemerides,
-            const std::map< int, boost::function< StateType( const double, const StateType& ) > >
+            const std::map< int, boost::function< StateType( const TimeType, const StateType& ) > >
             rotationalEphemerides,
             const std::string referenceFrameOrigin = "SSB",
             const std::string referenceFrameOrientation = "ECLIPJ2000" ):
@@ -144,7 +143,7 @@ public:
         // Create iterators over ephemeris functions.
         typename std::map< int, std::pair< boost::function< StateType( const TimeType& ) >, bool > >
                 ::const_iterator translationIterator = translationalEphemerides.begin( );
-        typename std::map< int, boost::function< StateType( const double, const StateType& ) > >
+        typename std::map< int, boost::function< StateType( const TimeType, const StateType& ) > >
                 ::const_iterator rotationIterator = rotationalEphemerides.begin( );
 
         // Check whether chain starts with translation.
@@ -316,7 +315,7 @@ private:
     /*!
      *  Vector of rotational ephemeris functions.
      */
-    std::vector< boost::function< StateType( const double, const StateType& ) > > rotationalEphemerides_;
+    std::vector< boost::function< StateType( const TimeType, const StateType& ) > > rotationalEphemerides_;
 
     //! Vector indicating order of translational and rotational ephemeris.
     /*!
@@ -370,15 +369,15 @@ boost::shared_ptr< Ephemeris > createReferencePointEphemeris(
 
 
     // Crate rotation functions from local to global frame.
-    boost::function< Eigen::Quaterniond( const double ) > rotationToFrameFunction =
-            boost::bind( &RotationalEphemeris::getRotationToBaseFrame, bodyRotationModel, _1 );
-    boost::function< Eigen::Matrix3d( const double ) > rotationMatrixToFrameDerivativeFunction =
-            boost::bind( &RotationalEphemeris::getDerivativeOfRotationToBaseFrame, bodyRotationModel, _1 );
+    boost::function< Eigen::Quaterniond( const TimeType ) > rotationToFrameFunction =
+            boost::bind( &RotationalEphemeris::getRotationToBaseFrameTemplated< TimeType >, bodyRotationModel, _1 );
+    boost::function< Eigen::Matrix3d( const TimeType ) > rotationMatrixToFrameDerivativeFunction =
+            boost::bind( &RotationalEphemeris::getDerivativeOfRotationToBaseFrameTemplated< TimeType >, bodyRotationModel, _1 );
 
     // Create ephemeris
-    std::map< int, boost::function< StateType( const double, const StateType& ) > > referencePointRotationVector;
+    std::map< int, boost::function< StateType( const TimeType, const StateType& ) > > referencePointRotationVector;
     referencePointRotationVector[ 1 ] = boost::bind(
-                transformStateToFrameFromRotationTimeFunctions< StateScalarType >,
+                transformStateToFrameFromRotationTimeFunctions< StateScalarType, TimeType >,
                 _2, _1, rotationToFrameFunction, rotationMatrixToFrameDerivativeFunction );
 
     return boost::make_shared< CompositeEphemeris< TimeType, StateScalarType > >(

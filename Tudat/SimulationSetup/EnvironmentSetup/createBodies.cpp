@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -7,6 +7,8 @@
  *    a copy of the license with this file. If not, please or visit:
  *    http://tudat.tudelft.nl/LICENSE.
  */
+
+#include <iostream>
 
 #include <boost/make_shared.hpp>
 #include <boost/lambda/lambda.hpp>
@@ -59,6 +61,16 @@ NamedBodyMap createBodies(
     for( unsigned int i = 0; i < orderedBodySettings.size( ); i++ )
     {
         bodyMap[ orderedBodySettings.at( i ).first ] = boost::make_shared< Body >( );
+    }
+
+    // Define constant mass for each body (if required).
+    for( unsigned int i = 0; i < orderedBodySettings.size( ); i++ )
+    {
+        const double constantMass = orderedBodySettings.at( i ).second->constantMass;
+        if ( constantMass == constantMass )
+        {
+            bodyMap[ orderedBodySettings.at( i ).first ]->setConstantBodyMass( constantMass );
+        }
     }
 
     // Create ephemeris objects for each body (if required).
@@ -159,6 +171,15 @@ NamedBodyMap createBodies(
                             orderedBodySettings.at( i ).first, bodyMap ) );
         }
 
+    }
+
+    for( unsigned int i = 0; i < orderedBodySettings.size( ); i++ )
+    {
+        for( unsigned int j = 0; j < orderedBodySettings.at( i ).second->groundStationSettings.size( ); j++ )
+        {
+            createGroundStation( bodyMap.at( orderedBodySettings.at( i ).first ), orderedBodySettings.at( i ).first,
+                     orderedBodySettings.at( i ).second->groundStationSettings.at( j ) );
+        }
     }
     return bodyMap;
 

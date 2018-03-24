@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -9,16 +9,11 @@
  */
 
 #include <map>
-#include <fstream>
-#include <sstream>
 #include <string>
 #include <iostream>
-#include <iomanip>
 
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/trim.hpp>
-#include <boost/lexical_cast.hpp>
-#include <boost/format.hpp>
 #include <boost/make_shared.hpp>
 #include <boost/bind.hpp>
 
@@ -68,7 +63,7 @@ boost::shared_ptr< aerodynamics::FlightConditions > createFlightConditions(
     if( bodyWithFlightConditions->getAerodynamicCoefficientInterface( ) == NULL )
     {
         throw std::runtime_error(
-                    "Error when making flight conditions, body "+ nameOfBodyUndergoingAcceleration +
+                    "Error when making flight conditions, body " + nameOfBodyUndergoingAcceleration +
                     " has no aerodynamic coefficients." );
     }
 
@@ -101,7 +96,7 @@ boost::shared_ptr< aerodynamics::FlightConditions > createFlightConditions(
     {
         if( centralBody->getShapeModel( ) == NULL )
         {
-            std::cerr<<"Warnning, body "<<nameOfBodyExertingAcceleration<<" has wind model, but no shape model, cannot compute wind as function of altitude "<<std::endl;
+            std::cerr << "Warnning, body " << nameOfBodyExertingAcceleration << " has wind model, but no shape model, cannot compute wind as function of altitude " << std::endl;
         }
         else
         {

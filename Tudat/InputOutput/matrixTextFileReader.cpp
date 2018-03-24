@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -22,8 +22,6 @@
 #include <boost/iostreams/device/file.hpp>
 #include <boost/iostreams/copy.hpp>
 #include <boost/iostreams/filtering_stream.hpp>
-#include <boost/lexical_cast.hpp>
-
 #include "Tudat/InputOutput/matrixTextFileReader.h"
 #include "Tudat/InputOutput/streamFilters.h"
 
@@ -110,9 +108,9 @@ Eigen::MatrixXd readMatrixFromFile( const std::string& relativePath, const std::
         if ( lineSplit_.size( ) != numberOfColumns )
         {
             throw std::runtime_error(
-                        "Number of columns in row " + boost::lexical_cast< std::string >( rowIndex ) + " is " +
-                        boost::lexical_cast< std::string >( lineSplit_.size( ) ) + " should be " +
-                        boost::lexical_cast< std::string >( numberOfColumns ) );
+                        "Number of columns in row " + std::to_string( rowIndex ) + " is " +
+                        std::to_string( lineSplit_.size( ) ) + " should be " +
+                        std::to_string( numberOfColumns ) );
         }
 
         // Put single line entries into matrix as doubles.
@@ -120,7 +118,7 @@ Eigen::MatrixXd readMatrixFromFile( const std::string& relativePath, const std::
         {
             boost::trim( lineSplit_.at( columnIndex ) );
             dataMatrix_( rowIndex, columnIndex ) =
-                    boost::lexical_cast< double >( lineSplit_.at( columnIndex ) );
+                    std::stod( lineSplit_.at( columnIndex ) );
         }
     }
 

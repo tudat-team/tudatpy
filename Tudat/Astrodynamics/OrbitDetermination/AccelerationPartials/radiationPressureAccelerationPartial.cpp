@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -67,7 +67,22 @@ std::pair< boost::function< void( Eigen::MatrixXd& ) >, int > CannonBallRadiatio
     {
         switch( parameter->getParameterName( ).first )
         {
+        // Set function returning partial w.r.t. radiation pressure coefficient.
+        case estimatable_parameters::arc_wise_radiation_pressure_coefficient:
 
+            if( boost::dynamic_pointer_cast< estimatable_parameters::ArcWiseRadiationPressureCoefficient >( parameter ) != NULL )
+            {
+                partialFunction = boost::bind(
+                            &CannonBallRadiationPressurePartial::wrtArcWiseRadiationPressureCoefficient, this, _1,
+                            boost::dynamic_pointer_cast< estimatable_parameters::ArcWiseRadiationPressureCoefficient >( parameter ) );
+            }
+            else
+            {
+                throw std::runtime_error( "Error when making radiation pressure partial, arcwise radiation pressure parameter not consistent" );
+            }
+            numberOfRows = parameter->getParameterSize( );
+
+            break;
         default:
             break;
         }

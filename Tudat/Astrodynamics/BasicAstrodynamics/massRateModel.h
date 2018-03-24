@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -126,6 +126,9 @@ private:
     boost::function< double( const double ) > massRateFunction_;
 
 };
+
+//! Typedef for the massrate model map.
+typedef std::map< std::string, std::vector< boost::shared_ptr< MassRateModel > > > MassRateModelMap;
 
 
 } // namespace basic_astrodynamics

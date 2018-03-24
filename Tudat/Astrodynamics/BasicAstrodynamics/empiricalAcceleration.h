@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -15,7 +15,6 @@
 #ifndef TUDAT_EMPIRICALACCELERATION_H
 #define TUDAT_EMPIRICALACCELERATION_H
 
-#include <iomanip>
 
 #include <boost/function.hpp>
 #include <boost/lambda/lambda.hpp>
@@ -40,12 +39,34 @@ enum EmpiricalAccelerationFunctionalShapes
     cosine_empirical = 2
 };
 
+inline std::string getEmpiricalAccelerationFunctionalShapeString(
+        const EmpiricalAccelerationFunctionalShapes functionalShape )
+{
+    std::string parameterDescription = "";
+    switch( functionalShape )
+    {
+    case constant_empirical:
+        parameterDescription = "constant";
+        break;
+    case sine_empirical:
+        parameterDescription = "sine of true anomaly";
+        break;
+    case cosine_empirical:
+        parameterDescription = "cosine of true anomaly";
+        break;
+    default:
+        throw std::runtime_error( "Error when getting functional shape string, type not recognized" );
+    }
+    return parameterDescription;
+}
+
+
 //! Enum defining component of empirical accelerations
 enum EmpiricalAccelerationComponents
 {
-    radial_empicial_acceleration_component = 0,
-    along_track_empicial_acceleration_component = 1,
-    across_track_empicial_acceleration_component = 2
+    radial_empirical_acceleration_component = 0,
+    along_track_empirical_acceleration_component = 1,
+    across_track_empirical_acceleration_component = 2
 };
 
 
@@ -150,8 +171,7 @@ public:
      *  \return Empirical acceleration components in RSW frame. Constant, sine and cosine terms are given in first, second and
      *  third column of return matrix, respectively.
      */
-    Eigen::Matrix3d getAccelerationComponents(
-            const double currentTime = TUDAT_NAN )
+    Eigen::Matrix3d getAccelerationComponents( const double currentTime = TUDAT_NAN )
     {
         if( areAccelerationComponentsTimeDependent_ && !( currentTime == currentTime ) )
         {
@@ -197,7 +217,7 @@ public:
     {
         if( areAccelerationComponentsTimeDependent_ )
         {
-            std::cerr<<"Warning when resetting time-invariant empirical acceleration components; original componets are time-varying"<<std::endl;
+            std::cerr << "Warning when resetting time-invariant empirical acceleration components; original componets are time-varying" << std::endl;
         }
 
         areAccelerationComponentsTimeDependent_ = 0;

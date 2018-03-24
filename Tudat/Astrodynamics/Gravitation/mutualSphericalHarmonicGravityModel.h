@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -214,7 +214,7 @@ public:
      *  Function returning the object calculating spherical harmonic acceleration due to the body exerting acceleration
      */
     boost::shared_ptr< SphericalHarmonicsGravitationalAccelerationModel >
-    getAccelerationModelFromShExpansionOfBodyExertingAcceleration( )
+        getAccelerationModelFromShExpansionOfBodyExertingAcceleration( )
     {
         return accelerationModelFromShExpansionOfBodyExertingAcceleration_;
     }
@@ -224,7 +224,7 @@ public:
      *  Function returning the object calculating spherical harmonic acceleration due to the body undergoing acceleration
      */
     boost::shared_ptr< SphericalHarmonicsGravitationalAccelerationModel >
-    getAccelerationModelFromShExpansionOfBodyUndergoingAcceleration( )
+        getAccelerationModelFromShExpansionOfBodyUndergoingAcceleration( )
     {
         return accelerationModelFromShExpansionOfBodyUndergoingAcceleration_;
     }
@@ -247,7 +247,7 @@ protected:
      *  Object calculating spherical harmonic acceleration due to the body exerting acceleration
      */
     boost::shared_ptr< SphericalHarmonicsGravitationalAccelerationModel >
-    accelerationModelFromShExpansionOfBodyExertingAcceleration_;
+        accelerationModelFromShExpansionOfBodyExertingAcceleration_;
 
     //! Object calculating spherical harmonic acceleration due to the body undergoing acceleration
     /*!
@@ -257,7 +257,7 @@ protected:
      *  as this term is only calculated by accelerationModelFromShExpansionOfBodyExertingAcceleration_.
      */
     boost::shared_ptr< SphericalHarmonicsGravitationalAccelerationModel >
-    accelerationModelFromShExpansionOfBodyUndergoingAcceleration_;
+        accelerationModelFromShExpansionOfBodyUndergoingAcceleration_;
 
 
 };

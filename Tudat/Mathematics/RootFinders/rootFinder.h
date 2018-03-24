@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -42,7 +42,7 @@ public:
     //! Typedef of the function determining whether to terminate the root finding (i.e convergence)
     typedef boost::function< bool( DataType, DataType,
                                    DataType, DataType, unsigned int ) > TerminationFunction;
-	
+        
     //! Constructor taking custom termination function.
     /*!
      *  Constructor taking custom termination function.
@@ -88,7 +88,7 @@ protected:
      * The root-finder tries to find a root of this function.
      */
     FunctionPointer rootFunction;
-	
+    
     //! Function specifying the termination conditions.
     /*!
      * The rootfinder will continue improving the solution of the root until the termination

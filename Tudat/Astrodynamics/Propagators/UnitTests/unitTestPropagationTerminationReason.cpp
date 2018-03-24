@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -10,7 +10,7 @@
 
 #define BOOST_TEST_MAIN
 
-#include <Tudat/SimulationSetup/tudatSimulationHeader.h>
+#include "Tudat/SimulationSetup/tudatSimulationHeader.h"
 #include <boost/test/unit_test.hpp>
 
 //! Test suite for astrodynamics functions.
@@ -40,9 +40,7 @@ BOOST_AUTO_TEST_CASE( testReasonAfterSuccessfulPropagationWithTimeLimit )
 
 
     // Load Spice kernels.
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "pck00009.tpc" );
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "de-403-masses.tpc" );
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "de421.bsp" );
+    spice_interface::loadStandardSpiceKernels( );
 
     // Set simulation time settings.
     const double simulationStartEpoch = 0.0;
@@ -168,13 +166,13 @@ BOOST_AUTO_TEST_CASE( testReasonAfterSuccessfulPropagationWithTimeLimit )
                 bodyMap, integratorSettings, propagatorSettings, false, false, false );
 
     // Check that the propagation termination reason is unknown before propagation.
-    BOOST_CHECK( dynamicsSimulator.getPropagationTerminationReason( ) == propagation_never_run );
+    BOOST_CHECK( dynamicsSimulator.getPropagationTerminationReason( )->getPropagationTerminationReason( ) == propagation_never_run );
 
     // Propagate dynamics.
     dynamicsSimulator.integrateEquationsOfMotion( propagatorSettings->getInitialStates( ) );
 
     // Check that the propagation termination reason after propagation.
-    BOOST_CHECK( dynamicsSimulator.getPropagationTerminationReason( ) == termination_condition_reached );
+    BOOST_CHECK( dynamicsSimulator.getPropagationTerminationReason( )->getPropagationTerminationReason( ) == termination_condition_reached );
 
 }
 
@@ -203,9 +201,7 @@ BOOST_AUTO_TEST_CASE( testReasonAfterSuccessfulPropagationWithAltitudeLimit )
 
 
     // Load Spice kernels.
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "pck00009.tpc" );
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "de-403-masses.tpc" );
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "de421.bsp" );
+    spice_interface::loadStandardSpiceKernels( );
 
     // Set simulation time settings.
     const double simulationStartEpoch = 0.0;
@@ -352,19 +348,19 @@ BOOST_AUTO_TEST_CASE( testReasonAfterSuccessfulPropagationWithAltitudeLimit )
                 bodyMap, integratorSettings, propagatorSettings, false, false, false );
 
     // Check that the propagation termination reason is unknown before propagation.
-    BOOST_CHECK( dynamicsSimulator.getPropagationTerminationReason( ) == propagation_never_run );
+    BOOST_CHECK( dynamicsSimulator.getPropagationTerminationReason( )->getPropagationTerminationReason( ) == propagation_never_run );
 
     // Propagate dynamics.
     dynamicsSimulator.integrateEquationsOfMotion( propagatorSettings->getInitialStates( ) );
 
     // Check that the propagation termination reason after propagation.
-    BOOST_CHECK( dynamicsSimulator.getPropagationTerminationReason( ) == termination_condition_reached );
+    BOOST_CHECK( dynamicsSimulator.getPropagationTerminationReason( )->getPropagationTerminationReason( ) == termination_condition_reached );
 
 }
 
 
 //! Test that after a propagation in which an error is caught, the propagation termination reason is
-//! `runtime_error_caught_in_propagation`. A low initial altitude and no altitude limit causes the propagation to throw a NaN error.
+//! `nan_or_inf_detected_in_state`. A low initial altitude and no altitude limit causes the propagation to throw a NaN error.
 BOOST_AUTO_TEST_CASE( testReasonAfterPropagationErrorCaught )
 {
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -387,9 +383,7 @@ BOOST_AUTO_TEST_CASE( testReasonAfterPropagationErrorCaught )
 
 
     // Load Spice kernels.
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "pck00009.tpc" );
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "de-403-masses.tpc" );
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "de421.bsp" );
+    spice_interface::loadStandardSpiceKernels( );
 
     // Set simulation time settings.
     const double simulationStartEpoch = 0.0;
@@ -515,13 +509,14 @@ BOOST_AUTO_TEST_CASE( testReasonAfterPropagationErrorCaught )
                 bodyMap, integratorSettings, propagatorSettings, false, false, false );
 
     // Check that the propagation termination reason is unknown before propagation.
-    BOOST_CHECK( dynamicsSimulator.getPropagationTerminationReason( ) == propagation_never_run );
+    BOOST_CHECK( dynamicsSimulator.getPropagationTerminationReason( )->getPropagationTerminationReason( ) == propagation_never_run );
 
     // Propagate dynamics.
     dynamicsSimulator.integrateEquationsOfMotion( propagatorSettings->getInitialStates( ) );
 
     // Check that the propagation termination reason after propagation.
-    BOOST_CHECK( dynamicsSimulator.getPropagationTerminationReason( ) == runtime_error_caught_in_propagation );
+    BOOST_CHECK( dynamicsSimulator.getPropagationTerminationReason( )->getPropagationTerminationReason( ) ==
+                 nan_or_inf_detected_in_state );
 
 }
 

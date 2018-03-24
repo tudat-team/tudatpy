@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -27,8 +27,10 @@ namespace parsed_data_vector_utilities
 ParsedDataVectorPtr filterMapKey( ParsedDataVectorPtr datavector, int nrFields, ...)
 {
     // Create a fancy vector (list) of all the fields:
-    va_list	argumentList;                 // Define argument list variable.
-    va_start( argumentList, nrFields );   // Initialize list; point to last defined argument.
+    // Define argument list variable.
+    va_list argumentList;
+    // Initialize list; point to last defined argument.
+    va_start( argumentList, nrFields );   
 
     // Create a new datavector for the filtered data.
     ParsedDataVectorPtr newDataVector = boost::make_shared< ParsedDataVector >( );
@@ -84,8 +86,10 @@ ParsedDataVectorPtr filterMapKey( ParsedDataVectorPtr datavector, int nrFields, 
 ParsedDataVectorPtr filterMapKeyValue( ParsedDataVectorPtr datavector, int nrFields, ... )
 {
     // Create a fancy vector (list) of all the fields:
-    va_list	argumentList;                 // Define argument list variable.
-    va_start( argumentList, nrFields );   // Initialize list; point to last defined argument.
+    // Define argument list variable.
+    va_list argumentList;
+    // Initialize list; point to last defined argument.
+    va_start( argumentList, nrFields );
 
     // Create a new data vector for the filtered data.
     ParsedDataVectorPtr newDataVector = boost::make_shared< ParsedDataVector>( );

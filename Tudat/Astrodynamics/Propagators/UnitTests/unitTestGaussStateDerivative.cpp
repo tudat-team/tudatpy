@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -15,11 +15,9 @@
 #include <thread>
 
 #include <boost/make_shared.hpp>
-#include <boost/format.hpp>
 #include <boost/test/unit_test.hpp>
 
-#include <Tudat/SimulationSetup/tudatSimulationHeader.h>
-
+#include "Tudat/SimulationSetup/tudatSimulationHeader.h"
 namespace tudat
 {
 namespace unit_tests
@@ -46,11 +44,7 @@ BOOST_AUTO_TEST_CASE( testGaussPopagatorForPointMassCentralBodies )
 
 
         //Load spice kernels.
-        std::string kernelsPath = input_output::getSpiceKernelPath( );
-        spice_interface::loadSpiceKernelInTudat( kernelsPath + "de-403-masses.tpc");
-        spice_interface::loadSpiceKernelInTudat( kernelsPath + "naif0009.tls");
-        spice_interface::loadSpiceKernelInTudat( kernelsPath + "pck00009.tpc");
-        spice_interface::loadSpiceKernelInTudat( kernelsPath + "de421.bsp");
+        spice_interface::loadStandardSpiceKernels( );
 
         // Define bodies in simulation.
         unsigned int totalNumberOfBodies = 7;
@@ -196,7 +190,7 @@ BOOST_AUTO_TEST_CASE( testGaussPopagatorForPointMassCentralBodies )
             currentTestTime += testTimeStep;
         }
 
-        TranslationalPropagatorType translationalPropagatorType;
+        TranslationalPropagatorType translationalPropagatorType = undefined_propagator;
         if( propagatorType == 0 )
         {
             translationalPropagatorType = gauss_modified_equinoctial;
@@ -208,7 +202,7 @@ BOOST_AUTO_TEST_CASE( testGaussPopagatorForPointMassCentralBodies )
 
         // Create propagation settings (Gauss)
         propagatorSettings = boost::make_shared< TranslationalStatePropagatorSettings< double > >
-                ( centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState, finalEphemerisTime, gauss_modified_equinoctial );
+                ( centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState, finalEphemerisTime, translationalPropagatorType );
 
         // Propagate orbit with Gauss method
         SingleArcDynamicsSimulator< double > dynamicsSimulator(
@@ -284,9 +278,7 @@ BOOST_AUTO_TEST_CASE( testGaussPopagatorForSphericalHarmonicCentralBodies )
     using namespace numerical_integrators;
 
     // Load Spice kernels.
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "pck00009.tpc" );
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "de-403-masses.tpc" );
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "de421.bsp" );
+    spice_interface::loadStandardSpiceKernels( );
 
     // Set simulation time settings.
     const double simulationStartEpoch = 0.0;
@@ -305,7 +297,7 @@ BOOST_AUTO_TEST_CASE( testGaussPopagatorForSphericalHarmonicCentralBodies )
         }
         for( unsigned int simulationCase = 0; simulationCase < 4; simulationCase++ )
         {
-            std::cout<<"Simulation case : "<<simulationCase<<std::endl<<std::endl;
+            std::cout << "Simulation case : " << simulationCase << std::endl << std::endl;
 
 
             // Define body settings for simulation.
@@ -454,7 +446,7 @@ BOOST_AUTO_TEST_CASE( testGaussPopagatorForSphericalHarmonicCentralBodies )
             std::map< double, Eigen::Matrix< double, 6, 1 > >::iterator cowellIterator = cowellIntegrationResults.begin( );
             for( unsigned int i = 0; i < gaussIntegrationResults.size( ); i++ )
             {
-                //std::cout<<( gaussIterator->second - cowellIterator->second ).transpose( )<<std::endl;
+                //std::cout << ( gaussIterator->second - cowellIterator->second ).transpose( ) << std::endl;
                 for( int j= 0; j< 3; j++ )
                 {
                     BOOST_CHECK_SMALL( ( gaussIterator->second - cowellIterator->second )( j ), 0.02 );

@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -9,8 +9,6 @@
  */
 #define BOOST_TEST_MAIN
 
-#include <iostream>
-
 #include <boost/test/unit_test.hpp>
 
 #include <Eigen/Core>
@@ -20,13 +18,12 @@
 
 #include "Tudat/Astrodynamics/ReferenceFrames/aerodynamicAngleCalculator.h"
 #include "Tudat/SimulationSetup/PropagationSetup/dynamicsSimulator.h"
-#include <Tudat/External/SpiceInterface/spiceEphemeris.h>
-#include <Tudat/External/SpiceInterface/spiceRotationalEphemeris.h>
-#include <Tudat/InputOutput/basicInputOutput.h>
-#include <Tudat/SimulationSetup/EnvironmentSetup/body.h>
-#include <Tudat/SimulationSetup/PropagationSetup/createAccelerationModels.h>
-#include <Tudat/SimulationSetup/EnvironmentSetup/defaultBodies.h>
-
+#include "Tudat/External/SpiceInterface/spiceEphemeris.h"
+#include "Tudat/External/SpiceInterface/spiceRotationalEphemeris.h"
+#include "Tudat/InputOutput/basicInputOutput.h"
+#include "Tudat/SimulationSetup/EnvironmentSetup/body.h"
+#include "Tudat/SimulationSetup/PropagationSetup/createAccelerationModels.h"
+#include "Tudat/SimulationSetup/EnvironmentSetup/defaultBodies.h"
 namespace tudat
 {
 namespace unit_tests
@@ -178,7 +175,7 @@ BOOST_AUTO_TEST_CASE( testAerodynamicAngleCalculator )
     // Test case 1: arbitrary rotation
     {
         Eigen::Vector6d testState;
-        testState<<-1656517.23153109, -5790058.28764025, -2440584.88186829,
+        testState << -1656517.23153109, -5790058.28764025, -2440584.88186829,
                 6526.30784888051, -2661.34558272018, 2377.09572383163;
 
         double testHeadingAngle = 1.229357188236127;
@@ -198,7 +195,7 @@ BOOST_AUTO_TEST_CASE( testAerodynamicAngleCalculator )
     // Test case 2: rotation with zero and half pi angles.
     {
         Eigen::Vector6d testState;
-        testState<<0.0, 6498098.09700000, 0.0, 0.0, 0.0, 7.438147520000000e+03;
+        testState << 0.0, 6498098.09700000, 0.0, 0.0, 0.0, 7.438147520000000e+03;
 
         double testHeadingAngle = 0.0;
         double testFlightPathAngle = 0.0;
@@ -217,7 +214,7 @@ BOOST_AUTO_TEST_CASE( testAerodynamicAngleCalculator )
     // Test case 3: rotation with zero and half pi angles.
     {
         Eigen::Vector6d testState;
-        testState<<0.0, 0.0, 6.498098097000000e3, -7.438147520000000e3, 0.0, 0.0;
+        testState << 0.0, 0.0, 6.498098097000000e3, -7.438147520000000e3, 0.0, 0.0;
 
         double testHeadingAngle = 0.0;
         double testFlightPathAngle = 0.0;

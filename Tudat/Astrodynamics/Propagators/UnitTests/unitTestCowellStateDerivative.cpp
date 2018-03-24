@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -60,11 +60,7 @@ BOOST_AUTO_TEST_SUITE( test_cowell_propagator )
 BOOST_AUTO_TEST_CASE( testCowellPopagatorCentralBodies )
 {
     //Load spice kernels.
-    std::string kernelsPath = input_output::getSpiceKernelPath( );
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "pck00009.tpc" );
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "de-403-masses.tpc" );
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "de421.bsp" );
-
+    spice_interface::loadStandardSpiceKernels( );
 
     // Define bodies in simulation.
     unsigned int totalNumberOfBodies = 4;
@@ -345,9 +341,7 @@ template< typename TimeType, typename StateScalarType >
 void testCowellPropagationOfKeplerOrbit( )
 {
     //Load spice kernels.
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "pck00009.tpc" );
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "de-403-masses.tpc" );
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "de421.bsp" );
+    spice_interface::loadStandardSpiceKernels( );
 
     // Define bodies in simulation.
     std::vector< std::string > bodyNames;
@@ -477,7 +471,7 @@ void testCowellPropagationOfKeplerOrbit( )
             for( int i = 0; i < 3; i++ )
             {
                 BOOST_CHECK_SMALL( stateDifference( i ), 1E-3 );
-                BOOST_CHECK_SMALL( stateDifference( i  + 3 ), 1.0E-9 );
+                BOOST_CHECK_SMALL( stateDifference( i  + 3 ), 2.0E-9 );
 
             }
             currentTime += 10000.0;

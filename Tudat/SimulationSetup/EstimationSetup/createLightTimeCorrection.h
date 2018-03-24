@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -68,6 +68,7 @@ protected:
     LightTimeCorrectionType correctionType_;
 };
 
+//! Typedef for a list of list time correction settings per link end
 typedef std::map< LinkEnds, std::vector< boost::shared_ptr< LightTimeCorrectionSettings > > > LightTimeCorrectionSettingsMap;
 
 //! Class to defining settings for first-order relativistic light time correction (Shapiro time delay)  due to a

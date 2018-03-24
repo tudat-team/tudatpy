@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -8,11 +8,10 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#include <Tudat/Astrodynamics/Aerodynamics/trimOrientation.h>
-#include <Tudat/Mathematics/BasicMathematics/functionProxy.h>
-#include <Tudat/Mathematics/RootFinders/secantRootFinder.h>
-#include <Tudat/Mathematics/RootFinders/terminationConditions.h>
-
+#include "Tudat/Astrodynamics/Aerodynamics/trimOrientation.h"
+#include "Tudat/Mathematics/BasicMathematics/functionProxy.h"
+#include "Tudat/Mathematics/RootFinders/secantRootFinder.h"
+#include "Tudat/Mathematics/RootFinders/terminationConditions.h"
 namespace tudat
 {
 
@@ -51,8 +50,8 @@ TrimOrientationCalculator::TrimOrientationCalculator(
                     currentIndependentVariables.begin( ), currentIndependentVariables.end( ), angle_of_attack_dependent );
         if( ( variableIterator == currentIndependentVariables.end( ) ) )
         {
-            std::cerr<<"Warning when getting trim angle of attack, no angle of attack dependency is found for control surface "
-                       + controlSurfaceIterator->first<<std::endl;
+            std::cerr << "Warning when getting trim angle of attack, no angle of attack dependency is found for control surface "
+                       + controlSurfaceIterator->first << std::endl;
         }
         else
         {

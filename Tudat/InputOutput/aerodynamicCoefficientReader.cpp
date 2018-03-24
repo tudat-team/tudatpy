@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -35,7 +35,7 @@ boost::multi_array< Eigen::Vector3d, 1 > mergeOneDimensionalCoefficients(
     vectorArray.resize( boost::extents[ xComponents.shape( )[ 0 ] ] );
     for( unsigned int i = 0; i < xComponents.shape( )[ 0 ]; i++ )
     {
-        vectorArray[ i ] = ( Eigen::Vector3d( )<<xComponents[ i ], yComponents[ i ], zComponents[ i ] ).finished( );
+        vectorArray[ i ] = ( Eigen::Vector3d( ) << xComponents[ i ], yComponents[ i ], zComponents[ i ] ).finished( );
     }
 
     return vectorArray;
@@ -65,7 +65,7 @@ boost::multi_array< Eigen::Vector3d, 2 > mergeTwoDimensionalCoefficients(
     {
         for( unsigned int j = 0; j < xComponents.shape( )[ 1 ]; j++ )
         {
-            vectorArray[ i ][ j ] = ( Eigen::Vector3d( )<<xComponents[ i ][ j ], yComponents[ i ][ j ], zComponents[ i ][ j ] ).finished( );
+            vectorArray[ i ][ j ] = ( Eigen::Vector3d( ) << xComponents[ i ][ j ], yComponents[ i ][ j ], zComponents[ i ][ j ] ).finished( );
         }
     }
 
@@ -98,7 +98,7 @@ boost::multi_array< Eigen::Vector3d, 3 > mergeThreeDimensionalCoefficients(
         {
             for( unsigned int k = 0; k < xComponents.shape( )[ 2 ]; k++ )
             {
-                vectorArray[ i ][ j ][ k ] = ( Eigen::Vector3d( )<<xComponents[ i ][ j ][ k ], yComponents[ i ][ j ][ k ], zComponents[ i ][ j ][ k ] ).finished( );
+                vectorArray[ i ][ j ][ k ] = ( Eigen::Vector3d( ) << xComponents[ i ][ j ][ k ], yComponents[ i ][ j ][ k ], zComponents[ i ][ j ][ k ] ).finished( );
             }
         }
     }

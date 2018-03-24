@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -11,14 +11,12 @@
 #ifndef TUDAT_KERNELDENSITYDISTRIBUTION_H
 #define TUDAT_KERNELDENSITYDISTRIBUTION_H
 
-#include <iostream>
 #include <map>
 #include <boost/make_shared.hpp>
 #include <boost/shared_ptr.hpp>
 
-#include <Tudat/Mathematics/Statistics/continuousProbabilityDistributions.h>
-#include <Tudat/Mathematics/Statistics/boostProbabilityDistributions.h>
-
+#include "Tudat/Mathematics/Statistics/continuousProbabilityDistributions.h"
+#include "Tudat/Mathematics/Statistics/boostProbabilityDistributions.h"
 namespace tudat
 {
 

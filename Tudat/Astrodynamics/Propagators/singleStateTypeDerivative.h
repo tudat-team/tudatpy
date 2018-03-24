@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -25,11 +25,11 @@ namespace propagators
 enum IntegratedStateType
 {
     hybrid = 0,
-    transational_state = 1,
+    translational_state = 1,
+    transational_state = translational_state,  // deprecated (typo)
     rotational_state = 2,
     body_mass_state = 3,
-    relativistic_time_rate = 4,
-    custom_state = 5
+    custom_state = 4
 };
 
 

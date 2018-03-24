@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -245,14 +245,14 @@ public:
             {
                 throw std::runtime_error(
                             "Parameter of type " +
-                            boost::lexical_cast< std::string >( parameter->getParameterName( ).first ) + ", " +
-                            parameter->getParameterName( ).second.first + ", " +
-                            parameter->getParameterName( ).second.second + ", " +
+                            std::to_string( parameter->getParameterName( ).first ) + ", " +
+                            std::string( parameter->getParameterName( ).second.first ) + ", " +
+                            std::string( parameter->getParameterName( ).second.second ) + ", " +
                             " not found in list of existing partials" );
             }
             else
             {
-                std::cerr<<"Warning, double partial should already be calculated"<<std::endl;
+                std::cerr << "Warning, double partial should already be calculated" << std::endl;
                 parameterDoublePartialFunctions_.at( parameter )( currentDoubleParameterPartials_[ parameter ] );
             }
         }
@@ -292,15 +292,15 @@ public:
             if( parameterVectorPartialFunctions_.count( parameter ) == 0 )
             {
                 std::string errorMessage = "Parameter of type " +
-                        boost::lexical_cast< std::string >( parameter->getParameterName( ).first ) + ", " +
-                        boost::lexical_cast< std::string >( parameter->getParameterName( ).second.first ) + ", " +
-                        boost::lexical_cast< std::string >( parameter->getParameterName( ).second.second ) + ", " +
+                        std::to_string( parameter->getParameterName( ).first ) + ", " +
+                        std::string( parameter->getParameterName( ).second.first ) + ", " +
+                        std::string( parameter->getParameterName( ).second.second ) + ", " +
                         " not found in list of existing partials";
                 throw std::runtime_error( errorMessage );
             }
             else
             {
-                std::cerr<<"Warning, vector partial should already be calculated"<<std::endl;
+                std::cerr << "Warning, vector partial should already be calculated" << std::endl;
                 parameterVectorPartialFunctions_.at( parameter )( currentVectorParameterPartials_[ parameter ] );
             }
         }

@@ -1,4 +1,4 @@
- #    Copyright (c) 2010-2017, Delft University of Technology
+ #    Copyright (c) 2010-2018, Delft University of Technology
  #    All rigths reserved
  #
  #    This file is part of the Tudat. Redistribution and use in source and
@@ -34,7 +34,10 @@ add_executable(test_ShapiroTimeDelay "${SRCROOT}${RELATIVITYDIR}/UnitTests/unitT
 setup_custom_test_program(test_ShapiroTimeDelay "${SRCROOT}${RELATIVITYDIR}")
 target_link_libraries(test_ShapiroTimeDelay tudat_relativity tudat_gravitation tudat_observation_models tudat_ephemerides ${Boost_LIBRARIES})
 
+if( COMPILE_PROPAGATION_TESTS )
+
 add_executable(test_RelativisticAccelerationCorrection "${SRCROOT}${RELATIVITYDIR}/UnitTests/unitTestRelativisticAccelerationCorrection.cpp")
 setup_custom_test_program(test_RelativisticAccelerationCorrection "${SRCROOT}${RELATIVITYDIR}")
 target_link_libraries(test_RelativisticAccelerationCorrection ${TUDAT_PROPAGATION_LIBRARIES} ${Boost_LIBRARIES})
 
+endif( )
