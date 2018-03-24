@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -13,7 +13,6 @@
 #include <limits>
 #include <string>
 
-#include <boost/format.hpp>
 #include <boost/test/unit_test.hpp>
 #include <boost/make_shared.hpp>
 
@@ -43,11 +42,7 @@ BOOST_AUTO_TEST_SUITE( test_angular_position_model )
 
 BOOST_AUTO_TEST_CASE( testAngularPositionModel )
 {
-    std::string kernelsPath = input_output::getSpiceKernelPath( );
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "de-403-masses.tpc");
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "naif0009.tls");
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "pck00009.tpc");
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "de421.bsp");
+    spice_interface::loadStandardSpiceKernels( );
 
     // Define bodies to use.
     std::vector< std::string > bodiesToCreate;
@@ -86,7 +81,7 @@ BOOST_AUTO_TEST_CASE( testAngularPositionModel )
     boost::shared_ptr< ObservationSettings > observableSettings = boost::make_shared< ObservationSettings >
             ( angular_position, lightTimeCorrectionSettings,
               boost::make_shared< ConstantObservationBiasSettings >(
-                  ( Eigen::Vector2d( ) << 3.2E-9, -1.5E-8 ).finished( ) ) );
+                  ( Eigen::Vector2d( ) << 3.2E-9, -1.5E-8 ).finished( ), true ) );
 
     // Create observation model.
     boost::shared_ptr< ObservationModel< 2, double, double > > observationModel =

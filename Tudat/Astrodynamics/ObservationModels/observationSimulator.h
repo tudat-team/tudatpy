@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -10,8 +10,6 @@
 
 #ifndef TUDAT_OBSERVATIONSIMULATOR_H
 #define TUDAT_OBSERVATIONSIMULATOR_H
-
-#include <boost/lexical_cast.hpp>
 
 #include "Tudat/Basics/utilities.h"
 #include "Tudat/Astrodynamics/ObservationModels/observableTypes.h"
@@ -148,6 +146,9 @@ public:
     ObservationSimulatorBase(
             const ObservableType observableType ):
         observableType_( observableType ){ }
+
+    //! Destructor
+    virtual ~ObservationSimulatorBase( ){ }
 
     //! Function to get the type of observable for which this object computes observations
     /*!
@@ -309,7 +310,7 @@ public:
         {
             throw std::runtime_error(
                         "Error in observation manager when getting observation model, did not find model for given link ends " +
-                        boost::lexical_cast< std::string >( observationModels_.size( ) ) );
+                        std::to_string( observationModels_.size( ) ) );
         }
         return observationModels_.at( linkEnds );
     }

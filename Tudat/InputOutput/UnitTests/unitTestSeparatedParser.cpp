@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -298,24 +298,24 @@ BOOST_AUTO_TEST_CASE( testSeparatedParserFieldTransform )
                        ( "2011542" ) );
     BOOST_CHECK_EQUAL( testLineData->find(
                            field_types::state::semiMajorAxis )->second->getTransformed( ),
-                       ( "590933550196.86743" ) );
+                       ( "590933550196.867432" ) );
     BOOST_CHECK_EQUAL( testLineData->find(
                            field_types::state::eccentricity )->second->getTransformed( ),
                        ( "0.2391642" ) );
     BOOST_CHECK_EQUAL( testLineData->find(
                            field_types::state::inclination )->second->getTransformed( ),
-                       ( "0.12000430151107493" ) );
+                       ( "0.120004" ) );
     BOOST_CHECK_EQUAL( testLineData->find( field_types::state::longitudeOfAscendingNode
                                            )->second->getTransformed( ),
-                       ( "0.29478296906918866" ) );
+                       ( "0.294783" ) );
     BOOST_CHECK_EQUAL( testLineData->find(
                               field_types::state::argumentOfPeriapsis )->second->getTransformed( ),
-                       ( "0.85451843776417968" ) );
+                       ( "0.854518" ) );
     BOOST_CHECK_EQUAL( testLineData->find(
                            field_types::state::meanAnomaly )->second->getTransformed( ),
-                       ( "4.005469197737316" ) );
+                       ( "4.005469" ) );
     BOOST_CHECK_EQUAL( testLineData->find( field_types::time::epoch )->second->getTransformed( ),
-                       ( "2454000.5" ) );
+                       ( "2454000.500000" ) );
 
     // Check if it fails to find a field that is not passed in the constructor.
     BOOST_CHECK( testLineData->find( field_types::state::trueAnomaly ) == testLineData->end( ) );

@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -88,25 +88,29 @@ public:
      * Constructor
      * \param useAllThrustModels Boolean denoting whether all engines of the associated body are to be combined into a
      * single thrust model.
-     * \param associatedThroustSource Name of engine model from which thrust is to be derived (must be empty if
+     * \param associatedThrustSource Name of engine model from which thrust is to be derived (must be empty if
      * useAllThrustModels is set to true)
      */
     FromThrustMassModelSettings(
             const bool useAllThrustModels = 1,
-            const std::string& associatedThroustSource = "" ):
+            const std::string& associatedThrustSource = "" ):
         MassRateModelSettings( basic_astrodynamics::from_thrust_mass_rate_model ),
-    associatedThroustSource_( associatedThroustSource ), useAllThrustModels_( useAllThrustModels ){ }
+    associatedThrustSource_( associatedThrustSource ), useAllThrustModels_( useAllThrustModels ){ }
 
     //! Destructor
     ~FromThrustMassModelSettings( ){ }
 
     //! Name of engine model from which thrust is to be derived
-    std::string associatedThroustSource_;
+    std::string associatedThrustSource_;
 
     //! Boolean denoting whether all engines of the associated body are to be combined into a single thrust model.
     bool useAllThrustModels_;
 
 };
+
+
+typedef std::map< std::string, std::vector< boost::shared_ptr< MassRateModelSettings > > > SelectedMassRateModelMap;
+
 
 //! Function to create a mass rate model
 /*!
@@ -134,10 +138,11 @@ boost::shared_ptr< basic_astrodynamics::MassRateModel > createMassRateModel(
  * \param accelerationModels List of acceleration models that are used during numerical propagation (empty by default).
  * \return Mass rate models that are to be used during numerical propagation (key is body id)..
  */
-std::map< std::string, std::vector< boost::shared_ptr< basic_astrodynamics::MassRateModel > > > createMassRateModelsMap(
+basic_astrodynamics::MassRateModelMap createMassRateModelsMap(
         const NamedBodyMap& bodyMap,
-        const std::map< std::string, std::vector< boost::shared_ptr< MassRateModelSettings > > >& massRateModelSettings,
+        const SelectedMassRateModelMap& massRateModelSettings,
         const basic_astrodynamics::AccelerationMap& accelerationModels = basic_astrodynamics::AccelerationMap( ) );
+
 
 } // namespace simulation_setup
 

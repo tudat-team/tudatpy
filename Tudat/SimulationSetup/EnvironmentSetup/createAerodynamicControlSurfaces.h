@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -82,9 +82,9 @@ public:
         if( std::count( independentVariableNames.begin( ), independentVariableNames.end( ),
                         aerodynamics::control_surface_deflection_dependent ) != 1 )
         {
-            std::cerr<<"Warning when creating ControlSurfaceIncrementAerodynamicCoefficientSettings, expected single dependency on control surface deflections, found "<<
+            std::cerr << "Warning when creating ControlSurfaceIncrementAerodynamicCoefficientSettings, expected single dependency on control surface deflections, found " <<
                 std::count( independentVariableNames.begin( ), independentVariableNames.end( ),
-                            aerodynamics::control_surface_deflection_dependent )<<", dependencies"<<std::endl;
+                            aerodynamics::control_surface_deflection_dependent ) << ", dependencies" << std::endl;
         }
     }
 
@@ -424,7 +424,7 @@ createTabulatedControlSurfaceIncrementAerodynamicCoefficientInterface(
     {
         throw std::runtime_error(
                     "Error, expected tabulated control surface increment aerodynamic coefficients of size " +
-                    boost::lexical_cast<  std::string >( NumberOfDimensions ) + "for body " + body );
+                    std::to_string( NumberOfDimensions ) + "for body " + body );
     }
     else
     {

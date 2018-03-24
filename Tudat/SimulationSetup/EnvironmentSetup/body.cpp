@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -73,6 +73,33 @@ template< >
 void Body::setTemplatedState( const Eigen::Matrix< long double, 6, 1 >& state )
 {
     setLongState( state );
+}
+
+//! Function ot retrieve the common global translational state origin of the environment
+std::string getGlobalFrameOrigin( const NamedBodyMap& bodyMap )
+{
+    std::string globalFrameOrigin = "SSB";
+
+    for( NamedBodyMap::const_iterator bodyIterator = bodyMap.begin( ); bodyIterator != bodyMap.end( ); bodyIterator++ )
+    {
+        if( bodyIterator->second->getIsBodyGlobalFrameOrigin( ) == -1 )
+        {
+            throw std::runtime_error( "Error, body " + bodyIterator->first + " does not have global frame origin set" );
+        }
+        else if( bodyIterator->second->getIsBodyGlobalFrameOrigin( ) == 1 )
+        {
+            if( globalFrameOrigin != "SSB" )
+            {
+                throw std::runtime_error( "Error, body " + bodyIterator->first + " found as global frame origin, but body " +
+                                          globalFrameOrigin + " has already been detected as global frame origin." );
+            }
+            else
+            {
+               globalFrameOrigin = bodyIterator->first;
+            }
+        }
+    }
+    return globalFrameOrigin;
 }
 
 

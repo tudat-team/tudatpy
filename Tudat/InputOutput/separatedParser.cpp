@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -30,7 +30,7 @@ SeparatedParser::SeparatedParser( std::string separator, int numberOfFields, ...
     separator_ = separator;
 
     // Create a fancy vector (list) of all the fields.
-    va_list listOfArguments;	        // Define argument list variable.
+    va_list listOfArguments;                // Define argument list variable.
     va_start( listOfArguments,numberOfFields );  // init list; point to last defined argument.
 
     for ( int i = 0; i < numberOfFields; i++ )

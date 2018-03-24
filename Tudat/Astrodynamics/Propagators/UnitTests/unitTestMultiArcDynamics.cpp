@@ -1,3 +1,14 @@
+/*    Copyright (c) 2010-2018, Delft University of Technology
+ *    All rigths reserved
+ *
+ *    This file is part of the Tudat. Redistribution and use in source and
+ *    binary forms, with or without modification, are permitted exclusively
+ *    under the terms of the Modified BSD license. You should have received
+ *    a copy of the license with this file. If not, please or visit:
+ *    http://tudat.tudelft.nl/LICENSE.
+ *
+ */
+
 #define BOOST_TEST_MAIN
 
 #include <string>
@@ -38,12 +49,7 @@ BOOST_AUTO_TEST_SUITE( test_multi_arc_dynamics )
 BOOST_AUTO_TEST_CASE( testKeplerMultiArcDynamics )
 {
     //Load spice kernels.
-    std::string kernelsPath = input_output::getSpiceKernelPath( );
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "pck00009.tpc");
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "de-403-masses.tpc");
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "de421.bsp");
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "naif0009.tls");
-
+    spice_interface::loadStandardSpiceKernels( );
 
     for( unsigned testCase = 0; testCase < 3; testCase++ )
     {
@@ -67,6 +73,8 @@ BOOST_AUTO_TEST_CASE( testKeplerMultiArcDynamics )
                     Eigen::Vector6d::Zero( ) );
 
         NamedBodyMap bodyMap = createBodies( bodySettings );
+
+        setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );
 
         // Set accelerations between bodies that are to be taken into account.
         SelectedAccelerationMap accelerationMap;

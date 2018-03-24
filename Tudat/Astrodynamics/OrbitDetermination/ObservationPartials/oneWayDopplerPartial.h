@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -12,8 +12,6 @@
 #ifndef TUDAT_ONEWAYDOPPLERPARTIAL_H
 #define TUDAT_ONEWAYDOPPLERPARTIAL_H
 
-
-#include <iostream>
 
 #include <boost/function.hpp>
 
@@ -245,7 +243,7 @@ public:
     void update( const std::vector< Eigen::Vector6d >& linkEndStates,
                  const std::vector< double >& times,
                  const observation_models::LinkEndType fixedLinkEnd,
-                 const Eigen::VectorXd currentObservation );
+                 const Eigen::VectorXd currentObservation = Eigen::VectorXd::Constant( 1, TUDAT_NAN ) );
 
 
     //! Function to retrieve the position scaling factor for specific link end

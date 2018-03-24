@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -84,9 +84,7 @@ boost::shared_ptr< gravitation::GravityFieldVariationsSet > createGravityFieldMo
     }
 
     boost::dynamic_pointer_cast< TimeDependentSphericalHarmonicsGravityField >(
-                bodyMap.at( body )->getGravityFieldModel( ) )
-            ->setFieldVariationSettings( fieldVariationsSet, 1 );
-
+                bodyMap.at( body )->getGravityFieldModel( ) )->setFieldVariationSettings( fieldVariationsSet, false );
 
     return fieldVariationsSet;
 }
@@ -227,7 +225,7 @@ boost::shared_ptr< gravitation::GravityFieldVariations > createGravityFieldVaria
     }
     default:
     {
-        throw std::runtime_error( "Error, case " + boost::lexical_cast< std::string >(
+        throw std::runtime_error( "Error, case " + std::to_string(
                                        gravityFieldVariationSettings->getBodyDeformationType( ) ) +
                                    " not implemented for gravity field variations." );
     }

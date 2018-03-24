@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -59,11 +59,11 @@ std::vector< int > TidalLoveNumberPartialInterface::getSelectedDeformingBodyIds(
         {
             selectedBodyIds.push_back( std::distance( deformingBodies_.begin( ), findIterator ) );
         }
-        else
-        {
-            throw std::runtime_error( "Error when looking for deforming body " + selectedBodyNames.at( i ) +
-                                      " in TidalLoveNumberPartialInterface, body not found." );
-        }
+//        else
+//        {
+//            throw std::runtime_error( "Error when looking for deforming body " + selectedBodyNames.at( i ) +
+//                                      " in TidalLoveNumberPartialInterface, body not found." );
+//        }
     }
     return selectedBodyIds;
 }
@@ -131,8 +131,8 @@ std::pair< int, std::pair< int, int > > TidalLoveNumberPartialInterface::setPara
     using namespace estimatable_parameters;
 
     // Define default values for return values
-    int maximumUsedDegree = TUDAT_NAN;
-    int maximumUsedOrder = TUDAT_NAN;
+    int maximumUsedDegree = -1;
+    int maximumUsedOrder = -1;
     int numberOfRows = 0;
 
     // Check if parameter is tidal property of deformed body
@@ -172,7 +172,7 @@ std::pair< int, std::pair< int, int > > TidalLoveNumberPartialInterface::setPara
                         if( coefficientsParameter->useComplexComponents( ) )
                         {
                             // Calculate partials for complex love number
-                            parameterVectorPartialFunctions_[ std::make_pair(
+                              parameterVectorPartialFunctions_[ std::make_pair(
                                         parameter, std::make_pair( maximumUsedDegree, maximumUsedOrder ) ) ] =
                                     boost::bind( &TidalLoveNumberPartialInterface::
                                                  calculateSphericalHarmonicCoefficientsPartialWrtComplexTidalLoveNumber, this,

@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -117,6 +117,13 @@ public:
      *  \return Surface area that undergoes radiation pressure.
      */
     double getArea( ){ return area_; }
+
+    //! Function to set surface area that undergoes radiation pressure.
+    /*!
+     *  Function to set surface area that undergoes radiation pressure.
+     *  \param area Surface area that undergoes radiation pressure.
+     */
+    void setArea( double area ){ area_ = area; }
 
     //! Function to return radiation pressure coefficient.
     /*!

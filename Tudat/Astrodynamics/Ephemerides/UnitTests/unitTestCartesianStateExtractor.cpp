@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -14,7 +14,6 @@
 
 #define BOOST_TEST_MAIN
 
-#include <iostream>
 #include <stdexcept>
 #include <string>
 #include <utility>
@@ -60,12 +59,12 @@ BOOST_AUTO_TEST_CASE( cartesianStateExtractor_Extract )
     std::string testZVelocity = "0.0005017881278709447";
 
     // Convert strings to doubles.
-    const double expectedXCoordinate = boost::lexical_cast< double >( testXCoordinate );
-    const double expectedYCoordinate = boost::lexical_cast< double >( testYCoordinate );
-    const double expectedZCoordinate = boost::lexical_cast< double >( testZCoordinate );
-    const double expectedXVelocity = boost::lexical_cast< double >( testXVelocity );
-    const double expectedYVelocity = boost::lexical_cast< double >( testYVelocity );
-    const double expectedZVelocity = boost::lexical_cast< double >( testZVelocity );
+    const double expectedXCoordinate = std::stod( testXCoordinate );
+    const double expectedYCoordinate = std::stod( testYCoordinate );
+    const double expectedZCoordinate = std::stod( testZCoordinate );
+    const double expectedXVelocity = std::stod( testXVelocity );
+    const double expectedYVelocity = std::stod( testYVelocity );
+    const double expectedZVelocity = std::stod( testZVelocity );
 
     // Store strings as field values.
     parsed_data_vector_utilities::FieldValuePtr testFieldValueXCoordinate(

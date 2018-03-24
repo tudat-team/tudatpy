@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -45,7 +45,7 @@ ExponentialAtmosphere::ExponentialAtmosphere(
     default:
         throw std::runtime_error(
                     "Error when making exponential atmosphere, predefined atmosphere" +
-                    boost::lexical_cast< std::string >(
+                    std::to_string(
                         bodyWithPredefinedExponentialAtmosphere ) + "not recognized." );
     }
 }

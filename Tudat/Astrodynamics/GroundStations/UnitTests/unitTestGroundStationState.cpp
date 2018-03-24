@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -22,6 +22,7 @@
 #include "Tudat/External/SpiceInterface/spiceEphemeris.h"
 #include "Tudat/External/SpiceInterface/spiceRotationalEphemeris.h"
 #include "Tudat/SimulationSetup/EnvironmentSetup/body.h"
+#include "Tudat/SimulationSetup/EnvironmentSetup/createBodies.h"
 #include "Tudat/SimulationSetup/EnvironmentSetup/createGroundStations.h"
 #include "Tudat/SimulationSetup/EstimationSetup/createLightTimeCalculator.h"
 #include "Tudat/InputOutput/basicInputOutput.h"
@@ -162,9 +163,7 @@ BOOST_AUTO_TEST_CASE( test_GroundStationState )
 BOOST_AUTO_TEST_CASE( test_GroundStationGlobalState )
 {
     // Load Spice kernels
-    loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "pck00009.tpc" );
-    loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "de421.bsp" );
-    loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "naif0009.tls" );
+    spice_interface::loadStandardSpiceKernels( );
 
     // Create Earth object
     boost::shared_ptr< Body > earth = boost::make_shared< Body >( );
@@ -184,6 +183,9 @@ BOOST_AUTO_TEST_CASE( test_GroundStationGlobalState )
                              "Earth", "SSB", false, true, true, "ECLIPJ2000" ) );
     earth->setRotationalEphemeris( boost::make_shared< ephemerides::SpiceRotationalEphemeris >(
                                        "ECLIPJ2000", "IAU_Earth" ) );
+
+
+    setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );
 
     // Define ground station state
     const Eigen::Vector3d groundStationPosition( 1917032.190, 6029782.349, -801376.113 );

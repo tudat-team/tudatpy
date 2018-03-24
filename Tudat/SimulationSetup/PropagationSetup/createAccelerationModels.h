@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -22,6 +22,9 @@
 #include "Tudat/Astrodynamics/ElectroMagnetism/cannonBallRadiationPressureAcceleration.h"
 #include "Tudat/Astrodynamics/Gravitation/thirdBodyPerturbation.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/empiricalAcceleration.h"
+#include "Tudat/Astrodynamics/Ephemerides/frameManager.h"
+#include "Tudat/Astrodynamics/Gravitation/directTidalDissipationAcceleration.h"
+
 namespace tudat
 {
 
@@ -318,6 +321,23 @@ createThrustAcceleratioModel(
         const NamedBodyMap& bodyMap,
         const std::string& nameOfBodyUndergoingThrust );
 
+//! Function to create a direct tical acceleration model, according to approach of Lainey et al. (2007, 2009, ...)
+/*!
+ *  Function to create a direct tical acceleration model, according to approach of Lainey et al. (2007, 2009, ...).
+ *  \param bodyUndergoingAcceleration Pointer to object of body that is being accelerated.
+ *  \param bodyExertingAcceleration Pointer to object of main body that is exerting the acceleration
+ *  \param nameOfBodyUndergoingAcceleration Name of object of body that is being accelerated.
+ *  \param nameOfBodyExertingAcceleration Name of object of body that is exerting the acceleration
+ *  \param accelerationSettings Settings for the acceleration model
+ *  \return Pointer to object for calculating acceleration.
+ */
+boost::shared_ptr< gravitation::DirectTidalDissipationAcceleration > createDirectTidalDissipationAcceleration(
+        const boost::shared_ptr< Body > bodyUndergoingAcceleration,
+        const boost::shared_ptr< Body > bodyExertingAcceleration,
+        const std::string& nameOfBodyUndergoingAcceleration,
+        const std::string& nameOfBodyExertingAcceleration,
+        const  boost::shared_ptr< AccelerationSettings > accelerationSettings );
+
 //! Function to create an orbiter relativistic correction acceleration model
 /*!
  *  Function to create an orbiter relativistic correction acceleration model (Schwarzschild, Lense-Thirring and/or
@@ -394,6 +414,42 @@ createAccelerationModel(
  * \return selectedAccelerationPerBody, put in order to ensure correct model creation.
  */
 SelectedAccelerationList orderSelectedAccelerationMap( const SelectedAccelerationMap& selectedAccelerationPerBody );
+
+
+//! Function to create acceleration models from a map of bodies and acceleration model types.
+/*!
+ *  Function to create acceleration models from a map of bodies and acceleration model types.
+ *  The return type can be used to identify both the body undergoing and exerting acceleration.
+ *  \param bodyMap List of pointers to bodies required for the creation of the acceleration model
+ *  objects.
+ *  \param selectedAccelerationPerBody List identifying which bodies exert which type of
+ *  acceleration(s) on which bodies.
+ *  \param centralBodies Map of central bodies for each body undergoing acceleration.
+ *  \return List of acceleration model objects, in form of AccelerationMap.
+ */
+basic_astrodynamics::AccelerationMap createAccelerationModelsMap(
+        const NamedBodyMap& bodyMap,
+        const SelectedAccelerationMap& selectedAccelerationPerBody,
+        const std::map< std::string, std::string >& centralBodies );
+
+//! Function to create acceleration models from a map of bodies and acceleration model types.
+/*!
+ *  Function to create acceleration models from a map of bodies and acceleration model types.
+ *  The return type can be used to identify both the body undergoing and exerting acceleration.
+ *  \param bodyMap List of pointers to bodies required for the creation of the acceleration model
+ *  objects.
+ *  \param selectedAccelerationPerBody List identifying which bodies exert which type of
+ *  acceleration(s) on which bodies.
+ *  \param propagatedBodies List of bodies that are to be propagated
+ *  \param centralBodies List of central bodies for each body undergoing acceleration (in same order as propagatedBodies).
+ *  \return List of acceleration model objects, in form of AccelerationMap.
+ */
+basic_astrodynamics::AccelerationMap createAccelerationModelsMap(
+        const NamedBodyMap& bodyMap,
+        const SelectedAccelerationMap& selectedAccelerationPerBody,
+        const std::vector< std::string >& propagatedBodies,
+        const std::vector< std::string >& centralBodies );
+
 
 } // namespace simulation_setup
 

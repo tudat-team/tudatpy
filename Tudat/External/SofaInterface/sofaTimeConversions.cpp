@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -31,9 +31,9 @@ double getDeltaAtFromUtc( const double utcInJulianDays )
     if( iauJd2cal( basic_astrodynamics::JULIAN_DAY_ON_J2000, utcInJulianDays, &year, &month, &day, &fractionOfDay ) != 0 )
     {
         throw std::runtime_error(  "Provided julian date too small to convert to calendar date" +
-                                   boost::lexical_cast< std::string >( year ) + " " +
-                                   boost::lexical_cast< std::string >( month ) + " " +
-                                   boost::lexical_cast< std::string >( day ) );
+                                   std::to_string( year ) + " " +
+                                   std::to_string( month ) + " " +
+                                   std::to_string( day ) );
     }
 
 
@@ -43,9 +43,9 @@ double getDeltaAtFromUtc( const double utcInJulianDays )
     if( deltaAtReturn != 0 )
     {
         throw std::runtime_error(  "Provided caledar date cannot properly give Delta AT" +
-                                   boost::lexical_cast< std::string >( year ) + " " +
-                                   boost::lexical_cast< std::string >( month ) + " " +
-                                   boost::lexical_cast< std::string >( day ) );
+                                   std::to_string( year ) + " " +
+                                   std::to_string( month ) + " " +
+                                   std::to_string( day ) );
     }
 
     return deltaAt;
@@ -115,8 +115,8 @@ double getTDBminusTT( const double ttOrTdbSinceJ2000, const double stationLongit
 
     // Calculate current UT1 (by assuming it equal to UTC)
     double ut1 = static_cast< double >( convertTAItoUTC< double >( tai ) );
-    double ut1FractionOfDay = ( ut1 / physical_constants::JULIAN_DAY + 0.5 ) -
-            static_cast< double >( std::floor( ut1 / physical_constants::JULIAN_DAY  + 0.5 ) );
+    double ut1FractionOfDay = std::fmod( ( ut1 / physical_constants::JULIAN_DAY ) -
+            static_cast< double >( std::floor( ut1 / physical_constants::JULIAN_DAY  ) ) + 0.5, 1.0 );
 
     // Calculate and return difference (introducing addition approximation if input is in TT, by assuming TDB is equal to TT)
     return getTDBminusTT( ttOrTdbSinceJ2000, ut1FractionOfDay, stationLongitude, distanceFromSpinAxis,

@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -35,6 +35,15 @@ static inline Eigen::VectorXd computeZeroStateDerivative( const double time,
                                                           const Eigen::VectorXd& state )
 {
     return Eigen::VectorXd::Zero( state.rows( ) );
+}
+
+static inline Eigen::VectorXd computeConstantStateDerivative( const double time,
+                                                              const Eigen::VectorXd& state )
+{
+    Eigen::VectorXd stateDerivative = Eigen::VectorXd::Zero( state.rows( ) );
+    stateDerivative( 0 ) = 1.0;
+    //std::cout<<"State der: "<<time<<" "<<stateDerivative.transpose( )<<" "<<std::endl<<state.transpose( )<<std::endl;
+    return stateDerivative;
 }
 
 //! Compute analytical state for zero-state derivative.

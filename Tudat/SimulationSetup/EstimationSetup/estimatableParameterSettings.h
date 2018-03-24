@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -60,6 +60,15 @@ public:
 
 };
 
+//! Function to retrieve full list of degree/order of spherical harmonic coeficients for given range of degrees and orders
+/*!
+ * Function to retrieve full list of degree/order of spherical harmonic coeficients for given range of degrees and orders
+ * \param minimumDegree Minimum degree of field
+ * \param minimumOrder Minimum order of field
+ * \param maximumDegree Maximum degree of field
+ * \param maximumOrder Maximum order of field
+ * \return List of paird containing (degree,order) of field.
+ */
 inline std::vector< std::pair< int, int > > getSphericalHarmonicBlockIndices(
         const int minimumDegree,
         const int minimumOrder,
@@ -166,10 +175,54 @@ public:
 
     //! Observable type for which the bias is to be estimated.
     observation_models::ObservableType observableType_;
-
 };
+
+//! Class to define settings for estimation of arc-wise constant observation biases (absolute or relative)
+class ArcWiseConstantObservationBiasEstimatableParameterSettings: public EstimatableParameterSettings
+{
+public:
+
+    //! Constructor
+    /*!
+     * Constructor
+     * \param linkEnds Observation link ends for which the bias is to be estimated.
+     * \param observableType Observable type for which the bias is to be estimated.
+     * \param arcStartTimes Start times for arcs in which biases are defined
+     * \param linkEndForTime Link end index from which the 'current time' is determined
+     * \param isBiasAdditive True if bias is absolute, false if it is relative
+     */
+    ArcWiseConstantObservationBiasEstimatableParameterSettings(
+            const observation_models::LinkEnds& linkEnds,
+            const observation_models::ObservableType observableType,
+            const std::vector< double > arcStartTimes,
+            const observation_models::LinkEndType linkEndForTime,
+            const bool isBiasAdditive ):
+        EstimatableParameterSettings(
+            linkEnds.begin( )->second.first,
+            isBiasAdditive ? arcwise_constant_additive_observation_bias : arcwise_constant_relative_observation_bias,
+            linkEnds.begin( )->second.second ), linkEnds_( linkEnds ), observableType_( observableType ),
+    arcStartTimes_( arcStartTimes ), linkEndForTime_( linkEndForTime ){ }
+
+    //! Destructor
+    ~ArcWiseConstantObservationBiasEstimatableParameterSettings( ){ }
+
+    //! Observation link ends for which the bias is to be estimated.
+    observation_models::LinkEnds linkEnds_;
+
+    //! Observable type for which the bias is to be estimated.
+    observation_models::ObservableType observableType_;
+
+    //! Start times for arcs in which biases are defined
+    std::vector< double > arcStartTimes_;
+
+    //! Link end index from which the 'current time' is determined
+    observation_models::LinkEndType linkEndForTime_;
+};
+
+
+
 //! Class to define settings for estimating an initial translational state.
-template< typename InitialStateParameterType >
+template< typename InitialStateParameterType = double >
 class InitialTranslationalStateEstimatableParameterSettings: public EstimatableParameterSettings
 {
 public:
@@ -304,7 +357,7 @@ public:
 
     //!  List of components of empirical acceleration that are to be estimated.
     std::map< basic_astrodynamics::EmpiricalAccelerationComponents,
-                std::vector< basic_astrodynamics::EmpiricalAccelerationFunctionalShapes > > componentsToEstimate_;
+    std::vector< basic_astrodynamics::EmpiricalAccelerationFunctionalShapes > > componentsToEstimate_;
 
 };
 
@@ -335,9 +388,32 @@ public:
 
     //! List of components of empirical acceleration that are to be estimated.
     std::map< basic_astrodynamics::EmpiricalAccelerationComponents,
-                std::vector< basic_astrodynamics::EmpiricalAccelerationFunctionalShapes > > componentsToEstimate_;
+    std::vector< basic_astrodynamics::EmpiricalAccelerationFunctionalShapes > > componentsToEstimate_;
 
     //! List of times at which empirical acceleration arcs are to start
+    std::vector< double > arcStartTimeList_;
+
+
+};
+
+//! Class to define settings for estimating time-dependent (arcwise constant) empirical acceleration components
+class ArcWiseRadiationPressureCoefficientEstimatableParameterSettings: public EstimatableParameterSettings
+{
+public:
+
+    //! Constructor
+    /*!
+     * Constructor
+     * \param associatedBody Name of body undergoing acceleration
+     * \param arcStartTimeList List of times at which radiation pressure coefficient arcs are to start
+     */
+    ArcWiseRadiationPressureCoefficientEstimatableParameterSettings(
+            const std::string associatedBody,
+            const std::vector< double > arcStartTimeList):
+        EstimatableParameterSettings( associatedBody, arc_wise_radiation_pressure_coefficient ),
+        arcStartTimeList_( arcStartTimeList ){ }
+
+    //! List of times at which radiation pressure coefficient arcs are to start
     std::vector< double > arcStartTimeList_;
 
 
@@ -469,7 +545,53 @@ public:
 
 };
 
+//! Class to define settings for estimating the tidal time lag of a direct tidal acceleration model
+/*!
+ *  Class to define settings for estimating the tidal time lag of a direct tidal acceleration model, it links to one or more
+ *  objects of type DirectTidalDissipationAcceleration. The user can provide a list of bodies cause deformation, and the
+ *  associated DirectTidalDissipationAcceleration objects will be used. If the list of bodies causing deformation is left empty,
+ *  all DirectTidalDissipationAcceleration objects for the given body undergoing deformation will be used
+ */
+class DirectTidalTimeLagEstimatableParameterSettings: public EstimatableParameterSettings
+{
+public:
+
+    //! Constructor
+    /*!
+     * Constructor
+     * \param associatedBody Body being deformed
+     * \param deformingBody Body causing deformed
+     */
+    DirectTidalTimeLagEstimatableParameterSettings( const std::string& associatedBody,
+                                                    const std::string deformingBody ):
+        EstimatableParameterSettings( associatedBody, direct_dissipation_tidal_time_lag )
+    {
+        if( deformingBody != "" )
+        {
+            deformingBodies_.push_back( deformingBody );
+        }
+    }
+
+    //! Constructor
+    /*!
+     * Constructor
+     * \param associatedBody Body being deformed
+     * \param deformingBodies Names of bodies causing tidal deformation
+     */
+    DirectTidalTimeLagEstimatableParameterSettings( const std::string& associatedBody,
+                                                    const std::vector< std::string >& deformingBodies ):
+        EstimatableParameterSettings( associatedBody, direct_dissipation_tidal_time_lag ),
+        deformingBodies_( deformingBodies ){ }
+
+
+    //! Names of bodies causing tidal deformation
+    std::vector< std::string > deformingBodies_;
+
+};
+
+
 } // namespace estimatable_parameters
 
 } // namespace tudat
+
 #endif // TUDAT_ESTIMATABLEPARAMETERSETTINGS_H

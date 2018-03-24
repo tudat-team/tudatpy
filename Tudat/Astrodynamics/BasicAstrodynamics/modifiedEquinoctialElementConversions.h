@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -95,12 +95,8 @@ Eigen::Matrix< ScalarType, 6, 1 > convertKeplerianToModifiedEquinoctialElements(
     if ( ( inclination < getFloatingInteger< ScalarType >( 0 ) ) || ( inclination > getPi< ScalarType >( ) ) )
     {
         // Define the error message.
-        std::stringstream errorMessage;
-        errorMessage << "Inclination is expected in range [0," << getPi< ScalarType >( ) << "]\n"
-                     << "Specified inclination: " << inclination << " rad." << std::endl;
-
-        // Throw exception.
-        boost::throw_exception( std::runtime_error( errorMessage.str( ) ) );
+        throw std::runtime_error(  "Inclination is expected in range [0," +  std::to_string( getPi< ScalarType >( ) ) + "]\n"
+                     + "Specified inclination: " + std::to_string( inclination ) + " rad." );
     }
     //Else, nothing wrong and continue.
 
@@ -214,13 +210,12 @@ Eigen::Matrix< ScalarType, 6, 1 > convertKeplerianToModifiedEquinoctialElements(
  *         keplerianElements( 3 ) = argument of periapsis,                                    [rad]
  *         keplerianElements( 4 ) = longitude of ascending node,                              [rad]
  *         keplerianElements( 5 ) = true anomaly.                                             [rad]
+ * \note Using unknown source pdf, code archive E. Heeren and personal derivation based on Hintz 2008.
  */
 template< typename ScalarType = double >
 Eigen::Matrix< ScalarType, 6, 1 > convertModifiedEquinoctialToKeplerianElements(
         const Eigen::Matrix< ScalarType, 6, 1 >& modifiedEquinoctialElements,
         const bool flipSingularityToZeroInclination )
-
-// Using unknown source pdf, code archive E. Heeren and personal derivation based on Hintz 2008.
 {
     using mathematical_constants::getPi;
     using mathematical_constants::getFloatingInteger;
@@ -357,6 +352,15 @@ Eigen::Matrix< ScalarType, 6, 1 > convertCartesianToModifiedEquinoctialElements(
     // Convert to modified equinoctial elements.
     return convertKeplerianToModifiedEquinoctialElements(
                 keplerianElements, flipSingularityToZeroInclination );
+}
+
+template< typename ScalarType = double >
+Eigen::Matrix< ScalarType, 6, 1 > convertCartesianToModifiedEquinoctialElementsFromStateFunction(
+        const boost::function< Eigen::Matrix< ScalarType, 6, 1 >(  ) >& cartesianElementsFunction,
+        const boost::function< ScalarType( ) > centralBodyGravitationalParameterFunction )
+{
+    return convertCartesianToModifiedEquinoctialElements(
+                cartesianElementsFunction( ), centralBodyGravitationalParameterFunction( ) );
 }
 
 //! Convert Cartesian to modified equinoctial orbital elements using explicit MEE equation set.

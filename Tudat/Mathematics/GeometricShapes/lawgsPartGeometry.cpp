@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -14,8 +14,6 @@
  */
 
 #include <boost/shared_ptr.hpp>
-#include <boost/lexical_cast.hpp>
-
 #include "Tudat/Mathematics/GeometricShapes/lawgsPartGeometry.h"
 
 namespace tudat
@@ -131,9 +129,9 @@ Eigen::VectorXd LawgsPartGeometry::getSurfaceDerivative( const double u, const d
                                                          const int vDerivative )
 {
     std::string errorMessage =  "Warning, surface derivative function not implemented in LawgsPartGeometry class. Not able to return the "
-            + boost::lexical_cast< std::string >( uDerivative ) + ", "
-            + boost::lexical_cast< std::string >( vDerivative ) + "the derivative at point,"
-            + boost::lexical_cast< std::string >( u ) + ", " + boost::lexical_cast< std::string >( v );
+            + std::to_string( uDerivative ) + ", "
+            + std::to_string( vDerivative ) + "the derivative at point,"
+            + std::to_string( u ) + ", " + std::to_string( v );
     throw std::runtime_error( errorMessage );
 
     return Eigen::Vector3d( 0.0, 0.0, 0.0 );
@@ -143,7 +141,7 @@ Eigen::VectorXd LawgsPartGeometry::getSurfaceDerivative( const double u, const d
 double LawgsPartGeometry::getParameter( const int parameterIndex )
 {
     std::string errorMessage =  "WWarning, get parameter function not implemented in LawgsPartGeometry class, unable to retrieve parameter"
-            + boost::lexical_cast< std::string >( parameterIndex );
+            + std::to_string( parameterIndex );
     throw std::runtime_error( errorMessage );
 
     return 0.0;
@@ -153,12 +151,12 @@ double LawgsPartGeometry::getParameter( const int parameterIndex )
 void LawgsPartGeometry::setParameter( const int parameterIndex, const double value )
 {
     std::string errorMessage =  "WWarning, set parameter function not implemented in LawgsPartGeometry class, unable to set parameter"
-            + boost::lexical_cast< std::string >( parameterIndex );
+            + std::to_string( parameterIndex );
     throw std::runtime_error( errorMessage );
 }
 
 //! Overload ostream to print class information.
-std::ostream& operator<<( std::ostream& stream, LawgsPartGeometry& lawgsPartGeometry )
+std::ostream& operator << ( std::ostream& stream, LawgsPartGeometry& lawgsPartGeometry )
 {
     stream << "This is a Langley Wireframe Geometry Standard surface geometry"
            << " of a single part." << std::endl;

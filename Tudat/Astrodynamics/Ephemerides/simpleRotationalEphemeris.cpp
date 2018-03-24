@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -23,12 +23,9 @@ namespace ephemerides
 Eigen::Quaterniond SimpleRotationalEphemeris::getRotationToTargetFrame(
         const double secondsSinceEpoch )
 {
-    // Determine number of seconds since initial rotational state, as set by constructor.
-    double inputSecondsSinceEpoch = secondsSinceEpoch;
-
     // Determine rotation angle compared to initial rotational state.
     double rotationAngle = basic_mathematics::computeModulo(
-                ( inputSecondsSinceEpoch - initialSecondsSinceEpoch_ ) * rotationRate_,
+                ( secondsSinceEpoch - initialSecondsSinceEpoch_ ) * rotationRate_,
                 2.0 * mathematical_constants::PI );
 
     // Calculate and return rotation to base frame.
@@ -40,12 +37,9 @@ Eigen::Quaterniond SimpleRotationalEphemeris::getRotationToTargetFrame(
 Eigen::Matrix3d SimpleRotationalEphemeris::getDerivativeOfRotationToTargetFrame(
         const double secondsSinceEpoch )
 {
-    // Determine number of seconds since initial rotational state, as set by constructor.
-    double inputSecondsSinceEpoch = secondsSinceEpoch;
-
     // Determine rotation angle compared to initial rotational state.
     double rotationAngle = basic_mathematics::computeModulo(
-                ( inputSecondsSinceEpoch - initialSecondsSinceEpoch_ ) * rotationRate_,
+                ( secondsSinceEpoch - initialSecondsSinceEpoch_ ) * rotationRate_,
                 2.0 * mathematical_constants::PI );
 
     // Calculate derivative of rotation matrix.
@@ -53,6 +47,7 @@ Eigen::Matrix3d SimpleRotationalEphemeris::getDerivativeOfRotationToTargetFrame(
             getInertialToPlanetocentricFrameTransformationQuaternion( rotationAngle )
             * Eigen::Matrix3d( initialRotationToTargetFrame_ );
 }
+
 
 //! Function to reset the right ascension and declination of body's north pole.
 void SimpleRotationalEphemeris::resetInitialPoleRightAscensionAndDeclination(

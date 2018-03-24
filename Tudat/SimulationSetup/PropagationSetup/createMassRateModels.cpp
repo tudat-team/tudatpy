@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -71,7 +71,7 @@ createMassRateModel(
 
             if( thrustAccelerations.size( ) == 0 )
             {
-                std::cerr<<"Warning when making from-thrust mass-rate model, no thrust model is found; no thust is used"<<std::endl;
+                std::cerr << "Warning when making from-thrust mass-rate model, no thrust model is found; no thust is used" << std::endl;
             }
 
             std::vector< boost::shared_ptr< propulsion::ThrustAcceleration > >
@@ -83,8 +83,8 @@ createMassRateModel(
                 for( unsigned int i = 0; i < thrustAccelerations.size( ); i++ )
                 {
                     if( boost::dynamic_pointer_cast< propulsion::ThrustAcceleration >(
-                                thrustAccelerations.at( i ) )->getAssociatedThroustSource( ) ==
-                            fromThrustMassModelSettings->associatedThroustSource_ )
+                                thrustAccelerations.at( i ) )->getAssociatedThrustSource( ) ==
+                            fromThrustMassModelSettings->associatedThrustSource_ )
                     {
                         explicitThrustAccelerations.push_back( boost::dynamic_pointer_cast< propulsion::ThrustAcceleration >(
                                                                    thrustAccelerations.at( i ) ) );
@@ -93,7 +93,7 @@ createMassRateModel(
 
                 if( explicitThrustAccelerations.size( ) != 1 )
                 {
-                    std::cerr<<"Warning when making from-thrust mass-rate model, did not find exactly 1 thrust model with correct identifier"<<std::endl;
+                    std::cerr << "Warning when making from-thrust mass-rate model, did not find exactly 1 thrust model with correct identifier" << std::endl;
                 }
             }
             else
@@ -121,9 +121,9 @@ createMassRateModel(
 
 
 //! Function to create a list of mass rate models for a list of bodies.
-std::map< std::string, std::vector< boost::shared_ptr< basic_astrodynamics::MassRateModel > > > createMassRateModelsMap(
+basic_astrodynamics::MassRateModelMap createMassRateModelsMap(
         const NamedBodyMap& bodyMap,
-        const std::map< std::string, std::vector< boost::shared_ptr< MassRateModelSettings > > >& massRateModelSettings,
+        const SelectedMassRateModelMap& massRateModelSettings,
         const basic_astrodynamics::AccelerationMap& accelerationModels )
 {
     // Iterate over all bodies

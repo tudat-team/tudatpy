@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -40,7 +40,6 @@ namespace tudat
 
 namespace physical_constants
 {
-
 
 //! Standard gravitational acceleration at sea-level.
 const static double SEA_LEVEL_GRAVITATIONAL_ACCELERATION = 9.80665;

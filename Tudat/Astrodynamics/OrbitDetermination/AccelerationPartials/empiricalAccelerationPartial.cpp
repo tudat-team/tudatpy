@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -42,10 +42,10 @@ Eigen::Matrix< double, 1, 6 > calculateNumericalPartialOfTrueAnomalyWrtState(
         // Check validity of result
         if( upPerturbedTrueAnomaly != upPerturbedTrueAnomaly )
         {
-            std::cout<<"Error 1 in partial of true anomaly wrt cartesian state, element"<<i<<
-                       ", keplerian state: "<<std::endl<<
-                       convertCartesianToKeplerianElements( perturbedCartesianElements, gravitationalParameter ).transpose( )<<std::endl<<
-                       perturbedCartesianElements.transpose( )<<std::endl;
+            std::cout << "Error 1 in partial of true anomaly wrt cartesian state, element" << i
+                      << ", keplerian state: " << std::endl
+                      << convertCartesianToKeplerianElements( perturbedCartesianElements, gravitationalParameter ).transpose( ) << std::endl
+                      << perturbedCartesianElements.transpose( ) << std::endl;
         }
 
         // Calculate true anomaly at down-perturbed cartesian element i
@@ -56,10 +56,10 @@ Eigen::Matrix< double, 1, 6 > calculateNumericalPartialOfTrueAnomalyWrtState(
         // Check validity of result
         if( downPerturbedTrueAnomaly != downPerturbedTrueAnomaly )
         {
-            std::cout<<"Error 2 in partial of true anomaly wrt cartesian state, element"<<i<<
-                       ", keplerian state: "<<std::endl<<
-                       convertCartesianToKeplerianElements( perturbedCartesianElements, gravitationalParameter ).transpose( )<<std::endl<<
-                       perturbedCartesianElements.transpose( )<<std::endl;
+            std::cout << "Error 2 in partial of true anomaly wrt cartesian state, element" << i
+                      << ", keplerian state: " << std::endl
+                      << convertCartesianToKeplerianElements( perturbedCartesianElements, gravitationalParameter ).transpose( ) << std::endl
+                      << perturbedCartesianElements.transpose( ) << std::endl;
         }
 
         // Calculate central difference of term i
@@ -68,7 +68,7 @@ Eigen::Matrix< double, 1, 6 > calculateNumericalPartialOfTrueAnomalyWrtState(
         // Check validity of result
         if( partial( 0, i ) != partial( 0, i ) )
         {
-            std::cout<<"Error 2 in partial of true anomaly wrt cartesian state, element"<<i<<std::endl;
+            std::cout << "Error 2 in partial of true anomaly wrt cartesian state, element" << i << std::endl;
         }
     }
 

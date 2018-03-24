@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -38,6 +38,100 @@ Eigen::Matrix3d getDerivativeOfRotationMatrixToFrame(
             rotationToTargetFrame;
 }
 
+//! Get rotation quaternion from target frame to base frame.
+template< >
+Eigen::Quaterniond RotationalEphemeris::getRotationToBaseFrameTemplated< double >(
+            const double timeSinceEpoch )
+{
+    return getRotationToBaseFrame( timeSinceEpoch );
+}
+
+//! Get rotation quaternion from target frame to base frame.
+template< >
+Eigen::Quaterniond RotationalEphemeris::getRotationToBaseFrameTemplated< Time >(
+            const Time timeSinceEpoch )
+{
+    return getRotationToBaseFrameFromExtendedTime( timeSinceEpoch );
+}
+
+//! Get rotation quaternion to target frame from base frame.
+template< >
+Eigen::Quaterniond RotationalEphemeris::getRotationToTargetFrameTemplated< double >(
+        const double secondsSinceEpoch )
+{
+    return getRotationToTargetFrame( secondsSinceEpoch );
+}
+
+//! Get rotation quaternion to target frame from base frame.
+template< >
+Eigen::Quaterniond RotationalEphemeris::getRotationToTargetFrameTemplated< Time >(
+        const Time secondsSinceEpoch )
+{
+    return getRotationToTargetFrameFromExtendedTime( secondsSinceEpoch );
+}
+
+//! Function to calculate the derivative of the rotation matrix from target frame to original frame.
+template< >
+Eigen::Matrix3d RotationalEphemeris::getDerivativeOfRotationToBaseFrameTemplated< double >(
+            const double timeSinceEpoch )
+{
+    return getDerivativeOfRotationToBaseFrame( timeSinceEpoch );
+}
+
+//! Function to calculate the derivative of the rotation matrix from target frame to original frame.
+template< >
+Eigen::Matrix3d RotationalEphemeris::getDerivativeOfRotationToBaseFrameTemplated< Time >(
+            const Time timeSinceEpoch )
+{
+    return getDerivativeOfRotationToBaseFrameFromExtendedTime( timeSinceEpoch );
+}
+
+
+//! Function to calculate the derivative of the rotation matrix to target frame from original frame.
+template< >
+Eigen::Matrix3d RotationalEphemeris::getDerivativeOfRotationToTargetFrameTemplated< double >(
+        const double secondsSinceEpoch )
+{
+    return getDerivativeOfRotationToTargetFrame( secondsSinceEpoch );
+}
+
+//! Function to calculate the derivative of the rotation matrix to target frame from original frame.
+template< >
+Eigen::Matrix3d RotationalEphemeris::getDerivativeOfRotationToTargetFrameTemplated< Time >(
+        const Time secondsSinceEpoch )
+{
+    return getDerivativeOfRotationToTargetFrameFromExtendedTime( secondsSinceEpoch );
+}
+
+//! Function to calculate the full rotational state at given time
+template< >
+void RotationalEphemeris::getFullRotationalQuantitiesToTargetFrameTemplated< double >(
+        Eigen::Quaterniond& currentRotationToLocalFrame,
+        Eigen::Matrix3d& currentRotationToLocalFrameDerivative,
+        Eigen::Vector3d& currentAngularVelocityVectorInGlobalFrame,
+        const double timeSinceEpoch )
+{
+    getFullRotationalQuantitiesToTargetFrame(
+                currentRotationToLocalFrame, currentRotationToLocalFrameDerivative, currentAngularVelocityVectorInGlobalFrame,
+                timeSinceEpoch );
+}
+
+//! Function to calculate the full rotational state at given time
+template< >
+void  RotationalEphemeris::getFullRotationalQuantitiesToTargetFrameTemplated< Time >(
+        Eigen::Quaterniond& currentRotationToLocalFrame,
+        Eigen::Matrix3d& currentRotationToLocalFrameDerivative,
+        Eigen::Vector3d& currentAngularVelocityVectorInGlobalFrame,
+        const Time timeSinceEpoch )
+{
+    getFullRotationalQuantitiesToTargetFrameFromExtendedTime(
+                currentRotationToLocalFrame, currentRotationToLocalFrameDerivative, currentAngularVelocityVectorInGlobalFrame,
+                timeSinceEpoch );
+}
+
+
+
 } // namespace tudat
+
 } // namespace ephemerides
 

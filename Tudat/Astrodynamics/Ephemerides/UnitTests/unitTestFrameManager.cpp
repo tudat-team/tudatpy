@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -10,7 +10,6 @@
 
 #define BOOST_TEST_MAIN
 
-#include <boost/format.hpp>
 #include <boost/test/unit_test.hpp>
 #include <boost/make_shared.hpp>
 
@@ -35,13 +34,8 @@ BOOST_AUTO_TEST_SUITE( test_frame_manager )
 BOOST_AUTO_TEST_CASE( test_FrameManager )
 {
 
-    std::string kernelsPath = input_output::getSpiceKernelPath( );
-
     //Load spice kernels.
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "naif0009.tls");
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "pck00009.tpc");
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "de-403-masses.tpc");
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "de421.bsp");
+    spice_interface::loadStandardSpiceKernels( );
 
     std::map< std::string, boost::shared_ptr< Ephemeris > > ephemerisList;
 
@@ -92,8 +86,8 @@ BOOST_AUTO_TEST_CASE( test_FrameManager )
         {
             throw std::runtime_error(
                         "Error when identifying frame level of " + it->first + " found " +
-                        boost::lexical_cast< std::string >( frameManager->getFrameLevel( it->first ).first ) + " expected" +
-                        boost::lexical_cast< std::string >( it->second ) );
+                        std::to_string( frameManager->getFrameLevel( it->first ).first ) + " expected" +
+                        std::to_string( it->second ) );
         }
     }
 

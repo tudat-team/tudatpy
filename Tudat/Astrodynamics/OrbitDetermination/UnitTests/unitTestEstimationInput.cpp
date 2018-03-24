@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -111,7 +111,7 @@ BOOST_AUTO_TEST_CASE( test_EstimationInputAndOutput )
     BOOST_CHECK_SMALL( std::fabs( noConstraintError( 6 ) ), 500.0 );
     BOOST_CHECK_SMALL( std::fabs( noConstraintWeakWeightError( 6 ) ), 500.0 );
 
-    std::cout<<weakConstraintError( 6 )<<" "<<weakConstraintError( 6 )<<" "<< noConstraintWeakWeightError( 6 )<<std::endl;
+    std::cout << weakConstraintError( 6 ) << " " << weakConstraintError( 6 ) << " " << noConstraintWeakWeightError( 6 ) << std::endl;
     for( unsigned int i = 0; i < 7; i++ )
     {
         // Check if moderately constrained solution has intermediate accuracy

@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -36,11 +36,12 @@ AvailableTorque getTorqueModelType(
     }
     else
     {
-        std::cerr<<"Error, could not identify torque type"<<std::endl;
+        std::cerr << "Error, could not identify torque type" << std::endl;
     }
     return torqueType;
 }
 
+//! Function to get a string representing a 'named identification' of an torque type
 std::string getTorqueModelName( const AvailableTorque torqueType )
 {
 
@@ -55,7 +56,7 @@ std::string getTorqueModelName( const AvailableTorque torqueType )
         break;
     default:
         std::string errorMessage = "Error, torque type " +
-                boost::lexical_cast< std::string >( torqueType ) +
+                std::to_string( torqueType ) +
                 "not found when retrieving torque name ";
         throw std::runtime_error( errorMessage );
     }

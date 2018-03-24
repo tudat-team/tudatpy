@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -44,11 +44,7 @@ BOOST_AUTO_TEST_SUITE( test_light_time )
 BOOST_AUTO_TEST_CASE( testLightWithSpice )
 {
     // Load spice kernels.
-    const std::string kernelsPath = input_output::getSpiceKernelPath( );
-    loadSpiceKernelInTudat( kernelsPath + "pck00009.tpc" );
-    loadSpiceKernelInTudat( kernelsPath + "de-403-masses.tpc" );
-    loadSpiceKernelInTudat( kernelsPath + "de421.bsp" );
-    loadSpiceKernelInTudat( kernelsPath + "naif0009.tls" );
+    spice_interface::loadStandardSpiceKernels( );
 
     // Define names of bodies and frames.
     const std::string earth = "Earth";

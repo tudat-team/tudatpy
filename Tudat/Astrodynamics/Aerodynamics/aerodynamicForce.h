@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -13,8 +13,6 @@
 #define TUDAT_AERODYNAMIC_FORCE_H
 
 #include <Eigen/Core>
-
-#include <boost/shared_ptr.hpp>
 
 #include "Tudat/Astrodynamics/Aerodynamics/aerodynamicCoefficientInterface.h"
 #include "Tudat/Basics/utilityMacros.h"

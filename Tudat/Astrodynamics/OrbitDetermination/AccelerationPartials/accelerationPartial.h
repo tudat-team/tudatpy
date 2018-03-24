@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -119,7 +119,7 @@ public:
         default:
             std::string errorMessage =
                     "Error when getting state derivative partial acceleration model, dynamics type " +
-                    boost::lexical_cast< std::string >( integratedStateType ) + "not recognized" ;
+                    std::to_string( integratedStateType ) + "not recognized" ;
             throw std::runtime_error( errorMessage );
             break;
         }

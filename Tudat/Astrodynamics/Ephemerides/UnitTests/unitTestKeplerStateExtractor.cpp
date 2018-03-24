@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -14,7 +14,6 @@
 
 #define BOOST_TEST_MAIN
 
-#include <iostream>
 #include <stdexcept>
 #include <string>
 #include <utility>
@@ -62,14 +61,14 @@ BOOST_AUTO_TEST_CASE( keplerStateExtractor_Extract )
     std::string testTrueAnomaly = "2.5013767559662625175504405244245";
 
     // Convert strings to doubles.
-    const double expectedSemiMajorAxis = boost::lexical_cast< double >( testSemiMajorAxis );
-    const double expectedEccentricity = boost::lexical_cast< double >( testEccentricity );
-    const double expectedInclination = boost::lexical_cast< double >( testInclination );
-    const double expectedLongitudeOfAscendingNode = boost::lexical_cast< double >(
+    const double expectedSemiMajorAxis = std::stod( testSemiMajorAxis );
+    const double expectedEccentricity = std::stod( testEccentricity );
+    const double expectedInclination = std::stod( testInclination );
+    const double expectedLongitudeOfAscendingNode = std::stod(
                 testLongitudeOfAscendingNode );
-    const double expectedArgumentOfPeriapsis = boost::lexical_cast< double >(
+    const double expectedArgumentOfPeriapsis = std::stod(
                 testArgumentOfPeriapsis );
-    const double expectedTrueAnomaly = boost::lexical_cast< double >( testTrueAnomaly );
+    const double expectedTrueAnomaly = std::stod( testTrueAnomaly );
 
     // Store strings as field values.
     parsed_data_vector_utilities::FieldValuePtr testFieldValueSemiMajorAxis(
@@ -155,12 +154,12 @@ BOOST_AUTO_TEST_CASE( keplerStateExtractor_ExtractWithMeanAnomaly )
     std::string testMeanAnomaly = "2.4817611918827110773177514320574";
 
     // Convert strings to doubles.
-    double expectedSemiMajorAxis = boost::lexical_cast< double >( testSemiMajorAxis );
-    double expectedEccentricity = boost::lexical_cast< double >( testEccentricity );
-    double expectedInclination = boost::lexical_cast< double >( testInclination );
-    double expectedLongitudeOfAscendingNode = boost::lexical_cast< double >(
+    double expectedSemiMajorAxis = std::stod( testSemiMajorAxis );
+    double expectedEccentricity = std::stod( testEccentricity );
+    double expectedInclination = std::stod( testInclination );
+    double expectedLongitudeOfAscendingNode = std::stod(
                 testLongitudeOfAscendingNode );
-    double expectedArgumentOfPeriapsis = boost::lexical_cast< double >( testArgumentOfPeriapsis );
+    double expectedArgumentOfPeriapsis = std::stod( testArgumentOfPeriapsis );
 
     // Set expected true anomaly.
     double expectedTrueAnomaly = 2.5013767559662625175504405244245;

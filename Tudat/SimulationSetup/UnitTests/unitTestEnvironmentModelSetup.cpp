@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -30,6 +30,8 @@
 #include "Tudat/Astrodynamics/Ephemerides/approximatePlanetPositions.h"
 #include "Tudat/Astrodynamics/Ephemerides/tabulatedEphemeris.h"
 #include "Tudat/Astrodynamics/Ephemerides/simpleRotationalEphemeris.h"
+#include "Tudat/Astrodynamics/Ephemerides/itrsToGcrsRotationModel.h"
+//#include "Tudat/Astrodynamics/EarthOrientation/earthOrientationCalculator.h"
 #include "Tudat/Astrodynamics/Gravitation/centralGravityModel.h"
 #include "Tudat/Astrodynamics/Gravitation/timeDependentSphericalHarmonicsGravityField.h"
 #include "Tudat/Astrodynamics/Gravitation/basicSolidBodyTideGravityFieldVariations.h"
@@ -71,8 +73,7 @@ BOOST_AUTO_TEST_CASE( test_atmosphereModelSetup )
     // Create settings for tabulated atmosphere.
     boost::shared_ptr< TabulatedAtmosphereSettings > tabulatedAtmosphereSettings =
             boost::make_shared< TabulatedAtmosphereSettings >(
-                input_output::getTudatRootPath( ) + "/External/AtmosphereTables/" +
-                "USSA1976Until100kmPer100mUntil1000kmPer1000m.dat" );
+                input_output::getAtmosphereTablesPath( ) + "USSA1976Until100kmPer100mUntil1000kmPer1000m.dat" );
 
     // Create settings for exponential atmosphere
     double densityScaleHeight = 8.0E3;
@@ -93,8 +94,7 @@ BOOST_AUTO_TEST_CASE( test_atmosphereModelSetup )
 
     // Create atmosphere models manually.
     aerodynamics::TabulatedAtmosphere manualTabulatedAtmosphere(
-                input_output::getTudatRootPath( ) + "/External/AtmosphereTables/" +
-                "USSA1976Until100kmPer100mUntil1000kmPer1000m.dat" );
+                input_output::getAtmosphereTablesPath( ) + "USSA1976Until100kmPer100mUntil1000kmPer1000m.dat" );
     aerodynamics::ExponentialAtmosphere manualExponentialAtmosphere(
                 densityScaleHeight, constantTemperature, densityAtZeroAltitude,
                 specificGasConstant );
@@ -120,14 +120,14 @@ BOOST_AUTO_TEST_CASE( test_atmosphereModelSetup )
     {
         if( atmosphereTest == 0 )
         {
-        nrlmsise00AtmosphereSettings =
-                boost::make_shared< AtmosphereSettings >( nrlmsise00 );
+            nrlmsise00AtmosphereSettings =
+                    boost::make_shared< AtmosphereSettings >( nrlmsise00 );
         }
         else
         {
             nrlmsise00AtmosphereSettings =
                     boost::make_shared< NRLMSISE00AtmosphereSettings >(
-                        input_output::getTudatRootPath( ) + "Astrodynamics/Aerodynamics/sw19571001.txt" );
+                        input_output::getSpaceWeatherDataPath( ) + "sw19571001.txt" );
         }
         boost::shared_ptr< aerodynamics::AtmosphereModel > nrlmsiseAtmosphere =
                 createAtmosphereModel( nrlmsise00AtmosphereSettings, "Earth" );
@@ -169,9 +169,7 @@ Eigen::Vector6d computeCustomState(
 //! Test set up of ephemeris environment models.
 BOOST_AUTO_TEST_CASE( test_ephemerisSetup )
 {
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "pck00009.tpc" );
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "de-403-masses.tpc" );
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "de421.bsp" );
+    spice_interface::loadStandardSpiceKernels( );
 
     {
         // Create settings for approximate planet positions.
@@ -299,11 +297,10 @@ BOOST_AUTO_TEST_CASE( test_ephemerisSetup )
 //! Test set up of gravity field model environment models.
 BOOST_AUTO_TEST_CASE( test_gravityFieldSetup )
 {
-    // Load Spice kernel with gravitational parameters.
-    const std::string kernelsPath = input_output::getSpiceKernelPath( );
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "de-403-masses.tpc" );
+    // Load Spice kernel
+    spice_interface::loadStandardSpiceKernels( );
 
-        // Create settings for spice central gravity field model.
+    // Create settings for spice central gravity field model.
     boost::shared_ptr< GravityFieldSettings > spiceCentralGravityFieldSettings =
             boost::make_shared< GravityFieldSettings >( central_spice );
 
@@ -388,7 +385,7 @@ BOOST_AUTO_TEST_CASE( test_gravityFieldSetup )
     boost::shared_ptr< gravitation::SphericalHarmonicsGravityField > defaultEarthField =
             boost::dynamic_pointer_cast< gravitation::SphericalHarmonicsGravityField >(
                 createGravityFieldModel( getDefaultGravityFieldSettings(
-                                         "Earth", TUDAT_NAN, TUDAT_NAN ), "Earth" ) );
+                                             "Earth", TUDAT_NAN, TUDAT_NAN ), "Earth" ) );
     BOOST_CHECK_EQUAL(
                 ( defaultEarthField->getGravitationalParameter( ) ), ( 0.3986004418E15 ) );
     BOOST_CHECK_EQUAL(
@@ -411,7 +408,7 @@ BOOST_AUTO_TEST_CASE( test_gravityFieldSetup )
     boost::shared_ptr< gravitation::SphericalHarmonicsGravityField > defaultMoonField =
             boost::dynamic_pointer_cast< gravitation::SphericalHarmonicsGravityField >(
                 createGravityFieldModel( getDefaultGravityFieldSettings(
-                                         "Moon", TUDAT_NAN, TUDAT_NAN ), "Moon" ) );
+                                             "Moon", TUDAT_NAN, TUDAT_NAN ), "Moon" ) );
     BOOST_CHECK_EQUAL(
                 ( defaultMoonField->getGravitationalParameter( ) ), ( 0.4902800238000000E+13 ) );
     BOOST_CHECK_EQUAL(
@@ -513,11 +510,8 @@ BOOST_AUTO_TEST_CASE( test_triaxialEllipsoidGravityFieldSetup )
 //! Test set up of gravity field model variations environment models.
 BOOST_AUTO_TEST_CASE( test_gravityFieldVariationSetup )
 {
-    // Load Spice kernel with gravitational parameters.
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "pck00009.tpc" );
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "de-403-masses.tpc" );
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "de421.bsp" );
-
+    // Load Spice kernels
+    spice_interface::loadStandardSpiceKernels( );
 
     // Settings for spherical harmonic acceleration.
     double gravitationalParameter = 398600.4418E9;
@@ -578,6 +572,7 @@ BOOST_AUTO_TEST_CASE( test_gravityFieldVariationSetup )
 
         // Create bodies
         NamedBodyMap bodyMap = createBodies( bodySettings );
+
         setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );
 
         // Update states.
@@ -653,12 +648,14 @@ BOOST_AUTO_TEST_CASE( test_gravityFieldVariationSetup )
 
         // Create bodies
         NamedBodyMap bodyMap = createBodies( bodySettings );
+
         setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );
 
         // Update gravity field
         boost::shared_ptr< gravitation::TimeDependentSphericalHarmonicsGravityField > earthGravityField =
                 boost::dynamic_pointer_cast< gravitation::TimeDependentSphericalHarmonicsGravityField >(
                     bodyMap[ "Earth" ]->getGravityFieldModel( ) );
+
         earthGravityField->update( testTime );
 
         // Retrieve corrections.
@@ -714,8 +711,8 @@ BOOST_AUTO_TEST_CASE( test_gravityFieldVariationSetup )
     {
         for( unsigned m = 0; m <=2; m++ )
         {
-            BOOST_CHECK_SMALL( directMoonTide.first( n, m ) + directSunTide.first( n, m ) - cosineCorrections1( n, m ), 1.0E-20 );
-            BOOST_CHECK_SMALL( directMoonTide.second( n, m ) + directSunTide.second( n, m ) - sineCorrections1( n, m ), 1.0E-20 );
+            BOOST_CHECK_SMALL( directMoonTide.first( n, m ) + directSunTide.first( n, m ) - cosineCorrections1( n, m ), 1.0E-18 );
+            BOOST_CHECK_SMALL( directMoonTide.second( n, m ) + directSunTide.second( n, m ) - sineCorrections1( n, m ), 1.0E-18 );
         }
     }
 }
@@ -766,14 +763,71 @@ BOOST_AUTO_TEST_CASE( test_rotationModelSetup )
 }
 #endif
 
+#if USE_SOFA
+//! Test set up of GCRS<->ITRS rotation model
+BOOST_AUTO_TEST_CASE( test_earthRotationModelSetup )
+{
+    boost::shared_ptr< GcrsToItrsRotationModelSettings > rotationSettings =
+            boost::make_shared< GcrsToItrsRotationModelSettings >( );
+
+    // Create rotation model using setup function
+    boost::shared_ptr< tudat::ephemerides::RotationalEphemeris > earthRotationModel =
+            createRotationModel( rotationSettings, "Earth" );
+
+    double testTime = 5.0E7;
+
+    boost::shared_ptr< GcrsToItrsRotationModelSettings > gcrsToItrsRotationSettings2000a =
+            boost::make_shared< GcrsToItrsRotationModelSettings >( basic_astrodynamics::iau_2000_a );
+    boost::shared_ptr< GcrsToItrsRotationModelSettings > gcrsToItrsRotationSettings2000b =
+            boost::make_shared< GcrsToItrsRotationModelSettings >( basic_astrodynamics::iau_2000_b );
+
+    boost::shared_ptr< tudat::ephemerides::RotationalEphemeris > earthRotationModel2000a =
+            createRotationModel( gcrsToItrsRotationSettings2000a, "Earth" );
+    boost::shared_ptr< tudat::ephemerides::RotationalEphemeris > earthRotationModel2000b =
+            createRotationModel( gcrsToItrsRotationSettings2000b, "Earth" );
+
+    Eigen::Quaterniond rotationMatrix = earthRotationModel->getRotationToBaseFrame( testTime );
+
+    Eigen::Quaterniond rotationMatrix2000a = earthRotationModel2000a->getRotationToBaseFrame( testTime );
+    Eigen::Matrix3d matrixDeviation2000a = rotationMatrix2000a.toRotationMatrix( ) - rotationMatrix.toRotationMatrix( );
+
+    Eigen::Quaterniond rotationMatrix2000b = earthRotationModel2000b->getRotationToBaseFrame( testTime );
+    Eigen::Matrix3d matrixDeviation2000b = rotationMatrix2000b.toRotationMatrix( ) - rotationMatrix.toRotationMatrix( );
+
+    boost::shared_ptr< tudat::ephemerides::GcrsToItrsRotationModel >  defaultEarthModel =
+            boost::make_shared< ephemerides::GcrsToItrsRotationModel >(
+                tudat::earth_orientation::createStandardEarthOrientationCalculator( ) );
+
+    Eigen::Quaterniond defaultRotationMatrix = defaultEarthModel->getRotationToBaseFrame( testTime );
+    Eigen::Matrix3d matrixDeviation = defaultRotationMatrix.toRotationMatrix( ) - rotationMatrix.toRotationMatrix( );
+
+    for( unsigned int i = 0; i < 3; i++ )
+    {
+        for( unsigned int j = 0; j < 3; j++ )
+        {
+            if( i < 2 && j < 2 )
+            {
+                BOOST_CHECK_SMALL( std::fabs( matrixDeviation2000a( i, j ) ), 1.0E-13 );
+                BOOST_CHECK_SMALL( std::fabs( matrixDeviation2000b( i, j ) ), 1.0E-12 );
+                BOOST_CHECK_SMALL( std::fabs( matrixDeviation( i, j ) ), std::numeric_limits< double >::epsilon( ) );
+            }
+            else
+            {
+                BOOST_CHECK_SMALL( std::fabs( matrixDeviation2000a( i, j ) ), 1.0E-10 );
+                BOOST_CHECK_SMALL( std::fabs( matrixDeviation2000b( i, j ) ), 1.0E-8 );
+                BOOST_CHECK_SMALL( std::fabs( matrixDeviation( i, j ) ), std::numeric_limits< double >::epsilon( ) );
+            }
+        }
+    }
+}
+#endif
+
 #if USE_CSPICE
 //! Test set up of radiation pressure interfacel environment models.
 BOOST_AUTO_TEST_CASE( test_radiationPressureInterfaceSetup )
 {
     // Load Spice kernels
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "pck00009.tpc" );
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "de-403-masses.tpc" );
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "de421.bsp" );
+    spice_interface::loadStandardSpiceKernels( );
 
     // Define body settings.
     std::map< std::string, boost::shared_ptr< BodySettings > > bodySettings;
@@ -871,9 +925,7 @@ BOOST_AUTO_TEST_CASE( test_shapeModelSetup )
 BOOST_AUTO_TEST_CASE( test_flightConditionsSetup )
 {
     // Load Spice kernels
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "pck00009.tpc" );
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "de-403-masses.tpc" );
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "de421.bsp" );
+    spice_interface::loadStandardSpiceKernels( );
 
     // Define body settings/
     std::map< std::string, boost::shared_ptr< BodySettings > > bodySettings;
@@ -883,7 +935,7 @@ BOOST_AUTO_TEST_CASE( test_flightConditionsSetup )
     bodySettings[ "Vehicle" ] ->aerodynamicCoefficientSettings =
             boost::make_shared< ConstantAerodynamicCoefficientSettings >(
                 1.0, 2.0, 3.0, Eigen::Vector3d::Zero( ),
-                ( Eigen::Vector3d( )<<-1.1, 0.1, 2.3 ).finished( ),
+                ( Eigen::Vector3d( ) << -1.1, 0.1, 2.3 ).finished( ),
                 Eigen::Vector3d::Zero( ), 1, 1 );
 
     // Create bodies
@@ -910,7 +962,7 @@ BOOST_AUTO_TEST_CASE( test_flightConditionsSetup )
 
     // Set vehicle body-fixed state (see testAerodynamicAngleCalculator)
     Eigen::Vector6d vehicleBodyFixedState =
-            ( Eigen::Vector6d( )<< -1656517.23153109, -5790058.28764025, -2440584.88186829,
+            ( Eigen::Vector6d( ) << -1656517.23153109, -5790058.28764025, -2440584.88186829,
               6526.30784888051, -2661.34558272018, 2377.09572383163 ).finished( );
 
     // Set states in environment.
@@ -965,6 +1017,58 @@ BOOST_AUTO_TEST_CASE( test_flightConditionsSetup )
 
 }
 #endif
+
+BOOST_AUTO_TEST_CASE( test_groundStationCreation )
+{
+    using namespace unit_conversions;
+    using namespace coordinate_conversions;
+
+    const double flattening = 1.0 / 298.257223563;
+    const double equatorialRadius = 6378137.0;
+
+    std::map< std::string, boost::shared_ptr< BodySettings > > bodySettings;
+    bodySettings[ "Earth" ] = boost::make_shared< BodySettings >( );
+    bodySettings[ "Earth" ]->shapeModelSettings = boost::make_shared< OblateSphericalBodyShapeSettings >(
+                equatorialRadius, flattening );
+
+    Eigen::Vector3d testCartesianPosition( 1917032.190, 6029782.349, -801376.113 );
+    Eigen::Vector3d testGeodeticPosition(
+                -63.667,  convertDegreesToRadians( -7.26654999 ), convertDegreesToRadians( 72.36312094 ) );
+    Eigen::Vector3d testSphericalPosition = coordinate_conversions::convertCartesianToSpherical(
+                testCartesianPosition );
+    testSphericalPosition( 1 ) = mathematical_constants::PI / 2.0 - testSphericalPosition( 1 );
+
+    bodySettings[ "Earth" ]->groundStationSettings.push_back(
+                boost::make_shared< GroundStationSettings >( "Station1", testCartesianPosition, cartesian_position  ) );
+    bodySettings[ "Earth" ]->groundStationSettings.push_back(
+                boost::make_shared< GroundStationSettings >( "Station2", testSphericalPosition, spherical_position ) );
+    bodySettings[ "Earth" ]->groundStationSettings.push_back(
+                boost::make_shared< GroundStationSettings >( "Station3", testGeodeticPosition, geodetic_position ) );
+
+    // Create bodies
+    NamedBodyMap bodyMap = createBodies( bodySettings );
+
+    setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );
+
+    BOOST_CHECK_EQUAL( bodyMap.at( "Earth" )->getGroundStationMap( ).count( "Station1" ), 1 );
+    BOOST_CHECK_EQUAL( bodyMap.at( "Earth" )->getGroundStationMap( ).count( "Station2" ), 1 );
+    BOOST_CHECK_EQUAL( bodyMap.at( "Earth" )->getGroundStationMap( ).count( "Station3" ), 1 );
+    BOOST_CHECK_EQUAL( bodyMap.at( "Earth" )->getGroundStationMap( ).size( ), 3 );
+
+    Eigen::Vector3d testPosition1 = bodyMap.at( "Earth" )->getGroundStationMap( ).at( "Station1" )->
+            getNominalStationState( )->getNominalCartesianPosition( );
+    Eigen::Vector3d testPosition2= bodyMap.at( "Earth" )->getGroundStationMap( ).at( "Station2" )->
+            getNominalStationState( )->getNominalCartesianPosition( );
+    Eigen::Vector3d testPosition3 = bodyMap.at( "Earth" )->getGroundStationMap( ).at( "Station3" )->
+            getNominalStationState( )->getNominalCartesianPosition( );
+
+    for( unsigned int i = 0; i < 3; i++ )
+    {
+        BOOST_CHECK_SMALL( std::fabs( testPosition1( i ) - testCartesianPosition( i ) ), 1.0E-9 );
+        BOOST_CHECK_SMALL( std::fabs( testPosition2( i ) - testCartesianPosition( i ) ), 1.0E-8 );
+        BOOST_CHECK_SMALL( std::fabs( testPosition3( i ) - testCartesianPosition( i ) ), 1.0E-3 );
+    }
+}
 
 BOOST_AUTO_TEST_SUITE_END( )
 

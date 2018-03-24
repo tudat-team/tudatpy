@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -17,7 +17,6 @@
 #define BOOST_TEST_MAIN
 
 #include <algorithm>
-#include <iostream>
 #include <vector>
 #include <utility>
 
@@ -955,7 +954,7 @@ BOOST_AUTO_TEST_CASE( testSpeedOfSound )
     BOOST_CHECK_CLOSE_FRACTION( model.getSpeedOfSound(altitude,longitude,latitude,time) , 340.9 , 1.8E-2 ); // < 1.8%
 
     // US Standard Atmosphere Model 1976
-    std::string atmosphereTableFile = tudat::input_output::getTudatRootPath( ) + "/External/AtmosphereTables/" +
+    std::string atmosphereTableFile = tudat::input_output::getAtmosphereTablesPath( ) +
             "USSA1976Until100kmPer100mUntil1000kmPer1000m.dat" ;
     tudat::aerodynamics::TabulatedAtmosphere US76model(atmosphereTableFile);
 

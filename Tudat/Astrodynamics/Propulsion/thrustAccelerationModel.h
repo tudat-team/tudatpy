@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -61,7 +61,7 @@ public:
      * Any dependencies of the thrust on (in)dependent variables is to be handled by the thrustUpdateFunction.
      * \param bodyMassFunction Function returning the current mass of the body being propagated.
      * \param massRateFunction Function returning total propellant mass rate from the thrust system.
-     * \param associatedThroustSource ID associated with the source of the thrust (i.e. engine name).
+     * \param associatedThrustSource ID associated with the source of the thrust (i.e. engine name).
      * \param thrustUpdateFunction Function used to update the thrust magnitude and direction to current time (default empty)
      * \param timeResetFunction Function to reset the time in the classes to which the thrustUpdateFunction function directs,
      * default empty.
@@ -73,7 +73,7 @@ public:
             const boost::function< Eigen::Vector3d( ) > thrustDirectionFunction,
             const boost::function< double( ) > bodyMassFunction,
             const boost::function< double( ) > massRateFunction,
-            const std::string associatedThroustSource = "",
+            const std::string associatedThrustSource = "",
             const boost::function< void( const double ) > thrustUpdateFunction = boost::function< void( const double ) >( ),
             const boost::function< void( const double ) > timeResetFunction = boost::function< void( const double ) >( ),
             const std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > >& requiredModelUpdates =
@@ -83,7 +83,7 @@ public:
         thrustDirectionFunction_( thrustDirectionFunction ),
         bodyMassFunction_( bodyMassFunction ),
         massRateFunction_( massRateFunction ),
-        associatedThroustSource_( associatedThroustSource ),
+        associatedThrustSource_( associatedThrustSource ),
         thrustUpdateFunction_( thrustUpdateFunction ),
         timeResetFunction_( timeResetFunction ),
         requiredModelUpdates_( requiredModelUpdates ){ }
@@ -173,9 +173,9 @@ public:
      * Function to retreieve the ID associated with the source of the thrust (i.e. engine name).
      * \return ID associated with the source of the thrust (i.e. engine name).
      */
-    std::string getAssociatedThroustSource( )
+    std::string getAssociatedThrustSource( )
     {
-        return associatedThroustSource_;
+        return associatedThrustSource_;
     }
 
     //! Function to retreieve the list of environment models that are to be updated before computing the acceleration.
@@ -229,7 +229,7 @@ protected:
     boost::function< double( ) > massRateFunction_;
 
     //! ID associated with the source of the thrust (i.e. engine name).
-    std::string associatedThroustSource_;
+    std::string associatedThrustSource_;
 
     //! Function used to update the thrust magnitude and direction to current time.
     boost::function< void( const double ) > thrustUpdateFunction_;

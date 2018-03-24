@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -12,8 +12,6 @@
 #define TUDAT_ANGULARPOSITIONOBSERVATIONMODEL_H
 
 #include <map>
-#include <string>
-
 #include <Eigen/Core>
 
 #include "Tudat/Mathematics/BasicMathematics/coordinateConversions.h"

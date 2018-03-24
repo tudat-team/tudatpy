@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -150,7 +150,7 @@ public:
                     stateDerivative.block( i * 6 + 3, 0, 3, 1 ).template cast< double >( );
 
                 stateDerivative.block( i * 6, 0, 6, 1 ) = computeGaussPlanetaryEquationsForKeplerElements(
-                            ( Eigen::Vector6d( )<<stateOfSystemToBeIntegrated.block( i * 6, 0, 5, 1 ).template cast< double >( ),
+                            ( Eigen::Vector6d( ) << stateOfSystemToBeIntegrated.block( i * 6, 0, 5, 1 ).template cast< double >( ),
                               currentTrueAnomalies_.at( i ) ).finished( ), currentAccelerationInRswFrame,
                             centralBodyGravitationalParameters_.at( i )( ) ).template cast< StateScalarType >( );
         }

@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -13,6 +13,7 @@
 
 #include <vector>
 #include <string>
+#include <chrono>
 
 #include <boost/make_shared.hpp>
 #include <boost/assign/list_of.hpp>
@@ -71,6 +72,12 @@ Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > getInitialStatesOfBodiesFrom
     for( unsigned int i = 0; i < bodiesToIntegrate.size( ) ; i++ )
     {
         ephemerisOfCurrentBody = bodyMap.at( bodiesToIntegrate.at( i ) )->getEphemeris( );
+
+        if ( ! ephemerisOfCurrentBody )
+        {
+            throw std::runtime_error( "Could not determine initial state for body " + bodiesToIntegrate.at( i ) +
+                                      " because it does not have a valid Ephemeris object." );
+        }
 
         // Get body initial state from ephemeris
         systemInitialState.segment( i * 6 , 6 ) = ephemerisOfCurrentBody->getTemplatedStateFromEphemeris<
@@ -207,6 +214,31 @@ public:
     virtual void integrateEquationsOfMotion(
             const Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >& initialGlobalStates ) = 0;
 
+    //! Get whether the integration was completed successfully.
+    /*!
+     * @copybrief integrationCompletedSuccessfully
+     * \return Whether the integration was completed successfully by reaching the termination condition.
+     */
+    virtual bool integrationCompletedSuccessfully( ) const = 0;
+
+    //! Pure virtual function that returns the numerical result of the state propagation
+    /*!
+     * Pure virtual function that returns the numerical result of the state propagation.
+     * \return Numerical result of the state propagation. See derived class documentation for precise contents structure.
+     */
+    virtual std::vector< std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > >
+    getEquationsOfMotionNumericalSolutionBase( ) = 0;
+
+    //! Pure virtual function that returns the numerical result of the dependent variable history
+    /*!
+     * Pure virtual function that returns the numerical result of the dependent variable history
+     * \return Numerical result of the  dependent variable history. See derived class documentation for precise contents
+     *  structure.
+     */
+    virtual std::vector< std::map< TimeType, Eigen::VectorXd > > getDependentVariableNumericalSolutionBase( ) = 0;
+
+    virtual std::vector< std::map< TimeType, double > > getCummulativeComputationTimeHistoryBase( ) = 0;
+
 
     //! Function to get the map of named bodies involved in simulation.
     /*!
@@ -218,11 +250,20 @@ public:
         return bodyMap_;
     }
 
+    //! Function to reset the named body map.
+    /*!
+     *  Function to reset the named body map.
+     *  \param bodyMap The new named body map.
+     */
+    void resetNamedBodyMap( const simulation_setup::NamedBodyMap& bodyMap )
+    {
+        bodyMap_ = bodyMap;
+    }
+
     void resetSetIntegratedResult( const bool setIntegratedResult )
     {
         setIntegratedResult_ = setIntegratedResult;
     }
-
 
 protected:
 
@@ -272,9 +313,11 @@ public:
      *  \param areEquationsOfMotionToBeIntegrated Boolean to denote whether equations of motion should be integrated
      *  immediately at the end of the contructor or not (default true).
      *  \param clearNumericalSolutions Boolean to determine whether to clear the raw numerical solution member variables
-     *  after propagation and resetting ephemerides (default true).
+     *  after propagation and resetting ephemerides (default false).
      *  \param setIntegratedResult Boolean to determine whether to automatically use the integrated results to set
-     *  ephemerides (default true).
+     *  ephemerides (default false).
+     *  \param initialClockTime Initial clock time from which to determine cummulative computation time.
+     *  By default now(), i.e. the moment at which this function is called.
      */
     SingleArcDynamicsSimulator(
             const simulation_setup::NamedBodyMap& bodyMap,
@@ -282,13 +325,15 @@ public:
             const boost::shared_ptr< PropagatorSettings< StateScalarType > > propagatorSettings,
             const bool areEquationsOfMotionToBeIntegrated = true,
             const bool clearNumericalSolutions = false,
-            const bool setIntegratedResult = false ):
+            const bool setIntegratedResult = false,
+            const std::chrono::steady_clock::time_point initialClockTime = std::chrono::steady_clock::now( ) ):
         DynamicsSimulator< StateScalarType, TimeType >(
             bodyMap, clearNumericalSolutions, setIntegratedResult ),
         integratorSettings_( integratorSettings ),
         propagatorSettings_(
             boost::dynamic_pointer_cast< SingleArcPropagatorSettings< StateScalarType > >( propagatorSettings ) ),
-        initialPropagationTime_( integratorSettings_->initialTime_ ), propagationTerminationReason_( propagation_never_run )
+        initialPropagationTime_( integratorSettings_->initialTime_ ), initialClockTime_( initialClockTime ),
+        propagationTerminationReason_( boost::make_shared< PropagationTerminationDetails >( propagation_never_run ) )
     {
         if( propagatorSettings == NULL )
         {
@@ -332,8 +377,8 @@ public:
 
             if( propagatorSettings_->getDependentVariablesToSave( )->printDependentVariableTypes_ )
             {
-                std::cout<<"Dependent variables being saved, output vectors contain: "<<std::endl<<
-                           "Vector entry, Vector contents"<<std::endl;
+                std::cout << "Dependent variables being saved, output vectors contain: " << std::endl
+                          << "Vector entry, Vector contents" << std::endl;
                 utilities::printMapContents(
                             dependentVariableIds_ );
             }
@@ -370,8 +415,10 @@ public:
             const Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >& initialStates )
     {
         equationsOfMotionNumericalSolution_.clear( );
+        equationsOfMotionNumericalSolutionRaw_.clear( );
 
         dynamicsStateDerivative_->setPropagationSettings( std::vector< IntegratedStateType >( ), 1, 0 );
+        dynamicsStateDerivative_->resetFunctionEvaluationCounter( );
 
         // Reset initial time to ensure consistency with multi-arc propagation.
         integratorSettings_->initialTime_ = this->initialPropagationTime_;
@@ -379,16 +426,17 @@ public:
         // Integrate equations of motion numerically.
         propagationTerminationReason_ =
                 EquationIntegrationInterface< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >, TimeType >::integrateEquations(
-                    stateDerivativeFunction_, equationsOfMotionNumericalSolution_,
+                    stateDerivativeFunction_, equationsOfMotionNumericalSolutionRaw_,
                     dynamicsStateDerivative_->convertFromOutputSolution(
                         initialStates, this->initialPropagationTime_ ), integratorSettings_,
-                    boost::bind( &PropagationTerminationCondition::checkStopCondition,
-                                 propagationTerminationCondition_, _1 ),
+                    propagationTerminationCondition_,
                     dependentVariableHistory_,
+                    cummulativeComputationTimeHistory_,
                     dependentVariablesFunctions_,
-                    propagatorSettings_->getPrintInterval( ) );
-        equationsOfMotionNumericalSolution_ = dynamicsStateDerivative_->
-                convertNumericalStateSolutionsToOutputSolutions( equationsOfMotionNumericalSolution_ );
+                    propagatorSettings_->getPrintInterval( ),
+                    initialClockTime_ );
+        dynamicsStateDerivative_->convertNumericalStateSolutionsToOutputSolutions(
+                    equationsOfMotionNumericalSolution_, equationsOfMotionNumericalSolutionRaw_ );
 
         if( this->setIntegratedResult_ )
         {
@@ -416,6 +464,43 @@ public:
         return dependentVariableHistory_;
     }
 
+    //! Function to return the map of cummulative computation time history that was saved during numerical propagation.
+    /*!
+     * Function to return the map of cummulative computation time history that was saved during numerical propagation.
+     * \return Map of cummulative computation time history that was saved during numerical propagation.
+     */
+    std::map< TimeType, double > getCummulativeComputationTimeHistory( )
+    {
+        return cummulativeComputationTimeHistory_;
+    }
+
+    //! Function to return the map of state history of numerically integrated bodies (base class interface).
+    /*!
+     * Function to return the map of state history of numerically integrated bodies (base class interface).
+     * \return Vector is size 1, with entry: map of state history of numerically integrated bodies.
+     */
+    std::vector< std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > > getEquationsOfMotionNumericalSolutionBase( )
+    {
+        return std::vector< std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > >(
+                    { getEquationsOfMotionNumericalSolution( ) } );
+    }
+
+    //! Function to return the map of dependent variable history that was saved during numerical propagation(base class interface)
+    /*!
+     * Function to return the map of dependent variable history that was saved during numerical propagation (base class interface)
+     * \return Vector is size 1, with entry: map of dependent variable history that was saved during numerical propagation.
+     */
+    std::vector< std::map< TimeType, Eigen::VectorXd > > getDependentVariableNumericalSolutionBase( )
+    {
+        return std::vector< std::map< TimeType, Eigen::VectorXd > >(
+                    { getDependentVariableHistory( ) } );
+    }
+
+    std::vector< std::map< TimeType, double > > getCummulativeComputationTimeHistoryBase( )
+    {
+        return std::vector< std::map< TimeType, double > >( { getCummulativeComputationTimeHistory( ) } );
+    }
+
 
     //! Function to reset the environment from an externally generated state history.
     /*!
@@ -423,10 +508,12 @@ public:
      * state vectors are proscribed by propagatorSettings
      * \param equationsOfMotionNumericalSolution Externally generated state history.
      * \param processSolution True if the new solution is to be immediately processed (default true).
+     * \param dependentVariableHistory Externally generated dependent variable history.
      */
     void manuallySetAndProcessRawNumericalEquationsOfMotionSolution(
             const std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >&
             equationsOfMotionNumericalSolution,
+            const std::map< TimeType, Eigen::VectorXd >& dependentVariableHistory,
             const bool processSolution = true )
     {
         equationsOfMotionNumericalSolution_ = equationsOfMotionNumericalSolution;
@@ -434,6 +521,8 @@ public:
         {
             processNumericalEquationsOfMotionSolution( );
         }
+
+        dependentVariableHistory_ = dependentVariableHistory;
     }
 
     //! Function to get the settings for the numerical integrator.
@@ -501,9 +590,9 @@ public:
     }
 
 
-    //! Function to retrieve the Object defining when the propagation is to be terminated.
+    //! Function to retrieve the object defining when the propagation is to be terminated.
     /*!
-     * Function to retrieve the Object defining when the propagation is to be terminated.
+     * Function to retrieve the object defining when the propagation is to be terminated.
      * \return Object defining when the propagation is to be terminated.
      */
     boost::shared_ptr< PropagationTerminationCondition > getPropagationTerminationCondition( )
@@ -511,6 +600,12 @@ public:
         return propagationTerminationCondition_;
     }
 
+    //! Function to retrieve the list of object that process the integrated numerical solution by updating the environment
+    /*!
+     * Function to retrieve the List of object (per dynamics type) that process the integrated numerical solution by
+     * updating the environment
+     * \return List of object (per dynamics type) that process the integrated numerical solution by updating the environment
+     */
     std::map< IntegratedStateType, std::vector< boost::shared_ptr<
     IntegratedStateProcessor< TimeType, StateScalarType > > > > getIntegratedStateProcessors( )
     {
@@ -523,10 +618,32 @@ public:
      * Function to retrieve the event that triggered the termination of the last propagation
      * \return Event that triggered the termination of the last propagation
      */
-    PropagationTerminationReason getPropagationTerminationReason()
+    boost::shared_ptr< PropagationTerminationDetails > getPropagationTerminationReason( )
     {
         return propagationTerminationReason_;
     }
+
+    //! Get whether the integration was completed successfully.
+    /*!
+     * @copybrief integrationCompletedSuccessfully
+     * \return Whether the integration was completed successfully by reaching the termination condition.
+     */
+    virtual bool integrationCompletedSuccessfully( ) const
+    {
+        return ( propagationTerminationReason_->getPropagationTerminationReason( ) == termination_condition_reached );
+    }
+
+
+    //! Function to retrieve the dependent variables IDs
+    /*!
+     * Function to retrieve the dependent variables IDs
+     * \return Map listing starting entry of dependent variables in output vector, along with associated ID
+     */
+    std::map< int, std::string > getDependentVariableIds( )
+    {
+        return dependentVariableIds_;
+    }
+
 
     //! Function to retrieve initial time of propagation
     /*!
@@ -538,6 +655,28 @@ public:
         return this->initialPropagationTime_;
     }
 
+    //! Function to retrieve the functions that compute the dependent variables at each time step
+    /*!
+     * Function to retrieve the functions that compute the dependent variables at each time step
+     * \return Functions that compute the dependent variables at each time step
+     */
+    boost::function< Eigen::VectorXd( ) > getDependentVariablesFunctions( )
+    {
+        return dependentVariablesFunctions_;
+    }
+
+    //! Function to reset the object that checks whether the simulation has finished from
+    //! (newly defined) propagation settings.
+    /*!
+     *  Function to reset the object that checks whether the simulation has finished from
+     *  (newly defined) propagation settings.
+     */
+    void resetPropagationTerminationConditions( )
+    {
+        propagationTerminationCondition_ = createPropagationTerminationConditions(
+                    propagatorSettings_->getTerminationSettings(), bodyMap_,
+                            integratorSettings_->initialTimeStep_ );
+    }
 
 protected:
 
@@ -629,14 +768,22 @@ protected:
      */
     std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > equationsOfMotionNumericalSolution_;
 
+    std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > equationsOfMotionNumericalSolutionRaw_;
+
     //! Map of dependent variable history that was saved during numerical propagation.
     std::map< TimeType, Eigen::VectorXd > dependentVariableHistory_;
+
+    //! Map of cummulative computation time history that was saved during numerical propagation.
+    std::map< TimeType, double > cummulativeComputationTimeHistory_;
 
     //! Initial time of propagation
     double initialPropagationTime_;
 
+    //!
+    std::chrono::steady_clock::time_point initialClockTime_;
+
     //! Event that triggered the termination of the propagation
-    PropagationTerminationReason propagationTerminationReason_;
+    boost::shared_ptr< PropagationTerminationDetails > propagationTerminationReason_;
 
 };
 
@@ -788,6 +935,8 @@ public:
             }
 
             equationsOfMotionNumericalSolution_.resize( arcStartTimes.size( ) );
+            dependentVariableHistory_.resize( arcStartTimes.size( ) );
+            cummulativeComputationTimeHistory_.resize( arcStartTimes.size( ) );
             propagationTerminationReasons_.resize( arcStartTimes.size( ) );
 
             // Integrate equations of motion if required.
@@ -849,6 +998,8 @@ public:
             }
 
             equationsOfMotionNumericalSolution_.resize( singleArcSettings.size( ) );
+            dependentVariableHistory_.resize( singleArcSettings.size( ) );
+            cummulativeComputationTimeHistory_.resize( singleArcSettings.size( ) );
             propagationTerminationReasons_.resize( singleArcSettings.size( ) );
 
             // Integrate equations of motion if required.
@@ -910,6 +1061,17 @@ public:
             equationsOfMotionNumericalSolution_.at( i ).clear( );
         }
 
+        for( unsigned int i = 0; i < dependentVariableHistory_.size( ); i++ )
+        {
+            dependentVariableHistory_.at( i ).clear( );
+        }
+
+        for( unsigned int i = 0; i < cummulativeComputationTimeHistory_.size( ); i++ )
+        {
+            cummulativeComputationTimeHistory_.at( i ).clear( );
+        }
+
+
         Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > currentArcInitialState;
         std::vector< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > arcInitialStateList;
         bool updateInitialStates = false;
@@ -938,6 +1100,10 @@ public:
             singleArcDynamicsSimulators_.at( i )->integrateEquationsOfMotion( currentArcInitialState );
             equationsOfMotionNumericalSolution_[ i ] =
                     singleArcDynamicsSimulators_.at( i )->getEquationsOfMotionNumericalSolution( );
+            dependentVariableHistory_[ i ] =
+                    singleArcDynamicsSimulators_.at( i )->getDependentVariableHistory( );
+            cummulativeComputationTimeHistory_[ i ] =
+                    singleArcDynamicsSimulators_.at( i )->getCummulativeComputationTimeHistory( );
             propagationTerminationReasons_[ i ] = singleArcDynamicsSimulators_.at( i )->getPropagationTerminationReason( );
             arcStartTimes_[ i ] = equationsOfMotionNumericalSolution_[ i ].begin( )->first;
         }
@@ -967,6 +1133,51 @@ public:
         return equationsOfMotionNumericalSolution_;
     }
 
+    //! Function to return the numerical solution of the dependent variables
+    /*!
+     *  Function to return the numerical solution of the dependent variables for last numerical integration. Each vector entry
+     *  denotes one arc. Key of map denotes time, values are dependent variable vectors
+     *  \return List of maps of dependent variable history
+     */
+    std::vector< std::map< TimeType, Eigen::VectorXd > > getDependentVariableHistory( )
+    {
+        return dependentVariableHistory_;
+    }
+
+    std::vector< std::map< TimeType, double > > getCummulativeComputationTimeHistory( )
+    {
+        return cummulativeComputationTimeHistory_;
+    }
+
+    //! Function to return the numerical solution to the equations of motion (base class interface).
+    /*!
+     *  Function to return the numerical solution to the equations of motion for last numerical integration. Each vector entry
+     *  denotes one arc. Key of map denotes time, values are full propagated state vectors.
+     *  \return List of maps of history of numerically integrated states.
+     */
+    std::vector< std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > >
+    getEquationsOfMotionNumericalSolutionBase( )
+    {
+        return getEquationsOfMotionNumericalSolution( );
+    }
+
+    //! Function to return the numerical solution of the dependent variables (base class interface)
+    /*!
+     *  Function to return the numerical solution of the dependent variables for last numerical integration. Each vector entry
+     *  denotes one arc. Key of map denotes time, values are dependent variable vectors
+     *  \return List of maps of dependent variable history
+     */
+    std::vector< std::map< TimeType, Eigen::VectorXd > > getDependentVariableNumericalSolutionBase( )
+    {
+        return getDependentVariableHistory( );
+    }
+
+    std::vector< std::map< TimeType, double > > getCummulativeComputationTimeHistoryBase( )
+    {
+        return getCummulativeComputationTimeHistory( );
+    }
+
+
     //! Function to reset the environment using an externally provided list of (numerically integrated) states
     /*!
      *  Function to reset the environment using an externally provided list of (numerically integrated) states, for instance
@@ -974,15 +1185,18 @@ public:
      *  \param equationsOfMotionNumericalSolution Vector of state histories
      *  (externally provided equationsOfMotionNumericalSolution_)
      *  \param processSolution True if the new solution is to be immediately processed (default true).
-     *
+     *  \param dependentVariableHistory Vector of dependent variable histories
+     *  (externally provided dependentVariableHistory_)
      */
     void manuallySetAndProcessRawNumericalEquationsOfMotionSolution(
             std::vector< std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > >&
             equationsOfMotionNumericalSolution,
+            std::vector< std::map< TimeType, Eigen::VectorXd > >& dependentVariableHistory,
             const bool processSolution = true )
     {
         // Set equationsOfMotionNumericalSolution_
         equationsOfMotionNumericalSolution_.resize( equationsOfMotionNumericalSolution.size( ) );
+
         for( unsigned int i = 0; i < equationsOfMotionNumericalSolution.size( ); i++ )
         {
             equationsOfMotionNumericalSolution_[ i ].clear( );
@@ -995,6 +1209,14 @@ public:
         if( processSolution )
         {
             processNumericalEquationsOfMotionSolution( );
+        }
+
+        dependentVariableHistory_.resize( dependentVariableHistory.size( ) );
+
+        for( unsigned int i = 0; i < dependentVariableHistory.size( ); i++ )
+        {
+            dependentVariableHistory_[ i ].clear( );
+            dependentVariableHistory_[ i ] = dependentVariableHistory[ i ];
         }
     }
 
@@ -1033,6 +1255,24 @@ public:
         return arcStartTimes_;
     }
 
+    //! Get whether the integration was completed successfully.
+    /*!
+     * @copybrief integrationCompletedSuccessfully
+     * \return Whether the integration was completed successfully by reaching the termination condition.
+     */
+    virtual bool integrationCompletedSuccessfully( ) const
+    {
+        for ( const boost::shared_ptr< SingleArcDynamicsSimulator< StateScalarType, TimeType > >
+              singleArcDynamicsSimulator : singleArcDynamicsSimulators_ )
+        {
+            if ( ! singleArcDynamicsSimulator->integrationCompletedSuccessfully( ) )
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+
 
 protected:
 
@@ -1060,10 +1300,15 @@ protected:
 
     //! List of maps of state history of numerically integrated states.
     /*!
-     *   List of maps of state history of numerically integrated states. Each entry in the list contains data on a single arc.
-     *   Key of map denotes time, values are concatenated vectors of body states in order of bodiesToIntegrate
+     *  List of maps of state history of numerically integrated states. Each entry in the list contains data on a single arc.
+     *  Key of map denotes time, values are concatenated vectors of body states in order of bodiesToIntegrate
      */
     std::vector< std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > > equationsOfMotionNumericalSolution_;
+
+    //! List of maps of dependent variable history that was saved during numerical propagation.
+    std::vector< std::map< TimeType, Eigen::VectorXd > > dependentVariableHistory_;
+
+    std::vector< std::map< TimeType, double > > cummulativeComputationTimeHistory_;
 
     //! Objects used to compute the dynamics of the sepatrate arcs
     std::vector< boost::shared_ptr< SingleArcDynamicsSimulator< StateScalarType, TimeType > > > singleArcDynamicsSimulators_;
@@ -1072,7 +1317,7 @@ protected:
     std::vector< double > arcStartTimes_;
 
     //! Event that triggered the termination of the propagation
-    std::vector< PropagationTerminationReason > propagationTerminationReasons_;
+    std::vector< boost::shared_ptr< PropagationTerminationDetails > > propagationTerminationReasons_;
 
     //! Propagator settings used by this objec
     boost::shared_ptr< MultiArcPropagatorSettings< StateScalarType > > multiArcPropagatorSettings_;
@@ -1162,6 +1407,54 @@ public:
     boost::shared_ptr< MultiArcDynamicsSimulator< StateScalarType, TimeType > > getMultiArcDynamicsSimulator( )
     {
         return multiArcDynamicsSimulator_;
+    }
+
+    virtual bool integrationCompletedSuccessfully( ) const
+    {
+        if( singleArcDynamicsSimulator_->integrationCompletedSuccessfully( ) == false ||
+                multiArcDynamicsSimulator_->integrationCompletedSuccessfully( ) == false )
+        {
+            return false;
+        }
+        else
+        {
+            return true;
+        }
+
+    }
+
+    std::vector< std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > >
+    getEquationsOfMotionNumericalSolutionBase( )
+    {
+        std::vector< std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > >
+                numericalSolution = singleArcDynamicsSimulator_->getEquationsOfMotionNumericalSolutionBase( );
+        std::vector< std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > >
+                multiArcNumericalSolution = multiArcDynamicsSimulator_->getEquationsOfMotionNumericalSolutionBase( );
+        numericalSolution.insert( numericalSolution.end( ), multiArcNumericalSolution.begin( ), multiArcNumericalSolution.end( ) );
+
+        return numericalSolution;
+    }
+
+    std::vector< std::map< TimeType, Eigen::VectorXd > > getDependentVariableNumericalSolutionBase( )
+    {
+        std::vector< std::map< TimeType, Eigen::VectorXd > >
+                numericalSolution = singleArcDynamicsSimulator_->getDependentVariableNumericalSolutionBase( );
+        std::vector< std::map< TimeType, Eigen::VectorXd > >
+                multiArcNumericalSolution = multiArcDynamicsSimulator_->getDependentVariableNumericalSolutionBase( );
+        numericalSolution.insert( numericalSolution.end( ), multiArcNumericalSolution.begin( ), multiArcNumericalSolution.end( ) );
+
+        return numericalSolution;
+    }
+
+    std::vector< std::map< TimeType, double > > getCummulativeComputationTimeHistoryBase( )
+    {
+        std::vector< std::map< TimeType, double > >
+                computationTime = singleArcDynamicsSimulator_->getCummulativeComputationTimeHistoryBase( );
+        std::vector< std::map< TimeType, double > >
+                multiArcComputationTime = multiArcDynamicsSimulator_->getCummulativeComputationTimeHistoryBase( );
+        computationTime.insert( computationTime.end( ), multiArcComputationTime.begin( ), multiArcComputationTime.end( ) );
+
+        return computationTime;
     }
 
 protected:

@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -10,6 +10,7 @@
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/physicalConstants.h"
 #include "Tudat/External/SofaInterface/earthOrientation.h"
+#include "Tudat/Basics/timeType.h"
 
 
 namespace tudat
@@ -20,7 +21,8 @@ namespace sofa_interface
 
 //! Function to calculate CIP and CIO locator according to requested IAU conventions
 std::pair< Eigen::Vector2d, double > getPositionOfCipInGcrs(
-        const double terrestrialTime, const double julianDaysEpochShift, const IAUConventions precessionNutationTheory )
+        const double terrestrialTime, const double julianDaysEpochShift,
+        const basic_astrodynamics::IAUConventions precessionNutationTheory )
 {
     // Declare Sofa function return arguments (by reference)
     double xAngle, yAngle;
@@ -29,17 +31,17 @@ std::pair< Eigen::Vector2d, double > getPositionOfCipInGcrs(
     // Check for IAU convention and retrieve requested values.
     switch( precessionNutationTheory )
     {
-    case iau_2000_a:
+    case basic_astrodynamics::iau_2000_a:
         iauXys00a( julianDaysEpochShift, terrestrialTime / physical_constants::JULIAN_DAY,
                    &xAngle, &yAngle, &originLocator );
         break;
 
-    case iau_2000_b:
+    case basic_astrodynamics::iau_2000_b:
         iauXys00b( julianDaysEpochShift, terrestrialTime / physical_constants::JULIAN_DAY,
                    &xAngle, &yAngle, &originLocator );
         break;
 
-    case iau_2006:
+    case basic_astrodynamics::iau_2006:
         iauXys06a( julianDaysEpochShift, terrestrialTime / physical_constants::JULIAN_DAY,
                    &xAngle, &yAngle, &originLocator );
         break;
@@ -57,7 +59,7 @@ std::pair< Eigen::Vector2d, double > getPositionOfCipInGcrs(
 //! Function to calculate GMST according to requested IAU conventions
 double calculateGreenwichMeanSiderealTime(
         const double terrestrialTime, const double universalTime1,
-        const double referenceJulianDay, const IAUConventions iauConvention )
+        const double referenceJulianDay, const basic_astrodynamics::IAUConventions iauConvention )
 {
     // Declare GMST variable
     double gmst = TUDAT_NAN;
@@ -65,17 +67,17 @@ double calculateGreenwichMeanSiderealTime(
     // Check for IAU convention and retrieve requested GMST
     switch( iauConvention )
     {
-    case iau_2000_a:
+    case basic_astrodynamics::iau_2000_a:
         gmst = iauGmst00( referenceJulianDay, universalTime1 / physical_constants::JULIAN_DAY,
                           referenceJulianDay, terrestrialTime / physical_constants::JULIAN_DAY );
         break;
 
-    case iau_2000_b:
+    case basic_astrodynamics::iau_2000_b:
         gmst = iauGmst00( referenceJulianDay, universalTime1 / physical_constants::JULIAN_DAY,
                           referenceJulianDay, terrestrialTime / physical_constants::JULIAN_DAY );
         break;
 
-    case iau_2006:
+    case basic_astrodynamics::iau_2006:
         gmst = iauGmst06( referenceJulianDay, universalTime1 / physical_constants::JULIAN_DAY,
                           referenceJulianDay, terrestrialTime / physical_constants::JULIAN_DAY );
         break;
@@ -93,6 +95,30 @@ double calculateEarthRotationAngle( const double ut1, const double julianDaysEpo
 {
     return iauEra00( julianDaysEpochShift, ut1 / physical_constants::JULIAN_DAY );
 }
+
+//! Function to calculate ERA (earth rotation angle) in double precision
+template< >
+double calculateEarthRotationAngleTemplated< double >(
+        const double currentUt1 )
+{
+    return calculateEarthRotationAngle( currentUt1, basic_astrodynamics::JULIAN_DAY_ON_J2000 );
+}
+
+//! Function to calculate ERA (earth rotation angle) in Time precision
+template< >
+double calculateEarthRotationAngleTemplated< Time >(
+        const Time currentUt1 )
+{
+
+    int hoursSinceEpoch = currentUt1.getFullPeriods( );
+    int fullDaysSinceEpoch = currentUt1.getFullPeriods( ) / 24;
+    int hoursIntoCurrentDay = hoursSinceEpoch - 24 * fullDaysSinceEpoch;
+
+
+    return calculateEarthRotationAngle( currentUt1.getSecondsIntoFullPeriod( ) + hoursIntoCurrentDay * 3600.0,
+                                      basic_astrodynamics::JULIAN_DAY_ON_J2000 + fullDaysSinceEpoch );
+}
+
 
 }
 

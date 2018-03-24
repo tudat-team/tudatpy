@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -16,7 +16,9 @@
 #include "Tudat/SimulationSetup/EstimationSetup/createObservationModel.h"
 #include "Tudat/SimulationSetup/EnvironmentSetup/createGroundStations.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/orbitDeterminationManager.h"
+#include "Tudat/Astrodynamics/OrbitDetermination/podProcessing.h"
 #include "Tudat/Astrodynamics/ObservationModels/simulateObservations.h"
+#include "Tudat/Astrodynamics/OrbitDetermination/podProcessing.h"
 
 #include "Tudat/Mathematics/Statistics/basicStatistics.h"
 #include "Tudat/Mathematics/Statistics/randomVariableGenerator.h"

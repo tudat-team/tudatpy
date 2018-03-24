@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -7,8 +7,6 @@
  *    a copy of the license with this file. If not, please or visit:
  *    http://tudat.tudelft.nl/LICENSE.
  */
-#include <boost/lexical_cast.hpp>
-
 #include "Tudat/Astrodynamics/Propagators/singleStateTypeDerivative.h"
 
 namespace tudat
@@ -34,7 +32,7 @@ int getSingleIntegrationSize( const IntegratedStateType stateType )
         break;
     default:
         std::string errorMessage =
-                "Did not recognize state type " + boost::lexical_cast< std::string >( stateType ) + "when getting size";
+                "Did not recognize state type " + std::to_string( stateType ) + "when getting size";
        throw std::runtime_error( errorMessage );
     }
     return singleStateSize;
@@ -54,7 +52,7 @@ int getSingleIntegrationDifferentialEquationOrder( const IntegratedStateType sta
         break;
     default:
         std::string errorMessage =
-                "Did not recognize state type " + boost::lexical_cast< std::string >( stateType ) + "when getting order";
+                "Did not recognize state type " + std::to_string( stateType ) + "when getting order";
        throw std::runtime_error( errorMessage );
     }
     return singleStateSize;

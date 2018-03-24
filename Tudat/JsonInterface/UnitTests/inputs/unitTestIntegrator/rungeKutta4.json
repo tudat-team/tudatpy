@@ -1,0 +1,7 @@
+{
+  "type": "rungeKutta4",
+  "initialTime": 3,
+  "stepSize": 1.4,
+  "saveFrequency": 2,
+  "assessPropagationTerminationConditionDuringIntegrationSubsteps": true
+}

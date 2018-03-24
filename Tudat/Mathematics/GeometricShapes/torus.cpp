@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -10,8 +10,6 @@
  */
 
 #include <iostream>
-
-#include <boost/lexical_cast.hpp>
 
 #include "Tudat/Mathematics/GeometricShapes/torus.h"
 
@@ -211,7 +209,7 @@ double Torus::getParameter( const int index )
         break;
 
     default:
-        std::string errorMessage = "Parameter "+ boost::lexical_cast< std::string >( index ) + "does not exist in torus.";
+        std::string errorMessage = "Parameter " + std::to_string( index ) + "does not exist in torus.";
         throw std::runtime_error( errorMessage );
     }
 
@@ -221,7 +219,7 @@ double Torus::getParameter( const int index )
 
 
 //! Overload ostream to print class information.
-std::ostream &operator<<( std::ostream &stream, Torus& torus )
+std::ostream &operator << ( std::ostream &stream, Torus& torus )
 {
     stream << "This is a torus geometry." << std::endl;
     stream << "The minor angle runs from: "

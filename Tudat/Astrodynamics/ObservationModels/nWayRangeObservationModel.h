@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -11,8 +11,7 @@
 #ifndef TUDAT_NWAYRANGEOBSERVATIONMODEL_H
 #define TUDAT_NWAYRANGEOBSERVATIONMODEL_H
 
-#include <Tudat/Astrodynamics/ObservationModels/oneWayRangeObservationModel.h>
-
+#include "Tudat/Astrodynamics/ObservationModels/oneWayRangeObservationModel.h"
 namespace tudat
 {
 
@@ -206,7 +205,7 @@ public:
 
         // Return total range observation.
         return ( Eigen::Matrix< ObservationScalarType, 1, 1 >(
-                     ) <<totalLightTime * physical_constants::getSpeedOfLight< ObservationScalarType >( ) ).finished( );
+                     ) << totalLightTime * physical_constants::getSpeedOfLight< ObservationScalarType >( ) ).finished( );
     }
 
     std::vector< boost::shared_ptr< LightTimeCalculator< ObservationScalarType, TimeType > > > getLightTimeCalculators( )

@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -120,7 +120,7 @@ BOOST_AUTO_TEST_CASE( testHermiteCubicSplineInterpolatorWithMatlab )
         interpolators::HermiteCubicSplineInterpolatorDouble interpolator(
                     independentVariables, dependentVariables , derivatives );
 
-        std::vector< double > matlabResults = { 0.0,	-0.500127989105607,	0.860566028073899, -0.995666072885886 };
+        std::vector< double > matlabResults = { 0.0,        -0.500127989105607,        0.860566028073899, -0.995666072885886 };
 
         for( unsigned int i = 0; i < 4; i++ )
         {
@@ -139,7 +139,7 @@ BOOST_AUTO_TEST_CASE( testHermiteCubicSplineInterpolatorWithMatlab )
     {
         // Declare and initialize independent variable values.
         std::vector< double > independentVariables =
-        { 0.100,	0.250,	0.600,	0.620,	1.0,	1.40,	1.51,	2.0,	3.0};
+        { 0.100,        0.250,        0.600,        0.620,        1.0,        1.40,        1.51,        2.0,        3.0};
         std::vector< double > dependentVariables;
         std::vector< double > derivatives;
 
@@ -154,7 +154,7 @@ BOOST_AUTO_TEST_CASE( testHermiteCubicSplineInterpolatorWithMatlab )
                     independentVariables, dependentVariables , derivatives );
 
         std::vector< double > matlabResults =
-        { -0.000114788941438321,	0.956262264186293,	-0.557211110925702,	-0.616700531016027 };
+        { -0.000114788941438321,        0.956262264186293,        -0.557211110925702,        -0.616700531016027 };
 
         for( unsigned int i = 0; i < 4; i++ )
         {

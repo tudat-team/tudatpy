@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -279,7 +279,7 @@ int getSingleArcParameterSetSize(
         {
             throw std::runtime_error(
                         "Error when getting single arc paramater vector, did not recognize initial state parameter " +
-                        boost::lexical_cast< std::string >( initialStateParameters.at( i )->getParameterName( ).first ) );
+                        std::to_string( initialStateParameters.at( i )->getParameterName( ).first ) );
         }
     }
     return totalParameterSetSize;

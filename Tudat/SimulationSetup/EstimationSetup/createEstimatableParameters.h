@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -48,8 +48,8 @@ boost::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::Matrix
     if( !isParameterDynamicalPropertyInitialState( parameterSettings->parameterType_.first ) )
     {
         std::string errorMessage = "Error when requesting to make initial state parameter " +
-                boost::lexical_cast< std::string >( parameterSettings->parameterType_.first ) + " of " +
-                boost::lexical_cast< std::string >( parameterSettings->parameterType_.second.first ) +
+                std::to_string( parameterSettings->parameterType_.first ) + " of " +
+                parameterSettings->parameterType_.second.first +
                 ", parameter is not an initial state parameter ";
         throw std::runtime_error( errorMessage );
     }
@@ -141,7 +141,7 @@ boost::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::Matrix
             break;
         default:
             std::string errorMessage = "Error, could not create parameter for initial state of type " +
-                    boost::lexical_cast< std::string >( parameterSettings->parameterType_.first );
+                    std::to_string( parameterSettings->parameterType_.first );
             throw std::runtime_error( errorMessage );
         }
     }
@@ -227,8 +227,8 @@ boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< InitialState
         else
         {
             std::string errorMessage = "Error, parameter type of  " +
-                    boost::lexical_cast< std::string >( parameterNames[ i ]->parameterType_.second.first ) + "of " +
-                    boost::lexical_cast< std::string >( parameterNames[ i ]->parameterType_.first ) +
+                    std::string( parameterNames[ i ]->parameterType_.second.first ) + "of " +
+                    std::to_string( parameterNames[ i ]->parameterType_.first ) +
                     "not recognized when making estimatable parameter set.";
 
             throw std::runtime_error( errorMessage );

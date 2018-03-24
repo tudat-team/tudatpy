@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -12,8 +12,6 @@
  *          http://ssd.jpl.nasa.gov/txt/aprx_pos_planets.pdf, last accessed: 24 February, 2011.
  *
  */
-
-#include <iostream>
 
 #include "Tudat/Astrodynamics/Ephemerides/approximatePlanetPositionsBase.h"
 #include "Tudat/InputOutput/basicInputOutput.h"
@@ -142,7 +140,7 @@ void ApproximatePlanetPositionsBase::parseExtraTermsEphemerisLineData_(
     ephemerisLineData_.clear( );
 
     // Read second line of data.
-    ephemerisLineData_<< containerOfDataFromEphemerisFile_[ lineNumber ];
+    ephemerisLineData_ << containerOfDataFromEphemerisFile_[ lineNumber ];
 
     ephemerisLineData_ >> approximatePlanetPositionsDataContainer_.planetName_;
     ephemerisLineData_ >> approximatePlanetPositionsDataContainer_.additionalTermB_;

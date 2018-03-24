@@ -1,4 +1,4 @@
-#    Copyright (c) 2010-2017, Delft University of Technology
+#    Copyright (c) 2010-2018, Delft University of Technology
 #    All rigths reserved
 #
 #    This file is part of the Tudat. Redistribution and use in source and
@@ -11,8 +11,6 @@
 set(ESTIMATIONSETUPSDIR "${SIMULATIONSETUPDIR}/EstimationSetup")
 
 # Add source files.
-
-
 file(GLOB_RECURSE SIMULATION_SETUP_HEADERS ${SRCROOT}/SimulationSetup ABSOLUTE ${CODEROOT} *.h)
 file(GLOB_RECURSE SIMULATION_SETUP_SOURCES ${SRCROOT}/SimulationSetup ABSOLUTE ${CODEROOT} *.cpp)
 

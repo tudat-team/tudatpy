@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -17,6 +17,7 @@ namespace tudat
 namespace simulation_setup
 {
 
+//! Function to create an aerodynamic torque model.
 boost::shared_ptr< aerodynamics::AerodynamicTorque > createAerodynamicTorqueModel(
         const boost::shared_ptr< simulation_setup::Body > bodyUndergoingTorque,
         const boost::shared_ptr< simulation_setup::Body > bodyExertingTorque,
@@ -97,24 +98,26 @@ boost::shared_ptr< aerodynamics::AerodynamicTorque > createAerodynamicTorqueMode
                 aerodynamicCoefficients->getAreCoefficientsInNegativeAxisDirection( ) );
 }
 
+//! Function to create a second-degree gravitational torque.
 boost::shared_ptr< gravitation::SecondDegreeGravitationalTorqueModel > createSecondDegreeGravitationalTorqueModel(
         const boost::shared_ptr< simulation_setup::Body > bodyUndergoingTorque,
         const boost::shared_ptr< simulation_setup::Body > bodyExertingTorque,
         const std::string& nameOfBodyUndergoingTorque,
         const std::string& nameOfBodyExertingTorque )
 {
+    // Retrieve state functions
     boost::function< Eigen::Vector3d( ) > positionOfBodySubjectToTorqueFunction =
             boost::bind( &simulation_setup::Body::getPosition, bodyUndergoingTorque );
     boost::function< Eigen::Vector3d( ) > positionOfBodyExertingTorqueFunction =
             boost::bind( &simulation_setup::Body::getPosition, bodyExertingTorque );
 
-
+    // Check model availability
     boost::shared_ptr< gravitation::GravityFieldModel > gravityFieldModel = bodyExertingTorque->getGravityFieldModel( );
-
     boost::function< double( ) > gravitationalParameterOfAttractingBodyFunction;
     if( gravityFieldModel ==  NULL )
     {
-        std::cerr<<"Error when making second degree gravitational torque, "<<nameOfBodyExertingTorque<<" does not possess a gravity field"<<std::endl;
+        throw std::runtime_error( "Error when making second degree gravitational torque, " + nameOfBodyExertingTorque +
+                                  " does not possess a gravity field" );
     }
     else
     {
@@ -122,15 +125,15 @@ boost::shared_ptr< gravitation::SecondDegreeGravitationalTorqueModel > createSec
                                                                       gravityFieldModel );
     }
 
+    // Retrieve environment parameters
     boost::function< Eigen::Matrix3d( ) > inertiaTensorOfRotatingBodyFunction  =
             boost::bind( &simulation_setup::Body::getBodyInertiaTensor, bodyUndergoingTorque );
-
     boost::function< Eigen::Quaterniond( ) > rotationToBodyFixedFrameFunction =
             boost::bind( &simulation_setup::Body::getCurrentRotationToLocalFrame, bodyUndergoingTorque );
 
     return boost::make_shared<gravitation::SecondDegreeGravitationalTorqueModel >(
-                positionOfBodySubjectToTorqueFunction, gravitationalParameterOfAttractingBodyFunction, inertiaTensorOfRotatingBodyFunction,
-                positionOfBodyExertingTorqueFunction, rotationToBodyFixedFrameFunction );
+                positionOfBodySubjectToTorqueFunction, gravitationalParameterOfAttractingBodyFunction,
+                inertiaTensorOfRotatingBodyFunction, positionOfBodyExertingTorqueFunction, rotationToBodyFixedFrameFunction );
 
 }
 
@@ -160,7 +163,7 @@ boost::shared_ptr< basic_astrodynamics::TorqueModel > createTorqueModel(
     }
     default:
         throw std::runtime_error(
-                    "Error, did not recognize type " + boost::lexical_cast< std::string >( torqueSettings->torqueType_ ) +
+                    "Error, did not recognize type " + std::to_string( torqueSettings->torqueType_ ) +
                     " when making torque model" );
     }
 
@@ -168,7 +171,49 @@ boost::shared_ptr< basic_astrodynamics::TorqueModel > createTorqueModel(
 }
 
 
+//! Function to create torque models from a map of bodies and torque model settings.
+basic_astrodynamics::TorqueModelMap createTorqueModelsMap(
+        const NamedBodyMap& bodyMap,
+        const SelectedTorqueMap& selectedTorquePerBody )
+{
+    basic_astrodynamics::TorqueModelMap torqueModelMap;
+
+    for( SelectedTorqueMap::const_iterator acceleratedBodyIterator = selectedTorquePerBody.begin( );
+         acceleratedBodyIterator != selectedTorquePerBody.end( ); acceleratedBodyIterator++ )
+    {
+        if( bodyMap.count( acceleratedBodyIterator->first ) == 0 )
+        {
+            throw std::runtime_error(
+                        "Error, could not find body " + acceleratedBodyIterator->first + " when making torque model map." );
+        }
+        else
+        {
+            for( std::map< std::string, std::vector< boost::shared_ptr< TorqueSettings > > >::const_iterator
+                 acceleratingBodyIterator = acceleratedBodyIterator->second.begin( );
+                 acceleratingBodyIterator != acceleratedBodyIterator->second.end( ); acceleratingBodyIterator++ )
+            {
+                if( bodyMap.count( acceleratingBodyIterator->first ) == 0 )
+                {
+                    throw std::runtime_error(
+                                "Error, could not find body " + acceleratingBodyIterator->first + " when making torque model map." );
+                }
+                for( unsigned int i = 0; i < acceleratingBodyIterator->second.size( ); i++ )
+                {
+                    torqueModelMap[ acceleratedBodyIterator->first ][ acceleratingBodyIterator->first ].push_back(
+                                createTorqueModel(
+                                bodyMap.at( acceleratedBodyIterator->first ), bodyMap.at( acceleratingBodyIterator->first ),
+                                acceleratingBodyIterator->second.at( i ),
+                                acceleratedBodyIterator->first, acceleratingBodyIterator->first ) );
+                }
+            }
+        }
+    }
+
+    return torqueModelMap;
 }
 
-}
+
+}  // namespace simulation_setup
+
+}  // namespace tudat
 

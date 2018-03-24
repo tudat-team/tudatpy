@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -11,8 +11,6 @@
 #define BOOST_TEST_MAIN
 
 #include <limits>
-#include <iostream>
-
 #include <boost/test/floating_point_comparison.hpp>
 #include <boost/test/unit_test.hpp>
 
@@ -43,7 +41,7 @@ BOOST_AUTO_TEST_CASE( testTabulatedRotationalEphemeris )
     const std::string targetFrame = "IAU_Mars";
 
     // Load Spice kernel
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "pck00010.tpc" );
+    spice_interface::loadStandardSpiceKernels( );
 
     // Define time interval over which rotations are to be generated
     double startTime = 0.0;

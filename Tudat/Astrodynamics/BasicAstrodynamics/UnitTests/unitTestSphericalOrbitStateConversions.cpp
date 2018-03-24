@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -9,8 +9,6 @@
  */
 
 #define BOOST_TEST_MAIN
-
-#include <iostream>
 
 #include <boost/test/unit_test.hpp>
 
@@ -40,7 +38,7 @@ BOOST_AUTO_TEST_CASE( testSphericalStateConversions )
     {
         // Define Cartesian state
         Eigen::Vector6d cartesianState;
-        cartesianState<<-1656517.23153109, -5790058.28764025, -2440584.88186829,
+        cartesianState << -1656517.23153109, -5790058.28764025, -2440584.88186829,
                 6526.30784888051, -2661.34558272018, 2377.09572383163;
 
         // Define associated spherical orbital state
@@ -93,7 +91,7 @@ BOOST_AUTO_TEST_CASE( testSphericalStateConversions )
     {
         // Define Cartesian state
         Eigen::Vector6d cartesianState;
-        cartesianState<<0.0, 6498098.09700000, 0.0, 0.0, 0.0, 7.438147520000000e+03;
+        cartesianState << 0.0, 6498098.09700000, 0.0, 0.0, 0.0, 7.438147520000000e+03;
 
         // Define associated spherical orbital state
         double testHeadingAngle = 0.0;
@@ -145,7 +143,7 @@ BOOST_AUTO_TEST_CASE( testSphericalStateConversions )
     {
         // Define Cartesian state
         Eigen::Vector6d cartesianState;
-        cartesianState<<0.0, 0.0, 6.498098097000000e3, -7.438147520000000e3, 0.0, 0.0;
+        cartesianState << 0.0, 0.0, 6.498098097000000e3, -7.438147520000000e3, 0.0, 0.0;
 
         // Define associated spherical orbital state
         double testHeadingAngle = 0.0;
@@ -196,7 +194,7 @@ BOOST_AUTO_TEST_CASE( testSphericalStateConversions )
     // Test case 4: rotation with zero (heading, longitude) and half pi (latitude, flight path) angles.
     {
         Eigen::Vector6d cartesianState;
-        cartesianState<<0.0, 0.0, 6.498098097000000e3, 0.0, 0.0, -7.438147520000000e3;
+        cartesianState << 0.0, 0.0, 6.498098097000000e3, 0.0, 0.0, -7.438147520000000e3;
 
         // Define associated spherical orbital state
         double testFlightPathAngle = -mathematical_constants::PI / 2.0;
@@ -245,7 +243,7 @@ BOOST_AUTO_TEST_CASE( testSphericalStateConversions )
     // Test case 5: rotation with undefined heading angle.
     {
         Eigen::Vector6d cartesianState;
-        cartesianState<<0.0, 0.0, 6.498098097000000e3, 0.0, 0.0, -7.438147520000000e3;
+        cartesianState << 0.0, 0.0, 6.498098097000000e3, 0.0, 0.0, -7.438147520000000e3;
 
         // Define associated spherical orbital state
         Eigen::Vector6d sphericalOrbitalState;
@@ -274,7 +272,7 @@ BOOST_AUTO_TEST_CASE( testSphericalStateConversions )
     // Test case 5: rotation with undefined flight path angle.
     {
         Eigen::Vector6d cartesianState;
-        cartesianState<<0.0, 0.0, 6.498098097000000e3, 0.0, 0.0, 0.0;
+        cartesianState << 0.0, 0.0, 6.498098097000000e3, 0.0, 0.0, 0.0;
 
         // Define associated spherical orbital state
         Eigen::Vector6d sphericalOrbitalState;

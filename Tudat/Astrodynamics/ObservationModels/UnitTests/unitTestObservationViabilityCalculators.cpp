@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -14,7 +14,6 @@
 #include <limits>
 #include <string>
 
-#include <boost/format.hpp>
 #include <boost/test/unit_test.hpp>
 #include <boost/make_shared.hpp>
 
@@ -359,11 +358,7 @@ std::vector< double > getDistanceBetweenLineOfSightVectorAndPoint(
 BOOST_AUTO_TEST_CASE( testObservationViabilityCalculators )
 {
     //Load spice kernels.
-    std::string kernelsPath = input_output::getSpiceKernelPath( );
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "de-403-masses.tpc");
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "naif0009.tls");
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "pck00009.tpc");
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "de421.bsp");
+    spice_interface::loadStandardSpiceKernels( );
 
     // Define environment settings
     std::vector< std::string > bodyNames;
@@ -402,13 +397,13 @@ BOOST_AUTO_TEST_CASE( testObservationViabilityCalculators )
     std::pair< std::string, std::string > earthStation2 = std::pair< std::string, std::string >( "Earth", "EarthStation2" );
     std::pair< std::string, std::string > mslStation1 = std::pair< std::string, std::string >( "Mars", "MarsStation1" );
     std::pair< std::string, std::string > mslStation2 = std::pair< std::string, std::string >( "Mars", "MarsStation2" );
-    createGroundStation( bodyMap.at( "Mars" ), "MarsStation1", ( Eigen::Vector3d( )<< 100.0, 0.2, 2.1 ).finished( ),
+    createGroundStation( bodyMap.at( "Mars" ), "MarsStation1", ( Eigen::Vector3d( ) << 100.0, 0.2, 2.1 ).finished( ),
                          coordinate_conversions::geodetic_position );
-    createGroundStation( bodyMap.at( "Mars" ), "MarsStation2", ( Eigen::Vector3d( )<< -2000.0, -0.4, 0.1 ).finished( ),
+    createGroundStation( bodyMap.at( "Mars" ), "MarsStation2", ( Eigen::Vector3d( ) << -2000.0, -0.4, 0.1 ).finished( ),
                          coordinate_conversions::geodetic_position );
-    createGroundStation( bodyMap.at( "Earth" ), "EarthStation1", ( Eigen::Vector3d( )<< 800.0, 0.12, 5.3 ).finished( ),
+    createGroundStation( bodyMap.at( "Earth" ), "EarthStation1", ( Eigen::Vector3d( ) << 800.0, 0.12, 5.3 ).finished( ),
                          coordinate_conversions::geodetic_position );
-    createGroundStation( bodyMap.at( "Earth" ), "EarthStation2", ( Eigen::Vector3d( )<< 100.0, 0.15, 0.0 ).finished( ),
+    createGroundStation( bodyMap.at( "Earth" ), "EarthStation2", ( Eigen::Vector3d( ) << 100.0, 0.15, 0.0 ).finished( ),
                          coordinate_conversions::geodetic_position );
 
     // Define one-way range/one-way Doppler/angular position/one-way differenced range link ends
@@ -504,12 +499,12 @@ BOOST_AUTO_TEST_CASE( testObservationViabilityCalculators )
     }
 
    // Define minimum elevation angles for Earth/Mars stations
-    double earthMinimumElevationAngle = 4.0 * M_PI / 180.0;
-    double marsMinimumElevationAngle = 10.0 * M_PI / 180.0;
+    double earthMinimumElevationAngle = 4.0 * mathematical_constants::PI / 180.0;
+    double marsMinimumElevationAngle = 10.0 * mathematical_constants::PI / 180.0;
 
     // Define minimum Sun avoidance angles for Earth/Mars stations
-    double earthSunAvoidanceAngle = 30.0 * M_PI / 180.0;
-    double marsSunAvoidanceAngle = 21.0 * M_PI / 180.0;
+    double earthSunAvoidanceAngle = 30.0 * mathematical_constants::PI / 180.0;
+    double marsSunAvoidanceAngle = 21.0 * mathematical_constants::PI / 180.0;
 
 
     // Create observation viability settings
@@ -609,7 +604,7 @@ BOOST_AUTO_TEST_CASE( testObservationViabilityCalculators )
         int numberOfLinkEnds = testLinkEndsList.at( unconstrainedIterator->first ).size( );
         int currentObservableSize = getObservableSize( unconstrainedIterator->first );
 
-        std::cout<<"Obs: "<<unconstrainedIterator->first<<std::endl;
+        std::cout << "Obs: " << unconstrainedIterator->first << std::endl;
 
         // Check consistency of simulated observations from ObservationSimulator objects/simulateObservations function
         BOOST_CHECK_EQUAL( numberOfLinkEnds, unconstrainedIterator->second.size( ) );

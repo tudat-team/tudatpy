@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -180,7 +180,8 @@ BOOST_AUTO_TEST_CASE( testOneWayRangePartialsWrtLightTimeParameters )
                 parametersToEstimate->getEstimatedDoubleParameters( );
 
         // Create observation partials.
-        boost::shared_ptr< ObservationPartialCreator< 1, double, double > > observationPartialCreator;
+        boost::shared_ptr< ObservationPartialCreator< 1, double, double > > observationPartialCreator =
+                boost::make_shared< ObservationPartialCreator< 1, double, double > >( );
         std::pair< std::map< std::pair< int, int >, boost::shared_ptr< ObservationPartial< 1 > > >,
                 boost::shared_ptr< PositionPartialScaling > > fullAnalyticalPartialSet =
                 observationPartialCreator->createObservationPartials(
@@ -225,7 +226,7 @@ BOOST_AUTO_TEST_CASE( testOneWayRangePartialsWrtLightTimeParameters )
                         linkEndIterator->first );
 
             // Settings for parameter partial functions.
-            std::vector< double > parameterPerturbations = boost::assign::list_of( 1.0E19 )( 1.0E16 )( 1.0E16 )( 1.0E8 );
+            std::vector< double > parameterPerturbations = boost::assign::list_of( 1.0E19 )( 1.0E16 )( 1.0E15 )( 1.0E8 );
             std::vector< boost::function< void( ) > > updateFunctionList;
             updateFunctionList.push_back( emptyVoidFunction );
             updateFunctionList.push_back( emptyVoidFunction );
@@ -236,7 +237,7 @@ BOOST_AUTO_TEST_CASE( testOneWayRangePartialsWrtLightTimeParameters )
             std::vector< Eigen::VectorXd > numericalPartialsWrtDoubleParameters = calculateNumericalPartialsWrtDoubleParameters(
                         doubleParameterVector, updateFunctionList, parameterPerturbations, observationFunction, observationTime );
 
-            std::cout<<"Partials"<<std::endl;
+            std::cout << "Partials" << std::endl;
             // Compare analytical and numerical partials
             for( unsigned int i = 0; i < analyticalObservationPartials.size( ); i++ )
             {
@@ -248,7 +249,7 @@ BOOST_AUTO_TEST_CASE( testOneWayRangePartialsWrtLightTimeParameters )
 
                 }
 
-                std::cout<<"Diff: "<<( currentParameterPartial - numericalPartialsWrtDoubleParameters.at( i ).x( ) ) / currentParameterPartial<<std::endl;
+                std::cout << "Diff: " << ( currentParameterPartial - numericalPartialsWrtDoubleParameters.at( i ).x( ) ) / currentParameterPartial << std::endl;
                 BOOST_CHECK_CLOSE_FRACTION( currentParameterPartial, numericalPartialsWrtDoubleParameters.at( i ).x( ), 1.0E-4 );
             }
 

@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -66,7 +66,7 @@ public:
         // Check if engine with this name already exists.
         if( engineModels_.count( engineName ) )
         {
-            std::cerr<<"Warning, engine model of name "<<engineModel<<" already exists, overriding old model"<<std::endl;
+            std::cerr << "Warning, engine model of name " << engineModel << " already exists, overriding old model" << std::endl;
         }
 
         engineModels_[ engineName ] = engineModel;

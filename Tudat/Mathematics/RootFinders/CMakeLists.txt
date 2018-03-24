@@ -1,4 +1,4 @@
- #    Copyright (c) 2010-2017, Delft University of Technology
+ #    Copyright (c) 2010-2018, Delft University of Technology
  #    All rigths reserved
  #
  #    This file is part of the Tudat. Redistribution and use in source and
@@ -8,11 +8,6 @@
  #    http://tudat.tudelft.nl/LICENSE.
  #
 
-# Add source files.
-set(ROOTFINDERS_SOURCES
-  "${SRCROOT}${MATHEMATICSDIR}/RootFinders/void.cpp"
-)
-
 # Add header files.
 set(ROOTFINDERS_HEADERS 
   "${SRCROOT}${MATHEMATICSDIR}/RootFinders/halleyRootFinder.h"
@@ -21,6 +16,7 @@ set(ROOTFINDERS_HEADERS
   "${SRCROOT}${MATHEMATICSDIR}/RootFinders/secantRootFinder.h"
   "${SRCROOT}${MATHEMATICSDIR}/RootFinders/bisection.h"
   "${SRCROOT}${MATHEMATICSDIR}/RootFinders/terminationConditions.h"
+  "${SRCROOT}${MATHEMATICSDIR}/RootFinders/createRootFinder.h"
   "${SRCROOT}${MATHEMATICSDIR}/RootFinders/UnitTests/testFunction.h"
   "${SRCROOT}${MATHEMATICSDIR}/RootFinders/UnitTests/testFunction1.h"
   "${SRCROOT}${MATHEMATICSDIR}/RootFinders/UnitTests/testFunction2.h"
@@ -28,6 +24,11 @@ set(ROOTFINDERS_HEADERS
   #"${SRCROOT}${MATHEMATICSDIR}/RootFinders/UnitTests/testFunctionWithLargeRootDifference.h"
   "${SRCROOT}${MATHEMATICSDIR}/RootFinders/UnitTests/testFunctionWithZeroRoot.h"
 )
+
+set(ROOTFINDERS_SOURCES
+  "${SRCROOT}${MATHEMATICSDIR}/RootFinders/createRootFinder.cpp"
+)
+
 
 # Add unit test files.
 set(ROOTFINDERS_TESTS
@@ -41,6 +42,7 @@ set(ROOTFINDERS_TESTS
 # Add static libraries.
 add_library(tudat_root_finders STATIC ${ROOTFINDERS_SOURCES} ${ROOTFINDERS_HEADERS})
 setup_tudat_library_target(tudat_root_finders "${SRCROOT}${MATHEMATICSDIR}/RootFinders")
+set_target_properties(tudat_root_finders PROPERTIES LINKER_LANGUAGE CXX)
 
 # Add unit tests.
 add_executable(test_RootFinders ${ROOTFINDERS_TESTS})

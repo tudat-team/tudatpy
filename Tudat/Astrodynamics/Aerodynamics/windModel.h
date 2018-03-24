@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -35,7 +35,7 @@ public:
     WindModel( ){ }
 
     //! Destructor.
-    ~WindModel( ){ }
+    virtual  ~WindModel( ){ }
 
     //! Function (pure virtual) to retrieve wind velocity vector in body-fixed, body-centered frame of body with atmosphere
     /*!
@@ -47,8 +47,8 @@ public:
      * \return Wind velocity vector in body-fixed, body-centered frame of body with atmosphere
      */
     virtual Eigen::Vector3d getCurrentWindVelocity(
-            const double currentAltitude ,
-            const double currentLongitude ,
+            const double currentAltitude,
+            const double currentLongitude,
             const double currentLatitude,
             const double currentTime ) = 0;
 };
@@ -81,8 +81,8 @@ public:
      * \return Wind velocity vector in body-fixed, body-centered frame of body with atmosphere
      */
     Eigen::Vector3d getCurrentWindVelocity(
-            const double currentAltitude ,
-            const double currentLongitude ,
+            const double currentAltitude,
+            const double currentLongitude,
             const double currentLatitude,
             const double currentTime )
     {

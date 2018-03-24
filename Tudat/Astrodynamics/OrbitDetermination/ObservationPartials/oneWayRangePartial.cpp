@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -56,7 +56,7 @@ OneWayRangePartial::OneWayRangePartialReturnType OneWayRangePartial::calculatePa
 {
     if( linkEndOfFixedTime != oneWayRangeScaler_->getCurrentLinkEndType( ) )
     {
-        std::cout<<linkEndOfFixedTime<<" "<<oneWayRangeScaler_->getCurrentLinkEndType( )<<std::endl;
+        std::cout << linkEndOfFixedTime << " " << oneWayRangeScaler_->getCurrentLinkEndType( ) << std::endl;
         throw std::runtime_error( "Error one-way range partial and scaling are inconsistent" );
     }
 

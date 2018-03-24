@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -8,8 +8,6 @@
  *    http://tudat.tudelft.nl/LICENSE.
  *
  */
-
-#include <boost/lexical_cast.hpp>
 
 #include "Tudat/InputOutput/linearFieldTransform.h"
 
@@ -22,14 +20,13 @@ namespace input_output
 boost::shared_ptr< std::string > LinearFieldTransform::transform( const std::string& input )
 {
     // Transform string to double.
-    const double number = boost::lexical_cast< double >( input );
+    const double number = std::stod( input );
 
     // Perform transformation.
     const double result = slope * number + intercept;
 
     // Return pointer to transformed value, in string format.
-    return boost::shared_ptr< std::string >( new std::string(
-                                                 boost::lexical_cast< std::string >( result ) ) );
+    return boost::shared_ptr< std::string >( new std::string( std::to_string( result ) ) );
 }
 
 } // namespace input_output

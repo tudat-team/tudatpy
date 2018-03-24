@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -15,6 +15,8 @@
 
 #include <boost/shared_ptr.hpp>
 
+#include "Tudat/Mathematics/RootFinders/createRootFinder.h"
+
 namespace tudat
 {
 
@@ -27,6 +29,7 @@ class SingleDependentVariableSaveSettings;
 enum PropagationTerminationTypes
 {
     time_stopping_condition,
+    cpu_time_stopping_condition,
     dependent_variable_stopping_condition,
     hybrid_stopping_condition
 };
@@ -45,15 +48,22 @@ public:
     /*!
      * Constructor
      * \param terminationType Type of stopping condition that is to be used.
+     * \param terminateExactlyOnFinalCondition Boolean to denote whether the propagation is to terminate exactly on the final
+     * condition, or whether it is to terminate on the first step where it is violated.
      */
-    PropagationTerminationSettings( const PropagationTerminationTypes terminationType ):
-        terminationType_( terminationType ){ }
+    PropagationTerminationSettings( const PropagationTerminationTypes terminationType,
+                                    const bool terminateExactlyOnFinalCondition = false ):
+        terminationType_( terminationType ), terminateExactlyOnFinalCondition_( terminateExactlyOnFinalCondition ){ }
 
     //! Destructor
     virtual ~PropagationTerminationSettings( ){ }
 
     //! Type of stopping condition that is to be used.
     PropagationTerminationTypes terminationType_;
+
+    //! Boolean to denote whether the propagation is to terminate exactly on the final condition, or whether it is to terminate
+    //! on the first step where it is violated.
+    bool terminateExactlyOnFinalCondition_;
 };
 
 //! Class for propagation stopping conditions settings: stopping the propagation after a fixed amount of time
@@ -69,9 +79,12 @@ public:
     /*!
      * Constructor
      * \param terminationTime Maximum time for the propagation, upon which the propagation is to be stopped
+     * \param terminateExactlyOnFinalCondition Boolean to denote whether the propagation is to terminate exactly on the final
+     * condition, or whether it is to terminate on the first step where it is violated.
      */
-    PropagationTimeTerminationSettings( const double terminationTime ):
-        PropagationTerminationSettings( time_stopping_condition ),
+    PropagationTimeTerminationSettings( const double terminationTime,
+                                        const bool terminateExactlyOnFinalCondition = false ):
+        PropagationTerminationSettings( time_stopping_condition, terminateExactlyOnFinalCondition ),
         terminationTime_( terminationTime ){ }
 
     //! Destructor
@@ -79,6 +92,31 @@ public:
 
     //! Maximum time for the propagation, upon which the propagation is to be stopped
     double terminationTime_;
+};
+
+//! Class for propagation stopping conditions settings: stopping the propagation after a fixed amount of CPU time
+/*!
+ *  Class for propagation stopping conditions settings: stopping the propagation after a fixed amount of CPU time.
+ *  Note that the propagator will finish a given time step, slightly surpassing the defined final CPU time.
+ */
+class PropagationCPUTimeTerminationSettings: public PropagationTerminationSettings
+{
+public:
+
+    //! Constructor
+    /*!
+     * Constructor
+     * \param cpuTerminationTime Maximum cpu time for the propagation, upon which the propagation is to be stopped
+     */
+    PropagationCPUTimeTerminationSettings( const double cpuTerminationTime ):
+        PropagationTerminationSettings( cpu_time_stopping_condition ),
+        cpuTerminationTime_( cpuTerminationTime ){ }
+
+    //! Destructor
+    ~PropagationCPUTimeTerminationSettings( ){ }
+
+    //! Maximum cpu time for the propagation, upon which the propagation is to be stopped
+    double cpuTerminationTime_;
 };
 
 //! Class for propagation stopping conditions settings: stopping the propagation after a given dependent variable reaches a
@@ -100,14 +138,27 @@ public:
      * \param limitValue Value at which the propagation is to be stopped
      * \param useAsLowerLimit Boolean denoting whether the propagation should stop if the dependent variable goes below
      * (if true) or above (if false) limitingValue
+     * \param terminateExactlyOnFinalCondition Boolean to denote whether the propagation is to terminate exactly on the final
+     * condition, or whether it is to terminate on the first step where it is violated.
+     * \param terminationRootFinderSettings Settings to create root finder used to converge on exact final condition.
      */
     PropagationDependentVariableTerminationSettings(
             const boost::shared_ptr< SingleDependentVariableSaveSettings > dependentVariableSettings,
             const double limitValue,
-            const bool useAsLowerLimit ):
-        PropagationTerminationSettings( dependent_variable_stopping_condition ),
+            const bool useAsLowerLimit,
+            const bool terminateExactlyOnFinalCondition = false,
+            const boost::shared_ptr< root_finders::RootFinderSettings > terminationRootFinderSettings = NULL ):
+        PropagationTerminationSettings(
+            dependent_variable_stopping_condition, terminateExactlyOnFinalCondition ),
         dependentVariableSettings_( dependentVariableSettings ),
-        limitValue_( limitValue ), useAsLowerLimit_( useAsLowerLimit ){ }
+        limitValue_( limitValue ), useAsLowerLimit_( useAsLowerLimit ),
+        terminationRootFinderSettings_( terminationRootFinderSettings )
+    {
+        if( terminateExactlyOnFinalCondition_ && ( terminationRootFinderSettings_ == NULL ) )
+        {
+            throw std::runtime_error( "Error when defining exavct dependent variable propagation termination settings. Root finder not defined" );
+        }
+    }
 
     //! Destructor
     ~PropagationDependentVariableTerminationSettings( ){ }
@@ -121,6 +172,9 @@ public:
     //! Boolean denoting whether the propagation should stop if the dependent variable goes below (if true) or above
     //! (if false) limitingValue
     bool useAsLowerLimit_;
+
+    //! Settings to create root finder used to converge on exact final condition.
+    boost::shared_ptr< root_finders::RootFinderSettings > terminationRootFinderSettings_;
 };
 
 //! Class for propagation stopping conditions settings: combination of other stopping conditions.
@@ -145,7 +199,20 @@ public:
             const bool fulFillSingleCondition = 0 ):
         PropagationTerminationSettings( hybrid_stopping_condition ),
         terminationSettings_( terminationSettings ),
-        fulFillSingleCondition_( fulFillSingleCondition ){ }
+        fulFillSingleCondition_( fulFillSingleCondition )
+    {
+        for( unsigned int i = 0; i < terminationSettings_.size( ); i++ )
+        {
+            if( i == 0 )
+            {
+                terminateExactlyOnFinalCondition_ = terminationSettings_.at( 0 )->terminateExactlyOnFinalCondition_;
+            }
+            else if( terminationSettings_.at( i )->terminateExactlyOnFinalCondition_ != terminateExactlyOnFinalCondition_ )
+            {
+                throw std::runtime_error( "Error in hybrid termination settings, terminateExactlyOnFinalCondition_ is inconsistent" );
+            }
+        }
+    }
 
     //! Destructor
     ~PropagationHybridTerminationSettings( ){ }

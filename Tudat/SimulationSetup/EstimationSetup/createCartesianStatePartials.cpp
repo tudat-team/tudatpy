@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -117,7 +117,7 @@ std::map< observation_models::LinkEndType, boost::shared_ptr< CartesianStatePart
                 default:
 
                     std::string errorMessage =
-                            "Parameter " + boost::lexical_cast< std::string >(
+                            "Parameter " + std::to_string(
                                 parameterToEstimate->getParameterName( ).first ) +
                             " not implemented when making position partial";
                     throw std::runtime_error( errorMessage );
@@ -182,6 +182,8 @@ std::map< observation_models::LinkEndType, boost::shared_ptr< CartesianStatePart
                     break;
                 case estimatable_parameters::spherical_harmonics_sine_coefficient_block:
                     break;
+                case estimatable_parameters::arc_wise_radiation_pressure_coefficient:
+                    break;
                 case estimatable_parameters::ground_station_position:
 
                     // Check if current link end station is same station as that of which position is to be estimated.
@@ -205,7 +207,7 @@ std::map< observation_models::LinkEndType, boost::shared_ptr< CartesianStatePart
                     break;
                 default:
                     std::string errorMessage =
-                            "Parameter " + boost::lexical_cast< std::string >(
+                            "Parameter " + std::to_string(
                                 parameterToEstimate->getParameterName( ).first ) +
                             " not implemented when making position partial";
                     throw std::runtime_error( errorMessage );
@@ -250,7 +252,7 @@ boost::shared_ptr< RotationMatrixPartial > createRotationMatrixPartialsWrtParame
         break;
     default:
         std::string errorMessage = "Warning, rotation matrix partial not implemented for parameter " +
-                boost::lexical_cast< std::string >( parameterToEstimate->getParameterName( ).first );
+                std::to_string( parameterToEstimate->getParameterName( ).first );
         throw std::runtime_error( errorMessage );
 
         break;
@@ -296,7 +298,7 @@ boost::shared_ptr< RotationMatrixPartial > createRotationMatrixPartialsWrtParame
 
     default:
         std::string errorMessage = "Warning, rotation matrix partial not implemented for parameter " +
-                boost::lexical_cast< std::string >( parameterToEstimate->getParameterName( ).first );
+                std::to_string( parameterToEstimate->getParameterName( ).first );
         throw std::runtime_error( errorMessage );
         break;
     }

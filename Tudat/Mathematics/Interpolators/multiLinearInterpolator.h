@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -30,14 +30,11 @@
 #ifndef TUDAT_MULTI_LINEAR_INTERPOLATOR_H
 #define TUDAT_MULTI_LINEAR_INTERPOLATOR_H
 
-#include <iostream>
 #include <vector>
 
 #include <boost/array.hpp>
 #include <boost/multi_array.hpp>
 #include <boost/shared_ptr.hpp>
-#include <boost/lexical_cast.hpp>
-
 #include "Tudat/Mathematics/Interpolators/lookupScheme.h"
 #include "Tudat/Mathematics/Interpolators/interpolator.h"
 #include "Tudat/Mathematics/BasicMathematics/nearestNeighbourSearch.h"
@@ -93,7 +90,7 @@ public:
             if ( independentValues[ i ].size( ) != dependentData.shape( )[ i ] )
             {
                 std::string errorMessage = "Warning: number of data points in dimension" +
-                        boost::lexical_cast< std::string >( i ) + "of independent and dependent data incompatible";
+                        std::to_string( i ) + "of independent and dependent data incompatible";
                 throw std::runtime_error( errorMessage );
             }
         }

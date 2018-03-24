@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -19,7 +19,7 @@
 
 #include "Tudat/SimulationSetup/EstimationSetup/createAngularPositionPartials.h"
 #include "Tudat/SimulationSetup/EstimationSetup/createOneWayRangePartials.h"
-#include "Tudat/SimulationSetup/EstimationSetup/createOneWayDopplerPartials.h"
+#include "Tudat/SimulationSetup/EstimationSetup/createDopplerPartials.h"
 #include "Tudat/SimulationSetup/EstimationSetup/createDifferencedOneWayRangeRatePartials.h"
 #include "Tudat/SimulationSetup/EstimationSetup/createNWayRangePartials.h"
 
@@ -93,6 +93,19 @@ PerLinkEndPerLightTimeSolutionCorrections getLightTimeCorrectionsList(
                             oneWayRangeModel->getLightTimeCalculator( )->getLightTimeCorrection( ) );
                 break;
             }
+            case observation_models::two_way_doppler:
+            {
+                boost::shared_ptr< observation_models::TwoWayDopplerObservationModel
+                        < ObservationScalarType, TimeType> > twoWaDopplerModel =
+                        boost::dynamic_pointer_cast< observation_models::TwoWayDopplerObservationModel
+                        < ObservationScalarType, TimeType> >
+                        ( observationModelIterator->second );
+                currentLightTimeCorrections.push_back(
+                            twoWaDopplerModel->getUplinkDopplerCalculator( )->getLightTimeCalculator( )->getLightTimeCorrection( ) );
+                currentLightTimeCorrections.push_back(
+                            twoWaDopplerModel->getDownlinkDopplerCalculator( )->getLightTimeCalculator( )->getLightTimeCorrection( ) );
+                break;
+            }
             case observation_models::angular_position:
             {
                 boost::shared_ptr< observation_models::AngularPositionObservationModel
@@ -140,7 +153,7 @@ PerLinkEndPerLightTimeSolutionCorrections getLightTimeCorrectionsList(
             default:
                 std::string errorMessage =
                         "Error in light time correction list creation, observable type " +
-                        boost::lexical_cast< std::string >( observableType ) + " not recognized.";
+                        std::to_string( observableType ) + " not recognized.";
                 throw std::runtime_error( errorMessage );
             }
 
@@ -276,6 +289,11 @@ public:
             observationPartialList = createOneWayDopplerPartials< ObservationScalarType, TimeType >(
                         observationModelList, bodyMap, parametersToEstimate );
             break;
+        case observation_models::two_way_doppler:
+            observationPartialList = createTwoWayDopplerPartials< ObservationScalarType, TimeType >(
+                        observationModelList, bodyMap, parametersToEstimate,
+                        getLightTimeCorrectionsList( observationModelList ) );
+            break;
         case observation_models::one_way_differenced_range:
             observationPartialList = createDifferencedOneWayRangeRatePartials< ObservationScalarType >(
                         utilities::createVectorFromMapKeys( observationModelList ), bodyMap, parametersToEstimate,
@@ -289,7 +307,7 @@ public:
         default:
             std::string errorMessage =
                     "Error when making observation partial set, could not recognize observable " +
-                    boost::lexical_cast< std::string >( observableType ) + " of size 1 ";
+                    std::to_string( observableType ) + " of size 1 ";
             throw std::runtime_error( errorMessage );
         }
 
@@ -341,7 +359,7 @@ public:
         default:
             std::string errorMessage =
                     "Error when making observation partial set, could not recognize observable " +
-                    boost::lexical_cast< std::string >( observableType ) + " of size 2 ";
+                    std::to_string( observableType ) + " of size 2 ";
             throw std::runtime_error( errorMessage );
         }
         return observationPartialList;
@@ -393,7 +411,7 @@ public:
         default:
             std::string errorMessage =
                     "Error when making observation partial set, could not recognize observable " +
-                    boost::lexical_cast< std::string >( observableType ) + " of size 3 ";
+                    std::to_string( observableType ) + " of size 3 ";
             throw std::runtime_error( errorMessage );        }
         return observationPartialList;
     }
@@ -440,7 +458,7 @@ public:
         default:
             std::string errorMessage =
                     "Error when making observation partial set, could not recognize observable " +
-                    boost::lexical_cast< std::string >( observableType ) + " of size 6 ";
+                    std::to_string( observableType ) + " of size 6 ";
             throw std::runtime_error( errorMessage );
         }
         return observationPartialList;
@@ -488,7 +506,7 @@ public:
         default:
             std::string errorMessage =
                     "Error when making observation partial set, could not recognize observable " +
-                    boost::lexical_cast< std::string >( observableType ) + " of size dynamic ";
+                    std::to_string( observableType ) + " of size dynamic ";
             throw std::runtime_error( errorMessage );
         }
         return observationPartialList;

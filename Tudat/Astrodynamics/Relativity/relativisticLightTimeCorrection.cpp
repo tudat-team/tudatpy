@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -7,7 +7,6 @@
  *    a copy of the license with this file. If not, please or visit:
  *    http://tudat.tudelft.nl/LICENSE.
  */
-
 #include "Tudat/Astrodynamics/BasicAstrodynamics/physicalConstants.h"
 #include "Tudat/Astrodynamics/Relativity/relativisticLightTimeCorrection.h"
 
@@ -26,7 +25,7 @@ double calculateFirstOrderLightTimeCorrectionFromCentralBody( const double bodyG
 {
     // Calculate Euclidean geometric distances between transmitter, receiver and gravitating body.
     double distanceToReceiver = ( receiverPosition - centralBodyPosition ).norm( );
-    double distanceToTransmitter = ( transmitterPosition - centralBodyPosition ).norm( );
+    double distanceToTransmitter = ( transmitterPosition - centralBodyPosition ).norm( );    
     double linkEuclideanDistance = ( transmitterPosition - receiverPosition ).norm( );
 
     // Calculate and return light time correction.
@@ -36,6 +35,7 @@ double calculateFirstOrderLightTimeCorrectionFromCentralBody( const double bodyG
 
 }
 
+//! Function to calculate gradient of first order relativistic light time correction due to a gravitating point mass.
 Eigen::Matrix< double, 1, 3 > calculateFirstOrderCentralBodyLightTimeCorrectionGradient(
         const double bodyGravitationalParameter,
         const Eigen::Vector3d& transmitterPosition,

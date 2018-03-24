@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -15,7 +15,6 @@
 #include <iostream>
 #include <limits>
 
-#include <boost/bind.hpp>
 #include <boost/test/unit_test.hpp>
 
 #include <Eigen/Core>

@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -7,6 +7,8 @@
  *    a copy of the license with this file. If not, please or visit:
  *    http://tudat.tudelft.nl/LICENSE.
  */
+
+#include "Tudat/Astrodynamics/Propulsion/costateBasedThrustGuidance.h"
 #include "Tudat/SimulationSetup/PropagationSetup/createThrustModelGuidance.h"
 #include "Tudat/Basics/utilities.h"
 
@@ -162,6 +164,56 @@ boost::shared_ptr< propulsion::BodyFixedForceDirectionGuidance  > createThrustGu
         }
         break;
     }
+    case mee_costate_based_thrust_direction:
+    {
+        // Check input consistency
+        boost::shared_ptr< MeeCostateBasedThrustDirectionSettings > meeCostateBasedThrustSettings =
+                boost::dynamic_pointer_cast< MeeCostateBasedThrustDirectionSettings >( thrustDirectionGuidanceSettings );
+
+        if( meeCostateBasedThrustSettings == NULL )
+        {
+            throw std::runtime_error( "Error when getting thrust guidance with mee_costate_based_thrust_direction, input is inconsistent" );
+        }
+        else
+        {
+            // Check whether all required environment properties exist
+            if( bodyMap.count( meeCostateBasedThrustSettings->relativeBody_ ) == 0 )
+            {
+                throw std::runtime_error( "Error when getting thrust guidance with mee_costate_based_thrust_direction, central body " +
+                                          meeCostateBasedThrustSettings->relativeBody_ + " not found." );
+            }
+            else if( bodyMap.count( meeCostateBasedThrustSettings->vehicleName_ ) == 0 )
+            {
+                throw std::runtime_error( "Error when getting thrust guidance with mee_costate_based_thrust_direction, thrusting body " +
+                                          meeCostateBasedThrustSettings->vehicleName_ + " not found." );
+            }
+            else if( bodyMap.at( meeCostateBasedThrustSettings->relativeBody_ )->getGravityFieldModel( ) == NULL )
+            {
+                throw std::runtime_error( "Error when getting thrust guidance with mee_costate_based_thrust_direction, central body " +
+                                          meeCostateBasedThrustSettings->relativeBody_ + " has no gravity field." );
+            }
+            else
+            {
+                // Retrieve required functions and create guidance object
+                boost::function< Eigen::Vector6d( ) > thrustingBodyStateFunction =
+                        boost::bind( &simulation_setup::Body::getState,
+                                     bodyMap.at( meeCostateBasedThrustSettings->vehicleName_ ) );
+                boost::function< Eigen::Vector6d( ) > centralBodyStateFunction =
+                        boost::bind( &simulation_setup::Body::getState,
+                                     bodyMap.at( meeCostateBasedThrustSettings->relativeBody_ ) );
+                boost::function< double( ) > centralBodyGravitationalParameterFunction =
+                        boost::bind( &gravitation::GravityFieldModel::getGravitationalParameter,
+                                     bodyMap.at( meeCostateBasedThrustSettings->relativeBody_ )->getGravityFieldModel( ) );
+
+                thrustGuidance =  boost::make_shared< propulsion::MeeCostateBasedThrustGuidance >(
+                            thrustingBodyStateFunction, centralBodyStateFunction,
+                            centralBodyGravitationalParameterFunction,
+                            meeCostateBasedThrustSettings->costateFunction_,
+                            bodyFixedThrustOrientation );
+            }
+        }
+        break;
+    }
     default:
         throw std::runtime_error( "Error, could not find thrust guidance type when creating thrust guidance." );
     }
@@ -249,7 +301,7 @@ boost::function< Eigen::Vector3d( ) > getBodyFixedThrustDirection(
             // Print warning if there are no engines (zero thrust)
             if( ( bodyMap.at( bodyName )->getVehicleSystems( )->getEngineModels( ).size( ) == 0 ) )
             {
-                std::cerr<<"Warning when creating body-fixed thrust direction of type from_engine_properties_thrust_magnitude; no engines found: returning 0 thrust"<<std::endl;
+                std::cerr << "Warning when creating body-fixed thrust direction of type from_engine_properties_thrust_magnitude; no engines found: returning 0 thrust" << std::endl;
             }
 
             // Retrieve force directions/magnitudes
@@ -376,7 +428,7 @@ boost::shared_ptr< propulsion::ThrustMagnitudeWrapper > createThrustMagnitudeWra
         {
             if( ( bodyMap.at( nameOfBodyWithGuidance )->getVehicleSystems( )->getEngineModels( ).size( ) == 0 ) )
             {
-                std::cerr<<"Warning when creating from-engine thrust magnitude wrapper for all engines; no engines found: returning 0 thrust"<<std::endl;
+                std::cerr << "Warning when creating from-engine thrust magnitude wrapper for all engines; no engines found: returning 0 thrust" << std::endl;
             }
             thrustMagnitudeWrapper = boost::make_shared< propulsion::ThrustMagnitudeFromEngineWrapper >(
                         utilities::createVectorFromMapValues< boost::shared_ptr< system_models::EngineModel >, std::string >(

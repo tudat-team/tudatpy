@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -31,8 +31,6 @@
 #define TUDAT_LEGENDRE_POLYNOMIALS_H
 
 #include <cstddef>
-#include <iostream>
-
 #include <boost/bind.hpp>
 
 #include <boost/circular_buffer.hpp>

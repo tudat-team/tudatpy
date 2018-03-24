@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -101,9 +101,9 @@ GravityFieldVariationsSet::getGravityFieldVariation(
         if( isCorrectIdentifierFound == 0 )
         {
             std::string errorMessage = "Error when retrieving gravity field variation of typ " +
-                    boost::lexical_cast< std::string >( deformationType ) +
+                    std::to_string( deformationType ) +
                     ", none of " +
-                    boost::lexical_cast< std::string >( numberOfEntries ) +
+                    std::to_string( numberOfEntries ) +
                     " potential entries match identifier.";
             throw std::runtime_error( errorMessage );
         }
@@ -204,21 +204,21 @@ GravityFieldVariationsSet::GravityFieldVariationsSet(
         if( initialTimes_.count( interpolatorSettingsIterator->first ) == 0 )
         {
             std::string errorMessage = "Error when making GravityFieldVariationsSet, inconsistent input, type 4, " +
-                    boost::lexical_cast< std::string >( interpolatorSettingsIterator->first );
+                    std::to_string( interpolatorSettingsIterator->first );
             throw std::runtime_error( errorMessage );
         }
 
         if( finalTimes_.count( interpolatorSettingsIterator->first ) == 0 )
         {
             std::string errorMessage = "Error when making GravityFieldVariationsSet, inconsistent input, type 5, " +
-                    boost::lexical_cast< std::string >( interpolatorSettingsIterator->first );
+                    std::to_string( interpolatorSettingsIterator->first );
             throw std::runtime_error( errorMessage );
         }
 
         if( timeSteps_.count( interpolatorSettingsIterator->first ) == 0 )
         {
             std::string errorMessage = "Error when making GravityFieldVariationsSet, inconsistent input, type 6, " +
-                    boost::lexical_cast< std::string >( interpolatorSettingsIterator->first );
+                    std::to_string( interpolatorSettingsIterator->first );
             throw std::runtime_error( errorMessage );
         }
     }
@@ -280,7 +280,7 @@ boost::shared_ptr< GravityFieldVariations > GravityFieldVariationsSet::getDirect
         // Check consistency
         if( tidalGravityFieldVariation == NULL )
         {
-            throw std::runtime_error( "Error when getting direct tidal gravity field variation, one model identified, but type does not match" );
+            throw std::runtime_error( "Error when getting direct tidal gravity field variation, one model found, but type does not match" );
         }
         // Check if consistency with input needs to be determined
         else if( namesOfBodiesCausingDeformation.size( ) != 0 )
@@ -291,7 +291,7 @@ boost::shared_ptr< GravityFieldVariations > GravityFieldVariationsSet::getDirect
             if( !doBodiesMatch )
             {
                 throw std::runtime_error(
-                            "Error when getting direct tidal gravity field variation, one model identified, but deforming bodies do not match" );
+                            "Error when getting direct tidal gravity field variation, one model found, but deforming bodies do not match" );
             }
         }
     }
@@ -319,12 +319,6 @@ boost::shared_ptr< GravityFieldVariations > GravityFieldVariationsSet::getDirect
                 bool doBodiesMatch = utilities::doStlVectorContentsMatch(
                             boost::dynamic_pointer_cast< gravitation::BasicSolidBodyTideGravityFieldVariations >(
                                 variationObjects_.at( i ) )->getDeformingBodies( ), namesOfBodiesCausingDeformation );
-
-                if( !doBodiesMatch )
-                {
-                    throw std::runtime_error(
-                                "Error when getting direct tidal gravity field variation, one model identified, but deforming bodies do not match" );
-                }
 
                 if( doBodiesMatch )
                 {

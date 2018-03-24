@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -36,6 +36,9 @@ std::string getParameterTypeString( const EstimatebleParametersEnum parameterTyp
     case radiation_pressure_coefficient:
         parameterDescription = "radiation pressure coefficient ";
         break;
+    case arc_wise_radiation_pressure_coefficient:
+        parameterDescription = "arc-wise radiation pressure coefficient ";
+        break;
     case spherical_harmonics_cosine_coefficient_block:
         parameterDescription = "cosine spherical harmonic coefficient block ";
         break;
@@ -51,8 +54,14 @@ std::string getParameterTypeString( const EstimatebleParametersEnum parameterTyp
     case constant_additive_observation_bias:
         parameterDescription = "absolute observation bias ";
         break;
+    case arcwise_constant_additive_observation_bias:
+        parameterDescription = "absolute arc-wise observation bias ";
+        break;
     case constant_relative_observation_bias:
         parameterDescription = "relative observation bias ";
+        break;
+    case arcwise_constant_relative_observation_bias:
+        parameterDescription = "relative arc-wise observation bias ";
         break;
     case ground_station_position:
         parameterDescription = "ground station position ";
@@ -72,9 +81,18 @@ std::string getParameterTypeString( const EstimatebleParametersEnum parameterTyp
     case single_degree_variable_tidal_love_number:
         parameterDescription = " tidal Love number at separate orders of single degree ";
         break;
+    case ppn_parameter_gamma:
+        parameterDescription = "PPN parameter gamma ";
+        break;
+    case ppn_parameter_beta:
+        parameterDescription = "PPN parameter beta ";
+        break;
+    case direct_dissipation_tidal_time_lag:
+        parameterDescription = " direct tidal time-lag ";
+        break;
     default:
         std::string errorMessage = "Error when getting parameter string, did not recognize parameter " +
-                boost::lexical_cast< std::string >( parameterType );
+                std::to_string( parameterType );
         throw std::runtime_error( errorMessage );
     }
     return parameterDescription;
@@ -114,6 +132,9 @@ bool isDoubleParameter( const EstimatebleParametersEnum parameterType )
     case radiation_pressure_coefficient:
         isDoubleParameter = true;
         break;
+    case arc_wise_radiation_pressure_coefficient:
+        isDoubleParameter = false;
+        break;
     case spherical_harmonics_cosine_coefficient_block:
         isDoubleParameter = false;
         break;
@@ -129,7 +150,13 @@ bool isDoubleParameter( const EstimatebleParametersEnum parameterType )
     case constant_additive_observation_bias:
         isDoubleParameter = false;
         break;
+    case arcwise_constant_additive_observation_bias:
+        isDoubleParameter = false;
+        break;
     case constant_relative_observation_bias:
+        isDoubleParameter = false;
+        break;
+    case arcwise_constant_relative_observation_bias:
         isDoubleParameter = false;
         break;
     case ppn_parameter_gamma:
@@ -150,8 +177,17 @@ bool isDoubleParameter( const EstimatebleParametersEnum parameterType )
     case single_degree_variable_tidal_love_number:
          isDoubleParameter = false;
          break;
+    case empirical_acceleration_coefficients:
+         isDoubleParameter = false;
+         break;
+     case arc_wise_empirical_acceleration_coefficients:
+          isDoubleParameter = false;
+          break;
+    case direct_dissipation_tidal_time_lag:
+         isDoubleParameter = true;
+        break;
     default:
-        throw std::runtime_error( "Error, parameter type " + boost::lexical_cast< std::string >( parameterType ) +
+        throw std::runtime_error( "Error, parameter type " + std::to_string( parameterType ) +
                                   " not found when getting parameter type" );
     }
     return isDoubleParameter;
@@ -185,7 +221,13 @@ bool isParameterObservationLinkProperty( const EstimatebleParametersEnum paramet
     case constant_additive_observation_bias:
         flag = true;
         break;
+    case arcwise_constant_additive_observation_bias:
+        flag = true;
+        break;
     case constant_relative_observation_bias:
+        flag = true;
+        break;
+    case arcwise_constant_relative_observation_bias:
         flag = true;
         break;
     default:

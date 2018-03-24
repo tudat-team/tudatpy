@@ -1,7 +1,7 @@
 #ifndef TUDAT_SPHERICALBODYSHAPEMODEL_H
 #define TUDAT_SPHERICALBODYSHAPEMODEL_H
 
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -14,12 +14,6 @@
  *      Montebruck O, Gill E. Satellite Orbits, Springer, 2000.
  *
  */
-
-
-#include <iostream>
-
-#include <boost/make_shared.hpp>
-#include <boost/lambda/lambda.hpp>
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/bodyShapeModel.h"
 

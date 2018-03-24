@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -58,11 +58,7 @@ BOOST_AUTO_TEST_SUITE( test_position_partials)
 BOOST_AUTO_TEST_CASE( testCartesianStatePartials )
 {
     //Load spice kernels.
-    std::string kernelsPath = input_output::getSpiceKernelPath( );
-    loadSpiceKernelInTudat( kernelsPath + "de-403-masses.tpc");
-    loadSpiceKernelInTudat( kernelsPath + "de421.bsp");
-    loadSpiceKernelInTudat( kernelsPath + "naif0009.tls");
-    loadSpiceKernelInTudat( kernelsPath + "pck00009.tpc");
+    spice_interface::loadStandardSpiceKernels( );
 
     // Specify initial time
     double initialEphemerisTime = 1.0E7;
@@ -130,7 +126,7 @@ BOOST_AUTO_TEST_CASE( testCartesianStatePartials )
     groundStationsToCreate[ std::make_pair( "Earth", "Graz" ) ] =
             ( Eigen::Vector3d( ) << 1.7E6, -6.2E6, 1.3E5 ).finished( );
     groundStationsToCreate[ std::make_pair( "Mars", "MSL" ) ] =
-            ( Eigen::Vector3d( ) <<-2.5E5, 3.2E6, -2.65E4 ).finished( );
+            ( Eigen::Vector3d( ) << -2.5E5, 3.2E6, -2.65E4 ).finished( );
     createGroundStations( bodyMap, groundStationsToCreate );
 
 
@@ -247,7 +243,7 @@ BOOST_AUTO_TEST_CASE( testCartesianStatePartials )
 
 
     // Compute numerical partial w.r.t. pole position
-    Eigen::VectorXd polePositionPerturbation = ( Eigen::Vector2d( )<<1.0E-5, 1.0E-5 ).finished( );
+    Eigen::VectorXd polePositionPerturbation = ( Eigen::Vector2d( ) << 1.0E-5, 1.0E-5 ).finished( );
     Eigen::MatrixXd numericalPartialWrtReceiverPolePosition = calculateNumericalObservationParameterPartial(
                 earthPolePosition, polePositionPerturbation, observationFunctionAtReception, receptionTime );
 

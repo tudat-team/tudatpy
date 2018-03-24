@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -14,8 +14,6 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/make_shared.hpp>
 #include <boost/function.hpp>
-#include <boost/lexical_cast.hpp>
-
 #include <iostream>
 #include <map>
 #include <vector>
@@ -80,6 +78,18 @@ public:
                     transmitterState, receiverState, transmissionTime, receptionTime );
     }
 
+    //! Function to compute the partial derivative of the light-time correction w.r.t. observation time
+    /*!
+     * Function to compute the partial derivative of the light-time correction w.r.t. observation time. NOTE: FUNCTION IS NOT
+     * YET IMPLEMENTED, EACH OBJECT PRINTS A WARNING ONCE WHEN THIS FUNCTION IS CALLED.
+     * \param transmitterState State of transmitted at transmission time
+     * \param receiverState State of receiver at reception time
+     * \param transmissionTime Time of signal transmission
+     * \param receptionTime Time of singal reception
+     * \param fixedLinkEnd Reference link end for observation
+     * \param linkEndAtWhichPartialIsEvaluated Link end at which the time partial is to be taken
+     * \return Light-time correction w.r.t. observation time
+     */
     double calculateLightTimeCorrectionPartialDerivativeWrtLinkEndTime(
             const Eigen::Vector6d& transmitterState,
             const Eigen::Vector6d& receiverState,
@@ -90,13 +100,24 @@ public:
     {
         if( !isWarningProvided_ )
         {
-            std::cerr<<"Warning, light-time partial not yet implemented in LightTimeCorrectionFunctionWrapper."<<std::endl;
+            std::cerr << "Warning, light-time partial not yet implemented in LightTimeCorrectionFunctionWrapper." << std::endl;
             isWarningProvided_ = true;
         }
 
         return 0.0;
     }
 
+    //! Function to compute the partial derivative of the light-time correction w.r.t. link end position
+    /*!
+     * Function to compute the partial derivative of the light-time correction w.r.t. link end position. NOTE: FUNCTION IS NOT
+     * YET IMPLEMENTED, EACH OBJECT PRINTS A WARNING ONCE WHEN THIS FUNCTION IS CALLED.
+     * \param transmitterState State of transmitted at transmission time
+     * \param receiverState State of receiver at reception time
+     * \param transmissionTime Time of signal transmission
+     * \param receptionTime Time of singal reception
+     * \param linkEndAtWhichPartialIsEvaluated Link end at which the position partial is to be taken
+     * \return Light-time correction w.r.t. link end position
+     */
     Eigen::Matrix< double, 3, 1 > calculateLightTimeCorrectionPartialDerivativeWrtLinkEndPosition(
             const Eigen::Vector6d& transmitterState,
             const Eigen::Vector6d& receiverState,
@@ -106,7 +127,7 @@ public:
     {
         if( !isWarningProvided_ )
         {
-            std::cerr<<"Warning, light-time partial not yet implemented in LightTimeCorrectionFunctionWrapper."<<std::endl;
+            std::cerr << "Warning, light-time partial not yet implemented in LightTimeCorrectionFunctionWrapper." << std::endl;
             isWarningProvided_ = true;
         }
 
@@ -114,8 +135,11 @@ public:
     }
 
 private:
+
+    //! Custom light-time correction functions, as a function of transmitter and receiver state and time.
     LightTimeCorrectionFunction lightTimeCorrectionFunction_;
 
+    //! Boolean denoting whether a warning has been provided when calling the partial derivative function(s)
     bool isWarningProvided_;
 };
 
@@ -337,12 +361,12 @@ public:
                     isToleranceReached = true;
                     std::string errorMessage  =
                             "Warning, light time unconverged at level " +
-                            boost::lexical_cast< std::string >(
+                            std::to_string(
                                 fabs( newLightTimeCalculation - previousLightTimeCalculation ) ) +
                             "; current light-time corrections are: "  +
-                            boost::lexical_cast< std::string >( currentCorrection_ ) + " and input time was " +
-                            boost::lexical_cast< std::string >( time );
-                   std::cerr << errorMessage <<std::endl;
+                            std::to_string( currentCorrection_ ) + " and input time was " +
+                            std::to_string( static_cast< double >( time ) );
+                   std::cerr << errorMessage << std::endl;
                 }
 
                 // Update light time for new iteration.
@@ -359,6 +383,15 @@ public:
         return newLightTimeCalculation;
     }
 
+    //! Function to get the part wrt linkend position
+    /*!
+     *  Function to get the part wrt linkend position
+     *  \param transmitterState State of transmitter.
+     *  \param receiverState State of receiver.
+     *  \param transmitterTime Time at transmission.
+     *  \param receiverTime Time at reiver.
+     *  \param isPartialWrtReceiver If partial is to be calculated w.r.t. receiver or transmitter.
+     */
     Eigen::Matrix< ObservationScalarType, 1, 3 > getPartialOfLightTimeWrtLinkEndPosition(
             const StateType& transmitterState,
             const StateType& receiverState,

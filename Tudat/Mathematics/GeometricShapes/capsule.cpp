@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -139,15 +139,15 @@ Capsule::Capsule( const double noseRadius,
 }
 
 //! Overload ostream to print class information.
-std::ostream &operator<<( std::ostream &stream, Capsule& capsule )
+std::ostream &operator << ( std::ostream &stream, Capsule& capsule )
 {
     stream << "This is a capsule." << std::endl;
-    stream << "The defining parameters are: "<< std::endl
+    stream << "The defining parameters are: " << std::endl
            << "Nose radius: " << capsule.getNoseRadius( ) << std::endl
            << "Mid radius: " << capsule.getMiddleRadius( ) << std::endl
            << "Rear length: " << capsule.getRearLength( ) << std::endl
            << "Rear angle: " << capsule.getRearAngle( ) << std::endl
-           << "Side radius: " << capsule.getSideRadius( )<< std::endl;
+           << "Side radius: " << capsule.getSideRadius( ) << std::endl;
 
     return stream;
 }

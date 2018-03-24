@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -86,13 +86,6 @@ double computeAngleBetweenVectors( const Eigen::VectorXd& vector0, const Eigen::
 
     // Return arccosine of the above, which is effectively the angle.
     return std::acos( dotProductOfNormalizedVectors );
-}
-
-//! Computes the difference between two 3d vectors.
-Eigen::Vector3d computeVectorDifference( const Eigen::Vector3d& vector0,
-                                         const Eigen::Vector3d& vector1 )
-{
-    return ( vector0 - vector1 );
 }
 
 //! Computes norm of the the difference between two 3d vectors.

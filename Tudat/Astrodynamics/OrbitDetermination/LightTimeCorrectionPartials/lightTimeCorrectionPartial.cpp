@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -44,7 +44,7 @@ getLightTimeParameterPartialFunction(
         if( currentLightTimeCorrectorPartial == NULL )
         {
             std::string errorMessage = "Error when getting light time correction partial function, type " +
-                    boost::lexical_cast< std::string >( lightTimeCorrectionPartial->getCorrectionType( ) ) +
+                    std::to_string( lightTimeCorrectionPartial->getCorrectionType( ) ) +
                        "is inconsistent.";
             throw std::runtime_error( errorMessage );
         }
@@ -74,7 +74,7 @@ getLightTimeParameterPartialFunction(
         break;
     }
     default:
-        std::string errorMessage = "Error, light time correction type " + boost::lexical_cast< std::string >(
+        std::string errorMessage = "Error, light time correction type " + std::to_string(
                     lightTimeCorrectionPartial->getCorrectionType( ) ) + "not found when creating partial ";
         throw std::runtime_error( errorMessage );
     }

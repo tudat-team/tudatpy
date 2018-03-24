@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -42,7 +42,7 @@ Eigen::Vector6d getGroundStationPosition(
     Eigen::Vector3d nominalVelocity;
     nominalVelocity << 3.0E-3, -2.3E-3, 2.4E3;
     nominalVelocity /= physical_constants::JULIAN_YEAR;
-    return ( Eigen::Vector6d( )<< nominalPosition + time * nominalVelocity, nominalVelocity ).finished( );
+    return ( Eigen::Vector6d( ) << nominalPosition + time * nominalVelocity, nominalVelocity ).finished( );
 }
 
 BOOST_AUTO_TEST_SUITE( test_composite_ephemeris )
@@ -55,11 +55,8 @@ BOOST_AUTO_TEST_CASE( testCompositeEphemeris )
     using namespace tudat::ephemerides;
 
     //Load spice kernels.
-    std::string kernelsPath = input_output::getSpiceKernelPath( );
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "de-403-masses.tpc");
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "naif0009.tls");
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "pck00009.tpc");
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "de421.bsp");
+    spice_interface::loadStandardSpiceKernels( );
+
 
     //Define setting for total number of bodies and those which need to be integrated numerically.
     //The first numberOfNumericalBodies from the bodyNames vector will be integrated numerically.

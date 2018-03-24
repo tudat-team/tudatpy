@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -100,12 +100,12 @@ public:
         std::string parameterDescription =
                 getParameterTypeString( parameterName_.first ) + "of (" + parameterName_.second.first + ")";
         parameterDescription += ", Minimum D/O: (" +
-                boost::lexical_cast< std::string >( blockIndices_.at( 0 ).first ) + ", " +
-                boost::lexical_cast< std::string >( blockIndices_.at( 0 ).second ) + "), ";
+                std::to_string( blockIndices_.at( 0 ).first ) + ", " +
+                std::to_string( blockIndices_.at( 0 ).second ) + "), ";
 
         parameterDescription += "Maximum D/O: (" +
-                boost::lexical_cast< std::string >( blockIndices_.at( blockIndices_.size( ) - 1 ).first ) + ", " +
-                boost::lexical_cast< std::string >( blockIndices_.at( blockIndices_.size( ) - 1 ).second ) + "). ";
+                std::to_string( blockIndices_.at( blockIndices_.size( ) - 1 ).first ) + ", " +
+                std::to_string( blockIndices_.at( blockIndices_.size( ) - 1 ).second ) + "). ";
         return parameterDescription;
     }
 

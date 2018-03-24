@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -65,6 +65,22 @@ T convertDegreesToRadians( T angleInDegrees )
 template < typename T >
 T convertDegreesToArcminutes( T angleInDegrees )
 { return angleInDegrees * 60.0; }
+
+//! Convert arc seconds to degrees
+/*!
+ * Convert arc seconds to degrees
+ * \param angleInArcSeconds Angle in arc seconds.
+ * \return Angle in degrees.
+ */
+template < typename T >
+T convertArcSecondsToRadians( T angleInArcSeconds )
+{ return angleInArcSeconds / 3600.0 * mathematical_constants::PI / 180.0; }
+
+template < typename T >
+T convertRadiansToArcSeconds( T angleInRadians )
+{ return angleInRadians * 3600.0 / mathematical_constants::PI * 180.0; }
+
+
 
 //! Convert angle in arcminutes to arcseconds.
 /*!

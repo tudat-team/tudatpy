@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -15,6 +15,7 @@
 
 #include "Tudat/Astrodynamics/OrbitDetermination/AccelerationPartials/accelerationPartial.h"
 #include "Tudat/Astrodynamics/ElectroMagnetism/radiationPressureInterface.h"
+#include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/radiationPressureCoefficient.h"
 
 namespace tudat
 {
@@ -182,11 +183,46 @@ public:
     std::pair< boost::function< void( Eigen::MatrixXd& ) >, int > getParameterPartialFunction(
             boost::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter );
 
+    //! Function to compute the partial derivative w.r.t. a constant radiation pressure coefficient
+    /*!
+     * Function to compute the partial derivative w.r.t. a constant radiation pressure coefficient
+     * \param partial Partial derivative w.r.t. a constant radiation pressure coefficient (returned by reference)
+     */
     void wrtRadiationPressureCoefficient( Eigen::MatrixXd& partial )
     {
         partial = computePartialOfCannonBallRadiationPressureAccelerationWrtRadiationPressureCoefficient(
                     radiationPressureFunction_( ), areaFunction_( ), acceleratedBodyMassFunction_( ),
                     ( sourceBodyState_( ) - acceleratedBodyState_( ) ).normalized( ) );
+    }
+
+    //! Function to compute the partial derivative w.r.t. an arcwise radiation pressure coefficient
+    /*!
+     * Function to compute the partial derivative w.r.t. an arcwise radiation pressure coefficient
+     * \param parameter Parameter of arcwise radiation pressure coefficient w.r.t. which partial is to be taken
+     * \param partial Partial derivative w.r.t. an arcwise radiation pressure coefficient (returned by reference)
+     */
+    void wrtArcWiseRadiationPressureCoefficient(
+            Eigen::MatrixXd& partial,
+            const boost::shared_ptr< estimatable_parameters::ArcWiseRadiationPressureCoefficient > parameter )
+    {
+        // Get partial w.r.t. radiation pressure coefficient
+        Eigen::MatrixXd partialWrtSingleParameter = Eigen::Vector3d::Zero( );
+        this->wrtRadiationPressureCoefficient( partialWrtSingleParameter );
+
+        // Retrieve current arc
+        boost::shared_ptr< interpolators::LookUpScheme< double > > currentArcIndexLookUp =
+                parameter->getArcTimeLookupScheme( );
+        int currentArc = currentArcIndexLookUp->findNearestLowerNeighbour( currentTime_ );
+
+        if( currentArc >= partial.cols( ) )
+        {
+            throw std::runtime_error( "Error when getting arc-wise radiation pressure coefficient partials, data not consistent" );
+        }
+
+        // Set partial
+        partial.setZero( );
+        partial.block( 0, currentArc, 3, 1 ) = partialWrtSingleParameter;
+
     }
 
     //! Function for updating partial w.r.t. the bodies' positions

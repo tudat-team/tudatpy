@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -15,10 +15,8 @@
 
 #define BOOST_TEST_MAIN
 
-#include <iostream>
 #include <string>
 
-#include <boost/lexical_cast.hpp>
 #include <boost/make_shared.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/test/floating_point_comparison.hpp>
@@ -57,7 +55,7 @@ BOOST_AUTO_TEST_CASE( testLinearFieldTransform1 )
             testLinearFieldTransform1.transform( testString );
 
     // Check that returned and expected strings are identical.
-    BOOST_CHECK_CLOSE_FRACTION( boost::lexical_cast< double >( *returnedValue ), expectedValue,
+    BOOST_CHECK_CLOSE_FRACTION( std::stod( *returnedValue ), expectedValue,
                                 tolerance );
 }
 
@@ -84,7 +82,7 @@ BOOST_AUTO_TEST_CASE( testLinearFieldTransform2 )
             testLinearFieldTransform2.transform( testString );
 
     // Check that returned and expected strings are identical.
-    BOOST_CHECK_CLOSE_FRACTION( boost::lexical_cast< double >( *returnedValue ), expectedValue,
+    BOOST_CHECK_CLOSE_FRACTION( std::stod( *returnedValue ), expectedValue,
                                 tolerance );
 }
 
@@ -111,7 +109,7 @@ BOOST_AUTO_TEST_CASE( testLinearFieldTransform3 )
             testLinearFieldTransform3.transform( testString );
 
     // Check that returned and expected strings are identical.
-    BOOST_CHECK_CLOSE_FRACTION( boost::lexical_cast< double >( *returnedValue ), expectedValue,
+    BOOST_CHECK_CLOSE_FRACTION( std::stod( *returnedValue ), expectedValue,
                                 tolerance );
 }
 
@@ -135,7 +133,7 @@ BOOST_AUTO_TEST_CASE( testLinearFieldTransform4 )
             testLinearFieldTransform4.transform( testString );
 
     // Check that returned and expected strings are identical.
-    BOOST_CHECK_SMALL( boost::lexical_cast< double >( *returnedValue ), tolerance );
+    BOOST_CHECK_SMALL( std::stod( *returnedValue ), tolerance );
 }
 
 // Close Boost test suite.

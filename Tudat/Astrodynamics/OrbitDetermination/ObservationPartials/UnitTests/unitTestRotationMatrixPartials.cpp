@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -11,8 +11,6 @@
 #define BOOST_TEST_MAIN
 
 #include <limits>
-#include <string>
-
 #include <boost/test/unit_test.hpp>
 #include <boost/make_shared.hpp>
 #include <boost/lambda/lambda.hpp>
@@ -37,9 +35,7 @@ BOOST_AUTO_TEST_SUITE( test_rotation_matrix_partaisl )
 BOOST_AUTO_TEST_CASE( testSimpleRotationalEphemerisPartials )
 {
     // Load spice kernels.
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "pck00009.tpc" );
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "de-403-masses.tpc" );
-    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "de421.bsp" );
+    spice_interface::loadStandardSpiceKernels( );
 
     // Create rotation model
     double nominalRotationRate = 2.0 * mathematical_constants::PI / 86400.0;

@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -38,12 +38,7 @@ NamedBodyMap setupEnvironment( const std::vector< LinkEndId > groundStations,
                                const double gravitationalParameterScaling )
 {
     //Load spice kernels.
-    std::string kernelsPath = input_output::getSpiceKernelPath( );
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "pck00009.tpc");
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "de-403-masses.tpc");
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "de421.bsp");
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "naif0009.tls");
-
+    spice_interface::loadStandardSpiceKernels( );
 
     // Create bodies.
     NamedBodyMap bodyMap;
@@ -117,7 +112,7 @@ NamedBodyMap setupEnvironment( const std::vector< LinkEndId > groundStations,
     groundStationsToCreate[ std::make_pair( "Earth", "Graz" ) ] =
             ( Eigen::Vector3d( ) << 1.7E6, -6.2E6, 1.3E5 ).finished( );
     groundStationsToCreate[ std::make_pair( "Mars", "MSL" ) ] =
-            ( Eigen::Vector3d( ) <<-2.5E5, 3.2E6, -2.65E4 ).finished( );
+            ( Eigen::Vector3d( ) << -2.5E5, 3.2E6, -2.65E4 ).finished( );
 
 
     createGroundStations( bodyMap, groundStationsToCreate );
@@ -324,6 +319,7 @@ std::vector< std::vector< double > > getAnalyticalPartialEvaluationTimes(
             {
                 currentPartialTimeIndices =
                         getLinkEndIndicesForLinkEndTypeAtObservable( observableType, linkEndIterator->first, linkEnds.size( ) );
+
                 for( unsigned int j = 0; j < currentPartialTimeIndices.size( ); j++ )
                 {
                     currentPartialTimes.push_back( linkEndTimes.at( currentPartialTimeIndices.at( j ) ) );

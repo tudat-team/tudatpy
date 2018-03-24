@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -83,7 +83,7 @@ Eigen::Vector6d computeGaussPlanetaryEquationsForKeplerElements(
                 currentOsculatingKeplerElements( 1 ),
                 currentOsculatingKeplerElements( 0 ),
                 std::numeric_limits< double >::epsilon( ) );
-    double orbitalAngularMomentum = orbital_element_conversions::computeOrbitalAngularMomentum(
+    double orbitalAngularMomentum = orbital_element_conversions::computeOrbitalAngularMomentumPerUnitMass(
                 semiLatusRectum, centralBodyGravitationalParameter );
     double meanMotion = basic_astrodynamics::computeKeplerMeanMotion(
                 currentOsculatingKeplerElements( 0 ), centralBodyGravitationalParameter );

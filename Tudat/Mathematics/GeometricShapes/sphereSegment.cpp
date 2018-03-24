@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -10,8 +10,6 @@
  */
 
 #include <cmath>
-
-#include <boost/lexical_cast.hpp>
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/unitConversions.h"
 #include "Tudat/Mathematics/BasicMathematics/coordinateConversions.h"
@@ -200,7 +198,7 @@ double SphereSegment::getParameter( const int index )
     // Else return cerr statement.
     else
     {
-        std::string errorMessage = "Parameter "+ boost::lexical_cast< std::string >( index ) + "does not exist in sphere segment.";
+        std::string errorMessage = "Parameter " + std::to_string( index ) + "does not exist in sphere segment.";
         throw std::runtime_error( errorMessage );
     }
 
@@ -209,7 +207,7 @@ double SphereSegment::getParameter( const int index )
 }
 
 //! Overload ostream to print class information.
-std::ostream& operator<<( std::ostream& stream, SphereSegment& sphereSegment )
+std::ostream& operator << ( std::ostream& stream, SphereSegment& sphereSegment )
 {
     stream << "This is a sphere segment geometry." << std::endl;
     stream << "The range of the independent variables are: " << std::endl;

@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -13,7 +13,6 @@
 #include <limits>
 #include <string>
 
-#include <boost/format.hpp>
 #include <boost/test/unit_test.hpp>
 #include <boost/make_shared.hpp>
 
@@ -55,11 +54,7 @@ std::vector< double > getRetransmissionDelays( const double evaluationTime, cons
 
 BOOST_AUTO_TEST_CASE( testNWayRangeModel )
 {
-    std::string kernelsPath = input_output::getSpiceKernelPath( );
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "de-403-masses.tpc");
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "naif0009.tls");
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "pck00009.tpc");
-    spice_interface::loadSpiceKernelInTudat( kernelsPath + "de421.bsp");
+    spice_interface::loadStandardSpiceKernels( );
 
     // Define bodies to use.
     std::vector< std::string > bodiesToCreate;
@@ -88,11 +83,11 @@ BOOST_AUTO_TEST_CASE( testNWayRangeModel )
     std::pair< std::string, std::string > earthStationStation = std::pair< std::string, std::string >( "Earth", "EarthStation" );
     std::pair< std::string, std::string > earthStationStation2 = std::pair< std::string, std::string >( "Earth", "EarthStation2" );
     std::pair< std::string, std::string > mslStation = std::pair< std::string, std::string >( "Mars", "MarsStation" );
-    createGroundStation( bodyMap.at( "Mars" ), "MarsStation", ( Eigen::Vector3d( )<< 100.0, 0.5, 2.1 ).finished( ),
+    createGroundStation( bodyMap.at( "Mars" ), "MarsStation", ( Eigen::Vector3d( ) << 100.0, 0.5, 2.1 ).finished( ),
                          coordinate_conversions::geodetic_position );
-    createGroundStation( bodyMap.at( "Earth" ), "EarthStation", ( Eigen::Vector3d( )<< 1.0, 0.1, -1.4 ).finished( ),
+    createGroundStation( bodyMap.at( "Earth" ), "EarthStation", ( Eigen::Vector3d( ) << 1.0, 0.1, -1.4 ).finished( ),
                          coordinate_conversions::geodetic_position );
-    createGroundStation( bodyMap.at( "Earth" ), "EarthStation2", ( Eigen::Vector3d( )<< -30.0, 1.2, 2.1 ).finished( ),
+    createGroundStation( bodyMap.at( "Earth" ), "EarthStation2", ( Eigen::Vector3d( ) << -30.0, 1.2, 2.1 ).finished( ),
                          coordinate_conversions::geodetic_position );
 
     std::vector< std::pair< std::string, std::string > > groundStations;
@@ -171,8 +166,8 @@ BOOST_AUTO_TEST_CASE( testNWayRangeModel )
 
             // Iterate over each 2-way link end as reference link end
             double observationTime = observationTimes.at( observationTimeNumber );
-            double uplinkObservationTime, downlinkObservationTime;
-            LinkEndType uplinkReferenceLinkEnd, downlinkReferenceLinkEnd;
+            double uplinkObservationTime = TUDAT_NAN, downlinkObservationTime = TUDAT_NAN;
+            LinkEndType uplinkReferenceLinkEnd = unidentified_link_end , downlinkReferenceLinkEnd = unidentified_link_end;
             for( LinkEnds::const_iterator linkEndIterator = twoWayLinkEnds.begin( ); linkEndIterator != twoWayLinkEnds.end( );
                  linkEndIterator++ )
             {
