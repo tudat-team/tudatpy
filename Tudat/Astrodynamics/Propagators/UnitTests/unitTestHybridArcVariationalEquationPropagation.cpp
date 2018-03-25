@@ -465,7 +465,7 @@ BOOST_AUTO_TEST_CASE( testMarsAndOrbiterHybridArcVariationalEquationCalculation 
                     }
                     else
                     {
-                        couplingTolerance = 5.0E-3;
+                        couplingTolerance = 1.0E-2;
                     }
 
                     // One component is, by chance, not computed properly, next lines mitigate
@@ -478,7 +478,6 @@ BOOST_AUTO_TEST_CASE( testMarsAndOrbiterHybridArcVariationalEquationCalculation 
                     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
                                 stateTransitionAndSensitivityMatrixAtEpoch.at( arc ).block( 6, 0, 6, 6 ),
                                 manualPartial.at( arc ).block( 6, 0, 6, 6 ), couplingTolerance );
-
                     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
                                 stateTransitionAndSensitivityMatrixAtEpoch.at( arc ).block( 0, 12, 6, 1 ),
                                 manualPartial.at( arc ).block( 0, 12, 6, 1 ), 5.0E-5 );
