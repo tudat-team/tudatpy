@@ -1,6 +1,8 @@
 #ifndef TUDAT_PANELLEDRADIATIONPRESSURE_H
 #define TUDAT_PANELLEDRADIATIONPRESSURE_H
 
+#include <iostream>
+
 #include <boost/function.hpp>
 #include <boost/lambda/lambda.hpp>
 #include <boost/bind.hpp>
@@ -136,6 +138,7 @@ public:
                     currentAcceleration_ += currentPanelAccelerations_[ i ];
                 }
             }
+            this->currentTime_ = currentTime;
         }
     }
 
@@ -181,6 +184,11 @@ public:
         return currentPanelAccelerations_[ panelIndex ];
     }
 
+    Eigen::Vector3d getCurrentPanelSurfaceNormalInPropagationFrame( const int panelIndex )
+    {
+        return panelSurfaceNormalFunctions_[ panelIndex ]( );
+    }
+
     //! Returns the current radiation pressure at the accelerated body
     /*!
      *  Returns the current radiation pressure at the accelerated body, as set by the last call to the updateMembers function
@@ -201,6 +209,8 @@ public:
     {
         return currentMass_;
     }
+
+
 
 private:
 

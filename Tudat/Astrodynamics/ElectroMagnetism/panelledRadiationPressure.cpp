@@ -24,8 +24,8 @@ Eigen::Vector3d computeSinglePanelNormalizedRadiationPressureForce(
     {
         // Evaluate Eq. (3.72) of Montenbruck & Gill (2000)
         panelRadiationPressureForce = -cosineOfPanelInclination * panelArea * (
-                    ( 1.0 - panelEmmisivitty ) * normalizedVectorToSource +
-                    2.0 * ( panelEmmisivitty * cosineOfPanelInclination + panelDiffuseReflectionCoefficient / 3.0 ) * panelSurfaceNormal );
+                    ( 1.0 - panelEmmisivitty ) * normalizedVectorToSource + 2.0 * (
+                        panelEmmisivitty * cosineOfPanelInclination + panelDiffuseReflectionCoefficient / 3.0 ) * panelSurfaceNormal );
     }
 
     return panelRadiationPressureForce;
