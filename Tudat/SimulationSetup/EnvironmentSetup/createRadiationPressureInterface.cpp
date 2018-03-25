@@ -60,7 +60,7 @@ boost::shared_ptr< electro_magnetism::RadiationPressureInterface > createRadiati
     // Check type of radiation pressure interface
     switch( radiationPressureInterfaceSettings->getRadiationPressureType( ) )
     {
-    case cannon_ball:
+    case cannon_ball_radiation_pressure_interface:
     {
         // Check type consistency.
         boost::shared_ptr< CannonBallRadiationPressureInterfaceSettings > cannonBallSettings =
@@ -135,7 +135,92 @@ boost::shared_ptr< electro_magnetism::RadiationPressureInterface > createRadiati
                     cannonBallSettings->getArea( ), occultingBodyPositions, occultingBodyRadii,
                     sourceRadius );
         break;
+    }
+    case panelled_radiation_pressure_interface:
+    {
+        // Check type consistency.
+        boost::shared_ptr< PanelledRadiationPressureInterfaceSettings > panelledSettings =
+                boost::dynamic_pointer_cast< PanelledRadiationPressureInterfaceSettings >(
+                    radiationPressureInterfaceSettings );
+        if( panelledSettings == NULL )
+        {
+            throw std::runtime_error( "Error when making panelled radiation interface, type does not match object" );
+        }
 
+        // Retrieve source body and check consistency.
+        if( bodyMap.count( radiationPressureInterfaceSettings->getSourceBody( ) ) == 0 )
+        {
+            throw std::runtime_error( "Error when making panelled radiation interface, source not found.");
+        }
+
+        boost::shared_ptr< Body > sourceBody =
+                bodyMap.at( radiationPressureInterfaceSettings->getSourceBody( ) );
+
+        // Get reqruied data for occulting bodies.
+        std::vector< std::string > occultingBodies = panelledSettings->getOccultingBodies( );
+        std::vector< boost::function< Eigen::Vector3d( ) > > occultingBodyPositions;
+        std::vector< double > occultingBodyRadii;
+        getOccultingBodiesInformation( bodyMap, occultingBodies, occultingBodyPositions, occultingBodyRadii );
+
+        // Retrive radius of source if occultations are used.
+        double sourceRadius;
+        if( occultingBodyPositions.size( ) > 0 )
+        {
+            boost::shared_ptr< basic_astrodynamics::BodyShapeModel > sourceShapeModel =
+                    sourceBody->getShapeModel( );
+
+            if( sourceShapeModel == NULL )
+            {
+                throw std::runtime_error(
+                            "Error when making occulted body, source body " + radiationPressureInterfaceSettings->getSourceBody( ) +
+                                          " does not have a shape" );
+            }
+            else
+            {
+                sourceRadius = sourceShapeModel->getAverageRadius( );
+            }
+        }
+        else
+        {
+            sourceRadius = 0.0;
+        }
+
+        // Create function returning radiated power.
+        boost::function< double( ) > radiatedPowerFunction;
+        if( defaultRadiatedPowerValues.count(
+                    radiationPressureInterfaceSettings->getSourceBody( ) ) == 0 )
+        {
+            throw std::runtime_error( "Error, no radiated power found for " +
+                                      radiationPressureInterfaceSettings->getSourceBody( ) );
+        }
+        else
+        {
+            radiatedPowerFunction = boost::lambda::constant(
+                        defaultRadiatedPowerValues.at(
+                            radiationPressureInterfaceSettings->getSourceBody( ) ) );
+        }
+
+        std::vector< boost::function< Eigen::Vector3d( ) > > localFrameSurfaceNormalFunctions;
+        for( unsigned int i = 0; i < panelledSettings->getSurfaceNormalsInBodyFixedFrame( ).size( ); i++ )
+        {
+            localFrameSurfaceNormalFunctions.push_back(
+                        boost::lambda::constant( panelledSettings->getSurfaceNormalsInBodyFixedFrame( ).at( i ) ) );
+        }
+
+        // Create radiation pressure interface.
+        radiationPressureInterface =
+                boost::make_shared< electro_magnetism::PanelledRadiationPressureInterface >(
+                    radiatedPowerFunction,
+                    boost::bind( &Body::getPosition, sourceBody ),
+                    boost::bind( &Body::getPosition, bodyMap.at( bodyName ) ),
+                    localFrameSurfaceNormalFunctions,
+                    panelledSettings->getEmmisivities( ),
+                    panelledSettings->getAreas( ),
+                    panelledSettings->getDiffusionCoefficients( ),
+                    boost::bind( &Body::getCurrentRotationToGlobalFrame, bodyMap.at( bodyName ) ),
+                    occultingBodyPositions, occultingBodyRadii,
+                    sourceRadius );
+        break;
     }
     default:
         throw std::runtime_error(

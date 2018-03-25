@@ -768,6 +768,39 @@ createCannonballRadiationPressureAcceleratioModel(
 
 }
 
+boost::shared_ptr< electro_magnetism::PanelledRadiationPressureAcceleration > createPanelledRadiationPressureAcceleration(
+        const boost::shared_ptr< Body > bodyUndergoingAcceleration,
+        const boost::shared_ptr< Body > bodyExertingAcceleration,
+        const std::string& nameOfBodyUndergoingAcceleration,
+        const std::string& nameOfBodyExertingAcceleration )
+{
+    using namespace tudat::electro_magnetism;
+
+    // Declare pointer to return object.
+    boost::shared_ptr< PanelledRadiationPressureAcceleration > accelerationModel;
+
+    // Get radiation pressure interface from body undergoing acceleration, containing data on how body responds to radiation pressure.
+    boost::shared_ptr< PanelledRadiationPressureInterface > radiationPressureInterface =
+            boost::dynamic_pointer_cast< PanelledRadiationPressureInterface >(
+                bodyUndergoingAcceleration->getRadiationPressureInterfaces( ).at( nameOfBodyExertingAcceleration ) );
+
+    if( radiationPressureInterface == NULL )
+    {
+        throw std::runtime_error(
+                    "Error, body undergoing acceleration, " + nameOfBodyUndergoingAcceleration +
+                    " possesses no radiation pressure coefficient interface when making panelled radiation pressure acceleration due to " +
+                    nameOfBodyExertingAcceleration );
+    }
+    else
+    {
+        // Create acceleration model.
+        accelerationModel = boost::make_shared< PanelledRadiationPressureAcceleration >(
+                    radiationPressureInterface, boost::bind( &Body::getBodyMass, bodyUndergoingAcceleration ) );
+    }
+    return accelerationModel;
+}
+
+
 //! Function to create an orbiter relativistic correction acceleration model
 boost::shared_ptr< relativity::RelativisticAccelerationCorrection > createRelativisticCorrectionAcceleration(
         const boost::shared_ptr< Body > bodyUndergoingAcceleration,
@@ -1205,6 +1238,13 @@ boost::shared_ptr< AccelerationModel< Eigen::Vector3d > > createAccelerationMode
         break;
     case cannon_ball_radiation_pressure:
         accelerationModelPointer = createCannonballRadiationPressureAcceleratioModel(
+                    bodyUndergoingAcceleration,
+                    bodyExertingAcceleration,
+                    nameOfBodyUndergoingAcceleration,
+                    nameOfBodyExertingAcceleration );
+        break;
+    case panelled_radiation_pressure_acceleration:
+        accelerationModelPointer = createPanelledRadiationPressureAcceleration(
                     bodyUndergoingAcceleration,
                     bodyExertingAcceleration,
                     nameOfBodyUndergoingAcceleration,

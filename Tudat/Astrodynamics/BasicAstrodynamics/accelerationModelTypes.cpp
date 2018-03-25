@@ -59,6 +59,10 @@ std::string getAccelerationModelName( const AvailableAcceleration accelerationTy
     case direct_tidal_dissipation_acceleration:
         accelerationName  = "direct tidal dissipation ";
         break;
+    case panelled_radiation_pressure_acceleration:
+        accelerationName  = "panelled radiation pressure acceleration ";
+        break;
+
     default:
         std::string errorMessage = "Error, acceleration type " +
                 std::to_string( accelerationType ) +
@@ -137,6 +141,10 @@ AvailableAcceleration getAccelerationModelType(
     else if( boost::dynamic_pointer_cast<  gravitation::DirectTidalDissipationAcceleration >( accelerationModel ) != NULL )
     {
         accelerationType = direct_tidal_dissipation_acceleration;
+    }
+    else if( boost::dynamic_pointer_cast< PanelledRadiationPressureAcceleration >( accelerationModel ) != NULL )
+    {
+        accelerationType = panelled_radiation_pressure_acceleration;
     }
     else
     {
