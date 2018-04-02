@@ -147,10 +147,10 @@ BOOST_AUTO_TEST_CASE( testTabulatedAtmospherePositionIndependentFunctions)
 BOOST_AUTO_TEST_CASE( testTabulatedAtmosphereDependentVariables )
 {
 
-    std::vector<aerodynamics::TabulatedAtmosphere::atmosphereDependentVariables> dependentVariables;
-    dependentVariables.push_back(aerodynamics::TabulatedAtmosphere::pressure_dependent_variable);
-    dependentVariables.push_back(aerodynamics::TabulatedAtmosphere::density_dependent_variable);
-    dependentVariables.push_back(aerodynamics::TabulatedAtmosphere::temperature_dependent_variable);
+    std::vector< aerodynamics::TabulatedAtmosphere::AtmosphereDependentVariables > dependentVariables;
+    dependentVariables.push_back( aerodynamics::TabulatedAtmosphere::pressure_dependent_atmosphere );
+    dependentVariables.push_back( aerodynamics::TabulatedAtmosphere::density_dependent_atmosphere );
+    dependentVariables.push_back( aerodynamics::TabulatedAtmosphere::temperature_dependent_atmosphere );
 
     // Create a tabulated atmosphere object.
     aerodynamics::TabulatedAtmosphere tabulatedAtmosphere(
@@ -164,7 +164,7 @@ BOOST_AUTO_TEST_CASE( testTabulatedAtmosphereDependentVariables )
     BOOST_CHECK_CLOSE_FRACTION( 288.15, tabulatedAtmosphere.getTemperature( altitude ),
                                 tolerance );
     // Pressure and Density are switched
-    BOOST_CHECK_CLOSE_FRACTION( 101325.0, tabulatedAtmosphere.getDensity( altitude ),1.0e-4 );
+    BOOST_CHECK_CLOSE_FRACTION( 101325.0, tabulatedAtmosphere.getDensity( altitude ), 1.0e-4 );
     BOOST_CHECK_CLOSE_FRACTION( 1.225, tabulatedAtmosphere.getPressure( altitude ), tolerance );
 }
 

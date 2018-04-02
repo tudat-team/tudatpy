@@ -51,26 +51,26 @@ void TabulatedAtmosphere::initialize( const std::string& atmosphereTableFile )
     containsSpecificHeatRatio_ = false;
     containsGasConstant_ = false;
 
-    for (std::vector<int>::size_type i = 0; i < dependentVariables_.size(); i++)
+    for( unsigned int i = 0; i < dependentVariables_.size( ); i++ )
     {
-        switch(dependentVariables_[i])
+        switch( dependentVariables_[ i ] )
         {
-        case density_dependent_variable:
-            densityIndex = i+1;
+        case density_dependent_atmosphere:
+            densityIndex = i + 1;
             break;
-        case pressure_dependent_variable:
-            pressureIndex = i+1;
+        case pressure_dependent_atmosphere:
+            pressureIndex = i + 1;
             break;
-        case temperature_dependent_variable:
-            temperatureIndex = i+1;
+        case temperature_dependent_atmosphere:
+            temperatureIndex = i + 1;
             break;
-        case specific_heat_ratio_dependent_variable:
+        case specific_heat_ratio_dependent_atmosphere:
             containsSpecificHeatRatio_ = true;
-            specificHeatRatioIndex = i+1;
+            specificHeatRatioIndex = i + 1;
             break;
-        case gas_constant_dependent_variable:
+        case gas_constant_dependent_atmosphere:
             containsGasConstant_ = true;
-            gasConstantIndex = i+1;
+            gasConstantIndex = i + 1;
             break;
         default:
             std::string errorMessage = "Error, dependent variable " +
@@ -78,6 +78,12 @@ void TabulatedAtmosphere::initialize( const std::string& atmosphereTableFile )
                     " not found in tabulated atmosphere";
             throw std::runtime_error( errorMessage );
         }
+    }
+
+    if( densityIndex == 0 || pressureIndex == 0 || temperatureIndex == 0 )
+    {
+        throw std::runtime_error(
+                    "Error, tabulated atmosphere must be initialized with at least temperature, pressure and density" );
     }
 
     // Loop through all the strings stored in the container and store the data
@@ -88,10 +94,12 @@ void TabulatedAtmosphere::initialize( const std::string& atmosphereTableFile )
         densityData_[ i ] = containerOfAtmosphereTableFileData( i, densityIndex );
         pressureData_[ i ] = containerOfAtmosphereTableFileData( i, pressureIndex );
         temperatureData_[ i ] = containerOfAtmosphereTableFileData( i, temperatureIndex );
-        if(containsSpecificHeatRatio_){
+        if( containsSpecificHeatRatio_ )
+        {
             specificHeatRatioData_[ i ] = containerOfAtmosphereTableFileData( i, specificHeatRatioIndex );
         }
-        if(containsGasConstant_){
+        if( containsGasConstant_ )
+        {
             gasConstantData_[ i ] = containerOfAtmosphereTableFileData( i, gasConstantIndex );
         }
     }
@@ -106,12 +114,14 @@ void TabulatedAtmosphere::initialize( const std::string& atmosphereTableFile )
     cubicSplineInterpolationForTemperature_
             = boost::make_shared< CubicSplineInterpolatorDouble >( altitudeData_, temperatureData_ );
 
-    if(containsSpecificHeatRatio_){
+    if( containsSpecificHeatRatio_ )
+    {
         cubicSplineInterpolationForSpecificHeatRatio_
             = boost::make_shared< CubicSplineInterpolatorDouble >( altitudeData_, specificHeatRatioData_);
     }
 
-    if(containsGasConstant_){
+    if( containsGasConstant_ )
+    {
         cubicSplineInterpolationForGasConstant_
             = boost::make_shared< CubicSplineInterpolatorDouble >( altitudeData_, gasConstantData_);
     }

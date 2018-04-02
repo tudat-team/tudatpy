@@ -50,13 +50,13 @@ public:
      * Enum of all the possible dependent variables that can be used in the tabulated atmosphere
      * file.
      */
-    enum atmosphereDependentVariables
+    enum AtmosphereDependentVariables
     {
-        density_dependent_variable = 0,
-        pressure_dependent_variable = 1,
-        temperature_dependent_variable = 2,
-        specific_heat_ratio_dependent_variable = 3,
-        gas_constant_dependent_variable = 4
+        density_dependent_atmosphere = 0,
+        pressure_dependent_atmosphere = 1,
+        temperature_dependent_atmosphere = 2,
+        specific_heat_ratio_dependent_atmosphere = 3,
+        gas_constant_dependent_atmosphere = 4
     };
 
     //! Default constructor.
@@ -70,7 +70,8 @@ public:
      *  \param ratioOfSpecificHeats The constant ratio of specific heats of the air
      */
     TabulatedAtmosphere( const std::string& atmosphereTableFile,
-                         const std::vector<atmosphereDependentVariables> dependentVariables = {density_dependent_variable, pressure_dependent_variable, temperature_dependent_variable },
+                         const std::vector< AtmosphereDependentVariables > dependentVariables =
+    { density_dependent_atmosphere, pressure_dependent_atmosphere, temperature_dependent_atmosphere },
                          const double specificGasConstant = physical_constants::SPECIFIC_GAS_CONSTANT_AIR,
                          const double ratioOfSpecificHeats = 1.4 )
         : atmosphereTableFile_( atmosphereTableFile ), dependentVariables_( dependentVariables ),
@@ -97,9 +98,12 @@ public:
         TUDAT_UNUSED_PARAMETER( longitude );
         TUDAT_UNUSED_PARAMETER( latitude );
         TUDAT_UNUSED_PARAMETER( time );
-        if(containsSpecificHeatRatio_){
-            return cubicSplineInterpolationForGasConstant_->interpolate( altitude);
-        } else {
+        if( containsSpecificHeatRatio_ )
+        {
+            return cubicSplineInterpolationForGasConstant_->interpolate( altitude );
+        }
+        else
+        {
             return specificGasConstant_;
         }
     }
@@ -115,9 +119,12 @@ public:
         TUDAT_UNUSED_PARAMETER( longitude );
         TUDAT_UNUSED_PARAMETER( latitude );
         TUDAT_UNUSED_PARAMETER( time );
-        if(containsSpecificHeatRatio_){
-            return cubicSplineInterpolationForSpecificHeatRatio_->interpolate( altitude);
-        } else {
+        if( containsSpecificHeatRatio_ )
+        {
+            return cubicSplineInterpolationForSpecificHeatRatio_->interpolate( altitude );
+        }
+        else
+        {
             return ratioOfSpecificHeats_;
         }
     }
@@ -293,6 +300,13 @@ private:
      */
     interpolators::CubicSplineInterpolatorDoublePointer cubicSplineInterpolationForGasConstant_;
 
+    //! A vector of strings containing the names of the variables contained in the atmosphere file
+    /*!
+     * A vector of strings containing the names of the variables contained in the atmosphere file,
+     * in the correct order (from left, being the first entry in the vector, to the right).
+     */
+    std::vector< AtmosphereDependentVariables > dependentVariables_;
+
     //! Specific gas constant.
     /*!
      * Specific gas constant of the air, its value is assumed constant, due to the assumption of
@@ -300,29 +314,18 @@ private:
      */
     double specificGasConstant_;
 
+    //! Ratio of specific heats of the atmosphrer at constant pressure and constant volume.
     /*!
      *  Ratio of specific heats of the atmosphrer at constant pressure and constant volume.
      *  This value is set to a constant, implying constant atmospheric composition.
      */
     double ratioOfSpecificHeats_;
 
-    /*!
-     *  Bool that determines if the ratio of specific heats is contained in the given
-     *  atmosphere file.
-     */
+    //! Bool that determines if the ratio of specific heats is contained in the given atmosphere file.
     bool containsSpecificHeatRatio_;
 
-    /*!
-     *  Bool that determines if the specific gas constant is contained in the given
-     *  atmosphere file.
-     */
+     //!  Bool that determines if the specific gas constant is contained in the given atmosphere file.
     bool containsGasConstant_;
-
-    /*!
-     * A vector of strings containing the names of the variables contained in the atmosphere file,
-     * in the correct order (from left, being the first entry in the vector, to the right).
-     */
-    std::vector<atmosphereDependentVariables> dependentVariables_;
 };
 
 //! Typedef for shared-pointer to TabulatedAtmosphere object.
