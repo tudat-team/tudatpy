@@ -127,7 +127,6 @@ public:
         stateDerivative.setZero( );
         this->sumStateDerivativeContributions( stateOfSystemToBeIntegrated, stateDerivative, false );
 
-
         // Compute RSW accelerations for each body, and evaluate MEE Gauss equations.
         Eigen::Vector3d currentAccelerationInRswFrame;
         for( unsigned int i = 0; i < this->bodiesToBeIntegratedNumerically_.size( ); i++ )
@@ -223,9 +222,9 @@ private:
     //! List of acceleration models, including the central body accelerations thta are removed in this propagation scheme.
     basic_astrodynamics::AccelerationMap originalAccelerationModelsPerBody_;
 
-    //! Current full Cartesian state of the propagated bodies, w.r.t. trhe central bodies
+    //! Current full Cartesian state of the propagated bodies, w.r.t. the central bodies
     /*!
-     *  Current full Cartesian state of the propagated bodies, w.r.t. trhe central bodies. These variables are set when calling
+     *  Current full Cartesian state of the propagated bodies, w.r.t. the central bodies. These variables are set when calling
      *  the convertToOutputSolution function.
      */
     Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > currentCartesianLocalSoluton_;

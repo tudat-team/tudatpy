@@ -76,9 +76,9 @@ Eigen::Vector6d computeGaussPlanetaryEquationsForKeplerElements(
         const Eigen::Vector3d& accelerationsInInertialFrame,
         const double centralBodyGravitationalParameter );
 
-//! Class for computing the state derivative of translational motion of N bodies, using a Gauss method with Kepler elememnts.
+//! Class for computing the state derivative of translational motion of N bodies, using a Gauss method with Kepler elements.
 /*!
- * Class for computing the state derivative of translational motion of N bodies, using a Gauss method with Kepler elememnts.
+ * Class for computing the state derivative of translational motion of N bodies, using a Gauss method with Kepler elements.
  * In this method, the derivative of the Kepler elements are computed from the total Cartesian accelerations, with the Kepler
  * elements of the bodies the states being numerically propagated.
  */
@@ -93,7 +93,7 @@ public:
      *  \param accelerationModelsPerBody A map containing the list of accelerations acting on each
      *  body, identifying the body being acted on and the body acted on by an acceleration. The map
      *  has as key a string denoting the name of the body the list of accelerations, provided as the
-     *  value corresponding to a key, is acting on.  This map-value is again a map with string as
+     *  value corresponding to a key, is acting on. This map-value is again a map with string as
      *  key, denoting the body exerting the acceleration, and as value a pointer to an acceleration
      *  model.
      *  \param centralBodyData Object responsible for providing the current integration origins from
@@ -138,10 +138,11 @@ public:
             const TimeType time, const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& stateOfSystemToBeIntegrated,
             Eigen::Block< Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic > > stateDerivative )
     {
+        // Get total inertial accelerations acting on bodies
         stateDerivative.setZero( );
         this->sumStateDerivativeContributions( stateOfSystemToBeIntegrated, stateDerivative, false );
 
-
+        // Compute RSW accelerations for each body, and evaluate Gauss equations for Keplerian elements.
         Eigen::Vector3d currentAccelerationInRswFrame;
         for( unsigned int i = 0; i < this->bodiesToBeIntegratedNumerically_.size( ); i++ )
         {
