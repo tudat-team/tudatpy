@@ -318,8 +318,19 @@ public:
      */
     Eigen::MatrixXd getFullCombinedStateTransitionAndSensitivityMatrix( const double evaluationTime );
 
+    //! Function to retrieve the current arc for a given time
+    /*!
+     * Function to retrieve the current arc for a given time
+     * \param evaluationTime Time at which current arc is to be determined
+     * \return Pair with current arc index and associated arc initial time.
+     */
     std::pair< int, double >  getCurrentArc( const double evaluationTime );
 
+    //! Function to retrieve the number of arcs in dynamics
+    /*!
+     * Function to retrieve the number of arcs in dynamics
+     * \return Number of arcs in dynamics
+     */
     int getNumberOfArcs( )
     {
         return arcStartTimes_.size( );
