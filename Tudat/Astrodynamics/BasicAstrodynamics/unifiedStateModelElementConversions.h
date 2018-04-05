@@ -100,16 +100,14 @@ Eigen::Matrix< ScalarType, 7, 1 > convertCartesianToUnifiedStateModelWithQuatern
         const Eigen::Matrix< ScalarType, 6, 1 >& cartesianElements,
         const ScalarType centralBodyGravitationalParameter )
 {
-    // Declaring eventual output vector.
-    Eigen::Matrix< ScalarType, 7, 1 > convertedUnifiedStateModelElements = Eigen::Matrix< ScalarType, 7, 1 >::Zero( );
-
     // Convert Cartesian to Keplerian elements.
     Eigen::Matrix< ScalarType, 6, 1 >  convertedKeplerianElements = convertCartesianToKeplerianElements< ScalarType >(
                 cartesianElements, centralBodyGravitationalParameter );
 
     // Convert Keplerian elements to Unified State Model elements with Quaternions.
     return convertKeplerianToUnifiedStateModelWithQuaternionsElements(
-                convertedKeplerianElements, centralBodyGravitationalParameter ).template cast< ScalarType >( );;
+                convertedKeplerianElements.template cast< double >( ), centralBodyGravitationalParameter ).
+            template cast< ScalarType >( );
 }
 
 //! Convert Unified State Model elements with Quaternions to Cartesian elements.
@@ -144,7 +142,7 @@ Eigen::Matrix< ScalarType, 6, 1 > convertUnifiedStateModelWithQuaternionsToCarte
     // Convert Unified State Model with Quaternions to Keplerian elements.
     Eigen::Matrix< ScalarType, 6, 1 > convertedKeplerianElements =
             convertUnifiedStateModelWithQuaternionsToKeplerianElements(
-                unifiedStateModelElements, centralBodyGravitationalParameter ).template cast< ScalarType >( );
+                unifiedStateModelElements.template cast< double >( ), centralBodyGravitationalParameter ).template cast< ScalarType >( );
 
     // Convert Keplerian elements to Cartesian elements.
     return convertedCartesianElements = convertKeplerianToCartesianElements(
