@@ -45,10 +45,9 @@ namespace orbital_element_conversions
  *         convertedUnifiedStateModelElements( 5 ) = epsilon3 quaternion element,               [-]
  *         convertedUnifiedStateModelElements( 6 ) = eta quaternion element.                    [-]
  */
-template< typename ScalarType = double >
-Eigen::Matrix< ScalarType, 7, 1 > convertKeplerianToUnifiedStateModelWithQuaternionsElements(
-        const Eigen::Matrix< ScalarType, 6, 1 >& keplerianElements,
-        const ScalarType centralBodyGravitationalParameter );
+Eigen::Matrix< double, 7, 1 > convertKeplerianToUnifiedStateModelWithQuaternionsElements(
+        const Eigen::Matrix< double, 6, 1 >& keplerianElements,
+        const double centralBodyGravitationalParameter );
 
 //! Convert Unified State Model elements with Quaternions to Keplerian elements.
 /*!
@@ -71,10 +70,9 @@ Eigen::Matrix< ScalarType, 7, 1 > convertKeplerianToUnifiedStateModelWithQuatern
  *         convertedKeplerianElements( 4 ) = longitude of ascending node,                     [rad]
  *         convertedKeplerianElements( 5 ) = true anomaly.                                    [rad]
  */
-template< typename ScalarType = double >
-Eigen::Matrix< ScalarType, 6, 1 > convertUnifiedStateModelWithQuaternionsToKeplerianElements(
-        const Eigen::Matrix< ScalarType, 7, 1 >& unifiedStateModelElements,
-        const ScalarType centralBodyGravitationalParameter );
+Eigen::Matrix< double, 6, 1 > convertUnifiedStateModelWithQuaternionsToKeplerianElements(
+        const Eigen::Matrix< double, 7, 1 >& unifiedStateModelElements,
+        const double centralBodyGravitationalParameter );
 
 //! Convert Cartesian elements to Unified State Model elements with Quaternions.
 /*!
@@ -100,7 +98,19 @@ Eigen::Matrix< ScalarType, 6, 1 > convertUnifiedStateModelWithQuaternionsToKeple
 template< typename ScalarType = double >
 Eigen::Matrix< ScalarType, 7, 1 > convertCartesianToUnifiedStateModelWithQuaternionsElements(
         const Eigen::Matrix< ScalarType, 6, 1 >& cartesianElements,
-        const ScalarType centralBodyGravitationalParameter );
+        const ScalarType centralBodyGravitationalParameter )
+{
+    // Declaring eventual output vector.
+    Eigen::Matrix< ScalarType, 7, 1 > convertedUnifiedStateModelElements = Eigen::Matrix< ScalarType, 7, 1 >::Zero( );
+
+    // Convert Cartesian to Keplerian elements.
+    Eigen::Matrix< ScalarType, 6, 1 >  convertedKeplerianElements = convertCartesianToKeplerianElements< ScalarType >(
+                cartesianElements, centralBodyGravitationalParameter );
+
+    // Convert Keplerian elements to Unified State Model elements with Quaternions.
+    return convertKeplerianToUnifiedStateModelWithQuaternionsElements(
+                convertedKeplerianElements, centralBodyGravitationalParameter ).template cast< ScalarType >( );;
+}
 
 //! Convert Unified State Model elements with Quaternions to Cartesian elements.
 /*!
@@ -126,7 +136,20 @@ Eigen::Matrix< ScalarType, 7, 1 > convertCartesianToUnifiedStateModelWithQuatern
 template< typename ScalarType = double >
 Eigen::Matrix< ScalarType, 6, 1 > convertUnifiedStateModelWithQuaternionsToCartesianElements(
         const Eigen::Matrix< ScalarType, 7, 1 >& unifiedStateModelElements,
-        const ScalarType centralBodyGravitationalParameter );
+        const ScalarType centralBodyGravitationalParameter )
+{
+    // Declaring eventual output vector.
+    Eigen::Matrix< ScalarType, 6, 1 > convertedCartesianElements = Eigen::Matrix< ScalarType, 6, 1 >::Zero( );
+
+    // Convert Unified State Model with Quaternions to Keplerian elements.
+    Eigen::Matrix< ScalarType, 6, 1 > convertedKeplerianElements =
+            convertUnifiedStateModelWithQuaternionsToKeplerianElements(
+                unifiedStateModelElements, centralBodyGravitationalParameter ).template cast< ScalarType >( );
+
+    // Convert Keplerian elements to Cartesian elements.
+    return convertedCartesianElements = convertKeplerianToCartesianElements(
+                convertedKeplerianElements, centralBodyGravitationalParameter );
+}
 
 } // namespace orbital_element_conversions
 
