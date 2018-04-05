@@ -237,12 +237,13 @@ executeHybridArcMarsAndOrbiterSensitivitySimulation(
     std::vector< boost::shared_ptr< EstimatableParameterSettings > > parameterNames;
     {
         parameterNames.push_back(
-                    boost::make_shared< InitialTranslationalStateEstimatableParameterSettings< StateScalarType > >(
-                        singleArcBodiesToIntegrate.at( 0 ), singleArcInitialStates, singleArcCentralBodies.at( 0 ) ) );
-        parameterNames.push_back(
                     boost::make_shared< ArcWiseInitialTranslationalStateEstimatableParameterSettings< StateScalarType > >(
                         multiArcBodiesToIntegrate.at( 0 ), multiArcPropagatorSettings->getInitialStates( ),
                         integrationArcStarts, multiArcCentralBodies.at( 0 ) ) );
+        parameterNames.push_back(
+                    boost::make_shared< InitialTranslationalStateEstimatableParameterSettings< StateScalarType > >(
+                        singleArcBodiesToIntegrate.at( 0 ), singleArcInitialStates, singleArcCentralBodies.at( 0 ) ) );
+
         parameterNames.push_back( boost::make_shared< EstimatableParameterSettings >( "Sun", gravitational_parameter ) );
         parameterNames.push_back( boost::make_shared< EstimatableParameterSettings >( "Mars", gravitational_parameter ) );
     }

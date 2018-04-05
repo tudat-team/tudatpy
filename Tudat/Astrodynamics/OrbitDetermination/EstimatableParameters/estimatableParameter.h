@@ -258,26 +258,43 @@ public:
         // Iterate over all double parameters and add to parameter size.
         for( unsigned int i = 0; i < estimateInitialStateParameters_.size( ); i++ )
         {
-            initialStateParameters_[ estimatedParameterSetSize_ ] = estimateInitialStateParameters_[ i ];
-            parameterIndices_.push_back( std::make_pair( estimatedParameterSetSize_,
-                                                         estimateInitialStateParameters_[ i ]->getParameterSize( ) ) );
-
             if( isDynamicalParameterSingleArc( estimateInitialStateParameters_[ i ] ) )
             {
-                initialDynamicalSingleArcStateParameterSize_ += estimateInitialStateParameters_[ i ]->getParameterSize( );
-                initialSingleArcStateParameters_[ estimatedParameterSetSize_ ] = estimateInitialStateParameters_[ i ];
                 estimateSingleArcInitialStateParameters_.push_back( estimateInitialStateParameters_[ i ] );
             }
             else
             {
-                initialDynamicalMultiArcStateParameterSize_ += estimateInitialStateParameters_[ i ]->getParameterSize( );
-                initialMultiArcStateParameters_[ estimatedParameterSetSize_ ] = estimateInitialStateParameters_[ i ];
                 estimateMultiArcInitialStateParameters_.push_back( estimateInitialStateParameters_[ i ] );
             }
-            initialDynamicalStateParameterSize_ += estimateInitialStateParameters_[ i ]->getParameterSize( );
-
-            estimatedParameterSetSize_ += estimateInitialStateParameters_[ i ]->getParameterSize( );
         }
+
+        for( unsigned int i = 0; i < estimateSingleArcInitialStateParameters_.size( ); i++ )
+        {
+            initialStateParameters_[ estimatedParameterSetSize_ ] = estimateSingleArcInitialStateParameters_[ i ];
+            parameterIndices_.push_back( std::make_pair( estimatedParameterSetSize_,
+                                                         estimateSingleArcInitialStateParameters_[ i ]->getParameterSize( ) ) );
+
+            initialDynamicalSingleArcStateParameterSize_ += estimateSingleArcInitialStateParameters_[ i ]->getParameterSize( );
+            initialSingleArcStateParameters_[ estimatedParameterSetSize_ ] = estimateSingleArcInitialStateParameters_[ i ];
+
+            initialDynamicalStateParameterSize_ += estimateSingleArcInitialStateParameters_[ i ]->getParameterSize( );
+            estimatedParameterSetSize_ += estimateSingleArcInitialStateParameters_[ i ]->getParameterSize( );
+        }
+
+
+        for( unsigned int i = 0; i < estimateMultiArcInitialStateParameters_.size( ); i++ )
+        {
+            initialStateParameters_[ estimatedParameterSetSize_ ] = estimateMultiArcInitialStateParameters_[ i ];
+            parameterIndices_.push_back( std::make_pair( estimatedParameterSetSize_,
+                                                         estimateMultiArcInitialStateParameters_[ i ]->getParameterSize( ) ) );
+
+            initialDynamicalMultiArcStateParameterSize_ += estimateMultiArcInitialStateParameters_[ i ]->getParameterSize( );
+            initialMultiArcStateParameters_[ estimatedParameterSetSize_ ] = estimateMultiArcInitialStateParameters_[ i ];
+
+            initialDynamicalStateParameterSize_ += estimateMultiArcInitialStateParameters_[ i ]->getParameterSize( );
+            estimatedParameterSetSize_ += estimateMultiArcInitialStateParameters_[ i ]->getParameterSize( );
+        }
+
 
         // Iterate over all double parameters and add to parameter size and set indices in parameterIndices_
         for( unsigned int i = 0; i < estimatedDoubleParameters_.size( ); i++ )
@@ -442,7 +459,7 @@ public:
     //! Function to retrieve double parameter objects.
     /*!
      *  Function to retrieve double parameter objects.
-     *  \return Vector containing all double parameter objects
+     *  \return Map containing all double parameter objects, with map key start index of parameter in total vector.
      */
     std::map< int, boost::shared_ptr< EstimatableParameter< double > > > getDoubleParameters( )
     {
@@ -452,23 +469,40 @@ public:
     //! Function to retrieve vector parameter objects.
     /*!
      *  Function to retrieve vector parameter objects.
-     *  \return Vector containing all vector parameter objects
+     *  \return Map containing all vector parameter objects, with map key start index of parameter in total vector.
      */
     std::map< int, boost::shared_ptr< EstimatableParameter< Eigen::VectorXd > > > getVectorParameters( )
     {
         return vectorParameters_;
     }
 
+    //! Function to retrieve all initial state parameter objects.
+    /*!
+     *  Function to retrieve all initial state parameter objects.
+     *  \return Map containing all initial state parameter objects, with map key start index of parameter in total vector.
+     */
     std::map< int, boost::shared_ptr< EstimatableParameter< Eigen::VectorXd > > > getInitialStateParameters( )
     {
         return initialStateParameters_;
     }
 
+    //! Function to retrieve all single-arc initial state parameter objects.
+    /*!
+     *  Function to retrieve all single-arc initial state parameter objects.
+     *  \return Map containing all single-arc initial state parameter objects, with map key start index of parameter in total
+     *  vector.
+     */
     std::map< int, boost::shared_ptr< EstimatableParameter< Eigen::VectorXd > > > getInitialSingleArcStateParameters( )
     {
         return initialSingleArcStateParameters_;
     }
 
+    //! Function to retrieve all multi-arc initial state parameter objects.
+    /*!
+     *  Function to retrieve all multi-arc initial state parameter objects.
+     *  \return Map containing all multi-arc initial state parameter objects, with map key start index of parameter in total
+     * vector.
+     */
     std::map< int, boost::shared_ptr< EstimatableParameter< Eigen::VectorXd > > > getInitialMultiArcStateParameters( )
     {
         return initialMultiArcStateParameters_;
@@ -583,14 +617,24 @@ protected:
     std::map< int, boost::shared_ptr<
     EstimatableParameter< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > > > initialStateParameters_;
 
+    //! Map containing all single-arc initial state parameter objects, with map key start index of parameter in total vector.
     std::map< int, boost::shared_ptr<
     EstimatableParameter< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > > > initialSingleArcStateParameters_;
 
+    //! Map containing all multi-arc initial state parameter objects, with map key start index of parameter in total vector.
     std::map< int, boost::shared_ptr<
     EstimatableParameter< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > > > initialMultiArcStateParameters_;
 
 };
 
+//! Function to create a subset of all estimated parameters, with either only single-arc or multi-arc initial state parameter
+/*!
+ *  Function to create a subset of all estimated parameters, with either only single-arc or multi-arc initial state parameter.
+ *  All non-dynamical state parameters are copied from the input to the output
+ *  \param parametersToEstimate Total set of parameters
+ *  \param getSingleArcParameters Boolean denoting whether single- or multi-arc initial state parameters are to be kept
+ *  \return Subset of all estimated parameters, with either only single-arc or multi-arc initial state parameter
+ */
 template< typename StateScalarType >
 boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< StateScalarType > > createEstimatableParameterSetArcSubSet(
         boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< StateScalarType > > parametersToEstimate,
@@ -645,7 +689,7 @@ void printEstimatableParameterEntries(
     {
         std::cout << parameterIterator->first << ", " << parameterIterator->second->getParameterDescription( ) << std::endl;
     }
-     std::cout << std::endl;
+    std::cout << std::endl;
 }
 
 //! Function to get the list of names of bodies for which initial translational dynamical state is estimated.
@@ -761,7 +805,7 @@ getListOfInitialDynamicalStateParametersEstimate(
     for( unsigned int i = 0; i < initialDynamicalParameters.size( ); i++ )
     {
         if( ( initialDynamicalParameters.at( i )->getParameterName( ).first == initial_body_state ) ||
-            ( initialDynamicalParameters.at( i )->getParameterName( ).first == arc_wise_initial_body_state ) )
+                ( initialDynamicalParameters.at( i )->getParameterName( ).first == arc_wise_initial_body_state ) )
         {
             initialDynamicalStateParametersEstimate[ propagators::transational_state ].push_back(
                         initialDynamicalParameters.at( i )->getParameterName( ).second );

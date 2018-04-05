@@ -594,7 +594,7 @@ public:
      *  Function to integrate equations of motion only (in single arc).  If dynamical
      *  solution is to be processed, the environment is also updated to the new solution.
      *  \param initialStateEstimate Initial state of the equations of motion that is to be used (in same order as in
-     *  parametersToEstimate_)
+     *  parametersToEstimate_).
      */
     void integrateDynamicalEquationsOfMotionOnly(
             const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& initialStateEstimate )
@@ -895,6 +895,13 @@ void setPropagatorSettingsMultiArcStatesInEstimatedDynamicalParameters(
     }
 }
 
+//! Class to manage and execute the numerical integration of variational equations of a dynamical system in multiple arcs.
+/*!
+ *  Class to manage and execute the numerical integration of variational equations of a dynamical system, in addition
+ *  to the dynamics itself,  in multiple arcs: i.e. the governing equations are propagated for a set of predescribed intervals.
+ *  In this class, the governing equations are set once, but can be re-integrated for different initial conditions using the
+ *  same instance of the class.
+ */
 template< typename StateScalarType = double, typename TimeType = double >
 class MultiArcVariationalEquationsSolver: public VariationalEquationsSolver< StateScalarType, TimeType >
 {
@@ -1430,6 +1437,13 @@ private:
 
 };
 
+//! Class to manage and execute the numerical integration of variational equations of a dynamical system in a combination
+//! of single and multiple arcs
+/*!
+ *  Class to manage and execute the numerical integration of variational equations of a dynamical system, in addition
+ *  to the dynamics itself, in a combination  of single and multiple arcs. In this class, the governing equations are set once,
+ *  but can be re-integrated for different initial conditions using the same instance of the class.
+ */
 template< typename StateScalarType = double, typename TimeType = double >
 class HybridArcVariationalEquationsSolver: public VariationalEquationsSolver< StateScalarType, TimeType >
 {
@@ -1554,6 +1568,17 @@ public:
     //! Destructor
     ~HybridArcVariationalEquationsSolver( ){ }
 
+    //! Function to integrate variational equations and equations of motion.
+    /*!
+     *  Function to integrate variational equations and equations of motion. At the end of this function,
+     *  the stateTransitionInterface_ is reset with the new state transition and sensitivity matrices. If dynamical
+     *  solution is to be processed, the environment is also updated to the new solution.
+     *  \param initialStateEstimate Initial statez of the equations of motion that is to be used (in same order as in
+     *  parametersToEstimate_). The initial states of single and multi-arcs propagations are concatenated into a single
+     *  vector.
+     *  \param integrateEquationsConcurrently Variable determining whether the equations of motion are to be
+     *  propagated concurrently with variational equations of motion (if true), or before variational equations (if false).
+     */
     void integrateVariationalAndDynamicalEquations(
             const VectorType& initialStateEstimate, const bool integrateEquationsConcurrently )
     {
@@ -1613,7 +1638,14 @@ public:
         }
     }
 
-
+    //! Function to integrate equations of motion only.
+    /*!
+     *  Function to integrate equations of motion only.  If dynamical
+     *  solution is to be processed, the environment is also updated to the new solution.
+     *  \param initialStateEstimate Initial state of the equations of motion that is to be used (in same order as in
+     *  parametersToEstimate_). The initial states of single and multi-arcs propagations are concatenated into a single
+     *  vector.
+     */
     void integrateDynamicalEquationsOfMotionOnly(
             const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& initialStateEstimate )
     {
@@ -1647,12 +1679,42 @@ public:
 
     }
 
+    //! Function to reset parameter estimate and re-integrate equations of motion and, if desired, variational equations.
+    /*!
+     *  Function to reset parameter estimate and re-integrate equations of motion and, if desired, variational equations
+     *  using the new physical parameters/body initial states.
+     *  \param newParameterEstimate New estimate of parameters that are to be estimated, in same order as defined
+     *  in parametersToEstimate_ member.
+     *  \param areVariationalEquationsToBeIntegrated Boolean defining whether the variational equations are to be
+     *  reintegrated with the new parameter values.
+     */
     void resetParameterEstimate( const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > newParameterEstimate,
                                  const bool areVariationalEquationsToBeIntegrated = true )
     {
-        throw std::runtime_error( "Error, cannot yet reset hybrid-arc parameters" );
+        // Reset values of parameters.
+        parametersToEstimate_->template resetParameterValues< StateScalarType >( newParameterEstimate );
+        propagatorSettings_->resetInitialStates(
+                    estimatable_parameters::getInitialStateVectorOfBodiesToEstimate( parametersToEstimate_ ) );
+
+
+        // Check if re-integration of variational equations is requested
+        if( areVariationalEquationsToBeIntegrated )
+        {
+
+            // Integrate variational and state equations.
+            this->integrateVariationalAndDynamicalEquations( propagatorSettings_->getInitialStates( ), 1 );
+        }
+        else
+        {
+            this->integrateDynamicalEquationsOfMotionOnly( propagatorSettings_->getInitialStates( ) );
+        }
     }
 
+    //! Function to retrieve propagator settings used for equations of motion
+    /*!
+     * Function to retrieve propagator settings used for equations of motion
+     * \return Propagator settings used for equations of motion
+     */
     boost::shared_ptr< HybridArcPropagatorSettings< StateScalarType > > getPropagatorSettings( )
     {
         return propagatorSettings_;
