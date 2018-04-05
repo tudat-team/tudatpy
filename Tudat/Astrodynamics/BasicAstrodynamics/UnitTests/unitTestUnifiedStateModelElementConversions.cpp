@@ -37,7 +37,7 @@ namespace unit_tests
 BOOST_AUTO_TEST_SUITE( test_USM_Element_Conversions )
 
 //! Unit test for conversion Keplerian orbital elements to Unified State Model elements.
-BOOST_AUTO_TEST_CASE( testConvertKeplerianToUnifiedStateModelElements )
+BOOST_AUTO_TEST_CASE( testconvertKeplerianToUnifiedStateModelWithQuaternionsElements )
 {
     using namespace orbital_element_conversions;
     using namespace unit_conversions;
@@ -79,7 +79,7 @@ BOOST_AUTO_TEST_CASE( testConvertKeplerianToUnifiedStateModelElements )
 
         // Compute Unified State Model elements.
         computedUnifiedStateModelElements =
-                convertKeplerianToUnifiedStateModelElements( keplerianElements,
+                convertKeplerianToUnifiedStateModelWithQuaternionsElements( keplerianElements,
                                                                centralBodyGravitationalParameter );
 
         // Check if computed Unified State Model elements match the expected values.
@@ -111,7 +111,7 @@ BOOST_AUTO_TEST_CASE( testConvertKeplerianToUnifiedStateModelElements )
 
         // Compute Unified State Model elements.
         computedUnifiedStateModelElements =
-                convertKeplerianToUnifiedStateModelElements( keplerianElements,
+                convertKeplerianToUnifiedStateModelWithQuaternionsElements( keplerianElements,
                                                                centralBodyGravitationalParameter );
 
         // Check if computed Unified State Model elements match the expected values.
@@ -141,7 +141,7 @@ BOOST_AUTO_TEST_CASE( testConvertKeplerianToUnifiedStateModelElements )
 
         // Compute Unified State Model elements.
         computedUnifiedStateModelElements =
-                convertKeplerianToUnifiedStateModelElements( keplerianElements,
+                convertKeplerianToUnifiedStateModelWithQuaternionsElements( keplerianElements,
                                                                centralBodyGravitationalParameter );
 
         // Check if computed Unified State Model elements match the expected values.
@@ -163,7 +163,7 @@ BOOST_AUTO_TEST_CASE( testConvertKeplerianToUnifiedStateModelElements )
         try
         {
             computedUnifiedStateModelElements =
-                    convertKeplerianToUnifiedStateModelElements( keplerianElements,
+                    convertKeplerianToUnifiedStateModelWithQuaternionsElements( keplerianElements,
                                                                  centralBodyGravitationalParameter );
         }
         catch( std::runtime_error )
@@ -188,7 +188,7 @@ BOOST_AUTO_TEST_CASE( testConvertKeplerianToUnifiedStateModelElements )
         try
         {
             computedUnifiedStateModelElements =
-                    convertKeplerianToUnifiedStateModelElements( keplerianElements,
+                    convertKeplerianToUnifiedStateModelWithQuaternionsElements( keplerianElements,
                                                                  centralBodyGravitationalParameter );
         }
         catch( std::runtime_error )
@@ -217,7 +217,7 @@ BOOST_AUTO_TEST_CASE( testConvertKeplerianToUnifiedStateModelElements )
 
         // Compute Unified State Model elements.
         computedUnifiedStateModelElements =
-                convertKeplerianToUnifiedStateModelElements( keplerianElements,
+                convertKeplerianToUnifiedStateModelWithQuaternionsElements( keplerianElements,
                                                                centralBodyGravitationalParameter );
 
         // Because two elements are near-zero, a close fraction/percentage check will fail.
@@ -256,7 +256,7 @@ BOOST_AUTO_TEST_CASE( testConvertKeplerianToUnifiedStateModelElements )
 
         // Compute Unified State Model elements.
         computedUnifiedStateModelElements =
-                convertKeplerianToUnifiedStateModelElements( keplerianElements,
+                convertKeplerianToUnifiedStateModelWithQuaternionsElements( keplerianElements,
                                                                centralBodyGravitationalParameter );
 
         // Check if computed elements match the expected values.
@@ -272,7 +272,7 @@ BOOST_AUTO_TEST_CASE( testConvertKeplerianToUnifiedStateModelElements )
         // Try to convert Kepler to Unified State Model Elements
         try
         {
-            computedUnifiedStateModelElements = convertKeplerianToUnifiedStateModelElements
+            computedUnifiedStateModelElements = convertKeplerianToUnifiedStateModelWithQuaternionsElements
                     ( keplerianElements, centralBodyGravitationalParameter );
         }
         // Catch the expected runtime error, and set the boolean flag to true.
@@ -288,7 +288,7 @@ BOOST_AUTO_TEST_CASE( testConvertKeplerianToUnifiedStateModelElements )
 
 
 //! Unit test for the conversion of Unified State Model elements to Keplerian elements
-BOOST_AUTO_TEST_CASE( testConvertUnifiedStateModelToKeplerianElements )
+BOOST_AUTO_TEST_CASE( testconvertUnifiedStateModelWithQuaternionsToKeplerianElements )
 {
     /* Used procedure:
       Because the Kepler to Unified State Model elements are verified, a subsequent conversion back
@@ -325,8 +325,8 @@ BOOST_AUTO_TEST_CASE( testConvertUnifiedStateModelToKeplerianElements )
         // Default case, so no modification necessary.
 
         // Convert to Unified State Model elements and back.
-        computedKeplerianElements = convertUnifiedStateModelToKeplerianElements(
-                    convertKeplerianToUnifiedStateModelElements( expectedKeplerianElements,
+        computedKeplerianElements = convertUnifiedStateModelWithQuaternionsToKeplerianElements(
+                    convertKeplerianToUnifiedStateModelWithQuaternionsElements( expectedKeplerianElements,
                                                                    centralBodyGravitationalParameter ),
                     centralBodyGravitationalParameter );
 
@@ -344,8 +344,8 @@ BOOST_AUTO_TEST_CASE( testConvertUnifiedStateModelToKeplerianElements )
         expectedKeplerianElements( trueAnomalyIndex ) = convertDegreesToRadians( 10.0 ); // 170 is above limit
 
         // Convert to Unified State Model elements and back.
-        computedKeplerianElements = convertUnifiedStateModelToKeplerianElements(
-                    convertKeplerianToUnifiedStateModelElements( expectedKeplerianElements,
+        computedKeplerianElements = convertUnifiedStateModelWithQuaternionsToKeplerianElements(
+                    convertKeplerianToUnifiedStateModelWithQuaternionsElements( expectedKeplerianElements,
                                                                    centralBodyGravitationalParameter ),
                     centralBodyGravitationalParameter );
 
@@ -362,8 +362,8 @@ BOOST_AUTO_TEST_CASE( testConvertUnifiedStateModelToKeplerianElements )
         expectedKeplerianElements( inclinationIndex ) = convertDegreesToRadians( 90.0 );
 
         // Convert to Unified State Model elements and back.
-        computedKeplerianElements = convertUnifiedStateModelToKeplerianElements(
-                    convertKeplerianToUnifiedStateModelElements( expectedKeplerianElements,
+        computedKeplerianElements = convertUnifiedStateModelWithQuaternionsToKeplerianElements(
+                    convertKeplerianToUnifiedStateModelWithQuaternionsElements( expectedKeplerianElements,
                                                                    centralBodyGravitationalParameter ),
                     centralBodyGravitationalParameter );
 
@@ -381,8 +381,8 @@ BOOST_AUTO_TEST_CASE( testConvertUnifiedStateModelToKeplerianElements )
         expectedKeplerianElements( argumentOfPeriapsisIndex ) = 0.0; // For e = 0, undefined.
 
         // Convert to Unified State Model elements and back.
-        computedKeplerianElements = convertUnifiedStateModelToKeplerianElements(
-                    convertKeplerianToUnifiedStateModelElements( expectedKeplerianElements,
+        computedKeplerianElements = convertUnifiedStateModelWithQuaternionsToKeplerianElements(
+                    convertKeplerianToUnifiedStateModelWithQuaternionsElements( expectedKeplerianElements,
                                                                    centralBodyGravitationalParameter ),
                     centralBodyGravitationalParameter );
 
@@ -400,8 +400,8 @@ BOOST_AUTO_TEST_CASE( testConvertUnifiedStateModelToKeplerianElements )
         // non-inclined orbit planes, this parameter is undefined
 
         // Convert to Unified State Model elements and back.
-        computedKeplerianElements = convertUnifiedStateModelToKeplerianElements(
-                    convertKeplerianToUnifiedStateModelElements( expectedKeplerianElements,
+        computedKeplerianElements = convertUnifiedStateModelWithQuaternionsToKeplerianElements(
+                    convertKeplerianToUnifiedStateModelWithQuaternionsElements( expectedKeplerianElements,
                                                                    centralBodyGravitationalParameter ),
                     centralBodyGravitationalParameter );
 
@@ -423,8 +423,8 @@ BOOST_AUTO_TEST_CASE( testConvertUnifiedStateModelToKeplerianElements )
         // Try convert to Unified State Model elements and back and catch the expected runtime error.
         try
         {
-            computedKeplerianElements = convertUnifiedStateModelToKeplerianElements(
-                    convertKeplerianToUnifiedStateModelElements( expectedKeplerianElements,
+            computedKeplerianElements = convertUnifiedStateModelWithQuaternionsToKeplerianElements(
+                    convertKeplerianToUnifiedStateModelWithQuaternionsElements( expectedKeplerianElements,
                                                                  centralBodyGravitationalParameter ),
                         centralBodyGravitationalParameter );
         }
@@ -446,8 +446,8 @@ BOOST_AUTO_TEST_CASE( testConvertUnifiedStateModelToKeplerianElements )
             // longitude of ascending node was set to 0 in case 5, so no error.
 
         // Convert to Unified State Model elements and back
-        computedKeplerianElements = convertUnifiedStateModelToKeplerianElements(
-                    convertKeplerianToUnifiedStateModelElements( expectedKeplerianElements,
+        computedKeplerianElements = convertUnifiedStateModelWithQuaternionsToKeplerianElements(
+                    convertKeplerianToUnifiedStateModelWithQuaternionsElements( expectedKeplerianElements,
                                                                    centralBodyGravitationalParameter ),
                     centralBodyGravitationalParameter );
 
@@ -467,8 +467,8 @@ BOOST_AUTO_TEST_CASE( testConvertUnifiedStateModelToKeplerianElements )
         expectedKeplerianElements( trueAnomalyIndex ) = convertDegreesToRadians( 240.0 );
 
         // Convert to Unified State Model elements and back
-        computedKeplerianElements = convertUnifiedStateModelToKeplerianElements(
-                    convertKeplerianToUnifiedStateModelElements( expectedKeplerianElements,
+        computedKeplerianElements = convertUnifiedStateModelWithQuaternionsToKeplerianElements(
+                    convertKeplerianToUnifiedStateModelWithQuaternionsElements( expectedKeplerianElements,
                                                                    centralBodyGravitationalParameter ),
                     centralBodyGravitationalParameter );
 
