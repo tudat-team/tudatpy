@@ -38,7 +38,8 @@ enum TranslationalPropagatorType
     cowell = 0,
     encke = 1,
     gauss_keplerian = 2,
-    gauss_modified_equinoctial = 3
+    gauss_modified_equinoctial = 3,
+    unified_state_model_quaternions = 4
 };
 
 //! Function to remove the central gravity acceleration from an AccelerationMap
