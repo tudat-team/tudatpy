@@ -31,8 +31,8 @@ namespace tudat
 namespace orbital_element_conversions
 {
 
-//! Convert Keplerian elements to Unified State Model elements.
-Eigen::Matrix< double, 7, 1 > convertKeplerianToUnifiedStateModelElements(
+//! Convert Keplerian elements to Unified State Model elements with Quaternions.
+Eigen::Matrix< double, 7, 1 > convertKeplerianToUnifiedStateModelWithQuaternionsElements(
         const Eigen::Vector6d& keplerianElements,
         const double centralBodyGravitationalParameter )
 {
@@ -221,8 +221,8 @@ Eigen::Matrix< double, 7, 1 > convertKeplerianToUnifiedStateModelElements(
 
 }
 
-//! Convert Unified State Model elements to Keplerian elements.
-Eigen::Vector6d convertUnifiedStateModelToKeplerianElements(
+//! Convert Unified State Model elements with Quaternions to Keplerian elements.
+Eigen::Vector6d convertUnifiedStateModelWithQuaternionsToKeplerianElements(
         const Eigen::Matrix< double, 7, 1 >& unifiedStateModelElements,
         const double centralBodyGravitationalParameter )
 {
@@ -451,6 +451,40 @@ Eigen::Vector6d convertUnifiedStateModelToKeplerianElements(
 
     // Give back result
     return convertedKeplerianElements;
+}
+
+//! Convert Cartesian elements to Unified State Model elements with Quaternions.
+Eigen::Matrix< double, 7, 1 > convertCartesianToUnifiedStateModelWithQuaternionsElements(
+        const Eigen::Vector6d& cartesianElements,
+        const double centralBodyGravitationalParameter )
+{
+    // Declaring eventual output vector.
+    Eigen::Matrix< double, 7, 1 > convertedUnifiedStateModelElements = Eigen::Matrix< double, 7, 1 >::Zero( 7, 1 );
+
+    // Convert Cartesian to Keplerian elements.
+    Eigen::Vector6d convertedKeplerianElements = convertCartesianToKeplerianElements(
+                cartesianElements, centralBodyGravitationalParameter );
+
+    // Convert Keplerian elements to Unified State Model elements with Quaternions.
+    return convertedUnifiedStateModelElements = convertKeplerianToUnifiedStateModelWithQuaternionsElements(
+                convertedKeplerianElements, centralBodyGravitationalParameter );
+}
+
+//! Convert Unified State Model elements with Quaternions to Cartesian elements.
+Eigen::Vector6d convertUnifiedStateModelWithQuaternionsToCartesianElements(
+        const Eigen::Matrix< double, 7, 1 >& unifiedStateModelElements,
+        const double centralBodyGravitationalParameter )
+{
+    // Declaring eventual output vector.
+    Eigen::Vector6d convertedCartesianElements = Eigen::Vector6d::Zero( 6 );
+
+    // Convert Unified State Model with Quaternions to Keplerian elements.
+    Eigen::Vector6d convertedKeplerianElements = convertUnifiedStateModelWithQuaternionsToKeplerianElements(
+                unifiedStateModelElements, centralBodyGravitationalParameter );
+
+    // Convert Keplerian elements to Cartesian elements.
+    return convertedCartesianElements = convertKeplerianToCartesianElements(
+                convertedKeplerianElements, centralBodyGravitationalParameter );
 }
 
 } // close namespace orbital_element_conversions

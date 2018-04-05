@@ -24,9 +24,9 @@ namespace tudat
 namespace orbital_element_conversions
 {
 
-//! Convert Keplerian to Unified State Model elements.
+//! Convert Keplerian to Unified State Model elements with Quaternions.
 /*!
- * Converts Keplerian to Unified State Model elements.
+ * Converts Keplerian to Unified State Model elements with Quaternions.
  * \param keplerianElements Vector containing Keplerian elements. Order of elements is important!
  *         keplerianElements( 0 ) = semi-major axis,                                            [m]
  *         keplerianElements( 1 ) = eccentricity,                                               [-]
@@ -35,7 +35,8 @@ namespace orbital_element_conversions
  *         keplerianElements( 4 ) = longitude of ascending node,                              [rad]
  *         keplerianElements( 5 ) = true anomaly.                                             [rad]
  * \param centralBodyGravitationalParameter Gravitational parameter of central body.      [m^3/s^2]
- * \return convertedUnifiedStateModelElements Converted state in Unified State Model elements. The order of elements is fixed
+ * \return convertedUnifiedStateModelElements Converted state in Unified State Model elements with Quaternions.
+ *         The order of elements is fixed
  *         convertedUnifiedStateModelElements( 0 ) = C hodograph element,                     [m/s]
  *         convertedUnifiedStateModelElements( 1 ) = Rf1 hodograph element,                   [m/s]
  *         convertedUnifiedStateModelElements( 2 ) = Rf1 hodograph element,                   [m/s]
@@ -44,14 +45,16 @@ namespace orbital_element_conversions
  *         convertedUnifiedStateModelElements( 5 ) = epsilon3 quaternion element,               [-]
  *         convertedUnifiedStateModelElements( 6 ) = eta quaternion element.                    [-]
  */
-Eigen::Matrix< double, 7, 1 > convertKeplerianToUnifiedStateModelElements(
-        const Eigen::Vector6d& keplerianElements,
-        const double centralBodyGravitationalParameter );
+template< typename ScalarType = double >
+Eigen::Matrix< ScalarType, 7, 1 > convertKeplerianToUnifiedStateModelWithQuaternionsElements(
+        const Eigen::Matrix< ScalarType, 6, 1 >& keplerianElements,
+        const ScalarType centralBodyGravitationalParameter );
 
-//! Convert Unified State Model elements to Keplerian elements.
+//! Convert Unified State Model elements with Quaternions to Keplerian elements.
 /*!
- * Converts Unified State Model elements to Keplerian elements.
- * \param unifiedStateModelElements Vector containing Unified State Model elements. Order of elements is important!
+ * Converts Unified State Model elements with Quaternions to Keplerian elements.
+ * \param unifiedStateModelElements Vector containing Unified State Model elements with Quaternions.
+ *         Order of elements is important!
  *         unifiedStateModelElements( 0 ) = C hodograph element,                              [m/s]
  *         unifiedStateModelElements( 1 ) = Rf1 hodograph element,                            [m/s]
  *         unifiedStateModelElements( 2 ) = Rf1 hodograph element,                            [m/s]
@@ -68,9 +71,62 @@ Eigen::Matrix< double, 7, 1 > convertKeplerianToUnifiedStateModelElements(
  *         convertedKeplerianElements( 4 ) = longitude of ascending node,                     [rad]
  *         convertedKeplerianElements( 5 ) = true anomaly.                                    [rad]
  */
-Eigen::Vector6d convertUnifiedStateModelToKeplerianElements(
-        const Eigen::Matrix< double, 7, 1 >& unifiedStateModelElements,
-        const double centralBodyGravitationalParameter );
+template< typename ScalarType = double >
+Eigen::Matrix< ScalarType, 6, 1 > convertUnifiedStateModelWithQuaternionsToKeplerianElements(
+        const Eigen::Matrix< ScalarType, 7, 1 >& unifiedStateModelElements,
+        const ScalarType centralBodyGravitationalParameter );
+
+//! Convert Cartesian elements to Unified State Model elements with Quaternions.
+/*!
+ * Converts Cartesian to Unified State Model elements with Quaternions.
+ * \param cartesianElements Converted state in Cartesian elements. The order of elements is fixed!
+ *         cartesianElements( 0 ) = x-position coordinate,                                      [m]
+ *         cartesianElements( 1 ) = y-position coordinate,                                      [m]
+ *         cartesianElements( 2 ) = z-position coordinate,                                      [m]
+ *         cartesianElements( 3 ) = x-velocity coordinate,                                    [m/s]
+ *         cartesianElements( 4 ) = y-velocity coordinate,                                    [m/s]
+ *         cartesianElements( 5 ) = z-velocity coordinate.                                    [m/s]
+ * \param centralBodyGravitationalParameter Gravitational parameter of central body.      [m^3/s^2]
+ * \return convertedUnifiedStateModelElements Converted state in Unified State Model elements with Quaternions.
+ *         The order of elements is fixed
+ *         convertedUnifiedStateModelElements( 0 ) = C hodograph element,                     [m/s]
+ *         convertedUnifiedStateModelElements( 1 ) = Rf1 hodograph element,                   [m/s]
+ *         convertedUnifiedStateModelElements( 2 ) = Rf1 hodograph element,                   [m/s]
+ *         convertedUnifiedStateModelElements( 3 ) = epsilon1 quaternion element,               [-]
+ *         convertedUnifiedStateModelElements( 4 ) = epsilon2 quaternion element,               [-]
+ *         convertedUnifiedStateModelElements( 5 ) = epsilon3 quaternion element,               [-]
+ *         convertedUnifiedStateModelElements( 6 ) = eta quaternion element.                    [-]
+ */
+template< typename ScalarType = double >
+Eigen::Matrix< ScalarType, 7, 1 > convertCartesianToUnifiedStateModelWithQuaternionsElements(
+        const Eigen::Matrix< ScalarType, 6, 1 >& cartesianElements,
+        const ScalarType centralBodyGravitationalParameter );
+
+//! Convert Unified State Model elements with Quaternions to Cartesian elements.
+/*!
+* Converts Unified State Model elements with Quaternions to Cartesian elements.
+* \param unifiedStateModelElements Vector containing Unified State Model elements with Quaternions.
+*        Order of elements is important!
+*         unifiedStateModelElements( 0 ) = C hodograph element,                              [m/s]
+*         unifiedStateModelElements( 1 ) = Rf1 hodograph element,                            [m/s]
+*         unifiedStateModelElements( 2 ) = Rf1 hodograph element,                            [m/s]
+*         unifiedStateModelElements( 3 ) = epsilon1 quaternion element,                        [-]
+*         unifiedStateModelElements( 4 ) = epsilon2 quaternion element,                        [-]
+*         unifiedStateModelElements( 5 ) = epsilon3 quaternion element,                        [-]
+*         unifiedStateModelElements( 6 ) = eta quaternion element.                             [-]
+* \param centralBodyGravitationalParameter Gravitational parameter of central body.      [m^3/s^2]
+* \return convertedCartesianElements Converted state in Cartesian elements. The order of elements is fixed!
+ *         convertedCartesianElements( 0 ) = x-position coordinate,                            [m]
+ *         convertedCartesianElements( 1 ) = y-position coordinate,                            [m]
+ *         convertedCartesianElements( 2 ) = z-position coordinate,                            [m]
+ *         convertedCartesianElements( 3 ) = x-velocity coordinate,                          [m/s]
+ *         convertedCartesianElements( 4 ) = y-velocity coordinate,                          [m/s]
+ *         convertedCartesianElements( 5 ) = z-velocity coordinate.                          [m/s]
+*/
+template< typename ScalarType = double >
+Eigen::Matrix< ScalarType, 6, 1 > convertUnifiedStateModelWithQuaternionsToCartesianElements(
+        const Eigen::Matrix< ScalarType, 7, 1 >& unifiedStateModelElements,
+        const ScalarType centralBodyGravitationalParameter );
 
 } // namespace orbital_element_conversions
 

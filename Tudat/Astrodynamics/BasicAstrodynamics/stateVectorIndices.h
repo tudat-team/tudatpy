@@ -63,7 +63,7 @@ enum SphericalOrbitalStateElementIndices
 };
 
 //! Unified State Model indices.
-enum UnifiedStateModelElementIndices
+enum UnifiedStateModelWithQuaternionsElementIndices
 {
     CHodographIndex = 0,
     Rf1HodographIndex = 1,
