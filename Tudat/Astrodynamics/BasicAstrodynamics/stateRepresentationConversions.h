@@ -30,7 +30,8 @@ enum StateElementTypes
 {
     cartesian_state,
     keplerian_state,
-    modified_equinoctial_state
+    modified_equinoctial_state,
+    unified_state_model_quaternions_state
 };
 
 //! Enum defining available types of position representations

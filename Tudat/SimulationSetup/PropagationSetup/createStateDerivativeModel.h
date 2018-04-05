@@ -22,6 +22,7 @@
 #include "Tudat/Astrodynamics/Propagators/nBodyEnckeStateDerivative.h"
 #include "Tudat/Astrodynamics/Propagators/nBodyGaussKeplerStateDerivative.h"
 #include "Tudat/Astrodynamics/Propagators/nBodyGaussModifiedEquinoctialStateDerivative.h"
+#include "Tudat/Astrodynamics/Propagators/nBodyUnifiedStateModelWithQuaternionsStateDerivative.h"
 #include "Tudat/Astrodynamics/Propagators/rotationalMotionStateDerivative.h"
 #include "Tudat/Astrodynamics/Propagators/bodyMassStateDerivative.h"
 #include "Tudat/Astrodynamics/Propagators/customStateDerivative.h"
@@ -184,7 +185,7 @@ createTranslationalStateDerivativeModel(
     }
     case gauss_keplerian:
     {
-        // Create Encke state derivative object.
+        // Create Keplerian state derivative object.
         stateDerivativeModel = boost::make_shared< NBodyGaussKeplerStateDerivative< StateScalarType, TimeType > >
                 ( translationPropagatorSettings->getAccelerationsMap( ), centralBodyData,
                   translationPropagatorSettings->bodiesToIntegrate_ );
@@ -200,7 +201,7 @@ createTranslationalStateDerivativeModel(
         {
             if( bodyMap.count( centralBodies[ i ] ) == 0 )
             {
-                std::string errorMessage = "Error when creating Encke propagator, did not find central body " + centralBodies[ i ];
+                std::string errorMessage = "Error when creating modified equinoctial propagator, did not find central body " + centralBodies[ i ];
                 throw std::runtime_error( errorMessage );
             }
             initialKeplerElements.push_back( orbital_element_conversions::convertCartesianToKeplerianElements< StateScalarType >(
@@ -208,10 +209,19 @@ createTranslationalStateDerivativeModel(
                                                      bodyMap.at( centralBodies[ i ] )->getGravityFieldModel( )->getGravitationalParameter( ) ) ) );
         }
 
-        // Create Encke state derivative object.:
+        // Create modified equinoctial state derivative object.:
         stateDerivativeModel = boost::make_shared< NBodyGaussModifiedEquinictialStateDerivative< StateScalarType, TimeType > >
                 ( translationPropagatorSettings->getAccelerationsMap( ), centralBodyData,
                   translationPropagatorSettings->bodiesToIntegrate_, initialKeplerElements );
+
+        break;
+    }
+    case unified_state_model_quaternions:
+    {
+        // Create USM7 state derivative object.
+        stateDerivativeModel = boost::make_shared< NBodyUnifiedStateModelWithQuaternionsStateDerivative< StateScalarType, TimeType > >
+                ( translationPropagatorSettings->getAccelerationsMap( ), centralBodyData,
+                  translationPropagatorSettings->bodiesToIntegrate_ );
 
         break;
     }
