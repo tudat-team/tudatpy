@@ -310,6 +310,7 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicPartials )
     sphericalStatePerturbation( 0 ) *= 10.0;
     sphericalStatePerturbation( 1 ) *= 100.0;
     sphericalStatePerturbation( 2 ) *= 1000.0;
+    std::map< std::pair< int, int >, Eigen::Vector3d > dummyMap;
 
     for( unsigned parameter = 0; parameter < 3; parameter++ )
     {
@@ -324,7 +325,7 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicPartials )
                 coordinate_conversions::getSphericalToCartesianGradientMatrix( perturbedCartesianPosition ).inverse( ) *
                 computeGeodesyNormalizedGravitationalAccelerationSum(
                     perturbedCartesianPosition, gravitationalParameter, planetaryRadius, cosineCoefficients, sineCoefficients,
-                    sphericalHarmonicsCache );
+                    sphericalHarmonicsCache, dummyMap );
 
         perturbedSphericalPosition = nominalSphericalPosition;
         perturbedSphericalPosition( parameter ) -= sphericalStatePerturbation( parameter );
@@ -337,7 +338,7 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicPartials )
                 coordinate_conversions::getSphericalToCartesianGradientMatrix( perturbedCartesianPosition ).inverse( ) *
                 computeGeodesyNormalizedGravitationalAccelerationSum(
                     perturbedCartesianPosition, gravitationalParameter, planetaryRadius, cosineCoefficients, sineCoefficients,
-                    sphericalHarmonicsCache );
+                    sphericalHarmonicsCache, dummyMap );
 
         numericalTotalSphericalGradient.block( 0, parameter, 3, 1 ) =
                 ( upPerturbedTotalGradient - downPerturbedTotalGradient ) / ( 2.0 * sphericalStatePerturbation( parameter ) );
@@ -360,7 +361,7 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicPartials )
                 coordinate_conversions::getSphericalToCartesianGradientMatrix( perturbedCartesianPosition ).inverse( ) *
                 computeGeodesyNormalizedGravitationalAccelerationSum(
                     perturbedCartesianPosition, gravitationalParameter, planetaryRadius, cosineCoefficients, sineCoefficients,
-                    sphericalHarmonicsCache );
+                    sphericalHarmonicsCache, dummyMap );
 
         perturbedCartesianPosition = position;
         perturbedCartesianPosition( parameter ) -= cartesianStatePerturbation( parameter );
@@ -370,7 +371,7 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicPartials )
                 coordinate_conversions::getSphericalToCartesianGradientMatrix( perturbedCartesianPosition ).inverse( ) *
                 computeGeodesyNormalizedGravitationalAccelerationSum(
                     perturbedCartesianPosition, gravitationalParameter, planetaryRadius, cosineCoefficients, sineCoefficients,
-                    sphericalHarmonicsCache );
+                    sphericalHarmonicsCache, dummyMap );
 
         numericalTotalSphericalGradient.block( 0, parameter, 3, 1 ) =
                 ( upPerturbedTotalGradient - downPerturbedTotalGradient ) / ( 2.0 * cartesianStatePerturbation( parameter ) );
@@ -394,7 +395,7 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicPartials )
         upPerturbedTotalGradient =
                 computeGeodesyNormalizedGravitationalAccelerationSum(
                     perturbedCartesianPosition, gravitationalParameter, planetaryRadius, cosineCoefficients, sineCoefficients,
-                    sphericalHarmonicsCache );
+                    sphericalHarmonicsCache, dummyMap );
 
         perturbedCartesianPosition = position;
         perturbedCartesianPosition( parameter ) -= cartesianStatePerturbation( parameter );
@@ -402,7 +403,7 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicPartials )
         downPerturbedTotalGradient =
                 computeGeodesyNormalizedGravitationalAccelerationSum(
                     perturbedCartesianPosition, gravitationalParameter, planetaryRadius, cosineCoefficients, sineCoefficients,
-                    sphericalHarmonicsCache );
+                    sphericalHarmonicsCache, dummyMap );
 
         numericalTotalSphericalGradient.block( 0, parameter, 3, 1 ) =
                 ( upPerturbedTotalGradient - downPerturbedTotalGradient ) / ( 2.0 * cartesianStatePerturbation( parameter ) );
