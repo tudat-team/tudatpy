@@ -561,6 +561,16 @@ Eigen::Matrix3d getDerivativeOfZAxisRotationWrtAngle( const double angle );
  */
 Eigen::Matrix3d getDerivativeOfZAxisRotationWrtAngle( const Eigen::Matrix3d& rotationMatrix );
 
+Eigen::Vector3d getBodyFixedCartesianPosition(
+        const boost::function< Eigen::Vector3d( ) > positionFunctionOfCentralBody,
+        const boost::function< Eigen::Vector3d( ) > positionFunctionOfRelativeBody,
+        const boost::function< Eigen::Quaterniond( ) > orientationFunctionOfCentralBody );
+
+Eigen::Vector3d getBodyFixedSphericalPosition(
+        const boost::function< Eigen::Vector3d( ) > positionFunctionOfCentralBody,
+        const boost::function< Eigen::Vector3d( ) > positionFunctionOfRelativeBody,
+        const boost::function< Eigen::Quaterniond( ) > orientationFunctionOfCentralBody );
+
 } // namespace reference_frames
 
 } // namespace tudat
