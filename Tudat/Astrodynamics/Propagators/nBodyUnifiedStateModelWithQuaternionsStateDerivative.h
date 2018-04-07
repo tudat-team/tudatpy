@@ -37,8 +37,8 @@ namespace propagators
  * \param pParameter Value of the vector gamma (see Vittaldev, 2010)
  * \return Time derivatives of USM7 elements.
  */
-Eigen::VectorXd computeStateDerivativeForUnifiedStateModelWithQuaternions(
-        const Eigen::VectorXd& currentUnifiedStateModelElements,
+Eigen::Vector7d computeStateDerivativeForUnifiedStateModelWithQuaternions(
+        const Eigen::Vector7d& currentUnifiedStateModelElements,
         const Eigen::Vector3d& accelerationsInRswFrame,
         const double sineLambdaParameter,
         const double cosineLambdaParameter,
@@ -56,8 +56,8 @@ Eigen::VectorXd computeStateDerivativeForUnifiedStateModelWithQuaternions(
  * \param centralBodyGravitationalParameter Gravitational parameter of sum of central body and body for which orbit is propagated.
  * \return Time derivatives of USM7 elements.
  */
-Eigen::VectorXd computeStateDerivativeForUnifiedStateModelWithQuaternions(
-        const Eigen::VectorXd& currentUnifiedStateModelElements,
+Eigen::Vector7d computeStateDerivativeForUnifiedStateModelWithQuaternions(
+        const Eigen::Vector7d& currentUnifiedStateModelElements,
         const Eigen::Vector3d& accelerationsInRswFrame,
         const double centralBodyGravitationalParameter );
 
@@ -66,15 +66,15 @@ Eigen::VectorXd computeStateDerivativeForUnifiedStateModelWithQuaternions(
  * Function to evaluate the equations of motion for the unifies state model with quaternions (USM7), providing the
  * time-derivatives of USM7 elements from the accelerations expressed in an RSW frame (see Vallado, 2001). This function takes the accelerations
  * in the inertial frame, as well as the Cartesian inertial state, and converts the accelerations to the RSW frame.
- * \param currentOsculatingKeplerElements Current osculating Kepler elements of the body for which the Gauss equations are
+ * \param currentUnifiedStateModelElements Current USM7 elements of the body for which the equations of motion are
  * to be evaluated
  * \param currentCartesianState Current Cartesian state of the body for which the equations of motion are to be evaluated
  * \param accelerationsInInertialFrame Accelerations acting on body, expressed in inertial frame
  * \param centralBodyGravitationalParameter Gravitational parameter of sum of central body and body for which orbit is propagated.
  * \return Time derivatives of USM7 elements.
  */
-Eigen::VectorXd computeStateDerivativeForUnifiedStateModelWithQuaternions(
-        const Eigen::VectorXd& currentUnifiedStateModelElements,
+Eigen::Vector7d computeStateDerivativeForUnifiedStateModelWithQuaternions(
+        const Eigen::Vector7d& currentUnifiedStateModelElements,
         const Eigen::Vector6d& currentCartesianState,
         const Eigen::Vector3d& accelerationsInInertialFrame,
         const double centralBodyGravitationalParameter );
@@ -125,10 +125,10 @@ public:
     //! Destructor
     ~NBodyUnifiedStateModelWithQuaternionsStateDerivative( ){ }
 
-    //! Calculates the state derivative of the translational motion of the system, using the Gauss equations for the
+    //! Calculates the state derivative of the translational motion of the system, using the equations of motion for the
     //! unified state model with quaternions (USM7).
     /*!
-     *  Calculates the state derivative of the translational motion of the system, using the Gauss equations for the
+     *  Calculates the state derivative of the translational motion of the system, using the equations of motion for the
      *  unified state model with quaternions (USM7). The input is the current state in USM7 elememts. The state derivate
      *  of this set is computed. To do so the accelerations are internally transformed into the RSW frame, using the current
      *  Cartesian state as set by the last call to the convertToOutputSolution function
@@ -151,6 +151,13 @@ public:
         Eigen::Vector3d currentAccelerationInRswFrame;
         for( unsigned int i = 0; i < this->bodiesToBeIntegratedNumerically_.size( ); i++ )
         {
+            // REMOVE vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv REMOVE
+            std::cout << "Rotation matrix: " << std::endl <<
+                         reference_frames::getInertialToRswSatelliteCenteredFrameRotationMatrx(
+                             currentCartesianLocalSoluton_.segment( i * 6, 6 ).template cast< double >( ) ) << std::endl;
+            std::cout << "State derivative (acceleration)" << std::endl <<
+                         stateDerivative.block( i * 7, 0, 7, 1 ) << std::endl;
+            // REMOVE ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ REMOVE
             currentAccelerationInRswFrame = reference_frames::getInertialToRswSatelliteCenteredFrameRotationMatrx(
                         currentCartesianLocalSoluton_.segment( i * 6, 6 ).template cast< double >( ) ) *
                     stateDerivative.block( i * 7 + 3, 0, 3, 1 ).template cast< double >( );
@@ -213,13 +220,28 @@ public:
             const Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >& internalSolution, const TimeType& time,
             Eigen::Block< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > currentCartesianLocalSoluton )
     {
+        Eigen::Matrix< StateScalarType, 4, 1 > quaternions;
         Eigen::Matrix< StateScalarType, 6, 1 > currentCartesianState;
         Eigen::Matrix< StateScalarType, 7, 1 > currentUnifiedStateModelState;
 
         // Convert state to Cartesian for each body
         for( unsigned int i = 0; i < this->bodiesToBeIntegratedNumerically_.size( ); i++ )
         {
-            currentUnifiedStateModelState = internalSolution.block( i * 7, 0, 7, 1 );
+            // REMOVE vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv REMOVE
+            std::cout << "State derivative (before): " << std::endl <<
+                         internalSolution.block( i * 7, 0, 7, 1 ) << std::endl;
+            // REMOVE ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ REMOVE
+            // Normalize quaternions
+            quaternions = internalSolution.block( i * 7 + 3, 0, 4, 1 );
+            quaternions = quaternions / quaternions.norm( );
+
+            // Get current solution
+            currentUnifiedStateModelState.segment( 0, 3 ) = internalSolution.block( i * 7, 0, 3, 1 );
+            currentUnifiedStateModelState.segment( 3, 4 ) = quaternions;
+            // REMOVE vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv REMOVE
+            std::cout << "State derivative (after): " << std::endl << currentUnifiedStateModelState << std::endl;
+            // REMOVE ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ REMOVE
+
             currentCartesianState =
                     orbital_element_conversions::convertUnifiedStateModelWithQuaternionsToCartesianElements< StateScalarType >(
                         currentUnifiedStateModelState, static_cast< StateScalarType >(
@@ -232,7 +254,7 @@ public:
 
     //! Function to get the acceleration models
     /*!
-     * Function to get the acceleration models, including the central body accelerations that are removed for the Gauss
+     * Function to get the acceleration models, including the central body accelerations that are removed for the
      * propagation scheme
      * \return List of acceleration models, including the central body accelerations that are removed in this propagation scheme.
      */
