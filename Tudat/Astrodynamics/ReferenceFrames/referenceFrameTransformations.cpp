@@ -537,6 +537,7 @@ Eigen::Matrix3d getDerivativeOfZAxisRotationWrtAngle( const Eigen::Matrix3d& rot
     return Z_AXIS_ROTATION_MATRIX_DERIVATIVE_PREMULTIPLIER * rotationMatrix;
 }
 
+//! Function to compute a body-fixed relative cartesian position
 Eigen::Vector3d getBodyFixedCartesianPosition(
         const boost::function< Eigen::Vector3d( ) > positionFunctionOfCentralBody,
         const boost::function< Eigen::Vector3d( ) > positionFunctionOfRelativeBody,
@@ -546,6 +547,7 @@ Eigen::Vector3d getBodyFixedCartesianPosition(
                 positionFunctionOfRelativeBody( ) - positionFunctionOfCentralBody( ) );
 }
 
+//! Function to compute a body-fixed relative spherical position
 Eigen::Vector3d getBodyFixedSphericalPosition(
         const boost::function< Eigen::Vector3d( ) > positionFunctionOfCentralBody,
         const boost::function< Eigen::Vector3d( ) > positionFunctionOfRelativeBody,
