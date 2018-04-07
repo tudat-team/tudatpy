@@ -804,19 +804,19 @@ std::vector< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1  > > getInitialSt
 //! Function to get the initial state of a translational state arc from the previous state's numerical solution
 /*!
  *  Function to get the initial state of a translational state arc from the previous state's numerical solution
- *  \param previousArcDynamisSolution Numerical solution of previous arc
+ *  \param previousArcDynamicsSolution Numerical solution of previous arc
  *  \param currentArcInitialTime Start time of current arc
  *  \return Interpolated initial state of current arc
  */
 template< typename StateScalarType = double, typename TimeType = double >
 Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > getArcInitialStateFromPreviousArcResult(
-        const std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >& previousArcDynamisSolution,
+        const std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >& previousArcDynamicsSolution,
         const double currentArcInitialTime )
 {
     Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > currentArcInitialState;
     {
         // Check if overlap exists
-        if( previousArcDynamisSolution.rbegin( )->first < currentArcInitialTime )
+        if( previousArcDynamicsSolution.rbegin( )->first < currentArcInitialTime )
         {
             throw std::runtime_error(
                         "Error when getting initial arc state from previous arc: no arc overlap" );
@@ -830,8 +830,8 @@ Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > getArcInitialStateFromPrevio
 
             // Set sub-part of previous arc to interpolate for current arc
             for( typename std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >::
-                 const_reverse_iterator previousArcIterator = previousArcDynamisSolution.rbegin( );
-                 previousArcIterator != previousArcDynamisSolution.rend( ); previousArcIterator++ )
+                 const_reverse_iterator previousArcIterator = previousArcDynamicsSolution.rbegin( );
+                 previousArcIterator != previousArcDynamicsSolution.rend( ); previousArcIterator++ )
             {
                 initialStateInterpolationMap[ previousArcIterator->first ] = previousArcIterator->second;
                 if( initialTimeIndex < 0 )

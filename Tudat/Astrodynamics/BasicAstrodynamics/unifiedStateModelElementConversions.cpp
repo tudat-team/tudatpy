@@ -32,14 +32,14 @@ namespace orbital_element_conversions
 {
 
 //! Convert Keplerian elements to Unified State Model elements with Quaternions.
-Eigen::Matrix< double, 7, 1 > convertKeplerianToUnifiedStateModelWithQuaternionsElements(
+Eigen::Vector7d convertKeplerianToUnifiedStateModelWithQuaternionsElements(
         const Eigen::Vector6d& keplerianElements,
         const double centralBodyGravitationalParameter )
 {
     using mathematical_constants::PI;
 
     // Declaring eventual output vector.
-    Eigen::Matrix< double, 7, 1 > convertedUnifiedStateModelElements = Eigen::Matrix< double, 7, 1 >::Zero( );
+    Eigen::Vector7d convertedUnifiedStateModelElements = Eigen::Vector7d::Zero( );
 
     // Define the tolerance of a singularity
     double singularityTolerance = 1.0e-15; // Based on tolerance chosen in
@@ -75,7 +75,7 @@ Eigen::Matrix< double, 7, 1 > convertKeplerianToUnifiedStateModelWithQuaternions
     {
         // Define the error message.
         std::stringstream errorMessage;
-        errorMessage << "RAAN is expected in range [0," << 2.0 * PI << "]\n"
+        errorMessage << "Argument of periapsis is expected in range [0," << 2.0 * PI << "]\n"
                      << "Specified inclination: " << keplerianElements( argumentOfPeriapsisIndex ) << " rad." << std::endl;
 
         // Throw exception.
@@ -101,7 +101,7 @@ Eigen::Matrix< double, 7, 1 > convertKeplerianToUnifiedStateModelWithQuaternions
     {
         // Define the error message.
         std::stringstream errorMessage;
-        errorMessage << "RAAN is expected in range [0," << 2.0 * PI << "]\n"
+        errorMessage << "True anomaly is expected in range [0," << 2.0 * PI << "]\n"
                      << "Specified inclination: " << keplerianElements( trueAnomalyIndex ) << " rad." << std::endl;
 
         // Throw exception.
@@ -223,7 +223,7 @@ Eigen::Matrix< double, 7, 1 > convertKeplerianToUnifiedStateModelWithQuaternions
 
 //! Convert Unified State Model elements with Quaternions to Keplerian elements.
 Eigen::Vector6d convertUnifiedStateModelWithQuaternionsToKeplerianElements(
-        const Eigen::Matrix< double, 7, 1 >& unifiedStateModelElements,
+        const Eigen::Vector7d& unifiedStateModelElements,
         const double centralBodyGravitationalParameter )
 {
     using mathematical_constants::PI;
