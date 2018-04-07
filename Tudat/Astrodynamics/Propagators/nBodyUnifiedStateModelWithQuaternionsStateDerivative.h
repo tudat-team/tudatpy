@@ -155,12 +155,12 @@ public:
             std::cout << "Rotation matrix: " << std::endl <<
                          reference_frames::getInertialToRswSatelliteCenteredFrameRotationMatrx(
                              currentCartesianLocalSoluton_.segment( i * 6, 6 ).template cast< double >( ) ) << std::endl;
-            std::cout << "State derivative (acceleration)" << std::endl <<
-                         stateDerivative.block( i * 7, 0, 7, 1 ) << std::endl;
+            std::cout << "State derivative (acceleration): " << std::endl <<
+                         stateDerivative << std::endl;
             // REMOVE ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ REMOVE
             currentAccelerationInRswFrame = reference_frames::getInertialToRswSatelliteCenteredFrameRotationMatrx(
                         currentCartesianLocalSoluton_.segment( i * 6, 6 ).template cast< double >( ) ) *
-                    stateDerivative.block( i * 7 + 3, 0, 3, 1 ).template cast< double >( );
+                    stateDerivative.block( i * 6 + 3, 0, 6, 1 ).template cast< double >( );
 
             stateDerivative.block( i * 7, 0, 7, 1 ) = computeStateDerivativeForUnifiedStateModelWithQuaternions(
                         stateOfSystemToBeIntegrated.block( i * 7, 0, 7, 1 ).template cast< double >( ), currentAccelerationInRswFrame,
