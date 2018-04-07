@@ -228,7 +228,7 @@ public:
         for( unsigned int i = 0; i < this->bodiesToBeIntegratedNumerically_.size( ); i++ )
         {
             // REMOVE vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv REMOVE
-            std::cout << "State derivative (before): " << std::endl <<
+            std::cout << "Propagated USM state (before): " << std::endl <<
                          internalSolution.block( i * 7, 0, 7, 1 ) << std::endl;
             // REMOVE ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ REMOVE
             // Normalize quaternions
@@ -239,7 +239,7 @@ public:
             currentUnifiedStateModelState.segment( 0, 3 ) = internalSolution.block( i * 7, 0, 3, 1 );
             currentUnifiedStateModelState.segment( 3, 4 ) = quaternions;
             // REMOVE vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv REMOVE
-            std::cout << "State derivative (after): " << std::endl << currentUnifiedStateModelState << std::endl;
+            std::cout << "Propagated USM state (after): " << std::endl << currentUnifiedStateModelState << std::endl;
             // REMOVE ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ REMOVE
 
             currentCartesianState =
