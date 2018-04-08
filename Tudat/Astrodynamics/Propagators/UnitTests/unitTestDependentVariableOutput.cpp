@@ -615,10 +615,104 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicDependentVariableOutput )
                         10.0 * ( variableIterator->second.segment( 12, 3 ) ).norm( ) * std::numeric_limits< double >::epsilon( ) );
         }
     }
+}
 
+BOOST_AUTO_TEST_CASE( testDependentVariableEnvironmentUpdate )
+{
+    std::string kernelsPath = input_output::getSpiceKernelPath( );
+    spice_interface::loadStandardSpiceKernels( );
+
+    // Define bodies in simulation.
+    unsigned int totalNumberOfBodies = 4;
+    std::vector< std::string > bodyNames;
+    bodyNames.resize( totalNumberOfBodies );
+    bodyNames[ 0 ] = "Moon";
+    bodyNames[ 1 ] = "Earth";
+    bodyNames[ 2 ] = "Venus";
+    bodyNames[ 3 ] = "Sun";
+
+    // Create bodies needed in simulation
+    std::map< std::string, boost::shared_ptr< BodySettings > > bodySettings =
+            getDefaultBodySettings( bodyNames );
+    NamedBodyMap bodyMap = createBodies( bodySettings );
+    setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );
+
+    SelectedAccelerationMap accelerationMap;
+    accelerationMap[ "Earth" ][ "Moon" ].push_back(
+                boost::make_shared< AccelerationSettings >( central_gravity ) );
+    accelerationMap[ "Earth" ][ "Sun" ].push_back(
+                boost::make_shared< AccelerationSettings >( central_gravity ) );
+
+    std::vector< std::string > bodiesToPropagate;
+    bodiesToPropagate.push_back( "Earth" );
+
+    std::vector< std::string > centralBodies;
+    centralBodies.push_back( "SSB" );
+
+    // Create acceleration models and propagation settings.
+    AccelerationMap accelerationModelMap = createAccelerationModelsMap(
+                bodyMap, accelerationMap, bodiesToPropagate, centralBodies );
+
+    // Specify initial time
+    double initialEphemerisTime = 0.0;
+    double finalEphemerisTime = 28.0 * 86400.0;
+
+    // Get initial state vector as input to integration.
+    Eigen::VectorXd systemInitialState = getInitialStatesOfBodies(
+                bodiesToPropagate, centralBodies, bodyMap, initialEphemerisTime );
+
+    std::vector< boost::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariables;
+
+    dependentVariables.push_back(
+                boost::make_shared< SingleDependentVariableSaveSettings >(
+                    relative_position_dependent_variable, "Sun", "Venus" ) );
+    dependentVariables.push_back(
+                boost::make_shared< BodyAerodynamicAngleVariableSaveSettings >(
+                    "Moon", reference_frames::latitude_angle, "Earth" ) );
+    dependentVariables.push_back(
+                boost::make_shared< BodyAerodynamicAngleVariableSaveSettings >(
+                    "Moon", reference_frames::longitude_angle, "Earth" ) );
+
+//    relative_speed_dependent_variable = 4,
+//    relative_position_dependent_variable = 5,
+//    relative_distance_dependent_variable = 6,
+//    relative_velocity_dependent_variable
+
+    boost::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
+            boost::make_shared< TranslationalStatePropagatorSettings< double > >
+            ( centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState, finalEphemerisTime, cowell,
+              boost::make_shared< DependentVariableSaveSettings >( dependentVariables )  );
+
+    // Define numerical integrator settings.
+    boost::shared_ptr< IntegratorSettings< > > integratorSettings =
+            boost::make_shared< IntegratorSettings< > >
+            ( rungeKutta4, initialEphemerisTime, 3600.0 );
+
+
+    // Create simulation object and propagate dynamics.
+    SingleArcDynamicsSimulator< > dynamicsSimulator(
+                bodyMap, integratorSettings, propagatorSettings, true, false, false );
+
+    std::map< double, Eigen::VectorXd > depdendentVariableResult = dynamicsSimulator.getDependentVariableHistory( );
+
+    for( std::map< double, Eigen::VectorXd >::iterator variableIterator = depdendentVariableResult.begin( );
+         variableIterator != depdendentVariableResult.end( ); variableIterator++ )
+    {
+        Eigen::Vector3d expectedRelativePosition =
+                tudat::spice_interface::getBodyCartesianPositionAtEpoch(
+                    "Sun", "Venus", "ECLIPJ2000", "None", variableIterator->first );
+        Eigen::Vector3d computedRelativePosition = variableIterator->second.segment( 0, 3 );
+
+        for( unsigned int i = 0; i < 3; i ++ )
+        {
+            BOOST_CHECK_SMALL(
+                        std::fabs( expectedRelativePosition( i ) - computedRelativePosition( i ) ), 1.0E-4 );
+        }
+    }
 
 }
 BOOST_AUTO_TEST_SUITE_END( )
+
 
 
 }

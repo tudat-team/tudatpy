@@ -21,6 +21,7 @@
 #include "Tudat/Astrodynamics/Propagators/rotationalMotionStateDerivative.h"
 #include "Tudat/SimulationSetup/EnvironmentSetup/body.h"
 #include "Tudat/SimulationSetup/PropagationSetup/propagationOutputSettings.h"
+#include "Tudat/SimulationSetup/EnvironmentSetup/createFlightConditions.h"
 
 namespace tudat
 {
@@ -375,9 +376,9 @@ std::pair< boost::function< Eigen::VectorXd( ) >, int > getVectorDependentVariab
     {
         if( bodyMap.at( bodyWithProperty )->getFlightConditions( ) == NULL )
         {
-            std::string errorMessage = "Error, no flight conditions available when requesting density output of aerodynamic force coefficients " +
-                    bodyWithProperty + "w.r.t." + secondaryBody;
-            throw std::runtime_error( errorMessage );
+            bodyMap.at( bodyWithProperty )->setFlightConditions(
+                        createFlightConditions(
+                            bodyMap.at( bodyWithProperty ), bodyMap.at( secondaryBody ), bodyWithProperty, secondaryBody ) );
         }
 
         variableFunction = boost::bind(
@@ -391,10 +392,9 @@ std::pair< boost::function< Eigen::VectorXd( ) >, int > getVectorDependentVariab
     {
         if( bodyMap.at( bodyWithProperty )->getFlightConditions( ) == NULL )
         {
-
-            std::string errorMessage = "Error, no flight conditions available when requesting density output of aerodynamic moment coefficients " +
-                    bodyWithProperty + "w.r.t." + secondaryBody;
-            throw std::runtime_error( errorMessage );
+            bodyMap.at( bodyWithProperty )->setFlightConditions(
+                        createFlightConditions(
+                            bodyMap.at( bodyWithProperty ), bodyMap.at( secondaryBody ), bodyWithProperty, secondaryBody ) );
         }
 
         variableFunction = boost::bind(
@@ -416,8 +416,9 @@ std::pair< boost::function< Eigen::VectorXd( ) >, int > getVectorDependentVariab
     {
         if( bodyMap.at( bodyWithProperty )->getFlightConditions( ) == NULL )
         {
-            std::string errorMessage= "Error, no flight conditions when creating dependent variable function of type intermediate_aerodynamic_rotation_matrix_variable";
-            throw std::runtime_error( errorMessage );
+            bodyMap.at( bodyWithProperty )->setFlightConditions(
+                        createFlightConditions(
+                            bodyMap.at( bodyWithProperty ), bodyMap.at( secondaryBody ), bodyWithProperty, secondaryBody ) );
         }
 
         // Check input consistency.
@@ -445,8 +446,9 @@ std::pair< boost::function< Eigen::VectorXd( ) >, int > getVectorDependentVariab
     {
         if( bodyMap.at( bodyWithProperty )->getFlightConditions( ) == NULL )
         {
-            std::string errorMessage= "Error, no flight conditions when creating dependent variable function of type body_fixed_airspeed_based_velocity_variable";
-            throw std::runtime_error( errorMessage );
+            bodyMap.at( bodyWithProperty )->setFlightConditions(
+                        createFlightConditions(
+                            bodyMap.at( bodyWithProperty ), bodyMap.at( secondaryBody ), bodyWithProperty, secondaryBody ) );
         }
 
         variableFunction = boost::bind( &aerodynamics::FlightConditions::getCurrentAirspeedBasedVelocity,
@@ -458,8 +460,9 @@ std::pair< boost::function< Eigen::VectorXd( ) >, int > getVectorDependentVariab
     {
         if( bodyMap.at( bodyWithProperty )->getFlightConditions( ) == NULL )
         {
-            std::string errorMessage= "Error, no flight conditions when creating dependent variable function of type body_fixed_groundspeed_based_velocity_variable";
-            throw std::runtime_error( errorMessage );
+            bodyMap.at( bodyWithProperty )->setFlightConditions(
+                        createFlightConditions(
+                            bodyMap.at( bodyWithProperty ), bodyMap.at( secondaryBody ), bodyWithProperty, secondaryBody ) );
         }
 
         if(  bodyMap.at( bodyWithProperty )->getFlightConditions( )->getAerodynamicAngleCalculator( ) == NULL )
@@ -774,9 +777,9 @@ boost::function< double( ) > getDoubleDependentVariableFunction(
         {
             if( bodyMap.at( bodyWithProperty )->getFlightConditions( ) == NULL )
             {
-                std::string errorMessage = "Error, no flight conditions available when requesting Mach number output of " +
-                        bodyWithProperty + "w.r.t." + secondaryBody;
-                throw std::runtime_error( errorMessage );
+                bodyMap.at( bodyWithProperty )->setFlightConditions(
+                            createFlightConditions(
+                                bodyMap.at( bodyWithProperty ), bodyMap.at( secondaryBody ), bodyWithProperty, secondaryBody ) );
             }
 
             boost::function< double( const double, const double ) > functionToEvaluate =
@@ -798,9 +801,9 @@ boost::function< double( ) > getDoubleDependentVariableFunction(
         case altitude_dependent_variable:
             if( bodyMap.at( bodyWithProperty )->getFlightConditions( ) == NULL )
             {
-                std::string errorMessage = "Error, no flight conditions available when requesting altitude output of " +
-                        bodyWithProperty + "w.r.t." + secondaryBody;
-                throw std::runtime_error( errorMessage );
+                bodyMap.at( bodyWithProperty )->setFlightConditions(
+                            createFlightConditions(
+                                bodyMap.at( bodyWithProperty ), bodyMap.at( secondaryBody ), bodyWithProperty, secondaryBody ) );
             }
             variableFunction = boost::bind( &aerodynamics::FlightConditions::getCurrentAltitude,
                                             bodyMap.at( bodyWithProperty )->getFlightConditions( ) );
@@ -808,9 +811,9 @@ boost::function< double( ) > getDoubleDependentVariableFunction(
         case airspeed_dependent_variable:
             if( bodyMap.at( bodyWithProperty )->getFlightConditions( ) == NULL )
             {
-                std::string errorMessage = "Error, no flight conditions available when requesting airspeed output of " +
-                        bodyWithProperty + "w.r.t." + secondaryBody;
-                throw std::runtime_error( errorMessage );
+                bodyMap.at( bodyWithProperty )->setFlightConditions(
+                            createFlightConditions(
+                                bodyMap.at( bodyWithProperty ), bodyMap.at( secondaryBody ), bodyWithProperty, secondaryBody ) );
             }
             variableFunction = boost::bind( &aerodynamics::FlightConditions::getCurrentAirspeed,
                                             bodyMap.at( bodyWithProperty )->getFlightConditions( ) );
@@ -818,9 +821,9 @@ boost::function< double( ) > getDoubleDependentVariableFunction(
         case local_density_dependent_variable:
             if( bodyMap.at( bodyWithProperty )->getFlightConditions( ) == NULL )
             {
-                std::string errorMessage = "Error, no flight conditions available when requesting density output of " +
-                        bodyWithProperty + "w.r.t." + secondaryBody;
-                throw std::runtime_error( errorMessage );
+                bodyMap.at( bodyWithProperty )->setFlightConditions(
+                            createFlightConditions(
+                                bodyMap.at( bodyWithProperty ), bodyMap.at( secondaryBody ), bodyWithProperty, secondaryBody ) );
             }
             variableFunction = boost::bind( &aerodynamics::FlightConditions::getCurrentDensity,
                                             bodyMap.at( bodyWithProperty )->getFlightConditions( ) );
@@ -985,9 +988,9 @@ boost::function< double( ) > getDoubleDependentVariableFunction(
         {
             if( bodyMap.at( bodyWithProperty )->getFlightConditions( ) == NULL )
             {
-                std::string errorMessage = "Error when flight conditions for relative_body_aerodynamic_orientation_angle_variable output " +
-                        bodyWithProperty + " has no flight conditions";
-                throw std::runtime_error( errorMessage );
+                bodyMap.at( bodyWithProperty )->setFlightConditions(
+                            createFlightConditions(
+                                bodyMap.at( bodyWithProperty ), bodyMap.at( secondaryBody ), bodyWithProperty, secondaryBody ) );
             }
 
             // Check input consistency.
@@ -1027,9 +1030,9 @@ boost::function< double( ) > getDoubleDependentVariableFunction(
 
             if( bodyMap.at( bodyWithProperty )->getFlightConditions( ) == NULL )
             {
-                std::string errorMessage = "Error no flight conditions available when requesting stagnation point heating output of" +
-                        bodyWithProperty + "w.r.t." + secondaryBody;
-                throw std::runtime_error( errorMessage );
+                bodyMap.at( bodyWithProperty )->setFlightConditions(
+                            createFlightConditions(
+                                bodyMap.at( bodyWithProperty ), bodyMap.at( secondaryBody ), bodyWithProperty, secondaryBody ) );
             }
 
             boost::shared_ptr< aerodynamics::FlightConditions > flightConditions =
@@ -1070,9 +1073,9 @@ boost::function< double( ) > getDoubleDependentVariableFunction(
         {
             if( bodyMap.at( bodyWithProperty )->getFlightConditions( ) == NULL )
             {
-                std::string errorMessage = "Error, no flight conditions available when requesting temperature output of " +
-                        bodyWithProperty + "w.r.t." + secondaryBody;
-                throw std::runtime_error( errorMessage );
+                bodyMap.at( bodyWithProperty )->setFlightConditions(
+                            createFlightConditions(
+                                bodyMap.at( bodyWithProperty ), bodyMap.at( secondaryBody ), bodyWithProperty, secondaryBody ) );
             }
             variableFunction = boost::bind( &aerodynamics::FlightConditions::getCurrentFreestreamTemperature,
                                             bodyMap.at( bodyWithProperty )->getFlightConditions( ) );
@@ -1082,9 +1085,9 @@ boost::function< double( ) > getDoubleDependentVariableFunction(
         {
             if( bodyMap.at( bodyWithProperty )->getFlightConditions( ) == NULL )
             {
-                std::string errorMessage = "Error, no flight conditions available when requesting geodetic latitude output of " +
-                        bodyWithProperty + "w.r.t." + secondaryBody;
-                throw std::runtime_error( errorMessage );
+                bodyMap.at( bodyWithProperty )->setFlightConditions(
+                            createFlightConditions(
+                                bodyMap.at( bodyWithProperty ), bodyMap.at( secondaryBody ), bodyWithProperty, secondaryBody ) );
             }
 
             variableFunction = boost::bind( &aerodynamics::FlightConditions::getCurrentGeodeticLatitude,

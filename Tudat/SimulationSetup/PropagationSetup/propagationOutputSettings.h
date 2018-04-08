@@ -318,8 +318,9 @@ public:
      */
     BodyAerodynamicAngleVariableSaveSettings(
             const std::string& associatedBody,
-            const reference_frames::AerodynamicsReferenceFrameAngles angle ):
-        SingleDependentVariableSaveSettings( relative_body_aerodynamic_orientation_angle_variable, associatedBody ),
+            const reference_frames::AerodynamicsReferenceFrameAngles angle,
+            const std::string& centralBody = "" ):
+        SingleDependentVariableSaveSettings( relative_body_aerodynamic_orientation_angle_variable, associatedBody, centralBody ),
         angle_( angle ){ }
 
     //! Orientation angle that is to be saved.

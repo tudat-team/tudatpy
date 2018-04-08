@@ -37,6 +37,10 @@ void checkValidityOfRequiredEnvironmentUpdates(
         requestedUpdates,
         const simulation_setup::NamedBodyMap& bodyMap );
 
+void removePropagatedStatesFomEnvironmentUpdates(
+        std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > >& environmentModelsToUpdate,
+        const std::map< IntegratedStateType, std::vector< std::pair< std::string, std::string > > >& integratedStateList );
+
 //! Get list of required environment model update settings from torque models.
 /*!
  * Get list of required environment model update settings from torque models.
@@ -72,6 +76,11 @@ createMassPropagationEnvironmentUpdaterSettings(
         const std::map< std::string, std::vector< boost::shared_ptr< basic_astrodynamics::MassRateModel > > > massRateModels,
         const simulation_setup::NamedBodyMap& bodyMap );
 
+std::map< propagators::EnvironmentModelsToUpdate,
+std::vector< std::string > > createEnvironmentUpdaterSettings(
+        const boost::shared_ptr< DependentVariableSaveSettings > dependentVariableSaveSettings,
+        const simulation_setup::NamedBodyMap& bodyMap );
+
 //! Get list of required environment model update settings from a list of propagation settings.
 /*!
 * Get list of required environment model update settings from a list of propagation settings.
@@ -82,12 +91,12 @@ createMassPropagationEnvironmentUpdaterSettings(
 */
 template< typename StateScalarType >
 std::map< propagators::EnvironmentModelsToUpdate,
-    std::vector< std::string > > createEnvironmentUpdaterSettings(
+std::vector< std::string > > createEnvironmentUpdaterSettings(
         const boost::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > propagatorSettings,
         const simulation_setup::NamedBodyMap& bodyMap )
 {
     std::map< propagators::EnvironmentModelsToUpdate,
-        std::vector< std::string > > environmentModelsToUpdate;
+            std::vector< std::string > > environmentModelsToUpdate;
 
     // Check dynamics type
     switch( propagatorSettings->getStateType( ) )
@@ -127,7 +136,7 @@ std::map< propagators::EnvironmentModelsToUpdate,
         }
         break;
     }
-    // Retrieve environment model settings for translational dynamics
+        // Retrieve environment model settings for translational dynamics
     case transational_state:
     {
         environmentModelsToUpdate = createTranslationalEquationsOfMotionEnvironmentUpdaterSettings(
@@ -144,7 +153,7 @@ std::map< propagators::EnvironmentModelsToUpdate,
                     bodyMap );
         break;
     }
-    // Retrieve environment model settings for mass rate model
+        // Retrieve environment model settings for mass rate model
     case body_mass_state:
     {
         environmentModelsToUpdate = createMassPropagationEnvironmentUpdaterSettings(
@@ -163,6 +172,18 @@ std::map< propagators::EnvironmentModelsToUpdate,
                                   std::to_string( propagatorSettings->getStateType( ) ) );
     }
     }
+
+    std::map< propagators::EnvironmentModelsToUpdate,
+            std::vector< std::string > > environmentModelsToUpdateForDependentVariables =
+            createEnvironmentUpdaterSettings(
+                propagatorSettings->getDependentVariablesToSave( ), bodyMap );
+
+    addEnvironmentUpdates( environmentModelsToUpdate, environmentModelsToUpdateForDependentVariables );
+    removePropagatedStatesFomEnvironmentUpdates(
+                environmentModelsToUpdate, getIntegratedTypeAndBodyList( propagatorSettings ) );
+    checkValidityOfRequiredEnvironmentUpdates( environmentModelsToUpdate, bodyMap );
+
+
     return environmentModelsToUpdate;
 
 }
@@ -176,7 +197,7 @@ std::map< propagators::EnvironmentModelsToUpdate,
  * \return List of environment model updates, so that each updatable model is updated.
  */
 std::map< propagators::EnvironmentModelsToUpdate,
-    std::vector< std::string > > createFullEnvironmentUpdaterSettings(
+std::vector< std::string > > createFullEnvironmentUpdaterSettings(
         const simulation_setup::NamedBodyMap& bodyMap );
 
 //! Create environment updater from a list of propagation settings.
@@ -196,11 +217,11 @@ createEnvironmentUpdaterForDynamicalEquations(
 {
     // Create environment update settings.
     std::map< IntegratedStateType,
-        std::vector< std::pair< std::string, std::string > > >integratedTypeAndBodyList =
+            std::vector< std::pair< std::string, std::string > > >integratedTypeAndBodyList =
             getIntegratedTypeAndBodyList< StateScalarType >( propagatorSettings );
 
     std::map< propagators::EnvironmentModelsToUpdate,
-        std::vector< std::string > > environmentModelsToUpdate =
+            std::vector< std::string > > environmentModelsToUpdate =
             createEnvironmentUpdaterSettings< StateScalarType >( propagatorSettings, bodyMap );
 
     // Create and return environment updater object.
