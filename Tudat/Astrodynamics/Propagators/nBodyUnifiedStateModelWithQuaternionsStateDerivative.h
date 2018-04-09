@@ -213,6 +213,8 @@ public:
             const Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >& internalSolution, const TimeType& time,
             Eigen::Block< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > currentCartesianLocalSoluton )
     {
+        std::cout<<"USM state "<<internalSolution.transpose( )<<std::endl;
+
         Eigen::Matrix< StateScalarType, 6, 1 > currentCartesianState;
         Eigen::Matrix< StateScalarType, 7, 1 > currentUnifiedStateModelState;
 

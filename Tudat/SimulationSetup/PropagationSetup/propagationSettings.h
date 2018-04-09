@@ -84,7 +84,12 @@ public:
      * Get total size of the propagated state.
      * \return Total size of the propagated state.
      */
-    int getStateSize( )
+    virtual int getPropagatedStateSize( )
+    {
+        return stateSize_;
+    }
+
+    int getConventionalStateSize( )
     {
         return stateSize_;
     }
@@ -268,7 +273,7 @@ int getConcatenatedStateSize(
 
     for( unsigned int i = 0; i < singleArcPropagatorSettings.size( ); i++ )
     {
-        vectorSize += singleArcPropagatorSettings.at( i )->getStateSize( );
+        vectorSize += singleArcPropagatorSettings.at( i )->getConventionalStateSize( );
     }
 
     return vectorSize;
@@ -295,7 +300,7 @@ Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > getConcatenatedInitialStates
     int currentBlockSize = 0;
     for( unsigned int i = 0; i < singleArcPropagatorSettings.size( ); i++ )
     {
-        currentBlockSize = singleArcPropagatorSettings.at( i )->getStateSize( );
+        currentBlockSize = singleArcPropagatorSettings.at( i )->getConventionalStateSize( );
         initialStates.segment( currentIndex, currentBlockSize ) = singleArcPropagatorSettings.at( i )->getInitialStates( );
         currentIndex += currentBlockSize;
     }
@@ -335,7 +340,7 @@ public:
                 {
                     singleArcSettings_.at( i )->resetInitialStates(
                                 Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >::Constant(
-                                    singleArcSettings_.at( i )->getStateSize( ), TUDAT_NAN ) );
+                                    singleArcSettings_.at( i )->getConventionalStateSize( ), TUDAT_NAN ) );
                 }
             }
             initialStateList_.push_back( singleArcSettings_.at( i )->getInitialStates( ) );
@@ -414,9 +419,9 @@ public:
         int currentIndex = 0;
         for( unsigned int i = 0; i < singleArcSettings_.size( ); i++ )
         {
-            initialStateList_[ i ] = this->initialStates_.segment( currentIndex, singleArcSettings_.at( i )->getStateSize( ) );
+            initialStateList_[ i ] = this->initialStates_.segment( currentIndex, singleArcSettings_.at( i )->getConventionalStateSize( ) );
             singleArcSettings_.at( i )->resetInitialStates( initialStateList_[ i ] );
-            currentIndex += singleArcSettings_.at( i )->getStateSize( );
+            currentIndex += singleArcSettings_.at( i )->getConventionalStateSize( );
         }
 
     }
@@ -438,9 +443,9 @@ public:
         int currentIndex = 0;
         for( unsigned int i = 0; i < singleArcSettings_.size( ); i++ )
         {
-            this->initialStates_.segment( currentIndex, singleArcSettings_.at( i )->getStateSize( ) ) =  initialStateList_[ i ];
+            this->initialStates_.segment( currentIndex, singleArcSettings_.at( i )->getConventionalStateSize( ) ) =  initialStateList_[ i ];
             singleArcSettings_.at( i )->resetInitialStates( initialStateList_[ i ] );
-            currentIndex += singleArcSettings_.at( i )->getStateSize( );
+            currentIndex += singleArcSettings_.at( i )->getConventionalStateSize( );
         }
 
     }
@@ -655,6 +660,11 @@ public:
         return accelerationsMap_;
     }
 
+    int getPropagatedStateSize( )
+    {
+        return ( propagator_ == unified_state_model_quaternions ) ?
+                    ( this->stateSize_ + bodiesToIntegrate_.size( ) ) : this->stateSize_;
+    }
 
 private:
 

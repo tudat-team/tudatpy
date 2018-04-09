@@ -785,7 +785,7 @@ private:
         {
             stateTransitionInterface_ = boost::make_shared< SingleArcCombinedStateTransitionAndSensitivityMatrixInterface >(
                         stateTransitionMatrixInterpolator, sensitivityMatrixInterpolator,
-                        propagatorSettings_->getStateSize( ), parameterVectorSize_ );
+                        propagatorSettings_->getConventionalStateSize( ), parameterVectorSize_ );
         }
         else
         {
@@ -1057,7 +1057,7 @@ public:
         int currentIndex = 0;
         for( unsigned int i = 0; i < dynamicsSimulator_->getSingleArcDynamicsSimulators( ).size( ); i++ )
         {
-            int currentSize = dynamicsSimulator_->getSingleArcDynamicsSimulators( ).at( i )->getPropagatorSettings( )->getStateSize( );
+            int currentSize = dynamicsSimulator_->getSingleArcDynamicsSimulators( ).at( i )->getPropagatorSettings( )->getConventionalStateSize( );
 
             splitInitialState.push_back( concatenatedInitialStates.block( currentIndex, 0, currentSize, 1 ) );
             currentIndex += currentSize;
@@ -1373,7 +1373,7 @@ private:
             stateTransitionInterface_ = boost::make_shared< MultiArcCombinedStateTransitionAndSensitivityMatrixInterface >(
                         stateTransitionMatrixInterpolators, sensitivityMatrixInterpolators,
                         arcStartTimes_,
-                        propagatorSettings_->getSingleArcSettings( ).at( 0 )->getStateSize( ),
+                        propagatorSettings_->getSingleArcSettings( ).at( 0 )->getConventionalStateSize( ),
                         parametersToEstimate_->getParameterSetSize( ) );
         }
         else
