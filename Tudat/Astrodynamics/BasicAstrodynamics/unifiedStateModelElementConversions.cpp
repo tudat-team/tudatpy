@@ -167,12 +167,12 @@ Eigen::Vector7d convertKeplerianToUnifiedStateModelWithQuaternionsElements(
     if ( std::fabs( keplerianElements( eccentricityIndex ) - 1.0) < singularityTolerance )
             // parabolic orbit -> semi-major axis is not defined
     {
-        convertedUnifiedStateModelElements( CHodographIndex ) =
+        convertedUnifiedStateModelElements( CHodographQuaternionIndex ) =
                 std::sqrt( centralBodyGravitationalParameter / keplerianElements( semiLatusRectumIndex ) );
     }
     else
     {
-        convertedUnifiedStateModelElements( CHodographIndex ) =
+        convertedUnifiedStateModelElements( CHodographQuaternionIndex ) =
                 std::sqrt( centralBodyGravitationalParameter / ( keplerianElements( semiMajorAxisIndex )
                                                   * ( 1 - keplerianElements( eccentricityIndex ) *
                                                       keplerianElements( eccentricityIndex ) ) ) );
@@ -180,15 +180,15 @@ Eigen::Vector7d convertKeplerianToUnifiedStateModelWithQuaternionsElements(
 
     // Calculate the additional R hodograph parameter
     double RHodographElement = keplerianElements( eccentricityIndex ) *
-            convertedUnifiedStateModelElements( CHodographIndex );
+            convertedUnifiedStateModelElements( CHodographQuaternionIndex );
 
     // Compute the Rf1 hodograph element of the Unified State Model
-    convertedUnifiedStateModelElements( Rf1HodographIndex ) =
+    convertedUnifiedStateModelElements( Rf1HodographQuaternionIndex ) =
             - RHodographElement * std::sin( keplerianElements( longitudeOfAscendingNodeIndex )
                                             + keplerianElements( argumentOfPeriapsisIndex ) );
 
     // Compute the Rf2 hodograph element of the Unified State Model
-    convertedUnifiedStateModelElements( Rf2HodographIndex ) =
+    convertedUnifiedStateModelElements( Rf2HodographQuaternionIndex ) =
               RHodographElement * std::cos( keplerianElements( longitudeOfAscendingNodeIndex )
                                             + keplerianElements( argumentOfPeriapsisIndex ) );
 
@@ -293,34 +293,34 @@ Eigen::Vector6d convertUnifiedStateModelWithQuaternionsToKeplerianElements(
     }
 
     // Compute auxiliary parameters auxiliaryParameter1 and auxiliaryParameter2
-    double auxiliaryParameter1 = unifiedStateModelElements( Rf1HodographIndex ) * cosineLambda +
-            unifiedStateModelElements( Rf2HodographIndex ) * sineLambda;
-    double auxiliaryParameter2 = unifiedStateModelElements( CHodographIndex ) -
-            unifiedStateModelElements( Rf1HodographIndex ) * sineLambda +
-            unifiedStateModelElements( Rf2HodographIndex ) * cosineLambda;
+    double auxiliaryParameter1 = unifiedStateModelElements( Rf1HodographQuaternionIndex ) * cosineLambda +
+            unifiedStateModelElements( Rf2HodographQuaternionIndex ) * sineLambda;
+    double auxiliaryParameter2 = unifiedStateModelElements( CHodographQuaternionIndex ) -
+            unifiedStateModelElements( Rf1HodographQuaternionIndex ) * sineLambda +
+            unifiedStateModelElements( Rf2HodographQuaternionIndex ) * cosineLambda;
 
     // Compute auxiliary R hodograph parameter
-    double RHodographElement = std::sqrt( unifiedStateModelElements( Rf1HodographIndex )
-                                          * unifiedStateModelElements( Rf1HodographIndex )
-                                          + unifiedStateModelElements( Rf2HodographIndex )
-                                          * unifiedStateModelElements( Rf2HodographIndex ));
+    double RHodographElement = std::sqrt( unifiedStateModelElements( Rf1HodographQuaternionIndex )
+                                          * unifiedStateModelElements( Rf1HodographQuaternionIndex )
+                                          + unifiedStateModelElements( Rf2HodographQuaternionIndex )
+                                          * unifiedStateModelElements( Rf2HodographQuaternionIndex ));
 
     // Compute eccentricity
     convertedKeplerianElements( eccentricityIndex ) =
-            RHodographElement / unifiedStateModelElements( CHodographIndex );
+            RHodographElement / unifiedStateModelElements( CHodographQuaternionIndex );
 
     // Compute semi-major axis or, in case of a parabolic orbit, the semi-latus rectum.
     if ( std::fabs( convertedKeplerianElements( eccentricityIndex ) - 1.0 ) < singularityTolerance )
             // parabolic orbit -> semi-major axis is not defined. Use semi-latus rectum instead.
     {
         convertedKeplerianElements( semiLatusRectumIndex ) = centralBodyGravitationalParameter /
-                ( unifiedStateModelElements( CHodographIndex ) * unifiedStateModelElements( CHodographIndex ) );
+                ( unifiedStateModelElements( CHodographQuaternionIndex ) * unifiedStateModelElements( CHodographQuaternionIndex ) );
     }
     else
     {
         convertedKeplerianElements( semiMajorAxisIndex ) =
                 centralBodyGravitationalParameter /
-                ( 2.0 * unifiedStateModelElements( CHodographIndex ) * auxiliaryParameter2 -
+                ( 2.0 * unifiedStateModelElements( CHodographQuaternionIndex ) * auxiliaryParameter2 -
                     ( auxiliaryParameter1 * auxiliaryParameter1 + auxiliaryParameter2 * auxiliaryParameter2 ) );
     }
 
@@ -410,7 +410,7 @@ Eigen::Vector6d convertUnifiedStateModelWithQuaternionsToKeplerianElements(
     {
         convertedKeplerianElements( trueAnomalyIndex ) =
                 std::atan2( ( auxiliaryParameter1 / RHodographElement ),
-                            ( ( auxiliaryParameter2 - unifiedStateModelElements( CHodographIndex ) )
+                            ( ( auxiliaryParameter2 - unifiedStateModelElements( CHodographQuaternionIndex ) )
                            / RHodographElement ) );
 
         // Round off small theta to zero

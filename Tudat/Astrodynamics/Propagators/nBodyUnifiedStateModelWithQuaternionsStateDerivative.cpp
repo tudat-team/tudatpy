@@ -8,6 +8,7 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
+#include "Tudat/Astrodynamics/BasicAstrodynamics/stateVectorIndices.h"
 #include "Tudat/Astrodynamics/Propagators/nBodyUnifiedStateModelWithQuaternionsStateDerivative.h"
 
 namespace tudat
@@ -84,18 +85,16 @@ Eigen::Vector7d computeStateDerivativeForUnifiedStateModelWithQuaternions(
         const Eigen::Vector3d& accelerationsInRswFrame,
         const double centralBodyGravitationalParameter )
 {
-    // REMOVE vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv REMOVE
-    std::cout << "Mu: " << centralBodyGravitationalParameter << std::endl;
-    // REMOVE ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ REMOVE
+    using namespace orbital_element_conversions;
 
     // Retrieve USM elements
-    double CHodograph = currentUnifiedStateModelElements( 0 );
-    double Rf1Hodograph = currentUnifiedStateModelElements( 1 );
-    double Rf2Hodograph = currentUnifiedStateModelElements( 2 );
-    double epsilon1Quaternion = currentUnifiedStateModelElements( 3 );
-    double epsilon2Quaternion = currentUnifiedStateModelElements( 4 );
-    double epsilon3Quaternion = currentUnifiedStateModelElements( 5 );
-    double etaQuaternion = currentUnifiedStateModelElements( 6 );
+    double CHodograph = currentUnifiedStateModelElements( CHodographQuaternionIndex );
+    double Rf1Hodograph = currentUnifiedStateModelElements( Rf1HodographQuaternionIndex );
+    double Rf2Hodograph = currentUnifiedStateModelElements( Rf2HodographQuaternionIndex );
+    double epsilon1Quaternion = currentUnifiedStateModelElements( epsilon1QuaternionIndex );
+    double epsilon2Quaternion = currentUnifiedStateModelElements( epsilon2QuaternionIndex );
+    double epsilon3Quaternion = currentUnifiedStateModelElements( epsilon3QuaternionIndex );
+    double etaQuaternion = currentUnifiedStateModelElements( etaQuaternionIndex );
 
     // Compute supporting parameters
     double quaterionParameter = std::pow( epsilon3Quaternion, 2) + std::pow( etaQuaternion, 2 );
