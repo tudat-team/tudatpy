@@ -282,8 +282,9 @@ BOOST_AUTO_TEST_CASE( testDependentVariableOutput )
                 bodyMap.at( "Earth" )->getRotationalEphemeris( );
         boost::shared_ptr< aerodynamics::AtmosphereModel > earthAtmosphereModel =
                 bodyMap.at( "Earth" )->getAtmosphereModel( );
-        boost::shared_ptr< aerodynamics::FlightConditions > apolloFlightConditions =
-                bodyMap.at( "Apollo" )->getFlightConditions( );
+        boost::shared_ptr< aerodynamics::AtmosphericFlightConditions > apolloFlightConditions =
+                boost::dynamic_pointer_cast< aerodynamics::AtmosphericFlightConditions >(
+                    bodyMap.at( "Apollo" )->getFlightConditions( ) );
         boost::shared_ptr< aerodynamics::AerodynamicCoefficientInterface > apolloCoefficientInterface =
                 bodyMap.at( "Apollo" )->getAerodynamicCoefficientInterface( );
 
