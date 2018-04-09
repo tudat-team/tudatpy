@@ -411,6 +411,14 @@ public:
                         break;
                     case gauss_keplerian:
                         break;
+//                    case gauss_modified_equinoctial:
+//                        break;
+//                    case unified_state_model_quaternions:
+//                        break;
+//                    case unified_state_model_modified_rodrigues_parameters:
+//                        break;
+//                    case unified_state_model_exponential_map:
+//                        break;
                     default:
                         throw std::runtime_error( "Error when updating state derivative model settings, did not recognize translational propagator type" );
                         break;

@@ -39,7 +39,9 @@ enum TranslationalPropagatorType
     encke = 1,
     gauss_keplerian = 2,
     gauss_modified_equinoctial = 3,
-    unified_state_model_quaternions = 4
+    unified_state_model_quaternions = 4,
+    unified_state_model_modified_rodrigues_parameters = 5,
+    unified_state_model_exponential_map = 6
 };
 
 //! Function to remove the central gravity acceleration from an AccelerationMap
@@ -266,7 +268,7 @@ public:
      * Function to return the size of the state handled by the object
      * \return Size of the state under consideration (6 times the number if integrated bodies).
      */
-    int getStateSize( )
+    virtual int getStateSize( )
     {
         return 6 * bodiesToBeIntegratedNumerically_.size( );
     }

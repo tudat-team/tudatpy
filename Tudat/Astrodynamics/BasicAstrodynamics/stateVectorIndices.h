@@ -62,16 +62,38 @@ enum SphericalOrbitalStateElementIndices
     headingAngleIndex = 5
 };
 
-//! Unified State Model indices.
+//! Unified state model with quaternions indices.
 enum UnifiedStateModelWithQuaternionsElementIndices
 {
-    CHodographIndex = 0,
-    Rf1HodographIndex = 1,
-    Rf2HodographIndex = 2,
+    CHodographQuaternionIndex = 0,
+    Rf1HodographQuaternionIndex = 1,
+    Rf2HodographQuaternionIndex = 2,
     epsilon1QuaternionIndex = 3,
     epsilon2QuaternionIndex = 4,
     epsilon3QuaternionIndex = 5,
     etaQuaternionIndex = 6
+};
+
+//! Unified state model with modified Rodrigues parameters indices.
+enum UnifiedStateModelWithModifiedRodriguesParametersElementIndices
+{
+    CHodographModifiedRodriguesParametersIndex = 0,
+    Rf1HodographModifiedRodriguesParametersIndex = 1,
+    Rf2HodographModifiedRodriguesParametersIndex = 2,
+    sigma1ModifiedRodriguesParameterIndex = 3,
+    sigma2ModifiedRodriguesParameterIndex = 4,
+    sigma3ModifiedRodriguesParameterIndex = 5
+};
+
+//! Unified state model with exponential map indices.
+enum UnifiedStateModelWithExponentialMapElementIndices
+{
+    CHodographExponentialMapIndex = 0,
+    Rf1HodographExponentialMapIndex = 1,
+    Rf2HodographExponentialMapIndex = 2,
+    e1ExponentialMapIndex = 3,
+    e2ExponentialMapIndex = 4,
+    e3ExponentialMapIndex = 5
 };
 
 } // namespace orbital_element_conversions
