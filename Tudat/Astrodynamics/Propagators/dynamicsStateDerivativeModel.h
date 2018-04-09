@@ -253,6 +253,7 @@ public:
             const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& outputState,
             const TimeType& time )
     {
+        std::cout<<"Converting "<<std::endl;
         Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > internalState =
                 Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >::Zero( outputState.rows( ), 1 );
 
@@ -265,12 +266,18 @@ public:
                     stateIndices_.at( stateDerivativeModelsIterator_->first );
             for( unsigned int i = 0; i < stateDerivativeModelsIterator_->second.size( ); i++ )
             {
+                std::cout<<"Converting in loop "<<i<<" "<<
+                           outputState.segment( currentStateIndices.at( i ).first,
+                                                                               currentStateIndices.at( i ).second ).transpose( )<<std::endl;
+
                 internalState.segment( currentStateIndices.at( i ).first,
-                                       currentStateIndices.at( i ).second ) =
+                                       currentStateIndices.at( i ).second + 1 ) =
                         stateDerivativeModelsIterator_->second.at( i )->convertFromOutputSolution(
                             outputState.segment( currentStateIndices.at( i ).first,
-                                                 currentStateIndices.at( i ).second ),
-                            time );
+                                                 currentStateIndices.at( i ).second ), time );
+                std::cout<<"Converted in loop "<<i<<" "<<
+                           internalState.segment( currentStateIndices.at( i ).first,
+                                                  currentStateIndices.at( i ).second + 1 ).transpose( )<<std::endl;
             }
         }
 
@@ -305,6 +312,7 @@ public:
                         stateDerivativeModelsIterator_->first );
             for( unsigned int i = 0; i < stateDerivativeModelsIterator_->second.size( ); i++ )
             {
+
                 stateDerivativeModelsIterator_->second.at( i )->convertToOutputSolution(
                             internalSolution.segment(
                                 currentStateIndices.at( i ).first, currentStateIndices.at( i ).second ), time,
@@ -335,8 +343,11 @@ public:
         {
             // Convert solution at this time to output (Cartesian with propagation origin frame for
             // translational dynamics) solution
+
             convertedSolution[ stateIterator->first ] =
                     convertToOutputSolution( stateIterator->second, stateIterator->first );
+
+
         }
     }
 

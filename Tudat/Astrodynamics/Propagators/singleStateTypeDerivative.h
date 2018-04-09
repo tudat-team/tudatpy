@@ -175,6 +175,12 @@ public:
         return integratedStateType_;
     }
 
+    virtual void normalizeState(
+            Eigen::Block< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > unnormalizedState )
+    {
+
+    }
+
 protected:
 
     //! Type of dynamics for whichh the state derivative is calculated.
