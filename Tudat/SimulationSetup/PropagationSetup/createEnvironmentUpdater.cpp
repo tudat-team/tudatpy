@@ -503,10 +503,33 @@ createMassPropagationEnvironmentUpdaterSettings(
     return environmentModelsToUpdate;
 }
 
+void checkAndModifyEnvironmentForDependentVariableSaving(
+        const EnvironmentModelsToUpdate updateType,
+        const boost::shared_ptr< SingleDependentVariableSaveSettings > dependentVariableSaveSettings,
+        const simulation_setup::NamedBodyMap& bodyMap )
+{
+    switch( updateType )
+    {
+    case vehicle_flight_conditions_update:
+        if( bodyMap.at( dependentVariableSaveSettings->associatedBody_ )->getFlightConditions( ) == NULL )
+        {
+            bodyMap.at( dependentVariableSaveSettings->associatedBody_ )->setFlightConditions(
+                        simulation_setup::createFlightConditions(
+                            bodyMap.at( dependentVariableSaveSettings->associatedBody_ ),
+                            bodyMap.at( dependentVariableSaveSettings->secondaryBody_ ),
+                            dependentVariableSaveSettings->associatedBody_,
+                            dependentVariableSaveSettings->secondaryBody_ ) );
+        }
+        break;
+    default:
+        break;
+    }
+}
 
 std::map< propagators::EnvironmentModelsToUpdate,
 std::vector< std::string > > createEnvironmentUpdaterSettingsForDependentVariables(
-        const boost::shared_ptr< SingleDependentVariableSaveSettings > dependentVariableSaveSettings )
+        const boost::shared_ptr< SingleDependentVariableSaveSettings > dependentVariableSaveSettings,
+        const simulation_setup::NamedBodyMap& bodyMap )
 {
     std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > >  variablesToUpdate;
     switch( dependentVariableSaveSettings->dependentVariableType_ )
@@ -672,6 +695,13 @@ std::vector< std::string > > createEnvironmentUpdaterSettingsForDependentVariabl
         throw std::runtime_error( "Error when getting environment updates for dependent variables, parameter " +
                                   std::to_string( dependentVariableSaveSettings->dependentVariableType_ ) + " not found." );
     }
+
+    if( variablesToUpdate.count( vehicle_flight_conditions_update ) > 0 )
+    {
+            checkAndModifyEnvironmentForDependentVariableSaving(
+                        vehicle_flight_conditions_update, dependentVariableSaveSettings, bodyMap );
+    }
+
     return variablesToUpdate;
 }
 
@@ -689,7 +719,7 @@ std::vector< std::string > > createEnvironmentUpdaterSettings(
         for( unsigned int i = 0; i < dependentVariableList.size( ); i++ )
         {
             std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > currentEnvironmentModelsToUpdate =
-                    createEnvironmentUpdaterSettingsForDependentVariables( dependentVariableList.at( i ) );
+                    createEnvironmentUpdaterSettingsForDependentVariables( dependentVariableList.at( i ), bodyMap );
             addEnvironmentUpdates( environmentModelsToUpdate, currentEnvironmentModelsToUpdate );
         }
     }
