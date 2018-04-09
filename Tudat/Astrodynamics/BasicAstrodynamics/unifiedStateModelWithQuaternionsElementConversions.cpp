@@ -8,7 +8,7 @@
  *    http://tudat.tudelft.nl/LICENSE.
  *
  *    References
- *      Vittaldev, V. (2010). The Unified State Model: Derivation and application in astrodynamics
+ *      Vittaldev, V. (2010). The unified state model: Derivation and application in astrodynamics
  *          and navigation. Master's thesis, Delft University of Technology.
  *      <Second reference>
  *
@@ -22,7 +22,7 @@
 #include "Tudat/Mathematics/BasicMathematics/basicMathematicsFunctions.h"
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/missionGeometry.h"
-#include "Tudat/Astrodynamics/BasicAstrodynamics/unifiedStateModelElementConversions.h"
+#include "Tudat/Astrodynamics/BasicAstrodynamics/unifiedStateModelWithQuaternionsElementConversions.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/stateVectorIndices.h"
 
 namespace tudat
@@ -31,7 +31,7 @@ namespace tudat
 namespace orbital_element_conversions
 {
 
-//! Convert Keplerian elements to Unified State Model elements with Quaternions.
+//! Convert Keplerian elements to unified state model elements with quaternions.
 Eigen::Vector7d convertKeplerianToUnifiedStateModelWithQuaternionsElements(
         const Eigen::Vector6d& keplerianElements,
         const double centralBodyGravitationalParameter )
@@ -163,7 +163,7 @@ Eigen::Vector7d convertKeplerianToUnifiedStateModelWithQuaternionsElements(
     }
     //Else, nothing wrong and continue
 
-    // Compute the C hodograph element of the Unified State Model
+    // Compute the C hodograph element of the unified state model
     if ( std::fabs( keplerianElements( eccentricityIndex ) - 1.0) < singularityTolerance )
             // parabolic orbit -> semi-major axis is not defined
     {
@@ -182,12 +182,12 @@ Eigen::Vector7d convertKeplerianToUnifiedStateModelWithQuaternionsElements(
     double RHodographElement = keplerianElements( eccentricityIndex ) *
             convertedUnifiedStateModelElements( CHodographQuaternionIndex );
 
-    // Compute the Rf1 hodograph element of the Unified State Model
+    // Compute the Rf1 hodograph element of the unified state model
     convertedUnifiedStateModelElements( Rf1HodographQuaternionIndex ) =
             - RHodographElement * std::sin( keplerianElements( longitudeOfAscendingNodeIndex )
                                             + keplerianElements( argumentOfPeriapsisIndex ) );
 
-    // Compute the Rf2 hodograph element of the Unified State Model
+    // Compute the Rf2 hodograph element of the unified state model
     convertedUnifiedStateModelElements( Rf2HodographQuaternionIndex ) =
               RHodographElement * std::cos( keplerianElements( longitudeOfAscendingNodeIndex )
                                             + keplerianElements( argumentOfPeriapsisIndex ) );
@@ -196,22 +196,22 @@ Eigen::Vector7d convertKeplerianToUnifiedStateModelWithQuaternionsElements(
     double argumentOfLongitude = keplerianElements( argumentOfPeriapsisIndex ) +
             keplerianElements( trueAnomalyIndex );
 
-    // Compute the epsilon1 quaternion of the Unified State Model
+    // Compute the epsilon1 quaternion of the unified state model
     convertedUnifiedStateModelElements( epsilon1QuaternionIndex ) =
             std::sin( 0.5 * keplerianElements( inclinationIndex ) ) *
             std::cos( 0.5 * ( keplerianElements( longitudeOfAscendingNodeIndex ) - argumentOfLongitude ) );
 
-    // Compute the epsilon2 quaternion of the Unified State Model
+    // Compute the epsilon2 quaternion of the unified state model
     convertedUnifiedStateModelElements( epsilon2QuaternionIndex ) =
             std::sin( 0.5 * keplerianElements( inclinationIndex ) ) *
             std::sin( 0.5 * ( keplerianElements( longitudeOfAscendingNodeIndex ) - argumentOfLongitude ) );
 
-    // Compute the epsilon3 quaternion of the Unified State Model
+    // Compute the epsilon3 quaternion of the unified state model
     convertedUnifiedStateModelElements( epsilon3QuaternionIndex ) =
             std::cos( 0.5 * keplerianElements( inclinationIndex ) ) *
             std::sin( 0.5 * ( keplerianElements( longitudeOfAscendingNodeIndex ) + argumentOfLongitude ) );
 
-    // Compute the eta quaternion of the Unified State Model
+    // Compute the eta quaternion of the unified state model
     convertedUnifiedStateModelElements( etaQuaternionIndex ) =
             std::cos( 0.5 * keplerianElements( inclinationIndex ) ) *
             std::cos( 0.5 * ( keplerianElements( longitudeOfAscendingNodeIndex ) + argumentOfLongitude ) );
@@ -221,7 +221,7 @@ Eigen::Vector7d convertKeplerianToUnifiedStateModelWithQuaternionsElements(
 
 }
 
-//! Convert Unified State Model elements with Quaternions to Keplerian elements.
+//! Convert unified state model elements with quaternions to Keplerian elements.
 Eigen::Vector6d convertUnifiedStateModelWithQuaternionsToKeplerianElements(
         const Eigen::Vector7d& unifiedStateModelElements,
         const double centralBodyGravitationalParameter )
@@ -235,12 +235,12 @@ Eigen::Vector6d convertUnifiedStateModelWithQuaternionsToKeplerianElements(
     double singularityTolerance = 1.0e-15; // Based on tolerance chosen in
                                            // orbitalElementConversions.cpp in Tudat.
 
-    // Declare auxiliary parameters before using them in the if loop
+    // Declare auxiliary parameters before using them in the if statement
     double cosineLambda = 0.0;
     double sineLambda = 0.0;
     double lambdaFromSineAndCosine = 0.0;
 
-    // Check whether the Unified State Model elements are within expected limits
+    // Check whether the unified state model elements are within expected limits
     // If inclination is zero and the right ascension of ascending node is non-zero
     const double normOfQuaternionElements = std::sqrt( std::pow( unifiedStateModelElements( epsilon1QuaternionIndex ), 2 ) +
                                                        std::pow( unifiedStateModelElements( epsilon2QuaternionIndex ), 2 ) +
@@ -267,7 +267,7 @@ Eigen::Vector6d convertUnifiedStateModelWithQuaternionsToKeplerianElements(
         //Define the error message
         std::stringstream errorMessage;
         errorMessage << "Pure-retrograde orbit (inclination = pi).\n"
-                     << "Unified State Model elements cannot be transformed to Kepler elements." << std::endl;
+                     << "Unified state model elements cannot be transformed to Kepler elements." << std::endl;
 
         // Throw exception
         throw std::runtime_error( std::runtime_error( errorMessage.str( ) ) );
@@ -300,10 +300,10 @@ Eigen::Vector6d convertUnifiedStateModelWithQuaternionsToKeplerianElements(
             unifiedStateModelElements( Rf2HodographQuaternionIndex ) * cosineLambda;
 
     // Compute auxiliary R hodograph parameter
-    double RHodographElement = std::sqrt( unifiedStateModelElements( Rf1HodographQuaternionIndex )
-                                          * unifiedStateModelElements( Rf1HodographQuaternionIndex )
-                                          + unifiedStateModelElements( Rf2HodographQuaternionIndex )
-                                          * unifiedStateModelElements( Rf2HodographQuaternionIndex ));
+    double RHodographElement = std::sqrt( unifiedStateModelElements( Rf1HodographExponentialMapIndex ) *
+                                          unifiedStateModelElements( Rf1HodographExponentialMapIndex ) +
+                                          unifiedStateModelElements( Rf2HodographExponentialMapIndex ) *
+                                          unifiedStateModelElements( Rf2HodographExponentialMapIndex ) );
 
     // Compute eccentricity
     convertedKeplerianElements( eccentricityIndex ) =
@@ -320,8 +320,10 @@ Eigen::Vector6d convertUnifiedStateModelWithQuaternionsToKeplerianElements(
     {
         convertedKeplerianElements( semiMajorAxisIndex ) =
                 centralBodyGravitationalParameter /
-                ( 2.0 * unifiedStateModelElements( CHodographQuaternionIndex ) * auxiliaryParameter2 -
-                    ( auxiliaryParameter1 * auxiliaryParameter1 + auxiliaryParameter2 * auxiliaryParameter2 ) );
+                ( std::pow( unifiedStateModelElements( CHodographExponentialMapIndex ), 2 ) *
+                  ( 1 - std::pow( convertedKeplerianElements( eccentricityIndex ), 2 ) ) );
+//                ( 2.0 * unifiedStateModelElements( CHodographExponentialMapIndex ) * auxiliaryParameter2 -
+//                    ( auxiliaryParameter1 * auxiliaryParameter1 + auxiliaryParameter2 * auxiliaryParameter2 ) );
     }
 
     // Compute inclination
@@ -333,11 +335,12 @@ Eigen::Vector6d convertUnifiedStateModelWithQuaternionsToKeplerianElements(
         // This acos is always defined correctly because the inclination is always below pi rad.
 
     // Compute longitude of ascending node
-    if ( ( ( std::fabs( unifiedStateModelElements( epsilon1QuaternionIndex ) ) < singularityTolerance )
-           && ( std::fabs( unifiedStateModelElements( epsilon2QuaternionIndex ) ) < singularityTolerance ) ) ||
-         ( ( std::fabs( unifiedStateModelElements( epsilon3QuaternionIndex ) ) < singularityTolerance )
-         && ( std::fabs( unifiedStateModelElements( etaQuaternionIndex ) ) < singularityTolerance ) ) )
-            // pure-prograde or pure-retrograde orbit
+    if ( std::fabs( std::fabs( convertedKeplerianElements( inclinationIndex ) ) - PI ) < singularityTolerance )
+        // pure-prograde or pure-retrograde orbit
+//        ( ( ( std::fabs( unifiedStateModelElements( epsilon1QuaternionIndex ) ) < singularityTolerance )
+//            && ( std::fabs( unifiedStateModelElements( epsilon2QuaternionIndex ) ) < singularityTolerance ) ) ||
+//            ( ( std::fabs( unifiedStateModelElements( epsilon3QuaternionIndex ) ) < singularityTolerance )
+//            && ( std::fabs( unifiedStateModelElements( etaQuaternionIndex ) ) < singularityTolerance ) ) )
     {
         convertedKeplerianElements( longitudeOfAscendingNodeIndex ) = 0.0; // by definition
     }
@@ -376,7 +379,7 @@ Eigen::Vector6d convertUnifiedStateModelWithQuaternionsToKeplerianElements(
         }
         // Ensure the longitude of ascending node is positive
         while ( convertedKeplerianElements( longitudeOfAscendingNodeIndex ) < 0.0 )
-                // Because of the previous if loop, if the longitude of ascending node is smaller than 0, it will
+                // Because of the previous if statement, if the longitude of ascending node is smaller than 0, it will
                 // always be smaller than -singularityTolerance
         {
             convertedKeplerianElements( longitudeOfAscendingNodeIndex ) =
@@ -399,7 +402,7 @@ Eigen::Vector6d convertUnifiedStateModelWithQuaternionsToKeplerianElements(
 
         // Ensure the true anomaly is positive
         while ( convertedKeplerianElements( trueAnomalyIndex ) < 0.0 )
-                // Because of the previous if loop, if the true anomaly is smaller than zero, it will always be smaller than
+                // Because of the previous if statement, if the true anomaly is smaller than zero, it will always be smaller than
                 // -singularityTolerance
         {
             convertedKeplerianElements( trueAnomalyIndex ) =
@@ -421,7 +424,7 @@ Eigen::Vector6d convertUnifiedStateModelWithQuaternionsToKeplerianElements(
 
         // Ensure the true anomaly is positive
         while ( convertedKeplerianElements( trueAnomalyIndex ) < 0.0 )
-            // Because of the previous if loop, if the true anomaly is smaller than zero, it will always
+            // Because of the previous if statement, if the true anomaly is smaller than zero, it will always
             // be smaller than -singularityTolerance
         {
             convertedKeplerianElements( trueAnomalyIndex ) =
@@ -441,7 +444,7 @@ Eigen::Vector6d convertUnifiedStateModelWithQuaternionsToKeplerianElements(
 
         // Ensure the argument of periapsis is positive
         while ( convertedKeplerianElements( argumentOfPeriapsisIndex ) < 0.0 )
-            // Because of the previous if loop, if the argument of pericenter is smaller than zero,
+            // Because of the previous if statement, if the argument of pericenter is smaller than zero,
             // it will be smaller than -singularityTolerance
         {
             convertedKeplerianElements( argumentOfPeriapsisIndex ) =
