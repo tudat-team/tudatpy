@@ -10,6 +10,7 @@
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/stateVectorIndices.h"
 #include "Tudat/Astrodynamics/Propagators/nBodyUnifiedStateModelWithQuaternionsStateDerivative.h"
+#include "Tudat/Astrodynamics/Propagators/rotationalMotionStateDerivative.h"
 
 namespace tudat
 {
@@ -41,41 +42,34 @@ Eigen::Vector7d computeStateDerivativeForUnifiedStateModelWithQuaternions(
     // Compute supporting parameters
     Eigen::Matrix3d hodographMatrix = Eigen::Matrix3d::Zero( );
     hodographMatrix( 0, 1 ) = - pParameter( 0 );
-    hodographMatrix( 1, 0 ) =   cosineLambdaParameter;
+    hodographMatrix( 1, 0 ) = cosineLambdaParameter;
     hodographMatrix( 1, 1 ) = - ( 1 + pParameter( 0 ) ) * sineLambdaParameter;
     hodographMatrix( 1, 2 ) = - gammaParameter * pParameter( 1 );
-    hodographMatrix( 2, 0 ) =   sineLambdaParameter;
-    hodographMatrix( 2, 1 ) =   ( 1 + pParameter( 0 ) ) * cosineLambdaParameter;
-    hodographMatrix( 2, 2 ) =   gammaParameter * pParameter( 2 );
-    // REMOVE vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv REMOVE
-    std::cout << "Hodograph matrix: " << std::endl << hodographMatrix << std::endl;
-    // REMOVE ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ REMOVE
+    hodographMatrix( 2, 0 ) = sineLambdaParameter;
+    hodographMatrix( 2, 1 ) = ( 1 + pParameter( 0 ) ) * cosineLambdaParameter;
+    hodographMatrix( 2, 1 ) = gammaParameter * pParameter( 2 );
 
-    Eigen::Matrix< double, 4, 4 > quaternionMatrix = Eigen::Matrix< double, 4, 4 >::Zero( 4, 4 );
-    quaternionMatrix( 0, 1 ) =   rotationalVelocity( 2 );
-    quaternionMatrix( 0, 2 ) = - rotationalVelocity( 1 );
-    quaternionMatrix( 0, 3 ) =   rotationalVelocity( 0 );
-    quaternionMatrix( 1, 0 ) = - rotationalVelocity( 2 );
-    quaternionMatrix( 1, 2 ) =   rotationalVelocity( 0 );
-    quaternionMatrix( 1, 3 ) =   rotationalVelocity( 1 );
-    quaternionMatrix( 2, 0 ) =   rotationalVelocity( 1 );
-    quaternionMatrix( 2, 1 ) = - rotationalVelocity( 0 );
-    quaternionMatrix( 2, 3 ) =   rotationalVelocity( 2 );
-    quaternionMatrix( 3, 0 ) = - rotationalVelocity( 0 );
-    quaternionMatrix( 3, 1 ) = - rotationalVelocity( 1 );
-    quaternionMatrix( 3, 2 ) = - rotationalVelocity( 2 );
-    // REMOVE vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv REMOVE
-    std::cout << "Quaternion augmented matrix: " << std::endl << quaternionMatrix << std::endl;
-    // REMOVE ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ REMOVE
+    Eigen::MatrixXd quaternionMatrix = getQuaterionToQuaternionRateMatrix( rotationalVelocity );
+//    Eigen::MatrixXd::Zero( 4, 4 );
+//    quaternionMatrix( 0, 1 ) = rotationalVelocity( 2 );
+//    quaternionMatrix( 0, 2 ) = - rotationalVelocity( 1 );
+//    quaternionMatrix( 0, 3 ) = rotationalVelocity( 0 );
+//    quaternionMatrix( 1, 0 ) = - rotationalVelocity( 2 );
+//    quaternionMatrix( 1, 2 ) = rotationalVelocity( 0 );
+//    quaternionMatrix( 1, 3 ) = rotationalVelocity( 1 );
+//    quaternionMatrix( 2, 0 ) = rotationalVelocity( 1 );
+//    quaternionMatrix( 2, 1 ) = - rotationalVelocity( 0 );
+//    quaternionMatrix( 2, 3 ) = rotationalVelocity( 2 );
+//    quaternionMatrix( 3, 0 ) = - rotationalVelocity( 0 );
+//    quaternionMatrix( 3, 1 ) = - rotationalVelocity( 1 );
+//    quaternionMatrix( 3, 2 ) = - rotationalVelocity( 2 );
 
     // Evaluate USM7 equations.
     Eigen::Vector7d stateDerivative;
     stateDerivative.segment( 0, 3 ) = hodographMatrix * accelerationsInRswFrame;
-    stateDerivative.segment( 3, 4 ) = quaternionMatrix * currentUnifiedStateModelElements.segment( 3, 4 );
-    // REMOVE vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv REMOVE
-    std::cout << "State derivative: " << std::endl << stateDerivative << std::endl;
-    // REMOVE ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ REMOVE
+    stateDerivative.segment( 3, 4 ) = 0.5 * quaternionMatrix * currentUnifiedStateModelElements.segment( 3, 4 );
 
+    // Give output
     return stateDerivative;
 }
 
@@ -97,7 +91,7 @@ Eigen::Vector7d computeStateDerivativeForUnifiedStateModelWithQuaternions(
     double etaQuaternion = currentUnifiedStateModelElements( etaQuaternionIndex );
 
     // Compute supporting parameters
-    double quaterionParameter = std::pow( epsilon3Quaternion, 2) + std::pow( etaQuaternion, 2 );
+    double quaterionParameter = std::pow( epsilon3Quaternion, 2 ) + std::pow( etaQuaternion, 2 );
     double sineLambdaParameter = ( 2 * epsilon3Quaternion * etaQuaternion ) / quaterionParameter;
     double cosineLambdaParameter =  ( std::pow( etaQuaternion, 2 ) - std::pow( epsilon3Quaternion, 2 ) ) /
             quaterionParameter;

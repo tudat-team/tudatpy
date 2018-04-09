@@ -163,7 +163,12 @@ public:
      * Function to return the size of the state handled by the object
      * \return Size of the state under consideration.
      */
-    virtual int getStateSize( ) = 0;
+    virtual int getConventionalStateSize( ) = 0;
+
+    virtual int getPropagatedStateSize( )
+    {
+        return getConventionalStateSize( );
+    }
 
     //! Function to return the type of dynamics for which the state derivative is calculated.
     /*!
@@ -173,6 +178,12 @@ public:
     IntegratedStateType getIntegratedStateType( )
     {
         return integratedStateType_;
+    }
+
+    virtual void normalizeState(
+            Eigen::Block< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > unnormalizedState )
+    {
+
     }
 
 protected:

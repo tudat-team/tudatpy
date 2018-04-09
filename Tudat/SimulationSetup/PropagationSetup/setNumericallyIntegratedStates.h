@@ -1015,7 +1015,7 @@ createIntegratedStateProcessors(
                         }
                     }
                     
-                    currentStartIndex += typeIterator->second.at( i )->getStateSize( );
+                    currentStartIndex += typeIterator->second.at( i )->getConventionalStateSize( );
                     
                 }
             }
