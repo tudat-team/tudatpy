@@ -275,7 +275,7 @@ public:
      * Function to return the size of the state handled by the object
      * \return Size of the state under consideration (7 times the number if integrated bodies).
      */
-    int getStateSize( )
+    int getConventionalStateSize( )
     {
         return 7 * bodiesToPropagate_.size( );
     }

@@ -72,7 +72,8 @@ public:
         functionEvaluationCounter_( 0 )
     {
         std::vector< IntegratedStateType > stateTypeList;
-        totalStateSize_ = 0;
+        totalConventionalStateSize_ = 0;
+        totalPropagatedStateSize_ = 0;
 
         // Iterate over vector of state derivative models, check validity, set member variable map
         // stateDerivativeModels_ and size indices.
@@ -96,19 +97,30 @@ public:
             if( std::find( stateTypeList.begin( ), stateTypeList.end( ),
                            stateDerivativeModels.at( i )->getIntegratedStateType( ) ) == stateTypeList.end( ) )
             {
-                stateTypeSize_[ stateDerivativeModels.at( i )->getIntegratedStateType( ) ] = 0;
-                stateTypeStartIndex_[ stateDerivativeModels.at( i )->getIntegratedStateType( ) ]
-                        = totalStateSize_;
+                conventionalStateTypeSize_[ stateDerivativeModels.at( i )->getIntegratedStateType( ) ] = 0;
+                conventionalStateTypeStartIndex_[ stateDerivativeModels.at( i )->getIntegratedStateType( ) ]
+                        = totalConventionalStateSize_;
+
+                propagatedStateTypeSize_[ stateDerivativeModels.at( i )->getIntegratedStateType( ) ] = 0;
+                propagatedStateTypeStartIndex_[ stateDerivativeModels.at( i )->getIntegratedStateType( ) ]
+                        = totalPropagatedStateSize_;
             }
             stateTypeList.push_back( stateDerivativeModels.at( i )->getIntegratedStateType( ) );
 
             // Set state part sizes
-            stateIndices_[ stateDerivativeModels.at( i )->getIntegratedStateType( ) ].push_back(
-                        std::make_pair( totalStateSize_, stateDerivativeModels.at( i )->getStateSize( ) ) );
-            totalStateSize_ += stateDerivativeModels.at( i )->getStateSize( );
+            conventionalStateIndices_[ stateDerivativeModels.at( i )->getIntegratedStateType( ) ].push_back(
+                        std::make_pair( totalConventionalStateSize_, stateDerivativeModels.at( i )->getConventionalStateSize( ) ) );
+            totalConventionalStateSize_ += stateDerivativeModels.at( i )->getConventionalStateSize( );
 
-            stateTypeSize_[ stateDerivativeModels.at( i )->getIntegratedStateType( ) ] +=
-                    stateDerivativeModels.at( i )->getStateSize( );
+            propagatedStateIndices_[ stateDerivativeModels.at( i )->getIntegratedStateType( ) ].push_back(
+                        std::make_pair( totalPropagatedStateSize_, stateDerivativeModels.at( i )->getPropagatedStateSize( ) ) );
+            totalPropagatedStateSize_ += stateDerivativeModels.at( i )->getPropagatedStateSize( );
+
+            conventionalStateTypeSize_[ stateDerivativeModels.at( i )->getIntegratedStateType( ) ] +=
+                    stateDerivativeModels.at( i )->getConventionalStateSize( );
+            propagatedStateTypeSize_[ stateDerivativeModels.at( i )->getIntegratedStateType( ) ] +=
+                    stateDerivativeModels.at( i )->getPropagatedStateSize( );
+
 
             // Set current model in member map.
             stateDerivativeModels_[ stateDerivativeModels.at( i )->getIntegratedStateType( ) ].push_back(
@@ -117,7 +129,7 @@ public:
 
             currentStatesPerTypeInConventionalRepresentation_[ stateDerivativeModels.at( i )->getIntegratedStateType( )  ] =
                     Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >::Zero(
-                        stateTypeSize_.at( stateDerivativeModels.at( i )->getIntegratedStateType( )  ), 1 );
+                        conventionalStateTypeSize_.at( stateDerivativeModels.at( i )->getIntegratedStateType( )  ), 1 );
         }
     }
 
@@ -135,7 +147,8 @@ public:
      */
     StateType computeStateDerivative( const TimeType time, const StateType& state )
     {
-        //std::cout << "Computing state derivative: " << state.transpose( ) << std::endl;
+//        std::cout << "Computing state derivative: " <<time<<" "<<state.transpose( ) << std::endl;
+
         // Initialize state derivative
         if( stateDerivative_.rows( ) != state.rows( ) || stateDerivative_.cols( ) != state.cols( )  )
         {
@@ -199,7 +212,7 @@ public:
                 for( unsigned int i = 0; i < stateDerivativeModelsIterator_->second.size( ); i++ )
                 {
                     // Evaluate and set current dynamical state derivative
-                    currentIndices = stateIndices_.at( stateDerivativeModelsIterator_->first ).at( i );
+                    currentIndices = propagatedStateIndices_.at( stateDerivativeModelsIterator_->first ).at( i );
 
                     stateDerivativeModelsIterator_->second.at( i )->calculateSystemStateDerivative(
                                 time, state.block( currentIndices.first, dynamicsStartColumn_, currentIndices.second, 1 ),
@@ -216,8 +229,8 @@ public:
             variationalEquations_->updatePartials( time );
 
             variationalEquations_->evaluateVariationalEquations< StateScalarType >(
-                        time, state.block( 0, 0, totalStateSize_, variationalEquations_->getNumberOfParameterValues( ) ),
-                        stateDerivative_.block( 0, 0, totalStateSize_, variationalEquations_->getNumberOfParameterValues( ) )  );
+                        time, state.block( 0, 0, totalConventionalStateSize_, variationalEquations_->getNumberOfParameterValues( ) ),
+                        stateDerivative_.block( 0, 0, totalConventionalStateSize_, variationalEquations_->getNumberOfParameterValues( ) )  );
         }
 
         functionEvaluationCounter_++;
@@ -253,31 +266,26 @@ public:
             const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& outputState,
             const TimeType& time )
     {
-        std::cout<<"Converting "<<std::endl;
         Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > internalState =
-                Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >::Zero( outputState.rows( ), 1 );
+                Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >::Zero( totalPropagatedStateSize_, 1 );
 
         // Iterate over all state derivative models and convert associated state entries
         for( stateDerivativeModelsIterator_ = stateDerivativeModels_.begin( );
              stateDerivativeModelsIterator_ != stateDerivativeModels_.end( );
              stateDerivativeModelsIterator_++ )
         {
-            std::vector< std::pair< int, int > > currentStateIndices =
-                    stateIndices_.at( stateDerivativeModelsIterator_->first );
+            std::vector< std::pair< int, int > > currentConventionalStateIndices =
+                    conventionalStateIndices_.at( stateDerivativeModelsIterator_->first );
+            std::vector< std::pair< int, int > > currentPropagatedStateIndices =
+                    propagatedStateIndices_.at( stateDerivativeModelsIterator_->first );
+
             for( unsigned int i = 0; i < stateDerivativeModelsIterator_->second.size( ); i++ )
             {
-                std::cout<<"Converting in loop "<<i<<" "<<
-                           outputState.segment( currentStateIndices.at( i ).first,
-                                                                               currentStateIndices.at( i ).second ).transpose( )<<std::endl;
-
-                internalState.segment( currentStateIndices.at( i ).first,
-                                       currentStateIndices.at( i ).second + 1 ) =
+                internalState.segment( currentPropagatedStateIndices.at( i ).first,
+                                       currentPropagatedStateIndices.at( i ).second ) =
                         stateDerivativeModelsIterator_->second.at( i )->convertFromOutputSolution(
-                            outputState.segment( currentStateIndices.at( i ).first,
-                                                 currentStateIndices.at( i ).second ), time );
-                std::cout<<"Converted in loop "<<i<<" "<<
-                           internalState.segment( currentStateIndices.at( i ).first,
-                                                  currentStateIndices.at( i ).second + 1 ).transpose( )<<std::endl;
+                            outputState.segment( currentConventionalStateIndices.at( i ).first,
+                                                 currentConventionalStateIndices.at( i ).second ), time );
             }
         }
 
@@ -308,16 +316,18 @@ public:
              stateDerivativeModelsIterator_ != stateDerivativeModels_.end( );
              stateDerivativeModelsIterator_++ )
         {
-            std::vector< std::pair< int, int > > currentStateIndices = stateIndices_.at(
+            std::vector< std::pair< int, int > > currentConventionalStateIndices = conventionalStateIndices_.at(
+                        stateDerivativeModelsIterator_->first );
+            std::vector< std::pair< int, int > > currentPropagatedStateIndices = propagatedStateIndices_.at(
                         stateDerivativeModelsIterator_->first );
             for( unsigned int i = 0; i < stateDerivativeModelsIterator_->second.size( ); i++ )
             {
-
                 stateDerivativeModelsIterator_->second.at( i )->convertToOutputSolution(
                             internalSolution.segment(
-                                currentStateIndices.at( i ).first, currentStateIndices.at( i ).second ), time,
-                            outputState.block( currentStateIndices.at( i ).first, 0,
-                                               currentStateIndices.at( i ).second, 1 ) );
+                                currentPropagatedStateIndices.at( i ).first,
+                                currentPropagatedStateIndices.at( i ).second ), time,
+                            outputState.block( currentConventionalStateIndices.at( i ).first, 0,
+                                               currentConventionalStateIndices.at( i ).second, 1 ) );
             }
         }
         return outputState;
@@ -457,7 +467,7 @@ public:
      */
     std::map< IntegratedStateType, int > getStateTypeStartIndices( )
     {
-        return stateTypeStartIndex_;
+        return conventionalStateTypeStartIndex_;
     }
 
     //! Function to retrieve number of calls to the computeStateDerivative function
@@ -511,7 +521,7 @@ private:
             startColumn = 0;
         }
 
-        std::pair< int, int > currentIndices;
+        std::pair< int, int > currentPropagatedIndices, currentConventionalIndices;
 
         // Iterate over all state derivative models
         for( stateDerivativeModelsIterator_ = stateDerivativeModels_.begin( );
@@ -524,16 +534,21 @@ private:
             for( unsigned int i = 0; i < stateDerivativeModelsIterator_->second.size( ); i++ )
             {
                 // Get state block indices of current state derivative model
-                currentIndices = stateIndices_.at( stateDerivativeModelsIterator_->first ).at( i );
+                currentPropagatedIndices = propagatedStateIndices_.at( stateDerivativeModelsIterator_->first ).at( i );
+                currentConventionalIndices = conventionalStateIndices_.at( stateDerivativeModelsIterator_->first ).at( i );
 
                 // Set current block in split state (in global form)
                 stateDerivativeModelsIterator_->second.at( i )->convertCurrentStateToGlobalRepresentation(
-                            state.block( currentIndices.first, startColumn, currentIndices.second, 1 ), time,
+                            state.block( currentPropagatedIndices.first, startColumn, currentPropagatedIndices.second, 1 ), time,
                             currentStatesPerTypeInConventionalRepresentation_.at(
                                 stateDerivativeModelsIterator_->first ).block(
-                                currentStateTypeSize, 0, currentIndices.second, 1 ) );
+                                currentStateTypeSize, 0, currentConventionalIndices.second, 1 ) );
+//                std::cout << "Computing Cart. state: " <<currentStatesPerTypeInConventionalRepresentation_.at(
+//                                 stateDerivativeModelsIterator_->first ).transpose( ) << std::endl;
+
             }
         }
+//        std::cout<<std::endl;
     }
 
     boost::function<
@@ -546,13 +561,19 @@ private:
 
     //! Map that denotes for each state derivative model the start index and size of the associated
     //! state in the full state vector.
-    std::map< IntegratedStateType, std::vector< std::pair< int, int > > > stateIndices_;
+    std::map< IntegratedStateType, std::vector< std::pair< int, int > > > conventionalStateIndices_;
+
+    std::map< IntegratedStateType, std::vector< std::pair< int, int > > >propagatedStateIndices_;
 
     //! State size per state type in the complete state vector.
-    std::map< IntegratedStateType, int > stateTypeSize_;
+    std::map< IntegratedStateType, int > conventionalStateTypeSize_;
+
+    std::map< IntegratedStateType, int > propagatedStateTypeSize_;
 
     //! State start index per state type in the complete state vector.
-    std::map< IntegratedStateType, int > stateTypeStartIndex_;
+    std::map< IntegratedStateType, int > conventionalStateTypeStartIndex_;
+
+    std::map< IntegratedStateType, int > propagatedStateTypeStartIndex_;
 
     //! Complete list of state derivative models, sorted per state type.
     std::unordered_map< IntegratedStateType,
@@ -563,7 +584,10 @@ private:
     < SingleStateTypeDerivative< StateScalarType, TimeType > > > >::iterator stateDerivativeModelsIterator_;
 
     //! Total length of state vector.
-    int totalStateSize_;
+    int totalConventionalStateSize_;
+
+    int totalPropagatedStateSize_;
+
 
     //! List of states that are not propagated in current numerical integration, i.e, for which
     //! current state is taken from the environment.
