@@ -43,7 +43,7 @@ namespace simulation_setup
  * \param angleUpdateFunction Function to update the aerodynamic angles to the current time (default none).
  * \return Flight conditions object for given bodies and settings.
  */
-boost::shared_ptr< aerodynamics::FlightConditions > createFlightConditions(
+boost::shared_ptr< aerodynamics::AtmosphericFlightConditions >  createFlightConditions(
         const boost::shared_ptr< Body > bodyWithFlightConditions,
         const boost::shared_ptr< Body > centralBody,
         const std::string& nameOfBodyUndergoingAcceleration,
@@ -61,7 +61,7 @@ boost::shared_ptr< aerodynamics::FlightConditions > createFlightConditions(
  * \param flightConditions Flight conditions for body that is to have trimmed conditions.
  */
 boost::shared_ptr< aerodynamics::TrimOrientationCalculator > setTrimmedConditions(
-        const boost::shared_ptr< aerodynamics::FlightConditions > flightConditions );
+        const boost::shared_ptr< aerodynamics::AtmosphericFlightConditions > flightConditions );
 
 
 //! Function to set the angle of attack to trimmed conditions.

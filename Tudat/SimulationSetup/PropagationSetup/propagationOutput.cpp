@@ -76,7 +76,7 @@ Eigen::Quaterniond getQuaternionFromVectorRotationRepresentation(
 
 //! Function to compute the Fay-Riddell equilibrium heat flux from body properties
 double computeEquilibriumFayRiddellHeatFluxFromProperties(
-        const boost::shared_ptr< aerodynamics::FlightConditions > flightConditions,
+        const boost::shared_ptr< aerodynamics::AtmosphericFlightConditions > flightConditions,
         const boost::shared_ptr< system_models::VehicleSystems > vehicleSystems )
 {
     return aerodynamics::computeEquilibriumFayRiddellHeatFlux(
