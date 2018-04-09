@@ -192,7 +192,8 @@ public:
             const TimeType& time )
     {
         Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > currentState =
-                Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >::Zero( cartesianSolution.rows( ) );
+                Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >::Zero(
+                    this->bodiesToBeIntegratedNumerically_.size( ) * 7 );
 
         // Subtract frame origin and Keplerian states from inertial state.
         Eigen::Matrix< StateScalarType, 6, 1 > currentCartesianState;
@@ -271,6 +272,11 @@ public:
     basic_astrodynamics::AccelerationMap getFullAccelerationsMap( )
     {
         return originalAccelerationModelsPerBody_;
+    }
+
+    int getPropagatedStateSize( )
+    {
+        return 7 * this->bodiesToBeIntegratedNumerically_.size( );
     }
 
 private:

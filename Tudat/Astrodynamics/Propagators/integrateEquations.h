@@ -679,6 +679,8 @@ public:
             const double printInterval = TUDAT_NAN,
             const std::chrono::steady_clock::time_point initialClockTime = std::chrono::steady_clock::now( ) )
     {
+        std::cout<<"Initial state: "<<initialState.transpose( )<<std::endl;
+
         boost::function< bool( const double, const double ) > stopPropagationFunction =
                 boost::bind( &PropagationTerminationCondition::checkStopCondition, propagationTerminationCondition, _1, _2 );
 
