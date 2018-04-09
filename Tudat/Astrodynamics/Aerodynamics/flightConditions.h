@@ -29,6 +29,7 @@ namespace tudat
 namespace aerodynamics
 {
 
+
 //! Class for calculating aerodynamic flight characteristics of a vehicle during numerical
 //! integration.
 /*!
