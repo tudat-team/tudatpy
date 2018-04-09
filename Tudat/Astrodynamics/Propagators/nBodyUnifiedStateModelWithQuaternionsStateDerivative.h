@@ -175,7 +175,8 @@ public:
             const TimeType& time )
     {
         Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > currentState =
-                Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >::Zero( cartesianSolution.rows( ) );
+                Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >::Zero(
+                    this->bodiesToBeIntegratedNumerically_.size( ) * 7 );
 
         // Subtract frame origin and Keplerian states from inertial state.
         Eigen::Matrix< StateScalarType, 6, 1 > currentCartesianState;
@@ -213,8 +214,6 @@ public:
             const Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >& internalSolution, const TimeType& time,
             Eigen::Block< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > currentCartesianLocalSoluton )
     {
-        std::cout<<"USM state "<<internalSolution.transpose( )<<std::endl;
-
         Eigen::Matrix< StateScalarType, 6, 1 > currentCartesianState;
         Eigen::Matrix< StateScalarType, 7, 1 > currentUnifiedStateModelState;
 
@@ -241,6 +240,11 @@ public:
     basic_astrodynamics::AccelerationMap getFullAccelerationsMap( )
     {
         return originalAccelerationModelsPerBody_;
+    }
+
+    int getPropagatedStateSize( )
+    {
+        return 7 * this->bodiesToBeIntegratedNumerically_.size( );
     }
 
 private:

@@ -15,7 +15,7 @@
  */
 
 #include <cmath>
-
+#include <iostream>
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/orbitalElementConversions.h"
 #include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
@@ -252,10 +252,12 @@ Eigen::Vector6d convertUnifiedStateModelWithQuaternionsToKeplerianElements(
         // Define the error message.
         std::stringstream errorMessage;
         errorMessage << "The norm of the quaternion should be equal to one.\n"
-                     << "Norm of the specified quaternion is: " << normOfQuaternionElements << " ." << std::endl;
+                     << "Norm of the specified quaternion is: " << normOfQuaternionElements - 1.0 << " + 1." << std::endl;
 
+        //std::cerr<<"The norm of the quaternion should be equal to one.\n"
+        //        << "Norm of the specified quaternion is: " << normOfQuaternionElements - 1.0 << " + 1." <<std::endl;
         // Throw exception.
-        throw std::runtime_error( std::runtime_error( errorMessage.str( ) ) );
+        //throw std::runtime_error( std::runtime_error( errorMessage.str( ) ) );
     }
     //Else, nothing wrong and continue
 

@@ -9,6 +9,7 @@
  */
 
 #include "Tudat/Astrodynamics/Propagators/nBodyUnifiedStateModelWithQuaternionsStateDerivative.h"
+#include "Tudat/Astrodynamics/Propagators/rotationalMotionStateDerivative.h"
 
 namespace tudat
 {
@@ -29,33 +30,35 @@ Eigen::VectorXd computeStateDerivativeForUnifiedStateModelWithQuaternions(
 
     // Compute supporting parameters
     Eigen::Matrix3d hodographMatrix = Eigen::Matrix3d::Zero( );
-    hodographMatrix( 1, 2 ) = - pParameter( 0 );
-    hodographMatrix( 2, 1 ) = cosineLambdaParameter;
-    hodographMatrix( 2, 2 ) = - ( 1 + pParameter( 0 ) ) * sineLambdaParameter;
-    hodographMatrix( 2, 3 ) = - gammaParameter * pParameter( 1 );
-    hodographMatrix( 3, 1 ) = sineLambdaParameter;
-    hodographMatrix( 3, 2 ) = ( 1 + pParameter( 0 ) ) * cosineLambdaParameter;
-    hodographMatrix( 3, 3 ) = gammaParameter * pParameter( 2 );
+    hodographMatrix( 0, 1 ) = - pParameter( 0 );
+    hodographMatrix( 1, 0 ) = cosineLambdaParameter;
+    hodographMatrix( 1, 1 ) = - ( 1 + pParameter( 0 ) ) * sineLambdaParameter;
+    hodographMatrix( 1, 2 ) = - gammaParameter * pParameter( 1 );
+    hodographMatrix( 2, 0 ) = sineLambdaParameter;
+    hodographMatrix( 2, 1 ) = ( 1 + pParameter( 0 ) ) * cosineLambdaParameter;
+    hodographMatrix( 2, 1 ) = gammaParameter * pParameter( 2 );
 
-    Eigen::MatrixXd quaternionMatrix = Eigen::MatrixXd::Zero( 4, 4 );
-    quaternionMatrix( 1, 2 ) = rotationalVelocity( 2 );
-    quaternionMatrix( 1, 3 ) = - rotationalVelocity( 1 );
-    quaternionMatrix( 1, 4 ) = rotationalVelocity( 0 );
-    quaternionMatrix( 2, 1 ) = - rotationalVelocity( 2 );
-    quaternionMatrix( 2, 3 ) = rotationalVelocity( 0 );
-    quaternionMatrix( 2, 4 ) = rotationalVelocity( 1 );
-    quaternionMatrix( 3, 1 ) = rotationalVelocity( 1 );
-    quaternionMatrix( 3, 2 ) = - rotationalVelocity( 0 );
-    quaternionMatrix( 3, 4 ) = rotationalVelocity( 2 );
-    quaternionMatrix( 4, 1 ) = - rotationalVelocity( 0 );
-    quaternionMatrix( 4, 2 ) = - rotationalVelocity( 1 );
-    quaternionMatrix( 4, 3 ) = - rotationalVelocity( 2 );
+    Eigen::MatrixXd quaternionMatrix =
+            //getQuaterionToQuaternionRateMatrix( rotationalVelocity );
+    Eigen::MatrixXd::Zero( 4, 4 );
+    quaternionMatrix( 0, 1 ) = rotationalVelocity( 2 );
+    quaternionMatrix( 0, 2 ) = - rotationalVelocity( 1 );
+    quaternionMatrix( 0, 3 ) = rotationalVelocity( 0 );
+    quaternionMatrix( 1, 0 ) = - rotationalVelocity( 2 );
+    quaternionMatrix( 1, 2 ) = rotationalVelocity( 0 );
+    quaternionMatrix( 1, 3 ) = rotationalVelocity( 1 );
+    quaternionMatrix( 2, 0 ) = rotationalVelocity( 1 );
+    quaternionMatrix( 2, 1 ) = - rotationalVelocity( 0 );
+    quaternionMatrix( 2, 3 ) = rotationalVelocity( 2 );
+    quaternionMatrix( 3, 0 ) = - rotationalVelocity( 0 );
+    quaternionMatrix( 3, 1 ) = - rotationalVelocity( 1 );
+    quaternionMatrix( 3, 2 ) = - rotationalVelocity( 2 );
 
-    Eigen::VectorXd stateDerivative;
+    Eigen::Vector7d stateDerivative;
 
     // Evaluate USM7 equations.
     stateDerivative.segment( 0, 3 ) = hodographMatrix * accelerationsInRswFrame;
-    stateDerivative.segment( 3, 3 ) = quaternionMatrix * currentUnifiedStateModelElements.segment( 3, 3 );
+    stateDerivative.segment( 3, 4 ) = 0.5 * quaternionMatrix * currentUnifiedStateModelElements.segment( 3, 4 );
 
     return stateDerivative;
 
@@ -67,7 +70,6 @@ Eigen::VectorXd computeStateDerivativeForUnifiedStateModelWithQuaternions(
         const Eigen::Vector3d& accelerationsInRswFrame,
         const double centralBodyGravitationalParameter )
 {
-
     // Retrieve USM elements
     double CHodograph = currentUnifiedStateModelElements( 0 );
     double Rf1Hodograph = currentUnifiedStateModelElements( 1 );
@@ -78,7 +80,7 @@ Eigen::VectorXd computeStateDerivativeForUnifiedStateModelWithQuaternions(
     double etaQuaternion = currentUnifiedStateModelElements( 6 );
 
     // Compute supporting parameters
-    double quaterionParameter = std::pow( epsilon3Quaternion, 2) + std::pow( etaQuaternion, 2 );
+    double quaterionParameter = std::pow( epsilon3Quaternion, 2 ) + std::pow( etaQuaternion, 2 );
     double sineLambdaParameter = ( 2 * epsilon3Quaternion * etaQuaternion ) / quaterionParameter;
     double cosineLambdaParameter =  ( std::pow( etaQuaternion, 2 ) - std::pow( epsilon3Quaternion, 2 ) ) /
             quaterionParameter;
