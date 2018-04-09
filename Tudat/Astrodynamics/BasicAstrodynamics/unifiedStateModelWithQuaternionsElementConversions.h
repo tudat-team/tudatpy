@@ -13,8 +13,8 @@
  *
  */
 
-#ifndef TUDAT_UNIFIED_STATE_MODEL_ELEMENT_CONVERSIONS_H
-#define TUDAT_UNIFIED_STATE_MODEL_ELEMENT_CONVERSIONS_H
+#ifndef TUDAT_UNIFIED_STATE_MODEL_WITH_QUATERNIONS_ELEMENT_CONVERSIONS_H
+#define TUDAT_UNIFIED_STATE_MODEL_WITH_QUATERNIONS_ELEMENT_CONVERSIONS_H
 
 #include "Tudat/Basics/basicTypedefs.h"
 
@@ -24,9 +24,9 @@ namespace tudat
 namespace orbital_element_conversions
 {
 
-//! Convert Keplerian to Unified State Model elements with Quaternions.
+//! Convert Keplerian to unified state model elements with quaternions.
 /*!
- * Converts Keplerian to Unified State Model elements with Quaternions.
+ * Converts Keplerian to unified state model elements with quaternions.
  * \param keplerianElements Vector containing Keplerian elements. Order of elements is important!
  *         keplerianElements( 0 ) = semi-major axis,                                            [m]
  *         keplerianElements( 1 ) = eccentricity,                                               [-]
@@ -35,7 +35,7 @@ namespace orbital_element_conversions
  *         keplerianElements( 4 ) = longitude of ascending node,                              [rad]
  *         keplerianElements( 5 ) = true anomaly.                                             [rad]
  * \param centralBodyGravitationalParameter Gravitational parameter of central body.      [m^3/s^2]
- * \return convertedUnifiedStateModelElements Converted state in Unified State Model elements with Quaternions.
+ * \return convertedUnifiedStateModelElements Converted state in unified state model elements with quaternions.
  *         The order of elements is fixed
  *         convertedUnifiedStateModelElements( 0 ) = C hodograph element,                     [m/s]
  *         convertedUnifiedStateModelElements( 1 ) = Rf1 hodograph element,                   [m/s]
@@ -49,10 +49,10 @@ Eigen::Matrix< double, 7, 1 > convertKeplerianToUnifiedStateModelWithQuaternions
         const Eigen::Matrix< double, 6, 1 >& keplerianElements,
         const double centralBodyGravitationalParameter );
 
-//! Convert Unified State Model elements with Quaternions to Keplerian elements.
+//! Convert unified state model elements with quaternions to Keplerian elements.
 /*!
- * Converts Unified State Model elements with Quaternions to Keplerian elements.
- * \param unifiedStateModelElements Vector containing Unified State Model elements with Quaternions.
+ * Converts unified state model elements with quaternions to Keplerian elements.
+ * \param unifiedStateModelElements Vector containing unified state model elements with quaternions.
  *         Order of elements is important!
  *         unifiedStateModelElements( 0 ) = C hodograph element,                              [m/s]
  *         unifiedStateModelElements( 1 ) = Rf1 hodograph element,                            [m/s]
@@ -74,9 +74,9 @@ Eigen::Matrix< double, 6, 1 > convertUnifiedStateModelWithQuaternionsToKeplerian
         const Eigen::Matrix< double, 7, 1 >& unifiedStateModelElements,
         const double centralBodyGravitationalParameter );
 
-//! Convert Cartesian elements to Unified State Model elements with Quaternions.
+//! Convert Cartesian elements to unified state model elements with quaternions.
 /*!
- * Converts Cartesian to Unified State Model elements with Quaternions.
+ * Converts Cartesian to unified state model elements with quaternions.
  * \param cartesianElements Converted state in Cartesian elements. The order of elements is fixed!
  *         cartesianElements( 0 ) = x-position coordinate,                                      [m]
  *         cartesianElements( 1 ) = y-position coordinate,                                      [m]
@@ -85,7 +85,7 @@ Eigen::Matrix< double, 6, 1 > convertUnifiedStateModelWithQuaternionsToKeplerian
  *         cartesianElements( 4 ) = y-velocity coordinate,                                    [m/s]
  *         cartesianElements( 5 ) = z-velocity coordinate.                                    [m/s]
  * \param centralBodyGravitationalParameter Gravitational parameter of central body.      [m^3/s^2]
- * \return convertedUnifiedStateModelElements Converted state in Unified State Model elements with Quaternions.
+ * \return convertedUnifiedStateModelElements Converted state in unified state model elements with quaternions.
  *         The order of elements is fixed
  *         convertedUnifiedStateModelElements( 0 ) = C hodograph element,                     [m/s]
  *         convertedUnifiedStateModelElements( 1 ) = Rf1 hodograph element,                   [m/s]
@@ -104,16 +104,16 @@ Eigen::Matrix< ScalarType, 7, 1 > convertCartesianToUnifiedStateModelWithQuatern
     Eigen::Matrix< ScalarType, 6, 1 >  convertedKeplerianElements = convertCartesianToKeplerianElements< ScalarType >(
                 cartesianElements, centralBodyGravitationalParameter );
 
-    // Convert Keplerian elements to Unified State Model elements with Quaternions.
+    // Convert Keplerian elements to unified state model elements with quaternions.
     return convertKeplerianToUnifiedStateModelWithQuaternionsElements(
                 convertedKeplerianElements.template cast< double >( ), centralBodyGravitationalParameter ).
             template cast< ScalarType >( );
 }
 
-//! Convert Unified State Model elements with Quaternions to Cartesian elements.
+//! Convert unified state model elements with quaternions to Cartesian elements.
 /*!
-* Converts Unified State Model elements with Quaternions to Cartesian elements.
-* \param unifiedStateModelElements Vector containing Unified State Model elements with Quaternions.
+* Converts unified state model elements with quaternions to Cartesian elements.
+* \param unifiedStateModelElements Vector containing unified state model elements with quaternions.
 *        Order of elements is important!
 *         unifiedStateModelElements( 0 ) = C hodograph element,                              [m/s]
 *         unifiedStateModelElements( 1 ) = Rf1 hodograph element,                            [m/s]
@@ -139,7 +139,7 @@ Eigen::Matrix< ScalarType, 6, 1 > convertUnifiedStateModelWithQuaternionsToCarte
     // Declaring eventual output vector.
     Eigen::Matrix< ScalarType, 6, 1 > convertedCartesianElements = Eigen::Matrix< ScalarType, 6, 1 >::Zero( );
 
-    // Convert Unified State Model with Quaternions to Keplerian elements.
+    // Convert unified state model with quaternions to Keplerian elements.
     Eigen::Matrix< ScalarType, 6, 1 > convertedKeplerianElements =
             convertUnifiedStateModelWithQuaternionsToKeplerianElements(
                 unifiedStateModelElements.template cast< double >( ), centralBodyGravitationalParameter ).template cast< ScalarType >( );
