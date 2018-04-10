@@ -10,7 +10,7 @@
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/stateVectorIndices.h"
 #include "Tudat/Astrodynamics/Propagators/nBodyUnifiedStateModelWithQuaternionsStateDerivative.h"
-#include "Tudat/Astrodynamics/Propagators/rotationalMotionStateDerivative.h"
+//#include "Tudat/Astrodynamics/Propagators/rotationalMotionStateDerivative.h"
 
 namespace tudat
 {
