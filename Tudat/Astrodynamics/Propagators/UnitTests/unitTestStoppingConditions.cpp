@@ -218,7 +218,8 @@ void performSimulation( const int testType )
                 dynamicsSimulator.getDynamicsStateDerivative( );
         stateDerivativeModel->computeStateDerivative(
                     (--(--( numericalSolution.end( ) ) ) )->first, (--(--( numericalSolution.end( ) ) ) )->second );
-        boost::shared_ptr< FlightConditions > flightConditions = bodyMap.at( "Apollo" )->getFlightConditions( );
+        boost::shared_ptr< AtmosphericFlightConditions > flightConditions =
+                boost::dynamic_pointer_cast< AtmosphericFlightConditions >( bodyMap.at( "Apollo" )->getFlightConditions( ) );
         double secondToLastMachNumber = flightConditions->getCurrentAirspeed( ) / flightConditions->getCurrentSpeedOfSound( );
         stateDerivativeModel->computeStateDerivative(
                     (--( numericalSolution.end( ) ) )->first, (--( numericalSolution.end( ) ) )->second );
@@ -252,7 +253,8 @@ void performSimulation( const int testType )
                 dynamicsSimulator.getDynamicsStateDerivative( );
         stateDerivativeModel->computeStateDerivative(
                     (--(--( numericalSolution.end( ) ) ) )->first, (--(--( numericalSolution.end( ) ) ) )->second );
-        boost::shared_ptr< FlightConditions > flightConditions = bodyMap.at( "Apollo" )->getFlightConditions( );
+        boost::shared_ptr< AtmosphericFlightConditions > flightConditions =
+                boost::dynamic_pointer_cast< AtmosphericFlightConditions >( bodyMap.at( "Apollo" )->getFlightConditions( ) );
         double secondToLastDensity = flightConditions->getCurrentDensity( );
         stateDerivativeModel->computeStateDerivative(
                     (--( numericalSolution.end( ) ) )->first, (--( numericalSolution.end( ) ) )->second );
@@ -269,7 +271,8 @@ void performSimulation( const int testType )
                 dynamicsSimulator.getDynamicsStateDerivative( );
         stateDerivativeModel->computeStateDerivative(
                     (--(--( numericalSolution.end( ) ) ) )->first, (--(--( numericalSolution.end( ) ) ) )->second );
-        boost::shared_ptr< FlightConditions > flightConditions = bodyMap.at( "Apollo" )->getFlightConditions( );
+        boost::shared_ptr< AtmosphericFlightConditions > flightConditions =
+                boost::dynamic_pointer_cast< AtmosphericFlightConditions >( bodyMap.at( "Apollo" )->getFlightConditions( ) );
 
         double secondToLastMachNumber = flightConditions->getCurrentAirspeed( ) / flightConditions->getCurrentSpeedOfSound( );
         double secondToLastAltitude = flightConditions->getCurrentAltitude( );
@@ -296,7 +299,8 @@ void performSimulation( const int testType )
                 dynamicsSimulator.getDynamicsStateDerivative( );
         stateDerivativeModel->computeStateDerivative(
                     (--(--( numericalSolution.end( ) ) ) )->first, (--(--( numericalSolution.end( ) ) ) )->second );
-        boost::shared_ptr< FlightConditions > flightConditions = bodyMap.at( "Apollo" )->getFlightConditions( );
+        boost::shared_ptr< AtmosphericFlightConditions > flightConditions =
+                boost::dynamic_pointer_cast< AtmosphericFlightConditions >( bodyMap.at( "Apollo" )->getFlightConditions( ) );
 
         double secondToLastMachNumber = flightConditions->getCurrentAirspeed( ) / flightConditions->getCurrentSpeedOfSound( );
         double secondToLastAltitude = flightConditions->getCurrentAltitude( );

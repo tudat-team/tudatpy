@@ -21,6 +21,8 @@
 #include "Tudat/Basics/testMacros.h"
 #include "Tudat/SimulationSetup/PropagationSetup/dynamicsSimulator.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/unitConversions.h"
+#include "Tudat/Astrodynamics/BasicAstrodynamics/sphericalStateConversions.h"
+#include "Tudat/Astrodynamics/BasicAstrodynamics/stateVectorIndices.h"
 #include "Tudat/External/SpiceInterface/spiceInterface.h"
 #include "Tudat/SimulationSetup/EnvironmentSetup/body.h"
 #include "Tudat/SimulationSetup/PropagationSetup/createNumericalSimulator.h"
@@ -673,6 +675,12 @@ BOOST_AUTO_TEST_CASE( testDependentVariableEnvironmentUpdate )
     dependentVariables.push_back(
                 boost::make_shared< BodyAerodynamicAngleVariableSaveSettings >(
                     "Moon", reference_frames::longitude_angle, "Earth" ) );
+    dependentVariables.push_back(
+                boost::make_shared< BodyAerodynamicAngleVariableSaveSettings >(
+                    "Moon", reference_frames::heading_angle, "Earth" ) );
+    dependentVariables.push_back(
+                boost::make_shared< BodyAerodynamicAngleVariableSaveSettings >(
+                    "Moon", reference_frames::flight_path_angle, "Earth" ) );
 
     boost::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
             boost::make_shared< TranslationalStatePropagatorSettings< double > >
@@ -720,6 +728,23 @@ BOOST_AUTO_TEST_CASE( testDependentVariableEnvironmentUpdate )
                                    tudat::mathematical_constants::PI / 2.0 - moonSphericalPosition( 1 ) ) ), 1.0E-14 );
         BOOST_CHECK_SMALL(
                     std::fabs( variableIterator->second( 4 ) - moonSphericalPosition( 2 ) ), 1.0E-14 );
+
+        Eigen::Vector6d moonRelativeSphericalState =
+                tudat::orbital_element_conversions::convertCartesianToSphericalOrbitalState(
+                    moonRelativeEarthFixedCartesianState );
+
+        BOOST_CHECK_SMALL(
+                    std::fabs( variableIterator->second( 3 ) - moonRelativeSphericalState(
+                                   orbital_element_conversions::latitudeIndex ) ), 1.0E-14 );
+        BOOST_CHECK_SMALL(
+                    std::fabs( variableIterator->second( 4 ) - moonRelativeSphericalState(
+                                   orbital_element_conversions::longitudeIndex ) ), 1.0E-14 );
+        BOOST_CHECK_SMALL(
+                    std::fabs( variableIterator->second( 5 ) - moonRelativeSphericalState(
+                                   orbital_element_conversions::headingAngleIndex ) ), 1.0E-14 );
+        BOOST_CHECK_SMALL(
+                    std::fabs( variableIterator->second( 6 ) - moonRelativeSphericalState(
+                                   orbital_element_conversions::flightPathIndex ) ), 1.0E-14 );
     }
 }
 BOOST_AUTO_TEST_SUITE_END( )

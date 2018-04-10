@@ -43,7 +43,7 @@ std::vector< boost::function< double( ) > > getPropulsionInputVariables(
                         boost::bind( &aerodynamics::FlightConditions::getCurrentAltitude, vehicleFlightConditions ) );
             break;
         case propulsion::density_dependent_thrust:
-            if( vehicleAtmosphericFlightConditions )
+            if( vehicleAtmosphericFlightConditions == NULL )
             {
                 throw std::runtime_error( "Error when making propulsion input variables, atmospheric flight conditions required, but not found" );
             }
@@ -51,7 +51,7 @@ std::vector< boost::function< double( ) > > getPropulsionInputVariables(
                         boost::bind( &aerodynamics::AtmosphericFlightConditions::getCurrentDensity, vehicleAtmosphericFlightConditions ) );
             break;
         case propulsion::dynamic_pressure_dependent_thrust:
-            if( vehicleAtmosphericFlightConditions )
+            if( vehicleAtmosphericFlightConditions == NULL )
             {
                 throw std::runtime_error( "Error when making propulsion input variables, atmospheric flight conditions required, but not found" );
             }
@@ -59,7 +59,7 @@ std::vector< boost::function< double( ) > > getPropulsionInputVariables(
                         boost::bind( &aerodynamics::AtmosphericFlightConditions::getCurrentDynamicPressure, vehicleAtmosphericFlightConditions ) );
             break;
         case propulsion::mach_number_dependent_thrust:
-            if( vehicleAtmosphericFlightConditions )
+            if( vehicleAtmosphericFlightConditions == NULL )
             {
                 throw std::runtime_error( "Error when making propulsion input variables, atmospheric flight conditions required, but not found" );
             }
@@ -67,7 +67,7 @@ std::vector< boost::function< double( ) > > getPropulsionInputVariables(
                         boost::bind( &aerodynamics::AtmosphericFlightConditions::getCurrentMachNumber, vehicleAtmosphericFlightConditions ) );
             break;
         case propulsion::pressure_dependent_thrust:
-            if( vehicleAtmosphericFlightConditions )
+            if( vehicleAtmosphericFlightConditions == NULL )
             {
                 throw std::runtime_error( "Error when making propulsion input variables, atmospheric flight conditions required, but not found" );
             }
