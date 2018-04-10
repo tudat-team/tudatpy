@@ -32,7 +32,6 @@ Eigen::Vector6d computeStateDerivativeForUnifiedStateModelWithExponentialMap(
 {
     // REMOVE vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv REMOVE
     std::cout << "USM state: " << std::endl << currentUnifiedStateModelElements << std::endl;
-    std::cout << "Norm before propagation: " << currentUnifiedStateModelElements.segment( 3, 4 ).norm( ) << std::endl;
     std::cout << "Acceleration: " << std::endl << accelerationsInRswFrame << std::endl;
     std::cout << "Sine lambda: " << sineLambdaParameter << std::endl;
     std::cout << "Cosine lambda: " << cosineLambdaParameter << std::endl;
@@ -105,6 +104,9 @@ Eigen::Vector6d computeStateDerivativeForUnifiedStateModelWithExponentialMap(
 {
     using namespace orbital_element_conversions;
 
+    // Define the tolerance of a singularity
+    double singularityTolerance = 20.0 * std::numeric_limits< double >::epsilon( );
+
     // Retrieve USM elements
     double CHodograph = currentUnifiedStateModelElements( CHodographExponentialMapIndex );
     double Rf1Hodograph = currentUnifiedStateModelElements( Rf1HodographExponentialMapIndex );
@@ -113,8 +115,15 @@ Eigen::Vector6d computeStateDerivativeForUnifiedStateModelWithExponentialMap(
     double exponentialMapMagnitude = exponentialMapVector.norm( ); // also called xi
 
     // Convert exponential map to quaternions
-    Eigen::Vector3d epsilonQuaternionVector = exponentialMapVector / exponentialMapMagnitude *
-            std::sin( 0.5 * exponentialMapMagnitude );
+    Eigen::Vector3d epsilonQuaternionVector = Eigen::Vector3d::Zero( );
+    if ( std::fabs( exponentialMapMagnitude ) < singularityTolerance )
+    {
+        epsilonQuaternionVector = exponentialMapVector * ( 0.5 + std::pow( exponentialMapMagnitude, 2 ) / 48.0 );
+    }
+    {
+        epsilonQuaternionVector = exponentialMapVector / exponentialMapMagnitude *
+                std::sin( 0.5 * exponentialMapMagnitude );
+    }
     double epsilon1Quaternion = epsilonQuaternionVector( 0 );
     double epsilon2Quaternion = epsilonQuaternionVector( 1 );
     double epsilon3Quaternion = epsilonQuaternionVector( 2 );
