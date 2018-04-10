@@ -1076,7 +1076,7 @@ int getMultiTypePropagatorStateSize(
     {
         for( unsigned int i = 0; i < typeIterator->second.size( ); i++ )
         {
-            stateSize += typeIterator->second.at( i )->getStateSize( );
+            stateSize += typeIterator->second.at( i )->getPropagatedStateSize( );
         }
     }
     return stateSize;

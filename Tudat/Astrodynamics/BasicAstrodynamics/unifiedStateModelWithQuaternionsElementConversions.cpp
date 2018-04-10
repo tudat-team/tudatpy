@@ -252,10 +252,8 @@ Eigen::Vector6d convertUnifiedStateModelWithQuaternionsToKeplerianElements(
         errorMessage << "The norm of the quaternion should be equal to one.\n"
                      << "Norm of the specified quaternion is: " << normOfQuaternionElements - 1.0 << " + 1." << std::endl;
 
-        //std::cerr<<"The norm of the quaternion should be equal to one.\n"
-        //        << "Norm of the specified quaternion is: " << normOfQuaternionElements - 1.0 << " + 1." <<std::endl;
         // Throw exception.
-        //throw std::runtime_error( std::runtime_error( errorMessage.str( ) ) );
+        throw std::runtime_error( std::runtime_error( errorMessage.str( ) ) );
     }
     //Else, nothing wrong and continue
 
