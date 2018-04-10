@@ -9,9 +9,9 @@
  *
  *    References
  *      Vittaldev, V. (2010). The unified state model: Derivation and application in astrodynamics
- *          and navigation. Master's thesis, Delft University of Technology.
- *      <Second reference>
- *
+ *          and navigation. Master thesis, Delft University of Technology.
+ *      Facchinelli, M. (2018). Aerobraking Guidance, Navigation and Control.
+ *          Master thesis, Delft University of Technology.
  */
 
 #include <cmath>
@@ -262,7 +262,7 @@ Eigen::Vector6d convertKeplerianToUnifiedStateModelWithExponentialMapElements(
 
 //! Convert unified state model elements with exponential map to Keplerian elements.
 Eigen::Vector6d convertUnifiedStateModelWithExponentialMapToKeplerianElements(
-        const Eigen::Vector7d& unifiedStateModelElements,
+        const Eigen::Vector6d& unifiedStateModelElements,
         const double centralBodyGravitationalParameter )
 {
     using mathematical_constants::PI;
@@ -271,8 +271,7 @@ Eigen::Vector6d convertUnifiedStateModelWithExponentialMapToKeplerianElements(
     Eigen::Vector6d convertedKeplerianElements = Eigen::Vector6d::Zero( );
 
     // Define the tolerance of a singularity
-    double singularityTolerance = 1.0e-15; // Based on tolerance chosen in
-                                           // orbitalElementConversions.cpp in Tudat.
+    double singularityTolerance = 20.0 * std::numeric_limits< double >::epsilon( );
 
     // Compute auxiliary parameters
     double exponentialMapMagnitude = unifiedStateModelElements.segment( 3, 3 ).norm( ); // magnitude of exponential map, also called xi
@@ -316,7 +315,8 @@ Eigen::Vector6d convertUnifiedStateModelWithExponentialMapToKeplerianElements(
         // parabolic orbit -> semi-major axis is not defined. Use semi-latus rectum instead.
     {
         convertedKeplerianElements( semiLatusRectumIndex ) = centralBodyGravitationalParameter /
-                ( unifiedStateModelElements( CHodographExponentialMapIndex ) * unifiedStateModelElements( CHodographExponentialMapIndex ) );
+                ( unifiedStateModelElements( CHodographExponentialMapIndex ) *
+                  unifiedStateModelElements( CHodographExponentialMapIndex ) );
     }
     else
     {
@@ -329,7 +329,20 @@ Eigen::Vector6d convertUnifiedStateModelWithExponentialMapToKeplerianElements(
     // Compute inclination
     if ( ( ( XiParameter - 2.0 ) < singularityTolerance ) || ( ( cosineLambda - 1.0 ) < singularityTolerance ) )
     {
-        convertedKeplerianElements( inclinationIndex ) = 0.0; // temporary fix <<<<<<<<<<<<<<<<---------------
+        // Convert to quaternions
+        Eigen::Vector3d exponentialMapVector = unifiedStateModelElements.segment( e1ExponentialMapIndex, 3 );
+        double exponentialMapMagnitude = exponentialMapVector.norm( ); // also called xi
+        Eigen::Vector3d epsilonQuaternionVector = exponentialMapVector / exponentialMapMagnitude *
+                std::sin( 0.5 * exponentialMapMagnitude ); // xi is non-zero since Xi is -2.0
+        double epsilon1Quaternion = epsilonQuaternionVector( 0 );
+        double epsilon2Quaternion = epsilonQuaternionVector( 1 );
+
+        // Compute inclination with quaternions
+        convertedKeplerianElements( inclinationIndex ) =
+                std::acos( 1.0 - 2.0 * ( epsilon1Quaternion *
+                                         epsilon1Quaternion +
+                                         epsilon2Quaternion *
+                                         epsilon2Quaternion ) );
     }
     else
     {
