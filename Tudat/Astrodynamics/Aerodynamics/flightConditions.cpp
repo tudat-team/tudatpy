@@ -33,6 +33,10 @@ FlightConditions::FlightConditions( const boost::shared_ptr< basic_astrodynamics
         currentTime_( TUDAT_NAN )
 
 {
+    // Link body-state function.
+    bodyCenteredPseudoBodyFixedStateFunction_ = boost::bind(
+                &reference_frames::AerodynamicAngleCalculator::getCurrentAirspeedBasedBodyFixedState, aerodynamicAngleCalculator_ );
+
     // Check if given body shape is an oblate spheroid and set geodetic latitude function if so
     if( boost::dynamic_pointer_cast< basic_astrodynamics::OblateSpheroidBodyShapeModel >( shapeModel ) != NULL )
     {
@@ -55,6 +59,9 @@ void FlightConditions::updateConditions( const double currentTime )
         {
             aerodynamicAngleCalculator_->update( currentTime, false );
         }
+
+        // Calculate state of vehicle in global frame and corotating frame.
+        currentBodyCenteredAirspeedBasedBodyFixedState_ = bodyCenteredPseudoBodyFixedStateFunction_( );
     }
 }
 
@@ -70,10 +77,6 @@ AtmosphericFlightConditions::AtmosphericFlightConditions(
     aerodynamicCoefficientInterface_( aerodynamicCoefficientInterface ),
     controlSurfaceDeflectionFunction_( controlSurfaceDeflectionFunction )
 {
-    // Link body-state function.
-    bodyCenteredPseudoBodyFixedStateFunction_ = boost::bind(
-                &reference_frames::AerodynamicAngleCalculator::getCurrentAirspeedBasedBodyFixedState, aerodynamicAngleCalculator_ );
-
     // Check if atmosphere requires latitude and longitude update.
     if( boost::dynamic_pointer_cast< aerodynamics::StandardAtmosphere >( atmosphereModel_ ) == NULL )
     {
