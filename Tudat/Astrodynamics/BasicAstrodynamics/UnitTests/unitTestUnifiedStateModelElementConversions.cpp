@@ -22,7 +22,7 @@
 #include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
 #include "Tudat/Mathematics/BasicMathematics/basicMathematicsFunctions.h"
 
-#include "Tudat/Astrodynamics/BasicAstrodynamics/unifiedStateModelElementConversions.h"
+#include "Tudat/Astrodynamics/BasicAstrodynamics/unifiedStateModelWithQuaternionsElementConversions.h"
 #include "Tudat/Basics/basicTypedefs.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/stateVectorIndices.h"
 
@@ -69,9 +69,9 @@ BOOST_AUTO_TEST_CASE( testconvertKeplerianToUnifiedStateModelWithQuaternionsElem
 
         // Expected Unified State Model elements [m/s,m/s,m/s,-,-,-,-].
         // (Results obtained using Matlab code).
-        expectedUnifiedStateModelElements( CHodographIndex ) = 29894.5892222602;
-        expectedUnifiedStateModelElements( Rf1HodographIndex ) = -260.548512780222;
-        expectedUnifiedStateModelElements( Rf2HodographIndex ) = 2978.08312848463;
+        expectedUnifiedStateModelElements( CHodographQuaternionIndex ) = 29894.5892222602;
+        expectedUnifiedStateModelElements( Rf1HodographQuaternionIndex ) = -260.548512780222;
+        expectedUnifiedStateModelElements( Rf2HodographQuaternionIndex ) = 2978.08312848463;
         expectedUnifiedStateModelElements( epsilon1QuaternionIndex ) = -0.419002703925548;
         expectedUnifiedStateModelElements( epsilon2QuaternionIndex ) = -0.0551627524676706;
         expectedUnifiedStateModelElements( epsilon3QuaternionIndex ) = -0.118296904421275;
@@ -101,9 +101,9 @@ BOOST_AUTO_TEST_CASE( testconvertKeplerianToUnifiedStateModelWithQuaternionsElem
 
         // Set expected Unified State Model elements [m/s,m/s,m/s,-,-,-,-].
         // (Results obtained using Matlab code).
-        expectedUnifiedStateModelElements( CHodographIndex ) = 17173.1340579794;
-        expectedUnifiedStateModelElements( Rf1HodographIndex ) = -2993.47450825659;
-        expectedUnifiedStateModelElements( Rf2HodographIndex ) = 34215.5701963558;
+        expectedUnifiedStateModelElements( CHodographQuaternionIndex ) = 17173.1340579794;
+        expectedUnifiedStateModelElements( Rf1HodographQuaternionIndex ) = -2993.47450825659;
+        expectedUnifiedStateModelElements( Rf2HodographQuaternionIndex ) = 34215.5701963558;
         expectedUnifiedStateModelElements( epsilon1QuaternionIndex ) = -0.987672114350896; //Minor error?
         expectedUnifiedStateModelElements( epsilon2QuaternionIndex ) = -0.130029500651719;
         expectedUnifiedStateModelElements( epsilon3QuaternionIndex ) = -0.0113761072309622;
@@ -131,9 +131,9 @@ BOOST_AUTO_TEST_CASE( testconvertKeplerianToUnifiedStateModelWithQuaternionsElem
 
         // Set expected Unified State Model elements [m/s,m/s,m/s,-,-,-,-].
         // (Results obtained using Matlab code).
-        expectedUnifiedStateModelElements( CHodographIndex ) = 29744.7407136119;
-        expectedUnifiedStateModelElements( Rf1HodographIndex ) = -2592.42496973134;
-        expectedUnifiedStateModelElements( Rf2HodographIndex ) = 29631.5529950138;
+        expectedUnifiedStateModelElements( CHodographQuaternionIndex ) = 29744.7407136119;
+        expectedUnifiedStateModelElements( Rf1HodographQuaternionIndex ) = -2592.42496973134;
+        expectedUnifiedStateModelElements( Rf2HodographQuaternionIndex ) = 29631.5529950138;
         expectedUnifiedStateModelElements( epsilon1QuaternionIndex ) = -0.299561523151596;
         expectedUnifiedStateModelElements( epsilon2QuaternionIndex ) = 0.95008776981561;
         expectedUnifiedStateModelElements( epsilon3QuaternionIndex ) = -0.0870727897926938;
@@ -207,9 +207,9 @@ BOOST_AUTO_TEST_CASE( testconvertKeplerianToUnifiedStateModelWithQuaternionsElem
 
         // Set expected Unified State Model elements [m/s,m/s,m/s,-,-,-,-]. (Results were calculated by
         // hand).
-        expectedUnifiedStateModelElements( CHodographIndex ) = 29894.5892222602;
-        expectedUnifiedStateModelElements( Rf1HodographIndex ) = -260.548512780222;
-        expectedUnifiedStateModelElements( Rf2HodographIndex ) = 2978.08312848463;
+        expectedUnifiedStateModelElements( CHodographQuaternionIndex ) = 29894.5892222602;
+        expectedUnifiedStateModelElements( Rf1HodographQuaternionIndex ) = -260.548512780222;
+        expectedUnifiedStateModelElements( Rf2HodographQuaternionIndex ) = 2978.08312848463;
         expectedUnifiedStateModelElements( epsilon1QuaternionIndex ) = -0.300705799504273;
         expectedUnifiedStateModelElements( epsilon2QuaternionIndex ) = 0.953716950748227;
         expectedUnifiedStateModelElements( epsilon3QuaternionIndex ) = -6.11740603377039e-17;
@@ -246,9 +246,9 @@ BOOST_AUTO_TEST_CASE( testconvertKeplerianToUnifiedStateModelWithQuaternionsElem
 
         // Expected Unified State Model elements [m/s,m/s,m/s,-,-,-,-].
         // (Results obtained using code archive B. Rmgens (2011)).
-        expectedUnifiedStateModelElements( CHodographIndex ) = 29744.7407136119;
-        expectedUnifiedStateModelElements( Rf1HodographIndex ) = 0;
-        expectedUnifiedStateModelElements( Rf2HodographIndex ) = 0;
+        expectedUnifiedStateModelElements( CHodographQuaternionIndex ) = 29744.7407136119;
+        expectedUnifiedStateModelElements( Rf1HodographQuaternionIndex ) = 0;
+        expectedUnifiedStateModelElements( Rf2HodographQuaternionIndex ) = 0;
         expectedUnifiedStateModelElements( epsilon1QuaternionIndex ) = 0;
         expectedUnifiedStateModelElements( epsilon2QuaternionIndex ) = 0;
         expectedUnifiedStateModelElements( epsilon3QuaternionIndex ) = 0.996194698091746;

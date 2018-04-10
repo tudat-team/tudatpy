@@ -161,13 +161,6 @@ public:
         Eigen::Vector3d currentAccelerationInRswFrame;
         for( unsigned int i = 0; i < this->bodiesToBeIntegratedNumerically_.size( ); i++ )
         {
-            // REMOVE vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv REMOVE
-            std::cout << "Rotation matrix: " << std::endl <<
-                         reference_frames::getInertialToRswSatelliteCenteredFrameRotationMatrx(
-                             currentCartesianLocalSoluton_.segment( i * 6, 6 ).template cast< double >( ) ) << std::endl;
-            std::cout << "State derivative (acceleration): " << std::endl <<
-                         stateDerivative << std::endl;
-            // REMOVE ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ REMOVE
             currentAccelerationInRswFrame = reference_frames::getInertialToRswSatelliteCenteredFrameRotationMatrx(
                         currentCartesianLocalSoluton_.segment( i * 6, 6 ).template cast< double >( ) ) *
                     stateDerivative.block( i * 6 + 3, 0, 6, 1 ).template cast< double >( );
@@ -238,10 +231,6 @@ public:
         // Convert state to Cartesian for each body
         for( unsigned int i = 0; i < this->bodiesToBeIntegratedNumerically_.size( ); i++ )
         {
-            // REMOVE vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv REMOVE
-            std::cout << "Propagated USM state (before): " << std::endl <<
-                         internalSolution.block( i * 7, 0, 7, 1 ) << std::endl;
-            // REMOVE ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ REMOVE
             // Normalize quaternions
             quaternions = internalSolution.block( i * 7 + 3, 0, 4, 1 );
             quaternions = quaternions / quaternions.norm( );
@@ -249,9 +238,6 @@ public:
             // Get current solution
             currentUnifiedStateModelState.segment( 0, 3 ) = internalSolution.block( i * 7, 0, 3, 1 );
             currentUnifiedStateModelState.segment( 3, 4 ) = quaternions;
-            // REMOVE vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv REMOVE
-            std::cout << "Propagated USM state (after): " << std::endl << currentUnifiedStateModelState << std::endl;
-            // REMOVE ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ REMOVE
 
             currentCartesianState =
                     orbital_element_conversions::convertUnifiedStateModelWithQuaternionsToCartesianElements< StateScalarType >(
