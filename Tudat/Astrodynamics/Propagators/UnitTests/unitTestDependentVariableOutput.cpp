@@ -674,11 +674,6 @@ BOOST_AUTO_TEST_CASE( testDependentVariableEnvironmentUpdate )
                 boost::make_shared< BodyAerodynamicAngleVariableSaveSettings >(
                     "Moon", reference_frames::longitude_angle, "Earth" ) );
 
-//    relative_speed_dependent_variable = 4,
-//    relative_position_dependent_variable = 5,
-//    relative_distance_dependent_variable = 6,
-//    relative_velocity_dependent_variable
-
     boost::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
             boost::make_shared< TranslationalStatePropagatorSettings< double > >
             ( centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState, finalEphemerisTime, cowell,
@@ -694,6 +689,7 @@ BOOST_AUTO_TEST_CASE( testDependentVariableEnvironmentUpdate )
     SingleArcDynamicsSimulator< > dynamicsSimulator(
                 bodyMap, integratorSettings, propagatorSettings, true, false, false );
 
+    std::map< double, Eigen::VectorXd > stateResult = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
     std::map< double, Eigen::VectorXd > depdendentVariableResult = dynamicsSimulator.getDependentVariableHistory( );
 
     for( std::map< double, Eigen::VectorXd >::iterator variableIterator = depdendentVariableResult.begin( );
@@ -704,13 +700,27 @@ BOOST_AUTO_TEST_CASE( testDependentVariableEnvironmentUpdate )
                     "Sun", "Venus", "ECLIPJ2000", "None", variableIterator->first );
         Eigen::Vector3d computedRelativePosition = variableIterator->second.segment( 0, 3 );
 
+
         for( unsigned int i = 0; i < 3; i ++ )
         {
             BOOST_CHECK_SMALL(
                         std::fabs( expectedRelativePosition( i ) - computedRelativePosition( i ) ), 1.0E-4 );
         }
-    }
 
+        Eigen::Vector6d moonRelativeCartesianState = tudat::spice_interface::getBodyCartesianStateAtEpoch(
+                    "Moon", "SSB", "ECLIPJ2000", "None", variableIterator->first ) -
+                stateResult.at( variableIterator->first );
+        Eigen::Vector6d moonRelativeEarthFixedCartesianState = ephemerides::transformStateToTargetFrame(
+                    moonRelativeCartesianState, variableIterator->first, bodyMap.at( "Earth" )->getRotationalEphemeris( ) );
+        Eigen::Vector3d moonSphericalPosition = tudat::coordinate_conversions::convertCartesianToSpherical< double >(
+                    Eigen::Vector3d( moonRelativeEarthFixedCartesianState.segment( 0, 3 ) ) );
+
+        BOOST_CHECK_SMALL(
+                    std::fabs( variableIterator->second( 3 ) - (
+                                   tudat::mathematical_constants::PI / 2.0 - moonSphericalPosition( 1 ) ) ), 1.0E-14 );
+        BOOST_CHECK_SMALL(
+                    std::fabs( variableIterator->second( 4 ) - moonSphericalPosition( 2 ) ), 1.0E-14 );
+    }
 }
 BOOST_AUTO_TEST_SUITE_END( )
 

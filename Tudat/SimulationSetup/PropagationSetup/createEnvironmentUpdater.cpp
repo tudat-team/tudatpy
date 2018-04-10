@@ -513,12 +513,25 @@ void checkAndModifyEnvironmentForDependentVariableSaving(
     case vehicle_flight_conditions_update:
         if( bodyMap.at( dependentVariableSaveSettings->associatedBody_ )->getFlightConditions( ) == NULL )
         {
-            bodyMap.at( dependentVariableSaveSettings->associatedBody_ )->setFlightConditions(
-                        simulation_setup::createFlightConditions(
-                            bodyMap.at( dependentVariableSaveSettings->associatedBody_ ),
-                            bodyMap.at( dependentVariableSaveSettings->secondaryBody_ ),
-                            dependentVariableSaveSettings->associatedBody_,
-                            dependentVariableSaveSettings->secondaryBody_ ) );
+            if( ( bodyMap.at( dependentVariableSaveSettings->secondaryBody_ )->getAtmosphereModel( ) ) != NULL &&
+                    ( bodyMap.at( dependentVariableSaveSettings->associatedBody_ )->getAerodynamicCoefficientInterface( ) != NULL ) )
+            {
+                bodyMap.at( dependentVariableSaveSettings->associatedBody_ )->setFlightConditions(
+                            simulation_setup::createAtmosphericFlightConditions(
+                                bodyMap.at( dependentVariableSaveSettings->associatedBody_ ),
+                                bodyMap.at( dependentVariableSaveSettings->secondaryBody_ ),
+                                dependentVariableSaveSettings->associatedBody_,
+                                dependentVariableSaveSettings->secondaryBody_ ) );
+            }
+            else
+            {
+                bodyMap.at( dependentVariableSaveSettings->associatedBody_ )->setFlightConditions(
+                            simulation_setup::createFlightConditions(
+                                bodyMap.at( dependentVariableSaveSettings->associatedBody_ ),
+                                bodyMap.at( dependentVariableSaveSettings->secondaryBody_ ),
+                                dependentVariableSaveSettings->associatedBody_,
+                                dependentVariableSaveSettings->secondaryBody_ ) );
+            }
         }
         break;
     default:
@@ -698,8 +711,8 @@ std::vector< std::string > > createEnvironmentUpdaterSettingsForDependentVariabl
 
     if( variablesToUpdate.count( vehicle_flight_conditions_update ) > 0 )
     {
-            checkAndModifyEnvironmentForDependentVariableSaving(
-                        vehicle_flight_conditions_update, dependentVariableSaveSettings, bodyMap );
+        checkAndModifyEnvironmentForDependentVariableSaving(
+                    vehicle_flight_conditions_update, dependentVariableSaveSettings, bodyMap );
     }
 
     return variablesToUpdate;

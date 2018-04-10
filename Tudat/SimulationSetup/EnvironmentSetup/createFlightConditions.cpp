@@ -28,7 +28,7 @@ namespace simulation_setup
 {
 
 //! Function to create a flight conditions object
-boost::shared_ptr< aerodynamics::AtmosphericFlightConditions > createFlightConditions(
+boost::shared_ptr< aerodynamics::AtmosphericFlightConditions > createAtmosphericFlightConditions(
         const boost::shared_ptr< Body > bodyWithFlightConditions,
         const boost::shared_ptr< Body > centralBody,
         const std::string& nameOfBodyUndergoingAcceleration,
@@ -122,6 +122,54 @@ boost::shared_ptr< aerodynamics::AtmosphericFlightConditions > createFlightCondi
 
     return flightConditions;
 
+
+}
+
+boost::shared_ptr< aerodynamics::FlightConditions >  createFlightConditions(
+        const boost::shared_ptr< Body > bodyWithFlightConditions,
+        const boost::shared_ptr< Body > centralBody,
+        const std::string& nameOfBodyUndergoingAcceleration,
+        const std::string& nameOfBodyExertingAcceleration )
+{
+    // Check whether all required environment models are set.
+    if( centralBody->getShapeModel( ) == NULL )
+    {
+        throw std::runtime_error(
+                    "Error when making flight conditions, body " + nameOfBodyExertingAcceleration +
+                    " has no shape model." );
+    }
+
+    if( centralBody->getRotationalEphemeris( ) == NULL )
+    {
+        throw std::runtime_error(
+                    "Error when making flight conditions, body " + nameOfBodyExertingAcceleration +
+                    " has no rotation model." );
+    }
+
+    // Create function to rotate state from intertial to body-fixed frame.
+    boost::function< Eigen::Quaterniond( ) > rotationToFrameFunction =
+            boost::bind( &Body::getCurrentRotationToLocalFrame, centralBody );
+    boost::function< Eigen::Matrix3d( ) > rotationMatrixToFrameDerivativeFunction =
+            boost::bind( &Body::getCurrentRotationMatrixDerivativeToLocalFrame, centralBody );
+
+    boost::function< Eigen::Matrix< double, 6, 1 >( ) > bodyStateFunction = boost::bind( &Body::getState, bodyWithFlightConditions );
+    boost::function< Eigen::Matrix< double, 6, 1 >( ) > centralBodyStateFunction = boost::bind( &Body::getState, centralBody );
+
+    boost::function< Eigen::Matrix< double, 6, 1 >( ) > relativeBodyFixedStateFunction =
+            boost::bind( &ephemerides::transformRelativeStateToFrame< double >,
+                         bodyStateFunction, centralBodyStateFunction,
+                         rotationToFrameFunction,
+                         rotationMatrixToFrameDerivativeFunction );
+
+    // Create aerodynamic angles calculator and set in flight conditions.
+    boost::shared_ptr< reference_frames::AerodynamicAngleCalculator > aerodynamicAngleCalculator =
+            boost::make_shared< reference_frames::AerodynamicAngleCalculator >(
+                relativeBodyFixedStateFunction,
+                boost::bind( &simulation_setup::Body::getCurrentRotationToGlobalFrame, centralBody ),
+                nameOfBodyExertingAcceleration, 1 );
+
+    return boost::make_shared< aerodynamics::FlightConditions >(
+                centralBody->getShapeModel( ), aerodynamicAngleCalculator );
 
 }
 

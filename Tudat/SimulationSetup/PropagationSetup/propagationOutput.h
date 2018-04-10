@@ -401,7 +401,7 @@ std::pair< boost::function< Eigen::VectorXd( ) >, int > getVectorDependentVariab
         }
 
         variableFunction = boost::bind(
-                    &aerodynamics::AerodynamicCoefficientInterface::getCurrentForceCoefficients,
+                    &aerodynamics::AerodynamicCoefficientInterface::getCurrentMomentCoefficients,
                     boost::dynamic_pointer_cast< aerodynamics::AtmosphericFlightConditions >(
                         bodyMap.at( bodyWithProperty )->getFlightConditions( ) )->getAerodynamicCoefficientInterface( ) );
         parameterSize = 3;
