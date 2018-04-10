@@ -6,6 +6,10 @@
  *    under the terms of the Modified BSD license. You should have received
  *    a copy of the license with this file. If not, please or visit:
  *    http://tudat.tudelft.nl/LICENSE.
+ *
+ *    References
+ *      Vittaldev, V. (2010). The unified state model: Derivation and application in astrodynamics
+ *          and navigation. Master thesis, Delft University of Technology.
  */
 
 #include "Tudat/Astrodynamics/Propagators/nBodyUnifiedStateModelWithExponentialMapStateDerivative.h"
@@ -23,8 +27,8 @@ Eigen::Vector6d computeStateDerivativeForUnifiedStateModelWithExponentialMap(
         const double sineLambdaParameter,
         const double cosineLambdaParameter,
         const double gammaParameter,
-        const Eigen::Vector3d& rotationalVelocity,
-        const Eigen::Vector3d& pParameter )
+        const Eigen::Vector3d& rotationalVelocityVector,
+        const Eigen::Vector3d& pParameterVector )
 {
     // REMOVE vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv REMOVE
     std::cout << "USM state: " << std::endl << currentUnifiedStateModelElements << std::endl;
@@ -33,44 +37,59 @@ Eigen::Vector6d computeStateDerivativeForUnifiedStateModelWithExponentialMap(
     std::cout << "Sine lambda: " << sineLambdaParameter << std::endl;
     std::cout << "Cosine lambda: " << cosineLambdaParameter << std::endl;
     std::cout << "Gamma: " << gammaParameter << std::endl;
-    std::cout << "Rotational velocity: " << std::endl << rotationalVelocity << std::endl;
-    std::cout << "P parameter: " << std::endl << pParameter << std::endl;
+    std::cout << "Rotational velocity: " << std::endl << rotationalVelocityVector << std::endl;
+    std::cout << "P parameter: " << std::endl << pParameterVector << std::endl;
     // REMOVE ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ REMOVE
 
-    // Compute supporting parameters
+    // Define the tolerance of a singularity
+    double singularityTolerance = 20.0 * std::numeric_limits< double >::epsilon( );
+    // REMOVE vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv REMOVE
+    std::cout << "Tolerance: " << std::endl << singularityTolerance << std::endl;
+    // REMOVE ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ REMOVE
+
+    // Compute matrix for dynamic equation
     Eigen::Matrix3d hodographMatrix = Eigen::Matrix3d::Zero( );
-    hodographMatrix( 0, 1 ) = - pParameter( 0 );
+    hodographMatrix( 0, 1 ) = - pParameterVector( 0 );
     hodographMatrix( 1, 0 ) =   cosineLambdaParameter;
-    hodographMatrix( 1, 1 ) = - ( 1 + pParameter( 0 ) ) * sineLambdaParameter;
-    hodographMatrix( 1, 2 ) = - gammaParameter * pParameter( 1 );
+    hodographMatrix( 1, 1 ) = - ( 1 + pParameterVector( 0 ) ) * sineLambdaParameter;
+    hodographMatrix( 1, 2 ) = - gammaParameter * pParameterVector( 1 );
     hodographMatrix( 2, 0 ) =   sineLambdaParameter;
-    hodographMatrix( 2, 1 ) =   ( 1 + pParameter( 0 ) ) * cosineLambdaParameter;
-    hodographMatrix( 2, 2 ) =   gammaParameter * pParameter( 2 );
+    hodographMatrix( 2, 1 ) =   ( 1 + pParameterVector( 0 ) ) * cosineLambdaParameter;
+    hodographMatrix( 2, 2 ) =   gammaParameter * pParameterVector( 2 );
     // REMOVE vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv REMOVE
     std::cout << "Hodograph matrix: " << std::endl << hodographMatrix << std::endl;
     // REMOVE ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ REMOVE
 
-    Eigen::Matrix< double, 4, 4 > quaternionMatrix = Eigen::Matrix< double, 4, 4 >::Zero( 4, 4 );
-    quaternionMatrix( 0, 1 ) =   rotationalVelocity( 2 );
-    quaternionMatrix( 0, 2 ) = - rotationalVelocity( 1 );
-    quaternionMatrix( 0, 3 ) =   rotationalVelocity( 0 );
-    quaternionMatrix( 1, 0 ) = - rotationalVelocity( 2 );
-    quaternionMatrix( 1, 2 ) =   rotationalVelocity( 0 );
-    quaternionMatrix( 1, 3 ) =   rotationalVelocity( 1 );
-    quaternionMatrix( 2, 0 ) =   rotationalVelocity( 1 );
-    quaternionMatrix( 2, 1 ) = - rotationalVelocity( 0 );
-    quaternionMatrix( 2, 3 ) =   rotationalVelocity( 2 );
-    quaternionMatrix( 3, 0 ) = - rotationalVelocity( 0 );
-    quaternionMatrix( 3, 1 ) = - rotationalVelocity( 1 );
-    quaternionMatrix( 3, 2 ) = - rotationalVelocity( 2 );
+    // Compute kinematic equation, i.e., derivative of exponential map
+    Eigen::Vector3d exponentialMapVector = currentUnifiedStateModelElements.segment( 3, 3 );
+    double exponentialMapMagnitude = exponentialMapVector.norm( );
+    Eigen::Vector3d exponentialMapDerivative = Eigen::Vector3d::Zero( );
+    if ( std::fabs( exponentialMapMagnitude ) < singularityTolerance )
+    {
+        double exponentialMapMagnitudeSquared = std::pow( exponentialMapMagnitude, 2 );
+        exponentialMapDerivative = 0.5 * ( ( ( 12.0 - exponentialMapMagnitudeSquared ) / 6.0 ) *
+                                           rotationalVelocityVector - rotationalVelocityVector.cross( exponentialMapVector ) -
+                                           rotationalVelocityVector.dot( exponentialMapVector ) *
+                                           ( ( 60.0 + exponentialMapMagnitudeSquared ) / 360.0 ) * exponentialMapVector );
+    }
+    else
+    {
+        Eigen::Vector3d exponentialMapCrossRotationalVelocityVector = exponentialMapVector.cross( rotationalVelocityVector );
+        double cotangentHalfExponentialMapMagnitude = std::cos( 0.5 * exponentialMapMagnitude ) /
+                std::sin( 0.5 * exponentialMapMagnitude );
+        exponentialMapDerivative = ( rotationalVelocityVector + 0.5 * exponentialMapCrossRotationalVelocityVector +
+                                    ( 1 - 0.5 * exponentialMapMagnitude * cotangentHalfExponentialMapMagnitude ) /
+                                     std::pow( exponentialMapMagnitude, 2 ) *
+                                     exponentialMapVector.cross( exponentialMapCrossRotationalVelocityVector ) );
+    }
     // REMOVE vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv REMOVE
-    std::cout << "Quaternion augmented matrix: " << std::endl << quaternionMatrix << std::endl;
+    std::cout << "Exponential map derivative: " << std::endl << exponentialMapDerivative << std::endl;
     // REMOVE ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ REMOVE
 
     // Evaluate USMEM equations.
     Eigen::Vector6d stateDerivative;
     stateDerivative.segment( 0, 3 ) = hodographMatrix * accelerationsInRswFrame;
-    stateDerivative.segment( 3, 3 ) = quaternionMatrix * currentUnifiedStateModelElements.segment( 3, 4 );
+    stateDerivative.segment( 3, 3 ) = exponentialMapDerivative;
     // REMOVE vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv REMOVE
     std::cout << "State derivative: " << std::endl << stateDerivative << std::endl;
     // REMOVE ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ REMOVE
@@ -90,9 +109,16 @@ Eigen::Vector6d computeStateDerivativeForUnifiedStateModelWithExponentialMap(
     double CHodograph = currentUnifiedStateModelElements( CHodographExponentialMapIndex );
     double Rf1Hodograph = currentUnifiedStateModelElements( Rf1HodographExponentialMapIndex );
     double Rf2Hodograph = currentUnifiedStateModelElements( Rf2HodographExponentialMapIndex );
-    double e1ExponentialMap = currentUnifiedStateModelElements( e1ExponentialMapIndex );
-    double e2ExponentialMap = currentUnifiedStateModelElements( e2ExponentialMapIndex );
-    double e3ExponentialMap = currentUnifiedStateModelElements( e3ExponentialMapInde );
+    Eigen::Vector3d exponentialMapVector = currentUnifiedStateModelElements.segment( e1ExponentialMapIndex, 3 );
+    double exponentialMapMagnitude = exponentialMapVector.norm( ); // also called xi
+
+    // Convert exponential map to quaternions
+    Eigen::Vector3d epsilonQuaternionVector = exponentialMapVector / exponentialMapMagnitude *
+            std::sin( 0.5 * exponentialMapMagnitude );
+    double epsilon1Quaternion = epsilonQuaternionVector( 0 );
+    double epsilon2Quaternion = epsilonQuaternionVector( 1 );
+    double epsilon3Quaternion = epsilonQuaternionVector( 2 );
+    double etaQuaternion = std::cos( 0.5 * exponentialMapMagnitude );
 
     // Compute supporting parameters
     double quaterionParameter = std::pow( epsilon3Quaternion, 2) + std::pow( etaQuaternion, 2 );
@@ -104,21 +130,21 @@ Eigen::Vector6d computeStateDerivativeForUnifiedStateModelWithExponentialMap(
 
     double velocityHodographParameter = CHodograph - Rf1Hodograph * sineLambdaParameter +
             Rf2Hodograph * cosineLambdaParameter;
-    Eigen::Vector3d rotationalVelocity = Eigen::Vector3d::Zero( );
-    rotationalVelocity( 0 ) = accelerationsInRswFrame( 2 ) / velocityHodographParameter;
-    rotationalVelocity( 2 ) = std::pow( velocityHodographParameter, 2 ) * CHodograph /
+    Eigen::Vector3d rotationalVelocityVector = Eigen::Vector3d::Zero( );
+    rotationalVelocityVector( 0 ) = accelerationsInRswFrame( 2 ) / velocityHodographParameter;
+    rotationalVelocityVector( 2 ) = std::pow( velocityHodographParameter, 2 ) * CHodograph /
             centralBodyGravitationalParameter;
 
-    Eigen::Vector3d pParameter = Eigen::Vector3d::Zero( );
-    pParameter( 0 ) = CHodograph;
-    pParameter( 1 ) = Rf2Hodograph;
-    pParameter( 2 ) = Rf1Hodograph;
-    pParameter = pParameter / velocityHodographParameter;
+    Eigen::Vector3d pParameterVector = Eigen::Vector3d::Zero( );
+    pParameterVector( 0 ) = CHodograph;
+    pParameterVector( 1 ) = Rf2Hodograph;
+    pParameterVector( 2 ) = Rf1Hodograph;
+    pParameterVector = pParameterVector / velocityHodographParameter;
 
     // Evaluate USMEM equations
     return computeStateDerivativeForUnifiedStateModelWithExponentialMap(
                 currentUnifiedStateModelElements, accelerationsInRswFrame, sineLambdaParameter,
-                cosineLambdaParameter, gammaParameter, rotationalVelocity, pParameter );
+                cosineLambdaParameter, gammaParameter, rotationalVelocityVector, pParameterVector );
 }
 
 //! Function to evaluate the state derivative for the unified state model with exponential map
