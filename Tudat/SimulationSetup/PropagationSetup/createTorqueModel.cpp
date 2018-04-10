@@ -51,7 +51,7 @@ boost::shared_ptr< aerodynamics::AerodynamicTorque > createAerodynamicTorqueMode
 
     if( bodyFlightConditions == NULL && bodyUndergoingTorque->getFlightConditions( ) == NULL )
     {
-        bodyFlightConditions = createFlightConditions( bodyUndergoingTorque,
+        bodyFlightConditions = createAtmosphericFlightConditions( bodyUndergoingTorque,
                                                        bodyExertingTorque,
                                                        nameOfBodyUndergoingTorque,
                                                        nameOfBodyExertingTorque ) ;

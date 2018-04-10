@@ -954,7 +954,7 @@ BOOST_AUTO_TEST_CASE( test_flightConditionsSetup )
 
     // Create flight conditions object.
     boost::shared_ptr< aerodynamics::FlightConditions > vehicleFlightConditions =
-            createFlightConditions( bodyMap.at( "Vehicle" ), bodyMap.at( "Earth" ),
+            createAtmosphericFlightConditions( bodyMap.at( "Vehicle" ), bodyMap.at( "Earth" ),
                                     "Vehicle", "Earth",
                                     boost::lambda::constant( angleOfAttack ),
                                     boost::lambda::constant( angleOfSideslip ),
