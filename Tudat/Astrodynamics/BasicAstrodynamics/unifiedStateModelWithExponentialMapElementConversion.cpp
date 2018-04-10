@@ -202,8 +202,7 @@ Eigen::Vector6d convertKeplerianToUnifiedStateModelWithExponentialMapElements(
 
     // Check Xi parameter for numerical errors (magnitude cannot be larger than 1)
     double multiplicativeConstant = 0.0;
-    if ( ( ( std::fabs( XiParameter ) - 2.0 ) > - 2.0 * singularityTolerance ) ||
-         ( ( std::fabs( XiParameter ) - 2.0 ) <= 2.0 * singularityTolerance ) )
+    if ( ( std::fabs( std::fabs( XiParameter ) - 2.0 ) < 2.0 * singularityTolerance ) )
     {
         // Remove numerical error and compute multiplicative constant of exponential map
         // multiplicativeConstant = ( XiParameter > 0.0 ) ? 0.5 : Inf;
