@@ -25,8 +25,8 @@ Eigen::Vector7d computeStateDerivativeForUnifiedStateModelWithQuaternions(
         const double sineLambdaParameter,
         const double cosineLambdaParameter,
         const double gammaParameter,
-        const Eigen::Vector3d& rotationalVelocity,
-        const Eigen::Vector3d& pParameter )
+        const Eigen::Vector3d& rotationalVelocityVector,
+        const Eigen::Vector3d& pParameterVector )
 {
     // REMOVE vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv REMOVE
     std::cout << "USM state: " << std::endl << currentUnifiedStateModelElements << std::endl;
@@ -35,39 +35,30 @@ Eigen::Vector7d computeStateDerivativeForUnifiedStateModelWithQuaternions(
     std::cout << "Sine lambda: " << sineLambdaParameter << std::endl;
     std::cout << "Cosine lambda: " << cosineLambdaParameter << std::endl;
     std::cout << "Gamma: " << gammaParameter << std::endl;
-    std::cout << "Rotational velocity: " << std::endl << rotationalVelocity << std::endl;
-    std::cout << "P parameter: " << std::endl << pParameter << std::endl;
+    std::cout << "Rotational velocity: " << std::endl << rotationalVelocityVector << std::endl;
+    std::cout << "P parameter: " << std::endl << pParameterVector << std::endl;
     // REMOVE ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ REMOVE
 
     // Compute supporting parameters
     Eigen::Matrix3d hodographMatrix = Eigen::Matrix3d::Zero( );
-    hodographMatrix( 0, 1 ) = - pParameter( 0 );
+    hodographMatrix( 0, 1 ) = - pParameterVector( 0 );
     hodographMatrix( 1, 0 ) = cosineLambdaParameter;
-    hodographMatrix( 1, 1 ) = - ( 1 + pParameter( 0 ) ) * sineLambdaParameter;
-    hodographMatrix( 1, 2 ) = - gammaParameter * pParameter( 1 );
+    hodographMatrix( 1, 1 ) = - ( 1 + pParameterVector( 0 ) ) * sineLambdaParameter;
+    hodographMatrix( 1, 2 ) = - gammaParameter * pParameterVector( 1 );
     hodographMatrix( 2, 0 ) = sineLambdaParameter;
-    hodographMatrix( 2, 1 ) = ( 1 + pParameter( 0 ) ) * cosineLambdaParameter;
-    hodographMatrix( 2, 1 ) = gammaParameter * pParameter( 2 );
+    hodographMatrix( 2, 1 ) = ( 1 + pParameterVector( 0 ) ) * cosineLambdaParameter;
+    hodographMatrix( 2, 1 ) = gammaParameter * pParameterVector( 2 );
 
-    Eigen::MatrixXd quaternionMatrix = getQuaterionToQuaternionRateMatrix( rotationalVelocity );
-//    Eigen::MatrixXd::Zero( 4, 4 );
-//    quaternionMatrix( 0, 1 ) = rotationalVelocity( 2 );
-//    quaternionMatrix( 0, 2 ) = - rotationalVelocity( 1 );
-//    quaternionMatrix( 0, 3 ) = rotationalVelocity( 0 );
-//    quaternionMatrix( 1, 0 ) = - rotationalVelocity( 2 );
-//    quaternionMatrix( 1, 2 ) = rotationalVelocity( 0 );
-//    quaternionMatrix( 1, 3 ) = rotationalVelocity( 1 );
-//    quaternionMatrix( 2, 0 ) = rotationalVelocity( 1 );
-//    quaternionMatrix( 2, 1 ) = - rotationalVelocity( 0 );
-//    quaternionMatrix( 2, 3 ) = rotationalVelocity( 2 );
-//    quaternionMatrix( 3, 0 ) = - rotationalVelocity( 0 );
-//    quaternionMatrix( 3, 1 ) = - rotationalVelocity( 1 );
-//    quaternionMatrix( 3, 2 ) = - rotationalVelocity( 2 );
+    Eigen::MatrixXd quaternionMatrix = getQuaterionToQuaternionRateMatrix( rotationalVelocityVector );
+    // REMOVE vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv REMOVE
+    std::cout << "Quaternion augmented matrix: " << std::endl << quaternionMatrix << std::endl;
+    // REMOVE ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ REMOVE
 
     // Evaluate USM7 equations.
     Eigen::Vector7d stateDerivative;
     stateDerivative.segment( 0, 3 ) = hodographMatrix * accelerationsInRswFrame;
-    stateDerivative.segment( 3, 4 ) = 0.5 * quaternionMatrix * currentUnifiedStateModelElements.segment( 3, 4 );
+    stateDerivative.segment( 3, 4 ) = quaternionMatrix * currentUnifiedStateModelElements.segment( 3, 4 );
+    // the 0.5 constant is already accounted for in quaternionMatrix
 
     // Give output
     return stateDerivative;
@@ -100,21 +91,21 @@ Eigen::Vector7d computeStateDerivativeForUnifiedStateModelWithQuaternions(
 
     double velocityHodographParameter = CHodograph - Rf1Hodograph * sineLambdaParameter +
             Rf2Hodograph * cosineLambdaParameter;
-    Eigen::Vector3d rotationalVelocity = Eigen::Vector3d::Zero( );
-    rotationalVelocity( 0 ) = accelerationsInRswFrame( 2 ) / velocityHodographParameter;
-    rotationalVelocity( 2 ) = std::pow( velocityHodographParameter, 2 ) * CHodograph /
+    Eigen::Vector3d rotationalVelocityVector = Eigen::Vector3d::Zero( );
+    rotationalVelocityVector( 0 ) = accelerationsInRswFrame( 2 ) / velocityHodographParameter;
+    rotationalVelocityVector( 2 ) = std::pow( velocityHodographParameter, 2 ) * CHodograph /
             centralBodyGravitationalParameter;
 
-    Eigen::Vector3d pParameter = Eigen::Vector3d::Zero( );
-    pParameter( 0 ) = CHodograph;
-    pParameter( 1 ) = Rf2Hodograph;
-    pParameter( 2 ) = Rf1Hodograph;
-    pParameter = pParameter / velocityHodographParameter;
+    Eigen::Vector3d pParameterVector = Eigen::Vector3d::Zero( );
+    pParameterVector( 0 ) = CHodograph;
+    pParameterVector( 1 ) = Rf2Hodograph;
+    pParameterVector( 2 ) = Rf1Hodograph;
+    pParameterVector = pParameterVector / velocityHodographParameter;
 
     // Evaluate USM7 equations
     return computeStateDerivativeForUnifiedStateModelWithQuaternions(
                 currentUnifiedStateModelElements, accelerationsInRswFrame, sineLambdaParameter,
-                cosineLambdaParameter, gammaParameter, rotationalVelocity, pParameter );
+                cosineLambdaParameter, gammaParameter, rotationalVelocityVector, pParameterVector );
 }
 
 //! Function to evaluate the state derivative for the unified state model with quaternions
