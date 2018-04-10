@@ -22,7 +22,7 @@ set(BASICASTRODYNAMICS_SOURCES
   "${SRCROOT}${BASICASTRODYNAMICSDIR}/sphericalStateConversions.cpp"
   "${SRCROOT}${BASICASTRODYNAMICSDIR}/unifiedStateModelWithQuaternionsElementConversions.cpp"
 #  "${SRCROOT}${BASICASTRODYNAMICSDIR}/unifiedStateModelWithModifiedRodriguesParametersElementConversions.cpp"
-  "${SRCROOT}${BASICASTRODYNAMICSDIR}/unifiedStateModelWithExponentialMapElementConversion.cpp"
+  "${SRCROOT}${BASICASTRODYNAMICSDIR}/unifiedStateModelWithExponentialMapElementConversions.cpp"
   "${SRCROOT}${BASICASTRODYNAMICSDIR}/stateRepresentationConversions.cpp"
   "${SRCROOT}${BASICASTRODYNAMICSDIR}/torqueModelTypes.cpp"
 )
@@ -54,7 +54,7 @@ set(BASICASTRODYNAMICS_HEADERS
   "${SRCROOT}${BASICASTRODYNAMICSDIR}/sphericalStateConversions.h"
   "${SRCROOT}${BASICASTRODYNAMICSDIR}/unifiedStateModelWithQuaternionsElementConversions.h"
 #  "${SRCROOT}${BASICASTRODYNAMICSDIR}/unifiedStateModelWithModifiedRodriguesParametersElementConversion.h"
-  "${SRCROOT}${BASICASTRODYNAMICSDIR}/unifiedStateModelWithExponentialMapElementConversion.h"
+  "${SRCROOT}${BASICASTRODYNAMICSDIR}/unifiedStateModelWithExponentialMapElementConversions.h"
   "${SRCROOT}${BASICASTRODYNAMICSDIR}/stateRepresentationConversions.h"
   "${SRCROOT}${BASICASTRODYNAMICSDIR}/empiricalAcceleration.h"
   "${SRCROOT}${BASICASTRODYNAMICSDIR}/torqueModel.h"
@@ -72,7 +72,9 @@ set(BASICASTRODYNAMICS_UNITTESTS
   "${SRCROOT}${BASICASTRODYNAMICSDIR}/UnitTests/unitTestOrbitalElementConversions.cpp"
   "${SRCROOT}${BASICASTRODYNAMICSDIR}/UnitTests/unitTestPhysicalConstants.cpp"
   "${SRCROOT}${BASICASTRODYNAMICSDIR}/UnitTests/unitTestUnitConversions.cpp"
-  "${SRCROOT}${BASICASTRODYNAMICSDIR}/UnitTests/unitTestUnifiedStateModelElementConversions.cpp"
+  "${SRCROOT}${BASICASTRODYNAMICSDIR}/UnitTests/unitTestUnifiedStateModelWithQuaternionsElementConversions.cpp"
+#  "${SRCROOT}${BASICASTRODYNAMICSDIR}/UnitTests/unitTestUnifiedStateModelWithModifiedRodriguesParametersElementConversions.cpp"
+  "${SRCROOT}${BASICASTRODYNAMICSDIR}/UnitTests/unitTestUnifiedStateModelWithExponentialMapElementConversions.cpp"
 )
 
 add_executable(test_AstrodynamicsFunctions "${SRCROOT}${BASICASTRODYNAMICSDIR}/UnitTests/unitTestAstrodynamicsFunctions.cpp")
@@ -143,9 +145,17 @@ add_executable(test_BodyShapeModels "${SRCROOT}${BASICASTRODYNAMICSDIR}/UnitTest
 setup_custom_test_program(test_BodyShapeModels "${SRCROOT}${BASICASTRODYNAMICSDIR}")
 target_link_libraries(test_BodyShapeModels tudat_basic_astrodynamics tudat_basic_mathematics ${Boost_LIBRARIES})
 
-add_executable(test_UnifiedStateModelElementConversions "${SRCROOT}${BASICASTRODYNAMICSDIR}/UnitTests/unitTestUnifiedStateModelElementConversions.cpp")
-setup_custom_test_program(test_UnifiedStateModelElementConversions "${SRCROOT}${BASICASTRODYNAMICSDIR}")
-target_link_libraries(test_UnifiedStateModelElementConversions tudat_basic_astrodynamics tudat_basic_mathematics ${Boost_LIBRARIES})
+add_executable(test_UnifiedStateModelWithQuaternionsElementConversions "${SRCROOT}${BASICASTRODYNAMICSDIR}/UnitTests/unitTestUnifiedStateModelWithQuaternionsElementConversions.cpp")
+setup_custom_test_program(test_UnifiedStateModelWithQuaternionsElementConversions "${SRCROOT}${BASICASTRODYNAMICSDIR}")
+target_link_libraries(test_UnifiedStateModelWithQuaternionsElementConversions tudat_basic_astrodynamics tudat_basic_mathematics ${Boost_LIBRARIES})
+
+#add_executable(test_UnifiedStateModelWithModifiedRodriguesParametersElementConversions "${SRCROOT}${BASICASTRODYNAMICSDIR}/UnitTests/unitTestUnifiedStateModelWithModifiedRodriguesParametersElementConversions.cpp")
+#setup_custom_test_program(test_UnifiedStateModelWithModifiedRodriguesParametersElementConversions "${SRCROOT}${BASICASTRODYNAMICSDIR}")
+#target_link_libraries(test_UnifiedStateModelWithModifiedRodriguesParametersElementConversions tudat_basic_astrodynamics tudat_basic_mathematics ${Boost_LIBRARIES})
+
+add_executable(test_UnifiedStateModelWithExponentialMapElementConversions "${SRCROOT}${BASICASTRODYNAMICSDIR}/UnitTests/unitTestUnifiedStateModelWithExponentialMapElementConversions.cpp")
+setup_custom_test_program(test_UnifiedStateModelWithExponentialMapElementConversions "${SRCROOT}${BASICASTRODYNAMICSDIR}")
+target_link_libraries(test_UnifiedStateModelWithExponentialMapElementConversions tudat_basic_astrodynamics tudat_basic_mathematics ${Boost_LIBRARIES})
 
 add_executable(test_EmpiricalAccelerations "${SRCROOT}${BASICASTRODYNAMICSDIR}/UnitTests/unitTestEmpiricalAcceleration.cpp")
 setup_custom_test_program(test_EmpiricalAccelerations "${SRCROOT}${BASICASTRODYNAMICSDIR}")
