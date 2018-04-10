@@ -42,8 +42,7 @@ Eigen::Vector7d convertKeplerianToUnifiedStateModelWithQuaternionsElements(
     Eigen::Vector7d convertedUnifiedStateModelElements = Eigen::Vector7d::Zero( );
 
     // Define the tolerance of a singularity
-    double singularityTolerance = 1.0e-15; // Based on tolerance chosen in
-                                           // orbitalElementConversions.cpp in Tudat Core.
+    double singularityTolerance = 20.0 * std::numeric_limits< double >::epsilon( );
 
     // If eccentricity is outside range [0,inf)
     if ( keplerianElements( eccentricityIndex ) < 0.0 )
@@ -232,8 +231,7 @@ Eigen::Vector6d convertUnifiedStateModelWithQuaternionsToKeplerianElements(
     Eigen::Vector6d convertedKeplerianElements = Eigen::Vector6d::Zero( );
 
     // Define the tolerance of a singularity
-    double singularityTolerance = 1.0e-15; // Based on tolerance chosen in
-                                           // orbitalElementConversions.cpp in Tudat.
+    double singularityTolerance = 20.0 * std::numeric_limits< double >::epsilon( );
 
     // Declare auxiliary parameters before using them in the if statement
     double cosineLambda = 0.0;
