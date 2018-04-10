@@ -13,7 +13,6 @@
 
 #include "Tudat/Astrodynamics/Propagators/nBodyStateDerivative.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/stateRepresentationConversions.h"
-//#include "Tudat/Astrodynamics/BasicAstrodynamics/unifiedStateModelElementConversions.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/astrodynamicsFunctions.h"
 
 namespace tudat
@@ -120,16 +119,6 @@ public:
                     this->accelerationModelsPerBody_ );
         this->createAccelerationModelList( );
 
-    }
-
-    //! Function to return the size of the state handled by the object
-    /*!
-     * Function to return the size of the state handled by the object
-     * \return Size of the state under consideration (7 times the number if integrated bodies).
-     */
-    int getStateSize( )
-    {
-        return 7 * this->bodiesToBeIntegratedNumerically_.size( );
     }
 
     //! Destructor
