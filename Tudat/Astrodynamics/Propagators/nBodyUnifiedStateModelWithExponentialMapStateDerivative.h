@@ -33,8 +33,8 @@ namespace propagators
  * \param sineLambdaParameter Sine of the right ascension of latitude
  * \param cosineLambdaParameter Cosine of the right ascension of latitude
  * \param gammaParameter Value of the parameter gamma (see Vittaldev, 2010)
- * \param rotationalVelocity Rotational velocity of the local orbital frame w.r.t. the inertial frame (see Vittaldev, 2010)
- * \param pParameter Value of the vector gamma (see Vittaldev, 2010)
+ * \param rotationalVelocityVector Rotational velocity of the local orbital frame w.r.t. the inertial frame (see Vittaldev, 2010)
+ * \param pParameterVector Value of the vector gamma (see Vittaldev, 2010)
  * \return Time derivatives of USMEM elements.
  */
 Eigen::Vector6d computeStateDerivativeForUnifiedStateModelWithExponentialMap(
@@ -43,8 +43,8 @@ Eigen::Vector6d computeStateDerivativeForUnifiedStateModelWithExponentialMap(
         const double sineLambdaParameter,
         const double cosineLambdaParameter,
         const double gammaParameter,
-        const Eigen::Vector3d& rotationalVelocity,
-        const Eigen::Vector3d& pParameter );
+        const Eigen::Vector3d& rotationalVelocityVector,
+        const Eigen::Vector3d& pParameterVector );
 
 //! Function to evaluate the equations of motion for the unifies state model with exponential map (USMEM)
 /*!
