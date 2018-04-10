@@ -718,8 +718,7 @@ std::vector< std::string > > createEnvironmentUpdaterSettingsForDependentVariabl
     return variablesToUpdate;
 }
 
-std::map< propagators::EnvironmentModelsToUpdate,
-std::vector< std::string > > createEnvironmentUpdaterSettings(
+std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > createEnvironmentUpdaterSettings(
         const boost::shared_ptr< DependentVariableSaveSettings > dependentVariableSaveSettings,
         const simulation_setup::NamedBodyMap& bodyMap )
 {
@@ -736,6 +735,48 @@ std::vector< std::string > > createEnvironmentUpdaterSettings(
             addEnvironmentUpdates( environmentModelsToUpdate, currentEnvironmentModelsToUpdate );
         }
     }
+    return environmentModelsToUpdate;
+}
+
+std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > createEnvironmentUpdaterSettings(
+        const boost::shared_ptr< PropagationTerminationSettings > terminationSettings,
+        const simulation_setup::NamedBodyMap& bodyMap )
+{
+    std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > environmentModelsToUpdate;
+    switch( terminationSettings->terminationType_ )
+    {
+    case time_stopping_condition:
+        break;
+    case cpu_time_stopping_condition:
+        break;
+    case dependent_variable_stopping_condition:
+    {
+        boost::shared_ptr< PropagationDependentVariableTerminationSettings > dependentVariableTerminationSettings =
+                boost::dynamic_pointer_cast< PropagationDependentVariableTerminationSettings >( terminationSettings );
+        std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > >
+                environmentModelsToUpdateForSingleTerminationSetting =
+                createEnvironmentUpdaterSettingsForDependentVariables(
+                    dependentVariableTerminationSettings->dependentVariableSettings_, bodyMap );
+        addEnvironmentUpdates( environmentModelsToUpdate, environmentModelsToUpdateForSingleTerminationSetting );
+        break;
+    }
+    case hybrid_stopping_condition:
+    {
+        boost::shared_ptr< PropagationHybridTerminationSettings > hybridTerminationSettings =
+                boost::dynamic_pointer_cast< PropagationHybridTerminationSettings >( terminationSettings );
+        for( unsigned int i = 0; i < hybridTerminationSettings->terminationSettings_.size( ); i++ )
+        {
+            std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > >
+                    environmentModelsToUpdateForSingleTerminationSetting = createEnvironmentUpdaterSettings(
+                        hybridTerminationSettings->terminationSettings_.at( i ), bodyMap );
+            addEnvironmentUpdates( environmentModelsToUpdate, environmentModelsToUpdateForSingleTerminationSetting );
+        }
+        break;
+    }
+    default:
+        throw std::runtime_error( "Error when creating environment updater settings for termination conditions, type not found" );
+    }
+
     return environmentModelsToUpdate;
 }
 

@@ -81,6 +81,12 @@ std::vector< std::string > > createEnvironmentUpdaterSettings(
         const boost::shared_ptr< DependentVariableSaveSettings > dependentVariableSaveSettings,
         const simulation_setup::NamedBodyMap& bodyMap );
 
+std::map< propagators::EnvironmentModelsToUpdate,
+std::vector< std::string > > createEnvironmentUpdaterSettings(
+        const boost::shared_ptr< PropagationTerminationSettings > terminationSettings,
+        const simulation_setup::NamedBodyMap& bodyMap );
+
+
 //! Get list of required environment model update settings from a list of propagation settings.
 /*!
 * Get list of required environment model update settings from a list of propagation settings.
@@ -175,10 +181,14 @@ std::vector< std::string > > createEnvironmentUpdaterSettings(
 
     std::map< propagators::EnvironmentModelsToUpdate,
             std::vector< std::string > > environmentModelsToUpdateForDependentVariables =
-            createEnvironmentUpdaterSettings(
-                propagatorSettings->getDependentVariablesToSave( ), bodyMap );
-
+            createEnvironmentUpdaterSettings( propagatorSettings->getDependentVariablesToSave( ), bodyMap );
     addEnvironmentUpdates( environmentModelsToUpdate, environmentModelsToUpdateForDependentVariables );
+
+    std::map< propagators::EnvironmentModelsToUpdate,
+            std::vector< std::string > > environmentModelsToUpdateForTerminationConditions =
+            createEnvironmentUpdaterSettings( propagatorSettings->getTerminationSettings( ), bodyMap );
+    addEnvironmentUpdates( environmentModelsToUpdate, environmentModelsToUpdateForTerminationConditions );
+
     removePropagatedStatesFomEnvironmentUpdates(
                 environmentModelsToUpdate, getIntegratedTypeAndBodyList( propagatorSettings ) );
     checkValidityOfRequiredEnvironmentUpdates( environmentModelsToUpdate, bodyMap );
