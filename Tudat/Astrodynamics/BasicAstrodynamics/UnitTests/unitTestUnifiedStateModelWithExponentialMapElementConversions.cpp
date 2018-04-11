@@ -67,13 +67,13 @@ BOOST_AUTO_TEST_CASE( testconvertKeplerianToUnifiedStateModelWithExponentialMapE
         // Default case, so no modification necessary.
 
         // Expected unified state model elements [m/s,m/s,m/s,-,-,-].
-        // (Results obtained using Matlab code).
+        // (Results obtained by converting quaternions from USM7 unit test to exponential map, with MATLAB code).
         expectedUnifiedStateModelElements( CHodographExponentialMapIndex ) = 29894.5892222602;
         expectedUnifiedStateModelElements( Rf1HodographExponentialMapIndex ) = -260.548512780222;
         expectedUnifiedStateModelElements( Rf2HodographExponentialMapIndex ) = 2978.08312848463;
-        expectedUnifiedStateModelElements( e1ExponentialMapIndex ) = -0.419002703925548;
-        expectedUnifiedStateModelElements( e2ExponentialMapIndex ) = -0.0551627524676706;
-        expectedUnifiedStateModelElements( e3ExponentialMapIndex ) = -0.118296904421275;
+        expectedUnifiedStateModelElements( e1ExponentialMapIndex ) = -0.86754502412944;
+        expectedUnifiedStateModelElements( e2ExponentialMapIndex ) = -0.114214469196158;
+        expectedUnifiedStateModelElements( e3ExponentialMapIndex ) = 0.244933719613487;
 
         // Compute unified state model elements.
         computedUnifiedStateModelElements =
@@ -98,13 +98,13 @@ BOOST_AUTO_TEST_CASE( testconvertKeplerianToUnifiedStateModelWithExponentialMapE
         keplerianElements( trueAnomalyIndex ) = convertDegreesToRadians( 10.0 );
 
         // Set expected unified state model elements [m/s,m/s,m/s,-,-,-].
-        // (Results obtained using Matlab code).
+        // (Results obtained by converting quaternions from USM7 unit test to exponential map, with MATLAB code).
         expectedUnifiedStateModelElements( CHodographExponentialMapIndex ) = 17173.1340579794;
         expectedUnifiedStateModelElements( Rf1HodographExponentialMapIndex ) = -2993.47450825659;
         expectedUnifiedStateModelElements( Rf2HodographExponentialMapIndex ) = 34215.5701963558;
-        expectedUnifiedStateModelElements( e1ExponentialMapIndex ) = -0.987672114350896; //Minor error?
-        expectedUnifiedStateModelElements( e2ExponentialMapIndex ) = -0.130029500651719;
-        expectedUnifiedStateModelElements( e3ExponentialMapIndex ) = -0.0113761072309622;
+        expectedUnifiedStateModelElements( e1ExponentialMapIndex ) = -2.9429683365836; //Minor error?
+        expectedUnifiedStateModelElements( e2ExponentialMapIndex ) = -0.387449131831855;
+        expectedUnifiedStateModelElements( e3ExponentialMapIndex ) = 0.0338974067282486;
 
         // Compute unified state model elements.
         computedUnifiedStateModelElements =
@@ -127,13 +127,13 @@ BOOST_AUTO_TEST_CASE( testconvertKeplerianToUnifiedStateModelWithExponentialMapE
         keplerianElements( trueAnomalyIndex ) = convertDegreesToRadians( 170.0 );
 
         // Set expected unified state model elements [m/s,m/s,m/s,-,-,-].
-        // (Results obtained using Matlab code).
+        // (Results obtained by converting quaternions from USM7 unit test to exponential map, with MATLAB code).
         expectedUnifiedStateModelElements( CHodographExponentialMapIndex ) = 29744.7407136119;
         expectedUnifiedStateModelElements( Rf1HodographExponentialMapIndex ) = -2592.42496973134;
         expectedUnifiedStateModelElements( Rf2HodographExponentialMapIndex ) = 29631.5529950138;
-        expectedUnifiedStateModelElements( e1ExponentialMapIndex ) = -0.299561523151596;
-        expectedUnifiedStateModelElements( e2ExponentialMapIndex ) = 0.95008776981561;
-        expectedUnifiedStateModelElements( e3ExponentialMapIndex ) = -0.0870727897926938;
+        expectedUnifiedStateModelElements( e1ExponentialMapIndex ) = 0.938829385147601;
+        expectedUnifiedStateModelElements( e2ExponentialMapIndex ) = -2.97758639823998;
+        expectedUnifiedStateModelElements( e3ExponentialMapIndex ) = 0.272887161355473;
 
         // Compute unified state model elements.
         computedUnifiedStateModelElements =
@@ -201,14 +201,14 @@ BOOST_AUTO_TEST_CASE( testconvertKeplerianToUnifiedStateModelWithExponentialMapE
         // Set Keplerian elements [m,-,rad,rad,rad,rad].
         keplerianElements( inclinationIndex ) = PI; // = 180 deg
 
-        // Set expected unified state model elements [m/s,m/s,m/s,-,-,-]. (Results were calculated by
-        // hand).
+        // Set expected unified state model elements [m/s,m/s,m/s,-,-,-].
+        // (Results obtained by converting quaternions from USM7 unit test to exponential map, with MATLAB code).
         expectedUnifiedStateModelElements( CHodographExponentialMapIndex ) = 29894.5892222602;
         expectedUnifiedStateModelElements( Rf1HodographExponentialMapIndex ) = -260.548512780222;
         expectedUnifiedStateModelElements( Rf2HodographExponentialMapIndex ) = 2978.08312848463;
-        expectedUnifiedStateModelElements( e1ExponentialMapIndex ) = -0.300705799504273;
-        expectedUnifiedStateModelElements( e2ExponentialMapIndex ) = 0.953716950748227;
-        expectedUnifiedStateModelElements( e3ExponentialMapIndex ) = -6.11740603377039e-17;
+        expectedUnifiedStateModelElements( e1ExponentialMapIndex ) = 0.94469513061447;
+        expectedUnifiedStateModelElements( e2ExponentialMapIndex ) = -2.99619016607469;
+        expectedUnifiedStateModelElements( e3ExponentialMapIndex ) = 1.92183978547189e-16;
 
         // Compute unified state model elements.
         computedUnifiedStateModelElements =
@@ -236,13 +236,13 @@ BOOST_AUTO_TEST_CASE( testconvertKeplerianToUnifiedStateModelWithExponentialMapE
         keplerianElements( argumentOfPeriapsisIndex ) = 0.0; // Default value because of zero eccentricity
 
         // Expected unified state model elements [m/s,m/s,m/s,-,-,-].
-        // (Results obtained using code archive B. Romgens (2011)).
+        // (Results obtained by converting quaternions from USM7 unit test to exponential map, with MATLAB code).
         expectedUnifiedStateModelElements( CHodographExponentialMapIndex ) = 29744.7407136119;
         expectedUnifiedStateModelElements( Rf1HodographExponentialMapIndex ) = 0;
         expectedUnifiedStateModelElements( Rf2HodographExponentialMapIndex ) = 0;
         expectedUnifiedStateModelElements( e1ExponentialMapIndex ) = 0;
         expectedUnifiedStateModelElements( e2ExponentialMapIndex ) = 0;
-        expectedUnifiedStateModelElements( e3ExponentialMapIndex ) = 0.996194698091746;
+        expectedUnifiedStateModelElements( e3ExponentialMapIndex ) = 0.174532925199433;
 
         // Compute unified state model elements.
         computedUnifiedStateModelElements =
