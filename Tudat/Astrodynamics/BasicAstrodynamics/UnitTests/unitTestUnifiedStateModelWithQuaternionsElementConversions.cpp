@@ -69,7 +69,7 @@ BOOST_AUTO_TEST_CASE( testconvertKeplerianToUnifiedStateModelWithQuaternionsElem
         // Default case, so no modification necessary.
 
         // Expected unified state model elements [m/s,m/s,m/s,-,-,-,-].
-        // (Results obtained using Matlab code).
+        // (Results obtained using MATLAB code).
         expectedUnifiedStateModelElements( CHodographQuaternionIndex ) = 29894.5892222602;
         expectedUnifiedStateModelElements( Rf1HodographQuaternionIndex ) = -260.548512780222;
         expectedUnifiedStateModelElements( Rf2HodographQuaternionIndex ) = 2978.08312848463;
@@ -101,7 +101,7 @@ BOOST_AUTO_TEST_CASE( testconvertKeplerianToUnifiedStateModelWithQuaternionsElem
         keplerianElements( trueAnomalyIndex ) = convertDegreesToRadians( 10.0 );
 
         // Set expected unified state model elements [m/s,m/s,m/s,-,-,-,-].
-        // (Results obtained using Matlab code).
+        // (Results obtained using MATLAB code).
         expectedUnifiedStateModelElements( CHodographQuaternionIndex ) = 17173.1340579794;
         expectedUnifiedStateModelElements( Rf1HodographQuaternionIndex ) = -2993.47450825659;
         expectedUnifiedStateModelElements( Rf2HodographQuaternionIndex ) = 34215.5701963558;
@@ -131,7 +131,7 @@ BOOST_AUTO_TEST_CASE( testconvertKeplerianToUnifiedStateModelWithQuaternionsElem
         keplerianElements( trueAnomalyIndex ) = convertDegreesToRadians( 170.0 );
 
         // Set expected unified state model elements [m/s,m/s,m/s,-,-,-,-].
-        // (Results obtained using Matlab code).
+        // (Results obtained using MATLAB code).
         expectedUnifiedStateModelElements( CHodographQuaternionIndex ) = 29744.7407136119;
         expectedUnifiedStateModelElements( Rf1HodographQuaternionIndex ) = -2592.42496973134;
         expectedUnifiedStateModelElements( Rf2HodographQuaternionIndex ) = 29631.5529950138;

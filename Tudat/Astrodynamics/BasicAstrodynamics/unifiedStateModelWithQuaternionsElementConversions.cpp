@@ -192,28 +192,28 @@ Eigen::Vector7d convertKeplerianToUnifiedStateModelWithQuaternionsElements(
                                             + keplerianElements( argumentOfPeriapsisIndex ) );
 
     // Calculate the additional argument of longitude u
-    double argumentOfLongitude = keplerianElements( argumentOfPeriapsisIndex ) +
+    double argumentOfLatitude = keplerianElements( argumentOfPeriapsisIndex ) +
             keplerianElements( trueAnomalyIndex );
 
     // Compute the epsilon1 quaternion of the unified state model
     convertedUnifiedStateModelElements( epsilon1QuaternionIndex ) =
             std::sin( 0.5 * keplerianElements( inclinationIndex ) ) *
-            std::cos( 0.5 * ( keplerianElements( longitudeOfAscendingNodeIndex ) - argumentOfLongitude ) );
+            std::cos( 0.5 * ( keplerianElements( longitudeOfAscendingNodeIndex ) - argumentOfLatitude ) );
 
     // Compute the epsilon2 quaternion of the unified state model
     convertedUnifiedStateModelElements( epsilon2QuaternionIndex ) =
             std::sin( 0.5 * keplerianElements( inclinationIndex ) ) *
-            std::sin( 0.5 * ( keplerianElements( longitudeOfAscendingNodeIndex ) - argumentOfLongitude ) );
+            std::sin( 0.5 * ( keplerianElements( longitudeOfAscendingNodeIndex ) - argumentOfLatitude ) );
 
     // Compute the epsilon3 quaternion of the unified state model
     convertedUnifiedStateModelElements( epsilon3QuaternionIndex ) =
             std::cos( 0.5 * keplerianElements( inclinationIndex ) ) *
-            std::sin( 0.5 * ( keplerianElements( longitudeOfAscendingNodeIndex ) + argumentOfLongitude ) );
+            std::sin( 0.5 * ( keplerianElements( longitudeOfAscendingNodeIndex ) + argumentOfLatitude ) );
 
     // Compute the eta quaternion of the unified state model
     convertedUnifiedStateModelElements( etaQuaternionIndex ) =
             std::cos( 0.5 * keplerianElements( inclinationIndex ) ) *
-            std::cos( 0.5 * ( keplerianElements( longitudeOfAscendingNodeIndex ) + argumentOfLongitude ) );
+            std::cos( 0.5 * ( keplerianElements( longitudeOfAscendingNodeIndex ) + argumentOfLatitude ) );
 
     // Give back result
     return convertedUnifiedStateModelElements;
@@ -320,8 +320,6 @@ Eigen::Vector6d convertUnifiedStateModelWithQuaternionsToKeplerianElements(
                 centralBodyGravitationalParameter /
                 ( std::pow( unifiedStateModelElements( CHodographExponentialMapIndex ), 2 ) *
                   ( 1 - std::pow( convertedKeplerianElements( eccentricityIndex ), 2 ) ) );
-//                ( 2.0 * unifiedStateModelElements( CHodographExponentialMapIndex ) * auxiliaryParameter2 -
-//                    ( auxiliaryParameter1 * auxiliaryParameter1 + auxiliaryParameter2 * auxiliaryParameter2 ) );
     }
 
     // Compute inclination
@@ -333,12 +331,9 @@ Eigen::Vector6d convertUnifiedStateModelWithQuaternionsToKeplerianElements(
         // This acos is always defined correctly because the inclination is always below pi rad.
 
     // Compute longitude of ascending node
-    if ( std::fabs( std::fabs( convertedKeplerianElements( inclinationIndex ) ) - PI ) < singularityTolerance )
+    if ( ( std::fabs( convertedKeplerianElements( inclinationIndex ) ) < singularityTolerance ) ||
+         ( std::fabs( convertedKeplerianElements( inclinationIndex ) - PI ) < singularityTolerance ) )
         // pure-prograde or pure-retrograde orbit
-//        ( ( ( std::fabs( unifiedStateModelElements( epsilon1QuaternionIndex ) ) < singularityTolerance )
-//            && ( std::fabs( unifiedStateModelElements( epsilon2QuaternionIndex ) ) < singularityTolerance ) ) ||
-//            ( ( std::fabs( unifiedStateModelElements( epsilon3QuaternionIndex ) ) < singularityTolerance )
-//            && ( std::fabs( unifiedStateModelElements( etaQuaternionIndex ) ) < singularityTolerance ) ) )
     {
         convertedKeplerianElements( longitudeOfAscendingNodeIndex ) = 0.0; // by definition
     }
