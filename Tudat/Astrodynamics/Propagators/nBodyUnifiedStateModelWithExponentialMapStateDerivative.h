@@ -151,13 +151,6 @@ public:
         Eigen::Vector3d currentAccelerationInRswFrame;
         for( unsigned int i = 0; i < this->bodiesToBeIntegratedNumerically_.size( ); i++ )
         {
-            // REMOVE vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv REMOVE
-            std::cout << "Rotation matrix: " << std::endl <<
-                         reference_frames::getInertialToRswSatelliteCenteredFrameRotationMatrx(
-                             currentCartesianLocalSoluton_.segment( i * 6, 6 ).template cast< double >( ) ) << std::endl;
-            std::cout << "State derivative (acceleration): " << std::endl <<
-                         stateDerivative << std::endl;
-            // REMOVE ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ REMOVE
             currentAccelerationInRswFrame = reference_frames::getInertialToRswSatelliteCenteredFrameRotationMatrx(
                         currentCartesianLocalSoluton_.segment( i * 6, 6 ).template cast< double >( ) ) *
                     stateDerivative.block( i * 6 + 3, 0, 6, 1 ).template cast< double >( );
@@ -220,12 +213,28 @@ public:
             const Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >& internalSolution, const TimeType& time,
             Eigen::Block< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > currentCartesianLocalSoluton )
     {
+        using mathematical_constants::PI;
+
+        Eigen::Matrix< StateScalarType, 3, 1 > exponentialMapVector;
+        StateScalarType exponentialMapMagnitude;
         Eigen::Matrix< StateScalarType, 6, 1 > currentCartesianState;
         Eigen::Matrix< StateScalarType, 6, 1 > currentUnifiedStateModelState;
 
         // Convert state to Cartesian for each body
         for( unsigned int i = 0; i < this->bodiesToBeIntegratedNumerically_.size( ); i++ )
         {
+            // Convert to/from shadow exponential map (SEM) (transformation is the same either way)
+            exponentialMapVector = internalSolution.block( i * 6 + 3, 0, 3, 1 );
+            exponentialMapMagnitude = exponentialMapVector.norm( );
+            if ( exponentialMapMagnitude >= PI )
+            {
+                exponentialMapVector *= ( 1 - ( 2 * PI / exponentialMapMagnitude ) );
+            }
+
+            // Get current solution
+            currentUnifiedStateModelState.segment( 0, 3 ) = internalSolution.block( i * 6, 0, 3, 1 );
+            currentUnifiedStateModelState.segment( 3, 4 ) = exponentialMapVector;
+
             currentCartesianState =
                     orbital_element_conversions::convertUnifiedStateModelWithExponentialMapToCartesianElements< StateScalarType >(
                         currentUnifiedStateModelState, static_cast< StateScalarType >(
