@@ -155,7 +155,8 @@ createSphericalHarmonicsGravityAcceleration(
         const std::string& nameOfBodyUndergoingAcceleration,
         const std::string& nameOfBodyExertingAcceleration,
         const boost::shared_ptr< AccelerationSettings > accelerationSettings,
-        const bool useCentralBodyFixedFrame );
+        const bool useCentralBodyFixedFrame,
+        const bool useDegreeZeroTerm = true );
 
 //! Function to create mutual spherical harmonic gravity acceleration model.
 /*!

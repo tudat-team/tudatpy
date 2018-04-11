@@ -33,7 +33,7 @@ namespace aerodynamics
  *  coefficients as a function of independent variables (doubles). The origin of the coefficients
  *  or the nature of the independent variables is irrelevant for this class.
  *  A factory functios (createConstantCoefficientAerodynamicCoefficientInterface) is provided
- *  in the createFlightConditions file, which can be used to define constant coefficients.
+ *  in the createAtmosphericFlightConditions file, which can be used to define constant coefficients.
  *  NOTE: Functionality of this class is tested in test_aerodynamic_coefficient_generator
  *  test suite.
  */
