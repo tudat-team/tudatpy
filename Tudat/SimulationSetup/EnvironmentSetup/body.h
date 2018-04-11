@@ -1045,6 +1045,27 @@ public:
         bodyInertiaTensor_ = bodyInertiaTensor;
     }
 
+    //! Function to (re)set the body moment-of-inertia tensor from the gravity field.
+    /*!
+     * Function to (re)set the body moment-of-inertia tensor from the gravity field, requires only a mean moment of inertia
+     * (scaled by mass times reference radius squared). Other data are taken from this body's spherical harmonic gravity field
+     * \param scaledMeanMomentOfInertia  Mean moment of inertial, divided by (M*R^2), with M the mass of the body and R the
+     * reference radius of the gravity field.
+     */
+    void setBodyInertiaTensorFromGravityField( const double scaledMeanMomentOfInertia )
+    {
+        if( boost::dynamic_pointer_cast< gravitation::SphericalHarmonicsGravityField >( gravityFieldModel_ ) == NULL )
+        {
+            throw std::runtime_error( "Error when setting inertia tensor from mean moments of inertia, gravity field model is not spherical harmonic" );
+        }
+        else
+        {
+            bodyInertiaTensor_ = gravitation::getInertiaTensor(
+                        boost::dynamic_pointer_cast< gravitation::SphericalHarmonicsGravityField >( gravityFieldModel_ ),
+                        scaledMeanMomentOfInertia );
+        }
+    }
+
     //! Function to add a ground station to the body
     /*!
      * Function to add a ground station to the body

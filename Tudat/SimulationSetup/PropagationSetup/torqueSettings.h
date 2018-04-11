@@ -11,6 +11,8 @@
 #ifndef TUDAT_TORQUESETTINGS_H
 #define TUDAT_TORQUESETTINGS_H
 
+#include <boost/tuple/tuple.hpp>
+
 #include "Tudat/Astrodynamics/BasicAstrodynamics/torqueModelTypes.h"
 
 
@@ -48,6 +50,29 @@ public:
     //! Type of torque that is to be created.
     basic_astrodynamics::AvailableTorque torqueType_;
 
+};
+
+//! Class to define settings for a spherical harmonic gravitational torque exerted by a point mass.
+class SphericalHarmonicTorqueSettings: public TorqueSettings
+{
+public:
+
+    //! Constructor
+    /*!
+     * Constructor
+     * \param maximumDegree Maximum degree to which gravity field of body undergoing torque is to be exerted
+     * \param maximumOrder Maximum order to which gravity field of body undergoing torque is to be exerted
+     */
+    SphericalHarmonicTorqueSettings( const int maximumDegree,
+                                     const int maximumOrder ):
+        TorqueSettings( basic_astrodynamics::spherical_harmonic_gravitational_torque ),
+        maximumDegree_( maximumDegree ), maximumOrder_( maximumOrder ){ }
+
+    //! Maximum degree to which gravity field of body undergoing torque is to be exerted
+    int maximumDegree_;
+
+    //! Maximum order to which gravity field of body undergoing torque is to be exerted
+    int maximumOrder_;
 };
 
 typedef std::map< std::string, std::map< std::string, std::vector< boost::shared_ptr< TorqueSettings > > > > SelectedTorqueMap;
