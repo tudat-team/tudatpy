@@ -16,7 +16,6 @@
 
 #include <cmath>
 
-
 #include "Tudat/Astrodynamics/BasicAstrodynamics/orbitalElementConversions.h"
 #include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
 #include "Tudat/Mathematics/BasicMathematics/basicMathematicsFunctions.h"
@@ -24,6 +23,23 @@
 #include "Tudat/Astrodynamics/BasicAstrodynamics/missionGeometry.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/unifiedStateModelWithExponentialMapElementConversions.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/stateVectorIndices.h"
+
+double acos2( double cosine, double hemisphereFunction )
+{
+    using tudat::mathematical_constants::PI;
+
+    // Find arccosine based on the function by J. Wertz, Orbit & Constellation Design & Management, 2009
+    double angle = 2.0 * PI + hemisphereFunction * std::acos( cosine );
+
+    // Wrap to 2 PI
+    if ( angle > 2.0 * PI )
+    {
+        angle -= 2.0 * PI;
+    }
+
+    // Give output
+    return angle;
+}
 
 namespace tudat
 {
@@ -193,40 +209,38 @@ Eigen::Vector6d convertKeplerianToUnifiedStateModelWithExponentialMapElements(
                                             + keplerianElements( argumentOfPeriapsisIndex ) );
 
     // Calculate the additional elements
-    double argumentOfLongitude = keplerianElements( argumentOfPeriapsisIndex ) +
+    double argumentOfLatitude = keplerianElements( argumentOfPeriapsisIndex ) +
             keplerianElements( trueAnomalyIndex ); // also called u
-    double rightAscensionOfLatitude = argumentOfLongitude +
-            keplerianElements( longitudeOfAscendingNodeIndex );  // also called lambda
+    double rightAscensionOfLatitude = argumentOfLatitude +
+            keplerianElements( longitudeOfAscendingNodeIndex ); // also called lambda
     double XiParameter = ( std::cos( keplerianElements( inclinationIndex ) ) + 1.0 ) *
-            ( std::cos( rightAscensionOfLatitude ) + 1 ) - 2.0;
+            ( std::cos( rightAscensionOfLatitude ) + 1.0 ) - 2.0;
 
-    // Check Xi parameter for numerical errors (magnitude cannot be larger than 1)
+    // Check for singularity
     double multiplicativeConstant = 0.0;
-    if ( ( std::fabs( std::fabs( XiParameter ) - 2.0 ) < 2.0 * singularityTolerance ) )
-    {
-        // Remove numerical error and compute multiplicative constant of exponential map
-        // multiplicativeConstant = ( XiParameter > 0.0 ) ? 0.5 : Inf;
-        if ( XiParameter > 0.0 )
-        {
-            multiplicativeConstant = 0.5;
-            // both numerator and denominator approach zero, and de l'Hopital's rule says the function itself reaches 0.5
-        }
-        else
-        {
-            // Define the error message.
-            std::stringstream errorMessage;
-            errorMessage << "The value of Xi is too close to negative 2."
-                         << "This value generates a singularity in the convertion, due to the pure-retrograde nature of the orbit. \n"
-                         << "Computed Xi parameter: " << XiParameter << ".\n" << std::endl;
-
-            // Throw exception.
-            throw std::runtime_error( std::runtime_error( errorMessage.str( ) ) );
-        }
-    }
-    else if ( ( std::fabs( XiParameter ) - 2.0 ) <= 0.0 )
+    if ( std::fabs( XiParameter - 2.0 ) < singularityTolerance )
     {
         // Compute multiplicative constant of exponential map
-        multiplicativeConstant = std::acos( 0.5 * XiParameter ) / std::sqrt( 4.0 - std::pow( XiParameter, 2 ) );
+        multiplicativeConstant = 1.0;
+        // both numerator and denominator approach zero, but de l'Hopital's rule says that the function tends to 1.0
+    }
+    else if ( ( std::fabs( XiParameter ) - 2.0 ) < singularityTolerance )
+    {
+        // Check for numerical errors (magnitude cannot be larger than 2)
+        if ( XiParameter < - 2.0 )
+        {
+            // Remove numerical error
+            XiParameter = - 2.0;
+        }
+
+        // Compute multiplicative constant of exponential map
+        double hemisphereFunction = ( ( std::signbit( keplerianElements( inclinationIndex ) ) &&
+                                        std::signbit( PI - rightAscensionOfLatitude ) ) ) ? - 1.0 : 1.0;
+        double exponentialMapMagnitude = acos2( 0.5 * XiParameter, hemisphereFunction );
+//        double exponentialMapMagnitude = 2.0 * std::acos(
+//                    std::cos( 0.5 * keplerianElements( inclinationIndex ) ) *
+//                    std::cos( 0.5 * rightAscensionOfLatitude ) );
+        multiplicativeConstant = exponentialMapMagnitude / std::sqrt( 2.0 - XiParameter );
     }
     else
     {
@@ -241,18 +255,18 @@ Eigen::Vector6d convertKeplerianToUnifiedStateModelWithExponentialMapElements(
 
     // Compute the epsilon1 quaternion of the unified state model
     convertedUnifiedStateModelElements( e1ExponentialMapIndex ) =
-            multiplicativeConstant * std::sin( keplerianElements( inclinationIndex ) ) *
-            ( std::cos( keplerianElements( longitudeOfAscendingNodeIndex ) ) + std::cos( argumentOfLongitude ) );
+            multiplicativeConstant * std::sin( 0.5 * keplerianElements( inclinationIndex ) ) *
+            std::cos( 0.5 * ( keplerianElements( longitudeOfAscendingNodeIndex ) - argumentOfLatitude ) );
 
     // Compute the epsilon2 quaternion of the unified state model
     convertedUnifiedStateModelElements( e2ExponentialMapIndex ) =
-            multiplicativeConstant * std::sin( keplerianElements( inclinationIndex ) ) *
-            ( std::sin( keplerianElements( longitudeOfAscendingNodeIndex ) ) - std::sin( argumentOfLongitude ) );
+            multiplicativeConstant * std::sin( 0.5 * keplerianElements( inclinationIndex ) ) *
+            std::sin( 0.5 * ( keplerianElements( longitudeOfAscendingNodeIndex ) - argumentOfLatitude ) );
 
     // Compute the epsilon3 quaternion of the unified state model
     convertedUnifiedStateModelElements( e3ExponentialMapIndex ) =
-            multiplicativeConstant * std::sin( rightAscensionOfLatitude ) *
-            ( std::cos( keplerianElements( inclinationIndex ) ) + 1.0 );
+            multiplicativeConstant * std::cos( 0.5 * keplerianElements( inclinationIndex ) ) *
+            std::sin( 0.5 * rightAscensionOfLatitude );
 
     // Give back result
     return convertedUnifiedStateModelElements;
