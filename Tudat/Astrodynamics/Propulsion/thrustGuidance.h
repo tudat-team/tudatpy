@@ -175,7 +175,7 @@ public:
      */
     Eigen::Quaterniond getRotationToGlobalFrame( )
     {
-        throw std::runtime_error( "Error, body-fixed frame to propagation frame not yet implemented for DirectionBasedForceGuidance." );
+        return Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) );
     }
 
     //! Function to return the name of the central body.
