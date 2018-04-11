@@ -215,7 +215,49 @@ public:
      *  This function updates all state derivative models to the current time and state.
      *  \param currentTime Time to  which the system is to be updated.
      */
-    void updatePartials( const double currentTime );
+    template< typename StateScalarType >
+    void updatePartials( const double currentTime,
+                         const std::unordered_map< IntegratedStateType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >
+                         currentStatesPerTypeInConventionalRepresentation )
+    {
+        for( auto stateIterator = currentStatesPerTypeInConventionalRepresentation.begin( );
+             stateIterator != currentStatesPerTypeInConventionalRepresentation.end( );
+             stateIterator++ )
+        {
+            currentStatesPerTypeInConventionalRepresentation_[
+                    stateIterator->first ] = stateIterator->second.template cast< double >( );
+        }
+
+        // Update all acceleration partials to current state and time. Information is passed indirectly from here, through
+        // (function) pointers set in acceleration partial classes
+        for( stateDerivativeTypeIterator_ = stateDerivativePartialList_.begin( );
+             stateDerivativeTypeIterator_ != stateDerivativePartialList_.end( );
+             stateDerivativeTypeIterator_++ )
+        {
+            for( unsigned int i = 0; i < stateDerivativeTypeIterator_->second.size( ); i++ )
+            {
+                for( unsigned int j = 0; j < stateDerivativeTypeIterator_->second.at( i ).size( ); j++ )
+                {
+                    stateDerivativeTypeIterator_->second.at( i ).at( j )->update( currentTime );
+                }
+
+            }
+        }
+
+        for( stateDerivativeTypeIterator_ = stateDerivativePartialList_.begin( );
+             stateDerivativeTypeIterator_ != stateDerivativePartialList_.end( );
+             stateDerivativeTypeIterator_++ )
+        {
+            for( unsigned int i = 0; i < stateDerivativeTypeIterator_->second.size( ); i++ )
+            {
+                for( unsigned int j = 0; j < stateDerivativeTypeIterator_->second.at( i ).size( ); j++ )
+                {
+                    stateDerivativeTypeIterator_->second.at( i ).at( j )->updateParameterPartials( );
+                }
+            }
+        }
+    }
+    \
     
     //! Returns the number of parameter values.
     /*!
@@ -495,6 +537,8 @@ private:
 
     //! Total matrix of partial derivatives of state derivatives w.r.t. parameter vectors.
     Eigen::MatrixXd variationalParameterMatrix_;
+
+    std::unordered_map< IntegratedStateType, Eigen::VectorXd > currentStatesPerTypeInConventionalRepresentation_;
 };
 
 

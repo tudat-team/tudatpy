@@ -25,6 +25,11 @@ namespace tudat
 namespace gravitation
 {
 
+Eigen::Vector3d calculateSecondDegreeGravitationalTorque(
+        const Eigen::Vector3d& relativePositionOfBodySubjectToTorque,
+        const double premultipler,
+        const Eigen::Vector3d& inertiaTensorTimesRelativePositionOfBody );
+
 //! Function to calculate the gravitational torque exerted by a point mass on a body with degree two gravity field
 /*!
  * Function to calculate the gravitational torque exerted by a point mass on a body with degree two gravity field, which is
@@ -103,14 +108,22 @@ public:
     {
         currentRelativePositionOfBodySubjectToTorque_ = positionOfBodyExertingTorqueFunction_( ) - positionOfBodySubjectToTorqueFunction_( );
         currentRotationToBodyFixedFrameFunction_ = rotationToBodyFixedFrameFunction_( );
+        currentRelativeBodyFixedPositionOfBodySubjectToTorque_ =
+                currentRotationToBodyFixedFrameFunction_ * currentRelativePositionOfBodySubjectToTorque_;
 
         currentGravitationalParameterOfAttractingBody_ = gravitationalParameterOfAttractingBodyFunction_( );
         currentInertiaTensorOfRotatingBody_ = inertiaTensorOfRotatingBodyFunction_( );
 
+        currentInertiaTensorTimesRelativePositionOfBody_ = currentInertiaTensorOfRotatingBody_ *
+                currentRelativeBodyFixedPositionOfBodySubjectToTorque_;
+        currentTorqueMagnitudePremultiplier_ =
+                3.0 * currentGravitationalParameterOfAttractingBody_ / std::pow(
+                    currentRelativePositionOfBodySubjectToTorque_.norm( ), 5.0 );
+
         currentTorque_ = calculateSecondDegreeGravitationalTorque(
-                    currentRotationToBodyFixedFrameFunction_ * currentRelativePositionOfBodySubjectToTorque_,
-                    currentGravitationalParameterOfAttractingBody_,
-                    currentInertiaTensorOfRotatingBody_ );
+                    currentRelativeBodyFixedPositionOfBodySubjectToTorque_,
+                    currentTorqueMagnitudePremultiplier_,
+                    currentInertiaTensorTimesRelativePositionOfBody_ );
     }
 
 protected:
@@ -137,6 +150,9 @@ private:
     //! by updateMembers function.
     Eigen::Vector3d currentRelativePositionOfBodySubjectToTorque_;
 
+    Eigen::Vector3d currentRelativeBodyFixedPositionOfBodySubjectToTorque_;
+
+
     //! Current gravitational parameter of the body that is exerting the torque, as set by updateMembers function.
     double currentGravitationalParameterOfAttractingBody_;
 
@@ -146,6 +162,10 @@ private:
 
     //! Rotation from inertial frame to frame fixed to body undergoing torque, as set by updateMembers function.
     Eigen::Quaterniond currentRotationToBodyFixedFrameFunction_;
+
+    Eigen::Vector3d currentInertiaTensorTimesRelativePositionOfBody_;
+
+    double currentTorqueMagnitudePremultiplier_;
 
     //! Current gravitational torque, as set by updateMembers function.
     Eigen::Vector3d currentTorque_;
