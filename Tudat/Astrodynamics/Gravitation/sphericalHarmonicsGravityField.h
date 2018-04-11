@@ -266,10 +266,12 @@ public:
                                             const double maximumDegree,
                                             const double maximumOrder )
     {
+        std::map< std::pair< int, int >, Eigen::Vector3d > dummyMap;
         return computeGeodesyNormalizedGravitationalAccelerationSum(
                     bodyFixedPosition, gravitationalParameter_, referenceRadius_,
                     cosineCoefficients_.block( 0, 0, maximumDegree, maximumOrder ),
-                    sineCoefficients_.block( 0, 0, maximumDegree, maximumOrder ), sphericalHarmonicsCache_ );
+                    sineCoefficients_.block( 0, 0, maximumDegree, maximumOrder ), sphericalHarmonicsCache_,
+                    dummyMap );
     }
 
     //! Function to retrieve the tdentifier for body-fixed reference frame
@@ -280,6 +282,11 @@ public:
     std::string getFixedReferenceFrame( )
     {
         return fixedReferenceFrame_;
+    }
+
+    bool areCoefficientsGeodesyNormalized( )
+    {
+        return true;
     }
 
 protected:
@@ -311,6 +318,62 @@ protected:
     //! Cache object for potential calculations.
     boost::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache_;
 };
+
+//! Function to determine a body's inertia tensor from its degree two unnormalized gravity field coefficients
+/*!
+ * Function to determine a body's inertia tensor from its degree two unnormalized gravity field coefficients, and the mean
+ * moment of inertia.
+ * \param c20Coefficient Degree 2, order 0, unnormalized cosine spherical harmonic gravity field coefficient
+ * \param c21Coefficient Degree 2, order 1, unnormalized cosine spherical harmonic gravity field coefficient
+ * \param c22Coefficient Degree 2, order 2, unnormalized cosine spherical harmonic gravity field coefficient
+ * \param s21Coefficient Degree 2, order 1, unnormalized sine spherical harmonic gravity field coefficient
+ * \param s22Coefficient Degree 2, order 2, unnormalized sine spherical harmonic gravity field coefficient
+ * \param scaledMeanMomentOfInertia  Mean moment of inertial, divided by (M*R^2)
+ * \param bodyMass Mass M of body
+ * \param referenceRadius Reference radius R of the spherical harmonic coefficients
+ * \return Inertia tensor of body
+ */
+Eigen::Matrix3d getInertiaTensor(
+        const double c20Coefficient,
+        const double c21Coefficient,
+        const double c22Coefficient,
+        const double s21Coefficient,
+        const double s22Coefficient,
+        const double scaledMeanMomentOfInertia,
+        const double bodyMass,
+        const double referenceRadius );
+
+//! Function to determine a body's inertia tensor from its unnormalized gravity field coefficients
+/*!
+ * Function to determine a body's inertia tensor from unnormalized gravity field coefficients, and the mean
+ * moment of inertia.
+ * \param unnormalizedCosineCoefficients Block of cosine spherical harmonic coefficients, degree/order stored in row/column
+ * \param unnormalizedSineCoefficients Block of sine spherical harmonic coefficients, degree/order stored in row/column
+ * \param scaledMeanMomentOfInertia  Mean moment of inertial, divided by (M*R^2)
+ * \param bodyMass Mass M of body
+ * \param referenceRadius Reference radius R of the spherical harmonic coefficients
+ * \return Inertia tensor of body
+ */
+Eigen::Matrix3d getInertiaTensor(
+        const Eigen::MatrixXd& unnormalizedCosineCoefficients,
+        const Eigen::MatrixXd& unnormalizedSineCoefficients,
+        const double scaledMeanMomentOfInertia,
+        const double bodyMass,
+        const double referenceRadius );
+
+//! Function to determine a body's inertia tensor from its gravity field model
+/*!
+ * Function to determine a body's inertia tensor from its gravity field model, and the mean
+ * moment of inertia.
+ * \param sphericalHarmonicGravityField Spherical harmonic gravity field from which the inertia tensor is to be computed
+ * \param scaledMeanMomentOfInertia  Mean moment of inertial, divided by (M*R^2), with M the mass of the body and R the
+ * reference radius of the gravity field
+ * \return Inertia tensor of body
+ */
+Eigen::Matrix3d getInertiaTensor(
+        const boost::shared_ptr< SphericalHarmonicsGravityField > sphericalHarmonicGravityField,
+        const double scaledMeanMomentOfInertia );
+
 
 } // namespace gravitation
 
