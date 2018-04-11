@@ -213,7 +213,7 @@ public:
         // If variational equations are to be integrated: evaluate and set.
         if( evaluateVariationalEquations_ )
         {
-            variationalEquations_->updatePartials( time );
+            variationalEquations_->updatePartials( time, currentStatesPerTypeInConventionalRepresentation_ );
 
             variationalEquations_->evaluateVariationalEquations< StateScalarType >(
                         time, state.block( 0, 0, totalStateSize_, variationalEquations_->getNumberOfParameterValues( ) ),
