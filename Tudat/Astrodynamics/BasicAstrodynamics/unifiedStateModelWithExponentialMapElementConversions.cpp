@@ -41,8 +41,7 @@ Eigen::Vector6d convertKeplerianToUnifiedStateModelWithExponentialMapElements(
     Eigen::Vector6d convertedUnifiedStateModelElements = Eigen::Vector6d::Zero( );
 
     // Define the tolerance of a singularity
-    double singularityTolerance = 1.0e-15; // Based on tolerance chosen in
-    // orbitalElementConversions.cpp in Tudat Core.
+    double singularityTolerance = 20.0 * std::numeric_limits< double >::epsilon( );
 
     // If eccentricity is outside range [0,inf)
     if ( keplerianElements( eccentricityIndex ) < 0.0 )
@@ -200,7 +199,7 @@ Eigen::Vector6d convertKeplerianToUnifiedStateModelWithExponentialMapElements(
     // Compute magnitude of exponential map
     double arccosineArgument = std::cos( 0.5 * keplerianElements( inclinationIndex ) ) *
             std::cos( 0.5 * rightAscensionOfLatitude );
-    if ( ( std::fabs( arccosineArgument ) - 1 ) > singularityTolerance )
+    if ( ( std::fabs( arccosineArgument ) - 1.0 ) > singularityTolerance )
     {
         // Make sure that the cosine does not exceed 1.0 in magnitude
         arccosineArgument = ( arccosineArgument > 0.0 ) ? 1.0 : - 1.0;
@@ -378,8 +377,7 @@ Eigen::Vector6d convertUnifiedStateModelWithExponentialMapToKeplerianElements(
                 // Because of the previous if statement, if the longitude of ascending node is smaller than 0, it will
                 // always be smaller than -singularityTolerance
             {
-                convertedKeplerianElements( longitudeOfAscendingNodeIndex ) =
-                        convertedKeplerianElements( longitudeOfAscendingNodeIndex ) + 2.0 * PI;
+                convertedKeplerianElements( longitudeOfAscendingNodeIndex ) += 2.0 * PI;
             }
         }
 
@@ -401,8 +399,7 @@ Eigen::Vector6d convertUnifiedStateModelWithExponentialMapToKeplerianElements(
                 // Because of the previous if statement, if the true anomaly is smaller than zero, it will always be smaller than
                 // -singularityTolerance
             {
-                convertedKeplerianElements( trueAnomalyIndex ) =
-                        convertedKeplerianElements( trueAnomalyIndex ) + 2.0 * PI;
+                convertedKeplerianElements( trueAnomalyIndex ) += 2.0 * PI;
             }
         }
         else
@@ -423,8 +420,7 @@ Eigen::Vector6d convertUnifiedStateModelWithExponentialMapToKeplerianElements(
                 // Because of the previous if statement, if the true anomaly is smaller than zero, it will always
                 // be smaller than -singularityTolerance
             {
-                convertedKeplerianElements( trueAnomalyIndex ) =
-                        convertedKeplerianElements( trueAnomalyIndex ) + 2.0 * PI;
+                convertedKeplerianElements( trueAnomalyIndex ) += 2.0 * PI;
             }
 
             convertedKeplerianElements( argumentOfPeriapsisIndex ) =
@@ -443,8 +439,7 @@ Eigen::Vector6d convertUnifiedStateModelWithExponentialMapToKeplerianElements(
                 // Because of the previous if statement, if the argument of pericenter is smaller than zero,
                 // it will be smaller than -singularityTolerance
             {
-                convertedKeplerianElements( argumentOfPeriapsisIndex ) =
-                        convertedKeplerianElements( argumentOfPeriapsisIndex ) + 2.0 * PI;
+                convertedKeplerianElements( argumentOfPeriapsisIndex ) += 2.0 * PI;
             }
         }
 
