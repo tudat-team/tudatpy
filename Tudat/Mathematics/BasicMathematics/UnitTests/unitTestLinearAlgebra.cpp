@@ -197,12 +197,12 @@ BOOST_AUTO_TEST_CASE( testRotationMatrixDerivatives )
 
     double quaternionPerturbation = 1.0E-7;
 
-    for( unsigned int i = 0; i < 3; i++ )
+    for( unsigned int i = 1; i < 4; i++ )
     {
         Eigen::Quaterniond perturbedQuaternion = perturbQuaternionEntry(
-                    nominalQuaternion, 1, quaternionPerturbation );
+                    nominalQuaternion, i, quaternionPerturbation );
         Eigen::Vector4d perturbedQuaternionVector = convertQuaternionToVectorFormat(
-                    nominalQuaternion );
+                    perturbedQuaternion );
         Eigen::Matrix3d perturbedRotationMatrix = perturbedQuaternion.toRotationMatrix( );
 
         Eigen::Matrix3d rotationMatrixChange = perturbedRotationMatrix - nominalMatrix;
@@ -211,8 +211,15 @@ BOOST_AUTO_TEST_CASE( testRotationMatrixDerivatives )
                 partialDerivatives[ 0 ] * ( perturbedQuaternionVector[ 0 ] - nominalQuaternionVector[ 0 ] ) +
                 partialDerivatives[ i ] * ( perturbedQuaternionVector[ i ] - nominalQuaternionVector[ i ] );
 
-        //std::cout<<rotationMatrixChange<<std::endl<<std::endl<<computedRotationMatrixChange<<std::endl<<std::endl;
-        std::cout<<rotationMatrixChange - computedRotationMatrixChange<<std::endl<<std::endl;
+        Eigen::Matrix3d rotationMatrixChangeError = rotationMatrixChange - computedRotationMatrixChange;
+
+        for( unsigned int j = 0; j < 3; j++ )
+        {
+            for( unsigned int k = 0; k < 3; k++ )
+            {
+                BOOST_CHECK_SMALL( std::fabs( rotationMatrixChangeError( j, k ) ), 1.0E-6 * quaternionPerturbation );
+            }
+        }
     }
 }
 

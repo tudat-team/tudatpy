@@ -8,8 +8,8 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#ifndef TUDAT_SECONDDEGREEGRAVITATIONALTORQUEPARTIALS_H
-#define TUDAT_SECONDDEGREEGRAVITATIONALTORQUEPARTIALS_H
+#ifndef TUDAT_TORQUEFREETORQUEPARTIALS_H
+#define TUDAT_TORQUEFREETORQUEPARTIALS_H
 
 #include "Tudat/Astrodynamics/Gravitation/secondDegreeGravitationalTorque.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/RotationalDynamicsPartials/torquePartial.h"
@@ -21,30 +21,23 @@ namespace tudat
 namespace acceleration_partials
 {
 
-Eigen::Matrix< double, 3, 4 > getPartialDerivativeOfSecondDegreeGravitationalTorqueWrtQuaternion(
-        const double premultiplier,
-        const Eigen::Matrix3d& inertiaTensor,
-        const Eigen::Vector3d& bodyFixedRelativePosition,
-        const Eigen::Vector3d& intertialRelativePosition,
-        const std::vector< Eigen::Matrix3d > derivativeOfRotationMatrixWrtQuaternions );
-
-//! Class to calculate the partials of the central gravitational acceleration w.r.t. parameters and states.
-class SecondDegreeGravitationalTorquePartial: public TorquePartial
+class TorqueFreeTorquePartial: public TorquePartial
 {
 public:
 
-    SecondDegreeGravitationalTorquePartial(
-            const boost::shared_ptr< gravitation::SecondDegreeGravitationalTorqueModel > torqueModel,
-            const std::string acceleratedBody,
-            const std::string acceleratingBody ):
-        TorquePartial( acceleratedBody, acceleratingBody, basic_astrodynamics::second_order_gravitational_torque ),
-        torqueModel_( torqueModel ){ }
+    TorqueFreeTorquePartial(
+            boost::function< Eigen::Vector3d( ) > angularVelocityFunction,
+            boost::function< Eigen::Matrix3d( ) > inertiaTensorFunction,
+            const std::string acceleratedBody ):
+        TorquePartial( acceleratedBody, acceleratedBody, basic_astrodynamics::torque_free ),
+        angularVelocityFunction_( angularVelocityFunction ),
+        inertiaTensorFunction_( inertiaTensorFunction ){ }
 
-    ~SecondDegreeGravitationalTorquePartial( ){ }
+    ~TorqueFreeTorquePartial( ){ }
 
-    //! Function for determining if the acceleration is dependent on a non-translational integrated state.
+    //! Function for determining if the acceleration is dependent on a non-rotational integrated state.
     /*!
-     *  Function for determining if the acceleration is dependent on a non-translational integrated state.
+     *  Function for determining if the acceleration is dependent on a non-rotational integrated state.
      *  No dependency is implemented, but a warning is provided if partial w.r.t. mass of body exerting acceleration
      *  (and undergoing acceleration if mutual attraction is used) is requested.
      *  \param stateReferencePoint Reference point id of propagated state
@@ -86,17 +79,21 @@ public:
         return std::make_pair( partialFunction, 0 );
     }
 
-    virtual void wrtOrientationOfAcceleratedBody(
+    void wrtOrientationOfAcceleratedBody(
             Eigen::Block< Eigen::MatrixXd > partialMatrix,
-            const bool addContribution = 1, const int startRow = 0, const int startColumn = 0 )
+            const bool addContribution = 1, const int startRow = 0, const int startColumn = 0 ){ }
+
+    void wrtRotationalVelocityOfAcceleratedBody(
+            Eigen::Block< Eigen::MatrixXd > partialMatrix,
+            const bool addContribution = 1, const int startRow = 0, const int startColumn = 3 )
     {
         if( addContribution )
         {
-            partialMatrix.block( startRow, startColumn, 3, 4 ) += currentPartialDerivativeWrtQuaternion_;
+            partialMatrix.block( startRow, startColumn, 3, 3 ) += currentPartialDerivativeWrtAngularVelocity_;
         }
         else
         {
-            partialMatrix.block( startRow, startColumn, 3, 4 ) -= currentPartialDerivativeWrtQuaternion_;
+            partialMatrix.block( startRow, startColumn, 3, 43 ) -= currentPartialDerivativeWrtAngularVelocity_;
         }
     }
 
@@ -111,29 +108,30 @@ public:
     {
         if( !( currentTime_ == currentTime ) )
         {
-            torqueModel_->updateMembers( currentTime );
-            currentQuaternionVector_ = linear_algebra::convertQuaternionToVectorFormat(
-                        ( torqueModel_->getCurrentRotationToBodyFixedFrame( ) ).inverse( ) );
-            linear_algebra::computePartialDerivativeOfRotationMatrixWrtQuaternion(
-                        currentQuaternionVector_,  currentRotationMatrixDerivativesWrtQuaternion_ );
-            currentPartialDerivativeWrtQuaternion_ = getPartialDerivativeOfSecondDegreeGravitationalTorqueWrtQuaternion(
-                        torqueModel_->getCurrentTorqueMagnitudePremultiplier( ),
-                        torqueModel_->getCurrentInertiaTensorOfRotatingBody( ),
-                        torqueModel_->getCurrentRelativeBodyFixedPositionOfBodySubjectToTorque(),
-                        torqueModel_->getCurrentRelativePositionOfBodySubjectToTorque( ),
-                        currentRotationMatrixDerivativesWrtQuaternion_ );
+            currentAngularVelocityVector_ = angularVelocityFunction_( );
+            currentInertiaTensor_ = inertiaTensorFunction_( );
+            currentAngularMomentumVector_ = currentInertiaTensor_ * currentAngularVelocityVector_;
+
+            currentPartialDerivativeWrtAngularVelocity_ =
+                    currentInertiaTensor_.inverse( ) * (
+                        linear_algebra::getCrossProductMatrix( currentAngularMomentumVector_ ) -
+                        linear_algebra::getCrossProductMatrix( currentAngularVelocityVector_ ) * currentInertiaTensor_ );
         }
     }
 
 protected:
 
-    boost::shared_ptr< gravitation::SecondDegreeGravitationalTorqueModel > torqueModel_;
+    boost::function< Eigen::Vector3d( ) > angularVelocityFunction_;
 
-    Eigen::Vector4d currentQuaternionVector_;
+    boost::function< Eigen::Matrix3d( ) > inertiaTensorFunction_;
 
-    std::vector< Eigen::Matrix3d > currentRotationMatrixDerivativesWrtQuaternion_;
+    Eigen::Vector3d currentAngularVelocityVector_;
 
-    Eigen::Matrix< double, 3, 4 > currentPartialDerivativeWrtQuaternion_;
+    Eigen::Matrix3d currentInertiaTensor_;
+
+    Eigen::Vector3d currentAngularMomentumVector_;
+
+    Eigen::Matrix3d currentPartialDerivativeWrtAngularVelocity_;
 
 };
 
@@ -141,4 +139,4 @@ protected:
 
 } // namespace tudat
 
-#endif // TUDAT_SECONDDEGREEGRAVITATIONALTORQUEPARTIALS_H
+#endif // TUDAT_TORQUEFREETORQUEPARTIALS_H

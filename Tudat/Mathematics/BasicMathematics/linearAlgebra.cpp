@@ -159,7 +159,7 @@ void computePartialDerivativeOfRotationMatrixWrtQuaternion(
 
     partialDerivatives[ 3 ]<< -quaternionVector( 3 ), -quaternionVector( 0 ), quaternionVector( 1 ),
             quaternionVector( 0 ), -quaternionVector( 3 ), quaternionVector( 2 ),
-            -quaternionVector( 2 ), quaternionVector( 2 ), -quaternionVector( 3 );
+            quaternionVector( 1 ), quaternionVector( 2 ), quaternionVector( 3 );
     partialDerivatives[ 3 ] *= 2.0;
 
 }

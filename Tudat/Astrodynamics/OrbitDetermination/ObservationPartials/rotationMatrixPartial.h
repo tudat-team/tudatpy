@@ -21,6 +21,7 @@
 
 #include "Tudat/Astrodynamics/Ephemerides/simpleRotationalEphemeris.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/estimatableParameter.h"
+#include "Tudat/Mathematics/BasicMathematics/linearAlgebra.h"
 
 namespace tudat
 {
@@ -306,6 +307,44 @@ private:
 
     //! Rotation model for which the partial derivative w.r.t. the rotation rate is to be taken.
     boost::shared_ptr< ephemerides::SimpleRotationalEphemeris > bodyRotationModel_;
+};
+
+class RotationMatrixPartialWrtQuaternion: public RotationMatrixPartial
+{
+public:
+
+    RotationMatrixPartialWrtQuaternion(
+            const boost::function< Eigen::Quaterniond( ) > currentRotationToInertialFrameFunction ):
+        RotationMatrixPartial( NULL ),
+        currentRotationToInertialFrameFunction_( currentRotationToInertialFrameFunction )
+    {
+        currentQuaternionPartials_.resize( 4 );
+    }
+
+    ~RotationMatrixPartialWrtQuaternion( ){ }
+
+
+    std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixToBaseFrameWrParameter(
+            const double time )
+    {
+        linear_algebra::computePartialDerivativeOfRotationMatrixWrtQuaternion(
+        linear_algebra::convertQuaternionToVectorFormat( currentRotationToInertialFrameFunction_( ) ),
+                   currentQuaternionPartials_ );
+        return currentQuaternionPartials_;
+    }
+
+    std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixDerivativeToBaseFrameWrParameter(
+            const double time )
+    {
+        throw std::runtime_error( "Error when calling RotationMatrixPartialWrtQuaternion::calculatePartialOfRotationMatrixDerivativeToBaseFrameWrParameter, function not yet implemented." );
+
+    }
+
+private:
+
+    boost::function< Eigen::Quaterniond( ) > currentRotationToInertialFrameFunction_;
+
+    std::vector< Eigen::Matrix3d > currentQuaternionPartials_;
 };
 
 //! Typedef of list of RotationMatrixPartial objects, ordered by parameter.

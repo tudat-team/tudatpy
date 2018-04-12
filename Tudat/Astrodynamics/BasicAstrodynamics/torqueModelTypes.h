@@ -27,6 +27,7 @@ namespace basic_astrodynamics
  */
 enum AvailableTorque
 {
+    torque_free = -2,
     underfined_torque = -1,
     second_order_gravitational_torque = 0,
     aerodynamic_torque = 1,
