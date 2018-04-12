@@ -59,7 +59,7 @@ Eigen::Vector6d convertKeplerianToUnifiedStateModelWithExponentialMapElements(
 
     // Define the tolerance of a singularity
     double singularityTolerance = 1.0e-15; // Based on tolerance chosen in
-                                           // orbitalElementConversions.cpp in Tudat Core.
+    // orbitalElementConversions.cpp in Tudat Core.
 
     // If eccentricity is outside range [0,inf)
     if ( keplerianElements( eccentricityIndex ) < 0.0 )
@@ -181,7 +181,7 @@ Eigen::Vector6d convertKeplerianToUnifiedStateModelWithExponentialMapElements(
 
     // Compute the C hodograph element of the unified state model
     if ( std::fabs( keplerianElements( eccentricityIndex ) - 1.0) < singularityTolerance )
-            // parabolic orbit -> semi-major axis is not defined
+        // parabolic orbit -> semi-major axis is not defined
     {
         convertedUnifiedStateModelElements( CHodographExponentialMapIndex ) =
                 std::sqrt( centralBodyGravitationalParameter / keplerianElements( semiLatusRectumIndex ) );
@@ -190,8 +190,8 @@ Eigen::Vector6d convertKeplerianToUnifiedStateModelWithExponentialMapElements(
     {
         convertedUnifiedStateModelElements( CHodographExponentialMapIndex ) =
                 std::sqrt( centralBodyGravitationalParameter / ( keplerianElements( semiMajorAxisIndex )
-                                                  * ( 1 - keplerianElements( eccentricityIndex ) *
-                                                      keplerianElements( eccentricityIndex ) ) ) );
+                                                                 * ( 1 - keplerianElements( eccentricityIndex ) *
+                                                                     keplerianElements( eccentricityIndex ) ) ) );
     }
 
     // Calculate the additional R hodograph parameter
@@ -205,72 +205,57 @@ Eigen::Vector6d convertKeplerianToUnifiedStateModelWithExponentialMapElements(
 
     // Compute the Rf2 hodograph element of the unified state model
     convertedUnifiedStateModelElements( Rf2HodographExponentialMapIndex ) =
-              RHodographElement * std::cos( keplerianElements( longitudeOfAscendingNodeIndex )
-                                            + keplerianElements( argumentOfPeriapsisIndex ) );
+            RHodographElement * std::cos( keplerianElements( longitudeOfAscendingNodeIndex )
+                                          + keplerianElements( argumentOfPeriapsisIndex ) );
 
     // Calculate the additional elements
     double argumentOfLatitude = keplerianElements( argumentOfPeriapsisIndex ) +
             keplerianElements( trueAnomalyIndex ); // also called u
     double rightAscensionOfLatitude = argumentOfLatitude +
             keplerianElements( longitudeOfAscendingNodeIndex ); // also called lambda
-    double XiParameter = ( std::cos( keplerianElements( inclinationIndex ) ) + 1.0 ) *
-            ( std::cos( rightAscensionOfLatitude ) + 1.0 ) - 2.0;
+
+    // Compute magnitude of exponential map
+    double arccosineArgument = std::cos( 0.5 * keplerianElements( inclinationIndex ) ) *
+            std::cos( 0.5 * rightAscensionOfLatitude );
+    if ( ( std::fabs( arccosineArgument ) - 1 ) > singularityTolerance )
+    {
+        // Make sure that the cosine does not exceed 1.0 in magnitude
+        arccosineArgument = ( arccosineArgument > 0.0 ) ? 1.0 : - 1.0;
+    }
+    double exponentialMapMagnitude = 2.0 * std::acos( arccosineArgument );
 
     // Check for singularity
-    double multiplicativeConstant = 0.0;
-    if ( std::fabs( XiParameter - 2.0 ) < singularityTolerance )
+    if ( std::fabs( exponentialMapMagnitude ) < singularityTolerance )
     {
-        // Compute multiplicative constant of exponential map
-        multiplicativeConstant = 1.0;
-        // both numerator and denominator approach zero, but de l'Hopital's rule says that the function tends to 1.0
-    }
-    else if ( ( std::fabs( XiParameter ) - 2.0 ) < singularityTolerance )
-    {
-        // Check for numerical errors (magnitude cannot be larger than 2)
-        if ( XiParameter < - 2.0 )
-        {
-            // Remove numerical error
-            XiParameter = - 2.0;
-        }
-
-        // Compute multiplicative constant of exponential map
-        double hemisphereFunction = ( ( std::signbit( keplerianElements( inclinationIndex ) ) &&
-                                        std::signbit( PI - rightAscensionOfLatitude ) ) ) ? - 1.0 : 1.0;
-        double exponentialMapMagnitude = acos2( 0.5 * XiParameter, hemisphereFunction );
-//        double exponentialMapMagnitude = 2.0 * std::acos(
-//                    std::cos( 0.5 * keplerianElements( inclinationIndex ) ) *
-//                    std::cos( 0.5 * rightAscensionOfLatitude ) );
-        multiplicativeConstant = exponentialMapMagnitude / std::sqrt( 2.0 - XiParameter );
+        // If rotation angle is zero, the exponential map vector is the zero vector
+        convertedUnifiedStateModelElements.segment( e1ExponentialMapIndex, 3 ) =
+                Eigen::Vector3d::Zero( );
     }
     else
     {
-        // Define the error message.
-        std::stringstream errorMessage;
-        errorMessage << "The magnitude of the Xi parameter is supposed to be smaller than 2.\n"
-                     << "Computed Xi parameter: " << XiParameter << ".\n" << std::endl;
+        // Find the common multiplication factor to the vector elements
+        double multiplicationFactor = exponentialMapMagnitude / std::sin( 0.5 * exponentialMapMagnitude );
+        // note that due to conversion to and from shadow exponential map whenever the magnitude exceeds PI,
+        // the singularity at 2 PI is avoided
 
-        // Throw exception.
-        throw std::runtime_error( std::runtime_error( errorMessage.str( ) ) );
+        // Compute the e1 exponential map of the unified state model
+        convertedUnifiedStateModelElements( e1ExponentialMapIndex ) =
+                multiplicationFactor * std::sin( 0.5 * keplerianElements( inclinationIndex ) ) *
+                std::cos( 0.5 * ( keplerianElements( longitudeOfAscendingNodeIndex ) - argumentOfLatitude ) );
+
+        // Compute the e2 exponential map of the unified state model
+        convertedUnifiedStateModelElements( e2ExponentialMapIndex ) =
+                multiplicationFactor * std::sin( 0.5 * keplerianElements( inclinationIndex ) ) *
+                std::sin( 0.5 * ( keplerianElements( longitudeOfAscendingNodeIndex ) - argumentOfLatitude ) );
+
+        // Compute the e3 exponential map of the unified state model
+        convertedUnifiedStateModelElements( e3ExponentialMapIndex ) =
+                multiplicationFactor * std::cos( 0.5 * keplerianElements( inclinationIndex ) ) *
+                std::sin( 0.5 * rightAscensionOfLatitude );
     }
-
-    // Compute the epsilon1 quaternion of the unified state model
-    convertedUnifiedStateModelElements( e1ExponentialMapIndex ) =
-            multiplicativeConstant * std::sin( 0.5 * keplerianElements( inclinationIndex ) ) *
-            std::cos( 0.5 * ( keplerianElements( longitudeOfAscendingNodeIndex ) - argumentOfLatitude ) );
-
-    // Compute the epsilon2 quaternion of the unified state model
-    convertedUnifiedStateModelElements( e2ExponentialMapIndex ) =
-            multiplicativeConstant * std::sin( 0.5 * keplerianElements( inclinationIndex ) ) *
-            std::sin( 0.5 * ( keplerianElements( longitudeOfAscendingNodeIndex ) - argumentOfLatitude ) );
-
-    // Compute the epsilon3 quaternion of the unified state model
-    convertedUnifiedStateModelElements( e3ExponentialMapIndex ) =
-            multiplicativeConstant * std::cos( 0.5 * keplerianElements( inclinationIndex ) ) *
-            std::sin( 0.5 * rightAscensionOfLatitude );
 
     // Give back result
     return convertedUnifiedStateModelElements;
-
 }
 
 //! Convert unified state model elements with exponential map to Keplerian elements.
@@ -287,24 +272,37 @@ Eigen::Vector6d convertUnifiedStateModelWithExponentialMapToKeplerianElements(
     double singularityTolerance = 20.0 * std::numeric_limits< double >::epsilon( );
 
     // Compute auxiliary parameters
-    double exponentialMapMagnitude = unifiedStateModelElements.segment( 3, 3 ).norm( ); // magnitude of exponential map, also called xi
-    double XiParameter = 2.0 * std::cos( exponentialMapMagnitude );
+    Eigen::Vector3d exponentialMapVector = unifiedStateModelElements.segment( 3, 3 );
+    double exponentialMapMagnitude = exponentialMapVector.norm( ); // magnitude of exponential map, also called xi
+    Eigen::Vector3d eulerEigenaxisVector = Eigen::Vector3d::Zero( ); // Euler eigenaxis vector (unit vector)
 
     // Compute right ascension of latitude
-    double lambdaParameter = 0.0;
+    double rightAscensionOfLatitude = 0.0;
     if ( exponentialMapMagnitude < singularityTolerance )
     {
-        lambdaParameter = 2.0 * std::atan( 0.5 * unifiedStateModelElements( e3ExponentialMapIndex ) );
+        // When exponential map is zero, all Keplerian angles are also zero
+        convertedKeplerianElements( inclinationIndex ) = 0.0;
+        convertedKeplerianElements( argumentOfPeriapsisIndex ) = 0.0;
+        convertedKeplerianElements( longitudeOfAscendingNodeIndex ) = 0.0;
+        convertedKeplerianElements( trueAnomalyIndex ) = 0.0;
+
+        // Naturally, lambda is also zero
+        rightAscensionOfLatitude = 0.0;
     }
     else
     {
-        lambdaParameter = 2.0 * std::atan( unifiedStateModelElements( e3ExponentialMapIndex ) / exponentialMapMagnitude *
-                                         std::tan( 0.5 * exponentialMapMagnitude ) );
+        // Find Euler eigenaxis vector
+        eulerEigenaxisVector = exponentialMapVector / exponentialMapMagnitude;
+
+        // Find lambda
+        rightAscensionOfLatitude = 2.0 * std::atan2( eulerEigenaxisVector( e3ExponentialMapIndex - 3 ) *
+                                                     std::sin( 0.5 * exponentialMapMagnitude ),
+                                                     std::cos( 0.5 * exponentialMapMagnitude ) );
     }
 
     // Trigonometric values of right ascension of latitude
-    double cosineLambda = std::cos( lambdaParameter );
-    double sineLambda = std::sin( lambdaParameter );
+    double cosineLambda = std::cos( rightAscensionOfLatitude );
+    double sineLambda = std::sin( rightAscensionOfLatitude );
 
     // Compute auxiliary parameters auxiliaryParameter1 and auxiliaryParameter2
     double auxiliaryParameter1 = unifiedStateModelElements( Rf1HodographExponentialMapIndex ) * cosineLambda +
@@ -339,126 +337,137 @@ Eigen::Vector6d convertUnifiedStateModelWithExponentialMapToKeplerianElements(
                   ( 1 - std::pow( convertedKeplerianElements( eccentricityIndex ), 2 ) ) );
     }
 
-    // Compute inclination
-    if ( ( ( XiParameter - 2.0 ) < singularityTolerance ) || ( ( cosineLambda - 1.0 ) < singularityTolerance ) )
+    // Continue only if angles have not been computed yet
+    if ( exponentialMapMagnitude < singularityTolerance )
     {
-        // Convert to quaternions
-        Eigen::Vector3d exponentialMapVector = unifiedStateModelElements.segment( e1ExponentialMapIndex, 3 );
-        double exponentialMapMagnitude = exponentialMapVector.norm( ); // also called xi
-        Eigen::Vector3d epsilonQuaternionVector = exponentialMapVector / exponentialMapMagnitude *
-                std::sin( 0.5 * exponentialMapMagnitude ); // xi is non-zero since Xi is -2.0
-        double epsilon1Quaternion = epsilonQuaternionVector( 0 );
-        double epsilon2Quaternion = epsilonQuaternionVector( 1 );
-
-        // Compute inclination with quaternions
-        convertedKeplerianElements( inclinationIndex ) =
-                std::acos( 1.0 - 2.0 * ( epsilon1Quaternion *
-                                         epsilon1Quaternion +
-                                         epsilon2Quaternion *
-                                         epsilon2Quaternion ) );
+        // Give back result
+        return convertedKeplerianElements;
     }
     else
     {
+        // Compute inclination
         convertedKeplerianElements( inclinationIndex ) = std::acos(
-                    ( XiParameter + 2.0 ) / ( cosineLambda + 1.0 ) - 1.0 );
-        // this acos is always defined correctly because the inclination is always below pi rad.
-    }
+                    ( std::pow( eulerEigenaxisVector( e3ExponentialMapIndex - 3 ), 2 ) - 1.0 ) *
+                    ( 1.0 - std::cos( exponentialMapMagnitude ) ) + 1.0 );
+        // this acos is always defined correctly because the inclination is always below pi rad
 
-    // Compute longitude of ascending node
-    if ( std::fabs( std::fabs( convertedKeplerianElements( inclinationIndex ) ) - PI ) < singularityTolerance )
-        // pure-prograde or pure-retrograde orbit
-    {
-        convertedKeplerianElements( longitudeOfAscendingNodeIndex ) = 0.0; // by definition
-    }
-    else
-    {
-        convertedKeplerianElements( longitudeOfAscendingNodeIndex ) = 0.5 * lambdaParameter +
-                std::atan2( unifiedStateModelElements( e2ExponentialMapIndex ),
-                            unifiedStateModelElements( e1ExponentialMapIndex ) );
+        // Find sine and cosine of longitude of ascending node separately
+        double sineOmega = eulerEigenaxisVector( e1ExponentialMapIndex - 3 ) * eulerEigenaxisVector( e3ExponentialMapIndex - 3 ) *
+                ( 1 - std::cos( exponentialMapMagnitude ) ) + eulerEigenaxisVector( e2ExponentialMapIndex - 3 ) *
+                std::sin( exponentialMapMagnitude );
+        double cosineOmega = - eulerEigenaxisVector( e2ExponentialMapIndex - 3 ) * eulerEigenaxisVector( e3ExponentialMapIndex - 3 ) *
+                ( 1 - std::cos( exponentialMapMagnitude ) ) + eulerEigenaxisVector( e1ExponentialMapIndex - 3 ) *
+                std::sin( exponentialMapMagnitude );
+        double denominator = std::sqrt( cosineOmega * cosineOmega +
+                                        sineOmega * sineOmega );
 
-        // Round off small values of the right ascension of ascending node to zero
-        if ( std::fabs( convertedKeplerianElements( longitudeOfAscendingNodeIndex ) ) < singularityTolerance )
+        // Compute longitude of ascending node
+        if ( std::fabs( std::fabs( convertedKeplerianElements( inclinationIndex ) ) - PI ) < singularityTolerance )
+            // pure-prograde or pure-retrograde orbit
         {
-            convertedKeplerianElements( longitudeOfAscendingNodeIndex ) = 0.0;
-        }
+            // Define the error message
+            std::stringstream errorMessage;
+            errorMessage << "Pure-retrograde orbit (inclination = pi).\n"
+                         << "Unified state model elements cannot be transformed to Kepler elements." << std::endl;
 
-        // Ensure the longitude of ascending node is positive
-        while ( convertedKeplerianElements( longitudeOfAscendingNodeIndex ) < 0.0 )
+            // Throw exception
+            throw std::runtime_error( std::runtime_error( errorMessage.str( ) ) );
+        }
+        else if ( std::fabs( denominator ) < singularityTolerance )
+            // null denominator, find work-around
+        {
+            convertedKeplerianElements( longitudeOfAscendingNodeIndex ) = 0.0; // by definition
+        }
+        else
+        {
+            // Compute longitude of ascending node
+            convertedKeplerianElements( longitudeOfAscendingNodeIndex ) = std::atan2(
+                        sineOmega / denominator, cosineOmega / denominator );
+
+            // Round off small values of the right ascension of ascending node to zero
+            if ( std::fabs( convertedKeplerianElements( longitudeOfAscendingNodeIndex ) ) < singularityTolerance )
+            {
+                convertedKeplerianElements( longitudeOfAscendingNodeIndex ) = 0.0;
+            }
+
+            // Ensure the longitude of ascending node is positive
+            while ( convertedKeplerianElements( longitudeOfAscendingNodeIndex ) < 0.0 )
                 // Because of the previous if statement, if the longitude of ascending node is smaller than 0, it will
                 // always be smaller than -singularityTolerance
-        {
-            convertedKeplerianElements( longitudeOfAscendingNodeIndex ) =
-                    convertedKeplerianElements( longitudeOfAscendingNodeIndex ) + 2.0 * PI;
-        }
-    }
-
-    // Compute true anomaly and argument of periapsis
-    if ( std::fabs( RHodographElement ) < singularityTolerance ) // circular orbit
-    {
-        convertedKeplerianElements( argumentOfPeriapsisIndex ) = 0.0; // by definition
-        convertedKeplerianElements( trueAnomalyIndex ) =
-                lambdaParameter - convertedKeplerianElements( longitudeOfAscendingNodeIndex );
-
-        // Round off small theta to zero
-        if ( std::fabs( convertedKeplerianElements( trueAnomalyIndex ) ) < singularityTolerance )
-        {
-            convertedKeplerianElements( trueAnomalyIndex ) = 0.0;
+            {
+                convertedKeplerianElements( longitudeOfAscendingNodeIndex ) =
+                        convertedKeplerianElements( longitudeOfAscendingNodeIndex ) + 2.0 * PI;
+            }
         }
 
-        // Ensure the true anomaly is positive
-        while ( convertedKeplerianElements( trueAnomalyIndex ) < 0.0 )
+        // Compute true anomaly and argument of periapsis
+        if ( std::fabs( RHodographElement ) < singularityTolerance ) // circular orbit
+        {
+            convertedKeplerianElements( argumentOfPeriapsisIndex ) = 0.0; // by definition
+            convertedKeplerianElements( trueAnomalyIndex ) =
+                    rightAscensionOfLatitude - convertedKeplerianElements( longitudeOfAscendingNodeIndex );
+
+            // Round off small theta to zero
+            if ( std::fabs( convertedKeplerianElements( trueAnomalyIndex ) ) < singularityTolerance )
+            {
+                convertedKeplerianElements( trueAnomalyIndex ) = 0.0;
+            }
+
+            // Ensure the true anomaly is positive
+            while ( convertedKeplerianElements( trueAnomalyIndex ) < 0.0 )
                 // Because of the previous if statement, if the true anomaly is smaller than zero, it will always be smaller than
                 // -singularityTolerance
+            {
+                convertedKeplerianElements( trueAnomalyIndex ) =
+                        convertedKeplerianElements( trueAnomalyIndex ) + 2.0 * PI;
+            }
+        }
+        else
         {
             convertedKeplerianElements( trueAnomalyIndex ) =
-                    convertedKeplerianElements( trueAnomalyIndex ) + 2.0 * PI;
-        }
-    }
-    else
-    {
-        convertedKeplerianElements( trueAnomalyIndex ) =
-                std::atan2( ( auxiliaryParameter1 / RHodographElement ),
-                            ( ( auxiliaryParameter2 - unifiedStateModelElements( CHodographExponentialMapIndex ) )
-                           / RHodographElement ) );
+                    std::atan2( ( auxiliaryParameter1 / RHodographElement ),
+                                ( ( auxiliaryParameter2 - unifiedStateModelElements( CHodographExponentialMapIndex ) )
+                                  / RHodographElement ) );
 
-        // Round off small theta to zero
-        if ( std::fabs( convertedKeplerianElements( trueAnomalyIndex ) ) < singularityTolerance )
-        {
-            convertedKeplerianElements( trueAnomalyIndex ) = 0.0;
-        }
+            // Round off small theta to zero
+            if ( std::fabs( convertedKeplerianElements( trueAnomalyIndex ) ) < singularityTolerance )
+            {
+                convertedKeplerianElements( trueAnomalyIndex ) = 0.0;
+            }
 
-        // Ensure the true anomaly is positive
-        while ( convertedKeplerianElements( trueAnomalyIndex ) < 0.0 )
-            // Because of the previous if statement, if the true anomaly is smaller than zero, it will always
-            // be smaller than -singularityTolerance
-        {
-            convertedKeplerianElements( trueAnomalyIndex ) =
-                    convertedKeplerianElements( trueAnomalyIndex ) + 2.0 * PI;
-        }
+            // Ensure the true anomaly is positive
+            while ( convertedKeplerianElements( trueAnomalyIndex ) < 0.0 )
+                // Because of the previous if statement, if the true anomaly is smaller than zero, it will always
+                // be smaller than -singularityTolerance
+            {
+                convertedKeplerianElements( trueAnomalyIndex ) =
+                        convertedKeplerianElements( trueAnomalyIndex ) + 2.0 * PI;
+            }
 
-        convertedKeplerianElements( argumentOfPeriapsisIndex ) =
-                lambdaParameter -
-                convertedKeplerianElements( longitudeOfAscendingNodeIndex ) -
-                convertedKeplerianElements( trueAnomalyIndex );
-
-        // Round off small omega to zero
-        if ( std::fabs( convertedKeplerianElements( argumentOfPeriapsisIndex ) ) < singularityTolerance )
-        {
-            convertedKeplerianElements( argumentOfPeriapsisIndex ) = 0.0;
-        }
-
-        // Ensure the argument of periapsis is positive
-        while ( convertedKeplerianElements( argumentOfPeriapsisIndex ) < 0.0 )
-            // Because of the previous if statement, if the argument of pericenter is smaller than zero,
-            // it will be smaller than -singularityTolerance
-        {
             convertedKeplerianElements( argumentOfPeriapsisIndex ) =
-                    convertedKeplerianElements( argumentOfPeriapsisIndex ) + 2.0 * PI;
-        }
-    }
+                    rightAscensionOfLatitude -
+                    convertedKeplerianElements( longitudeOfAscendingNodeIndex ) -
+                    convertedKeplerianElements( trueAnomalyIndex );
 
-    // Give back result
-    return convertedKeplerianElements;
+            // Round off small omega to zero
+            if ( std::fabs( convertedKeplerianElements( argumentOfPeriapsisIndex ) ) < singularityTolerance )
+            {
+                convertedKeplerianElements( argumentOfPeriapsisIndex ) = 0.0;
+            }
+
+            // Ensure the argument of periapsis is positive
+            while ( convertedKeplerianElements( argumentOfPeriapsisIndex ) < 0.0 )
+                // Because of the previous if statement, if the argument of pericenter is smaller than zero,
+                // it will be smaller than -singularityTolerance
+            {
+                convertedKeplerianElements( argumentOfPeriapsisIndex ) =
+                        convertedKeplerianElements( argumentOfPeriapsisIndex ) + 2.0 * PI;
+            }
+        }
+
+        // Give back result
+        return convertedKeplerianElements;
+    }
 }
 
 } // close namespace orbital_element_conversions
