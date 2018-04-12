@@ -77,9 +77,9 @@ enum UnifiedStateModelWithQuaternionsElementIndices
 //! Unified state model with modified Rodrigues parameters indices.
 enum UnifiedStateModelWithModifiedRodriguesParametersElementIndices
 {
-    CHodographModifiedRodriguesParametersIndex = 0,
-    Rf1HodographModifiedRodriguesParametersIndex = 1,
-    Rf2HodographModifiedRodriguesParametersIndex = 2,
+    CHodographModifiedRodriguesParameterIndex = 0,
+    Rf1HodographModifiedRodriguesParameterIndex = 1,
+    Rf2HodographModifiedRodriguesParameterIndex = 2,
     sigma1ModifiedRodriguesParameterIndex = 3,
     sigma2ModifiedRodriguesParameterIndex = 4,
     sigma3ModifiedRodriguesParameterIndex = 5
