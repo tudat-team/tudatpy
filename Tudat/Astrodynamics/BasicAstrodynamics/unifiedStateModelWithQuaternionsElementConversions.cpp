@@ -374,8 +374,7 @@ Eigen::Vector6d convertUnifiedStateModelWithQuaternionsToKeplerianElements(
                 // Because of the previous if statement, if the longitude of ascending node is smaller than 0, it will
                 // always be smaller than -singularityTolerance
         {
-            convertedKeplerianElements( longitudeOfAscendingNodeIndex ) =
-                    convertedKeplerianElements( longitudeOfAscendingNodeIndex ) + 2.0 * PI;
+            convertedKeplerianElements( longitudeOfAscendingNodeIndex ) += 2.0 * PI;
         }
     }
 
@@ -397,8 +396,7 @@ Eigen::Vector6d convertUnifiedStateModelWithQuaternionsToKeplerianElements(
                 // Because of the previous if statement, if the true anomaly is smaller than zero, it will always be smaller than
                 // -singularityTolerance
         {
-            convertedKeplerianElements( trueAnomalyIndex ) =
-                    convertedKeplerianElements( trueAnomalyIndex ) + 2.0 * PI;
+            convertedKeplerianElements( trueAnomalyIndex ) += 2.0 * PI;
         }
     }
     else
@@ -419,8 +417,7 @@ Eigen::Vector6d convertUnifiedStateModelWithQuaternionsToKeplerianElements(
             // Because of the previous if statement, if the true anomaly is smaller than zero, it will always
             // be smaller than -singularityTolerance
         {
-            convertedKeplerianElements( trueAnomalyIndex ) =
-                    convertedKeplerianElements( trueAnomalyIndex ) + 2.0 * PI;
+            convertedKeplerianElements( trueAnomalyIndex ) += 2.0 * PI;
         }
 
         convertedKeplerianElements( argumentOfPeriapsisIndex ) =
@@ -439,8 +436,7 @@ Eigen::Vector6d convertUnifiedStateModelWithQuaternionsToKeplerianElements(
             // Because of the previous if statement, if the argument of pericenter is smaller than zero,
             // it will be smaller than -singularityTolerance
         {
-            convertedKeplerianElements( argumentOfPeriapsisIndex ) =
-                    convertedKeplerianElements( argumentOfPeriapsisIndex ) + 2.0 * PI;
+            convertedKeplerianElements( argumentOfPeriapsisIndex ) += 2.0 * PI;
         }
     }
 
