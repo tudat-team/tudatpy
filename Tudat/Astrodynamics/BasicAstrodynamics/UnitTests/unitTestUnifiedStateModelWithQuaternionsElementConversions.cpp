@@ -105,7 +105,7 @@ BOOST_AUTO_TEST_CASE( testconvertKeplerianToUnifiedStateModelWithQuaternionsElem
         expectedUnifiedStateModelElements( CHodographQuaternionIndex ) = 17173.1340579794;
         expectedUnifiedStateModelElements( Rf1HodographQuaternionIndex ) = -2993.47450825659;
         expectedUnifiedStateModelElements( Rf2HodographQuaternionIndex ) = 34215.5701963558;
-        expectedUnifiedStateModelElements( epsilon1QuaternionIndex ) = -0.987672114350896; //Minor error?
+        expectedUnifiedStateModelElements( epsilon1QuaternionIndex ) = -0.987672114350896;
         expectedUnifiedStateModelElements( epsilon2QuaternionIndex ) = -0.130029500651719;
         expectedUnifiedStateModelElements( epsilon3QuaternionIndex ) = -0.0113761072309622;
         expectedUnifiedStateModelElements( etaQuaternionIndex )= -0.0864101132863834;
