@@ -16,7 +16,7 @@
 #include "Tudat/Astrodynamics/BasicAstrodynamics/orbitalElementConversions.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/modifiedEquinoctialElementConversions.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/unifiedStateModelWithQuaternionsElementConversions.h"
-//#include "Tudat/Astrodynamics/BasicAstrodynamics/unifiedStateModelWithModifiedRodriguesParametersElementConversions.h"
+#include "Tudat/Astrodynamics/BasicAstrodynamics/unifiedStateModelWithModifiedRodriguesParametersElementConversions.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/unifiedStateModelWithExponentialMapElementConversions.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/stateVectorIndices.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/bodyShapeModel.h"
