@@ -255,14 +255,14 @@ Eigen::Vector6d convertUnifiedStateModelWithQuaternionsToKeplerianElements(
         // Throw exception.
         throw std::runtime_error( std::runtime_error( errorMessage.str( ) ) );
     }
-    //Else, nothing wrong and continue
+    // Else, nothing wrong and continue
 
-    // Compute auxiliary parameters cosineLambda, sineLambda and Lambda
+    // Compute auxiliary parameters cosineLambda, sineLambda and lambda
     if ( ( std::fabs( unifiedStateModelElements( epsilon3QuaternionIndex ) ) < singularityTolerance )
         && ( std::fabs( unifiedStateModelElements( etaQuaternionIndex ) ) < singularityTolerance ) )
             // pure-retrograde orbit -> inclination  = pi
     {
-        //Define the error message
+        // Define the error message
         std::stringstream errorMessage;
         errorMessage << "Pure-retrograde orbit (inclination = pi).\n"
                      << "Unified state model elements cannot be transformed to Kepler elements." << std::endl;
@@ -275,18 +275,17 @@ Eigen::Vector6d convertUnifiedStateModelWithQuaternionsToKeplerianElements(
         cosineLambda = ( unifiedStateModelElements( etaQuaternionIndex ) *
                                 unifiedStateModelElements( etaQuaternionIndex ) -
                                 unifiedStateModelElements( epsilon3QuaternionIndex ) *
-                                unifiedStateModelElements( epsilon3QuaternionIndex ) )
-                / ( unifiedStateModelElements( epsilon3QuaternionIndex ) *
-                    unifiedStateModelElements( epsilon3QuaternionIndex ) +
-                    unifiedStateModelElements( etaQuaternionIndex ) *
-                    unifiedStateModelElements( etaQuaternionIndex ) );
-        sineLambda = ( 2.0 *
-                              unifiedStateModelElements( epsilon3QuaternionIndex ) *
-                              unifiedStateModelElements( etaQuaternionIndex ) )
-                / ( unifiedStateModelElements( epsilon3QuaternionIndex ) *
-                    unifiedStateModelElements( epsilon3QuaternionIndex ) +
-                    unifiedStateModelElements( etaQuaternionIndex ) *
-                    unifiedStateModelElements( etaQuaternionIndex ) );
+                                unifiedStateModelElements( epsilon3QuaternionIndex ) ) /
+                ( unifiedStateModelElements( epsilon3QuaternionIndex ) *
+                  unifiedStateModelElements( epsilon3QuaternionIndex ) +
+                  unifiedStateModelElements( etaQuaternionIndex ) *
+                  unifiedStateModelElements( etaQuaternionIndex ) );
+        sineLambda = ( 2.0 * unifiedStateModelElements( epsilon3QuaternionIndex ) *
+                              unifiedStateModelElements( etaQuaternionIndex ) ) /
+                ( unifiedStateModelElements( epsilon3QuaternionIndex ) *
+                  unifiedStateModelElements( epsilon3QuaternionIndex ) +
+                  unifiedStateModelElements( etaQuaternionIndex ) *
+                  unifiedStateModelElements( etaQuaternionIndex ) );
         lambdaFromSineAndCosine = std::atan2( sineLambda, cosineLambda );
     }
 
