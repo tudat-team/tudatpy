@@ -22,6 +22,8 @@
 #ifndef TUDAT_BASIC_MATHEMATICS_FUNCTIONS_H
 #define TUDAT_BASIC_MATHEMATICS_FUNCTIONS_H
 
+#include <Eigen/Core>
+
 #include <boost/random/mersenne_twister.hpp>
 
 namespace tudat
@@ -126,6 +128,7 @@ ScalarType raiseToIntegerPower( const ScalarType baseValue,
     // Return result of raising base to integer power.
     return resultOfRaisingBaseToIntegerPower;
 }
+
 
 } // namespace basic_mathematics
 } // namespace tudat
