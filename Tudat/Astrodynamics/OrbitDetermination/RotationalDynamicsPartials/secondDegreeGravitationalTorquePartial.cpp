@@ -9,6 +9,7 @@
  */
 
 #include "Tudat/Astrodynamics/OrbitDetermination/RotationalDynamicsPartials/secondDegreeGravitationalTorquePartial.h"
+#include "Tudat/Mathematics/BasicMathematics/linearAlgebra.h"
 
 
 namespace tudat
@@ -17,13 +18,25 @@ namespace tudat
 namespace acceleration_partials
 {
 
-//! Constructor
-SecondDegreeGravitationalTorquePartial::SecondDegreeGravitationalTorquePartial(
-        const boost::shared_ptr< gravitation::SecondDegreeGravitationalTorqueModel > torqueModel,
-        const std::string acceleratedBody,
-        const std::string acceleratingBody ):
-    TorquePartial( acceleratedBody, acceleratingBody, basic_astrodynamics::second_order_gravitational_torque ),
-    torqueModel_( torqueModel ){ }
+Eigen::Matrix< double, 3, 4 > getPartialDerivativeOfSecondDegreeGravitationalTorqueWrtQuaternion(
+        const double premultiplier,
+        const Eigen::Matrix3d& inertiaTensor,
+        const Eigen::Vector3d& bodyFixedRelativePosition,
+        const Eigen::Vector3d& inertialRelativePosition,
+        const std::vector< Eigen::Matrix3d > derivativeOfRotationMatrixWrtQuaternions )
+{
+    Eigen::Matrix3d scalingMatrix = linear_algebra::getCrossProductMatrix(
+                bodyFixedRelativePosition ) *  inertiaTensor - linear_algebra::getCrossProductMatrix(
+                inertiaTensor * bodyFixedRelativePosition );
+    Eigen::Matrix< double, 3, 4 > partialOfBodyFixedPositionWrtQuaternion = Eigen::Matrix< double, 3, 4 >::Zero( );
+    for( unsigned int i = 0; i < derivativeOfRotationMatrixWrtQuaternions.size( ); i++ )
+    {
+        partialOfBodyFixedPositionWrtQuaternion.block( 0, i, 3, 1 ) =
+             derivativeOfRotationMatrixWrtQuaternions.at( i ).transpose( ) * inertialRelativePosition;
+    }
+    return premultiplier * scalingMatrix * partialOfBodyFixedPositionWrtQuaternion;
+}
+
 
 }
 

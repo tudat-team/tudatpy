@@ -94,7 +94,7 @@ public:
             }
             else if( isTorquePartialWrtAdditionalBodyNonNull( stateReferencePoint.first ) )
             {
-                partialFunction = std::make_pair( boost::bind( &TorquePartial::wrtStateOfAdditionalBody,
+                partialFunction = std::make_pair( boost::bind( &TorquePartial::wrtRotationalStateOfAdditionalBody,
                                                                this, _1, stateReferencePoint.first ), 3 );
             }
             break;

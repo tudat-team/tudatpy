@@ -205,6 +205,9 @@ bool isParameterRotationMatrixProperty( const EstimatebleParametersEnum paramete
     case rotation_pole_position:
         flag = true;
         break;
+    case initial_rotational_body_state:
+        flag = true;
+        break;
     default:
         flag = false;
         break;

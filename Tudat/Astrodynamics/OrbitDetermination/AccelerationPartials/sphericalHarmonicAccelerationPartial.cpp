@@ -181,7 +181,7 @@ std::pair< boost::function< void( Eigen::MatrixXd& ) >, int > SphericalHarmonics
                 // Get partial function.
                 partialFunction = boost::bind(
                             &SphericalHarmonicsGravityPartial::wrtRotationModelParameter,
-                            this,_1, parameter->getParameterName( ).first, parameter->getSecondaryIdentifier( ) );
+                            this, _1, parameter->getParameterName( ).first, parameter->getSecondaryIdentifier( ) );
                 numberOfRows = parameter->getParameterSize( );
             }
             else

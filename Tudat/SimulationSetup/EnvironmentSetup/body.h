@@ -644,6 +644,11 @@ public:
         return currentAngularVelocityVectorInGlobalFrame_;
     }
 
+    Eigen::Vector3d getCurrentAngularVelocityVectorInLocalFrame( )
+    {
+        return currentRotationToLocalFrame_ * currentAngularVelocityVectorInGlobalFrame_;
+    }
+
 
     //! Function to set the ephemeris of the body.
     /*!

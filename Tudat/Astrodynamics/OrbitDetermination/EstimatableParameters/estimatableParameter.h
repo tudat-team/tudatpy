@@ -34,6 +34,7 @@ enum EstimatebleParametersEnum
 {
     arc_wise_initial_body_state,
     initial_body_state,
+    initial_rotational_body_state,
     gravitational_parameter,
     constant_drag_coefficient,
     radiation_pressure_coefficient,
@@ -391,7 +392,7 @@ public:
         return vectorParameters_;
     }
 
-    std::map< int, boost::shared_ptr< EstimatableParameter< Eigen::VectorXd > > > getInitialStateParameters( )
+    std::map< int, boost::shared_ptr< EstimatableParameter< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > > > getInitialStateParameters( )
     {
         return initialStateParameters_;
     }

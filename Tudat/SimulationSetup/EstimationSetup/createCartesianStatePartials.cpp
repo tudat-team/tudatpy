@@ -221,6 +221,7 @@ std::map< observation_models::LinkEndType, boost::shared_ptr< CartesianStatePart
     return partialMap;
 }
 
+
 //! Function to create partial object(s) of rotation matrix wrt a (double) parameter.
 boost::shared_ptr< RotationMatrixPartial > createRotationMatrixPartialsWrtParameter(
         const simulation_setup::NamedBodyMap& bodyMap,

@@ -14,6 +14,7 @@
 #include <Eigen/Core>
 
 #include "Tudat/Astrodynamics/Propagators/variationalEquations.h"
+#include "Tudat/Astrodynamics/Propagators/rotationalMotionStateDerivative.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/AccelerationPartials/accelerationPartial.h"
 
 
@@ -35,6 +36,21 @@ void VariationalEquations::setBodyStatePartialMatrix( )
         for( unsigned int i = 0; i < dynamicalStatesToEstimate_.at( propagators::transational_state ).size( ); i++ )
         {
             variationalMatrix_.block( startIndex + i * 6, startIndex + i * 6 + 3, 3, 3 ).setIdentity( );
+        }
+    }
+
+    if( dynamicalStatesToEstimate_.count( propagators::rotational_state ) > 0 )
+    {
+         Eigen::VectorXd rotationalStates = currentStatesPerTypeInConventionalRepresentation_.at(
+                     propagators::rotational_state );
+
+        int startIndex = stateTypeStartIndices_.at( propagators::rotational_state );
+        for( unsigned int i = 0; i < dynamicalStatesToEstimate_.at( propagators::rotational_state ).size( ); i++ )
+        {
+            variationalMatrix_.block( startIndex + i * 7, startIndex + i * 7 , 4, 4 ) =
+                    getQuaterionToQuaternionRateMatrix( rotationalStates.segment( 7 * i + 4, 3 ) );
+            variationalMatrix_.block( startIndex + i * 7 + 4, startIndex + i * 7 , 4, 3 ) =
+                    getAngularVelocityToQuaternionRateMatrix( rotationalStates.segment( 7 * i, 4 ) );
         }
     }
 
