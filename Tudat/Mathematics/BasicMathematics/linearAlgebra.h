@@ -180,6 +180,10 @@ bool doesMatrixHaveNanEntries( const Eigen::Matrix< StateScalarType, NumberOfRow
 double getVectorEntryRootMeanSquare( const Eigen::VectorXd& inputVector );
 
 
+void computePartialDerivativeOfRotationMatrixWrtQuaternion(
+        const Eigen::Vector4d quaternionVector,
+        std::vector< Eigen::Matrix3d >& partialDerivatives );
+
 } // namespace linear_algebra
 
 } // namespace tudat
