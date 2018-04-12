@@ -24,23 +24,6 @@
 #include "Tudat/Astrodynamics/BasicAstrodynamics/unifiedStateModelWithExponentialMapElementConversions.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/stateVectorIndices.h"
 
-double acos2( double cosine, double hemisphereFunction )
-{
-    using tudat::mathematical_constants::PI;
-
-    // Find arccosine based on the function by J. Wertz, Orbit & Constellation Design & Management, 2009
-    double angle = 2.0 * PI + hemisphereFunction * std::acos( cosine );
-
-    // Wrap to 2 PI
-    if ( angle > 2.0 * PI )
-    {
-        angle -= 2.0 * PI;
-    }
-
-    // Give output
-    return angle;
-}
-
 namespace tudat
 {
 
