@@ -158,9 +158,10 @@ public:
         return currentTorqueMagnitudePremultiplier_;
     }
 
-
-
-
+    double getCurrentGravitationalParameterOfAttractingBody( )
+    {
+        return currentGravitationalParameterOfAttractingBody_;
+    }
 
 protected:
 

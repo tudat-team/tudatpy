@@ -103,6 +103,14 @@ Eigen::Vector3d calculateAccelerationWrtParameterPartials(
         const double currentTime = 0.0,
         boost::function< void( const double ) > timeDependentUpdateDependentVariables = emptyTimeFunction );
 
+Eigen::Vector3d calculateTorqueWrtParameterPartials(
+        boost::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter,
+        boost::shared_ptr< basic_astrodynamics::TorqueModel > torqueModel,
+        double parameterPerturbation,
+        boost::function< void( ) > updateDependentVariables = emptyFunction,
+        const double currentTime = 0.0,
+        boost::function< void( const double ) > timeDependentUpdateDependentVariables = emptyTimeFunction );
+
 //! Function to numerical compute the partial derivative of an acceleration w.r.t. a vector parameter
 /*!
  * Function to numerical compute the partial derivative of an acceleration w.r.t. a vector parameter,

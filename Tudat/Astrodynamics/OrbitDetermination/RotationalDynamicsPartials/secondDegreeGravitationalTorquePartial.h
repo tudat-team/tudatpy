@@ -69,11 +69,7 @@ public:
      *  \return Pair of parameter partial function and number of columns in partial (0 for no dependency, 1 otherwise).
      */
     std::pair< boost::function< void( Eigen::MatrixXd& ) >, int >
-    getParameterPartialFunction( boost::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter )
-    {
-        boost::function< void( Eigen::MatrixXd& ) > partialFunction;
-        return std::make_pair( partialFunction, 0 );
-    }
+    getParameterPartialFunction( boost::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter );
 
     //! Function for setting up and retrieving a function returning a partial w.r.t. a vector parameter.
     /*!
@@ -129,6 +125,8 @@ public:
     }
 
 protected:
+
+    void wrtGravitationalParameterOfCentralBody( Eigen::MatrixXd& gravitationalParameterPartial );
 
     boost::shared_ptr< gravitation::SecondDegreeGravitationalTorqueModel > torqueModel_;
 
