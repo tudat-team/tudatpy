@@ -25,8 +25,6 @@ Eigen::Matrix< double, 3, 4 > getPartialDerivativeOfSecondDegreeGravitationalTor
         const Eigen::Vector3d& inertialRelativePosition,
         const std::vector< Eigen::Matrix3d > derivativeOfRotationMatrixWrtQuaternions )
 {
-    std::cout<<"Partial "<<inertiaTensor<<std::endl<<bodyFixedRelativePosition<<std::endl<<inertialRelativePosition<<std::endl;
-
     Eigen::Matrix3d scalingMatrix = linear_algebra::getCrossProductMatrix(
                 bodyFixedRelativePosition ) *  inertiaTensor - linear_algebra::getCrossProductMatrix(
                 inertiaTensor * bodyFixedRelativePosition );

@@ -143,6 +143,49 @@ Eigen::MatrixXd calculateTorqueWrtRotationalStatePartials(
     return accelerationPartials;
 }
 
+Eigen::MatrixXd calculateTorqueDeviationDueToOrientationChange(
+        const boost::function< void( Eigen::Vector7d ) > setBodyRotationalState,
+        const boost::shared_ptr< basic_astrodynamics::TorqueModel > torqueModel,
+        const Eigen::Vector7d& originalRotationalState,
+        const Eigen::Vector4d& commandedQuaternionPerturbation,
+        std::vector< Eigen::Vector4d >& appliedQuaternionPerturbation,
+        boost::function< void( ) > updateFunction,
+        const double evaluationTime )
+{
+    appliedQuaternionPerturbation.resize( 4 );
+    Eigen::Vector3d nominalTorque = basic_astrodynamics::updateAndGetTorque( torqueModel, evaluationTime );
+    Eigen::MatrixXd deviations = Eigen::MatrixXd::Zero( 3, 3 );
+
+    Eigen::Vector7d perturbedState = originalRotationalState;
+
+    torqueModel->resetTime( TUDAT_NAN );
+
+    // Calculate perturbed accelerations for up-perturbed state entries.
+    for( int i = 1; i < 4; i++ )
+    {
+        perturbedState( i ) += commandedQuaternionPerturbation( i );
+        perturbedState( 0 ) = std::sqrt( 1.0 - std::pow( perturbedState.segment( 1, 3 ).norm( ), 2 ) );
+
+        appliedQuaternionPerturbation[ i ] = perturbedState.segment( 0, 4 ).normalized( ) -
+                originalRotationalState.segment( 0, 4 );
+
+        setBodyRotationalState( perturbedState );
+        updateFunction( );
+        deviations.block( 0, i - 1, 3, 1 ) = basic_astrodynamics::updateAndGetTorque( torqueModel, evaluationTime ) -
+                nominalTorque;
+        torqueModel->resetTime( TUDAT_NAN );
+        perturbedState = originalRotationalState;
+
+    }
+
+    setBodyRotationalState( perturbedState );
+    updateFunction( );
+
+    basic_astrodynamics::updateAndGetTorque( torqueModel, evaluationTime );
+
+    return deviations;
+}
+
 //! Function to numerical compute the partial derivative of an acceleration w.r.t. a double parameter
 Eigen::Vector3d calculateAccelerationWrtParameterPartials(
         boost::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter,

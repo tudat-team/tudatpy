@@ -68,7 +68,6 @@ BOOST_AUTO_TEST_CASE( testSecondDegreeGravitationalTorquePartials )
                     spice_interface::getBodyGravitationalParameter( "Mars" ) ) );
     bodyMap[ "Phobos" ] = boost::make_shared< Body >( );
 
-    std::cout<<"Test A"<<std::endl;
     Eigen::Matrix3d phobosInertiaTensor = Eigen::Matrix3d::Zero( );
     phobosInertiaTensor( 0, 0 ) = 0.3615;
     phobosInertiaTensor( 1, 1 ) = 0.4265;
@@ -83,13 +82,11 @@ BOOST_AUTO_TEST_CASE( testSecondDegreeGravitationalTorquePartials )
     std::pair< Eigen::Matrix3d, Eigen::Matrix3d > phobosGravityFieldCoefficients =
             gravitation::getDegreeTwoSphericalHarmonicCoefficients(
                 phobosInertiaTensor, phobosGravitationalParameter, phobosReferenceRadius, true );
-    std::cout<<"Test B"<<std::endl;
 
     bodyMap[ "Phobos" ]->setGravityFieldModel(
                 boost::make_shared< gravitation::SphericalHarmonicsGravityField >(
                     phobosGravitationalParameter, phobosReferenceRadius, phobosGravityFieldCoefficients.first,
                     phobosGravityFieldCoefficients.second, "Phobos_Fixed" ) );
-    std::cout<<"Test C"<<std::endl;
 
     Eigen::Quaterniond noRotationQuaternion = Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) );
     Eigen::Matrix< double, 7, 1 > unitRotationState = Eigen::Matrix< double, 7, 1 >::Zero( );
@@ -170,11 +167,6 @@ BOOST_AUTO_TEST_CASE( testSecondDegreeGravitationalTorquePartials )
     //    Eigen::Vector3d partialWrtPhobosGravitationalParameter = centralGravitationPartial->wrtParameter(
     //                phobosGravitationalParameterParameter );
 
-    std::cout<<partialWrtPhobosOrientation<<std::endl<<std::endl<<
-               partialWrtPhobosRotationalVelocity<<std::endl<<std::endl<<
-               partialWrtMarsOrientation<<std::endl<<std::endl<<
-               partialWrtMarsRotationalVelocity<<std::endl<<std::endl;
-
     // Declare numerical partials.
     Eigen::Matrix< double, 3, 4 > testPartialWrtPhobosOrientation = Eigen::Matrix< double, 3, 4 >::Zero( );
     Eigen::Matrix3d testPartialWrtPhobosRotationalVelocity = Eigen::Matrix3d::Zero( );
@@ -183,7 +175,7 @@ BOOST_AUTO_TEST_CASE( testSecondDegreeGravitationalTorquePartials )
 
     // Declare perturbations in orientation for numerical partial/
     Eigen::Vector4d orientationPerturbation;
-    orientationPerturbation << 1.0E-6, 1.0E-6, 1.0E-6, 1.0E-6;
+    orientationPerturbation << 1.0E-9, 1.0E-9, 1.0E-9, 1.0E-9;
     Eigen::Vector3d rotationalVelocityPerturbation;
     rotationalVelocityPerturbation <<  1.0E-6, 1.0E-6, 1.0E-6;
 
@@ -193,35 +185,10 @@ BOOST_AUTO_TEST_CASE( testSecondDegreeGravitationalTorquePartials )
     boost::function< void( Eigen::Vector7d ) > marsRotationalStateSetFunction =
             boost::bind( &Body::setCurrentRotationalStateToLocalFrame, mars, _1 );
 
-    for( int index = 1; index < 4; index++ )
-    {
-        double perturbation = 1.0E-9;
-        Eigen::Vector7d nominalRotationalState =
-                phobos->getRotationalStateVector( );
-        Eigen::Vector3d nominalTorque = gravitationalTorque->getTorque( );
-
-        Eigen::Vector7d upperturbedRotationalState = nominalRotationalState;
-        upperturbedRotationalState( index ) += perturbation;
-        upperturbedRotationalState( 0 ) = std::sqrt( 1.0 - std::pow( upperturbedRotationalState.segment( 1, 3 ).norm( ), 2 ) );
-        Eigen::Vector7d quaternionChange = upperturbedRotationalState - nominalRotationalState;
-        //std::cout<<"CHANGE IN QUAT: "<<quaternionChange<<std::endl;
-
-        phobosRotationalStateSetFunction( upperturbedRotationalState );
-        gravitationalTorque->updateMembers( TUDAT_NAN );
-        gravitationalTorque->updateMembers( testTime );
-        Eigen::Vector3d upperturbedTorque = gravitationalTorque->getTorque( );
-
-        Eigen::Vector3d numericalChangeInTorque = upperturbedTorque - nominalTorque;
-        Eigen::Vector3d analyticalChangeInTorque = partialWrtPhobosOrientation.block( 0, 0, 3, 1 ) * quaternionChange( 0 ) +
-                partialWrtPhobosOrientation.block( 0, index, 3, 1 ) * quaternionChange( index );
-
-
-        std::cout<<"CHANGE IN TORQUE: "<<numericalChangeInTorque<<std::endl;
-        std::cout<<"LINEARIZED CHANGE IN TORQUE ERROR: "<<( numericalChangeInTorque - analyticalChangeInTorque ).cwiseQuotient(
-                       analyticalChangeInTorque )<<std::endl;
-    }
-
-
+    std::vector< Eigen::Vector4d > appliedQuaternionPerturbation;
+    Eigen::MatrixXd torqueDeviations = calculateTorqueDeviationDueToOrientationChange(
+                phobosRotationalStateSetFunction, gravitationalTorque, phobos->getRotationalStateVector( ), orientationPerturbation,
+                appliedQuaternionPerturbation );
 
     //    // Calculate numerical partials.
     //    testPartialWrtPhobosOrientation =  calculateTorqueWrtRotationalStatePartials(
@@ -239,14 +206,22 @@ BOOST_AUTO_TEST_CASE( testSecondDegreeGravitationalTorquePartials )
 
     //    std::cout<<testPartialWrtPhobosOrientation<<std::endl;
     //    // Compare numerical and analytical results.
-    //    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtPhobosOrientation,
-    //                                       partialWrtPhobosOrientation, 1.0E-8 );
-    //    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtPhobosRotationalVelocity,
-    //                                       partialWrtPhobosRotationalVelocity, std::numeric_limits< double >::epsilon( ) );
-    //    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtMarsOrientation,
-    //                                       partialWrtMarsOrientation, 1.0E-8 );
-    //    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtMarsRotationalVelocity,
-    //                                       partialWrtMarsRotationalVelocity, std::numeric_limits< double >::epsilon( ) );
+    for( int index = 1; index < 4; index++ )
+    {
+        Eigen::Vector3d numericalChangeInTorque = torqueDeviations.block( 0, index - 1, 3, 1 );
+        Eigen::Vector3d analyticalChangeInTorque =
+                partialWrtPhobosOrientation.block( 0, 0, 3, 1 ) * appliedQuaternionPerturbation[ index ]( 0 ) +
+                partialWrtPhobosOrientation.block( 0, index, 3, 1 ) * appliedQuaternionPerturbation[ index ]( index );
+
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( numericalChangeInTorque,
+                                           analyticalChangeInTorque, 1.0E-6 );
+    }
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtPhobosRotationalVelocity,
+                                       partialWrtPhobosRotationalVelocity, std::numeric_limits< double >::epsilon( ) );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtMarsOrientation,
+                                       partialWrtMarsOrientation, std::numeric_limits< double >::epsilon( ) );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtMarsRotationalVelocity,
+                                       partialWrtMarsRotationalVelocity, std::numeric_limits< double >::epsilon( ) );
     //    //    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtMarsGravitationalParameter,
     //    //                                       partialWrtMarsGravitationalParameter, 1.0E-6 );
     //    //    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( partialWrtPhobosGravitationalParameter,
