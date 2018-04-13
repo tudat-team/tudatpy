@@ -38,7 +38,10 @@ public:
             const std::string acceleratedBody,
             const std::string acceleratingBody ):
         TorquePartial( acceleratedBody, acceleratingBody, basic_astrodynamics::second_order_gravitational_torque ),
-        torqueModel_( torqueModel ){ }
+        torqueModel_( torqueModel )
+    {
+        currentRotationMatrixDerivativesWrtQuaternion_.resize( 4 );
+    }
 
     ~SecondDegreeGravitationalTorquePartial( ){ }
 

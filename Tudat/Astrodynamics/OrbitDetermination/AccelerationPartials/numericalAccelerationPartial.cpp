@@ -102,6 +102,7 @@ Eigen::MatrixXd calculateTorqueWrtRotationalStatePartials(
     for( int i = 0; i < numberOfEntries; i++ )
     {
         perturbedState( i + startIndex ) += statePerturbations( i );
+        std::cout<<"Perturb up "<<startIndex<<" "<<i<<" "<<perturbedState.transpose( )<<std::endl;
         setBodyRotationalState( perturbedState );
         updateFunction( );
         upTorques.block( 0, i, 3, 1 ) = basic_astrodynamics::updateAndGetTorque(
@@ -114,6 +115,7 @@ Eigen::MatrixXd calculateTorqueWrtRotationalStatePartials(
     for( int i = 0; i < numberOfEntries; i++ )
     {
         perturbedState( i + startIndex ) -= statePerturbations( i );
+        std::cout<<"Perturb down "<<startIndex<<" "<<i<<std::endl;
         setBodyRotationalState( perturbedState );
         updateFunction( );
         downTorques.block( 0, i, 3, 1 ) = basic_astrodynamics::updateAndGetTorque(
@@ -124,6 +126,7 @@ Eigen::MatrixXd calculateTorqueWrtRotationalStatePartials(
 
 
     // Reset state/environment to original state.
+    std::cout<<"Reset "<<std::endl;
     setBodyRotationalState( perturbedState );
     updateFunction( );
 
