@@ -173,27 +173,20 @@ public:
             const Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >& cartesianSolution,
             const TimeType& time )
     {
+        // Subtract frame origin and Keplerian states from inertial state.
         Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > currentState =
                 Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >::Zero(
                     this->bodiesToBeIntegratedNumerically_.size( ) * 7 );
 
-        // Subtract frame origin and Keplerian states from inertial state.
-        Eigen::Matrix< StateScalarType, 6, 1 > currentCartesianState;
-        Eigen::Matrix< StateScalarType, 7, 1 > currentUnifiedStateModelState;
-
         // Convert state to USM7 for each body
         for( unsigned int i = 0; i < this->bodiesToBeIntegratedNumerically_.size( ); i++ )
         {
-            currentCartesianState = cartesianSolution.block( i * 6, 0, 6, 1 );
-            currentUnifiedStateModelState =
-                    orbital_element_conversions::convertCartesianToUnifiedStateModelWithQuaternionsElements< StateScalarType >(
-                        currentCartesianState, static_cast< StateScalarType >(
-                            centralBodyGravitationalParameters_.at( i )( ) ) );
-            currentState.segment( i * 7, 7 ) = currentUnifiedStateModelState;
+            currentState.segment( i * 7, 7 ) = orbital_element_conversions::convertCartesianToUnifiedStateModelWithQuaternionsElements(
+                        cartesianSolution.block( i * 6, 0, 6, 1 ), static_cast< StateScalarType >(
+                            centralBodyGravitationalParameters_.at( i )( ) ) );;
         }
 
         return currentState;
-
     }
 
     //! Function to convert the USM7 states of the bodies to the conventional form.
@@ -214,7 +207,6 @@ public:
             Eigen::Block< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > currentCartesianLocalSoluton )
     {
         Eigen::Matrix< StateScalarType, 4, 1 > quaternions;
-        Eigen::Matrix< StateScalarType, 6, 1 > currentCartesianState;
         Eigen::Matrix< StateScalarType, 7, 1 > currentUnifiedStateModelState;
 
         // Convert state to Cartesian for each body
@@ -228,11 +220,10 @@ public:
             currentUnifiedStateModelState.segment( 0, 3 ) = internalSolution.block( i * 7, 0, 3, 1 );
             currentUnifiedStateModelState.segment( 3, 4 ) = quaternions;
 
-            currentCartesianState =
-                    orbital_element_conversions::convertUnifiedStateModelWithQuaternionsToCartesianElements< StateScalarType >(
+            currentCartesianLocalSoluton.segment( i * 6, 6 ) =
+                    orbital_element_conversions::convertUnifiedStateModelWithQuaternionsToCartesianElements(
                         currentUnifiedStateModelState, static_cast< StateScalarType >(
                             centralBodyGravitationalParameters_.at( i )( ) ) );
-            currentCartesianLocalSoluton.segment( i * 6, 6 ) = currentCartesianState;
         }
 
         currentCartesianLocalSoluton_ = currentCartesianLocalSoluton;
