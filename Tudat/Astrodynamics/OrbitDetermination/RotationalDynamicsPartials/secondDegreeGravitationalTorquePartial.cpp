@@ -37,6 +37,41 @@ Eigen::Matrix< double, 3, 4 > getPartialDerivativeOfSecondDegreeGravitationalTor
     return premultiplier * scalingMatrix * partialOfBodyFixedPositionWrtQuaternion;
 }
 
+std::pair< boost::function< void( Eigen::MatrixXd& ) >, int >
+SecondDegreeGravitationalTorquePartial::getParameterPartialFunction(
+        boost::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter )
+{
+    std::pair< boost::function< void( Eigen::MatrixXd& ) >, int > partialFunctionPair;
+
+    // Check dependencies.
+    if( parameter->getParameterName( ).first ==  estimatable_parameters::gravitational_parameter && (
+                parameter->getParameterName( ).second.first == bodyExertingTorque_ ) )
+    {
+        // If parameter is gravitational parameter, check and create dependency function .
+        partialFunctionPair = std::make_pair(
+                    boost::bind( &SecondDegreeGravitationalTorquePartial::wrtGravitationalParameterOfCentralBody,
+                                       this, _1 ), 1 );
+    }
+    else
+    {
+        partialFunctionPair = std::make_pair( boost::function< void( Eigen::MatrixXd& ) >( ), 0 );
+    }
+
+    return partialFunctionPair;
+}
+
+//! Function to calculate central gravity partial w.r.t. central body gravitational parameter
+void SecondDegreeGravitationalTorquePartial::wrtGravitationalParameterOfCentralBody(
+        Eigen::MatrixXd& gravitationalParameterPartial )
+{
+    if( torqueModel_->getCurrentGravitationalParameterOfAttractingBody( ) == 0.0 )
+    {
+        throw std::runtime_error( "Error when calculating partial of SecondDegreeGravitationalTorquePartial w.r.t. mu: mu=0." );
+    }
+    gravitationalParameterPartial =
+            torqueModel_->getTorque( ) / torqueModel_->getCurrentGravitationalParameterOfAttractingBody( );
+}
+
 
 }
 
