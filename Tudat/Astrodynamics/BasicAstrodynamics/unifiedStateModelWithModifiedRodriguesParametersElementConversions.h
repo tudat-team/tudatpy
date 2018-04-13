@@ -42,9 +42,10 @@ namespace orbital_element_conversions
  *         convertedUnifiedStateModelElements( 2 ) = Rf1 hodograph element,                         [m/s]
  *         convertedUnifiedStateModelElements( 3 ) = sigma1 modified rodrigues parameters element,    [-]
  *         convertedUnifiedStateModelElements( 4 ) = sigma2 modified rodrigues parameters element,    [-]
- *         convertedUnifiedStateModelElements( 5 ) = sigma3 modified rodrigues parameters element.    [-]
+ *         convertedUnifiedStateModelElements( 5 ) = sigma3 modified rodrigues parameters element,    [-]
+ *         convertedUnifiedStateModelElements( 6 ) = shadow modified rodrigues parameters flag.       [-]
  */
-Eigen::Matrix< double, 6, 1 > convertKeplerianToUnifiedStateModelWithModifiedRodriguesParametersElements(
+Eigen::Matrix< double, 7, 1 > convertKeplerianToUnifiedStateModelWithModifiedRodriguesParametersElements(
         const Eigen::Matrix< double, 6, 1 >& keplerianElements,
         const double centralBodyGravitationalParameter );
 
@@ -59,6 +60,7 @@ Eigen::Matrix< double, 6, 1 > convertKeplerianToUnifiedStateModelWithModifiedRod
  *         unifiedStateModelElements( 3 ) = sigma1 modified rodrigues parameters element,       [-]
  *         unifiedStateModelElements( 4 ) = sigma2 modified rodrigues parameters element,       [-]
  *         unifiedStateModelElements( 5 ) = sigma3 modified rodrigues parameters element.       [-]
+ *         unifiedStateModelElements( 6 ) = shadow modified rodrigues parameters flag.          [-]
  * \param centralBodyGravitationalParameter Gravitational parameter of central body.      [m^3/s^2]
  * \return convertedKeplerianElements Converted state in Keplerian elements. The order of elements is fixed!
  *         convertedKeplerianElements( 0 ) = semi-major axis,                                   [m]
@@ -69,7 +71,7 @@ Eigen::Matrix< double, 6, 1 > convertKeplerianToUnifiedStateModelWithModifiedRod
  *         convertedKeplerianElements( 5 ) = true anomaly.                                    [rad]
  */
 Eigen::Matrix< double, 6, 1 > convertUnifiedStateModelWithModifiedRodriguesParametersToKeplerianElements(
-        const Eigen::Matrix< double, 6, 1 >& unifiedStateModelElements,
+        const Eigen::Matrix< double, 7, 1 >& unifiedStateModelElements,
         const double centralBodyGravitationalParameter );
 
 //! Convert Cartesian elements to unified state model elements with modified rodrigues parameters.
@@ -90,10 +92,12 @@ Eigen::Matrix< double, 6, 1 > convertUnifiedStateModelWithModifiedRodriguesParam
  *         convertedUnifiedStateModelElements( 2 ) = Rf1 hodograph element,                         [m/s]
  *         convertedUnifiedStateModelElements( 3 ) = sigma1 modified rodrigues parameters element,    [-]
  *         convertedUnifiedStateModelElements( 4 ) = sigma2 modified rodrigues parameters element,    [-]
- *         convertedUnifiedStateModelElements( 5 ) = sigma3 modified rodrigues parameters element.    [-]
+ *         convertedUnifiedStateModelElements( 5 ) = sigma3 modified rodrigues parameters element,    [-]
+ *         convertedUnifiedStateModelElements( 6 ) = shadow modified rodrigues parameters flag.       [-]
+
  */
 template< typename ScalarType = double >
-Eigen::Matrix< ScalarType, 6, 1 > convertCartesianToUnifiedStateModelWithModifiedRodriguesParametersElements(
+Eigen::Matrix< ScalarType, 7, 1 > convertCartesianToUnifiedStateModelWithModifiedRodriguesParametersElements(
         const Eigen::Matrix< ScalarType, 6, 1 >& cartesianElements,
         const ScalarType centralBodyGravitationalParameter )
 {
@@ -112,12 +116,13 @@ Eigen::Matrix< ScalarType, 6, 1 > convertCartesianToUnifiedStateModelWithModifie
 * Converts unified state model elements with modified rodrigues parameters to Cartesian elements.
 * \param unifiedStateModelElements Vector containing unified state model elements with modified rodrigues parameters.
 *        Order of elements is important!
- *         unifiedStateModelElements( 0 ) = C hodograph element,                              [m/s]
- *         unifiedStateModelElements( 1 ) = Rf1 hodograph element,                            [m/s]
- *         unifiedStateModelElements( 2 ) = Rf1 hodograph element,                            [m/s]
- *         unifiedStateModelElements( 3 ) = sigma1 modified rodrigues parameters element,       [-]
- *         unifiedStateModelElements( 4 ) = sigma2 modified rodrigues parameters element,       [-]
- *         unifiedStateModelElements( 5 ) = sigma3 modified rodrigues parameters element.       [-]
+ *         unifiedStateModelElements( 0 ) = C hodograph element,                             [m/s]
+ *         unifiedStateModelElements( 1 ) = Rf1 hodograph element,                           [m/s]
+ *         unifiedStateModelElements( 2 ) = Rf1 hodograph element,                           [m/s]
+ *         unifiedStateModelElements( 3 ) = sigma1 modified rodrigues parameters element,      [-]
+ *         unifiedStateModelElements( 4 ) = sigma2 modified rodrigues parameters element,      [-]
+ *         unifiedStateModelElements( 5 ) = sigma3 modified rodrigues parameters element.      [-]
+ *         unifiedStateModelElements( 6 ) = shadow modified rodrigues parameters flag.         [-]
 * \param centralBodyGravitationalParameter Gravitational parameter of central body.      [m^3/s^2]
 * \return convertedCartesianElements Converted state in Cartesian elements. The order of elements is fixed!
  *         convertedCartesianElements( 0 ) = x-position coordinate,                            [m]
@@ -129,12 +134,9 @@ Eigen::Matrix< ScalarType, 6, 1 > convertCartesianToUnifiedStateModelWithModifie
 */
 template< typename ScalarType = double >
 Eigen::Matrix< ScalarType, 6, 1 > convertUnifiedStateModelWithModifiedRodriguesParametersToCartesianElements(
-        const Eigen::Matrix< ScalarType, 6, 1 >& unifiedStateModelElements,
+        const Eigen::Matrix< ScalarType, 7, 1 >& unifiedStateModelElements,
         const ScalarType centralBodyGravitationalParameter )
 {
-    // Declaring eventual output vector.
-    Eigen::Matrix< ScalarType, 6, 1 > convertedCartesianElements = Eigen::Matrix< ScalarType, 6, 1 >::Zero( );
-
     // Convert unified state model with modified rodrigues parameters to Keplerian elements.
     Eigen::Matrix< ScalarType, 6, 1 > convertedKeplerianElements =
             convertUnifiedStateModelWithModifiedRodriguesParametersToKeplerianElements(
@@ -142,7 +144,7 @@ Eigen::Matrix< ScalarType, 6, 1 > convertUnifiedStateModelWithModifiedRodriguesP
                 centralBodyGravitationalParameter ).template cast< ScalarType >( );
 
     // Convert Keplerian elements to Cartesian elements.
-    return convertedCartesianElements = convertKeplerianToCartesianElements(
+    return convertKeplerianToCartesianElements(
                 convertedKeplerianElements, centralBodyGravitationalParameter );
 }
 

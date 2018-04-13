@@ -31,14 +31,14 @@ namespace orbital_element_conversions
 {
 
 //! Convert Keplerian elements to unified state model elements with modified rodrigues parameters.
-Eigen::Vector6d convertKeplerianToUnifiedStateModelWithModifiedRodriguesParametersElements(
+Eigen::Vector7d convertKeplerianToUnifiedStateModelWithModifiedRodriguesParametersElements(
         const Eigen::Vector6d& keplerianElements,
         const double centralBodyGravitationalParameter )
 {
     using mathematical_constants::PI;
 
     // Declaring eventual output vector.
-    Eigen::Vector6d convertedUnifiedStateModelElements = Eigen::Vector6d::Zero( );
+    Eigen::Vector7d convertedUnifiedStateModelElements = Eigen::Vector7d::Zero( );
 
     // Define the tolerance of a singularity
     double singularityTolerance = 20.0 * std::numeric_limits< double >::epsilon( );
@@ -201,32 +201,33 @@ Eigen::Vector6d convertKeplerianToUnifiedStateModelWithModifiedRodriguesParamete
             std::cos( 0.5 * rightAscensionOfLatitude );
 
     // Check for singularity
+    convertedUnifiedStateModelElements( shadowModifiedRodriguesParameterFlagIndex ) = false; // standard value
     if ( std::fabs( denominator ) < singularityTolerance )
     {
-        // If denominator is zero, the modified rodrigues parameters vector is the zero vector
-        convertedUnifiedStateModelElements.segment( sigma1ModifiedRodriguesParameterIndex, 3 ) =
-                Eigen::Vector3d::Zero( );
+        // If denominator is zero, switch to the shadow modified rodrigues parameters (SMRP)
+        convertedUnifiedStateModelElements( shadowModifiedRodriguesParameterFlagIndex ) = true;
+
+        // Redefine denominator
+        denominator -= 2.0;
     }
-    else
-    {
-        // Find the common multiplication factor to the vector elements
-        double multiplicationFactor = 1.0 / denominator;
 
-        // Compute the sigma1 modified rodrigues parameters of the unified state model
-        convertedUnifiedStateModelElements( sigma1ModifiedRodriguesParameterIndex ) =
-                multiplicationFactor * std::sin( 0.5 * keplerianElements( inclinationIndex ) ) *
-                std::cos( 0.5 * ( keplerianElements( longitudeOfAscendingNodeIndex ) - argumentOfLatitude ) );
+    // Find the common multiplication factor to the vector elements
+    double multiplicationFactor = 1.0 / denominator;
 
-        // Compute the sigma2 modified rodrigues parameters of the unified state model
-        convertedUnifiedStateModelElements( sigma2ModifiedRodriguesParameterIndex ) =
-                multiplicationFactor * std::sin( 0.5 * keplerianElements( inclinationIndex ) ) *
-                std::sin( 0.5 * ( keplerianElements( longitudeOfAscendingNodeIndex ) - argumentOfLatitude ) );
+    // Compute the sigma1 modified rodrigues parameters of the unified state model
+    convertedUnifiedStateModelElements( sigma1ModifiedRodriguesParameterIndex ) =
+            multiplicationFactor * std::sin( 0.5 * keplerianElements( inclinationIndex ) ) *
+            std::cos( 0.5 * ( keplerianElements( longitudeOfAscendingNodeIndex ) - argumentOfLatitude ) );
 
-        // Compute the sigma3 modified rodrigues parameters of the unified state model
-        convertedUnifiedStateModelElements( sigma3ModifiedRodriguesParameterIndex ) =
-                multiplicationFactor * std::cos( 0.5 * keplerianElements( inclinationIndex ) ) *
-                std::sin( 0.5 * rightAscensionOfLatitude );
-    }
+    // Compute the sigma2 modified rodrigues parameters of the unified state model
+    convertedUnifiedStateModelElements( sigma2ModifiedRodriguesParameterIndex ) =
+            multiplicationFactor * std::sin( 0.5 * keplerianElements( inclinationIndex ) ) *
+            std::sin( 0.5 * ( keplerianElements( longitudeOfAscendingNodeIndex ) - argumentOfLatitude ) );
+
+    // Compute the sigma3 modified rodrigues parameters of the unified state model
+    convertedUnifiedStateModelElements( sigma3ModifiedRodriguesParameterIndex ) =
+            multiplicationFactor * std::cos( 0.5 * keplerianElements( inclinationIndex ) ) *
+            std::sin( 0.5 * rightAscensionOfLatitude );
 
     // Give back result
     return convertedUnifiedStateModelElements;
@@ -234,7 +235,7 @@ Eigen::Vector6d convertKeplerianToUnifiedStateModelWithModifiedRodriguesParamete
 
 //! Convert unified state model elements with modified rodrigues parameters to Keplerian elements.
 Eigen::Vector6d convertUnifiedStateModelWithModifiedRodriguesParametersToKeplerianElements(
-        const Eigen::Vector6d& unifiedStateModelElements,
+        const Eigen::Vector7d& unifiedStateModelElements,
         const double centralBodyGravitationalParameter )
 {
     using mathematical_constants::PI;
@@ -245,8 +246,11 @@ Eigen::Vector6d convertUnifiedStateModelWithModifiedRodriguesParametersToKepleri
     // Define the tolerance of a singularity
     double singularityTolerance = 20.0 * std::numeric_limits< double >::epsilon( );
 
+    // Set flag to shadow or non-shadow
+    bool shadowFlag = unifiedStateModelElements( shadowModifiedRodriguesParameterFlagIndex );
+
     // Compute auxiliary parameters
-    Eigen::Vector3d modifiedRodriguesParametersVector = unifiedStateModelElements.segment( 3, 3 );
+    Eigen::Vector3d modifiedRodriguesParametersVector = unifiedStateModelElements.segment( sigma1ModifiedRodriguesParameterIndex, 3 );
     double modifiedRodriguesParametersMagnitude = modifiedRodriguesParametersVector.norm( ); // magnitude of modified rodrigues parameters, also called sigma
 
     // Precompute oftenly used variables
@@ -259,9 +263,11 @@ Eigen::Vector6d convertUnifiedStateModelWithModifiedRodriguesParametersToKepleri
 
     // Compute right ascension of latitude
     double rightAscensionOfLatitude = 0.0;
-    if ( modifiedRodriguesParametersMagnitude < singularityTolerance )
+    bool singularConditionMet = shadowFlag ? std::fabs( modifiedRodriguesParametersMagnitude - 2.0 * PI ) < singularityTolerance :
+                                             modifiedRodriguesParametersMagnitude < singularityTolerance;
+    if ( singularConditionMet )
     {
-        // When modified rodrigues parameters is zero, all Keplerian angles are also zero
+        // When the modified rodrigues parameter vector is zero, all Keplerian angles are also zero
         convertedKeplerianElements( inclinationIndex ) = 0.0;
         convertedKeplerianElements( argumentOfPeriapsisIndex ) = 0.0;
         convertedKeplerianElements( longitudeOfAscendingNodeIndex ) = 0.0;
@@ -273,13 +279,14 @@ Eigen::Vector6d convertUnifiedStateModelWithModifiedRodriguesParametersToKepleri
     else
     {
         // Find lambda
-        double denominator = 4.0 * modifiedRodriguesParametersVector( sigma3ModifiedRodriguesParameterIndex - 3 ) +
-                onePlusModifiedRodriguesParametersMagnitudeSquaredSquared;
+        double denominator = 4.0 * std::pow( modifiedRodriguesParametersVector( 2 ), 2 ) +
+                oneMinusModifiedRodriguesParametersMagnitudeSquaredSquared;
         rightAscensionOfLatitude =
-                std::atan2( 4.0 * modifiedRodriguesParametersVector( sigma3ModifiedRodriguesParameterIndex - 3 ) *
-                            oneMinusModifiedRodriguesParametersMagnitudeSquaredSquared / denominator,
-                            oneMinusModifiedRodriguesParametersMagnitudeSquaredSquared / denominator *
-                            4.0 * modifiedRodriguesParametersVector( sigma3ModifiedRodriguesParameterIndex - 3 ) );
+                std::atan2( 4.0 * modifiedRodriguesParametersVector( 2 ) *
+                            ( 1.0 - modifiedRodriguesParametersMagnitudeSquared ) / denominator,
+                            ( oneMinusModifiedRodriguesParametersMagnitudeSquaredSquared -
+                              4.0 * std::pow( modifiedRodriguesParametersVector( 2 ), 2 ) ) /
+                            denominator );
     }
 
     // Trigonometric values of right ascension of latitude
@@ -329,21 +336,21 @@ Eigen::Vector6d convertUnifiedStateModelWithModifiedRodriguesParametersToKepleri
     {
         // Compute inclination
         convertedKeplerianElements( inclinationIndex ) =
-                std::acos( ( 4.0 * ( std::pow( modifiedRodriguesParametersVector( sigma3ModifiedRodriguesParameterIndex - 3 ), 2 ) -
-                                     std::pow( modifiedRodriguesParametersVector( sigma1ModifiedRodriguesParameterIndex - 3 ), 2 ) -
-                                     std::pow( modifiedRodriguesParametersVector( sigma2ModifiedRodriguesParameterIndex - 3 ), 2 ) ) +
+                std::acos( ( 4.0 * ( std::pow( modifiedRodriguesParametersVector( 2 ), 2 ) -
+                                     std::pow( modifiedRodriguesParametersVector( 0 ), 2 ) -
+                                     std::pow( modifiedRodriguesParametersVector( 1 ), 2 ) ) +
                              oneMinusModifiedRodriguesParametersMagnitudeSquaredSquared ) /
                            onePlusModifiedRodriguesParametersMagnitudeSquaredSquared );
         // this acos is always defined correctly because the inclination is always below pi rad
 
         // Find sine and cosine of longitude of ascending node separately
-        double sineOmega = 8.0 * modifiedRodriguesParametersVector( sigma1ModifiedRodriguesParameterIndex - 3 ) *
-                modifiedRodriguesParametersVector( sigma3ModifiedRodriguesParameterIndex - 3 ) +
-                4.0 * modifiedRodriguesParametersVector( sigma2ModifiedRodriguesParameterIndex - 3 ) *
+        double sineOmega = 8.0 * modifiedRodriguesParametersVector( 0 ) *
+                modifiedRodriguesParametersVector( 2 ) +
+                4.0 * modifiedRodriguesParametersVector( 1 ) *
                 oneMinusModifiedRodriguesParametersMagnitudeSquaredSquared;
-        double cosineOmega = - 8.0 * modifiedRodriguesParametersVector( sigma2ModifiedRodriguesParameterIndex - 3 ) *
-                modifiedRodriguesParametersVector( sigma3ModifiedRodriguesParameterIndex - 3 ) +
-                4.0 * modifiedRodriguesParametersVector( sigma1ModifiedRodriguesParameterIndex - 3 ) *
+        double cosineOmega = - 8.0 * modifiedRodriguesParametersVector( 1 ) *
+                modifiedRodriguesParametersVector( 2 ) +
+                4.0 * modifiedRodriguesParametersVector( 0 ) *
                 oneMinusModifiedRodriguesParametersMagnitudeSquaredSquared;
         double denominator = std::sqrt( cosineOmega * cosineOmega +
                                         sineOmega * sineOmega );
