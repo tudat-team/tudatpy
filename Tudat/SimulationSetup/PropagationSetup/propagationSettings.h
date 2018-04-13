@@ -662,7 +662,8 @@ public:
 
     int getPropagatedStateSize( )
     {
-        return ( propagator_ == unified_state_model_quaternions ) ?
+        return ( propagator_ == unified_state_model_quaternions ||
+                 propagator_ == unified_state_model_modified_rodrigues_parameters ) ?
                     ( this->stateSize_ + bodiesToIntegrate_.size( ) ) : this->stateSize_;
     }
 
