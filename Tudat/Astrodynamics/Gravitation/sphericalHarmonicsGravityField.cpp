@@ -164,6 +164,32 @@ Eigen::Matrix3d getInertiaTensor(
     }
 }
 
+std::pair< Eigen::Matrix3d, Eigen::Matrix3d > getDegreeTwoSphericalHarmonicCoefficients(
+        const Eigen::Matrix3d inertiaTensor, const double bodyGravitationalParameter, const double referenceRadius,
+        const bool useNormalizedCoefficients )
+{
+    double scalingTerm = bodyGravitationalParameter * referenceRadius * referenceRadius /
+            physical_constants::GRAVITATIONAL_CONSTANT;
+
+    Eigen::MatrixXd cosineCoefficients = Eigen::Matrix3d::Zero( 3, 3 );
+    cosineCoefficients( 0, 0 ) = 1.0;
+    Eigen::MatrixXd sineCoefficients = Eigen::Matrix3d::Zero( 3, 3 );
+
+    cosineCoefficients( 2, 0 ) = ( 0.5 * inertiaTensor( 0, 0 ) + 0.5 * inertiaTensor( 1, 1 ) - inertiaTensor( 2, 2 ) ) / scalingTerm;
+    cosineCoefficients( 2, 2 ) = ( -0.25 * inertiaTensor( 0, 0 ) + 0.25 * inertiaTensor( 1, 1 ) ) / scalingTerm;
+    cosineCoefficients( 2, 1 ) = -inertiaTensor( 2, 0 ) / scalingTerm;
+    sineCoefficients( 2, 1 ) = -inertiaTensor( 2, 1 ) / scalingTerm;
+    sineCoefficients( 2, 2 ) = -0.5 * inertiaTensor( 1, 0 ) / scalingTerm;
+
+    if( useNormalizedCoefficients )
+    {
+        basic_mathematics::geodesyNormalizeUnnormalizedCoefficients(
+                    cosineCoefficients, sineCoefficients );
+    }
+
+    return std::make_pair( cosineCoefficients, sineCoefficients );
+}
+
 } // namespace gravitation
 
 } // namespace tudat

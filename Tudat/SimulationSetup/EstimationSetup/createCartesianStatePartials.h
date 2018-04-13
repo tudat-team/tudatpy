@@ -162,8 +162,6 @@ RotationMatrixPartialNamedList createRotationMatrixPartials(
         const std::string& bodyName, const simulation_setup::NamedBodyMap& bodyMap )
 
 {
-
-
     //std::vector< boost::shared_ptr< EstimatableParameter< Eigen:: > > >
     //getEstimatedInitialStateParameters( )
 

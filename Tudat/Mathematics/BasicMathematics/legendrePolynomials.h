@@ -667,6 +667,10 @@ void convertGeodesyNormalizedToUnnormalizedCoefficients(
         Eigen::MatrixXd& unnormalizedCosineCoefficients,
         Eigen::MatrixXd& unnormalizedSineCoefficients );
 
+void geodesyNormalizeUnnormalizedCoefficients(
+        Eigen::MatrixXd& cosineCoefficients,
+        Eigen::MatrixXd& sineCoefficients );
+
 } // namespace basic_mathematics
 } // namespace tudat
 

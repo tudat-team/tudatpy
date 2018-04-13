@@ -412,6 +412,16 @@ public:
      */
     Eigen::Vector6d getState( ) { return currentState_; }
 
+    Eigen::Vector7d getRotationalStateVector( )
+    {
+        Eigen::Vector7d rotationalStateVector;
+
+        rotationalStateVector.segment( 0, 4 ) =
+                linear_algebra::convertQuaternionToVectorFormat( Eigen::Quaterniond( currentRotationToLocalFrame_.inverse( ) ) );
+        rotationalStateVector.segment( 4, 3 ) = currentRotationToLocalFrame_ * currentAngularVelocityVectorInGlobalFrame_;
+        return rotationalStateVector;
+    }
+
     //! Get current position.
     /*!
      * Returns the internally stored current position vector.

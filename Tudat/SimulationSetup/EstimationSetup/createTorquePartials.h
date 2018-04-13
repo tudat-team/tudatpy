@@ -45,7 +45,7 @@ boost::shared_ptr< acceleration_partials::TorquePartial > createAnalyticalTorque
         boost::shared_ptr< basic_astrodynamics::TorqueModel > torqueModel,
         const std::pair< std::string, boost::shared_ptr< simulation_setup::Body > > acceleratedBody,
         const std::pair< std::string, boost::shared_ptr< simulation_setup::Body > > acceleratingBody,
-        const simulation_setup::NamedBodyMap& bodyMap,
+        const simulation_setup::NamedBodyMap& bodyMap = simulation_setup::NamedBodyMap( ),
         const boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< InitialStateParameterType > >
         parametersToEstimate =
         boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< InitialStateParameterType > >( ) )

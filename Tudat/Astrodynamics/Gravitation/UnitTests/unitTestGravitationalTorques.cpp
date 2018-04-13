@@ -241,6 +241,7 @@ BOOST_AUTO_TEST_CASE( testSphericalGravitationalTorque )
         std::map< std::string, boost::shared_ptr< BodySettings > > bodySettings =
                 getDefaultBodySettings( bodiesToCreate );
 
+
         if( testCase == 0 )
         {
             Eigen::Matrix3d cosineCoefficients = Eigen::Matrix3d::Zero( );
@@ -273,6 +274,34 @@ BOOST_AUTO_TEST_CASE( testSphericalGravitationalTorque )
         bodyMap.at( "Moon" )->setStateFromEphemeris( evaluationTime );
         bodyMap.at( "Moon" )->setCurrentRotationalStateToLocalFrameFromEphemeris( evaluationTime );
         bodyMap.at( "Moon" )->setBodyInertiaTensorFromGravityField( 0.0 );
+
+        // Test back
+        {
+            Eigen::Matrix3d moonCosineCoefficients =
+                    boost::dynamic_pointer_cast< tudat::gravitation::SphericalHarmonicsGravityField >(
+                        bodyMap.at( "Moon" )->getGravityFieldModel( ) )->getCosineCoefficients( );
+            Eigen::Matrix3d moonSineCoefficients =
+                    boost::dynamic_pointer_cast< tudat::gravitation::SphericalHarmonicsGravityField >(
+                        bodyMap.at( "Moon" )->getGravityFieldModel( ) )->getSineCoefficients( );
+
+            std::pair< Eigen::Matrix3d, Eigen::Matrix3d > moonGravityFieldCoefficients =
+                    gravitation::getDegreeTwoSphericalHarmonicCoefficients(
+                        bodyMap.at( "Moon" )->getBodyInertiaTensor( ),
+                        bodyMap.at( "Moon" )->getGravityFieldModel( )->getGravitationalParameter( ),
+                        boost::dynamic_pointer_cast< SphericalHarmonicsGravityField >(
+                            bodyMap.at( "Moon" )->getGravityFieldModel( ) )->getReferenceRadius( ), true );
+            for( unsigned int j = 0; j < 3; j++ )
+            {
+                for( unsigned int k = 0; k <= j; k++ )
+                {
+                    BOOST_CHECK_SMALL( std::fabs( moonGravityFieldCoefficients.first( j, k ) -
+                                                  moonCosineCoefficients( j, k ) ), 1.0E-20 );
+
+                    BOOST_CHECK_SMALL( std::fabs( moonGravityFieldCoefficients.second( j, k ) -
+                                                  moonSineCoefficients( j, k ) ), 1.0E-20 );
+                }
+            }
+        }
 
         bodyMap.at( "Earth" )->setStateFromEphemeris( evaluationTime );
         bodyMap.at( "Earth" )->setCurrentRotationalStateToLocalFrameFromEphemeris( evaluationTime );
