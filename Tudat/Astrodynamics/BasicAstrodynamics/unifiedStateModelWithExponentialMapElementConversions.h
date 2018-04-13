@@ -132,9 +132,6 @@ Eigen::Matrix< ScalarType, 6, 1 > convertUnifiedStateModelWithExponentialMapToCa
         const Eigen::Matrix< ScalarType, 6, 1 >& unifiedStateModelElements,
         const ScalarType centralBodyGravitationalParameter )
 {
-    // Declaring eventual output vector.
-    Eigen::Matrix< ScalarType, 6, 1 > convertedCartesianElements = Eigen::Matrix< ScalarType, 6, 1 >::Zero( );
-
     // Convert unified state model with exponential map to Keplerian elements.
     Eigen::Matrix< ScalarType, 6, 1 > convertedKeplerianElements =
             convertUnifiedStateModelWithExponentialMapToKeplerianElements(
@@ -142,7 +139,7 @@ Eigen::Matrix< ScalarType, 6, 1 > convertUnifiedStateModelWithExponentialMapToCa
                 centralBodyGravitationalParameter ).template cast< ScalarType >( );
 
     // Convert Keplerian elements to Cartesian elements.
-    return convertedCartesianElements = convertKeplerianToCartesianElements(
+    return convertKeplerianToCartesianElements(
                 convertedKeplerianElements, centralBodyGravitationalParameter );
 }
 
