@@ -82,7 +82,8 @@ enum UnifiedStateModelWithModifiedRodriguesParametersElementIndices
     Rf2HodographModifiedRodriguesParameterIndex = 2,
     sigma1ModifiedRodriguesParameterIndex = 3,
     sigma2ModifiedRodriguesParameterIndex = 4,
-    sigma3ModifiedRodriguesParameterIndex = 5
+    sigma3ModifiedRodriguesParameterIndex = 5,
+    shadowModifiedRodriguesParameterFlagIndex = 6
 };
 
 //! Unified state model with exponential map indices.
