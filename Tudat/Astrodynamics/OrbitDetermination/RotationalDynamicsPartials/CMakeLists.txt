@@ -24,6 +24,11 @@ setup_tudat_library_target(tudat_torque_partials "${SRCROOT}{TORQUEPARTIALSDIR}"
 
 if(USE_CSPICE)
 
+    # Add unit tests
+    add_executable(test_TorquePartials "${SRCROOT}${TORQUEPARTIALSDIR}/UnitTests/unitTestTorquePartials.cpp")
+    setup_custom_test_program(test_TorquePartials "${SRCROOT}${TORQUEPARTIALSDIR}")
+    target_link_libraries(test_TorquePartials ${TUDAT_ESTIMATION_LIBRARIES} ${Boost_LIBRARIES})
+
 endif( )
 
 

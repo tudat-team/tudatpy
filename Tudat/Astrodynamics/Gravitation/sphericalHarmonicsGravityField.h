@@ -374,6 +374,10 @@ Eigen::Matrix3d getInertiaTensor(
         const boost::shared_ptr< SphericalHarmonicsGravityField > sphericalHarmonicGravityField,
         const double scaledMeanMomentOfInertia );
 
+std::pair< Eigen::Matrix3d, Eigen::Matrix3d > getDegreeTwoSphericalHarmonicCoefficients(
+        const Eigen::Matrix3d inertiaTensor, const double bodyGravitationalParameter, const double referenceRadius,
+        const bool useNormalizedCoefficients );
+
 
 } // namespace gravitation
 

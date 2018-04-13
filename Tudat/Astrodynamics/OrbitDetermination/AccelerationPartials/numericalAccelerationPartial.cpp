@@ -81,6 +81,65 @@ Eigen::Matrix3d calculateAccelerationWrtStatePartials(
     return accelerationPartials;
 }
 
+Eigen::MatrixXd calculateTorqueWrtRotationalStatePartials(
+        boost::function< void( Eigen::Vector7d ) > setBodyRotationalState,
+        boost::shared_ptr< basic_astrodynamics::TorqueModel > torqueModel,
+        Eigen::Vector7d originalRotationalState,
+        Eigen::VectorXd statePerturbations,
+        int startIndex,
+        int numberOfEntries,
+        boost::function< void( ) > updateFunction,
+        const double evaluationTime )
+{
+    Eigen::MatrixXd upTorques = Eigen::MatrixXd::Zero( 3, numberOfEntries );
+    Eigen::MatrixXd downTorques = Eigen::MatrixXd::Zero( 3, numberOfEntries );
+
+    Eigen::Vector7d perturbedState = originalRotationalState;
+
+    torqueModel->resetTime( TUDAT_NAN );
+
+    // Calculate perturbed accelerations for up-perturbed state entries.
+    for( int i = 0; i < numberOfEntries; i++ )
+    {
+        perturbedState( i + startIndex ) += statePerturbations( i );
+        setBodyRotationalState( perturbedState );
+        updateFunction( );
+        upTorques.block( 0, i, 3, 1 ) = basic_astrodynamics::updateAndGetTorque(
+                    torqueModel, evaluationTime );
+        torqueModel->resetTime( TUDAT_NAN );
+        perturbedState = originalRotationalState;
+    }
+
+    // Calculate perturbed accelerations for down-perturbed state entries.
+    for( int i = 0; i < numberOfEntries; i++ )
+    {
+        perturbedState( i + startIndex ) -= statePerturbations( i );
+        setBodyRotationalState( perturbedState );
+        updateFunction( );
+        downTorques.block( 0, i, 3, 1 ) = basic_astrodynamics::updateAndGetTorque(
+                    torqueModel, evaluationTime );
+        torqueModel->resetTime( TUDAT_NAN );
+        perturbedState = originalRotationalState;
+    }
+
+
+    // Reset state/environment to original state.
+    setBodyRotationalState( perturbedState );
+    updateFunction( );
+
+    basic_astrodynamics::updateAndGetTorque(
+                        torqueModel, evaluationTime );
+
+    // Numerically compute partial derivatives.
+    Eigen::MatrixXd accelerationPartials = upTorques - downTorques;
+    for( int i = 0; i < numberOfEntries; i++ )
+    {
+        accelerationPartials.block( 0, i, 3, 1 ) /= ( 2.0 * statePerturbations( i ) );
+    }
+
+    return accelerationPartials;
+}
+
 //! Function to numerical compute the partial derivative of an acceleration w.r.t. a double parameter
 Eigen::Vector3d calculateAccelerationWrtParameterPartials(
         boost::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter,

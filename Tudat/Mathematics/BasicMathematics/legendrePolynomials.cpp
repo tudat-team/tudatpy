@@ -826,5 +826,22 @@ void convertGeodesyNormalizedToUnnormalizedCoefficients(
     }
 }
 
+void geodesyNormalizeUnnormalizedCoefficients(
+        Eigen::MatrixXd& cosineCoefficients,
+        Eigen::MatrixXd& sineCoefficients )
+{
+    double normalizationFactor;
+
+    for( unsigned degree = 0 ; degree < cosineCoefficients.rows( ); degree++ )
+    {
+        for( unsigned order = 0 ; ( order < sineCoefficients.cols( ) && order <= degree ); order++ )
+        {
+            normalizationFactor = calculateLegendreGeodesyNormalizationFactor( degree, order );
+            cosineCoefficients( degree, order ) /=  normalizationFactor;
+            sineCoefficients( degree, order ) /=  normalizationFactor;
+        }
+    }
+}
+
 } // namespace basic_mathematics
 } // namespace tudat

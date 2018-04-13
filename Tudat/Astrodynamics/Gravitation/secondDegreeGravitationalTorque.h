@@ -121,10 +121,15 @@ public:
                 3.0 * currentGravitationalParameterOfAttractingBody_ / std::pow(
                     currentRelativePositionOfBodySubjectToTorque_.norm( ), 5.0 );
 
-        currentTorque_ = currentInertiaTensorOfRotatingBody_.inverse( ) * calculateSecondDegreeGravitationalTorque(
+        currentTorque_ = calculateSecondDegreeGravitationalTorque(
                     currentRelativeBodyFixedPositionOfBodySubjectToTorque_,
                     currentTorqueMagnitudePremultiplier_,
                     currentInertiaTensorTimesRelativePositionOfBody_ );
+
+//        std::cout<<std::endl<<"Pos: "<<currentRelativeBodyFixedPositionOfBodySubjectToTorque_.transpose( )<<" "<<"Mult: "<<
+//                   currentTorqueMagnitudePremultiplier_<<" "<<"cross "<<
+//                   currentRelativeBodyFixedPositionOfBodySubjectToTorque_.cross( currentInertiaTensorTimesRelativePositionOfBody_ )<<" "<<
+//                   "torque "<<currentTorque_.transpose( )<<std::endl;
     }
 
     Eigen::Quaterniond getCurrentRotationToBodyFixedFrame( )

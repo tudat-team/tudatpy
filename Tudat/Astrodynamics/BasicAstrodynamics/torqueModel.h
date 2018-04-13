@@ -91,6 +91,9 @@ typedef std::map< std::string, std::vector< boost::shared_ptr< basic_astrodynami
 //! Typedef for list of torques acting on a set of bodies (map key is body undergoing torque).
 typedef std::map< std::string, SingleBodyTorqueModelMap > TorqueModelMap;
 
+Eigen::Vector3d updateAndGetTorque(
+        const boost::shared_ptr< TorqueModel > torqueModel,
+        const double currentTime = TUDAT_NAN );
 }
 
 }

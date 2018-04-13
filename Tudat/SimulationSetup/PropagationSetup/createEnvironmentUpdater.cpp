@@ -218,8 +218,25 @@ createRotationalEquationsOfMotionEnvironmentUpdaterSettings(
                 switch( currentTorqueModelType )
                 {
                 case second_order_gravitational_torque:
+                    singleTorqueUpdateNeeds[ body_translational_state_update ].push_back(
+                                torqueModelIterator->first );
+                    singleTorqueUpdateNeeds[ body_translational_state_update ].push_back(
+                                acceleratedBodyIterator->first );
                     break;
+                case spherical_harmonic_gravitational_torque:
+                    singleTorqueUpdateNeeds[ body_translational_state_update ].push_back(
+                                torqueModelIterator->first );
+                    singleTorqueUpdateNeeds[ body_translational_state_update ].push_back(
+                                acceleratedBodyIterator->first );
+                    singleTorqueUpdateNeeds[ spherical_harmonic_gravity_field_update ].push_back(
+                                acceleratedBodyIterator->first );
+                    break;
+
                 case aerodynamic_torque:
+                    singleTorqueUpdateNeeds[ body_translational_state_update ].push_back(
+                                torqueModelIterator->first );
+                    singleTorqueUpdateNeeds[ body_translational_state_update ].push_back(
+                                acceleratedBodyIterator->first );
                     singleTorqueUpdateNeeds[ body_rotational_state_update ].push_back(
                                 torqueModelIterator->first );
                     singleTorqueUpdateNeeds[ vehicle_flight_conditions_update ].push_back(

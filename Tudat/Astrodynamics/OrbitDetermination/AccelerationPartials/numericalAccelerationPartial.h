@@ -16,6 +16,7 @@
 #include <Eigen/Core>
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/accelerationModel.h"
+#include "Tudat/Astrodynamics/BasicAstrodynamics/torqueModel.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/estimatableParameter.h"
 #include "Tudat/Basics/basicTypedefs.h"
 
@@ -58,6 +59,16 @@ Eigen::Matrix3d calculateAccelerationWrtStatePartials(
         Eigen::Vector6d originalState,
         Eigen::Vector3d statePerturbation,
         int startIndex,
+        boost::function< void( ) > updateFunction = emptyFunction,
+        const double evaluationTime = TUDAT_NAN );
+
+Eigen::MatrixXd calculateTorqueWrtRotationalStatePartials(
+        boost::function< void( Eigen::Vector7d ) > setBodyRotationalState,
+        boost::shared_ptr< basic_astrodynamics::TorqueModel > torqueModel,
+        Eigen::Vector7d originalRotationalState,
+        Eigen::VectorXd statePerturbations,
+        int startIndex,
+        int numberOfEntries,
         boost::function< void( ) > updateFunction = emptyFunction,
         const double evaluationTime = TUDAT_NAN );
 

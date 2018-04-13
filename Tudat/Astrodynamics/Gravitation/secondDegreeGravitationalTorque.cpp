@@ -8,6 +8,8 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
+#include <iostream>
+
 #include "Tudat/Astrodynamics/Gravitation/secondDegreeGravitationalTorque.h"
 
 namespace tudat
@@ -22,6 +24,8 @@ Eigen::Vector3d calculateSecondDegreeGravitationalTorque(
         const double premultipler,
         const Eigen::Vector3d& inertiaTensorTimesRelativePositionOfBody )
 {
+//    std::cout<<"Torque "<<( premultipler *
+//               relativePositionOfBodySubjectToTorque.cross( inertiaTensorTimesRelativePositionOfBody ) ).transpose( )<<std::endl;
     return premultipler *
             relativePositionOfBodySubjectToTorque.cross( inertiaTensorTimesRelativePositionOfBody );
 }
