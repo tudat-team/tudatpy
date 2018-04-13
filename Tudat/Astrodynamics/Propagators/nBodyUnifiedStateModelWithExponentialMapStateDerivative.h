@@ -14,6 +14,7 @@
 #include "Tudat/Astrodynamics/Propagators/nBodyStateDerivative.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/stateRepresentationConversions.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/astrodynamicsFunctions.h"
+#include "Tudat/Mathematics/BasicMathematics/linearAlgebra.h"
 
 namespace tudat
 {
@@ -173,26 +174,20 @@ public:
             const Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >& cartesianSolution,
             const TimeType& time )
     {
+        // Subtract frame origin and Keplerian states from inertial state.
         Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > currentState =
                 Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >::Zero( cartesianSolution.rows( ) );
-
-        // Subtract frame origin and Keplerian states from inertial state.
-        Eigen::Matrix< StateScalarType, 6, 1 > currentCartesianState;
-        Eigen::Matrix< StateScalarType, 6, 1 > currentUnifiedStateModelState;
 
         // Convert state to USMEM for each body
         for( unsigned int i = 0; i < this->bodiesToBeIntegratedNumerically_.size( ); i++ )
         {
-            currentCartesianState = cartesianSolution.block( i * 6, 0, 6, 1 );
-            currentUnifiedStateModelState =
-                    orbital_element_conversions::convertCartesianToUnifiedStateModelWithExponentialMapElements< StateScalarType >(
-                        currentCartesianState, static_cast< StateScalarType >(
+            currentState.segment( i * 6, 6 ) =
+                    orbital_element_conversions::convertCartesianToUnifiedStateModelWithExponentialMapElements<
+                    StateScalarType >( cartesianSolution.block( i * 6, 0, 6, 1 ), static_cast< StateScalarType >(
                             centralBodyGravitationalParameters_.at( i )( ) ) );
-            currentState.segment( i * 6, 6 ) = currentUnifiedStateModelState;
         }
 
         return currentState;
-
     }
 
     //! Function to convert the USMEM states of the bodies to the conventional form.
@@ -216,7 +211,6 @@ public:
 
         Eigen::Matrix< StateScalarType, 3, 1 > exponentialMapVector;
         StateScalarType exponentialMapMagnitude;
-        Eigen::Matrix< StateScalarType, 6, 1 > currentCartesianState;
         Eigen::Matrix< StateScalarType, 6, 1 > currentUnifiedStateModelState;
 
         // Convert state to Cartesian for each body
@@ -232,13 +226,12 @@ public:
 
             // Get current solution
             currentUnifiedStateModelState.segment( 0, 3 ) = internalSolution.block( i * 6, 0, 3, 1 );
-            currentUnifiedStateModelState.segment( 3, 4 ) = exponentialMapVector;
+            currentUnifiedStateModelState.segment( 3, 3 ) = exponentialMapVector;
 
-            currentCartesianState =
+            currentCartesianLocalSoluton.segment( i * 6, 6 ) =
                     orbital_element_conversions::convertUnifiedStateModelWithExponentialMapToCartesianElements< StateScalarType >(
                         currentUnifiedStateModelState, static_cast< StateScalarType >(
                             centralBodyGravitationalParameters_.at( i )( ) ) );
-            currentCartesianLocalSoluton.segment( i * 6, 6 ) = currentCartesianState;
         }
 
         currentCartesianLocalSoluton_ = currentCartesianLocalSoluton;

@@ -254,7 +254,7 @@ Eigen::Vector6d convertUnifiedStateModelWithExponentialMapToKeplerianElements(
     double singularityTolerance = 20.0 * std::numeric_limits< double >::epsilon( );
 
     // Compute auxiliary parameters
-    Eigen::Vector3d exponentialMapVector = unifiedStateModelElements.segment( 3, 3 );
+    Eigen::Vector3d exponentialMapVector = unifiedStateModelElements.segment( e1ExponentialMapIndex, 3 );
     double exponentialMapMagnitude = exponentialMapVector.norm( ); // magnitude of exponential map, also called xi
     Eigen::Vector3d eulerEigenaxisVector = Eigen::Vector3d::Zero( ); // Euler eigenaxis vector (unit vector)
 

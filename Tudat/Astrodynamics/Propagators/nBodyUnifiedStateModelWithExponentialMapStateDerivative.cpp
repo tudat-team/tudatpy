@@ -73,13 +73,18 @@ Eigen::Vector6d computeStateDerivativeForUnifiedStateModelWithExponentialMap(
     }
     else
     {
-        Eigen::Vector3d exponentialMapCrossRotationalVelocityVector = exponentialMapVector.cross( rotationalVelocityVector );
         double cotangentHalfExponentialMapMagnitude = std::cos( 0.5 * exponentialMapMagnitude ) /
                 std::sin( 0.5 * exponentialMapMagnitude );
-        exponentialMapDerivative = ( rotationalVelocityVector + 0.5 * exponentialMapCrossRotationalVelocityVector +
-                                    ( 1 - 0.5 * exponentialMapMagnitude * cotangentHalfExponentialMapMagnitude ) /
-                                     std::pow( exponentialMapMagnitude, 2 ) *
-                                     exponentialMapVector.cross( exponentialMapCrossRotationalVelocityVector ) );
+        Eigen::Matrix3d skewExponentialMapVector = linear_algebra::getCrossProductMatrix( exponentialMapVector );
+        exponentialMapDerivative = ( Eigen::Matrix3d::Identity( ) + 0.5 * skewExponentialMapVector +
+                                     ( 1 - 0.5 * exponentialMapMagnitude * cotangentHalfExponentialMapMagnitude ) /
+                                     ( exponentialMapMagnitude * exponentialMapMagnitude ) * skewExponentialMapVector *
+                                     skewExponentialMapVector ) * rotationalVelocityVector;
+//        Eigen::Vector3d exponentialMapCrossRotationalVelocityVector = exponentialMapVector.cross( rotationalVelocityVector );
+//        exponentialMapDerivative = rotationalVelocityVector + 0.5 * exponentialMapCrossRotationalVelocityVector +
+//                ( 1 - 0.5 * exponentialMapMagnitude * cotangentHalfExponentialMapMagnitude ) /
+//                std::pow( exponentialMapMagnitude, 2 ) *
+//                exponentialMapVector.cross( exponentialMapCrossRotationalVelocityVector );
     }
 //    // REMOVE vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv REMOVE
 //    std::cout << "Exponential map vector: " << std::endl << exponentialMapVector << std::endl;
