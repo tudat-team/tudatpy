@@ -262,7 +262,7 @@ Eigen::Vector6d convertUnifiedStateModelWithModifiedRodriguesParametersToKepleri
     double modifiedRodriguesParametersMagnitude = modifiedRodriguesParametersVector.norm( );
     // magnitude of modified rodrigues parameters, also called sigma
 
-    // Precompute oftenly used variables
+    // Precompute often used variables
     // Note the for SMRP some variable names do not match their definitions
     double modifiedRodriguesParametersMagnitudeSquared =
             modifiedRodriguesParametersMagnitude * modifiedRodriguesParametersMagnitude;
@@ -291,7 +291,7 @@ Eigen::Vector6d convertUnifiedStateModelWithModifiedRodriguesParametersToKepleri
     }
     else
     {
-        // Find lambda
+        // Find lambda (independent on shadowing, since variables have been precomputed)
         double denominator = 4.0 * std::pow( modifiedRodriguesParametersVector( 2 ), 2 ) +
                 oneMinusModifiedRodriguesParametersMagnitudeSquaredSquared; // denominator is never null
         rightAscensionOfLatitude =

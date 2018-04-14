@@ -23,7 +23,7 @@
 #include "Tudat/Astrodynamics/Propagators/nBodyGaussKeplerStateDerivative.h"
 #include "Tudat/Astrodynamics/Propagators/nBodyGaussModifiedEquinoctialStateDerivative.h"
 #include "Tudat/Astrodynamics/Propagators/nBodyUnifiedStateModelWithQuaternionsStateDerivative.h"
-//#include "Tudat/Astrodynamics/Propagators/nBodyUnifiedStateModelWithModifiedRodriguesParametersStateDerivative.h"
+#include "Tudat/Astrodynamics/Propagators/nBodyUnifiedStateModelWithModifiedRodriguesParametersStateDerivative.h"
 #include "Tudat/Astrodynamics/Propagators/nBodyUnifiedStateModelWithExponentialMapStateDerivative.h"
 #include "Tudat/Astrodynamics/Propagators/rotationalMotionStateDerivative.h"
 #include "Tudat/Astrodynamics/Propagators/bodyMassStateDerivative.h"
@@ -227,15 +227,15 @@ createTranslationalStateDerivativeModel(
 
         break;
     }
-//    case unified_state_model_modified_rodrigues_parameters:
-//    {
-//        // Create USM6 state derivative object.
-//        stateDerivativeModel = boost::make_shared< NBodyUnifiedStateModelWithModifiedRodriguesParametersStateDerivative< StateScalarType, TimeType > >
-//                ( translationPropagatorSettings->getAccelerationsMap( ), centralBodyData,
-//                  translationPropagatorSettings->bodiesToIntegrate_ );
+    case unified_state_model_modified_rodrigues_parameters:
+    {
+        // Create USM6 state derivative object.
+        stateDerivativeModel = boost::make_shared< NBodyUnifiedStateModelWithModifiedRodriguesParametersStateDerivative< StateScalarType, TimeType > >
+                ( translationPropagatorSettings->getAccelerationsMap( ), centralBodyData,
+                  translationPropagatorSettings->bodiesToIntegrate_ );
 
-//        break;
-//    }
+        break;
+    }
     case unified_state_model_exponential_map:
     {
         // Create USMEM state derivative object.
