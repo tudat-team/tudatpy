@@ -199,7 +199,7 @@ Eigen::Vector6d convertKeplerianToUnifiedStateModelWithExponentialMapElements(
     // Compute magnitude of exponential map
     double arccosineArgument = std::cos( 0.5 * keplerianElements( inclinationIndex ) ) *
             std::cos( 0.5 * rightAscensionOfLatitude );
-    if ( ( std::fabs( arccosineArgument ) - 1.0 ) > singularityTolerance )
+    if ( ( std::fabs( arccosineArgument ) - 1.0 ) > 0.0 )
     {
         // Make sure that the cosine does not exceed 1.0 in magnitude
         arccosineArgument = ( arccosineArgument > 0.0 ) ? 1.0 : - 1.0;
