@@ -133,6 +133,13 @@ Eigen::Matrix< double, 3, Eigen::Dynamic > calculateAccelerationWrtParameterPart
         const double currentTime = 0.0,
         boost::function< void( const double ) > timeDependentUpdateDependentVariables = emptyTimeFunction );
 
+Eigen::Matrix< double, 3, Eigen::Dynamic > calculateTorqueWrtParameterPartials(
+        boost::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter,
+        boost::shared_ptr< basic_astrodynamics::TorqueModel > torqueModel,
+        Eigen::VectorXd parameterPerturbation,
+        boost::function< void( ) > updateDependentVariables = emptyFunction,
+        const double currentTime = 0.0,
+        boost::function< void( const double ) > timeDependentUpdateDependentVariables = emptyTimeFunction );
 
 } // namespace acceleration_partials
 

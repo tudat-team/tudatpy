@@ -13,6 +13,7 @@
 
 #include "Tudat/Astrodynamics/Gravitation/secondDegreeGravitationalTorque.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/RotationalDynamicsPartials/torquePartial.h"
+#include "Tudat/Astrodynamics/OrbitDetermination/RotationalDynamicsPartials/inertiaTensorPartial.h"
 #include "Tudat/Mathematics/BasicMathematics/linearAlgebra.h"
 
 namespace tudat
@@ -35,10 +36,11 @@ public:
 
     SecondDegreeGravitationalTorquePartial(
             const boost::shared_ptr< gravitation::SecondDegreeGravitationalTorqueModel > torqueModel,
+            const boost::function< double( ) > getInertiaTensorNormalizationFactor,
             const std::string acceleratedBody,
             const std::string acceleratingBody ):
         TorquePartial( acceleratedBody, acceleratingBody, basic_astrodynamics::second_order_gravitational_torque ),
-        torqueModel_( torqueModel )
+        torqueModel_( torqueModel ), getInertiaTensorNormalizationFactor_( getInertiaTensorNormalizationFactor )
     {
         currentRotationMatrixDerivativesWrtQuaternion_.resize( 4 );
     }
@@ -79,11 +81,7 @@ public:
      *  \return Pair of parameter partial function and number of columns in partial (0 for no dependency).
      */
     std::pair< boost::function< void( Eigen::MatrixXd& ) >, int > getParameterPartialFunction(
-            boost::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter )
-    {
-        boost::function< void( Eigen::MatrixXd& ) > partialFunction;
-        return std::make_pair( partialFunction, 0 );
-    }
+            boost::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter );
 
     virtual void wrtOrientationOfAcceleratedBody(
             Eigen::Block< Eigen::MatrixXd > partialMatrix,
@@ -106,31 +104,28 @@ public:
         return false;
     }
 
-    void update( const double currentTime = TUDAT_NAN )
-    {
-        if( !( currentTime_ == currentTime ) )
-        {
-            torqueModel_->updateMembers( currentTime );
-            currentQuaternionVector_ = linear_algebra::convertQuaternionToVectorFormat(
-                        ( torqueModel_->getCurrentRotationToBodyFixedFrame( ) ).inverse( ) );
-            linear_algebra::computePartialDerivativeOfRotationMatrixWrtQuaternion(
-                        currentQuaternionVector_,  currentRotationMatrixDerivativesWrtQuaternion_ );
-            currentPartialDerivativeWrtQuaternion_ = getPartialDerivativeOfSecondDegreeGravitationalTorqueWrtQuaternion(
-                        torqueModel_->getCurrentTorqueMagnitudePremultiplier( ),
-                        torqueModel_->getCurrentInertiaTensorOfRotatingBody( ),
-                        torqueModel_->getCurrentRelativeBodyFixedPositionOfBodySubjectToTorque(),
-                        torqueModel_->getCurrentRelativePositionOfBodySubjectToTorque( ),
-                        currentRotationMatrixDerivativesWrtQuaternion_ );
-        }
-    }
+    void update( const double currentTime = TUDAT_NAN );
 
 protected:
 
     void wrtGravitationalParameterOfCentralBody( Eigen::MatrixXd& gravitationalParameterPartial );
 
+    void wrtCosineSphericalHarmonicCoefficientsOfCentralBody(
+            Eigen::MatrixXd& sphericalHarmonicCoefficientPartial,
+            const int c20Index, const int c21Index, const int c22Index );
+
+    void wrtSineSphericalHarmonicCoefficientsOfCentralBody(
+            Eigen::MatrixXd& sphericalHarmonicCoefficientPartial,
+            const int s21Index, const int s22Index );
     boost::shared_ptr< gravitation::SecondDegreeGravitationalTorqueModel > torqueModel_;
 
+    boost::function< double( ) > getInertiaTensorNormalizationFactor_;
+
     Eigen::Vector4d currentQuaternionVector_;
+
+    Eigen::Matrix3d currentCoefficientPartialPremultiplier_;
+
+    Eigen::Vector3d currentBodyFixedRelativePosition_;
 
     std::vector< Eigen::Matrix3d > currentRotationMatrixDerivativesWrtQuaternion_;
 

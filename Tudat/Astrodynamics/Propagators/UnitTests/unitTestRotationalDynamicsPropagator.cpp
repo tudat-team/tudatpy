@@ -87,19 +87,25 @@ NamedBodyMap getTestBodyMap( const double phobosSemiMajorAxis,
         phobosInertiaTensor( 0, 0 ) = phobosInertiaTensor( 1, 1 );
     }
 
-    phobosInertiaTensor *= (11.27E3 * 11.27E3 * 1.0659E16 );
+    double phobosReferenceRadius = 11.27E3;
+    double phobosMass = 1.0659E16;
+
+    phobosInertiaTensor *= (phobosReferenceRadius * phobosReferenceRadius * phobosMass );
     bodyMap[ "Phobos" ]->setBodyInertiaTensor( phobosInertiaTensor );
 
-    double phobosGravitationalParameter = 1.0659E16 * physical_constants::GRAVITATIONAL_CONSTANT;
-    double phobosReferenceRadius = 11.27E3;
-    std::pair< Eigen::Matrix3d, Eigen::Matrix3d > phobosGravityFieldCoefficients =
+    double phobosGravitationalParameter = phobosMass * physical_constants::GRAVITATIONAL_CONSTANT;
+
+    Eigen::MatrixXd phobosCosineGravityFieldCoefficients = Eigen::Matrix3d::Zero( ),
+            phobosSineGravityFieldCoefficients = Eigen::Matrix3d::Zero( );
+    double phobosScaledMeanMomentOfInertia;
             gravitation::getDegreeTwoSphericalHarmonicCoefficients(
-                phobosInertiaTensor, phobosGravitationalParameter, phobosReferenceRadius, true );
+                phobosInertiaTensor, phobosGravitationalParameter, phobosReferenceRadius, true,
+                        phobosCosineGravityFieldCoefficients, phobosSineGravityFieldCoefficients, phobosScaledMeanMomentOfInertia );
 
     bodyMap[ "Phobos" ]->setGravityFieldModel(
                 boost::make_shared< gravitation::SphericalHarmonicsGravityField >(
-                    phobosGravitationalParameter, phobosReferenceRadius, phobosGravityFieldCoefficients.first,
-                    phobosGravityFieldCoefficients.second, "Phobos_Fixed" ) );
+                    phobosGravitationalParameter, phobosReferenceRadius, phobosCosineGravityFieldCoefficients,
+                    phobosSineGravityFieldCoefficients, "Phobos_Fixed" ) );
 
 
 
