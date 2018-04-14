@@ -210,8 +210,7 @@ Eigen::Vector6d convertKeplerianToUnifiedStateModelWithExponentialMapElements(
     if ( std::fabs( exponentialMapMagnitude ) < singularityTolerance )
     {
         // If rotation angle is zero, the exponential map vector is the zero vector
-        convertedUnifiedStateModelElements.segment( e1ExponentialMapIndex, 3 ) =
-                Eigen::Vector3d::Zero( );
+        convertedUnifiedStateModelElements.segment( e1ExponentialMapIndex, 3 ) = Eigen::Vector3d::Zero( );
     }
     else
     {

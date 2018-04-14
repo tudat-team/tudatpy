@@ -105,7 +105,7 @@ BOOST_AUTO_TEST_CASE( testconvertKeplerianToUnifiedStateModelWithModifiedRodrigu
         expectedUnifiedStateModelElements( CHodographModifiedRodriguesParameterIndex ) = 17173.1340579794;
         expectedUnifiedStateModelElements( Rf1HodographModifiedRodriguesParameterIndex ) = -2993.47450825659;
         expectedUnifiedStateModelElements( Rf2HodographModifiedRodriguesParameterIndex ) = 34215.5701963558;
-        expectedUnifiedStateModelElements( sigma1ModifiedRodriguesParameterIndex ) = 0.90911535365148;
+        expectedUnifiedStateModelElements( sigma1ModifiedRodriguesParameterIndex ) = 0.909115353651481;
         expectedUnifiedStateModelElements( sigma2ModifiedRodriguesParameterIndex ) = 0.119687306903266;
         expectedUnifiedStateModelElements( sigma3ModifiedRodriguesParameterIndex ) = 0.0104712825219838;
         expectedUnifiedStateModelElements( shadowModifiedRodriguesParameterFlagIndex ) = true;
@@ -137,7 +137,7 @@ BOOST_AUTO_TEST_CASE( testconvertKeplerianToUnifiedStateModelWithModifiedRodrigu
         expectedUnifiedStateModelElements( Rf2HodographModifiedRodriguesParameterIndex ) = 29631.5529950138;
         expectedUnifiedStateModelElements( sigma1ModifiedRodriguesParameterIndex ) = 0.298426999166362;
         expectedUnifiedStateModelElements( sigma2ModifiedRodriguesParameterIndex ) = -0.946489519440885;
-        expectedUnifiedStateModelElements( sigma3ModifiedRodriguesParameterIndex ) = 0.0867430205772026;
+        expectedUnifiedStateModelElements( sigma3ModifiedRodriguesParameterIndex ) = 0.0867430205772025;
         expectedUnifiedStateModelElements( shadowModifiedRodriguesParameterFlagIndex ) = true;
 
         // Compute unified state model elements.
