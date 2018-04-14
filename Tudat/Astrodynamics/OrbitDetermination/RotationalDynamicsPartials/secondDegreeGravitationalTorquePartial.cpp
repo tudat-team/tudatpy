@@ -32,7 +32,7 @@ Eigen::Matrix< double, 3, 4 > getPartialDerivativeOfSecondDegreeGravitationalTor
     for( unsigned int i = 0; i < derivativeOfRotationMatrixWrtQuaternions.size( ); i++ )
     {
         partialOfBodyFixedPositionWrtQuaternion.block( 0, i, 3, 1 ) =
-             derivativeOfRotationMatrixWrtQuaternions.at( i ).transpose( ) * inertialRelativePosition;
+                derivativeOfRotationMatrixWrtQuaternions.at( i ).transpose( ) * inertialRelativePosition;
     }
     return premultiplier * scalingMatrix * partialOfBodyFixedPositionWrtQuaternion;
 }
@@ -50,7 +50,7 @@ SecondDegreeGravitationalTorquePartial::getParameterPartialFunction(
         // If parameter is gravitational parameter, check and create dependency function .
         partialFunctionPair = std::make_pair(
                     boost::bind( &SecondDegreeGravitationalTorquePartial::wrtGravitationalParameterOfCentralBody,
-                                       this, _1 ), 1 );
+                                 this, _1 ), 1 );
     }
     else
     {
@@ -65,8 +65,8 @@ std::pair< boost::function< void( Eigen::MatrixXd& ) >, int > SecondDegreeGravit
 {
     using namespace estimatable_parameters;
 
-   std::pair< boost::function< void( Eigen::MatrixXd& ) >, int >  partialFunction = std::make_pair(
-               boost::function< void( Eigen::MatrixXd& ) >( ), 0 );
+    std::pair< boost::function< void( Eigen::MatrixXd& ) >, int >  partialFunction = std::make_pair(
+                boost::function< void( Eigen::MatrixXd& ) >( ), 0 );
 
     if( parameter->getParameterName( ).second.first == bodyUndergoingTorque_ )
     {
@@ -90,7 +90,7 @@ std::pair< boost::function< void( Eigen::MatrixXd& ) >, int > SecondDegreeGravit
                 partialFunction = std::make_pair(
                             boost::bind( &SecondDegreeGravitationalTorquePartial::
                                          wrtCosineSphericalHarmonicCoefficientsOfCentralBody, this,
-                                _1, c20Index, c21Index, c22Index ), coefficientsParameter->getParameterSize( ) );
+                                         _1, c20Index, c21Index, c22Index ), coefficientsParameter->getParameterSize( ) );
             }
 
             break;
@@ -114,7 +114,7 @@ std::pair< boost::function< void( Eigen::MatrixXd& ) >, int > SecondDegreeGravit
                 partialFunction = std::make_pair(
                             boost::bind( &SecondDegreeGravitationalTorquePartial::
                                          wrtSineSphericalHarmonicCoefficientsOfCentralBody, this,
-                                _1, s21Index, s22Index ), coefficientsParameter->getParameterSize( ) );
+                                         _1, s21Index, s22Index ), coefficientsParameter->getParameterSize( ) );
             }
 
 
@@ -127,11 +127,34 @@ std::pair< boost::function< void( Eigen::MatrixXd& ) >, int > SecondDegreeGravit
     return partialFunction;
 }
 
+void SecondDegreeGravitationalTorquePartial::wrtNonRotationalStateOfAdditionalBody(
+        Eigen::Block< Eigen::MatrixXd > partialMatrix,
+        const std::pair< std::string, std::string >& stateReferencePoint,
+        const propagators::IntegratedStateType integratedStateType )
+{
+    if( ( stateReferencePoint.first == bodyExertingTorque_ ||
+          stateReferencePoint.first == bodyUndergoingTorque_ ) && integratedStateType == propagators::translational_state )
+    {
+
+        partialMatrix.block( 0, 0, 3, 3 ) +=
+                ( ( stateReferencePoint.first == bodyExertingTorque_ ) ? 1.0 : -1.0 ) *
+                ( torqueModel_->getCurrentTorqueMagnitudePremultiplier( ) *
+                  ( linear_algebra::getCrossProductMatrix( currentBodyFixedRelativePosition_ ) *
+                      torqueModel_->getCurrentInertiaTensorOfRotatingBody( ) -
+                      linear_algebra::getCrossProductMatrix( torqueModel_->getCurrentInertiaTensorTimesRelativePositionOfBody( ) ) ) *
+                  ( torqueModel_->getCurrentRotationToBodyFixedFrame( ) ).toRotationMatrix( ) -
+                  5.0 * torqueModel_->getTorque( ) *
+                  torqueModel_->getCurrentRelativePositionOfBodySubjectToTorque( ).normalized( ).transpose( ) /
+                  currentBodyFixedRelativePosition_.norm( ) );
+    }
+}
+
 void SecondDegreeGravitationalTorquePartial::update( const double currentTime )
 {
     if( !( currentTime_ == currentTime ) )
     {
         torqueModel_->updateMembers( currentTime );
+
         currentQuaternionVector_ = linear_algebra::convertQuaternionToVectorFormat(
                     ( torqueModel_->getCurrentRotationToBodyFixedFrame( ) ).inverse( ) );
         linear_algebra::computePartialDerivativeOfRotationMatrixWrtQuaternion(

@@ -72,6 +72,15 @@ Eigen::MatrixXd calculateTorqueWrtRotationalStatePartials(
         boost::function< void( ) > updateFunction = emptyFunction,
         const double evaluationTime = TUDAT_NAN );
 
+Eigen::MatrixXd calculateTorqueWrtTranslationalStatePartials(
+        boost::function< void( Eigen::Vector6d ) > setBodyState,
+        boost::shared_ptr< basic_astrodynamics::TorqueModel > torqueModel,
+        Eigen::Vector6d originalState,
+        Eigen::Vector3d statePerturbation,
+        int startIndex,
+        boost::function< void( ) > updateFunction = emptyFunction,
+        const double evaluationTime = TUDAT_NAN );
+
 Eigen::MatrixXd calculateTorqueDeviationDueToOrientationChange(
         const boost::function< void( Eigen::Vector7d ) > setBodyRotationalState,
         const boost::shared_ptr< basic_astrodynamics::TorqueModel > torqueModel,

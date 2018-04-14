@@ -8,8 +8,8 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#ifndef TUDAT_TORQUE_H
-#define TUDAT_TORQUE_H
+#ifndef TUDAT_TORQUE_PARTIAL_H
+#define TUDAT_TORQUE_PARTIAL_H
 
 #include <string>
 #include <map>
@@ -57,6 +57,13 @@ public:
     //! Virtual destructor.
     virtual ~TorquePartial( ) { }
 
+    virtual bool isStateDerivativeDependentOnIntegratedAdditionalStateTypes(
+            const std::pair< std::string, std::string >& stateReferencePoint,
+            const propagators::IntegratedStateType integratedStateType )
+    {
+        return false;
+    }
+
     //! Function to retrieve the function that returns the partial derivative w.r.t. a propagated state.
     /*!
      * Function to retrieve the function that returns the partial derivative w.r.t. a propagated state.
@@ -98,6 +105,19 @@ public:
                                                                this, _1, stateReferencePoint.first ), 3 );
             }
             break;
+        }
+        case propagators::translational_state:
+        {
+            // Check if reference id is consistent.
+            if( stateReferencePoint.second != "" )
+            {
+                throw std::runtime_error( "Error when getting torque partial, cannot have reference point on body for body mass" );
+            }
+            else if( isStateDerivativeDependentOnIntegratedAdditionalStateTypes( stateReferencePoint, integratedStateType ) )
+            {
+                partialFunction = std::make_pair( boost::bind( &TorquePartial::wrtNonRotationalStateOfAdditionalBody,
+                                                               this, _1, stateReferencePoint, integratedStateType ), 1 );
+            }
         }
         case propagators::custom_state:
         {
@@ -325,4 +345,4 @@ protected:
 
 } // namespace tudat
 
-#endif // TUDAT_TORQUE_H
+#endif // TUDAT_TORQUE_PARTIAL_H
