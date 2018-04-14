@@ -688,15 +688,7 @@ Eigen::Vector6d convertUnifiedStateModelWithQuaternionsToCartesianElements(
     // Find direction cosine matrix in terms of quaternions
     double etaQuaternionParameter = unifiedStateModelElements( etaQuaternionIndex );
     Eigen::Vector3d epsilonQuaternionVector = unifiedStateModelElements.segment( epsilon1QuaternionIndex, 3 );
-    Eigen::Matrix3d skewEpsilonQuaternionVector = Eigen::Matrix3d::Zero( );
-    skewEpsilonQuaternionVector( 1, 0 ) = epsilonQuaternionVector.z( );
-    skewEpsilonQuaternionVector( 0, 1 ) = -epsilonQuaternionVector.z( );
-    skewEpsilonQuaternionVector( 2, 0 ) = -epsilonQuaternionVector.y( );
-    skewEpsilonQuaternionVector( 0, 2 ) = epsilonQuaternionVector.y( );
-    skewEpsilonQuaternionVector( 2, 1 ) = epsilonQuaternionVector.x( );
-    skewEpsilonQuaternionVector( 1, 2 ) = -epsilonQuaternionVector.x( );
-    // Eigen::Matrix3d skewEpsilonQuaternionVector = linear_algebra::getCrossProductMatrix( epsilonQuaternionVector );
-    // Gives error: Undefined symbols for architecture x86_64 (sometimes)
+    Eigen::Matrix3d skewEpsilonQuaternionVector = linear_algebra::getCrossProductMatrix( epsilonQuaternionVector );
     Eigen::Matrix3d inverseDirectionCosineMatrix = (
                 Eigen::Matrix3d::Identity( ) * ( std::pow( etaQuaternionParameter, 2 ) -
                                                  epsilonQuaternionVector.transpose( ) * epsilonQuaternionVector ) +
