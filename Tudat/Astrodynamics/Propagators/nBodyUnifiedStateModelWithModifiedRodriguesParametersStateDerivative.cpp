@@ -10,7 +10,6 @@
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/stateVectorIndices.h"
 #include "Tudat/Astrodynamics/Propagators/nBodyUnifiedStateModelWithModifiedRodriguesParametersStateDerivative.h"
-//#include "Tudat/Astrodynamics/Propagators/rotationalMotionStateDerivative.h"
 
 namespace tudat
 {
@@ -22,38 +21,34 @@ namespace propagators
 Eigen::Vector7d computeStateDerivativeForUnifiedStateModelWithModifiedRodriguesParameters(
         const Eigen::Vector7d& currentUnifiedStateModelElements,
         const Eigen::Vector3d& accelerationsInRswFrame,
-        const double sineLambdaParameter,
-        const double cosineLambdaParameter,
+        const double sineLambda,
+        const double cosineLambda,
         const double gammaParameter,
         const Eigen::Vector3d& rotationalVelocityVector,
-        const Eigen::Vector3d& pParameterVector )
+        const Eigen::Vector3d& pAuxiliaryVector )
 {
     // Compute supporting parameters
     Eigen::Matrix3d hodographMatrix = Eigen::Matrix3d::Zero( );
-    hodographMatrix( 0, 1 ) = - pParameterVector( 0 );
-    hodographMatrix( 1, 0 ) = cosineLambdaParameter;
-    hodographMatrix( 1, 1 ) = - ( 1.0 + pParameterVector( 0 ) ) * sineLambdaParameter;
-    hodographMatrix( 1, 2 ) = - gammaParameter * pParameterVector( 1 );
-    hodographMatrix( 2, 0 ) = sineLambdaParameter;
-    hodographMatrix( 2, 1 ) = ( 1.0 + pParameterVector( 0 ) ) * cosineLambdaParameter;
-    hodographMatrix( 2, 2 ) = gammaParameter * pParameterVector( 2 );
+    hodographMatrix( 0, 1 ) = - pAuxiliaryVector( 0 );
+    hodographMatrix( 1, 0 ) = cosineLambda;
+    hodographMatrix( 1, 1 ) = - ( 1.0 + pAuxiliaryVector( 0 ) ) * sineLambda;
+    hodographMatrix( 1, 2 ) = - gammaParameter * pAuxiliaryVector( 1 );
+    hodographMatrix( 2, 0 ) = sineLambda;
+    hodographMatrix( 2, 1 ) = ( 1.0 + pAuxiliaryVector( 0 ) ) * cosineLambda;
+    hodographMatrix( 2, 2 ) = gammaParameter * pAuxiliaryVector( 2 );
 
-    Eigen::Matrix4d quaternionMatrix = Eigen::Matrix4d::Zero( );
-    // getQuaterionToQuaternionRateMatrix( rotationalVelocityVector.reverse( ) ).reverse( ); // still wrong
-    // if the function above is used, remove the 0.5 from line 56 (state derivative)
-    quaternionMatrix( 0, 1 ) =   rotationalVelocityVector( 2 );
-    quaternionMatrix( 0, 3 ) =   rotationalVelocityVector( 0 );
-    quaternionMatrix( 1, 0 ) = - rotationalVelocityVector( 2 );
-    quaternionMatrix( 1, 2 ) =   rotationalVelocityVector( 0 );
-    quaternionMatrix( 2, 1 ) = - rotationalVelocityVector( 0 );
-    quaternionMatrix( 2, 3 ) =   rotationalVelocityVector( 2 );
-    quaternionMatrix( 3, 0 ) = - rotationalVelocityVector( 0 );
-    quaternionMatrix( 3, 2 ) = - rotationalVelocityVector( 2 );
+    // Compute kinematic equation, i.e., derivative of modified Rodrigues parameters (also valid for SMRP)
+    Eigen::Vector3d modifiedRodriguesParametersVector = currentUnifiedStateModelElements.segment( 3, 3 );
+    Eigen::Matrix3d skewModifiedRodriguesParametersVector = linear_algebra::getCrossProductMatrix( modifiedRodriguesParametersVector );
+    Eigen::Vector3d modifiedRodriguesParametersDerivative = 0.5 *
+            ( 0.5 * ( 1.0 - std::pow( modifiedRodriguesParametersVector.norm( ), 2 ) ) * Eigen::Matrix3d::Identity( ) +
+              skewModifiedRodriguesParametersVector + modifiedRodriguesParametersVector * modifiedRodriguesParametersVector.transpose( ) ) *
+            rotationalVelocityVector;
 
     // Evaluate USM6 equations.
-    Eigen::Vector7d stateDerivative;
+    Eigen::Vector7d stateDerivative = Eigen::Vector7d::Zero( );
     stateDerivative.segment( 0, 3 ) = hodographMatrix * accelerationsInRswFrame;
-    stateDerivative.segment( 3, 4 ) = 0.5 * quaternionMatrix * currentUnifiedStateModelElements.segment( 3, 4 );
+    stateDerivative.segment( 3, 3 ) = modifiedRodriguesParametersDerivative;
 
     // Give output
     return stateDerivative;
@@ -67,40 +62,57 @@ Eigen::Vector7d computeStateDerivativeForUnifiedStateModelWithModifiedRodriguesP
 {
     using namespace orbital_element_conversions;
 
-    // Retrieve USM elements
-    double CHodograph = currentUnifiedStateModelElements( CHodographQuaternionIndex );
-    double Rf1Hodograph = currentUnifiedStateModelElements( Rf1HodographQuaternionIndex );
-    double Rf2Hodograph = currentUnifiedStateModelElements( Rf2HodographQuaternionIndex );
-    double epsilon1Quaternion = currentUnifiedStateModelElements( epsilon1QuaternionIndex );
-    double epsilon2Quaternion = currentUnifiedStateModelElements( epsilon2QuaternionIndex );
-    double epsilon3Quaternion = currentUnifiedStateModelElements( epsilon3QuaternionIndex );
-    double etaQuaternion = currentUnifiedStateModelElements( etaQuaternionIndex );
+    // Set flag to shadow or non-shadow
+    bool shadowFlag = currentUnifiedStateModelElements( shadowModifiedRodriguesParameterFlagIndex );
+//    double signDirectionCosineMatrix = shadowFlag ? - 1.0 : 1.0;
+
+    // Compute auxiliary parameters
+    Eigen::Vector3d modifiedRodriguesParametersVector = currentUnifiedStateModelElements.segment( sigma1ModifiedRodriguesParameterIndex, 3 );
+    double modifiedRodriguesParametersMagnitude = modifiedRodriguesParametersVector.norm( );
+    // magnitude of modified rodrigues parameters, also called sigma
+
+    // Precompute often used variables
+    // Note the for SMRP some variable names do not match their definitions
+    double modifiedRodriguesParametersMagnitudeSquared =
+            modifiedRodriguesParametersMagnitude * modifiedRodriguesParametersMagnitude;
+    double oneMinusModifiedRodriguesParametersMagnitudeSquared = shadowFlag ?
+                ( modifiedRodriguesParametersMagnitudeSquared - 1.0 ) : // inverse definition for SMRP
+                ( 1.0 - modifiedRodriguesParametersMagnitudeSquared );
+    double oneMinusModifiedRodriguesParametersMagnitudeSquaredSquared =
+                    std::pow( oneMinusModifiedRodriguesParametersMagnitudeSquared, 2 );
 
     // Compute supporting parameters
-    double quaterionParameter = std::pow( epsilon3Quaternion, 2 ) + std::pow( etaQuaternion, 2 );
-    double sineLambdaParameter = ( 2 * epsilon3Quaternion * etaQuaternion ) / quaterionParameter;
-    double cosineLambdaParameter =  ( std::pow( etaQuaternion, 2 ) - std::pow( epsilon3Quaternion, 2 ) ) /
-            quaterionParameter;
-    double gammaParameter = ( epsilon1Quaternion * epsilon3Quaternion -
-                              epsilon2Quaternion * etaQuaternion ) / quaterionParameter;
+    double denominator = 4.0 * std::pow( modifiedRodriguesParametersVector( 2 ), 2 ) +
+            oneMinusModifiedRodriguesParametersMagnitudeSquaredSquared; // denominator is never null
+    double sineLambda = 4.0 * modifiedRodriguesParametersVector( 2 ) *
+            ( 1.0 - modifiedRodriguesParametersMagnitudeSquared ) / denominator;
+    double cosineLambda = ( oneMinusModifiedRodriguesParametersMagnitudeSquaredSquared -
+                                     4.0 * std::pow( modifiedRodriguesParametersVector( 2 ), 2 ) ) / denominator;
+    double gammaParameter = 2.0 * modifiedRodriguesParametersVector( 1 ) * ( modifiedRodriguesParametersMagnitudeSquared - 1.0 ) /
+            ( std::pow( modifiedRodriguesParametersMagnitudeSquared, 2 ) + 2.0 *
+              ( std::pow( modifiedRodriguesParametersVector( 0 ), 2 ) * std::pow( modifiedRodriguesParametersVector( 1 ), 2 ) +
+                std::pow( modifiedRodriguesParametersVector( 0 ), 2 ) * std::pow( modifiedRodriguesParametersVector( 2 ), 2 ) +
+                std::pow( modifiedRodriguesParametersVector( 1 ), 2 ) * std::pow( modifiedRodriguesParametersVector( 2 ), 2 ) -
+                modifiedRodriguesParametersMagnitudeSquared + 2.0 * std::pow( modifiedRodriguesParametersVector( 2 ), 2 ) ) + 1.0 );
 
-    double velocityHodographParameter = CHodograph - Rf1Hodograph * sineLambdaParameter +
-            Rf2Hodograph * cosineLambdaParameter;
+    double velocityHodographParameter = currentUnifiedStateModelElements( CHodographModifiedRodriguesParameterIndex ) -
+            currentUnifiedStateModelElements( Rf1HodographModifiedRodriguesParameterIndex ) * sineLambda +
+            currentUnifiedStateModelElements( Rf2HodographModifiedRodriguesParameterIndex ) * cosineLambda;
     Eigen::Vector3d rotationalVelocityVector = Eigen::Vector3d::Zero( );
     rotationalVelocityVector( 0 ) = accelerationsInRswFrame( 2 ) / velocityHodographParameter;
-    rotationalVelocityVector( 2 ) = std::pow( velocityHodographParameter, 2 ) * CHodograph /
-            centralBodyGravitationalParameter;
+    rotationalVelocityVector( 2 ) = std::pow( velocityHodographParameter, 2 ) *
+            currentUnifiedStateModelElements( CHodographModifiedRodriguesParameterIndex ) / centralBodyGravitationalParameter;
 
-    Eigen::Vector3d pParameterVector = Eigen::Vector3d::Zero( );
-    pParameterVector( 0 ) = CHodograph;
-    pParameterVector( 1 ) = Rf2Hodograph;
-    pParameterVector( 2 ) = Rf1Hodograph;
-    pParameterVector = pParameterVector / velocityHodographParameter;
+    Eigen::Vector3d pAuxiliaryVector = Eigen::Vector3d::Zero( );
+    pAuxiliaryVector( 0 ) = currentUnifiedStateModelElements( CHodographModifiedRodriguesParameterIndex );
+    pAuxiliaryVector( 1 ) = currentUnifiedStateModelElements( Rf2HodographModifiedRodriguesParameterIndex );
+    pAuxiliaryVector( 2 ) = currentUnifiedStateModelElements( Rf1HodographModifiedRodriguesParameterIndex );
+    pAuxiliaryVector /= velocityHodographParameter;
 
     // Evaluate USM6 equations
     return computeStateDerivativeForUnifiedStateModelWithModifiedRodriguesParameters(
-                currentUnifiedStateModelElements, accelerationsInRswFrame, sineLambdaParameter,
-                cosineLambdaParameter, gammaParameter, rotationalVelocityVector, pParameterVector );
+                currentUnifiedStateModelElements, accelerationsInRswFrame, sineLambda,
+                cosineLambda, gammaParameter, rotationalVelocityVector, pAuxiliaryVector );
 }
 
 //! Function to evaluate the state derivative for the unified state model with modified rodrigues parameters
@@ -115,7 +127,6 @@ Eigen::Vector7d computeStateDerivativeForUnifiedStateModelWithModifiedRodriguesP
                 reference_frames::getInertialToRswSatelliteCenteredFrameRotationMatrx(
                     currentCartesianState ) * accelerationsInInertialFrame, centralBodyGravitationalParameter );
 }
-
 
 } // namespace propagators
 
