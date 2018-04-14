@@ -8,12 +8,13 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#ifndef TUDAT_NUNIFIEDSTATEMODELWITHQUATERNIONSSTATEDERIVATIVE_H
-#define TUDAT_NUNIFIEDSTATEMODELWITHQUATERNIONSSTATEDERIVATIVE_H
+#ifndef TUDAT_NUNIFIEDSTATEMODELWITHMODIFIEDRODRIGUESPARAMETERSSTATEDERIVATIVE_H
+#define TUDAT_NUNIFIEDSTATEMODELWITHMODIFIEDRODRIGUESPARAMETERSSTATEDERIVATIVE_H
 
 #include "Tudat/Astrodynamics/Propagators/nBodyStateDerivative.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/stateRepresentationConversions.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/astrodynamicsFunctions.h"
+#include "Tudat/Mathematics/BasicMathematics/linearAlgebra.h"
 
 namespace tudat
 {
@@ -207,12 +208,14 @@ public:
             const Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >& internalSolution, const TimeType& time,
             Eigen::Block< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > currentCartesianLocalSoluton )
     {
+        Eigen::Vector3d modifiedRodriguesParametersVector = Eigen::Vector3d::Zero( );
+        double modifiedRodriguesParametersMagnitude = 0.0;
         Eigen::Matrix< StateScalarType, 7, 1 > currentUnifiedStateModelState;
 
         // Convert state to Cartesian for each body
         for( unsigned int i = 0; i < this->bodiesToBeIntegratedNumerically_.size( ); i++ )
         {
-            // Convert to/from shadow exponential map (SMRP) (transformation is the same either way)
+            // Convert to/from shadow modifed Rodrigues parameters (SMRP) (transformation is the same either way)
             modifiedRodriguesParametersVector = internalSolution.block( i * 7 + 3, 0, 3, 1 );
             modifiedRodriguesParametersMagnitude = modifiedRodriguesParametersVector.norm( );
             if ( modifiedRodriguesParametersMagnitude >= 1.0 )
