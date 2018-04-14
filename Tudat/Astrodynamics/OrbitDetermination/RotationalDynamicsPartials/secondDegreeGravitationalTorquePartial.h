@@ -101,8 +101,24 @@ public:
             const std::pair< std::string, std::string >& stateReferencePoint,
             const propagators::IntegratedStateType integratedStateType )
     {
-        return false;
+        bool isStateDerivativeDependent = 0;
+        if( ( ( stateReferencePoint.first == bodyUndergoingTorque_ || ( stateReferencePoint.first == bodyExertingTorque_ ) )
+              && integratedStateType == propagators::translational_state ) )
+        {
+            isStateDerivativeDependent = true;
+        }
+        else if( ( ( stateReferencePoint.first == bodyUndergoingTorque_ || ( stateReferencePoint.first == bodyExertingTorque_ ) )
+              && integratedStateType == propagators::body_mass_state ) )
+        {
+            throw std::runtime_error( "Warning, dependency of 2nd degree gravity torques on body masses not yet implemented" );
+        }
+        return isStateDerivativeDependent;
     }
+
+    void wrtNonRotationalStateOfAdditionalBody(
+            Eigen::Block< Eigen::MatrixXd > partialMatrix,
+            const std::pair< std::string, std::string >& stateReferencePoint,
+            const propagators::IntegratedStateType integratedStateType );
 
     void update( const double currentTime = TUDAT_NAN );
 

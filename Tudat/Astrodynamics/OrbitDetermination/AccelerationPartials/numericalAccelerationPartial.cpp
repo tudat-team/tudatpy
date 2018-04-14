@@ -81,6 +81,64 @@ Eigen::Matrix3d calculateAccelerationWrtStatePartials(
     return accelerationPartials;
 }
 
+Eigen::MatrixXd calculateTorqueWrtTranslationalStatePartials(
+        boost::function< void( Eigen::Vector6d ) > setBodyState,
+        boost::shared_ptr< basic_astrodynamics::TorqueModel > torqueModel,
+        Eigen::Vector6d originalState,
+        Eigen::Vector3d statePerturbation,
+        int startIndex,
+        boost::function< void( ) > updateFunction,
+        const double evaluationTime )
+{
+    Eigen::Matrix3d upTorques = Eigen::Matrix3d::Zero( );
+    Eigen::Matrix3d downTorques = Eigen::Matrix3d::Zero( );
+
+    Eigen::Vector6d perturbedState = originalState;
+
+    torqueModel->resetTime( TUDAT_NAN );
+
+    // Calculate perturbed torques for up-perturbed state entries.
+    for( int i = 0; i < 3; i++ )
+    {
+        perturbedState( i + startIndex ) += statePerturbation( i );
+        setBodyState( perturbedState );
+        updateFunction( );
+        upTorques.block( 0, i, 3, 1 ) = basic_astrodynamics::updateAndGetTorque(
+                    torqueModel, evaluationTime );
+        torqueModel->resetTime( TUDAT_NAN );
+        perturbedState = originalState;
+    }
+
+    // Calculate perturbed torques for down-perturbed state entries.
+    for( int i = 0; i < 3; i++ )
+    {
+        perturbedState( i + startIndex ) -= statePerturbation( i );
+        setBodyState( perturbedState );
+        updateFunction( );
+        downTorques.block( 0, i, 3, 1 ) = basic_astrodynamics::updateAndGetTorque(
+                    torqueModel, evaluationTime );
+        torqueModel->resetTime( TUDAT_NAN );
+        perturbedState = originalState;
+    }
+
+
+    // Reset state/environment to original state.
+    setBodyState( perturbedState );
+    updateFunction( );
+
+    basic_astrodynamics::updateAndGetTorque( torqueModel, evaluationTime );
+
+    // Numerically compute partial derivatives.
+    Eigen::Matrix3d torquePartials = upTorques - downTorques;
+    for( int i = 0; i < 3; i++ )
+    {
+        torquePartials.block( 0, i, 3, 1 ) /= ( 2.0 * statePerturbation( i ) );
+    }
+
+    return torquePartials;
+}
+
+
 Eigen::MatrixXd calculateTorqueWrtRotationalStatePartials(
         boost::function< void( Eigen::Vector7d ) > setBodyRotationalState,
         boost::shared_ptr< basic_astrodynamics::TorqueModel > torqueModel,

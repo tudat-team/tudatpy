@@ -119,9 +119,12 @@ public:
         currentInertiaTensorTimesRelativePositionOfBody_ = currentInertiaTensorOfRotatingBody_ *
                 currentRelativeBodyFixedPositionOfBodySubjectToTorque_;
         currentTorqueMagnitudePremultiplier_ =
-                3.0 * currentGravitationalParameterOfAttractingBody_ / std::pow(
+                3.0 * currentGravitationalParameterOfAttractingBody_ /
+                std::pow(
                     currentRelativePositionOfBodySubjectToTorque_.norm( ), 5.0 );
 
+//        currentTorque_ = currentRelativeBodyFixedPositionOfBodySubjectToTorque_.cross(
+//                    currentInertiaTensorOfRotatingBody_ * currentRelativeBodyFixedPositionOfBodySubjectToTorque_ );
         currentTorque_ = calculateSecondDegreeGravitationalTorque(
                     currentRelativeBodyFixedPositionOfBodySubjectToTorque_,
                     currentTorqueMagnitudePremultiplier_,
@@ -133,23 +136,23 @@ public:
 //                   "torque "<<currentTorque_.transpose( )<<std::endl;
     }
 
-    Eigen::Quaterniond getCurrentRotationToBodyFixedFrame( )
+    Eigen::Quaterniond& getCurrentRotationToBodyFixedFrame( )
     {
         return currentRotationToBodyFixedFrame_;
     }
 
-    Eigen::Vector3d getCurrentRelativePositionOfBodySubjectToTorque( )
+    Eigen::Vector3d& getCurrentRelativePositionOfBodySubjectToTorque( )
     {
         return currentRelativePositionOfBodySubjectToTorque_;
     }
 
 
-    Eigen::Vector3d getCurrentRelativeBodyFixedPositionOfBodySubjectToTorque( )
+    Eigen::Vector3d& getCurrentRelativeBodyFixedPositionOfBodySubjectToTorque( )
     {
         return currentRelativeBodyFixedPositionOfBodySubjectToTorque_;
     }
 
-    Eigen::Matrix3d getCurrentInertiaTensorOfRotatingBody( )
+    Eigen::Matrix3d& getCurrentInertiaTensorOfRotatingBody( )
     {
         return currentInertiaTensorOfRotatingBody_;
     }
@@ -162,6 +165,11 @@ public:
     double getCurrentGravitationalParameterOfAttractingBody( )
     {
         return currentGravitationalParameterOfAttractingBody_;
+    }
+
+    Eigen::Vector3d& getCurrentInertiaTensorTimesRelativePositionOfBody( )
+    {
+        return currentInertiaTensorTimesRelativePositionOfBody_;
     }
 
 protected:
