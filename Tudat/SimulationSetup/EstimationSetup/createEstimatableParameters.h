@@ -15,6 +15,7 @@
 
 #include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/estimatableParameter.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/initialTranslationalState.h"
+#include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/initialRotationalState.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/accelerationModelTypes.h"
 #include "Tudat/SimulationSetup/EstimationSetup/estimatableParameterSettings.h"
 #include "Tudat/SimulationSetup/PropagationSetup/dynamicsSimulator.h"
@@ -137,6 +138,49 @@ boost::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::Matrix
                                     initialStateSettings->arcStartTimes_ ),
                                 initialStateSettings->centralBody_, initialStateSettings->frameOrientation_ );
                 }
+            }
+            break;
+        case initial_rotational_body_state:
+
+            // Check consistency of input.
+            if( boost::dynamic_pointer_cast<
+                    InitialRotationalStateEstimatableParameterSettings< InitialStateParameterType > >(
+                        parameterSettings ) == NULL )
+            {
+                throw std::runtime_error( "Error when making body initial state parameter, settings type is incompatible" );
+            }
+            else
+            {
+                boost::shared_ptr< InitialRotationalStateEstimatableParameterSettings< InitialStateParameterType > >
+                        initialStateSettings = boost::dynamic_pointer_cast<
+                        InitialRotationalStateEstimatableParameterSettings< InitialStateParameterType > >(
+                            parameterSettings );
+
+                Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > initialRotationalState;
+
+                // If initial time is not defined, use preset initial state
+                if( ! ( initialStateSettings->initialTime_ == initialStateSettings->initialTime_  ) )
+                {
+                    initialRotationalState = initialStateSettings->initialStateValue_;
+
+
+                }
+                // Compute initial state from environment
+                else
+                {
+                    initialRotationalState = propagators::getInitialRotationalStateOfBody
+                            < double, InitialStateParameterType >(
+                                initialStateSettings->parameterType_.second.first, initialStateSettings->baseOrientation_,
+                                bodyMap, initialStateSettings->initialTime_ );
+
+                }
+
+                // Create rotational state estimation interface object
+                initialStateParameterToEstimate =
+                        boost::make_shared< InitialRotationalStateParameter< InitialStateParameterType > >(
+                            initialStateSettings->parameterType_.second.first, initialRotationalState,
+                            initialStateSettings->baseOrientation_,
+                            initialStateSettings->frameOrientation_ );
             }
             break;
         default:

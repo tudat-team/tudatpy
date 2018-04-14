@@ -185,6 +185,22 @@ public:
         return "";
     }
 
+    virtual int getConstraintSize( )
+    {
+        return 0;
+    }
+
+    virtual Eigen::MatrixXd getConstraintStateMultipler( )
+    {
+        return Eigen::MatrixXd::Zero( 0, 0 );
+    }
+
+    virtual Eigen::VectorXd getConstraintRightHandSide( )
+    {
+        return Eigen::VectorXd::Zero( 0 );
+    }
+
+
 protected:
 
     //! Identifier of parameter.
@@ -216,7 +232,7 @@ public:
             ( std::vector< boost::shared_ptr< EstimatableParameter< Eigen::Matrix
               < InitialStateParameterType, Eigen::Dynamic, 1 > > > >( ) ) ):
         estimatedDoubleParameters_( estimatedDoubleParameters ), estimatedVectorParameters_( estimatedVectorParameters ),
-        estimateInitialStateParameters_( estimateInitialStateParameters )
+        estimateInitialStateParameters_( estimateInitialStateParameters ), totalConstraintSize_( 0 )
     {
         // Initialize total number of parameters to 0.
         estimatedParameterSetSize_ = 0;
@@ -230,12 +246,15 @@ public:
                                                          estimateInitialStateParameters_[ i ]->getParameterSize( ) ) );
             estimatedParameterSetSize_ += estimateInitialStateParameters_[ i ]->getParameterSize( );
             initialDynamicalStateParameterSize_ += estimateInitialStateParameters_[ i ]->getParameterSize( );
+            totalConstraintSize_ += estimateInitialStateParameters_[ i ]->getConstraintSize( );
         }
 
         // Iterate over all double parameters and add to parameter size and set indices in parameterIndices_
         for( unsigned int i = 0; i < estimatedDoubleParameters_.size( ); i++ )
         {
             doubleParameters_[ estimatedParameterSetSize_ ] = estimatedDoubleParameters_[ i ];
+            totalConstraintSize_ += estimatedDoubleParameters_[ i ]->getConstraintSize( );
+
             parameterIndices_.push_back( std::make_pair( estimatedParameterSetSize_, 1 ) );
             estimatedParameterSetSize_++;
         }
@@ -244,6 +263,8 @@ public:
         for( unsigned int i = 0; i < estimatedVectorParameters_.size( ); i++ )
         {
             vectorParameters_[ estimatedParameterSetSize_ ] = estimatedVectorParameters_[ i ];
+            totalConstraintSize_ += estimatedVectorParameters_[ i ]->getConstraintSize( );
+
             parameterIndices_.push_back( std::make_pair( estimatedParameterSetSize_,
                                                          estimatedVectorParameters_[ i ]->getParameterSize( ) ) );
             estimatedParameterSetSize_ += estimatedVectorParameters_[ i ]->getParameterSize( );
@@ -429,6 +450,30 @@ public:
         return parameterIndices_;
     }
 
+    void getConstraints( Eigen::MatrixXd& constraintStateMultiplier, Eigen::VectorXd& constraintRightHandSide )
+    {
+        constraintStateMultiplier.setZero( totalConstraintSize_, estimatedParameterSetSize_ );
+        constraintRightHandSide.setZero( totalConstraintSize_, 1 );
+
+        int currentConstraintRow = 0;
+        for( auto parameterIterator = initialStateParameters_.begin( ); parameterIterator != initialStateParameters_.end( );
+             parameterIterator++ )
+        {
+
+        }
+
+        for( auto parameterIterator = doubleParameters_.begin( ); parameterIterator != doubleParameters_.end( );
+             parameterIterator++ )
+        {
+
+        }
+
+        for( auto parameterIterator = vectorParameters_.begin( ); parameterIterator != vectorParameters_.end( );
+             parameterIterator++ )
+        {
+
+        }
+    }
 
 protected:
 
@@ -467,6 +512,8 @@ protected:
     //! Map of initial dynamical states that are to be estimated, with start index in total parameter vector as key.
     std::map< int, boost::shared_ptr<
     EstimatableParameter< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > > > initialStateParameters_;
+
+    int totalConstraintSize_;
 
 };
 

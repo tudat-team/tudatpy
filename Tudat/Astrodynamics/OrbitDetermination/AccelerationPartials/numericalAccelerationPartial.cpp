@@ -69,7 +69,7 @@ Eigen::Matrix3d calculateAccelerationWrtStatePartials(
     updateFunction( );
 
     basic_astrodynamics::updateAndGetAcceleration< Eigen::Vector3d >(
-                        accelerationModel, evaluationTime );
+                accelerationModel, evaluationTime );
 
     // Numerically compute partial derivatives.
     Eigen::Matrix3d accelerationPartials = upAccelerations - downAccelerations;
@@ -186,7 +186,7 @@ Eigen::MatrixXd calculateTorqueWrtRotationalStatePartials(
     updateFunction( );
 
     basic_astrodynamics::updateAndGetTorque(
-                        torqueModel, evaluationTime );
+                torqueModel, evaluationTime );
 
     // Numerically compute partial derivatives.
     Eigen::MatrixXd accelerationPartials = upTorques - downTorques;
@@ -196,6 +196,52 @@ Eigen::MatrixXd calculateTorqueWrtRotationalStatePartials(
     }
 
     return accelerationPartials;
+}
+
+Eigen::MatrixXd calculateAccelerationDeviationDueToOrientationChange(
+        const boost::function< void( Eigen::Vector7d ) > setBodyRotationalState,
+        boost::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > accelerationModel,
+        const Eigen::Vector7d& originalRotationalState,
+        const Eigen::Vector4d& commandedQuaternionPerturbation,
+        std::vector< Eigen::Vector4d >& appliedQuaternionPerturbation,
+        boost::function< void( ) > updateFunction,
+        const double evaluationTime )
+{
+    appliedQuaternionPerturbation.resize( 4 );
+
+    setBodyRotationalState( originalRotationalState );
+    Eigen::Vector3d nominalAcceleration = basic_astrodynamics::updateAndGetAcceleration< Eigen::Vector3d >(
+                accelerationModel, evaluationTime );
+    Eigen::MatrixXd deviations = Eigen::MatrixXd::Zero( 3, 3 );
+
+    Eigen::Vector7d perturbedState = originalRotationalState;
+
+    accelerationModel->resetTime( TUDAT_NAN );
+
+    // Calculate perturbed accelerations for up-perturbed state entries.
+    for( int i = 1; i < 4; i++ )
+    {
+        perturbedState( i ) += commandedQuaternionPerturbation( i );
+        perturbedState( 0 ) = ( originalRotationalState( 0 ) > 0 ? 1.0 : -1.0 ) * std::sqrt( 1.0 - std::pow( perturbedState.segment( 1, 3 ).norm( ), 2 ) );
+
+        appliedQuaternionPerturbation[ i ] = perturbedState.segment( 0, 4 ).normalized( ) -
+                originalRotationalState.segment( 0, 4 );
+        setBodyRotationalState( perturbedState );
+        updateFunction( );
+        deviations.block( 0, i - 1, 3, 1 ) = basic_astrodynamics::updateAndGetAcceleration< Eigen::Vector3d >(
+                    accelerationModel, evaluationTime ) -
+                nominalAcceleration;
+        accelerationModel->resetTime( TUDAT_NAN );
+        perturbedState = originalRotationalState;
+
+    }
+
+    setBodyRotationalState( perturbedState );
+    updateFunction( );
+
+    basic_astrodynamics::updateAndGetAcceleration( accelerationModel, evaluationTime );
+
+    return deviations;
 }
 
 Eigen::MatrixXd calculateTorqueDeviationDueToOrientationChange(
@@ -282,7 +328,7 @@ Eigen::Vector3d calculateAccelerationWrtParameterPartials(
 
     accelerationModel->resetTime( TUDAT_NAN );
     basic_astrodynamics::updateAndGetAcceleration< Eigen::Vector3d >(
-                    accelerationModel, currentTime );
+                accelerationModel, currentTime );
 
     // Calculate partial using central difference.
     return ( upPerturbedAcceleration - downPerturbedAcceleration ) / ( 2.0 * parameterPerturbation );
@@ -330,7 +376,7 @@ Eigen::Vector3d calculateTorqueWrtParameterPartials(
 
     torqueModel->resetTime( TUDAT_NAN );
     basic_astrodynamics::updateAndGetTorque(
-                    torqueModel, currentTime );
+                torqueModel, currentTime );
 
     // Calculate partial using central difference.
     return ( upPerturbedTorque - downPerturbedTorque ) / ( 2.0 * parameterPerturbation );
@@ -398,7 +444,7 @@ Eigen::Matrix< double, 3, Eigen::Dynamic > calculateAccelerationWrtParameterPart
     accelerationModel->resetTime( TUDAT_NAN );
 
     basic_astrodynamics::updateAndGetAcceleration< Eigen::Vector3d >(
-                        accelerationModel, currentTime );
+                accelerationModel, currentTime );
 
     // Calculate partial using central difference.
     return partialMatrix;
@@ -465,7 +511,7 @@ Eigen::Matrix< double, 3, Eigen::Dynamic > calculateTorqueWrtParameterPartials(
     torqueModel->resetTime( TUDAT_NAN );
 
     basic_astrodynamics::updateAndGetTorque(
-                        torqueModel, currentTime );
+                torqueModel, currentTime );
 
     // Calculate partial using central difference.
     return partialMatrix;

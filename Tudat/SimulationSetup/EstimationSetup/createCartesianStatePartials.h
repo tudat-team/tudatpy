@@ -179,6 +179,7 @@ RotationMatrixPartialNamedList createRotationMatrixPartials(
     std::map< int, boost::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > > vectorParameters =
             parametersToEstimate->getVectorParameters( );
 
+
     for( auto parameterIterator = stateParameters.begin( ); parameterIterator != stateParameters.end( );
          parameterIterator++ )
     {

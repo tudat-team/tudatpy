@@ -105,6 +105,19 @@ public:
                     partialMatrix, !addContribution, startRow, startColumn );
     }
 
+    void wrtNonTranslationalStateOfAdditionalBody(
+            Eigen::Block< Eigen::MatrixXd > partialMatrix,
+            const std::pair< std::string, std::string >& stateReferencePoint,
+            const propagators::IntegratedStateType integratedStateType )
+    {
+        accelerationPartialOfShExpansionOfBodyExertingAcceleration_->
+                        wrtNonTranslationalStateOfAdditionalBody(
+                            partialMatrix, stateReferencePoint, integratedStateType );
+        accelerationPartialOfShExpansionOfBodyUndergoingAcceleration_->
+                        wrtNonTranslationalStateOfAdditionalBody(
+                            partialMatrix, stateReferencePoint, integratedStateType );
+    }
+
     //! Function for determining if the acceleration is dependent on a non-translational integrated state.
     /*!
      *  Function for determining if the acceleration is dependent on a non-translational integrated state.
