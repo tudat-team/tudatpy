@@ -98,20 +98,6 @@ Eigen::Matrix< double, 6, 1 > convertUnifiedStateModelWithQuaternionsToKeplerian
 Eigen::Matrix< double, 7, 1 > convertCartesianToUnifiedStateModelWithQuaternionsElements(
         const Eigen::Matrix< double, 6, 1 >& cartesianElements,
         const double centralBodyGravitationalParameter );
-//template< typename ScalarType = double >
-//Eigen::Matrix< ScalarType, 7, 1 > convertCartesianToUnifiedStateModelWithQuaternionsElements(
-//        const Eigen::Matrix< ScalarType, 6, 1 >& cartesianElements,
-//        const ScalarType centralBodyGravitationalParameter )
-//{
-//    // Convert Cartesian to Keplerian elements.
-//    Eigen::Matrix< ScalarType, 6, 1 >  convertedKeplerianElements = convertCartesianToKeplerianElements< ScalarType >(
-//                cartesianElements, centralBodyGravitationalParameter );
-
-//    // Convert Keplerian elements to unified state model elements with quaternions.
-//    return convertKeplerianToUnifiedStateModelWithQuaternionsElements(
-//                convertedKeplerianElements.template cast< double >( ), centralBodyGravitationalParameter ).
-//            template cast< ScalarType >( );
-//}
 
 //! Convert unified state model elements with quaternions to Cartesian elements.
 /*!
@@ -137,20 +123,6 @@ Eigen::Matrix< double, 7, 1 > convertCartesianToUnifiedStateModelWithQuaternions
 Eigen::Matrix< double, 6, 1 > convertUnifiedStateModelWithQuaternionsToCartesianElements(
         const Eigen::Matrix< double, 7, 1 >& unifiedStateModelElements,
         const double centralBodyGravitationalParameter );
-//template< typename ScalarType = double >
-//Eigen::Matrix< ScalarType, 6, 1 > convertUnifiedStateModelWithQuaternionsToCartesianElements(
-//        const Eigen::Matrix< ScalarType, 7, 1 >& unifiedStateModelElements,
-//        const ScalarType centralBodyGravitationalParameter )
-//{
-//    // Convert unified state model with quaternions to Keplerian elements.
-//    Eigen::Matrix< ScalarType, 6, 1 > convertedKeplerianElements =
-//            convertUnifiedStateModelWithQuaternionsToKeplerianElements(
-//                unifiedStateModelElements.template cast< double >( ), centralBodyGravitationalParameter ).template cast< ScalarType >( );
-
-//    // Convert Keplerian elements to Cartesian elements.
-//    return convertKeplerianToCartesianElements(
-//                convertedKeplerianElements, centralBodyGravitationalParameter );
-//}
 
 } // namespace orbital_element_conversions
 

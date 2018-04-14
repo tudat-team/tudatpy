@@ -462,14 +462,6 @@ Eigen::Vector7d convertCartesianToUnifiedStateModelWithQuaternionsElements(
     convertedUnifiedStateModelElements( CHodographQuaternionIndex ) = centralBodyGravitationalParameter /
             angularMomentumMagnitude;
 
-//    // vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    ---REMOVE---    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
-//    std::cout << "Position: " << positionVector.transpose( ) << std::endl << positionMagnitude << std::endl;
-//    std::cout << "Velocity: " << velocityVector.transpose( ) << std::endl;
-//    std::cout << "Angular Momentum: " << angularMomentumVector.transpose( ) << std::endl
-//              << angularMomentumMagnitude << std::endl;
-//    std::cout << "C Hodograph: " << convertedUnifiedStateModelElements( CHodographQuaternionIndex ) << std::endl;
-//    // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^    ---REMOVE---    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
     // Find direction cosine matrix with position and angular momentum vectors
     Eigen::Matrix3d directionCosineMatrix = Eigen::Matrix3d::Zero( );
     directionCosineMatrix.block( 0, 0, 1, 3 ) = angularMomentumMagnitude * positionVector.transpose( );
@@ -486,13 +478,6 @@ Eigen::Vector7d convertCartesianToUnifiedStateModelWithQuaternionsElements(
         epsilonQuaternionSquaredVector( i ) = ( 1.0 - traceDirectionCosineMatrix + 2.0 *
                 directionCosineMatrix( i, i ) ) / 4.0;
     }
-
-//    // vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    ---REMOVE---    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
-//    std::cout << "DCM: " << std::endl << directionCosineMatrix << std::endl;
-//    std::cout << "Trace DCM: " << traceDirectionCosineMatrix << std::endl;
-//    std::cout << "Eta Quaternion Squared: " << etaQuaternionSquaredParameter << std::endl;
-//    std::cout << "Epsilon Quaternion Squared: " << epsilonQuaternionSquaredVector.transpose( ) << std::endl;
-//    // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^    ---REMOVE---    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
     // Based on the maximum value, find the quaternion elements
     double maximumValue = std::max( epsilonQuaternionSquaredVector.maxCoeff( ), etaQuaternionSquaredParameter );
@@ -580,11 +565,6 @@ Eigen::Vector7d convertCartesianToUnifiedStateModelWithQuaternionsElements(
         throw std::runtime_error( std::runtime_error( errorMessage.str( ) ) );
     }
 
-//    // vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    ---REMOVE---    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
-//    std::cout << "Full Quaternion: " <<
-//                 convertedUnifiedStateModelElements.segment( epsilon1QuaternionIndex, 4 ).transpose( ) << std::endl;
-//    // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^    ---REMOVE---    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
     // Check whether the orbit is pure-retrograde
     if ( ( std::fabs( convertedUnifiedStateModelElements( epsilon3QuaternionIndex ) ) < singularityTolerance )
         && ( std::fabs( convertedUnifiedStateModelElements( etaQuaternionIndex ) ) < singularityTolerance ) )
@@ -610,46 +590,21 @@ Eigen::Vector7d convertCartesianToUnifiedStateModelWithQuaternionsElements(
                             convertedUnifiedStateModelElements( epsilon3QuaternionIndex ) ) / denominator;
     double sineLambda = ( 2.0 * convertedUnifiedStateModelElements( epsilon3QuaternionIndex ) *
                           convertedUnifiedStateModelElements( etaQuaternionIndex ) ) / denominator;
-//    double rightAscensionOfLatitude = std::atan2( sineLambda, cosineLambda );
-
-//    // vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    ---REMOVE---    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
-//    std::cout << "Denominator: " << denominator << std::endl;
-//    std::cout << "Cosine: " << cosineLambda << std::endl;
-//    std::cout << "Sine: " << sineLambda << std::endl;
-//    // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^    ---REMOVE---    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
     // Compute auxiliary parameters
-    Eigen::Vector3d auxiliaryParameter3 = positionVector.dot( velocityVector ) / positionMagnitude /
-            positionMagnitude * positionVector;
+    double radialVelocity = positionVector.dot( velocityVector ) / positionMagnitude;
+    Eigen::Vector3d auxiliaryParameter3 = radialVelocity / positionMagnitude * positionVector;
     double auxiliaryParameter2 = ( velocityVector - auxiliaryParameter3 ).norm( );
-    double auxiliaryParameter1 = auxiliaryParameter3.norm( ); // take norm now that vector value has been used
+    double signAuxiliaryParameter1 = std::signbit( radialVelocity ) ? - 1.0 : 1.0;
+    double auxiliaryParameter1 = signAuxiliaryParameter1 * auxiliaryParameter3.norm( ); // take norm now that vector value has been used
+    // The sign of first velocity component depends on true anomaly (positive if < PI), and true anomaly can be related to the radial
+    // velocity
 
-//    // vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    ---REMOVE---    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
-//    std::cout << "Ve1: " << auxiliaryParameter1 << std::endl;
-//    std::cout << "Ve2: " << auxiliaryParameter2 << std::endl;
-//    // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^    ---REMOVE---    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-//    // Compute Rf1 and Rf2 hodograph elements
-//    if ( ( rightAscensionOfLatitude > 0.0 ) && ( rightAscensionOfLatitude < PI ) )
-//        // when lambda is between 0 and PI, the elements reverse (?)
-//    {
-//        convertedUnifiedStateModelElements( Rf2HodographQuaternionIndex ) = auxiliaryParameter1 * cosineLambda -
-//                ( auxiliaryParameter2 - convertedUnifiedStateModelElements( CHodographQuaternionIndex ) ) * sineLambda;
-//        convertedUnifiedStateModelElements( Rf1HodographQuaternionIndex ) = auxiliaryParameter1 * sineLambda +
-//                ( auxiliaryParameter2 - convertedUnifiedStateModelElements( CHodographQuaternionIndex ) ) * cosineLambda;
-//    }
-//    else
-//    {
+    // Compute Rf1 and Rf2 hodograph elements
     convertedUnifiedStateModelElements( Rf1HodographQuaternionIndex ) = auxiliaryParameter1 * cosineLambda -
             ( auxiliaryParameter2 - convertedUnifiedStateModelElements( CHodographQuaternionIndex ) ) * sineLambda;
     convertedUnifiedStateModelElements( Rf2HodographQuaternionIndex ) = auxiliaryParameter1 * sineLambda +
             ( auxiliaryParameter2 - convertedUnifiedStateModelElements( CHodographQuaternionIndex ) ) * cosineLambda;
-//    }
-
-//    // vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    ---REMOVE---    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
-//    std::cout << "R Hodograph: " <<
-//                 convertedUnifiedStateModelElements.segment( Rf1HodographQuaternionIndex, 2 ).transpose( ) << std::endl;
-//    // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^    ---REMOVE---    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
     // Give back result
     return convertedUnifiedStateModelElements;
@@ -740,7 +695,7 @@ Eigen::Vector6d convertUnifiedStateModelWithQuaternionsToCartesianElements(
     skewEpsilonQuaternionVector( 0, 2 ) = epsilonQuaternionVector.y( );
     skewEpsilonQuaternionVector( 2, 1 ) = epsilonQuaternionVector.x( );
     skewEpsilonQuaternionVector( 1, 2 ) = -epsilonQuaternionVector.x( );
-    // linear_algebra::getCrossProductMatrix( epsilonQuaternionVector )
+    // Eigen::Matrix3d skewEpsilonQuaternionVector = linear_algebra::getCrossProductMatrix( epsilonQuaternionVector );
     // Gives error: Undefined symbols for architecture x86_64 (sometimes)
     Eigen::Matrix3d inverseDirectionCosineMatrix = (
                 Eigen::Matrix3d::Identity( ) * ( std::pow( etaQuaternionParameter, 2 ) -
