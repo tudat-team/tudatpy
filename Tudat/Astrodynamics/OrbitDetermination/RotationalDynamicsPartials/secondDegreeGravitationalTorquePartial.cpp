@@ -60,6 +60,96 @@ SecondDegreeGravitationalTorquePartial::getParameterPartialFunction(
     return partialFunctionPair;
 }
 
+std::pair< boost::function< void( Eigen::MatrixXd& ) >, int > SecondDegreeGravitationalTorquePartial::getParameterPartialFunction(
+        boost::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter )
+{
+    using namespace estimatable_parameters;
+
+   std::pair< boost::function< void( Eigen::MatrixXd& ) >, int >  partialFunction = std::make_pair(
+               boost::function< void( Eigen::MatrixXd& ) >( ), 0 );
+
+    if( parameter->getParameterName( ).second.first == bodyUndergoingTorque_ )
+    {
+        switch( parameter->getParameterName( ).first )
+        {
+        case spherical_harmonics_cosine_coefficient_block:
+        {
+            // Cast parameter object to required type.
+            boost::shared_ptr< SphericalHarmonicsCosineCoefficients > coefficientsParameter =
+                    boost::dynamic_pointer_cast< SphericalHarmonicsCosineCoefficients >( parameter );
+
+            int c20Index, c21Index, c22Index;
+            coefficientsParameter->getDegreeTwoEntries( c20Index, c21Index, c22Index );
+
+            if( c20Index >= 0 || c21Index >= 0 || c22Index >= 0 )
+            {
+                if( getInertiaTensorNormalizationFactor_.empty( ) )
+                {
+                    throw std::runtime_error( "Error when getting partial of 2nd degree grac torque w.r.t. cosine sh parameters, inertia tensor normalization function not found." );
+                }
+                partialFunction = std::make_pair(
+                            boost::bind( &SecondDegreeGravitationalTorquePartial::
+                                         wrtCosineSphericalHarmonicCoefficientsOfCentralBody, this,
+                                _1, c20Index, c21Index, c22Index ), coefficientsParameter->getParameterSize( ) );
+            }
+
+            break;
+        }
+        case spherical_harmonics_sine_coefficient_block:
+        {
+            // Cast parameter object to required type.
+
+            boost::shared_ptr< SphericalHarmonicsSineCoefficients > coefficientsParameter =
+                    boost::dynamic_pointer_cast< SphericalHarmonicsSineCoefficients >( parameter );
+
+            int s21Index, s22Index;
+            coefficientsParameter->getDegreeTwoEntries( s21Index, s22Index );
+
+            if( s21Index >= 0 || s22Index >= 0 )
+            {
+                if( getInertiaTensorNormalizationFactor_.empty( ) )
+                {
+                    throw std::runtime_error( "Error when getting partial of 2nd degree grac torque w.r.t. sine sh parameters, inertia tensor normalization function not found." );
+                }
+                partialFunction = std::make_pair(
+                            boost::bind( &SecondDegreeGravitationalTorquePartial::
+                                         wrtSineSphericalHarmonicCoefficientsOfCentralBody, this,
+                                _1, s21Index, s22Index ), coefficientsParameter->getParameterSize( ) );
+            }
+
+
+            break;
+        }
+        default:
+            break;
+        }
+    }
+    return partialFunction;
+}
+
+void SecondDegreeGravitationalTorquePartial::update( const double currentTime )
+{
+    if( !( currentTime_ == currentTime ) )
+    {
+        torqueModel_->updateMembers( currentTime );
+        currentQuaternionVector_ = linear_algebra::convertQuaternionToVectorFormat(
+                    ( torqueModel_->getCurrentRotationToBodyFixedFrame( ) ).inverse( ) );
+        linear_algebra::computePartialDerivativeOfRotationMatrixWrtQuaternion(
+                    currentQuaternionVector_,  currentRotationMatrixDerivativesWrtQuaternion_ );
+        currentBodyFixedRelativePosition_ = torqueModel_->getCurrentRelativeBodyFixedPositionOfBodySubjectToTorque( );
+        currentCoefficientPartialPremultiplier_ = torqueModel_->getCurrentTorqueMagnitudePremultiplier( ) *
+                linear_algebra::getCrossProductMatrix( currentBodyFixedRelativePosition_ );
+
+        currentPartialDerivativeWrtQuaternion_ = getPartialDerivativeOfSecondDegreeGravitationalTorqueWrtQuaternion(
+                    torqueModel_->getCurrentTorqueMagnitudePremultiplier( ),
+                    torqueModel_->getCurrentInertiaTensorOfRotatingBody( ),
+                    torqueModel_->getCurrentRelativeBodyFixedPositionOfBodySubjectToTorque(),
+                    torqueModel_->getCurrentRelativePositionOfBodySubjectToTorque( ),
+                    currentRotationMatrixDerivativesWrtQuaternion_ );
+    }
+}
+
+
 //! Function to calculate central gravity partial w.r.t. central body gravitational parameter
 void SecondDegreeGravitationalTorquePartial::wrtGravitationalParameterOfCentralBody(
         Eigen::MatrixXd& gravitationalParameterPartial )
@@ -70,6 +160,60 @@ void SecondDegreeGravitationalTorquePartial::wrtGravitationalParameterOfCentralB
     }
     gravitationalParameterPartial =
             torqueModel_->getTorque( ) / torqueModel_->getCurrentGravitationalParameterOfAttractingBody( );
+}
+
+void SecondDegreeGravitationalTorquePartial::wrtCosineSphericalHarmonicCoefficientsOfCentralBody(
+        Eigen::MatrixXd& sphericalHarmonicCoefficientPartial,
+        const int c20Index, const int c21Index, const int c22Index )
+{
+    sphericalHarmonicCoefficientPartial.setZero( );
+
+    if( c20Index >= 0 )
+    {
+        sphericalHarmonicCoefficientPartial .block( 0, c20Index, 3, 1 ) =
+                basic_mathematics::calculateLegendreGeodesyNormalizationFactor( 2, 0 ) *
+                getInertiaTensorNormalizationFactor_( ) * currentCoefficientPartialPremultiplier_ *
+                UNSCALED_INERTIAL_TENSOR_PARTIAL_WRT_C20 * currentBodyFixedRelativePosition_;
+    }
+
+    if( c21Index >= 0 )
+    {
+        sphericalHarmonicCoefficientPartial .block( 0, c21Index, 3, 1 ) =
+                basic_mathematics::calculateLegendreGeodesyNormalizationFactor( 2, 1 ) *
+                getInertiaTensorNormalizationFactor_( ) * currentCoefficientPartialPremultiplier_ *
+                UNSCALED_INERTIAL_TENSOR_PARTIAL_WRT_C21 * currentBodyFixedRelativePosition_;
+    }
+
+    if( c22Index >= 0 )
+    {
+        sphericalHarmonicCoefficientPartial .block( 0, c22Index, 3, 1 ) =
+                basic_mathematics::calculateLegendreGeodesyNormalizationFactor( 2, 2 ) *
+                getInertiaTensorNormalizationFactor_( ) * currentCoefficientPartialPremultiplier_ *
+                UNSCALED_INERTIAL_TENSOR_PARTIAL_WRT_C22 * currentBodyFixedRelativePosition_;
+    }
+}
+
+void SecondDegreeGravitationalTorquePartial::wrtSineSphericalHarmonicCoefficientsOfCentralBody(
+        Eigen::MatrixXd& sphericalHarmonicCoefficientPartial,
+        const int s21Index, const int s22Index )
+{
+    sphericalHarmonicCoefficientPartial.setZero( );
+
+    if( s21Index >= 0 )
+    {
+        sphericalHarmonicCoefficientPartial .block( 0, s21Index, 3, 1 ) =
+                basic_mathematics::calculateLegendreGeodesyNormalizationFactor( 2, 1 ) *
+                getInertiaTensorNormalizationFactor_( ) * currentCoefficientPartialPremultiplier_ *
+                UNSCALED_INERTIAL_TENSOR_PARTIAL_WRT_S21 * currentBodyFixedRelativePosition_;
+    }
+
+    if( s22Index >= 0 )
+    {
+        sphericalHarmonicCoefficientPartial .block( 0, s22Index, 3, 1 ) =
+                basic_mathematics::calculateLegendreGeodesyNormalizationFactor( 2, 2 ) *
+                getInertiaTensorNormalizationFactor_( ) * currentCoefficientPartialPremultiplier_ *
+                UNSCALED_INERTIAL_TENSOR_PARTIAL_WRT_S22 * currentBodyFixedRelativePosition_;
+    }
 }
 
 

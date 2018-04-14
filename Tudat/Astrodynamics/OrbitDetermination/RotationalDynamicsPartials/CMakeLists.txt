@@ -15,6 +15,7 @@ set(TORQUE_PARTIALS_SOURCES
 # Set the header files.
 set(TORQUE_PARTIALS_HEADERS
   "${SRCROOT}${TORQUEPARTIALSDIR}/torquePartial.h"
+  "${SRCROOT}${TORQUEPARTIALSDIR}/inertiaTensorPartial.h"
   "${SRCROOT}${TORQUEPARTIALSDIR}/secondDegreeGravitationalTorquePartial.h"
 )
 

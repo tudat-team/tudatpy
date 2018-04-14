@@ -8,11 +8,13 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#ifndef TUDAT_SECONDDEGREEGRAVITATIONALTORQUEPARTIALS_H
-#define TUDAT_SECONDDEGREEGRAVITATIONALTORQUEPARTIALS_H
+#ifndef TUDAT_INERTIATENSORPARTIALS_H
+#define TUDAT_INERTIATENSORPARTIALS_H
 
 #include "Tudat/Astrodynamics/Gravitation/secondDegreeGravitationalTorque.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/RotationalDynamicsPartials/torquePartial.h"
+#include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/sphericalHarmonicCosineCoefficients.h"
+#include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/sphericalHarmonicSineCoefficients.h"
 #include "Tudat/Mathematics/BasicMathematics/linearAlgebra.h"
 
 namespace tudat
@@ -21,89 +23,37 @@ namespace tudat
 namespace acceleration_partials
 {
 
-//! Class to calculate the partials of the central gravitational acceleration w.r.t. parameters and states.
-class InertiaTensorPartial
-{
-public:
-
-    InertiaTensorPartial(
-            boost::function< double( ) > inertiaTensorNormalizationFunction ):
-        inertiaTensorNormalizationFunction_( inertiaTensorNormalizationFunction )
-    {
-        unscaledPartialWrtC20_.setZero( );
-        unscaledPartialWrtC20_( 0, 0 ) = 1.0 / 3.0;
-        unscaledPartialWrtC20_( 1, 1 ) = 1.0 / 3.0;
-        unscaledPartialWrtC20_( 2, 2 ) = 2.0 / 3.0;
-
-        unscaledPartialWrtC21_.setZero( );
-        unscaledPartialWrtC21_( 2, 0 ) = -1.0;
-        unscaledPartialWrtC21_( 0, 2 ) = -1.0;
-
-        unscaledPartialWrtC22_.setZero( );
-        unscaledPartialWrtC20_( 0, 0 ) = -2.0;
-        unscaledPartialWrtC20_( 1, 1 ) = -2.0;
-
-        unscaledPartialWrtS21_.setZero( );
-        unscaledPartialWrtS21_( 2, 1 ) = -1.0;
-        unscaledPartialWrtS21_( 1, 2 ) = -1.0;
-
-        unscaledPartialWrtS22_.setZero( );
-        unscaledPartialWrtS22_( 0, 1 ) = -2.0;
-        unscaledPartialWrtS22_( 1, 0 ) = -2.0;
-        unscaledPartialWrtMeanInertia_ = Eigen::Matrix3d::Identity( );
-    }
-
-    ~InertiaTensorPartial( ){ }
+const static Eigen::Matrix3d UNSCALED_INERTIAL_TENSOR_PARTIAL_WRT_C20 =
+        ( Eigen::Matrix3d( ) << 1.0 / 3.0, 0.0, 0.0,
+          0.0, 1.0 / 3.0, 0.0,
+          0.0, 0.0, -2.0 / 3.0 ).finished( );
 
 
-    std::pair< boost::function< void( Eigen::MatrixXd& ) >, int >
-    getParameterPartialFunction( boost::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter )
-    {
-        boost::function< void( Eigen::MatrixXd& ) > partialFunction;
-        return std::make_pair( partialFunction, 0 );
-    }
+const static Eigen::Matrix3d UNSCALED_INERTIAL_TENSOR_PARTIAL_WRT_C21 =
+        ( Eigen::Matrix3d( ) << 0.0, 0.0, -1.0,
+          0.0, 0.0, 0.0,
+          -1.0, 0.0, 0.0 ).finished( );
 
-    std::pair< boost::function< void( std::vector< Eigen::MatrixXd >& ) >, int > getParameterPartialFunction(
-            boost::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter )
-    {
-        boost::function< void( std::vector< Eigen::MatrixXd >& ) > partialFunction;
-        return std::macke_pair( partialFunction, 0 );
-    }
+const static Eigen::Matrix3d UNSCALED_INERTIAL_TENSOR_PARTIAL_WRT_C22 =
+        ( Eigen::Matrix3d( ) << -2.0, 0.0, 0.0,
+          0.0, 2.0, 0.0,
+          0.0, 0.0, 0.0 ).finished( );
 
-    void update( const double currentTime = TUDAT_NAN )
-    {
-        if( !( currentTime_ == currentTime ) )
-        {
-            currentNormalizationFactor_ = inertiaTensorNormalizationFunction_( );
-            currentTime_ = currentTime;
-        }
-    }
+const static Eigen::Matrix3d UNSCALED_INERTIAL_TENSOR_PARTIAL_WRT_S21 =
+        ( Eigen::Matrix3d( ) << 0.0, 0.0, 0.0,
+          0.0, 0.0, -1.0,
+          0.0, -1.0, 0.0 ).finished( );
 
-protected:
+const static Eigen::Matrix3d UNSCALED_INERTIAL_TENSOR_PARTIAL_WRT_S22 =
+        ( Eigen::Matrix3d( ) << 0.0, -2.0, 0.0,
+          -2.0, 0.0, 0.0,
+          0.0, 0.0, 0.0 ).finished( );
 
-    double currentTime_;
-
-    double currentNormalizationFactor_;
-
-    Eigen::Matrix3d unscaledPartialWrtC20_;
-
-    Eigen::Matrix3d unscaledPartialWrtC21_;
-
-    Eigen::Matrix3d unscaledPartialWrtC22_;
-
-    Eigen::Matrix3d unscaledPartialWrtS21_;
-
-    Eigen::Matrix3d unscaledPartialWrtS22_;
-
-    Eigen::Matrix3d unscaledPartialWrtMeanInertia_;
-
-
-    boost::function< double( ) > inertiaTensorNormalizationFunction_;
-
-};
+const static Eigen::Matrix3d UNSCALED_INERTIAL_TENSOR_PARTIAL_WRT_MEAN_MOMENT =
+        Eigen::Matrix3d::Identity( );
 
 } // namespace acceleration_partials
 
 } // namespace tudat
 
-#endif // TUDAT_SECONDDEGREEGRAVITATIONALTORQUEPARTIALS_H
+#endif // TUDAT_INERTIATENSORPARTIALS_H

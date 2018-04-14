@@ -228,7 +228,8 @@ public:
           currentRotationToLocalFrameDerivative_( Eigen::Matrix3d::Zero( ) ),
           currentAngularVelocityVectorInGlobalFrame_( Eigen::Vector3d::Zero( ) ),
           bodyMassFunction_( NULL ),
-          bodyInertiaTensor_( Eigen::Matrix3d::Zero( ) )
+          bodyInertiaTensor_( Eigen::Matrix3d::Zero( ) ),
+          scaledMeanMomentOfInertia_( 0.0 )
     {
         currentLongState_ = currentState_.cast< long double >( );
     }
@@ -1050,6 +1051,11 @@ public:
         return bodyInertiaTensor_;
     }
 
+    double getScaledMeanMomentOfInertia( )
+    {
+        return scaledMeanMomentOfInertia_;
+    }
+
     //! Function to (re)set the body moment-of-inertia tensor.
     /*!
      * Function to (re)set the body moment-of-inertia tensor.
@@ -1058,6 +1064,12 @@ public:
     void setBodyInertiaTensor( const Eigen::Matrix3d& bodyInertiaTensor )
     {
         bodyInertiaTensor_ = bodyInertiaTensor;
+    }
+
+    void setBodyInertiaTensor( const Eigen::Matrix3d& bodyInertiaTensor, const double scaledMeanMomentOfInertia )
+    {
+        bodyInertiaTensor_ = bodyInertiaTensor;
+        scaledMeanMomentOfInertia_ = scaledMeanMomentOfInertia;
     }
 
     //! Function to (re)set the body moment-of-inertia tensor from the gravity field.
@@ -1075,10 +1087,20 @@ public:
         }
         else
         {
+            scaledMeanMomentOfInertia_ = scaledMeanMomentOfInertia;
             bodyInertiaTensor_ = gravitation::getInertiaTensor(
                         boost::dynamic_pointer_cast< gravitation::SphericalHarmonicsGravityField >( gravityFieldModel_ ),
                         scaledMeanMomentOfInertia );
         }
+    }
+
+    void setBodyInertiaTensorFromGravityFieldAndExistingMeanMoment(  )
+    {
+        if( scaledMeanMomentOfInertia_ == 0.0 )
+        {
+            std::cerr<<"Warning when setting body inertia tensor, mean moment of inertia set to zero. "<<std::endl;
+        }
+        setBodyInertiaTensorFromGravityField( scaledMeanMomentOfInertia_ );
     }
 
     //! Function to add a ground station to the body
@@ -1216,6 +1238,8 @@ private:
 
     //! Body moment-of-inertia tensor.
     Eigen::Matrix3d bodyInertiaTensor_;
+
+    double scaledMeanMomentOfInertia_;
 
 
     //! Ephemeris of body.

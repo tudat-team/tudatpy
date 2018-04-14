@@ -25,8 +25,8 @@
 #include <Eigen/Geometry>
 
 #include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
-
 #include "Tudat/Mathematics/BasicMathematics/legendrePolynomials.h"
+#include "Tudat/Astrodynamics/BasicAstrodynamics/physicalConstants.h"
 #include "Tudat/Astrodynamics/Gravitation/gravityFieldModel.h"
 #include "Tudat/Astrodynamics/Gravitation/sphericalHarmonicsGravityModel.h"
 
@@ -289,6 +289,11 @@ public:
         return true;
     }
 
+    double getInertiaTensorNormalizationFactor( )
+    {
+        return gravitationalParameter_ * referenceRadius_ * referenceRadius_ / physical_constants::GRAVITATIONAL_CONSTANT;
+    }
+
 protected:
 
     //! Reference radius of spherical harmonic field expansion
@@ -374,9 +379,10 @@ Eigen::Matrix3d getInertiaTensor(
         const boost::shared_ptr< SphericalHarmonicsGravityField > sphericalHarmonicGravityField,
         const double scaledMeanMomentOfInertia );
 
-std::pair< Eigen::Matrix3d, Eigen::Matrix3d > getDegreeTwoSphericalHarmonicCoefficients(
+void getDegreeTwoSphericalHarmonicCoefficients(
         const Eigen::Matrix3d inertiaTensor, const double bodyGravitationalParameter, const double referenceRadius,
-        const bool useNormalizedCoefficients );
+        const bool useNormalizedCoefficients,
+        Eigen::MatrixXd& cosineCoefficients, Eigen::MatrixXd& sineCoefficients, double& scaledMeanMomentOfInertia );
 
 
 } // namespace gravitation

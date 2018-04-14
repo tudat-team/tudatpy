@@ -11,6 +11,7 @@
 #ifndef TUDAT_SECONDDEGREEGRAVITATIONALTORQUE_H
 #define TUDAT_SECONDDEGREEGRAVITATIONALTORQUE_H
 
+#include <iostream>
 
 #include <boost/function.hpp>
 #include <boost/lambda/lambda.hpp>

@@ -72,9 +72,18 @@ boost::shared_ptr< acceleration_partials::TorquePartial > createAnalyticalTorque
         else
         {
             // Create partial-calculating object.
+            boost::function< double( ) > inertiaTensorNormalizationFunction;
+            if( boost::dynamic_pointer_cast< SphericalHarmonicsGravityField >( acceleratedBody.second->getGravityFieldModel( ) )
+                    != NULL )
+            {
+                inertiaTensorNormalizationFunction =
+                        boost::bind( &SphericalHarmonicsGravityField::getInertiaTensorNormalizationFactor,
+                                     boost::dynamic_pointer_cast< SphericalHarmonicsGravityField >(
+                                         acceleratedBody.second->getGravityFieldModel( ) ) );
+            }
             torquePartial = boost::make_shared< SecondDegreeGravitationalTorquePartial >
                     ( boost::dynamic_pointer_cast< SecondDegreeGravitationalTorqueModel >( torqueModel ),
-                      acceleratedBody.first, acceleratingBody.first );
+                      inertiaTensorNormalizationFunction, acceleratedBody.first, acceleratingBody.first );
         }
         break;
     default:

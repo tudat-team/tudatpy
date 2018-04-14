@@ -109,6 +109,27 @@ public:
         return parameterDescription;
     }
 
+    void getDegreeTwoEntries(
+            int& s21Index, int& s22Index )
+    {
+        s21Index = -1;
+        s22Index = -1;
+
+        for( unsigned int i = 0; i < blockIndices_.size( ); i++ )
+        {
+
+            if( blockIndices_.at( i ).first == 2 && blockIndices_.at( i ).second == 1 )
+            {
+               s21Index = i;
+            }
+
+            if( blockIndices_.at( i ).first == 2 && blockIndices_.at( i ).second == 2 )
+            {
+               s22Index = i;
+            }
+        }
+    }
+
 protected:
 
 private:
