@@ -62,10 +62,6 @@ Eigen::Vector7d computeStateDerivativeForUnifiedStateModelWithModifiedRodriguesP
 {
     using namespace orbital_element_conversions;
 
-    // Set flag to shadow or non-shadow
-    bool shadowFlag = currentUnifiedStateModelElements( shadowModifiedRodriguesParameterFlagIndex );
-//    double signDirectionCosineMatrix = shadowFlag ? - 1.0 : 1.0;
-
     // Compute auxiliary parameters
     Eigen::Vector3d modifiedRodriguesParametersVector = currentUnifiedStateModelElements.segment( sigma1ModifiedRodriguesParameterIndex, 3 );
     double modifiedRodriguesParametersMagnitude = modifiedRodriguesParametersVector.norm( );
@@ -75,25 +71,31 @@ Eigen::Vector7d computeStateDerivativeForUnifiedStateModelWithModifiedRodriguesP
     // Note the for SMRP some variable names do not match their definitions
     double modifiedRodriguesParametersMagnitudeSquared =
             modifiedRodriguesParametersMagnitude * modifiedRodriguesParametersMagnitude;
-    double oneMinusModifiedRodriguesParametersMagnitudeSquared = shadowFlag ?
+    double oneMinusModifiedRodriguesParametersMagnitudeSquared =
+            currentUnifiedStateModelElements( shadowModifiedRodriguesParameterFlagIndex ) ?
                 ( modifiedRodriguesParametersMagnitudeSquared - 1.0 ) : // inverse definition for SMRP
                 ( 1.0 - modifiedRodriguesParametersMagnitudeSquared );
     double oneMinusModifiedRodriguesParametersMagnitudeSquaredSquared =
-                    std::pow( oneMinusModifiedRodriguesParametersMagnitudeSquared, 2 );
+            std::pow( oneMinusModifiedRodriguesParametersMagnitudeSquared, 2 );
+    double sigma1ModifiedRodriguesParametersSquared = std::pow( modifiedRodriguesParametersVector( 0 ), 2 );
+    double sigma2ModifiedRodriguesParametersSquared = std::pow( modifiedRodriguesParametersVector( 1 ), 2 );
+    double sigma3ModifiedRodriguesParametersSquared = std::pow( modifiedRodriguesParametersVector( 2 ), 2 );
 
     // Compute supporting parameters
-    double denominator = 4.0 * std::pow( modifiedRodriguesParametersVector( 2 ), 2 ) +
+    double denominator = 4.0 * sigma3ModifiedRodriguesParametersSquared +
             oneMinusModifiedRodriguesParametersMagnitudeSquaredSquared; // denominator is never null
     double sineLambda = 4.0 * modifiedRodriguesParametersVector( 2 ) *
             ( 1.0 - modifiedRodriguesParametersMagnitudeSquared ) / denominator;
     double cosineLambda = ( oneMinusModifiedRodriguesParametersMagnitudeSquaredSquared -
-                                     4.0 * std::pow( modifiedRodriguesParametersVector( 2 ), 2 ) ) / denominator;
-    double gammaParameter = 2.0 * modifiedRodriguesParametersVector( 1 ) * ( modifiedRodriguesParametersMagnitudeSquared - 1.0 ) /
-            ( std::pow( modifiedRodriguesParametersMagnitudeSquared, 2 ) + 2.0 *
-              ( std::pow( modifiedRodriguesParametersVector( 0 ), 2 ) * std::pow( modifiedRodriguesParametersVector( 1 ), 2 ) +
-                std::pow( modifiedRodriguesParametersVector( 0 ), 2 ) * std::pow( modifiedRodriguesParametersVector( 2 ), 2 ) +
-                std::pow( modifiedRodriguesParametersVector( 1 ), 2 ) * std::pow( modifiedRodriguesParametersVector( 2 ), 2 ) -
-                modifiedRodriguesParametersMagnitudeSquared + 2.0 * std::pow( modifiedRodriguesParametersVector( 2 ), 2 ) ) + 1.0 );
+                            4.0 * sigma3ModifiedRodriguesParametersSquared ) / denominator;
+    double gammaParameter = 2.0 * ( modifiedRodriguesParametersVector( 1 ) * ( modifiedRodriguesParametersMagnitudeSquared - 1.0 ) +
+                                    2.0 * modifiedRodriguesParametersVector( 0 ) * modifiedRodriguesParametersVector( 2 ) ) /
+            ( std::pow( sigma1ModifiedRodriguesParametersSquared, 2 ) + std::pow( sigma2ModifiedRodriguesParametersSquared, 2 ) +
+              std::pow( sigma3ModifiedRodriguesParametersSquared, 2 ) + 2.0 *
+              ( sigma1ModifiedRodriguesParametersSquared * sigma2ModifiedRodriguesParametersSquared +
+                sigma1ModifiedRodriguesParametersSquared * sigma3ModifiedRodriguesParametersSquared +
+                sigma2ModifiedRodriguesParametersSquared * sigma3ModifiedRodriguesParametersSquared -
+                modifiedRodriguesParametersMagnitudeSquared + 2.0 * sigma3ModifiedRodriguesParametersSquared ) + 1.0 );
 
     double velocityHodographParameter = currentUnifiedStateModelElements( CHodographModifiedRodriguesParameterIndex ) -
             currentUnifiedStateModelElements( Rf1HodographModifiedRodriguesParameterIndex ) * sineLambda +

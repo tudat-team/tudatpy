@@ -197,8 +197,7 @@ BOOST_AUTO_TEST_CASE( testUnifiedStateModelPopagatorForPointMassCentralBodies )
         }
         else if( propagatorType == 1 )
         {
-//            translationalPropagatorType = unified_state_model_modified_rodrigues_parameters;
-            translationalPropagatorType = unified_state_model_quaternions; // temporary fix (USM6 not implemented yet)
+            translationalPropagatorType = unified_state_model_modified_rodrigues_parameters;
         }
         else
         {
