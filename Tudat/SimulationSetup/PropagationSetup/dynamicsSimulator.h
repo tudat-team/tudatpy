@@ -95,6 +95,42 @@ Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > getInitialStatesOfBodies(
     return systemInitialState;
 }
 
+template< typename TimeType = double, typename StateScalarType = double >
+Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > getInitialRotationalStatesOfBodies(
+        const std::vector< std::string >& bodiesToIntegrate,
+        const std::vector< std::string >& baseOrientations,
+        const simulation_setup::NamedBodyMap& bodyMap,
+        const TimeType initialTime )
+{
+    // Set initial states of bodies to integrate.
+    Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > systemInitialState =
+            Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >::Zero( bodiesToIntegrate.size( ) * 7, 1 );
+    boost::shared_ptr< ephemerides::RotationalEphemeris > rotationModelOfCurrentBody;
+
+    // Iterate over all bodies.
+    for( unsigned int i = 0; i < bodiesToIntegrate.size( ) ; i++ )
+    {
+        rotationModelOfCurrentBody = bodyMap.at( bodiesToIntegrate.at( i ) )->getRotationalEphemeris( );
+
+        if ( ! rotationModelOfCurrentBody )
+        {
+            throw std::runtime_error( "Could not determine initial state for body " + bodiesToIntegrate.at( i ) +
+                                      " because it does not have a valid RotationalEphemeris object." );
+        }
+
+        // Get body initial state from ephemeris
+        systemInitialState.segment( i * 7 , 7 ) = rotationModelOfCurrentBody->getRotationStateVector(
+                    initialTime ).template cast< double >( );
+
+        // Correct initial state if integration origin and rotation model origin are not equal.
+        if( baseOrientations.at( i ) != rotationModelOfCurrentBody->getBaseFrameOrientation( ) )
+        {
+            throw std::runtime_error( "Error, cannot get initial rotational state w.r.t. non-base frame" );
+        }
+    }
+    return systemInitialState;
+}
+
 
 boost::shared_ptr< ephemerides::ReferenceFrameManager > createFrameManager(
         const simulation_setup::NamedBodyMap& bodyMap );
@@ -113,7 +149,7 @@ template< typename TimeType = double, typename StateScalarType = double >
 Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > getInitialStatesOfBodies(
         const std::vector< std::string >& bodiesToIntegrate,
         const std::vector< std::string >& centralBodies,
-        const  simulation_setup::NamedBodyMap& bodyMap,
+        const simulation_setup::NamedBodyMap& bodyMap,
         const TimeType initialTime )
 {
     // Create ReferenceFrameManager and call overloaded function.
@@ -142,6 +178,18 @@ Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > getInitialStateOfBody(
     return getInitialStatesOfBodies< TimeType, StateScalarType >(
                 boost::assign::list_of( bodyToIntegrate ), boost::assign::list_of( centralBody ), bodyMap, initialTime );
 }
+
+template< typename TimeType = double, typename StateScalarType = double >
+Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > getInitialRotationalStateOfBody(
+        const std::string& bodyToIntegrate,
+        const std::string& baseOrientation,
+        const  simulation_setup::NamedBodyMap& bodyMap,
+        const TimeType initialTime )
+{
+    return getInitialRotationalStatesOfBodies< TimeType, StateScalarType >(
+                boost::assign::list_of( bodyToIntegrate ), boost::assign::list_of( baseOrientation ), bodyMap, initialTime );
+}
+
 
 //! Function to get the state of single body, w.r.t. some central body, at a set of requested times, concatanated into one vector.
 /*!

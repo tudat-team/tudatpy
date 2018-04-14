@@ -99,6 +99,19 @@ public:
             }
             break;
         }
+        case propagators::rotational_state:
+        {
+            // Check if reference id is consistent.
+            if( stateReferencePoint.second != "" )
+            {
+                throw std::runtime_error( "Error when getting state derivative partial acceleration model, cannot have reference point on body for body mass" );
+            }
+            else if( isStateDerivativeDependentOnIntegratedAdditionalStateTypes( stateReferencePoint, integratedStateType ) )
+            {
+                partialFunction = std::make_pair( boost::bind( &AccelerationPartial::wrtNonTranslationalStateOfAdditionalBody,
+                                                               this, _1, stateReferencePoint, integratedStateType ), 1 );
+            }
+        }
         case propagators::body_mass_state:
         {
             // Check if reference id is consistent.

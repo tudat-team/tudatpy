@@ -159,6 +159,19 @@ public:
     std::pair< boost::function< void( Eigen::MatrixXd& ) >, int > getParameterPartialFunction(
             boost::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter );
 
+    void wrtNonTranslationalStateOfAdditionalBody(
+            Eigen::Block< Eigen::MatrixXd > partialMatrix,
+            const std::pair< std::string, std::string >& stateReferencePoint,
+            const propagators::IntegratedStateType integratedStateType )
+    {
+        if( stateReferencePoint.first == acceleratingBody_ && integratedStateType == propagators::rotational_state )
+        {
+            Eigen::MatrixXd tempMatrix = Eigen::MatrixXd::Zero( 3, 7 );
+            wrtRotationModelParameter( tempMatrix, estimatable_parameters::initial_rotational_body_state, "" );
+            partialMatrix.block( 0, 0, 3, 7 ) = tempMatrix;
+        }
+    }
+
     //! Function to create a function returning the current partial w.r.t. a gravitational parameter.
     /*!
      * Function to create a function returning the current partial w.r.t. a gravitational parameter.

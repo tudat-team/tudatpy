@@ -330,6 +330,10 @@ public:
         linear_algebra::computePartialDerivativeOfRotationMatrixWrtQuaternion(
         linear_algebra::convertQuaternionToVectorFormat( currentRotationToInertialFrameFunction_( ) ),
                    currentQuaternionPartials_ );
+//        for( int i = 0; i < 4; i++ )
+//        {
+//            currentQuaternionPartials_[ i ].transposeInPlace( );
+//        }
         return currentQuaternionPartials_;
     }
 
