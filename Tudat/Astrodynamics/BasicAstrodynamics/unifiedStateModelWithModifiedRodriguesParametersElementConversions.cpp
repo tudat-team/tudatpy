@@ -159,7 +159,7 @@ Eigen::Vector7d convertKeplerianToUnifiedStateModelWithModifiedRodriguesParamete
         // Throw exception.
         throw std::runtime_error( std::runtime_error( errorMessage.str( ) ) );
     }
-    //Else, nothing wrong and continue
+    // Else, nothing wrong and continue
 
     // Compute the C hodograph element of the unified state model
     if ( std::fabs( keplerianElements( eccentricityIndex ) - 1.0) < singularityTolerance )
@@ -200,16 +200,23 @@ Eigen::Vector7d convertKeplerianToUnifiedStateModelWithModifiedRodriguesParamete
     double denominator = 1.0 + std::cos( 0.5 * keplerianElements( inclinationIndex ) ) *
             std::cos( 0.5 * rightAscensionOfLatitude );
 
-    // Check for singularity
-    convertedUnifiedStateModelElements( shadowModifiedRodriguesParameterFlagIndex ) = false; // standard value
+    // Decide whether to switch to shadow modified rodrigues parameters (SMRP)
+    bool shadowFlag = false; // default value
     if ( std::fabs( denominator ) < singularityTolerance )
     {
-        // If denominator is zero, switch to the shadow modified rodrigues parameters (SMRP)
-        convertedUnifiedStateModelElements( shadowModifiedRodriguesParameterFlagIndex ) = true;
-
-        // Redefine denominator
-        denominator -= 2.0;
+        // If denominator is null, switch to SMRP
+        shadowFlag = true;
     }
+    else
+    {
+        // Switch to SMRP in case magnitude is large, and MRP is approaching the singularity at 2 PI
+        double modifiedRodriguesParameterMagnitude =
+                ( 1.0 + std::pow( std::cos( 0.5 * keplerianElements( inclinationIndex ) ), 2 ) * (
+                      std::pow( std::sin( 0.5 * rightAscensionOfLatitude ), 2 ) - 1.0 ) ) / denominator / denominator;
+        shadowFlag = ( modifiedRodriguesParameterMagnitude >= 1.0 ) ? true : false;
+    }
+    convertedUnifiedStateModelElements( shadowModifiedRodriguesParameterFlagIndex ) = shadowFlag;
+    denominator = shadowFlag ? ( denominator - 2.0 ) : denominator; // redefine denominator for SMRP
 
     // Find the common multiplication factor to the vector elements
     double multiplicationFactor = 1.0 / denominator;
@@ -246,20 +253,26 @@ Eigen::Vector6d convertUnifiedStateModelWithModifiedRodriguesParametersToKepleri
     // Define the tolerance of a singularity
     double singularityTolerance = 20.0 * std::numeric_limits< double >::epsilon( );
 
-    // Set flag to shadow or non-shadow
+    // Set flag to shadow or non-shadow and decide sign for DCM elements
     bool shadowFlag = unifiedStateModelElements( shadowModifiedRodriguesParameterFlagIndex );
+    double signDirectionCosineMatrix = shadowFlag ? - 1.0 : 1.0;
 
     // Compute auxiliary parameters
     Eigen::Vector3d modifiedRodriguesParametersVector = unifiedStateModelElements.segment( sigma1ModifiedRodriguesParameterIndex, 3 );
-    double modifiedRodriguesParametersMagnitude = modifiedRodriguesParametersVector.norm( ); // magnitude of modified rodrigues parameters, also called sigma
+    double modifiedRodriguesParametersMagnitude = modifiedRodriguesParametersVector.norm( );
+    // magnitude of modified rodrigues parameters, also called sigma
 
     // Precompute oftenly used variables
+    // Note the for SMRP some variable names do not match their definitions
     double modifiedRodriguesParametersMagnitudeSquared =
             modifiedRodriguesParametersMagnitude * modifiedRodriguesParametersMagnitude;
-    double oneMinusModifiedRodriguesParametersMagnitudeSquaredSquared =
-            std::pow( 1.0 - modifiedRodriguesParametersMagnitudeSquared, 2 );
     double onePlusModifiedRodriguesParametersMagnitudeSquaredSquared =
             std::pow( 1.0 + modifiedRodriguesParametersMagnitudeSquared, 2 );
+    double oneMinusModifiedRodriguesParametersMagnitudeSquared = shadowFlag ?
+                ( modifiedRodriguesParametersMagnitudeSquared - 1.0 ) : // inverse definition for SMRP
+                ( 1.0 - modifiedRodriguesParametersMagnitudeSquared );
+    double oneMinusModifiedRodriguesParametersMagnitudeSquaredSquared =
+                    std::pow( oneMinusModifiedRodriguesParametersMagnitudeSquared, 2 );
 
     // Compute right ascension of latitude
     double rightAscensionOfLatitude = 0.0;
@@ -280,7 +293,7 @@ Eigen::Vector6d convertUnifiedStateModelWithModifiedRodriguesParametersToKepleri
     {
         // Find lambda
         double denominator = 4.0 * std::pow( modifiedRodriguesParametersVector( 2 ), 2 ) +
-                oneMinusModifiedRodriguesParametersMagnitudeSquaredSquared;
+                oneMinusModifiedRodriguesParametersMagnitudeSquaredSquared; // denominator is never null
         rightAscensionOfLatitude =
                 std::atan2( 4.0 * modifiedRodriguesParametersVector( 2 ) *
                             ( 1.0 - modifiedRodriguesParametersMagnitudeSquared ) / denominator,
@@ -327,7 +340,7 @@ Eigen::Vector6d convertUnifiedStateModelWithModifiedRodriguesParametersToKepleri
     }
 
     // Continue only if angles have not been computed yet
-    if ( modifiedRodriguesParametersMagnitude < singularityTolerance )
+    if ( singularConditionMet )
     {
         // Give back result
         return convertedKeplerianElements;
@@ -335,23 +348,28 @@ Eigen::Vector6d convertUnifiedStateModelWithModifiedRodriguesParametersToKepleri
     else
     {
         // Compute inclination
-        convertedKeplerianElements( inclinationIndex ) =
-                std::acos( ( 4.0 * ( std::pow( modifiedRodriguesParametersVector( 2 ), 2 ) -
-                                     std::pow( modifiedRodriguesParametersVector( 0 ), 2 ) -
-                                     std::pow( modifiedRodriguesParametersVector( 1 ), 2 ) ) +
-                             oneMinusModifiedRodriguesParametersMagnitudeSquaredSquared ) /
-                           onePlusModifiedRodriguesParametersMagnitudeSquaredSquared );
-        // this acos is always defined correctly because the inclination is always below pi rad
+        double arccosineArgument = ( 4.0 * ( std::pow( modifiedRodriguesParametersVector( 2 ), 2 ) -
+                                             std::pow( modifiedRodriguesParametersVector( 0 ), 2 ) -
+                                             std::pow( modifiedRodriguesParametersVector( 1 ), 2 ) ) +
+                                     oneMinusModifiedRodriguesParametersMagnitudeSquaredSquared ) /
+                                   onePlusModifiedRodriguesParametersMagnitudeSquaredSquared;
+        if ( ( std::fabs( arccosineArgument ) - 1.0 ) > 0.0 )
+        {
+            // Make sure that the cosine does not exceed 1.0 in magnitude
+            arccosineArgument = ( arccosineArgument > 0.0 ) ? 1.0 : - 1.0;
+        }
+        convertedKeplerianElements( inclinationIndex ) = std::acos( arccosineArgument );
+        // this acos is always defined correctly because the inclination is always below PI rad
 
         // Find sine and cosine of longitude of ascending node separately
         double sineOmega = 8.0 * modifiedRodriguesParametersVector( 0 ) *
-                modifiedRodriguesParametersVector( 2 ) +
+                modifiedRodriguesParametersVector( 2 ) + signDirectionCosineMatrix *
                 4.0 * modifiedRodriguesParametersVector( 1 ) *
-                oneMinusModifiedRodriguesParametersMagnitudeSquaredSquared;
+                oneMinusModifiedRodriguesParametersMagnitudeSquared;
         double cosineOmega = - 8.0 * modifiedRodriguesParametersVector( 1 ) *
-                modifiedRodriguesParametersVector( 2 ) +
+                modifiedRodriguesParametersVector( 2 ) + signDirectionCosineMatrix *
                 4.0 * modifiedRodriguesParametersVector( 0 ) *
-                oneMinusModifiedRodriguesParametersMagnitudeSquaredSquared;
+                oneMinusModifiedRodriguesParametersMagnitudeSquared;
         double denominator = std::sqrt( cosineOmega * cosineOmega +
                                         sineOmega * sineOmega );
 
