@@ -9,7 +9,7 @@
  */
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/stateVectorIndices.h"
-#include "Tudat/Astrodynamics/Propagators/nBodyUnifiedStateModelWithQuaternionsStateDerivative.h"
+#include "Tudat/Astrodynamics/Propagators/nBodyUnifiedStateModelQuaternionsStateDerivative.h"
 
 namespace tudat
 {
@@ -18,7 +18,7 @@ namespace propagators
 {
 
 //! Function to evaluate the state derivative for the unified state model with quaternions
-Eigen::Vector7d computeStateDerivativeForUnifiedStateModelWithQuaternions(
+Eigen::Vector7d computeStateDerivativeForUnifiedStateModelQuaternions(
         const Eigen::Vector7d& currentUnifiedStateModelElements,
         const Eigen::Vector3d& accelerationsInRswFrame,
         const double sineLambda,
@@ -59,7 +59,7 @@ Eigen::Vector7d computeStateDerivativeForUnifiedStateModelWithQuaternions(
 }
 
 //! Function to evaluate the state derivative for the unified state model with quaternions
-Eigen::Vector7d computeStateDerivativeForUnifiedStateModelWithQuaternions(
+Eigen::Vector7d computeStateDerivativeForUnifiedStateModelQuaternions(
         const Eigen::Vector7d& currentUnifiedStateModelElements,
         const Eigen::Vector3d& accelerationsInRswFrame,
         const double centralBodyGravitationalParameter )
@@ -94,19 +94,19 @@ Eigen::Vector7d computeStateDerivativeForUnifiedStateModelWithQuaternions(
     pAuxiliaryVector /= velocityHodographParameter;
 
     // Evaluate USM7 equations
-    return computeStateDerivativeForUnifiedStateModelWithQuaternions(
+    return computeStateDerivativeForUnifiedStateModelQuaternions(
                 currentUnifiedStateModelElements, accelerationsInRswFrame, sineLambda,
                 cosineLambda, gammaParameter, rotationalVelocityVector, pAuxiliaryVector );
 }
 
 //! Function to evaluate the state derivative for the unified state model with quaternions
-Eigen::Vector7d computeStateDerivativeForUnifiedStateModelWithQuaternions(
+Eigen::Vector7d computeStateDerivativeForUnifiedStateModelQuaternions(
         const Eigen::Vector7d& currentUnifiedStateModelElements,
         const Eigen::Vector6d& currentCartesianState,
         const Eigen::Vector3d& accelerationsInInertialFrame,
         const double centralBodyGravitationalParameter )
 {
-    return computeStateDerivativeForUnifiedStateModelWithQuaternions(
+    return computeStateDerivativeForUnifiedStateModelQuaternions(
                 currentUnifiedStateModelElements,
                 reference_frames::getInertialToRswSatelliteCenteredFrameRotationMatrx(
                     currentCartesianState ) * accelerationsInInertialFrame, centralBodyGravitationalParameter );

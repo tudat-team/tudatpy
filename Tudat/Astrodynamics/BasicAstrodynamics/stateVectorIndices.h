@@ -63,7 +63,7 @@ enum SphericalOrbitalStateElementIndices
 };
 
 //! Unified state model with quaternions indices.
-enum UnifiedStateModelWithQuaternionsElementIndices
+enum UnifiedStateModelQuaternionsElementIndices
 {
     CHodographQuaternionIndex = 0,
     Rf1HodographQuaternionIndex = 1,
@@ -75,7 +75,7 @@ enum UnifiedStateModelWithQuaternionsElementIndices
 };
 
 //! Unified state model with modified Rodrigues parameters indices.
-enum UnifiedStateModelWithModifiedRodriguesParametersElementIndices
+enum UnifiedStateModelModifiedRodriguesParametersElementIndices
 {
     CHodographModifiedRodriguesParameterIndex = 0,
     Rf1HodographModifiedRodriguesParameterIndex = 1,
@@ -87,7 +87,7 @@ enum UnifiedStateModelWithModifiedRodriguesParametersElementIndices
 };
 
 //! Unified state model with exponential map indices.
-enum UnifiedStateModelWithExponentialMapElementIndices
+enum UnifiedStateModelExponentialMapElementIndices
 {
     CHodographExponentialMapIndex = 0,
     Rf1HodographExponentialMapIndex = 1,

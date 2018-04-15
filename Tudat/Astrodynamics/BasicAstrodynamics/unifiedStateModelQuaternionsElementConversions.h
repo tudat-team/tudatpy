@@ -45,7 +45,7 @@ namespace orbital_element_conversions
  *         convertedUnifiedStateModelElements( 5 ) = epsilon3 quaternion element,               [-]
  *         convertedUnifiedStateModelElements( 6 ) = eta quaternion element.                    [-]
  */
-Eigen::Matrix< double, 7, 1 > convertKeplerianToUnifiedStateModelWithQuaternionsElements(
+Eigen::Matrix< double, 7, 1 > convertKeplerianToUnifiedStateModelQuaternionsElements(
         const Eigen::Matrix< double, 6, 1 >& keplerianElements,
         const double centralBodyGravitationalParameter );
 
@@ -70,7 +70,7 @@ Eigen::Matrix< double, 7, 1 > convertKeplerianToUnifiedStateModelWithQuaternions
  *         convertedKeplerianElements( 4 ) = longitude of ascending node,                     [rad]
  *         convertedKeplerianElements( 5 ) = true anomaly.                                    [rad]
  */
-Eigen::Matrix< double, 6, 1 > convertUnifiedStateModelWithQuaternionsToKeplerianElements(
+Eigen::Matrix< double, 6, 1 > convertUnifiedStateModelQuaternionsToKeplerianElements(
         const Eigen::Matrix< double, 7, 1 >& unifiedStateModelElements,
         const double centralBodyGravitationalParameter );
 
@@ -95,7 +95,7 @@ Eigen::Matrix< double, 6, 1 > convertUnifiedStateModelWithQuaternionsToKeplerian
  *         convertedUnifiedStateModelElements( 5 ) = epsilon3 quaternion element,               [-]
  *         convertedUnifiedStateModelElements( 6 ) = eta quaternion element.                    [-]
  */
-Eigen::Matrix< double, 7, 1 > convertCartesianToUnifiedStateModelWithQuaternionsElements(
+Eigen::Matrix< double, 7, 1 > convertCartesianToUnifiedStateModelQuaternionsElements(
         const Eigen::Matrix< double, 6, 1 >& cartesianElements,
         const double centralBodyGravitationalParameter );
 
@@ -120,7 +120,7 @@ Eigen::Matrix< double, 7, 1 > convertCartesianToUnifiedStateModelWithQuaternions
  *         convertedCartesianElements( 4 ) = y-velocity coordinate,                          [m/s]
  *         convertedCartesianElements( 5 ) = z-velocity coordinate.                          [m/s]
 */
-Eigen::Matrix< double, 6, 1 > convertUnifiedStateModelWithQuaternionsToCartesianElements(
+Eigen::Matrix< double, 6, 1 > convertUnifiedStateModelQuaternionsToCartesianElements(
         const Eigen::Matrix< double, 7, 1 >& unifiedStateModelElements,
         const double centralBodyGravitationalParameter );
 

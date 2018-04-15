@@ -21,7 +21,7 @@
 #include "Tudat/Mathematics/BasicMathematics/basicMathematicsFunctions.h"
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/missionGeometry.h"
-#include "Tudat/Astrodynamics/BasicAstrodynamics/unifiedStateModelWithExponentialMapElementConversions.h"
+#include "Tudat/Astrodynamics/BasicAstrodynamics/unifiedStateModelExponentialMapElementConversions.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/stateVectorIndices.h"
 
 namespace tudat
@@ -31,7 +31,7 @@ namespace orbital_element_conversions
 {
 
 //! Convert Keplerian elements to unified state model elements with exponential map.
-Eigen::Vector6d convertKeplerianToUnifiedStateModelWithExponentialMapElements(
+Eigen::Vector6d convertKeplerianToUnifiedStateModelExponentialMapElements(
         const Eigen::Vector6d& keplerianElements,
         const double centralBodyGravitationalParameter )
 {
@@ -240,7 +240,7 @@ Eigen::Vector6d convertKeplerianToUnifiedStateModelWithExponentialMapElements(
 }
 
 //! Convert unified state model elements with exponential map to Keplerian elements.
-Eigen::Vector6d convertUnifiedStateModelWithExponentialMapToKeplerianElements(
+Eigen::Vector6d convertUnifiedStateModelExponentialMapToKeplerianElements(
         const Eigen::Vector6d& unifiedStateModelElements,
         const double centralBodyGravitationalParameter )
 {
