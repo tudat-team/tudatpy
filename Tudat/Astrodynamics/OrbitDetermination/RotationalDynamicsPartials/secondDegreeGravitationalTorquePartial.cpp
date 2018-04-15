@@ -135,7 +135,6 @@ void SecondDegreeGravitationalTorquePartial::wrtNonRotationalStateOfAdditionalBo
     if( ( stateReferencePoint.first == bodyExertingTorque_ ||
           stateReferencePoint.first == bodyUndergoingTorque_ ) && integratedStateType == propagators::translational_state )
     {
-
         partialMatrix.block( 0, 0, 3, 3 ) +=
                 ( ( stateReferencePoint.first == bodyExertingTorque_ ) ? 1.0 : -1.0 ) *
                 ( torqueModel_->getCurrentTorqueMagnitudePremultiplier( ) *

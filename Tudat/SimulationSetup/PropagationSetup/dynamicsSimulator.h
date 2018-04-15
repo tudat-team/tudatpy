@@ -120,7 +120,7 @@ Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > getInitialRotationalStatesOf
 
         // Get body initial state from ephemeris
         systemInitialState.segment( i * 7 , 7 ) = rotationModelOfCurrentBody->getRotationStateVector(
-                    initialTime ).template cast< double >( );
+                    initialTime ).template cast< StateScalarType >( );
 
         // Correct initial state if integration origin and rotation model origin are not equal.
         if( baseOrientations.at( i ) != rotationModelOfCurrentBody->getBaseFrameOrientation( ) )

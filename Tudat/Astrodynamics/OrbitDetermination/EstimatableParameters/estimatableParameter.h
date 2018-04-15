@@ -582,6 +582,29 @@ std::vector< std::string > getListOfBodiesWithTranslationalStateToEstimate(
     return bodiesToEstimate;
 }
 
+template< typename InitialStateParameterType >
+std::vector< std::string > getListOfBodiesWithRotationalStateToEstimate(
+        const boost::shared_ptr< EstimatableParameterSet< InitialStateParameterType > > estimatableParameters )
+{
+    std::vector< std::string > bodiesToEstimate;
+
+    // Retrieve initial dynamical parameters.
+    std::vector< boost::shared_ptr< EstimatableParameter<
+            Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > > > initialDynamicalParameters =
+            estimatableParameters->getEstimatedInitialStateParameters( );
+
+    // Iterate over list of bodies of which the partials of the accelerations acting on them are required.
+    for( unsigned int i = 0; i < initialDynamicalParameters.size( ); i++ )
+    {
+        if( initialDynamicalParameters.at( i )->getParameterName( ).first == initial_rotational_body_state )
+        {
+            bodiesToEstimate.push_back(  initialDynamicalParameters.at( i )->getParameterName( ).second.first );
+        }
+    }
+
+    return bodiesToEstimate;
+}
+
 //! Function to retrieve the list of bodies for which the translational state is estimated in a multi-arc fashion
 /*!
  * Function to retrieve the list of bodies for which the translational state is estimated in a multi-arc fashion
@@ -666,9 +689,14 @@ getListOfInitialDynamicalStateParametersEstimate(
     for( unsigned int i = 0; i < initialDynamicalParameters.size( ); i++ )
     {
         if( ( initialDynamicalParameters.at( i )->getParameterName( ).first == initial_body_state ) ||
-            ( initialDynamicalParameters.at( i )->getParameterName( ).first == arc_wise_initial_body_state ) )
+                ( initialDynamicalParameters.at( i )->getParameterName( ).first == arc_wise_initial_body_state ) )
         {
             initialDynamicalStateParametersEstimate[ propagators::transational_state ].push_back(
+                        initialDynamicalParameters.at( i )->getParameterName( ).second );
+        }
+        else if( ( initialDynamicalParameters.at( i )->getParameterName( ).first == initial_rotational_body_state ) )
+        {
+            initialDynamicalStateParametersEstimate[ propagators::rotational_state ].push_back(
                         initialDynamicalParameters.at( i )->getParameterName( ).second );
         }
     }

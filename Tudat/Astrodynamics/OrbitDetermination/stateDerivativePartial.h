@@ -56,8 +56,7 @@ public:
         integratedStateType_( integratedStateType ), integrationReferencePoint_( integrationReferencePoint )
     {
         currentTime_ = TUDAT_NAN;
-        accelerationSize_ = propagators::getSingleIntegrationSize( integratedStateType_ ) /
-                propagators::getSingleIntegrationDifferentialEquationOrder( integratedStateType_ );
+        accelerationSize_ = propagators::getAccelerationSize( integratedStateType );
     }
 
     //! Destructor.
@@ -111,8 +110,7 @@ public:
         else
         {
             partial = Eigen::MatrixXd::Zero(
-                        propagators::getSingleIntegrationSize( integratedStateType_ ) /
-                        propagators::getSingleIntegrationDifferentialEquationOrder( integratedStateType_ ), 1 );
+                        propagators::getAccelerationSize( integratedStateType_ ), 1 );
         }
 
         return partial;
@@ -256,7 +254,7 @@ public:
                 parameterDoublePartialFunctions_.at( parameter )( currentDoubleParameterPartials_[ parameter ] );
             }
         }
-        partialMatrix = currentDoubleParameterPartials_[ parameter ];
+        partialMatrix += currentDoubleParameterPartials_[ parameter ];
     }
 
     //! Function to retrieve a partial w.r.t. a double parameter
@@ -271,6 +269,7 @@ public:
             const boost::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter,
             Eigen::MatrixXd& parameterPartial )
     {
+        parameterPartial.block( 0, 0, accelerationSize_, 1 ) .setZero( );
         getCurrentParameterPartial( parameter, parameterPartial.block( 0, 0, accelerationSize_, 1 ) );
     }
 
@@ -304,7 +303,7 @@ public:
                 parameterVectorPartialFunctions_.at( parameter )( currentVectorParameterPartials_[ parameter ] );
             }
         }
-        partialMatrix = currentVectorParameterPartials_[ parameter ];
+        partialMatrix += currentVectorParameterPartials_[ parameter ];
     }
 
     //! Function to retrieve a partial w.r.t. a vector parameter
@@ -319,6 +318,7 @@ public:
             const boost::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter,
             Eigen::MatrixXd& parameterPartial )
     {
+        parameterPartial.block( 0, 0, accelerationSize_, parameter->getParameterSize( ) ).setZero( );
         getCurrentParameterPartial( parameter, parameterPartial.block(
                                         0, 0, accelerationSize_, parameter->getParameterSize( ) ) );
     }

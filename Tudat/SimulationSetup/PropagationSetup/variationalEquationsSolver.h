@@ -324,6 +324,40 @@ bool checkPropagatorSettingsAndParameterEstimationConsistency(
         }
         break;
     }
+    case rotational_state:
+    {
+        boost::shared_ptr< RotationalStatePropagatorSettings< StateScalarType > > rotationalPropagatorSettings =
+                boost::dynamic_pointer_cast< RotationalStatePropagatorSettings< StateScalarType > >( propagatorSettings );
+
+        // Retrieve estimated and propagated translational states, and check equality.
+        std::vector< std::string > propagatedBodies = rotationalPropagatorSettings->bodiesToIntegrate_;
+        std::vector< std::string > estimatedBodies = estimatable_parameters::getListOfBodiesWithRotationalStateToEstimate(
+                    parametersToEstimate );
+        if( propagatedBodies.size( ) != estimatedBodies.size( ) )
+        {
+            std::string errorMessage = "Error, propagated and estimated body vector sizes are inconsistent " +
+                    std::to_string( propagatedBodies.size( ) ) + " " +
+                    std::to_string( estimatedBodies.size( ) );
+            throw std::runtime_error( errorMessage );
+            isInputConsistent = 0;
+        }
+        else
+        {
+            for( unsigned int i = 0; i < propagatedBodies.size( ); i++ )
+            {
+                if( propagatedBodies.at( i ) != estimatedBodies.at( i ) )
+                {
+                    std::string errorMessage = "Error, propagated and estimated body vectors inconsistent at index" +
+                            std::string( propagatedBodies.at( i ) ) + " " +
+                            std::string( estimatedBodies.at( i ) );
+                    throw std::runtime_error( errorMessage );
+                    isInputConsistent = 0;
+                }
+            }
+
+        }
+        break;
+    }
     default:
         std::string errorMessage = "Error, cannot yet check consistency of propagator settings for type " +
                 std::to_string( propagatorSettings->getStateType( ) );
@@ -621,6 +655,8 @@ public:
             MatrixType initialVariationalState = this->createInitialConditions(
                         dynamicsStateDerivative_->convertFromOutputSolution(
                             initialStateEstimate, integratorSettings_->initialTime_ ) );
+
+//            std::cout<<"initial state "<<std::endl<<initialVariationalState<<std::endl;
 
 
             // Integrate variational and state equations.

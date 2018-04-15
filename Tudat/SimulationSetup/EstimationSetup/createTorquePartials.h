@@ -15,7 +15,10 @@
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/torqueModel.h"
 #include "Tudat/SimulationSetup/EnvironmentSetup/body.h"
+#include "Tudat/SimulationSetup/EstimationSetup/createAccelerationPartials.h"
+#include "Tudat/Astrodynamics/OrbitDetermination/AccelerationPartials/sphericalHarmonicAccelerationPartial.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/RotationalDynamicsPartials/secondDegreeGravitationalTorquePartial.h"
+#include "Tudat/Astrodynamics/OrbitDetermination/RotationalDynamicsPartials/sphericalHarmonicGravitationalTorquePartial.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/RotationalDynamicsPartials/torqueFreeTorquePartial.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/ObservationPartials/rotationMatrixPartial.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/torqueModelTypes.h"
@@ -84,6 +87,25 @@ boost::shared_ptr< acceleration_partials::TorquePartial > createAnalyticalTorque
             torquePartial = boost::make_shared< SecondDegreeGravitationalTorquePartial >
                     ( boost::dynamic_pointer_cast< SecondDegreeGravitationalTorqueModel >( torqueModel ),
                       inertiaTensorNormalizationFunction, acceleratedBody.first, acceleratingBody.first );
+        }
+        break;
+    case spherical_harmonic_gravitational_torque:
+
+        // Check if identifier is consistent with type.
+        if( boost::dynamic_pointer_cast< SphericalHarmonicGravitationalTorqueModel >( torqueModel ) == NULL )
+        {
+            throw std::runtime_error( "Torque class type does not match torque type (spherical_harmonic_gravitational_torque) when making torque partial" );
+        }
+        else
+        {
+            // Create partial-calculating object.
+            torquePartial = boost::make_shared< SphericalHarmonicGravitationalTorquePartial >
+                    ( boost::dynamic_pointer_cast< SphericalHarmonicGravitationalTorqueModel >( torqueModel ),
+                      boost::dynamic_pointer_cast< SphericalHarmonicsGravityPartial >( createAnalyticalAccelerationPartial(
+                          boost::dynamic_pointer_cast< SphericalHarmonicGravitationalTorqueModel >(
+                              torqueModel )->getSphericalHarmonicAcceleration( ), acceleratedBody, acceleratingBody,
+                          bodyMap, parametersToEstimate ) ),
+                      acceleratedBody.first, acceleratingBody.first );
         }
         break;
     default:

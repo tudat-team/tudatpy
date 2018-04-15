@@ -11,6 +11,8 @@
 #ifndef TUDAT_INITIALROTATIONALSTATE_H
 #define TUDAT_INITIALROTATIONALSTATE_H
 
+#include <boost/function.hpp>
+
 #include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/estimatableParameter.h"
 
 namespace tudat
@@ -37,11 +39,12 @@ public:
     InitialRotationalStateParameter(
             const std::string& associatedBody,
             const Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 >& initialRotationalState,
+            const boost::function< Eigen::Matrix3d( ) > inertiaTensorFunction,
             const std::string& centralBody = "SSB", const std::string& frameOrientation = "ECLIPJ2000" ):
         EstimatableParameter< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > >(
             initial_rotational_body_state, associatedBody ),
         initialRotationalState_( initialRotationalState ), centralBody_( centralBody ),
-        frameOrientation_( frameOrientation )
+        frameOrientation_( frameOrientation ), inertiaTensorFunction_( inertiaTensorFunction )
     { }
 
     //! Function to get the current value of initial state w.r.t. centralBody.
@@ -91,12 +94,17 @@ public:
 
     Eigen::MatrixXd getConstraintStateMultipler( )
     {
-        return initialRotationalState_.segment( 0, 4 ).transpose( );
+        return initialRotationalState_.segment( 0, 4 ).template cast< double >( ).transpose( );
     }
 
     Eigen::VectorXd getConstraintRightHandSide( )
     {
         return Eigen::VectorXd::Zero( 1 );
+    }
+
+    boost::function< Eigen::Matrix3d( ) > getBodyInertiaTensorFunction( )
+    {
+        return inertiaTensorFunction_;
     }
 
 private:
@@ -109,6 +117,8 @@ private:
 
     //! Orientation of the frame in which the state is defined.
     std::string frameOrientation_;
+
+    boost::function< Eigen::Matrix3d( ) > inertiaTensorFunction_;
 
 };
 

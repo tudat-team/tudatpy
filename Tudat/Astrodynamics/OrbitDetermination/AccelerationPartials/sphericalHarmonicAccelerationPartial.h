@@ -228,6 +228,16 @@ public:
         }
     }
 
+    Eigen::Matrix3d getCurrentPartialWrtPosition( )
+    {
+        return currentPartialWrtPosition_;
+    }
+
+    Eigen::Matrix3d getCurrentBodyFixedPartialWrtPosition( )
+    {
+        return currentBodyFixedPartialWrtPosition_;
+    }
+
 protected:
 
     //! Function to reset the relevant member objects to the current time.

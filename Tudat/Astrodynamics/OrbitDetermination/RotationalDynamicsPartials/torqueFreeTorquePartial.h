@@ -93,7 +93,7 @@ public:
         }
         else
         {
-            partialMatrix.block( startRow, startColumn, 3, 43 ) -= currentPartialDerivativeWrtAngularVelocity_;
+            partialMatrix.block( startRow, startColumn, 3, 3 ) -= currentPartialDerivativeWrtAngularVelocity_;
         }
     }
 

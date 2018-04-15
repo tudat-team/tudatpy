@@ -49,7 +49,7 @@ void VariationalEquations::setBodyStatePartialMatrix( )
         {
             variationalMatrix_.block( startIndex + i * 7, startIndex + i * 7 , 4, 4 ) =
                     getQuaterionToQuaternionRateMatrix( rotationalStates.segment( 7 * i + 4, 3 ) );
-            variationalMatrix_.block( startIndex + i * 7 + 4, startIndex + i * 7 , 4, 3 ) =
+            variationalMatrix_.block( startIndex + i * 7, startIndex + i * 7 + 4, 4, 3 ) =
                     getAngularVelocityToQuaternionRateMatrix( rotationalStates.segment( 7 * i, 4 ) );
         }
     }
@@ -61,8 +61,7 @@ void VariationalEquations::setBodyStatePartialMatrix( )
     {
         int startIndex = stateTypeStartIndices_.at( typeIterator->first );
         int currentStateSize = getSingleIntegrationSize( typeIterator->first );
-        int entriesToSkipPerEntry = currentStateSize - currentStateSize /
-                getSingleIntegrationDifferentialEquationOrder( typeIterator->first );
+        int entriesToSkipPerEntry = currentStateSize - getAccelerationSize( typeIterator->first );
         for( unsigned int i = 0; i < typeIterator->second.size( ); i++ )
         {
             // Iterate over all bodies exerting an acceleration on this body.
@@ -84,6 +83,13 @@ void VariationalEquations::setBodyStatePartialMatrix( )
    {
        variationalMatrix_.block( 0, statePartialAdditionIndices_.at( i ).second, totalDynamicalStateSize_, 3 ) +=
                variationalMatrix_.block( 0, statePartialAdditionIndices_.at( i ).first, totalDynamicalStateSize_, 3 );
+   }
+
+   for( unsigned int i = 0; i < inertiaTensorsForMultiplication_.size( ); i++ )
+   {
+       variationalMatrix_.block( inertiaTensorsForMultiplication_.at( i ).first, 0, 3, totalDynamicalStateSize_ ) =
+               ( inertiaTensorsForMultiplication_.at( i ).second( ).inverse( ) ) *
+               variationalMatrix_.block( inertiaTensorsForMultiplication_.at( i ).first, 0, 3, totalDynamicalStateSize_ ).eval( );
    }
 }
 
