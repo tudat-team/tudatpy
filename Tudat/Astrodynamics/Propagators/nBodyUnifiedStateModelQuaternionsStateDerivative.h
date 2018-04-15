@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2018, Delft University of Technology
+ /*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -8,8 +8,8 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#ifndef TUDAT_NUNIFIEDSTATEMODELWITHQUATERNIONSSTATEDERIVATIVE_H
-#define TUDAT_NUNIFIEDSTATEMODELWITHQUATERNIONSSTATEDERIVATIVE_H
+#ifndef TUDAT_NUNIFIEDSTATEMODELQUATERNIONSSTATEDERIVATIVE_H
+#define TUDAT_NUNIFIEDSTATEMODELQUATERNIONSSTATEDERIVATIVE_H
 
 #include "Tudat/Astrodynamics/Propagators/nBodyStateDerivative.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/stateRepresentationConversions.h"
@@ -271,4 +271,4 @@ private:
 
 } // namespace tudat
 
-#endif // TUDAT_NUNIFIEDSTATEMODELWITHQUATERNIONSSTATEDERIVATIVE_H
+#endif // TUDAT_NUNIFIEDSTATEMODELQUATERNIONSSTATEDERIVATIVE_H
