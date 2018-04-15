@@ -47,7 +47,7 @@ Eigen::Vector6d computeStateDerivativeForUnifiedStateModelExponentialMap(
     Eigen::Vector3d exponentialMapVector = currentUnifiedStateModelElements.segment( 3, 3 );
     double exponentialMapMagnitude = exponentialMapVector.norm( );
     Eigen::Vector3d exponentialMapDerivative = Eigen::Vector3d::Zero( );
-    if ( std::fabs( exponentialMapMagnitude ) < singularityTolerance )
+    if ( exponentialMapMagnitude < singularityTolerance )
     {
         double exponentialMapMagnitudeSquared = std::pow( exponentialMapMagnitude, 2 );
         exponentialMapDerivative = 0.5 * ( ( ( 12.0 - exponentialMapMagnitudeSquared ) / 6.0 ) *
@@ -64,11 +64,6 @@ Eigen::Vector6d computeStateDerivativeForUnifiedStateModelExponentialMap(
                                      ( 1 - 0.5 * exponentialMapMagnitude * cotangentHalfExponentialMapMagnitude ) /
                                      ( exponentialMapMagnitude * exponentialMapMagnitude ) * skewExponentialMapVector *
                                      skewExponentialMapVector ) * rotationalVelocityVector;
-//        Eigen::Vector3d exponentialMapCrossRotationalVelocityVector = exponentialMapVector.cross( rotationalVelocityVector );
-//        exponentialMapDerivative = rotationalVelocityVector + 0.5 * exponentialMapCrossRotationalVelocityVector +
-//                ( 1 - 0.5 * exponentialMapMagnitude * cotangentHalfExponentialMapMagnitude ) /
-//                std::pow( exponentialMapMagnitude, 2 ) *
-//                exponentialMapVector.cross( exponentialMapCrossRotationalVelocityVector );
     }
 
     // Evaluate USMEM equations.
