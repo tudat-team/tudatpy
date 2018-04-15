@@ -23,6 +23,7 @@
 #include "Tudat/Astrodynamics/Propagators/nBodyStateDerivative.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/estimatableParameter.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/initialTranslationalState.h"
+#include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/initialRotationalState.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/AccelerationPartials/accelerationPartial.h"
 
 namespace tudat
@@ -99,6 +100,7 @@ public:
         // Set parameter partial functions.
         setStatePartialFunctionList( );
         setTranslationalStatePartialFrameScalingFunctions( parametersToEstimate );
+        setRotationalStatePartialScalingFunctions( parametersToEstimate );
         setParameterPartialFunctionList( parametersToEstimate );
     }
     
@@ -152,8 +154,7 @@ public:
         {
             int startIndex = stateTypeStartIndices_.at( typeIterator->first );
             int currentStateSize = getSingleIntegrationSize( typeIterator->first );
-            int entriesToSkipPerEntry = currentStateSize -
-                    currentStateSize / getSingleIntegrationDifferentialEquationOrder( typeIterator->first );
+            int entriesToSkipPerEntry = currentStateSize - getAccelerationSize( typeIterator->first );
 
             // Iterate over all bodies being estimated.
             for( unsigned int i = 0; i < typeIterator->second.size( ); i++ )
@@ -171,12 +172,20 @@ public:
                                     functionIterator->first.second ) );
                 }
             }
-
         }
 
         currentMatrixDerivative.block( 0, totalDynamicalStateSize_, totalDynamicalStateSize_,
                                        numberOfParameterValues_ - totalDynamicalStateSize_ ) +=
                 variationalParameterMatrix_.template cast< StateScalarType >( );
+
+
+        for( unsigned int i = 0; i < inertiaTensorsForMultiplication_.size( ); i++ )
+        {
+            variationalParameterMatrix_.block( inertiaTensorsForMultiplication_.at( i ).first, 0, 3, totalDynamicalStateSize_ ) =
+                    ( inertiaTensorsForMultiplication_.at( i ).second( ).inverse( ) ) *
+                    variationalParameterMatrix_.block( inertiaTensorsForMultiplication_.at( i ).first, 0, 3,
+                                                       numberOfParameterValues_ - totalDynamicalStateSize_ ).eval( );
+        }
 
     }
     
@@ -432,34 +441,54 @@ private:
                             initialDynamicalParameters.at( i )->getParameterName( ).second.first );
                 centralBodies.push_back( boost::dynamic_pointer_cast< estimatable_parameters::ArcWiseInitialTranslationalStateParameter< ParameterType > >(
                                              initialDynamicalParameters.at( i ) )->getCentralBody( ) );
-            }
-            else
-            {
-                throw std::runtime_error( "Error when settinf up variational equations, did not recognize initial state type" );
-            }
+            }            
         }
 
-        // Get order in which ephemerides were to be updated.
-        std::vector< std::string > updateOrder = determineEphemerisUpdateorder(
-                    propagatedBodies, centralBodies, centralBodies );
-
-        // Iterate over central bodies and propagated bodies and check for dependencies
-        for( int i = updateOrder.size( ) - 1; i >= 0 ; i-- )
+        if( propagatedBodies.size( ) > 0 )
         {
-            int currentBodyIndex = std::distance(
-                        propagatedBodies.begin( ),
-                        std::find( propagatedBodies.begin( ), propagatedBodies.end( ), updateOrder.at( i ) ) );
-            for( unsigned int j = 0; j < propagatedBodies.size( ); j++ )
-            {
-                if( centralBodies.at( currentBodyIndex ) == propagatedBodies.at( j ) )
-                {
+            // Get order in which ephemerides were to be updated.
+            std::vector< std::string > updateOrder = determineEphemerisUpdateorder(
+                        propagatedBodies, centralBodies, centralBodies );
 
-                    statePartialAdditionIndices_.push_back(
-                                std::make_pair( stateTypeStartIndices_[ propagators::transational_state ] +
-                                currentBodyIndex * propagators::getSingleIntegrationSize( propagators::transational_state ),
-                                stateTypeStartIndices_[ propagators::transational_state ] +
-                            j * propagators::getSingleIntegrationSize( propagators::transational_state ) ) );
+            // Iterate over central bodies and propagated bodies and check for dependencies
+            for( int i = updateOrder.size( ) - 1; i >= 0 ; i-- )
+            {
+                int currentBodyIndex = std::distance(
+                            propagatedBodies.begin( ),
+                            std::find( propagatedBodies.begin( ), propagatedBodies.end( ), updateOrder.at( i ) ) );
+                for( unsigned int j = 0; j < propagatedBodies.size( ); j++ )
+                {
+                    if( centralBodies.at( currentBodyIndex ) == propagatedBodies.at( j ) )
+                    {
+
+                        statePartialAdditionIndices_.push_back(
+                                    std::make_pair( stateTypeStartIndices_[ propagators::transational_state ] +
+                                    currentBodyIndex * propagators::getSingleIntegrationSize( propagators::transational_state ),
+                                    stateTypeStartIndices_[ propagators::transational_state ] +
+                                j * propagators::getSingleIntegrationSize( propagators::transational_state ) ) );
+                    }
                 }
+            }
+        }
+    }
+
+    template< typename ParameterType >
+    void setRotationalStatePartialScalingFunctions(
+            const boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< ParameterType > >
+            parametersToEstimate )
+    {
+        std::vector< boost::shared_ptr< estimatable_parameters::EstimatableParameter<
+                Eigen::Matrix< ParameterType, Eigen::Dynamic, 1 > > > > initialDynamicalParameters =
+                parametersToEstimate->getEstimatedInitialStateParameters( );
+
+        for( unsigned int i = 0; i < initialDynamicalParameters.size( ); i++ )
+        {
+            if( initialDynamicalParameters.at( i )->getParameterName( ).first == estimatable_parameters::initial_rotational_body_state )
+            {
+                inertiaTensorsForMultiplication_.push_back( std::make_pair(
+                        stateTypeStartIndices_[ propagators::rotational_state ] + i * 7 + 4,
+                 boost::dynamic_pointer_cast< estimatable_parameters::InitialRotationalStateParameter< ParameterType > >(
+                                             initialDynamicalParameters.at( i ) )->getBodyInertiaTensorFunction( ) ) );
             }
         }
     }
@@ -501,6 +530,7 @@ private:
      */
     std::vector< std::pair< int, int > > statePartialAdditionIndices_;
 
+    std::vector< std::pair< int, boost::function< Eigen::Matrix3d( ) > > > inertiaTensorsForMultiplication_;
     
     //! List of all functions returning current partial derivative w.r.t. a parameter
     /*!

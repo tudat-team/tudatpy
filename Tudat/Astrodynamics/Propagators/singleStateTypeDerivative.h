@@ -49,6 +49,7 @@ int getSingleIntegrationSize( const IntegratedStateType stateType );
  */
 int getSingleIntegrationDifferentialEquationOrder( const IntegratedStateType stateType );
 
+int getAccelerationSize( const IntegratedStateType stateType );
 
 //! Base class for calculating the state derivative model for a single type of dynamics.
 /*!

@@ -10,6 +10,7 @@
 # Set the source files.
 set(TORQUE_PARTIALS_SOURCES
   "${SRCROOT}${TORQUEPARTIALSDIR}/secondDegreeGravitationalTorquePartial.cpp"
+  "${SRCROOT}${TORQUEPARTIALSDIR}/sphericalHarmonicGravitationalTorquePartial.cpp"
 )
 
 # Set the header files.
@@ -17,6 +18,7 @@ set(TORQUE_PARTIALS_HEADERS
   "${SRCROOT}${TORQUEPARTIALSDIR}/torquePartial.h"
   "${SRCROOT}${TORQUEPARTIALSDIR}/inertiaTensorPartial.h"
   "${SRCROOT}${TORQUEPARTIALSDIR}/secondDegreeGravitationalTorquePartial.h"
+  "${SRCROOT}${TORQUEPARTIALSDIR}/sphericalHarmonicGravitationalTorquePartial.h"
 )
 
 # Add static libraries.

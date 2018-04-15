@@ -25,6 +25,7 @@
 #include "Tudat/Mathematics/NumericalIntegrators/rungeKuttaCoefficients.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/accelerationModel.h"
 #include "Tudat/InputOutput/basicInputOutput.h"
+#include "Tudat/Astrodynamics/Ephemerides/keplerEphemeris.h"
 
 #include "Tudat/SimulationSetup/EnvironmentSetup/body.h"
 #include "Tudat/SimulationSetup/PropagationSetup/variationalEquationsSolver.h"
@@ -605,6 +606,223 @@ BOOST_AUTO_TEST_CASE( testEarthOrbiterVariationalEquationCalculation )
 
 }
 
+template< typename TimeType = double , typename StateScalarType  = double >
+std::pair< std::vector< Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic > >,
+std::vector< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > >
+executePhobosRotationSimulation(
+        const Eigen::Matrix< StateScalarType, 7, 1 > initialStateDifference =
+        Eigen::Matrix< StateScalarType, 7, 1 >::Zero( ),
+        const Eigen::VectorXd parameterPerturbation = Eigen::VectorXd::Zero( 12 ),
+        const bool propagateVariationalEquations = 1 )
+{
+    double initialEphemerisTime = 0.0;
+    double finalEphemerisTime = 86400.0;
+    int numberOfParametersToEstimate = 0;
+
+    NamedBodyMap bodyMap;
+    bodyMap[ "Mars" ] = boost::make_shared< Body >( );
+    bodyMap[ "Mars" ]->setEphemeris( boost::make_shared< ephemerides::ConstantEphemeris >(
+                                         boost::lambda::constant( Eigen::Vector6d::Zero( ) ) ) );
+    bodyMap[ "Mars" ]->setGravityFieldModel(
+                boost::make_shared< gravitation::GravityFieldModel >(
+                    spice_interface::getBodyGravitationalParameter( "Mars" ) ) );
+    bodyMap[ "Phobos" ] = boost::make_shared< Body >( );
+
+    Eigen::Matrix3d phobosInertiaTensor = Eigen::Matrix3d::Zero( );
+    phobosInertiaTensor( 0, 0 ) = 0.3615;
+    phobosInertiaTensor( 1, 1 ) = 0.4265;
+    phobosInertiaTensor( 2, 2 ) = 0.5024;
+
+
+    phobosInertiaTensor *= ( 11.27E3 * 11.27E3 * 1.0659E16 );
+    bodyMap[ "Phobos" ]->setBodyInertiaTensor(
+                phobosInertiaTensor, ( 0.3615 + 0.4265 + 0.5024 ) / 3.0 );
+
+    double phobosGravitationalParameter = 1.0659E16 * physical_constants::GRAVITATIONAL_CONSTANT;
+    double phobosReferenceRadius = 11.27E3;
+
+    Eigen::MatrixXd phobosCosineGravityFieldCoefficients = Eigen::MatrixXd::Zero( 6, 6 ),
+            phobosSineGravityFieldCoefficients = Eigen::MatrixXd::Zero( 6, 6 );
+    double phobosScaledMeanMomentOfInertia;
+    gravitation::getDegreeTwoSphericalHarmonicCoefficients(
+                phobosInertiaTensor, phobosGravitationalParameter, phobosReferenceRadius, true,
+                phobosCosineGravityFieldCoefficients, phobosSineGravityFieldCoefficients, phobosScaledMeanMomentOfInertia );
+
+    bodyMap[ "Phobos" ]->setGravityFieldModel(
+                boost::make_shared< gravitation::SphericalHarmonicsGravityField >(
+                    phobosGravitationalParameter, phobosReferenceRadius, phobosCosineGravityFieldCoefficients,
+                    phobosSineGravityFieldCoefficients, "Phobos_Fixed" ) );
+
+
+    std::cout<<"T1"<<std::endl;
+    Eigen::Vector6d phobosKeplerElements = Eigen::Vector6d::Zero( );
+    double phobosSemiMajorAxis = 9376.0E3;
+    phobosKeplerElements( 0 ) = phobosSemiMajorAxis;
+
+    bodyMap[ "Phobos" ]->setEphemeris( boost::make_shared< ephemerides::KeplerEphemeris >(
+                                           phobosKeplerElements, 0.0, spice_interface::getBodyGravitationalParameter( "Mars" ),
+                                           "Mars", "ECLIPJ2000" ) );
+    std::cout<<"T2"<<std::endl;
+
+
+    Eigen::Quaterniond noRotationQuaternion = Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) );
+    Eigen::Matrix< double, 7, 1 > unitRotationState = Eigen::Matrix< double, 7, 1 >::Zero( );
+    unitRotationState( 0 ) = noRotationQuaternion.w( );
+    unitRotationState( 1 ) = noRotationQuaternion.x( );
+    unitRotationState( 2 ) = noRotationQuaternion.y( );
+    unitRotationState( 3 ) = noRotationQuaternion.z( );
+    unitRotationState( 6 ) = std::sqrt( tudat::spice_interface::getBodyGravitationalParameter( "Mars") /
+                                        std::pow( phobosSemiMajorAxis, 3.0 ) );
+
+    std::map< double, Eigen::Matrix< double, 7, 1 > > dummyRotationMap;
+    dummyRotationMap[ -1.0E100 ] = unitRotationState;
+    dummyRotationMap[ 1.0E100 ] = unitRotationState;
+    std::cout<<"T3"<<std::endl;
+
+    boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Matrix< double, 7, 1 > > > dummyInterpolator =
+            boost::make_shared< interpolators::LinearInterpolator< double, Eigen::Matrix< double, 7, 1 > > >( dummyRotationMap );
+    bodyMap[ "Phobos" ]->setRotationalEphemeris( boost::make_shared< TabulatedRotationalEphemeris< double, double > >(
+                                                     dummyInterpolator, "ECLIPJ2000", "Phobos_Fixed" ) );
+
+    std::cout<<"T4"<<std::endl;
+
+
+    // Create empty bodies, phobos and mars.
+    boost::shared_ptr< Body > phobos = bodyMap.at( "Phobos" );
+    boost::shared_ptr< Body > mars = bodyMap.at( "Mars" );
+    setGlobalFrameBodyEphemerides( bodyMap, "Mars", "ECLIPJ2000" );
+
+
+    SelectedTorqueMap torqueMap;
+        torqueMap[ "Phobos" ][ "Mars" ].push_back(
+                    boost::make_shared< TorqueSettings >( second_order_gravitational_torque ) );
+
+
+    // Create torque models
+    basic_astrodynamics::TorqueModelMap torqueModelMap = createTorqueModelsMap(
+                bodyMap, torqueMap );
+
+    // Define propagator settings.
+    std::vector< std::string > bodiesToIntegrate;
+    bodiesToIntegrate.push_back( "Phobos" );
+    boost::shared_ptr< RotationalStatePropagatorSettings< double > > propagatorSettings =
+            boost::make_shared< RotationalStatePropagatorSettings< double > >
+            ( torqueModelMap, bodiesToIntegrate, unitRotationState, boost::make_shared< PropagationTimeTerminationSettings >(
+                  finalEphemerisTime ) );
+
+    std::cout<<"T5"<<std::endl;
+
+
+
+
+    // Create integrator settings
+    boost::shared_ptr< IntegratorSettings< TimeType > > integratorSettings =
+            boost::make_shared< IntegratorSettings< TimeType > >
+            ( rungeKutta4, TimeType( initialEphemerisTime ), 15.0 );
+
+    // Define parameters.
+    std::vector< boost::shared_ptr< EstimatableParameterSettings > > parameterNames;
+    {
+        parameterNames.push_back( boost::make_shared< InitialRotationalStateEstimatableParameterSettings< double > >(
+                                      "Phobos", unitRotationState, "ECLIPJ2000" ) );
+//        parameterNames.push_back( boost::make_shared< SphericalHarmonicEstimatableParameterSettings >(
+//                                      2, 0, 3, 3, "Phobos", spherical_harmonics_cosine_coefficient_block ) );
+//        parameterNames.push_back( boost::make_shared< SphericalHarmonicEstimatableParameterSettings >(
+//                                      2, 1, 3, 3, "Phobos", spherical_harmonics_sine_coefficient_block ) );
+    }
+
+    std::cout<<"T6"<<std::endl;
+
+    // Create parameters
+    boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< StateScalarType > > parametersToEstimate =
+            createParametersToEstimate( parameterNames, bodyMap );
+
+    // Perturb parameters.
+    Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > parameterVector =
+            parametersToEstimate->template getFullParameterValues< StateScalarType >( );
+    //parameterVector.block( 7, 0, numberOfParametersToEstimate, 1 ) += parameterPerturbation;
+    parametersToEstimate->resetParameterValues( parameterVector );
+
+    std::cout<<"T7"<<std::endl;
+
+    std::pair< std::vector< Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic > >,
+            std::vector< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > > results;
+
+    {
+        std::cout<<"T8"<<std::endl;
+
+        // Create dynamics simulator
+        SingleArcVariationalEquationsSolver< StateScalarType, TimeType > dynamicsSimulator =
+                SingleArcVariationalEquationsSolver< StateScalarType, TimeType >(
+                    bodyMap, integratorSettings, propagatorSettings, parametersToEstimate,
+                    1, boost::shared_ptr< numerical_integrators::IntegratorSettings< double > >( ), 0, 0 );
+        std::cout<<"T9"<<std::endl;
+
+        // Propagate requested equations.
+        if( propagateVariationalEquations )
+        {
+            dynamicsSimulator.integrateVariationalAndDynamicalEquations( propagatorSettings->getInitialStates( ), 1 );
+        }
+        else
+        {
+            dynamicsSimulator.integrateDynamicalEquationsOfMotionOnly( propagatorSettings->getInitialStates( ) );
+        }
+
+        std::cout<<"T10"<<std::endl;
+
+        // Retrieve test data
+        double testEpoch = initialEphemerisTime + 3.5 * 3600.0;
+        Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > testStates =
+                Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >::Zero( 12 );
+        testStates.block( 0, 0, 7, 1 ) = bodyMap[ "Phobos" ]->getRotationalEphemeris( )->getRotationStateVector( testEpoch );
+
+        std::cout<<"State "<<testStates<<std::endl;
+
+        std::cout<<"T11"<<std::endl;
+
+        if( propagateVariationalEquations )
+        {
+            results.first.push_back( dynamicsSimulator.getStateTransitionMatrixInterface( )->
+                                     getCombinedStateTransitionAndSensitivityMatrix( testEpoch ) );
+
+            std::cout<<"State der. "<<results.first[ 0 ]<<std::endl;
+
+        }
+        results.second.push_back( testStates );
+
+        std::cout<<"T12"<<std::endl;
+
+    }
+    return results;
+}
+
+BOOST_AUTO_TEST_CASE( testPhobosRotationVariationalEquationCalculation )
+{
+    spice_interface::loadStandardSpiceKernels( );
+
+    std::pair< std::vector< Eigen::MatrixXd >, std::vector< Eigen::VectorXd > > currentOutput;
+
+    // Define variables for numerical differentiation
+    Eigen::Matrix< double, 7, 1 > perturbedState;
+    Eigen::Matrix< double, 7, 1 > statePerturbation;
+
+    // Define parameter perturbation
+    int numberOfParametersToEstimate = 2;
+    double sphericalHarmonicsPerturbation = 1.0E-6;
+    Eigen::Matrix< double, 12, 1 > perturbedParameter;
+    Eigen::Matrix< double, 12, 1 > parameterPerturbation;
+    parameterPerturbation = Eigen::Matrix< double, 12, 1 >::Constant( sphericalHarmonicsPerturbation );
+
+    // Define state perturbation
+    statePerturbation = ( Eigen::Matrix< double, 7, 1>( ) <<
+                          1.0E-6, 1.0E-6, 1.0E-6, 1.0E-6, 1.0E-10, 1.0E-10, 1.0E-10 ).finished( );
+
+
+    // Compute state transition and sensitivity matrices
+    currentOutput = executePhobosRotationSimulation< double, double >(
+                Eigen::Matrix< double, 7, 1 >::Zero( ) );
+    Eigen::MatrixXd stateTransitionAndSensitivityMatrixAtEpoch = currentOutput.first.at( 0 );
+}
 
 BOOST_AUTO_TEST_SUITE_END( )
 

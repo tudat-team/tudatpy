@@ -179,6 +179,8 @@ boost::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::Matrix
                 initialStateParameterToEstimate =
                         boost::make_shared< InitialRotationalStateParameter< InitialStateParameterType > >(
                             initialStateSettings->parameterType_.second.first, initialRotationalState,
+                            boost::bind( &Body::getBodyInertiaTensor,
+                                         bodyMap.at( initialStateSettings->parameterType_.second.first ) ),
                             initialStateSettings->baseOrientation_,
                             initialStateSettings->frameOrientation_ );
             }

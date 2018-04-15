@@ -90,6 +90,12 @@ public:
 //                   sphericalHarmonicAcceleration_->getAccelerationInBodyFixedFrame( ).transpose( )<<std::endl;
     }
 
+    boost::shared_ptr< SphericalHarmonicsGravitationalAccelerationModel > getSphericalHarmonicAcceleration( )
+    {
+        return sphericalHarmonicAcceleration_;
+    }
+
+
 protected:
 
 private:
