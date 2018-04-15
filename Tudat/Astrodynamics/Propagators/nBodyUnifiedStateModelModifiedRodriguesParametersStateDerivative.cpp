@@ -9,7 +9,7 @@
  */
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/stateVectorIndices.h"
-#include "Tudat/Astrodynamics/Propagators/nBodyUnifiedStateModelWithModifiedRodriguesParametersStateDerivative.h"
+#include "Tudat/Astrodynamics/Propagators/nBodyUnifiedStateModelModifiedRodriguesParametersStateDerivative.h"
 
 namespace tudat
 {
@@ -18,7 +18,7 @@ namespace propagators
 {
 
 //! Function to evaluate the state derivative for the unified state model with modified rodrigues parameters
-Eigen::Vector7d computeStateDerivativeForUnifiedStateModelWithModifiedRodriguesParameters(
+Eigen::Vector7d computeStateDerivativeForUnifiedStateModelModifiedRodriguesParameters(
         const Eigen::Vector7d& currentUnifiedStateModelElements,
         const Eigen::Vector3d& accelerationsInRswFrame,
         const double sineLambda,
@@ -55,7 +55,7 @@ Eigen::Vector7d computeStateDerivativeForUnifiedStateModelWithModifiedRodriguesP
 }
 
 //! Function to evaluate the state derivative for the unified state model with modified rodrigues parameters
-Eigen::Vector7d computeStateDerivativeForUnifiedStateModelWithModifiedRodriguesParameters(
+Eigen::Vector7d computeStateDerivativeForUnifiedStateModelModifiedRodriguesParameters(
         const Eigen::Vector7d& currentUnifiedStateModelElements,
         const Eigen::Vector3d& accelerationsInRswFrame,
         const double centralBodyGravitationalParameter )
@@ -112,19 +112,19 @@ Eigen::Vector7d computeStateDerivativeForUnifiedStateModelWithModifiedRodriguesP
     pAuxiliaryVector /= velocityHodographParameter;
 
     // Evaluate USM6 equations
-    return computeStateDerivativeForUnifiedStateModelWithModifiedRodriguesParameters(
+    return computeStateDerivativeForUnifiedStateModelModifiedRodriguesParameters(
                 currentUnifiedStateModelElements, accelerationsInRswFrame, sineLambda,
                 cosineLambda, gammaParameter, rotationalVelocityVector, pAuxiliaryVector );
 }
 
 //! Function to evaluate the state derivative for the unified state model with modified rodrigues parameters
-Eigen::Vector7d computeStateDerivativeForUnifiedStateModelWithModifiedRodriguesParameters(
+Eigen::Vector7d computeStateDerivativeForUnifiedStateModelModifiedRodriguesParameters(
         const Eigen::Vector7d& currentUnifiedStateModelElements,
         const Eigen::Vector6d& currentCartesianState,
         const Eigen::Vector3d& accelerationsInInertialFrame,
         const double centralBodyGravitationalParameter )
 {
-    return computeStateDerivativeForUnifiedStateModelWithModifiedRodriguesParameters(
+    return computeStateDerivativeForUnifiedStateModelModifiedRodriguesParameters(
                 currentUnifiedStateModelElements,
                 reference_frames::getInertialToRswSatelliteCenteredFrameRotationMatrx(
                     currentCartesianState ) * accelerationsInInertialFrame, centralBodyGravitationalParameter );

@@ -12,7 +12,7 @@
  *          and navigation. Master thesis, Delft University of Technology.
  */
 
-#include "Tudat/Astrodynamics/Propagators/nBodyUnifiedStateModelWithExponentialMapStateDerivative.h"
+#include "Tudat/Astrodynamics/Propagators/nBodyUnifiedStateModelExponentialMapStateDerivative.h"
 
 namespace tudat
 {
@@ -21,7 +21,7 @@ namespace propagators
 {
 
 //! Function to evaluate the state derivative for the unified state model with exponential map
-Eigen::Vector6d computeStateDerivativeForUnifiedStateModelWithExponentialMap(
+Eigen::Vector6d computeStateDerivativeForUnifiedStateModelExponentialMap(
         const Eigen::Vector6d& currentUnifiedStateModelElements,
         const Eigen::Vector3d& accelerationsInRswFrame,
         const double sineLambda,
@@ -80,7 +80,7 @@ Eigen::Vector6d computeStateDerivativeForUnifiedStateModelWithExponentialMap(
 }
 
 //! Function to evaluate the state derivative for the unified state model with exponential map
-Eigen::Vector6d computeStateDerivativeForUnifiedStateModelWithExponentialMap(
+Eigen::Vector6d computeStateDerivativeForUnifiedStateModelExponentialMap(
         const Eigen::Vector6d& currentUnifiedStateModelElements,
         const Eigen::Vector3d& accelerationsInRswFrame,
         const double centralBodyGravitationalParameter )
@@ -128,19 +128,19 @@ Eigen::Vector6d computeStateDerivativeForUnifiedStateModelWithExponentialMap(
     pAuxiliaryVector /= velocityHodographParameter;
 
     // Evaluate USMEM equations
-    return computeStateDerivativeForUnifiedStateModelWithExponentialMap(
+    return computeStateDerivativeForUnifiedStateModelExponentialMap(
                 currentUnifiedStateModelElements, accelerationsInRswFrame, sineLambda,
                 cosineLambda, gammaParameter, rotationalVelocityVector, pAuxiliaryVector );
 }
 
 //! Function to evaluate the state derivative for the unified state model with exponential map
-Eigen::Vector6d computeStateDerivativeForUnifiedStateModelWithExponentialMap(
+Eigen::Vector6d computeStateDerivativeForUnifiedStateModelExponentialMap(
         const Eigen::Vector6d& currentUnifiedStateModelElements,
         const Eigen::Vector6d& currentCartesianState,
         const Eigen::Vector3d& accelerationsInInertialFrame,
         const double centralBodyGravitationalParameter )
 {
-    return computeStateDerivativeForUnifiedStateModelWithExponentialMap(
+    return computeStateDerivativeForUnifiedStateModelExponentialMap(
                 currentUnifiedStateModelElements,
                 reference_frames::getInertialToRswSatelliteCenteredFrameRotationMatrx(
                     currentCartesianState ) * accelerationsInInertialFrame, centralBodyGravitationalParameter );

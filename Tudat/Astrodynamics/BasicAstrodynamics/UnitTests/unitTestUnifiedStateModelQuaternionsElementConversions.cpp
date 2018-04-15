@@ -22,7 +22,7 @@
 #include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
 #include "Tudat/Mathematics/BasicMathematics/basicMathematicsFunctions.h"
 
-#include "Tudat/Astrodynamics/BasicAstrodynamics/unifiedStateModelWithQuaternionsElementConversions.h"
+#include "Tudat/Astrodynamics/BasicAstrodynamics/unifiedStateModelQuaternionsElementConversions.h"
 #include "Tudat/Basics/basicTypedefs.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/stateVectorIndices.h"
 
@@ -37,7 +37,7 @@ namespace unit_tests
 BOOST_AUTO_TEST_SUITE( test_USM7_Element_Conversions )
 
 //! Unit test for conversion Keplerian orbital elements to unified state model elements.
-BOOST_AUTO_TEST_CASE( testconvertKeplerianToUnifiedStateModelWithQuaternionsElements )
+BOOST_AUTO_TEST_CASE( testconvertKeplerianToUnifiedStateModelQuaternionsElements )
 {
     using namespace orbital_element_conversions;
     using namespace unit_conversions;
@@ -80,7 +80,7 @@ BOOST_AUTO_TEST_CASE( testconvertKeplerianToUnifiedStateModelWithQuaternionsElem
 
         // Compute unified state model elements.
         computedUnifiedStateModelElements =
-                convertKeplerianToUnifiedStateModelWithQuaternionsElements( keplerianElements,
+                convertKeplerianToUnifiedStateModelQuaternionsElements( keplerianElements,
                                                                centralBodyGravitationalParameter );
 
         // Check if computed unified state model elements match the expected values.
@@ -112,7 +112,7 @@ BOOST_AUTO_TEST_CASE( testconvertKeplerianToUnifiedStateModelWithQuaternionsElem
 
         // Compute unified state model elements.
         computedUnifiedStateModelElements =
-                convertKeplerianToUnifiedStateModelWithQuaternionsElements( keplerianElements,
+                convertKeplerianToUnifiedStateModelQuaternionsElements( keplerianElements,
                                                                centralBodyGravitationalParameter );
 
         // Check if computed unified state model elements match the expected values.
@@ -142,7 +142,7 @@ BOOST_AUTO_TEST_CASE( testconvertKeplerianToUnifiedStateModelWithQuaternionsElem
 
         // Compute unified state model elements.
         computedUnifiedStateModelElements =
-                convertKeplerianToUnifiedStateModelWithQuaternionsElements( keplerianElements,
+                convertKeplerianToUnifiedStateModelQuaternionsElements( keplerianElements,
                                                                centralBodyGravitationalParameter );
 
         // Check if computed unified state model elements match the expected values.
@@ -164,7 +164,7 @@ BOOST_AUTO_TEST_CASE( testconvertKeplerianToUnifiedStateModelWithQuaternionsElem
         try
         {
             computedUnifiedStateModelElements =
-                    convertKeplerianToUnifiedStateModelWithQuaternionsElements( keplerianElements,
+                    convertKeplerianToUnifiedStateModelQuaternionsElements( keplerianElements,
                                                                  centralBodyGravitationalParameter );
         }
         catch( std::runtime_error )
@@ -189,7 +189,7 @@ BOOST_AUTO_TEST_CASE( testconvertKeplerianToUnifiedStateModelWithQuaternionsElem
         try
         {
             computedUnifiedStateModelElements =
-                    convertKeplerianToUnifiedStateModelWithQuaternionsElements( keplerianElements,
+                    convertKeplerianToUnifiedStateModelQuaternionsElements( keplerianElements,
                                                                  centralBodyGravitationalParameter );
         }
         catch( std::runtime_error )
@@ -218,7 +218,7 @@ BOOST_AUTO_TEST_CASE( testconvertKeplerianToUnifiedStateModelWithQuaternionsElem
 
         // Compute unified state model elements.
         computedUnifiedStateModelElements =
-                convertKeplerianToUnifiedStateModelWithQuaternionsElements( keplerianElements,
+                convertKeplerianToUnifiedStateModelQuaternionsElements( keplerianElements,
                                                                centralBodyGravitationalParameter );
 
         // Because two elements are near-zero, a close fraction/percentage check will fail.
@@ -257,7 +257,7 @@ BOOST_AUTO_TEST_CASE( testconvertKeplerianToUnifiedStateModelWithQuaternionsElem
 
         // Compute unified state model elements.
         computedUnifiedStateModelElements =
-                convertKeplerianToUnifiedStateModelWithQuaternionsElements( keplerianElements,
+                convertKeplerianToUnifiedStateModelQuaternionsElements( keplerianElements,
                                                                centralBodyGravitationalParameter );
 
         // Check if computed elements match the expected values.
@@ -273,7 +273,7 @@ BOOST_AUTO_TEST_CASE( testconvertKeplerianToUnifiedStateModelWithQuaternionsElem
         // Try to convert Kepler to unified state model Elements
         try
         {
-            computedUnifiedStateModelElements = convertKeplerianToUnifiedStateModelWithQuaternionsElements
+            computedUnifiedStateModelElements = convertKeplerianToUnifiedStateModelQuaternionsElements
                     ( keplerianElements, centralBodyGravitationalParameter );
         }
         // Catch the expected runtime error, and set the boolean flag to true.
@@ -289,7 +289,7 @@ BOOST_AUTO_TEST_CASE( testconvertKeplerianToUnifiedStateModelWithQuaternionsElem
 
 
 //! Unit test for the conversion of unified state model elements to Keplerian elements
-BOOST_AUTO_TEST_CASE( testconvertUnifiedStateModelWithQuaternionsToKeplerianElements )
+BOOST_AUTO_TEST_CASE( testconvertUnifiedStateModelQuaternionsToKeplerianElements )
 {
     /* Used procedure:
       Because the Kepler to unified state model elements are verified, a subsequent conversion back
@@ -326,8 +326,8 @@ BOOST_AUTO_TEST_CASE( testconvertUnifiedStateModelWithQuaternionsToKeplerianElem
         // Default case, so no modification necessary.
 
         // Convert to unified state model elements and back.
-        computedKeplerianElements = convertUnifiedStateModelWithQuaternionsToKeplerianElements(
-                    convertKeplerianToUnifiedStateModelWithQuaternionsElements( expectedKeplerianElements,
+        computedKeplerianElements = convertUnifiedStateModelQuaternionsToKeplerianElements(
+                    convertKeplerianToUnifiedStateModelQuaternionsElements( expectedKeplerianElements,
                                                                    centralBodyGravitationalParameter ),
                     centralBodyGravitationalParameter );
 
@@ -345,8 +345,8 @@ BOOST_AUTO_TEST_CASE( testconvertUnifiedStateModelWithQuaternionsToKeplerianElem
         expectedKeplerianElements( trueAnomalyIndex ) = convertDegreesToRadians( 10.0 ); // 170 is above limit
 
         // Convert to unified state model elements and back.
-        computedKeplerianElements = convertUnifiedStateModelWithQuaternionsToKeplerianElements(
-                    convertKeplerianToUnifiedStateModelWithQuaternionsElements( expectedKeplerianElements,
+        computedKeplerianElements = convertUnifiedStateModelQuaternionsToKeplerianElements(
+                    convertKeplerianToUnifiedStateModelQuaternionsElements( expectedKeplerianElements,
                                                                    centralBodyGravitationalParameter ),
                     centralBodyGravitationalParameter );
 
@@ -363,8 +363,8 @@ BOOST_AUTO_TEST_CASE( testconvertUnifiedStateModelWithQuaternionsToKeplerianElem
         expectedKeplerianElements( inclinationIndex ) = convertDegreesToRadians( 90.0 );
 
         // Convert to unified state model elements and back.
-        computedKeplerianElements = convertUnifiedStateModelWithQuaternionsToKeplerianElements(
-                    convertKeplerianToUnifiedStateModelWithQuaternionsElements( expectedKeplerianElements,
+        computedKeplerianElements = convertUnifiedStateModelQuaternionsToKeplerianElements(
+                    convertKeplerianToUnifiedStateModelQuaternionsElements( expectedKeplerianElements,
                                                                    centralBodyGravitationalParameter ),
                     centralBodyGravitationalParameter );
 
@@ -382,8 +382,8 @@ BOOST_AUTO_TEST_CASE( testconvertUnifiedStateModelWithQuaternionsToKeplerianElem
         expectedKeplerianElements( argumentOfPeriapsisIndex ) = 0.0; // For e = 0, undefined.
 
         // Convert to unified state model elements and back.
-        computedKeplerianElements = convertUnifiedStateModelWithQuaternionsToKeplerianElements(
-                    convertKeplerianToUnifiedStateModelWithQuaternionsElements( expectedKeplerianElements,
+        computedKeplerianElements = convertUnifiedStateModelQuaternionsToKeplerianElements(
+                    convertKeplerianToUnifiedStateModelQuaternionsElements( expectedKeplerianElements,
                                                                    centralBodyGravitationalParameter ),
                     centralBodyGravitationalParameter );
 
@@ -401,8 +401,8 @@ BOOST_AUTO_TEST_CASE( testconvertUnifiedStateModelWithQuaternionsToKeplerianElem
         // non-inclined orbit planes, this parameter is undefined
 
         // Convert to unified state model elements and back.
-        computedKeplerianElements = convertUnifiedStateModelWithQuaternionsToKeplerianElements(
-                    convertKeplerianToUnifiedStateModelWithQuaternionsElements( expectedKeplerianElements,
+        computedKeplerianElements = convertUnifiedStateModelQuaternionsToKeplerianElements(
+                    convertKeplerianToUnifiedStateModelQuaternionsElements( expectedKeplerianElements,
                                                                    centralBodyGravitationalParameter ),
                     centralBodyGravitationalParameter );
 
@@ -424,8 +424,8 @@ BOOST_AUTO_TEST_CASE( testconvertUnifiedStateModelWithQuaternionsToKeplerianElem
         // Try convert to unified state model elements and back and catch the expected runtime error.
         try
         {
-            computedKeplerianElements = convertUnifiedStateModelWithQuaternionsToKeplerianElements(
-                    convertKeplerianToUnifiedStateModelWithQuaternionsElements( expectedKeplerianElements,
+            computedKeplerianElements = convertUnifiedStateModelQuaternionsToKeplerianElements(
+                    convertKeplerianToUnifiedStateModelQuaternionsElements( expectedKeplerianElements,
                                                                  centralBodyGravitationalParameter ),
                         centralBodyGravitationalParameter );
         }
@@ -447,8 +447,8 @@ BOOST_AUTO_TEST_CASE( testconvertUnifiedStateModelWithQuaternionsToKeplerianElem
             // longitude of ascending node was set to 0 in case 5, so no error.
 
         // Convert to unified state model elements and back
-        computedKeplerianElements = convertUnifiedStateModelWithQuaternionsToKeplerianElements(
-                    convertKeplerianToUnifiedStateModelWithQuaternionsElements( expectedKeplerianElements,
+        computedKeplerianElements = convertUnifiedStateModelQuaternionsToKeplerianElements(
+                    convertKeplerianToUnifiedStateModelQuaternionsElements( expectedKeplerianElements,
                                                                    centralBodyGravitationalParameter ),
                     centralBodyGravitationalParameter );
 
@@ -468,8 +468,8 @@ BOOST_AUTO_TEST_CASE( testconvertUnifiedStateModelWithQuaternionsToKeplerianElem
         expectedKeplerianElements( trueAnomalyIndex ) = convertDegreesToRadians( 240.0 );
 
         // Convert to unified state model elements and back
-        computedKeplerianElements = convertUnifiedStateModelWithQuaternionsToKeplerianElements(
-                    convertKeplerianToUnifiedStateModelWithQuaternionsElements( expectedKeplerianElements,
+        computedKeplerianElements = convertUnifiedStateModelQuaternionsToKeplerianElements(
+                    convertKeplerianToUnifiedStateModelQuaternionsElements( expectedKeplerianElements,
                                                                    centralBodyGravitationalParameter ),
                     centralBodyGravitationalParameter );
 

@@ -22,7 +22,7 @@
 #include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
 #include "Tudat/Mathematics/BasicMathematics/basicMathematicsFunctions.h"
 
-#include "Tudat/Astrodynamics/BasicAstrodynamics/unifiedStateModelWithModifiedRodriguesParametersElementConversions.h"
+#include "Tudat/Astrodynamics/BasicAstrodynamics/unifiedStateModelModifiedRodriguesParametersElementConversions.h"
 #include "Tudat/Basics/basicTypedefs.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/stateVectorIndices.h"
 
@@ -37,7 +37,7 @@ namespace unit_tests
 BOOST_AUTO_TEST_SUITE( test_USM6_Element_Conversions )
 
 //! Unit test for conversion Keplerian orbital elements to unified state model elements.
-BOOST_AUTO_TEST_CASE( testconvertKeplerianToUnifiedStateModelWithModifiedRodriguesParametersElements )
+BOOST_AUTO_TEST_CASE( testconvertKeplerianToUnifiedStateModelModifiedRodriguesParametersElements )
 {
     using namespace orbital_element_conversions;
     using namespace unit_conversions;
@@ -80,7 +80,7 @@ BOOST_AUTO_TEST_CASE( testconvertKeplerianToUnifiedStateModelWithModifiedRodrigu
 
         // Compute unified state model elements.
         computedUnifiedStateModelElements =
-                convertKeplerianToUnifiedStateModelWithModifiedRodriguesParametersElements( keplerianElements,
+                convertKeplerianToUnifiedStateModelModifiedRodriguesParametersElements( keplerianElements,
                                                                centralBodyGravitationalParameter );
 
         // Check if computed unified state model elements match the expected values.
@@ -112,7 +112,7 @@ BOOST_AUTO_TEST_CASE( testconvertKeplerianToUnifiedStateModelWithModifiedRodrigu
 
         // Compute unified state model elements.
         computedUnifiedStateModelElements =
-                convertKeplerianToUnifiedStateModelWithModifiedRodriguesParametersElements( keplerianElements,
+                convertKeplerianToUnifiedStateModelModifiedRodriguesParametersElements( keplerianElements,
                                                                centralBodyGravitationalParameter );
 
         // Check if computed unified state model elements match the expected values.
@@ -142,7 +142,7 @@ BOOST_AUTO_TEST_CASE( testconvertKeplerianToUnifiedStateModelWithModifiedRodrigu
 
         // Compute unified state model elements.
         computedUnifiedStateModelElements =
-                convertKeplerianToUnifiedStateModelWithModifiedRodriguesParametersElements( keplerianElements,
+                convertKeplerianToUnifiedStateModelModifiedRodriguesParametersElements( keplerianElements,
                                                                centralBodyGravitationalParameter );
 
         // Check if computed unified state model elements match the expected values.
@@ -164,7 +164,7 @@ BOOST_AUTO_TEST_CASE( testconvertKeplerianToUnifiedStateModelWithModifiedRodrigu
         try
         {
             computedUnifiedStateModelElements =
-                    convertKeplerianToUnifiedStateModelWithModifiedRodriguesParametersElements( keplerianElements,
+                    convertKeplerianToUnifiedStateModelModifiedRodriguesParametersElements( keplerianElements,
                                                                  centralBodyGravitationalParameter );
         }
         catch( std::runtime_error )
@@ -189,7 +189,7 @@ BOOST_AUTO_TEST_CASE( testconvertKeplerianToUnifiedStateModelWithModifiedRodrigu
         try
         {
             computedUnifiedStateModelElements =
-                    convertKeplerianToUnifiedStateModelWithModifiedRodriguesParametersElements( keplerianElements,
+                    convertKeplerianToUnifiedStateModelModifiedRodriguesParametersElements( keplerianElements,
                                                                  centralBodyGravitationalParameter );
         }
         catch( std::runtime_error )
@@ -218,7 +218,7 @@ BOOST_AUTO_TEST_CASE( testconvertKeplerianToUnifiedStateModelWithModifiedRodrigu
 
         // Compute unified state model elements.
         computedUnifiedStateModelElements =
-                convertKeplerianToUnifiedStateModelWithModifiedRodriguesParametersElements( keplerianElements,
+                convertKeplerianToUnifiedStateModelModifiedRodriguesParametersElements( keplerianElements,
                                                                centralBodyGravitationalParameter );
 
         // Because two elements are near-zero, a close fraction/percentage check will fail.
@@ -253,7 +253,7 @@ BOOST_AUTO_TEST_CASE( testconvertKeplerianToUnifiedStateModelWithModifiedRodrigu
 
         // Compute unified state model elements.
         computedUnifiedStateModelElements =
-                convertKeplerianToUnifiedStateModelWithModifiedRodriguesParametersElements( keplerianElements,
+                convertKeplerianToUnifiedStateModelModifiedRodriguesParametersElements( keplerianElements,
                                                                centralBodyGravitationalParameter );
 
         // Check if computed elements match the expected values.
@@ -269,7 +269,7 @@ BOOST_AUTO_TEST_CASE( testconvertKeplerianToUnifiedStateModelWithModifiedRodrigu
         // Try to convert Kepler to unified state model Elements
         try
         {
-            computedUnifiedStateModelElements = convertKeplerianToUnifiedStateModelWithModifiedRodriguesParametersElements
+            computedUnifiedStateModelElements = convertKeplerianToUnifiedStateModelModifiedRodriguesParametersElements
                     ( keplerianElements, centralBodyGravitationalParameter );
         }
         // Catch the expected runtime error, and set the boolean flag to true.
@@ -285,7 +285,7 @@ BOOST_AUTO_TEST_CASE( testconvertKeplerianToUnifiedStateModelWithModifiedRodrigu
 
 
 //! Unit test for the conversion of unified state model elements to Keplerian elements
-BOOST_AUTO_TEST_CASE( testconvertUnifiedStateModelWithModifiedRodriguesParametersToKeplerianElements )
+BOOST_AUTO_TEST_CASE( testconvertUnifiedStateModelModifiedRodriguesParametersToKeplerianElements )
 {
     /* Used procedure:
       Because the Kepler to unified state model elements are verified, a subsequent conversion back
@@ -322,8 +322,8 @@ BOOST_AUTO_TEST_CASE( testconvertUnifiedStateModelWithModifiedRodriguesParameter
         // Default case, so no modification necessary.
 
         // Convert to unified state model elements and back.
-        computedKeplerianElements = convertUnifiedStateModelWithModifiedRodriguesParametersToKeplerianElements(
-                    convertKeplerianToUnifiedStateModelWithModifiedRodriguesParametersElements( expectedKeplerianElements,
+        computedKeplerianElements = convertUnifiedStateModelModifiedRodriguesParametersToKeplerianElements(
+                    convertKeplerianToUnifiedStateModelModifiedRodriguesParametersElements( expectedKeplerianElements,
                                                                    centralBodyGravitationalParameter ),
                     centralBodyGravitationalParameter );
 
@@ -341,8 +341,8 @@ BOOST_AUTO_TEST_CASE( testconvertUnifiedStateModelWithModifiedRodriguesParameter
         expectedKeplerianElements( trueAnomalyIndex ) = convertDegreesToRadians( 10.0 ); // 170 is above limit
 
         // Convert to unified state model elements and back.
-        computedKeplerianElements = convertUnifiedStateModelWithModifiedRodriguesParametersToKeplerianElements(
-                    convertKeplerianToUnifiedStateModelWithModifiedRodriguesParametersElements( expectedKeplerianElements,
+        computedKeplerianElements = convertUnifiedStateModelModifiedRodriguesParametersToKeplerianElements(
+                    convertKeplerianToUnifiedStateModelModifiedRodriguesParametersElements( expectedKeplerianElements,
                                                                    centralBodyGravitationalParameter ),
                     centralBodyGravitationalParameter );
 
@@ -359,8 +359,8 @@ BOOST_AUTO_TEST_CASE( testconvertUnifiedStateModelWithModifiedRodriguesParameter
         expectedKeplerianElements( inclinationIndex ) = convertDegreesToRadians( 90.0 );
 
         // Convert to unified state model elements and back.
-        computedKeplerianElements = convertUnifiedStateModelWithModifiedRodriguesParametersToKeplerianElements(
-                    convertKeplerianToUnifiedStateModelWithModifiedRodriguesParametersElements( expectedKeplerianElements,
+        computedKeplerianElements = convertUnifiedStateModelModifiedRodriguesParametersToKeplerianElements(
+                    convertKeplerianToUnifiedStateModelModifiedRodriguesParametersElements( expectedKeplerianElements,
                                                                    centralBodyGravitationalParameter ),
                     centralBodyGravitationalParameter );
 
@@ -378,8 +378,8 @@ BOOST_AUTO_TEST_CASE( testconvertUnifiedStateModelWithModifiedRodriguesParameter
         expectedKeplerianElements( argumentOfPeriapsisIndex ) = 0.0; // For e = 0, undefined.
 
         // Convert to unified state model elements and back.
-        computedKeplerianElements = convertUnifiedStateModelWithModifiedRodriguesParametersToKeplerianElements(
-                    convertKeplerianToUnifiedStateModelWithModifiedRodriguesParametersElements( expectedKeplerianElements,
+        computedKeplerianElements = convertUnifiedStateModelModifiedRodriguesParametersToKeplerianElements(
+                    convertKeplerianToUnifiedStateModelModifiedRodriguesParametersElements( expectedKeplerianElements,
                                                                    centralBodyGravitationalParameter ),
                     centralBodyGravitationalParameter );
 
@@ -397,8 +397,8 @@ BOOST_AUTO_TEST_CASE( testconvertUnifiedStateModelWithModifiedRodriguesParameter
         // non-inclined orbit planes, this parameter is undefined
 
         // Convert to unified state model elements and back.
-        computedKeplerianElements = convertUnifiedStateModelWithModifiedRodriguesParametersToKeplerianElements(
-                    convertKeplerianToUnifiedStateModelWithModifiedRodriguesParametersElements( expectedKeplerianElements,
+        computedKeplerianElements = convertUnifiedStateModelModifiedRodriguesParametersToKeplerianElements(
+                    convertKeplerianToUnifiedStateModelModifiedRodriguesParametersElements( expectedKeplerianElements,
                                                                    centralBodyGravitationalParameter ),
                     centralBodyGravitationalParameter );
 
@@ -420,8 +420,8 @@ BOOST_AUTO_TEST_CASE( testconvertUnifiedStateModelWithModifiedRodriguesParameter
         // Try convert to unified state model elements and back and catch the expected runtime error.
         try
         {
-            computedKeplerianElements = convertUnifiedStateModelWithModifiedRodriguesParametersToKeplerianElements(
-                    convertKeplerianToUnifiedStateModelWithModifiedRodriguesParametersElements( expectedKeplerianElements,
+            computedKeplerianElements = convertUnifiedStateModelModifiedRodriguesParametersToKeplerianElements(
+                    convertKeplerianToUnifiedStateModelModifiedRodriguesParametersElements( expectedKeplerianElements,
                                                                  centralBodyGravitationalParameter ),
                         centralBodyGravitationalParameter );
         }
@@ -443,8 +443,8 @@ BOOST_AUTO_TEST_CASE( testconvertUnifiedStateModelWithModifiedRodriguesParameter
             // longitude of ascending node was set to 0 in case 5, so no error.
 
         // Convert to unified state model elements and back
-        computedKeplerianElements = convertUnifiedStateModelWithModifiedRodriguesParametersToKeplerianElements(
-                    convertKeplerianToUnifiedStateModelWithModifiedRodriguesParametersElements( expectedKeplerianElements,
+        computedKeplerianElements = convertUnifiedStateModelModifiedRodriguesParametersToKeplerianElements(
+                    convertKeplerianToUnifiedStateModelModifiedRodriguesParametersElements( expectedKeplerianElements,
                                                                    centralBodyGravitationalParameter ),
                     centralBodyGravitationalParameter );
 
@@ -464,8 +464,8 @@ BOOST_AUTO_TEST_CASE( testconvertUnifiedStateModelWithModifiedRodriguesParameter
         expectedKeplerianElements( trueAnomalyIndex ) = convertDegreesToRadians( 240.0 );
 
         // Convert to unified state model elements and back
-        computedKeplerianElements = convertUnifiedStateModelWithModifiedRodriguesParametersToKeplerianElements(
-                    convertKeplerianToUnifiedStateModelWithModifiedRodriguesParametersElements( expectedKeplerianElements,
+        computedKeplerianElements = convertUnifiedStateModelModifiedRodriguesParametersToKeplerianElements(
+                    convertKeplerianToUnifiedStateModelModifiedRodriguesParametersElements( expectedKeplerianElements,
                                                                    centralBodyGravitationalParameter ),
                     centralBodyGravitationalParameter );
 

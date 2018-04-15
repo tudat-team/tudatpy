@@ -23,7 +23,7 @@
 #include "Tudat/Mathematics/BasicMathematics/linearAlgebra.h"
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/missionGeometry.h"
-#include "Tudat/Astrodynamics/BasicAstrodynamics/unifiedStateModelWithQuaternionsElementConversions.h"
+#include "Tudat/Astrodynamics/BasicAstrodynamics/unifiedStateModelQuaternionsElementConversions.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/stateVectorIndices.h"
 
 namespace tudat
@@ -33,7 +33,7 @@ namespace orbital_element_conversions
 {
 
 //! Convert Keplerian elements to unified state model elements with quaternions.
-Eigen::Vector7d convertKeplerianToUnifiedStateModelWithQuaternionsElements(
+Eigen::Vector7d convertKeplerianToUnifiedStateModelQuaternionsElements(
         const Eigen::Vector6d& keplerianElements,
         const double centralBodyGravitationalParameter )
 {
@@ -222,7 +222,7 @@ Eigen::Vector7d convertKeplerianToUnifiedStateModelWithQuaternionsElements(
 }
 
 //! Convert unified state model elements with quaternions to Keplerian elements.
-Eigen::Vector6d convertUnifiedStateModelWithQuaternionsToKeplerianElements(
+Eigen::Vector6d convertUnifiedStateModelQuaternionsToKeplerianElements(
         const Eigen::Vector7d& unifiedStateModelElements,
         const double centralBodyGravitationalParameter )
 {
@@ -437,7 +437,7 @@ Eigen::Vector6d convertUnifiedStateModelWithQuaternionsToKeplerianElements(
 }
 
 //! Convert Cartesian elements to unified state model elements with quaternions.
-Eigen::Vector7d convertCartesianToUnifiedStateModelWithQuaternionsElements(
+Eigen::Vector7d convertCartesianToUnifiedStateModelQuaternionsElements(
         const Eigen::Vector6d& cartesianElements,
         const double centralBodyGravitationalParameter )
 {
@@ -611,7 +611,7 @@ Eigen::Vector7d convertCartesianToUnifiedStateModelWithQuaternionsElements(
 }
 
 //! Convert unified state model elements with quaternions to Cartesian elements.
-Eigen::Vector6d convertUnifiedStateModelWithQuaternionsToCartesianElements(
+Eigen::Vector6d convertUnifiedStateModelQuaternionsToCartesianElements(
         const Eigen::Vector7d& unifiedStateModelElements,
         const double centralBodyGravitationalParameter )
 {

@@ -37,7 +37,7 @@ namespace propagators
  * \param pParameterVector Value of the vector gamma (see Vittaldev, 2010)
  * \return Time derivatives of USM6 elements.
  */
-Eigen::Vector7d computeStateDerivativeForUnifiedStateModelWithModifiedRodriguesParameters(
+Eigen::Vector7d computeStateDerivativeForUnifiedStateModelModifiedRodriguesParameters(
         const Eigen::Vector7d& currentUnifiedStateModelElements,
         const Eigen::Vector3d& accelerationsInRswFrame,
         const double sineLambdaParameter,
@@ -56,7 +56,7 @@ Eigen::Vector7d computeStateDerivativeForUnifiedStateModelWithModifiedRodriguesP
  * \param centralBodyGravitationalParameter Gravitational parameter of sum of central body and body for which orbit is propagated.
  * \return Time derivatives of USM6 elements.
  */
-Eigen::Vector7d computeStateDerivativeForUnifiedStateModelWithModifiedRodriguesParameters(
+Eigen::Vector7d computeStateDerivativeForUnifiedStateModelModifiedRodriguesParameters(
         const Eigen::Vector7d& currentUnifiedStateModelElements,
         const Eigen::Vector3d& accelerationsInRswFrame,
         const double centralBodyGravitationalParameter );
@@ -73,7 +73,7 @@ Eigen::Vector7d computeStateDerivativeForUnifiedStateModelWithModifiedRodriguesP
  * \param centralBodyGravitationalParameter Gravitational parameter of sum of central body and body for which orbit is propagated.
  * \return Time derivatives of USM6 elements.
  */
-Eigen::Vector7d computeStateDerivativeForUnifiedStateModelWithModifiedRodriguesParameters(
+Eigen::Vector7d computeStateDerivativeForUnifiedStateModelModifiedRodriguesParameters(
         const Eigen::Vector7d& currentUnifiedStateModelElements,
         const Eigen::Vector6d& currentCartesianState,
         const Eigen::Vector3d& accelerationsInInertialFrame,
@@ -87,7 +87,7 @@ Eigen::Vector7d computeStateDerivativeForUnifiedStateModelWithModifiedRodriguesP
  * Cartesian accelerations, with the USM6 elements of the bodies the states being numerically propagated.
  */
 template< typename StateScalarType = double, typename TimeType = double >
-class NBodyUnifiedStateModelWithModifiedRodriguesParametersStateDerivative: public NBodyStateDerivative< StateScalarType, TimeType >
+class NBodyUnifiedStateModelModifiedRodriguesParametersStateDerivative: public NBodyStateDerivative< StateScalarType, TimeType >
 {
 public:
 
@@ -104,7 +104,7 @@ public:
      *  the global origins.
      *  \param bodiesToIntegrate List of names of bodies that are to be integrated numerically.
      */
-    NBodyUnifiedStateModelWithModifiedRodriguesParametersStateDerivative(
+    NBodyUnifiedStateModelModifiedRodriguesParametersStateDerivative(
             const basic_astrodynamics::AccelerationMap& accelerationModelsPerBody,
             const boost::shared_ptr< CentralBodyData< StateScalarType, TimeType > > centralBodyData,
             const std::vector< std::string >& bodiesToIntegrate ):
@@ -123,7 +123,7 @@ public:
     }
 
     //! Destructor
-    ~NBodyUnifiedStateModelWithModifiedRodriguesParametersStateDerivative( ){ }
+    ~NBodyUnifiedStateModelModifiedRodriguesParametersStateDerivative( ){ }
 
     //! Calculates the state derivative of the translational motion of the system, using the equations of motion for the
     //! unified state model with modified rodrigues parameters (USM6).
@@ -155,7 +155,7 @@ public:
                         currentCartesianLocalSoluton_.segment( i * 6, 6 ).template cast< double >( ) ) *
                     stateDerivative.block( i * 6 + 3, 0, 6, 1 ).template cast< double >( );
 
-            stateDerivative.block( i * 7, 0, 7, 1 ) = computeStateDerivativeForUnifiedStateModelWithModifiedRodriguesParameters(
+            stateDerivative.block( i * 7, 0, 7, 1 ) = computeStateDerivativeForUnifiedStateModelModifiedRodriguesParameters(
                         stateOfSystemToBeIntegrated.block( i * 7, 0, 7, 1 ).template cast< double >( ), currentAccelerationInRswFrame,
                         centralBodyGravitationalParameters_.at( i )( ) ).template cast< StateScalarType >( );
         }
@@ -183,7 +183,7 @@ public:
         for( unsigned int i = 0; i < this->bodiesToBeIntegratedNumerically_.size( ); i++ )
         {
             currentState.segment( i * 7, 7 ) =
-                    orbital_element_conversions::convertCartesianToUnifiedStateModelWithModifiedRodriguesParametersElements<
+                    orbital_element_conversions::convertCartesianToUnifiedStateModelModifiedRodriguesParametersElements<
                     StateScalarType >( cartesianSolution.block( i * 6, 0, 6, 1 ), static_cast< StateScalarType >(
                             centralBodyGravitationalParameters_.at( i )( ) ) );;
         }
@@ -232,7 +232,7 @@ public:
             currentUnifiedStateModelState.segment( 3, 3 ) = modifiedRodriguesParametersVector;
 
             currentCartesianLocalSoluton.segment( i * 6, 6 ) =
-                    orbital_element_conversions::convertUnifiedStateModelWithModifiedRodriguesParametersToCartesianElements< StateScalarType >(
+                    orbital_element_conversions::convertUnifiedStateModelModifiedRodriguesParametersToCartesianElements< StateScalarType >(
                         currentUnifiedStateModelState, static_cast< StateScalarType >(
                             centralBodyGravitationalParameters_.at( i )( ) ) );
         }

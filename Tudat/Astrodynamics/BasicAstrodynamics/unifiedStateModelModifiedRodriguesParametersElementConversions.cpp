@@ -21,7 +21,7 @@
 #include "Tudat/Mathematics/BasicMathematics/basicMathematicsFunctions.h"
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/missionGeometry.h"
-#include "Tudat/Astrodynamics/BasicAstrodynamics/unifiedStateModelWithModifiedRodriguesParametersElementConversions.h"
+#include "Tudat/Astrodynamics/BasicAstrodynamics/unifiedStateModelModifiedRodriguesParametersElementConversions.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/stateVectorIndices.h"
 
 namespace tudat
@@ -31,7 +31,7 @@ namespace orbital_element_conversions
 {
 
 //! Convert Keplerian elements to unified state model elements with modified rodrigues parameters.
-Eigen::Vector7d convertKeplerianToUnifiedStateModelWithModifiedRodriguesParametersElements(
+Eigen::Vector7d convertKeplerianToUnifiedStateModelModifiedRodriguesParametersElements(
         const Eigen::Vector6d& keplerianElements,
         const double centralBodyGravitationalParameter )
 {
@@ -241,7 +241,7 @@ Eigen::Vector7d convertKeplerianToUnifiedStateModelWithModifiedRodriguesParamete
 }
 
 //! Convert unified state model elements with modified rodrigues parameters to Keplerian elements.
-Eigen::Vector6d convertUnifiedStateModelWithModifiedRodriguesParametersToKeplerianElements(
+Eigen::Vector6d convertUnifiedStateModelModifiedRodriguesParametersToKeplerianElements(
         const Eigen::Vector7d& unifiedStateModelElements,
         const double centralBodyGravitationalParameter )
 {

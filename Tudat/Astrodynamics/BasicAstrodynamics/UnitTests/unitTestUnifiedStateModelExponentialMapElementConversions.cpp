@@ -22,7 +22,7 @@
 #include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
 #include "Tudat/Mathematics/BasicMathematics/basicMathematicsFunctions.h"
 
-#include "Tudat/Astrodynamics/BasicAstrodynamics/unifiedStateModelWithExponentialMapElementConversions.h"
+#include "Tudat/Astrodynamics/BasicAstrodynamics/unifiedStateModelExponentialMapElementConversions.h"
 #include "Tudat/Basics/basicTypedefs.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/stateVectorIndices.h"
 
@@ -37,7 +37,7 @@ namespace unit_tests
 BOOST_AUTO_TEST_SUITE( test_USMEM_Element_Conversions )
 
 //! Unit test for conversion Keplerian orbital elements to Unified State Model elements.
-BOOST_AUTO_TEST_CASE( testconvertKeplerianToUnifiedStateModelWithExponentialMapElements )
+BOOST_AUTO_TEST_CASE( testconvertKeplerianToUnifiedStateModelExponentialMapElements )
 {
     using namespace orbital_element_conversions;
     using namespace unit_conversions;
@@ -77,7 +77,7 @@ BOOST_AUTO_TEST_CASE( testconvertKeplerianToUnifiedStateModelWithExponentialMapE
 
         // Compute unified state model elements.
         computedUnifiedStateModelElements =
-                convertKeplerianToUnifiedStateModelWithExponentialMapElements( keplerianElements,
+                convertKeplerianToUnifiedStateModelExponentialMapElements( keplerianElements,
                                                                centralBodyGravitationalParameter );
 
         // Check if computed unified state model elements match the expected values.
@@ -108,7 +108,7 @@ BOOST_AUTO_TEST_CASE( testconvertKeplerianToUnifiedStateModelWithExponentialMapE
 
         // Compute unified state model elements.
         computedUnifiedStateModelElements =
-                convertKeplerianToUnifiedStateModelWithExponentialMapElements( keplerianElements,
+                convertKeplerianToUnifiedStateModelExponentialMapElements( keplerianElements,
                                                                centralBodyGravitationalParameter );
 
         // Check if computed unified state model elements match the expected values.
@@ -137,7 +137,7 @@ BOOST_AUTO_TEST_CASE( testconvertKeplerianToUnifiedStateModelWithExponentialMapE
 
         // Compute unified state model elements.
         computedUnifiedStateModelElements =
-                convertKeplerianToUnifiedStateModelWithExponentialMapElements( keplerianElements,
+                convertKeplerianToUnifiedStateModelExponentialMapElements( keplerianElements,
                                                                centralBodyGravitationalParameter );
 
         // Check if computed unified state model elements match the expected values.
@@ -159,7 +159,7 @@ BOOST_AUTO_TEST_CASE( testconvertKeplerianToUnifiedStateModelWithExponentialMapE
         try
         {
             computedUnifiedStateModelElements =
-                    convertKeplerianToUnifiedStateModelWithExponentialMapElements( keplerianElements,
+                    convertKeplerianToUnifiedStateModelExponentialMapElements( keplerianElements,
                                                                  centralBodyGravitationalParameter );
         }
         catch( std::runtime_error )
@@ -184,7 +184,7 @@ BOOST_AUTO_TEST_CASE( testconvertKeplerianToUnifiedStateModelWithExponentialMapE
         try
         {
             computedUnifiedStateModelElements =
-                    convertKeplerianToUnifiedStateModelWithExponentialMapElements( keplerianElements,
+                    convertKeplerianToUnifiedStateModelExponentialMapElements( keplerianElements,
                                                                  centralBodyGravitationalParameter );
         }
         catch( std::runtime_error )
@@ -212,7 +212,7 @@ BOOST_AUTO_TEST_CASE( testconvertKeplerianToUnifiedStateModelWithExponentialMapE
 
         // Compute unified state model elements.
         computedUnifiedStateModelElements =
-                convertKeplerianToUnifiedStateModelWithExponentialMapElements( keplerianElements,
+                convertKeplerianToUnifiedStateModelExponentialMapElements( keplerianElements,
                                                                centralBodyGravitationalParameter );
 
         // Because two elements are near-zero, a close fraction/percentage check will fail.
@@ -246,7 +246,7 @@ BOOST_AUTO_TEST_CASE( testconvertKeplerianToUnifiedStateModelWithExponentialMapE
 
         // Compute unified state model elements.
         computedUnifiedStateModelElements =
-                convertKeplerianToUnifiedStateModelWithExponentialMapElements( keplerianElements,
+                convertKeplerianToUnifiedStateModelExponentialMapElements( keplerianElements,
                                                                centralBodyGravitationalParameter );
 
         // Check if computed elements match the expected values.
@@ -262,7 +262,7 @@ BOOST_AUTO_TEST_CASE( testconvertKeplerianToUnifiedStateModelWithExponentialMapE
         // Try to convert Kepler to unified state model Elements
         try
         {
-            computedUnifiedStateModelElements = convertKeplerianToUnifiedStateModelWithExponentialMapElements
+            computedUnifiedStateModelElements = convertKeplerianToUnifiedStateModelExponentialMapElements
                     ( keplerianElements, centralBodyGravitationalParameter );
         }
         // Catch the expected runtime error, and set the boolean flag to true.
@@ -278,7 +278,7 @@ BOOST_AUTO_TEST_CASE( testconvertKeplerianToUnifiedStateModelWithExponentialMapE
 
 
 //! Unit test for the conversion of unified state model elements to Keplerian elements
-BOOST_AUTO_TEST_CASE( testconvertUnifiedStateModelWithExponentialMapToKeplerianElements )
+BOOST_AUTO_TEST_CASE( testconvertUnifiedStateModelExponentialMapToKeplerianElements )
 {
     /* Used procedure:
       Because the Kepler to unified state model elements are verified, a subsequent conversion back
@@ -315,8 +315,8 @@ BOOST_AUTO_TEST_CASE( testconvertUnifiedStateModelWithExponentialMapToKeplerianE
         // Default case, so no modification necessary.
 
         // Convert to unified state model elements and back.
-        computedKeplerianElements = convertUnifiedStateModelWithExponentialMapToKeplerianElements(
-                    convertKeplerianToUnifiedStateModelWithExponentialMapElements( expectedKeplerianElements,
+        computedKeplerianElements = convertUnifiedStateModelExponentialMapToKeplerianElements(
+                    convertKeplerianToUnifiedStateModelExponentialMapElements( expectedKeplerianElements,
                                                                    centralBodyGravitationalParameter ),
                     centralBodyGravitationalParameter );
 
@@ -334,8 +334,8 @@ BOOST_AUTO_TEST_CASE( testconvertUnifiedStateModelWithExponentialMapToKeplerianE
         expectedKeplerianElements( trueAnomalyIndex ) = convertDegreesToRadians( 10.0 ); // 170 is above limit
 
         // Convert to unified state model elements and back.
-        computedKeplerianElements = convertUnifiedStateModelWithExponentialMapToKeplerianElements(
-                    convertKeplerianToUnifiedStateModelWithExponentialMapElements( expectedKeplerianElements,
+        computedKeplerianElements = convertUnifiedStateModelExponentialMapToKeplerianElements(
+                    convertKeplerianToUnifiedStateModelExponentialMapElements( expectedKeplerianElements,
                                                                    centralBodyGravitationalParameter ),
                     centralBodyGravitationalParameter );
 
@@ -352,8 +352,8 @@ BOOST_AUTO_TEST_CASE( testconvertUnifiedStateModelWithExponentialMapToKeplerianE
         expectedKeplerianElements( inclinationIndex ) = convertDegreesToRadians( 90.0 );
 
         // Convert to unified state model elements and back.
-        computedKeplerianElements = convertUnifiedStateModelWithExponentialMapToKeplerianElements(
-                    convertKeplerianToUnifiedStateModelWithExponentialMapElements( expectedKeplerianElements,
+        computedKeplerianElements = convertUnifiedStateModelExponentialMapToKeplerianElements(
+                    convertKeplerianToUnifiedStateModelExponentialMapElements( expectedKeplerianElements,
                                                                    centralBodyGravitationalParameter ),
                     centralBodyGravitationalParameter );
 
@@ -371,8 +371,8 @@ BOOST_AUTO_TEST_CASE( testconvertUnifiedStateModelWithExponentialMapToKeplerianE
         expectedKeplerianElements( argumentOfPeriapsisIndex ) = 0.0; // For e = 0, undefined.
 
         // Convert to unified state model elements and back.
-        computedKeplerianElements = convertUnifiedStateModelWithExponentialMapToKeplerianElements(
-                    convertKeplerianToUnifiedStateModelWithExponentialMapElements( expectedKeplerianElements,
+        computedKeplerianElements = convertUnifiedStateModelExponentialMapToKeplerianElements(
+                    convertKeplerianToUnifiedStateModelExponentialMapElements( expectedKeplerianElements,
                                                                    centralBodyGravitationalParameter ),
                     centralBodyGravitationalParameter );
 
@@ -390,8 +390,8 @@ BOOST_AUTO_TEST_CASE( testconvertUnifiedStateModelWithExponentialMapToKeplerianE
         // non-inclined orbit planes, this parameter is undefined
 
         // Convert to unified state model elements and back.
-        computedKeplerianElements = convertUnifiedStateModelWithExponentialMapToKeplerianElements(
-                    convertKeplerianToUnifiedStateModelWithExponentialMapElements( expectedKeplerianElements,
+        computedKeplerianElements = convertUnifiedStateModelExponentialMapToKeplerianElements(
+                    convertKeplerianToUnifiedStateModelExponentialMapElements( expectedKeplerianElements,
                                                                    centralBodyGravitationalParameter ),
                     centralBodyGravitationalParameter );
 
@@ -413,8 +413,8 @@ BOOST_AUTO_TEST_CASE( testconvertUnifiedStateModelWithExponentialMapToKeplerianE
         // Try convert to unified state model elements and back and catch the expected runtime error.
         try
         {
-            computedKeplerianElements = convertUnifiedStateModelWithExponentialMapToKeplerianElements(
-                    convertKeplerianToUnifiedStateModelWithExponentialMapElements( expectedKeplerianElements,
+            computedKeplerianElements = convertUnifiedStateModelExponentialMapToKeplerianElements(
+                    convertKeplerianToUnifiedStateModelExponentialMapElements( expectedKeplerianElements,
                                                                  centralBodyGravitationalParameter ),
                         centralBodyGravitationalParameter );
         }
@@ -436,8 +436,8 @@ BOOST_AUTO_TEST_CASE( testconvertUnifiedStateModelWithExponentialMapToKeplerianE
             // longitude of ascending node was set to 0 in case 5, so no error.
 
         // Convert to unified state model elements and back
-        computedKeplerianElements = convertUnifiedStateModelWithExponentialMapToKeplerianElements(
-                    convertKeplerianToUnifiedStateModelWithExponentialMapElements( expectedKeplerianElements,
+        computedKeplerianElements = convertUnifiedStateModelExponentialMapToKeplerianElements(
+                    convertKeplerianToUnifiedStateModelExponentialMapElements( expectedKeplerianElements,
                                                                    centralBodyGravitationalParameter ),
                     centralBodyGravitationalParameter );
 
@@ -457,8 +457,8 @@ BOOST_AUTO_TEST_CASE( testconvertUnifiedStateModelWithExponentialMapToKeplerianE
         expectedKeplerianElements( trueAnomalyIndex ) = convertDegreesToRadians( 240.0 );
 
         // Convert to unified state model elements and back
-        computedKeplerianElements = convertUnifiedStateModelWithExponentialMapToKeplerianElements(
-                    convertKeplerianToUnifiedStateModelWithExponentialMapElements( expectedKeplerianElements,
+        computedKeplerianElements = convertUnifiedStateModelExponentialMapToKeplerianElements(
+                    convertKeplerianToUnifiedStateModelExponentialMapElements( expectedKeplerianElements,
                                                                    centralBodyGravitationalParameter ),
                     centralBodyGravitationalParameter );
 
