@@ -236,11 +236,7 @@ Eigen::Vector6d convertUnifiedStateModelQuaternionsToKeplerianElements(
 
     // Check whether the unified state model elements are within expected limits
     // If inclination is zero and the right ascension of ascending node is non-zero
-    const double normOfQuaternionElements = std::sqrt( std::pow( unifiedStateModelElements( epsilon1QuaternionIndex ), 2 ) +
-                                                       std::pow( unifiedStateModelElements( epsilon2QuaternionIndex ), 2 ) +
-                                                       std::pow( unifiedStateModelElements( epsilon3QuaternionIndex ), 2 ) +
-                                                       std::pow( unifiedStateModelElements( etaQuaternionIndex ), 2 ) );
-
+    const double normOfQuaternionElements = unifiedStateModelElements.segment( epsilon1QuaternionIndex, 4 ).norm( );
     if ( std::fabs( normOfQuaternionElements - 1.0 ) > singularityTolerance )
     {
         // Define the error message.
@@ -625,11 +621,7 @@ Eigen::Vector6d convertUnifiedStateModelQuaternionsToCartesianElements(
 
     // Check whether the unified state model elements are within expected limits
     // If inclination is zero and the right ascension of ascending node is non-zero
-    const double normOfQuaternionElements = std::sqrt( std::pow( unifiedStateModelElements( epsilon1QuaternionIndex ), 2 ) +
-                                                       std::pow( unifiedStateModelElements( epsilon2QuaternionIndex ), 2 ) +
-                                                       std::pow( unifiedStateModelElements( epsilon3QuaternionIndex ), 2 ) +
-                                                       std::pow( unifiedStateModelElements( etaQuaternionIndex ), 2 ) );
-
+    const double normOfQuaternionElements = unifiedStateModelElements.segment( epsilon1QuaternionIndex, 4 ).norm( );
     if ( std::fabs( normOfQuaternionElements - 1.0 ) > singularityTolerance )
     {
         // Define the error message.

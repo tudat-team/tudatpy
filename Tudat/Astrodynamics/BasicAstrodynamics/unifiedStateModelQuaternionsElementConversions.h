@@ -128,4 +128,4 @@ Eigen::Matrix< double, 6, 1 > convertUnifiedStateModelQuaternionsToCartesianElem
 
 } // close tudat
 
-#endif // TUDAT_UNIFIED_STATE_MODEL_ELEMENT_CONVERSIONS_H
+#endif // TUDAT_UNIFIED_STATE_MODEL_QUATERNIONS_ELEMENT_CONVERSIONS_H
