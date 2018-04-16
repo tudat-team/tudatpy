@@ -130,6 +130,7 @@ public:
         // Add partials of body positions and velocities.
         currentMatrixDerivative.block( 0, 0, totalDynamicalStateSize_, numberOfParameterValues_ ) =
                 ( variationalMatrix_.template cast< StateScalarType >( ) * stateTransitionAndSensitivityMatrices );
+
     }
 
     //! Calculates matrix containing partial derivatives of state derivatives w.r.t. parameters.

@@ -650,14 +650,10 @@ public:
 
         if( integrateEquationsConcurrently )
         {
-
             // Create initial conditions from new estimate.
             MatrixType initialVariationalState = this->createInitialConditions(
                         dynamicsStateDerivative_->convertFromOutputSolution(
                             initialStateEstimate, integratorSettings_->initialTime_ ) );
-
-//            std::cout<<"initial state "<<std::endl<<initialVariationalState<<std::endl;
-
 
             // Integrate variational and state equations.
             dynamicsStateDerivative_->setPropagationSettings( std::vector< IntegratedStateType >( ), 1, 1 );

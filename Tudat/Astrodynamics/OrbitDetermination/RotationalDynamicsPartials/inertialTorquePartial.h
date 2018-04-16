@@ -8,8 +8,8 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#ifndef TUDAT_TORQUEFREETORQUEPARTIALS_H
-#define TUDAT_TORQUEFREETORQUEPARTIALS_H
+#ifndef TUDAT_INERTIALTORQUEPARTIALS_H
+#define TUDAT_INERTIALTORQUEPARTIALS_H
 
 #include "Tudat/Astrodynamics/Gravitation/secondDegreeGravitationalTorque.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/RotationalDynamicsPartials/torquePartial.h"
@@ -21,11 +21,11 @@ namespace tudat
 namespace acceleration_partials
 {
 
-class TorqueFreeTorquePartial: public TorquePartial
+class InertialTorquePartial: public TorquePartial
 {
 public:
 
-    TorqueFreeTorquePartial(
+    InertialTorquePartial(
             boost::function< Eigen::Vector3d( ) > angularVelocityFunction,
             boost::function< Eigen::Matrix3d( ) > inertiaTensorFunction,
             const std::string acceleratedBody ):
@@ -33,7 +33,7 @@ public:
         angularVelocityFunction_( angularVelocityFunction ),
         inertiaTensorFunction_( inertiaTensorFunction ){ }
 
-    ~TorqueFreeTorquePartial( ){ }
+    ~InertialTorquePartial( ){ }
 
     //! Function for determining if the acceleration is dependent on a non-rotational integrated state.
     /*!
@@ -81,7 +81,8 @@ public:
 
     void wrtOrientationOfAcceleratedBody(
             Eigen::Block< Eigen::MatrixXd > partialMatrix,
-            const bool addContribution = 1, const int startRow = 0, const int startColumn = 0 ){ }
+            const bool addContribution = 1, const int startRow = 0, const int startColumn = 0 )
+    { }
 
     void wrtRotationalVelocityOfAcceleratedBody(
             Eigen::Block< Eigen::MatrixXd > partialMatrix,
@@ -110,11 +111,9 @@ public:
         {
             currentAngularVelocityVector_ = angularVelocityFunction_( );
             currentInertiaTensor_ = inertiaTensorFunction_( );
-            currentAngularMomentumVector_ = currentInertiaTensor_ * currentAngularVelocityVector_;
 
-            currentPartialDerivativeWrtAngularVelocity_ =
-                    currentInertiaTensor_.inverse( ) * (
-                        linear_algebra::getCrossProductMatrix( currentAngularMomentumVector_ ) -
+            currentPartialDerivativeWrtAngularVelocity_ = -(
+                        linear_algebra::getCrossProductMatrix( currentInertiaTensor_ * currentAngularVelocityVector_ ) -
                         linear_algebra::getCrossProductMatrix( currentAngularVelocityVector_ ) * currentInertiaTensor_ );
         }
     }
@@ -129,8 +128,6 @@ protected:
 
     Eigen::Matrix3d currentInertiaTensor_;
 
-    Eigen::Vector3d currentAngularMomentumVector_;
-
     Eigen::Matrix3d currentPartialDerivativeWrtAngularVelocity_;
 
 };
@@ -139,4 +136,4 @@ protected:
 
 } // namespace tudat
 
-#endif // TUDAT_TORQUEFREETORQUEPARTIALS_H
+#endif // TUDAT_INERTIALTORQUEPARTIALS_H

@@ -19,7 +19,7 @@
 #include "Tudat/Astrodynamics/OrbitDetermination/AccelerationPartials/sphericalHarmonicAccelerationPartial.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/RotationalDynamicsPartials/secondDegreeGravitationalTorquePartial.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/RotationalDynamicsPartials/sphericalHarmonicGravitationalTorquePartial.h"
-#include "Tudat/Astrodynamics/OrbitDetermination/RotationalDynamicsPartials/torqueFreeTorquePartial.h"
+#include "Tudat/Astrodynamics/OrbitDetermination/RotationalDynamicsPartials/inertialTorquePartial.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/ObservationPartials/rotationMatrixPartial.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/torqueModelTypes.h"
 
@@ -29,7 +29,7 @@ namespace tudat
 namespace simulation_setup
 {
 
-boost::shared_ptr< acceleration_partials::TorquePartial > createTorqueFreeTorquePartial(
+boost::shared_ptr< acceleration_partials::TorquePartial > createInertialTorquePartial(
         const std::pair< std::string, boost::shared_ptr< simulation_setup::Body > > acceleratedBody );
 
 //! Function to create a single torque partial derivative object.
@@ -138,9 +138,6 @@ orbit_determination::StateDerivativePartialsMap createTorquePartialsMap(
 {
     // Declare return map.
     orbit_determination::StateDerivativePartialsMap torquePartialsList;
-    std::map< std::string, std::map< std::string,
-            std::vector< boost::shared_ptr< acceleration_partials::TorquePartial > > > >
-            torquePartialsMap;
 
     std::vector< boost::shared_ptr< estimatable_parameters::EstimatableParameter<
             Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > > > initialDynamicalParameters =
@@ -168,8 +165,8 @@ orbit_determination::StateDerivativePartialsMap createTorquePartialsMap(
                     // Declare list of torque partials of current body.
                     std::vector< boost::shared_ptr< orbit_determination::StateDerivativePartial > > torquePartialVector;
 
-                    torquePartialsMap[ acceleratedBody ][ acceleratedBody ].push_back(
-                                createTorqueFreeTorquePartial( std::make_pair( acceleratedBody, acceleratedBodyObject ) ) );
+//                    torquePartialVector.push_back(
+//                                createInertialTorquePartial( std::make_pair( acceleratedBody, acceleratedBodyObject ) ) );
                     // Iterate over all torque models and generate their partial-calculating objects.
                     for(  basic_astrodynamics::SingleBodyTorqueModelMap::iterator
                           innerTorqueIterator = torqueVector.begin( );
@@ -194,8 +191,6 @@ orbit_determination::StateDerivativePartialsMap createTorquePartialsMap(
                                         bodyMap, parametersToEstimate );
 
                             torquePartialVector.push_back( currentTorquePartial );
-                            torquePartialsMap[ acceleratedBody ][ acceleratingBody ].push_back(
-                                        currentTorquePartial );
                         }
                     }
 

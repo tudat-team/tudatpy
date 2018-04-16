@@ -189,7 +189,7 @@ public:
     void wrtRotationalStateOfAcceleratedBody( Eigen::Block< Eigen::MatrixXd > partialMatrix )
     {
         wrtOrientationOfAcceleratedBody( partialMatrix, true, 0, 0 );
-        wrtRotationalVelocityOfAcceleratedBody( partialMatrix, true, 0, 3 );
+        wrtRotationalVelocityOfAcceleratedBody( partialMatrix, true, 0, 4 );
     }
 
     //! Pure virtual function for calculating the partial of the torque w.r.t. the position of the body exerting torque.

@@ -91,6 +91,8 @@ void VariationalEquations::setBodyStatePartialMatrix( )
                ( inertiaTensorsForMultiplication_.at( i ).second( ).inverse( ) ) *
                variationalMatrix_.block( inertiaTensorsForMultiplication_.at( i ).first, 0, 3, totalDynamicalStateSize_ ).eval( );
    }
+
+//   std::cout<<"Partials matrix "<<std::endl<<variationalMatrix_<<std::endl;
 }
 
 //! Function to clear reference/cached values of state derivative partials.

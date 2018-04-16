@@ -7,15 +7,16 @@ namespace tudat
 namespace simulation_setup
 {
 
-boost::shared_ptr< acceleration_partials::TorquePartial > createTorqueFreeTorquePartial(
+boost::shared_ptr< acceleration_partials::TorquePartial > createInertialTorquePartial(
         const std::pair< std::string, boost::shared_ptr< simulation_setup::Body > > acceleratedBody )
 {
+    std::cout<<"Creating inertial torque "<<std::endl;
     boost::function< Eigen::Vector3d( ) > angularVelocityFunction =
             boost::bind( &Body::getCurrentAngularVelocityVectorInLocalFrame, acceleratedBody.second );
     boost::function< Eigen::Matrix3d( ) > inertiaTensorFunction =
             boost::bind( &Body::getBodyInertiaTensor, acceleratedBody.second );
 
-    return boost::make_shared< acceleration_partials::TorqueFreeTorquePartial >(
+    return boost::make_shared< acceleration_partials::InertialTorquePartial >(
                 angularVelocityFunction, inertiaTensorFunction, acceleratedBody.first );
 }
 
