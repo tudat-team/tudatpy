@@ -17,6 +17,7 @@
 #define TUDAT_UNIFIED_STATE_MODEL_MODIFIED_RODRIGUES_PARAMETERS_ELEMENT_CONVERSIONS_H
 
 #include "Tudat/Basics/basicTypedefs.h"
+#include "Tudat/Astrodynamics/BasicAstrodynamics/unifiedStateModelQuaternionsElementConversions.h"
 
 namespace tudat
 {
@@ -96,20 +97,9 @@ Eigen::Matrix< double, 6, 1 > convertUnifiedStateModelModifiedRodriguesParameter
  *         convertedUnifiedStateModelElements( 6 ) = shadow modified rodrigues parameters flag.       [-]
 
  */
-template< typename ScalarType = double >
-Eigen::Matrix< ScalarType, 7, 1 > convertCartesianToUnifiedStateModelModifiedRodriguesParametersElements(
-        const Eigen::Matrix< ScalarType, 6, 1 >& cartesianElements,
-        const ScalarType centralBodyGravitationalParameter )
-{
-    // Convert Cartesian to Keplerian elements.
-    Eigen::Matrix< ScalarType, 6, 1 > convertedKeplerianElements = convertCartesianToKeplerianElements< ScalarType >(
-                cartesianElements, centralBodyGravitationalParameter );
-
-    // Convert Keplerian elements to unified state model elements with modified rodrigues parameters.
-    return convertKeplerianToUnifiedStateModelModifiedRodriguesParametersElements(
-                convertedKeplerianElements.template cast< double >( ),
-                centralBodyGravitationalParameter ).template cast< ScalarType >( );
-}
+Eigen::Matrix< double, 7, 1 > convertCartesianToUnifiedStateModelModifiedRodriguesParametersElements(
+        const Eigen::Matrix< double, 6, 1 >& cartesianElements,
+        const double centralBodyGravitationalParameter );
 
 //! Convert unified state model elements with modified rodrigues parameters to Cartesian elements.
 /*!
@@ -132,24 +122,12 @@ Eigen::Matrix< ScalarType, 7, 1 > convertCartesianToUnifiedStateModelModifiedRod
  *         convertedCartesianElements( 4 ) = y-velocity coordinate,                          [m/s]
  *         convertedCartesianElements( 5 ) = z-velocity coordinate.                          [m/s]
 */
-template< typename ScalarType = double >
-Eigen::Matrix< ScalarType, 6, 1 > convertUnifiedStateModelModifiedRodriguesParametersToCartesianElements(
-        const Eigen::Matrix< ScalarType, 7, 1 >& unifiedStateModelElements,
-        const ScalarType centralBodyGravitationalParameter )
-{
-    // Convert unified state model with modified rodrigues parameters to Keplerian elements.
-    Eigen::Matrix< ScalarType, 6, 1 > convertedKeplerianElements =
-            convertUnifiedStateModelModifiedRodriguesParametersToKeplerianElements(
-                unifiedStateModelElements.template cast< double >( ),
-                centralBodyGravitationalParameter ).template cast< ScalarType >( );
-
-    // Convert Keplerian elements to Cartesian elements.
-    return convertKeplerianToCartesianElements(
-                convertedKeplerianElements, centralBodyGravitationalParameter );
-}
+Eigen::Matrix< double, 6, 1 > convertUnifiedStateModelModifiedRodriguesParametersToCartesianElements(
+        const Eigen::Matrix< double, 7, 1 >& unifiedStateModelElements,
+        const double centralBodyGravitationalParameter );
 
 } // namespace orbital_element_conversions
 
 } // close tudat
 
-#endif // TUDAT_UNIFIED_STATE_MODEL_ELEMENT_CONVERSIONS_H
+#endif // TUDAT_UNIFIED_STATE_MODEL_MODIFIED_RODRIGUES_PARAMETERS_ELEMENT_CONVERSIONS_H

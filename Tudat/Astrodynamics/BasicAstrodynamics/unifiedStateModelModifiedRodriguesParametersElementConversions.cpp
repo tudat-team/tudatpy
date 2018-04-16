@@ -478,6 +478,80 @@ Eigen::Vector6d convertUnifiedStateModelModifiedRodriguesParametersToKeplerianEl
     }
 }
 
+//! Convert Cartesian elements to unified state model elements with modified Rodrigues parameters.
+Eigen::Vector7d convertCartesianToUnifiedStateModelModifiedRodriguesParametersElements(
+        const Eigen::Vector6d& cartesianElements,
+        const double centralBodyGravitationalParameter )
+{
+    using mathematical_constants::PI;
+
+    // Declaring eventual output vector.
+    Eigen::Vector7d convertedUnifiedStateModelModifiedRodriguesParametersElements = Eigen::Vector7d::Zero( );
+
+    // Convert Cartesian to USM7
+    Eigen::Vector7d unifiedStateModelQuaternionsElements =
+            convertCartesianToUnifiedStateModelQuaternionsElements( cartesianElements,
+                                                                    centralBodyGravitationalParameter );
+
+    // Extract quaternions
+    Eigen::Vector3d epsilonQuaternionVector =
+            unifiedStateModelQuaternionsElements.segment( epsilon1QuaternionIndex, 3 );
+    double etaQuaternionParameter = unifiedStateModelQuaternionsElements( etaQuaternionIndex );
+
+    // Convert quaternions to modified Rodrigues parameters (or SMPR)
+    bool shadowFlag = etaQuaternionParameter < 0;
+    double conversionSign = shadowFlag ? - 1.0 : 1.0; // converion is slightly different for SMRP and MRP
+    convertedUnifiedStateModelModifiedRodriguesParametersElements.segment(
+                sigma1ModifiedRodriguesParameterIndex, 3 ) = conversionSign * epsilonQuaternionVector /
+            ( 1 + conversionSign * etaQuaternionParameter );
+    convertedUnifiedStateModelModifiedRodriguesParametersElements(
+                shadowModifiedRodriguesParameterFlagIndex ) = shadowFlag;
+
+    // Add other elements to USMEM vector
+    convertedUnifiedStateModelModifiedRodriguesParametersElements.segment(
+                CHodographModifiedRodriguesParameterIndex, 3 ) =
+            unifiedStateModelQuaternionsElements.segment( CHodographQuaternionIndex, 3 );
+
+    // Give back result
+    return convertedUnifiedStateModelModifiedRodriguesParametersElements;
+}
+
+//! Convert unified state model elements with modified Rodrigues parameters to Cartesian elements.
+Eigen::Vector6d convertUnifiedStateModelModifiedRodriguesParametersToCartesianElements(
+        const Eigen::Vector7d& unifiedStateModelModifiedRodriguesParametersElements,
+        const double centralBodyGravitationalParameter )
+{
+    // Create USM7 vector and add velocity hodograph elements
+    Eigen::Vector7d unifiedStateModelQuaternionsElements;
+    unifiedStateModelQuaternionsElements.segment( CHodographQuaternionIndex, 3 ) =
+            unifiedStateModelModifiedRodriguesParametersElements.segment( CHodographExponentialMapIndex, 3 );
+
+    // Extract modified Rodrigues parameters
+    Eigen::Vector3d modifiedRodriguesParametersVector =
+            unifiedStateModelModifiedRodriguesParametersElements.segment( sigma1ModifiedRodriguesParameterIndex, 3 );
+    double modifiedRodriguesParametersMagnitude = modifiedRodriguesParametersVector.norm( );
+    double modifiedRodriguesParametersMagnitudeSquared = modifiedRodriguesParametersMagnitude *
+            modifiedRodriguesParametersMagnitude; // precompute
+
+    // Convert modified Rodrigues parameters to quaternions
+    double conversionSign =
+            unifiedStateModelModifiedRodriguesParametersElements( shadowModifiedRodriguesParameterFlagIndex ) ?
+                - 1.0 : 1.0; // converion is slightly different for SMRP and MRP
+    Eigen::Vector3d epsilonQuaternionVector = conversionSign *
+            2.0 / ( 1.0 + modifiedRodriguesParametersMagnitudeSquared ) *
+            modifiedRodriguesParametersVector;
+    double etaQuaternionParameter = conversionSign * ( 1.0 - modifiedRodriguesParametersMagnitudeSquared ) /
+            ( 1.0 + modifiedRodriguesParametersMagnitudeSquared );
+
+    // Add quaternions to USM7 vector
+    unifiedStateModelQuaternionsElements.segment( epsilon1QuaternionIndex, 3 ) = epsilonQuaternionVector;
+    unifiedStateModelQuaternionsElements( etaQuaternionIndex ) = etaQuaternionParameter;
+
+    // Give back result
+    return convertUnifiedStateModelQuaternionsToCartesianElements( unifiedStateModelQuaternionsElements,
+                                                                   centralBodyGravitationalParameter );
+}
+
 } // close namespace orbital_element_conversions
 
 } // close namespace tudat
