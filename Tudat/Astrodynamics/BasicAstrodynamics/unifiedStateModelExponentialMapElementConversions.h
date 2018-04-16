@@ -17,6 +17,7 @@
 #define TUDAT_UNIFIED_STATE_MODEL_EXPONENTIAL_MAP_ELEMENT_CONVERSIONS_H
 
 #include "Tudat/Basics/basicTypedefs.h"
+#include "Tudat/Astrodynamics/BasicAstrodynamics/unifiedStateModelQuaternionsElementConversions.h"
 
 namespace tudat
 {
@@ -92,20 +93,9 @@ Eigen::Matrix< double, 6, 1 > convertUnifiedStateModelExponentialMapToKeplerianE
  *         convertedUnifiedStateModelElements( 4 ) = e2 exponential map element,                [-]
  *         convertedUnifiedStateModelElements( 5 ) = e3 exponential map element,                [-]
  */
-template< typename ScalarType = double >
-Eigen::Matrix< ScalarType, 6, 1 > convertCartesianToUnifiedStateModelExponentialMapElements(
-        const Eigen::Matrix< ScalarType, 6, 1 >& cartesianElements,
-        const ScalarType centralBodyGravitationalParameter )
-{
-    // Convert Cartesian to Keplerian elements.
-    Eigen::Matrix< ScalarType, 6, 1 > convertedKeplerianElements = convertCartesianToKeplerianElements< ScalarType >(
-                cartesianElements, centralBodyGravitationalParameter );
-
-    // Convert Keplerian elements to unified state model elements with exponential map.
-    return convertKeplerianToUnifiedStateModelExponentialMapElements(
-                convertedKeplerianElements.template cast< double >( ),
-                centralBodyGravitationalParameter ).template cast< ScalarType >( );
-}
+Eigen::Matrix< double, 6, 1 > convertCartesianToUnifiedStateModelExponentialMapElements(
+        const Eigen::Matrix< double, 6, 1 >& cartesianElements,
+        const double centralBodyGravitationalParameter );
 
 //! Convert unified state model elements with exponential map to Cartesian elements.
 /*!
@@ -127,24 +117,12 @@ Eigen::Matrix< ScalarType, 6, 1 > convertCartesianToUnifiedStateModelExponential
  *         convertedCartesianElements( 4 ) = y-velocity coordinate,                          [m/s]
  *         convertedCartesianElements( 5 ) = z-velocity coordinate.                          [m/s]
 */
-template< typename ScalarType = double >
-Eigen::Matrix< ScalarType, 6, 1 > convertUnifiedStateModelExponentialMapToCartesianElements(
-        const Eigen::Matrix< ScalarType, 6, 1 >& unifiedStateModelElements,
-        const ScalarType centralBodyGravitationalParameter )
-{
-    // Convert unified state model with exponential map to Keplerian elements.
-    Eigen::Matrix< ScalarType, 6, 1 > convertedKeplerianElements =
-            convertUnifiedStateModelExponentialMapToKeplerianElements(
-                unifiedStateModelElements.template cast< double >( ),
-                centralBodyGravitationalParameter ).template cast< ScalarType >( );
-
-    // Convert Keplerian elements to Cartesian elements.
-    return convertKeplerianToCartesianElements(
-                convertedKeplerianElements, centralBodyGravitationalParameter );
-}
+Eigen::Matrix< double, 6, 1 > convertUnifiedStateModelExponentialMapToCartesianElements(
+        const Eigen::Matrix< double, 6, 1 >& unifiedStateModelElements,
+        const double centralBodyGravitationalParameter );
 
 } // namespace orbital_element_conversions
 
 } // close tudat
 
-#endif // TUDAT_UNIFIED_STATE_MODEL_ELEMENT_CONVERSIONS_H
+#endif // TUDAT_UNIFIED_STATE_MODEL_EXPONENTIAL_MAP_ELEMENT_CONVERSIONS_H

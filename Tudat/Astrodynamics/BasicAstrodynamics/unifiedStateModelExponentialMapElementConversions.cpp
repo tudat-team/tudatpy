@@ -207,17 +207,16 @@ Eigen::Vector6d convertKeplerianToUnifiedStateModelExponentialMapElements(
     double exponentialMapMagnitude = 2.0 * std::acos( arccosineArgument );
 
     // Check for singularity
-    if ( std::fabs( exponentialMapMagnitude ) < singularityTolerance )
+    if ( std::fabs( exponentialMapMagnitude ) < singularityTolerance ||
+         std::fabs( exponentialMapMagnitude - 2.0 * PI ) < singularityTolerance )
     {
-        // If rotation angle is zero, the exponential map vector is the zero vector
+        // If rotation angle is zero (or 2 PI), the exponential map vector is the zero vector
         convertedUnifiedStateModelElements.segment( e1ExponentialMapIndex, 3 ) = Eigen::Vector3d::Zero( );
     }
     else
     {
         // Find the common multiplication factor to the vector elements
         double multiplicationFactor = exponentialMapMagnitude / std::sin( 0.5 * exponentialMapMagnitude );
-        // note that due to conversion to and from shadow exponential map whenever the magnitude exceeds PI,
-        // the singularity at 2 PI is avoided
 
         // Compute the e1 exponential map of the unified state model
         convertedUnifiedStateModelElements( e1ExponentialMapIndex ) =
@@ -445,6 +444,96 @@ Eigen::Vector6d convertUnifiedStateModelExponentialMapToKeplerianElements(
         // Give back result
         return convertedKeplerianElements;
     }
+}
+
+//! Convert Cartesian elements to unified state model elements with exponential map.
+Eigen::Vector6d convertCartesianToUnifiedStateModelExponentialMapElements(
+        const Eigen::Vector6d& cartesianElements,
+        const double centralBodyGravitationalParameter )
+{
+    using mathematical_constants::PI;
+
+    // Declaring eventual output vector.
+    Eigen::Vector6d convertedUnifiedStateModelExponentialMapElements = Eigen::Vector6d::Zero( );
+
+    // Define the tolerance of a singularity
+    double singularityTolerance = 20.0 * std::numeric_limits< double >::epsilon( );
+
+    // Convert Cartesian to USM7
+    Eigen::Vector7d unifiedStateModelQuaternionsElements =
+            convertCartesianToUnifiedStateModelQuaternionsElements( cartesianElements,
+                                                                    centralBodyGravitationalParameter );
+
+    // Extract quaternions
+    Eigen::Vector3d epsilonQuaternionVector =
+            unifiedStateModelQuaternionsElements.segment( epsilon1QuaternionIndex, 3 );
+    double etaQuaternionParameter = unifiedStateModelQuaternionsElements( etaQuaternionIndex );
+
+    // Convert quaternions to exponential map (or SEM)
+    double exponentialMapMagnitude = 2.0 * std::acos( etaQuaternionParameter );
+    if ( std::fabs( exponentialMapMagnitude ) < singularityTolerance ||
+         std::fabs( exponentialMapMagnitude - 2.0 * PI ) < singularityTolerance )
+    {
+        // If rotation angle is zero (or 2 PI), the exponential map vector is the zero vector
+        convertedUnifiedStateModelExponentialMapElements.segment( e1ExponentialMapIndex, 3 ) =
+                Eigen::Vector3d::Zero( );
+    }
+    else
+    {
+        // Find Euler eigenaxis vector
+        Eigen::Vector3d eulerEigenaxisVector = epsilonQuaternionVector /
+                std::sin( 0.5 * exponentialMapMagnitude );
+        convertedUnifiedStateModelExponentialMapElements.segment( e1ExponentialMapIndex, 3 ) =
+                ( exponentialMapMagnitude > PI ) ?
+                    - ( 2.0 * PI - exponentialMapMagnitude ) * eulerEigenaxisVector : // shadow exponential map
+                    exponentialMapMagnitude * eulerEigenaxisVector; // exponential map
+    }
+
+    // Add other elements to USMEM vector
+    convertedUnifiedStateModelExponentialMapElements.segment( CHodographExponentialMapIndex, 3 ) =
+            unifiedStateModelQuaternionsElements.segment( CHodographQuaternionIndex, 3 );
+
+    // Give back result
+    return convertedUnifiedStateModelExponentialMapElements;
+}
+
+//! Convert unified state model elements with exponential map to Cartesian elements.
+Eigen::Vector6d convertUnifiedStateModelExponentialMapToCartesianElements(
+        const Eigen::Vector6d& unifiedStateModelExponentialMapElements,
+        const double centralBodyGravitationalParameter )
+{
+    // Define the tolerance of a singularity
+    double singularityTolerance = 20.0 * std::numeric_limits< double >::epsilon( );
+
+    // Create USM7 vector and add velocity hodograph elements
+    Eigen::Vector7d unifiedStateModelQuaternionsElements;
+    unifiedStateModelQuaternionsElements.segment( CHodographQuaternionIndex, 3 ) =
+            unifiedStateModelExponentialMapElements.segment( CHodographExponentialMapIndex, 3 );
+
+    // Extract exponential map
+    Eigen::Vector3d exponentialMapVector =
+            unifiedStateModelExponentialMapElements.segment( e1ExponentialMapIndex, 3 );
+    double exponentialMapMagnitude = exponentialMapVector.norm( );
+
+    // Convert exponential map to quaternions
+    Eigen::Vector3d epsilonQuaternionVector = Eigen::Vector3d::Zero( );
+    if ( std::fabs( exponentialMapMagnitude ) < singularityTolerance )
+    {
+        epsilonQuaternionVector = exponentialMapVector * ( 0.5 + std::pow( exponentialMapMagnitude, 2 ) / 48.0 );
+    }
+    {
+        epsilonQuaternionVector = exponentialMapVector / exponentialMapMagnitude *
+                std::sin( 0.5 * exponentialMapMagnitude );
+    }
+    double etaQuaternionParameter = std::cos( 0.5 * exponentialMapMagnitude );
+
+    // Add quaternions to USM7 vector
+    unifiedStateModelQuaternionsElements.segment( epsilon1QuaternionIndex, 3 ) = epsilonQuaternionVector;
+    unifiedStateModelQuaternionsElements( etaQuaternionIndex ) = etaQuaternionParameter;
+
+    // Give back result
+    return convertUnifiedStateModelQuaternionsToCartesianElements( unifiedStateModelQuaternionsElements,
+                                                                   centralBodyGravitationalParameter );
 }
 
 } // close namespace orbital_element_conversions
