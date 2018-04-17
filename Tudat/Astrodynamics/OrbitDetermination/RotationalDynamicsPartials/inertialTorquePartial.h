@@ -112,9 +112,9 @@ public:
             currentAngularVelocityVector_ = angularVelocityFunction_( );
             currentInertiaTensor_ = inertiaTensorFunction_( );
 
-            currentPartialDerivativeWrtAngularVelocity_ = -(
-                        linear_algebra::getCrossProductMatrix( currentInertiaTensor_ * currentAngularVelocityVector_ ) -
-                        linear_algebra::getCrossProductMatrix( currentAngularVelocityVector_ ) * currentInertiaTensor_ );
+            currentPartialDerivativeWrtAngularVelocity_ =
+                        -linear_algebra::getCrossProductMatrix( currentAngularVelocityVector_ ) * currentInertiaTensor_ +
+                        linear_algebra::getCrossProductMatrix( currentInertiaTensor_ * currentAngularVelocityVector_ );
         }
     }
 

@@ -165,8 +165,8 @@ orbit_determination::StateDerivativePartialsMap createTorquePartialsMap(
                     // Declare list of torque partials of current body.
                     std::vector< boost::shared_ptr< orbit_determination::StateDerivativePartial > > torquePartialVector;
 
-//                    torquePartialVector.push_back(
-//                                createInertialTorquePartial( std::make_pair( acceleratedBody, acceleratedBodyObject ) ) );
+                    torquePartialVector.push_back(
+                                createInertialTorquePartial( std::make_pair( acceleratedBody, acceleratedBodyObject ) ) );
                     // Iterate over all torque models and generate their partial-calculating objects.
                     for(  basic_astrodynamics::SingleBodyTorqueModelMap::iterator
                           innerTorqueIterator = torqueVector.begin( );
