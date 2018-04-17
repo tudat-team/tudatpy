@@ -514,7 +514,7 @@ public:
             for( unsigned int i = 0; i < stateDerivativeModelsIterator_->second.size( ); i++ )
             {
                 stateDerivativeModelsIterator_->second.at( i )->normalizeState(
-                            state.block( 0, 0, 7, 1 ) );
+                            state.block( i * 7, 0, 7, 1 ) ); // temporary
             }
         }
     }
