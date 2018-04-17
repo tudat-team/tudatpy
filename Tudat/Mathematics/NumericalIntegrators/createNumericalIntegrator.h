@@ -396,18 +396,19 @@ DependentVariableType, TimeStepType > > createIntegrator(
     switch( integratorSettings->integratorType_ )
     {
     case euler:
+    {
         integrator = boost::make_shared< EulerIntegrator
                 < IndependentVariableType, DependentVariableType, DependentVariableType, TimeStepType > >
                 ( stateDerivativeFunction, integratorSettings->initialTime_, initialState ) ;
         break;
+    }
     case rungeKutta4:
-
+    {
         integrator = boost::make_shared< RungeKutta4Integrator
                 < IndependentVariableType, DependentVariableType, DependentVariableType, TimeStepType > >
                 ( stateDerivativeFunction, integratorSettings->initialTime_, initialState ) ;
         break;
-
-
+    }
     case rungeKuttaVariableStepSize:
     {
         // Check input consistency
