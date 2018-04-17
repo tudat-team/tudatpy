@@ -186,7 +186,8 @@ public:
      * \param unnormalizedState State before normalization
      */
     virtual void normalizeState(
-            Eigen::Block< Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic > > unnormalizedState )
+            Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& unnormalizedState,
+            const int startRow )
     {
 
     }

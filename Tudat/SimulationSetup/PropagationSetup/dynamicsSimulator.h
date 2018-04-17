@@ -751,7 +751,7 @@ protected:
     boost::function< Eigen::VectorXd( ) > dependentVariablesFunctions_;
 
     //! Function to normalize state (during numerical propagation)
-    boost::function< void( Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >& ) > stateNormalizingFunction_;
+    boost::function< void( Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& ) > stateNormalizingFunction_;
 
     //! Map listing starting entry of dependent variables in output vector, along with associated ID.
     std::map< int, std::string > dependentVariableIds_;
