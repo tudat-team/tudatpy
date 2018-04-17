@@ -206,23 +206,12 @@ public:
             const Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >& internalSolution, const TimeType& time,
             Eigen::Block< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > currentCartesianLocalSoluton )
     {
-        Eigen::Matrix< StateScalarType, 4, 1 > quaternions;
-        Eigen::Matrix< StateScalarType, 7, 1 > currentUnifiedStateModelState;
-
         // Convert state to Cartesian for each body
         for( unsigned int i = 0; i < this->bodiesToBeIntegratedNumerically_.size( ); i++ )
         {
-            // Normalize quaternions
-            quaternions = internalSolution.block( i * 7 + 3, 0, 4, 1 );
-            quaternions = quaternions / quaternions.norm( );
-
-            // Get current solution
-            currentUnifiedStateModelState.segment( 0, 3 ) = internalSolution.block( i * 7, 0, 3, 1 );
-            currentUnifiedStateModelState.segment( 3, 4 ) = quaternions;
-
             currentCartesianLocalSoluton.segment( i * 6, 6 ) =
                     orbital_element_conversions::convertUnifiedStateModelQuaternionsToCartesianElements(
-                        currentUnifiedStateModelState, static_cast< StateScalarType >(
+                        internalSolution.block( i * 7, 0, 7, 1 ), static_cast< StateScalarType >(
                             centralBodyGravitationalParameters_.at( i )( ) ) );
         }
 
@@ -243,6 +232,27 @@ public:
     int getPropagatedStateSize( )
     {
         return 7 * this->bodiesToBeIntegratedNumerically_.size( );
+    }
+
+    void normalizeState(
+            Eigen::Block< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > unnormalizedState )
+    {
+        // Loop over each body
+        for( unsigned int i = 0; i < this->bodiesToBeIntegratedNumerically_.size( ); i++ )
+        {
+            // Normalize quaternions
+            Eigen::Matrix< StateScalarType, 4, 1 > quaternionsVector =
+                    unnormalizedState.block( i * 7 + 3, 0, 4, 1 );
+            StateScalarType quaternionsMagnitude = quaternionsVector.norm( );
+            if ( std::fabs( quaternionsMagnitude - 1.0 ) >= std::numeric_limits< double >::epsilon( ) )
+            {
+                // Normalize
+                quaternionsVector /= quaternionsMagnitude;
+
+                // Replace old quaternions with normalized quaternions
+                unnormalizedState.block( i * 7 + 3, 0, 4, 1 ) = quaternionsVector;
+            }
+        }
     }
 
 private:

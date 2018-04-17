@@ -500,6 +500,25 @@ public:
         functionEvaluationCounter_ = 0;
     }
 
+    //! Function to normalize the state vector during propagation.
+    /*!
+     * Function to normalize the state vector during propagation
+     * \param state State before normalization
+     */
+    void normalizeState( Eigen::MatrixXd& state )
+    {
+        for( stateDerivativeModelsIterator_ = stateDerivativeModels_.begin( );
+             stateDerivativeModelsIterator_ != stateDerivativeModels_.end( );
+             stateDerivativeModelsIterator_++ )
+        {
+            for( unsigned int i = 0; i < stateDerivativeModelsIterator_->second.size( ); i++ )
+            {
+                stateDerivativeModelsIterator_->second.at( i )->normalizeState(
+                            state.block( 0, 0, 7, 1 ) );
+            }
+        }
+    }
+
 private:
 
     //! Function to convert the to the conventional form in the global frame per dynamics type.
@@ -571,7 +590,7 @@ private:
     //! state in the full state vector.
     std::map< IntegratedStateType, std::vector< std::pair< int, int > > > conventionalStateIndices_;
 
-    std::map< IntegratedStateType, std::vector< std::pair< int, int > > >propagatedStateIndices_;
+    std::map< IntegratedStateType, std::vector< std::pair< int, int > > > propagatedStateIndices_;
 
     //! State size per state type in the complete state vector.
     std::map< IntegratedStateType, int > conventionalStateTypeSize_;

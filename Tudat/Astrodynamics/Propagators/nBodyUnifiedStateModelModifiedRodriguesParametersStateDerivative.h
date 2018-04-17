@@ -183,8 +183,8 @@ public:
         for( unsigned int i = 0; i < this->bodiesToBeIntegratedNumerically_.size( ); i++ )
         {
             currentState.segment( i * 7, 7 ) =
-                    orbital_element_conversions::convertCartesianToUnifiedStateModelModifiedRodriguesParametersElements<
-                    StateScalarType >( cartesianSolution.block( i * 6, 0, 6, 1 ), static_cast< StateScalarType >(
+                    orbital_element_conversions::convertCartesianToUnifiedStateModelModifiedRodriguesParametersElements(
+                        cartesianSolution.block( i * 6, 0, 6, 1 ), static_cast< StateScalarType >(
                             centralBodyGravitationalParameters_.at( i )( ) ) );;
         }
 
@@ -208,32 +208,12 @@ public:
             const Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >& internalSolution, const TimeType& time,
             Eigen::Block< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > currentCartesianLocalSoluton )
     {
-        Eigen::Vector3d modifiedRodriguesParametersVector = Eigen::Vector3d::Zero( );
-        double modifiedRodriguesParametersMagnitude = 0.0;
-        Eigen::Matrix< StateScalarType, 7, 1 > currentUnifiedStateModelState;
-
         // Convert state to Cartesian for each body
         for( unsigned int i = 0; i < this->bodiesToBeIntegratedNumerically_.size( ); i++ )
         {
-            // Convert to/from shadow modifed Rodrigues parameters (SMRP) (transformation is the same either way)
-            modifiedRodriguesParametersVector = internalSolution.block( i * 7 + 3, 0, 3, 1 );
-            modifiedRodriguesParametersMagnitude = modifiedRodriguesParametersVector.norm( );
-            if ( modifiedRodriguesParametersMagnitude >= 1.0 )
-            {
-                // Convert to SMRP
-                modifiedRodriguesParametersVector /= - modifiedRodriguesParametersMagnitude * modifiedRodriguesParametersMagnitude;
-
-                // Invert flag
-                currentUnifiedStateModelState( 6 ) = ! currentUnifiedStateModelState( 6 );
-            }
-
-            // Get current solution
-            currentUnifiedStateModelState.segment( 0, 3 ) = internalSolution.block( i * 7, 0, 3, 1 );
-            currentUnifiedStateModelState.segment( 3, 3 ) = modifiedRodriguesParametersVector;
-
             currentCartesianLocalSoluton.segment( i * 6, 6 ) =
-                    orbital_element_conversions::convertUnifiedStateModelModifiedRodriguesParametersToCartesianElements< StateScalarType >(
-                        currentUnifiedStateModelState, static_cast< StateScalarType >(
+                    orbital_element_conversions::convertUnifiedStateModelModifiedRodriguesParametersToCartesianElements(
+                        internalSolution.block( i * 7, 0, 7, 1 ), static_cast< StateScalarType >(
                             centralBodyGravitationalParameters_.at( i )( ) ) );
         }
 
@@ -254,6 +234,31 @@ public:
     int getPropagatedStateSize( )
     {
         return 7 * this->bodiesToBeIntegratedNumerically_.size( );
+    }
+
+    void normalizeState(
+            Eigen::Block< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > unnormalizedState )
+    {
+        // Loop over each body
+        for( unsigned int i = 0; i < this->bodiesToBeIntegratedNumerically_.size( ); i++ )
+        {
+            // Convert to/from shadow modifed Rodrigues parameters (SMRP) (transformation is the same either way)
+            Eigen::Matrix< StateScalarType, 4, 1 > modifiedRodriguesParametersVector =
+                    unnormalizedState.block( i * 7 + 3, 0, 3, 1 );
+            StateScalarType modifiedRodriguesParametersMagnitude = modifiedRodriguesParametersVector.norm( );
+            if ( modifiedRodriguesParametersMagnitude >= 1.0 )
+            {
+                // Convert to MRP/SMRP
+                modifiedRodriguesParametersVector /= - modifiedRodriguesParametersMagnitude *
+                        modifiedRodriguesParametersMagnitude;
+
+                // Replace MRP with SMPR, or vice-versa
+                unnormalizedState.block( i * 7 + 3, 0, 3, 1 ) = modifiedRodriguesParametersVector;
+
+                // Invert flag
+//                unnormalizedState.block( i * 7 + 6, 0, 1, 1 ) = !unnormalizedState.block( i * 7 + 6, 0, 1, 1 );
+            }
+        }
     }
 
 private:
@@ -282,4 +287,4 @@ private:
 
 } // namespace tudat
 
-#endif // TUDAT_NUNIFIEDSTATEMODELQUATERNIONSSTATEDERIVATIVE_H
+#endif // TUDAT_NUNIFIEDSTATEMODELMODIFIEDRODRIGUESPARAMETERSSTATEDERIVATIVE_H
