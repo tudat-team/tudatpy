@@ -526,7 +526,7 @@ boost::shared_ptr< PropagationTerminationDetails > integrateEquationsFromIntegra
             else
             {
                 std::cerr << "Error, propagation terminated at t=" + std::to_string( static_cast< double >( currentTime ) ) +
-                             ", found Nan/inf entry, returning propagation data up to current time" << std::endl;
+                             ", found NaN/Inf entry, returning propagation data up to current time" << std::endl;
                 breakPropagation = 1;
                 propagationTerminationReason = boost::make_shared< PropagationTerminationDetails >(
                             nan_or_inf_detected_in_state );
