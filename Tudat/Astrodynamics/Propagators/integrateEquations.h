@@ -425,7 +425,7 @@ void propagateToExactTerminationCondition(
  *  By default now(), i.e. the moment at which this function is called.
  *  \return Event that triggered the termination of the propagation
  */
-template< typename StateType = Eigen::MatrixXd, typename TimeType = double, typename TimeStepType = TimeType  >
+template< typename StateType = Eigen::MatrixXd, typename TimeType = double, typename TimeStepType = TimeType >
 boost::shared_ptr< PropagationTerminationDetails > integrateEquationsFromIntegrator(
         const boost::shared_ptr< numerical_integrators::NumericalIntegrator< TimeType, StateType, StateType, TimeStepType > > integrator,
         const TimeStepType initialTimeStep,
@@ -435,6 +435,8 @@ boost::shared_ptr< PropagationTerminationDetails > integrateEquationsFromIntegra
         std::map< TimeType, double >& cummulativeComputationTimeHistory,
         const boost::function< Eigen::VectorXd( ) > dependentVariableFunction =
         boost::function< Eigen::VectorXd( ) >( ),
+        boost::function< void( StateType& ) > normalizeState =
+        boost::function< void( StateType& ) >( ),
         const int saveFrequency = TUDAT_NAN,
         const TimeType printInterval = TUDAT_NAN,
         const std::chrono::steady_clock::time_point initialClockTime = std::chrono::steady_clock::now( ) )
@@ -486,13 +488,17 @@ boost::shared_ptr< PropagationTerminationDetails > integrateEquationsFromIntegra
 
                 // Perform integration step.
                 newState = integrator->performIntegrationStep( timeStep );
+                if( !normalizeState.empty( ) )
+                {
+                    normalizeState( newState );
+                }
 
                 // Check if the termination condition was reached during evaluation of integration sub-steps.
                 // If evaluation of the termination condition during integration sub-steps is disabled,
                 // this function returns always `false`.
                 // If the termination condition was reached, the last step could not be computed correctly because some
                 // of the integrator sub-steps were not computed. Thus, return immediately without saving the `newState`.
-                if ( integrator->getPropagationTerminationConditionReached() )
+                if( integrator->getPropagationTerminationConditionReached( ) )
                 {
                     propagationTerminationReason = boost::make_shared< PropagationTerminationDetails >(
                                 termination_condition_reached );
@@ -520,7 +526,7 @@ boost::shared_ptr< PropagationTerminationDetails > integrateEquationsFromIntegra
             else
             {
                 std::cerr << "Error, propagation terminated at t=" + std::to_string( static_cast< double >( currentTime ) ) +
-                             ", found Nan/inf entry, returning propagation data up to current time" << std::endl;
+                             ", found NaN/Inf entry, returning propagation data up to current time" << std::endl;
                 breakPropagation = 1;
                 propagationTerminationReason = boost::make_shared< PropagationTerminationDetails >(
                             nan_or_inf_detected_in_state );
@@ -535,10 +541,10 @@ boost::shared_ptr< PropagationTerminationDetails > integrateEquationsFromIntegra
             // Print solutions
             if( printInterval == printInterval )
             {
-                if( ( static_cast<int>( std::fabs( static_cast< double >( currentTime - initialTime ) ) ) %
-                      static_cast< int >( printInterval ) ) <=
-                        ( static_cast< int >( std::fabs( static_cast< double >( previousTime - initialTime ) ) ) %
-                          static_cast<int>( printInterval ) )  )
+                if( ( static_cast< int >( std::fabs( static_cast< double >( currentTime - initialTime ) ) ) %
+                       static_cast< int >( printInterval ) ) <=
+                     ( static_cast< int >( std::fabs( static_cast< double >( previousTime - initialTime ) ) ) %
+                       static_cast< int >( printInterval ) ) )
                 {
                     std::cout << "Current time and state in integration: " << std::setprecision( 10 ) <<
                                  timeStep << " " << currentTime << " " << newState.transpose( ) << std::endl;
@@ -636,6 +642,8 @@ public:
             std::map< TimeType, double >& cummulativeComputationTimeHistory,
             const boost::function< Eigen::VectorXd( ) > dependentVariableFunction =
             boost::function< Eigen::VectorXd( ) >( ),
+            boost::function< void( StateType& ) > normalizeState =
+            boost::function< void( StateType& ) >( ),
             const TimeType printInterval = TUDAT_NAN,
             const std::chrono::steady_clock::time_point initialClockTime = std::chrono::steady_clock::now( ) );
 };
@@ -676,6 +684,8 @@ public:
             std::map< double, double >& cummulativeComputationTimeHistory,
             const boost::function< Eigen::VectorXd( ) > dependentVariableFunction =
             boost::function< Eigen::VectorXd( ) >( ),
+            boost::function< void( StateType& ) > normalizeState =
+            boost::function< void( StateType& ) >( ),
             const double printInterval = TUDAT_NAN,
             const std::chrono::steady_clock::time_point initialClockTime = std::chrono::steady_clock::now( ) )
     {
@@ -687,7 +697,7 @@ public:
                 numerical_integrators::createIntegrator< double, StateType >(
                     stateDerivativeFunction, initialState, integratorSettings );
 
-        if ( integratorSettings->assessPropagationTerminationConditionDuringIntegrationSubsteps_ )
+        if( integratorSettings->assessPropagationTerminationConditionDuringIntegrationSubsteps_ )
         {
             integrator->setPropagationTerminationFunction( stopPropagationFunction );
         }
@@ -697,6 +707,7 @@ public:
                     dependentVariableHistory,
                     cummulativeComputationTimeHistory,
                     dependentVariableFunction,
+                    normalizeState,
                     integratorSettings->saveFrequency_,
                     printInterval,
                     initialClockTime );
@@ -739,6 +750,8 @@ public:
             std::map< Time, double >& cummulativeComputationTimeHistory,
             const boost::function< Eigen::VectorXd( ) > dependentVariableFunction =
             boost::function< Eigen::VectorXd( ) >( ),
+            boost::function< void( StateType& ) > normalizeState =
+            boost::function< void( StateType& ) >( ),
             const Time printInterval = TUDAT_NAN,
             const std::chrono::steady_clock::time_point initialClockTime = std::chrono::steady_clock::now( ) )
     {
@@ -750,7 +763,7 @@ public:
                 numerical_integrators::createIntegrator< Time, StateType, long double  >(
                     stateDerivativeFunction, initialState, integratorSettings );
 
-        if ( integratorSettings->assessPropagationTerminationConditionDuringIntegrationSubsteps_ )
+        if( integratorSettings->assessPropagationTerminationConditionDuringIntegrationSubsteps_ )
         {
             integrator->setPropagationTerminationFunction( stopPropagationFunction );
         }
@@ -760,6 +773,7 @@ public:
                     dependentVariableHistory,
                     cummulativeComputationTimeHistory,
                     dependentVariableFunction,
+                    normalizeState,
                     integratorSettings->saveFrequency_,
                     printInterval,
                     initialClockTime );

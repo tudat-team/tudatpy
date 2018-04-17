@@ -37,16 +37,6 @@ Eigen::Vector7d computeStateDerivativeForUnifiedStateModelQuaternions(
     hodographMatrix( 2, 1 ) = ( 1.0 + pAuxiliaryVector( 0 ) ) * cosineLambda;
     hodographMatrix( 2, 2 ) = gammaParameter * pAuxiliaryVector( 2 );
 
-    // Normalize quaternions
-//    Eigen::Vector4d quaternionsVector = currentUnifiedStateModelElements.segment( 3, 4 );
-//    double quaternionsMagntiude = quaternionsVector.norm( );
-//    quaternionsVector /= quaternionsMagntiude;
-
-//    double offsetFromUnitNorm = 1.0 - currentUnifiedStateModelElements.segment( 3, 4 ).norm( );
-//    double rotationalVelocityMagnitude = rotationalVelocityVector.norm( ); // gain value
-//    Eigen::Matrix4d quaternionMatrix = rotationalVelocityMagnitude * offsetFromUnitNorm *
-//            Eigen::Matrix4d::Identity( ); // normalize quaternions during propagation
-                                          // (reference: W. F. Phillips, Mechanics of Flight, 2004)
     Eigen::Matrix4d quaternionMatrix = Eigen::Matrix4d::Zero( );
     quaternionMatrix( 0, 1 ) =   rotationalVelocityVector( 2 );
     quaternionMatrix( 0, 3 ) =   rotationalVelocityVector( 0 );
@@ -60,9 +50,6 @@ Eigen::Vector7d computeStateDerivativeForUnifiedStateModelQuaternions(
     // Evaluate USM7 equations.
     Eigen::Vector7d stateDerivative = Eigen::Vector7d::Zero( );
     stateDerivative.segment( 0, 3 ) = hodographMatrix * accelerationsInRswFrame;
-//    Eigen::Vector4d quaternionsDerivative = 0.5 * quaternionMatrix * quaternionsVector;
-//    stateDerivative.segment( 3, 4 ) = quaternionsDerivative -
-//            quaternionsVector.dot( quaternionsDerivative ) * quaternionsVector; // normalize derivative
     stateDerivative.segment( 3, 4 ) = 0.5 * quaternionMatrix * currentUnifiedStateModelElements.segment( 3, 4 );
 
     // Give output
@@ -78,17 +65,17 @@ Eigen::Vector7d computeStateDerivativeForUnifiedStateModelQuaternions(
     using namespace orbital_element_conversions;
 
     // Retrieve USM elements
-    double epsilon1Quaternion = currentUnifiedStateModelElements( epsilon1QuaternionIndex );
-    double epsilon2Quaternion = currentUnifiedStateModelElements( epsilon2QuaternionIndex );
-    double epsilon3Quaternion = currentUnifiedStateModelElements( epsilon3QuaternionIndex );
-    double etaQuaternion = currentUnifiedStateModelElements( etaQuaternionIndex );
+    double epsilon1QuaternionParameter = currentUnifiedStateModelElements( epsilon1QuaternionIndex );
+    double epsilon2QuaternionParameter = currentUnifiedStateModelElements( epsilon2QuaternionIndex );
+    double epsilon3QuaternionParameter = currentUnifiedStateModelElements( epsilon3QuaternionIndex );
+    double etaQuaternionParameter = currentUnifiedStateModelElements( etaQuaternionIndex );
 
     // Compute supporting parameters
-    double denominator = std::pow( epsilon3Quaternion, 2 ) + std::pow( etaQuaternion, 2 );
-    double sineLambda = ( 2 * epsilon3Quaternion * etaQuaternion ) / denominator;
-    double cosineLambda =  ( std::pow( etaQuaternion, 2 ) - std::pow( epsilon3Quaternion, 2 ) ) / denominator;
-    double gammaParameter = ( epsilon1Quaternion * epsilon3Quaternion -
-                              epsilon2Quaternion * etaQuaternion ) / denominator;
+    double denominator = std::pow( epsilon3QuaternionParameter, 2 ) + std::pow( etaQuaternionParameter, 2 );
+    double sineLambda = ( 2 * epsilon3QuaternionParameter * etaQuaternionParameter ) / denominator;
+    double cosineLambda =  ( std::pow( etaQuaternionParameter, 2 ) - std::pow( epsilon3QuaternionParameter, 2 ) ) / denominator;
+    double gammaParameter = ( epsilon1QuaternionParameter * epsilon3QuaternionParameter -
+                              epsilon2QuaternionParameter * etaQuaternionParameter ) / denominator;
 
     double velocityHodographParameter = currentUnifiedStateModelElements( CHodographQuaternionIndex ) -
             currentUnifiedStateModelElements( Rf1HodographQuaternionIndex ) * sineLambda +

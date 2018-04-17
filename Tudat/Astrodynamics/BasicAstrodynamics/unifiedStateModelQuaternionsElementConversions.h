@@ -72,7 +72,8 @@ Eigen::Matrix< double, 7, 1 > convertKeplerianToUnifiedStateModelQuaternionsElem
  */
 Eigen::Matrix< double, 6, 1 > convertUnifiedStateModelQuaternionsToKeplerianElements(
         const Eigen::Matrix< double, 7, 1 >& unifiedStateModelElements,
-        const double centralBodyGravitationalParameter );
+        const double centralBodyGravitationalParameter,
+        const bool forceQuaternionNormalization = false );
 
 //! Convert Cartesian elements to unified state model elements with quaternions.
 /*!
@@ -122,7 +123,8 @@ Eigen::Matrix< double, 7, 1 > convertCartesianToUnifiedStateModelQuaternionsElem
 */
 Eigen::Matrix< double, 6, 1 > convertUnifiedStateModelQuaternionsToCartesianElements(
         const Eigen::Matrix< double, 7, 1 >& unifiedStateModelElements,
-        const double centralBodyGravitationalParameter );
+        const double centralBodyGravitationalParameter,
+        const bool forceQuaternionNormalization = false );
 
 } // namespace orbital_element_conversions
 
