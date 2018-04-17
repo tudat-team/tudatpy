@@ -62,7 +62,8 @@ public:
             interpolator,
             const std::string& baseFrameOrientation = "ECLIPJ2000",
             const std::string& targetFrameOrientation = "" ):
-        RotationalEphemeris( baseFrameOrientation, targetFrameOrientation ), interpolator_( interpolator ){  }
+        RotationalEphemeris( baseFrameOrientation, targetFrameOrientation ), interpolator_( interpolator ),
+    currentTime_( TUDAT_NAN ){  }
 
     //! Destructor
     ~TabulatedRotationalEphemeris( ){ }
@@ -180,7 +181,7 @@ private:
      */
     void updateInterpolator( const double time )
     {
-        if( ! ( time == currentTime_ ) )
+        if( !( time == currentTime_ ) )
         {
             // Retrieve data from interpolator
             currentRotationalState_ = interpolator_->interpolate( time );
