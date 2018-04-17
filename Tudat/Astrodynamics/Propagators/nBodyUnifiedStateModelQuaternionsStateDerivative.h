@@ -235,7 +235,8 @@ public:
     }
 
     void normalizeState(
-            Eigen::Block< Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic > > unnormalizedState )
+            Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& unnormalizedState,
+            const int startRow )
     {
         // Loop over each body
         for( unsigned int i = 0; i < this->bodiesToBeIntegratedNumerically_.size( ); i++ )
@@ -250,7 +251,7 @@ public:
                 quaternionsVector /= quaternionsMagnitude;
 
                 // Replace old quaternions with normalized quaternions
-                unnormalizedState.block( i * 7 + 3, 0, 4, 1 ) = quaternionsVector;
+                unnormalizedState.segment( startRow + i * 7 + 3, 4 ) = quaternionsVector;
             }
         }
     }

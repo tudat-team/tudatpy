@@ -231,7 +231,8 @@ public:
     }
 
     void normalizeState(
-            Eigen::Block< Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic > > unnormalizedState )
+            Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& unnormalizedState,
+            const int startRow )
     {
         // Loop over each body
         for( unsigned int i = 0; i < this->bodiesToBeIntegratedNumerically_.size( ); i++ )
@@ -246,7 +247,7 @@ public:
                 exponentialMapVector *= ( 1 - ( 2 * mathematical_constants::PI / exponentialMapMagnitude ) );
 
                 // Replace EM with SEM, or vice-versa
-                unnormalizedState.block( i * 6 + 3, 0, 3, 1 ) = exponentialMapVector;
+                unnormalizedState.segment( startRow + i * 6 + 3, 3 ) = exponentialMapVector;
             }
         }
     }

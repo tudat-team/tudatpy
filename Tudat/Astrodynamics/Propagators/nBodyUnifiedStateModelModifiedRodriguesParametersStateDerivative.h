@@ -237,7 +237,8 @@ public:
     }
 
     void normalizeState(
-            Eigen::Block< Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic > > unnormalizedState )
+            Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& unnormalizedState,
+            const int startRow )
     {
         // Loop over each body
         for( unsigned int i = 0; i < this->bodiesToBeIntegratedNumerically_.size( ); i++ )
@@ -253,7 +254,7 @@ public:
                         modifiedRodriguesParametersMagnitude;
 
                 // Replace MRP with SMPR, or vice-versa
-                unnormalizedState.block( i * 7 + 3, 0, 3, 1 ) = modifiedRodriguesParametersVector;
+                unnormalizedState.segment( startRow + i * 7 + 3, 3 ) = modifiedRodriguesParametersVector;
 
                 // Invert flag
 //                unnormalizedState.block( i * 7 + 6, 0, 1, 1 ) = !unnormalizedState.block( i * 7 + 6, 0, 1, 1 );

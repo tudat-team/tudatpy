@@ -505,7 +505,7 @@ public:
      * Function to normalize the state vector during propagation
      * \param state State before normalization
      */
-    void normalizeState( Eigen::MatrixXd& state )
+    void normalizeState( Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& state )
     {
         for( stateDerivativeModelsIterator_ = stateDerivativeModels_.begin( );
              stateDerivativeModelsIterator_ != stateDerivativeModels_.end( );
@@ -514,7 +514,7 @@ public:
             for( unsigned int i = 0; i < stateDerivativeModelsIterator_->second.size( ); i++ )
             {
                 stateDerivativeModelsIterator_->second.at( i )->normalizeState(
-                            state.block( i * 7, 0, 7, 1 ) ); // temporary
+                            state, 0 ); // temporary
             }
         }
     }

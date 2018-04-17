@@ -435,8 +435,8 @@ boost::shared_ptr< PropagationTerminationDetails > integrateEquationsFromIntegra
         std::map< TimeType, double >& cummulativeComputationTimeHistory,
         const boost::function< Eigen::VectorXd( ) > dependentVariableFunction =
         boost::function< Eigen::VectorXd( ) >( ),
-        boost::function< void( Eigen::MatrixXd& ) > normalizeState =
-        boost::function< void( Eigen::MatrixXd& ) >( ),
+        boost::function< void( StateType& ) > normalizeState =
+        boost::function< void( StateType& ) >( ),
         const int saveFrequency = TUDAT_NAN,
         const TimeType printInterval = TUDAT_NAN,
         const std::chrono::steady_clock::time_point initialClockTime = std::chrono::steady_clock::now( ) )
@@ -642,8 +642,8 @@ public:
             std::map< TimeType, double >& cummulativeComputationTimeHistory,
             const boost::function< Eigen::VectorXd( ) > dependentVariableFunction =
             boost::function< Eigen::VectorXd( ) >( ),
-            boost::function< void( Eigen::MatrixXd& ) > normalizeState =
-            boost::function< void( Eigen::MatrixXd& ) >( ),
+            boost::function< void( StateType& ) > normalizeState =
+            boost::function< void( StateType& ) >( ),
             const TimeType printInterval = TUDAT_NAN,
             const std::chrono::steady_clock::time_point initialClockTime = std::chrono::steady_clock::now( ) );
 };
@@ -684,8 +684,8 @@ public:
             std::map< double, double >& cummulativeComputationTimeHistory,
             const boost::function< Eigen::VectorXd( ) > dependentVariableFunction =
             boost::function< Eigen::VectorXd( ) >( ),
-            boost::function< void( Eigen::MatrixXd& ) > normalizeState =
-            boost::function< void( Eigen::MatrixXd& ) >( ),
+            boost::function< void( StateType& ) > normalizeState =
+            boost::function< void( StateType& ) >( ),
             const double printInterval = TUDAT_NAN,
             const std::chrono::steady_clock::time_point initialClockTime = std::chrono::steady_clock::now( ) )
     {
@@ -750,8 +750,8 @@ public:
             std::map< Time, double >& cummulativeComputationTimeHistory,
             const boost::function< Eigen::VectorXd( ) > dependentVariableFunction =
             boost::function< Eigen::VectorXd( ) >( ),
-            boost::function< void( Eigen::MatrixXd& ) > normalizeState =
-            boost::function< void( Eigen::MatrixXd& ) >( ),
+            boost::function< void( StateType& ) > normalizeState =
+            boost::function< void( StateType& ) >( ),
             const Time printInterval = TUDAT_NAN,
             const std::chrono::steady_clock::time_point initialClockTime = std::chrono::steady_clock::now( ) )
     {
