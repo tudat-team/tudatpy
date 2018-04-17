@@ -750,7 +750,7 @@ protected:
     //! Function to normalize state (during numerical propagation)
     boost::function< void( Eigen::MatrixXd& ) > stateNormalizingFunction_ =
             boost::bind( &DynamicsStateDerivativeModel< TimeType, StateScalarType >::normalizeState,
-                         dynamicsStateDerivative_, _1, _2 );
+                         dynamicsStateDerivative_, _1 );
 
     //! Map listing starting entry of dependent variables in output vector, along with associated ID.
     std::map< int, std::string > dependentVariableIds_;
