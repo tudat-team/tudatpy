@@ -390,6 +390,9 @@ public:
         doubleStateDerivativeFunction_ =
                 boost::bind( &DynamicsStateDerivativeModel< TimeType, StateScalarType >::computeStateDoubleDerivative,
                              dynamicsStateDerivative_, _1, _2 );
+        stateNormalizingFunction_ =
+                boost::bind( &DynamicsStateDerivativeModel< TimeType, StateScalarType >::normalizeState,
+                             dynamicsStateDerivative_, _1 );
 
         // Integrate equations of motion if required.
         if( areEquationsOfMotionToBeIntegrated )
@@ -434,6 +437,7 @@ public:
                     dependentVariableHistory_,
                     cummulativeComputationTimeHistory_,
                     dependentVariablesFunctions_,
+                    stateNormalizingFunction_,
                     propagatorSettings_->getPrintInterval( ),
                     initialClockTime_ );
         dynamicsStateDerivative_->convertNumericalStateSolutionsToOutputSolutions(
@@ -501,7 +505,6 @@ public:
     {
         return std::vector< std::map< TimeType, double > >( { getCummulativeComputationTimeHistory( ) } );
     }
-
 
     //! Function to reset the environment from an externally generated state history.
     /*!
@@ -583,7 +586,6 @@ public:
     {
         return dynamicsStateDerivative_;
     }
-
 
     //! Function to retrieve the object defining when the propagation is to be terminated.
     /*!
@@ -747,6 +749,9 @@ protected:
 
     //! Function returning dependent variables (during numerical propagation)
     boost::function< Eigen::VectorXd( ) > dependentVariablesFunctions_;
+
+    //! Function to normalize state (during numerical propagation)
+    boost::function< void( Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& ) > stateNormalizingFunction_;
 
     //! Map listing starting entry of dependent variables in output vector, along with associated ID.
     std::map< int, std::string > dependentVariableIds_;

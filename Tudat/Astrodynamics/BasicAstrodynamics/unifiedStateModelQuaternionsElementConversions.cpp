@@ -224,7 +224,8 @@ Eigen::Vector7d convertKeplerianToUnifiedStateModelQuaternionsElements(
 //! Convert unified state model elements with quaternions to Keplerian elements.
 Eigen::Vector6d convertUnifiedStateModelQuaternionsToKeplerianElements(
         const Eigen::Vector7d& unifiedStateModelElements,
-        const double centralBodyGravitationalParameter )
+        const double centralBodyGravitationalParameter,
+        const bool forceQuaternionNormalization )
 {
     using mathematical_constants::PI;
 
@@ -236,22 +237,36 @@ Eigen::Vector6d convertUnifiedStateModelQuaternionsToKeplerianElements(
 
     // Check whether the unified state model elements are within expected limits
     // If inclination is zero and the right ascension of ascending node is non-zero
-    const double normOfQuaternionElements = unifiedStateModelElements.segment( epsilon1QuaternionIndex, 4 ).norm( );
+    Eigen::Vector4d quaternionsVector = unifiedStateModelElements.segment( epsilon1QuaternionIndex, 4 );
+    const double normOfQuaternionElements = quaternionsVector.norm( );
     if ( std::fabs( normOfQuaternionElements - 1.0 ) > singularityTolerance )
     {
-        // Define the error message.
-        std::stringstream errorMessage;
-        errorMessage << "The norm of the quaternion should be equal to one.\n"
-                     << "Norm of the specified quaternion is: " << normOfQuaternionElements - 1.0 << " + 1." << std::endl;
+        if ( forceQuaternionNormalization )
+        {
+            quaternionsVector /= normOfQuaternionElements;
+        }
+        else
+        {
+            // Define the error message.
+            std::stringstream errorMessage;
+            errorMessage << "The norm of the quaternion should be equal to one.\n"
+                         << "Norm of the specified quaternion is: " << normOfQuaternionElements - 1.0 << " + 1." << std::endl;
 
-        // Throw exception.
-        throw std::runtime_error( std::runtime_error( errorMessage.str( ) ) );
+            // Throw exception.
+            throw std::runtime_error( std::runtime_error( errorMessage.str( ) ) );
+        }
     }
     // Else, nothing wrong and continue
 
+    // Extract quaternion elements
+    double epsilon1QuaternionParameter = quaternionsVector( 0 );
+    double epsilon2QuaternionParameter = quaternionsVector( 1 );
+    double epsilon3QuaternionParameter = quaternionsVector( 2 );
+    double etaQuaternionParameter = quaternionsVector( 3 );
+
     // Check whether the orbit is pure-retrograde
-    if ( ( std::fabs( unifiedStateModelElements( epsilon3QuaternionIndex ) ) < singularityTolerance )
-        && ( std::fabs( unifiedStateModelElements( etaQuaternionIndex ) ) < singularityTolerance ) )
+    if ( ( std::fabs( epsilon3QuaternionParameter ) < singularityTolerance )
+        && ( std::fabs( etaQuaternionParameter ) < singularityTolerance ) )
             // pure-retrograde orbit -> inclination  = pi
     {
         // Define the error message
@@ -264,16 +279,12 @@ Eigen::Vector6d convertUnifiedStateModelQuaternionsToKeplerianElements(
     }
 
     // Compute auxiliary parameters cosineLambda, sineLambda and lambda
-    double denominator = unifiedStateModelElements( epsilon3QuaternionIndex ) *
-            unifiedStateModelElements( epsilon3QuaternionIndex ) +
-            unifiedStateModelElements( etaQuaternionIndex ) *
-            unifiedStateModelElements( etaQuaternionIndex );
-    double cosineLambda = ( unifiedStateModelElements( etaQuaternionIndex ) *
-                            unifiedStateModelElements( etaQuaternionIndex ) -
-                            unifiedStateModelElements( epsilon3QuaternionIndex ) *
-                            unifiedStateModelElements( epsilon3QuaternionIndex ) ) / denominator;
-    double sineLambda = ( 2.0 * unifiedStateModelElements( epsilon3QuaternionIndex ) *
-                          unifiedStateModelElements( etaQuaternionIndex ) ) / denominator;
+    double denominator = epsilon3QuaternionParameter * epsilon3QuaternionParameter +
+            etaQuaternionParameter * etaQuaternionParameter;
+    double cosineLambda = ( etaQuaternionParameter * etaQuaternionParameter -
+                            epsilon3QuaternionParameter * epsilon3QuaternionParameter ) / denominator;
+    double sineLambda = ( 2.0 * epsilon3QuaternionParameter *
+                          etaQuaternionParameter ) / denominator;
     double rightAscensionOfLatitude = std::atan2( sineLambda, cosineLambda );
 
     // Compute auxiliary parameters auxiliaryParameter1 and auxiliaryParameter2
@@ -310,21 +321,15 @@ Eigen::Vector6d convertUnifiedStateModelQuaternionsToKeplerianElements(
 
     // Compute inclination
     convertedKeplerianElements( inclinationIndex ) =
-            std::acos( 1.0 - 2.0 * ( unifiedStateModelElements( epsilon1QuaternionIndex ) *
-                                     unifiedStateModelElements( epsilon1QuaternionIndex ) +
-                                     unifiedStateModelElements( epsilon2QuaternionIndex ) *
-                                     unifiedStateModelElements( epsilon2QuaternionIndex ) ) );
+            std::acos( 1.0 - 2.0 * ( epsilon1QuaternionParameter * epsilon1QuaternionParameter +
+                                     epsilon2QuaternionParameter * epsilon2QuaternionParameter ) );
     // This acos is always defined correctly because the inclination is always below pi rad.
 
     // Find sine and cosine of longitude of ascending node separately
-    double sineOmega = unifiedStateModelElements( epsilon1QuaternionIndex ) *
-            unifiedStateModelElements( epsilon3QuaternionIndex ) +
-            unifiedStateModelElements( epsilon2QuaternionIndex ) *
-            unifiedStateModelElements( etaQuaternionIndex );
-    double cosineOmega = unifiedStateModelElements( epsilon1QuaternionIndex ) *
-            unifiedStateModelElements( etaQuaternionIndex ) -
-            unifiedStateModelElements( epsilon2QuaternionIndex ) *
-            unifiedStateModelElements( epsilon3QuaternionIndex );
+    double sineOmega = epsilon1QuaternionParameter * epsilon3QuaternionParameter +
+            epsilon2QuaternionParameter * etaQuaternionParameter;
+    double cosineOmega = epsilon1QuaternionParameter * etaQuaternionParameter -
+            epsilon2QuaternionParameter * epsilon3QuaternionParameter;
     denominator = std::sqrt( cosineOmega * cosineOmega +
                              sineOmega * sineOmega ); // overwrite old denominator
 
@@ -609,7 +614,8 @@ Eigen::Vector7d convertCartesianToUnifiedStateModelQuaternionsElements(
 //! Convert unified state model elements with quaternions to Cartesian elements.
 Eigen::Vector6d convertUnifiedStateModelQuaternionsToCartesianElements(
         const Eigen::Vector7d& unifiedStateModelElements,
-        const double centralBodyGravitationalParameter )
+        const double centralBodyGravitationalParameter,
+        const bool forceQuaternionNormalization )
 {
     using mathematical_constants::PI;
 
@@ -621,18 +627,32 @@ Eigen::Vector6d convertUnifiedStateModelQuaternionsToCartesianElements(
 
     // Check whether the unified state model elements are within expected limits
     // If inclination is zero and the right ascension of ascending node is non-zero
-    const double normOfQuaternionElements = unifiedStateModelElements.segment( epsilon1QuaternionIndex, 4 ).norm( );
+    Eigen::Vector4d quaternionsVector = unifiedStateModelElements.segment( epsilon1QuaternionIndex, 4 );
+    const double normOfQuaternionElements = quaternionsVector.norm( );
     if ( std::fabs( normOfQuaternionElements - 1.0 ) > singularityTolerance )
     {
-        // Define the error message.
-        std::stringstream errorMessage;
-        errorMessage << "The norm of the quaternion should be equal to one.\n"
-                     << "Norm of the specified quaternion is: " << normOfQuaternionElements - 1.0 << " + 1." << std::endl;
+        if ( forceQuaternionNormalization )
+        {
+            quaternionsVector /= normOfQuaternionElements;
+        }
+        else
+        {
+            // Define the error message.
+            std::stringstream errorMessage;
+            errorMessage << "The norm of the quaternion should be equal to one.\n"
+                         << "Norm of the specified quaternion is: " << normOfQuaternionElements - 1.0 << " + 1." << std::endl;
 
-        // Throw exception.
-        throw std::runtime_error( std::runtime_error( errorMessage.str( ) ) );
+            // Throw exception.
+            throw std::runtime_error( std::runtime_error( errorMessage.str( ) ) );
+        }
     }
     // Else, nothing wrong and continue
+
+    // Extract quaternion elements
+//    double epsilon1QuaternionParameter = quaternionsVector( 0 );
+//    double epsilon2QuaternionParameter = quaternionsVector( 1 );
+    double epsilon3QuaternionParameter = quaternionsVector( 2 );
+    double etaQuaternionParameter = quaternionsVector( 3 );
 
     // Declare auxiliary parameters before using them in the if statement
     double cosineLambda = 0.0;
@@ -640,8 +660,8 @@ Eigen::Vector6d convertUnifiedStateModelQuaternionsToCartesianElements(
     double rightAscensionOfLatitude = 0.0;
 
     // Compute auxiliary parameters cosineLambda, sineLambda and lambda
-    if ( ( std::fabs( unifiedStateModelElements( epsilon3QuaternionIndex ) ) < singularityTolerance )
-        && ( std::fabs( unifiedStateModelElements( etaQuaternionIndex ) ) < singularityTolerance ) )
+    if ( ( std::fabs( epsilon3QuaternionParameter ) < singularityTolerance )
+        && ( std::fabs( etaQuaternionParameter ) < singularityTolerance ) )
             // pure-retrograde orbit -> inclination  = pi
     {
         // Define the error message
@@ -654,16 +674,16 @@ Eigen::Vector6d convertUnifiedStateModelQuaternionsToCartesianElements(
     }
     else
     {
-        double denominator = unifiedStateModelElements( epsilon3QuaternionIndex ) *
-                unifiedStateModelElements( epsilon3QuaternionIndex ) +
-                unifiedStateModelElements( etaQuaternionIndex ) *
-                unifiedStateModelElements( etaQuaternionIndex );
-        cosineLambda = ( unifiedStateModelElements( etaQuaternionIndex ) *
-                         unifiedStateModelElements( etaQuaternionIndex ) -
-                         unifiedStateModelElements( epsilon3QuaternionIndex ) *
-                         unifiedStateModelElements( epsilon3QuaternionIndex ) ) / denominator;
-        sineLambda = ( 2.0 * unifiedStateModelElements( epsilon3QuaternionIndex ) *
-                       unifiedStateModelElements( etaQuaternionIndex ) ) / denominator;
+        double denominator = epsilon3QuaternionParameter *
+                epsilon3QuaternionParameter +
+                etaQuaternionParameter *
+                etaQuaternionParameter;
+        cosineLambda = ( etaQuaternionParameter *
+                         etaQuaternionParameter -
+                         epsilon3QuaternionParameter *
+                         epsilon3QuaternionParameter ) / denominator;
+        sineLambda = ( 2.0 * epsilon3QuaternionParameter *
+                       etaQuaternionParameter ) / denominator;
         rightAscensionOfLatitude = std::atan2( sineLambda, cosineLambda );
     }
 
@@ -678,8 +698,7 @@ Eigen::Vector6d convertUnifiedStateModelQuaternionsToCartesianElements(
     auxiliaryVector1( 1 ) = auxiliaryParameter2;
 
     // Find direction cosine matrix in terms of quaternions
-    double etaQuaternionParameter = unifiedStateModelElements( etaQuaternionIndex );
-    Eigen::Vector3d epsilonQuaternionVector = unifiedStateModelElements.segment( epsilon1QuaternionIndex, 3 );
+    Eigen::Vector3d epsilonQuaternionVector = quaternionsVector.segment( 0, 3 );
     Eigen::Matrix3d skewEpsilonQuaternionVector = linear_algebra::getCrossProductMatrix( epsilonQuaternionVector );
     Eigen::Matrix3d inverseDirectionCosineMatrix = (
                 Eigen::Matrix3d::Identity( ) * ( std::pow( etaQuaternionParameter, 2 ) -

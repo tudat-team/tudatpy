@@ -180,11 +180,22 @@ public:
         return integratedStateType_;
     }
 
+    //! Function to normalize the state vector during propagation.
+    /*!
+     * Function to normalize the state vector during propagation
+     * \param unnormalizedState State before normalization
+     */
     virtual void normalizeState(
-            Eigen::Block< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > unnormalizedState )
+            Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& unnormalizedState,
+            const int startRow )
     {
 
     }
+
+//    virtual bool isStateNormalized( )
+//    {
+//        return false;
+//    }
 
 protected:
 

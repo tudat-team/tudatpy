@@ -182,8 +182,8 @@ public:
         for( unsigned int i = 0; i < this->bodiesToBeIntegratedNumerically_.size( ); i++ )
         {
             currentState.segment( i * 6, 6 ) =
-                    orbital_element_conversions::convertCartesianToUnifiedStateModelExponentialMapElements<
-                    StateScalarType >( cartesianSolution.block( i * 6, 0, 6, 1 ), static_cast< StateScalarType >(
+                    orbital_element_conversions::convertCartesianToUnifiedStateModelExponentialMapElements(
+                        cartesianSolution.block( i * 6, 0, 6, 1 ), static_cast< StateScalarType >(
                             centralBodyGravitationalParameters_.at( i )( ) ) );
         }
 
@@ -207,30 +207,12 @@ public:
             const Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >& internalSolution, const TimeType& time,
             Eigen::Block< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > currentCartesianLocalSoluton )
     {
-        using mathematical_constants::PI;
-
-        Eigen::Matrix< StateScalarType, 3, 1 > exponentialMapVector;
-        StateScalarType exponentialMapMagnitude;
-        Eigen::Matrix< StateScalarType, 6, 1 > currentUnifiedStateModelState;
-
         // Convert state to Cartesian for each body
         for( unsigned int i = 0; i < this->bodiesToBeIntegratedNumerically_.size( ); i++ )
         {
-            // Convert to/from shadow exponential map (SEM) (transformation is the same either way)
-            exponentialMapVector = internalSolution.block( i * 6 + 3, 0, 3, 1 );
-            exponentialMapMagnitude = exponentialMapVector.norm( );
-            if ( exponentialMapMagnitude >= PI )
-            {
-                exponentialMapVector *= ( 1 - ( 2 * PI / exponentialMapMagnitude ) );
-            }
-
-            // Get current solution
-            currentUnifiedStateModelState.segment( 0, 3 ) = internalSolution.block( i * 6, 0, 3, 1 );
-            currentUnifiedStateModelState.segment( 3, 3 ) = exponentialMapVector;
-
             currentCartesianLocalSoluton.segment( i * 6, 6 ) =
-                    orbital_element_conversions::convertUnifiedStateModelExponentialMapToCartesianElements< StateScalarType >(
-                        currentUnifiedStateModelState, static_cast< StateScalarType >(
+                    orbital_element_conversions::convertUnifiedStateModelExponentialMapToCartesianElements(
+                        internalSolution.block( i * 6, 0, 6, 1 ), static_cast< StateScalarType >(
                             centralBodyGravitationalParameters_.at( i )( ) ) );
         }
 
@@ -246,6 +228,28 @@ public:
     basic_astrodynamics::AccelerationMap getFullAccelerationsMap( )
     {
         return originalAccelerationModelsPerBody_;
+    }
+
+    void normalizeState(
+            Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& unnormalizedState,
+            const int startRow )
+    {
+        // Loop over each body
+        for( unsigned int i = 0; i < this->bodiesToBeIntegratedNumerically_.size( ); i++ )
+        {
+            // Convert to/from shadow exponential map (SEM) (transformation is the same either way)
+            Eigen::Matrix< StateScalarType, 3, 1 > exponentialMapVector =
+                    unnormalizedState.block( i * 6 + 3, 0, 3, 1 );
+            StateScalarType exponentialMapMagnitude = exponentialMapVector.norm( );
+            if ( exponentialMapMagnitude >= mathematical_constants::PI )
+            {
+                // Convert to EM/SEM
+                exponentialMapVector *= ( 1 - ( 2 * mathematical_constants::PI / exponentialMapMagnitude ) );
+
+                // Replace EM with SEM, or vice-versa
+                unnormalizedState.segment( startRow + i * 6 + 3, 3 ) = exponentialMapVector;
+            }
+        }
     }
 
 private:
