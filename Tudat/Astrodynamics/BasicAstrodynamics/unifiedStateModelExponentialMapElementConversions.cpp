@@ -207,8 +207,8 @@ Eigen::Vector6d convertKeplerianToUnifiedStateModelExponentialMapElements(
     double exponentialMapMagnitude = 2.0 * std::acos( arccosineArgument );
 
     // Check for singularity
-    if ( std::fabs( exponentialMapMagnitude ) < singularityTolerance ||
-         std::fabs( exponentialMapMagnitude - 2.0 * PI ) < singularityTolerance )
+    if ( std::fabs( exponentialMapMagnitude ) < singularityTolerance )
+//        || std::fabs( exponentialMapMagnitude - 2.0 * PI ) < singularityTolerance
     {
         // If rotation angle is zero (or 2 PI), the exponential map vector is the zero vector
         convertedUnifiedStateModelElements.segment( e1ExponentialMapIndex, 3 ) = Eigen::Vector3d::Zero( );
@@ -471,8 +471,8 @@ Eigen::Vector6d convertCartesianToUnifiedStateModelExponentialMapElements(
 
     // Convert quaternions to exponential map (or SEM)
     double exponentialMapMagnitude = 2.0 * std::acos( etaQuaternionParameter );
-    if ( std::fabs( exponentialMapMagnitude ) < singularityTolerance ||
-         std::fabs( exponentialMapMagnitude - 2.0 * PI ) < singularityTolerance )
+    if ( std::fabs( exponentialMapMagnitude ) < singularityTolerance )
+//        || std::fabs( exponentialMapMagnitude - 2.0 * PI ) < singularityTolerance
     {
         // If rotation angle is zero (or 2 PI), the exponential map vector is the zero vector
         convertedUnifiedStateModelExponentialMapElements.segment( e1ExponentialMapIndex, 3 ) =
@@ -521,6 +521,7 @@ Eigen::Vector6d convertUnifiedStateModelExponentialMapToCartesianElements(
     {
         epsilonQuaternionVector = exponentialMapVector * ( 0.5 + std::pow( exponentialMapMagnitude, 2 ) / 48.0 );
     }
+    else
     {
         epsilonQuaternionVector = exponentialMapVector / exponentialMapMagnitude *
                 std::sin( 0.5 * exponentialMapMagnitude );
