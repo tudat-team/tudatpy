@@ -37,9 +37,17 @@ Eigen::Vector7d computeStateDerivativeForUnifiedStateModelQuaternions(
     hodographMatrix( 2, 1 ) = ( 1.0 + pAuxiliaryVector( 0 ) ) * cosineLambda;
     hodographMatrix( 2, 2 ) = gammaParameter * pAuxiliaryVector( 2 );
 
+    // Normalize quaternions
+//    Eigen::Vector4d quaternionsVector = currentUnifiedStateModelElements.segment( 3, 4 );
+//    double quaternionsMagntiude = quaternionsVector.norm( );
+//    quaternionsVector /= quaternionsMagntiude;
+
+//    double offsetFromUnitNorm = 1.0 - currentUnifiedStateModelElements.segment( 3, 4 ).norm( );
+//    double rotationalVelocityMagnitude = rotationalVelocityVector.norm( ); // gain value
+//    Eigen::Matrix4d quaternionMatrix = rotationalVelocityMagnitude * offsetFromUnitNorm *
+//            Eigen::Matrix4d::Identity( ); // normalize quaternions during propagation
+                                          // (reference: W. F. Phillips, Mechanics of Flight, 2004)
     Eigen::Matrix4d quaternionMatrix = Eigen::Matrix4d::Zero( );
-    // getQuaterionToQuaternionRateMatrix( rotationalVelocityVector.reverse( ) ).reverse( ); // still wrong
-    // if the function above is used, remove the 0.5 from line 56 (state derivative)
     quaternionMatrix( 0, 1 ) =   rotationalVelocityVector( 2 );
     quaternionMatrix( 0, 3 ) =   rotationalVelocityVector( 0 );
     quaternionMatrix( 1, 0 ) = - rotationalVelocityVector( 2 );
@@ -52,6 +60,9 @@ Eigen::Vector7d computeStateDerivativeForUnifiedStateModelQuaternions(
     // Evaluate USM7 equations.
     Eigen::Vector7d stateDerivative = Eigen::Vector7d::Zero( );
     stateDerivative.segment( 0, 3 ) = hodographMatrix * accelerationsInRswFrame;
+//    Eigen::Vector4d quaternionsDerivative = 0.5 * quaternionMatrix * quaternionsVector;
+//    stateDerivative.segment( 3, 4 ) = quaternionsDerivative -
+//            quaternionsVector.dot( quaternionsDerivative ) * quaternionsVector; // normalize derivative
     stateDerivative.segment( 3, 4 ) = 0.5 * quaternionMatrix * currentUnifiedStateModelElements.segment( 3, 4 );
 
     // Give output
