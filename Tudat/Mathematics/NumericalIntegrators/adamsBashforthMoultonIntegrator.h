@@ -50,7 +50,7 @@ namespace numerical_integrators
  * \tparam IndependentVariableType The type of the independent variable.
  * \sa NumericalIntegrator.
  */
-template < typename IndependentVariableType = double, typename StateType = Eigen::VectorXd,
+template< typename IndependentVariableType = double, typename StateType = Eigen::VectorXd,
            typename StateDerivativeType = Eigen::VectorXd, typename TimeStepType = IndependentVariableType >
 class AdamsBashforthMoultonIntegrator
         : public ReinitializableNumericalIntegrator<
@@ -1015,7 +1015,7 @@ typedef boost::shared_ptr< AdamsBashforthMoultonIntegratord > AdamsBashforthMoul
 /*!
  * truncationErrorCoefficients( o - 1 )
  */
-template < typename IndependentVariableType, typename StateType, typename StateDerivativeType, typename TimeStepType>
+template< typename IndependentVariableType, typename StateType, typename StateDerivativeType, typename TimeStepType>
 const double AdamsBashforthMoultonIntegrator< IndependentVariableType, StateType, StateDerivativeType, TimeStepType >::truncationErrorCoefficients[ 12 ] = {
     +2.00000000000000000e+00, +6.00000000000000000e+00, +1.00000000000000000e+01, +1.42105263157894743e+01,
     +1.85925925925925917e+01, +2.31170336037079949e+01, +2.77629090909090905e+01, +3.25146526080169664e+01,
@@ -1027,7 +1027,7 @@ const double AdamsBashforthMoultonIntegrator< IndependentVariableType, StateType
  * extrapolationCoefficients( o * 2 - 2, i )                 <--- predictor coefficients
  * extrapolationCoefficients( o * 2 - 1, i )                 <--- corrector coefficients
  */
-template < typename IndependentVariableType, typename StateType, typename StateDerivativeType, typename TimeStepType >
+template< typename IndependentVariableType, typename StateType, typename StateDerivativeType, typename TimeStepType >
 const double AdamsBashforthMoultonIntegrator< IndependentVariableType, StateType, StateDerivativeType, TimeStepType >::extrapolationCoefficients[ 24 ][ 12 ] = {
     {+1.00000000000000000e+00, +0.00000000000000000e+00, +0.00000000000000000e+00, +0.00000000000000000e+00,
      +0.00000000000000000e+00, +0.00000000000000000e+00, +0.00000000000000000e+00, +0.00000000000000000e+00,
@@ -1113,7 +1113,7 @@ const double AdamsBashforthMoultonIntegrator< IndependentVariableType, StateType
  *
  * Order k occupies : registers ( k - 1 )^2 - k + 1 to k^2 - k - 1
  */
-template < typename IndependentVariableType, typename StateType, typename StateDerivativeType, typename TimeStepType >
+template< typename IndependentVariableType, typename StateType, typename StateDerivativeType, typename TimeStepType >
 const double AdamsBashforthMoultonIntegrator< IndependentVariableType, StateType, StateDerivativeType, TimeStepType >::interpolationCoefficients[ 132 ][ 24 ] = {
     {+5.00000000000000000e-01, +5.00000000000000000e-01, -1.25000000000000000e-01, +1.25000000000000000e-01,
      +0.00000000000000000e+00, +0.00000000000000000e+00, +0.00000000000000000e+00, +0.00000000000000000e+00,

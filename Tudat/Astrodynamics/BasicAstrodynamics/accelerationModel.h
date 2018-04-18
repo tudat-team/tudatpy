@@ -35,7 +35,7 @@ namespace basic_astrodynamics
  * \tparam AccelerationDataType Data type used to represent accelerations
  *          (default=Eigen::Vector3d).
  */
-template < typename AccelerationDataType = Eigen::Vector3d >
+template< typename AccelerationDataType = Eigen::Vector3d >
 class AccelerationModel
 {
 public:
@@ -108,6 +108,9 @@ typedef AccelerationModel< Eigen::Vector2d > AccelerationModel2d;
 //! Typedef for shared-pointer to a 2D acceleration model.
 typedef boost::shared_ptr< AccelerationModel2d > AccelerationModel2dPointer;
 
+//extern template class AccelerationModel< Eigen::Vector3d >;
+//extern template class AccelerationModel< Eigen::Vector2d >;
+
 //! Update the members of an acceleration model and evaluate the acceleration.
 /*!
  * Updates the member variables of an acceleration model and subsequently evaluates the
@@ -119,7 +122,7 @@ typedef boost::shared_ptr< AccelerationModel2d > AccelerationModel2dPointer;
  * \param currentTime Time at which acceleration model is to be updated.
  * \return Acceleration that is obtained following the member update.
  */
-template < typename AccelerationDataType >
+template< typename AccelerationDataType >
 AccelerationDataType updateAndGetAcceleration(
         const boost::shared_ptr< AccelerationModel< AccelerationDataType > > accelerationModel,
         const double currentTime = TUDAT_NAN )

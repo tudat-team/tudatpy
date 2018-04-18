@@ -204,6 +204,11 @@ protected:
     boost::shared_ptr< CombinedStateTransitionAndSensitivityMatrixInterface > stateTransitionInterface_;
 };
 
+//extern template class VariationalEquationsSolver< double, double >;
+//extern template class VariationalEquationsSolver< long double, double >;
+//extern template class VariationalEquationsSolver< double, Time >;
+//extern template class VariationalEquationsSolver< long double, Time >;
+
 //! Function to separate the time histories of the sensitivity and state transition matrices from a full numerical solution.
 /*!
  *  Function to separate the time histories of the sensitivity and state transition matrices from a full numerical solution,
@@ -548,6 +553,9 @@ public:
             dynamicsSimulator_ =  boost::make_shared< SingleArcDynamicsSimulator< StateScalarType, TimeType > >(
                         bodyMap, integratorSettings, propagatorSettings_, false, clearNumericalSolution, true );
             dynamicsStateDerivative_ = dynamicsSimulator_->getDynamicsStateDerivative( );
+            stateNormalizingFunction_ = boost::bind(
+                        &DynamicsStateDerivativeModel< TimeType, StateScalarType >::normalizeMatrixState,
+                        dynamicsStateDerivative_, _1 );
 
             // Create state derivative partials
             std::map< IntegratedStateType, orbit_determination::StateDerivativePartialsMap >
@@ -638,6 +646,7 @@ public:
                         dependentVariableHistory,
                         cummulativeComputationTimeHistory,
                         dynamicsSimulator_->getDependentVariablesFunctions( ),
+                        stateNormalizingFunction_,
                         propagatorSettings_->getPrintInterval( ) );
 
             std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > equationsOfMotionNumericalSolutionRaw;
@@ -808,6 +817,8 @@ private:
      */
     std::vector< std::map< double, Eigen::MatrixXd > > variationalEquationsSolution_;
 
+    boost::function< void( Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >& ) > stateNormalizingFunction_;
+
 
     //! Settings for numerical integrator of combined propagation of variational equations and equations of motion.
     boost::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings_;
@@ -826,6 +837,13 @@ private:
      */
     boost::shared_ptr< DynamicsStateDerivativeModel< TimeType, StateScalarType > > dynamicsStateDerivative_;
 };
+
+
+//extern template class SingleArcVariationalEquationsSolver< double, double >;
+//extern template class SingleArcVariationalEquationsSolver< long double, double >;
+//extern template class SingleArcVariationalEquationsSolver< double, Time >;
+//extern template class SingleArcVariationalEquationsSolver< long double, Time >;
+
 
 //! Function to transfer the initial multi-arc states from propagator settings to associated initial state estimation parameters.
 /*!
@@ -1411,6 +1429,11 @@ private:
     int numberOfArcs_;
 
 };
+
+//extern template class MultiArcVariationalEquationsSolver< double, double >;
+//extern template class MultiArcVariationalEquationsSolver< long double, double >;
+//extern template class MultiArcVariationalEquationsSolver< double, Time >;
+//extern template class MultiArcVariationalEquationsSolver< long double, Time >;
 
 } // namespace propagators
 
