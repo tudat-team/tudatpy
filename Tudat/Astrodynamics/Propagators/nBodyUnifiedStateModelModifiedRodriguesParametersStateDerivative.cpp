@@ -72,7 +72,7 @@ Eigen::Vector7d computeStateDerivativeForUnifiedStateModelModifiedRodriguesParam
     double modifiedRodriguesParametersMagnitudeSquared =
             modifiedRodriguesParametersMagnitude * modifiedRodriguesParametersMagnitude;
     double oneMinusModifiedRodriguesParametersMagnitudeSquared =
-            currentUnifiedStateModelElements( shadowModifiedRodriguesParameterFlagIndex ) ?
+            ( int( currentUnifiedStateModelElements( shadowModifiedRodriguesParameterFlagIndex ) ) == 1 ) ?
                 ( modifiedRodriguesParametersMagnitudeSquared - 1.0 ) : // inverse definition for SMRP
                 ( 1.0 - modifiedRodriguesParametersMagnitudeSquared );
     double oneMinusModifiedRodriguesParametersMagnitudeSquaredSquared =
