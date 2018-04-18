@@ -43,7 +43,7 @@ Eigen::Vector7d convertKeplerianToUnifiedStateModelQuaternionsElements(
     Eigen::Vector7d convertedUnifiedStateModelElements = Eigen::Vector7d::Zero( );
 
     // Define the tolerance of a singularity
-    double singularityTolerance = 20.0 * std::numeric_limits< double >::epsilon( );
+    const double singularityTolerance = 20.0 * std::numeric_limits< double >::epsilon( );
 
     // If eccentricity is outside range [0,inf)
     if ( keplerianElements( eccentricityIndex ) < 0.0 )
@@ -233,7 +233,7 @@ Eigen::Vector6d convertUnifiedStateModelQuaternionsToKeplerianElements(
     Eigen::Vector6d convertedKeplerianElements = Eigen::Vector6d::Zero( );
 
     // Define the tolerance of a singularity
-    double singularityTolerance = 20.0 * std::numeric_limits< double >::epsilon( );
+    const double singularityTolerance = 20.0 * std::numeric_limits< double >::epsilon( );
 
     // Check whether the unified state model elements are within expected limits
     // If inclination is zero and the right ascension of ascending node is non-zero
@@ -448,7 +448,7 @@ Eigen::Vector7d convertCartesianToUnifiedStateModelQuaternionsElements(
     Eigen::Vector7d convertedUnifiedStateModelElements = Eigen::Vector7d::Zero( );
 
     // Define the tolerance of a singularity
-    double singularityTolerance = 20.0 * std::numeric_limits< double >::epsilon( );
+    const double singularityTolerance = 20.0 * std::numeric_limits< double >::epsilon( );
 
     // Find Cartesian position and velocity vectors and magnitudes
     Eigen::Vector3d positionVector = cartesianElements.segment( xCartesianPositionIndex, 3 );
@@ -623,7 +623,7 @@ Eigen::Vector6d convertUnifiedStateModelQuaternionsToCartesianElements(
     Eigen::Vector6d convertedCartesianElements = Eigen::Vector6d::Zero( );
 
     // Define the tolerance of a singularity
-    double singularityTolerance = 20.0 * std::numeric_limits< double >::epsilon( );
+    const double singularityTolerance = 20.0 * std::numeric_limits< double >::epsilon( );
 
     // Check whether the unified state model elements are within expected limits
     // If inclination is zero and the right ascension of ascending node is non-zero
@@ -649,8 +649,6 @@ Eigen::Vector6d convertUnifiedStateModelQuaternionsToCartesianElements(
     // Else, nothing wrong and continue
 
     // Extract quaternion elements
-//    double epsilon1QuaternionParameter = quaternionsVector( 0 );
-//    double epsilon2QuaternionParameter = quaternionsVector( 1 );
     double epsilon3QuaternionParameter = quaternionsVector( 2 );
     double etaQuaternionParameter = quaternionsVector( 3 );
 

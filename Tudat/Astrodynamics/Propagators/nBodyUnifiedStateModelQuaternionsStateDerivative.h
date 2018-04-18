@@ -239,13 +239,14 @@ public:
             const int startRow )
     {
         // Loop over each body
+        const double tolerance = std::numeric_limits< double >::epsilon( );
         for( unsigned int i = 0; i < this->bodiesToBeIntegratedNumerically_.size( ); i++ )
         {
             // Normalize quaternions
             Eigen::Matrix< StateScalarType, 4, 1 > quaternionsVector =
                     unnormalizedState.block( i * 7 + 3, 0, 4, 1 );
             StateScalarType quaternionsMagnitude = quaternionsVector.norm( );
-            if ( std::fabs( quaternionsMagnitude - 1.0 ) >= std::numeric_limits< double >::epsilon( ) )
+            if ( std::fabs( quaternionsMagnitude - 1.0 ) >= tolerance )
             {
                 // Normalize
                 quaternionsVector /= quaternionsMagnitude;
