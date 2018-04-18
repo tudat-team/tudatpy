@@ -257,7 +257,7 @@ public:
                 unnormalizedState.segment( startRow + i * 7 + 3, 3 ) = modifiedRodriguesParametersVector;
 
                 // Invert flag
-//                unnormalizedState.block( i * 7 + 6, 0, 1, 1 ) = !unnormalizedState.block( i * 7 + 6, 0, 1, 1 );
+                unnormalizedState( i * 7 + 6 ) = ( int( unnormalizedState( i * 7 + 6 ) ) == 1 ) ? 0.0 : 1.0;
             }
         }
     }

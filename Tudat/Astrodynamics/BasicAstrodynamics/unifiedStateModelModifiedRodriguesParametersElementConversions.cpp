@@ -41,7 +41,7 @@ Eigen::Vector7d convertKeplerianToUnifiedStateModelModifiedRodriguesParametersEl
     Eigen::Vector7d convertedUnifiedStateModelElements = Eigen::Vector7d::Zero( );
 
     // Define the tolerance of a singularity
-    double singularityTolerance = 20.0 * std::numeric_limits< double >::epsilon( );
+    const double singularityTolerance = 20.0 * std::numeric_limits< double >::epsilon( );
 
     // If eccentricity is outside range [0,inf)
     if ( keplerianElements( eccentricityIndex ) < 0.0 )
@@ -213,9 +213,9 @@ Eigen::Vector7d convertKeplerianToUnifiedStateModelModifiedRodriguesParametersEl
         double modifiedRodriguesParameterMagnitude =
                 ( 1.0 + std::pow( std::cos( 0.5 * keplerianElements( inclinationIndex ) ), 2 ) * (
                       std::pow( std::sin( 0.5 * rightAscensionOfLatitude ), 2 ) - 1.0 ) ) / denominator / denominator;
-        shadowFlag = ( modifiedRodriguesParameterMagnitude >= 1.0 ) ? true : false;
+        shadowFlag = modifiedRodriguesParameterMagnitude >= 1.0;
     }
-    convertedUnifiedStateModelElements( shadowModifiedRodriguesParameterFlagIndex ) = shadowFlag;
+    convertedUnifiedStateModelElements( shadowModifiedRodriguesParameterFlagIndex ) = shadowFlag ? 1.0 : 0.0;
     denominator = shadowFlag ? ( denominator - 2.0 ) : denominator; // redefine denominator for SMRP
 
     // Find the common multiplication factor to the vector elements
@@ -251,10 +251,10 @@ Eigen::Vector6d convertUnifiedStateModelModifiedRodriguesParametersToKeplerianEl
     Eigen::Vector6d convertedKeplerianElements = Eigen::Vector6d::Zero( );
 
     // Define the tolerance of a singularity
-    double singularityTolerance = 20.0 * std::numeric_limits< double >::epsilon( );
+    const double singularityTolerance = 20.0 * std::numeric_limits< double >::epsilon( );
 
     // Set flag to shadow or non-shadow and decide sign for DCM elements
-    bool shadowFlag = unifiedStateModelElements( shadowModifiedRodriguesParameterFlagIndex );
+    bool shadowFlag = int( unifiedStateModelElements( shadowModifiedRodriguesParameterFlagIndex ) ) == 1;
     double signDirectionCosineMatrix = shadowFlag ? - 1.0 : 1.0;
 
     // Compute auxiliary parameters
@@ -505,7 +505,7 @@ Eigen::Vector7d convertCartesianToUnifiedStateModelModifiedRodriguesParametersEl
                 sigma1ModifiedRodriguesParameterIndex, 3 ) = conversionSign * epsilonQuaternionVector /
             ( 1 + conversionSign * etaQuaternionParameter );
     convertedUnifiedStateModelModifiedRodriguesParametersElements(
-                shadowModifiedRodriguesParameterFlagIndex ) = shadowFlag;
+                shadowModifiedRodriguesParameterFlagIndex ) = shadowFlag ? 1.0 : 0.0;
 
     // Add other elements to USMEM vector
     convertedUnifiedStateModelModifiedRodriguesParametersElements.segment(
@@ -535,8 +535,8 @@ Eigen::Vector6d convertUnifiedStateModelModifiedRodriguesParametersToCartesianEl
 
     // Convert modified Rodrigues parameters to quaternions
     double conversionSign =
-            unifiedStateModelModifiedRodriguesParametersElements( shadowModifiedRodriguesParameterFlagIndex ) ?
-                - 1.0 : 1.0; // converion is slightly different for SMRP and MRP
+            ( int( unifiedStateModelModifiedRodriguesParametersElements( shadowModifiedRodriguesParameterFlagIndex ) )
+              == 1 ) ? - 1.0 : 1.0; // converion is slightly different for SMRP and MRP
     Eigen::Vector3d epsilonQuaternionVector = conversionSign *
             2.0 / ( 1.0 + modifiedRodriguesParametersMagnitudeSquared ) *
             modifiedRodriguesParametersVector;

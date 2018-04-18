@@ -76,7 +76,7 @@ BOOST_AUTO_TEST_CASE( testconvertKeplerianToUnifiedStateModelModifiedRodriguesPa
         expectedUnifiedStateModelElements( sigma1ModifiedRodriguesParameterIndex ) = 0.220695676902467;
         expectedUnifiedStateModelElements( sigma2ModifiedRodriguesParameterIndex ) = 0.0290551370709508;
         expectedUnifiedStateModelElements( sigma3ModifiedRodriguesParameterIndex ) = 0.0623089425250076;
-        expectedUnifiedStateModelElements( shadowModifiedRodriguesParameterFlagIndex ) = true;
+        expectedUnifiedStateModelElements( shadowModifiedRodriguesParameterFlagIndex ) = 1.0;
 
         // Compute unified state model elements.
         computedUnifiedStateModelElements =
@@ -108,7 +108,7 @@ BOOST_AUTO_TEST_CASE( testconvertKeplerianToUnifiedStateModelModifiedRodriguesPa
         expectedUnifiedStateModelElements( sigma1ModifiedRodriguesParameterIndex ) = 0.909115353651481;
         expectedUnifiedStateModelElements( sigma2ModifiedRodriguesParameterIndex ) = 0.119687306903266;
         expectedUnifiedStateModelElements( sigma3ModifiedRodriguesParameterIndex ) = 0.0104712825219838;
-        expectedUnifiedStateModelElements( shadowModifiedRodriguesParameterFlagIndex ) = true;
+        expectedUnifiedStateModelElements( shadowModifiedRodriguesParameterFlagIndex ) = 1.0;
 
         // Compute unified state model elements.
         computedUnifiedStateModelElements =
@@ -138,7 +138,7 @@ BOOST_AUTO_TEST_CASE( testconvertKeplerianToUnifiedStateModelModifiedRodriguesPa
         expectedUnifiedStateModelElements( sigma1ModifiedRodriguesParameterIndex ) = 0.298426999166362;
         expectedUnifiedStateModelElements( sigma2ModifiedRodriguesParameterIndex ) = -0.946489519440885;
         expectedUnifiedStateModelElements( sigma3ModifiedRodriguesParameterIndex ) = 0.0867430205772025;
-        expectedUnifiedStateModelElements( shadowModifiedRodriguesParameterFlagIndex ) = true;
+        expectedUnifiedStateModelElements( shadowModifiedRodriguesParameterFlagIndex ) = 1.0;
 
         // Compute unified state model elements.
         computedUnifiedStateModelElements =
@@ -214,7 +214,7 @@ BOOST_AUTO_TEST_CASE( testconvertKeplerianToUnifiedStateModelModifiedRodriguesPa
         expectedUnifiedStateModelElements( sigma1ModifiedRodriguesParameterIndex ) = 0.300705799504273;
         expectedUnifiedStateModelElements( sigma2ModifiedRodriguesParameterIndex ) = -0.953716950748227;
         expectedUnifiedStateModelElements( sigma3ModifiedRodriguesParameterIndex ) = 6.11740603377039e-17;
-        expectedUnifiedStateModelElements( shadowModifiedRodriguesParameterFlagIndex ) = true;
+        expectedUnifiedStateModelElements( shadowModifiedRodriguesParameterFlagIndex ) = 1.0;
 
         // Compute unified state model elements.
         computedUnifiedStateModelElements =
@@ -249,7 +249,7 @@ BOOST_AUTO_TEST_CASE( testconvertKeplerianToUnifiedStateModelModifiedRodriguesPa
         expectedUnifiedStateModelElements( sigma1ModifiedRodriguesParameterIndex ) = 0;
         expectedUnifiedStateModelElements( sigma2ModifiedRodriguesParameterIndex ) = 0;
         expectedUnifiedStateModelElements( sigma3ModifiedRodriguesParameterIndex ) = 0.916331174017424;
-        expectedUnifiedStateModelElements( shadowModifiedRodriguesParameterFlagIndex ) = false;
+        expectedUnifiedStateModelElements( shadowModifiedRodriguesParameterFlagIndex ) = 0.0;
 
         // Compute unified state model elements.
         computedUnifiedStateModelElements =
