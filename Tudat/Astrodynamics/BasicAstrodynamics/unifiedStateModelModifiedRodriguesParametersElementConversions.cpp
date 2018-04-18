@@ -208,8 +208,7 @@ Eigen::Vector7d convertKeplerianToUnifiedStateModelModifiedRodriguesParametersEl
         double modifiedRodriguesParameterMagnitude =
                 ( 1.0 + std::pow( std::cos( 0.5 * keplerianElements( inclinationIndex ) ), 2 ) * (
                       std::pow( std::sin( 0.5 * rightAscensionOfLatitude ), 2 ) - 1.0 ) ) / denominator / denominator;
-        shadowFlag = ( ( 1.0 - std::pow( modifiedRodriguesParameterMagnitude, 2 ) ) /
-                ( 1.0 + std::pow( modifiedRodriguesParameterMagnitude, 2 ) ) ) < 0.0; // check eta quaternion
+        shadowFlag = modifiedRodriguesParameterMagnitude > 1; // check eta quaternion
     }
     convertedUnifiedStateModelElements( shadowModifiedRodriguesParameterFlagIndex ) = shadowFlag ? 1.0 : 0.0;
     denominator = shadowFlag ? ( denominator - 2.0 ) : denominator; // redefine denominator for SMRP

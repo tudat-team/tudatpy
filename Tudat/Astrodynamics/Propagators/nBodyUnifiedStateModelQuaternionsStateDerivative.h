@@ -239,7 +239,7 @@ public:
             const int startRow )
     {
         // Loop over each body
-        const double tolerance = std::numeric_limits< double >::epsilon( );
+        const double tolerance = 20.0 * std::numeric_limits< double >::epsilon( );
         for( unsigned int i = 0; i < this->bodiesToBeIntegratedNumerically_.size( ); i++ )
         {
             // Normalize quaternions
