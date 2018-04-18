@@ -245,7 +245,7 @@ public:
         {
             // Convert to/from shadow modifed Rodrigues parameters (SMRP) (transformation is the same either way)
             Eigen::Matrix< StateScalarType, 4, 1 > modifiedRodriguesParametersVector =
-                    unnormalizedState.block( i * 7 + 3, 0, 3, 1 );
+                    unnormalizedState.block( startRow + i * 7 + 3, 0, 3, 1 );
             StateScalarType modifiedRodriguesParametersMagnitude = modifiedRodriguesParametersVector.norm( );
             if ( modifiedRodriguesParametersMagnitude >= 1.0 )
             {
@@ -257,7 +257,7 @@ public:
                 unnormalizedState.segment( startRow + i * 7 + 3, 3 ) = modifiedRodriguesParametersVector;
 
                 // Invert flag
-                unnormalizedState( i * 7 + 6 ) = ( int( unnormalizedState( i * 7 + 6 ) ) == 1 ) ? 0.0 : 1.0;
+                unnormalizedState( startRow + i * 7 + 6 ) = std::fabs( unnormalizedState( i * 7 + 6 ) - 1.0 );
             }
         }
     }
