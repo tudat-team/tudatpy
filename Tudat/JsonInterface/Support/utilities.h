@@ -147,7 +147,7 @@ bool containsAllOf( const std::vector< T >& vector, std::vector< T > values )
 /*!
  * @copybrief getMapKeys
  */
-template< template < typename ... > class MapType, typename KeyType, typename ValueType >
+template< template< typename ... > class MapType, typename KeyType, typename ValueType >
 std::vector< KeyType > getMapKeys( const MapType< KeyType, ValueType >& map )
 {
     std::vector< KeyType > keys;
@@ -162,7 +162,7 @@ std::vector< KeyType > getMapKeys( const MapType< KeyType, ValueType >& map )
 /*!
  * @copybrief getMapValues
  */
-template< template < typename ... > class MapType, typename KeyType, typename ValueType >
+template< template< typename ... > class MapType, typename KeyType, typename ValueType >
 std::vector< ValueType > getMapValues( const MapType< KeyType, ValueType >& map )
 {
     std::vector< ValueType > values;
@@ -177,7 +177,7 @@ std::vector< ValueType > getMapValues( const MapType< KeyType, ValueType >& map 
 /*!
  * @copybrief getFlattenedMapValues
  */
-template< template < typename ... > class MapType, typename KeyType, typename ValueType >
+template< template< typename ... > class MapType, typename KeyType, typename ValueType >
 std::vector< ValueType > getFlattenedMapValues( const MapType< KeyType, std::vector< ValueType > >& map )
 {
     std::vector< ValueType > values;

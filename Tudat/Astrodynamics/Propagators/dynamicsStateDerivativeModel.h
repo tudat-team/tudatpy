@@ -518,6 +518,10 @@ public:
             }
         }
     }
+    void normalizeMatrixState( Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >& state )
+    {
+
+    }
 
 private:
 
