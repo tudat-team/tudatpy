@@ -41,7 +41,7 @@ Eigen::Vector6d convertKeplerianToUnifiedStateModelExponentialMapElements(
     Eigen::Vector6d convertedUnifiedStateModelElements = Eigen::Vector6d::Zero( );
 
     // Define the tolerance of a singularity
-    double singularityTolerance = 20.0 * std::numeric_limits< double >::epsilon( );
+    const double singularityTolerance = 20.0 * std::numeric_limits< double >::epsilon( );
 
     // If eccentricity is outside range [0,inf)
     if ( keplerianElements( eccentricityIndex ) < 0.0 )
@@ -249,7 +249,7 @@ Eigen::Vector6d convertUnifiedStateModelExponentialMapToKeplerianElements(
     Eigen::Vector6d convertedKeplerianElements = Eigen::Vector6d::Zero( );
 
     // Define the tolerance of a singularity
-    double singularityTolerance = 20.0 * std::numeric_limits< double >::epsilon( );
+    const double singularityTolerance = 20.0 * std::numeric_limits< double >::epsilon( );
 
     // Compute auxiliary parameters
     Eigen::Vector3d exponentialMapVector = unifiedStateModelElements.segment( e1ExponentialMapIndex, 3 );
@@ -457,7 +457,7 @@ Eigen::Vector6d convertCartesianToUnifiedStateModelExponentialMapElements(
     Eigen::Vector6d convertedUnifiedStateModelExponentialMapElements = Eigen::Vector6d::Zero( );
 
     // Define the tolerance of a singularity
-    double singularityTolerance = 20.0 * std::numeric_limits< double >::epsilon( );
+    const double singularityTolerance = 20.0 * std::numeric_limits< double >::epsilon( );
 
     // Convert Cartesian to USM7
     Eigen::Vector7d unifiedStateModelQuaternionsElements =
@@ -503,7 +503,7 @@ Eigen::Vector6d convertUnifiedStateModelExponentialMapToCartesianElements(
         const double centralBodyGravitationalParameter )
 {
     // Define the tolerance of a singularity
-    double singularityTolerance = 20.0 * std::numeric_limits< double >::epsilon( );
+    const double singularityTolerance = 20.0 * std::numeric_limits< double >::epsilon( );
 
     // Create USM7 vector and add velocity hodograph elements
     Eigen::Vector7d unifiedStateModelQuaternionsElements;
