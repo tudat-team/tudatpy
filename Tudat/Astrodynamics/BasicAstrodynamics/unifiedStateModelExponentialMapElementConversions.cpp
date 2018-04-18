@@ -208,9 +208,8 @@ Eigen::Vector6d convertKeplerianToUnifiedStateModelExponentialMapElements(
 
     // Check for singularity
     if ( std::fabs( exponentialMapMagnitude ) < singularityTolerance )
-//        || std::fabs( exponentialMapMagnitude - 2.0 * PI ) < singularityTolerance
     {
-        // If rotation angle is zero (or 2 PI), the exponential map vector is the zero vector
+        // If rotation angle is zero, the exponential map vector is the zero vector
         convertedUnifiedStateModelElements.segment( e1ExponentialMapIndex, 3 ) = Eigen::Vector3d::Zero( );
     }
     else
@@ -258,7 +257,8 @@ Eigen::Vector6d convertUnifiedStateModelExponentialMapToKeplerianElements(
 
     // Compute right ascension of latitude
     double rightAscensionOfLatitude = 0.0;
-    if ( exponentialMapMagnitude < singularityTolerance )
+    bool noRotationConditionMet = exponentialMapMagnitude < singularityTolerance;
+    if ( noRotationConditionMet )
     {
         // When exponential map is zero, all Keplerian angles are also zero
         convertedKeplerianElements( inclinationIndex ) = 0.0;
@@ -318,7 +318,7 @@ Eigen::Vector6d convertUnifiedStateModelExponentialMapToKeplerianElements(
     }
 
     // Continue only if angles have not been computed yet
-    if ( exponentialMapMagnitude < singularityTolerance )
+    if ( noRotationConditionMet )
     {
         // Give back result
         return convertedKeplerianElements;
@@ -472,9 +472,8 @@ Eigen::Vector6d convertCartesianToUnifiedStateModelExponentialMapElements(
     // Convert quaternions to exponential map (or SEM)
     double exponentialMapMagnitude = 2.0 * std::acos( etaQuaternionParameter );
     if ( std::fabs( exponentialMapMagnitude ) < singularityTolerance )
-//        || std::fabs( exponentialMapMagnitude - 2.0 * PI ) < singularityTolerance
     {
-        // If rotation angle is zero (or 2 PI), the exponential map vector is the zero vector
+        // If rotation angle is zero, the exponential map vector is the zero vector
         convertedUnifiedStateModelExponentialMapElements.segment( e1ExponentialMapIndex, 3 ) =
                 Eigen::Vector3d::Zero( );
     }

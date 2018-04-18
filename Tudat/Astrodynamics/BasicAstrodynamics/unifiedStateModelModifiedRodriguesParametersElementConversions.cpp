@@ -30,7 +30,7 @@ namespace tudat
 namespace orbital_element_conversions
 {
 
-//! Convert Keplerian elements to unified state model elements with modified rodrigues parameters.
+//! Convert Keplerian elements to unified state model elements with modified Rodrigues parameters.
 Eigen::Vector7d convertKeplerianToUnifiedStateModelModifiedRodriguesParametersElements(
         const Eigen::Vector6d& keplerianElements,
         const double centralBodyGravitationalParameter )
@@ -200,20 +200,16 @@ Eigen::Vector7d convertKeplerianToUnifiedStateModelModifiedRodriguesParametersEl
     double denominator = 1.0 + std::cos( 0.5 * keplerianElements( inclinationIndex ) ) *
             std::cos( 0.5 * rightAscensionOfLatitude );
 
-    // Decide whether to switch to shadow modified rodrigues parameters (SMRP)
-    bool shadowFlag = false; // default value
-    if ( std::fabs( denominator ) < singularityTolerance )
-    {
-        // If denominator is null, switch to SMRP
-        shadowFlag = true;
-    }
-    else
+    // Decide whether to switch to shadow modified Rodrigues parameters (SMRP)
+    bool shadowFlag = std::fabs( denominator ) < singularityTolerance; // select SMRP directly if denominator is null
+    if ( !shadowFlag )
     {
         // Switch to SMRP in case magnitude is large, and MRP is approaching the singularity at 2 PI
         double modifiedRodriguesParameterMagnitude =
                 ( 1.0 + std::pow( std::cos( 0.5 * keplerianElements( inclinationIndex ) ), 2 ) * (
                       std::pow( std::sin( 0.5 * rightAscensionOfLatitude ), 2 ) - 1.0 ) ) / denominator / denominator;
-        shadowFlag = modifiedRodriguesParameterMagnitude >= 1.0;
+        shadowFlag = ( ( 1.0 - std::pow( modifiedRodriguesParameterMagnitude, 2 ) ) /
+                ( 1.0 + std::pow( modifiedRodriguesParameterMagnitude, 2 ) ) ) < 0.0; // check eta quaternion
     }
     convertedUnifiedStateModelElements( shadowModifiedRodriguesParameterFlagIndex ) = shadowFlag ? 1.0 : 0.0;
     denominator = shadowFlag ? ( denominator - 2.0 ) : denominator; // redefine denominator for SMRP
@@ -221,17 +217,17 @@ Eigen::Vector7d convertKeplerianToUnifiedStateModelModifiedRodriguesParametersEl
     // Find the common multiplication factor to the vector elements
     double multiplicationFactor = 1.0 / denominator;
 
-    // Compute the sigma1 modified rodrigues parameters of the unified state model
+    // Compute the sigma1 modified Rodrigues parameters of the unified state model
     convertedUnifiedStateModelElements( sigma1ModifiedRodriguesParameterIndex ) =
             multiplicationFactor * std::sin( 0.5 * keplerianElements( inclinationIndex ) ) *
             std::cos( 0.5 * ( keplerianElements( longitudeOfAscendingNodeIndex ) - argumentOfLatitude ) );
 
-    // Compute the sigma2 modified rodrigues parameters of the unified state model
+    // Compute the sigma2 modified Rodrigues parameters of the unified state model
     convertedUnifiedStateModelElements( sigma2ModifiedRodriguesParameterIndex ) =
             multiplicationFactor * std::sin( 0.5 * keplerianElements( inclinationIndex ) ) *
             std::sin( 0.5 * ( keplerianElements( longitudeOfAscendingNodeIndex ) - argumentOfLatitude ) );
 
-    // Compute the sigma3 modified rodrigues parameters of the unified state model
+    // Compute the sigma3 modified Rodrigues parameters of the unified state model
     convertedUnifiedStateModelElements( sigma3ModifiedRodriguesParameterIndex ) =
             multiplicationFactor * std::cos( 0.5 * keplerianElements( inclinationIndex ) ) *
             std::sin( 0.5 * rightAscensionOfLatitude );
@@ -240,7 +236,7 @@ Eigen::Vector7d convertKeplerianToUnifiedStateModelModifiedRodriguesParametersEl
     return convertedUnifiedStateModelElements;
 }
 
-//! Convert unified state model elements with modified rodrigues parameters to Keplerian elements.
+//! Convert unified state model elements with modified Rodrigues parameters to Keplerian elements.
 Eigen::Vector6d convertUnifiedStateModelModifiedRodriguesParametersToKeplerianElements(
         const Eigen::Vector7d& unifiedStateModelElements,
         const double centralBodyGravitationalParameter )
@@ -260,7 +256,7 @@ Eigen::Vector6d convertUnifiedStateModelModifiedRodriguesParametersToKeplerianEl
     // Compute auxiliary parameters
     Eigen::Vector3d modifiedRodriguesParametersVector = unifiedStateModelElements.segment( sigma1ModifiedRodriguesParameterIndex, 3 );
     double modifiedRodriguesParametersMagnitude = modifiedRodriguesParametersVector.norm( );
-    // magnitude of modified rodrigues parameters, also called sigma
+    // magnitude of modified Rodrigues parameters, also called sigma
 
     // Precompute often used variables
     // Note the for SMRP some variable names do not match their definitions
@@ -274,33 +270,15 @@ Eigen::Vector6d convertUnifiedStateModelModifiedRodriguesParametersToKeplerianEl
     double oneMinusModifiedRodriguesParametersMagnitudeSquaredSquared =
                     std::pow( oneMinusModifiedRodriguesParametersMagnitudeSquared, 2 );
 
-    // Compute right ascension of latitude
-    double rightAscensionOfLatitude = 0.0;
-    bool singularConditionMet = shadowFlag ? std::fabs( modifiedRodriguesParametersMagnitude - 2.0 * PI ) < singularityTolerance :
-                                             modifiedRodriguesParametersMagnitude < singularityTolerance;
-    if ( singularConditionMet )
-    {
-        // When the modified rodrigues parameter vector is zero, all Keplerian angles are also zero
-        convertedKeplerianElements( inclinationIndex ) = 0.0;
-        convertedKeplerianElements( argumentOfPeriapsisIndex ) = 0.0;
-        convertedKeplerianElements( longitudeOfAscendingNodeIndex ) = 0.0;
-        convertedKeplerianElements( trueAnomalyIndex ) = 0.0;
-
-        // Naturally, lambda is also zero
-        rightAscensionOfLatitude = 0.0;
-    }
-    else
-    {
-        // Find lambda (independent on shadowing, since variables have been precomputed)
-        double denominator = 4.0 * std::pow( modifiedRodriguesParametersVector( 2 ), 2 ) +
-                oneMinusModifiedRodriguesParametersMagnitudeSquaredSquared; // denominator is never null
-        rightAscensionOfLatitude =
-                std::atan2( 4.0 * modifiedRodriguesParametersVector( 2 ) *
-                            ( 1.0 - modifiedRodriguesParametersMagnitudeSquared ) / denominator,
-                            ( oneMinusModifiedRodriguesParametersMagnitudeSquaredSquared -
-                              4.0 * std::pow( modifiedRodriguesParametersVector( 2 ), 2 ) ) /
-                            denominator );
-    }
+    // Compute right ascension of latitude (independent on shadowing, since variables have been precomputed)
+    double denominator = 4.0 * std::pow( modifiedRodriguesParametersVector( 2 ), 2 ) +
+            oneMinusModifiedRodriguesParametersMagnitudeSquaredSquared; // denominator is never null
+    double rightAscensionOfLatitude =
+            std::atan2( 4.0 * modifiedRodriguesParametersVector( 2 ) *
+                        ( 1.0 - modifiedRodriguesParametersMagnitudeSquared ) / denominator,
+                        ( oneMinusModifiedRodriguesParametersMagnitudeSquaredSquared -
+                          4.0 * std::pow( modifiedRodriguesParametersVector( 2 ), 2 ) ) /
+                        denominator ); // also known as lambda
 
     // Trigonometric values of right ascension of latitude
     double cosineLambda = std::cos( rightAscensionOfLatitude );
@@ -339,143 +317,134 @@ Eigen::Vector6d convertUnifiedStateModelModifiedRodriguesParametersToKeplerianEl
                   ( 1 - std::pow( convertedKeplerianElements( eccentricityIndex ), 2 ) ) );
     }
 
-    // Continue only if angles have not been computed yet
-    if ( singularConditionMet )
+    // Compute inclination
+    double arccosineArgument = ( 4.0 * ( std::pow( modifiedRodriguesParametersVector( 2 ), 2 ) -
+                                         std::pow( modifiedRodriguesParametersVector( 0 ), 2 ) -
+                                         std::pow( modifiedRodriguesParametersVector( 1 ), 2 ) ) +
+                                 oneMinusModifiedRodriguesParametersMagnitudeSquaredSquared ) /
+            onePlusModifiedRodriguesParametersMagnitudeSquaredSquared;
+    if ( ( std::fabs( arccosineArgument ) - 1.0 ) > 0.0 )
     {
-        // Give back result
-        return convertedKeplerianElements;
+        // Make sure that the cosine does not exceed 1.0 in magnitude
+        arccosineArgument = ( arccosineArgument > 0.0 ) ? 1.0 : - 1.0;
+    }
+    convertedKeplerianElements( inclinationIndex ) = std::acos( arccosineArgument );
+    // this acos is always defined correctly because the inclination is always below PI rad
+
+    // Find sine and cosine of longitude of ascending node separately
+    double sineOmega = 8.0 * modifiedRodriguesParametersVector( 0 ) *
+            modifiedRodriguesParametersVector( 2 ) + signDirectionCosineMatrix *
+            4.0 * modifiedRodriguesParametersVector( 1 ) *
+            oneMinusModifiedRodriguesParametersMagnitudeSquared;
+    double cosineOmega = - 8.0 * modifiedRodriguesParametersVector( 1 ) *
+            modifiedRodriguesParametersVector( 2 ) + signDirectionCosineMatrix *
+            4.0 * modifiedRodriguesParametersVector( 0 ) *
+            oneMinusModifiedRodriguesParametersMagnitudeSquared;
+    denominator = std::sqrt( cosineOmega * cosineOmega +
+                             sineOmega * sineOmega ); // overwrite
+
+    // Compute longitude of ascending node
+    if ( std::fabs( std::fabs( convertedKeplerianElements( inclinationIndex ) ) - PI ) < singularityTolerance )
+        // pure-prograde or pure-retrograde orbit
+    {
+        // Define the error message
+        std::stringstream errorMessage;
+        errorMessage << "Pure-retrograde orbit (inclination = pi).\n"
+                     << "Unified state model elements cannot be transformed to Kepler elements." << std::endl;
+
+        // Throw exception
+        throw std::runtime_error( std::runtime_error( errorMessage.str( ) ) );
+    }
+    else if ( std::fabs( denominator ) < singularityTolerance )
+        // null denominator, find work-around
+    {
+        convertedKeplerianElements( longitudeOfAscendingNodeIndex ) = 0.0; // by definition
     }
     else
     {
-        // Compute inclination
-        double arccosineArgument = ( 4.0 * ( std::pow( modifiedRodriguesParametersVector( 2 ), 2 ) -
-                                             std::pow( modifiedRodriguesParametersVector( 0 ), 2 ) -
-                                             std::pow( modifiedRodriguesParametersVector( 1 ), 2 ) ) +
-                                     oneMinusModifiedRodriguesParametersMagnitudeSquaredSquared ) /
-                                   onePlusModifiedRodriguesParametersMagnitudeSquaredSquared;
-        if ( ( std::fabs( arccosineArgument ) - 1.0 ) > 0.0 )
-        {
-            // Make sure that the cosine does not exceed 1.0 in magnitude
-            arccosineArgument = ( arccosineArgument > 0.0 ) ? 1.0 : - 1.0;
-        }
-        convertedKeplerianElements( inclinationIndex ) = std::acos( arccosineArgument );
-        // this acos is always defined correctly because the inclination is always below PI rad
-
-        // Find sine and cosine of longitude of ascending node separately
-        double sineOmega = 8.0 * modifiedRodriguesParametersVector( 0 ) *
-                modifiedRodriguesParametersVector( 2 ) + signDirectionCosineMatrix *
-                4.0 * modifiedRodriguesParametersVector( 1 ) *
-                oneMinusModifiedRodriguesParametersMagnitudeSquared;
-        double cosineOmega = - 8.0 * modifiedRodriguesParametersVector( 1 ) *
-                modifiedRodriguesParametersVector( 2 ) + signDirectionCosineMatrix *
-                4.0 * modifiedRodriguesParametersVector( 0 ) *
-                oneMinusModifiedRodriguesParametersMagnitudeSquared;
-        double denominator = std::sqrt( cosineOmega * cosineOmega +
-                                        sineOmega * sineOmega );
-
         // Compute longitude of ascending node
-        if ( std::fabs( std::fabs( convertedKeplerianElements( inclinationIndex ) ) - PI ) < singularityTolerance )
-            // pure-prograde or pure-retrograde orbit
-        {
-            // Define the error message
-            std::stringstream errorMessage;
-            errorMessage << "Pure-retrograde orbit (inclination = pi).\n"
-                         << "Unified state model elements cannot be transformed to Kepler elements." << std::endl;
+        convertedKeplerianElements( longitudeOfAscendingNodeIndex ) = std::atan2(
+                    sineOmega / denominator, cosineOmega / denominator );
 
-            // Throw exception
-            throw std::runtime_error( std::runtime_error( errorMessage.str( ) ) );
-        }
-        else if ( std::fabs( denominator ) < singularityTolerance )
-            // null denominator, find work-around
+        // Round off small values of the right ascension of ascending node to zero
+        if ( std::fabs( convertedKeplerianElements( longitudeOfAscendingNodeIndex ) ) < singularityTolerance )
         {
-            convertedKeplerianElements( longitudeOfAscendingNodeIndex ) = 0.0; // by definition
-        }
-        else
-        {
-            // Compute longitude of ascending node
-            convertedKeplerianElements( longitudeOfAscendingNodeIndex ) = std::atan2(
-                        sineOmega / denominator, cosineOmega / denominator );
-
-            // Round off small values of the right ascension of ascending node to zero
-            if ( std::fabs( convertedKeplerianElements( longitudeOfAscendingNodeIndex ) ) < singularityTolerance )
-            {
-                convertedKeplerianElements( longitudeOfAscendingNodeIndex ) = 0.0;
-            }
-
-            // Ensure the longitude of ascending node is positive
-            while ( convertedKeplerianElements( longitudeOfAscendingNodeIndex ) < 0.0 )
-                // Because of the previous if statement, if the longitude of ascending node is smaller than 0, it will
-                // always be smaller than -singularityTolerance
-            {
-                convertedKeplerianElements( longitudeOfAscendingNodeIndex ) += 2.0 * PI;
-            }
+            convertedKeplerianElements( longitudeOfAscendingNodeIndex ) = 0.0;
         }
 
-        // Compute true anomaly and argument of periapsis
-        if ( std::fabs( RHodographElement ) < singularityTolerance ) // circular orbit
+        // Ensure the longitude of ascending node is positive
+        while ( convertedKeplerianElements( longitudeOfAscendingNodeIndex ) < 0.0 )
+            // Because of the previous if statement, if the longitude of ascending node is smaller than 0, it will
+            // always be smaller than -singularityTolerance
         {
-            convertedKeplerianElements( argumentOfPeriapsisIndex ) = 0.0; // by definition
-            convertedKeplerianElements( trueAnomalyIndex ) =
-                    rightAscensionOfLatitude - convertedKeplerianElements( longitudeOfAscendingNodeIndex );
-
-            // Round off small theta to zero
-            if ( std::fabs( convertedKeplerianElements( trueAnomalyIndex ) ) < singularityTolerance )
-            {
-                convertedKeplerianElements( trueAnomalyIndex ) = 0.0;
-            }
-
-            // Ensure the true anomaly is positive
-            while ( convertedKeplerianElements( trueAnomalyIndex ) < 0.0 )
-                // Because of the previous if statement, if the true anomaly is smaller than zero, it will always be smaller than
-                // -singularityTolerance
-            {
-                convertedKeplerianElements( trueAnomalyIndex ) += 2.0 * PI;
-            }
+            convertedKeplerianElements( longitudeOfAscendingNodeIndex ) += 2.0 * PI;
         }
-        else
-        {
-            convertedKeplerianElements( trueAnomalyIndex ) =
-                    std::atan2( ( auxiliaryParameter1 / RHodographElement ),
-                                ( ( auxiliaryParameter2 - unifiedStateModelElements( CHodographModifiedRodriguesParameterIndex ) )
-                                  / RHodographElement ) );
-
-            // Round off small theta to zero
-            if ( std::fabs( convertedKeplerianElements( trueAnomalyIndex ) ) < singularityTolerance )
-            {
-                convertedKeplerianElements( trueAnomalyIndex ) = 0.0;
-            }
-
-            // Ensure the true anomaly is positive
-            while ( convertedKeplerianElements( trueAnomalyIndex ) < 0.0 )
-                // Because of the previous if statement, if the true anomaly is smaller than zero, it will always
-                // be smaller than -singularityTolerance
-            {
-                convertedKeplerianElements( trueAnomalyIndex ) += 2.0 * PI;
-            }
-
-            convertedKeplerianElements( argumentOfPeriapsisIndex ) =
-                    rightAscensionOfLatitude -
-                    convertedKeplerianElements( longitudeOfAscendingNodeIndex ) -
-                    convertedKeplerianElements( trueAnomalyIndex );
-
-            // Round off small omega to zero
-            if ( std::fabs( convertedKeplerianElements( argumentOfPeriapsisIndex ) ) < singularityTolerance )
-            {
-                convertedKeplerianElements( argumentOfPeriapsisIndex ) = 0.0;
-            }
-
-            // Ensure the argument of periapsis is positive
-            while ( convertedKeplerianElements( argumentOfPeriapsisIndex ) < 0.0 )
-                // Because of the previous if statement, if the argument of pericenter is smaller than zero,
-                // it will be smaller than -singularityTolerance
-            {
-                convertedKeplerianElements( argumentOfPeriapsisIndex ) += 2.0 * PI;
-            }
-        }
-
-        // Give back result
-        return convertedKeplerianElements;
     }
+
+    // Compute true anomaly and argument of periapsis
+    if ( std::fabs( RHodographElement ) < singularityTolerance ) // circular orbit
+    {
+        convertedKeplerianElements( argumentOfPeriapsisIndex ) = 0.0; // by definition
+        convertedKeplerianElements( trueAnomalyIndex ) =
+                rightAscensionOfLatitude - convertedKeplerianElements( longitudeOfAscendingNodeIndex );
+
+        // Round off small theta to zero
+        if ( std::fabs( convertedKeplerianElements( trueAnomalyIndex ) ) < singularityTolerance )
+        {
+            convertedKeplerianElements( trueAnomalyIndex ) = 0.0;
+        }
+
+        // Ensure the true anomaly is positive
+        while ( convertedKeplerianElements( trueAnomalyIndex ) < 0.0 )
+            // Because of the previous if statement, if the true anomaly is smaller than zero, it will always be smaller than
+            // -singularityTolerance
+        {
+            convertedKeplerianElements( trueAnomalyIndex ) += 2.0 * PI;
+        }
+    }
+    else
+    {
+        convertedKeplerianElements( trueAnomalyIndex ) =
+                std::atan2( ( auxiliaryParameter1 / RHodographElement ),
+                            ( ( auxiliaryParameter2 - unifiedStateModelElements( CHodographModifiedRodriguesParameterIndex ) )
+                              / RHodographElement ) );
+
+        // Round off small theta to zero
+        if ( std::fabs( convertedKeplerianElements( trueAnomalyIndex ) ) < singularityTolerance )
+        {
+            convertedKeplerianElements( trueAnomalyIndex ) = 0.0;
+        }
+
+        // Ensure the true anomaly is positive
+        while ( convertedKeplerianElements( trueAnomalyIndex ) < 0.0 )
+            // Because of the previous if statement, if the true anomaly is smaller than zero, it will always
+            // be smaller than -singularityTolerance
+        {
+            convertedKeplerianElements( trueAnomalyIndex ) += 2.0 * PI;
+        }
+
+        convertedKeplerianElements( argumentOfPeriapsisIndex ) =
+                rightAscensionOfLatitude -
+                convertedKeplerianElements( longitudeOfAscendingNodeIndex ) -
+                convertedKeplerianElements( trueAnomalyIndex );
+
+        // Round off small omega to zero
+        if ( std::fabs( convertedKeplerianElements( argumentOfPeriapsisIndex ) ) < singularityTolerance )
+        {
+            convertedKeplerianElements( argumentOfPeriapsisIndex ) = 0.0;
+        }
+
+        // Ensure the argument of periapsis is positive
+        while ( convertedKeplerianElements( argumentOfPeriapsisIndex ) < 0.0 )
+            // Because of the previous if statement, if the argument of pericenter is smaller than zero,
+            // it will be smaller than -singularityTolerance
+        {
+            convertedKeplerianElements( argumentOfPeriapsisIndex ) += 2.0 * PI;
+        }
+    }
+
+    // Give back result
+    return convertedKeplerianElements;
 }
 
 //! Convert Cartesian elements to unified state model elements with modified Rodrigues parameters.
