@@ -108,14 +108,15 @@ public:
     void wrtNonTranslationalStateOfAdditionalBody(
             Eigen::Block< Eigen::MatrixXd > partialMatrix,
             const std::pair< std::string, std::string >& stateReferencePoint,
-            const propagators::IntegratedStateType integratedStateType )
+            const propagators::IntegratedStateType integratedStateType,
+            const bool addContribution )
     {
         accelerationPartialOfShExpansionOfBodyExertingAcceleration_->
                         wrtNonTranslationalStateOfAdditionalBody(
-                            partialMatrix, stateReferencePoint, integratedStateType );
+                            partialMatrix, stateReferencePoint, integratedStateType, true );
         accelerationPartialOfShExpansionOfBodyUndergoingAcceleration_->
                         wrtNonTranslationalStateOfAdditionalBody(
-                            partialMatrix, stateReferencePoint, integratedStateType );
+                            partialMatrix, stateReferencePoint, integratedStateType, false );
     }
 
     //! Function for determining if the acceleration is dependent on a non-translational integrated state.
@@ -131,13 +132,17 @@ public:
                 const std::pair< std::string, std::string >& stateReferencePoint,
                 const propagators::IntegratedStateType integratedStateType )
     {
-        if( ( ( stateReferencePoint.first == acceleratingBody_ ||
-              ( stateReferencePoint.first == acceleratedBody_  && accelerationUsesMutualAttraction_ ) )
-              && integratedStateType == propagators::body_mass_state ) )
+        if( accelerationPartialOfShExpansionOfBodyExertingAcceleration_->
+                isStateDerivativeDependentOnIntegratedAdditionalStateTypes( stateReferencePoint, integratedStateType ) ||
+                accelerationPartialOfShExpansionOfBodyUndergoingAcceleration_->
+                isStateDerivativeDependentOnIntegratedAdditionalStateTypes( stateReferencePoint, integratedStateType ) )
         {
-            throw std::runtime_error( "Warning, dependency of central gravity on body masses not yet implemented" );
+            return true;
         }
-        return 0;
+        else
+        {
+            return false;
+        }
     }
 
     //! Function for setting up and retrieving a function returning a partial w.r.t. a double parameter.
