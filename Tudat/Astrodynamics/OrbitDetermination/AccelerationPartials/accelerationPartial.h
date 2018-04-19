@@ -109,7 +109,7 @@ public:
             else if( isStateDerivativeDependentOnIntegratedAdditionalStateTypes( stateReferencePoint, integratedStateType ) )
             {
                 partialFunction = std::make_pair( boost::bind( &AccelerationPartial::wrtNonTranslationalStateOfAdditionalBody,
-                                                               this, _1, stateReferencePoint, integratedStateType ), 1 );
+                                                               this, _1, stateReferencePoint, integratedStateType, true ), 1 );
             }
         }
         case propagators::body_mass_state:
@@ -122,7 +122,7 @@ public:
             else if( isStateDerivativeDependentOnIntegratedAdditionalStateTypes( stateReferencePoint, integratedStateType ) )
             {
                 partialFunction = std::make_pair( boost::bind( &AccelerationPartial::wrtNonTranslationalStateOfAdditionalBody,
-                                                               this, _1, stateReferencePoint, integratedStateType ), 1 );
+                                                               this, _1, stateReferencePoint, integratedStateType, true ), 1 );
             }
         }
         case propagators::custom_state:
@@ -296,7 +296,8 @@ public:
     virtual void wrtNonTranslationalStateOfAdditionalBody(
             Eigen::Block< Eigen::MatrixXd > partialMatrix,
             const std::pair< std::string, std::string >& stateReferencePoint,
-            const propagators::IntegratedStateType integratedStateType ){ }
+            const propagators::IntegratedStateType integratedStateType,
+            const bool addContribution = true ){ }
 
     //! Function to check whether the partial derivative w.r.t. the translational state of a third body is non-zero.
     /*!

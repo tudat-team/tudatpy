@@ -625,7 +625,7 @@ executePhobosRotationSimulation(
                                          boost::lambda::constant( Eigen::Vector6d::Zero( ) ) ) );
     bodyMap[ "Mars" ]->setRotationalEphemeris(
                 simulation_setup::createRotationModel( simulation_setup::getDefaultRotationModelSettings(
-                                                               "Mars", initialEphemerisTime, finalEphemerisTime ), "Mars" ) );
+                                                           "Mars", initialEphemerisTime, finalEphemerisTime ), "Mars" ) );
     bodyMap[ "Mars" ]->setGravityFieldModel(
                 simulation_setup::createGravityFieldModel( simulation_setup::getDefaultGravityFieldSettings(
                                                                "Mars", initialEphemerisTime, finalEphemerisTime ), "Mars" ) );
@@ -709,8 +709,8 @@ executePhobosRotationSimulation(
 
     SelectedAccelerationMap accelerationMap;
     std::map< std::string, std::vector< boost::shared_ptr< AccelerationSettings > > > accelerationsOfEarth;
-    accelerationMap[ "Phobos" ][ "Mars" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );
-    //accelerationMap[ "Phobos" ][ "Mars" ].push_back( boost::make_shared< SphericalHarmonicAccelerationSettings >( 2, 2 ) );
+    //accelerationMap[ "Phobos" ][ "Mars" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );
+    accelerationMap[ "Phobos" ][ "Mars" ].push_back( boost::make_shared< MutualSphericalHarmonicAccelerationSettings >( 2, 2, 2, 2 ) );
 
     std::vector< std::string > translationalBodiesToIntegrate;
     std::vector< std::string > translationalCentralBodies;
@@ -865,37 +865,51 @@ BOOST_AUTO_TEST_CASE( testPhobosRotationVariationalEquationCalculation )
     Eigen::VectorXd nominalState = currentOutput.second.at( 0 );
 
     // Define state perturbation
-    statePerturbation = 1.0E-4 * ( Eigen::Matrix< double, 13, 1>( ) <<
-                                   100.0E3, 1000.0E3, 1000.0E3, 0.1E3, 0.1E3, 0.1E3,
-                                   1.0E-4, 1.0E-4, 1.0E-4, 1.0E-4, 1.0E-7, 1.0E-7, 1.0E-7 ).finished( );
+    statePerturbation = ( Eigen::Matrix< double, 13, 1>( ) <<
+                          10.0, 10.0, 10.0, 0.01, 0.01, 0.01,
+                          1.0E-5, 1.0E-5, 1.0E-5, 1.0E-5, 1.0E-7, 1.0E-7, 1.0E-7 ).finished( );
 
     Eigen::MatrixXd manualPartial = Eigen::MatrixXd::Zero( 13, 13 + numberOfParametersToEstimate );
 
-    std::cout<<stateTransitionAndSensitivityMatrixAtEpoch<<std::endl<<std::endl<<
-               nominalState.transpose( )<<std::endl<<std::endl;
+//    std::cout<<stateTransitionAndSensitivityMatrixAtEpoch<<std::endl<<std::endl<<
+//               nominalState.transpose( )<<std::endl<<std::endl;
 
 
     // Numerically compute state transition matrix
-    for( unsigned int j = 7; j < 11; j++ )
+    for( unsigned int test = 0; test < 2; test++ )
     {
-        Eigen::Matrix< double, 13, 1 > appliedStateDifferenceUp, appliedStateDifferenceDown;
+        double perturbationMultiplier = ( test == 0 ? 1.0 : 1.0E-3 );
+        for( unsigned int j = 7; j < 10; j++ )
+        {
+            Eigen::Matrix< double, 13, 1 > appliedStateDifferenceUp, appliedStateDifferenceDown;
 
-        Eigen::VectorXd upPerturbedState, downPerturbedState;
-        perturbedState.setZero( );
-        perturbedState( j ) += statePerturbation( j );
-        upPerturbedState = executePhobosRotationSimulation< double, double >(
-                    perturbedState, appliedStateDifferenceUp, Eigen::Matrix< double, 12, 1 >::Zero( ), 0 ).second.at( 0 );
+            Eigen::VectorXd upPerturbedState, downPerturbedState;
+            perturbedState.setZero( );
+            perturbedState( j ) += perturbationMultiplier * statePerturbation( j );
+            upPerturbedState = executePhobosRotationSimulation< double, double >(
+                        perturbedState, appliedStateDifferenceUp, Eigen::Matrix< double, 12, 1 >::Zero( ), 0 ).second.at( 0 );
 
-        Eigen::VectorXd stateDifferenceUp = upPerturbedState - nominalState;
+            Eigen::VectorXd stateDifferenceUp = upPerturbedState - nominalState;
 
-        //TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-        //            ( stateTransitionAndSensitivityMatrixAtEpoch * appliedStateDifferenceUp ), stateDifferenceUp, 1.0E-5 );
-        std::cout<<std::endl<<"Up"<<j<<" "<<( appliedStateDifferenceUp ).transpose( )<<std::endl;
-        std::cout<<"Up"<<j<<" "<<( stateDifferenceUp ).transpose( )<<std::endl;
-        std::cout<<"Up"<<j<<" "<<( stateTransitionAndSensitivityMatrixAtEpoch * appliedStateDifferenceUp ).transpose( )<<std::endl;
-        std::cout<<"Up"<<j<<" "<<( ( stateTransitionAndSensitivityMatrixAtEpoch * appliedStateDifferenceUp -
-                                     stateDifferenceUp ) ).cwiseQuotient( stateDifferenceUp ).transpose( )<<std::endl;
+            if( test == 0 )
+            {
+                TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                            ( ( stateTransitionAndSensitivityMatrixAtEpoch * appliedStateDifferenceUp ).segment( 0, 6 ) ),
+                            ( stateDifferenceUp.segment( 0, 6 ) ), 1.0E-3 );
+            }
+            else
+            {
+                TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                            ( ( stateTransitionAndSensitivityMatrixAtEpoch * appliedStateDifferenceUp ).segment( 6, 7 ) ),
+                            ( stateDifferenceUp.segment( 6, 7 ) ), 1.0E-5 );
+            }
+//            std::cout<<std::endl<<"Up"<<j<<" "<<( appliedStateDifferenceUp ).transpose( )<<std::endl;
+//            std::cout<<"Up"<<j<<" "<<( stateDifferenceUp ).transpose( )<<std::endl;
+//            std::cout<<"Up"<<j<<" "<<( stateTransitionAndSensitivityMatrixAtEpoch * appliedStateDifferenceUp ).transpose( )<<std::endl;
+//            std::cout<<"Up"<<j<<" "<<( ( stateTransitionAndSensitivityMatrixAtEpoch * appliedStateDifferenceUp -
+//                                         stateDifferenceUp ) ).cwiseQuotient( stateDifferenceUp ).transpose( )<<std::endl;
 
+        }
     }
 
     for( unsigned int j = 0; j < 6; j++ )
@@ -918,6 +932,9 @@ BOOST_AUTO_TEST_CASE( testPhobosRotationVariationalEquationCalculation )
 
     }
 
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                ( manualPartial.block( 0, 0, 13, 6 ) ), ( stateTransitionAndSensitivityMatrixAtEpoch.block( 0, 0, 13, 6 ) ), 1.0E-4 );
+
     for( unsigned int j = 10; j < 13; j++ )
     {
         Eigen::Matrix< double, 13, 1 > appliedStateDifferenceUp, appliedStateDifferenceDown;
@@ -938,15 +955,15 @@ BOOST_AUTO_TEST_CASE( testPhobosRotationVariationalEquationCalculation )
 
     }
 
-    //    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-    //                ( manualPartial.block( 0, 0, 13, 6 ) ), ( stateTransitionAndSensitivityMatrixAtEpoch.block( 0, 0, 13, 6 ) ), 1.0E-5 );
-    //    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-    //                ( manualPartial.block( 0, 0, 10, 3 ) ), ( stateTransitionAndSensitivityMatrixAtEpoch.block( 0, 0, 10, 3 ) ), 1.0E-5 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                ( manualPartial.block( 0, 10, 6, 3 ) ), ( stateTransitionAndSensitivityMatrixAtEpoch.block( 0, 10, 6, 3 ) ), 1.0E-3 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                ( manualPartial.block( 6, 10, 7, 3 ) ), ( stateTransitionAndSensitivityMatrixAtEpoch.block( 6, 10, 7, 3 ) ), 1.0E-5 );
 
-    std::cout<<manualPartial<<std::endl<<std::endl
-            <<stateTransitionAndSensitivityMatrixAtEpoch<<std::endl<<std::endl<<
-              ( manualPartial - stateTransitionAndSensitivityMatrixAtEpoch ).cwiseQuotient(
-                  stateTransitionAndSensitivityMatrixAtEpoch )<<std::endl;
+//    std::cout<<manualPartial<<std::endl<<std::endl
+//            <<stateTransitionAndSensitivityMatrixAtEpoch<<std::endl<<std::endl<<
+//              ( manualPartial - stateTransitionAndSensitivityMatrixAtEpoch ).cwiseQuotient(
+//                  stateTransitionAndSensitivityMatrixAtEpoch )<<std::endl;
 }
 
 BOOST_AUTO_TEST_SUITE_END( )

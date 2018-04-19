@@ -274,14 +274,15 @@ public:
     void wrtNonTranslationalStateOfAdditionalBody(
             Eigen::Block< Eigen::MatrixXd > partialMatrix,
             const std::pair< std::string, std::string >& stateReferencePoint,
-            const propagators::IntegratedStateType integratedStateType )
+            const propagators::IntegratedStateType integratedStateType,
+            const bool addContribution = true )
     {
         partialOfDirectGravityOnCentralBody_->
                         wrtNonTranslationalStateOfAdditionalBody(
-                            partialMatrix, stateReferencePoint, integratedStateType );
+                            partialMatrix, stateReferencePoint, integratedStateType, true );
         partialOfDirectGravityOnBodyUndergoingAcceleration_->
                         wrtNonTranslationalStateOfAdditionalBody(
-                            partialMatrix, stateReferencePoint, integratedStateType );
+                            partialMatrix, stateReferencePoint, integratedStateType, false );
     }
 
     //! Function for determining if the acceleration is dependent on a non-translational integrated state.

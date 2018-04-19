@@ -130,13 +130,18 @@ public:
                 const std::pair< std::string, std::string >& stateReferencePoint,
                 const propagators::IntegratedStateType integratedStateType )
     {
+        bool doesDependencyExist = false;
         if( ( ( stateReferencePoint.first == acceleratingBody_ ||
               ( stateReferencePoint.first == acceleratedBody_  && accelerationUsesMutualAttraction_ ) )
               && integratedStateType == propagators::body_mass_state ) )
         {
             throw std::runtime_error( "Warning, dependency of central gravity on body masses not yet implemented" );
         }
-        return 0;
+        else if( stateReferencePoint.first == acceleratingBody_ && integratedStateType == propagators::rotational_state )
+        {
+            doesDependencyExist = true;
+        }
+        return doesDependencyExist;
     }
 
     //! Function for setting up and retrieving a function returning a partial w.r.t. a double parameter.
@@ -162,13 +167,14 @@ public:
     void wrtNonTranslationalStateOfAdditionalBody(
             Eigen::Block< Eigen::MatrixXd > partialMatrix,
             const std::pair< std::string, std::string >& stateReferencePoint,
-            const propagators::IntegratedStateType integratedStateType )
+            const propagators::IntegratedStateType integratedStateType,
+            const bool addContribution = true )
     {
         if( stateReferencePoint.first == acceleratingBody_ && integratedStateType == propagators::rotational_state )
         {
             Eigen::MatrixXd tempMatrix = Eigen::MatrixXd::Zero( 3, 7 );
             wrtRotationModelParameter( tempMatrix, estimatable_parameters::initial_rotational_body_state, "" );
-            partialMatrix.block( 0, 0, 3, 7 ) = tempMatrix;
+            partialMatrix.block( 0, 0, 3, 7 ) = ( addContribution ? 1.0 : -1.0 ) * tempMatrix;
         }
     }
 

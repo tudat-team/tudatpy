@@ -130,14 +130,15 @@ public:
     void wrtNonTranslationalStateOfAdditionalBody(
             Eigen::Block< Eigen::MatrixXd > partialMatrix,
             const std::pair< std::string, std::string >& stateReferencePoint,
-            const propagators::IntegratedStateType integratedStateType )
+            const propagators::IntegratedStateType integratedStateType,
+            const bool addContribution = true )
     {
         if( stateReferencePoint.first == acceleratedBody_ && integratedStateType == propagators::body_mass_state )
         {
             partialMatrix.block( 0, 0, 3, 1 ) +=
-                    radiationPressureFunction_( ) * areaFunction_( ) * radiationPressureCoefficientFunction_( ) *
+                   ( addContribution ? 1.0 : -1.0 ) * ( radiationPressureFunction_( ) * areaFunction_( ) * radiationPressureCoefficientFunction_( ) *
                     ( sourceBodyState_( ) - acceleratedBodyState_( ) ).normalized( ) /
-                    ( acceleratedBodyMassFunction_( ) * acceleratedBodyMassFunction_( ) );
+                    ( acceleratedBodyMassFunction_( ) * acceleratedBodyMassFunction_( ) ) );
         }
     }
 
