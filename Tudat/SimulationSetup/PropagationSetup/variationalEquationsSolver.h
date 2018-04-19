@@ -358,6 +358,10 @@ bool checkPropagatorSettingsAndParameterEstimationConsistency(
         }
         break;
     }
+    case hybrid:
+        std::cerr<<"warning, not checking consistency of hyrbid state "<<std::endl;
+        isInputConsistent = true;
+        break;
     default:
         std::string errorMessage = "Error, cannot yet check consistency of propagator settings for type " +
                 std::to_string( propagatorSettings->getStateType( ) );

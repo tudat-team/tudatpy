@@ -381,6 +381,7 @@ void setMultiTypePropagationClosure(
     // Cast to multi-type settings, and perform closure if
     boost::shared_ptr< MultiTypePropagatorSettings< StateScalarType > > multiTypePropagatorSettings =
             boost::dynamic_pointer_cast< MultiTypePropagatorSettings< StateScalarType > >( propagatorSettings );
+
     if( multiTypePropagatorSettings != NULL )
     {
         // Perform closure for the case where both translational and rotational states are propagated
@@ -400,6 +401,7 @@ void setMultiTypePropagationClosure(
                         boost::dynamic_pointer_cast< TranslationalStatePropagatorSettings< StateScalarType > >(
                             translationalStateSettings.at( i ) );
                 basic_astrodynamics::AccelerationMap currentAccelerationsMap = currentTranslationalState->getAccelerationsMap( );
+
                 for( basic_astrodynamics::AccelerationMap::const_iterator accelerationIterator = currentAccelerationsMap.begin( );
                      accelerationIterator != currentAccelerationsMap.end( ); accelerationIterator++ )
                 {
@@ -453,7 +455,7 @@ void setMultiTypePropagationClosure(
             }
 
             // Ensure that vehicle orientation is correctly set for aerodynamic acceleration/torque
-            for( unsigned int i = 0; i < bodiesWithPropagatedRotation.size( ); i++ )
+            for( unsigned int i = 0; i < bodiesWithAerodynamicRotationalClosure.size( ); i++ )
             {
                 boost::shared_ptr< aerodynamics::FlightConditions > currentFlightConditions =
                         bodyMap.at( bodiesWithPropagatedRotation.at( i ) )->getFlightConditions( );

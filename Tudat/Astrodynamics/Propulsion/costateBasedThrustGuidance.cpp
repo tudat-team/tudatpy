@@ -5,8 +5,8 @@
 
 #include <Eigen/Core>
 
-#include "Tudat/SimulationSetup/tudatSimulationHeader.h"
 #include "Tudat/Astrodynamics/Propulsion/costateBasedThrustGuidance.h"
+#include "Tudat/Astrodynamics/BasicAstrodynamics/modifiedEquinoctialElementConversions.h"
 
 namespace tudat
 {

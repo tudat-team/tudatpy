@@ -1138,7 +1138,7 @@ public:
             terminationSettings, dependentVariablesToSave, printInterval ),
         propagatorSettingsMap_( propagatorSettingsMap )
     {
-
+        this->stateSize_ = getMultiTypePropagatorStateSize( propagatorSettingsMap_ );
     }
 
     //! Constructor.
@@ -1168,6 +1168,8 @@ public:
         }
 
         this->initialStates_ = createCombinedInitialState< StateScalarType >( propagatorSettingsMap_ );
+        this->stateSize_ = getMultiTypePropagatorStateSize( propagatorSettingsMap_ );
+
     }
 
     //! Destructor

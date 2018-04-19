@@ -19,7 +19,7 @@
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/timeConversions.h"
 #include "Tudat/Astrodynamics/Ephemerides/ephemeris.h"
-#include "Tudat/Mathematics/Interpolators/oneDimensionalInterpolator.h"
+#include "Tudat/Mathematics/Interpolators/createInterpolator.h"
 #include "Tudat/Mathematics/Interpolators/lagrangeInterpolator.h"
 
 
@@ -166,7 +166,7 @@ public:
             safeInterpolationInterval.first = interpolator_->getIndependentValues( ).at( 0 + numberOfNodes / 2 + 1 );
             safeInterpolationInterval.second = interpolator_->getIndependentValues( ).at(
                         interpolator_->getIndependentValues( ).size( ) - 1 - ( + numberOfNodes / 2 + 1 ) );
-         }
+        }
         else if( boost::dynamic_pointer_cast< interpolators::LagrangeInterpolator< TimeType, StateType, long double > >(
                      interpolator_ ) != NULL )
         {
@@ -176,7 +176,7 @@ public:
             safeInterpolationInterval.first = interpolator_->getIndependentValues( ).at( 0 + numberOfNodes / 2 + 1 );
             safeInterpolationInterval.second = interpolator_->getIndependentValues( ).at(
                         interpolator_->getIndependentValues( ).size( ) - 1 - ( + numberOfNodes / 2 + 1 ) );
-         }
+        }
         return safeInterpolationInterval;
     }
 
@@ -228,6 +228,38 @@ boost::shared_ptr< Ephemeris > createEmptyTabulatedEphemeris(
     return boost::make_shared< TabulatedCartesianEphemeris< StateScalarType, TimeType > >(
                 boost::shared_ptr< interpolators::OneDimensionalInterpolator< TimeType, StateType > >( ),
                 referenceFrameOrigin, referenceFrameOrientation );
+}
+
+template< typename StateScalarType = double, typename TimeType = double >
+boost::shared_ptr< Ephemeris > getTabulatedEphemeris(
+        const boost::shared_ptr< Ephemeris > ephemerisToInterrogate,
+        const TimeType startTime,
+        const TimeType endTime,
+        const TimeType timeStep,
+        const boost::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings =
+        boost::make_shared< interpolators::LagrangeInterpolatorSettings >( 8 ),
+        const std::string referenceFrameOrigin = "SSB",
+        const std::string referenceFrameOrientation = "ECLIPJ2000" )
+{
+    typedef Eigen::Matrix< StateScalarType, 6, 1 > StateType;
+    std::map< TimeType, StateType >  stateMap;
+
+    TimeType currentTime = startTime;
+
+    while( currentTime <= endTime )
+    {
+        stateMap[ currentTime ] = ephemerisToInterrogate->getTemplatedStateFromEphemeris<
+                StateScalarType, TimeType >( currentTime );
+        currentTime += timeStep;
+    }
+
+    //! Typedef for state interpolator
+    boost::shared_ptr< interpolators::OneDimensionalInterpolator< TimeType, StateType  > > stateInterpolator =
+            interpolators::createOneDimensionalInterpolator( stateMap, interpolatorSettings );
+
+    return boost::make_shared< TabulatedCartesianEphemeris< StateScalarType, TimeType > >(
+                stateInterpolator, referenceFrameOrigin, referenceFrameOrientation );
+
 }
 
 } // namespace ephemerides
