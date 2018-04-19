@@ -406,6 +406,8 @@ orbit_determination::StateDerivativePartialsMap createAccelerationPartialsMap(
     std::vector< boost::shared_ptr< estimatable_parameters::EstimatableParameter<
             Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > > > initialDynamicalParameters =
             parametersToEstimate->getEstimatedInitialStateParameters( );
+    accelerationPartialsList.resize( estimatable_parameters::getListOfBodiesWithTranslationalStateToEstimate(
+                                         parametersToEstimate ).size( ) );
 
     // Iterate over list of bodies of which the partials of the accelerations acting on them are required.
     for( basic_astrodynamics::AccelerationMap::const_iterator accelerationIterator = accelerationMap.begin( );
@@ -413,6 +415,7 @@ orbit_determination::StateDerivativePartialsMap createAccelerationPartialsMap(
     {
         for( unsigned int i = 0; i < initialDynamicalParameters.size( ); i++ )
         {
+            int bodyCounter = 0;
             if( initialDynamicalParameters.at( i )->getParameterName( ).second.first == accelerationIterator->first )
             {
                 if( ( initialDynamicalParameters.at( i )->getParameterName( ).first == estimatable_parameters::initial_body_state ) ||
@@ -459,8 +462,8 @@ orbit_determination::StateDerivativePartialsMap createAccelerationPartialsMap(
                     }
 
                     // Add partials of current body's accelerations to vector.
-                    accelerationPartialsList.push_back( accelerationPartialVector );
-
+                    accelerationPartialsList[ bodyCounter ] = accelerationPartialVector;
+                    bodyCounter++;
                 }
             }
         }
