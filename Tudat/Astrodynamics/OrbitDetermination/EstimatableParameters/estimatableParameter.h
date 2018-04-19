@@ -707,6 +707,53 @@ std::vector< std::string > getListOfBodiesToEstimate(
     return bodiesToEstimate;
 }
 
+template< typename InitialStateParameterType >
+std::vector< boost::shared_ptr< estimatable_parameters::EstimatableParameter<
+        Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > > > getListOfTranslationalStateParametersToEstimate(
+        const boost::shared_ptr< EstimatableParameterSet< InitialStateParameterType > > estimatableParameters )
+{
+    std::vector< boost::shared_ptr< estimatable_parameters::EstimatableParameter<
+            Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > > > initialDynamicalParameters =
+            estimatableParameters->getEstimatedInitialStateParameters( );
+    std::vector< boost::shared_ptr< estimatable_parameters::EstimatableParameter<
+            Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > > > translationalStateParameters;
+
+    // Iterate over list of bodies of which the partials of the accelerations acting on them are required.
+    for( unsigned int i = 0; i < initialDynamicalParameters.size( ); i++ )
+    {
+        if( ( initialDynamicalParameters.at( i )->getParameterName( ).first == initial_body_state )  ||
+                ( initialDynamicalParameters.at( i )->getParameterName( ).first == arc_wise_initial_body_state ) )
+        {
+            translationalStateParameters.push_back(  initialDynamicalParameters.at( i ) );
+        }
+    }
+
+    return translationalStateParameters;
+}
+
+template< typename InitialStateParameterType >
+std::vector< boost::shared_ptr< estimatable_parameters::EstimatableParameter<
+        Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > > > getListOfRotationalStateParametersToEstimate(
+        const boost::shared_ptr< EstimatableParameterSet< InitialStateParameterType > > estimatableParameters )
+{
+    std::vector< boost::shared_ptr< estimatable_parameters::EstimatableParameter<
+            Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > > > initialDynamicalParameters =
+            estimatableParameters->getEstimatedInitialStateParameters( );
+    std::vector< boost::shared_ptr< estimatable_parameters::EstimatableParameter<
+            Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > > > rotationalStateParameters;
+
+    // Iterate over list of bodies of which the partials of the accelerations acting on them are required.
+    for( unsigned int i = 0; i < initialDynamicalParameters.size( ); i++ )
+    {
+        if( ( initialDynamicalParameters.at( i )->getParameterName( ).first == initial_rotational_body_state )   )
+        {
+            rotationalStateParameters.push_back(  initialDynamicalParameters.at( i ) );
+        }
+    }
+
+    return rotationalStateParameters;
+}
+
 //! Function to get the complete list of initial dynamical states that are to be estimated, sorted by dynamics type.
 /*!
  *  Function to get the complete list of initial dynamical states that are to be estimated, sorted by dynamics type.

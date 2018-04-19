@@ -141,12 +141,10 @@ orbit_determination::StateDerivativePartialsMap createTorquePartialsMap(
 
     std::vector< boost::shared_ptr< estimatable_parameters::EstimatableParameter<
             Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > > > initialDynamicalParameters =
-            parametersToEstimate->getEstimatedInitialStateParameters( );
-    torquePartialsList.resize( estimatable_parameters::getListOfBodiesWithRotationalStateToEstimate(
-                                         parametersToEstimate ).size( ) );
+            estimatable_parameters::getListOfRotationalStateParametersToEstimate( parametersToEstimate );
+    torquePartialsList.resize( initialDynamicalParameters.size( ) );
 
     // Iterate over list of bodies of which the partials of the torques acting on them are required.
-    int bodyCounter = 0;
     for( basic_astrodynamics::TorqueModelMap::const_iterator torqueIterator = torqueMap.begin( );
          torqueIterator != torqueMap.end( ); torqueIterator++ )
     {
@@ -197,8 +195,7 @@ orbit_determination::StateDerivativePartialsMap createTorquePartialsMap(
                     }
 
                     // Add partials of current body's torques to vector.
-                    torquePartialsList[ bodyCounter ] = torquePartialVector;
-                    bodyCounter++;
+                    torquePartialsList[ i ] = torquePartialVector;
                 }
             }
         }

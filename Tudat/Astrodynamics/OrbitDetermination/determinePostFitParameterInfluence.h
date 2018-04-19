@@ -76,6 +76,7 @@ std::pair< boost::shared_ptr< PodOutput< StateScalarType > >, Eigen::VectorXd > 
     std::vector< LinkEnds > linkEndsList;
     ObservationSettingsMap observationSettingsMap;
     std::vector< boost::shared_ptr< EstimatableParameterSettings > > initialStateParameterNames;
+
     for( unsigned int i = 0; i < observedBodies.size( ); i++ )
     {
         // Add current body to list of observed bodies
