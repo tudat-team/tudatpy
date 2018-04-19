@@ -165,7 +165,7 @@ Eigen::Vector7d convertKeplerianToUnifiedStateModelQuaternionsElements(
 
     // Compute the C hodograph element of the unified state model
     if ( std::fabs( keplerianElements( eccentricityIndex ) - 1.0) < singularityTolerance )
-            // parabolic orbit -> semi-major axis is not defined
+        // parabolic orbit -> semi-major axis is not defined
     {
         convertedUnifiedStateModelElements( CHodographQuaternionIndex ) =
                 std::sqrt( centralBodyGravitationalParameter / keplerianElements( semiLatusRectumIndex ) );
@@ -174,8 +174,8 @@ Eigen::Vector7d convertKeplerianToUnifiedStateModelQuaternionsElements(
     {
         convertedUnifiedStateModelElements( CHodographQuaternionIndex ) =
                 std::sqrt( centralBodyGravitationalParameter / ( keplerianElements( semiMajorAxisIndex )
-                                                  * ( 1 - keplerianElements( eccentricityIndex ) *
-                                                      keplerianElements( eccentricityIndex ) ) ) );
+                                                                 * ( 1 - keplerianElements( eccentricityIndex ) *
+                                                                     keplerianElements( eccentricityIndex ) ) ) );
     }
 
     // Calculate the additional R hodograph parameter
@@ -189,8 +189,8 @@ Eigen::Vector7d convertKeplerianToUnifiedStateModelQuaternionsElements(
 
     // Compute the Rf2 hodograph element of the unified state model
     convertedUnifiedStateModelElements( Rf2HodographQuaternionIndex ) =
-              RHodographElement * std::cos( keplerianElements( longitudeOfAscendingNodeIndex )
-                                            + keplerianElements( argumentOfPeriapsisIndex ) );
+            RHodographElement * std::cos( keplerianElements( longitudeOfAscendingNodeIndex )
+                                          + keplerianElements( argumentOfPeriapsisIndex ) );
 
     // Calculate the additional argument of longitude u
     double argumentOfLatitude = keplerianElements( argumentOfPeriapsisIndex ) +
@@ -265,13 +265,13 @@ Eigen::Vector6d convertUnifiedStateModelQuaternionsToKeplerianElements(
     double etaQuaternionParameter = quaternionsVector( 3 );
 
     // Check whether the orbit is pure-retrograde
-    if ( ( std::fabs( epsilon3QuaternionParameter ) < singularityTolerance )
-        && ( std::fabs( etaQuaternionParameter ) < singularityTolerance ) )
-            // pure-retrograde orbit -> inclination  = pi
+    if ( ( std::fabs( epsilon3QuaternionParameter ) < singularityTolerance ) &&
+         ( std::fabs( etaQuaternionParameter ) < singularityTolerance ) )
+        // pure-retrograde orbit -> inclination = PI
     {
         // Define the error message
         std::stringstream errorMessage;
-        errorMessage << "Pure-retrograde orbit (inclination = pi).\n"
+        errorMessage << "Pure-retrograde orbit (inclination = PI).\n"
                      << "Unified state model elements cannot be transformed to Kepler elements." << std::endl;
 
         // Throw exception
@@ -306,7 +306,7 @@ Eigen::Vector6d convertUnifiedStateModelQuaternionsToKeplerianElements(
 
     // Compute semi-major axis or, in case of a parabolic orbit, the semi-latus rectum.
     if ( std::fabs( convertedKeplerianElements( eccentricityIndex ) - 1.0 ) < singularityTolerance )
-            // parabolic orbit -> semi-major axis is not defined. Use semi-latus rectum instead.
+        // parabolic orbit -> semi-major axis is not defined. Use semi-latus rectum instead.
     {
         convertedKeplerianElements( semiLatusRectumIndex ) = centralBodyGravitationalParameter /
                 ( unifiedStateModelElements( CHodographQuaternionIndex ) * unifiedStateModelElements( CHodographQuaternionIndex ) );
@@ -334,12 +334,12 @@ Eigen::Vector6d convertUnifiedStateModelQuaternionsToKeplerianElements(
                              sineOmega * sineOmega ); // overwrite old denominator
 
     // Compute longitude of ascending node
-    if ( std::fabs( std::fabs( convertedKeplerianElements( inclinationIndex ) ) - PI ) < singularityTolerance )
-        // pure-prograde or pure-retrograde orbit
+    if ( std::fabs( convertedKeplerianElements( inclinationIndex ) - PI ) < singularityTolerance )
+        // pure-retrograde orbit -> inclination = PI
     {
         // Define the error message
         std::stringstream errorMessage;
-        errorMessage << "Pure-retrograde orbit (inclination = pi).\n"
+        errorMessage << "Pure-retrograde orbit (inclination = PI).\n"
                      << "Unified state model elements cannot be transformed to Kepler elements." << std::endl;
 
         // Throw exception
@@ -386,8 +386,8 @@ Eigen::Vector6d convertUnifiedStateModelQuaternionsToKeplerianElements(
 
         // Ensure the true anomaly is positive
         while ( convertedKeplerianElements( trueAnomalyIndex ) < 0.0 )
-                // Because of the previous if statement, if the true anomaly is smaller than zero, it will always be smaller than
-                // -singularityTolerance
+            // Because of the previous if statement, if the true anomaly is smaller than zero, it will always be smaller than
+            // -singularityTolerance
         {
             convertedKeplerianElements( trueAnomalyIndex ) += 2.0 * PI;
         }
@@ -397,7 +397,7 @@ Eigen::Vector6d convertUnifiedStateModelQuaternionsToKeplerianElements(
         convertedKeplerianElements( trueAnomalyIndex ) =
                 std::atan2( ( auxiliaryParameter1 / RHodographElement ),
                             ( ( auxiliaryParameter2 - unifiedStateModelElements( CHodographQuaternionIndex ) )
-                           / RHodographElement ) );
+                              / RHodographElement ) );
 
         // Round off small theta to zero
         if ( std::fabs( convertedKeplerianElements( trueAnomalyIndex ) ) < singularityTolerance )
@@ -459,34 +459,78 @@ Eigen::Vector7d convertCartesianToUnifiedStateModelQuaternionsElements(
     Eigen::Vector3d angularMomentumVector = positionVector.cross( velocityVector );
     double angularMomentumMagnitude = angularMomentumVector.norm( );
 
+    // Check whether the orbit is pure-retrograde
+    double angularMomentumMagnitudeMinusZComponent = angularMomentumMagnitude + angularMomentumVector( 2 );
+    if ( std::fabs( angularMomentumMagnitudeMinusZComponent ) < singularityTolerance )
+        // pure-retrograde orbit -> inclination = PI
+    {
+        // Define the error message
+        std::stringstream errorMessage;
+        errorMessage << "Pure-retrograde orbit (inclination = PI).\n"
+                     << "Unified state model elements cannot be transformed to Kepler elements." << std::endl;
+
+        // Throw exception
+        throw std::runtime_error( std::runtime_error( errorMessage.str( ) ) );
+    }
+
+    // Find sine and cosine of right ascension of latitude (lambda)
+    double sineLambda = ( positionVector( 1 ) - angularMomentumVector( 1 ) /
+                          ( angularMomentumMagnitudeMinusZComponent ) * positionVector( 2 ) ) / positionMagnitude;
+    double cosineLambda = ( positionVector( 0 ) - angularMomentumVector( 0 ) /
+                            ( angularMomentumMagnitudeMinusZComponent ) * positionVector( 2 ) ) / positionMagnitude;
+
     // Find C hodograph element of the unified state model
     convertedUnifiedStateModelElements( CHodographQuaternionIndex ) = centralBodyGravitationalParameter /
             angularMomentumMagnitude;
 
     // Find direction cosine matrix with position and angular momentum vectors
     Eigen::Matrix3d directionCosineMatrix = Eigen::Matrix3d::Zero( );
-    directionCosineMatrix.block( 0, 0, 1, 3 ) = angularMomentumMagnitude * positionVector.transpose( );
-    directionCosineMatrix.block( 1, 0, 1, 3 ) = ( angularMomentumVector.cross( positionVector ) ).transpose( );
-    directionCosineMatrix.block( 2, 0, 1, 3 ) = positionMagnitude * angularMomentumVector.transpose( );
-    directionCosineMatrix /= positionMagnitude * angularMomentumMagnitude;
+    directionCosineMatrix.block( 0, 0, 1, 3 ) = positionVector.normalized( ).transpose( );
+    directionCosineMatrix.block( 1, 0, 1, 3 ) = ( angularMomentumVector.normalized( ).cross(
+                                                      positionVector.normalized( ) ) ).transpose( );
+    directionCosineMatrix.block( 2, 0, 1, 3 ) = angularMomentumVector.normalized( ).transpose( );
 
     // Compute square of quaternions
     double traceDirectionCosineMatrix = directionCosineMatrix.trace( );
-    double etaQuaternionSquaredParameter = ( 1.0 + traceDirectionCosineMatrix ) / 4.0;
-    Eigen::Vector3d epsilonQuaternionSquaredVector = Eigen::Vector3d::Zero( );
+    Eigen::Vector4d quaternionSquaredVector;
     for ( unsigned int i = 0; i < 3; i++ )
     {
-        epsilonQuaternionSquaredVector( i ) = ( 1.0 - traceDirectionCosineMatrix + 2.0 *
-                directionCosineMatrix( i, i ) ) / 4.0;
+        quaternionSquaredVector( i ) = ( 1.0 - traceDirectionCosineMatrix + 2.0 *
+                                         directionCosineMatrix( i, i ) ) / 4.0;
     }
+    quaternionSquaredVector( 3 ) = ( 1.0 + traceDirectionCosineMatrix ) / 4.0;
+
+    // Find terms to determine signs of quaternion elements
+    double cosineHalfLambda;
+    double sineHalfLambda;
+    if ( cosineLambda >= 0.0 )
+    {
+        cosineHalfLambda = std::sqrt( 1 + cosineLambda );
+        sineHalfLambda = sineLambda / std::sqrt( 2.0 ) / cosineHalfLambda;
+    }
+    else
+    {
+        sineHalfLambda = std::sqrt( 1 - cosineLambda );
+        sineHalfLambda *= std::signbit( sineLambda ) ? - 1.0 : 1.0; // change sign according to sine lambda
+        cosineHalfLambda = sineLambda / std::sqrt( 2.0 ) / sineHalfLambda;
+    }
+    // they are needed to determine the sing of the quaternion elements
 
     // Based on the maximum value, find the quaternion elements
-    double maximumValue = std::max( epsilonQuaternionSquaredVector.maxCoeff( ), etaQuaternionSquaredParameter );
-    if ( std::abs( epsilonQuaternionSquaredVector( 0 ) - maximumValue ) < singularityTolerance )
+    Eigen::Vector4d::Index indexLargestQuaternionElement;
+    double valueLargestQuaternionElement = quaternionSquaredVector.maxCoeff( &indexLargestQuaternionElement );
+    switch ( indexLargestQuaternionElement )
     {
+    case 0:
+    {
+        // Find sign
+        double signLargestQuaternionElement =
+                std::signbit( angularMomentumVector( 0 ) * sineHalfLambda -
+                              angularMomentumVector( 1 ) * cosineHalfLambda ) ? - 1.0 : 1.0;
+
         // Find value of largest quaternion parameter
-        convertedUnifiedStateModelElements( epsilon1QuaternionIndex ) =
-                std::sqrt( epsilonQuaternionSquaredVector( 0 ) );
+        convertedUnifiedStateModelElements( epsilon1QuaternionIndex ) = signLargestQuaternionElement *
+                std::sqrt( valueLargestQuaternionElement );
 
         // Find other values
         Eigen::Vector3d auxiliaryVector = Eigen::Vector3d::Zero( );
@@ -499,12 +543,18 @@ Eigen::Vector7d convertCartesianToUnifiedStateModelQuaternionsElements(
         convertedUnifiedStateModelElements( epsilon2QuaternionIndex ) = auxiliaryVector( 0 );
         convertedUnifiedStateModelElements( epsilon3QuaternionIndex ) = auxiliaryVector( 1 );
         convertedUnifiedStateModelElements( etaQuaternionIndex ) = auxiliaryVector( 2 );
+        break;
     }
-    else if ( std::abs( epsilonQuaternionSquaredVector( 1 ) - maximumValue ) < singularityTolerance )
+    case 1:
     {
+        // Find sign
+        double signLargestQuaternionElement =
+                std::signbit( angularMomentumVector( 0 ) * cosineHalfLambda +
+                              angularMomentumVector( 1 ) * sineHalfLambda ) ? - 1.0 : 1.0;
+
         // Find value of largest quaternion parameter
-        convertedUnifiedStateModelElements( epsilon2QuaternionIndex ) =
-                std::sqrt( epsilonQuaternionSquaredVector( 1 ) );
+        convertedUnifiedStateModelElements( epsilon2QuaternionIndex ) = signLargestQuaternionElement *
+                std::sqrt( valueLargestQuaternionElement );
 
         // Find other values
         Eigen::Vector3d auxiliaryVector = Eigen::Vector3d::Zero( );
@@ -517,12 +567,16 @@ Eigen::Vector7d convertCartesianToUnifiedStateModelQuaternionsElements(
         convertedUnifiedStateModelElements( epsilon1QuaternionIndex ) = auxiliaryVector( 0 );
         convertedUnifiedStateModelElements( epsilon3QuaternionIndex ) = auxiliaryVector( 1 );
         convertedUnifiedStateModelElements( etaQuaternionIndex ) = auxiliaryVector( 2 );
+        break;
     }
-    else if ( std::abs( epsilonQuaternionSquaredVector( 2 ) - maximumValue ) < singularityTolerance )
+    case 2:
     {
+        // Find sign
+        double signLargestQuaternionElement = std::signbit( sineHalfLambda ) ? - 1.0 : 1.0;
+
         // Find value of largest quaternion parameter
-        convertedUnifiedStateModelElements( epsilon3QuaternionIndex ) =
-                std::sqrt( epsilonQuaternionSquaredVector( 2 ) );
+        convertedUnifiedStateModelElements( epsilon3QuaternionIndex ) = signLargestQuaternionElement *
+                std::sqrt( valueLargestQuaternionElement );
 
         // Find other values
         Eigen::Vector3d auxiliaryVector = Eigen::Vector3d::Zero( );
@@ -535,12 +589,16 @@ Eigen::Vector7d convertCartesianToUnifiedStateModelQuaternionsElements(
         convertedUnifiedStateModelElements( epsilon1QuaternionIndex ) = auxiliaryVector( 0 );
         convertedUnifiedStateModelElements( epsilon2QuaternionIndex ) = auxiliaryVector( 1 );
         convertedUnifiedStateModelElements( etaQuaternionIndex ) = auxiliaryVector( 2 );
+        break;
     }
-    else if ( std::abs( etaQuaternionSquaredParameter - maximumValue ) < singularityTolerance )
+    case 3:
     {
+        // Find sign
+        double signLargestQuaternionElement = std::signbit( cosineHalfLambda ) ? - 1.0 : 1.0;
+
         // Find value of largest quaternion parameter
-        convertedUnifiedStateModelElements( etaQuaternionIndex ) =
-                std::sqrt( etaQuaternionSquaredParameter );
+        convertedUnifiedStateModelElements( etaQuaternionIndex ) = signLargestQuaternionElement *
+                std::sqrt( valueLargestQuaternionElement );
 
         // Find other values
         Eigen::Vector3d auxiliaryVector = Eigen::Vector3d::Zero( );
@@ -553,44 +611,19 @@ Eigen::Vector7d convertCartesianToUnifiedStateModelQuaternionsElements(
         convertedUnifiedStateModelElements( epsilon1QuaternionIndex ) = auxiliaryVector( 0 );
         convertedUnifiedStateModelElements( epsilon2QuaternionIndex ) = auxiliaryVector( 1 );
         convertedUnifiedStateModelElements( epsilon3QuaternionIndex ) = auxiliaryVector( 2 );
+        break;
     }
-    else
+    default:
     {
         // Define the error message.
         std::stringstream errorMessage;
         errorMessage << "Could not find the maximum value of the quaternion.\n"
-                     << "Specified imaginary quaternion: " << epsilonQuaternionSquaredVector.transpose( ) << std::endl
-                     << "Specified real quaternion: " << etaQuaternionSquaredParameter << std::endl;
+                     << "Specified squared quaternion: " << quaternionSquaredVector.transpose( ) << std::endl;
 
         // Throw exception.
         throw std::runtime_error( std::runtime_error( errorMessage.str( ) ) );
     }
-
-    // Check whether the orbit is pure-retrograde
-    if ( ( std::fabs( convertedUnifiedStateModelElements( epsilon3QuaternionIndex ) ) < singularityTolerance )
-        && ( std::fabs( convertedUnifiedStateModelElements( etaQuaternionIndex ) ) < singularityTolerance ) )
-            // pure-retrograde orbit -> inclination  = pi
-    {
-        // Define the error message
-        std::stringstream errorMessage;
-        errorMessage << "Pure-retrograde orbit (inclination = pi).\n"
-                     << "Unified state model elements cannot be transformed to Kepler elements." << std::endl;
-
-        // Throw exception
-        throw std::runtime_error( std::runtime_error( errorMessage.str( ) ) );
     }
-
-    // Compute auxiliary parameters cosine and sine of right ascension of latitude
-    double denominator = convertedUnifiedStateModelElements( epsilon3QuaternionIndex ) *
-            convertedUnifiedStateModelElements( epsilon3QuaternionIndex ) +
-            convertedUnifiedStateModelElements( etaQuaternionIndex ) *
-            convertedUnifiedStateModelElements( etaQuaternionIndex );
-    double cosineLambda = ( convertedUnifiedStateModelElements( etaQuaternionIndex ) *
-                            convertedUnifiedStateModelElements( etaQuaternionIndex ) -
-                            convertedUnifiedStateModelElements( epsilon3QuaternionIndex ) *
-                            convertedUnifiedStateModelElements( epsilon3QuaternionIndex ) ) / denominator;
-    double sineLambda = ( 2.0 * convertedUnifiedStateModelElements( epsilon3QuaternionIndex ) *
-                          convertedUnifiedStateModelElements( etaQuaternionIndex ) ) / denominator;
 
     // Compute auxiliary parameters
     double radialVelocity = positionVector.dot( velocityVector ) / positionMagnitude;
@@ -659,12 +692,12 @@ Eigen::Vector6d convertUnifiedStateModelQuaternionsToCartesianElements(
 
     // Compute auxiliary parameters cosineLambda, sineLambda and lambda
     if ( ( std::fabs( epsilon3QuaternionParameter ) < singularityTolerance )
-        && ( std::fabs( etaQuaternionParameter ) < singularityTolerance ) )
-            // pure-retrograde orbit -> inclination  = pi
+         && ( std::fabs( etaQuaternionParameter ) < singularityTolerance ) )
+        // pure-retrograde orbit -> inclination = PI
     {
         // Define the error message
         std::stringstream errorMessage;
-        errorMessage << "Pure-retrograde orbit (inclination = pi).\n"
+        errorMessage << "Pure-retrograde orbit (inclination = PI).\n"
                      << "Unified state model elements cannot be transformed to Kepler elements." << std::endl;
 
         // Throw exception
