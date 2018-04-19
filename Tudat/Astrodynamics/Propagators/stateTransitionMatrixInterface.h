@@ -11,6 +11,7 @@
 #ifndef TUDAT_STATETRANSITIONMATRIXINTERFACE_H
 #define TUDAT_STATETRANSITIONMATRIXINTERFACE_H
 
+#include <iostream>
 #include <vector>
 
 #include <boost/shared_ptr.hpp>

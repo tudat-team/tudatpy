@@ -23,8 +23,8 @@
 
 #include <Eigen/Core>
 
-#include "Tudat/SimulationSetup/tudatSimulationHeader.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/missionGeometry.h"
+#include "Tudat/Astrodynamics/Propulsion/thrustGuidance.h"
 
 namespace tudat
 {

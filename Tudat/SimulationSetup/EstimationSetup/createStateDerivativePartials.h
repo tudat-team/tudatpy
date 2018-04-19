@@ -100,6 +100,7 @@ std::map< propagators::IntegratedStateType, orbit_determination::StateDerivative
             throw std::runtime_error( errorMessage );
         }
     }
+
     return stateDerivativePartials;
 }
 

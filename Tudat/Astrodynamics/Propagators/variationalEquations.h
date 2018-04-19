@@ -85,6 +85,8 @@ public:
             else if( dynamicalStatesToEstimate_.at( partialTypeIterator->first ).size( ) !=
                      partialTypeIterator->second.size( ) )
             {
+                std::cout<<dynamicalStatesToEstimate_.at( partialTypeIterator->first ).size( )<<" "<<
+                           partialTypeIterator->second.size( )<<" "<<partialTypeIterator->first<<std::endl;
                 throw std::runtime_error( "Error when making variational equations object, input partial list size is inconsistent" );
             }
             
