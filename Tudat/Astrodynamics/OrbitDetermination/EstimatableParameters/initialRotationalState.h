@@ -94,7 +94,9 @@ public:
 
     Eigen::MatrixXd getConstraintStateMultipler( )
     {
-        return initialRotationalState_.segment( 0, 4 ).template cast< double >( ).transpose( );
+        Eigen::MatrixXd constraintsMatrix = Eigen::MatrixXd::Zero( 1, 7 );
+        constraintsMatrix.block( 0, 0, 1, 4 ) = initialRotationalState_.segment( 0, 4 ).template cast< double >( ).transpose( );
+        return constraintsMatrix;
     }
 
     Eigen::VectorXd getConstraintRightHandSide( )

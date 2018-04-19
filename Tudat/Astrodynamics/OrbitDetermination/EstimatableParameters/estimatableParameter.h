@@ -456,23 +456,63 @@ public:
         constraintRightHandSide.setZero( totalConstraintSize_, 1 );
 
         int currentConstraintRow = 0;
+        int currentConstraintSize = 0;
         for( auto parameterIterator = initialStateParameters_.begin( ); parameterIterator != initialStateParameters_.end( );
              parameterIterator++ )
         {
+            currentConstraintSize = parameterIterator->second->getConstraintSize( );
+            if( currentConstraintSize > 0 )
+            {
+                constraintStateMultiplier.block(
+                            currentConstraintRow, parameterIterator->first, currentConstraintSize,
+                            parameterIterator->second->getParameterSize( )  ) =
+                        parameterIterator->second->getConstraintStateMultipler( );
+                constraintRightHandSide.segment( currentConstraintRow, currentConstraintSize ) =
+                        parameterIterator->second->getConstraintRightHandSide( );
+
+                currentConstraintRow += currentConstraintSize;
+            }
 
         }
 
         for( auto parameterIterator = doubleParameters_.begin( ); parameterIterator != doubleParameters_.end( );
              parameterIterator++ )
         {
+            currentConstraintSize = parameterIterator->second->getConstraintSize( );
+            if( currentConstraintSize > 0 )
+            {
+                constraintStateMultiplier.block(
+                            currentConstraintRow, parameterIterator->first, currentConstraintSize,
+                            parameterIterator->second->getParameterSize( )  ) =
+                        parameterIterator->second->getConstraintStateMultipler( );
+                constraintRightHandSide.segment( currentConstraintRow, currentConstraintSize ) =
+                        parameterIterator->second->getConstraintRightHandSide( );
 
+                currentConstraintRow += currentConstraintSize;
+            }
         }
 
         for( auto parameterIterator = vectorParameters_.begin( ); parameterIterator != vectorParameters_.end( );
              parameterIterator++ )
         {
+            currentConstraintSize = parameterIterator->second->getConstraintSize( );
+            if( currentConstraintSize > 0 )
+            {
+                constraintStateMultiplier.block(
+                            currentConstraintRow, parameterIterator->first, currentConstraintSize,
+                            parameterIterator->second->getParameterSize( )  ) =
+                        parameterIterator->second->getConstraintStateMultipler( );
+                constraintRightHandSide.segment( currentConstraintRow, currentConstraintSize ) =
+                        parameterIterator->second->getConstraintRightHandSide( );
 
+                currentConstraintRow += currentConstraintSize;
+            }
         }
+    }
+
+    int getConstraintSize( )
+    {
+        return totalConstraintSize_;
     }
 
 protected:
