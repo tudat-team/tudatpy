@@ -252,6 +252,12 @@ public:
         }
     }
 
+    virtual bool isStateNormalized( )
+    {
+        return true;
+    }
+
+
 private:
 
     //!  Gravitational parameters of central bodies used to convert Cartesian to Keplerian orbits, and vice versa
