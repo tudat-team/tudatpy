@@ -28,6 +28,8 @@
 #include "Tudat/Mathematics/RootFinders/createRootFinder.h"
 #include "Tudat/SimulationSetup/PropagationSetup/propagationTermination.h"
 
+#include "Tudat/InputOutput/basicInputOutput.h"
+
 namespace tudat
 {
 
@@ -435,7 +437,7 @@ boost::shared_ptr< PropagationTerminationDetails > integrateEquationsFromIntegra
         std::map< TimeType, double >& cummulativeComputationTimeHistory,
         const boost::function< Eigen::VectorXd( ) > dependentVariableFunction =
         boost::function< Eigen::VectorXd( ) >( ),
-        boost::function< void( StateType& ) > normalizeState =
+        boost::function< void( StateType& ) > postProcessState =
         boost::function< void( StateType& ) >( ),
         const int saveFrequency = TUDAT_NAN,
         const TimeType printInterval = TUDAT_NAN,
@@ -465,7 +467,6 @@ boost::shared_ptr< PropagationTerminationDetails > integrateEquationsFromIntegra
                 std::chrono::steady_clock::now( ) - initialClockTime ).count() * 1.0e-9;
     cummulativeComputationTimeHistory[ currentTime ] = currentCPUTime;
 
-
     // Set initial time step and total integration time.
     TimeStepType timeStep = initialTimeStep;
     TimeType previousTime = currentTime;
@@ -481,16 +482,15 @@ boost::shared_ptr< PropagationTerminationDetails > integrateEquationsFromIntegra
     {
         try
         {
-
             if( ( newState.allFinite( ) == true ) && ( !newState.hasNaN( ) ) )
             {
                 previousTime = currentTime;
 
                 // Perform integration step.
                 newState = integrator->performIntegrationStep( timeStep );
-                if( !normalizeState.empty( ) )
+                if( !postProcessState.empty( ) )
                 {
-                    normalizeState( newState );
+                    postProcessState( newState );
                 }
 
                 // Check if the termination condition was reached during evaluation of integration sub-steps.
@@ -532,11 +532,9 @@ boost::shared_ptr< PropagationTerminationDetails > integrateEquationsFromIntegra
                             nan_or_inf_detected_in_state );
             }
 
-
             currentCPUTime = std::chrono::duration_cast< std::chrono::nanoseconds >(
                         std::chrono::steady_clock::now( ) - initialClockTime ).count() * 1.0e-9;
             cummulativeComputationTimeHistory[ currentTime ] = currentCPUTime;
-
 
             // Print solutions
             if( printInterval == printInterval )
@@ -596,6 +594,14 @@ boost::shared_ptr< PropagationTerminationDetails > integrateEquationsFromIntegra
     }
     while( !breakPropagation );
 
+    input_output::writeDataMapToTextFile( solutionHistory,
+                                          "test_propagation.dat",
+                                          "/Users/Michele/GitHub/tudat/tudatBundle/tudatApplications/Test/SimulationOutput",
+                                          "",
+                                          std::numeric_limits< double >::digits10,
+                                          std::numeric_limits< double >::digits10,
+                                          "," );
+
     return propagationTerminationReason;
 }
 
@@ -642,7 +648,7 @@ public:
             std::map< TimeType, double >& cummulativeComputationTimeHistory,
             const boost::function< Eigen::VectorXd( ) > dependentVariableFunction =
             boost::function< Eigen::VectorXd( ) >( ),
-            boost::function< void( StateType& ) > normalizeState =
+            boost::function< void( StateType& ) > postProcessState =
             boost::function< void( StateType& ) >( ),
             const TimeType printInterval = TUDAT_NAN,
             const std::chrono::steady_clock::time_point initialClockTime = std::chrono::steady_clock::now( ) );
@@ -684,7 +690,7 @@ public:
             std::map< double, double >& cummulativeComputationTimeHistory,
             const boost::function< Eigen::VectorXd( ) > dependentVariableFunction =
             boost::function< Eigen::VectorXd( ) >( ),
-            boost::function< void( StateType& ) > normalizeState =
+            boost::function< void( StateType& ) > postProcessState =
             boost::function< void( StateType& ) >( ),
             const double printInterval = TUDAT_NAN,
             const std::chrono::steady_clock::time_point initialClockTime = std::chrono::steady_clock::now( ) )
@@ -707,7 +713,7 @@ public:
                     dependentVariableHistory,
                     cummulativeComputationTimeHistory,
                     dependentVariableFunction,
-                    normalizeState,
+                    postProcessState,
                     integratorSettings->saveFrequency_,
                     printInterval,
                     initialClockTime );
@@ -750,7 +756,7 @@ public:
             std::map< Time, double >& cummulativeComputationTimeHistory,
             const boost::function< Eigen::VectorXd( ) > dependentVariableFunction =
             boost::function< Eigen::VectorXd( ) >( ),
-            boost::function< void( StateType& ) > normalizeState =
+            boost::function< void( StateType& ) > postProcessState =
             boost::function< void( StateType& ) >( ),
             const Time printInterval = TUDAT_NAN,
             const std::chrono::steady_clock::time_point initialClockTime = std::chrono::steady_clock::now( ) )
@@ -773,7 +779,7 @@ public:
                     dependentVariableHistory,
                     cummulativeComputationTimeHistory,
                     dependentVariableFunction,
-                    normalizeState,
+                    postProcessState,
                     integratorSettings->saveFrequency_,
                     printInterval,
                     initialClockTime );

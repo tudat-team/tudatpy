@@ -39,10 +39,12 @@ Eigen::Vector7d computeStateDerivativeForUnifiedStateModelModifiedRodriguesParam
 
     // Compute kinematic equation, i.e., derivative of modified Rodrigues parameters (also valid for SMRP)
     Eigen::Vector3d modifiedRodriguesParametersVector = currentUnifiedStateModelElements.segment( 3, 3 );
-    Eigen::Matrix3d skewModifiedRodriguesParametersVector = linear_algebra::getCrossProductMatrix( modifiedRodriguesParametersVector );
+    Eigen::Matrix3d skewModifiedRodriguesParametersVectorMatrix = linear_algebra::getCrossProductMatrix(
+                modifiedRodriguesParametersVector );
     Eigen::Vector3d modifiedRodriguesParametersDerivative = 0.5 *
             ( 0.5 * ( 1.0 - std::pow( modifiedRodriguesParametersVector.norm( ), 2 ) ) * Eigen::Matrix3d::Identity( ) +
-              skewModifiedRodriguesParametersVector + modifiedRodriguesParametersVector * modifiedRodriguesParametersVector.transpose( ) ) *
+              skewModifiedRodriguesParametersVectorMatrix + modifiedRodriguesParametersVector *
+              modifiedRodriguesParametersVector.transpose( ) ) *
             rotationalVelocityVector;
 
     // Evaluate USM6 equations.

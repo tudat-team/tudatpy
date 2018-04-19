@@ -230,7 +230,7 @@ public:
         return originalAccelerationModelsPerBody_;
     }
 
-    void normalizeState(
+    void postProcessState(
             Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& unnormalizedState,
             const int startRow )
     {
