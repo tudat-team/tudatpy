@@ -458,10 +458,10 @@ void setMultiTypePropagationClosure(
             for( unsigned int i = 0; i < bodiesWithAerodynamicRotationalClosure.size( ); i++ )
             {
                 boost::shared_ptr< aerodynamics::FlightConditions > currentFlightConditions =
-                        bodyMap.at( bodiesWithPropagatedRotation.at( i ) )->getFlightConditions( );
+                        bodyMap.at( bodiesWithAerodynamicRotationalClosure.at( i ) )->getFlightConditions( );
                 reference_frames::setAerodynamicDependentOrientationCalculatorClosure(
                             boost::bind( &simulation_setup::Body::getCurrentRotationToLocalFrame,
-                                         bodyMap.at( bodiesWithPropagatedRotation.at( i ) ) ),
+                                         bodyMap.at( bodiesWithAerodynamicRotationalClosure.at( i ) ) ),
                             currentFlightConditions->getAerodynamicAngleCalculator( ) );
             }
         }
