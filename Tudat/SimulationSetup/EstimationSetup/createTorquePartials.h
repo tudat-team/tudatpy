@@ -146,12 +146,12 @@ orbit_determination::StateDerivativePartialsMap createTorquePartialsMap(
                                          parametersToEstimate ).size( ) );
 
     // Iterate over list of bodies of which the partials of the torques acting on them are required.
+    int bodyCounter = 0;
     for( basic_astrodynamics::TorqueModelMap::const_iterator torqueIterator = torqueMap.begin( );
          torqueIterator != torqueMap.end( ); torqueIterator++ )
     {
         for( unsigned int i = 0; i < initialDynamicalParameters.size( ); i++ )
         {
-            int bodyCounter = 0;
             if( initialDynamicalParameters.at( i )->getParameterName( ).second.first == torqueIterator->first )
             {
                 if( ( initialDynamicalParameters.at( i )->getParameterName( ).first == estimatable_parameters::initial_rotational_body_state ) )
