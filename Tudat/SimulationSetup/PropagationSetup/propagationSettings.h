@@ -1228,7 +1228,6 @@ public:
      * List of propagator settings to use (state type as key). List of propagator settigns
      * per type given as vector in map value.
      */
-
     std::map< IntegratedStateType, std::vector< boost::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > > >
     propagatorSettingsMap_;
 

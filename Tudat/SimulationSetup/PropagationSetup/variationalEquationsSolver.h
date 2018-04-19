@@ -359,9 +359,41 @@ bool checkPropagatorSettingsAndParameterEstimationConsistency(
         break;
     }
     case hybrid:
-        std::cerr<<"warning, not checking consistency of hyrbid state "<<std::endl;
+    {
+        boost::shared_ptr< MultiTypePropagatorSettings< StateScalarType > > multiTypePropagatorSettings =
+                boost::dynamic_pointer_cast< MultiTypePropagatorSettings< StateScalarType > >( propagatorSettings );
         isInputConsistent = true;
+
+
+        for( auto settingIterator = multiTypePropagatorSettings->propagatorSettingsMap_.begin( );
+             settingIterator !=  multiTypePropagatorSettings->propagatorSettingsMap_.end( ); settingIterator++ )
+        {
+            for( unsigned int i = 0; i < settingIterator->second.size( ); i++ )
+            {
+                if( !checkPropagatorSettingsAndParameterEstimationConsistency(
+                            settingIterator->second.at( i ), parametersToEstimate ) )
+                {
+                    isInputConsistent = false;
+                }
+            }
+        }
+
+        if( estimatable_parameters::getListOfBodiesWithTranslationalStateToEstimate(
+                    parametersToEstimate ).size( ) > 0 && multiTypePropagatorSettings->propagatorSettingsMap_.count( translational_state ) == 0 )
+        {
+            throw std::runtime_error( "Error, estimating but not propagating translational dynamics" );
+            isInputConsistent = false;
+        }
+
+
+        if( estimatable_parameters::getListOfBodiesWithRotationalStateToEstimate(
+                    parametersToEstimate ).size( ) > 0 && multiTypePropagatorSettings->propagatorSettingsMap_.count( rotational_state ) == 0 )
+        {
+            throw std::runtime_error( "Error, estimating but not propagating rotational dynamics" );
+            isInputConsistent = false;
+        }
         break;
+    }
     default:
         std::string errorMessage = "Error, cannot yet check consistency of propagator settings for type " +
                 std::to_string( propagatorSettings->getStateType( ) );
