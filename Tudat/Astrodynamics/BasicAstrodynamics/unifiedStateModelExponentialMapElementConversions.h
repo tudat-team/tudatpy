@@ -17,7 +17,6 @@
 #define TUDAT_UNIFIED_STATE_MODEL_EXPONENTIAL_MAP_ELEMENT_CONVERSIONS_H
 
 #include "Tudat/Basics/basicTypedefs.h"
-#include "Tudat/Astrodynamics/BasicAstrodynamics/unifiedStateModelQuaternionsElementConversions.h"
 
 namespace tudat
 {

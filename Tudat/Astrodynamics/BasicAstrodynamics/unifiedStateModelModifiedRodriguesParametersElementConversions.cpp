@@ -24,6 +24,9 @@
 #include "Tudat/Astrodynamics/BasicAstrodynamics/unifiedStateModelModifiedRodriguesParametersElementConversions.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/stateVectorIndices.h"
 
+#include "Tudat/Astrodynamics/BasicAstrodynamics/orbitalElementConversions.h"
+#include "Tudat/Astrodynamics/BasicAstrodynamics/unifiedStateModelQuaternionsElementConversions.h"
+
 namespace tudat
 {
 
@@ -208,7 +211,7 @@ Eigen::Vector7d convertKeplerianToUnifiedStateModelModifiedRodriguesParametersEl
         double modifiedRodriguesParameterMagnitude =
                 ( 1.0 + std::pow( std::cos( 0.5 * keplerianElements( inclinationIndex ) ), 2 ) * (
                       std::pow( std::sin( 0.5 * rightAscensionOfLatitude ), 2 ) - 1.0 ) ) / denominator / denominator;
-        shadowFlag = modifiedRodriguesParameterMagnitude > 1; // check eta quaternion
+        shadowFlag = modifiedRodriguesParameterMagnitude > 1.0; // check eta quaternion
     }
     convertedUnifiedStateModelElements( shadowModifiedRodriguesParameterFlagIndex ) = shadowFlag ? 1.0 : 0.0;
     denominator = shadowFlag ? ( denominator - 2.0 ) : denominator; // redefine denominator for SMRP
@@ -248,14 +251,11 @@ Eigen::Vector6d convertUnifiedStateModelModifiedRodriguesParametersToKeplerianEl
     // Define the tolerance of a singularity
     const double singularityTolerance = 20.0 * std::numeric_limits< double >::epsilon( );
 
-    // Set flag to shadow or non-shadow and decide sign for DCM elements
-    bool shadowFlag = int( unifiedStateModelElements( shadowModifiedRodriguesParameterFlagIndex ) ) == 1;
-    double signDirectionCosineMatrix = shadowFlag ? - 1.0 : 1.0;
-
-    // Compute auxiliary parameters
+    // Extract modified Rodrigues parameters
     Eigen::Vector3d modifiedRodriguesParametersVector = unifiedStateModelElements.segment( sigma1ModifiedRodriguesParameterIndex, 3 );
-    double modifiedRodriguesParametersMagnitude = modifiedRodriguesParametersVector.norm( );
-    // magnitude of modified Rodrigues parameters, also called sigma
+    double modifiedRodriguesParametersMagnitude =
+            modifiedRodriguesParametersVector.norm( ); // magnitude of modified Rodrigues parameters, also called sigma
+    bool shadowFlag = int( unifiedStateModelElements( shadowModifiedRodriguesParameterFlagIndex ) ) == 1;
 
     // Precompute often used variables
     // Note the for SMRP some variable names do not match their definitions
@@ -267,7 +267,7 @@ Eigen::Vector6d convertUnifiedStateModelModifiedRodriguesParametersToKeplerianEl
                 ( modifiedRodriguesParametersMagnitudeSquared - 1.0 ) : // inverse definition for SMRP
                 ( 1.0 - modifiedRodriguesParametersMagnitudeSquared );
     double oneMinusModifiedRodriguesParametersMagnitudeSquaredSquared =
-                    std::pow( oneMinusModifiedRodriguesParametersMagnitudeSquared, 2 );
+            std::pow( oneMinusModifiedRodriguesParametersMagnitudeSquared, 2 );
 
     // Compute right ascension of latitude (independent on shadowing, since variables have been precomputed)
     double denominator = 4.0 * std::pow( modifiedRodriguesParametersVector( 2 ), 2 ) +
@@ -331,6 +331,7 @@ Eigen::Vector6d convertUnifiedStateModelModifiedRodriguesParametersToKeplerianEl
     // this acos is always defined correctly because the inclination is always below PI rad
 
     // Find sine and cosine of longitude of ascending node separately
+    double signDirectionCosineMatrix = shadowFlag ? - 1.0 : 1.0; // sign depends on shadow conditions
     double sineOmega = 8.0 * modifiedRodriguesParametersVector( 0 ) *
             modifiedRodriguesParametersVector( 2 ) + signDirectionCosineMatrix *
             4.0 * modifiedRodriguesParametersVector( 1 ) *
@@ -468,7 +469,7 @@ Eigen::Vector7d convertCartesianToUnifiedStateModelModifiedRodriguesParametersEl
 
     // Convert quaternions to modified Rodrigues parameters (or SMPR)
     bool shadowFlag = etaQuaternionParameter < 0;
-    double conversionSign = shadowFlag ? - 1.0 : 1.0; // converion is slightly different for SMRP and MRP
+    double conversionSign = shadowFlag ? - 1.0 : 1.0; // conversion is slightly different for SMRP and MRP
     convertedUnifiedStateModelModifiedRodriguesParametersElements.segment(
                 sigma1ModifiedRodriguesParameterIndex, 3 ) = conversionSign * epsilonQuaternionVector /
             ( 1 + conversionSign * etaQuaternionParameter );
@@ -489,22 +490,25 @@ Eigen::Vector6d convertUnifiedStateModelModifiedRodriguesParametersToCartesianEl
         const Eigen::Vector7d& unifiedStateModelModifiedRodriguesParametersElements,
         const double centralBodyGravitationalParameter )
 {
+    // Extract modified Rodrigues parameters
+    Eigen::Vector3d modifiedRodriguesParametersVector =
+            unifiedStateModelModifiedRodriguesParametersElements.segment( sigma1ModifiedRodriguesParameterIndex, 3 );
+    double modifiedRodriguesParametersMagnitude =
+            modifiedRodriguesParametersVector.norm( ); // magnitude of modified Rodrigues parameters, also called sigma
+    bool shadowFlag =
+            int( unifiedStateModelModifiedRodriguesParametersElements( shadowModifiedRodriguesParameterFlagIndex ) ) == 1;
+
+    // Precompute often used variables
+    double modifiedRodriguesParametersMagnitudeSquared = modifiedRodriguesParametersMagnitude *
+            modifiedRodriguesParametersMagnitude;
+
     // Create USM7 vector and add velocity hodograph elements
     Eigen::Vector7d unifiedStateModelQuaternionsElements;
     unifiedStateModelQuaternionsElements.segment( CHodographQuaternionIndex, 3 ) =
             unifiedStateModelModifiedRodriguesParametersElements.segment( CHodographExponentialMapIndex, 3 );
 
-    // Extract modified Rodrigues parameters
-    Eigen::Vector3d modifiedRodriguesParametersVector =
-            unifiedStateModelModifiedRodriguesParametersElements.segment( sigma1ModifiedRodriguesParameterIndex, 3 );
-    double modifiedRodriguesParametersMagnitude = modifiedRodriguesParametersVector.norm( );
-    double modifiedRodriguesParametersMagnitudeSquared = modifiedRodriguesParametersMagnitude *
-            modifiedRodriguesParametersMagnitude; // precompute
-
     // Convert modified Rodrigues parameters to quaternions
-    double conversionSign =
-            ( int( unifiedStateModelModifiedRodriguesParametersElements( shadowModifiedRodriguesParameterFlagIndex ) )
-              == 1 ) ? - 1.0 : 1.0; // converion is slightly different for SMRP and MRP
+    double conversionSign = shadowFlag ? - 1.0 : 1.0; // converion is slightly different for SMRP and MRP
     Eigen::Vector3d epsilonQuaternionVector = conversionSign *
             2.0 / ( 1.0 + modifiedRodriguesParametersMagnitudeSquared ) *
             modifiedRodriguesParametersVector;
