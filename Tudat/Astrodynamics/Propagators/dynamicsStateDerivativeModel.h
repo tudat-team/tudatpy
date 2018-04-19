@@ -518,9 +518,19 @@ public:
             }
         }
     }
-    void normalizeMatrixState( Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >& state )
-    {
 
+    void normalizeStateAndVariationalEquations( Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >& state )
+    {
+        for( stateDerivativeModelsIterator_ = stateDerivativeModels_.begin( );
+             stateDerivativeModelsIterator_ != stateDerivativeModels_.end( );
+             stateDerivativeModelsIterator_++ )
+        {
+            for( unsigned int i = 0; i < stateDerivativeModelsIterator_->second.size( ); i++ )
+            {
+                stateDerivativeModelsIterator_->second.at( i )->normalizeState(
+                            state, 0, dynamicsStartColumn_ ); // temporary
+            }
+        }
     }
 
 private:

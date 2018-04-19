@@ -554,7 +554,7 @@ public:
                         bodyMap, integratorSettings, propagatorSettings_, false, clearNumericalSolution, true );
             dynamicsStateDerivative_ = dynamicsSimulator_->getDynamicsStateDerivative( );
             stateNormalizingFunction_ = boost::bind(
-                        &DynamicsStateDerivativeModel< TimeType, StateScalarType >::normalizeMatrixState,
+                        &DynamicsStateDerivativeModel< TimeType, StateScalarType >::normalizeStateAndVariationalEquations,
                         dynamicsStateDerivative_, _1 );
 
             // Create state derivative partials
@@ -1180,7 +1180,10 @@ public:
                             singleArcDynamicsSimulators.at( i )->getPropagationTerminationCondition( ),
                             dependentVariableHistorySolutions.at( i ),
                             cummulativeComputationTimeHistorySolutions.at( i ),
-                            singleArcDynamicsSimulators.at( i )->getDependentVariablesFunctions( ) );
+                            singleArcDynamicsSimulators.at( i )->getDependentVariablesFunctions( ),
+                            boost::bind(
+                            &DynamicsStateDerivativeModel< TimeType, StateScalarType >::normalizeStateAndVariationalEquations,
+                            singleArcDynamicsSimulators.at( i )->getDynamicsStateDerivative( ), _1 ) );
 
                 // Extract solution of equations of motion.
                 utilities::createVectorBlockMatrixHistory(
