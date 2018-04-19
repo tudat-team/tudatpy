@@ -781,6 +781,23 @@ executePhobosRotationSimulation(
     boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< StateScalarType > > parametersToEstimate =
             createParametersToEstimate( parameterNames, bodyMap );
 
+     Eigen::MatrixXd constraintStateMultiplier;
+     Eigen::VectorXd constraintRightHandSide;
+     parametersToEstimate->getConstraints( constraintStateMultiplier, constraintRightHandSide );
+
+     std::cout<<"Const"<<constraintStateMultiplier<<std::endl<<constraintRightHandSide<<std::endl;
+
+
+     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                 ( constraintStateMultiplier.block( 0, 0, 1, 4 ) ), ( unitRotationState.segment( 0, 4 ) ).transpose( ),
+                 std::numeric_limits< double >::epsilon( ) );
+     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                 ( constraintStateMultiplier.block( 0, 4, 1, 9 ) ), ( Eigen::MatrixXd::Zero( 1, 9 ) ),
+                 std::numeric_limits< double >::epsilon( ) );
+     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                 ( constraintRightHandSide.block( 0, 0, 1, 1 ) ), ( Eigen::MatrixXd::Zero( 1, 1 ) ),
+                 std::numeric_limits< double >::epsilon( ) );
+
     // Perturb parameters.
     Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > parameterVector =
             parametersToEstimate->template getFullParameterValues< StateScalarType >( );
