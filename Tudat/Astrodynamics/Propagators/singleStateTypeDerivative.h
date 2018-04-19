@@ -185,7 +185,7 @@ public:
      * Function to normalize the state vector during propagation
      * \param unnormalizedState State before normalization
      */
-    virtual void normalizeState(
+    virtual void postProcessState(
             Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& unnormalizedState,
             const int startRow )
     {

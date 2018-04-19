@@ -390,8 +390,8 @@ public:
         doubleStateDerivativeFunction_ =
                 boost::bind( &DynamicsStateDerivativeModel< TimeType, StateScalarType >::computeStateDoubleDerivative,
                              dynamicsStateDerivative_, _1, _2 );
-        stateNormalizingFunction_ =
-                boost::bind( &DynamicsStateDerivativeModel< TimeType, StateScalarType >::normalizeState,
+        statePostProcessingFunction_ =
+                boost::bind( &DynamicsStateDerivativeModel< TimeType, StateScalarType >::postProcessState,
                              dynamicsStateDerivative_, _1 );
 
         // Integrate equations of motion if required.
@@ -437,7 +437,7 @@ public:
                     dependentVariableHistory_,
                     cummulativeComputationTimeHistory_,
                     dependentVariablesFunctions_,
-                    stateNormalizingFunction_,
+                    statePostProcessingFunction_,
                     propagatorSettings_->getPrintInterval( ),
                     initialClockTime_ );
         dynamicsStateDerivative_->convertNumericalStateSolutionsToOutputSolutions(
@@ -751,7 +751,7 @@ protected:
     boost::function< Eigen::VectorXd( ) > dependentVariablesFunctions_;
 
     //! Function to normalize state (during numerical propagation)
-    boost::function< void( Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& ) > stateNormalizingFunction_;
+    boost::function< void( Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& ) > statePostProcessingFunction_;
 
     //! Map listing starting entry of dependent variables in output vector, along with associated ID.
     std::map< int, std::string > dependentVariableIds_;

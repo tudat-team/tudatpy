@@ -236,7 +236,7 @@ public:
         return 7 * this->bodiesToBeIntegratedNumerically_.size( );
     }
 
-    void normalizeState(
+    void postProcessState(
             Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& unnormalizedState,
             const int startRow )
     {
@@ -249,15 +249,15 @@ public:
             StateScalarType modifiedRodriguesParametersMagnitude = modifiedRodriguesParametersVector.norm( );
             if ( modifiedRodriguesParametersMagnitude >= 1.0 )
             {
+                // Invert flag
+                unnormalizedState( startRow + i * 7 + 6 ) = std::fabs( unnormalizedState( startRow + i * 7 + 6 ) - 1.0 );
+
                 // Convert to MRP/SMRP
                 modifiedRodriguesParametersVector /= - modifiedRodriguesParametersMagnitude *
                         modifiedRodriguesParametersMagnitude;
 
                 // Replace MRP with SMPR, or vice-versa
                 unnormalizedState.segment( startRow + i * 7 + 3, 3 ) = modifiedRodriguesParametersVector;
-
-                // Invert flag
-                unnormalizedState( startRow + i * 7 + 6 ) = std::fabs( unnormalizedState( i * 7 + 6 ) - 1.0 );
             }
         }
     }

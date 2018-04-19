@@ -234,7 +234,7 @@ public:
         return 7 * this->bodiesToBeIntegratedNumerically_.size( );
     }
 
-    void normalizeState(
+    void postProcessState(
             Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& unnormalizedState,
             const int startRow )
     {
