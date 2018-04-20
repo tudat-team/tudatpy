@@ -244,20 +244,20 @@ Eigen::VectorXd  executeParameterEstimation(
     Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > truthParameters = initialParameterEstimate;
     std::cout << "Truth " << std::setprecision( 16 ) << truthParameters.transpose( ) << std::endl;
 
-    for( unsigned int i = 0; i < numberOfNumericalBodies * integrationArcStartTimes.size( ); i++ )
-    {
-        initialParameterEstimate[ 0 + 6 * i ] += 1.0E0;
-        initialParameterEstimate[ 1 + 6 * i ] += 1.0E0;
-        initialParameterEstimate[ 2 + 6 * i ] += 1.0E0;
-        initialParameterEstimate[ 3 + 6 * i ] += 1.0E-5;
-        initialParameterEstimate[ 4 + 6 * i ] += 1.0E-5;
-        initialParameterEstimate[ 5 + 6 * i ] += 1.0E-5;
-    }
-    for( unsigned int i = numberOfNumericalBodies * integrationArcStartTimes.size( );
-         i < static_cast< unsigned int >( initialParameterEstimate.rows( ) ); i++ )
-    {
-        initialParameterEstimate[ i ] *= ( 1.0 + 1.0E-6 );
-    }
+//    for( unsigned int i = 0; i < numberOfNumericalBodies * integrationArcStartTimes.size( ); i++ )
+//    {
+//        initialParameterEstimate[ 0 + 6 * i ] += 1.0E0;
+//        initialParameterEstimate[ 1 + 6 * i ] += 1.0E0;
+//        initialParameterEstimate[ 2 + 6 * i ] += 1.0E0;
+//        initialParameterEstimate[ 3 + 6 * i ] += 1.0E-5;
+//        initialParameterEstimate[ 4 + 6 * i ] += 1.0E-5;
+//        initialParameterEstimate[ 5 + 6 * i ] += 1.0E-5;
+//    }
+//    for( unsigned int i = numberOfNumericalBodies * integrationArcStartTimes.size( );
+//         i < static_cast< unsigned int >( initialParameterEstimate.rows( ) ); i++ )
+//    {
+//        initialParameterEstimate[ i ] *= ( 1.0 + 1.0E-6 );
+//    }
 
     parametersToEstimate->resetParameterValues( initialParameterEstimate );
 
