@@ -22,6 +22,7 @@
 #include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/initialTranslationalState.h"
 #include "Tudat/SimulationSetup/PropagationSetup/variationalEquationsSolver.h"
 #include "Tudat/SimulationSetup/EstimationSetup/createObservationManager.h"
+#include "Tudat/SimulationSetup/PropagationSetup/createNumericalSimulator.h"
 
 namespace tudat
 {
@@ -509,13 +510,13 @@ public:
                     resetParameterEstimate( newParameterEstimate, podInput->getReintegrateVariationalEquations( ) );
                 }
 
-                if( podInput->getSaveStateHistoryForEachIteration( ) )
-                {
-                    dynamicsHistoryPerIteration.push_back(
-                                variationalEquationsSolver_->getDynamicsSimulatorBase( )->getEquationsOfMotionNumericalSolutionBase( ) );
-                    dependentVariableHistoryPerIteration.push_back(
-                                variationalEquationsSolver_->getDynamicsSimulatorBase( )->getDependentVariableNumericalSolutionBase( ) );
-                }
+//                if( podInput->getSaveStateHistoryForEachIteration( ) )
+//                {
+//                    dynamicsHistoryPerIteration.push_back(
+//                                variationalEquationsSolver_->getDynamicsSimulatorBase( )->getEquationsOfMotionNumericalSolutionBase( ) );
+//                    dependentVariableHistoryPerIteration.push_back(
+//                                variationalEquationsSolver_->getDynamicsSimulatorBase( )->getDependentVariableNumericalSolutionBase( ) );
+//                }
             }
             catch( std::runtime_error )
             {
@@ -566,7 +567,6 @@ public:
                 exceptionDuringInversion = true;
                 break;
             }
-
 
             ParameterVectorType parameterAddition =
                     ( leastSquaresOutput.first.cwiseQuotient( transformationData.segment( 0, numberOfEstimatedParameters ) ) ).
@@ -644,7 +644,7 @@ public:
      */
     void resetParameterEstimate( const ParameterVectorType& newParameterEstimate, const bool reintegrateVariationalEquations = 1 )
     {
-        if( integrateAndEstimateOrbit_ )
+       if( integrateAndEstimateOrbit_ )
         {
             variationalEquationsSolver_->resetParameterEstimate( newParameterEstimate, reintegrateVariationalEquations );
         }
@@ -797,31 +797,12 @@ protected:
             integrateAndEstimateOrbit_ = false;
         }
 
-        if( boost::dynamic_pointer_cast< propagators::MultiArcPropagatorSettings< ObservationScalarType > >( propagatorSettings ) != NULL )
+        if( integrateAndEstimateOrbit_ )
         {
-            dynamicsIsMultiArc_ = true;
-
-            if( integrateAndEstimateOrbit_ )
-            {
-                std::vector< double > arcStartTimes = estimatable_parameters::getMultiArcStateEstimationArcStartTimes(
-                            parametersToEstimate_ );
-                variationalEquationsSolver_ =  boost::make_shared< propagators::MultiArcVariationalEquationsSolver
-                        < ObservationScalarType, TimeType > >(
-                            bodyMap, integratorSettings, propagatorSettings, parametersToEstimate_, arcStartTimes, 1,
-                            boost::shared_ptr< numerical_integrators::IntegratorSettings< double > >( ), 0, 1 );
-            }
-        }
-        else
-        {
-            dynamicsIsMultiArc_ = false;
-
-            if( integrateAndEstimateOrbit_ )
-            {
-                variationalEquationsSolver_ = boost::make_shared< propagators::SingleArcVariationalEquationsSolver
-                        < ObservationScalarType, TimeType > >(
-                            bodyMap, integratorSettings, propagatorSettings, parametersToEstimate_, 1,
-                            boost::shared_ptr< numerical_integrators::IntegratorSettings< double > >( ), 0, 1 );
-            }
+            variationalEquationsSolver_ =
+                    simulation_setup::createVariationalEquationsSolver(
+                        bodyMap, integratorSettings, propagatorSettings, parametersToEstimate_, 1,
+                        boost::shared_ptr< numerical_integrators::IntegratorSettings< double > >( ), 0, 1 );
         }
 
         if( integrateAndEstimateOrbit_ )
@@ -831,25 +812,10 @@ protected:
         }
         else if( propagatorSettings == NULL )
         {
-            if( !dynamicsIsMultiArc_ )
-            {
-                stateTransitionAndSensitivityMatrixInterface_ = boost::make_shared<
-                        propagators::SingleArcCombinedStateTransitionAndSensitivityMatrixInterface >(
-                            boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > >( ),
-                            boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > >( ),
-                            0, parametersToEstimate_->getParameterSetSize( ) );
-            }
-            else
-            {
-                stateTransitionAndSensitivityMatrixInterface_ = boost::make_shared<
-                        propagators::MultiArcCombinedStateTransitionAndSensitivityMatrixInterface >(
-                            std::vector< boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > > >( ),
-                            std::vector< boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > > >( ),
-                            std::vector< double >( ),
-                            0, parametersToEstimate_->getParameterSetSize( ) );
-            }
+            stateTransitionAndSensitivityMatrixInterface_ = createStateTransitionAndSensitivityMatrixInterface(
+                        propagatorSettings, 0, parametersToEstimate_->getParameterSetSize( ) );
         }
-        else if( propagatorSettings != NULL )
+        else
         {
             throw std::runtime_error( "Error, cannot parse propagator settings without estimating dynamics in OrbitDeterminationManager" );
         }
@@ -919,8 +885,6 @@ protected:
     //! Object used to interpolate the numerically integrated result of the state transition/sensitivity matrices.
     boost::shared_ptr< propagators::CombinedStateTransitionAndSensitivityMatrixInterface >
     stateTransitionAndSensitivityMatrixInterface_;
-
-    bool dynamicsIsMultiArc_;
 
 };
 
