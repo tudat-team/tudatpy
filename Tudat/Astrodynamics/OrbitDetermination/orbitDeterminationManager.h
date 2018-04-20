@@ -510,13 +510,13 @@ public:
                     resetParameterEstimate( newParameterEstimate, podInput->getReintegrateVariationalEquations( ) );
                 }
 
-                if( podInput->getSaveStateHistoryForEachIteration( ) )
-                {
-                    dynamicsHistoryPerIteration.push_back(
-                                variationalEquationsSolver_->getDynamicsSimulatorBase( )->getEquationsOfMotionNumericalSolutionBase( ) );
-                    dependentVariableHistoryPerIteration.push_back(
-                                variationalEquationsSolver_->getDynamicsSimulatorBase( )->getDependentVariableNumericalSolutionBase( ) );
-                }
+//                if( podInput->getSaveStateHistoryForEachIteration( ) )
+//                {
+//                    dynamicsHistoryPerIteration.push_back(
+//                                variationalEquationsSolver_->getDynamicsSimulatorBase( )->getEquationsOfMotionNumericalSolutionBase( ) );
+//                    dependentVariableHistoryPerIteration.push_back(
+//                                variationalEquationsSolver_->getDynamicsSimulatorBase( )->getDependentVariableNumericalSolutionBase( ) );
+//                }
             }
             catch( std::runtime_error )
             {
@@ -567,7 +567,6 @@ public:
                 exceptionDuringInversion = true;
                 break;
             }
-
 
             ParameterVectorType parameterAddition =
                     ( leastSquaresOutput.first.cwiseQuotient( transformationData.segment( 0, numberOfEstimatedParameters ) ) ).
@@ -645,16 +644,13 @@ public:
      */
     void resetParameterEstimate( const ParameterVectorType& newParameterEstimate, const bool reintegrateVariationalEquations = 1 )
     {
-        std::cout<<"INTEGRATE AND ESTIMATE "<<integrateAndEstimateOrbit_<<std::endl;
-        std::cout<<"Old parameter estimate: "<<parametersToEstimate_->template getFullParameterValues< double >( ).transpose( )<<std::endl;
-        std::cout<<"New parameter estimate: "<<newParameterEstimate.transpose( )<<std::endl;
-        if( integrateAndEstimateOrbit_ )
+       if( integrateAndEstimateOrbit_ )
         {
             variationalEquationsSolver_->resetParameterEstimate( newParameterEstimate, reintegrateVariationalEquations );
         }
         else
         {
-            //parametersToEstimate_->template resetParameterValues< ObservationScalarType>( newParameterEstimate );
+            parametersToEstimate_->template resetParameterValues< ObservationScalarType>( newParameterEstimate );
         }
         currentParameterEstimate_ = newParameterEstimate;
     }

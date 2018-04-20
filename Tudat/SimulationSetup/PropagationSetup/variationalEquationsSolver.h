@@ -1613,7 +1613,7 @@ public:
 
         // Reset original multi-arc bodies' dynamics
         originalMultiArcSolver_->getDynamicsSimulator( )->manuallySetAndProcessRawNumericalEquationsOfMotionSolution(
-                   numericalMultiArcSolution, dependentVariableHistory, true );
+                    numericalMultiArcSolution, dependentVariableHistory, true );
 
         // Create state transition matrix if not yet created.
         if( stateTransitionInterface_ == NULL )
@@ -1675,7 +1675,7 @@ public:
 
         // Reset original multi-arc bodies' dynamics
         originalMultiArcSolver_->getDynamicsSimulator( )->manuallySetAndProcessRawNumericalEquationsOfMotionSolution(
-                   numericalMultiArcSolution, dependentVariableHistory, true );
+                    numericalMultiArcSolution, dependentVariableHistory, true );
 
     }
 
@@ -1693,26 +1693,37 @@ public:
     {
         // Reset values of parameters.
         parametersToEstimate_->template resetParameterValues< StateScalarType >( newParameterEstimate );
-
-        std::cout<<"Old initial state "<<propagatorSettings_->getInitialStates( ).transpose( )<<std::endl;
-        std::cout<<"Computed initial states "<<estimatable_parameters::getInitialStateVectorOfBodiesToEstimate( parametersToEstimate_ ).transpose( )<<std::endl;
-
-        propagatorSettings_->resetInitialStates(
+        originalPopagatorSettings_->resetInitialStates(
                     estimatable_parameters::getInitialStateVectorOfBodiesToEstimate( parametersToEstimate_ ) );
-        std::cout<<"New initial state "<<propagatorSettings_->getInitialStates( ).transpose( )<<std::endl;
+
+        propagatorSettings_->getSingleArcPropagatorSettings( )->resetInitialStates(
+                    newParameterEstimate.segment( 0, singleArcDynamicsSize_ ) );
+        Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > totalMultiArcInitialState =
+                propagatorSettings_->getMultiArcPropagatorSettings( )->getInitialStates( );
+
+        for( unsigned int i = 0; i < arcStartTimes_.size( ); i++ )
+        {
+            totalMultiArcInitialState.segment(
+                        i * multiArcDynamicsSingleArcSize_ + singleArcDynamicsSize_,
+                        originalMultiArcDynamicsSingleArcSize_ ) =
+                    newParameterEstimate.segment(
+                        singleArcDynamicsSize_ + i * originalMultiArcDynamicsSingleArcSize_, originalMultiArcDynamicsSingleArcSize_  );
+
+        }
+        propagatorSettings_->getMultiArcPropagatorSettings( )->resetInitialStates( totalMultiArcInitialState );
+        propagatorSettings_->setInitialStatesFromConstituents( );
 
 
-//        // Check if re-integration of variational equations is requested
-//        if( areVariationalEquationsToBeIntegrated )
-//        {
-
-//            // Integrate variational and state equations.
-//            this->integrateVariationalAndDynamicalEquations( propagatorSettings_->getInitialStates( ), 1 );
-//        }
-//        else
-//        {
-//            this->integrateDynamicalEquationsOfMotionOnly( propagatorSettings_->getInitialStates( ) );
-//        }
+        // Check if re-integration of variational equations is requested
+        if( areVariationalEquationsToBeIntegrated )
+        {
+            // Integrate variational and state equations.
+            this->integrateVariationalAndDynamicalEquations( propagatorSettings_->getInitialStates( ), 1 );
+        }
+        else
+        {
+            this->integrateDynamicalEquationsOfMotionOnly( propagatorSettings_->getInitialStates( ) );
+        }
     }
 
     //! Function to retrieve propagator settings used for equations of motion
