@@ -93,7 +93,7 @@ Eigen::Vector6d computeStateDerivativeForUnifiedStateModelExponentialMap(
     Eigen::Vector3d epsilonQuaternionVector = Eigen::Vector3d::Zero( );
     if ( std::fabs( exponentialMapMagnitude ) < singularityTolerance )
     {
-        epsilonQuaternionVector = exponentialMapVector * ( 0.5 + std::pow( exponentialMapMagnitude, 2 ) / 48.0 );
+        epsilonQuaternionVector = exponentialMapVector * ( 0.5 - std::pow( exponentialMapMagnitude, 2 ) / 48.0 );
     }
     {
         epsilonQuaternionVector = exponentialMapVector / exponentialMapMagnitude *
