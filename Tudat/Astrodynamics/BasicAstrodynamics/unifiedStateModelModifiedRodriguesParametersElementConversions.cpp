@@ -24,7 +24,6 @@
 #include "Tudat/Astrodynamics/BasicAstrodynamics/unifiedStateModelModifiedRodriguesParametersElementConversions.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/stateVectorIndices.h"
 
-#include "Tudat/Astrodynamics/BasicAstrodynamics/orbitalElementConversions.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/unifiedStateModelQuaternionsElementConversions.h"
 
 namespace tudat
@@ -194,10 +193,8 @@ Eigen::Vector7d convertKeplerianToUnifiedStateModelModifiedRodriguesParametersEl
                                           + keplerianElements( argumentOfPeriapsisIndex ) );
 
     // Calculate the additional elements
-    double argumentOfLatitude = keplerianElements( argumentOfPeriapsisIndex ) +
-            keplerianElements( trueAnomalyIndex ); // also called u
-    double rightAscensionOfLatitude = argumentOfLatitude +
-            keplerianElements( longitudeOfAscendingNodeIndex ); // also called lambda
+    double argumentOfLatitude = keplerianElements( argumentOfPeriapsisIndex ) + keplerianElements( trueAnomalyIndex ); // also called u
+    double rightAscensionOfLatitude = argumentOfLatitude + keplerianElements( longitudeOfAscendingNodeIndex ); // also called lambda
 
     // Compute denominator of conversion
     double denominator = 1.0 + std::cos( 0.5 * keplerianElements( inclinationIndex ) ) *
@@ -216,23 +213,20 @@ Eigen::Vector7d convertKeplerianToUnifiedStateModelModifiedRodriguesParametersEl
     convertedUnifiedStateModelElements( shadowModifiedRodriguesParameterFlagIndex ) = shadowFlag ? 1.0 : 0.0;
     denominator = shadowFlag ? ( denominator - 2.0 ) : denominator; // redefine denominator for SMRP
 
-    // Find the common multiplication factor to the vector elements
-    double multiplicationFactor = 1.0 / denominator;
-
     // Compute the sigma1 modified Rodrigues parameters of the unified state model
     convertedUnifiedStateModelElements( sigma1ModifiedRodriguesParameterIndex ) =
-            multiplicationFactor * std::sin( 0.5 * keplerianElements( inclinationIndex ) ) *
-            std::cos( 0.5 * ( keplerianElements( longitudeOfAscendingNodeIndex ) - argumentOfLatitude ) );
+            std::sin( 0.5 * keplerianElements( inclinationIndex ) ) *
+            std::cos( 0.5 * ( keplerianElements( longitudeOfAscendingNodeIndex ) - argumentOfLatitude ) ) / denominator;
 
     // Compute the sigma2 modified Rodrigues parameters of the unified state model
     convertedUnifiedStateModelElements( sigma2ModifiedRodriguesParameterIndex ) =
-            multiplicationFactor * std::sin( 0.5 * keplerianElements( inclinationIndex ) ) *
-            std::sin( 0.5 * ( keplerianElements( longitudeOfAscendingNodeIndex ) - argumentOfLatitude ) );
+            std::sin( 0.5 * keplerianElements( inclinationIndex ) ) *
+            std::sin( 0.5 * ( keplerianElements( longitudeOfAscendingNodeIndex ) - argumentOfLatitude ) ) / denominator;
 
     // Compute the sigma3 modified Rodrigues parameters of the unified state model
     convertedUnifiedStateModelElements( sigma3ModifiedRodriguesParameterIndex ) =
-            multiplicationFactor * std::cos( 0.5 * keplerianElements( inclinationIndex ) ) *
-            std::sin( 0.5 * rightAscensionOfLatitude );
+            std::cos( 0.5 * keplerianElements( inclinationIndex ) ) *
+            std::sin( 0.5 * rightAscensionOfLatitude ) / denominator;
 
     // Give back result
     return convertedUnifiedStateModelElements;
@@ -330,38 +324,40 @@ Eigen::Vector6d convertUnifiedStateModelModifiedRodriguesParametersToKeplerianEl
     convertedKeplerianElements( inclinationIndex ) = std::acos( arccosineArgument );
     // this acos is always defined correctly because the inclination is always below PI rad
 
-    // Find sine and cosine of longitude of ascending node separately
-    double signDirectionCosineMatrix = shadowFlag ? - 1.0 : 1.0; // sign depends on shadow conditions
-    double sineOmega = 8.0 * modifiedRodriguesParametersVector( 0 ) *
-            modifiedRodriguesParametersVector( 2 ) + signDirectionCosineMatrix *
-            4.0 * modifiedRodriguesParametersVector( 1 ) *
-            oneMinusModifiedRodriguesParametersMagnitudeSquared;
-    double cosineOmega = - 8.0 * modifiedRodriguesParametersVector( 1 ) *
-            modifiedRodriguesParametersVector( 2 ) + signDirectionCosineMatrix *
-            4.0 * modifiedRodriguesParametersVector( 0 ) *
-            oneMinusModifiedRodriguesParametersMagnitudeSquared;
-    denominator = std::sqrt( cosineOmega * cosineOmega +
-                             sineOmega * sineOmega ); // overwrite
-
     // Compute longitude of ascending node
     if ( std::fabs( std::fabs( convertedKeplerianElements( inclinationIndex ) ) - PI ) < singularityTolerance )
-        // pure-prograde or pure-retrograde orbit
+        // pure-retrograde orbit -> inclination = PI
     {
         // Define the error message
         std::stringstream errorMessage;
-        errorMessage << "Pure-retrograde orbit (inclination = pi).\n"
+        errorMessage << "Pure-retrograde orbit (inclination = PI).\n"
                      << "Unified state model elements cannot be transformed to Kepler elements." << std::endl;
 
         // Throw exception
         throw std::runtime_error( std::runtime_error( errorMessage.str( ) ) );
     }
-    else if ( std::fabs( denominator ) < singularityTolerance )
-        // null denominator, find work-around
+    else if ( ( std::fabs( convertedKeplerianElements( inclinationIndex ) ) < singularityTolerance ) ||
+        // pure-prograde orbit -> inclination = 0 -> RAAN is undefined, hence give zero
+              ( std::fabs( denominator ) < singularityTolerance ) )
+        // denominator is null, find a workaround
     {
-        convertedKeplerianElements( longitudeOfAscendingNodeIndex ) = 0.0; // by definition
+        convertedKeplerianElements( longitudeOfAscendingNodeIndex ) = 0.0;
     }
     else
     {
+        // Find sine and cosine of longitude of ascending node separately
+        double signDirectionCosineMatrix = shadowFlag ? - 1.0 : 1.0; // sign depends on shadow conditions
+        double sineOmega = 8.0 * modifiedRodriguesParametersVector( 0 ) *
+                modifiedRodriguesParametersVector( 2 ) + signDirectionCosineMatrix *
+                4.0 * modifiedRodriguesParametersVector( 1 ) *
+                oneMinusModifiedRodriguesParametersMagnitudeSquared;
+        double cosineOmega = - 8.0 * modifiedRodriguesParametersVector( 1 ) *
+                modifiedRodriguesParametersVector( 2 ) + signDirectionCosineMatrix *
+                4.0 * modifiedRodriguesParametersVector( 0 ) *
+                oneMinusModifiedRodriguesParametersMagnitudeSquared;
+        denominator = std::sqrt( cosineOmega * cosineOmega +
+                                 sineOmega * sineOmega ); // overwrite
+
         // Compute longitude of ascending node
         convertedKeplerianElements( longitudeOfAscendingNodeIndex ) = std::atan2(
                     sineOmega / denominator, cosineOmega / denominator );
@@ -447,13 +443,11 @@ Eigen::Vector6d convertUnifiedStateModelModifiedRodriguesParametersToKeplerianEl
     return convertedKeplerianElements;
 }
 
-//! Convert Cartesian elements to unified state model elements with modified Rodrigues parameters.
+////! Convert Cartesian elements to unified state model elements with modified Rodrigues parameters.
 Eigen::Vector7d convertCartesianToUnifiedStateModelModifiedRodriguesParametersElements(
         const Eigen::Vector6d& cartesianElements,
         const double centralBodyGravitationalParameter )
 {
-    using mathematical_constants::PI;
-
     // Declaring eventual output vector.
     Eigen::Vector7d convertedUnifiedStateModelModifiedRodriguesParametersElements = Eigen::Vector7d::Zero( );
 
