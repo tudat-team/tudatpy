@@ -470,7 +470,7 @@ public:
             const boost::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > singleArcPropagatorSettings,
             const boost::shared_ptr< MultiArcPropagatorSettings< StateScalarType > > multiArcPropagatorSettings ):
         PropagatorSettings< StateScalarType >(
-            Eigen::VectorXd::Zero( 0 ), false ),
+            Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >::Zero( 0 ), false ),
         singleArcPropagatorSettings_( singleArcPropagatorSettings ),
         multiArcPropagatorSettings_( multiArcPropagatorSettings )
     {

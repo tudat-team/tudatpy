@@ -232,6 +232,11 @@ bool isDynamicalParameterSingleArc(
         flag = true;
         break;
     }
+    case initial_rotational_body_state:
+    {
+        flag = true;
+        break;
+    }
     default:
         throw std::runtime_error( "Error when checking single/multi-arc dynamical parameter, parameter not identified" );
     }
