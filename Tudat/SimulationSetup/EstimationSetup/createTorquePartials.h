@@ -32,6 +32,10 @@ namespace simulation_setup
 boost::shared_ptr< acceleration_partials::TorquePartial > createInertialTorquePartial(
         const std::pair< std::string, boost::shared_ptr< simulation_setup::Body > > acceleratedBody );
 
+boost::shared_ptr< acceleration_partials::TorquePartial > createInertiaTensorTorquePartial(
+        const basic_astrodynamics::SingleBodyTorqueModelMap& singleBodyTorqueMap,
+        const std::pair< std::string, boost::shared_ptr< simulation_setup::Body > > acceleratedBody );
+
 //! Function to create a single torque partial derivative object.
 /*!
  *  Function to create a single torque partial derivative object.
