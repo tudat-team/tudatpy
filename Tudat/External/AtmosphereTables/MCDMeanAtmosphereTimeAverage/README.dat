@@ -1,7 +1,7 @@
 % TABULATED MARS CLIMATE DATABASE
 % Pressure, density and temperature values averaged over time.
-% Values are stored in the respective folder, with latitude along the columns,
-% 	longitude along the rows and altitude along the third-dimension,
+% Values are stored in the same text file, with latitude along the rows,
+% 	longitude along the columns and altitude along the third-dimension,
 % 	which corresponds to the different text files.
 % LATITUDE: 48 
 -90.000	-86.170	-82.340	-78.511	-74.681	-70.851	-67.021	-63.191	-59.362	-55.532	-51.702	-47.872	-44.043	-40.213	-36.383	-32.553	-28.723	-24.894	-21.064	-17.234	-13.404	-9.574	-5.745	-1.915	1.915	5.745	9.574	13.404	17.234	21.064	24.894	28.723	32.553	36.383	40.213	44.043	47.872	51.702	55.532	59.362	63.191	67.021	70.851	74.681	78.511	82.340	86.170	90.000	
