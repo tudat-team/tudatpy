@@ -79,11 +79,14 @@ add_executable(test_MultiArcVariationalEquations "${SRCROOT}${PROPAGATORSDIR}/Un
 setup_custom_test_program(test_MultiArcVariationalEquations "${SRCROOT}${PROPAGATORSDIR}")
 target_link_libraries(test_MultiArcVariationalEquations ${TUDAT_ESTIMATION_LIBRARIES} ${Boost_LIBRARIES})
 
+add_executable(test_HybridArcVariationalEquations "${SRCROOT}${PROPAGATORSDIR}/UnitTests/unitTestHybridArcVariationalEquationPropagation.cpp")
+setup_custom_test_program(test_HybridArcVariationalEquations "${SRCROOT}${PROPAGATORSDIR}")
+target_link_libraries(test_HybridArcVariationalEquations ${TUDAT_ESTIMATION_LIBRARIES} ${Boost_LIBRARIES})
+
+
 add_executable(test_DependentVariableOutput "${SRCROOT}${PROPAGATORSDIR}/UnitTests/unitTestDependentVariableOutput.cpp")
 setup_custom_test_program(test_DependentVariableOutput "${SRCROOT}${PROPAGATORSDIR}")
 target_link_libraries(test_DependentVariableOutput ${TUDAT_PROPAGATION_LIBRARIES} ${Boost_LIBRARIES})
-
-endif( )
 
 add_executable(test_EnvironmentModelComputations "${SRCROOT}${PROPAGATORSDIR}/UnitTests/unitTestEnvironmentUpdater.cpp")
 setup_custom_test_program(test_EnvironmentModelComputations "${SRCROOT}${PROPAGATORSDIR}")
@@ -108,6 +111,10 @@ target_link_libraries(test_CustomStatePropagation ${TUDAT_PROPAGATION_LIBRARIES}
 add_executable(test_MultiArcDynamics "${SRCROOT}${PROPAGATORSDIR}/UnitTests/unitTestMultiArcDynamics.cpp")
 setup_custom_test_program(test_MultiArcDynamics "${SRCROOT}${PROPAGATORSDIR}")
 target_link_libraries(test_MultiArcDynamics ${TUDAT_PROPAGATION_LIBRARIES} ${Boost_LIBRARIES})
+
+add_executable(test_HybridArcDynamics "${SRCROOT}${PROPAGATORSDIR}/UnitTests/unitTestHybridArcDynamics.cpp")
+setup_custom_test_program(test_HybridArcDynamics "${SRCROOT}${PROPAGATORSDIR}")
+target_link_libraries(test_HybridArcDynamics ${TUDAT_PROPAGATION_LIBRARIES} ${Boost_LIBRARIES})
 
 add_executable(test_PropagationTerminationReason "${SRCROOT}${PROPAGATORSDIR}/UnitTests/unitTestPropagationTerminationReason.cpp")
 setup_custom_test_program(test_PropagationTerminationReason "${SRCROOT}${PROPAGATORSDIR}/")
@@ -136,6 +143,8 @@ target_link_libraries(test_ForwardBackwardIntegration ${TUDAT_PROPAGATION_LIBRAR
 add_executable(test_ExactTermination "${SRCROOT}${PROPAGATORSDIR}/UnitTests/unitTestExactTermination.cpp")
 setup_custom_test_program(test_ExactTermination "${SRCROOT}${PROPAGATORSDIR}/")
 target_link_libraries(test_ExactTermination ${TUDAT_PROPAGATION_LIBRARIES} ${Boost_LIBRARIES})
+
+endif( )
 
 endif( )
 
