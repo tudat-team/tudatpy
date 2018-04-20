@@ -310,7 +310,8 @@ int getSingleArcInitialDynamicalStateParameterSetSize(
  */
 template< typename InitialStateParameterType >
 std::vector< double > getMultiArcStateEstimationArcStartTimes(
-        const boost::shared_ptr< EstimatableParameterSet< InitialStateParameterType > > estimatableParameters )
+        const boost::shared_ptr< EstimatableParameterSet< InitialStateParameterType > > estimatableParameters,
+        const bool throwErrorOnSingleArcDynamics = true )
 {
     // Retrieve initial dynamical parameters.
     std::vector< boost::shared_ptr< EstimatableParameter<
@@ -361,7 +362,10 @@ std::vector< double > getMultiArcStateEstimationArcStartTimes(
         }
         else
         {
+            if( throwErrorOnSingleArcDynamics )
+            {
             throw std::runtime_error( "Error when getting arc times from estimated parameters, soingle arc dynamics found" );
+            }
         }
     }
 

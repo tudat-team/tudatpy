@@ -264,7 +264,7 @@ public:
             ( std::vector< boost::shared_ptr< EstimatableParameter< Eigen::Matrix
               < InitialStateParameterType, Eigen::Dynamic, 1 > > > >( ) ) ):
         estimatedDoubleParameters_( estimatedDoubleParameters ), estimatedVectorParameters_( estimatedVectorParameters ),
-        estimateInitialStateParameters_( estimateInitialStateParameters ), totalConstraintSize_( 0 )
+        totalConstraintSize_( 0 )
     {
         // Initialize total number of parameters to 0.
         estimatedParameterSetSize_ = 0;
@@ -273,17 +273,22 @@ public:
         initialDynamicalMultiArcStateParameterSize_ = 0;
 
         // Iterate over all double parameters and add to parameter size.
-        for( unsigned int i = 0; i < estimateInitialStateParameters_.size( ); i++ )
+        for( unsigned int i = 0; i < estimateInitialStateParameters.size( ); i++ )
         {
-            if( isDynamicalParameterSingleArc( estimateInitialStateParameters_[ i ] ) )
+            if( isDynamicalParameterSingleArc( estimateInitialStateParameters[ i ] ) )
             {
-                estimateSingleArcInitialStateParameters_.push_back( estimateInitialStateParameters_[ i ] );
+                estimateSingleArcInitialStateParameters_.push_back( estimateInitialStateParameters[ i ] );
             }
             else
             {
-                estimateMultiArcInitialStateParameters_.push_back( estimateInitialStateParameters_[ i ] );
+                estimateMultiArcInitialStateParameters_.push_back( estimateInitialStateParameters[ i ] );
             }
         }
+
+        estimateInitialStateParameters_ = estimateSingleArcInitialStateParameters_;
+        estimateInitialStateParameters_.insert(
+                    estimateInitialStateParameters_.end( ), estimateMultiArcInitialStateParameters_.begin( ),
+                    estimateMultiArcInitialStateParameters_.end( ) );
 
         for( unsigned int i = 0; i < estimateSingleArcInitialStateParameters_.size( ); i++ )
         {
