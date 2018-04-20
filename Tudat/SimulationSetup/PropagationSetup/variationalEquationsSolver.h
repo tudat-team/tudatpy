@@ -1693,21 +1693,26 @@ public:
     {
         // Reset values of parameters.
         parametersToEstimate_->template resetParameterValues< StateScalarType >( newParameterEstimate );
+
+        std::cout<<"Old initial state "<<propagatorSettings_->getInitialStates( ).transpose( )<<std::endl;
+        std::cout<<"Computed initial states "<<estimatable_parameters::getInitialStateVectorOfBodiesToEstimate( parametersToEstimate_ ).transpose( )<<std::endl;
+
         propagatorSettings_->resetInitialStates(
                     estimatable_parameters::getInitialStateVectorOfBodiesToEstimate( parametersToEstimate_ ) );
+        std::cout<<"New initial state "<<propagatorSettings_->getInitialStates( ).transpose( )<<std::endl;
 
 
-        // Check if re-integration of variational equations is requested
-        if( areVariationalEquationsToBeIntegrated )
-        {
+//        // Check if re-integration of variational equations is requested
+//        if( areVariationalEquationsToBeIntegrated )
+//        {
 
-            // Integrate variational and state equations.
-            this->integrateVariationalAndDynamicalEquations( propagatorSettings_->getInitialStates( ), 1 );
-        }
-        else
-        {
-            this->integrateDynamicalEquationsOfMotionOnly( propagatorSettings_->getInitialStates( ) );
-        }
+//            // Integrate variational and state equations.
+//            this->integrateVariationalAndDynamicalEquations( propagatorSettings_->getInitialStates( ), 1 );
+//        }
+//        else
+//        {
+//            this->integrateDynamicalEquationsOfMotionOnly( propagatorSettings_->getInitialStates( ) );
+//        }
     }
 
     //! Function to retrieve propagator settings used for equations of motion

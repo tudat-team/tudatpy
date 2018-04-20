@@ -45,9 +45,18 @@ using namespace tudat::orbital_element_conversions;
 using namespace tudat::ephemerides;
 using namespace tudat::propagators;
 using namespace tudat::basic_astrodynamics;
+using namespace tudat::unit_conversions;
 
 template< typename ObservationScalarType = double , typename TimeType = double , typename StateScalarType  = double >
-Eigen::VectorXd  executeParameterEstimation( )
+Eigen::VectorXd  executeParameterEstimation(
+        const Eigen::Matrix< StateScalarType, 12, 1 > initialStateDifference = Eigen::Matrix< StateScalarType, 12, 1 >::Zero( ),
+        const Eigen::VectorXd parameterPerturbation = Eigen::VectorXd::Zero( 2 ),
+        const bool propagateVariationalEquations = 1,
+        const bool patchMultiArcs = 0,
+        const std::vector< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > forcedMultiArcInitialStates =
+        std::vector< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >( ),
+        const double arcDuration = 0.5 * 86400.0,
+        const double arcOverlap  = 5.0E3 )
 {
     //Load spice kernels.f
     std::string kernelsPath = input_output::getSpiceKernelPath( );
@@ -151,7 +160,8 @@ Eigen::VectorXd  executeParameterEstimation( )
 
 
     // Creater arc times
-    std::vector< double > integrationArcStarts, integrationArcEnds;
+    std::vector< double > integrationArcStarts, integrationArcEnds, integrationArcLimits;
+
     double integrationStartTime = initialEphemerisTime;
     double integrationEndTime = finalEphemerisTime - 1.0E4;
     double currentStartTime = integrationStartTime;
@@ -159,12 +169,16 @@ Eigen::VectorXd  executeParameterEstimation( )
     do
     {
         integrationArcStarts.push_back( currentStartTime );
+        integrationArcLimits.push_back( currentStartTime );
+
         integrationArcEnds.push_back( currentEndTime );
 
         currentStartTime = currentEndTime - arcOverlap;
         currentEndTime = currentStartTime + arcDuration;
     }
     while( currentEndTime < integrationEndTime );
+
+    integrationArcLimits.push_back( currentStartTime + arcOverlap );
 
     // Create list of multi-arc initial states
     unsigned int numberOfIntegrationArcs = integrationArcStarts.size( );
@@ -192,7 +206,7 @@ Eigen::VectorXd  executeParameterEstimation( )
             multiArcSystemInitialStates[ j ]  = convertKeplerianToCartesianElements(
                         orbiterInitialStateInKeplerianElements,
                         marsGravitationalParameter ) + initialStateDifference.segment(
-                        singleArcInitialStates.rows( ), 6 );
+                        singleArcInitialStates.rows( ), 6 ).template cast< double >( );
         }
     }
     else
@@ -220,6 +234,10 @@ Eigen::VectorXd  executeParameterEstimation( )
     boost::shared_ptr< HybridArcPropagatorSettings< > > hybridArcPropagatorSettings =
             boost::make_shared< HybridArcPropagatorSettings< > >(
                 singleArcPropagatorSettings, multiArcPropagatorSettings );
+
+    std::cout<<"Single arc initial "<<singleArcPropagatorSettings->getInitialStates( ).transpose( )<<std::endl;
+    std::cout<<"Multi arc initial "<<multiArcPropagatorSettings->getInitialStates( ).transpose( )<<std::endl;
+    std::cout<<"Hybrid arc initial "<<hybridArcPropagatorSettings->getInitialStates( ).transpose( )<<std::endl;
 
     boost::shared_ptr< IntegratorSettings< > > integratorSettings =
             boost::make_shared< IntegratorSettings< > >
@@ -263,7 +281,7 @@ Eigen::VectorXd  executeParameterEstimation( )
     OrbitDeterminationManager< ObservationScalarType, TimeType > orbitDeterminationManager =
             OrbitDeterminationManager< ObservationScalarType, TimeType >(
                 bodyMap, parametersToEstimate,
-                observationSettingsMap, integratorSettings, propagatorSettings );
+                observationSettingsMap, integratorSettings, hybridArcPropagatorSettings );
 
     Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > initialParameterEstimate =
             parametersToEstimate->template getFullParameterValues< StateScalarType >( );
@@ -275,7 +293,7 @@ Eigen::VectorXd  executeParameterEstimation( )
 
 
     std::vector< TimeType > initialObservationTimes;
-    initialObservationTimes.resize( numberOfObservationsPerArc * integrationArcStartTimes.size( ) );
+    initialObservationTimes.resize( numberOfObservationsPerArc * integrationArcStarts.size( ) );
 
     for( unsigned int i = 0; i < integrationArcLimits.size( ) - 1; i++ )
     {
@@ -309,7 +327,7 @@ Eigen::VectorXd  executeParameterEstimation( )
     Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > truthParameters = initialParameterEstimate;
     std::cout << "Truth " << std::setprecision( 16 ) << truthParameters.transpose( ) << std::endl;
 
-    for( unsigned int i = 0; i < numberOfNumericalBodies * integrationArcStartTimes.size( ); i++ )
+    for( unsigned int i = 0; i < multiArcBodiesToIntegrate.size( ) * integrationArcStarts.size( ); i++ )
     {
         initialParameterEstimate[ 0 + 6 * i ] += 1.0E0;
         initialParameterEstimate[ 1 + 6 * i ] += 1.0E0;
@@ -318,7 +336,7 @@ Eigen::VectorXd  executeParameterEstimation( )
         initialParameterEstimate[ 4 + 6 * i ] += 1.0E-5;
         initialParameterEstimate[ 5 + 6 * i ] += 1.0E-5;
     }
-    for( unsigned int i = numberOfNumericalBodies * integrationArcStartTimes.size( );
+    for( unsigned int i = multiArcBodiesToIntegrate.size( ) * integrationArcStarts.size( );
          i < static_cast< unsigned int >( initialParameterEstimate.rows( ) ); i++ )
     {
         initialParameterEstimate[ i ] *= ( 1.0 + 1.0E-6 );
@@ -339,7 +357,7 @@ Eigen::VectorXd  executeParameterEstimation( )
 
 BOOST_AUTO_TEST_CASE( test_MultiArcStateEstimation )
 {
-        Eigen::VectorXd parameterError = executeParameterEstimation< long double, tudat::Time, long double >( );
+        Eigen::VectorXd parameterError = executeParameterEstimation< double, double, double >( );
         int numberOfEstimatedArcs = ( parameterError.rows( ) - 3 ) / 6;
 
         std::cout << parameterError.transpose( ) << std::endl;

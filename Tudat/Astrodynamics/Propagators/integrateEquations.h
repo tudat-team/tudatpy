@@ -446,6 +446,8 @@ boost::shared_ptr< PropagationTerminationDetails > integrateEquationsFromIntegra
     TimeType initialTime = currentTime;
     StateType newState = integrator->getCurrentState( );
 
+    std::cout<<"Initial state: "<<currentTime<<" "<<std::endl<<newState<<std::endl<<std::endl;
+
     // Initialization of numerical solutions for variational equations
     solutionHistory.clear( );
     solutionHistory[ currentTime ] = newState;
