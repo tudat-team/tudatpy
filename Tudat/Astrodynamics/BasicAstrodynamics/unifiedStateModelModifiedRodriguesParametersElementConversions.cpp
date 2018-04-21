@@ -316,7 +316,8 @@ Eigen::Vector6d convertUnifiedStateModelModifiedRodriguesParametersToKeplerianEl
                                          std::pow( modifiedRodriguesParametersVector( 1 ), 2 ) ) +
                                  oneMinusModifiedRodriguesParametersMagnitudeSquaredSquared ) /
             onePlusModifiedRodriguesParametersMagnitudeSquaredSquared;
-    if ( ( std::fabs( arccosineArgument ) - 1.0 ) > 0.0 )
+    if ( ( ( std::fabs( arccosineArgument ) - 1.0 ) > 0.0 ) ||
+         ( std::abs( std::fabs( arccosineArgument ) - 1.0 ) < singularityTolerance ) )
     {
         // Make sure that the cosine does not exceed 1.0 in magnitude
         arccosineArgument = ( arccosineArgument > 0.0 ) ? 1.0 : - 1.0;
@@ -324,8 +325,21 @@ Eigen::Vector6d convertUnifiedStateModelModifiedRodriguesParametersToKeplerianEl
     convertedKeplerianElements( inclinationIndex ) = std::acos( arccosineArgument );
     // this acos is always defined correctly because the inclination is always below PI rad
 
+    // Find sine and cosine of longitude of ascending node separately
+    double signDirectionCosineMatrix = shadowFlag ? - 1.0 : 1.0; // sign depends on shadow conditions
+    double sineOmega = 8.0 * modifiedRodriguesParametersVector( 0 ) *
+            modifiedRodriguesParametersVector( 2 ) + signDirectionCosineMatrix *
+            4.0 * modifiedRodriguesParametersVector( 1 ) *
+            oneMinusModifiedRodriguesParametersMagnitudeSquared;
+    double cosineOmega = - 8.0 * modifiedRodriguesParametersVector( 1 ) *
+            modifiedRodriguesParametersVector( 2 ) + signDirectionCosineMatrix *
+            4.0 * modifiedRodriguesParametersVector( 0 ) *
+            oneMinusModifiedRodriguesParametersMagnitudeSquared;
+    denominator = std::sqrt( cosineOmega * cosineOmega +
+                             sineOmega * sineOmega ); // overwrite
+
     // Compute longitude of ascending node
-    if ( std::fabs( std::fabs( convertedKeplerianElements( inclinationIndex ) ) - PI ) < singularityTolerance )
+    if ( std::fabs( convertedKeplerianElements( inclinationIndex ) - PI ) < singularityTolerance )
         // pure-retrograde orbit -> inclination = PI
     {
         // Define the error message
@@ -345,19 +359,6 @@ Eigen::Vector6d convertUnifiedStateModelModifiedRodriguesParametersToKeplerianEl
     }
     else
     {
-        // Find sine and cosine of longitude of ascending node separately
-        double signDirectionCosineMatrix = shadowFlag ? - 1.0 : 1.0; // sign depends on shadow conditions
-        double sineOmega = 8.0 * modifiedRodriguesParametersVector( 0 ) *
-                modifiedRodriguesParametersVector( 2 ) + signDirectionCosineMatrix *
-                4.0 * modifiedRodriguesParametersVector( 1 ) *
-                oneMinusModifiedRodriguesParametersMagnitudeSquared;
-        double cosineOmega = - 8.0 * modifiedRodriguesParametersVector( 1 ) *
-                modifiedRodriguesParametersVector( 2 ) + signDirectionCosineMatrix *
-                4.0 * modifiedRodriguesParametersVector( 0 ) *
-                oneMinusModifiedRodriguesParametersMagnitudeSquared;
-        denominator = std::sqrt( cosineOmega * cosineOmega +
-                                 sineOmega * sineOmega ); // overwrite
-
         // Compute longitude of ascending node
         convertedKeplerianElements( longitudeOfAscendingNodeIndex ) = std::atan2(
                     sineOmega / denominator, cosineOmega / denominator );
