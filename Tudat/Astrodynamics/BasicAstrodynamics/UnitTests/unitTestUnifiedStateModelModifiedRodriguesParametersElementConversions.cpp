@@ -101,7 +101,7 @@ BOOST_AUTO_TEST_CASE( testconvertKeplerianToUnifiedStateModelModifiedRodriguesPa
         keplerianElements( trueAnomalyIndex ) = convertDegreesToRadians( 10.0 );
 
         // Set expected unified state model elements [m/s,m/s,m/s,-,-,-,-].
-        // (Results obtained using MATLAB code).
+        // (Results obtained by converting quaternions from USM7 unit test to exponential map, with MATLAB code).
         expectedUnifiedStateModelElements( CHodographModifiedRodriguesParameterIndex ) = 17173.1340579794;
         expectedUnifiedStateModelElements( Rf1HodographModifiedRodriguesParameterIndex ) = -2993.47450825659;
         expectedUnifiedStateModelElements( Rf2HodographModifiedRodriguesParameterIndex ) = 34215.5701963558;
@@ -131,7 +131,7 @@ BOOST_AUTO_TEST_CASE( testconvertKeplerianToUnifiedStateModelModifiedRodriguesPa
         keplerianElements( trueAnomalyIndex ) = convertDegreesToRadians( 170.0 );
 
         // Set expected unified state model elements [m/s,m/s,m/s,-,-,-,-].
-        // (Results obtained using MATLAB code).
+        // (Results obtained by converting quaternions from USM7 unit test to exponential map, with MATLAB code).
         expectedUnifiedStateModelElements( CHodographModifiedRodriguesParameterIndex ) = 29744.7407136119;
         expectedUnifiedStateModelElements( Rf1HodographModifiedRodriguesParameterIndex ) = -2592.42496973134;
         expectedUnifiedStateModelElements( Rf2HodographModifiedRodriguesParameterIndex ) = 29631.5529950138;
@@ -206,15 +206,15 @@ BOOST_AUTO_TEST_CASE( testconvertKeplerianToUnifiedStateModelModifiedRodriguesPa
         // Set Keplerian elements [m,-,rad,rad,rad,rad].
         keplerianElements( inclinationIndex ) = PI; // = 180 deg
 
-        // Set expected unified state model elements [m/s,m/s,m/s,-,-,-,-]. (Results were calculated by
-        // hand).
+        // Set expected unified state model elements [m/s,m/s,m/s,-,-,-,-].
+        // (Results obtained by converting quaternions from USM7 unit test to exponential map, with MATLAB code).
         expectedUnifiedStateModelElements( CHodographModifiedRodriguesParameterIndex ) = 29894.5892222602;
         expectedUnifiedStateModelElements( Rf1HodographModifiedRodriguesParameterIndex ) = -260.548512780222;
         expectedUnifiedStateModelElements( Rf2HodographModifiedRodriguesParameterIndex ) = 2978.08312848463;
-        expectedUnifiedStateModelElements( sigma1ModifiedRodriguesParameterIndex ) = 0.300705799504273;
-        expectedUnifiedStateModelElements( sigma2ModifiedRodriguesParameterIndex ) = -0.953716950748227;
-        expectedUnifiedStateModelElements( sigma3ModifiedRodriguesParameterIndex ) = 6.11740603377039e-17;
-        expectedUnifiedStateModelElements( shadowModifiedRodriguesParameterFlagIndex ) = 1.0;
+        expectedUnifiedStateModelElements( sigma1ModifiedRodriguesParameterIndex ) = -0.300705799504273;
+        expectedUnifiedStateModelElements( sigma2ModifiedRodriguesParameterIndex ) = 0.953716950748227;
+        expectedUnifiedStateModelElements( sigma3ModifiedRodriguesParameterIndex ) = -6.11740603377039e-17;
+        expectedUnifiedStateModelElements( shadowModifiedRodriguesParameterFlagIndex ) = 0.0;
 
         // Compute unified state model elements.
         computedUnifiedStateModelElements =
