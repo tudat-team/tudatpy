@@ -200,15 +200,11 @@ Eigen::Vector7d convertKeplerianToUnifiedStateModelModifiedRodriguesParametersEl
     double denominator = 1.0 + std::cos( 0.5 * keplerianElements( inclinationIndex ) ) *
             std::cos( 0.5 * rightAscensionOfLatitude );
 
-    // Decide whether to switch to shadow modified Rodrigues parameters (SMRP)
+    // Decide whether to switch to shadow modified Rodrigues parameters (SMRP) to avoid singularity at 2 PI
     bool shadowFlag = std::fabs( denominator ) < singularityTolerance; // select SMRP directly if denominator is null
     if ( !shadowFlag )
     {
-        // Switch to SMRP in case magnitude is large, and MRP is approaching the singularity at 2 PI
-        double modifiedRodriguesParameterMagnitude =
-                ( 1.0 + std::pow( std::cos( 0.5 * keplerianElements( inclinationIndex ) ), 2 ) * (
-                      std::pow( std::sin( 0.5 * rightAscensionOfLatitude ), 2 ) - 1.0 ) ) / denominator / denominator;
-        shadowFlag = modifiedRodriguesParameterMagnitude > 1.0; // check eta quaternion
+        shadowFlag = denominator < 1.0; // check denominator
     }
     convertedUnifiedStateModelElements( shadowModifiedRodriguesParameterFlagIndex ) = shadowFlag ? 1.0 : 0.0;
     denominator = shadowFlag ? ( denominator - 2.0 ) : denominator; // redefine denominator for SMRP
