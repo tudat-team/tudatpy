@@ -310,7 +310,7 @@ class NRLMSISE00Atmosphere : public AtmosphereModel
     double getSpeedOfSound( const double altitude, const double longitude,
                           const double latitude, const double time )
     {
-        computeProperties(altitude, longitude, latitude, time );
+        computeProperties( altitude, longitude, latitude, time );
         return speedOfSound_;
     }
 
@@ -326,7 +326,7 @@ class NRLMSISE00Atmosphere : public AtmosphereModel
     double getMeanFreePath( const double altitude, const double longitude,
                           const double latitude, const double time )
     {
-        computeProperties(altitude, longitude, latitude, time );
+        computeProperties( altitude, longitude, latitude, time );
         return meanFreePath_;
     }
 
@@ -342,7 +342,7 @@ class NRLMSISE00Atmosphere : public AtmosphereModel
     double getMeanMolarMass( const double altitude, const double longitude,
                           const double latitude, const double time )
     {
-        computeProperties(altitude, longitude, latitude, time );
+        computeProperties( altitude, longitude, latitude, time );
         return meanMolarMass_;
     }
 
