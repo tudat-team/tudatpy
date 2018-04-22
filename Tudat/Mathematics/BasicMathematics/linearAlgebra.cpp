@@ -35,6 +35,27 @@ Eigen::Vector4d convertQuaternionToVectorFormat( const Eigen::Quaterniond& quate
     return vector;
 }
 
+//! Compute direction cosine matrix from quaternion
+Eigen::Matrix3d computeDirectionCosineMatrixFromQuaternions(
+        const Eigen::Vector4d& quaternionsAsVector, const bool returnInverseRotationMatrix )
+{
+    // Convert vector to quaternion
+    Eigen::Quaterniond quaternionsAsQuaternion;
+    quaternionsAsQuaternion.x( ) = quaternionsAsVector( 0 );
+    quaternionsAsQuaternion.y( ) = quaternionsAsVector( 1 );
+    quaternionsAsQuaternion.z( ) = quaternionsAsVector( 2 );
+    quaternionsAsQuaternion.w( ) = quaternionsAsVector( 3 ); // note that Eigen uses 'w' as first entry
+
+    // Compute direction cosine matrix
+    Eigen::Matrix3d directionCosineMatrix = quaternionsAsQuaternion.normalized( ).toRotationMatrix( );
+
+    // Return DCM based on inverse flag
+    if ( !returnInverseRotationMatrix )
+    {
+        directionCosineMatrix = directionCosineMatrix.transpose( ); // note that by defaults the transformation is already transposed
+    }
+    return directionCosineMatrix;
+}
 
 //! Function that returns that 'cross-product matrix'
 Eigen::Matrix3d getCrossProductMatrix( const Eigen::Vector3d& vector )
