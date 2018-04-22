@@ -31,9 +31,19 @@ namespace linear_algebra
 /*!
  * Function to put a quaternion in 'vector format', e.g. a Vector4d with entries (w,x,y,z) of the quaternion
  * \param quaternion Quaternion that is to be put into vector format.
- * \return Vector format of input quaternion
+ * \return Vector format of input quaternion.
  */
 Eigen::Vector4d convertQuaternionToVectorFormat( const Eigen::Quaterniond& quaternion );
+
+//! Function to compute the direction cosine matrix from a quaternion expressed as a Vector4d
+/*!
+ * Function to compute the direction cosine matrix from a quaternion expressed as a Vector4d
+ * \param quaternionAsVector Four dimensional vector, expressing rotation
+ * \param returnInverseRotationMatrix Boolean to toggle inverse matrix
+ * \return Direction cosine matrix of rotation.
+ */
+Eigen::Matrix3d computeDirectionCosineMatrixFromQuaternions(
+        const Eigen::Vector4d& quaternionsAsVector, const bool returnInverseRotationMatrix );
 
 //! Function that returns that 'cross-product matrix'
 /*!
