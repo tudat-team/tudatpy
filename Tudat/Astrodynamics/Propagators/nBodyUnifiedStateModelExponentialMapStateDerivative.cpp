@@ -27,8 +27,8 @@ Eigen::Vector6d computeStateDerivativeForUnifiedStateModelExponentialMap(
         const double sineLambda,
         const double cosineLambda,
         const double gammaParameter,
-        const Eigen::Vector3d& rotationalVelocityVector,
-        const Eigen::Vector3d& pAuxiliaryVector )
+        const Eigen::Vector3d rotationalVelocityVector,
+        const Eigen::Vector3d pAuxiliaryVector )
 {
     // Define the tolerance of a singularity
     double singularityTolerance = 20.0 * std::numeric_limits< double >::epsilon( );
@@ -36,12 +36,12 @@ Eigen::Vector6d computeStateDerivativeForUnifiedStateModelExponentialMap(
     // Compute matrix for dynamic equation
     Eigen::Matrix3d hodographMatrix = Eigen::Matrix3d::Zero( );
     hodographMatrix( 0, 1 ) = - pAuxiliaryVector( 0 );
-    hodographMatrix( 1, 0 ) =   cosineLambda;
-    hodographMatrix( 1, 1 ) = - ( 1 + pAuxiliaryVector( 0 ) ) * sineLambda;
+    hodographMatrix( 1, 0 ) = cosineLambda;
+    hodographMatrix( 1, 1 ) = - ( 1.0 + pAuxiliaryVector( 0 ) ) * sineLambda;
     hodographMatrix( 1, 2 ) = - gammaParameter * pAuxiliaryVector( 1 );
-    hodographMatrix( 2, 0 ) =   sineLambda;
-    hodographMatrix( 2, 1 ) =   ( 1 + pAuxiliaryVector( 0 ) ) * cosineLambda;
-    hodographMatrix( 2, 2 ) =   gammaParameter * pAuxiliaryVector( 2 );
+    hodographMatrix( 2, 0 ) = sineLambda;
+    hodographMatrix( 2, 1 ) = ( 1.0 + pAuxiliaryVector( 0 ) ) * cosineLambda;
+    hodographMatrix( 2, 2 ) = gammaParameter * pAuxiliaryVector( 2 );
 
     // Compute kinematic equation, i.e., derivative of exponential map
     Eigen::Vector3d exponentialMapVector = currentUnifiedStateModelElements.segment( 3, 3 );
