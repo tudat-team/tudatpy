@@ -24,8 +24,8 @@ Eigen::Vector7d computeStateDerivativeForUnifiedStateModelModifiedRodriguesParam
         const double sineLambda,
         const double cosineLambda,
         const double gammaParameter,
-        const Eigen::Vector3d& rotationalVelocityVector,
-        const Eigen::Vector3d& pAuxiliaryVector )
+        const Eigen::Vector3d rotationalVelocityVector,
+        const Eigen::Vector3d pAuxiliaryVector )
 {
     // Compute supporting parameters
     Eigen::Matrix3d hodographMatrix = Eigen::Matrix3d::Zero( );

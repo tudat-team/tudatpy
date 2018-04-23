@@ -161,7 +161,7 @@ Eigen::Vector7d convertKeplerianToUnifiedStateModelQuaternionsElements(
         // Throw exception.
         throw std::runtime_error( std::runtime_error( errorMessage.str( ) ) );
     }
-    //Else, nothing wrong and continue
+    // Else, nothing wrong and continue
 
     // Compute the C hodograph element of the unified state model
     if ( std::fabs( keplerianElements( eccentricityIndex ) - 1.0) < singularityTolerance )
@@ -485,17 +485,17 @@ Eigen::Vector7d convertCartesianToUnifiedStateModelQuaternionsElements(
 
     // Compute square of quaternions
     double traceDirectionCosineMatrix = directionCosineMatrix.trace( );
-    Eigen::Vector4d quaternionSquaredVector;
+    Eigen::Vector4d quaternionsSquaredVector;
     for ( unsigned int i = 0; i < 3; i++ )
     {
-        quaternionSquaredVector( i ) = ( 1.0 - traceDirectionCosineMatrix + 2.0 *
+        quaternionsSquaredVector( i ) = ( 1.0 - traceDirectionCosineMatrix + 2.0 *
                                          directionCosineMatrix( i, i ) ) / 4.0;
     }
-    quaternionSquaredVector( 3 ) = ( 1.0 + traceDirectionCosineMatrix ) / 4.0;
+    quaternionsSquaredVector( 3 ) = ( 1.0 + traceDirectionCosineMatrix ) / 4.0;
 
     // Based on the maximum value, find the quaternion elements
     Eigen::Vector4d::Index indexLargestQuaternionElement;
-    double valueLargestQuaternionElement = quaternionSquaredVector.maxCoeff( &indexLargestQuaternionElement );
+    double valueLargestQuaternionElement = quaternionsSquaredVector.maxCoeff( &indexLargestQuaternionElement );
     switch ( indexLargestQuaternionElement )
     {
     case 0:
@@ -575,14 +575,14 @@ Eigen::Vector7d convertCartesianToUnifiedStateModelQuaternionsElements(
         // Define the error message.
         std::stringstream errorMessage;
         errorMessage << "Could not find the maximum value of the quaternion.\n"
-                     << "Specified squared quaternion: " << quaternionSquaredVector.transpose( ) << std::endl;
+                     << "Specified squared quaternion: " << quaternionsSquaredVector.transpose( ) << std::endl;
 
         // Throw exception.
         throw std::runtime_error( std::runtime_error( errorMessage.str( ) ) );
     }
     }
 
-    // Recompute sine and cosine of right ascension of latitude (lambda), for better numerical accuracy
+    // Compute sine and cosine of right ascension of latitude (lambda)
     double denominator = convertedUnifiedStateModelElements( epsilon3QuaternionIndex ) *
             convertedUnifiedStateModelElements( epsilon3QuaternionIndex ) +
             convertedUnifiedStateModelElements( etaQuaternionIndex ) * convertedUnifiedStateModelElements( etaQuaternionIndex );

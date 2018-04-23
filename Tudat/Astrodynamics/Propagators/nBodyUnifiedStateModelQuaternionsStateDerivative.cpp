@@ -24,8 +24,8 @@ Eigen::Vector7d computeStateDerivativeForUnifiedStateModelQuaternions(
         const double sineLambda,
         const double cosineLambda,
         const double gammaParameter,
-        const Eigen::Vector3d& rotationalVelocityVector,
-        const Eigen::Vector3d& pAuxiliaryVector )
+        const Eigen::Vector3d rotationalVelocityVector,
+        const Eigen::Vector3d pAuxiliaryVector )
 {
     // Compute supporting parameters
     Eigen::Matrix3d hodographMatrix = Eigen::Matrix3d::Zero( );
@@ -38,12 +38,12 @@ Eigen::Vector7d computeStateDerivativeForUnifiedStateModelQuaternions(
     hodographMatrix( 2, 2 ) = gammaParameter * pAuxiliaryVector( 2 );
 
     Eigen::Matrix4d quaternionMatrix = Eigen::Matrix4d::Zero( );
-    quaternionMatrix( 0, 1 ) =   rotationalVelocityVector( 2 );
-    quaternionMatrix( 0, 3 ) =   rotationalVelocityVector( 0 );
+    quaternionMatrix( 0, 1 ) = rotationalVelocityVector( 2 );
+    quaternionMatrix( 0, 3 ) = rotationalVelocityVector( 0 );
     quaternionMatrix( 1, 0 ) = - rotationalVelocityVector( 2 );
-    quaternionMatrix( 1, 2 ) =   rotationalVelocityVector( 0 );
+    quaternionMatrix( 1, 2 ) = rotationalVelocityVector( 0 );
     quaternionMatrix( 2, 1 ) = - rotationalVelocityVector( 0 );
-    quaternionMatrix( 2, 3 ) =   rotationalVelocityVector( 2 );
+    quaternionMatrix( 2, 3 ) = rotationalVelocityVector( 2 );
     quaternionMatrix( 3, 0 ) = - rotationalVelocityVector( 0 );
     quaternionMatrix( 3, 2 ) = - rotationalVelocityVector( 2 );
 

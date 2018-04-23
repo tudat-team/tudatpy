@@ -43,8 +43,8 @@ Eigen::Vector7d computeStateDerivativeForUnifiedStateModelModifiedRodriguesParam
         const double sineLambdaParameter,
         const double cosineLambdaParameter,
         const double gammaParameter,
-        const Eigen::Vector3d& rotationalVelocityVector,
-        const Eigen::Vector3d& pParameterVector );
+        const Eigen::Vector3d rotationalVelocityVector,
+        const Eigen::Vector3d pParameterVector );
 
 //! Function to evaluate the equations of motion for the unifies state model with modified rodrigues parameters (USM6)
 /*!
