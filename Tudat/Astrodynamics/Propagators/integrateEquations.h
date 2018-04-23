@@ -28,8 +28,6 @@
 #include "Tudat/Mathematics/RootFinders/createRootFinder.h"
 #include "Tudat/SimulationSetup/PropagationSetup/propagationTermination.h"
 
-#include "Tudat/InputOutput/basicInputOutput.h"
-
 namespace tudat
 {
 
@@ -593,14 +591,6 @@ boost::shared_ptr< PropagationTerminationDetails > integrateEquationsFromIntegra
         }
     }
     while( !breakPropagation );
-
-    input_output::writeDataMapToTextFile( solutionHistory,
-                                          "test_propagation.dat",
-                                          "/Users/Michele/GitHub/tudat/tudatBundle/tudatApplications/Test/SimulationOutput",
-                                          "",
-                                          std::numeric_limits< double >::digits10,
-                                          std::numeric_limits< double >::digits10,
-                                          "," );
 
     return propagationTerminationReason;
 }
