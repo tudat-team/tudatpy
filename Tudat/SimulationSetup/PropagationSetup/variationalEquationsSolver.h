@@ -629,14 +629,14 @@ public:
 
             std::map< TimeType, Eigen::VectorXd > dependentVariableHistory;
             std::map< TimeType, MatrixType > rawNumericalSolution;
-            std::map< TimeType, double > cummulativeComputationTimeHistory;
+            std::map< TimeType, double > cumulativeComputationTimeHistory;
 
             EquationIntegrationInterface< MatrixType, TimeType >::integrateEquations(
                         dynamicsSimulator_->getStateDerivativeFunction( ), rawNumericalSolution,
                         initialVariationalState, integratorSettings_,
                         dynamicsSimulator_->getPropagationTerminationCondition( ),
                         dependentVariableHistory,
-                        cummulativeComputationTimeHistory,
+                        cumulativeComputationTimeHistory,
                         dynamicsSimulator_->getDependentVariablesFunctions( ),
                         propagatorSettings_->getPrintInterval( ) );
 
@@ -671,13 +671,13 @@ public:
             Eigen::MatrixXd initialVariationalState = this->createInitialVariationalEquationsSolution( );
             std::map< double, Eigen::MatrixXd > rawNumericalSolution;
             std::map< double, Eigen::VectorXd > dependentVariableHistory;
-            std::map< double, double > cummulativeComputationTimeHistory;
+            std::map< double, double > cumulativeComputationTimeHistory;
 
             EquationIntegrationInterface< Eigen::MatrixXd, double >::integrateEquations(
                         dynamicsSimulator_->getDoubleStateDerivativeFunction( ), rawNumericalSolution, initialVariationalState,
                         variationalOnlyIntegratorSettings_,
                         dynamicsSimulator_->getPropagationTerminationCondition( ),
-                        dependentVariableHistory, cummulativeComputationTimeHistory );
+                        dependentVariableHistory, cumulativeComputationTimeHistory );
 
             setVariationalEquationsSolution< double, double >(
                         rawNumericalSolution, variationalEquationsSolution_, std::make_pair( 0, 0 ),
@@ -1108,12 +1108,12 @@ public:
                     equationsOfMotionNumericalSolutions;
             std::vector< std::map< TimeType, Eigen::Matrix< double, Eigen::Dynamic, 1 > > >
                     dependentVariableHistorySolutions;
-            std::vector< std::map< TimeType, double > > cummulativeComputationTimeHistorySolutions;
+            std::vector< std::map< TimeType, double > > cumulativeComputationTimeHistorySolutions;
 
             equationsOfMotionNumericalSolutions.resize( numberOfArcs_ );
 
             dependentVariableHistorySolutions.resize( numberOfArcs_ );
-            cummulativeComputationTimeHistorySolutions.resize( numberOfArcs_ );
+            cumulativeComputationTimeHistorySolutions.resize( numberOfArcs_ );
 
             // Integrate equations for all arcs.
             for( int i = 0; i < numberOfArcs_; i++ )
@@ -1161,7 +1161,7 @@ public:
                             initialVariationalState, integratorSettings,
                             singleArcDynamicsSimulators.at( i )->getPropagationTerminationCondition( ),
                             dependentVariableHistorySolutions.at( i ),
-                            cummulativeComputationTimeHistorySolutions.at( i ),
+                            cumulativeComputationTimeHistorySolutions.at( i ),
                             singleArcDynamicsSimulators.at( i )->getDependentVariablesFunctions( ) );
 
                 // Extract solution of equations of motion.
@@ -1225,7 +1225,7 @@ public:
 
             std::map< TimeType, MatrixType > rawNumericalSolutions;
             std::map< TimeType, Eigen::Matrix< double, Eigen::Dynamic, 1 > > dummyDependentVariableHistorySolution;
-            std::map< TimeType, double > dummyCummulativeComputationTimeHistorySolution;
+            std::map< TimeType, double > dummyCumulativeComputationTimeHistorySolution;
 
             // Integrate variational equarions for each arc
             for( int i = 0; i < numberOfArcs_; i++ )
@@ -1245,7 +1245,7 @@ public:
                             rawNumericalSolutions, initialVariationalState,
                             singleArcDynamicsSimulators.at( i )->getIntegratorSettings( ),
                             singleArcDynamicsSimulators.at( i )->getPropagationTerminationCondition( ),
-                            dummyDependentVariableHistorySolution, dummyCummulativeComputationTimeHistorySolution );
+                            dummyDependentVariableHistorySolution, dummyCumulativeComputationTimeHistorySolution );
 
                 // Save state transition and sensitivity matrix solutions for current arc.
                 setVariationalEquationsSolution(

@@ -24,7 +24,7 @@ std::string getVariableName( const VariableType variableType )
     case independentVariable:
         return "Independent variable ";
     case cpuTimeVariable:
-        return "Cummulative computation time variable ";
+        return "Cumulative computation time variable ";
     case stateVariable:
         return "Integrated state ";
     case dependentVariable:
