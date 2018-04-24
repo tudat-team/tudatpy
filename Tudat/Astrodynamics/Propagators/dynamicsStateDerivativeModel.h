@@ -195,7 +195,6 @@ public:
             for( stateDerivativeModelsIterator_ = stateDerivativeModels_.begin( );
                  stateDerivativeModelsIterator_ != stateDerivativeModels_.end( );
                  stateDerivativeModelsIterator_++ )
-
             {
                 for( unsigned int i = 0; i < stateDerivativeModelsIterator_->second.size( ); i++ )
                 {
@@ -207,7 +206,6 @@ public:
             for( stateDerivativeModelsIterator_ = stateDerivativeModels_.begin( );
                  stateDerivativeModelsIterator_ != stateDerivativeModels_.end( );
                  stateDerivativeModelsIterator_++ )
-
             {
                 for( unsigned int i = 0; i < stateDerivativeModelsIterator_->second.size( ); i++ )
                 {
@@ -217,7 +215,6 @@ public:
                     stateDerivativeModelsIterator_->second.at( i )->calculateSystemStateDerivative(
                                 time, state.block( currentIndices.first, dynamicsStartColumn_, currentIndices.second, 1 ),
                                 stateDerivative_.block( currentIndices.first, dynamicsStartColumn_, currentIndices.second, 1 ) );
-
                 }
             }
         }
@@ -490,7 +487,7 @@ public:
         return functionEvaluationCounter_;
     }
 
-    //! Function to resetr the number of calls to the computeStateDerivative function to zero.
+    //! Function to reset the number of calls to the computeStateDerivative function to zero.
     /*!
      * Function to resetr the number of calls to the computeStateDerivative function to zero.  Typically called before any
      * start of numerical integration of dynamics (automatically by DynamicsSimulator)
@@ -500,9 +497,9 @@ public:
         functionEvaluationCounter_ = 0;
     }
 
-    //! Function to normalize the state vector during propagation.
+    //! Function to process the state vector during propagation.
     /*!
-     * Function to normalize the state vector during propagation
+     * Function to process the state vector during propagation
      * \param state State before normalization
      */
     void postProcessState( Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& state )

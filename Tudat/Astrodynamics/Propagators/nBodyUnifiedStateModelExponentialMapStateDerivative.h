@@ -111,7 +111,7 @@ public:
         NBodyStateDerivative< StateScalarType, TimeType >(
             accelerationModelsPerBody, centralBodyData, unified_state_model_exponential_map, bodiesToIntegrate )
     {
-        originalAccelerationModelsPerBody_ = this->accelerationModelsPerBody_ ;
+        originalAccelerationModelsPerBody_ = this->accelerationModelsPerBody_;
 
         // Remove central gravitational acceleration from list of accelerations that is to be evaluated
         centralBodyGravitationalParameters_ =
