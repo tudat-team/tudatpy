@@ -443,6 +443,10 @@ public:
         dynamicsStateDerivative_->convertNumericalStateSolutionsToOutputSolutions(
                     equationsOfMotionNumericalSolution_, equationsOfMotionNumericalSolutionRaw_ );
 
+        // Retrieve number of function evaluations (to print, remove comments on next line)
+        double numberOfFunctionEvaluations = dynamicsStateDerivative_->getNumberOfFunctionEvaluations( );
+        std::cout << "Function Evaluations: " << numberOfFunctionEvaluations << std::endl;
+
         if( this->setIntegratedResult_ )
         {
             processNumericalEquationsOfMotionSolution( );
