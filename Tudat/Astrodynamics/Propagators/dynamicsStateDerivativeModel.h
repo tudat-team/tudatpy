@@ -219,7 +219,6 @@ public:
             }
         }
 
-
         // If variational equations are to be integrated: evaluate and set.
         if( evaluateVariationalEquations_ )
         {
@@ -230,7 +229,9 @@ public:
                         stateDerivative_.block( 0, 0, totalConventionalStateSize_, variationalEquations_->getNumberOfParameterValues( ) )  );
         }
 
+        // Update counters
         functionEvaluationCounter_++;
+        cumulativeFunctionEvaluationCounter_[ time ] = functionEvaluationCounter_;
 
         return stateDerivative_;
     }
@@ -497,6 +498,28 @@ public:
         functionEvaluationCounter_ = 0;
     }
 
+    //! Function to retrieve number of calls to the computeStateDerivative function per time step
+    /*!
+     * Function to retrieve number of calls to the computeStateDerivative function per time step since object
+     * reation/last call to resetFunctionEvaluationCounter function
+     * \return Number of calls to the computeStateDerivative function since object creation/last call to
+     * resetFunctionEvaluationCounter function
+     */
+    std::map< TimeType, TimeType > getCumulativeNumberOfFunctionEvaluations( )
+    {
+        return cumulativeFunctionEvaluationCounter_;
+    }
+
+    //! Function to reset the number of calls to the computeStateDerivative function to zero.
+    /*!
+     * Function to resetr the number of calls to the computeStateDerivative function to zero.  Typically called before any
+     * start of numerical integration of dynamics (automatically by DynamicsSimulator)
+     */
+    void resetCumulativeFunctionEvaluationCounter( )
+    {
+        cumulativeFunctionEvaluationCounter_.clear( );
+    }
+
     //! Function to process the state vector during propagation.
     /*!
      * Function to process the state vector during propagation
@@ -612,7 +635,6 @@ private:
 
     int totalPropagatedStateSize_;
 
-
     //! List of states that are not propagated in current numerical integration, i.e, for which
     //! current state is taken from the environment.
     std::vector< IntegratedStateType > integratedStatesFromEnvironment_;
@@ -637,6 +659,9 @@ private:
 
     //! Variable to keep track of the number of calls to the computeStateDerivative function
     int functionEvaluationCounter_ = 0;
+
+    //! Variable to keep track of the number of calls to the computeStateDerivative function per time step
+    std::map< TimeType, TimeType > cumulativeFunctionEvaluationCounter_;
 };
 
 //! Function to retrieve a single given acceleration model from a list of models
