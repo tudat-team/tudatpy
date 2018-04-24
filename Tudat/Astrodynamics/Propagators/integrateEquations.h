@@ -414,14 +414,14 @@ void propagateToExactTerminationCondition(
  *  (time as key; returned by reference)
  *  \param dependentVariableHistory History of dependent variables that are to be saved given as map
  *  (time as key; returned by reference)
- *  \param cummulativeComputationTimeHistory History of cummulative computation times that are to be saved given
+ *  \param cumulativeComputationTimeHistory History of cumulative computation times that are to be saved given
  *  as map (time as key; returned by reference)
  *  \param dependentVariableFunction Function returning dependent variables (obtained from environment and state
  *  derivative model).
  *  \param saveFrequency Frequency at which to save the numerical integrated states (in units of i.e. per n integration time
  *  steps, with n = saveFrequency).
  *  \param printInterval Frequency with which to print progress to console (nan = never).
- *  \param initialClockTime Initial clock time from which to determine cummulative computation time.
+ *  \param initialClockTime Initial clock time from which to determine cumulative computation time.
  *  By default now(), i.e. the moment at which this function is called.
  *  \return Event that triggered the termination of the propagation
  */
@@ -432,7 +432,7 @@ boost::shared_ptr< PropagationTerminationDetails > integrateEquationsFromIntegra
         const boost::shared_ptr< PropagationTerminationCondition > propagationTerminationCondition,
         std::map< TimeType, StateType >& solutionHistory,
         std::map< TimeType, Eigen::VectorXd >& dependentVariableHistory,
-        std::map< TimeType, double >& cummulativeComputationTimeHistory,
+        std::map< TimeType, double >& cumulativeComputationTimeHistory,
         const boost::function< Eigen::VectorXd( ) > dependentVariableFunction =
         boost::function< Eigen::VectorXd( ) >( ),
         boost::function< void( StateType& ) > postProcessState =
@@ -460,10 +460,10 @@ boost::shared_ptr< PropagationTerminationDetails > integrateEquationsFromIntegra
     }
 
     // CPU time
-    cummulativeComputationTimeHistory.clear( );
+    cumulativeComputationTimeHistory.clear( );
     double currentCPUTime = std::chrono::duration_cast< std::chrono::nanoseconds >(
                 std::chrono::steady_clock::now( ) - initialClockTime ).count() * 1.0e-9;
-    cummulativeComputationTimeHistory[ currentTime ] = currentCPUTime;
+    cumulativeComputationTimeHistory[ currentTime ] = currentCPUTime;
 
     // Set initial time step and total integration time.
     TimeStepType timeStep = initialTimeStep;
@@ -532,7 +532,7 @@ boost::shared_ptr< PropagationTerminationDetails > integrateEquationsFromIntegra
 
             currentCPUTime = std::chrono::duration_cast< std::chrono::nanoseconds >(
                         std::chrono::steady_clock::now( ) - initialClockTime ).count() * 1.0e-9;
-            cummulativeComputationTimeHistory[ currentTime ] = currentCPUTime;
+            cumulativeComputationTimeHistory[ currentTime ] = currentCPUTime;
 
             // Print solutions
             if( printInterval == printInterval )
@@ -619,12 +619,12 @@ public:
      *  \param propagationTerminationCondition Object to determine when/how the propagation is to be stopped at the current time.
      *  \param dependentVariableHistory History of dependent variables that are to be saved given as map
      *  (time as key; returned by reference)
-     *  \param cummulativeComputationTimeHistory History of cummulative computation times that are to be saved given
+     *  \param cumulativeComputationTimeHistory History of cumulative computation times that are to be saved given
      *  as map (time as key; returned by reference)
      *  \param dependentVariableFunction Function returning dependent variables (obtained from environment and state
      *  derivative model).
      *  \param printInterval Frequency with which to print progress to console (nan = never).
-     *  \param initialClockTime Initial clock time from which to determine cummulative computation time.
+     *  \param initialClockTime Initial clock time from which to determine cumulative computation time.
      *  By default now(), i.e. the moment at which this function is called.
      *  \return Event that triggered the termination of the propagation
      */
@@ -635,7 +635,7 @@ public:
             const boost::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings,
             const boost::shared_ptr< PropagationTerminationCondition > propagationTerminationCondition,
             std::map< TimeType, Eigen::VectorXd >& dependentVariableHistory,
-            std::map< TimeType, double >& cummulativeComputationTimeHistory,
+            std::map< TimeType, double >& cumulativeComputationTimeHistory,
             const boost::function< Eigen::VectorXd( ) > dependentVariableFunction =
             boost::function< Eigen::VectorXd( ) >( ),
             boost::function< void( StateType& ) > postProcessState =
@@ -661,12 +661,12 @@ public:
      *  \param propagationTerminationCondition Object to determine when/how the propagation is to be stopped at the current time.
      *  \param dependentVariableHistory History of dependent variables that are to be saved given as map
      *  (time as key; returned by reference)
-     *  \param cummulativeComputationTimeHistory History of cummulative computation times that are to be saved given
+     *  \param cumulativeComputationTimeHistory History of cumulative computation times that are to be saved given
      *  as map (time as key; returned by reference)
      *  \param dependentVariableFunction Function returning dependent variables (obtained from environment and state
      *  derivative model).
      *  \param printInterval Frequency with which to print progress to console (nan = never).
-     *  \param initialClockTime Initial clock time from which to determine cummulative computation time.
+     *  \param initialClockTime Initial clock time from which to determine cumulative computation time.
      *  By default now(), i.e. the moment at which this function is called.
      *  \return Event that triggered the termination of the propagation
      */
@@ -677,7 +677,7 @@ public:
             const boost::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings,
             const boost::shared_ptr< PropagationTerminationCondition > propagationTerminationCondition,
             std::map< double, Eigen::VectorXd >& dependentVariableHistory,
-            std::map< double, double >& cummulativeComputationTimeHistory,
+            std::map< double, double >& cumulativeComputationTimeHistory,
             const boost::function< Eigen::VectorXd( ) > dependentVariableFunction =
             boost::function< Eigen::VectorXd( ) >( ),
             boost::function< void( StateType& ) > postProcessState =
@@ -701,7 +701,7 @@ public:
         return integrateEquationsFromIntegrator< StateType, double >(
                     integrator, integratorSettings->initialTimeStep_, propagationTerminationCondition, solutionHistory,
                     dependentVariableHistory,
-                    cummulativeComputationTimeHistory,
+                    cumulativeComputationTimeHistory,
                     dependentVariableFunction,
                     postProcessState,
                     integratorSettings->saveFrequency_,
@@ -727,12 +727,12 @@ public:
      *  \param propagationTerminationCondition Object to determine when/how the propagation is to be stopped at the current time.
      *  \param dependentVariableHistory History of dependent variables that are to be saved given as map
      *  (time as key; returned by reference)
-     *  \param cummulativeComputationTimeHistory History of cummulative computation times that are to be saved given
+     *  \param cumulativeComputationTimeHistory History of cumulative computation times that are to be saved given
      *  as map (time as key; returned by reference)
      *  \param dependentVariableFunction Function returning dependent variables (obtained from environment and state
      *  derivative model).
      *  \param printInterval Frequency with which to print progress to console (nan = never).
-     *  \param initialClockTime Initial clock time from which to determine cummulative computation time.
+     *  \param initialClockTime Initial clock time from which to determine cumulative computation time.
      *  By default now(), i.e. the moment at which this function is called.
      *  \return Event that triggered the termination of the propagation
      */
@@ -743,7 +743,7 @@ public:
             const boost::shared_ptr< numerical_integrators::IntegratorSettings< Time > > integratorSettings,
             const boost::shared_ptr< PropagationTerminationCondition > propagationTerminationCondition,
             std::map< Time, Eigen::VectorXd >& dependentVariableHistory,
-            std::map< Time, double >& cummulativeComputationTimeHistory,
+            std::map< Time, double >& cumulativeComputationTimeHistory,
             const boost::function< Eigen::VectorXd( ) > dependentVariableFunction =
             boost::function< Eigen::VectorXd( ) >( ),
             boost::function< void( StateType& ) > postProcessState =
@@ -767,7 +767,7 @@ public:
         return integrateEquationsFromIntegrator< StateType, Time, long double >(
                     integrator, integratorSettings->initialTimeStep_, propagationTerminationCondition, solutionHistory,
                     dependentVariableHistory,
-                    cummulativeComputationTimeHistory,
+                    cumulativeComputationTimeHistory,
                     dependentVariableFunction,
                     postProcessState,
                     integratorSettings->saveFrequency_,

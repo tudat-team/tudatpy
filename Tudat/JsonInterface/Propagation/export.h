@@ -92,7 +92,7 @@ void exportResultsOfDynamicsSimulator(
     std::map< TimeType, Eigen::VectorXd > dependentVariables =
             singleArcDynamicsSimulator->getDependentVariableHistory( );
     std::map< TimeType, double > cpuTimes =
-            singleArcDynamicsSimulator->getCummulativeComputationTimeHistory( );
+            singleArcDynamicsSimulator->getCumulativeComputationTimeHistory( );
 
     for ( boost::shared_ptr< ExportSettings > exportSettings : exportSettingsVector )
     {
