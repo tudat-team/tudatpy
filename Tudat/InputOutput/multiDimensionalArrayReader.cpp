@@ -134,7 +134,6 @@ void readCoefficientsFile(
     bool isHeaderPassed = 0;
     bool isFirstLinePassed = 0;
 
-
     // Line based parsing
     std::string line;
     std::vector< std::string > vectorOfIndividualStrings;

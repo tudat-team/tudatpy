@@ -160,7 +160,7 @@ readAerodynamicCoefficients( const std::map< int, std::string >& fileNames )
 
             if( !areIndependentVariablesEqual )
             {
-                throw std::runtime_error( "Error when reading 1-Dimensional aeroynamic coefficients, inconsistent aerodynamic coefficients" );
+                throw std::runtime_error( "Error when reading 1-Dimensional aeroynamic coefficients, inconsistent independent variables." );
             }
         }
 
@@ -177,7 +177,6 @@ readAerodynamicCoefficients( const std::map< int, std::string >& fileNames )
     }
     else
     {
-
         coefficientArrays.resize( 3 );
         boost::multi_array< double, static_cast< size_t >( NumberOfDimensions ) > firstMultiArray =
                 rawCoefficientArrays.begin( )->second;
