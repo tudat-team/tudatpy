@@ -44,6 +44,7 @@ namespace aerodynamics
  * NOTE: for the moment it only works for tables with 4 columns: altitude, density, pressure and
  * temperature.
  */
+template< int NumberOfIndependentVariables >
 class TabulatedAtmosphere : public StandardAtmosphere
 {
 public:
@@ -66,11 +67,14 @@ public:
                          const double specificGasConstant = physical_constants::SPECIFIC_GAS_CONSTANT_AIR,
                          const double ratioOfSpecificHeats = 1.4 ):
         atmosphereTableFile_( atmosphereTableFile ), independentVariables_( independentVariables ),
-        dependentVariables_( dependentVariables ), specificGasConstant_( specificGasConstant ),
-        ratioOfSpecificHeats_( ratioOfSpecificHeats )
+        numberOfIndependentVariables_( NumberOfIndependentVariables ), dependentVariables_( dependentVariables ),
+        specificGasConstant_( specificGasConstant ), ratioOfSpecificHeats_( ratioOfSpecificHeats )
     {
         initialize( atmosphereTableFile_ );
     }
+
+    //! Destructor
+    ~TabulatedAtmosphere( ){ }
 
     //! Get atmosphere table file name.
     /*!
@@ -88,8 +92,8 @@ public:
      * \param time Time at which density is to be computed.
      * \return Atmospheric density at specified conditions.
      */
-    double getDensity( const double altitude, const double longitude,
-                       const double latitude, const double time )
+    double getDensity( const double altitude = 0.0, const double longitude = 0.0,
+                       const double latitude = 0.0, const double time = 0.0 )
     {
         if ( numberOfIndependentVariables_ == 1 )
         {
@@ -147,8 +151,8 @@ public:
      * \param time Time at which pressure is to be computed.
      * \return Atmospheric pressure at specified conditions.
      */
-    double getPressure( const double altitude, const double longitude,
-                        const double latitude, const double time )
+    double getPressure( const double altitude = 0.0, const double longitude = 0.0,
+                        const double latitude = 0.0, const double time = 0.0 )
     {
         if ( numberOfIndependentVariables_ == 1 )
         {
@@ -210,8 +214,8 @@ public:
      * \param time Time at which temperature is to be computed.
      * \return constantTemperature Atmospheric temperature at specified conditions.
      */
-    double getTemperature( const double altitude, const double longitude,
-                           const double latitude, const double time )
+    double getTemperature( const double altitude = 0.0, const double longitude = 0.0,
+                           const double latitude = 0.0, const double time = 0.0 )
     {
         if ( numberOfIndependentVariables_ == 1 )
         {
@@ -273,8 +277,8 @@ public:
      * \param time Time at which specific gas constant is to be computed.
      * \return specificGasConstant Specific gas constant at specified conditions.
      */
-    double getSpecificGasConstant( const double altitude, const double longitude,
-                                   const double latitude, const double time )
+    double getSpecificGasConstant( const double altitude = 0.0, const double longitude = 0.0,
+                                   const double latitude = 0.0, const double time = 0.0 )
     {
         if ( dependentVariablesDependency_.at( gas_constant_dependent_atmosphere ) )
         {
@@ -343,8 +347,8 @@ public:
      * \param time Time at which ratio of specific heats is to be computed.
      * \return Ratio of specific heats at specified conditions.
      */
-    double getRatioOfSpecificHeats( const double altitude, const double longitude,
-                                    const double latitude, const double time )
+    double getRatioOfSpecificHeats( const double altitude = 0.0, const double longitude = 0.0,
+                                    const double latitude = 0.0, const double time = 0.0 )
     {
         if ( dependentVariablesDependency_.at( specific_heat_ratio_dependent_atmosphere ) )
         {
@@ -489,31 +493,31 @@ private:
     /*!
      *  Vector containing the density data as a function of the altitude.
      */
-    boost::multi_array< double, static_cast< size_t >( numberOfIndependentVariables_ ) > densityData_;
+    boost::multi_array< double, static_cast< size_t >( NumberOfIndependentVariables ) > densityData_;
 
     //! Vector containing the pressure data as a function of the altitude.
     /*!
      *  Vector containing the pressure data as a function of the altitude.
      */
-    boost::multi_array< double, static_cast< size_t >( numberOfIndependentVariables_ ) > pressureData_;
+    boost::multi_array< double, static_cast< size_t >( NumberOfIndependentVariables ) > pressureData_;
 
     //! Vector containing the temperature data as a function of the altitude.
     /*!
      *  Vector containing the temperature data as a function of the altitude.
      */
-    boost::multi_array< double, static_cast< size_t >( numberOfIndependentVariables_ ) > temperatureData_;
+    boost::multi_array< double, static_cast< size_t >( NumberOfIndependentVariables ) > temperatureData_;
 
     //! Vector containing the gas constant data as a function of the altitude.
     /*!
      *  Vector containing the gas constant data as a function of the altitude.
      */
-    boost::multi_array< double, static_cast< size_t >( numberOfIndependentVariables_ ) > gasConstantData_;
+    boost::multi_array< double, static_cast< size_t >( NumberOfIndependentVariables ) > gasConstantData_;
 
     //! Vector containing the specific heat ratio data as a function of the altitude.
     /*!
      *  Vector containing the specific heat ratio data as a function of the altitude.
      */
-    boost::multi_array< double, static_cast< size_t >( numberOfIndependentVariables_ ) > specificHeatRatioData_;
+    boost::multi_array< double, static_cast< size_t >( NumberOfIndependentVariables ) > specificHeatRatioData_;
 
     //! Specific gas constant of the atmosphere.
     /*!
@@ -538,7 +542,7 @@ private:
      *  N-dimensional linear interpolation for density.
      */
     boost::shared_ptr< interpolators::MultiLinearInterpolator
-            < double, double, numberOfIndependentVariables_ > > multiLinearInterpolationForDensity_;
+            < double, double, NumberOfIndependentVariables > > multiLinearInterpolationForDensity_;
 
     //! Cubic spline interpolation for pressure.
     /*!
@@ -551,7 +555,7 @@ private:
      *  N-dimensional linear interpolation for pressure.
      */
     boost::shared_ptr< interpolators::MultiLinearInterpolator
-            < double, double, numberOfIndependentVariables_ > > multiLinearInterpolationForPressure_;
+            < double, double, NumberOfIndependentVariables > > multiLinearInterpolationForPressure_;
 
     //! Cubic spline interpolation for temperature.
     /*!
@@ -564,7 +568,7 @@ private:
      *  N-dimensional linear interpolation for temperature.
      */
     boost::shared_ptr< interpolators::MultiLinearInterpolator
-            < double, double, numberOfIndependentVariables_ > > multiLinearInterpolationForTemperature_;
+            < double, double, NumberOfIndependentVariables > > multiLinearInterpolationForTemperature_;
 
     //! Cubic spline interpolation for specific gas constant.
     /*!
@@ -577,7 +581,7 @@ private:
      *  N-dimensional linear interpolation for specific gas constant.
      */
     boost::shared_ptr< interpolators::MultiLinearInterpolator
-            < double, double, numberOfIndependentVariables_ > > multiLinearInterpolationForGasConstant_;
+            < double, double, NumberOfIndependentVariables > > multiLinearInterpolationForGasConstant_;
 
     //! Cubic spline interpolation for ratio of specific heats.
     /*!
@@ -590,11 +594,12 @@ private:
      *  N-dimensional linear interpolation for ratio of specific heats.
      */
     boost::shared_ptr< interpolators::MultiLinearInterpolator
-            < double, double, numberOfIndependentVariables_ > > multiLinearInterpolationForSpecificHeatRatio_;
+            < double, double, NumberOfIndependentVariables > > multiLinearInterpolationForSpecificHeatRatio_;
 };
 
-//! Typedef for shared-pointer to TabulatedAtmosphere object.
-typedef boost::shared_ptr< TabulatedAtmosphere > TabulatedAtmospherePointer;
+////! Typedef for shared-pointer to TabulatedAtmosphere object.
+//template< int NumberOfIndependentVariables = 1 >
+//typedef boost::shared_ptr< TabulatedAtmosphere > TabulatedAtmospherePointer;
 
 } // namespace aerodynamics
 } // namespace tudat

@@ -21,17 +21,18 @@ namespace aerodynamics
 {
 
 //! Initialize atmosphere table reader.
-void TabulatedAtmosphere::initialize( const std::vector< std::string >& atmosphereTableFile )
+template< int NumberOfIndependentVariables >
+void TabulatedAtmosphere< NumberOfIndependentVariables >::initialize( const std::vector< std::string >& atmosphereTableFile )
 {
     // Locally store the atmosphere table file name.
     atmosphereTableFile_ = atmosphereTableFile;
 
     // Retrieve number of independent variables from file.
-    int numberOfIndependentVariables_ =
+    int numberOfIndependentVariablesInFile =
             input_output::getNumberOfIndependentVariablesInCoefficientFile( atmosphereTableFile_.at( 0 ) );
 
     // Check input consistency
-    if ( independentVariables_.size( ) != numberOfIndependentVariables_ )
+    if ( independentVariables_.size( ) != NumberOfIndependentVariables )
     {
         throw std::runtime_error( "Error when creating tabulated atmosphere from file, "
                                   "number of specified independent variables, differs from file." );
@@ -42,18 +43,18 @@ void TabulatedAtmosphere::initialize( const std::vector< std::string >& atmosphe
     // consistency with number of files is checked in readTabulatedAtmosphere function
 
     // Call approriate file reading function for N independent variables
-    std::pair< std::vector< boost::multi_array< double, static_cast< size_t >( numberOfIndependentVariables_ ) > >,
+    std::pair< std::vector< boost::multi_array< double, static_cast< size_t >( NumberOfIndependentVariables ) > >,
             std::vector< std::vector< double > > > tabulatedAtmosphereData;
-    if ( ( numberOfIndependentVariables_ > 0 ) && ( numberOfIndependentVariables_ < 5 ) )
+    if ( ( NumberOfIndependentVariables > 0 ) && ( NumberOfIndependentVariables < 5 ) )
     {
         tabulatedAtmosphereData =
-                input_output::readTabulatedAtmosphere< numberOfDependentVariables, numberOfIndependentVariables_ >(
+                input_output::readTabulatedAtmosphere< numberOfDependentVariables, NumberOfIndependentVariables >(
                     atmosphereTableFile_ );
     }
     else
     {
         throw std::runtime_error( "Error when reading tabulated atmosphere from file, found " +
-                                  std::to_string( numberOfIndependentVariables_ ) +
+                                  std::to_string( NumberOfIndependentVariables ) +
                                   " independent variables, up to 4 currently supported." );
     }
 
@@ -129,7 +130,7 @@ void TabulatedAtmosphere::initialize( const std::vector< std::string >& atmosphe
     using namespace interpolators;
 
     // Use cubic spline if only one variable is used
-    if ( numberOfIndependentVariables_ == 1 )
+    if ( NumberOfIndependentVariables == 1 )
     {
         // Get only independent variable
         boost::shared_ptr< std::vector< double > > independentVariableDataPointer =
@@ -186,31 +187,31 @@ void TabulatedAtmosphere::initialize( const std::vector< std::string >& atmosphe
         if ( dependentVariablesDependency_.at( 0 ) )
         {
             multiLinearInterpolationForDensity_ = boost::make_shared< interpolators::MultiLinearInterpolator
-                    < double, double, numberOfIndependentVariables_ > >(
+                    < double, double, NumberOfIndependentVariables > >(
                         independentVariablesData_, densityData_ );
         }
         if ( dependentVariablesDependency_.at( 1 ) )
         {
             multiLinearInterpolationForPressure_ = boost::make_shared< interpolators::MultiLinearInterpolator
-                    < double, double, numberOfIndependentVariables_ > >(
+                    < double, double, NumberOfIndependentVariables > >(
                         independentVariablesData_, pressureData_ );
         }
         if ( dependentVariablesDependency_.at( 2 ) )
         {
             multiLinearInterpolationForTemperature_ = boost::make_shared< interpolators::MultiLinearInterpolator
-                    < double, double, numberOfIndependentVariables_ > >(
+                    < double, double, NumberOfIndependentVariables > >(
                         independentVariablesData_, temperatureData_ );
         }
         if ( dependentVariablesDependency_.at( 3 ) )
         {
             multiLinearInterpolationForGasConstant_ = boost::make_shared< interpolators::MultiLinearInterpolator
-                    < double, double, numberOfIndependentVariables_ > >(
+                    < double, double, NumberOfIndependentVariables > >(
                         independentVariablesData_, gasConstantData_ );
         }
         if ( dependentVariablesDependency_.at( 4 ) )
         {
             multiLinearInterpolationForSpecificHeatRatio_ = boost::make_shared< interpolators::MultiLinearInterpolator
-                    < double, double, numberOfIndependentVariables_ > >(
+                    < double, double, NumberOfIndependentVariables > >(
                         independentVariablesData_, specificHeatRatioData_ );
         }
     }
