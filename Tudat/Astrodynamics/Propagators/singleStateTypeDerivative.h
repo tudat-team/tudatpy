@@ -72,9 +72,9 @@ public:
     SingleStateTypeDerivative( const IntegratedStateType integratedStateType ):
         integratedStateType_( integratedStateType )
     {
-        if( isStatePostProcessed( ) )
+        if( isStateToBePostProcessed( ) )
         {
-            normalizedState_.setZero( getPropagatedStateSize( ) );
+            unprocessedState_.setZero( getPropagatedStateSize( ) );
         }
     }
 
@@ -203,16 +203,15 @@ public:
             const int startRow,
             const int startColumn)
     {
-        if( isStatePostProcessed( ) )
+        if( isStateToBePostProcessed( ) )
         {
-            normalizedState_ = unnormalizedState.block( startRow, startColumn, getPropagatedStateSize( ), 1 );
-            postProcessState( normalizedState_, 0 );
-            unnormalizedState.block( startRow, startColumn, getPropagatedStateSize( ), 1 ) = normalizedState_;
+            unprocessedState_ = unnormalizedState.block( startRow, startColumn, getPropagatedStateSize( ), 1 );
+            postProcessState( unprocessedState_, 0 );
+            unnormalizedState.block( startRow, startColumn, getPropagatedStateSize( ), 1 ) = unprocessedState_;
         }
     }
 
-
-    virtual bool isStatePostProcessed( )
+    virtual bool isStateToBePostProcessed( )
     {
         return false;
     }
@@ -222,7 +221,7 @@ protected:
     //! Type of dynamics for whichh the state derivative is calculated.
     IntegratedStateType integratedStateType_;
 
-    Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > normalizedState_;
+    Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > unprocessedState_;
 
 };
 
