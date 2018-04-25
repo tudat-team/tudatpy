@@ -252,7 +252,7 @@ public:
         }
     }
 
-    virtual bool isStatePostProcessed( )
+    virtual bool isStateToBePostProcessed( )
     {
         return true;
     }
