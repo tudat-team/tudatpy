@@ -142,6 +142,32 @@ BOOST_AUTO_TEST_CASE( testTabulatedAtmospherePositionIndependentFunctions)
     BOOST_CHECK_EQUAL( temperature1, temperature2 );
 }
 
+//! Check if the atmosphere is calculated correctly when the variables are shuffled
+// Values from (US Standard Atmosphere, 1976).
+BOOST_AUTO_TEST_CASE( testTabulatedAtmosphereDependentVariables )
+{
+
+    std::vector< aerodynamics::TabulatedAtmosphere::AtmosphereDependentVariables > dependentVariables;
+    dependentVariables.push_back( aerodynamics::TabulatedAtmosphere::pressure_dependent_atmosphere );
+    dependentVariables.push_back( aerodynamics::TabulatedAtmosphere::density_dependent_atmosphere );
+    dependentVariables.push_back( aerodynamics::TabulatedAtmosphere::temperature_dependent_atmosphere );
+
+    // Create a tabulated atmosphere object.
+    aerodynamics::TabulatedAtmosphere tabulatedAtmosphere(
+                input_output::getAtmosphereTablesPath( ) + "USSA1976Until100kmPer100mUntil1000kmPer1000m.dat",
+                dependentVariables);
+
+    // Declare tolerance used for Boost tests.
+    const double tolerance = std::numeric_limits< double >::epsilon( );
+
+    const double altitude = 0.0;
+    BOOST_CHECK_CLOSE_FRACTION( 288.15, tabulatedAtmosphere.getTemperature( altitude ),
+                                tolerance );
+    // Pressure and Density are switched
+    BOOST_CHECK_CLOSE_FRACTION( 101325.0, tabulatedAtmosphere.getDensity( altitude ), 1.0e-4 );
+    BOOST_CHECK_CLOSE_FRACTION( 1.225, tabulatedAtmosphere.getPressure( altitude ), tolerance );
+}
+
 BOOST_AUTO_TEST_SUITE_END( )
 
 } // namespace unit_tests
