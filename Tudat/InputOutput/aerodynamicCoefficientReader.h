@@ -30,9 +30,9 @@ namespace input_output
  */
 template< unsigned int NumberOfDimensions >
 boost::multi_array< Eigen::Vector3d, static_cast< size_t >( NumberOfDimensions ) > mergeNDimensionalCoefficients(
-        boost::multi_array< double,static_cast< size_t >( NumberOfDimensions ) > xComponents,
-        boost::multi_array< double,static_cast< size_t >( NumberOfDimensions ) > yComponents,
-        boost::multi_array< double,static_cast< size_t >( NumberOfDimensions ) > zComponents )
+        boost::multi_array< double, static_cast< size_t >( NumberOfDimensions ) > xComponents,
+        boost::multi_array< double, static_cast< size_t >( NumberOfDimensions ) > yComponents,
+        boost::multi_array< double, static_cast< size_t >( NumberOfDimensions ) > zComponents )
 {
     boost::multi_array< Eigen::Vector3d, static_cast< size_t >( NumberOfDimensions ) > vectorArray;
 
