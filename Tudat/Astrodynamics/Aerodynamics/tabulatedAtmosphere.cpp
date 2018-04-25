@@ -21,37 +21,43 @@ namespace aerodynamics
 {
 
 //! Initialize atmosphere table reader.
-void TabulatedAtmosphere::initialize( const std::vector< std::string >& atmosphereTableFile,
-                                      const std::vector< aerodynamics::AerodynamicCoefficientsIndependentVariables >
-                                      independentVariableNames )
+void TabulatedAtmosphere::initialize( const std::vector< std::string >& atmosphereTableFile )
 {
     // Locally store the atmosphere table file name.
     atmosphereTableFile_ = atmosphereTableFile;
 
     // Retrieve number of independent variables from file.
-    int numberOfIndependentVariables =
+    const int numberOfIndependentVariables =
             input_output::getNumberOfIndependentVariablesInCoefficientFile( atmosphereTableFile_.begin( )->second );
 
     // Check input consistency
-    if( independentVariableNames.size( ) != numberOfIndependentVariables )
+    if( independentVariables_.size( ) != numberOfIndependentVariables )
     {
-        throw std::runtime_error( "Error when creating tabulated atmosphere from file, input sizes are inconsistent" );
+        throw std::runtime_error( "Error when creating tabulated atmosphere from file, "
+                                  "number of specified independent variables, differs from file." );
     }
 
+    // Retrieve number of dependent variables from user.
+    const int numberOfDependentVariables = dependentVariables_.size( );
+    // consistency with number of files is checked in readTabulatedAtmosphere function
+
     // Call approriate file reading function for N independent variables
-    std::pair< boost::multi_array< Eigen::Vector1d, numberOfIndependentVariables >,
+    std::pair< std::vector< boost::multi_array< double, numberOfIndependentVariables > >,
             std::vector< std::vector< double > > > containerOfAtmosphereTableFileData;
-    if ( ( numberOfIndependentVariables > 0 ) && ( numberOfIndependentVariables < 4 ) )
+    if ( ( numberOfIndependentVariables > 0 ) && ( numberOfIndependentVariables < 5 ) )
     {
         containerOfAtmosphereTableFileData =
-                input_output::readTabulatedAtmosphere< numberOfIndependentVariables >( atmosphereTableFile_ );
+                input_output::readTabulatedAtmosphere< numberOfDependentVariables, numberOfIndependentVariables >(
+                    atmosphereTableFile_ );
     }
     else
     {
         throw std::runtime_error( "Error when reading tabulated atmosphere from file, found " +
                                   std::to_string( numberOfIndependentVariables ) +
-                                  " independent variables, up to 3 currently supported" );
+                                  " independent variables, up to 4 currently supported." );
     }
+
+    // VVVVVVVVVVVVVVVVVVV ---- TO BE ADAPTED ---- VVVVVVVVVVVVVVVVVVV
 
     // Initialize vectors.
     altitudeData_.resize( containerOfAtmosphereTableFileData.rows( ) );
@@ -120,26 +126,25 @@ void TabulatedAtmosphere::initialize( const std::vector< std::string >& atmosphe
         }
     }
 
-
     using namespace interpolators;
 
-    cubicSplineInterpolationForDensity_
-            = boost::make_shared< CubicSplineInterpolatorDouble >( altitudeData_, densityData_ );
-    cubicSplineInterpolationForPressure_
-            = boost::make_shared< CubicSplineInterpolatorDouble >( altitudeData_, pressureData_ );
-    cubicSplineInterpolationForTemperature_
-            = boost::make_shared< CubicSplineInterpolatorDouble >( altitudeData_, temperatureData_ );
+    cubicSplineInterpolationForDensity_ =
+            boost::make_shared< CubicSplineInterpolatorDouble >( altitudeData_, densityData_ );
+    cubicSplineInterpolationForPressure_ =
+            boost::make_shared< CubicSplineInterpolatorDouble >( altitudeData_, pressureData_ );
+    cubicSplineInterpolationForTemperature_ =
+            boost::make_shared< CubicSplineInterpolatorDouble >( altitudeData_, temperatureData_ );
 
     if( containsSpecificHeatRatio_ )
     {
-        cubicSplineInterpolationForSpecificHeatRatio_
-            = boost::make_shared< CubicSplineInterpolatorDouble >( altitudeData_, specificHeatRatioData_);
+        cubicSplineInterpolationForSpecificHeatRatio_ =
+                boost::make_shared< CubicSplineInterpolatorDouble >( altitudeData_, specificHeatRatioData_);
     }
 
     if( containsGasConstant_ )
     {
-        cubicSplineInterpolationForGasConstant_
-            = boost::make_shared< CubicSplineInterpolatorDouble >( altitudeData_, gasConstantData_);
+        cubicSplineInterpolationForGasConstant_ =
+                boost::make_shared< CubicSplineInterpolatorDouble >( altitudeData_, gasConstantData_);
     }
 }
 

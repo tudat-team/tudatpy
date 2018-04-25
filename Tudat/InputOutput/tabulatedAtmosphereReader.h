@@ -10,6 +10,7 @@
 
 #include <map>
 #include "Tudat/Basics/utilities.h"
+#include "Tudat/Basics/basicTypedefs.h"
 
 #include "Tudat/InputOutput/multiDimensionalArrayReader.h"
 #include "Tudat/InputOutput/aerodynamicCoefficientReader.h"
@@ -24,23 +25,23 @@ namespace input_output
 /*!
  *  Function to read a list of atmosphere parameters of NumberOfDimensions independent variables and associated
  *  independent variables from a set of files.
- *  \param fileNames Vector of size 3, containing the file names for the x-, y- and z- components of the aerodynamic
+ *  \param fileNames Vector of size 1, containing the file names for the x-, y- and z- components of the aerodynamic
  *  coefficients. Note that the independent variables for each components must be identical.
  *  \return  Pair: first entry containing multi-array of atmosphere parameters, second containing list of independent
  *  variables at which coefficients are defined.
  */
-template< unsigned int NumberOfDimensions >
-std::pair< boost::multi_array< Eigen::Vector3d, static_cast< size_t >( NumberOfDimensions ) >,
+template< unsigned int NumberOfFiles, unsigned int NumberOfDimensions >
+std::pair< std::vector< boost::multi_array< double, static_cast< size_t >( NumberOfDimensions ) > >,
 std::vector< std::vector< double > > >
 readTabulatedAtmosphere( const std::vector< std::string >& fileNames )
 {
-    if( fileNames.size( ) != 3 )
+    if( fileNames.size( ) != NumberOfFiles )
     {
         throw std::runtime_error( "Error when reading 1-Dimensional atmosphere parameters, wrong number of files." );
     }
 
     std::map< int, std::string > fileNameMap;
-    for( unsigned int i = 0; i < 3; i++ )
+    for( unsigned int i = 0; i < NumberOfFiles; i++ )
     {
         fileNameMap[ i ] = fileNames.at( i );
     }
@@ -59,8 +60,8 @@ readTabulatedAtmosphere( const std::vector< std::string >& fileNames )
  *  \return  Pair: first entry containing multi-array of atmosphere parameters, second containing list of independent
  *  variables at which coefficients are defined.
  */
-template< unsigned int NumberOfDimensions >
-std::pair< boost::multi_array< Eigen::Vector3d, static_cast< size_t >( NumberOfDimensions ) >,
+template< unsigned int NumberOfFiles, unsigned int NumberOfDimensions >
+std::pair< std::vector< boost::multi_array< double, static_cast< size_t >( NumberOfDimensions ) > >,
 std::vector< std::vector< double > > >
 readTabulatedAtmosphere( const std::map< int, std::string >& fileNames )
 {
@@ -103,16 +104,16 @@ readTabulatedAtmosphere( const std::map< int, std::string >& fileNames )
     // Check if anything has been read from files.
     if( rawAtmosphereArrays.size( ) == 0 )
     {
-        throw std::runtime_error( "Error when reading atmosphere parameters, no files read" );
+        throw std::runtime_error( "Error when reading atmosphere parameters, no files read." );
     }
     else
     {
-        atmosphereArrays.resize( 3 );
+        atmosphereArrays.resize( NumberOfFiles );
         boost::multi_array< double, static_cast< size_t >( NumberOfDimensions ) > firstMultiArray =
                 rawAtmosphereArrays.begin( )->second;
 
-        // Iterate over all 3 coefficient entries
-        for( unsigned int i = 0; i < 3; i++ )
+        // Iterate over all entries
+        for( unsigned int i = 0; i < NumberOfFiles; i++ )
         {
             // Copy contents for current index into atmosphereArrays read from file.
             if( rawAtmosphereArrays.count( i ) != 0 )
@@ -136,9 +137,7 @@ readTabulatedAtmosphere( const std::map< int, std::string >& fileNames )
     }
 
     // Merge coefficient entries
-    return std::make_pair(
-                mergeNDimensionalCoefficients< NumberOfDimensions >(
-                    atmosphereArrays.at( 0 ), atmosphereArrays.at( 1 ), atmosphereArrays.at( 2 ) ), independentVariables );
+    return std::make_pair( atmosphereArrays, independentVariables );
 }
 
 }
