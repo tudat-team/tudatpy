@@ -809,9 +809,9 @@ private:
     boost::shared_ptr< interpolators::InterpolatorSettings > interpolationSettings_;
 };
 
-//! Function to create aerodynamic coefficient settings fom coefficients stored in data files
+//! Function to create aerodynamic coefficient settings from coefficients stored in data files
 /*!
- *  Function to create aerodynamic coefficient settings fom coefficients stored in data files. Separate files are defined for
+ *  Function to create aerodynamic coefficient settings from coefficients stored in data files. Separate files are defined for
  *  the three components of the force coefficients.  The file format is discussed in the Tudat wiki
  *  Note that this function requires the number of independent variables in the coefficient files to be known. If this is not
  *  the case, the readTabulatedAerodynamicCoefficientsFromFiles function should be used.
@@ -878,9 +878,9 @@ readGivenSizeTabulatedAerodynamicCoefficientsFromFiles(
     return tabulatedCoefficients;
 }
 
-//! Function to create aerodynamic coefficient settings fom coefficients stored in data files
+//! Function to create aerodynamic coefficient settings from coefficients stored in data files
 /*!
- *  Function to create aerodynamic coefficient settings fom coefficients stored in data files. Separate files are defined for
+ *  Function to create aerodynamic coefficient settings from coefficients stored in data files. Separate files are defined for
  *  the three components of the force coefficients. From this function, no moment coefficients are read (set to zero for all
  *  cases). The file format is discussed in the Tudat wiki
  *  Note that this function requires the number of independent variables in the coefficient files to be known. If this is not
@@ -927,9 +927,9 @@ readGivenSizeTabulatedAerodynamicCoefficientsFromFiles(
     return tabulatedCoefficients;
 }
 
-//! Function to create aerodynamic coefficient settings fom coefficients stored in data files
+//! Function to create aerodynamic coefficient settings from coefficients stored in data files
 /*!
- *  Function to create aerodynamic coefficient settings fom coefficients stored in data files. Separate files are defined for
+ *  Function to create aerodynamic coefficient settings from coefficients stored in data files. Separate files are defined for
  *  the three components of the force coefficients.  The file format is discussed in the Tudat wiki
  *  \param forceCoefficientFiles List (size 3) of files containing the aerodynamic force coefficients
  *  \param momentCoefficientFiles List (size 3) of files containing the aerodynamic moment coefficients
@@ -962,9 +962,9 @@ boost::shared_ptr< AerodynamicCoefficientSettings > readTabulatedAerodynamicCoef
         const bool areCoefficientsInAerodynamicFrame = 1,
         const bool areCoefficientsInNegativeAxisDirection = 1 );
 
-//! Function to create aerodynamic coefficient settings fom coefficients stored in data files
+//! Function to create aerodynamic coefficient settings from coefficients stored in data files
 /*!
- * Function to create aerodynamic coefficient settings fom coefficients stored in data files. Separate files are defined for
+ * Function to create aerodynamic coefficient settings from coefficients stored in data files. Separate files are defined for
  * the three components of the force coefficients. From this function, no moment coefficients are read (set to zero for all
  * cases). The file format is discussed in the Tudat wiki
  * \param forceCoefficientFiles List (size 3) of files containing the aerodynamic coefficients
@@ -1073,7 +1073,6 @@ createTabulatedCoefficientAerodynamicCoefficientInterface(
     if( independentVariableNames.size( ) != NumberOfDimensions )
     {
         throw std::runtime_error( "Error when creating tabulated aerodynamic coefficient interface, inconsistent variable name vector dimensioning" );
-
     }
 
     // Create interpolators for coefficients.

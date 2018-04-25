@@ -182,8 +182,8 @@ public:
         for( unsigned int i = 0; i < this->bodiesToBeIntegratedNumerically_.size( ); i++ )
         {
             currentState.segment( i * 7, 7 ) = orbital_element_conversions::convertCartesianToUnifiedStateModelQuaternionsElements(
-                        cartesianSolution.block( i * 6, 0, 6, 1 ), static_cast< StateScalarType >(
-                            centralBodyGravitationalParameters_.at( i )( ) ) );;
+                        cartesianSolution.block( i * 6, 0, 6, 1 ).template cast< double >( ), static_cast< double >(
+                            centralBodyGravitationalParameters_.at( i )( ) ) ).template cast< StateScalarType >( );
         }
 
         return currentState;
@@ -211,8 +211,8 @@ public:
         {
             currentCartesianLocalSoluton.segment( i * 6, 6 ) =
                     orbital_element_conversions::convertUnifiedStateModelQuaternionsToCartesianElements(
-                        internalSolution.block( i * 7, 0, 7, 1 ), static_cast< StateScalarType >(
-                            centralBodyGravitationalParameters_.at( i )( ) ), true ); // force normalization of quaternions
+                        internalSolution.block( i * 7, 0, 7, 1 ).template cast< double >( ), static_cast< double >(
+                            centralBodyGravitationalParameters_.at( i )( ) ), true ).template cast< StateScalarType >( );
         }
 
         currentCartesianLocalSoluton_ = currentCartesianLocalSoluton;
@@ -256,6 +256,12 @@ public:
             }
         }
     }
+
+    virtual bool isStateToBePostProcessed( )
+    {
+        return true;
+    }
+
 
 private:
 

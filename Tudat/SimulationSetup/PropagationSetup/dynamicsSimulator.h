@@ -18,18 +18,9 @@
 #include <boost/make_shared.hpp>
 #include <boost/assign/list_of.hpp>
 
-#include "Tudat/Astrodynamics/BasicAstrodynamics/accelerationModel.h"
-#include "Tudat/Mathematics/NumericalIntegrators/rungeKuttaVariableStepSizeIntegrator.h"
-#include "Tudat/Mathematics/NumericalIntegrators/rungeKuttaCoefficients.h"
-#include "Tudat/Mathematics/Interpolators/cubicSplineInterpolator.h"
 #include "Tudat/Basics/utilities.h"
 #include "Tudat/Astrodynamics/Propagators/nBodyStateDerivative.h"
 #include "Tudat/Astrodynamics/Ephemerides/frameManager.h"
-#include "Tudat/Mathematics/NumericalIntegrators/createNumericalIntegrator.h"
-#include "Tudat/Astrodynamics/BasicAstrodynamics/orbitalElementConversions.h"
-#include "Tudat/Astrodynamics/Ephemerides/tabulatedEphemeris.h"
-#include "Tudat/Astrodynamics/Ephemerides/compositeEphemeris.h"
-#include "Tudat/Astrodynamics/Propagators/nBodyCowellStateDerivative.h"
 #include "Tudat/SimulationSetup/PropagationSetup/propagationSettings.h"
 #include "Tudat/SimulationSetup/PropagationSetup/setNumericallyIntegratedStates.h"
 #include "Tudat/Astrodynamics/Propagators/integrateEquations.h"
@@ -285,6 +276,11 @@ protected:
     //! Boolean to determine whether to automatically use the integrated results to set ephemerides.
     bool setIntegratedResult_;
 };
+
+//extern template class DynamicsSimulator< double, double >;
+//extern template class DynamicsSimulator< long double, double >;
+//extern template class DynamicsSimulator< double, Time >;
+//extern template class DynamicsSimulator< long double, Time >;
 
 //! Class for performing full numerical integration of a dynamical system in a single arc.
 /*!
@@ -807,6 +803,11 @@ protected:
     boost::shared_ptr< PropagationTerminationDetails > propagationTerminationReason_;
 
 };
+
+//extern template class SingleArcDynamicsSimulator< double, double >;
+//extern template class SingleArcDynamicsSimulator< long double, double >;
+//extern template class SingleArcDynamicsSimulator< double, Time >;
+//extern template class SingleArcDynamicsSimulator< long double, Time >;
 
 //! Function to get a vector of initial states from a vector of propagator settings
 /*!
@@ -1341,6 +1342,11 @@ protected:
 
 
 };
+
+//extern template class MultiArcDynamicsSimulator< double, double >;
+//extern template class MultiArcDynamicsSimulator< long double, double >;
+//extern template class MultiArcDynamicsSimulator< double, Time >;
+//extern template class MultiArcDynamicsSimulator< long double, Time >;
 
 } // namespace propagators
 
