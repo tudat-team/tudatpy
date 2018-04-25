@@ -59,10 +59,10 @@ public:
      *  \param ratioOfSpecificHeats The constant ratio of specific heats of the air
      */
     TabulatedAtmosphere( const std::vector< std::string >& atmosphereTableFile,
-                         const std::vector< AtmosphereIndependentVariables > independentVariables =
-    { altitude_dependent_atmosphere },
                          const std::vector< AtmosphereDependentVariables > dependentVariables =
     { density_dependent_atmosphere, pressure_dependent_atmosphere, temperature_dependent_atmosphere },
+                         const std::vector< AtmosphereIndependentVariables > independentVariables =
+    { altitude_dependent_atmosphere },
                          const double specificGasConstant = physical_constants::SPECIFIC_GAS_CONSTANT_AIR,
                          const double ratioOfSpecificHeats = 1.4 ):
         atmosphereTableFile_( atmosphereTableFile ), independentVariables_( independentVariables ),
@@ -94,15 +94,21 @@ public:
         if ( numberOfIndependentVariables_ == 1 )
         {
             // Get only independent variable
-            double independentVariableData = altitude;
+            double independentVariableData;
             switch ( independentVariables_.at( 0 ) )
             {
+            case altitude_dependent_atmosphere:
+                independentVariableData = altitude;
+                break;
             case latitude_dependent_atmosphere:
                 independentVariableData = latitude;
+                break;
             case longitude_dependent_atmosphere:
                 independentVariableData = longitude;
+                break;
             case time_dependent_atmosphere:
                 independentVariableData = time;
+                break;
             }
 
             // Give output
@@ -112,7 +118,7 @@ public:
         {
             // Get list of independent variables
             std::vector< double > independentVariableData;
-            for ( unsigned int i = 0; i < numberOfIndependentVariables_; i++ )
+            for ( int i = 0; i < numberOfIndependentVariables_; i++ )
             {
                 switch ( independentVariables_.at( i ) )
                 {
@@ -147,15 +153,21 @@ public:
         if ( numberOfIndependentVariables_ == 1 )
         {
             // Get only independent variable
-            double independentVariableData = altitude;
+            double independentVariableData;
             switch ( independentVariables_.at( 0 ) )
             {
+            case altitude_dependent_atmosphere:
+                independentVariableData = altitude;
+                break;
             case latitude_dependent_atmosphere:
                 independentVariableData = latitude;
+                break;
             case longitude_dependent_atmosphere:
                 independentVariableData = longitude;
+                break;
             case time_dependent_atmosphere:
                 independentVariableData = time;
+                break;
             }
 
             // Give output
@@ -165,18 +177,22 @@ public:
         {
             // Get list of independent variables
             std::vector< double > independentVariableData;
-            for ( unsigned int i = 0; i < numberOfIndependentVariables_; i++ )
+            for ( int i = 0; i < numberOfIndependentVariables_; i++ )
             {
                 switch ( independentVariables_.at( i ) )
                 {
                 case altitude_dependent_atmosphere:
                     independentVariableData.push_back( altitude );
+                    break;
                 case latitude_dependent_atmosphere:
                     independentVariableData.push_back( latitude );
+                    break;
                 case longitude_dependent_atmosphere:
                     independentVariableData.push_back( longitude );
+                    break;
                 case time_dependent_atmosphere:
                     independentVariableData.push_back( time );
+                    break;
                 }
             }
 
@@ -200,15 +216,21 @@ public:
         if ( numberOfIndependentVariables_ == 1 )
         {
             // Get only independent variable
-            double independentVariableData = altitude;
+            double independentVariableData;
             switch ( independentVariables_.at( 0 ) )
             {
+            case altitude_dependent_atmosphere:
+                independentVariableData = altitude;
+                break;
             case latitude_dependent_atmosphere:
                 independentVariableData = latitude;
+                break;
             case longitude_dependent_atmosphere:
                 independentVariableData = longitude;
+                break;
             case time_dependent_atmosphere:
                 independentVariableData = time;
+                break;
             }
 
             // Give output
@@ -218,18 +240,22 @@ public:
         {
             // Get list of independent variables
             std::vector< double > independentVariableData;
-            for ( unsigned int i = 0; i < numberOfIndependentVariables_; i++ )
+            for ( int i = 0; i < numberOfIndependentVariables_; i++ )
             {
                 switch ( independentVariables_.at( i ) )
                 {
                 case altitude_dependent_atmosphere:
                     independentVariableData.push_back( altitude );
+                    break;
                 case latitude_dependent_atmosphere:
                     independentVariableData.push_back( latitude );
+                    break;
                 case longitude_dependent_atmosphere:
                     independentVariableData.push_back( longitude );
+                    break;
                 case time_dependent_atmosphere:
                     independentVariableData.push_back( time );
+                    break;
                 }
             }
 
@@ -255,15 +281,21 @@ public:
             if ( numberOfIndependentVariables_ == 1 )
             {
                 // Get only independent variable
-                double independentVariableData = altitude;
+                double independentVariableData;
                 switch ( independentVariables_.at( 0 ) )
                 {
+                case altitude_dependent_atmosphere:
+                    independentVariableData = altitude;
+                    break;
                 case latitude_dependent_atmosphere:
                     independentVariableData = latitude;
+                    break;
                 case longitude_dependent_atmosphere:
                     independentVariableData = longitude;
+                    break;
                 case time_dependent_atmosphere:
                     independentVariableData = time;
+                    break;
                 }
 
                 // Give output
@@ -273,18 +305,22 @@ public:
             {
                 // Get list of independent variables
                 std::vector< double > independentVariableData;
-                for ( unsigned int i = 0; i < numberOfIndependentVariables_; i++ )
+                for ( int i = 0; i < numberOfIndependentVariables_; i++ )
                 {
                     switch ( independentVariables_.at( i ) )
                     {
                     case altitude_dependent_atmosphere:
                         independentVariableData.push_back( altitude );
+                        break;
                     case latitude_dependent_atmosphere:
                         independentVariableData.push_back( latitude );
+                        break;
                     case longitude_dependent_atmosphere:
                         independentVariableData.push_back( longitude );
+                        break;
                     case time_dependent_atmosphere:
                         independentVariableData.push_back( time );
+                        break;
                     }
                 }
 
@@ -315,15 +351,21 @@ public:
             if ( numberOfIndependentVariables_ == 1 )
             {
                 // Get only independent variable
-                double independentVariableData = altitude;
+                double independentVariableData;
                 switch ( independentVariables_.at( 0 ) )
                 {
+                case altitude_dependent_atmosphere:
+                    independentVariableData = altitude;
+                    break;
                 case latitude_dependent_atmosphere:
                     independentVariableData = latitude;
+                    break;
                 case longitude_dependent_atmosphere:
                     independentVariableData = longitude;
+                    break;
                 case time_dependent_atmosphere:
                     independentVariableData = time;
+                    break;
                 }
 
                 // Give output
@@ -333,18 +375,22 @@ public:
             {
                 // Get list of independent variables
                 std::vector< double > independentVariableData;
-                for ( unsigned int i = 0; i < numberOfIndependentVariables_; i++ )
+                for ( int i = 0; i < numberOfIndependentVariables_; i++ )
                 {
                     switch ( independentVariables_.at( i ) )
                     {
                     case altitude_dependent_atmosphere:
                         independentVariableData.push_back( altitude );
+                        break;
                     case latitude_dependent_atmosphere:
                         independentVariableData.push_back( latitude );
+                        break;
                     case longitude_dependent_atmosphere:
                         independentVariableData.push_back( longitude );
+                        break;
                     case time_dependent_atmosphere:
                         independentVariableData.push_back( time );
+                        break;
                     }
                 }
 
@@ -443,31 +489,31 @@ private:
     /*!
      *  Vector containing the density data as a function of the altitude.
      */
-    boost::multi_array< double, int > densityData_;
+    boost::multi_array< double, static_cast< size_t >( numberOfIndependentVariables_ ) > densityData_;
 
     //! Vector containing the pressure data as a function of the altitude.
     /*!
      *  Vector containing the pressure data as a function of the altitude.
      */
-    boost::multi_array< double, int > pressureData_;
+    boost::multi_array< double, static_cast< size_t >( numberOfIndependentVariables_ ) > pressureData_;
 
     //! Vector containing the temperature data as a function of the altitude.
     /*!
      *  Vector containing the temperature data as a function of the altitude.
      */
-    boost::multi_array< double, int > temperatureData_;
+    boost::multi_array< double, static_cast< size_t >( numberOfIndependentVariables_ ) > temperatureData_;
 
     //! Vector containing the gas constant data as a function of the altitude.
     /*!
      *  Vector containing the gas constant data as a function of the altitude.
      */
-    boost::multi_array< double, int > gasConstantData_;
+    boost::multi_array< double, static_cast< size_t >( numberOfIndependentVariables_ ) > gasConstantData_;
 
     //! Vector containing the specific heat ratio data as a function of the altitude.
     /*!
      *  Vector containing the specific heat ratio data as a function of the altitude.
      */
-    boost::multi_array< double, int > specificHeatRatioData_;
+    boost::multi_array< double, static_cast< size_t >( numberOfIndependentVariables_ ) > specificHeatRatioData_;
 
     //! Specific gas constant of the atmosphere.
     /*!

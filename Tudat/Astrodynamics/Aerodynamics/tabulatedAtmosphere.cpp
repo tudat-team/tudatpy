@@ -28,7 +28,7 @@ void TabulatedAtmosphere::initialize( const std::vector< std::string >& atmosphe
 
     // Retrieve number of independent variables from file.
     int numberOfIndependentVariables_ =
-            input_output::getNumberOfIndependentVariablesInCoefficientFile( atmosphereTableFile_.begin( )->second );
+            input_output::getNumberOfIndependentVariablesInCoefficientFile( atmosphereTableFile_.at( 0 ) );
 
     // Check input consistency
     if ( independentVariables_.size( ) != numberOfIndependentVariables_ )
@@ -42,7 +42,7 @@ void TabulatedAtmosphere::initialize( const std::vector< std::string >& atmosphe
     // consistency with number of files is checked in readTabulatedAtmosphere function
 
     // Call approriate file reading function for N independent variables
-    std::pair< std::vector< boost::multi_array< double, numberOfIndependentVariables_ > >,
+    std::pair< std::vector< boost::multi_array< double, static_cast< size_t >( numberOfIndependentVariables_ ) > >,
             std::vector< std::vector< double > > > tabulatedAtmosphereData;
     if ( ( numberOfIndependentVariables_ > 0 ) && ( numberOfIndependentVariables_ < 5 ) )
     {
