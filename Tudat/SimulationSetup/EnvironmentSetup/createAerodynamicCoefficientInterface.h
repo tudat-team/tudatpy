@@ -1089,7 +1089,7 @@ createTabulatedCoefficientAerodynamicCoefficientInterface(
                 independentVariables, momentCoefficients );
 
     // Create aerodynamic coefficient interface.
-    return  boost::make_shared< aerodynamics::CustomAerodynamicCoefficientInterface >(
+    return boost::make_shared< aerodynamics::CustomAerodynamicCoefficientInterface >(
                 boost::bind( &interpolators::MultiLinearInterpolator
                              < double, Eigen::Vector3d, NumberOfDimensions >::interpolate,
                              forceInterpolator, _1 ),
