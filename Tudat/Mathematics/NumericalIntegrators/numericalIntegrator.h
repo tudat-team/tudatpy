@@ -34,7 +34,7 @@ namespace numerical_integrators
  *          multiplication with IndependentVariableType and doubles.
  * \tparam IndependentVariableType The type of the independent variable.
  */
-template < typename IndependentVariableType = double, typename StateType = Eigen::VectorXd,
+template< typename IndependentVariableType = double, typename StateType = Eigen::VectorXd,
            typename StateDerivativeType = StateType, typename TimeStepType = IndependentVariableType >
 class NumericalIntegrator
 {
@@ -217,7 +217,7 @@ protected:
 };
 
 //! Perform an integration to a specified independent variable value.
-template < typename IndependentVariableType, typename StateType, typename StateDerivativeType, typename TimeStepType >
+template< typename IndependentVariableType, typename StateType, typename StateDerivativeType, typename TimeStepType >
 StateType NumericalIntegrator< IndependentVariableType, StateType, StateDerivativeType, TimeStepType >::integrateTo(
         const IndependentVariableType intervalEnd,
         const TimeStepType initialStepSize,

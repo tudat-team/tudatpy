@@ -70,7 +70,13 @@ public:
      * \param integratedStateType Type of dynamics for whichh the state derivative is calculated.
      */
     SingleStateTypeDerivative( const IntegratedStateType integratedStateType ):
-        integratedStateType_( integratedStateType ){ }
+        integratedStateType_( integratedStateType )
+    {
+        if( isStatePostProcessed( ) )
+        {
+            normalizedState_.setZero( getPropagatedStateSize( ) );
+        }
+    }
 
     //! Virtual destructor.
     virtual ~SingleStateTypeDerivative( ){ }
@@ -192,15 +198,31 @@ public:
 
     }
 
-//    virtual bool isStateNormalized( )
-//    {
-//        return false;
-//    }
+    virtual void postProcessState(
+            Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >& unnormalizedState,
+            const int startRow,
+            const int startColumn)
+    {
+        if( isStatePostProcessed( ) )
+        {
+            normalizedState_ = unnormalizedState.block( startRow, startColumn, getPropagatedStateSize( ), 1 );
+            postProcessState( normalizedState_, 0 );
+            unnormalizedState.block( startRow, startColumn, getPropagatedStateSize( ), 1 ) = normalizedState_;
+        }
+    }
+
+
+    virtual bool isStatePostProcessed( )
+    {
+        return false;
+    }
 
 protected:
 
     //! Type of dynamics for whichh the state derivative is calculated.
     IntegratedStateType integratedStateType_;
+
+    Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > normalizedState_;
 
 };
 
