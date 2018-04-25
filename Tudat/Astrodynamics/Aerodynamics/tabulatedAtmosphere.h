@@ -29,6 +29,7 @@
 #include "Tudat/Astrodynamics/Aerodynamics/aerodynamics.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/physicalConstants.h"
 #include "Tudat/Mathematics/Interpolators/cubicSplineInterpolator.h"
+#include "Tudat/Mathematics/Interpolators/multiLinearInterpolator.h"
 #include "Tudat/InputOutput/tabulatedAtmosphereReader.h"
 
 namespace tudat
@@ -87,13 +88,48 @@ public:
      * \param time Time at which density is to be computed.
      * \return Atmospheric density at specified conditions.
      */
-    double getDensity( const double altitude, const double longitude = 0.0,
-                       const double latitude = 0.0, const double time = 0.0 )
+    double getDensity( const double altitude, const double longitude,
+                       const double latitude, const double time )
     {
-        TUDAT_UNUSED_PARAMETER( longitude );
-        TUDAT_UNUSED_PARAMETER( latitude );
-        TUDAT_UNUSED_PARAMETER( time );
-        return cubicSplineInterpolationForDensity_->interpolate( altitude );
+        if ( numberOfIndependentVariables_ == 1 )
+        {
+            // Get only independent variable
+            double independentVariableData = altitude;
+            switch ( independentVariables_.at( 0 ) )
+            {
+            case latitude_dependent_atmosphere:
+                independentVariableData = latitude;
+            case longitude_dependent_atmosphere:
+                independentVariableData = longitude;
+            case time_dependent_atmosphere:
+                independentVariableData = time;
+            }
+
+            // Give output
+            return cubicSplineInterpolationForDensity_->interpolate( independentVariableData );
+        }
+        else
+        {
+            // Get list of independent variables
+            std::vector< double > independentVariableData;
+            for ( unsigned int i = 0; i < numberOfIndependentVariables_; i++ )
+            {
+                switch ( independentVariables_.at( i ) )
+                {
+                case altitude_dependent_atmosphere:
+                    independentVariableData.push_back( altitude );
+                case latitude_dependent_atmosphere:
+                    independentVariableData.push_back( latitude );
+                case longitude_dependent_atmosphere:
+                    independentVariableData.push_back( longitude );
+                case time_dependent_atmosphere:
+                    independentVariableData.push_back( time );
+                }
+            }
+
+            // Give output
+            return multiLinearInterpolationForDensity_->interpolate( independentVariableData );
+        }
     }
 
     //! Get local pressure.
@@ -105,13 +141,48 @@ public:
      * \param time Time at which pressure is to be computed.
      * \return Atmospheric pressure at specified conditions.
      */
-    double getPressure( const double altitude, const double longitude = 0.0,
-                        const double latitude = 0.0, const double time = 0.0 )
+    double getPressure( const double altitude, const double longitude,
+                        const double latitude, const double time )
     {
-        TUDAT_UNUSED_PARAMETER( longitude );
-        TUDAT_UNUSED_PARAMETER( latitude );
-        TUDAT_UNUSED_PARAMETER( time );
-        return cubicSplineInterpolationForPressure_->interpolate( altitude );
+        if ( numberOfIndependentVariables_ == 1 )
+        {
+            // Get only independent variable
+            double independentVariableData = altitude;
+            switch ( independentVariables_.at( 0 ) )
+            {
+            case latitude_dependent_atmosphere:
+                independentVariableData = latitude;
+            case longitude_dependent_atmosphere:
+                independentVariableData = longitude;
+            case time_dependent_atmosphere:
+                independentVariableData = time;
+            }
+
+            // Give output
+            return cubicSplineInterpolationForPressure_->interpolate( independentVariableData );
+        }
+        else
+        {
+            // Get list of independent variables
+            std::vector< double > independentVariableData;
+            for ( unsigned int i = 0; i < numberOfIndependentVariables_; i++ )
+            {
+                switch ( independentVariables_.at( i ) )
+                {
+                case altitude_dependent_atmosphere:
+                    independentVariableData.push_back( altitude );
+                case latitude_dependent_atmosphere:
+                    independentVariableData.push_back( latitude );
+                case longitude_dependent_atmosphere:
+                    independentVariableData.push_back( longitude );
+                case time_dependent_atmosphere:
+                    independentVariableData.push_back( time );
+                }
+            }
+
+            // Give output
+            return multiLinearInterpolationForPressure_->interpolate( independentVariableData );
+        }
     }
 
     //! Get local temperature.
@@ -123,13 +194,48 @@ public:
      * \param time Time at which temperature is to be computed.
      * \return constantTemperature Atmospheric temperature at specified conditions.
      */
-    double getTemperature( const double altitude, const double longitude = 0.0,
-                           const double latitude = 0.0, const double time = 0.0 )
+    double getTemperature( const double altitude, const double longitude,
+                           const double latitude, const double time )
     {
-        TUDAT_UNUSED_PARAMETER( longitude );
-        TUDAT_UNUSED_PARAMETER( latitude );
-        TUDAT_UNUSED_PARAMETER( time );
-        return cubicSplineInterpolationForTemperature_->interpolate( altitude );
+        if ( numberOfIndependentVariables_ == 1 )
+        {
+            // Get only independent variable
+            double independentVariableData = altitude;
+            switch ( independentVariables_.at( 0 ) )
+            {
+            case latitude_dependent_atmosphere:
+                independentVariableData = latitude;
+            case longitude_dependent_atmosphere:
+                independentVariableData = longitude;
+            case time_dependent_atmosphere:
+                independentVariableData = time;
+            }
+
+            // Give output
+            return cubicSplineInterpolationForTemperature_->interpolate( independentVariableData );
+        }
+        else
+        {
+            // Get list of independent variables
+            std::vector< double > independentVariableData;
+            for ( unsigned int i = 0; i < numberOfIndependentVariables_; i++ )
+            {
+                switch ( independentVariables_.at( i ) )
+                {
+                case altitude_dependent_atmosphere:
+                    independentVariableData.push_back( altitude );
+                case latitude_dependent_atmosphere:
+                    independentVariableData.push_back( latitude );
+                case longitude_dependent_atmosphere:
+                    independentVariableData.push_back( longitude );
+                case time_dependent_atmosphere:
+                    independentVariableData.push_back( time );
+                }
+            }
+
+            // Give output
+            return multiLinearInterpolationForTemperature_->interpolate( independentVariableData );
+        }
     }
 
     //! Get specific gas constant.
@@ -141,15 +247,50 @@ public:
      * \param time Time at which specific gas constant is to be computed.
      * \return specificGasConstant Specific gas constant at specified conditions.
      */
-    double getSpecificGasConstant( const double altitude, const double longitude = 0.0,
-                                   const double latitude = 0.0, const double time = 0.0  )
+    double getSpecificGasConstant( const double altitude, const double longitude,
+                                   const double latitude, const double time )
     {
-        TUDAT_UNUSED_PARAMETER( longitude );
-        TUDAT_UNUSED_PARAMETER( latitude );
-        TUDAT_UNUSED_PARAMETER( time );
-        if( containsSpecificHeatRatio_ )
+        if ( dependentVariablesDependency_.at( gas_constant_dependent_atmosphere ) )
         {
-            return cubicSplineInterpolationForGasConstant_->interpolate( altitude );
+            if ( numberOfIndependentVariables_ == 1 )
+            {
+                // Get only independent variable
+                double independentVariableData = altitude;
+                switch ( independentVariables_.at( 0 ) )
+                {
+                case latitude_dependent_atmosphere:
+                    independentVariableData = latitude;
+                case longitude_dependent_atmosphere:
+                    independentVariableData = longitude;
+                case time_dependent_atmosphere:
+                    independentVariableData = time;
+                }
+
+                // Give output
+                return cubicSplineInterpolationForGasConstant_->interpolate( independentVariableData );
+            }
+            else
+            {
+                // Get list of independent variables
+                std::vector< double > independentVariableData;
+                for ( unsigned int i = 0; i < numberOfIndependentVariables_; i++ )
+                {
+                    switch ( independentVariables_.at( i ) )
+                    {
+                    case altitude_dependent_atmosphere:
+                        independentVariableData.push_back( altitude );
+                    case latitude_dependent_atmosphere:
+                        independentVariableData.push_back( latitude );
+                    case longitude_dependent_atmosphere:
+                        independentVariableData.push_back( longitude );
+                    case time_dependent_atmosphere:
+                        independentVariableData.push_back( time );
+                    }
+                }
+
+                // Give output
+                return multiLinearInterpolationForGasConstant_->interpolate( independentVariableData );
+            }
         }
         else
         {
@@ -166,15 +307,50 @@ public:
      * \param time Time at which ratio of specific heats is to be computed.
      * \return Ratio of specific heats at specified conditions.
      */
-    double getRatioOfSpecificHeats( const double altitude, const double longitude = 0.0,
-                                    const double latitude = 0.0, const double time = 0.0 )
+    double getRatioOfSpecificHeats( const double altitude, const double longitude,
+                                    const double latitude, const double time )
     {
-        TUDAT_UNUSED_PARAMETER( longitude );
-        TUDAT_UNUSED_PARAMETER( latitude );
-        TUDAT_UNUSED_PARAMETER( time );
-        if( containsSpecificHeatRatio_ )
+        if ( dependentVariablesDependency_.at( specific_heat_ratio_dependent_atmosphere ) )
         {
-            return cubicSplineInterpolationForSpecificHeatRatio_->interpolate( altitude );
+            if ( numberOfIndependentVariables_ == 1 )
+            {
+                // Get only independent variable
+                double independentVariableData = altitude;
+                switch ( independentVariables_.at( 0 ) )
+                {
+                case latitude_dependent_atmosphere:
+                    independentVariableData = latitude;
+                case longitude_dependent_atmosphere:
+                    independentVariableData = longitude;
+                case time_dependent_atmosphere:
+                    independentVariableData = time;
+                }
+
+                // Give output
+                return cubicSplineInterpolationForSpecificHeatRatio_->interpolate( independentVariableData );
+            }
+            else
+            {
+                // Get list of independent variables
+                std::vector< double > independentVariableData;
+                for ( unsigned int i = 0; i < numberOfIndependentVariables_; i++ )
+                {
+                    switch ( independentVariables_.at( i ) )
+                    {
+                    case altitude_dependent_atmosphere:
+                        independentVariableData.push_back( altitude );
+                    case latitude_dependent_atmosphere:
+                        independentVariableData.push_back( latitude );
+                    case longitude_dependent_atmosphere:
+                        independentVariableData.push_back( longitude );
+                    case time_dependent_atmosphere:
+                        independentVariableData.push_back( time );
+                    }
+                }
+
+                // Give output
+                return multiLinearInterpolationForSpecificHeatRatio_->interpolate( independentVariableData );
+            }
         }
         else
         {
@@ -194,12 +370,9 @@ public:
      * consistency with base class interface).
      * \return Atmospheric speed of sound at specified conditions.
      */
-    double getSpeedOfSound( const double altitude, const double longitude = 0.0,
-                            const double latitude = 0.0, const double time = 0.0 )
+    double getSpeedOfSound( const double altitude, const double longitude,
+                            const double latitude, const double time )
     {
-        TUDAT_UNUSED_PARAMETER( longitude );
-        TUDAT_UNUSED_PARAMETER( latitude );
-        TUDAT_UNUSED_PARAMETER( time );
         return computeSpeedOfSound(
                     getTemperature( altitude, longitude, latitude, time ),
                     getSpecificGasConstant( altitude, longitude, latitude, time ),
@@ -225,96 +398,31 @@ private:
      */
     std::vector< std::string > atmosphereTableFile_;
 
-    //! Vector containing the altitude.
-    /*!
-     *  Vector containing the altitude.
-     */
-    std::vector< double > altitudeData_;
-
-    //! Vector containing the latitude.
-    /*!
-     *  Vector containing the latitude.
-     */
-    std::vector< double > latitudeData_;
-
-    //! Vector containing the longitude.
-    /*!
-     *  Vector containing the longitude.
-     */
-    std::vector< double > longitudeData_;
-
-    //! Vector containing the time.
-    /*!
-     *  Vector containing the time.
-     */
-    std::vector< double > timeData_;
-
-    //! Vector containing the density data as a function of the altitude.
-    /*!
-     *  Vector containing the density data as a function of the altitude.
-     */
-    boost::multi_array< Eigen::Vector1d, double > densityData_;
-
-    //! Vector containing the pressure data as a function of the altitude.
-    /*!
-     *  Vector containing the pressure data as a function of the altitude.
-     */
-    boost::multi_array< Eigen::Vector1d, double > pressureData_;
-
-    //! Vector containing the temperature data as a function of the altitude.
-    /*!
-     *  Vector containing the temperature data as a function of the altitude.
-     */
-    boost::multi_array< Eigen::Vector1d, double > temperatureData_;
-
-    //! Vector containing the specific heat ratio data as a function of the altitude.
-    /*!
-     *  Vector containing the specific heat ratio data as a function of the altitude.
-     */
-    boost::multi_array< Eigen::Vector1d, double > specificHeatRatioData_;
-
-    //! Vector containing the gas constant data as a function of the altitude.
-    /*!
-     *  Vector containing the gas constant data as a function of the altitude.
-     */
-    boost::multi_array< Eigen::Vector1d, double > gasConstantData_;
-
-    //! Cubic spline interpolation for density.
-    /*!
-     *  Cubic spline interpolation for density.
-     */
-    interpolators::CubicSplineInterpolatorDoublePointer cubicSplineInterpolationForDensity_;
-
-    //! Cubic spline interpolation for pressure.
-    /*!
-     *  Cubic spline interpolation for pressure.
-     */
-    interpolators::CubicSplineInterpolatorDoublePointer cubicSplineInterpolationForPressure_;
-
-    //! Cubic spline interpolation for temperature.
-    /*!
-     *  Cubic spline interpolation for temperature.
-     */
-    interpolators::CubicSplineInterpolatorDoublePointer cubicSplineInterpolationForTemperature_;
-
-    //! Cubic spline interpolation for ratio of specific heats.
-    /*!
-     *  Cubic spline interpolation for ratio of specific heats.
-     */
-    interpolators::CubicSplineInterpolatorDoublePointer cubicSplineInterpolationForSpecificHeatRatio_;
-
-    //! Cubic spline interpolation for specific gas constant.
-    /*!
-     *  Cubic spline interpolation for specific gas constant.
-     */
-    interpolators::CubicSplineInterpolatorDoublePointer cubicSplineInterpolationForGasConstant_;
-
     //! A vector of strings containing the names of the independent variables contained in the atmosphere file
     /*!
      * A vector of strings containing the names of the independent variables contained in the atmosphere file,
      * in the correct order (from left, being the first entry in the vector, to the right).
      */
-    std::vector< AtmosphereDependentVariables > independentVariables_;
+    std::vector< AtmosphereIndependentVariables > independentVariables_;
+
+    //! Vector containing the independent variables.
+    /*!
+     *  Vector containing the independent variables.
+     */
+    std::vector< std::vector< double > > independentVariablesData_;
+
+    //! Integer specifying number of independent variables.
+    /*!
+     *  Integer specifying number of independent variables.
+     */
+    int numberOfIndependentVariables_;
+
+    //! Boolean that determines if the atmosphere is dependent on altitude, latitude, longitude and/or time.
+    /*!
+     *  Boolean that determines if the atmosphere is dependent on altitude, latitude, longitude and/or time.
+     *  Note that the order is important.
+     */
+    std::vector< bool > independentVariablesDependency_ = { false, false, false, false };
 
     //! A vector of strings containing the names of the variables contained in the atmosphere file
     /*!
@@ -323,25 +431,120 @@ private:
      */
     std::vector< AtmosphereDependentVariables > dependentVariables_;
 
-    //! Specific gas constant.
+    //! Boolean that determines if the atmosphere file contains dentity, pressure, temperature, gas constant and/or
+    //! ratio of specific heats.
     /*!
-     * Specific gas constant of the air, its value is assumed constant, due to the assumption of
-     * constant atmospheric composition.
+     *  Boolean that determines if the atmosphere file contains dentity, pressure, temperature, gas constant and/or
+     *  ratio of specific heats. Note that the order is important.
+     */
+    std::vector< bool > dependentVariablesDependency_ = { false, false, false, false, false };
+
+    //! Vector containing the density data as a function of the altitude.
+    /*!
+     *  Vector containing the density data as a function of the altitude.
+     */
+    boost::multi_array< double, int > densityData_;
+
+    //! Vector containing the pressure data as a function of the altitude.
+    /*!
+     *  Vector containing the pressure data as a function of the altitude.
+     */
+    boost::multi_array< double, int > pressureData_;
+
+    //! Vector containing the temperature data as a function of the altitude.
+    /*!
+     *  Vector containing the temperature data as a function of the altitude.
+     */
+    boost::multi_array< double, int > temperatureData_;
+
+    //! Vector containing the gas constant data as a function of the altitude.
+    /*!
+     *  Vector containing the gas constant data as a function of the altitude.
+     */
+    boost::multi_array< double, int > gasConstantData_;
+
+    //! Vector containing the specific heat ratio data as a function of the altitude.
+    /*!
+     *  Vector containing the specific heat ratio data as a function of the altitude.
+     */
+    boost::multi_array< double, int > specificHeatRatioData_;
+
+    //! Specific gas constant of the atmosphere.
+    /*!
+     * Specific gas constant of the atmosphere.
      */
     double specificGasConstant_;
 
-    //! Ratio of specific heats of the atmosphrer at constant pressure and constant volume.
+    //! Ratio of specific heats of the atmosphere at constant pressure and constant volume.
     /*!
-     *  Ratio of specific heats of the atmosphrer at constant pressure and constant volume.
-     *  This value is set to a constant, implying constant atmospheric composition.
+     *  Ratio of specific heats of the atmosphere at constant pressure and constant volume.
      */
     double ratioOfSpecificHeats_;
 
-    //! Boolean that determines if the ratio of specific heats is contained in the given atmosphere file.
-    bool containsSpecificHeatRatio_;
+    //! Cubic spline interpolation for density.
+    /*!
+     *  Cubic spline interpolation for density.
+     */
+    interpolators::CubicSplineInterpolatorDoublePointer cubicSplineInterpolationForDensity_;
 
-    //! Boolean that determines if the specific gas constant is contained in the given atmosphere file.
-    bool containsGasConstant_;
+    //! N-dimensional linear interpolation for density.
+    /*!
+     *  N-dimensional linear interpolation for density.
+     */
+    boost::shared_ptr< interpolators::MultiLinearInterpolator
+            < double, double, numberOfIndependentVariables_ > > multiLinearInterpolationForDensity_;
+
+    //! Cubic spline interpolation for pressure.
+    /*!
+     *  Cubic spline interpolation for pressure.
+     */
+    interpolators::CubicSplineInterpolatorDoublePointer cubicSplineInterpolationForPressure_;
+
+    //! N-dimensional linear interpolation for pressure.
+    /*!
+     *  N-dimensional linear interpolation for pressure.
+     */
+    boost::shared_ptr< interpolators::MultiLinearInterpolator
+            < double, double, numberOfIndependentVariables_ > > multiLinearInterpolationForPressure_;
+
+    //! Cubic spline interpolation for temperature.
+    /*!
+     *  Cubic spline interpolation for temperature.
+     */
+    interpolators::CubicSplineInterpolatorDoublePointer cubicSplineInterpolationForTemperature_;
+
+    //! N-dimensional linear interpolation for temperature.
+    /*!
+     *  N-dimensional linear interpolation for temperature.
+     */
+    boost::shared_ptr< interpolators::MultiLinearInterpolator
+            < double, double, numberOfIndependentVariables_ > > multiLinearInterpolationForTemperature_;
+
+    //! Cubic spline interpolation for specific gas constant.
+    /*!
+     *  Cubic spline interpolation for specific gas constant.
+     */
+    interpolators::CubicSplineInterpolatorDoublePointer cubicSplineInterpolationForGasConstant_;
+
+    //! N-dimensional linear interpolation for specific gas constant.
+    /*!
+     *  N-dimensional linear interpolation for specific gas constant.
+     */
+    boost::shared_ptr< interpolators::MultiLinearInterpolator
+            < double, double, numberOfIndependentVariables_ > > multiLinearInterpolationForGasConstant_;
+
+    //! Cubic spline interpolation for ratio of specific heats.
+    /*!
+     *  Cubic spline interpolation for ratio of specific heats.
+     */
+    interpolators::CubicSplineInterpolatorDoublePointer cubicSplineInterpolationForSpecificHeatRatio_;
+
+    //! N-dimensional linear interpolation for ratio of specific heats.
+    /*!
+     *  N-dimensional linear interpolation for ratio of specific heats.
+     */
+    boost::shared_ptr< interpolators::MultiLinearInterpolator
+            < double, double, numberOfIndependentVariables_ > > multiLinearInterpolationForSpecificHeatRatio_;
 };
 
 //! Typedef for shared-pointer to TabulatedAtmosphere object.
