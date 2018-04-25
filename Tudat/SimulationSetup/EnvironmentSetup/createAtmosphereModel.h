@@ -202,10 +202,12 @@ public:
 
     ExponentialAtmosphereSettings(
             const double densityScaleHeight, const double constantTemperature,
-            const double densityAtZeroAltitude, const double specificGasConstant ):
+            const double densityAtZeroAltitude, const double specificGasConstant,
+            const double ratioOfSpecificHeats ):
         AtmosphereSettings( exponential_atmosphere ),
         densityScaleHeight_( densityScaleHeight ), constantTemperature_( constantTemperature ),
-        densityAtZeroAltitude_( densityAtZeroAltitude ), specificGasConstant_( specificGasConstant )
+        densityAtZeroAltitude_( densityAtZeroAltitude ), specificGasConstant_( specificGasConstant ),
+        ratioOfSpecificHeats_( ratioOfSpecificHeats )
     { }
 
     //! Function to return scale heigh for density profile of atmosphere.
@@ -235,6 +237,14 @@ public:
      *  \return Specific gas constant for (constant) atmospheric chemical
      */
     double getSpecificGasConstant( ){ return specificGasConstant_; }
+
+    //! Function to return ratio of specific heats for (constant) atmospheric chemical
+    /*!
+     *  Function to return ratio of specific heats for (constant) atmospheric chemical
+     *  \return Specific gas constant for (constant) atmospheric chemical
+     */
+    double getRatioOfSpecificHeats( ){ return ratioOfSpecificHeats_; }
+
 private:
 
     //! Scale heigh for density profile of atmosphere.
@@ -248,6 +258,9 @@ private:
 
     //! Specific gas constant for (constant) atmospheric chemical
     double specificGasConstant_;
+
+    //! Ratio of specific heats for (constant) atmospheric chemical
+    double ratioOfSpecificHeats_;
 };
 
 
@@ -294,25 +307,49 @@ public:
      *  four columns of atmospheric data with altitude, density, pressure and temperature,
      *  respectively.
      */
-    TabulatedAtmosphereSettings( const std::string& atmosphereFile ):
-        AtmosphereSettings( tabulated_atmosphere ), atmosphereFile_( atmosphereFile ){ }
+    TabulatedAtmosphereSettings( const std::vector< std::string >& atmosphereFile,
+                                 const std::vector< aerodynamics::AtmosphereInependentVariables > independentVariables,
+                                 const std::vector< aerodynamics::AtmosphereDependentVariables > dependentVariables,
+                                 const double specificGasConstant,
+                                 const double ratioOfSpecificHeats ):
+        AtmosphereSettings( tabulated_atmosphere ),
+        atmosphereFile_( atmosphereFile ),
+        independentVariables_( independentVariables ),
+        dependentVariables_( dependentVariables ),
+        specificGasConstant_( specificGasConstant ),
+        ratioOfSpecificHeats_( ratioOfSpecificHeats )
+    { }
 
     //! Function to return file containing atmospheric properties.
     /*!
      *  Function to return file containing atmospheric properties.
      *  \return Filename containing atmospheric properties.
      */
-    std::string getAtmosphereFile( ){ return atmosphereFile_; }
+    std::vector< std::string > getAtmosphereFile( ){ return atmosphereFile_; }
 
 private:
 
     //! File containing atmospheric properties.
     /*!
      *  File containing atmospheric properties, file should contain
-     *  four columns of atmospheric data with altitude, density, pressure and temperature,
-     *  respectively.
+     *  columns of atmospheric data with at least density, pressure and temperature,
+     *  (whose order is specified in dependentVariables), and with at least altitude
+     *  as indendent variables. Other variables need to be specified (in order) in
+     *  independentVariables.
      */
     std::string atmosphereFile_;
+
+    //! List of ordered independent variables for tabulated atmosphere
+    std::vector< aerodynamics::AtmosphereInependentVariables > independentVariables_;
+
+    //! List of ordered independent variables for tabulated atmosphere
+    std::vector< aerodynamics::AtmosphereDependentVariables > dependentVariables_;
+
+    //! Specific gas constant for (constant) atmospheric chemical
+    double specificGasConstant_;
+
+    //! Ratio of specific heats for (constant) atmospheric chemical
+    double ratioOfSpecificHeats_;
 };
 
 //! Function to create a wind model.

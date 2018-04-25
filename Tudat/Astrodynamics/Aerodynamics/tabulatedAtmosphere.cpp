@@ -21,20 +21,36 @@ namespace aerodynamics
 {
 
 //! Initialize atmosphere table reader.
-void TabulatedAtmosphere::initialize( const std::string& atmosphereTableFile )
+void TabulatedAtmosphere::initialize( const std::vector< std::string >& atmosphereTableFile,
+                                      const std::vector< aerodynamics::AerodynamicCoefficientsIndependentVariables >
+                                      independentVariableNames )
 {
     // Locally store the atmosphere table file name.
     atmosphereTableFile_ = atmosphereTableFile;
 
-    Eigen::MatrixXd containerOfAtmosphereTableFileData
-            = input_output::readMatrixFromFile( atmosphereTableFile_, " \t", "%" );
+    // Retrieve number of independent variables from file.
+    int numberOfIndependentVariables =
+            input_output::getNumberOfIndependentVariablesInCoefficientFile( atmosphereTableFile_.begin( )->second );
 
-    // Check whether data is present in the file.
-    if ( containerOfAtmosphereTableFileData.rows( ) < 1
-         || containerOfAtmosphereTableFileData.cols( ) < 1 )
+    // Check input consistency
+    if( independentVariableNames.size( ) != numberOfIndependentVariables )
     {
-        std::string errorMessage = "The atmosphere table file " + atmosphereTableFile_ + " is empty";
-        throw std::runtime_error( errorMessage );
+        throw std::runtime_error( "Error when creating tabulated atmosphere from file, input sizes are inconsistent" );
+    }
+
+    // Call approriate file reading function for N independent variables
+    std::pair< boost::multi_array< Eigen::Vector1d, numberOfIndependentVariables >,
+            std::vector< std::vector< double > > > containerOfAtmosphereTableFileData;
+    if ( ( numberOfIndependentVariables > 0 ) && ( numberOfIndependentVariables < 4 ) )
+    {
+        containerOfAtmosphereTableFileData =
+                input_output::readTabulatedAtmosphere< numberOfIndependentVariables >( atmosphereTableFile_ );
+    }
+    else
+    {
+        throw std::runtime_error( "Error when reading tabulated atmosphere from file, found " +
+                                  std::to_string( numberOfIndependentVariables ) +
+                                  " independent variables, up to 3 currently supported" );
     }
 
     // Initialize vectors.
@@ -43,6 +59,7 @@ void TabulatedAtmosphere::initialize( const std::string& atmosphereTableFile )
     pressureData_.resize( containerOfAtmosphereTableFileData.rows( ) );
     temperatureData_.resize( containerOfAtmosphereTableFileData.rows( ) );
 
+    // Get order of dependent variables
     int densityIndex = 0;
     int pressureIndex = 0;
     int temperatureIndex = 0;
@@ -50,7 +67,6 @@ void TabulatedAtmosphere::initialize( const std::string& atmosphereTableFile )
     int gasConstantIndex = 0;
     containsSpecificHeatRatio_ = false;
     containsGasConstant_ = false;
-
     for( unsigned int i = 0; i < dependentVariables_.size( ); i++ )
     {
         switch( dependentVariables_[ i ] )
