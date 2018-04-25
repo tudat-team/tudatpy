@@ -29,6 +29,7 @@
 #include "Tudat/Astrodynamics/Aerodynamics/aerodynamics.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/physicalConstants.h"
 #include "Tudat/Mathematics/Interpolators/cubicSplineInterpolator.h"
+#include "Tudat/InputOutput/tabulatedAtmosphereReader.h"
 
 namespace tudat
 {
@@ -45,6 +46,18 @@ namespace aerodynamics
 class TabulatedAtmosphere : public StandardAtmosphere
 {
 public:
+
+    /*!
+     * Enum of all the possible dependent variables that can be used in the tabulated atmosphere
+     * file.
+     */
+    enum AtmosphereIndependentVariables
+    {
+        altitude_dependent_atmosphere = 0,
+        latitude_dependent_atmosphere = 1,
+        longitude_dependent_atmosphere = 2,
+        time_dependent_atmosphere = 3
+    };
 
     /*!
      * Enum of all the possible dependent variables that can be used in the tabulated atmosphere
@@ -69,15 +82,18 @@ public:
      *  \param specificGasConstant The constant specific gas constant of the air
      *  \param ratioOfSpecificHeats The constant ratio of specific heats of the air
      */
-    TabulatedAtmosphere( const std::string& atmosphereTableFile,
+    TabulatedAtmosphere( const std::vector< std::string >& atmosphereTableFile,
+                         const std::vector< AtmosphereInependentVariables > independentVariables =
+    { altitude_dependent_atmosphere },
                          const std::vector< AtmosphereDependentVariables > dependentVariables =
     { density_dependent_atmosphere, pressure_dependent_atmosphere, temperature_dependent_atmosphere },
                          const double specificGasConstant = physical_constants::SPECIFIC_GAS_CONSTANT_AIR,
                          const double ratioOfSpecificHeats = 1.4 ):
-        atmosphereTableFile_( atmosphereTableFile ), dependentVariables_( dependentVariables ),
-        specificGasConstant_( specificGasConstant ), ratioOfSpecificHeats_( ratioOfSpecificHeats )
+        atmosphereTableFile_( atmosphereTableFile ), independentVariables_( independentVariables ),
+        dependentVariables_( dependentVariables ), specificGasConstant_( specificGasConstant ),
+        ratioOfSpecificHeats_( ratioOfSpecificHeats )
     {
-        initialize( atmosphereTableFile_ );
+        initialize( atmosphereTableFile_, independentVariables_ );
     }
 
     //! Get atmosphere table file name.
@@ -85,7 +101,7 @@ public:
      * Returns atmosphere table file name.
      * \return The atmosphere table file.
      */
-    std::string getAtmosphereTableFile( ) { return atmosphereTableFile_; }
+    std::vector< std::string > getAtmosphereTableFile( ) { return atmosphereTableFile_; }
 
     //! Get specific gas constant.
     /*!
@@ -224,7 +240,8 @@ private:
      * Initializes the atmosphere table reader.
      * \param atmosphereTableFile The name of the atmosphere table.
      */
-    void initialize( const std::string& atmosphereTableFile );
+    void initialize( const std::vector< std::string >& atmosphereTableFile,
+                     const std::vector< AerodynamicCoefficientsIndependentVariables > independentVariableNames );
 
     //! The file name of the atmosphere table.
     /*!
@@ -232,7 +249,7 @@ private:
      *  containing altitude (first column), and the associated density, pressure and density values
      *  in the second, third and fourth columns.
      */
-    std::string atmosphereTableFile_;
+    std::vector< std::string > atmosphereTableFile_;
 
     //! Vector containing the altitude.
     /*!
@@ -240,35 +257,53 @@ private:
      */
     std::vector< double > altitudeData_;
 
+    //! Vector containing the latitude.
+    /*!
+     *  Vector containing the latitude.
+     */
+    std::vector< double > latitudeData_;
+
+    //! Vector containing the longitude.
+    /*!
+     *  Vector containing the longitude.
+     */
+    std::vector< double > longitudeData_;
+
+    //! Vector containing the time.
+    /*!
+     *  Vector containing the time.
+     */
+    std::vector< double > timeData_;
+
     //! Vector containing the density data as a function of the altitude.
     /*!
      *  Vector containing the density data as a function of the altitude.
      */
-    std::vector< double > densityData_;
+    boost::multi_array< Eigen::Vector1d, double > densityData_;
 
     //! Vector containing the pressure data as a function of the altitude.
     /*!
      *  Vector containing the pressure data as a function of the altitude.
      */
-    std::vector< double > pressureData_;
+    boost::multi_array< Eigen::Vector1d, double > pressureData_;
 
     //! Vector containing the temperature data as a function of the altitude.
     /*!
      *  Vector containing the temperature data as a function of the altitude.
      */
-    std::vector< double > temperatureData_;
+    boost::multi_array< Eigen::Vector1d, double > temperatureData_;
 
     //! Vector containing the specific heat ratio data as a function of the altitude.
     /*!
      *  Vector containing the specific heat ratio data as a function of the altitude.
      */
-    std::vector< double > specificHeatRatioData_;
+    boost::multi_array< Eigen::Vector1d, double > specificHeatRatioData_;
 
     //! Vector containing the gas constant data as a function of the altitude.
     /*!
      *  Vector containing the gas constant data as a function of the altitude.
      */
-    std::vector< double > gasConstantData_;
+    boost::multi_array< Eigen::Vector1d, double > gasConstantData_;
 
     //! Cubic spline interpolation for density.
     /*!
@@ -300,6 +335,13 @@ private:
      */
     interpolators::CubicSplineInterpolatorDoublePointer cubicSplineInterpolationForGasConstant_;
 
+    //! A vector of strings containing the names of the independent variables contained in the atmosphere file
+    /*!
+     * A vector of strings containing the names of the independent variables contained in the atmosphere file,
+     * in the correct order (from left, being the first entry in the vector, to the right).
+     */
+    std::vector< AtmosphereDependentVariables > independentVariables_;
+
     //! A vector of strings containing the names of the variables contained in the atmosphere file
     /*!
      * A vector of strings containing the names of the variables contained in the atmosphere file,
@@ -321,10 +363,10 @@ private:
      */
     double ratioOfSpecificHeats_;
 
-    //! Bool that determines if the ratio of specific heats is contained in the given atmosphere file.
+    //! Boolean that determines if the ratio of specific heats is contained in the given atmosphere file.
     bool containsSpecificHeatRatio_;
 
-     //!  Bool that determines if the specific gas constant is contained in the given atmosphere file.
+    //! Boolean that determines if the specific gas constant is contained in the given atmosphere file.
     bool containsGasConstant_;
 };
 
