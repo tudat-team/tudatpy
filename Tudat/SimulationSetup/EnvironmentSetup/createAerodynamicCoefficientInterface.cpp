@@ -19,7 +19,7 @@ namespace simulation_setup
 {
 
 
-//! Function to create aerodynamic coefficient settings fom coefficients stored in data files
+//! Function to create aerodynamic coefficient settings from coefficients stored in data files
 boost::shared_ptr< AerodynamicCoefficientSettings > readTabulatedAerodynamicCoefficientsFromFiles(
         const std::map< int, std::string > forceCoefficientFiles,
         const std::map< int, std::string > momentCoefficientFiles,
@@ -67,7 +67,7 @@ boost::shared_ptr< AerodynamicCoefficientSettings > readTabulatedAerodynamicCoef
     return coefficientSettings;
 }
 
-//! Function to create aerodynamic coefficient settings fom coefficients stored in data files
+//! Function to create aerodynamic coefficient settings from coefficients stored in data files
 boost::shared_ptr< AerodynamicCoefficientSettings >
 readTabulatedAerodynamicCoefficientsFromFiles(
         const std::map< int, std::string > forceCoefficientFiles,

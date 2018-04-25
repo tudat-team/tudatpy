@@ -65,7 +65,7 @@ std::vector< unsigned int > getBulirschStoerStepSequence(
  *          either a float or double.
  * \sa NumericalIntegrator.
  */
-template < typename IndependentVariableType = double, typename StateType = Eigen::VectorXd,
+template< typename IndependentVariableType = double, typename StateType = Eigen::VectorXd,
            typename StateDerivativeType = Eigen::VectorXd, typename TimeStepType = double >
 class BulirschStoerVariableStepSizeIntegrator :
         public NumericalIntegrator< IndependentVariableType, StateType, StateDerivativeType, TimeStepType >

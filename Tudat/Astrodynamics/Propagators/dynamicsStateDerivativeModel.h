@@ -539,6 +539,20 @@ public:
         }
     }
 
+    void postProcessStateAndVariationalEquations( Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >& state )
+    {
+        for( stateDerivativeModelsIterator_ = stateDerivativeModels_.begin( );
+             stateDerivativeModelsIterator_ != stateDerivativeModels_.end( );
+             stateDerivativeModelsIterator_++ )
+        {
+            for( unsigned int i = 0; i < stateDerivativeModelsIterator_->second.size( ); i++ )
+            {
+                stateDerivativeModelsIterator_->second.at( i )->postProcessState(
+                            state, 0, dynamicsStartColumn_ ); // temporary
+            }
+        }
+    }
+
 private:
 
     //! Function to convert the to the conventional form in the global frame per dynamics type.
