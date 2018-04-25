@@ -43,9 +43,16 @@ BOOST_AUTO_TEST_SUITE( test_tabulated_atmosphere )
 // Values from (US Standard Atmosphere, 1976).
 BOOST_AUTO_TEST_CASE( testTabulatedAtmosphereAtSeaLevel )
 {
+    // Create vector of dependent variables
+    std::vector< aerodynamics::AtmosphereDependentVariables > dependentVariables;
+    dependentVariables.push_back( aerodynamics::pressure_dependent_atmosphere );
+    dependentVariables.push_back( aerodynamics::density_dependent_atmosphere );
+    dependentVariables.push_back( aerodynamics::temperature_dependent_atmosphere );
+
     // Create a tabulated atmosphere object.
-    aerodynamics::TabulatedAtmosphere tabulatedAtmosphere(
-                input_output::getAtmosphereTablesPath( ) + "USSA1976Until100kmPer100mUntil1000kmPer1000m.dat" );
+    std::vector< std::string > tabulatedAtmosphereFiles;
+    tabulatedAtmosphereFiles.push_back( input_output::getAtmosphereTablesPath( ) + "USSA1976Until100kmPer100mUntil1000kmPer1000m.dat" );
+    aerodynamics::TabulatedAtmosphere< 1 > tabulatedAtmosphere( tabulatedAtmosphereFiles );
 
     // Declare tolerance used for Boost tests.
     const double tolerance = std::numeric_limits< double >::epsilon( );
@@ -62,8 +69,9 @@ BOOST_AUTO_TEST_CASE( testTabulatedAtmosphereAtSeaLevel )
 BOOST_AUTO_TEST_CASE( testTabulatedAtmosphereAt10km )
 {
     // Create a tabulated atmosphere object.
-    aerodynamics::TabulatedAtmosphere tabulatedAtmosphere(
-                input_output::getAtmosphereTablesPath( ) + "USSA1976Until100kmPer100mUntil1000kmPer1000m.dat" );
+    std::vector< std::string > tabulatedAtmosphereFiles;
+    tabulatedAtmosphereFiles.push_back( input_output::getAtmosphereTablesPath( ) + "USSA1976Until100kmPer100mUntil1000kmPer1000m.dat" );
+    aerodynamics::TabulatedAtmosphere< 1 > tabulatedAtmosphere( tabulatedAtmosphereFiles );
     const double altitude = 10.0e3;
     const double longitude = 0.0;
     const double latitude = 0.0;
@@ -83,8 +91,9 @@ BOOST_AUTO_TEST_CASE( testTabulatedAtmosphereAt10km )
 BOOST_AUTO_TEST_CASE( testTabulatedAtmosphereAt10p5km )
 {
     // Create a tabulated atmosphere object.
-    aerodynamics::TabulatedAtmosphere tabulatedAtmosphere(
-                input_output::getAtmosphereTablesPath( ) + "USSA1976Until100kmPer100mUntil1000kmPer1000m.dat" );
+    std::vector< std::string > tabulatedAtmosphereFiles;
+    tabulatedAtmosphereFiles.push_back( input_output::getAtmosphereTablesPath( ) + "USSA1976Until100kmPer100mUntil1000kmPer1000m.dat" );
+    aerodynamics::TabulatedAtmosphere< 1 > tabulatedAtmosphere( tabulatedAtmosphereFiles );
     const double altitude = 10.05e3;
 
     BOOST_CHECK_SMALL( 222.9350 - tabulatedAtmosphere.getTemperature( altitude ), 2.0e-2 );
@@ -97,8 +106,9 @@ BOOST_AUTO_TEST_CASE( testTabulatedAtmosphereAt10p5km )
 BOOST_AUTO_TEST_CASE( testTabulatedAtmosphereAt1000kmtab )
 {
     // Create a tabulated atmosphere object.
-    aerodynamics::TabulatedAtmosphere tabulatedAtmosphere(
-                input_output::getAtmosphereTablesPath( ) + "USSA1976Until100kmPer100mUntil1000kmPer1000m.dat" );
+    std::vector< std::string > tabulatedAtmosphereFiles;
+    tabulatedAtmosphereFiles.push_back( input_output::getAtmosphereTablesPath( ) + "USSA1976Until100kmPer100mUntil1000kmPer1000m.dat" );
+    aerodynamics::TabulatedAtmosphere< 1 > tabulatedAtmosphere( tabulatedAtmosphereFiles );
     const double altitude = 1.0e6 ;
 
     // Declare tolerance used for Boost tests.
@@ -116,9 +126,9 @@ BOOST_AUTO_TEST_CASE( testTabulatedAtmosphereAt1000kmtab )
 BOOST_AUTO_TEST_CASE( testTabulatedAtmospherePositionIndependentFunctions)
 {
     // Create a tabulated atmosphere object.
-    aerodynamics::TabulatedAtmosphere tabulatedAtmosphere(
-                input_output::getAtmosphereTablesPath( ) + "USSA1976Until100kmPer100mUntil1000kmPer1000m.dat" );
-
+    std::vector< std::string > tabulatedAtmosphereFiles;
+    tabulatedAtmosphereFiles.push_back( input_output::getAtmosphereTablesPath( ) + "USSA1976Until100kmPer100mUntil1000kmPer1000m.dat" );
+    aerodynamics::TabulatedAtmosphere< 1 > tabulatedAtmosphere( tabulatedAtmosphereFiles );
     const double altitude  = 10.0e3;
 
     // Longitude, latitude and time to check overloading.
@@ -146,16 +156,16 @@ BOOST_AUTO_TEST_CASE( testTabulatedAtmospherePositionIndependentFunctions)
 // Values from (US Standard Atmosphere, 1976).
 BOOST_AUTO_TEST_CASE( testTabulatedAtmosphereDependentVariables )
 {
-
-    std::vector< aerodynamics::TabulatedAtmosphere::AtmosphereDependentVariables > dependentVariables;
-    dependentVariables.push_back( aerodynamics::TabulatedAtmosphere::pressure_dependent_atmosphere );
-    dependentVariables.push_back( aerodynamics::TabulatedAtmosphere::density_dependent_atmosphere );
-    dependentVariables.push_back( aerodynamics::TabulatedAtmosphere::temperature_dependent_atmosphere );
+    // Create vector of dependent variables
+    std::vector< aerodynamics::AtmosphereDependentVariables > dependentVariables;
+    dependentVariables.push_back( aerodynamics::pressure_dependent_atmosphere );
+    dependentVariables.push_back( aerodynamics::density_dependent_atmosphere );
+    dependentVariables.push_back( aerodynamics::temperature_dependent_atmosphere );
 
     // Create a tabulated atmosphere object.
-    aerodynamics::TabulatedAtmosphere tabulatedAtmosphere(
-                input_output::getAtmosphereTablesPath( ) + "USSA1976Until100kmPer100mUntil1000kmPer1000m.dat",
-                dependentVariables);
+    std::vector< std::string > tabulatedAtmosphereFiles;
+    tabulatedAtmosphereFiles.push_back( input_output::getAtmosphereTablesPath( ) + "USSA1976Until100kmPer100mUntil1000kmPer1000m.dat" );
+    aerodynamics::TabulatedAtmosphere< 1 > tabulatedAtmosphere( tabulatedAtmosphereFiles, dependentVariables );
 
     // Declare tolerance used for Boost tests.
     const double tolerance = std::numeric_limits< double >::epsilon( );
