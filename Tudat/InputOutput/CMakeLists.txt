@@ -29,7 +29,6 @@ set(INPUTOUTPUT_SOURCES
   "${SRCROOT}${INPUTOUTPUTDIR}/solarActivityData.cpp"
   "${SRCROOT}${INPUTOUTPUTDIR}/multiDimensionalArrayReader.cpp"
   "${SRCROOT}${INPUTOUTPUTDIR}/aerodynamicCoefficientReader.cpp"
-  "${SRCROOT}${INPUTOUTPUTDIR}/tabulatedAtmosphereReader.cpp"
 )
 
 # Add header files.
