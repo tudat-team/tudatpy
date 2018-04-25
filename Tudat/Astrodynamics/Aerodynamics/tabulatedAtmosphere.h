@@ -47,31 +47,6 @@ class TabulatedAtmosphere : public StandardAtmosphere
 {
 public:
 
-    /*!
-     * Enum of all the possible dependent variables that can be used in the tabulated atmosphere
-     * file.
-     */
-    enum AtmosphereIndependentVariables
-    {
-        altitude_dependent_atmosphere = 0,
-        latitude_dependent_atmosphere = 1,
-        longitude_dependent_atmosphere = 2,
-        time_dependent_atmosphere = 3
-    };
-
-    /*!
-     * Enum of all the possible dependent variables that can be used in the tabulated atmosphere
-     * file.
-     */
-    enum AtmosphereDependentVariables
-    {
-        density_dependent_atmosphere = 0,
-        pressure_dependent_atmosphere = 1,
-        temperature_dependent_atmosphere = 2,
-        specific_heat_ratio_dependent_atmosphere = 3,
-        gas_constant_dependent_atmosphere = 4
-    };
-
     //! Default constructor.
     /*!
      *  Default constructor.
@@ -83,7 +58,7 @@ public:
      *  \param ratioOfSpecificHeats The constant ratio of specific heats of the air
      */
     TabulatedAtmosphere( const std::vector< std::string >& atmosphereTableFile,
-                         const std::vector< AtmosphereInependentVariables > independentVariables =
+                         const std::vector< AtmosphereIndependentVariables > independentVariables =
     { altitude_dependent_atmosphere },
                          const std::vector< AtmosphereDependentVariables > dependentVariables =
     { density_dependent_atmosphere, pressure_dependent_atmosphere, temperature_dependent_atmosphere },
@@ -93,7 +68,7 @@ public:
         dependentVariables_( dependentVariables ), specificGasConstant_( specificGasConstant ),
         ratioOfSpecificHeats_( ratioOfSpecificHeats )
     {
-        initialize( atmosphereTableFile_, independentVariables_ );
+        initialize( atmosphereTableFile_ );
     }
 
     //! Get atmosphere table file name.
@@ -103,10 +78,68 @@ public:
      */
     std::vector< std::string > getAtmosphereTableFile( ) { return atmosphereTableFile_; }
 
+    //! Get local density.
+    /*!
+     * Returns the local density parameter of the atmosphere in kg per meter^3.
+     * \param altitude Altitude at which density is to be computed.
+     * \param longitude Longitude at which density is to be computed.
+     * \param latitude Latitude at which density is to be computed.
+     * \param time Time at which density is to be computed.
+     * \return Atmospheric density at specified conditions.
+     */
+    double getDensity( const double altitude, const double longitude = 0.0,
+                       const double latitude = 0.0, const double time = 0.0 )
+    {
+        TUDAT_UNUSED_PARAMETER( longitude );
+        TUDAT_UNUSED_PARAMETER( latitude );
+        TUDAT_UNUSED_PARAMETER( time );
+        return cubicSplineInterpolationForDensity_->interpolate( altitude );
+    }
+
+    //! Get local pressure.
+    /*!
+     * Returns the local pressure of the atmosphere in Newton per meter^2.
+     * \param altitude Altitude  at which pressure is to be computed.
+     * \param longitude Longitude at which pressure is to be computed.
+     * \param latitude Latitude at which pressure is to be computed.
+     * \param time Time at which pressure is to be computed.
+     * \return Atmospheric pressure at specified conditions.
+     */
+    double getPressure( const double altitude, const double longitude = 0.0,
+                        const double latitude = 0.0, const double time = 0.0 )
+    {
+        TUDAT_UNUSED_PARAMETER( longitude );
+        TUDAT_UNUSED_PARAMETER( latitude );
+        TUDAT_UNUSED_PARAMETER( time );
+        return cubicSplineInterpolationForPressure_->interpolate( altitude );
+    }
+
+    //! Get local temperature.
+    /*!
+     * Returns the local temperature of the atmosphere in Kelvin.
+     * \param altitude Altitude at which temperature is to be computed
+     * \param longitude Longitude at which temperature is to be computed.
+     * \param latitude Latitude at which temperature is to be computed.
+     * \param time Time at which temperature is to be computed.
+     * \return constantTemperature Atmospheric temperature at specified conditions.
+     */
+    double getTemperature( const double altitude, const double longitude = 0.0,
+                           const double latitude = 0.0, const double time = 0.0 )
+    {
+        TUDAT_UNUSED_PARAMETER( longitude );
+        TUDAT_UNUSED_PARAMETER( latitude );
+        TUDAT_UNUSED_PARAMETER( time );
+        return cubicSplineInterpolationForTemperature_->interpolate( altitude );
+    }
+
     //! Get specific gas constant.
     /*!
-     * Returns the specific gas constant of the air in J/(kg K), its value is assumed constant.
-     * \return specificGasConstant Specific gas constant in exponential atmosphere.
+     * Returns the specific gas constant of the atmosphere in J/(kg K), its value is assumed constant.
+     * \param altitude Altitude at which specific gas constant is to be computed.
+     * \param longitude Longitude at which specific gas constant is to be computed.
+     * \param latitude Latitude at which specific gas constant is to be computed.
+     * \param time Time at which specific gas constant is to be computed.
+     * \return specificGasConstant Specific gas constant at specified conditions.
      */
     double getSpecificGasConstant( const double altitude, const double longitude = 0.0,
                                    const double latitude = 0.0, const double time = 0.0  )
@@ -126,8 +159,12 @@ public:
 
     //! Get ratio of specific heats.
     /*!
-     * Returns the ratio of specific hears of the air, its value is assumed constant,.
-     * \return Ratio of specific heats exponential atmosphere.
+     * Returns the ratio of specific heats of the air, its value is assumed constant,.
+     * \param altitude Altitude at which ratio of specific heats is to be computed
+     * \param longitude Longitude at which ratio of specific heats is to be computed.
+     * \param latitude Latitude at which ratio of specific heats is to be computed.
+     * \param time Time at which ratio of specific heats is to be computed.
+     * \return Ratio of specific heats at specified conditions.
      */
     double getRatioOfSpecificHeats( const double altitude, const double longitude = 0.0,
                                     const double latitude = 0.0, const double time = 0.0 )
@@ -145,69 +182,6 @@ public:
         }
     }
 
-    //! Get local density.
-    /*!
-     * Returns the local density parameter of the atmosphere in kg per meter^3.
-     * \param altitude Altitude at which density is to be computed.
-     * \param longitude Longitude at which density is to be computed (not used but included for
-     * consistency with base class interface).
-     * \param latitude Latitude at which density is to be computed (not used but included for
-     * consistency with base class interface).
-     * \param time Time at which density is to be computed (not used but included for
-     * consistency with base class interface).
-     * \return Atmospheric density at specified altitude.
-     */
-    double getDensity( const double altitude, const double longitude = 0.0,
-                       const double latitude = 0.0, const double time = 0.0 )
-    {
-        TUDAT_UNUSED_PARAMETER( longitude );
-        TUDAT_UNUSED_PARAMETER( latitude );
-        TUDAT_UNUSED_PARAMETER( time );
-        return cubicSplineInterpolationForDensity_->interpolate( altitude );
-    }
-
-    //! Get local pressure.
-    /*!
-     * Returns the local pressure of the atmosphere in Newton per meter^2.
-     * \param altitude Altitude  at which pressure is to be computed.
-     * \param longitude Longitude at which pressure is to be computed (not used but included for
-     * consistency with base class interface).
-     * \param latitude Latitude at which pressure is to be computed (not used but included for
-     * consistency with base class interface).
-     * \param time Time at which pressure is to be computed (not used but included for
-     * consistency with base class interface).
-     * \return Atmospheric pressure at specified altitude.
-     */
-    double getPressure( const double altitude, const double longitude = 0.0,
-                        const double latitude = 0.0, const double time = 0.0 )
-    {
-        TUDAT_UNUSED_PARAMETER( longitude );
-        TUDAT_UNUSED_PARAMETER( latitude );
-        TUDAT_UNUSED_PARAMETER( time );
-        return cubicSplineInterpolationForPressure_->interpolate( altitude );
-    }
-
-    //! Get local temperature.
-    /*!
-     * Returns the local temperature of the atmosphere in Kelvin.
-     * \param altitude Altitude at which temperature is to be computed
-     * \param longitude Longitude at which temperature is to be computed (not used but included for
-     * consistency with base class interface).
-     * \param latitude Latitude at which temperature is to be computed (not used but included for
-     * consistency with base class interface).
-     * \param time Time at which temperature is to be computed (not used but included for
-     * consistency with base class interface).
-     * \return constantTemperature Atmospheric temperature at specified altitude.
-     */
-    double getTemperature( const double altitude, const double longitude = 0.0,
-                           const double latitude = 0.0, const double time = 0.0 )
-    {
-        TUDAT_UNUSED_PARAMETER( longitude );
-        TUDAT_UNUSED_PARAMETER( latitude );
-        TUDAT_UNUSED_PARAMETER( time );
-        return cubicSplineInterpolationForTemperature_->interpolate( altitude );
-    }
-
     //! Get local speed of sound in the atmosphere.
     /*!
      * Returns the speed of sound in the atmosphere in m/s.
@@ -218,7 +192,7 @@ public:
      * for consistency with base class interface).
      * \param time Time at which speed of sound is to be computed (not used but included for
      * consistency with base class interface).
-     * \return Atmospheric speed of sound at specified altitude.
+     * \return Atmospheric speed of sound at specified conditions.
      */
     double getSpeedOfSound( const double altitude, const double longitude = 0.0,
                             const double latitude = 0.0, const double time = 0.0 )
@@ -227,8 +201,9 @@ public:
         TUDAT_UNUSED_PARAMETER( latitude );
         TUDAT_UNUSED_PARAMETER( time );
         return computeSpeedOfSound(
-                    getTemperature( altitude, longitude, latitude, time ), ratioOfSpecificHeats_,
-                    specificGasConstant_ );
+                    getTemperature( altitude, longitude, latitude, time ),
+                    getSpecificGasConstant( altitude, longitude, latitude, time ),
+                    getRatioOfSpecificHeats( altitude, longitude, latitude, time ) );
     }
 
 protected:
@@ -240,8 +215,7 @@ private:
      * Initializes the atmosphere table reader.
      * \param atmosphereTableFile The name of the atmosphere table.
      */
-    void initialize( const std::vector< std::string >& atmosphereTableFile,
-                     const std::vector< AerodynamicCoefficientsIndependentVariables > independentVariableNames );
+    void initialize( const std::vector< std::string >& atmosphereTableFile );
 
     //! The file name of the atmosphere table.
     /*!
