@@ -73,9 +73,9 @@ public:
                          const std::vector< AtmosphereDependentVariables > dependentVariables =
     { density_dependent_atmosphere, pressure_dependent_atmosphere, temperature_dependent_atmosphere },
                          const double specificGasConstant = physical_constants::SPECIFIC_GAS_CONSTANT_AIR,
-                         const double ratioOfSpecificHeats = 1.4 )
-        : atmosphereTableFile_( atmosphereTableFile ), dependentVariables_( dependentVariables ),
-          specificGasConstant_( specificGasConstant ), ratioOfSpecificHeats_( ratioOfSpecificHeats )
+                         const double ratioOfSpecificHeats = 1.4 ):
+        atmosphereTableFile_( atmosphereTableFile ), dependentVariables_( dependentVariables ),
+        specificGasConstant_( specificGasConstant ), ratioOfSpecificHeats_( ratioOfSpecificHeats )
     {
         initialize( atmosphereTableFile_ );
     }
@@ -92,8 +92,8 @@ public:
      * Returns the specific gas constant of the air in J/(kg K), its value is assumed constant.
      * \return specificGasConstant Specific gas constant in exponential atmosphere.
      */
-    double getSpecificGasConstant(const double altitude, const double longitude = 0.0,
-                                  const double latitude = 0.0, const double time = 0.0  )
+    double getSpecificGasConstant( const double altitude, const double longitude = 0.0,
+                                   const double latitude = 0.0, const double time = 0.0  )
     {
         TUDAT_UNUSED_PARAMETER( longitude );
         TUDAT_UNUSED_PARAMETER( latitude );
@@ -113,8 +113,8 @@ public:
      * Returns the ratio of specific hears of the air, its value is assumed constant,.
      * \return Ratio of specific heats exponential atmosphere.
      */
-    double getRatioOfSpecificHeats(const double altitude, const double longitude = 0.0,
-                                   const double latitude = 0.0, const double time = 0.0 )
+    double getRatioOfSpecificHeats( const double altitude, const double longitude = 0.0,
+                                    const double latitude = 0.0, const double time = 0.0 )
     {
         TUDAT_UNUSED_PARAMETER( longitude );
         TUDAT_UNUSED_PARAMETER( latitude );
