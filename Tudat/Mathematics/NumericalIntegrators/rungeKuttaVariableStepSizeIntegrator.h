@@ -44,7 +44,7 @@ namespace numerical_integrators
  *          either a float or double.
  * \sa NumericalIntegrator.
  */
-template < typename IndependentVariableType = double, typename StateType = Eigen::VectorXd,
+template< typename IndependentVariableType = double, typename StateType = Eigen::VectorXd,
            typename StateDerivativeType = StateType, typename TimeStepType = IndependentVariableType  >
 class RungeKuttaVariableStepSizeIntegrator :
         public ReinitializableNumericalIntegrator<
@@ -460,7 +460,7 @@ protected:
 };
 
 //! Perform a single integration step.
-template < typename IndependentVariableType, typename StateType, typename StateDerivativeType, typename TimeStepType >
+template< typename IndependentVariableType, typename StateType, typename StateDerivativeType, typename TimeStepType >
 StateType
 RungeKuttaVariableStepSizeIntegrator< IndependentVariableType, StateType, StateDerivativeType, TimeStepType >
 ::performIntegrationStep( const TimeStepType stepSize )
@@ -660,7 +660,7 @@ RungeKuttaVariableStepSizeIntegrator< IndependentVariableType, StateType, StateD
  * Exception thrown by RungeKuttaVariableStepSizeIntegrator< >::computeNextStepSizeAndValidateResult()
  * if the minimum step size is exceeded.
  */
-template < typename IndependentVariableType, typename StateType, typename StateDerivativeType, typename TimeStepType >
+template< typename IndependentVariableType, typename StateType, typename StateDerivativeType, typename TimeStepType >
 class RungeKuttaVariableStepSizeIntegrator< IndependentVariableType, StateType,
         StateDerivativeType, TimeStepType >::MinimumStepSizeExceededError : public std::runtime_error
 {

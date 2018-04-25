@@ -183,8 +183,8 @@ public:
         {
             currentState.segment( i * 6, 6 ) =
                     orbital_element_conversions::convertCartesianToUnifiedStateModelExponentialMapElements(
-                        cartesianSolution.block( i * 6, 0, 6, 1 ), static_cast< StateScalarType >(
-                            centralBodyGravitationalParameters_.at( i )( ) ) );
+                        cartesianSolution.block( i * 6, 0, 6, 1 ).template cast< double >( ), static_cast< double >(
+                            centralBodyGravitationalParameters_.at( i )( ) ) ).template cast< StateScalarType >( );
         }
 
         return currentState;
@@ -212,8 +212,8 @@ public:
         {
             currentCartesianLocalSoluton.segment( i * 6, 6 ) =
                     orbital_element_conversions::convertUnifiedStateModelExponentialMapToCartesianElements(
-                        internalSolution.block( i * 6, 0, 6, 1 ), static_cast< StateScalarType >(
-                            centralBodyGravitationalParameters_.at( i )( ) ) );
+                        internalSolution.block( i * 6, 0, 6, 1 ).template cast< double >( ), static_cast< double >(
+                            centralBodyGravitationalParameters_.at( i )( ) ) ).template cast< StateScalarType >( );
         }
 
         currentCartesianLocalSoluton_ = currentCartesianLocalSoluton;
@@ -244,13 +244,19 @@ public:
             if ( exponentialMapMagnitude >= mathematical_constants::PI )
             {
                 // Convert to EM/SEM
-                exponentialMapVector *= ( 1 - ( 2 * mathematical_constants::PI / exponentialMapMagnitude ) );
+                exponentialMapVector *= ( 1.0 - ( 2.0 * mathematical_constants::PI / exponentialMapMagnitude ) );
 
                 // Replace EM with SEM, or vice-versa
                 unnormalizedState.segment( startRow + i * 6 + 3, 3 ) = exponentialMapVector;
             }
         }
     }
+
+    virtual bool isStateToBePostProcessed( )
+    {
+        return true;
+    }
+
 
 private:
 

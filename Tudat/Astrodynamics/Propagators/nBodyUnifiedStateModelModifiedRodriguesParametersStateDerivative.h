@@ -184,8 +184,8 @@ public:
         {
             currentState.segment( i * 7, 7 ) =
                     orbital_element_conversions::convertCartesianToUnifiedStateModelModifiedRodriguesParametersElements(
-                        cartesianSolution.block( i * 6, 0, 6, 1 ), static_cast< StateScalarType >(
-                            centralBodyGravitationalParameters_.at( i )( ) ) );;
+                        cartesianSolution.block( i * 6, 0, 6, 1 ).template cast< double >( ), static_cast< double >(
+                            centralBodyGravitationalParameters_.at( i )( ) ) ).template cast< StateScalarType >( );
         }
 
         return currentState;
@@ -213,8 +213,8 @@ public:
         {
             currentCartesianLocalSoluton.segment( i * 6, 6 ) =
                     orbital_element_conversions::convertUnifiedStateModelModifiedRodriguesParametersToCartesianElements(
-                        internalSolution.block( i * 7, 0, 7, 1 ), static_cast< StateScalarType >(
-                            centralBodyGravitationalParameters_.at( i )( ) ) );
+                        internalSolution.block( i * 7, 0, 7, 1 ).template cast< double >( ), static_cast< double >(
+                            centralBodyGravitationalParameters_.at( i )( ) ) ).template cast< StateScalarType >( );
         }
 
         currentCartesianLocalSoluton_ = currentCartesianLocalSoluton;
@@ -261,6 +261,12 @@ public:
             }
         }
     }
+
+    virtual bool isStateToBePostProcessed( )
+    {
+        return true;
+    }
+
 
 private:
 

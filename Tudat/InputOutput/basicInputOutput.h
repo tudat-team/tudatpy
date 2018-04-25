@@ -154,7 +154,7 @@ std::vector< boost::filesystem::path > listAllFilesInDirectory(
  * \param precision Precision to write the value with.
  * \param delimiter Delimiter to precede the value.
  */
-template < typename OutputStream, typename ValueType >
+template< typename OutputStream, typename ValueType >
 void writeValueToStream( OutputStream& stream, const ValueType& value,
                          const int precision, const std::string& delimiter )
 {
