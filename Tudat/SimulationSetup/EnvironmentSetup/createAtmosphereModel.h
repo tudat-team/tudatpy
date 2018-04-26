@@ -203,7 +203,7 @@ public:
     ExponentialAtmosphereSettings(
             const double densityScaleHeight, const double constantTemperature,
             const double densityAtZeroAltitude, const double specificGasConstant,
-            const double ratioOfSpecificHeats ):
+            const double ratioOfSpecificHeats = 1.4 ):
         AtmosphereSettings( exponential_atmosphere ),
         densityScaleHeight_( densityScaleHeight ), constantTemperature_( constantTemperature ),
         densityAtZeroAltitude_( densityAtZeroAltitude ), specificGasConstant_( specificGasConstant ),
@@ -307,17 +307,8 @@ public:
      *  four columns of atmospheric data with altitude, density, pressure and temperature,
      *  respectively.
      */
-    TabulatedAtmosphereSettings( const std::vector< std::string >& atmosphereFile,
-                                 const std::vector< aerodynamics::AtmosphereInependentVariables > independentVariables,
-                                 const std::vector< aerodynamics::AtmosphereDependentVariables > dependentVariables,
-                                 const double specificGasConstant,
-                                 const double ratioOfSpecificHeats ):
-        AtmosphereSettings( tabulated_atmosphere ),
-        atmosphereFile_( atmosphereFile ),
-        independentVariables_( independentVariables ),
-        dependentVariables_( dependentVariables ),
-        specificGasConstant_( specificGasConstant ),
-        ratioOfSpecificHeats_( ratioOfSpecificHeats )
+    TabulatedAtmosphereSettings( const std::vector< std::string >& atmosphereFile ):
+        AtmosphereSettings( tabulated_atmosphere ), atmosphereFile_( atmosphereFile )
     { }
 
     //! Function to return file containing atmospheric properties.
@@ -337,19 +328,7 @@ private:
      *  as indendent variables. Other variables need to be specified (in order) in
      *  independentVariables.
      */
-    std::string atmosphereFile_;
-
-    //! List of ordered independent variables for tabulated atmosphere
-    std::vector< aerodynamics::AtmosphereInependentVariables > independentVariables_;
-
-    //! List of ordered independent variables for tabulated atmosphere
-    std::vector< aerodynamics::AtmosphereDependentVariables > dependentVariables_;
-
-    //! Specific gas constant for (constant) atmospheric chemical
-    double specificGasConstant_;
-
-    //! Ratio of specific heats for (constant) atmospheric chemical
-    double ratioOfSpecificHeats_;
+    std::vector< std::string > atmosphereFile_;
 };
 
 //! Function to create a wind model.

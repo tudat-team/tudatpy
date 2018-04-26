@@ -13,13 +13,22 @@
 #include "Tudat/Basics/basicTypedefs.h"
 
 #include "Tudat/InputOutput/multiDimensionalArrayReader.h"
-#include "Tudat/InputOutput/aerodynamicCoefficientReader.h"
 
 namespace tudat
 {
 
 namespace input_output
 {
+
+//! Function to compare if two lists of aerodynamic coefficient independent variables are equal
+/*!
+ * Function to compare if two lists of aerodynamic coefficient independent variables (vector of vector of doubles) are equal
+ * \param list1 First list that is to be compared.
+ * \param list2 Second list that is to be compared.
+ * \return True of the two lists are completely equal in size and contents, false otherwise.
+ */
+bool compareIndependentVariables( const std::vector< std::vector< double > >& list1,
+                                  const std::vector< std::vector< double > >& list2 );
 
 //! Function to read a list of atmosphere parameters and associated independent variables from a set of files
 /*!

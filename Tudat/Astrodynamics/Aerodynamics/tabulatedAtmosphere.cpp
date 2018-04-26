@@ -28,8 +28,8 @@ void TabulatedAtmosphere< NumberOfIndependentVariables >::initialize( const std:
     atmosphereTableFile_ = atmosphereTableFile;
 
     // Retrieve number of independent variables from file.
-    int numberOfIndependentVariablesInFile =
-            input_output::getNumberOfIndependentVariablesInCoefficientFile( atmosphereTableFile_.at( 0 ) );
+    int numberOfIndependentVariablesInFile = input_output::getNumberOfIndependentVariablesInCoefficientFile(
+                atmosphereTableFile_.at( 0 ) );
 
     // Check input consistency
     if ( independentVariables_.size( ) != NumberOfIndependentVariables )
@@ -38,18 +38,18 @@ void TabulatedAtmosphere< NumberOfIndependentVariables >::initialize( const std:
                                   "number of specified independent variables, differs from file." );
     }
 
-    // Retrieve number of dependent variables from user.
-    const int numberOfDependentVariables = dependentVariables_.size( );
-    // consistency with number of files is checked in readTabulatedAtmosphere function
-
     // Call approriate file reading function for N independent variables
     std::pair< std::vector< boost::multi_array< double, static_cast< size_t >( NumberOfIndependentVariables ) > >,
             std::vector< std::vector< double > > > tabulatedAtmosphereData;
     if ( ( NumberOfIndependentVariables > 0 ) && ( NumberOfIndependentVariables < 5 ) )
     {
-        tabulatedAtmosphereData =
-                input_output::readTabulatedAtmosphere< numberOfDependentVariables, NumberOfIndependentVariables >(
-                    atmosphereTableFile_ );
+        // Retrieve number of dependent variables from user.
+        const int numberOfDependentVariables = dependentVariables_.size( );
+        // consistency with number of files is checked in readTabulatedAtmosphere function
+
+        // Extract data
+        tabulatedAtmosphereData = input_output::readTabulatedAtmosphere<
+                numberOfDependentVariables, NumberOfIndependentVariables >( atmosphereTableFile_ );
     }
     else
     {
@@ -132,53 +132,53 @@ void TabulatedAtmosphere< NumberOfIndependentVariables >::initialize( const std:
     // Use cubic spline if only one variable is used
     if ( NumberOfIndependentVariables == 1 )
     {
-        // Get only independent variable
-        boost::shared_ptr< std::vector< double > > independentVariableDataPointer =
-                boost::make_shared< std::vector< double > >( );
-        switch ( independentVariables_.at( 0 ) )
-        {
-        case altitude_dependent_atmosphere:
-            independentVariableDataPointer = boost::make_shared< std::vector< double > >(
-                        tabulatedAtmosphereData.second.at( independentVariableIndices.at( 0 ) ) );
-        case latitude_dependent_atmosphere:
-            independentVariableDataPointer = boost::make_shared< std::vector< double > >(
-                        tabulatedAtmosphereData.second.at( independentVariableIndices.at( 1 ) ) );
-        case longitude_dependent_atmosphere:
-            independentVariableDataPointer = boost::make_shared< std::vector< double > >(
-                        tabulatedAtmosphereData.second.at( independentVariableIndices.at( 2 ) ) );
-        case time_dependent_atmosphere:
-            independentVariableDataPointer = boost::make_shared< std::vector< double > >(
-                        tabulatedAtmosphereData.second.at( independentVariableIndices.at( 3 ) ) );
-        }
+//        // Get only independent variable
+//        boost::shared_ptr< std::vector< double > > independentVariableDataPointer =
+//                boost::make_shared< std::vector< double > >( );
+//        switch ( independentVariables_.at( 0 ) )
+//        {
+//        case altitude_dependent_atmosphere:
+//            independentVariableDataPointer = boost::make_shared< std::vector< double > >(
+//                        tabulatedAtmosphereData.second.at( independentVariableIndices.at( 0 ) ) );
+//        case latitude_dependent_atmosphere:
+//            independentVariableDataPointer = boost::make_shared< std::vector< double > >(
+//                        tabulatedAtmosphereData.second.at( independentVariableIndices.at( 1 ) ) );
+//        case longitude_dependent_atmosphere:
+//            independentVariableDataPointer = boost::make_shared< std::vector< double > >(
+//                        tabulatedAtmosphereData.second.at( independentVariableIndices.at( 2 ) ) );
+//        case time_dependent_atmosphere:
+//            independentVariableDataPointer = boost::make_shared< std::vector< double > >(
+//                        tabulatedAtmosphereData.second.at( independentVariableIndices.at( 3 ) ) );
+//        }
 
         if ( dependentVariablesDependency_.at( 0 ) )
         {
             cubicSplineInterpolationForDensity_ =
-                    boost::make_shared< CubicSplineInterpolatorDouble >( independentVariableDataPointer,
+                    boost::make_shared< CubicSplineInterpolatorDouble >( independentVariablesData_.at( 0 ),
                                                                          densityData_ );
         }
         if ( dependentVariablesDependency_.at( 1 ) )
         {
             cubicSplineInterpolationForPressure_ =
-                    boost::make_shared< CubicSplineInterpolatorDouble >( independentVariableDataPointer,
+                    boost::make_shared< CubicSplineInterpolatorDouble >( independentVariablesData_.at( 0 ),
                                                                          pressureData_ );
         }
         if ( dependentVariablesDependency_.at( 2 ) )
         {
             cubicSplineInterpolationForTemperature_ =
-                    boost::make_shared< CubicSplineInterpolatorDouble >( independentVariableDataPointer,
+                    boost::make_shared< CubicSplineInterpolatorDouble >( independentVariablesData_.at( 0 ),
                                                                          temperatureData_ );
         }
         if ( dependentVariablesDependency_.at( 3 ) )
         {
             cubicSplineInterpolationForGasConstant_ =
-                    boost::make_shared< CubicSplineInterpolatorDouble >( independentVariableDataPointer,
+                    boost::make_shared< CubicSplineInterpolatorDouble >( independentVariablesData_.at( 0 ),
                                                                          gasConstantData_);
         }
         if ( dependentVariablesDependency_.at( 4 ) )
         {
             cubicSplineInterpolationForSpecificHeatRatio_ =
-                    boost::make_shared< CubicSplineInterpolatorDouble >( independentVariableDataPointer,
+                    boost::make_shared< CubicSplineInterpolatorDouble >( independentVariablesData_.at( 0 ),
                                                                          specificHeatRatioData_);
         }
     }

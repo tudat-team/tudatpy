@@ -92,7 +92,7 @@ public:
      * \param time Time at which density is to be computed.
      * \return Atmospheric density at specified conditions.
      */
-    double getDensity( const double altitude = 0.0, const double longitude = 0.0,
+    double getDensity( const double altitude, const double longitude = 0.0,
                        const double latitude = 0.0, const double time = 0.0 )
     {
         if ( numberOfIndependentVariables_ == 1 )
@@ -128,12 +128,16 @@ public:
                 {
                 case altitude_dependent_atmosphere:
                     independentVariableData.push_back( altitude );
+                    break;
                 case latitude_dependent_atmosphere:
                     independentVariableData.push_back( latitude );
+                    break;
                 case longitude_dependent_atmosphere:
                     independentVariableData.push_back( longitude );
+                    break;
                 case time_dependent_atmosphere:
                     independentVariableData.push_back( time );
+                    break;
                 }
             }
 
@@ -151,7 +155,7 @@ public:
      * \param time Time at which pressure is to be computed.
      * \return Atmospheric pressure at specified conditions.
      */
-    double getPressure( const double altitude = 0.0, const double longitude = 0.0,
+    double getPressure( const double altitude, const double longitude = 0.0,
                         const double latitude = 0.0, const double time = 0.0 )
     {
         if ( numberOfIndependentVariables_ == 1 )
@@ -214,7 +218,7 @@ public:
      * \param time Time at which temperature is to be computed.
      * \return constantTemperature Atmospheric temperature at specified conditions.
      */
-    double getTemperature( const double altitude = 0.0, const double longitude = 0.0,
+    double getTemperature( const double altitude, const double longitude = 0.0,
                            const double latitude = 0.0, const double time = 0.0 )
     {
         if ( numberOfIndependentVariables_ == 1 )
@@ -277,7 +281,7 @@ public:
      * \param time Time at which specific gas constant is to be computed.
      * \return specificGasConstant Specific gas constant at specified conditions.
      */
-    double getSpecificGasConstant( const double altitude = 0.0, const double longitude = 0.0,
+    double getSpecificGasConstant( const double altitude, const double longitude = 0.0,
                                    const double latitude = 0.0, const double time = 0.0 )
     {
         if ( dependentVariablesDependency_.at( gas_constant_dependent_atmosphere ) )
@@ -347,7 +351,7 @@ public:
      * \param time Time at which ratio of specific heats is to be computed.
      * \return Ratio of specific heats at specified conditions.
      */
-    double getRatioOfSpecificHeats( const double altitude = 0.0, const double longitude = 0.0,
+    double getRatioOfSpecificHeats( const double altitude, const double longitude = 0.0,
                                     const double latitude = 0.0, const double time = 0.0 )
     {
         if ( dependentVariablesDependency_.at( specific_heat_ratio_dependent_atmosphere ) )
