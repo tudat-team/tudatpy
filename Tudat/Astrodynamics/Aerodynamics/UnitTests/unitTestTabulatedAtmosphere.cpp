@@ -103,7 +103,7 @@ BOOST_AUTO_TEST_CASE( testTabulatedAtmosphereAt1000kmtab )
     std::map< int, std::string > tabulatedAtmosphereFiles = { { 0, input_output::getAtmosphereTablesPath( ) +
                                                                 "USSA1976Until100kmPer100mUntil1000kmPer1000m.dat" } };
     aerodynamics::TabulatedAtmosphere tabulatedAtmosphere( tabulatedAtmosphereFiles );
-    const double altitude = 1.0e6 ;
+    const double altitude = 1.0e6;
 
     // Declare tolerance used for Boost tests.
     const double tolerance = std::numeric_limits< double >::epsilon( );

@@ -107,7 +107,6 @@ boost::multi_array< double, 3 > parseRawThreeDimensionalCoefficientsFromFile(
             currentStartRow += independentVariableSize.at( 0 );
         }
     }
-
     else
     {
         throw std::runtime_error( "Error, expected size of 3 dimensions when parsing 1-dimensional data into multi-array" );

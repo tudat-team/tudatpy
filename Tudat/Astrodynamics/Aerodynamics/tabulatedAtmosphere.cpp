@@ -26,44 +26,47 @@ void TabulatedAtmosphere::initialize( const std::map< int, std::string >& atmosp
     // Locally store the atmosphere table file name.
     atmosphereTableFile_ = atmosphereTableFile;
 
-    // Check input consistency
-    if ( atmosphereTableFile_.size( ) != dependentVariables_.size( ) )
-    {
-        throw std::runtime_error( "Error when creating tabulated atmosphere from file, "
-                                  "number of specified independent variables differs from file." );
-    }
-
-    // Retrieve number of independent variables from file.
-    numberOfIndependentVariables_ = input_output::getNumberOfIndependentVariablesInCoefficientFile(
-                atmosphereTableFile_.at( 0 ) );
-
-    // Check number of independent variables
-    if ( ( numberOfIndependentVariables_ < 1 ) || ( numberOfIndependentVariables_ > 4 ) )
-    {
-        throw std::runtime_error( "Error when reading tabulated atmosphere from file, found " +
-                                  std::to_string( numberOfIndependentVariables_ ) +
-                                  " independent variables, up to 4 currently supported." );
-    }
-    // Could also check to make sure that no duplicate (in)dependent variables are input
+    // Retrieve number of dependent variables from user.
+    unsigned int numberOfDependentVariables = dependentVariables_.size( );
+    // consistency with number of files is checked in readTabulatedAtmosphere function
 
     // Check input consistency
-    if ( static_cast< int >( independentVariables_.size( ) ) != numberOfIndependentVariables_ )
+    if ( independentVariables_.size( ) != 1 )
     {
-        throw std::runtime_error( "Error when creating tabulated atmosphere from file, "
-                                  "number of specified independent variables differs from file." );
+        if ( atmosphereTableFile_.size( ) != numberOfDependentVariables )
+        {
+            throw std::runtime_error( "Error when creating tabulated atmosphere from file, "
+                                      "number of specified dependent variables differs from file." );
+        }
+
+        // Retrieve number of independent variables from file.
+        numberOfIndependentVariables_ = input_output::getNumberOfIndependentVariablesInCoefficientFile(
+                    atmosphereTableFile_.at( 0 ) );
+
+        // Check number of independent variables
+        if ( ( numberOfIndependentVariables_ < 1 ) || ( numberOfIndependentVariables_ > 4 ) )
+        {
+            throw std::runtime_error( "Error when reading tabulated atmosphere from file, found " +
+                                      std::to_string( numberOfIndependentVariables_ ) +
+                                      " independent variables, up to 4 currently supported." );
+        }
+        // Could also check to make sure that no duplicate (in)dependent variables are input
+
+        // Check input consistency
+        if ( static_cast< int >( independentVariables_.size( ) ) != numberOfIndependentVariables_ )
+        {
+            throw std::runtime_error( "Error when creating tabulated atmosphere from file, "
+                                      "number of specified independent variables differs from file." );
+        }
     }
-
-    // Create interpolators
-    createAtmosphereInterpolators( atmosphereTableFile );
-}
-
-//! Initialize atmosphere table reader.
-void TabulatedAtmosphere::createAtmosphereInterpolators( const std::map< int, std::string >& atmosphereTableFile )
-{
-    using namespace interpolators;
+    else
+    {
+        numberOfIndependentVariables_ = 1; // if only one independent variable is specified, only one file will
+                                           // be provided, and it cannot be opened with the same function
+    }
 
     // Get order of dependent variables
-    for ( unsigned int i = 0; i < dependentVariables_.size( ); i++ )
+    for ( unsigned int i = 0; i < numberOfDependentVariables; i++ )
     {
         if ( i <= dependentVariableIndices_.size( ) )
         {
@@ -86,9 +89,7 @@ void TabulatedAtmosphere::createAtmosphereInterpolators( const std::map< int, st
                                   "density, pressure and temperature." );
     }
 
-    // Retrieve number of dependent variables from user.
-    int numberOfDependentVariables = dependentVariables_.size( );
-    // consistency with number of files is checked in readTabulatedAtmosphere function
+    using namespace interpolators;
 
     // Create interpolators for variables requested by users, depending on the number of variables
     switch ( numberOfIndependentVariables_ )
@@ -98,41 +99,48 @@ void TabulatedAtmosphere::createAtmosphereInterpolators( const std::map< int, st
         // Call approriate file reading function for 1 independent variables
         Eigen::MatrixXd tabulatedAtmosphereData = input_output::readMatrixFromFile(
                     atmosphereTableFile_.at( 0 ), " \t", "%" );
+        unsigned int numberOfColumnsInFile = tabulatedAtmosphereData.cols( );
+        unsigned int numberOfRowsInFile = tabulatedAtmosphereData.rows( );
 
         // Check whether data is present in the file.
-        if ( tabulatedAtmosphereData.rows( ) < 1 || tabulatedAtmosphereData.cols( ) < 1 )
+        if ( numberOfRowsInFile < 1 || numberOfColumnsInFile < 1 )
         {
             std::string errorMessage = "The atmosphere table file " + atmosphereTableFile_.at( 0 ) + " is empty";
             throw std::runtime_error( errorMessage );
         }
 
         // Check
-        if ( numberOfDependentVariables != ( tabulatedAtmosphereData.cols( ) - 1 ) )
+        if ( numberOfDependentVariables != ( numberOfColumnsInFile - 1 ) )
         {
             throw std::runtime_error( "Number of specified dependent variables does not match file." );
         }
 
-        // Extract variables from file
+        // Assign sizes to vectors
+        independentVariablesData_.resize( numberOfIndependentVariables_ );
         std::vector< std::vector< double > > dependentVariablesData;
-        for ( unsigned int i = 0; i < tabulatedAtmosphereData.rows( ); i++ )
+        dependentVariablesData.resize( numberOfDependentVariables );
+
+        // Extract variables from file
+        for ( unsigned int i = 0; i < numberOfRowsInFile; i++ )
         {
-            independentVariablesData_.at( 0 ).at( i ) = tabulatedAtmosphereData( i, 0 );
-            for ( int j = 0; j < numberOfDependentVariables; j++ )
+            independentVariablesData_.at( 0 ).push_back( tabulatedAtmosphereData( i, 0 ) );
+            for ( unsigned int j = 0; j < dependentVariablesDependency_.size( ); j++ )
             {
                 if ( dependentVariablesDependency_.at( j ) )
                 {
-                    dependentVariablesData.at( j ).at( i ) = tabulatedAtmosphereData( i, dependentVariableIndices_.at( j ) );
+                    dependentVariablesData.at( dependentVariableIndices_.at( j ) ).push_back(
+                                tabulatedAtmosphereData( i, dependentVariableIndices_.at( j ) + 1 ) );
                 }
             }
         }
 
         // Create interpolators for density, pressure and temperature
         interpolationForDensity_ = boost::make_shared< CubicSplineInterpolatorDouble >(
-                    independentVariablesData_.at( 0 ), dependentVariablesData.at( 0 ) );
+                    independentVariablesData_.at( 0 ), dependentVariablesData.at( dependentVariableIndices_.at( 0 ) ) );
         interpolationForPressure_ = boost::make_shared< CubicSplineInterpolatorDouble >(
-                    independentVariablesData_.at( 0 ), dependentVariablesData.at( 1 ) );
+                    independentVariablesData_.at( 0 ), dependentVariablesData.at( dependentVariableIndices_.at( 1 ) ) );
         interpolationForTemperature_ = boost::make_shared< CubicSplineInterpolatorDouble >(
-                    independentVariablesData_.at( 0 ), dependentVariablesData.at( 2 ) );
+                    independentVariablesData_.at( 0 ), dependentVariablesData.at( dependentVariableIndices_.at( 2 ) ) );
 
         // Create remaining interpolators, if requested by user
         if ( dependentVariablesDependency_.at( 3 ) )
@@ -150,19 +158,22 @@ void TabulatedAtmosphere::createAtmosphereInterpolators( const std::map< int, st
     case 2:
     {
         createMultiDimensionalAtmosphereInterpolators< 2 >( );
+        break;
     }
     case 3:
     {
         createMultiDimensionalAtmosphereInterpolators< 3 >( );
+        break;
     }
     case 4:
     {
         throw std::runtime_error( "Currently, only three independent variables are supported." );
+        break;
     }
     }
-    // Error in case of more than 4 (or less than 1) independent variables has already been given.
 }
 
+//! Initialize atmosphere table reader.
 template< int NumberOfIndependentVariables >
 void TabulatedAtmosphere::createMultiDimensionalAtmosphereInterpolators( )
 {

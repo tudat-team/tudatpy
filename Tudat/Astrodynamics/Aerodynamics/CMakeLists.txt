@@ -78,7 +78,8 @@ target_link_libraries(test_ExponentialAtmosphere tudat_aerodynamics ${Boost_LIBR
 
 add_executable(test_TabulatedAtmosphere "${SRCROOT}${AERODYNAMICSDIR}/UnitTests/unitTestTabulatedAtmosphere.cpp")
 setup_custom_test_program(test_TabulatedAtmosphere "${SRCROOT}${AERODYNAMICSDIR}")
-target_link_libraries(test_TabulatedAtmosphere ${TUDAT_PROPAGATION_LIBRARIES} ${Boost_LIBRARIES})
+target_link_libraries(test_TabulatedAtmosphere tudat_aerodynamics tudat_input_output tudat_interpolators
+    tudat_basic_mathematics tudat_basic_astrodynamics ${Boost_LIBRARIES})
 
 add_executable(test_TabulatedAerodynamicCoefficients "${SRCROOT}${AERODYNAMICSDIR}/UnitTests/unitTestTabulatedAerodynamicCoefficients.cpp")
 setup_custom_test_program(test_TabulatedAerodynamicCoefficients "${SRCROOT}${AERODYNAMICSDIR}")
