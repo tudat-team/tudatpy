@@ -94,7 +94,7 @@ BOOST_AUTO_TEST_CASE( test_atmosphereModelSetup )
             createAtmosphereModel( tabulatedAtmosphereSettings, "Earth" );
 
     // Create atmosphere models manually.
-    aerodynamics::TabulatedAtmosphere< 1 > manualTabulatedAtmosphere( tabulatedAtmosphereFiles );
+    aerodynamics::TabulatedAtmosphere manualTabulatedAtmosphere( tabulatedAtmosphereFiles );
     aerodynamics::ExponentialAtmosphere manualExponentialAtmosphere(
                 densityScaleHeight, constantTemperature, densityAtZeroAltitude,
                 specificGasConstant );
