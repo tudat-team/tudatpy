@@ -313,21 +313,11 @@ private:
      */
     void initialize( const std::map< int, std::string >& atmosphereTableFile );
 
-    //! Create interpolators for specified dependent variables, taking into consideration the variable
-    //! size of independent variables.
+    //! Create interpolators for specified dependent variables, taking into consideration the number
+    //! of independent variables (which is greater than one).
     /*!
      *  Create interpolators for specified dependent variables, taking into consideration the variable
-     *  size of independent variables.
-     *  \param atmosphereTableFile The name of the atmosphere table.
-     */
-    void createAtmosphereInterpolators( const std::map< int, std::string >& atmosphereTableFile );
-
-    //! Create interpolators for specified dependent variables, taking into consideration the variable
-    //! size of independent variables.
-    /*!
-     *  Create interpolators for specified dependent variables, taking into consideration the variable
-     *  size of independent variables.
-     *  \param atmosphereTableFile The name of the atmosphere table.
+     *  size of independent variables (which is greater than one).
      */
     template< int NumberOfIndependentVariables >
     void createMultiDimensionalAtmosphereInterpolators( );
