@@ -29,8 +29,8 @@ namespace aerodynamics
 enum AtmosphereIndependentVariables
 {
     altitude_dependent_atmosphere = 0,
-    latitude_dependent_atmosphere = 1,
-    longitude_dependent_atmosphere = 2,
+    longitude_dependent_atmosphere = 1,
+    latitude_dependent_atmosphere = 2,
     time_dependent_atmosphere = 3
 };
 
