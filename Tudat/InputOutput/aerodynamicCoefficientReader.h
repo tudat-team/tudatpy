@@ -89,7 +89,6 @@ boost::multi_array< Eigen::Vector3d, static_cast< size_t >( NumberOfDimensions )
 bool compareIndependentVariables( const std::vector< std::vector< double > >& list1,
                                   const std::vector< std::vector< double > >& list2 );
 
-
 //! Function to read a list of aerodynamic coefficients and associated independent variables from a set of files
 /*!
  *  Function to read a list of aerodynamic coefficients of NumberOfDimensions independent variables and associated
