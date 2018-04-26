@@ -32,34 +32,6 @@ bool compareIndependentVariables( const std::vector< std::vector< double > >& li
 
 //! Function to read a list of atmosphere parameters and associated independent variables from a set of files
 /*!
- *  Function to read a list of atmosphere parameters of NumberOfDimensions independent variables and associated
- *  independent variables from a set of files.
- *  \param fileNames Vector of size 1, containing the file names for the x-, y- and z- components of the aerodynamic
- *  coefficients. Note that the independent variables for each components must be identical.
- *  \return  Pair: first entry containing multi-array of atmosphere parameters, second containing list of independent
- *  variables at which coefficients are defined.
- */
-template< unsigned int NumberOfFiles, unsigned int NumberOfDimensions >
-std::pair< std::vector< boost::multi_array< double, static_cast< size_t >( NumberOfDimensions ) > >,
-std::vector< std::vector< double > > >
-readTabulatedAtmosphere( const std::vector< std::string >& fileNames )
-{
-    if( fileNames.size( ) != NumberOfFiles )
-    {
-        throw std::runtime_error( "Error when reading 1-Dimensional atmosphere parameters, wrong number of files." );
-    }
-
-    std::map< int, std::string > fileNameMap;
-    for( unsigned int i = 0; i < NumberOfFiles; i++ )
-    {
-        fileNameMap[ i ] = fileNames.at( i );
-    }
-
-    return readTabulatedAtmosphere< NumberOfDimensions >( fileNameMap );
-}
-
-//! Function to read a list of atmosphere parameters and associated independent variables from a set of files
-/*!
  *  Function to read a list of atmosphere parameters of 2 independent variables and associated independent variables
  *  from a set of files.
  *  \param fileNames Map of file names, with the key  required to be 0, 1 and/or 2. These indices denote the  x-, y- and z-
@@ -69,13 +41,16 @@ readTabulatedAtmosphere( const std::vector< std::string >& fileNames )
  *  \return  Pair: first entry containing multi-array of atmosphere parameters, second containing list of independent
  *  variables at which coefficients are defined.
  */
-template< unsigned int NumberOfFiles, unsigned int NumberOfDimensions >
+template< unsigned int NumberOfDimensions >
 std::pair< std::vector< boost::multi_array< double, static_cast< size_t >( NumberOfDimensions ) > >,
 std::vector< std::vector< double > > >
 readTabulatedAtmosphere( const std::map< int, std::string >& fileNames )
 {
-    std::map< int, boost::multi_array< double, static_cast< size_t >( NumberOfDimensions ) > > rawAtmosphereArrays;
+    // Assing number of dependent variables
+    unsigned int numberOfFiles = fileNames.size( );
 
+    // Initialize output
+    std::map< int, boost::multi_array< double, static_cast< size_t >( NumberOfDimensions ) > > rawAtmosphereArrays;
     std::vector< boost::multi_array< double, static_cast< size_t >( NumberOfDimensions ) > > atmosphereArrays;
     std::vector< std::vector< double > > independentVariables;
 
@@ -117,12 +92,12 @@ readTabulatedAtmosphere( const std::map< int, std::string >& fileNames )
     }
     else
     {
-        atmosphereArrays.resize( NumberOfFiles );
+        atmosphereArrays.resize( numberOfFiles );
         boost::multi_array< double, static_cast< size_t >( NumberOfDimensions ) > firstMultiArray =
                 rawAtmosphereArrays.begin( )->second;
 
         // Iterate over all entries
-        for( unsigned int i = 0; i < NumberOfFiles; i++ )
+        for( unsigned int i = 0; i < numberOfFiles; i++ )
         {
             // Copy contents for current index into atmosphereArrays read from file.
             if( rawAtmosphereArrays.count( i ) != 0 )
