@@ -58,7 +58,7 @@ public:
      *  \param specificGasConstant The constant specific gas constant of the air
      *  \param ratioOfSpecificHeats The constant ratio of specific heats of the air
      */
-    TabulatedAtmosphere( const std::vector< std::string >& atmosphereTableFile,
+    TabulatedAtmosphere( const std::map< int, std::string >& atmosphereTableFile,
                          const std::vector< AtmosphereDependentVariables > dependentVariablesNames =
     { density_dependent_atmosphere, pressure_dependent_atmosphere, temperature_dependent_atmosphere },
                          const std::vector< AtmosphereIndependentVariables > independentVariablesNames =
@@ -80,7 +80,7 @@ public:
      * Returns atmosphere table file name.
      * \return The atmosphere table file.
      */
-    std::vector< std::string > getAtmosphereTableFile( ) { return atmosphereTableFile_; }
+    std::map< int, std::string > getAtmosphereTableFile( ) { return atmosphereTableFile_; }
 
     //! Get local density.
     /*!
@@ -311,7 +311,16 @@ private:
      *  Initializes the atmosphere table reader.
      *  \param atmosphereTableFile The name of the atmosphere table.
      */
-    void initialize( const std::vector< std::string >& atmosphereTableFile );
+    void initialize( const std::map< int, std::string >& atmosphereTableFile );
+
+    //! Create interpolators for specified dependent variables, taking into consideration the variable
+    //! size of independent variables.
+    /*!
+     *  Create interpolators for specified dependent variables, taking into consideration the variable
+     *  size of independent variables.
+     *  \param atmosphereTableFile The name of the atmosphere table.
+     */
+    void createAtmosphereInterpolators( const std::map< int, std::string >& atmosphereTableFile );
 
     //! Create interpolators for specified dependent variables, taking into consideration the variable
     //! size of independent variables.
@@ -321,7 +330,7 @@ private:
      *  \param atmosphereTableFile The name of the atmosphere table.
      */
     template< int NumberOfIndependentVariables >
-    void createAtmosphereInterpolators( const std::vector< std::string >& atmosphereTableFile );
+    void createMultiDimensionalAtmosphereInterpolators( );
 
     //! The file name of the atmosphere table.
     /*!
@@ -329,7 +338,7 @@ private:
      *  containing altitude (first column), and the associated density, pressure and density values
      *  in the second, third and fourth columns.
      */
-    std::vector< std::string > atmosphereTableFile_;
+    std::map< int, std::string > atmosphereTableFile_;
 
     //! A vector of strings containing the names of the variables contained in the atmosphere file
     /*!
@@ -338,13 +347,21 @@ private:
      */
     std::vector< AtmosphereDependentVariables > dependentVariables_;
 
-    //! Boolean that determines if the atmosphere file contains dentity, pressure, temperature, gas constant and/or
-    //! ratio of specific heats.
+    //! Vector of booleans that determines if the atmosphere file contains dentity, pressure, temperature,
+    //! gas constant and/or ratio of specific heats.
     /*!
-     *  Boolean that determines if the atmosphere file contains dentity, pressure, temperature, gas constant and/or
-     *  ratio of specific heats. Note that the order is important.
+     *  Vector of booleans that determines if the atmosphere file contains dentity, pressure, temperature,
+     *  gas constant and/or ratio of specific heats.
      */
     std::vector< bool > dependentVariablesDependency_ = { false, false, false, false, false };
+
+    //! Vector of integers that specifies the order of dentity, pressure, temperature, gas constant and
+    //! ratio of specific heats are located.
+    /*!
+     *  Vector of integers that specifies the order of dentity, pressure, temperature, gas constant and
+     *  ratio of specific heats are located.
+     */
+    std::vector< int > dependentVariableIndices_ = { 0, 0, 0, 0, 0 }; // only 5 dependent variables supported
 
     //! Specific gas constant of the atmosphere.
     /*!

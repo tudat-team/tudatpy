@@ -307,7 +307,7 @@ public:
      *  four columns of atmospheric data with altitude, density, pressure and temperature,
      *  respectively.
      */
-    TabulatedAtmosphereSettings( const std::vector< std::string >& atmosphereFile ):
+    TabulatedAtmosphereSettings( const std::map< int, std::string >& atmosphereFile ):
         AtmosphereSettings( tabulated_atmosphere ), atmosphereFile_( atmosphereFile )
     { }
 
@@ -316,7 +316,7 @@ public:
      *  Function to return file containing atmospheric properties.
      *  \return Filename containing atmospheric properties.
      */
-    std::vector< std::string > getAtmosphereFile( ){ return atmosphereFile_; }
+    std::map< int, std::string > getAtmosphereFile( ){ return atmosphereFile_; }
 
 private:
 
@@ -328,7 +328,7 @@ private:
      *  as indendent variables. Other variables need to be specified (in order) in
      *  independentVariables.
      */
-    std::vector< std::string > atmosphereFile_;
+    std::map< int, std::string > atmosphereFile_;
 };
 
 //! Function to create a wind model.

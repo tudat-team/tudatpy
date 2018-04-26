@@ -31,8 +31,8 @@ boost::shared_ptr< AtmosphereSettings > getDefaultAtmosphereModelSettings(
     // A default atmosphere is only implemented for Earth.
     if( bodyName == "Earth" )
     {
-        std::vector< std::string > tabulatedAtmosphereFiles = { input_output::getAtmosphereTablesPath( ) +
-                                                                "USSA1976Until100kmPer100mUntil1000kmPer1000m.dat" };
+        std::map< int, std::string > tabulatedAtmosphereFiles = { { 0, input_output::getAtmosphereTablesPath( ) +
+                                                                    "USSA1976Until100kmPer100mUntil1000kmPer1000m.dat" } };
         atmosphereSettings = boost::make_shared< TabulatedAtmosphereSettings >( tabulatedAtmosphereFiles );
     }
 
