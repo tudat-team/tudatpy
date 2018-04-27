@@ -304,11 +304,18 @@ public:
     /*!
      *  Constructor.
      *  \param atmosphereFile File containing atmospheric properties, file should contain
-     *  four columns of atmospheric data with altitude, density, pressure and temperature,
-     *  respectively.
+     *  at least altitude, density, pressure and temperature, in a user-defined order (specified by dependentVariablesNames),
+     *  which depend on the independent variables listed in independentVariablesNames.
      */
-    TabulatedAtmosphereSettings( const std::map< int, std::string >& atmosphereFile ):
-        AtmosphereSettings( tabulated_atmosphere ), atmosphereFile_( atmosphereFile )
+    TabulatedAtmosphereSettings( const std::map< int, std::string >& atmosphereFile,
+                                 const std::vector< aerodynamics::AtmosphereDependentVariables > dependentVariablesNames =
+    { aerodynamics::density_dependent_atmosphere, aerodynamics::pressure_dependent_atmosphere, aerodynamics::temperature_dependent_atmosphere },
+                                 const std::vector< aerodynamics::AtmosphereIndependentVariables > independentVariablesNames =
+    { aerodynamics::altitude_dependent_atmosphere },
+                                 const double specificGasConstant = physical_constants::SPECIFIC_GAS_CONSTANT_AIR,
+                                 const double ratioOfSpecificHeats = 1.4 ):
+        AtmosphereSettings( tabulated_atmosphere ), atmosphereFile_( atmosphereFile ), dependentVariables_( dependentVariablesNames ),
+        independentVariables_( independentVariablesNames ), specificGasConstant_( specificGasConstant ), ratioOfSpecificHeats_( ratioOfSpecificHeats )
     { }
 
     //! Function to return file containing atmospheric properties.
@@ -318,17 +325,70 @@ public:
      */
     std::map< int, std::string > getAtmosphereFile( ){ return atmosphereFile_; }
 
+    //! Function to return dependent variables names.
+    /*!
+     *  Function to return dependent variables names.
+     *  \return Dependent variables.
+     */
+    std::vector< aerodynamics::AtmosphereDependentVariables > getDependentVariables( ){ return dependentVariables_; }
+
+    //! Function to return independent variables names.
+    /*!
+     *  Function to return independent variables names.
+     *  \return Independent variables.
+     */
+    std::vector< aerodynamics::AtmosphereIndependentVariables > getIndependentVariables( ){ return independentVariables_; }
+
+    //! Function to return specific gas constant of the atmosphere.
+    /*!
+     *  Function to return specific gas constant of the atmosphere.
+     *  \return Specific gas constant of the atmosphere.
+     */
+    double getSpecificGasConstant( ){ return specificGasConstant_; }
+
+    //! Function to return ratio of specific heats of the atmosphere.
+    /*!
+     *  Function to return ratio of specific heats of the atmosphere.
+     *  \return Ratio of specific heats of the atmosphere at constant pressure and constant volume.
+     */
+    double getRatioOfSpecificHeats( ){ return ratioOfSpecificHeats_; }
+
 private:
 
     //! File containing atmospheric properties.
     /*!
      *  File containing atmospheric properties, file should contain
      *  columns of atmospheric data with at least density, pressure and temperature,
-     *  (whose order is specified in dependentVariables), and with at least altitude
-     *  as indendent variables. Other variables need to be specified (in order) in
-     *  independentVariables.
+     *  (whose order is specified in dependentVariables), and with at least one
+     *  indendent variables.
      */
     std::map< int, std::string > atmosphereFile_;
+
+    //! A vector of strings containing the names of the variables contained in the atmosphere file
+    /*!
+     * A vector of strings containing the names of the variables contained in the atmosphere file,
+     * in the correct order (from left, being the first entry in the vector, to the right).
+     */
+    std::vector< aerodynamics::AtmosphereDependentVariables > dependentVariables_;
+
+    //! A vector of strings containing the names of the independent variables contained in the atmosphere file
+    /*!
+     * A vector of strings containing the names of the independent variables contained in the atmosphere file,
+     * in the correct order (from left, being the first entry in the vector, to the right).
+     */
+    std::vector< aerodynamics::AtmosphereIndependentVariables > independentVariables_;
+
+    //! Specific gas constant of the atmosphere.
+    /*!
+     * Specific gas constant of the atmosphere.
+     */
+    double specificGasConstant_;
+
+    //! Ratio of specific heats of the atmosphere at constant pressure and constant volume.
+    /*!
+     *  Ratio of specific heats of the atmosphere at constant pressure and constant volume.
+     */
+    double ratioOfSpecificHeats_;
 };
 
 //! Function to create a wind model.
