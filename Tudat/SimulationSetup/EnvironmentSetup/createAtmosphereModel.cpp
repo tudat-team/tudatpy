@@ -89,7 +89,8 @@ boost::shared_ptr< aerodynamics::AtmosphereModel > createAtmosphereModel(
                         exponentialAtmosphereSettings->getDensityScaleHeight( ) ,
                         exponentialAtmosphereSettings->getConstantTemperature( ),
                         exponentialAtmosphereSettings->getDensityAtZeroAltitude( ),
-                        exponentialAtmosphereSettings->getSpecificGasConstant( ) );
+                        exponentialAtmosphereSettings->getSpecificGasConstant( ),
+                        exponentialAtmosphereSettings->getRatioOfSpecificHeats( ) );
             atmosphereModel = exponentialAtmosphereModel;
         }
         break;
@@ -108,7 +109,11 @@ boost::shared_ptr< aerodynamics::AtmosphereModel > createAtmosphereModel(
         {
             // Create and initialize tabulated atmosphere model.
             atmosphereModel = boost::make_shared< TabulatedAtmosphere >(
-                        tabulatedAtmosphereSettings->getAtmosphereFile( ) );
+                        tabulatedAtmosphereSettings->getAtmosphereFile( ),
+                        tabulatedAtmosphereSettings->getDependentVariables( ),
+                        tabulatedAtmosphereSettings->getIndependentVariables( ),
+                        tabulatedAtmosphereSettings->getSpecificGasConstant( ),
+                        tabulatedAtmosphereSettings->getRatioOfSpecificHeats( ) );
         }
         break;
     }

@@ -66,12 +66,12 @@ public:
             const double constantTemperature,
             const double densityAtZeroAltitude,
             const double specificGasConstant = physical_constants::SPECIFIC_GAS_CONSTANT_AIR,
-            const double ratioOfSpecificHeats = 1.4 )
-        : scaleHeight_( scaleHeight ),
-          constantTemperature_( constantTemperature ),
-          densityAtZeroAltitude_( densityAtZeroAltitude ),
-          specificGasConstant_( specificGasConstant ),
-          ratioOfSpecificHeats_( ratioOfSpecificHeats )
+            const double ratioOfSpecificHeats = 1.4 ):
+        scaleHeight_( scaleHeight ),
+        constantTemperature_( constantTemperature ),
+        densityAtZeroAltitude_( densityAtZeroAltitude ),
+        specificGasConstant_( specificGasConstant ),
+        ratioOfSpecificHeats_( ratioOfSpecificHeats )
     { }
 
     //! Constructor from default atmospheric settings.
@@ -198,7 +198,7 @@ public:
      * \return Atmospheric speed of sounds at specified altitude.
      */
     double getSpeedOfSound( const double altitude, const double longitude = 0.0,
-                                    const double latitude = 0.0, const double time = 0.0 )
+                            const double latitude = 0.0, const double time = 0.0 )
     {
         TUDAT_UNUSED_PARAMETER( altitude );
         TUDAT_UNUSED_PARAMETER( longitude );
