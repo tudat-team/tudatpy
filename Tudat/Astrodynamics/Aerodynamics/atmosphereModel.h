@@ -43,8 +43,8 @@ enum AtmosphereDependentVariables
     density_dependent_atmosphere = 0,
     pressure_dependent_atmosphere = 1,
     temperature_dependent_atmosphere = 2,
-    specific_heat_ratio_dependent_atmosphere = 3,
-    gas_constant_dependent_atmosphere = 4
+    gas_constant_dependent_atmosphere = 3,
+    specific_heat_ratio_dependent_atmosphere = 4
 };
 
 //! Atmosphere model class.
