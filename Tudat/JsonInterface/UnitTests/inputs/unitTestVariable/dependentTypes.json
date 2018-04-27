@@ -31,5 +31,6 @@
   "totalTorque",
   "torque",
   "bodyFixedGroundspeedBasedVelocity",
-  "keplerElements"
+  "keplerElements",
+  "modifiedEquinoctialElements" 
 ]

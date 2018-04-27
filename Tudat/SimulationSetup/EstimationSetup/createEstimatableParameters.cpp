@@ -205,6 +205,7 @@ boost::shared_ptr< EstimatableParameter< double > > createDoubleParameterToEstim
     return doubleParameterToEstimate;
 }
 
+//! Function to create an interface object for estimating a parameter defined by a list of double values
 boost::shared_ptr< EstimatableParameter< Eigen::VectorXd > > createVectorParameterToEstimate(
         const boost::shared_ptr< EstimatableParameterSettings >& vectorParameterName,
         const NamedBodyMap& bodyMap, const basic_astrodynamics::AccelerationMap& accelerationModelMap )
@@ -252,7 +253,7 @@ boost::shared_ptr< EstimatableParameter< Eigen::VectorXd > > createVectorParamet
                 vectorParameterToEstimate = boost::make_shared< ConstantObservationBiasParameter >(
                             boost::function< Eigen::VectorXd( ) >( ),
                             boost::function< void( const Eigen::VectorXd& ) >( ),
-                            biasSettings->linkEnds_, biasSettings->observableType_ );
+                            biasSettings->linkEnds_, biasSettings->observableType_, true );
             }
             break;
         }
@@ -266,10 +267,50 @@ boost::shared_ptr< EstimatableParameter< Eigen::VectorXd > > createVectorParamet
             }
             else
             {
-                vectorParameterToEstimate = boost::make_shared< ConstantRelativeObservationBiasParameter >(
+                vectorParameterToEstimate = boost::make_shared< ConstantObservationBiasParameter >(
                             boost::function< Eigen::VectorXd( ) >( ),
                             boost::function< void( const Eigen::VectorXd& ) >( ),
-                            biasSettings->linkEnds_, biasSettings->observableType_ );
+                            biasSettings->linkEnds_, biasSettings->observableType_, false );
+            }
+            break;
+        }
+        case arcwise_constant_additive_observation_bias:
+        {
+            boost::shared_ptr< ArcWiseConstantObservationBiasEstimatableParameterSettings > biasSettings =
+                    boost::dynamic_pointer_cast< ArcWiseConstantObservationBiasEstimatableParameterSettings >( vectorParameterName );
+            if( biasSettings == NULL )
+            {
+                throw std::runtime_error( "Error when creating arcwise constant observation bias, input is inconsistent" );
+            }
+            else
+            {
+                vectorParameterToEstimate = boost::make_shared< ArcWiseObservationBiasParameter >(
+                            biasSettings->arcStartTimes_,
+                            boost::function< std::vector< Eigen::VectorXd >( ) >( ),
+                            boost::function< void( const std::vector< Eigen::VectorXd >& ) >( ),
+                            observation_models::getLinkEndIndicesForLinkEndTypeAtObservable(
+                                biasSettings->observableType_, biasSettings->linkEndForTime_, biasSettings->linkEnds_.size( ) ).at( 0 ),
+                            biasSettings->linkEnds_, biasSettings->observableType_, true );
+            }
+            break;
+        }
+        case arcwise_constant_relative_observation_bias:
+        {
+            boost::shared_ptr< ArcWiseConstantObservationBiasEstimatableParameterSettings > biasSettings =
+                    boost::dynamic_pointer_cast< ArcWiseConstantObservationBiasEstimatableParameterSettings >( vectorParameterName );
+            if( biasSettings == NULL )
+            {
+                throw std::runtime_error( "Error when creating arcwise constant relative observation bias, input is inconsistent" );
+            }
+            else
+            {
+                vectorParameterToEstimate = boost::make_shared< ArcWiseObservationBiasParameter >(
+                            biasSettings->arcStartTimes_,
+                            boost::function< std::vector< Eigen::VectorXd >( ) >( ),
+                            boost::function< void( const std::vector< Eigen::VectorXd >& ) >( ),
+                            observation_models::getLinkEndIndicesForLinkEndTypeAtObservable(
+                                biasSettings->observableType_, biasSettings->linkEndForTime_, biasSettings->linkEnds_.size( ) ).at( 0 ),
+                            biasSettings->linkEnds_, biasSettings->observableType_, false );
             }
             break;
         }

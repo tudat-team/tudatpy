@@ -16,6 +16,7 @@ set(ROOTFINDERS_HEADERS
   "${SRCROOT}${MATHEMATICSDIR}/RootFinders/secantRootFinder.h"
   "${SRCROOT}${MATHEMATICSDIR}/RootFinders/bisection.h"
   "${SRCROOT}${MATHEMATICSDIR}/RootFinders/terminationConditions.h"
+  "${SRCROOT}${MATHEMATICSDIR}/RootFinders/createRootFinder.h"
   "${SRCROOT}${MATHEMATICSDIR}/RootFinders/UnitTests/testFunction.h"
   "${SRCROOT}${MATHEMATICSDIR}/RootFinders/UnitTests/testFunction1.h"
   "${SRCROOT}${MATHEMATICSDIR}/RootFinders/UnitTests/testFunction2.h"
@@ -25,7 +26,7 @@ set(ROOTFINDERS_HEADERS
 )
 
 set(ROOTFINDERS_SOURCES
-  "${SRCROOT}${MATHEMATICSDIR}/RootFinders/dummyRootFinder.cpp"
+  "${SRCROOT}${MATHEMATICSDIR}/RootFinders/createRootFinder.cpp"
 )
 
 

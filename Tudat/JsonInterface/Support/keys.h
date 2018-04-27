@@ -350,6 +350,13 @@ struct Keys
         static const std::string safetyFactorForNextStepSize;
         static const std::string maximumFactorIncreaseForNextStepSize;
         static const std::string minimumFactorDecreaseForNextStepSize;
+        static const std::string bandwidth;
+        static const std::string extrapolationSequence;
+        static const std::string maximumNumberOfSteps;
+        static const std::string minimumOrder;
+        static const std::string maximumOrder;
+
+
     };
 
     struct Interpolation

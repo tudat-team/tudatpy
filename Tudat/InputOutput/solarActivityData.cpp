@@ -19,8 +19,6 @@
 #include <string>
 #include <vector>
 
-#include <boost/test/unit_test.hpp>
-
 #include "Tudat/Basics/testMacros.h"
 #include "Tudat/InputOutput/solarActivityData.h"
 #include "Tudat/InputOutput/parsedDataVectorUtilities.h"

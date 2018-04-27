@@ -703,7 +703,7 @@ public:
      */
     friend bool operator<= ( const Time& timeToCompare1, const Time& timeToCompare2 )
     {
-        if( timeToCompare1.getFullPeriods( ) <= timeToCompare2.getFullPeriods( ) )
+        if( timeToCompare1.getFullPeriods( ) < timeToCompare2.getFullPeriods( ) )
         {
             return true;
         }

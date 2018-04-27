@@ -271,7 +271,6 @@ ScalarType convertMeanAnomalyToEccentricAnomaly(
             eccentricAnomaly = bisectionRootfinder->execute( rootFunction, initialGuess );
         }
     }
-
     //  Eccentricity is invalid: eccentricity < 0.0 or eccentricity >= 1.0.
     else
     {
