@@ -1308,7 +1308,7 @@ public:
             {
                 observationBias =
                         createObservationBiasCalculator< 3 >(
-                            linkEnds, observationSettings->biasSettings_,bodyMap );
+                            linkEnds, observationSettings->observableType_, observationSettings->biasSettings_,bodyMap );
             }
 
 

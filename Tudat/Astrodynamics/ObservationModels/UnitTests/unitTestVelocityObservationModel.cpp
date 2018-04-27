@@ -73,7 +73,7 @@ BOOST_AUTO_TEST_CASE( testVelocityObsevableModel )
     boost::shared_ptr< ObservationSettings > observableSettings = boost::make_shared< ObservationSettings >
             ( velocity_observable, std::vector< boost::shared_ptr< LightTimeCorrectionSettings > >( ),
               boost::make_shared< ConstantObservationBiasSettings >(
-                  ( Eigen::Vector3d( ) << 0.343, 1.3343, -0.054354 ).finished( ) ) );
+                  ( Eigen::Vector3d( ) << 0.343, 1.3343, -0.054354 ).finished( ), true ) );
 
     // Create observation model.
     boost::shared_ptr< ObservationModel< 3, double, double > > observationModel =
