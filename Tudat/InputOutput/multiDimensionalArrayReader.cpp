@@ -45,7 +45,7 @@ boost::multi_array< double, 1 > parseRawOneDimensionalCoefficientsFromFile(
     }
     else
     {
-        throw std::runtime_error( "Error, expected size of 1 dimension when parsing 1-dimensional data into multi-array" );
+        throw std::runtime_error( "Error, expected size of 1 dimension when parsing 1-dimensional data into multi-array." );
     }
     return coefficientMultiarray;
 }
@@ -74,7 +74,7 @@ boost::multi_array< double, 2 > parseRawTwoDimensionalCoefficientsFromFile(
     }
     else
     {
-        throw std::runtime_error( "Error, expected size of 2 dimensions when parsing 1-dimensional data into multi-array" );
+        throw std::runtime_error( "Error, expected size of 2 dimensions when parsing 1-dimensional data into multi-array." );
     }
     return coefficientMultiarray;
 }
@@ -109,7 +109,76 @@ boost::multi_array< double, 3 > parseRawThreeDimensionalCoefficientsFromFile(
     }
     else
     {
-        throw std::runtime_error( "Error, expected size of 3 dimensions when parsing 1-dimensional data into multi-array" );
+        throw std::runtime_error( "Error, expected size of 3 dimensions when parsing 1-dimensional data into multi-array." );
+    }
+    return coefficientMultiarray;
+}
+
+//! Function to parse a block of values read from a file into a multi-array of size 4.
+boost::multi_array< double, 4 > parseRawFourDimensionalCoefficientsFromFile(
+        const std::vector< int > independentVariableSize,
+        const Eigen::MatrixXd& coefficientsBlock )
+{
+    boost::multi_array< double, 4 > coefficientMultiarray;
+
+    // Check input consistency
+    if( independentVariableSize.size( ) == 4 )
+    {
+        // Define size of multi-array
+        coefficientMultiarray.resize( boost::extents[ independentVariableSize.at( 0 ) ]
+                [ independentVariableSize.at( 1 ) ][ independentVariableSize.at( 2 ) ][ independentVariableSize.at( 3 ) ] );
+
+        // Parse data
+        if ( coefficientsBlock.rows( ) == ( independentVariableSize.at( 0 ) * independentVariableSize.at( 2 ) *
+                                            independentVariableSize.at( 3 ) ) )
+        {
+            int currentStartRowOne = 0;
+            int currentStartRowTwo = 0;
+            for ( int l = 0; l < independentVariableSize.at( 3 ); l++ )
+            {
+                for( int k = 0; k < independentVariableSize.at( 2 ); k++ )
+                {
+                    for( int i = 0; i < independentVariableSize.at( 0 ); i++ )
+                    {
+                        for( int j = 0; j < independentVariableSize.at( 1 ); j++ )
+                        {
+                            coefficientMultiarray[ i ][ j ][ k ][ l ] = coefficientsBlock( i + currentStartRowOne + currentStartRowTwo, j );
+                        }
+                    }
+                    currentStartRowOne += independentVariableSize.at( 0 );
+                }
+                currentStartRowTwo += independentVariableSize.at( 2 );
+            }
+        }
+        else if ( coefficientsBlock.cols( ) == ( independentVariableSize.at( 1 ) * independentVariableSize.at( 3 ) ) )
+        {
+            int currentStartRow = 0;
+            int currentStartColumn = 0;
+            for ( int l = 0; l < independentVariableSize.at( 3 ); l++ )
+            {
+                for( int k = 0; k < independentVariableSize.at( 2 ); k++ )
+                {
+                    for( int i = 0; i < independentVariableSize.at( 0 ); i++ )
+                    {
+                        for( int j = 0; j < independentVariableSize.at( 1 ); j++ )
+                        {
+                            coefficientMultiarray[ i ][ j ][ k ][ l ] = coefficientsBlock( i + currentStartRow, j + currentStartColumn );
+                        }
+                    }
+                    currentStartRow += independentVariableSize.at( 0 );
+                }
+                currentStartColumn += independentVariableSize.at( 1 );
+            }
+        }
+        else
+        {
+            throw std::runtime_error( "Error, the way the 4 dimensional data is stored is not currently supported. The fourth dimension can "
+                                      "either be stored as extra columns, or as repeating blocks." );
+        }
+    }
+    else
+    {
+        throw std::runtime_error( "Error, expected size of 4 dimensions when parsing 1-dimensional data into multi-array." );
     }
     return coefficientMultiarray;
 }
@@ -162,7 +231,7 @@ void readCoefficientsFile(
             {
                 if( vectorOfIndividualStrings.size( ) != 1 )
                 {
-                    throw std::runtime_error( "Error when reading multi-array, expected number of independent variables" );
+                    throw std::runtime_error( "Error when reading multi-array, expected number of independent variables." );
                 }
                 numberOfIndependentVariables = std::stoi( vectorOfIndividualStrings.at( 0 ) );
                 isFirstLinePassed = true;
@@ -191,7 +260,7 @@ void readCoefficientsFile(
                 {
                     throw std::runtime_error(
                                 "Error on data line " + std::to_string( numberOfDataLinesParsed ) +
-                                " expected " +  std::to_string( coefficientBlock.rows( ) ) + "rows" );
+                                " expected " +  std::to_string( coefficientBlock.rows( ) ) + "rows." );
                 }
                 else
                 {
@@ -212,7 +281,7 @@ void readCoefficientsFile(
                 // Check input consistency
                 if( independentVariables.size( ) == 0 )
                 {
-                    throw std::runtime_error( "Error when reading multi-array, no header found" );
+                    throw std::runtime_error( "Error when reading multi-array, no header found." );
                 }
                 else
                 {
@@ -240,7 +309,7 @@ void readCoefficientsFile(
         throw std::runtime_error(
                     "Error at end of coefficient file reader, found " +
                     std::to_string( numberOfDataLinesParsed ) +
-                    " lines, but expected " +  std::to_string( coefficientBlock.rows( ) ) + "rows" );
+                    " lines, but expected " +  std::to_string( coefficientBlock.rows( ) ) + "rows." );
     }
 }
 
@@ -279,7 +348,7 @@ int getNumberOfIndependentVariablesInCoefficientFile( const std::string& fileNam
             }
             catch( std::runtime_error )
             {
-                throw std::runtime_error( "Error when reading coefficicent file size, input is inconsistent" );
+                throw std::runtime_error( "Error when reading coefficicent file size, input is inconsistent." );
             }
         }
     }
