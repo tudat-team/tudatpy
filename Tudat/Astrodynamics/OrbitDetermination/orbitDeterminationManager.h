@@ -408,6 +408,10 @@ public:
             {
                 normalizationTerms( i ) = maximum;
             }
+            if( normalizationTerms( i ) == 0.0 )
+            {
+                normalizationTerms( i ) = 1.0;
+            }
             currentVector = currentVector / normalizationTerms( i );
 
             observationMatrix.block( 0, i, observationMatrix.rows( ), 1 ) = currentVector;
@@ -466,7 +470,7 @@ public:
         int totalNumberOfObservations = observationNumberPair.second;
 
         // Declare variables to be returned (i.e. results from best iteration)
-        double bestResidual =  std::numeric_limits< double >::max( );
+        double bestResidual = TUDAT_NAN;
         ParameterVectorType bestParameterEstimate = ParameterVectorType::Constant( parameterVectorSize, TUDAT_NAN );
         Eigen::VectorXd bestTransformationData = Eigen::VectorXd::Constant( parameterVectorSize, TUDAT_NAN );
         Eigen::VectorXd bestResiduals = Eigen::VectorXd::Constant( totalNumberOfObservations, TUDAT_NAN );
@@ -515,6 +519,7 @@ public:
             }
             catch( std::runtime_error )
             {
+                std::cerr<<"Error when resetting parameters during parameter estimation, terminating estimation"<<std::endl;
                 exceptionDuringPropagation = true;
                 break;
             }
@@ -529,8 +534,6 @@ public:
             std::pair< Eigen::VectorXd, Eigen::MatrixXd > residualsAndPartials;
             calculateObservationMatrixAndResiduals(
                         podInput->getObservationsAndTimes( ), parameterVectorSize, totalNumberOfObservations, residualsAndPartials );
-
-            //input_output::writeMatrixToFile( residualsAndPartials.second, "currentPartials.dat" );
 
             Eigen::VectorXd transformationData = normalizeObservationMatrix( residualsAndPartials.second );
 
@@ -559,9 +562,12 @@ public:
             }
             catch( std::runtime_error )
             {
+                std::cerr<<"Error when solving normal equations during parameter estimation, terminating estimation"<<std::endl;
                 exceptionDuringInversion = true;
                 break;
             }
+
+
             ParameterVectorType parameterAddition =
                     ( leastSquaresOutput.first.cwiseQuotient( transformationData.segment( 0, numberOfEstimatedParameters ) ) ).
                     template cast< ObservationScalarType >( );
@@ -598,7 +604,7 @@ public:
             }
 
             // If current iteration is better than previous one, update 'best' data.
-            if( residualRms < bestResidual )
+            if( residualRms < bestResidual || !( bestResidual == bestResidual ) )
             {
                 bestResidual = residualRms;
                 bestParameterEstimate = oldParameterEstimate;

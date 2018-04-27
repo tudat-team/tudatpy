@@ -625,6 +625,8 @@ public:
 
             // Integrate variational and state equations.
             dynamicsStateDerivative_->setPropagationSettings( std::vector< IntegratedStateType >( ), 1, 1 );
+            dynamicsStateDerivative_->resetFunctionEvaluationCounter( );
+
             std::map< TimeType, Eigen::VectorXd > dependentVariableHistory;
             std::map< TimeType, MatrixType > rawNumericalSolution;
             std::map< TimeType, double > cummulativeComputationTimeHistory;
@@ -632,8 +634,7 @@ public:
             EquationIntegrationInterface< MatrixType, TimeType >::integrateEquations(
                         dynamicsSimulator_->getStateDerivativeFunction( ), rawNumericalSolution,
                         initialVariationalState, integratorSettings_,
-                        boost::bind( &PropagationTerminationCondition::checkStopCondition,
-                                     dynamicsSimulator_->getPropagationTerminationCondition( ), _1, _2 ),
+                        dynamicsSimulator_->getPropagationTerminationCondition( ),
                         dependentVariableHistory,
                         cummulativeComputationTimeHistory,
                         dynamicsSimulator_->getDependentVariablesFunctions( ),
@@ -665,6 +666,8 @@ public:
 
             // Integrate variational equations.
             dynamicsStateDerivative_->setPropagationSettings( boost::assign::list_of( transational_state ), 0, 1 );
+            dynamicsStateDerivative_->resetFunctionEvaluationCounter( );
+
             Eigen::MatrixXd initialVariationalState = this->createInitialVariationalEquationsSolution( );
             std::map< double, Eigen::MatrixXd > rawNumericalSolution;
             std::map< double, Eigen::VectorXd > dependentVariableHistory;
@@ -673,8 +676,7 @@ public:
             EquationIntegrationInterface< Eigen::MatrixXd, double >::integrateEquations(
                         dynamicsSimulator_->getDoubleStateDerivativeFunction( ), rawNumericalSolution, initialVariationalState,
                         variationalOnlyIntegratorSettings_,
-                        boost::bind( &PropagationTerminationCondition::checkStopCondition,
-                                     dynamicsSimulator_->getPropagationTerminationCondition( ), _1, _2 ),
+                        dynamicsSimulator_->getPropagationTerminationCondition( ),
                         dependentVariableHistory, cummulativeComputationTimeHistory );
 
             setVariationalEquationsSolution< double, double >(
@@ -1151,14 +1153,13 @@ public:
 
 
                 // Integrate variational and state equations.
+                dynamicsSimulator_->getDynamicsStateDerivative( ).at( i )->resetFunctionEvaluationCounter( );
                 std::map< TimeType, MatrixType > rawNumericalSolution;
                 EquationIntegrationInterface< MatrixType, TimeType >::integrateEquations(
                             singleArcDynamicsSimulators.at( i )->getStateDerivativeFunction( ),
                             rawNumericalSolution,
                             initialVariationalState, integratorSettings,
-                            boost::bind( &PropagationTerminationCondition::checkStopCondition,
-                                         singleArcDynamicsSimulators.at( i )->getPropagationTerminationCondition( ),
-                                         _1, _2 ),
+                            singleArcDynamicsSimulators.at( i )->getPropagationTerminationCondition( ),
                             dependentVariableHistorySolutions.at( i ),
                             cummulativeComputationTimeHistorySolutions.at( i ),
                             singleArcDynamicsSimulators.at( i )->getDependentVariablesFunctions( ) );
@@ -1238,13 +1239,12 @@ public:
                         template cast< StateScalarType >( );
 
                 // Integrate variational equations for current arc
+                dynamicsSimulator_->getDynamicsStateDerivative( ).at( i )->resetFunctionEvaluationCounter( );
                 EquationIntegrationInterface< MatrixType, TimeType >::integrateEquations(
                             singleArcDynamicsSimulators.at( i )->getStateDerivativeFunction( ),
                             rawNumericalSolutions, initialVariationalState,
                             singleArcDynamicsSimulators.at( i )->getIntegratorSettings( ),
-                            boost::bind( &PropagationTerminationCondition::checkStopCondition,
-                                         singleArcDynamicsSimulators.at( i )->getPropagationTerminationCondition( ),
-                                         _1, _2 ),
+                            singleArcDynamicsSimulators.at( i )->getPropagationTerminationCondition( ),
                             dummyDependentVariableHistorySolution, dummyCummulativeComputationTimeHistorySolution );
 
                 // Save state transition and sensitivity matrix solutions for current arc.

@@ -13,6 +13,7 @@
 set(PROPULSION_SOURCES
   "${SRCROOT}${PROPULSIONDIR}/thrustGuidance.cpp"
   "${SRCROOT}${PROPULSIONDIR}/thrustFunctions.cpp"
+  "${SRCROOT}${PROPULSIONDIR}/costateBasedThrustGuidance.cpp"
 )
 
 # Set the header files.
@@ -22,21 +23,12 @@ set(PROPULSION_HEADERS
   "${SRCROOT}${PROPULSIONDIR}/thrustFunctions.h"
   "${SRCROOT}${PROPULSIONDIR}/thrustMagnitudeWrapper.h"
   "${SRCROOT}${PROPULSIONDIR}/massRateFromThrust.h"
+  "${SRCROOT}${PROPULSIONDIR}/costateBasedThrustGuidance.h"
 )
 
 # Add static libraries.
 add_library(tudat_propulsion STATIC ${PROPULSION_SOURCES} ${PROPULSION_HEADERS})
 setup_tudat_library_target(tudat_propulsion "${SRCROOT}${PROPULSIONDIR}")
-
-# Add unit tests.
-set(PROPULSION_UNITTESTS
-  "${SRCROOT}${PROPULSIONDIR}/UnitTests/unitTestBasicAstrodynamics.cpp"
-  "${SRCROOT}${PROPULSIONDIR}/UnitTests/unitTestAstrodynamicsFunctions.cpp"
-  "${SRCROOT}${PROPULSIONDIR}/UnitTests/unitTestOrbitalElementConversions.cpp"
-  "${SRCROOT}${PROPULSIONDIR}/UnitTests/unitTestPhysicalConstants.cpp"
-  "${SRCROOT}${PROPULSIONDIR}/UnitTests/unitTestUnitConversions.cpp"
-  "${SRCROOT}${PROPULSIONDIR}/UnitTests/unitTestUnifiedStateModelElementConversions.cpp"
-)
 
 add_executable(test_ThrustAcceleration "${SRCROOT}${PROPULSIONDIR}/UnitTests/unitTestThrustAcceleration.cpp")
 setup_custom_test_program(test_ThrustAcceleration "${SRCROOT}${PROPULSIONDIR}")

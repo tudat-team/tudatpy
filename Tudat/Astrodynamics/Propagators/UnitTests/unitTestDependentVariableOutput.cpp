@@ -241,10 +241,12 @@ BOOST_AUTO_TEST_CASE( testDependentVariableOutput )
         dependentVariables.push_back(
                     boost::make_shared< SingleAccelerationDependentVariableSaveSettings >(
                         third_body_central_gravity, "Apollo", "Moon", 0 ) );
-
         dependentVariables.push_back(
                     boost::make_shared< SingleDependentVariableSaveSettings >(
                         keplerian_state_dependent_variable,  "Apollo", "Earth" ) );
+        dependentVariables.push_back(
+                    boost::make_shared< SingleDependentVariableSaveSettings >(
+                        modified_equinocial_state_dependent_variable,  "Apollo", "Earth" ) );
 
 
         // Create acceleration models and propagation settings.
@@ -319,6 +321,7 @@ BOOST_AUTO_TEST_CASE( testDependentVariableOutput )
             Eigen::Vector3d moonAcceleration2 = variableIterator->second.segment( 39, 3 );
 
             Eigen::Vector6d keplerElements =  variableIterator->second.segment( 42, 6 );
+            Eigen::Vector6d modifiedEquinoctialElements =  variableIterator->second.segment( 48, 6 );
 
             currentStateDerivative = dynamicsSimulator.getDynamicsStateDerivative( )->computeStateDerivative(
                         variableIterator->first, numericalSolution.at( variableIterator->first ) );
@@ -479,6 +482,15 @@ BOOST_AUTO_TEST_CASE( testDependentVariableOutput )
 
             TUDAT_CHECK_MATRIX_CLOSE_FRACTION( expectedKeplerElements, keplerElements,
                                                ( 10.0 * std::numeric_limits< double >::epsilon( ) ) );
+
+            Eigen::Vector6d expectedModifiedEquinoctialElements =
+                    tudat::orbital_element_conversions::convertCartesianToModifiedEquinoctialElements(
+                        Eigen::Vector6d( numericalSolution.at( variableIterator->first ) ), earthGravitationalParameter );
+
+            TUDAT_CHECK_MATRIX_CLOSE_FRACTION( expectedModifiedEquinoctialElements, modifiedEquinoctialElements,
+                                               ( 10.0 * std::numeric_limits< double >::epsilon( ) ) );
+
+
 
         }
     }

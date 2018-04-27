@@ -524,16 +524,16 @@ Eigen::VectorXd executeEarthOrbiterParameterEstimation(
                 std::vector< boost::shared_ptr< ObservationBiasSettings > > biasSettingsList;
 
                 biasSettingsList.push_back( boost::make_shared< ConstantObservationBiasSettings >(
-                                                Eigen::Vector1d::Zero( ) ) );
-                biasSettingsList.push_back( boost::make_shared< ConstantRelativeObservationBiasSettings >(
-                                                Eigen::Vector1d::Zero( ) ) );
+                                                Eigen::Vector1d::Zero( ), true ) );
+                biasSettingsList.push_back( boost::make_shared< ConstantObservationBiasSettings >(
+                                                Eigen::Vector1d::Zero( ), false ) );
                 biasSettings = boost::make_shared< MultipleObservationBiasSettings >(
                             biasSettingsList );
             }
             else if( ( currentObservable == one_way_range ) && ( i == 1 ) )
             {
-                biasSettings = boost::make_shared< ConstantRelativeObservationBiasSettings >(
-                            Eigen::Vector1d::Zero( ) );
+                biasSettings = boost::make_shared< ConstantObservationBiasSettings >(
+                            Eigen::Vector1d::Zero( ), false );
             }
 
             observationSettingsMap.insert(
@@ -638,7 +638,8 @@ std::pair< Eigen::VectorXd, bool > executeEarthOrbiterBiasEstimation(
         const bool estimateTwoWayBiases = false,
         const bool useSingleBiasModel = true,
         const bool estimateAbsoluteBiases = true,
-        const bool omitRangeData = false )
+        const bool omitRangeData = false,
+        const bool useMultiArcBiases = false )
 {
 
     const int numberOfDaysOfData = 1;
@@ -654,6 +655,16 @@ std::pair< Eigen::VectorXd, bool > executeEarthOrbiterBiasEstimation(
     // Specify initial time
     TimeType initialEphemerisTime = 1.0E7;
     TimeType finalEphemerisTime = initialEphemerisTime + numberOfDaysOfData * 86400.0;
+
+    std::vector< double > biasArcs;
+    biasArcs.push_back( initialEphemerisTime );
+    biasArcs.push_back( initialEphemerisTime + 4.0 * 3600.0 );
+    biasArcs.push_back( initialEphemerisTime + 12.0 * 3600.0 );
+
+    std::vector< Eigen::VectorXd > biasPerArc;
+    biasPerArc.push_back( Eigen::Vector1d::Zero( ) );
+    biasPerArc.push_back( Eigen::Vector1d::Zero( ) );
+    biasPerArc.push_back( Eigen::Vector1d::Zero( ) );
 
     // Create bodies needed in simulation
     std::map< std::string, boost::shared_ptr< BodySettings > > bodySettings =
@@ -781,48 +792,98 @@ std::pair< Eigen::VectorXd, bool > executeEarthOrbiterBiasEstimation(
                 boost::make_shared< InitialTranslationalStateEstimatableParameterSettings< StateScalarType > >(
                     "Vehicle", systemInitialState, "Earth" ) );
 
-    if( estimateRangeBiases )
+    if( useMultiArcBiases )
     {
-        parameterNames.push_back( boost::make_shared< ConstantObservationBiasEstimatableParameterSettings >(
-                                      linkEndsPerObservable.at( one_way_range ).at( 0 ), one_way_range, estimateAbsoluteBiases ) );
-        parameterNames.push_back( boost::make_shared< ConstantObservationBiasEstimatableParameterSettings >(
-                                      linkEndsPerObservable.at( one_way_range ).at( 1 ), one_way_range, estimateAbsoluteBiases ) );
-        parameterNames.push_back( boost::make_shared< ConstantObservationBiasEstimatableParameterSettings >(
-                                      linkEndsPerObservable.at( one_way_range ).at( 2 ), one_way_range, estimateAbsoluteBiases ) );
-        parameterNames.push_back( boost::make_shared< ConstantObservationBiasEstimatableParameterSettings >(
-                                      linkEndsPerObservable.at( one_way_range ).at( 3 ), one_way_range, estimateAbsoluteBiases ) );
-        if( estimateTwoWayBiases )
+        if( estimateRangeBiases )
         {
-            parameterNames.push_back( boost::make_shared< ConstantObservationBiasEstimatableParameterSettings >(
-                                          linkEndsPerObservable.at( n_way_range ).at( 0 ), n_way_range, estimateAbsoluteBiases ) );
-            parameterNames.push_back( boost::make_shared< ConstantObservationBiasEstimatableParameterSettings >(
-                                          linkEndsPerObservable.at( n_way_range ).at( 1 ), n_way_range, estimateAbsoluteBiases ) );
-            parameterNames.push_back( boost::make_shared< ConstantObservationBiasEstimatableParameterSettings >(
-                                          linkEndsPerObservable.at( n_way_range ).at( 2 ), n_way_range, estimateAbsoluteBiases ) );
-            parameterNames.push_back( boost::make_shared< ConstantObservationBiasEstimatableParameterSettings >(
-                                          linkEndsPerObservable.at( n_way_range ).at( 3 ), n_way_range, estimateAbsoluteBiases ) );
+            parameterNames.push_back( boost::make_shared< ArcWiseConstantObservationBiasEstimatableParameterSettings >(
+                                          linkEndsPerObservable.at( one_way_range ).at( 0 ), one_way_range, biasArcs, transmitter, estimateAbsoluteBiases ) );
+            parameterNames.push_back( boost::make_shared< ArcWiseConstantObservationBiasEstimatableParameterSettings >(
+                                          linkEndsPerObservable.at( one_way_range ).at( 1 ), one_way_range, biasArcs, transmitter, estimateAbsoluteBiases ) );
+            parameterNames.push_back( boost::make_shared< ArcWiseConstantObservationBiasEstimatableParameterSettings >(
+                                          linkEndsPerObservable.at( one_way_range ).at( 2 ), one_way_range, biasArcs, transmitter, estimateAbsoluteBiases ) );
+            parameterNames.push_back( boost::make_shared< ArcWiseConstantObservationBiasEstimatableParameterSettings >(
+                                          linkEndsPerObservable.at( one_way_range ).at( 3 ), one_way_range, biasArcs, transmitter, estimateAbsoluteBiases ) );
+            if( estimateTwoWayBiases )
+            {
+                parameterNames.push_back( boost::make_shared< ArcWiseConstantObservationBiasEstimatableParameterSettings >(
+                                              linkEndsPerObservable.at( n_way_range ).at( 0 ), n_way_range, biasArcs, transmitter, estimateAbsoluteBiases ) );
+                parameterNames.push_back( boost::make_shared< ArcWiseConstantObservationBiasEstimatableParameterSettings >(
+                                              linkEndsPerObservable.at( n_way_range ).at( 1 ), n_way_range, biasArcs, transmitter, estimateAbsoluteBiases ) );
+                parameterNames.push_back( boost::make_shared< ArcWiseConstantObservationBiasEstimatableParameterSettings >(
+                                              linkEndsPerObservable.at( n_way_range ).at( 2 ), n_way_range, biasArcs, transmitter, estimateAbsoluteBiases ) );
+                parameterNames.push_back( boost::make_shared< ArcWiseConstantObservationBiasEstimatableParameterSettings >(
+                                              linkEndsPerObservable.at( n_way_range ).at( 3 ), n_way_range, biasArcs, transmitter, estimateAbsoluteBiases ) );
+            }
+        }
+        else
+        {
+            parameterNames.push_back( boost::make_shared< ArcWiseConstantObservationBiasEstimatableParameterSettings >(
+                                          linkEndsPerObservable.at( one_way_doppler ).at( 0 ), one_way_doppler, biasArcs, transmitter, estimateAbsoluteBiases ) );
+            parameterNames.push_back( boost::make_shared< ArcWiseConstantObservationBiasEstimatableParameterSettings >(
+                                          linkEndsPerObservable.at( one_way_doppler ).at( 1 ), one_way_doppler, biasArcs, transmitter, estimateAbsoluteBiases ) );
+            parameterNames.push_back( boost::make_shared< ArcWiseConstantObservationBiasEstimatableParameterSettings >(
+                                          linkEndsPerObservable.at( one_way_doppler ).at( 2 ), one_way_doppler, biasArcs, transmitter, estimateAbsoluteBiases ) );
+            parameterNames.push_back( boost::make_shared< ArcWiseConstantObservationBiasEstimatableParameterSettings >(
+                                          linkEndsPerObservable.at( one_way_doppler ).at( 3 ), one_way_doppler, biasArcs, transmitter, estimateAbsoluteBiases ) );
+            if( estimateTwoWayBiases )
+            {
+                parameterNames.push_back( boost::make_shared< ArcWiseConstantObservationBiasEstimatableParameterSettings >(
+                                              linkEndsPerObservable.at( two_way_doppler ).at( 0 ), two_way_doppler, biasArcs, transmitter, estimateAbsoluteBiases ) );
+                parameterNames.push_back( boost::make_shared< ArcWiseConstantObservationBiasEstimatableParameterSettings >(
+                                              linkEndsPerObservable.at( two_way_doppler ).at( 1 ), two_way_doppler, biasArcs, transmitter, estimateAbsoluteBiases ) );
+                parameterNames.push_back( boost::make_shared< ArcWiseConstantObservationBiasEstimatableParameterSettings >(
+                                              linkEndsPerObservable.at( two_way_doppler ).at( 2 ), two_way_doppler, biasArcs, transmitter, estimateAbsoluteBiases ) );
+                parameterNames.push_back( boost::make_shared< ArcWiseConstantObservationBiasEstimatableParameterSettings >(
+                                              linkEndsPerObservable.at( two_way_doppler ).at( 3 ), two_way_doppler, biasArcs, transmitter, estimateAbsoluteBiases ) );
+            }
         }
     }
     else
     {
-        parameterNames.push_back( boost::make_shared< ConstantObservationBiasEstimatableParameterSettings >(
-                                      linkEndsPerObservable.at( one_way_doppler ).at( 0 ), one_way_doppler, estimateAbsoluteBiases ) );
-        parameterNames.push_back( boost::make_shared< ConstantObservationBiasEstimatableParameterSettings >(
-                                      linkEndsPerObservable.at( one_way_doppler ).at( 1 ), one_way_doppler, estimateAbsoluteBiases ) );
-        parameterNames.push_back( boost::make_shared< ConstantObservationBiasEstimatableParameterSettings >(
-                                      linkEndsPerObservable.at( one_way_doppler ).at( 2 ), one_way_doppler, estimateAbsoluteBiases ) );
-        parameterNames.push_back( boost::make_shared< ConstantObservationBiasEstimatableParameterSettings >(
-                                      linkEndsPerObservable.at( one_way_doppler ).at( 3 ), one_way_doppler, estimateAbsoluteBiases ) );
-        if( estimateTwoWayBiases )
+        if( estimateRangeBiases )
         {
             parameterNames.push_back( boost::make_shared< ConstantObservationBiasEstimatableParameterSettings >(
-                                          linkEndsPerObservable.at( two_way_doppler ).at( 0 ), two_way_doppler, estimateAbsoluteBiases ) );
+                                          linkEndsPerObservable.at( one_way_range ).at( 0 ), one_way_range, estimateAbsoluteBiases ) );
             parameterNames.push_back( boost::make_shared< ConstantObservationBiasEstimatableParameterSettings >(
-                                          linkEndsPerObservable.at( two_way_doppler ).at( 1 ), two_way_doppler, estimateAbsoluteBiases ) );
+                                          linkEndsPerObservable.at( one_way_range ).at( 1 ), one_way_range, estimateAbsoluteBiases ) );
             parameterNames.push_back( boost::make_shared< ConstantObservationBiasEstimatableParameterSettings >(
-                                          linkEndsPerObservable.at( two_way_doppler ).at( 2 ), two_way_doppler, estimateAbsoluteBiases ) );
+                                          linkEndsPerObservable.at( one_way_range ).at( 2 ), one_way_range, estimateAbsoluteBiases ) );
             parameterNames.push_back( boost::make_shared< ConstantObservationBiasEstimatableParameterSettings >(
-                                          linkEndsPerObservable.at( two_way_doppler ).at( 3 ), two_way_doppler, estimateAbsoluteBiases ) );
+                                          linkEndsPerObservable.at( one_way_range ).at( 3 ), one_way_range, estimateAbsoluteBiases ) );
+            if( estimateTwoWayBiases )
+            {
+                parameterNames.push_back( boost::make_shared< ConstantObservationBiasEstimatableParameterSettings >(
+                                              linkEndsPerObservable.at( n_way_range ).at( 0 ), n_way_range, estimateAbsoluteBiases ) );
+                parameterNames.push_back( boost::make_shared< ConstantObservationBiasEstimatableParameterSettings >(
+                                              linkEndsPerObservable.at( n_way_range ).at( 1 ), n_way_range, estimateAbsoluteBiases ) );
+                parameterNames.push_back( boost::make_shared< ConstantObservationBiasEstimatableParameterSettings >(
+                                              linkEndsPerObservable.at( n_way_range ).at( 2 ), n_way_range, estimateAbsoluteBiases ) );
+                parameterNames.push_back( boost::make_shared< ConstantObservationBiasEstimatableParameterSettings >(
+                                              linkEndsPerObservable.at( n_way_range ).at( 3 ), n_way_range, estimateAbsoluteBiases ) );
+            }
+        }
+        else
+        {
+            parameterNames.push_back( boost::make_shared< ConstantObservationBiasEstimatableParameterSettings >(
+                                          linkEndsPerObservable.at( one_way_doppler ).at( 0 ), one_way_doppler, estimateAbsoluteBiases ) );
+            parameterNames.push_back( boost::make_shared< ConstantObservationBiasEstimatableParameterSettings >(
+                                          linkEndsPerObservable.at( one_way_doppler ).at( 1 ), one_way_doppler, estimateAbsoluteBiases ) );
+            parameterNames.push_back( boost::make_shared< ConstantObservationBiasEstimatableParameterSettings >(
+                                          linkEndsPerObservable.at( one_way_doppler ).at( 2 ), one_way_doppler, estimateAbsoluteBiases ) );
+            parameterNames.push_back( boost::make_shared< ConstantObservationBiasEstimatableParameterSettings >(
+                                          linkEndsPerObservable.at( one_way_doppler ).at( 3 ), one_way_doppler, estimateAbsoluteBiases ) );
+            if( estimateTwoWayBiases )
+            {
+                parameterNames.push_back( boost::make_shared< ConstantObservationBiasEstimatableParameterSettings >(
+                                              linkEndsPerObservable.at( two_way_doppler ).at( 0 ), two_way_doppler, estimateAbsoluteBiases ) );
+                parameterNames.push_back( boost::make_shared< ConstantObservationBiasEstimatableParameterSettings >(
+                                              linkEndsPerObservable.at( two_way_doppler ).at( 1 ), two_way_doppler, estimateAbsoluteBiases ) );
+                parameterNames.push_back( boost::make_shared< ConstantObservationBiasEstimatableParameterSettings >(
+                                              linkEndsPerObservable.at( two_way_doppler ).at( 2 ), two_way_doppler, estimateAbsoluteBiases ) );
+                parameterNames.push_back( boost::make_shared< ConstantObservationBiasEstimatableParameterSettings >(
+                                              linkEndsPerObservable.at( two_way_doppler ).at( 3 ), two_way_doppler, estimateAbsoluteBiases ) );
+            }
         }
     }
 
@@ -844,31 +905,60 @@ std::pair< Eigen::VectorXd, bool > executeEarthOrbiterBiasEstimation(
         for( unsigned int i = 0; i < currentLinkEndsList.size( ); i++ )
         {
             boost::shared_ptr< ObservationBiasSettings > biasSettings;
-            if( useSingleBiasModel )
+            if( useMultiArcBiases )
             {
-                if( estimateAbsoluteBiases )
+                if( useSingleBiasModel )
                 {
-                    biasSettings = boost::make_shared< ConstantObservationBiasSettings >(
-                                Eigen::Vector1d::Zero( ) );
+                    if( estimateAbsoluteBiases )
+                    {
+                        biasSettings = boost::make_shared< ArcWiseConstantObservationBiasSettings >(
+                                    biasArcs, biasPerArc, transmitter, true );
+                    }
+                    else
+                    {
+                        biasSettings = boost::make_shared< ArcWiseConstantObservationBiasSettings >(
+                                    biasArcs, biasPerArc, transmitter, false );
+                    }
                 }
                 else
                 {
-                    biasSettings = boost::make_shared< ConstantRelativeObservationBiasSettings >(
-                                Eigen::Vector1d::Zero( ) );
+                    std::vector< boost::shared_ptr< ObservationBiasSettings > > biasSettingsList;
+
+                    biasSettingsList.push_back( boost::make_shared< ArcWiseConstantObservationBiasSettings >(
+                                                    biasArcs, biasPerArc, transmitter, true ) );
+                    biasSettingsList.push_back( boost::make_shared< ArcWiseConstantObservationBiasSettings >(
+                                                    biasArcs, biasPerArc, transmitter, false ) );
+                    biasSettings = boost::make_shared< MultipleObservationBiasSettings >(
+                                biasSettingsList );
                 }
             }
             else
             {
-                std::vector< boost::shared_ptr< ObservationBiasSettings > > biasSettingsList;
+                if( useSingleBiasModel )
+                {
+                    if( estimateAbsoluteBiases )
+                    {
+                        biasSettings = boost::make_shared< ConstantObservationBiasSettings >(
+                                    Eigen::Vector1d::Zero( ), true );
+                    }
+                    else
+                    {
+                        biasSettings = boost::make_shared< ConstantObservationBiasSettings >(
+                                    Eigen::Vector1d::Zero( ), false );
+                    }
+                }
+                else
+                {
+                    std::vector< boost::shared_ptr< ObservationBiasSettings > > biasSettingsList;
 
-                biasSettingsList.push_back( boost::make_shared< ConstantObservationBiasSettings >(
-                                                Eigen::Vector1d::Zero( ) ) );
-                biasSettingsList.push_back( boost::make_shared< ConstantRelativeObservationBiasSettings >(
-                                                Eigen::Vector1d::Zero( ) ) );
-                biasSettings = boost::make_shared< MultipleObservationBiasSettings >(
-                            biasSettingsList );
+                    biasSettingsList.push_back( boost::make_shared< ConstantObservationBiasSettings >(
+                                                    Eigen::Vector1d::Zero( ), true ) );
+                    biasSettingsList.push_back( boost::make_shared< ConstantObservationBiasSettings >(
+                                                    Eigen::Vector1d::Zero( ), false ) );
+                    biasSettings = boost::make_shared< MultipleObservationBiasSettings >(
+                                biasSettingsList );
+                }
             }
-
             observationSettingsMap.insert(
                         std::make_pair( currentLinkEndsList.at( i ), boost::make_shared< ObservationSettings >(
                                             currentObservable, boost::shared_ptr< LightTimeCorrectionSettings >( ),
@@ -883,16 +973,18 @@ std::pair< Eigen::VectorXd, bool > executeEarthOrbiterBiasEstimation(
                 integratorSettings, propagatorSettings );
 
     std::vector< TimeType > baseTimeList;
-    double observationTimeStart = initialEphemerisTime + 1000.0;
-    double  observationInterval = 200.0;
+    double observationTimeStart = initialEphemerisTime + 600.0;
+    double  observationInterval = 600.0;
     for( int i = 0; i < numberOfDaysOfData; i++ )
     {
-        for( unsigned int j = 0; j < 50; j++ )
+        for( unsigned int j = 0; j < 100; j++ )
         {
             baseTimeList.push_back( observationTimeStart + static_cast< double >( i ) * 86400.0 +
                                     static_cast< double >( j ) * observationInterval );
         }
     }
+
+    std::cout<<"Final time: "<<baseTimeList.at( baseTimeList.size( ) - 1 )<<std::endl;
     std::map< ObservableType, std::map< LinkEnds, std::pair< std::vector< TimeType >, LinkEndType > > > measurementSimulationInput;
     for( std::map< ObservableType, std::vector< LinkEnds > >::iterator linkEndIterator = linkEndsPerObservable.begin( );
          linkEndIterator != linkEndsPerObservable.end( ); linkEndIterator++ )
@@ -900,7 +992,7 @@ std::pair< Eigen::VectorXd, bool > executeEarthOrbiterBiasEstimation(
         ObservableType currentObservable = linkEndIterator->first;
 
         if( !( omitRangeData && ( ( currentObservable == one_way_range ) ||
-                                    ( currentObservable == n_way_range ) ) ) )
+                                  ( currentObservable == n_way_range ) ) ) )
         {
             std::vector< LinkEnds > currentLinkEndsList = linkEndIterator->second;
             for( unsigned int i = 0; i < currentLinkEndsList.size( ); i++ )
@@ -978,7 +1070,9 @@ std::pair< Eigen::VectorXd, bool > executeEarthOrbiterBiasEstimation(
     Eigen::VectorXd estimationError = podOutput->parameterEstimate_ - truthParameters;
     std::cout << ( estimationError ).transpose( ) << std::endl<< std::endl;
 
-    return std::make_pair( estimationError, ( podOutput->exceptionDuringInversion_ || podOutput->exceptionDuringPropagation_ ) );
+    return std::make_pair( estimationError,
+                           ( podOutput->exceptionDuringInversion_ ||
+                             !( podOutput->getUnnormalizedCovarianceMatrix( ) == podOutput->getUnnormalizedCovarianceMatrix( ) ) ) );
 }
 
 }

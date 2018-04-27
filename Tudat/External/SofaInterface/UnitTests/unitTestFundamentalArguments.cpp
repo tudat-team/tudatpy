@@ -59,7 +59,7 @@ BOOST_AUTO_TEST_CASE( testSofaFundamentalArguments )
     // Compare against IERS results.
     for( unsigned int i = 0; i < 5; i++ )
     {
-        BOOST_CHECK_SMALL( expectedFundamentalArgumentValues( i ) - fundamentalArgumentValues( i ), 1.0E-13  );
+        BOOST_CHECK_SMALL( std::fabs( expectedFundamentalArgumentValues( i ) - fundamentalArgumentValues( i ) ), 2.0E-13  );
     }
 
     // Calculate Delaunay arguments with GMST.
@@ -67,7 +67,7 @@ BOOST_AUTO_TEST_CASE( testSofaFundamentalArguments )
             calculateDelaunayFundamentalArgumentsWithGmst( testSecondsSinceJ2000 );
     for( unsigned int i = 0; i < 5; i++ )
     {
-        BOOST_CHECK_SMALL( fundamentalArgumentValuesWithGmst( i + 1 ) - fundamentalArgumentValues( i ), 1.0E-15  );
+        BOOST_CHECK_SMALL( std::fabs( fundamentalArgumentValuesWithGmst( i + 1 ) - fundamentalArgumentValues( i ) ), 1.0E-15  );
     }
 
     // Manually compute GMST
@@ -76,7 +76,7 @@ BOOST_AUTO_TEST_CASE( testSofaFundamentalArguments )
                 convertTTtoUTC( testSecondsSinceJ2000 ),
                 basic_astrodynamics::JULIAN_DAY_ON_J2000, basic_astrodynamics::iau_2006 );
 
-    BOOST_CHECK_SMALL( expectedGmst + mathematical_constants::PI - fundamentalArgumentValuesWithGmst( 0 ), 1.0E-15  );
+    BOOST_CHECK_SMALL( std::fabs( expectedGmst + mathematical_constants::PI - fundamentalArgumentValuesWithGmst( 0 ) ), 1.0E-15  );
 
     // Calculate Doodson arguments directly and from Delaunay arguments and compare.
     Eigen::Matrix< double, 6, 1 > doodsonArguments = calculateDoodsonFundamentalArguments( testSecondsSinceJ2000 );
@@ -84,7 +84,7 @@ BOOST_AUTO_TEST_CASE( testSofaFundamentalArguments )
             doodsonToDelaunayArguments * doodsonArguments.segment( 1, 5 );
     for( unsigned int i = 0; i < 5; i++ )
     {
-        BOOST_CHECK_SMALL( fundamentalArgumentValues( i ) - reconstructedFundamentalArguments( i ), 1.0E-15  );
+        BOOST_CHECK_SMALL( std::fabs( fundamentalArgumentValues( i ) - reconstructedFundamentalArguments( i ) ), 1.0E-15  );
     }
 }
 

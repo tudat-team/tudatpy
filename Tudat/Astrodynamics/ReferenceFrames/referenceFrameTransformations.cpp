@@ -171,14 +171,14 @@ Eigen::Matrix3d getVelocityBasedLvlhToInertialRotation(
     }
 
     Eigen::Vector3d unitW =  ( ( ( doesNaxisPointAwayFromCentralBody == true ) ? -1.0 : 1.0 ) *
-            ( vehicleRadius.cross( vehicleVelocity ) ).normalized( ) );
+                               ( vehicleRadius.cross( vehicleVelocity ) ).normalized( ) );
 
     Eigen::Vector3d unitN = ( unitW.cross( unitT ) ).normalized( );
 
     Eigen::Matrix3d transformationMatrix;
     transformationMatrix << unitT( 0 ), unitN( 0 ), unitW( 0 ),
-                            unitT( 1 ), unitN( 1 ), unitW( 1 ),
-                            unitT( 2 ), unitN( 2 ), unitW( 2 );
+            unitT( 1 ), unitN( 1 ), unitW( 1 ),
+            unitT( 2 ), unitN( 2 ), unitW( 2 );
 
     return transformationMatrix;
 }
