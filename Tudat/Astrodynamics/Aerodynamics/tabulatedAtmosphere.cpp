@@ -60,7 +60,6 @@ void TabulatedAtmosphere::initialize( const std::map< int, std::string >& atmosp
                                       std::to_string( numberOfIndependentVariables_ ) +
                                       " independent variables, up to 4 currently supported." );
         }
-        // Could also check to make sure that no duplicate (in)dependent variables are input
 
         // Check input consistency
         if ( static_cast< int >( independentVariables_.size( ) ) != numberOfIndependentVariables_ )

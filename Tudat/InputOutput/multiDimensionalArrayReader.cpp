@@ -32,13 +32,13 @@ boost::multi_array< double, 1 > parseRawOneDimensionalCoefficientsFromFile(
     boost::multi_array< double, 1 > coefficientMultiarray;
 
     // Check input consistency
-    if( independentVariableSize.size( ) == 1 )
+    if ( independentVariableSize.size( ) == 1 )
     {
         // Define size of multi-array
         coefficientMultiarray.resize( boost::extents[ independentVariableSize.at( 0 ) ] );
 
         // Parse data
-        for( int i = 0; i < independentVariableSize.at( 0 ); i++ )
+        for ( int i = 0; i < independentVariableSize.at( 0 ); i++ )
         {
             coefficientMultiarray[ i ] = coefficientsBlock( i, 0 );
         }
@@ -58,15 +58,15 @@ boost::multi_array< double, 2 > parseRawTwoDimensionalCoefficientsFromFile(
     boost::multi_array< double, 2 > coefficientMultiarray;
 
     // Check input consistency
-    if( independentVariableSize.size( ) == 2 )
+    if ( independentVariableSize.size( ) == 2 )
     {
         // Define size of multi-array
         coefficientMultiarray.resize( boost::extents[ independentVariableSize.at( 0 ) ][ independentVariableSize.at( 1 ) ]  );
 
         // Parse data
-        for( int i = 0; i < independentVariableSize.at( 0 ); i++ )
+        for ( int i = 0; i < independentVariableSize.at( 0 ); i++ )
         {
-            for( int j = 0; j < independentVariableSize.at( 1 ); j++ )
+            for ( int j = 0; j < independentVariableSize.at( 1 ); j++ )
             {
                 coefficientMultiarray[ i ][ j ] = coefficientsBlock( i, j );
             }
@@ -87,7 +87,7 @@ boost::multi_array< double, 3 > parseRawThreeDimensionalCoefficientsFromFile(
     boost::multi_array< double, 3 > coefficientMultiarray;
 
     // Check input consistency
-    if( independentVariableSize.size( ) == 3 )
+    if ( independentVariableSize.size( ) == 3 )
     {
         // Define size of multi-array
         coefficientMultiarray.resize( boost::extents[ independentVariableSize.at( 0 ) ]
@@ -95,11 +95,11 @@ boost::multi_array< double, 3 > parseRawThreeDimensionalCoefficientsFromFile(
 
         // Parse data
         int currentStartRow = 0;
-        for( int k = 0; k < independentVariableSize.at( 2 ); k++ )
+        for ( int k = 0; k < independentVariableSize.at( 2 ); k++ )
         {
-            for( int i = 0; i < independentVariableSize.at( 0 ); i++ )
+            for ( int i = 0; i < independentVariableSize.at( 0 ); i++ )
             {
-                for( int j = 0; j < independentVariableSize.at( 1 ); j++ )
+                for ( int j = 0; j < independentVariableSize.at( 1 ); j++ )
                 {
                     coefficientMultiarray[ i ][ j ][ k ] = coefficientsBlock( i + currentStartRow, j );
                 }
@@ -122,7 +122,7 @@ boost::multi_array< double, 4 > parseRawFourDimensionalCoefficientsFromFile(
     boost::multi_array< double, 4 > coefficientMultiarray;
 
     // Check input consistency
-    if( independentVariableSize.size( ) == 4 )
+    if ( independentVariableSize.size( ) == 4 )
     {
         // Define size of multi-array
         coefficientMultiarray.resize( boost::extents[ independentVariableSize.at( 0 ) ]
@@ -132,22 +132,23 @@ boost::multi_array< double, 4 > parseRawFourDimensionalCoefficientsFromFile(
         if ( coefficientsBlock.rows( ) == ( independentVariableSize.at( 0 ) * independentVariableSize.at( 2 ) *
                                             independentVariableSize.at( 3 ) ) )
         {
-            int currentStartRowOne = 0;
-            int currentStartRowTwo = 0;
+            int currentStartRowFourthDimension = 0;
             for ( int l = 0; l < independentVariableSize.at( 3 ); l++ )
             {
-                for( int k = 0; k < independentVariableSize.at( 2 ); k++ )
+                int currentStartRowThirdDimension = 0;
+                for ( int k = 0; k < independentVariableSize.at( 2 ); k++ )
                 {
-                    for( int i = 0; i < independentVariableSize.at( 0 ); i++ )
+                    for ( int i = 0; i < independentVariableSize.at( 0 ); i++ )
                     {
-                        for( int j = 0; j < independentVariableSize.at( 1 ); j++ )
+                        for ( int j = 0; j < independentVariableSize.at( 1 ); j++ )
                         {
-                            coefficientMultiarray[ i ][ j ][ k ][ l ] = coefficientsBlock( i + currentStartRowOne + currentStartRowTwo, j );
+                            coefficientMultiarray[ i ][ j ][ k ][ l ] = coefficientsBlock( i + currentStartRowThirdDimension +
+                                                                                           currentStartRowFourthDimension, j );
                         }
                     }
-                    currentStartRowOne += independentVariableSize.at( 0 );
+                    currentStartRowThirdDimension += independentVariableSize.at( 0 );
                 }
-                currentStartRowTwo += independentVariableSize.at( 2 );
+                currentStartRowFourthDimension += independentVariableSize.at( 2 ) * independentVariableSize.at( 0 );
             }
         }
         else if ( coefficientsBlock.cols( ) == ( independentVariableSize.at( 1 ) * independentVariableSize.at( 3 ) ) )
@@ -156,11 +157,11 @@ boost::multi_array< double, 4 > parseRawFourDimensionalCoefficientsFromFile(
             int currentStartColumn = 0;
             for ( int l = 0; l < independentVariableSize.at( 3 ); l++ )
             {
-                for( int k = 0; k < independentVariableSize.at( 2 ); k++ )
+                for ( int k = 0; k < independentVariableSize.at( 2 ); k++ )
                 {
-                    for( int i = 0; i < independentVariableSize.at( 0 ); i++ )
+                    for ( int i = 0; i < independentVariableSize.at( 0 ); i++ )
                     {
-                        for( int j = 0; j < independentVariableSize.at( 1 ); j++ )
+                        for ( int j = 0; j < independentVariableSize.at( 1 ); j++ )
                         {
                             coefficientMultiarray[ i ][ j ][ k ][ l ] = coefficientsBlock( i + currentStartRow, j + currentStartColumn );
                         }
@@ -218,7 +219,7 @@ void readCoefficientsFile(
         boost::algorithm::trim( line );
 
         // Skip empty and comment lines
-        if( line.size( ) > 0 && !( line.at( 0 ) == '#' ) )
+        if ( line.size( ) > 0 && !( line.at( 0 ) == '#' ) )
         {
             // Split string into multiple strings, each containing one element from a line from the data file.
             boost::algorithm::split( vectorOfIndividualStrings,
@@ -227,9 +228,9 @@ void readCoefficientsFile(
                                      boost::algorithm::token_compress_on );
 
             // If this is the first line that is read, it should contain the number of independent variables
-            if( !isFirstLinePassed )
+            if ( !isFirstLinePassed )
             {
-                if( vectorOfIndividualStrings.size( ) != 1 )
+                if ( vectorOfIndividualStrings.size( ) != 1 )
                 {
                     throw std::runtime_error( "Error when reading multi-array, expected number of independent variables." );
                 }
@@ -237,26 +238,26 @@ void readCoefficientsFile(
                 isFirstLinePassed = true;
             }            
             // If the file header is not passed, this should contain the independent variables
-            else if( !isHeaderPassed )
+            else if ( !isHeaderPassed )
             {
                 std::vector< double > currentDataPoints;
-                for( unsigned int i = 0; i < vectorOfIndividualStrings.size( ); i++ )
+                for ( unsigned int i = 0; i < vectorOfIndividualStrings.size( ); i++ )
                 {
                     currentDataPoints.push_back( std::stod( vectorOfIndividualStrings.at( i ) ) );
                 }
                 independentVariables.push_back( currentDataPoints );
             }
-            else if( isHeaderPassed )
+            else if ( isHeaderPassed )
             {
                 // Check line consistency
-                if( vectorOfIndividualStrings.size( ) != static_cast< unsigned int >( coefficientBlock.cols( ) ) )
+                if ( vectorOfIndividualStrings.size( ) != static_cast< unsigned int >( coefficientBlock.cols( ) ) )
                 {
                     throw std::runtime_error(
                                 "Error on data line " + std::to_string( numberOfDataLinesParsed ) +
                                 " found " + std::to_string( vectorOfIndividualStrings.size( ) ) +
                                 " columns, but expected " + std::to_string( coefficientBlock.cols( ) ) );
                 }
-                else if( numberOfDataLinesParsed > coefficientBlock.rows( ) )
+                else if ( numberOfDataLinesParsed > coefficientBlock.rows( ) )
                 {
                     throw std::runtime_error(
                                 "Error on data line " + std::to_string( numberOfDataLinesParsed ) +
@@ -265,7 +266,7 @@ void readCoefficientsFile(
                 else
                 {
                     // Parse data from current line into output matrix.
-                    for( unsigned int i = 0; i < vectorOfIndividualStrings.size( ); i++ )
+                    for ( unsigned int i = 0; i < vectorOfIndividualStrings.size( ); i++ )
                     {
                         coefficientBlock( numberOfDataLinesParsed, i ) =
                                 std::stod( vectorOfIndividualStrings.at( i ) );
@@ -276,10 +277,10 @@ void readCoefficientsFile(
 
             // If the number of independent variables read is the same as the number of independent variables that
             // should be defined, allocate memory for output matrix.
-            if( ( static_cast< int >( independentVariables.size( ) ) == numberOfIndependentVariables ) && !isHeaderPassed )
+            if ( ( static_cast< int >( independentVariables.size( ) ) == numberOfIndependentVariables ) && !isHeaderPassed )
             {
                 // Check input consistency
-                if( independentVariables.size( ) == 0 )
+                if ( independentVariables.size( ) == 0 )
                 {
                     throw std::runtime_error( "Error when reading multi-array, no header found." );
                 }
@@ -288,10 +289,10 @@ void readCoefficientsFile(
                     // Define size of output matrix, and allocate memory
                     int numberOfRows = independentVariables.at( 0 ).size( );
                     int numberOfColumns = 1;
-                    if( independentVariables.size( ) > 1 )
+                    if ( independentVariables.size( ) > 1 )
                     {
                         numberOfColumns = independentVariables.at( 1 ).size( );
-                        for( unsigned int i = 2; i < independentVariables.size( ); i++ )
+                        for ( unsigned int i = 2; i < independentVariables.size( ); i++ )
                         {
                             numberOfRows *= independentVariables.at( i ).size( );
                         }
@@ -304,7 +305,7 @@ void readCoefficientsFile(
         }
     }
 
-    if( numberOfDataLinesParsed != coefficientBlock.rows( ) )
+    if ( numberOfDataLinesParsed != coefficientBlock.rows( ) )
     {
         throw std::runtime_error(
                     "Error at end of coefficient file reader, found " +
@@ -336,7 +337,7 @@ int getNumberOfIndependentVariablesInCoefficientFile( const std::string& fileNam
         std::getline( stream, line );
         boost::algorithm::trim( line );
 
-        if( line.size( ) > 0 && !( line.at( 0 ) == '#' ) )
+        if ( line.size( ) > 0 && !( line.at( 0 ) == '#' ) )
         {
             boost::algorithm::split( vectorOfIndividualStrings,
                                      line,
