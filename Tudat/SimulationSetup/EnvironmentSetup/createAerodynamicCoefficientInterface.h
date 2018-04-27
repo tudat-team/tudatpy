@@ -20,6 +20,7 @@
 #include "Tudat/SimulationSetup/EnvironmentSetup/createAerodynamicControlSurfaces.h"
 #include "Tudat/Mathematics/Interpolators/multiLinearInterpolator.h"
 #include "Tudat/Mathematics/Interpolators/createInterpolator.h"
+
 namespace tudat
 {
 
@@ -1088,7 +1089,7 @@ createTabulatedCoefficientAerodynamicCoefficientInterface(
                 independentVariables, momentCoefficients );
 
     // Create aerodynamic coefficient interface.
-    return  boost::make_shared< aerodynamics::CustomAerodynamicCoefficientInterface >(
+    return boost::make_shared< aerodynamics::CustomAerodynamicCoefficientInterface >(
                 boost::bind( &interpolators::MultiLinearInterpolator
                              < double, Eigen::Vector3d, NumberOfDimensions >::interpolate,
                              forceInterpolator, _1 ),
