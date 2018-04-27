@@ -294,8 +294,8 @@ public:
      * consistency with base class interface).
      * \return Atmospheric speed of sound at specified conditions.
      */
-    double getSpeedOfSound( const double altitude, const double longitude,
-                            const double latitude, const double time )
+    double getSpeedOfSound( const double altitude, const double longitude = 0.0,
+                            const double latitude = 0.0, const double time = 0.0 )
     {
         return computeSpeedOfSound(
                     getTemperature( altitude, longitude, latitude, time ),
