@@ -34,6 +34,7 @@
 
 namespace tudat
 {
+
 namespace aerodynamics
 {
 
@@ -343,7 +344,7 @@ private:
      *  Vector of booleans that determines if the atmosphere file contains dentity, pressure, temperature,
      *  gas constant and/or ratio of specific heats.
      */
-    std::vector< bool > dependentVariablesDependency_ = { false, false, false, false, false };
+    std::vector< bool > dependentVariablesDependency_ = { false, false, false, false, false }; // only 5 dependent variables supported
 
     //! Vector of integers that specifies the order of dentity, pressure, temperature, gas constant and
     //! ratio of specific heats are located.
@@ -384,46 +385,46 @@ private:
      */
     int numberOfIndependentVariables_;
 
-    //! Interpolation for density.
+    //! Interpolation for density. Note that type of interpolator depends on number of independent variables specified.
     /*!
-     *  Interpolation for density.
+     *  Interpolation for density. Note that type of interpolator depends on number of independent variables specified.
      */
-    boost::shared_ptr< interpolators::Interpolator
-            < double, double > > interpolationForDensity_;
+    boost::shared_ptr< interpolators::Interpolator < double, double > > interpolationForDensity_;
 
-    //! Interpolation for pressure.
+    //! Interpolation for pressure. Note that type of interpolator depends on number of independent variables specified.
     /*!
-     *  Interpolation for pressure.
+     *  Interpolation for pressure. Note that type of interpolator depends on number of independent variables specified.
      */
-    boost::shared_ptr< interpolators::Interpolator
-            < double, double > > interpolationForPressure_;
+    boost::shared_ptr< interpolators::Interpolator < double, double > > interpolationForPressure_;
 
-    //! Interpolation for temperature.
+    //! Interpolation for temperature. Note that type of interpolator depends on number of independent variables specified.
     /*!
-     *  Interpolation for temperature.
+     *  Interpolation for temperature. Note that type of interpolator depends on number of independent variables specified.
      */
-    boost::shared_ptr< interpolators::Interpolator
-            < double, double > > interpolationForTemperature_;
+    boost::shared_ptr< interpolators::Interpolator < double, double > > interpolationForTemperature_;
 
-    //! Interpolation for specific gas constant.
+    //! Interpolation for specific gas constant. Note that type of interpolator depends on number of independent variables specified.
     /*!
-     *  Interpolation for specific gas constant.
+     *  Interpolation for specific gas constant. Note that type of interpolator depends on number of independent variables specified.
      */
-    boost::shared_ptr< interpolators::Interpolator
-            < double, double > > interpolationForGasConstant_;
+    boost::shared_ptr< interpolators::Interpolator < double, double > > interpolationForGasConstant_;
 
-    //! Interpolation for ratio of specific heats.
+    //! Interpolation for ratio of specific heats. Note that type of interpolator depends on number of independent variables specified.
     /*!
-     *  Interpolation for ratio of specific heats.
+     *  Interpolation for ratio of specific heats. Note that type of interpolator depends on number of independent variables specified.
      */
-    boost::shared_ptr< interpolators::Interpolator
-            < double, double > > interpolationForSpecificHeatRatio_;
+    boost::shared_ptr< interpolators::Interpolator < double, double > > interpolationForSpecificHeatRatio_;
 };
+
+//! Check uniqueness of input.
+template< typename VariableType >
+void checkVariableUniqueness( std::vector< VariableType > variables );
 
 //! Typedef for shared-pointer to TabulatedAtmosphere object.
 typedef boost::shared_ptr< TabulatedAtmosphere > TabulatedAtmospherePointer;
 
 } // namespace aerodynamics
+
 } // namespace tudat
 
 #endif // TUDAT_TABULATED_ATMOSPHERE_H

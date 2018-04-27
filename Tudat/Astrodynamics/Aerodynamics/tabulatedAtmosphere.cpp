@@ -17,6 +17,7 @@
 
 namespace tudat
 {
+
 namespace aerodynamics
 {
 
@@ -26,9 +27,18 @@ void TabulatedAtmosphere::initialize( const std::map< int, std::string >& atmosp
     // Locally store the atmosphere table file name.
     atmosphereTableFile_ = atmosphereTableFile;
 
+    // Check uniqueness
+    checkVariableUniqueness< AtmosphereDependentVariables >( dependentVariables_ );
+    checkVariableUniqueness< AtmosphereIndependentVariables >( independentVariables_ );
+
     // Retrieve number of dependent variables from user.
     unsigned int numberOfDependentVariables = dependentVariables_.size( );
-    // consistency with number of files is checked in readTabulatedAtmosphere function
+
+    // Check that number of dependent variables does not exceed limit
+    if ( numberOfDependentVariables > dependentVariablesDependency_.size( ) )
+    {
+        throw std::runtime_error( "Error, number of dependent variables exceeds current limit." );
+    }
 
     // Check input consistency
     if ( independentVariables_.size( ) != 1 )
@@ -43,7 +53,7 @@ void TabulatedAtmosphere::initialize( const std::map< int, std::string >& atmosp
         numberOfIndependentVariables_ = input_output::getNumberOfIndependentVariablesInCoefficientFile(
                     atmosphereTableFile_.at( 0 ) );
 
-        // Check number of independent variables
+        // Check that number of independent variables does not exceed limit
         if ( ( numberOfIndependentVariables_ < 1 ) || ( numberOfIndependentVariables_ > 4 ) )
         {
             throw std::runtime_error( "Error when reading tabulated atmosphere from file, found " +
@@ -68,17 +78,8 @@ void TabulatedAtmosphere::initialize( const std::map< int, std::string >& atmosp
     // Get order of dependent variables
     for ( unsigned int i = 0; i < numberOfDependentVariables; i++ )
     {
-        if ( i <= dependentVariableIndices_.size( ) )
-        {
-            dependentVariableIndices_.at( dependentVariables_.at( i ) ) = i;
             dependentVariablesDependency_.at( dependentVariables_.at( i ) ) = true;
-        }
-        else
-        {
-            std::string errorMessage = "Error, dependent variable " + std::to_string( dependentVariables_.at( i ) ) +
-                    " not found in tabulated atmosphere.";
-            throw std::runtime_error( errorMessage );
-        }
+            dependentVariableIndices_.at( dependentVariables_.at( i ) ) = i;
     }
 
     // Check that density, pressure and temperature are present
@@ -99,6 +100,8 @@ void TabulatedAtmosphere::initialize( const std::map< int, std::string >& atmosp
         // Call approriate file reading function for 1 independent variables
         Eigen::MatrixXd tabulatedAtmosphereData = input_output::readMatrixFromFile(
                     atmosphereTableFile_.at( 0 ), " \t", "%" );
+
+        // Extract information on file size
         unsigned int numberOfColumnsInFile = tabulatedAtmosphereData.cols( );
         unsigned int numberOfRowsInFile = tabulatedAtmosphereData.rows( );
 
@@ -167,7 +170,7 @@ void TabulatedAtmosphere::initialize( const std::map< int, std::string >& atmosp
     }
     case 4:
     {
-        throw std::runtime_error( "Currently, only three independent variables are supported." );
+        createMultiDimensionalAtmosphereInterpolators< 4 >( );
         break;
     }
     }
@@ -189,7 +192,7 @@ void TabulatedAtmosphere::createMultiDimensionalAtmosphereInterpolators( )
     // Assign independent variables
     independentVariablesData_ = tabulatedAtmosphereData.second;
 
-    // Assign dependent variables
+    // Create interpolators for density, pressure and temperature
     interpolationForDensity_ =
             boost::make_shared< MultiLinearInterpolator< double, double, NumberOfIndependentVariables > >(
                 independentVariablesData_, tabulatedAtmosphereData.first.at( dependentVariableIndices_.at( 0 ) ) );
@@ -199,6 +202,8 @@ void TabulatedAtmosphere::createMultiDimensionalAtmosphereInterpolators( )
     interpolationForTemperature_ =
             boost::make_shared< MultiLinearInterpolator< double, double, NumberOfIndependentVariables > >(
                 independentVariablesData_, tabulatedAtmosphereData.first.at( dependentVariableIndices_.at( 2 ) ) );
+
+    // Create remaining interpolators, if requested by user
     if ( dependentVariablesDependency_.at( 3 ) )
     {
         interpolationForGasConstant_ =
@@ -213,5 +218,24 @@ void TabulatedAtmosphere::createMultiDimensionalAtmosphereInterpolators( )
     }
 }
 
+//! Check uniqueness of input.
+template< typename VariableType >
+void checkVariableUniqueness( std::vector< VariableType > variables )
+{
+    // Sort variables
+    sort( variables.begin( ), variables.end( ) );
+
+    // Check uniqueness
+    unsigned int numberOfUniqueElements = std::distance( variables.begin( ),
+                                                         std::unique( variables.begin( ), variables.end( ) ) );
+
+    // Give error in case of non-unique variables
+    if ( numberOfUniqueElements != variables.size( ) )
+    {
+        throw std::runtime_error( "Error, duplicate entry in (in)dependent variables." );
+    }
+}
+
 } // namespace aerodynamics
+
 } // namespace tudat
