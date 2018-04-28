@@ -162,7 +162,7 @@ public:
         // Read raw data from file
         readCoefficientsFile( fileName, independentVariables, coefficientBlock );
         
-        if( !( independentVariables.size( ) == 1 ) )
+        if ( !( independentVariables.size( ) == 1 ) )
         {
             throw std::runtime_error( "Error when reading 3-D multi-array, wrong number of independent variables found"
                                       " (expected 1 independent variable, got " +
@@ -216,7 +216,7 @@ public:
         // Read raw data from file
         readCoefficientsFile( fileName, independentVariables, coefficientBlock );
         
-        if( !( independentVariables.size( ) == 2 ) )
+        if ( !( independentVariables.size( ) == 2 ) )
         {
             throw std::runtime_error( "Error when reading 3-D multi-array, wrong number of independent variables found"
                                       " (expected 2 independent variables, got " +
@@ -271,7 +271,7 @@ public:
         // Read raw data from file
         readCoefficientsFile( fileName, independentVariables, coefficientBlock );
         
-        if( !( independentVariables.size( ) == 3 ) )
+        if ( !( independentVariables.size( ) == 3 ) )
         {
             throw std::runtime_error( "Error when reading 3-D multi-array, wrong number of independent variables found"
                                       " (expected 3 independent variables, got " +
@@ -329,9 +329,9 @@ public:
         // Read raw data from file
         readCoefficientsFile( fileName, independentVariables, coefficientBlock );
 
-        if( !( independentVariables.size( ) == 4 ) )
+        if ( !( independentVariables.size( ) == 4 ) )
         {
-            throw std::runtime_error( "Error when reading 3-D multi-array, wrong number of independent variables found"
+            throw std::runtime_error( "Error when reading 4-D multi-array, wrong number of independent variables found"
                                       " (expected 4 independent variables, got " +
                                       std::to_string( independentVariables.size( ) ) + ")" );
         }

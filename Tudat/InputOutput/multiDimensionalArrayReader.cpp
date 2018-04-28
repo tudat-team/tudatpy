@@ -153,10 +153,10 @@ boost::multi_array< double, 4 > parseRawFourDimensionalCoefficientsFromFile(
         }
         else if ( coefficientsBlock.cols( ) == ( independentVariableSize.at( 1 ) * independentVariableSize.at( 3 ) ) )
         {
-            int currentStartRow = 0;
             int currentStartColumn = 0;
             for ( int l = 0; l < independentVariableSize.at( 3 ); l++ )
             {
+                int currentStartRow = 0;
                 for ( int k = 0; k < independentVariableSize.at( 2 ); k++ )
                 {
                     for ( int i = 0; i < independentVariableSize.at( 0 ); i++ )
@@ -250,7 +250,7 @@ void readCoefficientsFile(
             else if ( isHeaderPassed )
             {
                 // Check line consistency
-                if ( vectorOfIndividualStrings.size( ) != static_cast< unsigned int >( coefficientBlock.cols( ) ) )
+                if ( ( vectorOfIndividualStrings.size( ) % static_cast< unsigned int >( coefficientBlock.cols( ) ) ) != 0 )
                 {
                     throw std::runtime_error(
                                 "Error on data line " + std::to_string( numberOfDataLinesParsed ) +
@@ -286,15 +286,56 @@ void readCoefficientsFile(
                 }
                 else
                 {
+                    // Get information on 4 dimensional file
+                    bool fourthDimensionAlongColumns = false;
+                    if ( independentVariables.size( ) > 3 )
+                    {
+                        // Get current position in file
+                        std::streampos currentPositionInFile = stream.tellg( );
+
+                        // Read and process next line
+                        std::getline( stream, line );
+                        while ( line.size( ) == 0 )
+                        {
+                            std::getline( stream, line );
+                        }
+                        boost::algorithm::trim( line );
+                        boost::algorithm::split( vectorOfIndividualStrings,
+                                                 line,
+                                                 boost::algorithm::is_any_of( "\t ;, " ),
+                                                 boost::algorithm::token_compress_on );
+
+                        // Detect way data was stored
+                        unsigned int numberOfColumnsInFile = vectorOfIndividualStrings.size( );
+                        if ( numberOfColumnsInFile == ( independentVariables.at( 1 ).size( ) * independentVariables.at( 3 ).size( ) ) )
+                        {
+                            fourthDimensionAlongColumns = true;
+                        }
+
+                        // Rewind to previous position
+                        stream.seekg( currentPositionInFile );
+                    }
+
                     // Define size of output matrix, and allocate memory
                     int numberOfRows = independentVariables.at( 0 ).size( );
                     int numberOfColumns = 1;
                     if ( independentVariables.size( ) > 1 )
                     {
-                        numberOfColumns = independentVariables.at( 1 ).size( );
-                        for ( unsigned int i = 2; i < independentVariables.size( ); i++ )
+                        if ( !fourthDimensionAlongColumns )
                         {
-                            numberOfRows *= independentVariables.at( i ).size( );
+                            numberOfColumns = independentVariables.at( 1 ).size( );
+                            for ( unsigned int i = 2; i < independentVariables.size( ); i++ )
+                            {
+                                numberOfRows *= independentVariables.at( i ).size( );
+                            }
+                        }
+                        else
+                        {
+                            numberOfColumns = independentVariables.at( 1 ).size( ) * independentVariables.at( 3 ).size( );
+                            for ( unsigned int i = 2; i < independentVariables.size( ); i++ )
+                            {
+                                numberOfRows *= ( i != 3 ) ? independentVariables.at( i ).size( ) : 1;
+                            }
                         }
                     }
                     coefficientBlock.setZero( numberOfRows, numberOfColumns );

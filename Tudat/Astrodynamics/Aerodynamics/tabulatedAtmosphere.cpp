@@ -77,8 +77,8 @@ void TabulatedAtmosphere::initialize( const std::map< int, std::string >& atmosp
     // Get order of dependent variables
     for ( unsigned int i = 0; i < numberOfDependentVariables; i++ )
     {
-            dependentVariablesDependency_.at( dependentVariables_.at( i ) ) = true;
-            dependentVariableIndices_.at( dependentVariables_.at( i ) ) = i;
+        dependentVariablesDependency_.at( dependentVariables_.at( i ) ) = true;
+        dependentVariableIndices_.at( dependentVariables_.at( i ) ) = i;
     }
 
     // Check that density, pressure and temperature are present
@@ -148,12 +148,12 @@ void TabulatedAtmosphere::initialize( const std::map< int, std::string >& atmosp
         if ( dependentVariablesDependency_.at( 3 ) )
         {
             interpolationForGasConstant_ = boost::make_shared< CubicSplineInterpolatorDouble >(
-                        independentVariablesData_.at( 0 ), dependentVariablesData.at( 3 ) );
+                        independentVariablesData_.at( 0 ), dependentVariablesData.at( dependentVariableIndices_.at( 3 ) ) );
         }
         if ( dependentVariablesDependency_.at( 4 ) )
         {
             interpolationForSpecificHeatRatio_ = boost::make_shared< CubicSplineInterpolatorDouble >(
-                        independentVariablesData_.at( 0 ), dependentVariablesData.at( 4 ) );
+                        independentVariablesData_.at( 0 ), dependentVariablesData.at( dependentVariableIndices_.at( 4 ) ) );
         }
         break;
     }
