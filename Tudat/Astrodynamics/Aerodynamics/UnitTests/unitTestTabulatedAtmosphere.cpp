@@ -165,6 +165,36 @@ BOOST_AUTO_TEST_CASE( testTabulatedAtmosphereDependentVariables )
     BOOST_CHECK_CLOSE_FRACTION( 288.15, tabulatedAtmosphere.getTemperature( altitude ), tolerance );
 }
 
+//! Check if the atmosphere is calculated correctly when all the possible dependent variables are used and shuffled
+// Values from Mars Climate Database Web Interface (http://www-mars.lmd.jussieu.fr/mcd_python/), avaraged over time, latitude and longitude.
+BOOST_AUTO_TEST_CASE( testTabulatedAtmosphereAllDependentVariables )
+{
+    // Create vector of dependent and independent variables
+    std::vector< aerodynamics::AtmosphereDependentVariables > dependentVariables;
+    dependentVariables.push_back( aerodynamics::pressure_dependent_atmosphere );
+    dependentVariables.push_back( aerodynamics::specific_heat_ratio_dependent_atmosphere );
+    dependentVariables.push_back( aerodynamics::gas_constant_dependent_atmosphere );
+    dependentVariables.push_back( aerodynamics::temperature_dependent_atmosphere );
+    dependentVariables.push_back( aerodynamics::density_dependent_atmosphere );
+    std::vector< aerodynamics::AtmosphereIndependentVariables > independentVariables = { aerodynamics::latitude_dependent_atmosphere };
+
+    // Create a tabulated atmosphere object.
+    std::map< int, std::string > tabulatedAtmosphereFiles = { { 0, input_output::getAtmosphereTablesPath( ) +
+                                                                "MCDMeanAtmosphere.dat" } };
+    aerodynamics::TabulatedAtmosphere tabulatedAtmosphere( tabulatedAtmosphereFiles, dependentVariables, independentVariables );
+
+    // Declare tolerance used for Boost tests.
+    const double tolerance = std::numeric_limits< double >::epsilon( );
+
+    const double latitude = 5e4;
+    BOOST_CHECK_CLOSE_FRACTION( 1.4331262554e+00, tabulatedAtmosphere.getDensity( 0.0, 0.0, latitude ), 1.0e-4 );
+    BOOST_CHECK_CLOSE_FRACTION( 7.6178752157e-05, tabulatedAtmosphere.getPressure( 0.0, 0.0, latitude ), tolerance );
+    BOOST_CHECK_CLOSE_FRACTION( 2.0951356051e+02, tabulatedAtmosphere.getTemperature( 0.0, 0.0, latitude ), tolerance );
+    BOOST_CHECK_CLOSE_FRACTION( 1.6104994141e+02, tabulatedAtmosphere.getSpecificGasConstant( 0.0, 0.0, latitude ), tolerance );
+    BOOST_CHECK_CLOSE_FRACTION( 2.3477457225e+00, tabulatedAtmosphere.getRatioOfSpecificHeats( 0.0, 0.0, latitude ), tolerance );
+    BOOST_CHECK_CLOSE_FRACTION( 281.456889155598, tabulatedAtmosphere.getSpeedOfSound( 0.0, 0.0, latitude ), 10.0 * tolerance );
+}
+
 //! Check if the atmosphere is calculated correctly when a more than one independent variable is used, and when
 //! dependent variables are shuffled.
 // Values from Mars Climate Database Web Interface (http://www-mars.lmd.jussieu.fr/mcd_python/), avaraged over time.
@@ -206,17 +236,20 @@ BOOST_AUTO_TEST_CASE( testMultiDimensionalTabulatedAtmosphereWithInterpolationAn
 {
     // Create vector of dependent and independent variables
     std::vector< aerodynamics::AtmosphereDependentVariables > dependentVariables = {
-        aerodynamics::temperature_dependent_atmosphere, aerodynamics::density_dependent_atmosphere,
-        aerodynamics::pressure_dependent_atmosphere };
+        aerodynamics::specific_heat_ratio_dependent_atmosphere, aerodynamics::temperature_dependent_atmosphere,
+        aerodynamics::density_dependent_atmosphere, aerodynamics::pressure_dependent_atmosphere,
+        aerodynamics::gas_constant_dependent_atmosphere };
     std::vector< aerodynamics::AtmosphereIndependentVariables > independentVariables = {
         aerodynamics::longitude_dependent_atmosphere, aerodynamics::latitude_dependent_atmosphere,
         aerodynamics::altitude_dependent_atmosphere };
 
     // Create a tabulated atmosphere object.
     std::map< int, std::string > tabulatedAtmosphereFiles;
-    tabulatedAtmosphereFiles[ 0 ] = input_output::getAtmosphereTablesPath( ) + "MCDMeanAtmosphereTimeAverage/density.dat";
-    tabulatedAtmosphereFiles[ 1 ] = input_output::getAtmosphereTablesPath( ) + "MCDMeanAtmosphereTimeAverage/pressure.dat";
-    tabulatedAtmosphereFiles[ 2 ] = input_output::getAtmosphereTablesPath( ) + "MCDMeanAtmosphereTimeAverage/temperature.dat";
+    tabulatedAtmosphereFiles[ 0 ] = input_output::getAtmosphereTablesPath( ) + "MCDMeanAtmosphereTimeAverage/specificHeatRatio.dat";
+    tabulatedAtmosphereFiles[ 1 ] = input_output::getAtmosphereTablesPath( ) + "MCDMeanAtmosphereTimeAverage/temperature.dat";
+    tabulatedAtmosphereFiles[ 2 ] = input_output::getAtmosphereTablesPath( ) + "MCDMeanAtmosphereTimeAverage/density.dat";
+    tabulatedAtmosphereFiles[ 3 ] = input_output::getAtmosphereTablesPath( ) + "MCDMeanAtmosphereTimeAverage/pressure.dat";
+    tabulatedAtmosphereFiles[ 4 ] = input_output::getAtmosphereTablesPath( ) + "MCDMeanAtmosphereTimeAverage/gasConstant.dat";
     aerodynamics::TabulatedAtmosphere tabulatedAtmosphere( tabulatedAtmosphereFiles, dependentVariables, independentVariables );
 
     // Declare tolerance used for Boost tests.
@@ -228,9 +261,12 @@ BOOST_AUTO_TEST_CASE( testMultiDimensionalTabulatedAtmosphereWithInterpolationAn
     const double latitude = unit_conversions::convertDegreesToRadians( -7.851064e+01 );
 
     // Check that values matches with MATLAB interpolation (note that dependent variables are shuffled)
-    BOOST_CHECK_CLOSE_FRACTION( 2.6315275e-12, tabulatedAtmosphere.getDensity( altitude, longitude, latitude ), tolerance );
-    BOOST_CHECK_CLOSE_FRACTION( 204.24225, tabulatedAtmosphere.getPressure( altitude, longitude, latitude ), tolerance );
-    BOOST_CHECK_CLOSE_FRACTION( 1.486543e-18, tabulatedAtmosphere.getTemperature( altitude, longitude, latitude ), tolerance );
+    BOOST_CHECK_CLOSE_FRACTION( 1.48675412461296e-18, tabulatedAtmosphere.getDensity( altitude, longitude, latitude ), tolerance );
+    BOOST_CHECK_CLOSE_FRACTION( 2.63189929547133e-12, tabulatedAtmosphere.getPressure( altitude, longitude, latitude ), tolerance );
+    BOOST_CHECK_CLOSE_FRACTION( 204.242247282833, tabulatedAtmosphere.getTemperature( altitude, longitude, latitude ), tolerance );
+    BOOST_CHECK_CLOSE_FRACTION( 296.999439044764, tabulatedAtmosphere.getSpecificGasConstant( altitude, longitude, latitude ), tolerance );
+    BOOST_CHECK_CLOSE_FRACTION( 1.29263427731017, tabulatedAtmosphere.getRatioOfSpecificHeats( altitude, longitude, latitude ), tolerance );
+    BOOST_CHECK_CLOSE_FRACTION( 280.019605075373, tabulatedAtmosphere.getSpeedOfSound( altitude, longitude, latitude ), tolerance );
 }
 
 BOOST_AUTO_TEST_SUITE_END( )
