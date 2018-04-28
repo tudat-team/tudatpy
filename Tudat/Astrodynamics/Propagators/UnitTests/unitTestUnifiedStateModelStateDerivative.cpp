@@ -235,12 +235,12 @@ BOOST_AUTO_TEST_CASE( testUnifiedStateModelPopagatorForPointMassCentralBodies )
 
             for( int j= 0; j< 3; j++ )
             {
-                BOOST_CHECK_SMALL( ( usmIterator->second - cowellIterator->second ).segment( j, 1 )( 0 ), 0.02 ); // 0.01
+                BOOST_CHECK_SMALL( ( usmIterator->second - cowellIterator->second ).segment( j, 1 )( 0 ), 0.02 );
             }
 
             for( int j = 6; j < 9; j++ )
             {
-                BOOST_CHECK_SMALL( ( usmIterator->second - cowellIterator->second ).segment( j, 1 )( 0 ), 0.02 ); // 0.01
+                BOOST_CHECK_SMALL( ( usmIterator->second - cowellIterator->second ).segment( j, 1 )( 0 ), 0.02 );
             }
 
             for( int j = 12; j < 15; j++ )
