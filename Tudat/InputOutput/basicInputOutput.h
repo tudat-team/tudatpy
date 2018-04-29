@@ -113,6 +113,16 @@ static inline std::string getSpaceWeatherDataPath( )
     return getTudatRootPath( ) + "External/SpaceWeatherData/";
 }
 
+//! Get SPARTA data files path.
+/*!
+ * Returns path in which SPARTA data files are located.
+ * \return Path containing SPARTA data files.
+ */
+static inline std::string getSPARTADataPath( )
+{
+    return getTudatRootPath( ) + "External/SPARTA/";
+}
+
 //! Print floating-point number in formatted scientific notation.
 /*!
  * Prints floating-point number in formatted scientific notation. The user can specify the

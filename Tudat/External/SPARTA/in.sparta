@@ -1,0 +1,53 @@
+
+seed 12345
+dimension 3
+
+global gridcut 0.1 comm/sort yes
+
+boundary o o o
+
+create_box -5.5 5.5 -9.0 9.0 -5.0 8.0
+create_grid 44 72 52
+
+balance_grid rcb cell
+
+global nrho 1.246E+12 fnum 1.1E+09 # number density and real-to-simulated-particles ratio
+
+species mars.species H H2 # gas names
+mixture H frac 0.64
+mixture H2 frac 0.36
+mixture atm H H2 vstream -3317.8 0.0 0.0 # gas names and velocity
+mixture atm H H2 temp 150.0 # gas names
+
+variable alpha index -75 -60 -45 -30  30  45  60  75
+
+read_surf data.mro rotate ${alpha} 0 -1 0
+group mro surf type 1
+
+surf_collide 1 diffuse 300.0 1.0
+surf_modify all collide 1
+collide vss atm mars.vss
+
+fix in emit/face atm xhi
+
+timestep 0.000310
+
+compute 1 surf mro atm px py pz shx shy shz
+fix 1 ave/surf mro 10 20 200 c_1[*]
+dump 1 surf mro 200 nominal/data/500/${alpha}.coeff.* id f_1[*]
+
+compute 2 surf mro atm press
+fix save ave/surf mro 3 50 150 c_2[*] ave running
+region slab block INF INF -0.5 0.5 INF INF
+dump 2 image all 150 nominal/figures/500/${alpha}.image.* type type pdiam 0.03 view 70 50 size 512 512 axes yes 0.9 0.02 gridz -0.8 proc gline yes 0.005 surf f_save 0.0
+dump_modify 2 pad 4 region slab
+dump_modify 2 cmap surf min max cf 0.0 2 min blue max red
+
+stats 100
+stats_style step cpu np nattempt ncoll nscoll nscheck
+
+run 1000
+
+clear
+next alpha
+jump in.mro

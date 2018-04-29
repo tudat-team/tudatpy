@@ -1,0 +1,66 @@
+# 3d flow around vehicle
+
+seed 12345
+dimension 3
+
+global gridcut 0.1 comm/sort yes
+
+# CREATE BOUNDARY THAT LETS PARTICLES FLOW OUT OF BOX
+boundary o o o
+
+# CREATE BOX WITH SPECIFIED DIMENSIONS
+create_box %.1f %.1f %.1f %.1f %.1f %.1f
+create_grid %d %d %d
+
+balance_grid rcb cell
+
+# SET DENSITY AND PARTICLES TO SIMULATE
+global nrho %.3E fnum %.1E # number density and real-to-simulated-particles ratio
+
+# SPECIFY GAS MIXTURE AND VELOCITY
+species atmosphere.species %s # gas names
+%s
+mixture atm %s vstream %.1f %.1f %.1f # gas names and velocity
+mixture atm %s temp %.1f # gas names
+
+# START LOOP OVER ANGLE OF ATTACK
+variable alpha index %s
+
+# READ VEHICLE DATA FROM FILE
+read_surf data.shape rotate ${alpha} 0 -1 0
+group vehicle surf type 1
+
+# CREATE COLLISION MODEL BASED ON VSS
+surf_collide 1 diffuse %.1f %.3f
+surf_modify all collide 1
+collide vss atm atmosphere.vss
+
+fix in emit/face atm xhi
+
+# SET SIMULATION TIME STEP
+timestep %f
+
+# COMPUTE NORMAL PRESSURE AND SHEAR STRESS
+compute 1 surf vehicle atm px py pz shx shy shz
+fix 1 ave/surf vehicle 10 20 200 c_1[*]
+dump 1 surf vehicle 200 %s/${alpha}.coeff.* id f_1[*]
+
+# SAVE FIGURES
+# compute 2 surf vehicle atm press
+# fix save ave/surf vehicle 3 50 150 c_2[*] ave running
+# region slab block INF INF -0.5 0.5 INF INF
+# dump 2 image all 150 %s/${alpha}.image.* type type pdiam 0.03 view 70 50 size 512 512 axes yes 0.9 0.02 gridz -0.8 proc gline yes 0.005 surf f_save 0.0
+# dump_modify 2 pad 4 region slab
+# dump_modify 2 cmap surf min max cf 0.0 2 min blue max red
+
+# GENERATE STATISTICS ON PROGRESS
+stats 100
+stats_style step cpu np nattempt ncoll nscoll nscheck
+
+# RUN SIMULATION
+run %d
+
+# CLOSE ANGLE OF ATTACK LOOP
+clear
+next alpha
+jump in.sparta

@@ -1,0 +1,38 @@
+# Species data
+
+# ID
+# Molwt: molecular weight (amu)
+# Molmass: molecular mass (kg)
+# Rotational dof: rotational degrees of freedom
+# RotRel: inverse rotational relaxation number
+# Vibrational dof: vibrational degrees of freedom
+# VibRel: inverse vibrational relaxation number
+# VibTemp: vibrational temperature (K)
+# species wt: species weight
+# charge: multiple of electron charge
+
+Ar	39.95	6.63E-26	0	0.0	0	0.0		0.0	1.0	0.0
+CO	28.01	4.65E-26	2	0	0	0		3103.0	1.0	0.0
+CO2	44.01	7.31E-26	3	0.4	0	0		0	1.0	0.0
+H	1.01	1.68E-27	0	0.0	0	0.0		0.0	1.0	0.0
+H2	2.02	3.35E-27	2	0	1	0		6159.0	1.0	0.0
+H2O	18.02	2.99E-26	3	0	0	0		0	1.0	0.0
+He	4.00	6.64E-27	0	0.0	0	0.0		0.0	1.0	0.0
+N	14.01	2.33E-26	0	0.0	0	0.0		0.0	1.0	0.0
+N2	28.02	4.65E-26	2	0.2	1	1.90114E-5	3371.0	1.0	0.0
+O	16.00	2.66E-26	0	0.0	0	0.0		0.0	1.0	0.0
+O2	32.00	5.31E-26	2	0.2	2	5.58659E-5	2256.0	1.0	0.0
+O3	48.00	7.97E-26	3	0	0	0		0	1.0	0.0
+Ar+	39.95	6.63E-26	0	0.0	0	0.0		0.0	1.0	1.0
+CO+	28.01	4.65E-26	2	0	0	0		3103.0	1.0	1.0
+CO2+	44.01	7.31E-26	3	0.4	0	0		0	1.0	1.0
+H+	1.01	1.68E-27	0	0.0	0	0.0		0.0	1.0	1.0
+H2+	2.02	3.35E-27	2	0	0	0		6159.0	1.0	1.0
+H2O+	18.02	2.99E-26	3	0	0	0		0	1.0	1.0
+He+	4.00	6.64E-27	0	0.0	0	0.0		0.0	1.0	1.0
+N+	14.01	2.33E-26	0	0.0	0	0.0		0.0	1.0	1.0
+N2+	28.02	4.65E-26	2	0.2	1	1.90114E-5	3371.0	1.0	1.0
+O+	16.00	2.66E-26	0	0.0	0	0.0		0.0	1.0	1.0
+O2+	32.00	5.31E-26	2	0.2	2	5.58659E-5	2256.0	1.0	1.0
+O3+	48.00	7.97E-26	3	0	0	0		0	1.0	1.0
+e	0.001	9.11E-31	0	0.0	0	0.0		0.0	1.0	-1.0

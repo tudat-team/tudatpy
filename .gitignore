@@ -1,4 +1,10 @@
 #
+# Private
+#
+# Do not track SPARTA results
+/Tudat/External/SPARTA/results/
+
+#
 # CMake 
 #
 CMakeCache.txt
