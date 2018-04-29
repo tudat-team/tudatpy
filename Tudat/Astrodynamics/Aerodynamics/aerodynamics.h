@@ -484,6 +484,27 @@ double computeAdiabaticWallTemperature(
         const double airTemperature, const double machNumber, const double ratioSpecificHeats = 1.4,
         const double recoveryFactor = 0.845 );
 
+//! Function to compute the aerodynamic coefficients from pressure and shear stress acting on element.
+/*!
+ * Function to compute the aerodynamic coefficients from pressure and shear stress acting on element.
+ * \param pressureForceVector Pressure force vector acting on surface element.
+ * \param shearStressVector Shear stress vector acting on surface element.
+ * \param airDensity Freestream air density.
+ * \param airSpeed Airspeed of the vehicle.
+ * \param airPressure Freestream air pressure.
+ * \param Normal vector to surface element.
+ * \param Surface area of element.
+ * \param Reference aerodynamic area of vehicle.
+ */
+std::vector< Eigen::Vector3d > computeAerodynamicCoefficientsFromPressureShear( const Eigen::Vector3d pressureForceVector,
+                                                                                const Eigen::Vector3d shearStressVector,
+                                                                                const double airDensity,
+                                                                                const double airSpeed,
+                                                                                const double airPressure,
+                                                                                const Eigen::Vector3d surfaceNormal,
+                                                                                const double elementSurfaceArea,
+                                                                                const double referenceAerodynamicArea );
+
 } // namespace aerodynamics
 
 } // namespace tudat
