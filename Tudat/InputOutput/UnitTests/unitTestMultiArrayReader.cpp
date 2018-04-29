@@ -69,8 +69,6 @@ BOOST_AUTO_TEST_CASE( testMultiArrayReader )
                 BOOST_CHECK_EQUAL( independentVariables.at( 0 ).size( ), 11 );
                 BOOST_CHECK_EQUAL( independentVariables.at( 1 ).size( ), 9 );
                 BOOST_CHECK_EQUAL( independentVariables.at( 2 ).size( ), 5 );
-
-
             }
 
             // Test multi-array size
@@ -116,8 +114,6 @@ BOOST_AUTO_TEST_CASE( testMultiArrayReader )
                 BOOST_CHECK_EQUAL( independentVariables.size( ), 2 );
                 BOOST_CHECK_EQUAL( independentVariables.at( 0 ).size( ), 17 );
                 BOOST_CHECK_EQUAL( independentVariables.at( 1 ).size( ), 5 );
-
-
             }
 
             // Test multi-array size
@@ -179,7 +175,6 @@ BOOST_AUTO_TEST_CASE( testMultiArrayReader )
                     BOOST_CHECK_EQUAL( independentVariables.at( 1 ).size( ), 9 );
                     BOOST_CHECK_EQUAL( independentVariables.at( 2 ).size( ), 5 );
                     BOOST_CHECK_EQUAL( independentVariables.at( 3 ).size( ), 2 );
-
                 }
 
                 // Test multi-array size

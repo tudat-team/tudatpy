@@ -250,7 +250,7 @@ void readCoefficientsFile(
             else if ( isHeaderPassed )
             {
                 // Check line consistency
-                if ( ( vectorOfIndividualStrings.size( ) % static_cast< unsigned int >( coefficientBlock.cols( ) ) ) != 0 )
+                if ( vectorOfIndividualStrings.size( ) != static_cast< unsigned int >( coefficientBlock.cols( ) ) )
                 {
                     throw std::runtime_error(
                                 "Error on data line " + std::to_string( numberOfDataLinesParsed ) +
@@ -288,7 +288,7 @@ void readCoefficientsFile(
                 {
                     // Get information on 4 dimensional file
                     bool fourthDimensionAlongColumns = false;
-                    if ( independentVariables.size( ) > 3 )
+                    if ( independentVariables.size( ) == 4 )
                     {
                         // Get current position in file
                         std::streampos currentPositionInFile = stream.tellg( );

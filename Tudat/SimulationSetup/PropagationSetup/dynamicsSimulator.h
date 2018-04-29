@@ -445,7 +445,7 @@ public:
         cumulativeNumberOfFunctionEvaluations_ = dynamicsStateDerivative_->getCumulativeNumberOfFunctionEvaluations( );
 
         // Print number of total function evaluations
-        std::cout << "Function Evaluations: " << numberOfFunctionEvaluations << std::endl;
+//        std::cout << "Function Evaluations: " << numberOfFunctionEvaluations << std::endl;
 
         if( this->setIntegratedResult_ )
         {
