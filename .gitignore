@@ -1,8 +1,10 @@
 #
 # Private
 #
-# Do not track SPARTA results
+# Do not track SPARTA results and data
 /Tudat/External/SPARTA/results/
+/Tudat/External/SPARTA/in.sparta
+/Tudat/External/SPARTA/log.sparta
 
 #
 # CMake 

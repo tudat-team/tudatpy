@@ -397,6 +397,6 @@ int getNumberOfIndependentVariablesInCoefficientFile( const std::string& fileNam
     return numberOfIndependentVariables;
 }
 
-}
+} // namespace input_output
 
-}
+} // namespace tudat

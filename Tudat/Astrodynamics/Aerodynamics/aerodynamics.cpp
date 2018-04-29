@@ -569,14 +569,14 @@ double computeAdiabaticWallTemperature(
 }
 
 //! Compute the aerodynamic coefficients from pressure and shear stress acting on element
-std::vector< Eigen::Vector3d > computeAerodynamicCoefficientsFromPressureShear( const Eigen::Vector3d pressureForceVector,
-                                                                                const Eigen::Vector3d shearStressVector,
-                                                                                const double airDensity,
-                                                                                const double airSpeed,
-                                                                                const double airPressure,
-                                                                                const Eigen::Vector3d surfaceNormal,
-                                                                                const double elementSurfaceArea,
-                                                                                const double referenceAerodynamicArea )
+Eigen::Vector3d computeAerodynamicCoefficientsFromPressureShear( const Eigen::Vector3d pressureForceVector,
+                                                                 const Eigen::Vector3d shearStressVector,
+                                                                 const double airDensity,
+                                                                 const double airSpeed,
+                                                                 const double airPressure,
+                                                                 const Eigen::Vector3d surfaceNormal,
+                                                                 const double elementSurfaceArea,
+                                                                 const double referenceAerodynamicArea )
 {
     // Compute dynamic pressure
     double dynamicPressure = 0.5 * airDensity * airSpeed * airSpeed;

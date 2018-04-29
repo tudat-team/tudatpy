@@ -124,6 +124,6 @@ readTabulatedAtmosphere( const std::map< int, std::string >& fileNames )
     return std::make_pair( atmosphereArrays, independentVariables );
 }
 
-}
+} // namespace input_output
 
-}
+} // namespace tudat

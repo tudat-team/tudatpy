@@ -210,6 +210,6 @@ readAerodynamicCoefficients( const std::map< int, std::string >& fileNames )
                     coefficientArrays.at( 0 ), coefficientArrays.at( 1 ), coefficientArrays.at( 2 ) ), independentVariables );
 }
 
-}
+} // namespace input_output
 
-}
+} // namespace tudat
