@@ -297,10 +297,10 @@ Vector6d RarefiedFlowAnalysis::determinePartCoefficients(
         const int partNumber, const boost::array< int, 3 > independentVariableIndices )
 {
     // Declare and determine angles of attack and sideslip for analysis.
-    double angleOfAttack =  dataPointsOfIndependentVariables_[ 1 ]
+    double angleOfAttack = dataPointsOfIndependentVariables_[ 1 ]
             [ independentVariableIndices[ 1 ] ];
 
-    double angleOfSideslip =  dataPointsOfIndependentVariables_[ 2 ]
+    double angleOfSideslip = dataPointsOfIndependentVariables_[ 2 ]
             [ independentVariableIndices[ 2 ] ];
 
     // Declare partCoefficient vector.
