@@ -43,7 +43,9 @@ public:
             const std::vector< IndependentVariableType >& independentValues,
             const std::vector< DependentVariableType >& dependentValues,
             const std::vector< DependentVariableType >& derivativeValues,
-            AvailableLookupScheme selectedLookupScheme = huntingAlgorithm )
+            const AvailableLookupScheme selectedLookupScheme = huntingAlgorithm,
+            const BoundaryInterpolationType boundaryHandling = extrapolate_at_boundary_with_warning ):
+        OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >( boundaryHandling )
     {
         // Check consistency of input data.
         if( dependentValues.size( ) != independentValues.size( ) )
@@ -78,7 +80,9 @@ public:
     HermiteCubicSplineInterpolator(
             const std::map< IndependentVariableType, DependentVariableType >& dataMap,
             const std::vector< DependentVariableType >& derivativeValues,
-            const AvailableLookupScheme selectedLookupScheme = huntingAlgorithm )
+            const AvailableLookupScheme selectedLookupScheme = huntingAlgorithm,
+            const BoundaryInterpolationType boundaryHandling = extrapolate_at_boundary_with_warning ):
+        OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >( boundaryHandling )
     {
 
         if( dataMap.size( ) != derivativeValues.size( ) )
@@ -126,6 +130,15 @@ public:
      */
     DependentVariableType interpolate( const IndependentVariableType targetIndependentVariableValue )
     {
+        DependentVariableType targetValue;
+        bool useBoundaryValue = false;
+        this->checkBoundaryCase( targetValue, useBoundaryValue, targetIndependentVariableValue );
+
+        if( useBoundaryValue )
+        {
+            return targetValue;
+        }
+
         // Determine the lower entry in the table corresponding to the target independent variable value.
         int lowerEntry_ = lookUpScheme_->findNearestLowerNeighbour(
                     targetIndependentVariableValue );
@@ -133,7 +146,7 @@ public:
         // Compute Hermite spline
         IndependentVariableType factor = ( targetIndependentVariableValue - independentValues_[ lowerEntry_ ] )
                 /( independentValues_[ lowerEntry_ + 1 ] - independentValues_[ lowerEntry_ ] );
-        DependentVariableType targetValue =
+        targetValue =
                 coefficients_[ 0 ][ lowerEntry_ ] * factor * factor * factor
                 + coefficients_[ 1 ][ lowerEntry_ ] * factor * factor
                 + coefficients_[ 2 ][ lowerEntry_ ] * factor
