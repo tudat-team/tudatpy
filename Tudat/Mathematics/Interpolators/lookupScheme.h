@@ -134,7 +134,7 @@ public:
         {
             // If requested value is in same interval, return same value as previous time.
             if ( basic_mathematics::isIndependentVariableInInterval< IndependentVariableType >
-                 ( previousNearestLowerIndex_,  valueToLookup, independentVariableValues_ ) )
+                 ( previousNearestLowerIndex_, valueToLookup, independentVariableValues_ ) )
             {
                 newNearestLowerIndex = previousNearestLowerIndex_;
             }

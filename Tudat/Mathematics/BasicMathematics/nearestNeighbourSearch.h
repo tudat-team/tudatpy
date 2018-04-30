@@ -136,8 +136,8 @@ int computeNearestLeftNeighborUsingBinarySearch(
  */
 template< typename IndependentVariableType >
 bool isIndependentVariableInInterval( const int lowerIndex,
-                                  const IndependentVariableType independentVariableValue,
-                                  const std::vector< IndependentVariableType >& independentValues )
+                                      const IndependentVariableType independentVariableValue,
+                                      const std::vector< IndependentVariableType >& independentValues )
 {
     bool isInInterval = false;
 

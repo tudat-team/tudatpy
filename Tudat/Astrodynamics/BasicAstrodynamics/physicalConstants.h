@@ -108,12 +108,18 @@ const static double ASTRONOMICAL_UNIT = 1.49597870691e11;
 //! The specific gas constant of air in J per kg Kelvin (J/(kg K)) (Anderson, 2006).
 const static double SPECIFIC_GAS_CONSTANT_AIR = 2.87e2;
 
-
 //! Molar gas constant.
 /*!
  * The molar gas constant in J per mole Kelvin (J/(mol K)) (NIST: http://physics.nist.gov/cgi-bin/cuu/Value?r, 2016).
+ * Also known as universal gas constant.
  */
 const static double MOLAR_GAS_CONSTANT = 8.3144598;
+
+//! Avogadro's number.
+/*!
+ * Avogadro's number in unity per mole (1/mol) (NIST: https://physics.nist.gov/cgi-bin/cuu/Value?na, 2018).
+ */
+const static double AVOGADRO_CONSTANT = 6.022140857e23;
 
 //! Planck constant.
 /*!
