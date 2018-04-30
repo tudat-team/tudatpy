@@ -51,7 +51,9 @@ public:
      */
     PiecewiseConstantInterpolator( const std::vector< IndependentVariableType > independentVariables,
                                    const std::vector< DependentVariableType > dependentVariables,
-                                   const AvailableLookupScheme selectedLookupScheme = huntingAlgorithm)
+                                   const AvailableLookupScheme selectedLookupScheme = huntingAlgorithm,
+                                   const BoundaryInterpolationType boundaryHandling = extrapolate_at_boundary_with_warning ):
+        OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >( boundaryHandling )
     {
         independentValues_ = independentVariables;
         dependentValues_ = dependentVariables;
@@ -77,7 +79,9 @@ public:
      *          interpolation.
      */
     PiecewiseConstantInterpolator( const std::map< IndependentVariableType, DependentVariableType > dataMap,
-                                   const AvailableLookupScheme selectedLookupScheme = huntingAlgorithm)
+                                   const AvailableLookupScheme selectedLookupScheme = huntingAlgorithm,
+                                   const BoundaryInterpolationType boundaryHandling = extrapolate_at_boundary_with_warning ):
+        OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >( boundaryHandling )
     {
         // Verify that the initialization variables are not empty.
         if ( dataMap.size( ) == 0 )
@@ -113,6 +117,16 @@ public:
      */
     DependentVariableType interpolate( const IndependentVariableType targetIndependentVariableValue )
     {
+        DependentVariableType interpolatedValue;
+
+        bool useBoundaryValue = false;
+        this->checkBoundaryCase( interpolatedValue, useBoundaryValue, targetIndependentVariableValue );
+
+        if( useBoundaryValue )
+        {
+            return interpolatedValue;
+        }
+
         // Determine the lower entry in the table corresponding to the target independent variable value.
         int lowerEntry;
         if( targetIndependentVariableValue <= independentValues_.at( 0 ) )
