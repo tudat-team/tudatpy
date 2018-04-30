@@ -501,7 +501,7 @@ Eigen::Vector3d computeAerodynamicCoefficientsFromPressureShear( const Eigen::Ve
                                                                  const double airDensity,
                                                                  const double airSpeed,
                                                                  const double airPressure,
-                                                                 const Eigen::Vector3d surfaceNormal,
+                                                                 const Eigen::Vector3d elementSurfaceNormal,
                                                                  const double elementSurfaceArea,
                                                                  const double referenceAerodynamicArea );
 

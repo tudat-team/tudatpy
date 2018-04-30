@@ -10,7 +10,7 @@ boundary o o o
 
 # CREATE BOX WITH SPECIFIED DIMENSIONS
 create_box %.1f %.1f %.1f %.1f %.1f %.1f
-create_grid %d %d %d
+create_grid %.0f %.0f %.0f
 
 balance_grid rcb cell
 
@@ -19,7 +19,6 @@ global nrho %.3E fnum %.1E # number density and real-to-simulated-particles rati
 
 # SPECIFY GAS MIXTURE AND VELOCITY
 species atmosphere.species %s # gas names
-%s
 mixture atm %s vstream %.1f %.1f %.1f # gas names and velocity
 mixture atm %s temp %.1f # gas names
 
@@ -58,7 +57,7 @@ stats 100
 stats_style step cpu np nattempt ncoll nscoll nscheck
 
 # RUN SIMULATION
-run %d
+run 1000
 
 # CLOSE ANGLE OF ATTACK LOOP
 clear
