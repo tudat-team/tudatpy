@@ -75,15 +75,17 @@ public:
      *  \param selectedLookupScheme Identifier of lookupscheme from enum. This algorithm is used
      *  to find the nearest lower data point in the independent variables when requesting
      *  interpolation.
-     *  \param boundaryHandling Boundary handling does something.
+     *  \param lagrangeBoundaryHandling Boundary handling does something.
      */
-    LagrangeInterpolator( const std::vector< IndependentVariableType >& independentVariables,
-                          const std::vector< DependentVariableType >& dependentVariables,
-                          const int numberOfStages,
-                          const AvailableLookupScheme selectedLookupScheme = huntingAlgorithm,
-                          const LagrangeInterpolatorBoundaryHandling boundaryHandling =
-            lagrange_cubic_spline_boundary_interpolation ):
-        numberOfStages_( numberOfStages ), boundaryHandling_( boundaryHandling )
+    LagrangeInterpolator(
+            const std::vector< IndependentVariableType >& independentVariables,
+            const std::vector< DependentVariableType >& dependentVariables,
+            const int numberOfStages,
+            const AvailableLookupScheme selectedLookupScheme = huntingAlgorithm,
+            const LagrangeInterpolatorBoundaryHandling lagrangeBoundaryHandling = lagrange_cubic_spline_boundary_interpolation,
+            const BoundaryInterpolationType boundaryHandling = extrapolate_at_boundary_with_warning ):
+        OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >( boundaryHandling ),
+        numberOfStages_( numberOfStages ), lagrangeBoundaryHandling_( lagrangeBoundaryHandling )
     {
         if( numberOfStages_ % 2 != 0 )
         {
@@ -106,14 +108,14 @@ public:
         if ( numberOfIndependentValues_ == 0 || dependentValues_.size( ) == 0 )
         {
             throw std::runtime_error(
-                "Error: Vectors used in the Lagrange interpolator initialization are empty." );
+                        "Error: Vectors used in the Lagrange interpolator initialization are empty." );
         }
 
         // Check consistency of input data.
         if( static_cast< int >( dependentValues_.size( ) ) != numberOfIndependentValues_ )
         {
             throw std::runtime_error(
-                "Error: indep. and dep. variables incompatible in Lagrange interpolator." );
+                        "Error: indep. and dep. variables incompatible in Lagrange interpolator." );
         }
 
         // Define zero entry for dependent variable.
@@ -121,7 +123,7 @@ public:
         if( zeroEntry_ != zeroEntry_ )
         {
             throw std::runtime_error(
-                "Error: Lagrange interpolator cannot identify zero entry." );
+                        "Error: Lagrange interpolator cannot identify zero entry." );
         }
 
         // Create lookup scheme from independent variable values.
@@ -148,15 +150,16 @@ public:
      *  \param selectedLookupScheme Identifier of lookupscheme from enum. This algorithm is used
      *  to find the nearest lower data point in the independent variables when requesting
      *  interpolation.
-     *  \param boundaryHandling Boundary Handling does something.
+     *  \param lagrangeBoundaryHandling Boundary Handling does something.
      */
     LagrangeInterpolator(
             const std::map< IndependentVariableType, DependentVariableType >& dataMap,
             const int numberOfStages,
             const AvailableLookupScheme selectedLookupScheme = huntingAlgorithm,
-            const LagrangeInterpolatorBoundaryHandling boundaryHandling =
-            lagrange_cubic_spline_boundary_interpolation ):
-        numberOfStages_( numberOfStages ), boundaryHandling_( boundaryHandling )
+            const LagrangeInterpolatorBoundaryHandling lagrangeBoundaryHandling = lagrange_cubic_spline_boundary_interpolation,
+            const BoundaryInterpolationType boundaryHandling = extrapolate_at_boundary_with_warning ):
+        OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >( boundaryHandling ),
+        numberOfStages_( numberOfStages ), lagrangeBoundaryHandling_( lagrangeBoundaryHandling )
     {
         if( numberOfStages_ % 2 != 0 )
         {
@@ -223,18 +226,18 @@ public:
     {
         using std::pow;
 
-        if( targetIndependentVariableValue < independentValues_.at( 0 ) ||
-                targetIndependentVariableValue > independentValues_.at( independentValues_.size( ) -1 ) )
-        {
-            std::cout << "Warning in Lagrange interpolation, outside range " <<
-                       independentValues_.at( 0 ) << " " << independentValues_.at( independentValues_.size( ) -1 ) << " " <<
-                       targetIndependentVariableValue << std::endl;
-        }
-        // Determine the lower entry in the table corresponding to the target independent variable
-        // value.
         DependentVariableType interpolatedValue = zeroEntry_;
 
-        // Find interpolation interval
+        bool useBoundaryValue = false;
+        this->checkBoundaryCase( interpolatedValue, useBoundaryValue, targetIndependentVariableValue );
+
+        if( useBoundaryValue )
+        {
+            return interpolatedValue;
+        }
+
+        // Determine the lower entry in the table corresponding to the target independent variable
+        // value.
         int lowerEntry = lookUpScheme_->findNearestLowerNeighbour(
                     targetIndependentVariableValue );
 
@@ -242,7 +245,7 @@ public:
         // can be used.
         if( lowerEntry < offsetEntries_ )
         {
-            if( boundaryHandling_ == lagrange_no_boundary_interpolation )
+            if( lagrangeBoundaryHandling_ == lagrange_no_boundary_interpolation )
             {
                 throw std::runtime_error(
                             "Error: Lagrange interpolator below allowed bounds." );
@@ -255,7 +258,7 @@ public:
         }
         else if( lowerEntry >= numberOfIndependentValues_ - offsetEntries_ - 1 )
         {
-            if( boundaryHandling_ == lagrange_no_boundary_interpolation )
+            if( lagrangeBoundaryHandling_ == lagrange_no_boundary_interpolation )
             {
                 throw std::runtime_error(
                             "Error: Lagrange interpolator above allowed bounds." );
@@ -376,7 +379,7 @@ private:
                     {
                         denominators[ i ][ j ] *= static_cast< ScalarType >(
                                     independentValues_[ j + currentIterationStart ] -
-                                    independentValues_[ k + currentIterationStart ] );
+                                independentValues_[ k + currentIterationStart ] );
                     }
                 }
             }
@@ -391,14 +394,14 @@ private:
      *  At the edges of the domain, there is no center interval available, so Runge's phenomenon
      *  can cause excessive interpolation errors, especially for higher order polynomials. In
      *  these regions, the interpolator applies any of a number of techniques, defined by the
-     *  boundaryHandling_ variable.
+     *  lagrangeBoundaryHandling_ variable.
      *  \param selectedLookupScheme Selected lookup scheme does something.
      */
     void initializeBoundaryInterpolators(
             const AvailableLookupScheme selectedLookupScheme = huntingAlgorithm )
     {
         // Create interpolators
-        if( boundaryHandling_ == lagrange_cubic_spline_boundary_interpolation )
+        if( lagrangeBoundaryHandling_ == lagrange_cubic_spline_boundary_interpolation )
         {
             // Ensure sufficient data points for spline.
             int cubicSplineInputSize = offsetEntries_;
@@ -470,7 +473,7 @@ private:
      *  Method to be used for handling boundaries of the interpolation domain.
      *  \sa initializeBoundaryInterpolators
      */
-    LagrangeInterpolatorBoundaryHandling boundaryHandling_;
+    LagrangeInterpolatorBoundaryHandling lagrangeBoundaryHandling_;
 
 };
 

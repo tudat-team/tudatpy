@@ -68,7 +68,9 @@ public:
      *          interpolation.
      */
     LinearInterpolator( const std::map< IndependentVariableType, DependentVariableType >& dataMap,
-                        const AvailableLookupScheme selectedLookupScheme = huntingAlgorithm )
+                        const AvailableLookupScheme selectedLookupScheme = huntingAlgorithm,
+                        const BoundaryInterpolationType boundaryHandling = extrapolate_at_boundary_with_warning ):
+        OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >( boundaryHandling )
     {
         // Verify that the initialization variables are not empty.
         if ( dataMap.size( ) == 0 )
@@ -109,7 +111,9 @@ public:
      */
     LinearInterpolator( const std::vector< IndependentVariableType >& independentValues,
                         const std::vector< DependentVariableType >& dependentValues,
-                        const AvailableLookupScheme selectedLookupScheme = huntingAlgorithm )
+                        const AvailableLookupScheme selectedLookupScheme = huntingAlgorithm,
+                        const BoundaryInterpolationType boundaryHandling = extrapolate_at_boundary_with_warning ):
+        OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >( boundaryHandling )
     {
         // Verify that the initialization variables are not empty.
         if ( independentValues.size( ) == 0 || dependentValues.size( ) == 0 )
@@ -147,12 +151,22 @@ public:
      */
     DependentVariableType interpolate( const IndependentVariableType independentVariableValue )
     {
+        DependentVariableType interpolatedValue;
+
+        bool useBoundaryValue = false;
+        this->checkBoundaryCase( interpolatedValue, useBoundaryValue, independentVariableValue );
+
+        if( useBoundaryValue )
+        {
+            return interpolatedValue;
+        }
+
         // Lookup nearest lower index.
         int newNearestLowerIndex = lookUpScheme_->findNearestLowerNeighbour(
                     independentVariableValue );
 
         // Perform linear interpolation.
-        DependentVariableType interpolatedValue = dependentValues_[ newNearestLowerIndex ] +
+        interpolatedValue = dependentValues_[ newNearestLowerIndex ] +
                 ( independentVariableValue - independentValues_[ newNearestLowerIndex ] ) /
                 ( independentValues_[ newNearestLowerIndex + 1 ] -
                   independentValues_[ newNearestLowerIndex ] ) *
