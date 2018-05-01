@@ -115,19 +115,13 @@ void returnSingleRevolutionPlanetTrajectory(const ephemerides::EphemerisPointer 
     // Initiate variables to temporarily store the ephemeris data.
     Eigen::Vector6d temporaryKeplerianElements, initialCartesianElements;
 
-    // Get Keplerian state of the planet at the corresponding time.
-
-    boost::shared_ptr<ephemerides::ApproximatePlanetPositions> approxEphemerisPtr =
-            boost::dynamic_pointer_cast<ephemerides::ApproximatePlanetPositions>(ephemerisPtr);
-
+    // Convert MJD2000 to seconds since epoch
+    double startingEpochMJD = startingEpochMJD2000 + 51544.5;
     double timeJD2000 = basic_astrodynamics::convertModifiedJulianDayToJulianDay(startingEpochMJD2000);
     double timeSecondsSinceEpoch = basic_astrodynamics::convertJulianDayToSecondsSinceEpoch(timeJD2000);
 
-    temporaryKeplerianElements = ( *approxEphemerisPtr ).getKeplerianStateFromEphemeris( timeSecondsSinceEpoch );
-
-    // Convert into cartesian elements.
-    initialCartesianElements = orbital_element_conversions::convertKeplerianToCartesianElements(
-             temporaryKeplerianElements, centralBodyGravitationalParameter );
+    // Get Cartesian state of the planet at the corresponding time.
+    initialCartesianElements = ephemerisPtr->getCartesianStateFromEphemeris( timeSecondsSinceEpoch );
 
     // Compute duration (one revolution).
     double period = 2 * mathematical_constants::PI / std::sqrt( centralBodyGravitationalParameter /
