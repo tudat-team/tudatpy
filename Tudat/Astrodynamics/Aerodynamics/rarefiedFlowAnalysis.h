@@ -29,26 +29,29 @@
 #include <Eigen/Core>
 
 #include "Tudat/Astrodynamics/Aerodynamics/aerodynamicCoefficientGenerator.h"
+#include "Tudat/Astrodynamics/Aerodynamics/standardAtmosphere.h"
+#include "Tudat/InputOutput/basicInputOutput.h"
+#include "Tudat/InputOutput/SPARTADataReader.h"
 #include "Tudat/Basics/basicTypedefs.h"
-#include "Tudat/Mathematics/GeometricShapes/lawgsPartGeometry.h"
 
 namespace tudat
 {
 namespace aerodynamics
 {
 
-//! Returns default values of mach number for use in RarefiedFlowAnalysis.
+//! Returns default values of molecular speed ratio for use in RarefiedFlowAnalysis.
 /*!
- *  Returns default values of mach number for use in RarefiedFlowAnalysis.
+ *  Returns default values of molecular speed ratio for use in RarefiedFlowAnalysis.
  */
-std::vector< double > getDefaultRarefiedFlowMachPoints(
-        const std::string& machRegime );
+std::vector< double > getDefaultRarefiedFlowMolecularSpeedRatioPoints(
+        const std::string& molecularSpeedRatioRegime = "Full" );
 
 //! Returns default values of angle of attack for use in RarefiedFlowAnalysis.
 /*!
  *  Returns default values of angle of attack for use in RarefiedFlowAnalysis.
  */
-std::vector< double > getDefaultRarefiedFlowAngleOfAttackPoints( );
+std::vector< double > getDefaultRarefiedFlowAngleOfAttackPoints(
+        const std::string& angleOfAttackRegime = "Reduced" );
 
 //! Returns default values of angle of sideslip for use in RarefiedFlowAnalysis.
 /*!
@@ -101,15 +104,15 @@ public:
      *  \param momentReferencePoint Reference point wrt which aerodynamic moments are calculated.
      */
     RarefiedFlowAnalysis(
+            const std::string& SPARTAExecutable,
             const std::vector< std::vector< double > >& dataPointsOfIndependentVariables,
-            const boost::shared_ptr< SurfaceGeometry > inputVehicleSurface,
-            const std::vector< int >& numberOfLines,
-            const std::vector< int >& numberOfPoints,
-            const std::vector< bool >& invertOrders,
-            const std::vector< std::vector< int > >& selectedMethods,
-            const double referenceArea,
-            const double referenceLength,
-            const Eigen::Vector3d& momentReferencePoint );
+            const std::string simulationGases,
+            const StandardAtmosphere& atmosphereModel,
+            const std::string& geometryFileUser,
+            const int referenceAxis,
+            const Eigen::Vector3d& momentReferencePoint,
+            const double wallTemperature = 300.0,
+            const double accomodationCoefficient = 1.0 );
 
     //! Default destructor.
     /*!
@@ -129,50 +132,6 @@ public:
     Eigen::Vector6d getAerodynamicCoefficientsDataPoint(
             const boost::array< int, 3 > independentVariables );
 
-    //! Determine inclination angles of panels on a given part.
-    /*!
-     * Determines panel inclinations for all panels on all parts for given attitude.
-     * Outward pointing surface-normals are assumed!
-     * \param angleOfAttack Angle of attack at which to determine inclination angles.
-     * \param angleOfSideslip Angle of sideslip at which to determine inclination angles.
-     */
-    void determineInclinations( const double angleOfAttack,
-                                const double angleOfSideslip );
-
-    //! Get the number of vehicle parts.
-    /*!
-     *  Returns the number of vehicle parts.
-     *  \return The number of vehicle parts.
-     */
-    int getNumberOfVehicleParts( ) const
-    {
-        return vehicleParts_.size( );
-    }
-
-    //! Get a vehicle part.
-    /*!
-     * Returns a vehicle part.
-     * \param vehicleIndex Index in vehicleParts_ to be retrieved.
-     * \return Requested vehicle part.
-     */
-     boost::shared_ptr< geometric_shapes::LawgsPartGeometry > getVehiclePart(
-             const int vehicleIndex ) const
-     {
-         return vehicleParts_[ vehicleIndex ];
-     }
-
-    //! Overload ostream to print class information.
-    /*!
-     * Overloads ostream to print class information, prints the number of lawgs geometry parts and
-     * names.
-     * \param stream Stream object.
-     * \param hypersonicLocalInclinationAnalysis Hypersonic local inclination analysis.
-     * \return Stream object.
-     */
-    friend std::ostream& operator << ( std::ostream& stream,
-                                     RarefiedFlowAnalysis&
-                                     hypersonicLocalInclinationAnalysis );
-
 private:
 
     //! Generate aerodynamic database.
@@ -183,126 +142,35 @@ private:
      */
     void generateCoefficients( );
 
-    //! Generate aerodynamic coefficients at a single set of independent variables.
-    /*!
-     * Generates aerodynamic coefficients at a single set of independent variables.
-     * Determines values and sets corresponding entry in vehicleCoefficients_ array.
-     * \param independentVariableIndices Array of indices from lists of Mach number,
-     *          angle of attack and angle of sideslip points at which to perform analysis.
-     */
-    void determineVehicleCoefficients( const boost::array< int, 3 > independentVariableIndices );
-
-    //! Determine aerodynamic coefficients for a single LaWGS part.
-    /*!
-     * Determines aerodynamic coefficients for a single LaWGS part,
-     * calls determinepressureCoefficient_ function for given vehicle part.
-     * \param partNumber Index from vehicleParts_ array for which to determine coefficients.
-     * \param independentVariableIndices Array of indices of independent variables.
-     * \return Force and moment coefficients for requested vehicle part.
-     */
-    Eigen::Vector6d determinePartCoefficients(
-            const int partNumber, const boost::array< int, 3 > independentVariableIndices );
-
-    //! Determine pressure coefficients on a given part.
-    /*!
-     * Determines pressure coefficients on a single vehicle part.
-     * Calls the updateExpansionPressures and updateCompressionPressures for given vehicle part.
-     * \param partNumber Index from vehicleParts_ array for which to determine coefficients.
-     * \param independentVariableIndices Array of indices of independent variables.
-     */
-    void determinePressureCoefficients( const int partNumber,
-                                        const boost::array< int, 3 > independentVariableIndices );
-
-    //! Determine force coefficients of a part.
-    /*!
-     * Sums the pressure coefficients of given part and determines force coefficients from it by
-     * non-dimensionalization with reference area.
-     * \param partNumber Index from vehicleParts_ array for which determine coefficients.
-     * \return Force coefficients for requested vehicle part.
-     */
-    Eigen::Vector3d calculateForceCoefficients( const int partNumber );
-
-    //! Determine moment coefficients of a part.
-    /*!
-     * Determines the moment coefficients of a given part by summing the contributions of all
-     * panels on the part. Moment arms are taken from panel centroid to momentReferencePoint. Non-
-     * dimensionalization is performed by product of referenceLength and referenceArea.
-     * \param partNumber Index from vehicleParts_ array for which to determine coefficients.
-     * \return Moment coefficients for requested vehicle part.
-     */
-    Eigen::Vector3d calculateMomentCoefficients( const int partNumber );
-
-    //! Determine the compression pressure coefficients of a given part.
-    /*!
-     * Sets the values of pressureCoefficient_ on given part and at given Mach number for which
-     * inclination > 0.
-     * \param machNumber Mach number at which to perform analysis.
-     * \param partNumber of part from vehicleParts_ which is to be analyzed.
-     */
-    void updateCompressionPressures( const double machNumber, const int partNumber );
-
-    //! Determine the expansion pressure coefficients of a given part.
-    /*!
-     * Determine the values of pressureCoefficient_ on given part and at given Mach number for
-     * which inclination <= 0.
-     * \param machNumber Mach number at which to perform analysis.
-     * \param partNumber of part from vehicleParts_ which is to be analyzed.
-     */
-    void updateExpansionPressures( const double machNumber, const int partNumber );
-
-    //! Array of vehicle parts.
-    /*!
-     * Array of vehicle parts.
-     */
-    std::vector< boost::shared_ptr< geometric_shapes::LawgsPartGeometry > > vehicleParts_;
-
-    //! Multi-array as which indicates which coefficients have been calculated already.
-    /*!
-     * Multi-array as which indicates which coefficients have been calculated already. Indices of
-     * entries coincide with indices of aerodynamicCoefficients_.
-     */
-    boost::multi_array< bool, 3 > isCoefficientGenerated_;
-
-    //! Three-dimensional array of panel inclination angles.
-    /*!
-     * Three-dimensional array of panel inclination angles at current values of
-     * independent variables. Indices indicate part-line-point.
-     */
-    std::vector< std::vector< std::vector< double > > > inclination_;
-
-    //! Map of angle of attack and -sideslip pair and associated panel inclinations.
-    /*!
-     * Map of angle of attack and -sideslip pair and associated panel inclinations.
-     */
-    std::map< std::pair< double, double >, std::vector< std::vector< std::vector< double > > > >
-            previouslyComputedInclinations_;
-
-    //! Three-dimensional array of panel pressure coefficients.
-    /*!
-     * Three-dimensional array of panel pressure coefficients at current values
-     * of independent variables. Indices indicate part-line-point.
-     */
-    std::vector< std::vector< std::vector< double > > > pressureCoefficient_;
-
-    //! Stagnation pressure coefficient.
-    /*!
-     * Stagnation pressure coefficient for flow which has passed through a
-     * normal shock wave at current Mach number.
-     */
-    double stagnationPressureCoefficient;
-
-    //! Ratio of specific heats.
-    /*!
-     * Ratio of specific heat at constant pressure to specific heat at constant pressure.
-     */
-    double ratioOfSpecificHeats;
-\
-    //! Array of selected methods.
-    /*!
-     * Array of selected methods, first index represents compression/expansion,
-     * second index represents vehicle part.
-     */
-    std::vector< std::vector< int > > selectedMethods_;
+    std::string outputDirectory_ = "results";
+    std::string outputPath_ = input_output::getSPARTADataPath( ) + outputDirectory_;
+    std::string inputFile_ = input_output::getSPARTADataPath( )  + "in.sparta";
+    std::string inputFileTemplate_ = input_output::getSPARTADataPath( )  + "SPARTAInputTemplate.txt";
+    std::string geometryFileInternal_ = input_output::getSPARTADataPath( ) + "data.shape";
+    double gridSpacing_ = 0.25;
+    double simulatedParticlesPerCell_ = 15;
+    std::string simulationGases_;
+    int referenceAxis_;
+    double wallTemperature_;
+    double accomodationCoefficient_;
+    Eigen::Matrix< double, Eigen::Dynamic, 3 > shapePoints_;
+    Eigen::Matrix< int, Eigen::Dynamic, 3 > shapeTriangles_;
+    int numberOfPoints_;
+    int numberOfTriangles_;
+    Eigen::Vector3d maximumDimensions_;
+    Eigen::Vector3d minimumDimensions_;
+    Eigen::Matrix< double, 3, Eigen::Dynamic > elementSurfaceNormal_;
+    Eigen::Matrix< double, 1, Eigen::Dynamic > elementSurfaceArea_;
+    Eigen::Matrix< double, 3, Eigen::Dynamic > elementMomentArm_;
+    Eigen::Vector3d shapeCrossSectionalArea_;
+    std::vector< std::vector< double > > atmosphericConditions_;
+    Eigen::Vector6d simulationBoundaries_;
+    Eigen::Vector3d simulationGrid_;
+    Eigen::Matrix< double, Eigen::Dynamic, Eigen::Dynamic > freeStreamVelocities_;
+    Eigen::Matrix< double, Eigen::Dynamic, Eigen::Dynamic > simulationTimeStep_;
+    Eigen::Matrix< double, Eigen::Dynamic, 1 > ratioOfRealToSimulatedParticles_;
+    std::string inputTemplate_;
+    boost::multi_array< Eigen::Vector6d, 3 > aerodynamicCoefficients_;
 };
 
 //! Typedef for shared-pointer to RarefiedFlowAnalysis object.
