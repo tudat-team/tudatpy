@@ -1,3 +1,14 @@
+/*    Copyright (c) 2010-2018, Delft University of Technology
+ *    All rigths reserved
+ *
+ *    This file is part of the Tudat. Redistribution and use in source and
+ *    binary forms, with or without modification, are permitted exclusively
+ *    under the terms of the Modified BSD license. You should have received
+ *    a copy of the license with this file. If not, please or visit:
+ *    http://tudat.tudelft.nl/LICENSE.
+ *
+ */
+
 #ifndef TUDAT_PANELLEDRADIATIONPRESSURE_H
 #define TUDAT_PANELLEDRADIATIONPRESSURE_H
 
@@ -177,6 +188,7 @@ public:
     /*!
      *  Returns the current acceleration due to the radiation pressure on a single panel, as calculated by the last call to
      *  the updateMembers function
+     *  \param panelIndex Index of panel for which acceleration is to be retrieved
      *  \return The current acceleration due to the radiation pressure on a single panel
      */
     Eigen::Vector3d getCurrentPanelAcceleration( const int panelIndex )
@@ -184,6 +196,13 @@ public:
         return currentPanelAccelerations_[ panelIndex ];
     }
 
+    //! Returns the current surface normal in propagation frame of a single panel
+    /*!
+     *   Returns the current surface normal in propagation frame of a single panel, as calculated by the last call to
+     *  the updateMembers function
+     *  \param panelIndex Index of panel for which acceleration is to be retrieved
+     *  \return The current surface normal in propagation frame of a single panels
+     */
     Eigen::Vector3d getCurrentPanelSurfaceNormalInPropagationFrame( const int panelIndex )
     {
         return panelSurfaceNormalFunctions_[ panelIndex ]( );

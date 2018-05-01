@@ -16,26 +16,21 @@ namespace ephemerides
 class ConstantRotationalEphemeris : public RotationalEphemeris
 {
 public:
-    ConstantRotationalEphemeris( boost::function< Eigen::Quaterniond( ) > constantOrientationFunction,
-                                 std::string originalFrameOrientation = "ECLIPJ2000",
-                                 std::string targetFrameOrientation = "" ):
-        RotationalEphemeris( originalFrameOrientation, targetFrameOrientation ),
-        constantOrientationFunction_( constantOrientationFunction ) { }
 
     ConstantRotationalEphemeris( Eigen::Quaterniond constantOrientation,
                                  std::string originalFrameOrientation = "ECLIPJ2000",
                                  std::string targetFrameOrientation = "" ):
         RotationalEphemeris( originalFrameOrientation, targetFrameOrientation ),
-        constantOrientationFunction_( boost::lambda::constant( constantOrientation ) ){ }
+        constantOrientation_( constantOrientation ){ }
 
     Eigen::Quaterniond getRotationToBaseFrame( const double ephemerisTime )
     {
-        return constantOrientationFunction_( );
+        return constantOrientation_;
     }
 
     Eigen::Quaterniond getRotationToTargetFrame( const double ephemerisTime )
     {
-        return constantOrientationFunction_( ).inverse( );
+        return constantOrientation_.inverse( );
     }
 
     Eigen::Matrix3d getDerivativeOfRotationToBaseFrame( const double ephemerisTime )
@@ -50,12 +45,12 @@ public:
 
     Eigen::Quaterniond getConstantOrientation( )
     {
-        return constantOrientationFunction_( );
+        return constantOrientation_;
     }
 
 private:
 
-    boost::function< Eigen::Quaterniond( ) > constantOrientationFunction_;
+    Eigen::Quaterniond constantOrientation_;
 
 };
 
