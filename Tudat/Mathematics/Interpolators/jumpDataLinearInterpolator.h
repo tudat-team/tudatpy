@@ -143,7 +143,6 @@ public:
      */
     DependentVariableType interpolate( const IndependentVariableType independentVariableValue )
     {
-
         DependentVariableType interpolatedValue;
 
         bool useBoundaryValue = false;

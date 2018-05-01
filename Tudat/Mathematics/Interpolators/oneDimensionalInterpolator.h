@@ -26,17 +26,6 @@ namespace tudat
 namespace interpolators
 {
 
-
-enum BoundaryInterpolationType
-{
-    throw_exception_at_boundary = 0,
-    use_boundary_value = 1,
-    use_boundary_value_with_warning = 2,
-    extrapolate_at_boundary = 3,
-    extrapolate_at_boundary_with_warning = 4
-};
-
-
 //! Base class for interpolator with one independent independent variable.
 /*!
  * Base class for the interpolators in one independent variable included in Tudat
@@ -191,7 +180,7 @@ protected:
                             boost::lexical_cast< std::string >( targetIndependentVariableValue ) + " but limit values are " +
                             boost::lexical_cast< std::string >( independentValues_[ 0 ] ) + " and " +
                             boost::lexical_cast< std::string >( independentValues_[ dependentValues_.size( ) - 1 ] ) + ", applying extrapolation instead." ;
-                    std::cerr<<errorMessage<<std::endl;
+                    std::cerr << errorMessage << std::endl;
                 }
                 else if( ( this->boundaryHandling_ == use_boundary_value ) ||
                          ( this->boundaryHandling_ == use_boundary_value_with_warning ) )
@@ -199,12 +188,12 @@ protected:
                     if( isAtBoundary == -1 )
                     {
                         dependentVariable = dependentValues_[ 0 ];
-                        useValue = 1;
+                        useValue = true;
                     }
                     else if( isAtBoundary == 1 )
                     {
                         dependentVariable = dependentValues_[ dependentValues_.size( ) - 1 ];
-                        useValue = 1;
+                        useValue = true;
                     }
                     else
                     {
@@ -217,7 +206,7 @@ protected:
                                 boost::lexical_cast< std::string >( targetIndependentVariableValue ) + " but limit values are " +
                                 boost::lexical_cast< std::string >( independentValues_[ 0 ] ) + " and " +
                                 boost::lexical_cast< std::string >( independentValues_[ dependentValues_.size( ) - 1 ] ) + ", taking boundary value instead." ;
-                        std::cerr<<errorMessage<<std::endl;
+                        std::cerr << errorMessage << std::endl;
                     }
                 }
                 else
@@ -281,6 +270,10 @@ protected:
      */
     std::vector< IndependentVariableType > independentValues_;
 
+    //! Boundary handling method.
+    /*!
+     * Boundary handling method.
+     */
     BoundaryInterpolationType boundaryHandling_;
 };
 

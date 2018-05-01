@@ -228,6 +228,16 @@ public:
     {
         using std::pow;
 
+        DependentVariableType interpolatedValue;
+
+        bool useBoundaryValue = false;
+        this->checkBoundaryCase( interpolatedValue, useBoundaryValue, targetIndependentVariableValue );
+
+        if( useBoundaryValue )
+        {
+            return interpolatedValue;
+        }
+
         // Determine the lower entry in the table corresponding to the target independent variable
         // value.
         int lowerEntry_ = lookUpScheme_->findNearestLowerNeighbour(
