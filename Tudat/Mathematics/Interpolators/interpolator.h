@@ -19,6 +19,15 @@ namespace tudat
 namespace interpolators
 {
 
+enum BoundaryInterpolationType
+{
+    throw_exception_at_boundary = 0,
+    use_boundary_value = 1,
+    use_boundary_value_with_warning = 2,
+    extrapolate_at_boundary = 3,
+    extrapolate_at_boundary_with_warning = 4
+};
+
 //! Base class for interpolator.
 /*!
  * Base class for the interpolators included in Tudat, the dependent and independent variable

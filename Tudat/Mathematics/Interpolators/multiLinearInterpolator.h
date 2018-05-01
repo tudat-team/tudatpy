@@ -31,9 +31,11 @@
 #define TUDAT_MULTI_LINEAR_INTERPOLATOR_H
 
 #include <vector>
+#include <iostream>
 
 #include <boost/array.hpp>
 #include <boost/multi_array.hpp>
+#include <boost/lexical_cast.hpp>
 #include <boost/shared_ptr.hpp>
 #include "Tudat/Mathematics/Interpolators/lookupScheme.h"
 #include "Tudat/Mathematics/Interpolators/interpolator.h"
@@ -74,9 +76,11 @@ public:
                              independentValues,
                              const boost::multi_array< DependentVariableType, static_cast< size_t >( NumberOfDimensions )>
                              dependentData,
-                             const AvailableLookupScheme selectedLookupScheme = huntingAlgorithm )
+                             const AvailableLookupScheme selectedLookupScheme = huntingAlgorithm,
+                             const BoundaryInterpolationType boundaryHandling = extrapolate_at_boundary_with_warning )
         : independentValues_( independentValues ),
-          dependentData_( dependentData )
+          dependentData_( dependentData ),
+          boundaryHandling_( boundaryHandling )
     {
         // Check consistency of template arguments and input variables.
         if ( independentValues.size( ) != NumberOfDimensions )
@@ -114,13 +118,22 @@ public:
     DependentVariableType interpolate(
             const std::vector< IndependentVariableType >& independentValuesToInterpolate )
     {
+        // Create copy of values to interpolate, such that it can be modified
+        std::vector< IndependentVariableType > localIndependentValuesToInterpolate = independentValuesToInterpolate;
+
+        // Check that independent variables are in range
+        for ( unsigned int i = 0; i < NumberOfDimensions; i++ )
+        {
+            checkBoundaryCase( localIndependentValuesToInterpolate.at( i ), i );
+        }
+
         // Determine the nearest lower neighbours.
         std::vector< int > nearestLowerIndices;
         nearestLowerIndices.resize( NumberOfDimensions );
         for ( unsigned int i = 0; i < NumberOfDimensions; i++ )
         {
             nearestLowerIndices[ i ] = lookUpSchemes_[ i ]->findNearestLowerNeighbour(
-                    independentValuesToInterpolate[ i ] );
+                        localIndependentValuesToInterpolate[ i ] );
         }
 
         // Initialize function evaluation indices to -1 for debugging purposes.
@@ -133,7 +146,7 @@ public:
         // Call first step of interpolation, this function calls itself at subsequent independent
         // variable dimensions to evaluate and properly scale dependent variable table values at
         // all 2^n grid edges.
-        return performRecursiveInterpolationStep( 0, independentValuesToInterpolate,
+        return performRecursiveInterpolationStep( 0, localIndependentValuesToInterpolate,
                                                   interpolationIndices, nearestLowerIndices );
     }
 
@@ -148,8 +161,79 @@ public:
         return NumberOfDimensions;
     }
 
-
 private:
+
+    int checkInterpolationBoundary( const IndependentVariableType& independentVariable, const int& currentDimension )
+    {
+        int isAtBoundary = 0;
+        if( independentVariable < independentValues_.at( currentDimension ).at( 0 ) )
+        {
+            isAtBoundary = -1;
+        }
+        else if( independentVariable >= independentValues_.at( currentDimension ).back( ) )
+        {
+            isAtBoundary = 1;
+        }
+        return isAtBoundary;
+    }
+
+    void checkBoundaryCase(
+            IndependentVariableType& independentVariable,
+            const int& currentDimension )
+    {
+        if( boundaryHandling_ != extrapolate_at_boundary )
+        {
+            int isAtBoundary = checkInterpolationBoundary( independentVariable, currentDimension );
+
+            if( isAtBoundary != 0 )
+            {
+                if( boundaryHandling_ == throw_exception_at_boundary )
+                {
+                    std::string errorMessage = "Error in interpolator, requesting data point outside of boundaries, requested data of dimension " +
+                            boost::lexical_cast< std::string >( currentDimension ) + " at: " +
+                            boost::lexical_cast< std::string >( independentVariable ) + " but limit values are " +
+                            boost::lexical_cast< std::string >( independentValues_.at( currentDimension ).at( 0 ) ) + " and " +
+                            boost::lexical_cast< std::string >( independentValues_.at( currentDimension ).back( ) );
+                    throw std::runtime_error( errorMessage );
+                }
+                else if( boundaryHandling_ == extrapolate_at_boundary_with_warning )
+                {
+                    std::string errorMessage = "Warning in interpolator, requesting data point outside of boundaries, requested data of dimension " +
+                            boost::lexical_cast< std::string >( currentDimension ) + " at: " +
+                            boost::lexical_cast< std::string >( independentVariable ) + " but limit values are " +
+                            boost::lexical_cast< std::string >( independentValues_.at( currentDimension ).at( 0 ) ) + " and " +
+                            boost::lexical_cast< std::string >( independentValues_.at( currentDimension ).back( ) ) + ", applying extrapolation instead." ;
+                    std::cerr << errorMessage << std::endl;
+                }
+                else if( ( boundaryHandling_ == use_boundary_value ) ||
+                         ( boundaryHandling_ == use_boundary_value_with_warning ) )
+                {
+                    if ( isAtBoundary == -1 )
+                    {
+                        independentVariable = independentValues_.at( currentDimension ).at( 0 );
+                    }
+                    else if ( isAtBoundary == 1 )
+                    {
+                        independentVariable = independentValues_.at( currentDimension ).back( );
+                    }
+
+                    if( boundaryHandling_ == use_boundary_value_with_warning )
+                    {
+                        std::string errorMessage = "Warning in interpolator, requesting data point outside of boundaries, requested data of dimension " +
+                                boost::lexical_cast< std::string >( currentDimension ) + " at: " +
+                                boost::lexical_cast< std::string >( independentVariable ) + " but limit values are " +
+                                boost::lexical_cast< std::string >( independentValues_.at( currentDimension ).at( 0 ) ) + " and " +
+                                boost::lexical_cast< std::string >( independentValues_.at( currentDimension ).back( ) ) + ", taking boundary value instead." ;
+                        std::cerr << errorMessage << std::endl;
+                    }
+                }
+                else
+                {
+                    throw std::runtime_error( "Error when checking interpolation boundary, boundary handling method not recognized" );
+                }
+            }
+        }
+    }
 
     //! Make the lookup scheme that is to be used.
     /*!
@@ -289,7 +373,13 @@ private:
      * Multi-dimensional array of dependent data at each point of hyper-rectangular grid formed by
      * independent variable points.
      */
-    boost::multi_array< DependentVariableType, static_cast< size_t >( NumberOfDimensions )> dependentData_;
+    boost::multi_array< DependentVariableType, static_cast< size_t >( NumberOfDimensions ) > dependentData_;
+
+    //! Boundary handling method.
+    /*!
+     * Boundary handling method.
+     */
+    BoundaryInterpolationType boundaryHandling_;
 };
 
 } // namespace interpolators

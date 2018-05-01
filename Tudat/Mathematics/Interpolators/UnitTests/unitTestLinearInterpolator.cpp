@@ -152,6 +152,8 @@ BOOST_AUTO_TEST_CASE( test_linearInterpolation_matlab_compare )
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( benchmarkData.block( 0, 1, benchmarkData.rows( ), 1 ),
                                        outputData, 1.0E-13 );
 }
+
+// Test linear interpolation outside of independent variable range
 BOOST_AUTO_TEST_CASE( test_linearInterpolation_boundary_case )
 {
     using namespace interpolators;
@@ -208,7 +210,7 @@ BOOST_AUTO_TEST_CASE( test_linearInterpolation_boundary_case )
             BOOST_CHECK_EQUAL( exceptionIsCaught, true );
         }
         else if( ( static_cast< BoundaryInterpolationType >( i ) == use_boundary_value ) ||
-                  ( static_cast< BoundaryInterpolationType >( i ) == use_boundary_value_with_warning ) )
+                 ( static_cast< BoundaryInterpolationType >( i ) == use_boundary_value_with_warning ) )
         {
             interpolatedValue = linearInterpolator.interpolate( valueBelowMinimumValue );
             BOOST_CHECK_CLOSE_FRACTION( interpolatedValue, dependentVariableValues.at( 0 ), 1.0E-15 );
@@ -218,7 +220,7 @@ BOOST_AUTO_TEST_CASE( test_linearInterpolation_boundary_case )
 
         }
         else if( ( static_cast< BoundaryInterpolationType >( i ) == extrapolate_at_boundary ) ||
-                  ( static_cast< BoundaryInterpolationType >( i ) == extrapolate_at_boundary_with_warning ) )
+                 ( static_cast< BoundaryInterpolationType >( i ) == extrapolate_at_boundary_with_warning ) )
         {
             interpolatedValue = linearInterpolator.interpolate( valueBelowMinimumValue );
             expectedValue = dependentVariableValues.at( 0 ) - valueOffset * (
@@ -234,8 +236,6 @@ BOOST_AUTO_TEST_CASE( test_linearInterpolation_boundary_case )
         }
     }
 }
-
-
 
 BOOST_AUTO_TEST_SUITE_END( )
 
