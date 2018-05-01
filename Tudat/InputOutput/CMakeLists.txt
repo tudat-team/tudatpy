@@ -62,6 +62,7 @@ set(INPUTOUTPUT_HEADERS
   "${SRCROOT}${INPUTOUTPUTDIR}/multiDimensionalArrayReader.h"
   "${SRCROOT}${INPUTOUTPUTDIR}/aerodynamicCoefficientReader.h"
   "${SRCROOT}${INPUTOUTPUTDIR}/tabulatedAtmosphereReader.h"
+  "${SRCROOT}${INPUTOUTPUTDIR}/SPARTADataReader.h"
 )
 
 # Add unit test files.

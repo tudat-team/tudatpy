@@ -27,6 +27,7 @@
 #include <cmath>
 
 #include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
+#include "Tudat/Mathematics/BasicMathematics/linearAlgebra.h"
 #include "Tudat/Basics/basicTypedefs.h"
 
 namespace tudat
@@ -496,14 +497,16 @@ double computeAdiabaticWallTemperature(
  * \param Surface area of element.
  * \param Reference aerodynamic area of vehicle.
  */
-Eigen::Vector3d computeAerodynamicCoefficientsFromPressureShear( const Eigen::Vector3d pressureForceVector,
-                                                                 const Eigen::Vector3d shearStressVector,
-                                                                 const double airDensity,
-                                                                 const double airSpeed,
-                                                                 const double airPressure,
-                                                                 const Eigen::Vector3d elementSurfaceNormal,
-                                                                 const double elementSurfaceArea,
-                                                                 const double referenceAerodynamicArea );
+Eigen::Vector6d computeAerodynamicCoefficientsFromPressureShear(
+        const Eigen::Matrix< double, 3, Eigen::Dynamic > pressureForceVector,
+        const Eigen::Matrix< double, 3, Eigen::Dynamic > shearStressVector,
+        const double airDensity,
+        const double airSpeed,
+        const double airPressure,
+        const Eigen::Matrix< double, 3, Eigen::Dynamic > elementSurfaceNormal,
+        const Eigen::Matrix< double, 1, Eigen::Dynamic > elementSurfaceArea,
+        const Eigen::Matrix< double, 3, Eigen::Dynamic > elementMomentArm,
+        const double referenceAerodynamicArea );
 
 } // namespace aerodynamics
 
