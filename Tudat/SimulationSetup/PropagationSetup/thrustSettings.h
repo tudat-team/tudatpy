@@ -656,7 +656,7 @@ public:
         if( bodyWithGuidance_->getFlightConditions( ) == NULL && nameOfCentralBody != "" )
         {
             bodyWithGuidance_->setFlightConditions(
-                        createFlightConditions( bodyWithGuidance_,
+                        createAtmosphericFlightConditions( bodyWithGuidance_,
                                                 bodyMap.at( nameOfCentralBody ),
                                                 nameOfBodyWithGuidance,
                                                 nameOfCentralBody ) );

@@ -333,8 +333,9 @@ boost::shared_ptr< acceleration_partials::AccelerationPartial > createAnalytical
         }
         else
         {
-            boost::shared_ptr< FlightConditions > flightConditions =
-                    acceleratedBody.second->getFlightConditions( );
+            boost::shared_ptr< AtmosphericFlightConditions > flightConditions =
+                    boost::dynamic_pointer_cast< AtmosphericFlightConditions >(
+                        acceleratedBody.second->getFlightConditions( ) );
 
             if( flightConditions == NULL )
             {
@@ -344,7 +345,8 @@ boost::shared_ptr< acceleration_partials::AccelerationPartial > createAnalytical
             {
                 // Create partial-calculating object.
                 accelerationPartial = boost::make_shared< AerodynamicAccelerationPartial >
-                        ( aerodynamicAcceleration, flightConditions,
+                        ( aerodynamicAcceleration,
+                          flightConditions,
                           boost::bind( &Body::getState, acceleratedBody.second ),
                           boost::bind( &Body::setState, acceleratedBody.second, _1 ),
                           acceleratedBody.first, acceleratingBody.first );

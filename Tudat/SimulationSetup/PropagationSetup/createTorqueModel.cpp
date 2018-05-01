@@ -45,17 +45,22 @@ boost::shared_ptr< aerodynamics::AerodynamicTorque > createAerodynamicTorqueMode
     }
 
     // Retrieve flight conditions; create object if not yet extant.
-    boost::shared_ptr< aerodynamics::FlightConditions > bodyFlightConditions =
-            bodyUndergoingTorque->getFlightConditions( );
+    boost::shared_ptr< aerodynamics::AtmosphericFlightConditions > bodyFlightConditions =
+            boost::dynamic_pointer_cast< aerodynamics::AtmosphericFlightConditions >(
+                bodyUndergoingTorque->getFlightConditions( ) );
 
-    if( bodyFlightConditions == NULL )
+    if( bodyFlightConditions == NULL && bodyUndergoingTorque->getFlightConditions( ) == NULL )
     {
+        bodyFlightConditions = createAtmosphericFlightConditions( bodyUndergoingTorque,
+                                                       bodyExertingTorque,
+                                                       nameOfBodyUndergoingTorque,
+                                                       nameOfBodyExertingTorque ) ;
         bodyUndergoingTorque->setFlightConditions(
-                    createFlightConditions( bodyUndergoingTorque,
-                                            bodyExertingTorque,
-                                            nameOfBodyUndergoingTorque,
-                                            nameOfBodyExertingTorque ) );
-        bodyFlightConditions = bodyUndergoingTorque->getFlightConditions( );
+                    bodyFlightConditions );
+    }
+    else if( bodyFlightConditions == NULL && bodyUndergoingTorque->getFlightConditions( ) != NULL )
+    {
+        throw std::runtime_error( "Error when making aerodynamic torque, found flight conditions that are not atmospheric." );
     }
 
     // Retrieve frame in which aerodynamic coefficients are defined.
@@ -91,8 +96,8 @@ boost::shared_ptr< aerodynamics::AerodynamicTorque > createAerodynamicTorqueMode
     // Create torque model.
     return boost::make_shared< aerodynamics::AerodynamicTorque >(
                 coefficientInPropagationFrameFunction,
-                boost::bind( &aerodynamics::FlightConditions::getCurrentDensity, bodyFlightConditions ),
-                boost::bind( &aerodynamics::FlightConditions::getCurrentAirspeed, bodyFlightConditions ),
+                boost::bind( &aerodynamics::AtmosphericFlightConditions::getCurrentDensity, bodyFlightConditions ),
+                boost::bind( &aerodynamics::AtmosphericFlightConditions::getCurrentAirspeed, bodyFlightConditions ),
                 boost::bind( &aerodynamics::AerodynamicCoefficientInterface::getReferenceArea, aerodynamicCoefficients ),
                 boost::bind( &aerodynamics::AerodynamicCoefficientInterface::getReferenceLengths, aerodynamicCoefficients ),
                 aerodynamicCoefficients->getAreCoefficientsInNegativeAxisDirection( ) );
