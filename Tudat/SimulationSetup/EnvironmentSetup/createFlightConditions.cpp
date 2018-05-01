@@ -27,7 +27,7 @@ namespace tudat
 namespace simulation_setup
 {
 
-//! Function to create a flight conditions object
+//! Function to create an atmospheric flight conditions object
 boost::shared_ptr< aerodynamics::AtmosphericFlightConditions > createAtmosphericFlightConditions(
         const boost::shared_ptr< Body > bodyWithFlightConditions,
         const boost::shared_ptr< Body > centralBody,
@@ -125,6 +125,7 @@ boost::shared_ptr< aerodynamics::AtmosphericFlightConditions > createAtmospheric
 
 }
 
+//! Function to create a flight conditions object
 boost::shared_ptr< aerodynamics::FlightConditions >  createFlightConditions(
         const boost::shared_ptr< Body > bodyWithFlightConditions,
         const boost::shared_ptr< Body > centralBody,

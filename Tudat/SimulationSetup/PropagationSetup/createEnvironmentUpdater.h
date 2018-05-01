@@ -37,6 +37,13 @@ void checkValidityOfRequiredEnvironmentUpdates(
         requestedUpdates,
         const simulation_setup::NamedBodyMap& bodyMap );
 
+//! Function that removes propagated states from the updated environment variables
+/*!
+ * Function that removes propagated states from the updated environment variables
+ * \param environmentModelsToUpdate List of environment models to be updated, this data structure is modified by this function
+ * and returned by reference
+ * \param integratedStateList List of states that are numerically integrated.
+ */
 void removePropagatedStatesFomEnvironmentUpdates(
         std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > >& environmentModelsToUpdate,
         const std::map< IntegratedStateType, std::vector< std::pair< std::string, std::string > > >& integratedStateList );
@@ -76,11 +83,51 @@ createMassPropagationEnvironmentUpdaterSettings(
         const std::map< std::string, std::vector< boost::shared_ptr< basic_astrodynamics::MassRateModel > > > massRateModels,
         const simulation_setup::NamedBodyMap& bodyMap );
 
+//! Function to update environment to allow all required updates to be made
+/*!
+ * Function to update environment to allow all required updates to be made. It checks whether a flight conditions object needs to
+ * be updated, and creates a FlightConditions object for the associated body if it is not.
+ * \param updateType List of environment models that are to be updated
+ * \param dependentVariableSaveSettings Dependent variables that are to be saved
+ * \param bodyMap List of body objects that comprises the environment (updated by function if needed).
+ */
+void checkAndModifyEnvironmentForDependentVariableSaving(
+        const EnvironmentModelsToUpdate updateType,
+        const boost::shared_ptr< SingleDependentVariableSaveSettings > dependentVariableSaveSettings,
+        const simulation_setup::NamedBodyMap& bodyMap );
+
+//! Function to create environment update settings for a single dependent variable
+/*!
+ *Function to create environment update settings for a single dependent variable
+ * \param dependentVariableSaveSettings Settings for single dependent variable
+ * \param bodyMap
+ *  \param bodyMap List of body objects that comprises the environment
+ *  \return List of required environment model updates.
+ */
+std::map< propagators::EnvironmentModelsToUpdate,
+std::vector< std::string > > createEnvironmentUpdaterSettingsForDependentVariables(
+        const boost::shared_ptr< SingleDependentVariableSaveSettings > dependentVariableSaveSettings,
+        const simulation_setup::NamedBodyMap& bodyMap );
+
+//! Create environment update settings for dependent variables
+/*!
+ *  Create environment update settings for dependent variables
+ *  \param dependentVariableSaveSettings Settings for dependent variables
+ *  \param bodyMap List of body objects that comprises the environment
+ *  \return List of required environment model updates.
+ */
 std::map< propagators::EnvironmentModelsToUpdate,
 std::vector< std::string > > createEnvironmentUpdaterSettings(
         const boost::shared_ptr< DependentVariableSaveSettings > dependentVariableSaveSettings,
         const simulation_setup::NamedBodyMap& bodyMap );
 
+//! Create environment update settings for termination settings
+/*!
+ *  Create environment update settings for termination settings
+ *  \param terminationSettings Settings for propagation termination
+ *  \param bodyMap List of body objects that comprises the environment
+ *  \return List of required environment model updates.
+ */
 std::map< propagators::EnvironmentModelsToUpdate,
 std::vector< std::string > > createEnvironmentUpdaterSettings(
         const boost::shared_ptr< PropagationTerminationSettings > terminationSettings,
@@ -189,6 +236,7 @@ std::vector< std::string > > createEnvironmentUpdaterSettings(
             createEnvironmentUpdaterSettings( propagatorSettings->getTerminationSettings( ), bodyMap );
     addEnvironmentUpdates( environmentModelsToUpdate, environmentModelsToUpdateForTerminationConditions );
 
+    // Remove variables from environment updates that are numerically propagated.
     removePropagatedStatesFomEnvironmentUpdates(
                 environmentModelsToUpdate, getIntegratedTypeAndBodyList( propagatorSettings ) );
     checkValidityOfRequiredEnvironmentUpdates( environmentModelsToUpdate, bodyMap );

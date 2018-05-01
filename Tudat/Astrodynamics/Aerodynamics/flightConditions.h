@@ -29,6 +29,15 @@ namespace tudat
 namespace aerodynamics
 {
 
+//! Class for calculating aerodynamic flight characteristics of a vehicle during numerical
+//! integration, in the absence of an atmosphere.
+/*!
+ *  Class for calculating aerodynamic flight characteristics of a vehicle during numerical
+ *  integration, in the absence of an atmosphere. Class is used to ensure that dependent variables such as altitude, etc.
+ *  are only calculated once during each numerical integration step. The get functions of this class are linked to the various
+ *  models in the code that subsequently require these values. In the case of atmospheric flight, the AtmosphericFlightConditions
+ *  derived class should be used.
+ */
 class FlightConditions
 {
 protected:
@@ -55,20 +64,20 @@ public:
     /*!
      *  Constructor, sets objects and functions from which relevant environment and state variables
      *  are retrieved.
-     *  \param atmosphereModel Atmosphere model of atmosphere through which vehicle is flying
      *  \param shapeModel Model describing the shape of the body w.r.t. which the flight is taking place.
-     *  \param aerodynamicCoefficientInterface Class from which the aerodynamic (force and moment)
-     *  coefficients are retrieved
      *  \param aerodynamicAngleCalculator Object from which the aerodynamic/trajectory angles
      *  of the vehicle are calculated.
-     *  \param controlSurfaceDeflectionFunction Function returning control surface deflection, with input the control
-     *  surface identifier.
      */
     FlightConditions( const boost::shared_ptr< basic_astrodynamics::BodyShapeModel > shapeModel,
-                      const boost::shared_ptr< reference_frames::AerodynamicAngleCalculator >
-                      aerodynamicAngleCalculator =
+                      const boost::shared_ptr< reference_frames::AerodynamicAngleCalculator > aerodynamicAngleCalculator =
             boost::shared_ptr< reference_frames::AerodynamicAngleCalculator >( ) );
 
+    //! Function to update all flight conditions.
+    /*!
+     *  Function to update all flight conditions (altitude, etc.) to
+     *  current state of vehicle and central body.
+     *  \param currentTime Time to which conditions are to be updated.
+     */
     virtual void updateConditions( const double currentTime );
 
     //! Function to retrieve (and compute if necessary) the current altitude
@@ -134,6 +143,12 @@ public:
         return aerodynamicAngleCalculator_;
     }
 
+    //! Function to reset the current time of the flight conditions.
+    /*!
+     *  Function to reset the current time of the flight conditions. This function is typically sused to set the current time
+     *  to NaN, indicating the need to recompute all quantities for the next time computation.
+     * \param currentTime
+     */
     virtual void resetCurrentTime( const double currentTime = TUDAT_NAN )
     {
         currentTime_ = currentTime;
@@ -155,6 +170,7 @@ public:
     }
 
 protected:
+
     //! Function to compute and set the current latitude and longitude
     void computeLatitudeAndLongitude( )
     {
@@ -568,26 +584,18 @@ private:
                 getCurrentAirspeed( ) / getCurrentSpeedOfSound( );
     }
 
-
-
     //! Function to update the independent variables of the aerodynamic coefficient interface
     void updateAerodynamicCoefficientInput( );
-
 
 
     //! Atmosphere model of atmosphere through which vehicle is flying
     boost::shared_ptr< aerodynamics::AtmosphereModel > atmosphereModel_;
 
-
-
     //! Object from which the aerodynamic coefficients are obtained.
     boost::shared_ptr< AerodynamicCoefficientInterface > aerodynamicCoefficientInterface_;
 
-
     //! Function returning control surface deflection, with input the control surface identifier.
     boost::function< double( const std::string& ) > controlSurfaceDeflectionFunction_;
-
-
 
 
     //! List of custom functions for aerodynamic coefficient dependencies.
@@ -595,8 +603,6 @@ private:
 
     //! Boolean setting whether latitude and longitude are to be updated by updateConditions().
     bool updateLatitudeAndLongitudeForAtmosphere_;
-
-
 
 
     //! Current list of independent variables of the aerodynamic coefficient interface
