@@ -44,6 +44,7 @@ bool SingleVariableLimitPropagationTerminationCondition::checkStopCondition( con
 {
     bool stopPropagation = 0;
     double currentVariable = variableRetrievalFuntion_( );
+
     if( useAsLowerBound_ && ( currentVariable < limitingValue_ ) )
     {
         stopPropagation = 1;
