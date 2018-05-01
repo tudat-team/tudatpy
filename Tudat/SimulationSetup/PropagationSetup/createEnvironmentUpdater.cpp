@@ -125,17 +125,20 @@ void checkValidityOfRequiredEnvironmentUpdates(
     }
 }
 
-
+//! Function that removes propagated states from the updated environment variables
 void removePropagatedStatesFomEnvironmentUpdates(
         std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > >& environmentModelsToUpdate,
         const std::map< IntegratedStateType, std::vector< std::pair< std::string, std::string > > >& integratedStateList )
 {
+    // Iterate over all propagated states
     for( auto it = integratedStateList.begin( ); it != integratedStateList.end( ); it++ )
     {
+        // Iterate over all propagated bodies for current state
         for( unsigned int i = 0; i < it->second.size( ); i++ )
         {
             switch( it->first )
             {
+            // Check for propagated translational states in update list, and remove if necessary
             case translational_state:
                 if( environmentModelsToUpdate.count( body_translational_state_update ) > 0 )
                 {
@@ -151,6 +154,7 @@ void removePropagatedStatesFomEnvironmentUpdates(
                     }
                 }
                 break;
+            // Check for propagated rotational states in update list, and remove if necessary
             case rotational_state:
                 if( environmentModelsToUpdate.count( body_rotational_state_update ) > 0 )
                 {
@@ -166,6 +170,7 @@ void removePropagatedStatesFomEnvironmentUpdates(
                     }
                 }
                 break;
+            // Check for propagated mass states in update list, and remove if necessary
             case body_mass_state:
                 if( environmentModelsToUpdate.count( body_mass_update ) > 0 )
                 {
@@ -503,6 +508,7 @@ createMassPropagationEnvironmentUpdaterSettings(
     return environmentModelsToUpdate;
 }
 
+//! Function to update environment to allow all required updates to be made
 void checkAndModifyEnvironmentForDependentVariableSaving(
         const EnvironmentModelsToUpdate updateType,
         const boost::shared_ptr< SingleDependentVariableSaveSettings > dependentVariableSaveSettings,
@@ -539,6 +545,7 @@ void checkAndModifyEnvironmentForDependentVariableSaving(
     }
 }
 
+//! Function to create environment update settings for a single dependent variable
 std::map< propagators::EnvironmentModelsToUpdate,
 std::vector< std::string > > createEnvironmentUpdaterSettingsForDependentVariables(
         const boost::shared_ptr< SingleDependentVariableSaveSettings > dependentVariableSaveSettings,
@@ -718,6 +725,7 @@ std::vector< std::string > > createEnvironmentUpdaterSettingsForDependentVariabl
     return variablesToUpdate;
 }
 
+//! Create environment update settings for dependent variables
 std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > createEnvironmentUpdaterSettings(
         const boost::shared_ptr< DependentVariableSaveSettings > dependentVariableSaveSettings,
         const simulation_setup::NamedBodyMap& bodyMap )
@@ -738,6 +746,7 @@ std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > c
     return environmentModelsToUpdate;
 }
 
+//! Create environment update settings for termination settings
 std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > createEnvironmentUpdaterSettings(
         const boost::shared_ptr< PropagationTerminationSettings > terminationSettings,
         const simulation_setup::NamedBodyMap& bodyMap )
