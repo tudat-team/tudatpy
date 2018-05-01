@@ -124,6 +124,9 @@ public:
         // Set the central body gravitational parameter
         centralBodyGravitationalParameter_ = centralBodyGravitationalParameter;
 
+        // Set the value for MJD2000
+        MJD2000 = 51544.5;
+
         // Does not fully function yet. Should be improved.
         if ( incorrectSize( ) ) { std::cerr << "\nReturning..."; return; }
 
@@ -335,6 +338,12 @@ private:
      * Extracts the ephemeris data and stores it into the associated position and velocity vectors.
      */
     void extractEphemeris( );
+
+    //! Modified Julian Date 2000
+    /*!
+     * The amount of days between MJD and MJD2000
+     */
+    double MJD2000;
 };
 } // namespace spaceTrajectories
 } // namespace tudat

@@ -40,7 +40,6 @@
 #include "Tudat/Astrodynamics/BasicAstrodynamics/orbitalElementConversions.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/physicalConstants.h"
 
-#include "additionalConstants.h"
 #include "exportTrajectory.h"
 #include "planetTrajectory.h"
 
@@ -74,7 +73,8 @@ void returnPlanetTrajectory(const ephemerides::EphemerisPointer &ephemerisPtr,
 
     // Initiate time variable in JD for extracting data, and a time variable in seconds to store
     // the time in the vector.
-    double timeMJD2000 = startingEpochMJD2000 + physical_constants::MJD2000;
+    double MJD2000 = 51544.5;
+    double timeMJD2000 = startingEpochMJD2000 + MJD2000;
     double time = 0.0;
 
     boost::shared_ptr<ephemerides::ApproximatePlanetPositions> approxEphemerisPtr =

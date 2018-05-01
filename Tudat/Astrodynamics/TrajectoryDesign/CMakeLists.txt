@@ -35,7 +35,6 @@ endmacro(setup_unit_test_executable_target)
 
 # Set the source files.
 set(SPACETRAJECTORIES_SOURCES
-  "${SRCROOT}${TRAJECTORYDIR}/additionalFunctions.cpp"
   "${SRCROOT}${TRAJECTORYDIR}/captureLeg.cpp"
   "${SRCROOT}${TRAJECTORYDIR}/departureLegMga.cpp"
   "${SRCROOT}${TRAJECTORYDIR}/departureLegMga1DsmPosition.cpp"
@@ -50,8 +49,6 @@ set(SPACETRAJECTORIES_SOURCES
 
 # Set the header files.
 set(SPACETRAJECTORIES_HEADERS 
-  "${SRCROOT}${TRAJECTORYDIR}/additionalConstants.h"
-  "${SRCROOT}${TRAJECTORYDIR}/additionalFunctions.h"
   "${SRCROOT}${TRAJECTORYDIR}/captureLeg.h"
   "${SRCROOT}${TRAJECTORYDIR}/departureLeg.h"
   "${SRCROOT}${TRAJECTORYDIR}/departureLegMga.h"
