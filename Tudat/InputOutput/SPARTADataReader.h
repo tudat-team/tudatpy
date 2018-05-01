@@ -8,11 +8,17 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#include <map>
-#include "Tudat/Basics/utilities.h"
-#include "Tudat/Basics/basicTypedefs.h"
+#include <string>
+#include <vector>
 
-#include "Tudat/InputOutput/multiDimensionalArrayReader.h"
+#include <Eigen/Core>
+
+#include <boost/algorithm/string.hpp>
+#include <boost/algorithm/string/trim.hpp>
+#include <boost/algorithm/string/trim_all.hpp>
+
+//#include "Tudat/Basics/utilities.h"
+#include "Tudat/Basics/basicTypedefs.h"
 
 namespace tudat
 {
@@ -27,7 +33,7 @@ namespace input_output
  *  \return Pair: first entry containing list of points, second containing list of triangles.
  */
 std::pair< Eigen::Matrix< double, Eigen::Dynamic, 3 >, Eigen::Matrix< int, Eigen::Dynamic, 3 > >
-readSPARTAGeometryFile( std::string& geometryFile )
+readSPARTAGeometryFile( const std::string& geometryFile )
 {
     // Initialize output vectors
     Eigen::Matrix< double, Eigen::Dynamic, 3 > shapePoints;
@@ -177,7 +183,7 @@ readSPARTAGeometryFile( std::string& geometryFile )
  *  \param geometryFile File name for the geometry.
  *  \return Pair: first entry containing list of points, second containing list of triangles.
  */
-std::string readSPARTAInputFileTemplate( std::string& inputFile )
+std::string readSPARTAInputFileTemplate( const std::string& inputFile )
 {
     // Initialize output variable
     std::string inputTemplate;
