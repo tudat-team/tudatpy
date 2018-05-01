@@ -213,7 +213,6 @@ void Trajectory::updateEphemeris( )
     //! Update the variable vector.
 void Trajectory::updateVariableVector( const Eigen::VectorXd& trajectoryVariableVector )
 {
-    //?!? Add a check for the size.
     // Store the new vector in the trajectory class.
     trajectoryVariableVector_ = trajectoryVariableVector;
 
@@ -337,6 +336,9 @@ void Trajectory::prepareLegs( )
     // Start main loop, which adds a new interplanetary leg in each iteration.
     for ( int counter = 0; counter < numberOfLegs_; counter++)
     {
+        // Variable that saves the current leg.
+        boost::shared_ptr< MissionLeg > missionLeg;
+
         // Depending on the leg type, a different interplanetary leg is to be added. In this switch
         // structure this leg is added and the accompanying variables are linked.
         switch ( legTypeVector_[ counter ] )
@@ -344,227 +346,188 @@ void Trajectory::prepareLegs( )
             case mga_Departure:
             {
                 // Initialize leg with the corresponding variables/pointers.
-                DepartureLegMga leg( planetPositionVector_[ counter ],
-                                     planetPositionVector_[ counter + 1],
-                                     trajectoryVariableVector_[ counter + 1 ],
-                                     planetVelocityVector_[ counter ],
-                                     centralBodyGravitationalParameter_,
-                                     gravitationalParameterVector_[ counter ],
-                                     semiMajorAxesVector_[ departureOrCaptureCounter ],
-                                     eccentricityVector_[ departureOrCaptureCounter ] );
+                boost::shared_ptr< DepartureLegMga > departureLegMga =
+                        boost::make_shared < DepartureLegMga >(
+                             planetPositionVector_[ counter ],
+                             planetPositionVector_[ counter + 1],
+                             trajectoryVariableVector_[ counter + 1 ],
+                             planetVelocityVector_[ counter ],
+                             centralBodyGravitationalParameter_,
+                             gravitationalParameterVector_[ counter ],
+                             semiMajorAxesVector_[ departureOrCaptureCounter ],
+                             eccentricityVector_[ departureOrCaptureCounter ] );
 
-                boost::shared_ptr< DepartureLegMga > pointerToLeg
-                        = boost::make_shared< DepartureLegMga > ( leg );
-
-                // Add the leg to the interplanetary leg vector.
-                missionLegPtrVector_[ counter ] = pointerToLeg;
+                missionLeg = departureLegMga;
 
                 // Update the departure and capture counter.
                 departureOrCaptureCounter++;
-
                 break;
             }
 
             case mga_Swingby:
             {
                 // Initialize leg with the corresponding variables/pointers.
-                SwingbyLegMga leg( planetPositionVector_[ counter ],
-                                   planetPositionVector_[ counter + 1],
-                                   trajectoryVariableVector_[ counter + 1 ],
-                                   planetVelocityVector_[ counter ],
-                                   centralBodyGravitationalParameter_,
-                                   gravitationalParameterVector_[ counter ],
-                                   spacecraftVelocityPtrVector_[ counter - 1],
-                                   minimumPericenterRadiiVector_[ counter ] );
+                boost::shared_ptr< SwingbyLegMga > swingbyLegMga =
+                        boost::make_shared< SwingbyLegMga >(
+                           planetPositionVector_[ counter ],
+                           planetPositionVector_[ counter + 1],
+                           trajectoryVariableVector_[ counter + 1 ],
+                           planetVelocityVector_[ counter ],
+                           centralBodyGravitationalParameter_,
+                           gravitationalParameterVector_[ counter ],
+                           spacecraftVelocityPtrVector_[ counter - 1],
+                           minimumPericenterRadiiVector_[ counter ] );
 
-                boost::shared_ptr< SwingbyLegMga > pointerToLeg
-                        = boost::make_shared< SwingbyLegMga > ( leg );
-
-                // Add the leg to the interplanetary leg vector.
-                missionLegPtrVector_[ counter ] = pointerToLeg;
-
+                missionLeg = swingbyLegMga;
                 break;
             }
 
             case mga1DsmPosition_Departure:
             {
-//                Eigen::Vector3d dsmLocation;
-//                dsmLocation << trajectoryVariableVector_[ numberOfLegs_ +
-//                                                          additionalVariableCounter + 2 ],
-//                               trajectoryVariableVector_[ numberOfLegs_ +
-//                                                          additionalVariableCounter + 3 ],
-//                               trajectoryVariableVector_[ numberOfLegs_ +
-//                                                          additionalVariableCounter + 4 ];
-
                 // Initialize leg with the corresponding variables/pointers.
-                DepartureLegMga1DsmPosition leg( planetPositionVector_[ counter ],
-                                                 planetPositionVector_[ counter + 1],
-                                                 trajectoryVariableVector_[ counter + 1 ],
-                                                 planetVelocityVector_[ counter ],
-                                                 centralBodyGravitationalParameter_,
-                                                 gravitationalParameterVector_[ counter ],
-                                                 semiMajorAxesVector_[ departureOrCaptureCounter ],
-                                                 eccentricityVector_[ departureOrCaptureCounter ],
-                                                 trajectoryVariableVector_[ numberOfLegs_ +
-                                                       additionalVariableCounter + 1 ],
-                                                 //dsmLocation
-                                                 trajectoryVariableVector_[ numberOfLegs_ +
-                                                       additionalVariableCounter + 2 ],
-                                                 trajectoryVariableVector_[ numberOfLegs_ +
-                                                       additionalVariableCounter + 3 ],
-                                                 trajectoryVariableVector_[ numberOfLegs_ +
-                                                       additionalVariableCounter + 4 ] );
+                boost::shared_ptr< DepartureLegMga1DsmPosition > departureLegMga1DsmPosition =
+                        boost::make_shared< DepartureLegMga1DsmPosition >(
+                             planetPositionVector_[ counter ],
+                             planetPositionVector_[ counter + 1],
+                             trajectoryVariableVector_[ counter + 1 ],
+                             planetVelocityVector_[ counter ],
+                             centralBodyGravitationalParameter_,
+                             gravitationalParameterVector_[ counter ],
+                             semiMajorAxesVector_[ departureOrCaptureCounter ],
+                             eccentricityVector_[ departureOrCaptureCounter ],
+                             trajectoryVariableVector_[ numberOfLegs_ +
+                                   additionalVariableCounter + 1 ],
+                             trajectoryVariableVector_[ numberOfLegs_ +
+                                   additionalVariableCounter + 2 ],
+                             trajectoryVariableVector_[ numberOfLegs_ +
+                                   additionalVariableCounter + 3 ],
+                             trajectoryVariableVector_[ numberOfLegs_ +
+                                   additionalVariableCounter + 4 ] );
 
-                boost::shared_ptr< DepartureLegMga1DsmPosition > pointerToLeg
-                        = boost::make_shared< DepartureLegMga1DsmPosition > ( leg );
 
-                // Add the leg to the interplanetary leg vector.
-                missionLegPtrVector_[ counter ] = pointerToLeg;
+                missionLeg = departureLegMga1DsmPosition;
 
                 // Update the additional variable counter
                 additionalVariableCounter += 4;
 
                 // Update the departure and capture counter.
                 departureOrCaptureCounter++;
-
-
                 break;
             }
 
             case mga1DsmPosition_Swingby:
             {
-//                Eigen::Vector3d dsmLocation;
-//                dsmLocation << trajectoryVariableVector_[ numberOfLegs_ +
-//                                                          additionalVariableCounter + 2 ],
-//                               trajectoryVariableVector_[ numberOfLegs_ +
-//                                                          additionalVariableCounter + 3 ],
-//                               trajectoryVariableVector_[ numberOfLegs_ +
-//                                                          additionalVariableCounter + 4 ];
-
                 // Initialize leg with the corresponding variables/pointers.
-                SwingbyLegMga1DsmPosition leg( planetPositionVector_[ counter ],
-                                               planetPositionVector_[ counter + 1],
-                                               trajectoryVariableVector_[ counter + 1 ],
-                                               planetVelocityVector_[ counter ],
-                                               centralBodyGravitationalParameter_,
-                                               gravitationalParameterVector_[ counter ],
-                                               spacecraftVelocityPtrVector_[ counter - 1],
-                                               minimumPericenterRadiiVector_[ counter ],
-                                               trajectoryVariableVector_[ numberOfLegs_ +
-                                                       additionalVariableCounter + 1 ],
-                                               //dsmLocation
-                                               trajectoryVariableVector_[ numberOfLegs_ +
-                                                       additionalVariableCounter + 2 ],
-                                               trajectoryVariableVector_[ numberOfLegs_ +
-                                                       additionalVariableCounter + 3 ],
-                                               trajectoryVariableVector_[ numberOfLegs_ +
-                                                       additionalVariableCounter + 4 ] );
+                boost::shared_ptr< SwingbyLegMga1DsmPosition > swingbyLegMga1DsmPosition =
+                        boost::make_shared< SwingbyLegMga1DsmPosition >(
+                           planetPositionVector_[ counter ],
+                           planetPositionVector_[ counter + 1],
+                           trajectoryVariableVector_[ counter + 1 ],
+                           planetVelocityVector_[ counter ],
+                           centralBodyGravitationalParameter_,
+                           gravitationalParameterVector_[ counter ],
+                           spacecraftVelocityPtrVector_[ counter - 1],
+                           minimumPericenterRadiiVector_[ counter ],
+                           trajectoryVariableVector_[ numberOfLegs_ +
+                                   additionalVariableCounter + 1 ],
+                           trajectoryVariableVector_[ numberOfLegs_ +
+                                   additionalVariableCounter + 2 ],
+                           trajectoryVariableVector_[ numberOfLegs_ +
+                                   additionalVariableCounter + 3 ],
+                           trajectoryVariableVector_[ numberOfLegs_ +
+                                   additionalVariableCounter + 4 ] );
 
-                boost::shared_ptr< SwingbyLegMga1DsmPosition > pointerToLeg
-                        = boost::make_shared< SwingbyLegMga1DsmPosition > ( leg );
-
-                // Add the leg to the interplanetary leg vector.
-                missionLegPtrVector_[ counter ] = pointerToLeg;
+                missionLeg = swingbyLegMga1DsmPosition;
 
                 // Update the additional variable counter
                 additionalVariableCounter += 4;
-
                 break;
             }
 
             case mga1DsmVelocity_Departure:
             {
                 // Initialize leg with the corresponding variables/pointers.
-                DepartureLegMga1DsmVelocity leg( planetPositionVector_[ counter ],
-                                                 planetPositionVector_[ counter + 1],
-                                                 trajectoryVariableVector_[ counter + 1 ],
-                                                 planetVelocityVector_[ counter ],
-                                                 centralBodyGravitationalParameter_,
-                                                 gravitationalParameterVector_[ counter ],
-                                                 semiMajorAxesVector_[ departureOrCaptureCounter ],
-                                                 eccentricityVector_[ departureOrCaptureCounter ],
-                                                 trajectoryVariableVector_[ numberOfLegs_ +
-                                                        additionalVariableCounter + 1 ],
-                                                 trajectoryVariableVector_[ numberOfLegs_ +
-                                                        additionalVariableCounter + 2 ],
-                                                 trajectoryVariableVector_[ numberOfLegs_ +
-                                                        additionalVariableCounter + 3 ],
-                                                 trajectoryVariableVector_[ numberOfLegs_ +
-                                                        additionalVariableCounter + 4 ] );
+                boost::shared_ptr< DepartureLegMga1DsmVelocity > departureLegMga1DsmVelocity =
+                        boost::make_shared< DepartureLegMga1DsmVelocity >(
+                             planetPositionVector_[ counter ],
+                             planetPositionVector_[ counter + 1],
+                             trajectoryVariableVector_[ counter + 1 ],
+                             planetVelocityVector_[ counter ],
+                             centralBodyGravitationalParameter_,
+                             gravitationalParameterVector_[ counter ],
+                             semiMajorAxesVector_[ departureOrCaptureCounter ],
+                             eccentricityVector_[ departureOrCaptureCounter ],
+                             trajectoryVariableVector_[ numberOfLegs_ +
+                                    additionalVariableCounter + 1 ],
+                             trajectoryVariableVector_[ numberOfLegs_ +
+                                    additionalVariableCounter + 2 ],
+                             trajectoryVariableVector_[ numberOfLegs_ +
+                                    additionalVariableCounter + 3 ],
+                             trajectoryVariableVector_[ numberOfLegs_ +
+                                    additionalVariableCounter + 4 ] );
 
-                boost::shared_ptr< DepartureLegMga1DsmVelocity > pointerToLeg
-                        = boost::make_shared< DepartureLegMga1DsmVelocity > ( leg );
-
-                // Add the leg to the interplanetary leg vector.
-                missionLegPtrVector_[ counter ] = pointerToLeg;
+                missionLeg = departureLegMga1DsmVelocity;
 
                 // Update the additional variable counter
                 additionalVariableCounter += 4;
 
                 // Update the departure and capture counter.
                 departureOrCaptureCounter++;
-
-
                 break;
             }
 
             case mga1DsmVelocity_Swingby:
             {
                 // Initialize leg with the corresponding variables/pointers.
-                SwingbyLegMga1DsmVelocity leg( planetPositionVector_[ counter ],
-                                               planetPositionVector_[ counter + 1],
-                                               trajectoryVariableVector_[ counter + 1 ],
-                                               planetVelocityVector_[ counter ],
-                                               centralBodyGravitationalParameter_,
-                                               gravitationalParameterVector_[ counter ],
-                                               spacecraftVelocityPtrVector_[ counter - 1],
-                                               trajectoryVariableVector_[ numberOfLegs_ +
-                                                      additionalVariableCounter + 1 ],
-                                               trajectoryVariableVector_[ numberOfLegs_ +
-                                                      additionalVariableCounter + 2 ],
-                                               trajectoryVariableVector_[ numberOfLegs_ +
-                                                      additionalVariableCounter + 3 ],
-                                               trajectoryVariableVector_[ numberOfLegs_ +
-                                                      additionalVariableCounter + 4 ] );
+                boost::shared_ptr< SwingbyLegMga1DsmVelocity > swingbyLegMga1DsmVelocity =
+                        boost::make_shared< SwingbyLegMga1DsmVelocity >(
+                           planetPositionVector_[ counter ],
+                           planetPositionVector_[ counter + 1],
+                           trajectoryVariableVector_[ counter + 1 ],
+                           planetVelocityVector_[ counter ],
+                           centralBodyGravitationalParameter_,
+                           gravitationalParameterVector_[ counter ],
+                           spacecraftVelocityPtrVector_[ counter - 1],
+                           trajectoryVariableVector_[ numberOfLegs_ +
+                                  additionalVariableCounter + 1 ],
+                           trajectoryVariableVector_[ numberOfLegs_ +
+                                  additionalVariableCounter + 2 ],
+                           trajectoryVariableVector_[ numberOfLegs_ +
+                                  additionalVariableCounter + 3 ],
+                           trajectoryVariableVector_[ numberOfLegs_ +
+                                  additionalVariableCounter + 4 ] );
 
-                boost::shared_ptr< SwingbyLegMga1DsmVelocity > pointerToLeg
-                        = boost::make_shared< SwingbyLegMga1DsmVelocity > ( leg );
-
-                // Add the leg to the interplanetary leg vector.
-                missionLegPtrVector_[ counter ] = pointerToLeg;
+                missionLeg = swingbyLegMga1DsmVelocity;
 
                 // Update the additional variable counter
                 additionalVariableCounter += 4;
-
                 break;
             }
 
             case capture:
             {
                 // Initialize leg with the corresponding variables/pointers.
-                CaptureLeg leg ( planetPositionVector_[ counter ],
-                                 trajectoryVariableVector_[ counter + 1 ],
-                                 planetVelocityVector_[ counter ],
-                                 centralBodyGravitationalParameter_,
-                                 gravitationalParameterVector_[ counter ],
-                                 spacecraftVelocityPtrVector_[ counter - 1],
-                                 semiMajorAxesVector_[ departureOrCaptureCounter ],
-                                 eccentricityVector_[ departureOrCaptureCounter ] );
+                boost::shared_ptr< CaptureLeg > captureLeg =
+                        boost::make_shared< CaptureLeg >(
+                             planetPositionVector_[ counter ],
+                             trajectoryVariableVector_[ counter + 1 ],
+                             planetVelocityVector_[ counter ],
+                             centralBodyGravitationalParameter_,
+                             gravitationalParameterVector_[ counter ],
+                             spacecraftVelocityPtrVector_[ counter - 1],
+                             semiMajorAxesVector_[ departureOrCaptureCounter ],
+                             eccentricityVector_[ departureOrCaptureCounter ] );
 
-                boost::shared_ptr< CaptureLeg > pointerToLeg
-                        = boost::make_shared< CaptureLeg > ( leg );
-
-                // Add the leg to the interplanetary leg vector.
-                missionLegPtrVector_[ counter ] = pointerToLeg;
+                missionLeg = captureLeg;
 
                 // Update the departure and capture counter.
                 departureOrCaptureCounter++;
-
-
                 break;
             }
 
         }
+        missionLegPtrVector_[ counter ] = missionLeg;
+
     }
 }
 
@@ -573,30 +536,16 @@ void Trajectory::extractEphemeris( )
 {
     // Initiate a timing variable.
     double time = 0.0;
-    double timeJD2000;
-    double timeSecondsSinceEpoch;
 
     // Obtain positions and velocities at the corresponding times, by extracting the ephemeris data
     // at the visitation times.
     for ( int counter = 0; counter < numberOfLegs_ + 1; counter++ )
     {
         // Update the time to visit at a planet.
-        time = time + trajectoryVariableVector_[ counter ] / physical_constants::JULIAN_DAY;
+        time = time + trajectoryVariableVector_[ counter ];
 
-        boost::shared_ptr<ephemerides::ApproximatePlanetPositions> approxEphemerisPtr =
-                boost::dynamic_pointer_cast<ephemerides::ApproximatePlanetPositions>(ephemerisVector_[ counter ]);
-
-        // Get Keplerian state of the planet at the corresponding time (measured in MJD2000)
-        double timeMJD = time + MJD2000 ;
-        timeJD2000 = basic_astrodynamics::convertModifiedJulianDayToJulianDay(timeMJD);
-        timeSecondsSinceEpoch = basic_astrodynamics::convertJulianDayToSecondsSinceEpoch(timeJD2000);
-
-        temporaryKeplerianElements_ = ( *approxEphemerisPtr ).getKeplerianStateFromEphemeris( timeSecondsSinceEpoch );
-
-        // Convert the Keplerian state to Cartesian elements.
-        temporaryCartesianElements_ = orbital_element_conversions::
-                convertKeplerianToCartesianElements( temporaryKeplerianElements_,
-                                                     centralBodyGravitationalParameter_ );
+        // Calculate Cartesian state of Planets
+        temporaryCartesianElements_ = ephemerisVector_[ counter ]->getCartesianState( time );
 
         // Set planet position and velocity from the Cartesian elements.
         planetPositionVector_[ counter ] = temporaryCartesianElements_.segment( 0, 3 );
@@ -609,7 +558,7 @@ void Trajectory::getLaunchConditions( Eigen::Vector3d& departureBodyPosition,
                                       Eigen::Vector3d& departureBodyVelocity,
                                       Eigen::Vector3d& velocityAfterDeparture )
 {
-    ( *missionLegPtrVector_[ 0 ] ).returnDepartureVariables( departureBodyPosition,
+    missionLegPtrVector_[ 0 ]->returnDepartureVariables( departureBodyPosition,
                                                              departureBodyVelocity,
                                                              velocityAfterDeparture );
 }
