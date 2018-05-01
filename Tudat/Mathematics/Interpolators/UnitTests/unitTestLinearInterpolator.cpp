@@ -19,6 +19,7 @@
 #include "Tudat/Basics/testMacros.h"
 #include "Tudat/InputOutput/matrixTextFileReader.h"
 #include "Tudat/InputOutput/basicInputOutput.h"
+#include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
 
 namespace tudat
 {
@@ -151,6 +152,90 @@ BOOST_AUTO_TEST_CASE( test_linearInterpolation_matlab_compare )
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( benchmarkData.block( 0, 1, benchmarkData.rows( ), 1 ),
                                        outputData, 1.0E-13 );
 }
+BOOST_AUTO_TEST_CASE( test_linearInterpolation_boundary_case )
+{
+    using namespace interpolators;
+
+    // Load input data used for generating matlab interpolation.
+    Eigen::MatrixXd inputData = input_output::readMatrixFromFile(
+                input_output::getTudatRootPath( ) +
+                "Mathematics/Interpolators/UnitTests/interpolator_test_input_data.dat","," );
+
+    // Put data in STL vectors.
+    std::vector< double > independentVariableValues;
+    std::vector< double > dependentVariableValues;
+
+    for ( int i = 0; i < inputData.rows( ); i++ )
+    {
+        independentVariableValues.push_back( inputData( i, 0 ) );
+        dependentVariableValues.push_back( inputData( i, 1 ) );
+    }
+
+    // Create linear interpolator using hunting algorithm.
+    double valueOffset = 2.0;
+    double valueBelowMinimumValue = independentVariableValues[ 0 ] - valueOffset;
+    double valueAboveMaximumValue = independentVariableValues[ inputData.rows( ) - 1 ] + valueOffset;
+    double interpolatedValue = TUDAT_NAN, expectedValue = TUDAT_NAN;
+    bool exceptionIsCaught = false;
+
+    for( unsigned int i = 0; i < 5; i++ )
+    {
+        LinearInterpolatorDouble linearInterpolator(
+                    independentVariableValues, dependentVariableValues, huntingAlgorithm,
+                    static_cast< BoundaryInterpolationType >( i ) );
+
+        if( static_cast< BoundaryInterpolationType >( i ) == throw_exception_at_boundary )
+        {
+            try
+            {
+                linearInterpolator.interpolate( valueBelowMinimumValue );
+            }
+            catch( std::runtime_error )
+            {
+                exceptionIsCaught = true;
+            }
+            BOOST_CHECK_EQUAL( exceptionIsCaught, true );
+
+            exceptionIsCaught = false;
+            try
+            {
+                linearInterpolator.interpolate( valueAboveMaximumValue );
+            }
+            catch( std::runtime_error )
+            {
+                exceptionIsCaught = true;
+            }
+            BOOST_CHECK_EQUAL( exceptionIsCaught, true );
+        }
+        else if( ( static_cast< BoundaryInterpolationType >( i ) == use_boundary_value ) ||
+                  ( static_cast< BoundaryInterpolationType >( i ) == use_boundary_value_with_warning ) )
+        {
+            interpolatedValue = linearInterpolator.interpolate( valueBelowMinimumValue );
+            BOOST_CHECK_CLOSE_FRACTION( interpolatedValue, dependentVariableValues.at( 0 ), 1.0E-15 );
+
+            interpolatedValue = linearInterpolator.interpolate( valueAboveMaximumValue );
+            BOOST_CHECK_CLOSE_FRACTION( interpolatedValue, dependentVariableValues.at( inputData.rows( ) - 1 ), 1.0E-15 );
+
+        }
+        else if( ( static_cast< BoundaryInterpolationType >( i ) == extrapolate_at_boundary ) ||
+                  ( static_cast< BoundaryInterpolationType >( i ) == extrapolate_at_boundary_with_warning ) )
+        {
+            interpolatedValue = linearInterpolator.interpolate( valueBelowMinimumValue );
+            expectedValue = dependentVariableValues.at( 0 ) - valueOffset * (
+                        dependentVariableValues.at( 1 ) - dependentVariableValues.at( 0 ) ) / (
+                        independentVariableValues.at( 1 ) - independentVariableValues.at( 0 ) );
+            BOOST_CHECK_CLOSE_FRACTION( interpolatedValue, expectedValue, 1.0E-15 );
+
+            interpolatedValue = linearInterpolator.interpolate( valueAboveMaximumValue );
+            expectedValue = dependentVariableValues.at( inputData.rows( ) - 1 ) + valueOffset * (
+                        dependentVariableValues.at( inputData.rows( ) - 1 ) - dependentVariableValues.at( inputData.rows( ) - 2 ) ) / (
+                        independentVariableValues.at( inputData.rows( ) - 1 ) - independentVariableValues.at( inputData.rows( ) - 2 ) );
+            BOOST_CHECK_CLOSE_FRACTION( interpolatedValue, expectedValue, 1.0E-15 );
+        }
+    }
+}
+
+
 
 BOOST_AUTO_TEST_SUITE_END( )
 

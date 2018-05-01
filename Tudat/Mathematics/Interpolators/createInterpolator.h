@@ -61,9 +61,11 @@ public:
      */
     InterpolatorSettings( const OneDimensionalInterpolatorTypes interpolatorType,
                           const AvailableLookupScheme selectedLookupScheme = huntingAlgorithm,
-                          const bool useLongDoubleTimeStep = 0 ):
+                          const bool useLongDoubleTimeStep = 0,
+                          const BoundaryInterpolationType boundaryInterpolationType = extrapolate_at_boundary_with_warning ):
         interpolatorType_( interpolatorType ), selectedLookupScheme_( selectedLookupScheme ),
-        useLongDoubleTimeStep_( useLongDoubleTimeStep ){ }
+        useLongDoubleTimeStep_( useLongDoubleTimeStep ),
+        boundaryInterpolationType_( boundaryInterpolationType ){ }
 
     //! Virtual destructor
     virtual ~InterpolatorSettings( ){ }
@@ -104,6 +106,11 @@ public:
         return useLongDoubleTimeStep_;
     }
 
+    BoundaryInterpolationType getBoundaryInterpolationType( )
+    {
+        return boundaryInterpolationType_;
+    }
+
 protected:
 
     //! Selected type of interpolator.
@@ -114,6 +121,9 @@ protected:
 
     //!  Boolean denoting whether time step is to be a long double.
     bool useLongDoubleTimeStep_;
+
+    BoundaryInterpolationType boundaryInterpolationType_;
+
 
 };
 
@@ -135,9 +145,9 @@ public:
             const int interpolatorOrder,
             const bool useLongDoubleTimeStep = 0,
             const AvailableLookupScheme selectedLookupScheme = huntingAlgorithm,
-            const LagrangeInterpolatorBoundaryHandling boundaryHandling =
-            lagrange_cubic_spline_boundary_interpolation ):
-        InterpolatorSettings( lagrange_interpolator, selectedLookupScheme, useLongDoubleTimeStep ),
+            const LagrangeInterpolatorBoundaryHandling boundaryHandling = lagrange_cubic_spline_boundary_interpolation,
+            const BoundaryInterpolationType boundaryInterpolationType = extrapolate_at_boundary_with_warning ):
+        InterpolatorSettings( lagrange_interpolator, selectedLookupScheme, useLongDoubleTimeStep, boundaryInterpolationType ),
         interpolatorOrder_( interpolatorOrder ),
         boundaryHandling_( boundaryHandling )
     { }
@@ -391,7 +401,8 @@ createOneDimensionalInterpolator(
     case linear_interpolator:
         createdInterpolator = boost::make_shared< LinearInterpolator
                 < IndependentVariableType, DependentVariableType > >(
-                    dataToInterpolate, interpolatorSettings->getSelectedLookupScheme( ) );
+                    dataToInterpolate, interpolatorSettings->getSelectedLookupScheme( ),
+                    interpolatorSettings->getBoundaryInterpolationType( ) );
         break;
     case cubic_spline_interpolator:
     {
@@ -399,13 +410,15 @@ createOneDimensionalInterpolator(
         {
             createdInterpolator = boost::make_shared< CubicSplineInterpolator
                     < IndependentVariableType, DependentVariableType > >(
-                        dataToInterpolate, interpolatorSettings->getSelectedLookupScheme( ) );
+                        dataToInterpolate, interpolatorSettings->getSelectedLookupScheme( ),
+                        interpolatorSettings->getBoundaryInterpolationType( ) );
         }
         else
         {
             createdInterpolator = boost::make_shared< CubicSplineInterpolator
                     < IndependentVariableType, DependentVariableType, long double > >(
-                        dataToInterpolate, interpolatorSettings->getSelectedLookupScheme( ) );
+                        dataToInterpolate, interpolatorSettings->getSelectedLookupScheme( ),
+                        interpolatorSettings->getBoundaryInterpolationType( ) );
         }
         break;
     }
@@ -423,7 +436,8 @@ createOneDimensionalInterpolator(
                         < IndependentVariableType, DependentVariableType, double > >(
                             dataToInterpolate, lagrangeInterpolatorSettings->getInterpolatorOrder( ),
                             interpolatorSettings->getSelectedLookupScheme( ),
-                            lagrangeInterpolatorSettings->getBoundaryHandling( ) );
+                            lagrangeInterpolatorSettings->getBoundaryHandling( ),
+                            interpolatorSettings->getBoundaryInterpolationType( ) );
             }
             else
             {
@@ -431,7 +445,8 @@ createOneDimensionalInterpolator(
                         < IndependentVariableType, DependentVariableType, long double > >(
                             dataToInterpolate, lagrangeInterpolatorSettings->getInterpolatorOrder( ),
                             interpolatorSettings->getSelectedLookupScheme( ),
-                            lagrangeInterpolatorSettings->getBoundaryHandling( ) );
+                            lagrangeInterpolatorSettings->getBoundaryHandling( ),
+                            interpolatorSettings->getBoundaryInterpolationType( ) );
             }
         }
         else
@@ -451,13 +466,15 @@ createOneDimensionalInterpolator(
         createdInterpolator = boost::make_shared< HermiteCubicSplineInterpolator
                 < IndependentVariableType, DependentVariableType > >(
                     dataToInterpolate, firstDerivativeOfDependentVariables,
-                    interpolatorSettings->getSelectedLookupScheme( ) );
+                    interpolatorSettings->getSelectedLookupScheme( ),
+                    interpolatorSettings->getBoundaryInterpolationType( ) );
         break;
     }
     case piecewise_constant_interpolator:
         createdInterpolator = boost::make_shared< PiecewiseConstantInterpolator
                 < IndependentVariableType, DependentVariableType > >(
-                    dataToInterpolate, interpolatorSettings->getSelectedLookupScheme( ) );
+                    dataToInterpolate, interpolatorSettings->getSelectedLookupScheme( ),
+                    interpolatorSettings->getBoundaryInterpolationType( ) );
         break;
     default:
         throw std::runtime_error(
