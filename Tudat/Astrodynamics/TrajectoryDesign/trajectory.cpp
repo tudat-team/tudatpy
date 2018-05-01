@@ -39,7 +39,6 @@
 #include "Tudat/Astrodynamics/BasicAstrodynamics/physicalConstants.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/unitConversions.h"
 
-#include "additionalConstants.h"
 #include "captureLeg.h"
 #include "departureLegMga.h"
 #include "departureLegMga1DsmPosition.h"
@@ -588,7 +587,7 @@ void Trajectory::extractEphemeris( )
                 boost::dynamic_pointer_cast<ephemerides::ApproximatePlanetPositions>(ephemerisVector_[ counter ]);
 
         // Get Keplerian state of the planet at the corresponding time (measured in MJD2000)
-        double timeMJD = time+51544.5;
+        double timeMJD = time + MJD2000 ;
         timeJD2000 = basic_astrodynamics::convertModifiedJulianDayToJulianDay(timeMJD);
         timeSecondsSinceEpoch = basic_astrodynamics::convertJulianDayToSecondsSinceEpoch(timeJD2000);
 

@@ -41,7 +41,6 @@
 #include "Tudat/Astrodynamics/BasicAstrodynamics/keplerPropagator.h"
 
 #include "exportTrajectory.h"
-#include "additionalConstants.h"
 
 namespace tudat
 {
