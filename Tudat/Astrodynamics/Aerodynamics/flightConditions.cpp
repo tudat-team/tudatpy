@@ -25,6 +25,7 @@ namespace aerodynamics
 {
 
 
+//! Constructor, sets objects and functions from which relevant environment and state variables are retrieved.
 FlightConditions::FlightConditions( const boost::shared_ptr< basic_astrodynamics::BodyShapeModel > shapeModel,
                   const boost::shared_ptr< reference_frames::AerodynamicAngleCalculator >
                   aerodynamicAngleCalculator ):

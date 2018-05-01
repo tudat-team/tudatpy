@@ -29,9 +29,9 @@ namespace tudat
 namespace simulation_setup
 {
 
-//! Function to create a flight conditions object
+//! Function to create an atmospheric flight conditions object
 /*!
- * Function to create a flight conditions object, which is responsible for calculating the various
+ * Function to create an atmospheric flight conditions object, which is responsible for calculating the various
  * dependent variables required for calculation of the aerodynamic acceleration
  * \param bodyWithFlightConditions Body for which flight conditions are to be created.
  * \param centralBody Body in  the atmosphere of which bodyWithFlightConditions is flying
@@ -53,7 +53,16 @@ boost::shared_ptr< aerodynamics::AtmosphericFlightConditions >  createAtmospheri
         const boost::function< double( ) > bankAngleFunction = boost::function< double( ) >( ),
         const boost::function< void( const double ) > angleUpdateFunction = boost::function< void( const double ) >( ) );
 
-
+//! Function to create a flight conditions object
+/*!
+ * Function to create a flight conditions object, which is responsible for calculating various
+ * dependent variables (altitude, latitude, etc ) for non-atmospheric flight
+ * \param bodyWithFlightConditions Body for which flight conditions are to be created.
+ * \param centralBody Body in  the atmosphere of which bodyWithFlightConditions is flying
+ * \param nameOfBodyUndergoingAcceleration Name of body undergoing acceleration.
+ * \param nameOfBodyExertingAcceleration Name of body with the atmosphere causing acceleration.
+ * \return Flight conditions object for given bodies and settings.
+ */
 boost::shared_ptr< aerodynamics::FlightConditions >  createFlightConditions(
         const boost::shared_ptr< Body > bodyWithFlightConditions,
         const boost::shared_ptr< Body > centralBody,
