@@ -31,8 +31,9 @@ enum BoundaryInterpolationType
 {
     throw_exception_at_boundary = 0,
     use_boundary_value = 1,
-    extrapolate_at_boundary = 2,
-    extrapolate_at_boundary_with_warning = 2
+    use_boundary_value_with_warning = 2,
+    extrapolate_at_boundary = 3,
+    extrapolate_at_boundary_with_warning = 4
 };
 
 
@@ -192,14 +193,15 @@ protected:
                             boost::lexical_cast< std::string >( independentValues_[ dependentValues_.size( ) - 1 ] ) + ", applying extrapolation instead." ;
                     std::cerr<<errorMessage<<std::endl;
                 }
-                else if( this->boundaryHandling_ == use_boundary_value )
+                else if( ( this->boundaryHandling_ == use_boundary_value ) ||
+                         ( this->boundaryHandling_ == use_boundary_value_with_warning ) )
                 {
                     if( isAtBoundary == -1 )
                     {
                         dependentVariable = dependentValues_[ 0 ];
                         useValue = 1;
                     }
-                    else if( isAtBoundary )
+                    else if( isAtBoundary == 1 )
                     {
                         dependentVariable = dependentValues_[ dependentValues_.size( ) - 1 ];
                         useValue = 1;
@@ -207,6 +209,15 @@ protected:
                     else
                     {
                         throw std::runtime_error( "Error when checking interpolation boundary, inconsistent data encountered" );
+                    }
+
+                    if( this->boundaryHandling_ == use_boundary_value_with_warning )
+                    {
+                        std::string errorMessage = "Warning in interpolator, requesting data point outside of boundaries, requested data at: " +
+                                boost::lexical_cast< std::string >( targetIndependentVariableValue ) + " but limit values are " +
+                                boost::lexical_cast< std::string >( independentValues_[ 0 ] ) + " and " +
+                                boost::lexical_cast< std::string >( independentValues_[ dependentValues_.size( ) - 1 ] ) + ", taking boundary value instead." ;
+                        std::cerr<<errorMessage<<std::endl;
                     }
                 }
                 else
