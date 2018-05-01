@@ -76,7 +76,7 @@ public:
             const Eigen::Vector3d& momentReferencePoint,
             const std::vector< AerodynamicCoefficientsIndependentVariables > independentVariableNames,
             const bool areCoefficientsInAerodynamicFrame = true,
-            const bool areCoefficientsInNegativeAxisDirection = true  ):
+            const bool areCoefficientsInNegativeAxisDirection = true ) :
         AerodynamicCoefficientInterface(
             referenceLength, referenceArea, lateralReferenceLength, momentReferencePoint,
             independentVariableNames, areCoefficientsInAerodynamicFrame,

@@ -31,6 +31,7 @@
 #include "Tudat/Astrodynamics/Aerodynamics/aerodynamicCoefficientGenerator.h"
 #include "Tudat/Astrodynamics/Aerodynamics/standardAtmosphere.h"
 #include "Tudat/InputOutput/basicInputOutput.h"
+#include "Tudat/InputOutput/matrixTextFileReader.h"
 #include "Tudat/InputOutput/SPARTADataReader.h"
 #include "Tudat/Basics/basicTypedefs.h"
 
@@ -39,12 +40,19 @@ namespace tudat
 namespace aerodynamics
 {
 
-//! Returns default values of molecular speed ratio for use in RarefiedFlowAnalysis.
+//! Returns default values of altitude for use in RarefiedFlowAnalysis.
 /*!
- *  Returns default values of molecular speed ratio for use in RarefiedFlowAnalysis.
+ *  Returns default values of altitude for use in RarefiedFlowAnalysis.
  */
-std::vector< double > getDefaultRarefiedFlowMolecularSpeedRatioPoints(
-        const std::string& molecularSpeedRatioRegime = "Full" );
+std::vector< double > getDefaultRarefiedFlowAltitudePoints(
+        const std::string& targetPlanet = "Earth" );
+
+//! Returns default values of Mach number for use in RarefiedFlowAnalysis.
+/*!
+ *  Returns default values of Mach number for use in RarefiedFlowAnalysis.
+ */
+std::vector< double > getDefaultRarefiedFlowMachPoints(
+        const std::string& machRegime = "Full" );
 
 //! Returns default values of angle of attack for use in RarefiedFlowAnalysis.
 /*!
@@ -106,10 +114,10 @@ public:
     RarefiedFlowAnalysis(
             const std::string& SPARTAExecutable,
             const std::vector< std::vector< double > >& dataPointsOfIndependentVariables,
-            const std::string simulationGases,
+            const std::string& simulationGases,
             const StandardAtmosphere& atmosphereModel,
             const std::string& geometryFileUser,
-            const int referenceAxis,
+            const int& referenceAxis,
             const Eigen::Vector3d& momentReferencePoint,
             const double wallTemperature = 300.0,
             const double accomodationCoefficient = 1.0 );
@@ -134,13 +142,11 @@ public:
 
 private:
 
-    //! Generate aerodynamic database.
-    /*!
-     * Generates aerodynamic database. Settings of geometry,
-     * reference quantities, database point settings and analysis methods
-     *  should have been set previously.
-     */
-    void generateCoefficients( );
+    void analyzeGeometryFile( const std::string& geometryFileUser );
+
+    void getSimulationConditions( );
+
+    void runSPARTASimulation( const std::string& SPARTAExecutable );
 
     std::string outputDirectory_ = "results";
     std::string outputPath_ = input_output::getSPARTADataPath( ) + outputDirectory_;
