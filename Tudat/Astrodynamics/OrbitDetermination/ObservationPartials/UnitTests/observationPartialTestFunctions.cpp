@@ -306,8 +306,9 @@ std::vector< std::vector< double > > getAnalyticalPartialEvaluationTimes(
     std::vector< double > currentPartialTimes;
     std::vector< int > currentPartialTimeIndices;
 
-    std::vector< std::string > bodiesWithEstimatedState = estimatable_parameters::getListOfBodiesToEstimate(
-                estimatedParameters );
+     std::vector< std::string > bodiesWithEstimatedState =
+            estimatable_parameters::getListOfBodiesToEstimate(
+                estimatedParameters ).at( propagators::translational_state );
 
     for( unsigned int i = 0; i < bodiesWithEstimatedState.size( ); i++ )
     {
