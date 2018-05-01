@@ -21,7 +21,6 @@
 #include <boost/lambda/lambda.hpp>
 
 #include "Tudat/Astrodynamics/Aerodynamics/exponentialAtmosphere.h"
-#include "Tudat/Astrodynamics/Ephemerides/constantRotationalEphemeris.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/sphericalStateConversions.h"
 #include "Tudat/Astrodynamics/Gravitation/centralGravityModel.h"
 #include "Tudat/External/SpiceInterface/spiceInterface.h"

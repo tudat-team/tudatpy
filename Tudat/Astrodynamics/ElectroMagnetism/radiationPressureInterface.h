@@ -88,6 +88,12 @@ public:
     //! Destructor
     virtual ~RadiationPressureInterface( ){ }
 
+    //! Base class function to update the current properties of radiation pressure
+    /*!
+     *  Base class function to update the current properties of radiation pressure. This function is nominally called by the
+     *  updateInterface function, which may be overridden by derived classes.
+     *  \param currentTime Time at which acceleration model is to be updated.
+     */
     void updateInterfaceBase(
             const double currentTime );
 
@@ -95,7 +101,7 @@ public:
     /*!
      *  Function to update the current value of the radiation pressure, based on functions returning
      *  the positions of the bodies involved and the source power.
-     * \param currentTime Time at which acceleration model is to be updated.
+     *  \param currentTime Time at which acceleration model is to be updated.
      */
     virtual void updateInterface( const double currentTime = TUDAT_NAN );
 
