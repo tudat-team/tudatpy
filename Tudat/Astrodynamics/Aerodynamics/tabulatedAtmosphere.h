@@ -65,10 +65,11 @@ public:
                          const std::vector< AtmosphereIndependentVariables > independentVariablesNames =
     { altitude_dependent_atmosphere },
                          const double specificGasConstant = physical_constants::SPECIFIC_GAS_CONSTANT_AIR,
-                         const double ratioOfSpecificHeats = 1.4 ):
+                         const double ratioOfSpecificHeats = 1.4,
+                         interpolators::BoundaryInterpolationType boundaryHandling = interpolators::use_boundary_value ):
         atmosphereTableFile_( atmosphereTableFile ), dependentVariables_( dependentVariablesNames ),
         specificGasConstant_( specificGasConstant ), ratioOfSpecificHeats_( ratioOfSpecificHeats ),
-        independentVariables_( independentVariablesNames )
+        independentVariables_( independentVariablesNames ), boundaryHandling_( boundaryHandling )
     {
         initialize( atmosphereTableFile_ );
     }
@@ -414,6 +415,12 @@ private:
      *  Interpolation for ratio of specific heats. Note that type of interpolator depends on number of independent variables specified.
      */
     boost::shared_ptr< interpolators::Interpolator < double, double > > interpolationForSpecificHeatRatio_;
+
+    //! Behavior of interpolator when independent variable is outside range.
+    /*!
+     *  Behavior of interpolator when independent variable is outside range.
+     */
+    interpolators::BoundaryInterpolationType boundaryHandling_;
 };
 
 //! Check uniqueness of input.
