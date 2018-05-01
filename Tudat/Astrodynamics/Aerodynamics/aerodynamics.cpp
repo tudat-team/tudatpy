@@ -569,24 +569,50 @@ double computeAdiabaticWallTemperature(
 }
 
 //! Compute the aerodynamic coefficients from pressure and shear stress acting on element
-Eigen::Vector3d computeAerodynamicCoefficientsFromPressureShear( const Eigen::Vector3d pressureForceVector,
-                                                                 const Eigen::Vector3d shearStressVector,
-                                                                 const double airDensity,
-                                                                 const double airSpeed,
-                                                                 const double airPressure,
-                                                                 const Eigen::Vector3d elementSurfaceNormal,
-                                                                 const double elementSurfaceArea,
-                                                                 const double referenceAerodynamicArea )
+Eigen::Vector6d computeAerodynamicCoefficientsFromPressureShear(
+        const Eigen::Matrix< double, 3, Eigen::Dynamic > pressureForceVector,
+        const Eigen::Matrix< double, 3, Eigen::Dynamic > shearStressVector,
+        const double airDensity,
+        const double airSpeed,
+        const double airPressure,
+        const Eigen::Matrix< double, 3, Eigen::Dynamic > elementSurfaceNormal,
+        const Eigen::Matrix< double, 1, Eigen::Dynamic > elementSurfaceArea,
+        const Eigen::Matrix< double, 3, Eigen::Dynamic > elementMomentArm,
+        const double referenceAerodynamicArea )
 {
+    // Initialize output value
+    Eigen::Vector6d aerodynamicCoefficients;
+
     // Compute dynamic pressure
     double dynamicPressure = 0.5 * airDensity * airSpeed * airSpeed;
 
     // Compute pressure and friction coefficient
-    Eigen::Vector3d pressureCoefficient = ( pressureForceVector - airPressure * elementSurfaceNormal ) / dynamicPressure;
-    Eigen::Vector3d frictionCoefficient = shearStressVector / dynamicPressure;
+    Eigen::Matrix< double, 3, Eigen::Dynamic > pressureCoefficient =
+            ( pressureForceVector - airPressure * elementSurfaceNormal ) / dynamicPressure;
+    Eigen::Matrix< double, 3, Eigen::Dynamic > frictionCoefficient = shearStressVector / dynamicPressure;
 
-    // Compute aerodynamic coefficients
-    return - ( pressureCoefficient + frictionCoefficient ) * elementSurfaceArea / referenceAerodynamicArea;
+    // Compute aerodynamic force coefficients
+    for ( unsigned int i = 0; i < 3; i++ )
+    {
+        aerodynamicCoefficients( i ) = ( pressureCoefficient.row( i ) + frictionCoefficient.row( i ) ).dot(
+                    elementSurfaceArea );
+    }
+
+    // Compute aerodynamic moment coefficients
+    Eigen::Matrix< double, 3, Eigen::Dynamic > temporaryMatrix;
+    temporaryMatrix.resize( 3, pressureForceVector.cols( ) );
+    for ( unsigned int j = 0; j < pressureForceVector.cols( ); j++ )
+    {
+        temporaryMatrix.col( j ) = linear_algebra::getCrossProductMatrix( pressureCoefficient.col( j ) +
+                                                                          frictionCoefficient.col( j ) ) *
+                elementMomentArm.col( j );
+    }
+    for ( unsigned int i = 3; i < 6; i++ )
+    {
+        aerodynamicCoefficients( i ) = temporaryMatrix.row( i ).dot( elementSurfaceArea );
+    }
+    aerodynamicCoefficients /= - referenceAerodynamicArea;
+    return aerodynamicCoefficients;
 }
 
 } // namespace aerodynamics

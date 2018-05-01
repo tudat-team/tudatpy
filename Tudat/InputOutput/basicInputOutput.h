@@ -207,8 +207,6 @@ void writeValueToStream( OutputStream& stream, const Eigen::Matrix< ScalarType,
                    << std::setprecision( precision ) << std::left
                    << std::setw( precision + 1 )
                    << value( i, j );
-
-
         }
         if( endLineAfterRow )
         {
@@ -216,6 +214,14 @@ void writeValueToStream( OutputStream& stream, const Eigen::Matrix< ScalarType,
         }
     }
     stream << std::endl;
+}
+
+template< typename ValueType = double >
+std::string printToStringWithPrecision( const ValueType valueToBePrinted, const int precision = 3 )
+{
+    std::ostringstream outputString;
+    outputString << std::setprecision( precision ) << std::fixed << valueToBePrinted;
+    return outputString.str( );
 }
 
 //! Write data map to text file.
