@@ -57,6 +57,51 @@ std::map< observation_models::LinkEndType, boost::shared_ptr< CartesianStatePart
     return partialMap;
 }
 
+std::map< observation_models::LinkEndType, boost::shared_ptr< CartesianStatePartial > > createCartesianStatePartialsWrtBodyRotationalState(
+        const observation_models::LinkEnds& linkEnds,
+        const simulation_setup::NamedBodyMap& bodyMap,
+        const std::string& bodyToEstimate )
+{
+    // Declare data map to return.
+    std::map< observation_models::LinkEndType, boost::shared_ptr< CartesianStatePartial > > partialMap;
+
+    // Declare local variable to use in loop
+    std::string currentBodyName;
+
+    // Iterate over all like ends.
+    for( observation_models::LinkEnds::const_iterator linkEndIterator = linkEnds.begin( );
+         linkEndIterator != linkEnds.end( ); linkEndIterator++ )
+    {
+        // Check if current link end is on body that is requested.
+        currentBodyName = linkEndIterator->second.first;
+        if( bodyToEstimate == currentBodyName )
+        {
+            boost::shared_ptr< simulation_setup::Body > currentBody = bodyMap.at( currentBodyName );
+
+            if( currentBody->getGroundStationMap( ).count( linkEndIterator->second.second ) == 0 )
+            {
+                throw std::runtime_error(
+                            "Error when making cartesian state partial w.r.t. rotation parameter, ground station " +
+                            linkEndIterator->second.second + " not found on body " + linkEndIterator->second.first );
+            }
+
+            // Set ground station position function
+            boost::function< Eigen::Vector3d( const double ) > groundStationPositionFunction =
+                    boost::bind( &ground_stations::GroundStationState::getCartesianPositionInTime,
+                                 currentBody->getGroundStation( linkEndIterator->second.second )->getNominalStationState( ),
+                                 _1, basic_astrodynamics::JULIAN_DAY_ON_J2000 );
+
+            // Create partial
+            partialMap[ linkEndIterator->first ] = boost::make_shared< CartesianStatePartialWrtRotationMatrixParameter >(
+                        boost::make_shared< RotationMatrixPartialWrtQuaternion >(
+                            boost::bind( &simulation_setup::Body::getCurrentRotationToGlobalFrame, currentBody ) ),
+                        groundStationPositionFunction );
+        }
+    }
+
+    return partialMap;
+}
+
 //! Function to return partial object(s) of position of reference point w.r.t. a (double) parameter.
 std::map< observation_models::LinkEndType, boost::shared_ptr< CartesianStatePartial > > createCartesianStatePartialsWrtParameter(
         const observation_models::LinkEnds linkEnds,
@@ -161,10 +206,17 @@ std::map< observation_models::LinkEndType, boost::shared_ptr< CartesianStatePart
             // with the rotation matrix partial created from createRotationMatrixPartialsWrtParameter function.
             if( estimatable_parameters::isParameterRotationMatrixProperty( parameterToEstimate->getParameterName( ).first ) )
             {
+                if( currentBody->getGroundStationMap( ).count( linkEndIterator->second.second ) == 0 )
+                {
+                    throw std::runtime_error(
+                                "Error when making cartesian state partial w.r.t. rotation parameter, ground station " +
+                                linkEndIterator->second.second + " not found on body " + linkEndIterator->second.first );
+                }
+
                 // Set ground station position function
                 boost::function< Eigen::Vector3d( const double ) > groundStationPositionFunction =
                         boost::bind( &ground_stations::GroundStationState::getCartesianPositionInTime,
-                                     ( currentBody )->getGroundStation( linkEndIterator->second.second )
+                                     currentBody->getGroundStation( linkEndIterator->second.second )
                                      ->getNominalStationState( ), _1, basic_astrodynamics::JULIAN_DAY_ON_J2000 );
 
                 // Create parameter partial object.

@@ -556,7 +556,7 @@ Eigen::VectorXd executeEarthOrbiterParameterEstimation(
     {
         ObservableType currentObservable = linkEndIterator->first;
         std::vector< LinkEnds > currentLinkEndsList = linkEndIterator->second;
-        for( unsigned int i = 0; i < currentLinkEndsList.size( ); i++ )
+        for( unsigned int i = 0; i < currentLinkEndsList.size( ); i++im )
         {
             measurementSimulationInput[ currentObservable ][ currentLinkEndsList.at( i ) ] =
                     std::make_pair( baseTimeList, receiver );

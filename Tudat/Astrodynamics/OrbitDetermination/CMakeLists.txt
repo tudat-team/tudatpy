@@ -89,6 +89,10 @@ if( COMPILE_HIGH_ACCURACY_ESTIMATION_TESTS )
     add_executable(test_BiasEstimation "${SRCROOT}${ORBITDETERMINATIONDIR}/UnitTests/unitTestBiasEstimation.cpp")
     setup_custom_test_program(test_BiasEstimation "${SRCROOT}${ORBITDETERMINATIONDIR}")
     target_link_libraries(test_BiasEstimation ${TUDAT_ESTIMATION_LIBRARIES} ${Boost_LIBRARIES})
+
+    add_executable(test_RotationalStateEstimation "${SRCROOT}${ORBITDETERMINATIONDIR}/UnitTests/unitTestRotationalStateEstimation.cpp")
+    setup_custom_test_program(test_RotationalStateEstimation "${SRCROOT}${ORBITDETERMINATIONDIR}")
+    target_link_libraries(test_RotationalStateEstimation ${TUDAT_ESTIMATION_LIBRARIES} ${Boost_LIBRARIES})
 endif( )
 
 endif( )

@@ -877,10 +877,10 @@ getListOfBodiesWithTranslationalMultiArcStateToEstimate(
  * \return List of bodies for which an initial dynamical state is estimated.
  */
 template< typename InitialStateParameterType >
-std::vector< std::string > getListOfBodiesToEstimate(
+std::map< propagators::IntegratedStateType, std::vector< std::string > > getListOfBodiesToEstimate(
         const boost::shared_ptr< EstimatableParameterSet< InitialStateParameterType > > estimatableParameters )
 {
-    std::vector< std::string > bodiesToEstimate;
+    std::map< propagators::IntegratedStateType, std::vector< std::string > > bodiesToEstimate;
 
     std::vector< boost::shared_ptr< EstimatableParameter<
             Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > > > initialDynamicalParameters =
@@ -892,8 +892,12 @@ std::vector< std::string > getListOfBodiesToEstimate(
         if( ( initialDynamicalParameters.at( i )->getParameterName( ).first == initial_body_state )  ||
                 ( initialDynamicalParameters.at( i )->getParameterName( ).first == arc_wise_initial_body_state ) )
         {
-            bodiesToEstimate.push_back(  initialDynamicalParameters.at( i )->getParameterName( ).second.first );
+            bodiesToEstimate[ propagators::transational_state ].push_back(  initialDynamicalParameters.at( i )->getParameterName( ).second.first );
         }
+        else if( ( initialDynamicalParameters.at( i )->getParameterName( ).first == initial_rotational_body_state ) )
+         {
+             bodiesToEstimate[ propagators::rotational_state ].push_back(  initialDynamicalParameters.at( i )->getParameterName( ).second.first );
+         }
     }
 
     return bodiesToEstimate;

@@ -422,6 +422,8 @@ public:
                     }
                 }
             }
+            case rotational_state:
+                break;
             case body_mass_state:
                 break;
             case custom_state:

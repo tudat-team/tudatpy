@@ -307,7 +307,6 @@ boost::shared_ptr< ObservationManagerBase< ObservationScalarType, TimeType > > c
             createObservationSimulator< ObservationSize, ObservationScalarType, TimeType >(
                 observableType, settingsPerLinkEnds, bodyMap );
 
-
     performObservationParameterEstimationClosure(
                 observationSimulator, parametersToEstimate );
 

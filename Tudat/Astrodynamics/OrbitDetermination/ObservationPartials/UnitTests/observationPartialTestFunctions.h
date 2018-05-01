@@ -127,7 +127,8 @@ inline void testObservationPartials(
         const Eigen::VectorXd parameterPerturbationMultipliers = Eigen::VectorXd::Constant( 4, 1.0 ) )
 {
     // Retrieve double and vector parameters and estimate body states
-    std::vector< std::string > bodiesWithEstimatedState = estimatable_parameters::getListOfBodiesToEstimate(
+    std::map< propagators::IntegratedStateType, std::vector< std::string > > bodiesWithEstimatedState =
+            estimatable_parameters::getListOfBodiesToEstimate(
                 fullEstimatableParameterSet );
     std::vector< boost::shared_ptr< EstimatableParameter< double > > > doubleParameterVector =
             fullEstimatableParameterSet->getEstimatedDoubleParameters( );
@@ -226,12 +227,12 @@ inline void testObservationPartials(
             // Calculate numerical partials w.r.t. estimate body state.
             Eigen::Matrix< double, Eigen::Dynamic, 3 > bodyPositionPartial =
                     Eigen::Matrix< double, ObservableSize, 3 >::Zero( );
-            for( unsigned int i = 0; i < bodiesWithEstimatedState.size( ); i++ )
+            for( unsigned int i = 0; i < bodiesWithEstimatedState.at( propagators::translational_state ).size( ); i++ )
             {
                 // Compute numerical position partial
                 Eigen::Matrix< double, Eigen::Dynamic, 3 > numericalPartialWrtBodyPosition =
                         calculatePartialWrtConstantBodyState(
-                            bodiesWithEstimatedState[ i ], bodyMap, bodyPositionVariation,
+                            bodiesWithEstimatedState.at( propagators::translational_state )[ i ], bodyMap, bodyPositionVariation,
                             observationFunction, observationTime, ObservableSize );
 
                 // Set total analytical partial

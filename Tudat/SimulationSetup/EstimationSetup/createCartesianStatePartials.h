@@ -49,6 +49,11 @@ std::map< observation_models::LinkEndType, boost::shared_ptr< CartesianStatePart
         const simulation_setup::NamedBodyMap& bodyMap,
         const std::string bodyToEstimate );
 
+std::map< observation_models::LinkEndType, boost::shared_ptr< CartesianStatePartial > > createCartesianStatePartialsWrtBodyRotationalState(
+        const observation_models::LinkEnds& linkEnds,
+        const simulation_setup::NamedBodyMap& bodyMap,
+        const std::string& bodyToEstimate );
+
 //! Function to return partial object(s) of position of reference point w.r.t. a (double) parameter.
 /*!
  *  Function to return partial object(s) of position of reference point w.r.t. a (double) parameter. A set of link ends and
