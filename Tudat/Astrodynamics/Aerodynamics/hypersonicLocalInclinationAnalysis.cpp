@@ -131,7 +131,7 @@ HypersonicLocalInclinationAnalysis::HypersonicLocalInclinationAnalysis(
           dataPointsOfIndependentVariables, referenceLength, referenceArea, referenceLength,
           momentReferencePoint,
           boost::assign::list_of( mach_number_dependent )( angle_of_attack_dependent )
-          ( angle_of_sideslip_dependent ), 1, 0 ),
+          ( angle_of_sideslip_dependent ), true, false ),
       stagnationPressureCoefficient( 2.0 ),
       ratioOfSpecificHeats( 1.4 ),
       selectedMethods_( selectedMethods )
@@ -245,7 +245,6 @@ Vector6d HypersonicLocalInclinationAnalysis::getAerodynamicCoefficientsDataPoint
 
     // Return requested coefficients.
     return aerodynamicCoefficients_( independentVariables );
-
 }
 
 //! Generate aerodynamic database.

@@ -20,6 +20,7 @@
 #include <vector>
 
 #include <boost/multi_array.hpp>
+#include <boost/make_shared.hpp>
 #include <boost/shared_ptr.hpp>
 
 #include <Eigen/Core>
@@ -210,10 +211,9 @@ protected:
                 boost::make_shared< interpolators::MultiLinearInterpolator< double,
                 Eigen::Vector6d, 3 > >
                 ( dataPointsOfIndependentVariables_, aerodynamicCoefficients_ );
-
     }
 
-    //! N-dimensional array containing all computer aerodynamic coefficients.
+    //! N-dimensional array containing all computed aerodynamic coefficients.
     /*!
      *  N-dimensional array containing all computer aerodynamic coefficients. The k-th dimension
      *  pertains to coefficients at the k-th independent variable, the data points for which are
