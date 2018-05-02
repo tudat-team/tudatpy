@@ -163,68 +163,85 @@ public:
 
 private:
 
-    int checkInterpolationBoundary( const IndependentVariableType& independentVariable, const int& currentDimension )
+    //! Function to return the condition of the current independent variable.
+    /*!
+     *  Function to return the condition of the current independent variable, i.e. whether the
+     *  variable is within, above or below its defined range range.
+     *  \param independentVariable Value of current independent variable.
+     *  \param currentVariable Value of current dimension.
+     *  \return Condition with respect to boundary.
+     */
+    int checkInterpolationBoundary( const IndependentVariableType& independentVariable,
+                                    const unsigned int& currentVariable )
     {
         int isAtBoundary = 0;
-        if( independentVariable < independentValues_.at( currentDimension ).front( ) )
+        if( independentVariable < independentValues_.at( currentVariable ).front( ) )
         {
             isAtBoundary = -1;
         }
-        else if( independentVariable >= independentValues_.at( currentDimension ).back( ) )
+        else if( independentVariable > independentValues_.at( currentVariable ).back( ) )
         {
             isAtBoundary = 1;
         }
         return isAtBoundary;
     }
 
+    //! Function to check whether boundary handling needs to be applied, depending on method chosen.
+    /*!
+     *  Function to check whether boundary handling needs to be applied, depending on method chosen.
+     *  If independent variable is beyond its range definition, boundary handling will be applied, depending
+     *  on the method specified in boundaryHandling_.
+     *  \param independentVariable Value of current independent variable.
+     *  \param currentVariable Value of current dimension.
+     */
     void checkBoundaryCase(
             IndependentVariableType& independentVariable,
-            const int& currentDimension )
+            const unsigned int& currentVariable )
     {
         if( boundaryHandling_ != extrapolate_at_boundary )
         {
-            int isAtBoundary = checkInterpolationBoundary( independentVariable, currentDimension );
+            int isAtBoundary = checkInterpolationBoundary( independentVariable, currentVariable );
 
             if( isAtBoundary != 0 )
             {
                 if( boundaryHandling_ == throw_exception_at_boundary )
                 {
                     std::string errorMessage = "Error in interpolator, requesting data point outside of boundaries, requested data of dimension " +
-                            boost::lexical_cast< std::string >( currentDimension ) + " at: " +
+                            boost::lexical_cast< std::string >( currentVariable ) + " at: " +
                             boost::lexical_cast< std::string >( independentVariable ) + " but limit values are " +
-                            boost::lexical_cast< std::string >( independentValues_.at( currentDimension ).front( ) ) + " and " +
-                            boost::lexical_cast< std::string >( independentValues_.at( currentDimension ).back( ) );
+                            boost::lexical_cast< std::string >( independentValues_.at( currentVariable ).front( ) ) + " and " +
+                            boost::lexical_cast< std::string >( independentValues_.at( currentVariable ).back( ) );
                     throw std::runtime_error( errorMessage );
                 }
                 else if( boundaryHandling_ == extrapolate_at_boundary_with_warning )
                 {
                     std::string errorMessage = "Warning in interpolator, requesting data point outside of boundaries, requested data of dimension " +
-                            boost::lexical_cast< std::string >( currentDimension ) + " at: " +
+                            boost::lexical_cast< std::string >( currentVariable ) + " at: " +
                             boost::lexical_cast< std::string >( independentVariable ) + " but limit values are " +
-                            boost::lexical_cast< std::string >( independentValues_.at( currentDimension ).front( ) ) + " and " +
-                            boost::lexical_cast< std::string >( independentValues_.at( currentDimension ).back( ) ) + ", applying extrapolation instead." ;
+                            boost::lexical_cast< std::string >( independentValues_.at( currentVariable ).front( ) ) + " and " +
+                            boost::lexical_cast< std::string >( independentValues_.at( currentVariable ).back( ) ) + ", applying extrapolation instead." ;
                     std::cerr << errorMessage << std::endl;
                 }
                 else if( ( boundaryHandling_ == use_boundary_value ) ||
                          ( boundaryHandling_ == use_boundary_value_with_warning ) )
                 {
-                    if ( isAtBoundary == -1 )
-                    {
-                        independentVariable = independentValues_.at( currentDimension ).front( );
-                    }
-                    else if ( isAtBoundary == 1 )
-                    {
-                        independentVariable = independentValues_.at( currentDimension ).back( );
-                    }
-
                     if( boundaryHandling_ == use_boundary_value_with_warning )
                     {
                         std::string errorMessage = "Warning in interpolator, requesting data point outside of boundaries, requested data of dimension " +
-                                boost::lexical_cast< std::string >( currentDimension ) + " at: " +
+                                boost::lexical_cast< std::string >( currentVariable ) + " at: " +
                                 boost::lexical_cast< std::string >( independentVariable ) + " but limit values are " +
-                                boost::lexical_cast< std::string >( independentValues_.at( currentDimension ).front( ) ) + " and " +
-                                boost::lexical_cast< std::string >( independentValues_.at( currentDimension ).back( ) ) + ", taking boundary value instead." ;
+                                boost::lexical_cast< std::string >( independentValues_.at( currentVariable ).front( ) ) + " and " +
+                                boost::lexical_cast< std::string >( independentValues_.at( currentVariable ).back( ) ) + ", taking boundary value instead." ;
                         std::cerr << errorMessage << std::endl;
+                    }
+
+                    if ( isAtBoundary == -1 )
+                    {
+                        independentVariable = independentValues_.at( currentVariable ).front( );
+                    }
+                    else if ( isAtBoundary == 1 )
+                    {
+                        independentVariable = independentValues_.at( currentVariable ).back( );
                     }
                 }
                 else

@@ -141,20 +141,36 @@ public:
 
 protected:
 
-    int checkInterpolationBoundary( const IndependentVariableType& independentVariable )
+    //! Function to return the condition of the current independent variable.
+    /*!
+     *  Function to return the condition of the current independent variable, i.e. whether the
+     *  variable is within, above or below its defined range range.
+     *  \param targetIndependentVariableValue Value of independent variable (i.e., the one that is to be checked for boundary handling).
+     *  \return Condition with respect to boundary.
+     */
+    int checkInterpolationBoundary( const IndependentVariableType& targetIndependentVariableValue )
     {
         int isAtBoundary = 0;
-        if( independentVariable < independentValues_[ 0 ] )
+        if( targetIndependentVariableValue < independentValues_[ 0 ] )
         {
             isAtBoundary = -1;
         }
-        else if( independentVariable >= independentValues_[ dependentValues_.size( ) - 1 ] )
+        else if( targetIndependentVariableValue > independentValues_[ dependentValues_.size( ) - 1 ] )
         {
             isAtBoundary = 1;
         }
         return isAtBoundary;
     }
 
+    //! Function to check whether boundary handling needs to be applied, depending on method chosen.
+    /*!
+     *  Function to check whether boundary handling needs to be applied, depending on method chosen.
+     *  If independent variable is beyond its range definition, boundary handling will be applied, depending
+     *  on the method specified in boundaryHandling_.
+     *  \param dependentVariable Value of dependent variable at boundary (only used in case of use_boundary_value setting).
+     *  \param useValue Boolean that specifies whether the boundary value (i.e., dependentVariable) is to be used, instead of interpolating.
+     *  \param targetIndependentVariableValue Value of independent variable (i.e., the one that is to be checked for boundary handling).
+     */
     void checkBoundaryCase(
             DependentVariableType& dependentVariable, bool& useValue,
             const IndependentVariableType& targetIndependentVariableValue )
@@ -185,6 +201,15 @@ protected:
                 else if( ( this->boundaryHandling_ == use_boundary_value ) ||
                          ( this->boundaryHandling_ == use_boundary_value_with_warning ) )
                 {
+                    if( this->boundaryHandling_ == use_boundary_value_with_warning )
+                    {
+                        std::string errorMessage = "Warning in interpolator, requesting data point outside of boundaries, requested data at: " +
+                                boost::lexical_cast< std::string >( targetIndependentVariableValue ) + " but limit values are " +
+                                boost::lexical_cast< std::string >( independentValues_[ 0 ] ) + " and " +
+                                boost::lexical_cast< std::string >( independentValues_[ dependentValues_.size( ) - 1 ] ) + ", taking boundary value instead." ;
+                        std::cerr << errorMessage << std::endl;
+                    }
+
                     if( isAtBoundary == -1 )
                     {
                         dependentVariable = dependentValues_[ 0 ];
@@ -198,15 +223,6 @@ protected:
                     else
                     {
                         throw std::runtime_error( "Error when checking interpolation boundary, inconsistent data encountered" );
-                    }
-
-                    if( this->boundaryHandling_ == use_boundary_value_with_warning )
-                    {
-                        std::string errorMessage = "Warning in interpolator, requesting data point outside of boundaries, requested data at: " +
-                                boost::lexical_cast< std::string >( targetIndependentVariableValue ) + " but limit values are " +
-                                boost::lexical_cast< std::string >( independentValues_[ 0 ] ) + " and " +
-                                boost::lexical_cast< std::string >( independentValues_[ dependentValues_.size( ) - 1 ] ) + ", taking boundary value instead." ;
-                        std::cerr << errorMessage << std::endl;
                     }
                 }
                 else

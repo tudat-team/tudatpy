@@ -192,34 +192,34 @@ BOOST_AUTO_TEST_CASE( test2DimensionsBoundaryCase )
     // Set interpolation target's independent values.
     std::vector< std::vector< double > > targetValue( 5 );
     targetValue[ 0 ].resize( 2 );
-    targetValue[ 0 ][ 0 ] = independentValues.at( 0 ).at( 0 ) - 10.0;
+    targetValue[ 0 ][ 0 ] = independentValues.at( 0 ).front( ) - 10.0;
     targetValue[ 0 ][ 1 ] = 15.0;
     targetValue[ 1 ].resize( 2 );
     targetValue[ 1 ][ 0 ] = independentValues.at( 0 ).back( ) + 10.0;
     targetValue[ 1 ][ 1 ] = 15.0;
     targetValue[ 2 ].resize( 2 );
     targetValue[ 2 ][ 0 ] = 1975.0;
-    targetValue[ 2 ][ 1 ] = independentValues.at( 1 ).at( 0 ) - 2.5;
+    targetValue[ 2 ][ 1 ] = independentValues.at( 1 ).front( ) - 2.5;
     targetValue[ 3 ].resize( 2 );
     targetValue[ 3 ][ 0 ] = 1975.0;
     targetValue[ 3 ][ 1 ] = independentValues.at( 1 ).back( ) + 2.5;
     targetValue[ 4 ].resize( 2 );
-    targetValue[ 4 ][ 0 ] = independentValues.at( 0 ).at( 0 ) - 10.0;
+    targetValue[ 4 ][ 0 ] = independentValues.at( 0 ).front( ) - 10.0;
     targetValue[ 4 ][ 1 ] = independentValues.at( 1 ).back( ) + 2.5;
 
     // Expected results
-    std::vector< double > boundaryResults( 5 );
+    std::vector< double > boundaryResults( 5 ); // computed with MATLAB
     boundaryResults[ 0 ] = 175.1445;
     boundaryResults[ 1 ] = 184.957;
     boundaryResults[ 2 ] = 214.8585;
     boundaryResults[ 3 ] = 374.7485;
     boundaryResults[ 4 ] = 187.625;
-    std::vector< double > extrapolationResults( 5 );
-    extrapolationResults[ 0 ] = 175.1445;
-    extrapolationResults[ 1 ] = 184.957;
-    extrapolationResults[ 2 ] = 214.8585;
-    extrapolationResults[ 3 ] = 374.7485;
-    extrapolationResults[ 4 ] = 187.625;
+    std::vector< double > extrapolationResults( 5 ); // computed with MATLAB
+    extrapolationResults[ 0 ] = 163.0915;
+    extrapolationResults[ 1 ] = 179.8085;
+    extrapolationResults[ 2 ] = 226.973375;
+    extrapolationResults[ 3 ] = 426.835875;
+    extrapolationResults[ 4 ] = 105.17575;
     
     // Loop over test cases and boundary handling methods.
     bool exceptionIsCaught;

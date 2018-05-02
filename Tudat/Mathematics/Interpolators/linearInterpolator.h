@@ -151,11 +151,10 @@ public:
      */
     DependentVariableType interpolate( const IndependentVariableType independentVariableValue )
     {
+        // Check whether boundary handling needs to be applied, if independent variable is beyond its defined range.
         DependentVariableType interpolatedValue;
-
         bool useBoundaryValue = false;
         this->checkBoundaryCase( interpolatedValue, useBoundaryValue, independentVariableValue );
-
         if( useBoundaryValue )
         {
             return interpolatedValue;
