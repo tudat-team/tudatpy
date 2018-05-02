@@ -196,8 +196,8 @@ void RarefiedFlowAnalysis::analyzeGeometryFile( const std::string& geometryFileU
             geometryData = input_output::readSpartaGeometryFile( geometryFileUser );
     shapePoints_ = geometryData.first;
     shapeTriangles_ = geometryData.second;
-    numberOfPoints_ = shapePoints_.cols( );
-    numberOfTriangles_ = shapeTriangles_.cols( );
+    numberOfPoints_ = shapePoints_.rows( );
+    numberOfTriangles_ = shapeTriangles_.rows( );
 
     // Get maximum and minimum values in each dimension
     maximumDimensions_ = shapePoints_.colwise( ).maxCoeff( );
@@ -239,10 +239,14 @@ void RarefiedFlowAnalysis::analyzeGeometryFile( const std::string& geometryFileU
     }
 
     // Check consistency with input dimensions
-    if ( elementSurfaceArea_( referenceAxis_ ) != referenceArea_ )
+    const double tolerance = 1e-5;
+    if ( std::fabs( shapeCrossSectionalArea_( static_cast< unsigned int >( referenceAxis_ ) ) -
+                    referenceArea_ ) > tolerance )
     {
-        throw std::runtime_error( "Error in SPARTA geometry file. Input reference area does not match the combination of"
-                                  "reference axis and geometry." );
+        std::cout << shapeCrossSectionalArea_( static_cast< unsigned int >( referenceAxis_ ) ) -
+                     referenceArea_ << std::endl;
+        throw std::runtime_error( "Error in SPARTA geometry file. Input reference area does not match the combination of "
+                                  "reference axis and geometry. Tolerance set to :" + std::to_string( tolerance ) );
     }
 }
 
@@ -267,8 +271,8 @@ void RarefiedFlowAnalysis::getSimulationConditions( )
         {
             freeStreamVelocities_( h, m ) = dataPointsOfIndependentVariables_.at( 1 ).at( m ) *
                     atmosphericConditions_[ speed_of_sound_index ].at( h );
-            simulationTimeStep_( h, m ) = 0.1 * ( maximumDimensions_( std::abs( referenceAxis_ ) ) -
-                                                  minimumDimensions_( std::abs( referenceAxis_ ) ) ) /
+            simulationTimeStep_( h, m ) = 0.1 * ( maximumDimensions_( static_cast< unsigned int >( referenceAxis_ ) ) -
+                                                  minimumDimensions_( static_cast< unsigned int >( referenceAxis_ ) ) ) /
                     freeStreamVelocities_( h, m );
             // time step is taken as time it takes for a particle to travel for 10 % of the box
         }
@@ -306,13 +310,13 @@ void RarefiedFlowAnalysis::generateCoefficients( )
         {
             // Get velocity vector
             velocityVector = Eigen::Vector3d::Zero( );
-            velocityVector( std::abs( referenceAxis_ ) ) = ( std::signbit( referenceAxis_ ) ? 1.0 : -1.0 ) *
+            velocityVector( static_cast< unsigned int >( referenceAxis_ ) ) = ( std::signbit( referenceAxis_ ) ? 1.0 : -1.0 ) *
                     freeStreamVelocities_( h, m );
 
             // Get angles of attack string
             for ( double a : dataPointsOfIndependentVariables_.at( 2 ) )
             {
-                anglesOfAttack += input_output::printToStringWithPrecision( a, 0 ) + " ";
+                anglesOfAttack += input_output::printToStringWithPrecision( convertRadiansToDegrees( a ), 0 ) + " ";
             }
 
             // Print to file
@@ -340,7 +344,7 @@ void RarefiedFlowAnalysis::generateCoefficients( )
             {
                 // Get file name
                 temporaryOutputFile = outputPath_ + "/" + input_output::printToStringWithPrecision(
-                            dataPointsOfIndependentVariables_.at( 2 ).at( a ), 0 ) + ".coeff";
+                            convertRadiansToDegrees( dataPointsOfIndependentVariables_.at( 2 ).at( a ) ), 0 ) + ".coeff";
 
                 // Read output files and compute mean pressure and shear force values
                 meanPressureValues.setZero( );
@@ -372,6 +376,10 @@ void RarefiedFlowAnalysis::generateCoefficients( )
             }
         }
     }
+
+    // Clean up results folder
+    commandString = "rm " + outputPath + "/*"; // overwrite
+    std::system( commandString.c_str( ) );
 }
 
 //! Get aerodynamic coefficients.
