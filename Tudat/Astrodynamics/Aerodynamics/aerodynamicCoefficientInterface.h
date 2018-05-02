@@ -25,6 +25,7 @@
 #include "Tudat/Astrodynamics/Aerodynamics/controlSurfaceAerodynamicCoefficientInterface.h"
 #include "Tudat/Astrodynamics/Aerodynamics/aerodynamics.h"
 #include "Tudat/Basics/utilities.h"
+
 namespace tudat
 {
 namespace aerodynamics

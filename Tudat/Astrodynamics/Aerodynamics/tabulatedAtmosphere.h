@@ -66,7 +66,7 @@ public:
     { altitude_dependent_atmosphere },
                          const double specificGasConstant = physical_constants::SPECIFIC_GAS_CONSTANT_AIR,
                          const double ratioOfSpecificHeats = 1.4,
-                         interpolators::BoundaryInterpolationType boundaryHandling = interpolators::use_boundary_value ):
+                         const interpolators::BoundaryInterpolationType boundaryHandling = interpolators::use_boundary_value ):
         atmosphereTableFile_( atmosphereTableFile ), dependentVariables_( dependentVariablesNames ),
         specificGasConstant_( specificGasConstant ), ratioOfSpecificHeats_( ratioOfSpecificHeats ),
         independentVariables_( independentVariablesNames ), boundaryHandling_( boundaryHandling )

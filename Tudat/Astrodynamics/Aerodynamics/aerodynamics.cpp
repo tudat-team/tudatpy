@@ -573,12 +573,13 @@ Eigen::Vector6d computeAerodynamicCoefficientsFromPressureShear(
         const Eigen::Matrix< double, 3, Eigen::Dynamic > pressureForceVector,
         const Eigen::Matrix< double, 3, Eigen::Dynamic > shearStressVector,
         const double airDensity,
-        const double airSpeed,
         const double airPressure,
+        const double airSpeed,
         const Eigen::Matrix< double, 3, Eigen::Dynamic > elementSurfaceNormal,
         const Eigen::Matrix< double, 1, Eigen::Dynamic > elementSurfaceArea,
         const Eigen::Matrix< double, 3, Eigen::Dynamic > elementMomentArm,
-        const double referenceAerodynamicArea )
+        const double referenceAerodynamicArea,
+        const double referenceAerodynamicLength )
 {
     // Initialize output value
     Eigen::Vector6d aerodynamicCoefficients;
@@ -609,7 +610,7 @@ Eigen::Vector6d computeAerodynamicCoefficientsFromPressureShear(
     }
     for ( unsigned int i = 3; i < 6; i++ )
     {
-        aerodynamicCoefficients( i ) = temporaryMatrix.row( i ).dot( elementSurfaceArea );
+        aerodynamicCoefficients( i ) = temporaryMatrix.row( i ).dot( elementSurfaceArea ) / referenceAerodynamicLength;
     }
     aerodynamicCoefficients /= - referenceAerodynamicArea;
     return aerodynamicCoefficients;

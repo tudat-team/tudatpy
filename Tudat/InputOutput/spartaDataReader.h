@@ -8,11 +8,16 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#include <map>
-#include "Tudat/Basics/utilities.h"
-#include "Tudat/Basics/basicTypedefs.h"
+#ifndef TUDAT_SPARTA_DATA_READER_H
+#define TUDAT_SPARTA_DATA_READER_H
 
-#include "Tudat/InputOutput/multiDimensionalArrayReader.h"
+#include <string>
+#include <vector>
+
+#include <Eigen/Core>
+
+#include <boost/algorithm/string.hpp>
+#include <boost/algorithm/string/trim.hpp>
 
 namespace tudat
 {
@@ -27,7 +32,7 @@ namespace input_output
  *  \return Pair: first entry containing list of points, second containing list of triangles.
  */
 std::pair< Eigen::Matrix< double, Eigen::Dynamic, 3 >, Eigen::Matrix< int, Eigen::Dynamic, 3 > >
-readSPARTAGeometryFile( std::string& geometryFile )
+readSpartaGeometryFile( const std::string& geometryFile )
 {
     // Initialize output vectors
     Eigen::Matrix< double, Eigen::Dynamic, 3 > shapePoints;
@@ -171,13 +176,13 @@ readSPARTAGeometryFile( std::string& geometryFile )
     return std::make_pair( shapePoints, shapeTriangles );
 }
 
-//! Function to read the geometry file for a SPARTA rarefied flow simulation.
+//! Function to read the input file template format for a SPARTA rarefied flow simulation.
 /*!
- *  Function to read the geometry file for a SPARTA rarefied flow simulation.
- *  \param geometryFile File name for the geometry.
- *  \return Pair: first entry containing list of points, second containing list of triangles.
+ *  Function to read the input file template format for a SPARTA rarefied flow simulation.
+ *  \param geometryFile File name for the template.
+ *  \return String of input template format.
  */
-std::string readSPARTAInputFileTemplate( std::string& inputFile )
+std::string readSpartaInputFileTemplate( const std::string& inputFile )
 {
     // Initialize output variable
     std::string inputTemplate;
@@ -216,3 +221,5 @@ std::string readSPARTAInputFileTemplate( std::string& inputFile )
 } // namespace input_output
 
 } // namespace tudat
+
+#endif // TUDAT_SPARTA_DATA_READER_H
