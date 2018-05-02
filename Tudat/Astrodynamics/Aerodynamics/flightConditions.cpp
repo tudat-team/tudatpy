@@ -82,7 +82,7 @@ void FlightConditions::setAerodynamicCoefficientsIndependentVariableFunction(
         throw std::runtime_error(
                     std::string( "Error when setting aerodynamic coefficient function dependency, value of parameter " ) +
                     std::to_string( independentVariable ) +
-                    std::string(", will not be used." ) );
+                    std::string(", will not  be used." ) );
     }
     else
     {
@@ -153,10 +153,10 @@ double FlightConditions::getAerodynamicCoefficientIndependentVariable(
                     reference_frames::angle_of_sideslip );
         break;
     case altitude_dependent:
-//        if( aerodynamicAngleCalculator_== NULL )
-//        {
-//            throw std::runtime_error( "Error, aerodynamic angle calculator is null, but require angle of sideslip" );
-//        }
+        if( aerodynamicAngleCalculator_== NULL )
+        {
+            throw std::runtime_error( "Error, aerodynamic angle calculator is null, but require angle of sideslip" );
+        }
         currentIndependentVariable = getCurrentAltitude( );
         break;
     case control_surface_deflection_dependent:
