@@ -93,8 +93,8 @@ public:
         {
             if ( independentValues[ i ].size( ) != dependentData.shape( )[ i ] )
             {
-                std::string errorMessage = "Warning: number of data points in dimension" +
-                        std::to_string( i ) + "of independent and dependent data incompatible";
+                std::string errorMessage = "Warning: number of data points in dimension " +
+                        std::to_string( i ) + " of independent and dependent data incompatible.";
                 throw std::runtime_error( errorMessage );
             }
         }
