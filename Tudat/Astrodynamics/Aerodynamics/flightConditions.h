@@ -54,7 +54,9 @@ private:
         speed_of_sound_flight_condition,
         airspeed_flight_condition,
         geodetic_latitude_condition,
-        dynamic_pressure_condition
+        dynamic_pressure_condition,
+        molecular_speed_ratio_condition,
+        number_density_condition
     };
 
 public:
@@ -101,7 +103,8 @@ public:
         {
             computeAltitude( );
         }
-        return scalarFlightConditions_.at( altitude_flight_condition );    }
+        return scalarFlightConditions_.at( altitude_flight_condition );
+    }
 
     //! Function to retrieve (and compute if necessary) the current freestream density
     /*!
@@ -200,6 +203,34 @@ public:
         return scalarFlightConditions_.at( mach_number_flight_condition );
     }
 
+    //! Function to retrieve (and compute if necessary) the current molecular speed ratio
+    /*!
+     * Function to retrieve (and compute if necessary) the current molecular speed ratio
+     * \return Current molecular speed ratio
+     */
+    double getCurrentMolecularSpeedRatio( )
+    {
+        if( scalarFlightConditions_.count( molecular_speed_ratio_condition ) == 0 )
+        {
+            computeMolecularSpeedRatio( );
+        }
+        return scalarFlightConditions_.at( molecular_speed_ratio_condition );
+    }
+
+    //! Function to retrieve (and compute if necessary) the current number density
+    /*!
+     * Function to retrieve (and compute if necessary) the current number density
+     * \return Current number density
+     */
+    double getCurrentNumberDensity( )
+    {
+        if( scalarFlightConditions_.count( number_density_condition ) == 0 )
+        {
+            computeNumberDensity( );
+        }
+        return scalarFlightConditions_.at( number_density_condition );
+    }
+
     //! Function to retrieve (and compute if necessary) the current geodetic latitude
     /*!
      * Function to retrieve (and compute if necessary) the current geodetic latitude
@@ -223,6 +254,7 @@ public:
     {
         return currentTime_;
     }
+
     //! Function to return atmosphere model object
     /*!
      *  Function to return atmosphere model object
@@ -472,6 +504,27 @@ private:
     {
         scalarFlightConditions_[ mach_number_flight_condition ] =
                 getCurrentAirspeed( ) / getCurrentSpeedOfSound( );
+    }
+
+    //! Function to compute and set the current molecular speed ratio
+    void computeMolecularSpeedRatio( )
+    {
+        scalarFlightConditions_[ molecular_speed_ratio_condition ] =
+                getCurrentMachNumber( ) * std::sqrt( 0.5 * atmosphereModel_->getSpecificHeatRatio(
+                    scalarFlightConditions_.at( altitude_flight_condition ),
+                    scalarFlightConditions_.at( longitude_flight_condition ),
+                    scalarFlightConditions_.at( latitude_flight_condition ), currentTime_ ) );
+    }
+
+    //! Function to compute and set the current Mach number
+    void computeNumberDensity( )
+    {
+        scalarFlightConditions_[ number_density_condition ] =
+                getCurrentDensity( ) * atmosphereModel_->getGasConstant(
+                    scalarFlightConditions_.at( altitude_flight_condition ),
+                    scalarFlightConditions_.at( longitude_flight_condition ),
+                    scalarFlightConditions_.at( latitude_flight_condition ), currentTime_ ) *
+                tudat::physical_constants::AVOGADRO_CONSTANT / tudat::physical_constants::MOLAR_GAS_CONSTANT;
     }
 
     //! Function to compute and set the current geodetic latitude.
