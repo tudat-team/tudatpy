@@ -21,6 +21,7 @@
 #include "Tudat/Basics/testMacros.h"
 #include "Tudat/InputOutput/matrixTextFileReader.h"
 
+#include "Tudat/Mathematics/Interpolators/linearInterpolator.h"
 #include "Tudat/Mathematics/Interpolators/multiLinearInterpolator.h"
 #include "Tudat/InputOutput/basicInputOutput.h"
 
@@ -258,6 +259,75 @@ BOOST_AUTO_TEST_CASE( test2DimensionsBoundaryCase )
                 interpolatedValue = twoDimensionalInterpolator.interpolate( targetValue.at( j ) );
                 BOOST_CHECK_CLOSE_FRACTION( interpolatedValue, extrapolationResults.at( j ), 1.0E-15 );
             }
+        }
+    }
+}
+
+// Test linear interpolation outside of independent variable range and compare with 1D linear interpolator
+BOOST_AUTO_TEST_CASE( test1DimensionBoundaryCase )
+{
+    using namespace interpolators;
+
+    // Load input data used for generating matlab interpolation.
+    Eigen::MatrixXd inputData = input_output::readMatrixFromFile(
+                input_output::getTudatRootPath( ) +
+                "Mathematics/Interpolators/UnitTests/interpolator_test_input_data.dat","," );
+
+    // Put data in STL vectors.
+    std::vector< double > independentVariableValues;
+    std::vector< std::vector< double > > independentVariableValuesMulti;
+    std::vector< double > dependentVariableValues;
+    boost::multi_array< double, 1 > dependentVariableValuesMulti( boost::extents[ inputData.rows( ) ] );
+
+    for ( int i = 0; i < inputData.rows( ); i++ )
+    {
+        independentVariableValues.push_back( inputData( i, 0 ) );
+        dependentVariableValues.push_back( inputData( i, 1 ) );
+        dependentVariableValuesMulti[ i ] = inputData( i, 1 );
+    }
+    independentVariableValuesMulti.push_back( independentVariableValues );
+
+    // Create linear interpolator using hunting algorithm.
+    double valueOffset = 2.0;
+    double valueBelowMinimumValue = independentVariableValues[ 0 ] - valueOffset;
+    std::vector< double > valueBelowMinimumValueVector = { valueBelowMinimumValue };
+    double valueAboveMaximumValue = independentVariableValues[ inputData.rows( ) - 1 ] + valueOffset;
+    std::vector< double > valueAboveMaximumValueVector = { valueAboveMaximumValue };
+    double linearInterpolatedValue;
+    double multiLinearInterpolatedValue;
+
+    for ( unsigned int i = 1; i < 5; i++ )
+    {
+        // Initialize interpolatos.
+        LinearInterpolatorDouble linearInterpolator(
+                    independentVariableValues, dependentVariableValues, huntingAlgorithm,
+                    static_cast< BoundaryInterpolationType >( i ) );
+        MultiLinearInterpolator< double, double, 1 > multiLinearInterpolator(
+                    independentVariableValuesMulti, dependentVariableValuesMulti, huntingAlgorithm,
+                    static_cast< BoundaryInterpolationType >( i ) );
+
+        if ( ( static_cast< BoundaryInterpolationType >( i ) == use_boundary_value ) ||
+             ( static_cast< BoundaryInterpolationType >( i ) == use_boundary_value_with_warning ) )
+        {
+            linearInterpolatedValue = linearInterpolator.interpolate( valueBelowMinimumValue );
+            multiLinearInterpolatedValue = multiLinearInterpolator.interpolate( valueBelowMinimumValueVector );
+            BOOST_CHECK_CLOSE_FRACTION( linearInterpolatedValue, multiLinearInterpolatedValue, 1.0E-15 );
+
+            linearInterpolatedValue = linearInterpolator.interpolate( valueAboveMaximumValue );
+            multiLinearInterpolatedValue = multiLinearInterpolator.interpolate( valueAboveMaximumValueVector );
+            BOOST_CHECK_CLOSE_FRACTION( linearInterpolatedValue, multiLinearInterpolatedValue, 1.0E-15 );
+
+        }
+        else if ( ( static_cast< BoundaryInterpolationType >( i ) == extrapolate_at_boundary ) ||
+                  ( static_cast< BoundaryInterpolationType >( i ) == extrapolate_at_boundary_with_warning ) )
+        {
+            linearInterpolatedValue = linearInterpolator.interpolate( valueBelowMinimumValue );
+            multiLinearInterpolatedValue = multiLinearInterpolator.interpolate( valueBelowMinimumValueVector );
+            BOOST_CHECK_CLOSE_FRACTION( linearInterpolatedValue, multiLinearInterpolatedValue, 1.0E-15 );
+
+            linearInterpolatedValue = linearInterpolator.interpolate( valueAboveMaximumValue );
+            multiLinearInterpolatedValue = multiLinearInterpolator.interpolate( valueAboveMaximumValueVector );
+            BOOST_CHECK_CLOSE_FRACTION( linearInterpolatedValue, multiLinearInterpolatedValue, 1.0E-15 );
         }
     }
 }
