@@ -8,6 +8,9 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
+#ifndef TUDAT_TABULATED_ATMOSPHERE_READER_H
+#define TUDAT_TABULATED_ATMOSPHERE_READER_H
+
 #include <map>
 #include "Tudat/Basics/utilities.h"
 #include "Tudat/Basics/basicTypedefs.h"
@@ -127,3 +130,5 @@ readTabulatedAtmosphere( const std::map< int, std::string >& fileNames )
 } // namespace input_output
 
 } // namespace tudat
+
+#endif // TUDAT_TABULATED_ATMOSPHERE_READER_H
