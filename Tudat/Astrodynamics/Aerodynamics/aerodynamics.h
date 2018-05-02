@@ -491,8 +491,8 @@ double computeAdiabaticWallTemperature(
  * \param pressureForceVector Pressure force vector acting on surface element.
  * \param shearStressVector Shear stress vector acting on surface element.
  * \param airDensity Freestream air density.
- * \param airSpeed Airspeed of the vehicle.
  * \param airPressure Freestream air pressure.
+ * \param airSpeed Airspeed of the vehicle.
  * \param Normal vector to surface element.
  * \param Surface area of element.
  * \param Reference aerodynamic area of vehicle.
@@ -501,12 +501,13 @@ Eigen::Vector6d computeAerodynamicCoefficientsFromPressureShear(
         const Eigen::Matrix< double, 3, Eigen::Dynamic > pressureForceVector,
         const Eigen::Matrix< double, 3, Eigen::Dynamic > shearStressVector,
         const double airDensity,
-        const double airSpeed,
         const double airPressure,
+        const double airSpeed,
         const Eigen::Matrix< double, 3, Eigen::Dynamic > elementSurfaceNormal,
         const Eigen::Matrix< double, 1, Eigen::Dynamic > elementSurfaceArea,
         const Eigen::Matrix< double, 3, Eigen::Dynamic > elementMomentArm,
-        const double referenceAerodynamicArea );
+        const double referenceAerodynamicArea,
+        const double referenceAerodynamicLength );
 
 } // namespace aerodynamics
 

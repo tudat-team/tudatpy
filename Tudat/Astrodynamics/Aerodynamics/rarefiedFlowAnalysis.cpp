@@ -13,23 +13,15 @@
  *
  */
 
-#include <string>
-
-#include <boost/bind.hpp>
-#include <boost/function.hpp>
-#include <boost/lambda/lambda.hpp>
 #include <boost/make_shared.hpp>
-#include <boost/pointer_cast.hpp>
-#include <boost/shared_ptr.hpp>
 #include <boost/assign/list_of.hpp>
 
 #include <Eigen/Geometry>
 
-#include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
+#include "Tudat/InputOutput/matrixTextFileReader.h"
+#include "Tudat/InputOutput/spartaDataReader.h"
 
-#include "Tudat/Astrodynamics/Aerodynamics/aerodynamics.h"
 #include "Tudat/Astrodynamics/Aerodynamics/rarefiedFlowAnalysis.h"
-#include "Tudat/Astrodynamics/BasicAstrodynamics/unitConversions.h"
 
 namespace tudat
 {
@@ -78,35 +70,36 @@ std::vector< double > getDefaultRarefiedFlowMachPoints(
 {
     std::vector< double > machPoints;
 
-    // Set default points for full velocity analysis.
+    // Set default points for full hypersonic analysis.
     if ( machRegime == "Full" )
     {
-        machPoints.resize( 7 );
-        machPoints[ 0 ] = 1.0;
-        machPoints[ 1 ] = 2.5;
+        machPoints.resize( 6 );
+
+        machPoints[ 0 ] = 3.0;
+        machPoints[ 1 ] = 4.0;
         machPoints[ 2 ] = 5.0;
-        machPoints[ 3 ] = 10.0;
-        machPoints[ 4 ] = 25.0;
-        machPoints[ 5 ] = 50.0;
-        machPoints[ 6 ] = 100.0;
+        machPoints[ 3 ] = 8.0;
+        machPoints[ 4 ] = 10.0;
+        machPoints[ 5 ] = 20.0;
     }
-    // Set default points for low velocity analysis.
+    // Set default points for low hypersonic analysis.
     else if ( machRegime == "Low" )
     {
-        machPoints.resize( 4 );
-        machPoints[ 0 ] = 1.0;
-        machPoints[ 1 ] = 2.5;
+        machPoints.resize( 5 );
+        machPoints[ 0 ] = 3.0;
+        machPoints[ 1 ] = 4.0;
         machPoints[ 2 ] = 5.0;
-        machPoints[ 3 ] = 10.0;
+        machPoints[ 3 ] = 8.0;
+        machPoints[ 4 ] = 10.0;
     }
-    // Set default points for high velocity analysis.
+    // Set default points for high hypersonic analysis.
     else if ( machRegime == "High" )
     {
         machPoints.resize( 4 );
-        machPoints[ 0 ] = 10.0;
-        machPoints[ 1 ] = 25.0;
-        machPoints[ 2 ] = 50.0;
-        machPoints[ 3 ] = 100.0;
+        machPoints[ 0 ] = 5.0;
+        machPoints[ 1 ] = 8.0;
+        machPoints[ 2 ] = 10.0;
+        machPoints[ 3 ] = 20.0;
     }
     return machPoints;
 }
@@ -118,8 +111,8 @@ std::vector< double > getDefaultRarefiedFlowAngleOfAttackPoints(
     std::vector< double > angleOfAttackPoints;
 
     // Set default angles of attack
-    double a = - 25;
-    while ( a <= 30 )
+    double a = - 35;
+    while ( a <= 35 )
     {
         angleOfAttackPoints.push_back( convertDegreesToRadians( a ) );
         a += 5;
@@ -128,32 +121,18 @@ std::vector< double > getDefaultRarefiedFlowAngleOfAttackPoints(
     // Add extra points if required
     if ( angleOfAttackRegime == "Full" )
     {
-        std::vector< double > frontExtension = { convertDegreesToRadians( -75.0 ),
-                                                 convertDegreesToRadians( -60.0 ),
-                                                 convertDegreesToRadians( -45.0 ),
-                                                 convertDegreesToRadians( -30.0 ) };
-        std::vector< double > rearExtension = { convertDegreesToRadians( 30.0 ),
-                                                convertDegreesToRadians( 45.0 ),
-                                                convertDegreesToRadians( 60.0 ),
-                                                convertDegreesToRadians( 75.0 ) };
+        std::vector< double > frontExtension = { convertDegreesToRadians( -85.0 ),
+                                                 convertDegreesToRadians( -70.0 ),
+                                                 convertDegreesToRadians( -55.0 ),
+                                                 convertDegreesToRadians( -40.0 ) };
+        std::vector< double > rearExtension = { convertDegreesToRadians( 40.0 ),
+                                                convertDegreesToRadians( 55.0 ),
+                                                convertDegreesToRadians( 70.0 ),
+                                                convertDegreesToRadians( 85.0 ) };
         angleOfAttackPoints.insert( angleOfAttackPoints.begin( ), frontExtension.begin( ), frontExtension.end( ) );
         angleOfAttackPoints.insert( angleOfAttackPoints.end( ), rearExtension.begin( ), rearExtension.end( ) );
     }
     return angleOfAttackPoints;
-}
-
-//! Returns default values of angle of sideslip for use in RarefiedFlowAnalysis.
-std::vector< double > getDefaultRarefiedFlowAngleOfSideslipPoints( )
-{
-    std::vector< double > angleOfSideslipPoints;
-
-    // Set number of data points and allocate memory.
-    angleOfSideslipPoints.resize( 1 );
-
-    // Set default values, 0 and 1 degrees.
-    angleOfSideslipPoints[ 0 ] = 0.0;
-
-    return angleOfSideslipPoints;
 }
 
 //! Default constructor.
@@ -161,9 +140,11 @@ RarefiedFlowAnalysis::RarefiedFlowAnalysis(
         const std::string& SPARTAExecutable,
         const std::vector< std::vector< double > >& dataPointsOfIndependentVariables,
         const std::string& simulationGases,
-        const StandardAtmosphere& atmosphereModel,
+        boost::shared_ptr< TabulatedAtmosphere > atmosphereModel,
         const std::string& geometryFileUser,
-        const int& referenceAxis,
+        const double referenceArea,
+        const double referenceLength,
+        const int referenceAxis,
         const Eigen::Vector3d& momentReferencePoint,
         const double wallTemperature,
         const double accomodationCoefficient )
@@ -171,41 +152,37 @@ RarefiedFlowAnalysis::RarefiedFlowAnalysis(
           dataPointsOfIndependentVariables, referenceLength, referenceArea, referenceLength,
           momentReferencePoint,
           boost::assign::list_of( altitude_dependent )( mach_number_dependent )( angle_of_attack_dependent ),
-          1, 0 ),
-      dataPointsOfIndependentVariables_( dataPointsOfIndependentVariables ), simulationGases_( simulationGases ),
-      referenceAxis_( referenceAxis ), wallTemperature_( wallTemperature ),
-      accomodationCoefficient_( accomodationCoefficient )
+          true, true ),
+      SPARTAExecutable_( SPARTAExecutable ),simulationGases_( simulationGases ), referenceAxis_( referenceAxis ),
+      wallTemperature_( wallTemperature ), accomodationCoefficient_( accomodationCoefficient )
 {
     // Analyze vehicle geometry
     analyzeGeometryFile( geometryFileUser );
 
     // Find atmospheric conditions based on altitude
-    atmosphericConditions_.resize( 6 );
-    for ( unsigned int i = 0; i < dataPointsOfIndependentVariables_.at( 0 ).size( ); i++ )
+    for ( unsigned int h = 0; h < dataPointsOfIndependentVariables_.at( 0 ).size( ); h++ )
     {
-        atmosphericConditions_.at( 0 ).push_back( atmosphereModel.getDensity( dataPointsOfIndependentVariables_.at( 0 ).at( i ) ) );
-        atmosphericConditions_.at( 1 ).push_back( atmosphereModel.getPressure( dataPointsOfIndependentVariables_.at( 0 ).at( i ) ) );
-        atmosphericConditions_.at( 2 ).push_back( atmosphereModel.getTemperature( dataPointsOfIndependentVariables_.at( 0 ).at( i ) ) );
-        atmosphericConditions_.at( 3 ).push_back( atmosphereModel.getSpecificGasConstant( dataPointsOfIndependentVariables_.at( 0 ).at( i ) ) );
-        atmosphericConditions_.at( 4 ).push_back( tudat::physical_constants::MOLAR_GAS_CONSTANT /
-                                                  atmosphericConditions_.at( 3 ).at( i ) );
-        atmosphericConditions_.at( 5 ).push_back( tudat::physical_constants::AVOGADRO_CONSTANT *
-                                                  atmosphericConditions_.at( 0 ).at( i ) /
-                                                  atmosphericConditions_.at( 4 ).at( i ) );
+        atmosphericConditions_[ density_index ].push_back( atmosphereModel->getDensity( dataPointsOfIndependentVariables_.at( 0 ).at( h ) ) );
+        atmosphericConditions_[ pressure_index ].push_back( atmosphereModel->getPressure( dataPointsOfIndependentVariables_.at( 0 ).at( h ) ) );
+        atmosphericConditions_[ temperature_index ].push_back( atmosphereModel->getTemperature( dataPointsOfIndependentVariables_.at( 0 ).at( h ) ) );
+        atmosphericConditions_[ speed_of_sound_index ].push_back( atmosphereModel->getSpeedOfSound( dataPointsOfIndependentVariables_.at( 0 ).at( h ) ) );
+        atmosphericConditions_[ number_density_index ].push_back( tudat::physical_constants::AVOGADRO_CONSTANT / tudat::physical_constants::MOLAR_GAS_CONSTANT *
+                                                                  atmosphericConditions_[ density_index ].at( h ) *
+                                                                  atmosphereModel->getSpecificGasConstant( dataPointsOfIndependentVariables_.at( 0 ).at( h ) ) );
     }
 
     // Get simulation conditions
     getSimulationConditions( );
 
     // Read SPARTA input template
-    inputTemplate_ = input_output::readSPARTAInputFileTemplate( inputFileTemplate_ );
+    inputTemplate_ = input_output::readSpartaInputFileTemplate( inputFileTemplate_ );
 
     // Copy input shape file to default name
     std::string commandString = "cp " + geometryFileUser + " " + geometryFileInternal_;
     std::system( commandString.c_str( ) );
 
     // Run SPARTA simulation
-    runSPARTASimulation( SPARTAExecutable );
+    generateCoefficients( );
 
     // Create interpolator object
     createInterpolator( );
@@ -216,7 +193,7 @@ void RarefiedFlowAnalysis::analyzeGeometryFile( const std::string& geometryFileU
 {
     // Extract information on vehicle geometry
     std::pair< Eigen::Matrix< double, Eigen::Dynamic, 3 >, Eigen::Matrix< int, Eigen::Dynamic, 3 > >
-            geometryData = input_output::readSPARTAGeometryFile( geometryFileUser );
+            geometryData = input_output::readSpartaGeometryFile( geometryFileUser );
     shapePoints_ = geometryData.first;
     shapeTriangles_ = geometryData.second;
     numberOfPoints_ = shapePoints_.cols( );
@@ -260,6 +237,13 @@ void RarefiedFlowAnalysis::analyzeGeometryFile( const std::string& geometryFileU
         shapeCrossSectionalArea_( i ) =
                 0.5 * elementSurfaceNormal_.row( i ).cwiseAbs( ).dot( elementSurfaceArea_ );
     }
+
+    // Check consistency with input dimensions
+    if ( elementSurfaceArea_( referenceAxis_ ) != referenceArea_ )
+    {
+        throw std::runtime_error( "Error in SPARTA geometry file. Input reference area does not match the combination of"
+                                  "reference axis and geometry." );
+    }
 }
 
 //! Generate aerodynamic database.
@@ -279,27 +263,27 @@ void RarefiedFlowAnalysis::getSimulationConditions( )
     ratioOfRealToSimulatedParticles_.resize( dataPointsOfIndependentVariables_.at( 0 ).size( ), 1 );
     for ( unsigned int h = 0; h < dataPointsOfIndependentVariables_.at( 0 ).size( ); h++ )
     {
-        for ( unsigned int s = 0; s < dataPointsOfIndependentVariables_.at( 1 ).size( ); s++ )
+        for ( unsigned int m = 0; m < dataPointsOfIndependentVariables_.at( 1 ).size( ); m++ )
         {
-            freeStreamVelocities_( h, s ) = dataPointsOfIndependentVariables_.at( 1 ).at( s ) * std::sqrt(
-                        2.0 * atmosphericConditions_.at( 3 ).at( h ) * atmosphericConditions_.at( 2 ).at( h ) );
-            simulationTimeStep_( h, s ) = 0.1 * ( maximumDimensions_( std::abs( referenceAxis_ ) ) -
+            freeStreamVelocities_( h, m ) = dataPointsOfIndependentVariables_.at( 1 ).at( m ) *
+                    atmosphericConditions_[ speed_of_sound_index ].at( h );
+            simulationTimeStep_( h, m ) = 0.1 * ( maximumDimensions_( std::abs( referenceAxis_ ) ) -
                                                   minimumDimensions_( std::abs( referenceAxis_ ) ) ) /
-                    freeStreamVelocities_( h, s );
+                    freeStreamVelocities_( h, m );
             // time step is taken as time it takes for a particle to travel for 10 % of the box
         }
-        ratioOfRealToSimulatedParticles_( h ) = atmosphericConditions_.at( 5 ).at( h ) *
+        ratioOfRealToSimulatedParticles_( h ) = atmosphericConditions_[ number_density_index ].at( h ) *
                 std::pow( gridSpacing_, 3 ) / simulatedParticlesPerCell_;
     }
 }
 
 //! Generate aerodynamic coefficients at a single set of independent variables.
-void RarefiedFlowAnalysis::runSPARTASimulation( const std::string& SPARTAExecutable )
+void RarefiedFlowAnalysis::generateCoefficients( )
 {
     // Generate command string for SPARTA
     std::cout << "Initiating SPARTA simulation. This may take a while." << std::endl;
-    std::string runSPARTACommandString = "cd " + input_output::getSPARTADataPath( ) + "; " +
-            SPARTAExecutable + " -in " + inputFile_;
+    std::string runSPARTACommandString = "cd " + input_output::getSpartaDataPath( ) + "; " +
+            SPARTAExecutable_ + " -in " + inputFile_;
     // "mpirun -np " + std::to_string( numberOfCores ) + " " +
 
     // Predefine variables
@@ -312,18 +296,18 @@ void RarefiedFlowAnalysis::runSPARTASimulation( const std::string& SPARTAExecuta
     Eigen::Matrix< double, 3, Eigen::Dynamic > meanShearValues;
 
     // Allocate size of array
-    aerodynamicCoefficients_( boost::extents[ dataPointsOfIndependentVariables_.at( 0 ).size( ) ][
-                dataPointsOfIndependentVariables_.at( 1 ).size( ) ][ dataPointsOfIndependentVariables_.at( 2 ).size( ) ] );
+    //    aerodynamicCoefficients_( boost::extents[ dataPointsOfIndependentVariables_.at( 0 ).size( ) ][
+    //            dataPointsOfIndependentVariables_.at( 1 ).size( ) ][ dataPointsOfIndependentVariables_.at( 2 ).size( ) ] );
 
     // Loop over simulation parameters and run SPARTA
     for ( unsigned int h = 0; h < dataPointsOfIndependentVariables_.at( 0 ).size( ); h++ )
     {
-        for ( unsigned int s = 0; s < dataPointsOfIndependentVariables_.at( 1 ).size( ); s++ )
+        for ( unsigned int m = 0; m < dataPointsOfIndependentVariables_.at( 1 ).size( ); m++ )
         {
             // Get velocity vector
             velocityVector = Eigen::Vector3d::Zero( );
             velocityVector( std::abs( referenceAxis_ ) ) = ( std::signbit( referenceAxis_ ) ? 1.0 : -1.0 ) *
-                    freeStreamVelocities_( h, s );
+                    freeStreamVelocities_( h, m );
 
             // Get angles of attack string
             for ( double a : dataPointsOfIndependentVariables_.at( 2 ) )
@@ -336,10 +320,10 @@ void RarefiedFlowAnalysis::runSPARTASimulation( const std::string& SPARTAExecuta
             std::fprintf( fileIdentifier, inputTemplate_.c_str( ), simulationBoundaries_( 0 ), simulationBoundaries_( 1 ),
                           simulationBoundaries_( 2 ), simulationBoundaries_( 3 ), simulationBoundaries_( 4 ),
                           simulationBoundaries_( 5 ), simulationGrid_( 0 ), simulationGrid_( 1 ), simulationGrid_( 2 ),
-                          atmosphericConditions_.at( 5 ).at( h ), ratioOfRealToSimulatedParticles_( h ), simulationGases_.c_str( ),
+                          atmosphericConditions_[ number_density_index ].at( h ), ratioOfRealToSimulatedParticles_( h ), simulationGases_.c_str( ),
                           simulationGases_.c_str( ), velocityVector( 0 ), velocityVector( 1 ), velocityVector( 2 ),
-                          simulationGases_.c_str( ), atmosphericConditions_.at( 2 ).at( h ), anglesOfAttack.c_str( ),
-                          wallTemperature_, accomodationCoefficient_, simulationTimeStep_( h, s ), outputDirectory_.c_str( ) );
+                          simulationGases_.c_str( ), atmosphericConditions_[ temperature_index ].at( h ), anglesOfAttack.c_str( ),
+                          wallTemperature_, accomodationCoefficient_, simulationTimeStep_( h, m ), outputDirectory_.c_str( ) );
             std::fclose( fileIdentifier );
 
             // Run SPARTA
@@ -369,24 +353,33 @@ void RarefiedFlowAnalysis::runSPARTASimulation( const std::string& SPARTAExecuta
                         meanPressureValues.row( j ) += outputMatrix.col( j + 1 ).transpose( );
                         meanShearValues.row( j ) += outputMatrix.col( j + 4 ).transpose( );
                     }
-               }
+                }
                 meanPressureValues /= outputFileExtensions.size( );
                 meanShearValues /= outputFileExtensions.size( );
 
                 // Convert pressure and shear forces to coefficients
-                aerodynamicCoefficients_[ h ][ s ][ a ] = computeAerodynamicCoefficientsFromPressureShear(
+                aerodynamicCoefficients_[ h ][ m ][ a ] = computeAerodynamicCoefficientsFromPressureShear(
                             meanPressureValues,
                             meanShearValues,
-                            atmosphericConditions_.at( 0 ).at( h ), // density
-                            freeStreamVelocities_( h, s ),
-                            atmosphericConditions_.at( 1 ).at( h ), // pressure
+                            atmosphericConditions_[ density_index ].at( h ),
+                            atmosphericConditions_[ pressure_index ].at( h ),
+                            freeStreamVelocities_( h, m ),
                             elementSurfaceNormal_,
                             elementSurfaceArea_,
                             elementMomentArm_,
-                            shapeCrossSectionalArea_( std::abs( referenceAxis_ ) ) );
+                            referenceArea_,
+                            referenceLength_ );
             }
         }
     }
+}
+
+//! Get aerodynamic coefficients.
+Eigen::Vector6d RarefiedFlowAnalysis::getAerodynamicCoefficientsDataPoint(
+        const boost::array< int, 3 > independentVariables )
+{
+    // Return requested coefficients.
+    return aerodynamicCoefficients_( independentVariables );
 }
 
 } // namespace aerodynamics

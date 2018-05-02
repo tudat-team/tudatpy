@@ -118,7 +118,7 @@ static inline std::string getSpaceWeatherDataPath( )
  * Returns path in which SPARTA data files are located.
  * \return Path containing SPARTA data files.
  */
-static inline std::string getSPARTADataPath( )
+static inline std::string getSpartaDataPath( )
 {
     return getTudatRootPath( ) + "External/SPARTA/";
 }
