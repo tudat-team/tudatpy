@@ -256,17 +256,17 @@ BOOST_AUTO_TEST_CASE( testMultiDimensionalTabulatedAtmosphereWithInterpolationAn
     const double tolerance = 1e-3;
 
     // Define independent variable conditions
-    const double altitude = 3.739610e8;
-    const double longitude = unit_conversions::convertDegreesToRadians( -1.685714e+02 );
-    const double latitude = unit_conversions::convertDegreesToRadians( -7.851064e+01 );
+    const double altitude = 236.9862e3;
+    const double longitude = unit_conversions::convertDegreesToRadians( 72.98632 );
+    const double latitude = unit_conversions::convertDegreesToRadians( -65.9762 );
 
     // Check that values matches with MATLAB interpolation (note that dependent variables are shuffled)
-    BOOST_CHECK_CLOSE_FRACTION( 1.48675412461296e-18, tabulatedAtmosphere.getDensity( altitude, longitude, latitude ), tolerance );
-    BOOST_CHECK_CLOSE_FRACTION( 2.63189929547133e-12, tabulatedAtmosphere.getPressure( altitude, longitude, latitude ), tolerance );
-    BOOST_CHECK_CLOSE_FRACTION( 204.242247282833, tabulatedAtmosphere.getTemperature( altitude, longitude, latitude ), tolerance );
-    BOOST_CHECK_CLOSE_FRACTION( 296.999439044764, tabulatedAtmosphere.getSpecificGasConstant( altitude, longitude, latitude ), tolerance );
-    BOOST_CHECK_CLOSE_FRACTION( 1.29263427731017, tabulatedAtmosphere.getRatioOfSpecificHeats( altitude, longitude, latitude ), tolerance );
-    BOOST_CHECK_CLOSE_FRACTION( 280.019605075373, tabulatedAtmosphere.getSpeedOfSound( altitude, longitude, latitude ), tolerance );
+    BOOST_CHECK_CLOSE_FRACTION( 5.50931580592416e-13, tabulatedAtmosphere.getDensity( altitude, longitude, latitude ), tolerance );
+    BOOST_CHECK_CLOSE_FRACTION( 5.05339201226489e-08, tabulatedAtmosphere.getPressure( altitude, longitude, latitude ), tolerance );
+    BOOST_CHECK_CLOSE_FRACTION( 174.82724294922, tabulatedAtmosphere.getTemperature( altitude, longitude, latitude ), tolerance );
+    BOOST_CHECK_CLOSE_FRACTION( 388.076687938436, tabulatedAtmosphere.getSpecificGasConstant( altitude, longitude, latitude ), tolerance );
+    BOOST_CHECK_CLOSE_FRACTION( 1.50561688237826, tabulatedAtmosphere.getRatioOfSpecificHeats( altitude, longitude, latitude ), tolerance );
+    BOOST_CHECK_CLOSE_FRACTION( 319.610155078634, tabulatedAtmosphere.getSpeedOfSound( altitude, longitude, latitude ), tolerance );
 }
 
 BOOST_AUTO_TEST_SUITE_END( )

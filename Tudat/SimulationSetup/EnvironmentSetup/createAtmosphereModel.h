@@ -16,6 +16,7 @@
 #include <boost/shared_ptr.hpp>
 
 #include "Tudat/Astrodynamics/Aerodynamics/atmosphereModel.h"
+#include "Tudat/Mathematics/Interpolators/interpolator.h"
 
 namespace tudat
 {
@@ -177,6 +178,7 @@ public:
     {
         windSettings_ = windSettings;
     }
+
 private:
 
     //!  Type of atmosphere model that is to be created.
@@ -313,9 +315,12 @@ public:
                                  const std::vector< aerodynamics::AtmosphereIndependentVariables > independentVariablesNames =
     { aerodynamics::altitude_dependent_atmosphere },
                                  const double specificGasConstant = physical_constants::SPECIFIC_GAS_CONSTANT_AIR,
-                                 const double ratioOfSpecificHeats = 1.4 ):
+                                 const double ratioOfSpecificHeats = 1.4,
+                                 const interpolators::BoundaryInterpolationType boundaryHandling =
+                    interpolators::use_boundary_value_with_warning ):
         AtmosphereSettings( tabulated_atmosphere ), atmosphereFile_( atmosphereFile ), dependentVariables_( dependentVariablesNames ),
-        independentVariables_( independentVariablesNames ), specificGasConstant_( specificGasConstant ), ratioOfSpecificHeats_( ratioOfSpecificHeats )
+        independentVariables_( independentVariablesNames ), specificGasConstant_( specificGasConstant ),
+        ratioOfSpecificHeats_( ratioOfSpecificHeats ), boundaryHandling_( boundaryHandling )
     { }
 
     //! Function to return file containing atmospheric properties.
@@ -353,6 +358,13 @@ public:
      */
     double getRatioOfSpecificHeats( ){ return ratioOfSpecificHeats_; }
 
+    //! Function to return boundary handling method.
+    /*!
+     *  Function to return boundary handling method.
+     *  \return Boundary handling method for when independent variables are outside specified range.
+     */
+    interpolators::BoundaryInterpolationType getBoundaryHandling( ){ return boundaryHandling_; }
+
 private:
 
     //! File containing atmospheric properties.
@@ -389,6 +401,12 @@ private:
      *  Ratio of specific heats of the atmosphere at constant pressure and constant volume.
      */
     double ratioOfSpecificHeats_;
+
+    //! Behavior of interpolator when independent variable is outside range.
+    /*!
+     *  Behavior of interpolator when independent variable is outside range.
+     */
+    interpolators::BoundaryInterpolationType boundaryHandling_;
 };
 
 //! Function to create a wind model.
@@ -401,7 +419,7 @@ private:
  */
 boost::shared_ptr< aerodynamics::WindModel > createWindModel(
         const boost::shared_ptr< WindModelSettings > windSettings,
-        const std::string& body);
+        const std::string& body );
 
 //! Function to create an atmosphere model.
 /*!
@@ -414,6 +432,7 @@ boost::shared_ptr< aerodynamics::WindModel > createWindModel(
 boost::shared_ptr< aerodynamics::AtmosphereModel > createAtmosphereModel(
         const boost::shared_ptr< AtmosphereSettings > atmosphereSettings,
         const std::string& body );
+
 } // namespace simulation_setup
 
 } // namespace tudat
