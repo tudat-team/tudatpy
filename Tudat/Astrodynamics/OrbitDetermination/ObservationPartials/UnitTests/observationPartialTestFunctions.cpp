@@ -312,6 +312,7 @@ std::vector< std::vector< double > > getAnalyticalPartialEvaluationTimes(
 
     for( unsigned int i = 0; i < bodiesWithEstimatedState.size( ); i++ )
     {
+        std::cout<<"Current body A "<<bodiesWithEstimatedState.at( i )<<std::endl;
         currentPartialTimes.clear( );
         for( LinkEnds::const_iterator linkEndIterator = linkEnds.begin( );
              linkEndIterator != linkEnds.end( ); linkEndIterator++ )
