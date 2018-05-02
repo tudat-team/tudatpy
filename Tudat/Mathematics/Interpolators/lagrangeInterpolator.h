@@ -226,11 +226,10 @@ public:
     {
         using std::pow;
 
+        // Check whether boundary handling needs to be applied, if independent variable is beyond its defined range.
         DependentVariableType interpolatedValue = zeroEntry_;
-
         bool useBoundaryValue = false;
         this->checkBoundaryCase( interpolatedValue, useBoundaryValue, targetIndependentVariableValue );
-
         if( useBoundaryValue )
         {
             return interpolatedValue;
