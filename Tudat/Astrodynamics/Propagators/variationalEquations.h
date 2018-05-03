@@ -484,14 +484,16 @@ private:
                 Eigen::Matrix< ParameterType, Eigen::Dynamic, 1 > > > > initialDynamicalParameters =
                 parametersToEstimate->getEstimatedInitialStateParameters( );
 
+        int rotationalBodyCounter = 0;
         for( unsigned int i = 0; i < initialDynamicalParameters.size( ); i++ )
         {
             if( initialDynamicalParameters.at( i )->getParameterName( ).first == estimatable_parameters::initial_rotational_body_state )
             {
                 inertiaTensorsForMultiplication_.push_back( std::make_pair(
-                        stateTypeStartIndices_[ propagators::rotational_state ] + i * 7 + 4,
+                        stateTypeStartIndices_[ propagators::rotational_state ] + rotationalBodyCounter * 7 + 4,
                  boost::dynamic_pointer_cast< estimatable_parameters::InitialRotationalStateParameter< ParameterType > >(
                                              initialDynamicalParameters.at( i ) )->getBodyInertiaTensorFunction( ) ) );
+                rotationalBodyCounter++;
             }
         }
     }

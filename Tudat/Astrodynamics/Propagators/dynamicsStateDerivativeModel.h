@@ -224,8 +224,7 @@ public:
 
 //        std::cout<<"Var. State "<<std::endl<<( state.block( 0, 0, totalStateSize_, totalStateSize_ ) ).transpose( )<<std::endl;
 //        std::cout<<"State "<<( state.block( 0, totalStateSize_, totalStateSize_, 1 ) ).transpose( )<<std::endl;
-//        std::cout<<"State derivative "<<( stateDerivative_.block( 0, totalStateSize_, totalStateSize_, 1 ) ).transpose( )
-//                <<std::endl<<std::endl;
+//        std::cout<<"State derivative "<<std::endl<<stateDerivative_<<std::endl<<std::endl;
         return stateDerivative_;
 
     }

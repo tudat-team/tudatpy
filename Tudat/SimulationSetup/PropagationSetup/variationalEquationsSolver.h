@@ -808,11 +808,18 @@ public:
     void resetParameterEstimate( const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > newParameterEstimate,
                                  const bool areVariationalEquationsToBeIntegrated = true )
     {
+        std::cout<<"Old parameter "<<parametersToEstimate_->template getFullParameterValues< double >( ).transpose( )<<std::endl;
+        std::cout<<"New parameter "<<newParameterEstimate.transpose( )<<std::endl;
+
         // Reset values of parameters.
         parametersToEstimate_->template resetParameterValues< StateScalarType >( newParameterEstimate );
+        std::cout<<"Reset parameter "<<parametersToEstimate_->template getFullParameterValues< double >( ).transpose( )<<std::endl;
+
+        std::cout<<"Old initial state "<<propagatorSettings_->getInitialStates( ).transpose( )<<std::endl;
 
         propagatorSettings_->resetInitialStates(
                     estimatable_parameters::getInitialStateVectorOfBodiesToEstimate( parametersToEstimate_ ) );
+        std::cout<<"News initial state "<<propagatorSettings_->getInitialStates( ).transpose( )<<std::endl;
 
         dynamicsStateDerivative_->template updateStateDerivativeModelSettings(
                     propagatorSettings_->getInitialStates( ) );
