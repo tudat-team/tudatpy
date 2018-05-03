@@ -12,10 +12,12 @@
 #define TUDAT_CREATEATMOSPHEREMODEL_H
 
 #include <string>
+#include <map>
 
 #include <boost/shared_ptr.hpp>
 
 #include "Tudat/Astrodynamics/Aerodynamics/atmosphereModel.h"
+#include "Tudat/Astrodynamics/BasicAstrodynamics/physicalConstants.h"
 #include "Tudat/Mathematics/Interpolators/interpolator.h"
 
 namespace tudat
