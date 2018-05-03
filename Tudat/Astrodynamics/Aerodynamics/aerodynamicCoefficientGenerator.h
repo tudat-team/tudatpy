@@ -26,6 +26,7 @@
 #include <Eigen/Core>
 
 #include "Tudat/Astrodynamics/Aerodynamics/aerodynamicCoefficientInterface.h"
+#include "Tudat/InputOutput/multiDimensionalArrayWriter.h"
 #include "Tudat/Mathematics/Interpolators/multiLinearInterpolator.h"
 #include "Tudat/Basics/basicTypedefs.h"
 
@@ -163,6 +164,19 @@ public:
         return dataPointsOfIndependentVariables_;
     }
 
+    //! Save aerodynamic coefficients to file.
+    /*!
+     *  Save aerodynamic coefficients to file.
+     *  \param fileName Map of paths to files where aerodynamics coefficients are to be saved.
+     */
+    void saveAerodynamicCoefficientsTables( const std::map< int, std::string >& fileNamesMap )
+    {
+        input_output::writeAerodynamicCoefficientsToFile< NumberOfIndependentVariables,
+                NumberOfCoefficients >( fileNamesMap,
+                                        dataPointsOfIndependentVariables_,
+                                        aerodynamicCoefficients_ );
+    }
+
     //! Compute the aerodynamic coefficients at current flight condition.
     /*!
      *  Compute the aerodynamic coefficients at current flight conditions (independent variables).
@@ -193,7 +207,6 @@ public:
     }
 
 protected:
-
 
     //! Generate aerodynamic coefficients.
     /*!
