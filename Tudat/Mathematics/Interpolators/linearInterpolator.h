@@ -69,8 +69,10 @@ public:
      */
     LinearInterpolator( const std::map< IndependentVariableType, DependentVariableType >& dataMap,
                         const AvailableLookupScheme selectedLookupScheme = huntingAlgorithm,
-                        const BoundaryInterpolationType boundaryHandling = extrapolate_at_boundary_with_warning ):
-        OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >( boundaryHandling )
+                        const BoundaryInterpolationType boundaryHandling = extrapolate_at_boundary_with_warning,
+                        const DependentVariableType defaultExtrapolationValue = 0.0 ):
+        OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >( boundaryHandling,
+                                                                                      defaultExtrapolationValue )
     {
         // Verify that the initialization variables are not empty.
         if ( dataMap.size( ) == 0 )
@@ -112,8 +114,10 @@ public:
     LinearInterpolator( const std::vector< IndependentVariableType >& independentValues,
                         const std::vector< DependentVariableType >& dependentValues,
                         const AvailableLookupScheme selectedLookupScheme = huntingAlgorithm,
-                        const BoundaryInterpolationType boundaryHandling = extrapolate_at_boundary_with_warning ):
-        OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >( boundaryHandling )
+                        const BoundaryInterpolationType boundaryHandling = extrapolate_at_boundary_with_warning,
+                        const DependentVariableType defaultExtrapolationValue = 0.0 ):
+        OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >( boundaryHandling,
+                                                                                      defaultExtrapolationValue )
     {
         // Verify that the initialization variables are not empty.
         if ( independentValues.size( ) == 0 || dependentValues.size( ) == 0 )

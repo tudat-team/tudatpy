@@ -73,8 +73,10 @@ public:
                                 const DependentVariableType maximumAllowableVariation,
                                 const DependentVariableType jumpSize,
                                 const AvailableLookupScheme selectedLookupScheme = huntingAlgorithm,
-                                const BoundaryInterpolationType boundaryHandling = extrapolate_at_boundary_with_warning ):
-        OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >( boundaryHandling )
+                                const BoundaryInterpolationType boundaryHandling = extrapolate_at_boundary_with_warning,
+                                const DependentVariableType defaultExtrapolationValue = 0.0 ):
+        OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >( boundaryHandling,
+                                                                                      defaultExtrapolationValue )
     {
         maximumAllowableVariation_ = maximumAllowableVariation;
         jumpSize_ = jumpSize;
@@ -117,8 +119,10 @@ public:
                                 const DependentVariableType maximumAllowableVariation,
                                 const DependentVariableType jumpSize,
                                 const AvailableLookupScheme selectedLookupScheme = huntingAlgorithm,
-                                const BoundaryInterpolationType boundaryHandling = extrapolate_at_boundary_with_warning ):
-        OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >( boundaryHandling )
+                                const BoundaryInterpolationType boundaryHandling = extrapolate_at_boundary_with_warning,
+                                const DependentVariableType defaultExtrapolationValue = 0.0 ):
+        OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >( boundaryHandling,
+                                                                                      defaultExtrapolationValue )
     {
         maximumAllowableVariation_ = maximumAllowableVariation;
         jumpSize_ = jumpSize;

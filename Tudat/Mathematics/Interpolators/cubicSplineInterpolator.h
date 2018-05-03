@@ -129,8 +129,10 @@ public:
     CubicSplineInterpolator( const std::vector< IndependentVariableType >& independentVariables,
                              const std::vector< DependentVariableType >& dependentVariables,
                              const AvailableLookupScheme selectedLookupScheme = huntingAlgorithm,
-                             const BoundaryInterpolationType boundaryHandling = extrapolate_at_boundary_with_warning ):
-        OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >( boundaryHandling )
+                             const BoundaryInterpolationType boundaryHandling = extrapolate_at_boundary_with_warning,
+                             const DependentVariableType defaultExtrapolationValue = 0.0 ):
+        OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >( boundaryHandling,
+                                                                                      defaultExtrapolationValue )
 
     {
         // Verify that the initialization variables are not empty.
@@ -177,8 +179,10 @@ public:
     CubicSplineInterpolator(
             const std::map< IndependentVariableType, DependentVariableType > dataMap,
             const AvailableLookupScheme selectedLookupScheme = huntingAlgorithm,
-            const BoundaryInterpolationType boundaryHandling = extrapolate_at_boundary_with_warning ):
-        OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >( boundaryHandling )
+            const BoundaryInterpolationType boundaryHandling = extrapolate_at_boundary_with_warning,
+            const DependentVariableType defaultExtrapolationValue = 0.0 ):
+        OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >( boundaryHandling,
+                                                                                      defaultExtrapolationValue )
     {
         // Verify that the initialization variables are not empty.
         if ( dataMap.size( ) == 0 )

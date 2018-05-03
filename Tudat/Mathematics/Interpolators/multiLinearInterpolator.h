@@ -77,10 +77,12 @@ public:
                              const boost::multi_array< DependentVariableType, static_cast< size_t >( NumberOfDimensions )>
                              dependentData,
                              const AvailableLookupScheme selectedLookupScheme = huntingAlgorithm,
-                             const BoundaryInterpolationType boundaryHandling = extrapolate_at_boundary_with_warning )
+                             const BoundaryInterpolationType boundaryHandling = extrapolate_at_boundary_with_warning,
+                             const DependentVariableType defaultExtrapolationValue = 0.0 )
         : independentValues_( independentValues ),
           dependentData_( dependentData ),
-          boundaryHandling_( boundaryHandling )
+          boundaryHandling_( boundaryHandling ),
+          defaultExtrapolationValue_( defaultExtrapolationValue )
     {
         // Check consistency of template arguments and input variables.
         if ( independentValues.size( ) != NumberOfDimensions )
@@ -122,9 +124,14 @@ public:
         std::vector< IndependentVariableType > localIndependentValuesToInterpolate = independentValuesToInterpolate;
 
         // Check that independent variables are in range
+        bool useDefault = false;
         for ( unsigned int i = 0; i < NumberOfDimensions; i++ )
         {
-            checkBoundaryCase( localIndependentValuesToInterpolate.at( i ), i );
+            checkBoundaryCase( localIndependentValuesToInterpolate.at( i ), i, useDefault );
+        }
+        if ( useDefault )
+        {
+            return defaultExtrapolationValue_;
         }
 
         // Determine the nearest lower neighbours.
@@ -196,7 +203,8 @@ private:
      */
     void checkBoundaryCase(
             IndependentVariableType& independentVariable,
-            const unsigned int& currentVariable )
+            const unsigned int& currentVariable,
+            bool& useDefault )
     {
         if( boundaryHandling_ != extrapolate_at_boundary )
         {
@@ -219,7 +227,7 @@ private:
                             boost::lexical_cast< std::string >( currentVariable ) + " at: " +
                             boost::lexical_cast< std::string >( independentVariable ) + " but limit values are " +
                             boost::lexical_cast< std::string >( independentValues_.at( currentVariable ).front( ) ) + " and " +
-                            boost::lexical_cast< std::string >( independentValues_.at( currentVariable ).back( ) ) + ", applying extrapolation instead." ;
+                            boost::lexical_cast< std::string >( independentValues_.at( currentVariable ).back( ) ) + ", applying extrapolation instead.";
                     std::cerr << errorMessage << std::endl;
                 }
                 else if( ( boundaryHandling_ == use_boundary_value ) ||
@@ -231,7 +239,7 @@ private:
                                 boost::lexical_cast< std::string >( currentVariable ) + " at: " +
                                 boost::lexical_cast< std::string >( independentVariable ) + " but limit values are " +
                                 boost::lexical_cast< std::string >( independentValues_.at( currentVariable ).front( ) ) + " and " +
-                                boost::lexical_cast< std::string >( independentValues_.at( currentVariable ).back( ) ) + ", taking boundary value instead." ;
+                                boost::lexical_cast< std::string >( independentValues_.at( currentVariable ).back( ) ) + ", taking boundary value instead.";
                         std::cerr << errorMessage << std::endl;
                     }
 
@@ -243,6 +251,21 @@ private:
                     {
                         independentVariable = independentValues_.at( currentVariable ).back( );
                     }
+                }
+                else if( ( boundaryHandling_ == use_default_value ) ||
+                         ( boundaryHandling_ == use_default_value_with_warning ) )
+                {
+                    if( boundaryHandling_ == use_default_value_with_warning )
+                    {
+                        std::string errorMessage = "Warning in interpolator, requesting data point outside of boundaries, requested data of dimension " +
+                                boost::lexical_cast< std::string >( currentVariable ) + " at: " +
+                                boost::lexical_cast< std::string >( independentVariable ) + " but limit values are " +
+                                boost::lexical_cast< std::string >( independentValues_.at( currentVariable ).front( ) ) + " and " +
+                                boost::lexical_cast< std::string >( independentValues_.at( currentVariable ).back( ) ) + ", taking default value instead.";
+                        std::cerr << errorMessage << std::endl;
+                    }
+
+                    useDefault = true;
                 }
                 else
                 {
@@ -397,6 +420,12 @@ private:
      * Boundary handling method.
      */
     BoundaryInterpolationType boundaryHandling_;
+
+    //! Default value to be used for extrapolation.
+    /*!
+     * Default value to be used for extrapolation.
+     */
+    DependentVariableType defaultExtrapolationValue_;
 };
 
 } // namespace interpolators
