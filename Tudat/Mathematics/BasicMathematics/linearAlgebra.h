@@ -35,6 +35,8 @@ namespace linear_algebra
  */
 Eigen::Vector4d convertQuaternionToVectorFormat( const Eigen::Quaterniond& quaternion );
 
+Eigen::Quaterniond getQuaternionFromVectorFormat( const Eigen::Vector4d& vector );
+
 //! Function that returns that 'cross-product matrix'
 /*!
  *  Function that returns that 'cross-product matrix', i.e. for vectors a,b and c, with c = a x b, the matrix A such that

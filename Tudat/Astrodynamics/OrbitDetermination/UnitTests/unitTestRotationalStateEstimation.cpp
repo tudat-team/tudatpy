@@ -247,7 +247,7 @@ BOOST_AUTO_TEST_CASE( test_RotationalDynamicsEstimationFromLanderData )
             parametersToEstimate->template getFullParameterValues< double >( );
     Eigen::Matrix< double, Eigen::Dynamic, 1 > truthParameters = initialParameterEstimate;
 //    initialParameterEstimate( 1 ) += 1.0E-5;
-//    initialParameterEstimate( 2 ) -= 1.0E-5;
+    initialParameterEstimate( 2 ) -= 1.0E-5;
 
     initialParameterEstimate.segment( 0, 4 ).normalize( );
     initialParameterEstimate( 4 ) += 1.0E-7;
@@ -260,21 +260,25 @@ BOOST_AUTO_TEST_CASE( test_RotationalDynamicsEstimationFromLanderData )
 
     // Perform estimation
     boost::shared_ptr< PodOutput< double > > podOutput = orbitDeterminationManager.estimateParameters(
-                podInput, boost::make_shared< EstimationConvergenceChecker >( 0 ) );
-    input_output::writeMatrixToFile( podOutput->normalizedInformationMatrix_,
-                                     "rotationInformationMatrix.dat", 16 );
-    input_output::writeMatrixToFile( podOutput->getCorrelationMatrix( ),
-                                     "rotationCorrelations.dat", 16 );
-    input_output::writeMatrixToFile( podOutput->inverseNormalizedCovarianceMatrix_,
-                                     "rotationInverseNormalizedCovariance.dat", 16 );
-    input_output::writeMatrixToFile( podOutput->getFormalErrorVector( ),
-                                     "rotationFormalEstimationError.dat", 16 );
-    input_output::writeMatrixToFile( truthParameters,
-                                     "rotationTruthParameters.dat", 16 );
-    input_output::writeMatrixToFile( podOutput->residuals_,
-                                     "rotationResiduals.dat", 16 );
-    input_output::writeMatrixToFile( podOutput->informationMatrixTransformationDiagonal_,
-                                     "rotationParameterNormalization.dat", 16 );
+                podInput, boost::make_shared< EstimationConvergenceChecker >( 3 ) );
+
+    std::cout<<podOutput->parameterEstimate_.transpose( )<<std::endl;
+    std::cout<<( podOutput->parameterEstimate_ - truthParameters ).transpose( )<<std::endl;
+
+//    input_output::writeMatrixToFile( podOutput->normalizedInformationMatrix_,
+//                                     "rotationInformationMatrix.dat", 16 );
+//    input_output::writeMatrixToFile( podOutput->getCorrelationMatrix( ),
+//                                     "rotationCorrelations.dat", 16 );
+//    input_output::writeMatrixToFile( podOutput->inverseNormalizedCovarianceMatrix_,
+//                                     "rotationInverseNormalizedCovariance.dat", 16 );
+//    input_output::writeMatrixToFile( podOutput->getFormalErrorVector( ),
+//                                     "rotationFormalEstimationError.dat", 16 );
+//    input_output::writeMatrixToFile( truthParameters,
+//                                     "rotationTruthParameters.dat", 16 );
+//    input_output::writeMatrixToFile( podOutput->residuals_,
+//                                     "rotationResiduals.dat", 16 );
+//    input_output::writeMatrixToFile( podOutput->informationMatrixTransformationDiagonal_,
+//                                     "rotationParameterNormalization.dat", 16 );
 
 
 

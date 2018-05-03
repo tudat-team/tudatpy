@@ -93,9 +93,9 @@ std::map< observation_models::LinkEndType, boost::shared_ptr< CartesianStatePart
 
             // Create partial
             partialMap[ linkEndIterator->first ] = boost::make_shared< CartesianStatePartialWrtRotationMatrixParameter >(
-                        boost::make_shared< RotationMatrixPartialWrtQuaternion >(
-                            boost::bind( &simulation_setup::Body::getCurrentRotationToGlobalFrame, currentBody ) ),
-                        groundStationPositionFunction );
+                        boost::make_shared< RotationMatrixPartialWrtRotationalState >(
+                            boost::bind( &ephemerides::RotationalEphemeris::getRotationToBaseFrame,
+                                         currentBody->getRotationalEphemeris( ), _1 ) ), groundStationPositionFunction );
         }
     }
 

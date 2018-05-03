@@ -809,23 +809,17 @@ public:
                                  const bool areVariationalEquationsToBeIntegrated = true )
     {
         // Reset values of parameters.
-        std::cout<<"A"<<std::endl;
         parametersToEstimate_->template resetParameterValues< StateScalarType >( newParameterEstimate );
-        std::cout<<"A"<<std::endl;
 
         propagatorSettings_->resetInitialStates(
                     estimatable_parameters::getInitialStateVectorOfBodiesToEstimate( parametersToEstimate_ ) );
-        std::cout<<"B"<<std::endl;
 
         dynamicsStateDerivative_->template updateStateDerivativeModelSettings(
                     propagatorSettings_->getInitialStates( ) );
-        std::cout<<"C"<<std::endl;
 
         // Check if re-integration of variational equations is requested
         if( areVariationalEquationsToBeIntegrated )
         {
-            std::cout<<"D"<<std::endl;
-
             // Integrate variational and state equations.
             this->integrateVariationalAndDynamicalEquations( propagatorSettings_->getInitialStates( ), 1 );
         }
@@ -835,8 +829,6 @@ public:
 
             this->integrateDynamicalEquationsOfMotionOnly( propagatorSettings_->getInitialStates( ) );
         }
-        std::cout<<"F"<<std::endl;
-
     }
 
 protected:
