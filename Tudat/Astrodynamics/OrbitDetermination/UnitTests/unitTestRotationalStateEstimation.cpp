@@ -57,7 +57,7 @@ NamedBodyMap getTestBodyMap( const double phobosSemiMajorAxis,
 
     bodyMap[ "Earth" ] = boost::make_shared< Body >( );
     bodyMap[ "Earth" ]->setEphemeris( createBodyEphemeris(
-                                         getDefaultEphemerisSettings( "Earth" ), "Earth" ) );
+                                          getDefaultEphemerisSettings( "Earth" ), "Earth" ) );
 
     bodyMap[ "Phobos" ] = boost::make_shared< Body >( );
 
@@ -116,177 +116,12 @@ NamedBodyMap getTestBodyMap( const double phobosSemiMajorAxis,
 
     bodyMap[ "Phobos" ]->setEphemeris(
                 ephemerides::getTabulatedEphemeris( boost::make_shared< ephemerides::KeplerEphemeris >(
-                                           phobosKeplerElements, 0.0, spice_interface::getBodyGravitationalParameter( "Mars" ),
-                                           "Mars", "ECLIPJ2000" ), -3600.0, 10.0 * 86400.0 + 3600.0, 120.0,
-                boost::make_shared< interpolators::LagrangeInterpolatorSettings >( 8 ), "Mars" ) );
+                                                        phobosKeplerElements, 0.0, spice_interface::getBodyGravitationalParameter( "Mars" ),
+                                                        "Mars", "ECLIPJ2000" ), -3600.0, 10.0 * 86400.0 + 3600.0, 120.0,
+                                                    boost::make_shared< interpolators::LagrangeInterpolatorSettings >( 8 ), "Mars" ) );
 
     return bodyMap;
 }
-
-//BOOST_AUTO_TEST_CASE( test_RotationalDynamicsEstimationFromLanderData )
-//{
-//    //Load spice kernels.
-//    spice_interface::loadStandardSpiceKernels( );
-
-//    // Retrieve list of body objects.
-//    NamedBodyMap bodyMap = getTestBodyMap( 9376.0E3, 0 );
-//    createGroundStation( bodyMap.at( "Phobos" ), "Lander", ( Eigen::Vector3d( ) << 0.1, 0.35, 0.0 ).finished( ), geodetic_position );
-//    setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );
-
-//    // Define time range of test.
-//    double initialEphemerisTime = 0.0;
-//    double finalEphemerisTime = initialEphemerisTime + 10.0 * 86400.0;
-
-//    // Set torques between bodies that are to be taken into account.
-//    std::vector< std::string > bodiesToIntegrate;
-//    bodiesToIntegrate.push_back( "Phobos" );
-
-//    // Define mean motion (equal to rotation rate).
-//    double phobosSemiMajorAxis = 9376.0E3;
-//    double meanMotion = std::sqrt( getBodyGravitationalParameter( "Mars" ) /
-//                                   std::pow( phobosSemiMajorAxis, 3.0 ) );
-
-//    // Define initial rotational state
-//    double initialAnglePerturbation = 1.0E-6;
-//    double initialRotationRatePerturbation = 1.0E-6;
-
-//    Eigen::Quaterniond nominalInitialRotation =
-//            Eigen::Quaterniond( Eigen::AngleAxisd( -initialAnglePerturbation, Eigen::Vector3d::UnitZ( ) ) );
-//    Eigen::VectorXd systemInitialState = Eigen::VectorXd::Zero( 7 );
-//    systemInitialState.segment( 0, 4 ) = linear_algebra::convertQuaternionToVectorFormat( nominalInitialRotation );
-//    systemInitialState( 6 ) = meanMotion * ( 1.0 + initialRotationRatePerturbation );
-
-//    Eigen::Matrix3d phobosInertiaTensor = bodyMap.at( "Phobos" )->getBodyInertiaTensor( );
-
-//    // Create torque models
-//    SelectedTorqueMap torqueMap;
-//    torqueMap[ "Phobos" ][ "Mars" ].push_back( boost::make_shared< TorqueSettings >( second_order_gravitational_torque ) );
-
-//    // Create torque models
-//    basic_astrodynamics::TorqueModelMap torqueModelMap = createTorqueModelsMap(
-//                bodyMap, torqueMap );
-
-//    // Define integrator settings.
-//    boost::shared_ptr< IntegratorSettings< > > integratorSettings =
-//            boost::make_shared< IntegratorSettings< > >
-//            ( rungeKutta4, initialEphemerisTime, 10.0 );
-
-//    // Define propagator settings.
-//    boost::shared_ptr< RotationalStatePropagatorSettings< double > > propagatorSettings =
-//            boost::make_shared< RotationalStatePropagatorSettings< double > >
-//            ( torqueModelMap, bodiesToIntegrate, systemInitialState, boost::make_shared< PropagationTimeTerminationSettings >(
-//                  finalEphemerisTime ) );
-
-//    std::vector< LinkEnds > linkEndsList;
-//    LinkEnds currentLinkEnds;
-//    currentLinkEnds[ transmitter ] = std::make_pair( "Earth", "" );
-//    currentLinkEnds[ receiver ] = std::make_pair( "Phobos", "Lander" );
-//    linkEndsList.push_back( currentLinkEnds );
-
-//    std::map< ObservableType, std::vector< LinkEnds > > linkEndsPerObservable;
-//    linkEndsPerObservable[ one_way_range ].push_back( linkEndsList[ 0 ] );
-
-//    std::vector< boost::shared_ptr< EstimatableParameterSettings > > parameterNames;
-//    parameterNames.push_back(
-//                boost::make_shared< InitialRotationalStateEstimatableParameterSettings< double > >(
-//                    "Phobos", systemInitialState ) );
-
-//    // Create parameters
-//    boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > parametersToEstimate =
-//            createParametersToEstimate( parameterNames, bodyMap );
-//    printEstimatableParameterEntries( parametersToEstimate );
-
-//    observation_models::ObservationSettingsMap observationSettingsMap;
-//    for( std::map< ObservableType, std::vector< LinkEnds > >::iterator linkEndIterator = linkEndsPerObservable.begin( );
-//         linkEndIterator != linkEndsPerObservable.end( ); linkEndIterator++ )
-//    {
-//        ObservableType currentObservable = linkEndIterator->first;
-
-//        std::vector< LinkEnds > currentLinkEndsList = linkEndIterator->second;
-//        for( unsigned int i = 0; i < currentLinkEndsList.size( ); i++ )
-//        {
-//            observationSettingsMap.insert( std::make_pair( currentLinkEndsList.at( i ),
-//                                                           boost::make_shared< ObservationSettings >( currentObservable ) ) );
-//        }
-//    }
-
-//    OrbitDeterminationManager< double, double > orbitDeterminationManager =
-//            OrbitDeterminationManager< double, double >(
-//                bodyMap, parametersToEstimate, observationSettingsMap,
-//                integratorSettings, propagatorSettings );
-
-//    std::vector< double > observationTimes;
-//    double currentTime = initialEphemerisTime + 1800.0;
-//    double observationTimeStep = 60.0;
-//    while( currentTime < finalEphemerisTime - 1800.0 )
-//    {
-//        observationTimes.push_back( currentTime );
-//        currentTime += observationTimeStep;
-//    }
-
-//    std::map< ObservableType, std::map< LinkEnds, std::pair< std::vector< double >, LinkEndType > > > measurementSimulationInput;
-//    for( std::map< ObservableType, std::vector< LinkEnds > >::iterator linkEndIterator = linkEndsPerObservable.begin( );
-//         linkEndIterator != linkEndsPerObservable.end( ); linkEndIterator++ )
-//    {
-//        ObservableType currentObservable = linkEndIterator->first;
-//        std::vector< LinkEnds > currentLinkEndsList = linkEndIterator->second;
-//        for( unsigned int i = 0; i < currentLinkEndsList.size( ); i++ )
-//        {
-//            measurementSimulationInput[ currentObservable ][ currentLinkEndsList.at( i ) ] =
-//                    std::make_pair( observationTimes, receiver );
-//        }
-//    }
-
-//    typedef Eigen::Matrix< double, Eigen::Dynamic, 1 > ObservationVectorType;
-//    typedef std::map< LinkEnds, std::pair< ObservationVectorType, std::pair< std::vector< double >, LinkEndType > > > SingleObservablePodInputType;
-//    typedef std::map< ObservableType, SingleObservablePodInputType > PodInputDataType;
-
-//    // Simulate observations
-//    PodInputDataType observationsAndTimes = simulateObservations< double, double >(
-//                measurementSimulationInput, orbitDeterminationManager.getObservationSimulators( ) );
-
-//    // Perturb parameter estimate
-//    Eigen::Matrix< double, Eigen::Dynamic, 1 > initialParameterEstimate =
-//            parametersToEstimate->template getFullParameterValues< double >( );
-//    Eigen::Matrix< double, Eigen::Dynamic, 1 > truthParameters = initialParameterEstimate;
-////    initialParameterEstimate( 1 ) += 1.0E-5;
-//    initialParameterEstimate( 2 ) -= 1.0E-5;
-
-//    initialParameterEstimate.segment( 0, 4 ).normalize( );
-//    initialParameterEstimate( 4 ) += 1.0E-7;
-
-//    // Define estimation input
-//    boost::shared_ptr< PodInput< double, double  > > podInput =
-//            boost::make_shared< PodInput< double, double > >(
-//                observationsAndTimes, 7,
-//                Eigen::MatrixXd::Zero( 7, 7 ), initialParameterEstimate - truthParameters );
-
-//    // Perform estimation
-//    boost::shared_ptr< PodOutput< double > > podOutput = orbitDeterminationManager.estimateParameters(
-//                podInput, boost::make_shared< EstimationConvergenceChecker >( 3 ) );
-
-////    std::cout<<podOutput->parameterEstimate_.transpose( )<<std::endl;
-//    for( unsigned int i = 0; i < 7; i++ )
-//    {
-//        BOOST_CHECK_SMALL( std::fabs( podOutput->parameterEstimate_( i ) - truthParameters( i ) ), 1.0E-8 );
-//    }
-//    std::cout<<( podOutput->parameterEstimate_ - truthParameters ).transpose( )<<std::endl;
-
-////    input_output::writeMatrixToFile( podOutput->normalizedInformationMatrix_,
-////                                     "rotationInformationMatrix.dat", 16 );
-////    input_output::writeMatrixToFile( podOutput->getCorrelationMatrix( ),
-////                                     "rotationCorrelations.dat", 16 );
-////    input_output::writeMatrixToFile( podOutput->inverseNormalizedCovarianceMatrix_,
-////                                     "rotationInverseNormalizedCovariance.dat", 16 );
-////    input_output::writeMatrixToFile( podOutput->getFormalErrorVector( ),
-////                                     "rotationFormalEstimationError.dat", 16 );
-////    input_output::writeMatrixToFile( truthParameters,
-////                                     "rotationTruthParameters.dat", 16 );
-////    input_output::writeMatrixToFile( podOutput->residuals_,
-////                                     "rotationResiduals.dat", 16 );
-////    input_output::writeMatrixToFile( podOutput->informationMatrixTransformationDiagonal_,
-////                                     "rotationParameterNormalization.dat", 16 );
-//}
 
 BOOST_AUTO_TEST_CASE( test_RotationalDynamicsEstimationFromLanderData )
 {
@@ -300,7 +135,7 @@ BOOST_AUTO_TEST_CASE( test_RotationalDynamicsEstimationFromLanderData )
 
     // Define time range of test.
     double initialEphemerisTime = 0.0;
-    double finalEphemerisTime = initialEphemerisTime + 100.0 * 86400.0;
+    double finalEphemerisTime = initialEphemerisTime + 10.0 * 86400.0;
 
     // Set torques between bodies that are to be taken into account.
     std::vector< std::string > bodiesToIntegrate;
@@ -331,51 +166,16 @@ BOOST_AUTO_TEST_CASE( test_RotationalDynamicsEstimationFromLanderData )
     basic_astrodynamics::TorqueModelMap torqueModelMap = createTorqueModelsMap(
                 bodyMap, torqueMap );
 
-    // Define propagator settings variables.
-    SelectedAccelerationMap accelerationMap;
-    std::vector< std::string > translationalBodiesToPropagate;
-    std::vector< std::string > translationalCentralBodies;
-
-    // Define acceleration model settings.
-    std::map< std::string, std::vector< boost::shared_ptr< AccelerationSettings > > > accelerationsOfPhobos;
-    accelerationsOfPhobos[ "Mars" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );
-    accelerationMap[ "Phobos" ] = accelerationsOfPhobos;
-
-    translationalBodiesToPropagate.push_back( "Phobos" );
-    translationalCentralBodies.push_back( "Mars" );
-
-    // Create acceleration models
-    basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
-                bodyMap, accelerationMap, translationalBodiesToPropagate, translationalCentralBodies );
-
     // Define integrator settings.
     boost::shared_ptr< IntegratorSettings< > > integratorSettings =
             boost::make_shared< IntegratorSettings< > >
             ( rungeKutta4, initialEphemerisTime, 10.0 );
 
     // Define propagator settings.
-    boost::shared_ptr< RotationalStatePropagatorSettings< double > > rotationalPropagatorSettings =
+    boost::shared_ptr< RotationalStatePropagatorSettings< double > > propagatorSettings =
             boost::make_shared< RotationalStatePropagatorSettings< double > >
             ( torqueModelMap, bodiesToIntegrate, systemInitialState, boost::make_shared< PropagationTimeTerminationSettings >(
                   finalEphemerisTime ) );
-
-    Eigen::VectorXd initialTranslationalState =
-            propagators::getInitialStatesOfBodies(
-                translationalBodiesToPropagate, translationalCentralBodies, bodyMap, initialEphemerisTime );
-    boost::shared_ptr< TranslationalStatePropagatorSettings< double > > translationalPropagatorSettings =
-            boost::make_shared< TranslationalStatePropagatorSettings< double > >
-            ( translationalCentralBodies, accelerationModelMap, translationalBodiesToPropagate,
-              initialTranslationalState, finalEphemerisTime );
-
-    std::vector< boost::shared_ptr< SingleArcPropagatorSettings< double > > >  propagatorSettingsList;
-    propagatorSettingsList.push_back( translationalPropagatorSettings );
-    propagatorSettingsList.push_back( rotationalPropagatorSettings );
-
-   boost::shared_ptr< PropagatorSettings< double > > propagatorSettings =
-           boost::make_shared< MultiTypePropagatorSettings< double > >(
-                propagatorSettingsList,
-                boost::make_shared< PropagationTimeTerminationSettings >( finalEphemerisTime ) );
-
 
     std::vector< LinkEnds > linkEndsList;
     LinkEnds currentLinkEnds;
@@ -388,12 +188,8 @@ BOOST_AUTO_TEST_CASE( test_RotationalDynamicsEstimationFromLanderData )
 
     std::vector< boost::shared_ptr< EstimatableParameterSettings > > parameterNames;
     parameterNames.push_back(
-                boost::make_shared< InitialTranslationalStateEstimatableParameterSettings< double > >(
-                    "Phobos", initialTranslationalState, "Mars" ) );
-    parameterNames.push_back(
                 boost::make_shared< InitialRotationalStateEstimatableParameterSettings< double > >(
                     "Phobos", systemInitialState ) );
-
 
     // Create parameters
     boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > parametersToEstimate =
@@ -454,6 +250,213 @@ BOOST_AUTO_TEST_CASE( test_RotationalDynamicsEstimationFromLanderData )
             parametersToEstimate->template getFullParameterValues< double >( );
     Eigen::Matrix< double, Eigen::Dynamic, 1 > truthParameters = initialParameterEstimate;
 //    initialParameterEstimate( 1 ) += 1.0E-5;
+    initialParameterEstimate( 2 ) -= 1.0E-5;
+
+    initialParameterEstimate.segment( 0, 4 ).normalize( );
+    initialParameterEstimate( 4 ) += 1.0E-7;
+
+    // Define estimation input
+    boost::shared_ptr< PodInput< double, double  > > podInput =
+            boost::make_shared< PodInput< double, double > >(
+                observationsAndTimes, 7,
+                Eigen::MatrixXd::Zero( 7, 7 ), initialParameterEstimate - truthParameters );
+
+    // Perform estimation
+    boost::shared_ptr< PodOutput< double > > podOutput = orbitDeterminationManager.estimateParameters(
+                podInput, boost::make_shared< EstimationConvergenceChecker >( 3 ) );
+
+//    std::cout<<podOutput->parameterEstimate_.transpose( )<<std::endl;
+    for( unsigned int i = 0; i < 7; i++ )
+    {
+        BOOST_CHECK_SMALL( std::fabs( podOutput->parameterEstimate_( i ) - truthParameters( i ) ), 1.0E-8 );
+    }
+    std::cout<<( podOutput->parameterEstimate_ - truthParameters ).transpose( )<<std::endl;
+
+//    input_output::writeMatrixToFile( podOutput->normalizedInformationMatrix_,
+//                                     "rotationInformationMatrix.dat", 16 );
+//    input_output::writeMatrixToFile( podOutput->getCorrelationMatrix( ),
+//                                     "rotationCorrelations.dat", 16 );
+//    input_output::writeMatrixToFile( podOutput->inverseNormalizedCovarianceMatrix_,
+//                                     "rotationInverseNormalizedCovariance.dat", 16 );
+//    input_output::writeMatrixToFile( podOutput->getFormalErrorVector( ),
+//                                     "rotationFormalEstimationError.dat", 16 );
+//    input_output::writeMatrixToFile( truthParameters,
+//                                     "rotationTruthParameters.dat", 16 );
+//    input_output::writeMatrixToFile( podOutput->residuals_,
+//                                     "rotationResiduals.dat", 16 );
+//    input_output::writeMatrixToFile( podOutput->informationMatrixTransformationDiagonal_,
+//                                     "rotationParameterNormalization.dat", 16 );
+}
+
+BOOST_AUTO_TEST_CASE( test_RotationalTranslationalDynamicsEstimationFromLanderData )
+{
+    //Load spice kernels.
+    spice_interface::loadStandardSpiceKernels( );
+
+    // Retrieve list of body objects.
+    NamedBodyMap bodyMap = getTestBodyMap( 9376.0E3, 0 );
+    createGroundStation( bodyMap.at( "Phobos" ), "Lander", ( Eigen::Vector3d( ) << 0.1, 0.35, 0.0 ).finished( ), geodetic_position );
+    setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );
+
+    // Define time range of test.
+    double initialEphemerisTime = 0.0;
+    double finalEphemerisTime = initialEphemerisTime + 60.0 * 86400.0;
+
+    // Set torques between bodies that are to be taken into account.
+    std::vector< std::string > bodiesToIntegrate;
+    bodiesToIntegrate.push_back( "Phobos" );
+
+    // Define mean motion (equal to rotation rate).
+    double phobosSemiMajorAxis = 9376.0E3;
+    double meanMotion = std::sqrt( getBodyGravitationalParameter( "Mars" ) /
+                                   std::pow( phobosSemiMajorAxis, 3.0 ) );
+
+    // Define initial rotational state
+    double initialAnglePerturbation = 1.0E-6;
+    double initialRotationRatePerturbation = 1.0E-6;
+
+    Eigen::Quaterniond nominalInitialRotation =
+            Eigen::Quaterniond( Eigen::AngleAxisd( -initialAnglePerturbation, Eigen::Vector3d::UnitZ( ) ) );
+    Eigen::VectorXd systemInitialState = Eigen::VectorXd::Zero( 7 );
+    systemInitialState.segment( 0, 4 ) = linear_algebra::convertQuaternionToVectorFormat( nominalInitialRotation );
+    systemInitialState( 6 ) = meanMotion * ( 1.0 + initialRotationRatePerturbation );
+
+    Eigen::Matrix3d phobosInertiaTensor = bodyMap.at( "Phobos" )->getBodyInertiaTensor( );
+
+    // Create torque models
+    SelectedTorqueMap torqueMap;
+    torqueMap[ "Phobos" ][ "Mars" ].push_back( boost::make_shared< TorqueSettings >( second_order_gravitational_torque ) );
+
+    // Create torque models
+    basic_astrodynamics::TorqueModelMap torqueModelMap = createTorqueModelsMap(
+                bodyMap, torqueMap );
+
+    // Define propagator settings variables.
+    SelectedAccelerationMap accelerationMap;
+    std::vector< std::string > translationalBodiesToPropagate;
+    std::vector< std::string > translationalCentralBodies;
+
+    // Define acceleration model settings.
+    std::map< std::string, std::vector< boost::shared_ptr< AccelerationSettings > > > accelerationsOfPhobos;
+    accelerationsOfPhobos[ "Mars" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );
+    accelerationMap[ "Phobos" ] = accelerationsOfPhobos;
+
+    translationalBodiesToPropagate.push_back( "Phobos" );
+    translationalCentralBodies.push_back( "Mars" );
+
+    // Create acceleration models
+    basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
+                bodyMap, accelerationMap, translationalBodiesToPropagate, translationalCentralBodies );
+
+    // Define integrator settings.
+    double timeStep = 180.0;
+    boost::shared_ptr< IntegratorSettings< > > integratorSettings =
+            boost::make_shared< RungeKuttaVariableStepSizeSettings< > >
+            ( rungeKuttaVariableStepSize, initialEphemerisTime, timeStep,
+              RungeKuttaCoefficients::rungeKuttaFehlberg78, timeStep, timeStep, 1.0, 1.0 );
+
+
+    // Define propagator settings.
+    boost::shared_ptr< RotationalStatePropagatorSettings< double > > rotationalPropagatorSettings =
+            boost::make_shared< RotationalStatePropagatorSettings< double > >
+            ( torqueModelMap, bodiesToIntegrate, systemInitialState, boost::make_shared< PropagationTimeTerminationSettings >(
+                  finalEphemerisTime ) );
+
+    Eigen::VectorXd initialTranslationalState =
+            propagators::getInitialStatesOfBodies(
+                translationalBodiesToPropagate, translationalCentralBodies, bodyMap, initialEphemerisTime );
+    boost::shared_ptr< TranslationalStatePropagatorSettings< double > > translationalPropagatorSettings =
+            boost::make_shared< TranslationalStatePropagatorSettings< double > >
+            ( translationalCentralBodies, accelerationModelMap, translationalBodiesToPropagate,
+              initialTranslationalState, finalEphemerisTime );
+
+    std::vector< boost::shared_ptr< SingleArcPropagatorSettings< double > > >  propagatorSettingsList;
+    propagatorSettingsList.push_back( translationalPropagatorSettings );
+    propagatorSettingsList.push_back( rotationalPropagatorSettings );
+
+    boost::shared_ptr< PropagatorSettings< double > > propagatorSettings =
+            boost::make_shared< MultiTypePropagatorSettings< double > >(
+                propagatorSettingsList,
+                boost::make_shared< PropagationTimeTerminationSettings >( finalEphemerisTime ) );
+
+
+    std::vector< LinkEnds > linkEndsList;
+    LinkEnds currentLinkEnds;
+    currentLinkEnds[ transmitter ] = std::make_pair( "Earth", "" );
+    currentLinkEnds[ receiver ] = std::make_pair( "Phobos", "Lander" );
+    linkEndsList.push_back( currentLinkEnds );
+
+    std::map< ObservableType, std::vector< LinkEnds > > linkEndsPerObservable;
+    linkEndsPerObservable[ one_way_range ].push_back( linkEndsList[ 0 ] );
+
+    std::vector< boost::shared_ptr< EstimatableParameterSettings > > parameterNames;
+    parameterNames.push_back(
+                boost::make_shared< InitialTranslationalStateEstimatableParameterSettings< double > >(
+                    "Phobos", initialTranslationalState, "Mars" ) );
+    parameterNames.push_back(
+                boost::make_shared< InitialRotationalStateEstimatableParameterSettings< double > >(
+                    "Phobos", systemInitialState ) );
+
+
+    // Create parameters
+    boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > parametersToEstimate =
+            createParametersToEstimate( parameterNames, bodyMap );
+    printEstimatableParameterEntries( parametersToEstimate );
+
+    observation_models::ObservationSettingsMap observationSettingsMap;
+    for( std::map< ObservableType, std::vector< LinkEnds > >::iterator linkEndIterator = linkEndsPerObservable.begin( );
+         linkEndIterator != linkEndsPerObservable.end( ); linkEndIterator++ )
+    {
+        ObservableType currentObservable = linkEndIterator->first;
+
+        std::vector< LinkEnds > currentLinkEndsList = linkEndIterator->second;
+        for( unsigned int i = 0; i < currentLinkEndsList.size( ); i++ )
+        {
+            observationSettingsMap.insert( std::make_pair( currentLinkEndsList.at( i ),
+                                                           boost::make_shared< ObservationSettings >( currentObservable ) ) );
+        }
+    }
+
+    OrbitDeterminationManager< double, double > orbitDeterminationManager =
+            OrbitDeterminationManager< double, double >(
+                bodyMap, parametersToEstimate, observationSettingsMap,
+                integratorSettings, propagatorSettings );
+
+    std::vector< double > observationTimes;
+    double currentTime = initialEphemerisTime + 1800.0;
+    double observationTimeStep = 1200.0;
+    while( currentTime < finalEphemerisTime - 1800.0 )
+    {
+        observationTimes.push_back( currentTime );
+        currentTime += observationTimeStep;
+    }
+
+    std::map< ObservableType, std::map< LinkEnds, std::pair< std::vector< double >, LinkEndType > > > measurementSimulationInput;
+    for( std::map< ObservableType, std::vector< LinkEnds > >::iterator linkEndIterator = linkEndsPerObservable.begin( );
+         linkEndIterator != linkEndsPerObservable.end( ); linkEndIterator++ )
+    {
+        ObservableType currentObservable = linkEndIterator->first;
+        std::vector< LinkEnds > currentLinkEndsList = linkEndIterator->second;
+        for( unsigned int i = 0; i < currentLinkEndsList.size( ); i++ )
+        {
+            measurementSimulationInput[ currentObservable ][ currentLinkEndsList.at( i ) ] =
+                    std::make_pair( observationTimes, receiver );
+        }
+    }
+
+    typedef Eigen::Matrix< double, Eigen::Dynamic, 1 > ObservationVectorType;
+    typedef std::map< LinkEnds, std::pair< ObservationVectorType, std::pair< std::vector< double >, LinkEndType > > > SingleObservablePodInputType;
+    typedef std::map< ObservableType, SingleObservablePodInputType > PodInputDataType;
+
+    // Simulate observations
+    PodInputDataType observationsAndTimes = simulateObservations< double, double >(
+                measurementSimulationInput, orbitDeterminationManager.getObservationSimulators( ) );
+
+    // Perturb parameter estimate
+    Eigen::Matrix< double, Eigen::Dynamic, 1 > initialParameterEstimate =
+            parametersToEstimate->template getFullParameterValues< double >( );
+    Eigen::Matrix< double, Eigen::Dynamic, 1 > truthParameters = initialParameterEstimate;
+    //    initialParameterEstimate( 1 ) += 1.0E-5;
     initialParameterEstimate( 8 ) -= 1.0E-5;
 
     initialParameterEstimate.segment( 6, 4 ).normalize( );
@@ -471,19 +474,47 @@ BOOST_AUTO_TEST_CASE( test_RotationalDynamicsEstimationFromLanderData )
             boost::make_shared< PodInput< double, double > >(
                 observationsAndTimes, 13,
                 Eigen::MatrixXd::Zero( 13, 13 ), initialParameterEstimate - truthParameters );
+    podInput->defineEstimationSettings( true, false );
 
     // Perform estimation
     boost::shared_ptr< PodOutput< double > > podOutput = orbitDeterminationManager.estimateParameters(
-                podInput, boost::make_shared< EstimationConvergenceChecker >( 3 ) );
+                podInput, boost::make_shared< EstimationConvergenceChecker >( 4 ) );
 
-//    std::cout<<podOutput->parameterEstimate_.transpose( )<<std::endl;
-    for( unsigned int i = 0; i < 7; i++ )
-    {
-        BOOST_CHECK_SMALL( std::fabs( podOutput->parameterEstimate_( i ) - truthParameters( i ) ), 1.0E-8 );
-    }
+    //    std::cout<<podOutput->parameterEstimate_.transpose( )<<std::endl;
+    BOOST_CHECK_SMALL( std::fabs( podOutput->parameterEstimate_( 0 ) - truthParameters( 0 ) ), 2.0E-4 );
+    BOOST_CHECK_SMALL( std::fabs( podOutput->parameterEstimate_( 1 ) - truthParameters( 1 ) ), 2.0E-2 );
+    BOOST_CHECK_SMALL( std::fabs( podOutput->parameterEstimate_( 2 ) - truthParameters( 2 ) ), 1.0 );
+
+    BOOST_CHECK_SMALL( std::fabs( podOutput->parameterEstimate_( 3 ) - truthParameters( 3 ) ), 1.0E-5 );
+    BOOST_CHECK_SMALL( std::fabs( podOutput->parameterEstimate_( 4 ) - truthParameters( 4 ) ), 1.0E-7 );
+    BOOST_CHECK_SMALL( std::fabs( podOutput->parameterEstimate_( 5 ) - truthParameters( 5 ) ), 2.0E-4 );
+
+    BOOST_CHECK_SMALL( std::fabs( podOutput->parameterEstimate_( 6 ) - truthParameters( 6 ) ), 1.0E-4 );
+    BOOST_CHECK_SMALL( std::fabs( podOutput->parameterEstimate_( 7 ) - truthParameters( 7 ) ), 1.0E-7 );
+    BOOST_CHECK_SMALL( std::fabs( podOutput->parameterEstimate_( 8 ) - truthParameters( 8 ) ), 1.0E-7 );
+    BOOST_CHECK_SMALL( std::fabs( podOutput->parameterEstimate_( 9 ) - truthParameters( 9 ) ), 1.0E-7 );
+
+    BOOST_CHECK_SMALL( std::fabs( podOutput->parameterEstimate_( 10 ) - truthParameters( 10 ) ), 1.0E-11 );
+    BOOST_CHECK_SMALL( std::fabs( podOutput->parameterEstimate_( 11 ) - truthParameters( 11 ) ), 1.0E-11 );
+    BOOST_CHECK_SMALL( std::fabs( podOutput->parameterEstimate_( 12 ) - truthParameters( 12 ) ), 1.0E-8 );
+
     std::cout<<( podOutput->parameterEstimate_ - truthParameters ).transpose( )<<std::endl;
 
-//    input_output::writeMatrixToFile( podOutput->norm
+//    input_output::writeMatrixToFile( podOutput->normalizedInformationMatrix_,
+//                                     "rotationInformationMatrix.dat", 16 );
+//    input_output::writeMatrixToFile( podOutput->getCorrelationMatrix( ),
+//                                     "rotationCorrelations.dat", 16 );
+//    input_output::writeMatrixToFile( podOutput->inverseNormalizedCovarianceMatrix_,
+//                                     "rotationInverseNormalizedCovariance.dat", 16 );
+//    input_output::writeMatrixToFile( podOutput->getFormalErrorVector( ),
+//                                     "rotationFormalEstimationError.dat", 16 );
+//    input_output::writeMatrixToFile( truthParameters,
+//                                     "rotationTruthParameters.dat", 16 );
+//    input_output::writeMatrixToFile( podOutput->residuals_,
+//                                     "rotationResiduals.dat", 16 );
+//    input_output::writeMatrixToFile( podOutput->informationMatrixTransformationDiagonal_,
+//                                     "rotationParameterNormalization.dat", 16 );
+    //    input_output::writeMatrixToFile( podOutput->norm
 }
 
 BOOST_AUTO_TEST_SUITE_END( )
