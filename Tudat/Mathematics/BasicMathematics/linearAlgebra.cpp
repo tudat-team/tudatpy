@@ -35,6 +35,18 @@ Eigen::Vector4d convertQuaternionToVectorFormat( const Eigen::Quaterniond& quate
     return vector;
 }
 
+Eigen::Quaterniond getQuaternionFromVectorFormat( const Eigen::Vector4d& vector )
+{
+    Eigen::Quaterniond quaternion;
+
+    quaternion.w( ) = vector( 0 );
+    quaternion.x( ) = vector( 1 );
+    quaternion.y( ) = vector( 2 );
+    quaternion.z( ) = vector( 3 );
+
+    return quaternion;
+}
+
 
 //! Function that returns that 'cross-product matrix'
 Eigen::Matrix3d getCrossProductMatrix( const Eigen::Vector3d& vector )

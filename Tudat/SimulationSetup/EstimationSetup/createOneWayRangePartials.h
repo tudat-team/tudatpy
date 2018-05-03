@@ -190,7 +190,7 @@ std::pair< SingleLinkObservationPartialList, boost::shared_ptr< PositionPartialS
             if( currentRangePartial != NULL )
             {
                 // Add partial to the list.
-                currentPair = std::pair< int, int >( currentIndex, 4 );
+                currentPair = std::pair< int, int >( currentIndex, 7 );
                 rangePartials[ currentPair ] = currentRangePartial;
             }
 
