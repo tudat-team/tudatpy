@@ -35,8 +35,6 @@
 #include "Tudat/Astrodynamics/Aerodynamics/tabulatedAtmosphere.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/unitConversions.h"
 
-#include "Tudat/InputOutput/basicInputOutput.h"
-
 #include "Tudat/Basics/basicTypedefs.h"
 
 namespace tudat
@@ -129,6 +127,8 @@ public:
             const double referenceLength,
             const int referenceAxis,
             const Eigen::Vector3d& momentReferencePoint,
+            const double gridSpacing,
+            const double simulatedParticlesPerCell,
             const double wallTemperature = 300.0,
             const double accommodationCoefficient = 1.0 );
 
@@ -177,14 +177,6 @@ private:
      */
     void generateCoefficients( );
 
-    const std::string outputDirectory_ = "results";
-    const std::string outputPath_ = input_output::getSpartaDataPath( ) + outputDirectory_;
-    const std::string inputFile_ = input_output::getSpartaDataPath( )  + "in.sparta";
-    const std::string inputFileTemplate_ = input_output::getSpartaDataPath( )  + "SPARTAInputTemplate.txt";
-    const std::string geometryFileInternal_ = input_output::getSpartaDataPath( ) + "data.shape";
-    const double gridSpacing_ = 0.1;
-    const double simulatedParticlesPerCell_ = 10;
-
     //! Path to SPARTA executable.
     /*!
      * Path to SPARTA executable. Note that SPARTA is an external software and needs to be compiled before
@@ -197,6 +189,16 @@ private:
 
     //! Reference axis for the aerodynamic analysis.
     int referenceAxis_;
+
+    //! Grid size for simulation environment.
+    /*!
+     *  Grid size for simulation environment. Used to define the size of each cell, and the number of cells in
+     *  the environment.
+     */
+    double gridSpacing_;
+
+    //! Number of simulated particles per cell.
+    double simulatedParticlesPerCell_;
 
     //! Temperature of surface of vehicle.
     double wallTemperature_;
