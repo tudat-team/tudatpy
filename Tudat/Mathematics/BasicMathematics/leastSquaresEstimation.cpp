@@ -102,15 +102,47 @@ std::pair< Eigen::VectorXd, Eigen::MatrixXd > performLeastSquaresAdjustmentFromI
         const Eigen::VectorXd& diagonalOfWeightMatrix,
         const Eigen::MatrixXd& inverseOfAPrioriCovarianceMatrix,
         const bool checkConditionNumber,
-        const double maximumAllowedConditionNumber )
+        const double maximumAllowedConditionNumber,
+        const Eigen::MatrixXd& constraintMultiplier,
+        const Eigen::VectorXd& constraintRightHandside )
 {
     Eigen::VectorXd rightHandSide = informationMatrix.transpose( ) *
             ( diagonalOfWeightMatrix.cwiseProduct( observationResiduals ) );
     Eigen::MatrixXd inverseOfCovarianceMatrix = calculateInverseOfUpdatedCovarianceMatrix(
                 informationMatrix, diagonalOfWeightMatrix, inverseOfAPrioriCovarianceMatrix );
-    return std::make_pair( solveSystemOfEquationsWithSvd( inverseOfCovarianceMatrix, rightHandSide,
-                                                          checkConditionNumber, maximumAllowedConditionNumber ),
+
+    if( constraintMultiplier.rows( ) != 0 )
+    {
+        if( constraintMultiplier.rows( ) != constraintRightHandside.rows( ) )
+        {
+            throw std::runtime_error( "Error when performing constrained least-squares, constraints are incompatible" );
+        }
+
+        if( constraintMultiplier.cols( ) != informationMatrix.cols( ) )
+        {
+            throw std::runtime_error( "Error when performing constrained least-squares, constraints are incompatible with partials" );
+        }
+
+        int numberOfConstraints = constraintMultiplier.rows( );
+        int numberOfParameters = constraintMultiplier.cols( );
+
+        inverseOfCovarianceMatrix.conservativeResize(
+                    numberOfParameters + numberOfConstraints, numberOfParameters + numberOfConstraints );
+        inverseOfCovarianceMatrix.block( numberOfParameters, 0, numberOfConstraints, numberOfParameters ) =
+               constraintMultiplier;
+        inverseOfCovarianceMatrix.block( 0, numberOfParameters, numberOfParameters, numberOfConstraints ) =
+               constraintMultiplier.transpose( );
+        inverseOfCovarianceMatrix.block(
+                    numberOfParameters, numberOfParameters, numberOfConstraints, numberOfConstraints ).setZero( );
+
+        rightHandSide.conservativeResize( numberOfParameters + numberOfConstraints );
+        rightHandSide.segment( numberOfParameters, numberOfConstraints ) = constraintRightHandside;
+    }
+
+    return std::make_pair( solveSystemOfEquationsWithSvd(
+                               inverseOfCovarianceMatrix, rightHandSide, checkConditionNumber, maximumAllowedConditionNumber ),
                            inverseOfCovarianceMatrix );
+
 }
 
 //! Function to perform an iteration least squares estimation from information matrix, weights and residuals

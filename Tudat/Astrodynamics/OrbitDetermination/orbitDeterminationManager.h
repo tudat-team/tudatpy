@@ -555,11 +555,23 @@ public:
             std::pair< Eigen::VectorXd, Eigen::MatrixXd > leastSquaresOutput;
             try
             {
+                Eigen::MatrixXd constraintStateMultiplier;
+                Eigen::VectorXd constraintRightHandSide;
+                parametersToEstimate_->getConstraints( constraintStateMultiplier, constraintRightHandSide );
+
+                std::cout<<"Constraint: "<<constraintRightHandSide<<std::endl<<
+                        constraintStateMultiplier<<std::endl;
+
                 leastSquaresOutput =
                         linear_algebra::performLeastSquaresAdjustmentFromInformationMatrix(
                             residualsAndPartials.second.block( 0, 0, residualsAndPartials.second.rows( ), numberOfEstimatedParameters ),
                             residualsAndPartials.first, getConcatenatedWeightsVector( podInput->getWeightsMatrixDiagonals( ) ),
-                            normalizedInverseAprioriCovarianceMatrix );
+                            normalizedInverseAprioriCovarianceMatrix, 1, 1.0E8, constraintStateMultiplier, constraintRightHandSide );
+
+                if( constraintStateMultiplier.rows( ) > 0 )
+                {
+                    leastSquaresOutput.first.conservativeResize( parameterVectorSize );
+                }
             }
             catch( std::runtime_error )
             {
@@ -575,6 +587,8 @@ public:
 
             // Update value of parameter vector
             newParameterEstimate = oldParameterEstimate + parameterAddition;
+            parametersToEstimate_->template resetParameterValues< ObservationScalarType >( newParameterEstimate );
+            newParameterEstimate = parametersToEstimate_->template getFullParameterValues< ObservationScalarType >( );
 
             if( podInput->getSaveResidualsAndParametersFromEachIteration( ) )
             {
