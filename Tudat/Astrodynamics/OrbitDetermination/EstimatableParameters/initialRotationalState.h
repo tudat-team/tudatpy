@@ -65,6 +65,7 @@ public:
     void setParameterValue( Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 >  parameterValue )
     {
         initialRotationalState_ = parameterValue;
+        initialRotationalState_.segment( 0, 4 ).normalize( );
     }
 
     //! Function to retrieve the size of the parameter (always 6).

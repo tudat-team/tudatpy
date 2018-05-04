@@ -118,7 +118,9 @@ std::pair< Eigen::VectorXd, Eigen::MatrixXd > performLeastSquaresAdjustmentFromI
         const Eigen::VectorXd& diagonalOfWeightMatrix,
         const Eigen::MatrixXd& inverseOfAPrioriCovarianceMatrix,
         const bool checkConditionNumber = 1,
-        const double maximumAllowedConditionNumber = 1.0E8  );
+        const double maximumAllowedConditionNumber = 1.0E8,
+        const Eigen::MatrixXd& constraintMultiplier = Eigen::MatrixXd( 0, 0 ),
+        const Eigen::VectorXd& constraintRightHandside = Eigen::VectorXd( 0 ) );
 
 //! Function to perform an iteration of least squares estimation from information matrix, weights and residuals
 /*!
