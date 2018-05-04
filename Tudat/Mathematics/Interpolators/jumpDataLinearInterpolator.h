@@ -73,8 +73,10 @@ public:
                                 const DependentVariableType maximumAllowableVariation,
                                 const DependentVariableType jumpSize,
                                 const AvailableLookupScheme selectedLookupScheme = huntingAlgorithm,
-                                const BoundaryInterpolationType boundaryHandling = extrapolate_at_boundary ):
-        OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >( boundaryHandling )
+                                const BoundaryInterpolationType boundaryHandling = extrapolate_at_boundary,
+                                const DependentVariableType defaultExtrapolationValue = AdditionIdentity< DependentVariableType >::getZeroValue( ) ):
+        OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >( boundaryHandling,
+                                                                                      defaultExtrapolationValue )
     {
         maximumAllowableVariation_ = maximumAllowableVariation;
         jumpSize_ = jumpSize;
@@ -117,8 +119,10 @@ public:
                                 const DependentVariableType maximumAllowableVariation,
                                 const DependentVariableType jumpSize,
                                 const AvailableLookupScheme selectedLookupScheme = huntingAlgorithm,
-                                const BoundaryInterpolationType boundaryHandling = extrapolate_at_boundary ):
-        OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >( boundaryHandling )
+                                const BoundaryInterpolationType boundaryHandling = extrapolate_at_boundary,
+                                const DependentVariableType defaultExtrapolationValue = AdditionIdentity< DependentVariableType >::getZeroValue( ) ):
+        OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >( boundaryHandling,
+                                                                                      defaultExtrapolationValue )
     {
         maximumAllowableVariation_ = maximumAllowableVariation;
         jumpSize_ = jumpSize;

@@ -129,9 +129,10 @@ public:
     CubicSplineInterpolator( const std::vector< IndependentVariableType >& independentVariables,
                              const std::vector< DependentVariableType >& dependentVariables,
                              const AvailableLookupScheme selectedLookupScheme = huntingAlgorithm,
-                             const BoundaryInterpolationType boundaryHandling = extrapolate_at_boundary ):
-        OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >( boundaryHandling )
-
+                             const BoundaryInterpolationType boundaryHandling = extrapolate_at_boundary,
+                             const DependentVariableType defaultExtrapolationValue = AdditionIdentity< DependentVariableType >::getZeroValue( ) ):
+        OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >( boundaryHandling,
+                                                                                      defaultExtrapolationValue )
     {
         // Verify that the initialization variables are not empty.
         if ( independentVariables.size( ) == 0 || dependentVariables.size( ) == 0 )
@@ -177,8 +178,10 @@ public:
     CubicSplineInterpolator(
             const std::map< IndependentVariableType, DependentVariableType > dataMap,
             const AvailableLookupScheme selectedLookupScheme = huntingAlgorithm,
-            const BoundaryInterpolationType boundaryHandling = extrapolate_at_boundary ):
-        OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >( boundaryHandling )
+            const BoundaryInterpolationType boundaryHandling = extrapolate_at_boundary,
+            const DependentVariableType defaultExtrapolationValue = AdditionIdentity< DependentVariableType >::getZeroValue( ) ):
+        OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >( boundaryHandling,
+                                                                                      defaultExtrapolationValue )
     {
         // Verify that the initialization variables are not empty.
         if ( dataMap.size( ) == 0 )
