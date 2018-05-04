@@ -74,7 +74,7 @@ public:
                                 const DependentVariableType jumpSize,
                                 const AvailableLookupScheme selectedLookupScheme = huntingAlgorithm,
                                 const BoundaryInterpolationType boundaryHandling = extrapolate_at_boundary_with_warning,
-                                const DependentVariableType defaultExtrapolationValue = 0.0 ):
+                                const DependentVariableType defaultExtrapolationValue = AdditionIdentity< DependentVariableType >::getZeroValue( ) ):
         OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >( boundaryHandling,
                                                                                       defaultExtrapolationValue )
     {
@@ -120,7 +120,7 @@ public:
                                 const DependentVariableType jumpSize,
                                 const AvailableLookupScheme selectedLookupScheme = huntingAlgorithm,
                                 const BoundaryInterpolationType boundaryHandling = extrapolate_at_boundary_with_warning,
-                                const DependentVariableType defaultExtrapolationValue = 0.0 ):
+                                const DependentVariableType defaultExtrapolationValue = AdditionIdentity< DependentVariableType >::getZeroValue( ) ):
         OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >( boundaryHandling,
                                                                                       defaultExtrapolationValue )
     {

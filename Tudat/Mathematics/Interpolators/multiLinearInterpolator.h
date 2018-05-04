@@ -37,9 +37,12 @@
 #include <boost/multi_array.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/shared_ptr.hpp>
+
 #include "Tudat/Mathematics/Interpolators/lookupScheme.h"
 #include "Tudat/Mathematics/Interpolators/interpolator.h"
 #include "Tudat/Mathematics/BasicMathematics/nearestNeighbourSearch.h"
+
+#include "Tudat/Basics/additionIdentities.h"
 
 namespace tudat
 {
@@ -78,7 +81,7 @@ public:
                              dependentData,
                              const AvailableLookupScheme selectedLookupScheme = huntingAlgorithm,
                              const BoundaryInterpolationType boundaryHandling = extrapolate_at_boundary_with_warning,
-                             const DependentVariableType defaultExtrapolationValue = 0.0 )
+                             const DependentVariableType defaultExtrapolationValue = AdditionIdentity< DependentVariableType >::getZeroValue( ) )
         : independentValues_( independentValues ),
           dependentData_( dependentData ),
           boundaryHandling_( boundaryHandling ),
