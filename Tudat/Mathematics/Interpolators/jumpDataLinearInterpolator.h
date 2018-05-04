@@ -73,7 +73,7 @@ public:
                                 const DependentVariableType maximumAllowableVariation,
                                 const DependentVariableType jumpSize,
                                 const AvailableLookupScheme selectedLookupScheme = huntingAlgorithm,
-                                const BoundaryInterpolationType boundaryHandling = extrapolate_at_boundary_with_warning,
+                                const BoundaryInterpolationType boundaryHandling = extrapolate_at_boundary,
                                 const DependentVariableType defaultExtrapolationValue = AdditionIdentity< DependentVariableType >::getZeroValue( ) ):
         OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >( boundaryHandling,
                                                                                       defaultExtrapolationValue )
@@ -119,7 +119,7 @@ public:
                                 const DependentVariableType maximumAllowableVariation,
                                 const DependentVariableType jumpSize,
                                 const AvailableLookupScheme selectedLookupScheme = huntingAlgorithm,
-                                const BoundaryInterpolationType boundaryHandling = extrapolate_at_boundary_with_warning,
+                                const BoundaryInterpolationType boundaryHandling = extrapolate_at_boundary,
                                 const DependentVariableType defaultExtrapolationValue = AdditionIdentity< DependentVariableType >::getZeroValue( ) ):
         OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >( boundaryHandling,
                                                                                       defaultExtrapolationValue )
