@@ -3,8 +3,12 @@
 #
 # Do not track SPARTA results and data
 /Tudat/External/SPARTA/results/
+/Tudat/External/SPARTA/coefficients/
 /Tudat/External/SPARTA/in.sparta
 /Tudat/External/SPARTA/log.sparta
+# Do not track MCD
+/Tudat/External/AtmosphereTables/MCDMeanAtmosphere.dat
+/Tudat/External/AtmosphereTables/MCDMeanAtmosphereTimeAverage/
 
 #
 # CMake 

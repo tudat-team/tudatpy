@@ -75,6 +75,24 @@ public:
         initialize( atmosphereTableFile_ );
     }
 
+    //! Constructor.
+    /*!
+     *  Constructor.
+     *  \param atmosphereTableFile File containing atmospheric properties.
+     *  The file name of the atmosphere table. The file should contain four columns of data,
+     *  containing altitude (first column), and the associated density, pressure and density values
+     *  in the second, third and fourth columns
+     *  \param dependentVariablesNames The constant specific gas constant of the air
+     *  \param independentVariablesNames The constant ratio of specific heats of the air
+     *  \param boundaryHandling
+     */
+    TabulatedAtmosphere( const std::map< int, std::string >& atmosphereTableFile,
+                         const std::vector< AtmosphereDependentVariables > dependentVariablesNames,
+                         const std::vector< AtmosphereIndependentVariables > independentVariablesNames,
+                         const interpolators::BoundaryInterpolationType boundaryHandling ) :
+        TabulatedAtmosphere( atmosphereTableFile, dependentVariablesNames, independentVariablesNames,
+                             physical_constants::SPECIFIC_GAS_CONSTANT_AIR, 1.4, boundaryHandling ){ }
+
     //! Destructor
     ~TabulatedAtmosphere( ){ }
 
