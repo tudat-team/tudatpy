@@ -26,10 +26,10 @@ namespace input_output
 {
 
 template< unsigned int NumberOfIndependentVariables, unsigned int NumberOfCoefficients >
-void writeAerodynamicCoefficientsToFile( const std::map< int, std::string >& fileNamesMap,
-                                         const std::vector< std::vector< double > >& independentVariables,
-                                         const boost::multi_array< Eigen::Matrix< double, NumberOfCoefficients,
-                                         1 >, NumberOfIndependentVariables >& dependentVariables )
+void writeMultiArrayAndIndependentVariablesToFiles( const std::map< int, std::string >& fileNamesMap,
+                                                    const std::vector< std::vector< double > >& independentVariables,
+                                                    const boost::multi_array< Eigen::Matrix< double, NumberOfCoefficients,
+                                                    1 >, NumberOfIndependentVariables >& dependentVariables )
 {
     // Check consistency of inputs
     // Check that number of coefficients matches number of files
@@ -45,64 +45,94 @@ void writeAerodynamicCoefficientsToFile( const std::map< int, std::string >& fil
                                   "size of independent variables vector." );
     }
 
-    // Loop over each file
-    for ( unsigned int i = 0; i < NumberOfCoefficients; i++ )
+    switch ( NumberOfIndependentVariables )
+    {
+    case 1:
     {
         // Open file
-        FILE * fileIdentifier = std::fopen( fileNamesMap.at( i ).c_str( ), "w" );
+        FILE * fileIdentifier = std::fopen( fileNamesMap.at( 0 ).c_str( ), "w" );
 
-        // Print number of independent variables
-        fprintf( fileIdentifier, "%d\n\n", NumberOfIndependentVariables );
-
-        // Print independent variables
-        for ( unsigned int j = 0; j < NumberOfIndependentVariables; j++ )
+        // Loop over each coefficient
+        for ( unsigned int j = 0; j < independentVariables.at( 0 ).size( ); j++ ) // loop over rows
         {
-            for ( unsigned int k = 0; k < independentVariables.at( j ).size( ); k++ )
+            for ( unsigned int i = 0; i < NumberOfCoefficients + 1; i++ )
             {
-                fprintf( fileIdentifier, "%f ", independentVariables.at( j ).at( k ) );
+                if ( i == 0 )
+                {
+                    fprintf( fileIdentifier, "%f ", independentVariables.at( 0 ).at( j ) );
+                }
+                else
+                {
+                    fprintf( fileIdentifier, "%f ", dependentVariables[ j ][ i - 1 ] );
+                }
             }
             fprintf( fileIdentifier, "\n" );
         }
-        fprintf( fileIdentifier, "\n" );
+        break;
+    }
+    default:
+    {
+        // Loop over each file
+        for ( unsigned int i = 0; i < NumberOfCoefficients; i++ )
+        {
+            // Open file
+            FILE * fileIdentifier = std::fopen( fileNamesMap.at( i ).c_str( ), "w" );
 
-        // Print dependent variables
-        switch ( NumberOfIndependentVariables )
-        {
-        case 2:
-        {
-            for ( unsigned int k = 0; k < independentVariables.at( 0 ).size( ); k++ )
+            // Print number of independent variables
+            fprintf( fileIdentifier, "%d\n\n", NumberOfIndependentVariables );
+
+            // Print independent variables
+            for ( unsigned int j = 0; j < NumberOfIndependentVariables; j++ )
             {
-                for ( unsigned int l = 0; l < independentVariables.at( 1 ).size( ); l++ )
+                for ( unsigned int k = 0; k < independentVariables.at( j ).size( ); k++ )
                 {
-                    fprintf( fileIdentifier, "%f ", dependentVariables[ k ][ l ][ i ] );
+                    fprintf( fileIdentifier, "%f ", independentVariables.at( j ).at( k ) );
                 }
                 fprintf( fileIdentifier, "\n" );
             }
-            break;
-        }
-        case 3:
-        {
-            for ( unsigned int j = 0; j < independentVariables.at( 2 ).size( ); j++ )
+            fprintf( fileIdentifier, "\n" );
+
+            // Print dependent variables
+            switch ( NumberOfIndependentVariables )
+            {
+            case 2:
             {
                 for ( unsigned int k = 0; k < independentVariables.at( 0 ).size( ); k++ )
                 {
                     for ( unsigned int l = 0; l < independentVariables.at( 1 ).size( ); l++ )
                     {
-                        fprintf( fileIdentifier, "%f ", dependentVariables[ k ][ l ][ j ][ i ] );
+                        fprintf( fileIdentifier, "%f ", dependentVariables[ k ][ l ][ i ] );
                     }
                     fprintf( fileIdentifier, "\n" );
                 }
-                fprintf( fileIdentifier, "\n\n" );
+                break;
             }
+            case 3:
+            {
+                for ( unsigned int j = 0; j < independentVariables.at( 2 ).size( ); j++ )
+                {
+                    for ( unsigned int k = 0; k < independentVariables.at( 0 ).size( ); k++ )
+                    {
+                        for ( unsigned int l = 0; l < independentVariables.at( 1 ).size( ); l++ )
+                        {
+                            fprintf( fileIdentifier, "%f ", dependentVariables[ k ][ l ][ j ][ i ] );
+                        }
+                        fprintf( fileIdentifier, "\n" );
+                    }
+                    fprintf( fileIdentifier, "\n\n" );
+                }
+                break;
+            }
+            default:
+                throw std::runtime_error( "Error: number of independent variables not currently supported "
+                                          "by the writer of multi-dimensional arrays." );
+            }
+
+            // Close file
+            std::fclose( fileIdentifier );
             break;
         }
-        default:
-            throw std::runtime_error( "Error: number of independent variables not currently supported "
-                                      "by the writer of multi-dimensional arrays." );
-        }
-
-        // Close file
-        std::fclose( fileIdentifier );
+    }
     }
 }
 

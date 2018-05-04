@@ -42,7 +42,7 @@
 #include "Tudat/Mathematics/Interpolators/interpolator.h"
 #include "Tudat/Mathematics/BasicMathematics/nearestNeighbourSearch.h"
 
-#include "Tudat/Basics/additionIdentities.h"
+#include "Tudat/Basics/identityElements.h"
 
 namespace tudat
 {
@@ -81,7 +81,7 @@ public:
                              dependentData,
                              const AvailableLookupScheme selectedLookupScheme = huntingAlgorithm,
                              const BoundaryInterpolationType boundaryHandling = extrapolate_at_boundary,
-                             const DependentVariableType defaultExtrapolationValue = AdditionIdentity< DependentVariableType >::getZeroValue( ) )
+                             const DependentVariableType defaultExtrapolationValue = IdentityElement< DependentVariableType >::getAdditionIdentity( ) )
         : independentValues_( independentValues ),
           dependentData_( dependentData ),
           boundaryHandling_( boundaryHandling ),

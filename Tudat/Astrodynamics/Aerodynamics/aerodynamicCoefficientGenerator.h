@@ -171,7 +171,7 @@ public:
      */
     void saveAerodynamicCoefficientsTables( const std::map< int, std::string >& fileNamesMap )
     {
-        input_output::writeAerodynamicCoefficientsToFile< NumberOfIndependentVariables,
+        input_output::writeMultiArrayAndIndependentVariablesToFiles< NumberOfIndependentVariables,
                 NumberOfCoefficients >( fileNamesMap,
                                         dataPointsOfIndependentVariables_,
                                         aerodynamicCoefficients_ );
