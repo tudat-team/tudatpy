@@ -68,6 +68,18 @@ void writeAerodynamicCoefficientsToFile( const std::map< int, std::string >& fil
         // Print dependent variables
         switch ( NumberOfIndependentVariables )
         {
+        case 2:
+        {
+            for ( unsigned int k = 0; k < independentVariables.at( 0 ).size( ); k++ )
+            {
+                for ( unsigned int l = 0; l < independentVariables.at( 1 ).size( ); l++ )
+                {
+                    fprintf( fileIdentifier, "%f ", dependentVariables[ k ][ l ][ i ] );
+                }
+                fprintf( fileIdentifier, "\n" );
+            }
+            break;
+        }
         case 3:
         {
             for ( unsigned int j = 0; j < independentVariables.at( 2 ).size( ); j++ )
@@ -80,9 +92,8 @@ void writeAerodynamicCoefficientsToFile( const std::map< int, std::string >& fil
                     }
                     fprintf( fileIdentifier, "\n" );
                 }
-                fprintf( fileIdentifier, "\n" );
+                fprintf( fileIdentifier, "\n\n" );
             }
-            fprintf( fileIdentifier, "\n" );
             break;
         }
         default:
