@@ -558,10 +558,6 @@ public:
                 Eigen::MatrixXd constraintStateMultiplier;
                 Eigen::VectorXd constraintRightHandSide;
                 parametersToEstimate_->getConstraints( constraintStateMultiplier, constraintRightHandSide );
-
-                std::cout<<"Constraint: "<<constraintRightHandSide<<std::endl<<
-                        constraintStateMultiplier<<std::endl;
-
                 leastSquaresOutput =
                         linear_algebra::performLeastSquaresAdjustmentFromInformationMatrix(
                             residualsAndPartials.second.block( 0, 0, residualsAndPartials.second.rows( ), numberOfEstimatedParameters ),
