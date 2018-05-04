@@ -17,17 +17,29 @@
 namespace tudat
 {
 
-// Template function
+//! Interface class to output the zero value, or addition identity, for any type.
+/*!
+ *  Interface class to output the zero value, or addition identity, for any type. This class is then specialized for
+ *  each type needed in Tudat.
+ */
 template< typename VariableType >
 class AdditionIdentity
 {
 public:
 
+    //! Function to output the zero value (i.e., the addition identity) for the specified type.
+    /*!
+     *  Function to output the zero value (i.e., the addition identity) for the specified type.
+     *  \return Addition identity of the specified type.
+     */
     static VariableType getZeroValue( );
 
 };
 
-// Signed integers types
+//! Classes for signed integer types.
+/*!
+ *  Classes for signed integer types.
+ */
 template< >
 class AdditionIdentity< int >
 {
@@ -64,7 +76,10 @@ public:
 
 };
 
-// Unsigned integers types
+//! Classes for unsigned integer types.
+/*!
+ *  Classes for unsigned integer types.
+ */
 template< >
 class AdditionIdentity< unsigned int >
 {
@@ -101,7 +116,10 @@ public:
 
 };
 
-// Floating-point types
+//! Classes for floating-point types.
+/*!
+ *  Classes for floating-point types.
+ */
 template< >
 class AdditionIdentity< float >
 {
@@ -138,7 +156,10 @@ public:
 
 };
 
-// Vector types
+//! Classes for vector types.
+/*!
+ *  Classes for vector types.
+ */
 template< >
 class AdditionIdentity< Eigen::Vector1d >
 {
@@ -152,6 +173,42 @@ public:
 };
 
 template< >
+class AdditionIdentity< Eigen::Vector2d >
+{
+public:
+
+    static Eigen::Vector2d getZeroValue( )
+    {
+        return Eigen::Vector2d::Zero( );
+    }
+
+};
+
+template< >
+class AdditionIdentity< Eigen::Vector3d >
+{
+public:
+
+    static Eigen::Vector3d getZeroValue( )
+    {
+        return Eigen::Vector3d::Zero( );
+    }
+
+};
+
+template< >
+class AdditionIdentity< Eigen::Vector4d >
+{
+public:
+
+    static Eigen::Vector4d getZeroValue( )
+    {
+        return Eigen::Vector4d::Zero( );
+    }
+
+};
+
+template< >
 class AdditionIdentity< Eigen::Vector5d >
 {
 public:
@@ -159,18 +216,6 @@ public:
     static Eigen::Vector5d getZeroValue( )
     {
         return Eigen::Vector5d::Zero( );
-    }
-
-};
-
-template< >
-class AdditionIdentity< Eigen::Vector6d >
-{
-public:
-
-    static Eigen::Vector6d getZeroValue( )
-    {
-        return Eigen::Vector6d::Zero( );
     }
 
 };
@@ -200,6 +245,30 @@ public:
 };
 
 template< >
+class AdditionIdentity< Eigen::Vector6d >
+{
+public:
+
+    static Eigen::Vector6d getZeroValue( )
+    {
+        return Eigen::Vector6d::Zero( );
+    }
+
+};
+
+template< >
+class AdditionIdentity< Eigen::Matrix< long double, 6, 1 > >
+{
+public:
+
+    static Eigen::Matrix< long double, 6, 1 > getZeroValue( )
+    {
+        return Eigen::Matrix< long double, 6, 1 >::Zero( );
+    }
+
+};
+
+template< >
 class AdditionIdentity< Eigen::Vector7d >
 {
 public:
@@ -211,7 +280,22 @@ public:
 
 };
 
-// Matrix types
+template< >
+class AdditionIdentity< Eigen::Matrix< long double, 7, 1 > >
+{
+public:
+
+    static Eigen::Matrix< long double, 7, 1 > getZeroValue( )
+    {
+        return Eigen::Matrix< long double, 7, 1 >::Zero( );
+    }
+
+};
+
+//! Classes for matrix types.
+/*!
+ *  Classes for matrix types.
+ */
 template< >
 class AdditionIdentity< Eigen::Matrix2d >
 {
@@ -268,6 +352,101 @@ public:
     static Eigen::Matrix6f getZeroValue( )
     {
         return Eigen::Matrix6f::Zero( );
+    }
+
+};
+
+//! Classes for dynamic matrix types.
+/*!
+ *  Classes for dynamic matrix types.
+ */
+template< >
+class AdditionIdentity< Eigen::MatrixXd >
+{
+public:
+
+    static Eigen::MatrixXd getZeroValue( )
+    {
+        Eigen::MatrixXd zeroMatrix;
+        return zeroMatrix.setZero( );
+    }
+
+};
+
+template< >
+class AdditionIdentity< Eigen::Matrix< double, Eigen::Dynamic, 1 > >
+{
+public:
+
+    static Eigen::Matrix< double, Eigen::Dynamic, 1 > getZeroValue( )
+    {
+        Eigen::Matrix< double, Eigen::Dynamic, 1 > zeroMatrix;
+        return zeroMatrix.setZero( );
+    }
+
+};
+
+template< >
+class AdditionIdentity< Eigen::Matrix< double, Eigen::Dynamic, 2 > >
+{
+public:
+
+    static Eigen::Matrix< double, Eigen::Dynamic, 2 > getZeroValue( )
+    {
+        Eigen::Matrix< double, Eigen::Dynamic, 2 > zeroMatrix;
+        return zeroMatrix.setZero( );
+    }
+
+};
+
+template< >
+class AdditionIdentity< Eigen::Matrix< double, Eigen::Dynamic, 3 > >
+{
+public:
+
+    static Eigen::Matrix< double, Eigen::Dynamic, 3 > getZeroValue( )
+    {
+        Eigen::Matrix< double, Eigen::Dynamic, 3 > zeroMatrix;
+        return zeroMatrix.setZero( );
+    }
+
+};
+
+template< >
+class AdditionIdentity< Eigen::Matrix< double, 1, Eigen::Dynamic > >
+{
+public:
+
+    static Eigen::Matrix< double, 1, Eigen::Dynamic > getZeroValue( )
+    {
+        Eigen::Matrix< double, 1, Eigen::Dynamic > zeroMatrix;
+        return zeroMatrix.setZero( );
+    }
+
+};
+
+template< >
+class AdditionIdentity< Eigen::Matrix< double, 2, Eigen::Dynamic > >
+{
+public:
+
+    static Eigen::Matrix< double, 2, Eigen::Dynamic > getZeroValue( )
+    {
+        Eigen::Matrix< double, 2, Eigen::Dynamic > zeroMatrix;
+        return zeroMatrix.setZero( );
+    }
+
+};
+
+template< >
+class AdditionIdentity< Eigen::Matrix< double, 3, Eigen::Dynamic > >
+{
+public:
+
+    static Eigen::Matrix< double, 3, Eigen::Dynamic > getZeroValue( )
+    {
+        Eigen::Matrix< double, 3, Eigen::Dynamic > zeroMatrix;
+        return zeroMatrix.setZero( );
     }
 
 };
