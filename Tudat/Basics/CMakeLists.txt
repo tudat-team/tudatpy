@@ -20,7 +20,7 @@ set(BASICSDIR_HEADERS
   "${SRCROOT}${BASICSDIR}/utilityMacros.h"
   "${SRCROOT}${BASICSDIR}/timeType.h"
   "${SRCROOT}${BASICSDIR}/basicTypedefs.h"
-  "${SRCROOT}${BASICSDIR}/additionIdentities.h"
+  "${SRCROOT}${BASICSDIR}/identityElements.h"
 )
 
 # Add unit test files.

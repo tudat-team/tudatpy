@@ -44,7 +44,7 @@ public:
             const std::vector< DependentVariableType >& derivativeValues,
             const AvailableLookupScheme selectedLookupScheme = huntingAlgorithm,
             const BoundaryInterpolationType boundaryHandling = extrapolate_at_boundary,
-            const DependentVariableType defaultExtrapolationValue = AdditionIdentity< DependentVariableType >::getZeroValue( ) ):
+            const DependentVariableType defaultExtrapolationValue = IdentityElement< DependentVariableType >::getAdditionIdentity( ) ):
         OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >( boundaryHandling,
                                                                                       defaultExtrapolationValue )
     {
@@ -83,7 +83,7 @@ public:
             const std::vector< DependentVariableType >& derivativeValues,
             const AvailableLookupScheme selectedLookupScheme = huntingAlgorithm,
             const BoundaryInterpolationType boundaryHandling = extrapolate_at_boundary,
-            const DependentVariableType defaultExtrapolationValue = AdditionIdentity< DependentVariableType >::getZeroValue( ) ):
+            const DependentVariableType defaultExtrapolationValue = IdentityElement< DependentVariableType >::getAdditionIdentity( ) ):
         OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >( boundaryHandling,
                                                                                       defaultExtrapolationValue )
     {
