@@ -171,6 +171,17 @@ public:
         coefficientFunction_ = boost::lambda::constant( constantCoefficients );
     }
 
+   Eigen::Vector6d getConstantCoefficients( )
+   {
+       if( numberOfIndependentVariables_ != 0 )
+       {
+           throw std::runtime_error( "Error when getting constant aerodynamic coefficients, numberOfIndependentVariables_ is not equal to 0 " );
+       }
+
+       return coefficientFunction_( std::vector< double >( ) );
+   }
+
+
 private:
 
     //! Function returning the concatenated aerodynamic force and moment coefficients as function of
