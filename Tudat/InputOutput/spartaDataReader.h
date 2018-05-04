@@ -19,6 +19,8 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/trim.hpp>
 
+#include "Tudat/InputOutput/spartaInputOutput.h"
+
 namespace tudat
 {
 
@@ -182,9 +184,10 @@ readSpartaGeometryFile( const std::string& geometryFile )
  *  \param geometryFile File name for the template.
  *  \return String of input template format.
  */
-std::string readSpartaInputFileTemplate( const std::string& inputFile )
+std::string readSpartaInputFileTemplate( )
 {
     // Initialize output variable
+    std::string inputFile = getSpartaInputFileTemplate( );
     std::string inputTemplate;
 
     // Open file and create file stream.

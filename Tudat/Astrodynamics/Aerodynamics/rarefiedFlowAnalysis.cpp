@@ -20,8 +20,10 @@
 
 #include <Eigen/Geometry>
 
+#include "Tudat/InputOutput/basicInputOutput.h"
 #include "Tudat/InputOutput/matrixTextFileReader.h"
 #include "Tudat/InputOutput/spartaDataReader.h"
+#include "Tudat/InputOutput/spartaInputOutput.h"
 
 #include "Tudat/Astrodynamics/Aerodynamics/rarefiedFlowAnalysis.h"
 
@@ -31,6 +33,7 @@ namespace aerodynamics
 {
 
 using namespace unit_conversions;
+using namespace input_output;
 
 //! Returns default values of molecular speed ratio for use in RarefiedFlowAnalysis.
 std::vector< double > getDefaultRarefiedFlowAltitudePoints(
@@ -148,6 +151,8 @@ RarefiedFlowAnalysis::RarefiedFlowAnalysis(
         const double referenceLength,
         const int referenceAxis,
         const Eigen::Vector3d& momentReferencePoint,
+        const double gridSpacing,
+        const double simulatedParticlesPerCell,
         const double wallTemperature,
         const double accommodationCoefficient )
     : AerodynamicCoefficientGenerator< 3, 6 >(
@@ -156,6 +161,7 @@ RarefiedFlowAnalysis::RarefiedFlowAnalysis(
           boost::assign::list_of( altitude_dependent )( mach_number_dependent )( angle_of_attack_dependent ),
           true, true ),
       SPARTAExecutable_( SPARTAExecutable ),simulationGases_( simulationGases ), referenceAxis_( referenceAxis ),
+      gridSpacing_( gridSpacing ), simulatedParticlesPerCell_( simulatedParticlesPerCell ),
       wallTemperature_( wallTemperature ), accommodationCoefficient_( accommodationCoefficient )
 {
     // Analyze vehicle geometry
@@ -177,10 +183,10 @@ RarefiedFlowAnalysis::RarefiedFlowAnalysis(
     getSimulationConditions( );
 
     // Read SPARTA input template
-    inputTemplate_ = input_output::readSpartaInputFileTemplate( inputFileTemplate_ );
+    inputTemplate_ = readSpartaInputFileTemplate( );
 
     // Copy input shape file to default name
-    std::string commandString = "cp " + geometryFileUser + " " + geometryFileInternal_;
+    std::string commandString = "cp " + geometryFileUser + " " + getSpartaInternalGeometryFile( );
     std::system( commandString.c_str( ) );
 
     // Run SPARTA simulation
@@ -195,7 +201,7 @@ void RarefiedFlowAnalysis::analyzeGeometryFile( const std::string& geometryFileU
 {
     // Extract information on vehicle geometry
     std::pair< Eigen::Matrix< double, Eigen::Dynamic, 3 >, Eigen::Matrix< int, Eigen::Dynamic, 3 > >
-            geometryData = input_output::readSpartaGeometryFile( geometryFileUser );
+            geometryData = readSpartaGeometryFile( geometryFileUser );
     shapePoints_ = geometryData.first;
     shapeTriangles_ = geometryData.second;
     numberOfPoints_ = shapePoints_.rows( );
@@ -287,8 +293,8 @@ void RarefiedFlowAnalysis::generateCoefficients( )
 {
     // Generate command string for SPARTA
     std::cout << "Initiating SPARTA simulation. This may take a while." << std::endl;
-    std::string runSPARTACommandString = "cd " + input_output::getSpartaDataPath( ) + "; " +
-            SPARTAExecutable_ + " -echo log -screen none -in " + inputFile_;
+    std::string runSPARTACommandString = "cd " + getSpartaDataPath( ) + "; " +
+            SPARTAExecutable_ + " -echo log -screen none -in " + getSpartaInputFile( );
 
     // Predefine variables
     std::string anglesOfAttack;
@@ -321,11 +327,11 @@ void RarefiedFlowAnalysis::generateCoefficients( )
             // Get angles of attack string
             for ( double a : dataPointsOfIndependentVariables_.at( 2 ) )
             {
-                anglesOfAttack += input_output::toStringWithPrecision( convertRadiansToDegrees( a ), 0 ) + " ";
+                anglesOfAttack += toStringWithPrecision( convertRadiansToDegrees( a ), 0 ) + " ";
             }
 
             // Print to file
-            FILE * fileIdentifier = std::fopen( inputFile_.c_str( ), "w" );
+            FILE * fileIdentifier = std::fopen( getSpartaInputFile( ).c_str( ), "w" );
             std::fprintf( fileIdentifier, inputTemplate_.c_str( ),
                           simulationBoundaries_( 0 ), simulationBoundaries_( 1 ), simulationBoundaries_( 2 ),
                           simulationBoundaries_( 3 ), simulationBoundaries_( 4 ), simulationBoundaries_( 5 ),
@@ -337,7 +343,7 @@ void RarefiedFlowAnalysis::generateCoefficients( )
                           anglesOfAttack.c_str( ),
                           wallTemperature_, accommodationCoefficient_,
                           simulationTimeStep_( h, m ),
-                          outputDirectory_.c_str( ) );
+                          getSpartaOutputDirectory( ).c_str( ) );
             std::fclose( fileIdentifier );
 
             // Run SPARTA
@@ -354,7 +360,7 @@ void RarefiedFlowAnalysis::generateCoefficients( )
             for ( unsigned int a = 0; a < dataPointsOfIndependentVariables_.at( 2 ).size( ); a++ )
             {
                 // Get file name
-                temporaryOutputFile = outputPath_ + "/" + input_output::toStringWithPrecision(
+                temporaryOutputFile = getSpartaOutputPath( ) + "/" + toStringWithPrecision(
                             convertRadiansToDegrees( dataPointsOfIndependentVariables_.at( 2 ).at( a ) ), 0 ) + ".coeff";
 
                 // Read output files and compute mean pressure and shear force values
@@ -362,7 +368,7 @@ void RarefiedFlowAnalysis::generateCoefficients( )
                 meanShearValues.setZero( );
                 for ( unsigned int i = 0; i < outputFileExtensions.size( ); i++ )
                 {
-                    outputMatrix = input_output::readMatrixFromFile( temporaryOutputFile + outputFileExtensions.at( i ), "\t ;,", "%", 9 );
+                    outputMatrix = readMatrixFromFile( temporaryOutputFile + outputFileExtensions.at( i ), "\t ;,", "%", 9 );
                     for ( unsigned int j = 0; j < 3; j++ )
                     {
                         meanPressureValues.row( j ) += outputMatrix.col( j + 1 ).transpose( );
@@ -387,7 +393,7 @@ void RarefiedFlowAnalysis::generateCoefficients( )
             }
 
             // Clean up results folder
-            std::string commandString = "rm " + outputPath_ + "/*";
+            std::string commandString = "rm " + getSpartaOutputPath( ) + "/*";
             std::system( commandString.c_str( ) );
         }
     }
