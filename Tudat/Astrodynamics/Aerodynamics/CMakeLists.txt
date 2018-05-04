@@ -68,7 +68,7 @@ target_link_libraries(test_AerodynamicMomentAndAerodynamicForce ${TUDAT_PROPAGAT
 
 add_executable(test_AerodynamicsNamespace "${SRCROOT}${AERODYNAMICSDIR}/UnitTests/unitTestAerodynamicsNamespace.cpp")
 setup_custom_test_program(test_AerodynamicsNamespace "${SRCROOT}${AERODYNAMICSDIR}")
-target_link_libraries(test_AerodynamicsNamespace tudat_aerodynamics ${Boost_LIBRARIES})
+target_link_libraries(test_AerodynamicsNamespace tudat_aerodynamics tudat_basic_mathematics ${Boost_LIBRARIES})
 
 add_executable(test_AerodynamicCoefficientGenerator "${SRCROOT}${AERODYNAMICSDIR}/UnitTests/unitTestCoefficientGenerator.cpp")
 setup_custom_test_program(test_AerodynamicCoefficientGenerator "${SRCROOT}${AERODYNAMICSDIR}")
@@ -76,7 +76,7 @@ target_link_libraries(test_AerodynamicCoefficientGenerator tudat_aerodynamics tu
 
 add_executable(test_ExponentialAtmosphere "${SRCROOT}${AERODYNAMICSDIR}/UnitTests/unitTestExponentialAtmosphere.cpp")
 setup_custom_test_program(test_ExponentialAtmosphere "${SRCROOT}${AERODYNAMICSDIR}")
-target_link_libraries(test_ExponentialAtmosphere tudat_aerodynamics ${Boost_LIBRARIES})
+target_link_libraries(test_ExponentialAtmosphere tudat_aerodynamics tudat_basic_mathematics ${Boost_LIBRARIES})
 
 add_executable(test_TabulatedAtmosphere "${SRCROOT}${AERODYNAMICSDIR}/UnitTests/unitTestTabulatedAtmosphere.cpp")
 setup_custom_test_program(test_TabulatedAtmosphere "${SRCROOT}${AERODYNAMICSDIR}")
@@ -89,7 +89,8 @@ target_link_libraries(test_TabulatedAerodynamicCoefficients ${TUDAT_PROPAGATION_
 
 add_executable(test_HeatTransfer "${SRCROOT}${AERODYNAMICSDIR}/UnitTests/unitTestHeatTransfer.cpp")
 setup_custom_test_program(test_HeatTransfer "${SRCROOT}${AERODYNAMICSDIR}")
-target_link_libraries(test_HeatTransfer tudat_aerodynamics tudat_root_finders tudat_basic_astrodynamics ${Boost_LIBRARIES})
+target_link_libraries(test_HeatTransfer tudat_aerodynamics tudat_root_finders tudat_basic_mathematics
+    tudat_basic_astrodynamics ${Boost_LIBRARIES})
 
 add_executable(test_ControlSurfaceIncrements "${SRCROOT}${AERODYNAMICSDIR}/UnitTests/unitTestControlSurfaceIncrements.cpp")
 setup_custom_test_program(test_ControlSurfaceIncrements "${SRCROOT}${AERODYNAMICSDIR}")

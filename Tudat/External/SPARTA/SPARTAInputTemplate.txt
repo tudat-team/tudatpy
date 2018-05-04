@@ -37,7 +37,7 @@ collide vss atm atmosphere.vss
 fix in emit/face atm xhi
 
 # SET SIMULATION TIME STEP
-timestep %f
+timestep %.10f
 
 # COMPUTE NORMAL PRESSURE AND SHEAR STRESS
 compute 1 surf vehicle atm px py pz shx shy shz

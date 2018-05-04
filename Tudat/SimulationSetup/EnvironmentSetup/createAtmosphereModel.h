@@ -12,10 +12,12 @@
 #define TUDAT_CREATEATMOSPHEREMODEL_H
 
 #include <string>
+#include <map>
 
 #include <boost/shared_ptr.hpp>
 
 #include "Tudat/Astrodynamics/Aerodynamics/atmosphereModel.h"
+#include "Tudat/Astrodynamics/BasicAstrodynamics/physicalConstants.h"
 #include "Tudat/Mathematics/Interpolators/interpolator.h"
 
 namespace tudat
@@ -200,6 +202,8 @@ public:
      *  \param densityAtZeroAltitude Atmospheric density at ground level.
      *  \param specificGasConstant Specific gas constant for (constant) atmospheric chemical
      *  composition.
+     *  \param ratioOfSpecificHeats Ratio of specific heats for (constant) atmospheric chemical
+     *  composition.
      */
 
     ExponentialAtmosphereSettings(
@@ -323,12 +327,33 @@ public:
         ratioOfSpecificHeats_( ratioOfSpecificHeats ), boundaryHandling_( boundaryHandling )
     { }
 
+    //! Constructor.
+    /*!
+     *  Constructor.
+     *  \param atmosphereFile File containing atmospheric properties, file should contain
+     *  four columns of atmospheric data with altitude, density, pressure and temperature,
+     *  respectively.
+     */
+    TabulatedAtmosphereSettings( const std::string& atmosphereFile,
+                                 const std::vector< aerodynamics::AtmosphereDependentVariables > dependentVariablesNames =
+    { aerodynamics::density_dependent_atmosphere, aerodynamics::pressure_dependent_atmosphere, aerodynamics::temperature_dependent_atmosphere },
+                                 const aerodynamics::AtmosphereIndependentVariables independentVariableNames =
+            aerodynamics::altitude_dependent_atmosphere ) :
+        TabulatedAtmosphereSettings( { { 0, atmosphereFile } }, dependentVariablesNames, { independentVariableNames } ){ }
+
+    //! Function to return file containing atmospheric properties.
+    /*!
+     *  Function to return file containing atmospheric properties.
+     *  \return Map of filenames containing atmospheric properties.
+     */
+    std::map< int, std::string > getAtmosphereFile( ){ return atmosphereFile_; }
+
     //! Function to return file containing atmospheric properties.
     /*!
      *  Function to return file containing atmospheric properties.
      *  \return Filename containing atmospheric properties.
      */
-    std::map< int, std::string > getAtmosphereFile( ){ return atmosphereFile_; }
+    std::string getAtmosphereFile( const unsigned int fileIndex ){ return atmosphereFile_.at( fileIndex ); }
 
     //! Function to return dependent variables names.
     /*!
