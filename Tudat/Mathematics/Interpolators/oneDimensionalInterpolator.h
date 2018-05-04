@@ -21,6 +21,8 @@
 #include "Tudat/Mathematics/Interpolators/lookupScheme.h"
 #include "Tudat/Mathematics/Interpolators/interpolator.h"
 
+#include "Tudat/Basics/additionIdentities.h"
+
 namespace tudat
 {
 namespace interpolators
@@ -41,7 +43,7 @@ public:
 
     OneDimensionalInterpolator(
             const BoundaryInterpolationType boundaryHandling = extrapolate_at_boundary_with_warning,
-            const DependentVariableType defaultExtrapolationValue = 0.0 ):
+            const DependentVariableType defaultExtrapolationValue = AdditionIdentity< DependentVariableType >::getZeroValue( ) ):
         boundaryHandling_( boundaryHandling ), defaultExtrapolationValue_( defaultExtrapolationValue )
     { }
 

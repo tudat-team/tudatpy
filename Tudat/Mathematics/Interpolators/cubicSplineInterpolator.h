@@ -130,7 +130,7 @@ public:
                              const std::vector< DependentVariableType >& dependentVariables,
                              const AvailableLookupScheme selectedLookupScheme = huntingAlgorithm,
                              const BoundaryInterpolationType boundaryHandling = extrapolate_at_boundary_with_warning,
-                             const DependentVariableType defaultExtrapolationValue = 0.0 ):
+                             const DependentVariableType defaultExtrapolationValue = AdditionIdentity< DependentVariableType >::getZeroValue( ) ):
         OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >( boundaryHandling,
                                                                                       defaultExtrapolationValue )
 
@@ -180,7 +180,7 @@ public:
             const std::map< IndependentVariableType, DependentVariableType > dataMap,
             const AvailableLookupScheme selectedLookupScheme = huntingAlgorithm,
             const BoundaryInterpolationType boundaryHandling = extrapolate_at_boundary_with_warning,
-            const DependentVariableType defaultExtrapolationValue = 0.0 ):
+            const DependentVariableType defaultExtrapolationValue = AdditionIdentity< DependentVariableType >::getZeroValue( ) ):
         OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >( boundaryHandling,
                                                                                       defaultExtrapolationValue )
     {

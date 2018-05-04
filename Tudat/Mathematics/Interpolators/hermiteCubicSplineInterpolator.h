@@ -19,7 +19,6 @@
 #include "Tudat/Mathematics/Interpolators/oneDimensionalInterpolator.h"
 #include "Tudat/Mathematics/BasicMathematics/nearestNeighbourSearch.h"
 
-
 namespace tudat
 {
 
@@ -45,7 +44,7 @@ public:
             const std::vector< DependentVariableType >& derivativeValues,
             const AvailableLookupScheme selectedLookupScheme = huntingAlgorithm,
             const BoundaryInterpolationType boundaryHandling = extrapolate_at_boundary_with_warning,
-            const DependentVariableType defaultExtrapolationValue = 0.0 ):
+            const DependentVariableType defaultExtrapolationValue = AdditionIdentity< DependentVariableType >::getZeroValue( ) ):
         OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >( boundaryHandling,
                                                                                       defaultExtrapolationValue )
     {
@@ -84,7 +83,7 @@ public:
             const std::vector< DependentVariableType >& derivativeValues,
             const AvailableLookupScheme selectedLookupScheme = huntingAlgorithm,
             const BoundaryInterpolationType boundaryHandling = extrapolate_at_boundary_with_warning,
-            const DependentVariableType defaultExtrapolationValue = 0.0 ):
+            const DependentVariableType defaultExtrapolationValue = AdditionIdentity< DependentVariableType >::getZeroValue( ) ):
         OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >( boundaryHandling,
                                                                                       defaultExtrapolationValue )
     {
