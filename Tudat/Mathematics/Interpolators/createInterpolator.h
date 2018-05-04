@@ -62,7 +62,7 @@ public:
     InterpolatorSettings( const OneDimensionalInterpolatorTypes interpolatorType,
                           const AvailableLookupScheme selectedLookupScheme = huntingAlgorithm,
                           const bool useLongDoubleTimeStep = 0,
-                          const BoundaryInterpolationType boundaryInterpolationType = extrapolate_at_boundary_with_warning ):
+                          const BoundaryInterpolationType boundaryInterpolationType = extrapolate_at_boundary ):
         interpolatorType_( interpolatorType ), selectedLookupScheme_( selectedLookupScheme ),
         useLongDoubleTimeStep_( useLongDoubleTimeStep ),
         boundaryInterpolationType_( boundaryInterpolationType ){ }
@@ -146,7 +146,7 @@ public:
             const bool useLongDoubleTimeStep = 0,
             const AvailableLookupScheme selectedLookupScheme = huntingAlgorithm,
             const LagrangeInterpolatorBoundaryHandling boundaryHandling = lagrange_cubic_spline_boundary_interpolation,
-            const BoundaryInterpolationType boundaryInterpolationType = extrapolate_at_boundary_with_warning ):
+            const BoundaryInterpolationType boundaryInterpolationType = extrapolate_at_boundary ):
         InterpolatorSettings( lagrange_interpolator, selectedLookupScheme, useLongDoubleTimeStep, boundaryInterpolationType ),
         interpolatorOrder_( interpolatorOrder ),
         boundaryHandling_( boundaryHandling )

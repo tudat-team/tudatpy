@@ -44,7 +44,7 @@ public:
             const std::vector< DependentVariableType >& dependentValues,
             const std::vector< DependentVariableType >& derivativeValues,
             const AvailableLookupScheme selectedLookupScheme = huntingAlgorithm,
-            const BoundaryInterpolationType boundaryHandling = extrapolate_at_boundary_with_warning ):
+            const BoundaryInterpolationType boundaryHandling = extrapolate_at_boundary ):
         OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >( boundaryHandling )
     {
         // Check consistency of input data.
@@ -81,7 +81,7 @@ public:
             const std::map< IndependentVariableType, DependentVariableType >& dataMap,
             const std::vector< DependentVariableType >& derivativeValues,
             const AvailableLookupScheme selectedLookupScheme = huntingAlgorithm,
-            const BoundaryInterpolationType boundaryHandling = extrapolate_at_boundary_with_warning ):
+            const BoundaryInterpolationType boundaryHandling = extrapolate_at_boundary ):
         OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >( boundaryHandling )
     {
 

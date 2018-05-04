@@ -69,7 +69,7 @@ public:
      */
     LinearInterpolator( const std::map< IndependentVariableType, DependentVariableType >& dataMap,
                         const AvailableLookupScheme selectedLookupScheme = huntingAlgorithm,
-                        const BoundaryInterpolationType boundaryHandling = extrapolate_at_boundary_with_warning ):
+                        const BoundaryInterpolationType boundaryHandling = extrapolate_at_boundary ):
         OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >( boundaryHandling )
     {
         // Verify that the initialization variables are not empty.
@@ -112,7 +112,7 @@ public:
     LinearInterpolator( const std::vector< IndependentVariableType >& independentValues,
                         const std::vector< DependentVariableType >& dependentValues,
                         const AvailableLookupScheme selectedLookupScheme = huntingAlgorithm,
-                        const BoundaryInterpolationType boundaryHandling = extrapolate_at_boundary_with_warning ):
+                        const BoundaryInterpolationType boundaryHandling = extrapolate_at_boundary ):
         OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >( boundaryHandling )
     {
         // Verify that the initialization variables are not empty.

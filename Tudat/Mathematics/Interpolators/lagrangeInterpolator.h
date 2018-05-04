@@ -83,7 +83,7 @@ public:
             const int numberOfStages,
             const AvailableLookupScheme selectedLookupScheme = huntingAlgorithm,
             const LagrangeInterpolatorBoundaryHandling lagrangeBoundaryHandling = lagrange_cubic_spline_boundary_interpolation,
-            const BoundaryInterpolationType boundaryHandling = extrapolate_at_boundary_with_warning ):
+            const BoundaryInterpolationType boundaryHandling = extrapolate_at_boundary ):
         OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >( boundaryHandling ),
         numberOfStages_( numberOfStages ), lagrangeBoundaryHandling_( lagrangeBoundaryHandling )
     {
@@ -157,7 +157,7 @@ public:
             const int numberOfStages,
             const AvailableLookupScheme selectedLookupScheme = huntingAlgorithm,
             const LagrangeInterpolatorBoundaryHandling lagrangeBoundaryHandling = lagrange_cubic_spline_boundary_interpolation,
-            const BoundaryInterpolationType boundaryHandling = extrapolate_at_boundary_with_warning ):
+            const BoundaryInterpolationType boundaryHandling = extrapolate_at_boundary ):
         OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >( boundaryHandling ),
         numberOfStages_( numberOfStages ), lagrangeBoundaryHandling_( lagrangeBoundaryHandling )
     {

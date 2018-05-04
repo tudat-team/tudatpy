@@ -40,7 +40,7 @@ class OneDimensionalInterpolator :
 public:
 
     OneDimensionalInterpolator(
-            const BoundaryInterpolationType boundaryHandling = extrapolate_at_boundary_with_warning ):
+            const BoundaryInterpolationType boundaryHandling = extrapolate_at_boundary ):
         boundaryHandling_( boundaryHandling ){ }
 
 

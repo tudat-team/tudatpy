@@ -77,7 +77,7 @@ public:
                              const boost::multi_array< DependentVariableType, static_cast< size_t >( NumberOfDimensions )>
                              dependentData,
                              const AvailableLookupScheme selectedLookupScheme = huntingAlgorithm,
-                             const BoundaryInterpolationType boundaryHandling = extrapolate_at_boundary_with_warning )
+                             const BoundaryInterpolationType boundaryHandling = extrapolate_at_boundary )
         : independentValues_( independentValues ),
           dependentData_( dependentData ),
           boundaryHandling_( boundaryHandling )
