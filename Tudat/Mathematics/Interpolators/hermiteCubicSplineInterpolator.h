@@ -19,7 +19,6 @@
 #include "Tudat/Mathematics/Interpolators/oneDimensionalInterpolator.h"
 #include "Tudat/Mathematics/BasicMathematics/nearestNeighbourSearch.h"
 
-
 namespace tudat
 {
 
@@ -44,8 +43,10 @@ public:
             const std::vector< DependentVariableType >& dependentValues,
             const std::vector< DependentVariableType >& derivativeValues,
             const AvailableLookupScheme selectedLookupScheme = huntingAlgorithm,
-            const BoundaryInterpolationType boundaryHandling = extrapolate_at_boundary ):
-        OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >( boundaryHandling )
+            const BoundaryInterpolationType boundaryHandling = extrapolate_at_boundary,
+            const DependentVariableType defaultExtrapolationValue = AdditionIdentity< DependentVariableType >::getZeroValue( ) ):
+        OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >( boundaryHandling,
+                                                                                      defaultExtrapolationValue )
     {
         // Check consistency of input data.
         if( dependentValues.size( ) != independentValues.size( ) )
@@ -81,8 +82,10 @@ public:
             const std::map< IndependentVariableType, DependentVariableType >& dataMap,
             const std::vector< DependentVariableType >& derivativeValues,
             const AvailableLookupScheme selectedLookupScheme = huntingAlgorithm,
-            const BoundaryInterpolationType boundaryHandling = extrapolate_at_boundary ):
-        OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >( boundaryHandling )
+            const BoundaryInterpolationType boundaryHandling = extrapolate_at_boundary,
+            const DependentVariableType defaultExtrapolationValue = AdditionIdentity< DependentVariableType >::getZeroValue( ) ):
+        OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >( boundaryHandling,
+                                                                                      defaultExtrapolationValue )
     {
 
         if( dataMap.size( ) != derivativeValues.size( ) )

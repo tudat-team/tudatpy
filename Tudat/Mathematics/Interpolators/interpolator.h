@@ -25,7 +25,9 @@ enum BoundaryInterpolationType
     use_boundary_value = 1,
     use_boundary_value_with_warning = 2,
     extrapolate_at_boundary = 3,
-    extrapolate_at_boundary_with_warning = 4
+    extrapolate_at_boundary_with_warning = 4,
+    use_default_value = 5,
+    use_default_value_with_warning = 6
 };
 
 //! Base class for interpolator.

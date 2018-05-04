@@ -21,6 +21,8 @@
 #include "Tudat/Mathematics/Interpolators/lookupScheme.h"
 #include "Tudat/Mathematics/Interpolators/interpolator.h"
 
+#include "Tudat/Basics/additionIdentities.h"
+
 namespace tudat
 {
 namespace interpolators
@@ -40,8 +42,10 @@ class OneDimensionalInterpolator :
 public:
 
     OneDimensionalInterpolator(
-            const BoundaryInterpolationType boundaryHandling = extrapolate_at_boundary ):
-        boundaryHandling_( boundaryHandling ){ }
+            const BoundaryInterpolationType boundaryHandling = extrapolate_at_boundary,
+            const DependentVariableType defaultExtrapolationValue = AdditionIdentity< DependentVariableType >::getZeroValue( ) ):
+        boundaryHandling_( boundaryHandling ), defaultExtrapolationValue_( defaultExtrapolationValue )
+    { }
 
 
     using Interpolator< IndependentVariableType, DependentVariableType >::interpolate;
@@ -151,11 +155,11 @@ protected:
     int checkInterpolationBoundary( const IndependentVariableType& targetIndependentVariableValue )
     {
         int isAtBoundary = 0;
-        if( targetIndependentVariableValue < independentValues_[ 0 ] )
+        if( targetIndependentVariableValue < independentValues_.front( ) )
         {
             isAtBoundary = -1;
         }
-        else if( targetIndependentVariableValue > independentValues_[ dependentValues_.size( ) - 1 ] )
+        else if( targetIndependentVariableValue > independentValues_.back( ) )
         {
             isAtBoundary = 1;
         }
@@ -186,16 +190,16 @@ protected:
                 {
                     std::string errorMessage = "Error in interpolator, requesting data point outside of boundaries, requested data at: " +
                             boost::lexical_cast< std::string >( targetIndependentVariableValue ) + " but limit values are " +
-                            boost::lexical_cast< std::string >( independentValues_[ 0 ] ) + " and " +
-                            boost::lexical_cast< std::string >( independentValues_[ dependentValues_.size( ) - 1 ] );
+                            boost::lexical_cast< std::string >( independentValues_.front( ) ) + " and " +
+                            boost::lexical_cast< std::string >( independentValues_.back( ) );
                     throw std::runtime_error( errorMessage );
                 }
                 else if( this->boundaryHandling_ == extrapolate_at_boundary_with_warning )
                 {
                     std::string errorMessage = "Warning in interpolator, requesting data point outside of boundaries, requested data at: " +
                             boost::lexical_cast< std::string >( targetIndependentVariableValue ) + " but limit values are " +
-                            boost::lexical_cast< std::string >( independentValues_[ 0 ] ) + " and " +
-                            boost::lexical_cast< std::string >( independentValues_[ dependentValues_.size( ) - 1 ] ) + ", applying extrapolation instead." ;
+                            boost::lexical_cast< std::string >( independentValues_.front( ) ) + " and " +
+                            boost::lexical_cast< std::string >( independentValues_.back( ) ) + ", applying extrapolation instead.";
                     std::cerr << errorMessage << std::endl;
                 }
                 else if( ( this->boundaryHandling_ == use_boundary_value ) ||
@@ -205,25 +209,40 @@ protected:
                     {
                         std::string errorMessage = "Warning in interpolator, requesting data point outside of boundaries, requested data at: " +
                                 boost::lexical_cast< std::string >( targetIndependentVariableValue ) + " but limit values are " +
-                                boost::lexical_cast< std::string >( independentValues_[ 0 ] ) + " and " +
-                                boost::lexical_cast< std::string >( independentValues_[ dependentValues_.size( ) - 1 ] ) + ", taking boundary value instead." ;
+                                boost::lexical_cast< std::string >( independentValues_.front( ) ) + " and " +
+                                boost::lexical_cast< std::string >( independentValues_.back( ) ) + ", taking boundary value instead.";
                         std::cerr << errorMessage << std::endl;
                     }
 
                     if( isAtBoundary == -1 )
                     {
-                        dependentVariable = dependentValues_[ 0 ];
+                        dependentVariable = dependentValues_.front( );
                         useValue = true;
                     }
                     else if( isAtBoundary == 1 )
                     {
-                        dependentVariable = dependentValues_[ dependentValues_.size( ) - 1 ];
+                        dependentVariable = dependentValues_.back( );
                         useValue = true;
                     }
                     else
                     {
                         throw std::runtime_error( "Error when checking interpolation boundary, inconsistent data encountered" );
                     }
+                }
+                else if( ( this->boundaryHandling_ == use_default_value ) ||
+                         ( this->boundaryHandling_ == use_default_value_with_warning ) )
+                {
+                    if( this->boundaryHandling_ == use_default_value_with_warning )
+                    {
+                        std::string errorMessage = "Warning in interpolator, requesting data point outside of boundaries, requested data at: " +
+                                boost::lexical_cast< std::string >( targetIndependentVariableValue ) + " but limit values are " +
+                                boost::lexical_cast< std::string >( independentValues_.front( ) ) + " and " +
+                                boost::lexical_cast< std::string >( independentValues_.back( ) ) + ", taking default value instead.";
+                        std::cerr << errorMessage << std::endl;
+                    }
+
+                    dependentVariable = defaultExtrapolationValue_;
+                    useValue = true;
                 }
                 else
                 {
@@ -291,6 +310,12 @@ protected:
      * Boundary handling method.
      */
     BoundaryInterpolationType boundaryHandling_;
+
+    //! Default value to be used for extrapolation.
+    /*!
+     * Default value to be used for extrapolation.
+     */
+    DependentVariableType defaultExtrapolationValue_;
 };
 
 } // namespace interpolators
