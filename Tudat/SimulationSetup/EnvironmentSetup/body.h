@@ -227,6 +227,7 @@ public:
           currentRotationToLocalFrame_( Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) ) ),
           currentRotationToLocalFrameDerivative_( Eigen::Matrix3d::Zero( ) ),
           currentAngularVelocityVectorInGlobalFrame_( Eigen::Vector3d::Zero( ) ),
+          currentAngularVelocityVectorInLocalFrame_( Eigen::Vector3d::Zero( ) ),
           bodyMassFunction_( NULL ),
           bodyInertiaTensor_( Eigen::Matrix3d::Zero( ) ),
           scaledMeanMomentOfInertia_( TUDAT_NAN )
@@ -419,7 +420,7 @@ public:
 
         rotationalStateVector.segment( 0, 4 ) =
                 linear_algebra::convertQuaternionToVectorFormat( Eigen::Quaterniond( currentRotationToLocalFrame_.inverse( ) ) );
-        rotationalStateVector.segment( 4, 3 ) = currentRotationToLocalFrame_ * currentAngularVelocityVectorInGlobalFrame_;
+        rotationalStateVector.segment( 4, 3 ) = currentAngularVelocityVectorInLocalFrame_;
         return rotationalStateVector;
     }
 
@@ -526,10 +527,13 @@ public:
         {
             currentAngularVelocityVectorInGlobalFrame_
                     = rotationalEphemeris_->getRotationalVelocityVectorInBaseFrame( time );
+            currentAngularVelocityVectorInLocalFrame_ = currentRotationToLocalFrame_ * currentAngularVelocityVectorInGlobalFrame_;
+
         }
         else if( dependentOrientationCalculator_ != NULL )
         {
             currentAngularVelocityVectorInGlobalFrame_.setZero( );
+            currentAngularVelocityVectorInLocalFrame_.setZero( );
         }
         else
         {
@@ -553,12 +557,14 @@ public:
             rotationalEphemeris_->getFullRotationalQuantitiesToTargetFrameTemplated< TimeType >(
                         currentRotationToLocalFrame_, currentRotationToLocalFrameDerivative_,
                         currentAngularVelocityVectorInGlobalFrame_, time );
+            currentAngularVelocityVectorInLocalFrame_ = currentRotationToLocalFrame_ * currentAngularVelocityVectorInGlobalFrame_;
         }
         else if( dependentOrientationCalculator_ != NULL )
         {
             currentRotationToLocalFrame_ = dependentOrientationCalculator_->getRotationToLocalFrame( time );
             currentRotationToLocalFrameDerivative_.setZero( );
             currentAngularVelocityVectorInGlobalFrame_.setZero( );
+            currentAngularVelocityVectorInLocalFrame_.setZero( );
         }
         else
         {
@@ -587,6 +593,7 @@ public:
         currentRotationToLocalFrame_ = currentRotationToGlobalFrame.inverse( );
         currentAngularVelocityVectorInGlobalFrame_ =
                 currentRotationToGlobalFrame * currentRotationalStateFromLocalToGlobalFrame.block( 4, 0, 3, 1 );
+        currentAngularVelocityVectorInLocalFrame_ = currentRotationalStateFromLocalToGlobalFrame.block( 4, 0, 3, 1 );
 
         Eigen::Matrix3d currentRotationMatrixToLocalFrame = ( currentRotationToLocalFrame_ ).toRotationMatrix( );
         currentRotationToLocalFrameDerivative_ = linear_algebra::getCrossProductMatrix(
@@ -657,7 +664,7 @@ public:
 
     Eigen::Vector3d getCurrentAngularVelocityVectorInLocalFrame( )
     {
-        return currentRotationToLocalFrame_ * currentAngularVelocityVectorInGlobalFrame_;
+        return currentAngularVelocityVectorInLocalFrame_;
     }
 
 
@@ -1245,6 +1252,7 @@ private:
     //! Current angular velocity vector for body's rotation, expressed in the global frame.
     Eigen::Vector3d currentAngularVelocityVectorInGlobalFrame_;
 
+    Eigen::Vector3d currentAngularVelocityVectorInLocalFrame_;
 
     //! Mass of body (default set to zero, calculated from GravityFieldModel when it is set).
     double currentMass_;

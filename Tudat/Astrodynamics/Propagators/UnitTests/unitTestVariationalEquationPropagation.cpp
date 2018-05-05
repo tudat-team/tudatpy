@@ -726,13 +726,15 @@ executePhobosRotationSimulation(
     torqueMap[ "Phobos" ][ "Mars" ].push_back(
                 boost::make_shared< TorqueSettings >( second_order_gravitational_torque ) );
 
-    // Create torque models
-    basic_astrodynamics::TorqueModelMap torqueModelMap = createTorqueModelsMap(
-                bodyMap, torqueMap );
-
     // Define propagator settings.
     std::vector< std::string > bodiesToIntegrate;
     bodiesToIntegrate.push_back( "Phobos" );
+
+    // Create torque models
+    basic_astrodynamics::TorqueModelMap torqueModelMap = createTorqueModelsMap(
+                bodyMap, torqueMap, bodiesToIntegrate );
+
+
     boost::shared_ptr< RotationalStatePropagatorSettings< double > > rotationalPropagatorSettings =
             boost::make_shared< RotationalStatePropagatorSettings< double > >
             ( torqueModelMap, bodiesToIntegrate, unitRotationState, boost::make_shared< PropagationTimeTerminationSettings >(
@@ -784,9 +786,6 @@ executePhobosRotationSimulation(
      Eigen::MatrixXd constraintStateMultiplier;
      Eigen::VectorXd constraintRightHandSide;
      parametersToEstimate->getConstraints( constraintStateMultiplier, constraintRightHandSide );
-
-     std::cout<<"Const"<<constraintStateMultiplier<<std::endl<<constraintRightHandSide<<std::endl;
-
 
      TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
                  ( constraintStateMultiplier.block( 0, 0, 1, 4 ) ), ( unitRotationState.segment( 0, 4 ) ).transpose( ),

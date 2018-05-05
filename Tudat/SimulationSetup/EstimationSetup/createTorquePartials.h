@@ -53,6 +53,7 @@ boost::shared_ptr< acceleration_partials::TorquePartial > createAnalyticalTorque
         boost::shared_ptr< basic_astrodynamics::TorqueModel > torqueModel,
         const std::pair< std::string, boost::shared_ptr< simulation_setup::Body > > acceleratedBody,
         const std::pair< std::string, boost::shared_ptr< simulation_setup::Body > > acceleratingBody,
+        const basic_astrodynamics::SingleBodyTorqueModelMap& torqueVector = basic_astrodynamics::SingleBodyTorqueModelMap( ),
         const simulation_setup::NamedBodyMap& bodyMap = simulation_setup::NamedBodyMap( ),
         const boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< InitialStateParameterType > >
         parametersToEstimate =
@@ -113,6 +114,28 @@ boost::shared_ptr< acceleration_partials::TorquePartial > createAnalyticalTorque
                       acceleratedBody.first, acceleratingBody.first );
         }
         break;
+    case inertial_torque:
+    {
+        boost::function< Eigen::Vector3d( ) > angularVelocityFunction =
+                boost::bind( &Body::getCurrentAngularVelocityVectorInLocalFrame, acceleratedBody.second );
+        boost::function< Eigen::Matrix3d( ) > inertiaTensorFunction =
+                boost::bind( &Body::getBodyInertiaTensor, acceleratedBody.second );
+
+        boost::function< double( ) > inertiaTensorNormalizationFunction;
+        if( boost::dynamic_pointer_cast< gravitation::SphericalHarmonicsGravityField >( acceleratedBody.second->getGravityFieldModel( ) )
+                != NULL )
+        {
+            inertiaTensorNormalizationFunction =
+                    boost::bind( &gravitation::SphericalHarmonicsGravityField::getInertiaTensorNormalizationFactor,
+                                 boost::dynamic_pointer_cast< gravitation::SphericalHarmonicsGravityField >(
+                                     acceleratedBody.second->getGravityFieldModel( ) ) );
+        }
+
+        torquePartial = boost::make_shared< acceleration_partials::InertialTorquePartial >(
+                    angularVelocityFunction, inertiaTensorFunction, torqueVector, inertiaTensorNormalizationFunction,
+                    acceleratedBody.first );
+        break;
+    }
     default:
         std::string errorMessage = "Torque model " + std::to_string( torqueType ) +
                 " not found when making torque partial";
@@ -170,9 +193,9 @@ orbit_determination::StateDerivativePartialsMap createTorquePartialsMap(
                     // Declare list of torque partials of current body.
                     std::vector< boost::shared_ptr< orbit_determination::StateDerivativePartial > > torquePartialVector;
 
-                    torquePartialVector.push_back(
-                                createInertialTorquePartial(
-                                    std::make_pair( acceleratedBody, acceleratedBodyObject ), torqueVector ) );
+//                    torquePartialVector.push_back(
+//                                createInertialTorquePartial(
+//                                    std::make_pair( acceleratedBody, acceleratedBodyObject ), torqueVector ) );
                     // Iterate over all torque models and generate their partial-calculating objects.
                     for(  basic_astrodynamics::SingleBodyTorqueModelMap::iterator
                           innerTorqueIterator = torqueVector.begin( );
@@ -194,7 +217,7 @@ orbit_determination::StateDerivativePartialsMap createTorquePartialsMap(
                                         innerTorqueIterator->second[ j ],
                                         std::make_pair( acceleratedBody, acceleratedBodyObject ),
                                         std::make_pair( acceleratingBody, acceleratingBodyObject ),
-                                        bodyMap, parametersToEstimate );
+                                        torqueVector, bodyMap, parametersToEstimate );
 
                             torquePartialVector.push_back( currentTorquePartial );
                         }
