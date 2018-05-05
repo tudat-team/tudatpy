@@ -114,7 +114,8 @@ boost::shared_ptr< aerodynamics::AtmosphereModel > createAtmosphereModel(
                         tabulatedAtmosphereSettings->getDependentVariables( ),
                         tabulatedAtmosphereSettings->getSpecificGasConstant( ),
                         tabulatedAtmosphereSettings->getRatioOfSpecificHeats( ),
-                        tabulatedAtmosphereSettings->getBoundaryHandling( ) );
+                        tabulatedAtmosphereSettings->getBoundaryHandling( ),
+                        tabulatedAtmosphereSettings->getDefaultExtrapolationValue( ) );
         }
         break;
     }

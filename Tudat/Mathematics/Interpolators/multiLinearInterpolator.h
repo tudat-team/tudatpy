@@ -71,41 +71,72 @@ public:
      *  each must be sorted in ascending order.
      * \param dependentData Multi-dimensional array of dependent data at each point of
      *          hyper-rectangular grid formed by independent variable points.
-     *  \param selectedLookupScheme Identifier of lookupscheme from enum. This algorithm is used
+     * \param selectedLookupScheme Identifier of lookupscheme from enum. This algorithm is used
      *          to find the nearest lower data point in the independent variables when requesting
      *          interpolation.
+     * \param boundaryHandling Boundary handling method, in case independent variable is outside the
+     *          specified range.
+     * \param defaultExtrapolationValue Default value to be used for extrapolation, in case of use_default_value or
+     *          use_default_value_with_warning as methods for boundaryHandling.
      */
     MultiLinearInterpolator( const std::vector< std::vector< IndependentVariableType > >
-                             independentValues,
-                             const boost::multi_array< DependentVariableType, static_cast< size_t >( NumberOfDimensions )>
-                             dependentData,
-                             const AvailableLookupScheme selectedLookupScheme = huntingAlgorithm,
-                             const BoundaryInterpolationType boundaryHandling = extrapolate_at_boundary,
-                             const DependentVariableType defaultExtrapolationValue = IdentityElement< DependentVariableType >::getAdditionIdentity( ) )
-        : independentValues_( independentValues ),
-          dependentData_( dependentData ),
-          boundaryHandling_( boundaryHandling ),
-          defaultExtrapolationValue_( defaultExtrapolationValue )
-    {
-        // Check consistency of template arguments and input variables.
-        if ( independentValues.size( ) != NumberOfDimensions )
+                                 independentValues,
+                                 const boost::multi_array< DependentVariableType, static_cast< size_t >( NumberOfDimensions ) >
+                                 dependentData,
+                                 const AvailableLookupScheme selectedLookupScheme = huntingAlgorithm,
+                                 const std::vector< BoundaryInterpolationType > boundaryHandling =
+                std::vector< BoundaryInterpolationType >( NumberOfDimensions, extrapolate_at_boundary ),
+                                 const DependentVariableType defaultExtrapolationValue =
+                IdentityElement< DependentVariableType >::getAdditionIdentity( ) ) :
+        independentValues_( independentValues ),
+        dependentData_( dependentData ),
+        boundaryHandling_( boundaryHandling ),
+        defaultExtrapolationValue_( defaultExtrapolationValue )
         {
-            throw std::runtime_error( "Error: dimension of independent value vector provided to constructor incompatible with template parameter " );
-        }
-
-        // Check consistency of input data of dependent and independent data.
-        for ( int i = 0; i < NumberOfDimensions; i++ )
-        {
-            if ( independentValues[ i ].size( ) != dependentData.shape( )[ i ] )
+            // Check consistency of template arguments and input variables.
+            if ( independentValues.size( ) != NumberOfDimensions )
             {
-                std::string errorMessage = "Warning: number of data points in dimension " +
-                        std::to_string( i ) + " of independent and dependent data incompatible.";
-                throw std::runtime_error( errorMessage );
+                throw std::runtime_error( "Error: dimension of independent value vector provided to constructor incompatible with template parameter." );
             }
+
+            // Check consistency of input data of dependent and independent data.
+            for ( int i = 0; i < NumberOfDimensions; i++ )
+            {
+                if ( independentValues[ i ].size( ) != dependentData.shape( )[ i ] )
+                {
+                    std::string errorMessage = "Warning: number of data points in dimension " +
+                            std::to_string( i ) + " of independent and dependent data incompatible.";
+                    throw std::runtime_error( errorMessage );
+                }
+            }
+
+            makeLookupSchemes( selectedLookupScheme );
         }
 
-        makeLookupSchemes( selectedLookupScheme );
-    }
+    //! Constructor taking independent and dependent variable data.
+    /*!
+     * \param independentValues Vector of vectors containing data points of independent variables,
+     *  each must be sorted in ascending order.
+     * \param dependentData Multi-dimensional array of dependent data at each point of
+     *          hyper-rectangular grid formed by independent variable points.
+     * \param selectedLookupScheme Identifier of lookupscheme from enum. This algorithm is used
+     *          to find the nearest lower data point in the independent variables when requesting
+     *          interpolation.
+     * \param boundaryHandling Boundary handling method, in case independent variable is outside the
+     *          specified range.
+     * \param defaultExtrapolationValue Default value to be used for extrapolation, in case of use_default_value or
+     *          use_default_value_with_warning as methods for boundaryHandling.
+     */
+    MultiLinearInterpolator( const std::vector< std::vector< IndependentVariableType > > independentValues,
+                             const boost::multi_array< DependentVariableType, static_cast< size_t >( NumberOfDimensions ) >
+                             dependentData,
+                             const AvailableLookupScheme selectedLookupScheme,
+                             const BoundaryInterpolationType boundaryHandling,
+                             const DependentVariableType defaultExtrapolationValue =
+            IdentityElement< DependentVariableType >::getAdditionIdentity( ) ) :
+        MultiLinearInterpolator( independentValues, dependentData, selectedLookupScheme,
+                                 std::vector< BoundaryInterpolationType >( NumberOfDimensions, boundaryHandling ),
+                                 defaultExtrapolationValue ) { }
 
     //! Default destructor
     /*!
@@ -131,10 +162,10 @@ public:
         for ( unsigned int i = 0; i < NumberOfDimensions; i++ )
         {
             checkBoundaryCase( localIndependentValuesToInterpolate.at( i ), i, useDefault );
-        }
-        if ( useDefault )
-        {
-            return defaultExtrapolationValue_;
+            if ( useDefault )
+            {
+                return defaultExtrapolationValue_;
+            }
         }
 
         // Determine the nearest lower neighbours.
@@ -209,13 +240,13 @@ private:
             const unsigned int& currentVariable,
             bool& useDefault )
     {
-        if( boundaryHandling_ != extrapolate_at_boundary )
+        if( boundaryHandling_.at( currentVariable ) != extrapolate_at_boundary )
         {
             int isAtBoundary = checkInterpolationBoundary( independentVariable, currentVariable );
 
             if( isAtBoundary != 0 )
             {
-                if( boundaryHandling_ == throw_exception_at_boundary )
+                if( boundaryHandling_.at( currentVariable ) == throw_exception_at_boundary )
                 {
                     std::string errorMessage = "Error in interpolator, requesting data point outside of boundaries, requested data of dimension " +
                             boost::lexical_cast< std::string >( currentVariable ) + " at: " +
@@ -224,7 +255,7 @@ private:
                             boost::lexical_cast< std::string >( independentValues_.at( currentVariable ).back( ) );
                     throw std::runtime_error( errorMessage );
                 }
-                else if( boundaryHandling_ == extrapolate_at_boundary_with_warning )
+                else if( boundaryHandling_.at( currentVariable ) == extrapolate_at_boundary_with_warning )
                 {
                     std::string errorMessage = "Warning in interpolator, requesting data point outside of boundaries, requested data of dimension " +
                             boost::lexical_cast< std::string >( currentVariable ) + " at: " +
@@ -233,10 +264,10 @@ private:
                             boost::lexical_cast< std::string >( independentValues_.at( currentVariable ).back( ) ) + ", applying extrapolation instead.";
                     std::cerr << errorMessage << std::endl;
                 }
-                else if( ( boundaryHandling_ == use_boundary_value ) ||
-                         ( boundaryHandling_ == use_boundary_value_with_warning ) )
+                else if( ( boundaryHandling_.at( currentVariable ) == use_boundary_value ) ||
+                         ( boundaryHandling_.at( currentVariable ) == use_boundary_value_with_warning ) )
                 {
-                    if( boundaryHandling_ == use_boundary_value_with_warning )
+                    if( boundaryHandling_.at( currentVariable ) == use_boundary_value_with_warning )
                     {
                         std::string errorMessage = "Warning in interpolator, requesting data point outside of boundaries, requested data of dimension " +
                                 boost::lexical_cast< std::string >( currentVariable ) + " at: " +
@@ -255,10 +286,10 @@ private:
                         independentVariable = independentValues_.at( currentVariable ).back( );
                     }
                 }
-                else if( ( boundaryHandling_ == use_default_value ) ||
-                         ( boundaryHandling_ == use_default_value_with_warning ) )
+                else if( ( boundaryHandling_.at( currentVariable ) == use_default_value ) ||
+                         ( boundaryHandling_.at( currentVariable ) == use_default_value_with_warning ) )
                 {
-                    if( boundaryHandling_ == use_default_value_with_warning )
+                    if( boundaryHandling_.at( currentVariable ) == use_default_value_with_warning )
                     {
                         std::string errorMessage = "Warning in interpolator, requesting data point outside of boundaries, requested data of dimension " +
                                 boost::lexical_cast< std::string >( currentVariable ) + " at: " +
@@ -418,11 +449,11 @@ private:
      */
     boost::multi_array< DependentVariableType, static_cast< size_t >( NumberOfDimensions ) > dependentData_;
 
-    //! Boundary handling method.
+    //! Behavior of interpolator when independent variable is outside range.
     /*!
-     * Boundary handling method.
+     * Behavior of interpolator when independent variable is outside range.
      */
-    BoundaryInterpolationType boundaryHandling_;
+    std::vector< BoundaryInterpolationType > boundaryHandling_;
 
     //! Default value to be used for extrapolation.
     /*!

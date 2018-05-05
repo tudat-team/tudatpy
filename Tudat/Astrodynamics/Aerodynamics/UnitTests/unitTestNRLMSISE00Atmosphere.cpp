@@ -954,8 +954,7 @@ BOOST_AUTO_TEST_CASE( testSpeedOfSound )
     BOOST_CHECK_CLOSE_FRACTION( model.getSpeedOfSound(altitude,longitude,latitude,time) , 340.9 , 1.8E-2 ); // < 1.8%
 
     // US Standard Atmosphere Model 1976
-    std::map< int, std::string > atmosphereTableFile = { { 0, tudat::input_output::getAtmosphereTablesPath( ) +
-                                                           "USSA1976Until100kmPer100mUntil1000kmPer1000m.dat" } };
+    std::string atmosphereTableFile = tudat::input_output::getAtmosphereTablesPath( ) + "USSA1976Until100kmPer100mUntil1000kmPer1000m.dat";
     tudat::aerodynamics::TabulatedAtmosphere US76model( atmosphereTableFile );
 
     // Test wist US76 table (NRLMSISE should provide approximately the same results)

@@ -21,6 +21,8 @@ namespace tudat
 namespace aerodynamics
 {
 
+using namespace interpolators;
+
 //! Initialize atmosphere table reader.
 void TabulatedAtmosphere::initialize( const std::map< int, std::string >& atmosphereTableFile )
 {
@@ -89,7 +91,35 @@ void TabulatedAtmosphere::initialize( const std::map< int, std::string >& atmosp
                                   "density, pressure and temperature." );
     }
 
-    using namespace interpolators;
+    // Assign values to boundary handling
+    if ( boundaryHandling_.empty( ) )
+    {
+        boundaryHandling_ = std::vector< BoundaryInterpolationType >( numberOfIndependentVariables_,
+                                                                      use_boundary_value_with_warning );
+    }
+    else
+    {
+        if ( static_cast< int >( boundaryHandling_.size( ) ) != numberOfIndependentVariables_ )
+        {
+            throw std::runtime_error( "Error, number of boundary handling methods provided does not match number of "
+                                      "independent variables." );
+        }
+    }
+
+    // Assign values to default extrapolation
+    if ( defaultExtrapolationValue_.empty( ) )
+    {
+        defaultExtrapolationValue_ = std::vector< double >( numberOfDependentVariables,
+                                                            IdentityElement< double >::getAdditionIdentity( ) );
+    }
+    else
+    {
+        if ( defaultExtrapolationValue_.size( ) != numberOfDependentVariables )
+        {
+            throw std::runtime_error( "Error, number of default extrapolation values provided does not match number of "
+                                      "dependent variables." );
+        }
+    }
 
     // Create interpolators for variables requested by users, depending on the number of variables
     switch ( numberOfIndependentVariables_ )
@@ -111,7 +141,7 @@ void TabulatedAtmosphere::initialize( const std::map< int, std::string >& atmosp
             throw std::runtime_error( errorMessage );
         }
 
-        // Check
+        // Check whether number of dependent variables matches number of columns
         if ( numberOfDependentVariables != ( numberOfColumnsInFile - 1 ) )
         {
             throw std::runtime_error( "Number of specified dependent variables does not match file." );
@@ -139,26 +169,26 @@ void TabulatedAtmosphere::initialize( const std::map< int, std::string >& atmosp
         // Create interpolators for density, pressure and temperature
         interpolationForDensity_ = boost::make_shared< CubicSplineInterpolatorDouble >(
                     independentVariablesData_.at( 0 ), dependentVariablesData.at( dependentVariableIndices_.at( 0 ) ),
-                    huntingAlgorithm, boundaryHandling_ );
+                    huntingAlgorithm, boundaryHandling_.at( 0 ), defaultExtrapolationValue_.at( dependentVariableIndices_.at( 0 ) ) );
         interpolationForPressure_ = boost::make_shared< CubicSplineInterpolatorDouble >(
                     independentVariablesData_.at( 0 ), dependentVariablesData.at( dependentVariableIndices_.at( 1 ) ),
-                    huntingAlgorithm, boundaryHandling_ );
+                    huntingAlgorithm, boundaryHandling_.at( 0 ), defaultExtrapolationValue_.at( dependentVariableIndices_.at( 1 ) ) );
         interpolationForTemperature_ = boost::make_shared< CubicSplineInterpolatorDouble >(
                     independentVariablesData_.at( 0 ), dependentVariablesData.at( dependentVariableIndices_.at( 2 ) ),
-                    huntingAlgorithm, boundaryHandling_ );
+                    huntingAlgorithm, boundaryHandling_.at( 0 ), defaultExtrapolationValue_.at( dependentVariableIndices_.at( 2 ) ) );
 
         // Create remaining interpolators, if requested by user
         if ( dependentVariablesDependency_.at( 3 ) )
         {
             interpolationForGasConstant_ = boost::make_shared< CubicSplineInterpolatorDouble >(
                         independentVariablesData_.at( 0 ), dependentVariablesData.at( dependentVariableIndices_.at( 3 ) ),
-                        huntingAlgorithm, boundaryHandling_ );
+                        huntingAlgorithm, boundaryHandling_.at( 0 ), defaultExtrapolationValue_.at( dependentVariableIndices_.at( 3 ) ) );
         }
         if ( dependentVariablesDependency_.at( 4 ) )
         {
             interpolationForSpecificHeatRatio_ = boost::make_shared< CubicSplineInterpolatorDouble >(
                         independentVariablesData_.at( 0 ), dependentVariablesData.at( dependentVariableIndices_.at( 4 ) ),
-                        huntingAlgorithm, boundaryHandling_ );
+                        huntingAlgorithm, boundaryHandling_.at( 0 ), defaultExtrapolationValue_.at( dependentVariableIndices_.at( 4 ) ) );
         }
         break;
     }
@@ -184,8 +214,6 @@ void TabulatedAtmosphere::initialize( const std::map< int, std::string >& atmosp
 template< int NumberOfIndependentVariables >
 void TabulatedAtmosphere::createMultiDimensionalAtmosphereInterpolators( )
 {
-    using namespace interpolators;
-
     // Call approriate file reading function for N independent variables
     std::pair< std::vector< boost::multi_array< double, static_cast< size_t >( NumberOfIndependentVariables ) > >,
             std::vector< std::vector< double > > > tabulatedAtmosphereData;
@@ -200,15 +228,15 @@ void TabulatedAtmosphere::createMultiDimensionalAtmosphereInterpolators( )
     interpolationForDensity_ =
             boost::make_shared< MultiLinearInterpolator< double, double, NumberOfIndependentVariables > >(
                 independentVariablesData_, tabulatedAtmosphereData.first.at( dependentVariableIndices_.at( 0 ) ),
-                huntingAlgorithm, boundaryHandling_ );
+                huntingAlgorithm, boundaryHandling_, defaultExtrapolationValue_.at( dependentVariableIndices_.at( 0 ) ) );
     interpolationForPressure_ =
             boost::make_shared< MultiLinearInterpolator< double, double, NumberOfIndependentVariables > >(
                 independentVariablesData_, tabulatedAtmosphereData.first.at( dependentVariableIndices_.at( 1 ) ),
-                huntingAlgorithm, boundaryHandling_ );
+                huntingAlgorithm, boundaryHandling_, defaultExtrapolationValue_.at( dependentVariableIndices_.at( 1 ) ) );
     interpolationForTemperature_ =
             boost::make_shared< MultiLinearInterpolator< double, double, NumberOfIndependentVariables > >(
                 independentVariablesData_, tabulatedAtmosphereData.first.at( dependentVariableIndices_.at( 2 ) ),
-                huntingAlgorithm, boundaryHandling_ );
+                huntingAlgorithm, boundaryHandling_, defaultExtrapolationValue_.at( dependentVariableIndices_.at( 2 ) ) );
 
     // Create remaining interpolators, if requested by user
     if ( dependentVariablesDependency_.at( 3 ) )
@@ -216,14 +244,14 @@ void TabulatedAtmosphere::createMultiDimensionalAtmosphereInterpolators( )
         interpolationForGasConstant_ =
                 boost::make_shared< MultiLinearInterpolator< double, double, NumberOfIndependentVariables > >(
                     independentVariablesData_, tabulatedAtmosphereData.first.at( dependentVariableIndices_.at( 3 ) ),
-                    huntingAlgorithm, boundaryHandling_ );
+                    huntingAlgorithm, boundaryHandling_, defaultExtrapolationValue_.at( dependentVariableIndices_.at( 3 ) ) );
     }
     if ( dependentVariablesDependency_.at( 4 ) )
     {
         interpolationForSpecificHeatRatio_ =
                 boost::make_shared< MultiLinearInterpolator< double, double, NumberOfIndependentVariables > >(
                     independentVariablesData_, tabulatedAtmosphereData.first.at( dependentVariableIndices_.at( 4 ) ),
-                    huntingAlgorithm, boundaryHandling_ );
+                    huntingAlgorithm, boundaryHandling_, defaultExtrapolationValue_.at( dependentVariableIndices_.at( 4 ) ) );
     }
 }
 

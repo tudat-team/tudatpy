@@ -595,6 +595,20 @@ public:
 
 };
 
+// Class for semi-dynamic (1 column) matrix of long double type.
+template< >
+class IdentityElement< Eigen::MatrixX1ld >
+{
+public:
+
+    static Eigen::MatrixX1ld getAdditionIdentity( )
+    {
+        Eigen::MatrixX1ld zeroMatrix;
+        return zeroMatrix.setZero( );
+    }
+
+};
+
 // Class for semi-dynamic (2 columns) matrix of double type.
 template< >
 class IdentityElement< Eigen::MatrixX2d >
