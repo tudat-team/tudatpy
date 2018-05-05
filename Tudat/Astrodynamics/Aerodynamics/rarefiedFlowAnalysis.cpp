@@ -29,6 +29,7 @@
 
 namespace tudat
 {
+
 namespace aerodynamics
 {
 
@@ -45,21 +46,21 @@ std::vector< double > getDefaultRarefiedFlowAltitudePoints(
     if ( targetPlanet == "Earth" )
     {
         altitudePoints.resize( 5 );
-        altitudePoints[ 0 ] = 225.0;
-        altitudePoints[ 1 ] = 250.0;
-        altitudePoints[ 2 ] = 300.0;
-        altitudePoints[ 3 ] = 400.0;
+        altitudePoints[ 0 ] = 225.0e3;
+        altitudePoints[ 1 ] = 250.0e3;
+        altitudePoints[ 2 ] = 300.0e3;
+        altitudePoints[ 3 ] = 400.0e3;
         altitudePoints[ 4 ] = 600.0;
     }
     // Set default points for Mars.
     else if ( targetPlanet == "Mars" )
     {
         altitudePoints.resize( 5 );
-        altitudePoints[ 0 ] = 125.0;
-        altitudePoints[ 1 ] = 150.0;
-        altitudePoints[ 2 ] = 200.0;
-        altitudePoints[ 3 ] = 300.0;
-        altitudePoints[ 4 ] = 500.0;
+        altitudePoints[ 0 ] = 125.0e3;
+        altitudePoints[ 1 ] = 150.0e3;
+        altitudePoints[ 2 ] = 200.0e3;
+        altitudePoints[ 3 ] = 300.0e3;
+        altitudePoints[ 4 ] = 500.0e3;
     }
     // Give error otherwise.
     else
@@ -252,7 +253,7 @@ void RarefiedFlowAnalysis::analyzeGeometryFile( const std::string& geometryFileU
         std::cout << shapeCrossSectionalArea_( static_cast< unsigned int >( referenceAxis_ ) ) -
                      referenceArea_ << std::endl;
         throw std::runtime_error( "Error in SPARTA geometry file. Input reference area does not match the combination of "
-                                  "reference axis and geometry. Tolerance set to :" + std::to_string( tolerance ) );
+                                  "reference axis and geometry. Tolerance set to: " + std::to_string( tolerance ) );
     }
 }
 
@@ -262,8 +263,13 @@ void RarefiedFlowAnalysis::getSimulationConditions( )
     // Simulation boundary and grid
     for ( unsigned int i = 0; i < 3; i++ )
     {
-        simulationBoundaries_( 2 * i ) = minimumDimensions_( i ) + 0.5 * minimumDimensions_( i ); // add extra space around shape
-        simulationBoundaries_( 2 * i + 1 ) = maximumDimensions_( i ) + 0.5 * maximumDimensions_( i ); // add extra space around shape
+        simulationBoundaries_( 2 * i ) = 1.5 * minimumDimensions_( i ); // add extra space around shape
+        simulationBoundaries_( 2 * i + 1 ) = 1.5 * maximumDimensions_( i ); // add extra space around shape
+        if ( i == static_cast< unsigned int >( referenceAxis_ ) )
+        {
+            simulationBoundaries_( 2 * i ) -= 1.0; // add extra space along axis of velocity
+            simulationBoundaries_( 2 * i + 1 ) += 1.0; // add extra space along axis of velocity
+        }
         simulationGrid_( i ) = simulationBoundaries_( 2 * i + 1 ) - simulationBoundaries_( 2 * i );
     }
     simulationGrid_ /= gridSpacing_;
@@ -297,9 +303,8 @@ void RarefiedFlowAnalysis::generateCoefficients( )
             SPARTAExecutable_ + " -echo log -screen none -in " + getSpartaInputFile( );
 
     // Predefine variables
-    std::string anglesOfAttack;
     Eigen::Vector3d velocityVector;
-    std::string temporaryOutputFile;
+    std::string temporaryOutputFile = getSpartaOutputPath( ) + "/" + "coeff";
     std::vector< std::string > outputFileExtensions = { ".400", ".600", ".800", ".1000" };
     Eigen::Matrix< double, Eigen::Dynamic, 7 > outputMatrix;
     Eigen::Matrix< double, 3, Eigen::Dynamic > meanPressureValues;
@@ -310,58 +315,58 @@ void RarefiedFlowAnalysis::generateCoefficients( )
     for ( unsigned int h = 0; h < dataPointsOfIndependentVariables_.at( 0 ).size( ); h++ )
     {
         // Show progress
-        std::cout << std::endl << "Altitude: " << dataPointsOfIndependentVariables_.at( 0 ).at( h ) << std::endl;
+        std::cout << std::endl << "Altitude: "
+                  << dataPointsOfIndependentVariables_.at( 0 ).at( h ) / 1e3
+                  << " km" << std::endl;
 
         // Loop over Mach numbers
         for ( unsigned int m = 0; m < dataPointsOfIndependentVariables_.at( 1 ).size( ); m++ )
         {
             // Show progress
-            std::cout << "Mach number: " << dataPointsOfIndependentVariables_.at( 1 ).at( m ) << std::endl;
-            std::cout << "Looping over angles of attack..." << std::endl;
-
-            // Get velocity vector
-            velocityVector = Eigen::Vector3d::Zero( );
-            velocityVector( static_cast< unsigned int >( referenceAxis_ ) ) = ( std::signbit( referenceAxis_ ) ? 1.0 : -1.0 ) *
-                    freeStreamVelocities_( h, m );
-
-            // Get angles of attack string
-            for ( double a : dataPointsOfIndependentVariables_.at( 2 ) )
-            {
-                anglesOfAttack += toStringWithPrecision( convertRadiansToDegrees( a ), 0 ) + " ";
-            }
-
-            // Print to file
-            FILE * fileIdentifier = std::fopen( getSpartaInputFile( ).c_str( ), "w" );
-            std::fprintf( fileIdentifier, inputTemplate_.c_str( ),
-                          simulationBoundaries_( 0 ), simulationBoundaries_( 1 ), simulationBoundaries_( 2 ),
-                          simulationBoundaries_( 3 ), simulationBoundaries_( 4 ), simulationBoundaries_( 5 ),
-                          simulationGrid_( 0 ), simulationGrid_( 1 ), simulationGrid_( 2 ),
-                          atmosphericConditions_[ number_density_index ].at( h ), ratioOfRealToSimulatedParticles_( h ),
-                          simulationGases_.c_str( ),
-                          simulationGases_.c_str( ), velocityVector( 0 ), velocityVector( 1 ), velocityVector( 2 ),
-                          simulationGases_.c_str( ), atmosphericConditions_[ temperature_index ].at( h ),
-                          anglesOfAttack.c_str( ),
-                          wallTemperature_, accommodationCoefficient_,
-                          simulationTimeStep_( h, m ),
-                          getSpartaOutputDirectory( ).c_str( ) );
-            std::fclose( fileIdentifier );
-
-            // Run SPARTA
-            int systemStatus = std::system( runSPARTACommandString.c_str( ) );
-            if ( systemStatus != 0 )
-            {
-                throw std::runtime_error( "Error: SPARTA simulation failed. See the log.sparta file in "
-                                          "Tudat/External/SPARTA/ for more details." );
-            }
+            std::cout << "Mach number: "
+                      << dataPointsOfIndependentVariables_.at( 1 ).at( m )
+                      << std::endl;
 
             // Loop over angles of attack
-            meanPressureValues.resize( 3, numberOfTriangles_ );
-            meanShearValues.resize( 3, numberOfTriangles_ );
             for ( unsigned int a = 0; a < dataPointsOfIndependentVariables_.at( 2 ).size( ); a++ )
             {
-                // Get file name
-                temporaryOutputFile = getSpartaOutputPath( ) + "/" + toStringWithPrecision(
-                            convertRadiansToDegrees( dataPointsOfIndependentVariables_.at( 2 ).at( a ) ), 0 ) + ".coeff";
+                // Show progress
+                std::cout << "Angle of attack: "
+                          << convertRadiansToDegrees( dataPointsOfIndependentVariables_.at( 2 ).at( a ) )
+                          << " deg" << std::endl;
+
+                // Get velocity vector
+                velocityVector = Eigen::Vector3d::Zero( );
+                velocityVector( static_cast< unsigned int >( referenceAxis_ ) ) = ( std::signbit( referenceAxis_ ) ? 1.0 : -1.0 ) *
+                        freeStreamVelocities_( h, m );
+
+                // Print to file
+                FILE * fileIdentifier = std::fopen( getSpartaInputFile( ).c_str( ), "w" );
+                std::fprintf( fileIdentifier, inputTemplate_.c_str( ),
+                              simulationBoundaries_( 0 ), simulationBoundaries_( 1 ), simulationBoundaries_( 2 ),
+                              simulationBoundaries_( 3 ), simulationBoundaries_( 4 ), simulationBoundaries_( 5 ),
+                              simulationGrid_( 0 ), simulationGrid_( 1 ), simulationGrid_( 2 ),
+                              atmosphericConditions_[ number_density_index ].at( h ), ratioOfRealToSimulatedParticles_( h ),
+                              simulationGases_.c_str( ),
+                              simulationGases_.c_str( ), velocityVector( 0 ), velocityVector( 1 ), velocityVector( 2 ),
+                              simulationGases_.c_str( ), atmosphericConditions_[ temperature_index ].at( h ),
+                              convertRadiansToDegrees( dataPointsOfIndependentVariables_.at( 2 ).at( a ) ),
+                              wallTemperature_, accommodationCoefficient_,
+                              simulationTimeStep_( h, m ),
+                              getSpartaOutputDirectory( ).c_str( ) );
+                std::fclose( fileIdentifier );
+
+                // Run SPARTA
+                int systemStatus = std::system( runSPARTACommandString.c_str( ) );
+                if ( systemStatus != 0 )
+                {
+                    throw std::runtime_error( "Error: SPARTA simulation failed. See the log.sparta file in "
+                                              "Tudat/External/SPARTA/ for more details." );
+                }
+
+                // Loop over angles of attack
+                meanPressureValues.resize( 3, numberOfTriangles_ );
+                meanShearValues.resize( 3, numberOfTriangles_ );
 
                 // Read output files and compute mean pressure and shear force values
                 meanPressureValues.setZero( );
@@ -378,8 +383,8 @@ void RarefiedFlowAnalysis::generateCoefficients( )
                 meanPressureValues /= outputFileExtensions.size( );
                 meanShearValues /= outputFileExtensions.size( );
 
-                // Convert pressure and shear forces to coefficients
-                aerodynamicCoefficients_[ h ][ m ][ a ] = computeAerodynamicCoefficientsFromPressureShear(
+                // Convert pressure and shear forces to aerodynamic coefficients
+                aerodynamicCoefficients_[ h ][ m ][ a ] = computeAerodynamicCoefficientsFromPressureShearForces(
                             meanPressureValues,
                             meanShearValues,
                             atmosphericConditions_[ density_index ].at( h ),
@@ -390,11 +395,11 @@ void RarefiedFlowAnalysis::generateCoefficients( )
                             elementMomentArm_,
                             referenceArea_,
                             referenceLength_ );
-            }
 
-            // Clean up results folder
-            std::string commandString = "rm " + getSpartaOutputPath( ) + "/*";
-            std::system( commandString.c_str( ) );
+                // Clean up results folder
+                std::string commandString = "rm " + getSpartaOutputPath( ) + "/coeff.*";
+                std::system( commandString.c_str( ) );
+            }
         }
     }
 }
@@ -408,4 +413,5 @@ Eigen::Vector6d RarefiedFlowAnalysis::getAerodynamicCoefficientsDataPoint(
 }
 
 } // namespace aerodynamics
+
 } // namespace tudat

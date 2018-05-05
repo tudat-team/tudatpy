@@ -273,7 +273,6 @@ BOOST_AUTO_TEST_CASE( test_linearInterpolation_boundary_case_extrapolation_defau
     {
         // Put data in STL vectors.
         std::vector< long double > dependentVariableValues;
-
         for ( int i = 0; i < inputData.rows( ); i++ )
         {
             dependentVariableValues.push_back( inputData( i, 1 ) );
@@ -409,7 +408,7 @@ BOOST_AUTO_TEST_CASE( test_linearInterpolation_boundary_case_extrapolation_user_
         Eigen::Vector3d interpolatedValue;
         Eigen::Vector3d extrapolationValue;
         extrapolationValue[ 0 ] = 1.5;
-        extrapolationValue[ 1 ] = 3;
+        extrapolationValue[ 1 ] = -3;
         extrapolationValue[ 2 ] = 0;
 
         for( unsigned int i = 5; i < 7; i++ )
