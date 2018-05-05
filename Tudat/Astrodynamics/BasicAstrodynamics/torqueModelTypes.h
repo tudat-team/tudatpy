@@ -31,7 +31,8 @@ enum AvailableTorque
     underfined_torque = -1,
     second_order_gravitational_torque = 0,
     aerodynamic_torque = 1,
-    spherical_harmonic_gravitational_torque = 2
+    spherical_harmonic_gravitational_torque = 2,
+    inertial_torque = 3
 
 };
 

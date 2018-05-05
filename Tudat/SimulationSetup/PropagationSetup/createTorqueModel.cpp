@@ -20,6 +20,19 @@ namespace simulation_setup
 {
 
 //! Function to create an aerodynamic torque model.
+boost::shared_ptr< basic_astrodynamics::InertialTorqueModel > createInertialTorqueModel(
+        const boost::shared_ptr< simulation_setup::Body > bodyUndergoingTorque,
+        const std::string& nameOfBodyUndergoingTorque )
+{
+    boost::function< Eigen::Vector3d( ) > angularVelocityFunction =
+            boost::bind( &Body::getCurrentAngularVelocityVectorInLocalFrame, bodyUndergoingTorque );
+    boost::function< Eigen::Matrix3d( ) > inertiaTensorFunction =
+            boost::bind( &Body::getBodyInertiaTensor, bodyUndergoingTorque );
+    return boost::make_shared< basic_astrodynamics::InertialTorqueModel >(
+                angularVelocityFunction, inertiaTensorFunction );
+}
+
+//! Function to create an aerodynamic torque model.
 boost::shared_ptr< aerodynamics::AerodynamicTorque > createAerodynamicTorqueModel(
         const boost::shared_ptr< simulation_setup::Body > bodyUndergoingTorque,
         const boost::shared_ptr< simulation_setup::Body > bodyExertingTorque,
@@ -189,6 +202,12 @@ boost::shared_ptr< basic_astrodynamics::TorqueModel > createTorqueModel(
 
     switch( torqueSettings->torqueType_ )
     {
+    case basic_astrodynamics::inertial_torque:
+    {
+        torqueModel = createInertialTorqueModel(
+                    bodyUndergoingTorque, nameOfBodyUndergoingTorque );
+        break;
+    }
     case basic_astrodynamics::second_order_gravitational_torque:
     {
         torqueModel = createSecondDegreeGravitationalTorqueModel(
@@ -220,8 +239,18 @@ boost::shared_ptr< basic_astrodynamics::TorqueModel > createTorqueModel(
 //! Function to create torque models from a map of bodies and torque model settings.
 basic_astrodynamics::TorqueModelMap createTorqueModelsMap(
         const NamedBodyMap& bodyMap,
-        const SelectedTorqueMap& selectedTorquePerBody )
+        SelectedTorqueMap selectedTorquePerBody,
+        const std::vector< std::string >& propagatedBodies )
 {
+    for( unsigned int i = 0; i < propagatedBodies.size( ); i++ )
+    {
+        if( selectedTorquePerBody.count( propagatedBodies.at( i ) ) == 0 )
+        {
+            selectedTorquePerBody[ propagatedBodies.at( i ) ] =
+                    std::map< std::string, std::vector< boost::shared_ptr< TorqueSettings > > >( );
+        }
+    }
+
     basic_astrodynamics::TorqueModelMap torqueModelMap;
 
     for( SelectedTorqueMap::const_iterator acceleratedBodyIterator = selectedTorquePerBody.begin( );
@@ -234,6 +263,12 @@ basic_astrodynamics::TorqueModelMap createTorqueModelsMap(
         }
         else
         {
+            torqueModelMap[ acceleratedBodyIterator->first ][ acceleratedBodyIterator->first ].push_back(
+                        createTorqueModel(
+                        bodyMap.at( acceleratedBodyIterator->first ), bodyMap.at( acceleratedBodyIterator->first ),
+                        boost::make_shared< TorqueSettings >( basic_astrodynamics::inertial_torque ),
+                        acceleratedBodyIterator->first, acceleratedBodyIterator->first ) );
+
             for( std::map< std::string, std::vector< boost::shared_ptr< TorqueSettings > > >::const_iterator
                  acceleratingBodyIterator = acceleratedBodyIterator->second.begin( );
                  acceleratingBodyIterator != acceleratedBodyIterator->second.end( ); acceleratingBodyIterator++ )
@@ -243,6 +278,7 @@ basic_astrodynamics::TorqueModelMap createTorqueModelsMap(
                     throw std::runtime_error(
                                 "Error, could not find body " + acceleratingBodyIterator->first + " when making torque model map." );
                 }
+
                 for( unsigned int i = 0; i < acceleratingBodyIterator->second.size( ); i++ )
                 {
                     torqueModelMap[ acceleratedBodyIterator->first ][ acceleratingBodyIterator->first ].push_back(

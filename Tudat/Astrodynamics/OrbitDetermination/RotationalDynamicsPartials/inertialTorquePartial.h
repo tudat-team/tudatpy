@@ -29,8 +29,8 @@ class InertialTorquePartial: public TorquePartial
 public:
 
     InertialTorquePartial(
-            boost::function< Eigen::Vector3d( ) > angularVelocityFunction,
-            boost::function< Eigen::Matrix3d( ) > inertiaTensorFunction,
+            const boost::function< Eigen::Vector3d( ) > angularVelocityFunction,
+            const boost::function< Eigen::Matrix3d( ) > inertiaTensorFunction,
             const basic_astrodynamics::SingleBodyTorqueModelMap& torqueVector,
             const boost::function< double( ) > inertiaTensorNormalizationFunction,
             const std::string acceleratedBody ):

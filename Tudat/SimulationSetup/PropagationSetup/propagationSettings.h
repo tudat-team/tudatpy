@@ -837,7 +837,7 @@ public:
      */
     virtual void resetIntegratedStateModels( const simulation_setup::NamedBodyMap& bodyMap )
     {
-        torqueModelMap_ = simulation_setup::createTorqueModelsMap( bodyMap, torqueSettingsMap_ );
+        torqueModelMap_ = simulation_setup::createTorqueModelsMap( bodyMap, torqueSettingsMap_, bodiesToIntegrate_ );
     }
 
     //! Function to get the torque settings map.

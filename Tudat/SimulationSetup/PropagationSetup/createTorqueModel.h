@@ -29,6 +29,11 @@ namespace simulation_setup
 typedef std::map< std::string, std::map< std::string, std::vector< boost::shared_ptr< TorqueSettings > > > > SelectedTorqueMap;
 
 //! Function to create an aerodynamic torque model.
+boost::shared_ptr< basic_astrodynamics::InertialTorqueModel > createInertialTorqueModel(
+        const boost::shared_ptr< simulation_setup::Body > bodyUndergoingTorque,
+        const std::string& nameOfBodyUndergoingTorque );
+
+//! Function to create an aerodynamic torque model.
 /*!
  *  Function to create an aerodynamic torque model, automatically creates all required
  *  links to environment models, vehicle properies and frame conversions
@@ -107,7 +112,8 @@ boost::shared_ptr< basic_astrodynamics::TorqueModel > createTorqueModel(
  */
 basic_astrodynamics::TorqueModelMap createTorqueModelsMap(
         const NamedBodyMap& bodyMap,
-        const SelectedTorqueMap& selectedTorquePerBody );
+        SelectedTorqueMap selectedTorquePerBody,
+        const std::vector< std::string >& propagatedBodies );
 
 
 }  // namespace simulation_setup

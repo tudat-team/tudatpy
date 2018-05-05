@@ -14,7 +14,10 @@
 
 #include <vector>
 #include <map>
+#include <iostream>
+#include <iomanip>
 
+#include <boost/function.hpp>
 #include <boost/shared_ptr.hpp>
 
 #include <Eigen/Core>
@@ -80,6 +83,52 @@ protected:
 
     //! Last time at which the updateMembers was evaluated (or NaN if next call is to recompute torque).
     double currentTime_;
+
+private:
+
+};
+
+class InertialTorqueModel: public TorqueModel
+{
+public:
+
+    //! Constructor
+    InertialTorqueModel(
+            const boost::function< Eigen::Vector3d( ) > angularVelocityFunction,
+            const boost::function< Eigen::Matrix3d( ) > inertiaTensorFunction ):TorqueModel( ),
+    angularVelocityFunction_( angularVelocityFunction ),
+    inertiaTensorFunction_( inertiaTensorFunction ){ }
+
+    //! Destructor
+    ~InertialTorqueModel( ) { }
+
+    Eigen::Vector3d getTorque( )
+    {
+        return currentTorque_;
+    }
+
+    virtual void updateMembers( const double currentTime )
+    {
+        if( !( currentTime == currentTime_ ) )
+        {
+            std::cout<<std::endl;
+            std::cout<<"torque time "<<std::setprecision( 12 )<<currentTime<<std::endl;
+            std::cout<<"torque parameters "<<std::setprecision( 6 )<<angularVelocityFunction_( ).transpose( )<<std::endl<<
+                       inertiaTensorFunction_( )<<std::endl;;
+            currentTorque_ = -angularVelocityFunction_( ).cross( inertiaTensorFunction_( ) * angularVelocityFunction_( ) );
+            std::cout<<"torque "<<currentTorque_.transpose( )<<std::endl;
+            currentTime_ = currentTime;
+        }
+    }
+
+
+protected:
+
+    boost::function< Eigen::Vector3d( ) > angularVelocityFunction_;
+
+    boost::function< Eigen::Matrix3d( ) > inertiaTensorFunction_;
+
+    Eigen::Vector3d currentTorque_;
 
 private:
 

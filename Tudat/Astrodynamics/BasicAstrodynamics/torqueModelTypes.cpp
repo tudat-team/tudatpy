@@ -39,6 +39,10 @@ AvailableTorque getTorqueModelType(
     {
         torqueType = spherical_harmonic_gravitational_torque;
     }
+    else if( boost::dynamic_pointer_cast< InertialTorqueModel >( torqueModel ) != NULL )
+    {
+        torqueType = inertial_torque;
+    }
     else
     {
         std::cerr << "Error, could not identify torque type" << std::endl;
@@ -61,6 +65,9 @@ std::string getTorqueModelName( const AvailableTorque torqueType )
         break;
     case spherical_harmonic_gravitational_torque:
         torqueName = "spherical harmonic gravitational torque ";
+        break;
+    case inertial_torque:
+        torqueName = "inertial torque ";
         break;
     default:
         std::string errorMessage = "Error, torque type " +
