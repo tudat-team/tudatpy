@@ -305,9 +305,9 @@ protected:
      */
     std::vector< IndependentVariableType > independentValues_;
 
-    //! Boundary handling method.
+    //! Behavior of interpolator when independent variable is outside range.
     /*!
-     * Boundary handling method.
+     * Behavior of interpolator when independent variable is outside range.
      */
     BoundaryInterpolationType boundaryHandling_;
 

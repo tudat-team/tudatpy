@@ -61,6 +61,8 @@ public:
      *  \param specificGasConstant The constant specific gas constant of the atmosphere.
      *  \param ratioOfSpecificHeats The constant ratio of specific heats of the atmosphere.
      *  \param boundaryHandling Method for interpolation behavior when independent variable is out of range.
+     *  \param defaultExtrapolationValue Default value to be used for extrapolation, in case of use_default_value or
+     *  use_default_value_with_warning as methods for boundaryHandling.
      */
     TabulatedAtmosphere( const std::map< int, std::string >& atmosphereTableFile,
                          const std::vector< AtmosphereIndependentVariables >& independentVariablesNames = {
@@ -69,18 +71,19 @@ public:
             density_dependent_atmosphere, pressure_dependent_atmosphere, temperature_dependent_atmosphere },
                          const double specificGasConstant = physical_constants::SPECIFIC_GAS_CONSTANT_AIR,
                          const double ratioOfSpecificHeats = 1.4,
-                         const interpolators::BoundaryInterpolationType boundaryHandling =
-            interpolators::use_boundary_value_with_warning ):
-        atmosphereTableFile_( atmosphereTableFile ), dependentVariables_( dependentVariablesNames ),
-        specificGasConstant_( specificGasConstant ), ratioOfSpecificHeats_( ratioOfSpecificHeats ),
-        independentVariables_( independentVariablesNames ), boundaryHandling_( boundaryHandling )
+                         const std::vector< interpolators::BoundaryInterpolationType > boundaryHandling = { },
+                         const std::vector< double > defaultExtrapolationValue = { } ):
+        atmosphereTableFile_( atmosphereTableFile ), independentVariables_( independentVariablesNames ),
+        dependentVariables_( dependentVariablesNames ), specificGasConstant_( specificGasConstant ),
+        ratioOfSpecificHeats_( ratioOfSpecificHeats ), boundaryHandling_( boundaryHandling ),
+        defaultExtrapolationValue_( defaultExtrapolationValue )
     {
         initialize( atmosphereTableFile_ );
     }
 
-    //! Constructor.
+    //! Constructor compatible with old version.
     /*!
-     *  Constructor.
+     *  Constructor compatible with old version.
      *  \param atmosphereTableFile File containing atmospheric properties.
      *  The file name of the atmosphere table. The file should contain four columns of data,
      *  containing altitude (first column), and the associated density, pressure and density values
@@ -96,6 +99,27 @@ public:
                          const double ratioOfSpecificHeats = 1.4 ) :
         TabulatedAtmosphere( { { 0, atmosphereTableFile } }, { altitude_dependent_atmosphere },
                              dependentVariablesNames, specificGasConstant, ratioOfSpecificHeats ){ }
+
+    //! Constructor.
+    /*!
+     *  Constructor.
+     *  \param atmosphereTableFile Map of files containing information on the atmosphere. The order of both
+     *  independent and dependent parameters needs to be specified in the independentVariablesNames and
+     *  dependentVariablesNames vectors, respectively. Note that specific gas constant and specific heat ratio
+     *  will be given the default constant values for Earth, unless they are included in the file map.
+     *  \param independentVariablesNames List of independent parameters describing the atmosphere.
+     *  \param dependentVariablesNames List of dependent parameters output by the atmosphere.
+     *  \param boundaryHandling Method for interpolation behavior when independent variable is out of range.
+     *  \param defaultExtrapolationValue Default value to be used for extrapolation, in case of use_default_value or
+     *  use_default_value_with_warning as methods for boundaryHandling.
+     */
+    TabulatedAtmosphere( const std::map< int, std::string >& atmosphereTableFile,
+                         const std::vector< AtmosphereIndependentVariables >& independentVariablesNames,
+                         const std::vector< AtmosphereDependentVariables >& dependentVariablesNames,
+                         const std::vector< interpolators::BoundaryInterpolationType > boundaryHandling,
+                         const std::vector< double > defaultExtrapolationValue ) :
+        TabulatedAtmosphere( atmosphereTableFile, independentVariablesNames, dependentVariablesNames,
+                             physical_constants::SPECIFIC_GAS_CONSTANT_AIR, 1.4, boundaryHandling, defaultExtrapolationValue ){ }
 
     //! Destructor
     ~TabulatedAtmosphere( ){ }
@@ -355,6 +379,25 @@ private:
      */
     std::map< int, std::string > atmosphereTableFile_;
 
+    //! A vector of strings containing the names of the independent variables contained in the atmosphere file
+    /*!
+     * A vector of strings containing the names of the independent variables contained in the atmosphere file,
+     * in the correct order (from left, being the first entry in the vector, to the right).
+     */
+    std::vector< AtmosphereIndependentVariables > independentVariables_;
+
+    //! Vector containing the independent variables.
+    /*!
+     *  Vector containing the independent variables.
+     */
+    std::vector< std::vector< double > > independentVariablesData_;
+
+    //! Integer specifying number of independent variables.
+    /*!
+     *  Integer specifying number of independent variables.
+     */
+    int numberOfIndependentVariables_;
+
     //! A vector of strings containing the names of the variables contained in the atmosphere file
     /*!
      * A vector of strings containing the names of the variables contained in the atmosphere file,
@@ -390,60 +433,47 @@ private:
      */
     double ratioOfSpecificHeats_;
 
-    //! A vector of strings containing the names of the independent variables contained in the atmosphere file
-    /*!
-     * A vector of strings containing the names of the independent variables contained in the atmosphere file,
-     * in the correct order (from left, being the first entry in the vector, to the right).
-     */
-    std::vector< AtmosphereIndependentVariables > independentVariables_;
-
-    //! Vector containing the independent variables.
-    /*!
-     *  Vector containing the independent variables.
-     */
-    std::vector< std::vector< double > > independentVariablesData_;
-
-    //! Integer specifying number of independent variables.
-    /*!
-     *  Integer specifying number of independent variables.
-     */
-    int numberOfIndependentVariables_;
-
     //! Interpolation for density. Note that type of interpolator depends on number of independent variables specified.
     /*!
      *  Interpolation for density. Note that type of interpolator depends on number of independent variables specified.
      */
-    boost::shared_ptr< interpolators::Interpolator < double, double > > interpolationForDensity_;
+    boost::shared_ptr< interpolators::Interpolator< double, double > > interpolationForDensity_;
 
     //! Interpolation for pressure. Note that type of interpolator depends on number of independent variables specified.
     /*!
      *  Interpolation for pressure. Note that type of interpolator depends on number of independent variables specified.
      */
-    boost::shared_ptr< interpolators::Interpolator < double, double > > interpolationForPressure_;
+    boost::shared_ptr< interpolators::Interpolator< double, double > > interpolationForPressure_;
 
     //! Interpolation for temperature. Note that type of interpolator depends on number of independent variables specified.
     /*!
      *  Interpolation for temperature. Note that type of interpolator depends on number of independent variables specified.
      */
-    boost::shared_ptr< interpolators::Interpolator < double, double > > interpolationForTemperature_;
+    boost::shared_ptr< interpolators::Interpolator< double, double > > interpolationForTemperature_;
 
     //! Interpolation for specific gas constant. Note that type of interpolator depends on number of independent variables specified.
     /*!
      *  Interpolation for specific gas constant. Note that type of interpolator depends on number of independent variables specified.
      */
-    boost::shared_ptr< interpolators::Interpolator < double, double > > interpolationForGasConstant_;
+    boost::shared_ptr< interpolators::Interpolator< double, double > > interpolationForGasConstant_;
 
     //! Interpolation for ratio of specific heats. Note that type of interpolator depends on number of independent variables specified.
     /*!
      *  Interpolation for ratio of specific heats. Note that type of interpolator depends on number of independent variables specified.
      */
-    boost::shared_ptr< interpolators::Interpolator < double, double > > interpolationForSpecificHeatRatio_;
+    boost::shared_ptr< interpolators::Interpolator< double, double > > interpolationForSpecificHeatRatio_;
 
     //! Behavior of interpolator when independent variable is outside range.
     /*!
      *  Behavior of interpolator when independent variable is outside range.
      */
-    interpolators::BoundaryInterpolationType boundaryHandling_;
+    std::vector< interpolators::BoundaryInterpolationType > boundaryHandling_;
+
+    //! Default value to be used for extrapolation.
+    /*!
+     *  Default value to be used for extrapolation.
+     */
+    std::vector< double > defaultExtrapolationValue_;
 };
 
 //! Check uniqueness of input.
