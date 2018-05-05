@@ -23,9 +23,8 @@ Eigen::Vector3d evaluateRotationalEquationsOfMotion(
         const Eigen::Matrix3d& inertiaTensor, const Eigen::Vector3d& totalTorque,
         const Eigen::Vector3d& angularVelocityVector, const Eigen::Matrix3d& inertiaTensorTimeDerivative )
 {
-    return inertiaTensor.inverse( ) * ( totalTorque
-                                        - angularVelocityVector.cross( inertiaTensor * angularVelocityVector ) -
-                                        inertiaTensorTimeDerivative * angularVelocityVector );
+    std::cout<<"Derivative: "<<totalTorque.transpose( )<<std::endl<<inertiaTensor<<std::endl;
+    return inertiaTensor.inverse( ) * ( totalTorque );
 }
 
 //! Function to obtain the matrix by which a quaternion vector is to be pre-multiplied to obtain this quaternion's time-derivative=

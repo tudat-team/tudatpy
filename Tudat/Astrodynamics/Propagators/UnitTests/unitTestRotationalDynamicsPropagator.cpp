@@ -176,7 +176,7 @@ BOOST_AUTO_TEST_CASE( testSimpleRotationalDynamicsPropagation )
 
         // Create torque models
         basic_astrodynamics::TorqueModelMap torqueModelMap = createTorqueModelsMap(
-                    bodyMap, torqueMap );
+                    bodyMap, torqueMap, bodiesToIntegrate );
 
         // Define propagator settings.
         boost::shared_ptr< RotationalStatePropagatorSettings< double > > propagatorSettings =
@@ -444,7 +444,7 @@ BOOST_AUTO_TEST_CASE( testSimpleRotationalDynamicsPropagationWithObliquity )
 
     // Create torque models
     basic_astrodynamics::TorqueModelMap torqueModelMap = createTorqueModelsMap(
-                bodyMap, torqueMap );
+                bodyMap, torqueMap, bodiesToIntegrate );
 
     // Define integrator settings.
     boost::shared_ptr< numerical_integrators::IntegratorSettings< > > integratorSettings =
@@ -694,7 +694,7 @@ BOOST_AUTO_TEST_CASE( testRotationalAndTranslationalDynamicsPropagation )
         }
 
         basic_astrodynamics::TorqueModelMap torqueModelMap = createTorqueModelsMap(
-                    bodyMap, selectedTorqueModelMap );
+                    bodyMap, selectedTorqueModelMap, bodiesToPropagate );
 
         // Define list of dependent variables to save.
         std::vector< boost::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariablesList;
@@ -951,7 +951,7 @@ BOOST_AUTO_TEST_CASE( testSimpleRotationalDynamicsPropagationWithLibration )
 
         // Create torque models
         basic_astrodynamics::TorqueModelMap torqueModelMap = createTorqueModelsMap(
-                    bodyMap, torqueMap );
+                    bodyMap, torqueMap, bodiesToIntegrate );
 
         // Define integrator settings.
         boost::shared_ptr< IntegratorSettings< > > integratorSettings =
