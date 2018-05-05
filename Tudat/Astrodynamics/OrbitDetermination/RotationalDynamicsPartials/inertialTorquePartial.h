@@ -13,6 +13,9 @@
 
 #include "Tudat/Astrodynamics/Gravitation/secondDegreeGravitationalTorque.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/RotationalDynamicsPartials/torquePartial.h"
+#include "Tudat/Astrodynamics/OrbitDetermination/RotationalDynamicsPartials/inertiaTensorPartial.h"
+#include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/sphericalHarmonicCosineCoefficients.h"
+#include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/sphericalHarmonicSineCoefficients.h"
 #include "Tudat/Mathematics/BasicMathematics/linearAlgebra.h"
 
 namespace tudat
@@ -28,10 +31,14 @@ public:
     InertialTorquePartial(
             boost::function< Eigen::Vector3d( ) > angularVelocityFunction,
             boost::function< Eigen::Matrix3d( ) > inertiaTensorFunction,
+            const basic_astrodynamics::SingleBodyTorqueModelMap& torqueVector,
+            const boost::function< double( ) > inertiaTensorNormalizationFunction,
             const std::string acceleratedBody ):
         TorquePartial( acceleratedBody, acceleratedBody, basic_astrodynamics::torque_free ),
         angularVelocityFunction_( angularVelocityFunction ),
-        inertiaTensorFunction_( inertiaTensorFunction ){ }
+        inertiaTensorFunction_( inertiaTensorFunction ),
+        torqueVector_( torqueVector ),
+        getInertiaTensorNormalizationFactor_( inertiaTensorNormalizationFunction ){ }
 
     ~InertialTorquePartial( ){ }
 
@@ -59,11 +66,7 @@ public:
      *  \return Pair of parameter partial function and number of columns in partial (0 for no dependency, 1 otherwise).
      */
     std::pair< boost::function< void( Eigen::MatrixXd& ) >, int >
-    getParameterPartialFunction( boost::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter )
-    {
-        boost::function< void( Eigen::MatrixXd& ) > partialFunction;
-        return std::make_pair( partialFunction, 0 );
-    }
+    getParameterPartialFunction( boost::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter );
 
     //! Function for setting up and retrieving a function returning a partial w.r.t. a vector parameter.
     /*!
@@ -73,11 +76,7 @@ public:
      *  \return Pair of parameter partial function and number of columns in partial (0 for no dependency).
      */
     std::pair< boost::function< void( Eigen::MatrixXd& ) >, int > getParameterPartialFunction(
-            boost::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter )
-    {
-        boost::function< void( Eigen::MatrixXd& ) > partialFunction;
-        return std::make_pair( partialFunction, 0 );
-    }
+            boost::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter );
 
     void wrtOrientationOfAcceleratedBody(
             Eigen::Block< Eigen::MatrixXd > partialMatrix,
@@ -111,22 +110,53 @@ public:
         {
             currentAngularVelocityVector_ = angularVelocityFunction_( );
             currentInertiaTensor_ = inertiaTensorFunction_( );
+            currentInverseInertiaTensor_ = currentInertiaTensor_.inverse( );
 
             currentPartialDerivativeWrtAngularVelocity_ =
-                        -linear_algebra::getCrossProductMatrix( currentAngularVelocityVector_ ) * currentInertiaTensor_ +
-                        linear_algebra::getCrossProductMatrix( currentInertiaTensor_ * currentAngularVelocityVector_ );
+                    -linear_algebra::getCrossProductMatrix( currentAngularVelocityVector_ ) * currentInertiaTensor_ +
+                    linear_algebra::getCrossProductMatrix( currentInertiaTensor_ * currentAngularVelocityVector_ );
+
+            currentTotalTorque_.setZero( );
+            for( auto it = torqueVector_.begin( ); it != torqueVector_.end( ); it++ )
+            {
+                for( unsigned int i = 0; i < it->second.size( ); i++ )
+                {
+                    it->second.at( i )->updateMembers( currentTime );
+                    currentTotalTorque_ += it->second.at( i )->getTorque( );
+                }
+            }
         }
     }
 
 protected:
 
+    void wrtMeanMomentOfInertia(
+            Eigen::MatrixXd& momentOfInertiaPartial );
+
+    void wrtCosineSphericalHarmonicCoefficientsOfCentralBody(
+            Eigen::MatrixXd& sphericalHarmonicCoefficientPartial,
+            const int c20Index, const int c21Index, const int c22Index );
+
+    void wrtSineSphericalHarmonicCoefficientsOfCentralBody(
+            Eigen::MatrixXd& sphericalHarmonicCoefficientPartial,
+            const int s21Index, const int s22Index );
+
+
     boost::function< Eigen::Vector3d( ) > angularVelocityFunction_;
 
     boost::function< Eigen::Matrix3d( ) > inertiaTensorFunction_;
 
+    basic_astrodynamics::SingleBodyTorqueModelMap torqueVector_;
+
+    boost::function< double( ) > getInertiaTensorNormalizationFactor_;
+
+    Eigen::Vector3d currentTotalTorque_;
+
     Eigen::Vector3d currentAngularVelocityVector_;
 
     Eigen::Matrix3d currentInertiaTensor_;
+
+    Eigen::Matrix3d currentInverseInertiaTensor_;
 
     Eigen::Matrix3d currentPartialDerivativeWrtAngularVelocity_;
 

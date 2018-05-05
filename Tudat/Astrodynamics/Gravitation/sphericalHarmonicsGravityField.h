@@ -77,16 +77,16 @@ public:
      *  \param sineCoefficients Sine spherical harmonic coefficients (geodesy normalized)
      *  \param fixedReferenceFrame Identifier for body-fixed reference frame to which the field is fixed (optional).
      */
-    SphericalHarmonicsGravityField( const double gravitationalParameter,
-                                    const double referenceRadius,
-                                    const Eigen::MatrixXd& cosineCoefficients =
-            Eigen::MatrixXd::Identity( 1, 1 ),
-                                    const Eigen::MatrixXd& sineCoefficients =
-            Eigen::MatrixXd::Zero( 1, 1 ),
-                                    const std::string& fixedReferenceFrame = "" )
+    SphericalHarmonicsGravityField(
+            const double gravitationalParameter,
+            const double referenceRadius,
+            const Eigen::MatrixXd& cosineCoefficients = Eigen::MatrixXd::Identity( 1, 1 ),
+            const Eigen::MatrixXd& sineCoefficients = Eigen::MatrixXd::Zero( 1, 1 ),
+            const std::string& fixedReferenceFrame = "",
+            const boost::function< void( ) > updateInertiaTensor = boost::function< void( ) > ( ) )
         : GravityFieldModel( gravitationalParameter ), referenceRadius_( referenceRadius ),
           cosineCoefficients_( cosineCoefficients ), sineCoefficients_( sineCoefficients ),
-          fixedReferenceFrame_( fixedReferenceFrame )
+          fixedReferenceFrame_( fixedReferenceFrame ), updateInertiaTensor_( updateInertiaTensor )
     {
         sphericalHarmonicsCache_ = boost::make_shared< basic_mathematics::SphericalHarmonicsCache >( );
         sphericalHarmonicsCache_->resetMaximumDegreeAndOrder( cosineCoefficients_.rows( ) + 1,
@@ -137,6 +137,10 @@ public:
     void setCosineCoefficients( const Eigen::MatrixXd& cosineCoefficients )
     {
         cosineCoefficients_ = cosineCoefficients;
+        if( !updateInertiaTensor_.empty( ) )
+        {
+            updateInertiaTensor_( );
+        }
     }
 
     //! Function to reset the cosine spherical harmonic coefficients (geodesy normalized)
@@ -147,6 +151,10 @@ public:
     void setSineCoefficients( const Eigen::MatrixXd& sineCoefficients )
     {
         sineCoefficients_ = sineCoefficients;
+        if( !updateInertiaTensor_.empty( ) )
+        {
+            updateInertiaTensor_( );
+        }
     }
 
     //! Function to get a cosine spherical harmonic coefficient block (geodesy normalized)
@@ -319,6 +327,8 @@ protected:
      *  Identifier for body-fixed reference frame
      */
     std::string fixedReferenceFrame_;
+
+    boost::function< void( ) > updateInertiaTensor_;
 
     //! Cache object for potential calculations.
     boost::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache_;

@@ -8,15 +8,27 @@ namespace simulation_setup
 {
 
 boost::shared_ptr< acceleration_partials::TorquePartial > createInertialTorquePartial(
-        const std::pair< std::string, boost::shared_ptr< simulation_setup::Body > > acceleratedBody )
+        const std::pair< std::string, boost::shared_ptr< simulation_setup::Body > > acceleratedBody,
+        const basic_astrodynamics::SingleBodyTorqueModelMap& torqueVector )
 {
     boost::function< Eigen::Vector3d( ) > angularVelocityFunction =
             boost::bind( &Body::getCurrentAngularVelocityVectorInLocalFrame, acceleratedBody.second );
     boost::function< Eigen::Matrix3d( ) > inertiaTensorFunction =
             boost::bind( &Body::getBodyInertiaTensor, acceleratedBody.second );
 
+    boost::function< double( ) > inertiaTensorNormalizationFunction;
+    if( boost::dynamic_pointer_cast< gravitation::SphericalHarmonicsGravityField >( acceleratedBody.second->getGravityFieldModel( ) )
+            != NULL )
+    {
+        inertiaTensorNormalizationFunction =
+                boost::bind( &gravitation::SphericalHarmonicsGravityField::getInertiaTensorNormalizationFactor,
+                             boost::dynamic_pointer_cast< gravitation::SphericalHarmonicsGravityField >(
+                                 acceleratedBody.second->getGravityFieldModel( ) ) );
+    }
+
     return boost::make_shared< acceleration_partials::InertialTorquePartial >(
-                angularVelocityFunction, inertiaTensorFunction, acceleratedBody.first );
+                angularVelocityFunction, inertiaTensorFunction, torqueVector, inertiaTensorNormalizationFunction,
+                acceleratedBody.first );
 }
 
 } // namespace simulation_setup

@@ -229,7 +229,7 @@ public:
           currentAngularVelocityVectorInGlobalFrame_( Eigen::Vector3d::Zero( ) ),
           bodyMassFunction_( NULL ),
           bodyInertiaTensor_( Eigen::Matrix3d::Zero( ) ),
-          scaledMeanMomentOfInertia_( 0.0 )
+          scaledMeanMomentOfInertia_( TUDAT_NAN )
     {
         currentLongState_ = currentState_.cast< long double >( );
     }
@@ -1056,6 +1056,19 @@ public:
         return scaledMeanMomentOfInertia_;
     }
 
+    void setScaledMeanMomentOfInertia( const double scaledMeanMomentOfInertia )
+    {
+        double oldScaledMeanMomentOfInertia = scaledMeanMomentOfInertia_;
+        double oldMeanMomentOfInertia =
+                ( bodyInertiaTensor_( 0, 0 ) + bodyInertiaTensor_( 1, 1 ) + bodyInertiaTensor_( 2, 2 ) ) / 3.0;
+        scaledMeanMomentOfInertia_ = scaledMeanMomentOfInertia;
+        double meanMomentOfInertia = scaledMeanMomentOfInertia_/ oldScaledMeanMomentOfInertia * oldMeanMomentOfInertia;
+        bodyInertiaTensor_( 0, 0 ) += meanMomentOfInertia - oldMeanMomentOfInertia;
+        bodyInertiaTensor_( 1, 1 ) += meanMomentOfInertia - oldMeanMomentOfInertia;
+        bodyInertiaTensor_( 2, 2 ) += meanMomentOfInertia - oldMeanMomentOfInertia;
+
+    }
+
     //! Function to (re)set the body moment-of-inertia tensor.
     /*!
      * Function to (re)set the body moment-of-inertia tensor.
@@ -1094,13 +1107,17 @@ public:
         }
     }
 
-    void setBodyInertiaTensorFromGravityFieldAndExistingMeanMoment(  )
+    void setBodyInertiaTensorFromGravityFieldAndExistingMeanMoment(
+            const bool printWarningIfNotSet = true )
     {
-        if( scaledMeanMomentOfInertia_ == 0.0 )
+        if( !( scaledMeanMomentOfInertia_ == scaledMeanMomentOfInertia_ ) && printWarningIfNotSet )
         {
             std::cerr<<"Warning when setting body inertia tensor, mean moment of inertia set to zero. "<<std::endl;
         }
-        setBodyInertiaTensorFromGravityField( scaledMeanMomentOfInertia_ );
+        else if( scaledMeanMomentOfInertia_ == scaledMeanMomentOfInertia_ )
+        {
+            setBodyInertiaTensorFromGravityField( scaledMeanMomentOfInertia_ );
+        }
     }
 
     //! Function to add a ground station to the body
