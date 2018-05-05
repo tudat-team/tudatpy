@@ -281,6 +281,17 @@ boost::shared_ptr< gravitation::GravityFieldModel > createGravityFieldModel(
         }
         else
         {
+            boost::function< void( ) > inertiaTensorUpdateFunction;
+            if( bodyMap.count( body ) == 0 )
+            {
+                inertiaTensorUpdateFunction = boost::function< void( ) >( );
+            }
+            else
+            {
+                inertiaTensorUpdateFunction =
+                    boost::bind( &Body::setBodyInertiaTensorFromGravityFieldAndExistingMeanMoment, bodyMap.at( body ), false );
+            }
+
             // Check consistency of cosine and sine coefficients.
             if( ( sphericalHarmonicFieldSettings->getCosineCoefficients( ).rows( ) !=
                   sphericalHarmonicFieldSettings->getSineCoefficients( ).rows( ) ) ||
@@ -303,7 +314,8 @@ boost::shared_ptr< gravitation::GravityFieldModel > createGravityFieldModel(
                                 sphericalHarmonicFieldSettings->getReferenceRadius( ),
                                 sphericalHarmonicFieldSettings->getCosineCoefficients( ),
                                 sphericalHarmonicFieldSettings->getSineCoefficients( ),
-                                sphericalHarmonicFieldSettings->getAssociatedReferenceFrame( ) );
+                                sphericalHarmonicFieldSettings->getAssociatedReferenceFrame( ),
+                                inertiaTensorUpdateFunction );
                 }
                 else
                 {
@@ -320,7 +332,8 @@ boost::shared_ptr< gravitation::GravityFieldModel > createGravityFieldModel(
                                 sphericalHarmonicFieldSettings->getReferenceRadius( ),
                                 sphericalHarmonicFieldSettings->getCosineCoefficients( ),
                                 sphericalHarmonicFieldSettings->getSineCoefficients( ),
-                                sphericalHarmonicFieldSettings->getAssociatedReferenceFrame( ) );
+                                sphericalHarmonicFieldSettings->getAssociatedReferenceFrame( ),
+                                inertiaTensorUpdateFunction );
                 }
 
 

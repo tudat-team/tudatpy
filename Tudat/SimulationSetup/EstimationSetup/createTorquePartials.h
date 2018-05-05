@@ -30,7 +30,8 @@ namespace simulation_setup
 {
 
 boost::shared_ptr< acceleration_partials::TorquePartial > createInertialTorquePartial(
-        const std::pair< std::string, boost::shared_ptr< simulation_setup::Body > > acceleratedBody );
+        const std::pair< std::string, boost::shared_ptr< simulation_setup::Body > > acceleratedBody,
+        const basic_astrodynamics::SingleBodyTorqueModelMap& torqueVector );
 
 boost::shared_ptr< acceleration_partials::TorquePartial > createInertiaTensorTorquePartial(
         const basic_astrodynamics::SingleBodyTorqueModelMap& singleBodyTorqueMap,
@@ -170,7 +171,8 @@ orbit_determination::StateDerivativePartialsMap createTorquePartialsMap(
                     std::vector< boost::shared_ptr< orbit_determination::StateDerivativePartial > > torquePartialVector;
 
                     torquePartialVector.push_back(
-                                createInertialTorquePartial( std::make_pair( acceleratedBody, acceleratedBodyObject ) ) );
+                                createInertialTorquePartial(
+                                    std::make_pair( acceleratedBody, acceleratedBodyObject ), torqueVector ) );
                     // Iterate over all torque models and generate their partial-calculating objects.
                     for(  basic_astrodynamics::SingleBodyTorqueModelMap::iterator
                           innerTorqueIterator = torqueVector.begin( );

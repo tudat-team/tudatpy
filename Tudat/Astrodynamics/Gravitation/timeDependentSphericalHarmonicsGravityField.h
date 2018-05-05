@@ -61,10 +61,11 @@ public:
             const double gravitationalParameter, const double referenceRadius,
             const Eigen::MatrixXd& nominalCosineCoefficients,
             const Eigen::MatrixXd& nominalSineCoefficients,
-            const std::string& fixedReferenceFrame = "" ):
+            const std::string& fixedReferenceFrame = "",
+            const boost::function< void( ) > updateInertiaTensor = boost::function< void( ) > ( ) ):
         SphericalHarmonicsGravityField(
             gravitationalParameter, referenceRadius, nominalCosineCoefficients,
-            nominalSineCoefficients, fixedReferenceFrame ),
+            nominalSineCoefficients, fixedReferenceFrame, updateInertiaTensor ),
         nominalSineCoefficients_( nominalSineCoefficients ),
         nominalCosineCoefficients_( nominalCosineCoefficients )
     { }

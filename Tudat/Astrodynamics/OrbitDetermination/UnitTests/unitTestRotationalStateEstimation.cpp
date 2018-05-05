@@ -51,9 +51,18 @@ NamedBodyMap getTestBodyMap( const double phobosSemiMajorAxis,
     bodyMap[ "Mars" ] = boost::make_shared< Body >( );
     bodyMap[ "Mars" ]->setEphemeris( createBodyEphemeris(
                                          getDefaultEphemerisSettings( "Mars" ), "Mars" ) );
+    boost::shared_ptr< SphericalHarmonicsGravityFieldSettings > marsGravityFieldSettings =
+            boost::dynamic_pointer_cast< SphericalHarmonicsGravityFieldSettings >(
+                getDefaultGravityFieldSettings( "Mars", TUDAT_NAN, TUDAT_NAN ) );
+    marsGravityFieldSettings->resetGravitationalParameter( spice_interface::getBodyGravitationalParameter( "Mars" ) );
     bodyMap[ "Mars" ]->setGravityFieldModel(
-                boost::make_shared< gravitation::GravityFieldModel >(
-                    spice_interface::getBodyGravitationalParameter( "Mars" ) ) );
+                createGravityFieldModel( marsGravityFieldSettings, "Mars", bodyMap ) );
+//                boost::make_shared< gravitation::GravityFieldModel >(
+//                    spice_interface::getBodyGravitationalParameter( "Mars" ) ) );
+
+    bodyMap[ "Mars" ]->setRotationalEphemeris(
+                createRotationModel( getDefaultRotationModelSettings(
+                                         "Mars", TUDAT_NAN, TUDAT_NAN ), "Mars" ) );
 
     bodyMap[ "Earth" ] = boost::make_shared< Body >( );
     bodyMap[ "Earth" ]->setEphemeris( createBodyEphemeris(
@@ -344,6 +353,8 @@ BOOST_AUTO_TEST_CASE( test_RotationalTranslationalDynamicsEstimationFromLanderDa
     // Define acceleration model settings.
     std::map< std::string, std::vector< boost::shared_ptr< AccelerationSettings > > > accelerationsOfPhobos;
     accelerationsOfPhobos[ "Mars" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );
+    //accelerationsOfPhobos[ "Mars" ].push_back( boost::make_shared< MutualSphericalHarmonicAccelerationSettings >( 7, 7, 2, 2 ) );
+
     accelerationMap[ "Phobos" ] = accelerationsOfPhobos;
 
     translationalBodiesToPropagate.push_back( "Phobos" );
@@ -505,21 +516,21 @@ BOOST_AUTO_TEST_CASE( test_RotationalTranslationalDynamicsEstimationFromLanderDa
 
     std::cout<<( podOutput->parameterEstimate_ - truthParameters ).transpose( )<<std::endl;
 
-    input_output::writeMatrixToFile( podOutput->normalizedInformationMatrix_,
-                                     "rotationInformationMatrix.dat", 16 );
-    input_output::writeMatrixToFile( podOutput->getCorrelationMatrix( ),
-                                     "rotationCorrelations.dat", 16 );
-    input_output::writeMatrixToFile( podOutput->inverseNormalizedCovarianceMatrix_,
-                                     "rotationInverseNormalizedCovariance.dat", 16 );
-    input_output::writeMatrixToFile( podOutput->getFormalErrorVector( ),
-                                     "rotationFormalEstimationError.dat", 16 );
-    input_output::writeMatrixToFile( truthParameters,
-                                     "rotationTruthParameters.dat", 16 );
-    input_output::writeMatrixToFile( podOutput->residuals_,
-                                     "rotationResiduals.dat", 16 );
-    input_output::writeMatrixToFile( podOutput->informationMatrixTransformationDiagonal_,
-                                     "rotationParameterNormalization.dat", 16 );
-    //    input_output::writeMatrixToFile( podOutput->norm
+//    input_output::writeMatrixToFile( podOutput->normalizedInformationMatrix_,
+//                                     "rotationInformationMatrix.dat", 16 );
+//    input_output::writeMatrixToFile( podOutput->getCorrelationMatrix( ),
+//                                     "rotationCorrelations.dat", 16 );
+//    input_output::writeMatrixToFile( podOutput->inverseNormalizedCovarianceMatrix_,
+//                                     "rotationInverseNormalizedCovariance.dat", 16 );
+//    input_output::writeMatrixToFile( podOutput->getFormalErrorVector( ),
+//                                     "rotationFormalEstimationError.dat", 16 );
+//    input_output::writeMatrixToFile( truthParameters,
+//                                     "rotationTruthParameters.dat", 16 );
+//    input_output::writeMatrixToFile( podOutput->residuals_,
+//                                     "rotationResiduals.dat", 16 );
+//    input_output::writeMatrixToFile( podOutput->informationMatrixTransformationDiagonal_,
+//                                     "rotationParameterNormalization.dat", 16 );
+
 }
 
 BOOST_AUTO_TEST_SUITE_END( )
