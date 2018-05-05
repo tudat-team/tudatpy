@@ -111,12 +111,7 @@ public:
     {
         if( !( currentTime == currentTime_ ) )
         {
-            std::cout<<std::endl;
-            std::cout<<"torque time "<<std::setprecision( 12 )<<currentTime<<std::endl;
-            std::cout<<"torque parameters "<<std::setprecision( 6 )<<angularVelocityFunction_( ).transpose( )<<std::endl<<
-                       inertiaTensorFunction_( )<<std::endl;;
             currentTorque_ = -angularVelocityFunction_( ).cross( inertiaTensorFunction_( ) * angularVelocityFunction_( ) );
-            std::cout<<"torque "<<currentTorque_.transpose( )<<std::endl;
             currentTime_ = currentTime;
         }
     }

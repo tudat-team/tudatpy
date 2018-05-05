@@ -23,7 +23,6 @@ Eigen::Vector3d evaluateRotationalEquationsOfMotion(
         const Eigen::Matrix3d& inertiaTensor, const Eigen::Vector3d& totalTorque,
         const Eigen::Vector3d& angularVelocityVector, const Eigen::Matrix3d& inertiaTensorTimeDerivative )
 {
-    std::cout<<"Derivative: "<<totalTorque.transpose( )<<std::endl<<inertiaTensor<<std::endl;
     return inertiaTensor.inverse( ) * ( totalTorque );
 }
 

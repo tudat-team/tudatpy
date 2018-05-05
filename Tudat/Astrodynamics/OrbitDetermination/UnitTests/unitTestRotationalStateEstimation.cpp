@@ -173,7 +173,7 @@ BOOST_AUTO_TEST_CASE( test_RotationalDynamicsEstimationFromLanderData )
 
     // Create torque models
     basic_astrodynamics::TorqueModelMap torqueModelMap = createTorqueModelsMap(
-                bodyMap, torqueMap );
+                bodyMap, torqueMap, bodiesToIntegrate );
 
     // Define integrator settings.
     boost::shared_ptr< IntegratorSettings< > > integratorSettings =
@@ -343,7 +343,7 @@ BOOST_AUTO_TEST_CASE( test_RotationalTranslationalDynamicsEstimationFromLanderDa
 
     // Create torque models
     basic_astrodynamics::TorqueModelMap torqueModelMap = createTorqueModelsMap(
-                bodyMap, torqueMap );
+                bodyMap, torqueMap, bodiesToIntegrate );
 
     // Define propagator settings variables.
     SelectedAccelerationMap accelerationMap;
