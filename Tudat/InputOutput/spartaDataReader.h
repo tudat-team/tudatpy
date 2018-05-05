@@ -85,7 +85,7 @@ readSpartaGeometryFile( const std::string& geometryFile )
             {
                 if ( vectorOfIndividualStrings.size( ) != 2 )
                 {
-                    throw std::runtime_error( "Error when reading multi-array, expected number of points." );
+                    throw std::runtime_error( "Error when reading SPARTA geometry file, expected number of points." );
                 }
                 numberOfPoints = std::stoi( vectorOfIndividualStrings.at( 0 ) );
                 isNumberOfPointsPassed = true;
@@ -95,7 +95,7 @@ readSpartaGeometryFile( const std::string& geometryFile )
             {
                 if ( vectorOfIndividualStrings.size( ) != 2 )
                 {
-                    throw std::runtime_error( "Error when reading multi-array, expected number of triangles." );
+                    throw std::runtime_error( "Error when reading SPARTA geometry file, expected number of triangles." );
                 }
                 numberOfTriangles = std::stoi( vectorOfIndividualStrings.at( 0 ) );
                 isNumberOfTrianglesPassed = true;

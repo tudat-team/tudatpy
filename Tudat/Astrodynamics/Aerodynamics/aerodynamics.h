@@ -497,7 +497,7 @@ double computeAdiabaticWallTemperature(
  * \param Surface area of element.
  * \param Reference aerodynamic area of vehicle.
  */
-Eigen::Vector6d computeAerodynamicCoefficientsFromPressureShear(
+Eigen::Vector6d computeAerodynamicCoefficientsFromPressureShearForces(
         const Eigen::Matrix< double, 3, Eigen::Dynamic > pressureForceVector,
         const Eigen::Matrix< double, 3, Eigen::Dynamic > shearStressVector,
         const double airDensity,

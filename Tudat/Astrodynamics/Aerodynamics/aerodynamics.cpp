@@ -569,7 +569,7 @@ double computeAdiabaticWallTemperature(
 }
 
 //! Compute the aerodynamic coefficients from pressure and shear stress acting on element
-Eigen::Vector6d computeAerodynamicCoefficientsFromPressureShear(
+Eigen::Vector6d computeAerodynamicCoefficientsFromPressureShearForces(
         const Eigen::Matrix< double, 3, Eigen::Dynamic > pressureForceVector,
         const Eigen::Matrix< double, 3, Eigen::Dynamic > shearStressVector,
         const double airDensity,

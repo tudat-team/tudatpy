@@ -119,7 +119,7 @@ void writeMultiArrayAndIndependentVariablesToFiles( const std::map< int, std::st
                         }
                         fprintf( fileIdentifier, "\n" );
                     }
-                    fprintf( fileIdentifier, "\n\n" );
+                    fprintf( fileIdentifier, "\n" );
                 }
                 break;
             }
@@ -130,8 +130,8 @@ void writeMultiArrayAndIndependentVariablesToFiles( const std::map< int, std::st
 
             // Close file
             std::fclose( fileIdentifier );
-            break;
         }
+        break;
     }
     }
 }

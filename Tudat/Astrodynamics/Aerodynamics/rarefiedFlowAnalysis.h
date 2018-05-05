@@ -276,7 +276,7 @@ private:
     //! List of time steps for the simulation for each altitude and Mach number.
     Eigen::Matrix< double, Eigen::Dynamic, Eigen::Dynamic > simulationTimeStep_;
 
-    //! List of ratio of real-to-simulated particles for each altitude.
+    //! List of ratios of real-to-simulated particles for each altitude.
     Eigen::Matrix< double, Eigen::Dynamic, 1 > ratioOfRealToSimulatedParticles_;
 
     //! String containing the template of the input file for the SPARTA simulation.
