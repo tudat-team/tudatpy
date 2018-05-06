@@ -112,6 +112,9 @@ public:
      *  \param referenceAxis Index of main axis of the vehicle (i.e., axis opposite in direction to
      *          incoming flow, when angles of attack and sideslip are zero).
      *  \param momentReferencePoint Reference point wrt which aerodynamic moments are calculated.
+     *  \param gridSpacing Grid size for simulation environment, used to define the size of each cell, and
+     *          the number of cells in the environment.
+     *  \param simulatedParticlesPerCell Number of simulated particles per cell.
      *  \param wallTemperature Temperature of the surface of the vehicle (default value is 300 K [3]).
      *  \param accommodationCoefficient Accommodation coefficient of the surface of the vehicle. This
      *          value indicates the degree of diffusivity during molecular-surface collisions (default value
@@ -134,7 +137,7 @@ public:
 
     //! Default destructor.
     /*!
-     * Default destructor.
+     *  Default destructor.
      */
     ~RarefiedFlowAnalysis( ) { }
 
