@@ -9,8 +9,7 @@
  */
 
 
-#include "Tudat/Astrodynamics/OrbitDetermination/RotationalDynamicsPartials/inertialTorquePartial.h"
-#include "Tudat/Mathematics/BasicMathematics/legendrePolynomials.h"
+#include "Tudat/Astrodynamics/OrbitDetermination/RotationalDynamicsPartials/constantTorquePartial.h"
 
 namespace tudat
 {
@@ -19,7 +18,7 @@ namespace acceleration_partials
 {
 
 std::pair< boost::function< void( Eigen::MatrixXd& ) >, int >
-InertialTorquePartial::getParameterPartialFunction( boost::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter )
+ConstantTorquePartial::getParameterPartialFunction( boost::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter )
 {
     using namespace estimatable_parameters;
 
@@ -32,13 +31,8 @@ InertialTorquePartial::getParameterPartialFunction( boost::shared_ptr< estimatab
         {
         case mean_moment_of_inertia:
         {
-            if( getInertiaTensorNormalizationFactor_.empty( ) )
-            {
-                throw std::runtime_error( "Error when getting partial of inertial torque w.r.t. mean moment of inertia, inertia tensor normalization function not found." );
-            }
             partialFunction = std::make_pair(
-                        boost::bind( &InertialTorquePartial::wrtMeanMomentOfInertia, this, _1 ), 1 );
-
+                        boost::bind( &ConstantTorquePartial::wrtMeanMomentOfInertia, this, _1 ), 1 );
             break;
         }
         default:
@@ -56,7 +50,7 @@ InertialTorquePartial::getParameterPartialFunction( boost::shared_ptr< estimatab
      *  \param parameter Parameter w.r.t. which partial is to be taken.
      *  \return Pair of parameter partial function and number of columns in partial (0 for no dependency).
      */
-std::pair< boost::function< void( Eigen::MatrixXd& ) >, int > InertialTorquePartial::getParameterPartialFunction(
+std::pair< boost::function< void( Eigen::MatrixXd& ) >, int > ConstantTorquePartial::getParameterPartialFunction(
         boost::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter )
 {
     using namespace estimatable_parameters;
@@ -81,10 +75,10 @@ std::pair< boost::function< void( Eigen::MatrixXd& ) >, int > InertialTorquePart
             {
                 if( getInertiaTensorNormalizationFactor_.empty( ) )
                 {
-                    throw std::runtime_error( "Error when getting partial of inertial torque w.r.t. cosine sh parameters, inertia tensor normalization function not found." );
+                    throw std::runtime_error( "Error when getting partial of 2nd degree grac torque w.r.t. cosine sh parameters, inertia tensor normalization function not found." );
                 }
                 partialFunction = std::make_pair(
-                            boost::bind( &InertialTorquePartial::
+                            boost::bind( &ConstantTorquePartial::
                                          wrtCosineSphericalHarmonicCoefficientsOfCentralBody, this,
                                          _1, c20Index, c21Index, c22Index ), coefficientsParameter->getParameterSize( ) );
             }
@@ -105,10 +99,10 @@ std::pair< boost::function< void( Eigen::MatrixXd& ) >, int > InertialTorquePart
             {
                 if( getInertiaTensorNormalizationFactor_.empty( ) )
                 {
-                    throw std::runtime_error( "Error when getting partial of inertial torque w.r.t. sine sh parameters, inertia tensor normalization function not found." );
+                    throw std::runtime_error( "Error when getting partial of 2nd degree grac torque w.r.t. sine sh parameters, inertia tensor normalization function not found." );
                 }
                 partialFunction = std::make_pair(
-                            boost::bind( &InertialTorquePartial::
+                            boost::bind( &ConstantTorquePartial::
                                          wrtSineSphericalHarmonicCoefficientsOfCentralBody, this,
                                          _1, s21Index, s22Index ), coefficientsParameter->getParameterSize( ) );
             }
@@ -123,15 +117,15 @@ std::pair< boost::function< void( Eigen::MatrixXd& ) >, int > InertialTorquePart
     return partialFunction;
 }
 
-void InertialTorquePartial::wrtMeanMomentOfInertia(
+void ConstantTorquePartial::wrtMeanMomentOfInertia(
         Eigen::MatrixXd& momentOfInertiaPartial )
 {
-    momentOfInertiaPartial .block( 0, 0, 3, 1 ) =
-            - currentAngularVelocityCrossProductMatrix_ * currentInertiaTensorNormalizationFactor_ *
-            UNSCALED_INERTIAL_TENSOR_PARTIAL_WRT_MEAN_MOMENT * currentAngularVelocityVector_;
+    momentOfInertiaPartial .block( 0, 1, 3, 1 ) =
+            currentInertiaTensorNormalizationFactor_ * UNSCALED_INERTIAL_TENSOR_PARTIAL_WRT_MEAN_MOMENT *
+            currentInverseInertiaTensor_* currentTotalTorque_;
 }
 
-void InertialTorquePartial::wrtCosineSphericalHarmonicCoefficientsOfCentralBody(
+void ConstantTorquePartial::wrtCosineSphericalHarmonicCoefficientsOfCentralBody(
         Eigen::MatrixXd& sphericalHarmonicCoefficientPartial,
         const int c20Index, const int c21Index, const int c22Index )
 {
@@ -140,29 +134,29 @@ void InertialTorquePartial::wrtCosineSphericalHarmonicCoefficientsOfCentralBody(
     if( c20Index >= 0 )
     {
         sphericalHarmonicCoefficientPartial .block( 0, c20Index, 3, 1 ) =
-                - basic_mathematics::calculateLegendreGeodesyNormalizationFactor( 2, 0 ) *
-                currentAngularVelocityCrossProductMatrix_ * currentInertiaTensorNormalizationFactor_ *
-                UNSCALED_INERTIAL_TENSOR_PARTIAL_WRT_C20 * currentAngularVelocityVector_;
+                basic_mathematics::calculateLegendreGeodesyNormalizationFactor( 2, 0 ) *
+                currentInertiaTensorNormalizationFactor_ *  UNSCALED_INERTIAL_TENSOR_PARTIAL_WRT_C20 *
+                currentInverseInertiaTensor_* currentTotalTorque_;
     }
 
     if( c21Index >= 0 )
     {
         sphericalHarmonicCoefficientPartial .block( 0, c21Index, 3, 1 ) =
-                - basic_mathematics::calculateLegendreGeodesyNormalizationFactor( 2, 1 ) *
-                currentAngularVelocityCrossProductMatrix_ * currentInertiaTensorNormalizationFactor_ *
-                UNSCALED_INERTIAL_TENSOR_PARTIAL_WRT_C21 * currentAngularVelocityVector_;
+                basic_mathematics::calculateLegendreGeodesyNormalizationFactor( 2, 1 ) *
+                currentInertiaTensorNormalizationFactor_ * UNSCALED_INERTIAL_TENSOR_PARTIAL_WRT_C21 *
+                currentInverseInertiaTensor_* currentTotalTorque_;
     }
 
     if( c22Index >= 0 )
     {
         sphericalHarmonicCoefficientPartial .block( 0, c22Index, 3, 1 ) =
-                - basic_mathematics::calculateLegendreGeodesyNormalizationFactor( 2, 2 ) *
-                currentAngularVelocityCrossProductMatrix_ * currentInertiaTensorNormalizationFactor_ *
-                UNSCALED_INERTIAL_TENSOR_PARTIAL_WRT_C22 * currentAngularVelocityVector_;
+                basic_mathematics::calculateLegendreGeodesyNormalizationFactor( 2, 2 ) *
+                currentInertiaTensorNormalizationFactor_ * UNSCALED_INERTIAL_TENSOR_PARTIAL_WRT_C22 *
+                currentInverseInertiaTensor_* currentTotalTorque_;
     }
 }
 
-void InertialTorquePartial::wrtSineSphericalHarmonicCoefficientsOfCentralBody(
+void ConstantTorquePartial::wrtSineSphericalHarmonicCoefficientsOfCentralBody(
         Eigen::MatrixXd& sphericalHarmonicCoefficientPartial,
         const int s21Index, const int s22Index )
 {
@@ -171,17 +165,17 @@ void InertialTorquePartial::wrtSineSphericalHarmonicCoefficientsOfCentralBody(
     if( s21Index >= 0 )
     {
         sphericalHarmonicCoefficientPartial .block( 0, s21Index, 3, 1 ) =
-                - basic_mathematics::calculateLegendreGeodesyNormalizationFactor( 2, 1 ) *
-                currentAngularVelocityCrossProductMatrix_ * currentInertiaTensorNormalizationFactor_ *
-                UNSCALED_INERTIAL_TENSOR_PARTIAL_WRT_S21 * currentAngularVelocityVector_;
+                basic_mathematics::calculateLegendreGeodesyNormalizationFactor( 2, 1 ) *
+                currentInertiaTensorNormalizationFactor_ * UNSCALED_INERTIAL_TENSOR_PARTIAL_WRT_S21 *
+                currentInverseInertiaTensor_* currentTotalTorque_;
     }
 
     if( s22Index >= 0 )
     {
         sphericalHarmonicCoefficientPartial .block( 0, s22Index, 3, 1 ) =
-                - basic_mathematics::calculateLegendreGeodesyNormalizationFactor( 2, 2 ) *
-                currentAngularVelocityCrossProductMatrix_ * currentInertiaTensorNormalizationFactor_ *
-                UNSCALED_INERTIAL_TENSOR_PARTIAL_WRT_S22 * currentAngularVelocityVector_;
+                basic_mathematics::calculateLegendreGeodesyNormalizationFactor( 2, 2 ) *
+                currentInertiaTensorNormalizationFactor_ * UNSCALED_INERTIAL_TENSOR_PARTIAL_WRT_S22 *
+                currentInverseInertiaTensor_* currentTotalTorque_;
     }
 }
 

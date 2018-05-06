@@ -93,6 +93,9 @@ std::string getParameterTypeString( const EstimatebleParametersEnum parameterTyp
     case direct_dissipation_tidal_time_lag:
         parameterDescription = " direct tidal time-lag ";
         break;
+    case mean_moment_of_inertia:
+        parameterDescription = " mean moment of inertia ";
+        break;
     default:
         std::string errorMessage = "Error when getting parameter string, did not recognize parameter " +
                 std::to_string( parameterType );
@@ -190,6 +193,9 @@ bool isDoubleParameter( const EstimatebleParametersEnum parameterType )
           isDoubleParameter = false;
           break;
     case direct_dissipation_tidal_time_lag:
+         isDoubleParameter = true;
+        break;
+    case mean_moment_of_inertia:
          isDoubleParameter = true;
         break;
     default:
