@@ -612,6 +612,8 @@ Eigen::Vector6d computeAerodynamicCoefficientsFromPressureShearForces(
     {
         aerodynamicCoefficients( i ) = temporaryMatrix.row( i ).dot( elementSurfaceArea ) / referenceAerodynamicLength;
     }
+
+    // Return coefficients
     aerodynamicCoefficients /= - referenceAerodynamicArea;
     return aerodynamicCoefficients;
 }

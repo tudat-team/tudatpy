@@ -36,7 +36,7 @@ namespace aerodynamics
 using namespace unit_conversions;
 using namespace input_output;
 
-//! Returns default values of molecular speed ratio for use in RarefiedFlowAnalysis.
+//! Returns default values of altitude for use in RarefiedFlowAnalysis.
 std::vector< double > getDefaultRarefiedFlowAltitudePoints(
         const std::string& targetPlanet )
 {
