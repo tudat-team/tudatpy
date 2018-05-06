@@ -8,8 +8,8 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#ifndef TUDAT_INERTIALTORQUEPARTIALS_H
-#define TUDAT_INERTIALTORQUEPARTIALS_H
+#ifndef TUDAT_CONSTANTTORQUEPARTIALS_H
+#define TUDAT_CONSTANTTORQUEPARTIALS_H
 
 #include "Tudat/Astrodynamics/Gravitation/secondDegreeGravitationalTorque.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/RotationalDynamicsPartials/torquePartial.h"
@@ -24,21 +24,23 @@ namespace tudat
 namespace acceleration_partials
 {
 
-class InertialTorquePartial: public TorquePartial
+class ConstantTorquePartial: public TorquePartial
 {
 public:
 
-    InertialTorquePartial(
+    ConstantTorquePartial(
             const boost::function< Eigen::Vector3d( ) > angularVelocityFunction,
             const boost::function< Eigen::Matrix3d( ) > inertiaTensorFunction,
             const boost::function< double( ) > inertiaTensorNormalizationFunction,
+            const basic_astrodynamics::SingleBodyTorqueModelMap& torqueVector,
             const std::string acceleratedBody ):
         TorquePartial( acceleratedBody, acceleratedBody, basic_astrodynamics::torque_free ),
         angularVelocityFunction_( angularVelocityFunction ),
         inertiaTensorFunction_( inertiaTensorFunction ),
+        torqueVector_( torqueVector ),
         getInertiaTensorNormalizationFactor_( inertiaTensorNormalizationFunction ){ }
 
-    ~InertialTorquePartial( ){ }
+    ~ConstantTorquePartial( ){ }
 
     //! Function for determining if the acceleration is dependent on a non-rotational integrated state.
     /*!
@@ -84,16 +86,7 @@ public:
     void wrtRotationalVelocityOfAcceleratedBody(
             Eigen::Block< Eigen::MatrixXd > partialMatrix,
             const bool addContribution = 1, const int startRow = 0, const int startColumn = 3 )
-    {
-        if( addContribution )
-        {
-            partialMatrix.block( startRow, startColumn, 3, 3 ) += currentPartialDerivativeWrtAngularVelocity_;
-        }
-        else
-        {
-            partialMatrix.block( startRow, startColumn, 3, 3 ) -= currentPartialDerivativeWrtAngularVelocity_;
-        }
-    }
+    { }
 
     bool isStateDerivativeDependentOnIntegratedAdditionalStateTypes(
             const std::pair< std::string, std::string >& stateReferencePoint,
@@ -106,16 +99,18 @@ public:
     {
         if( !( currentTime_ == currentTime ) )
         {
-            currentAngularVelocityVector_ = angularVelocityFunction_( );
-            currentAngularVelocityCrossProductMatrix_ = linear_algebra::getCrossProductMatrix(
-                        currentAngularVelocityVector_ );
-            currentInertiaTensorNormalizationFactor_ = getInertiaTensorNormalizationFactor_( );
             currentInertiaTensor_ = inertiaTensorFunction_( );
             currentInverseInertiaTensor_ = currentInertiaTensor_.inverse( );
 
-            currentPartialDerivativeWrtAngularVelocity_ =
-                    -linear_algebra::getCrossProductMatrix( currentAngularVelocityVector_ ) * currentInertiaTensor_ +
-                    linear_algebra::getCrossProductMatrix( currentInertiaTensor_ * currentAngularVelocityVector_ );
+            currentTotalTorque_.setZero( );
+            for( auto it = torqueVector_.begin( ); it != torqueVector_.end( ); it++ )
+            {
+                for( unsigned int i = 0; i < it->second.size( ); i++ )
+                {
+                    it->second.at( i )->updateMembers( currentTime );
+                    currentTotalTorque_ += it->second.at( i )->getTorque( );
+                }
+            }
         }
     }
 
@@ -137,11 +132,13 @@ protected:
 
     boost::function< Eigen::Matrix3d( ) > inertiaTensorFunction_;
 
+    basic_astrodynamics::SingleBodyTorqueModelMap torqueVector_;
+
     boost::function< double( ) > getInertiaTensorNormalizationFactor_;
 
-    Eigen::Vector3d currentAngularVelocityVector_;
+    Eigen::Vector3d currentTotalTorque_;
 
-    Eigen::Matrix3d currentAngularVelocityCrossProductMatrix_;
+    Eigen::Vector3d currentAngularVelocityVector_;
 
     Eigen::Matrix3d currentInertiaTensor_;
 
@@ -157,4 +154,4 @@ protected:
 
 } // namespace tudat
 
-#endif // TUDAT_INERTIALTORQUEPARTIALS_H
+#endif // TUDAT_CONSTANTTORQUEPARTIALS_H

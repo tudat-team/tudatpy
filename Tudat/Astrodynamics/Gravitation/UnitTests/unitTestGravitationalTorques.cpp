@@ -131,7 +131,7 @@ BOOST_AUTO_TEST_CASE( testDegreeTwoGravitationalTorque )
                     boost::make_shared< TorqueSettings >( second_order_gravitational_torque ) );
 
         basic_astrodynamics::TorqueModelMap torqueModelMap = createTorqueModelsMap(
-                    bodyMap, selectedTorqueModelMap );
+                    bodyMap, selectedTorqueModelMap, { "Moon" } );
 
         boost::shared_ptr< TorqueModel > secondDegreeGravitationalTorque =
                 torqueModelMap.at( "Moon" ).at( "Earth" ).at( 0 );
@@ -262,7 +262,7 @@ BOOST_AUTO_TEST_CASE( testSphericalGravitationalTorque )
                     boost::make_shared< SphericalHarmonicTorqueSettings >( 2, 2 ) );
 
         basic_astrodynamics::TorqueModelMap torqueModelMap = createTorqueModelsMap(
-                    bodyMap, selectedTorqueModelMap );
+                    bodyMap, selectedTorqueModelMap, { "Moon" } );
 
         boost::shared_ptr< TorqueModel > secondDegreeGravitationalTorque =
                 torqueModelMap.at( "Moon" ).at( "Earth" ).at( 0 );

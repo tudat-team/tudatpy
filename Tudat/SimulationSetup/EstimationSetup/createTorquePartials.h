@@ -29,13 +29,9 @@ namespace tudat
 namespace simulation_setup
 {
 
-boost::shared_ptr< acceleration_partials::TorquePartial > createInertialTorquePartial(
+boost::shared_ptr< acceleration_partials::TorquePartial > createConstantTorqueRotationalDynamicsPartial(
         const std::pair< std::string, boost::shared_ptr< simulation_setup::Body > > acceleratedBody,
         const basic_astrodynamics::SingleBodyTorqueModelMap& torqueVector );
-
-boost::shared_ptr< acceleration_partials::TorquePartial > createInertiaTensorTorquePartial(
-        const basic_astrodynamics::SingleBodyTorqueModelMap& singleBodyTorqueMap,
-        const std::pair< std::string, boost::shared_ptr< simulation_setup::Body > > acceleratedBody );
 
 //! Function to create a single torque partial derivative object.
 /*!
@@ -132,7 +128,7 @@ boost::shared_ptr< acceleration_partials::TorquePartial > createAnalyticalTorque
         }
 
         torquePartial = boost::make_shared< acceleration_partials::InertialTorquePartial >(
-                    angularVelocityFunction, inertiaTensorFunction, torqueVector, inertiaTensorNormalizationFunction,
+                    angularVelocityFunction, inertiaTensorFunction, inertiaTensorNormalizationFunction,
                     acceleratedBody.first );
         break;
     }
@@ -192,10 +188,10 @@ orbit_determination::StateDerivativePartialsMap createTorquePartialsMap(
 
                     // Declare list of torque partials of current body.
                     std::vector< boost::shared_ptr< orbit_determination::StateDerivativePartial > > torquePartialVector;
+                    torquePartialVector.push_back( createConstantTorqueRotationalDynamicsPartial(
+                                                      std::make_pair( acceleratedBody, acceleratedBodyObject ),
+                                                       torqueVector ) );
 
-//                    torquePartialVector.push_back(
-//                                createInertialTorquePartial(
-//                                    std::make_pair( acceleratedBody, acceleratedBodyObject ), torqueVector ) );
                     // Iterate over all torque models and generate their partial-calculating objects.
                     for(  basic_astrodynamics::SingleBodyTorqueModelMap::iterator
                           innerTorqueIterator = torqueVector.begin( );
