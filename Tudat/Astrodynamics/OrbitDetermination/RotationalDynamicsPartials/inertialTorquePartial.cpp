@@ -30,6 +30,17 @@ InertialTorquePartial::getParameterPartialFunction( boost::shared_ptr< estimatab
     {
         switch( parameter->getParameterName( ).first )
         {
+        case gravitational_parameter:
+        {
+            if( bodyGravitationalParameterFunction_.empty( ) )
+            {
+                throw std::runtime_error( "Error when getting partial of inertial torque w.r.t. gravitational parameter, gravitational parameter function not found." );
+            }
+            partialFunction = std::make_pair(
+                        boost::bind( &InertialTorquePartial::wrtGravitationalParameter, this, _1 ), 1 );
+
+            break;
+        }
         case mean_moment_of_inertia:
         {
             if( getInertiaTensorNormalizationFactor_.empty( ) )
@@ -130,6 +141,15 @@ void InertialTorquePartial::wrtMeanMomentOfInertia(
             - currentAngularVelocityCrossProductMatrix_ * currentInertiaTensorNormalizationFactor_ *
             UNSCALED_INERTIAL_TENSOR_PARTIAL_WRT_MEAN_MOMENT * currentAngularVelocityVector_;
 }
+
+void InertialTorquePartial::wrtGravitationalParameter(
+        Eigen::MatrixXd& momentOfInertiaPartial )
+{
+    momentOfInertiaPartial .block( 0, 0, 3, 1 ) =
+            - currentAngularVelocityCrossProductMatrix_ * currentInertiaTensor_ * currentAngularVelocityVector_ /
+            currentGravitationalParameter_ ;
+}
+
 
 void InertialTorquePartial::wrtCosineSphericalHarmonicCoefficientsOfCentralBody(
         Eigen::MatrixXd& sphericalHarmonicCoefficientPartial,

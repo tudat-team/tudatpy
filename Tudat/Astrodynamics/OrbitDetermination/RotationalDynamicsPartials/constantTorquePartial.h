@@ -32,13 +32,15 @@ public:
             const boost::function< Eigen::Vector3d( ) > angularVelocityFunction,
             const boost::function< Eigen::Matrix3d( ) > inertiaTensorFunction,
             const boost::function< double( ) > inertiaTensorNormalizationFunction,
+            const boost::function< double( ) > bodyGravitationalParameterFunction,
             const basic_astrodynamics::SingleBodyTorqueModelMap& torqueVector,
             const std::string acceleratedBody ):
         TorquePartial( acceleratedBody, acceleratedBody, basic_astrodynamics::torque_free ),
         angularVelocityFunction_( angularVelocityFunction ),
         inertiaTensorFunction_( inertiaTensorFunction ),
         torqueVector_( torqueVector ),
-        getInertiaTensorNormalizationFactor_( inertiaTensorNormalizationFunction ){ }
+        getInertiaTensorNormalizationFactor_( inertiaTensorNormalizationFunction ),
+        bodyGravitationalParameterFunction_( bodyGravitationalParameterFunction ){ }
 
     ~ConstantTorquePartial( ){ }
 
@@ -119,6 +121,9 @@ protected:
     void wrtMeanMomentOfInertia(
             Eigen::MatrixXd& momentOfInertiaPartial );
 
+    void wrtGravitationalParameter(
+            Eigen::MatrixXd& momentOfInertiaPartial );
+
     void wrtCosineSphericalHarmonicCoefficientsOfCentralBody(
             Eigen::MatrixXd& sphericalHarmonicCoefficientPartial,
             const int c20Index, const int c21Index, const int c22Index );
@@ -135,6 +140,8 @@ protected:
     basic_astrodynamics::SingleBodyTorqueModelMap torqueVector_;
 
     boost::function< double( ) > getInertiaTensorNormalizationFactor_;
+
+    boost::function< double( ) > bodyGravitationalParameterFunction_;
 
     Eigen::Vector3d currentTotalTorque_;
 

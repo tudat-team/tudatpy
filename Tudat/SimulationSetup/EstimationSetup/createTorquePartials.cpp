@@ -26,9 +26,17 @@ boost::shared_ptr< acceleration_partials::TorquePartial > createConstantTorqueRo
                                  acceleratedBody.second->getGravityFieldModel( ) ) );
     }
 
+    boost::function< double( ) > gravitationalParameterFunction;
+    if( acceleratedBody.second->getGravityFieldModel( ) != NULL )
+    {
+        gravitationalParameterFunction =
+                boost::bind( &gravitation::GravityFieldModel::getGravitationalParameter,
+                             acceleratedBody.second->getGravityFieldModel( ) );
+    }
+
     return boost::make_shared< acceleration_partials::ConstantTorquePartial >(
-                angularVelocityFunction, inertiaTensorFunction, inertiaTensorNormalizationFunction, torqueVector,
-                acceleratedBody.first );
+                angularVelocityFunction, inertiaTensorFunction, inertiaTensorNormalizationFunction, gravitationalParameterFunction,
+                torqueVector, acceleratedBody.first );
 }
 
 } // namespace simulation_setup
