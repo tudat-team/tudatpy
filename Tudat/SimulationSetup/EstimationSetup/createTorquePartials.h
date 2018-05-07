@@ -117,6 +117,14 @@ boost::shared_ptr< acceleration_partials::TorquePartial > createAnalyticalTorque
         boost::function< Eigen::Matrix3d( ) > inertiaTensorFunction =
                 boost::bind( &Body::getBodyInertiaTensor, acceleratedBody.second );
 
+        boost::function< double( ) > gravitationalParameterFunction;
+        if( acceleratedBody.second->getGravityFieldModel( ) != NULL )
+        {
+            gravitationalParameterFunction =
+                    boost::bind( &gravitation::GravityFieldModel::getGravitationalParameter,
+                                 acceleratedBody.second->getGravityFieldModel( ) );
+        }
+
         boost::function< double( ) > inertiaTensorNormalizationFunction;
         if( boost::dynamic_pointer_cast< gravitation::SphericalHarmonicsGravityField >( acceleratedBody.second->getGravityFieldModel( ) )
                 != NULL )
@@ -129,7 +137,7 @@ boost::shared_ptr< acceleration_partials::TorquePartial > createAnalyticalTorque
 
         torquePartial = boost::make_shared< acceleration_partials::InertialTorquePartial >(
                     angularVelocityFunction, inertiaTensorFunction, inertiaTensorNormalizationFunction,
-                    acceleratedBody.first );
+                    gravitationalParameterFunction, acceleratedBody.first );
         break;
     }
     default:

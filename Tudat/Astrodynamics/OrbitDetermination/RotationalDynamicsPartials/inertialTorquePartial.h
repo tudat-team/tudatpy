@@ -32,11 +32,13 @@ public:
             const boost::function< Eigen::Vector3d( ) > angularVelocityFunction,
             const boost::function< Eigen::Matrix3d( ) > inertiaTensorFunction,
             const boost::function< double( ) > inertiaTensorNormalizationFunction,
+            const boost::function< double( ) > bodyGravitationalParameterFunction,
             const std::string acceleratedBody ):
         TorquePartial( acceleratedBody, acceleratedBody, basic_astrodynamics::torque_free ),
         angularVelocityFunction_( angularVelocityFunction ),
         inertiaTensorFunction_( inertiaTensorFunction ),
-        getInertiaTensorNormalizationFactor_( inertiaTensorNormalizationFunction ){ }
+        getInertiaTensorNormalizationFactor_( inertiaTensorNormalizationFunction ),
+        bodyGravitationalParameterFunction_( bodyGravitationalParameterFunction ){ }
 
     ~InertialTorquePartial( ){ }
 
@@ -109,7 +111,10 @@ public:
             currentAngularVelocityVector_ = angularVelocityFunction_( );
             currentAngularVelocityCrossProductMatrix_ = linear_algebra::getCrossProductMatrix(
                         currentAngularVelocityVector_ );
+
             currentInertiaTensorNormalizationFactor_ = getInertiaTensorNormalizationFactor_( );
+            currentGravitationalParameter_ = bodyGravitationalParameterFunction_( );
+
             currentInertiaTensor_ = inertiaTensorFunction_( );
             currentInverseInertiaTensor_ = currentInertiaTensor_.inverse( );
 
@@ -122,6 +127,9 @@ public:
 protected:
 
     void wrtMeanMomentOfInertia(
+            Eigen::MatrixXd& momentOfInertiaPartial );
+
+    void wrtGravitationalParameter(
             Eigen::MatrixXd& momentOfInertiaPartial );
 
     void wrtCosineSphericalHarmonicCoefficientsOfCentralBody(
@@ -139,6 +147,8 @@ protected:
 
     boost::function< double( ) > getInertiaTensorNormalizationFactor_;
 
+    boost::function< double( ) > bodyGravitationalParameterFunction_;
+
     Eigen::Vector3d currentAngularVelocityVector_;
 
     Eigen::Matrix3d currentAngularVelocityCrossProductMatrix_;
@@ -150,6 +160,8 @@ protected:
     Eigen::Matrix3d currentPartialDerivativeWrtAngularVelocity_;
 
     double currentInertiaTensorNormalizationFactor_;
+
+    double currentGravitationalParameter_;
 
 };
 
