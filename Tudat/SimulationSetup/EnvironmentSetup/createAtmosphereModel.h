@@ -19,6 +19,7 @@
 #include "Tudat/Astrodynamics/Aerodynamics/atmosphereModel.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/physicalConstants.h"
 #include "Tudat/Mathematics/Interpolators/interpolator.h"
+#include "Tudat/Basics/identityElements.h"
 
 namespace tudat
 {
@@ -312,14 +313,16 @@ public:
     /*!
      *  Default constructor.
      *  \param atmosphereTableFile Map of files containing information on the atmosphere. The order of both
-     *  independent and dependent parameters needs to be specified in the independentVariablesNames and
-     *  dependentVariablesNames vectors, respectively. Note that specific gas constant and specific heat ratio
-     *  will be given the default constant values for Earth, unless they are included in the file map.
+     *          independent and dependent parameters needs to be specified in the independentVariablesNames and
+     *          dependentVariablesNames vectors, respectively. Note that specific gas constant and specific heat ratio
+     *          will be given the default constant values for Earth, unless they are included in the file map.
      *  \param independentVariablesNames List of independent parameters describing the atmosphere.
      *  \param dependentVariablesNames List of dependent parameters output by the atmosphere.
      *  \param specificGasConstant The constant specific gas constant of the atmosphere.
      *  \param ratioOfSpecificHeats The constant ratio of specific heats of the atmosphere.
-     *  \param boundaryHandling Method for interpolation behavior when independent variable is out of range.
+     *  \param boundaryHandling List of methods for interpolation behavior when independent variable is out of range.
+     *  \param defaultExtrapolationValue List of default values to be used for extrapolation, in case of
+     *          use_default_value or use_default_value_with_warning as methods for boundaryHandling.
      */
     TabulatedAtmosphereSettings( const std::map< int, std::string >& atmosphereTableFile,
                                  const std::vector< AtmosphereIndependentVariables >& independentVariablesNames =
@@ -328,21 +331,51 @@ public:
     { density_dependent_atmosphere, pressure_dependent_atmosphere, temperature_dependent_atmosphere },
                                  const double specificGasConstant = physical_constants::SPECIFIC_GAS_CONSTANT_AIR,
                                  const double ratioOfSpecificHeats = 1.4,
-                                 const std::vector< interpolators::BoundaryInterpolationType > boundaryHandling = { },
-                                 const std::vector< double > defaultExtrapolationValue = { } ):
+                                 const std::vector< interpolators::BoundaryInterpolationType >& boundaryHandling = { },
+                                 const std::vector< double >& defaultExtrapolationValue = { } ):
         AtmosphereSettings( tabulated_atmosphere ), atmosphereFile_( atmosphereTableFile ),
         independentVariables_( independentVariablesNames ), dependentVariables_( dependentVariablesNames ),
         specificGasConstant_( specificGasConstant ), ratioOfSpecificHeats_( ratioOfSpecificHeats ),
         boundaryHandling_( boundaryHandling ), defaultExtrapolationValue_( defaultExtrapolationValue )
     { }
 
+    //! Constructor with single boundary handling parameters.
+    /*!
+     *  Constructor with single boundary handling parameters. The specifier is assumed to be the same for
+     *  each (in)dependent variable.
+     *  \param atmosphereTableFile Map of files containing information on the atmosphere. The order of both
+     *          independent and dependent parameters needs to be specified in the independentVariablesNames and
+     *          dependentVariablesNames vectors, respectively. Note that specific gas constant and specific heat ratio
+     *          will be given the default constant values for Earth, unless they are included in the file map.
+     *  \param independentVariablesNames List of independent parameters describing the atmosphere.
+     *  \param dependentVariablesNames List of dependent parameters output by the atmosphere.
+     *  \param specificGasConstant The constant specific gas constant of the atmosphere.
+     *  \param ratioOfSpecificHeats The constant ratio of specific heats of the atmosphere.
+     *  \param boundaryHandling Method for interpolation behavior when independent variable is out of range.
+     *  \param defaultExtrapolationValue Default value to be used for extrapolation, in case of use_default_value or
+     *          use_default_value_with_warning as methods for boundaryHandling.
+     */
+    TabulatedAtmosphereSettings( const std::map< int, std::string >& atmosphereTableFile,
+                                 const std::vector< AtmosphereIndependentVariables >& independentVariablesNames,
+                                 const std::vector< AtmosphereDependentVariables >& dependentVariablesNames,
+                                 const double specificGasConstant,
+                                 const double ratioOfSpecificHeats,
+                                 const interpolators::BoundaryInterpolationType boundaryHandling,
+                                 const double defaultExtrapolationValue = IdentityElement< double >::getAdditionIdentity( ) ):
+        TabulatedAtmosphereSettings( atmosphereTableFile, independentVariablesNames, dependentVariablesNames,
+                                     specificGasConstant, ratioOfSpecificHeats,
+                                     std::vector< interpolators::BoundaryInterpolationType >(
+                                         independentVariablesNames.size( ), boundaryHandling ),
+                                     std::vector< double >( dependentVariablesNames.size( ),
+                                                            defaultExtrapolationValue ) ){ }
+
     //! Constructor compatible with old version.
     /*!
      *  Constructor compatible with old version.
      *  \param atmosphereTableFile File containing atmospheric properties.
-     *  The file name of the atmosphere table. The file should contain four columns of data,
-     *  containing altitude (first column), and the associated density, pressure and density values
-     *  in the second, third and fourth columns.
+     *          The file name of the atmosphere table. The file should contain four columns of data,
+     *          containing altitude (first column), and the associated density, pressure and density values
+     *          in the second, third and fourth columns.
      *  \param dependentVariablesNames List of dependent parameters output by the atmosphere.
      *  \param specificGasConstant The constant specific gas constant of the atmosphere.
      *  \param ratioOfSpecificHeats The constant ratio of specific heats of the atmosphere.
@@ -355,26 +388,58 @@ public:
         TabulatedAtmosphereSettings( { { 0, atmosphereTableFile } }, { altitude_dependent_atmosphere },
                                      dependentVariablesNames, specificGasConstant, ratioOfSpecificHeats ){ }
 
-    //! Constructor.
+    //! Constructor with no specific gas constant nor ratio of specific heats.
     /*!
-     *  Constructor.
+     *  Constructor with no specific gas constant nor ratio of specific heats. These two values will be given
+     *  the default Earth value, or are specified inside the atmosphere table file (and thus, inside the
+     *  dependent variables vector).
      *  \param atmosphereTableFile Map of files containing information on the atmosphere. The order of both
-     *  independent and dependent parameters needs to be specified in the independentVariablesNames and
-     *  dependentVariablesNames vectors, respectively. Note that specific gas constant and specific heat ratio
-     *  will be given the default constant values for Earth, unless they are included in the file map.
+     *          independent and dependent parameters needs to be specified in the independentVariablesNames and
+     *          dependentVariablesNames vectors, respectively. Note that specific gas constant and specific heat ratio
+     *          will be given the default constant values for Earth, unless they are included in the file map.
      *  \param independentVariablesNames List of independent parameters describing the atmosphere.
      *  \param dependentVariablesNames List of dependent parameters output by the atmosphere.
-     *  \param boundaryHandling Method for interpolation behavior when independent variable is out of range.
-     *  \param defaultExtrapolationValue Default value to be used for extrapolation, in case of use_default_value or
-     *  use_default_value_with_warning as methods for boundaryHandling.
+     *  \param boundaryHandling List of methods for interpolation behavior when independent variable is out of range.
+     *  \param defaultExtrapolationValue List of default values to be used for extrapolation, in case of
+     *          use_default_value or use_default_value_with_warning as methods for boundaryHandling.
      */
     TabulatedAtmosphereSettings( const std::map< int, std::string >& atmosphereTableFile,
                                  const std::vector< AtmosphereIndependentVariables >& independentVariablesNames,
                                  const std::vector< AtmosphereDependentVariables >& dependentVariablesNames,
-                                 const std::vector< interpolators::BoundaryInterpolationType > boundaryHandling,
-                                 const std::vector< double > defaultExtrapolationValue ) :
+                                 const std::vector< interpolators::BoundaryInterpolationType >& boundaryHandling,
+                                 const std::vector< double >& defaultExtrapolationValue ) :
         TabulatedAtmosphereSettings( atmosphereTableFile, independentVariablesNames, dependentVariablesNames,
-                                     physical_constants::SPECIFIC_GAS_CONSTANT_AIR, 1.4, boundaryHandling, defaultExtrapolationValue ){ }
+                                     physical_constants::SPECIFIC_GAS_CONSTANT_AIR, 1.4, boundaryHandling,
+                                     defaultExtrapolationValue ){ }
+
+    //! Constructor with no specific gas constant nor ratio of specific heats, and with
+    //! single boundary handling parameters.
+    /*!
+     *  Constructor with no specific gas constant nor ratio of specific heats. These two values will be given
+     *  the default Earth value, or are specified inside the atmosphere table file (and thus, inside the
+     *  dependent variables vector). Only one boundary handling parameter is specified, which is then repeated for
+     *  dimension.
+     *  \param atmosphereTableFile Map of files containing information on the atmosphere. The order of both
+     *          independent and dependent parameters needs to be specified in the independentVariablesNames and
+     *          dependentVariablesNames vectors, respectively. Note that specific gas constant and specific heat ratio
+     *          will be given the default constant values for Earth, unless they are included in the file map.
+     *  \param independentVariablesNames List of independent parameters describing the atmosphere.
+     *  \param dependentVariablesNames List of dependent parameters output by the atmosphere.
+     *  \param boundaryHandling Method for interpolation behavior when independent variable is out of range.
+     *  \param defaultExtrapolationValue Default value to be used for extrapolation, in case of use_default_value or
+     *          use_default_value_with_warning as methods for boundaryHandling.
+     */
+    TabulatedAtmosphereSettings( const std::map< int, std::string >& atmosphereTableFile,
+                                 const std::vector< AtmosphereIndependentVariables >& independentVariablesNames,
+                                 const std::vector< AtmosphereDependentVariables >& dependentVariablesNames,
+                                 const interpolators::BoundaryInterpolationType boundaryHandling,
+                                 const double defaultExtrapolationValue = IdentityElement< double >::getAdditionIdentity( ) ) :
+        TabulatedAtmosphereSettings( atmosphereTableFile, independentVariablesNames, dependentVariablesNames,
+                                     physical_constants::SPECIFIC_GAS_CONSTANT_AIR, 1.4,
+                                     std::vector< interpolators::BoundaryInterpolationType >(
+                                         independentVariablesNames.size( ), boundaryHandling ),
+                                     std::vector< double >( dependentVariablesNames.size( ),
+                                                            defaultExtrapolationValue ) ){ }
 
     //! Function to return file containing atmospheric properties.
     /*!

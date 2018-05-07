@@ -29,6 +29,7 @@
 #include "Tudat/Astrodynamics/Aerodynamics/aerodynamics.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/physicalConstants.h"
 #include "Tudat/Mathematics/Interpolators/cubicSplineInterpolator.h"
+#include "Tudat/Mathematics/Interpolators/linearInterpolator.h"
 #include "Tudat/Mathematics/Interpolators/multiLinearInterpolator.h"
 #include "Tudat/InputOutput/tabulatedAtmosphereReader.h"
 
@@ -71,8 +72,8 @@ public:
             density_dependent_atmosphere, pressure_dependent_atmosphere, temperature_dependent_atmosphere },
                          const double specificGasConstant = physical_constants::SPECIFIC_GAS_CONSTANT_AIR,
                          const double ratioOfSpecificHeats = 1.4,
-                         const std::vector< interpolators::BoundaryInterpolationType > boundaryHandling = { },
-                         const std::vector< double > defaultExtrapolationValue = { } ):
+                         const std::vector< interpolators::BoundaryInterpolationType >& boundaryHandling = { },
+                         const std::vector< double >& defaultExtrapolationValue = { } ):
         atmosphereTableFile_( atmosphereTableFile ), independentVariables_( independentVariablesNames ),
         dependentVariables_( dependentVariablesNames ), specificGasConstant_( specificGasConstant ),
         ratioOfSpecificHeats_( ratioOfSpecificHeats ), boundaryHandling_( boundaryHandling ),
@@ -116,8 +117,8 @@ public:
     TabulatedAtmosphere( const std::map< int, std::string >& atmosphereTableFile,
                          const std::vector< AtmosphereIndependentVariables >& independentVariablesNames,
                          const std::vector< AtmosphereDependentVariables >& dependentVariablesNames,
-                         const std::vector< interpolators::BoundaryInterpolationType > boundaryHandling,
-                         const std::vector< double > defaultExtrapolationValue ) :
+                         const std::vector< interpolators::BoundaryInterpolationType >& boundaryHandling,
+                         const std::vector< double >& defaultExtrapolationValue ) :
         TabulatedAtmosphere( atmosphereTableFile, independentVariablesNames, dependentVariablesNames,
                              physical_constants::SPECIFIC_GAS_CONSTANT_AIR, 1.4, boundaryHandling, defaultExtrapolationValue ){ }
 

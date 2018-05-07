@@ -171,13 +171,23 @@ RarefiedFlowAnalysis::RarefiedFlowAnalysis(
     // Find atmospheric conditions based on altitude
     for ( unsigned int h = 0; h < dataPointsOfIndependentVariables_.at( 0 ).size( ); h++ )
     {
-        atmosphericConditions_[ density_index ].push_back( atmosphereModel->getDensity( dataPointsOfIndependentVariables_.at( 0 ).at( h ) ) );
-        atmosphericConditions_[ pressure_index ].push_back( atmosphereModel->getPressure( dataPointsOfIndependentVariables_.at( 0 ).at( h ) ) );
-        atmosphericConditions_[ temperature_index ].push_back( atmosphereModel->getTemperature( dataPointsOfIndependentVariables_.at( 0 ).at( h ) ) );
-        atmosphericConditions_[ speed_of_sound_index ].push_back( atmosphereModel->getSpeedOfSound( dataPointsOfIndependentVariables_.at( 0 ).at( h ) ) );
-        atmosphericConditions_[ number_density_index ].push_back( tudat::physical_constants::AVOGADRO_CONSTANT / tudat::physical_constants::MOLAR_GAS_CONSTANT *
-                                                                  atmosphericConditions_[ density_index ].at( h ) *
-                                                                  atmosphereModel->getSpecificGasConstant( dataPointsOfIndependentVariables_.at( 0 ).at( h ) ) );
+        atmosphericConditions_[ density_index ].push_back(
+                    atmosphereModel->getDensity( dataPointsOfIndependentVariables_.at( 0 ).at( h ) ) );
+        atmosphericConditions_[ pressure_index ].push_back(
+                    atmosphereModel->getPressure( dataPointsOfIndependentVariables_.at( 0 ).at( h ) ) );
+        atmosphericConditions_[ temperature_index ].push_back(
+                    atmosphereModel->getTemperature( dataPointsOfIndependentVariables_.at( 0 ).at( h ) ) );
+        atmosphericConditions_[ speed_of_sound_index ].push_back(
+                    atmosphereModel->getSpeedOfSound( dataPointsOfIndependentVariables_.at( 0 ).at( h ) ) );
+        atmosphericConditions_[ number_density_index ].push_back(
+                    tudat::physical_constants::AVOGADRO_CONSTANT / tudat::physical_constants::MOLAR_GAS_CONSTANT *
+                    atmosphericConditions_[ density_index ].at( h ) *
+                    atmosphereModel->getSpecificGasConstant( dataPointsOfIndependentVariables_.at( 0 ).at( h ) ) );
+        std::cout << "Density: " << atmosphericConditions_[ density_index ].at( h ) << std::endl
+                  << "Pressure: " << atmosphericConditions_[ pressure_index ].at( h ) << std::endl
+                  << "Temperature: " << atmosphericConditions_[ temperature_index ].at( h ) << std::endl
+                  << "Speed of sound: " << atmosphericConditions_[ speed_of_sound_index ].at( h ) << std::endl
+                  << "Number density: " << atmosphericConditions_[ number_density_index ].at( h ) << std::endl;
     }
 
     // Get simulation conditions
@@ -250,8 +260,6 @@ void RarefiedFlowAnalysis::analyzeGeometryFile( const std::string& geometryFileU
     if ( std::fabs( shapeCrossSectionalArea_( static_cast< unsigned int >( referenceAxis_ ) ) -
                     referenceArea_ ) > tolerance )
     {
-        std::cout << shapeCrossSectionalArea_( static_cast< unsigned int >( referenceAxis_ ) ) -
-                     referenceArea_ << std::endl;
         throw std::runtime_error( "Error in SPARTA geometry file. Input reference area does not match the combination of "
                                   "reference axis and geometry. Tolerance set to: " + std::to_string( tolerance ) );
     }
@@ -263,8 +271,8 @@ void RarefiedFlowAnalysis::getSimulationConditions( )
     // Simulation boundary and grid
     for ( unsigned int i = 0; i < 3; i++ )
     {
-        simulationBoundaries_( 2 * i ) = 1.5 * minimumDimensions_( i ); // add extra space around shape
-        simulationBoundaries_( 2 * i + 1 ) = 1.5 * maximumDimensions_( i ); // add extra space around shape
+        simulationBoundaries_( 2 * i ) = minimumDimensions_( i ) + 0.5 * minimumDimensions_.minCoeff( ); // add extra space around shape
+        simulationBoundaries_( 2 * i + 1 ) = maximumDimensions_( i ) + 0.5 * maximumDimensions_.maxCoeff( );; // add extra space around shape
         if ( i == static_cast< unsigned int >( referenceAxis_ ) )
         {
             simulationBoundaries_( 2 * i ) -= 1.0; // add extra space along axis of velocity
@@ -278,14 +286,15 @@ void RarefiedFlowAnalysis::getSimulationConditions( )
     freeStreamVelocities_.resize( dataPointsOfIndependentVariables_.at( 0 ).size( ), dataPointsOfIndependentVariables_.at( 1 ).size( ) );
     simulationTimeStep_.resize( dataPointsOfIndependentVariables_.at( 0 ).size( ), dataPointsOfIndependentVariables_.at( 1 ).size( ) );
     ratioOfRealToSimulatedParticles_.resize( dataPointsOfIndependentVariables_.at( 0 ).size( ), 1 );
+    double simulationBoxLengthAlongReferenceAxis = ( simulationBoundaries_( 2 * static_cast< unsigned int >( referenceAxis_ ) + 1 ) -
+                                                     simulationBoundaries_( 2 * static_cast< unsigned int >( referenceAxis_ ) ) );
     for ( unsigned int h = 0; h < dataPointsOfIndependentVariables_.at( 0 ).size( ); h++ )
     {
         for ( unsigned int m = 0; m < dataPointsOfIndependentVariables_.at( 1 ).size( ); m++ )
         {
             freeStreamVelocities_( h, m ) = dataPointsOfIndependentVariables_.at( 1 ).at( m ) *
                     atmosphericConditions_[ speed_of_sound_index ].at( h );
-            simulationTimeStep_( h, m ) = 0.1 * ( maximumDimensions_( static_cast< unsigned int >( referenceAxis_ ) ) -
-                                                  minimumDimensions_( static_cast< unsigned int >( referenceAxis_ ) ) ) /
+            simulationTimeStep_( h, m ) = 0.1 * simulationBoxLengthAlongReferenceAxis /
                     freeStreamVelocities_( h, m );
             // time step is taken as time it takes for a particle to travel for 10 % of the box
         }
@@ -304,7 +313,7 @@ void RarefiedFlowAnalysis::generateCoefficients( )
 
     // Predefine variables
     Eigen::Vector3d velocityVector;
-    std::string temporaryOutputFile = getSpartaOutputPath( ) + "/" + "coeff";
+    std::string temporaryOutputFile = getSpartaOutputPath( ) + "/coeff";
     std::vector< std::string > outputFileExtensions = { ".400", ".600", ".800", ".1000" };
     Eigen::Matrix< double, Eigen::Dynamic, 7 > outputMatrix;
     Eigen::Matrix< double, 3, Eigen::Dynamic > meanPressureValues;

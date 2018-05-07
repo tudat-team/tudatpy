@@ -76,14 +76,14 @@ std::vector< double > getDefaultRarefiedFlowAngleOfAttackPoints(
 
 //! Class for aerodynamic analysis in rarefied flow using the SPARTA DSMC method.
 /*!
- * Class for aerodynamic analysis in rarefied flow using the SPARTA DSMC method.
- * This method uses a Monte Carlo simulation, to determine the pressure and shear forces
- * acting on each element of the vehicle. These values are output by default every 200 time
- * steps, and are used to compute the average pressure and friction coefficients on each surface
- * element, which are then translated to aerodynamic coefficients for the whole surface. One can
- * find a description of the SPARTA software as Reference [1,2], where the second reference is the
- * official user manual. The user should also pay careful attention to the requirements for the geometry
- * of the vehicle to be analyzed.
+ *  Class for aerodynamic analysis in rarefied flow using the SPARTA DSMC method.
+ *  This method uses a Monte Carlo simulation, to determine the pressure and shear forces
+ *  acting on each element of the vehicle. These values are output by default every 200 time
+ *  steps, and are used to compute the average pressure and friction coefficients on each surface
+ *  element, which are then translated to aerodynamic coefficients for the whole surface. One can
+ *  find a description of the SPARTA software as Reference [1,2], where the second reference is the
+ *  official user manual. The user should also pay careful attention to the requirements for the geometry
+ *  of the vehicle to be analyzed.
  */
 class RarefiedFlowAnalysis: public AerodynamicCoefficientGenerator< 3, 6 >
 {
@@ -98,8 +98,7 @@ public:
      *  \param dataPointsOfIndependentVariables Vector of vectors, with each subvector containing
      *          the data points of each of the independent variables for the coefficient generation.
      *          The physical meaning of each of the three independent variables is: 0 = altitude,
-     *          1 = Mach number, 1 = angle of attack.
-     *          Each of the subvectors must be sorted in ascending order.
+     *          1 = Mach number, 1 = angle of attack. Each of the subvectors must be sorted in ascending order.
      *  \param simulationGases String of gases making up the atmosphere of the planet, to be used for
      *          the simulation.
      *  \param atmosphereModel Pointer to the atmosphere model of the planet. Should provide information on
@@ -146,9 +145,9 @@ public:
      *  Returns aerodynamic coefficients.
      *  The physical meaning of each of the three independent variables is: 0 = altitude,
      *  1 = Mach number, 1 = angle of attack.
-     * \param independentVariables Array of values of independent variable
+     *  \param independentVariables Array of values of independent variable
      *          indices in dataPointsOfIndependentVariables_.
-     * \return vector of coefficients at specified independent variable indices.
+     *  \return vector of coefficients at specified independent variable indices.
      */
     Eigen::Vector6d getAerodynamicCoefficientsDataPoint(
             const boost::array< int, 3 > independentVariables );
@@ -157,33 +156,33 @@ private:
 
     //! Open and read geometry file for SPARTA simulation.
     /*!
-     * Open and read geometry file for SPARTA simulation, to extract information on the
-     * vehicle and surface elements dimensions and properties.
-     * \param geometryFileUser Path to the file describing the geometry of the vehicle, where
+     *  Open and read geometry file for SPARTA simulation, to extract information on the
+     *  vehicle and surface elements dimensions and properties.
+     *  \param geometryFileUser Path to the file describing the geometry of the vehicle, where
      *          the surface elements are discretized as triangles.
      */
     void analyzeGeometryFile( const std::string& geometryFileUser );
 
     //! Get conditions for simulation.
     /*!
-     * Get conditions for simulation, including simulation environment boundaries, velocity of incoming flow,
-     * time step of simulation (set as 10 % of the time needed for a particle to traverse the simulation
-     * environment), and ratio of real-to-simulated particles.
+     *  Get conditions for simulation, including simulation environment boundaries, velocity of incoming flow,
+     *  time step of simulation (set as 10 % of the time needed for a particle to traverse the simulation
+     *  environment), and ratio of real-to-simulated particles.
      */
     void getSimulationConditions( );
 
     //! Generate aerodynamic database.
     /*!
-     * Generates aerodynamic database, by running the SPARTA simulation via command line (standard
-     * library function std::system), and reads output of simulation to extract values of aerodynamic
-     * coefficients, as a function of altitude, Mach number and angle of attack.
+     *  Generates aerodynamic database, by running the SPARTA simulation via command line (standard
+     *  library function std::system), and reads output of simulation to extract values of aerodynamic
+     *  coefficients, as a function of altitude, Mach number and angle of attack.
      */
     void generateCoefficients( );
 
     //! Path to SPARTA executable.
     /*!
-     * Path to SPARTA executable. Note that SPARTA is an external software and needs to be compiled before
-     * it can be used in Tudat. See the instructions in the manual [2].
+     *  Path to SPARTA executable. Note that SPARTA is an external software and needs to be compiled before
+     *  it can be used in Tudat. See the instructions in the manual [2].
      */
     std::string SPARTAExecutable_;
 
@@ -211,15 +210,15 @@ private:
 
     //! List of points making up the vehicle geometry.
     /*!
-     * List of points making up the vehicle geometry. Column size is 3, since only triangular mesh are supported
-     * by SPARTA.
+     *  List of points making up the vehicle geometry. Column size is 3, since only triangular mesh are supported
+     *  by SPARTA.
      */
     Eigen::Matrix< double, Eigen::Dynamic, 3 > shapePoints_;
 
     //! List of triangle vertices making up the vehicle geometry.
     /*!
-     * List of triangle vertices making up the vehicle geometry. Each element refers to a point from the shapePoints_
-     * list. Column size is 3, since only triangular mesh are supported by SPARTA.
+     *  List of triangle vertices making up the vehicle geometry. Each element refers to a point from the shapePoints_
+     *  list. Column size is 3, since only triangular mesh are supported by SPARTA.
      */
     Eigen::Matrix< int, Eigen::Dynamic, 3 > shapeTriangles_;
 
@@ -243,8 +242,8 @@ private:
 
     //! List of moment arm for each surface element.
     /*!
-     * List of moment arm for each surface element. Note that the moment arm is defined as the distance
-     * of the centroid of each surface element, to a reference point, i.e., momentReferencePoint_.
+     *  List of moment arm for each surface element. Note that the moment arm is defined as the distance
+     *  of the centroid of each surface element, to a reference point, i.e., momentReferencePoint_.
      */
     Eigen::Matrix< double, 3, Eigen::Dynamic > elementMomentArm_;
 
@@ -253,23 +252,23 @@ private:
 
     //! Atmospheric conditions at altitudes specified by user in dataPointsOfIndependentVariables_.
     /*!
-     * Atmospheric conditions at altitudes specified by user in dataPointsOfIndependentVariables_. The key values
-     * are given by the enumeration AtmosphericConditionVariables, at the beginning of this file.
+     *  Atmospheric conditions at altitudes specified by user in dataPointsOfIndependentVariables_. The key values
+     *  are given by the enumeration AtmosphericConditionVariables, at the beginning of this file.
      */
     std::map< AtmosphericConditionVariables, std::vector< double > > atmosphericConditions_;
 
     //! List defining the simulation environment boundaries.
     /*!
-     * List defining the simulation environment boundaries. They are computed from the maximum and minimum
-     * dimensions of the vehicle, i.e., maximumDimensions_ and minimumDimensions_, by adding extra space in each
-     * direction (50 % of the vehicle size).
+     *  List defining the simulation environment boundaries. They are computed from the maximum and minimum
+     *  dimensions of the vehicle, i.e., maximumDimensions_ and minimumDimensions_, by adding extra space in each
+     *  direction (50 % of the vehicle size).
      */
     Eigen::Vector6d simulationBoundaries_;
 
     //! List of grid spacing for each dimension.
     /*!
-     * List of grid spacing for each dimension. They are determined by dividing the simulation dimensions (given
-     * by simulationBoundaries_) by the grid spacing, i.e., gridSpacing_.
+     *  List of grid spacing for each dimension. They are determined by dividing the simulation dimensions (given
+     *  by simulationBoundaries_) by the grid spacing, i.e., gridSpacing_.
      */
     Eigen::Vector3d simulationGrid_;
 
@@ -284,9 +283,9 @@ private:
 
     //! String containing the template of the input file for the SPARTA simulation.
     /*!
-     * String containing the template of the input file for the SPARTA simulation. This template contains
-     * format specifiers (such as %.3f) where a simulation variable is to be placed. This is done by filling
-     * the values input by the user and determined in previous parts of the code.
+     *  String containing the template of the input file for the SPARTA simulation. This template contains
+     *  format specifiers (such as %.3f) where a simulation variable is to be placed. This is done by filling
+     *  the values input by the user and determined in previous parts of the code.
      */
     std::string inputTemplate_;
 };
