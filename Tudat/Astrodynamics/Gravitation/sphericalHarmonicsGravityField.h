@@ -84,9 +84,9 @@ public:
             const Eigen::MatrixXd& sineCoefficients = Eigen::MatrixXd::Zero( 1, 1 ),
             const std::string& fixedReferenceFrame = "",
             const boost::function< void( ) > updateInertiaTensor = boost::function< void( ) > ( ) )
-        : GravityFieldModel( gravitationalParameter ), referenceRadius_( referenceRadius ),
+        : GravityFieldModel( gravitationalParameter, updateInertiaTensor ), referenceRadius_( referenceRadius ),
           cosineCoefficients_( cosineCoefficients ), sineCoefficients_( sineCoefficients ),
-          fixedReferenceFrame_( fixedReferenceFrame ), updateInertiaTensor_( updateInertiaTensor )
+          fixedReferenceFrame_( fixedReferenceFrame )
     {
         sphericalHarmonicsCache_ = boost::make_shared< basic_mathematics::SphericalHarmonicsCache >( );
         sphericalHarmonicsCache_->resetMaximumDegreeAndOrder( cosineCoefficients_.rows( ) + 1,
@@ -327,8 +327,6 @@ protected:
      *  Identifier for body-fixed reference frame
      */
     std::string fixedReferenceFrame_;
-
-    boost::function< void( ) > updateInertiaTensor_;
 
     //! Cache object for potential calculations.
     boost::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache_;
