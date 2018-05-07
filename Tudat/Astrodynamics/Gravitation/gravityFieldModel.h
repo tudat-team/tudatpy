@@ -36,8 +36,9 @@ public:
      * Default constructor.
      * \param gravitationalParameter Gravitational parameter associated with gravity field
      */
-    GravityFieldModel( const double gravitationalParameter ):
-        gravitationalParameter_( gravitationalParameter )
+    GravityFieldModel( const double gravitationalParameter,
+                       const boost::function< void( ) > updateInertiaTensor = boost::function< void( ) > ( ) ):
+        gravitationalParameter_( gravitationalParameter ), updateInertiaTensor_( updateInertiaTensor )
     { }
 
     //! Default destructor.
@@ -54,6 +55,10 @@ public:
     void resetGravitationalParameter( const double gravitationalParameter )
     {
         gravitationalParameter_ = gravitationalParameter;
+        if( !updateInertiaTensor_.empty( ) )
+        {
+            updateInertiaTensor_( );
+        }
     }
 
     //! Get the gravitational parameter.
@@ -97,6 +102,7 @@ protected:
      */
     double gravitationalParameter_;
 
+    boost::function< void( ) > updateInertiaTensor_;
 
 private:
 };
