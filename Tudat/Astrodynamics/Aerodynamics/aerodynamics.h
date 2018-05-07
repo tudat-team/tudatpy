@@ -498,14 +498,14 @@ double computeAdiabaticWallTemperature(
  * \param Reference aerodynamic area of vehicle.
  */
 Eigen::Vector6d computeAerodynamicCoefficientsFromPressureShearForces(
-        const Eigen::Matrix< double, 3, Eigen::Dynamic > pressureForceVector,
-        const Eigen::Matrix< double, 3, Eigen::Dynamic > shearStressVector,
+        const Eigen::Matrix< double, 3, Eigen::Dynamic >& pressureForceVector,
+        const Eigen::Matrix< double, 3, Eigen::Dynamic >& shearStressVector,
         const double airDensity,
         const double airPressure,
         const double airSpeed,
-        const Eigen::Matrix< double, 3, Eigen::Dynamic > elementSurfaceNormal,
-        const Eigen::Matrix< double, 1, Eigen::Dynamic > elementSurfaceArea,
-        const Eigen::Matrix< double, 3, Eigen::Dynamic > elementMomentArm,
+        const Eigen::Matrix< double, 3, Eigen::Dynamic >& elementSurfaceNormal,
+        const Eigen::Matrix< double, 1, Eigen::Dynamic >& elementSurfaceArea,
+        const Eigen::Matrix< double, 3, Eigen::Dynamic >& elementMomentArm,
         const double referenceAerodynamicArea,
         const double referenceAerodynamicLength );
 

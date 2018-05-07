@@ -463,6 +463,16 @@ public:
         return equationsOfMotionNumericalSolution_;
     }
 
+    //! Function to return the map of state history of numerically integrated bodies, in propagation coordinates.
+    /*!
+     * Function to return the map of state history of numerically integrated bodies, in propagation coordinates.
+     * \return Map of state history of numerically integrated bodies, in propagation coordinates.
+     */
+    std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > getEquationsOfMotionNumericalSolutionRaw( )
+    {
+        return equationsOfMotionNumericalSolutionRaw_;
+    }
+
     //! Function to return the map of dependent variable history that was saved during numerical propagation.
     /*!
      * Function to return the map of dependent variable history that was saved during numerical propagation.

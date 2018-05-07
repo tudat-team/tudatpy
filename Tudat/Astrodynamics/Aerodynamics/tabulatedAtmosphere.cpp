@@ -95,7 +95,7 @@ void TabulatedAtmosphere::initialize( const std::map< int, std::string >& atmosp
     if ( boundaryHandling_.empty( ) )
     {
         boundaryHandling_ = std::vector< BoundaryInterpolationType >( numberOfIndependentVariables_,
-                                                                      use_boundary_value_with_warning );
+                                                                      use_boundary_value );
     }
     else
     {
