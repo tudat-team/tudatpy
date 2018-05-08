@@ -296,7 +296,7 @@ void testMeanToEccentricAnomalyConversions(
     ScalarType testMeanAnomaly, reverseCalculatedMeanAnomaly, eccentricAnomaly = 0.0;
 
     // Instantiate random number generator.
-    boost::mt19937 randomNumbergenerator( time( 0 ) );
+    boost::mt19937 randomNumbergenerator( 0 );
 
     // Create generator for eccentricity (only used if useConstantEccentricity is false).
     boost::random::uniform_real_distribution< > eccentricityDistribution;
