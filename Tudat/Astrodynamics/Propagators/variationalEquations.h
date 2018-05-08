@@ -63,14 +63,14 @@ public:
             const boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< ParameterType > > parametersToEstimate,
             const std::map< IntegratedStateType, int >& stateTypeStartIndices ):
         stateDerivativePartialList_( stateDerivativePartialList ), stateTypeStartIndices_( stateTypeStartIndices )
-    {        
+    {
         dynamicalStatesToEstimate_ =
                 estimatable_parameters::getListOfInitialDynamicalStateParametersEstimate< ParameterType >(
                     parametersToEstimate );
         
         // Get size of dynamical state to estimate
         numberOfParameterValues_ = estimatable_parameters::getSingleArcParameterSetSize( parametersToEstimate );
-        totalDynamicalStateSize_ = 0;        
+        totalDynamicalStateSize_ = 0;
         for( std::map< IntegratedStateType, orbit_determination::StateDerivativePartialsMap >::iterator
              partialTypeIterator = stateDerivativePartialList_.begin( );
              partialTypeIterator != stateDerivativePartialList_.end( ); partialTypeIterator++ )
@@ -149,7 +149,6 @@ public:
         // Initialize matrix to zeros
         variationalParameterMatrix_.setZero( );
 
-
         // Iterate over all bodies undergoing accelerations for which initial condition is to be estimated.
         for( std::map< IntegratedStateType, std::vector< std::multimap< std::pair< int, int >,
              boost::function< void( Eigen::Block< Eigen::MatrixXd > ) > > > >::iterator typeIterator =
@@ -177,18 +176,22 @@ public:
             }
         }
 
+        for( unsigned int i = 0; i < inertiaTensorsForMultiplication_.size( ); i++ )
+        {
+            variationalParameterMatrix_.block( inertiaTensorsForMultiplication_.at( i ).first, 0, 3,
+                                               numberOfParameterValues_ - totalDynamicalStateSize_ ) =
+                    ( inertiaTensorsForMultiplication_.at( i ).second( ).inverse( ) ) *
+                    variationalParameterMatrix_.block(
+                        inertiaTensorsForMultiplication_.at( i ).first, 0, 3,
+                        numberOfParameterValues_ - totalDynamicalStateSize_ ).eval( );
+        }
+
         currentMatrixDerivative.block( 0, totalDynamicalStateSize_, totalDynamicalStateSize_,
                                        numberOfParameterValues_ - totalDynamicalStateSize_ ) +=
                 variationalParameterMatrix_.template cast< StateScalarType >( );
 
 
-        for( unsigned int i = 0; i < inertiaTensorsForMultiplication_.size( ); i++ )
-        {
-            variationalParameterMatrix_.block( inertiaTensorsForMultiplication_.at( i ).first, 0, 3, totalDynamicalStateSize_ ) =
-                    ( inertiaTensorsForMultiplication_.at( i ).second( ).inverse( ) ) *
-                    variationalParameterMatrix_.block( inertiaTensorsForMultiplication_.at( i ).first, 0, 3,
-                                                       numberOfParameterValues_ - totalDynamicalStateSize_ ).eval( );
-        }
+
 
     }
     
@@ -207,7 +210,7 @@ public:
             Eigen::Block< Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic > > currentMatrixDerivative )
     {
         // Compute and add state partials.
-        getBodyInitialStatePartialMatrix< StateScalarType >( stateTransitionAndSensitivityMatrices,currentMatrixDerivative );
+        getBodyInitialStatePartialMatrix< StateScalarType >( stateTransitionAndSensitivityMatrices, currentMatrixDerivative );
 
         if( numberOfParameterValues_ > totalDynamicalStateSize_ )
         {
@@ -291,7 +294,7 @@ private:
      * w.r.t. a current state (stored in the statePartialList_ member) from the state derivative partials.
      */
     void setStatePartialFunctionList( );
-        
+
     //! Function to add parameter partial functions for single state derivative model, and set of parameter objects.
     /*!
      *  Function to add parameter partial functions for single state derivative model, and set of parameter objects.
@@ -401,7 +404,7 @@ private:
                                 vectorParametersToEstimate, stateDerivativeTypeIterator->second.at( i ).at( j ),
                                 functionListOfBody, totalParameterVectorIndicesToSubtract );
                 }
-                                
+
                 // Add generated parameter partial list of current body.
                 parameterPartialList_[ stateDerivativeTypeIterator->first ][ i ] = functionListOfBody;
             }
@@ -444,7 +447,7 @@ private:
                             initialDynamicalParameters.at( i )->getParameterName( ).second.first );
                 centralBodies.push_back( boost::dynamic_pointer_cast< estimatable_parameters::ArcWiseInitialTranslationalStateParameter< ParameterType > >(
                                              initialDynamicalParameters.at( i ) )->getCentralBody( ) );
-            }            
+            }
         }
 
         if( propagatedBodies.size( ) > 0 )
@@ -490,9 +493,9 @@ private:
             if( initialDynamicalParameters.at( i )->getParameterName( ).first == estimatable_parameters::initial_rotational_body_state )
             {
                 inertiaTensorsForMultiplication_.push_back( std::make_pair(
-                        stateTypeStartIndices_[ propagators::rotational_state ] + rotationalBodyCounter * 7 + 4,
-                 boost::dynamic_pointer_cast< estimatable_parameters::InitialRotationalStateParameter< ParameterType > >(
-                                             initialDynamicalParameters.at( i ) )->getBodyInertiaTensorFunction( ) ) );
+                                                                stateTypeStartIndices_[ propagators::rotational_state ] + rotationalBodyCounter * 7 + 4,
+                                                            boost::dynamic_pointer_cast< estimatable_parameters::InitialRotationalStateParameter< ParameterType > >(
+                                                                initialDynamicalParameters.at( i ) )->getBodyInertiaTensorFunction( ) ) );
                 rotationalBodyCounter++;
             }
         }
