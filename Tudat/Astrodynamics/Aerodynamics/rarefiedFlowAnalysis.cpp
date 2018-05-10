@@ -346,7 +346,7 @@ void RarefiedFlowAnalysis::generateCoefficients( )
 
                 // Get velocity vector
                 velocityVector = Eigen::Vector3d::Zero( );
-                velocityVector( static_cast< unsigned int >( referenceAxis_ ) ) = ( std::signbit( referenceAxis_ ) ? 1.0 : -1.0 ) *
+                velocityVector( static_cast< unsigned int >( referenceAxis_ ) ) = ( ( referenceAxis_ >= 0 ) ? - 1.0 : 1.0 ) *
                         freeStreamVelocities_( h, m );
 
                 // Print to file

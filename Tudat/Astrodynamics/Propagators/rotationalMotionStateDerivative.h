@@ -270,14 +270,53 @@ public:
         return bodiesToPropagate_;
     }
 
-    //! Function to return the size of the state handled by the object
+    //! Function to return the size of the state handled by the object.
     /*!
-     * Function to return the size of the state handled by the object
+     * Function to return the size of the state handled by the object.
      * \return Size of the state under consideration (7 times the number if integrated bodies).
      */
     int getConventionalStateSize( )
     {
         return 7 * bodiesToPropagate_.size( );
+    }
+
+    //! Function to process the state after propagation.
+    /*!
+     * Function to process the state after propagation. For quaternions, this function normalizes the quaternion vector
+     * in case its magnitude differs from 1.0 by a value larger than the tolerance.
+     * \param unprocessedState State computed after propagation.
+     * \param startRow Dummy variable added for compatibility issues between Eigen::Matrix and Eigen::Block.
+     */
+    void postProcessState( Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& unprocessedState,
+                           const int startRow )
+    {
+        // Loop over each body
+        const double tolerance = 20.0 * std::numeric_limits< double >::epsilon( );
+        for( unsigned int i = 0; i < bodiesToPropagate_.size( ); i++ )
+        {
+            // Normalize quaternions
+            Eigen::Matrix< StateScalarType, 4, 1 > quaternionsVector =
+                    unprocessedState.block( i * 7 + 3, 0, 4, 1 );
+            StateScalarType quaternionsMagnitude = quaternionsVector.norm( );
+            if ( std::fabs( quaternionsMagnitude - 1.0 ) >= tolerance )
+            {
+                // Normalize
+                quaternionsVector /= quaternionsMagnitude;
+
+                // Replace old quaternions with normalized quaternions
+                unprocessedState.segment( startRow + i * 7 + 3, 4 ) = quaternionsVector;
+            }
+        }
+    }
+
+    //! Function to return whether the state needs to be post-processed.
+    /*!
+     * Function to return whether the state needs to be post-processed. For quaternions this is true.
+     * \return Boolean confirming that the state needs to be post-processed.
+     */
+    bool isStateToBePostProcessed( )
+    {
+        return true;
     }
 
     Eigen::Vector3d getTotalTorqueForBody(

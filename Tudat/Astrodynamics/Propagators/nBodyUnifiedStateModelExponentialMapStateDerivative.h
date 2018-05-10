@@ -230,29 +230,41 @@ public:
         return originalAccelerationModelsPerBody_;
     }
 
-    void postProcessState(
-            Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& unnormalizedState,
-            const int startRow )
+    //! Function to process the state after propagation.
+    /*!
+     * Function to process the state after propagation. For exponential map (EM), this function converts to/from shadow exponential
+     * map (SEM), in case the rotation angle is larger than PI.
+     * \param unprocessedState State computed after propagation.
+     * \param startRow Dummy variable added for compatibility issues between Eigen::Matrix and Eigen::Block.
+     */
+    void postProcessState( Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& unprocessedState,
+                           const int startRow )
     {
         // Loop over each body
+        Eigen::Matrix< StateScalarType, 3, 1 > exponentialMapVector;
+        StateScalarType exponentialMapMagnitude;
         for( unsigned int i = 0; i < this->bodiesToBeIntegratedNumerically_.size( ); i++ )
         {
             // Convert to/from shadow exponential map (SEM) (transformation is the same either way)
-            Eigen::Matrix< StateScalarType, 3, 1 > exponentialMapVector =
-                    unnormalizedState.block( i * 6 + 3, 0, 3, 1 );
-            StateScalarType exponentialMapMagnitude = exponentialMapVector.norm( );
+            exponentialMapVector = unprocessedState.block( i * 6 + 3, 0, 3, 1 );
+            exponentialMapMagnitude = exponentialMapVector.norm( );
             if ( exponentialMapMagnitude >= mathematical_constants::PI )
             {
                 // Convert to EM/SEM
                 exponentialMapVector *= ( 1.0 - ( 2.0 * mathematical_constants::PI / exponentialMapMagnitude ) );
 
                 // Replace EM with SEM, or vice-versa
-                unnormalizedState.segment( startRow + i * 6 + 3, 3 ) = exponentialMapVector;
+                unprocessedState.segment( startRow + i * 6 + 3, 3 ) = exponentialMapVector;
             }
         }
     }
 
-    virtual bool isStateToBePostProcessed( )
+    //! Function to return whether the state needs to be post-processed.
+    /*!
+     * Function to return whether the state needs to be post-processed. For (shadow) exponential map this is true.
+     * \return Boolean confirming that the state needs to be post-processed.
+     */
+    bool isStateToBePostProcessed( )
     {
         return true;
     }
