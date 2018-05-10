@@ -43,8 +43,8 @@ Eigen::Matrix4d getQuaterionToQuaternionRateMatrix( const Eigen::Vector3d& angul
 }
 
 //! Function to obtain the time derivative of quaternions of body-fixed to inertial frame
-Eigen::Vector4d calculateQuaternionsDerivative(
-        const Eigen::Vector4d& currentQuaternionsToBaseFrame, const Eigen::Vector3d& angularVelocityVectorInBodyFixedFrame )
+Eigen::Vector4d calculateQuaternionsDerivative( const Eigen::Vector4d& currentQuaternionsToBaseFrame,
+                                                const Eigen::Vector3d& angularVelocityVectorInBodyFixedFrame )
 {
     return getQuaterionToQuaternionRateMatrix( angularVelocityVectorInBodyFixedFrame ) * currentQuaternionsToBaseFrame;
 }

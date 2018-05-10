@@ -18,8 +18,8 @@ namespace propagators
 {
 
 //! Function to obtain the time derivative of exponantial map of body-fixed to inertial frame
-Eigen::Vector3d calculateExponentialMapDerivative(
-        const Eigen::Vector3d& currentExponentialMapToBaseFrame, const Eigen::Vector3d& angularVelocityVectorInBodyFixedFrame )
+Eigen::Vector3d calculateExponentialMapDerivative( const Eigen::Vector3d& currentExponentialMapToBaseFrame,
+                                                   const Eigen::Vector3d& angularVelocityVectorInBodyFixedFrame )
 {
     // Define the tolerance of a singularity
     double singularityTolerance = 20.0 * std::numeric_limits< double >::epsilon( );
@@ -35,15 +35,17 @@ Eigen::Vector3d calculateExponentialMapDerivative(
     {
         double exponentialMapMagnitudeSquared = std::pow( exponentialMapMagnitude, 2 );
         exponentialMapDerivative = 0.5 * ( ( ( 12.0 - exponentialMapMagnitudeSquared ) / 6.0 ) *
-                                           angularVelocityVectorInBodyFixedFrame - angularVelocityVectorInBodyFixedFrame.cross( currentExponentialMapToBaseFrame ) -
-                                           angularVelocityVectorInBodyFixedFrame.dot( currentExponentialMapToBaseFrame ) *
+                                           angularVelocityVectorInBodyFixedFrame - angularVelocityVectorInBodyFixedFrame.cross(
+                                               currentExponentialMapToBaseFrame ) - angularVelocityVectorInBodyFixedFrame.dot(
+                                               currentExponentialMapToBaseFrame ) *
                                            ( ( 60.0 + exponentialMapMagnitudeSquared ) / 360.0 ) * currentExponentialMapToBaseFrame );
     }
     else
     {
         double cotangentHalfExponentialMapMagnitude = std::cos( 0.5 * exponentialMapMagnitude ) /
                 std::sin( 0.5 * exponentialMapMagnitude );
-        Eigen::Vector3d exponentialMapCrossRotationalVelocityVector = currentExponentialMapToBaseFrame.cross( angularVelocityVectorInBodyFixedFrame );
+        Eigen::Vector3d exponentialMapCrossRotationalVelocityVector = currentExponentialMapToBaseFrame.cross(
+                    angularVelocityVectorInBodyFixedFrame );
         exponentialMapDerivative = angularVelocityVectorInBodyFixedFrame + 0.5 * exponentialMapCrossRotationalVelocityVector +
                 ( 1 - 0.5 * exponentialMapMagnitude * cotangentHalfExponentialMapMagnitude ) /
                 std::pow( exponentialMapMagnitude, 2 ) *

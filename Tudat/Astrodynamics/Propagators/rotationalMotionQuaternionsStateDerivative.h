@@ -45,8 +45,8 @@ Eigen::Matrix4d getQuaterionToQuaternionRateMatrix( const Eigen::Vector3d& angul
  * \param angularVelocityVectorInBodyFixedFrame Current angular velocity vector of body, expressed in its body-fixed frame
  * \return Time derivative of a quaternion (in vector representation) of body-fixed to inertial frame
  */
-Eigen::Vector4d calculateQuaternionsDerivative(
-        const Eigen::Vector4d& currentQuaternionsToBaseFrame, const Eigen::Vector3d& angularVelocityVectorInBodyFixedFrame );
+Eigen::Vector4d calculateQuaternionsDerivative( const Eigen::Vector4d& currentQuaternionsToBaseFrame,
+                                                const Eigen::Vector3d& angularVelocityVectorInBodyFixedFrame );
 
 //! Class for computing the state derivative for rotational dynamics of N bodies.
 /*!
@@ -116,6 +116,11 @@ public:
                         currentBodyFixedRotationRate.template cast< double >( ),
                         this->bodyInertiaTensorTimeDerivativeFunctions_.at( i )( ) ).template cast< StateScalarType >( );
 
+            std::cout << "Quat: " << currentQuaternions.transpose( ) << std::endl;
+            std::cout << "Rot: " << currentBodyFixedRotationRate.transpose( ) << std::endl;
+            std::cout << "Intertia: " << std::endl << this->bodyInertiaTensorFunctions_.at( i )( ) << std::endl;
+            std::cout << "Torque: " << torquesActingOnBodies.at( i ).transpose( ) << std::endl;
+            std::cout << "Deriv: " << stateDerivative.block( i * 7, 0, 7, 1 ).transpose( ) << std::endl << std::endl;
         }
     }
 

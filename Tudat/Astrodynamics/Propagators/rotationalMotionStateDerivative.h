@@ -321,7 +321,7 @@ protected:
      * A map containing the list of torques acting on each body, identifying the body being
      * acted on and the body acted on by an acceleration. The map has as key a string denoting the
      * name of the body the list of torques, provided as the value corresponding to a key, is
-     * acting on.  This map-value is again a map with string as key, denoting the body exerting the
+     * acting on. This map-value is again a map with string as key, denoting the body exerting the
      * acceleration, and as value a pointer to an acceleration model.
      */
     basic_astrodynamics::TorqueModelMap torqueModelsPerBody_;
