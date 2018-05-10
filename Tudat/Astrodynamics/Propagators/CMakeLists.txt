@@ -21,6 +21,7 @@ set(PROPAGATORS_SOURCES
   "${SRCROOT}${PROPAGATORSDIR}/stateTransitionMatrixInterface.cpp"
   "${SRCROOT}${PROPAGATORSDIR}/environmentUpdateTypes.cpp"
   "${SRCROOT}${PROPAGATORSDIR}/singleStateTypeDerivative.cpp"
+  "${SRCROOT}${PROPAGATORSDIR}/rotationalMotionStateDerivative.cpp"
   "${SRCROOT}${PROPAGATORSDIR}/rotationalMotionQuaternionsStateDerivative.cpp"
   "${SRCROOT}${PROPAGATORSDIR}/rotationalMotionModifiedRodriguesParametersStateDerivative.cpp"
   "${SRCROOT}${PROPAGATORSDIR}/rotationalMotionExponentialMapStateDerivative.cpp"

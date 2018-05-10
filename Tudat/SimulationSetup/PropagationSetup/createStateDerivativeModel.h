@@ -245,9 +245,8 @@ createTranslationalStateDerivativeModel(
         break;
     }
     default:
-        throw std::runtime_error(
-                    "Error, did not recognize translational state propagation type: " +
-                    std::to_string( translationPropagatorSettings->propagator_ ) );
+        throw std::runtime_error( "Error, did not recognize translational state propagation type: " +
+                                  std::to_string( translationPropagatorSettings->propagator_ ) );
     }
     return stateDerivativeModel;
 }
@@ -298,6 +297,9 @@ boost::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > crea
                     momentOfInertiaFunctions );
         break;
     }
+    default:
+        throw std::runtime_error( "Error, did not recognize rotational state propagation type: " +
+                                  std::to_string( rotationPropagatorSettings->propagator_ ) );
     }
 
     return stateDerivativeModel;

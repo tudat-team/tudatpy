@@ -105,13 +105,13 @@ public:
 
         for( unsigned int i = 0; i < torquesActingOnBodies.size( ); i++ )
         {
-            Eigen::Matrix< StateScalarType, 4, 1 > currentQuaternions = ( stateOfSystemToBeIntegrated.block( 7 * i, 0, 4, 1 ) ).normalized( );
-            Eigen::Matrix< StateScalarType, 3, 1 > currentBodyFixedRotationRate = stateOfSystemToBeIntegrated.block( 7 * i + 4, 0, 3, 1 );
+            Eigen::Matrix< StateScalarType, 4, 1 > currentQuaternions = stateOfSystemToBeIntegrated.block( i * 7, 0, 4, 1 );
+            Eigen::Matrix< StateScalarType, 3, 1 > currentBodyFixedRotationRate = stateOfSystemToBeIntegrated.block( i * 7 + 4, 0, 3, 1 );
 
-            stateDerivative.block( 7 * i, 0, 4, 1 ) = calculateQuaternionsDerivative(
+            stateDerivative.block( i * 7, 0, 4, 1 ) = calculateQuaternionsDerivative(
                         currentQuaternions.template cast< double >( ), currentBodyFixedRotationRate.template cast< double >( ) ).
                     template cast< StateScalarType >( );
-            stateDerivative.block( 7 * i + 4, 0, 3, 1 ) = evaluateRotationalEquationsOfMotion(
+            stateDerivative.block( i * 7 + 4, 0, 3, 1 ) = evaluateRotationalEquationsOfMotion(
                         this->bodyInertiaTensorFunctions_.at( i )( ), torquesActingOnBodies.at( i ),
                         currentBodyFixedRotationRate.template cast< double >( ),
                         this->bodyInertiaTensorTimeDerivativeFunctions_.at( i )( ) ).template cast< StateScalarType >( );

@@ -97,9 +97,8 @@ public:
 
         for( unsigned int i = 0; i < torquesActingOnBodies.size( ); i++ )
         {
-            Eigen::Matrix< StateScalarType, 4, 1 > currentModifiedRodriguesParameters =
-                    ( stateOfSystemToBeIntegrated.block( 7 * i, 0, 4, 1 ) ).normalized( );
-            Eigen::Matrix< StateScalarType, 3, 1 > currentBodyFixedRotationRate = stateOfSystemToBeIntegrated.block( 7 * i + 4, 0, 3, 1 );
+            Eigen::Matrix< StateScalarType, 4, 1 > currentModifiedRodriguesParameters = stateOfSystemToBeIntegrated.block( i * 7, 0, 4, 1 );
+            Eigen::Matrix< StateScalarType, 3, 1 > currentBodyFixedRotationRate = stateOfSystemToBeIntegrated.block( i * 7 + 4, 0, 3, 1 );
 
             stateDerivative.block( i * 7, 0, 4, 1 ) = calculateModifiedRodriguesParametersDerivative(
                         currentModifiedRodriguesParameters.template cast< double >( ),
@@ -130,7 +129,7 @@ public:
         // Convert state to modified Rodrigues parameters for each body
         for( unsigned int i = 0; i < this->bodiesToPropagate_.size( ); i++ )
         {
-            currentState.segment( i * 4, 4 ) =
+            currentState.segment( i * 7, 4 ) =
                     orbital_element_conversions::convertQuaternionsToModifiedRodriguesParameterElements(
                         outputSolution.block( i * 7, 0, 4, 1 ).template cast< double >( ) ).template cast< StateScalarType >( );
         }

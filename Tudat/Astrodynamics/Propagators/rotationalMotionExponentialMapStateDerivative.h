@@ -96,13 +96,13 @@ public:
 
         for( unsigned int i = 0; i < torquesActingOnBodies.size( ); i++ )
         {
-            Eigen::Matrix< StateScalarType, 4, 1 > currentExponentialMap = ( stateOfSystemToBeIntegrated.block( 7 * i, 0, 4, 1 ) ).normalized( );
-            Eigen::Matrix< StateScalarType, 3, 1 > currentBodyFixedRotationRate = stateOfSystemToBeIntegrated.block( 7 * i + 4, 0, 3, 1 );
+            Eigen::Matrix< StateScalarType, 3, 1 > currentExponentialMap = stateOfSystemToBeIntegrated.block( i * 6, 0, 3, 1 );
+            Eigen::Matrix< StateScalarType, 3, 1 > currentBodyFixedRotationRate = stateOfSystemToBeIntegrated.block( i * 6 + 4, 0, 3, 1 );
 
-            stateDerivative.block( 7 * i, 0, 4, 1 ) = calculateExponentialMapDerivative(
+            stateDerivative.block( i * 6, 0, 3, 1 ) = calculateExponentialMapDerivative(
                         currentExponentialMap.template cast< double >( ), currentBodyFixedRotationRate.template cast< double >( ) ).
                     template cast< StateScalarType >( );
-            stateDerivative.block( 7 * i + 4, 0, 3, 1 ) = evaluateRotationalEquationsOfMotion(
+            stateDerivative.block( i * 6 + 3, 0, 3, 1 ) = evaluateRotationalEquationsOfMotion(
                         this->bodyInertiaTensorFunctions_.at( i )( ), torquesActingOnBodies.at( i ),
                         currentBodyFixedRotationRate.template cast< double >( ),
                         this->bodyInertiaTensorTimeDerivativeFunctions_.at( i )( ) ).template cast< StateScalarType >( );
@@ -127,7 +127,7 @@ public:
         // Convert state to modified Rodrigues parameters for each body
         for( unsigned int i = 0; i < this->bodiesToPropagate_.size( ); i++ )
         {
-            currentState.segment( i * 4, 4 ) =
+            currentState.segment( i * 6, 3 ) =
                     orbital_element_conversions::convertQuaternionsToExponentialMapElements(
                         outputSolution.block( i * 7, 0, 4, 1 ).template cast< double >( ) ).template cast< StateScalarType >( );
         }

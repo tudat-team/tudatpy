@@ -52,11 +52,7 @@ enum RotationalPropagatorType
 Eigen::Vector3d evaluateRotationalEquationsOfMotion(
         const Eigen::Matrix3d& inertiaTensor, const Eigen::Vector3d& totalTorque,
         const Eigen::Vector3d& angularVelocityVector,
-        const Eigen::Matrix3d& inertiaTensorTimeDerivative = Eigen::Matrix3d::Zero( ) )
-{
-    return inertiaTensor.inverse( ) * ( totalTorque - angularVelocityVector.cross( inertiaTensor * angularVelocityVector ) -
-                                        inertiaTensorTimeDerivative * angularVelocityVector );
-}
+        const Eigen::Matrix3d& inertiaTensorTimeDerivative = Eigen::Matrix3d::Zero( ) );
 
 //! Class for computing the state derivative for rotational dynamics of N bodies.
 /*!
