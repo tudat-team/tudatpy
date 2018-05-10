@@ -384,9 +384,14 @@ public:
                                  const std::vector< AtmosphereDependentVariables >& dependentVariablesNames = {
                     density_dependent_atmosphere, pressure_dependent_atmosphere, temperature_dependent_atmosphere },
                                  const double specificGasConstant = physical_constants::SPECIFIC_GAS_CONSTANT_AIR,
-                                 const double ratioOfSpecificHeats = 1.4 ) :
+                                 const double ratioOfSpecificHeats = 1.4,
+                                 const interpolators::BoundaryInterpolationType boundaryHandling = interpolators::use_boundary_value,
+                                 const double defaultExtrapolationValue = IdentityElement< double >::getAdditionIdentity( ) ) :
         TabulatedAtmosphereSettings( { { 0, atmosphereTableFile } }, { altitude_dependent_atmosphere },
-                                     dependentVariablesNames, specificGasConstant, ratioOfSpecificHeats ){ }
+                                     dependentVariablesNames, specificGasConstant, ratioOfSpecificHeats,
+                                     std::vector< interpolators::BoundaryInterpolationType >( 1, boundaryHandling ),
+                                     std::vector< double >( dependentVariablesNames.size( ),
+                                                            defaultExtrapolationValue ) ){ }
 
     //! Constructor with no specific gas constant nor ratio of specific heats.
     /*!

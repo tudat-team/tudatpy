@@ -585,7 +585,8 @@ Eigen::Vector7d convertCartesianToUnifiedStateModelQuaternionsElements(
     // Compute sine and cosine of right ascension of latitude (lambda)
     double denominator = convertedUnifiedStateModelElements( epsilon3QuaternionIndex ) *
             convertedUnifiedStateModelElements( epsilon3QuaternionIndex ) +
-            convertedUnifiedStateModelElements( etaQuaternionIndex ) * convertedUnifiedStateModelElements( etaQuaternionIndex );
+            convertedUnifiedStateModelElements( etaQuaternionIndex ) *
+            convertedUnifiedStateModelElements( etaQuaternionIndex );
     double cosineLambda = ( convertedUnifiedStateModelElements( etaQuaternionIndex ) *
                             convertedUnifiedStateModelElements( etaQuaternionIndex ) -
                             convertedUnifiedStateModelElements( epsilon3QuaternionIndex ) *
@@ -597,10 +598,10 @@ Eigen::Vector7d convertCartesianToUnifiedStateModelQuaternionsElements(
     double radialVelocity = positionVector.dot( velocityVector ) / positionMagnitude;
     Eigen::Vector3d auxiliaryParameter3 = radialVelocity / positionMagnitude * positionVector;
     double auxiliaryParameter2 = ( velocityVector - auxiliaryParameter3 ).norm( );
-    double auxiliaryParameter1 = std::signbit( radialVelocity ) ?
-                - auxiliaryParameter3.norm( ) : auxiliaryParameter3.norm( ); // take norm now that vector value has been used
-    // The sign of first velocity component depends on true anomaly (positive if < PI), and true anomaly can be related to the radial
-    // velocity
+    double auxiliaryParameter1 = ( ( radialVelocity >= 0 ) ? 1.0 : - 1.0 ) *
+            auxiliaryParameter3.norm( ); // take norm now that vector value has been used
+    // The sign of first velocity component depends on true anomaly (positive if < PI), and true anomaly can be
+    // related to the radial velocity
 
     // Compute Rf1 and Rf2 hodograph elements
     convertedUnifiedStateModelElements( Rf1HodographQuaternionIndex ) = auxiliaryParameter1 * cosineLambda -

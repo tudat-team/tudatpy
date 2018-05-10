@@ -189,25 +189,25 @@ public:
     //! Function to normalize the state vector during propagation.
     /*!
      * Function to normalize the state vector during propagation
-     * \param unnormalizedState State before normalization
+     * \param unprocessedState State before normalization
      */
     virtual void postProcessState(
-            Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& unnormalizedState,
+            Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& unprocessedState,
             const int startRow )
     {
 
     }
 
     virtual void postProcessState(
-            Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >& unnormalizedState,
+            Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >& unprocessedState,
             const int startRow,
-            const int startColumn)
+            const int startColumn )
     {
         if( isStateToBePostProcessed( ) )
         {
-            unprocessedState_ = unnormalizedState.block( startRow, startColumn, getPropagatedStateSize( ), 1 );
+            unprocessedState_ = unprocessedState.block( startRow, startColumn, getPropagatedStateSize( ), 1 );
             postProcessState( unprocessedState_, 0 );
-            unnormalizedState.block( startRow, startColumn, getPropagatedStateSize( ), 1 ) = unprocessedState_;
+            unprocessedState.block( startRow, startColumn, getPropagatedStateSize( ), 1 ) = unprocessedState_;
         }
     }
 

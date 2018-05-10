@@ -46,7 +46,7 @@ Eigen::Vector6d computeStateDerivativeForUnifiedStateModelExponentialMap(
     // Compute kinematic equation, i.e., derivative of exponential map
     Eigen::Vector3d exponentialMapVector = currentUnifiedStateModelElements.segment( 3, 3 );
     double exponentialMapMagnitude = exponentialMapVector.norm( );
-    Eigen::Vector3d exponentialMapDerivative = Eigen::Vector3d::Zero( );
+    Eigen::Vector3d exponentialMapDerivative;
     if ( exponentialMapMagnitude < singularityTolerance )
     {
         double exponentialMapMagnitudeSquared = std::pow( exponentialMapMagnitude, 2 );
@@ -59,11 +59,11 @@ Eigen::Vector6d computeStateDerivativeForUnifiedStateModelExponentialMap(
     {
         double cotangentHalfExponentialMapMagnitude = std::cos( 0.5 * exponentialMapMagnitude ) /
                 std::sin( 0.5 * exponentialMapMagnitude );
-        Eigen::Matrix3d skewExponentialMapVector = linear_algebra::getCrossProductMatrix( exponentialMapVector );
-        exponentialMapDerivative = ( Eigen::Matrix3d::Identity( ) + 0.5 * skewExponentialMapVector +
-                                     ( 1 - 0.5 * exponentialMapMagnitude * cotangentHalfExponentialMapMagnitude ) /
-                                     ( exponentialMapMagnitude * exponentialMapMagnitude ) * skewExponentialMapVector *
-                                     skewExponentialMapVector ) * rotationalVelocityVector;
+        Eigen::Vector3d exponentialMapCrossRotationalVelocityVector = exponentialMapVector.cross( rotationalVelocityVector );
+        exponentialMapDerivative = rotationalVelocityVector + 0.5 * exponentialMapCrossRotationalVelocityVector +
+                ( 1 - 0.5 * exponentialMapMagnitude * cotangentHalfExponentialMapMagnitude ) /
+                std::pow( exponentialMapMagnitude, 2 ) *
+                exponentialMapVector.cross( exponentialMapCrossRotationalVelocityVector );
     }
 
     // Evaluate USMEM equations.

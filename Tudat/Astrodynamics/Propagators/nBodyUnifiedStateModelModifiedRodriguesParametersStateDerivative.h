@@ -236,33 +236,45 @@ public:
         return 7 * this->bodiesToBeIntegratedNumerically_.size( );
     }
 
-    void postProcessState(
-            Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& unnormalizedState,
-            const int startRow )
+    //! Function to process the state after propagation.
+    /*!
+     * Function to process the state after propagation. For modified Rodrigues parameters (MRP), this function converts to/from
+     * shadow modified Rodrigues parameters (SMRP), in case the magnitude of the (S)MRP vector is larger than 1.0.
+     * \param unprocessedState State computed after propagation.
+     * \param startRow Dummy variable added for compatibility issues between Eigen::Matrix and Eigen::Block.
+     */
+    void postProcessState( Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& unprocessedState,
+                           const int startRow )
     {
         // Loop over each body
+        Eigen::Matrix< StateScalarType, 3, 1 > modifiedRodriguesParametersVector;
+        StateScalarType modifiedRodriguesParametersMagnitude;
         for( unsigned int i = 0; i < this->bodiesToBeIntegratedNumerically_.size( ); i++ )
         {
             // Convert to/from shadow modifed Rodrigues parameters (SMRP) (transformation is the same either way)
-            Eigen::Matrix< StateScalarType, 3, 1 > modifiedRodriguesParametersVector =
-                    unnormalizedState.block( startRow + i * 7 + 3, 0, 3, 1 );
-            StateScalarType modifiedRodriguesParametersMagnitude = modifiedRodriguesParametersVector.norm( );
+            modifiedRodriguesParametersVector = unprocessedState.block( startRow + i * 7 + 3, 0, 3, 1 );
+            modifiedRodriguesParametersMagnitude = modifiedRodriguesParametersVector.norm( );
             if ( modifiedRodriguesParametersMagnitude >= 1.0 )
             {
                 // Invert flag
-                unnormalizedState( startRow + i * 7 + 6 ) = std::fabs( unnormalizedState( startRow + i * 7 + 6 ) - 1.0 );
+                unprocessedState( startRow + i * 7 + 6 ) = std::fabs( unprocessedState( startRow + i * 7 + 6 ) - 1.0 );
 
                 // Convert to MRP/SMRP
                 modifiedRodriguesParametersVector /= - modifiedRodriguesParametersMagnitude *
                         modifiedRodriguesParametersMagnitude;
 
                 // Replace MRP with SMPR, or vice-versa
-                unnormalizedState.segment( startRow + i * 7 + 3, 3 ) = modifiedRodriguesParametersVector;
+                unprocessedState.segment( startRow + i * 7 + 3, 3 ) = modifiedRodriguesParametersVector;
             }
         }
     }
 
-    virtual bool isStateToBePostProcessed( )
+    //! Function to return whether the state needs to be post-processed.
+    /*!
+     * Function to return whether the state needs to be post-processed. For (shadow) modified Rodrigues parameters this is true.
+     * \return Boolean confirming that the state needs to be post-processed.
+     */
+    bool isStateToBePostProcessed( )
     {
         return true;
     }
