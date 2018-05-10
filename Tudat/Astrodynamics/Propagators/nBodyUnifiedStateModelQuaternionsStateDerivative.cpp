@@ -38,22 +38,11 @@ Eigen::Vector7d computeStateDerivativeForUnifiedStateModelQuaternions(
     hodographMatrix( 2, 1 ) = ( 1.0 + pAuxiliaryVector( 0 ) ) * cosineLambda;
     hodographMatrix( 2, 2 ) = gammaParameter * pAuxiliaryVector( 2 );
 
-//    Eigen::Matrix4d quaternionMatrix = Eigen::Matrix4d::Zero( );
-//    quaternionMatrix( 0, 1 ) = rotationalVelocityVector( 2 );
-//    quaternionMatrix( 0, 3 ) = rotationalVelocityVector( 0 );
-//    quaternionMatrix( 1, 0 ) = - rotationalVelocityVector( 2 );
-//    quaternionMatrix( 1, 2 ) = rotationalVelocityVector( 0 );
-//    quaternionMatrix( 2, 1 ) = - rotationalVelocityVector( 0 );
-//    quaternionMatrix( 2, 3 ) = rotationalVelocityVector( 2 );
-//    quaternionMatrix( 3, 0 ) = - rotationalVelocityVector( 0 );
-//    quaternionMatrix( 3, 2 ) = - rotationalVelocityVector( 2 );
-
     // Evaluate USM7 equations.
     Eigen::Vector7d stateDerivative;
     stateDerivative.segment( 0, 3 ) = hodographMatrix * accelerationsInRswFrame;
     stateDerivative.segment( 3, 4 ) = calculateQuaternionsDerivative( currentUnifiedStateModelElements.segment( 3, 4 ),
                                                                       rotationalVelocityVector );
-//            0.5 * quaternionMatrix * currentUnifiedStateModelElements.segment( 3, 4 );
 
     // Give output
     return stateDerivative;

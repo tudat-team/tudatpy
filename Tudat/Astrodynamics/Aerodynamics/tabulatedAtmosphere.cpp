@@ -39,7 +39,7 @@ void TabulatedAtmosphere::initialize( const std::map< int, std::string >& atmosp
     // Check that number of dependent variables does not exceed limit
     if ( numberOfDependentVariables > dependentVariablesDependency_.size( ) )
     {
-        throw std::runtime_error( "Error, number of dependent variables exceeds current limit." );
+        throw std::runtime_error( "Error, in tabulated atmosphere. Number of dependent variables exceeds current limit." );
     }
 
     // Check input consistency
@@ -101,8 +101,8 @@ void TabulatedAtmosphere::initialize( const std::map< int, std::string >& atmosp
     {
         if ( static_cast< int >( boundaryHandling_.size( ) ) != numberOfIndependentVariables_ )
         {
-            throw std::runtime_error( "Error, number of boundary handling methods provided does not match number of "
-                                      "independent variables." );
+            throw std::runtime_error( "Error, in tabulated atmosphere. Number of boundary handling methods provided does "
+                                      "not match number of independent variables." );
         }
     }
 
@@ -116,8 +116,8 @@ void TabulatedAtmosphere::initialize( const std::map< int, std::string >& atmosp
     {
         if ( defaultExtrapolationValue_.size( ) != numberOfDependentVariables )
         {
-            throw std::runtime_error( "Error, number of default extrapolation values provided does not match number of "
-                                      "dependent variables." );
+            throw std::runtime_error( "Error, in tabulated atmosphere. Number of default extrapolation values provided "
+                                      "does not match number of dependent variables." );
         }
     }
 
@@ -137,14 +137,16 @@ void TabulatedAtmosphere::initialize( const std::map< int, std::string >& atmosp
         // Check whether data is present in the file.
         if ( numberOfRowsInFile < 1 || numberOfColumnsInFile < 1 )
         {
-            std::string errorMessage = "The atmosphere table file " + atmosphereTableFile_.at( 0 ) + " is empty";
+            std::string errorMessage = "Error, in tabulated atmosphere. The atmosphere table file " +
+                    atmosphereTableFile_.at( 0 ) + " is empty";
             throw std::runtime_error( errorMessage );
         }
 
         // Check whether number of dependent variables matches number of columns
         if ( numberOfDependentVariables != ( numberOfColumnsInFile - 1 ) )
         {
-            throw std::runtime_error( "Number of specified dependent variables does not match file." );
+            throw std::runtime_error( "Error, in tabulated atmosphere. "
+                                      "Number of specified dependent variables does not match file." );
         }
 
         // Assign sizes to vectors
@@ -269,7 +271,7 @@ void checkVariableUniqueness( std::vector< VariableType > variables )
     // Give error in case of non-unique variables
     if ( numberOfUniqueElements != variables.size( ) )
     {
-        throw std::runtime_error( "Error, duplicate entry in (in)dependent variables." );
+        throw std::runtime_error( "Error, in tabulated atmosphere. Duplicate entry in (in)dependent variables." );
     }
 }
 

@@ -132,7 +132,6 @@ private:
     //! Function returning the rotation from inertial frame to frame fixed to body undergoing torque.
     const boost::function< Eigen::Quaterniond( ) > rotationToBodyFixedFrameFunction_;
 
-
     //! Current [osition of body exerting torque, w.r.t. body undergoing torque in frame fixed to body undergoing torque, as set
     //! by updateMembers function.
     Eigen::Vector3d currentRelativePositionOfBodySubjectToTorque_;

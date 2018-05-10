@@ -29,10 +29,12 @@ Eigen::Vector4d calculateModifiedRodriguesParametersDerivative(
     Eigen::Vector3d modifiedRodriguesParametersVector = currentModifiedRodriguesParametersToBaseFrame.segment( 0, 3 );
 
     // Compute kinematic equation, i.e., derivative of modified Rodrigues parameters (also valid for SMRP)
-    modifiedRodriguesParametersDerivative.segment( 0, 3 ) = 0.5 *
-            0.5 * ( 1.0 - std::pow( modifiedRodriguesParametersVector.norm( ), 2 ) ) * angularVelocityVectorInBodyFixedFrame +
-            ( linear_algebra::getCrossProductMatrix( modifiedRodriguesParametersVector ) + modifiedRodriguesParametersVector *
-              modifiedRodriguesParametersVector.transpose( ) ) * angularVelocityVectorInBodyFixedFrame;
+    Eigen::Matrix3d skewModifiedRodriguesParametersVectorMatrix =
+            linear_algebra::getCrossProductMatrix( modifiedRodriguesParametersVector );
+    modifiedRodriguesParametersDerivative.segment( 0, 3 ) = 0.5 * (
+                0.5 * ( 1.0 - std::pow( modifiedRodriguesParametersVector.norm( ), 2 ) ) * angularVelocityVectorInBodyFixedFrame +
+                ( skewModifiedRodriguesParametersVectorMatrix + modifiedRodriguesParametersVector *
+                  modifiedRodriguesParametersVector.transpose( ) ) * angularVelocityVectorInBodyFixedFrame );
 
     // Give output
     return modifiedRodriguesParametersDerivative;

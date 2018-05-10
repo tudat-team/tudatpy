@@ -44,7 +44,6 @@ AvailableTorque getTorqueModelType(
 //! Function to get a string representing a 'named identification' of an torque type
 std::string getTorqueModelName( const AvailableTorque torqueType )
 {
-
     std::string torqueName;
     switch( torqueType )
     {
@@ -82,4 +81,3 @@ std::vector< boost::shared_ptr< TorqueModel > > getTorqueModelsOfType(
 }
 
 }
-

@@ -36,8 +36,8 @@ namespace propagators
  * \param angularVelocityVectorInBodyFixedFrame Current angular velocity vector of body, expressed in its body-fixed frame
  * \return Time derivative of a quaternion (in vector representation) of body-fixed to inertial frame
  */
-Eigen::Vector3d calculateExponentialMapDerivative(
-        const Eigen::Vector3d& currentExponantialMapToBaseFrame, const Eigen::Vector3d& angularVelocityVectorInBodyFixedFrame );
+Eigen::Vector3d calculateExponentialMapDerivative( const Eigen::Vector3d& currentExponantialMapToBaseFrame,
+                                                   const Eigen::Vector3d& angularVelocityVectorInBodyFixedFrame );
 
 //! Class for computing the state derivative for rotational dynamics of N bodies.
 /*!
@@ -106,7 +106,6 @@ public:
                         this->bodyInertiaTensorFunctions_.at( i )( ), torquesActingOnBodies.at( i ),
                         currentBodyFixedRotationRate.template cast< double >( ),
                         this->bodyInertiaTensorTimeDerivativeFunctions_.at( i )( ) ).template cast< StateScalarType >( );
-
         }
     }
 
