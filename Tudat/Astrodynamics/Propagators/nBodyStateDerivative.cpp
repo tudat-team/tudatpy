@@ -16,7 +16,6 @@ namespace tudat
 namespace propagators
 {
 
-
 //! Function to remove the central gravity acceleration from an AccelerationMap
 std::vector< boost::function< double( ) > > removeCentralGravityAccelerations(
         const std::vector< std::string >& centralBodies, const std::vector< std::string >& bodiesToIntegrate,

@@ -42,8 +42,8 @@ Eigen::Vector7d computeStateDerivativeForUnifiedStateModelQuaternions(
         const double sineLambdaParameter,
         const double cosineLambdaParameter,
         const double gammaParameter,
-        const Eigen::Vector3d rotationalVelocityVector,
-        const Eigen::Vector3d pParameterVector );
+        const Eigen::Vector3d& rotationalVelocityVector,
+        const Eigen::Vector3d& pParameterVector );
 
 //! Function to evaluate the equations of motion for the unifies state model with quaternions (USM7)
 /*!
@@ -239,9 +239,9 @@ public:
         return 7 * this->bodiesToBeIntegratedNumerically_.size( );
     }
 
-    //! Function to process the state after propagation.
+    //! Function to process the state during propagation.
     /*!
-     * Function to process the state after propagation. For quaternions, this function normalizes the quaternion vector
+     * Function to process the state during propagation. For quaternions, this function normalizes the quaternion vector
      * in case its magnitude differs from 1.0 by a value larger than the tolerance.
      * \param unprocessedState State computed after propagation.
      * \param startRow Dummy variable added for compatibility issues between Eigen::Matrix and Eigen::Block.

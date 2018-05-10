@@ -22,7 +22,7 @@
 #include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
 #include "Tudat/Mathematics/BasicMathematics/basicMathematicsFunctions.h"
 
-#include "Tudat/Astrodynamics/BasicAstrodynamics/unifiedStateModelQuaternionsElementConversions.h"
+#include "Tudat/Astrodynamics/BasicAstrodynamics/unifiedStateModelQuaternionElementConversions.h"
 #include "Tudat/Basics/basicTypedefs.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/stateVectorIndices.h"
 
@@ -30,8 +30,6 @@ namespace tudat
 {
 namespace unit_tests
 {
-
-
 
 //! Test the functionality of the time conversion functions.
 BOOST_AUTO_TEST_SUITE( test_USM7_Element_Conversions )
@@ -70,13 +68,13 @@ BOOST_AUTO_TEST_CASE( testconvertKeplerianToUnifiedStateModelQuaternionsElements
 
         // Expected unified state model elements [m/s,m/s,m/s,-,-,-,-].
         // (Results obtained using MATLAB code).
-        expectedUnifiedStateModelElements( CHodographQuaternionIndex ) = 29894.5892222602;
-        expectedUnifiedStateModelElements( Rf1HodographQuaternionIndex ) = -260.548512780222;
-        expectedUnifiedStateModelElements( Rf2HodographQuaternionIndex ) = 2978.08312848463;
-        expectedUnifiedStateModelElements( epsilon1QuaternionIndex ) = -0.419002703925548;
-        expectedUnifiedStateModelElements( epsilon2QuaternionIndex ) = -0.0551627524676706;
-        expectedUnifiedStateModelElements( epsilon3QuaternionIndex ) = -0.118296904421275;
-        expectedUnifiedStateModelElements( etaQuaternionIndex ) = -0.898554198280556;
+        expectedUnifiedStateModelElements( CHodographUSM7Index ) = 29894.5892222602;
+        expectedUnifiedStateModelElements( Rf1HodographUSM7Index ) = -260.548512780222;
+        expectedUnifiedStateModelElements( Rf2HodographUSM7Index ) = 2978.08312848463;
+        expectedUnifiedStateModelElements( epsilon1USM7Index ) = -0.419002703925548;
+        expectedUnifiedStateModelElements( epsilon2USM7Index ) = -0.0551627524676706;
+        expectedUnifiedStateModelElements( epsilon3USM7Index ) = -0.118296904421275;
+        expectedUnifiedStateModelElements( etaUSM7Index ) = -0.898554198280556;
 
         // Compute unified state model elements.
         computedUnifiedStateModelElements =
@@ -102,13 +100,13 @@ BOOST_AUTO_TEST_CASE( testconvertKeplerianToUnifiedStateModelQuaternionsElements
 
         // Set expected unified state model elements [m/s,m/s,m/s,-,-,-,-].
         // (Results obtained using MATLAB code).
-        expectedUnifiedStateModelElements( CHodographQuaternionIndex ) = 17173.1340579794;
-        expectedUnifiedStateModelElements( Rf1HodographQuaternionIndex ) = -2993.47450825659;
-        expectedUnifiedStateModelElements( Rf2HodographQuaternionIndex ) = 34215.5701963558;
-        expectedUnifiedStateModelElements( epsilon1QuaternionIndex ) = -0.987672114350896;
-        expectedUnifiedStateModelElements( epsilon2QuaternionIndex ) = -0.130029500651719;
-        expectedUnifiedStateModelElements( epsilon3QuaternionIndex ) = -0.0113761072309622;
-        expectedUnifiedStateModelElements( etaQuaternionIndex )= -0.0864101132863834;
+        expectedUnifiedStateModelElements( CHodographUSM7Index ) = 17173.1340579794;
+        expectedUnifiedStateModelElements( Rf1HodographUSM7Index ) = -2993.47450825659;
+        expectedUnifiedStateModelElements( Rf2HodographUSM7Index ) = 34215.5701963558;
+        expectedUnifiedStateModelElements( epsilon1USM7Index ) = -0.987672114350896;
+        expectedUnifiedStateModelElements( epsilon2USM7Index ) = -0.130029500651719;
+        expectedUnifiedStateModelElements( epsilon3USM7Index ) = -0.0113761072309622;
+        expectedUnifiedStateModelElements( etaUSM7Index )= -0.0864101132863834;
 
         // Compute unified state model elements.
         computedUnifiedStateModelElements =
@@ -132,13 +130,13 @@ BOOST_AUTO_TEST_CASE( testconvertKeplerianToUnifiedStateModelQuaternionsElements
 
         // Set expected unified state model elements [m/s,m/s,m/s,-,-,-,-].
         // (Results obtained using MATLAB code).
-        expectedUnifiedStateModelElements( CHodographQuaternionIndex ) = 29744.7407136119;
-        expectedUnifiedStateModelElements( Rf1HodographQuaternionIndex ) = -2592.42496973134;
-        expectedUnifiedStateModelElements( Rf2HodographQuaternionIndex ) = 29631.5529950138;
-        expectedUnifiedStateModelElements( epsilon1QuaternionIndex ) = -0.299561523151596;
-        expectedUnifiedStateModelElements( epsilon2QuaternionIndex ) = 0.95008776981561;
-        expectedUnifiedStateModelElements( epsilon3QuaternionIndex ) = -0.0870727897926938;
-        expectedUnifiedStateModelElements( etaQuaternionIndex ) = -0.00380168010402369;
+        expectedUnifiedStateModelElements( CHodographUSM7Index ) = 29744.7407136119;
+        expectedUnifiedStateModelElements( Rf1HodographUSM7Index ) = -2592.42496973134;
+        expectedUnifiedStateModelElements( Rf2HodographUSM7Index ) = 29631.5529950138;
+        expectedUnifiedStateModelElements( epsilon1USM7Index ) = -0.299561523151596;
+        expectedUnifiedStateModelElements( epsilon2USM7Index ) = 0.95008776981561;
+        expectedUnifiedStateModelElements( epsilon3USM7Index ) = -0.0870727897926938;
+        expectedUnifiedStateModelElements( etaUSM7Index ) = -0.00380168010402369;
 
         // Compute unified state model elements.
         computedUnifiedStateModelElements =
@@ -208,13 +206,13 @@ BOOST_AUTO_TEST_CASE( testconvertKeplerianToUnifiedStateModelQuaternionsElements
 
         // Set expected unified state model elements [m/s,m/s,m/s,-,-,-,-]. (Results were calculated by
         // hand).
-        expectedUnifiedStateModelElements( CHodographQuaternionIndex ) = 29894.5892222602;
-        expectedUnifiedStateModelElements( Rf1HodographQuaternionIndex ) = -260.548512780222;
-        expectedUnifiedStateModelElements( Rf2HodographQuaternionIndex ) = 2978.08312848463;
-        expectedUnifiedStateModelElements( epsilon1QuaternionIndex ) = -0.300705799504273;
-        expectedUnifiedStateModelElements( epsilon2QuaternionIndex ) = 0.953716950748227;
-        expectedUnifiedStateModelElements( epsilon3QuaternionIndex ) = -6.11740603377039e-17;
-        expectedUnifiedStateModelElements( etaQuaternionIndex ) = -2.67091715588637e-18;
+        expectedUnifiedStateModelElements( CHodographUSM7Index ) = 29894.5892222602;
+        expectedUnifiedStateModelElements( Rf1HodographUSM7Index ) = -260.548512780222;
+        expectedUnifiedStateModelElements( Rf2HodographUSM7Index ) = 2978.08312848463;
+        expectedUnifiedStateModelElements( epsilon1USM7Index ) = -0.300705799504273;
+        expectedUnifiedStateModelElements( epsilon2USM7Index ) = 0.953716950748227;
+        expectedUnifiedStateModelElements( epsilon3USM7Index ) = -6.11740603377039e-17;
+        expectedUnifiedStateModelElements( etaUSM7Index ) = -2.67091715588637e-18;
 
         // Compute unified state model elements.
         computedUnifiedStateModelElements =
@@ -223,14 +221,14 @@ BOOST_AUTO_TEST_CASE( testconvertKeplerianToUnifiedStateModelQuaternionsElements
 
         // Because two elements are near-zero, a close fraction/percentage check will fail.
         // Therefore, 1.0 is added to the elements to avoid this
-        expectedUnifiedStateModelElements( epsilon3QuaternionIndex ) =
-                expectedUnifiedStateModelElements( epsilon3QuaternionIndex ) + 1.0;
-        expectedUnifiedStateModelElements( etaQuaternionIndex ) =
-                expectedUnifiedStateModelElements( etaQuaternionIndex ) + 1.0;
-        computedUnifiedStateModelElements( epsilon3QuaternionIndex ) =
-                computedUnifiedStateModelElements( epsilon3QuaternionIndex ) + 1.0;
-        computedUnifiedStateModelElements( etaQuaternionIndex ) =
-                computedUnifiedStateModelElements( etaQuaternionIndex ) + 1.0;
+        expectedUnifiedStateModelElements( epsilon3USM7Index ) =
+                expectedUnifiedStateModelElements( epsilon3USM7Index ) + 1.0;
+        expectedUnifiedStateModelElements( etaUSM7Index ) =
+                expectedUnifiedStateModelElements( etaUSM7Index ) + 1.0;
+        computedUnifiedStateModelElements( epsilon3USM7Index ) =
+                computedUnifiedStateModelElements( epsilon3USM7Index ) + 1.0;
+        computedUnifiedStateModelElements( etaUSM7Index ) =
+                computedUnifiedStateModelElements( etaUSM7Index ) + 1.0;
 
         // Check if computed elements match the expected values.
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION( expectedUnifiedStateModelElements,
@@ -247,13 +245,13 @@ BOOST_AUTO_TEST_CASE( testconvertKeplerianToUnifiedStateModelQuaternionsElements
 
         // Expected unified state model elements [m/s,m/s,m/s,-,-,-,-].
         // (Results obtained using code archive B. Romgens (2011)).
-        expectedUnifiedStateModelElements( CHodographQuaternionIndex ) = 29744.7407136119;
-        expectedUnifiedStateModelElements( Rf1HodographQuaternionIndex ) = 0;
-        expectedUnifiedStateModelElements( Rf2HodographQuaternionIndex ) = 0;
-        expectedUnifiedStateModelElements( epsilon1QuaternionIndex ) = 0;
-        expectedUnifiedStateModelElements( epsilon2QuaternionIndex ) = 0;
-        expectedUnifiedStateModelElements( epsilon3QuaternionIndex ) = 0.996194698091746;
-        expectedUnifiedStateModelElements( etaQuaternionIndex ) = 0.0871557427476581;
+        expectedUnifiedStateModelElements( CHodographUSM7Index ) = 29744.7407136119;
+        expectedUnifiedStateModelElements( Rf1HodographUSM7Index ) = 0;
+        expectedUnifiedStateModelElements( Rf2HodographUSM7Index ) = 0;
+        expectedUnifiedStateModelElements( epsilon1USM7Index ) = 0;
+        expectedUnifiedStateModelElements( epsilon2USM7Index ) = 0;
+        expectedUnifiedStateModelElements( epsilon3USM7Index ) = 0.996194698091746;
+        expectedUnifiedStateModelElements( etaUSM7Index ) = 0.0871557427476581;
 
         // Compute unified state model elements.
         computedUnifiedStateModelElements =
@@ -319,8 +317,6 @@ BOOST_AUTO_TEST_CASE( testconvertUnifiedStateModelQuaternionsToKeplerianElements
     // Declaring computed output vector.
     Eigen::Vector6d computedKeplerianElements = Eigen::VectorXd::Zero( 6 );
 
-
-
     // Case 1: Elliptical prograde orbit (default case).
     {
         // Default case, so no modification necessary.
@@ -328,7 +324,7 @@ BOOST_AUTO_TEST_CASE( testconvertUnifiedStateModelQuaternionsToKeplerianElements
         // Convert to unified state model elements and back.
         computedKeplerianElements = convertUnifiedStateModelQuaternionsToKeplerianElements(
                     convertKeplerianToUnifiedStateModelQuaternionsElements( expectedKeplerianElements,
-                                                                   centralBodyGravitationalParameter ),
+                                                                            centralBodyGravitationalParameter ),
                     centralBodyGravitationalParameter );
 
         // Check if computed Keplerian elements match the expected values.
@@ -347,7 +343,7 @@ BOOST_AUTO_TEST_CASE( testconvertUnifiedStateModelQuaternionsToKeplerianElements
         // Convert to unified state model elements and back.
         computedKeplerianElements = convertUnifiedStateModelQuaternionsToKeplerianElements(
                     convertKeplerianToUnifiedStateModelQuaternionsElements( expectedKeplerianElements,
-                                                                   centralBodyGravitationalParameter ),
+                                                                            centralBodyGravitationalParameter ),
                     centralBodyGravitationalParameter );
 
         // Check if computed Keplerian elements match the expected values.

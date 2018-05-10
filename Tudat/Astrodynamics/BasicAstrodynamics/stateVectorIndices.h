@@ -14,6 +14,7 @@
 
 namespace tudat
 {
+
 namespace orbital_element_conversions
 {
 
@@ -65,39 +66,66 @@ enum SphericalOrbitalStateElementIndices
 //! Unified state model with quaternions indices.
 enum UnifiedStateModelQuaternionsElementIndices
 {
-    CHodographQuaternionIndex = 0,
-    Rf1HodographQuaternionIndex = 1,
-    Rf2HodographQuaternionIndex = 2,
-    epsilon1QuaternionIndex = 3,
-    epsilon2QuaternionIndex = 4,
-    epsilon3QuaternionIndex = 5,
-    etaQuaternionIndex = 6
+    CHodographUSM7Index = 0,
+    Rf1HodographUSM7Index = 1,
+    Rf2HodographUSM7Index = 2,
+    etaUSM7Index = 3,
+    epsilon1USM7Index = 4,
+    epsilon2USM7Index = 5,
+    epsilon3USM7Index = 6
 };
 
 //! Unified state model with modified Rodrigues parameters indices.
 enum UnifiedStateModelModifiedRodriguesParametersElementIndices
 {
-    CHodographModifiedRodriguesParameterIndex = 0,
-    Rf1HodographModifiedRodriguesParameterIndex = 1,
-    Rf2HodographModifiedRodriguesParameterIndex = 2,
-    sigma1ModifiedRodriguesParameterIndex = 3,
-    sigma2ModifiedRodriguesParameterIndex = 4,
-    sigma3ModifiedRodriguesParameterIndex = 5,
-    shadowModifiedRodriguesParameterFlagIndex = 6
+    CHodographUSM6Index = 0,
+    Rf1HodographUSM6Index = 1,
+    Rf2HodographUSM6Index = 2,
+    sigma1USM6Index = 3,
+    sigma2USM6Index = 4,
+    sigma3USM6Index = 5,
+    shadowFlagUSM6Index = 6
 };
 
 //! Unified state model with exponential map indices.
 enum UnifiedStateModelExponentialMapElementIndices
 {
-    CHodographExponentialMapIndex = 0,
-    Rf1HodographExponentialMapIndex = 1,
-    Rf2HodographExponentialMapIndex = 2,
-    e1ExponentialMapIndex = 3,
-    e2ExponentialMapIndex = 4,
-    e3ExponentialMapIndex = 5
+    CHodographUSMEMIndex = 0,
+    Rf1HodographUSMEMIndex = 1,
+    Rf2HodographUSMEMIndex = 2,
+    e1USMEMIndex = 3,
+    e2USMEMIndex = 4,
+    e3USMEMIndex = 5
+};
+
+//! Quaternions indices.
+enum QuaternionsElementIndices
+{
+    etaQuaternionIndex = 0,
+    epsilon1QuaternionIndex = 1,
+    epsilon2QuaternionIndex = 2,
+    epsilon3QuaternionIndex = 3
+};
+
+//! Modified Rodrigues parameters indices.
+enum ModifiedRodriguesParametersElementIndices
+{
+    sigma1ModifiedRodriguesParametersIndex = 0,
+    sigma2ModifiedRodriguesParametersIndex = 1,
+    sigma3ModifiedRodriguesParametersIndex = 2,
+    shadowFlagModifiedRodriguesParametersIndex = 3
+};
+
+//! Exponential map indices.
+enum ExponentialMapElementIndices
+{
+    e1ExponentialMapIndex = 0,
+    e2ExponentialMapIndex = 1,
+    e3ExponentialMapIndex = 2
 };
 
 } // namespace orbital_element_conversions
+
 } // namespace tudat
 
 #endif // TUDAT_STATE_INDICES_H

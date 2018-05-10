@@ -10,6 +10,7 @@
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/stateVectorIndices.h"
 #include "Tudat/Astrodynamics/Propagators/nBodyUnifiedStateModelQuaternionsStateDerivative.h"
+#include "Tudat/Astrodynamics/Propagators/rotationalMotionQuaternionsStateDerivative.h"
 
 namespace tudat
 {
@@ -24,8 +25,8 @@ Eigen::Vector7d computeStateDerivativeForUnifiedStateModelQuaternions(
         const double sineLambda,
         const double cosineLambda,
         const double gammaParameter,
-        const Eigen::Vector3d rotationalVelocityVector,
-        const Eigen::Vector3d pAuxiliaryVector )
+        const Eigen::Vector3d& rotationalVelocityVector,
+        const Eigen::Vector3d& pAuxiliaryVector )
 {
     // Compute supporting parameters
     Eigen::Matrix3d hodographMatrix = Eigen::Matrix3d::Zero( );
@@ -37,20 +38,22 @@ Eigen::Vector7d computeStateDerivativeForUnifiedStateModelQuaternions(
     hodographMatrix( 2, 1 ) = ( 1.0 + pAuxiliaryVector( 0 ) ) * cosineLambda;
     hodographMatrix( 2, 2 ) = gammaParameter * pAuxiliaryVector( 2 );
 
-    Eigen::Matrix4d quaternionMatrix = Eigen::Matrix4d::Zero( );
-    quaternionMatrix( 0, 1 ) = rotationalVelocityVector( 2 );
-    quaternionMatrix( 0, 3 ) = rotationalVelocityVector( 0 );
-    quaternionMatrix( 1, 0 ) = - rotationalVelocityVector( 2 );
-    quaternionMatrix( 1, 2 ) = rotationalVelocityVector( 0 );
-    quaternionMatrix( 2, 1 ) = - rotationalVelocityVector( 0 );
-    quaternionMatrix( 2, 3 ) = rotationalVelocityVector( 2 );
-    quaternionMatrix( 3, 0 ) = - rotationalVelocityVector( 0 );
-    quaternionMatrix( 3, 2 ) = - rotationalVelocityVector( 2 );
+//    Eigen::Matrix4d quaternionMatrix = Eigen::Matrix4d::Zero( );
+//    quaternionMatrix( 0, 1 ) = rotationalVelocityVector( 2 );
+//    quaternionMatrix( 0, 3 ) = rotationalVelocityVector( 0 );
+//    quaternionMatrix( 1, 0 ) = - rotationalVelocityVector( 2 );
+//    quaternionMatrix( 1, 2 ) = rotationalVelocityVector( 0 );
+//    quaternionMatrix( 2, 1 ) = - rotationalVelocityVector( 0 );
+//    quaternionMatrix( 2, 3 ) = rotationalVelocityVector( 2 );
+//    quaternionMatrix( 3, 0 ) = - rotationalVelocityVector( 0 );
+//    quaternionMatrix( 3, 2 ) = - rotationalVelocityVector( 2 );
 
     // Evaluate USM7 equations.
-    Eigen::Vector7d stateDerivative = Eigen::Vector7d::Zero( );
+    Eigen::Vector7d stateDerivative;
     stateDerivative.segment( 0, 3 ) = hodographMatrix * accelerationsInRswFrame;
-    stateDerivative.segment( 3, 4 ) = 0.5 * quaternionMatrix * currentUnifiedStateModelElements.segment( 3, 4 );
+    stateDerivative.segment( 3, 4 ) = calculateQuaternionsDerivative( currentUnifiedStateModelElements.segment( 3, 4 ),
+                                                                      rotationalVelocityVector );
+//            0.5 * quaternionMatrix * currentUnifiedStateModelElements.segment( 3, 4 );
 
     // Give output
     return stateDerivative;
@@ -65,10 +68,10 @@ Eigen::Vector7d computeStateDerivativeForUnifiedStateModelQuaternions(
     using namespace orbital_element_conversions;
 
     // Retrieve USM elements
-    double epsilon1QuaternionParameter = currentUnifiedStateModelElements( epsilon1QuaternionIndex );
-    double epsilon2QuaternionParameter = currentUnifiedStateModelElements( epsilon2QuaternionIndex );
-    double epsilon3QuaternionParameter = currentUnifiedStateModelElements( epsilon3QuaternionIndex );
-    double etaQuaternionParameter = currentUnifiedStateModelElements( etaQuaternionIndex );
+    double etaQuaternionParameter = currentUnifiedStateModelElements( etaUSM7Index );
+    double epsilon1QuaternionParameter = currentUnifiedStateModelElements( epsilon1USM7Index );
+    double epsilon2QuaternionParameter = currentUnifiedStateModelElements( epsilon2USM7Index );
+    double epsilon3QuaternionParameter = currentUnifiedStateModelElements( epsilon3USM7Index );
 
     // Compute supporting parameters
     double denominator = std::pow( epsilon3QuaternionParameter, 2 ) + std::pow( etaQuaternionParameter, 2 );
@@ -77,18 +80,18 @@ Eigen::Vector7d computeStateDerivativeForUnifiedStateModelQuaternions(
     double gammaParameter = ( epsilon1QuaternionParameter * epsilon3QuaternionParameter -
                               epsilon2QuaternionParameter * etaQuaternionParameter ) / denominator;
 
-    double velocityHodographParameter = currentUnifiedStateModelElements( CHodographQuaternionIndex ) -
-            currentUnifiedStateModelElements( Rf1HodographQuaternionIndex ) * sineLambda +
-            currentUnifiedStateModelElements( Rf2HodographQuaternionIndex ) * cosineLambda;
+    double velocityHodographParameter = currentUnifiedStateModelElements( CHodographUSM7Index ) -
+            currentUnifiedStateModelElements( Rf1HodographUSM7Index ) * sineLambda +
+            currentUnifiedStateModelElements( Rf2HodographUSM7Index ) * cosineLambda;
     Eigen::Vector3d rotationalVelocityVector = Eigen::Vector3d::Zero( );
     rotationalVelocityVector( 0 ) = accelerationsInRswFrame( 2 ) / velocityHodographParameter;
     rotationalVelocityVector( 2 ) = std::pow( velocityHodographParameter, 2 ) *
-            currentUnifiedStateModelElements( CHodographQuaternionIndex ) / centralBodyGravitationalParameter;
+            currentUnifiedStateModelElements( CHodographUSM7Index ) / centralBodyGravitationalParameter;
 
     Eigen::Vector3d pAuxiliaryVector = Eigen::Vector3d::Zero( );
-    pAuxiliaryVector( 0 ) = currentUnifiedStateModelElements( CHodographQuaternionIndex );
-    pAuxiliaryVector( 1 ) = currentUnifiedStateModelElements( Rf2HodographQuaternionIndex );
-    pAuxiliaryVector( 2 ) = currentUnifiedStateModelElements( Rf1HodographQuaternionIndex );
+    pAuxiliaryVector( 0 ) = currentUnifiedStateModelElements( CHodographUSM7Index );
+    pAuxiliaryVector( 1 ) = currentUnifiedStateModelElements( Rf2HodographUSM7Index );
+    pAuxiliaryVector( 2 ) = currentUnifiedStateModelElements( Rf1HodographUSM7Index );
     pAuxiliaryVector /= velocityHodographParameter;
 
     // Evaluate USM7 equations
@@ -109,7 +112,6 @@ Eigen::Vector7d computeStateDerivativeForUnifiedStateModelQuaternions(
                 reference_frames::getInertialToRswSatelliteCenteredFrameRotationMatrx(
                     currentCartesianState ) * accelerationsInInertialFrame, centralBodyGravitationalParameter );
 }
-
 
 } // namespace propagators
 

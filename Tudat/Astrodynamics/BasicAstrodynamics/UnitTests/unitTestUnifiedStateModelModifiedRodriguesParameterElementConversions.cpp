@@ -22,7 +22,7 @@
 #include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
 #include "Tudat/Mathematics/BasicMathematics/basicMathematicsFunctions.h"
 
-#include "Tudat/Astrodynamics/BasicAstrodynamics/unifiedStateModelModifiedRodriguesParametersElementConversions.h"
+#include "Tudat/Astrodynamics/BasicAstrodynamics/unifiedStateModelModifiedRodriguesParameterElementConversions.h"
 #include "Tudat/Basics/basicTypedefs.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/stateVectorIndices.h"
 
@@ -70,17 +70,17 @@ BOOST_AUTO_TEST_CASE( testconvertKeplerianToUnifiedStateModelModifiedRodriguesPa
 
         // Expected unified state model elements [m/s,m/s,m/s,-,-,-,-].
         // (Results obtained by converting quaternions from USM7 unit test to exponential map, with MATLAB code).
-        expectedUnifiedStateModelElements( CHodographModifiedRodriguesParameterIndex ) = 29894.5892222602;
-        expectedUnifiedStateModelElements( Rf1HodographModifiedRodriguesParameterIndex ) = -260.548512780222;
-        expectedUnifiedStateModelElements( Rf2HodographModifiedRodriguesParameterIndex ) = 2978.08312848463;
-        expectedUnifiedStateModelElements( sigma1ModifiedRodriguesParameterIndex ) = 0.220695676902467;
-        expectedUnifiedStateModelElements( sigma2ModifiedRodriguesParameterIndex ) = 0.0290551370709508;
-        expectedUnifiedStateModelElements( sigma3ModifiedRodriguesParameterIndex ) = 0.0623089425250076;
-        expectedUnifiedStateModelElements( shadowModifiedRodriguesParameterFlagIndex ) = 1.0;
+        expectedUnifiedStateModelElements( CHodographUSM6Index ) = 29894.5892222602;
+        expectedUnifiedStateModelElements( Rf1HodographUSM6Index ) = -260.548512780222;
+        expectedUnifiedStateModelElements( Rf2HodographUSM6Index ) = 2978.08312848463;
+        expectedUnifiedStateModelElements( sigma1USM6Index ) = 0.220695676902467;
+        expectedUnifiedStateModelElements( sigma2USM6Index ) = 0.0290551370709508;
+        expectedUnifiedStateModelElements( sigma3USM6Index ) = 0.0623089425250076;
+        expectedUnifiedStateModelElements( shadowFlagUSM6Index ) = 1.0;
 
         // Compute unified state model elements.
         computedUnifiedStateModelElements =
-                convertKeplerianToUnifiedStateModelModifiedRodriguesParametersElements( keplerianElements,
+                convertKeplerianToUnifiedStateModelModifiedRodriguesParameterElements( keplerianElements,
                                                                centralBodyGravitationalParameter );
 
         // Check if computed unified state model elements match the expected values.
@@ -102,17 +102,17 @@ BOOST_AUTO_TEST_CASE( testconvertKeplerianToUnifiedStateModelModifiedRodriguesPa
 
         // Set expected unified state model elements [m/s,m/s,m/s,-,-,-,-].
         // (Results obtained by converting quaternions from USM7 unit test to exponential map, with MATLAB code).
-        expectedUnifiedStateModelElements( CHodographModifiedRodriguesParameterIndex ) = 17173.1340579794;
-        expectedUnifiedStateModelElements( Rf1HodographModifiedRodriguesParameterIndex ) = -2993.47450825659;
-        expectedUnifiedStateModelElements( Rf2HodographModifiedRodriguesParameterIndex ) = 34215.5701963558;
-        expectedUnifiedStateModelElements( sigma1ModifiedRodriguesParameterIndex ) = 0.909115353651481;
-        expectedUnifiedStateModelElements( sigma2ModifiedRodriguesParameterIndex ) = 0.119687306903266;
-        expectedUnifiedStateModelElements( sigma3ModifiedRodriguesParameterIndex ) = 0.0104712825219838;
-        expectedUnifiedStateModelElements( shadowModifiedRodriguesParameterFlagIndex ) = 1.0;
+        expectedUnifiedStateModelElements( CHodographUSM6Index ) = 17173.1340579794;
+        expectedUnifiedStateModelElements( Rf1HodographUSM6Index ) = -2993.47450825659;
+        expectedUnifiedStateModelElements( Rf2HodographUSM6Index ) = 34215.5701963558;
+        expectedUnifiedStateModelElements( sigma1USM6Index ) = 0.909115353651481;
+        expectedUnifiedStateModelElements( sigma2USM6Index ) = 0.119687306903266;
+        expectedUnifiedStateModelElements( sigma3USM6Index ) = 0.0104712825219838;
+        expectedUnifiedStateModelElements( shadowFlagUSM6Index ) = 1.0;
 
         // Compute unified state model elements.
         computedUnifiedStateModelElements =
-                convertKeplerianToUnifiedStateModelModifiedRodriguesParametersElements( keplerianElements,
+                convertKeplerianToUnifiedStateModelModifiedRodriguesParameterElements( keplerianElements,
                                                                centralBodyGravitationalParameter );
 
         // Check if computed unified state model elements match the expected values.
@@ -132,17 +132,17 @@ BOOST_AUTO_TEST_CASE( testconvertKeplerianToUnifiedStateModelModifiedRodriguesPa
 
         // Set expected unified state model elements [m/s,m/s,m/s,-,-,-,-].
         // (Results obtained by converting quaternions from USM7 unit test to exponential map, with MATLAB code).
-        expectedUnifiedStateModelElements( CHodographModifiedRodriguesParameterIndex ) = 29744.7407136119;
-        expectedUnifiedStateModelElements( Rf1HodographModifiedRodriguesParameterIndex ) = -2592.42496973134;
-        expectedUnifiedStateModelElements( Rf2HodographModifiedRodriguesParameterIndex ) = 29631.5529950138;
-        expectedUnifiedStateModelElements( sigma1ModifiedRodriguesParameterIndex ) = 0.298426999166362;
-        expectedUnifiedStateModelElements( sigma2ModifiedRodriguesParameterIndex ) = -0.946489519440885;
-        expectedUnifiedStateModelElements( sigma3ModifiedRodriguesParameterIndex ) = 0.0867430205772025;
-        expectedUnifiedStateModelElements( shadowModifiedRodriguesParameterFlagIndex ) = 1.0;
+        expectedUnifiedStateModelElements( CHodographUSM6Index ) = 29744.7407136119;
+        expectedUnifiedStateModelElements( Rf1HodographUSM6Index ) = -2592.42496973134;
+        expectedUnifiedStateModelElements( Rf2HodographUSM6Index ) = 29631.5529950138;
+        expectedUnifiedStateModelElements( sigma1USM6Index ) = 0.298426999166362;
+        expectedUnifiedStateModelElements( sigma2USM6Index ) = -0.946489519440885;
+        expectedUnifiedStateModelElements( sigma3USM6Index ) = 0.0867430205772025;
+        expectedUnifiedStateModelElements( shadowFlagUSM6Index ) = 1.0;
 
         // Compute unified state model elements.
         computedUnifiedStateModelElements =
-                convertKeplerianToUnifiedStateModelModifiedRodriguesParametersElements( keplerianElements,
+                convertKeplerianToUnifiedStateModelModifiedRodriguesParameterElements( keplerianElements,
                                                                centralBodyGravitationalParameter );
 
         // Check if computed unified state model elements match the expected values.
@@ -164,7 +164,7 @@ BOOST_AUTO_TEST_CASE( testconvertKeplerianToUnifiedStateModelModifiedRodriguesPa
         try
         {
             computedUnifiedStateModelElements =
-                    convertKeplerianToUnifiedStateModelModifiedRodriguesParametersElements( keplerianElements,
+                    convertKeplerianToUnifiedStateModelModifiedRodriguesParameterElements( keplerianElements,
                                                                  centralBodyGravitationalParameter );
         }
         catch( std::runtime_error )
@@ -189,7 +189,7 @@ BOOST_AUTO_TEST_CASE( testconvertKeplerianToUnifiedStateModelModifiedRodriguesPa
         try
         {
             computedUnifiedStateModelElements =
-                    convertKeplerianToUnifiedStateModelModifiedRodriguesParametersElements( keplerianElements,
+                    convertKeplerianToUnifiedStateModelModifiedRodriguesParameterElements( keplerianElements,
                                                                  centralBodyGravitationalParameter );
         }
         catch( std::runtime_error )
@@ -208,25 +208,25 @@ BOOST_AUTO_TEST_CASE( testconvertKeplerianToUnifiedStateModelModifiedRodriguesPa
 
         // Set expected unified state model elements [m/s,m/s,m/s,-,-,-,-].
         // (Results obtained by converting quaternions from USM7 unit test to exponential map, with MATLAB code).
-        expectedUnifiedStateModelElements( CHodographModifiedRodriguesParameterIndex ) = 29894.5892222602;
-        expectedUnifiedStateModelElements( Rf1HodographModifiedRodriguesParameterIndex ) = -260.548512780222;
-        expectedUnifiedStateModelElements( Rf2HodographModifiedRodriguesParameterIndex ) = 2978.08312848463;
-        expectedUnifiedStateModelElements( sigma1ModifiedRodriguesParameterIndex ) = -0.300705799504273;
-        expectedUnifiedStateModelElements( sigma2ModifiedRodriguesParameterIndex ) = 0.953716950748227;
-        expectedUnifiedStateModelElements( sigma3ModifiedRodriguesParameterIndex ) = -6.11740603377039e-17;
-        expectedUnifiedStateModelElements( shadowModifiedRodriguesParameterFlagIndex ) = 0.0;
+        expectedUnifiedStateModelElements( CHodographUSM6Index ) = 29894.5892222602;
+        expectedUnifiedStateModelElements( Rf1HodographUSM6Index ) = -260.548512780222;
+        expectedUnifiedStateModelElements( Rf2HodographUSM6Index ) = 2978.08312848463;
+        expectedUnifiedStateModelElements( sigma1USM6Index ) = -0.300705799504273;
+        expectedUnifiedStateModelElements( sigma2USM6Index ) = 0.953716950748227;
+        expectedUnifiedStateModelElements( sigma3USM6Index ) = -6.11740603377039e-17;
+        expectedUnifiedStateModelElements( shadowFlagUSM6Index ) = 0.0;
 
         // Compute unified state model elements.
         computedUnifiedStateModelElements =
-                convertKeplerianToUnifiedStateModelModifiedRodriguesParametersElements( keplerianElements,
+                convertKeplerianToUnifiedStateModelModifiedRodriguesParameterElements( keplerianElements,
                                                                centralBodyGravitationalParameter );
 
         // Because two elements are near-zero, a close fraction/percentage check will fail.
         // Therefore, 1.0 is added to the elements to avoid this
-        expectedUnifiedStateModelElements( sigma3ModifiedRodriguesParameterIndex ) =
-                expectedUnifiedStateModelElements( sigma3ModifiedRodriguesParameterIndex ) + 1.0;
-        computedUnifiedStateModelElements( sigma3ModifiedRodriguesParameterIndex ) =
-                computedUnifiedStateModelElements( sigma3ModifiedRodriguesParameterIndex ) + 1.0;
+        expectedUnifiedStateModelElements( sigma3USM6Index ) =
+                expectedUnifiedStateModelElements( sigma3USM6Index ) + 1.0;
+        computedUnifiedStateModelElements( sigma3USM6Index ) =
+                computedUnifiedStateModelElements( sigma3USM6Index ) + 1.0;
 
         // Check if computed elements match the expected values.
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION( expectedUnifiedStateModelElements,
@@ -243,17 +243,17 @@ BOOST_AUTO_TEST_CASE( testconvertKeplerianToUnifiedStateModelModifiedRodriguesPa
 
         // Expected unified state model elements [m/s,m/s,m/s,-,-,-,-].
         // (Results obtained using code archive B. Romgens (2011)).
-        expectedUnifiedStateModelElements( CHodographModifiedRodriguesParameterIndex ) = 29744.7407136119;
-        expectedUnifiedStateModelElements( Rf1HodographModifiedRodriguesParameterIndex ) = 0;
-        expectedUnifiedStateModelElements( Rf2HodographModifiedRodriguesParameterIndex ) = 0;
-        expectedUnifiedStateModelElements( sigma1ModifiedRodriguesParameterIndex ) = 0;
-        expectedUnifiedStateModelElements( sigma2ModifiedRodriguesParameterIndex ) = 0;
-        expectedUnifiedStateModelElements( sigma3ModifiedRodriguesParameterIndex ) = 0.916331174017424;
-        expectedUnifiedStateModelElements( shadowModifiedRodriguesParameterFlagIndex ) = 0.0;
+        expectedUnifiedStateModelElements( CHodographUSM6Index ) = 29744.7407136119;
+        expectedUnifiedStateModelElements( Rf1HodographUSM6Index ) = 0;
+        expectedUnifiedStateModelElements( Rf2HodographUSM6Index ) = 0;
+        expectedUnifiedStateModelElements( sigma1USM6Index ) = 0;
+        expectedUnifiedStateModelElements( sigma2USM6Index ) = 0;
+        expectedUnifiedStateModelElements( sigma3USM6Index ) = 0.916331174017424;
+        expectedUnifiedStateModelElements( shadowFlagUSM6Index ) = 0.0;
 
         // Compute unified state model elements.
         computedUnifiedStateModelElements =
-                convertKeplerianToUnifiedStateModelModifiedRodriguesParametersElements( keplerianElements,
+                convertKeplerianToUnifiedStateModelModifiedRodriguesParameterElements( keplerianElements,
                                                                centralBodyGravitationalParameter );
 
         // Check if computed elements match the expected values.
@@ -269,7 +269,7 @@ BOOST_AUTO_TEST_CASE( testconvertKeplerianToUnifiedStateModelModifiedRodriguesPa
         // Try to convert Kepler to unified state model Elements
         try
         {
-            computedUnifiedStateModelElements = convertKeplerianToUnifiedStateModelModifiedRodriguesParametersElements
+            computedUnifiedStateModelElements = convertKeplerianToUnifiedStateModelModifiedRodriguesParameterElements
                     ( keplerianElements, centralBodyGravitationalParameter );
         }
         // Catch the expected runtime error, and set the boolean flag to true.
@@ -323,7 +323,7 @@ BOOST_AUTO_TEST_CASE( testconvertUnifiedStateModelModifiedRodriguesParametersToK
 
         // Convert to unified state model elements and back.
         computedKeplerianElements = convertUnifiedStateModelModifiedRodriguesParametersToKeplerianElements(
-                    convertKeplerianToUnifiedStateModelModifiedRodriguesParametersElements( expectedKeplerianElements,
+                    convertKeplerianToUnifiedStateModelModifiedRodriguesParameterElements( expectedKeplerianElements,
                                                                    centralBodyGravitationalParameter ),
                     centralBodyGravitationalParameter );
 
@@ -342,7 +342,7 @@ BOOST_AUTO_TEST_CASE( testconvertUnifiedStateModelModifiedRodriguesParametersToK
 
         // Convert to unified state model elements and back.
         computedKeplerianElements = convertUnifiedStateModelModifiedRodriguesParametersToKeplerianElements(
-                    convertKeplerianToUnifiedStateModelModifiedRodriguesParametersElements( expectedKeplerianElements,
+                    convertKeplerianToUnifiedStateModelModifiedRodriguesParameterElements( expectedKeplerianElements,
                                                                    centralBodyGravitationalParameter ),
                     centralBodyGravitationalParameter );
 
@@ -360,7 +360,7 @@ BOOST_AUTO_TEST_CASE( testconvertUnifiedStateModelModifiedRodriguesParametersToK
 
         // Convert to unified state model elements and back.
         computedKeplerianElements = convertUnifiedStateModelModifiedRodriguesParametersToKeplerianElements(
-                    convertKeplerianToUnifiedStateModelModifiedRodriguesParametersElements( expectedKeplerianElements,
+                    convertKeplerianToUnifiedStateModelModifiedRodriguesParameterElements( expectedKeplerianElements,
                                                                    centralBodyGravitationalParameter ),
                     centralBodyGravitationalParameter );
 
@@ -379,7 +379,7 @@ BOOST_AUTO_TEST_CASE( testconvertUnifiedStateModelModifiedRodriguesParametersToK
 
         // Convert to unified state model elements and back.
         computedKeplerianElements = convertUnifiedStateModelModifiedRodriguesParametersToKeplerianElements(
-                    convertKeplerianToUnifiedStateModelModifiedRodriguesParametersElements( expectedKeplerianElements,
+                    convertKeplerianToUnifiedStateModelModifiedRodriguesParameterElements( expectedKeplerianElements,
                                                                    centralBodyGravitationalParameter ),
                     centralBodyGravitationalParameter );
 
@@ -398,7 +398,7 @@ BOOST_AUTO_TEST_CASE( testconvertUnifiedStateModelModifiedRodriguesParametersToK
 
         // Convert to unified state model elements and back.
         computedKeplerianElements = convertUnifiedStateModelModifiedRodriguesParametersToKeplerianElements(
-                    convertKeplerianToUnifiedStateModelModifiedRodriguesParametersElements( expectedKeplerianElements,
+                    convertKeplerianToUnifiedStateModelModifiedRodriguesParameterElements( expectedKeplerianElements,
                                                                    centralBodyGravitationalParameter ),
                     centralBodyGravitationalParameter );
 
@@ -421,7 +421,7 @@ BOOST_AUTO_TEST_CASE( testconvertUnifiedStateModelModifiedRodriguesParametersToK
         try
         {
             computedKeplerianElements = convertUnifiedStateModelModifiedRodriguesParametersToKeplerianElements(
-                    convertKeplerianToUnifiedStateModelModifiedRodriguesParametersElements( expectedKeplerianElements,
+                    convertKeplerianToUnifiedStateModelModifiedRodriguesParameterElements( expectedKeplerianElements,
                                                                  centralBodyGravitationalParameter ),
                         centralBodyGravitationalParameter );
         }
@@ -444,7 +444,7 @@ BOOST_AUTO_TEST_CASE( testconvertUnifiedStateModelModifiedRodriguesParametersToK
 
         // Convert to unified state model elements and back
         computedKeplerianElements = convertUnifiedStateModelModifiedRodriguesParametersToKeplerianElements(
-                    convertKeplerianToUnifiedStateModelModifiedRodriguesParametersElements( expectedKeplerianElements,
+                    convertKeplerianToUnifiedStateModelModifiedRodriguesParameterElements( expectedKeplerianElements,
                                                                    centralBodyGravitationalParameter ),
                     centralBodyGravitationalParameter );
 
@@ -465,7 +465,7 @@ BOOST_AUTO_TEST_CASE( testconvertUnifiedStateModelModifiedRodriguesParametersToK
 
         // Convert to unified state model elements and back
         computedKeplerianElements = convertUnifiedStateModelModifiedRodriguesParametersToKeplerianElements(
-                    convertKeplerianToUnifiedStateModelModifiedRodriguesParametersElements( expectedKeplerianElements,
+                    convertKeplerianToUnifiedStateModelModifiedRodriguesParameterElements( expectedKeplerianElements,
                                                                    centralBodyGravitationalParameter ),
                     centralBodyGravitationalParameter );
 

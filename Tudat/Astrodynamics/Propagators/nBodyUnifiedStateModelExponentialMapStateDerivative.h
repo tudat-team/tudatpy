@@ -37,14 +37,13 @@ namespace propagators
  * \param pParameterVector Value of the vector gamma (see Vittaldev, 2010)
  * \return Time derivatives of USMEM elements.
  */
-Eigen::Vector6d computeStateDerivativeForUnifiedStateModelExponentialMap(
-        const Eigen::Vector6d& currentUnifiedStateModelElements,
+Eigen::Vector6d computeStateDerivativeForUnifiedStateModelExponentialMap(const Eigen::Vector6d& currentUnifiedStateModelElements,
         const Eigen::Vector3d& accelerationsInRswFrame,
         const double sineLambdaParameter,
         const double cosineLambdaParameter,
         const double gammaParameter,
-        const Eigen::Vector3d rotationalVelocityVector,
-        const Eigen::Vector3d pParameterVector );
+        const Eigen::Vector3d& rotationalVelocityVector,
+        const Eigen::Vector3d& pParameterVector );
 
 //! Function to evaluate the equations of motion for the unifies state model with exponential map (USMEM)
 /*!
@@ -230,9 +229,9 @@ public:
         return originalAccelerationModelsPerBody_;
     }
 
-    //! Function to process the state after propagation.
+    //! Function to process the state during propagation.
     /*!
-     * Function to process the state after propagation. For exponential map (EM), this function converts to/from shadow exponential
+     * Function to process the state during propagation. For exponential map (EM), this function converts to/from shadow exponential
      * map (SEM), in case the rotation angle is larger than PI.
      * \param unprocessedState State computed after propagation.
      * \param startRow Dummy variable added for compatibility issues between Eigen::Matrix and Eigen::Block.
@@ -268,7 +267,6 @@ public:
     {
         return true;
     }
-
 
 private:
 
