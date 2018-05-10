@@ -12,6 +12,7 @@
 set(BASICASTRODYNAMICS_SOURCES
   "${SRCROOT}${BASICASTRODYNAMICSDIR}/accelerationModelTypes.cpp"
   "${SRCROOT}${BASICASTRODYNAMICSDIR}/accelerationModel.cpp"
+  "${SRCROOT}${BASICASTRODYNAMICSDIR}/attitudeElementConversions.cpp"
   "${SRCROOT}${BASICASTRODYNAMICSDIR}/clohessyWiltshirePropagator.cpp"
   "${SRCROOT}${BASICASTRODYNAMICSDIR}/geodeticCoordinateConversions.cpp"
   "${SRCROOT}${BASICASTRODYNAMICSDIR}/missionGeometry.cpp"

@@ -193,6 +193,11 @@ Eigen::Vector7d convertKeplerianToUnifiedStateModelQuaternionsElements(
     double argumentOfLatitude = keplerianElements( argumentOfPeriapsisIndex ) +
             keplerianElements( trueAnomalyIndex );
 
+    // Compute the eta quaternion of the unified state model
+    convertedUnifiedStateModelElements( etaUSM7Index ) =
+            std::cos( 0.5 * keplerianElements( inclinationIndex ) ) *
+            std::cos( 0.5 * ( keplerianElements( longitudeOfAscendingNodeIndex ) + argumentOfLatitude ) );
+
     // Compute the epsilon1 quaternion of the unified state model
     convertedUnifiedStateModelElements( epsilon1USM7Index ) =
             std::sin( 0.5 * keplerianElements( inclinationIndex ) ) *
@@ -207,11 +212,6 @@ Eigen::Vector7d convertKeplerianToUnifiedStateModelQuaternionsElements(
     convertedUnifiedStateModelElements( epsilon3USM7Index ) =
             std::cos( 0.5 * keplerianElements( inclinationIndex ) ) *
             std::sin( 0.5 * ( keplerianElements( longitudeOfAscendingNodeIndex ) + argumentOfLatitude ) );
-
-    // Compute the eta quaternion of the unified state model
-    convertedUnifiedStateModelElements( etaUSM7Index ) =
-            std::cos( 0.5 * keplerianElements( inclinationIndex ) ) *
-            std::cos( 0.5 * ( keplerianElements( longitudeOfAscendingNodeIndex ) + argumentOfLatitude ) );
 
     // Give back result
     return convertedUnifiedStateModelElements;
@@ -233,7 +233,7 @@ Eigen::Vector6d convertUnifiedStateModelQuaternionsToKeplerianElements(
 
     // Check whether the unified state model elements are within expected limits
     // If inclination is zero and the right ascension of ascending node is non-zero
-    Eigen::Vector4d quaternionsVector = unifiedStateModelElements.segment( epsilon1USM7Index, 4 );
+    Eigen::Vector4d quaternionsVector = unifiedStateModelElements.segment( etaUSM7Index, 4 );
     const double normOfQuaternionElements = quaternionsVector.norm( );
     if ( std::fabs( normOfQuaternionElements - 1.0 ) > singularityTolerance )
     {
@@ -255,10 +255,10 @@ Eigen::Vector6d convertUnifiedStateModelQuaternionsToKeplerianElements(
     // Else, nothing wrong and continue
 
     // Extract quaternion elements
-    double epsilon1QuaternionParameter = quaternionsVector( 0 );
-    double epsilon2QuaternionParameter = quaternionsVector( 1 );
-    double epsilon3QuaternionParameter = quaternionsVector( 2 );
-    double etaQuaternionParameter = quaternionsVector( 3 );
+    double etaQuaternionParameter = quaternionsVector( etaQuaternionIndex );
+    double epsilon1QuaternionParameter = quaternionsVector( epsilon1QuaternionIndex );
+    double epsilon2QuaternionParameter = quaternionsVector( epsilon2QuaternionIndex );
+    double epsilon3QuaternionParameter = quaternionsVector( epsilon3QuaternionIndex );
 
     // Check whether the orbit is pure-retrograde
     if ( ( std::fabs( epsilon3QuaternionParameter ) < singularityTolerance ) &&
@@ -625,7 +625,7 @@ Eigen::Vector6d convertUnifiedStateModelQuaternionsToCartesianElements(
     const double singularityTolerance = 20.0 * std::numeric_limits< double >::epsilon( );
 
     // Extract quaternion elements
-    Eigen::Vector4d quaternionsVector = unifiedStateModelElements.segment( epsilon1USM7Index, 4 );
+    Eigen::Vector4d quaternionsVector = unifiedStateModelElements.segment( etaUSM7Index, 4 );
     const double normOfQuaternionElements = quaternionsVector.norm( );
     if ( std::fabs( normOfQuaternionElements - 1.0 ) > singularityTolerance )
     {
@@ -647,8 +647,8 @@ Eigen::Vector6d convertUnifiedStateModelQuaternionsToCartesianElements(
     // Else, nothing wrong and continue
 
     // Extract quaternion elements
-    double epsilon3QuaternionParameter = quaternionsVector( 2 );
-    double etaQuaternionParameter = quaternionsVector( 3 );
+    double etaQuaternionParameter = quaternionsVector( etaQuaternionIndex );
+    double epsilon3QuaternionParameter = quaternionsVector( epsilon3QuaternionIndex );
 
     // Declare auxiliary parameters before using them in the if statement
     double cosineLambda = 0.0;
