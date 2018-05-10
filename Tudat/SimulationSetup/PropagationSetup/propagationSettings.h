@@ -719,7 +719,7 @@ public:
                                        const double printInterval = TUDAT_NAN ):
         SingleArcPropagatorSettings< StateScalarType >( rotational_state, initialBodyStates, terminationSettings,
                                                         dependentVariablesToSave, printInterval ),
-        bodiesToIntegrate_( bodiesToIntegrate ), torqueModelMap_( torqueModelMap ), propagator_( propagator ) { }
+        bodiesToIntegrate_( bodiesToIntegrate ), propagator_( propagator ), torqueModelMap_( torqueModelMap ) { }
 
     //! Constructor with settings for torque models.
     /*!
@@ -745,7 +745,7 @@ public:
                                        const double printInterval = TUDAT_NAN ):
         SingleArcPropagatorSettings< StateScalarType >( rotational_state, initialBodyStates, terminationSettings,
                                                         dependentVariablesToSave, printInterval ),
-        bodiesToIntegrate_( bodiesToIntegrate ), torqueSettingsMap_( torqueSettingsMap ), propagator_( propagator ) { }
+        bodiesToIntegrate_( bodiesToIntegrate ), propagator_( propagator ), torqueSettingsMap_( torqueSettingsMap ) { }
 
     //! Destructor
     ~RotationalStatePropagatorSettings( ){ }

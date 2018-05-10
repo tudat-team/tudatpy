@@ -8,18 +8,8 @@
  *    http://tudat.tudelft.nl/LICENSE.
  *
  *    References
- *      Chobotov, V.A. Orbital Mechanics, Third Edition, AIAA Education Series, VA, 2002.
- *      Wertz, J. R. Mission geometry; orbit and constellation design and management.
- *      Mengali, G., Quarta, A.A. Fondamenti di meccanica del volo spaziale.
- *      Wertz, J.R. Mission Geometry; Orbit and Constellation Design and Management, Spacecraft
- *          Orbit and Attitude Systems, Microcosm Press, Kluwer Academic Publishers, 2001.
- *      Advanced Concepts Team, ESA. Keplerian Toolbox, http://sourceforge.net/projects/keptoolbox,
- *          last accessed: 21st April, 2012.
- *
- *    Notes
- *      Backwards compatibility of namespaces is implemented for Tudat Core 2 in this file. The
- *      code block marked "DEPRECATED!" at the end of the file should be removed in Tudat Core 3.
- *
+ *      Schaub, H. and Junkins, J., Analytical Mechanics of Space Systems, 2nd ed., ser. Education Series.
+ *          American Institute of Aeronautics and Astronautics, 2002.
  */
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/attitudeElementConversions.h"

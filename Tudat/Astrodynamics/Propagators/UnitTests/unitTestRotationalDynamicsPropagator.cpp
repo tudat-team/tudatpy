@@ -854,9 +854,8 @@ BOOST_AUTO_TEST_CASE( testRotationalAndTranslationalDynamicsPropagation )
 
                     for( unsigned int i = 0; i < 3; i++ )
                     {
-                        BOOST_CHECK_SMALL(
-                                    std::fabs( inertialTorqueMap.at( variableIterator->first )( i ) -
-                                               angularMomentumDerivative( i ) ), 0.25 );
+                        BOOST_CHECK_SMALL( std::fabs( inertialTorqueMap.at( variableIterator->first )( i ) -
+                                                      angularMomentumDerivative( i ) ), 0.25 );
                     }
                 }
             }
