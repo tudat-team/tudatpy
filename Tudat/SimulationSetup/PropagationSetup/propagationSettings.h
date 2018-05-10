@@ -27,6 +27,7 @@
 #include "Tudat/Astrodynamics/BasicAstrodynamics/massRateModel.h"
 #include "Tudat/Astrodynamics/Propagators/singleStateTypeDerivative.h"
 #include "Tudat/Astrodynamics/Propagators/nBodyStateDerivative.h"
+#include "Tudat/Astrodynamics/Propagators/rotationalMotionStateDerivative.h"
 #include "Tudat/SimulationSetup/PropagationSetup/propagationOutputSettings.h"
 #include "Tudat/SimulationSetup/PropagationSetup/propagationTerminationSettings.h"
 #include "Tudat/SimulationSetup/PropagationSetup/createAccelerationModels.h"
@@ -574,7 +575,6 @@ public:
         propagator_( propagator ),
         accelerationsMap_( accelerationsMap ) { }
 
-
     //! Constructor for fixed propagation time stopping conditions, providing settings to create accelerations map.
     /*!
      * Constructor for fixed propagation time stopping conditions, providing settings to create accelerations map.
@@ -609,8 +609,6 @@ public:
         bodiesToIntegrate_( bodiesToIntegrate ),
         propagator_( propagator ),
         accelerationSettingsMap_( accelerationSettingsMap ) { }
-
-
 
     //! Destructor
     ~TranslationalStatePropagatorSettings( ){ }
@@ -704,6 +702,7 @@ public:
      * \param bodiesToIntegrate List of bodies that are to be propagated numerically.
      * \param initialBodyStates Initial state used as input for numerical integration
      * \param terminationSettings Settings for creating the object that checks whether the propagation is finished.
+     * \param propagator Type of rotational state propagator to be used.
      * \param dependentVariablesToSave Settings for the dependent variables that are to be saved during propagation
      * (default none).
      * \param printInterval Variable indicating how often (once per printInterval_ seconds or propagation independenty
@@ -714,12 +713,13 @@ public:
                                        const std::vector< std::string >& bodiesToIntegrate,
                                        const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& initialBodyStates,
                                        const boost::shared_ptr< PropagationTerminationSettings > terminationSettings,
+                                       const RotationalPropagatorType propagator = quaternions,
                                        const boost::shared_ptr< DependentVariableSaveSettings > dependentVariablesToSave =
             boost::shared_ptr< DependentVariableSaveSettings >( ),
                                        const double printInterval = TUDAT_NAN ):
         SingleArcPropagatorSettings< StateScalarType >( rotational_state, initialBodyStates, terminationSettings,
                                                         dependentVariablesToSave, printInterval ),
-        bodiesToIntegrate_( bodiesToIntegrate ), torqueModelMap_( torqueModelMap ) { }
+        bodiesToIntegrate_( bodiesToIntegrate ), torqueModelMap_( torqueModelMap ), propagator_( propagator ) { }
 
     //! Constructor with settings for torque models.
     /*!
@@ -728,6 +728,7 @@ public:
      * \param bodiesToIntegrate List of bodies that are to be propagated numerically.
      * \param initialBodyStates Initial state used as input for numerical integration
      * \param terminationSettings Settings for creating the object that checks whether the propagation is finished.
+     * \param propagator Type of rotational state propagator to be used.
      * \param dependentVariablesToSave Settings for the dependent variables that are to be saved during propagation
      * (default none).
      * \param printInterval Variable indicating how often (once per printInterval_ seconds or propagation independenty
@@ -738,18 +739,22 @@ public:
                                        const std::vector< std::string >& bodiesToIntegrate,
                                        const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& initialBodyStates,
                                        const boost::shared_ptr< PropagationTerminationSettings > terminationSettings,
+                                       const RotationalPropagatorType propagator = quaternions,
                                        const boost::shared_ptr< DependentVariableSaveSettings > dependentVariablesToSave =
             boost::shared_ptr< DependentVariableSaveSettings >( ),
                                        const double printInterval = TUDAT_NAN ):
         SingleArcPropagatorSettings< StateScalarType >( rotational_state, initialBodyStates, terminationSettings,
                                                         dependentVariablesToSave, printInterval ),
-        bodiesToIntegrate_( bodiesToIntegrate ), torqueSettingsMap_( torqueSettingsMap ) { }
+        bodiesToIntegrate_( bodiesToIntegrate ), torqueSettingsMap_( torqueSettingsMap ), propagator_( propagator ) { }
 
     //! Destructor
     ~RotationalStatePropagatorSettings( ){ }
 
     //! List of bodies that are to be propagated numerically.
     std::vector< std::string > bodiesToIntegrate_;
+
+    //! Type of translational state propagator to be used
+    RotationalPropagatorType propagator_;
 
     //! Function to create the torque models.
     /*!

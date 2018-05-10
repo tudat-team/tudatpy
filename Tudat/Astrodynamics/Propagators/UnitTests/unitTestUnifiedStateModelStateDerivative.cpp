@@ -190,7 +190,7 @@ BOOST_AUTO_TEST_CASE( testUnifiedStateModelPopagatorForPointMassCentralBodies )
             currentTestTime += testTimeStep;
         }
 
-        TranslationalPropagatorType translationalPropagatorType = undefined_propagator;
+        TranslationalPropagatorType translationalPropagatorType = undefined_translational_propagator;
         if( propagatorType == 0 )
         {
             translationalPropagatorType = unified_state_model_quaternions;

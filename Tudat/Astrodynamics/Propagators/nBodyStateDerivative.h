@@ -24,7 +24,6 @@
 #include "Tudat/Astrodynamics/Propagators/centralBodyData.h"
 #include "Tudat/Astrodynamics/Propagators/singleStateTypeDerivative.h"
 
-
 namespace tudat
 {
 
@@ -34,7 +33,7 @@ namespace propagators
 //! Enum listing propagator types for translational dynamics that can be used.
 enum TranslationalPropagatorType
 {
-    undefined_propagator = -1,
+    undefined_translational_propagator = -1,
     cowell = 0,
     encke = 1,
     gauss_keplerian = 2,
@@ -89,7 +88,6 @@ class NBodyStateDerivative: public propagators::SingleStateTypeDerivative< State
 public:
 
     using propagators::SingleStateTypeDerivative< StateScalarType, TimeType >::calculateSystemStateDerivative;
-
 
     //! Constructor from data for translational Cartesian state derivative creation.
     //! It is assumed that all acceleration are exerted on bodies by bodies.
@@ -258,7 +256,7 @@ public:
      * Function to type of propagator that is to be used (i.e. Cowell, Encke, etc.)
      * \return Type of propagator that is to be used (i.e. Cowell, Encke, etc.)
      */
-    TranslationalPropagatorType getPropagatorType( )
+    TranslationalPropagatorType getTranslationalPropagatorType( )
     {
         return propagatorType_;
     }
@@ -408,7 +406,6 @@ protected:
         }
     }
 
-
     //! A map containing the list of accelerations acting on each body,
     /*!
      * A map containing the list of accelerations acting on each body, identifying the body being
@@ -443,10 +440,10 @@ protected:
 
     //! List of states of teh central bodies of the propagated bodies.
     std::vector< Eigen::Matrix< StateScalarType, 6, 1 >  > centralBodyStatesWrtGlobalOrigin_;
+
 };
 
 } // namespace propagators
-
 
 } // namespace tudat
 

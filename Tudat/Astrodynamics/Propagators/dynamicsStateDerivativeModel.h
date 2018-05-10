@@ -421,7 +421,7 @@ public:
                     boost::shared_ptr< NBodyStateDerivative< StateScalarType, TimeType > > currentTranslationalStateDerivative =
                             boost::dynamic_pointer_cast< NBodyStateDerivative< StateScalarType, TimeType > >(
                                 stateDerivativeModelsIterator_->second.at( i ) );
-                    switch( currentTranslationalStateDerivative->getPropagatorType( ) )
+                    switch( currentTranslationalStateDerivative->getTranslationalPropagatorType( ) )
                     {
                     case cowell:
                         break;
@@ -768,7 +768,6 @@ std::vector< boost::shared_ptr< basic_astrodynamics::TorqueModel > > getTorqueBe
                     stateDerivativeModels.at( propagators::rotational_state ).at( 0 ) )->getTorquesMap( );
         if( torqueModelList.count( bodyUndergoingTorque ) == 0 )
         {
-
             std::string errorMessage = "Error when getting torque between bodies, no translational dynamics models acting on " +
                     bodyUndergoingTorque + " are found";
             throw std::runtime_error( errorMessage );

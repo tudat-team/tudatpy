@@ -186,10 +186,12 @@ public:
         return integratedStateType_;
     }
 
-    //! Function to normalize the state vector during propagation.
+    //! Function to process the state vector during propagation.
     /*!
-     * Function to normalize the state vector during propagation
-     * \param unprocessedState State before normalization
+     * Function to process the state during propagation. Is especially used for attitude states (e.g., normalization of quaternions
+     * and transformation to/from shadow attitude parameters).
+     * \param unprocessedState State computed after propagation.
+     * \param startRow Dummy variable added for compatibility issues between Eigen::Matrix and Eigen::Block.
      */
     virtual void postProcessState(
             Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& unprocessedState,
@@ -198,6 +200,14 @@ public:
 
     }
 
+    //! Function to process the state during propagation.
+    /*!
+     * Function to process the state during propagation. Is especially used for attitude states (e.g., normalization of quaternions
+     * and transformation to/from shadow attitude parameters).
+     * \param unprocessedState State computed after propagation.
+     * \param startRow Dummy variable added for compatibility issues between Eigen::Matrix and Eigen::Block.
+     * \param startColumn Dummy variable added for compatibility issues between Eigen::Matrix and Eigen::Block.
+     */
     virtual void postProcessState(
             Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >& unprocessedState,
             const int startRow,
@@ -211,6 +221,11 @@ public:
         }
     }
 
+    //! Function to return whether the state needs to be post-processed.
+    /*!
+     * Function to return whether the state needs to be post-processed. Default value is false.
+     * \return Boolean informing whether the state needs to be post-processed.
+     */
     virtual bool isStateToBePostProcessed( )
     {
         return false;
@@ -218,9 +233,10 @@ public:
 
 protected:
 
-    //! Type of dynamics for whichh the state derivative is calculated.
+    //! Type of dynamics for which the state derivative is calculated.
     IntegratedStateType integratedStateType_;
 
+    //! Vector used during post-processing of state.
     Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > unprocessedState_;
 
 };

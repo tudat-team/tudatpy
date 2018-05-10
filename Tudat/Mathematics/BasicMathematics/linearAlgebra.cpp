@@ -41,10 +41,10 @@ Eigen::Matrix3d computeDirectionCosineMatrixFromQuaternions(
 {
     // Convert vector to quaternion
     Eigen::Quaterniond quaternionsAsQuaternion;
-    quaternionsAsQuaternion.x( ) = quaternionsAsVector( 0 );
-    quaternionsAsQuaternion.y( ) = quaternionsAsVector( 1 );
-    quaternionsAsQuaternion.z( ) = quaternionsAsVector( 2 );
-    quaternionsAsQuaternion.w( ) = quaternionsAsVector( 3 ); // note that Eigen uses 'w' as first entry
+    quaternionsAsQuaternion.w( ) = quaternionsAsVector( 0 );
+    quaternionsAsQuaternion.x( ) = quaternionsAsVector( 1 );
+    quaternionsAsQuaternion.y( ) = quaternionsAsVector( 2 );
+    quaternionsAsQuaternion.z( ) = quaternionsAsVector( 3 );
 
     // Compute direction cosine matrix
     Eigen::Matrix3d directionCosineMatrix = quaternionsAsQuaternion.normalized( ).toRotationMatrix( );

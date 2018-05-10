@@ -45,7 +45,7 @@ namespace orbital_element_conversions
  *         convertedUnifiedStateModelElements( 5 ) = sigma3 modified rodrigues parameters element,    [-]
  *         convertedUnifiedStateModelElements( 6 ) = shadow modified rodrigues parameters flag.       [-]
  */
-Eigen::Matrix< double, 7, 1 > convertKeplerianToUnifiedStateModelModifiedRodriguesParametersElements(
+Eigen::Matrix< double, 7, 1 > convertKeplerianToUnifiedStateModelModifiedRodriguesParameterElements(
         const Eigen::Matrix< double, 6, 1 >& keplerianElements,
         const double centralBodyGravitationalParameter );
 
@@ -96,7 +96,7 @@ Eigen::Matrix< double, 6, 1 > convertUnifiedStateModelModifiedRodriguesParameter
  *         convertedUnifiedStateModelElements( 6 ) = shadow modified rodrigues parameters flag.       [-]
 
  */
-Eigen::Matrix< double, 7, 1 > convertCartesianToUnifiedStateModelModifiedRodriguesParametersElements(
+Eigen::Matrix< double, 7, 1 > convertCartesianToUnifiedStateModelModifiedRodriguesParameterElements(
         const Eigen::Matrix< double, 6, 1 >& cartesianElements,
         const double centralBodyGravitationalParameter );
 

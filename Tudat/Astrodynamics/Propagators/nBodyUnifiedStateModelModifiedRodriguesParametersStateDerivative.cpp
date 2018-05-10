@@ -10,6 +10,7 @@
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/stateVectorIndices.h"
 #include "Tudat/Astrodynamics/Propagators/nBodyUnifiedStateModelModifiedRodriguesParametersStateDerivative.h"
+#include "Tudat/Astrodynamics/Propagators/rotationalMotionModifiedRodriguesParametersStateDerivative.h"
 
 namespace tudat
 {
@@ -24,8 +25,8 @@ Eigen::Vector7d computeStateDerivativeForUnifiedStateModelModifiedRodriguesParam
         const double sineLambda,
         const double cosineLambda,
         const double gammaParameter,
-        const Eigen::Vector3d rotationalVelocityVector,
-        const Eigen::Vector3d pAuxiliaryVector )
+        const Eigen::Vector3d& rotationalVelocityVector,
+        const Eigen::Vector3d& pAuxiliaryVector )
 {
     // Compute supporting parameters
     Eigen::Matrix3d hodographMatrix = Eigen::Matrix3d::Zero( );
@@ -37,20 +38,11 @@ Eigen::Vector7d computeStateDerivativeForUnifiedStateModelModifiedRodriguesParam
     hodographMatrix( 2, 1 ) = ( 1.0 + pAuxiliaryVector( 0 ) ) * cosineLambda;
     hodographMatrix( 2, 2 ) = gammaParameter * pAuxiliaryVector( 2 );
 
-    // Compute kinematic equation, i.e., derivative of modified Rodrigues parameters (also valid for SMRP)
-    Eigen::Vector3d modifiedRodriguesParametersVector = currentUnifiedStateModelElements.segment( 3, 3 );
-    Eigen::Matrix3d skewModifiedRodriguesParametersVectorMatrix = linear_algebra::getCrossProductMatrix(
-                modifiedRodriguesParametersVector );
-    Eigen::Vector3d modifiedRodriguesParametersDerivative = 0.5 *
-            ( 0.5 * ( 1.0 - std::pow( modifiedRodriguesParametersVector.norm( ), 2 ) ) * Eigen::Matrix3d::Identity( ) +
-              skewModifiedRodriguesParametersVectorMatrix + modifiedRodriguesParametersVector *
-              modifiedRodriguesParametersVector.transpose( ) ) *
-            rotationalVelocityVector;
-
     // Evaluate USM6 equations.
-    Eigen::Vector7d stateDerivative = Eigen::Vector7d::Zero( );
+    Eigen::Vector7d stateDerivative;
     stateDerivative.segment( 0, 3 ) = hodographMatrix * accelerationsInRswFrame;
-    stateDerivative.segment( 3, 3 ) = modifiedRodriguesParametersDerivative;
+    stateDerivative.segment( 3, 4 ) = calculateModifiedRodriguesParametersDerivative(
+                currentUnifiedStateModelElements.segment( 3, 4 ), rotationalVelocityVector );
 
     // Give output
     return stateDerivative;
@@ -65,7 +57,7 @@ Eigen::Vector7d computeStateDerivativeForUnifiedStateModelModifiedRodriguesParam
     using namespace orbital_element_conversions;
 
     // Compute auxiliary parameters
-    Eigen::Vector3d modifiedRodriguesParametersVector = currentUnifiedStateModelElements.segment( sigma1ModifiedRodriguesParameterIndex, 3 );
+    Eigen::Vector3d modifiedRodriguesParametersVector = currentUnifiedStateModelElements.segment( sigma1USM6Index, 3 );
     double modifiedRodriguesParametersMagnitude = modifiedRodriguesParametersVector.norm( );
     // magnitude of modified rodrigues parameters, also called sigma
 
@@ -95,18 +87,18 @@ Eigen::Vector7d computeStateDerivativeForUnifiedStateModelModifiedRodriguesParam
                 sigma2ModifiedRodriguesParametersSquared * sigma3ModifiedRodriguesParametersSquared -
                 modifiedRodriguesParametersMagnitudeSquared + 2.0 * sigma3ModifiedRodriguesParametersSquared ) + 1.0 );
 
-    double velocityHodographParameter = currentUnifiedStateModelElements( CHodographModifiedRodriguesParameterIndex ) -
-            currentUnifiedStateModelElements( Rf1HodographModifiedRodriguesParameterIndex ) * sineLambda +
-            currentUnifiedStateModelElements( Rf2HodographModifiedRodriguesParameterIndex ) * cosineLambda;
+    double velocityHodographParameter = currentUnifiedStateModelElements( CHodographUSM6Index ) -
+            currentUnifiedStateModelElements( Rf1HodographUSM6Index ) * sineLambda +
+            currentUnifiedStateModelElements( Rf2HodographUSM6Index ) * cosineLambda;
     Eigen::Vector3d rotationalVelocityVector = Eigen::Vector3d::Zero( );
     rotationalVelocityVector( 0 ) = accelerationsInRswFrame( 2 ) / velocityHodographParameter;
     rotationalVelocityVector( 2 ) = std::pow( velocityHodographParameter, 2 ) *
-            currentUnifiedStateModelElements( CHodographModifiedRodriguesParameterIndex ) / centralBodyGravitationalParameter;
+            currentUnifiedStateModelElements( CHodographUSM6Index ) / centralBodyGravitationalParameter;
 
     Eigen::Vector3d pAuxiliaryVector = Eigen::Vector3d::Zero( );
-    pAuxiliaryVector( 0 ) = currentUnifiedStateModelElements( CHodographModifiedRodriguesParameterIndex );
-    pAuxiliaryVector( 1 ) = currentUnifiedStateModelElements( Rf2HodographModifiedRodriguesParameterIndex );
-    pAuxiliaryVector( 2 ) = currentUnifiedStateModelElements( Rf1HodographModifiedRodriguesParameterIndex );
+    pAuxiliaryVector( 0 ) = currentUnifiedStateModelElements( CHodographUSM6Index );
+    pAuxiliaryVector( 1 ) = currentUnifiedStateModelElements( Rf2HodographUSM6Index );
+    pAuxiliaryVector( 2 ) = currentUnifiedStateModelElements( Rf1HodographUSM6Index );
     pAuxiliaryVector /= velocityHodographParameter;
 
     // Evaluate USM6 equations

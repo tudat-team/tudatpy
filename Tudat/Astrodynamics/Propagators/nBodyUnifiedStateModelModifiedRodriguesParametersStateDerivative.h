@@ -43,8 +43,8 @@ Eigen::Vector7d computeStateDerivativeForUnifiedStateModelModifiedRodriguesParam
         const double sineLambdaParameter,
         const double cosineLambdaParameter,
         const double gammaParameter,
-        const Eigen::Vector3d rotationalVelocityVector,
-        const Eigen::Vector3d pParameterVector );
+        const Eigen::Vector3d& rotationalVelocityVector,
+        const Eigen::Vector3d& pParameterVector );
 
 //! Function to evaluate the equations of motion for the unifies state model with modified rodrigues parameters (USM6)
 /*!
@@ -183,7 +183,7 @@ public:
         for( unsigned int i = 0; i < this->bodiesToBeIntegratedNumerically_.size( ); i++ )
         {
             currentState.segment( i * 7, 7 ) =
-                    orbital_element_conversions::convertCartesianToUnifiedStateModelModifiedRodriguesParametersElements(
+                    orbital_element_conversions::convertCartesianToUnifiedStateModelModifiedRodriguesParameterElements(
                         cartesianSolution.block( i * 6, 0, 6, 1 ).template cast< double >( ), static_cast< double >(
                             centralBodyGravitationalParameters_.at( i )( ) ) ).template cast< StateScalarType >( );
         }
@@ -231,14 +231,19 @@ public:
         return originalAccelerationModelsPerBody_;
     }
 
+    //! Function to return the size of the state handled by the object.
+    /*!
+     * Function to return the size of the state handled by the object.
+     * \return Size of the state under consideration (7 times the number if integrated bodies).
+     */
     int getPropagatedStateSize( )
     {
         return 7 * this->bodiesToBeIntegratedNumerically_.size( );
     }
 
-    //! Function to process the state after propagation.
+    //! Function to process the state during propagation.
     /*!
-     * Function to process the state after propagation. For modified Rodrigues parameters (MRP), this function converts to/from
+     * Function to process the state during propagation. For modified Rodrigues parameters (MRP), this function converts to/from
      * shadow modified Rodrigues parameters (SMRP), in case the magnitude of the (S)MRP vector is larger than 1.0.
      * \param unprocessedState State computed after propagation.
      * \param startRow Dummy variable added for compatibility issues between Eigen::Matrix and Eigen::Block.
@@ -278,7 +283,6 @@ public:
     {
         return true;
     }
-
 
 private:
 
