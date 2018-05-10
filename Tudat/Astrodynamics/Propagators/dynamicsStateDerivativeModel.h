@@ -369,7 +369,6 @@ public:
         variationalEquations_ = variationalEquations;
     }
 
-
     //! Function to set which segments of the full state to propagate
     /*!
      * Function to set which segments of the full state to propagate, i.e. whether to propagate the
@@ -430,20 +429,22 @@ public:
                         break;
                     case gauss_keplerian:
                         break;
-//                    case gauss_modified_equinoctial:
-//                        break;
-//                    case unified_state_model_quaternions:
-//                        break;
-//                    case unified_state_model_modified_rodrigues_parameters:
-//                        break;
-//                    case unified_state_model_exponential_map:
-//                        break;
+                    case gauss_modified_equinoctial:
+                        break;
+                    case unified_state_model_quaternions:
+                        break;
+                    case unified_state_model_modified_rodrigues_parameters:
+                        break;
+                    case unified_state_model_exponential_map:
+                        break;
                     default:
                         throw std::runtime_error( "Error when updating state derivative model settings, did not recognize translational propagator type" );
                         break;
                     }
                 }
             }
+            case rotational_state:
+                break;
             case body_mass_state:
                 break;
             case custom_state:

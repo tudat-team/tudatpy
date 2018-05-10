@@ -194,7 +194,6 @@ createTranslationalStateDerivativeModel(
         stateDerivativeModel = boost::make_shared< NBodyGaussKeplerStateDerivative< StateScalarType, TimeType > >
                 ( translationPropagatorSettings->getAccelerationsMap( ), centralBodyData,
                   translationPropagatorSettings->bodiesToIntegrate_ );
-
         break;
     }
     case gauss_modified_equinoctial:
@@ -227,7 +226,6 @@ createTranslationalStateDerivativeModel(
         stateDerivativeModel = boost::make_shared< NBodyUnifiedStateModelQuaternionsStateDerivative< StateScalarType, TimeType > >
                 ( translationPropagatorSettings->getAccelerationsMap( ), centralBodyData,
                   translationPropagatorSettings->bodiesToIntegrate_ );
-
         break;
     }
     case unified_state_model_modified_rodrigues_parameters:
@@ -236,7 +234,6 @@ createTranslationalStateDerivativeModel(
         stateDerivativeModel = boost::make_shared< NBodyUnifiedStateModelModifiedRodriguesParametersStateDerivative< StateScalarType, TimeType > >
                 ( translationPropagatorSettings->getAccelerationsMap( ), centralBodyData,
                   translationPropagatorSettings->bodiesToIntegrate_ );
-
         break;
     }
     case unified_state_model_exponential_map:
@@ -245,7 +242,6 @@ createTranslationalStateDerivativeModel(
         stateDerivativeModel = boost::make_shared< NBodyUnifiedStateModelExponentialMapStateDerivative< StateScalarType, TimeType > >
                 ( translationPropagatorSettings->getAccelerationsMap( ), centralBodyData,
                   translationPropagatorSettings->bodiesToIntegrate_ );
-
         break;
     }
     default:
@@ -278,27 +274,33 @@ boost::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > crea
     }
 
     // Check propagator type and create corresponding state derivative object.
+    boost::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > stateDerivativeModel;
     switch( rotationPropagatorSettings->propagator_ )
     {
     case quaternions:
     {
-        return boost::make_shared< RotationalMotionQuaternionsStateDerivative< StateScalarType, TimeType > >(
+        stateDerivativeModel = boost::make_shared< RotationalMotionQuaternionsStateDerivative< StateScalarType, TimeType > >(
                     rotationPropagatorSettings->getTorqueModelsMap( ), rotationPropagatorSettings->bodiesToIntegrate_,
                     momentOfInertiaFunctions );
+        break;
     }
     case modified_rodrigues_parameters:
     {
-        return boost::make_shared< RotationalMotionModifiedRodriguesParametersStateDerivative< StateScalarType, TimeType > >(
+        stateDerivativeModel = boost::make_shared< RotationalMotionModifiedRodriguesParametersStateDerivative< StateScalarType, TimeType > >(
                     rotationPropagatorSettings->getTorqueModelsMap( ), rotationPropagatorSettings->bodiesToIntegrate_,
                     momentOfInertiaFunctions );
+        break;
     }
     case exponential_map:
     {
-        return boost::make_shared< RotationalMotionExponentialMapStateDerivative< StateScalarType, TimeType > >(
+        stateDerivativeModel = boost::make_shared< RotationalMotionExponentialMapStateDerivative< StateScalarType, TimeType > >(
                     rotationPropagatorSettings->getTorqueModelsMap( ), rotationPropagatorSettings->bodiesToIntegrate_,
                     momentOfInertiaFunctions );
+        break;
     }
     }
+
+    return stateDerivativeModel;
 }
 
 //! Function to create a mass state derivative model.
