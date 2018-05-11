@@ -180,14 +180,8 @@ RarefiedFlowAnalysis::RarefiedFlowAnalysis(
         atmosphericConditions_[ speed_of_sound_index ].push_back(
                     atmosphereModel->getSpeedOfSound( dataPointsOfIndependentVariables_.at( 0 ).at( h ) ) );
         atmosphericConditions_[ number_density_index ].push_back(
-                    tudat::physical_constants::AVOGADRO_CONSTANT / tudat::physical_constants::MOLAR_GAS_CONSTANT *
-                    atmosphericConditions_[ density_index ].at( h ) *
-                    atmosphereModel->getSpecificGasConstant( dataPointsOfIndependentVariables_.at( 0 ).at( h ) ) );
-        std::cout << "Density: " << atmosphericConditions_[ density_index ].at( h ) << std::endl
-                  << "Pressure: " << atmosphericConditions_[ pressure_index ].at( h ) << std::endl
-                  << "Temperature: " << atmosphericConditions_[ temperature_index ].at( h ) << std::endl
-                  << "Speed of sound: " << atmosphericConditions_[ speed_of_sound_index ].at( h ) << std::endl
-                  << "Number density: " << atmosphericConditions_[ number_density_index ].at( h ) << std::endl;
+                    tudat::physical_constants::AVOGADRO_CONSTANT * atmosphericConditions_[ density_index ].at( h ) /
+                    atmosphereModel->getMolarMass( dataPointsOfIndependentVariables_.at( 0 ).at( h ) ) );
     }
 
     // Get simulation conditions
@@ -307,9 +301,10 @@ void RarefiedFlowAnalysis::getSimulationConditions( )
 void RarefiedFlowAnalysis::generateCoefficients( )
 {
     // Generate command string for SPARTA
+    std::string MPIRunExecutable = "/usr/local/bin/mpirun";
     std::cout << "Initiating SPARTA simulation. This may take a while." << std::endl;
     std::string runSPARTACommandString = "cd " + getSpartaDataPath( ) + "; " +
-            SPARTAExecutable_ + " -echo log -screen none -in " + getSpartaInputFile( );
+            MPIRunExecutable + " -np 2 " + SPARTAExecutable_ + " -echo log -screen none -in " + getSpartaInputFile( );
 
     // Predefine variables
     Eigen::Vector3d velocityVector;
@@ -323,7 +318,7 @@ void RarefiedFlowAnalysis::generateCoefficients( )
     // Loop over altitude
     for ( unsigned int h = 0; h < dataPointsOfIndependentVariables_.at( 0 ).size( ); h++ )
     {
-        // Show progress
+        // Inform user on progress
         std::cout << std::endl << "Altitude: "
                   << dataPointsOfIndependentVariables_.at( 0 ).at( h ) / 1e3
                   << " km" << std::endl;
@@ -331,7 +326,7 @@ void RarefiedFlowAnalysis::generateCoefficients( )
         // Loop over Mach numbers
         for ( unsigned int m = 0; m < dataPointsOfIndependentVariables_.at( 1 ).size( ); m++ )
         {
-            // Show progress
+            // Inform user on progress
             std::cout << "Mach number: "
                       << dataPointsOfIndependentVariables_.at( 1 ).at( m )
                       << std::endl;
@@ -339,7 +334,7 @@ void RarefiedFlowAnalysis::generateCoefficients( )
             // Loop over angles of attack
             for ( unsigned int a = 0; a < dataPointsOfIndependentVariables_.at( 2 ).size( ); a++ )
             {
-                // Show progress
+                // Inform user on progress
                 std::cout << "Angle of attack: "
                           << convertRadiansToDegrees( dataPointsOfIndependentVariables_.at( 2 ).at( a ) )
                           << " deg" << std::endl;
@@ -408,6 +403,9 @@ void RarefiedFlowAnalysis::generateCoefficients( )
                 // Clean up results folder
                 std::string commandString = "rm " + getSpartaOutputPath( ) + "/coeff.*";
                 std::system( commandString.c_str( ) );
+
+                // Inform user on progress
+                std::cout << std::endl << "SPARTA simulation complete." << std::endl << std::endl;
             }
         }
     }
