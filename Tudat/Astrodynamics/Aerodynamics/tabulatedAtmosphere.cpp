@@ -23,6 +23,24 @@ namespace aerodynamics
 
 using namespace interpolators;
 
+//! Check uniqueness of input.
+template< typename VariableType >
+void checkVariableUniqueness( std::vector< VariableType > variables )
+{
+    // Sort variables
+    sort( variables.begin( ), variables.end( ) );
+
+    // Check uniqueness
+    unsigned int numberOfUniqueElements = std::distance( variables.begin( ),
+                                                         std::unique( variables.begin( ), variables.end( ) ) );
+
+    // Give error in case of non-unique variables
+    if ( numberOfUniqueElements != variables.size( ) )
+    {
+        throw std::runtime_error( "Error, in tabulated atmosphere. Duplicate entry in (in)dependent variables." );
+    }
+}
+
 //! Initialize atmosphere table reader.
 void TabulatedAtmosphere::initialize( const std::map< int, std::string >& atmosphereTableFile )
 {
@@ -192,6 +210,12 @@ void TabulatedAtmosphere::initialize( const std::map< int, std::string >& atmosp
                         independentVariablesData_.at( 0 ), dependentVariablesData.at( dependentVariableIndices_.at( 4 ) ),
                         huntingAlgorithm, boundaryHandling_.at( 0 ), defaultExtrapolationValue_.at( dependentVariableIndices_.at( 4 ) ) );
         }
+        if ( dependentVariablesDependency_.at( 5 ) )
+        {
+            interpolationForMolarMass_ = boost::make_shared< CubicSplineInterpolatorDouble >(
+                        independentVariablesData_.at( 0 ), dependentVariablesData.at( dependentVariableIndices_.at( 5 ) ),
+                        huntingAlgorithm, boundaryHandling_.at( 0 ), defaultExtrapolationValue_.at( dependentVariableIndices_.at( 5 ) ) );
+        }
         break;
     }
     case 2:
@@ -255,23 +279,12 @@ void TabulatedAtmosphere::createMultiDimensionalAtmosphereInterpolators( )
                     independentVariablesData_, tabulatedAtmosphereData.first.at( dependentVariableIndices_.at( 4 ) ),
                     huntingAlgorithm, boundaryHandling_, defaultExtrapolationValue_.at( dependentVariableIndices_.at( 4 ) ) );
     }
-}
-
-//! Check uniqueness of input.
-template< typename VariableType >
-void checkVariableUniqueness( std::vector< VariableType > variables )
-{
-    // Sort variables
-    sort( variables.begin( ), variables.end( ) );
-
-    // Check uniqueness
-    unsigned int numberOfUniqueElements = std::distance( variables.begin( ),
-                                                         std::unique( variables.begin( ), variables.end( ) ) );
-
-    // Give error in case of non-unique variables
-    if ( numberOfUniqueElements != variables.size( ) )
+    if ( dependentVariablesDependency_.at( 5 ) )
     {
-        throw std::runtime_error( "Error, in tabulated atmosphere. Duplicate entry in (in)dependent variables." );
+        interpolationForMolarMass_ =
+                boost::make_shared< MultiLinearInterpolator< double, double, NumberOfIndependentVariables > >(
+                    independentVariablesData_, tabulatedAtmosphereData.first.at( dependentVariableIndices_.at( 5 ) ),
+                    huntingAlgorithm, boundaryHandling_, defaultExtrapolationValue_.at( dependentVariableIndices_.at( 5 ) ) );
     }
 }
 

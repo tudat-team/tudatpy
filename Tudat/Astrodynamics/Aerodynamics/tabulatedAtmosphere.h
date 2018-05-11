@@ -39,6 +39,10 @@ namespace tudat
 namespace aerodynamics
 {
 
+//! Check uniqueness of input.
+template< typename VariableType >
+void checkVariableUniqueness( std::vector< VariableType > variables );
+
 //! Tabulated atmosphere class.
 /*!
  * Tabulated atmospheres class, for example US1976. The default path from which the files are
@@ -134,7 +138,7 @@ public:
 
     //! Get local density.
     /*!
-     * Returns the local density parameter of the atmosphere in kg per meter^3.
+     * Returns the local density parameter of the atmosphere in kg per meter^3, at the specified conditions.
      * \param altitude Altitude at which density is to be computed.
      * \param longitude Longitude at which density is to be computed.
      * \param latitude Latitude at which density is to be computed.
@@ -171,7 +175,7 @@ public:
 
     //! Get local pressure.
     /*!
-     * Returns the local pressure of the atmosphere in Newton per meter^2.
+     * Returns the local pressure of the atmosphere in Newton per meter^2, at the specified conditions.
      * \param altitude Altitude  at which pressure is to be computed.
      * \param longitude Longitude at which pressure is to be computed.
      * \param latitude Latitude at which pressure is to be computed.
@@ -208,7 +212,7 @@ public:
 
     //! Get local temperature.
     /*!
-     * Returns the local temperature of the atmosphere in Kelvin.
+     * Returns the local temperature of the atmosphere in Kelvin, at the specified conditions.
      * \param altitude Altitude at which temperature is to be computed
      * \param longitude Longitude at which temperature is to be computed.
      * \param latitude Latitude at which temperature is to be computed.
@@ -245,7 +249,7 @@ public:
 
     //! Get specific gas constant.
     /*!
-     * Returns the specific gas constant of the atmosphere in J/(kg K), its value is assumed constant.
+     * Returns the specific gas constant of the atmosphere in J/(kg K), at the specified conditions.
      * \param altitude Altitude at which specific gas constant is to be computed.
      * \param longitude Longitude at which specific gas constant is to be computed.
      * \param latitude Latitude at which specific gas constant is to be computed.
@@ -289,7 +293,7 @@ public:
 
     //! Get ratio of specific heats.
     /*!
-     * Returns the ratio of specific heats of the air, its value is assumed constant,.
+     * Returns the ratio of specific heats of the atmosphere at the specified conditions.
      * \param altitude Altitude at which ratio of specific heats is to be computed
      * \param longitude Longitude at which ratio of specific heats is to be computed.
      * \param latitude Latitude at which ratio of specific heats is to be computed.
@@ -328,6 +332,51 @@ public:
         else
         {
             return ratioOfSpecificHeats_;
+        }
+    }
+
+    //! Get molar mass.
+    /*!
+     * Returns the molar mass of the atmosphere in (kg), at the specified conditions.
+     * \param altitude Altitude at which ratio of specific heats is to be computed
+     * \param longitude Longitude at which ratio of specific heats is to be computed.
+     * \param latitude Latitude at which ratio of specific heats is to be computed.
+     * \param time Time at which ratio of specific heats is to be computed.
+     * \return Ratio of specific heats at specified conditions.
+     */
+    double getMolarMass( const double altitude, const double longitude = 0.0,
+                         const double latitude = 0.0, const double time = 0.0 )
+    {
+        if ( dependentVariablesDependency_.at( molar_mass_dependent_atmosphere ) )
+        {
+            // Get list of independent variables
+            std::vector< double > independentVariableData;
+            for ( int i = 0; i < numberOfIndependentVariables_; i++ )
+            {
+                switch ( independentVariables_.at( i ) )
+                {
+                case altitude_dependent_atmosphere:
+                    independentVariableData.push_back( altitude );
+                    break;
+                case longitude_dependent_atmosphere:
+                    independentVariableData.push_back( longitude );
+                    break;
+                case latitude_dependent_atmosphere:
+                    independentVariableData.push_back( latitude );
+                    break;
+                case time_dependent_atmosphere:
+                    independentVariableData.push_back( time );
+                    break;
+                }
+            }
+
+            // Give output
+            return interpolationForMolarMass_->interpolate( independentVariableData );
+        }
+        else
+        {
+            throw std::runtime_error( "Error in tabulated atmosphere. The molar mass needs to be specified in the atmosphere "
+                                      "table files." );
         }
     }
 
@@ -412,7 +461,7 @@ private:
      *  Vector of booleans that determines if the atmosphere file contains dentity, pressure, temperature,
      *  gas constant and/or ratio of specific heats.
      */
-    std::vector< bool > dependentVariablesDependency_ = std::vector< bool >( 5, false ); // only 5 dependent variables supported
+    std::vector< bool > dependentVariablesDependency_ = std::vector< bool >( 6, false ); // only 5 dependent variables supported
 
     //! Vector of integers that specifies the order of dentity, pressure, temperature, gas constant and
     //! ratio of specific heats are located.
@@ -420,7 +469,7 @@ private:
      *  Vector of integers that specifies the order of dentity, pressure, temperature, gas constant and
      *  ratio of specific heats are located.
      */
-    std::vector< int > dependentVariableIndices_ = std::vector< int >( 5, 0 ); // only 5 dependent variables supported
+    std::vector< int > dependentVariableIndices_ = std::vector< int >( 6, 0 ); // only 5 dependent variables supported
 
     //! Specific gas constant of the atmosphere.
     /*!
@@ -464,6 +513,12 @@ private:
      */
     boost::shared_ptr< interpolators::Interpolator< double, double > > interpolationForSpecificHeatRatio_;
 
+    //! Interpolation for molar mass. Note that type of interpolator depends on number of independent variables specified.
+    /*!
+     *  Interpolation for molar mass. Note that type of interpolator depends on number of independent variables specified.
+     */
+    boost::shared_ptr< interpolators::Interpolator< double, double > > interpolationForMolarMass_;
+
     //! Behavior of interpolator when independent variable is outside range.
     /*!
      *  Behavior of interpolator when independent variable is outside range.
@@ -476,10 +531,6 @@ private:
      */
     std::vector< double > defaultExtrapolationValue_;
 };
-
-//! Check uniqueness of input.
-template< typename VariableType >
-void checkVariableUniqueness( std::vector< VariableType > variables );
 
 //! Typedef for shared-pointer to TabulatedAtmosphere object.
 typedef boost::shared_ptr< TabulatedAtmosphere > TabulatedAtmospherePointer;

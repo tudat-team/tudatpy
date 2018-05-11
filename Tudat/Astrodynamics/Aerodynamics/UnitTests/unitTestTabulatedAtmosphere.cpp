@@ -144,6 +144,7 @@ BOOST_AUTO_TEST_CASE( testTabulatedAtmosphereAllDependentVariables )
     // Create vector of dependent and independent variables
     std::vector< aerodynamics::AtmosphereDependentVariables > dependentVariables;
     dependentVariables.push_back( aerodynamics::pressure_dependent_atmosphere );
+    dependentVariables.push_back( aerodynamics::molar_mass_dependent_atmosphere );
     dependentVariables.push_back( aerodynamics::specific_heat_ratio_dependent_atmosphere );
     dependentVariables.push_back( aerodynamics::gas_constant_dependent_atmosphere );
     dependentVariables.push_back( aerodynamics::temperature_dependent_atmosphere );
@@ -159,12 +160,13 @@ BOOST_AUTO_TEST_CASE( testTabulatedAtmosphereAllDependentVariables )
     const double tolerance = std::numeric_limits< double >::epsilon( );
 
     const double latitude = 5e4;
-    BOOST_CHECK_CLOSE_FRACTION( 1.4331262554e+00, tabulatedAtmosphere.getDensity( 0.0, 0.0, latitude ), 1.0e-4 );
+    BOOST_CHECK_CLOSE_FRACTION( 4.3604106892e-02, tabulatedAtmosphere.getDensity( 0.0, 0.0, latitude ), 1.0e-4 );
     BOOST_CHECK_CLOSE_FRACTION( 7.6178752157e-05, tabulatedAtmosphere.getPressure( 0.0, 0.0, latitude ), tolerance );
-    BOOST_CHECK_CLOSE_FRACTION( 2.0951356051e+02, tabulatedAtmosphere.getTemperature( 0.0, 0.0, latitude ), tolerance );
-    BOOST_CHECK_CLOSE_FRACTION( 1.6104994141e+02, tabulatedAtmosphere.getSpecificGasConstant( 0.0, 0.0, latitude ), tolerance );
-    BOOST_CHECK_CLOSE_FRACTION( 2.3477457225e+00, tabulatedAtmosphere.getRatioOfSpecificHeats( 0.0, 0.0, latitude ), tolerance );
-    BOOST_CHECK_CLOSE_FRACTION( 281.456889155598, tabulatedAtmosphere.getSpeedOfSound( 0.0, 0.0, latitude ), 10.0 * tolerance );
+    BOOST_CHECK_CLOSE_FRACTION( 1.3794210386e+00, tabulatedAtmosphere.getTemperature( 0.0, 0.0, latitude ), tolerance );
+    BOOST_CHECK_CLOSE_FRACTION( 1.9068065814e+02, tabulatedAtmosphere.getSpecificGasConstant( 0.0, 0.0, latitude ), tolerance );
+    BOOST_CHECK_CLOSE_FRACTION( 1.6104994141e+02, tabulatedAtmosphere.getRatioOfSpecificHeats( 0.0, 0.0, latitude ), tolerance );
+    BOOST_CHECK_CLOSE_FRACTION( 2.3477457225e+00, tabulatedAtmosphere.getMolarMass( 0.0, 0.0, latitude ), 1.0e-4 );
+    BOOST_CHECK_CLOSE_FRACTION( 205.817372408135, tabulatedAtmosphere.getSpeedOfSound( 0.0, 0.0, latitude ), 10.0 * tolerance );
 }
 
 //! Check if the atmosphere is calculated correctly when more than one independent variable is used, and when
@@ -196,9 +198,9 @@ BOOST_AUTO_TEST_CASE( testMultiDimensionalTabulatedAtmosphere )
     const double latitude = unit_conversions::convertDegreesToRadians( -90.0 );
 
     // Check that values matches with MATLAB interpolation (note that dependent variables are shuffled)
-    BOOST_CHECK_CLOSE_FRACTION( 5.21974086616628e-05, tabulatedAtmosphere.getDensity( altitude, longitude, latitude ), tolerance );
-    BOOST_CHECK_CLOSE_FRACTION( 1.6438001865591, tabulatedAtmosphere.getPressure( altitude, longitude, latitude ), tolerance );
-    BOOST_CHECK_CLOSE_FRACTION( 151.582543955867, tabulatedAtmosphere.getTemperature( altitude, longitude, latitude ), 1e2 * tolerance );
+    BOOST_CHECK_CLOSE_FRACTION( 5.2805275e-05, tabulatedAtmosphere.getDensity( altitude, longitude, latitude ), tolerance );
+    BOOST_CHECK_CLOSE_FRACTION( 1.6627685, tabulatedAtmosphere.getPressure( altitude, longitude, latitude ), tolerance );
+    BOOST_CHECK_CLOSE_FRACTION( 151.544, tabulatedAtmosphere.getTemperature( altitude, longitude, latitude ), 1e2 * tolerance );
 }
 
 //! Check if the atmosphere is calculated correctly when more than one independent variable is used, and when both independent
@@ -233,12 +235,12 @@ BOOST_AUTO_TEST_CASE( testMultiDimensionalTabulatedAtmosphereWithInterpolationAn
     const double latitude = unit_conversions::convertDegreesToRadians( -65.9762 );
 
     // Check that values matches with MATLAB interpolation (note that dependent variables are shuffled)
-    BOOST_CHECK_CLOSE_FRACTION( 5.4998830882581e-13, tabulatedAtmosphere.getDensity( altitude, longitude, latitude ), tolerance );
-    BOOST_CHECK_CLOSE_FRACTION( 5.04910171280336e-08, tabulatedAtmosphere.getPressure( altitude, longitude, latitude ), tolerance );
-    BOOST_CHECK_CLOSE_FRACTION( 174.841260220389, tabulatedAtmosphere.getTemperature( altitude, longitude, latitude ), tolerance );
-    BOOST_CHECK_CLOSE_FRACTION( 388.109922019558, tabulatedAtmosphere.getSpecificGasConstant( altitude, longitude, latitude ), tolerance );
-    BOOST_CHECK_CLOSE_FRACTION( 1.50550836355681, tabulatedAtmosphere.getRatioOfSpecificHeats( altitude, longitude, latitude ), tolerance );
-    BOOST_CHECK_CLOSE_FRACTION( 319.625134007504, tabulatedAtmosphere.getSpeedOfSound( altitude, longitude, latitude ), tolerance );
+    BOOST_CHECK_CLOSE_FRACTION( 5.50129731852116e-13, tabulatedAtmosphere.getDensity( altitude, longitude, latitude ), tolerance );
+    BOOST_CHECK_CLOSE_FRACTION( 5.04989095583442e-08, tabulatedAtmosphere.getPressure( altitude, longitude, latitude ), tolerance );
+    BOOST_CHECK_CLOSE_FRACTION( 174.841254254654, tabulatedAtmosphere.getTemperature( altitude, longitude, latitude ), tolerance );
+    BOOST_CHECK_CLOSE_FRACTION( 536.057570066056, tabulatedAtmosphere.getSpecificGasConstant( altitude, longitude, latitude ), tolerance );
+    BOOST_CHECK_CLOSE_FRACTION( 1.66645861500501, tabulatedAtmosphere.getRatioOfSpecificHeats( altitude, longitude, latitude ), tolerance );
+    BOOST_CHECK_CLOSE_FRACTION( 395.207283419339, tabulatedAtmosphere.getSpeedOfSound( altitude, longitude, latitude ), tolerance );
 }
 
 //! Check if the atmosphere is calculated correctly when default extrapolation values are used.
@@ -279,7 +281,7 @@ BOOST_AUTO_TEST_CASE( testMultiDimensionalTabulatedAtmosphereDefaultExtrapolatio
     const std::vector< double > altitude = { 5.0e7, 5.0e4, 5.0e4 };
 
     // Expected results
-    std::vector< double > boundaryValues = { 0.877653865782941, 163.354129386099, 1.43199485385841, 2.82975546661156e-05 };
+    std::vector< double > boundaryValues = { 0.877653865782941, 163.354129386099, 1.37774305607899, 2.82975546661156e-05 };
     const std::vector< bool > expectedException = { false, true, false };
     std::vector< double > expectedResult;
     bool exception;
