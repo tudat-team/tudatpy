@@ -49,8 +49,9 @@ public:
      *  Function to write one-dimensional array data and independent variables to file.
      *  \tparam NumberOfIndependentVariables Number of independent variables.
      *  \tparam NumberOfCoefficients Number of coefficients.
-     *  \param fileNamesMap Map of files where coefficients need to be saved. Each coefficient is saved in a separate file, thus
-     *      number of files has to match number of coefficients.
+     *  \param fileName File where coefficients need to be saved. All coefficients are saved in the same file, with the
+     *      independent variable in the first column.
+     *  \param coefficientIndices Indices of coefficients to be saved to file.
      *  \param independentVariables Vector of independent variable vectors.
      *  \param dependentVariables Multi-array of dependent variables for each independent variable.
      */
@@ -88,8 +89,9 @@ public:
      *  Function to write one-dimensional array data and independent variables to file.
      *  \tparam NumberOfIndependentVariables Number of independent variables.
      *  \tparam NumberOfCoefficients Number of coefficients.
-     *  \param fileNamesMap Map of files where coefficients need to be saved. Each coefficient is saved in a separate file, thus
-     *      number of files has to match number of coefficients.
+     *  \param fileName File where coefficients need to be saved. All coefficients are saved in the same file, with the
+     *      independent variable in the first column.
+     *  \param coefficientIndices Indices of coefficients to be saved to file.
      *  \param independentVariables Vector of independent variable vectors.
      *  \param dependentVariables Multi-array of dependent variables for each independent variable.
      */
@@ -139,6 +141,9 @@ public:
             }
             fprintf( fileIdentifier, "\n" );
         }
+
+        // Close file
+        std::fclose( fileIdentifier );
     }
 
     //! Function to write one-dimensional array data and independent variables to file.
