@@ -164,7 +164,6 @@ public:
                 for( unsigned int i = 0; i < stateDerivativeModelsIterator_->second.size( ); i++ )
                 {
                     stateDerivativeModelsIterator_->second.at( i )->clearStateDerivativeModel( );
-                    std::cout << stateDerivativeModelsIterator_->second.at( i )->getIntegratedStateType( ) << std::endl;
                 }
             }
 

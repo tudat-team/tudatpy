@@ -337,12 +337,12 @@ public:
 
     //! Get molar mass.
     /*!
-     * Returns the molar mass of the atmosphere in (kg), at the specified conditions.
-     * \param altitude Altitude at which ratio of specific heats is to be computed
-     * \param longitude Longitude at which ratio of specific heats is to be computed.
-     * \param latitude Latitude at which ratio of specific heats is to be computed.
-     * \param time Time at which ratio of specific heats is to be computed.
-     * \return Ratio of specific heats at specified conditions.
+     * Returns the molar mass of the atmosphere in kilograms per mole, at the specified conditions.
+     * \param altitude Altitude at which molar mass is to be computed
+     * \param longitude Longitude at which molar mass is to be computed.
+     * \param latitude Latitude at which molar mass is to be computed.
+     * \param time Time at which molar mass is to be computed.
+     * \return Molar mass at specified conditions.
      */
     double getMolarMass( const double altitude, const double longitude = 0.0,
                          const double latitude = 0.0, const double time = 0.0 )

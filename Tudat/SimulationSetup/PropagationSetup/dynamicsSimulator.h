@@ -440,7 +440,7 @@ public:
         dynamicsStateDerivative_->convertNumericalStateSolutionsToOutputSolutions(
                     equationsOfMotionNumericalSolution_, equationsOfMotionNumericalSolutionRaw_ );
 
-        // Retrieve number of function evaluations (to print, remove comments on next line)
+        // Retrieve number of function evaluations (to print, remove comments on line 448)
         int numberOfFunctionEvaluations = dynamicsStateDerivative_->getNumberOfFunctionEvaluations( );
         cumulativeNumberOfFunctionEvaluations_ = dynamicsStateDerivative_->getCumulativeNumberOfFunctionEvaluations( );
 
@@ -514,7 +514,7 @@ public:
                     { getEquationsOfMotionNumericalSolution( ) } );
     }
 
-    //! Function to return the map of dependent variable history that was saved during numerical propagation(base class interface)
+    //! Function to return the map of dependent variable history that was saved during numerical propagation (base class interface)
     /*!
      * Function to return the map of dependent variable history that was saved during numerical propagation (base class interface)
      * \return Vector is size 1, with entry: map of dependent variable history that was saved during numerical propagation.
@@ -525,6 +525,11 @@ public:
                     { getDependentVariableHistory( ) } );
     }
 
+    //! Function to return the map of cumulative computation time history that was saved during numerical propagation.
+    /*!
+     * Function to return the map of cumulative computation time history that was saved during numerical propagation (base class interface).
+     * \return Vector is size 1, with entry: map of cumulative computation time history that was saved during numerical propagation.
+     */
     std::vector< std::map< TimeType, double > > getCumulativeComputationTimeHistoryBase( )
     {
         return std::vector< std::map< TimeType, double > >( { getCumulativeComputationTimeHistory( ) } );
