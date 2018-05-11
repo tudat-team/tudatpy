@@ -499,7 +499,7 @@ public:
                                           const boost::shared_ptr< DependentVariableSaveSettings > dependentVariablesToSave =
             boost::shared_ptr< DependentVariableSaveSettings >( ),
                                           const double printInterval = TUDAT_NAN ):
-        SingleArcPropagatorSettings< StateScalarType >( transational_state, initialBodyStates, terminationSettings,
+        SingleArcPropagatorSettings< StateScalarType >( translational_state, initialBodyStates, terminationSettings,
                                                         dependentVariablesToSave, printInterval ),
         centralBodies_( centralBodies ),
         bodiesToIntegrate_( bodiesToIntegrate ),
@@ -533,7 +533,7 @@ public:
                                           const boost::shared_ptr< DependentVariableSaveSettings > dependentVariablesToSave =
             boost::shared_ptr< DependentVariableSaveSettings >( ),
                                           const double printInterval = TUDAT_NAN ):
-        SingleArcPropagatorSettings< StateScalarType >( transational_state, initialBodyStates, terminationSettings,
+        SingleArcPropagatorSettings< StateScalarType >( translational_state, initialBodyStates, terminationSettings,
                                                         dependentVariablesToSave, printInterval ),
         centralBodies_( centralBodies ),
         bodiesToIntegrate_( bodiesToIntegrate ),
@@ -568,7 +568,7 @@ public:
             boost::shared_ptr< DependentVariableSaveSettings >( ),
                                           const double printInterval = TUDAT_NAN ):
         SingleArcPropagatorSettings< StateScalarType >(
-            transational_state, initialBodyStates,  boost::make_shared< PropagationTimeTerminationSettings >( endTime ),
+            translational_state, initialBodyStates,  boost::make_shared< PropagationTimeTerminationSettings >( endTime ),
             dependentVariablesToSave, printInterval ),
         centralBodies_( centralBodies ),
         bodiesToIntegrate_( bodiesToIntegrate ),
@@ -603,7 +603,7 @@ public:
             boost::shared_ptr< DependentVariableSaveSettings >( ),
                                           const double printInterval = TUDAT_NAN ):
         SingleArcPropagatorSettings< StateScalarType >(
-            transational_state, initialBodyStates,  boost::make_shared< PropagationTimeTerminationSettings >( endTime ),
+            translational_state, initialBodyStates,  boost::make_shared< PropagationTimeTerminationSettings >( endTime ),
             dependentVariablesToSave, printInterval ),
         centralBodies_( centralBodies ),
         bodiesToIntegrate_( bodiesToIntegrate ),
@@ -1369,7 +1369,7 @@ std::map< IntegratedStateType, std::vector< std::pair< std::string, std::string 
         }
         break;
     }
-    case transational_state:
+    case translational_state:
     {
         boost::shared_ptr< TranslationalStatePropagatorSettings< StateScalarType > >
                 translationalPropagatorSettings = boost::dynamic_pointer_cast<
@@ -1386,7 +1386,7 @@ std::map< IntegratedStateType, std::vector< std::pair< std::string, std::string 
         {
             integratedBodies.push_back( std::make_pair( translationalPropagatorSettings->bodiesToIntegrate_.at( i ), "" ) );
         }
-        integratedStateList[ transational_state ] = integratedBodies;
+        integratedStateList[ translational_state ] = integratedBodies;
 
         break;
     }

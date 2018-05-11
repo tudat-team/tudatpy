@@ -26,7 +26,6 @@ enum IntegratedStateType
 {
     hybrid = 0,
     translational_state = 1,
-    transational_state = translational_state,  // deprecated (typo)
     rotational_state = 2,
     body_mass_state = 3,
     custom_state = 4
@@ -131,7 +130,6 @@ public:
     virtual void convertCurrentStateToGlobalRepresentation(
             const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& internalSolution, const TimeType& time,
             Eigen::Block< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > currentCartesianLocalSoluton ) = 0;
-
 
     //! Function to convert the state in the conventional form to the propagator-specific form.
     /*!

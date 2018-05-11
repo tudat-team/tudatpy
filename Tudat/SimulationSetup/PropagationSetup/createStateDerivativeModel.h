@@ -343,7 +343,7 @@ createStateDerivativeModel(
     // specific type of state derivative model.
     switch( propagatorSettings->getStateType( ) )
     {
-    case transational_state:
+    case translational_state:
     {
         // Check input consistency.
         boost::shared_ptr< TranslationalStatePropagatorSettings< StateScalarType > >
@@ -439,11 +439,11 @@ void setMultiTypePropagationClosure(
     if( multiTypePropagatorSettings != NULL )
     {
         // Perform closure for the case where both translational and rotational states are propagated
-        if( multiTypePropagatorSettings->propagatorSettingsMap_.count( transational_state ) > 0 &&
+        if( multiTypePropagatorSettings->propagatorSettingsMap_.count( translational_state ) > 0 &&
                 multiTypePropagatorSettings->propagatorSettingsMap_.count( rotational_state ) > 0 )
         {
             std::vector< boost::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > > translationalStateSettings =
-                    multiTypePropagatorSettings->propagatorSettingsMap_.at( transational_state );
+                    multiTypePropagatorSettings->propagatorSettingsMap_.at( translational_state );
             std::vector< boost::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > > rotationalStateSettings =
                     multiTypePropagatorSettings->propagatorSettingsMap_.at( rotational_state );
 

@@ -121,11 +121,9 @@ public:
             propagatedStateTypeSize_[ stateDerivativeModels.at( i )->getIntegratedStateType( ) ] +=
                     stateDerivativeModels.at( i )->getPropagatedStateSize( );
 
-
             // Set current model in member map.
             stateDerivativeModels_[ stateDerivativeModels.at( i )->getIntegratedStateType( ) ].push_back(
                         stateDerivativeModels.at( i ) );
-
 
             currentStatesPerTypeInConventionalRepresentation_[ stateDerivativeModels.at( i )->getIntegratedStateType( )  ] =
                     Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >::Zero(
@@ -162,11 +160,11 @@ public:
             for( stateDerivativeModelsIterator_ = stateDerivativeModels_.begin( );
                  stateDerivativeModelsIterator_ != stateDerivativeModels_.end( );
                  stateDerivativeModelsIterator_++ )
-
             {
                 for( unsigned int i = 0; i < stateDerivativeModelsIterator_->second.size( ); i++ )
                 {
                     stateDerivativeModelsIterator_->second.at( i )->clearStateDerivativeModel( );
+                    std::cout << stateDerivativeModelsIterator_->second.at( i )->getIntegratedStateType( ) << std::endl;
                 }
             }
 
@@ -413,7 +411,7 @@ public:
         {
             switch( stateDerivativeModelsIterator_->first )
             {
-            case transational_state:
+            case translational_state:
             {
                 for( unsigned int i = 0; i < stateDerivativeModelsIterator_->second.size( ); i++ )
                 {
@@ -702,11 +700,11 @@ std::vector< boost::shared_ptr< basic_astrodynamics::AccelerationModel3d > > get
             listOfSuitableAccelerationModels;
 
     // Retrieve acceleration models
-    if( stateDerivativeModels.count( propagators::transational_state ) == 1 )
+    if( stateDerivativeModels.count( propagators::translational_state ) == 1 )
     {
         basic_astrodynamics::AccelerationMap accelerationModelList =
                 boost::dynamic_pointer_cast< NBodyStateDerivative< StateScalarType, TimeType > >(
-                    stateDerivativeModels.at( propagators::transational_state ).at( 0 ) )->getAccelerationsMap( );
+                    stateDerivativeModels.at( propagators::translational_state ).at( 0 ) )->getAccelerationsMap( );
         if( accelerationModelList.count( bodyUndergoingAcceleration ) == 0 )
         {
 
@@ -817,13 +815,13 @@ boost::shared_ptr< NBodyStateDerivative< StateScalarType, TimeType > > getTransl
     boost::shared_ptr< NBodyStateDerivative< StateScalarType, TimeType > > modelForBody;
 
     // Check if translational state derivative models exists
-    if( stateDerivativeModels.count( propagators::transational_state ) > 0 )
+    if( stateDerivativeModels.count( propagators::translational_state ) > 0 )
     {
-        for( unsigned int i = 0; i < stateDerivativeModels.at( propagators::transational_state ).size( ); i++ )
+        for( unsigned int i = 0; i < stateDerivativeModels.at( propagators::translational_state ).size( ); i++ )
         {
             boost::shared_ptr< NBodyStateDerivative< StateScalarType, TimeType > > nBodyModel =
                     boost::dynamic_pointer_cast< NBodyStateDerivative< StateScalarType, TimeType > >(
-                        stateDerivativeModels.at( propagators::transational_state ).at( i ) );
+                        stateDerivativeModels.at( propagators::translational_state ).at( i ) );
             std::vector< std::string > propagatedBodies = nBodyModel->getBodiesToBeIntegratedNumerically( );
 
             // Check if bodyUndergoingAcceleration is propagated by bodyUndergoingAcceleration
