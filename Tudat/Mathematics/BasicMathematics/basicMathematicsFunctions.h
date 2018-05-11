@@ -12,11 +12,6 @@
  *          University Press, February 2002.
  *      Spiegel, M.R., Stephens, L.J. Statistics, Fourth Edition, Schaum's Outlines, McGraw-Hill,
  *          2008.
- *
- *    Notes
- *      Backwards compatibility of namespaces is implemented for Tudat Core 2 in this file. The
- *      code block marked "DEPRECATED!" at the end of the file should be removed in Tudat Core 3.
- *
  */
 
 #ifndef TUDAT_BASIC_MATHEMATICS_FUNCTIONS_H

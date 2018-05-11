@@ -6,11 +6,6 @@
  *    under the terms of the Modified BSD license. You should have received
  *    a copy of the license with this file. If not, please or visit:
  *    http://tudat.tudelft.nl/LICENSE.
- *
- *    Notes
- *      Backwards compatibility of namespaces is implemented for Tudat Core 2 in this file. The
- *      code block marked "DEPRECATED!" at the end of the file should be removed in Tudat Core 3.
- *
  */
 
 #ifndef TUDAT_ASTRODYNAMICS_FUNCTIONS_H

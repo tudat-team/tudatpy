@@ -713,7 +713,7 @@ public:
             const std::vector< std::string >& centralBodies,
             const boost::shared_ptr< ephemerides::ReferenceFrameManager > frameManager ):
         IntegratedStateProcessor< TimeType, StateScalarType >(
-            transational_state, std::make_pair( startIndex, 6 * bodiesToIntegrate.size( ) ) ),
+            translational_state, std::make_pair( startIndex, 6 * bodiesToIntegrate.size( ) ) ),
         bodyMap_( bodyMap ), bodiesToIntegrate_( bodiesToIntegrate )
     {
         // Get update orders.
@@ -1029,7 +1029,7 @@ createIntegratedStateProcessors(
         
         break;
     }
-    case transational_state:
+    case translational_state:
     {
         
         // Check input feasibility
@@ -1044,7 +1044,7 @@ createIntegratedStateProcessors(
                     translationalPropagatorSettings->bodiesToIntegrate_, bodyMap );
         
         // Create state processors
-        integratedStateProcessors[ transational_state ].push_back(
+        integratedStateProcessors[ translational_state ].push_back(
                     boost::make_shared< TranslationalStateIntegratedStateProcessor< TimeType, StateScalarType > >(
                         startIndex, bodyMap, translationalPropagatorSettings->bodiesToIntegrate_,
                         translationalPropagatorSettings->centralBodies_, frameManager ) );

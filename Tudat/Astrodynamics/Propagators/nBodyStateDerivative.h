@@ -113,7 +113,7 @@ public:
                           const TranslationalPropagatorType propagatorType,
                           const std::vector< std::string >& bodiesToIntegrate ):
         propagators::SingleStateTypeDerivative< StateScalarType, TimeType >(
-            propagators::transational_state ),
+            propagators::translational_state ),
         accelerationModelsPerBody_( accelerationModelsPerBody ),
         centralBodyData_( centralBodyData ),
         propagatorType_( propagatorType ),
