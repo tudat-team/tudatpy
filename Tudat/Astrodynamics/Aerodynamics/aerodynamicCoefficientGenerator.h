@@ -171,10 +171,26 @@ public:
      */
     void saveAerodynamicCoefficientsTables( const std::map< int, std::string >& fileNamesMap )
     {
-        input_output::writeMultiArrayAndIndependentVariablesToFiles< NumberOfIndependentVariables,
-                NumberOfCoefficients >( fileNamesMap,
-                                        dataPointsOfIndependentVariables_,
-                                        aerodynamicCoefficients_ );
+        input_output::MultiArrayFileWriter< NumberOfIndependentVariables,
+                NumberOfCoefficients >::writeMultiArrayAndIndependentVariablesToFiles( fileNamesMap,
+                                                                                       dataPointsOfIndependentVariables_,
+                                                                                       aerodynamicCoefficients_ );
+    }
+
+    //! Save aerodynamic coefficients to file.
+    /*!
+     *  Save aerodynamic coefficients to file.
+     *  \param fileName Map of paths to files where aerodynamics coefficients are to be saved.
+     *  \param coefficientIndices Indices of coefficients to be saved. Default value is all of them.
+     */
+    void saveAerodynamicCoefficientsTables( const std::string& fileName,
+                                            const std::vector< int > coefficientIndices = { 0, 1, 2, 3, 4, 5 } )
+    {
+        input_output::MultiArrayFileWriter< NumberOfIndependentVariables,
+                NumberOfCoefficients >::writeMultiArrayAndIndependentVariablesToFiles( fileName,
+                                                                                       coefficientIndices,
+                                                                                       dataPointsOfIndependentVariables_,
+                                                                                       aerodynamicCoefficients_ );
     }
 
     //! Compute the aerodynamic coefficients at current flight condition.
