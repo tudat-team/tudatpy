@@ -155,7 +155,10 @@ RarefiedFlowAnalysis::RarefiedFlowAnalysis(
         const double gridSpacing,
         const double simulatedParticlesPerCell,
         const double wallTemperature,
-        const double accommodationCoefficient )
+        const double accommodationCoefficient,
+        const bool printProgressInCompileWindow,
+        const std::string MPIExecutable,
+        const unsigned int numberOfCores )
     : AerodynamicCoefficientGenerator< 3, 6 >(
           dataPointsOfIndependentVariables, referenceLength, referenceArea, referenceLength,
           momentReferencePoint,
@@ -163,7 +166,8 @@ RarefiedFlowAnalysis::RarefiedFlowAnalysis(
           true, true ),
       SPARTAExecutable_( SPARTAExecutable ),simulationGases_( simulationGases ), referenceAxis_( referenceAxis ),
       gridSpacing_( gridSpacing ), simulatedParticlesPerCell_( simulatedParticlesPerCell ),
-      wallTemperature_( wallTemperature ), accommodationCoefficient_( accommodationCoefficient )
+      wallTemperature_( wallTemperature ), accommodationCoefficient_( accommodationCoefficient ),
+      printProgressInCommandWindow_( printProgressInCompileWindow ), MPIExecutable_( MPIExecutable ), numberOfCores_( numberOfCores )
 {
     // Analyze vehicle geometry
     analyzeGeometryFile( geometryFileUser );
@@ -266,7 +270,7 @@ void RarefiedFlowAnalysis::getSimulationConditions( )
     for ( unsigned int i = 0; i < 3; i++ )
     {
         simulationBoundaries_( 2 * i ) = minimumDimensions_( i ) + 0.5 * minimumDimensions_.minCoeff( ); // add extra space around shape
-        simulationBoundaries_( 2 * i + 1 ) = maximumDimensions_( i ) + 0.5 * maximumDimensions_.maxCoeff( );; // add extra space around shape
+        simulationBoundaries_( 2 * i + 1 ) = maximumDimensions_( i ) + 0.5 * maximumDimensions_.maxCoeff( ); // add extra space around shape
         if ( i == static_cast< unsigned int >( referenceAxis_ ) )
         {
             simulationBoundaries_( 2 * i ) -= 1.0; // add extra space along axis of velocity
@@ -300,11 +304,26 @@ void RarefiedFlowAnalysis::getSimulationConditions( )
 //! Generate aerodynamic coefficients at a single set of independent variables.
 void RarefiedFlowAnalysis::generateCoefficients( )
 {
-    // Generate command string for SPARTA
-    std::string MPIRunExecutable = "/usr/local/bin/mpirun";
+    // Inform user on progress
     std::cout << "Initiating SPARTA simulation. This may take a while." << std::endl;
-    std::string runSPARTACommandString = "cd " + getSpartaDataPath( ) + "; " +
-            MPIRunExecutable + " -np 2 " + SPARTAExecutable_ + " -echo log -screen none -in " + getSpartaInputFile( );
+
+    // Generate command string for SPARTA
+    std::string runSPARTACommandString = "cd " + getSpartaDataPath( ) + "; ";
+    if ( MPIExecutable_ != "" )
+    {
+        if ( numberOfCores_ < 1 )
+        {
+            throw std::runtime_error( "Error in SPARTA rarefied flow analysis. Number of cores needs to be an integer value "
+                                      "larger or equal to one." );
+        }
+        runSPARTACommandString = runSPARTACommandString + MPIExecutable_ + " -np " + std::to_string( numberOfCores_ ) + " ";
+    }
+    runSPARTACommandString = runSPARTACommandString + SPARTAExecutable_ + " -echo log ";
+    if ( !printProgressInCommandWindow_ )
+    {
+        runSPARTACommandString = runSPARTACommandString + "-screen none ";
+    }
+    runSPARTACommandString = runSPARTACommandString + "-in " + getSpartaInputFile( );
 
     // Predefine variables
     Eigen::Vector3d velocityVector;
@@ -403,12 +422,12 @@ void RarefiedFlowAnalysis::generateCoefficients( )
                 // Clean up results folder
                 std::string commandString = "rm " + getSpartaOutputPath( ) + "/coeff.*";
                 std::system( commandString.c_str( ) );
-
-                // Inform user on progress
-                std::cout << std::endl << "SPARTA simulation complete." << std::endl << std::endl;
             }
         }
     }
+
+    // Inform user on progress
+    std::cout << std::endl << "SPARTA simulation complete." << std::endl << std::endl;
 }
 
 //! Get aerodynamic coefficients at specific conditions.

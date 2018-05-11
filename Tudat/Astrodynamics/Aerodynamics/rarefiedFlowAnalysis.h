@@ -15,7 +15,6 @@
  *        Department of Energy, July 2017.
  *      Liechty, D., “Aeroheating Analysis for the Mars Reconnaissance Orbiter with Comparison to Flight Data,”
  *        Journal of Spacecraft and Rockets, vol. 44, no. 6, pp. 1226–1231, 2007.
- *
  */
 
 #ifndef TUDAT_RAREFIED_FLOW_ANALYSIS_H
@@ -132,7 +131,10 @@ public:
             const double gridSpacing,
             const double simulatedParticlesPerCell,
             const double wallTemperature = 300.0,
-            const double accommodationCoefficient = 1.0 );
+            const double accommodationCoefficient = 1.0,
+            const bool printProgressInCompileWindow = false,
+            const std::string MPIExecutable = "",
+            const unsigned int numberOfCores = 0 );
 
     //! Default destructor.
     /*!
@@ -207,6 +209,27 @@ private:
 
     //! Accommodation coefficient of surface of vehicle.
     double accommodationCoefficient_;
+
+    //! Boolean to toggle showing of progress in command window.
+    /*!
+     *  Boolean to toggle showing of progress in command window. SPARTA outputs information on the geometry and other environment
+     *  details, and during the simulation it prints statistics on the progress. This value is set to false by default.
+     */
+    bool printProgressInCommandWindow_;
+
+    //! Path to open MPI executable.
+    /*!
+     *  Path to open MPI executable. Note that open MPI is an external software and needs to be compiled before
+     *  it can be used in Tudat. See the instructions on the website https://www.open-mpi.org.
+     */
+    std::string MPIExecutable_;
+
+    //! Number of cores to be used to run the simulation with open MPI.
+    /*!
+     *  Number of cores to be used to run the simulation with open MPI. Note that this can only be used if a path to the MPI
+     *  executable has been set.
+     */
+    unsigned int numberOfCores_;
 
     //! List of points making up the vehicle geometry.
     /*!
