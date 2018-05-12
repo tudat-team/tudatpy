@@ -41,8 +41,6 @@
 #include "Tudat/Mathematics/BasicMathematics/nearestNeighbourSearch.h"
 #include "Tudat/Mathematics/Interpolators/multiDimensionalInterpolator.h"
 
-#include "Tudat/Basics/identityElements.h"
-
 namespace tudat
 {
 
@@ -58,8 +56,7 @@ namespace interpolators
  * \tparam DependentVariableType Type for dependent variable.
  * \tparam NumberOfDimensions Number of independent variables.
  */
-template< typename IndependentVariableType, typename DependentVariableType,
-          int NumberOfDimensions >
+template< typename IndependentVariableType, typename DependentVariableType, int NumberOfDimensions >
 class MultiLinearInterpolator: public MultiDimensionalInterpolator< IndependentVariableType,
         DependentVariableType, NumberOfDimensions >
 {
@@ -80,7 +77,7 @@ public:
     /*!
      * Default constructor taking independent and dependent variable data.
      * \param independentValues Vector of vectors containing data points of independent variables,
-     *  each must be sorted in ascending order.
+     *          each must be sorted in ascending order.
      * \param dependentData Multi-dimensional array of dependent data at each point of
      *          hyper-rectangular grid formed by independent variable points.
      * \param selectedLookupScheme Identifier of lookupscheme from enum. This algorithm is used
@@ -100,36 +97,38 @@ public:
                              const DependentVariableType defaultExtrapolationValue =
             IdentityElement< DependentVariableType >::getAdditionIdentity( ) ) :
         MultiDimensionalInterpolator< IndependentVariableType, DependentVariableType, NumberOfDimensions >(
-            boundaryHandling, defaultExtrapolationValue ),
-        independentValues_( independentValues ),
-        dependentData_( dependentData )
+            boundaryHandling, defaultExtrapolationValue )
+    {
+        // Save (in)dependent variables
+        independentValues_ = independentValues;
+        dependentData_ = dependentData;
+
+        // Check consistency of template arguments and input variables.
+        if ( independentValues.size( ) != NumberOfDimensions )
         {
-            // Check consistency of template arguments and input variables.
-            if ( independentValues.size( ) != NumberOfDimensions )
-            {
-                throw std::runtime_error( "Error: dimension of independent value vector provided to constructor incompatible with template parameter." );
-            }
-
-            // Check consistency of input data of dependent and independent data.
-            for ( int i = 0; i < NumberOfDimensions; i++ )
-            {
-                if ( independentValues[ i ].size( ) != dependentData.shape( )[ i ] )
-                {
-                    std::string errorMessage = "Warning: number of data points in dimension " +
-                            std::to_string( i ) + " of independent and dependent data incompatible.";
-                    throw std::runtime_error( errorMessage );
-                }
-            }
-
-            this->makeLookupSchemes( selectedLookupScheme );
+            throw std::runtime_error( "Error: dimension of independent value vector provided to constructor incompatible with template parameter." );
         }
+
+        // Check consistency of input data of dependent and independent data.
+        for ( int i = 0; i < NumberOfDimensions; i++ )
+        {
+            if ( independentValues[ i ].size( ) != dependentData.shape( )[ i ] )
+            {
+                std::string errorMessage = "Warning: number of data points in dimension " +
+                        std::to_string( i ) + " of independent and dependent data incompatible.";
+                throw std::runtime_error( errorMessage );
+            }
+        }
+
+        this->makeLookupSchemes( selectedLookupScheme );
+    }
 
     //! Constructor taking independent and dependent variable data.
     /*!
      * Constructor taking independent and dependent variable data. This constructor only requires one boundary
      * handling method, and assumes it for each dimension.
      * \param independentValues Vector of vectors containing data points of independent variables,
-     *  each must be sorted in ascending order.
+     *          each must be sorted in ascending order.
      * \param dependentData Multi-dimensional array of dependent data at each point of
      *          hyper-rectangular grid formed by independent variable points.
      * \param selectedLookupScheme Identifier of lookupscheme from enum. This algorithm is used
@@ -167,6 +166,15 @@ public:
     DependentVariableType interpolate(
             const std::vector< IndependentVariableType >& independentValuesToInterpolate )
     {
+        // Check whether size of independent variable vector is correct
+        if ( independentValuesToInterpolate.size( ) != NumberOfDimensions )
+        {
+            throw std::runtime_error( "Error in multi-dimensional interpolator. The number of independent variables "
+                                      "provided is incompatible with the previous definition. Provided: " +
+                                      std::to_string( independentValuesToInterpolate.size( ) ) + ". Needed: " +
+                                      std::to_string( NumberOfDimensions ) );
+        }
+
         // Create copy of values to interpolate, such that it can be modified
         std::vector< IndependentVariableType > localIndependentValuesToInterpolate = independentValuesToInterpolate;
 
@@ -241,15 +249,15 @@ private:
                           [ nearestLowerIndices[ currentVariable ] ] ) /
                 ( independentValues_[ currentVariable ]
                   [ nearestLowerIndices[ currentVariable ] + 1 ] -
-                  independentValues_[ currentVariable ]
-                  [ nearestLowerIndices[ currentVariable ] ] );
+                independentValues_[ currentVariable ]
+                [ nearestLowerIndices[ currentVariable ] ] );
         lowerFraction = -( independentValuesToInterpolate[ currentVariable ] -
                            independentValues_[ currentVariable ]
                            [ nearestLowerIndices[ currentVariable ] + 1 ] ) /
                 ( independentValues_[ currentVariable ]
                   [ nearestLowerIndices[ currentVariable ] + 1 ] -
-                  independentValues_[ currentVariable ]
-                  [ nearestLowerIndices[ currentVariable ] ] );
+                independentValues_[ currentVariable ]
+                [ nearestLowerIndices[ currentVariable ] ] );
 
         // If at top dimension, call dependent variable data.
         if ( currentVariable == NumberOfDimensions - 1 )
@@ -257,7 +265,7 @@ private:
             currentArrayIndices[ NumberOfDimensions - 1 ] = nearestLowerIndices[ currentVariable ];
             lowerContribution = dependentData_( currentArrayIndices );
             currentArrayIndices[ NumberOfDimensions - 1 ] = nearestLowerIndices[ currentVariable ]
-                                                            + 1;
+                    + 1;
             upperContribution = dependentData_( currentArrayIndices );
         }
 
@@ -277,7 +285,7 @@ private:
 
         // Return interpolated value.
         DependentVariableType returnValue = upperFraction * upperContribution +
-                                            lowerFraction * lowerContribution;
+                lowerFraction * lowerContribution;
         return returnValue;
     }
 

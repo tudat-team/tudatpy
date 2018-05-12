@@ -69,7 +69,6 @@ public:
      */
     virtual int getNumberOfDimensions( ) = 0;
 
-
 };
 
 } // namespace interpolators
