@@ -8,6 +8,9 @@
  	- added class to write multi-dimensional arrays to file
 - **Interpolators**
 	- added option to choose interpolator behavior at boundary (see issue [#378](https://github.com/Tudat/tudat/issues/378)); supported modes: error, extrapolate (with warning), use boundary value (with warning), use default value (with warning)
+- **Orbital Element Conversions**
+	- added conversions for position and velocity state variables: Cartesian<->USM7, Keplerian<->USM7, Cartesian<->USM6, Keplerian<->USM6, Cartesian<->USMEM, Keplerian<->USMEM
+	- added conversions for attitude state variables: quaternion<->MRP, quaternion<->exponential map
 - **Propagators**
 	- added translational state derivatives: USM7, UMS6 and USMEM (see issue [#364](https://github.com/Tudat/tudat/issues/364))
 	- added rotational state derivatives: MRPs and exponential map (see issue [#385](https://github.com/Tudat/tudat/issues/385))
