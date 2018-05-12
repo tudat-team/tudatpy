@@ -38,14 +38,14 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/shared_ptr.hpp>
 
-#include "Tudat/Mathematics/Interpolators/lookupScheme.h"
-#include "Tudat/Mathematics/Interpolators/interpolator.h"
 #include "Tudat/Mathematics/BasicMathematics/nearestNeighbourSearch.h"
+#include "Tudat/Mathematics/Interpolators/multiDimensionalInterpolator.h"
 
 #include "Tudat/Basics/identityElements.h"
 
 namespace tudat
 {
+
 namespace interpolators
 {
 
@@ -60,13 +60,25 @@ namespace interpolators
  */
 template< typename IndependentVariableType, typename DependentVariableType,
           int NumberOfDimensions >
-class MultiLinearInterpolator: public Interpolator< IndependentVariableType,
-        DependentVariableType >
+class MultiLinearInterpolator: public MultiDimensionalInterpolator< IndependentVariableType,
+        DependentVariableType, NumberOfDimensions >
 {
 public:
 
-    //! Constructor taking independent and dependent variable data.
+    // Using statements to prevent having to put 'this' everywhere in the code.
+    using MultiDimensionalInterpolator< IndependentVariableType, DependentVariableType, NumberOfDimensions >::
+    dependentData_;
+    using MultiDimensionalInterpolator< IndependentVariableType, DependentVariableType, NumberOfDimensions >::
+    independentValues_;
+    using MultiDimensionalInterpolator< IndependentVariableType, DependentVariableType, NumberOfDimensions >::
+    lookUpSchemes_;
+    using MultiDimensionalInterpolator< IndependentVariableType, DependentVariableType, NumberOfDimensions >::
+    defaultExtrapolationValue_;
+    using Interpolator< IndependentVariableType, DependentVariableType >::interpolate;
+
+    //! Default constructor taking independent and dependent variable data.
     /*!
+     * Default constructor taking independent and dependent variable data.
      * \param independentValues Vector of vectors containing data points of independent variables,
      *  each must be sorted in ascending order.
      * \param dependentData Multi-dimensional array of dependent data at each point of
@@ -74,24 +86,23 @@ public:
      * \param selectedLookupScheme Identifier of lookupscheme from enum. This algorithm is used
      *          to find the nearest lower data point in the independent variables when requesting
      *          interpolation.
-     * \param boundaryHandling Boundary handling method, in case independent variable is outside the
+     * \param boundaryHandling Vector of boundary handling methods, in case independent variable is outside the
      *          specified range.
      * \param defaultExtrapolationValue Default value to be used for extrapolation, in case of use_default_value or
      *          use_default_value_with_warning as methods for boundaryHandling.
      */
-    MultiLinearInterpolator( const std::vector< std::vector< IndependentVariableType > >
-                                 independentValues,
-                                 const boost::multi_array< DependentVariableType, static_cast< size_t >( NumberOfDimensions ) >
-                                 dependentData,
-                                 const AvailableLookupScheme selectedLookupScheme = huntingAlgorithm,
-                                 const std::vector< BoundaryInterpolationType > boundaryHandling =
-                std::vector< BoundaryInterpolationType >( NumberOfDimensions, extrapolate_at_boundary ),
-                                 const DependentVariableType defaultExtrapolationValue =
-                IdentityElement< DependentVariableType >::getAdditionIdentity( ) ) :
+    MultiLinearInterpolator( const std::vector< std::vector< IndependentVariableType > > independentValues,
+                             const boost::multi_array< DependentVariableType, static_cast< size_t >( NumberOfDimensions ) >
+                             dependentData,
+                             const AvailableLookupScheme selectedLookupScheme = huntingAlgorithm,
+                             const std::vector< BoundaryInterpolationType > boundaryHandling =
+            std::vector< BoundaryInterpolationType >( NumberOfDimensions, extrapolate_at_boundary ),
+                             const DependentVariableType defaultExtrapolationValue =
+            IdentityElement< DependentVariableType >::getAdditionIdentity( ) ) :
+        MultiDimensionalInterpolator< IndependentVariableType, DependentVariableType, NumberOfDimensions >(
+            boundaryHandling, defaultExtrapolationValue ),
         independentValues_( independentValues ),
-        dependentData_( dependentData ),
-        boundaryHandling_( boundaryHandling ),
-        defaultExtrapolationValue_( defaultExtrapolationValue )
+        dependentData_( dependentData )
         {
             // Check consistency of template arguments and input variables.
             if ( independentValues.size( ) != NumberOfDimensions )
@@ -110,11 +121,13 @@ public:
                 }
             }
 
-            makeLookupSchemes( selectedLookupScheme );
+            this->makeLookupSchemes( selectedLookupScheme );
         }
 
     //! Constructor taking independent and dependent variable data.
     /*!
+     * Constructor taking independent and dependent variable data. This constructor only requires one boundary
+     * handling method, and assumes it for each dimension.
      * \param independentValues Vector of vectors containing data points of independent variables,
      *  each must be sorted in ascending order.
      * \param dependentData Multi-dimensional array of dependent data at each point of
@@ -161,7 +174,7 @@ public:
         bool useDefault = false;
         for ( unsigned int i = 0; i < NumberOfDimensions; i++ )
         {
-            checkBoundaryCase( localIndependentValuesToInterpolate.at( i ), i, useDefault );
+            this->checkBoundaryCase( localIndependentValuesToInterpolate.at( i ), i, useDefault );
             if ( useDefault )
             {
                 return defaultExtrapolationValue_;
@@ -191,167 +204,7 @@ public:
                                                   interpolationIndices, nearestLowerIndices );
     }
 
-    //! Function to return the number of independent variables of the interpolation.
-    /*!
-     *  Function to return the number of independent variables of the interpolation, i.e. size
-     *  that the vector used as input for Interpolator::interpolate should be.
-     *  \return Number of independent variables of the interpolation.
-     */
-    int getNumberOfDimensions( )
-    {
-        return NumberOfDimensions;
-    }
-
 private:
-
-    //! Function to return the condition of the current independent variable.
-    /*!
-     *  Function to return the condition of the current independent variable, i.e. whether the
-     *  variable is within, above or below its defined range range.
-     *  \param independentVariable Value of current independent variable.
-     *  \param currentVariable Value of current dimension.
-     *  \return Condition with respect to boundary.
-     */
-    int checkInterpolationBoundary( const IndependentVariableType& independentVariable,
-                                    const unsigned int& currentVariable )
-    {
-        int isAtBoundary = 0;
-        if( independentVariable < independentValues_.at( currentVariable ).front( ) )
-        {
-            isAtBoundary = -1;
-        }
-        else if( independentVariable > independentValues_.at( currentVariable ).back( ) )
-        {
-            isAtBoundary = 1;
-        }
-        return isAtBoundary;
-    }
-
-    //! Function to check whether boundary handling needs to be applied, depending on method chosen.
-    /*!
-     *  Function to check whether boundary handling needs to be applied, depending on method chosen.
-     *  If independent variable is beyond its range definition, boundary handling will be applied, depending
-     *  on the method specified in boundaryHandling_.
-     *  \param independentVariable Value of current independent variable.
-     *  \param currentVariable Value of current dimension.
-     */
-    void checkBoundaryCase(
-            IndependentVariableType& independentVariable,
-            const unsigned int& currentVariable,
-            bool& useDefault )
-    {
-        if( boundaryHandling_.at( currentVariable ) != extrapolate_at_boundary )
-        {
-            int isAtBoundary = checkInterpolationBoundary( independentVariable, currentVariable );
-
-            if( isAtBoundary != 0 )
-            {
-                if( boundaryHandling_.at( currentVariable ) == throw_exception_at_boundary )
-                {
-                    std::string errorMessage = "Error in interpolator, requesting data point outside of boundaries, requested data of dimension " +
-                            boost::lexical_cast< std::string >( currentVariable ) + " at: " +
-                            boost::lexical_cast< std::string >( independentVariable ) + " but limit values are " +
-                            boost::lexical_cast< std::string >( independentValues_.at( currentVariable ).front( ) ) + " and " +
-                            boost::lexical_cast< std::string >( independentValues_.at( currentVariable ).back( ) );
-                    throw std::runtime_error( errorMessage );
-                }
-                else if( boundaryHandling_.at( currentVariable ) == extrapolate_at_boundary_with_warning )
-                {
-                    std::string errorMessage = "Warning in interpolator, requesting data point outside of boundaries, requested data of dimension " +
-                            boost::lexical_cast< std::string >( currentVariable ) + " at: " +
-                            boost::lexical_cast< std::string >( independentVariable ) + " but limit values are " +
-                            boost::lexical_cast< std::string >( independentValues_.at( currentVariable ).front( ) ) + " and " +
-                            boost::lexical_cast< std::string >( independentValues_.at( currentVariable ).back( ) ) + ", applying extrapolation instead.";
-                    std::cerr << errorMessage << std::endl;
-                }
-                else if( ( boundaryHandling_.at( currentVariable ) == use_boundary_value ) ||
-                         ( boundaryHandling_.at( currentVariable ) == use_boundary_value_with_warning ) )
-                {
-                    if( boundaryHandling_.at( currentVariable ) == use_boundary_value_with_warning )
-                    {
-                        std::string errorMessage = "Warning in interpolator, requesting data point outside of boundaries, requested data of dimension " +
-                                boost::lexical_cast< std::string >( currentVariable ) + " at: " +
-                                boost::lexical_cast< std::string >( independentVariable ) + " but limit values are " +
-                                boost::lexical_cast< std::string >( independentValues_.at( currentVariable ).front( ) ) + " and " +
-                                boost::lexical_cast< std::string >( independentValues_.at( currentVariable ).back( ) ) + ", taking boundary value instead.";
-                        std::cerr << errorMessage << std::endl;
-                    }
-
-                    if ( isAtBoundary == -1 )
-                    {
-                        independentVariable = independentValues_.at( currentVariable ).front( );
-                    }
-                    else if ( isAtBoundary == 1 )
-                    {
-                        independentVariable = independentValues_.at( currentVariable ).back( );
-                    }
-                }
-                else if( ( boundaryHandling_.at( currentVariable ) == use_default_value ) ||
-                         ( boundaryHandling_.at( currentVariable ) == use_default_value_with_warning ) )
-                {
-                    if( boundaryHandling_.at( currentVariable ) == use_default_value_with_warning )
-                    {
-                        std::string errorMessage = "Warning in interpolator, requesting data point outside of boundaries, requested data of dimension " +
-                                boost::lexical_cast< std::string >( currentVariable ) + " at: " +
-                                boost::lexical_cast< std::string >( independentVariable ) + " but limit values are " +
-                                boost::lexical_cast< std::string >( independentValues_.at( currentVariable ).front( ) ) + " and " +
-                                boost::lexical_cast< std::string >( independentValues_.at( currentVariable ).back( ) ) + ", taking default value instead.";
-                        std::cerr << errorMessage << std::endl;
-                    }
-
-                    useDefault = true;
-                }
-                else
-                {
-                    throw std::runtime_error( "Error when checking interpolation boundary, boundary handling method not recognized" );
-                }
-            }
-        }
-    }
-
-    //! Make the lookup scheme that is to be used.
-    /*!
-     * This function creates the look up scheme that is to be used in determining the interval of
-     * the independent variable grid where the interpolation is to be performed. It takes the type
-     * of lookup scheme as an enum and constructs the lookup scheme from the independentValues_
-     * that have been set previously.
-     *  \param selectedScheme Type of look-up scheme that is to be used
-     */
-    void makeLookupSchemes( const AvailableLookupScheme selectedScheme )
-    {
-        lookUpSchemes_.resize( NumberOfDimensions );
-        // Find which type of scheme is used.
-        switch( selectedScheme )
-        {
-        case binarySearch:
-
-            for( int i = 0; i < NumberOfDimensions; i++ )
-            {
-                // Create binary search look up scheme.
-                lookUpSchemes_[ i ] = boost::shared_ptr< LookUpScheme< IndependentVariableType > >
-                        ( new BinarySearchLookupScheme< IndependentVariableType >(
-                              independentValues_[ i ] ) );
-            }
-
-            break;
-
-        case huntingAlgorithm:
-
-            for( int i = 0; i < NumberOfDimensions; i++ )
-            {
-                // Create hunting scheme, which uses an intial guess from previous look-ups.
-                lookUpSchemes_[ i ] = boost::shared_ptr< LookUpScheme< IndependentVariableType > >
-                        ( new HuntingAlgorithmLookupScheme< IndependentVariableType >(
-                              independentValues_[ i ] ) );
-            }
-
-            break;
-
-        default:
-
-            throw std::runtime_error( "Warning: lookup scheme not found when making scheme for 1-D interpolator" );
-        }
-    }
 
     //! Perform the step in a single dimension of the interpolation process.
     /*!
@@ -428,41 +281,10 @@ private:
         return returnValue;
     }
 
-    //! Vector with pointers to look-up scheme.
-    /*!
-     * Pointers to the look-up schemes that is used to determine in which interval the requested
-     * independent variable value falls.
-     */
-    std::vector< boost::shared_ptr< LookUpScheme< IndependentVariableType > > > lookUpSchemes_;
-
-    //! Vector of vectors containing independent variables.
-    /*!
-     * Vector of vectors containing independent variables. The size of the outer vector is equal
-     * to the number of dimensions of the interpolator.
-     */
-    std::vector< std::vector< IndependentVariableType > > independentValues_;
-
-    //! Multi-dimensional array of dependent data.
-    /*!
-     * Multi-dimensional array of dependent data at each point of hyper-rectangular grid formed by
-     * independent variable points.
-     */
-    boost::multi_array< DependentVariableType, static_cast< size_t >( NumberOfDimensions ) > dependentData_;
-
-    //! Behavior of interpolator when independent variable is outside range.
-    /*!
-     * Behavior of interpolator when independent variable is outside range.
-     */
-    std::vector< BoundaryInterpolationType > boundaryHandling_;
-
-    //! Default value to be used for extrapolation.
-    /*!
-     * Default value to be used for extrapolation.
-     */
-    DependentVariableType defaultExtrapolationValue_;
 };
 
 } // namespace interpolators
+
 } // namespace tudat
 
 #endif // TUDAT_MULTI_LINEAR_INTERPOLATOR_H
