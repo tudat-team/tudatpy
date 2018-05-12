@@ -108,6 +108,12 @@ public:
                         this->bodyInertiaTensorFunctions_.at( i )( ), torquesActingOnBodies.at( i ),
                         currentBodyFixedRotationRate.template cast< double >( ),
                         this->bodyInertiaTensorTimeDerivativeFunctions_.at( i )( ) ).template cast< StateScalarType >( );
+
+//            std::cout << "Time: " << time - 236455200 << std::endl;
+//            std::cout << "MRP: " << currentModifiedRodriguesParameters.transpose( ) << std::endl;
+//            std::cout << "Rot: " << currentBodyFixedRotationRate.transpose( ) << std::endl;
+//            std::cout << "Torque: " << torquesActingOnBodies.at( i ).transpose( ) << std::endl;
+//            std::cout << "Deriv: " << stateDerivative.block( i * 7, 0, 7, 1 ).transpose( ) << std::endl << std::endl;
         }
     }
 
@@ -143,20 +149,22 @@ public:
      * \param internalSolution State in propagator-specific form (which is equal to outputSolution to conventional form for
      * this propagator)
      * \param time Current time at which the state is valid (not used in this class).
-     * \param currentLocalSoluton State (internalSolution), converted to the 'conventional form',
+     * \param currentLocalSolution State (internalSolution), converted to the 'conventional form',
      *  which is equal to outputSolution for this class (returned by reference).
      */
     void convertToOutputSolution(
             const Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >& internalSolution, const TimeType& time,
-            Eigen::Block< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > currentLocalSoluton )
+            Eigen::Block< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > currentLocalSolution )
     {
         // Convert state to quaternions for each body
         for( unsigned int i = 0; i < this->bodiesToPropagate_.size( ); i++ )
         {
-            currentLocalSoluton.segment( i * 7, 4 ) =
+            currentLocalSolution.segment( i * 7, 4 ) =
                     orbital_element_conversions::convertModifiedRodriguesParametersToQuaternionElements(
                         internalSolution.block( i * 7, 0, 4, 1 ).template cast< double >( ) ).template cast< StateScalarType >( );
+            currentLocalSolution.segment( i * 7 + 4, 3 ) = internalSolution.block( i * 7 + 4, 0, 3, 1 ); // rotational velocity is the same
         }
+        currentQuaternionLocalSolution_ = currentLocalSolution;
     }
 
     //! Function to process the state during propagation.
@@ -203,6 +211,13 @@ public:
     }
 
 private:
+
+    //! Current full state of the propagated bodies, w.r.t. the central bodies, where the attitude is expressed in quaternions.
+    /*!
+     *  Current full state of the propagated bodies, w.r.t. the central bodies, where the attitude is expressed in quaternions.
+     *  These variables are set when calling the convertToOutputSolution function.
+     */
+    Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > currentQuaternionLocalSolution_;
 
 };
 

@@ -324,7 +324,6 @@ public:
     basic_astrodynamics::AccelerationMap getAccelerationsMap( )
     {
         return accelerationModelsPerBody_;
-
     }
 
 protected:
@@ -333,8 +332,8 @@ protected:
     //! acceleration models (accelerationModelsPerBody_).
     void createAccelerationModelList( )
     {
-        accelerationModelList_.clear( );
         // Iterate over all accelerations and update their internal state.
+        accelerationModelList_.clear( );
         for( outerAccelerationIterator = accelerationModelsPerBody_.begin( );
              outerAccelerationIterator != accelerationModelsPerBody_.end( ); outerAccelerationIterator++ )
         {

@@ -162,13 +162,20 @@ public:
             const Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >& internalSolution, const TimeType& time,
             Eigen::Block< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > currentCartesianLocalSoluton ) = 0;
 
-    //! Function to return the size of the state handled by the object
+    //! Function to return the size of the conventional state handled by the object.
     /*!
-     * Function to return the size of the state handled by the object
+     * Function to return the size of the conventional state handled by the object. This is the size of the conventional
+     * propagation state, e.g., size of Cartesian state for translational propagation.
      * \return Size of the state under consideration.
      */
     virtual int getConventionalStateSize( ) = 0;
 
+    //! Function to return the size of the propagated state handled by the object.
+    /*!
+     * Function to return the size of the propagated state handled by the object. This is the size of the actual propagation
+     * state, e.g., size of USM7 state for translational propagation.
+     * \return Size of the propagated state under consideration.
+     */
     virtual int getPropagatedStateSize( )
     {
         return getConventionalStateSize( );
