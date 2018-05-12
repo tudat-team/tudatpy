@@ -33,6 +33,7 @@
 
 namespace tudat
 {
+
 namespace interpolators
 {
 
@@ -70,7 +71,8 @@ public:
     LinearInterpolator( const std::map< IndependentVariableType, DependentVariableType >& dataMap,
                         const AvailableLookupScheme selectedLookupScheme = huntingAlgorithm,
                         const BoundaryInterpolationType boundaryHandling = extrapolate_at_boundary,
-                        const DependentVariableType defaultExtrapolationValue = IdentityElement< DependentVariableType >::getAdditionIdentity( ) ):
+                        const DependentVariableType defaultExtrapolationValue =
+            IdentityElement< DependentVariableType >::getAdditionIdentity( ) ):
         OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >( boundaryHandling,
                                                                                       defaultExtrapolationValue )
     {
@@ -232,6 +234,7 @@ Eigen::VectorXd computeLinearInterpolation(
         const double targetIndependentVariableValue );
 
 } // namespace interpolators
+
 } // namespace tudat
 
 #endif // TUDAT_LINEAR_INTERPOLATOR_H

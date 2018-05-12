@@ -28,9 +28,9 @@ namespace tudat
 namespace interpolators
 {
 
-//! Base class for interpolator with one independent independent variable.
+//! Base class for interpolator with one independent variable.
 /*!
- * Base class for the interpolators in one independent variable included in Tudat
+ * Base class for the interpolators in one independent variable included in Tudat.
  * \tparam IndependentVariableType Type of independent variable(s)
  * \tparam IndependentVariableType Type of dependent variable
  */
@@ -41,14 +41,14 @@ class OneDimensionalInterpolator :
 
 public:
 
+    // Using statements to prevent having to put 'this' everywhere in the code.
+    using Interpolator< IndependentVariableType, DependentVariableType >::interpolate;
+
     OneDimensionalInterpolator(
             const BoundaryInterpolationType boundaryHandling = extrapolate_at_boundary,
             const DependentVariableType defaultExtrapolationValue = IdentityElement< DependentVariableType >::getAdditionIdentity( ) ):
         boundaryHandling_( boundaryHandling ), defaultExtrapolationValue_( defaultExtrapolationValue )
     { }
-
-
-    using Interpolator< IndependentVariableType, DependentVariableType >::interpolate;
 
     //! Destructor.
     /*!
