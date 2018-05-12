@@ -147,7 +147,7 @@ public:
         for( unsigned int i = 0; i < this->bodiesToBeIntegratedNumerically_.size( ); i++ )
         {
             currentAccelerationInRswFrame = reference_frames::getInertialToRswSatelliteCenteredFrameRotationMatrx(
-                        currentCartesianLocalSoluton_.segment( i * 6, 6 ) ) *
+                        currentCartesianLocalSolution_.segment( i * 6, 6 ) ) *
                     stateDerivative.block( i * 6 + 3, 0, 3, 1 ).template cast< double >( );
 
                 stateDerivative.block( i * 6, 0, 6, 1 ) = computeGaussPlanetaryEquationsForKeplerElements(
@@ -205,12 +205,12 @@ public:
      * \param internalSolution State in Kepler Elemements (i.e. form that is used in
      * numerical integration)
      * \param time Current time at which the state is valid
-     * \param currentCartesianLocalSoluton State (internalSolution, which is Encke-formulation),
+     * \param currentCartesianLocalSolution State (internalSolution, which is Encke-formulation),
      *  converted to the 'conventional form' (returned by reference).
      */
     void convertToOutputSolution(
             const Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >& internalSolution, const TimeType& time,
-            Eigen::Block< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > currentCartesianLocalSoluton )
+            Eigen::Block< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > currentCartesianLocalSolution )
     {
         // Add Keplerian state to perturbation from Encke algorithm to get Cartesian state in local frames.
         Eigen::Matrix< StateScalarType, 6, 1 > currentKeplerianState;
@@ -224,12 +224,12 @@ public:
             currentKeplerianState( 5 ) = currentTrueAnomaly;
 
             currentTrueAnomalies_[ i ] = currentTrueAnomaly;
-            currentCartesianLocalSoluton.segment( i * 6, 6 ) = orbital_element_conversions::convertKeplerianToCartesianElements(
+            currentCartesianLocalSolution.segment( i * 6, 6 ) = orbital_element_conversions::convertKeplerianToCartesianElements(
                         currentKeplerianState, static_cast< StateScalarType >( centralBodyGravitationalParameters_.at( i )( ) ) );
 
         }
 
-        currentCartesianLocalSoluton_ = currentCartesianLocalSoluton.template cast< double >( );
+        currentCartesianLocalSolution_ = currentCartesianLocalSolution.template cast< double >( );
     }
 
     //! Function to get the acceleration models
@@ -260,7 +260,7 @@ private:
      *  Current full Cartesian state of the propagated bodies, w.r.t. trhe central bodies. These variables are set when calling
      *  the convertToOutputSolution function.
      */
-    Eigen::VectorXd currentCartesianLocalSoluton_;
+    Eigen::VectorXd currentCartesianLocalSolution_;
 
     //! List of true anomalies of the bodies being propagated, computed by the last call to the convertToOutputSolution function
     std::vector< double > currentTrueAnomalies_;

@@ -151,7 +151,7 @@ public:
         for( unsigned int i = 0; i < this->bodiesToBeIntegratedNumerically_.size( ); i++ )
         {
             currentAccelerationInRswFrame = reference_frames::getInertialToRswSatelliteCenteredFrameRotationMatrx(
-                        currentCartesianLocalSoluton_.segment( i * 6, 6 ).template cast< double >( ) ) *
+                        currentCartesianLocalSolution_.segment( i * 6, 6 ).template cast< double >( ) ) *
                     stateDerivative.block( i * 6 + 3, 0, 6, 1 ).template cast< double >( );
 
             stateDerivative.block( i * 7, 0, 7, 1 ) = computeStateDerivativeForUnifiedStateModelQuaternions(
@@ -199,23 +199,22 @@ public:
      * \param internalSolution State in USM7 elemements (i.e. form that is used in
      * numerical integration)
      * \param time Current time at which the state is valid
-     * \param currentCartesianLocalSoluton State (internalSolution, which is Encke-formulation),
-     *  converted to the 'conventional form' (returned by reference).
+     * \param currentCartesianLocalSolution State (internalSolution, which is USM7-formulation),
+     * converted to the 'conventional form' (returned by reference).
      */
     void convertToOutputSolution(
             const Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >& internalSolution, const TimeType& time,
-            Eigen::Block< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > currentCartesianLocalSoluton )
+            Eigen::Block< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > currentCartesianLocalSolution )
     {
         // Convert state to Cartesian for each body
         for( unsigned int i = 0; i < this->bodiesToBeIntegratedNumerically_.size( ); i++ )
         {
-            currentCartesianLocalSoluton.segment( i * 6, 6 ) =
+            currentCartesianLocalSolution.segment( i * 6, 6 ) =
                     orbital_element_conversions::convertUnifiedStateModelQuaternionsToCartesianElements(
                         internalSolution.block( i * 7, 0, 7, 1 ).template cast< double >( ), static_cast< double >(
                             centralBodyGravitationalParameters_.at( i )( ) ), true ).template cast< StateScalarType >( );
         }
-
-        currentCartesianLocalSoluton_ = currentCartesianLocalSoluton;
+        currentCartesianLocalSolution_ = currentCartesianLocalSolution;
     }
 
     //! Function to get the acceleration models
@@ -296,10 +295,9 @@ private:
      *  Current full Cartesian state of the propagated bodies, w.r.t. the central bodies. These variables are set when calling
      *  the convertToOutputSolution function.
      */
-    Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > currentCartesianLocalSoluton_;
+    Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > currentCartesianLocalSolution_;
 
 };
-
 
 } // namespace propagators
 

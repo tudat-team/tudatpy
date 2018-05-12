@@ -413,7 +413,6 @@ public:
     void integrateEquationsOfMotion(
             const Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >& initialStates )
     {
-
         equationsOfMotionNumericalSolution_.clear( );
         equationsOfMotionNumericalSolutionRaw_.clear( );
 
@@ -723,6 +722,7 @@ protected:
         if( clearNumericalSolutions_ )
         {
             equationsOfMotionNumericalSolution_.clear( );
+            equationsOfMotionNumericalSolutionRaw_.clear( );
         }
 
         for( simulation_setup::NamedBodyMap::const_iterator
@@ -797,6 +797,13 @@ protected:
      */
     std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > equationsOfMotionNumericalSolution_;
 
+    //! Map of state history of numerically integrated bodies.
+    /*!
+    *  Map of state history of numerically integrated bodies, i.e. the result of the numerical integration, in the
+    *  original propagation coordinates. Key of map denotes time, values are concatenated vectors of integrated body
+    * states (order defined by propagatorSettings_).
+    *  NOTE: this map is empty if clearNumericalSolutions_ is set to true.
+    */
     std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > equationsOfMotionNumericalSolutionRaw_;
 
     //! Map of dependent variable history that was saved during numerical propagation.
