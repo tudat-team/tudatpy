@@ -156,10 +156,10 @@ RarefiedFlowAnalysis::RarefiedFlowAnalysis(
         const double simulatedParticlesPerCell,
         const double wallTemperature,
         const double accommodationCoefficient,
-        const bool printProgressInCompileWindow,
+        const bool printProgressInCommandWindow,
         const std::string MPIExecutable,
-        const unsigned int numberOfCores )
-    : AerodynamicCoefficientGenerator< 3, 6 >(
+        const unsigned int numberOfCores ) :
+    AerodynamicCoefficientGenerator< 3, 6 >(
           dataPointsOfIndependentVariables, referenceLength, referenceArea, referenceLength,
           momentReferencePoint,
           boost::assign::list_of( altitude_dependent )( mach_number_dependent )( angle_of_attack_dependent ),
@@ -167,7 +167,7 @@ RarefiedFlowAnalysis::RarefiedFlowAnalysis(
       SPARTAExecutable_( SPARTAExecutable ),simulationGases_( simulationGases ), referenceAxis_( referenceAxis ),
       gridSpacing_( gridSpacing ), simulatedParticlesPerCell_( simulatedParticlesPerCell ),
       wallTemperature_( wallTemperature ), accommodationCoefficient_( accommodationCoefficient ),
-      printProgressInCommandWindow_( printProgressInCompileWindow ), MPIExecutable_( MPIExecutable ), numberOfCores_( numberOfCores )
+      printProgressInCommandWindow_( printProgressInCommandWindow ), MPIExecutable_( MPIExecutable ), numberOfCores_( numberOfCores )
 {
     // Analyze vehicle geometry
     analyzeGeometryFile( geometryFileUser );
