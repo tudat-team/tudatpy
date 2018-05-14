@@ -325,6 +325,7 @@ public:
                                                currentConventionalStateIndices.at( i ).second, 1 ) );
             }
         }
+
         return outputState;
     }
 
@@ -348,11 +349,8 @@ public:
         {
             // Convert solution at this time to output (Cartesian with propagation origin frame for
             // translational dynamics) solution
-
             convertedSolution[ stateIterator->first ] =
                     convertToOutputSolution( stateIterator->second, stateIterator->first );
-
-
         }
     }
 

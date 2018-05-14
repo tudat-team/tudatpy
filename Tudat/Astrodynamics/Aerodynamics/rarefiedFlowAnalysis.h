@@ -75,12 +75,12 @@ std::vector< double > getDefaultRarefiedFlowAngleOfAttackPoints(
 
 //! Class for aerodynamic analysis in rarefied flow using the SPARTA DSMC method.
 /*!
- *  Class for aerodynamic analysis in rarefied flow using the SPARTA DSMC method.
- *  This method uses a Monte Carlo simulation, to determine the pressure and shear forces
- *  acting on each element of the vehicle. These values are output by default every 200 time
- *  steps, and are used to compute the average pressure and friction coefficients on each surface
+ *  Class for aerodynamic analysis in rarefied flow using the SPARTA DSMC (Direct Simulation
+ *  Monte Carlo) method. This method uses a Monte Carlo simulation, to determine the pressure and
+ *  shear forces acting on each element of the vehicle. These values are output by default every 200
+ *  time steps, and are used to compute the average pressure and friction coefficients on each surface
  *  element, which are then translated to aerodynamic coefficients for the whole surface. One can
- *  find a description of the SPARTA software as Reference [1,2], where the second reference is the
+ *  find a description of the SPARTA software in references [1,2], where the second reference is the
  *  official user manual. The user should also pay careful attention to the requirements for the geometry
  *  of the vehicle to be analyzed.
  */
@@ -90,9 +90,7 @@ public:
 
     //! Default constructor.
     /*!
-     *  Default constructor of class, specified vehicle geometry, discretization properties,
-     *  independent variable ranges, reference values and local inclination methods that are
-     *  to be used
+     *  Default constructor for SPARTA rarefied flow simulation.
      *  \param SPARTAExecutable Path to executable for SPARTA simulation.
      *  \param dataPointsOfIndependentVariables Vector of vectors, with each subvector containing
      *          the data points of each of the independent variables for the coefficient generation.
@@ -117,6 +115,12 @@ public:
      *  \param accommodationCoefficient Accommodation coefficient of the surface of the vehicle. This
      *          value indicates the degree of diffusivity during molecular-surface collisions (default value
      *          is 1.0, i.e., diffuse reflection).
+     *  \param printProgressInCommandWindow Boolean to toggle appearance of SPARTA output in command
+     *          window (default is false).
+     *  \param MPIExecutable Path to executable for multi-processor computing software (default is none).
+     *  \param numberOfCores Number of cores to be allocated for multi-processor computing of
+     *          SPARTA simulation (default is 0). Note that this value can only be used if the path to MPI
+     *          is set. Furthermore, the number of cores has to be an integer larger or equal to one.
      */
     RarefiedFlowAnalysis(
             const std::string& SPARTAExecutable,
@@ -132,7 +136,7 @@ public:
             const double simulatedParticlesPerCell,
             const double wallTemperature = 300.0,
             const double accommodationCoefficient = 1.0,
-            const bool printProgressInCompileWindow = false,
+            const bool printProgressInCommandWindow = false,
             const std::string MPIExecutable = "",
             const unsigned int numberOfCores = 0 );
 

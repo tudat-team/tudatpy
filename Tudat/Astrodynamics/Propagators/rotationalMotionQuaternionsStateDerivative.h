@@ -27,15 +27,28 @@ namespace tudat
 namespace propagators
 {
 
-//! Function to obtain the matrix by which a quaternion vector is to be pre-multiplied to obtain this quaternion's time-derivative
+//! Function to obtain the matrix by which a quaternion vector is to be pre-multiplied to obtain this
+//! quaternion's time-derivative.
 /*!
- * Function to obtain the matrix by which a quaternion vector (representing body-fixed to inertial frame rotation) is to be
- * pre-multiplied to obtain this quaternion's time-derivative
- * \param angularVelocityVectorInBodyFixedFrame  Current angular velocity vector of body, expressed in its body-fixed frame
+ * Function to obtain the matrix by which a quaternion vector (representing body-fixed to inertial frame rotation)
+ * is to be pre-multiplied to obtain this quaternion's time-derivative.
+ * \param angularVelocityVectorInBodyFixedFrame  Current angular velocity vector of body, expressed in its
+ * body-fixed frame.
  * \return Matrix by which a quaternion vector (representing body-fixed to inertial frame rotation) is to be
- * pre-multiplied to obtain this quaternion's time-derivative
+ * pre-multiplied to obtain this quaternion's time-derivative.
  */
 Eigen::Matrix4d getQuaterionToQuaternionRateMatrix( const Eigen::Vector3d& angularVelocityVectorInBodyFixedFrame );
+
+//! Function to obtain the matrix by which an angular velocity vector is to be pre-multiplied to obtain the
+//! quaternion's time-derivative.
+/*!
+ * Function to obtain the matrix by which an angular velocity vector of body (expressed in its body-fixed frame)
+ * is to be pre-multiplied to obtain the quaternion's time-derivative.
+ * \param quaternionVector Current quaternion vector, representing body-fixed to inertial frame rotation.
+ * \return Matrix by which an angular velocity vector of body (expressed in its body-fixed frame) is to be
+ * pre-multiplied to obtain the quaternion's time-derivative.
+ */
+Eigen::Matrix< double, 4, 3 > getAngularVelocityToQuaternionRateMatrix( const Eigen::Vector4d& quaternionVector );
 
 //! Function to obtain the time derivative of a quaternion (in vector representation) of body-fixed to inertial frame
 /*!
@@ -116,11 +129,11 @@ public:
                         currentBodyFixedRotationRate.template cast< double >( ),
                         this->bodyInertiaTensorTimeDerivativeFunctions_.at( i )( ) ).template cast< StateScalarType >( );
 
-//            std::cout << "Time: " << time - 236455200 << std::endl;
-//            std::cout << "Quat: " << currentQuaternions.transpose( ) << std::endl;
-//            std::cout << "Rot: " << currentBodyFixedRotationRate.transpose( ) << std::endl;
-//            std::cout << "Torque: " << torquesActingOnBodies.at( i ).transpose( ) << std::endl;
-//            std::cout << "Deriv: " << stateDerivative.block( i * 7, 0, 7, 1 ).transpose( ) << std::endl << std::endl;
+            std::cout << "Time: " << time - 236455200 << std::endl;
+            std::cout << "Quat: " << currentQuaternions.transpose( ) << std::endl;
+            std::cout << "Rot: " << currentBodyFixedRotationRate.transpose( ) << std::endl;
+            std::cout << "Torque: " << torquesActingOnBodies.at( i ).transpose( ) << std::endl;
+            std::cout << "Deriv: " << stateDerivative.block( i * 7, 0, 7, 1 ).transpose( ) << std::endl << std::endl;
         }
     }
 
@@ -153,7 +166,6 @@ public:
             Eigen::Block< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > currentLocalSolution )
     {
         currentLocalSolution = internalSolution;
-        currentQuaternionLocalSolution_ = currentLocalSolution;
     }
 
     //! Function to process the state during propagation.
@@ -198,17 +210,10 @@ public:
 
 private:
 
-    //! Current full state of the propagated bodies, w.r.t. the central bodies, where the attitude is expressed in quaternions.
-    /*!
-     *  Current full state of the propagated bodies, w.r.t. the central bodies, where the attitude is expressed in quaternions.
-     *  These variables are set when calling the convertToOutputSolution function.
-     */
-    Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > currentQuaternionLocalSolution_;
-
 };
 
-}
+} // namespace propagators
 
-}
+} // namespace tudat
 
 #endif // TUDAT_ROTATIONAL_MOTION_QUATERNIONS_STATE_DERIVATIVE_H

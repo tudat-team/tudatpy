@@ -56,6 +56,6 @@ Eigen::Vector3d calculateExponentialMapDerivative( const Eigen::Vector3d& curren
     return exponentialMapDerivative;
 }
 
-}
+} // namespace propagators
 
-}
+} // namespace tudat

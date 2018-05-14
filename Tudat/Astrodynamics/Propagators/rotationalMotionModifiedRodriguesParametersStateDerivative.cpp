@@ -40,6 +40,6 @@ Eigen::Vector4d calculateModifiedRodriguesParametersDerivative(
     return modifiedRodriguesParametersDerivative;
 }
 
-}
+} // namespace propagators
 
-}
+} // namespace tudat

@@ -461,7 +461,7 @@ private:
      *  Vector of booleans that determines if the atmosphere file contains dentity, pressure, temperature,
      *  gas constant and/or ratio of specific heats.
      */
-    std::vector< bool > dependentVariablesDependency_ = std::vector< bool >( 6, false ); // only 5 dependent variables supported
+    std::vector< bool > dependentVariablesDependency_ = std::vector< bool >( 6, false ); // only 6 dependent variables supported
 
     //! Vector of integers that specifies the order of dentity, pressure, temperature, gas constant and
     //! ratio of specific heats are located.
@@ -469,7 +469,7 @@ private:
      *  Vector of integers that specifies the order of dentity, pressure, temperature, gas constant and
      *  ratio of specific heats are located.
      */
-    std::vector< int > dependentVariableIndices_ = std::vector< int >( 6, 0 ); // only 5 dependent variables supported
+    std::vector< int > dependentVariableIndices_ = std::vector< int >( 6, 0 ); // only 6 dependent variables supported
 
     //! Specific gas constant of the atmosphere.
     /*!
