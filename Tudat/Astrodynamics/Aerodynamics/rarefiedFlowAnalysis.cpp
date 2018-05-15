@@ -65,7 +65,8 @@ std::vector< double > getDefaultRarefiedFlowAltitudePoints(
     // Give error otherwise.
     else
     {
-        throw std::runtime_error( "Error in altitude range selection. Planet not supported." );
+        throw std::runtime_error( "Error in altitude range selection for SPARTA simulation. "
+                                  "Planet not supported." );
     }
     return altitudePoints;
 }
@@ -141,6 +142,38 @@ std::vector< double > getDefaultRarefiedFlowAngleOfAttackPoints(
     return angleOfAttackPoints;
 }
 
+//! Function to sort the rows of a matrix, based on the specified column and specified order.
+Eigen::Matrix< double, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor > sortMatrixRows(
+        const Eigen::Matrix< double, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor >& matrixToBeSorted,
+        const int referenceColumn, const bool descendingOrder )
+{
+    // Declare eventual output vector
+    Eigen::Matrix< double, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor > sortedMatrix;
+    sortedMatrix.resizeLike( matrixToBeSorted );
+
+    // Loop over rows and assign to new matrix
+    Eigen::Matrix< double, 1, Eigen::Dynamic, Eigen::RowMajor > currentRow;
+    for ( unsigned int i = 0; i < matrixToBeSorted.rows( ); i++ )
+    {
+        // Retrieve each row in 'scrambled order' and assign it to the new matrix
+        currentRow = matrixToBeSorted.row( i );
+
+        // Based on requested order
+        if ( descendingOrder )
+        {
+            sortedMatrix.row( matrixToBeSorted.rows( ) - currentRow[ referenceColumn ] ) = currentRow;
+            // no (- 1)'s are needed since both are defined starting from 1
+        }
+        else
+        {
+            sortedMatrix.row( currentRow[ referenceColumn ] - 1 ) = currentRow;
+        }
+    }
+
+    // Give output
+    return sortedMatrix;
+}
+
 //! Default constructor.
 RarefiedFlowAnalysis::RarefiedFlowAnalysis(
         const std::string& SPARTAExecutable,
@@ -167,8 +200,17 @@ RarefiedFlowAnalysis::RarefiedFlowAnalysis(
       SPARTAExecutable_( SPARTAExecutable ),simulationGases_( simulationGases ), referenceAxis_( referenceAxis ),
       gridSpacing_( gridSpacing ), simulatedParticlesPerCell_( simulatedParticlesPerCell ),
       wallTemperature_( wallTemperature ), accommodationCoefficient_( accommodationCoefficient ),
-      printProgressInCommandWindow_( printProgressInCommandWindow ), MPIExecutable_( MPIExecutable ), numberOfCores_( numberOfCores )
+      printProgressInCommandWindow_( printProgressInCommandWindow ), MPIExecutable_( MPIExecutable ),
+      numberOfCores_( numberOfCores ), referenceDimension_( static_cast< unsigned int >( referenceAxis_ ) )
 {
+    // Check inputs
+    if ( referenceDimension_ > 2 )
+    {
+        throw std::runtime_error( "Error in SPARTA rarefied flow analysis. Reference axis makes "
+                                  "no sense for a universe with 3 spacial dimensions (i.e., our universe). "
+                                  "Note that the first dimension is identified with 0." );
+    }
+
     // Analyze vehicle geometry
     analyzeGeometryFile( geometryFileUser );
 
@@ -205,7 +247,7 @@ RarefiedFlowAnalysis::RarefiedFlowAnalysis(
     createInterpolator( );
 }
 
-//! Get aerodynamic coefficients.
+//! Open and read geometry file for SPARTA simulation.
 void RarefiedFlowAnalysis::analyzeGeometryFile( const std::string& geometryFileUser )
 {
     // Extract information on vehicle geometry
@@ -255,15 +297,15 @@ void RarefiedFlowAnalysis::analyzeGeometryFile( const std::string& geometryFileU
 
     // Check consistency with input dimensions
     const double tolerance = 1e-5;
-    if ( std::fabs( shapeCrossSectionalArea_( static_cast< unsigned int >( referenceAxis_ ) ) -
-                    referenceArea_ ) > tolerance )
+    if ( std::fabs( shapeCrossSectionalArea_( referenceDimension_ ) - referenceArea_ ) > tolerance )
     {
-        throw std::runtime_error( "Error in SPARTA geometry file. Input reference area does not match the combination of "
-                                  "reference axis and geometry. Tolerance set to: " + std::to_string( tolerance ) );
+        throw std::runtime_error( "Error in SPARTA geometry file. Input reference area does not match the "
+                                  "combination of reference axis and geometry. Note that the first dimension "
+                                  "is identified with 0. Tolerance set to: " + std::to_string( tolerance ) );
     }
 }
 
-//! Generate aerodynamic database.
+//! Retrieve simulation conditions based on input and geometry.
 void RarefiedFlowAnalysis::getSimulationConditions( )
 {
     // Simulation boundary and grid
@@ -271,7 +313,7 @@ void RarefiedFlowAnalysis::getSimulationConditions( )
     {
         simulationBoundaries_( 2 * i ) = minimumDimensions_( i ) + 0.5 * minimumDimensions_.minCoeff( ); // add extra space around shape
         simulationBoundaries_( 2 * i + 1 ) = maximumDimensions_( i ) + 0.5 * maximumDimensions_.maxCoeff( ); // add extra space around shape
-        if ( i == static_cast< unsigned int >( referenceAxis_ ) )
+        if ( i == referenceDimension_ )
         {
             simulationBoundaries_( 2 * i ) -= 1.0; // add extra space along axis of velocity
             simulationBoundaries_( 2 * i + 1 ) += 1.0; // add extra space along axis of velocity
@@ -284,8 +326,8 @@ void RarefiedFlowAnalysis::getSimulationConditions( )
     freeStreamVelocities_.resize( dataPointsOfIndependentVariables_.at( 0 ).size( ), dataPointsOfIndependentVariables_.at( 1 ).size( ) );
     simulationTimeStep_.resize( dataPointsOfIndependentVariables_.at( 0 ).size( ), dataPointsOfIndependentVariables_.at( 1 ).size( ) );
     ratioOfRealToSimulatedParticles_.resize( dataPointsOfIndependentVariables_.at( 0 ).size( ), 1 );
-    double simulationBoxLengthAlongReferenceAxis = ( simulationBoundaries_( 2 * static_cast< unsigned int >( referenceAxis_ ) + 1 ) -
-                                                     simulationBoundaries_( 2 * static_cast< unsigned int >( referenceAxis_ ) ) );
+    double simulationBoxLengthAlongReferenceAxis = ( simulationBoundaries_( 2 * referenceDimension_ + 1 ) -
+                                                     simulationBoundaries_( 2 * referenceDimension_ ) );
     for ( unsigned int h = 0; h < dataPointsOfIndependentVariables_.at( 0 ).size( ); h++ )
     {
         for ( unsigned int m = 0; m < dataPointsOfIndependentVariables_.at( 1 ).size( ); m++ )
@@ -301,7 +343,7 @@ void RarefiedFlowAnalysis::getSimulationConditions( )
     }
 }
 
-//! Generate aerodynamic coefficients at a single set of independent variables.
+//! Generate aerodynamic database.
 void RarefiedFlowAnalysis::generateCoefficients( )
 {
     // Inform user on progress
@@ -313,10 +355,11 @@ void RarefiedFlowAnalysis::generateCoefficients( )
     {
         if ( numberOfCores_ < 1 )
         {
-            throw std::runtime_error( "Error in SPARTA rarefied flow analysis. Number of cores needs to be an integer value "
-                                      "larger or equal to one." );
+            throw std::runtime_error( "Error in SPARTA rarefied flow analysis. Number of cores needs to be "
+                                      "an integer value larger or equal to one." );
         }
-        runSPARTACommandString = runSPARTACommandString + MPIExecutable_ + " -np " + std::to_string( numberOfCores_ ) + " ";
+        runSPARTACommandString = runSPARTACommandString + MPIExecutable_ +
+                " -np " + std::to_string( numberOfCores_ ) + " ";
     }
     runSPARTACommandString = runSPARTACommandString + SPARTAExecutable_ + " -echo log ";
     if ( !printProgressInCommandWindow_ )
@@ -328,12 +371,13 @@ void RarefiedFlowAnalysis::generateCoefficients( )
     // Predefine variables
     Eigen::Vector3d velocityVector;
     std::string temporaryOutputFile = getSpartaOutputPath( ) + "/coeff";
-    std::vector< std::string > outputFileExtensions = { ".400", ".600", ".800", ".1000" };
-    Eigen::Matrix< double, Eigen::Dynamic, 7 > outputMatrix;
+    std::vector< std::string > outputFileExtensions = { ".1000" };//{ ".400", ".600", ".800", ".1000" };
+    Eigen::Matrix< double, Eigen::Dynamic, 7, Eigen::RowMajor > outputMatrix;
     Eigen::Matrix< double, 3, Eigen::Dynamic > meanPressureValues;
     Eigen::Matrix< double, 3, Eigen::Dynamic > meanShearValues;
 
     // Loop over simulation parameters and run SPARTA
+    int systemStatus;
     // Loop over altitude
     for ( unsigned int h = 0; h < dataPointsOfIndependentVariables_.at( 0 ).size( ); h++ )
     {
@@ -360,7 +404,7 @@ void RarefiedFlowAnalysis::generateCoefficients( )
 
                 // Get velocity vector
                 velocityVector = Eigen::Vector3d::Zero( );
-                velocityVector( static_cast< unsigned int >( referenceAxis_ ) ) = ( ( referenceAxis_ >= 0 ) ? - 1.0 : 1.0 ) *
+                velocityVector( referenceDimension_ ) = ( ( referenceAxis_ >= 0 ) ? - 1.0 : 1.0 ) *
                         freeStreamVelocities_( h, m );
 
                 // Print to file
@@ -380,10 +424,11 @@ void RarefiedFlowAnalysis::generateCoefficients( )
                 std::fclose( fileIdentifier );
 
                 // Run SPARTA
-                int systemStatus = std::system( runSPARTACommandString.c_str( ) );
+                systemStatus = std::system( runSPARTACommandString.c_str( ) );
                 if ( systemStatus != 0 )
                 {
-                    throw std::runtime_error( "Error: SPARTA simulation failed. See the log.sparta file in "
+                    throw std::runtime_error( "Error in SPARTA rarefied flow analysis. "
+                                              "SPARTA Simulation failed. See the log.sparta file in "
                                               "Tudat/External/SPARTA/ for more details." );
                 }
 
@@ -397,6 +442,7 @@ void RarefiedFlowAnalysis::generateCoefficients( )
                 for ( unsigned int i = 0; i < outputFileExtensions.size( ); i++ )
                 {
                     outputMatrix = readMatrixFromFile( temporaryOutputFile + outputFileExtensions.at( i ), "\t ;,", "%", 9 );
+                    outputMatrix = sortMatrixRows( outputMatrix, 0 );
                     for ( unsigned int j = 0; j < 3; j++ )
                     {
                         meanPressureValues.row( j ) += outputMatrix.col( j + 1 ).transpose( );
