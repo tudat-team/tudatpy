@@ -211,7 +211,8 @@ public:
 
     ExponentialAtmosphereSettings(
             const double densityScaleHeight, const double constantTemperature,
-            const double densityAtZeroAltitude, const double specificGasConstant,
+            const double densityAtZeroAltitude,
+            const double specificGasConstant = physical_constants::SPECIFIC_GAS_CONSTANT_AIR,
             const double ratioOfSpecificHeats = 1.4 ):
         AtmosphereSettings( exponential_atmosphere ),
         densityScaleHeight_( densityScaleHeight ), constantTemperature_( constantTemperature ),

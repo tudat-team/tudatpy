@@ -73,6 +73,20 @@ std::vector< double > getDefaultRarefiedFlowMachPoints(
 std::vector< double > getDefaultRarefiedFlowAngleOfAttackPoints(
         const std::string& angleOfAttackRegime = "Reduced" );
 
+//! Function to sort the rows of a matrix, based on the specified column and specified order.
+/*!
+ *  Function to sort the rows of a matrix, based on the specified column and specified order. Note that
+ *  this function only works if the column to be sorted is made up of consecutive integers (in a scrambled
+ *  order, of course).
+ *  \param matrixToBeSorted Matrix that has to be sorted.
+ *  \param referenceColumn Column to be used as reference for the sorting.
+ *  \param descendingOrder Boolean to toggle sorting in descending order.
+ *  \return Matrix where the rows have been sorted based on the specified column number.
+ */
+Eigen::Matrix< double, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor > sortMatrixRows(
+        const Eigen::Matrix< double, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor >& matrixToBeSorted,
+        const int referenceColumn, const bool descendingOrder = false );
+
 //! Class for aerodynamic analysis in rarefied flow using the SPARTA DSMC method.
 /*!
  *  Class for aerodynamic analysis in rarefied flow using the SPARTA DSMC (Direct Simulation
@@ -169,11 +183,11 @@ private:
      */
     void analyzeGeometryFile( const std::string& geometryFileUser );
 
-    //! Get conditions for simulation.
+    //! Retrieve simulation conditions based on input and geometry.
     /*!
-     *  Get conditions for simulation, including simulation environment boundaries, velocity of incoming flow,
-     *  time step of simulation (set as 10 % of the time needed for a particle to traverse the simulation
-     *  environment), and ratio of real-to-simulated particles.
+     *  Retrieve simulation conditions based on input and geometry, including simulation environment boundaries,
+     *  velocity of incoming flow, time step of simulation (set as 10 % of the time needed for a particle to
+     *  traverse the simulation environment), and ratio of real-to-simulated particles.
      */
     void getSimulationConditions( );
 
@@ -196,6 +210,12 @@ private:
     std::string simulationGases_;
 
     //! Reference axis for the aerodynamic analysis.
+    /*!
+     *  Reference axis for the aerodynamic analysis. This axis is used to set very important paramters for
+     *  the simulation, e.g., the velocity direction, reference surface area, etc. It is thus fundamental
+     *  to get this value right. The axis should be an integer (i.e., a signed integer), such that the flow of
+     *  particles comes from the opposite direction of this axis.
+     */
     int referenceAxis_;
 
     //! Grid size for simulation environment.
@@ -234,6 +254,13 @@ private:
      *  executable has been set.
      */
     unsigned int numberOfCores_;
+
+    //! Reference dimension for the aerodynamic analysis.
+    /*!
+     *  Reference dimension for the aerodynamic analysis. This value is based on the referenceAxis_ variable, but
+     *  without the information on the sign, such that it can be used to access vector entries.
+     */
+    unsigned int referenceDimension_;
 
     //! List of points making up the vehicle geometry.
     /*!
