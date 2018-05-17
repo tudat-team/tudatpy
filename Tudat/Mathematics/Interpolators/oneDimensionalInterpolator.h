@@ -44,6 +44,10 @@ public:
     // Using statements to prevent having to put 'this' everywhere in the code.
     using Interpolator< IndependentVariableType, DependentVariableType >::interpolate;
 
+    //! Constructor.
+    /*!
+     * Constructor.
+     */
     OneDimensionalInterpolator(
             const BoundaryInterpolationType boundaryHandling = extrapolate_at_boundary,
             const DependentVariableType defaultExtrapolationValue = IdentityElement< DependentVariableType >::getAdditionIdentity( ) ):

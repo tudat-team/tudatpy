@@ -30,14 +30,6 @@
 #ifndef TUDAT_MULTI_LINEAR_INTERPOLATOR_H
 #define TUDAT_MULTI_LINEAR_INTERPOLATOR_H
 
-#include <vector>
-#include <iostream>
-
-#include <boost/array.hpp>
-#include <boost/multi_array.hpp>
-#include <boost/lexical_cast.hpp>
-#include <boost/shared_ptr.hpp>
-
 #include "Tudat/Mathematics/BasicMathematics/nearestNeighbourSearch.h"
 #include "Tudat/Mathematics/Interpolators/multiDimensionalInterpolator.h"
 
@@ -101,12 +93,17 @@ public:
     {
         // Save (in)dependent variables
         independentValues_ = independentValues;
+        dependentData_.resize( reinterpret_cast< boost::array< size_t,
+                               boost::multi_array< DependentVariableType,
+                               static_cast< size_t >( NumberOfDimensions ) >::dimensionality > const& >(
+                                   *dependentData.shape( ) ) );
         dependentData_ = dependentData;
 
         // Check consistency of template arguments and input variables.
         if ( independentValues.size( ) != NumberOfDimensions )
         {
-            throw std::runtime_error( "Error: dimension of independent value vector provided to constructor incompatible with template parameter." );
+            throw std::runtime_error( "Error: dimension of independent value vector provided to constructor "
+                                      "incompatible with template parameter." );
         }
 
         // Check consistency of input data of dependent and independent data.
@@ -114,12 +111,13 @@ public:
         {
             if ( independentValues[ i ].size( ) != dependentData.shape( )[ i ] )
             {
-                std::string errorMessage = "Warning: number of data points in dimension " +
+                std::string errorMessage = "Error: number of data points in dimension " +
                         std::to_string( i ) + " of independent and dependent data incompatible.";
                 throw std::runtime_error( errorMessage );
             }
         }
 
+        // Create lookup scheme from independent variable data points.
         this->makeLookupSchemes( selectedLookupScheme );
     }
 
@@ -150,9 +148,9 @@ public:
                                  std::vector< BoundaryInterpolationType >( NumberOfDimensions, boundaryHandling ),
                                  defaultExtrapolationValue ) { }
 
-    //! Default destructor
+    //! Default destructor.
     /*!
-     *  Default destructor
+     *  Default destructor.
      */
     ~MultiLinearInterpolator( ){ }
 
