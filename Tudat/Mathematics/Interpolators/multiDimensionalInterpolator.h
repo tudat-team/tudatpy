@@ -48,6 +48,10 @@ public:
     // Using statements to prevent having to put 'this' everywhere in the code.
     using Interpolator< IndependentVariableType, DependentVariableType >::interpolate;
 
+    //! Constructor.
+    /*!
+     * Constructor.
+     */
     MultiDimensionalInterpolator(
             const std::vector< BoundaryInterpolationType > boundaryHandling =
             std::vector< BoundaryInterpolationType >( NumberOfDimensions, extrapolate_at_boundary ),
@@ -258,7 +262,7 @@ protected:
             break;
         }
         default:
-            throw std::runtime_error( "Warning: lookup scheme not found when making scheme for 1-D interpolator" );
+            throw std::runtime_error( "Error: lookup scheme not found when making scheme for N-D interpolator." );
         }
     }
 
