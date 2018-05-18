@@ -243,10 +243,8 @@ public:
      * Function to process the state during propagation. For quaternions, this function normalizes the quaternion vector
      * in case its magnitude differs from 1.0 by a value larger than the tolerance.
      * \param unprocessedState State computed after propagation.
-     * \param startRow Dummy variable added for compatibility issues between Eigen::Matrix and Eigen::Block.
      */
-    void postProcessState( Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& unprocessedState,
-                           const int startRow )
+    void postProcessState( Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& unprocessedState )
     {
         // Loop over each body
         const double tolerance = 20.0 * std::numeric_limits< double >::epsilon( );
@@ -263,7 +261,7 @@ public:
                 quaternionsVector /= quaternionsMagnitude;
 
                 // Replace old quaternions with normalized quaternions
-                unprocessedState.segment( startRow + i * 7 + 3, 4 ) = quaternionsVector;
+                unprocessedState.segment( i * 7 + 3, 4 ) = quaternionsVector;
             }
         }
     }

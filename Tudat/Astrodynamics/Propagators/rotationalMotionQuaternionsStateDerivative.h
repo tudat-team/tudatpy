@@ -72,13 +72,13 @@ class RotationalMotionQuaternionsStateDerivative: public RotationalMotionStateDe
 {
 public:
 
-    //! Constructor
+    //! Constructor.
     /*!
-     * Constructor
+     * Constructor.
      * \param torqueModelsPerBody List of torque models (first map key body undergoing acceleration, second map key body exerting
-     * acceleration)
-     * \param bodiesToPropagate List of names of bodies for which rotational state is to be propagated
-     * \param bodyInertiaTensorFunctions List of functions returning inertia tensors of bodiesToPropagate (in same order)
+     * acceleration).
+     * \param bodiesToPropagate List of names of bodies for which rotational state is to be propagated.
+     * \param bodyInertiaTensorFunctions List of functions returning inertia tensors of bodiesToPropagate (in same order).
      * \param bodyInertiaTensorTimeDerivativeFunctions List of functions returning time derivatives of inertia tensors of
      *  bodiesToPropagate (in same order). Default empty, denoting time-invariant inertia tensors.
      */
@@ -91,9 +91,7 @@ public:
         RotationalMotionStateDerivative< StateScalarType, TimeType >(
             torqueModelsPerBody, quaternions, bodiesToPropagate, bodyInertiaTensorFunctions,
             bodyInertiaTensorTimeDerivativeFunctions )
-    {
-
-    }
+    { }
 
     //! Destructor
     ~RotationalMotionQuaternionsStateDerivative( ){ }
@@ -102,10 +100,10 @@ public:
     /*!
      *  Calculates the state derivative of the rotational motion of the system at the given time and rotational state.
      *  \param time Time (seconds since reference epoch) at which the system is to be updated.
-     *  \param stateOfSystemToBeIntegrated List of 7 * bodiesToPropagate_.size( ), containing rotation quaternion/angular
-     *  velocity of the bodies being propagated. The order of the values is defined by the order of bodies in
-     *  bodiesToPropagate_
-     *  \param stateDerivative Current state derivative (quaternion rate+angular acceleration) of system of bodies
+     *  \param stateOfSystemToBeIntegrated List of 7 * bodiesToPropagate_.size( ), containing rotation quaternion and
+     *  angular velocity of the bodies being propagated. The order of the values is defined by the order of bodies in
+     *  bodiesToPropagate_.
+     *  \param stateDerivative Current state derivative (quaternion rate + angular acceleration) of system of bodies
      *  integrated numerically (returned by reference).
      */
     void calculateSystemStateDerivative(
@@ -128,12 +126,6 @@ public:
                         this->bodyInertiaTensorFunctions_.at( i )( ), torquesActingOnBodies.at( i ),
                         currentBodyFixedRotationRate.template cast< double >( ),
                         this->bodyInertiaTensorTimeDerivativeFunctions_.at( i )( ) ).template cast< StateScalarType >( );
-
-            std::cout << "Time: " << time - 236455200 << std::endl;
-            std::cout << "Quat: " << currentQuaternions.transpose( ) << std::endl;
-            std::cout << "Rot: " << currentBodyFixedRotationRate.transpose( ) << std::endl;
-            std::cout << "Torque: " << torquesActingOnBodies.at( i ).transpose( ) << std::endl;
-            std::cout << "Deriv: " << stateDerivative.block( i * 7, 0, 7, 1 ).transpose( ) << std::endl << std::endl;
         }
     }
 
@@ -173,10 +165,8 @@ public:
      * Function to process the state during propagation. For quaternions, this function normalizes the quaternion vector
      * in case its magnitude differs from 1.0 by a value larger than the tolerance.
      * \param unprocessedState State computed after propagation.
-     * \param startRow Dummy variable added for compatibility issues between Eigen::Matrix and Eigen::Block.
      */
-    void postProcessState( Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& unprocessedState,
-                           const int startRow )
+    void postProcessState( Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& unprocessedState )
     {
         // Loop over each body
         const double tolerance = 20.0 * std::numeric_limits< double >::epsilon( );
@@ -193,7 +183,7 @@ public:
                 quaternionsVector /= quaternionsMagnitude;
 
                 // Replace old quaternions with normalized quaternions
-                unprocessedState.segment( startRow + i * 7, 4 ) = quaternionsVector;
+                unprocessedState.segment( i * 7, 4 ) = quaternionsVector;
             }
         }
     }

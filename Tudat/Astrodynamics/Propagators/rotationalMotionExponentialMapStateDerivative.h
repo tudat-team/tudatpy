@@ -28,21 +28,21 @@ namespace tudat
 namespace propagators
 {
 
-//! Function to obtain the time derivative of a quaternion (in vector representation) of body-fixed to inertial frame
+//! Function to obtain the time derivative of an exponential map (in vector representation) of body-fixed to inertial frame
 /*!
- * Function to obtain the time derivative of a quaternion (in vector representation) of body-fixed to inertial frame
+ * Function to obtain the time derivative of an exponential map (in vector representation) of body-fixed to inertial frame
  * \param currentExponentialMapToBaseFrame ExponentialMap (in vector representation) that defined the rotation from body-fixed to inertial
  * frame.
  * \param angularVelocityVectorInBodyFixedFrame Current angular velocity vector of body, expressed in its body-fixed frame
- * \return Time derivative of a quaternion (in vector representation) of body-fixed to inertial frame
+ * \return Time derivative of an exponential map (in vector representation) of body-fixed to inertial frame
  */
 Eigen::Vector3d calculateExponentialMapDerivative( const Eigen::Vector3d& currentExponantialMapToBaseFrame,
                                                    const Eigen::Vector3d& angularVelocityVectorInBodyFixedFrame );
 
 //! Class for computing the state derivative for rotational dynamics of N bodies.
 /*!
- *  Class for computing the state derivative for rotational dynamics of N bodies., using quaternion from body-fixed to inertial
- *  frame (in quaternion format) and angular velocity-vector of body expressed in body-fixed frame as the rotational state of a
+ *  Class for computing the state derivative for rotational dynamics of N bodies., using exponential map from body-fixed to inertial
+ *  frame (in exponential map format) and angular velocity-vector of body expressed in body-fixed frame as the rotational state of a
  *  single body
  */
 template< typename StateScalarType = double, typename TimeType = double >
@@ -50,13 +50,13 @@ class RotationalMotionExponentialMapStateDerivative: public RotationalMotionStat
 {
 public:
 
-    //! Constructor
+    //! Constructor.
     /*!
-     * Constructor
+     * Constructor.
      * \param torqueModelsPerBody List of torque models (first map key body undergoing acceleration, second map key body exerting
-     * acceleration)
-     * \param bodiesToPropagate List of names of bodies for which rotational state is to be propagated
-     * \param bodyInertiaTensorFunctions List of functions returning inertia tensors of bodiesToPropagate (in same order)
+     * acceleration).
+     * \param bodiesToPropagate List of names of bodies for which rotational state is to be propagated.
+     * \param bodyInertiaTensorFunctions List of functions returning inertia tensors of bodiesToPropagate (in same order).
      * \param bodyInertiaTensorTimeDerivativeFunctions List of functions returning time derivatives of inertia tensors of
      *  bodiesToPropagate (in same order). Default empty, denoting time-invariant inertia tensors.
      */
@@ -69,9 +69,7 @@ public:
         RotationalMotionStateDerivative< StateScalarType, TimeType >(
             torqueModelsPerBody, exponential_map, bodiesToPropagate, bodyInertiaTensorFunctions,
             bodyInertiaTensorTimeDerivativeFunctions )
-    {
-
-    }
+    { }
 
     //! Destructor
     ~RotationalMotionExponentialMapStateDerivative( ){ }
@@ -80,10 +78,10 @@ public:
     /*!
      *  Calculates the state derivative of the rotational motion of the system at the given time and rotational state.
      *  \param time Time (seconds since reference epoch) at which the system is to be updated.
-     *  \param stateOfSystemToBeIntegrated List of 7 * bodiesToPropagate_.size( ), containing rotation quaternion/angular
-     *  velocity of the bodies being propagated. The order of the values is defined by the order of bodies in
-     *  bodiesToPropagate_
-     *  \param stateDerivative Current state derivative (quaternion rate+angular acceleration) of system of bodies
+     *  \param stateOfSystemToBeIntegrated List of 6 * bodiesToPropagate_.size( ), containing rotation exponential map
+     *  and angular velocity of the bodies being propagated. The order of the values is defined by the order of bodies
+     *  in bodiesToPropagate_.
+     *  \param stateDerivative Current state derivative (exponential map rate + angular acceleration) of system of bodies
      *  integrated numerically (returned by reference).
      */
     void calculateSystemStateDerivative(
@@ -106,22 +104,15 @@ public:
                         this->bodyInertiaTensorFunctions_.at( i )( ), torquesActingOnBodies.at( i ),
                         currentBodyFixedRotationRate.template cast< double >( ),
                         this->bodyInertiaTensorTimeDerivativeFunctions_.at( i )( ) ).template cast< StateScalarType >( );
-
-            std::cout << "Time: " << time - 236455200 << std::endl;
-            std::cout << "EM: " << currentExponentialMap.transpose( ) << std::endl;
-            std::cout << "Rot: " << currentBodyFixedRotationRate.transpose( ) << std::endl;
-            std::cout << "Torque: " << torquesActingOnBodies.at( i ).transpose( ) << std::endl;
-            std::cout << "Deriv: " << stateDerivative.block( i * 6, 0, 6, 1 ).transpose( ) << std::endl << std::endl;
         }
     }
 
     //! Function to convert the state in the conventional form to the propagator-specific form.
     /*!
-     * Function to convert the state in the conventional form to the propagator-specific form. For this propagator,
-     * the two are equivalent, and this function returns the input state.
-     * \param outputSolution State in 'conventional form'
+     * Function to convert the state in the conventional form to the propagator-specific form.
+     * \param outputSolution State in 'conventional form'.
      * \param time Current time at which the state is valid (not used in this class).
-     * \return State (outputSolution), converted to the 'propagator-specific form' (which is equal to outputSolution).
+     * \return State (outputSolution), converted to the 'propagator-specific form'.
      */
     Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic > convertFromOutputSolution(
             const Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >& outputSolution, const TimeType& time )
@@ -135,6 +126,7 @@ public:
             currentState.segment( i * 6, 3 ) =
                     orbital_element_conversions::convertQuaternionsToExponentialMapElements(
                         outputSolution.block( i * 7, 0, 4, 1 ).template cast< double >( ) ).template cast< StateScalarType >( );
+            currentState.segment( i * 6 + 3, 3 ) = outputSolution.block( i * 7 + 4, 0, 3, 1 ); // rotational velocity is the same
         }
 
         return currentState;
@@ -142,13 +134,10 @@ public:
 
     //! Function to convert the propagator-specific form of the state to the conventional form.
     /*!
-     * Function to convert the propagator-specific form of the state to the conventional form. For the this propagator,
-     * the two are equivalent, and this function returns the input state.
-     * \param internalSolution State in propagator-specific form (which is equal to outputSolution to conventional form for
-     * this propagator)
+     * Function to convert the propagator-specific form of the state to the conventional form.
+     * \param internalSolution State in propagator-specific form.
      * \param time Current time at which the state is valid (not used in this class).
-     * \param currentLocalSolution State (internalSolution), converted to the 'conventional form',
-     *  which is equal to outputSolution for this class (returned by reference).
+     * \param currentLocalSolution State (internalSolution), converted to the 'conventional form' (returned by reference).
      */
     void convertToOutputSolution(
             const Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >& internalSolution, const TimeType& time,
@@ -179,10 +168,8 @@ public:
      * Function to process the state during propagation. For exponential map (EM), this function converts to/from shadow exponential
      * map (SEM), in case the rotation angle is larger than PI.
      * \param unprocessedState State computed after propagation.
-     * \param startRow Dummy variable added for compatibility issues between Eigen::Matrix and Eigen::Block.
      */
-    void postProcessState( Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& unprocessedState,
-                           const int startRow )
+    void postProcessState( Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& unprocessedState )
     {
         // Loop over each body
         Eigen::Matrix< StateScalarType, 3, 1 > exponentialMapVector;
@@ -198,7 +185,7 @@ public:
                 exponentialMapVector *= ( 1.0 - ( 2.0 * mathematical_constants::PI / exponentialMapMagnitude ) );
 
                 // Replace EM with SEM, or vice-versa
-                unprocessedState.segment( startRow + i * 6, 3 ) = exponentialMapVector;
+                unprocessedState.segment( i * 6, 3 ) = exponentialMapVector;
             }
         }
     }

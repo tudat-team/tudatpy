@@ -233,10 +233,8 @@ public:
      * Function to process the state during propagation. For exponential map (EM), this function converts to/from shadow exponential
      * map (SEM), in case the rotation angle is larger than PI.
      * \param unprocessedState State computed after propagation.
-     * \param startRow Dummy variable added for compatibility issues between Eigen::Matrix and Eigen::Block.
      */
-    void postProcessState( Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& unprocessedState,
-                           const int startRow )
+    void postProcessState( Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& unprocessedState )
     {
         // Loop over each body
         Eigen::Matrix< StateScalarType, 3, 1 > exponentialMapVector;
@@ -252,7 +250,7 @@ public:
                 exponentialMapVector *= ( 1.0 - ( 2.0 * mathematical_constants::PI / exponentialMapMagnitude ) );
 
                 // Replace EM with SEM, or vice-versa
-                unprocessedState.segment( startRow + i * 6 + 3, 3 ) = exponentialMapVector;
+                unprocessedState.segment( i * 6 + 3, 3 ) = exponentialMapVector;
             }
         }
     }
