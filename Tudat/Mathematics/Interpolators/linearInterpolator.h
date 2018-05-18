@@ -29,10 +29,10 @@
 
 #include "Tudat/Mathematics/Interpolators/oneDimensionalInterpolator.h"
 #include "Tudat/Mathematics/BasicMathematics/nearestNeighbourSearch.h"
-#include "Tudat/Mathematics/Interpolators/lookupScheme.h"
 
 namespace tudat
 {
+
 namespace interpolators
 {
 
@@ -56,7 +56,7 @@ public:
     lookUpScheme_;
     using Interpolator< IndependentVariableType, DependentVariableType >::interpolate;
 
-    //! Constructor from map of independent/dependent data.
+    //! Constructor from map of independent and dependent data.
     /*!
      * This constructor initializes the interpolator from a map containing independent variables
      * as key and dependent variables as value. A look-up scheme can be provided to override the
@@ -70,7 +70,8 @@ public:
     LinearInterpolator( const std::map< IndependentVariableType, DependentVariableType >& dataMap,
                         const AvailableLookupScheme selectedLookupScheme = huntingAlgorithm,
                         const BoundaryInterpolationType boundaryHandling = extrapolate_at_boundary,
-                        const DependentVariableType defaultExtrapolationValue = IdentityElement< DependentVariableType >::getAdditionIdentity( ) ):
+                        const DependentVariableType defaultExtrapolationValue =
+            IdentityElement< DependentVariableType >::getAdditionIdentity( ) ):
         OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >( boundaryHandling,
                                                                                       defaultExtrapolationValue )
     {
@@ -99,7 +100,7 @@ public:
         this->makeLookupScheme( selectedLookupScheme );
     }
 
-    //! Constructor from vectors of independent/dependent data.
+    //! Constructor from vectors of independent and dependent data.
     /*!
      *  This constructor initializes the interpolator from two vectors containing the independent
      *  variables and dependent variables. A look-up scheme can be provided to
@@ -115,7 +116,8 @@ public:
                         const std::vector< DependentVariableType >& dependentValues,
                         const AvailableLookupScheme selectedLookupScheme = huntingAlgorithm,
                         const BoundaryInterpolationType boundaryHandling = extrapolate_at_boundary,
-                        const DependentVariableType defaultExtrapolationValue = IdentityElement< DependentVariableType >::getAdditionIdentity( ) ):
+                        const DependentVariableType defaultExtrapolationValue =
+            IdentityElement< DependentVariableType >::getAdditionIdentity( ) ):
         OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >( boundaryHandling,
                                                                                       defaultExtrapolationValue )
     {
@@ -232,6 +234,7 @@ Eigen::VectorXd computeLinearInterpolation(
         const double targetIndependentVariableValue );
 
 } // namespace interpolators
+
 } // namespace tudat
 
 #endif // TUDAT_LINEAR_INTERPOLATOR_H

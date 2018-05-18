@@ -28,9 +28,9 @@ namespace tudat
 namespace interpolators
 {
 
-//! Base class for interpolator with one independent independent variable.
+//! Base class for interpolator with one independent variable.
 /*!
- * Base class for the interpolators in one independent variable included in Tudat
+ * Base class for the interpolators in one independent variable included in Tudat.
  * \tparam IndependentVariableType Type of independent variable(s)
  * \tparam IndependentVariableType Type of dependent variable
  */
@@ -41,14 +41,18 @@ class OneDimensionalInterpolator :
 
 public:
 
+    // Using statements to prevent having to put 'this' everywhere in the code.
+    using Interpolator< IndependentVariableType, DependentVariableType >::interpolate;
+
+    //! Constructor.
+    /*!
+     * Constructor.
+     */
     OneDimensionalInterpolator(
             const BoundaryInterpolationType boundaryHandling = extrapolate_at_boundary,
             const DependentVariableType defaultExtrapolationValue = IdentityElement< DependentVariableType >::getAdditionIdentity( ) ):
         boundaryHandling_( boundaryHandling ), defaultExtrapolationValue_( defaultExtrapolationValue )
     { }
-
-
-    using Interpolator< IndependentVariableType, DependentVariableType >::interpolate;
 
     //! Destructor.
     /*!
@@ -155,11 +159,11 @@ protected:
     int checkInterpolationBoundary( const IndependentVariableType& targetIndependentVariableValue )
     {
         int isAtBoundary = 0;
-        if( targetIndependentVariableValue < independentValues_.front( ) )
+        if ( targetIndependentVariableValue < independentValues_.front( ) )
         {
             isAtBoundary = -1;
         }
-        else if( targetIndependentVariableValue > independentValues_.back( ) )
+        else if ( targetIndependentVariableValue > independentValues_.back( ) )
         {
             isAtBoundary = 1;
         }
@@ -180,13 +184,13 @@ protected:
             const IndependentVariableType& targetIndependentVariableValue )
     {
         useValue = false;
-        if( this->boundaryHandling_ != extrapolate_at_boundary )
+        if ( this->boundaryHandling_ != extrapolate_at_boundary )
         {
             int isAtBoundary = this->checkInterpolationBoundary( targetIndependentVariableValue );
 
-            if( isAtBoundary != 0 )
+            if ( isAtBoundary != 0 )
             {
-                if( this->boundaryHandling_ == throw_exception_at_boundary )
+                if ( this->boundaryHandling_ == throw_exception_at_boundary )
                 {
                     std::string errorMessage = "Error in interpolator, requesting data point outside of boundaries, requested data at: " +
                             boost::lexical_cast< std::string >( targetIndependentVariableValue ) + " but limit values are " +
@@ -194,7 +198,7 @@ protected:
                             boost::lexical_cast< std::string >( independentValues_.back( ) );
                     throw std::runtime_error( errorMessage );
                 }
-                else if( this->boundaryHandling_ == extrapolate_at_boundary_with_warning )
+                else if ( this->boundaryHandling_ == extrapolate_at_boundary_with_warning )
                 {
                     std::string errorMessage = "Warning in interpolator, requesting data point outside of boundaries, requested data at: " +
                             boost::lexical_cast< std::string >( targetIndependentVariableValue ) + " but limit values are " +
@@ -202,10 +206,10 @@ protected:
                             boost::lexical_cast< std::string >( independentValues_.back( ) ) + ", applying extrapolation instead.";
                     std::cerr << errorMessage << std::endl;
                 }
-                else if( ( this->boundaryHandling_ == use_boundary_value ) ||
-                         ( this->boundaryHandling_ == use_boundary_value_with_warning ) )
+                else if ( ( this->boundaryHandling_ == use_boundary_value ) ||
+                          ( this->boundaryHandling_ == use_boundary_value_with_warning ) )
                 {
-                    if( this->boundaryHandling_ == use_boundary_value_with_warning )
+                    if ( this->boundaryHandling_ == use_boundary_value_with_warning )
                     {
                         std::string errorMessage = "Warning in interpolator, requesting data point outside of boundaries, requested data at: " +
                                 boost::lexical_cast< std::string >( targetIndependentVariableValue ) + " but limit values are " +
@@ -214,12 +218,12 @@ protected:
                         std::cerr << errorMessage << std::endl;
                     }
 
-                    if( isAtBoundary == -1 )
+                    if ( isAtBoundary == -1 )
                     {
                         dependentVariable = dependentValues_.front( );
                         useValue = true;
                     }
-                    else if( isAtBoundary == 1 )
+                    else if ( isAtBoundary == 1 )
                     {
                         dependentVariable = dependentValues_.back( );
                         useValue = true;
@@ -229,10 +233,10 @@ protected:
                         throw std::runtime_error( "Error when checking interpolation boundary, inconsistent data encountered" );
                     }
                 }
-                else if( ( this->boundaryHandling_ == use_default_value ) ||
-                         ( this->boundaryHandling_ == use_default_value_with_warning ) )
+                else if ( ( this->boundaryHandling_ == use_default_value ) ||
+                          ( this->boundaryHandling_ == use_default_value_with_warning ) )
                 {
-                    if( this->boundaryHandling_ == use_default_value_with_warning )
+                    if ( this->boundaryHandling_ == use_default_value_with_warning )
                     {
                         std::string errorMessage = "Warning in interpolator, requesting data point outside of boundaries, requested data at: " +
                                 boost::lexical_cast< std::string >( targetIndependentVariableValue ) + " but limit values are " +
@@ -246,7 +250,7 @@ protected:
                 }
                 else
                 {
-                    throw std::runtime_error( "Error when checking interpolation boundary, boundary handling method not recognized" );
+                    throw std::runtime_error( "Error when checking interpolation boundary, boundary handling method not recognized." );
                 }
             }
         }
@@ -263,24 +267,24 @@ protected:
     void makeLookupScheme( const AvailableLookupScheme selectedScheme )
     {
         // Find which type of scheme is used.
-        switch( selectedScheme )
+        switch ( selectedScheme )
         {
         case binarySearch:
-
+        {
             // Create binary search look up scheme.
             lookUpScheme_ = boost::shared_ptr< LookUpScheme< IndependentVariableType > >
                     ( new BinarySearchLookupScheme< IndependentVariableType >
                       ( independentValues_ ) );
             break;
-
+        }
         case huntingAlgorithm:
-
+        {
             // Create hunting scheme, which uses an intial guess from previous look-ups.
             lookUpScheme_ = boost::shared_ptr< LookUpScheme< IndependentVariableType > >
                     ( new HuntingAlgorithmLookupScheme< IndependentVariableType >
                       ( independentValues_ ) );
             break;
-
+        }
         default:
             throw std::runtime_error( "Warning: lookup scheme not found when making scheme for 1-D interpolator" );
         }
@@ -293,17 +297,17 @@ protected:
      */
     boost::shared_ptr< LookUpScheme< IndependentVariableType > > lookUpScheme_;
 
-    //! Vector with dependent variables.
-    /*!
-     * Vector with dependent variables.
-     */
-    std::vector< DependentVariableType > dependentValues_;
-
     //! Vector with independent variables.
     /*!
      * Vector with independent variables.
      */
     std::vector< IndependentVariableType > independentValues_;
+
+    //! Vector with dependent variables.
+    /*!
+     * Vector with dependent variables.
+     */
+    std::vector< DependentVariableType > dependentValues_;
 
     //! Behavior of interpolator when independent variable is outside range.
     /*!
