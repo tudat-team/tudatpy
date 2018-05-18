@@ -1,0 +1,23 @@
+- **Aerodynamics** 
+	- added tabulated atmosphere that supports a variable number (1 to 4) of independent variables (see issue [#376](https://github.com/Tudat/tudat/issues/376))
+	- added function to compute aerodynamic (force and moment) coefficients from pressure and shear force distributions on body
+	- added MCD atmosphere tables
+- **Basics**: 
+	- added function to return addition and multiplication identities for various types
+- **Input-output**
+ 	- added class to write multi-dimensional arrays to file
+- **Interpolators**
+	- added option to choose interpolator behavior at boundary (see issue [#378](https://github.com/Tudat/tudat/issues/378)); supported modes: error, extrapolate (with warning), use boundary value (with warning), use default value (with warning)
+- **Orbital Element Conversions**
+	- added conversions for position and velocity state variables: Cartesian<->USM7, Keplerian<->USM7, Cartesian<->USM6, Keplerian<->USM6, Cartesian<->USMEM, Keplerian<->USMEM
+	- added conversions for attitude state variables: quaternion<->MRP, quaternion<->exponential map
+- **Propagators**
+	- added translational state derivatives: USM7, UMS6 and USMEM (see issue [#364](https://github.com/Tudat/tudat/issues/364))
+	- added rotational state derivatives: MRPs and exponential map (see issue [#385](https://github.com/Tudat/tudat/issues/385))
+- **Simulation Setup**: 
+	- added function to output cumulative number of function evaluations (see issue [#375](https://github.com/Tudat/tudat/issues/375))
+	- added function to output raw numerical solution
+	- added function to process state during propagation (right after integration step) (also see issue [#364](https://github.com/Tudat/tudat/issues/364))
+- **SPARTA**: added interface for running SPARTA simulations and analyzing its results (see issue [#380](https://github.com/Tudat/tudat/issues/380))
+- **Unit Tests**: all new functions and classes have been included in unit tests, with the exception of: SPARTA
+- Various style, consistency and typo corrections; removed deprecated symbols and warnings
