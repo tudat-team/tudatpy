@@ -67,13 +67,13 @@ public:
 
     using propagators::SingleStateTypeDerivative< StateScalarType, TimeType >::calculateSystemStateDerivative;
 
-    //! Constructor
+    //! Constructor.
     /*!
-     * Constructor
+     * Constructor.
      * \param torqueModelsPerBody List of torque models (first map key body undergoing acceleration, second map key body exerting
-     * acceleration)
-     * \param bodiesToPropagate List of names of bodies for which rotational state is to be propagated
-     * \param bodyInertiaTensorFunctions List of functions returning inertia tensors of bodiesToPropagate (in same order)
+     * acceleration).
+     * \param bodiesToPropagate List of names of bodies for which rotational state is to be propagated.
+     * \param bodyInertiaTensorFunctions List of functions returning inertia tensors of bodiesToPropagate (in same order).
      * \param bodyInertiaTensorTimeDerivativeFunctions List of functions returning time derivatives of inertia tensors of
      *  bodiesToPropagate (in same order). Default empty, denoting time-invariant inertia tensors.
      */
@@ -211,7 +211,7 @@ public:
     //! Function to return the size of the state handled by the object.
     /*!
      * Function to return the size of the state handled by the object.
-     * \return Size of the state under consideration (7 times the number if integrated bodies).
+     * \return Size of the state under consideration (7 times the number of integrated bodies).
      */
     int getConventionalStateSize( )
     {

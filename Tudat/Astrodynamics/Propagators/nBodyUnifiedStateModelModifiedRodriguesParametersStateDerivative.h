@@ -245,10 +245,8 @@ public:
      * Function to process the state during propagation. For modified Rodrigues parameters (MRP), this function converts to/from
      * shadow modified Rodrigues parameters (SMRP), in case the magnitude of the (S)MRP vector is larger than 1.0.
      * \param unprocessedState State computed after propagation.
-     * \param startRow Dummy variable added for compatibility issues between Eigen::Matrix and Eigen::Block.
      */
-    void postProcessState( Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& unprocessedState,
-                           const int startRow )
+    void postProcessState( Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& unprocessedState )
     {
         // Loop over each body
         Eigen::Matrix< StateScalarType, 3, 1 > modifiedRodriguesParametersVector;
@@ -256,19 +254,19 @@ public:
         for( unsigned int i = 0; i < this->bodiesToBeIntegratedNumerically_.size( ); i++ )
         {
             // Convert to/from shadow modifed Rodrigues parameters (SMRP) (transformation is the same either way)
-            modifiedRodriguesParametersVector = unprocessedState.block( startRow + i * 7 + 3, 0, 3, 1 );
+            modifiedRodriguesParametersVector = unprocessedState.block( i * 7 + 3, 0, 3, 1 );
             modifiedRodriguesParametersMagnitude = modifiedRodriguesParametersVector.norm( );
             if ( modifiedRodriguesParametersMagnitude >= 1.0 )
             {
                 // Invert flag
-                unprocessedState( startRow + i * 7 + 6 ) = std::fabs( unprocessedState( startRow + i * 7 + 6 ) - 1.0 );
+                unprocessedState( i * 7 + 6 ) = std::fabs( unprocessedState( i * 7 + 6 ) - 1.0 );
 
                 // Convert to MRP/SMRP
                 modifiedRodriguesParametersVector /= - modifiedRodriguesParametersMagnitude *
                         modifiedRodriguesParametersMagnitude;
 
                 // Replace MRP with SMPR, or vice-versa
-                unprocessedState.segment( startRow + i * 7 + 3, 3 ) = modifiedRodriguesParametersVector;
+                unprocessedState.segment( i * 7 + 3, 3 ) = modifiedRodriguesParametersVector;
             }
         }
     }
