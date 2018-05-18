@@ -96,7 +96,7 @@ public:
         dependentData_.resize( reinterpret_cast< boost::array< size_t,
                                boost::multi_array< DependentVariableType,
                                static_cast< size_t >( NumberOfDimensions ) >::dimensionality > const& >(
-                                   *dependentData.shape( ) ) );
+                                   *dependentData.shape( ) ) ); // resize dependent data container
         dependentData_ = dependentData;
 
         // Check consistency of template arguments and input variables.
