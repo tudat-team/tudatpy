@@ -212,7 +212,7 @@ public:
             currentCartesianLocalSolution.segment( i * 6, 6 ) =
                     orbital_element_conversions::convertUnifiedStateModelQuaternionsToCartesianElements(
                         internalSolution.block( i * 7, 0, 7, 1 ).template cast< double >( ), static_cast< double >(
-                            centralBodyGravitationalParameters_.at( i )( ) ), true ).template cast< StateScalarType >( );
+                            centralBodyGravitationalParameters_.at( i )( ) ), false ).template cast< StateScalarType >( );
         }
         currentCartesianLocalSolution_ = currentCartesianLocalSolution;
     }

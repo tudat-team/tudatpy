@@ -370,7 +370,6 @@ BOOST_AUTO_TEST_CASE( testSimpleRotationalDynamicsPropagation )
                 }
 
                 currentTime += timeStep;
-
             }
         }
     }
@@ -434,7 +433,6 @@ BOOST_AUTO_TEST_CASE( testSimpleRotationalDynamicsPropagationWithObliquity )
         // Propagate dynamics
         SingleArcDynamicsSimulator< double > dynamicsSimulator(
                     bodyMap, integratorSettings, propagatorSettings, true, false, true );
-
 
         // Retrieve Phobos rotation model with reset rotational state
         boost::shared_ptr< RotationalEphemeris > phobosRotationalEphemeris = bodyMap[ "Phobos" ]->getRotationalEphemeris( );
