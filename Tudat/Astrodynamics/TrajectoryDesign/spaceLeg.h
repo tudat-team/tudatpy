@@ -57,7 +57,16 @@ class SpaceLeg : public MissionLeg
 {
 public:
 
-    SpaceLeg( ){ }
+    SpaceLeg( const Eigen::Vector3d& departureBodyPosition,
+              const Eigen::Vector3d& arrivalBodyPosition,
+              const double timeOfFlight,
+              const Eigen::Vector3d& departureBodyVelocity,
+              const double centralBodyGravitationalParameter ):
+        MissionLeg( departureBodyPosition,
+                    timeOfFlight,
+                    departureBodyVelocity,
+                    centralBodyGravitationalParameter),
+        arrivalBodyPosition_( arrivalBodyPosition ){ }
 
     virtual ~SpaceLeg( ){ }
 

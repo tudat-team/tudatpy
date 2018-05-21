@@ -75,20 +75,20 @@ public:
                                  const double dsmTimeOfFlightFraction,
                                  const double excessVelocityMagnitude,
                                  const double excessVelocityInPlaneAngle,
-                                 const double excessVelocityOutOfPlaneAngle )
+                                 const double excessVelocityOutOfPlaneAngle ):
+        DepartureLeg( departureBodyPosition,
+                      arrivalBodyPosition,
+                      timeOfFlight,
+                      departureBodyVelocity,
+                      centralBodyGravitationalParameter,
+                      departureBodyGravitationalParameter,
+                      semiMajorAxis,
+                      eccentricity),
+        dsmTimeOfFlightFraction_( dsmTimeOfFlightFraction ),
+        excessVelocityMagnitude_( excessVelocityMagnitude ),
+        excessVelocityInPlaneAngle_( excessVelocityInPlaneAngle ),
+        excessVelocityOutOfPlaneAngle_( excessVelocityOutOfPlaneAngle )
     {
-        departureBodyPosition_ = departureBodyPosition;
-        arrivalBodyPosition_ = arrivalBodyPosition;
-        timeOfFlight_ = timeOfFlight;
-        departureBodyVelocity_ = departureBodyVelocity;
-        centralBodyGravitationalParameter_ = centralBodyGravitationalParameter;
-        departureBodyGravitationalParameter_ = departureBodyGravitationalParameter;
-        semiMajorAxis_ = semiMajorAxis;
-        eccentricity_ = eccentricity;
-        dsmTimeOfFlightFraction_ = dsmTimeOfFlightFraction;
-        excessVelocityMagnitude_ = excessVelocityMagnitude;
-        excessVelocityInPlaneAngle_ = excessVelocityInPlaneAngle;
-        excessVelocityOutOfPlaneAngle_ = excessVelocityOutOfPlaneAngle;
         velocityAfterDeparture_( 0 ) = TUDAT_NAN;
     }
 

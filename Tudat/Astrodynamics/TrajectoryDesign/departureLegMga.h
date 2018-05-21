@@ -68,16 +68,16 @@ public:
                      const double centralBodyGravitationalParameter,
                      const double departureBodyGravitationalParameter,
                      const double semiMajorAxis,
-                     const double eccentricity )
+                     const double eccentricity ):
+                DepartureLeg( departureBodyPosition,
+                              arrivalBodyPosition,
+                              timeOfFlight,
+                              departureBodyVelocity,
+                              centralBodyGravitationalParameter,
+                              departureBodyGravitationalParameter,
+                              semiMajorAxis,
+                              eccentricity)
     {
-        departureBodyPosition_ = departureBodyPosition;
-        arrivalBodyPosition_ = arrivalBodyPosition;
-        timeOfFlight_ = timeOfFlight;
-        departureBodyVelocity_ = departureBodyVelocity;
-        centralBodyGravitationalParameter_ = centralBodyGravitationalParameter;
-        departureBodyGravitationalParameter_ = departureBodyGravitationalParameter;
-        semiMajorAxis_ = semiMajorAxis;
-        eccentricity_ = eccentricity;
         velocityAfterDeparture_( 0 ) = TUDAT_NAN;
     }
 
@@ -113,10 +113,6 @@ public:
      * the class, without re-initializing it. For this leg: time of flight.
      */
     void updateDefiningVariables( const Eigen::VectorXd& variableVector );
-
-//    void test( const Eigen::Vector3d& departureBodyPosition,
-//               const Eigen::Vector3d& arrivalBodyPosition,
-//               const Eigen::Vector3d& departureBodyVelocity );
 
 protected:
 

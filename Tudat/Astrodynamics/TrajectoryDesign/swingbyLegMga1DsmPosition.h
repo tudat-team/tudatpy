@@ -79,21 +79,20 @@ public:
                                //Eigen::Vector3d dsmLocation
                                const double dimensionlessRadiusDsm,
                                const double inPlaneAngle,
-                               const double outOfPlaneAngle )
+                               const double outOfPlaneAngle ):
+        SwingbyLeg( departureBodyPosition,
+                    arrivalBodyPosition,
+                    timeOfFlight,
+                    departureBodyVelocity,
+                    centralBodyGravitationalParameter,
+                    swingbyBodyGravitationalParameter,
+                    velocityBeforeDepartureBodyPtr),
+        minimumPericenterRadius_( minimumPericenterRadius ),
+        dsmTimeOfFlightFraction_( dsmTimeOfFlightFraction ),
+        dimensionlessRadiusDsm_( dimensionlessRadiusDsm ),
+        inPlaneAngle_( inPlaneAngle ),
+        outOfPlaneAngle_( outOfPlaneAngle )
     {
-        departureBodyPosition_ = departureBodyPosition;
-        arrivalBodyPosition_ = arrivalBodyPosition;
-        timeOfFlight_ = timeOfFlight;
-        departureBodyVelocity_ = departureBodyVelocity;
-        centralBodyGravitationalParameter_ = centralBodyGravitationalParameter;
-        swingbyBodyGravitationalParameter_ = swingbyBodyGravitationalParameter;
-        velocityBeforeDepartureBodyPtr_ = velocityBeforeDepartureBodyPtr;
-        minimumPericenterRadius_ = minimumPericenterRadius;
-        dsmTimeOfFlightFraction_ = dsmTimeOfFlightFraction;
-        dimensionlessRadiusDsm_ = dimensionlessRadiusDsm;
-        inPlaneAngle_ = inPlaneAngle;
-        outOfPlaneAngle_ = outOfPlaneAngle;
-        //dsmLocation_ = dsmLocation;
         velocityAfterDeparture_( 0 ) = TUDAT_NAN;
     }
 

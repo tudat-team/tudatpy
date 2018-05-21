@@ -62,9 +62,29 @@ public:
 
 protected:
 
-    SwingbyLeg( ){ }
+    SwingbyLeg( const Eigen::Vector3d& departureBodyPosition,
+                const Eigen::Vector3d& arrivalBodyPosition,
+                const double timeOfFlight,
+                const Eigen::Vector3d& departureBodyVelocity,
+                const double centralBodyGravitationalParameter,
+                double swingbyBodyGravitationalParameter,
+                boost::shared_ptr< Eigen::Vector3d > velocityBeforeDepartureBodyPtr ):
+        SpaceLeg( departureBodyPosition,
+                  arrivalBodyPosition,
+                  timeOfFlight,
+                  departureBodyVelocity,
+                  centralBodyGravitationalParameter),
+        swingbyBodyGravitationalParameter_( swingbyBodyGravitationalParameter ),
+        velocityBeforeDepartureBodyPtr_( velocityBeforeDepartureBodyPtr ){ }
 
     virtual ~SwingbyLeg( ){ }
+
+    //! The swing-by body gravitational parameter.
+    /*!
+     * The gravitational parameter of the swing-by body in the leg.
+     */
+    double swingbyBodyGravitationalParameter_;
+
 
     //! The velocity of the spacecraft at departure.
     /*!
@@ -74,11 +94,6 @@ protected:
      */
     boost::shared_ptr< Eigen::Vector3d > velocityBeforeDepartureBodyPtr_;
 
-    //! The swing-by body gravitational parameter.
-    /*!
-     * The gravitational parameter of the swing-by body in the leg.
-     */
-    double swingbyBodyGravitationalParameter_;
 
 private:
 

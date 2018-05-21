@@ -67,16 +67,25 @@ public:
                 const double captureBodyGravitationalParameter,
                 boost::shared_ptr< Eigen::Vector3d > velocityBeforeDepartureBodyPtr,
                 const double semiMajorAxis,
-                const double eccentricity )
+                const double eccentricity ):
+            MissionLeg( departureBodyPosition,
+                        timeOfFlight,
+                        departureBodyVelocity,
+                        centralBodyGravitationalParameter),
+            captureBodyGravitationalParameter_( captureBodyGravitationalParameter ),
+            velocityBeforeDepartureBodyPtr_( velocityBeforeDepartureBodyPtr ),
+            semiMajorAxis_( semiMajorAxis ),
+            eccentricity_( eccentricity )
+
     {
-        departureBodyPosition_ = departureBodyPosition;
-        timeOfFlight_ = timeOfFlight;
-        departureBodyVelocity_ = departureBodyVelocity;
-        centralBodyGravitationalParameter_ = centralBodyGravitationalParameter;
-        captureBodyGravitationalParameter_ = captureBodyGravitationalParameter;
-        velocityBeforeDepartureBodyPtr_ = velocityBeforeDepartureBodyPtr;
-        semiMajorAxis_ = semiMajorAxis;
-        eccentricity_ = eccentricity;
+//        departureBodyPosition_ = departureBodyPosition;
+//        timeOfFlight_ = timeOfFlight;
+//        departureBodyVelocity_ = departureBodyVelocity;
+//        centralBodyGravitationalParameter_ = centralBodyGravitationalParameter;
+//        captureBodyGravitationalParameter_ = captureBodyGravitationalParameter;
+//        velocityBeforeDepartureBodyPtr_ = velocityBeforeDepartureBodyPtr;
+//        semiMajorAxis_ = semiMajorAxis;
+//        eccentricity_ = eccentricity;
         velocityAfterDeparture_( 0 ) = TUDAT_NAN;
     }
 
