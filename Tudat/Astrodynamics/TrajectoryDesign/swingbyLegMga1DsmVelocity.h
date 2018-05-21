@@ -78,19 +78,19 @@ public:
                                const double rotationAngle,
                                const double pericenterRadius,
                                const double swingbyDeltaV
-                               )
+                               ):
+        SwingbyLeg( departureBodyPosition,
+                    arrivalBodyPosition,
+                    timeOfFlight,
+                    departureBodyVelocity,
+                    centralBodyGravitationalParameter,
+                    swingbyBodyGravitationalParameter,
+                    velocityBeforeDepartureBodyPtr),
+        dsmTimeOfFlightFraction_( dsmTimeOfFlightFraction ),
+        rotationAngle_( rotationAngle ),
+        pericenterRadius_( pericenterRadius ),
+        swingbyDeltaV_( swingbyDeltaV )
     {
-        departureBodyPosition_ = departureBodyPosition;
-        arrivalBodyPosition_ = arrivalBodyPosition;
-        timeOfFlight_ = timeOfFlight;
-        departureBodyVelocity_ = departureBodyVelocity;
-        centralBodyGravitationalParameter_ = centralBodyGravitationalParameter;
-        swingbyBodyGravitationalParameter_ = swingbyBodyGravitationalParameter;
-        velocityBeforeDepartureBodyPtr_ = velocityBeforeDepartureBodyPtr;
-        dsmTimeOfFlightFraction_ = dsmTimeOfFlightFraction;
-        rotationAngle_ = rotationAngle;
-        pericenterRadius_ = pericenterRadius;
-        swingbyDeltaV_ = swingbyDeltaV;
         velocityAfterDeparture_( 0 ) = TUDAT_NAN;
     }
 

@@ -55,8 +55,29 @@ namespace spaceTrajectories
 class DepartureLeg : public SpaceLeg
 {
 public:
-
+    DepartureLeg( const Eigen::Vector3d& departureBodyPosition,
+                  const Eigen::Vector3d& arrivalBodyPosition,
+                  const double timeOfFlight,
+                  const Eigen::Vector3d& departureBodyVelocity,
+                  const double centralBodyGravitationalParameter,
+                  const double departureBodyGravitationalParameter,
+                  const double semiMajorAxis,
+                  const double eccentricity):
+                SpaceLeg( departureBodyPosition,
+                          arrivalBodyPosition,
+                          timeOfFlight,
+                          departureBodyVelocity,
+                          centralBodyGravitationalParameter),
+                departureBodyGravitationalParameter_( departureBodyGravitationalParameter ),
+                semiMajorAxis_( semiMajorAxis ),
+                eccentricity_( eccentricity ){ }
 protected:
+
+    //! The departure body gravitational parameter.
+    /*!
+     * The gravitational parameter of the departure body in the leg.
+     */
+    double departureBodyGravitationalParameter_;
 
     //! The semi major axis of the departure orbit.
     /*!
@@ -69,12 +90,6 @@ protected:
      * The eccentricity of the departure orbit, where the escape maneuver is applied.
      */
     double eccentricity_;
-
-    //! The departure body gravitational parameter.
-    /*!
-     * The gravitational parameter of the departure body in the leg.
-     */
-    double departureBodyGravitationalParameter_;
 
 private:
 

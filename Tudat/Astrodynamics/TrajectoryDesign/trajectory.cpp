@@ -159,7 +159,7 @@ void Trajectory::planetaryOrbits( double maximumTimeStep,
     // Initiate time variable in MJD to extract the ephemeris.
     double timeMJD = 0.;
 
-    for ( int counter = 0; counter < numberOfLegs_ + 1; counter++ )
+    for ( int counter = 0; counter < numberOfLegs_ ; counter++ )
     {
         // Update the time to visit at a planet.
         timeMJD = timeMJD + trajectoryVariableVector_[ counter ] / physical_constants::JULIAN_DAY;
@@ -257,7 +257,7 @@ bool Trajectory::incorrectSize( )
     }
 
     // Check the planetVector is of the correct size.
-    if ( ephemerisVector_.size( ) != numberOfLegs_ + 1 )
+    if ( ephemerisVector_.size( ) != numberOfLegs_  )
     {
         std::cerr << "\nIncorrect size of planetVector.";
         return true;
@@ -524,6 +524,10 @@ void Trajectory::prepareLegs( )
                 departureOrCaptureCounter++;
                 break;
             }
+            default:
+            {
+                std::cerr<<"Trajectory Model "<<counter<<" does not exist.";
+            }
 
         }
         missionLegPtrVector_[ counter ] = missionLeg;
@@ -539,7 +543,7 @@ void Trajectory::extractEphemeris( )
 
     // Obtain positions and velocities at the corresponding times, by extracting the ephemeris data
     // at the visitation times.
-    for ( int counter = 0; counter < numberOfLegs_ + 1; counter++ )
+    for ( int counter = 0; counter < numberOfLegs_ ; counter++ )
     {
         // Update the time to visit at a planet.
         time = time + trajectoryVariableVector_[ counter ];

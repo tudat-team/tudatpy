@@ -68,16 +68,16 @@ public:
                    double swingbyBodyGravitationalParameter,
                    boost::shared_ptr< Eigen::Vector3d > velocityBeforeDepartureBodyPtr,
                    const double minimumPericenterRadius
-                   )
+                   ):
+        SwingbyLeg( departureBodyPosition,
+                    arrivalBodyPosition,
+                    timeOfFlight,
+                    departureBodyVelocity,
+                    centralBodyGravitationalParameter,
+                    swingbyBodyGravitationalParameter,
+                    velocityBeforeDepartureBodyPtr),
+        minimumPericenterRadius_( minimumPericenterRadius )
     {
-        departureBodyPosition_ = departureBodyPosition;
-        arrivalBodyPosition_ = arrivalBodyPosition;
-        timeOfFlight_ = timeOfFlight;
-        departureBodyVelocity_ = departureBodyVelocity;
-        centralBodyGravitationalParameter_ = centralBodyGravitationalParameter;
-        swingbyBodyGravitationalParameter_ = swingbyBodyGravitationalParameter;
-        velocityBeforeDepartureBodyPtr_ = velocityBeforeDepartureBodyPtr;
-        minimumPericenterRadius_ = minimumPericenterRadius;
         velocityAfterDeparture_( 0 ) = TUDAT_NAN;
     }
 

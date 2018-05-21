@@ -121,7 +121,7 @@ void returnSingleRevolutionPlanetTrajectory(const ephemerides::EphemerisPointer 
     double timeSecondsSinceEpoch = basic_astrodynamics::convertJulianDayToSecondsSinceEpoch(timeJD2000);
 
     // Get Cartesian state of the planet at the corresponding time.
-    initialCartesianElements = ephemerisPtr->getCartesianStateFromEphemeris( timeSecondsSinceEpoch );
+    initialCartesianElements = ephemerisPtr->getCartesianState( timeSecondsSinceEpoch );
 
     // Compute duration (one revolution).
     double period = 2 * mathematical_constants::PI / std::sqrt( centralBodyGravitationalParameter /

@@ -55,7 +55,6 @@
 #include <Tudat/InputOutput/basicInputOutput.h>
 
 #include "Tudat/Astrodynamics/Ephemerides/approximatePlanetPositions.h"
-//#include "Ephemeris/gtopPlanets.h"
 #include "../trajectory.h"
 
 namespace tudat
@@ -92,14 +91,13 @@ BOOST_AUTO_TEST_CASE( testMGATrajectory )
 
     // Create the ephemeris vector.
     std::vector< ephemerides::EphemerisPointer >
-            ephemerisVector( numberOfLegs + 1 );
+            ephemerisVector( numberOfLegs );
     ephemerisVector[ 0 ] = boost::make_shared< ephemerides::ApproximatePlanetPositions >( ephemerides::ApproximatePlanetPositionsBase::BodiesWithEphemerisData::earthMoonBarycenter );
     ephemerisVector[ 1 ] = boost::make_shared< ephemerides::ApproximatePlanetPositions >( ephemerides::ApproximatePlanetPositionsBase::BodiesWithEphemerisData::venus );
     ephemerisVector[ 2 ] = boost::make_shared< ephemerides::ApproximatePlanetPositions >( ephemerides::ApproximatePlanetPositionsBase::BodiesWithEphemerisData::venus );
     ephemerisVector[ 3 ] = boost::make_shared< ephemerides::ApproximatePlanetPositions >( ephemerides::ApproximatePlanetPositionsBase::BodiesWithEphemerisData::earthMoonBarycenter );
     ephemerisVector[ 4 ] = boost::make_shared< ephemerides::ApproximatePlanetPositions >( ephemerides::ApproximatePlanetPositionsBase::BodiesWithEphemerisData::jupiter );
     ephemerisVector[ 5 ] = boost::make_shared< ephemerides::ApproximatePlanetPositions >( ephemerides::ApproximatePlanetPositionsBase::BodiesWithEphemerisData::saturn );
-    ephemerisVector[ 6 ] = boost::make_shared< ephemerides::ApproximatePlanetPositions >( ephemerides::ApproximatePlanetPositionsBase::BodiesWithEphemerisData::saturn );
 
     // Create gravitational parameter vector
     Eigen::VectorXd gravitationalParameterVector( numberOfLegs );
@@ -132,7 +130,8 @@ BOOST_AUTO_TEST_CASE( testMGATrajectory )
     // Start the deltaV vector.
     double resultingDeltaV;
     Cassini1.calculateTrajectory( resultingDeltaV );
-
+    std::cout<<resultingDeltaV<<std::endl;
+    std::cout<<expectedDeltaV<<std::endl;
     // Test if the computed delta-V corresponds to the expected value within the specified
     // tolerance and if the computed velocity before target planet matches the expected velocity
     // within the specified tolerance.
@@ -160,14 +159,12 @@ BOOST_AUTO_TEST_CASE( testMGA1DSMVFTrajectory1 )
 
     // Create the ephemeris vector.
     std::vector< ephemerides::EphemerisPointer >
-            ephemerisVector( numberOfLegs + 1 );
+            ephemerisVector( numberOfLegs );
     ephemerisVector[ 0 ] = boost::make_shared< ephemerides::ApproximatePlanetPositions >( ephemerides::ApproximatePlanetPositionsBase::BodiesWithEphemerisData::earthMoonBarycenter );
     ephemerisVector[ 1 ] = boost::make_shared< ephemerides::ApproximatePlanetPositions >( ephemerides::ApproximatePlanetPositionsBase::BodiesWithEphemerisData::earthMoonBarycenter );
     ephemerisVector[ 2 ] = boost::make_shared< ephemerides::ApproximatePlanetPositions >( ephemerides::ApproximatePlanetPositionsBase::BodiesWithEphemerisData::venus );
     ephemerisVector[ 3 ] = boost::make_shared< ephemerides::ApproximatePlanetPositions >( ephemerides::ApproximatePlanetPositionsBase::BodiesWithEphemerisData::venus );
     ephemerisVector[ 4 ] = boost::make_shared< ephemerides::ApproximatePlanetPositions >( ephemerides::ApproximatePlanetPositionsBase::BodiesWithEphemerisData::mercury );
-    ephemerisVector[ 5 ] = boost::make_shared< ephemerides::ApproximatePlanetPositions >( ephemerides::ApproximatePlanetPositionsBase::BodiesWithEphemerisData::mercury );
-
 
     // Create gravitational parameter vector
     Eigen::VectorXd gravitationalParameterVector( numberOfLegs );
@@ -241,15 +238,13 @@ BOOST_AUTO_TEST_CASE( testMGA1DSMVFTrajectory2 )
 
     // Create the ephemeris vector.
     std::vector< ephemerides::EphemerisPointer >
-            ephemerisVector( numberOfLegs + 1 );
+            ephemerisVector( numberOfLegs );
     ephemerisVector[ 0 ] = boost::make_shared< ephemerides::ApproximatePlanetPositions >( ephemerides::ApproximatePlanetPositionsBase::BodiesWithEphemerisData::earthMoonBarycenter );
     ephemerisVector[ 1 ] = boost::make_shared< ephemerides::ApproximatePlanetPositions >( ephemerides::ApproximatePlanetPositionsBase::BodiesWithEphemerisData::venus );
     ephemerisVector[ 2 ] = boost::make_shared< ephemerides::ApproximatePlanetPositions >( ephemerides::ApproximatePlanetPositionsBase::BodiesWithEphemerisData::venus );
     ephemerisVector[ 3 ] = boost::make_shared< ephemerides::ApproximatePlanetPositions >( ephemerides::ApproximatePlanetPositionsBase::BodiesWithEphemerisData::earthMoonBarycenter );
     ephemerisVector[ 4 ] = boost::make_shared< ephemerides::ApproximatePlanetPositions >( ephemerides::ApproximatePlanetPositionsBase::BodiesWithEphemerisData::jupiter );
     ephemerisVector[ 5 ] = boost::make_shared< ephemerides::ApproximatePlanetPositions >( ephemerides::ApproximatePlanetPositionsBase::BodiesWithEphemerisData::saturn );
-    ephemerisVector[ 6 ] = boost::make_shared< ephemerides::ApproximatePlanetPositions >( ephemerides::ApproximatePlanetPositionsBase::BodiesWithEphemerisData::saturn );
-
     // Create gravitational parameter vector
     Eigen::VectorXd gravitationalParameterVector( numberOfLegs );
     gravitationalParameterVector << 3.9860119e14, 3.24860e14, 3.24860e14, 3.9860119e14, 1.267e17,
@@ -325,14 +320,13 @@ BOOST_AUTO_TEST_CASE( testUpdateMGATrajectory )
 
     // Create the ephemeris vector.
     std::vector< ephemerides::EphemerisPointer >
-            ephemerisVector( numberOfLegs + 1 );
+            ephemerisVector( numberOfLegs );
     ephemerisVector[ 0 ] = boost::make_shared< ephemerides::ApproximatePlanetPositions >( ephemerides::ApproximatePlanetPositionsBase::BodiesWithEphemerisData::earthMoonBarycenter );
     ephemerisVector[ 1 ] = boost::make_shared< ephemerides::ApproximatePlanetPositions >( ephemerides::ApproximatePlanetPositionsBase::BodiesWithEphemerisData::venus );
     ephemerisVector[ 2 ] = boost::make_shared< ephemerides::ApproximatePlanetPositions >( ephemerides::ApproximatePlanetPositionsBase::BodiesWithEphemerisData::venus );
     ephemerisVector[ 3 ] = boost::make_shared< ephemerides::ApproximatePlanetPositions >( ephemerides::ApproximatePlanetPositionsBase::BodiesWithEphemerisData::earthMoonBarycenter );
     ephemerisVector[ 4 ] = boost::make_shared< ephemerides::ApproximatePlanetPositions >( ephemerides::ApproximatePlanetPositionsBase::BodiesWithEphemerisData::jupiter );
     ephemerisVector[ 5 ] = boost::make_shared< ephemerides::ApproximatePlanetPositions >( ephemerides::ApproximatePlanetPositionsBase::BodiesWithEphemerisData::saturn );
-    ephemerisVector[ 6 ] = boost::make_shared< ephemerides::ApproximatePlanetPositions >( ephemerides::ApproximatePlanetPositionsBase::BodiesWithEphemerisData::saturn );
 
     // Create gravitational parameter vector
     Eigen::VectorXd gravitationalParameterVector( numberOfLegs );
@@ -412,13 +406,12 @@ BOOST_AUTO_TEST_CASE( testUpdateMGA1DSMVFTrajectory )
 
     // Create the ephemeris vector.
     std::vector< ephemerides::EphemerisPointer >
-            ephemerisVector( numberOfLegs + 1 );
+            ephemerisVector( numberOfLegs );
     ephemerisVector[ 0 ] = boost::make_shared< ephemerides::ApproximatePlanetPositions >( ephemerides::ApproximatePlanetPositionsBase::BodiesWithEphemerisData::earthMoonBarycenter );
     ephemerisVector[ 1 ] = boost::make_shared< ephemerides::ApproximatePlanetPositions >( ephemerides::ApproximatePlanetPositionsBase::BodiesWithEphemerisData::earthMoonBarycenter );
     ephemerisVector[ 2 ] = boost::make_shared< ephemerides::ApproximatePlanetPositions >( ephemerides::ApproximatePlanetPositionsBase::BodiesWithEphemerisData::venus );
     ephemerisVector[ 3 ] = boost::make_shared< ephemerides::ApproximatePlanetPositions >( ephemerides::ApproximatePlanetPositionsBase::BodiesWithEphemerisData::venus );
     ephemerisVector[ 4 ] = boost::make_shared< ephemerides::ApproximatePlanetPositions >( ephemerides::ApproximatePlanetPositionsBase::BodiesWithEphemerisData::mercury );
-    ephemerisVector[ 5 ] = boost::make_shared< ephemerides::ApproximatePlanetPositions >( ephemerides::ApproximatePlanetPositionsBase::BodiesWithEphemerisData::mercury );
 
     // Create gravitational parameter vector
     Eigen::VectorXd gravitationalParameterVector( numberOfLegs );

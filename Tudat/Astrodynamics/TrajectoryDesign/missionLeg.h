@@ -58,13 +58,20 @@ class MissionLeg
 {
 public:
 
-    MissionLeg( ){ }
+    MissionLeg(const Eigen::Vector3d& departureBodyPosition,
+               const double timeOfFlight,
+               const Eigen::Vector3d& departureBodyVelocity,
+               const double centralBodyGravitationalParameter ):
+            departureBodyPosition_( departureBodyPosition ),
+            timeOfFlight_( timeOfFlight ),
+            departureBodyVelocity_( departureBodyVelocity ),
+            centralBodyGravitationalParameter_( centralBodyGravitationalParameter ){ }
 
     //! virtual destructor.
     /*!
      * virtual destructor.
      */
-    virtual ~MissionLeg( ){ }
+          virtual ~MissionLeg( ){ }
 
     //! Calculate the leg.
     /*!
