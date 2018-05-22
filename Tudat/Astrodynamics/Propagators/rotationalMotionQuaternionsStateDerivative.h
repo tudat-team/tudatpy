@@ -166,7 +166,7 @@ public:
      * in case its magnitude differs from 1.0 by a value larger than the tolerance.
      * \param unprocessedState State computed after propagation.
      */
-    void postProcessState( Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& unprocessedState )
+    void postProcessState( Eigen::Block< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > unprocessedState )
     {
         // Loop over each body
         const double tolerance = 20.0 * std::numeric_limits< double >::epsilon( );

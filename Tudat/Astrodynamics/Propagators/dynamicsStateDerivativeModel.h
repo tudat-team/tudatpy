@@ -392,9 +392,12 @@ public:
             currentIndices = propagatedStateIndices_.at( stateDerivativeModelsIterator_->first );
             for( unsigned int i = 0; i < stateDerivativeModelsIterator_->second.size( ); i++ )
             {
-                stateDerivativeModelsIterator_->second.at( i )->postProcessState(
-                            unprocessedState.block( currentIndices.at( i ).first, dynamicsStartColumn_,
-                                                    currentIndices.at( i ).second, 1 ) );
+            	if ( stateDerivativeModelsIterator_->second.at( i )->isStateToBePostProcessed( ) )
+                {
+                	stateDerivativeModelsIterator_->second.at( i )->postProcessState(
+                            	unprocessedState.block( currentIndices.at( i ).first, dynamicsStartColumn_,
+                                                    	currentIndices.at( i ).second, 1 ) );
+               	}
             }
         }
     }
@@ -416,9 +419,12 @@ public:
             currentIndices = propagatedStateIndices_.at( stateDerivativeModelsIterator_->first );
             for( unsigned int i = 0; i < stateDerivativeModelsIterator_->second.size( ); i++ )
             {
-                stateDerivativeModelsIterator_->second.at( i )->postProcessState(
-                            unprocessedState.block( currentIndices.at( i ).first, dynamicsStartColumn_,
-                                                    currentIndices.at( i ).second, 1 ) );
+            	if ( stateDerivativeModelsIterator_->second.at( i )->isStateToBePostProcessed( ) )
+                {
+                	stateDerivativeModelsIterator_->second.at( i )->postProcessState(
+                            	unprocessedState.block( currentIndices.at( i ).first, dynamicsStartColumn_,
+                                                    	currentIndices.at( i ).second, 1 ) );
+               	}
             }
         }
     }
