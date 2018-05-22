@@ -48,7 +48,7 @@ Eigen::Vector4d convertModifiedRodriguesParametersToQuaternionElements( const Ei
  * \param quaternionElements Vector of quaternion elements.
  * \return convertedExponentialMapElements Vector of (shadow) exponential map elements.
  */
-Eigen::Vector3d convertQuaternionsToExponentialMapElements( const Eigen::Vector4d& quaternionElements );
+Eigen::Vector4d convertQuaternionsToExponentialMapElements( const Eigen::Vector4d& quaternionElements );
 
 //! Convert exponential map to quaternions.
 /*!
@@ -57,7 +57,7 @@ Eigen::Vector3d convertQuaternionsToExponentialMapElements( const Eigen::Vector4
  * \param exponentialMapElements Vector of (shadow) exponential map elements.
  * \return convertedQuaternionElements Vector of quaternion elements.
  */
-Eigen::Vector4d convertExponentialMapToQuaternionElements( const Eigen::Vector3d& exponentialMapElements );
+Eigen::Vector4d convertExponentialMapToQuaternionElements( const Eigen::Vector4d& exponentialMapElements );
 
 } // namespace orbital_element_conversions
 
