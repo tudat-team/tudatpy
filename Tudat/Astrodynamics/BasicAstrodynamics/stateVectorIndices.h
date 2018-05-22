@@ -95,7 +95,8 @@ enum UnifiedStateModelExponentialMapElementIndices
     Rf2HodographUSMEMIndex = 2,
     e1USMEMIndex = 3,
     e2USMEMIndex = 4,
-    e3USMEMIndex = 5
+    e3USMEMIndex = 5,
+    shadowFlagUSMEMIndex = 6
 };
 
 //! Quaternions indices.
@@ -121,7 +122,8 @@ enum ExponentialMapElementIndices
 {
     e1ExponentialMapIndex = 0,
     e2ExponentialMapIndex = 1,
-    e3ExponentialMapIndex = 2
+    e3ExponentialMapIndex = 2,
+    shadowFlagExponentialMapIndex = 3
 };
 
 } // namespace orbital_element_conversions
