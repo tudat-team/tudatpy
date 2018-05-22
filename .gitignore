@@ -7,9 +7,6 @@
 /Tudat/External/SPARTA/data.shape
 /Tudat/External/SPARTA/in.sparta
 /Tudat/External/SPARTA/log.sparta
-# Do not track MCD
-/Tudat/External/AtmosphereTables/MCDMeanAtmosphere.dat
-/Tudat/External/AtmosphereTables/MCDMeanAtmosphereTimeAverage/
 
 #
 # CMake 
