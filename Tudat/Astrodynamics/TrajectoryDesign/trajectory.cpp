@@ -276,9 +276,6 @@ bool Trajectory::incorrectSize( )
         std::cerr << "\nIncorrect size of trajectoryDefiningParameterVector.";
         return true;
     }
-
-    // Add check for minimum pericenter radii, semi major axes and eccentricities.
-
     return false;
 }
 
