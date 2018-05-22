@@ -353,6 +353,76 @@ public:
         }
     }
 
+    //! Function to process the state history after propagation.
+    /*!
+     * Function to process the state history after propagation.
+     * \param unprocessedStateHistory State history before normalization
+     */
+    void processStateHistory( std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >& unprocessedStateHistory )
+    {
+        // Iterate over all state derivative models and post-process associated state entries
+        std::vector< std::pair< int, int > > currentIndices;
+        for( stateDerivativeModelsIterator_ = stateDerivativeModels_.begin( );
+             stateDerivativeModelsIterator_ != stateDerivativeModels_.end( );
+             stateDerivativeModelsIterator_++ )
+        {
+            currentIndices = propagatedStateIndices_.at( stateDerivativeModelsIterator_->first );
+            for( unsigned int i = 0; i < stateDerivativeModelsIterator_->second.size( ); i++ )
+            {
+                stateDerivativeModelsIterator_->second.at( i )->postProcessState(
+                            unprocessedState.block( currentIndices.at( i ).first, dynamicsStartColumn_,
+                                                    currentIndices.at( i ).second, 1 ) );
+            }
+        }
+    }
+
+    //! Function to process the state vector during propagation.
+    /*!
+     * Function to process the state vector during propagation
+     * \param unprocessedState State before normalization
+     */
+    void postProcessState( Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& unprocessedState )
+    {
+        // Iterate over all state derivative models and post-process associated state entries
+        std::vector< std::pair< int, int > > currentIndices;
+        for( stateDerivativeModelsIterator_ = stateDerivativeModels_.begin( );
+             stateDerivativeModelsIterator_ != stateDerivativeModels_.end( );
+             stateDerivativeModelsIterator_++ )
+        {
+            currentIndices = propagatedStateIndices_.at( stateDerivativeModelsIterator_->first );
+            for( unsigned int i = 0; i < stateDerivativeModelsIterator_->second.size( ); i++ )
+            {
+                stateDerivativeModelsIterator_->second.at( i )->postProcessState(
+                            unprocessedState.block( currentIndices.at( i ).first, dynamicsStartColumn_,
+                                                    currentIndices.at( i ).second, 1 ) );
+            }
+        }
+    }
+
+    //! Function to process the state vector and variational equations during propagation.
+    /*!
+     * Function to process the state vector and variational equations during propagation
+     * \param unprocessedState State before normalization
+     */
+    void postProcessStateAndVariationalEquations(
+            Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >& unprocessedState )
+    {
+        // Iterate over all state derivative models and post-process associated state entries
+        std::vector< std::pair< int, int > > currentIndices;
+        for( stateDerivativeModelsIterator_ = stateDerivativeModels_.begin( );
+             stateDerivativeModelsIterator_ != stateDerivativeModels_.end( );
+             stateDerivativeModelsIterator_++ )
+        {
+            currentIndices = propagatedStateIndices_.at( stateDerivativeModelsIterator_->first );
+            for( unsigned int i = 0; i < stateDerivativeModelsIterator_->second.size( ); i++ )
+            {
+                stateDerivativeModelsIterator_->second.at( i )->postProcessState(
+                            unprocessedState.block( currentIndices.at( i ).first, dynamicsStartColumn_,
+                                                    currentIndices.at( i ).second, 1 ) );
+            }
+        }
+    }
+
     //! Function to add variational equations to the state derivative model
     /*!
      * Function to add variational equations to the state derivative model.
@@ -513,53 +583,6 @@ public:
     void resetCumulativeFunctionEvaluationCounter( )
     {
         cumulativeFunctionEvaluationCounter_.clear( );
-    }
-
-    //! Function to process the state vector during propagation.
-    /*!
-     * Function to process the state vector during propagation
-     * \param state State before normalization
-     */
-    void postProcessState( Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& unprocessedState )
-    {
-        // Iterate over all state derivative models and post-process associated state entries
-        std::vector< std::pair< int, int > > currentIndices;
-        for( stateDerivativeModelsIterator_ = stateDerivativeModels_.begin( );
-             stateDerivativeModelsIterator_ != stateDerivativeModels_.end( );
-             stateDerivativeModelsIterator_++ )
-        {
-            currentIndices = propagatedStateIndices_.at( stateDerivativeModelsIterator_->first );
-            for( unsigned int i = 0; i < stateDerivativeModelsIterator_->second.size( ); i++ )
-            {
-                stateDerivativeModelsIterator_->second.at( i )->postProcessState(
-                            unprocessedState.block( currentIndices.at( i ).first, dynamicsStartColumn_,
-                                                    currentIndices.at( i ).second, 1 ) );
-            }
-        }
-    }
-
-    //! Function to process the state vector and variational equations during propagation.
-    /*!
-     * Function to process the state vector and variational equations during propagation
-     * \param state State before normalization
-     */
-    void postProcessStateAndVariationalEquations( Eigen::Matrix< StateScalarType, Eigen::Dynamic,
-                                                  Eigen::Dynamic >& unprocessedState )
-    {
-        // Iterate over all state derivative models and post-process associated state entries
-        std::vector< std::pair< int, int > > currentIndices;
-        for( stateDerivativeModelsIterator_ = stateDerivativeModels_.begin( );
-             stateDerivativeModelsIterator_ != stateDerivativeModels_.end( );
-             stateDerivativeModelsIterator_++ )
-        {
-            currentIndices = propagatedStateIndices_.at( stateDerivativeModelsIterator_->first );
-            for( unsigned int i = 0; i < stateDerivativeModelsIterator_->second.size( ); i++ )
-            {
-                stateDerivativeModelsIterator_->second.at( i )->postProcessState(
-                            unprocessedState.block( currentIndices.at( i ).first, dynamicsStartColumn_,
-                                                    currentIndices.at( i ).second, 1 ) );
-            }
-        }
     }
 
 private:

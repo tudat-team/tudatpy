@@ -16,6 +16,7 @@
 #include "Tudat/Astrodynamics/BasicAstrodynamics/stateVectorIndices.h"
 
 #include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
+#include "Tudat/Mathematics/BasicMathematics/linearAlgebra.h"
 #include "Tudat/Mathematics/Statistics/basicStatistics.h"
 
 #include "Tudat/Basics/utilities.h"
@@ -150,7 +151,6 @@ void convertQuaternionHistoryToMatchSigns( std::map< double, Eigen::Vector4d >& 
     }
 
     // Compute numerical derivative of first quaternion elements
-    std::cout << "Rows: " << quaternionHistoryMatrix.rows( ) << ", cols: " << quaternionHistoryMatrix.cols( ) << std::endl;
     Eigen::VectorXd vectorOfEtas = quaternionHistoryMatrix.row( etaQuaternionIndex ).transpose( );
     Eigen::VectorXd timeDerivativeOfEtas;
     timeDerivativeOfEtas.resize( numberOfRows - 1, 1 );
@@ -162,7 +162,37 @@ void convertQuaternionHistoryToMatchSigns( std::map< double, Eigen::Vector4d >& 
     }
 
     // Get standard deviation of first elements
-    double conversionThreshold = statistics::computeStandardDeviationOfVectorComponents( timeDerivativeOfEtas );
+    double threshold = statistics::computeStandardDeviationOfVectorComponents( timeDerivativeOfEtas );
+
+    // Compute difference in time derivative
+    Eigen::VectorXd differenceInTimeDerivative;
+    differenceInTimeDerivative.resize( numberOfRows - 2, 1 );
+    for ( unsigned int i = 0; i < numberOfRows - 2; i++ )
+    {
+        differenceInTimeDerivative[ i ] = timeDerivativeOfEtas[ i + 1 ] - timeDerivativeOfEtas[ i ];
+    }
+
+    // Get indices of derivatives beyond the threshold
+    std::vector< unsigned int > indices;
+    for ( unsigned int i = 0; i < differenceInTimeDerivative.size( ); i++ )
+    {
+        if ( differenceInTimeDerivative[ i ] > threshold )
+        {
+            indices.push_back( i );
+        }
+    }
+
+    // Invert quaternions based on indices
+    if ( !indices.empty( ) )
+    {
+        for ( unsigned int index: indices )
+        {
+            for ( unsigned int i = index; i < vectorOfEtas.size( ); i++ )
+            {
+                quaternionHistoryMap[ timeHistoryVector[ i + 2 ] ] *= - 1.0;
+            }
+        }
+    }
 }
 
 //! Transform quaternion in translational or rotational state to opposite rotation.
