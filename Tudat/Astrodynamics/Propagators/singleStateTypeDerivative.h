@@ -197,28 +197,9 @@ public:
      * and transformation to/from shadow attitude parameters).
      * \param unprocessedState State computed after propagation.
      */
-    virtual void postProcessState( Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& unprocessedState )
+    virtual void postProcessState( Eigen::Block< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > unprocessedState )
     {
 
-    }
-
-    //! Function to process the state during propagation.
-    /*!
-     * Function to process the state during propagation. Is especially used for attitude states (e.g., normalization of quaternions
-     * and transformation to/from shadow attitude parameters).
-     * \param unprocessedState State computed after propagation.
-     * \param startRow Dummy variable added for compatibility issues between Eigen::Matrix and Eigen::Block.
-     * \param startColumn Dummy variable added for compatibility issues between Eigen::Matrix and Eigen::Block.
-     */
-    virtual void postProcessState(
-            Eigen::Block< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > unprocessedState )
-    {
-        if( isStateToBePostProcessed( ) )
-        {
-            unprocessedState_ = unprocessedState;
-            postProcessState( unprocessedState_ );
-            unprocessedState = unprocessedState_;
-        }
     }
 
     //! Function to return whether the state needs to be post-processed.
@@ -240,7 +221,6 @@ protected:
     Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > unprocessedState_;
 
 };
-
 
 } // namespace propagators
 
