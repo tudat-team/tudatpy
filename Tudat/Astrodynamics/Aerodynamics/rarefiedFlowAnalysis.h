@@ -15,7 +15,6 @@
  *        Department of Energy, July 2017.
  *      Liechty, D., “Aeroheating Analysis for the Mars Reconnaissance Orbiter with Comparison to Flight Data,”
  *        Journal of Spacecraft and Rockets, vol. 44, no. 6, pp. 1226–1231, 2007.
- *
  */
 
 #ifndef TUDAT_RAREFIED_FLOW_ANALYSIS_H
@@ -74,14 +73,28 @@ std::vector< double > getDefaultRarefiedFlowMachPoints(
 std::vector< double > getDefaultRarefiedFlowAngleOfAttackPoints(
         const std::string& angleOfAttackRegime = "Reduced" );
 
+//! Function to sort the rows of a matrix, based on the specified column and specified order.
+/*!
+ *  Function to sort the rows of a matrix, based on the specified column and specified order. Note that
+ *  this function only works if the column to be sorted is made up of consecutive integers (in a scrambled
+ *  order, of course).
+ *  \param matrixToBeSorted Matrix that has to be sorted.
+ *  \param referenceColumn Column to be used as reference for the sorting.
+ *  \param descendingOrder Boolean to toggle sorting in descending order.
+ *  \return Matrix where the rows have been sorted based on the specified column number.
+ */
+Eigen::Matrix< double, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor > sortMatrixRows(
+        const Eigen::Matrix< double, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor >& matrixToBeSorted,
+        const int referenceColumn, const bool descendingOrder = false );
+
 //! Class for aerodynamic analysis in rarefied flow using the SPARTA DSMC method.
 /*!
- *  Class for aerodynamic analysis in rarefied flow using the SPARTA DSMC method.
- *  This method uses a Monte Carlo simulation, to determine the pressure and shear forces
- *  acting on each element of the vehicle. These values are output by default every 200 time
- *  steps, and are used to compute the average pressure and friction coefficients on each surface
+ *  Class for aerodynamic analysis in rarefied flow using the SPARTA DSMC (Direct Simulation
+ *  Monte Carlo) method. This method uses a Monte Carlo simulation, to determine the pressure and
+ *  shear forces acting on each element of the vehicle. These values are output by default every 200
+ *  time steps, and are used to compute the average pressure and friction coefficients on each surface
  *  element, which are then translated to aerodynamic coefficients for the whole surface. One can
- *  find a description of the SPARTA software as Reference [1,2], where the second reference is the
+ *  find a description of the SPARTA software in references [1,2], where the second reference is the
  *  official user manual. The user should also pay careful attention to the requirements for the geometry
  *  of the vehicle to be analyzed.
  */
@@ -91,9 +104,7 @@ public:
 
     //! Default constructor.
     /*!
-     *  Default constructor of class, specified vehicle geometry, discretization properties,
-     *  independent variable ranges, reference values and local inclination methods that are
-     *  to be used
+     *  Default constructor for SPARTA rarefied flow simulation.
      *  \param SPARTAExecutable Path to executable for SPARTA simulation.
      *  \param dataPointsOfIndependentVariables Vector of vectors, with each subvector containing
      *          the data points of each of the independent variables for the coefficient generation.
@@ -118,6 +129,12 @@ public:
      *  \param accommodationCoefficient Accommodation coefficient of the surface of the vehicle. This
      *          value indicates the degree of diffusivity during molecular-surface collisions (default value
      *          is 1.0, i.e., diffuse reflection).
+     *  \param printProgressInCommandWindow Boolean to toggle appearance of SPARTA output in command
+     *          window (default is false).
+     *  \param MPIExecutable Path to executable for multi-processor computing software (default is none).
+     *  \param numberOfCores Number of cores to be allocated for multi-processor computing of
+     *          SPARTA simulation (default is 0). Note that this value can only be used if the path to MPI
+     *          is set. Furthermore, the number of cores has to be an integer larger or equal to one.
      */
     RarefiedFlowAnalysis(
             const std::string& SPARTAExecutable,
@@ -132,7 +149,10 @@ public:
             const double gridSpacing,
             const double simulatedParticlesPerCell,
             const double wallTemperature = 300.0,
-            const double accommodationCoefficient = 1.0 );
+            const double accommodationCoefficient = 1.0,
+            const bool printProgressInCommandWindow = false,
+            const std::string MPIExecutable = "",
+            const unsigned int numberOfCores = 0 );
 
     //! Default destructor.
     /*!
@@ -163,11 +183,11 @@ private:
      */
     void analyzeGeometryFile( const std::string& geometryFileUser );
 
-    //! Get conditions for simulation.
+    //! Retrieve simulation conditions based on input and geometry.
     /*!
-     *  Get conditions for simulation, including simulation environment boundaries, velocity of incoming flow,
-     *  time step of simulation (set as 10 % of the time needed for a particle to traverse the simulation
-     *  environment), and ratio of real-to-simulated particles.
+     *  Retrieve simulation conditions based on input and geometry, including simulation environment boundaries,
+     *  velocity of incoming flow, time step of simulation (set as 10 % of the time needed for a particle to
+     *  traverse the simulation environment), and ratio of real-to-simulated particles.
      */
     void getSimulationConditions( );
 
@@ -190,6 +210,12 @@ private:
     std::string simulationGases_;
 
     //! Reference axis for the aerodynamic analysis.
+    /*!
+     *  Reference axis for the aerodynamic analysis. This axis is used to set very important paramters for
+     *  the simulation, e.g., the velocity direction, reference surface area, etc. It is thus fundamental
+     *  to get this value right. The axis should be an integer (i.e., a signed integer), such that the flow of
+     *  particles comes from the opposite direction of this axis.
+     */
     int referenceAxis_;
 
     //! Grid size for simulation environment.
@@ -207,6 +233,34 @@ private:
 
     //! Accommodation coefficient of surface of vehicle.
     double accommodationCoefficient_;
+
+    //! Boolean to toggle showing of progress in command window.
+    /*!
+     *  Boolean to toggle showing of progress in command window. SPARTA outputs information on the geometry and other environment
+     *  details, and during the simulation it prints statistics on the progress. This value is set to false by default.
+     */
+    bool printProgressInCommandWindow_;
+
+    //! Path to open MPI executable.
+    /*!
+     *  Path to open MPI executable. Note that open MPI is an external software and needs to be compiled before
+     *  it can be used in Tudat. See the instructions on the website https://www.open-mpi.org.
+     */
+    std::string MPIExecutable_;
+
+    //! Number of cores to be used to run the simulation with open MPI.
+    /*!
+     *  Number of cores to be used to run the simulation with open MPI. Note that this can only be used if a path to the MPI
+     *  executable has been set.
+     */
+    unsigned int numberOfCores_;
+
+    //! Reference dimension for the aerodynamic analysis.
+    /*!
+     *  Reference dimension for the aerodynamic analysis. This value is based on the referenceAxis_ variable, but
+     *  without the information on the sign, such that it can be used to access vector entries.
+     */
+    unsigned int referenceDimension_;
 
     //! List of points making up the vehicle geometry.
     /*!

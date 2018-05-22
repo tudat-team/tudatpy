@@ -64,5 +64,4 @@ std::vector< boost::shared_ptr< TorqueModel > > getTorqueModelsOfType(
 
 }
 
-
 #endif // TUDAT_TORQUEMODELTYPES_H

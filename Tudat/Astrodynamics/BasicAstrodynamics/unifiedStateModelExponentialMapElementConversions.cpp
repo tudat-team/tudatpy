@@ -16,15 +16,13 @@
 
 #include <cmath>
 
-#include "Tudat/Astrodynamics/BasicAstrodynamics/orbitalElementConversions.h"
 #include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
 #include "Tudat/Mathematics/BasicMathematics/basicMathematicsFunctions.h"
 
-#include "Tudat/Astrodynamics/BasicAstrodynamics/missionGeometry.h"
-#include "Tudat/Astrodynamics/BasicAstrodynamics/unifiedStateModelExponentialMapElementConversions.h"
+#include "Tudat/Astrodynamics/BasicAstrodynamics/attitudeElementConversions.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/stateVectorIndices.h"
-
-#include "Tudat/Astrodynamics/BasicAstrodynamics/unifiedStateModelQuaternionsElementConversions.h"
+#include "Tudat/Astrodynamics/BasicAstrodynamics/unifiedStateModelExponentialMapElementConversions.h"
+#include "Tudat/Astrodynamics/BasicAstrodynamics/unifiedStateModelQuaternionElementConversions.h"
 
 namespace tudat
 {
@@ -167,12 +165,12 @@ Eigen::Vector6d convertKeplerianToUnifiedStateModelExponentialMapElements(
     if ( std::fabs( keplerianElements( eccentricityIndex ) - 1.0) < singularityTolerance )
         // parabolic orbit -> semi-major axis is not defined
     {
-        convertedUnifiedStateModelElements( CHodographExponentialMapIndex ) =
+        convertedUnifiedStateModelElements( CHodographUSMEMIndex ) =
                 std::sqrt( centralBodyGravitationalParameter / keplerianElements( semiLatusRectumIndex ) );
     }
     else
     {
-        convertedUnifiedStateModelElements( CHodographExponentialMapIndex ) =
+        convertedUnifiedStateModelElements( CHodographUSMEMIndex ) =
                 std::sqrt( centralBodyGravitationalParameter / ( keplerianElements( semiMajorAxisIndex )
                                                                  * ( 1 - keplerianElements( eccentricityIndex ) *
                                                                      keplerianElements( eccentricityIndex ) ) ) );
@@ -180,15 +178,15 @@ Eigen::Vector6d convertKeplerianToUnifiedStateModelExponentialMapElements(
 
     // Calculate the additional R hodograph parameter
     double RHodographElement = keplerianElements( eccentricityIndex ) *
-            convertedUnifiedStateModelElements( CHodographExponentialMapIndex );
+            convertedUnifiedStateModelElements( CHodographUSMEMIndex );
 
     // Compute the Rf1 hodograph element of the unified state model
-    convertedUnifiedStateModelElements( Rf1HodographExponentialMapIndex ) =
+    convertedUnifiedStateModelElements( Rf1HodographUSMEMIndex ) =
             - RHodographElement * std::sin( keplerianElements( longitudeOfAscendingNodeIndex )
                                             + keplerianElements( argumentOfPeriapsisIndex ) );
 
     // Compute the Rf2 hodograph element of the unified state model
-    convertedUnifiedStateModelElements( Rf2HodographExponentialMapIndex ) =
+    convertedUnifiedStateModelElements( Rf2HodographUSMEMIndex ) =
             RHodographElement * std::cos( keplerianElements( longitudeOfAscendingNodeIndex )
                                           + keplerianElements( argumentOfPeriapsisIndex ) );
 
@@ -212,7 +210,7 @@ Eigen::Vector6d convertKeplerianToUnifiedStateModelExponentialMapElements(
     if ( std::fabs( exponentialMapMagnitude ) < singularityTolerance )
     {
         // If rotation angle is zero, the exponential map vector is the zero vector
-        convertedUnifiedStateModelElements.segment( e1ExponentialMapIndex, 3 ) = Eigen::Vector3d::Zero( );
+        convertedUnifiedStateModelElements.segment( e1USMEMIndex, 3 ) = Eigen::Vector3d::Zero( );
     }
     else
     {
@@ -220,17 +218,17 @@ Eigen::Vector6d convertKeplerianToUnifiedStateModelExponentialMapElements(
         double multiplicationFactor = exponentialMapMagnitude / std::sin( 0.5 * exponentialMapMagnitude );
 
         // Compute the e1 exponential map of the unified state model
-        convertedUnifiedStateModelElements( e1ExponentialMapIndex ) =
+        convertedUnifiedStateModelElements( e1USMEMIndex ) =
                 multiplicationFactor * std::sin( 0.5 * keplerianElements( inclinationIndex ) ) *
                 std::cos( 0.5 * ( keplerianElements( longitudeOfAscendingNodeIndex ) - argumentOfLatitude ) );
 
         // Compute the e2 exponential map of the unified state model
-        convertedUnifiedStateModelElements( e2ExponentialMapIndex ) =
+        convertedUnifiedStateModelElements( e2USMEMIndex ) =
                 multiplicationFactor * std::sin( 0.5 * keplerianElements( inclinationIndex ) ) *
                 std::sin( 0.5 * ( keplerianElements( longitudeOfAscendingNodeIndex ) - argumentOfLatitude ) );
 
         // Compute the e3 exponential map of the unified state model
-        convertedUnifiedStateModelElements( e3ExponentialMapIndex ) =
+        convertedUnifiedStateModelElements( e3USMEMIndex ) =
                 multiplicationFactor * std::cos( 0.5 * keplerianElements( inclinationIndex ) ) *
                 std::sin( 0.5 * rightAscensionOfLatitude );
     }
@@ -253,7 +251,7 @@ Eigen::Vector6d convertUnifiedStateModelExponentialMapToKeplerianElements(
     const double singularityTolerance = 20.0 * std::numeric_limits< double >::epsilon( );
 
     // Compute auxiliary parameters
-    Eigen::Vector3d exponentialMapVector = unifiedStateModelElements.segment( e1ExponentialMapIndex, 3 );
+    Eigen::Vector3d exponentialMapVector = unifiedStateModelElements.segment( e1USMEMIndex, 3 );
     double exponentialMapMagnitude = exponentialMapVector.norm( ); // magnitude of exponential map, also called xi
     Eigen::Vector3d eulerEigenaxisVector = Eigen::Vector3d::Zero( ); // Euler eigenaxis vector (unit vector)
 
@@ -273,7 +271,7 @@ Eigen::Vector6d convertUnifiedStateModelExponentialMapToKeplerianElements(
         eulerEigenaxisVector = exponentialMapVector / exponentialMapMagnitude;
 
         // Find lambda
-        rightAscensionOfLatitude = 2.0 * std::atan2( eulerEigenaxisVector( e3ExponentialMapIndex - 3 ) *
+        rightAscensionOfLatitude = 2.0 * std::atan2( eulerEigenaxisVector( e3USMEMIndex - 3 ) *
                                                      std::sin( 0.5 * exponentialMapMagnitude ),
                                                      std::cos( 0.5 * exponentialMapMagnitude ) );
     }
@@ -283,35 +281,35 @@ Eigen::Vector6d convertUnifiedStateModelExponentialMapToKeplerianElements(
     double sineLambda = std::sin( rightAscensionOfLatitude );
 
     // Compute auxiliary parameters auxiliaryParameter1 and auxiliaryParameter2
-    double auxiliaryParameter1 = unifiedStateModelElements( Rf1HodographExponentialMapIndex ) * cosineLambda +
-            unifiedStateModelElements( Rf2HodographExponentialMapIndex ) * sineLambda;
-    double auxiliaryParameter2 = unifiedStateModelElements( CHodographExponentialMapIndex ) -
-            unifiedStateModelElements( Rf1HodographExponentialMapIndex ) * sineLambda +
-            unifiedStateModelElements( Rf2HodographExponentialMapIndex ) * cosineLambda;
+    double auxiliaryParameter1 = unifiedStateModelElements( Rf1HodographUSMEMIndex ) * cosineLambda +
+            unifiedStateModelElements( Rf2HodographUSMEMIndex ) * sineLambda;
+    double auxiliaryParameter2 = unifiedStateModelElements( CHodographUSMEMIndex ) -
+            unifiedStateModelElements( Rf1HodographUSMEMIndex ) * sineLambda +
+            unifiedStateModelElements( Rf2HodographUSMEMIndex ) * cosineLambda;
 
     // Compute auxiliary R hodograph parameter
-    double RHodographElement = std::sqrt( unifiedStateModelElements( Rf1HodographExponentialMapIndex ) *
-                                          unifiedStateModelElements( Rf1HodographExponentialMapIndex ) +
-                                          unifiedStateModelElements( Rf2HodographExponentialMapIndex ) *
-                                          unifiedStateModelElements( Rf2HodographExponentialMapIndex ) );
+    double RHodographElement = std::sqrt( unifiedStateModelElements( Rf1HodographUSMEMIndex ) *
+                                          unifiedStateModelElements( Rf1HodographUSMEMIndex ) +
+                                          unifiedStateModelElements( Rf2HodographUSMEMIndex ) *
+                                          unifiedStateModelElements( Rf2HodographUSMEMIndex ) );
 
     // Compute eccentricity
     convertedKeplerianElements( eccentricityIndex ) =
-            RHodographElement / unifiedStateModelElements( CHodographExponentialMapIndex );
+            RHodographElement / unifiedStateModelElements( CHodographUSMEMIndex );
 
     // Compute semi-major axis or, in case of a parabolic orbit, the semi-latus rectum.
     if ( std::fabs( convertedKeplerianElements( eccentricityIndex ) - 1.0 ) < singularityTolerance )
         // parabolic orbit -> semi-major axis is not defined. Use semi-latus rectum instead.
     {
         convertedKeplerianElements( semiLatusRectumIndex ) = centralBodyGravitationalParameter /
-                ( unifiedStateModelElements( CHodographExponentialMapIndex ) *
-                  unifiedStateModelElements( CHodographExponentialMapIndex ) );
+                ( unifiedStateModelElements( CHodographUSMEMIndex ) *
+                  unifiedStateModelElements( CHodographUSMEMIndex ) );
     }
     else
     {
         convertedKeplerianElements( semiMajorAxisIndex ) =
                 centralBodyGravitationalParameter /
-                ( std::pow( unifiedStateModelElements( CHodographExponentialMapIndex ), 2 ) *
+                ( std::pow( unifiedStateModelElements( CHodographUSMEMIndex ), 2 ) *
                   ( 1 - std::pow( convertedKeplerianElements( eccentricityIndex ), 2 ) ) );
     }
 
@@ -320,16 +318,16 @@ Eigen::Vector6d convertUnifiedStateModelExponentialMapToKeplerianElements(
     {
         // Compute inclination
         convertedKeplerianElements( inclinationIndex ) = std::acos(
-                    ( std::pow( eulerEigenaxisVector( e3ExponentialMapIndex - 3 ), 2 ) - 1.0 ) *
+                    ( std::pow( eulerEigenaxisVector( e3USMEMIndex - 3 ), 2 ) - 1.0 ) *
                     ( 1.0 - std::cos( exponentialMapMagnitude ) ) + 1.0 );
         // this acos is always defined correctly because the inclination is always below pi rad
 
         // Find sine and cosine of longitude of ascending node separately
-        double sineOmega = eulerEigenaxisVector( e1ExponentialMapIndex - 3 ) * eulerEigenaxisVector( e3ExponentialMapIndex - 3 ) *
-                ( 1 - std::cos( exponentialMapMagnitude ) ) + eulerEigenaxisVector( e2ExponentialMapIndex - 3 ) *
+        double sineOmega = eulerEigenaxisVector( e1USMEMIndex - 3 ) * eulerEigenaxisVector( e3USMEMIndex - 3 ) *
+                ( 1 - std::cos( exponentialMapMagnitude ) ) + eulerEigenaxisVector( e2USMEMIndex - 3 ) *
                 std::sin( exponentialMapMagnitude );
-        double cosineOmega = - eulerEigenaxisVector( e2ExponentialMapIndex - 3 ) * eulerEigenaxisVector( e3ExponentialMapIndex - 3 ) *
-                ( 1 - std::cos( exponentialMapMagnitude ) ) + eulerEigenaxisVector( e1ExponentialMapIndex - 3 ) *
+        double cosineOmega = - eulerEigenaxisVector( e2USMEMIndex - 3 ) * eulerEigenaxisVector( e3USMEMIndex - 3 ) *
+                ( 1 - std::cos( exponentialMapMagnitude ) ) + eulerEigenaxisVector( e1USMEMIndex - 3 ) *
                 std::sin( exponentialMapMagnitude );
         double denominator = std::sqrt( cosineOmega * cosineOmega +
                                         sineOmega * sineOmega );
@@ -398,7 +396,7 @@ Eigen::Vector6d convertUnifiedStateModelExponentialMapToKeplerianElements(
     {
         convertedKeplerianElements( trueAnomalyIndex ) =
                 std::atan2( ( auxiliaryParameter1 / RHodographElement ),
-                            ( ( auxiliaryParameter2 - unifiedStateModelElements( CHodographExponentialMapIndex ) )
+                            ( ( auxiliaryParameter2 - unifiedStateModelElements( CHodographUSMEMIndex ) )
                               / RHodographElement ) );
 
         // Round off small theta to zero
@@ -444,43 +442,20 @@ Eigen::Vector6d convertCartesianToUnifiedStateModelExponentialMapElements(
         const Eigen::Vector6d& cartesianElements,
         const double centralBodyGravitationalParameter )
 {
-    using mathematical_constants::PI;
-
     // Declaring eventual output vector.
-    Eigen::Vector6d convertedUnifiedStateModelExponentialMapElements = Eigen::Vector6d::Zero( );
-
-    // Define the tolerance of a singularity
-    const double singularityTolerance = 20.0 * std::numeric_limits< double >::epsilon( );
+    Eigen::Vector6d convertedUnifiedStateModelExponentialMapElements;
 
     // Convert Cartesian to USM7
-    Eigen::Vector7d unifiedStateModelQuaternionsElements =
+    Eigen::Vector7d unifiedStateModelQuaternionElements =
             convertCartesianToUnifiedStateModelQuaternionsElements( cartesianElements,
                                                                     centralBodyGravitationalParameter );
 
-    // Extract quaternions
-    Eigen::Vector3d epsilonQuaternionVector =
-            unifiedStateModelQuaternionsElements.segment( epsilon1QuaternionIndex, 3 );
-    double etaQuaternionParameter = unifiedStateModelQuaternionsElements( etaQuaternionIndex );
-
-    // Convert quaternions to exponential map (or SEM)
-    double exponentialMapMagnitude = 2.0 * std::acos( etaQuaternionParameter );
-    Eigen::Vector3d exponentialMapVector = epsilonQuaternionVector;
-    if ( std::fabs( exponentialMapMagnitude ) < singularityTolerance )
-    {
-        exponentialMapVector *= 48.0 / ( 24.0 - exponentialMapMagnitude * exponentialMapMagnitude );
-    }
-    else
-    {
-        exponentialMapVector *= ( std::fabs( exponentialMapMagnitude ) > PI ) ?
-                    - ( 2.0 * PI - exponentialMapMagnitude ) / std::sin( 0.5 * exponentialMapMagnitude ) : // shadow exponential map
-                    exponentialMapMagnitude / std::sin( 0.5 * exponentialMapMagnitude ); // exponential map
-    }
-    convertedUnifiedStateModelExponentialMapElements.segment( e1ExponentialMapIndex, 3 ) =
-            exponentialMapVector;
+    convertedUnifiedStateModelExponentialMapElements.segment( e1USMEMIndex, 3 ) =
+            convertQuaternionsToExponentialMapElements( unifiedStateModelQuaternionElements.segment( etaUSM7Index, 4 ) );
 
     // Add other elements to USMEM vector
-    convertedUnifiedStateModelExponentialMapElements.segment( CHodographExponentialMapIndex, 3 ) =
-            unifiedStateModelQuaternionsElements.segment( CHodographQuaternionIndex, 3 );
+    convertedUnifiedStateModelExponentialMapElements.segment( CHodographUSMEMIndex, 3 ) =
+            unifiedStateModelQuaternionElements.segment( CHodographUSM7Index, 3 );
 
     // Give back result
     return convertedUnifiedStateModelExponentialMapElements;
@@ -491,38 +466,17 @@ Eigen::Vector6d convertUnifiedStateModelExponentialMapToCartesianElements(
         const Eigen::Vector6d& unifiedStateModelExponentialMapElements,
         const double centralBodyGravitationalParameter )
 {
-    // Define the tolerance of a singularity
-    const double singularityTolerance = 20.0 * std::numeric_limits< double >::epsilon( );
-
     // Create USM7 vector and add velocity hodograph elements
-    Eigen::Vector7d unifiedStateModelQuaternionsElements;
-    unifiedStateModelQuaternionsElements.segment( CHodographQuaternionIndex, 3 ) =
-            unifiedStateModelExponentialMapElements.segment( CHodographExponentialMapIndex, 3 );
-
-    // Extract exponential map
-    Eigen::Vector3d exponentialMapVector =
-            unifiedStateModelExponentialMapElements.segment( e1ExponentialMapIndex, 3 );
-    double exponentialMapMagnitude = exponentialMapVector.norm( );
-
-    // Convert exponential map to quaternions
-    Eigen::Vector3d epsilonQuaternionVector = Eigen::Vector3d::Zero( );
-    if ( std::fabs( exponentialMapMagnitude ) < singularityTolerance )
-    {
-        epsilonQuaternionVector = exponentialMapVector * ( 0.5 - std::pow( exponentialMapMagnitude, 2 ) / 48.0 );
-    }
-    else
-    {
-        epsilonQuaternionVector = exponentialMapVector / exponentialMapMagnitude *
-                std::sin( 0.5 * exponentialMapMagnitude );
-    }
-    double etaQuaternionParameter = std::cos( 0.5 * exponentialMapMagnitude );
+    Eigen::Vector7d unifiedStateModelQuaternionElements;
+    unifiedStateModelQuaternionElements.segment( CHodographUSM7Index, 3 ) =
+            unifiedStateModelExponentialMapElements.segment( CHodographUSMEMIndex, 3 );
 
     // Add quaternions to USM7 vector
-    unifiedStateModelQuaternionsElements.segment( epsilon1QuaternionIndex, 3 ) = epsilonQuaternionVector;
-    unifiedStateModelQuaternionsElements( etaQuaternionIndex ) = etaQuaternionParameter;
+    unifiedStateModelQuaternionElements.segment( etaUSM7Index, 4 ) =
+            convertExponentialMapToQuaternionElements( unifiedStateModelExponentialMapElements.segment( e1USMEMIndex, 3 ) );
 
     // Give back result
-    return convertUnifiedStateModelQuaternionsToCartesianElements( unifiedStateModelQuaternionsElements,
+    return convertUnifiedStateModelQuaternionsToCartesianElements( unifiedStateModelQuaternionElements,
                                                                    centralBodyGravitationalParameter );
 }
 

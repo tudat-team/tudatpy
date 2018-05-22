@@ -43,8 +43,8 @@ Eigen::Vector7d computeStateDerivativeForUnifiedStateModelModifiedRodriguesParam
         const double sineLambdaParameter,
         const double cosineLambdaParameter,
         const double gammaParameter,
-        const Eigen::Vector3d rotationalVelocityVector,
-        const Eigen::Vector3d pParameterVector );
+        const Eigen::Vector3d& rotationalVelocityVector,
+        const Eigen::Vector3d& pParameterVector );
 
 //! Function to evaluate the equations of motion for the unifies state model with modified rodrigues parameters (USM6)
 /*!
@@ -152,7 +152,7 @@ public:
         for( unsigned int i = 0; i < this->bodiesToBeIntegratedNumerically_.size( ); i++ )
         {
             currentAccelerationInRswFrame = reference_frames::getInertialToRswSatelliteCenteredFrameRotationMatrx(
-                        currentCartesianLocalSoluton_.segment( i * 6, 6 ).template cast< double >( ) ) *
+                        currentCartesianLocalSolution_.segment( i * 6, 6 ).template cast< double >( ) ) *
                     stateDerivative.block( i * 6 + 3, 0, 6, 1 ).template cast< double >( );
 
             stateDerivative.block( i * 7, 0, 7, 1 ) = computeStateDerivativeForUnifiedStateModelModifiedRodriguesParameters(
@@ -183,7 +183,7 @@ public:
         for( unsigned int i = 0; i < this->bodiesToBeIntegratedNumerically_.size( ); i++ )
         {
             currentState.segment( i * 7, 7 ) =
-                    orbital_element_conversions::convertCartesianToUnifiedStateModelModifiedRodriguesParametersElements(
+                    orbital_element_conversions::convertCartesianToUnifiedStateModelModifiedRodriguesParameterElements(
                         cartesianSolution.block( i * 6, 0, 6, 1 ).template cast< double >( ), static_cast< double >(
                             centralBodyGravitationalParameters_.at( i )( ) ) ).template cast< StateScalarType >( );
         }
@@ -201,23 +201,22 @@ public:
      * \param internalSolution State in USM6 elemements (i.e. form that is used in
      * numerical integration)
      * \param time Current time at which the state is valid
-     * \param currentCartesianLocalSoluton State (internalSolution, which is Encke-formulation),
-     *  converted to the 'conventional form' (returned by reference).
+     * \param currentCartesianLocalSolution State (internalSolution, which is USM6-formulation),
+     * converted to the 'conventional form' (returned by reference).
      */
     void convertToOutputSolution(
             const Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >& internalSolution, const TimeType& time,
-            Eigen::Block< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > currentCartesianLocalSoluton )
+            Eigen::Block< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > currentCartesianLocalSolution )
     {
         // Convert state to Cartesian for each body
         for( unsigned int i = 0; i < this->bodiesToBeIntegratedNumerically_.size( ); i++ )
         {
-            currentCartesianLocalSoluton.segment( i * 6, 6 ) =
+            currentCartesianLocalSolution.segment( i * 6, 6 ) =
                     orbital_element_conversions::convertUnifiedStateModelModifiedRodriguesParametersToCartesianElements(
                         internalSolution.block( i * 7, 0, 7, 1 ).template cast< double >( ), static_cast< double >(
                             centralBodyGravitationalParameters_.at( i )( ) ) ).template cast< StateScalarType >( );
         }
-
-        currentCartesianLocalSoluton_ = currentCartesianLocalSoluton;
+        currentCartesianLocalSolution_ = currentCartesianLocalSolution;
     }
 
     //! Function to get the acceleration models
@@ -231,20 +230,23 @@ public:
         return originalAccelerationModelsPerBody_;
     }
 
+    //! Function to return the size of the state handled by the object.
+    /*!
+     * Function to return the size of the state handled by the object.
+     * \return Size of the state under consideration (7 times the number if integrated bodies).
+     */
     int getPropagatedStateSize( )
     {
         return 7 * this->bodiesToBeIntegratedNumerically_.size( );
     }
 
-    //! Function to process the state after propagation.
+    //! Function to process the state during propagation.
     /*!
-     * Function to process the state after propagation. For modified Rodrigues parameters (MRP), this function converts to/from
+     * Function to process the state during propagation. For modified Rodrigues parameters (MRP), this function converts to/from
      * shadow modified Rodrigues parameters (SMRP), in case the magnitude of the (S)MRP vector is larger than 1.0.
      * \param unprocessedState State computed after propagation.
-     * \param startRow Dummy variable added for compatibility issues between Eigen::Matrix and Eigen::Block.
      */
-    void postProcessState( Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& unprocessedState,
-                           const int startRow )
+    void postProcessState( Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& unprocessedState )
     {
         // Loop over each body
         Eigen::Matrix< StateScalarType, 3, 1 > modifiedRodriguesParametersVector;
@@ -252,19 +254,19 @@ public:
         for( unsigned int i = 0; i < this->bodiesToBeIntegratedNumerically_.size( ); i++ )
         {
             // Convert to/from shadow modifed Rodrigues parameters (SMRP) (transformation is the same either way)
-            modifiedRodriguesParametersVector = unprocessedState.block( startRow + i * 7 + 3, 0, 3, 1 );
+            modifiedRodriguesParametersVector = unprocessedState.block( i * 7 + 3, 0, 3, 1 );
             modifiedRodriguesParametersMagnitude = modifiedRodriguesParametersVector.norm( );
             if ( modifiedRodriguesParametersMagnitude >= 1.0 )
             {
                 // Invert flag
-                unprocessedState( startRow + i * 7 + 6 ) = std::fabs( unprocessedState( startRow + i * 7 + 6 ) - 1.0 );
+                unprocessedState( i * 7 + 6 ) = std::fabs( unprocessedState( i * 7 + 6 ) - 1.0 );
 
                 // Convert to MRP/SMRP
                 modifiedRodriguesParametersVector /= - modifiedRodriguesParametersMagnitude *
                         modifiedRodriguesParametersMagnitude;
 
                 // Replace MRP with SMPR, or vice-versa
-                unprocessedState.segment( startRow + i * 7 + 3, 3 ) = modifiedRodriguesParametersVector;
+                unprocessedState.segment( i * 7 + 3, 3 ) = modifiedRodriguesParametersVector;
             }
         }
     }
@@ -278,7 +280,6 @@ public:
     {
         return true;
     }
-
 
 private:
 
@@ -297,10 +298,9 @@ private:
      *  Current full Cartesian state of the propagated bodies, w.r.t. the central bodies. These variables are set when calling
      *  the convertToOutputSolution function.
      */
-    Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > currentCartesianLocalSoluton_;
+    Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > currentCartesianLocalSolution_;
 
 };
-
 
 } // namespace propagators
 

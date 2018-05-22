@@ -7,7 +7,8 @@
 - **Input-output**
  	- added class to write multi-dimensional arrays to file
 - **Interpolators**
-	- added option to choose interpolator behavior at boundary (see issue [#378](https://github.com/Tudat/tudat/issues/378)); supported modes: error, extrapolate (with warning), use boundary value (with warning), use default value (with warning)
+	- added option to choose interpolator behavior at boundary (see issue [#378](https://github.com/Tudat/tudat/issues/378)); supported modes: error, extrapolate (with optional warning), use boundary value (with optional warning), use default value (with optional warning)
+	- added interface class `MultiDimensionalInterpolator` to make multi-dimensional interpolation more modular
 - **Orbital Element Conversions**
 	- added conversions for position and velocity state variables: Cartesian<->USM7, Keplerian<->USM7, Cartesian<->USM6, Keplerian<->USM6, Cartesian<->USMEM, Keplerian<->USMEM
 	- added conversions for attitude state variables: quaternion<->MRP, quaternion<->exponential map
@@ -19,5 +20,5 @@
 	- added function to output raw numerical solution
 	- added function to process state during propagation (right after integration step) (also see issue [#364](https://github.com/Tudat/tudat/issues/364))
 - **SPARTA**: added interface for running SPARTA simulations and analyzing its results (see issue [#380](https://github.com/Tudat/tudat/issues/380))
-- **Unit Tests**: all new functions and classes have been included in unit tests, with the exception of: SPARTA
+- **Unit Tests**: all new functions and classes have been included in unit tests, with the exception of: attitude elements conversions, SPARTA
 - Various style, consistency and typo corrections; removed deprecated symbols and warnings

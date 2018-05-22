@@ -21,11 +21,6 @@
  *          http://physics.nist.gov/cuu/Constants/index.html, last accessed: 11th January, 2013.
  *      Wolfram Research, http://scienceworld.wolfram.com/physics/Stefan-BoltzmannLaw.html,
  *          last accessed: 11th January 2013.
- *
- *    Notes
- *      Backwards compatibility of namespaces is implemented for Tudat Core 2 in this file. The
- *      code block marked "DEPRECATED!" at the end of the file should be removed in Tudat Core 3.
- *
  */
 
 #ifndef TUDAT_PHYSICAL_CONSTANTS_H

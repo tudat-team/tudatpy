@@ -22,19 +22,18 @@
 #include <boost/function.hpp>
 
 #include <Eigen/Core>
+#include <Eigen/Geometry>
 
 #include <vector>
 #include <cmath>
 
 #include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
-#include "Tudat/Mathematics/BasicMathematics/linearAlgebra.h"
 #include "Tudat/Basics/basicTypedefs.h"
 
 namespace tudat
 {
 namespace aerodynamics
 {
-
 
 //! Enum defining a list of independent variables on which the aerodynamic coefficients can depend.
 /*!
@@ -52,7 +51,6 @@ enum AerodynamicCoefficientsIndependentVariables
     control_surface_deflection_dependent = 4,
     undefined_independent_variable = 5
 };
-
 
 //! Function to combined the force and moment coefficients from separate function pointers.
 /*!

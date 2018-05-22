@@ -12,7 +12,10 @@
  *          and navigation. Master thesis, Delft University of Technology.
  */
 
+#include "Tudat/Astrodynamics/BasicAstrodynamics/attitudeElementConversions.h"
+
 #include "Tudat/Astrodynamics/Propagators/nBodyUnifiedStateModelExponentialMapStateDerivative.h"
+#include "Tudat/Astrodynamics/Propagators/rotationalMotionExponentialMapStateDerivative.h"
 
 namespace tudat
 {
@@ -27,12 +30,9 @@ Eigen::Vector6d computeStateDerivativeForUnifiedStateModelExponentialMap(
         const double sineLambda,
         const double cosineLambda,
         const double gammaParameter,
-        const Eigen::Vector3d rotationalVelocityVector,
-        const Eigen::Vector3d pAuxiliaryVector )
+        const Eigen::Vector3d& rotationalVelocityVector,
+        const Eigen::Vector3d& pAuxiliaryVector )
 {
-    // Define the tolerance of a singularity
-    double singularityTolerance = 20.0 * std::numeric_limits< double >::epsilon( );
-
     // Compute matrix for dynamic equation
     Eigen::Matrix3d hodographMatrix = Eigen::Matrix3d::Zero( );
     hodographMatrix( 0, 1 ) = - pAuxiliaryVector( 0 );
@@ -43,34 +43,13 @@ Eigen::Vector6d computeStateDerivativeForUnifiedStateModelExponentialMap(
     hodographMatrix( 2, 1 ) = ( 1.0 + pAuxiliaryVector( 0 ) ) * cosineLambda;
     hodographMatrix( 2, 2 ) = gammaParameter * pAuxiliaryVector( 2 );
 
-    // Compute kinematic equation, i.e., derivative of exponential map
-    Eigen::Vector3d exponentialMapVector = currentUnifiedStateModelElements.segment( 3, 3 );
-    double exponentialMapMagnitude = exponentialMapVector.norm( );
-    Eigen::Vector3d exponentialMapDerivative;
-    if ( exponentialMapMagnitude < singularityTolerance )
-    {
-        double exponentialMapMagnitudeSquared = std::pow( exponentialMapMagnitude, 2 );
-        exponentialMapDerivative = 0.5 * ( ( ( 12.0 - exponentialMapMagnitudeSquared ) / 6.0 ) *
-                                           rotationalVelocityVector - rotationalVelocityVector.cross( exponentialMapVector ) -
-                                           rotationalVelocityVector.dot( exponentialMapVector ) *
-                                           ( ( 60.0 + exponentialMapMagnitudeSquared ) / 360.0 ) * exponentialMapVector );
-    }
-    else
-    {
-        double cotangentHalfExponentialMapMagnitude = std::cos( 0.5 * exponentialMapMagnitude ) /
-                std::sin( 0.5 * exponentialMapMagnitude );
-        Eigen::Vector3d exponentialMapCrossRotationalVelocityVector = exponentialMapVector.cross( rotationalVelocityVector );
-        exponentialMapDerivative = rotationalVelocityVector + 0.5 * exponentialMapCrossRotationalVelocityVector +
-                ( 1 - 0.5 * exponentialMapMagnitude * cotangentHalfExponentialMapMagnitude ) /
-                std::pow( exponentialMapMagnitude, 2 ) *
-                exponentialMapVector.cross( exponentialMapCrossRotationalVelocityVector );
-    }
-
     // Evaluate USMEM equations.
     Eigen::Vector6d stateDerivative = Eigen::Vector6d::Zero( );
     stateDerivative.segment( 0, 3 ) = hodographMatrix * accelerationsInRswFrame;
-    stateDerivative.segment( 3, 3 ) = exponentialMapDerivative;
+    stateDerivative.segment( 3, 3 ) = calculateExponentialMapDerivative( currentUnifiedStateModelElements.segment( 3, 3 ),
+                                                                         rotationalVelocityVector );
 
+    // Give output
     return stateDerivative;
 }
 
@@ -82,24 +61,11 @@ Eigen::Vector6d computeStateDerivativeForUnifiedStateModelExponentialMap(
 {
     using namespace orbital_element_conversions;
 
-    // Define the tolerance of a singularity
-    double singularityTolerance = 20.0 * std::numeric_limits< double >::epsilon( );
-
-    // Retrieve USM elements
-    Eigen::Vector3d exponentialMapVector = currentUnifiedStateModelElements.segment( e1ExponentialMapIndex, 3 );
-    double exponentialMapMagnitude = exponentialMapVector.norm( ); // also called xi
-
     // Convert exponential map to quaternions
-    Eigen::Vector3d epsilonQuaternionVector = Eigen::Vector3d::Zero( );
-    if ( std::fabs( exponentialMapMagnitude ) < singularityTolerance )
-    {
-        epsilonQuaternionVector = exponentialMapVector * ( 0.5 - std::pow( exponentialMapMagnitude, 2 ) / 48.0 );
-    }
-    {
-        epsilonQuaternionVector = exponentialMapVector / exponentialMapMagnitude *
-                std::sin( 0.5 * exponentialMapMagnitude );
-    }
-    double etaQuaternionParameter = std::cos( 0.5 * exponentialMapMagnitude );
+    Eigen::Vector4d quaternionElements = convertExponentialMapToQuaternionElements(
+                currentUnifiedStateModelElements.segment( e1USMEMIndex, 3 ) );
+    double etaQuaternionParameter = quaternionElements( etaQuaternionIndex );
+    Eigen::Vector3d epsilonQuaternionVector = quaternionElements.segment( epsilon1QuaternionIndex, 3 );
 
     // Compute supporting parameters
     double denominator = std::pow( epsilonQuaternionVector( 2 ), 2 ) + std::pow( etaQuaternionParameter, 2 );
@@ -108,18 +74,18 @@ Eigen::Vector6d computeStateDerivativeForUnifiedStateModelExponentialMap(
     double gammaParameter = ( epsilonQuaternionVector( 0 ) * epsilonQuaternionVector( 2 ) -
                               epsilonQuaternionVector( 1 ) * etaQuaternionParameter ) / denominator;
 
-    double velocityHodographParameter = currentUnifiedStateModelElements( CHodographExponentialMapIndex ) -
-            currentUnifiedStateModelElements( Rf1HodographExponentialMapIndex ) * sineLambda +
-            currentUnifiedStateModelElements( Rf2HodographExponentialMapIndex ) * cosineLambda;
+    double velocityHodographParameter = currentUnifiedStateModelElements( CHodographUSMEMIndex ) -
+            currentUnifiedStateModelElements( Rf1HodographUSMEMIndex ) * sineLambda +
+            currentUnifiedStateModelElements( Rf2HodographUSMEMIndex ) * cosineLambda;
     Eigen::Vector3d rotationalVelocityVector = Eigen::Vector3d::Zero( );
     rotationalVelocityVector( 0 ) = accelerationsInRswFrame( 2 ) / velocityHodographParameter;
     rotationalVelocityVector( 2 ) = std::pow( velocityHodographParameter, 2 ) *
-            currentUnifiedStateModelElements( CHodographExponentialMapIndex ) / centralBodyGravitationalParameter;
+            currentUnifiedStateModelElements( CHodographUSMEMIndex ) / centralBodyGravitationalParameter;
 
     Eigen::Vector3d pAuxiliaryVector = Eigen::Vector3d::Zero( );
-    pAuxiliaryVector( 0 ) = currentUnifiedStateModelElements( CHodographExponentialMapIndex );
-    pAuxiliaryVector( 1 ) = currentUnifiedStateModelElements( Rf2HodographExponentialMapIndex );
-    pAuxiliaryVector( 2 ) = currentUnifiedStateModelElements( Rf1HodographExponentialMapIndex );
+    pAuxiliaryVector( 0 ) = currentUnifiedStateModelElements( CHodographUSMEMIndex );
+    pAuxiliaryVector( 1 ) = currentUnifiedStateModelElements( Rf2HodographUSMEMIndex );
+    pAuxiliaryVector( 2 ) = currentUnifiedStateModelElements( Rf1HodographUSMEMIndex );
     pAuxiliaryVector /= velocityHodographParameter;
 
     // Evaluate USMEM equations

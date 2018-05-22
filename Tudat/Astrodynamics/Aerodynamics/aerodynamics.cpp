@@ -602,11 +602,10 @@ Eigen::Vector6d computeAerodynamicCoefficientsFromPressureShearForces(
     // Compute aerodynamic moment coefficients
     Eigen::Matrix< double, 3, Eigen::Dynamic > temporaryMatrix;
     temporaryMatrix.resize( 3, pressureForceVector.cols( ) );
-    for ( unsigned int j = 0; j < pressureForceVector.cols( ); j++ )
+    for ( unsigned int i = 0; i < pressureForceVector.cols( ); i++ )
     {
-        temporaryMatrix.col( j ) = linear_algebra::getCrossProductMatrix( pressureCoefficient.col( j ) +
-                                                                          frictionCoefficient.col( j ) ) *
-                elementMomentArm.col( j );
+        temporaryMatrix.col( i ) = elementMomentArm.col( i ).cross(
+                    pressureCoefficient.col( i ) + frictionCoefficient.col( i ) );
     }
     for ( unsigned int i = 3; i < 6; i++ )
     {

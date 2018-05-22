@@ -128,7 +128,7 @@ std::map< propagators::EnvironmentModelsToUpdate,
         break;
     }
     // Retrieve environment model settings for translational dynamics
-    case transational_state:
+    case translational_state:
     {
         environmentModelsToUpdate = createTranslationalEquationsOfMotionEnvironmentUpdaterSettings(
                     boost::dynamic_pointer_cast<

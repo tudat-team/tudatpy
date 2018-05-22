@@ -16,15 +16,13 @@
 
 #include <cmath>
 
-#include "Tudat/Astrodynamics/BasicAstrodynamics/orbitalElementConversions.h"
 #include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
 #include "Tudat/Mathematics/BasicMathematics/basicMathematicsFunctions.h"
 
-#include "Tudat/Astrodynamics/BasicAstrodynamics/missionGeometry.h"
-#include "Tudat/Astrodynamics/BasicAstrodynamics/unifiedStateModelModifiedRodriguesParametersElementConversions.h"
+#include "Tudat/Astrodynamics/BasicAstrodynamics/attitudeElementConversions.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/stateVectorIndices.h"
-
-#include "Tudat/Astrodynamics/BasicAstrodynamics/unifiedStateModelQuaternionsElementConversions.h"
+#include "Tudat/Astrodynamics/BasicAstrodynamics/unifiedStateModelModifiedRodriguesParameterElementConversions.h"
+#include "Tudat/Astrodynamics/BasicAstrodynamics/unifiedStateModelQuaternionElementConversions.h"
 
 namespace tudat
 {
@@ -33,7 +31,7 @@ namespace orbital_element_conversions
 {
 
 //! Convert Keplerian elements to unified state model elements with modified Rodrigues parameters.
-Eigen::Vector7d convertKeplerianToUnifiedStateModelModifiedRodriguesParametersElements(
+Eigen::Vector7d convertKeplerianToUnifiedStateModelModifiedRodriguesParameterElements(
         const Eigen::Vector6d& keplerianElements,
         const double centralBodyGravitationalParameter )
 {
@@ -167,12 +165,12 @@ Eigen::Vector7d convertKeplerianToUnifiedStateModelModifiedRodriguesParametersEl
     if ( std::fabs( keplerianElements( eccentricityIndex ) - 1.0) < singularityTolerance )
         // parabolic orbit -> semi-major axis is not defined
     {
-        convertedUnifiedStateModelElements( CHodographModifiedRodriguesParameterIndex ) =
+        convertedUnifiedStateModelElements( CHodographUSM6Index ) =
                 std::sqrt( centralBodyGravitationalParameter / keplerianElements( semiLatusRectumIndex ) );
     }
     else
     {
-        convertedUnifiedStateModelElements( CHodographModifiedRodriguesParameterIndex ) =
+        convertedUnifiedStateModelElements( CHodographUSM6Index ) =
                 std::sqrt( centralBodyGravitationalParameter / ( keplerianElements( semiMajorAxisIndex )
                                                                  * ( 1 - keplerianElements( eccentricityIndex ) *
                                                                      keplerianElements( eccentricityIndex ) ) ) );
@@ -180,15 +178,15 @@ Eigen::Vector7d convertKeplerianToUnifiedStateModelModifiedRodriguesParametersEl
 
     // Calculate the additional R hodograph parameter
     double RHodographElement = keplerianElements( eccentricityIndex ) *
-            convertedUnifiedStateModelElements( CHodographModifiedRodriguesParameterIndex );
+            convertedUnifiedStateModelElements( CHodographUSM6Index );
 
     // Compute the Rf1 hodograph element of the unified state model
-    convertedUnifiedStateModelElements( Rf1HodographModifiedRodriguesParameterIndex ) =
+    convertedUnifiedStateModelElements( Rf1HodographUSM6Index ) =
             - RHodographElement * std::sin( keplerianElements( longitudeOfAscendingNodeIndex )
                                             + keplerianElements( argumentOfPeriapsisIndex ) );
 
     // Compute the Rf2 hodograph element of the unified state model
-    convertedUnifiedStateModelElements( Rf2HodographModifiedRodriguesParameterIndex ) =
+    convertedUnifiedStateModelElements( Rf2HodographUSM6Index ) =
             RHodographElement * std::cos( keplerianElements( longitudeOfAscendingNodeIndex )
                                           + keplerianElements( argumentOfPeriapsisIndex ) );
 
@@ -206,21 +204,21 @@ Eigen::Vector7d convertKeplerianToUnifiedStateModelModifiedRodriguesParametersEl
     {
         shadowFlag = denominator < 1.0; // check denominator
     }
-    convertedUnifiedStateModelElements( shadowModifiedRodriguesParameterFlagIndex ) = shadowFlag ? 1.0 : 0.0;
+    convertedUnifiedStateModelElements( shadowFlagUSM6Index ) = shadowFlag ? 1.0 : 0.0;
     denominator = shadowFlag ? ( denominator - 2.0 ) : denominator; // redefine denominator for SMRP
 
     // Compute the sigma1 modified Rodrigues parameters of the unified state model
-    convertedUnifiedStateModelElements( sigma1ModifiedRodriguesParameterIndex ) =
+    convertedUnifiedStateModelElements( sigma1USM6Index ) =
             std::sin( 0.5 * keplerianElements( inclinationIndex ) ) *
             std::cos( 0.5 * ( keplerianElements( longitudeOfAscendingNodeIndex ) - argumentOfLatitude ) ) / denominator;
 
     // Compute the sigma2 modified Rodrigues parameters of the unified state model
-    convertedUnifiedStateModelElements( sigma2ModifiedRodriguesParameterIndex ) =
+    convertedUnifiedStateModelElements( sigma2USM6Index ) =
             std::sin( 0.5 * keplerianElements( inclinationIndex ) ) *
             std::sin( 0.5 * ( keplerianElements( longitudeOfAscendingNodeIndex ) - argumentOfLatitude ) ) / denominator;
 
     // Compute the sigma3 modified Rodrigues parameters of the unified state model
-    convertedUnifiedStateModelElements( sigma3ModifiedRodriguesParameterIndex ) =
+    convertedUnifiedStateModelElements( sigma3USM6Index ) =
             std::cos( 0.5 * keplerianElements( inclinationIndex ) ) *
             std::sin( 0.5 * rightAscensionOfLatitude ) / denominator;
 
@@ -242,10 +240,10 @@ Eigen::Vector6d convertUnifiedStateModelModifiedRodriguesParametersToKeplerianEl
     const double singularityTolerance = 20.0 * std::numeric_limits< double >::epsilon( );
 
     // Extract modified Rodrigues parameters
-    Eigen::Vector3d modifiedRodriguesParametersVector = unifiedStateModelElements.segment( sigma1ModifiedRodriguesParameterIndex, 3 );
+    Eigen::Vector3d modifiedRodriguesParametersVector = unifiedStateModelElements.segment( sigma1USM6Index, 3 );
     double modifiedRodriguesParametersMagnitude =
             modifiedRodriguesParametersVector.norm( ); // magnitude of modified Rodrigues parameters, also called sigma
-    bool shadowFlag = int( unifiedStateModelElements( shadowModifiedRodriguesParameterFlagIndex ) ) == 1;
+    bool shadowFlag = int( unifiedStateModelElements( shadowFlagUSM6Index ) ) == 1;
 
     // Precompute often used variables
     // Note the for SMRP some variable names do not match their definitions
@@ -274,35 +272,35 @@ Eigen::Vector6d convertUnifiedStateModelModifiedRodriguesParametersToKeplerianEl
     double sineLambda = std::sin( rightAscensionOfLatitude );
 
     // Compute auxiliary parameters auxiliaryParameter1 and auxiliaryParameter2
-    double auxiliaryParameter1 = unifiedStateModelElements( Rf1HodographModifiedRodriguesParameterIndex ) * cosineLambda +
-            unifiedStateModelElements( Rf2HodographModifiedRodriguesParameterIndex ) * sineLambda;
-    double auxiliaryParameter2 = unifiedStateModelElements( CHodographModifiedRodriguesParameterIndex ) -
-            unifiedStateModelElements( Rf1HodographModifiedRodriguesParameterIndex ) * sineLambda +
-            unifiedStateModelElements( Rf2HodographModifiedRodriguesParameterIndex ) * cosineLambda;
+    double auxiliaryParameter1 = unifiedStateModelElements( Rf1HodographUSM6Index ) * cosineLambda +
+            unifiedStateModelElements( Rf2HodographUSM6Index ) * sineLambda;
+    double auxiliaryParameter2 = unifiedStateModelElements( CHodographUSM6Index ) -
+            unifiedStateModelElements( Rf1HodographUSM6Index ) * sineLambda +
+            unifiedStateModelElements( Rf2HodographUSM6Index ) * cosineLambda;
 
     // Compute auxiliary R hodograph parameter
-    double RHodographElement = std::sqrt( unifiedStateModelElements( Rf1HodographModifiedRodriguesParameterIndex ) *
-                                          unifiedStateModelElements( Rf1HodographModifiedRodriguesParameterIndex ) +
-                                          unifiedStateModelElements( Rf2HodographModifiedRodriguesParameterIndex ) *
-                                          unifiedStateModelElements( Rf2HodographModifiedRodriguesParameterIndex ) );
+    double RHodographElement = std::sqrt( unifiedStateModelElements( Rf1HodographUSM6Index ) *
+                                          unifiedStateModelElements( Rf1HodographUSM6Index ) +
+                                          unifiedStateModelElements( Rf2HodographUSM6Index ) *
+                                          unifiedStateModelElements( Rf2HodographUSM6Index ) );
 
     // Compute eccentricity
     convertedKeplerianElements( eccentricityIndex ) =
-            RHodographElement / unifiedStateModelElements( CHodographModifiedRodriguesParameterIndex );
+            RHodographElement / unifiedStateModelElements( CHodographUSM6Index );
 
     // Compute semi-major axis or, in case of a parabolic orbit, the semi-latus rectum.
     if ( std::fabs( convertedKeplerianElements( eccentricityIndex ) - 1.0 ) < singularityTolerance )
         // parabolic orbit -> semi-major axis is not defined. Use semi-latus rectum instead.
     {
         convertedKeplerianElements( semiLatusRectumIndex ) = centralBodyGravitationalParameter /
-                ( unifiedStateModelElements( CHodographModifiedRodriguesParameterIndex ) *
-                  unifiedStateModelElements( CHodographModifiedRodriguesParameterIndex ) );
+                ( unifiedStateModelElements( CHodographUSM6Index ) *
+                  unifiedStateModelElements( CHodographUSM6Index ) );
     }
     else
     {
         convertedKeplerianElements( semiMajorAxisIndex ) =
                 centralBodyGravitationalParameter /
-                ( std::pow( unifiedStateModelElements( CHodographModifiedRodriguesParameterIndex ), 2 ) *
+                ( std::pow( unifiedStateModelElements( CHodographUSM6Index ), 2 ) *
                   ( 1 - std::pow( convertedKeplerianElements( eccentricityIndex ), 2 ) ) );
     }
 
@@ -399,7 +397,7 @@ Eigen::Vector6d convertUnifiedStateModelModifiedRodriguesParametersToKeplerianEl
     {
         convertedKeplerianElements( trueAnomalyIndex ) =
                 std::atan2( ( auxiliaryParameter1 / RHodographElement ),
-                            ( ( auxiliaryParameter2 - unifiedStateModelElements( CHodographModifiedRodriguesParameterIndex ) )
+                            ( ( auxiliaryParameter2 - unifiedStateModelElements( CHodographUSM6Index ) )
                               / RHodographElement ) );
 
         // Round off small theta to zero
@@ -441,39 +439,27 @@ Eigen::Vector6d convertUnifiedStateModelModifiedRodriguesParametersToKeplerianEl
 }
 
 ////! Convert Cartesian elements to unified state model elements with modified Rodrigues parameters.
-Eigen::Vector7d convertCartesianToUnifiedStateModelModifiedRodriguesParametersElements(
+Eigen::Vector7d convertCartesianToUnifiedStateModelModifiedRodriguesParameterElements(
         const Eigen::Vector6d& cartesianElements,
         const double centralBodyGravitationalParameter )
 {
     // Declaring eventual output vector.
-    Eigen::Vector7d convertedUnifiedStateModelModifiedRodriguesParametersElements = Eigen::Vector7d::Zero( );
+    Eigen::Vector7d convertedUnifiedStateModelModifiedRodriguesParameterElements = Eigen::Vector7d::Zero( );
 
     // Convert Cartesian to USM7
-    Eigen::Vector7d unifiedStateModelQuaternionsElements =
+    Eigen::Vector7d unifiedStateModelQuaternionElements =
             convertCartesianToUnifiedStateModelQuaternionsElements( cartesianElements,
                                                                     centralBodyGravitationalParameter );
 
-    // Extract quaternions
-    Eigen::Vector3d epsilonQuaternionVector =
-            unifiedStateModelQuaternionsElements.segment( epsilon1QuaternionIndex, 3 );
-    double etaQuaternionParameter = unifiedStateModelQuaternionsElements( etaQuaternionIndex );
-
-    // Convert quaternions to modified Rodrigues parameters (or SMPR)
-    bool shadowFlag = etaQuaternionParameter < 0;
-    double conversionSign = shadowFlag ? - 1.0 : 1.0; // conversion is slightly different for SMRP and MRP
-    convertedUnifiedStateModelModifiedRodriguesParametersElements.segment(
-                sigma1ModifiedRodriguesParameterIndex, 3 ) = conversionSign * epsilonQuaternionVector /
-            ( 1 + conversionSign * etaQuaternionParameter );
-    convertedUnifiedStateModelModifiedRodriguesParametersElements(
-                shadowModifiedRodriguesParameterFlagIndex ) = shadowFlag ? 1.0 : 0.0;
-
-    // Add other elements to USMEM vector
-    convertedUnifiedStateModelModifiedRodriguesParametersElements.segment(
-                CHodographModifiedRodriguesParameterIndex, 3 ) =
-            unifiedStateModelQuaternionsElements.segment( CHodographQuaternionIndex, 3 );
+    // Add elements to USM6 vector
+    convertedUnifiedStateModelModifiedRodriguesParameterElements.segment(
+                CHodographUSM6Index, 3 ) =
+            unifiedStateModelQuaternionElements.segment( CHodographUSM7Index, 3 );
+    convertedUnifiedStateModelModifiedRodriguesParameterElements.segment( sigma1USM6Index, 4 ) =
+            convertQuaternionsToModifiedRodriguesParameterElements( unifiedStateModelQuaternionElements.segment( etaUSM7Index, 4 ) );
 
     // Give back result
-    return convertedUnifiedStateModelModifiedRodriguesParametersElements;
+    return convertedUnifiedStateModelModifiedRodriguesParameterElements;
 }
 
 //! Convert unified state model elements with modified Rodrigues parameters to Cartesian elements.
@@ -481,37 +467,18 @@ Eigen::Vector6d convertUnifiedStateModelModifiedRodriguesParametersToCartesianEl
         const Eigen::Vector7d& unifiedStateModelModifiedRodriguesParametersElements,
         const double centralBodyGravitationalParameter )
 {
-    // Extract modified Rodrigues parameters
-    Eigen::Vector3d modifiedRodriguesParametersVector =
-            unifiedStateModelModifiedRodriguesParametersElements.segment( sigma1ModifiedRodriguesParameterIndex, 3 );
-    double modifiedRodriguesParametersMagnitude =
-            modifiedRodriguesParametersVector.norm( ); // magnitude of modified Rodrigues parameters, also called sigma
-    bool shadowFlag =
-            int( unifiedStateModelModifiedRodriguesParametersElements( shadowModifiedRodriguesParameterFlagIndex ) ) == 1;
-
-    // Precompute often used variables
-    double modifiedRodriguesParametersMagnitudeSquared = modifiedRodriguesParametersMagnitude *
-            modifiedRodriguesParametersMagnitude;
-
     // Create USM7 vector and add velocity hodograph elements
-    Eigen::Vector7d unifiedStateModelQuaternionsElements;
-    unifiedStateModelQuaternionsElements.segment( CHodographQuaternionIndex, 3 ) =
-            unifiedStateModelModifiedRodriguesParametersElements.segment( CHodographExponentialMapIndex, 3 );
-
-    // Convert modified Rodrigues parameters to quaternions
-    double conversionSign = shadowFlag ? - 1.0 : 1.0; // converion is slightly different for SMRP and MRP
-    Eigen::Vector3d epsilonQuaternionVector = conversionSign *
-            2.0 / ( 1.0 + modifiedRodriguesParametersMagnitudeSquared ) *
-            modifiedRodriguesParametersVector;
-    double etaQuaternionParameter = conversionSign * ( 1.0 - modifiedRodriguesParametersMagnitudeSquared ) /
-            ( 1.0 + modifiedRodriguesParametersMagnitudeSquared );
+    Eigen::Vector7d unifiedStateModelQuaternionElements;
+    unifiedStateModelQuaternionElements.segment( CHodographUSM7Index, 3 ) =
+            unifiedStateModelModifiedRodriguesParametersElements.segment( CHodographUSMEMIndex, 3 );
 
     // Add quaternions to USM7 vector
-    unifiedStateModelQuaternionsElements.segment( epsilon1QuaternionIndex, 3 ) = epsilonQuaternionVector;
-    unifiedStateModelQuaternionsElements( etaQuaternionIndex ) = etaQuaternionParameter;
+    unifiedStateModelQuaternionElements.segment( etaUSM7Index, 4 ) =
+            convertModifiedRodriguesParametersToQuaternionElements(
+                unifiedStateModelModifiedRodriguesParametersElements.segment( sigma1USM6Index, 4 ) );
 
     // Give back result
-    return convertUnifiedStateModelQuaternionsToCartesianElements( unifiedStateModelQuaternionsElements,
+    return convertUnifiedStateModelQuaternionsToCartesianElements( unifiedStateModelQuaternionElements,
                                                                    centralBodyGravitationalParameter );
 }
 

@@ -37,14 +37,13 @@ namespace propagators
  * \param pParameterVector Value of the vector gamma (see Vittaldev, 2010)
  * \return Time derivatives of USMEM elements.
  */
-Eigen::Vector6d computeStateDerivativeForUnifiedStateModelExponentialMap(
-        const Eigen::Vector6d& currentUnifiedStateModelElements,
+Eigen::Vector6d computeStateDerivativeForUnifiedStateModelExponentialMap(const Eigen::Vector6d& currentUnifiedStateModelElements,
         const Eigen::Vector3d& accelerationsInRswFrame,
         const double sineLambdaParameter,
         const double cosineLambdaParameter,
         const double gammaParameter,
-        const Eigen::Vector3d rotationalVelocityVector,
-        const Eigen::Vector3d pParameterVector );
+        const Eigen::Vector3d& rotationalVelocityVector,
+        const Eigen::Vector3d& pParameterVector );
 
 //! Function to evaluate the equations of motion for the unifies state model with exponential map (USMEM)
 /*!
@@ -152,7 +151,7 @@ public:
         for( unsigned int i = 0; i < this->bodiesToBeIntegratedNumerically_.size( ); i++ )
         {
             currentAccelerationInRswFrame = reference_frames::getInertialToRswSatelliteCenteredFrameRotationMatrx(
-                        currentCartesianLocalSoluton_.segment( i * 6, 6 ).template cast< double >( ) ) *
+                        currentCartesianLocalSolution_.segment( i * 6, 6 ).template cast< double >( ) ) *
                     stateDerivative.block( i * 6 + 3, 0, 6, 1 ).template cast< double >( );
 
             stateDerivative.block( i * 6, 0, 6, 1 ) = computeStateDerivativeForUnifiedStateModelExponentialMap(
@@ -200,23 +199,22 @@ public:
      * \param internalSolution State in USMEM elemements (i.e. form that is used in
      * numerical integration)
      * \param time Current time at which the state is valid
-     * \param currentCartesianLocalSoluton State (internalSolution, which is Encke-formulation),
-     *  converted to the 'conventional form' (returned by reference).
+     * \param currentCartesianLocalSolution State (internalSolution, which is USMEM-formulation),
+     * converted to the 'conventional form' (returned by reference).
      */
     void convertToOutputSolution(
             const Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >& internalSolution, const TimeType& time,
-            Eigen::Block< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > currentCartesianLocalSoluton )
+            Eigen::Block< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > currentCartesianLocalSolution )
     {
         // Convert state to Cartesian for each body
         for( unsigned int i = 0; i < this->bodiesToBeIntegratedNumerically_.size( ); i++ )
         {
-            currentCartesianLocalSoluton.segment( i * 6, 6 ) =
+            currentCartesianLocalSolution.segment( i * 6, 6 ) =
                     orbital_element_conversions::convertUnifiedStateModelExponentialMapToCartesianElements(
                         internalSolution.block( i * 6, 0, 6, 1 ).template cast< double >( ), static_cast< double >(
                             centralBodyGravitationalParameters_.at( i )( ) ) ).template cast< StateScalarType >( );
         }
-
-        currentCartesianLocalSoluton_ = currentCartesianLocalSoluton;
+        currentCartesianLocalSolution_ = currentCartesianLocalSolution;
     }
 
     //! Function to get the acceleration models
@@ -230,15 +228,13 @@ public:
         return originalAccelerationModelsPerBody_;
     }
 
-    //! Function to process the state after propagation.
+    //! Function to process the state during propagation.
     /*!
-     * Function to process the state after propagation. For exponential map (EM), this function converts to/from shadow exponential
+     * Function to process the state during propagation. For exponential map (EM), this function converts to/from shadow exponential
      * map (SEM), in case the rotation angle is larger than PI.
      * \param unprocessedState State computed after propagation.
-     * \param startRow Dummy variable added for compatibility issues between Eigen::Matrix and Eigen::Block.
      */
-    void postProcessState( Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& unprocessedState,
-                           const int startRow )
+    void postProcessState( Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& unprocessedState )
     {
         // Loop over each body
         Eigen::Matrix< StateScalarType, 3, 1 > exponentialMapVector;
@@ -254,7 +250,7 @@ public:
                 exponentialMapVector *= ( 1.0 - ( 2.0 * mathematical_constants::PI / exponentialMapMagnitude ) );
 
                 // Replace EM with SEM, or vice-versa
-                unprocessedState.segment( startRow + i * 6 + 3, 3 ) = exponentialMapVector;
+                unprocessedState.segment( i * 6 + 3, 3 ) = exponentialMapVector;
             }
         }
     }
@@ -268,7 +264,6 @@ public:
     {
         return true;
     }
-
 
 private:
 
@@ -287,10 +282,9 @@ private:
      *  Current full Cartesian state of the propagated bodies, w.r.t. the central bodies. These variables are set when calling
      *  the convertToOutputSolution function.
      */
-    Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > currentCartesianLocalSoluton_;
+    Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > currentCartesianLocalSolution_;
 
 };
-
 
 } // namespace propagators
 
