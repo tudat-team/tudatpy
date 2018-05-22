@@ -169,7 +169,7 @@ public:
      * map (SEM), in case the rotation angle is larger than PI.
      * \param unprocessedState State computed after propagation.
      */
-    void postProcessState( Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& unprocessedState )
+    void postProcessState( Eigen::Block< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > unprocessedState )
     {
         // Loop over each body
         Eigen::Matrix< StateScalarType, 3, 1 > exponentialMapVector;
