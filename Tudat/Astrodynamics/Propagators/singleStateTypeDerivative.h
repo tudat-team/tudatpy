@@ -19,8 +19,6 @@ namespace tudat
 namespace propagators
 {
 
-
-
 //! Enum listing types of dynamics that can be numerically integrated
 enum IntegratedStateType
 {
@@ -30,7 +28,6 @@ enum IntegratedStateType
     body_mass_state = 3,
     custom_state = 4
 };
-
 
 //! Get size of state for single propagated state of given type.
 /*!

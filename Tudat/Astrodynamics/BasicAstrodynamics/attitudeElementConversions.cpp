@@ -14,7 +14,11 @@
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/attitudeElementConversions.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/stateVectorIndices.h"
+
 #include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
+#include "Tudat/Mathematics/Statistics/basicStatistics.h"
+
+#include "Tudat/Basics/utilities.h"
 
 namespace tudat
 {
@@ -123,6 +127,78 @@ Eigen::Vector4d convertExponentialMapToQuaternionElements( const Eigen::Vector3d
 
     // Give output
     return convertedQuaternionElements;
+}
+
+//! Transform quaternion to opposite rotation.
+void convertQuaternionHistoryToMatchSigns( std::map< double, Eigen::Vector4d >& quaternionHistoryMap )
+{
+    // Get total number of rows
+    unsigned int numberOfRows = quaternionHistoryMap.size( );
+
+    // Create concatenation of vectors
+    Eigen::VectorXd timeHistoryVector;
+    Eigen::MatrixXd quaternionHistoryMatrix;
+    timeHistoryVector.resize( numberOfRows, 1 );
+    quaternionHistoryMatrix.resize( 4, numberOfRows );
+    int i = 0;
+    for ( std::map< double, Eigen::Vector4d >::const_iterator mapIterator = quaternionHistoryMap.begin( );
+          mapIterator != quaternionHistoryMap.end( ); mapIterator++ )
+    {
+        timeHistoryVector[ i ] = mapIterator->first;
+        quaternionHistoryMatrix.col( i ) = mapIterator->second;
+        i++;
+    }
+
+    // Compute numerical derivative of first quaternion elements
+    std::cout << "Rows: " << quaternionHistoryMatrix.rows( ) << ", cols: " << quaternionHistoryMatrix.cols( ) << std::endl;
+    Eigen::VectorXd vectorOfEtas = quaternionHistoryMatrix.row( etaQuaternionIndex ).transpose( );
+    Eigen::VectorXd timeDerivativeOfEtas;
+    timeDerivativeOfEtas.resize( numberOfRows - 1, 1 );
+    for ( unsigned int i = 0; i < numberOfRows - 1; i++ )
+    {
+        timeDerivativeOfEtas[ i ] =
+                ( vectorOfEtas[ i + 1 ] - vectorOfEtas[ i ] ) /
+                ( timeHistoryVector[ i + 1 ] - timeHistoryVector[ i ] );
+    }
+
+    // Get standard deviation of first elements
+    double conversionThreshold = statistics::computeStandardDeviationOfVectorComponents( timeDerivativeOfEtas );
+}
+
+//! Transform quaternion in translational or rotational state to opposite rotation.
+void convertQuaternionHistoryToMatchSigns( std::map< double, Eigen::VectorXd >& stateHistoryMap,
+                                           const propagators::IntegratedStateType stateType )
+{
+    // Select index based on input state type
+    int quaternionStartIndex;
+    switch ( stateType )
+    {
+    case propagators::translational_state:
+        quaternionStartIndex = static_cast< int >( etaUSM7Index );
+        break;
+    case propagators::rotational_state:
+        quaternionStartIndex = static_cast< int >( etaQuaternionIndex );
+        break;
+    default:
+        throw std::runtime_error( "Error in conversion of quaternion history."
+                                  "Only translational and rotational propagators are supported." );
+    }
+
+    // Extract exponential map from state and convert history
+    std::map< double, Eigen::Vector4d > quaternionHistoryMap;
+    for ( std::map< double, Eigen::VectorXd >::const_iterator mapIterator = stateHistoryMap.begin( );
+          mapIterator != stateHistoryMap.end( ); mapIterator++ )
+    {
+        quaternionHistoryMap[ mapIterator->first ] = mapIterator->second.segment( quaternionStartIndex, 4 );
+    }
+    convertQuaternionHistoryToMatchSigns( quaternionHistoryMap );
+
+    // Replace state elements with new quaterions
+    for ( std::map< double, Eigen::VectorXd >::iterator mapIterator = stateHistoryMap.begin( );
+          mapIterator != stateHistoryMap.end( ); mapIterator++ )
+    {
+        mapIterator->second.segment( quaternionStartIndex, 4 ) = quaternionHistoryMap[ mapIterator->first ];
+    }
 }
 
 } // namespace orbital_element_conversions

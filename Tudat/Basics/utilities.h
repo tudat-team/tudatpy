@@ -90,7 +90,6 @@ std::vector< VectorArgument > createVectorFromMapValues( const std::map< KeyType
     }
 
     return outputVector;
-
 }
 
 //! Function to create a vector from the keys of a map
@@ -177,7 +176,7 @@ void createVectorBlockMatrixHistory(
  *  \param mapToPrint Map that is to be printed.
  */
 template< typename S, typename T >
-void printMapContents( const std::map< S, T >& mapToPrint)
+void printMapContents( const std::map< S, T >& mapToPrint )
 {
     for( typename std::map< S, T >::const_iterator mapIterator = mapToPrint.begin( );
          mapIterator != mapToPrint.end( ); mapIterator++ )
@@ -328,8 +327,6 @@ std::vector< Argument > addScalarToVector( const std::vector< Argument >& vector
     return addedVector;
 }
 
-
-
 //! Function to copy a multi-array into another multi-array
 /*!
  *  Function to copy a multi-array into another multi-array, resizing the new multi-array accordingly
@@ -356,7 +353,7 @@ void copyMultiArray( const boost::multi_array< S, NumberOfDimensions >& arrayToC
  *  \return Index in nth direction of pointer to single entry in multi-array of doubles
  */
 template< unsigned int NumberOfDimensions >
-typename boost::multi_array< double ,NumberOfDimensions >::index getMultiArrayIndex(
+typename boost::multi_array< double, NumberOfDimensions >::index getMultiArrayIndex(
         const typename boost::multi_array< double, NumberOfDimensions >& multiArray, const double* requestedElement,
         const unsigned short int direction )
 {
@@ -394,7 +391,6 @@ boost::array< boost::multi_array< double, 2 >::index, 2 > getMultiArrayIndexArra
  */
 boost::array< boost::multi_array< double, 3 >::index, 3 > getMultiArrayIndexArray(
         const boost::multi_array< double, 3 >& multiArray, const double* requestedElement );
-
 
 template< typename S, typename T >
 std::vector< S > createVectorFromVectorOfPairFirsts( const std::vector< std::pair< S, T > > inputVector )
@@ -451,7 +447,6 @@ std::vector< VectorArgument > createVectorFromMultiMapValues( const std::multima
     }
 
     return outputVector;
-
 }
 
 //! Function to create a vector from the keys of a multimap
@@ -525,7 +520,7 @@ bool doStlVectorContentsMatch(
 
 //! Transform from map of std::vector (output of text file reader) to map of Eigen::Array
 template< typename MapKey, typename ScalarType >
-std::map< MapKey, Eigen::Array< ScalarType, Eigen::Dynamic, 1 > > convertSTLVectorMapToEigenVectorMap(
+std::map< MapKey, Eigen::Array< ScalarType, Eigen::Dynamic, 1 > > convertStlVectorMapToEigenVectorMap(
         std::map< MapKey, std::vector< ScalarType > > stlVectorMap )
 {
     std::map< MapKey, Eigen::Array< ScalarType, Eigen::Dynamic, 1 > > eigenMap;
