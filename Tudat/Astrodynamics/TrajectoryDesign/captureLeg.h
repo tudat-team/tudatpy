@@ -78,14 +78,6 @@ public:
             eccentricity_( eccentricity )
 
     {
-//        departureBodyPosition_ = departureBodyPosition;
-//        timeOfFlight_ = timeOfFlight;
-//        departureBodyVelocity_ = departureBodyVelocity;
-//        centralBodyGravitationalParameter_ = centralBodyGravitationalParameter;
-//        captureBodyGravitationalParameter_ = captureBodyGravitationalParameter;
-//        velocityBeforeDepartureBodyPtr_ = velocityBeforeDepartureBodyPtr;
-//        semiMajorAxis_ = semiMajorAxis;
-//        eccentricity_ = eccentricity;
         velocityAfterDeparture_( 0 ) = TUDAT_NAN;
     }
 
