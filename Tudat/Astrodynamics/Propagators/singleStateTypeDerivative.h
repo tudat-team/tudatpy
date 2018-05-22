@@ -26,7 +26,6 @@ enum IntegratedStateType
 {
     hybrid = 0,
     translational_state = 1,
-    transational_state = translational_state,  // deprecated (typo)
     rotational_state = 2,
     body_mass_state = 3,
     custom_state = 4
@@ -132,7 +131,6 @@ public:
             const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& internalSolution, const TimeType& time,
             Eigen::Block< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > currentCartesianLocalSoluton ) = 0;
 
-
     //! Function to convert the state in the conventional form to the propagator-specific form.
     /*!
      * Function to convert the state in the conventional form to the propagator-specific form.  The
@@ -164,13 +162,20 @@ public:
             const Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >& internalSolution, const TimeType& time,
             Eigen::Block< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > currentCartesianLocalSoluton ) = 0;
 
-    //! Function to return the size of the state handled by the object
+    //! Function to return the size of the conventional state handled by the object.
     /*!
-     * Function to return the size of the state handled by the object
+     * Function to return the size of the conventional state handled by the object. This is the size of the conventional
+     * propagation state, e.g., size of Cartesian state for translational propagation.
      * \return Size of the state under consideration.
      */
     virtual int getConventionalStateSize( ) = 0;
 
+    //! Function to return the size of the propagated state handled by the object.
+    /*!
+     * Function to return the size of the propagated state handled by the object. This is the size of the actual propagation
+     * state, e.g., size of USM7 state for translational propagation.
+     * \return Size of the propagated state under consideration.
+     */
     virtual int getPropagatedStateSize( )
     {
         return getConventionalStateSize( );
@@ -186,31 +191,41 @@ public:
         return integratedStateType_;
     }
 
-    //! Function to normalize the state vector during propagation.
+    //! Function to process the state vector during propagation.
     /*!
-     * Function to normalize the state vector during propagation
-     * \param unprocessedState State before normalization
+     * Function to process the state during propagation. Is especially used for attitude states (e.g., normalization of quaternions
+     * and transformation to/from shadow attitude parameters).
+     * \param unprocessedState State computed after propagation.
      */
-    virtual void postProcessState(
-            Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& unprocessedState,
-            const int startRow )
+    virtual void postProcessState( Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& unprocessedState )
     {
 
     }
 
+    //! Function to process the state during propagation.
+    /*!
+     * Function to process the state during propagation. Is especially used for attitude states (e.g., normalization of quaternions
+     * and transformation to/from shadow attitude parameters).
+     * \param unprocessedState State computed after propagation.
+     * \param startRow Dummy variable added for compatibility issues between Eigen::Matrix and Eigen::Block.
+     * \param startColumn Dummy variable added for compatibility issues between Eigen::Matrix and Eigen::Block.
+     */
     virtual void postProcessState(
-            Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >& unprocessedState,
-            const int startRow,
-            const int startColumn )
+            Eigen::Block< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > unprocessedState )
     {
         if( isStateToBePostProcessed( ) )
         {
-            unprocessedState_ = unprocessedState.block( startRow, startColumn, getPropagatedStateSize( ), 1 );
-            postProcessState( unprocessedState_, 0 );
-            unprocessedState.block( startRow, startColumn, getPropagatedStateSize( ), 1 ) = unprocessedState_;
+            unprocessedState_ = unprocessedState;
+            postProcessState( unprocessedState_ );
+            unprocessedState = unprocessedState_;
         }
     }
 
+    //! Function to return whether the state needs to be post-processed.
+    /*!
+     * Function to return whether the state needs to be post-processed. Default value is false.
+     * \return Boolean informing whether the state needs to be post-processed.
+     */
     virtual bool isStateToBePostProcessed( )
     {
         return false;
@@ -218,9 +233,10 @@ public:
 
 protected:
 
-    //! Type of dynamics for whichh the state derivative is calculated.
+    //! Type of dynamics for which the state derivative is calculated.
     IntegratedStateType integratedStateType_;
 
+    //! Vector used during post-processing of state.
     Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > unprocessedState_;
 
 };

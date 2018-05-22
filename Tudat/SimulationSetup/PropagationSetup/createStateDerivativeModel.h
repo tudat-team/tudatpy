@@ -26,6 +26,9 @@
 #include "Tudat/Astrodynamics/Propagators/nBodyUnifiedStateModelModifiedRodriguesParametersStateDerivative.h"
 #include "Tudat/Astrodynamics/Propagators/nBodyUnifiedStateModelExponentialMapStateDerivative.h"
 #include "Tudat/Astrodynamics/Propagators/rotationalMotionStateDerivative.h"
+#include "Tudat/Astrodynamics/Propagators/rotationalMotionQuaternionsStateDerivative.h"
+#include "Tudat/Astrodynamics/Propagators/rotationalMotionModifiedRodriguesParametersStateDerivative.h"
+#include "Tudat/Astrodynamics/Propagators/rotationalMotionExponentialMapStateDerivative.h"
 #include "Tudat/Astrodynamics/Propagators/bodyMassStateDerivative.h"
 #include "Tudat/Astrodynamics/Propagators/customStateDerivative.h"
 #include "Tudat/Astrodynamics/Propagators/stateDerivativeCircularRestrictedThreeBodyProblem.h"
@@ -191,7 +194,6 @@ createTranslationalStateDerivativeModel(
         stateDerivativeModel = boost::make_shared< NBodyGaussKeplerStateDerivative< StateScalarType, TimeType > >
                 ( translationPropagatorSettings->getAccelerationsMap( ), centralBodyData,
                   translationPropagatorSettings->bodiesToIntegrate_ );
-
         break;
     }
     case gauss_modified_equinoctial:
@@ -224,7 +226,6 @@ createTranslationalStateDerivativeModel(
         stateDerivativeModel = boost::make_shared< NBodyUnifiedStateModelQuaternionsStateDerivative< StateScalarType, TimeType > >
                 ( translationPropagatorSettings->getAccelerationsMap( ), centralBodyData,
                   translationPropagatorSettings->bodiesToIntegrate_ );
-
         break;
     }
     case unified_state_model_modified_rodrigues_parameters:
@@ -233,7 +234,6 @@ createTranslationalStateDerivativeModel(
         stateDerivativeModel = boost::make_shared< NBodyUnifiedStateModelModifiedRodriguesParametersStateDerivative< StateScalarType, TimeType > >
                 ( translationPropagatorSettings->getAccelerationsMap( ), centralBodyData,
                   translationPropagatorSettings->bodiesToIntegrate_ );
-
         break;
     }
     case unified_state_model_exponential_map:
@@ -242,13 +242,11 @@ createTranslationalStateDerivativeModel(
         stateDerivativeModel = boost::make_shared< NBodyUnifiedStateModelExponentialMapStateDerivative< StateScalarType, TimeType > >
                 ( translationPropagatorSettings->getAccelerationsMap( ), centralBodyData,
                   translationPropagatorSettings->bodiesToIntegrate_ );
-
         break;
     }
     default:
-        throw std::runtime_error(
-                    "Error, did not recognize translational state propagation type: " +
-                    std::to_string( translationPropagatorSettings->propagator_ ) );
+        throw std::runtime_error( "Error, did not recognize translational state propagation type: " +
+                                  std::to_string( translationPropagatorSettings->propagator_ ) );
     }
     return stateDerivativeModel;
 }
@@ -273,12 +271,39 @@ boost::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > crea
                     boost::bind( &simulation_setup::Body::getBodyInertiaTensor,
                                  bodyMap.at( rotationPropagatorSettings->bodiesToIntegrate_.at( i ) ) ) );
     }
-    return boost::make_shared< RotationalMotionStateDerivative< StateScalarType, TimeType > >(
-                rotationPropagatorSettings->getTorqueModelsMap( ), rotationPropagatorSettings->bodiesToIntegrate_,
-                momentOfInertiaFunctions );
+
+    // Check propagator type and create corresponding state derivative object.
+    boost::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > stateDerivativeModel;
+    switch( rotationPropagatorSettings->propagator_ )
+    {
+    case quaternions:
+    {
+        stateDerivativeModel = boost::make_shared< RotationalMotionQuaternionsStateDerivative< StateScalarType, TimeType > >(
+                    rotationPropagatorSettings->getTorqueModelsMap( ), rotationPropagatorSettings->bodiesToIntegrate_,
+                    momentOfInertiaFunctions );
+        break;
+    }
+    case modified_rodrigues_parameters:
+    {
+        stateDerivativeModel = boost::make_shared< RotationalMotionModifiedRodriguesParametersStateDerivative< StateScalarType, TimeType > >(
+                    rotationPropagatorSettings->getTorqueModelsMap( ), rotationPropagatorSettings->bodiesToIntegrate_,
+                    momentOfInertiaFunctions );
+        break;
+    }
+    case exponential_map:
+    {
+        stateDerivativeModel = boost::make_shared< RotationalMotionExponentialMapStateDerivative< StateScalarType, TimeType > >(
+                    rotationPropagatorSettings->getTorqueModelsMap( ), rotationPropagatorSettings->bodiesToIntegrate_,
+                    momentOfInertiaFunctions );
+        break;
+    }
+    default:
+        throw std::runtime_error( "Error, did not recognize rotational state propagation type: " +
+                                  std::to_string( rotationPropagatorSettings->propagator_ ) );
+    }
+
+    return stateDerivativeModel;
 }
-
-
 
 //! Function to create a mass state derivative model.
 /*!
@@ -318,7 +343,7 @@ createStateDerivativeModel(
     // specific type of state derivative model.
     switch( propagatorSettings->getStateType( ) )
     {
-    case transational_state:
+    case translational_state:
     {
         // Check input consistency.
         boost::shared_ptr< TranslationalStatePropagatorSettings< StateScalarType > >
@@ -414,11 +439,11 @@ void setMultiTypePropagationClosure(
     if( multiTypePropagatorSettings != NULL )
     {
         // Perform closure for the case where both translational and rotational states are propagated
-        if( multiTypePropagatorSettings->propagatorSettingsMap_.count( transational_state ) > 0 &&
+        if( multiTypePropagatorSettings->propagatorSettingsMap_.count( translational_state ) > 0 &&
                 multiTypePropagatorSettings->propagatorSettingsMap_.count( rotational_state ) > 0 )
         {
             std::vector< boost::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > > translationalStateSettings =
-                    multiTypePropagatorSettings->propagatorSettingsMap_.at( transational_state );
+                    multiTypePropagatorSettings->propagatorSettingsMap_.at( translational_state );
             std::vector< boost::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > > rotationalStateSettings =
                     multiTypePropagatorSettings->propagatorSettingsMap_.at( rotational_state );
 

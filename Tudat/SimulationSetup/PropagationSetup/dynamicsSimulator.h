@@ -413,7 +413,6 @@ public:
     void integrateEquationsOfMotion(
             const Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >& initialStates )
     {
-
         equationsOfMotionNumericalSolution_.clear( );
         equationsOfMotionNumericalSolutionRaw_.clear( );
 
@@ -440,7 +439,7 @@ public:
         dynamicsStateDerivative_->convertNumericalStateSolutionsToOutputSolutions(
                     equationsOfMotionNumericalSolution_, equationsOfMotionNumericalSolutionRaw_ );
 
-        // Retrieve number of function evaluations (to print, remove comments on next line)
+        // Retrieve number of function evaluations (to print, remove comments on line 448)
         int numberOfFunctionEvaluations = dynamicsStateDerivative_->getNumberOfFunctionEvaluations( );
         cumulativeNumberOfFunctionEvaluations_ = dynamicsStateDerivative_->getCumulativeNumberOfFunctionEvaluations( );
 
@@ -514,7 +513,7 @@ public:
                     { getEquationsOfMotionNumericalSolution( ) } );
     }
 
-    //! Function to return the map of dependent variable history that was saved during numerical propagation(base class interface)
+    //! Function to return the map of dependent variable history that was saved during numerical propagation (base class interface)
     /*!
      * Function to return the map of dependent variable history that was saved during numerical propagation (base class interface)
      * \return Vector is size 1, with entry: map of dependent variable history that was saved during numerical propagation.
@@ -525,6 +524,11 @@ public:
                     { getDependentVariableHistory( ) } );
     }
 
+    //! Function to return the map of cumulative computation time history that was saved during numerical propagation.
+    /*!
+     * Function to return the map of cumulative computation time history that was saved during numerical propagation (base class interface).
+     * \return Vector is size 1, with entry: map of cumulative computation time history that was saved during numerical propagation.
+     */
     std::vector< std::map< TimeType, double > > getCumulativeComputationTimeHistoryBase( )
     {
         return std::vector< std::map< TimeType, double > >( { getCumulativeComputationTimeHistory( ) } );
@@ -713,11 +717,11 @@ protected:
         // Create and set interpolators for ephemerides
         resetIntegratedStates( equationsOfMotionNumericalSolution_, integratedStateProcessors_ );
 
-
         // Clear numerical solution if so required.
         if( clearNumericalSolutions_ )
         {
             equationsOfMotionNumericalSolution_.clear( );
+            equationsOfMotionNumericalSolutionRaw_.clear( );
         }
 
         for( simulation_setup::NamedBodyMap::const_iterator
@@ -755,7 +759,7 @@ protected:
 
     //! Function that performs a single state derivative function evaluation with double precision.
     /*!
-     *  Function that performs a single state derivative function evaluation with double precision
+     *  Function that performs a single state derivative function evaluation with double precision.
      *  \sa stateDerivativeFunction_
      */
     boost::function< Eigen::Matrix< double, Eigen::Dynamic, Eigen::Dynamic >
@@ -792,6 +796,13 @@ protected:
      */
     std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > equationsOfMotionNumericalSolution_;
 
+    //! Map of state history of numerically integrated bodies.
+    /*!
+    *  Map of state history of numerically integrated bodies, i.e. the result of the numerical integration, in the
+    *  original propagation coordinates. Key of map denotes time, values are concatenated vectors of integrated body
+    * states (order defined by propagatorSettings_).
+    *  NOTE: this map is empty if clearNumericalSolutions_ is set to true.
+    */
     std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > equationsOfMotionNumericalSolutionRaw_;
 
     //! Map of dependent variable history that was saved during numerical propagation.

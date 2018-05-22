@@ -28,7 +28,6 @@
 #include "Tudat/Astrodynamics/Aerodynamics/windModel.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/bodyShapeModel.h"
 
-
 namespace tudat
 {
 

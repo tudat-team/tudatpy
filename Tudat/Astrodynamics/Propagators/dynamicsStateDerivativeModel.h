@@ -121,11 +121,9 @@ public:
             propagatedStateTypeSize_[ stateDerivativeModels.at( i )->getIntegratedStateType( ) ] +=
                     stateDerivativeModels.at( i )->getPropagatedStateSize( );
 
-
             // Set current model in member map.
             stateDerivativeModels_[ stateDerivativeModels.at( i )->getIntegratedStateType( ) ].push_back(
                         stateDerivativeModels.at( i ) );
-
 
             currentStatesPerTypeInConventionalRepresentation_[ stateDerivativeModels.at( i )->getIntegratedStateType( )  ] =
                     Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >::Zero(
@@ -162,7 +160,6 @@ public:
             for( stateDerivativeModelsIterator_ = stateDerivativeModels_.begin( );
                  stateDerivativeModelsIterator_ != stateDerivativeModels_.end( );
                  stateDerivativeModelsIterator_++ )
-
             {
                 for( unsigned int i = 0; i < stateDerivativeModelsIterator_->second.size( ); i++ )
                 {
@@ -236,9 +233,9 @@ public:
         return stateDerivative_;
     }
 
-    //! Function to calculate the system state derivative with double precision, regardless of template arguments
+    //! Function to calculate the system state derivative with double precision, regardless of template arguments.
     /*!
-     *   Function to calculate the system state derivative with double precision, regardless of template arguments
+     *  Function to calculate the system state derivative with double precision, regardless of template arguments.
      *  \sa computeStateDerivative
      *  \param time Current time.
      *  \param state Current complete state.
@@ -268,15 +265,14 @@ public:
                 Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >::Zero( totalPropagatedStateSize_, 1 );
 
         // Iterate over all state derivative models and convert associated state entries
+        std::vector< std::pair< int, int > > currentConventionalStateIndices;
+        std::vector< std::pair< int, int > > currentPropagatedStateIndices;
         for( stateDerivativeModelsIterator_ = stateDerivativeModels_.begin( );
              stateDerivativeModelsIterator_ != stateDerivativeModels_.end( );
              stateDerivativeModelsIterator_++ )
         {
-            std::vector< std::pair< int, int > > currentConventionalStateIndices =
-                    conventionalStateIndices_.at( stateDerivativeModelsIterator_->first );
-            std::vector< std::pair< int, int > > currentPropagatedStateIndices =
-                    propagatedStateIndices_.at( stateDerivativeModelsIterator_->first );
-
+            currentConventionalStateIndices = conventionalStateIndices_.at( stateDerivativeModelsIterator_->first );
+            currentPropagatedStateIndices = propagatedStateIndices_.at( stateDerivativeModelsIterator_->first );
             for( unsigned int i = 0; i < stateDerivativeModelsIterator_->second.size( ); i++ )
             {
                 internalState.segment( currentPropagatedStateIndices.at( i ).first,
@@ -307,17 +303,17 @@ public:
             const TimeType& time )
     {
         Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > outputState =
-                Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >::Zero( internalSolution.rows( ), 1 );
+                Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >::Zero( totalConventionalStateSize_, 1 );
 
         // Iterate over all state derivative models and convert associated state entries
+        std::vector< std::pair< int, int > > currentConventionalStateIndices;
+        std::vector< std::pair< int, int > > currentPropagatedStateIndices;
         for( stateDerivativeModelsIterator_ = stateDerivativeModels_.begin( );
              stateDerivativeModelsIterator_ != stateDerivativeModels_.end( );
              stateDerivativeModelsIterator_++ )
         {
-            std::vector< std::pair< int, int > > currentConventionalStateIndices = conventionalStateIndices_.at(
-                        stateDerivativeModelsIterator_->first );
-            std::vector< std::pair< int, int > > currentPropagatedStateIndices = propagatedStateIndices_.at(
-                        stateDerivativeModelsIterator_->first );
+            currentConventionalStateIndices = conventionalStateIndices_.at( stateDerivativeModelsIterator_->first );
+            currentPropagatedStateIndices = propagatedStateIndices_.at( stateDerivativeModelsIterator_->first );
             for( unsigned int i = 0; i < stateDerivativeModelsIterator_->second.size( ); i++ )
             {
                 stateDerivativeModelsIterator_->second.at( i )->convertToOutputSolution(
@@ -328,6 +324,7 @@ public:
                                                currentConventionalStateIndices.at( i ).second, 1 ) );
             }
         }
+
         return outputState;
     }
 
@@ -351,11 +348,8 @@ public:
         {
             // Convert solution at this time to output (Cartesian with propagation origin frame for
             // translational dynamics) solution
-
             convertedSolution[ stateIterator->first ] =
                     convertToOutputSolution( stateIterator->second, stateIterator->first );
-
-
         }
     }
 
@@ -368,7 +362,6 @@ public:
     {
         variationalEquations_ = variationalEquations;
     }
-
 
     //! Function to set which segments of the full state to propagate
     /*!
@@ -414,14 +407,14 @@ public:
         {
             switch( stateDerivativeModelsIterator_->first )
             {
-            case transational_state:
+            case translational_state:
             {
                 for( unsigned int i = 0; i < stateDerivativeModelsIterator_->second.size( ); i++ )
                 {
                     boost::shared_ptr< NBodyStateDerivative< StateScalarType, TimeType > > currentTranslationalStateDerivative =
                             boost::dynamic_pointer_cast< NBodyStateDerivative< StateScalarType, TimeType > >(
                                 stateDerivativeModelsIterator_->second.at( i ) );
-                    switch( currentTranslationalStateDerivative->getPropagatorType( ) )
+                    switch( currentTranslationalStateDerivative->getTranslationalPropagatorType( ) )
                     {
                     case cowell:
                         break;
@@ -430,20 +423,22 @@ public:
                         break;
                     case gauss_keplerian:
                         break;
-//                    case gauss_modified_equinoctial:
-//                        break;
-//                    case unified_state_model_quaternions:
-//                        break;
-//                    case unified_state_model_modified_rodrigues_parameters:
-//                        break;
-//                    case unified_state_model_exponential_map:
-//                        break;
+                    case gauss_modified_equinoctial:
+                        break;
+                    case unified_state_model_quaternions:
+                        break;
+                    case unified_state_model_modified_rodrigues_parameters:
+                        break;
+                    case unified_state_model_exponential_map:
+                        break;
                     default:
                         throw std::runtime_error( "Error when updating state derivative model settings, did not recognize translational propagator type" );
                         break;
                     }
                 }
             }
+            case rotational_state:
+                break;
             case body_mass_state:
                 break;
             case custom_state:
@@ -525,30 +520,44 @@ public:
      * Function to process the state vector during propagation
      * \param state State before normalization
      */
-    void postProcessState( Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& state )
+    void postProcessState( Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& unprocessedState )
     {
+        // Iterate over all state derivative models and post-process associated state entries
+        std::vector< std::pair< int, int > > currentIndices;
         for( stateDerivativeModelsIterator_ = stateDerivativeModels_.begin( );
              stateDerivativeModelsIterator_ != stateDerivativeModels_.end( );
              stateDerivativeModelsIterator_++ )
         {
+            currentIndices = propagatedStateIndices_.at( stateDerivativeModelsIterator_->first );
             for( unsigned int i = 0; i < stateDerivativeModelsIterator_->second.size( ); i++ )
             {
                 stateDerivativeModelsIterator_->second.at( i )->postProcessState(
-                            state, 0 ); // temporary
+                            unprocessedState.block( currentIndices.at( i ).first, dynamicsStartColumn_,
+                                                    currentIndices.at( i ).second, 1 ) );
             }
         }
     }
 
-    void postProcessStateAndVariationalEquations( Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >& state )
+    //! Function to process the state vector and variational equations during propagation.
+    /*!
+     * Function to process the state vector and variational equations during propagation
+     * \param state State before normalization
+     */
+    void postProcessStateAndVariationalEquations( Eigen::Matrix< StateScalarType, Eigen::Dynamic,
+                                                  Eigen::Dynamic >& unprocessedState )
     {
+        // Iterate over all state derivative models and post-process associated state entries
+        std::vector< std::pair< int, int > > currentIndices;
         for( stateDerivativeModelsIterator_ = stateDerivativeModels_.begin( );
              stateDerivativeModelsIterator_ != stateDerivativeModels_.end( );
              stateDerivativeModelsIterator_++ )
         {
+            currentIndices = propagatedStateIndices_.at( stateDerivativeModelsIterator_->first );
             for( unsigned int i = 0; i < stateDerivativeModelsIterator_->second.size( ); i++ )
             {
                 stateDerivativeModelsIterator_->second.at( i )->postProcessState(
-                            state, 0, dynamicsStartColumn_ ); // temporary
+                            unprocessedState.block( currentIndices.at( i ).first, dynamicsStartColumn_,
+                                                    currentIndices.at( i ).second, 1 ) );
             }
         }
     }
@@ -644,9 +653,15 @@ private:
     typename std::unordered_map< IntegratedStateType, std::vector< boost::shared_ptr
     < SingleStateTypeDerivative< StateScalarType, TimeType > > > >::iterator stateDerivativeModelsIterator_;
 
-    //! Total length of state vector.
+    //! Total length of conventional state vector.
+    /*!
+     *  Total length of conventional state vector. For instance, for translational propagation, this is the
+     *  length of the Cartesian state, whereas for rotational propagation, it is the length of the quaternion
+     *  state.
+     */
     int totalConventionalStateSize_;
 
+    //! Total length of propagated state vector.
     int totalPropagatedStateSize_;
 
     //! List of states that are not propagated in current numerical integration, i.e, for which
@@ -701,11 +716,11 @@ std::vector< boost::shared_ptr< basic_astrodynamics::AccelerationModel3d > > get
             listOfSuitableAccelerationModels;
 
     // Retrieve acceleration models
-    if( stateDerivativeModels.count( propagators::transational_state ) == 1 )
+    if( stateDerivativeModels.count( propagators::translational_state ) == 1 )
     {
         basic_astrodynamics::AccelerationMap accelerationModelList =
                 boost::dynamic_pointer_cast< NBodyStateDerivative< StateScalarType, TimeType > >(
-                    stateDerivativeModels.at( propagators::transational_state ).at( 0 ) )->getAccelerationsMap( );
+                    stateDerivativeModels.at( propagators::translational_state ).at( 0 ) )->getAccelerationsMap( );
         if( accelerationModelList.count( bodyUndergoingAcceleration ) == 0 )
         {
 
@@ -768,7 +783,6 @@ std::vector< boost::shared_ptr< basic_astrodynamics::TorqueModel > > getTorqueBe
                     stateDerivativeModels.at( propagators::rotational_state ).at( 0 ) )->getTorquesMap( );
         if( torqueModelList.count( bodyUndergoingTorque ) == 0 )
         {
-
             std::string errorMessage = "Error when getting torque between bodies, no translational dynamics models acting on " +
                     bodyUndergoingTorque + " are found";
             throw std::runtime_error( errorMessage );
@@ -817,13 +831,13 @@ boost::shared_ptr< NBodyStateDerivative< StateScalarType, TimeType > > getTransl
     boost::shared_ptr< NBodyStateDerivative< StateScalarType, TimeType > > modelForBody;
 
     // Check if translational state derivative models exists
-    if( stateDerivativeModels.count( propagators::transational_state ) > 0 )
+    if( stateDerivativeModels.count( propagators::translational_state ) > 0 )
     {
-        for( unsigned int i = 0; i < stateDerivativeModels.at( propagators::transational_state ).size( ); i++ )
+        for( unsigned int i = 0; i < stateDerivativeModels.at( propagators::translational_state ).size( ); i++ )
         {
             boost::shared_ptr< NBodyStateDerivative< StateScalarType, TimeType > > nBodyModel =
                     boost::dynamic_pointer_cast< NBodyStateDerivative< StateScalarType, TimeType > >(
-                        stateDerivativeModels.at( propagators::transational_state ).at( i ) );
+                        stateDerivativeModels.at( propagators::translational_state ).at( i ) );
             std::vector< std::string > propagatedBodies = nBodyModel->getBodiesToBeIntegratedNumerically( );
 
             // Check if bodyUndergoingAcceleration is propagated by bodyUndergoingAcceleration

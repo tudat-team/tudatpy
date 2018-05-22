@@ -211,7 +211,8 @@ public:
 
     ExponentialAtmosphereSettings(
             const double densityScaleHeight, const double constantTemperature,
-            const double densityAtZeroAltitude, const double specificGasConstant,
+            const double densityAtZeroAltitude,
+            const double specificGasConstant = physical_constants::SPECIFIC_GAS_CONSTANT_AIR,
             const double ratioOfSpecificHeats = 1.4 ):
         AtmosphereSettings( exponential_atmosphere ),
         densityScaleHeight_( densityScaleHeight ), constantTemperature_( constantTemperature ),
@@ -388,8 +389,8 @@ public:
                                  const interpolators::BoundaryInterpolationType boundaryHandling = interpolators::use_boundary_value,
                                  const double defaultExtrapolationValue = IdentityElement< double >::getAdditionIdentity( ) ) :
         TabulatedAtmosphereSettings( { { 0, atmosphereTableFile } }, { altitude_dependent_atmosphere },
-                                     dependentVariablesNames, specificGasConstant, ratioOfSpecificHeats,
-                                     std::vector< interpolators::BoundaryInterpolationType >( 1, boundaryHandling ),
+                                     dependentVariablesNames, specificGasConstant,
+                                     ratioOfSpecificHeats, { boundaryHandling },
                                      std::vector< double >( dependentVariablesNames.size( ),
                                                             defaultExtrapolationValue ) ){ }
 
