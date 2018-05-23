@@ -12,13 +12,6 @@
 #ifndef TUDAT_ROTATIONAL_MOTION_MODIFIED_RODRIGUES_PARAMETERS_STATE_DERIVATIVE_H
 #define TUDAT_ROTATIONAL_MOTION_MODIFIED_RODRIGUES_PARAMETERS_STATE_DERIVATIVE_H
 
-#include <vector>
-#include <map>
-#include <string>
-
-#include <boost/shared_ptr.hpp>
-#include <boost/function.hpp>
-
 #include "Tudat/Astrodynamics/Propagators/rotationalMotionStateDerivative.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/attitudeElementConversions.h"
 

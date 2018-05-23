@@ -20,8 +20,6 @@
 
 #include "Tudat/Basics/basicTypedefs.h"
 
-#include "Tudat/Astrodynamics/Propagators/singleStateTypeDerivative.h"
-
 namespace tudat
 {
 
@@ -63,23 +61,6 @@ Eigen::Vector3d convertQuaternionsToExponentialMapElements( const Eigen::Vector4
  *  \return convertedQuaternionElements Vector of quaternion elements.
  */
 Eigen::Vector4d convertExponentialMapToQuaternionElements( const Eigen::Vector3d& exponentialMapElements );
-
-//! Transform quaternion to opposite rotation.
-/*!
- *  Transform quaternion to opposite rotation.
- *  \param quaternionHistory Map of quaternions over time, where quaternions appear as discontinuous.
- *  \return Map of quaternions over time, where continuity is restored.
- */
-void convertQuaternionHistoryToMatchSigns( std::map< double, Eigen::Vector4d >& quaternionHistoryMap );
-
-//! Transform quaternion in translational or rotational state to opposite rotation.
-/*!
- *  Transform quaternion in translational or rotational state to opposite rotation.
- *  \param quaternionHistory Map of state over time, where quaternions appear as discontinuous.
- *  \return Map of state over time, where continuity is restored.
- */
-void convertQuaternionHistoryToMatchSigns( std::map< double, Eigen::VectorXd >& stateHistoryMap,
-                                           const propagators::IntegratedStateType stateType );
 
 } // namespace orbital_element_conversions
 

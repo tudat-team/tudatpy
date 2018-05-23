@@ -12,15 +12,9 @@
 #ifndef TUDAT_ROTATIONAL_MOTION_EXPONENTIAL_MAP_STATE_DERIVATIVE_H
 #define TUDAT_ROTATIONAL_MOTION_EXPONENTIAL_MAP_STATE_DERIVATIVE_H
 
-#include <vector>
-#include <map>
-#include <string>
-
-#include <boost/shared_ptr.hpp>
-#include <boost/function.hpp>
-
 #include "Tudat/Astrodynamics/Propagators/rotationalMotionStateDerivative.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/attitudeElementConversions.h"
+#include "Tudat/Astrodynamics/BasicAstrodynamics/quaternionHistoryManipulation.h"
 
 namespace tudat
 {
@@ -196,6 +190,28 @@ public:
      * \return Boolean confirming that the state needs to be post-processed.
      */
     bool isStateToBePostProcessed( )
+    {
+        return true;
+    }
+
+    //! Function to process the state history after propagation.
+    /*!
+     * Function to process the state history after propagation.
+     * \param unprocessedStateHistory State hisotry after propagation.
+     */
+    void processConventionalStateHistory(
+            std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >& unprocessedStateHistory )
+    {
+        orbital_element_conversions::convertQuaternionHistoryToMatchSigns(
+                    unprocessedStateHistory, rotational_state );
+    }
+
+    //! Function to return whether the state history needs to be processed.
+    /*!
+     * Function to return whether the state history needs to be processed. For exponential map this is true.
+     * \return Boolean confirming that the state history needs to be processed.
+     */
+    bool isConventionalStateHistoryToBeProcessed( )
     {
         return true;
     }

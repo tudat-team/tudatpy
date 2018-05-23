@@ -57,7 +57,6 @@ std::map< S, T > linearlyScaleKeyOfMap(
         else
         {
             newKey = mapIterator->first * scale - offset;
-
         }
 
         // Set scalted map key with corresponding value in new map
@@ -83,10 +82,9 @@ std::vector< VectorArgument > createVectorFromMapValues( const std::map< KeyType
     // Iterate over all map entries and create vector
     int currentIndex = 0;
     for( typename std::map< KeyType, VectorArgument >::const_iterator mapIterator = inputMap.begin( );
-         mapIterator != inputMap.end( ); mapIterator++ )
+         mapIterator != inputMap.end( ); mapIterator++, currentIndex++ )
     {
         outputVector[ currentIndex ] = mapIterator->second;
-        currentIndex++;
     }
 
     return outputVector;
@@ -109,10 +107,9 @@ std::vector< KeyType > createVectorFromMapKeys( const std::map< KeyType, VectorA
     // Iterate over all map entries and create vector
     int currentIndex = 0;
     for( typename std::map< KeyType, VectorArgument >::const_iterator mapIterator = inputMap.begin( );
-         mapIterator != inputMap.end( ); mapIterator++ )
+         mapIterator != inputMap.end( ); mapIterator++, currentIndex++ )
     {
         outputVector[ currentIndex ] = mapIterator->first;
-        currentIndex++;
     }
 
     return outputVector;
@@ -224,7 +221,7 @@ std::vector< boost::shared_ptr< T > >dynamicCastSVectorToTVector( const std::vec
     return castVector;
 }
 
-
+//! Function to concatenate matrix values of map.
 template< typename KeyType, typename ScalarType, int NumberOfRows, int NumberOfColumns = 1 >
 Eigen::Matrix< ScalarType, Eigen::Dynamic, NumberOfColumns > createConcatenatedEigenMatrixFromMapValues(
         const std::map< KeyType, Eigen::Matrix< ScalarType, NumberOfRows, NumberOfColumns > >& inputMap )
@@ -280,6 +277,59 @@ Eigen::Matrix< ScalarType, Eigen::Dynamic, NumberOfColumns > createConcatenatedE
     return outputVector;
 }
 
+////! Function to extract both keys and values from map, and output them as a pair.
+//template< typename KeyType, typename ScalarType, unsigned int NumberOfKeys, unsigned int NumberOfElements >
+//std::pair< Eigen::Matrix< KeyType, NumberOfKeys, 1 >, Eigen::Matrix< ScalarType, NumberOfElements, NumberOfKeys > >
+//extractKeyAndValuesFromMap( const std::map< KeyType, Eigen::Matrix< ScalarType, NumberOfElements, 1 > >& inputMap )
+//{
+//    // Declare eventual output variables
+//    Eigen::Matrix< KeyType, NumberOfKeys, 1 > keyValuesVector;
+//    Eigen::Matrix< ScalarType, NumberOfElements, NumberOfKeys > mappedValuesMatrix;
+
+//    // Loop over map and save elements
+//    int i = 0;
+//    for ( typename std::map< KeyType, Eigen::Matrix< ScalarType, NumberOfElements, 1 > >::const_iterator
+//          mapIterator = inputMap.begin( );
+//          mapIterator != inputMap.end( );
+//          mapIterator++, i++ )
+//    {
+//        keyValuesVector[ i ] = mapIterator->first;
+//        mappedValuesMatrix.col( i ) = mapIterator->second;
+//    }
+
+//    // Give output
+//    return std::make_pair( keyValuesVector, mappedValuesMatrix );
+//}
+//! Function to extract both keys and values from map, and output them as a pair.
+template< typename KeyType, typename ScalarType, unsigned int NumberOfElements >
+std::pair< Eigen::Matrix< KeyType, Eigen::Dynamic, 1 >, Eigen::Matrix< ScalarType, Eigen::Dynamic, Eigen::Dynamic > >
+extractKeyAndValuesFromMap( const std::map< KeyType, Eigen::Matrix< ScalarType, NumberOfElements, 1 > >& inputMap )
+{
+    // Declare eventual output variables
+    Eigen::Matrix< KeyType, Eigen::Dynamic, 1 > keyValuesVector;
+    Eigen::Matrix< ScalarType, NumberOfElements, Eigen::Dynamic > mappedValuesMatrix;
+
+    // Assign size to matrices
+    unsigned int numberOfKeys = inputMap.size( );
+    keyValuesVector.resize( numberOfKeys, 1 );
+    mappedValuesMatrix.resize( NumberOfElements, numberOfKeys );
+
+    // Loop over map and save elements
+    int i = 0;
+    for ( typename std::map< KeyType, Eigen::Matrix< ScalarType, NumberOfElements, 1 > >::const_iterator
+          mapIterator = inputMap.begin( );
+          mapIterator != inputMap.end( );
+          mapIterator++, i++ )
+    {
+        keyValuesVector[ i ] = mapIterator->first;
+        mappedValuesMatrix.col( i ) = mapIterator->second;
+    }
+
+    // Give output
+    return std::make_pair( keyValuesVector, mappedValuesMatrix );
+}
+
+//! Function to convert Eigen::Vector to std::vector.
 template< typename T >
 std::vector< T > convertEigenVectorToStlVector( const Eigen::Matrix< T, Eigen::Dynamic, 1 >& eigenVector )
 {
@@ -292,7 +342,7 @@ std::vector< T > convertEigenVectorToStlVector( const Eigen::Matrix< T, Eigen::D
     return stlVector;
 }
 
-
+//! Function to convert std::vector to Eigen::Vector.
 template< typename T >
 Eigen::Matrix< T, Eigen::Dynamic, 1 > convertStlVectorToEigenVector( const std::vector< T >& stlVector )
 {

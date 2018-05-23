@@ -1016,7 +1016,6 @@ createIntegratedStateProcessors(
                     }
                     
                     currentStartIndex += typeIterator->second.at( i )->getConventionalStateSize( );
-                    
                 }
             }
             else
@@ -1024,14 +1023,11 @@ createIntegratedStateProcessors(
                 throw std::runtime_error(
                             "Error when making integrated state processors, cannot handle hybrid propagator inside hybrid propagator" );
             }
-            
         }
-        
         break;
     }
     case translational_state:
     {
-        
         // Check input feasibility
         boost::shared_ptr< TranslationalStatePropagatorSettings< StateScalarType > >
                 translationalPropagatorSettings = boost::dynamic_pointer_cast
@@ -1062,7 +1058,6 @@ createIntegratedStateProcessors(
     }
     case body_mass_state:
     {
-        
         // Check input feasibility
         boost::shared_ptr< MassPropagatorSettings< StateScalarType > >
                 massPropagatorSettings = boost::dynamic_pointer_cast
