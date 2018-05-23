@@ -30,7 +30,7 @@ namespace propagators
  * \param angularVelocityVectorInBodyFixedFrame Current angular velocity vector of body, expressed in its body-fixed frame
  * \return Time derivative of an exponential map (in vector representation) of body-fixed to inertial frame
  */
-Eigen::Vector3d calculateExponentialMapDerivative( const Eigen::Vector3d& currentExponantialMapToBaseFrame,
+Eigen::Vector4d calculateExponentialMapDerivative( const Eigen::Vector4d& currentExponantialMapToBaseFrame,
                                                    const Eigen::Vector3d& angularVelocityVectorInBodyFixedFrame );
 
 //! Class for computing the state derivative for rotational dynamics of N bodies.
@@ -72,7 +72,7 @@ public:
     /*!
      *  Calculates the state derivative of the rotational motion of the system at the given time and rotational state.
      *  \param time Time (seconds since reference epoch) at which the system is to be updated.
-     *  \param stateOfSystemToBeIntegrated List of 6 * bodiesToPropagate_.size( ), containing rotation exponential map
+     *  \param stateOfSystemToBeIntegrated List of 7 * bodiesToPropagate_.size( ), containing rotation exponential map
      *  and angular velocity of the bodies being propagated. The order of the values is defined by the order of bodies
      *  in bodiesToPropagate_.
      *  \param stateDerivative Current state derivative (exponential map rate + angular acceleration) of system of bodies
@@ -88,13 +88,13 @@ public:
 
         for( unsigned int i = 0; i < torquesActingOnBodies.size( ); i++ )
         {
-            Eigen::Matrix< StateScalarType, 3, 1 > currentExponentialMap = stateOfSystemToBeIntegrated.block( i * 6, 0, 3, 1 );
-            Eigen::Matrix< StateScalarType, 3, 1 > currentBodyFixedRotationRate = stateOfSystemToBeIntegrated.block( i * 6 + 3, 0, 3, 1 );
+            Eigen::Matrix< StateScalarType, 4, 1 > currentExponentialMap = stateOfSystemToBeIntegrated.block( i * 7, 0, 4, 1 );
+            Eigen::Matrix< StateScalarType, 3, 1 > currentBodyFixedRotationRate = stateOfSystemToBeIntegrated.block( i * 7 + 4, 0, 3, 1 );
 
-            stateDerivative.block( i * 6, 0, 3, 1 ) = calculateExponentialMapDerivative(
+            stateDerivative.block( i * 7, 0, 4, 1 ) = calculateExponentialMapDerivative(
                         currentExponentialMap.template cast< double >( ), currentBodyFixedRotationRate.template cast< double >( ) ).
                     template cast< StateScalarType >( );
-            stateDerivative.block( i * 6 + 3, 0, 3, 1 ) = evaluateRotationalEquationsOfMotion(
+            stateDerivative.block( i * 7 + 4, 0, 3, 1 ) = evaluateRotationalEquationsOfMotion(
                         this->bodyInertiaTensorFunctions_.at( i )( ), torquesActingOnBodies.at( i ),
                         currentBodyFixedRotationRate.template cast< double >( ),
                         this->bodyInertiaTensorTimeDerivativeFunctions_.at( i )( ) ).template cast< StateScalarType >( );
@@ -112,15 +112,15 @@ public:
             const Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >& outputSolution, const TimeType& time )
     {
         Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > currentState =
-                Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >::Zero( getPropagatedStateSize( ) );
+                Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >::Zero( this->getPropagatedStateSize( ) );
 
         // Convert state to modified Rodrigues parameters for each body
         for( unsigned int i = 0; i < this->bodiesToPropagate_.size( ); i++ )
         {
-            currentState.segment( i * 6, 3 ) =
+            currentState.segment( i * 7, 4 ) =
                     orbital_element_conversions::convertQuaternionsToExponentialMapElements(
                         outputSolution.block( i * 7, 0, 4, 1 ).template cast< double >( ) ).template cast< StateScalarType >( );
-            currentState.segment( i * 6 + 3, 3 ) = outputSolution.block( i * 7 + 4, 0, 3, 1 ); // rotational velocity is the same
+            currentState.segment( i * 7 + 4, 3 ) = outputSolution.block( i * 7 + 4, 0, 3, 1 ); // rotational velocity is the same
         }
 
         return currentState;
@@ -142,19 +142,9 @@ public:
         {
             currentLocalSolution.segment( i * 7, 4 ) =
                     orbital_element_conversions::convertExponentialMapToQuaternionElements(
-                        internalSolution.block( i * 6, 0, 3, 1 ).template cast< double >( ) ).template cast< StateScalarType >( );
-            currentLocalSolution.segment( i * 7 + 4, 3 ) = internalSolution.block( i * 6 + 3, 0, 3, 1 ); // rotational velocity is the same
+                        internalSolution.block( i * 7, 0, 4, 1 ).template cast< double >( ) ).template cast< StateScalarType >( );
+            currentLocalSolution.segment( i * 7 + 4, 3 ) = internalSolution.block( i * 7 + 4, 0, 3, 1 ); // rotational velocity is the same
         }
-    }
-
-    //! Function to return the size of the state handled by the object.
-    /*!
-     * Function to return the size of the state handled by the object.
-     * \return Size of the state under consideration (3 times the number if integrated bodies).
-     */
-    int getPropagatedStateSize( )
-    {
-        return 6 * this->bodiesToPropagate_.size( );
     }
 
     //! Function to process the state during propagation.
@@ -171,15 +161,19 @@ public:
         for( unsigned int i = 0; i < this->bodiesToPropagate_.size( ); i++ )
         {
             // Convert to/from shadow exponential map (SEM) (transformation is the same either way)
-            exponentialMapVector = unprocessedState.block( i * 6, 0, 3, 1 );
+            exponentialMapVector = unprocessedState.block( i * 7, 0, 3, 1 );
             exponentialMapMagnitude = exponentialMapVector.norm( );
             if ( exponentialMapMagnitude >= mathematical_constants::PI )
             {
+                // Invert flag
+                unprocessedState.segment( i * 7 + 3, 1 ) = ( unprocessedState.block( i * 7 + 3, 0, 1, 1 ) -
+                                                             Eigen::Matrix< double, 1, 1 >::Ones( ) ).cwiseAbs( );
+
                 // Convert to EM/SEM
                 exponentialMapVector *= ( 1.0 - ( 2.0 * mathematical_constants::PI / exponentialMapMagnitude ) );
 
                 // Replace EM with SEM, or vice-versa
-                unprocessedState.segment( i * 6, 3 ) = exponentialMapVector;
+                unprocessedState.segment( i * 7, 3 ) = exponentialMapVector;
             }
         }
     }
@@ -194,27 +188,27 @@ public:
         return true;
     }
 
-    //! Function to process the state history after propagation.
-    /*!
-     * Function to process the state history after propagation.
-     * \param unprocessedStateHistory State hisotry after propagation.
-     */
-    void processConventionalStateHistory(
-            std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >& unprocessedStateHistory )
-    {
-        orbital_element_conversions::convertQuaternionHistoryToMatchSigns(
-                    unprocessedStateHistory, rotational_state );
-    }
+//    //! Function to process the state history after propagation.
+//    /*!
+//     * Function to process the state history after propagation.
+//     * \param unprocessedStateHistory State hisotry after propagation.
+//     */
+//    void processConventionalStateHistory(
+//            std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >& unprocessedStateHistory )
+//    {
+//        orbital_element_conversions::convertQuaternionHistoryToMatchSigns(
+//                    unprocessedStateHistory, rotational_state );
+//    }
 
-    //! Function to return whether the state history needs to be processed.
-    /*!
-     * Function to return whether the state history needs to be processed. For exponential map this is true.
-     * \return Boolean confirming that the state history needs to be processed.
-     */
-    bool isConventionalStateHistoryToBeProcessed( )
-    {
-        return true;
-    }
+//    //! Function to return whether the state history needs to be processed.
+//    /*!
+//     * Function to return whether the state history needs to be processed. For exponential map this is true.
+//     * \return Boolean confirming that the state history needs to be processed.
+//     */
+//    bool isConventionalStateHistoryToBeProcessed( )
+//    {
+//        return true;
+//    }
 
 private:
 

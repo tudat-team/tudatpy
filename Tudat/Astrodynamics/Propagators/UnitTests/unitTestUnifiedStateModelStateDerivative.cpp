@@ -232,7 +232,6 @@ BOOST_AUTO_TEST_CASE( testUnifiedStateModelPopagatorForPointMassCentralBodies )
         std::map< double, Eigen::Matrix< double, 18, 1 > >::iterator cowellIterator = cowellIntegrationResults.begin( );
         for( unsigned int i = 0; i < usmIntegrationResults.size( ); i++ )
         {
-
             for( int j= 0; j< 3; j++ )
             {
                 BOOST_CHECK_SMALL( ( usmIterator->second - cowellIterator->second ).segment( j, 1 )( 0 ), 0.02 );
