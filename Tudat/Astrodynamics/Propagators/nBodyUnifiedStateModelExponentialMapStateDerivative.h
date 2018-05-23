@@ -158,7 +158,6 @@ public:
                         stateOfSystemToBeIntegrated.block( i * 6, 0, 6, 1 ).template cast< double >( ), currentAccelerationInRswFrame,
                         centralBodyGravitationalParameters_.at( i )( ) ).template cast< StateScalarType >( );
         }
-
     }
 
     //! Function to convert the state in the conventional form to the USMEM elements form.

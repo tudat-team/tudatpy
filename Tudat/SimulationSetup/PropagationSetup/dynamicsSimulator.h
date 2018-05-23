@@ -442,7 +442,7 @@ public:
         // Process conventional state history
         dynamicsStateDerivative_->processConventionalStateHistory( equationsOfMotionNumericalSolution_ );
 
-        // Retrieve number of function evaluations (to print, remove comments on line 448)
+        // Retrieve number of function evaluations (to print, remove comments on line 450)
         int numberOfFunctionEvaluations = dynamicsStateDerivative_->getNumberOfFunctionEvaluations( );
         cumulativeNumberOfFunctionEvaluations_ = dynamicsStateDerivative_->getCumulativeNumberOfFunctionEvaluations( );
 

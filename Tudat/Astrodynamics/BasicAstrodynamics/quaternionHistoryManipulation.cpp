@@ -6,10 +6,6 @@
  *    under the terms of the Modified BSD license. You should have received
  *    a copy of the license with this file. If not, please or visit:
  *    http://tudat.tudelft.nl/LICENSE.
- *
- *    References
- *      Schaub, H. and Junkins, J., Analytical Mechanics of Space Systems, 2nd ed., ser. Education Series.
- *          American Institute of Aeronautics and Astronautics, 2002.
  */
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/quaternionHistoryManipulation.h"

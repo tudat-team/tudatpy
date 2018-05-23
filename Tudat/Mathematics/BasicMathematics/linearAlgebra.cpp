@@ -38,15 +38,14 @@ Eigen::Vector4d convertQuaternionToVectorFormat( const Eigen::Quaterniond& quate
 //! Function to put a vector in 'quaternion format', i.e. a Quaterniond.
 Eigen::Quaterniond convertVectorToQuaternionFormat( const Eigen::Vector4d& vector )
 {
-//    Eigen::Quaterniond quaternion;
+    Eigen::Quaterniond quaternion;
 
-//    quaternion.w( ) = vector( 0 );
-//    quaternion.x( ) = vector( 1 );
-//    quaternion.y( ) = vector( 2 );
-//    quaternion.z( ) = vector( 3 );
+    quaternion.w( ) = vector( 0 );
+    quaternion.x( ) = vector( 1 );
+    quaternion.y( ) = vector( 2 );
+    quaternion.z( ) = vector( 3 );
 
-//    return quaternion;
-    return Eigen::Quaterniond( vector );
+    return quaternion;
 }
 
 //! Compute direction cosine matrix from quaternion as Vector4d.
