@@ -36,12 +36,12 @@ namespace linear_algebra
 Eigen::Vector4d convertQuaternionToVectorFormat( const Eigen::Quaterniond& quaternion );
 
 //! Function to put a vector in 'quaternion format', i.e. a Quaterniond.
-Eigen::Quaterniond convertVectorToQuaternionFormat( const Eigen::Vector4d& vector );
 /*!
  * Function to put a vector in 'quaternion format', i.e. a Quaterniond.
  * \param Vector format of input quaternion.
  * \return quaternion Quaternion that is to be put into vector format.
  */
+Eigen::Quaterniond convertVectorToQuaternionFormat( const Eigen::Vector4d& vector );
 
 //! Function to compute the direction cosine matrix from a quaternion expressed as a Vector4d.
 /*!

@@ -230,7 +230,6 @@ public:
 
     virtual std::vector< std::map< TimeType, double > > getCumulativeComputationTimeHistoryBase( ) = 0;
 
-
     //! Function to get the map of named bodies involved in simulation.
     /*!
      *  Function to get the map of named bodies involved in simulation.
@@ -299,7 +298,6 @@ public:
     using DynamicsSimulator< StateScalarType, TimeType >::clearNumericalSolutions_;
     using DynamicsSimulator< StateScalarType, TimeType >::setIntegratedResult_;
 
-
     //! Constructor of simulator.
     /*!
      *  Constructor of simulator, constructs integrator and object for calculating each time step of integration.
@@ -313,7 +311,7 @@ public:
      *  \param setIntegratedResult Boolean to determine whether to automatically use the integrated results to set
      *  ephemerides (default false).
      *  \param initialClockTime Initial clock time from which to determine cumulative computation time.
-     *  By default now(), i.e. the moment at which this function is called.
+     *  By default now( ), i.e. the moment at which this function is called.
      */
     SingleArcDynamicsSimulator(
             const simulation_setup::NamedBodyMap& bodyMap,
@@ -437,11 +435,12 @@ public:
                     propagatorSettings_->getPrintInterval( ),
                     initialClockTime_ );
 
-        // Apply
-
         // Convert numerical solution to conventional state
         dynamicsStateDerivative_->convertNumericalStateSolutionsToOutputSolutions(
                     equationsOfMotionNumericalSolution_, equationsOfMotionNumericalSolutionRaw_ );
+
+        // Process conventional state history
+        dynamicsStateDerivative_->processConventionalStateHistory( equationsOfMotionNumericalSolution_ );
 
         // Retrieve number of function evaluations (to print, remove comments on line 448)
         int numberOfFunctionEvaluations = dynamicsStateDerivative_->getNumberOfFunctionEvaluations( );
@@ -641,7 +640,6 @@ public:
         return integratedStateProcessors_;
     }
 
-
     //! Function to retrieve the event that triggered the termination of the last propagation
     /*!
      * Function to retrieve the event that triggered the termination of the last propagation
@@ -654,14 +652,13 @@ public:
 
     //! Get whether the integration was completed successfully.
     /*!
-     * @copybrief integrationCompletedSuccessfully
+     * Get whether the integration was completed successfully.
      * \return Whether the integration was completed successfully by reaching the termination condition.
      */
     virtual bool integrationCompletedSuccessfully( ) const
     {
         return ( propagationTerminationReason_->getPropagationTerminationReason( ) == termination_condition_reached );
     }
-
 
     //! Function to retrieve the dependent variables IDs
     /*!
@@ -672,7 +669,6 @@ public:
     {
         return dependentVariableIds_;
     }
-
 
     //! Function to retrieve initial time of propagation
     /*!
@@ -709,7 +705,6 @@ public:
 
 protected:
 
-
     //! This function updates the environment with the numerical solution of the propagation.
     /*!
      *  This function updates the environment with the numerical solution of the propagation. It sets
@@ -735,7 +730,6 @@ protected:
             bodyIterator->second->updateConstantEphemerisDependentMemberQuantities( );
         }
     }
-
 
     //! List of object (per dynamics type) that process the integrated numerical solution by updating the environment
     std::map< IntegratedStateType, std::vector< boost::shared_ptr<
