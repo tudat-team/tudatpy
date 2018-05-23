@@ -369,12 +369,12 @@ public:
             currentIndices = propagatedStateIndices_.at( stateDerivativeModelsIterator_->first );
             for( unsigned int i = 0; i < stateDerivativeModelsIterator_->second.size( ); i++ )
             {
-            	if ( stateDerivativeModelsIterator_->second.at( i )->isStateToBePostProcessed( ) )
+                if ( stateDerivativeModelsIterator_->second.at( i )->isStateToBePostProcessed( ) )
                 {
-                	stateDerivativeModelsIterator_->second.at( i )->postProcessState(
+                    stateDerivativeModelsIterator_->second.at( i )->postProcessState(
                                 unprocessedState.block( currentIndices.at( i ).first, 0,
                                                         currentIndices.at( i ).second, 1 ) );
-               	}
+                }
             }
         }
     }

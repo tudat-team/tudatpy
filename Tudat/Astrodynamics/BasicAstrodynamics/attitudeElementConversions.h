@@ -13,7 +13,6 @@
 
 #include <cmath>
 #include <limits>
-#include <map>
 
 #include <Eigen/Core>
 #include <Eigen/Geometry>
