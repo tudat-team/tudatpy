@@ -2,23 +2,29 @@
 	- added tabulated atmosphere that supports a variable number (1 to 4) of independent variables (see issue [#376](https://github.com/Tudat/tudat/issues/376))
 	- added function to compute aerodynamic (force and moment) coefficients from pressure and shear force distributions on body
 	- added MCD atmosphere tables
-- **Basics**: 
+- **Basics**
 	- added function to return addition and multiplication identities for various types
-- **Input-output**
+- **Input Output**
  	- added class to write multi-dimensional arrays to file
 - **Interpolators**
 	- added option to choose interpolator behavior at boundary (see issue [#378](https://github.com/Tudat/tudat/issues/378)); supported modes: error, extrapolate (with optional warning), use boundary value (with optional warning), use default value (with optional warning)
 	- added interface class `MultiDimensionalInterpolator` to make multi-dimensional interpolation more modular
+- **Linear Algebra**
+	- added function to compute direction cosine matrix from quaternion (both in vector and quaternion format)
 - **Orbital Element Conversions**
 	- added conversions for position and velocity state variables: Cartesian<->USM7, Keplerian<->USM7, Cartesian<->USM6, Keplerian<->USM6, Cartesian<->USMEM, Keplerian<->USMEM
 	- added conversions for attitude state variables: quaternion<->MRP, quaternion<->exponential map
+	- added function to manipulate the quaternion history is such that the history is continuous (no jumps from positive to negative)
 - **Propagators**
 	- added translational state derivatives: USM7, UMS6 and USMEM (see issue [#364](https://github.com/Tudat/tudat/issues/364))
 	- added rotational state derivatives: MRPs and exponential map (see issue [#385](https://github.com/Tudat/tudat/issues/385))
-- **Simulation Setup**: 
+- **Simulation Setup**
 	- added function to output cumulative number of function evaluations (see issue [#375](https://github.com/Tudat/tudat/issues/375))
 	- added function to output raw numerical solution
 	- added function to process state during propagation (right after integration step) (also see issue [#364](https://github.com/Tudat/tudat/issues/364))
-- **SPARTA**: added interface for running SPARTA simulations and analyzing its results (see issue [#380](https://github.com/Tudat/tudat/issues/380))
-- **Unit Tests**: all new functions and classes have been included in unit tests, with the exception of: attitude elements conversions, SPARTA
+- **SPARTA**
+	- added interface for running SPARTA simulations and analyzing its results (see issue [#380](https://github.com/Tudat/tudat/issues/380))
+- **Utilities**
+	- created function to extract both key and mapped values from map
+- **Unit Tests**: all new functions and classes have been included in unit tests, with the exception of: SPARTA
 - Various style, consistency and typo corrections; removed deprecated symbols and warnings

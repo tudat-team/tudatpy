@@ -11,6 +11,8 @@
 #ifndef TUDAT_STATEDERIVATIVE_H
 #define TUDAT_STATEDERIVATIVE_H
 
+#include <map>
+
 #include <Eigen/Core>
 
 namespace tudat
@@ -18,8 +20,6 @@ namespace tudat
 
 namespace propagators
 {
-
-
 
 //! Enum listing types of dynamics that can be numerically integrated
 enum IntegratedStateType
@@ -30,7 +30,6 @@ enum IntegratedStateType
     body_mass_state = 3,
     custom_state = 4
 };
-
 
 //! Get size of state for single propagated state of given type.
 /*!
@@ -193,32 +192,13 @@ public:
 
     //! Function to process the state vector during propagation.
     /*!
-     * Function to process the state during propagation. Is especially used for attitude states (e.g., normalization of quaternions
-     * and transformation to/from shadow attitude parameters).
+     * Function to process the state during propagation. Is especially useful for attitude states (e.g.,
+     * normalization of quaternions and transformation to/from shadow attitude parameters).
      * \param unprocessedState State computed after propagation.
      */
-    virtual void postProcessState( Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& unprocessedState )
+    virtual void postProcessState( Eigen::Block< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > unprocessedState )
     {
 
-    }
-
-    //! Function to process the state during propagation.
-    /*!
-     * Function to process the state during propagation. Is especially used for attitude states (e.g., normalization of quaternions
-     * and transformation to/from shadow attitude parameters).
-     * \param unprocessedState State computed after propagation.
-     * \param startRow Dummy variable added for compatibility issues between Eigen::Matrix and Eigen::Block.
-     * \param startColumn Dummy variable added for compatibility issues between Eigen::Matrix and Eigen::Block.
-     */
-    virtual void postProcessState(
-            Eigen::Block< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > unprocessedState )
-    {
-        if( isStateToBePostProcessed( ) )
-        {
-            unprocessedState_ = unprocessedState;
-            postProcessState( unprocessedState_ );
-            unprocessedState = unprocessedState_;
-        }
     }
 
     //! Function to return whether the state needs to be post-processed.
@@ -227,6 +207,27 @@ public:
      * \return Boolean informing whether the state needs to be post-processed.
      */
     virtual bool isStateToBePostProcessed( )
+    {
+        return false;
+    }
+
+    //! Function to process the state history after propagation.
+    /*!
+     * Function to process the state history after propagation.
+     * \param unprocessedStateHistory State hisotry after propagation.
+     */
+    virtual void processConventionalStateHistory(
+            std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >& unprocessedStateHistory )
+    {
+
+    }
+
+    //! Function to return whether the state history needs to be processed.
+    /*!
+     * Function to return whether the state history needs to be processed. Default value is false.
+     * \return Boolean informing whether the state history needs to be processed.
+     */
+    virtual bool isConventionalStateHistoryToBeProcessed( )
     {
         return false;
     }
@@ -240,7 +241,6 @@ protected:
     Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > unprocessedState_;
 
 };
-
 
 } // namespace propagators
 

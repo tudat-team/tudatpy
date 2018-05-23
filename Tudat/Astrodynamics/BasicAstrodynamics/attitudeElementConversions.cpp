@@ -14,6 +14,7 @@
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/attitudeElementConversions.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/stateVectorIndices.h"
+
 #include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
 
 namespace tudat
@@ -58,7 +59,8 @@ Eigen::Vector4d convertModifiedRodriguesParametersToQuaternionElements( const Ei
     // Convert modified Rodrigues parameters to quaternions
     double conversionSign = ( int( modifiedRodriguesParameterElements( shadowFlagModifiedRodriguesParametersIndex ) ) == 1 ) ?
                 - 1.0 : 1.0; // converion is slightly different for SMRP and MRP
-    convertedQuaternionElements( etaQuaternionIndex ) = conversionSign * ( 1.0 - modifiedRodriguesParametersMagnitudeSquared ) /
+    convertedQuaternionElements( etaQuaternionIndex ) = conversionSign *
+            ( 1.0 - modifiedRodriguesParametersMagnitudeSquared ) /
             ( 1.0 + modifiedRodriguesParametersMagnitudeSquared );
     convertedQuaternionElements.segment( epsilon1QuaternionIndex, 3 ) = conversionSign *
             2.0 / ( 1.0 + modifiedRodriguesParametersMagnitudeSquared ) *

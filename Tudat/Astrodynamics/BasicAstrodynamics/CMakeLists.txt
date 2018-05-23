@@ -27,6 +27,7 @@ set(BASICASTRODYNAMICS_SOURCES
   "${SRCROOT}${BASICASTRODYNAMICSDIR}/unifiedStateModelExponentialMapElementConversions.cpp"
   "${SRCROOT}${BASICASTRODYNAMICSDIR}/stateRepresentationConversions.cpp"
   "${SRCROOT}${BASICASTRODYNAMICSDIR}/torqueModelTypes.cpp"
+  "${SRCROOT}${BASICASTRODYNAMICSDIR}/quaternionHistoryManipulation.cpp"
 )
 
 # Set the header files.
@@ -62,6 +63,7 @@ set(BASICASTRODYNAMICS_HEADERS
   "${SRCROOT}${BASICASTRODYNAMICSDIR}/empiricalAcceleration.h"
   "${SRCROOT}${BASICASTRODYNAMICSDIR}/torqueModel.h"
   "${SRCROOT}${BASICASTRODYNAMICSDIR}/torqueModelTypes.h"
+  "${SRCROOT}${BASICASTRODYNAMICSDIR}/quaternionHistoryManipulation.h"
 )
 
 # Add static libraries.
