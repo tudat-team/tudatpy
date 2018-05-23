@@ -13,7 +13,8 @@
 
 #include "Tudat/Astrodynamics/Propagators/nBodyStateDerivative.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/stateRepresentationConversions.h"
-#include "Tudat/Astrodynamics/BasicAstrodynamics/astrodynamicsFunctions.h"
+#include "Tudat/Astrodynamics/BasicAstrodynamics/quaternionHistoryManipulation.h"
+
 #include "Tudat/Mathematics/BasicMathematics/linearAlgebra.h"
 
 namespace tudat
@@ -118,7 +119,6 @@ public:
                     centralBodyData->getCentralBodies( ), this->bodiesToBeIntegratedNumerically_,
                     this->accelerationModelsPerBody_ );
         this->createAccelerationModelList( );
-
     }
 
     //! Destructor
@@ -234,7 +234,7 @@ public:
      * map (SEM), in case the rotation angle is larger than PI.
      * \param unprocessedState State computed after propagation.
      */
-    void postProcessState( Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& unprocessedState )
+    void postProcessState( Eigen::Block< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > unprocessedState )
     {
         // Loop over each body
         Eigen::Matrix< StateScalarType, 3, 1 > exponentialMapVector;
@@ -261,6 +261,28 @@ public:
      * \return Boolean confirming that the state needs to be post-processed.
      */
     bool isStateToBePostProcessed( )
+    {
+        return true;
+    }
+
+    //! Function to process the state history after propagation.
+    /*!
+     * Function to process the state history after propagation.
+     * \param unprocessedStateHistory State hisotry after propagation.
+     */
+    void processConventionalStateHistory(
+            std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >& unprocessedStateHistory )
+    {
+        orbital_element_conversions::convertQuaternionHistoryToMatchSigns(
+                    unprocessedStateHistory, translational_state );
+    }
+
+    //! Function to return whether the state history needs to be processed.
+    /*!
+     * Function to return whether the state history needs to be processed. For exponential map this is true.
+     * \return Boolean confirming that the state history needs to be processed.
+     */
+    bool isConventionalStateHistoryToBeProcessed( )
     {
         return true;
     }

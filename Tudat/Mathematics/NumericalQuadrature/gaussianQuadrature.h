@@ -44,7 +44,7 @@ void readGaussianQuadratureNodes(
         std::map< unsigned int, Eigen::Array< IndependentVariableType, Eigen::Dynamic, 1> >& gaussQuadratureNodes )
 {
     gaussQuadratureNodes =
-            utilities::convertSTLVectorMapToEigenVectorMap< unsigned int, IndependentVariableType >(
+            utilities::convertStlVectorMapToEigenVectorMap< unsigned int, IndependentVariableType >(
                 input_output::readStlVectorMapFromFile< unsigned int, IndependentVariableType >(
                     input_output::getTudatRootPath( ) + "/Mathematics/NumericalQuadrature/gaussianNodes.txt" ) );
 }
@@ -59,7 +59,7 @@ template< typename IndependentVariableType >
 void readGaussianQuadratureWeights(
         std::map< unsigned int, Eigen::Array< IndependentVariableType, Eigen::Dynamic, 1> >& gaussQuadratureWeights )
 {
-    gaussQuadratureWeights = utilities::convertSTLVectorMapToEigenVectorMap< unsigned int, IndependentVariableType >(
+    gaussQuadratureWeights = utilities::convertStlVectorMapToEigenVectorMap< unsigned int, IndependentVariableType >(
                 input_output::readStlVectorMapFromFile< unsigned int, IndependentVariableType >(
                     input_output::getTudatRootPath( ) + "/Mathematics/NumericalQuadrature/gaussianWeights.txt" ) );
 }

@@ -13,7 +13,7 @@
 
 #include "Tudat/Astrodynamics/Propagators/nBodyStateDerivative.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/stateRepresentationConversions.h"
-#include "Tudat/Astrodynamics/BasicAstrodynamics/astrodynamicsFunctions.h"
+
 #include "Tudat/Mathematics/BasicMathematics/linearAlgebra.h"
 
 namespace tudat
@@ -119,7 +119,6 @@ public:
                     centralBodyData->getCentralBodies( ), this->bodiesToBeIntegratedNumerically_,
                     this->accelerationModelsPerBody_ );
         this->createAccelerationModelList( );
-
     }
 
     //! Destructor
@@ -246,7 +245,7 @@ public:
      * shadow modified Rodrigues parameters (SMRP), in case the magnitude of the (S)MRP vector is larger than 1.0.
      * \param unprocessedState State computed after propagation.
      */
-    void postProcessState( Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& unprocessedState )
+    void postProcessState( Eigen::Block< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > unprocessedState )
     {
         // Loop over each body
         Eigen::Matrix< StateScalarType, 3, 1 > modifiedRodriguesParametersVector;
@@ -259,7 +258,8 @@ public:
             if ( modifiedRodriguesParametersMagnitude >= 1.0 )
             {
                 // Invert flag
-                unprocessedState( i * 7 + 6 ) = std::fabs( unprocessedState( i * 7 + 6 ) - 1.0 );
+                unprocessedState.segment( i * 7 + 6, 1 ) = ( unprocessedState.block( i * 7 + 6, 0, 1, 1 ) -
+                                                             Eigen::Matrix< double, 1, 1 >::Ones( ) ).cwiseAbs( );
 
                 // Convert to MRP/SMRP
                 modifiedRodriguesParametersVector /= - modifiedRodriguesParametersMagnitude *
