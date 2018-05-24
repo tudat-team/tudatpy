@@ -448,7 +448,7 @@ Eigen::Vector7d convertCartesianToUnifiedStateModelExponentialMapElements(
         const Eigen::Vector6d& cartesianElements,
         const double centralBodyGravitationalParameter )
 {
-    // Declaring eventual output vector.
+    // Declaring eventual output vector
     Eigen::Vector7d convertedUnifiedStateModelExponentialMapElements;
 
     // Convert Cartesian to USM7

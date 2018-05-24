@@ -103,7 +103,7 @@ Eigen::Vector7d computeStateDerivativeForUnifiedStateModelExponentialMap(
 {
     return computeStateDerivativeForUnifiedStateModelExponentialMap(
                 currentUnifiedStateModelElements,
-                reference_frames::getInertialToRswSatelliteCenteredFrameRotationMatrx(
+                reference_frames::getInertialToRswSatelliteCenteredFrameRotationMatrix(
                     currentCartesianState ) * accelerationsInInertialFrame, centralBodyGravitationalParameter );
 }
 

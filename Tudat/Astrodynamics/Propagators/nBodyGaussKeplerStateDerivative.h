@@ -146,7 +146,7 @@ public:
         Eigen::Vector3d currentAccelerationInRswFrame;
         for( unsigned int i = 0; i < this->bodiesToBeIntegratedNumerically_.size( ); i++ )
         {
-            currentAccelerationInRswFrame = reference_frames::getInertialToRswSatelliteCenteredFrameRotationMatrx(
+            currentAccelerationInRswFrame = reference_frames::getInertialToRswSatelliteCenteredFrameRotationMatrix(
                         currentCartesianLocalSolution_.segment( i * 6, 6 ) ) *
                     stateDerivative.block( i * 6 + 3, 0, 3, 1 ).template cast< double >( );
 
@@ -155,7 +155,6 @@ public:
                               currentTrueAnomalies_.at( i ) ).finished( ), currentAccelerationInRswFrame,
                             centralBodyGravitationalParameters_.at( i )( ) ).template cast< StateScalarType >( );
         }
-
     }
 
     //! Function to convert the state in the conventional form to the Kepler Elements form.

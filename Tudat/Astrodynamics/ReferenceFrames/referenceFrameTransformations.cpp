@@ -226,7 +226,7 @@ Eigen::Quaterniond getVelocityBasedLvlhToPlanetocentricRotationKeplerian(
 }
 
 //! Function to compute the rotation matrix to RSW frame, from the frame in which the input state is given.
-Eigen::Matrix3d getInertialToRswSatelliteCenteredFrameRotationMatrx(
+Eigen::Matrix3d getInertialToRswSatelliteCenteredFrameRotationMatrix(
         const Eigen::Vector6d bodyState )
 {
     Eigen::Vector3d vehicleVelocity, vehicleRadius;

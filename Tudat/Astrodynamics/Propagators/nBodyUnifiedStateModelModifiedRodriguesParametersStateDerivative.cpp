@@ -116,7 +116,7 @@ Eigen::Vector7d computeStateDerivativeForUnifiedStateModelModifiedRodriguesParam
 {
     return computeStateDerivativeForUnifiedStateModelModifiedRodriguesParameters(
                 currentUnifiedStateModelElements,
-                reference_frames::getInertialToRswSatelliteCenteredFrameRotationMatrx(
+                reference_frames::getInertialToRswSatelliteCenteredFrameRotationMatrix(
                     currentCartesianState ) * accelerationsInInertialFrame, centralBodyGravitationalParameter );
 }
 
