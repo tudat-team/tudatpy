@@ -133,7 +133,7 @@ public:
      *  of this set is computed. To do so the accelerations are internally transformed into the RSW frame, using the current
      *  Cartesian state as set by the last call to the convertToOutputSolution function
      *  \param time Time (TDB seconds since J2000) at which the system is to be updated.
-     *  \param stateOfSystemToBeIntegrated List of 6 * bodiesToBeIntegratedNumerically_.size( ), containing USMEM
+     *  \param stateOfSystemToBeIntegrated List of 7 * bodiesToBeIntegratedNumerically_.size( ), containing USMEM
      *  elements of the bodies being integrated.
      *  The order of the values is defined by the order of bodies in bodiesToBeIntegratedNumerically_
      *  \param stateDerivative Current derivative of the USMEM elements of the
@@ -144,16 +144,18 @@ public:
             Eigen::Block< Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic > > stateDerivative )
     {
         // Get total inertial accelerations acting on bodies
-        stateDerivative.setZero( );
-        this->sumStateDerivativeContributions( stateOfSystemToBeIntegrated, stateDerivative, false );
+        Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic > currentAccelerationInIntertialFrame;
+        currentAccelerationInIntertialFrame.resizeLike( stateDerivative );
+        this->sumStateDerivativeContributions( stateOfSystemToBeIntegrated, currentAccelerationInIntertialFrame, false );
 
         // Compute RSW accelerations for each body, and evaluate equations of motion for USMEM elements.
+        stateDerivative.setZero( );
         Eigen::Vector3d currentAccelerationInRswFrame;
         for( unsigned int i = 0; i < this->bodiesToBeIntegratedNumerically_.size( ); i++ )
         {
-            currentAccelerationInRswFrame = reference_frames::getInertialToRswSatelliteCenteredFrameRotationMatrx(
+            currentAccelerationInRswFrame = reference_frames::getInertialToRswSatelliteCenteredFrameRotationMatrix(
                         currentCartesianLocalSolution_.segment( i * 6, 6 ).template cast< double >( ) ) *
-                    stateDerivative.block( i * 6 + 3, 0, 6, 1 ).template cast< double >( );
+                    currentAccelerationInIntertialFrame.block( i * 6 + 3, 0, 3, 1 ).template cast< double >( );
 
             stateDerivative.block( i * 7, 0, 7, 1 ) = computeStateDerivativeForUnifiedStateModelExponentialMap(
                         stateOfSystemToBeIntegrated.block( i * 7, 0, 7, 1 ).template cast< double >( ), currentAccelerationInRswFrame,
@@ -173,11 +175,9 @@ public:
             const Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >& cartesianSolution,
             const TimeType& time )
     {
-        // Subtract frame origin and Keplerian states from inertial state.
-        Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > currentState =
-                Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >::Zero( cartesianSolution.rows( ) );
-
         // Convert state to USMEM for each body
+        Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > currentState =
+                Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >::Zero( getPropagatedStateSize( ) );
         for( unsigned int i = 0; i < this->bodiesToBeIntegratedNumerically_.size( ); i++ )
         {
             currentState.segment( i * 7, 7 ) =

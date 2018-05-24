@@ -405,6 +405,60 @@ protected:
         }
     }
 
+    //! Function to get the state derivative of the system in Cartesian coordinates.
+    /*!
+     * Function to get the state derivative of the system in Cartesian coordinates. The environment
+     * and acceleration models must have been updated to the current state before calling this
+     * function.
+     * \param stateOfSystemToBeIntegrated Current Cartesian state of the system.
+     * \param stateDerivative State derivative of the system in Cartesian coordinates (returned by reference).
+     * \param addPositionDerivatives Boolean denoting whether the derivatives of the position (e.g. velocity) are to be added
+     * to the state derivative vector.
+     */
+    void sumStateDerivativeContributions(
+            const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& stateOfSystemToBeIntegrated,
+            Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >& stateDerivative,
+            const bool addPositionDerivatives = true )
+    {
+        using namespace basic_astrodynamics;
+
+        stateDerivative.setZero( );
+
+        int currentBodyIndex = 0;
+        int currentAccelerationIndex = 0;
+
+        // Iterate over all bodies with accelerations.
+        for( outerAccelerationIterator = accelerationModelsPerBody_.begin( );
+             outerAccelerationIterator != accelerationModelsPerBody_.end( );
+             outerAccelerationIterator++ )
+        {
+            currentBodyIndex = bodyOrder_[ currentAccelerationIndex ];
+
+            // Iterate over all accelerations acting on body
+            for( innerAccelerationIterator  = outerAccelerationIterator->second.begin( );
+                 innerAccelerationIterator != outerAccelerationIterator->second.end( );
+                 innerAccelerationIterator++ )
+            {
+                for( unsigned int j = 0; j < innerAccelerationIterator->second.size( ); j++ )
+                {
+                    //std::cout << "Getting acceleration " << outerAccelerationIterator->first << " " << innerAccelerationIterator->first << std::endl;
+                    // Calculate acceleration and add to state derivative.
+                    stateDerivative.block( currentBodyIndex * 6 + 3, 0, 3, 1 ) += (
+                                innerAccelerationIterator->second[ j ]->getAcceleration( ) ).
+                            template cast< StateScalarType >( );
+                }
+            }
+
+            if( addPositionDerivatives )
+            {
+                // Add body velocity as derivative of its position.
+                stateDerivative.block( currentBodyIndex * 6, 0, 3, 1 ) =
+                        ( stateOfSystemToBeIntegrated.segment( currentBodyIndex * 6 + 3, 3 ) );
+            }
+            currentAccelerationIndex++;
+        }
+    }
+
     //! A map containing the list of accelerations acting on each body,
     /*!
      * A map containing the list of accelerations acting on each body, identifying the body being
