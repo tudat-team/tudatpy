@@ -651,9 +651,9 @@ Eigen::Vector6d convertUnifiedStateModelQuaternionsToCartesianElements(
     double epsilon3QuaternionParameter = quaternionsVector( epsilon3QuaternionIndex );
 
     // Declare auxiliary parameters before using them in the if statement
-    double cosineLambda = 0.0;
-    double sineLambda = 0.0;
-    double rightAscensionOfLatitude = 0.0;
+    double cosineLambda;
+    double sineLambda;
+    double rightAscensionOfLatitude;
 
     // Compute auxiliary parameters cosineLambda, sineLambda and lambda
     if ( ( std::fabs( epsilon3QuaternionParameter ) < singularityTolerance ) &&

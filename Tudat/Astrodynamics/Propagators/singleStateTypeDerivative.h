@@ -201,6 +201,13 @@ public:
 
     }
 
+    virtual void postProcessState( Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >& unprocessedState )
+    {
+        unprocessedState_ = unprocessedState.block( 0, 0, getPropagatedStateSize( ), 1 );
+        postProcessState( unprocessedState.block( 0, 0, getPropagatedStateSize( ), 1 ) );
+        unprocessedState.block( 0, 0, getPropagatedStateSize( ), 1 ) = unprocessedState_;
+    }
+
     //! Function to return whether the state needs to be post-processed.
     /*!
      * Function to return whether the state needs to be post-processed. Default value is false.

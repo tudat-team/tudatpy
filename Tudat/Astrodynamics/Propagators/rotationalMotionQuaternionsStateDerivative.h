@@ -158,6 +158,7 @@ public:
      * Function to process the state during propagation. For quaternions, this function normalizes the quaternion vector
      * in case its magnitude differs from 1.0 by a value larger than the tolerance.
      * \param unprocessedState State computed after propagation.
+     * \return Processed state (returned by reference).
      */
     void postProcessState( Eigen::Block< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > unprocessedState )
     {

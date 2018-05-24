@@ -11,7 +11,6 @@
 #ifndef TUDAT_DYNAMICSSTATEDERIVATIVEMODEL_H
 #define TUDAT_DYNAMICSSTATEDERIVATIVEMODEL_H
 
-
 #include <map>
 #include <utility>
 
@@ -32,6 +31,7 @@
 
 namespace tudat
 {
+
 namespace propagators
 {
 
@@ -357,6 +357,7 @@ public:
     /*!
      * Function to process the state vector during propagation.
      * \param unprocessedState State before processing.
+     * \return Processed state (returned by reference).
      */
     void postProcessState( Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& unprocessedState )
     {
@@ -383,6 +384,7 @@ public:
     /*!
      * Function to process the state vector and variational equations during propagation.
      * \param unprocessedState State before processing.
+     * \return Processed state (returned by reference).
      */
     void postProcessStateAndVariationalEquations(
             Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >& unprocessedState )
@@ -398,9 +400,9 @@ public:
             {
             	if ( stateDerivativeModelsIterator_->second.at( i )->isStateToBePostProcessed( ) )
                 {
-                	stateDerivativeModelsIterator_->second.at( i )->postProcessState(
-                            	unprocessedState.block( currentIndices.at( i ).first, dynamicsStartColumn_,
-                                                    	currentIndices.at( i ).second, 1 ) );
+                    stateDerivativeModelsIterator_->second.at( i )->postProcessState(
+                                unprocessedState.block( currentIndices.at( i ).first, dynamicsStartColumn_,
+                                                        currentIndices.at( i ).second, 1 ) );
                	}
             }
         }
@@ -1059,6 +1061,7 @@ void convertNumericalStateSolutionsToOutputSolutions(
 }
 
 } // namespace propagators
+
 } // namespace tudat
 
 #endif // TUDAT_DYNAMICSSTATEDERIVATIVEMODEL_H
