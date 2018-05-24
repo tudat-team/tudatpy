@@ -204,7 +204,7 @@ Eigen::Quaterniond getVelocityBasedLvlhToPlanetocentricRotationKeplerian(
  * \param bodyState State for which the RSW frame rotation is to be computed.
  * \return Rotation matrix to RSW frame
  */
-Eigen::Matrix3d getInertialToRswSatelliteCenteredFrameRotationMatrx(
+Eigen::Matrix3d getInertialToRswSatelliteCenteredFrameRotationMatrix(
         const Eigen::Vector6d bodyState );
 
 

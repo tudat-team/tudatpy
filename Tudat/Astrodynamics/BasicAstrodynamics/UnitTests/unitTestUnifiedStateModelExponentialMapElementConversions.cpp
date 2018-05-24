@@ -58,8 +58,8 @@ BOOST_AUTO_TEST_CASE( testconvertKeplerianToUnifiedStateModelExponentialMapEleme
     keplerianElements( trueAnomalyIndex ) = convertDegreesToRadians( 10.0 );
 
     // Unified state model element vector declaration
-    Eigen::Vector6d expectedUnifiedStateModelElements = Eigen::Vector6d::Zero( );
-    Eigen::Vector6d computedUnifiedStateModelElements = Eigen::Vector6d::Zero( );
+    Eigen::Vector7d expectedUnifiedStateModelElements = Eigen::Vector7d::Zero( );
+    Eigen::Vector7d computedUnifiedStateModelElements = Eigen::Vector7d::Zero( );
 
     // Case 1: Elliptical prograde orbit (default case).
     {
@@ -73,6 +73,7 @@ BOOST_AUTO_TEST_CASE( testconvertKeplerianToUnifiedStateModelExponentialMapEleme
         expectedUnifiedStateModelElements( e1USMEMIndex ) = -5.13130707826462;
         expectedUnifiedStateModelElements( e2USMEMIndex ) = -0.675549392741421;
         expectedUnifiedStateModelElements( e3USMEMIndex ) = -1.44872034788;
+        expectedUnifiedStateModelElements( shadowFlagUSMEMIndex ) = 1.0;
 
         // Compute unified state model elements.
         computedUnifiedStateModelElements =
@@ -104,6 +105,7 @@ BOOST_AUTO_TEST_CASE( testconvertKeplerianToUnifiedStateModelExponentialMapEleme
         expectedUnifiedStateModelElements( e1USMEMIndex ) = -3.28605731011794;
         expectedUnifiedStateModelElements( e2USMEMIndex ) = -0.432617652092345;
         expectedUnifiedStateModelElements( e3USMEMIndex ) = -0.0378491401992826;
+        expectedUnifiedStateModelElements( shadowFlagUSMEMIndex ) = 1.0;
 
         // Compute unified state model elements.
         computedUnifiedStateModelElements =
@@ -133,6 +135,7 @@ BOOST_AUTO_TEST_CASE( testconvertKeplerianToUnifiedStateModelExponentialMapEleme
         expectedUnifiedStateModelElements( e1USMEMIndex ) = -0.9433847773697;
         expectedUnifiedStateModelElements( e2USMEMIndex ) = 2.99203425653432;
         expectedUnifiedStateModelElements( e3USMEMIndex ) = -0.27421126568371;
+        expectedUnifiedStateModelElements( shadowFlagUSMEMIndex ) = 1.0;
 
         // Compute unified state model elements.
         computedUnifiedStateModelElements =
@@ -208,6 +211,7 @@ BOOST_AUTO_TEST_CASE( testconvertKeplerianToUnifiedStateModelExponentialMapEleme
         expectedUnifiedStateModelElements( e1USMEMIndex ) = -0.944695130614469;
         expectedUnifiedStateModelElements( e2USMEMIndex ) = 2.99619016607469;
         expectedUnifiedStateModelElements( e3USMEMIndex ) = -1.92183978547189e-16;
+        expectedUnifiedStateModelElements( shadowFlagUSMEMIndex ) = 1.0;
 
         // Compute unified state model elements.
         computedUnifiedStateModelElements =
@@ -241,7 +245,8 @@ BOOST_AUTO_TEST_CASE( testconvertKeplerianToUnifiedStateModelExponentialMapEleme
         expectedUnifiedStateModelElements( Rf2HodographUSMEMIndex ) = 0;
         expectedUnifiedStateModelElements( e1USMEMIndex ) = 0;
         expectedUnifiedStateModelElements( e2USMEMIndex ) = 0;
-        expectedUnifiedStateModelElements( e3USMEMIndex ) = 2.96705972839036;//0.174532925199433;
+        expectedUnifiedStateModelElements( e3USMEMIndex ) = 2.96705972839036;
+        expectedUnifiedStateModelElements( shadowFlagUSMEMIndex ) = 0.0;
 
         // Compute unified state model elements.
         computedUnifiedStateModelElements =

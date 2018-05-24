@@ -187,7 +187,7 @@ BOOST_AUTO_TEST_CASE( testEmpiricalAccelerations )
             BOOST_CHECK_CLOSE_FRACTION( totalEmpiricalAcceleration.norm( ), testMultiplier * empiricalAccelerationNorm,
                                         8.0 * std::numeric_limits< double >::epsilon( ) );
             Eigen::Matrix3d currentRotationMatrix =
-                    reference_frames::getInertialToRswSatelliteCenteredFrameRotationMatrx( resultIterator->second );
+                    reference_frames::getInertialToRswSatelliteCenteredFrameRotationMatrix( resultIterator->second );
             Eigen::Vector3d totalEmpiricalAccelerationInRswFrame = currentRotationMatrix * totalEmpiricalAcceleration;
 
             // Compute vector directions in RSW frame

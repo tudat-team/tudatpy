@@ -28,7 +28,7 @@ template< typename VariableType >
 void checkVariableUniqueness( std::vector< VariableType > variables )
 {
     // Sort variables
-    sort( variables.begin( ), variables.end( ) );
+    std::sort( variables.begin( ), variables.end( ) );
 
     // Check uniqueness
     unsigned int numberOfUniqueElements = std::distance( variables.begin( ),

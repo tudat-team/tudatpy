@@ -38,7 +38,7 @@ Eigen::Vector7d convertKeplerianToUnifiedStateModelModifiedRodriguesParameterEle
     using mathematical_constants::PI;
 
     // Declaring eventual output vector.
-    Eigen::Vector7d convertedUnifiedStateModelElements = Eigen::Vector7d::Zero( );
+    Eigen::Vector7d convertedUnifiedStateModelElements;
 
     // Define the tolerance of a singularity
     const double singularityTolerance = 20.0 * std::numeric_limits< double >::epsilon( );
@@ -451,12 +451,13 @@ Eigen::Vector7d convertCartesianToUnifiedStateModelModifiedRodriguesParameterEle
             convertCartesianToUnifiedStateModelQuaternionsElements( cartesianElements,
                                                                     centralBodyGravitationalParameter );
 
-    // Add elements to USM6 vector
-    convertedUnifiedStateModelModifiedRodriguesParameterElements.segment(
-                CHodographUSM6Index, 3 ) =
-            unifiedStateModelQuaternionElements.segment( CHodographUSM7Index, 3 );
+    // Convert quaternions to modified Rodrigues parameters
     convertedUnifiedStateModelModifiedRodriguesParameterElements.segment( sigma1USM6Index, 4 ) =
             convertQuaternionsToModifiedRodriguesParameterElements( unifiedStateModelQuaternionElements.segment( etaUSM7Index, 4 ) );
+
+    // Add elements to USM6 vector
+    convertedUnifiedStateModelModifiedRodriguesParameterElements.segment( CHodographUSM6Index, 3 ) =
+            unifiedStateModelQuaternionElements.segment( CHodographUSM7Index, 3 );
 
     // Give back result
     return convertedUnifiedStateModelModifiedRodriguesParameterElements;

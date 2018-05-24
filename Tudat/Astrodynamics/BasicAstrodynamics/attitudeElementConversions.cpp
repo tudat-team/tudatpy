@@ -14,6 +14,7 @@
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/attitudeElementConversions.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/stateVectorIndices.h"
+
 #include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
 
 namespace tudat
@@ -58,7 +59,8 @@ Eigen::Vector4d convertModifiedRodriguesParametersToQuaternionElements( const Ei
     // Convert modified Rodrigues parameters to quaternions
     double conversionSign = ( int( modifiedRodriguesParameterElements( shadowFlagModifiedRodriguesParametersIndex ) ) == 1 ) ?
                 - 1.0 : 1.0; // converion is slightly different for SMRP and MRP
-    convertedQuaternionElements( etaQuaternionIndex ) = conversionSign * ( 1.0 - modifiedRodriguesParametersMagnitudeSquared ) /
+    convertedQuaternionElements( etaQuaternionIndex ) = conversionSign *
+            ( 1.0 - modifiedRodriguesParametersMagnitudeSquared ) /
             ( 1.0 + modifiedRodriguesParametersMagnitudeSquared );
     convertedQuaternionElements.segment( epsilon1QuaternionIndex, 3 ) = conversionSign *
             2.0 / ( 1.0 + modifiedRodriguesParametersMagnitudeSquared ) *
@@ -69,7 +71,7 @@ Eigen::Vector4d convertModifiedRodriguesParametersToQuaternionElements( const Ei
 }
 
 //! Convert quaternions to exponential map.
-Eigen::Vector3d convertQuaternionsToExponentialMapElements( const Eigen::Vector4d& quaternionElements )
+Eigen::Vector4d convertQuaternionsToExponentialMapElements( const Eigen::Vector4d& quaternionElements )
 {
     using mathematical_constants::PI;
 
@@ -77,27 +79,31 @@ Eigen::Vector3d convertQuaternionsToExponentialMapElements( const Eigen::Vector4
     const double singularityTolerance = 20.0 * std::numeric_limits< double >::epsilon( );
 
     // Declare eventual output vector
-    Eigen::Vector3d convertedExponentialMapElements = quaternionElements.segment( epsilon1QuaternionIndex, 3 );
+    Eigen::Vector4d convertedExponentialMapElements;
 
     // Convert quaternions to exponential map (or SEM)
     double exponentialMapMagnitude = 2.0 * std::acos( quaternionElements( etaQuaternionIndex ) );
+    bool shadowFlag = std::fabs( exponentialMapMagnitude ) > PI;
+    Eigen::Vector3d exponentialMapVector = quaternionElements.segment( epsilon1QuaternionIndex, 3 );
     if ( std::fabs( exponentialMapMagnitude ) < singularityTolerance )
     {
-        convertedExponentialMapElements *= 48.0 / ( 24.0 - exponentialMapMagnitude * exponentialMapMagnitude );
+        exponentialMapVector *= 48.0 / ( 24.0 - exponentialMapMagnitude * exponentialMapMagnitude );
     }
     else
     {
-        convertedExponentialMapElements *= ( std::fabs( exponentialMapMagnitude ) > PI ) ?
+        exponentialMapVector *= shadowFlag ?
                     - ( 2.0 * PI - exponentialMapMagnitude ) / std::sin( 0.5 * exponentialMapMagnitude ) : // shadow exponential map
                     exponentialMapMagnitude / std::sin( 0.5 * exponentialMapMagnitude ); // exponential map
     }
+    convertedExponentialMapElements.segment( e1ExponentialMapIndex, 3 ) = exponentialMapVector;
+    convertedExponentialMapElements( shadowFlagExponentialMapIndex ) = shadowFlag ? 1.0 : 0.0; // set flag
 
     // Give output
     return convertedExponentialMapElements;
 }
 
 //! Convert exponential map to quaternions.
-Eigen::Vector4d convertExponentialMapToQuaternionElements( const Eigen::Vector3d& exponentialMapElements )
+Eigen::Vector4d convertExponentialMapToQuaternionElements( const Eigen::Vector4d& exponentialMapElements )
 {
     // Define the tolerance of a singularity
     const double singularityTolerance = 20.0 * std::numeric_limits< double >::epsilon( );
@@ -106,19 +112,20 @@ Eigen::Vector4d convertExponentialMapToQuaternionElements( const Eigen::Vector3d
     Eigen::Vector4d convertedQuaternionElements;
 
     // Extract exponential map
-    double exponentialMapMagnitude = exponentialMapElements.norm( );
+    Eigen::Vector3d exponentialMapVector = exponentialMapElements.segment( e1ExponentialMapIndex, 3 );
+    double exponentialMapMagnitude = exponentialMapVector.norm( );
 
     // Convert exponential map to quaternions
     convertedQuaternionElements( etaQuaternionIndex ) = std::cos( 0.5 * exponentialMapMagnitude );
     if ( std::fabs( exponentialMapMagnitude ) < singularityTolerance )
     {
         convertedQuaternionElements.segment( epsilon1QuaternionIndex, 3 ) =
-                exponentialMapElements * ( 0.5 - exponentialMapMagnitude * exponentialMapMagnitude / 48.0 );
+                exponentialMapVector * ( 0.5 - exponentialMapMagnitude * exponentialMapMagnitude / 48.0 );
     }
     else
     {
         convertedQuaternionElements.segment( epsilon1QuaternionIndex, 3 ) =
-                exponentialMapElements / exponentialMapMagnitude * std::sin( 0.5 * exponentialMapMagnitude );
+                exponentialMapVector / exponentialMapMagnitude * std::sin( 0.5 * exponentialMapMagnitude );
     }
 
     // Give output

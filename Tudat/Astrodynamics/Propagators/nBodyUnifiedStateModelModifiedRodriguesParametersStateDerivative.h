@@ -13,7 +13,7 @@
 
 #include "Tudat/Astrodynamics/Propagators/nBodyStateDerivative.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/stateRepresentationConversions.h"
-#include "Tudat/Astrodynamics/BasicAstrodynamics/astrodynamicsFunctions.h"
+
 #include "Tudat/Mathematics/BasicMathematics/linearAlgebra.h"
 
 namespace tudat
@@ -119,7 +119,6 @@ public:
                     centralBodyData->getCentralBodies( ), this->bodiesToBeIntegratedNumerically_,
                     this->accelerationModelsPerBody_ );
         this->createAccelerationModelList( );
-
     }
 
     //! Destructor
@@ -144,22 +143,23 @@ public:
             Eigen::Block< Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic > > stateDerivative )
     {
         // Get total inertial accelerations acting on bodies
-        stateDerivative.setZero( );
-        this->sumStateDerivativeContributions( stateOfSystemToBeIntegrated, stateDerivative, false );
+        Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic > currentAccelerationInIntertialFrame;
+        currentAccelerationInIntertialFrame.resizeLike( stateDerivative );
+        this->sumStateDerivativeContributions( stateOfSystemToBeIntegrated, currentAccelerationInIntertialFrame, false );
 
         // Compute RSW accelerations for each body, and evaluate equations of motion for USM6 elements.
+        stateDerivative.setZero( );
         Eigen::Vector3d currentAccelerationInRswFrame;
         for( unsigned int i = 0; i < this->bodiesToBeIntegratedNumerically_.size( ); i++ )
         {
-            currentAccelerationInRswFrame = reference_frames::getInertialToRswSatelliteCenteredFrameRotationMatrx(
+            currentAccelerationInRswFrame = reference_frames::getInertialToRswSatelliteCenteredFrameRotationMatrix(
                         currentCartesianLocalSolution_.segment( i * 6, 6 ).template cast< double >( ) ) *
-                    stateDerivative.block( i * 6 + 3, 0, 6, 1 ).template cast< double >( );
+                    currentAccelerationInIntertialFrame.block( i * 6 + 3, 0, 3, 1 ).template cast< double >( );
 
             stateDerivative.block( i * 7, 0, 7, 1 ) = computeStateDerivativeForUnifiedStateModelModifiedRodriguesParameters(
                         stateOfSystemToBeIntegrated.block( i * 7, 0, 7, 1 ).template cast< double >( ), currentAccelerationInRswFrame,
                         centralBodyGravitationalParameters_.at( i )( ) ).template cast< StateScalarType >( );
         }
-
     }
 
     //! Function to convert the state in the conventional form to the USM6 elements form.
@@ -174,12 +174,9 @@ public:
             const Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >& cartesianSolution,
             const TimeType& time )
     {
-        // Subtract frame origin and Keplerian states from inertial state.
-        Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > currentState =
-                Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >::Zero(
-                    this->bodiesToBeIntegratedNumerically_.size( ) * 7 );
-
         // Convert state to USM6 for each body
+        Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > currentState =
+                Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >::Zero( getPropagatedStateSize( ) );
         for( unsigned int i = 0; i < this->bodiesToBeIntegratedNumerically_.size( ); i++ )
         {
             currentState.segment( i * 7, 7 ) =

@@ -18,6 +18,7 @@
 #include "Tudat/Astrodynamics/BasicAstrodynamics/unifiedStateModelQuaternionElementConversions.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/unifiedStateModelModifiedRodriguesParameterElementConversions.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/unifiedStateModelExponentialMapElementConversions.h"
+#include "Tudat/Astrodynamics/BasicAstrodynamics/attitudeElementConversions.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/stateVectorIndices.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/bodyShapeModel.h"
 

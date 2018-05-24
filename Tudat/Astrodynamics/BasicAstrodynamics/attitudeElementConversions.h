@@ -17,6 +17,8 @@
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 
+#include "Tudat/Basics/basicTypedefs.h"
+
 namespace tudat
 {
 
@@ -25,39 +27,39 @@ namespace orbital_element_conversions
 
 //! Convert quaternions to modified Rodrigues parameters.
 /*!
- * Convert quaternions to modified Rodrigues parameters. The conversion is slightly different for modified Rodrigues parameters (MRP)
- * than for shadow modified Rodrigues parameters (SMRP). This difference is embodied by conversionSign.
- * \param quaternionElements Vector of quaternion elements.
- * \return convertedModifiedRodriguesParameterElements Vector of (shadow) modified Rodrigues parameter elements.
+ *  Convert quaternions to modified Rodrigues parameters. The conversion is slightly different for modified Rodrigues parameters (MRP)
+ *  than for shadow modified Rodrigues parameters (SMRP). This difference is embodied by conversionSign.
+ *  \param quaternionElements Vector of quaternion elements.
+ *  \return convertedModifiedRodriguesParameterElements Vector of (shadow) modified Rodrigues parameter elements.
  */
 Eigen::Vector4d convertQuaternionsToModifiedRodriguesParameterElements( const Eigen::Vector4d& quaternionElements );
 
 //! Convert modified Rodrigues parameters to quaternions.
 /*!
- * Convert modified Rodrigues parameters to quaternions. The conversion is slightly different for modified Rodrigues parameters (MRP)
- * than for shadow modified Rodrigues parameters (SMRP). This difference is embodied by conversionSign.
- * \param modifiedRodriguesParameterElements Vector of (shadow) modified Rodrigues parameters elements.
- * \return convertedQuaternionElements Vector of quaternion elements.
+ *  Convert modified Rodrigues parameters to quaternions. The conversion is slightly different for modified Rodrigues parameters (MRP)
+ *  than for shadow modified Rodrigues parameters (SMRP). This difference is embodied by conversionSign.
+ *  \param modifiedRodriguesParameterElements Vector of (shadow) modified Rodrigues parameters elements.
+ *  \return convertedQuaternionElements Vector of quaternion elements.
  */
 Eigen::Vector4d convertModifiedRodriguesParametersToQuaternionElements( const Eigen::Vector4d& modifiedRodriguesParameterElements );
 
 //! Convert quaternions to exponential map.
 /*!
- * Convert quaternions to exponential map. The conversion is the same for both exponential map (EM) and shadow
- * exponential map (SEM).
- * \param quaternionElements Vector of quaternion elements.
- * \return convertedExponentialMapElements Vector of (shadow) exponential map elements.
+ *  Convert quaternions to exponential map. The conversion is the same for both exponential map (EM) and shadow
+ *  exponential map (SEM).
+ *  \param quaternionElements Vector of quaternion elements.
+ *  \return convertedExponentialMapElements Vector of (shadow) exponential map elements.
  */
-Eigen::Vector3d convertQuaternionsToExponentialMapElements( const Eigen::Vector4d& quaternionElements );
+Eigen::Vector4d convertQuaternionsToExponentialMapElements( const Eigen::Vector4d& quaternionElements );
 
 //! Convert exponential map to quaternions.
 /*!
- * Convert exponential map to quaternions. The conversion is the same for both exponential map (EM) and shadow
- * exponential map (SEM).
- * \param exponentialMapElements Vector of (shadow) exponential map elements.
- * \return convertedQuaternionElements Vector of quaternion elements.
+ *  Convert exponential map to quaternions. The conversion is the same for both exponential map (EM) and shadow
+ *  exponential map (SEM).
+ *  \param exponentialMapElements Vector of (shadow) exponential map elements.
+ *  \return convertedQuaternionElements Vector of quaternion elements.
  */
-Eigen::Vector4d convertExponentialMapToQuaternionElements( const Eigen::Vector3d& exponentialMapElements );
+Eigen::Vector4d convertExponentialMapToQuaternionElements( const Eigen::Vector4d& exponentialMapElements );
 
 } // namespace orbital_element_conversions
 
