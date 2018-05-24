@@ -35,17 +35,34 @@ Eigen::Vector4d convertQuaternionToVectorFormat( const Eigen::Quaterniond& quate
     return vector;
 }
 
-//! Compute direction cosine matrix from quaternion
+//! Function to put a vector in 'quaternion format', i.e. a Quaterniond.
+Eigen::Quaterniond convertVectorToQuaternionFormat( const Eigen::Vector4d& vector )
+{
+    Eigen::Quaterniond quaternion;
+
+    quaternion.w( ) = vector( 0 );
+    quaternion.x( ) = vector( 1 );
+    quaternion.y( ) = vector( 2 );
+    quaternion.z( ) = vector( 3 );
+
+    return quaternion;
+}
+
+//! Compute direction cosine matrix from quaternion as Vector4d.
 Eigen::Matrix3d computeDirectionCosineMatrixFromQuaternions(
         const Eigen::Vector4d& quaternionsAsVector, const bool returnInverseRotationMatrix )
 {
     // Convert vector to quaternion
-    Eigen::Quaterniond quaternionsAsQuaternion;
-    quaternionsAsQuaternion.w( ) = quaternionsAsVector( 0 );
-    quaternionsAsQuaternion.x( ) = quaternionsAsVector( 1 );
-    quaternionsAsQuaternion.y( ) = quaternionsAsVector( 2 );
-    quaternionsAsQuaternion.z( ) = quaternionsAsVector( 3 );
+    Eigen::Quaterniond quaternionsAsQuaternion = convertVectorToQuaternionFormat( quaternionsAsVector );
 
+    // Compute direction cosine matrix
+    return computeDirectionCosineMatrixFromQuaternions( quaternionsAsQuaternion, returnInverseRotationMatrix );
+}
+
+//! Compute direction cosine matrix from quaternion as Quaterniond.
+Eigen::Matrix3d computeDirectionCosineMatrixFromQuaternions(
+        const Eigen::Quaterniond& quaternionsAsQuaternion, const bool returnInverseRotationMatrix )
+{
     // Compute direction cosine matrix
     Eigen::Matrix3d directionCosineMatrix = quaternionsAsQuaternion.normalized( ).toRotationMatrix( );
 

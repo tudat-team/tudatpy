@@ -43,8 +43,9 @@ namespace orbital_element_conversions
  *         convertedUnifiedStateModelElements( 3 ) = e1 exponential map element,                [-]
  *         convertedUnifiedStateModelElements( 4 ) = e2 exponential map element,                [-]
  *         convertedUnifiedStateModelElements( 5 ) = e3 exponential map element,                [-]
+ *         convertedUnifiedStateModelElements( 6 ) = shadow exponential map flag.               [-]
  */
-Eigen::Matrix< double, 6, 1 > convertKeplerianToUnifiedStateModelExponentialMapElements(
+Eigen::Matrix< double, 7, 1 > convertKeplerianToUnifiedStateModelExponentialMapElements(
         const Eigen::Matrix< double, 6, 1 >& keplerianElements,
         const double centralBodyGravitationalParameter );
 
@@ -59,6 +60,7 @@ Eigen::Matrix< double, 6, 1 > convertKeplerianToUnifiedStateModelExponentialMapE
  *         unifiedStateModelElements( 3 ) = e1 exponential map element,                         [-]
  *         unifiedStateModelElements( 4 ) = e2 exponential map element,                         [-]
  *         unifiedStateModelElements( 5 ) = e3 exponential map element,                         [-]
+ *         unifiedStateModelElements( 6 ) = shadow exponential map flag.                        [-]
  * \param centralBodyGravitationalParameter Gravitational parameter of central body.      [m^3/s^2]
  * \return convertedKeplerianElements Converted state in Keplerian elements. The order of elements is fixed!
  *         convertedKeplerianElements( 0 ) = semi-major axis,                                   [m]
@@ -69,7 +71,7 @@ Eigen::Matrix< double, 6, 1 > convertKeplerianToUnifiedStateModelExponentialMapE
  *         convertedKeplerianElements( 5 ) = true anomaly.                                    [rad]
  */
 Eigen::Matrix< double, 6, 1 > convertUnifiedStateModelExponentialMapToKeplerianElements(
-        const Eigen::Matrix< double, 6, 1 >& unifiedStateModelElements,
+        const Eigen::Matrix< double, 7, 1 >& unifiedStateModelElements,
         const double centralBodyGravitationalParameter );
 
 //! Convert Cartesian elements to unified state model elements with exponential map.
@@ -91,8 +93,9 @@ Eigen::Matrix< double, 6, 1 > convertUnifiedStateModelExponentialMapToKeplerianE
  *         convertedUnifiedStateModelElements( 3 ) = e1 exponential map element,                [-]
  *         convertedUnifiedStateModelElements( 4 ) = e2 exponential map element,                [-]
  *         convertedUnifiedStateModelElements( 5 ) = e3 exponential map element,                [-]
+ *         convertedUnifiedStateModelElements( 6 ) = shadow exponential map flag.               [-]
  */
-Eigen::Matrix< double, 6, 1 > convertCartesianToUnifiedStateModelExponentialMapElements(
+Eigen::Matrix< double, 7, 1 > convertCartesianToUnifiedStateModelExponentialMapElements(
         const Eigen::Matrix< double, 6, 1 >& cartesianElements,
         const double centralBodyGravitationalParameter );
 
@@ -107,6 +110,7 @@ Eigen::Matrix< double, 6, 1 > convertCartesianToUnifiedStateModelExponentialMapE
  *         unifiedStateModelElements( 3 ) = e1 exponential map element,                         [-]
  *         unifiedStateModelElements( 4 ) = e2 exponential map element,                         [-]
  *         unifiedStateModelElements( 5 ) = e3 exponential map element,                         [-]
+ *         unifiedStateModelElements( 6 ) = shadow exponential map flag.                        [-]
 * \param centralBodyGravitationalParameter Gravitational parameter of central body.      [m^3/s^2]
 * \return convertedCartesianElements Converted state in Cartesian elements. The order of elements is fixed!
  *         convertedCartesianElements( 0 ) = x-position coordinate,                            [m]
@@ -117,7 +121,7 @@ Eigen::Matrix< double, 6, 1 > convertCartesianToUnifiedStateModelExponentialMapE
  *         convertedCartesianElements( 5 ) = z-velocity coordinate.                          [m/s]
 */
 Eigen::Matrix< double, 6, 1 > convertUnifiedStateModelExponentialMapToCartesianElements(
-        const Eigen::Matrix< double, 6, 1 >& unifiedStateModelElements,
+        const Eigen::Matrix< double, 7, 1 >& unifiedStateModelElements,
         const double centralBodyGravitationalParameter );
 
 } // namespace orbital_element_conversions

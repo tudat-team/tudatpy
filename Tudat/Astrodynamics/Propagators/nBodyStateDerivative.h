@@ -405,6 +405,27 @@ protected:
         }
     }
 
+    //! Function to get the state derivative of the system in Cartesian coordinates.
+    /*!
+     * Function to get the state derivative of the system in Cartesian coordinates. The environment
+     * and acceleration models must have been updated to the current state before calling this
+     * function.
+     * \param stateOfSystemToBeIntegrated Current Cartesian state of the system.
+     * \param stateDerivative State derivative of the system in Cartesian coordinates (returned by reference).
+     * \param addPositionDerivatives Boolean denoting whether the derivatives of the position (e.g. velocity) are to be added
+     * to the state derivative vector.
+     */
+    void sumStateDerivativeContributions(
+            const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& stateOfSystemToBeIntegrated,
+            Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >& stateDerivative,
+            const bool addPositionDerivatives = true )
+    {
+        return sumStateDerivativeContributions(
+                    stateOfSystemToBeIntegrated,
+                    stateDerivative.block( 0, 0, stateDerivative.rows( ), stateDerivative.cols( ) ),
+                    addPositionDerivatives );
+    }
+
     //! A map containing the list of accelerations acting on each body,
     /*!
      * A map containing the list of accelerations acting on each body, identifying the body being

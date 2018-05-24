@@ -77,7 +77,7 @@ public:
                          const double specificGasConstant = physical_constants::SPECIFIC_GAS_CONSTANT_AIR,
                          const double ratioOfSpecificHeats = 1.4,
                          const std::vector< interpolators::BoundaryInterpolationType >& boundaryHandling = { },
-                         const std::vector< double >& defaultExtrapolationValue = { } ):
+                         const std::vector< double >& defaultExtrapolationValue = { } ) :
         atmosphereTableFile_( atmosphereTableFile ), independentVariables_( independentVariablesNames ),
         dependentVariables_( dependentVariablesNames ), specificGasConstant_( specificGasConstant ),
         ratioOfSpecificHeats_( ratioOfSpecificHeats ), boundaryHandling_( boundaryHandling ),

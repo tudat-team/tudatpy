@@ -24,8 +24,8 @@ namespace propagators
 {
 
 //! Function to evaluate the state derivative for the unified state model with exponential map
-Eigen::Vector6d computeStateDerivativeForUnifiedStateModelExponentialMap(
-        const Eigen::Vector6d& currentUnifiedStateModelElements,
+Eigen::Vector7d computeStateDerivativeForUnifiedStateModelExponentialMap(
+        const Eigen::Vector7d& currentUnifiedStateModelElements,
         const Eigen::Vector3d& accelerationsInRswFrame,
         const double sineLambda,
         const double cosineLambda,
@@ -44,9 +44,9 @@ Eigen::Vector6d computeStateDerivativeForUnifiedStateModelExponentialMap(
     hodographMatrix( 2, 2 ) = gammaParameter * pAuxiliaryVector( 2 );
 
     // Evaluate USMEM equations.
-    Eigen::Vector6d stateDerivative = Eigen::Vector6d::Zero( );
+    Eigen::Vector7d stateDerivative;
     stateDerivative.segment( 0, 3 ) = hodographMatrix * accelerationsInRswFrame;
-    stateDerivative.segment( 3, 3 ) = calculateExponentialMapDerivative( currentUnifiedStateModelElements.segment( 3, 3 ),
+    stateDerivative.segment( 3, 4 ) = calculateExponentialMapDerivative( currentUnifiedStateModelElements.segment( 3, 4 ),
                                                                          rotationalVelocityVector );
 
     // Give output
@@ -54,8 +54,8 @@ Eigen::Vector6d computeStateDerivativeForUnifiedStateModelExponentialMap(
 }
 
 //! Function to evaluate the state derivative for the unified state model with exponential map
-Eigen::Vector6d computeStateDerivativeForUnifiedStateModelExponentialMap(
-        const Eigen::Vector6d& currentUnifiedStateModelElements,
+Eigen::Vector7d computeStateDerivativeForUnifiedStateModelExponentialMap(
+        const Eigen::Vector7d& currentUnifiedStateModelElements,
         const Eigen::Vector3d& accelerationsInRswFrame,
         const double centralBodyGravitationalParameter )
 {
@@ -63,7 +63,7 @@ Eigen::Vector6d computeStateDerivativeForUnifiedStateModelExponentialMap(
 
     // Convert exponential map to quaternions
     Eigen::Vector4d quaternionElements = convertExponentialMapToQuaternionElements(
-                currentUnifiedStateModelElements.segment( e1USMEMIndex, 3 ) );
+                currentUnifiedStateModelElements.segment( e1USMEMIndex, 4 ) );
     double etaQuaternionParameter = quaternionElements( etaQuaternionIndex );
     Eigen::Vector3d epsilonQuaternionVector = quaternionElements.segment( epsilon1QuaternionIndex, 3 );
 
@@ -95,18 +95,17 @@ Eigen::Vector6d computeStateDerivativeForUnifiedStateModelExponentialMap(
 }
 
 //! Function to evaluate the state derivative for the unified state model with exponential map
-Eigen::Vector6d computeStateDerivativeForUnifiedStateModelExponentialMap(
-        const Eigen::Vector6d& currentUnifiedStateModelElements,
+Eigen::Vector7d computeStateDerivativeForUnifiedStateModelExponentialMap(
+        const Eigen::Vector7d& currentUnifiedStateModelElements,
         const Eigen::Vector6d& currentCartesianState,
         const Eigen::Vector3d& accelerationsInInertialFrame,
         const double centralBodyGravitationalParameter )
 {
     return computeStateDerivativeForUnifiedStateModelExponentialMap(
                 currentUnifiedStateModelElements,
-                reference_frames::getInertialToRswSatelliteCenteredFrameRotationMatrx(
+                reference_frames::getInertialToRswSatelliteCenteredFrameRotationMatrix(
                     currentCartesianState ) * accelerationsInInertialFrame, centralBodyGravitationalParameter );
 }
-
 
 } // namespace propagators
 

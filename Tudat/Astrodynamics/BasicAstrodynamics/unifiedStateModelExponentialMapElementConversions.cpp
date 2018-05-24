@@ -31,14 +31,14 @@ namespace orbital_element_conversions
 {
 
 //! Convert Keplerian elements to unified state model elements with exponential map.
-Eigen::Vector6d convertKeplerianToUnifiedStateModelExponentialMapElements(
+Eigen::Vector7d convertKeplerianToUnifiedStateModelExponentialMapElements(
         const Eigen::Vector6d& keplerianElements,
         const double centralBodyGravitationalParameter )
 {
     using mathematical_constants::PI;
 
     // Declaring eventual output vector.
-    Eigen::Vector6d convertedUnifiedStateModelElements = Eigen::Vector6d::Zero( );
+    Eigen::Vector7d convertedUnifiedStateModelElements;
 
     // Define the tolerance of a singularity
     const double singularityTolerance = 20.0 * std::numeric_limits< double >::epsilon( );
@@ -231,6 +231,12 @@ Eigen::Vector6d convertKeplerianToUnifiedStateModelExponentialMapElements(
         convertedUnifiedStateModelElements( e3USMEMIndex ) =
                 multiplicationFactor * std::cos( 0.5 * keplerianElements( inclinationIndex ) ) *
                 std::sin( 0.5 * rightAscensionOfLatitude );
+
+        // Find value of shadow flag
+        convertedUnifiedStateModelElements( shadowFlagUSMEMIndex ) =
+                ( std::cos( 0.5 * keplerianElements( inclinationIndex ) ) *
+                  std::cos( 0.5 * ( keplerianElements( longitudeOfAscendingNodeIndex ) + argumentOfLatitude ) ) ) < 0 ?
+                    1.0 : 0.0;
     }
 
     // Give back result
@@ -239,7 +245,7 @@ Eigen::Vector6d convertKeplerianToUnifiedStateModelExponentialMapElements(
 
 //! Convert unified state model elements with exponential map to Keplerian elements.
 Eigen::Vector6d convertUnifiedStateModelExponentialMapToKeplerianElements(
-        const Eigen::Vector6d& unifiedStateModelElements,
+        const Eigen::Vector7d& unifiedStateModelElements,
         const double centralBodyGravitationalParameter )
 {
     using mathematical_constants::PI;
@@ -438,19 +444,20 @@ Eigen::Vector6d convertUnifiedStateModelExponentialMapToKeplerianElements(
 }
 
 //! Convert Cartesian elements to unified state model elements with exponential map.
-Eigen::Vector6d convertCartesianToUnifiedStateModelExponentialMapElements(
+Eigen::Vector7d convertCartesianToUnifiedStateModelExponentialMapElements(
         const Eigen::Vector6d& cartesianElements,
         const double centralBodyGravitationalParameter )
 {
-    // Declaring eventual output vector.
-    Eigen::Vector6d convertedUnifiedStateModelExponentialMapElements;
+    // Declaring eventual output vector
+    Eigen::Vector7d convertedUnifiedStateModelExponentialMapElements;
 
     // Convert Cartesian to USM7
     Eigen::Vector7d unifiedStateModelQuaternionElements =
             convertCartesianToUnifiedStateModelQuaternionsElements( cartesianElements,
                                                                     centralBodyGravitationalParameter );
 
-    convertedUnifiedStateModelExponentialMapElements.segment( e1USMEMIndex, 3 ) =
+    // Convert quaternions to exponential map
+    convertedUnifiedStateModelExponentialMapElements.segment( e1USMEMIndex, 4 ) =
             convertQuaternionsToExponentialMapElements( unifiedStateModelQuaternionElements.segment( etaUSM7Index, 4 ) );
 
     // Add other elements to USMEM vector
@@ -463,7 +470,7 @@ Eigen::Vector6d convertCartesianToUnifiedStateModelExponentialMapElements(
 
 //! Convert unified state model elements with exponential map to Cartesian elements.
 Eigen::Vector6d convertUnifiedStateModelExponentialMapToCartesianElements(
-        const Eigen::Vector6d& unifiedStateModelExponentialMapElements,
+        const Eigen::Vector7d& unifiedStateModelExponentialMapElements,
         const double centralBodyGravitationalParameter )
 {
     // Create USM7 vector and add velocity hodograph elements
@@ -473,7 +480,7 @@ Eigen::Vector6d convertUnifiedStateModelExponentialMapToCartesianElements(
 
     // Add quaternions to USM7 vector
     unifiedStateModelQuaternionElements.segment( etaUSM7Index, 4 ) =
-            convertExponentialMapToQuaternionElements( unifiedStateModelExponentialMapElements.segment( e1USMEMIndex, 3 ) );
+            convertExponentialMapToQuaternionElements( unifiedStateModelExponentialMapElements.segment( e1USMEMIndex, 4 ) );
 
     // Give back result
     return convertUnifiedStateModelQuaternionsToCartesianElements( unifiedStateModelQuaternionElements,

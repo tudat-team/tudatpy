@@ -286,14 +286,14 @@ void getFinalStateForExactTerminationCondition(
         break;
     }
     case  cpu_time_stopping_condition:
-
+    {
         // No exact final condition on CPU time is possible
         std::cerr<<"Error, cannot propagate to exact CPU time, returning state after condition violation:"<<std::endl;
 
         endTime = lastTime;
         endState = lastState;
         break;
-
+    }
     case dependent_variable_stopping_condition:
     {
         integrator->rollbackToPreviousState( );

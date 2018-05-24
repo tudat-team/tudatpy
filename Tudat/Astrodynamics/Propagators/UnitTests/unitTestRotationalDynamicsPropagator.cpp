@@ -14,7 +14,6 @@
 #include <string>
 #include <thread>
 
-
 #include <boost/make_shared.hpp>
 #include <boost/test/unit_test.hpp>
 
@@ -91,18 +90,18 @@ NamedBodyMap getTestBodyMap( const double phobosSemiMajorAxis,
     bodyMap[ "Phobos" ]->setBodyInertiaTensor( phobosInertiaTensor );
 
     Eigen::Quaterniond noRotationQuaternion = Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) );
-    Eigen::Matrix< double, 7, 1 > unitRotationState = Eigen::Matrix< double, 7, 1 >::Zero( );
+    Eigen::Vector7d unitRotationState = Eigen::Vector7d::Zero( );
     unitRotationState( 0 ) = noRotationQuaternion.w( );
     unitRotationState( 1 ) = noRotationQuaternion.x( );
     unitRotationState( 2 ) = noRotationQuaternion.y( );
     unitRotationState( 3 ) = noRotationQuaternion.z( );
 
-    std::map< double, Eigen::Matrix< double, 7, 1 > > dummyRotationMap;
+    std::map< double, Eigen::Vector7d > dummyRotationMap;
     dummyRotationMap[ -1.0E100 ] = unitRotationState;
     dummyRotationMap[ 1.0E100 ] = unitRotationState;
 
-    boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Matrix< double, 7, 1 > > > dummyInterpolator =
-            boost::make_shared< interpolators::LinearInterpolator< double, Eigen::Matrix< double, 7, 1 > > >( dummyRotationMap );
+    boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Vector7d > > dummyInterpolator =
+            boost::make_shared< interpolators::LinearInterpolator< double, Eigen::Vector7d > >( dummyRotationMap );
     bodyMap[ "Phobos" ]->setRotationalEphemeris( boost::make_shared< TabulatedRotationalEphemeris< double, double > >(
                                                      dummyInterpolator, "ECLIPJ2000", "Phobos_Fixed" ) );
 
@@ -422,7 +421,7 @@ BOOST_AUTO_TEST_CASE( testSimpleRotationalDynamicsPropagationWithObliquity )
                 ( rungeKuttaVariableStepSize,
                   initialEphemerisTime, 10.0,
                   RungeKuttaCoefficients::rungeKuttaFehlberg78,
-                  30.0, 300.0, 1.0E-14, 1.0E-14 );
+                  3.0, 300.0, 1.0E-14, 1.0E-14 );
 
         // Define propagator settings.
         boost::shared_ptr< RotationalStatePropagatorSettings< double > > propagatorSettings =
@@ -582,14 +581,14 @@ BOOST_AUTO_TEST_CASE( testRotationalAndTranslationalDynamicsPropagation )
     inertiaTensor *= ( 0.1 * 25.0 * 5.0E3 );
     bodyMap[ "Apollo" ]->setBodyInertiaTensor( inertiaTensor );
 
-    std::map< double, Eigen::Matrix< double, 7, 1 > > dummyRotationMap;
-    dummyRotationMap[ -1.0E100 ] = Eigen::Matrix< double, 7, 1 >::Zero( );
-    dummyRotationMap[ 1.0E100 ] = Eigen::Matrix< double, 7, 1 >::Zero( );
+    std::map< double, Eigen::Vector7d > dummyRotationMap;
+    dummyRotationMap[ -1.0E100 ] = Eigen::Vector7d::Zero( );
+    dummyRotationMap[ 1.0E100 ] = Eigen::Vector7d::Zero( );
 
     // Set tabulated ephemerides for orbit and rotation
-    boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Matrix< double, 7, 1 > > >
+    boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Vector7d > >
             dummyRotationInterpolator =
-            boost::make_shared< interpolators::LinearInterpolator< double, Eigen::Matrix< double, 7, 1 > > >( dummyRotationMap );
+            boost::make_shared< interpolators::LinearInterpolator< double, Eigen::Vector7d > >( dummyRotationMap );
     bodyMap[ "Apollo" ]->setRotationalEphemeris( boost::make_shared< TabulatedRotationalEphemeris< double, double > >(
                                                      dummyRotationInterpolator, "J2000", "Apollo_Fixed" ) );
 

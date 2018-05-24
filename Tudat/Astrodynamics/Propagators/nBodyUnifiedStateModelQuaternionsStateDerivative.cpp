@@ -98,7 +98,7 @@ Eigen::Vector7d computeStateDerivativeForUnifiedStateModelQuaternions(
 {
     return computeStateDerivativeForUnifiedStateModelQuaternions(
                 currentUnifiedStateModelElements,
-                reference_frames::getInertialToRswSatelliteCenteredFrameRotationMatrx(
+                reference_frames::getInertialToRswSatelliteCenteredFrameRotationMatrix(
                     currentCartesianState ) * accelerationsInInertialFrame, centralBodyGravitationalParameter );
 }
 
