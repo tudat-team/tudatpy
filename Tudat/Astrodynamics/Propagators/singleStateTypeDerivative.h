@@ -204,7 +204,7 @@ public:
     virtual void postProcessState( Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >& unprocessedState )
     {
         unprocessedState_ = unprocessedState.block( 0, 0, getPropagatedStateSize( ), 1 );
-        postProcessState( unprocessedState.block( 0, 0, getPropagatedStateSize( ), 1 ) );
+        postProcessState( unprocessedState_.block( 0, 0, getPropagatedStateSize( ), 1 ) );
         unprocessedState.block( 0, 0, getPropagatedStateSize( ), 1 ) = unprocessedState_;
     }
 

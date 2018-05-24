@@ -259,7 +259,7 @@ public:
             {
                 // Invert flag
                 unprocessedState.segment( i * 7 + 6, 1 ) = ( unprocessedState.block( i * 7 + 6, 0, 1, 1 ) -
-                                                             Eigen::Matrix< double, 1, 1 >::Ones( ) ).cwiseAbs( );
+                                                             Eigen::Matrix< StateScalarType, 1, 1 >::Ones( ) ).cwiseAbs( );
 
                 // Convert to EM/SEM
                 exponentialMapVector *= ( 1.0 - ( 2.0 * mathematical_constants::PI / exponentialMapMagnitude ) );
