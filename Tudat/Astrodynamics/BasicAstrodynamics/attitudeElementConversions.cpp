@@ -116,9 +116,7 @@ Eigen::Vector4d convertExponentialMapToQuaternionElements( const Eigen::Vector4d
     double exponentialMapMagnitude = exponentialMapVector.norm( );
 
     // Convert exponential map to quaternions
-    double conversionSign = ( int( exponentialMapElements( shadowFlagExponentialMapIndex ) ) == 1 ) ?
-                - 1.0 : 1.0; // converion is slightly different for SEM and EM
-    convertedQuaternionElements( etaQuaternionIndex ) = conversionSign * std::cos( 0.5 * exponentialMapMagnitude );
+    convertedQuaternionElements( etaQuaternionIndex ) = std::cos( 0.5 * exponentialMapMagnitude );
     if ( std::fabs( exponentialMapMagnitude ) < singularityTolerance )
     {
         convertedQuaternionElements.segment( epsilon1QuaternionIndex, 3 ) =

@@ -21,8 +21,8 @@ namespace tudat
 namespace orbital_element_conversions
 {
 
-//! Transform quaternion to opposite rotation.
-void convertQuaternionHistoryToMatchSigns( std::map< double, Eigen::Vector4d >& quaternionHistoryMap )
+//! Transform quaternion to opposite rotation, based on discontinuities in derivatives.
+void matchQuaternionHistory( std::map< double, Eigen::Vector4d >& quaternionHistoryMap )
 {
     // Get total number of rows
     unsigned int numberOfRows = quaternionHistoryMap.size( );
@@ -103,9 +103,10 @@ void convertQuaternionHistoryToMatchSigns( std::map< double, Eigen::Vector4d >& 
     }
 }
 
-//! Transform quaternion in translational or rotational state to opposite rotation.
-void convertQuaternionHistoryToMatchSigns( std::map< double, Eigen::VectorXd >& stateHistoryMap,
-                                           const propagators::IntegratedStateType stateType )
+//! Transform quaternion in translational or rotational state to opposite rotation,
+//! based on discontinuities in derivatives.
+void matchQuaternionHistory( std::map< double, Eigen::VectorXd >& stateHistoryMap,
+                             const propagators::IntegratedStateType stateType )
 {
     // Select index based on input state type
     int quaternionStartIndex;
@@ -129,13 +130,90 @@ void convertQuaternionHistoryToMatchSigns( std::map< double, Eigen::VectorXd >& 
     {
         quaternionHistoryMap[ mapIterator->first ] = mapIterator->second.segment( quaternionStartIndex, 4 );
     }
-    convertQuaternionHistoryToMatchSigns( quaternionHistoryMap );
+    matchQuaternionHistory( quaternionHistoryMap );
 
     // Replace state elements with new quaterions
     for ( std::map< double, Eigen::VectorXd >::iterator mapIterator = stateHistoryMap.begin( );
           mapIterator != stateHistoryMap.end( ); mapIterator++ )
     {
         mapIterator->second.segment( quaternionStartIndex, 4 ) = quaternionHistoryMap[ mapIterator->first ];
+    }
+}
+
+//! Transform quaternion to opposite rotation, based on shadow flag of another attitude representation.
+void matchQuaternionHistory( std::map< double, Eigen::Vector4d >& quaternionHistoryMap,
+                             const std::map< double, Eigen::Vector4d >& attitudeHistoryMap )
+{
+    // Split keys and mapped values from history maps
+    std::vector< double > timeHistoryVectorFromQuaternions = utilities::createVectorFromMapKeys( quaternionHistoryMap );
+    std::vector< double > timeHistoryVectorFromAttitude = utilities::createVectorFromMapKeys( attitudeHistoryMap );
+
+    // Check that the histories match in time
+    if ( timeHistoryVectorFromQuaternions.size( ) != timeHistoryVectorFromAttitude.size( ) )
+    {
+        throw std::runtime_error( "Error in conversion of quaternion history. The size of quaternion and "
+                                  "attitude histories do not match." );
+    }
+    for ( unsigned int i = 0; i < timeHistoryVectorFromQuaternions.size( ); i++ )
+    {
+        if ( timeHistoryVectorFromQuaternions.at( i ) != timeHistoryVectorFromAttitude.at( i ) )
+        {
+            throw std::runtime_error( "Error in conversion of quaternion history. The time specified in "
+                                      "quaternion and attitude histories do not match." );
+        }
+    }
+
+    // Convert quaternion history based on shadow flag
+    double numericalPrecisionTolerance = 20.0 * std::numeric_limits< double >::epsilon( );
+    for ( std::map< double, Eigen::Vector4d >::iterator mapIterator = quaternionHistoryMap.begin( );
+          mapIterator != quaternionHistoryMap.end( ); mapIterator++ )
+    {
+        if ( std::fabs( attitudeHistoryMap.at( mapIterator->first )[ 3 ] - 1.0 ) < numericalPrecisionTolerance )
+        {
+            // Invert quaternion
+            mapIterator->second *= - 1.0;
+        }
+    }
+}
+
+//! Transform quaternion in translational or rotational state to opposite rotation, based on shadow flag
+//! of another attitude representation.
+void matchQuaternionHistory( std::map< double, Eigen::VectorXd >& conventionalStateHistoryMap,
+                             const std::map< double, Eigen::VectorXd >& propagatedStateHistoryMap,
+                             const propagators::IntegratedStateType stateType )
+{
+    // Select index based on input state type
+    int attitudeStartIndex;
+    switch ( stateType )
+    {
+    case propagators::translational_state:
+        attitudeStartIndex = static_cast< int >( etaUSM7Index );
+        break;
+    case propagators::rotational_state:
+        attitudeStartIndex = static_cast< int >( etaQuaternionIndex );
+        break;
+    default:
+        throw std::runtime_error( "Error in conversion of quaternion history."
+                                  "Only translational and rotational propagators are supported." );
+    }
+
+    // Extract exponential map from state and convert history
+    std::map< double, Eigen::Vector4d > quaternionHistoryMap;
+    std::map< double, Eigen::Vector4d > attitudeHistoryMap;
+    for ( std::map< double, Eigen::VectorXd >::const_iterator mapIterator = conventionalStateHistoryMap.begin( );
+          mapIterator != conventionalStateHistoryMap.end( ); mapIterator++ )
+    {
+        quaternionHistoryMap[ mapIterator->first ] = mapIterator->second.segment( attitudeStartIndex, 4 );
+        attitudeHistoryMap[ mapIterator->first ] =
+                propagatedStateHistoryMap.at( mapIterator->first ).segment( attitudeStartIndex, 4 );
+    }
+    matchQuaternionHistory( quaternionHistoryMap, attitudeHistoryMap );
+
+    // Replace state elements with new quaterions
+    for ( std::map< double, Eigen::VectorXd >::iterator mapIterator = conventionalStateHistoryMap.begin( );
+          mapIterator != conventionalStateHistoryMap.end( ); mapIterator++ )
+    {
+        mapIterator->second.segment( attitudeStartIndex, 4 ) = quaternionHistoryMap[ mapIterator->first ];
     }
 }
 

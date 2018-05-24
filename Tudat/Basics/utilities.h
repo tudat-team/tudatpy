@@ -208,7 +208,7 @@ void castMatrixMap( const std::map< S, Eigen::Matrix< T, Rows, Columns > >& orig
  *  \return Dynamic casted vector of T shared pointers.
  */
 template< typename S, typename T >
-std::vector< boost::shared_ptr< T > >dynamicCastSVectorToTVector( const std::vector< boost::shared_ptr< S > >& originalVector )
+std::vector< boost::shared_ptr< T > > dynamicCastSVectorToTVector( const std::vector< boost::shared_ptr< S > >& originalVector )
 {
     std::vector< boost::shared_ptr< T > > castVector;
 
@@ -277,29 +277,6 @@ Eigen::Matrix< ScalarType, Eigen::Dynamic, NumberOfColumns > createConcatenatedE
     return outputVector;
 }
 
-////! Function to extract both keys and values from map, and output them as a pair.
-//template< typename KeyType, typename ScalarType, unsigned int NumberOfKeys, unsigned int NumberOfElements >
-//std::pair< Eigen::Matrix< KeyType, NumberOfKeys, 1 >, Eigen::Matrix< ScalarType, NumberOfElements, NumberOfKeys > >
-//extractKeyAndValuesFromMap( const std::map< KeyType, Eigen::Matrix< ScalarType, NumberOfElements, 1 > >& inputMap )
-//{
-//    // Declare eventual output variables
-//    Eigen::Matrix< KeyType, NumberOfKeys, 1 > keyValuesVector;
-//    Eigen::Matrix< ScalarType, NumberOfElements, NumberOfKeys > mappedValuesMatrix;
-
-//    // Loop over map and save elements
-//    int i = 0;
-//    for ( typename std::map< KeyType, Eigen::Matrix< ScalarType, NumberOfElements, 1 > >::const_iterator
-//          mapIterator = inputMap.begin( );
-//          mapIterator != inputMap.end( );
-//          mapIterator++, i++ )
-//    {
-//        keyValuesVector[ i ] = mapIterator->first;
-//        mappedValuesMatrix.col( i ) = mapIterator->second;
-//    }
-
-//    // Give output
-//    return std::make_pair( keyValuesVector, mappedValuesMatrix );
-//}
 //! Function to extract both keys and values from map, and output them as a pair.
 template< typename KeyType, typename ScalarType, unsigned int NumberOfElements >
 std::pair< Eigen::Matrix< KeyType, Eigen::Dynamic, 1 >, Eigen::Matrix< ScalarType, Eigen::Dynamic, Eigen::Dynamic > >

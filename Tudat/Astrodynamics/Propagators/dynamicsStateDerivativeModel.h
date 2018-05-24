@@ -409,13 +409,18 @@ public:
     //! Function to process the state history after propagation.
     /*!
      * Function to process the state history after propagation.
-     * \param unprocessedStateHistory State history before processing.
+     * \param unprocessedConventionalStateHistory Conventional state history before processing.
+     * \param propagatedStateHistory Propagated state history.
+     * \return Processed conventional state history (returned by reference).
      */
-    void processConventionalStateHistory( std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >& unprocessedStateHistory )
+    void processConventionalStateHistory(
+            std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >& unprocessedConventionalStateHistory,
+            const std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >& propagatedStateHistory )
     {
         // Iterate over all state derivative models and post-process associated state entries
         std::vector< std::pair< int, int > > currentIndices;
-        std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > currentStateHistory;
+        std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > currentConventionalStateHistory;
+        std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > currentPropagatedStateHistory;
         for( stateDerivativeModelsIterator_ = stateDerivativeModels_.begin( );
              stateDerivativeModelsIterator_ != stateDerivativeModels_.end( );
              stateDerivativeModelsIterator_++ )
@@ -427,29 +432,35 @@ public:
                 {
                     // Merge history of one body into one map
                     for ( typename std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >::const_iterator
-                          stateHistoryIterator = unprocessedStateHistory.begin( );
-                          stateHistoryIterator != unprocessedStateHistory.end( ); stateHistoryIterator++ )
+                          stateHistoryIterator = unprocessedConventionalStateHistory.begin( );
+                          stateHistoryIterator != unprocessedConventionalStateHistory.end( ); stateHistoryIterator++ )
                     {
-                        currentStateHistory[ stateHistoryIterator->first ] =
+                        currentConventionalStateHistory[ stateHistoryIterator->first ] =
                                 stateHistoryIterator->second.block( currentIndices.at( i ).first, 0,
                                                                     currentIndices.at( i ).second, 1 );
+                        currentPropagatedStateHistory[ stateHistoryIterator->first ] =
+                                propagatedStateHistory.at( stateHistoryIterator->first ).block(
+                                    currentIndices.at( i ).first, 0,
+                                    currentIndices.at( i ).second, 1 );
                     }
 
                     // Process history
-                    stateDerivativeModelsIterator_->second.at( i )->processConventionalStateHistory( currentStateHistory );
+                    stateDerivativeModelsIterator_->second.at( i )->processConventionalStateHistory(
+                                currentConventionalStateHistory, currentPropagatedStateHistory );
 
                     // Replace old elements with new
                     for ( typename std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >::iterator
-                          stateHistoryIterator = unprocessedStateHistory.begin( );
-                          stateHistoryIterator != unprocessedStateHistory.end( ); stateHistoryIterator++ )
+                          stateHistoryIterator = unprocessedConventionalStateHistory.begin( );
+                          stateHistoryIterator != unprocessedConventionalStateHistory.end( ); stateHistoryIterator++ )
                     {
                         stateHistoryIterator->second.block( currentIndices.at( i ).first, 0,
                                                             currentIndices.at( i ).second, 1 ) =
-                                currentStateHistory[ stateHistoryIterator->first ];
+                                currentConventionalStateHistory[ stateHistoryIterator->first ];
                     }
 
                     // Clear current state history
-                    currentStateHistory.clear( );
+                    currentConventionalStateHistory.clear( );
+                    currentPropagatedStateHistory.clear( );
                 }
             }
         }

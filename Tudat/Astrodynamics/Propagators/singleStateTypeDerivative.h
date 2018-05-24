@@ -214,10 +214,13 @@ public:
     //! Function to process the state history after propagation.
     /*!
      * Function to process the state history after propagation.
-     * \param unprocessedStateHistory State hisotry after propagation.
+     * \param unprocessedConventionalStateHistory Conventional state history before processing.
+     * \param propagatedStateHistory Propagated state history.
+     * \return Processed conventional state history (returned by reference).
      */
     virtual void processConventionalStateHistory(
-            std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >& unprocessedStateHistory )
+            std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >& unprocessedConventionalStateHistory,
+            const std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >& propagatedStateHistory )
     {
 
     }
