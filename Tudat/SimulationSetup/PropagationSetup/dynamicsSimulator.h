@@ -320,13 +320,15 @@ public:
             const bool areEquationsOfMotionToBeIntegrated = true,
             const bool clearNumericalSolutions = false,
             const bool setIntegratedResult = false,
+            const bool printNumberOfFunctionEvaluations = false,
             const std::chrono::steady_clock::time_point initialClockTime = std::chrono::steady_clock::now( ) ):
         DynamicsSimulator< StateScalarType, TimeType >(
             bodyMap, clearNumericalSolutions, setIntegratedResult ),
         integratorSettings_( integratorSettings ),
         propagatorSettings_(
             boost::dynamic_pointer_cast< SingleArcPropagatorSettings< StateScalarType > >( propagatorSettings ) ),
-        initialPropagationTime_( integratorSettings_->initialTime_ ), initialClockTime_( initialClockTime ),
+        initialPropagationTime_( integratorSettings_->initialTime_ ),
+        printNumberOfFunctionEvaluations_( printNumberOfFunctionEvaluations ), initialClockTime_( initialClockTime ),
         propagationTerminationReason_( boost::make_shared< PropagationTerminationDetails >( propagation_never_run ) )
     {
         if( propagatorSettings == NULL )
@@ -443,12 +445,15 @@ public:
         dynamicsStateDerivative_->processConventionalStateHistory( equationsOfMotionNumericalSolution_,
                                                                    equationsOfMotionNumericalSolutionRaw_ );
 
-        // Retrieve number of function evaluations (to print, remove comments on line 451)
+        // Retrieve number of function evaluations
         int numberOfFunctionEvaluations = dynamicsStateDerivative_->getNumberOfFunctionEvaluations( );
         cumulativeNumberOfFunctionEvaluations_ = dynamicsStateDerivative_->getCumulativeNumberOfFunctionEvaluations( );
 
         // Print number of total function evaluations
-//        std::cout << "Function Evaluations: " << numberOfFunctionEvaluations << std::endl;
+        if ( printNumberOfFunctionEvaluations_ )
+        {
+            std::cout << "Total Number of Function Evaluations: " << numberOfFunctionEvaluations << std::endl;
+        }
 
         if( this->setIntegratedResult_ )
         {
@@ -816,7 +821,10 @@ protected:
     //! Initial time of propagation
     double initialPropagationTime_;
 
-    //!
+    //! Boolean specifiying whether number of evaluations has to be printed at the end of propagation.
+    bool printNumberOfFunctionEvaluations_;
+
+    //! Initial clock time
     std::chrono::steady_clock::time_point initialClockTime_;
 
     //! Event that triggered the termination of the propagation

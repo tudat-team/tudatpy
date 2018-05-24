@@ -152,6 +152,7 @@ public:
      * Function to process the state during propagation. For exponential map (EM), this function converts to/from shadow exponential
      * map (SEM), in case the rotation angle is larger than PI.
      * \param unprocessedState State computed after propagation.
+     * \return Processed state (returned by reference).
      */
     void postProcessState( Eigen::Block< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > unprocessedState )
     {

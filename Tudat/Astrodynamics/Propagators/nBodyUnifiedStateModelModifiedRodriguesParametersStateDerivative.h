@@ -242,6 +242,7 @@ public:
      * Function to process the state during propagation. For modified Rodrigues parameters (MRP), this function converts to/from
      * shadow modified Rodrigues parameters (SMRP), in case the magnitude of the (S)MRP vector is larger than 1.0.
      * \param unprocessedState State computed after propagation.
+     * \return Processed state (returned by reference).
      */
     void postProcessState( Eigen::Block< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > unprocessedState )
     {
