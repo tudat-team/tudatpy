@@ -16,6 +16,8 @@
 #include "Tudat/Astrodynamics/BasicAstrodynamics/attitudeElementConversions.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/quaternionHistoryManipulation.h"
 
+#include "Tudat/Basics/utilities.h"
+
 namespace tudat
 {
 
@@ -168,7 +170,7 @@ public:
             {
                 // Invert flag
                 unprocessedState.segment( i * 7 + 3, 1 ) = ( unprocessedState.block( i * 7 + 3, 0, 1, 1 ) -
-                                                             Eigen::Matrix< double, 1, 1 >::Ones( ) ).cwiseAbs( );
+                                                             Eigen::Matrix< StateScalarType, 1, 1 >::Ones( ) ).cwiseAbs( );
 
                 // Convert to EM/SEM
                 exponentialMapVector *= ( 1.0 - ( 2.0 * mathematical_constants::PI / exponentialMapMagnitude ) );
@@ -200,8 +202,21 @@ public:
             std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >& unprocessedConventionalStateHistory,
             const std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >& propagatedStateHistory )
     {
+        // Cast maps to double type
+        std::map< double, Eigen::VectorXd > castUnprocessedConventionalStateHistory;
+        std::map< double, Eigen::VectorXd > castPropagatedStateHistory;
+        utilities::castMatrixMap< TimeType, StateScalarType, double, double >( unprocessedConventionalStateHistory,
+                                                                               castUnprocessedConventionalStateHistory );
+        utilities::castMatrixMap< TimeType, StateScalarType, double, double >( propagatedStateHistory,
+                                                                               castPropagatedStateHistory );
+
+        // Convert history
         orbital_element_conversions::matchQuaternionHistory(
-                    unprocessedConventionalStateHistory, propagatedStateHistory, rotational_state );
+                    castUnprocessedConventionalStateHistory, castPropagatedStateHistory, rotational_state );
+
+        // Replace hisotry
+        utilities::castMatrixMap< double, double, TimeType, StateScalarType >( castUnprocessedConventionalStateHistory,
+                                                                               unprocessedConventionalStateHistory );
     }
 
     //! Function to return whether the state history needs to be processed.

@@ -391,6 +391,7 @@ public:
     {
         // Iterate over all state derivative models and post-process associated state entries
         std::vector< std::pair< int, int > > currentIndices;
+        Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic > currentUnprocessedState;
         for( stateDerivativeModelsIterator_ = stateDerivativeModels_.begin( );
              stateDerivativeModelsIterator_ != stateDerivativeModels_.end( );
              stateDerivativeModelsIterator_++ )
@@ -400,9 +401,11 @@ public:
             {
             	if ( stateDerivativeModelsIterator_->second.at( i )->isStateToBePostProcessed( ) )
                 {
-                    stateDerivativeModelsIterator_->second.at( i )->postProcessState(
-                                unprocessedState.block( currentIndices.at( i ).first, dynamicsStartColumn_,
-                                                        currentIndices.at( i ).second, 1 ) );
+                    currentUnprocessedState = unprocessedState.block( currentIndices.at( i ).first, dynamicsStartColumn_,
+                                                                      currentIndices.at( i ).second, 1 );
+                    stateDerivativeModelsIterator_->second.at( i )->postProcessState( currentUnprocessedState );
+                    unprocessedState.block( currentIndices.at( i ).first, dynamicsStartColumn_,
+                                            currentIndices.at( i ).second, 1 ) = currentUnprocessedState;
                	}
             }
         }
