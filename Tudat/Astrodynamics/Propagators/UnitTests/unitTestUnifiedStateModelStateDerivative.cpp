@@ -18,6 +18,7 @@
 #include <boost/test/unit_test.hpp>
 
 #include "Tudat/SimulationSetup/tudatSimulationHeader.h"
+
 namespace tudat
 {
 namespace unit_tests
@@ -206,7 +207,8 @@ BOOST_AUTO_TEST_CASE( testUnifiedStateModelPopagatorForPointMassCentralBodies )
 
         // Create propagation settings
         propagatorSettings = boost::make_shared< TranslationalStatePropagatorSettings< double > >
-                ( centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState, finalEphemerisTime, translationalPropagatorType );
+                ( centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState, finalEphemerisTime,
+                  translationalPropagatorType );
 
         // Propagate orbit with USM EOM
         SingleArcDynamicsSimulator< double > dynamicsSimulator(
@@ -296,8 +298,7 @@ BOOST_AUTO_TEST_CASE( testUnifiedStateModelPopagatorForSphericalHarmonicCentralB
         }
         else if( propagatorType == 1 )
         {
-//            translationalPropagatorType = unified_state_model_modified_rodrigues_parameters;
-            translationalPropagatorType = unified_state_model_quaternions; // temporary fix (USM6 not implemented yet)
+            translationalPropagatorType = unified_state_model_modified_rodrigues_parameters;
         }
         else
         {

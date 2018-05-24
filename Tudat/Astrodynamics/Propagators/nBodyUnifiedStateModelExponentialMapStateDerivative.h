@@ -279,28 +279,6 @@ public:
         return true;
     }
 
-//    //! Function to process the state history after propagation.
-//    /*!
-//     * Function to process the state history after propagation.
-//     * \param unprocessedStateHistory State hisotry after propagation.
-//     */
-//    void processConventionalStateHistory(
-//            std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >& unprocessedStateHistory )
-//    {
-//        orbital_element_conversions::convertQuaternionHistoryToMatchSigns(
-//                    unprocessedStateHistory, translational_state );
-//    }
-
-//    //! Function to return whether the state history needs to be processed.
-//    /*!
-//     * Function to return whether the state history needs to be processed. For exponential map this is true.
-//     * \return Boolean confirming that the state history needs to be processed.
-//     */
-//    bool isConventionalStateHistoryToBeProcessed( )
-//    {
-//        return true;
-//    }
-
 private:
 
     //!  Gravitational parameters of central bodies used to convert Cartesian to Keplerian orbits, and vice versa

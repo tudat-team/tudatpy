@@ -440,9 +440,10 @@ public:
                     equationsOfMotionNumericalSolution_, equationsOfMotionNumericalSolutionRaw_ );
 
         // Process conventional state history
-        dynamicsStateDerivative_->processConventionalStateHistory( equationsOfMotionNumericalSolution_ );
+        dynamicsStateDerivative_->processConventionalStateHistory( equationsOfMotionNumericalSolution_,
+                                                                   equationsOfMotionNumericalSolutionRaw_ );
 
-        // Retrieve number of function evaluations (to print, remove comments on line 450)
+        // Retrieve number of function evaluations (to print, remove comments on line 451)
         int numberOfFunctionEvaluations = dynamicsStateDerivative_->getNumberOfFunctionEvaluations( );
         cumulativeNumberOfFunctionEvaluations_ = dynamicsStateDerivative_->getCumulativeNumberOfFunctionEvaluations( );
 
@@ -1149,7 +1150,6 @@ public:
             arcStartTimes_[ i ] = equationsOfMotionNumericalSolution_[ i ].begin( )->first;
         }
 
-
         if( updateInitialStates )
         {
             multiArcPropagatorSettings_->resetInitialStatesList(
@@ -1217,7 +1217,6 @@ public:
     {
         return getCumulativeComputationTimeHistory( );
     }
-
 
     //! Function to reset the environment using an externally provided list of (numerically integrated) states
     /*!
@@ -1358,7 +1357,6 @@ protected:
 
     //! Propagator settings used by this objec
     boost::shared_ptr< MultiArcPropagatorSettings< StateScalarType > > multiArcPropagatorSettings_;
-
 
 };
 
