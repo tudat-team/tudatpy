@@ -212,7 +212,7 @@ public:
 
         // Convert history
         orbital_element_conversions::matchQuaternionHistory(
-                    castUnprocessedConventionalStateHistory, castPropagatedStateHistory, rotational_state );
+                    castUnprocessedConventionalStateHistory, castPropagatedStateHistory, 0 );
 
         // Replace hisotry
         utilities::castMatrixMap< double, double, TimeType, StateScalarType >( castUnprocessedConventionalStateHistory,

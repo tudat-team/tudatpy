@@ -537,7 +537,7 @@ public:
     template< typename TimeType >
     void setCurrentRotationalStateToLocalFrameFromEphemeris( const TimeType time )
     {
-        if( rotationalEphemeris_!= NULL )
+        if( rotationalEphemeris_ != NULL )
         {
             rotationalEphemeris_->getFullRotationalQuantitiesToTargetFrameTemplated< TimeType >(
                         currentRotationToLocalFrame_, currentRotationToLocalFrameDerivative_,

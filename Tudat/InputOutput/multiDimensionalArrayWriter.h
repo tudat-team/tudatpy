@@ -14,6 +14,7 @@
 #include <map>
 
 #include <boost/multi_array.hpp>
+#include <boost/filesystem.hpp>
 
 #include <Eigen/Core>
 
@@ -119,6 +120,12 @@ public:
                                       "Number of independent variables does not match size of independent variables vector." );
         }
 
+        // Create directory (if it does not exist)
+        if ( !boost::filesystem::exists( boost::filesystem::path( fileName ).parent_path( ) ) )
+        {
+            boost::filesystem::create_directories( boost::filesystem::path( fileName ).parent_path( ) );
+        }
+
         // Inform user on which variable is being saved
         for ( int index: coefficientIndices )
         {
@@ -126,7 +133,8 @@ public:
         }
 
         // Open file
-        FILE * fileIdentifier = std::fopen( fileName.c_str( ), "w" );
+        std::string filePath = fileName;
+        FILE * fileIdentifier = std::fopen( filePath.c_str( ), "w" );
 
         // Loop over independent variable rows
         for ( unsigned int j = 0; j < independentVariables.at( 0 ).size( ); j++ )
@@ -180,6 +188,7 @@ public:
         }
 
         // Loop over each file
+        std::string filePath;
         FILE * fileIdentifier;
         for ( std::map< int, std::string >::const_iterator fileIterator = fileNamesMap.begin( );
               fileIterator != fileNamesMap.end( ); fileIterator++ )
@@ -187,8 +196,15 @@ public:
             // Inform user on which variable is being saved
             informUserOnSavedCoefficient( fileIterator->first );
 
+            // Create directory (if it does not exist)
+            if ( !boost::filesystem::exists( boost::filesystem::path( fileIterator->second ).parent_path( ) ) )
+            {
+                boost::filesystem::create_directories( boost::filesystem::path( fileIterator->second ).parent_path( ) );
+            }
+
             // Open file
-            fileIdentifier = std::fopen( fileIterator->second.c_str( ), "w" );
+            filePath = fileIterator->second;
+            fileIdentifier = std::fopen( filePath.c_str( ), "w" );
 
             // Print number of independent variables
             fprintf( fileIdentifier, "%d\n\n", 1 );
@@ -258,6 +274,7 @@ public:
         }
 
         // Loop over each file
+        std::string filePath;
         FILE * fileIdentifier;
         for ( std::map< int, std::string >::const_iterator fileIterator = fileNamesMap.begin( );
               fileIterator != fileNamesMap.end( ); fileIterator++ )
@@ -265,8 +282,15 @@ public:
             // Inform user on which variable is being saved
             informUserOnSavedCoefficient( fileIterator->first );
 
+            // Create directory (if it does not exist)
+            if ( !boost::filesystem::exists( boost::filesystem::path( fileIterator->second ).parent_path( ) ) )
+            {
+                boost::filesystem::create_directories( boost::filesystem::path( fileIterator->second ).parent_path( ) );
+            }
+
             // Open file
-            fileIdentifier = std::fopen( fileIterator->second.c_str( ), "w" );
+            filePath = fileIterator->second;
+            fileIdentifier = std::fopen( filePath.c_str( ), "w" );
 
             // Print number of independent variables
             fprintf( fileIdentifier, "%d\n\n", 2 );
@@ -339,6 +363,7 @@ public:
         }
 
         // Loop over each file
+        std::string filePath;
         FILE * fileIdentifier;
         for ( std::map< int, std::string >::const_iterator fileIterator = fileNamesMap.begin( );
               fileIterator != fileNamesMap.end( ); fileIterator++ )
@@ -346,8 +371,15 @@ public:
             // Inform user on which variable is being saved
             informUserOnSavedCoefficient( fileIterator->first );
 
+            // Create directory (if it does not exist)
+            if ( !boost::filesystem::exists( boost::filesystem::path( fileIterator->second ).parent_path( ) ) )
+            {
+                boost::filesystem::create_directories( boost::filesystem::path( fileIterator->second ).parent_path( ) );
+            }
+
             // Open file
-            fileIdentifier = std::fopen( fileIterator->second.c_str( ), "w" );
+            filePath = fileIterator->second;
+            fileIdentifier = std::fopen( filePath.c_str( ), "w" );
 
             // Print number of independent variables
             fprintf( fileIdentifier, "%d\n\n", 3 );
