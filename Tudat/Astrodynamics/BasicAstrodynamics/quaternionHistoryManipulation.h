@@ -20,8 +20,6 @@
 
 #include "Tudat/Basics/basicTypedefs.h"
 
-#include "Tudat/Astrodynamics/Propagators/singleStateTypeDerivative.h"
-
 namespace tudat
 {
 
@@ -42,11 +40,12 @@ void matchQuaternionHistory( std::map< double, Eigen::Vector4d >& quaternionHist
  *  Transform quaternion in translational or rotational state to opposite rotation, based on discontinuities
  *  in derivatives.
  *  \param stateHistoryMap Map of state over time, where quaternions appear as discontinuous.
- *  \param stateType Type of state to be processed (translational or rotational).
+ *  \param quaternionStartIndex Index at which first quaternion element (i.e., real part of quaternions)
+ *      can be found.
  *  \return Map of state over time, where continuity is restored (returned by reference).
  */
 void matchQuaternionHistory( std::map< double, Eigen::VectorXd >& stateHistoryMap,
-                             const propagators::IntegratedStateType stateType );
+                             const unsigned int quaternionStartIndex );
 
 //! Transform quaternion to opposite rotation, based on shadow flag of another attitude representation.
 /*!
@@ -65,12 +64,13 @@ void matchQuaternionHistory( std::map< double, Eigen::Vector4d >& quaternionHist
  *  flag of another attitude representation.
  *  \param conventionalStateHistoryMap Map of conventional state over time, where quaternions appear as discontinuous.
  *  \param propagatedStateHistoryMap Map of propagated state over time, which was used to convert to quaternions.
- *  \param stateType Type of state to be processed (translational or rotational).
+ *  \param attitudeStartIndex Index at which first quaternion element (i.e., real part of quaternions) and first
+ *      element of secondary attitude representation can be found.
  *  \return Map of state over time, where continuity is restored (returned by reference).
  */
 void matchQuaternionHistory( std::map< double, Eigen::VectorXd >& conventionalStateHistoryMap,
                              const std::map< double, Eigen::VectorXd >& propagatedStateHistoryMap,
-                             const propagators::IntegratedStateType stateType );
+                             const unsigned int attitudeStartIndex );
 
 } // namespace orbital_element_conversions
 
