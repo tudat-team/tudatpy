@@ -320,6 +320,7 @@ protected:
      * Default value to be used for extrapolation.
      */
     DependentVariableType defaultExtrapolationValue_;
+
 };
 
 } // namespace interpolators

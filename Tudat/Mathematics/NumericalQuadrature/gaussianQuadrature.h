@@ -32,7 +32,6 @@ namespace tudat
 namespace numerical_quadrature
 {
 
-
 //! Read Gaussian nodes from text file
 /*!
  *  Read Gaussian nodes from text file, file name is hard-coded into this function, read nodes are returned by reference
@@ -390,6 +389,7 @@ private:
     DependentVariableType quadratureResult_;
 
     boost::shared_ptr< GaussQuadratureNodesAndWeights< IndependentVariableType > > gaussQuadratureNodesAndWeights_;
+
 };
 
 } // namespace numerical_quadrature
