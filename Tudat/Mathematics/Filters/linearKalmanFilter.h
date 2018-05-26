@@ -12,7 +12,7 @@
 #ifndef TUDAT_LINEAR_KALMAN_FILTER_H
 #define TUDAT_LINEAR_KALMAN_FILTER_H
 
-#include "Tudat/Mathematics/Filters/filter.h"
+#include "Tudat/Mathematics/Filters/kalmanFilter.h"
 
 namespace tudat
 {
@@ -20,12 +20,12 @@ namespace tudat
 namespace filters
 {
 
-//! Kalman filter.
+//! Linear Kalman filter.
 /*!
  *
  */
-template< typename IndependentVariable = double, typename DependentVariable = double >
-class LinearKalmanFilter: public FilterCore< IndependentVariable, DependentVariable >
+template< typename IndependentVariableType = double, typename DependentVariableType = double >
+class LinearKalmanFilter: public KalmanFilterCore< IndependentVariableType, DependentVariableType >
 {
 public:
 
@@ -33,16 +33,21 @@ public:
     /*!
      *  Constructor.
      */
-    LinearKalmanFilter( const FunctionPointer systemFunction,
-                        const FunctionPointer measurementFunction,
-                        const Eigen::Matrix< DependentVariable, Eigen::Dynamic, Eigen::Dynamic >& systemUncertainty,
-                        const Eigen::Matrix< DependentVariable, Eigen::Dynamic, Eigen::Dynamic >& measurementUncertainty,
+    LinearKalmanFilter( const DependentMatrix& systemMatrix,
+                        const DependentMatrix& inputMatrix,
+                        const DependentMatrix& measurementMatrix,
+                        const DependentMatrix& systemUncertainty,
+                        const DependentMatrix& measurementUncertainty,
                         const bool isStateToBeIntegrated = false,
                         const IntegratorPointer integrator = NULL ) :
-        FilterCore< IndependentVariable, DependentVariable >( isStateToBeIntegrated, integrator ),
-        systemFunction_( systemFunction ), measurementFunction_( measurementFunction ),
+        KalmanFilterCore( isStateToBeIntegrated, integrator ),
+        systemMatrix_( systemMatrix ), inputMatrix_( inputMatrix ), measurementMatrix_( measurementMatrix ),
         systemUncertainty_( systemUncertainty ), measurementUncertainty_( measurementUncertainty )
-    { }
+    {
+        // Create system and measurement functions based on input parameters
+        systemFunction_ = boost::bind( &createSystemFunction, _1, _2, _3 );
+        measurementFunction_ = boost::bind( &createMeasurementFunction, _1, _2 );
+    }
 
     //! Default destructor.
     /*!
@@ -51,18 +56,36 @@ public:
     ~LinearKalmanFilter( ){ }
 
     //!
-    DependentVector updateFilter( const DependentVector& currentStateVector )
+    DependentVector updateFilter( const DependentVector& currentStateVector, const DependentVector& currentControlVector )
     {
 
     }
 
 private:
 
-    //!
-    Eigen::Matrix< DependentVariable, Eigen::Dynamic, Eigen::Dynamic > systemUncertainty_;
+    //! System function.
+    DependentVector createSystemFunction( const IndependentVariableType independentVariable,
+                                          const DependentVector& stateVector,
+                                          const DependentVector& controlVector )
+    {
+        return systemMatrix_ * stateVector + inputMatrix_ * controlVector + this->produceSystemNoise( );
+    }
+
+    //! Measurement function.
+    DependentVector createMeasurementFunction( const IndependentVariableType independentVariable,
+                                               const DependentVector& stateVector )
+    {
+        return measurementMatrix_ * stateVector + this->produceMeasurementNoise( );
+    }
 
     //!
-    Eigen::Matrix< DependentVariable, Eigen::Dynamic, Eigen::Dynamic > measurementUncertainty_;
+    DependentMatrix systemMatrix_;
+
+    //!
+    DependentMatrix inputMatrix_;
+
+    //!
+    DependentMatrix measurementMatrix_;
 
 };
 

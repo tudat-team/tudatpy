@@ -12,7 +12,7 @@
 #ifndef TUDAT_UNSCENTED_KALMAN_FILTER_H
 #define TUDAT_UNSCENTED_KALMAN_FILTER_H
 
-#include "Tudat/Mathematics/Filters/filter.h"
+#include "Tudat/Mathematics/Filters/kalmanFilter.h"
 
 namespace tudat
 {
@@ -24,8 +24,8 @@ namespace filters
 /*!
  *
  */
-template< typename IndependentVariable = double, typename DependentVariable = double >
-class UnscentedKalmanFilter: public FilterCore< IndependentVariable, DependentVariable >
+template< typename IndependentVariableType = double, typename DependentVariableType = double >
+class UnscentedKalmanFilter: public FilterCore< IndependentVariableType, DependentVariableType >
 {
 public:
 
@@ -33,13 +33,13 @@ public:
     /*!
      *  Constructor.
      */
-    UnscentedKalmanFilter( const FunctionPointer systemFunction,
-                           const FunctionPointer measurementFunction,
-                           const Eigen::Matrix< DependentVariable, Eigen::Dynamic, Eigen::Dynamic >& systemUncertainty,
-                           const Eigen::Matrix< DependentVariable, Eigen::Dynamic, Eigen::Dynamic >& measurementUncertainty,
+    UnscentedKalmanFilter( const boost::shared_ptr< FunctionType > systemFunction,
+                           const boost::shared_ptr< FunctionType > measurementFunction,
+                           const Eigen::Matrix< DependentVariableType, Eigen::Dynamic, Eigen::Dynamic >& systemUncertainty,
+                           const Eigen::Matrix< DependentVariableType, Eigen::Dynamic, Eigen::Dynamic >& measurementUncertainty,
                            const bool isStateToBeIntegrated = false,
                            const IntegratorPointer integrator = NULL ) :
-        FilterCore< IndependentVariable, DependentVariable >( isStateToBeIntegrated, integrator ),
+        FilterCore< IndependentVariableType, DependentVariableType >( isStateToBeIntegrated, integrator ),
         systemFunction_( systemFunction ), measurementFunction_( measurementFunction ),
         systemUncertainty_( systemUncertainty ), measurementUncertainty_( measurementUncertainty )
     { }
@@ -59,10 +59,10 @@ public:
 private:
 
     //!
-    Eigen::Matrix< DependentVariable, Eigen::Dynamic, Eigen::Dynamic > systemUncertainty_;
+    Eigen::Matrix< DependentVariableType, Eigen::Dynamic, Eigen::Dynamic > systemUncertainty_;
 
     //!
-    Eigen::Matrix< DependentVariable, Eigen::Dynamic, Eigen::Dynamic > measurementUncertainty_;
+    Eigen::Matrix< DependentVariableType, Eigen::Dynamic, Eigen::Dynamic > measurementUncertainty_;
 
 };
 

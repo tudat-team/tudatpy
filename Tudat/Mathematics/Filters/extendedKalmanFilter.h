@@ -12,7 +12,7 @@
 #ifndef TUDAT_EXTENDED_KALMAN_FILTER_H
 #define TUDAT_EXTENDED_KALMAN_FILTER_H
 
-#include "Tudat/Mathematics/Filters/filter.h"
+#include "Tudat/Mathematics/Filters/kalmanFilter.h"
 
 namespace tudat
 {
@@ -24,8 +24,8 @@ namespace filters
 /*!
  *
  */
-template< typename IndependentVariable = double, typename DependentVariable = double >
-class ExtendedKalmanFilter: public FilterCore< IndependentVariable, DependentVariable >
+template< typename IndependentVariableType = double, typename DependentVariableType = double >
+class ExtendedKalmanFilter: public FilterCore< IndependentVariableType, DependentVariableType >
 {
 public:
 
@@ -33,15 +33,15 @@ public:
     /*!
      *  Constructor.
      */
-    ExtendedKalmanFilter( FunctionPointer systemFunction,
-                          FunctionPointer measurementFunction,
-                          const Eigen::Matrix< DependentVariable, Eigen::Dynamic, Eigen::Dynamic >& systemUncertainty,
-                          const Eigen::Matrix< DependentVariable, Eigen::Dynamic, Eigen::Dynamic >& measurementUncertainty,
-                          FunctionPointer systemJacobian,
-                          FunctionPointer measurementJacobian,
+    ExtendedKalmanFilter( const boost::shared_ptr< FunctionType > systemFunction,
+                          const boost::shared_ptr< FunctionType > measurementFunction,
+                          const Eigen::Matrix< DependentVariableType, Eigen::Dynamic, Eigen::Dynamic >& systemUncertainty,
+                          const Eigen::Matrix< DependentVariableType, Eigen::Dynamic, Eigen::Dynamic >& measurementUncertainty,
+                          const boost::shared_ptr< FunctionType > systemJacobian,
+                          const boost::shared_ptr< FunctionType > measurementJacobian,
                           const bool isStateToBeIntegrated = false,
                           const IntegratorPointer integrator = NULL ) :
-        FilterCore< IndependentVariable, DependentVariable >( isStateToBeIntegrated, integrator ),
+        FilterCore< IndependentVariableType, DependentVariableType >( isStateToBeIntegrated, integrator ),
         systemFunction_( systemFunction ), measurementFunction_( measurementFunction ),
         systemUncertainty_( systemUncertainty ), measurementUncertainty_( measurementUncertainty ),
         systemJacobian_( systemJacobian ), measurementJacobian_( measurementJacobian )
@@ -62,16 +62,16 @@ public:
 private:
 
     //!
-    Eigen::Matrix< DependentVariable, Eigen::Dynamic, Eigen::Dynamic > systemUncertainty_;
+    Eigen::Matrix< DependentVariableType, Eigen::Dynamic, Eigen::Dynamic > systemUncertainty_;
 
     //!
-    Eigen::Matrix< DependentVariable, Eigen::Dynamic, Eigen::Dynamic > measurementUncertainty_;
+    Eigen::Matrix< DependentVariableType, Eigen::Dynamic, Eigen::Dynamic > measurementUncertainty_;
 
     //!
-    FunctionPointer systemJacobian_;
+    boost::shared_ptr< FunctionType > systemJacobian_;
 
     //!
-    FunctionPointer measurementJacobian_;
+    boost::shared_ptr< FunctionType > measurementJacobian_;
 
 };
 

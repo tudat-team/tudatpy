@@ -10,9 +10,9 @@
 
 # Add header files.
 set(FILTERS_HEADERS
-  "${SRCROOT}${MATHEMATICSDIR}/Filters/filter.h"
-  "${SRCROOT}${MATHEMATICSDIR}/Filters/linearKalmanFilter.h"
   "${SRCROOT}${MATHEMATICSDIR}/Filters/extendedKalmanFilter.h"
+  "${SRCROOT}${MATHEMATICSDIR}/Filters/kalmanFilter.h"
+  "${SRCROOT}${MATHEMATICSDIR}/Filters/linearKalmanFilter.h"
   "${SRCROOT}${MATHEMATICSDIR}/Filters/unscentedKalmanFilter.h"
 )
 

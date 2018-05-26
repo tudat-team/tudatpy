@@ -22,6 +22,7 @@
 
 namespace tudat
 {
+
 namespace numerical_integrators
 {
 
@@ -299,6 +300,7 @@ typedef boost::shared_ptr< NumericalIntegrator< double, double, double > >
 NumericalIntegratordPointer;
 
 } // namespace numerical_integrators
+
 } // namespace tudat
 
 #endif // TUDAT_NUMERICAL_INTEGRATOR_H
