@@ -235,12 +235,12 @@ BOOST_AUTO_TEST_CASE( testMultiDimensionalTabulatedAtmosphereWithInterpolationAn
     const double latitude = unit_conversions::convertDegreesToRadians( -65.9762 );
 
     // Check that values matches with MATLAB interpolation (note that dependent variables are shuffled)
-    BOOST_CHECK_CLOSE_FRACTION( 5.50129731852116e-13, tabulatedAtmosphere.getDensity( altitude, longitude, latitude ), tolerance );
-    BOOST_CHECK_CLOSE_FRACTION( 5.04989095583442e-08, tabulatedAtmosphere.getPressure( altitude, longitude, latitude ), tolerance );
-    BOOST_CHECK_CLOSE_FRACTION( 174.841254254654, tabulatedAtmosphere.getTemperature( altitude, longitude, latitude ), tolerance );
-    BOOST_CHECK_CLOSE_FRACTION( 536.057570066056, tabulatedAtmosphere.getSpecificGasConstant( altitude, longitude, latitude ), tolerance );
-    BOOST_CHECK_CLOSE_FRACTION( 1.66645861500501, tabulatedAtmosphere.getRatioOfSpecificHeats( altitude, longitude, latitude ), tolerance );
-    BOOST_CHECK_CLOSE_FRACTION( 395.207283419339, tabulatedAtmosphere.getSpeedOfSound( altitude, longitude, latitude ), tolerance );
+    BOOST_CHECK_CLOSE_FRACTION( 5.50924276619674e-13, tabulatedAtmosphere.getDensity( altitude, longitude, latitude ), tolerance );
+    BOOST_CHECK_CLOSE_FRACTION( 5.05433422347663e-08, tabulatedAtmosphere.getPressure( altitude, longitude, latitude ), tolerance );
+    BOOST_CHECK_CLOSE_FRACTION( 174.841221295332, tabulatedAtmosphere.getTemperature( altitude, longitude, latitude ), tolerance );
+    BOOST_CHECK_CLOSE_FRACTION( 536.101455389577, tabulatedAtmosphere.getSpecificGasConstant( altitude, longitude, latitude ), tolerance );
+    BOOST_CHECK_CLOSE_FRACTION( 1.66646490380313, tabulatedAtmosphere.getRatioOfSpecificHeats( altitude, longitude, latitude ), tolerance );
+    BOOST_CHECK_CLOSE_FRACTION( 395.224168752852, tabulatedAtmosphere.getSpeedOfSound( altitude, longitude, latitude ), tolerance );
 }
 
 //! Check if the atmosphere is calculated correctly when default extrapolation values are used.
