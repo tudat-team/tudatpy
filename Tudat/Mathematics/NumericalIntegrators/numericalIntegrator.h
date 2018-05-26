@@ -136,7 +136,7 @@ public:
     virtual StateType integrateTo(
             const IndependentVariableType intervalEnd,
             const TimeStepType initialStepSize,
-            const TimeStepType finalTimeTolerance = std::numeric_limits< TimeStepType >::epsilon( )  );
+            const TimeStepType finalTimeTolerance = std::numeric_limits< TimeStepType >::epsilon( ) );
 
     //! Perform a single integration step.
     /*!
