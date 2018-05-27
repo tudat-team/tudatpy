@@ -21,8 +21,10 @@
 #include <boost/lambda/lambda.hpp>
 
 #include "Tudat/Basics/testMacros.h"
-#include "Tudat/Mathematics/Filters/linearKalmanFilter.h"
 #include "Tudat/InputOutput/basicInputOutput.h"
+
+#include "Tudat/Mathematics/Filters/linearKalmanFilter.h"
+#include "Tudat/Mathematics/Filters/extendedKalmanFilter.h"
 
 namespace tudat
 {
@@ -77,8 +79,8 @@ BOOST_AUTO_TEST_CASE( testLinearKalmanFilter )
     x0 << measurements[ 0 ], 0, -9.81;
 
     // Create linear filter
-    KalmanFilterPointer linearFilter = boost::make_shared< LinearKalmanFilter >( A, Eigen::MatrixXd::Zero( n, n ), C,
-                                                                                 Q, R, 0.0, x0, P );
+    KalmanFilterDoublePointer linearFilter =
+            boost::make_shared< LinearKalmanFilterDouble >( A, Eigen::MatrixXd::Zero( n, n ), C, Q, R, 0.0, x0, P );
 
     // Feed measurements into filter, output estimated states
     Eigen::VectorXd y( m );
@@ -92,11 +94,96 @@ BOOST_AUTO_TEST_CASE( testLinearKalmanFilter )
 //                  << ", x_hat[" << i << "] = " << linearFilter->getCurrentStateEstimate( ).transpose( ) << std::endl;
     }
 
-    Eigen::Vector3d expectedState;
-    expectedState << -0.34094280864427917, -8.2429633777065501, -9.7238568066459514;
+    Eigen::Vector3d expectedFinalState;
+    expectedFinalState << -0.34094280864427917, -8.2429633777065501, -9.7238568066459514;
     for ( int i = 0; i < n; i++ )
     {
-        BOOST_CHECK_SMALL( linearFilter->getCurrentStateEstimate( )[ i ] - expectedState[ i ], std::numeric_limits< double >::epsilon( ) );
+        BOOST_CHECK_SMALL( linearFilter->getCurrentStateEstimate( )[ i ] - expectedFinalState[ i ], std::numeric_limits< double >::epsilon( ) );
+    }
+}
+
+// Functions for extended Kalman filter
+Eigen::Vector2d stateFunction( const double time, const Eigen::Vector2d& state, const Eigen::Vector2d& control )
+{
+    Eigen::Vector2d stateDerivative;
+    stateDerivative[ 0 ] = state[ 1 ];
+    stateDerivative[ 1 ] = std::sin( 10.0 * time ) / 10.0;
+}
+
+Eigen::Vector1d measurementFunction( const double time, const Eigen::Vector2d& state, const Eigen::Vector2d& control )
+{
+    Eigen::Vector1d measurement = Eigen::Vector2d::Zero( );
+    stateDerivative[ 0 ] = state[ 1 ];
+    stateDerivative[ 1 ] = std::sin( 10.0 * time ) / 10.0;
+}
+
+// Test implementation of extended Kalman filter class.
+BOOST_AUTO_TEST_CASE( testExtendedKalmanFilter )
+{
+    using namespace tudat::filters;
+
+    int n = 3; // Number of states
+    int m = 1; // Number of measurements
+
+    double dt = 1.0/30; // Time step
+
+    Eigen::MatrixXd A(n, n); // System dynamics matrix
+    Eigen::MatrixXd C(m, n); // Output matrix
+    Eigen::MatrixXd Q(n, n); // Process noise covariance
+    Eigen::MatrixXd R(m, m); // Measurement noise covariance
+    Eigen::MatrixXd P(n, n); // Estimate error covariance
+
+    // Discrete LTI projectile motion, measuring position only
+    A << 1, dt, 0, 0, 1, dt, 0, 0, 1;
+    C << 1, 0, 0;
+
+    // Reasonable covariance matrices
+    Q << .05, .05, .0, .05, .05, .0, .0, .0, 1e-30;
+    R << 0.5;
+    P << .1, .1, .1, .1, 10000, 10, .1, 10, 100;
+
+    // List of noisy position measurements ( y )
+    std::vector< double > measurements =
+    {
+        1.04202710058, 1.10726790452, 1.2913511148, 1.48485250951, 1.72825901034,
+        1.74216489744, 2.11672039768, 2.14529225112, 2.16029641405, 2.21269371128,
+        2.57709350237, 2.6682215744, 2.51641839428, 2.76034056782, 2.88131780617,
+        2.88373786518, 2.9448468727, 2.82866600131, 3.0006601946, 3.12920591669,
+        2.858361783, 2.83808170354, 2.68975330958, 2.66533185589, 2.81613499531,
+        2.81003612051, 2.88321849354, 2.69789264832, 2.4342229249, 2.23464791825,
+        2.30278776224, 2.02069770395, 1.94393985809, 1.82498398739, 1.52526230354,
+        1.86967808173, 1.18073207847, 1.10729605087, 0.916168349913, 0.678547664519,
+        0.562381751596, 0.355468474885, -0.155607486619, -0.287198661013, -0.602973173813
+    };
+
+    // Best guess of initial states
+    Eigen::VectorXd x0( n );
+    double t = 0;
+    x0 << measurements[ 0 ], 0, -9.81;
+
+    // Create linear filter
+    KalmanFilterDoublePointer extendedFilter =
+            boost::make_shared< ExtendedKalmanFilterDouble >( A, Eigen::MatrixXd::Zero( n, n ), C,
+                                                              Q, R, 0.0, x0, P );
+
+    // Feed measurements into filter, output estimated states
+    Eigen::VectorXd y( m );
+//    std::cout << "t = " << t << ", " << "x_hat[ 0 ]: " << extendedFilter->getCurrentStateEstimate( ).transpose( ) << std::endl;
+    for( unsigned int i = 0; i < measurements.size( ); i++ ) //measurements.size( )
+    {
+        t += dt;
+        y << measurements[ i ];
+        extendedFilter->updateFilter( t, Eigen::Vector3d::Zero( ), y );
+//        std::cout << "t = " << t << ", " << "y[" << i << "] = " << y.transpose( )
+//                  << ", x_hat[" << i << "] = " << extendedFilter->getCurrentStateEstimate( ).transpose( ) << std::endl;
+    }
+
+    Eigen::Vector3d expectedFinalState;
+    expectedFinalState << -0.34094280864427917, -8.2429633777065501, -9.7238568066459514;
+    for ( int i = 0; i < n; i++ )
+    {
+        BOOST_CHECK_SMALL( extendedFilter->getCurrentStateEstimate( )[ i ] - expectedFinalState[ i ],
+                           std::numeric_limits< double >::epsilon( ) );
     }
 }
 

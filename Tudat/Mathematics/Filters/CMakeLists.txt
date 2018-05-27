@@ -34,4 +34,5 @@ set_target_properties(tudat_filters PROPERTIES LINKER_LANGUAGE CXX)
 # Add unit tests.
 add_executable(test_Filters ${FILTERS_TESTS})
 setup_custom_test_program(test_Filters "${SRCROOT}${MATHEMATICSDIR}/Filters")
-target_link_libraries(test_Filters tudat_filters tudat_numerical_integrators tudat_statistics tudat_input_output ${Boost_LIBRARIES})
+target_link_libraries(test_Filters tudat_filters tudat_numerical_integrators tudat_statistics tudat_basics
+    tudat_input_output ${Boost_LIBRARIES})

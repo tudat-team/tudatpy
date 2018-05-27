@@ -24,10 +24,12 @@ namespace filters
 
 //! Linear Kalman filter.
 /*!
- *
+ *  Class for the set up and use of the linear Kalman filter.
+ *  \tparam IndependentVariableType Type of independent variable. Default is double.
+ *  \tparam DependentVariableType Type of dependent variable. Default is double.
  */
 template< typename IndependentVariableType = double, typename DependentVariableType = double >
-class LinearKalmanFilterCore: public KalmanFilterBase< IndependentVariableType, DependentVariableType >
+class LinearKalmanFilter: public KalmanFilterBase< IndependentVariableType, DependentVariableType >
 {
 public:
 
@@ -61,30 +63,28 @@ public:
      *  \param isStateToBeIntegrated Boolean defining whether the system function needs to be integrated.
      *  \param integrator Pointer to integrator to be used to propagate state.
      */
-    LinearKalmanFilterCore( const SystemMatrixFunction& stateTransitionMatrixFunction,
-                            const SystemMatrixFunction& controlMatrixFunction,
-                            const MeasurementMatrixFunction& measurementMatrixFunction,
-                            const DependentMatrix& systemUncertainty,
-                            const DependentMatrix& measurementUncertainty,
-                            const IndependentVariableType initialTime,
-                            const DependentVector& initialStateVector,
-                            const DependentMatrix& initialCovarianceMatrix,
-                            const bool isStateToBeIntegrated = false,
-                            const boost::shared_ptr< Integrator > integrator = NULL ) :
+    LinearKalmanFilter( const SystemMatrixFunction& stateTransitionMatrixFunction,
+                        const SystemMatrixFunction& controlMatrixFunction,
+                        const MeasurementMatrixFunction& measurementMatrixFunction,
+                        const DependentMatrix& systemUncertainty,
+                        const DependentMatrix& measurementUncertainty,
+                        const IndependentVariableType initialTime,
+                        const DependentVector& initialStateVector,
+                        const DependentMatrix& initialCovarianceMatrix,
+                        const bool isStateToBeIntegrated = false,
+                        const boost::shared_ptr< Integrator > integrator = NULL,
+                        const IndependentVariableType integrationStepSize = IdentityElement< IndependentVariableType >::getAdditionIdentity( ) ) :
         KalmanFilterBase< IndependentVariableType, DependentVariableType >( systemUncertainty, measurementUncertainty, initialTime,
                                                                             initialStateVector, initialCovarianceMatrix,
-                                                                            isStateToBeIntegrated, integrator ),
+                                                                            isStateToBeIntegrated, integrator, integrationStepSize ),
         stateTransitionMatrixFunction_( stateTransitionMatrixFunction ), controlMatrixFunction_( controlMatrixFunction ),
         measurementMatrixFunction_( measurementMatrixFunction )
     {
         // Create system and measurement functions based on input parameters
-        this->systemFunction_ = boost::bind( &LinearKalmanFilterCore< IndependentVariableType, DependentVariableType >::createSystemFunction,
+        this->systemFunction_ = boost::bind( &LinearKalmanFilter< IndependentVariableType, DependentVariableType >::createSystemFunction,
                                              this, _1, _2, _3 );
-        this->measurementFunction_ = boost::bind( &LinearKalmanFilterCore< IndependentVariableType, DependentVariableType >::createMeasurementFunction,
+        this->measurementFunction_ = boost::bind( &LinearKalmanFilter< IndependentVariableType, DependentVariableType >::createMeasurementFunction,
                                                   this, _1, _2 );
-
-        // Generate identity matrix
-        identityMatrix_ = DependentMatrix::Identity( systemUncertainty.rows( ), systemUncertainty.cols( ) );
     }
 
     //! Constructor.
@@ -103,28 +103,29 @@ public:
      *  \param isStateToBeIntegrated Boolean defining whether the system function needs to be integrated.
      *  \param integrator Pointer to integrator to be used to propagate state.
      */
-    LinearKalmanFilterCore( const DependentMatrix& stateTransitionMatrix,
-                            const DependentMatrix& controlMatrix,
-                            const DependentMatrix& measurementMatrix,
-                            const DependentMatrix& systemUncertainty,
-                            const DependentMatrix& measurementUncertainty,
-                            const IndependentVariableType initialTime,
-                            const DependentVector& initialStateVector,
-                            const DependentMatrix& initialCovarianceMatrix,
-                            const bool isStateToBeIntegrated = false,
-                            const boost::shared_ptr< Integrator > integrator = NULL ) :
-        LinearKalmanFilterCore( boost::lambda::constant( stateTransitionMatrix ),
-                                boost::lambda::constant( controlMatrix ),
-                                boost::lambda::constant( measurementMatrix ),
-                                systemUncertainty, measurementUncertainty, initialTime, initialStateVector,
-                                initialCovarianceMatrix, isStateToBeIntegrated, integrator )
+    LinearKalmanFilter( const DependentMatrix& stateTransitionMatrix,
+                        const DependentMatrix& controlMatrix,
+                        const DependentMatrix& measurementMatrix,
+                        const DependentMatrix& systemUncertainty,
+                        const DependentMatrix& measurementUncertainty,
+                        const IndependentVariableType initialTime,
+                        const DependentVector& initialStateVector,
+                        const DependentMatrix& initialCovarianceMatrix,
+                        const bool isStateToBeIntegrated = false,
+                        const boost::shared_ptr< Integrator > integrator = NULL,
+                        const IndependentVariableType integrationStepSize = IdentityElement< IndependentVariableType >::getAdditionIdentity( ) ) :
+        LinearKalmanFilter( boost::lambda::constant( stateTransitionMatrix ),
+                            boost::lambda::constant( controlMatrix ),
+                            boost::lambda::constant( measurementMatrix ),
+                            systemUncertainty, measurementUncertainty, initialTime, initialStateVector,
+                            initialCovarianceMatrix, isStateToBeIntegrated, integrator, integrationStepSize )
     { }
 
     //! Default destructor.
     /*!
      *  Default destructor.
      */
-    ~LinearKalmanFilterCore( ){ }
+    ~LinearKalmanFilter( ){ }
 
     //! Function to update the filter with the new step data.
     /*!
@@ -143,8 +144,8 @@ public:
         // Prediction step
         DependentVector aPrioriStateEstimate = this->systemFunction_( currentTime, this->aPosterioriStateEstimate_, currentControlVector );
         DependentVector measurmentEstimate = this->measurementFunction_( currentTime, aPrioriStateEstimate );
-        DependentMatrix aPrioriCovarianceEstimate = currentSystemMatrix * this->aPosterioriCovarianceEstimate_ * currentSystemMatrix.transpose( ) +
-                this->systemUncertainty_;
+        DependentMatrix aPrioriCovarianceEstimate = currentSystemMatrix * this->aPosterioriCovarianceEstimate_ *
+                currentSystemMatrix.transpose( ) + this->systemUncertainty_;
 
         // Compute Kalman gain
         DependentMatrix kalmanGain = aPrioriCovarianceEstimate * currentMeasurementMatrix.transpose( ) * (
@@ -152,12 +153,8 @@ public:
                     this->measurementUncertainty_ ).inverse( );
 
         // Update step
-        this->aPosterioriStateEstimate_ = aPrioriStateEstimate + kalmanGain * ( currentMeasurementVector - measurmentEstimate );
-        this->aPosterioriCovarianceEstimate_ = ( identityMatrix_ - kalmanGain * currentMeasurementMatrix ) * aPrioriCovarianceEstimate;
-
-        // Give output
-        this->estimatedStateHistory_.push_back( this->aPosterioriStateEstimate_ );
-        this->estimatedCovarianceHistory_.push_back( this->aPosterioriCovarianceEstimate_ );
+        this->updateStateAndCovariance( aPrioriStateEstimate, aPrioriCovarianceEstimate, currentMeasurementMatrix,
+                                        currentMeasurementVector, measurmentEstimate, kalmanGain );
     }
 
 private:
@@ -215,19 +212,13 @@ private:
      */
     MeasurementMatrixFunction measurementMatrixFunction_;
 
-    //! Indentity matrix.
-    /*!
-     *  Indentity matrix with the correct dimensions for the specific application.
-     */
-    DependentMatrix identityMatrix_;
-
 };
 
 //! Typedef for a filter with double data type.
-typedef LinearKalmanFilterCore< > LinearKalmanFilter;
+typedef LinearKalmanFilter< > LinearKalmanFilterDouble;
 
 //! Typedef for a shared-pointer to a filter with double data type.
-typedef boost::shared_ptr< LinearKalmanFilter > LinearKalmanFilterPointer;
+typedef boost::shared_ptr< LinearKalmanFilterDouble > LinearKalmanFilterDoublePointer;
 
 } // namespace filters
 
