@@ -38,6 +38,7 @@ public:
     typedef typename KalmanFilterBase< IndependentVariableType, DependentVariableType >::DependentMatrix DependentMatrix;
     typedef typename KalmanFilterBase< IndependentVariableType, DependentVariableType >::SystemFunction SystemFunction;
     typedef typename KalmanFilterBase< IndependentVariableType, DependentVariableType >::MeasurementFunction MeasurementFunction;
+    typedef typename KalmanFilterBase< IndependentVariableType, DependentVariableType >::IntegratorSettings IntegratorSettings;
     typedef typename KalmanFilterBase< IndependentVariableType, DependentVariableType >::Integrator Integrator;
 
     //! Typedefs for matrix functions.
@@ -72,11 +73,10 @@ public:
                         const DependentVector& initialStateVector,
                         const DependentMatrix& initialCovarianceMatrix,
                         const bool isStateToBeIntegrated = false,
-                        const boost::shared_ptr< Integrator > integrator = NULL,
-                        const IndependentVariableType integrationStepSize = IdentityElement< IndependentVariableType >::getAdditionIdentity( ) ) :
+                        const boost::shared_ptr< IntegratorSettings > integratorSettings = NULL ) :
         KalmanFilterBase< IndependentVariableType, DependentVariableType >( systemUncertainty, measurementUncertainty, initialTime,
                                                                             initialStateVector, initialCovarianceMatrix,
-                                                                            isStateToBeIntegrated, integrator, integrationStepSize ),
+                                                                            isStateToBeIntegrated, integratorSettings ),
         stateTransitionMatrixFunction_( stateTransitionMatrixFunction ), controlMatrixFunction_( controlMatrixFunction ),
         measurementMatrixFunction_( measurementMatrixFunction )
     {
@@ -85,6 +85,12 @@ public:
                                              this, _1, _2, _3 );
         this->measurementFunction_ = boost::bind( &LinearKalmanFilter< IndependentVariableType, DependentVariableType >::createMeasurementFunction,
                                                   this, _1, _2 );
+
+        // Create numerical integrator
+        if ( this->isStateToBeIntegrated_ )
+        {
+            this->generateNumericalIntegrator( integratorSettings, initialStateVector );
+        }
     }
 
     //! Constructor.
@@ -112,13 +118,12 @@ public:
                         const DependentVector& initialStateVector,
                         const DependentMatrix& initialCovarianceMatrix,
                         const bool isStateToBeIntegrated = false,
-                        const boost::shared_ptr< Integrator > integrator = NULL,
-                        const IndependentVariableType integrationStepSize = IdentityElement< IndependentVariableType >::getAdditionIdentity( ) ) :
+                        const boost::shared_ptr< IntegratorSettings > integratorSettings = NULL ) :
         LinearKalmanFilter( boost::lambda::constant( stateTransitionMatrix ),
                             boost::lambda::constant( controlMatrix ),
                             boost::lambda::constant( measurementMatrix ),
                             systemUncertainty, measurementUncertainty, initialTime, initialStateVector,
-                            initialCovarianceMatrix, isStateToBeIntegrated, integrator, integrationStepSize )
+                            initialCovarianceMatrix, isStateToBeIntegrated, integratorSettings )
     { }
 
     //! Default destructor.
