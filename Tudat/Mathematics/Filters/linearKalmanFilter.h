@@ -27,16 +27,16 @@ namespace filters
  *
  */
 template< typename IndependentVariableType = double, typename DependentVariableType = double >
-class LinearKalmanFilterCore: public KalmanFilterCore< IndependentVariableType, DependentVariableType >
+class LinearKalmanFilterCore: public KalmanFilterBase< IndependentVariableType, DependentVariableType >
 {
 public:
 
     //! Inherit typedefs from base class.
-    typedef typename KalmanFilterCore< IndependentVariableType, DependentVariableType >::DependentVector DependentVector;
-    typedef typename KalmanFilterCore< IndependentVariableType, DependentVariableType >::DependentMatrix DependentMatrix;
-    typedef typename KalmanFilterCore< IndependentVariableType, DependentVariableType >::SystemFunction SystemFunction;
-    typedef typename KalmanFilterCore< IndependentVariableType, DependentVariableType >::MeasurementFunction MeasurementFunction;
-    typedef typename KalmanFilterCore< IndependentVariableType, DependentVariableType >::Integrator Integrator;
+    typedef typename KalmanFilterBase< IndependentVariableType, DependentVariableType >::DependentVector DependentVector;
+    typedef typename KalmanFilterBase< IndependentVariableType, DependentVariableType >::DependentMatrix DependentMatrix;
+    typedef typename KalmanFilterBase< IndependentVariableType, DependentVariableType >::SystemFunction SystemFunction;
+    typedef typename KalmanFilterBase< IndependentVariableType, DependentVariableType >::MeasurementFunction MeasurementFunction;
+    typedef typename KalmanFilterBase< IndependentVariableType, DependentVariableType >::Integrator Integrator;
 
     //! Typedefs for matrix functions.
     typedef boost::function< DependentMatrix( const IndependentVariableType, const DependentVector&, const DependentVector& ) > SystemMatrixFunction;
@@ -44,22 +44,38 @@ public:
 
     //! Default constructor.
     /*!
-     *  Default constructor.
+     *  Default constructor. This constructor takes the state, control and measurement matrix functions as inputs.
+     *  These functions can be a function of time, state and (for state and control matrices) control vector.
+     *  \param stateTransitionMatrixFunction Function returning the state transition matrix, as a function
+     *      of time, state and control input.
+     *  \param controlMatrixFunction Function returning the control matrix as a function of time, state and control input.
+     *  \param measurementMatrixFunction Function returning the measurement matrix as a function of time, state and
+     *      control input.
+     *  \param systemUncertainty Matrix defining the uncertainty in modeling of the system.
+     *  \param measurementUncertainty Matrix defining the uncertainty in modeling of the measurements.
+     *  \param initialTime Scalar representing the value of the initial time.
+     *  \param initialStateVector Vector representing the initial (estimated) state of the system. It is used as first
+     *      a-priori estimate of the state vector.
+     *  \param initialCovarianceMatrix Matrix representing the initial (estimated) covariance of the system. It is used as first
+     *      a-priori estimate of the covariance matrix.
+     *  \param isStateToBeIntegrated Boolean defining whether the system function needs to be integrated.
+     *  \param integrator Pointer to integrator to be used to propagate state.
      */
-    LinearKalmanFilterCore( const SystemMatrixFunction& systemMatrixFunction,
-                            const SystemMatrixFunction& inputMatrixFunction,
+    LinearKalmanFilterCore( const SystemMatrixFunction& stateTransitionMatrixFunction,
+                            const SystemMatrixFunction& controlMatrixFunction,
                             const MeasurementMatrixFunction& measurementMatrixFunction,
                             const DependentMatrix& systemUncertainty,
                             const DependentMatrix& measurementUncertainty,
                             const IndependentVariableType initialTime,
                             const DependentVector& initialStateVector,
+                            const DependentMatrix& initialCovarianceMatrix,
                             const bool isStateToBeIntegrated = false,
                             const boost::shared_ptr< Integrator > integrator = NULL ) :
-        KalmanFilterCore< IndependentVariableType, DependentVariableType >( systemUncertainty, measurementUncertainty,
+        KalmanFilterBase< IndependentVariableType, DependentVariableType >( systemUncertainty, measurementUncertainty, initialTime,
+                                                                            initialStateVector, initialCovarianceMatrix,
                                                                             isStateToBeIntegrated, integrator ),
-        systemMatrixFunction_( systemMatrixFunction ), inputMatrixFunction_( inputMatrixFunction ),
-        measurementMatrixFunction_( measurementMatrixFunction ), initialTime_( initialTime ),
-        aPosterioriStateEstimate_( initialStateVector ), aPosterioriCovarianceEstimate_( systemUncertainty )
+        stateTransitionMatrixFunction_( stateTransitionMatrixFunction ), controlMatrixFunction_( controlMatrixFunction ),
+        measurementMatrixFunction_( measurementMatrixFunction )
     {
         // Create system and measurement functions based on input parameters
         this->systemFunction_ = boost::bind( &LinearKalmanFilterCore< IndependentVariableType, DependentVariableType >::createSystemFunction,
@@ -73,21 +89,35 @@ public:
 
     //! Constructor.
     /*!
-     *  Constructor.
+     *  Constructor taking the constant state, control and measurement matrices as inputs.
+     *  \param stateTransitionMatrix Constant matrix representing the state transition matrix.
+     *  \param controlMatrix Constant matrix representing the control matrix.
+     *  \param measurementMatrix Constant matrix representing the measurement matrix.
+     *  \param systemUncertainty Matrix defining the uncertainty in modeling of the system.
+     *  \param measurementUncertainty Matrix defining the uncertainty in modeling of the measurements.
+     *  \param initialTime Scalar representing the value of the initial time.
+     *  \param initialStateVector Vector representing the initial (estimated) state of the system. It is used as first
+     *      a-priori estimate of the state vector.
+     *  \param initialCovarianceMatrix Matrix representing the initial (estimated) covariance of the system. It is used as first
+     *      a-priori estimate of the covariance matrix.
+     *  \param isStateToBeIntegrated Boolean defining whether the system function needs to be integrated.
+     *  \param integrator Pointer to integrator to be used to propagate state.
      */
-    LinearKalmanFilterCore( const DependentMatrix& systemMatrix,
-                            const DependentMatrix& inputMatrix,
+    LinearKalmanFilterCore( const DependentMatrix& stateTransitionMatrix,
+                            const DependentMatrix& controlMatrix,
                             const DependentMatrix& measurementMatrix,
                             const DependentMatrix& systemUncertainty,
                             const DependentMatrix& measurementUncertainty,
                             const IndependentVariableType initialTime,
                             const DependentVector& initialStateVector,
+                            const DependentMatrix& initialCovarianceMatrix,
                             const bool isStateToBeIntegrated = false,
                             const boost::shared_ptr< Integrator > integrator = NULL ) :
-        LinearKalmanFilterCore( boost::lambda::constant( systemMatrix ),
-                                boost::lambda::constant( inputMatrix ),
+        LinearKalmanFilterCore( boost::lambda::constant( stateTransitionMatrix ),
+                                boost::lambda::constant( controlMatrix ),
                                 boost::lambda::constant( measurementMatrix ),
-                                systemUncertainty, measurementUncertainty, initialTime, initialStateVector, isStateToBeIntegrated, integrator )
+                                systemUncertainty, measurementUncertainty, initialTime, initialStateVector,
+                                initialCovarianceMatrix, isStateToBeIntegrated, integrator )
     { }
 
     //! Default destructor.
@@ -96,91 +126,99 @@ public:
      */
     ~LinearKalmanFilterCore( ){ }
 
-    //!
+    //! Function to update the filter with the new step data.
     /*!
-     *
+     *  Function to update the filter with the new step data.
+     *  \param currentTime Scalar representing current time.
+     *  \param currentControlVector Vector representing the current control input.
+     *  \param currentMeasurementVector Vector representing current measurement.
      */
-    Eigen::Matrix< DependentVariableType, Eigen::Dynamic, 1 > updateFilter(
-            const IndependentVariableType currentTime, const DependentVector& currentControlVector,
-            const DependentVector& currentMeasurementVector )
+    void updateFilter( const IndependentVariableType currentTime, const DependentVector& currentControlVector,
+                       const DependentVector& currentMeasurementVector )
     {
         // Compute variables for current step
-        DependentMatrix currentSystemMatrix = systemMatrixFunction_( currentTime, aPosterioriStateEstimate_, currentControlVector );
-        DependentMatrix currentMeasurementMatrix = measurementMatrixFunction_( currentTime, aPosterioriStateEstimate_ );
-//        std::cout << std::endl << "State Matrix: " << std::endl << currentSystemMatrix << std::endl
-//                  << "Measurement Matrix: " << std::endl << currentMeasurementMatrix << std::endl << std::endl;
+        DependentMatrix currentSystemMatrix = stateTransitionMatrixFunction_( currentTime, this->aPosterioriStateEstimate_, currentControlVector );
+        DependentMatrix currentMeasurementMatrix = measurementMatrixFunction_( currentTime, this->aPosterioriStateEstimate_ );
 
         // Prediction step
-        DependentVector aPrioriStateEstimate = this->systemFunction_( currentTime, aPosterioriStateEstimate_, currentControlVector );
-        DependentVector measurmentEstimate = this->measurementFunction_( currentTime, aPosterioriStateEstimate_ );
-        DependentMatrix aPrioriCovarianceEstimate = currentSystemMatrix * aPosterioriCovarianceEstimate_ * currentSystemMatrix.transpose( ) +
+        DependentVector aPrioriStateEstimate = this->systemFunction_( currentTime, this->aPosterioriStateEstimate_, currentControlVector );
+        DependentVector measurmentEstimate = this->measurementFunction_( currentTime, aPrioriStateEstimate );
+        DependentMatrix aPrioriCovarianceEstimate = currentSystemMatrix * this->aPosterioriCovarianceEstimate_ * currentSystemMatrix.transpose( ) +
                 this->systemUncertainty_;
-//        std::cout << "State Estimate: " << aPrioriStateEstimate.transpose( ) << std::endl
-//                  << "Measurement Estimate: " << measurmentEstimate.transpose( ) << std::endl
-//                  << "Covariance Estimate: " << std::endl << aPrioriCovarianceEstimate << std::endl << std::endl;
 
         // Compute Kalman gain
         DependentMatrix kalmanGain = aPrioriCovarianceEstimate * currentMeasurementMatrix.transpose( ) * (
                     currentMeasurementMatrix * aPrioriCovarianceEstimate * currentMeasurementMatrix.transpose( ) +
                     this->measurementUncertainty_ ).inverse( );
-//        std::cout << "Kalman Gain: " << std::endl << kalmanGain << std::endl << std::endl;
 
         // Update step
-        aPosterioriStateEstimate_ = aPrioriStateEstimate + kalmanGain * ( currentMeasurementVector - measurmentEstimate );
-        aPosterioriCovarianceEstimate_ = ( identityMatrix_ + kalmanGain * currentMeasurementMatrix ) * aPrioriCovarianceEstimate;
-//        std::cout << "New State Estimate: " << aPosterioriStateEstimate_.transpose( ) << std::endl
-//                  << "New Covariance Estimate: " << std::endl << aPosterioriCovarianceEstimate_ << std::endl << std::endl;
+        this->aPosterioriStateEstimate_ = aPrioriStateEstimate + kalmanGain * ( currentMeasurementVector - measurmentEstimate );
+        this->aPosterioriCovarianceEstimate_ = ( identityMatrix_ - kalmanGain * currentMeasurementMatrix ) * aPrioriCovarianceEstimate;
 
         // Give output
-        return aPosterioriStateEstimate_;
-    }
-
-    //!
-    /*!
-     *
-     */
-    virtual Eigen::Matrix< DependentVariableType, Eigen::Dynamic, 1 > getCurrentStateEstimate( )
-    {
-        return aPosterioriStateEstimate_;
+        this->estimatedStateHistory_.push_back( this->aPosterioriStateEstimate_ );
+        this->estimatedCovarianceHistory_.push_back( this->aPosterioriCovarianceEstimate_ );
     }
 
 private:
 
-    //! System function.
-    DependentVector createSystemFunction( const IndependentVariableType independentVariable,
-                                          const DependentVector& stateVector,
-                                          const DependentVector& controlVector )
+    //! Function to create the function that defines the system model.
+    /*!
+     *  Function to create the function that defines the system model. The output of this function is then bound
+     *  to the systemFunction_ variable, via the boost::bind command.
+     *  \param currentTime Scalar representing the current time.
+     *  \param currentStateVector Vector representing the current state.
+     *  \param currentControlVector Vector representing the current control input.
+     *  \return Vector representing the estimated state.
+     */
+    DependentVector createSystemFunction( const IndependentVariableType currentTime,
+                                          const DependentVector& currentStateVector,
+                                          const DependentVector& currentControlVector )
     {
-        return systemMatrixFunction_( independentVariable, stateVector, controlVector ) * stateVector +
-                inputMatrixFunction_( independentVariable, stateVector, controlVector ) * controlVector + this->produceSystemNoise( );
+        return stateTransitionMatrixFunction_( currentTime, currentStateVector, currentControlVector ) * currentStateVector +
+                controlMatrixFunction_( currentTime, currentStateVector, currentControlVector ) * currentControlVector +
+                this->produceSystemNoise( );
     }
 
-    //! Measurement function.
-    DependentVector createMeasurementFunction( const IndependentVariableType independentVariable,
-                                               const DependentVector& stateVector )
+    //! Function to create the function that defines the system model.
+    /*!
+     *  Function to create the function that defines the system model. The output of this function is then bound
+     *  to the measurementFunction_ variable, via the boost::bind command.
+     *  \param currentTime Scalar representing the current time.
+     *  \param currentStateVector Vector representing the current state.
+     *  \return Vector representing the estimated measurement.
+     */
+    DependentVector createMeasurementFunction( const IndependentVariableType currentTime,
+                                               const DependentVector& currentStateVector )
     {
-        return measurementMatrixFunction_( independentVariable, stateVector ) * stateVector + this->produceMeasurementNoise( );
+        return measurementMatrixFunction_( currentTime, currentStateVector ) * currentStateVector + this->produceMeasurementNoise( );
     }
 
-    //!
-    SystemMatrixFunction systemMatrixFunction_;
+    //! State transition matrix function.
+    /*!
+     *  State transition matrix function, which will be used to generate the system function, together with the controlMatrixFunction_,
+     *  by multiplying the matrices with the state and control vectors, respectively.
+     */
+    SystemMatrixFunction stateTransitionMatrixFunction_;
 
-    //!
-    SystemMatrixFunction inputMatrixFunction_;
+    //! Control matrix function.
+    /*!
+     *  Control matrix function, which will be used to generate the system function, together with the stateTransitionMatrixFunction_,
+     *  by multiplying the matrices with the control and state vectors, respectively.
+     */
+    SystemMatrixFunction controlMatrixFunction_;
 
-    //!
+    //! Measurement matrix function.
+    /*!
+     *  Measurement matrix function, which will be used to generate the measurement function, by multiplying the matrix with
+     *  the state vector.
+     */
     MeasurementMatrixFunction measurementMatrixFunction_;
 
-    //!
-    IndependentVariableType initialTime_;
-
-    //!
-    DependentVector aPosterioriStateEstimate_;
-
-    //!
-    DependentMatrix aPosterioriCovarianceEstimate_;
-
-    //!
+    //! Indentity matrix.
+    /*!
+     *  Indentity matrix with the correct dimensions for the specific application.
+     */
     DependentMatrix identityMatrix_;
 
 };

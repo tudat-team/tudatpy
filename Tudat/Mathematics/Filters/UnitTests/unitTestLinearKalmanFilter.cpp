@@ -53,18 +53,13 @@ BOOST_AUTO_TEST_CASE( testLinearKalmanFilter )
     C << 1, 0, 0;
 
     // Reasonable covariance matrices
-    Q << .05, .05, .0, .05, .05, .0, .0, .0, 1e-3;
-    R << 5;
+    Q << .05, .05, .0, .05, .05, .0, .0, .0, 1e-30;
+    R << 0.5;
     P << .1, .1, .1, .1, 10000, 10, .1, 10, 100;
 
-    std::cout << "A: \n" << A << std::endl;
-    std::cout << "C: \n" << C << std::endl;
-    std::cout << "Q: \n" << Q << std::endl;
-    std::cout << "R: \n" << R << std::endl;
-    std::cout << "P: \n" << P << std::endl;
-
     // List of noisy position measurements ( y )
-    std::vector< double > measurements = {
+    std::vector< double > measurements =
+    {
         1.04202710058, 1.10726790452, 1.2913511148, 1.48485250951, 1.72825901034,
         1.74216489744, 2.11672039768, 2.14529225112, 2.16029641405, 2.21269371128,
         2.57709350237, 2.6682215744, 2.51641839428, 2.76034056782, 2.88131780617,
@@ -77,25 +72,31 @@ BOOST_AUTO_TEST_CASE( testLinearKalmanFilter )
     };
 
     // Best guess of initial states
-    Eigen::VectorXd x0(n);
-    x0 << measurements[0], 0, -9.81;
+    Eigen::VectorXd x0( n );
+    double t = 0;
+    x0 << measurements[ 0 ], 0, -9.81;
 
     // Create linear filter
-//    LinearKalmanFilter linearFilter( A, Eigen::MatrixXd::Zero( n, n ), C, Q, R, 0.0, x0 );
     KalmanFilterPointer linearFilter = boost::make_shared< LinearKalmanFilter >( A, Eigen::MatrixXd::Zero( n, n ), C,
-                                                                                 Q, R, 0.0, x0 );
+                                                                                 Q, R, 0.0, x0, P );
 
     // Feed measurements into filter, output estimated states
-    double t = 0;
     Eigen::VectorXd y( m );
-    std::cout << std::endl << "t = " << t << ", " << "x_hat[0]: " << linearFilter->getCurrentStateEstimate( ).transpose( ) << std::endl;
+//    std::cout << "t = " << t << ", " << "x_hat[ 0 ]: " << linearFilter->getCurrentStateEstimate( ).transpose( ) << std::endl;
     for( unsigned int i = 0; i < measurements.size( ); i++ ) //measurements.size( )
     {
         t += dt;
         y << measurements[ i ];
-        linearFilter->updateFilter( t, y, Eigen::Vector3d::Zero( ) );
-        std::cout << "t = " << t << ", " << "y[" << i << "] = " << y.transpose( )
-                  << ", x_hat[" << i << "] = " << linearFilter->getCurrentStateEstimate( ).transpose( ) << std::endl;
+        linearFilter->updateFilter( t, Eigen::Vector3d::Zero( ), y );
+//        std::cout << "t = " << t << ", " << "y[" << i << "] = " << y.transpose( )
+//                  << ", x_hat[" << i << "] = " << linearFilter->getCurrentStateEstimate( ).transpose( ) << std::endl;
+    }
+
+    Eigen::Vector3d expectedState;
+    expectedState << -0.34094280864427917, -8.2429633777065501, -9.7238568066459514;
+    for ( int i = 0; i < n; i++ )
+    {
+        BOOST_CHECK_SMALL( linearFilter->getCurrentStateEstimate( )[ i ] - expectedState[ i ], std::numeric_limits< double >::epsilon( ) );
     }
 }
 
