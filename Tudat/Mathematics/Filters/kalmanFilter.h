@@ -16,17 +16,17 @@
 #include <iostream>
 
 #include <Eigen/Core>
+#include <Eigen/Geometry>
 
 #include <boost/bind.hpp>
 #include <boost/function.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/make_shared.hpp>
+#include <boost/lambda/lambda.hpp>
 
 #include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
 #include "Tudat/Mathematics/NumericalIntegrators/numericalIntegrator.h"
 #include "Tudat/Mathematics/Statistics/randomVariableGenerator.h"
-
-#include "Tudat/Mathematics/BasicMathematics/function.h"
 
 namespace tudat
 {
@@ -56,15 +56,18 @@ public:
     typedef boost::function< DependentVector( const IndependentVariableType, const DependentVector& ) > MeasurementFunction;
 
     //! Typedef of the integrator.
-    typedef boost::shared_ptr< numerical_integrators::NumericalIntegrator< IndependentVariableType, DependentVector > > IntegratorPointer;
+    typedef numerical_integrators::NumericalIntegrator< IndependentVariableType, DependentVector > Integrator;
 
     //! Constructor.
     /*!
      *  Constructor.
      */
-    KalmanFilterCore( const bool isStateToBeIntegrated = false,
-                      const IntegratorPointer integrator = NULL ) :
-        isStateToBeIntegrated_( isStateToBeIntegrated ), integrator_( integrator )
+    KalmanFilterCore( const DependentMatrix& systemUncertainty,
+                      const DependentMatrix& measurementUncertainty,
+                      const bool isStateToBeIntegrated,
+                      const boost::shared_ptr< Integrator > integrator ) :
+        systemUncertainty_( systemUncertainty ), measurementUncertainty_( measurementUncertainty ),
+      isStateToBeIntegrated_( isStateToBeIntegrated ), integrator_( integrator )
     {
         // Check that uncertainty matrices are square
         if ( systemUncertainty_.rows( ) != systemUncertainty_.cols( ) )
@@ -87,15 +90,32 @@ public:
     virtual ~KalmanFilterCore( ){ }
 
     //!
-    virtual DependentVector updateFilter( const DependentVector& currentStateVector, const DependentVector& currentControlVector ) = 0;
+    /*!
+     *
+     */
+    virtual Eigen::Matrix< DependentVariableType, Eigen::Dynamic, 1 > updateFilter(
+            const IndependentVariableType currentTime, const DependentVector& currentControlVector,
+            const DependentVector& currentMeasurementVector ) = 0;
 
     //!
+    /*!
+     *
+     */
+    virtual Eigen::Matrix< DependentVariableType, Eigen::Dynamic, 1 > getCurrentStateEstimate( ) = 0;
+
+    //!
+    /*!
+     *
+     */
     std::pair< std::vector< DependentVector >, std::vector< DependentVector > > getNoiseHistory( )
     {
         return std::make_pair( systemNoiseHistory_, measurementNoiseHistory_ );
     }
 
     //!
+    /*!
+     *
+     */
     DependentVector integrateState( const IndependentVariableType intervalEnd,
                                     const IndependentVariableType initialStepSize,
                                     const IndependentVariableType finalTimeTolerance = std::numeric_limits< IndependentVariableType >::epsilon( ) )
@@ -128,11 +148,12 @@ protected:
     {
         // Declare system noise vector
         DependentVector systemNoise;
+        systemNoise.resize( systemUncertainty_.rows( ), 1 );
 
         // Loop over dimensions and add noise
         for ( int i = 0; i < systemUncertainty_.rows( ); i++ )
         {
-            systemNoise[ i ] = systemNoiseDistribution_.at( i )->getRandomVariableValue( );
+            systemNoise[ i ] = static_cast< DependentVariableType >( systemNoiseDistribution_.at( i )->getRandomVariableValue( ) );
         }
 
         // Give back noise
@@ -148,11 +169,12 @@ protected:
     {
         // Declare system noise vector
         DependentVector measurementNoise;
+        measurementNoise.resize( measurementUncertainty_.rows( ), 1 );
 
         // Loop over dimensions and add noise
         for ( int i = 0; i < measurementUncertainty_.rows( ); i++ )
         {
-            measurementNoise[ i ] = measurementNoiseDistribution_.at( i )->getRandomVariableValue( );
+            measurementNoise[ i ] = static_cast< DependentVariableType >( measurementNoiseDistribution_.at( i )->getRandomVariableValue( ) );
         }
 
         // Give back noise
@@ -161,16 +183,10 @@ protected:
     }
 
     //!
-    boost::shared_ptr< SystemFunction > systemFunction_;
+    SystemFunction systemFunction_;
 
     //!
-    boost::shared_ptr< MeasurementFunction > measurementFunction_;
-
-    //!
-    std::vector< boost::shared_ptr< statistics::RandomVariableGenerator< DependentVariableType > > > systemNoiseDistribution_;
-
-    //!
-    std::vector< boost::shared_ptr< statistics::RandomVariableGenerator< DependentVariableType > > > measurementNoiseDistribution_;
+    MeasurementFunction measurementFunction_;
 
     //!
     DependentMatrix systemUncertainty_;
@@ -182,7 +198,7 @@ protected:
     bool isStateToBeIntegrated_;
 
     //!
-    IntegratorPointer integrator_;
+    boost::shared_ptr< Integrator > integrator_;
 
 private:
 
@@ -197,17 +213,23 @@ private:
         // Create system noise
         for ( int i = 0; i < systemUncertainty_.rows( ); i++ )
         {
-            systemNoiseDistribution_.at( i ) = createBoostContinuousRandomVariableGenerator(
-                        normal_boost_distribution, { 0, systemUncertainty_[ i, i ] }, 12345 );
+            systemNoiseDistribution_.push_back( createBoostContinuousRandomVariableGenerator(
+                        normal_boost_distribution, { 0.0, static_cast< double >( systemUncertainty_( i, i ) ) }, 12345 ) );
         }
 
         // Create measurement noise
         for ( int i = 0; i < measurementUncertainty_.rows( ); i++ )
         {
-            measurementNoiseDistribution_.at( i ) = createBoostContinuousRandomVariableGenerator(
-                        normal_boost_distribution, { 0, measurementUncertainty_[ i, i ] }, 12345 );
+            measurementNoiseDistribution_.push_back( createBoostContinuousRandomVariableGenerator(
+                        normal_boost_distribution, { 0.0, static_cast< double >( measurementUncertainty_( i, i ) ) }, 12345 ) );
         }
     }
+
+    //!
+    std::vector< boost::shared_ptr< statistics::RandomVariableGenerator< double > > > systemNoiseDistribution_;
+
+    //!
+    std::vector< boost::shared_ptr< statistics::RandomVariableGenerator< double > > > measurementNoiseDistribution_;
 
     //!
     std::vector< DependentVector > systemNoiseHistory_;

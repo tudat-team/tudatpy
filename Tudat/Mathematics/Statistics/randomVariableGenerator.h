@@ -134,7 +134,7 @@ boost::function< double( ) > createBoostContinuousRandomVariableGeneratorFunctio
 boost::shared_ptr< RandomVariableGenerator< double > > createBoostContinuousRandomVariableGenerator(
         const ContinuousBoostStatisticalDistributions boostDistribution,
         const std::vector< double >& parameters,
-        const double seed  );
+        const double seed );
 
 } // namespace statistics
 
