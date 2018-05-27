@@ -9,6 +9,7 @@
  #
  #    Notes
  #
+
 # Define the sub-directories.
 set(BASICMATHEMATICSDIR "${MATHEMATICSDIR}/BasicMathematics")
 set(GEOMETRICSHAPESDIR "${MATHEMATICSDIR}/GeometricShapes")

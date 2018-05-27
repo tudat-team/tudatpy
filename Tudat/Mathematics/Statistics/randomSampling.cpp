@@ -29,7 +29,6 @@ std::vector< Eigen::VectorXd > generateRandomSampleFromGenerator(
         const int numberOfSamples,
         const std::vector< boost::shared_ptr< RandomVariableGenerator< double > > > randomVariableGenerators )
 {
-
     std::vector< Eigen::VectorXd > randomSamples;
     Eigen::VectorXd randomSample( randomVariableGenerators.size( ) );
 
