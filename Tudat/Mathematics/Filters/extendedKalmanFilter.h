@@ -36,6 +36,7 @@ public:
     typedef typename KalmanFilterBase< IndependentVariableType, DependentVariableType >::DependentMatrix DependentMatrix;
     typedef typename KalmanFilterBase< IndependentVariableType, DependentVariableType >::SystemFunction SystemFunction;
     typedef typename KalmanFilterBase< IndependentVariableType, DependentVariableType >::MeasurementFunction MeasurementFunction;
+    typedef typename KalmanFilterBase< IndependentVariableType, DependentVariableType >::IntegratorSettings IntegratorSettings;
     typedef typename KalmanFilterBase< IndependentVariableType, DependentVariableType >::Integrator Integrator;
 
     //! Typedefs for matrix functions.
@@ -68,28 +69,33 @@ public:
      *  \param integrator Pointer to integrator to be used to propagate state.
      */
     ExtendedKalmanFilter( const SystemFunction& systemFunction,
-                              const MeasurementFunction& measurementFunction,
-                              const SystemMatrixFunction& stateJacobianFunction,
-                              const SystemMatrixFunction& stateNoiseJacobianFunction,
-                              const MeasurementMatrixFunction& measurementJacobianFunction,
-                              const MeasurementMatrixFunction& measurementNoiseJacobianFunction,
-                              const DependentMatrix& systemUncertainty,
-                              const DependentMatrix& measurementUncertainty,
-                              const IndependentVariableType initialTime,
-                              const DependentVector& initialStateVector,
-                              const DependentMatrix& initialCovarianceMatrix,
-                              const bool isStateToBeIntegrated = false,
-                              const boost::shared_ptr< Integrator > integrator = NULL,
-                              const IndependentVariableType integrationStepSize = IdentityElement< IndependentVariableType >::getAdditionIdentity( ) ) :
+                          const MeasurementFunction& measurementFunction,
+                          const SystemMatrixFunction& stateJacobianFunction,
+                          const SystemMatrixFunction& stateNoiseJacobianFunction,
+                          const MeasurementMatrixFunction& measurementJacobianFunction,
+                          const MeasurementMatrixFunction& measurementNoiseJacobianFunction,
+                          const DependentMatrix& systemUncertainty,
+                          const DependentMatrix& measurementUncertainty,
+                          const IndependentVariableType initialTime,
+                          const DependentVector& initialStateVector,
+                          const DependentMatrix& initialCovarianceMatrix,
+                          const bool isStateToBeIntegrated = false,
+                          const boost::shared_ptr< IntegratorSettings > integratorSettings = NULL ) :
         KalmanFilterBase< IndependentVariableType, DependentVariableType >( systemUncertainty, measurementUncertainty, initialTime,
                                                                             initialStateVector, initialCovarianceMatrix,
-                                                                            isStateToBeIntegrated, integrator, integrationStepSize ),
+                                                                            isStateToBeIntegrated, integratorSettings ),
         stateJacobianFunction_( stateJacobianFunction ), stateNoiseJacobianFunction_( stateNoiseJacobianFunction ),
         measurementJacobianFunction_( measurementJacobianFunction ), measurementNoiseJacobianFunction_( measurementNoiseJacobianFunction )
     {
         // Create system and measurement functions based on input values
-        this->systemFunction_ = boost::bind( &systemFunction, this, _1, _2, _3 );
-        this->measurementFunction_ = boost::bind( &measurementFunction, this, _1, _2 );
+        this->systemFunction_ = systemFunction;
+        this->measurementFunction_ = measurementFunction;
+
+        // Create numerical integrator
+        if ( this->isStateToBeIntegrated_ )
+        {
+            this->generateNumericalIntegrator( integratorSettings, initialStateVector );
+        }
     }
 
     //! Constructor.
@@ -113,23 +119,22 @@ public:
      *  \paragraph integrationStepSize Step size for integration.
      */
     ExtendedKalmanFilter( const SystemFunction& systemFunction,
-                              const MeasurementFunction& measurementFunction,
-                              const DependentMatrix& stateJacobianMatrix,
-                              const DependentMatrix& stateNoiseJacobianMatrix,
-                              const DependentMatrix& measurementJacobianMatrix,
-                              const DependentMatrix& measurementNoiseJacobianMatrix,
-                              const DependentMatrix& systemUncertainty,
-                              const DependentMatrix& measurementUncertainty,
-                              const IndependentVariableType initialTime,
-                              const DependentVector& initialStateVector,
-                              const DependentMatrix& initialCovarianceMatrix,
-                              const bool isStateToBeIntegrated = false,
-                              const boost::shared_ptr< Integrator > integrator = NULL,
-                              const IndependentVariableType integrationStepSize = IdentityElement< IndependentVariableType >::getAdditionIdentity( ) ) :
+                          const MeasurementFunction& measurementFunction,
+                          const DependentMatrix& stateJacobianMatrix,
+                          const DependentMatrix& stateNoiseJacobianMatrix,
+                          const DependentMatrix& measurementJacobianMatrix,
+                          const DependentMatrix& measurementNoiseJacobianMatrix,
+                          const DependentMatrix& systemUncertainty,
+                          const DependentMatrix& measurementUncertainty,
+                          const IndependentVariableType initialTime,
+                          const DependentVector& initialStateVector,
+                          const DependentMatrix& initialCovarianceMatrix,
+                          const bool isStateToBeIntegrated = false,
+                          const boost::shared_ptr< IntegratorSettings > integratorSettings = NULL ) :
         ExtendedKalmanFilter( systemFunction, measurementFunction, systemUncertainty, measurementUncertainty,
-                                  boost::lambda::constant( stateJacobianMatrix ), boost::lambda::constant( stateNoiseJacobianMatrix ),
-                                  boost::lambda::constant( measurementJacobianMatrix ), boost::lambda::constant( measurementNoiseJacobianMatrix ),
-                                  initialTime, initialStateVector, initialCovarianceMatrix, isStateToBeIntegrated, integrator, integrationStepSize )
+                              boost::lambda::constant( stateJacobianMatrix ), boost::lambda::constant( stateNoiseJacobianMatrix ),
+                              boost::lambda::constant( measurementJacobianMatrix ), boost::lambda::constant( measurementNoiseJacobianMatrix ),
+                              initialTime, initialStateVector, initialCovarianceMatrix, isStateToBeIntegrated, integratorSettings )
     { }
 
     //! Default destructor.
@@ -160,7 +165,7 @@ public:
         DependentVector aPrioriStateEstimate;
         if ( this->isStateToBeIntegrated_ )
         {
-            aPrioriStateEstimate = this->integrateState( currentTime, this->integrationStepSize_ );
+            aPrioriStateEstimate = this->integrateState( currentTime );
         }
         else
         {

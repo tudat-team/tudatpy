@@ -25,10 +25,8 @@
 #include <boost/lambda/lambda.hpp>
 
 #include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
-#include "Tudat/Mathematics/NumericalIntegrators/numericalIntegrator.h"
+#include "Tudat/Mathematics/NumericalIntegrators/createNumericalIntegrator.h"
 #include "Tudat/Mathematics/Statistics/randomVariableGenerator.h"
-
-#include "Tudat/Basics/identityElements.h"
 
 namespace tudat
 {
@@ -59,8 +57,12 @@ public:
     //! Typedef of the function describing the measurements.
     typedef boost::function< DependentVector( const IndependentVariableType, const DependentVector& ) > MeasurementFunction;
 
+    //! Typedef of the integrator settings.
+    typedef numerical_integrators::IntegratorSettings< IndependentVariableType > IntegratorSettings;
+
     //! Typedef of the integrator.
-    typedef numerical_integrators::NumericalIntegrator< IndependentVariableType, DependentVector > Integrator;
+    typedef numerical_integrators::NumericalIntegrator< IndependentVariableType, DependentVector,
+    DependentVector, IndependentVariableType > Integrator;
 
     //! Constructor.
     /*!
@@ -81,11 +83,10 @@ public:
                       const DependentVector& initialStateVector,
                       const DependentMatrix& initialCovarianceMatrix,
                       const bool isStateToBeIntegrated,
-                      const boost::shared_ptr< Integrator > integrator,
-                      const IndependentVariableType integrationStepSize ) :
+                      const boost::shared_ptr< IntegratorSettings > integratorSettings ) :
         systemUncertainty_( systemUncertainty ), measurementUncertainty_( measurementUncertainty ), initialTime_( initialTime ),
         aPosterioriStateEstimate_( initialStateVector ), aPosterioriCovarianceEstimate_( initialCovarianceMatrix ),
-        isStateToBeIntegrated_( isStateToBeIntegrated ), integrator_( integrator ), integrationStepSize_( integrationStepSize )
+        isStateToBeIntegrated_( isStateToBeIntegrated )
     {
         // Check that uncertainty matrices are square
         if ( systemUncertainty_.rows( ) != systemUncertainty_.cols( ) )
@@ -186,29 +187,45 @@ public:
 
 protected:
 
-//    //! Function to create the function that defines the system model.
-//    /*!
-//     *  Function to create the function that defines the system model. The output of this function is then bound
-//     *  to the systemFunction_ variable, via the boost::bind command.
-//     *  \param currentTime Scalar representing the current time.
-//     *  \param currentStateVector Vector representing the current state.
-//     *  \param currentControlVector Vector representing the current control input.
-//     *  \return Vector representing the estimated state.
-//     */
-//    virtual DependentVector createSystemFunction( const IndependentVariableType currentTime,
-//                                                  const DependentVector& currentStateVector,
-//                                                  const DependentVector& currentControlVector ) = 0;
+    //! Function to generate the numerical integrator to be used for propagation of the state.
+    /*!
+     *
+     */
+    void generateNumericalIntegrator(
+            const boost::shared_ptr< IntegratorSettings > integratorSettings,
+            const DependentVector& initialStateVector )
+    {
+        // Get time step information
+        integrationStepSize_ = integratorSettings->initialTimeStep_;
 
-//    //! Function to create the function that defines the system model.
-//    /*!
-//     *  Function to create the function that defines the system model. The output of this function is then bound
-//     *  to the measurementFunction_ variable, via the boost::bind command.
-//     *  \param currentTime Scalar representing the current time.
-//     *  \param currentStateVector Vector representing the current state.
-//     *  \return Vector representing the estimated measurement.
-//     */
-//    virtual DependentVector createMeasurementFunction( const IndependentVariableType currentTime,
-//                                                       const DependentVector& currentStateVector ) = 0;
+        // Generate integrator
+        switch ( integratorSettings->integratorType_ )
+        {
+        case numerical_integrators::euler:
+        {
+            integrator_ = boost::make_shared< numerical_integrators::EulerIntegrator< IndependentVariableType, DependentVector,
+                    DependentVector, IndependentVariableType > >( systemFunction_, initialTime_, initialStateVector );
+            break;
+        }
+        default:
+            throw std::runtime_error( "Error in Kalman filtering. Only Euler integration is currently supported." );
+        }
+    }
+
+    //! Function to propagate state to the next time step.
+    /*!
+     *  Function to propagate state to the next time step, by using the integrator settings provided
+     *  in the input.
+     *  \param intervalEnd Time to propagate to.
+     *  \param initialStepSize Initial (or constant) step size for propagation.
+     *  \param finalTimeTolerance Tolerance used to define whether final time has been reached.
+     *  \return Propagated state at the requested time.
+     */
+    DependentVector integrateState( const IndependentVariableType intervalEnd,
+                                    const IndependentVariableType finalTimeTolerance = std::numeric_limits< IndependentVariableType >::epsilon( ) )
+    {
+        return integrator_->integrateTo( intervalEnd, integrationStepSize_, finalTimeTolerance );
+    }
 
     //! Function to produce system noise.
     /*!
@@ -225,7 +242,14 @@ protected:
         // Loop over dimensions and add noise
         for ( int i = 0; i < systemUncertainty_.rows( ); i++ )
         {
-            systemNoise[ i ] = static_cast< DependentVariableType >( systemNoiseDistribution_.at( i )->getRandomVariableValue( ) );
+            if ( systemNoiseDistribution_.at( i ) != NULL )
+            {
+                systemNoise[ i ] = static_cast< DependentVariableType >( systemNoiseDistribution_.at( i )->getRandomVariableValue( ) );
+            }
+            else
+            {
+                systemNoise[ i ] = static_cast< DependentVariableType >( 0.0 );
+            }
         }
 
         // Give back noise
@@ -248,28 +272,19 @@ protected:
         // Loop over dimensions and add noise
         for ( int i = 0; i < measurementUncertainty_.rows( ); i++ )
         {
-            measurementNoise[ i ] = static_cast< DependentVariableType >( measurementNoiseDistribution_.at( i )->getRandomVariableValue( ) );
+            if ( measurementNoiseDistribution_.at( i ) != NULL )
+            {
+                measurementNoise[ i ] = static_cast< DependentVariableType >( measurementNoiseDistribution_.at( i )->getRandomVariableValue( ) );
+            }
+            else
+            {
+                measurementNoise[ i ] = static_cast< DependentVariableType >( 0.0 );
+            }
         }
 
         // Give back noise
         measurementNoiseHistory_.push_back( measurementNoise );
         return measurementNoise;
-    }
-
-    //! Function to propagate state to the next time step.
-    /*!
-     *  Function to propagate state to the next time step, by using the integrator settings provided
-     *  in the input.
-     *  \param intervalEnd Time to propagate to.
-     *  \param initialStepSize Initial (or constant) step size for propagation.
-     *  \param finalTimeTolerance Tolerance used to define whether final time has been reached.
-     *  \return Propagated state at the requested time.
-     */
-    DependentVector integrateState( const IndependentVariableType intervalEnd,
-                                    const IndependentVariableType initialStepSize,
-                                    const IndependentVariableType finalTimeTolerance = std::numeric_limits< IndependentVariableType >::epsilon( ) )
-    {
-        return integrator_->integrateTo( intervalEnd, initialStepSize, finalTimeTolerance );
     }
 
     //! System function.
@@ -311,19 +326,6 @@ protected:
     //! Boolean specifying whether the state needs to be integrated.
     bool isStateToBeIntegrated_;
 
-    //! Pointer to the integrator settings.
-    /*!
-     *  Pointer to the integrator settings, which is used to propagate the state to the new time step.
-     */
-    boost::shared_ptr< Integrator > integrator_;
-
-    //! Scalar representing step size for integration.
-    /*!
-     *  Scalar representing step size for integration. If integrator_ points to a constant step size integrator, then
-     *  this will be the constant step size, otherwise it will be the initial step size.
-     */
-    IndependentVariableType integrationStepSize_;
-
     //! Vector of estimated states vectors.
     std::vector< DependentVector > estimatedStateHistory_;
 
@@ -345,15 +347,33 @@ private:
         // Create system noise
         for ( int i = 0; i < systemUncertainty_.rows( ); i++ )
         {
-            systemNoiseDistribution_.push_back( createBoostContinuousRandomVariableGenerator(
-                                                    normal_boost_distribution, { 0.0, static_cast< double >( systemUncertainty_( i, i ) ) }, 12345.0 ) );
+            if ( static_cast< double >( systemUncertainty_( i, i ) ) != 0.0 )
+            {
+                systemNoiseDistribution_.push_back(
+                            createBoostContinuousRandomVariableGenerator(
+                                normal_boost_distribution, { 0.0, static_cast< double >(
+                                                             std::sqrt( systemUncertainty_( i, i ) ) ) }, 12345.0 ) );
+            }
+            else
+            {
+                systemNoiseDistribution_.push_back( NULL );
+            }
         }
 
         // Create measurement noise
         for ( int i = 0; i < measurementUncertainty_.rows( ); i++ )
         {
-            measurementNoiseDistribution_.push_back( createBoostContinuousRandomVariableGenerator(
-                                                         normal_boost_distribution, { 0.0, static_cast< double >( measurementUncertainty_( i, i ) ) }, 54321.0 ) );
+            if ( static_cast< double >( measurementUncertainty_( i, i ) ) != 0.0 )
+            {
+                measurementNoiseDistribution_.push_back(
+                            createBoostContinuousRandomVariableGenerator(
+                                normal_boost_distribution, { 0.0, static_cast< double >(
+                                                             std::sqrt( measurementUncertainty_( i, i ) ) ) }, 54321.0 ) );
+            }
+            else
+            {
+                measurementNoiseDistribution_.push_back( NULL );
+            }
         }
     }
 
@@ -368,6 +388,19 @@ private:
 
     //! Vector where the measurement noise generators are stored.
     std::vector< boost::shared_ptr< statistics::RandomVariableGenerator< double > > > measurementNoiseDistribution_;
+
+    //! Pointer to the integrator settings.
+    /*!
+     *  Pointer to the integrator settings, which is used to propagate the state to the new time step.
+     */
+    boost::shared_ptr< Integrator > integrator_;
+
+    //! Scalar representing step size for integration.
+    /*!
+     *  Scalar representing step size for integration. If integrator_ points to a constant step size integrator, then
+     *  this will be the constant step size, otherwise it will be the initial step size.
+     */
+    IndependentVariableType integrationStepSize_;
 
     //! Vector of system noise.
     std::vector< DependentVector > systemNoiseHistory_;
