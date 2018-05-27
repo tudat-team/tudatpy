@@ -36,10 +36,12 @@ namespace filters
 
 //! Kalman Filter class.
 /*!
- *
+ *  Base class for the set up and use of Kalman filters.
+ *  \tparam IndependentVariableType Type of independent variable. Default is double.
+ *  \tparam DependentVariableType Type of dependent variable. Default is double.
  */
 template< typename IndependentVariableType = double, typename DependentVariableType = double >
-class KalmanFilterCore
+class KalmanFilterBase
 {
 public:
 
@@ -61,13 +63,26 @@ public:
     //! Constructor.
     /*!
      *  Constructor.
+     *  \param systemUncertainty Matrix defining the uncertainty in modeling of the system.
+     *  \param measurementUncertainty Matrix defining the uncertainty in modeling of the measurements.
+     *  \param initialTime Scalar representing the value of the initial time.
+     *  \param initialStateVector Vector representing the initial (estimated) state of the system. It is used as first
+     *      a-priori estimate of the state vector.
+     *  \param initialCovarianceMatrix Matrix representing the initial (estimated) covariance of the system. It is used as first
+     *      a-priori estimate of the covariance matrix.
+     *  \param isStateToBeIntegrated Boolean defining whether the system function needs to be integrated.
+     *  \param integrator Pointer to integrator to be used to propagate state.
      */
-    KalmanFilterCore( const DependentMatrix& systemUncertainty,
+    KalmanFilterBase( const DependentMatrix& systemUncertainty,
                       const DependentMatrix& measurementUncertainty,
+                      const IndependentVariableType initialTime,
+                      const DependentVector& initialStateVector,
+                      const DependentMatrix& initialCovarianceMatrix,
                       const bool isStateToBeIntegrated,
                       const boost::shared_ptr< Integrator > integrator ) :
-        systemUncertainty_( systemUncertainty ), measurementUncertainty_( measurementUncertainty ),
-      isStateToBeIntegrated_( isStateToBeIntegrated ), integrator_( integrator )
+        systemUncertainty_( systemUncertainty ), measurementUncertainty_( measurementUncertainty ), initialTime_( initialTime ),
+        aPosterioriStateEstimate_( initialStateVector ), aPosterioriCovarianceEstimate_( initialCovarianceMatrix ),
+        isStateToBeIntegrated_( isStateToBeIntegrated ), integrator_( integrator )
     {
         // Check that uncertainty matrices are square
         if ( systemUncertainty_.rows( ) != systemUncertainty_.cols( ) )
@@ -87,34 +102,67 @@ public:
     /*!
      *  Default destructor.
      */
-    virtual ~KalmanFilterCore( ){ }
+    virtual ~KalmanFilterBase( ){ }
 
-    //!
+    //! Function to update the filter with the new step data.
     /*!
-     *
+     *  Function to update the filter with the new step data.
+     *  \param currentTime Scalar representing current time.
+     *  \param currentControlVector Vector representing the current control input.
+     *  \param currentMeasurementVector Vector representing current measurement.
      */
-    virtual Eigen::Matrix< DependentVariableType, Eigen::Dynamic, 1 > updateFilter(
-            const IndependentVariableType currentTime, const DependentVector& currentControlVector,
-            const DependentVector& currentMeasurementVector ) = 0;
+    virtual void updateFilter( const IndependentVariableType currentTime, const DependentVector& currentControlVector,
+                               const DependentVector& currentMeasurementVector ) = 0;
 
-    //!
+    //! Function to retrieve current state estimate.
     /*!
-     *
+     *  Function to retrieve current state estimate. The state estimate needs to first be computed by updating the filter with the
+     *  updateFilter function.
+     *  \return Current state estimate.
      */
-    virtual Eigen::Matrix< DependentVariableType, Eigen::Dynamic, 1 > getCurrentStateEstimate( ) = 0;
+    Eigen::Matrix< DependentVariableType, Eigen::Dynamic, 1 > getCurrentStateEstimate( )
+    {
+        return aPosterioriStateEstimate_;
+    }
 
-    //!
+    //! Function to retrieve the history of estimated states.
     /*!
-     *
+     *  Function to retrieve the history of estimated states.
+     *  \return History of estimated states.
+     */
+    std::vector< DependentVector > getEstimatedStateHistory( )
+    {
+        return estimatedStateHistory_;
+    }
+
+    //! Function to retrieve the history of estimated covariance matrices.
+    /*!
+     *  Function to retrieve the history of estimated covariance matrices.
+     *  \return History of estimated covariance matrices.
+     */
+    std::vector< DependentMatrix > getEstimatedCovarianceHistory( )
+    {
+        return estimatedCovarianceHistory_;
+    }
+
+    //! Function to retrieve the history of system and measurement noise used by the updateFilter function.
+    /*!
+     *  Function to retrieve the history of system and measurement noise.
+     *  \return History of system and measurement noise, output as a std::pair.
      */
     std::pair< std::vector< DependentVector >, std::vector< DependentVector > > getNoiseHistory( )
     {
         return std::make_pair( systemNoiseHistory_, measurementNoiseHistory_ );
     }
 
-    //!
+    //! Function to propagate state to the next time step.
     /*!
-     *
+     *  Function to propagate state to the next time step, by using the integrator settings provided
+     *  in the input.
+     *  \param intervalEnd Time to propagate to.
+     *  \param initialStepSize Initial (or constant) step size for propagation.
+     *  \param finalTimeTolerance Tolerance used to define whether final time has been reached.
+     *  \return Propagated state at the requested time.
      */
     DependentVector integrateState( const IndependentVariableType intervalEnd,
                                     const IndependentVariableType initialStepSize,
@@ -125,24 +173,35 @@ public:
 
 protected:
 
-    //!
+    //! Function to create the function that defines the system model.
     /*!
-     *
+     *  Function to create the function that defines the system model. The output of this function is then bound
+     *  to the systemFunction_ variable, via the boost::bind command.
+     *  \param currentTime Scalar representing the current time.
+     *  \param currentStateVector Vector representing the current state.
+     *  \param currentControlVector Vector representing the current control input.
+     *  \return Vector representing the estimated state.
      */
-    virtual DependentVector createSystemFunction( const IndependentVariableType independentVariable,
-                                                  const DependentVector& stateVector,
-                                                  const DependentVector& controlVector ) = 0;
+    virtual DependentVector createSystemFunction( const IndependentVariableType currentTime,
+                                                  const DependentVector& currentStateVector,
+                                                  const DependentVector& currentControlVector ) = 0;
 
-    //!
+    //! Function to create the function that defines the system model.
     /*!
-     *
+     *  Function to create the function that defines the system model. The output of this function is then bound
+     *  to the measurementFunction_ variable, via the boost::bind command.
+     *  \param currentTime Scalar representing the current time.
+     *  \param currentStateVector Vector representing the current state.
+     *  \return Vector representing the estimated measurement.
      */
-    virtual DependentVector createMeasurementFunction( const IndependentVariableType independentVariable,
-                                                       const DependentVector& stateVector ) = 0;
+    virtual DependentVector createMeasurementFunction( const IndependentVariableType currentTime,
+                                                       const DependentVector& currentStateVector ) = 0;
 
-    //!
+    //! Function to produce system noise.
     /*!
-     *
+     *  Function to produce system noise, based on a Gaussian distribution, with zero mean and standard
+     *  deviation given by the diagonal elements of the input system uncertainty matrix.
+     *  \return Vector representing system noise.
      */
     DependentVector produceSystemNoise( )
     {
@@ -161,9 +220,11 @@ protected:
         return systemNoise;
     }
 
-    //!
+    //! Function to produce measurement noise.
     /*!
-     *
+     *  Function to produce measurement noise, based on a Gaussian distribution, with zero mean and standard
+     *  deviation given by the diagonal elements of the input measurement uncertainty matrix.
+     *  \return Vector representing measurement noise.
      */
     DependentVector produceMeasurementNoise( )
     {
@@ -182,29 +243,64 @@ protected:
         return measurementNoise;
     }
 
-    //!
+    //! System function.
+    /*!
+     *  System function that will be used to retrieve the a-priori estimated state for the next step.
+     */
     SystemFunction systemFunction_;
 
-    //!
+    //! Measurement function.
+    /*!
+     *  Measurement function that will be used to retrieve the estimated measurement for the next step,
+     *  based on the current state.
+     */
     MeasurementFunction measurementFunction_;
 
-    //!
+    //! Matrix representing the uncertainty in system modeling.
     DependentMatrix systemUncertainty_;
 
-    //!
+    //! Matrix representing the uncertainty in measurement modeling.
     DependentMatrix measurementUncertainty_;
 
-    //!
+    //! Scalar representing the initial time.
+    IndependentVariableType initialTime_;
+
+    //! Vector representing the a-posteriori estimated state.
+    /*!
+     *  Vector representing the a-posteriori estimated state, i.e., the state after the prediction and
+     *  update steps of the Kalman filter.
+     */
+    DependentVector aPosterioriStateEstimate_;
+
+    //! Matrix representing the a-posteriori estimated covariance.
+    /*!
+     *  Matrix representing the a-posteriori estimated covariance, i.e., the covariance after the prediction and
+     *  update steps of the Kalman filter.
+     */
+    DependentMatrix aPosterioriCovarianceEstimate_;
+
+    //! Boolean specifying whether the state needs to be integrated.
     bool isStateToBeIntegrated_;
 
-    //!
+    //! Pointer to the integrator settings.
+    /*!
+     *  Pointer to the integrator settings, which is used to propagate the state to the new time step.
+     */
     boost::shared_ptr< Integrator > integrator_;
+
+    //! Vector of estimated states vectors.
+    std::vector< DependentVector > estimatedStateHistory_;
+
+    //! Vector of estimated covariance matrices.
+    std::vector< DependentMatrix > estimatedCovarianceHistory_;
 
 private:
 
-    //!
+    //! Function to generate the noise distributions for both system and measurement modeling.
     /*!
-     *
+     *  Function to generate the noise distributions for both system and measurement modeling, which uses
+     *  a Gaussian distribution, with zero mean and standard deviation given by the diagonal elements of the
+     *  input system and measurement uncertainty matrices.
      */
     void generateNoiseDistributions( )
     {
@@ -214,33 +310,33 @@ private:
         for ( int i = 0; i < systemUncertainty_.rows( ); i++ )
         {
             systemNoiseDistribution_.push_back( createBoostContinuousRandomVariableGenerator(
-                        normal_boost_distribution, { 0.0, static_cast< double >( systemUncertainty_( i, i ) ) }, 12345 ) );
+                        normal_boost_distribution, { 0.0, static_cast< double >( systemUncertainty_( i, i ) ) }, 12345.0 ) );
         }
 
         // Create measurement noise
         for ( int i = 0; i < measurementUncertainty_.rows( ); i++ )
         {
             measurementNoiseDistribution_.push_back( createBoostContinuousRandomVariableGenerator(
-                        normal_boost_distribution, { 0.0, static_cast< double >( measurementUncertainty_( i, i ) ) }, 12345 ) );
+                        normal_boost_distribution, { 0.0, static_cast< double >( measurementUncertainty_( i, i ) ) }, 54321.0 ) );
         }
     }
 
-    //!
+    //! Vector where the system noise generators are stored.
     std::vector< boost::shared_ptr< statistics::RandomVariableGenerator< double > > > systemNoiseDistribution_;
 
-    //!
+    //! Vector where the measurement noise generators are stored.
     std::vector< boost::shared_ptr< statistics::RandomVariableGenerator< double > > > measurementNoiseDistribution_;
 
-    //!
+    //! Vector of system noise.
     std::vector< DependentVector > systemNoiseHistory_;
 
-    //!
+    //! Vector of measurement noise.
     std::vector< DependentVector > measurementNoiseHistory_;
 
 };
 
 //! Typedef for a filter with double data type.
-typedef KalmanFilterCore< > KalmanFilter;
+typedef KalmanFilterBase< > KalmanFilter;
 
 //! Typedef for a shared-pointer to a filter with double data type.
 typedef boost::shared_ptr< KalmanFilter > KalmanFilterPointer;
