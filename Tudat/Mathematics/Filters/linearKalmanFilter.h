@@ -38,12 +38,10 @@ public:
     typedef typename KalmanFilterBase< IndependentVariableType, DependentVariableType >::DependentMatrix DependentMatrix;
     typedef typename KalmanFilterBase< IndependentVariableType, DependentVariableType >::SystemFunction SystemFunction;
     typedef typename KalmanFilterBase< IndependentVariableType, DependentVariableType >::MeasurementFunction MeasurementFunction;
+    typedef typename KalmanFilterBase< IndependentVariableType, DependentVariableType >::SystemMatrixFunction SystemMatrixFunction;
+    typedef typename KalmanFilterBase< IndependentVariableType, DependentVariableType >::MeasurementMatrixFunction MeasurementMatrixFunction;
     typedef typename KalmanFilterBase< IndependentVariableType, DependentVariableType >::IntegratorSettings IntegratorSettings;
     typedef typename KalmanFilterBase< IndependentVariableType, DependentVariableType >::Integrator Integrator;
-
-    //! Typedefs for matrix functions.
-    typedef boost::function< DependentMatrix( const IndependentVariableType, const DependentVector&, const DependentVector& ) > SystemMatrixFunction;
-    typedef boost::function< DependentMatrix( const IndependentVariableType, const DependentVector& ) > MeasurementMatrixFunction;
 
     //! Default constructor.
     /*!
@@ -79,19 +77,7 @@ public:
                                                                             isStateToBeIntegrated, integratorSettings ),
         stateTransitionMatrixFunction_( stateTransitionMatrixFunction ), controlMatrixFunction_( controlMatrixFunction ),
         measurementMatrixFunction_( measurementMatrixFunction )
-    {
-        // Create system and measurement functions based on input parameters
-        this->systemFunction_ = boost::bind( &LinearKalmanFilter< IndependentVariableType, DependentVariableType >::createSystemFunction,
-                                             this, _1, _2, _3 );
-        this->measurementFunction_ = boost::bind( &LinearKalmanFilter< IndependentVariableType, DependentVariableType >::createMeasurementFunction,
-                                                  this, _1, _2 );
-
-        // Create numerical integrator
-        if ( this->isStateToBeIntegrated_ )
-        {
-            this->generateNumericalIntegrator( integratorSettings, initialStateVector );
-        }
-    }
+    { }
 
     //! Constructor.
     /*!
@@ -143,11 +129,13 @@ public:
                        const DependentVector& currentMeasurementVector )
     {
         // Compute variables for current step
-        DependentMatrix currentSystemMatrix = stateTransitionMatrixFunction_( currentTime, this->aPosterioriStateEstimate_, currentControlVector );
+        DependentMatrix currentSystemMatrix = stateTransitionMatrixFunction_( currentTime, this->aPosterioriStateEstimate_,
+                                                                              currentControlVector );
         DependentMatrix currentMeasurementMatrix = measurementMatrixFunction_( currentTime, this->aPosterioriStateEstimate_ );
 
         // Prediction step
-        DependentVector aPrioriStateEstimate = this->systemFunction_( currentTime, this->aPosterioriStateEstimate_, currentControlVector );
+        DependentVector aPrioriStateEstimate = this->systemFunction_( currentTime, this->aPosterioriStateEstimate_,
+                                                                      currentControlVector );
         DependentVector measurmentEstimate = this->measurementFunction_( currentTime, aPrioriStateEstimate );
         DependentMatrix aPrioriCovarianceEstimate = currentSystemMatrix * this->aPosterioriCovarianceEstimate_ *
                 currentSystemMatrix.transpose( ) + this->systemUncertainty_;
@@ -158,8 +146,9 @@ public:
                     this->measurementUncertainty_ ).inverse( );
 
         // Update step
-        this->updateStateAndCovariance( aPrioriStateEstimate, aPrioriCovarianceEstimate, currentMeasurementMatrix,
-                                        currentMeasurementVector, measurmentEstimate, kalmanGain );
+        this->updateStateAndCovariance( currentTime, aPrioriStateEstimate, aPrioriCovarianceEstimate,
+                                        currentMeasurementMatrix, currentMeasurementVector, measurmentEstimate,
+                                        kalmanGain );
     }
 
 private:
@@ -178,8 +167,7 @@ private:
                                           const DependentVector& currentControlVector )
     {
         return stateTransitionMatrixFunction_( currentTime, currentStateVector, currentControlVector ) * currentStateVector +
-                controlMatrixFunction_( currentTime, currentStateVector, currentControlVector ) * currentControlVector +
-                this->produceSystemNoise( );
+                controlMatrixFunction_( currentTime, currentStateVector, currentControlVector ) * currentControlVector;
     }
 
     //! Function to create the function that defines the system model.
@@ -193,7 +181,7 @@ private:
     DependentVector createMeasurementFunction( const IndependentVariableType currentTime,
                                                const DependentVector& currentStateVector )
     {
-        return measurementMatrixFunction_( currentTime, currentStateVector ) * currentStateVector + this->produceMeasurementNoise( );
+        return measurementMatrixFunction_( currentTime, currentStateVector ) * currentStateVector;
     }
 
     //! State transition matrix function.
