@@ -52,10 +52,20 @@ public:
     typedef Eigen::Matrix< DependentVariableType, Eigen::Dynamic, Eigen::Dynamic > DependentMatrix;
 
     //! Typedef of the function describing the system.
-    typedef boost::function< DependentVector( const IndependentVariableType, const DependentVector&, const DependentVector& ) > SystemFunction;
+    typedef boost::function< DependentVector( const IndependentVariableType, const DependentVector&,
+                                              const DependentVector& ) > SystemFunction;
 
     //! Typedef of the function describing the measurements.
-    typedef boost::function< DependentVector( const IndependentVariableType, const DependentVector& ) > MeasurementFunction;
+    typedef boost::function< DependentVector( const IndependentVariableType,
+                                              const DependentVector& ) > MeasurementFunction;
+
+    //! Typedefs for system matrix functions.
+    typedef boost::function< DependentMatrix( const IndependentVariableType, const DependentVector&,
+                                              const DependentVector& ) > SystemMatrixFunction;
+
+    //! Typedefs for measurement matrix functions.
+    typedef boost::function< DependentMatrix( const IndependentVariableType,
+                                              const DependentVector& ) > MeasurementMatrixFunction;
 
     //! Typedef of the integrator settings.
     typedef numerical_integrators::IntegratorSettings< IndependentVariableType > IntegratorSettings;
@@ -101,6 +111,20 @@ public:
         // Create noise distributions
         generateNoiseDistributions( );
 
+        // Create system and measurement functions based on input parameters
+        systemFunction_ = boost::bind( &KalmanFilterBase< IndependentVariableType,
+                                       DependentVariableType >::createSystemFunction,
+                                       this, _1, _2, _3 );
+        measurementFunction_ = boost::bind( &KalmanFilterBase< IndependentVariableType,
+                                            DependentVariableType >::createMeasurementFunction,
+                                            this, _1, _2 );
+
+        // Create numerical integrator
+        if ( isStateToBeIntegrated_ )
+        {
+            generateNumericalIntegrator( integratorSettings );
+        }
+
         // Generate identity matrix
         identityMatrix_ = DependentMatrix::Identity( systemUncertainty_.rows( ), systemUncertainty_.cols( ) );
     }
@@ -121,29 +145,6 @@ public:
     virtual void updateFilter( const IndependentVariableType currentTime, const DependentVector& currentControlVector,
                                const DependentVector& currentMeasurementVector ) = 0;
 
-    //! Function to update the state vector and covariance matrix with the data from the new time step.
-    /*!
-     *  Function to update the state vector and covariance matrix with the data from the new time step.
-     *  \param currentTime Scalar representing current time.
-     *  \param currentControlVector Vector representing the current control input.
-     *  \param currentMeasurementVector Vector representing current measurement.
-     */
-    void updateStateAndCovariance( const DependentVector& aPrioriStateEstimate,
-                                   const DependentMatrix& aPrioriCovarianceEstimate,
-                                   const DependentMatrix& currentMeasurementMatrix,
-                                   const DependentVector& currentMeasurementVector,
-                                   const DependentVector& measurmentEstimate,
-                                   const DependentMatrix& kalmanGain )
-    {
-        // Update step
-        aPosterioriStateEstimate_ = aPrioriStateEstimate + kalmanGain * ( currentMeasurementVector - measurmentEstimate );
-        aPosterioriCovarianceEstimate_ = ( identityMatrix_ - kalmanGain * currentMeasurementMatrix ) * aPrioriCovarianceEstimate;
-
-        // Store values in history
-        estimatedStateHistory_.push_back( aPosterioriStateEstimate_ );
-        estimatedCovarianceHistory_.push_back( aPosterioriCovarianceEstimate_ );
-    }
-
     //! Function to retrieve current state estimate.
     /*!
      *  Function to retrieve current state estimate. The state estimate needs to first be computed by updating the filter with the
@@ -160,7 +161,7 @@ public:
      *  Function to retrieve the history of estimated states.
      *  \return History of estimated states.
      */
-    std::vector< DependentVector > getEstimatedStateHistory( )
+    std::map< IndependentVariableType, DependentVector > getEstimatedStateHistory( )
     {
         return estimatedStateHistory_;
     }
@@ -170,7 +171,7 @@ public:
      *  Function to retrieve the history of estimated covariance matrices.
      *  \return History of estimated covariance matrices.
      */
-    std::vector< DependentMatrix > getEstimatedCovarianceHistory( )
+    std::map< IndependentVariableType, DependentMatrix > getEstimatedCovarianceHistory( )
     {
         return estimatedCovarianceHistory_;
     }
@@ -183,48 +184,6 @@ public:
     std::pair< std::vector< DependentVector >, std::vector< DependentVector > > getNoiseHistory( )
     {
         return std::make_pair( systemNoiseHistory_, measurementNoiseHistory_ );
-    }
-
-protected:
-
-    //! Function to generate the numerical integrator to be used for propagation of the state.
-    /*!
-     *
-     */
-    void generateNumericalIntegrator(
-            const boost::shared_ptr< IntegratorSettings > integratorSettings,
-            const DependentVector& initialStateVector )
-    {
-        // Get time step information
-        integrationStepSize_ = integratorSettings->initialTimeStep_;
-
-        // Generate integrator
-        switch ( integratorSettings->integratorType_ )
-        {
-        case numerical_integrators::euler:
-        {
-            integrator_ = boost::make_shared< numerical_integrators::EulerIntegrator< IndependentVariableType, DependentVector,
-                    DependentVector, IndependentVariableType > >( systemFunction_, initialTime_, initialStateVector );
-            break;
-        }
-        default:
-            throw std::runtime_error( "Error in Kalman filtering. Only Euler integration is currently supported." );
-        }
-    }
-
-    //! Function to propagate state to the next time step.
-    /*!
-     *  Function to propagate state to the next time step, by using the integrator settings provided
-     *  in the input.
-     *  \param intervalEnd Time to propagate to.
-     *  \param initialStepSize Initial (or constant) step size for propagation.
-     *  \param finalTimeTolerance Tolerance used to define whether final time has been reached.
-     *  \return Propagated state at the requested time.
-     */
-    DependentVector integrateState( const IndependentVariableType intervalEnd,
-                                    const IndependentVariableType finalTimeTolerance = std::numeric_limits< IndependentVariableType >::epsilon( ) )
-    {
-        return integrator_->integrateTo( intervalEnd, integrationStepSize_, finalTimeTolerance );
     }
 
     //! Function to produce system noise.
@@ -287,6 +246,72 @@ protected:
         return measurementNoise;
     }
 
+protected:
+
+    //! Function to create the function that defines the system model.
+    /*!
+    *  Function to create the function that defines the system model. The output of this function is then bound
+    *  to the systemFunction_ variable, via the boost::bind command.
+    *  \param currentTime Scalar representing the current time.
+    *  \param currentStateVector Vector representing the current state.
+    *  \param currentControlVector Vector representing the current control input.
+    *  \return Vector representing the estimated state.
+    */
+    virtual DependentVector createSystemFunction( const IndependentVariableType currentTime,
+                                                  const DependentVector& currentStateVector,
+                                                  const DependentVector& currentControlVector ) = 0;
+
+    //! Function to create the function that defines the system model.
+    /*!
+    *  Function to create the function that defines the system model. The output of this function is then bound
+    *  to the measurementFunction_ variable, via the boost::bind command.
+    *  \param currentTime Scalar representing the current time.
+    *  \param currentStateVector Vector representing the current state.
+    *  \return Vector representing the estimated measurement.
+    */
+    virtual DependentVector createMeasurementFunction( const IndependentVariableType currentTime,
+                                                       const DependentVector& currentStateVector ) = 0;
+
+    //! Function to update the state vector and covariance matrix with the data from the new time step.
+    /*!
+     *  Function to update the state vector and covariance matrix with the data from the new time step.
+     *  \param currentTime Scalar representing current time.
+     */
+    void updateStateAndCovariance( const IndependentVariableType currentTime,
+                                   const DependentVector& aPrioriStateEstimate,
+                                   const DependentMatrix& aPrioriCovarianceEstimate,
+                                   const DependentMatrix& currentMeasurementMatrix,
+                                   const DependentVector& currentMeasurementVector,
+                                   const DependentVector& measurmentEstimate,
+                                   const DependentMatrix& kalmanGain )
+    {
+        // Update step
+        aPosterioriStateEstimate_ = aPrioriStateEstimate + kalmanGain * ( currentMeasurementVector - measurmentEstimate );
+        aPosterioriCovarianceEstimate_ = ( identityMatrix_ - kalmanGain * currentMeasurementMatrix ) *
+                aPrioriCovarianceEstimate * ( identityMatrix_ - kalmanGain * currentMeasurementMatrix ).transpose( ) +
+                kalmanGain * measurementUncertainty_ * kalmanGain.transpose( );
+
+        // Store values in history
+        estimatedStateHistory_[ currentTime ] = aPosterioriStateEstimate_;
+        estimatedCovarianceHistory_[ currentTime ] = aPosterioriCovarianceEstimate_;
+    }
+
+    //! Function to propagate state to the next time step.
+    /*!
+     *  Function to propagate state to the next time step, by using the integrator settings provided
+     *  in the input.
+     *  \param intervalEnd Time to propagate to.
+     *  \return Propagated state at the requested time.
+     */
+//    DependentVector integrateState( const IndependentVariableType intervalEnd )
+    DependentVector integrateState( const IndependentVariableType currentTime,
+                                    const DependentVector currentControlVector )
+    {
+        return aPosterioriStateEstimate_ +
+                systemFunction_( currentTime, aPosterioriStateEstimate_, currentControlVector ) * integrationStepSize_;
+//        return integrator_->integrateTo( intervalEnd, integrationStepSize_ );
+    }
+
     //! System function.
     /*!
      *  System function that will be used to retrieve the a-priori estimated state for the next step.
@@ -326,11 +351,12 @@ protected:
     //! Boolean specifying whether the state needs to be integrated.
     bool isStateToBeIntegrated_;
 
-    //! Vector of estimated states vectors.
-    std::vector< DependentVector > estimatedStateHistory_;
-
-    //! Vector of estimated covariance matrices.
-    std::vector< DependentMatrix > estimatedCovarianceHistory_;
+    //! Scalar representing step size for integration.
+    /*!
+     *  Scalar representing step size for integration. If integrator_ points to a constant step size integrator, then
+     *  this will be the constant step size, otherwise it will be the initial step size.
+     */
+    IndependentVariableType integrationStepSize_;
 
 private:
 
@@ -377,11 +403,39 @@ private:
         }
     }
 
-    //! Indentity matrix.
+    //! Function to generate the numerical integrator to be used for propagation of the state.
     /*!
-     *  Indentity matrix with the correct dimensions for the specific application.
+     *  Function to generate the numerical integrator to be used for propagation of the state, based on the integrator
+     *  settings input by the user. Currently, only Euler integration is supported.
+     *  \param integratorSettings Pointer to integration settings.
      */
-    DependentMatrix identityMatrix_;
+    void generateNumericalIntegrator(
+            const boost::shared_ptr< IntegratorSettings > integratorSettings )
+    {
+        // Check that integrator settings have been set
+        if ( integratorSettings == NULL )
+        {
+            throw std::runtime_error( "Error in Kalman filtering. Integrator settings have not been specified." );
+        }
+
+        // Get time step information
+        integrationStepSize_ = integratorSettings->initialTimeStep_;
+
+        // Generate integrator
+        switch ( integratorSettings->integratorType_ )
+        {
+        case numerical_integrators::euler:
+        {
+            integrator_ = NULL;
+//            integrator_ = boost::make_shared< numerical_integrators::EulerIntegrator< IndependentVariableType,
+//                    DependentVector, DependentVector, IndependentVariableType > >(
+//                        systemFunction_, initialTime_, aPosterioriStateEstimate_ );
+            break;
+        }
+        default:
+            throw std::runtime_error( "Error in Kalman filtering. Only Euler integration is currently supported." );
+        }
+    }
 
     //! Vector where the system noise generators are stored.
     std::vector< boost::shared_ptr< statistics::RandomVariableGenerator< double > > > systemNoiseDistribution_;
@@ -395,12 +449,17 @@ private:
      */
     boost::shared_ptr< Integrator > integrator_;
 
-    //! Scalar representing step size for integration.
+    //! Indentity matrix.
     /*!
-     *  Scalar representing step size for integration. If integrator_ points to a constant step size integrator, then
-     *  this will be the constant step size, otherwise it will be the initial step size.
+     *  Indentity matrix with the correct dimensions for the specific application.
      */
-    IndependentVariableType integrationStepSize_;
+    DependentMatrix identityMatrix_;
+
+    //! Vector of estimated states vectors.
+    std::map< IndependentVariableType, DependentVector > estimatedStateHistory_;
+
+    //! Vector of estimated covariance matrices.
+    std::map< IndependentVariableType, DependentMatrix > estimatedCovarianceHistory_;
 
     //! Vector of system noise.
     std::vector< DependentVector > systemNoiseHistory_;
