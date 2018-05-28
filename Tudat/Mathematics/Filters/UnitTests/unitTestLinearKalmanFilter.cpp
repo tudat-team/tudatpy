@@ -197,7 +197,7 @@ BOOST_AUTO_TEST_CASE( testExtendedKalmanFilter )
                 boost::lambda::constant( Eigen::Vector1d::Ones( ) ),
                 systemUncertainty, measurementUncertainty,
                 initialTime, initialEstimatedStateVector, initialEstimatedStateCovarianceMatrix,
-                true, integratorSettings );
+                integratorSettings );
 
     // Loop over each time step
     const bool showProgress = false;
@@ -207,6 +207,7 @@ BOOST_AUTO_TEST_CASE( testExtendedKalmanFilter )
     Eigen::Vector1d currentMeasurementVector;
     std::map< double, Eigen::Vector2d > actualStateVectorHistory;
     std::map< double, Eigen::Vector1d > measurementVectorHistory;
+    actualStateVectorHistory[ initialTime ] = initialStateVector;
     for( unsigned int i = 0; i < numberOfTimeSteps; i++ )
     {
         // Compute actual values and perturb them

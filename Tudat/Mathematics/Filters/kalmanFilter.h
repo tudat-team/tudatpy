@@ -92,11 +92,9 @@ public:
                       const IndependentVariableType initialTime,
                       const DependentVector& initialStateVector,
                       const DependentMatrix& initialCovarianceMatrix,
-                      const bool isStateToBeIntegrated,
                       const boost::shared_ptr< IntegratorSettings > integratorSettings ) :
         systemUncertainty_( systemUncertainty ), measurementUncertainty_( measurementUncertainty ), initialTime_( initialTime ),
-        aPosterioriStateEstimate_( initialStateVector ), aPosterioriCovarianceEstimate_( initialCovarianceMatrix ),
-        isStateToBeIntegrated_( isStateToBeIntegrated )
+        aPosterioriStateEstimate_( initialStateVector ), aPosterioriCovarianceEstimate_( initialCovarianceMatrix )
     {
         // Check that uncertainty matrices are square
         if ( systemUncertainty_.rows( ) != systemUncertainty_.cols( ) )
@@ -120,6 +118,7 @@ public:
                                             this, _1, _2 );
 
         // Create numerical integrator
+        isStateToBeIntegrated_ = integratorSettings != NULL;
         if ( isStateToBeIntegrated_ )
         {
             generateNumericalIntegrator( integratorSettings );
@@ -127,6 +126,10 @@ public:
 
         // Generate identity matrix
         identityMatrix_ = DependentMatrix::Identity( systemUncertainty_.rows( ), systemUncertainty_.cols( ) );
+
+        // Add initial values to history
+        estimatedStateHistory_[ initialTime ] = aPosterioriStateEstimate_;
+        estimatedCovarianceHistory_[ initialTime ] = aPosterioriCovarianceEstimate_;
     }
 
     //! Default destructor.
