@@ -79,18 +79,17 @@ public:
                           const IndependentVariableType initialTime,
                           const DependentVector& initialStateVector,
                           const DependentMatrix& initialCovarianceMatrix,
-                          const bool isStateToBeIntegrated = false,
                           const boost::shared_ptr< IntegratorSettings > integratorSettings = NULL ) :
-        KalmanFilterBase< IndependentVariableType, DependentVariableType >( systemUncertainty, measurementUncertainty, initialTime,
-                                                                            initialStateVector, initialCovarianceMatrix,
-                                                                            isStateToBeIntegrated, integratorSettings ),
+        KalmanFilterBase< IndependentVariableType, DependentVariableType >( systemUncertainty, measurementUncertainty,
+                                                                            initialTime, initialStateVector,
+                                                                            initialCovarianceMatrix, integratorSettings ),
         inputSystemFunction_( systemFunction ), inputMeasurementFunction_( measurementFunction ),
         stateJacobianFunction_( stateJacobianFunction ), stateNoiseJacobianFunction_( stateNoiseJacobianFunction ),
         measurementJacobianFunction_( measurementJacobianFunction ),
         measurementNoiseJacobianFunction_( measurementNoiseJacobianFunction )
     {
         // Compute the discrete-time version of the system Jacobians
-        if ( isStateToBeIntegrated )
+        if ( this->isStateToBeIntegrated_ )
         {
             discreteTimeStateJacobians_ = boost::bind( &ExtendedKalmanFilter< IndependentVariableType,
                                                        DependentVariableType >::generateDiscreteTimeSystemJacobians,
@@ -158,13 +157,6 @@ public:
                                         currentMeasurementJacobianMatrix, currentMeasurementVector, measurmentEstimate,
                                         kalmanGain );
     }
-//    ( const IndependentVariableType currentTime,
-//    const DependentVector& aPrioriStateEstimate,
-//    const DependentMatrix& aPrioriCovarianceEstimate,
-//    const DependentMatrix& currentMeasurementMatrix,
-//    const DependentVector& currentMeasurementVector,
-//    const DependentVector& measurmentEstimate,
-//    const DependentMatrix& kalmanGain )
 
 private:
 

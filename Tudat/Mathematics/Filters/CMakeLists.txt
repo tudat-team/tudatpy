@@ -13,7 +13,7 @@ set(FILTERS_HEADERS
   "${SRCROOT}${MATHEMATICSDIR}/Filters/extendedKalmanFilter.h"
   "${SRCROOT}${MATHEMATICSDIR}/Filters/kalmanFilter.h"
   "${SRCROOT}${MATHEMATICSDIR}/Filters/linearKalmanFilter.h"
-#  "${SRCROOT}${MATHEMATICSDIR}/Filters/unscentedKalmanFilter.h"
+  "${SRCROOT}${MATHEMATICSDIR}/Filters/unscentedKalmanFilter.h"
 )
 
 set(FILTERS_SOURCES
