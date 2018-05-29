@@ -13,6 +13,7 @@
 #define TUDAT_IDENTITY_ELEMENTS_H
 
 #include "Tudat/Basics/basicTypedefs.h"
+#include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
 
 namespace tudat
 {
@@ -41,6 +42,13 @@ public:
      */
     static VariableType getMultiplicationIdentity( );
 
+    //! Function to output the NaN value (i.e., the null identity) for the specified type.
+    /*!
+     *  Function to output the NaN value (i.e., the null identity) for the specified type.
+     *  \return Null identity of the specified type.
+     */
+    static VariableType getNullIdentity( );
+
 };
 
 //! Classes for signed integer types.
@@ -63,6 +71,11 @@ public:
         return 1;
     }
 
+    static int getNullIdentity( )
+    {
+        return static_cast< int >( TUDAT_NAN );
+    }
+
 };
 
 // Class for scalar of long integer type.
@@ -81,6 +94,11 @@ public:
         return 1L;
     }
 
+    static long getNullIdentity( )
+    {
+        return static_cast< long >( TUDAT_NAN );
+    }
+
 };
 
 // Class for scalar of long long integer type.
@@ -97,6 +115,11 @@ public:
     static long long getMultiplicationIdentity( )
     {
         return 1LL;
+    }
+
+    static long long getNullIdentity( )
+    {
+        return static_cast< long long >( TUDAT_NAN );
     }
 
 };
@@ -121,6 +144,11 @@ public:
         return 1;
     }
 
+    static unsigned int getNullIdentity( )
+    {
+        return static_cast< unsigned int >( TUDAT_NAN );
+    }
+
 };
 
 // Class for scalar of unsigned long integer type.
@@ -139,6 +167,11 @@ public:
         return 1L;
     }
 
+    static unsigned long getNullIdentity( )
+    {
+        return static_cast< unsigned long >( TUDAT_NAN );
+    }
+
 };
 
 // Class for scalar of unsigned long long integer type.
@@ -155,6 +188,11 @@ public:
     static unsigned long long getMultiplicationIdentity( )
     {
         return 1LL;
+    }
+
+    static unsigned long long getNullIdentity( )
+    {
+        return static_cast< unsigned long long >( TUDAT_NAN );
     }
 
 };
@@ -179,6 +217,11 @@ public:
         return 1.0;
     }
 
+    static float getNullIdentity( )
+    {
+        return static_cast< float >( TUDAT_NAN );
+    }
+
 };
 
 // Class for scalar of double type.
@@ -195,6 +238,11 @@ public:
     static double getMultiplicationIdentity( )
     {
         return 1.0;
+    }
+
+    static double getNullIdentity( )
+    {
+        return static_cast< double >( TUDAT_NAN );
     }
 
 };
@@ -215,6 +263,11 @@ public:
         return 1.0L;
     }
 
+    static long double getNullIdentity( )
+    {
+        return static_cast< long double >( TUDAT_NAN );
+    }
+
 };
 
 //! Classes for vector types.
@@ -232,6 +285,11 @@ public:
         return Eigen::Vector1d::Zero( );
     }
 
+    static Eigen::Vector1d getNullIdentity( )
+    {
+        return Eigen::Vector1d::Constant( TUDAT_NAN );
+    }
+
 };
 
 // Class for column vector of length 2 of double type.
@@ -243,6 +301,11 @@ public:
     static Eigen::Vector2d getAdditionIdentity( )
     {
         return Eigen::Vector2d::Zero( );
+    }
+
+    static Eigen::Vector2d getNullIdentity( )
+    {
+        return Eigen::Vector2d::Constant( TUDAT_NAN );
     }
 
 };
@@ -258,6 +321,11 @@ public:
         return Eigen::Vector3d::Zero( );
     }
 
+    static Eigen::Vector3d getNullIdentity( )
+    {
+        return Eigen::Vector3d::Constant( TUDAT_NAN );
+    }
+
 };
 
 // Class for column vector of length 4 of double type.
@@ -269,6 +337,11 @@ public:
     static Eigen::Vector4d getAdditionIdentity( )
     {
         return Eigen::Vector4d::Zero( );
+    }
+
+    static Eigen::Vector4d getNullIdentity( )
+    {
+        return Eigen::Vector4d::Constant( TUDAT_NAN );
     }
 
 };
@@ -284,6 +357,11 @@ public:
         return Eigen::Vector5d::Zero( );
     }
 
+    static Eigen::Vector5d getNullIdentity( )
+    {
+        return Eigen::Vector5d::Constant( TUDAT_NAN );
+    }
+
 };
 
 // Class for column vector of length 6 of integer type.
@@ -295,6 +373,11 @@ public:
     static Eigen::Vector6i getAdditionIdentity( )
     {
         return Eigen::Vector6i::Zero( );
+    }
+
+    static Eigen::Vector6i getNullIdentity( )
+    {
+        return Eigen::Vector6i::Constant( TUDAT_NAN );
     }
 
 };
@@ -310,6 +393,11 @@ public:
         return Eigen::Vector6f::Zero( );
     }
 
+    static Eigen::Vector6f getNullIdentity( )
+    {
+        return Eigen::Vector6f::Constant( TUDAT_NAN );
+    }
+
 };
 
 // Class for column vector of length 6 of double type.
@@ -321,6 +409,11 @@ public:
     static Eigen::Vector6d getAdditionIdentity( )
     {
         return Eigen::Vector6d::Zero( );
+    }
+
+    static Eigen::Vector6d getNullIdentity( )
+    {
+        return Eigen::Vector6d::Constant( TUDAT_NAN );
     }
 
 };
@@ -336,6 +429,11 @@ public:
         return Eigen::Vector6ld::Zero( );
     }
 
+    static Eigen::Vector6ld getNullIdentity( )
+    {
+        return Eigen::Vector6ld::Constant( TUDAT_NAN );
+    }
+
 };
 
 // Class for column vector of length 7 of double type.
@@ -349,6 +447,11 @@ public:
         return Eigen::Vector7d::Zero( );
     }
 
+    static Eigen::Vector7d getNullIdentity( )
+    {
+        return Eigen::Vector7d::Constant( TUDAT_NAN );
+    }
+
 };
 
 // Class for column vector of length 7 of long double type.
@@ -360,6 +463,11 @@ public:
     static Eigen::Vector7ld getAdditionIdentity( )
     {
         return Eigen::Vector7ld::Zero( );
+    }
+
+    static Eigen::Vector7ld getNullIdentity( )
+    {
+        return Eigen::Vector7ld::Constant( TUDAT_NAN );
     }
 
 };
@@ -384,6 +492,11 @@ public:
         return Eigen::Matrix2d::Identity( );
     }
 
+    static Eigen::Matrix2d getNullIdentity( )
+    {
+        return Eigen::Matrix2d::Constant( TUDAT_NAN );
+    }
+
 };
 
 // Class for square 3-by-3 matrix of double type.
@@ -400,6 +513,11 @@ public:
     static Eigen::Matrix3d getMultiplicationIdentity( )
     {
         return Eigen::Matrix3d::Identity( );
+    }
+
+    static Eigen::Matrix3d getNullIdentity( )
+    {
+        return Eigen::Matrix3d::Constant( TUDAT_NAN );
     }
 
 };
@@ -420,6 +538,11 @@ public:
         return Eigen::Matrix6d::Identity( );
     }
 
+    static Eigen::Matrix6d getNullIdentity( )
+    {
+        return Eigen::Matrix6d::Constant( TUDAT_NAN );
+    }
+
 };
 
 // Class for square 6-by-6 matrix of integer type.
@@ -437,6 +560,12 @@ public:
     {
         return Eigen::Matrix6i::Identity( );
     }
+
+    static Eigen::Matrix6i getNullIdentity( )
+    {
+        return Eigen::Matrix6i::Constant( TUDAT_NAN );
+    }
+
 };
 
 // Class for square 6-by-6 matrix of float type.
@@ -453,6 +582,11 @@ public:
     static Eigen::Matrix6f getMultiplicationIdentity( )
     {
         return Eigen::Matrix6f::Identity( );
+    }
+
+    static Eigen::Matrix6f getNullIdentity( )
+    {
+        return Eigen::Matrix6f::Constant( TUDAT_NAN );
     }
 
 };
@@ -479,6 +613,12 @@ public:
         return identityMatrix.setIdentity( );
     }
 
+    static Eigen::MatrixXi getNullIdentity( )
+    {
+        Eigen::MatrixXi nanMatrix;
+        return nanMatrix.setConstant( TUDAT_NAN );
+    }
+
 };
 
 // Class for dynamic square matrix of long integer type.
@@ -497,6 +637,12 @@ public:
     {
         Eigen::MatrixXl identityMatrix;
         return identityMatrix.setIdentity( );
+    }
+
+    static Eigen::MatrixXl getNullIdentity( )
+    {
+        Eigen::MatrixXl nanMatrix;
+        return nanMatrix.setConstant( TUDAT_NAN );
     }
 
 };
@@ -519,6 +665,12 @@ public:
         return identityMatrix.setIdentity( );
     }
 
+    static Eigen::MatrixXll getNullIdentity( )
+    {
+        Eigen::MatrixXll nanMatrix;
+        return nanMatrix.setConstant( TUDAT_NAN );
+    }
+
 };
 
 // Class for dynamic square matrix of float type.
@@ -537,6 +689,12 @@ public:
     {
         Eigen::MatrixXf identityMatrix;
         return identityMatrix.setIdentity( );
+    }
+
+    static Eigen::MatrixXf getNullIdentity( )
+    {
+        Eigen::MatrixXf nanMatrix;
+        return nanMatrix.setConstant( TUDAT_NAN );
     }
 
 };
@@ -559,6 +717,12 @@ public:
         return identityMatrix.setIdentity( );
     }
 
+    static Eigen::MatrixXd getNullIdentity( )
+    {
+        Eigen::MatrixXd nanMatrix;
+        return nanMatrix.setConstant( TUDAT_NAN );
+    }
+
 };
 
 // Class for dynamic square matrix of long double type.
@@ -579,102 +743,70 @@ public:
         return identityMatrix.setIdentity( );
     }
 
-};
-
-// Class for semi-dynamic (1 column) matrix of double type.
-template< >
-class IdentityElement< Eigen::MatrixX1d >
-{
-public:
-
-    static Eigen::MatrixX1d getAdditionIdentity( )
+    static Eigen::MatrixXld getNullIdentity( )
     {
-        Eigen::MatrixX1d zeroMatrix;
-        return zeroMatrix.setZero( );
+        Eigen::MatrixXld nanMatrix;
+        return nanMatrix.setConstant( TUDAT_NAN );
     }
 
 };
 
-// Class for semi-dynamic (1 column) matrix of long double type.
+// Class for vector of double type.
 template< >
-class IdentityElement< Eigen::MatrixX1ld >
+class IdentityElement< Eigen::VectorXd >
 {
 public:
 
-    static Eigen::MatrixX1ld getAdditionIdentity( )
+    static Eigen::VectorXd getAdditionIdentity( )
     {
-        Eigen::MatrixX1ld zeroMatrix;
+        Eigen::VectorXd zeroMatrix;
         return zeroMatrix.setZero( );
+    }
+
+    static Eigen::VectorXd getNullIdentity( )
+    {
+        Eigen::VectorXd nanMatrix;
+        return nanMatrix.setConstant( TUDAT_NAN );
     }
 
 };
 
-// Class for semi-dynamic (2 columns) matrix of double type.
+// Class for vector of long double type.
 template< >
-class IdentityElement< Eigen::MatrixX2d >
+class IdentityElement< Eigen::VectorXld >
 {
 public:
 
-    static Eigen::MatrixX2d getAdditionIdentity( )
+    static Eigen::VectorXld getAdditionIdentity( )
     {
-        Eigen::MatrixX2d zeroMatrix;
+        Eigen::VectorXld zeroMatrix;
         return zeroMatrix.setZero( );
+    }
+
+    static Eigen::VectorXld getNullIdentity( )
+    {
+        Eigen::VectorXld nanMatrix;
+        return nanMatrix.setConstant( TUDAT_NAN );
     }
 
 };
 
-// Class for semi-dynamic (3 columns) matrix of double type.
+// Class for row vector of double type.
 template< >
-class IdentityElement< Eigen::MatrixX3d >
+class IdentityElement< Eigen::RowVectorXd >
 {
 public:
 
-    static Eigen::MatrixX3d getAdditionIdentity( )
+    static Eigen::RowVectorXd getAdditionIdentity( )
     {
-        Eigen::MatrixX3d zeroMatrix;
+        Eigen::RowVectorXd zeroMatrix;
         return zeroMatrix.setZero( );
     }
 
-};
-
-// Class for semi-dynamic (1 row) matrix of double type.
-template< >
-class IdentityElement< Eigen::Matrix1Xd >
-{
-public:
-
-    static Eigen::Matrix1Xd getAdditionIdentity( )
+    static Eigen::RowVectorXd getNullIdentity( )
     {
-        Eigen::Matrix1Xd zeroMatrix;
-        return zeroMatrix.setZero( );
-    }
-
-};
-
-// Class for semi-dynamic (2 rows) matrix of double type.
-template< >
-class IdentityElement< Eigen::Matrix2Xd >
-{
-public:
-
-    static Eigen::Matrix2Xd getAdditionIdentity( )
-    {
-        Eigen::Matrix2Xd zeroMatrix;
-        return zeroMatrix.setZero( );
-    }
-
-};
-
-// Class for semi-dynamic (3 rows) matrix of double type.
-template< >
-class IdentityElement< Eigen::Matrix3Xd >
-{
-public:
-
-    static Eigen::Matrix3Xd getAdditionIdentity( )
-    {
-        Eigen::Matrix3Xd zeroMatrix;
-        return zeroMatrix.setZero( );
+        Eigen::RowVectorXd nanMatrix;
+        return nanMatrix.setConstant( TUDAT_NAN );
     }
 
 };

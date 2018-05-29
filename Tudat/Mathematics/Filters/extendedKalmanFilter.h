@@ -15,6 +15,7 @@
 #define TUDAT_EXTENDED_KALMAN_FILTER_H
 
 #include "Tudat/Mathematics/Filters/kalmanFilter.h"
+#include "Tudat/Mathematics/BasicMathematics/linearAlgebra.h"
 
 namespace tudat
 {
@@ -119,7 +120,7 @@ public:
         DependentMatrix currentStateNoiseJacobianMatrix;
         if ( this->isStateToBeIntegrated_ )
         {
-            aPrioriStateEstimate = this->integrateState( currentTime, currentControlVector );
+            aPrioriStateEstimate = this->propagateState( currentTime, currentControlVector );
             std::pair< DependentMatrix, DependentMatrix > discreteTimeJacobians =
                     discreteTimeStateJacobians_( currentTime, aPrioriStateEstimate, currentControlVector );
             currentStateJacobianMatrix = discreteTimeJacobians.first;
@@ -152,10 +153,10 @@ public:
                     currentMeasurementNoiseJacobianMatrix * this->measurementUncertainty_ *
                     currentMeasurementNoiseJacobianMatrix.transpose( ) ).inverse( );
 
-        // Update step
-        this->updateStateAndCovariance( currentTime, aPrioriStateEstimate, aPrioriCovarianceEstimate,
-                                        currentMeasurementJacobianMatrix, currentMeasurementVector, measurmentEstimate,
-                                        kalmanGain );
+        // Correction step
+        this->correctStateAndCovariance( currentTime, aPrioriStateEstimate, aPrioriCovarianceEstimate,
+                                         currentMeasurementJacobianMatrix, currentMeasurementVector, measurmentEstimate,
+                                         kalmanGain );
     }
 
 private:
@@ -195,9 +196,9 @@ private:
      *  Function to generate the discrete-time version of the system Jacobians, from the continuous-time
      *  versions. The transformation is carried out by using the exponential of a matrix, which is expanded
      *  into [1]:
-     * \f[
+     *  \f[
      *  \exp{ A * t } = I + \sum_{ k = 1 }^{ \infty } \frac{ A^k * t^k }{ k! }
-     * \f]
+     *  \f]
      *  where only the first three terms of the expansion are used.
      *  \param currentTime Scalar representing the current time.
      *  \param currentStateVector Vector representing the current state.
@@ -222,13 +223,10 @@ private:
         DependentMatrix continuousJacobians = DependentMatrix::Zero( stateRows + noiseCols, stateCols + noiseCols );
         continuousJacobians.block( 0, 0, stateJacobian.rows( ), stateJacobian.cols( ) ) = stateJacobian;
         continuousJacobians.block( 0, stateCols + noiseCols - 1, noiseRows, noiseCols ) = noiseJacobian;
+        continuousJacobians *= this->integrationStepSize_;
 
         // Generate discrete-time Jacobians
-        DependentMatrix identityMatrix = DependentMatrix::Identity( stateRows + noiseCols, stateCols + noiseCols );
-        DependentMatrix discreteJacobians = identityMatrix + continuousJacobians * this->integrationStepSize_ +
-                continuousJacobians * continuousJacobians * std::pow( this->integrationStepSize_, 2 ) / 2.0 +
-                continuousJacobians * continuousJacobians * continuousJacobians *
-                std::pow( this->integrationStepSize_, 3 ) / 6.0;
+        DependentMatrix discreteJacobians = linear_algebra::computeMatrixExponential( continuousJacobians );
 
         // Extract state and noise Jacobians
         return std::make_pair( discreteJacobians.block( 0, 0, stateRows, stateCols ),
