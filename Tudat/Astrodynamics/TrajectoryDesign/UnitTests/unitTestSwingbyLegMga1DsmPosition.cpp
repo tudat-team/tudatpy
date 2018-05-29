@@ -46,7 +46,7 @@
 #include <Tudat/Basics/testMacros.h>
 #include <Tudat/Astrodynamics/BasicAstrodynamics/physicalConstants.h>
 
-#include "SpaceTrajectories/swingbyLegMga1DsmPosition.h"
+#include "Tudat/Astrodynamics/TrajectoryDesign/swingbyLegMga1DsmPosition.h"
 
 namespace tudat
 {

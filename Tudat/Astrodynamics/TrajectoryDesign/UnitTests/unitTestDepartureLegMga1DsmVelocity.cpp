@@ -50,7 +50,7 @@
 #include <Tudat/Astrodynamics/BasicAstrodynamics/physicalConstants.h>
 #include <Tudat/Basics/testMacros.h>
 
-#include "SpaceTrajectories/departureLegMga1DsmVelocity.h"
+#include "Tudat/Astrodynamics/TrajectoryDesign/departureLegMga1DsmVelocity.h"
 
 namespace tudat
 {
