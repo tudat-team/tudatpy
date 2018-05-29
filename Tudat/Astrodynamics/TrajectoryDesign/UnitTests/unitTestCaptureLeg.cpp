@@ -45,7 +45,7 @@
 
 #include <Tudat/Basics/testMacros.h>
 
-#include "SpaceTrajectories/captureLeg.h"
+#include "Tudat/Astrodynamics/TrajectoryDesign/captureLeg.h"
 
 namespace tudat
 {

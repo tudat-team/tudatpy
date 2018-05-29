@@ -48,7 +48,7 @@
 #include <Tudat/Astrodynamics/BasicAstrodynamics/physicalConstants.h>
 #include <Tudat/Basics/testMacros.h>
 
-#include "SpaceTrajectories/departureLegMga1DsmPosition.h"
+#include "Tudat/Astrodynamics/TrajectoryDesign/departureLegMga1DsmPosition.h"
 
 namespace tudat
 {
