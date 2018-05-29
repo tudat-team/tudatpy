@@ -28,6 +28,8 @@
 #include "Tudat/Mathematics/NumericalIntegrators/createNumericalIntegrator.h"
 #include "Tudat/Mathematics/Statistics/randomVariableGenerator.h"
 
+#include "Tudat/Basics/identityElements.h"
+
 namespace tudat
 {
 
@@ -275,24 +277,25 @@ protected:
     virtual DependentVector createMeasurementFunction( const IndependentVariableType currentTime,
                                                        const DependentVector& currentStateVector ) = 0;
 
-    //! Function to update the state vector and covariance matrix with the data from the new time step.
+    //! Function to correct the state vector and covariance matrix with the data from the new time step.
     /*!
-     *  Function to update the state vector and covariance matrix with the data from the new time step.
+     *  Function to correct the state vector and covariance matrix with the data from the new time step.
      *  \param currentTime Scalar representing current time.
      */
-    void updateStateAndCovariance( const IndependentVariableType currentTime,
-                                   const DependentVector& aPrioriStateEstimate,
-                                   const DependentMatrix& aPrioriCovarianceEstimate,
-                                   const DependentMatrix& currentMeasurementMatrix,
-                                   const DependentVector& currentMeasurementVector,
-                                   const DependentVector& measurmentEstimate,
-                                   const DependentMatrix& kalmanGain )
+    void correctStateAndCovariance( const IndependentVariableType currentTime, const DependentVector& aPrioriStateEstimate,
+                                    const DependentMatrix& aPrioriCovarianceEstimate, const DependentMatrix& currentMeasurementMatrix,
+                                    const DependentVector& currentMeasurementVector, const DependentVector& measurmentEstimate,
+                                    const DependentMatrix& kalmanGain, const bool isFilterUnscented = false,
+                                    const DependentMatrix& customMeasurementUncertainty = IdentityElement< DependentMatrix >::getNullIdentity( ) )
     {
+        // Default settings
+        DependentMatrix measurementUncertaintyMatrix = isFilterUnscented ? customMeasurementUncertainty : measurementUncertainty_;
+
         // Update step
         aPosterioriStateEstimate_ = aPrioriStateEstimate + kalmanGain * ( currentMeasurementVector - measurmentEstimate );
         aPosterioriCovarianceEstimate_ = ( identityMatrix_ - kalmanGain * currentMeasurementMatrix ) *
                 aPrioriCovarianceEstimate * ( identityMatrix_ - kalmanGain * currentMeasurementMatrix ).transpose( ) +
-                kalmanGain * measurementUncertainty_ * kalmanGain.transpose( );
+                kalmanGain * measurementUncertaintyMatrix * kalmanGain.transpose( );
 
         // Store values in history
         estimatedStateHistory_[ currentTime ] = aPosterioriStateEstimate_;
@@ -301,17 +304,36 @@ protected:
 
     //! Function to propagate state to the next time step.
     /*!
-     *  Function to propagate state to the next time step, by using the integrator settings provided
+     *  Function to propagate state to the next time step, with the use of the integrator settings provided
      *  in the input.
-     *  \param intervalEnd Time to propagate to.
+     *  \param currentTime Scalar representing the current time.
+     *  \param currentControlVector Vector representing the current control input.
      *  \return Propagated state at the requested time.
      */
-//    DependentVector integrateState( const IndependentVariableType intervalEnd )
-    DependentVector integrateState( const IndependentVariableType currentTime,
-                                    const DependentVector currentControlVector )
+    DependentVector propagateState( const IndependentVariableType currentTime,
+                                    const DependentVector& currentControlVector )
     {
         return aPosterioriStateEstimate_ +
                 systemFunction_( currentTime, aPosterioriStateEstimate_, currentControlVector ) * integrationStepSize_;
+//        return integrator_->integrateTo( intervalEnd, integrationStepSize_ );
+    }
+
+    //! Function to propagate state to the next time step, by overwriting previous state.
+    /*!
+     *  Function to propagate state to the next time step, by overwriting previous state, with the use of the integrator
+     *  settings provided in the input.
+     *  \param currentTime Scalar representing the current time.
+     *  \param modifiedCurrentStateVector Vector representing the current state, which overwrites the previous state.
+     *  \param currentControlVector Vector representing the current control input.
+     *  \return Propagated state at the requested time.
+     */
+    DependentVector propagateState( const IndependentVariableType currentTime,
+                                    const DependentVector& modifiedCurrentStateVector,
+                                    const DependentVector& currentControlVector )
+    {
+        return aPosterioriStateEstimate_ +
+                systemFunction_( currentTime, modifiedCurrentStateVector, currentControlVector ) * integrationStepSize_;
+//        integrator_->modifyCurrentState( modifiedCurrentStateVector );
 //        return integrator_->integrateTo( intervalEnd, integrationStepSize_ );
     }
 
@@ -381,7 +403,7 @@ private:
                 systemNoiseDistribution_.push_back(
                             createBoostContinuousRandomVariableGenerator(
                                 normal_boost_distribution, { 0.0, static_cast< double >(
-                                                             std::sqrt( systemUncertainty_( i, i ) ) ) }, 12345.0 ) );
+                                                             std::sqrt( systemUncertainty_( i, i ) ) ) }, 12345 ) );
             }
             else
             {
@@ -397,7 +419,7 @@ private:
                 measurementNoiseDistribution_.push_back(
                             createBoostContinuousRandomVariableGenerator(
                                 normal_boost_distribution, { 0.0, static_cast< double >(
-                                                             std::sqrt( measurementUncertainty_( i, i ) ) ) }, 54321.0 ) );
+                                                             std::sqrt( measurementUncertainty_( i, i ) ) ) }, 54321 ) );
             }
             else
             {
@@ -412,8 +434,7 @@ private:
      *  settings input by the user. Currently, only Euler integration is supported.
      *  \param integratorSettings Pointer to integration settings.
      */
-    void generateNumericalIntegrator(
-            const boost::shared_ptr< IntegratorSettings > integratorSettings )
+    void generateNumericalIntegrator( const boost::shared_ptr< IntegratorSettings > integratorSettings )
     {
         // Check that integrator settings have been set
         if ( integratorSettings == NULL )

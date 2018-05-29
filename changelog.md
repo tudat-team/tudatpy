@@ -9,6 +9,9 @@
 - **Interpolators**
 	- added option to choose interpolator behavior at boundary (see issue [#378](https://github.com/Tudat/tudat/issues/378)); supported modes: error, extrapolate (with optional warning), use boundary value (with optional warning), use default value (with optional warning)
 	- added interface class `MultiDimensionalInterpolator` to make multi-dimensional interpolation more modular
+- **Filters**
+	- added base class for Kalman filters
+	- added linear, extended and unscented Kalman filters
 - **Linear Algebra**
 	- added function to compute direction cosine matrix from quaternion (both in vector and quaternion format)
 - **Orbital Element Conversions**

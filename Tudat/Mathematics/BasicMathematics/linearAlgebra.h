@@ -7,6 +7,8 @@
  *    a copy of the license with this file. If not, please or visit:
  *    http://tudat.tudelft.nl/LICENSE.
  *
+ *    References:
+ *      Ogata, K., Discrete-Time Control Systems, 2nd ed. Pearson Education Asia, 2002.
  */
 
 #ifndef TUDAT_LINEAR_ALGEBRA_H
@@ -15,12 +17,14 @@
 #include <map>
 
 #include <boost/function.hpp>
+#include <boost/math/special_functions/factorials.hpp>
 
 #include <Eigen/Core>
 #include <Eigen/SVD>
 #include <Eigen/Geometry>
 
 #include "Tudat/Basics/basicTypedefs.h"
+
 namespace tudat
 {
 
@@ -206,6 +210,45 @@ bool doesMatrixHaveNanEntries( const Eigen::Matrix< StateScalarType, NumberOfRow
  * \return RMS of input vector
  */
 double getVectorEntryRootMeanSquare( const Eigen::VectorXd& inputVector );
+
+//! Function to compute the matrix exponential.
+/*!
+ *  Function to compute the matrix exponential, which is computed with [1]:
+ *  \f[
+ *  \exp{ A } = I + \sum_{ k = 1 }^{ \infty } \frac{ A^k }{ k! }
+ *  \f]
+ *  where, by default, only the first three terms of the expansion are used.
+ */
+template< typename ScalarType = double >
+Eigen::Matrix< ScalarType, Eigen::Dynamic, Eigen::Dynamic > computeMatrixExponential(
+        const Eigen::Matrix< ScalarType, Eigen::Dynamic, Eigen::Dynamic >& inputMatrix,
+        const unsigned int numberOfElements = 3 )
+{
+    // Check that the matrix is square
+    if ( inputMatrix.rows( ) != inputMatrix.cols( ) )
+    {
+        throw std::runtime_error( "Error when computing the matrix exponential. The input matrix has to be square." );
+    }
+
+    // Assign the identity matrix
+    Eigen::Matrix< ScalarType, Eigen::Dynamic, Eigen::Dynamic > matrixExponential =
+            Eigen::Matrix< ScalarType, Eigen::Dynamic, Eigen::Dynamic >::Identity( inputMatrix.rows( ), inputMatrix.cols( ) );
+
+    // Loop over number of elements
+    Eigen::Matrix< ScalarType, Eigen::Dynamic, Eigen::Dynamic > temporaryMatrix;
+    for ( unsigned int i = 1; i < ( numberOfElements + 1 ); i++ )
+    {
+        temporaryMatrix = inputMatrix;
+        for ( unsigned int j = 1; j < i; j++ )
+        {
+            temporaryMatrix *= inputMatrix;
+        }
+        matrixExponential += temporaryMatrix / boost::math::factorial< ScalarType >( i );
+    }
+
+    // Return matrix exponential
+    return matrixExponential;
+}
 
 } // namespace linear_algebra
 

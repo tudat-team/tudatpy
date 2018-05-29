@@ -78,7 +78,7 @@ public:
         measurementMatrixFunction_( measurementMatrixFunction )
     {
         // Temporary block of integration
-        if ( this->isStateToBeIntegrated_ || integratorSettings != NULL )
+        if ( this->isStateToBeIntegrated_ )
         {
             throw std::runtime_error( "Error in linear Kalman filter. Propagation of the state is "
                                       "not currently supported." );
@@ -109,13 +109,12 @@ public:
                         const IndependentVariableType initialTime,
                         const DependentVector& initialStateVector,
                         const DependentMatrix& initialCovarianceMatrix,
-                        const bool isStateToBeIntegrated = false,
                         const boost::shared_ptr< IntegratorSettings > integratorSettings = NULL ) :
         LinearKalmanFilter( boost::lambda::constant( stateTransitionMatrix ),
                             boost::lambda::constant( controlMatrix ),
                             boost::lambda::constant( measurementMatrix ),
                             systemUncertainty, measurementUncertainty, initialTime, initialStateVector,
-                            initialCovarianceMatrix, isStateToBeIntegrated, integratorSettings )
+                            initialCovarianceMatrix, integratorSettings )
     { }
 
     //! Default destructor.
@@ -151,10 +150,10 @@ public:
                     currentMeasurementMatrix * aPrioriCovarianceEstimate * currentMeasurementMatrix.transpose( ) +
                     this->measurementUncertainty_ ).inverse( );
 
-        // Update step
-        this->updateStateAndCovariance( currentTime, aPrioriStateEstimate, aPrioriCovarianceEstimate,
-                                        currentMeasurementMatrix, currentMeasurementVector, measurmentEstimate,
-                                        kalmanGain );
+        // Correction step
+        this->correctStateAndCovariance( currentTime, aPrioriStateEstimate, aPrioriCovarianceEstimate,
+                                         currentMeasurementMatrix, currentMeasurementVector, measurmentEstimate,
+                                         kalmanGain );
     }
 
 private:
