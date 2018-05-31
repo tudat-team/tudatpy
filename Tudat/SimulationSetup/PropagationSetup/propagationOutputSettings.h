@@ -93,7 +93,10 @@ enum PropagationDependentVariables
     single_torque_dependent_variable = 30,
     body_fixed_groundspeed_based_velocity_variable = 31,
     keplerian_state_dependent_variable = 32,
-    modified_equinocial_state_dependent_variable = 33
+    modified_equinocial_state_dependent_variable = 33,
+    spherical_harmonic_acceleration_terms_dependent_variable = 34,
+    body_fixed_relative_cartesian_position = 35,
+    body_fixed_relative_spherical_position = 36
 };
 
 
@@ -181,6 +184,65 @@ public:
 
 };
 
+//! Class to define settings for saving contributions at separate degree/order to spherical harmonic acceleration
+class SphericalHarmonicAccelerationTermsDependentVariableSaveSettings: public SingleDependentVariableSaveSettings
+{
+public:
+
+    //! Constructor
+    /*!
+     * Constructor
+     * \param bodyUndergoingAcceleration Name of body undergoing the acceleration.
+     * \param bodyExertingAcceleration Name of body exerting the acceleration.
+     * \param componentIndices List of degree/order terms that are to be saved
+     * \param componentIndex Index of the acceleration vectors component to be saved. By default -1, i.e. all the components
+     * are saved.
+     */
+    SphericalHarmonicAccelerationTermsDependentVariableSaveSettings(
+            const std::string& bodyUndergoingAcceleration,
+            const std::string& bodyExertingAcceleration,
+            const std::vector< std::pair< int, int > > componentIndices,
+            const int componentIndex = -1 ):
+        SingleDependentVariableSaveSettings(
+            spherical_harmonic_acceleration_terms_dependent_variable, bodyUndergoingAcceleration, bodyExertingAcceleration,
+            componentIndex ), componentIndices_( componentIndices ) { }
+
+    //! Constructor
+    /*!
+     * Constructor for saving all terms up to a given degree/order
+     * \param bodyUndergoingAcceleration Name of body undergoing the acceleration.
+     * \param bodyExertingAcceleration Name of body exerting the acceleration.
+     * \param maximumDegree Maximum degree to which terms are to be saved.
+     * \param maximumOrder Maximum order to which terms are to be saved.
+     * \param componentIndex Index of the acceleration vectors component to be saved. By default -1, i.e. all the components
+     * are saved.
+     */
+    SphericalHarmonicAccelerationTermsDependentVariableSaveSettings(
+            const std::string& bodyUndergoingAcceleration,
+            const std::string& bodyExertingAcceleration,
+            const int maximumDegree,
+            const int maximumOrder,
+            const int componentIndex = -1 ):
+        SingleDependentVariableSaveSettings(
+            spherical_harmonic_acceleration_terms_dependent_variable, bodyUndergoingAcceleration, bodyExertingAcceleration,
+            componentIndex )
+    {
+        for( int i = 0; i <= maximumDegree; i++ )
+        {
+            for( int j = 0; ( j <= i && j <= maximumOrder ); j++ )
+            {
+                componentIndices_.push_back( std::make_pair( i, j ) );
+            }
+        }
+    }
+
+    //! List of degree/order terms that are to be saved
+    std::vector< std::pair< int, int > > componentIndices_;
+
+};
+
+
+//! Class to define settings for saving a single torque (norm or vector) during propagation
 class SingleTorqueDependentVariableSaveSettings: public SingleDependentVariableSaveSettings
 {
 public:
@@ -253,11 +315,14 @@ public:
      * Constructor.
      * \param associatedBody Body for which the orientation angle is to be saved.
      * \param angle Orientation angle that is to be saved.
+     * \param centralBody Body w.r.t. which angles are to be defined (only used to create flight conditions object if none exists
+     *  yet).
      */
     BodyAerodynamicAngleVariableSaveSettings(
             const std::string& associatedBody,
-            const reference_frames::AerodynamicsReferenceFrameAngles angle ):
-        SingleDependentVariableSaveSettings( relative_body_aerodynamic_orientation_angle_variable, associatedBody ),
+            const reference_frames::AerodynamicsReferenceFrameAngles angle,
+            const std::string& centralBody = "" ):
+        SingleDependentVariableSaveSettings( relative_body_aerodynamic_orientation_angle_variable, associatedBody, centralBody ),
         angle_( angle ){ }
 
     //! Orientation angle that is to be saved.
