@@ -45,7 +45,7 @@ public:
      */
     AerodynamicAccelerationPartial(
             const boost::shared_ptr< aerodynamics::AerodynamicAcceleration > aerodynamicAcceleration,
-            const boost::shared_ptr< aerodynamics::FlightConditions > flightConditions,
+            const boost::shared_ptr< aerodynamics::AtmosphericFlightConditions > flightConditions,
             const boost::function< Eigen::Vector6d( ) > vehicleStateGetFunction,
             const boost::function< void( const Eigen::Vector6d& ) > vehicleStateSetFunction,
             const std::string acceleratedBody,
@@ -259,7 +259,7 @@ protected:
 
     //! Object that computes the current atmospheric and flight conditions, as well as associated angles, for the body undergoing
     //! acceleration
-    boost::shared_ptr< aerodynamics::FlightConditions > flightConditions_;
+    boost::shared_ptr< aerodynamics::AtmosphericFlightConditions > flightConditions_;
 
     //! Function to retrieve the state of the body undergoing the acceleration.
     boost::function< Eigen::Vector6d( ) > vehicleStateGetFunction_;

@@ -266,10 +266,12 @@ public:
                                             const double maximumDegree,
                                             const double maximumOrder )
     {
+        std::map< std::pair< int, int >, Eigen::Vector3d > dummyMap;
+
         return computeGeodesyNormalizedGravitationalAccelerationSum(
                     bodyFixedPosition, gravitationalParameter_, referenceRadius_,
                     cosineCoefficients_.block( 0, 0, maximumDegree, maximumOrder ),
-                    sineCoefficients_.block( 0, 0, maximumDegree, maximumOrder ), sphericalHarmonicsCache_ );
+                    sineCoefficients_.block( 0, 0, maximumDegree, maximumOrder ), sphericalHarmonicsCache_, dummyMap );
     }
 
     //! Function to retrieve the tdentifier for body-fixed reference frame
