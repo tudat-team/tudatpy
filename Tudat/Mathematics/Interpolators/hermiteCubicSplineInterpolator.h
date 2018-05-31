@@ -87,13 +87,11 @@ public:
         OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >( boundaryHandling,
                                                                                       defaultExtrapolationValue )
     {
-
+        // Check that sizes match
         if( dataMap.size( ) != derivativeValues.size( ) )
         {
-            throw std::runtime_error(
-                "Error: derivative values incompatible in Hermite interpolator." );
+            throw std::runtime_error( "Error: derivative values incompatible in Hermite interpolator." );
         }
-
 
         // Fill data vectors with data from map.
         for( typename std::map< IndependentVariableType, DependentVariableType >::const_iterator
@@ -105,7 +103,7 @@ public:
 
         derivativeValues_ = derivativeValues;
 
-        // compute coefficients
+        // Compute coefficients
         computeCoefficients( );
 
         // Create lookup scheme.
@@ -193,7 +191,6 @@ protected:
             coefficients_[ 3 ][ i ] = dependentValues_[ i ]   ;
         }
     }
-
 
 private:
 
