@@ -226,8 +226,7 @@ public:
      * the interpolation is performed.
      * \return Interpolated dependent variable value.
      */
-    DependentVariableType interpolate(
-            const IndependentVariableType targetIndependentVariableValue )
+    DependentVariableType interpolate( const IndependentVariableType targetIndependentVariableValue )
     {
         using std::pow;
 
@@ -334,7 +333,7 @@ private:
         // Solve tridiagonal matrix equatuion.
         std::vector< DependentVariableType > middleSecondDerivativeOfCurvatures =
                 solveTridiagonalMatrixEquation< ScalarType, DependentVariableType >
-                ( aCoefficients_, bCoefficients_, cCoefficients_,  rCoefficients_ );
+                ( aCoefficients_, bCoefficients_, cCoefficients_, rCoefficients_ );
 
         // Append zeros to ends of calculated second derivative values (natural spline condition).
         secondDerivativeOfCurve_.resize( numberOfDataPoints_ );

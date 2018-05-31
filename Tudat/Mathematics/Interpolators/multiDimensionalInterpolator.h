@@ -45,9 +45,6 @@ class MultiDimensionalInterpolator :
 
 public:
 
-    // Using statements to prevent having to put 'this' everywhere in the code.
-    using Interpolator< IndependentVariableType, DependentVariableType >::interpolate;
-
     //! Constructor.
     /*!
      * Constructor.
