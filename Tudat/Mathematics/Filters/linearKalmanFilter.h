@@ -22,7 +22,7 @@ namespace tudat
 namespace filters
 {
 
-//! Linear Kalman filter.
+//! Linear Kalman filter class.
 /*!
  *  Class for the set up and use of the linear Kalman filter.
  *  \tparam IndependentVariableType Type of independent variable. Default is double.
@@ -45,7 +45,7 @@ public:
 
     //! Default constructor.
     /*!
-     *  Default constructor. This constructor takes the state, control and measurement matrix functions as inputs.
+     *  Default constructor. This constructor takes state, control and measurement matrix functions as inputs.
      *  These functions can be a function of time, state and (for state and control matrices) control vector.
      *  \param stateTransitionMatrixFunction Function returning the state transition matrix, as a function
      *      of time, state and control input.
@@ -59,7 +59,6 @@ public:
      *      a-priori estimate of the state vector.
      *  \param initialCovarianceMatrix Matrix representing the initial (estimated) covariance of the system. It is used as first
      *      a-priori estimate of the covariance matrix.
-     *  \param isStateToBeIntegrated Boolean defining whether the system function needs to be integrated.
      *  \param integrator Pointer to integrator to be used to propagate state.
      */
     LinearKalmanFilter( const SystemMatrixFunction& stateTransitionMatrixFunction,
@@ -78,7 +77,7 @@ public:
         measurementMatrixFunction_( measurementMatrixFunction )
     {
         // Temporary block of integration
-        if ( this->isStateToBeIntegrated_ )
+        if ( integratorSettings != NULL )
         {
             throw std::runtime_error( "Error in linear Kalman filter. Propagation of the state is "
                                       "not currently supported." );
@@ -87,7 +86,7 @@ public:
 
     //! Constructor.
     /*!
-     *  Constructor taking the constant state, control and measurement matrices as inputs.
+     *  Constructor taking constant state, control and measurement matrices as inputs.
      *  \param stateTransitionMatrix Constant matrix representing the state transition matrix.
      *  \param controlMatrix Constant matrix representing the control matrix.
      *  \param measurementMatrix Constant matrix representing the measurement matrix.
@@ -98,8 +97,7 @@ public:
      *      a-priori estimate of the state vector.
      *  \param initialCovarianceMatrix Matrix representing the initial (estimated) covariance of the system. It is used as first
      *      a-priori estimate of the covariance matrix.
-     *  \param isStateToBeIntegrated Boolean defining whether the system function needs to be integrated.
-     *  \param integrator Pointer to integrator to be used to propagate state.
+     *  \param integratorSettings Pointer to integration settings defining the integrator to be used to propagate the state.
      */
     LinearKalmanFilter( const DependentMatrix& stateTransitionMatrix,
                         const DependentMatrix& controlMatrix,
@@ -139,8 +137,7 @@ public:
         DependentMatrix currentMeasurementMatrix = measurementMatrixFunction_( currentTime, this->aPosterioriStateEstimate_ );
 
         // Prediction step
-        DependentVector aPrioriStateEstimate = this->systemFunction_( currentTime, this->aPosterioriStateEstimate_,
-                                                                      currentControlVector );
+        DependentVector aPrioriStateEstimate = this->predictState( currentTime, currentControlVector );
         DependentVector measurmentEstimate = this->measurementFunction_( currentTime, aPrioriStateEstimate );
         DependentMatrix aPrioriCovarianceEstimate = currentSystemMatrix * this->aPosterioriCovarianceEstimate_ *
                 currentSystemMatrix.transpose( ) + this->systemUncertainty_;
@@ -151,9 +148,8 @@ public:
                     this->measurementUncertainty_ ).inverse( );
 
         // Correction step
-        this->correctStateAndCovariance( currentTime, aPrioriStateEstimate, aPrioriCovarianceEstimate,
-                                         currentMeasurementMatrix, currentMeasurementVector, measurmentEstimate,
-                                         kalmanGain );
+        this->correctState( currentTime, aPrioriStateEstimate, currentMeasurementVector, measurmentEstimate, kalmanGain );
+        this->correctCovariance( currentTime, aPrioriCovarianceEstimate, currentMeasurementMatrix, kalmanGain );
     }
 
 private:

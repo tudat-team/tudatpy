@@ -13,10 +13,12 @@
 
 #include <boost/test/unit_test.hpp>
 
+#include "Tudat/Basics/utilities.h"
 #include "Tudat/Basics/testMacros.h"
-#include "Tudat/InputOutput/basicInputOutput.h"
 #include "Tudat/Basics/basicTypedefs.h"
+#include "Tudat/InputOutput/basicInputOutput.h"
 
+#include "Tudat/Mathematics/Statistics/basicStatistics.h"
 #include "Tudat/Mathematics/Filters/extendedKalmanFilter.h"
 #include "Tudat/Mathematics/NumericalIntegrators/createNumericalIntegrator.h"
 
@@ -116,12 +118,11 @@ BOOST_AUTO_TEST_CASE( testExtendedKalmanFilter )
     {
         // Compute actual values and perturb them
         currentTime += timeStep;
-        actualStateVectorHistory[ currentTime ] = currentStateVector +
-                stateFunction( currentTime, currentStateVector, currentControlVector ) * timeStep;
         currentStateVector += ( stateFunction( currentTime, currentStateVector, currentControlVector ) +
                                 extendedFilter->produceSystemNoise( ) ) * timeStep;
         currentMeasurementVector = measurementFunction( currentTime, currentStateVector ) +
                 extendedFilter->produceMeasurementNoise( );
+        actualStateVectorHistory[ currentTime ] = currentStateVector;
         measurementVectorHistory[ currentTime ] = currentMeasurementVector;
 
         // Update filter
@@ -136,25 +137,38 @@ BOOST_AUTO_TEST_CASE( testExtendedKalmanFilter )
         }
     }
 
+    // Check that final state is as expected
     Eigen::Vector2d expectedFinalState;
-    expectedFinalState << 5.334183832877839, -4.8224019660967805;
+    expectedFinalState << 4.9717991447597925, -19.824346481395978;
     for ( int i = 0; i < expectedFinalState.rows( ); i++ )
     {
         BOOST_CHECK_SMALL( extendedFilter->getCurrentStateEstimate( )[ i ] - expectedFinalState[ i ],
                            std::numeric_limits< double >::epsilon( ) );
     }
 
-    // Save state history
+    // Check that noise is actually normally distributed (within 5 %)
+    std::pair< std::vector< Eigen::VectorXd >, std::vector< Eigen::VectorXd > > noiseHistory = extendedFilter->getNoiseHistory( );
+    Eigen::MatrixXd systemNoise = utilities::convertStlVectorToEigenMatrix( noiseHistory.first );
+    Eigen::MatrixXd measurementNoise = utilities::convertStlVectorToEigenMatrix( noiseHistory.second );
+    for ( unsigned int i = 0; i < 2; i++ )
+    {
+        BOOST_CHECK_CLOSE_FRACTION( statistics::computeStandardDeviationOfVectorComponents( systemNoise.row( i ) ),
+                                    std::sqrt( systemUncertainty( i, i ) ), 5e-2 );
+    }
+    BOOST_CHECK_CLOSE_FRACTION( statistics::computeStandardDeviationOfVectorComponents( measurementNoise.row( 0 ) ),
+                                std::sqrt( measurementUncertainty( 0, 0 ) ), 5e-2 );
+
+    // Save actual state history
     input_output::writeDataMapToTextFile( actualStateVectorHistory,
                                           "EKFActualStateHistory.dat",
                                           "/Users/Michele/Desktop" );
 
-    // Save state history
+    // Save estimated state history
     input_output::writeDataMapToTextFile( extendedFilter->getEstimatedStateHistory( ),
                                           "EKFEstimatedStateHistory.dat",
                                           "/Users/Michele/Desktop" );
 
-    // Save state history
+    // Save measurement history
     input_output::writeDataMapToTextFile( measurementVectorHistory,
                                           "EKFMeasurementHistory.dat",
                                           "/Users/Michele/Desktop" );

@@ -331,6 +331,20 @@ Eigen::Matrix< T, Eigen::Dynamic, 1 > convertStlVectorToEigenVector( const std::
     return eigenVector;
 }
 
+//! Function to convert std::vector to Eigen::Matrix.
+template< typename T >
+Eigen::Matrix< T, Eigen::Dynamic, Eigen::Dynamic > convertStlVectorToEigenMatrix(
+        const std::vector< Eigen::Matrix< T, Eigen::Dynamic, 1 > >& stlVector )
+{
+    Eigen::Matrix< T, Eigen::Dynamic, Eigen::Dynamic > eigenMatrix =
+            Eigen::Matrix< T, Eigen::Dynamic, Eigen::Dynamic >::Zero( stlVector.at( 0 ).rows( ), stlVector.size( ) );
+    for( unsigned int i = 0; i < stlVector.size( ); i++ )
+    {
+        eigenMatrix.col( i ) = stlVector.at( i );
+    }
+    return eigenMatrix;
+}
+
 //! Function to add a double to all entries in an STL vector.
 /*!
  *  Function to add a double to all entries in an STL vector (addition of a double must be defined for Argument type).

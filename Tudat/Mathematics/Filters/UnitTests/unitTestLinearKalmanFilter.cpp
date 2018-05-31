@@ -97,10 +97,10 @@ BOOST_AUTO_TEST_CASE( testLinearKalmanFilter )
     {
         // Compute actual values and perturb them
         currentTime += timeStep;
-        actualStateVectorHistory[ currentTime ] = stateTransitionMatrix * currentStateVector +
-                controlMatrix * currentControlVector;
-        currentStateVector = actualStateVectorHistory[ currentTime ] + linearFilter->produceSystemNoise( );
+        currentStateVector = stateTransitionMatrix * currentStateVector + controlMatrix * currentControlVector +
+                linearFilter->produceSystemNoise( );
         currentMeasurementVector = measurementMatrix * currentStateVector + linearFilter->produceMeasurementNoise( );
+        actualStateVectorHistory[ currentTime ] = currentStateVector;
         measurementVectorHistory[ currentTime ] = currentMeasurementVector;
 
         // Update filter
@@ -115,8 +115,9 @@ BOOST_AUTO_TEST_CASE( testLinearKalmanFilter )
         }
     }
 
+    // Check that final state is as expected
     Eigen::Vector3d expectedFinalState;
-    expectedFinalState << -6.4864733265253589, -10.658714466072745, -7.1799113529409091;
+    expectedFinalState << -7.415393533447765, -12.421405468923618, -8.9114310345206711;
     for ( unsigned int i = 0; i < expectedFinalState.rows( ); i++ )
     {
         BOOST_CHECK_SMALL( linearFilter->getCurrentStateEstimate( )[ i ] - expectedFinalState[ i ],

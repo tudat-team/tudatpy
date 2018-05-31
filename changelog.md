@@ -10,8 +10,9 @@
 	- added option to choose interpolator behavior at boundary (see issue [#378](https://github.com/Tudat/tudat/issues/378)); supported modes: error, extrapolate (with optional warning), use boundary value (with optional warning), use default value (with optional warning)
 	- added interface class `MultiDimensionalInterpolator` to make multi-dimensional interpolation more modular
 - **Filters**
+	- added base class for filters
 	- added base class for Kalman filters
-	- added linear, extended and unscented Kalman filters
+	- added linear, extended and unscented Kalman filters (see issue [#390](https://github.com/Tudat/tudat/issues/390))
 - **Linear Algebra**
 	- added function to compute direction cosine matrix from quaternion (both in vector and quaternion format)
 - **Orbital Element Conversions**
@@ -28,6 +29,6 @@
 - **SPARTA**
 	- added interface for running SPARTA simulations and analyzing its results (see issue [#380](https://github.com/Tudat/tudat/issues/380))
 - **Utilities**
-	- created function to extract both key and mapped values from map
+	- added function to extract both key and mapped values from map
 - **Unit Tests**: all new functions and classes have been included in unit tests, with the exception of: SPARTA
 - Various style, consistency and typo corrections; removed deprecated symbols and warnings

@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2018, Delft University of Technology
+﻿/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -16,12 +16,12 @@
  *          November–December 2008.
  *      Challa, M., Moore, J., and Rogers, D., “A Simple Attitude Unscented Kalman Filter: Theory and Evaluation in
  *          a Magnetometer-Only Spacecraft Scenario,” IEEE Access, vol. 4, pp. 1845–1858, 2016.
+ *      Vittaldev, V. (2010). The unified state model: Derivation and application in astrodynamics
+ *          and navigation. Master's thesis, Delft University of Technology.
  */
 
 #ifndef TUDAT_UNSCENTED_KALMAN_FILTER_H
 #define TUDAT_UNSCENTED_KALMAN_FILTER_H
-
-#include <unsupported/Eigen/MatrixFunctions>
 
 #include "Tudat/Mathematics/Filters/kalmanFilter.h"
 
@@ -31,7 +31,7 @@ namespace tudat
 namespace filters
 {
 
-//! Enumeration for value of contant parameters
+//! Enumeration for value of contant parameters.
 enum ConstantParameterIndices
 {
     alpha_index = 0,
@@ -41,7 +41,7 @@ enum ConstantParameterIndices
     lambda_index = 4
 };
 
-//! Enumeration for value of contant parameters
+//! Enumeration for value of contant parameters.
 enum ConstantParameterReferences
 {
     reference_Wan_and_Van_der_Merwe = 0,        // reference [1]
@@ -62,7 +62,7 @@ void printMapContents( const std::map< IndependentVariableType,
     }
 }
 
-//! Unscented Kalman filter.
+//! Unscented Kalman filter class.
 /*!
  *  Class for the set up and use of the unscented Kalman filter.
  *  \tparam IndependentVariableType Type of independent variable. Default is double.
@@ -81,9 +81,25 @@ public:
     typedef typename KalmanFilterBase< IndependentVariableType, DependentVariableType >::IntegratorSettings IntegratorSettings;
     typedef typename KalmanFilterBase< IndependentVariableType, DependentVariableType >::Integrator Integrator;
 
-    //! Constructor.
+    //! Default constructor.
     /*!
-     *  Constructor.
+     *  Default constructor. This constructor takes the system and measurement functions as models for the simulation.
+     *  These functions can be a function of time, state and (for system) control vector.
+     *  \param systemFunction Function returning the state as a function of time, state and control input. Can be a differential
+     *      equation if the integratorSettings is set (i.e., if it is not a NULL pointer).
+     *  \param measurementFunction Function returning the measurement as a function of time and state.
+     *  \param systemUncertainty Matrix defining the uncertainty in modeling of the system.
+     *  \param measurementUncertainty Matrix defining the uncertainty in modeling of the measurements.
+     *  \param initialTime Scalar representing the value of the initial time.
+     *  \param initialStateVector Vector representing the initial (estimated) state of the system. It is used as first
+     *      a-priori estimate of the state vector.
+     *  \param initialCovarianceMatrix Matrix representing the initial (estimated) covariance of the system. It is used as first
+     *      a-priori estimate of the covariance matrix.
+     *  \param integratorSettings Pointer to integration settings defining the integrator to be used to propagate the state.
+     *  \param constantValueReference Reference to be used for the values of the \f$ \alpha \f$ and \f$ \kappa \f$ parameters. This
+     *      variable has to be part of the ConstantParameterReferences enumeration (custom parameters are supported).
+     *  \param customConstantParameters Values of the constant parameters \f$ \alpha \f$ and \f$ \kappa \f$, in case the custom_parameters
+     *      enumeration is used in the previous field.
      */
     UnscentedKalmanFilter( const SystemFunction& systemFunction,
                            const MeasurementFunction& measurementFunction,
@@ -117,17 +133,6 @@ public:
         augmentedCovarianceMatrix_.block( stateDimension_, stateDimension_, stateDimension_, stateDimension_ ) = systemUncertainty;
         augmentedCovarianceMatrix_.block( 2 * stateDimension_, 2 * stateDimension_,
                                           measurementDimension_, measurementDimension_ ) = measurementUncertainty;
-
-        std::vector< std::vector< DependentVariableType > > vectorOfVectors = { constantParameters_,
-                                                                                stateEstimationWeights_, covarianceEstimationWeights_ };
-        for ( std::vector< DependentVariableType > vector: vectorOfVectors )
-        {
-            for ( DependentVariableType element: vector )
-            {
-                std::cout << element << ", ";
-            }
-            std::cout << std::endl;
-        }
     }
 
     //! Default destructor.
@@ -146,61 +151,32 @@ public:
     void updateFilter( const IndependentVariableType currentTime, const DependentVector& currentControlVector,
                        const DependentVector& currentMeasurementVector )
     {
-        // Update augmented state vector and covariance matrix
-        augmentedStateVector_.segment( 0, stateDimension_ ) = this->aPosterioriStateEstimate_;
-        augmentedCovarianceMatrix_.topLeftCorner( stateDimension_, stateDimension_ ) = this->aPosterioriCovarianceEstimate_;
-        std::cout << "Augmented state: " << augmentedStateVector_.transpose( ) << std::endl;
-        std::cout << "Augmented covariance: " << std::endl << augmentedCovarianceMatrix_ << std::endl;
-
-        // Create sigma points
-        generateSigmaPoints( );
-        std::cout << "Sigma points: " << std::endl;
-        printMapContents( mapOfSigmaPoints_ );
+        // Compute sigma points
+        computeSigmaPoints( this->aPosterioriStateEstimate_, this->aPosterioriCovarianceEstimate_ );
+        mapOfSigmaPointsHistory_[ currentTime ] = mapOfSigmaPoints_; // store points
 
         // Prediction step
         // Compute series of state estimates based on sigma points
         std::map< unsigned int, DependentVector > sigmaPointsStateEstimates;
-        if ( this->isStateToBeIntegrated_ )
+        for ( sigmaPointConstantIterator_ = mapOfSigmaPoints_.begin( );
+              sigmaPointConstantIterator_ != mapOfSigmaPoints_.end( ); sigmaPointConstantIterator_++ )
         {
-            // Propagate each sigma point
-            for ( sigmaPointConstantIterator_ = mapOfSigmaPoints_.begin( );
-                  sigmaPointConstantIterator_ != mapOfSigmaPoints_.end( ); sigmaPointConstantIterator_++ )
-            {
-                currentSigmaPoint_ = sigmaPointConstantIterator_->first;
-                sigmaPointsStateEstimates[ sigmaPointConstantIterator_->first ] = this->propagateState(
-                            currentTime, sigmaPointConstantIterator_->second.segment( 0, stateDimension_ ),
-                            currentControlVector );
-            }
+            currentSigmaPoint_ = sigmaPointConstantIterator_->first;
+            sigmaPointsStateEstimates[ currentSigmaPoint_ ] = this->predictState(
+                        currentTime, sigmaPointConstantIterator_->second.segment( 0, stateDimension_ ),
+                        currentControlVector );
         }
-        else
-        {
-            // Compute each sigma point
-            for ( sigmaPointConstantIterator_ = mapOfSigmaPoints_.begin( );
-                  sigmaPointConstantIterator_ != mapOfSigmaPoints_.end( ); sigmaPointConstantIterator_++ )
-            {
-                currentSigmaPoint_ = sigmaPointConstantIterator_->first;
-                sigmaPointsStateEstimates[ sigmaPointConstantIterator_->first ] = this->systemFunction_(
-                            currentTime, sigmaPointConstantIterator_->second.segment( 0, stateDimension_ ),
-                            currentControlVector );
-            }
-        }
-        std::cout << "Propgated sigma points: " << std::endl;
-        printMapContents( sigmaPointsStateEstimates );
 
         // Compute the weighted average to find the a-priori state vector
         DependentVector aPrioriStateEstimate = DependentVector::Zero( stateDimension_ );
         computeWeightedAverageFromSigmaPointEstimates( aPrioriStateEstimate, sigmaPointsStateEstimates );
-        std::cout << "x_k_k1: " << aPrioriStateEstimate.transpose( ) << std::endl;
 
         // Compute the a-priori covariance matrix
         DependentMatrix aPrioriCovarianceEstimate = DependentMatrix::Zero( stateDimension_, stateDimension_ );
         computeWeightedAverageFromSigmaPointEstimates( aPrioriCovarianceEstimate, aPrioriStateEstimate, sigmaPointsStateEstimates );
-        std::cout << "P_k_k1: " << std::endl << aPrioriCovarianceEstimate << std::endl;
 
-        // Re-generate sigma points
-        augmentedStateVector_.segment( 0, stateDimension_ ) = this->aPosterioriStateEstimate_;
-        augmentedCovarianceMatrix_.topLeftCorner( stateDimension_, stateDimension_ ) = this->aPosterioriCovarianceEstimate_;
-        generateSigmaPoints( );
+        // Re-compute sigma points
+        computeSigmaPoints( aPrioriStateEstimate, aPrioriCovarianceEstimate );
 
         // Compute series of measurement estimates based on sigma points
         std::map< unsigned int, DependentVector > sigmaPointsMeasurementEstimates;
@@ -208,16 +184,13 @@ public:
               sigmaPointConstantIterator_ != mapOfSigmaPoints_.end( ); sigmaPointConstantIterator_++ )
         {
             currentSigmaPoint_ = sigmaPointConstantIterator_->first;
-            sigmaPointsMeasurementEstimates[ sigmaPointConstantIterator_->first ] = this->measurementFunction_(
+            sigmaPointsMeasurementEstimates[ currentSigmaPoint_ ] = this->measurementFunction_(
                         currentTime, sigmaPointConstantIterator_->second.segment( 0, stateDimension_ ) );
         }
-        std::cout << "Measurement points: " << std::endl;
-        printMapContents( sigmaPointsMeasurementEstimates );
 
         // Compute the weighted average to find the expected measurement vector
         DependentVector measurmentEstimate = DependentVector::Zero( measurementDimension_ );
         computeWeightedAverageFromSigmaPointEstimates( measurmentEstimate, sigmaPointsMeasurementEstimates );
-        std::cout << "z_k_k1: " << measurmentEstimate.transpose( ) << std::endl;
 
         // Compute innovation and cross-correlation matrices
         DependentMatrix innovationMatrix = DependentMatrix::Zero( measurementDimension_, measurementDimension_ );
@@ -230,20 +203,23 @@ public:
                     ( sigmaPointConstantIterator_->second - aPrioriStateEstimate ) *
                     ( sigmaPointsMeasurementEstimates[ sigmaPointConstantIterator_->first ] - measurmentEstimate ).transpose( );
         }
-        std::cout << "P_zz: " << std::endl << innovationMatrix - Eigen::Vector1d::Constant( 1.01 ) << std::endl;
-        std::cout << "P_xz: " << std::endl << crossCorrelationMatrix << std::endl;
 
         // Compute Kalman gain
         DependentMatrix kalmanGain = crossCorrelationMatrix * innovationMatrix.inverse( );
-        std::cout << "K: " << std::endl << kalmanGain << std::endl;
 
         // Correction step
-        this->correctStateAndCovariance( currentTime, aPrioriStateEstimate, aPrioriCovarianceEstimate,
-                                         DependentMatrix::Zero( measurementDimension_, stateDimension_ ),
-                                         currentMeasurementVector, measurmentEstimate, kalmanGain, true, innovationMatrix );
-        std::cout << "x_k_k: " << this->aPosterioriStateEstimate_.transpose( ) << std::endl;
-        std::cout << "P_k_k: " << std::endl << this->aPosterioriCovarianceEstimate_ << std::endl;
-        std::cout << std::endl;
+        this->correctState( currentTime, aPrioriStateEstimate, currentMeasurementVector, measurmentEstimate, kalmanGain );
+        correctCovariance( currentTime, aPrioriCovarianceEstimate, innovationMatrix, kalmanGain );
+    }
+
+    //! Function to return the history of sigma points.
+    /*!
+     *  Function to return the history of sigma points.
+     *  \return History of map of sigma points for each time step.
+     */
+    std::map< IndependentVariableType, std::map< unsigned int, DependentVector > > getSigmaPointsHistory( )
+    {
+        return mapOfSigmaPointsHistory_;
     }
 
 private:
@@ -280,9 +256,23 @@ private:
                 mapOfSigmaPoints_[ currentSigmaPoint_ ].segment( 2 * stateDimension_, measurementDimension_ ); // add measurement noise
     }
 
-    //!
+    //! Function to set the values of the constant parameters.
     /*!
-     *
+     *  Function to set the values of the constant parameters, used by the unscented Kalman filter for various purposes.
+     *  These parameters are saved in the constantParameters_ vector, and are retrieved by using the ConstantParameterIndices
+     *  enumeration. The order and definition of the parameters is the following [4]:
+     *      - alpha_index (\f$ \alpha \f$): used to distribute the sigma points around the a-priori estimate.
+     *      - beta_index (\f$ \beta \f$): provides information about the probaility distribution function of the state.
+     *      - gamma_index (\f$ \gamma \f$): abbreviation for \f$ \sqrt{ L + \lambda } \f$, where \f$ L \f$ is the length of the
+     *          augmented state vector.
+     *      - kappa_index (\f$ \kappa \f$): secondary scaling parameter, also used to distribute the sigma points around the
+     *          a-priori estimate, but it has a smaller influence.
+     *      - lambda_index (\f$ \lambda \f$): scaling parameter, also used to distribute the sigma points around the a-priori
+     *          estimate.
+     *  \param constantValueReference Reference to be used for the values of the alpha and kappa parameters. This variable has to
+     *      be part of the ConstantParameterReferences enumeration (custom parameters are supported).
+     *  \param customConstantParameters Values of the constant parameters alpha and kappa, in case the custom_parameters enumerate
+     *      is used in the previous field.
      */
     void setConstantParameterValues( const ConstantParameterReferences constantValueReference,
                                      const std::pair< DependentVariableType, DependentVariableType >& customConstantParameters )
@@ -291,17 +281,23 @@ private:
         switch ( constantValueReference )
         {
         case reference_Wan_and_Van_der_Merwe:
+        {
             constantParameters_.at( alpha_index ) = 0.003;
             constantParameters_.at( kappa_index ) = 0.0;
             break;
+        }
         case reference_Lisano_and_Born_and_Axelrad:
+        {
             constantParameters_.at( alpha_index ) = 1.0;
             constantParameters_.at( kappa_index ) = 3.0 - stateDimension_;
             break;
+        }
         case reference_Challa_and_Moore_and_Rogers:
+        {
             constantParameters_.at( alpha_index ) = 0.001;
             constantParameters_.at( kappa_index ) = 1.0;
             break;
+        }
         case custom_parameters:
         {
             // Check that the values have been set
@@ -329,9 +325,10 @@ private:
         constantParameters_.at( gamma_index ) = std::sqrt( augmentedStateDimension_ + constantParameters_.at( lambda_index ) );
     }
 
-    //!
+    //! Function to generate the weights for state and covariance estimation.
     /*!
-     *
+     *  Function to generate the weights for state and covariance estimation, which will be used to determine the weighted average
+     *  of the state and measurment vectors, and covariance matrix, based on the sigma points.
      */
     void generateEstimationWeights( )
     {
@@ -348,12 +345,19 @@ private:
         }
     }
 
-    //!
+    //! Function to compute the sigma points, based on the current state vector and covariance matrix.
     /*!
-     *
+     *  Function to compute the sigma points, based on the current a-priori or previous step a-posteriori state vector and
+     *  covariance matrix estimates. The sigma points are spread around the current a-priori state estimate, and their propagation
+     *  is used to determine the sensitivity of the state model to changes in initial conditions. These offsets are then used to compute
+     *  the new state and measurement vectors and covariance matrix estimates.
      */
-    void generateSigmaPoints( )
+    void computeSigmaPoints( const DependentVector& currentStateEstimate, const DependentMatrix& currentCovarianceEstimate )
     {
+        // Update augmented state and covariance matrix to new values
+        augmentedStateVector_.segment( 0, stateDimension_ ) = currentStateEstimate;
+        augmentedCovarianceMatrix_.topLeftCorner( stateDimension_, stateDimension_ ) = currentCovarianceEstimate;
+
         // Pre-compute square root of augmented covariance matrix
         DependentMatrix augmentedCovarianceMatrixSquareRoot = augmentedCovarianceMatrix_.sqrt( );
 
@@ -377,9 +381,13 @@ private:
         }
     }
 
-    //!
+    //! Function to compute the weighted average of the state and measurement vectors.
     /*!
-     *
+     *  Function to compute the weighted average of the state and measurement vectors.
+     *  \param weightedAverageVector Vector to which the weighted average is added (initially set to zero).
+     *  \param sigmaPointEstimates Map of the sigma points generated by the computeSigmaPoints function.
+     *  \return Weighted average of the state or measurement vector, i.e., the new a-priori state and the
+     *      measurement estimates (returned by reference).
      */
     void computeWeightedAverageFromSigmaPointEstimates( DependentVector& weightedAverageVector,
                                                         const std::map< unsigned int, DependentVector >& sigmaPointEstimates )
@@ -388,13 +396,19 @@ private:
         for ( sigmaPointConstantIterator_ = sigmaPointEstimates.begin( );
               sigmaPointConstantIterator_ != sigmaPointEstimates.end( ); sigmaPointConstantIterator_++ )
         {
-            weightedAverageVector += stateEstimationWeights_.at( sigmaPointConstantIterator_->first ) * sigmaPointConstantIterator_->second;
+            weightedAverageVector += stateEstimationWeights_.at( sigmaPointConstantIterator_->first ) *
+                    sigmaPointConstantIterator_->second;
         }
     }
 
-    //!
+    //! Function to compute the weighted average of the covariance and innovation matrices.
     /*!
-     *
+     *  Function to compute the weighted average of the covariance and innovation matrices.
+     *  \param weightedAverageMatrix Matrix to which the weighted average is added (initially set to zero).
+     *  \param referenceVector Vector representing the a-priori state or measurement estimates.
+     *  \param sigmaPointEstimates Map of the sigma points generated by the computeSigmaPoints function.
+     *  \return Weighted average of the covariance and innovation matrices, i.e., the new a-priori covariance and the
+     *      innovation estimates (returned by reference).
      */
     void computeWeightedAverageFromSigmaPointEstimates( DependentMatrix& weightedAverageMatrix,
                                                         const DependentVector& referenceVector,
@@ -404,14 +418,23 @@ private:
         for ( sigmaPointConstantIterator_ = sigmaPointEstimates.begin( );
               sigmaPointConstantIterator_ != sigmaPointEstimates.end( ); sigmaPointConstantIterator_++ )
         {
-            std::cout << covarianceEstimationWeights_.at( sigmaPointConstantIterator_->first ) *
-                         ( sigmaPointConstantIterator_->second - referenceVector ) *
-                         ( sigmaPointConstantIterator_->second - referenceVector ).transpose( ) << std::endl << std::endl;
             weightedAverageMatrix += covarianceEstimationWeights_.at( sigmaPointConstantIterator_->first ) *
                     ( sigmaPointConstantIterator_->second - referenceVector ) *
                     ( sigmaPointConstantIterator_->second - referenceVector ).transpose( );
         }
-        std::cout << weightedAverageMatrix << std::endl;
+    }
+
+    //! Function to correct the covariance for the next time step.
+    /*!
+     *  Function to predict the state for the next time step, by overwriting previous state, with the either the use of
+     *  the integrator provided in the integratorSettings, or the systemFunction_ input by the user.
+     *  \param currentTime Scalar representing the current time.
+     */
+    void correctCovariance( const IndependentVariableType currentTime, const DependentMatrix& aPrioriCovarianceEstimate,
+                            const DependentMatrix& innovationMatrix, const DependentMatrix& kalmanGain )
+    {
+        this->aPosterioriCovarianceEstimate_ = aPrioriCovarianceEstimate - kalmanGain * innovationMatrix * kalmanGain.transpose( );
+        this->estimatedCovarianceHistory_[ currentTime ] = this->aPosterioriCovarianceEstimate_;
     }
 
     //! System function input by user.
@@ -420,69 +443,63 @@ private:
     //! Measurement function input by user.
     MeasurementFunction inputMeasurementFunction_;
 
-    //! Dimension of state vector.
+    //! Integer specifying length of state vector.
     unsigned int stateDimension_;
 
-    //! Dimension of measurement vector.
+    //! Integer specifying length of measurement vector.
     unsigned int measurementDimension_;
 
-    //! Dimension of augmented state vector.
-    /*!
-     *
-     */
+    //! Integer specifying length of augmented state vector.
     unsigned int augmentedStateDimension_;
 
-    //! Number of sigma points.
-    /*!
-     *
-     */
+    //! Integer specifying number of sigma points.
     unsigned int numberOfSigmaPoints_;
 
-    //! Value of alpha parameter.
+    //! Vector of constant parameters.
     /*!
-     *
+     *  Vector of constant parameters. See description of setConstantParameterValues function for information on the order and
+     *  meaning of the constant parameters.
      */
     std::vector< DependentVariableType > constantParameters_ = std::vector< DependentVariableType >( 5, 0.0 );
 
-    //!
-    /*!
-     *
-     */
+    //! Vector of weights used for the computation of the weighted average of the state and measurement vectors.
     std::vector< DependentVariableType > stateEstimationWeights_;
 
-    //!
-    /*!
-     *
-     */
+    //! Vector of weights used for the computation of the weighted average of the covariance and innovation matrices.
     std::vector< DependentVariableType > covarianceEstimationWeights_;
 
-    //!
+    //! Augmented state vector.
     /*!
-     *
+     *  Augmented state vector, which is defined by vertically concatenating the state vector and the expectations of the
+     *  state and measurement noises (which for are defined to be zero in this application).
      */
     DependentVector augmentedStateVector_;
 
-    //!
+    //! Augmented covariance matrix.
     /*!
-     *
+     *  Augmented covariance matrix, which is defined by diagonally concatenating the state covariance matrix and the
+     *  state and measurement uncertainties (which are assumed to be constant and are provided by the user).
      */
     DependentMatrix augmentedCovarianceMatrix_;
 
-    //!
+    //! Map of sigma points.
     /*!
-     *
+     *  Map of sigma points, as output by the computeSigmaPoints function. See the description of this function for more
+     *  details of the sigma points and their use.
      */
     std::map< unsigned int, DependentVector > mapOfSigmaPoints_;
 
-    //!
-    /*!
-     *
-     */
+    //! Map of map of sigma points history.
+    std::map< IndependentVariableType, std::map< unsigned int, DependentVector > > mapOfSigmaPointsHistory_;
+
+    //! Constant iterator to loop over sigma points (introduced for convenience).
     typename std::map< unsigned int, DependentVector >::const_iterator sigmaPointConstantIterator_;
 
-    //!
+    //! Integer specifying current sigma point.
     /*!
-     *
+     *  Integer specifying current sigma point, while iterating over the mapOfSigmaPoints_. This parameter is specifically used
+     *  when evaluating the systemFunction_ and measurementFunction_, such that the correct value of system and measurement
+     *  noise can be added.
      */
     unsigned int currentSigmaPoint_;
 
