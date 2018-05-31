@@ -15,7 +15,6 @@
 #define TUDAT_EXTENDED_KALMAN_FILTER_H
 
 #include "Tudat/Mathematics/Filters/kalmanFilter.h"
-#include "Tudat/Mathematics/BasicMathematics/linearAlgebra.h"
 
 namespace tudat
 {
@@ -23,7 +22,7 @@ namespace tudat
 namespace filters
 {
 
-//! Extended Kalman filter.
+//! Extended Kalman filter class.
 /*!
  *  Class for the set up and use of the extended Kalman filter.
  *  \tparam IndependentVariableType Type of independent variable. Default is double.
@@ -46,10 +45,10 @@ public:
 
     //! Default constructor.
     /*!
-     *  Default constructor. This constructor takes the state and measurement functions and their respective
+     *  Default constructor. This constructor takes state and measurement functions and their respective
      *  Jacobian functions as inputs. These functions can be a function of time, state and (for state) control vector.
      *  \param systemFunction Function returning the state as a function of time, state and control input. Can be a differential
-     *      equation if the isStateToBeIntegrated boolean is set to true.
+     *      equation if the integratorSettings is set (i.e., if it is not a NULL pointer).
      *  \param measurementFunction Function returning the measurement as a function of time and state.
      *  \param stateJacobianFunction Function returning the Jacobian of the system w.r.t. the state. The input values can
      *      be time, state and control input.
@@ -66,8 +65,7 @@ public:
      *      a-priori estimate of the state vector.
      *  \param initialCovarianceMatrix Matrix representing the initial (estimated) covariance of the system. It is used as first
      *      a-priori estimate of the covariance matrix.
-     *  \param isStateToBeIntegrated Boolean defining whether the system function needs to be integrated.
-     *  \param integrator Pointer to integrator to be used to propagate state.
+     *  \param integratorSettings Pointer to integration settings defining the integrator to be used to propagate the state.
      */
     ExtendedKalmanFilter( const SystemFunction& systemFunction,
                           const MeasurementFunction& measurementFunction,
@@ -86,8 +84,7 @@ public:
                                                                             initialCovarianceMatrix, integratorSettings ),
         inputSystemFunction_( systemFunction ), inputMeasurementFunction_( measurementFunction ),
         stateJacobianFunction_( stateJacobianFunction ), stateNoiseJacobianFunction_( stateNoiseJacobianFunction ),
-        measurementJacobianFunction_( measurementJacobianFunction ),
-        measurementNoiseJacobianFunction_( measurementNoiseJacobianFunction )
+        measurementJacobianFunction_( measurementJacobianFunction ), measurementNoiseJacobianFunction_( measurementNoiseJacobianFunction )
     {
         // Compute the discrete-time version of the system Jacobians
         if ( this->isStateToBeIntegrated_ )
@@ -115,12 +112,11 @@ public:
                        const DependentVector& currentMeasurementVector )
     {
         // Prediction step
-        DependentVector aPrioriStateEstimate;
+        DependentVector aPrioriStateEstimate = this->predictState( currentTime, currentControlVector );;
         DependentMatrix currentStateJacobianMatrix;
         DependentMatrix currentStateNoiseJacobianMatrix;
         if ( this->isStateToBeIntegrated_ )
         {
-            aPrioriStateEstimate = this->propagateState( currentTime, currentControlVector );
             std::pair< DependentMatrix, DependentMatrix > discreteTimeJacobians =
                     discreteTimeStateJacobians_( currentTime, aPrioriStateEstimate, currentControlVector );
             currentStateJacobianMatrix = discreteTimeJacobians.first;
@@ -128,19 +124,14 @@ public:
         }
         else
         {
-            aPrioriStateEstimate = this->systemFunction_( currentTime, this->aPosterioriStateEstimate_,
-                                                          currentControlVector );
-            currentStateJacobianMatrix = stateJacobianFunction_( currentTime, this->aPosterioriStateEstimate_,
-                                                                 currentControlVector );
-            currentStateNoiseJacobianMatrix = stateNoiseJacobianFunction_( currentTime, this->aPosterioriStateEstimate_,
-                                                                           currentControlVector );
+            currentStateJacobianMatrix = stateJacobianFunction_( currentTime, aPrioriStateEstimate, currentControlVector );
+            currentStateNoiseJacobianMatrix = stateNoiseJacobianFunction_( currentTime, aPrioriStateEstimate, currentControlVector );
         }
         DependentVector measurmentEstimate = this->measurementFunction_( currentTime, aPrioriStateEstimate );
 
         // Compute remaining Jacobians
         DependentMatrix currentMeasurementJacobianMatrix = measurementJacobianFunction_( currentTime, aPrioriStateEstimate );
-        DependentMatrix currentMeasurementNoiseJacobianMatrix = measurementNoiseJacobianFunction_( currentTime,
-                                                                                                   aPrioriStateEstimate );
+        DependentMatrix currentMeasurementNoiseJacobianMatrix = measurementNoiseJacobianFunction_( currentTime, aPrioriStateEstimate );
 
         // Prediction step (continued)
         DependentMatrix aPrioriCovarianceEstimate = currentStateJacobianMatrix * this->aPosterioriCovarianceEstimate_ *
@@ -154,9 +145,8 @@ public:
                     currentMeasurementNoiseJacobianMatrix.transpose( ) ).inverse( );
 
         // Correction step
-        this->correctStateAndCovariance( currentTime, aPrioriStateEstimate, aPrioriCovarianceEstimate,
-                                         currentMeasurementJacobianMatrix, currentMeasurementVector, measurmentEstimate,
-                                         kalmanGain );
+        this->correctState( currentTime, aPrioriStateEstimate, currentMeasurementVector, measurmentEstimate, kalmanGain );
+        this->correctCovariance( currentTime, aPrioriCovarianceEstimate, currentMeasurementJacobianMatrix, kalmanGain );
     }
 
 private:
@@ -194,15 +184,11 @@ private:
     //! Function to generate the discrete-time version of the system Jacobians.
     /*!
      *  Function to generate the discrete-time version of the system Jacobians, from the continuous-time
-     *  versions. The transformation is carried out by using the exponential of a matrix, which is expanded
-     *  into [1]:
-     *  \f[
-     *  \exp{ A * t } = I + \sum_{ k = 1 }^{ \infty } \frac{ A^k * t^k }{ k! }
-     *  \f]
-     *  where only the first three terms of the expansion are used.
+     *  versions. The transformation is carried out by using the matrix exponential.
      *  \param currentTime Scalar representing the current time.
      *  \param currentStateVector Vector representing the current state.
      *  \param currentControlVector Vector representing the current control input.
+     *  \return Pair of discrete-time state and noise Jacobians.
      */
     std::pair< DependentMatrix, DependentMatrix > generateDiscreteTimeSystemJacobians(
             const IndependentVariableType currentTime,
@@ -214,23 +200,20 @@ private:
         DependentMatrix noiseJacobian = stateNoiseJacobianFunction_( currentTime, currentStateVector, currentControlVector );
 
         // Get sizes
-        unsigned int stateRows = stateJacobian.rows( );
-        unsigned int stateCols = stateJacobian.cols( );
-        unsigned int noiseRows = noiseJacobian.rows( );
+        unsigned int stateDimension = stateJacobian.rows( );
         unsigned int noiseCols = noiseJacobian.cols( );
 
         // Merge Jacobians in one matrix
-        DependentMatrix continuousJacobians = DependentMatrix::Zero( stateRows + noiseCols, stateCols + noiseCols );
-        continuousJacobians.block( 0, 0, stateJacobian.rows( ), stateJacobian.cols( ) ) = stateJacobian;
-        continuousJacobians.block( 0, stateCols + noiseCols - 1, noiseRows, noiseCols ) = noiseJacobian;
-        continuousJacobians *= this->integrationStepSize_;
+        DependentMatrix continuousJacobians = DependentMatrix::Zero( stateDimension + noiseCols, stateDimension + noiseCols );
+        continuousJacobians.block( 0, 0, stateDimension, stateDimension ) = stateJacobian;
+        continuousJacobians.block( 0, stateDimension + noiseCols - 1, stateDimension, noiseCols ) = noiseJacobian;
 
         // Generate discrete-time Jacobians
-        DependentMatrix discreteJacobians = linear_algebra::computeMatrixExponential( continuousJacobians );
+        DependentMatrix discreteJacobians = ( continuousJacobians * this->integrationStepSize_ ).exp( );
 
         // Extract state and noise Jacobians
-        return std::make_pair( discreteJacobians.block( 0, 0, stateRows, stateCols ),
-                               discreteJacobians.block( 0, stateCols + noiseCols - 1, noiseRows, noiseCols ) );
+        return std::make_pair( discreteJacobians.block( 0, 0, stateDimension, stateDimension ),
+                               discreteJacobians.block( 0, stateDimension + noiseCols - 1, stateDimension, noiseCols ) );
     }
 
     //! System function input by user.

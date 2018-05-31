@@ -11,13 +11,14 @@
 # Add header files.
 set(FILTERS_HEADERS
   "${SRCROOT}${MATHEMATICSDIR}/Filters/extendedKalmanFilter.h"
+  "${SRCROOT}${MATHEMATICSDIR}/Filters/filter.h"
   "${SRCROOT}${MATHEMATICSDIR}/Filters/kalmanFilter.h"
   "${SRCROOT}${MATHEMATICSDIR}/Filters/linearKalmanFilter.h"
   "${SRCROOT}${MATHEMATICSDIR}/Filters/unscentedKalmanFilter.h"
 )
 
 set(FILTERS_SOURCES
-  "${SRCROOT}${MATHEMATICSDIR}/Filters/linearKalmanFilter.cpp"
+  "${SRCROOT}${MATHEMATICSDIR}/Filters/filter.cpp"
 )
 
 # Add static libraries.
@@ -26,17 +27,17 @@ setup_tudat_library_target(tudat_filters "${SRCROOT}${MATHEMATICSDIR}/Filters")
 set_target_properties(tudat_filters PROPERTIES LINKER_LANGUAGE CXX)
 
 # Add unit tests.
-add_executable(test_Linear_Kalman_Filter "${SRCROOT}${MATHEMATICSDIR}/Filters/UnitTests/unitTestLinearKalmanFilter.cpp")
-setup_custom_test_program(test_Linear_Kalman_Filter "${SRCROOT}${MATHEMATICSDIR}/Filters")
-target_link_libraries(test_Linear_Kalman_Filter tudat_filters tudat_numerical_integrators tudat_statistics tudat_basics tudat_basic_mathematics
+add_executable(test_LinearKalmanFilter "${SRCROOT}${MATHEMATICSDIR}/Filters/UnitTests/unitTestLinearKalmanFilter.cpp")
+setup_custom_test_program(test_LinearKalmanFilter "${SRCROOT}${MATHEMATICSDIR}/Filters")
+target_link_libraries(test_LinearKalmanFilter tudat_filters tudat_numerical_integrators tudat_statistics tudat_basics tudat_basic_mathematics
     tudat_input_output ${Boost_LIBRARIES})
 
-add_executable(test_Extended_Kalman_Filter "${SRCROOT}${MATHEMATICSDIR}/Filters/UnitTests/unitTestExtendedKalmanFilter.cpp")
-setup_custom_test_program(test_Extended_Kalman_Filter "${SRCROOT}${MATHEMATICSDIR}/Filters")
-target_link_libraries(test_Extended_Kalman_Filter tudat_filters tudat_numerical_integrators tudat_statistics tudat_basics tudat_basic_mathematics
+add_executable(test_ExtendedKalmanFilter "${SRCROOT}${MATHEMATICSDIR}/Filters/UnitTests/unitTestExtendedKalmanFilter.cpp")
+setup_custom_test_program(test_ExtendedKalmanFilter "${SRCROOT}${MATHEMATICSDIR}/Filters")
+target_link_libraries(test_ExtendedKalmanFilter tudat_filters tudat_numerical_integrators tudat_statistics tudat_basics tudat_basic_mathematics
     tudat_input_output ${Boost_LIBRARIES})
 
-add_executable(test_Unscented_Kalman_Filter "${SRCROOT}${MATHEMATICSDIR}/Filters/UnitTests/unitTestUnscentedKalmanFilter.cpp")
-setup_custom_test_program(test_Unscented_Kalman_Filter "${SRCROOT}${MATHEMATICSDIR}/Filters")
-target_link_libraries(test_Unscented_Kalman_Filter tudat_filters tudat_numerical_integrators tudat_statistics tudat_basics tudat_basic_mathematics
+add_executable(test_UnscentedKalmanFilter "${SRCROOT}${MATHEMATICSDIR}/Filters/UnitTests/unitTestUnscentedKalmanFilter.cpp")
+setup_custom_test_program(test_UnscentedKalmanFilter "${SRCROOT}${MATHEMATICSDIR}/Filters")
+target_link_libraries(test_UnscentedKalmanFilter tudat_filters tudat_numerical_integrators tudat_statistics tudat_basics tudat_basic_mathematics
     tudat_input_output ${Boost_LIBRARIES})
