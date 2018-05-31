@@ -28,7 +28,6 @@ set(INPUTOUTPUT_SOURCES
   "${SRCROOT}${INPUTOUTPUTDIR}/extractSolarActivityData.cpp"
   "${SRCROOT}${INPUTOUTPUTDIR}/solarActivityData.cpp"
   "${SRCROOT}${INPUTOUTPUTDIR}/multiDimensionalArrayReader.cpp"
-  "${SRCROOT}${INPUTOUTPUTDIR}/multiDimensionalArrayWriter.cpp"
   "${SRCROOT}${INPUTOUTPUTDIR}/aerodynamicCoefficientReader.cpp"
   "${SRCROOT}${INPUTOUTPUTDIR}/tabulatedAtmosphereReader.cpp"
 )

@@ -80,7 +80,7 @@ BOOST_AUTO_TEST_CASE( testUnscentedKalmanFilterFirstCase )
                 numerical_integrators::euler, initialTime, timeStep );
 
     // Create extended Kalman filter object
-    KalmanFilterDoublePointer unscentedFilter = boost::make_shared< UnscentedKalmanFilterDouble >(
+    UnscentedKalmanFilterDoublePointer unscentedFilter = boost::make_shared< UnscentedKalmanFilterDouble >(
                 boost::bind( &stateFunction1, _1, _2, _3 ),
                 boost::bind( &measurementFunction1, _1, _2 ),
                 systemUncertainty, measurementUncertainty,
@@ -140,25 +140,25 @@ BOOST_AUTO_TEST_CASE( testUnscentedKalmanFilterFirstCase )
     BOOST_CHECK_CLOSE_FRACTION( statistics::computeStandardDeviationOfVectorComponents( measurementNoise.row( 0 ) ),
                                 std::sqrt( measurementUncertainty( 0, 0 ) ), 5e-2 );
 
-    // Save actual state history
-    input_output::writeDataMapToTextFile( actualStateVectorHistory, "UKFActualStateHistory.dat", "/Users/Michele/Desktop" );
+//    // Save actual state history
+//    input_output::writeDataMapToTextFile( actualStateVectorHistory, "UKFActualStateHistory.dat", "/Users/Michele/Desktop/KF" );
 
-    // Save estimated state history
-    input_output::writeDataMapToTextFile( unscentedFilter->getEstimatedStateHistory( ), "UKFEstimatedStateHistory.dat",
-                                          "/Users/Michele/Desktop" );
+//    // Save estimated state history
+//    input_output::writeDataMapToTextFile( unscentedFilter->getEstimatedStateHistory( ), "UKFEstimatedStateHistory.dat",
+//                                          "/Users/Michele/Desktop/KF" );
 
-    // Save measurement history
-    input_output::writeDataMapToTextFile( measurementVectorHistory, "UKFMeasurementHistory.dat", "/Users/Michele/Desktop" );
+//    // Save measurement history
+//    input_output::writeDataMapToTextFile( measurementVectorHistory, "UKFMeasurementHistory.dat", "/Users/Michele/Desktop/KF" );
 
-    // Save noise histories
-    systemNoise.transposeInPlace( );
-    measurementNoise.transposeInPlace( );
-    input_output::writeMatrixToFile( systemNoise, "systemNoise.dat", 16, "/Users/Michele/Desktop" );
-    input_output::writeMatrixToFile( measurementNoise, "measurementNoise.dat", 16, "/Users/Michele/Desktop" );
+//    // Save noise histories
+//    systemNoise.transposeInPlace( );
+//    measurementNoise.transposeInPlace( );
+//    input_output::writeMatrixToFile( systemNoise, "systemNoise.dat", 16, "/Users/Michele/Desktop/KF" );
+//    input_output::writeMatrixToFile( measurementNoise, "measurementNoise.dat", 16, "/Users/Michele/Desktop/KF" );
 
-//    // Save sigma points history
-//    input_output::writeDataMapToTextFile( unscentedFilter->getSigmaPointsHistory( ), "UKFSigmaPointsHistory.dat",
-//                                          "/Users/Michele/Desktop" )
+    // Save sigma points history
+//    std::map< double, Eigen::MatrixXd > sigmaPointHistory = unscentedFilter->getSigmaPointsHistory( );
+//    input_output::writeDataMapToTextFile( sigmaPointHistory, "UKFSigmaPoints.dat", "/Users/Michele/Desktop/KF" );
 }
 
 //! Typedefs.
@@ -258,22 +258,22 @@ BOOST_AUTO_TEST_CASE( testUnscentedKalmanFilterSecondCase )
         BOOST_CHECK_SMALL( unscentedFilter->getCurrentStateEstimate( )[ i ], 1e-16L );
     }
 
-    // Save actual state history
-    input_output::writeDataMapToTextFile( actualStateVectorHistory, "UKFActualStateHistory2.dat", "/Users/Michele/Desktop" );
+//    // Save actual state history
+//    input_output::writeDataMapToTextFile( actualStateVectorHistory, "UKFActualStateHistory2.dat", "/Users/Michele/Desktop/KF" );
 
-    // Save estimated state history
-    input_output::writeDataMapToTextFile( unscentedFilter->getEstimatedStateHistory( ), "UKFEstimatedStateHistory2.dat",
-                                          "/Users/Michele/Desktop" );
+//    // Save estimated state history
+//    input_output::writeDataMapToTextFile( unscentedFilter->getEstimatedStateHistory( ), "UKFEstimatedStateHistory2.dat",
+//                                          "/Users/Michele/Desktop/KF" );
 
-    // Save measurement history
-    input_output::writeDataMapToTextFile( measurementVectorHistory, "UKFMeasurementHistory2.dat", "/Users/Michele/Desktop" );
+//    // Save measurement history
+//    input_output::writeDataMapToTextFile( measurementVectorHistory, "UKFMeasurementHistory2.dat", "/Users/Michele/Desktop/KF" );
 
-    // Save noise histories
-    std::pair< std::vector< Eigen::VectorXld >, std::vector< Eigen::VectorXld > > noiseHistory = unscentedFilter->getNoiseHistory( );
-    Eigen::MatrixXld systemNoise = utilities::convertStlVectorToEigenMatrix( noiseHistory.first ).transpose( );
-    Eigen::MatrixXld measurementNoise = utilities::convertStlVectorToEigenMatrix( noiseHistory.second ).transpose( );
-    input_output::writeMatrixToFile( systemNoise, "systemNoise2.dat", 16, "/Users/Michele/Desktop" );
-    input_output::writeMatrixToFile( measurementNoise, "measurementNoise2.dat", 16, "/Users/Michele/Desktop" );
+//    // Save noise histories
+//    std::pair< std::vector< Eigen::VectorXld >, std::vector< Eigen::VectorXld > > noiseHistory = unscentedFilter->getNoiseHistory( );
+//    Eigen::MatrixXld systemNoise = utilities::convertStlVectorToEigenMatrix( noiseHistory.first ).transpose( );
+//    Eigen::MatrixXld measurementNoise = utilities::convertStlVectorToEigenMatrix( noiseHistory.second ).transpose( );
+//    input_output::writeMatrixToFile( systemNoise, "systemNoise2.dat", 16, "/Users/Michele/Desktop/KF" );
+//    input_output::writeMatrixToFile( measurementNoise, "measurementNoise2.dat", 16, "/Users/Michele/Desktop/KF" );
 }
 
 BOOST_AUTO_TEST_SUITE_END( )
