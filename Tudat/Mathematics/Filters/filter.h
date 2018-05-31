@@ -220,10 +220,7 @@ public:
      *  updateFilter function.
      *  \return Current state estimate.
      */
-    Eigen::Matrix< DependentVariableType, Eigen::Dynamic, 1 > getCurrentStateEstimate( )
-    {
-        return aPosterioriStateEstimate_;
-    }
+    DependentVector getCurrentStateEstimate( ) { return aPosterioriStateEstimate_; }
 
     //! Function to retrieve the history of estimated states.
     /*!

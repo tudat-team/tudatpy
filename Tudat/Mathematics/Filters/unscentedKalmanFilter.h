@@ -50,18 +50,6 @@ enum ConstantParameterReferences
     custom_parameters = 3
 };
 
-template< typename IndependentVariableType = double, typename DependentVariableType = double >
-void printMapContents( const std::map< IndependentVariableType,
-                       Eigen::Matrix< DependentVariableType, Eigen::Dynamic, 1 > >& mapToPrint )
-{
-    for ( typename std::map< IndependentVariableType,
-          Eigen::Matrix< DependentVariableType, Eigen::Dynamic, 1 > >::const_iterator mapIterator = mapToPrint.begin( );
-          mapIterator != mapToPrint.end( ); mapIterator++ )
-    {
-        std::cout << mapIterator->first << ", " << mapIterator->second.transpose( ) << std::endl;
-    }
-}
-
 //! Unscented Kalman filter class.
 /*!
  *  Class for the set up and use of the unscented Kalman filter.
@@ -117,7 +105,7 @@ public:
                                                                             initialCovarianceMatrix, integratorSettings ),
         inputSystemFunction_( systemFunction ), inputMeasurementFunction_( measurementFunction )
     {
-        // Get and set dimensions
+        // Set dimensions
         stateDimension_ = systemUncertainty.rows( );
         measurementDimension_ = measurementUncertainty.rows( );
 
@@ -153,7 +141,7 @@ public:
     {
         // Compute sigma points
         computeSigmaPoints( this->aPosterioriStateEstimate_, this->aPosterioriCovarianceEstimate_ );
-        mapOfSigmaPointsHistory_[ currentTime ] = mapOfSigmaPoints_; // store points
+        mapOfMapOfSigmaPoints_[ currentTime ] = mapOfSigmaPoints_; // store points
 
         // Prediction step
         // Compute series of state estimates based on sigma points
@@ -217,9 +205,26 @@ public:
      *  Function to return the history of sigma points.
      *  \return History of map of sigma points for each time step.
      */
-    std::map< IndependentVariableType, std::map< unsigned int, DependentVector > > getSigmaPointsHistory( )
+    std::map< IndependentVariableType, DependentMatrix > getSigmaPointsHistory( )
     {
-        return mapOfSigmaPointsHistory_;
+        // Convert map of maps into map of Eigen::Matrix
+        DependentVector vectorOfSigmaPoints;
+        std::map< IndependentVariableType, DependentMatrix > mapOfSigmaPointsHistory;
+        for ( typename std::map< IndependentVariableType, std::map< unsigned int, DependentVector > >::const_iterator
+              mapIterator = mapOfMapOfSigmaPoints_.begin( );
+              mapIterator != mapOfMapOfSigmaPoints_.end( ); mapIterator++ )
+        {
+            // Extract current map of sigma points and turn it into a vector
+            vectorOfSigmaPoints = utilities::createConcatenatedEigenMatrixFromMapValues( mapIterator->second );
+
+            // Reshape the vector into a matrix and store it into the output map
+            Eigen::Map< Eigen::MatrixXd > matrixOfSigmaPoints( vectorOfSigmaPoints.data( ),
+                                                               augmentedStateDimension_, numberOfSigmaPoints_ );
+            mapOfSigmaPointsHistory[ mapIterator->first ] = matrixOfSigmaPoints;
+        }
+
+        // Give output
+        return mapOfSigmaPointsHistory;
     }
 
 private:
@@ -335,14 +340,13 @@ private:
         // Generate state and covariance estimation weights
         stateEstimationWeights_.push_back( constantParameters_.at( lambda_index ) /
                                            ( augmentedStateDimension_ + constantParameters_.at( lambda_index ) ) );
-        covarianceEstimationWeights_.push_back( stateEstimationWeights_.back( ) + 1.0 -
-                                                std::pow( constantParameters_.at( alpha_index ), 2 ) +
-                                                constantParameters_.at( beta_index ) );
         for ( unsigned int i = 1; i < numberOfSigmaPoints_; i++ )
         {
             stateEstimationWeights_.push_back( 1.0 / ( 2.0 * ( augmentedStateDimension_ + constantParameters_.at( lambda_index ) ) ) );
-            covarianceEstimationWeights_.push_back( stateEstimationWeights_.back( ) );
         }
+        covarianceEstimationWeights_ = stateEstimationWeights_;
+        covarianceEstimationWeights_.at( 0 ) += 1.0 - std::pow( constantParameters_.at( alpha_index ), 2 ) +
+                constantParameters_.at( beta_index );
     }
 
     //! Function to compute the sigma points, based on the current state vector and covariance matrix.
@@ -489,8 +493,8 @@ private:
      */
     std::map< unsigned int, DependentVector > mapOfSigmaPoints_;
 
-    //! Map of map of sigma points history.
-    std::map< IndependentVariableType, std::map< unsigned int, DependentVector > > mapOfSigmaPointsHistory_;
+    //! Map of map of sigma points, used to store the history of sigma points.
+    std::map< IndependentVariableType, std::map< unsigned int, DependentVector > > mapOfMapOfSigmaPoints_;
 
     //! Constant iterator to loop over sigma points (introduced for convenience).
     typename std::map< unsigned int, DependentVector >::const_iterator sigmaPointConstantIterator_;

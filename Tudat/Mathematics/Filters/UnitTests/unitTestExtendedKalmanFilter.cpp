@@ -158,20 +158,20 @@ BOOST_AUTO_TEST_CASE( testExtendedKalmanFilter )
     BOOST_CHECK_CLOSE_FRACTION( statistics::computeStandardDeviationOfVectorComponents( measurementNoise.row( 0 ) ),
                                 std::sqrt( measurementUncertainty( 0, 0 ) ), 5e-2 );
 
-    // Save actual state history
-    input_output::writeDataMapToTextFile( actualStateVectorHistory,
-                                          "EKFActualStateHistory.dat",
-                                          "/Users/Michele/Desktop" );
+//    // Save actual state history
+//    input_output::writeDataMapToTextFile( actualStateVectorHistory,
+//                                          "EKFActualStateHistory.dat",
+//                                          "/Users/Michele/Desktop/KF" );
 
-    // Save estimated state history
-    input_output::writeDataMapToTextFile( extendedFilter->getEstimatedStateHistory( ),
-                                          "EKFEstimatedStateHistory.dat",
-                                          "/Users/Michele/Desktop" );
+//    // Save estimated state history
+//    input_output::writeDataMapToTextFile( extendedFilter->getEstimatedStateHistory( ),
+//                                          "EKFEstimatedStateHistory.dat",
+//                                          "/Users/Michele/Desktop/KF" );
 
-    // Save measurement history
-    input_output::writeDataMapToTextFile( measurementVectorHistory,
-                                          "EKFMeasurementHistory.dat",
-                                          "/Users/Michele/Desktop" );
+//    // Save measurement history
+//    input_output::writeDataMapToTextFile( measurementVectorHistory,
+//                                          "EKFMeasurementHistory.dat",
+//                                          "/Users/Michele/Desktop/KF" );
 }
 
 BOOST_AUTO_TEST_SUITE_END( )

@@ -294,9 +294,7 @@ extractKeyAndValuesFromMap( const std::map< KeyType, Eigen::Matrix< ScalarType, 
     // Loop over map and save elements
     int i = 0;
     for ( typename std::map< KeyType, Eigen::Matrix< ScalarType, NumberOfElements, 1 > >::const_iterator
-          mapIterator = inputMap.begin( );
-          mapIterator != inputMap.end( );
-          mapIterator++, i++ )
+          mapIterator = inputMap.begin( ); mapIterator != inputMap.end( ); mapIterator++, i++ )
     {
         keyValuesVector[ i ] = mapIterator->first;
         mappedValuesMatrix.col( i ) = mapIterator->second;
