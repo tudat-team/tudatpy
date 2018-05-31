@@ -496,8 +496,9 @@ BOOST_AUTO_TEST_CASE( test_NonConservativeForceEnvironmentUpdate )
 
 
         // Define orientation angles.
-        boost::shared_ptr< aerodynamics::FlightConditions > vehicleFlightConditions =
-                bodyMap[ "Vehicle" ]->getFlightConditions( );
+        boost::shared_ptr< aerodynamics::AtmosphericFlightConditions > vehicleFlightConditions =
+                boost::dynamic_pointer_cast< aerodynamics::AtmosphericFlightConditions >(
+                    bodyMap[ "Vehicle" ]->getFlightConditions( ) );
         double angleOfAttack = 35.0 * mathematical_constants::PI / 180.0;
         double angleOfSideslip = -0.00322;
         double bankAngle = 2.323432;

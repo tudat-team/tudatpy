@@ -315,11 +315,14 @@ public:
      * Constructor.
      * \param associatedBody Body for which the orientation angle is to be saved.
      * \param angle Orientation angle that is to be saved.
+     * \param centralBody Body w.r.t. which angles are to be defined (only used to create flight conditions object if none exists
+     *  yet).
      */
     BodyAerodynamicAngleVariableSaveSettings(
             const std::string& associatedBody,
-            const reference_frames::AerodynamicsReferenceFrameAngles angle ):
-        SingleDependentVariableSaveSettings( relative_body_aerodynamic_orientation_angle_variable, associatedBody ),
+            const reference_frames::AerodynamicsReferenceFrameAngles angle,
+            const std::string& centralBody = "" ):
+        SingleDependentVariableSaveSettings( relative_body_aerodynamic_orientation_angle_variable, associatedBody, centralBody ),
         angle_( angle ){ }
 
     //! Orientation angle that is to be saved.
