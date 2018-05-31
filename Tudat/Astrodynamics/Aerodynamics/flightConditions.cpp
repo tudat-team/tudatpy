@@ -24,20 +24,20 @@ namespace tudat
 namespace aerodynamics
 {
 
+
 //! Constructor, sets objects and functions from which relevant environment and state variables are retrieved.
-FlightConditions::FlightConditions(
-        const boost::shared_ptr< aerodynamics::AtmosphereModel > atmosphereModel,
-        const boost::shared_ptr< basic_astrodynamics::BodyShapeModel > shapeModel,
-        const boost::shared_ptr< AerodynamicCoefficientInterface > aerodynamicCoefficientInterface,
-        const boost::shared_ptr< reference_frames::AerodynamicAngleCalculator > aerodynamicAngleCalculator,
-        const boost::function< double( const std::string& ) > controlSurfaceDeflectionFunction ):
-    atmosphereModel_( atmosphereModel ),
+FlightConditions::FlightConditions( const boost::shared_ptr< basic_astrodynamics::BodyShapeModel > shapeModel,
+                  const boost::shared_ptr< reference_frames::AerodynamicAngleCalculator >
+                  aerodynamicAngleCalculator ):
     shapeModel_( shapeModel ),
-    aerodynamicCoefficientInterface_( aerodynamicCoefficientInterface ),
     aerodynamicAngleCalculator_( aerodynamicAngleCalculator ),
-    controlSurfaceDeflectionFunction_( controlSurfaceDeflectionFunction ),
-    currentTime_( TUDAT_NAN )
+        currentTime_( TUDAT_NAN )
+
 {
+    // Link body-state function.
+    bodyCenteredPseudoBodyFixedStateFunction_ = boost::bind(
+                &reference_frames::AerodynamicAngleCalculator::getCurrentAirspeedBasedBodyFixedState, aerodynamicAngleCalculator_ );
+
     // Check if given body shape is an oblate spheroid and set geodetic latitude function if so
     if( boost::dynamic_pointer_cast< basic_astrodynamics::OblateSpheroidBodyShapeModel >( shapeModel ) != NULL )
     {
@@ -46,11 +46,38 @@ FlightConditions::FlightConditions(
                     boost::dynamic_pointer_cast< basic_astrodynamics::OblateSpheroidBodyShapeModel >( shapeModel ),
                     _1, 1.0E-4 );
     }
+}
 
-    // Link body-state function.
-    bodyCenteredPseudoBodyFixedStateFunction_ = boost::bind(
-                &reference_frames::AerodynamicAngleCalculator::getCurrentAirspeedBasedBodyFixedState, aerodynamicAngleCalculator_ );
+//! Function to update all flight conditions.
+void FlightConditions::updateConditions( const double currentTime )
+{
+    if( !( currentTime == currentTime_ ) )
+    {
+        currentTime_ = currentTime;
 
+        // Update aerodynamic angles (but not angles w.r.t. body-fixed frame).
+        if( aerodynamicAngleCalculator_!= NULL )
+        {
+            aerodynamicAngleCalculator_->update( currentTime, false );
+        }
+
+        // Calculate state of vehicle in global frame and corotating frame.
+        currentBodyCenteredAirspeedBasedBodyFixedState_ = bodyCenteredPseudoBodyFixedStateFunction_( );
+    }
+}
+
+//! Constructor, sets objects and functions from which relevant environment and state variables are retrieved.
+AtmosphericFlightConditions::AtmosphericFlightConditions(
+        const boost::shared_ptr< aerodynamics::AtmosphereModel > atmosphereModel,
+        const boost::shared_ptr< basic_astrodynamics::BodyShapeModel > shapeModel,
+        const boost::shared_ptr< AerodynamicCoefficientInterface > aerodynamicCoefficientInterface,
+        const boost::shared_ptr< reference_frames::AerodynamicAngleCalculator > aerodynamicAngleCalculator,
+        const boost::function< double( const std::string& ) > controlSurfaceDeflectionFunction ):
+    FlightConditions( shapeModel, aerodynamicAngleCalculator ),
+    atmosphereModel_( atmosphereModel ),
+    aerodynamicCoefficientInterface_( aerodynamicCoefficientInterface ),
+    controlSurfaceDeflectionFunction_( controlSurfaceDeflectionFunction )
+{
     // Check if atmosphere requires latitude and longitude update.
     if( boost::dynamic_pointer_cast< aerodynamics::StandardAtmosphere >( atmosphereModel_ ) == NULL )
     {
@@ -70,7 +97,7 @@ FlightConditions::FlightConditions(
 }
 
 //! Function to set custom dependency of aerodynamic coefficients
-void FlightConditions::setAerodynamicCoefficientsIndependentVariableFunction(
+void AtmosphericFlightConditions::setAerodynamicCoefficientsIndependentVariableFunction(
         const AerodynamicCoefficientsIndependentVariables independentVariable,
         const boost::function< double( ) > coefficientDependency )
 {
@@ -91,7 +118,7 @@ void FlightConditions::setAerodynamicCoefficientsIndependentVariableFunction(
 }
 
 //! Function to update all flight conditions.
-void FlightConditions::updateConditions( const double currentTime )
+void AtmosphericFlightConditions::updateConditions( const double currentTime )
 {
     if( !( currentTime == currentTime_ ) )
     {
@@ -122,7 +149,7 @@ void FlightConditions::updateConditions( const double currentTime )
 }
 
 //! Function to (compute and) retrieve the value of an independent variable of aerodynamic coefficients
-double FlightConditions::getAerodynamicCoefficientIndependentVariable(
+double AtmosphericFlightConditions::getAerodynamicCoefficientIndependentVariable(
         const AerodynamicCoefficientsIndependentVariables independentVariableType,
         const std::string& secondaryIdentifier )
 {
@@ -188,7 +215,7 @@ double FlightConditions::getAerodynamicCoefficientIndependentVariable(
 }
 
 //! Function to update the independent variables of the aerodynamic coefficient interface
-void FlightConditions::updateAerodynamicCoefficientInput( )
+void AtmosphericFlightConditions::updateAerodynamicCoefficientInput( )
 {
     aerodynamicCoefficientIndependentVariables_.clear( );
     // Calculate independent variables for aerodynamic coefficients.
@@ -215,7 +242,7 @@ void FlightConditions::updateAerodynamicCoefficientInput( )
 
 //! Function to set the angle of attack to trimmed conditions.
 boost::shared_ptr< TrimOrientationCalculator > setTrimmedConditions(
-        const boost::shared_ptr< FlightConditions > flightConditions )
+        const boost::shared_ptr< AtmosphericFlightConditions > flightConditions )
 {
     // Create trim object.
     boost::shared_ptr< TrimOrientationCalculator > trimOrientation =
@@ -224,10 +251,10 @@ boost::shared_ptr< TrimOrientationCalculator > setTrimmedConditions(
 
     // Create angle-of-attack function from trim object.
     boost::function< std::vector< double >( ) > untrimmedIndependentVariablesFunction =
-            boost::bind( &FlightConditions::getAerodynamicCoefficientIndependentVariables,
+            boost::bind( &AtmosphericFlightConditions::getAerodynamicCoefficientIndependentVariables,
                          flightConditions );
     boost::function< std::map< std::string, std::vector< double > >( ) > untrimmedControlSurfaceIndependentVariablesFunction =
-            boost::bind( &FlightConditions::getControlSurfaceAerodynamicCoefficientIndependentVariables,
+            boost::bind( &AtmosphericFlightConditions::getControlSurfaceAerodynamicCoefficientIndependentVariables,
                          flightConditions );
     flightConditions->getAerodynamicAngleCalculator( )->setOrientationAngleFunctions(
                 boost::bind( &TrimOrientationCalculator::findTrimAngleOfAttackFromFunction, trimOrientation,
