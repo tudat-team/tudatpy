@@ -561,6 +561,32 @@ Eigen::Matrix3d getDerivativeOfZAxisRotationWrtAngle( const double angle );
  */
 Eigen::Matrix3d getDerivativeOfZAxisRotationWrtAngle( const Eigen::Matrix3d& rotationMatrix );
 
+//! Function to compute a body-fixed relative cartesian position
+/*!
+ * Function to compute a body-fixed relative cartesian position
+ * \param positionFunctionOfCentralBody Position function of central body
+ * \param positionFunctionOfRelativeBody Position function of point of which body-fixed state is to be computed
+ * \param orientationFunctionOfCentralBody Function returning rotation from inertial to body-fixed frame.
+ * \return Body-fixed relative cartesian position
+ */
+Eigen::Vector3d getBodyFixedCartesianPosition(
+        const boost::function< Eigen::Vector3d( ) > positionFunctionOfCentralBody,
+        const boost::function< Eigen::Vector3d( ) > positionFunctionOfRelativeBody,
+        const boost::function< Eigen::Quaterniond( ) > orientationFunctionOfCentralBody );
+
+//! Function to compute a body-fixed relative spherical position
+/*!
+ * Function to compute a body-fixed relative sphericall position
+ * \param positionFunctionOfCentralBody Position function of central body
+ * \param positionFunctionOfRelativeBody Position function of point of which body-fixed state is to be computed
+ * \param orientationFunctionOfCentralBody Function returning rotation from inertial to body-fixed frame.
+ * \return Body-fixed relative sphericall position
+ */
+Eigen::Vector3d getBodyFixedSphericalPosition(
+        const boost::function< Eigen::Vector3d( ) > positionFunctionOfCentralBody,
+        const boost::function< Eigen::Vector3d( ) > positionFunctionOfRelativeBody,
+        const boost::function< Eigen::Quaterniond( ) > orientationFunctionOfCentralBody );
+
 } // namespace reference_frames
 
 } // namespace tudat

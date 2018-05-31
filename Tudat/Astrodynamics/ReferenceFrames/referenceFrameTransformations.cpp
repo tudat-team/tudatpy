@@ -20,6 +20,7 @@
  *
  */
 
+#include "Tudat/Mathematics/BasicMathematics/coordinateConversions.h"
 #include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
 #include "Tudat/Mathematics/BasicMathematics/basicMathematicsFunctions.h"
 #include "Tudat/Astrodynamics/ReferenceFrames/referenceFrameTransformations.h"
@@ -535,6 +536,30 @@ Eigen::Matrix3d getDerivativeOfZAxisRotationWrtAngle( const Eigen::Matrix3d& rot
 {
     return Z_AXIS_ROTATION_MATRIX_DERIVATIVE_PREMULTIPLIER * rotationMatrix;
 }
+
+//! Function to compute a body-fixed relative cartesian position
+Eigen::Vector3d getBodyFixedCartesianPosition(
+        const boost::function< Eigen::Vector3d( ) > positionFunctionOfCentralBody,
+        const boost::function< Eigen::Vector3d( ) > positionFunctionOfRelativeBody,
+        const boost::function< Eigen::Quaterniond( ) > orientationFunctionOfCentralBody )
+{
+    return  orientationFunctionOfCentralBody( ) * (
+                positionFunctionOfRelativeBody( ) - positionFunctionOfCentralBody( ) );
+}
+
+//! Function to compute a body-fixed relative spherical position
+Eigen::Vector3d getBodyFixedSphericalPosition(
+        const boost::function< Eigen::Vector3d( ) > positionFunctionOfCentralBody,
+        const boost::function< Eigen::Vector3d( ) > positionFunctionOfRelativeBody,
+        const boost::function< Eigen::Quaterniond( ) > orientationFunctionOfCentralBody )
+{
+   Eigen::Vector3d sphericalPosition = coordinate_conversions::convertCartesianToSpherical(
+               getBodyFixedCartesianPosition( positionFunctionOfCentralBody, positionFunctionOfRelativeBody,
+                                              orientationFunctionOfCentralBody ) );
+   sphericalPosition( 1 ) = mathematical_constants::PI / 2.0 - sphericalPosition( 1 );
+   return sphericalPosition;
+}
+
 
 } // namespace reference_frames
 } // namespace tudat

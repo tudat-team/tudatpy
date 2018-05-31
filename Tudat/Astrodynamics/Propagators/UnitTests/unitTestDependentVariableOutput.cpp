@@ -37,25 +37,26 @@ namespace tudat
 namespace unit_tests
 {
 
+using namespace tudat;
+using namespace ephemerides;
+using namespace interpolators;
+using namespace numerical_integrators;
+using namespace spice_interface;
+using namespace simulation_setup;
+using namespace basic_astrodynamics;
+using namespace orbital_element_conversions;
+using namespace unit_conversions;
+using namespace propagators;
+using namespace aerodynamics;
+using namespace basic_mathematics;
+using namespace input_output;
+
 BOOST_AUTO_TEST_SUITE( test_dependent_variable_output )
 
 //! Propagate entry of Apollo capsule, and save a list of dependent variables during entry. The saved dependent variables
 //! are compared against theoretical/manual values in this test.
 BOOST_AUTO_TEST_CASE( testDependentVariableOutput )
 {
-    using namespace tudat;
-    using namespace ephemerides;
-    using namespace interpolators;
-    using namespace numerical_integrators;
-    using namespace spice_interface;
-    using namespace simulation_setup;
-    using namespace basic_astrodynamics;
-    using namespace orbital_element_conversions;
-    using namespace propagators;
-    using namespace aerodynamics;
-    using namespace basic_mathematics;
-    using namespace input_output;
-
     // Load Spice kernels.
     spice_interface::loadStandardSpiceKernels( );
 
@@ -496,6 +497,127 @@ BOOST_AUTO_TEST_CASE( testDependentVariableOutput )
     }
 }
 
+//! Function to test whether separate spherical harmonic acceleration contributions are correctly saved.
+BOOST_AUTO_TEST_CASE( testSphericalHarmonicDependentVariableOutput )
+{
+    // Load Spice kernels.
+    spice_interface::loadStandardSpiceKernels( );
+
+    // Create body objects.
+    std::vector< std::string > bodiesToCreate;
+    bodiesToCreate.push_back( "Earth" );
+    std::map< std::string, boost::shared_ptr< BodySettings > > bodySettings = getDefaultBodySettings( bodiesToCreate );
+
+    // Create Body objects
+    NamedBodyMap bodyMap = createBodies( bodySettings );
+    bodyMap[ "Asterix" ] = boost::make_shared< simulation_setup::Body >( );
+    setGlobalFrameBodyEphemerides( bodyMap, "Earth", "ECLIPJ2000" );
+
+    // Define propagator settings variables.
+    SelectedAccelerationMap accelerationMap;
+    std::vector< std::string > bodiesToPropagate;
+    std::vector< std::string > centralBodies;
+
+    bodiesToPropagate.push_back( "Asterix" );
+    centralBodies.push_back( "Earth" );
+
+    // Define propagation settings.
+    std::map< std::string, std::vector< boost::shared_ptr< AccelerationSettings > > > accelerationsOfAsterix;
+    accelerationsOfAsterix[ "Earth" ].push_back( boost::make_shared< SphericalHarmonicAccelerationSettings >(
+                                                     6, 6 ) );
+    accelerationMap[ "Asterix" ] = accelerationsOfAsterix;
+
+    // Create acceleration models and propagation settings.
+    basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
+                bodyMap, accelerationMap, bodiesToPropagate, centralBodies );
+
+    // Set Keplerian elements for Asterix.
+    Eigen::Vector6d asterixInitialStateInKeplerianElements;
+    asterixInitialStateInKeplerianElements( semiMajorAxisIndex ) = 7500.0E3;
+    asterixInitialStateInKeplerianElements( eccentricityIndex ) = 0.1;
+    asterixInitialStateInKeplerianElements( inclinationIndex ) = convertDegreesToRadians( 85.3 );
+    asterixInitialStateInKeplerianElements( argumentOfPeriapsisIndex )
+            = convertDegreesToRadians( 235.7 );
+    asterixInitialStateInKeplerianElements( longitudeOfAscendingNodeIndex )
+            = convertDegreesToRadians( 23.4 );
+    asterixInitialStateInKeplerianElements( trueAnomalyIndex ) = convertDegreesToRadians( 139.87 );
+
+    // Convert Asterix state from Keplerian elements to Cartesian elements.
+    double earthGravitationalParameter = bodyMap.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( );
+    Eigen::VectorXd systemInitialState = convertKeplerianToCartesianElements(
+                asterixInitialStateInKeplerianElements,
+                earthGravitationalParameter );
+
+    std::vector< boost::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariables;
+
+    dependentVariables.push_back(
+                boost::make_shared< SingleAccelerationDependentVariableSaveSettings >(
+                    spherical_harmonic_gravity, "Asterix", "Earth" ) );
+
+    std::vector< std::pair< int, int > > separateTermsToSave;
+    separateTermsToSave.push_back( std::make_pair( 1, 0 ) );
+    separateTermsToSave.push_back( std::make_pair( 3, 0 ) );
+    separateTermsToSave.push_back( std::make_pair( 3, 2 ) );
+    separateTermsToSave.push_back( std::make_pair( 3, 1 ) );
+    dependentVariables.push_back(
+                boost::make_shared< SphericalHarmonicAccelerationTermsDependentVariableSaveSettings >(
+                    "Asterix", "Earth", separateTermsToSave ) );
+
+    dependentVariables.push_back(
+                boost::make_shared< SphericalHarmonicAccelerationTermsDependentVariableSaveSettings >(
+                    "Asterix", "Earth", 6, 6 ) );
+
+
+    double simulationEndEpoch = 10.0;
+    boost::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
+            boost::make_shared< TranslationalStatePropagatorSettings< double > >
+            ( centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState, simulationEndEpoch, cowell,
+              boost::make_shared< DependentVariableSaveSettings >( dependentVariables ) );
+
+    // Create numerical integrator.
+    double simulationStartEpoch = 0.0;
+    const double fixedStepSize = 10.0;
+    boost::shared_ptr< IntegratorSettings< > > integratorSettings =
+            boost::make_shared< IntegratorSettings< > >
+            ( rungeKutta4, simulationStartEpoch, fixedStepSize );
+
+    // Create simulation object and propagate dynamics.
+    SingleArcDynamicsSimulator< > dynamicsSimulator(
+                bodyMap, integratorSettings, propagatorSettings );
+    std::map< double, Eigen::VectorXd > integrationResult = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
+    std::map< double, Eigen::VectorXd > depdendentVariableResult = dynamicsSimulator.getDependentVariableHistory( );
+
+    for( std::map< double, Eigen::VectorXd >::iterator variableIterator = depdendentVariableResult.begin( );
+         variableIterator != depdendentVariableResult.end( ); variableIterator++ )
+    {
+        Eigen::Vector3d manualAccelerationSum = Eigen::Vector3d::Zero( );
+        for( unsigned int i = 5; i < 33; i++ )
+        {
+            manualAccelerationSum += variableIterator->second.segment( i * 3, 3 );
+        }
+
+        for( unsigned int i = 0; i < 3; i ++ )
+        {
+            BOOST_CHECK_SMALL(
+                        std::fabs( manualAccelerationSum( i ) - variableIterator->second( i ) ),
+                        10.0 * manualAccelerationSum.norm( ) * std::numeric_limits< double >::epsilon( ) );
+            BOOST_CHECK_SMALL(
+                        std::fabs( variableIterator->second( 3 + i ) - variableIterator->second( 15 + 3 * 1 + i ) ),
+                        10.0 * ( variableIterator->second.segment( 3, 3 ) ).norm( ) * std::numeric_limits< double >::epsilon( ) );
+            BOOST_CHECK_SMALL(
+                        std::fabs( variableIterator->second( 6 + i ) - variableIterator->second( 15 + 3 * 6 + i ) ),
+                        10.0 * ( variableIterator->second.segment( 6, 3 ) ).norm( ) * std::numeric_limits< double >::epsilon( ) );
+            BOOST_CHECK_SMALL(
+                        std::fabs( variableIterator->second( 9 + i ) - variableIterator->second( 15 + 3 * 8 + i ) ),
+                        10.0 * ( variableIterator->second.segment( 9, 3 ) ).norm( ) * std::numeric_limits< double >::epsilon( ) );
+            BOOST_CHECK_SMALL(
+                        std::fabs( variableIterator->second( 12 + i ) - variableIterator->second( 15 + 3 * 7 + i ) ),
+                        10.0 * ( variableIterator->second.segment( 12, 3 ) ).norm( ) * std::numeric_limits< double >::epsilon( ) );
+        }
+    }
+
+
+}
 BOOST_AUTO_TEST_SUITE_END( )
 
 

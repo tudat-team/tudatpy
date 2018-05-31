@@ -112,7 +112,7 @@ int getDependentVariableSaveSize(
  * \return Size of requested dependent variable.
  */
 int getDependentVariableSize(
-        const PropagationDependentVariables dependentVariableSettings );
+        const boost::shared_ptr< SingleDependentVariableSaveSettings > dependentVariableSettings );
 
 //! Get the vector representation of a rotation matrix.
 /*!
@@ -274,7 +274,7 @@ std::pair< boost::function< Eigen::VectorXd( ) >, int > getVectorDependentVariab
                         accelerationDependentVariableSettings->secondaryBody_,
                         stateDerivativeModels, accelerationDependentVariableSettings->accelerationModeType_ );
 
-            // Check if thirfd-body counterpart of acceleration is found
+            // Check if third-body counterpart of acceleration is found
             if( listOfSuitableAccelerationModels.size( ) == 0 && basic_astrodynamics::isAccelerationDirectGravitational(
                         accelerationDependentVariableSettings->accelerationModeType_ ) )
             {
@@ -305,6 +305,72 @@ std::pair< boost::function< Eigen::VectorXd( ) >, int > getVectorDependentVariab
         }
         break;
     }
+    case spherical_harmonic_acceleration_terms_dependent_variable:
+    {
+        // Check input consistency.
+        boost::shared_ptr< SphericalHarmonicAccelerationTermsDependentVariableSaveSettings > accelerationComponentVariableSettings =
+                boost::dynamic_pointer_cast< SphericalHarmonicAccelerationTermsDependentVariableSaveSettings >( dependentVariableSettings );
+        if( accelerationComponentVariableSettings == NULL )
+        {
+            std::string errorMessage= "Error, inconsistent inout when creating dependent variable function of type single_acceleration_dependent_variable";
+            throw std::runtime_error( errorMessage );
+        }
+        else
+        {
+            // Retrieve list of suitable acceleration models (size should be one to avoid ambiguities)
+            std::vector< boost::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > >
+                    listOfSuitableAccelerationModels = getAccelerationBetweenBodies(
+                        accelerationComponentVariableSettings->associatedBody_,
+                        accelerationComponentVariableSettings->secondaryBody_, stateDerivativeModels,
+                        basic_astrodynamics::spherical_harmonic_gravity );
+
+            // Check if third-body counterpart of acceleration is found
+            if( listOfSuitableAccelerationModels.size( ) == 0 )
+            {
+                listOfSuitableAccelerationModels = getAccelerationBetweenBodies(
+                            accelerationComponentVariableSettings->associatedBody_,
+                            accelerationComponentVariableSettings->secondaryBody_,
+                            stateDerivativeModels, basic_astrodynamics::getAssociatedThirdBodyAcceleration(
+                                basic_astrodynamics::spherical_harmonic_gravity ) );
+            }
+
+            if( listOfSuitableAccelerationModels.size( ) != 1 )
+            {
+                std::string errorMessage = "Error when getting spherical harmonic acceleration components between bodies " +
+                        accelerationComponentVariableSettings->associatedBody_ + " and " +
+                        accelerationComponentVariableSettings->secondaryBody_ + " of type " +
+                        std::to_string(
+                            basic_astrodynamics::spherical_harmonic_gravity ) +
+                        ", no such acceleration found";
+                throw std::runtime_error( errorMessage );
+            }
+            else
+            {
+                boost::shared_ptr< gravitation::SphericalHarmonicsGravitationalAccelerationModel > sphericalHarmonicAcceleration =
+                        boost::dynamic_pointer_cast< gravitation::SphericalHarmonicsGravitationalAccelerationModel >(
+                            listOfSuitableAccelerationModels.at( 0 ) );
+                if( sphericalHarmonicAcceleration == NULL )
+                {
+                    std::string errorMessage = "Error when getting spherical harmonic acceleration components between bodies " +
+                            accelerationComponentVariableSettings->associatedBody_ + " and " +
+                            accelerationComponentVariableSettings->secondaryBody_ + " type is ionconsistent";
+                    throw std::runtime_error( errorMessage );
+                }
+                else
+                {
+
+                    //boost::function< Eigen::Vector3d( ) > vectorFunction =
+                    sphericalHarmonicAcceleration->setSaveSphericalHarmonicTermsSeparately( true );
+                    variableFunction = boost::bind(
+                                &gravitation::SphericalHarmonicsGravitationalAccelerationModel::getConcatenatedAccelerationComponents,
+                                sphericalHarmonicAcceleration, accelerationComponentVariableSettings->componentIndices_ );
+                    parameterSize = 3 * accelerationComponentVariableSettings->componentIndices_.size( );
+                }
+
+            }
+        }
+        break;
+    }    
     case aerodynamic_force_coefficients_dependent_variable:
     {
         if( bodyMap.at( bodyWithProperty )->getFlightConditions( ) == NULL )
@@ -607,6 +673,38 @@ std::pair< boost::function< Eigen::VectorXd( ) >, int > getVectorDependentVariab
 
         break;
     }
+    case body_fixed_relative_cartesian_position:
+    {
+        boost::function< Eigen::Vector3d( ) > positionFunctionOfCentralBody =
+                boost::bind( &simulation_setup::Body::getPosition, bodyMap.at( bodyWithProperty ) );
+        boost::function< Eigen::Vector3d( ) > positionFunctionOfRelativeBody =
+                boost::bind( &simulation_setup::Body::getPosition, bodyMap.at( secondaryBody ) );
+        boost::function< Eigen::Quaterniond( ) > orientationFunctionOfCentralBody =
+                boost::bind( &simulation_setup::Body::getCurrentRotationToLocalFrame, bodyMap.at( secondaryBody ) );
+
+
+        variableFunction = boost::bind(
+                    &reference_frames::getBodyFixedCartesianPosition, positionFunctionOfCentralBody,
+                    positionFunctionOfRelativeBody, orientationFunctionOfCentralBody );
+        parameterSize = 3;
+        break;
+    }
+    case body_fixed_relative_spherical_position:
+    {
+        boost::function< Eigen::Vector3d( ) > positionFunctionOfCentralBody =
+                boost::bind( &simulation_setup::Body::getPosition, bodyMap.at( bodyWithProperty ) );
+        boost::function< Eigen::Vector3d( ) > positionFunctionOfRelativeBody =
+                boost::bind( &simulation_setup::Body::getPosition, bodyMap.at( secondaryBody ) );
+        boost::function< Eigen::Quaterniond( ) > orientationFunctionOfCentralBody =
+                boost::bind( &simulation_setup::Body::getCurrentRotationToLocalFrame, bodyMap.at( bodyWithProperty ) );
+
+
+        variableFunction = boost::bind(
+                    &reference_frames::getBodyFixedSphericalPosition, positionFunctionOfCentralBody,
+                    positionFunctionOfRelativeBody, orientationFunctionOfCentralBody );
+        parameterSize = 3;
+        break;
+    }
     default:
         std::string errorMessage =
                 "Error, did not recognize vector dependent variable type when making variable function: " +
@@ -648,7 +746,7 @@ boost::function< double( ) > getDoubleDependentVariableFunction(
         std::vector< boost::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > > >( ) )
 {
     const int componentIndex = dependentVariableSettings->componentIndex_;
-    const int dependentVariableSize = getDependentVariableSize( dependentVariableSettings->dependentVariableType_ );
+    const int dependentVariableSize = getDependentVariableSize( dependentVariableSettings );
     if ( componentIndex >= 0 )
     {
         if ( dependentVariableSettings->componentIndex_ > dependentVariableSize - 1 )
@@ -786,7 +884,7 @@ boost::function< double( ) > getDoubleDependentVariableFunction(
                             accelerationDependentVariableSettings->secondaryBody_,
                             stateDerivativeModels, accelerationDependentVariableSettings->accelerationModeType_ );
 
-                // Check if thirfd-body counterpart of acceleration is found
+                // Check if third-body counterpart of acceleration is found
                 if( listOfSuitableAccelerationModels.size( ) == 0 && basic_astrodynamics::isAccelerationDirectGravitational(
                             accelerationDependentVariableSettings->accelerationModeType_ ) )
                 {
