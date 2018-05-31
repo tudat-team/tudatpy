@@ -174,7 +174,7 @@ Eigen::Quaterniond getQuaternionFromVectorRotationRepresentation(
  * \return Equilibrium heat flux according to Fay-Riddell model
  */
 double computeEquilibriumFayRiddellHeatFluxFromProperties(
-        const boost::shared_ptr< aerodynamics::FlightConditions > flightConditions,
+        const boost::shared_ptr< aerodynamics::AtmosphericFlightConditions > flightConditions,
         const boost::shared_ptr< system_models::VehicleSystems > vehicleSystems );
 
 
@@ -370,36 +370,40 @@ std::pair< boost::function< Eigen::VectorXd( ) >, int > getVectorDependentVariab
             }
         }
         break;
-    }    
+    }
     case aerodynamic_force_coefficients_dependent_variable:
     {
-        if( bodyMap.at( bodyWithProperty )->getFlightConditions( ) == NULL )
+        if( boost::dynamic_pointer_cast< aerodynamics::AtmosphericFlightConditions >(
+                    bodyMap.at( bodyWithProperty )->getFlightConditions( ) )== NULL )
         {
-            std::string errorMessage = "Error, no flight conditions available when requesting density output of aerodynamic force coefficients " +
+            std::string errorMessage = "Error, no atmospheric flight conditions available when requesting density output of aerodynamic force coefficients " +
                     bodyWithProperty + "w.r.t." + secondaryBody;
             throw std::runtime_error( errorMessage );
         }
 
         variableFunction = boost::bind(
                     &aerodynamics::AerodynamicCoefficientInterface::getCurrentForceCoefficients,
-                    bodyMap.at( bodyWithProperty )->getFlightConditions( )->getAerodynamicCoefficientInterface( ) );
+                    boost::dynamic_pointer_cast< aerodynamics::AtmosphericFlightConditions >(
+                        bodyMap.at( bodyWithProperty )->getFlightConditions( ) )->getAerodynamicCoefficientInterface( ) );
         parameterSize = 3;
 
         break;
     }
     case aerodynamic_moment_coefficients_dependent_variable:
     {
-        if( bodyMap.at( bodyWithProperty )->getFlightConditions( ) == NULL )
+        if( boost::dynamic_pointer_cast< aerodynamics::AtmosphericFlightConditions >(
+                    bodyMap.at( bodyWithProperty )->getFlightConditions( ) )== NULL )
         {
 
-            std::string errorMessage = "Error, no flight conditions available when requesting density output of aerodynamic moment coefficients " +
+            std::string errorMessage = "Error, no atmospheric flight conditions available when requesting density output of aerodynamic moment coefficients " +
                     bodyWithProperty + "w.r.t." + secondaryBody;
             throw std::runtime_error( errorMessage );
         }
 
         variableFunction = boost::bind(
                     &aerodynamics::AerodynamicCoefficientInterface::getCurrentMomentCoefficients,
-                    bodyMap.at( bodyWithProperty )->getFlightConditions( )->getAerodynamicCoefficientInterface( ) );
+                    boost::dynamic_pointer_cast< aerodynamics::AtmosphericFlightConditions >(
+                        bodyMap.at( bodyWithProperty )->getFlightConditions( ) )->getAerodynamicCoefficientInterface( ) );
         parameterSize = 3;
 
         break;
@@ -443,14 +447,16 @@ std::pair< boost::function< Eigen::VectorXd( ) >, int > getVectorDependentVariab
     }
     case body_fixed_airspeed_based_velocity_variable:
     {
-        if( bodyMap.at( bodyWithProperty )->getFlightConditions( ) == NULL )
+        if( boost::dynamic_pointer_cast< aerodynamics::AtmosphericFlightConditions >(
+                    bodyMap.at( bodyWithProperty )->getFlightConditions( ) )== NULL )
         {
-            std::string errorMessage= "Error, no flight conditions when creating dependent variable function of type body_fixed_airspeed_based_velocity_variable";
+            std::string errorMessage= "Error, no atmospheric flight conditions when creating dependent variable function of type body_fixed_airspeed_based_velocity_variable";
             throw std::runtime_error( errorMessage );
         }
 
-        variableFunction = boost::bind( &aerodynamics::FlightConditions::getCurrentAirspeedBasedVelocity,
-                                        bodyMap.at( bodyWithProperty )->getFlightConditions( ) );
+        variableFunction = boost::bind( &aerodynamics::AtmosphericFlightConditions::getCurrentAirspeedBasedVelocity,
+                                        boost::dynamic_pointer_cast< aerodynamics::AtmosphericFlightConditions >(
+                                            bodyMap.at( bodyWithProperty )->getFlightConditions( ) ) );
         parameterSize = 3;
         break;
     }
@@ -772,9 +778,10 @@ boost::function< double( ) > getDoubleDependentVariableFunction(
         {
         case mach_number_dependent_variable:
         {
-            if( bodyMap.at( bodyWithProperty )->getFlightConditions( ) == NULL )
+            if( boost::dynamic_pointer_cast< aerodynamics::AtmosphericFlightConditions >(
+                        bodyMap.at( bodyWithProperty )->getFlightConditions( ) )== NULL )
             {
-                std::string errorMessage = "Error, no flight conditions available when requesting Mach number output of " +
+                std::string errorMessage = "Error, no atmospheric flight conditions available when requesting Mach number output of " +
                         bodyWithProperty + "w.r.t." + secondaryBody;
                 throw std::runtime_error( errorMessage );
             }
@@ -784,11 +791,13 @@ boost::function< double( ) > getDoubleDependentVariableFunction(
 
             // Retrieve functions for airspeed and speed of sound.
             boost::function< double( ) > firstInput =
-                    boost::bind( &aerodynamics::FlightConditions::getCurrentAirspeed,
-                                 bodyMap.at( bodyWithProperty )->getFlightConditions( ) );
+                    boost::bind( &aerodynamics::AtmosphericFlightConditions::getCurrentAirspeed,
+                                 boost::dynamic_pointer_cast< aerodynamics::AtmosphericFlightConditions >(
+                                     bodyMap.at( bodyWithProperty )->getFlightConditions( ) ) );
             boost::function< double( ) > secondInput =
-                    boost::bind( &aerodynamics::FlightConditions::getCurrentSpeedOfSound,
-                                 bodyMap.at( bodyWithProperty )->getFlightConditions( ) );
+                    boost::bind( &aerodynamics::AtmosphericFlightConditions::getCurrentSpeedOfSound,
+                                 boost::dynamic_pointer_cast< aerodynamics::AtmosphericFlightConditions >(
+                                     bodyMap.at( bodyWithProperty )->getFlightConditions( ) ) );
 
 
             variableFunction = boost::bind( &evaluateBivariateFunction< double, double >,
@@ -806,24 +815,28 @@ boost::function< double( ) > getDoubleDependentVariableFunction(
                                             bodyMap.at( bodyWithProperty )->getFlightConditions( ) );
             break;
         case airspeed_dependent_variable:
-            if( bodyMap.at( bodyWithProperty )->getFlightConditions( ) == NULL )
+            if( boost::dynamic_pointer_cast< aerodynamics::AtmosphericFlightConditions >(
+                        bodyMap.at( bodyWithProperty )->getFlightConditions( ) )== NULL )
             {
-                std::string errorMessage = "Error, no flight conditions available when requesting airspeed output of " +
+                std::string errorMessage = "Error, no atmospheric flight conditions available when requesting airspeed output of " +
                         bodyWithProperty + "w.r.t." + secondaryBody;
                 throw std::runtime_error( errorMessage );
             }
-            variableFunction = boost::bind( &aerodynamics::FlightConditions::getCurrentAirspeed,
-                                            bodyMap.at( bodyWithProperty )->getFlightConditions( ) );
+            variableFunction = boost::bind( &aerodynamics::AtmosphericFlightConditions::getCurrentAirspeed,
+                                            boost::dynamic_pointer_cast< aerodynamics::AtmosphericFlightConditions >(
+                                                bodyMap.at( bodyWithProperty )->getFlightConditions( ) ) );
             break;
         case local_density_dependent_variable:
-            if( bodyMap.at( bodyWithProperty )->getFlightConditions( ) == NULL )
+            if( boost::dynamic_pointer_cast< aerodynamics::AtmosphericFlightConditions >(
+                        bodyMap.at( bodyWithProperty )->getFlightConditions( ) )== NULL )
             {
-                std::string errorMessage = "Error, no flight conditions available when requesting density output of " +
+                std::string errorMessage = "Error, no atmospheric flight conditions available when requesting density output of " +
                         bodyWithProperty + "w.r.t." + secondaryBody;
                 throw std::runtime_error( errorMessage );
             }
-            variableFunction = boost::bind( &aerodynamics::FlightConditions::getCurrentDensity,
-                                            bodyMap.at( bodyWithProperty )->getFlightConditions( ) );
+            variableFunction = boost::bind( &aerodynamics::AtmosphericFlightConditions::getCurrentDensity,
+                                            boost::dynamic_pointer_cast< aerodynamics::AtmosphericFlightConditions >(
+                                                bodyMap.at( bodyWithProperty )->getFlightConditions( ) ) );
             break;
         case radiation_pressure_dependent_variable:
             if( bodyMap.at( bodyWithProperty )->getRadiationPressureInterfaces( ).count( secondaryBody ) == 0 )
@@ -1025,15 +1038,15 @@ boost::function< double( ) > getDoubleDependentVariableFunction(
         case stagnation_point_heat_flux_dependent_variable:
         {
 
-            if( bodyMap.at( bodyWithProperty )->getFlightConditions( ) == NULL )
+            boost::shared_ptr< aerodynamics::AtmosphericFlightConditions > flightConditions =
+                    boost::dynamic_pointer_cast< aerodynamics::AtmosphericFlightConditions >(
+                        bodyMap.at( bodyWithProperty )->getFlightConditions( ) );
+            if( flightConditions == NULL )
             {
-                std::string errorMessage = "Error no flight conditions available when requesting stagnation point heating output of" +
+                std::string errorMessage = "Error no atmospheric flight conditions available when requesting stagnation point heating output of" +
                         bodyWithProperty + "w.r.t." + secondaryBody;
                 throw std::runtime_error( errorMessage );
             }
-
-            boost::shared_ptr< aerodynamics::FlightConditions > flightConditions =
-                    bodyMap.at( bodyWithProperty )->getFlightConditions( );
 
             if( bodyMap.at( bodyWithProperty )->getVehicleSystems( ) == NULL )
             {
@@ -1068,14 +1081,16 @@ boost::function< double( ) > getDoubleDependentVariableFunction(
         }
         case local_temperature_dependent_variable:
         {
-            if( bodyMap.at( bodyWithProperty )->getFlightConditions( ) == NULL )
+            if( boost::dynamic_pointer_cast< aerodynamics::AtmosphericFlightConditions >(
+                        bodyMap.at( bodyWithProperty )->getFlightConditions( ) )== NULL )
             {
-                std::string errorMessage = "Error, no flight conditions available when requesting temperature output of " +
+                std::string errorMessage = "Error, no atmospheric flight conditions available when requesting temperature output of " +
                         bodyWithProperty + "w.r.t." + secondaryBody;
                 throw std::runtime_error( errorMessage );
             }
-            variableFunction = boost::bind( &aerodynamics::FlightConditions::getCurrentFreestreamTemperature,
-                                            bodyMap.at( bodyWithProperty )->getFlightConditions( ) );
+            variableFunction = boost::bind( &aerodynamics::AtmosphericFlightConditions::getCurrentFreestreamTemperature,
+                                            boost::dynamic_pointer_cast< aerodynamics::AtmosphericFlightConditions >(
+                                                bodyMap.at( bodyWithProperty )->getFlightConditions( ) ) );
             break;
         }
         case geodetic_latitude_dependent_variable:
