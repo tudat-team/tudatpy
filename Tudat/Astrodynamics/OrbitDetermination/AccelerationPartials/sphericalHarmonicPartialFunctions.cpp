@@ -198,10 +198,11 @@ Eigen::Matrix3d computePartialDerivativeOfBodyFixedSphericalHarmonicAcceleration
             coordinate_conversions::getSphericalToCartesianGradientMatrix( cartesianPosition );
 
     // Compute spherical gradient.
+    std::map< std::pair< int, int >, Eigen::Vector3d > dummyMap;
     Eigen::Vector3d sphericalPotentialGradient = gradientTransformationMatrix.inverse( ) *
             gravitation::computeGeodesyNormalizedGravitationalAccelerationSum(
                 cartesianPosition, gravitionalParameter, referenceRadius, cosineHarmonicCoefficients,
-                sineHarmonicCoefficients, sphericalHarmonicsCache );
+                sineHarmonicCoefficients, sphericalHarmonicsCache, dummyMap );
 
     return computePartialDerivativeOfBodyFixedSphericalHarmonicAcceleration(
                 cartesianPosition, sphericalPosition, referenceRadius, gravitionalParameter, cosineHarmonicCoefficients,

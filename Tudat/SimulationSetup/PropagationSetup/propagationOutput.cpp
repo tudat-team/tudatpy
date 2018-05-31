@@ -76,7 +76,7 @@ Eigen::Quaterniond getQuaternionFromVectorRotationRepresentation(
 
 //! Function to compute the Fay-Riddell equilibrium heat flux from body properties
 double computeEquilibriumFayRiddellHeatFluxFromProperties(
-        const boost::shared_ptr< aerodynamics::FlightConditions > flightConditions,
+        const boost::shared_ptr< aerodynamics::AtmosphericFlightConditions > flightConditions,
         const boost::shared_ptr< system_models::VehicleSystems > vehicleSystems )
 {
     return aerodynamics::computeEquilibriumFayRiddellHeatFlux(
@@ -130,16 +130,16 @@ int getDependentVariableSaveSize(
     }
     else
     {
-        return getDependentVariableSize( singleDependentVariableSaveSettings->dependentVariableType_ );
+        return getDependentVariableSize(  singleDependentVariableSaveSettings );
     }
 }
 
 //! Funtion to get the size of a dependent variable
 int getDependentVariableSize(
-        const PropagationDependentVariables dependentVariableSettings )
+        const boost::shared_ptr< SingleDependentVariableSaveSettings > dependentVariableSettings )
 {
     int variableSize = -1;
-    switch( dependentVariableSettings )
+    switch( dependentVariableSettings->dependentVariableType_ )
     {
     case mach_number_dependent_variable:
         variableSize = 1;
@@ -240,12 +240,33 @@ int getDependentVariableSize(
     case keplerian_state_dependent_variable:
         variableSize = 6;
         break;
+    case spherical_harmonic_acceleration_terms_dependent_variable:
+    {
+        if( boost::dynamic_pointer_cast< SphericalHarmonicAccelerationTermsDependentVariableSaveSettings >(
+                    dependentVariableSettings ) == NULL )
+        {
+             std::string errorMessage = "Error, input for spherical_harmonic_acceleration_terms_dependent_variable inconsistent when getting parameter size ";
+             throw std::runtime_error( errorMessage );
+        }
+        else
+        {
+            variableSize = 3 * boost::dynamic_pointer_cast< SphericalHarmonicAccelerationTermsDependentVariableSaveSettings >(
+                        dependentVariableSettings )->componentIndices_.size( );
+        }
+        break;
+    }
     case modified_equinocial_state_dependent_variable:
         variableSize = 6;
         break;
+    case body_fixed_relative_cartesian_position:
+        variableSize = 3;
+        break;
+    case body_fixed_relative_spherical_position:
+        variableSize = 3;
+        break;
     default:
         std::string errorMessage = "Error, did not recognize dependent variable size of type: " +
-                std::to_string( dependentVariableSettings );
+                std::to_string( dependentVariableSettings->dependentVariableType_ );
         throw std::runtime_error( errorMessage );
     }
     return variableSize;

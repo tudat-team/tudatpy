@@ -28,6 +28,10 @@ std::vector< boost::function< double( ) > > getPropulsionInputVariables(
     boost::shared_ptr< aerodynamics::FlightConditions > vehicleFlightConditions  =
             bodyWithGuidance->getFlightConditions( );
 
+    boost::shared_ptr< aerodynamics::AtmosphericFlightConditions > vehicleAtmosphericFlightConditions  =
+             boost::dynamic_pointer_cast< aerodynamics::AtmosphericFlightConditions >(
+                bodyWithGuidance->getFlightConditions( ) );
+
     // Iterate over all dependent variables and create requested function.
     unsigned int numberOfCustomInputs = 0;
     for( unsigned int i = 0; i < independentVariables.size( ); i++ )
@@ -39,20 +43,36 @@ std::vector< boost::function< double( ) > > getPropulsionInputVariables(
                         boost::bind( &aerodynamics::FlightConditions::getCurrentAltitude, vehicleFlightConditions ) );
             break;
         case propulsion::density_dependent_thrust:
+            if( vehicleAtmosphericFlightConditions == NULL )
+            {
+                throw std::runtime_error( "Error when making propulsion input variables, atmospheric flight conditions required, but not found" );
+            }
             inputFunctions.push_back(
-                        boost::bind( &aerodynamics::FlightConditions::getCurrentDensity, vehicleFlightConditions ) );
+                        boost::bind( &aerodynamics::AtmosphericFlightConditions::getCurrentDensity, vehicleAtmosphericFlightConditions ) );
             break;
         case propulsion::dynamic_pressure_dependent_thrust:
+            if( vehicleAtmosphericFlightConditions == NULL )
+            {
+                throw std::runtime_error( "Error when making propulsion input variables, atmospheric flight conditions required, but not found" );
+            }
             inputFunctions.push_back(
-                        boost::bind( &aerodynamics::FlightConditions::getCurrentDynamicPressure, vehicleFlightConditions ) );
+                        boost::bind( &aerodynamics::AtmosphericFlightConditions::getCurrentDynamicPressure, vehicleAtmosphericFlightConditions ) );
             break;
         case propulsion::mach_number_dependent_thrust:
+            if( vehicleAtmosphericFlightConditions == NULL )
+            {
+                throw std::runtime_error( "Error when making propulsion input variables, atmospheric flight conditions required, but not found" );
+            }
             inputFunctions.push_back(
-                        boost::bind( &aerodynamics::FlightConditions::getCurrentMachNumber, vehicleFlightConditions ) );
+                        boost::bind( &aerodynamics::AtmosphericFlightConditions::getCurrentMachNumber, vehicleAtmosphericFlightConditions ) );
             break;
         case propulsion::pressure_dependent_thrust:
+            if( vehicleAtmosphericFlightConditions == NULL )
+            {
+                throw std::runtime_error( "Error when making propulsion input variables, atmospheric flight conditions required, but not found" );
+            }
             inputFunctions.push_back(
-                        boost::bind( &aerodynamics::FlightConditions::getCurrentPressure, vehicleFlightConditions ) );
+                        boost::bind( &aerodynamics::AtmosphericFlightConditions::getCurrentPressure, vehicleAtmosphericFlightConditions ) );
             break;
         case propulsion::guidance_input_dependent_thrust:
             inputFunctions.push_back( guidanceInputFunctions.at( numberOfCustomInputs ) );
