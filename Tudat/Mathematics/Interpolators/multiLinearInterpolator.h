@@ -63,7 +63,6 @@ public:
     lookUpSchemes_;
     using MultiDimensionalInterpolator< IndependentVariableType, DependentVariableType, NumberOfDimensions >::
     defaultExtrapolationValue_;
-    using Interpolator< IndependentVariableType, DependentVariableType >::interpolate;
 
     //! Default constructor taking independent and dependent variable data.
     /*!
