@@ -22,6 +22,7 @@
 
 namespace tudat
 {
+
 namespace numerical_integrators
 {
 
@@ -136,7 +137,7 @@ public:
     virtual StateType integrateTo(
             const IndependentVariableType intervalEnd,
             const TimeStepType initialStepSize,
-            const TimeStepType finalTimeTolerance = std::numeric_limits< TimeStepType >::epsilon( )  );
+            const TimeStepType finalTimeTolerance = std::numeric_limits< TimeStepType >::epsilon( ) );
 
     //! Perform a single integration step.
     /*!
@@ -299,6 +300,7 @@ typedef boost::shared_ptr< NumericalIntegrator< double, double, double > >
 NumericalIntegratordPointer;
 
 } // namespace numerical_integrators
+
 } // namespace tudat
 
 #endif // TUDAT_NUMERICAL_INTEGRATOR_H

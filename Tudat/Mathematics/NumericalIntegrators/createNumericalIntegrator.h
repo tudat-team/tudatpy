@@ -113,7 +113,6 @@ public:
      */
     bool assessPropagationTerminationConditionDuringIntegrationSubsteps_;
 
-
 };
 
 //! Class to define settings of variable step RK numerical integrator
