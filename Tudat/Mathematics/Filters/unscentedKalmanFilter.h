@@ -99,7 +99,8 @@ public:
                            const boost::shared_ptr< IntegratorSettings > integratorSettings = NULL,
                            const ConstantParameterReferences constantValueReference = reference_Wan_and_Van_der_Merwe,
                            const std::pair< DependentVariableType, DependentVariableType > customConstantParameters =
-            std::make_pair( TUDAT_NAN, TUDAT_NAN ) ) :
+            std::make_pair( static_cast< DependentVariableType >( TUDAT_NAN ),
+                            static_cast< DependentVariableType >( TUDAT_NAN ) ) ) :
         KalmanFilterBase< IndependentVariableType, DependentVariableType >( systemUncertainty, measurementUncertainty,
                                                                             initialTime, initialStateVector,
                                                                             initialCovarianceMatrix, integratorSettings ),
@@ -287,26 +288,27 @@ private:
         {
         case reference_Wan_and_Van_der_Merwe:
         {
-            constantParameters_.at( alpha_index ) = 0.003;
-            constantParameters_.at( kappa_index ) = 0.0;
+            constantParameters_.at( alpha_index ) = static_cast< DependentVariableType >( 0.003 );
+            constantParameters_.at( kappa_index ) = static_cast< DependentVariableType >( 0.0 );
             break;
         }
         case reference_Lisano_and_Born_and_Axelrad:
         {
-            constantParameters_.at( alpha_index ) = 1.0;
-            constantParameters_.at( kappa_index ) = 3.0 - stateDimension_;
+            constantParameters_.at( alpha_index ) = static_cast< DependentVariableType >( 1.0 );
+            constantParameters_.at( kappa_index ) = static_cast< DependentVariableType >( 3.0 - stateDimension_ );
             break;
         }
         case reference_Challa_and_Moore_and_Rogers:
         {
-            constantParameters_.at( alpha_index ) = 0.001;
-            constantParameters_.at( kappa_index ) = 1.0;
+            constantParameters_.at( alpha_index ) = static_cast< DependentVariableType >( 0.001 );
+            constantParameters_.at( kappa_index ) = static_cast< DependentVariableType >( 1.0 );
             break;
         }
         case custom_parameters:
         {
             // Check that the values have been set
-            if ( customConstantParameters.first == TUDAT_NAN || customConstantParameters.second == TUDAT_NAN )
+            if ( customConstantParameters.first == static_cast< DependentVariableType >( TUDAT_NAN ) ||
+                 customConstantParameters.second == static_cast< DependentVariableType >( TUDAT_NAN ) )
             {
                 throw std::runtime_error( "Error in unscented Kalman filter. The value of the alpha and kappa parameters "
                                           "have not been specified, but the selected method is custom_parameters." );

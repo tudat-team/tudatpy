@@ -433,10 +433,12 @@ void RarefiedFlowAnalysis::generateCoefficients( )
                 }
 
                 // Loop over angles of attack
-                meanPressureValues.resize( 3, numberOfTriangles_ ).setZero( );
-                meanShearValues.resize( 3, numberOfTriangles_ ).setZero( );
+                meanPressureValues.resize( 3, numberOfTriangles_ );
+                meanShearValues.resize( 3, numberOfTriangles_ );
 
                 // Read output files and compute mean pressure and shear force values
+                meanPressureValues.setZero( );
+                meanShearValues.setZero( );
                 for ( unsigned int i = 0; i < outputFileExtensions.size( ); i++ )
                 {
                     outputMatrix = readMatrixFromFile( temporaryOutputFile + outputFileExtensions.at( i ), "\t ;,", "%", 9 );

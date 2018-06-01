@@ -71,6 +71,7 @@ public:
 protected:
 
 private:
+
 };
 
 //! Typedef for shared-pointer to default, re-initializable numerical integrator.
@@ -89,7 +90,6 @@ ReinitializableNumericalIntegratorXdPointer;
  */
 typedef boost::shared_ptr< ReinitializableNumericalIntegrator< double, double, double > >
 ReinitializableNumericalIntegratordPointer;
-
 
 } // namespace numerical_integrators
 } // namespace tudat

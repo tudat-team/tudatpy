@@ -25,6 +25,7 @@
 
 namespace tudat
 {
+
 namespace interpolators
 {
 
@@ -324,6 +325,7 @@ protected:
 };
 
 } // namespace interpolators
+
 } // namespace tudat
 
 #endif // TUDAT_ONE_DIMENSIONAL_INTERPOLATOR_H
