@@ -11,6 +11,7 @@
 # Set the source files.
 set(AERODYNAMICS_SOURCES
   "${SRCROOT}${AERODYNAMICSDIR}/aerodynamicAcceleration.cpp"
+  "${SRCROOT}${AERODYNAMICSDIR}/aerodynamicCoefficientGenerator.cpp"
   "${SRCROOT}${AERODYNAMICSDIR}/aerodynamicTorque.cpp"
   "${SRCROOT}${AERODYNAMICSDIR}/aerodynamicForce.cpp"
   "${SRCROOT}${AERODYNAMICSDIR}/aerodynamics.cpp"

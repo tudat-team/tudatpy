@@ -42,23 +42,7 @@ namespace aerodynamics
  *  Function to print to console which aerodynamic coefficients are being saved.
  *  \param coefficientIndices Indices of coefficients to be saved.
  */
-void informUserOnSavedCoefficient( std::vector< unsigned int > coefficientIndices )
-{
-    // Set order of coefficients
-    std::vector< std::string > coefficientNames;
-    coefficientNames.push_back( "Drag" );
-    coefficientNames.push_back( "Side" );
-    coefficientNames.push_back( "Lift" );
-    coefficientNames.push_back( "X-Moment" );
-    coefficientNames.push_back( "Y-Moment" );
-    coefficientNames.push_back( "Z-Moment" );
-
-    // Inform user on which variable is being saved
-    for ( unsigned int index: coefficientIndices )
-    {
-        std::cout << "Saving " + coefficientNames.at( index ) << " aerodynamic coefficient." << std::endl;
-    }
-}
+void informUserOnSavedCoefficient( std::vector< unsigned int > coefficientIndices );
 
 //! Base class for aerodynamic coefficient generator.
 /*!

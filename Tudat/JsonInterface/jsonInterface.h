@@ -522,7 +522,7 @@ protected:
     {
         dynamicsSimulator_ =
                 boost::make_shared< propagators::SingleArcDynamicsSimulator< StateScalarType, TimeType > >(
-                    bodyMap_, integratorSettings_, propagatorSettings_, false, false, false, initialClockTime_ );
+                    bodyMap_, integratorSettings_, propagatorSettings_, false, false, false, false, initialClockTime_ );
 
         if ( profiling )
         {

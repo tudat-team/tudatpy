@@ -92,16 +92,16 @@ protected:
      *  Function to predict the state for the next time step, by overwriting previous state, with the either the use of
      *  the integrator provided in the integratorSettings, or the systemFunction_ input by the user.
      *  \param currentTime Scalar representing the current time.
-     *  \param modifiedCurrentStateVector Vector representing the current state, which overwrites the previous state.
+     *  \param currentStateVector Vector representing the current state (which overwrites the previous state).
      *  \param currentControlVector Vector representing the current control input.
      *  \return Propagated state at the requested time.
      */
     DependentVector predictState( const IndependentVariableType currentTime,
-                                  const DependentVector& modifiedCurrentStateVector,
+                                  const DependentVector& currentStateVector,
                                   const DependentVector& currentControlVector )
     {
-        return this->isStateToBeIntegrated_ ? propagateState( currentTime, modifiedCurrentStateVector, currentControlVector ) :
-                                              this->systemFunction_( currentTime, modifiedCurrentStateVector, currentControlVector );
+        return this->isStateToBeIntegrated_ ? propagateState( currentTime, currentStateVector, currentControlVector ) :
+                                              this->systemFunction_( currentTime, currentStateVector, currentControlVector );
     }
 
     //! Function to correct the covariance for the next time step.
@@ -126,18 +126,18 @@ private:
      *  Function to propagate state to the next time step, by overwriting previous state, with the use of the integrator
      *  provided in the integratorSettings.
      *  \param currentTime Scalar representing the current time.
-     *  \param modifiedCurrentStateVector Vector representing the current state, which overwrites the previous state.
+     *  \param currentStateVector Vector representing the current state (which overwrites the previous state).
      *  \param currentControlVector Vector representing the current control input.
      *  \return Propagated state at the requested time.
      */
     DependentVector propagateState( const IndependentVariableType currentTime,
-                                    const DependentVector& modifiedCurrentStateVector,
+                                    const DependentVector& currentStateVector,
                                     const DependentVector& currentControlVector )
     {
-        return modifiedCurrentStateVector +
-                this->systemFunction_( currentTime, modifiedCurrentStateVector, currentControlVector ) * this->integrationStepSize_;
-//        this->integrator_->modifyCurrentState( modifiedCurrentStateVector );
-//        return this->integrator_->integrateTo( intervalEnd, integrationStepSize_ );
+        return currentStateVector +
+                this->systemFunction_( currentTime, currentStateVector, currentControlVector ) * this->integrationStepSize_;
+//        this->integrator_->modifyCurrentIndependentVariableAndState( currentTime, currentStateVector );
+//        return this->integrator_->performIntegrationStep( this->integrationStepSize_ );
     }
 
 };
