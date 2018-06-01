@@ -26,13 +26,6 @@ namespace tudat
 namespace input_output
 {
 
-//! Function to print to console which aerodynamic coefficients are being saved.
-/*!
- *  Function to print to console which aerodynamic coefficients are being saved.
- *  \param index Index of coefficient to be saved.
- */
-void informUserOnSavedCoefficient( const int index );
-
 //! Interface class for writing coefficients as a function of N independent variables to a file.
 /*!
  *  Interface class for writing coefficients as a function of N independent variables to a file. This class is used instead
@@ -126,12 +119,6 @@ public:
             boost::filesystem::create_directories( boost::filesystem::path( fileName ).parent_path( ) );
         }
 
-        // Inform user on which variable is being saved
-        for ( int index: coefficientIndices )
-        {
-            informUserOnSavedCoefficient( index );
-        }
-
         // Open file
         std::string filePath = fileName;
         FILE * fileIdentifier = std::fopen( filePath.c_str( ), "w" );
@@ -193,9 +180,6 @@ public:
         for ( std::map< int, std::string >::const_iterator fileIterator = fileNamesMap.begin( );
               fileIterator != fileNamesMap.end( ); fileIterator++ )
         {
-            // Inform user on which variable is being saved
-            informUserOnSavedCoefficient( fileIterator->first );
-
             // Create directory (if it does not exist)
             if ( !boost::filesystem::exists( boost::filesystem::path( fileIterator->second ).parent_path( ) ) )
             {
@@ -279,9 +263,6 @@ public:
         for ( std::map< int, std::string >::const_iterator fileIterator = fileNamesMap.begin( );
               fileIterator != fileNamesMap.end( ); fileIterator++ )
         {
-            // Inform user on which variable is being saved
-            informUserOnSavedCoefficient( fileIterator->first );
-
             // Create directory (if it does not exist)
             if ( !boost::filesystem::exists( boost::filesystem::path( fileIterator->second ).parent_path( ) ) )
             {
@@ -368,9 +349,6 @@ public:
         for ( std::map< int, std::string >::const_iterator fileIterator = fileNamesMap.begin( );
               fileIterator != fileNamesMap.end( ); fileIterator++ )
         {
-            // Inform user on which variable is being saved
-            informUserOnSavedCoefficient( fileIterator->first );
-
             // Create directory (if it does not exist)
             if ( !boost::filesystem::exists( boost::filesystem::path( fileIterator->second ).parent_path( ) ) )
             {

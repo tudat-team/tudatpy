@@ -7,6 +7,8 @@
  *    a copy of the license with this file. If not, please or visit:
  *    http://tudat.tudelft.nl/LICENSE.
  *
+ *    References
+ *
  */
 
 #ifndef TUDAT_EULER_INTEGRATOR_H

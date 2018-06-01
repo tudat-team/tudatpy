@@ -29,11 +29,20 @@
 #include "Tudat/InputOutput/multiDimensionalArrayWriter.h"
 #include "Tudat/Mathematics/Interpolators/multiLinearInterpolator.h"
 #include "Tudat/Basics/basicTypedefs.h"
+#include "Tudat/Basics/utilities.h"
 
 namespace tudat
 {
+
 namespace aerodynamics
 {
+
+//! Function to print to console which aerodynamic coefficients are being saved.
+/*!
+ *  Function to print to console which aerodynamic coefficients are being saved.
+ *  \param coefficientIndices Indices of coefficients to be saved.
+ */
+void informUserOnSavedCoefficient( std::vector< unsigned int > coefficientIndices );
 
 //! Base class for aerodynamic coefficient generator.
 /*!
@@ -169,28 +178,44 @@ public:
      *  Save aerodynamic coefficients to file.
      *  \param fileName Map of paths to files where aerodynamics coefficients are to be saved.
      */
-    void saveAerodynamicCoefficientsTables( const std::map< int, std::string >& fileNamesMap )
+    void saveAerodynamicCoefficientsTables( const std::map< unsigned int, std::string >& fileNamesMap )
     {
+        // Inform user on which variable is being saved
+        informUserOnSavedCoefficient( utilities::createVectorFromMapKeys( fileNamesMap ) );
+
+        // Write coefficients to file
         input_output::MultiArrayFileWriter< NumberOfIndependentVariables,
                 NumberOfCoefficients >::writeMultiArrayAndIndependentVariablesToFiles( fileNamesMap,
                                                                                        dataPointsOfIndependentVariables_,
                                                                                        aerodynamicCoefficients_ );
     }
 
-    //! Save aerodynamic coefficients to file.
+    //! Save aerodynamic coefficients to a single file.
     /*!
-     *  Save aerodynamic coefficients to file.
-     *  \param fileName Map of paths to files where aerodynamics coefficients are to be saved.
+     *  Save aerodynamic coefficients to a single file, in case of one independent variable is used.
+     *  \param fileName Paths to file where aerodynamics coefficients are to be saved.
      *  \param coefficientIndices Indices of coefficients to be saved. Default value is all of them.
      */
     void saveAerodynamicCoefficientsTables( const std::string& fileName,
-                                            const std::vector< int > coefficientIndices = { 0, 1, 2, 3, 4, 5 } )
+                                            const std::vector< unsigned int > coefficientIndices = { 0, 1, 2, 3, 4, 5 } )
     {
-        input_output::MultiArrayFileWriter< NumberOfIndependentVariables,
-                NumberOfCoefficients >::writeMultiArrayAndIndependentVariablesToFiles( fileName,
-                                                                                       coefficientIndices,
-                                                                                       dataPointsOfIndependentVariables_,
-                                                                                       aerodynamicCoefficients_ );
+        if ( NumberOfIndependentVariables == 1 )
+        {
+            // Inform user on which variable is being saved
+            informUserOnSavedCoefficient( coefficientIndices );
+
+            // Write coefficients to file
+            input_output::MultiArrayFileWriter< 1, NumberOfCoefficients >::
+                    writeMultiArrayAndIndependentVariablesToFiles( fileName, coefficientIndices,
+                                                                   dataPointsOfIndependentVariables_,
+                                                                   aerodynamicCoefficients_ );
+        }
+        else
+        {
+            throw std::runtime_error( "Error in aerodynamic coefficient generator. The saveAerodynamicCoefficientsTables with "
+                                      "single file path can only be used in case only one independent variable is used. "
+                                      "Number of independent variables: " + std::to_string( NumberOfIndependentVariables ) );
+        }
     }
 
     //! Compute the aerodynamic coefficients at current flight condition.
@@ -268,6 +293,7 @@ protected:
 };
 
 } // namespace aerodynamics
+
 } // namespace tudat
 
 #endif // TUDAT_AERODYNAMIC_COEFFICIENT_GENERATOR_H

@@ -25,6 +25,7 @@
 
 namespace tudat
 {
+
 namespace interpolators
 {
 
@@ -320,9 +321,11 @@ protected:
      * Default value to be used for extrapolation.
      */
     DependentVariableType defaultExtrapolationValue_;
+
 };
 
 } // namespace interpolators
+
 } // namespace tudat
 
 #endif // TUDAT_ONE_DIMENSIONAL_INTERPOLATOR_H

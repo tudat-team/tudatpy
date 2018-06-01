@@ -10,8 +10,6 @@
  *    References
  *      Vittaldev, V. (2010). The unified state model: Derivation and application in astrodynamics
  *          and navigation. Master's thesis, Delft University of Technology.
- *      <Second reference>
- *
  */
 
 #include <cmath>

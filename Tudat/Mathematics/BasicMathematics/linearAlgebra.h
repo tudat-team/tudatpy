@@ -7,6 +7,8 @@
  *    a copy of the license with this file. If not, please or visit:
  *    http://tudat.tudelft.nl/LICENSE.
  *
+ *    References:
+ *      Ogata, K., Discrete-Time Control Systems, 2nd ed. Pearson Education Asia, 2002.
  */
 
 #ifndef TUDAT_LINEAR_ALGEBRA_H
@@ -21,6 +23,7 @@
 #include <Eigen/Geometry>
 
 #include "Tudat/Basics/basicTypedefs.h"
+
 namespace tudat
 {
 

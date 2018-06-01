@@ -6,21 +6,19 @@
  *    under the terms of the Modified BSD license. You should have received
  *    a copy of the license with this file. If not, please or visit:
  *    http://tudat.tudelft.nl/LICENSE.
+ *
  */
 
-#include <iostream>
-#include <string>
-
-#include "Tudat/InputOutput/multiDimensionalArrayWriter.h"
+#include "Tudat/Astrodynamics/Aerodynamics/aerodynamicCoefficientGenerator.h"
 
 namespace tudat
 {
 
-namespace input_output
+namespace aerodynamics
 {
 
 //! Function to print to console which aerodynamic coefficients are being saved.
-void informUserOnSavedCoefficient( const int index )
+void informUserOnSavedCoefficient( std::vector< unsigned int > coefficientIndices )
 {
     // Set order of coefficients
     std::vector< std::string > coefficientNames;
@@ -32,9 +30,12 @@ void informUserOnSavedCoefficient( const int index )
     coefficientNames.push_back( "Z-Moment" );
 
     // Inform user on which variable is being saved
-    std::cout << "Saving " + coefficientNames.at( index ) << " aerodynamic coefficient." << std::endl;
+    for ( unsigned int index: coefficientIndices )
+    {
+        std::cout << "Saving " + coefficientNames.at( index ) << " aerodynamic coefficient." << std::endl;
+    }
 }
 
-} // namespace input_output
+} // namespace aerodynamics
 
 } // namespace tudat

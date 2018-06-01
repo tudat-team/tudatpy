@@ -22,6 +22,7 @@
 
 namespace tudat
 {
+
 namespace root_finders
 {
 
@@ -108,6 +109,7 @@ typedef RootFinderCore< > RootFinder;
 typedef boost::shared_ptr< RootFinder > RootFinderPointer;
 
 } // namespace root_finders
+
 } // namespace tudat
 
 #endif // TUDAT_ROOT_FINDER_H

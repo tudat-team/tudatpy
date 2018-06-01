@@ -375,8 +375,7 @@ public:
             {
                 std::cout << "Dependent variables being saved, output vectors contain: " << std::endl
                           << "Vector entry, Vector contents" << std::endl;
-                utilities::printMapContents(
-                            dependentVariableIds_ );
+                utilities::printMapContents( dependentVariableIds_ );
             }
         }
 

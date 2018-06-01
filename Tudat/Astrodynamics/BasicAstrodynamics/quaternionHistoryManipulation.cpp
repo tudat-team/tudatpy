@@ -24,6 +24,13 @@ namespace orbital_element_conversions
 //! Transform quaternion to opposite rotation, based on discontinuities in derivatives.
 void matchQuaternionHistory( std::map< double, Eigen::Vector4d >& quaternionHistoryMap )
 {
+    // Warn user about limitation of this implementation
+    std::cerr << "Warning in conversion of quaternion history. The matchQuaternionHistory function only works "
+                 "if there are discontinuities in the first derivative of the quaternion history, otherwise "
+                 "the program will introduce new errors. This is because of the use of the STD of the change in time "
+                 "derivative of the quaternion history. You are welcome to improve this file, such that it works all the "
+                 "time." << std::endl;
+
     // Get total number of rows
     unsigned int numberOfRows = quaternionHistoryMap.size( );
 
