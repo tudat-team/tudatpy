@@ -12,7 +12,6 @@
  *        Parallel DSMC Kernel “SPARTA”,” in 8th GRACM International Congress on Computational Mechanics,
  *        Volos, Greece, July 2015.
  *      Dirkx, D. and Mooij, E., Conceptual Shape Optimization of Entry Vehicles. Springer, 2017.
- *
  */
 
 #include <boost/make_shared.hpp>

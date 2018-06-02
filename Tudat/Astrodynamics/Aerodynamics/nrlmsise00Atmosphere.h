@@ -82,7 +82,6 @@ struct GasComponentProperties
     //! Molecular colision diameter of Atomic Oxygen in m
     double diameterAtomicOxygen;
 
-
     //! molar mass of Argon in kg/mole
     double molarMassArgon;
 
@@ -104,7 +103,6 @@ struct GasComponentProperties
     //! Molar mass of Atomic Oxygen in kg/mole
     double molarMassAtomicOxygen;
 };
-
 
 //! Struct for Solar Activity data.
 /*!
@@ -324,7 +322,7 @@ class NRLMSISE00Atmosphere : public AtmosphereModel
     * \return Mean free path.
     */
     double getMeanFreePath( const double altitude, const double longitude,
-                          const double latitude, const double time )
+                            const double latitude, const double time )
     {
         computeProperties( altitude, longitude, latitude, time );
         return meanFreePath_;

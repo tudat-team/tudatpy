@@ -16,7 +16,7 @@
 - **Linear Algebra**
 	- added function to compute direction cosine matrix from quaternion (both in vector and quaternion format)
 - **Orbital Element Conversions**
-	- added conversions for position and velocity state variables: Cartesian<->USM7, Keplerian<->USM7, Cartesian<->USM6, Keplerian<->USM6, Cartesian<->USMEM, Keplerian<->USMEM
+	- added conversions for position and velocity state variables: Cartesian<->USM7, Cartesian<->USM6, Keplerian<->USM6, Cartesian<->USMEM, Keplerian<->USMEM
 	- added conversions for attitude state variables: quaternion<->MRP, quaternion<->exponential map
 	- added function to manipulate the quaternion history is such that the history is continuous (no jumps from positive to negative)
 - **Propagators**
@@ -25,7 +25,8 @@
 - **Simulation Setup**
 	- added function to output cumulative number of function evaluations (see issue [#375](https://github.com/Tudat/tudat/issues/375))
 	- added function to output raw numerical solution
-	- added function to process state during propagation (right after integration step) (also see issue [#364](https://github.com/Tudat/tudat/issues/364))
+	- added function to post-process the propagated state during propagation (right after integration step) (also see issue [#364](https://github.com/Tudat/tudat/issues/364))
+	- added function to process the conventional state history after propagation
 - **SPARTA**
 	- added interface for running SPARTA simulations and analyzing its results (see issue [#380](https://github.com/Tudat/tudat/issues/380))
 - **Utilities**

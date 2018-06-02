@@ -44,9 +44,9 @@ enum ConstantParameterIndices
 //! Enumeration for value of contant parameters.
 enum ConstantParameterReferences
 {
-    reference_Wan_and_Van_der_Merwe = 0,        // reference [1]
-    reference_Lisano_and_Born_and_Axelrad = 1,  // reference [2]
-    reference_Challa_and_Moore_and_Rogers = 2,  // reference [3]
+    reference_Wan_and_Van_der_Merwe = 0,        // reference [Wan, E., et al.]
+    reference_Lisano_and_Born_and_Axelrad = 1,  // reference [Jah, M., et al.]
+    reference_Challa_and_Moore_and_Rogers = 2,  // reference [Challa, M., et al.]
     custom_parameters = 3
 };
 
@@ -212,8 +212,7 @@ public:
         DependentVector vectorOfSigmaPoints;
         std::map< IndependentVariableType, DependentMatrix > mapOfSigmaPointsHistory;
         for ( typename std::map< IndependentVariableType, std::map< unsigned int, DependentVector > >::const_iterator
-              mapIterator = mapOfMapOfSigmaPoints_.begin( );
-              mapIterator != mapOfMapOfSigmaPoints_.end( ); mapIterator++ )
+              mapIterator = mapOfMapOfSigmaPoints_.begin( ); mapIterator != mapOfMapOfSigmaPoints_.end( ); mapIterator++ )
         {
             // Extract current map of sigma points and turn it into a vector
             vectorOfSigmaPoints = utilities::createConcatenatedEigenMatrixFromMapValues( mapIterator->second );
@@ -266,7 +265,7 @@ private:
     /*!
      *  Function to set the values of the constant parameters, used by the unscented Kalman filter for various purposes.
      *  These parameters are saved in the constantParameters_ vector, and are retrieved by using the ConstantParameterIndices
-     *  enumeration. The order and definition of the parameters is the following [4]:
+     *  enumeration. The order and definition of the parameters is the following [Vittaldev, V.]:
      *      - alpha_index (\f$ \alpha \f$): used to distribute the sigma points around the a-priori estimate.
      *      - beta_index (\f$ \beta \f$): provides information about the probaility distribution function of the state.
      *      - gamma_index (\f$ \gamma \f$): abbreviation for \f$ \sqrt{ L + \lambda } \f$, where \f$ L \f$ is the length of the
