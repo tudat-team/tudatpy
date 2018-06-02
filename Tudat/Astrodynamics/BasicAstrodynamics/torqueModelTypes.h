@@ -60,6 +60,7 @@ std::string getTorqueModelName( const AvailableTorque torqueType );
 std::vector< boost::shared_ptr< TorqueModel > > getTorqueModelsOfType(
         const std::vector< boost::shared_ptr< TorqueModel > >& fullList,
         const AvailableTorque modelType );
+
 }
 
 }

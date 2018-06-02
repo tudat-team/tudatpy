@@ -447,7 +447,7 @@ private:
             break;
         }
         default:
-            throw std::runtime_error( "Error in Kalman filtering. Only Euler integration is currently supported." );
+            throw std::runtime_error( "Error in setting up filter. Only Euler integration is currently supported." );
         }
     }
 

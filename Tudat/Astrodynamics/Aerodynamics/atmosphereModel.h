@@ -136,7 +136,9 @@ protected:
 
     //! Model describing the wind velocity vector of the atmosphere
     boost::shared_ptr< WindModel > windModel_;
+
 private:
+
 };
 
 //! Typedef for shared-pointer to AtmosphereModel object.

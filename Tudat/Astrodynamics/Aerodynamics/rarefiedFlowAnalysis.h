@@ -125,7 +125,7 @@ public:
      *  \param gridSpacing Grid size for simulation environment, used to define the size of each cell, and
      *          the number of cells in the environment.
      *  \param simulatedParticlesPerCell Number of simulated particles per cell.
-     *  \param wallTemperature Temperature of the surface of the vehicle (default value is 300 K [3]).
+     *  \param wallTemperature Temperature of the surface of the vehicle (default value is 300 K [Liechty, D.]).
      *  \param accommodationCoefficient Accommodation coefficient of the surface of the vehicle. This
      *          value indicates the degree of diffusivity during molecular-surface collisions (default value
      *          is 1.0, i.e., diffuse reflection).
@@ -202,7 +202,7 @@ private:
     //! Path to SPARTA executable.
     /*!
      *  Path to SPARTA executable. Note that SPARTA is an external software and needs to be compiled before
-     *  it can be used in Tudat. See the instructions in the manual [2].
+     *  it can be used in Tudat. See the instructions in the manual [Plimpton, S. and Gallis, M.].
      */
     std::string SPARTAExecutable_;
 

@@ -18,7 +18,6 @@ namespace tudat
 namespace simulation_setup
 {
 
-
 //! Function to create aerodynamic coefficient settings from coefficients stored in data files
 boost::shared_ptr< AerodynamicCoefficientSettings > readTabulatedAerodynamicCoefficientsFromFiles(
         const std::map< int, std::string > forceCoefficientFiles,
@@ -290,6 +289,6 @@ createAerodynamicCoefficientInterface(
     return coefficientInterface;
 }
 
-}
+} // simulation_setup
 
-}
+} // tudat
