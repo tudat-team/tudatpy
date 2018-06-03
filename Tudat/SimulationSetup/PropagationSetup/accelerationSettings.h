@@ -474,7 +474,9 @@ public:
     DirectTidalDissipationAccelerationSettings( const double k2LoveNumber, const double timeLag,
                                                 const bool includeDirectRadialComponent = true,
                                                 const bool useTideRaisedOnPlanet = true ):
-        AccelerationSettings( basic_astrodynamics::direct_tidal_dissipation_acceleration ),
+        AccelerationSettings(
+            ( useTideRaisedOnPlanet ? basic_astrodynamics::direct_tidal_dissipation_in_central_body_acceleration :
+                                      basic_astrodynamics::direct_tidal_dissipation_in_orbiting_body_acceleration ) ),
         k2LoveNumber_( k2LoveNumber ), timeLag_( timeLag ), includeDirectRadialComponent_( includeDirectRadialComponent ),
         useTideRaisedOnPlanet_( useTideRaisedOnPlanet ){ }
 
