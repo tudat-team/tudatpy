@@ -65,7 +65,9 @@ public:
      *  \param atmosphereTableFile File containing atmospheric properties.
      *  The file name of the atmosphere table. The file should contain four columns of data,
      *  containing altitude (first column), and the associated density, pressure and density values
-     *  in the second, third and fourth columns
+     *  in the second, third and fourth columns. If the order is different, it should be changed in
+     *  the dependentVariables variable.
+     *  \param dependentVariables the dependent variables, in order, contained in the file.
      *  \param specificGasConstant The constant specific gas constant of the air
      *  \param ratioOfSpecificHeats The constant ratio of specific heats of the air
      */
