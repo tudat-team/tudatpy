@@ -65,7 +65,7 @@ Eigen::Matrix3d calculateAccelerationWrtStatePartials(
 /*!
  * Function to numerical compute the partial derivative of an acceleration w.r.t. a double parameter,
  * using a first-order central difference method.
- * \param parameter Object describing the parameter w.r.t. which teh partial is to be taken.
+ * \param parameter Object describing the parameter w.r.t. which the partial is to be taken.
  * \param accelerationModel Acceleration model for which the partial derivative is to be computed.
  * \param parameterPerturbation Perturbation to be used for parameter value.
  * \param updateDependentVariables  Function to update the required environment models following the change in parameter,
@@ -87,7 +87,7 @@ Eigen::Vector3d calculateAccelerationWrtParameterPartials(
 /*!
  * Function to numerical compute the partial derivative of an acceleration w.r.t. a vector parameter,
  * using a first-order central difference method.
- * \param parameter Object describing the parameter w.r.t. which teh partial is to be taken.
+ * \param parameter Object describing the parameter w.r.t. which the partial is to be taken.
  * \param accelerationModel Acceleration model for which the partial derivative is to be computed.
  * \param parameterPerturbation Perturbations to be used for parameter value.
  * \param updateDependentVariables  Function to update the required environment models following the change in parameter,

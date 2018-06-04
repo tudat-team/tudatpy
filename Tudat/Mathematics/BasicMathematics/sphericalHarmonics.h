@@ -26,7 +26,7 @@ namespace basic_mathematics
 //! Cache object in which variables that are required for the computation of spherical harmonic potential are stored.
 /*!
  *  Cache object in which variables that are required for the computation of spherical harmonic potential are stored.
- *  The variables are the Legendre polynomials at the required degree and order, the cosine of teh latitude, the
+ *  The variables are the Legendre polynomials at the required degree and order, the cosine of the latitude, the
  *  sine and cosine of the order times the longitude, and the ratio of the distance and the reference radius to the
  *  power degree + 1.
  */

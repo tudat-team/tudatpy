@@ -61,7 +61,7 @@ public:
 
     //! Pure virtual function to update the engine model to the current time
     /*!
-     *  Pure virtual function to update the engine model to the current time. This function must be implemented in teh derived
+     *  Pure virtual function to update the engine model to the current time. This function must be implemented in the derived
      *  class, wehre it typically resets the currentThrust_ variable (and any associated variables).
      *  \param currentTime Current itme in simulation.
      */
@@ -99,9 +99,9 @@ protected:
 
 };
 
-//! Engine model derived class in which the thrust is computed directly from teh propellant mass flow and specific impulse
+//! Engine model derived class in which the thrust is computed directly from the propellant mass flow and specific impulse
 /*!
- *  Engine model derived class in which the thrust is computed directly from teh propellant mass flow and specific impulse
+ *  Engine model derived class in which the thrust is computed directly from the propellant mass flow and specific impulse
  *  These two variables may be either constant or variable (magnitudes controlled by associated class defining e.g. GNC
  *  system.
  */

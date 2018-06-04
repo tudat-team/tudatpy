@@ -214,7 +214,7 @@ public:
      *  \param initialTimeStep Initial time (independent variable) step used in numerical integration.
      *  Adapted during integration
      *  \param extrapolationSequence Type of sequence that is to be used for Bulirsch-Stoer integrator
-     *  \param maximumNumberOfSteps Number of entries in teh sequence, e.g. number of integrations used for a single
+     *  \param maximumNumberOfSteps Number of entries in the sequence, e.g. number of integrations used for a single
      *  extrapolation.
      *  \param minimumStepSize Minimum step size for integration. Integration stops (exception thrown) if time step
      *  comes below this value.
@@ -261,7 +261,7 @@ public:
     //! Type of sequence that is to be used for Bulirsch-Stoer integrator
     ExtrapolationMethodStepSequences extrapolationSequence_;
 
-    //! Number of entries in teh sequence, e.g. number of integrations used for a single extrapolation.
+    //! Number of entries in the sequence, e.g. number of integrations used for a single extrapolation.
     unsigned int maximumNumberOfSteps_;
 
     //! Minimum step size for integration.

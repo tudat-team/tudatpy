@@ -327,7 +327,7 @@ protected:
      * \param lowerOrderEstimate The integrated result with the lower order coefficients.
      * \param higherOrderEstimate The integrated result with the higher order coefficients.
      * \param stepSize The step size used to obtain these results.
-     * \return True if teh error was within bounds, false otherwise.
+     * \return True if the error was within bounds, false otherwise.
      */
     virtual bool computeNextStepSizeAndValidateResult( const StateType& lowerOrderEstimate,
                                                        const StateType& higherOrderEstimate,
