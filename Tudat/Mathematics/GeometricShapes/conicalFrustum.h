@@ -169,7 +169,7 @@ private:
 };
 
 //! Typedef for shared-pointer to ConicalFrustum object.
-typedef boost::shared_ptr< ConicalFrustum > ConicalFrustumPointer;
+typedef std::shared_ptr< ConicalFrustum > ConicalFrustumPointer;
 
 } // namespace geometric_shapes
 } // namespace tudat

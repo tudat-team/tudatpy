@@ -54,20 +54,20 @@ BOOST_AUTO_TEST_CASE( test_centralGravityModelSetup )
 
     // Create bodies with gravitational parameters from Spice and JPL approximane positions
     // as ephemerides
-    std::map< std::string, boost::shared_ptr< BodySettings > > bodySettings;
-    bodySettings[ "Mars" ] = boost::make_shared< BodySettings >( );
-    bodySettings[ "Jupiter" ] = boost::make_shared< BodySettings >( );
-    bodySettings[ "Sun" ] = boost::make_shared< BodySettings >( );
-    bodySettings[ "Mars" ]->ephemerisSettings = boost::make_shared< ApproximatePlanetPositionSettings >(
+    std::map< std::string, std::shared_ptr< BodySettings > > bodySettings;
+    bodySettings[ "Mars" ] = std::make_shared< BodySettings >( );
+    bodySettings[ "Jupiter" ] = std::make_shared< BodySettings >( );
+    bodySettings[ "Sun" ] = std::make_shared< BodySettings >( );
+    bodySettings[ "Mars" ]->ephemerisSettings = std::make_shared< ApproximatePlanetPositionSettings >(
                 ephemerides::ApproximatePlanetPositionsBase::mars, 0 );
-    bodySettings[ "Jupiter" ]->ephemerisSettings = boost::make_shared< ApproximatePlanetPositionSettings >(
+    bodySettings[ "Jupiter" ]->ephemerisSettings = std::make_shared< ApproximatePlanetPositionSettings >(
                 ephemerides::ApproximatePlanetPositionsBase::jupiter, 0 );
     bodySettings[ "Mars" ]->gravityFieldSettings =
-            boost::make_shared< GravityFieldSettings >( central_spice );
+            std::make_shared< GravityFieldSettings >( central_spice );
     bodySettings[ "Jupiter" ]->gravityFieldSettings =
-            boost::make_shared< GravityFieldSettings >( central_spice );
+            std::make_shared< GravityFieldSettings >( central_spice );
     bodySettings[ "Sun" ]->gravityFieldSettings =
-            boost::make_shared< GravityFieldSettings >( central_spice );
+            std::make_shared< GravityFieldSettings >( central_spice );
     NamedBodyMap bodyMap = createBodies( bodySettings );
     setGlobalFrameBodyEphemerides( bodyMap, "SSB", "J2000" );
 
@@ -76,11 +76,11 @@ BOOST_AUTO_TEST_CASE( test_centralGravityModelSetup )
     sunStateHistory[ -1.0E9 ] = Eigen::Vector6d::Zero( );
     sunStateHistory[ 0.0 ] = Eigen::Vector6d::Zero( );
     sunStateHistory[ -1.0E9 ] = Eigen::Vector6d::Zero( );
-    boost::shared_ptr< interpolators::LinearInterpolator< double, Eigen::Vector6d > >
-            sunStateInterpolaotor = boost::make_shared<
+    std::shared_ptr< interpolators::LinearInterpolator< double, Eigen::Vector6d > >
+            sunStateInterpolaotor = std::make_shared<
             interpolators::LinearInterpolator< double, Eigen::Vector6d > >(
                 sunStateHistory );
-    bodyMap[ "Sun" ] ->setEphemeris( boost::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
+    bodyMap[ "Sun" ] ->setEphemeris( std::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
                                          sunStateInterpolaotor ) );
 
     // Update bodies to current state (normally done by numerical integrator).
@@ -94,9 +94,9 @@ BOOST_AUTO_TEST_CASE( test_centralGravityModelSetup )
     // Define settings for accelerations: point  mass atraction by Jupiter and Sun on Mars
     SelectedAccelerationMap accelerationSettingsMap;
     accelerationSettingsMap[ "Mars" ][ "Sun" ].push_back(
-                boost::make_shared< AccelerationSettings >( central_gravity ) );
+                std::make_shared< AccelerationSettings >( central_gravity ) );
     accelerationSettingsMap[ "Mars" ][ "Jupiter" ].push_back(
-                boost::make_shared< AccelerationSettings >( central_gravity ) );
+                std::make_shared< AccelerationSettings >( central_gravity ) );
 
     // Define origin of integration to be barycenter.
     std::map< std::string, std::string > centralBodies;
@@ -107,24 +107,24 @@ BOOST_AUTO_TEST_CASE( test_centralGravityModelSetup )
                 bodyMap, accelerationSettingsMap, centralBodies );
 
     // Retrieve created accelerations.
-    boost::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > >
+    std::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > >
             sunAcceleration = accelerationsMap[ "Mars" ][ "Sun" ][ 0 ];
-    boost::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > >
+    std::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > >
             jupiterAcceleration = accelerationsMap[ "Mars" ][ "Jupiter" ][ 0 ];
 
     // Create accelerations manually (point mass inertial).
-    boost::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > >
+    std::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > >
             manualSunAcceleration =
-            boost::make_shared< gravitation::CentralGravitationalAccelerationModel< > >(
-                boost::bind( &Body::getPosition, bodyMap[ "Mars" ] ),
+            std::make_shared< gravitation::CentralGravitationalAccelerationModel< > >(
+                std::bind( &Body::getPosition, bodyMap[ "Mars" ] ),
             spice_interface::getBodyGravitationalParameter( "Sun" ),
-            boost::bind( &Body::getPosition, bodyMap[ "Sun" ] ) );
-    boost::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > >
+            std::bind( &Body::getPosition, bodyMap[ "Sun" ] ) );
+    std::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > >
             manualJupiterAcceleration =
-            boost::make_shared< gravitation::CentralGravitationalAccelerationModel< > >(
-                boost::bind( &Body::getPosition, bodyMap[ "Mars" ] ),
+            std::make_shared< gravitation::CentralGravitationalAccelerationModel< > >(
+                std::bind( &Body::getPosition, bodyMap[ "Mars" ] ),
             spice_interface::getBodyGravitationalParameter( "Jupiter" ),
-            boost::bind( &Body::getPosition, bodyMap[ "Jupiter" ] ) );
+            std::bind( &Body::getPosition, bodyMap[ "Jupiter" ] ) );
 
     // Test equivalence of two acceleration models.
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
@@ -148,25 +148,25 @@ BOOST_AUTO_TEST_CASE( test_centralGravityModelSetup )
     // Manually create Sun's acceleration on Mars, which now include's Mars'gravitational parameter,
     // since the integration is done w.r.t. the Sun, not the barycenter.
     manualSunAcceleration =
-            boost::make_shared< gravitation::CentralGravitationalAccelerationModel< > >(
-                boost::bind( &Body::getPosition, bodyMap[ "Mars" ] ),
+            std::make_shared< gravitation::CentralGravitationalAccelerationModel< > >(
+                std::bind( &Body::getPosition, bodyMap[ "Mars" ] ),
             spice_interface::getBodyGravitationalParameter( "Sun" ) +
             spice_interface::getBodyGravitationalParameter( "Mars" ),
-            boost::bind( &Body::getPosition, bodyMap[ "Sun" ] ) );
+            std::bind( &Body::getPosition, bodyMap[ "Sun" ] ) );
 
     // Manually create Jupiter's acceleration on Mars, which now a third body acceleration,
     // with the Sun the central body.
     manualJupiterAcceleration =
-            boost::make_shared< gravitation::ThirdBodyAcceleration<
+            std::make_shared< gravitation::ThirdBodyAcceleration<
             gravitation::CentralGravitationalAccelerationModel< > > >(
-                boost::make_shared< gravitation::CentralGravitationalAccelerationModel< > >(
-                    boost::bind( &Body::getPosition, bodyMap[ "Mars" ] ),
+                std::make_shared< gravitation::CentralGravitationalAccelerationModel< > >(
+                    std::bind( &Body::getPosition, bodyMap[ "Mars" ] ),
                 spice_interface::getBodyGravitationalParameter( "Jupiter" ),
-                boost::bind( &Body::getPosition, bodyMap[ "Jupiter" ] ) ),
-            boost::make_shared< gravitation::CentralGravitationalAccelerationModel< > >(
-                boost::bind( &Body::getPosition, bodyMap[ "Sun" ] ),
+                std::bind( &Body::getPosition, bodyMap[ "Jupiter" ] ) ),
+            std::make_shared< gravitation::CentralGravitationalAccelerationModel< > >(
+                std::bind( &Body::getPosition, bodyMap[ "Sun" ] ),
             spice_interface::getBodyGravitationalParameter( "Jupiter" ),
-            boost::bind( &Body::getPosition, bodyMap[ "Jupiter" ] ) ), "Jupiter" );
+            std::bind( &Body::getPosition, bodyMap[ "Jupiter" ] ) ), "Jupiter" );
 
     // Test equivalence of two acceleration models.
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
@@ -185,8 +185,8 @@ BOOST_AUTO_TEST_CASE( test_shGravityModelSetup )
 
     // Create body map
     NamedBodyMap bodyMap;
-    bodyMap[ "Earth" ] = boost::make_shared< Body >( );
-    bodyMap[ "Vehicle" ] = boost::make_shared< Body >( );
+    bodyMap[ "Earth" ] = std::make_shared< Body >( );
+    bodyMap[ "Vehicle" ] = std::make_shared< Body >( );
 
     // Set constant state for Earth and Vehicle
     Eigen::Vector6d dummyEarthState =
@@ -222,11 +222,11 @@ BOOST_AUTO_TEST_CASE( test_shGravityModelSetup )
               -2.149554083060460e-7, 4.980705501023510e-8, -6.693799351801650e-7
               ).finished( );
     bodyMap[ "Earth" ]->setGravityFieldModel(
-                boost::make_shared< gravitation::SphericalHarmonicsGravityField >(
+                std::make_shared< gravitation::SphericalHarmonicsGravityField >(
                     gravitationalParameter, planetaryRadius, cosineCoefficients,
                     sineCoefficients, "IAU_Earth" ) );
     bodyMap[ "Earth" ]->setRotationalEphemeris(
-                boost::make_shared< ephemerides::SpiceRotationalEphemeris >(
+                std::make_shared< ephemerides::SpiceRotationalEphemeris >(
                     "ECLIPJ2000", "IAU_Earth" ) );
 
 
@@ -234,7 +234,7 @@ BOOST_AUTO_TEST_CASE( test_shGravityModelSetup )
     // order 5.
     SelectedAccelerationMap accelerationSettingsMap;
     accelerationSettingsMap[ "Vehicle" ][ "Earth" ].push_back(
-                boost::make_shared< SphericalHarmonicAccelerationSettings >( 5, 5 ) );
+                std::make_shared< SphericalHarmonicAccelerationSettings >( 5, 5 ) );
 
     // Set accelerations to be calculated w.r.t. the Earth.
     std::map< std::string, std::string > centralBodies;
@@ -243,17 +243,17 @@ BOOST_AUTO_TEST_CASE( test_shGravityModelSetup )
     // Create and retrieve acceleration.
     AccelerationMap accelerationsMap = createAccelerationModelsMap(
                 bodyMap, accelerationSettingsMap, centralBodies );
-    boost::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > >
+    std::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > >
             directAcceleration = accelerationsMap[ "Vehicle" ][ "Earth" ][ 0 ];
 
     // Manually create acceleration model.
-    boost::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > >
+    std::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > >
             manualAcceleration =
-            boost::make_shared< gravitation::SphericalHarmonicsGravitationalAccelerationModel >(
-                boost::bind( &Body::getPosition, bodyMap[ "Vehicle" ] ),
+            std::make_shared< gravitation::SphericalHarmonicsGravitationalAccelerationModel >(
+                std::bind( &Body::getPosition, bodyMap[ "Vehicle" ] ),
             gravitationalParameter,
             planetaryRadius, cosineCoefficients, sineCoefficients,
-            boost::bind( &Body::getPosition, bodyMap[ "Earth" ] ) );
+            std::bind( &Body::getPosition, bodyMap[ "Earth" ] ) );
 
     // Test equivalence of two acceleration models.
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
@@ -263,7 +263,7 @@ BOOST_AUTO_TEST_CASE( test_shGravityModelSetup )
 
     // Set (unrealistically) a gravity field model on the Vehicle, to test its
     // influence on acceleration.
-    bodyMap[ "Vehicle" ]->setGravityFieldModel( boost::make_shared< gravitation::GravityFieldModel >(
+    bodyMap[ "Vehicle" ]->setGravityFieldModel( std::make_shared< gravitation::GravityFieldModel >(
                                                     0.1 * gravitationalParameter ) );
 
     // Recreate and retrieve acceleration.
@@ -273,11 +273,11 @@ BOOST_AUTO_TEST_CASE( test_shGravityModelSetup )
 
     // Manually create acceleration.
     manualAcceleration =
-            boost::make_shared< gravitation::SphericalHarmonicsGravitationalAccelerationModel >(
-                boost::bind( &Body::getPosition, bodyMap[ "Vehicle" ] ),
+            std::make_shared< gravitation::SphericalHarmonicsGravitationalAccelerationModel >(
+                std::bind( &Body::getPosition, bodyMap[ "Vehicle" ] ),
             gravitationalParameter * 1.1,
             planetaryRadius, cosineCoefficients, sineCoefficients,
-            boost::bind( &Body::getPosition, bodyMap[ "Earth" ] ) );
+            std::bind( &Body::getPosition, bodyMap[ "Earth" ] ) );
 
     // Test equivalence of two acceleration models.
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
@@ -297,18 +297,18 @@ BOOST_AUTO_TEST_CASE( test_radiationPressureAcceleration )
     spice_interface::loadStandardSpiceKernels( );
 
     // Get settings for celestial bodies
-    std::map< std::string, boost::shared_ptr< BodySettings > > bodySettings;
+    std::map< std::string, std::shared_ptr< BodySettings > > bodySettings;
     bodySettings[ "Earth" ] = getDefaultSingleBodySettings( "Earth", 0.0, 10.0 * 86400.0 );
     bodySettings[ "Sun" ] = getDefaultSingleBodySettings( "Sun", 0.0,10.0 * 86400.0 );
 
     // Get settings for vehicle
     double area = 2.34;
     double coefficient = 1.2;
-    bodySettings[ "Vehicle" ] = boost::make_shared< BodySettings >( );
+    bodySettings[ "Vehicle" ] = std::make_shared< BodySettings >( );
     bodySettings[ "Vehicle" ]->radiationPressureSettings[ "Sun" ] =
-            boost::make_shared< CannonBallRadiationPressureInterfaceSettings >( "Sun", area, coefficient );
+            std::make_shared< CannonBallRadiationPressureInterfaceSettings >( "Sun", area, coefficient );
     bodySettings[ "Vehicle" ]->ephemerisSettings =
-            boost::make_shared< KeplerEphemerisSettings >(
+            std::make_shared< KeplerEphemerisSettings >(
                 ( Eigen::Vector6d( ) << 12000.0E3, 0.13, 0.3, 0.0, 0.0, 0.0 ).finished( ),
                 0.0, spice_interface::getBodyGravitationalParameter( "Earth" ), "Earth", "ECLIPJ2000" );
 
@@ -319,7 +319,7 @@ BOOST_AUTO_TEST_CASE( test_radiationPressureAcceleration )
     // Define settings for accelerations
     SelectedAccelerationMap accelerationSettingsMap;
     accelerationSettingsMap[ "Vehicle" ][ "Sun" ].push_back(
-                boost::make_shared< AccelerationSettings >( cannon_ball_radiation_pressure ) );
+                std::make_shared< AccelerationSettings >( cannon_ball_radiation_pressure ) );
 
     // Define origin of integration
     std::map< std::string, std::string > centralBodies;
@@ -328,7 +328,7 @@ BOOST_AUTO_TEST_CASE( test_radiationPressureAcceleration )
     // Create accelerations
     AccelerationMap accelerationsMap = createAccelerationModelsMap(
                 bodyMap, accelerationSettingsMap, centralBodies );
-    boost::shared_ptr< AccelerationModel3d > radiationPressureAcceleration = accelerationsMap[ "Vehicle" ][ "Sun" ][ 0 ];
+    std::shared_ptr< AccelerationModel3d > radiationPressureAcceleration = accelerationsMap[ "Vehicle" ][ "Sun" ][ 0 ];
 
     // Set (arbitrary) test time.
     double testTime = 5.0 * 86400.0;
@@ -377,9 +377,9 @@ BOOST_AUTO_TEST_CASE( test_aerodynamicAccelerationModelSetup )
     for( unsigned int testCase = 0; testCase < 4; testCase++ )
     {
         // Get settings for Earth.
-        std::map< std::string, boost::shared_ptr< BodySettings > > bodySettings;
+        std::map< std::string, std::shared_ptr< BodySettings > > bodySettings;
         bodySettings[ "Earth" ] = getDefaultSingleBodySettings( "Earth", 0.0, 86400.0 );
-        bodySettings[ "Vehicle" ] = boost::make_shared< BodySettings >( );
+        bodySettings[ "Vehicle" ] = std::make_shared< BodySettings >( );
 
         // Define (arbitrary) aerodynamic coefficient settings.
         Eigen::Vector3d aerodynamicCoefficients =
@@ -407,7 +407,7 @@ BOOST_AUTO_TEST_CASE( test_aerodynamicAccelerationModelSetup )
         }
 
         bodySettings[ "Vehicle" ]->aerodynamicCoefficientSettings =
-                boost::make_shared< ConstantAerodynamicCoefficientSettings >(
+                std::make_shared< ConstantAerodynamicCoefficientSettings >(
                     1.0, referenceArea, 1.0, Eigen::Vector3d::Zero( ), aerodynamicCoefficients, Eigen::Vector3d::Zero( ),
                     areCoefficientsInAerodynamicFrame, areCoefficientsInNegativeAxisDirection );
 
@@ -418,7 +418,7 @@ BOOST_AUTO_TEST_CASE( test_aerodynamicAccelerationModelSetup )
         // Define settings for accelerations
         SelectedAccelerationMap accelerationSettingsMap;
         accelerationSettingsMap[ "Vehicle" ][ "Earth" ].push_back(
-                    boost::make_shared< AccelerationSettings >( aerodynamic ) );
+                    std::make_shared< AccelerationSettings >( aerodynamic ) );
 
         // Define origin of integration
         std::map< std::string, std::string > centralBodies;
@@ -427,7 +427,7 @@ BOOST_AUTO_TEST_CASE( test_aerodynamicAccelerationModelSetup )
         // Create accelerations
         AccelerationMap accelerationsMap = createAccelerationModelsMap(
                     bodyMap, accelerationSettingsMap, centralBodies );
-        boost::shared_ptr< AccelerationModel3d > aerodynamicAcceleration = accelerationsMap[ "Vehicle" ][ "Earth" ][ 0 ];
+        std::shared_ptr< AccelerationModel3d > aerodynamicAcceleration = accelerationsMap[ "Vehicle" ][ "Earth" ][ 0 ];
 
         // Define expected aerodynamic angles (see testAerodynamicAngleCalculator)
         double testHeadingAngle = 1.229357188236127;
@@ -440,7 +440,7 @@ BOOST_AUTO_TEST_CASE( test_aerodynamicAccelerationModelSetup )
         double bankAngle = 2.323432;
 
         // Retrieve flight conditions and define orientation angles.
-        boost::shared_ptr< aerodynamics::FlightConditions > vehicleFlightConditions =
+        std::shared_ptr< aerodynamics::FlightConditions > vehicleFlightConditions =
                 bodyMap[ "Vehicle" ]->getFlightConditions( );
         vehicleFlightConditions->getAerodynamicAngleCalculator( )->setOrientationAngleFunctions(
                     boost::lambda::constant( angleOfAttack ),
@@ -559,9 +559,9 @@ BOOST_AUTO_TEST_CASE( test_aerodynamicAccelerationModelSetupWithCoefficientIndep
     // Load Spice kernels
     spice_interface::loadStandardSpiceKernels( );
     // Get settings for Earth.
-    std::map< std::string, boost::shared_ptr< BodySettings > > bodySettings;
+    std::map< std::string, std::shared_ptr< BodySettings > > bodySettings;
     bodySettings[ "Earth" ] = getDefaultSingleBodySettings( "Earth", 0.0, 86400.0 );
-    bodySettings[ "Vehicle" ] = boost::make_shared< BodySettings >( );
+    bodySettings[ "Vehicle" ] = std::make_shared< BodySettings >( );
 
     // Create body objects.
     NamedBodyMap bodyMap = createBodies( bodySettings );
@@ -574,7 +574,7 @@ BOOST_AUTO_TEST_CASE( test_aerodynamicAccelerationModelSetupWithCoefficientIndep
     // Define settings for accelerations: point
     SelectedAccelerationMap accelerationSettingsMap;
     accelerationSettingsMap[ "Vehicle" ][ "Earth" ].push_back(
-                boost::make_shared< AccelerationSettings >( aerodynamic ) );
+                std::make_shared< AccelerationSettings >( aerodynamic ) );
 
     // Define origin of integration
     std::map< std::string, std::string > centralBodies;
@@ -583,13 +583,13 @@ BOOST_AUTO_TEST_CASE( test_aerodynamicAccelerationModelSetupWithCoefficientIndep
     // Create accelerations
     AccelerationMap accelerationsMap = createAccelerationModelsMap(
                 bodyMap, accelerationSettingsMap, centralBodies );
-    boost::shared_ptr< AccelerationModel3d > aerodynamicAcceleration = accelerationsMap[ "Vehicle" ][ "Earth" ][ 0 ];
+    std::shared_ptr< AccelerationModel3d > aerodynamicAcceleration = accelerationsMap[ "Vehicle" ][ "Earth" ][ 0 ];
 
 
     // Retrieve flight conditions and orientation angles
-    boost::shared_ptr< aerodynamics::FlightConditions > vehicleFlightConditions =
+    std::shared_ptr< aerodynamics::FlightConditions > vehicleFlightConditions =
             bodyMap[ "Vehicle" ]->getFlightConditions( );
-    boost::shared_ptr< aerodynamics::AerodynamicCoefficientInterface > coefficientInterface =
+    std::shared_ptr< aerodynamics::AerodynamicCoefficientInterface > coefficientInterface =
             bodyMap[ "Vehicle" ]->getAerodynamicCoefficientInterface( );
 
     // Define orientation angles.

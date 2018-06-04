@@ -79,7 +79,7 @@ BOOST_AUTO_TEST_CASE( test_SphericalHarmonicsGravitationalAcceleration_Demo1 )
                 order,
                 cosineCoefficient,
                 sineCoefficient,
-                boost::make_shared< basic_mathematics::SphericalHarmonicsCache >( 3, 1 ) );
+                std::make_shared< basic_mathematics::SphericalHarmonicsCache >( 3, 1 ) );
 
     // Define expected acceleration according to the MATLAB function 'gravitysphericalharmonic'
     // described by Mathworks [2012] [m s^-2].
@@ -123,7 +123,7 @@ BOOST_AUTO_TEST_CASE( test_SphericalHarmonicsGravitationalAcceleration_Demo2 )
                 order,
                 cosineCoefficient,
                 sineCoefficient,
-                boost::make_shared< basic_mathematics::SphericalHarmonicsCache >( 3, 2 ) );
+                std::make_shared< basic_mathematics::SphericalHarmonicsCache >( 3, 2 ) );
 
     // Define expected acceleration according to the MATLAB function 'gravitysphericalharmonic'
     // described by Mathworks [2012] [m s^-2].
@@ -167,7 +167,7 @@ BOOST_AUTO_TEST_CASE( test_SphericalHarmonicsGravitationalAcceleration_Demo3 )
                 order,
                 cosineCoefficient,
                 sineCoefficient,
-                boost::make_shared< basic_mathematics::SphericalHarmonicsCache >( 3, 3 ) );
+                std::make_shared< basic_mathematics::SphericalHarmonicsCache >( 3, 3 ) );
 
     // Define expected acceleration according to the MATLAB function 'gravitysphericalharmonic'
     // described by Mathworks [2012] [m s^-2].
@@ -226,7 +226,7 @@ BOOST_AUTO_TEST_CASE( test_SphericalHarmonicsGravitationalAcceleration_Demo4 )
                 planetaryRadius,
                 cosineCoefficients,
                 sineCoefficients,
-                boost::make_shared< basic_mathematics::SphericalHarmonicsCache >( 6, 6 ),
+                std::make_shared< basic_mathematics::SphericalHarmonicsCache >( 6, 6 ),
                 dummyMap );
 
     // Define expected acceleration according to the MATLAB function 'gravitysphericalharmonic'
@@ -282,7 +282,7 @@ BOOST_AUTO_TEST_CASE( test_SphericalHarmonicsGravitationalAccelerationWrapperCla
 
     // Declare spherical harmonics gravitational acceleration class object.
     SphericalHarmonicsGravitationalAccelerationModelPointer earthGravity
-            = boost::make_shared< SphericalHarmonicsGravitationalAccelerationModel >(
+            = std::make_shared< SphericalHarmonicsGravitationalAccelerationModel >(
                 boost::lambda::constant( position ), gravitationalParameter, planetaryRadius,
                 cosineCoefficients, sineCoefficients );
 

@@ -45,7 +45,7 @@ public:
      * \param data Raw (parsed) data to extract values from.
      * \return Extracted value.
      */
-    virtual boost::shared_ptr< T > extract(
+    virtual std::shared_ptr< T > extract(
         parsed_data_vector_utilities::ParsedDataLineMapPtr data ) = 0;
 
 protected:

@@ -122,22 +122,22 @@ BOOST_AUTO_TEST_CASE( testComputationOfThirdBodyPerturbation )
 
         // Create central gravity acceleration objects.
         gravitation::CentralGravitationalAccelerationModel3dPointer directAccelerationModel =
-                boost::make_shared< gravitation::CentralGravitationalAccelerationModel3d >(
+                std::make_shared< gravitation::CentralGravitationalAccelerationModel3d >(
                     boost::lambda::constant( positionOfBodyForTestCase[ 0 ] ),
                     gravitationalParameterOfPerturbingBodyForTestCase[ i ],
                     boost::lambda::constant( positionOfBodyForTestCase[ i ] ) );
 
         gravitation::CentralGravitationalAccelerationModel3dPointer
                 centralBodyAccelerationModel =
-                boost::make_shared< gravitation::CentralGravitationalAccelerationModel3d >(
+                std::make_shared< gravitation::CentralGravitationalAccelerationModel3d >(
                     boost::lambda::constant( Eigen::Vector3d::Zero( ) ),
                     gravitationalParameterOfPerturbingBodyForTestCase[ i ],
                     boost::lambda::constant( positionOfBodyForTestCase[ i ] ) );
 
         // Create third body gravity acceleration objects.
-        boost::shared_ptr<
+        std::shared_ptr<
                 gravitation::ThirdBodyCentralGravityAcceleration > thirdBodyAcceleration =
-                    boost::make_shared< gravitation::ThirdBodyCentralGravityAcceleration >(
+                    std::make_shared< gravitation::ThirdBodyCentralGravityAcceleration >(
                         directAccelerationModel, centralBodyAccelerationModel, "centralBody" );
         thirdBodyAcceleration->updateMembers( );
 
@@ -258,22 +258,22 @@ BOOST_AUTO_TEST_CASE( testRealisticThirdBodyPerturbation )
 
     // Create central gravity acceleration objects.
     gravitation::CentralGravitationalAccelerationModel3dPointer directAccelerationModel =
-            boost::make_shared< gravitation::CentralGravitationalAccelerationModel3d >(
+            std::make_shared< gravitation::CentralGravitationalAccelerationModel3d >(
                 boost::lambda::constant( realisticTestPosition ),
                 realisticGravitationalParameterOfPerturbingBody,
                 boost::lambda::constant( realisticPerturberPosition ) );
 
     gravitation::CentralGravitationalAccelerationModel3dPointer
             centralBodyAccelerationModel =
-            boost::make_shared< gravitation::CentralGravitationalAccelerationModel3d >(
+            std::make_shared< gravitation::CentralGravitationalAccelerationModel3d >(
                 boost::lambda::constant( barycentricEarthPosition ),
                 realisticGravitationalParameterOfPerturbingBody,
                 boost::lambda::constant( realisticPerturberPosition ) );
 
     // Create third body gravity acceleration objects.
-    boost::shared_ptr<
+    std::shared_ptr<
             gravitation::ThirdBodyCentralGravityAcceleration > thirdBodyAcceleration =
-                boost::make_shared< gravitation::ThirdBodyCentralGravityAcceleration >(
+                std::make_shared< gravitation::ThirdBodyCentralGravityAcceleration >(
                     directAccelerationModel, centralBodyAccelerationModel, "centralBody" );
     thirdBodyAcceleration->updateMembers( );
 

@@ -49,10 +49,10 @@ namespace simulation_setup
 {
 
 //! Create a `json` object from a shared pointer to a `GravityFieldVariationSettings` object.
-void to_json( nlohmann::json& jsonObject, const boost::shared_ptr< GravityFieldVariationSettings >& variationSettings );
+void to_json( nlohmann::json& jsonObject, const std::shared_ptr< GravityFieldVariationSettings >& variationSettings );
 
 //! Create a shared pointer to a `GravityFieldVariationSettings` object from a `json` object.
-void from_json( const nlohmann::json& jsonObject, boost::shared_ptr< GravityFieldVariationSettings >& variationSettings );
+void from_json( const nlohmann::json& jsonObject, std::shared_ptr< GravityFieldVariationSettings >& variationSettings );
 
 } // namespace simulation_setup
 

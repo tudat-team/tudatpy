@@ -170,7 +170,7 @@ private:
 };
 
 //! Typedef for shared-pointer to LambertTargeter.
-typedef boost::shared_ptr< LambertTargeter > LambertTargeterPointer;
+typedef std::shared_ptr< LambertTargeter > LambertTargeterPointer;
 
 } // namespace mission_segments
 } // namespace tudat

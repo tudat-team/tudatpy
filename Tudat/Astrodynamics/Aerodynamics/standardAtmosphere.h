@@ -81,7 +81,7 @@ public:
 };
 
 //! Typedef for shared-pointer to StandardAtmosphere object.
-typedef boost::shared_ptr< StandardAtmosphere > StandardAtmospherePointer;
+typedef std::shared_ptr< StandardAtmosphere > StandardAtmospherePointer;
 
 } // namespace aerodynamics
 } // namespace tudat

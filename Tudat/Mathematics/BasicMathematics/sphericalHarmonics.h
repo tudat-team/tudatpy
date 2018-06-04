@@ -43,7 +43,7 @@ public:
      */
     SphericalHarmonicsCache( const bool useGeodesyNormalization = 1 )
     {
-        legendreCache_ = boost::make_shared< LegendreCache >( useGeodesyNormalization );
+        legendreCache_ = std::make_shared< LegendreCache >( useGeodesyNormalization );
 
         currentLongitude_ = TUDAT_NAN;
         referenceRadiusRatio_ = TUDAT_NAN;
@@ -61,7 +61,7 @@ public:
      */
     SphericalHarmonicsCache( const int maximumDegree, const int maximumOrder, const bool useGeodesyNormalization = 1 )
     {
-        legendreCache_ = boost::make_shared< LegendreCache >( maximumDegree, maximumOrder, useGeodesyNormalization );
+        legendreCache_ = std::make_shared< LegendreCache >( maximumDegree, maximumOrder, useGeodesyNormalization );
 
         currentLongitude_ = TUDAT_NAN;
         referenceRadiusRatio_ = TUDAT_NAN;
@@ -163,7 +163,7 @@ public:
      * Function to get object for caching and computing Legendre polynomials.
      * \return Object for caching and computing Legendre polynomials.
      */
-    boost::shared_ptr< LegendreCache > getLegendreCache( )
+    std::shared_ptr< LegendreCache > getLegendreCache( )
     {
         return legendreCache_;
     }
@@ -240,7 +240,7 @@ private:
     std::vector< double > referenceRadiusRatioPowers_;
 
     //! Object for caching and computing Legendre polynomials.
-    boost::shared_ptr< LegendreCache > legendreCache_;
+    std::shared_ptr< LegendreCache > legendreCache_;
 
 
 
@@ -396,7 +396,7 @@ Eigen::Vector3d computePotentialGradient( const Eigen::Vector3d& sphericalPositi
                                           const double sineHarmonicCoefficient,
                                           const double legendrePolynomial,
                                           const double legendrePolynomialDerivative,
-                                          const boost::shared_ptr< SphericalHarmonicsCache > sphericalHarmonicsCache );
+                                          const std::shared_ptr< SphericalHarmonicsCache > sphericalHarmonicsCache );
 
 } // namespace basic_mathematics
 } // namespace tudat

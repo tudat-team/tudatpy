@@ -161,7 +161,7 @@ private:
 };
 
 //! Pointer to a SolarActivityData structure
-typedef boost::shared_ptr< SolarActivityData > SolarActivityDataPtr;
+typedef std::shared_ptr< SolarActivityData > SolarActivityDataPtr;
 
 //! Data map of SolarActivityData structure Pointers
 typedef std::map< double , SolarActivityDataPtr >  SolarActivityDataMap ;

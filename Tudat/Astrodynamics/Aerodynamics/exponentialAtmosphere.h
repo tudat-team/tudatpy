@@ -248,7 +248,7 @@ private:
 };
 
 //! Typedef for shared-pointer to ExponentialAtmosphere object.
-typedef boost::shared_ptr< ExponentialAtmosphere > ExponentialAtmospherePointer;
+typedef std::shared_ptr< ExponentialAtmosphere > ExponentialAtmospherePointer;
 
 } // namespace aerodynamics
 } // namespace tudat

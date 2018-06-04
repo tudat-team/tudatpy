@@ -141,7 +141,7 @@ private:
 };
 
 //! Typedef for shared-pointer to LambertTargeterIzzo object.
-typedef boost::shared_ptr< LambertTargeterIzzo > LambertTargeterIzzoPointer;
+typedef std::shared_ptr< LambertTargeterIzzo > LambertTargeterIzzoPointer;
 
 } // namespace mission_segments
 } // namespace tudat

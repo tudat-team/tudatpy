@@ -38,7 +38,7 @@ public:
      * AccelerationMap are used)
      */
     DirectTidalTimeLag(
-            const std::vector< boost::shared_ptr< gravitation::DirectTidalDissipationAcceleration > > tidalAccelerationModels,
+            const std::vector< std::shared_ptr< gravitation::DirectTidalDissipationAcceleration > > tidalAccelerationModels,
             const std::string& deformedBody,
             const std::vector< std::string > bodiesCausingDeformation = std::vector< std::string >( ) ):
         EstimatableParameter< double >(
@@ -95,7 +95,7 @@ public:
      * Function to retrieve list of acceleration models of which the tidal time lag is to be estimated
      * \return List of acceleration models of which the tidal time lag is to be estimated
      */
-    std::vector< boost::shared_ptr< gravitation::DirectTidalDissipationAcceleration > > getTidalAccelerationModels( )
+    std::vector< std::shared_ptr< gravitation::DirectTidalDissipationAcceleration > > getTidalAccelerationModels( )
     {
         return tidalAccelerationModels_;
     }
@@ -114,7 +114,7 @@ public:
 private:
 
     //! List of acceleration models of which the tidal time lag is to be estimated
-    std::vector< boost::shared_ptr< gravitation::DirectTidalDissipationAcceleration > > tidalAccelerationModels_;
+    std::vector< std::shared_ptr< gravitation::DirectTidalDissipationAcceleration > > tidalAccelerationModels_;
 
     //! List of bodies causing tidal deformation (empty if all bodies causing deformation in AccelerationMap are used)
     std::vector< std::string > bodiesCausingDeformation_;

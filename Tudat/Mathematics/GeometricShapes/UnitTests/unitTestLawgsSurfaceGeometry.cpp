@@ -41,7 +41,7 @@ BOOST_AUTO_TEST_CASE( testLawgsSurfaceGeometry )
 
     // Create a full sphere as test geometry, with a radius of 2.0.
     const double sphereRadius = 2.0;
-    boost::shared_ptr< SphereSegment > sphere = boost::make_shared< SphereSegment >(
+    std::shared_ptr< SphereSegment > sphere = std::make_shared< SphereSegment >(
                 sphereRadius );
 
     // Create a Lawgs mesh of the sphere.

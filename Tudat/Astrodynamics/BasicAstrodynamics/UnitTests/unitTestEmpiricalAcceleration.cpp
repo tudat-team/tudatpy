@@ -67,17 +67,17 @@ BOOST_AUTO_TEST_CASE( testEmpiricalAccelerations )
         const double fixedStepSize = 15.0;
 
         // Define body settings for simulation.
-        std::map< std::string, boost::shared_ptr< BodySettings > > bodySettings;
-        bodySettings[ "Earth" ] = boost::make_shared< BodySettings >( );
-        bodySettings[ "Earth" ]->ephemerisSettings = boost::make_shared< ConstantEphemerisSettings >(
+        std::map< std::string, std::shared_ptr< BodySettings > > bodySettings;
+        bodySettings[ "Earth" ] = std::make_shared< BodySettings >( );
+        bodySettings[ "Earth" ]->ephemerisSettings = std::make_shared< ConstantEphemerisSettings >(
                     Eigen::Vector6d::Zero( ), "SSB", "J2000" );
-        bodySettings[ "Earth" ]->gravityFieldSettings = boost::make_shared< GravityFieldSettings >( central_spice );
+        bodySettings[ "Earth" ]->gravityFieldSettings = std::make_shared< GravityFieldSettings >( central_spice );
 
         // Create Earth object
         NamedBodyMap bodyMap = createBodies( bodySettings );
 
         // Create spacecraft object.
-        bodyMap[ "Asterix" ] = boost::make_shared< simulation_setup::Body >( );
+        bodyMap[ "Asterix" ] = std::make_shared< simulation_setup::Body >( );
 
 
         // Finalize body creation.
@@ -90,27 +90,27 @@ BOOST_AUTO_TEST_CASE( testEmpiricalAccelerations )
         std::vector< std::string > centralBodies;
 
         // Define propagation settings.
-        std::map< std::string, std::vector< boost::shared_ptr< AccelerationSettings > > > accelerationsOfAsterix;
-        accelerationsOfAsterix[ "Earth" ].push_back( boost::make_shared< AccelerationSettings >(
+        std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfAsterix;
+        accelerationsOfAsterix[ "Earth" ].push_back( std::make_shared< AccelerationSettings >(
                                                          basic_astrodynamics::central_gravity ) );
 
         // Define empirical acceleration values for current case
         double empiricalAccelerationNorm = 1.0E-8;
         if( testCase == 0 )
         {
-            accelerationsOfAsterix[ "Earth" ].push_back( boost::make_shared< EmpiricalAccelerationSettings >(
+            accelerationsOfAsterix[ "Earth" ].push_back( std::make_shared< EmpiricalAccelerationSettings >(
                                                              empiricalAccelerationNorm * Eigen::Vector3d::UnitX( ) ) );
         }
         else if( testCase == 1 )
         {
-            accelerationsOfAsterix[ "Earth" ].push_back( boost::make_shared< EmpiricalAccelerationSettings >(
+            accelerationsOfAsterix[ "Earth" ].push_back( std::make_shared< EmpiricalAccelerationSettings >(
                                                              Eigen::Vector3d::Zero( ),
                                                              empiricalAccelerationNorm * Eigen::Vector3d::UnitX( ),
                                                              empiricalAccelerationNorm * Eigen::Vector3d::UnitY( ) ) );
         }
         else if( testCase == 2 )
         {
-            accelerationsOfAsterix[ "Earth" ].push_back( boost::make_shared< EmpiricalAccelerationSettings >(
+            accelerationsOfAsterix[ "Earth" ].push_back( std::make_shared< EmpiricalAccelerationSettings >(
                                                              empiricalAccelerationNorm * Eigen::Vector3d::UnitX( ),
                                                              empiricalAccelerationNorm * Eigen::Vector3d::UnitY( ),
                                                              empiricalAccelerationNorm * Eigen::Vector3d::UnitZ( ) ) );
@@ -141,21 +141,21 @@ BOOST_AUTO_TEST_CASE( testEmpiricalAccelerations )
                     earthGravitationalParameter );
 
         // Define dependent variable settings
-        std::vector< boost::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariables;
+        std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariables;
         dependentVariables.push_back(
-                    boost::make_shared< SingleAccelerationDependentVariableSaveSettings >(
+                    std::make_shared< SingleAccelerationDependentVariableSaveSettings >(
                         empirical_acceleration, "Asterix", "Earth", 0 ) );
 
         // Define propagator settings
         TranslationalPropagatorType propagatorType = encke;
-        boost::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
-                boost::make_shared< TranslationalStatePropagatorSettings< double > >
+        std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
+                std::make_shared< TranslationalStatePropagatorSettings< double > >
                 ( centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState, simulationEndEpoch, propagatorType,
-                  boost::make_shared< DependentVariableSaveSettings >( dependentVariables ) );
+                  std::make_shared< DependentVariableSaveSettings >( dependentVariables ) );
 
         // Define integrator settings
-        boost::shared_ptr< IntegratorSettings< > > integratorSettings =
-                boost::make_shared< RungeKuttaVariableStepSizeSettings< > >
+        std::shared_ptr< IntegratorSettings< > > integratorSettings =
+                std::make_shared< RungeKuttaVariableStepSizeSettings< > >
                 ( rungeKuttaVariableStepSize, 0.0, fixedStepSize,
                   RungeKuttaCoefficients::rungeKuttaFehlberg78, 1.0E-4, 3600.0, 1.0E-14, 1.0E-14 );
 

@@ -81,23 +81,23 @@ Eigen::Matrix< StateScalarType, 6, 1 > testGlobalFrameOrigin(
     double buffer = 5.0 * maximumTimeStep;
 
     // Create bodies needed in simulation
-    std::map< std::string, boost::shared_ptr< BodySettings > > bodySettings =
+    std::map< std::string, std::shared_ptr< BodySettings > > bodySettings =
             getDefaultBodySettings( bodyNames, initialEphemerisTime - buffer, finalEphemerisTime + buffer );
 
     if( std::is_same< long double, StateScalarType >::value )
     {
-        boost::dynamic_pointer_cast< InterpolatedSpiceEphemerisSettings >(
+        std::dynamic_pointer_cast< InterpolatedSpiceEphemerisSettings >(
                     bodySettings[ "Moon" ]->ephemerisSettings )->setUseLongDoubleStates( 1 );
     }
 
     // Change ephemeris origins to test full functionality
-    boost::dynamic_pointer_cast< InterpolatedSpiceEphemerisSettings >( bodySettings[ "Moon" ]->ephemerisSettings )->
+    std::dynamic_pointer_cast< InterpolatedSpiceEphemerisSettings >( bodySettings[ "Moon" ]->ephemerisSettings )->
             resetFrameOrigin( moonEphemerisOrigin );
-    boost::dynamic_pointer_cast< InterpolatedSpiceEphemerisSettings >( bodySettings[ "Earth" ]->ephemerisSettings )->
+    std::dynamic_pointer_cast< InterpolatedSpiceEphemerisSettings >( bodySettings[ "Earth" ]->ephemerisSettings )->
             resetFrameOrigin( "Sun" );
-    boost::dynamic_pointer_cast< InterpolatedSpiceEphemerisSettings >( bodySettings[ "Mars" ]->ephemerisSettings )->
+    std::dynamic_pointer_cast< InterpolatedSpiceEphemerisSettings >( bodySettings[ "Mars" ]->ephemerisSettings )->
             resetFrameOrigin( "Sun" );
-    boost::dynamic_pointer_cast< InterpolatedSpiceEphemerisSettings >( bodySettings[ "Venus" ]->ephemerisSettings )->
+    std::dynamic_pointer_cast< InterpolatedSpiceEphemerisSettings >( bodySettings[ "Venus" ]->ephemerisSettings )->
             resetFrameOrigin( "SSB" );
 
     NamedBodyMap bodyMap = createBodies( bodySettings );
@@ -105,11 +105,11 @@ Eigen::Matrix< StateScalarType, 6, 1 > testGlobalFrameOrigin(
 
     // Set accelerations between bodies that are to be taken into account.
     SelectedAccelerationMap accelerationMap;
-    std::map< std::string, std::vector< boost::shared_ptr< AccelerationSettings > > > accelerationsOfMoon;
-    accelerationsOfMoon[ "Earth" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );
-    accelerationsOfMoon[ "Sun" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );
-    accelerationsOfMoon[ "Mars" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );
-    accelerationsOfMoon[ "Venus" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );
+    std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfMoon;
+    accelerationsOfMoon[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( central_gravity ) );
+    accelerationsOfMoon[ "Sun" ].push_back( std::make_shared< AccelerationSettings >( central_gravity ) );
+    accelerationsOfMoon[ "Mars" ].push_back( std::make_shared< AccelerationSettings >( central_gravity ) );
+    accelerationsOfMoon[ "Venus" ].push_back( std::make_shared< AccelerationSettings >( central_gravity ) );
     accelerationMap[ "Moon" ] = accelerationsOfMoon;
 
     // Propagate the moon only
@@ -119,8 +119,8 @@ Eigen::Matrix< StateScalarType, 6, 1 > testGlobalFrameOrigin(
     centralBodies.push_back( "Earth" );
 
     // Define settings for numerical integrator.
-    boost::shared_ptr< IntegratorSettings< TimeType > > integratorSettings =
-            boost::make_shared< IntegratorSettings< TimeType > >
+    std::shared_ptr< IntegratorSettings< TimeType > > integratorSettings =
+            std::make_shared< IntegratorSettings< TimeType > >
             ( rungeKutta4, initialEphemerisTime, 300.0 );
 
     // Create acceleration models and propagation settings.
@@ -130,8 +130,8 @@ Eigen::Matrix< StateScalarType, 6, 1 > testGlobalFrameOrigin(
                 template cast< StateScalarType >( );
     AccelerationMap accelerationModelMap = createAccelerationModelsMap(
                 bodyMap, accelerationMap, bodiesToIntegrate, centralBodies );
-    boost::shared_ptr< TranslationalStatePropagatorSettings< StateScalarType > > propagatorSettings =
-            boost::make_shared< TranslationalStatePropagatorSettings< StateScalarType > >
+    std::shared_ptr< TranslationalStatePropagatorSettings< StateScalarType > > propagatorSettings =
+            std::make_shared< TranslationalStatePropagatorSettings< StateScalarType > >
             ( centralBodies, accelerationModelMap, bodiesToIntegrate, systemInitialState, finalEphemerisTime );
 
     // Create dynamics simulation object.

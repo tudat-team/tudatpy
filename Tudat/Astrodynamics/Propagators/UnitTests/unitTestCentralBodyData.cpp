@@ -55,7 +55,7 @@ BOOST_AUTO_TEST_CASE( testCentralBodyData )
 
     // Create dummy state functions.
     std::map< std::string,
-              boost::function< Eigen::Matrix< double, 6, 1 >( const double ) > > stateFunctions;
+              std::function< Eigen::Matrix< double, 6, 1 >( const double ) > > stateFunctions;
     for( unsigned int i = 0; i < bodiesToIntegrate.size( ); i++ )
     {
         stateFunctions[ bodiesToIntegrate[ i ] ]
@@ -63,8 +63,8 @@ BOOST_AUTO_TEST_CASE( testCentralBodyData )
     }
 
     // Create central bodies object.
-    boost::shared_ptr< CentralBodyData< double > > centralBodyData
-        = boost::make_shared< CentralBodyData< double > >(
+    std::shared_ptr< CentralBodyData< double > > centralBodyData
+        = std::make_shared< CentralBodyData< double > >(
                 centralBodies, bodiesToIntegrate, stateFunctions, boost::lambda::constant( Eigen::Vector6d::Zero( ) ), "SSB" );
 
     // Get update order.

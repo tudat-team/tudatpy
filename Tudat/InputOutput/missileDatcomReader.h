@@ -142,7 +142,7 @@ private:
 };
 
 //! Typedef for shared-pointer to MissileDatcomReader object.
-typedef boost::shared_ptr< MissileDatcomReader > MissileDatcomReaderPointer;
+typedef std::shared_ptr< MissileDatcomReader > MissileDatcomReaderPointer;
 
 } // namespace input_output
 } // namespace tudat

@@ -64,7 +64,7 @@ private:
 };
 
 //! Typedef for shared-pointer to StateDerivativeCircularRestrictedThreeBodyProblem object.
-typedef boost::shared_ptr< StateDerivativeCircularRestrictedThreeBodyProblem >
+typedef std::shared_ptr< StateDerivativeCircularRestrictedThreeBodyProblem >
 StateDerivativeCircularRestrictedThreeBodyProblemPointer;
 
 } // namespace propagators

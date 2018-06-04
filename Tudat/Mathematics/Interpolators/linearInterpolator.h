@@ -167,7 +167,7 @@ public:
 typedef LinearInterpolator< double, double > LinearInterpolatorDouble;
 
 //! Typedef for shared-pointer to linear interpolator with (in)dependent variable = double.
-typedef boost::shared_ptr< LinearInterpolatorDouble > LinearInterpolatorDoublePointer;
+typedef std::shared_ptr< LinearInterpolatorDouble > LinearInterpolatorDoublePointer;
 
 //! Compute linear interpolation free function.
 /*!

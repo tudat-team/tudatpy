@@ -18,7 +18,7 @@
 #include <string>
 
 #include <boost/shared_ptr.hpp>
-#include <boost/function.hpp>
+#include <tr1/functional>
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/torqueModel.h"
 
@@ -93,9 +93,9 @@ public:
     RotationalMotionStateDerivative(
             const basic_astrodynamics::TorqueModelMap& torqueModelsPerBody,
             const std::vector< std::string >& bodiesToPropagate,
-            std::vector< boost::function< Eigen::Matrix3d( ) > > bodyInertiaTensorFunctions,
-            std::vector< boost::function< Eigen::Matrix3d( ) > > bodyInertiaTensorTimeDerivativeFunctions =
-            std::vector< boost::function< Eigen::Matrix3d( ) > >( ) ):
+            std::vector< std::function< Eigen::Matrix3d( ) > > bodyInertiaTensorFunctions,
+            std::vector< std::function< Eigen::Matrix3d( ) > > bodyInertiaTensorTimeDerivativeFunctions =
+            std::vector< std::function< Eigen::Matrix3d( ) > >( ) ):
         propagators::SingleStateTypeDerivative< StateScalarType, TimeType >(
             propagators::rotational_state ),
         torqueModelsPerBody_( torqueModelsPerBody ),
@@ -373,10 +373,10 @@ protected:
     std::vector< std::string > bodiesToPropagate_;
 
     //! List of functions returning inertia tensors of bodiesToPropagate (in same order)
-    std::vector< boost::function< Eigen::Matrix3d( ) > > bodyInertiaTensorFunctions_;
+    std::vector< std::function< Eigen::Matrix3d( ) > > bodyInertiaTensorFunctions_;
 
     //!  List of functions returning time derivatives of inertia tensors of bodiesToPropagate (in same order)
-    std::vector< boost::function< Eigen::Matrix3d( ) > > bodyInertiaTensorTimeDerivativeFunctions_;
+    std::vector< std::function< Eigen::Matrix3d( ) > > bodyInertiaTensorTimeDerivativeFunctions_;
 
 
     //! Predefined iterator to save (de-)allocation time.

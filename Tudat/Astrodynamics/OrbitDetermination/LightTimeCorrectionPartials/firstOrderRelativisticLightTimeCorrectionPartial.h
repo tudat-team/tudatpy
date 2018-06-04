@@ -51,7 +51,7 @@ public:
      * \param correctionCalculator Object used to compute light-time correction.
      */
     FirstOrderRelativisticLightTimeCorrectionPartial(
-            const boost::shared_ptr< observation_models::FirstOrderLightTimeCorrectionCalculator > correctionCalculator ):
+            const std::shared_ptr< observation_models::FirstOrderLightTimeCorrectionCalculator > correctionCalculator ):
         LightTimeCorrectionPartial( observation_models::first_order_relativistic ),
         correctionCalculator_( correctionCalculator )
     {
@@ -121,13 +121,13 @@ public:
 protected:
 
     //! Object used to compute light-time correction.
-    boost::shared_ptr< observation_models::FirstOrderLightTimeCorrectionCalculator > correctionCalculator_;
+    std::shared_ptr< observation_models::FirstOrderLightTimeCorrectionCalculator > correctionCalculator_;
 
     //! Names of bodies causing light-time correction.
     std::vector< std::string > perturbingBodies_;
 
     //! Set of functions returning the gravitational parameters of the gravitating bodies.
-    std::vector< boost::function< double( ) > > perturbingBodyGravitationalParameterFunctions_;
+    std::vector< std::function< double( ) > > perturbingBodyGravitationalParameterFunctions_;
 
 };
 

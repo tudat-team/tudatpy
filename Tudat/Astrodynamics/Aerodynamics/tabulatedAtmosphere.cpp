@@ -56,11 +56,11 @@ void TabulatedAtmosphere::initialize( const std::string& atmosphereTableFile )
     using namespace interpolators;
 
     cubicSplineInterpolationForDensity_
-            = boost::make_shared< CubicSplineInterpolatorDouble >( altitudeData_, densityData_ );
+            = std::make_shared< CubicSplineInterpolatorDouble >( altitudeData_, densityData_ );
     cubicSplineInterpolationForPressure_
-            = boost::make_shared< CubicSplineInterpolatorDouble >( altitudeData_, pressureData_ );
+            = std::make_shared< CubicSplineInterpolatorDouble >( altitudeData_, pressureData_ );
     cubicSplineInterpolationForTemperature_
-            = boost::make_shared< CubicSplineInterpolatorDouble >(
+            = std::make_shared< CubicSplineInterpolatorDouble >(
                 altitudeData_, temperatureData_ );
 }
 

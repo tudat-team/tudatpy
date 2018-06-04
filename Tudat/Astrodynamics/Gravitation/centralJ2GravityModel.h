@@ -155,7 +155,7 @@ private:
 };
 
 //! Typedef for shared-pointer to CentralJ2GravitationalAccelerationModel.
-typedef boost::shared_ptr< CentralJ2GravitationalAccelerationModel >
+typedef std::shared_ptr< CentralJ2GravitationalAccelerationModel >
 CentralJ2GravitationalAccelerationModelPointer;
 
 } // namespace gravitation

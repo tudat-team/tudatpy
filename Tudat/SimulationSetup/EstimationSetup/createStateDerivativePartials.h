@@ -36,17 +36,17 @@ namespace simulation_setup
 template< typename StateScalarType, typename TimeType >
 std::map< propagators::IntegratedStateType, orbit_determination::StateDerivativePartialsMap > createStateDerivativePartials(
         const std::unordered_map< propagators::IntegratedStateType,
-        std::vector< boost::shared_ptr< propagators::SingleStateTypeDerivative< StateScalarType, TimeType > > > >
+        std::vector< std::shared_ptr< propagators::SingleStateTypeDerivative< StateScalarType, TimeType > > > >
         stateDerivativeModels,
         const simulation_setup::NamedBodyMap& bodyMap,
-        const boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< StateScalarType > >
+        const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< StateScalarType > >
         parametersToEstimate )
 {
     std::map< propagators::IntegratedStateType, orbit_determination::StateDerivativePartialsMap > stateDerivativePartials;
 
     // Iterate over all state types
     for( typename std::unordered_map< propagators::IntegratedStateType,
-         std::vector< boost::shared_ptr< propagators::SingleStateTypeDerivative< StateScalarType, TimeType > > > >::
+         std::vector< std::shared_ptr< propagators::SingleStateTypeDerivative< StateScalarType, TimeType > > > >::
          const_iterator stateDerivativeIterator = stateDerivativeModels.begin( );
          stateDerivativeIterator != stateDerivativeModels.end( );
          stateDerivativeIterator++ )
@@ -65,7 +65,7 @@ std::map< propagators::IntegratedStateType, orbit_determination::StateDerivative
             {
                 // Retrieve acceleration models and create partials
                 basic_astrodynamics::AccelerationMap accelerationModelList =
-                        boost::dynamic_pointer_cast< propagators::NBodyStateDerivative< StateScalarType, TimeType > >(
+                        std::dynamic_pointer_cast< propagators::NBodyStateDerivative< StateScalarType, TimeType > >(
                             stateDerivativeIterator->second.at( 0 ) )->getFullAccelerationsMap( );
                 stateDerivativePartials[ propagators::transational_state ] =
                         createAccelerationPartialsMap< StateScalarType >(

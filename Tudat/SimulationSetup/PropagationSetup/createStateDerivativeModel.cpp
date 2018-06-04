@@ -17,16 +17,16 @@ namespace propagators
 {
 
 //! Function to create an integrator to propagate the dynamics (in normalized units) in CR3BP
-boost::shared_ptr< numerical_integrators::NumericalIntegrator< double, Eigen::Vector6d > > createCR3BPIntegrator(
-        const boost::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings,
+std::shared_ptr< numerical_integrators::NumericalIntegrator< double, Eigen::Vector6d > > createCR3BPIntegrator(
+        const std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings,
         const double massParameter,
         const Eigen::Vector6d& initialState )
 {
     // Create state derivative model
-    boost::shared_ptr< StateDerivativeCircularRestrictedThreeBodyProblem > stateDerivativeModel =
-            boost::make_shared< StateDerivativeCircularRestrictedThreeBodyProblem  >( massParameter );
-    boost::function< Eigen::Vector6d( const double, const Eigen::Vector6d& ) > stateDerivativeFunction =
-            boost::bind( &StateDerivativeCircularRestrictedThreeBodyProblem::computeStateDerivative, stateDerivativeModel,
+    std::shared_ptr< StateDerivativeCircularRestrictedThreeBodyProblem > stateDerivativeModel =
+            std::make_shared< StateDerivativeCircularRestrictedThreeBodyProblem  >( massParameter );
+    std::function< Eigen::Vector6d( const double, const Eigen::Vector6d& ) > stateDerivativeFunction =
+            std::bind( &StateDerivativeCircularRestrictedThreeBodyProblem::computeStateDerivative, stateDerivativeModel,
                          _1, _2 );
 
     // Create integrator object
@@ -36,13 +36,13 @@ boost::shared_ptr< numerical_integrators::NumericalIntegrator< double, Eigen::Ve
 
 //! Function to propagate the dynamics (in normalized units) in CR3BP
 std::map< double, Eigen::Vector6d > performCR3BPIntegration(
-        const boost::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings,
+        const std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings,
         const double massParameter,
         const Eigen::Vector6d& initialState,
         const double finalTime )
 {
     // Create integrator object
-    boost::shared_ptr< numerical_integrators::NumericalIntegrator< double, Eigen::Vector6d > > integrator =
+    std::shared_ptr< numerical_integrators::NumericalIntegrator< double, Eigen::Vector6d > > integrator =
             createCR3BPIntegrator( integratorSettings, massParameter, initialState );
 
     // Initialize return data map

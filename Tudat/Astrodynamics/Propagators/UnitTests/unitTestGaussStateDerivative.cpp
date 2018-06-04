@@ -64,10 +64,10 @@ BOOST_AUTO_TEST_CASE( testGaussPopagatorForPointMassCentralBodies )
         double buffer = 5.0 * maximumTimeStep;
 
         // Create bodies needed in simulation
-        std::map< std::string, boost::shared_ptr< BodySettings > > bodySettings =
+        std::map< std::string, std::shared_ptr< BodySettings > > bodySettings =
                 getDefaultBodySettings( bodyNames, initialEphemerisTime - buffer , finalEphemerisTime + buffer );
 
-        for(  std::map< std::string, boost::shared_ptr< BodySettings > >::iterator bodySettingIterator =
+        for(  std::map< std::string, std::shared_ptr< BodySettings > >::iterator bodySettingIterator =
               bodySettings.begin( ); bodySettingIterator != bodySettings.end( ); bodySettingIterator++ )
         {
             bodySettingIterator->second->ephemerisSettings->resetFrameOrientation( "J2000" );
@@ -80,22 +80,22 @@ BOOST_AUTO_TEST_CASE( testGaussPopagatorForPointMassCentralBodies )
 
         // Set accelerations between bodies that are to be taken into account.
         SelectedAccelerationMap accelerationMap;
-        std::map< std::string, std::vector< boost::shared_ptr< AccelerationSettings > > > accelerationsOfEarth;
-        accelerationsOfEarth[ "Sun" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );
-        accelerationsOfEarth[ "Moon" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );
-        accelerationsOfEarth[ "Jupiter" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );
+        std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfEarth;
+        accelerationsOfEarth[ "Sun" ].push_back( std::make_shared< AccelerationSettings >( central_gravity ) );
+        accelerationsOfEarth[ "Moon" ].push_back( std::make_shared< AccelerationSettings >( central_gravity ) );
+        accelerationsOfEarth[ "Jupiter" ].push_back( std::make_shared< AccelerationSettings >( central_gravity ) );
         accelerationMap[ "Earth" ] = accelerationsOfEarth;
 
-        std::map< std::string, std::vector< boost::shared_ptr< AccelerationSettings > > > accelerationsOfMars;
-        accelerationsOfMars[ "Sun" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );
-        accelerationsOfMars[ "Venus" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );
-        accelerationsOfMars[ "Jupiter" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );
+        std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfMars;
+        accelerationsOfMars[ "Sun" ].push_back( std::make_shared< AccelerationSettings >( central_gravity ) );
+        accelerationsOfMars[ "Venus" ].push_back( std::make_shared< AccelerationSettings >( central_gravity ) );
+        accelerationsOfMars[ "Jupiter" ].push_back( std::make_shared< AccelerationSettings >( central_gravity ) );
         accelerationMap[ "Mars" ] = accelerationsOfMars;
 
-        std::map< std::string, std::vector< boost::shared_ptr< AccelerationSettings > > > accelerationsOfVenus;
-        accelerationsOfVenus[ "Sun" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );
-        accelerationsOfVenus[ "Mars" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );
-        accelerationsOfVenus[ "Jupiter" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );
+        std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfVenus;
+        accelerationsOfVenus[ "Sun" ].push_back( std::make_shared< AccelerationSettings >( central_gravity ) );
+        accelerationsOfVenus[ "Mars" ].push_back( std::make_shared< AccelerationSettings >( central_gravity ) );
+        accelerationsOfVenus[ "Jupiter" ].push_back( std::make_shared< AccelerationSettings >( central_gravity ) );
         accelerationMap[ "Venus" ] = accelerationsOfVenus;
 
         // Propagate Earth, Mars and Moon
@@ -152,14 +152,14 @@ BOOST_AUTO_TEST_CASE( testGaussPopagatorForPointMassCentralBodies )
                     bodyMap, accelerationMap, centralBodyMap );
 
         // Create integrator settings.
-        boost::shared_ptr< IntegratorSettings< > > integratorSettings =
-                boost::make_shared< IntegratorSettings< > >
+        std::shared_ptr< IntegratorSettings< > > integratorSettings =
+                std::make_shared< IntegratorSettings< > >
                 ( rungeKutta4,
                   initialEphemerisTime, 250.0 );
 
         // Create propagation settings (Cowell)
-        boost::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
-                boost::make_shared< TranslationalStatePropagatorSettings< double > >
+        std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
+                std::make_shared< TranslationalStatePropagatorSettings< double > >
                 ( centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState, finalEphemerisTime );
 
         // Propagate orbit with Cowell method
@@ -201,7 +201,7 @@ BOOST_AUTO_TEST_CASE( testGaussPopagatorForPointMassCentralBodies )
         }
 
         // Create propagation settings (Gauss)
-        propagatorSettings = boost::make_shared< TranslationalStatePropagatorSettings< double > >
+        propagatorSettings = std::make_shared< TranslationalStatePropagatorSettings< double > >
                 ( centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState, finalEphemerisTime, translationalPropagatorType );
 
         // Propagate orbit with Gauss method
@@ -309,7 +309,7 @@ BOOST_AUTO_TEST_CASE( testGaussPopagatorForSphericalHarmonicCentralBodies )
             bodiesToCreate.push_back( "Venus" );
 
             // Create body objects.
-            std::map< std::string, boost::shared_ptr< BodySettings > > bodySettings =
+            std::map< std::string, std::shared_ptr< BodySettings > > bodySettings =
                     getDefaultBodySettings( bodiesToCreate, simulationStartEpoch - 300.0, simulationEndEpoch + 300.0 );
             for( unsigned int i = 0; i < bodiesToCreate.size( ); i++ )
             {
@@ -319,13 +319,13 @@ BOOST_AUTO_TEST_CASE( testGaussPopagatorForSphericalHarmonicCentralBodies )
             NamedBodyMap bodyMap = createBodies( bodySettings );
 
             // Create spacecraft object.
-            bodyMap[ "Vehicle" ] = boost::make_shared< simulation_setup::Body >( );
+            bodyMap[ "Vehicle" ] = std::make_shared< simulation_setup::Body >( );
             bodyMap[ "Vehicle" ]->setConstantBodyMass( 400.0 );
-            bodyMap[ "Vehicle" ]->setEphemeris( boost::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
-                                                    boost::shared_ptr< interpolators::OneDimensionalInterpolator
+            bodyMap[ "Vehicle" ]->setEphemeris( std::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
+                                                    std::shared_ptr< interpolators::OneDimensionalInterpolator
                                                     < double, Eigen::Vector6d  > >( ), "Earth", "J2000" ) );
-            boost::shared_ptr< RadiationPressureInterfaceSettings > vehicleRadiationPressureSettings =
-                    boost::make_shared< CannonBallRadiationPressureInterfaceSettings >(
+            std::shared_ptr< RadiationPressureInterfaceSettings > vehicleRadiationPressureSettings =
+                    std::make_shared< CannonBallRadiationPressureInterfaceSettings >(
                         "Sun", 4.0, 1.2, boost::assign::list_of( "Earth" ) );
             bodyMap[ "Vehicle" ]->setRadiationPressureInterface(
                         "Sun", createRadiationPressureInterface(
@@ -341,34 +341,34 @@ BOOST_AUTO_TEST_CASE( testGaussPopagatorForSphericalHarmonicCentralBodies )
             std::vector< std::string > centralBodies;
 
             // Define propagation settings.
-            std::map< std::string, std::vector< boost::shared_ptr< AccelerationSettings > > > accelerationsOfVehicle;
+            std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfVehicle;
 
             // Use only central gravity for Earth
             if( simulationCase < 2 )
             {
-                accelerationsOfVehicle[ "Earth" ].push_back( boost::make_shared< AccelerationSettings >(
+                accelerationsOfVehicle[ "Earth" ].push_back( std::make_shared< AccelerationSettings >(
                                                                  basic_astrodynamics::central_gravity ) );
             }
             // Use spherical harmonics for Earth
             else
             {
                 accelerationsOfVehicle[ "Earth" ].push_back(
-                            boost::make_shared< SphericalHarmonicAccelerationSettings >( 5, 5 ) );
+                            std::make_shared< SphericalHarmonicAccelerationSettings >( 5, 5 ) );
 
             }
 
             // Use perturbations other than Earth gravity
             if( simulationCase % 2 == 0 )
             {
-                accelerationsOfVehicle[ "Sun" ].push_back( boost::make_shared< AccelerationSettings >(
+                accelerationsOfVehicle[ "Sun" ].push_back( std::make_shared< AccelerationSettings >(
                                                                basic_astrodynamics::central_gravity ) );
-                accelerationsOfVehicle[ "Moon" ].push_back( boost::make_shared< AccelerationSettings >(
+                accelerationsOfVehicle[ "Moon" ].push_back( std::make_shared< AccelerationSettings >(
                                                                 basic_astrodynamics::central_gravity ) );
-                accelerationsOfVehicle[ "Mars" ].push_back( boost::make_shared< AccelerationSettings >(
+                accelerationsOfVehicle[ "Mars" ].push_back( std::make_shared< AccelerationSettings >(
                                                                 basic_astrodynamics::central_gravity ) );
-                accelerationsOfVehicle[ "Venus" ].push_back( boost::make_shared< AccelerationSettings >(
+                accelerationsOfVehicle[ "Venus" ].push_back( std::make_shared< AccelerationSettings >(
                                                                  basic_astrodynamics::central_gravity ) );
-                accelerationsOfVehicle[ "Sun" ].push_back( boost::make_shared< AccelerationSettings >(
+                accelerationsOfVehicle[ "Sun" ].push_back( std::make_shared< AccelerationSettings >(
                                                                basic_astrodynamics::cannon_ball_radiation_pressure ) );
             }
             accelerationMap[  "Vehicle" ] = accelerationsOfVehicle;
@@ -393,14 +393,14 @@ BOOST_AUTO_TEST_CASE( testGaussPopagatorForSphericalHarmonicCentralBodies )
                         vehicleInitialStateInKeplerianElements, earthGravitationalParameter );
 
             // Define propagator settings (Cowell)
-            boost::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
-                    boost::make_shared< TranslationalStatePropagatorSettings< double > >
+            std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
+                    std::make_shared< TranslationalStatePropagatorSettings< double > >
                     ( centralBodies, accelerationModelMap, bodiesToPropagate, vehicleInitialState, simulationEndEpoch );
 
             // Define integrator settings.
             const double fixedStepSize = 5.0;
-            boost::shared_ptr< IntegratorSettings< > > integratorSettings =
-                    boost::make_shared< IntegratorSettings< > >
+            std::shared_ptr< IntegratorSettings< > > integratorSettings =
+                    std::make_shared< IntegratorSettings< > >
                     ( rungeKutta4, 0.0, fixedStepSize );
 
             // Propagate orbit with Cowell method
@@ -424,7 +424,7 @@ BOOST_AUTO_TEST_CASE( testGaussPopagatorForSphericalHarmonicCentralBodies )
             }
 
             // Create propagation settings (Gauss)
-            propagatorSettings = boost::make_shared< TranslationalStatePropagatorSettings< double > >
+            propagatorSettings = std::make_shared< TranslationalStatePropagatorSettings< double > >
                     ( centralBodies, accelerationModelMap, bodiesToPropagate, vehicleInitialState, simulationEndEpoch, translationalPropagatorType );
 
             // Propagate orbit with Gauss method

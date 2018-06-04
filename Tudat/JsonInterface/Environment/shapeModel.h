@@ -45,10 +45,10 @@ inline void from_json( const nlohmann::json& jsonObject, BodyShapeTypes& bodySha
 }
 
 //! Create a `json` object from a shared pointer to a `BodyShapeSettings` object.
-void to_json( nlohmann::json& jsonObject, const boost::shared_ptr< BodyShapeSettings >& bodyShapeSettings );
+void to_json( nlohmann::json& jsonObject, const std::shared_ptr< BodyShapeSettings >& bodyShapeSettings );
 
 //! Create a shared pointer to a `BodyShapeSettings` object from a `json` object.
-void from_json( const nlohmann::json& jsonObject, boost::shared_ptr< BodyShapeSettings >& bodyShapeSettings );
+void from_json( const nlohmann::json& jsonObject, std::shared_ptr< BodyShapeSettings >& bodyShapeSettings );
 
 } // namespace simulation_setup
 

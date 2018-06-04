@@ -26,13 +26,13 @@ namespace earth_orientation
 //! Constructor for (CIO-based) precession-nutation calculation object.
 PrecessionNutationCalculator::PrecessionNutationCalculator(
         basic_astrodynamics::IAUConventions precessionNutationTheory,
-        boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Vector2d > >
+        std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Vector2d > >
         dailyCorrectionInterpolator ):
     dailyCorrectionInterpolator_( dailyCorrectionInterpolator )
 {
     // Link selected SOFA function wrapper for direct calculation of precession-nutation.
     nominalCipPositionFunction_ =
-            boost::bind( sofa_interface::getPositionOfCipInGcrs,
+            std::bind( sofa_interface::getPositionOfCipInGcrs,
                          _1, basic_astrodynamics::JULIAN_DAY_ON_J2000, precessionNutationTheory );
 }
 

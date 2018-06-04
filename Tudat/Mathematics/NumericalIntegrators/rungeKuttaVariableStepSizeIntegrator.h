@@ -17,7 +17,7 @@
 #define TUDAT_RUNGE_KUTTA_VARIABLE_STEP_SIZE_INTEGRATOR_H
 
 #include <boost/bind.hpp>
-#include <boost/function.hpp>
+#include <tr1/functional>
 #include <boost/shared_ptr.hpp>
 
 #include <Eigen/Core>
@@ -57,7 +57,7 @@ public:
      * Typedef to the function used to compute the new step size. This should be a pointer to a
      * function or a boost function.
      */
-    typedef boost::function< std::pair< TimeStepType, bool >(
+    typedef std::function< std::pair< TimeStepType, bool >(
             const TimeStepType, const TimeStepType,
             const TimeStepType, const TimeStepType,
             const StateType&, const StateType&,
@@ -140,7 +140,7 @@ public:
         // Set default newStepSizeFunction_ to the class method.
         if ( this->newStepSizeFunction_ == 0 )
         {
-            this->newStepSizeFunction_ = boost::bind(
+            this->newStepSizeFunction_ = std::bind(
                         &RungeKuttaVariableStepSizeIntegrator::computeNewStepSize,
                         this, _1, _2, _3, _4, _5, _6, _7, _8 );
         }
@@ -202,7 +202,7 @@ public:
         // Set default newStepSizeFunction_ to the class method.
         if ( newStepSizeFunction_ == 0 )
         {
-            this->newStepSizeFunction_ = boost::bind(
+            this->newStepSizeFunction_ = std::bind(
                         &RungeKuttaVariableStepSizeIntegrator::computeNewStepSize,
                         this, _1, _2, _3, _4, _5, _6, _7, _8 );
         }
@@ -703,7 +703,7 @@ private:
 typedef RungeKuttaVariableStepSizeIntegrator< > RungeKuttaVariableStepSizeIntegratorXd;
 
 //! Typedef for shared-pointer to RungeKuttaVariableStepSizeIntegratorXd object.
-typedef boost::shared_ptr< RungeKuttaVariableStepSizeIntegratorXd >
+typedef std::shared_ptr< RungeKuttaVariableStepSizeIntegratorXd >
 RungeKuttaVariableStepSizeIntegratorXdPointer;
 
 } // namespace numerical_integrators

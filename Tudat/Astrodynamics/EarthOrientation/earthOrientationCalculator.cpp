@@ -59,47 +59,47 @@ Eigen::Quaterniond calculateRotationFromItrsToTirs(
 }
 
 //! Function to create an EarthOrientationAnglesCalculator object, with default settings
-boost::shared_ptr< EarthOrientationAnglesCalculator > createStandardEarthOrientationCalculator(
-        const boost::shared_ptr< EOPReader > eopReader )
+std::shared_ptr< EarthOrientationAnglesCalculator > createStandardEarthOrientationCalculator(
+        const std::shared_ptr< EOPReader > eopReader )
 {
     // Load polar motion corrections
-    boost::shared_ptr< interpolators::LinearInterpolator< double, Eigen::Vector2d > > cipInItrsInterpolator =
-            boost::make_shared< interpolators::LinearInterpolator< double, Eigen::Vector2d > >(
+    std::shared_ptr< interpolators::LinearInterpolator< double, Eigen::Vector2d > > cipInItrsInterpolator =
+            std::make_shared< interpolators::LinearInterpolator< double, Eigen::Vector2d > >(
                 eopReader->getCipInItrsMapInSecondsSinceJ2000( ) );
 
     // Load nutation corrections
-    boost::shared_ptr< interpolators::LinearInterpolator< double, Eigen::Vector2d > > cipInGcrsCorrectionInterpolator =
-            boost::make_shared< interpolators::LinearInterpolator< double, Eigen::Vector2d > >(
+    std::shared_ptr< interpolators::LinearInterpolator< double, Eigen::Vector2d > > cipInGcrsCorrectionInterpolator =
+            std::make_shared< interpolators::LinearInterpolator< double, Eigen::Vector2d > >(
                 eopReader->getCipInGcrsCorrectionMapInSecondsSinceJ2000( ) );
 
     // Load default polar motion correction (sub-diural frequencies) object
-    boost::shared_ptr< ShortPeriodEarthOrientationCorrectionCalculator< Eigen::Vector2d > > shortPeriodPolarMotionCalculator =
+    std::shared_ptr< ShortPeriodEarthOrientationCorrectionCalculator< Eigen::Vector2d > > shortPeriodPolarMotionCalculator =
             getDefaultPolarMotionCorrectionCalculator( );
 
     // Create full polar motion calculator
-    boost::shared_ptr< PolarMotionCalculator > polarMotionCalculator = boost::make_shared< PolarMotionCalculator >
+    std::shared_ptr< PolarMotionCalculator > polarMotionCalculator = std::make_shared< PolarMotionCalculator >
             ( cipInItrsInterpolator, shortPeriodPolarMotionCalculator );
 
     // Create IAU 2006 precession/nutation calculator
-    boost::shared_ptr< PrecessionNutationCalculator > precessionNutationCalculator =
-            boost::make_shared< PrecessionNutationCalculator >( basic_astrodynamics::iau_2006, cipInGcrsCorrectionInterpolator );
+    std::shared_ptr< PrecessionNutationCalculator > precessionNutationCalculator =
+            std::make_shared< PrecessionNutationCalculator >( basic_astrodynamics::iau_2006, cipInGcrsCorrectionInterpolator );
 
     // Create default time scale converter
-    boost::shared_ptr< TerrestrialTimeScaleConverter > terrestrialTimeScaleConverter =
+    std::shared_ptr< TerrestrialTimeScaleConverter > terrestrialTimeScaleConverter =
             createDefaultTimeConverter( eopReader );
 
     // Create EarthOrientationAnglesCalculator object
-    return boost::make_shared< EarthOrientationAnglesCalculator >(
+    return std::make_shared< EarthOrientationAnglesCalculator >(
                 polarMotionCalculator, precessionNutationCalculator, terrestrialTimeScaleConverter );
 }
 
 ////! Function to create an interpolator for the Earth orientation angles
-//boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Matrix< double, 6,1 > > >
+//std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Matrix< double, 6,1 > > >
 //createInterpolatorForItrsToGcrsAngles(
 //        const double intervalStart, const double intervalEnd, const double timeStep,
 //        const basic_astrodynamics::TimeScales timeScale,
-//        const boost::shared_ptr< EarthOrientationAnglesCalculator > earthOrientationCalculator,
-//        const boost::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings )
+//        const std::shared_ptr< EarthOrientationAnglesCalculator > earthOrientationCalculator,
+//        const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings )
 //{
 //    // Interpolate Earth orientation angles
 //    std::map< double, Eigen::Matrix< double, 6,1 > > orientationMap;

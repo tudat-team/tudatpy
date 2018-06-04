@@ -14,7 +14,7 @@
 
 #include <map>
 
-#include <boost/function.hpp>
+#include <tr1/functional>
 
 #include <Eigen/Core>
 #include <Eigen/SVD>
@@ -104,7 +104,7 @@ double getVectorNorm( const Eigen::Vector3d& vector );
  * \param vectorFunction Function returning the vector for which the norm is to be computed
  * \return Vector norm
  */
-double getVectorNormFromFunction( const boost::function< Eigen::Vector3d( ) > vectorFunction );
+double getVectorNormFromFunction( const std::function< Eigen::Vector3d( ) > vectorFunction );
 
 //! Flip matrix rows.
 /*!
@@ -129,7 +129,7 @@ static inline void flipMatrixRows( Eigen::MatrixXd& matrixToFlip )
 }
 
 Eigen::Vector3d evaluateSecondBlockInStateVector(
-        const boost::function< Eigen::Vector6d( const double ) > stateFunction,
+        const std::function< Eigen::Vector6d( const double ) > stateFunction,
         const double time );
 
 double computeNormOfVectorDifference( const Eigen::Vector3d& vector0,

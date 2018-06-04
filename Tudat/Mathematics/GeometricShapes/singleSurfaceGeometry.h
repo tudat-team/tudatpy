@@ -277,7 +277,7 @@ private:
 };
 
 //! Typedef for shared-pointer to SingleSurfaceGeometry object.
-typedef boost::shared_ptr< SingleSurfaceGeometry > SingleSurfaceGeometryPointer;
+typedef std::shared_ptr< SingleSurfaceGeometry > SingleSurfaceGeometryPointer;
 
 } // namespace geometric_shapes
 } // namespace tudat

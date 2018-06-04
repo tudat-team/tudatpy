@@ -135,7 +135,7 @@ const double BasicFunction< IndependentVariable, DependentVariable >::sqrt_epsil
 = std::numeric_limits< double >::epsilon( );
 
 // Some handy typedefs.
-typedef boost::shared_ptr< BasicFunction< double, double > > BasicFunctionPointer;
+typedef std::shared_ptr< BasicFunction< double, double > > BasicFunctionPointer;
 
 } // namespace basic_mathematics
 } // namespace tudat

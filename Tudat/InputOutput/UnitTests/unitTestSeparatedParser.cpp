@@ -253,29 +253,29 @@ BOOST_AUTO_TEST_CASE( testSeparatedParserFieldTransform )
                 "  2011542 3.9501468 0.2391642   6.87574   16.88982  48.9603 229.49648 54000   " );
 
     // Create unit transformation map
-    std::map< FieldType, boost::shared_ptr< FieldTransform > > unitTransformationMap =
+    std::map< FieldType, std::shared_ptr< FieldTransform > > unitTransformationMap =
             boost::assign::map_list_of
-            ( field_types::state::semiMajorAxis, boost::shared_ptr< FieldTransform >(
+            ( field_types::state::semiMajorAxis, std::shared_ptr< FieldTransform >(
                   new LinearFieldTransform(
                       convertAstronomicalUnitsToMeters< double >( 1.0 ),
                       0.0 ) ) )
-            ( field_types::state::inclination, boost::shared_ptr< FieldTransform >(
+            ( field_types::state::inclination, std::shared_ptr< FieldTransform >(
                   new LinearFieldTransform(
                       convertDegreesToRadians< double >( 1.0 ),
                       0.0 ) ) )
-            ( field_types::state::longitudeOfAscendingNode, boost::shared_ptr< FieldTransform >(
+            ( field_types::state::longitudeOfAscendingNode, std::shared_ptr< FieldTransform >(
                   new LinearFieldTransform(
                       convertDegreesToRadians< double >( 1.0 ),
                       0.0 ) ) )
-            ( field_types::state::argumentOfPeriapsis, boost::shared_ptr< FieldTransform >(
+            ( field_types::state::argumentOfPeriapsis, std::shared_ptr< FieldTransform >(
                   new LinearFieldTransform(
                       convertDegreesToRadians< double >( 1.0 ),
                       0.0 ) ) )
-            ( field_types::state::meanAnomaly, boost::shared_ptr< FieldTransform >(
+            ( field_types::state::meanAnomaly, std::shared_ptr< FieldTransform >(
                   new LinearFieldTransform(
                       convertDegreesToRadians< double >( 1.0 ),
                       0.0 ) ) )
-            ( field_types::time::epoch, boost::shared_ptr< FieldTransform >(
+            ( field_types::time::epoch, std::shared_ptr< FieldTransform >(
                   new LinearFieldTransform( 1.0, 2400000.5 ) ) );
 
     // Pass unit transformation map to parser.

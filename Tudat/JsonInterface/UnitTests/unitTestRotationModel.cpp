@@ -43,8 +43,8 @@ BOOST_AUTO_TEST_CASE( test_json_rotationModel_simple )
     loadStandardSpiceKernels( );
 
     // Create RotationModelSettings from JSON file
-    const boost::shared_ptr< RotationModelSettings > fromFileSettings =
-            parseJSONFile< boost::shared_ptr< RotationModelSettings > >( INPUT( "simple" ) );
+    const std::shared_ptr< RotationModelSettings > fromFileSettings =
+            parseJSONFile< std::shared_ptr< RotationModelSettings > >( INPUT( "simple" ) );
 
     // Create RotationModelSettings manually
     const std::string originalFrame = "ECLIPJ2000";
@@ -53,8 +53,8 @@ BOOST_AUTO_TEST_CASE( test_json_rotationModel_simple )
     const Eigen::Quaterniond initialOrientation =
             spice_interface::computeRotationQuaternionBetweenFrames( originalFrame, targetFrame, initialTime );
     const double rotationRate = 2.0e-5;
-    const boost::shared_ptr< RotationModelSettings > manualSettings =
-            boost::make_shared< SimpleRotationModelSettings >( originalFrame,
+    const std::shared_ptr< RotationModelSettings > manualSettings =
+            std::make_shared< SimpleRotationModelSettings >( originalFrame,
                                                                targetFrame,
                                                                initialOrientation,
                                                                initialTime,
@@ -71,14 +71,14 @@ BOOST_AUTO_TEST_CASE( test_json_rotationModel_spice )
     using namespace json_interface;
 
     // Create RotationModelSettings from JSON file
-    const boost::shared_ptr< RotationModelSettings > fromFileSettings =
-            parseJSONFile< boost::shared_ptr< RotationModelSettings > >( INPUT( "spice" ) );
+    const std::shared_ptr< RotationModelSettings > fromFileSettings =
+            parseJSONFile< std::shared_ptr< RotationModelSettings > >( INPUT( "spice" ) );
 
     // Create RotationModelSettings manually
     const std::string originalFrame = "foo";
     const std::string targetFrame = "oof";
-    const boost::shared_ptr< RotationModelSettings > manualSettings =
-            boost::make_shared< RotationModelSettings >( spice_rotation_model,
+    const std::shared_ptr< RotationModelSettings > manualSettings =
+            std::make_shared< RotationModelSettings >( spice_rotation_model,
                                                          originalFrame,
                                                          targetFrame );
 

@@ -91,8 +91,8 @@ BOOST_AUTO_TEST_CASE( testCR3BPPropagation )
         }
 
         // Set integrator settings
-        boost::shared_ptr< IntegratorSettings< > > integratorSettings =
-                boost::make_shared< IntegratorSettings< > >
+        std::shared_ptr< IntegratorSettings< > > integratorSettings =
+                std::make_shared< IntegratorSettings< > >
                 ( rungeKutta4, simulationStartEpoch, timeStep );
 
         // Propagate dynamics

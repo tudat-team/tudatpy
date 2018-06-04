@@ -90,8 +90,8 @@ BOOST_AUTO_TEST_CASE( testShapeModels )
 
     // Test free function altitude calculations
     {
-        boost::shared_ptr< OblateSpheroidBodyShapeModel > shapeModel =
-                boost::make_shared< OblateSpheroidBodyShapeModel >(
+        std::shared_ptr< OblateSpheroidBodyShapeModel > shapeModel =
+                std::make_shared< OblateSpheroidBodyShapeModel >(
                     equatorialRadius, flattening );
 
         Eigen::Vector3d bodyPosition =

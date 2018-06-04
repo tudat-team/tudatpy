@@ -491,16 +491,16 @@ BOOST_AUTO_TEST_CASE( testProbabilityFunctionsUncorrelated2D )
     KernelDensityDistribution distribution( samples, 1.0, KernelType::gaussian_kernel, Eigen::VectorXd::Zero( 0 ), bandWidth );
 
     // Create manual Gaussian distributions
-    boost::shared_ptr< ContinuousProbabilityDistribution< double > > gaussianDistribution1 =
+    std::shared_ptr< ContinuousProbabilityDistribution< double > > gaussianDistribution1 =
             createBoostRandomVariable( normal_boost_distribution, { samples[ 0 ]( 0 ), 1.0  } );
 
-    boost::shared_ptr< ContinuousProbabilityDistribution< double > > gaussianDistribution2 =
+    std::shared_ptr< ContinuousProbabilityDistribution< double > > gaussianDistribution2 =
             createBoostRandomVariable( normal_boost_distribution, { samples[ 1 ]( 0 ), 1.0  } );
 
-    boost::shared_ptr< ContinuousProbabilityDistribution< double > > gaussianDistribution3 =
+    std::shared_ptr< ContinuousProbabilityDistribution< double > > gaussianDistribution3 =
             createBoostRandomVariable( normal_boost_distribution, { samples[ 2 ]( 0 ), 1.0  } );
 
-    boost::shared_ptr< ContinuousProbabilityDistribution< double > > gaussianDistribution4 =
+    std::shared_ptr< ContinuousProbabilityDistribution< double > > gaussianDistribution4 =
             createBoostRandomVariable( normal_boost_distribution, { samples[ 0 ]( 1 ), 0.3  } );
 
     // Test probability density

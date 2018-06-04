@@ -39,8 +39,8 @@ BOOST_AUTO_TEST_CASE( test_ItrsToGcrsRotationAgainstSpice )
     spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "earth_fixed.tf" );
 
     // Create rotation model
-    boost::shared_ptr< GcrsToItrsRotationModel > earthRotationModel =
-            boost::make_shared< GcrsToItrsRotationModel >(
+    std::shared_ptr< GcrsToItrsRotationModel > earthRotationModel =
+            std::make_shared< GcrsToItrsRotationModel >(
                 earth_orientation::createStandardEarthOrientationCalculator( ) );
 
     // Compare spice vs. Tudat for list of evaluation times
@@ -91,8 +91,8 @@ BOOST_AUTO_TEST_CASE( test_ItrsToGcrsRotationAgainstSofaCookbook )
             physical_constants::JULIAN_DAY;
 
     // Create Earth rotation model
-    boost::shared_ptr< GcrsToItrsRotationModel > earthRotationModelFromUtc =
-            boost::make_shared< GcrsToItrsRotationModel >(
+    std::shared_ptr< GcrsToItrsRotationModel > earthRotationModelFromUtc =
+            std::make_shared< GcrsToItrsRotationModel >(
                 earth_orientation::createStandardEarthOrientationCalculator( ),
                 utc_scale );
 

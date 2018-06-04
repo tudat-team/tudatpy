@@ -39,7 +39,7 @@ public:
      *  \param bodiesToIntegrate List of names of bodies that are to be integrated numerically.
      */
     NBodyCowellStateDerivative( const basic_astrodynamics::AccelerationMap& accelerationModelsPerBody,
-                                const boost::shared_ptr< CentralBodyData< StateScalarType, TimeType > > centralBodyData,
+                                const std::shared_ptr< CentralBodyData< StateScalarType, TimeType > > centralBodyData,
                                 const std::vector< std::string >& bodiesToIntegrate ):
         NBodyStateDerivative< StateScalarType, TimeType >(
             accelerationModelsPerBody, centralBodyData, cowell, bodiesToIntegrate ){ }

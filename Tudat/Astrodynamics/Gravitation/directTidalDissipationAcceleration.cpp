@@ -59,12 +59,12 @@ Eigen::Vector3d computeDirectTidalAccelerationDueToTideOnSatellite(
 }
 
 //! Function to retrieve all DirectTidalDissipationAcceleration from an AccelerationMap, for specific deformed/deforming bodies
-std::vector< boost::shared_ptr< DirectTidalDissipationAcceleration > > getTidalDissipationAccelerationModels(
+std::vector< std::shared_ptr< DirectTidalDissipationAcceleration > > getTidalDissipationAccelerationModels(
         const basic_astrodynamics::AccelerationMap accelerationModelList, const std::string bodyBeingDeformed,
         const std::vector< std::string >& bodiesCausingDeformation )
 {
     // Iterate over all bodies undergoing acceleration
-    std::vector< boost::shared_ptr< DirectTidalDissipationAcceleration > > selectedDissipationModels;
+    std::vector< std::shared_ptr< DirectTidalDissipationAcceleration > > selectedDissipationModels;
     for( basic_astrodynamics::AccelerationMap::const_iterator modelIterator1 = accelerationModelList.begin( );
          modelIterator1 != accelerationModelList.end( ); modelIterator1++ )
     {
@@ -81,9 +81,9 @@ std::vector< boost::shared_ptr< DirectTidalDissipationAcceleration > > getTidalD
             for( unsigned int i = 0; i < modelIterator2->second.size( ); i++ )
             {
                 // Check if acceleration model is due to tidal dissipations
-                boost::shared_ptr< DirectTidalDissipationAcceleration > currentDissipationAcceleration =
-                    boost::dynamic_pointer_cast< DirectTidalDissipationAcceleration >( modelIterator2->second.at( i ) );
-                if( currentDissipationAcceleration != NULL )
+                std::shared_ptr< DirectTidalDissipationAcceleration > currentDissipationAcceleration =
+                    std::dynamic_pointer_cast< DirectTidalDissipationAcceleration >( modelIterator2->second.at( i ) );
+                if( currentDissipationAcceleration != nullptr )
                 {
                     // Check whether model correspionds to input requirements
                     if( currentDissipationAcceleration->getModelTideOnPlanet( ) &&

@@ -70,7 +70,7 @@ public:
  * \param rootFinderSettings Settings to be used to create a root finder
  * \return True if any analytical derivatives are required, false otherwise
  */
-bool doesRootFinderRequireDerivatives( const boost::shared_ptr< RootFinderSettings > rootFinderSettings );
+bool doesRootFinderRequireDerivatives( const std::shared_ptr< RootFinderSettings > rootFinderSettings );
 
 //! Function to create a root finder
 /*!
@@ -81,12 +81,12 @@ bool doesRootFinderRequireDerivatives( const boost::shared_ptr< RootFinderSettin
  * \param previousGuess Initial guess for root position (default NaN; not needed by all root finders).
  */
 template< typename DataType = double >
-boost::shared_ptr< RootFinderCore< DataType > > createRootFinder(
-        const boost::shared_ptr< RootFinderSettings > rootFinderSettings,
+std::shared_ptr< RootFinderCore< DataType > > createRootFinder(
+        const std::shared_ptr< RootFinderSettings > rootFinderSettings,
         const DataType lowerBound = TUDAT_NAN, const DataType upperBound = TUDAT_NAN,
         const DataType previousGuess = TUDAT_NAN )
 {
-    boost::shared_ptr< RootFinderCore< DataType > > rootFinder;
+    std::shared_ptr< RootFinderCore< DataType > > rootFinder;
     switch( rootFinderSettings->rootFinderType_ )
     {
     case bisection_root_finder:
@@ -94,17 +94,17 @@ boost::shared_ptr< RootFinderCore< DataType > > createRootFinder(
         {
             throw std::runtime_error( "Error when making bisection root finder, lower/upped bound not provided" );
         }
-        rootFinder = boost::make_shared< BisectionCore< DataType > >(
+        rootFinder = std::make_shared< BisectionCore< DataType > >(
                     rootFinderSettings->terminationTolerance_, rootFinderSettings->maximumNumberOfIterations_,
                     lowerBound, upperBound );
         break;
     case halley_root_finder:
-        rootFinder = boost::make_shared< HalleyRootFinderCore< DataType > >(
+        rootFinder = std::make_shared< HalleyRootFinderCore< DataType > >(
                     rootFinderSettings->terminationTolerance_, rootFinderSettings->maximumNumberOfIterations_ );
         break;
     case newton_raphson_root_finder:
 
-        rootFinder = boost::make_shared< NewtonRaphsonCore< DataType > >(
+        rootFinder = std::make_shared< NewtonRaphsonCore< DataType > >(
                     rootFinderSettings->terminationTolerance_, rootFinderSettings->maximumNumberOfIterations_ );
         break;
     case secant_root_finder:
@@ -112,7 +112,7 @@ boost::shared_ptr< RootFinderCore< DataType > > createRootFinder(
         {
             throw std::runtime_error( "Error when making secant root finder, initial guess not provided" );
         }
-        rootFinder = boost::make_shared< SecantRootFinderCore< DataType > >(
+        rootFinder = std::make_shared< SecantRootFinderCore< DataType > >(
                     rootFinderSettings->terminationTolerance_, rootFinderSettings->maximumNumberOfIterations_,
                     previousGuess );
         break;
