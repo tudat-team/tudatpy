@@ -55,7 +55,7 @@
 #include <Tudat/InputOutput/basicInputOutput.h>
 
 #include "Tudat/Astrodynamics/Ephemerides/approximatePlanetPositions.h"
-#include "../trajectory.h"
+#include "Tudat/Astrodynamics/TrajectoryDesign/trajectory.h"
 
 namespace tudat
 {
