@@ -278,7 +278,7 @@ public:
      * \param referenceBody Name of body generating the gravity field.
      * \param referencePointLinkEndType Link end type of central body (default unidentified_link_end, meaning that the
      * central body is not one of the link ends)
-     * \param referencePointStateFunction Function that returns the state of teh central body as a function of time,
+     * \param referencePointStateFunction Function that returns the state of the central body as a function of time,
      * default empty, but must be provided if referencePointLinkEndType equals unidentified_link_end.
      */
     DirectFirstOrderDopplerProperTimeRateInterface(
@@ -418,9 +418,9 @@ private:
     //! Link end type of central body (unidentified_link_end if central body is not one of the link ends)
     LinkEndType referencePointLinkEndType_;
 
-    //! Function that returns the state of teh central body as a function of time.
+    //! Function that returns the state of the central body as a function of time.
     /*!
-     *  Function that returns the state of teh central body as a function of time,  must be provided if
+     *  Function that returns the state of the central body as a function of time,  must be provided if
      *  referencePointLinkEndType equals unidentified_link_end.
      */
     boost::function< Eigen::Vector6d( const double ) > referencePointStateFunction_;

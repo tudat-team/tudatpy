@@ -458,7 +458,7 @@ protected:
     std::unordered_map< std::string, std::unordered_map< std::string, std::vector<
     boost::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > > > >::iterator outerAccelerationIterator;
 
-    //! List of states of teh central bodies of the propagated bodies.
+    //! List of states of the central bodies of the propagated bodies.
     std::vector< Eigen::Matrix< StateScalarType, 6, 1 >  > centralBodyStatesWrtGlobalOrigin_;
 
 };

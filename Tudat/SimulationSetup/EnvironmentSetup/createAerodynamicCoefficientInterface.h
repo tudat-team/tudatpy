@@ -989,7 +989,6 @@ readTabulatedAerodynamicCoefficientsFromFiles(
         const bool areCoefficientsInAerodynamicFrame = 1,
         const bool areCoefficientsInNegativeAxisDirection = 1 );
 
-
 //! Function to create an aerodynamic coefficient interface containing constant coefficients.
 /*!
  *  Function to create an aerodynamic coefficient interface containing constant coefficients,
@@ -1170,9 +1169,8 @@ createAerodynamicCoefficientInterface(
         const boost::shared_ptr< AerodynamicCoefficientSettings > coefficientSettings,
         const std::string& body );
 
+} // simulation_setup
 
-}
-
-}
+} // tudat
 
 #endif // TUDAT_CREATEAERODYNAMICCOEFFICIENTINTERFACE_H

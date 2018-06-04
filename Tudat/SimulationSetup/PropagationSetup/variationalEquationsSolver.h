@@ -848,7 +848,7 @@ private:
 //! Function to transfer the initial multi-arc states from propagator settings to associated initial state estimation parameters.
 /*!
  *  Function to transfer the initial multi-arc states from propagator settings to associated initial state estimation parameters.
- *  \param parametersToEstimate Full set of estimated parameters to which teh initial states are to be transferred
+ *  \param parametersToEstimate Full set of estimated parameters to which the initial states are to be transferred
  *  \param propagatorSettings Multi-arc propagator settings from which the initial states are to be taken
  */
 template< typename StateScalarType = double >

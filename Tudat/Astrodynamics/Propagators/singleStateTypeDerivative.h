@@ -83,7 +83,7 @@ public:
     /*!
      * Calculates the state derivative of the system of equations for the given type of
      * dynamics. The environment and acceleration models (updateStateDerivativeModel) must be
-     * updated before calling this function. It returns the state derivative in teh form required
+     * updated before calling this function. It returns the state derivative in the form required
      * for the specific type of propagator used (defined by derived class).
      * \param time Time at which the state derivative is to be calculated.
      * \param stateOfSystemToBeIntegrated Current state of the system, in the form that the equations are propagated (i.e.

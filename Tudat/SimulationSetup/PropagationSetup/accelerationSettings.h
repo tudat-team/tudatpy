@@ -235,7 +235,7 @@ public:
     /*!
      * Constructor
      * \param thrustInterpolator Object that returns the total thrust vector, expressed in some reference frame B
-     * \param rotationFunction Function that returns the rotation matrix from the frame B to teh frame in which the
+     * \param rotationFunction Function that returns the rotation matrix from the frame B to the frame in which the
      * propagation is performed.
      */
     FullThrustInterpolationInterface(
@@ -275,7 +275,7 @@ public:
     //! Function to reset the function to rotate to propation frame
     /*!
      *  Function to reset the function to rotate to propation frame
-     *  \param rotationFunction New function that returns the rotation matrix from the frame B to teh frame in which the
+     *  \param rotationFunction New function that returns the rotation matrix from the frame B to the frame in which the
      *  propagation is performed.
      */
     void resetRotationFunction( const boost::function< Eigen::Matrix3d( ) > rotationFunction )
@@ -316,7 +316,7 @@ private:
     //! Object that returns the total thrust vector, expressed in some reference frame B
     boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Vector3d > > thrustInterpolator_;
 
-    //! Function that returns the rotation matrix from the frame B to teh frame in which the propagation is performed.
+    //! Function that returns the rotation matrix from the frame B to the frame in which the propagation is performed.
     boost::function< Eigen::Matrix3d( ) > rotationFunction_;
 
     //! Total thrust vector (in propagation frame) computed by last call to updateThrust function.

@@ -30,7 +30,7 @@ namespace gravitation
  * provided here as an inertia tensor. Higher order terms of the torque are omitted.
  * \param relativePositionOfBodySubjectToTorque Position of body exerting torque, w.r.t. body undergoing torque (typically
  * expressed in frame fixed to body undergoing torque).
- * \param gravitationalParameterOfAttractingBody Tha gravitational parameter of teh body that exerts the torque
+ * \param gravitationalParameterOfAttractingBody Tha gravitational parameter of the body that exerts the torque
  * \param inertiaTensorOfRotatingBody The inertia tensor of the body undergoing the torqie, in the same frame as
  * relativePositionOfBodySubjectToTorque (typically frame fixed to body undergoing torque)
  * \return Gravitational torque of point mass on second-degree body.

@@ -141,7 +141,7 @@ void getFinalStateForExactDependentVariableTerminationCondition(
 //! Function that propagates to an exact final condition (within tolerance) for hybrid termination condition
 /*!
  * Function that propagates to an exact final condition (within tolerance) for hybrid termination condition. Determines
- * the termination time/state for each of the constituent termination condition, and chooses teh hybrid termiantion time/state
+ * the termination time/state for each of the constituent termination condition, and chooses the hybrid termiantion time/state
  * accordingly
  * \param integrator Numerical integrator that is used for propagation. Upon input to this function, the integrator is rolled
  * back to the secondToLastTime/secondToLastState

@@ -154,7 +154,7 @@ public:
             const std::string& centralBody,
             const boost::function< Eigen::Vector3d( ) > bodyFixedForceDirection =
             boost::lambda::constant( Eigen::Vector3d::UnitX( ) ) ):
-        BodyFixedForceDirectionGuidance ( bodyFixedForceDirection ),
+        BodyFixedForceDirectionGuidance( bodyFixedForceDirection ),
         forceDirectionFunction_( forceDirectionFunction ),
         centralBody_( centralBody ){ }
 

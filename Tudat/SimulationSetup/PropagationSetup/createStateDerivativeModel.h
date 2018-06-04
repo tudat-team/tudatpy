@@ -425,7 +425,7 @@ createStateDerivativeModel(
 //! Function that finalized multi-type propagator creation by ensuring that any mutual dependencies are correctly set
 /*!
  *  Function that finalized multi-type propagator creation by ensuring that any mutual dependencies are correctly set
- *  \param propagatorSettings Settings for teh numerical propagation
+ *  \param propagatorSettings Settings for the numerical propagation
  *  \param bodyMap List of body objects that comprises the environment
  */
 template< typename StateScalarType = double >

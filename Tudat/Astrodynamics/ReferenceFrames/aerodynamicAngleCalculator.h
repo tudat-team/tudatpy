@@ -465,7 +465,7 @@ void setAerodynamicDependentOrientationCalculatorClosure(
 //! Function to make aerodynamic angle computation consistent with existing DependentOrientationCalculator
 /*!
  * Function to make aerodynamic angle computation consistent with existing DependentOrientationCalculator
- * \param dependentOrientationCalculator Object computing the current orientation based on teh current state of the
+ * \param dependentOrientationCalculator Object computing the current orientation based on the current state of the
  * environment. Aerodynamic angles are to be computed from output given by this class.
  * \param aerodynamicAngleCalculator Object from which the aerodynamic angles are computed.
  */
