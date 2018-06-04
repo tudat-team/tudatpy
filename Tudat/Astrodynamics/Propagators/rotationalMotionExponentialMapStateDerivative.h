@@ -14,7 +14,6 @@
 
 #include "Tudat/Astrodynamics/Propagators/rotationalMotionStateDerivative.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/attitudeElementConversions.h"
-#include "Tudat/Astrodynamics/BasicAstrodynamics/quaternionHistoryManipulation.h"
 
 #include "Tudat/Basics/utilities.h"
 
@@ -187,44 +186,6 @@ public:
      * \return Boolean confirming that the state needs to be post-processed.
      */
     bool isStateToBePostProcessed( )
-    {
-        return true;
-    }
-
-    //! Function to process the state history after propagation.
-    /*!
-     * Function to process the state history after propagation.
-     * \param unprocessedConventionalStateHistory Conventional state history before processing.
-     * \param propagatedStateHistory Propagated state history.
-     * \return Processed conventional state history (returned by reference).
-     */
-    void processConventionalStateHistory(
-            std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >& unprocessedConventionalStateHistory,
-            const std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >& propagatedStateHistory )
-    {
-        // Cast maps to double type
-        std::map< double, Eigen::VectorXd > castUnprocessedConventionalStateHistory;
-        std::map< double, Eigen::VectorXd > castPropagatedStateHistory;
-        utilities::castMatrixMap< TimeType, StateScalarType, double, double >( unprocessedConventionalStateHistory,
-                                                                               castUnprocessedConventionalStateHistory );
-        utilities::castMatrixMap< TimeType, StateScalarType, double, double >( propagatedStateHistory,
-                                                                               castPropagatedStateHistory );
-
-        // Convert history
-        orbital_element_conversions::matchQuaternionHistory(
-                    castUnprocessedConventionalStateHistory, castPropagatedStateHistory, 0 );
-
-        // Replace hisotry
-        utilities::castMatrixMap< double, double, TimeType, StateScalarType >( castUnprocessedConventionalStateHistory,
-                                                                               unprocessedConventionalStateHistory );
-    }
-
-    //! Function to return whether the state history needs to be processed.
-    /*!
-     * Function to return whether the state history needs to be processed. For exponential map this is true.
-     * \return Boolean confirming that the state history needs to be processed.
-     */
-    bool isConventionalStateHistoryToBeProcessed( )
     {
         return true;
     }

@@ -280,75 +280,14 @@ private:
      *      is used in the previous field.
      */
     void setConstantParameterValues( const ConstantParameterReferences constantValueReference,
-                                     const std::pair< DependentVariableType, DependentVariableType >& customConstantParameters )
-    {
-        // Set parameters based on input
-        switch ( constantValueReference )
-        {
-        case reference_Wan_and_Van_der_Merwe:
-        {
-            constantParameters_.at( alpha_index ) = static_cast< DependentVariableType >( 0.003 );
-            constantParameters_.at( kappa_index ) = static_cast< DependentVariableType >( 0.0 );
-            break;
-        }
-        case reference_Lisano_and_Born_and_Axelrad:
-        {
-            constantParameters_.at( alpha_index ) = static_cast< DependentVariableType >( 1.0 );
-            constantParameters_.at( kappa_index ) = static_cast< DependentVariableType >( 3.0 - stateDimension_ );
-            break;
-        }
-        case reference_Challa_and_Moore_and_Rogers:
-        {
-            constantParameters_.at( alpha_index ) = static_cast< DependentVariableType >( 0.001 );
-            constantParameters_.at( kappa_index ) = static_cast< DependentVariableType >( 1.0 );
-            break;
-        }
-        case custom_parameters:
-        {
-            // Check that the values have been set
-            if ( customConstantParameters.first == static_cast< DependentVariableType >( TUDAT_NAN ) ||
-                 customConstantParameters.second == static_cast< DependentVariableType >( TUDAT_NAN ) )
-            {
-                throw std::runtime_error( "Error in unscented Kalman filter. The value of the alpha and kappa parameters "
-                                          "have not been specified, but the selected method is custom_parameters." );
-            }
-
-            // Assign values to parameters
-            constantParameters_.at( alpha_index ) = customConstantParameters.first;
-            constantParameters_.at( kappa_index ) = customConstantParameters.second;
-            break;
-        }
-        }
-
-        // Set augmented state and sigma parameters
-        augmentedStateDimension_ = 2 * stateDimension_ + measurementDimension_;
-        numberOfSigmaPoints_ = 2.0 * augmentedStateDimension_ + 1.0;
-
-        // Set remaining parameters
-        constantParameters_.at( beta_index ) = 2.0;
-        constantParameters_.at( lambda_index ) = std::pow( constantParameters_.at( alpha_index ), 2 ) *
-                ( augmentedStateDimension_ + constantParameters_.at( kappa_index ) ) - augmentedStateDimension_;
-        constantParameters_.at( gamma_index ) = std::sqrt( augmentedStateDimension_ + constantParameters_.at( lambda_index ) );
-    }
+                                     const std::pair< DependentVariableType, DependentVariableType >& customConstantParameters );
 
     //! Function to generate the weights for state and covariance estimation.
     /*!
      *  Function to generate the weights for state and covariance estimation, which will be used to determine the weighted average
      *  of the state and measurment vectors, and covariance matrix, based on the sigma points.
      */
-    void generateEstimationWeights( )
-    {
-        // Generate state and covariance estimation weights
-        stateEstimationWeights_.push_back( constantParameters_.at( lambda_index ) /
-                                           ( augmentedStateDimension_ + constantParameters_.at( lambda_index ) ) );
-        for ( unsigned int i = 1; i < numberOfSigmaPoints_; i++ )
-        {
-            stateEstimationWeights_.push_back( 1.0 / ( 2.0 * ( augmentedStateDimension_ + constantParameters_.at( lambda_index ) ) ) );
-        }
-        covarianceEstimationWeights_ = stateEstimationWeights_;
-        covarianceEstimationWeights_.at( 0 ) += 1.0 - std::pow( constantParameters_.at( alpha_index ), 2 ) +
-                constantParameters_.at( beta_index );
-    }
+    void generateEstimationWeights( );
 
     //! Function to compute the sigma points, based on the current state vector and covariance matrix.
     /*!
@@ -515,6 +454,75 @@ typedef UnscentedKalmanFilter< > UnscentedKalmanFilterDouble;
 
 //! Typedef for a shared-pointer to a filter with double data type.
 typedef boost::shared_ptr< UnscentedKalmanFilterDouble > UnscentedKalmanFilterDoublePointer;
+
+//! Function to set the values of the constant parameters.
+void UnscentedKalmanFilter< typename IndependentVariableType, typename DependentVariableType >::setConstantParameterValues(
+        const ConstantParameterReferences constantValueReference,
+        const std::pair< DependentVariableType, DependentVariableType >& customConstantParameters )
+{
+    // Set parameters based on input
+    switch ( constantValueReference )
+    {
+    case reference_Wan_and_Van_der_Merwe:
+    {
+        constantParameters_.at( alpha_index ) = static_cast< DependentVariableType >( 0.003 );
+        constantParameters_.at( kappa_index ) = static_cast< DependentVariableType >( 0.0 );
+        break;
+    }
+    case reference_Lisano_and_Born_and_Axelrad:
+    {
+        constantParameters_.at( alpha_index ) = static_cast< DependentVariableType >( 1.0 );
+        constantParameters_.at( kappa_index ) = static_cast< DependentVariableType >( 3.0 - stateDimension_ );
+        break;
+    }
+    case reference_Challa_and_Moore_and_Rogers:
+    {
+        constantParameters_.at( alpha_index ) = static_cast< DependentVariableType >( 0.001 );
+        constantParameters_.at( kappa_index ) = static_cast< DependentVariableType >( 1.0 );
+        break;
+    }
+    case custom_parameters:
+    {
+        // Check that the values have been set
+        if ( customConstantParameters.first == static_cast< DependentVariableType >( TUDAT_NAN ) ||
+             customConstantParameters.second == static_cast< DependentVariableType >( TUDAT_NAN ) )
+        {
+            throw std::runtime_error( "Error in unscented Kalman filter. The value of the alpha and kappa parameters "
+                                      "have not been specified, but the selected method is custom_parameters." );
+        }
+
+        // Assign values to parameters
+        constantParameters_.at( alpha_index ) = customConstantParameters.first;
+        constantParameters_.at( kappa_index ) = customConstantParameters.second;
+        break;
+    }
+    }
+
+    // Set augmented state and sigma parameters
+    augmentedStateDimension_ = 2 * stateDimension_ + measurementDimension_;
+    numberOfSigmaPoints_ = 2.0 * augmentedStateDimension_ + 1.0;
+
+    // Set remaining parameters
+    constantParameters_.at( beta_index ) = 2.0;
+    constantParameters_.at( lambda_index ) = std::pow( constantParameters_.at( alpha_index ), 2 ) *
+            ( augmentedStateDimension_ + constantParameters_.at( kappa_index ) ) - augmentedStateDimension_;
+    constantParameters_.at( gamma_index ) = std::sqrt( augmentedStateDimension_ + constantParameters_.at( lambda_index ) );
+}
+
+//! Function to generate the weights for state and covariance estimation.
+void UnscentedKalmanFilter< typename IndependentVariableType, typename DependentVariableType >::generateEstimationWeights( )
+{
+    // Generate state and covariance estimation weights
+    stateEstimationWeights_.push_back( constantParameters_.at( lambda_index ) /
+                                       ( augmentedStateDimension_ + constantParameters_.at( lambda_index ) ) );
+    for ( unsigned int i = 1; i < numberOfSigmaPoints_; i++ )
+    {
+        stateEstimationWeights_.push_back( 1.0 / ( 2.0 * ( augmentedStateDimension_ + constantParameters_.at( lambda_index ) ) ) );
+    }
+    covarianceEstimationWeights_ = stateEstimationWeights_;
+    covarianceEstimationWeights_.at( 0 ) += 1.0 - std::pow( constantParameters_.at( alpha_index ), 2 ) +
+            constantParameters_.at( beta_index );
+}
 
 } // namespace filters
 

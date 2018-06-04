@@ -128,8 +128,12 @@ Eigen::Vector4d convertExponentialMapToQuaternionElements( const Eigen::Vector4d
                 exponentialMapVector / exponentialMapMagnitude * std::sin( 0.5 * exponentialMapMagnitude );
     }
 
+    // Change sign based on shadow flag
+    double conversionSign = ( int( exponentialMapElements( shadowFlagExponentialMapIndex ) ) == 1 ) ?
+                - 1.0 : 1.0; // converion is slightly different for SEM and EM
+
     // Give output
-    return convertedQuaternionElements;
+    return conversionSign * convertedQuaternionElements;
 }
 
 } // namespace orbital_element_conversions

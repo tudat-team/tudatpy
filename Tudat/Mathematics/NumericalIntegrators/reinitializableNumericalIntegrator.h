@@ -60,14 +60,6 @@ public:
     //! Default destructor.
     virtual ~ReinitializableNumericalIntegrator( ) { }
 
-    //! Modify the state at the current value of the independent variable.
-    /*!
-     * Modify the state at the current value of the independent variable. This function is pure
-     * virtual; hence it must be implemented in all derived classes.
-     * \param newState The new state to set the current state to.
-     */
-    virtual void modifyCurrentState( const StateType& newState ) = 0;
-
 protected:
 
 private:

@@ -46,26 +46,6 @@ Eigen::Vector4d convertQuaternionToVectorFormat( const Eigen::Quaterniond& quate
  */
 Eigen::Quaterniond convertVectorToQuaternionFormat( const Eigen::Vector4d& vector );
 
-//! Function to compute the direction cosine matrix from a quaternion expressed as a Vector4d.
-/*!
- * Function to compute the direction cosine matrix from a quaternion expressed as a Vector4d.
- * \param quaternionAsVector Four dimensional vector, expressing rotation.
- * \param returnInverseRotationMatrix Boolean to toggle inverse matrix.
- * \return Direction cosine matrix of rotation.
- */
-Eigen::Matrix3d computeDirectionCosineMatrixFromQuaternions(
-        const Eigen::Vector4d& quaternionsAsVector, const bool returnInverseRotationMatrix = false );
-
-//! Function to compute the direction cosine matrix from a quaternion expressed as a Quaterniond.
-/*!
- * Function to compute the direction cosine matrix from a quaternion expressed as a Quaterniond.
- * \param quaternionAsVector Quaterniond expressing rotation.
- * \param returnInverseRotationMatrix Boolean to toggle inverse matrix.
- * \return Direction cosine matrix of rotation.
- */
-Eigen::Matrix3d computeDirectionCosineMatrixFromQuaternions(
-        const Eigen::Quaterniond& quaternionsAsQuaternion, const bool returnInverseRotationMatrix = false );
-
 //! Function that returns that 'cross-product matrix'
 /*!
  *  Function that returns that 'cross-product matrix', i.e. for vectors a,b and c, with c = a x b, the matrix A such that
