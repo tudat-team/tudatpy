@@ -555,10 +555,10 @@ public:
             try
             {
                 leastSquaresOutput =
-                        linear_algebra::performLeastSquaresAdjustmentFromInformationMatrix(
+                        std::move( linear_algebra::performLeastSquaresAdjustmentFromInformationMatrix(
                             residualsAndPartials.second.block( 0, 0, residualsAndPartials.second.rows( ), numberOfEstimatedParameters ),
                             residualsAndPartials.first, getConcatenatedWeightsVector( podInput->getWeightsMatrixDiagonals( ) ),
-                            normalizedInverseAprioriCovarianceMatrix );
+                            normalizedInverseAprioriCovarianceMatrix ) );
             }
             catch( std::runtime_error )
             {
@@ -607,15 +607,15 @@ public:
             if( residualRms < bestResidual || !( bestResidual == bestResidual ) )
             {
                 bestResidual = residualRms;
-                bestParameterEstimate = oldParameterEstimate;
-                bestResiduals = residualsAndPartials.first;
+                bestParameterEstimate = std::move( oldParameterEstimate );
+                bestResiduals = std::move( residualsAndPartials.first );
                 if( podInput->getSaveInformationMatrix( ) )
                 {
-                    bestInformationMatrix = residualsAndPartials.second;
+                    bestInformationMatrix = std::move( residualsAndPartials.second );
                 }
-                bestWeightsMatrixDiagonal = getConcatenatedWeightsVector( podInput->getWeightsMatrixDiagonals( ) );
-                bestTransformationData = transformationData;
-                bestInverseNormalizedCovarianceMatrix = leastSquaresOutput.second;
+                bestWeightsMatrixDiagonal = std::move( getConcatenatedWeightsVector( podInput->getWeightsMatrixDiagonals( ) ) );
+                bestTransformationData = std::move( transformationData );
+                bestInverseNormalizedCovarianceMatrix = std::move( leastSquaresOutput.second );
             }
 
 

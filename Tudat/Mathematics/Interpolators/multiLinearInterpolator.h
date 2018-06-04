@@ -75,8 +75,8 @@ public:
                              const boost::multi_array< DependentVariableType, static_cast< size_t >( NumberOfDimensions )>
                              dependentData,
                              const AvailableLookupScheme selectedLookupScheme = huntingAlgorithm )
-        : independentValues_( independentValues ),
-          dependentData_( dependentData )
+        : independentValues_( std::move( independentValues ) ),
+          dependentData_( std::move( dependentData ) )
     {
         // Check consistency of template arguments and input variables.
         if ( independentValues.size( ) != NumberOfDimensions )

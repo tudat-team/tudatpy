@@ -92,8 +92,8 @@ public:
         }
 
         // Set data vectors.
-        independentValues_ = independentVariables;
-        dependentValues_ = dependentVariables;
+        independentValues_ = std::move( independentVariables );
+        dependentValues_ = std::move( dependentVariables );
         numberOfIndependentValues_ = static_cast< int >( independentValues_.size( ) );
 
         // Check if data is in ascending order
@@ -177,8 +177,8 @@ public:
         for( typename std::map< IndependentVariableType, DependentVariableType >::const_iterator
              mapIterator = dataMap.begin( ); mapIterator != dataMap.end( ); mapIterator++ )
         {
-            independentValues_.push_back( mapIterator->first );
-            dependentValues_.push_back( mapIterator->second );
+            independentValues_.push_back( std::move( mapIterator->first ) );
+            dependentValues_.push_back( std::move( mapIterator->second ) );
         }
 
         // Define zero entry for dependent variable.

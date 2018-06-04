@@ -139,8 +139,8 @@ public:
         }
 
         // Set dependent and independent variable values.
-        independentValues_ = independentVariables;
-        dependentValues_ = dependentVariables;
+        independentValues_ = std::move( independentVariables );
+        dependentValues_ = std::move( dependentVariables );
 
         // Check if data is in ascending order
         if( !std::is_sorted( independentVariables.begin( ), independentVariables.end( ) ) )
@@ -190,8 +190,8 @@ public:
         for ( typename std::map< IndependentVariableType, DependentVariableType >::const_iterator
               mapIterator = dataMap.begin( ); mapIterator != dataMap.end( ); mapIterator++ )
         {
-            independentValues_[ counter ] = mapIterator->first;
-            dependentValues_[ counter ] = mapIterator->second;
+            independentValues_[ counter ] = std::move( mapIterator->first );
+            dependentValues_[ counter ] = std::move( mapIterator->second );
             counter++;
         }
 
