@@ -56,7 +56,16 @@ namespace spaceTrajectories
 class SpaceLeg : public MissionLeg
 {
 public:
-
+    //! Constructor with immediate definition of parameters.
+    /*!
+     *  Constructor, sets objects and functions from which relevant environment and state variables
+     *  are retrieved.
+     *  \param departureBodyPosition location of the departure body.
+     *  \param arrivalBodyPosition position of the target body.
+     *  \param timeOfFlight Length of the leg.
+     *  \param departureBodyVelocity velocity of the departure body.
+     *  \param centralBodyGravitationalParameter gravitational parameter of the cebtral body (most cases the Sun).
+     */
     SpaceLeg( const Eigen::Vector3d& departureBodyPosition,
               const Eigen::Vector3d& arrivalBodyPosition,
               const double timeOfFlight,
@@ -74,6 +83,9 @@ public:
     /*!
      * Sets the positions and the velocities to the newly specified values. Required for re-using
      * the class, without re-initializing it.
+     *  \param departureBodyPosition sets the new departure body position.
+     *  \param arrivalBodyPosition sets the new arrival body position.
+     *  \param departureBodyVelocity sets the new departure body velocity.
      */
     void updateEphemeris( const Eigen::Vector3d& departureBodyPosition,
                           const Eigen::Vector3d& arrivalBodyPosition,

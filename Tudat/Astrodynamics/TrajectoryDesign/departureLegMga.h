@@ -59,7 +59,16 @@ public:
 
     //! Constructor with immediate definition of parameters.
     /*!
-     * Constructor with immediate definition of parameters.
+     *  Constructor, sets objects and functions from which relevant environment and state variables
+     *  are retrieved.
+     *  \param departureBodyPosition location of the departure body.
+     *  \param arrivalBodyPosition position of the target body.
+     *  \param timeOfFlight Length of the leg.
+     *  \param departureBodyVelocity velocity of the departure body.
+     *  \param centralBodyGravitationalParameter gravitational parameter of the cebtral body (most cases the Sun).
+     *  \param departureBodyGravitationalParameter gravitational parameter of the departure body.
+     *  \param semiMajorAxis semi-major axis of the orbit after the capture is performed.
+     *  \param eccentricity eccentricity of the orbit after the capture is performed.
      */
     DepartureLegMga( const Eigen::Vector3d& departureBodyPosition,
                      const Eigen::Vector3d& arrivalBodyPosition,
@@ -83,7 +92,9 @@ public:
 
     //! Calculate the leg
     /*!
-     * Performs all calculations required for this leg by the associated trajectory model.
+     * Performs all calculations required for this leg.
+     *  \param velocityBeforeArrivalBody the velocity of the spacecraft before it arrives at the target body.
+     *  \param deltaV the delta V required to perform the leg.
      */
     void calculateLeg( Eigen::Vector3d& velocityBeforeArrivalBody,
                        double& deltaV );
@@ -92,6 +103,10 @@ public:
     /*!
      * Calculates intermediate positions and their corresponding times in the leg, based on a
      * maximum time between two points.
+     *  \param maximumTimeStep the maximum time between two points along the trajectory.
+     *  \param positionVector Vector of positions along the orbit, space according to the maximum time step.
+     *  \param timeVector The times corresponding to the positions.
+     *  \param startingTime the initial time from which the intermediate points are given.
      */
     void intermediatePoints( const double maximumTimeStep,
                              std::vector < Eigen::Vector3d >& positionVector,
@@ -101,6 +116,10 @@ public:
     //! Return maneuvres along the leg.
     /*!
      * Returns the maneuver points, times and sizes along the trajectory.
+     *  \param positionVector Vector of the positions of the maneuvers.
+     *  \param timeVector The times corresponding to the positions.
+     *  \param deltaVVector the delta V required for each maneuver.
+     *  \param startingTime the initial time from which the maneuvers are given.
      */
     void maneuvers( std::vector < Eigen::Vector3d >& positionVector,
                     std::vector < double >& timeVector,
@@ -111,6 +130,7 @@ public:
     /*!
      * Sets the trajectory defining variables to the newly specified values. Required for re-using
      * the class, without re-initializing it. For this leg: time of flight.
+     *  \param variableVector the new variable vector.
      */
     void updateDefiningVariables( const Eigen::VectorXd& variableVector );
 

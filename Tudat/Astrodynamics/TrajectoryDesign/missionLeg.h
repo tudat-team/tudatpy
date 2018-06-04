@@ -57,7 +57,15 @@ namespace spaceTrajectories
 class MissionLeg
 {
 public:
-
+    //! Constructor with immediate definition of parameters.
+    /*!
+     *  Constructor, sets objects and functions from which relevant environment and state variables
+     *  are retrieved.
+     *  \param departureBodyPosition location of the departure body.
+     *  \param timeOfFlight Length of the leg.
+     *  \param departureBodyVelocity velocity of the departure body.
+     *  \param centralBodyGravitationalParameter gravitational parameter of the cebtral body (most cases the Sun).
+     */
     MissionLeg(const Eigen::Vector3d& departureBodyPosition,
                const double timeOfFlight,
                const Eigen::Vector3d& departureBodyVelocity,
@@ -73,19 +81,23 @@ public:
      */
           virtual ~MissionLeg( ){ }
 
-    //! Calculate the leg.
+    //! Calculate the leg
     /*!
-     * Performs all calculations required for this leg by the associated trajectory model. In this
-     * calculation usually the deltaV will be the main focus, this may differ between trajectory
-     * models. In this base class it is purely virtual.
+     * Performs all calculations required for this leg, in this class it is pure virtual.
+     *  \param velocityBeforeArrivalBody the velocity of the spacecraft before it arrives at the target body.
+     *  \param deltaV the delta V required to perform the leg.
      */
     virtual void calculateLeg( Eigen::Vector3d& velocityBeforeArrivalBody,
                                double& deltaV ) = 0;
 
-    //! Return intermediate points along the leg.
+    //! Calculate intermediate positions and their corresponding times.
     /*!
-     * Returns intermediate points along the trajectory, which can for instance be used to plot the
-     * trajectory.
+     * Calculates intermediate positions and their corresponding times in the leg, based on a
+     * maximum time between two points.
+     *  \param maximumTimeStep the maximum time between two points along the trajectory.
+     *  \param positionVector Vector of positions along the orbit, space according to the maximum time step.
+     *  \param timeVector The times corresponding to the positions.
+     *  \param startingTime the initial time from which the intermediate points are given.
      */
     virtual void intermediatePoints( const double maximumTimeStep,
                                      std::vector < Eigen::Vector3d >& positionVector,
@@ -95,6 +107,10 @@ public:
     //! Return maneuvres along the leg.
     /*!
      * Returns the maneuver points, times and sizes along the trajectory.
+     *  \param positionVector Vector of the positions of the maneuvers.
+     *  \param timeVector The times corresponding to the positions.
+     *  \param deltaVVector the delta V required for each maneuver.
+     *  \param startingTime the initial time from which the maneuvers are given.
      */
     virtual void maneuvers( std::vector < Eigen::Vector3d >& positionVector,
                             std::vector < double >& timeVector,
@@ -105,6 +121,9 @@ public:
     /*!
      * Sets the positions and the velocities to the newly specified values. Required for re-using
      * the class, without re-initializing it.
+     *  \param departureBodyPosition sets the new departure body position.
+     *  \param arrivalBodyPosition sets the new arrival body position.
+     *  \param departureBodyVelocity sets the new departure body velocity.
      */
     virtual void updateEphemeris( const Eigen::Vector3d& departureBodyPosition,
                                   const Eigen::Vector3d& arrivalBodyPosition,
@@ -114,6 +133,7 @@ public:
     /*!
      * Sets the trajectory defining variables to the newly specified values. Required for re-using
      * the class, without re-initializing it.
+     * \param variableVector the new variable vector.
      */
     virtual void updateDefiningVariables( const Eigen::VectorXd& variableVector ) = 0;
 
@@ -121,6 +141,9 @@ public:
     /*!
      * Returns the departure body position, velocity and the velocity after departure. Mainly used
      * for getting the launch conditions for TandEM like problems.
+     *  \param departureBodyPosition the departure body position.
+     *  \param departureBodyVelocity the velocity of the departure body.
+     *  \param velocityAfterDeparture the velocity of the spacecraft after the departure maneuver.
      */
     void returnDepartureVariables( Eigen::Vector3d& departureBodyPosition,
                                    Eigen::Vector3d& departureBodyVelocity,
