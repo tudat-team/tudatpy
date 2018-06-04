@@ -1094,11 +1094,11 @@ public:
 
             singleArcDynamicsSimulators_.at( i )->integrateEquationsOfMotion( currentArcInitialState );
             equationsOfMotionNumericalSolution_[ i ] =
-                    singleArcDynamicsSimulators_.at( i )->getEquationsOfMotionNumericalSolution( );
+                    std::move( singleArcDynamicsSimulators_.at( i )->getEquationsOfMotionNumericalSolution( ) );
             dependentVariableHistory_[ i ] =
-                    singleArcDynamicsSimulators_.at( i )->getDependentVariableHistory( );
+                    std::move( singleArcDynamicsSimulators_.at( i )->getDependentVariableHistory( ) );
             cummulativeComputationTimeHistory_[ i ] =
-                    singleArcDynamicsSimulators_.at( i )->getCummulativeComputationTimeHistory( );
+                    std::move( singleArcDynamicsSimulators_.at( i )->getCummulativeComputationTimeHistory( ) );
             propagationTerminationReasons_[ i ] = singleArcDynamicsSimulators_.at( i )->getPropagationTerminationReason( );
             arcStartTimes_[ i ] = equationsOfMotionNumericalSolution_[ i ].begin( )->first;
         }
@@ -1194,7 +1194,7 @@ public:
         for( unsigned int i = 0; i < equationsOfMotionNumericalSolution.size( ); i++ )
         {
             equationsOfMotionNumericalSolution_[ i ].clear( );
-            equationsOfMotionNumericalSolution_[ i ] = equationsOfMotionNumericalSolution[ i ];
+            equationsOfMotionNumericalSolution_[ i ] = std::move( equationsOfMotionNumericalSolution[ i ] );
             arcStartTimes_[ i ] = equationsOfMotionNumericalSolution_[ i ].begin( )->first;
 
         }
@@ -1207,7 +1207,7 @@ public:
         for( unsigned int i = 0; i < dependentVariableHistory.size( ); i++ )
         {
             dependentVariableHistory_[ i ].clear( );
-            dependentVariableHistory_[ i ] = dependentVariableHistory[ i ];
+            dependentVariableHistory_[ i ] = std::move( dependentVariableHistory[ i ] );
         }
     }
 
