@@ -47,6 +47,17 @@ namespace spaceTrajectories
 {
 
 //! Return a vector of positions and times from ephemeris data for a certain epoch and duration.
+/*!
+ * Return a vector of positions and times from ephemeris data for a certain epoch and duration.
+ * \param ephemerisPtr pointer to the ephemeris of the planet.
+ * \param centralBodyGravitationalParameter central body gravitational parameter.
+ * \param startingEpochMJD2000 starting epoch in MJD2000.
+ * \param duration duration for which the planet trajectory is given.
+ * \param maximumTimeStep maximum time between points along the trajectory.
+ * \param positionVector vector of positions along the trajectory.
+ * \param timeVector times corresponding to the positions.
+ * \param startingTime initial time of the trajectory.
+ */
 void returnPlanetTrajectory( const ephemerides::EphemerisPointer& ephemerisPtr,
                              const double centralBodyGravitationalParameter,
                              const double startingEpochMJD2000,
@@ -57,6 +68,16 @@ void returnPlanetTrajectory( const ephemerides::EphemerisPointer& ephemerisPtr,
                              const double startingTime );
 
 //! Return a propagated vector of positions and times from ephemeris data for one revolution.
+/*!
+ * Return a propagated vector of positions and times from ephemeris data for one revolution.
+ * \param ephemerisPtr pointer to the ephemeris of the planet.
+ * \param centralBodyGravitationalParameter central body gravitational parameter.
+ * \param startingEpochMJD2000 starting epoch in MJD2000.
+ * \param maximumTimeStep maximum time between points along the trajectory.
+ * \param positionVector vector of positions along the trajectory.
+ * \param timeVector times corresponding to the positions.
+ * \param startingTime initial time of the trajectory.
+ */
 void returnSingleRevolutionPlanetTrajectory(
         const ephemerides::EphemerisPointer& ephemerisPtr,
         const double centralBodyGravitationalParameter,

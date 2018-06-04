@@ -91,6 +91,15 @@ public:
     //! Constructor with immediate definition of parameters.
     /*!
      * Constructor with immediate definition of parameters.
+     * \param numberOfLegs the number of legs in the trajectory.
+     * \param legTypeVector vector containing the leg types.
+     * \param ephemerisVector vector of ephemeris pointers to the different planets.
+     * \param gravitationalParameterVector vector of the gravitational parameters of the visited planets.
+     * \param trajectoryVariableVector vector containing all the defining variables for the whole trajectory.
+     * \param centralBodyGravitationalParameter gravitational parameter of the central body.
+     * \param minimumPericenterRadiiVector vector containing the minimum distance between the spacecraft and body.
+     * \param semiMajorAxesVector vector containing the semi-major axes for the departure and capture leg.
+     * \param eccentricityVector vector containing the eccentricities for the departure and capture leg.
      */
     Trajectory( const double numberOfLegs,
                 const std::vector< int >& legTypeVector,
@@ -136,6 +145,7 @@ public:
     //! Calculate the legs
     /*!
      * Performs all the calculations required for the trajectory.
+     * \param totalDeltaV the total delta V needed for the trajectory.
      */
     void calculateTrajectory( double& totalDeltaV );
 
@@ -143,6 +153,9 @@ public:
     /*!
      * Returns intermediate points along the trajectory, which can for instance be used to plot the
      * trajectory.
+     *  \param maximumTimeStep the maximum time between two points along the trajectory.
+     *  \param positionVector Vector of positions along the orbit, space according to the maximum time step.
+     *  \param timeVector The times corresponding to the positions.
      */
      void intermediatePoints( double maximumTimeStep,
                               std::vector < Eigen::Vector3d >& positionVector,
@@ -151,7 +164,10 @@ public:
      //! Return maneuvres along the trajectory.
      /*!
       * Returns the maneuver points, times and sizes along the trajectory.
-      */
+      *  \param positionVector Vector of the positions of the maneuvers.
+      *  \param timeVector The times corresponding to the positions.
+      *  \param deltaVVector the delta V required for each maneuver.
+     */
      void maneuvers( std::vector < Eigen::Vector3d >& positionVector,
                      std::vector < double >& timeVector,
                      std::vector < double >& deltaVVector );
@@ -160,6 +176,9 @@ public:
      /*!
       * Returns vectors containing planetary orbits, which are simulated using the ephemeris at the
       * time of visitation.
+      *  \param maximumTimeStep the maximum time between two points along the planet orbit.
+      *  \param positionVector Vector of positions along the orbit, space according to the maximum time step.
+      *  \param timeVector The times corresponding to the positions.
       */
      void planetaryOrbits( double maximumTimeStep,
                            std::vector< std::vector < Eigen::Vector3d > >& positionVectorVector,
@@ -168,6 +187,8 @@ public:
      //! Return planetary encounters.
      /*!
        * Returns vectors containing planetary encounters.
+       * \param positionVector Vector of positions of the encounters.
+       * \param timeVector The times corresponding to the positions.
        */
      void planetaryEncounters( std::vector < Eigen::Vector3d >& positionVector,
                                std::vector < double >& timeVector );
@@ -186,6 +207,7 @@ public:
      * Sets the trajectory defining variable vector to the newly specified values. Also sets all
      * the defining variables in the underlying mission leg classes to these new values. This is
      * required for re-using the class, without re-initializing it.
+     * \param trajectoryVariableVector the new variable vector.
      */
     void updateVariableVector( const Eigen::VectorXd& trajectoryVariableVector );
 
@@ -193,6 +215,9 @@ public:
     /*!
      * Returns the launch conditions, useful if additional information is needed regarding the
      * launch of the spacecraft. This is for instance required for the TandEM problems of GTOP.
+     *  \param departureBodyPosition the departure body position.
+     *  \param departureBodyVelocity the velocity of the departure body.
+     *  \param velocityAfterDeparture the velocity of the spacecraft after the departure maneuver.
      */
     void getLaunchConditions( Eigen::Vector3d& departureBodyPosition,
                               Eigen::Vector3d& departureBodyVelocity,

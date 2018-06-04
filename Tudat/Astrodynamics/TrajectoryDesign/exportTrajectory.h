@@ -44,6 +44,16 @@ namespace spaceTrajectories
 {
 
 //! Return a vector of positions and times corresponding to a trajectory at a certain epoch.
+/*!
+ * \brief returns the trajectory of the spacecraft.
+ * \param initialCartesianState initial cartesian state of the spacecraft.
+ * \param centralBodyGravitationalParameter central body gravitational paremeter.
+ * \param duration duration of the exported trajectory
+ * \param maximumTimeStep maximum time step between the positions that are returned
+ * \param positionVector vector of positions along the trajectory.
+ * \param timeVector vector of times corresponding to the positions.
+ * \param startingTime initial time of the trajectory.
+ */
 void returnTrajectory( Eigen::VectorXd initialCartesianState,
                        double centralBodyGravitationalParameter,
                        double duration,
@@ -53,6 +63,15 @@ void returnTrajectory( Eigen::VectorXd initialCartesianState,
                        double startingTime = 0. );
 
 //! Return a vector of positions and times corresponding to a 2D circular trajectory.
+/*!
+ * Return a vector of positions and times corresponding to a 2D circular trajectory.
+ * \param maximumTimeStep maximum time step between the positions that are returned.
+ * \param positionVector vector of positions along the trajectory.
+ * \param timeVector vector of times corresponding to the positions.
+ * \param semiMajorAxis semi-major axis of the circular orbit.
+ * \param centralGravitationalParamater central body gravitational paremeter.
+ * \param startingTime initial time of the circular trajectory.
+ */
 void returnCircularTrajectory( double maximumTimeStep,
                                std::vector < Eigen::Vector3d >& positionVector,
                                std::vector < double >& timeVector,
@@ -61,11 +80,24 @@ void returnCircularTrajectory( double maximumTimeStep,
                                double startingTime = 0. );
 
 //! Write a trajectory to a data file.
+/*!
+ * Write a trajectory to a data file.
+ * \param positionVector vector of positions along the trajectory.
+ * \param timeVector vector of times corresponding to the positions.
+ * \param fileName name of the exported file
+ */
 void writeTrajectoryToFile( std::vector < Eigen::Vector3d > positionVector,
                             std::vector < double > timeVector,
                             const char * fileName );
 
 //! Write a trajectory to a data file.
+/*!
+ * Write a trajectory to a data file.
+ * \param positionVector vector of positions of the manuevers
+ * \param timeVector vector of times corresponding to the positions.
+ * \param deltaVVector vector of delta V's of the maneuvers.
+ * \param fileName name of the exported file.
+ */
 void writeManeuversToFile( std::vector < Eigen::Vector3d > positionVector,
                            std::vector < double > timeVector,
                            std::vector < double > deltaVVector,

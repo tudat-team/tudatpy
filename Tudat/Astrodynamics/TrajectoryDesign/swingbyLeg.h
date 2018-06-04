@@ -61,7 +61,18 @@ class SwingbyLeg : public SpaceLeg
 public:
 
 protected:
-
+    //! Constructor with immediate definition of parameters.
+    /*!
+     *  Constructor, sets objects and functions from which relevant environment and state variables
+     *  are retrieved.
+     *  \param departureBodyPosition location of the departure body.
+     *  \param arrivalBodyPosition position of the target body.
+     *  \param timeOfFlight Length of the leg.
+     *  \param departureBodyVelocity velocity of the departure body.
+     *  \param centralBodyGravitationalParameter gravitational parameter of the cebtral body (most cases the Sun).
+     *  \param swingbyBodyGravitationalParameter gravitational parameter of the swing-by body.
+     *  \param velocityBeforeDepartureBodyPtr pointer to the velocity before the swing-by.
+    */
     SwingbyLeg( const Eigen::Vector3d& departureBodyPosition,
                 const Eigen::Vector3d& arrivalBodyPosition,
                 const double timeOfFlight,
