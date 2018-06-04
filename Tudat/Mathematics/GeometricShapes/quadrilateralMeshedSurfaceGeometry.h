@@ -215,7 +215,7 @@ private:
 };
 
 //! Typedef for shared-pointer to QuadrilateralMeshedSurfaceGeometry object.
-typedef boost::shared_ptr< QuadrilateralMeshedSurfaceGeometry >
+typedef std::shared_ptr< QuadrilateralMeshedSurfaceGeometry >
 QuadrilateralMeshedSurfaceGeometryPointer;
 
 } // namespace geometric_shapes

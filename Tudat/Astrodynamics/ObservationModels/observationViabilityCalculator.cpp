@@ -19,7 +19,7 @@ namespace observation_models
 //! Function to check whether an observation is viable
 bool isObservationViable(
         const std::vector< Eigen::Vector6d >& states, const std::vector< double >& times, const LinkEnds& linkEnds,
-        const std::map< LinkEnds, std::vector< boost::shared_ptr< ObservationViabilityCalculator > > >& viabilityCalculators )
+        const std::map< LinkEnds, std::vector< std::shared_ptr< ObservationViabilityCalculator > > >& viabilityCalculators )
 {
     bool isObservationFeasible = 1;
 
@@ -34,7 +34,7 @@ bool isObservationViable(
 //! Function to check whether an observation is viable
 bool isObservationViable(
         const std::vector< Eigen::Vector6d >& states, const std::vector< double >& times,
-        const std::vector< boost::shared_ptr< ObservationViabilityCalculator > >& viabilityCalculators )
+        const std::vector< std::shared_ptr< ObservationViabilityCalculator > >& viabilityCalculators )
 {
     bool isObservationFeasible = 1;
 

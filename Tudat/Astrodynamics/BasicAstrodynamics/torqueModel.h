@@ -86,7 +86,7 @@ private:
 };
 
 //! Typedef for list of torques acting on a body (map key is body exerting torque).
-typedef std::map< std::string, std::vector< boost::shared_ptr< basic_astrodynamics::TorqueModel > > > SingleBodyTorqueModelMap;
+typedef std::map< std::string, std::vector< std::shared_ptr< basic_astrodynamics::TorqueModel > > > SingleBodyTorqueModelMap;
 
 //! Typedef for list of torques acting on a set of bodies (map key is body undergoing torque).
 typedef std::map< std::string, SingleBodyTorqueModelMap > TorqueModelMap;

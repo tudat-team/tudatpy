@@ -74,9 +74,9 @@ public:
      */
     NewtonRaphsonCore( const DataType relativeXTolerance, const unsigned int maxIterations )
         : RootFinderCore< DataType >(
-              boost::bind(
+              std::bind(
                   &termination_conditions::RootRelativeToleranceTerminationCondition< DataType >::
-                  checkTerminationCondition, boost::make_shared<
+                  checkTerminationCondition, std::make_shared<
                   termination_conditions::RootRelativeToleranceTerminationCondition< DataType > >(
                       relativeXTolerance, maxIterations ), _1, _2, _3, _4, _5 ) )
     {}
@@ -144,7 +144,7 @@ private:
 
 // Some handy typedefs.
 typedef NewtonRaphsonCore< > NewtonRaphson;
-typedef boost::shared_ptr< NewtonRaphson > NewtonRaphsonPointer;
+typedef std::shared_ptr< NewtonRaphson > NewtonRaphsonPointer;
 
 } // namespace root_finders
 } // namespace tudat

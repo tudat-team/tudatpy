@@ -18,7 +18,7 @@ namespace gravitation
 {
 
 //! Set predefined central gravity field settings.
-boost::shared_ptr< GravityFieldModel > getPredefinedCentralGravityField(
+std::shared_ptr< GravityFieldModel > getPredefinedCentralGravityField(
     BodiesWithPredefinedCentralGravityFields bodyWithPredefinedCentralGravityField )
 {
     double gravitationalParameter = 0.0;
@@ -131,7 +131,7 @@ boost::shared_ptr< GravityFieldModel > getPredefinedCentralGravityField(
                 " does not exist";
         throw std::runtime_error( errorMessage );
     }
-    return boost::make_shared< GravityFieldModel >( gravitationalParameter );
+    return std::make_shared< GravityFieldModel >( gravitationalParameter );
 }
 
 } // namespace gravitation

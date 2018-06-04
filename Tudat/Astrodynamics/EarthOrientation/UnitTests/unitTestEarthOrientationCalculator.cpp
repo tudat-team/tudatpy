@@ -193,7 +193,7 @@ BOOST_AUTO_TEST_CASE( testEarthOrientationAngleFunctionsAgainstSofa )
                 terrestrialTimeSecondsSinceJ2000Inaccruate );
 
     // Compute Earth rotation angles from EarthOrientationAnglesCalculator object and compare against SOFA
-    boost::shared_ptr< tudat::earth_orientation::EarthOrientationAnglesCalculator > earthOrientationCalculator =
+    std::shared_ptr< tudat::earth_orientation::EarthOrientationAnglesCalculator > earthOrientationCalculator =
             tudat::earth_orientation::createStandardEarthOrientationCalculator( );
 
     // Compare SOFA values against EarthOrientationAnglesCalculator  with double input

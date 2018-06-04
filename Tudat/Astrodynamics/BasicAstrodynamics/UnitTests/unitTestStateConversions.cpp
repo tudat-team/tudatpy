@@ -51,8 +51,8 @@ BOOST_AUTO_TEST_CASE( testGeneralCoordinateConversions )
     const double equatorialRadius = 6378137.0;
 
     // Create shape model
-    boost::shared_ptr< basic_astrodynamics::OblateSpheroidBodyShapeModel > oblateSpheroidModel =
-            boost::make_shared< basic_astrodynamics::OblateSpheroidBodyShapeModel >(
+    std::shared_ptr< basic_astrodynamics::OblateSpheroidBodyShapeModel > oblateSpheroidModel =
+            std::make_shared< basic_astrodynamics::OblateSpheroidBodyShapeModel >(
                 equatorialRadius, flattening );
 
     // Declare variables for computation

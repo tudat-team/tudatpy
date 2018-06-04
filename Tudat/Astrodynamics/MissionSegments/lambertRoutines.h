@@ -195,7 +195,7 @@ private:
 };
 
 //! Typedef for shared-pointer to LambertFunctionsGooding object.
-typedef boost::shared_ptr< LambertFunctionsGooding > LambertFunctionsGoodingPointer;
+typedef std::shared_ptr< LambertFunctionsGooding > LambertFunctionsGoodingPointer;
 
 } // namespace mission_segments
 } // namespace tudat

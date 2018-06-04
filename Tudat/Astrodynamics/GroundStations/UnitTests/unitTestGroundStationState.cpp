@@ -46,7 +46,7 @@ BOOST_AUTO_TEST_SUITE( test_ground_station_state )
 BOOST_AUTO_TEST_CASE( test_GroundStationState )
 {
     // Create Earth object
-    boost::shared_ptr< Body > earth = boost::make_shared< Body >( );
+    std::shared_ptr< Body > earth = std::make_shared< Body >( );
     NamedBodyMap bodyMap;
     bodyMap[ "Earth" ] = earth;
 
@@ -54,8 +54,8 @@ BOOST_AUTO_TEST_CASE( test_GroundStationState )
     const double flattening = 1.0 / 298.257223563;
     const double equatorialRadius = 6378137.0;
 
-    boost::shared_ptr< basic_astrodynamics::OblateSpheroidBodyShapeModel > oblateSpheroidModel =
-            boost::make_shared< basic_astrodynamics::OblateSpheroidBodyShapeModel >(
+    std::shared_ptr< basic_astrodynamics::OblateSpheroidBodyShapeModel > oblateSpheroidModel =
+            std::make_shared< basic_astrodynamics::OblateSpheroidBodyShapeModel >(
                 equatorialRadius, flattening );
 
     earth->setShapeModel( oblateSpheroidModel );
@@ -79,9 +79,9 @@ BOOST_AUTO_TEST_CASE( test_GroundStationState )
     createGroundStation( earth, "Station2", testSphericalPosition, spherical_position );
     createGroundStation( earth, "Station3", testGeodeticPosition, geodetic_position );
 
-    boost::shared_ptr< GroundStationState > station1 = earth->getGroundStation( "Station1" )->getNominalStationState( );
-    boost::shared_ptr< GroundStationState > station2 = earth->getGroundStation( "Station2" )->getNominalStationState( );
-    boost::shared_ptr< GroundStationState > station3 = earth->getGroundStation( "Station3" )->getNominalStationState( );
+    std::shared_ptr< GroundStationState > station1 = earth->getGroundStation( "Station1" )->getNominalStationState( );
+    std::shared_ptr< GroundStationState > station2 = earth->getGroundStation( "Station2" )->getNominalStationState( );
+    std::shared_ptr< GroundStationState > station3 = earth->getGroundStation( "Station3" )->getNominalStationState( );
 
     // Check if ground station representations are correctly converted
     Eigen::Vector3d position1, position2;
@@ -166,7 +166,7 @@ BOOST_AUTO_TEST_CASE( test_GroundStationGlobalState )
     spice_interface::loadStandardSpiceKernels( );
 
     // Create Earth object
-    boost::shared_ptr< Body > earth = boost::make_shared< Body >( );
+    std::shared_ptr< Body > earth = std::make_shared< Body >( );
     NamedBodyMap bodyMap;
     bodyMap[ "Earth" ] = earth;
 
@@ -174,14 +174,14 @@ BOOST_AUTO_TEST_CASE( test_GroundStationGlobalState )
     const double flattening = 1.0 / 298.257223563;
     const double equatorialRadius = 6378137.0;
 
-    boost::shared_ptr< basic_astrodynamics::OblateSpheroidBodyShapeModel > oblateSpheroidModel =
-            boost::make_shared< basic_astrodynamics::OblateSpheroidBodyShapeModel >(
+    std::shared_ptr< basic_astrodynamics::OblateSpheroidBodyShapeModel > oblateSpheroidModel =
+            std::make_shared< basic_astrodynamics::OblateSpheroidBodyShapeModel >(
                 equatorialRadius, flattening );
 
     earth->setShapeModel( oblateSpheroidModel );
-    earth->setEphemeris( boost::make_shared< ephemerides::SpiceEphemeris >(
+    earth->setEphemeris( std::make_shared< ephemerides::SpiceEphemeris >(
                              "Earth", "SSB", false, true, true, "ECLIPJ2000" ) );
-    earth->setRotationalEphemeris( boost::make_shared< ephemerides::SpiceRotationalEphemeris >(
+    earth->setRotationalEphemeris( std::make_shared< ephemerides::SpiceRotationalEphemeris >(
                                        "ECLIPJ2000", "IAU_Earth" ) );
 
 
@@ -196,7 +196,7 @@ BOOST_AUTO_TEST_CASE( test_GroundStationGlobalState )
     createGroundStation( earth, "Station1", groundStationPosition, cartesian_position );
 
     // Make state function of ground station w.r.t. SSB in inertial frame
-    boost::function< Eigen::Matrix< double, 6, 1 >( const double ) > stateFunction =
+    std::function< Eigen::Matrix< double, 6, 1 >( const double ) > stateFunction =
             observation_models::getLinkEndCompleteEphemerisFunction(
                 std::make_pair( "Earth", "Station1" ), bodyMap );
 

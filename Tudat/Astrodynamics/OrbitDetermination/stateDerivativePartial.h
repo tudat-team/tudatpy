@@ -70,7 +70,7 @@ public:
      * \param integratedStateType Type of propagated state.
      * \return Pair with function, returning partial derivative, and number of columns in partial vector,
      */
-    virtual std::pair< boost::function< void( Eigen::Block< Eigen::MatrixXd > ) >, int >
+    virtual std::pair< std::function< void( Eigen::Block< Eigen::MatrixXd > ) >, int >
     getDerivativeFunctionWrtStateOfIntegratedBody(
             const std::pair< std::string, std::string >& stateReferencePoint,
             const propagators::IntegratedStateType integratedStateType ) = 0;
@@ -94,13 +94,13 @@ public:
      * \return Partial of state derivative w.r.t. given parameter.
      */
     Eigen::MatrixXd wrtParameter(
-            const boost::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter )
+            const std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter )
     {
         // Initialize partial
         Eigen::MatrixXd partial = Eigen::MatrixXd( accelerationSize_, 1 );
 
         // Get partial computation function.
-        std::pair< boost::function< void( Eigen::MatrixXd& ) >, int > partialFunction =
+        std::pair< std::function< void( Eigen::MatrixXd& ) >, int > partialFunction =
                 getParameterPartialFunction( parameter );
 
         // If parameter dependency exists, compute it, otherwise set partial to zero.
@@ -125,10 +125,10 @@ public:
      *  function should be overriden in derived class.
      *  \param parameter Parameter w.r.t. which partial is to be computed
      */
-    virtual std::pair< boost::function< void( Eigen::MatrixXd& ) >, int > getParameterPartialFunction(
-            boost::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter )
+    virtual std::pair< std::function< void( Eigen::MatrixXd& ) >, int > getParameterPartialFunction(
+            std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter )
     {
-        boost::function< void( Eigen::MatrixXd& ) > partialFunction;
+        std::function< void( Eigen::MatrixXd& ) > partialFunction;
         return std::make_pair( partialFunction, 0 );
     }
 
@@ -140,13 +140,13 @@ public:
      * \return Partial of state derivative w.r.t. given parameter.
      */
     Eigen::MatrixXd wrtParameter(
-            boost::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter )
+            std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter )
     {
         // Initialize partial
         Eigen::MatrixXd partial = Eigen::MatrixXd( accelerationSize_, parameter->getParameterSize( ) );
 
         // Get partial computation function.
-        std::pair< boost::function< void( Eigen::MatrixXd& ) >, int > partialFunction =
+        std::pair< std::function< void( Eigen::MatrixXd& ) >, int > partialFunction =
                 getParameterPartialFunction( parameter );
 
         // If parameter dependency exists, compute it, otherwise set partial to zero.
@@ -169,10 +169,10 @@ public:
      *  function should be overriden in derived class.
      *  \param parameter Parameter w.r.t. which partial is to be computed
      */
-    virtual std::pair< boost::function< void( Eigen::MatrixXd& ) >, int > getParameterPartialFunction(
-            boost::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter )
+    virtual std::pair< std::function< void( Eigen::MatrixXd& ) >, int > getParameterPartialFunction(
+            std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter )
     {
-        boost::function< void( Eigen::MatrixXd& ) > partialFunction;
+        std::function< void( Eigen::MatrixXd& ) > partialFunction;
         return std::make_pair( partialFunction, 0 );
     }
 
@@ -234,7 +234,7 @@ public:
      * Eigen::Block architecture).
      */
     void getCurrentParameterPartial(
-            const boost::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter,
+            const std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter,
             Eigen::Block< Eigen::MatrixXd > partialMatrix )
     {
         // Check if dependecy is computed
@@ -268,7 +268,7 @@ public:
      * \param parameterPartial Partial of state derivative w.r.t. given parameter (return by reference)
      */
     void getCurrentDoubleParameterPartial(
-            const boost::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter,
+            const std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter,
             Eigen::MatrixXd& parameterPartial )
     {
         getCurrentParameterPartial( parameter, parameterPartial.block( 0, 0, accelerationSize_, 1 ) );
@@ -284,7 +284,7 @@ public:
      * Eigen::Block architecture).
      */
     void getCurrentParameterPartial(
-            const boost::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter,
+            const std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter,
             Eigen::Block< Eigen::MatrixXd > partialMatrix )
     {
         if( currentVectorParameterPartials_.count( parameter ) == 0 )
@@ -316,7 +316,7 @@ public:
      * \param parameterPartial Partial of state derivative w.r.t. given parameter (return by reference)
      */
     void getCurrentVectorParameterPartial(
-            const boost::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter,
+            const std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter,
             Eigen::MatrixXd& parameterPartial )
     {
         getCurrentParameterPartial( parameter, parameterPartial.block(
@@ -331,10 +331,10 @@ public:
      * \return Size (number of columns) of parameter partial. Zero if no dependency, 1 otherwise.
      */
     virtual int setParameterPartialUpdateFunction(
-                boost::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter )
+                std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter )
     {
         // Get partial function.
-        std::pair< boost::function< void( Eigen::MatrixXd& ) >, int > parameterPartialFunction =
+        std::pair< std::function< void( Eigen::MatrixXd& ) >, int > parameterPartialFunction =
                 getParameterPartialFunction( parameter );
 
         // If partial function found, add function to list of computations to be performed when calling
@@ -360,10 +360,10 @@ public:
      * \return Size (number of columns) of parameter partial. Zero if no dependency, size of parameter otherwise.
      */
     virtual int setParameterPartialUpdateFunction(
-            boost::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter )
+            std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter )
     {
         // Get partial function.
-        std::pair< boost::function< void( Eigen::MatrixXd& ) >, int > parameterPartialFunction =
+        std::pair< std::function< void( Eigen::MatrixXd& ) >, int > parameterPartialFunction =
                 getParameterPartialFunction( parameter );
 
         // If partial function found, add function to list of computations to be performed when calling
@@ -474,50 +474,50 @@ protected:
 
 
     //! List of booleans defining whether the partial w.r.t. the current double parameter (key) has been computed.
-    std::map< boost::shared_ptr< estimatable_parameters::EstimatableParameter< double > >, bool >
+    std::map< std::shared_ptr< estimatable_parameters::EstimatableParameter< double > >, bool >
     isCurrentDoubleParameterPartialSet_;
 
     //! Iterator for list defining whether the partial w.r.t. the current double parameter (key) has been computed.
-    std::map< boost::shared_ptr< estimatable_parameters::EstimatableParameter< double > >, bool >::iterator
+    std::map< std::shared_ptr< estimatable_parameters::EstimatableParameter< double > >, bool >::iterator
     isCurrentDoubleParameterPartialSetIterator_;
 
 
 
     //! List of current values of partials w.r.t. double parameter values (emptied at beginning of every time step).
-    std::map< boost::shared_ptr< estimatable_parameters::EstimatableParameter< double > >, Eigen::MatrixXd >
+    std::map< std::shared_ptr< estimatable_parameters::EstimatableParameter< double > >, Eigen::MatrixXd >
     currentDoubleParameterPartials_;
 
     //! List of functions to compute (return by reference) values of partials w.r.t. doule parameter partials
-    std::map< boost::shared_ptr< estimatable_parameters::EstimatableParameter< double > >,
-    boost::function< void( Eigen::MatrixXd& ) > > parameterDoublePartialFunctions_;
+    std::map< std::shared_ptr< estimatable_parameters::EstimatableParameter< double > >,
+    std::function< void( Eigen::MatrixXd& ) > > parameterDoublePartialFunctions_;
 
     //! Iterator over list of functions to compute values of partials w.r.t. double parameter partials
-    std::map< boost::shared_ptr< estimatable_parameters::EstimatableParameter< double > >,
-    boost::function< void( Eigen::MatrixXd& ) > >::iterator parameterDoublePartialFunctionIterator_;
+    std::map< std::shared_ptr< estimatable_parameters::EstimatableParameter< double > >,
+    std::function< void( Eigen::MatrixXd& ) > >::iterator parameterDoublePartialFunctionIterator_;
 
 
 
     //! List of booleans defining whether the partial w.r.t. the current vector parameter (key) has been computed.
-    std::map< boost::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > >, bool >
+    std::map< std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > >, bool >
     isCurrentVectorParameterPartialSet_;
 
     //! Iterator for list defining whether the partial w.r.t. the current vector parameter (key) has been computed.
-    std::map< boost::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > >, bool >::iterator
+    std::map< std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > >, bool >::iterator
     isCurrentVectorParameterPartialSetIterator_;
 
 
 
     //! List of current values of partials w.r.t. double parameter values (emptied at beginning of every time step).
-    std::map< boost::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > >,
+    std::map< std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > >,
     Eigen::MatrixXd > currentVectorParameterPartials_;
 
     //! List of functions to compute (return by reference) values of partials w.r.t. vector parameter partials
-    std::map< boost::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > >,
-    boost::function< void( Eigen::MatrixXd&  ) > > parameterVectorPartialFunctions_;
+    std::map< std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > >,
+    std::function< void( Eigen::MatrixXd&  ) > > parameterVectorPartialFunctions_;
 
     //! Iterator over list of functions to compute values of partials w.r.t. vector parameter partials
-    std::map< boost::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > >,
-    boost::function< void( Eigen::MatrixXd& ) > >::iterator parameterVectorPartialFunctionIterator_;
+    std::map< std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > >,
+    std::function< void( Eigen::MatrixXd& ) > >::iterator parameterVectorPartialFunctionIterator_;
 
 
     double currentTime_;
@@ -530,7 +530,7 @@ protected:
  *  bodies undergoing 'acceleration (and being estimated), the second (inner) vector is the list of partials
  *  being exerted on a single body.
  */
-typedef std::vector< std::vector< boost::shared_ptr< orbit_determination::StateDerivativePartial > > >
+typedef std::vector< std::vector< std::shared_ptr< orbit_determination::StateDerivativePartial > > >
 StateDerivativePartialsMap;
 
 //! Function to evaluate the negative value of a parameter partial.
@@ -540,7 +540,7 @@ StateDerivativePartialsMap;
  *  \param partial Negative value of partial computed by parameterPartialFunction (returned by reference).
  */
 void evaluateNegativeParameterPartialFunction(
-        const boost::function< void( Eigen::MatrixXd& ) > parameterPartialFunction,
+        const std::function< void( Eigen::MatrixXd& ) > parameterPartialFunction,
         Eigen::MatrixXd& partial );
 
 //! Function to evaluate the subtraction of two parameter partials.
@@ -554,8 +554,8 @@ void evaluateNegativeParameterPartialFunction(
  *  firstParameterPartialFunction (returned by reference).
  */
 void evaluateSubtractedParameterPartialFunction(
-        const boost::function< void( Eigen::MatrixXd& ) > firstParameterPartialFunction,
-        const boost::function< void( Eigen::MatrixXd& ) > parameterPartialFunctionToSubtract,
+        const std::function< void( Eigen::MatrixXd& ) > firstParameterPartialFunction,
+        const std::function< void( Eigen::MatrixXd& ) > parameterPartialFunctionToSubtract,
         Eigen::MatrixXd& partial );
 
 //! Function to evaluate the addition of two parameter partials.
@@ -569,8 +569,8 @@ void evaluateSubtractedParameterPartialFunction(
  *  parameterPartialFunctionToAdd (returned by reference).
  */
 void evaluateAddedParameterPartialFunction(
-        const boost::function< void( Eigen::MatrixXd& ) > firstParameterPartialFunction,
-        const boost::function< void( Eigen::MatrixXd& ) > parameterPartialFunctionToAdd,
+        const std::function< void( Eigen::MatrixXd& ) > firstParameterPartialFunction,
+        const std::function< void( Eigen::MatrixXd& ) > parameterPartialFunctionToAdd,
         Eigen::MatrixXd& partial );
 
 //! Create a parameter partial function obtained from the subtraction of two such function results.
@@ -585,9 +585,9 @@ void evaluateAddedParameterPartialFunction(
  * \return Function and parameter size obtained from 'subtracting' partialFunctionOfAccelerationToSubtract from
  * partialFunctionOfAccelerationToAdd
  */
-std::pair< boost::function< void( Eigen::MatrixXd& ) >, int > createMergedParameterPartialFunction(
-        const std::pair< boost::function< void( Eigen::MatrixXd& ) >, int >& partialFunctionOfAccelerationToAdd,
-        const std::pair< boost::function< void( Eigen::MatrixXd& ) >, int >& partialFunctionOfAccelerationToSubtract );
+std::pair< std::function< void( Eigen::MatrixXd& ) >, int > createMergedParameterPartialFunction(
+        const std::pair< std::function< void( Eigen::MatrixXd& ) >, int >& partialFunctionOfAccelerationToAdd,
+        const std::pair< std::function< void( Eigen::MatrixXd& ) >, int >& partialFunctionOfAccelerationToSubtract );
 
 
 //! Function to create a parameter partial evaluation function, obtained by adding or subtracting a given partial
@@ -607,10 +607,10 @@ std::pair< boost::function< void( Eigen::MatrixXd& ) >, int > createMergedParame
  * total partial.
  * \return Function computing and returning (by reference) the combined partial according to the required settings.
  */
-boost::function< void( Eigen::MatrixXd& ) > getCombinedCurrentDoubleParameterFunction(
-        const boost::shared_ptr< StateDerivativePartial > firstPartial,
-        const boost::shared_ptr< StateDerivativePartial > secondPartial,
-        const boost::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameterObject,
+std::function< void( Eigen::MatrixXd& ) > getCombinedCurrentDoubleParameterFunction(
+        const std::shared_ptr< StateDerivativePartial > firstPartial,
+        const std::shared_ptr< StateDerivativePartial > secondPartial,
+        const std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameterObject,
         const int firstPartialSize, const int secondPartialSize,
         const bool subtractPartials = 0 );
 
@@ -631,10 +631,10 @@ boost::function< void( Eigen::MatrixXd& ) > getCombinedCurrentDoubleParameterFun
  * total partial.
  * \return Function computing and returning (by reference) the combined partial according to the required settings.
  */
-boost::function< void( Eigen::MatrixXd& ) > getCombinedCurrentVectorParameterFunction(
-        const boost::shared_ptr< StateDerivativePartial > firstPartial,
-        const boost::shared_ptr< StateDerivativePartial > secondPartial,
-        const boost::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameterObject,
+std::function< void( Eigen::MatrixXd& ) > getCombinedCurrentVectorParameterFunction(
+        const std::shared_ptr< StateDerivativePartial > firstPartial,
+        const std::shared_ptr< StateDerivativePartial > secondPartial,
+        const std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameterObject,
         const int firstPartialSize, const int secondPartialSize,
         const bool subtractPartials = 0 );
 

@@ -19,7 +19,7 @@ namespace simulation_setup
 {
 
 //! Create a `json` object from a shared pointer to a `AccelerationSettings` object.
-void to_json( nlohmann::json& jsonObject, const boost::shared_ptr< AccelerationSettings >& accelerationSettings )
+void to_json( nlohmann::json& jsonObject, const std::shared_ptr< AccelerationSettings >& accelerationSettings )
 {
     if ( ! accelerationSettings )
     {
@@ -49,9 +49,9 @@ void to_json( nlohmann::json& jsonObject, const boost::shared_ptr< AccelerationS
     case third_body_spherical_harmonic_gravity:
     {
         jsonObject[ K::type ] = spherical_harmonic_gravity;
-        boost::shared_ptr< SphericalHarmonicAccelerationSettings > sphericalHarmonicAccelerationSettings
-                = boost::dynamic_pointer_cast< SphericalHarmonicAccelerationSettings >( accelerationSettings );
-        assertNonNullPointer( sphericalHarmonicAccelerationSettings );
+        std::shared_ptr< SphericalHarmonicAccelerationSettings > sphericalHarmonicAccelerationSettings
+                = std::dynamic_pointer_cast< SphericalHarmonicAccelerationSettings >( accelerationSettings );
+        assertNonnullptrPointer( sphericalHarmonicAccelerationSettings );
         jsonObject[ K::maximumDegree ] = sphericalHarmonicAccelerationSettings->maximumDegree_;
         jsonObject[ K::maximumOrder ] = sphericalHarmonicAccelerationSettings->maximumOrder_;
         return;
@@ -60,10 +60,10 @@ void to_json( nlohmann::json& jsonObject, const boost::shared_ptr< AccelerationS
     case third_body_mutual_spherical_harmonic_gravity:
     {
         jsonObject[ K::type ] = mutual_spherical_harmonic_gravity;
-        boost::shared_ptr< MutualSphericalHarmonicAccelerationSettings > mutualSphericalHarmonicAccelerationSettings
-                = boost::dynamic_pointer_cast< MutualSphericalHarmonicAccelerationSettings >(
+        std::shared_ptr< MutualSphericalHarmonicAccelerationSettings > mutualSphericalHarmonicAccelerationSettings
+                = std::dynamic_pointer_cast< MutualSphericalHarmonicAccelerationSettings >(
                     accelerationSettings );
-        assertNonNullPointer( mutualSphericalHarmonicAccelerationSettings );
+        assertNonnullptrPointer( mutualSphericalHarmonicAccelerationSettings );
         jsonObject[ K::maximumDegreeOfBodyExertingAcceleration ] =
                 mutualSphericalHarmonicAccelerationSettings->maximumDegreeOfBodyExertingAcceleration_;
         jsonObject[ K::maximumOrderOfBodyExertingAcceleration ] =
@@ -80,17 +80,17 @@ void to_json( nlohmann::json& jsonObject, const boost::shared_ptr< AccelerationS
     }
     case thrust_acceleration:
     {
-        boost::shared_ptr< ThrustAccelerationSettings > thrustAccelerationSettings
-                = boost::dynamic_pointer_cast< ThrustAccelerationSettings >( accelerationSettings );
-        assertNonNullPointer( thrustAccelerationSettings );
+        std::shared_ptr< ThrustAccelerationSettings > thrustAccelerationSettings
+                = std::dynamic_pointer_cast< ThrustAccelerationSettings >( accelerationSettings );
+        assertNonnullptrPointer( thrustAccelerationSettings );
         jsonObject = thrustAccelerationSettings;
         return;
     }
     case relativistic_correction_acceleration:
     {
-        boost::shared_ptr< RelativisticAccelerationCorrectionSettings > relativisticAccelerationCorrectionSettings
-                = boost::dynamic_pointer_cast< RelativisticAccelerationCorrectionSettings >( accelerationSettings );
-        assertNonNullPointer( relativisticAccelerationCorrectionSettings );
+        std::shared_ptr< RelativisticAccelerationCorrectionSettings > relativisticAccelerationCorrectionSettings
+                = std::dynamic_pointer_cast< RelativisticAccelerationCorrectionSettings >( accelerationSettings );
+        assertNonnullptrPointer( relativisticAccelerationCorrectionSettings );
         jsonObject[ K::calculateSchwarzschildCorrection ] =
                 relativisticAccelerationCorrectionSettings->calculateSchwarzschildCorrection_;
         jsonObject[ K::calculateLenseThirringCorrection ] =
@@ -105,9 +105,9 @@ void to_json( nlohmann::json& jsonObject, const boost::shared_ptr< AccelerationS
     }
     case empirical_acceleration:
     {
-        boost::shared_ptr< EmpiricalAccelerationSettings > empiricalAccelerationSettings
-                = boost::dynamic_pointer_cast< EmpiricalAccelerationSettings >( accelerationSettings );
-        assertNonNullPointer( empiricalAccelerationSettings );
+        std::shared_ptr< EmpiricalAccelerationSettings > empiricalAccelerationSettings
+                = std::dynamic_pointer_cast< EmpiricalAccelerationSettings >( accelerationSettings );
+        assertNonnullptrPointer( empiricalAccelerationSettings );
         jsonObject[ K::constantAcceleration ] = empiricalAccelerationSettings->constantAcceleration_;
         jsonObject[ K::sineAcceleration ] = empiricalAccelerationSettings->sineAcceleration_;
         jsonObject[ K::cosineAcceleration ] = empiricalAccelerationSettings->cosineAcceleration_;
@@ -119,7 +119,7 @@ void to_json( nlohmann::json& jsonObject, const boost::shared_ptr< AccelerationS
 }
 
 //! Create a shared pointer to a `AccelerationSettings` object from a `json` object.
-void from_json( const nlohmann::json& jsonObject, boost::shared_ptr< AccelerationSettings >& accelerationSettings )
+void from_json( const nlohmann::json& jsonObject, std::shared_ptr< AccelerationSettings >& accelerationSettings )
 {
     using namespace json_interface;
     using namespace basic_astrodynamics;
@@ -134,12 +134,12 @@ void from_json( const nlohmann::json& jsonObject, boost::shared_ptr< Acceleratio
     case aerodynamic:
     case cannon_ball_radiation_pressure:
     {
-        accelerationSettings = boost::make_shared< AccelerationSettings >( accelerationType );
+        accelerationSettings = std::make_shared< AccelerationSettings >( accelerationType );
         return;
     }
     case spherical_harmonic_gravity:
     {
-        accelerationSettings = boost::make_shared< SphericalHarmonicAccelerationSettings >(
+        accelerationSettings = std::make_shared< SphericalHarmonicAccelerationSettings >(
                     getValue< int >( jsonObject, K::maximumDegree ),
                     getValue< int >( jsonObject, K::maximumOrder ) );
         return;
@@ -147,7 +147,7 @@ void from_json( const nlohmann::json& jsonObject, boost::shared_ptr< Acceleratio
     case mutual_spherical_harmonic_gravity:
     {
         MutualSphericalHarmonicAccelerationSettings defaults( -1, -1, -1, -1 );
-        accelerationSettings = boost::make_shared< MutualSphericalHarmonicAccelerationSettings >(
+        accelerationSettings = std::make_shared< MutualSphericalHarmonicAccelerationSettings >(
                     getValue< int >( jsonObject, K::maximumDegreeOfBodyExertingAcceleration ),
                     getValue< int >( jsonObject, K::maximumOrderOfBodyExertingAcceleration ),
                     getValue< int >( jsonObject, K::maximumDegreeOfBodyUndergoingAcceleration ),
@@ -158,13 +158,13 @@ void from_json( const nlohmann::json& jsonObject, boost::shared_ptr< Acceleratio
     }
     case thrust_acceleration:
     {
-        accelerationSettings = getAs< boost::shared_ptr< ThrustAccelerationSettings > >( jsonObject );
+        accelerationSettings = getAs< std::shared_ptr< ThrustAccelerationSettings > >( jsonObject );
         return;
     }
     case relativistic_correction_acceleration:
     {
         RelativisticAccelerationCorrectionSettings defaults;
-        accelerationSettings = boost::make_shared< RelativisticAccelerationCorrectionSettings >(
+        accelerationSettings = std::make_shared< RelativisticAccelerationCorrectionSettings >(
                     getValue( jsonObject, K::calculateSchwarzschildCorrection,
                               defaults.calculateSchwarzschildCorrection_ ),
                     getValue( jsonObject, K::calculateLenseThirringCorrection,
@@ -177,7 +177,7 @@ void from_json( const nlohmann::json& jsonObject, boost::shared_ptr< Acceleratio
     case empirical_acceleration:
     {
         EmpiricalAccelerationSettings defaults;
-        accelerationSettings = boost::make_shared< EmpiricalAccelerationSettings >(
+        accelerationSettings = std::make_shared< EmpiricalAccelerationSettings >(
                     getValue( jsonObject, K::constantAcceleration, defaults.constantAcceleration_ ),
                     getValue( jsonObject, K::sineAcceleration, defaults.sineAcceleration_ ),
                     getValue( jsonObject, K::cosineAcceleration, defaults.cosineAcceleration_ ) );

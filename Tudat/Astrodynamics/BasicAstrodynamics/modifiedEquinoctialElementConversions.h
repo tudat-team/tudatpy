@@ -356,8 +356,8 @@ Eigen::Matrix< ScalarType, 6, 1 > convertCartesianToModifiedEquinoctialElements(
 
 template< typename ScalarType = double >
 Eigen::Matrix< ScalarType, 6, 1 > convertCartesianToModifiedEquinoctialElementsFromStateFunction(
-        const boost::function< Eigen::Matrix< ScalarType, 6, 1 >(  ) >& cartesianElementsFunction,
-        const boost::function< ScalarType( ) > centralBodyGravitationalParameterFunction )
+        const std::function< Eigen::Matrix< ScalarType, 6, 1 >(  ) >& cartesianElementsFunction,
+        const std::function< ScalarType( ) > centralBodyGravitationalParameterFunction )
 {
     return convertCartesianToModifiedEquinoctialElements(
                 cartesianElementsFunction( ), centralBodyGravitationalParameterFunction( ) );

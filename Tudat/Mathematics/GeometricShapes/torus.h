@@ -178,7 +178,7 @@ private:
 };
 
 //! Typedef for shared-pointer to Torus object.
-typedef boost::shared_ptr< Torus > TorusPointer;
+typedef std::shared_ptr< Torus > TorusPointer;
 
 } // namespace geometric_shapes
 } // namespace tudat

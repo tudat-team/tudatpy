@@ -65,7 +65,7 @@ private:
 };
 
 //! Typedef for shared-pointer to Parser object.
-typedef boost::shared_ptr< Parser > ParserPointer;
+typedef std::shared_ptr< Parser > ParserPointer;
 
 } // namespace input_output
 } // namespace tudat

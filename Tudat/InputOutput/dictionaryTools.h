@@ -16,7 +16,7 @@
 #include <set>
 #include <stdexcept>
 
-#include <boost/function.hpp>
+#include <tr1/functional>
 #include <boost/shared_ptr.hpp>
 
 #include "Tudat/InputOutput/dictionaryComparer.h"
@@ -36,7 +36,7 @@ typedef std::set< DictionaryEntryPointer, DictionaryComparer > Dictionary;
 typedef Dictionary::const_iterator DictionaryIterator;
 
 //! Typedef for pointer to dictionary containing dictionary entries.
-typedef boost::shared_ptr< Dictionary > DictionaryPointer;
+typedef std::shared_ptr< Dictionary > DictionaryPointer;
 
 //! Typedef for list of required parameters.
 typedef std::set< DictionaryEntryPointer, DictionaryComparer > RequiredParametersList;
@@ -117,7 +117,7 @@ DataType extractParameterValue( const DataLineIterator& firstDataLine,
                                 const DataLineIterator& lastDataLine,
                                 const DictionaryIterator& dictionaryEntry,
                                 const DataType& defaultValue = DataType( ),
-                                const boost::function< DataType( DataType ) >& convert
+                                const std::function< DataType( DataType ) >& convert
                                 = &convertDummy< DataType > )
 {
     // Attempt to match dictionary entry with any data lines.

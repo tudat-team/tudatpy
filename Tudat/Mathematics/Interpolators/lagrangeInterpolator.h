@@ -421,9 +421,9 @@ private:
             }
 
             // Create cubic spline interpolators
-            beginInterpolator_ = boost::make_shared< CubicSplineInterpolator
+            beginInterpolator_ = std::make_shared< CubicSplineInterpolator
                     < IndependentVariableType, DependentVariableType, ScalarType > >( startMap );
-            endInterpolator_ = boost::make_shared< CubicSplineInterpolator
+            endInterpolator_ = std::make_shared< CubicSplineInterpolator
                     < IndependentVariableType, DependentVariableType, ScalarType > >( endMap );
         }
     }
@@ -455,11 +455,11 @@ private:
     std::vector< ScalarType > independentVariableDifferenceCache;
 
     //! Interpolator to be used at beginning of domain.
-    boost::shared_ptr< OneDimensionalInterpolator
+    std::shared_ptr< OneDimensionalInterpolator
     < IndependentVariableType, DependentVariableType > > beginInterpolator_;
 
     //! Interpolator to be used at end of domain.
-    boost::shared_ptr< OneDimensionalInterpolator
+    std::shared_ptr< OneDimensionalInterpolator
     < IndependentVariableType, DependentVariableType > > endInterpolator_;
 
     //! Size of (in)dependent variable vector

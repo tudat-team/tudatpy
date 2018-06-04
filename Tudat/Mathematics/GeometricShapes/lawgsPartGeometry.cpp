@@ -22,7 +22,7 @@ namespace geometric_shapes
 {
 
 //! Constructor from surface geometry (i.e., geometry type conversion).
-void LawgsPartGeometry::setMesh( boost::shared_ptr< SingleSurfaceGeometry > originalSurface,
+void LawgsPartGeometry::setMesh( std::shared_ptr< SingleSurfaceGeometry > originalSurface,
                                  int numberOfLinesIn, int numberOfPointsIn )
 {
     // Set (temporary name) of part.

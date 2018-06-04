@@ -138,7 +138,7 @@ private:
 };
 
 //! Typedef for shared-pointer to Capsule object.
-typedef boost::shared_ptr< Capsule > CapsulePointer;
+typedef std::shared_ptr< Capsule > CapsulePointer;
 
 } // namespace geometric_shapes
 } // namespace tudat

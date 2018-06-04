@@ -32,22 +32,22 @@ namespace simulation_setup
 using namespace ephemerides;
 
 //! Function to create a ephemeris model.
-boost::shared_ptr< ephemerides::Ephemeris > createBodyEphemeris(
-        const boost::shared_ptr< EphemerisSettings > ephemerisSettings,
+std::shared_ptr< ephemerides::Ephemeris > createBodyEphemeris(
+        const std::shared_ptr< EphemerisSettings > ephemerisSettings,
         const std::string& bodyName )
 {
     // Declare return object.
-    boost::shared_ptr< ephemerides::Ephemeris > ephemeris;
+    std::shared_ptr< ephemerides::Ephemeris > ephemeris;
 
     if( ephemerisSettings->getMakeMultiArcEphemeris( ) )
     {
-        std::map< double, boost::shared_ptr< Ephemeris > > singleArcEphemerides;
+        std::map< double, std::shared_ptr< Ephemeris > > singleArcEphemerides;
         ephemerisSettings->resetMakeMultiArcEphemeris( false );
 
         singleArcEphemerides[ -std::numeric_limits< double >::lowest( ) ] = createBodyEphemeris(
                     ephemerisSettings, bodyName );
 
-        ephemeris = boost::make_shared< MultiArcEphemeris >(
+        ephemeris = std::make_shared< MultiArcEphemeris >(
                     singleArcEphemerides, ephemerisSettings->getFrameOrigin( ), ephemerisSettings->getFrameOrientation( ) );
     }
     else
@@ -60,9 +60,9 @@ boost::shared_ptr< ephemerides::Ephemeris > createBodyEphemeris(
         case direct_spice_ephemeris:
         {
             // Check consistency of type and class.
-            boost::shared_ptr< DirectSpiceEphemerisSettings > directEphemerisSettings =
-                    boost::dynamic_pointer_cast< DirectSpiceEphemerisSettings >( ephemerisSettings );
-            if( directEphemerisSettings == NULL )
+            std::shared_ptr< DirectSpiceEphemerisSettings > directEphemerisSettings =
+                    std::dynamic_pointer_cast< DirectSpiceEphemerisSettings >( ephemerisSettings );
+            if( directEphemerisSettings == nullptr )
             {
                 throw std::runtime_error(
                             "Error, expected direct spice ephemeris settings for body " + bodyName );
@@ -70,7 +70,7 @@ boost::shared_ptr< ephemerides::Ephemeris > createBodyEphemeris(
             else
             {
                 // Create corresponding ephemeris object.
-                ephemeris = boost::make_shared< SpiceEphemeris >(
+                ephemeris = std::make_shared< SpiceEphemeris >(
                             bodyName,
                             directEphemerisSettings->getFrameOrigin( ),
                             directEphemerisSettings->getCorrectForStellarAberration( ),
@@ -83,10 +83,10 @@ boost::shared_ptr< ephemerides::Ephemeris > createBodyEphemeris(
         case interpolated_spice:
         {
             // Check consistency of type and class.
-            boost::shared_ptr< InterpolatedSpiceEphemerisSettings > interpolatedEphemerisSettings =
-                    boost::dynamic_pointer_cast< InterpolatedSpiceEphemerisSettings >(
+            std::shared_ptr< InterpolatedSpiceEphemerisSettings > interpolatedEphemerisSettings =
+                    std::dynamic_pointer_cast< InterpolatedSpiceEphemerisSettings >(
                         ephemerisSettings );
-            if( interpolatedEphemerisSettings == NULL )
+            if( interpolatedEphemerisSettings == nullptr )
             {
                 throw std::runtime_error(
                             "Error, expected tabulated spice ephemeris settings for body " + bodyName );
@@ -136,9 +136,9 @@ boost::shared_ptr< ephemerides::Ephemeris > createBodyEphemeris(
         case tabulated_ephemeris:
         {
             // Check consistency of type and class.
-            boost::shared_ptr< TabulatedEphemerisSettings > tabulatedEphemerisSettings =
-                    boost::dynamic_pointer_cast< TabulatedEphemerisSettings >( ephemerisSettings );
-            if( tabulatedEphemerisSettings == NULL )
+            std::shared_ptr< TabulatedEphemerisSettings > tabulatedEphemerisSettings =
+                    std::dynamic_pointer_cast< TabulatedEphemerisSettings >( ephemerisSettings );
+            if( tabulatedEphemerisSettings == nullptr )
             {
                 throw std::runtime_error(
                             "Error, expected tabulated ephemeris settings for body " + bodyName );
@@ -148,8 +148,8 @@ boost::shared_ptr< ephemerides::Ephemeris > createBodyEphemeris(
                 // Create corresponding ephemeris object.
                 if( !tabulatedEphemerisSettings->getUseLongDoubleStates( ) )
                 {
-                    ephemeris = boost::make_shared< TabulatedCartesianEphemeris< > >(
-                                boost::make_shared<
+                    ephemeris = std::make_shared< TabulatedCartesianEphemeris< > >(
+                                std::make_shared<
                                 interpolators::LagrangeInterpolator< double, Eigen::Vector6d > >
                                 ( tabulatedEphemerisSettings->getBodyStateHistory( ), 6,
                                   interpolators::huntingAlgorithm,
@@ -169,8 +169,8 @@ boost::shared_ptr< ephemerides::Ephemeris > createBodyEphemeris(
                     {
                         longStateHistory[ stateIterator->first ] = stateIterator->second.cast< long double >( );
                         ephemeris =
-                                boost::make_shared< TabulatedCartesianEphemeris< long double, double > >(
-                                    boost::make_shared< interpolators::LagrangeInterpolator<
+                                std::make_shared< TabulatedCartesianEphemeris< long double, double > >(
+                                    std::make_shared< interpolators::LagrangeInterpolator<
                                     double, Eigen::Matrix< long double, 6, 1 > > >
                                     ( longStateHistory, 6,
                                       interpolators::huntingAlgorithm,
@@ -185,16 +185,16 @@ boost::shared_ptr< ephemerides::Ephemeris > createBodyEphemeris(
         case constant_ephemeris:
         {
             // Check consistency of type and class.
-            boost::shared_ptr< ConstantEphemerisSettings > constantEphemerisSettings =
-                    boost::dynamic_pointer_cast< ConstantEphemerisSettings >( ephemerisSettings );
-            if( constantEphemerisSettings == NULL )
+            std::shared_ptr< ConstantEphemerisSettings > constantEphemerisSettings =
+                    std::dynamic_pointer_cast< ConstantEphemerisSettings >( ephemerisSettings );
+            if( constantEphemerisSettings == nullptr )
             {
                 throw std::runtime_error( "Error, expected constant ephemeris settings for " + bodyName );
             }
             else
             {
                 // Create ephemeris
-                ephemeris = boost::make_shared< ConstantEphemeris >(
+                ephemeris = std::make_shared< ConstantEphemeris >(
                             boost::lambda::constant( constantEphemerisSettings->getConstantState( ) ),
                             constantEphemerisSettings->getFrameOrigin( ),
                             constantEphemerisSettings->getFrameOrientation( ) );
@@ -204,16 +204,16 @@ boost::shared_ptr< ephemerides::Ephemeris > createBodyEphemeris(
         case custom_ephemeris:
         {
             // Check consistency of type and class.
-            boost::shared_ptr< CustomEphemerisSettings > customEphemerisSettings =
-                    boost::dynamic_pointer_cast< CustomEphemerisSettings >( ephemerisSettings );
-            if( customEphemerisSettings == NULL )
+            std::shared_ptr< CustomEphemerisSettings > customEphemerisSettings =
+                    std::dynamic_pointer_cast< CustomEphemerisSettings >( ephemerisSettings );
+            if( customEphemerisSettings == nullptr )
             {
                 throw std::runtime_error( "Error, expected constant ephemeris settings for " + bodyName );
             }
             else
             {
                 // Create ephemeris
-                ephemeris = boost::make_shared< CustomEphemeris >(
+                ephemeris = std::make_shared< CustomEphemeris >(
                             customEphemerisSettings->getCustomStateFunction( ),
                             customEphemerisSettings->getFrameOrigin( ),
                             customEphemerisSettings->getFrameOrientation( ) );
@@ -224,16 +224,16 @@ boost::shared_ptr< ephemerides::Ephemeris > createBodyEphemeris(
         case kepler_ephemeris:
         {
             // Check consistency of type and class.
-            boost::shared_ptr< KeplerEphemerisSettings > keplerEphemerisSettings =
-                    boost::dynamic_pointer_cast< KeplerEphemerisSettings >( ephemerisSettings );
-            if( keplerEphemerisSettings == NULL )
+            std::shared_ptr< KeplerEphemerisSettings > keplerEphemerisSettings =
+                    std::dynamic_pointer_cast< KeplerEphemerisSettings >( ephemerisSettings );
+            if( keplerEphemerisSettings == nullptr )
             {
                 throw std::runtime_error( "Error, expected Kepler ephemeris settings for " + bodyName );
             }
             else
             {
                 // Create ephemeris
-                ephemeris = boost::make_shared< KeplerEphemeris >(
+                ephemeris = std::make_shared< KeplerEphemeris >(
                             keplerEphemerisSettings->getInitialStateInKeplerianElements( ),
                             keplerEphemerisSettings->getEpochOfInitialState( ),
                             keplerEphemerisSettings->getCentralBodyGravitationalParameter( ),
@@ -247,10 +247,10 @@ boost::shared_ptr< ephemerides::Ephemeris > createBodyEphemeris(
         case approximate_planet_positions:
         {
             // Check consistency of type and class.
-            boost::shared_ptr< ApproximatePlanetPositionSettings > approximateEphemerisSettings =
-                    boost::dynamic_pointer_cast< ApproximatePlanetPositionSettings >(
+            std::shared_ptr< ApproximatePlanetPositionSettings > approximateEphemerisSettings =
+                    std::dynamic_pointer_cast< ApproximatePlanetPositionSettings >(
                         ephemerisSettings );
-            if( approximateEphemerisSettings == NULL )
+            if( approximateEphemerisSettings == nullptr )
             {
                 throw std::runtime_error(
                             "Error, expected approximate ephemeris settings for body " + bodyName );
@@ -260,12 +260,12 @@ boost::shared_ptr< ephemerides::Ephemeris > createBodyEphemeris(
                 // Create corresponding ephemeris object.
                 if( approximateEphemerisSettings->getUseCircularCoplanarApproximation( ) )
                 {
-                    ephemeris = boost::make_shared< ApproximatePlanetPositionsCircularCoplanar >(
+                    ephemeris = std::make_shared< ApproximatePlanetPositionsCircularCoplanar >(
                                 approximateEphemerisSettings->getBodyIdentifier( ) );
                 }
                 else
                 {
-                    ephemeris = boost::make_shared< ApproximatePlanetPositions >(
+                    ephemeris = std::make_shared< ApproximatePlanetPositions >(
                                 approximateEphemerisSettings->getBodyIdentifier( ) );
                 }
             }
@@ -284,7 +284,7 @@ boost::shared_ptr< ephemerides::Ephemeris > createBodyEphemeris(
 }
 
 //! Function that retrieves the time interval at which an ephemeris can be safely interrogated
-std::pair< double, double > getSafeInterpolationInterval( const boost::shared_ptr< ephemerides::Ephemeris > ephemerisModel )
+std::pair< double, double > getSafeInterpolationInterval( const std::shared_ptr< ephemerides::Ephemeris > ephemerisModel )
 {
     // Make default output pair
     std::pair< double, double > safeInterval = std::make_pair(
@@ -296,10 +296,10 @@ std::pair< double, double > getSafeInterpolationInterval( const boost::shared_pt
         safeInterval = getTabulatedEphemerisSafeInterval( ephemerisModel );
     }
     // Check if model is multi-arc, and retrieve safe intervals from first and last arc.
-    else if( boost::dynamic_pointer_cast< ephemerides::MultiArcEphemeris >( ephemerisModel ) != NULL )
+    else if( std::dynamic_pointer_cast< ephemerides::MultiArcEphemeris >( ephemerisModel ) != nullptr )
     {
-        boost::shared_ptr< ephemerides::MultiArcEphemeris > multiArcEphemerisModel  =
-                boost::dynamic_pointer_cast< ephemerides::MultiArcEphemeris >( ephemerisModel );
+        std::shared_ptr< ephemerides::MultiArcEphemeris > multiArcEphemerisModel  =
+                std::dynamic_pointer_cast< ephemerides::MultiArcEphemeris >( ephemerisModel );
         safeInterval.first = getSafeInterpolationInterval( multiArcEphemerisModel->getSingleArcEphemerides( ).at( 0 ) ).first;
         safeInterval.second = getSafeInterpolationInterval(
                     multiArcEphemerisModel->getSingleArcEphemerides( ).at(

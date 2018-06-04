@@ -103,9 +103,9 @@ public:
     BisectionCore( const DataType relativeXTolerance, const unsigned int maxIterations,
                    const DataType lowerBound = -1.0, const DataType upperBound = 1.0 ):
         RootFinderCore< DataType >(
-            boost::bind(
+            std::bind(
                 &termination_conditions::RootRelativeToleranceTerminationCondition< DataType >::
-                checkTerminationCondition, boost::make_shared<
+                checkTerminationCondition, std::make_shared<
                 termination_conditions::RootRelativeToleranceTerminationCondition< DataType > >(
                     relativeXTolerance, maxIterations ), _1, _2, _3, _4, _5 ) ),
         lowerBound_( lowerBound ),
@@ -232,7 +232,7 @@ private:
 
 // Some handy typedefs.
 typedef BisectionCore< double > Bisection;
-typedef boost::shared_ptr< Bisection > BisectionPointer;
+typedef std::shared_ptr< Bisection > BisectionPointer;
 
 } // namespace root_finders
 } // namespace tudat

@@ -252,10 +252,10 @@ private:
  */
 template< typename InitialStateParameterType = double >
 int getSingleArcParameterSetSize(
-        boost::shared_ptr< EstimatableParameterSet< InitialStateParameterType > > estimatableParameterSet )
+        std::shared_ptr< EstimatableParameterSet< InitialStateParameterType > > estimatableParameterSet )
 {
     int totalParameterSetSize = estimatableParameterSet->getEstimatedParameterSetSize( );
-    std::vector< boost::shared_ptr< EstimatableParameter< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > > >
+    std::vector< std::shared_ptr< EstimatableParameter< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > > >
             initialStateParameters = estimatableParameterSet->getEstimatedInitialStateParameters( );
 
     for( unsigned int i = 0; i < initialStateParameters.size( ); i++ )
@@ -263,7 +263,7 @@ int getSingleArcParameterSetSize(
         if( initialStateParameters.at( i )->getParameterName( ).first == arc_wise_initial_body_state )
         {
             totalParameterSetSize -=
-                    ( boost::dynamic_pointer_cast< ArcWiseInitialTranslationalStateParameter< InitialStateParameterType > >(
+                    ( std::dynamic_pointer_cast< ArcWiseInitialTranslationalStateParameter< InitialStateParameterType > >(
                         initialStateParameters.at( i ) )->getNumberOfStateArcs( ) - 1 ) * 6;
         }
         else if( ( initialStateParameters.at( i )->getParameterName( ).first != initial_body_state ) )
@@ -284,7 +284,7 @@ int getSingleArcParameterSetSize(
  */
 template< typename InitialStateParameterType = double >
 int getSingleArcInitialDynamicalStateParameterSetSize(
-        boost::shared_ptr< EstimatableParameterSet< InitialStateParameterType > > estimatableParameterSet )
+        std::shared_ptr< EstimatableParameterSet< InitialStateParameterType > > estimatableParameterSet )
 {
     return getSingleArcParameterSetSize( estimatableParameterSet ) -
             ( estimatableParameterSet->getEstimatedParameterSetSize( ) -
@@ -300,10 +300,10 @@ int getSingleArcInitialDynamicalStateParameterSetSize(
  */
 template< typename InitialStateParameterType >
 std::vector< double > getMultiArcStateEstimationArcStartTimes(
-        const boost::shared_ptr< EstimatableParameterSet< InitialStateParameterType > > estimatableParameters )
+        const std::shared_ptr< EstimatableParameterSet< InitialStateParameterType > > estimatableParameters )
 {
     // Retrieve initial dynamical parameters.
-    std::vector< boost::shared_ptr< EstimatableParameter<
+    std::vector< std::shared_ptr< EstimatableParameter<
             Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > > > initialDynamicalParameters =
             estimatableParameters->getEstimatedInitialStateParameters( );
 
@@ -314,10 +314,10 @@ std::vector< double > getMultiArcStateEstimationArcStartTimes(
     {
         if( initialDynamicalParameters.at( i )->getParameterName( ).first == arc_wise_initial_body_state )
         {
-            boost::shared_ptr< ArcWiseInitialTranslationalStateParameter< InitialStateParameterType > > arcWiseStateParameter =
-            boost::dynamic_pointer_cast< ArcWiseInitialTranslationalStateParameter< InitialStateParameterType > >(
+            std::shared_ptr< ArcWiseInitialTranslationalStateParameter< InitialStateParameterType > > arcWiseStateParameter =
+            std::dynamic_pointer_cast< ArcWiseInitialTranslationalStateParameter< InitialStateParameterType > >(
                         initialDynamicalParameters.at( i ) );
-            if( arcWiseStateParameter == NULL )
+            if( arcWiseStateParameter == nullptr )
             {
                 throw std::runtime_error( "Error when getting arc times from estimated parameters, parameter is inconsistent" );
             }

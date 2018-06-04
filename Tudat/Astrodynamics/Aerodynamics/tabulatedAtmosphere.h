@@ -248,7 +248,7 @@ private:
 };
 
 //! Typedef for shared-pointer to TabulatedAtmosphere object.
-typedef boost::shared_ptr< TabulatedAtmosphere > TabulatedAtmospherePointer;
+typedef std::shared_ptr< TabulatedAtmosphere > TabulatedAtmospherePointer;
 
 } // namespace aerodynamics
 } // namespace tudat

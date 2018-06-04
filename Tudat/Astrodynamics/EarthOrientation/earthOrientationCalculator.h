@@ -196,9 +196,9 @@ public:
      *  \param terrestrialTimeScaleConverter Pointer to object to convert between different time scales.
      */
     EarthOrientationAnglesCalculator(
-            const boost::shared_ptr< PolarMotionCalculator > polarMotionCalculator,
-            const boost::shared_ptr< PrecessionNutationCalculator > precessionNutationCalculator,
-            const boost::shared_ptr< TerrestrialTimeScaleConverter > terrestrialTimeScaleConverter ):
+            const std::shared_ptr< PolarMotionCalculator > polarMotionCalculator,
+            const std::shared_ptr< PrecessionNutationCalculator > precessionNutationCalculator,
+            const std::shared_ptr< TerrestrialTimeScaleConverter > terrestrialTimeScaleConverter ):
         polarMotionCalculator_( polarMotionCalculator ),
         precessionNutationCalculator_( precessionNutationCalculator ),
         terrestrialTimeScaleConverter_( terrestrialTimeScaleConverter ) { }
@@ -250,21 +250,21 @@ public:
     /*!
      *  Function to get object that calculates polar motion.
      */
-    boost::shared_ptr< PolarMotionCalculator > getPolarMotionCalculator( )
+    std::shared_ptr< PolarMotionCalculator > getPolarMotionCalculator( )
     { return polarMotionCalculator_; }
 
     //! Function to get object that calculates precession/nutation.
     /*!
      *  Function to get object that calculates precession/nutation.
      */
-    boost::shared_ptr< PrecessionNutationCalculator > getPrecessionNutationCalculator( )
+    std::shared_ptr< PrecessionNutationCalculator > getPrecessionNutationCalculator( )
     { return precessionNutationCalculator_; }
 
     //! Function to get object that converts between time scales.
     /*!
      *  Function to get object that converts between time scales.
      */
-    boost::shared_ptr< TerrestrialTimeScaleConverter > getTerrestrialTimeScaleConverter( )
+    std::shared_ptr< TerrestrialTimeScaleConverter > getTerrestrialTimeScaleConverter( )
     { return terrestrialTimeScaleConverter_; }
 
 
@@ -273,19 +273,19 @@ private:
     /*!
      *  Pointer to object for calculating position of pole in ITRS (polarm motion).
      */
-    boost::shared_ptr< PolarMotionCalculator > polarMotionCalculator_;
+    std::shared_ptr< PolarMotionCalculator > polarMotionCalculator_;
 
     //! Pointer to object for calculating position of pole in GCRS (precession/nutation).
     /*!
      *  Pointer to object for calculating position of pole in GCRS (precession/nutation).
      */
-    boost::shared_ptr< PrecessionNutationCalculator > precessionNutationCalculator_;
+    std::shared_ptr< PrecessionNutationCalculator > precessionNutationCalculator_;
 
     //! Pointer to object to convert between different time scales.
     /*!
      *  Pointer to object to convert between different time scales.
      */
-    boost::shared_ptr< TerrestrialTimeScaleConverter > terrestrialTimeScaleConverter_;
+    std::shared_ptr< TerrestrialTimeScaleConverter > terrestrialTimeScaleConverter_;
 };
 
 //! Function to create an EarthOrientationAnglesCalculator object, with default settings
@@ -295,8 +295,8 @@ private:
  * polar motion/nutation/UT1 daily corrections published by IERS (linearly interpolated in time)
  * \return Default Earth rotation parameter object.
  */
-boost::shared_ptr< EarthOrientationAnglesCalculator > createStandardEarthOrientationCalculator(
-        const boost::shared_ptr< EOPReader > eopReader = boost::make_shared< EOPReader >( ) );
+std::shared_ptr< EarthOrientationAnglesCalculator > createStandardEarthOrientationCalculator(
+        const std::shared_ptr< EOPReader > eopReader = std::make_shared< EOPReader >( ) );
 
 //! Function to create an interpolator for the Earth orientation angles and UT1
 /*!
@@ -312,15 +312,15 @@ boost::shared_ptr< EarthOrientationAnglesCalculator > createStandardEarthOrienta
  * quantities (in IERS Conventions 2010 notation): X, Y, s, xp, yp.
  */
 template< typename UT1ScalarType >
-std::pair< boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Matrix< double, 5, 1 > > >,
-boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, UT1ScalarType > > >
+std::pair< std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Matrix< double, 5, 1 > > >,
+std::shared_ptr< interpolators::OneDimensionalInterpolator< double, UT1ScalarType > > >
 createInterpolatorsForItrsToGcrsAngles(
         const double intervalStart, const double intervalEnd, const double timeStep,
         const basic_astrodynamics::TimeScales timeScale = basic_astrodynamics::tdb_scale,
-        const boost::shared_ptr< EarthOrientationAnglesCalculator > earthOrientationCalculator =
+        const std::shared_ptr< EarthOrientationAnglesCalculator > earthOrientationCalculator =
         createStandardEarthOrientationCalculator( ),
-        const boost::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings =
-        boost::make_shared< interpolators::LagrangeInterpolatorSettings >( 6 ) )
+        const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings =
+        std::make_shared< interpolators::LagrangeInterpolatorSettings >( 6 ) )
 {
     // Define interpolators
     std::map< double, Eigen::Matrix< double, 5, 1 > > anglesMap;
@@ -339,7 +339,7 @@ createInterpolatorsForItrsToGcrsAngles(
     }
 
     // Create interpolator for angles
-    boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Matrix< double, 5, 1 > > > anglesInterpolator =
+    std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Matrix< double, 5, 1 > > > anglesInterpolator =
             interpolators::createOneDimensionalInterpolator( anglesMap, interpolatorSettings );
 
     // Update UT1 interpolation time step scalar
@@ -349,7 +349,7 @@ createInterpolatorsForItrsToGcrsAngles(
     }
 
     // Create interpolator for UT1
-    boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, UT1ScalarType > > ut1Interpolator =
+    std::shared_ptr< interpolators::OneDimensionalInterpolator< double, UT1ScalarType > > ut1Interpolator =
             interpolators::createOneDimensionalInterpolator( ut1Map, interpolatorSettings );
 
     return std::make_pair( anglesInterpolator, ut1Interpolator );

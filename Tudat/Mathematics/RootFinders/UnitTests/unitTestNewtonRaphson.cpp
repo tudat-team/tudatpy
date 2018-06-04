@@ -39,12 +39,12 @@ using namespace root_finders::termination_conditions;
 BOOST_AUTO_TEST_CASE( test_newtonRaphson_testFunction1 )
 {
     // Create object containing the test functions.
-    boost::shared_ptr< TestFunction1 > testFunction = boost::make_shared< TestFunction1 >( 1 );
+    std::shared_ptr< TestFunction1 > testFunction = std::make_shared< TestFunction1 >( 1 );
 
     // The termination condition.
     NewtonRaphson::TerminationFunction terminationConditionFunction =
-            boost::bind( &RootAbsoluteToleranceTerminationCondition< double >::checkTerminationCondition,
-                         boost::make_shared< RootAbsoluteToleranceTerminationCondition< double > >(
+            std::bind( &RootAbsoluteToleranceTerminationCondition< double >::checkTerminationCondition,
+                         std::make_shared< RootAbsoluteToleranceTerminationCondition< double > >(
                              testFunction->getTrueRootAccuracy( ) ), _1, _2, _3, _4, _5 );
 
     // Test Newton-Raphson object.
@@ -62,12 +62,12 @@ BOOST_AUTO_TEST_CASE( test_newtonRaphson_testFunction1 )
 BOOST_AUTO_TEST_CASE( test_newtonRaphson_testFunction2 )
 {
     // Create object containing the test functions.
-    boost::shared_ptr< TestFunction2 > testFunction = boost::make_shared< TestFunction2 >( 1 );
+    std::shared_ptr< TestFunction2 > testFunction = std::make_shared< TestFunction2 >( 1 );
 
     // The termination condition.
     NewtonRaphson::TerminationFunction terminationConditionFunction =
-            boost::bind( &RootAbsoluteToleranceTerminationCondition< double >::checkTerminationCondition,
-                         boost::make_shared< RootAbsoluteToleranceTerminationCondition< double > >(
+            std::bind( &RootAbsoluteToleranceTerminationCondition< double >::checkTerminationCondition,
+                         std::make_shared< RootAbsoluteToleranceTerminationCondition< double > >(
                              testFunction->getTrueRootAccuracy( ) ), _1, _2, _3, _4, _5 );
     
     // Test Newton-Raphson object.
@@ -85,12 +85,12 @@ BOOST_AUTO_TEST_CASE( test_newtonRaphson_testFunction2 )
 BOOST_AUTO_TEST_CASE( test_newtonRaphson_testFunction3 )
 {
     // Create object containing the test functions.
-    boost::shared_ptr< TestFunction3 > testFunction = boost::make_shared< TestFunction3 >( 1 );
+    std::shared_ptr< TestFunction3 > testFunction = std::make_shared< TestFunction3 >( 1 );
 
     // The termination condition.
     NewtonRaphson::TerminationFunction terminationConditionFunction =
-            boost::bind( &RootAbsoluteToleranceTerminationCondition< double >::checkTerminationCondition,
-                         boost::make_shared< RootAbsoluteToleranceTerminationCondition< double > >(
+            std::bind( &RootAbsoluteToleranceTerminationCondition< double >::checkTerminationCondition,
+                         std::make_shared< RootAbsoluteToleranceTerminationCondition< double > >(
                              testFunction->getTrueRootAccuracy( ) ), _1, _2, _3, _4, _5 );
 
     // Test Newton-Raphson object.
@@ -118,17 +118,17 @@ BOOST_AUTO_TEST_CASE( test_newtonRaphson_testFunctionWithLargeRootDifference )
 
     // Create objects containing the test functions. Values were obtained during a limit case
     // gravity assist calculation (while evaluating Cassini-1 trajectory).
-    boost::shared_ptr< TestFunctionWithLargeRootDifference > testFunctionLowCase =
-            boost::make_shared< TestFunctionWithLargeRootDifference >
+    std::shared_ptr< TestFunctionWithLargeRootDifference > testFunctionLowCase =
+            std::make_shared< TestFunctionWithLargeRootDifference >
             ( 1, -3.24859999867635e18, -3248600.0, 1.5707963267949 );
-    boost::shared_ptr< TestFunctionWithLargeRootDifference > testFunctionHighCase =
-            boost::make_shared< TestFunctionWithLargeRootDifference >
+    std::shared_ptr< TestFunctionWithLargeRootDifference > testFunctionHighCase =
+            std::make_shared< TestFunctionWithLargeRootDifference >
             ( 1, -3248600.0, -3.24859999867635e18, 1.5707963267949 );
 
     // The termination condition.
     NewtonRaphson::TerminationFunction terminationConditionFunction
-            = boost::bind( &RootRelativeToleranceTerminationCondition< >::checkTerminationCondition,
-                           boost::make_shared< RootRelativeToleranceTerminationCondition< > >(
+            = std::bind( &RootRelativeToleranceTerminationCondition< >::checkTerminationCondition,
+                           std::make_shared< RootRelativeToleranceTerminationCondition< > >(
                                1.0e-10 ), _1, _2, _3, _4, _5 );
 
     // Make the Newton-Raphson object.
@@ -150,15 +150,15 @@ BOOST_AUTO_TEST_CASE( test_newtonRaphson_testFunctionWithLargeRootDifference )
 BOOST_AUTO_TEST_CASE( test_newtonRaphson_testFunctionWithZeroRoot )
 {
     // Create object containing the test functions.
-    boost::shared_ptr< TestFunctionWithZeroRoot > testFunction =
-            boost::make_shared< TestFunctionWithZeroRoot >( 1 );
+    std::shared_ptr< TestFunctionWithZeroRoot > testFunction =
+            std::make_shared< TestFunctionWithZeroRoot >( 1 );
 
     // The termination condition.
     NewtonRaphson::TerminationFunction terminationConditionFunction
-            = boost::bind(
+            = std::bind(
                 &RootAbsoluteOrRelativeToleranceTerminationCondition< >::
                 checkTerminationCondition,
-                boost::make_shared< RootAbsoluteOrRelativeToleranceTerminationCondition< > >(
+                std::make_shared< RootAbsoluteOrRelativeToleranceTerminationCondition< > >(
                     1.0e-308, 1.0e-15 ), _1, _2, _3, _4, _5 );
 
     // Test Newton-Raphson object.

@@ -157,7 +157,7 @@ private:
 };
 
 //! Typedef for shared-pointer to SphereSegment object.
-typedef boost::shared_ptr< SphereSegment > SphereSegmentPointer;
+typedef std::shared_ptr< SphereSegment > SphereSegmentPointer;
 
 } // namespace geometric_shapes
 } // namespace tudat

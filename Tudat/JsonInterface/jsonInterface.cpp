@@ -36,11 +36,11 @@ int main( int argumentCount, char* arguments[ ] )
     const char* const shortOptions = "h";
     const option longOptions[ ] =
     {
-        { "help", no_argument, NULL, 'h' },
-        { NULL, 0, NULL, 0 }
+        { "help", no_argument, nullptr, 'h' },
+        { nullptr, 0, nullptr, 0 }
     };
 
-    while ( ( currentOption = getopt_long( argumentCount, arguments, shortOptions, longOptions, NULL ) ) != -1 )
+    while ( ( currentOption = getopt_long( argumentCount, arguments, shortOptions, longOptions, nullptr ) ) != -1 )
     {
         switch ( currentOption )
         {

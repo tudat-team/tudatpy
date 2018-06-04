@@ -114,7 +114,7 @@ private:
 };
 
 //! Typedef for shared-pointer to ApproximatePlanetPositions object.
-typedef boost::shared_ptr< ApproximatePlanetPositions > ApproximatePlanetPositionsPointer;
+typedef std::shared_ptr< ApproximatePlanetPositions > ApproximatePlanetPositionsPointer;
 
 } // namespace ephemerides
 } // namespace tudat

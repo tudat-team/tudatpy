@@ -15,7 +15,7 @@
 #include <iostream>
 #include <limits>
 
-#include <boost/function.hpp>
+#include <tr1/functional>
 #include <boost/lambda/lambda.hpp>
 
 #include <Eigen/Core>
@@ -45,7 +45,7 @@ public:
      * Typedef to the state derivative function. This should be a pointer to a function or a boost
      * function.
      */
-    typedef boost::function< StateDerivativeType(
+    typedef std::function< StateDerivativeType(
             const IndependentVariableType, const StateType& ) > StateDerivativeFunction;
 
     //! Default constructor.
@@ -177,7 +177,7 @@ public:
      *  \param terminationFunction Function that returns true if termination condition is reached, false if it has not,
      *  as a function of current time.
      */
-    void setPropagationTerminationFunction( boost::function< bool( const double, const double ) > terminationFunction )
+    void setPropagationTerminationFunction( std::function< bool( const double, const double ) > terminationFunction )
     {
         propagationTerminationFunction_ = terminationFunction;
     }
@@ -213,7 +213,7 @@ protected:
      *  By default, this function evaluates always to false, so the propagation termination conditions will not be
      *  checked during the integration subteps.
      */
-    boost::function< bool( const double, const double ) > propagationTerminationFunction_ = boost::lambda::constant( false );
+    std::function< bool( const double, const double ) > propagationTerminationFunction_ = boost::lambda::constant( false );
 };
 
 //! Perform an integration to a specified independent variable value.
@@ -288,14 +288,14 @@ StateType NumericalIntegrator< IndependentVariableType, StateType, StateDerivati
  * Typedef for shared-pointer to a default numerical integrator (IndependentVariableType = double,
  * StateType = Eigen::VectorXd, StateDerivativeType = Eigen::VectorXd).
  */
-typedef boost::shared_ptr< NumericalIntegrator< > > NumericalIntegratorXdPointer;
+typedef std::shared_ptr< NumericalIntegrator< > > NumericalIntegratorXdPointer;
 
 //! Typedef for a shared-pointer to a scalar numerical integrator.
 /*!
  * Typedef for shared-pointer to a scalar numerical integrator (IndependentVariableType = double,
  * StateType = double, StateDerivativeType = double).
  */
-typedef boost::shared_ptr< NumericalIntegrator< double, double, double > >
+typedef std::shared_ptr< NumericalIntegrator< double, double, double > >
 NumericalIntegratordPointer;
 
 } // namespace numerical_integrators

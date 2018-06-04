@@ -13,7 +13,7 @@
 
 #include <vector>
 
-#include <boost/function.hpp>
+#include <tr1/functional>
 #include <boost/bind.hpp>
 
 #include <Eigen/Core>
@@ -213,18 +213,18 @@ public:
      *  independent variable of the aerodynamic coefficients.
      */
     CustomControlSurfaceIncrementAerodynamicInterface(
-            const boost::function< Eigen::Vector6d( const std::vector< double >& ) > coefficientFunction,
+            const std::function< Eigen::Vector6d( const std::vector< double >& ) > coefficientFunction,
             const std::vector< AerodynamicCoefficientsIndependentVariables > independentVariableNames ):
         ControlSurfaceIncrementAerodynamicInterface( independentVariableNames ),
         coefficientFunction_( coefficientFunction ){ }
 
     CustomControlSurfaceIncrementAerodynamicInterface(
-            const boost::function< Eigen::Vector3d( const std::vector< double >& ) > forceCoefficientFunction,
-            const boost::function< Eigen::Vector3d( const std::vector< double >& ) > momentCoefficientFunction,
+            const std::function< Eigen::Vector3d( const std::vector< double >& ) > forceCoefficientFunction,
+            const std::function< Eigen::Vector3d( const std::vector< double >& ) > momentCoefficientFunction,
             const std::vector< AerodynamicCoefficientsIndependentVariables > independentVariableNames ):
         ControlSurfaceIncrementAerodynamicInterface( independentVariableNames )
     {
-        coefficientFunction_ = boost::bind(
+        coefficientFunction_ = std::bind(
                     &concatenateForceAndMomentCoefficients, forceCoefficientFunction, momentCoefficientFunction, _1 );
     }
 
@@ -261,7 +261,7 @@ protected:
 
     //! Function returning the concatenated aerodynamic force and moment coefficient increments as function of the set of
     //! independent variables.
-    boost::function< Eigen::Vector6d( const std::vector< double >& ) > coefficientFunction_;
+    std::function< Eigen::Vector6d( const std::vector< double >& ) > coefficientFunction_;
 };
 
 }

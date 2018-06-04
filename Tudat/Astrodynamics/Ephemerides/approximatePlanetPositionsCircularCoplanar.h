@@ -90,7 +90,7 @@ private:
 };
 
 //! Typedef for shared-pointer to ApproximatePlanetPositionsCircularCoplanar object.
-typedef boost::shared_ptr< ApproximatePlanetPositionsCircularCoplanar >
+typedef std::shared_ptr< ApproximatePlanetPositionsCircularCoplanar >
 ApproximatePlanetPositionsCircularCoplanarPointer;
 
 } // namespace ephemerides

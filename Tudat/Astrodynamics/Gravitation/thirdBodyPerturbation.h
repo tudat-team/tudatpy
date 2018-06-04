@@ -90,9 +90,9 @@ public:
      *  \param centralBodyName Name of the central body w.r.t. which the acceleration is computed.
      */
     ThirdBodyAcceleration(
-            const boost::shared_ptr< DirectAccelerationModelType >
+            const std::shared_ptr< DirectAccelerationModelType >
             accelerationModelForBodyUndergoingAcceleration,
-            const boost::shared_ptr< DirectAccelerationModelType >
+            const std::shared_ptr< DirectAccelerationModelType >
             accelerationModelForCentralBody,
             const std::string centralBodyName ):
         accelerationModelForBodyUndergoingAcceleration_(
@@ -144,7 +144,7 @@ public:
      *  Function to return the direct acceleration model on body undergoing acceleration.
      *  \return Direct acceleration model on body undergoing acceleration.
      */
-    boost::shared_ptr< DirectAccelerationModelType >
+    std::shared_ptr< DirectAccelerationModelType >
         getAccelerationModelForBodyUndergoingAcceleration( )
     {
         return accelerationModelForBodyUndergoingAcceleration_;
@@ -155,7 +155,7 @@ public:
      *  Function to return the acceleration model on central body
      *  \return Acceleration model on central body
      */
-    boost::shared_ptr< DirectAccelerationModelType >
+    std::shared_ptr< DirectAccelerationModelType >
         getAccelerationModelForCentralBody( )
     {
         return accelerationModelForCentralBody_;
@@ -178,7 +178,7 @@ private:
      *  Direct acceleration model on body undergoing acceleration
      *  (i.e. as expressed in an inertial frame)
      */
-    boost::shared_ptr< DirectAccelerationModelType >
+    std::shared_ptr< DirectAccelerationModelType >
         accelerationModelForBodyUndergoingAcceleration_;
 
     //! Acceleration model on central body
@@ -186,7 +186,7 @@ private:
      *  Acceleration model on central body (i.e. the body in a frame centered on which the third
      *  body acceleration is expressed)
      */
-    boost::shared_ptr< DirectAccelerationModelType > accelerationModelForCentralBody_;
+    std::shared_ptr< DirectAccelerationModelType > accelerationModelForCentralBody_;
 
     //! Name of the central body w.r.t. which the acceleration is computed.
      std::string centralBodyName_;

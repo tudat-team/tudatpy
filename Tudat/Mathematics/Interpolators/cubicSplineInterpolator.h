@@ -355,7 +355,7 @@ private:
 typedef CubicSplineInterpolator< double, double > CubicSplineInterpolatorDouble;
 
 //! Typedef for shared-pointer to cubic spline interpolator with (in)dependent = double.
-typedef boost::shared_ptr< CubicSplineInterpolatorDouble > CubicSplineInterpolatorDoublePointer;
+typedef std::shared_ptr< CubicSplineInterpolatorDouble > CubicSplineInterpolatorDoublePointer;
 
 } // namespace interpolators
 } // namespace tudat

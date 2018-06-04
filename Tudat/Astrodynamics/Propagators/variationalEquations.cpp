@@ -9,7 +9,7 @@
  */
 #include <map>
 
-#include <boost/function.hpp>
+#include <tr1/functional>
 
 #include <Eigen/Core>
 
@@ -40,7 +40,7 @@ void VariationalEquations::setBodyStatePartialMatrix( )
 
     // Iterate over all bodies undergoing accelerations for which initial condition is to be estimated.
     for( std::map< IntegratedStateType, std::vector< std::multimap< std::pair< int, int >,
-         boost::function< void( Eigen::Block< Eigen::MatrixXd > ) > > > >::iterator
+         std::function< void( Eigen::Block< Eigen::MatrixXd > ) > > > >::iterator
          typeIterator = statePartialList_.begin( ); typeIterator != statePartialList_.end( ); typeIterator++ )
     {
         int startIndex = stateTypeStartIndices_.at( typeIterator->first );
@@ -126,7 +126,7 @@ void VariationalEquations::updatePartials( const double currentTime )
 //! Function (called by constructor) to set up the statePartialList_ member from the state derivative partials
 void VariationalEquations::setStatePartialFunctionList( )
 {
-    std::pair< boost::function< void( Eigen::Block< Eigen::MatrixXd > ) >, int > currentDerivativeFunction;
+    std::pair< std::function< void( Eigen::Block< Eigen::MatrixXd > ) >, int > currentDerivativeFunction;
 
     // Iterate over all state types
     for( std::map< propagators::IntegratedStateType,
@@ -138,7 +138,7 @@ void VariationalEquations::setStatePartialFunctionList( )
         // Iterate over all bodies undergoing 'accelerations' for which initial state is to be estimated.
         for( unsigned int i = 0; i < stateDerivativeTypeIterator_->second.size( ); i++ )
         {
-            std::multimap< std::pair< int, int >, boost::function< void( Eigen::Block< Eigen::MatrixXd > ) > >
+            std::multimap< std::pair< int, int >, std::function< void( Eigen::Block< Eigen::MatrixXd > ) > >
                     currentBodyPartialList;
 
             // Iterate over all 'accelerations' from single body on other single body

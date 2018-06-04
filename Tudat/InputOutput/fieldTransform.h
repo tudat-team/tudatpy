@@ -41,7 +41,7 @@ public:
      * \param input Input string.
      * \return Shared-pointer to transformed string.
      */
-    virtual boost::shared_ptr< std::string > transform( const std::string& input ) = 0;
+    virtual std::shared_ptr< std::string > transform( const std::string& input ) = 0;
 
 protected:
 
@@ -49,7 +49,7 @@ private:
 };
 
 //! Typedef for shared-pointer to FieldTransform object.
-typedef boost::shared_ptr< FieldTransform > FieldTransformPointer;
+typedef std::shared_ptr< FieldTransform > FieldTransformPointer;
 
 } // namespace input_output
 } // namespace tudat

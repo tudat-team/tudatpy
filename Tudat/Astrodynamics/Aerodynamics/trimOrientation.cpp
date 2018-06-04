@@ -20,8 +20,8 @@ namespace aerodynamics
 
 //! Constructor
 TrimOrientationCalculator::TrimOrientationCalculator(
-        const boost::shared_ptr< AerodynamicCoefficientInterface > coefficientInterface,
-        const boost::shared_ptr< root_finders::RootFinderCore< double > > rootFinder ):
+        const std::shared_ptr< AerodynamicCoefficientInterface > coefficientInterface,
+        const std::shared_ptr< root_finders::RootFinderCore< double > > rootFinder ):
     coefficientInterface_( coefficientInterface ), rootFinder_( rootFinder )
 {
     // Find index of angle of attack in aerodynamic coefficient interface (throw error if not found)
@@ -63,11 +63,11 @@ TrimOrientationCalculator::TrimOrientationCalculator(
     // If no root finder provided, use default value.
     if ( !rootFinder_.get( ) )
     {
-        rootFinder_ = boost::make_shared< root_finders::SecantRootFinderCore< double > >(
-                    boost::bind(
+        rootFinder_ = std::make_shared< root_finders::SecantRootFinderCore< double > >(
+                    std::bind(
                         &root_finders::termination_conditions::RootAbsoluteToleranceTerminationCondition< double >::
                         checkTerminationCondition,
-                        boost::make_shared< root_finders::termination_conditions::RootAbsoluteToleranceTerminationCondition
+                        std::make_shared< root_finders::termination_conditions::RootAbsoluteToleranceTerminationCondition
                         < double > >( 1.0E-15, 1000 ), _1, _2, _3, _4, _5 ), 0.5 );
     }
 }
@@ -78,8 +78,8 @@ double TrimOrientationCalculator::findTrimAngleOfAttack(
         const std::map< std::string, std::vector< double > > untrimmedControlSurfaceIndependentVariables )
 {
     // Determine function for which the root is to be determined.
-    boost::function< double( const double ) > coefficientFunction =
-            boost::bind( &TrimOrientationCalculator::getPerturbedMomentCoefficient,
+    std::function< double( const double ) > coefficientFunction =
+            std::bind( &TrimOrientationCalculator::getPerturbedMomentCoefficient,
                          this, _1, untrimmedIndependentVariables, untrimmedControlSurfaceIndependentVariables );
 
     double trimmedAngleOfAttack = TUDAT_NAN;
@@ -88,7 +88,7 @@ double TrimOrientationCalculator::findTrimAngleOfAttack(
     try
     {
         trimmedAngleOfAttack = rootFinder_->execute(
-                    boost::make_shared< basic_mathematics::FunctionProxy< double, double > >( coefficientFunction ),
+                    std::make_shared< basic_mathematics::FunctionProxy< double, double > >( coefficientFunction ),
                     untrimmedIndependentVariables.at( variableIndex_ ) );
     }
     // Throw error if not converged

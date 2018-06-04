@@ -48,7 +48,7 @@ double minSinFunction( const double x )
     return -std::sin( x );
 }
 
-boost::function< double( const double ) > dSinFunction( unsigned int n )
+std::function< double( const double ) > dSinFunction( unsigned int n )
 {
     if ( n % 2 == 0 )
     {
@@ -67,7 +67,7 @@ boost::function< double( const double ) > dSinFunction( unsigned int n )
     }
 }
 
-boost::function< double( const double ) > dExpFunction( unsigned int n )
+std::function< double( const double ) > dExpFunction( unsigned int n )
 {
     return expFunction;
 }
@@ -87,7 +87,7 @@ double d8PolyFunction( const double x )
     return 362800 * x;
 }
 
-boost::function< double( const double ) > dPolyFunction( unsigned int n )
+std::function< double( const double ) > dPolyFunction( unsigned int n )
 {
     switch( n )
     {
@@ -113,7 +113,7 @@ unsigned int factorial( const unsigned int x )
 }
 
 // Error function for Gaussian quadrature [ from https://en.wikipedia.org/wiki/Gaussian_quadrature#Error_estimates ]
-double gaussianQuadratureError( const unsigned int n, boost::function< double( const double ) > derivative2nth,
+double gaussianQuadratureError( const unsigned int n, std::function< double( const double ) > derivative2nth,
                                 const double abscissa, const double lowerLimit, const double upperLimit )
 {
     return std::pow( upperLimit - lowerLimit, 2 * n + 1 ) * std::pow( factorial( n ), 4 )
@@ -126,9 +126,9 @@ double gaussianQuadratureError( const unsigned int n, boost::function< double( c
 // The derivative is a function taking as input an `int n` (the nth derivative) that returns a function taking as input
 // a `double x` (the absicssa at which it will be evaluated).
 void checkErrorWithinBounds( const unsigned int minOrder, const unsigned int maxOrder,
-                             boost::function< double( const double ) > function,
+                             std::function< double( const double ) > function,
                              const double lowerLimit, const double upperLimit,
-                             boost::function< boost::function< double( const double ) >( const unsigned int ) > derivative,
+                             std::function< std::function< double( const double ) >( const unsigned int ) > derivative,
                              const double abscissa, const double expectedSolution )
 {
     double obtainedError = TUDAT_NAN;

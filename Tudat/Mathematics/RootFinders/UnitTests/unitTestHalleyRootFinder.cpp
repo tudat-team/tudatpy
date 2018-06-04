@@ -40,12 +40,12 @@ using namespace root_finders::termination_conditions;
 BOOST_AUTO_TEST_CASE( test_halleyRootFinder_testFunction1 )
 {
     // Create object containing the test functions.
-    boost::shared_ptr< TestFunction1 > testFunction = boost::make_shared< TestFunction1 >( 2 );
+    std::shared_ptr< TestFunction1 > testFunction = std::make_shared< TestFunction1 >( 2 );
 
     // The termination condition.
     HalleyRootFinder::TerminationFunction terminationConditionFunction =
-            boost::bind( &RootAbsoluteToleranceTerminationCondition< double >::checkTerminationCondition,
-                         boost::make_shared< RootAbsoluteToleranceTerminationCondition< double > >(
+            std::bind( &RootAbsoluteToleranceTerminationCondition< double >::checkTerminationCondition,
+                         std::make_shared< RootAbsoluteToleranceTerminationCondition< double > >(
                              testFunction->getTrueRootAccuracy( ) ), _1, _2, _3, _4, _5 );
 
     // Test Halley object.
@@ -63,12 +63,12 @@ BOOST_AUTO_TEST_CASE( test_halleyRootFinder_testFunction1 )
 BOOST_AUTO_TEST_CASE( test_halleyRootFinder_testFunction2 )
 {
     // Create object containing the test functions.
-    boost::shared_ptr< TestFunction2 > testFunction = boost::make_shared< TestFunction2 >( 2 );
+    std::shared_ptr< TestFunction2 > testFunction = std::make_shared< TestFunction2 >( 2 );
 
     // The termination condition.
     HalleyRootFinder::TerminationFunction terminationConditionFunction =
-            boost::bind( &RootAbsoluteToleranceTerminationCondition< double >::checkTerminationCondition,
-                         boost::make_shared< RootAbsoluteToleranceTerminationCondition< double > >(
+            std::bind( &RootAbsoluteToleranceTerminationCondition< double >::checkTerminationCondition,
+                         std::make_shared< RootAbsoluteToleranceTerminationCondition< double > >(
                              testFunction->getTrueRootAccuracy( ) ), _1, _2, _3, _4, _5 );
 
     // Test Halley object.
@@ -86,12 +86,12 @@ BOOST_AUTO_TEST_CASE( test_halleyRootFinder_testFunction2 )
 BOOST_AUTO_TEST_CASE( test_halleyRootFinder_testFunction3 )
 {
     // Create object containing the test functions.
-    boost::shared_ptr< TestFunction3 > testFunction = boost::make_shared< TestFunction3 >( 2 );
+    std::shared_ptr< TestFunction3 > testFunction = std::make_shared< TestFunction3 >( 2 );
 
     // The termination condition.
     HalleyRootFinder::TerminationFunction terminationConditionFunction =
-            boost::bind( &RootAbsoluteToleranceTerminationCondition< double >::checkTerminationCondition,
-                         boost::make_shared< RootAbsoluteToleranceTerminationCondition< double > >(
+            std::bind( &RootAbsoluteToleranceTerminationCondition< double >::checkTerminationCondition,
+                         std::make_shared< RootAbsoluteToleranceTerminationCondition< double > >(
                              testFunction->getTrueRootAccuracy( ) ), _1, _2, _3, _4, _5 );
 
     // Test Halley object.
@@ -112,14 +112,14 @@ BOOST_AUTO_TEST_CASE( test_halleyRootFinder_testFunction3 )
 BOOST_AUTO_TEST_CASE( test_halleyRootFinder_testFunctionWithZeroRoot )
 {
     // Create object containing the test functions.
-    boost::shared_ptr< TestFunctionWithZeroRoot > testFunction =
-            boost::make_shared< TestFunctionWithZeroRoot >( 2 );
+    std::shared_ptr< TestFunctionWithZeroRoot > testFunction =
+            std::make_shared< TestFunctionWithZeroRoot >( 2 );
 
     // The termination condition.
     HalleyRootFinder::TerminationFunction terminationConditionFunction
-            = boost::bind( &RootAbsoluteToleranceTerminationCondition< double >::
+            = std::bind( &RootAbsoluteToleranceTerminationCondition< double >::
                            checkTerminationCondition,
-                           boost::make_shared< RootAbsoluteToleranceTerminationCondition< double > >(
+                           std::make_shared< RootAbsoluteToleranceTerminationCondition< double > >(
                                1.0e-150 ), _1, _2, _3, _4, _5 );
 
     // Test Halley object.

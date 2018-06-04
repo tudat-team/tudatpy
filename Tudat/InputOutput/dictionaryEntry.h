@@ -109,7 +109,7 @@ public:
 };
 
 //! Typedef for shared-pointer to dictionary entry.
-typedef boost::shared_ptr< DictionaryEntry > DictionaryEntryPointer;
+typedef std::shared_ptr< DictionaryEntry > DictionaryEntryPointer;
 
 } // namespace dictionary
 } // namespace input_output

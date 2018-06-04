@@ -18,7 +18,7 @@ namespace json_interface
 {
 
 //! Create a `json` object from a shared pointer to a `SpiceSettings` object.
-void to_json( nlohmann::json& jsonObject, const boost::shared_ptr< SpiceSettings >& spiceSettings )
+void to_json( nlohmann::json& jsonObject, const std::shared_ptr< SpiceSettings >& spiceSettings )
 {
     if ( ! spiceSettings )
     {
@@ -46,11 +46,11 @@ void to_json( nlohmann::json& jsonObject, const boost::shared_ptr< SpiceSettings
 }
 
 //! Create a shared pointer to a `SpiceSettings` object from a `json` object.
-void from_json( const nlohmann::json& jsonObject, boost::shared_ptr< SpiceSettings >& spiceSettings )
+void from_json( const nlohmann::json& jsonObject, std::shared_ptr< SpiceSettings >& spiceSettings )
 {
     using K = Keys::Spice;
 
-    spiceSettings = boost::make_shared< SpiceSettings >( );
+    spiceSettings = std::make_shared< SpiceSettings >( );
 
     updateFromJSON( spiceSettings->useStandardKernels_, jsonObject, K::useStandardKernels );
     if ( spiceSettings->useStandardKernels_ )
@@ -74,7 +74,7 @@ void from_json( const nlohmann::json& jsonObject, boost::shared_ptr< SpiceSettin
 
 
 //! Load in Tudat the Spice kernels specified in \p spiceSettings.
-void loadSpiceKernels( const boost::shared_ptr< SpiceSettings >& spiceSettings )
+void loadSpiceKernels( const std::shared_ptr< SpiceSettings >& spiceSettings )
 {
     using namespace spice_interface;
 

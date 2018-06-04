@@ -109,7 +109,7 @@ enum BodiesWithPredefinedCentralGravityFields
 };
 
 //! Typedef for shared-pointer to GravityFieldModel object.
-typedef boost::shared_ptr< GravityFieldModel > GravityFieldModelPointer;
+typedef std::shared_ptr< GravityFieldModel > GravityFieldModelPointer;
 
 
 //! Function to create a central gravity field model of one of the planets, moon or sun.
@@ -119,7 +119,7 @@ typedef boost::shared_ptr< GravityFieldModel > GravityFieldModelPointer;
  *  gravity field is to be created.
  *  \return Central gravity field model of requested body.
  */
-boost::shared_ptr< GravityFieldModel > getPredefinedCentralGravityField(
+std::shared_ptr< GravityFieldModel > getPredefinedCentralGravityField(
     BodiesWithPredefinedCentralGravityFields bodyWithPredefinedCentralGravityField );
 
 } // namespace gravitation

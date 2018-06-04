@@ -17,7 +17,7 @@
 #ifndef TUDAT_SPHERICAL_HARMONICS_GRAVITY_FIELD_H
 #define TUDAT_SPHERICAL_HARMONICS_GRAVITY_FIELD_H
 
-#include <boost/function.hpp>
+#include <tr1/functional>
 #include <boost/lambda/lambda.hpp>
 #include <boost/make_shared.hpp>
 
@@ -56,7 +56,7 @@ double calculateSphericalHarmonicGravitationalPotential(
         const Eigen::Vector3d& bodyFixedPosition, const double gravitationalParameter,
         const double referenceRadius,
         const Eigen::MatrixXd& cosineCoefficients, const Eigen::MatrixXd& sineCoefficients,
-        boost::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache,
+        std::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache,
         const int minimumumDegree = 0, const int minimumumOrder = 0 );
 
 //! Class to represent a spherical harmonic gravity field expansion.
@@ -88,7 +88,7 @@ public:
           cosineCoefficients_( cosineCoefficients ), sineCoefficients_( sineCoefficients ),
           fixedReferenceFrame_( fixedReferenceFrame )
     {
-        sphericalHarmonicsCache_ = boost::make_shared< basic_mathematics::SphericalHarmonicsCache >( );
+        sphericalHarmonicsCache_ = std::make_shared< basic_mathematics::SphericalHarmonicsCache >( );
         sphericalHarmonicsCache_->resetMaximumDegreeAndOrder( cosineCoefficients_.rows( ) + 1,
                                                               cosineCoefficients_.cols( ) + 1 );
     }
@@ -311,7 +311,7 @@ protected:
     std::string fixedReferenceFrame_;
 
     //! Cache object for potential calculations.
-    boost::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache_;
+    std::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache_;
 };
 
 } // namespace gravitation

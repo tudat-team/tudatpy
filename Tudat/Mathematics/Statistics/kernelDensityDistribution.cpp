@@ -143,7 +143,7 @@ void KernelDensityDistribution::generateKernelPointerMatrix( )
     }
 
     // Fill kernel pointer matrix with distribution pointer objects
-    std::vector< boost::shared_ptr< ContinuousProbabilityDistribution< double > > > vector( dataSamples_[ 0 ].rows( ) );
+    std::vector< std::shared_ptr< ContinuousProbabilityDistribution< double > > > vector( dataSamples_[ 0 ].rows( ) );
 
     // Iterate over all samples; create kernel for each entry in each sample
     for( unsigned int i = 0; i < dataSamples_.size( ); i++ )

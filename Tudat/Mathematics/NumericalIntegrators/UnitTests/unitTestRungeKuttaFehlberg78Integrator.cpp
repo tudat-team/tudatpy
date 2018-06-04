@@ -138,7 +138,7 @@ BOOST_AUTO_TEST_CASE( testRungeKuttaFehlberg78IntegratorUsingMatlabData )
     {
         // Declare integrator with all necessary settings.
         NumericalIntegratorXdPointer integrator
-                = boost::make_shared< RungeKuttaVariableStepSizeIntegratorXd >(
+                = std::make_shared< RungeKuttaVariableStepSizeIntegratorXd >(
                     RungeKuttaCoefficients::get( RungeKuttaCoefficients::rungeKuttaFehlberg78 ),
                     &computeNonAutonomousModelStateDerivative,
                     matlabForwardIntegrationData( FIRST_ROW, TIME_COLUMN_INDEX ),
@@ -158,7 +158,7 @@ BOOST_AUTO_TEST_CASE( testRungeKuttaFehlberg78IntegratorUsingMatlabData )
     {
         // Declare integrator with all necessary settings.
         NumericalIntegratorXdPointer integrator
-                = boost::make_shared< RungeKuttaVariableStepSizeIntegratorXd >(
+                = std::make_shared< RungeKuttaVariableStepSizeIntegratorXd >(
                     RungeKuttaCoefficients::get( RungeKuttaCoefficients::rungeKuttaFehlberg78 ),
                     &computeNonAutonomousModelStateDerivative,
                     matlabForwardIntegrationData( FIRST_ROW, TIME_COLUMN_INDEX ),
@@ -179,7 +179,7 @@ BOOST_AUTO_TEST_CASE( testRungeKuttaFehlberg78IntegratorUsingMatlabData )
     {
         // Declare integrator with all necessary settings.
         NumericalIntegratorXdPointer integrator
-                = boost::make_shared< RungeKuttaVariableStepSizeIntegratorXd >(
+                = std::make_shared< RungeKuttaVariableStepSizeIntegratorXd >(
                     RungeKuttaCoefficients::get( RungeKuttaCoefficients::rungeKuttaFehlberg78 ),
                     &computeNonAutonomousModelStateDerivative,
                     matlabBackwardIntegrationData( FIRST_ROW, TIME_COLUMN_INDEX ),
@@ -206,7 +206,7 @@ BOOST_AUTO_TEST_CASE( testRungeKuttaFehlberg78IntegratorUsingMatlabData )
 
         // Declare integrator with all necessary settings.
         NumericalIntegratorXdPointer integrator
-                = boost::make_shared< RungeKuttaVariableStepSizeIntegratorXd >(
+                = std::make_shared< RungeKuttaVariableStepSizeIntegratorXd >(
                     RungeKuttaCoefficients::get( RungeKuttaCoefficients::rungeKuttaFehlberg78 ),
                     &computeNonAutonomousModelStateDerivative,
                     matlabForwardIntegrationData( FIRST_ROW, TIME_COLUMN_INDEX ),
@@ -229,7 +229,7 @@ BOOST_AUTO_TEST_CASE( testRungeKuttaFehlberg78IntegratorUsingMatlabData )
     {
         // Declare integrator with all necessary settings.
         ReinitializableNumericalIntegratorXdPointer integrator
-                = boost::make_shared< RungeKuttaVariableStepSizeIntegratorXd >(
+                = std::make_shared< RungeKuttaVariableStepSizeIntegratorXd >(
                     RungeKuttaCoefficients::get( RungeKuttaCoefficients::rungeKuttaFehlberg78 ),
                     &computeNonAutonomousModelStateDerivative,
                     matlabForwardIntegrationData( FIRST_ROW, TIME_COLUMN_INDEX ),

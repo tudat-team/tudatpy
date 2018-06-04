@@ -34,7 +34,7 @@
 #include <boost/bind.hpp>
 
 #include <boost/circular_buffer.hpp>
-#include <boost/function.hpp>
+#include <tr1/functional>
 #include <boost/shared_ptr.hpp>
 #include <boost/unordered_map.hpp>
 #include <boost/enable_shared_from_this.hpp>
@@ -53,7 +53,7 @@ class LegendreCache
 public:
 
     //! Define Legendre polynomial function pointer.
-    typedef boost::function< double ( int, int, LegendreCache& ) > LegendrePolynomialFunction;
+    typedef std::function< double ( int, int, LegendreCache& ) > LegendrePolynomialFunction;
 
     //! Default constructor, initializes cache object with 0 maximum degree and order.
     /*!
@@ -619,7 +619,7 @@ double computeGeodesyLegendrePolynomialVertical( const int degree,
 
 //! Predefine boost function for geodesy-normalized Legendre polynomial.
 static const LegendreCache::LegendrePolynomialFunction geodesyNormalizedLegendrePolynomialFunction =
-        boost::bind( &computeGeodesyLegendrePolynomialFromCache, _1, _2, _3 );
+        std::bind( &computeGeodesyLegendrePolynomialFromCache, _1, _2, _3 );
 
 //! Function to calculate the normalization factor for Legendre polynomials to geodesy-normalized.
 /*!
@@ -635,7 +635,7 @@ double calculateLegendreGeodesyNormalizationFactor( const int degree, const int 
 
 //! Predefine boost function for unnormalized Legendre polynomial.
 const LegendreCache::LegendrePolynomialFunction regularLegendrePolynomialFunction =
-        boost::bind( &computeLegendrePolynomialFromCache, _1, _2, _3 );
+        std::bind( &computeLegendrePolynomialFromCache, _1, _2, _3 );
 
 } // namespace basic_mathematics
 } // namespace tudat

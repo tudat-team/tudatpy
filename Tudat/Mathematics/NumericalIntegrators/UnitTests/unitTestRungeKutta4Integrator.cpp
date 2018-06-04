@@ -71,7 +71,7 @@ BOOST_AUTO_TEST_CASE( testRungeKutta4IntegratorUsingMatlabData )
     {
         // Declare integrator with all necessary settings.
         NumericalIntegratorXdPointer integrator
-                = boost::make_shared< RungeKutta4IntegratorXd >(
+                = std::make_shared< RungeKutta4IntegratorXd >(
                     &computeNonAutonomousModelStateDerivative,
                     matlabForwardIntegrationData( FIRST_ROW, TIME_COLUMN_INDEX ),
                     ( Eigen::VectorXd( 1 )
@@ -86,7 +86,7 @@ BOOST_AUTO_TEST_CASE( testRungeKutta4IntegratorUsingMatlabData )
     {
         // Declare integrator with all necessary settings.
         NumericalIntegratorXdPointer integrator
-                = boost::make_shared< RungeKutta4IntegratorXd >(
+                = std::make_shared< RungeKutta4IntegratorXd >(
                     &computeNonAutonomousModelStateDerivative,
                     matlabForwardIntegrationData( FIRST_ROW, TIME_COLUMN_INDEX ),
                     ( Eigen::VectorXd( 1 )
@@ -102,7 +102,7 @@ BOOST_AUTO_TEST_CASE( testRungeKutta4IntegratorUsingMatlabData )
     {
         // Declare integrator with all necessary settings.
         NumericalIntegratorXdPointer integrator
-                = boost::make_shared< RungeKutta4IntegratorXd >(
+                = std::make_shared< RungeKutta4IntegratorXd >(
                     &computeNonAutonomousModelStateDerivative,
                     matlabBackwardIntegrationData( FIRST_ROW, TIME_COLUMN_INDEX ),
                     ( Eigen::VectorXd( 1 )
@@ -117,7 +117,7 @@ BOOST_AUTO_TEST_CASE( testRungeKutta4IntegratorUsingMatlabData )
     {
         // Declare integrator with all necessary settings.
         NumericalIntegratorXdPointer integrator
-                = boost::make_shared< RungeKutta4IntegratorXd >(
+                = std::make_shared< RungeKutta4IntegratorXd >(
                     &computeNonAutonomousModelStateDerivative,
                     matlabForwardIntegrationData( FIRST_ROW, TIME_COLUMN_INDEX ),
                     ( Eigen::VectorXd( 1 )
@@ -135,7 +135,7 @@ BOOST_AUTO_TEST_CASE( testRungeKutta4IntegratorUsingMatlabData )
     {
         // Declare integrator with all necessary settings.
         ReinitializableNumericalIntegratorXdPointer integrator
-                = boost::make_shared< RungeKutta4IntegratorXd >(
+                = std::make_shared< RungeKutta4IntegratorXd >(
                     &computeNonAutonomousModelStateDerivative,
                     matlabDiscreteEventIntegrationData( FIRST_ROW, TIME_COLUMN_INDEX ),
                     ( Eigen::VectorXd( 1 )

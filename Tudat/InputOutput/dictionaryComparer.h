@@ -142,7 +142,7 @@ private:
 };
 
 //! Typedef for shared-pointer to DictionaryComparer object.
-typedef boost::shared_ptr< DictionaryComparer > DictionaryComparerPointer;
+typedef std::shared_ptr< DictionaryComparer > DictionaryComparerPointer;
 
 } // namespace dictionary
 } // namespace input_output

@@ -79,7 +79,7 @@ private:
  * (IndependentVariableType = double, StateType = Eigen::VectorXd,
  * StateDerivativeType = Eigen::VectorXd).
  */
-typedef boost::shared_ptr< ReinitializableNumericalIntegrator< > >
+typedef std::shared_ptr< ReinitializableNumericalIntegrator< > >
 ReinitializableNumericalIntegratorXdPointer;
 
 //! Typedef for a shared-pointer to a scalar, re-initializable numerical integrator.
@@ -87,7 +87,7 @@ ReinitializableNumericalIntegratorXdPointer;
  * Typedef for shared-pointer to a scalar numerical, re-initializable integrator
  * (IndependentVariableType = double, StateType = double, StateDerivativeType = double).
  */
-typedef boost::shared_ptr< ReinitializableNumericalIntegrator< double, double, double > >
+typedef std::shared_ptr< ReinitializableNumericalIntegrator< double, double, double > >
 ReinitializableNumericalIntegratordPointer;
 
 

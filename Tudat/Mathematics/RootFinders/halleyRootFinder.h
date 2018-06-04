@@ -91,9 +91,9 @@ public:
      */
     HalleyRootFinderCore( const DataType relativeXTolerance, const unsigned int maxIterations )
         : RootFinderCore< DataType >(
-              boost::bind(
+              std::bind(
                   &termination_conditions::RootRelativeToleranceTerminationCondition< DataType >::
-                  checkTerminationCondition, boost::make_shared<
+                  checkTerminationCondition, std::make_shared<
                   termination_conditions::RootRelativeToleranceTerminationCondition< DataType > >(
                       relativeXTolerance, maxIterations ), _1, _2, _3, _4, _5 ) )
     { }
@@ -170,7 +170,7 @@ private:
 
 // Some handy typedefs.
 typedef HalleyRootFinderCore< double > HalleyRootFinder;
-typedef boost::shared_ptr< HalleyRootFinder > HalleyRootFinderPointer;
+typedef std::shared_ptr< HalleyRootFinder > HalleyRootFinderPointer;
 
 } // namespace root_finders
 } // namespace tudat

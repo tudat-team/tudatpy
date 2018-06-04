@@ -25,7 +25,7 @@ namespace tudat
 namespace ephemerides
 {
 
-boost::shared_ptr< Eigen::Vector6d > CartesianStateExtractor::extract(
+std::shared_ptr< Eigen::Vector6d > CartesianStateExtractor::extract(
         ParsedDataLineMapPtr dataLineMap )
 {
     // Short-hand notation.
@@ -33,7 +33,7 @@ boost::shared_ptr< Eigen::Vector6d > CartesianStateExtractor::extract(
     using Eigen::Vector6d;
 
     // Create a new CartesianElements object.
-    boost::shared_ptr< Vector6d > cartesianElements
+    std::shared_ptr< Vector6d > cartesianElements
             = boost::allocate_shared< Vector6d >( Eigen::aligned_allocator< Vector6d >( ) );
 
     // Find and set Cartesian x coordinate.

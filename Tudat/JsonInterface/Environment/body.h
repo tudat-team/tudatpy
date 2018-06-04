@@ -25,7 +25,7 @@ namespace simulation_setup
 {
 
 //! Create a `json` object from a shared pointer to a `BodySettings` object.
-void to_json( nlohmann::json& jsonObject, const boost::shared_ptr< BodySettings >& bodySettings );
+void to_json( nlohmann::json& jsonObject, const std::shared_ptr< BodySettings >& bodySettings );
 
 } // namespace simulation_setup
 
@@ -39,7 +39,7 @@ namespace json_interface
  * \param jsonObject The `json` object containing the settings for one body.
  * \return Body settings object.
  */
-boost::shared_ptr< simulation_setup::BodySettings > createBodySettings( const nlohmann::json& jsonObject );
+std::shared_ptr< simulation_setup::BodySettings > createBodySettings( const nlohmann::json& jsonObject );
 
 //! Update \p bodySettings with the settings from \p jsonObject.
 /*!
@@ -48,7 +48,7 @@ boost::shared_ptr< simulation_setup::BodySettings > createBodySettings( const nl
  * \param bodySettings Body settings object to be updated.
  * \param jsonObject The `json` object containing only the settings for one body.
  */
-void updateBodySettings( boost::shared_ptr< simulation_setup::BodySettings >& bodySettings, const nlohmann::json& jsonObject );
+void updateBodySettings( std::shared_ptr< simulation_setup::BodySettings >& bodySettings, const nlohmann::json& jsonObject );
 
 //! Update \p bodyMap and \p bodySettingsMap from \p jsonObject (using \p spiceSettings for default settings and
 //! initial time from \p integratorSettings).
@@ -62,20 +62,20 @@ void updateBodySettings( boost::shared_ptr< simulation_setup::BodySettings >& bo
  * (returned by reference).
  * \param globalFrameOrigin Name of the global frame origin.
  * \param globalFrameOrientation Name of the global frame orientation.
- * \param spiceSettings The settings for Spice (NULL if Spice not used).
- * \param integratorSettings The settings for the integrator (NULL if Spice not used).
+ * \param spiceSettings The settings for Spice (nullptr if Spice not used).
+ * \param integratorSettings The settings for the integrator (nullptr if Spice not used).
  * \throws std::runtime_error If any body is configured to be created using default settings and either
- * \p spiceSettings is `NULL` or \p integratorSettings is `NULL` and Spice is configured to preload kernels.
+ * \p spiceSettings is `nullptr` or \p integratorSettings is `nullptr` and Spice is configured to preload kernels.
  */
 template< typename TimeType >
 void updateBodiesFromJSON(
         const nlohmann::json& jsonObject,
         simulation_setup::NamedBodyMap& bodyMap,
-        std::map< std::string, boost::shared_ptr< simulation_setup::BodySettings > >& bodySettingsMap,
+        std::map< std::string, std::shared_ptr< simulation_setup::BodySettings > >& bodySettingsMap,
         const std::string globalFrameOrigin,
         const std::string globalFrameOrientation,
-        const boost::shared_ptr< SpiceSettings >& spiceSettings,
-        const boost::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > >& integratorSettings )
+        const std::shared_ptr< SpiceSettings >& spiceSettings,
+        const std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > >& integratorSettings )
 {
     using namespace simulation_setup;
 
@@ -139,7 +139,7 @@ void updateBodiesFromJSON(
         const nlohmann::json jsonBodySettings = jsonBodySettingsMap.at( bodyName );
         if ( bodySettingsMap.count( bodyName ) )
         {
-            boost::shared_ptr< BodySettings >& bodySettings = bodySettingsMap[ bodyName ];
+            std::shared_ptr< BodySettings >& bodySettings = bodySettingsMap[ bodyName ];
             // Reset ephemeris and rotational models frames.
             if ( bodySettings->ephemerisSettings )
             {

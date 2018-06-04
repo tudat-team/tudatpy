@@ -28,10 +28,10 @@ class DummyExtractor : public Extractor< double >
 public:
 
     // Implement extract function, which simply returns a pointer to a double.
-    boost::shared_ptr< double > extract( parsed_data_vector_utilities::ParsedDataLineMapPtr data )
+    std::shared_ptr< double > extract( parsed_data_vector_utilities::ParsedDataLineMapPtr data )
     {
         // Create pointer to a double with value 2.0.
-        boost::shared_ptr< double > dummyValue = boost::make_shared< double >( 2.0 );
+        std::shared_ptr< double > dummyValue = std::make_shared< double >( 2.0 );
 
         // Return pointer.
         return dummyValue;
@@ -78,7 +78,7 @@ BOOST_AUTO_TEST_CASE( extractor_Extract )
 
     // Create a new pointer to data map.
     parsed_data_vector_utilities::ParsedDataLineMapPtr testDataMap =
-            boost::make_shared< parsed_data_vector_utilities::ParsedDataLineMap >(
+            std::make_shared< parsed_data_vector_utilities::ParsedDataLineMap >(
                 std::map< input_output::FieldType,
                           parsed_data_vector_utilities::FieldValuePtr >( ) );
 
@@ -86,7 +86,7 @@ BOOST_AUTO_TEST_CASE( extractor_Extract )
     DummyExtractor testExtractor;
 
     // Extract test data map.
-    boost::shared_ptr<double> returnedValue = testExtractor.extract( testDataMap );
+    std::shared_ptr<double> returnedValue = testExtractor.extract( testDataMap );
 
     // Verify that the returned value corresponds to the expected value.
     BOOST_CHECK_EQUAL( *returnedValue, 2.0 );
@@ -116,7 +116,7 @@ BOOST_AUTO_TEST_CASE( extractor_CheckOptionalFieldTypes )
 
     // Create a new pointer to data map.
     parsed_data_vector_utilities::ParsedDataLineMapPtr testDataMap =
-            boost::make_shared< parsed_data_vector_utilities::ParsedDataLineMap >(
+            std::make_shared< parsed_data_vector_utilities::ParsedDataLineMap >(
                 std::map< input_output::FieldType,
                 parsed_data_vector_utilities::FieldValuePtr >( ) );
 
@@ -170,7 +170,7 @@ BOOST_AUTO_TEST_CASE( extractor_CheckRequiredFieldTypes )
 
     // Create a new pointer to data map.
     parsed_data_vector_utilities::ParsedDataLineMapPtr testDataMap =
-            boost::make_shared< parsed_data_vector_utilities::ParsedDataLineMap >(
+            std::make_shared< parsed_data_vector_utilities::ParsedDataLineMap >(
                 std::map< input_output::FieldType,
                           parsed_data_vector_utilities::FieldValuePtr >( ) );
 

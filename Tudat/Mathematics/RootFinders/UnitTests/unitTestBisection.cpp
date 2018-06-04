@@ -43,12 +43,12 @@ using namespace root_finders::termination_conditions;
 BOOST_AUTO_TEST_CASE( test_bisection_testFunction1 )
 {
     // Create object containing the test function.
-    boost::shared_ptr< TestFunction1 > testFunction = boost::make_shared< TestFunction1 >( 1 );
+    std::shared_ptr< TestFunction1 > testFunction = std::make_shared< TestFunction1 >( 1 );
 
     // The termination condition.
     Bisection::TerminationFunction terminationConditionFunction =
-            boost::bind( &RootAbsoluteToleranceTerminationCondition< double >::checkTerminationCondition,
-                         boost::make_shared< RootAbsoluteToleranceTerminationCondition< double > >(
+            std::bind( &RootAbsoluteToleranceTerminationCondition< double >::checkTerminationCondition,
+                         std::make_shared< RootAbsoluteToleranceTerminationCondition< double > >(
                              testFunction->getTrueRootAccuracy( ) ), _1, _2, _3, _4, _5 );
 
     // Test Bisection object.
@@ -67,12 +67,12 @@ BOOST_AUTO_TEST_CASE( test_bisection_testFunction1 )
 BOOST_AUTO_TEST_CASE( test_bisection_testFunction2 )
 {
     // Create object containing the test function.
-    boost::shared_ptr< TestFunction2 > testFunction = boost::make_shared< TestFunction2 >( 1 );
+    std::shared_ptr< TestFunction2 > testFunction = std::make_shared< TestFunction2 >( 1 );
 
     // The termination condition.
     Bisection::TerminationFunction terminationConditionFunction =
-            boost::bind( &RootAbsoluteToleranceTerminationCondition< double >::checkTerminationCondition,
-                         boost::make_shared< RootAbsoluteToleranceTerminationCondition< double > >(
+            std::bind( &RootAbsoluteToleranceTerminationCondition< double >::checkTerminationCondition,
+                         std::make_shared< RootAbsoluteToleranceTerminationCondition< double > >(
                              testFunction->getTrueRootAccuracy( ) ), _1, _2, _3, _4, _5 );
 
     // Test Bisection object.
@@ -91,12 +91,12 @@ BOOST_AUTO_TEST_CASE( test_bisection_testFunction2 )
 BOOST_AUTO_TEST_CASE( test_bisection_testFunction3 )
 {
     // Create object containing the test function.
-    boost::shared_ptr< TestFunction3 > testFunction = boost::make_shared< TestFunction3 >( 1 );
+    std::shared_ptr< TestFunction3 > testFunction = std::make_shared< TestFunction3 >( 1 );
 
     // The termination condition.
     Bisection::TerminationFunction terminationConditionFunction =
-            boost::bind( &RootAbsoluteToleranceTerminationCondition< double >::checkTerminationCondition,
-                         boost::make_shared< RootAbsoluteToleranceTerminationCondition< double > >(
+            std::bind( &RootAbsoluteToleranceTerminationCondition< double >::checkTerminationCondition,
+                         std::make_shared< RootAbsoluteToleranceTerminationCondition< double > >(
                              testFunction->getTrueRootAccuracy( ) ), _1, _2, _3, _4, _5 );
 
     // Test Bisection object.
@@ -129,17 +129,17 @@ BOOST_AUTO_TEST_CASE( test_bisection_testFunctionWithLargeRootDifference )
 
     // Create objects containing the test functions. Values were obtained during a limit case
     // gravity assist calculation (while evaluating Cassini-1 trajectory).
-    boost::shared_ptr< TestFunctionWithLargeRootDifference > testFunctionLowCase =
-            boost::make_shared< TestFunctionWithLargeRootDifference >
+    std::shared_ptr< TestFunctionWithLargeRootDifference > testFunctionLowCase =
+            std::make_shared< TestFunctionWithLargeRootDifference >
             ( 1, -3.24859999867635e18, -3248600.0, 1.5707963267949 );
-    boost::shared_ptr< TestFunctionWithLargeRootDifference > testFunctionHighCase =
-            boost::make_shared< TestFunctionWithLargeRootDifference >
+    std::shared_ptr< TestFunctionWithLargeRootDifference > testFunctionHighCase =
+            std::make_shared< TestFunctionWithLargeRootDifference >
             ( 1, -3248600.0, -3.24859999867635e18, 1.5707963267949 );
 
     // The termination condition.
     Bisection::TerminationFunction terminationConditionFunction
-            = boost::bind( &RootRelativeToleranceTerminationCondition< >::checkTerminationCondition,
-                           boost::make_shared< RootRelativeToleranceTerminationCondition< > >(
+            = std::bind( &RootRelativeToleranceTerminationCondition< >::checkTerminationCondition,
+                           std::make_shared< RootRelativeToleranceTerminationCondition< > >(
                                1.0e-10 ), _1, _2, _3, _4, _5 );
 
     // Test Bisection object, per case.
@@ -159,12 +159,12 @@ BOOST_AUTO_TEST_CASE( test_bisection_testFunctionWithLargeRootDifference )
 BOOST_AUTO_TEST_CASE( test_bisection_wrongBracket )
 {
     // Create object containing the test functions.
-    boost::shared_ptr< TestFunction1 > testFunction = boost::make_shared< TestFunction1 >( 1 );
+    std::shared_ptr< TestFunction1 > testFunction = std::make_shared< TestFunction1 >( 1 );
 
     // The termination condition.
     Bisection::TerminationFunction terminationConditionFunction =
-            boost::bind( &RootAbsoluteToleranceTerminationCondition< double >::checkTerminationCondition,
-                         boost::make_shared< RootAbsoluteToleranceTerminationCondition< double > >(
+            std::bind( &RootAbsoluteToleranceTerminationCondition< double >::checkTerminationCondition,
+                         std::make_shared< RootAbsoluteToleranceTerminationCondition< double > >(
                              testFunction->getTrueRootAccuracy( ) ), _1, _2, _3, _4, _5 );
 
     // Test Bisection object. The input interval does not bracket the solution.

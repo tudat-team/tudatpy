@@ -42,7 +42,7 @@ public:
      *  \param associatedBody Body on which station is located
      *  \param associatedStation Name of station
      */
-    GroundStationPosition( const boost::shared_ptr<ground_stations:: GroundStationState > groundStationState,
+    GroundStationPosition( const std::shared_ptr<ground_stations:: GroundStationState > groundStationState,
                            const std::string& associatedBody,
                            const std::string& associatedStation ):
         EstimatableParameter< Eigen::VectorXd  >( ground_station_position, associatedBody, associatedStation ),
@@ -86,7 +86,7 @@ protected:
 private:
 
     //! Object that represents state of ground stations
-    boost::shared_ptr< ground_stations::GroundStationState > groundStationState_;
+    std::shared_ptr< ground_stations::GroundStationState > groundStationState_;
 };
 
 }

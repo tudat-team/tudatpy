@@ -170,7 +170,7 @@ private:
             for( int i = 0; i < NumberOfDimensions; i++ )
             {
                 // Create binary search look up scheme.
-                lookUpSchemes_[ i ] = boost::shared_ptr< LookUpScheme< IndependentVariableType > >
+                lookUpSchemes_[ i ] = std::shared_ptr< LookUpScheme< IndependentVariableType > >
                         ( new BinarySearchLookupScheme< IndependentVariableType >(
                               independentValues_[ i ] ) );
             }
@@ -182,7 +182,7 @@ private:
             for( int i = 0; i < NumberOfDimensions; i++ )
             {
                 // Create hunting scheme, which uses an intial guess from previous look-ups.
-                lookUpSchemes_[ i ] = boost::shared_ptr< LookUpScheme< IndependentVariableType > >
+                lookUpSchemes_[ i ] = std::shared_ptr< LookUpScheme< IndependentVariableType > >
                         ( new HuntingAlgorithmLookupScheme< IndependentVariableType >(
                               independentValues_[ i ] ) );
             }
@@ -275,7 +275,7 @@ private:
      * Pointers to the look-up schemes that is used to determine in which interval the requested
      * independent variable value falls.
      */
-    std::vector< boost::shared_ptr< LookUpScheme< IndependentVariableType > > > lookUpSchemes_;
+    std::vector< std::shared_ptr< LookUpScheme< IndependentVariableType > > > lookUpSchemes_;
 
     //! Vector of vectors containing independent variables.
     /*!

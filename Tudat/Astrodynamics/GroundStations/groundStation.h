@@ -38,8 +38,8 @@ public:
      * ground station.
      * \param stationId Name of the ground station
      */
-    GroundStation( const boost::shared_ptr< GroundStationState > stationState,
-                   const boost::shared_ptr< PointingAnglesCalculator > pointingAnglesCalculator,
+    GroundStation( const std::shared_ptr< GroundStationState > stationState,
+                   const std::shared_ptr< PointingAnglesCalculator > pointingAnglesCalculator,
                    const std::string& stationId ):
         nominalStationState_( stationState ),  pointingAnglesCalculator_( pointingAnglesCalculator ), stationId_( stationId ){ }
 
@@ -64,7 +64,7 @@ public:
      * Function to return object to define and compute the state of the ground station.
      * \return Object to define and compute the state of the ground station.
      */
-    boost::shared_ptr< GroundStationState > getNominalStationState( )
+    std::shared_ptr< GroundStationState > getNominalStationState( )
     {
         return nominalStationState_;
     }
@@ -84,7 +84,7 @@ public:
      * Function to object used to computed pointing angles (elevation, azimuth) to a given target from this ground station.
      * \return Object used to computed pointing angles (elevation, azimuth) to a given target from this ground station.
      */
-    boost::shared_ptr< PointingAnglesCalculator > getPointingAnglesCalculator( )
+    std::shared_ptr< PointingAnglesCalculator > getPointingAnglesCalculator( )
     {
         return pointingAnglesCalculator_;
     }
@@ -92,10 +92,10 @@ public:
 private:
 
     //! Object to define and compute the state of the ground station.
-    boost::shared_ptr< GroundStationState > nominalStationState_;
+    std::shared_ptr< GroundStationState > nominalStationState_;
 
     //! Object used to computed pointing angles (elevation, azimuth) to a given target from this ground station.
-    boost::shared_ptr< PointingAnglesCalculator > pointingAnglesCalculator_;
+    std::shared_ptr< PointingAnglesCalculator > pointingAnglesCalculator_;
 
     //! Name of the ground station
     std::string stationId_;
@@ -113,7 +113,7 @@ private:
  */
 bool isTargetInView(
         const double time, const Eigen::Vector3d targetRelativeState,
-        const boost::shared_ptr< PointingAnglesCalculator > pointingAngleCalculator, const double minimumElevationAngle );
+        const std::shared_ptr< PointingAnglesCalculator > pointingAngleCalculator, const double minimumElevationAngle );
 
 
 } // namespace ground_stations

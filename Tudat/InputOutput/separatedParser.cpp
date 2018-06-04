@@ -78,7 +78,7 @@ void SeparatedParser::parseLine( std::string& line )
     }
 
     // Create a new data line
-    ParsedDataLineMapPtr currentLineData = boost::make_shared< ParsedDataLineMap >(
+    ParsedDataLineMapPtr currentLineData = std::make_shared< ParsedDataLineMap >(
                 std::map< FieldType, FieldValuePtr >( ) );
 
     // Register the data line with the global current parsed data vector
@@ -98,7 +98,7 @@ void SeparatedParser::parseLine( std::string& line )
         FieldType type( typeList.at( currentFieldNumber ) );
 
         // Define unit transformer.
-        boost::shared_ptr< FieldTransform > transformer;
+        std::shared_ptr< FieldTransform > transformer;
 
         // If type corresponds to one of the entries of the unit transformation map.
         if ( unitTransformationMap_.find( type ) != unitTransformationMap_.end( ) )
@@ -109,7 +109,7 @@ void SeparatedParser::parseLine( std::string& line )
         // Else, do nothing.
         else
         {
-            transformer = boost::shared_ptr< FieldTransform >( );
+            transformer = std::shared_ptr< FieldTransform >( );
         }
 
         // Store the resulting string.

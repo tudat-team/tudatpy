@@ -81,10 +81,10 @@ inline void from_json( const nlohmann::json& jsonObject, SphericalHarmonicsModel
 // GravityFieldSettings
 
 //! Create a `json` object from a shared pointer to a `GravityFieldSettings` object.
-void to_json( nlohmann::json& jsonObject, const boost::shared_ptr< GravityFieldSettings >& gravityFieldSettings );
+void to_json( nlohmann::json& jsonObject, const std::shared_ptr< GravityFieldSettings >& gravityFieldSettings );
 
 //! Create a shared pointer to a `GravityFieldSettings` object from a `json` object.
-void from_json( const nlohmann::json& jsonObject, boost::shared_ptr< GravityFieldSettings >& gravityFieldSettings );
+void from_json( const nlohmann::json& jsonObject, std::shared_ptr< GravityFieldSettings >& gravityFieldSettings );
 
 } // namespace simulation_setup
 
