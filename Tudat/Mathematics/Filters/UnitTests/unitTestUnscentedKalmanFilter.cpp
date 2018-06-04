@@ -30,8 +30,33 @@ namespace unit_tests
 
 BOOST_AUTO_TEST_SUITE( test_unscented_kalman_filter )
 
+//! Class for control vector
+template< typename DependentVariableType = double >
+class ControlWrapper
+{
+public:
+
+    typedef Eigen::Matrix< DependentVariableType, Eigen::Dynamic, 1 > DependentVector;
+
+    DependentVector getControlVector( )
+    {
+        return controlVector_;
+    }
+
+    void setControlVector( DependentVector controlVector )
+    {
+        controlVector_ = controlVector;
+    }
+
+private:
+
+    DependentVector controlVector_;
+
+};
+
 // Functions for unscented Kalman filter
-Eigen::Vector2d stateFunction1( const double time, const Eigen::Vector2d& state, const Eigen::Vector2d& control )
+Eigen::Vector2d stateFunction1( const double time, const Eigen::Vector2d& state,
+                                const boost::function< Eigen::Vector2d( ) > control )
 {
     Eigen::Vector2d stateDerivative;
     stateDerivative[ 0 ] = state[ 1 ] * std::pow( std::cos( state[ 0 ] ), 3 );
@@ -79,9 +104,11 @@ BOOST_AUTO_TEST_CASE( testUnscentedKalmanFilterFirstCase )
             boost::make_shared< numerical_integrators::IntegratorSettings< > > (
                 numerical_integrators::euler, initialTime, timeStep );
 
+    boost::shared_ptr< ControlWrapper > control;
+
     // Create extended Kalman filter object
     UnscentedKalmanFilterDoublePointer unscentedFilter = boost::make_shared< UnscentedKalmanFilterDouble >(
-                boost::bind( &stateFunction1, _1, _2, _3 ),
+                boost::bind( &stateFunction1, _1, _2, boost::bind( control->getControlVector( ) ) ),
                 boost::bind( &measurementFunction1, _1, _2 ),
                 systemUncertainty, measurementUncertainty,
                 initialTime, initialEstimatedStateVector, initialEstimatedStateCovarianceMatrix,

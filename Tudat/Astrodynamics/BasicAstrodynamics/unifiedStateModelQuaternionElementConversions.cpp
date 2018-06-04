@@ -688,8 +688,8 @@ Eigen::Vector6d convertUnifiedStateModelQuaternionsToCartesianElements(
     auxiliaryVector1( 1 ) = auxiliaryParameter2;
 
     // Find direction cosine matrix in terms of quaternions
-    Eigen::Matrix3d inverseDirectionCosineMatrix =
-            linear_algebra::computeDirectionCosineMatrixFromQuaternions( quaternionsVector, true );
+    Eigen::Matrix3d inverseDirectionCosineMatrix = linear_algebra::convertVectorToQuaternionFormat(
+                quaternionsVector ).toRotationMatrix( );
 
     // Get Cartesian position vector
     convertedCartesianElements.segment( xCartesianPositionIndex, 3 ) =

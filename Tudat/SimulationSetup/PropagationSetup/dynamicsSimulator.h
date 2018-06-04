@@ -440,10 +440,6 @@ public:
         dynamicsStateDerivative_->convertNumericalStateSolutionsToOutputSolutions(
                     equationsOfMotionNumericalSolution_, equationsOfMotionNumericalSolutionRaw_ );
 
-        // Process conventional state history
-        dynamicsStateDerivative_->processConventionalStateHistory( equationsOfMotionNumericalSolution_,
-                                                                   equationsOfMotionNumericalSolutionRaw_ );
-
         // Retrieve number of function evaluations
         int numberOfFunctionEvaluations = dynamicsStateDerivative_->getNumberOfFunctionEvaluations( );
         cumulativeNumberOfFunctionEvaluations_ = dynamicsStateDerivative_->getCumulativeNumberOfFunctionEvaluations( );

@@ -142,7 +142,7 @@ public:
     {
         // Get total inertial accelerations acting on bodies
         Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic > currentAccelerationInIntertialFrame;
-        currentAccelerationInIntertialFrame.resizeLike( stateDerivative );
+        currentAccelerationInIntertialFrame.resizeLike( currentCartesianLocalSolution_ );
         this->sumStateDerivativeContributions( stateOfSystemToBeIntegrated, currentAccelerationInIntertialFrame, false );
 
         // Compute RSW accelerations for each body, and evaluate equations of motion for USM7 elements.

@@ -13,7 +13,6 @@
 
 #include "Tudat/Astrodynamics/Propagators/nBodyStateDerivative.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/stateRepresentationConversions.h"
-#include "Tudat/Astrodynamics/BasicAstrodynamics/quaternionHistoryManipulation.h"
 
 #include "Tudat/Mathematics/BasicMathematics/linearAlgebra.h"
 
@@ -145,7 +144,7 @@ public:
     {
         // Get total inertial accelerations acting on bodies
         Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic > currentAccelerationInIntertialFrame;
-        currentAccelerationInIntertialFrame.resizeLike( stateDerivative );
+        currentAccelerationInIntertialFrame.resizeLike( currentCartesianLocalSolution_ );
         this->sumStateDerivativeContributions( stateOfSystemToBeIntegrated, currentAccelerationInIntertialFrame, false );
 
         // Compute RSW accelerations for each body, and evaluate equations of motion for USMEM elements.
@@ -185,7 +184,6 @@ public:
                         cartesianSolution.block( i * 6, 0, 6, 1 ).template cast< double >( ), static_cast< double >(
                             centralBodyGravitationalParameters_.at( i )( ) ) ).template cast< StateScalarType >( );
         }
-
         return currentState;
     }
 

@@ -411,66 +411,6 @@ public:
         }
     }
 
-    //! Function to process the state history after propagation.
-    /*!
-     * Function to process the state history after propagation.
-     * \param unprocessedConventionalStateHistory Conventional state history before processing.
-     * \param propagatedStateHistory Propagated state history.
-     * \return Processed conventional state history (returned by reference).
-     */
-    void processConventionalStateHistory(
-            std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >& unprocessedConventionalStateHistory,
-            const std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >& propagatedStateHistory )
-    {
-        // Iterate over all state derivative models and post-process associated state entries
-        std::vector< std::pair< int, int > > currentIndices;
-        std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > currentConventionalStateHistory;
-        std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > currentPropagatedStateHistory;
-        for( stateDerivativeModelsIterator_ = stateDerivativeModels_.begin( );
-             stateDerivativeModelsIterator_ != stateDerivativeModels_.end( );
-             stateDerivativeModelsIterator_++ )
-        {
-            currentIndices = propagatedStateIndices_.at( stateDerivativeModelsIterator_->first );
-            for( unsigned int i = 0; i < stateDerivativeModelsIterator_->second.size( ); i++ )
-            {
-                if ( stateDerivativeModelsIterator_->second.at( i )->isConventionalStateHistoryToBeProcessed( ) )
-                {
-                    // Merge history of one body into one map
-                    for ( typename std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >::const_iterator
-                          stateHistoryIterator = unprocessedConventionalStateHistory.begin( );
-                          stateHistoryIterator != unprocessedConventionalStateHistory.end( ); stateHistoryIterator++ )
-                    {
-                        currentConventionalStateHistory[ stateHistoryIterator->first ] =
-                                stateHistoryIterator->second.block( currentIndices.at( i ).first, 0,
-                                                                    currentIndices.at( i ).second, 1 );
-                        currentPropagatedStateHistory[ stateHistoryIterator->first ] =
-                                propagatedStateHistory.at( stateHistoryIterator->first ).block(
-                                    currentIndices.at( i ).first, 0,
-                                    currentIndices.at( i ).second, 1 );
-                    }
-
-                    // Process history
-                    stateDerivativeModelsIterator_->second.at( i )->processConventionalStateHistory(
-                                currentConventionalStateHistory, currentPropagatedStateHistory );
-
-                    // Replace old elements with new
-                    for ( typename std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >::iterator
-                          stateHistoryIterator = unprocessedConventionalStateHistory.begin( );
-                          stateHistoryIterator != unprocessedConventionalStateHistory.end( ); stateHistoryIterator++ )
-                    {
-                        stateHistoryIterator->second.block( currentIndices.at( i ).first, 0,
-                                                            currentIndices.at( i ).second, 1 ) =
-                                currentConventionalStateHistory[ stateHistoryIterator->first ];
-                    }
-
-                    // Clear current state history
-                    currentConventionalStateHistory.clear( );
-                    currentPropagatedStateHistory.clear( );
-                }
-            }
-        }
-    }
-
     //! Function to add variational equations to the state derivative model
     /*!
      * Function to add variational equations to the state derivative model.
