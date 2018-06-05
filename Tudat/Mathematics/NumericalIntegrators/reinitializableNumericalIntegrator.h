@@ -14,11 +14,11 @@
 
 #include <Eigen/Core>
 
-#include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
 #include "Tudat/Mathematics/NumericalIntegrators/numericalIntegrator.h"
 
 namespace tudat
 {
+
 namespace numerical_integrators
 {
 
@@ -84,6 +84,7 @@ typedef boost::shared_ptr< ReinitializableNumericalIntegrator< double, double, d
 ReinitializableNumericalIntegratordPointer;
 
 } // namespace numerical_integrators
+
 } // namespace tudat
 
 #endif // TUDAT_REINITIALIZABLE_NUMERICAL_INTEGRATOR_H

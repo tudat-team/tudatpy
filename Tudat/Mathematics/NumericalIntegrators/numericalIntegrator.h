@@ -20,6 +20,8 @@
 
 #include <Eigen/Core>
 
+#include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
+
 namespace tudat
 {
 
@@ -196,7 +198,7 @@ public:
      * can be implemented in all derived classes.
      * \param newState The new state to set the current state to.
      */
-    virtual void modifyCurrentState( const StateType& newState ) { }
+    virtual void modifyCurrentState( const StateType& newState, const IndependentVariableType newTime = TUDAT_NAN ) { }
 
 protected:
 

@@ -36,10 +36,8 @@ public:
     //! Inherit typedefs from base class.
     typedef typename KalmanFilterBase< IndependentVariableType, DependentVariableType >::DependentVector DependentVector;
     typedef typename KalmanFilterBase< IndependentVariableType, DependentVariableType >::DependentMatrix DependentMatrix;
-    typedef typename KalmanFilterBase< IndependentVariableType, DependentVariableType >::SystemFunction SystemFunction;
-    typedef typename KalmanFilterBase< IndependentVariableType, DependentVariableType >::MeasurementFunction MeasurementFunction;
-    typedef typename KalmanFilterBase< IndependentVariableType, DependentVariableType >::SystemMatrixFunction SystemMatrixFunction;
-    typedef typename KalmanFilterBase< IndependentVariableType, DependentVariableType >::MeasurementMatrixFunction MeasurementMatrixFunction;
+    typedef typename KalmanFilterBase< IndependentVariableType, DependentVariableType >::Function Function;
+    typedef typename KalmanFilterBase< IndependentVariableType, DependentVariableType >::MatrixFunction MatrixFunction;
     typedef typename KalmanFilterBase< IndependentVariableType, DependentVariableType >::IntegratorSettings IntegratorSettings;
     typedef typename KalmanFilterBase< IndependentVariableType, DependentVariableType >::Integrator Integrator;
 
@@ -67,12 +65,12 @@ public:
      *      a-priori estimate of the covariance matrix.
      *  \param integratorSettings Pointer to integration settings defining the integrator to be used to propagate the state.
      */
-    ExtendedKalmanFilter( const SystemFunction& systemFunction,
-                          const MeasurementFunction& measurementFunction,
-                          const SystemMatrixFunction& stateJacobianFunction,
-                          const SystemMatrixFunction& stateNoiseJacobianFunction,
-                          const MeasurementMatrixFunction& measurementJacobianFunction,
-                          const MeasurementMatrixFunction& measurementNoiseJacobianFunction,
+    ExtendedKalmanFilter( const Function& systemFunction,
+                          const Function& measurementFunction,
+                          const MatrixFunction& stateJacobianFunction,
+                          const MatrixFunction& stateNoiseJacobianFunction,
+                          const MatrixFunction& measurementJacobianFunction,
+                          const MatrixFunction& measurementNoiseJacobianFunction,
                           const DependentMatrix& systemUncertainty,
                           const DependentMatrix& measurementUncertainty,
                           const IndependentVariableType initialTime,
@@ -91,7 +89,7 @@ public:
         {
             discreteTimeStateJacobians_ = boost::bind( &ExtendedKalmanFilter< IndependentVariableType,
                                                        DependentVariableType >::generateDiscreteTimeSystemJacobians,
-                                                       this, _1, _2, _3 );
+                                                       this, _1, _2 );
         }
     }
 
@@ -105,27 +103,25 @@ public:
     /*!
      *  Function to update the filter with the new step data.
      *  \param currentTime Scalar representing current time.
-     *  \param currentControlVector Vector representing the current control input.
      *  \param currentMeasurementVector Vector representing current measurement.
      */
-    void updateFilter( const IndependentVariableType currentTime, const DependentVector& currentControlVector,
-                       const DependentVector& currentMeasurementVector )
+    void updateFilter( const IndependentVariableType currentTime, const DependentVector& currentMeasurementVector )
     {
         // Prediction step
-        DependentVector aPrioriStateEstimate = this->predictState( currentTime, currentControlVector );;
+        DependentVector aPrioriStateEstimate = this->predictState( currentTime );
         DependentMatrix currentStateJacobianMatrix;
         DependentMatrix currentStateNoiseJacobianMatrix;
         if ( this->isStateToBeIntegrated_ )
         {
             std::pair< DependentMatrix, DependentMatrix > discreteTimeJacobians =
-                    discreteTimeStateJacobians_( currentTime, aPrioriStateEstimate, currentControlVector );
+                    discreteTimeStateJacobians_( currentTime, aPrioriStateEstimate );
             currentStateJacobianMatrix = discreteTimeJacobians.first;
             currentStateNoiseJacobianMatrix = discreteTimeJacobians.second;
         }
         else
         {
-            currentStateJacobianMatrix = stateJacobianFunction_( currentTime, aPrioriStateEstimate, currentControlVector );
-            currentStateNoiseJacobianMatrix = stateNoiseJacobianFunction_( currentTime, aPrioriStateEstimate, currentControlVector );
+            currentStateJacobianMatrix = stateJacobianFunction_( currentTime, aPrioriStateEstimate );
+            currentStateNoiseJacobianMatrix = stateNoiseJacobianFunction_( currentTime, aPrioriStateEstimate );
         }
         DependentVector measurmentEstimate = this->measurementFunction_( currentTime, aPrioriStateEstimate );
 
@@ -157,14 +153,12 @@ private:
      *  to the systemFunction_ variable, via the boost::bind command.
      *  \param currentTime Scalar representing the current time.
      *  \param currentStateVector Vector representing the current state.
-     *  \param currentControlVector Vector representing the current control input.
      *  \return Vector representing the estimated state.
      */
     DependentVector createSystemFunction( const IndependentVariableType currentTime,
-                                          const DependentVector& currentStateVector,
-                                          const DependentVector& currentControlVector )
+                                          const DependentVector& currentStateVector )
     {
-        return inputSystemFunction_( currentTime, currentStateVector, currentControlVector );
+        return inputSystemFunction_( currentTime, currentStateVector );
     }
 
     //! Function to create the function that defines the system model.
@@ -187,17 +181,15 @@ private:
      *  versions. The transformation is carried out by using the matrix exponential.
      *  \param currentTime Scalar representing the current time.
      *  \param currentStateVector Vector representing the current state.
-     *  \param currentControlVector Vector representing the current control input.
      *  \return Pair of discrete-time state and noise Jacobians.
      */
     std::pair< DependentMatrix, DependentMatrix > generateDiscreteTimeSystemJacobians(
             const IndependentVariableType currentTime,
-            const DependentVector& currentStateVector,
-            const DependentVector& currentControlVector )
+            const DependentVector& currentStateVector )
     {
         // Pre-compute Jacobians
-        DependentMatrix stateJacobian = stateJacobianFunction_( currentTime, currentStateVector, currentControlVector );
-        DependentMatrix noiseJacobian = stateNoiseJacobianFunction_( currentTime, currentStateVector, currentControlVector );
+        DependentMatrix stateJacobian = stateJacobianFunction_( currentTime, currentStateVector );
+        DependentMatrix noiseJacobian = stateNoiseJacobianFunction_( currentTime, currentStateVector );
 
         // Get sizes
         unsigned int stateDimension = stateJacobian.rows( );
@@ -206,49 +198,49 @@ private:
         // Merge Jacobians in one matrix
         DependentMatrix continuousJacobians = DependentMatrix::Zero( stateDimension + noiseCols, stateDimension + noiseCols );
         continuousJacobians.block( 0, 0, stateDimension, stateDimension ) = stateJacobian;
-        continuousJacobians.block( 0, stateDimension + noiseCols - 1, stateDimension, noiseCols ) = noiseJacobian;
+        continuousJacobians.block( 0, stateDimension, stateDimension, noiseCols ) = noiseJacobian;
 
         // Generate discrete-time Jacobians
         DependentMatrix discreteJacobians = ( continuousJacobians * this->integrationStepSize_ ).exp( );
 
         // Extract state and noise Jacobians
         return std::make_pair( discreteJacobians.block( 0, 0, stateDimension, stateDimension ),
-                               discreteJacobians.block( 0, stateDimension + noiseCols - 1, stateDimension, noiseCols ) );
+                               discreteJacobians.block( 0, stateDimension, stateDimension, noiseCols ) );
     }
 
     //! System function input by user.
-    SystemFunction inputSystemFunction_;
+    Function inputSystemFunction_;
 
     //! Measurement function input by user.
-    MeasurementFunction inputMeasurementFunction_;
+    Function inputMeasurementFunction_;
 
     //! State Jacobian matrix function.
     /*!
      *  Function returning the continuous-time Jacobian of the systemFunction_ w.r.t. the state vector. The input values
      *  can be time, state and control input.
      */
-    SystemMatrixFunction stateJacobianFunction_;
+    MatrixFunction stateJacobianFunction_;
 
     //! State noise Jacobian matrix function.
     /*!
      *  Function returning the continuous-time Jacobian of the systemFunction_ w.r.t. the state noise. The input values
      *  can be time, state and control input.
      */
-    SystemMatrixFunction stateNoiseJacobianFunction_;
+    MatrixFunction stateNoiseJacobianFunction_;
 
     //! Measurement Jacobian matrix function.
     /*!
      *  Function returning the continuous-time Jacobian of the measurementFunction_ w.r.t. the state vector.
      *  The input values can be time, state and control input.
      */
-    MeasurementMatrixFunction measurementJacobianFunction_;
+    MatrixFunction measurementJacobianFunction_;
 
     //! Measurement noise Jacobian matrix function.
     /*!
      *  Function returning the continuous-time Jacobian of the measurementFunction_ w.r.t. the measurement noise.
      *  The input values can be time, state and control input.
      */
-    MeasurementMatrixFunction measurementNoiseJacobianFunction_;
+    MatrixFunction measurementNoiseJacobianFunction_;
 
     //! Function to return the discrete-time state Jacobians.
     /*!
@@ -257,7 +249,7 @@ private:
      *  generateDiscreteTimeSystemJacobians.
      */
     boost::function< std::pair< DependentMatrix, DependentMatrix >(
-            const IndependentVariableType, const DependentVector&, const DependentVector& ) > discreteTimeStateJacobians_;
+            const IndependentVariableType, const DependentVector& ) > discreteTimeStateJacobians_;
 
 };
 

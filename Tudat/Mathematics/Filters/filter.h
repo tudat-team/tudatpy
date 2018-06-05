@@ -55,21 +55,13 @@ public:
     //! Typedef of the state and measurement matrices.
     typedef Eigen::Matrix< DependentVariableType, Eigen::Dynamic, Eigen::Dynamic > DependentMatrix;
 
-    //! Typedef of the function describing the system.
-    typedef boost::function< DependentVector( const IndependentVariableType, const DependentVector&,
-                                              const DependentVector& ) > SystemFunction;
-
-    //! Typedef of the function describing the measurements.
+    //! Typedef of the function describing the system and the measurements.
     typedef boost::function< DependentVector( const IndependentVariableType,
-                                              const DependentVector& ) > MeasurementFunction;
+                                              const DependentVector& ) > Function;
 
-    //! Typedefs for system matrix functions.
-    typedef boost::function< DependentMatrix( const IndependentVariableType, const DependentVector&,
-                                              const DependentVector& ) > SystemMatrixFunction;
-
-    //! Typedefs for measurement matrix functions.
+    //! Typedefs for system and measurement matrix functions.
     typedef boost::function< DependentMatrix( const IndependentVariableType,
-                                              const DependentVector& ) > MeasurementMatrixFunction;
+                                              const DependentVector& ) > MatrixFunction;
 
     //! Typedef of the integrator settings.
     typedef numerical_integrators::IntegratorSettings< IndependentVariableType > IntegratorSettings;
@@ -116,7 +108,7 @@ public:
         // Create system and measurement functions based on input parameters
         systemFunction_ = boost::bind( &FilterBase< IndependentVariableType,
                                        DependentVariableType >::createSystemFunction,
-                                       this, _1, _2, _3 );
+                                       this, _1, _2 );
         measurementFunction_ = boost::bind( &FilterBase< IndependentVariableType,
                                             DependentVariableType >::createMeasurementFunction,
                                             this, _1, _2 );
@@ -146,10 +138,9 @@ public:
     /*!
      *  Function to update the filter with the new step data.
      *  \param currentTime Scalar representing current time.
-     *  \param currentControlVector Vector representing the current control input.
      *  \param currentMeasurementVector Vector representing current measurement.
      */
-    virtual void updateFilter( const IndependentVariableType currentTime, const DependentVector& currentControlVector,
+    virtual void updateFilter( const IndependentVariableType currentTime,
                                const DependentVector& currentMeasurementVector ) = 0;
 
     //! Function to produce system noise.
@@ -216,11 +207,19 @@ public:
 
     //! Function to retrieve current state estimate.
     /*!
-     *  Function to retrieve current state estimate. The state estimate needs to first be computed by updating the filter with the
-     *  updateFilter function.
+     *  Function to retrieve current state estimate. The state estimate needs to first be computed by updating the
+     *  filter with the updateFilter function.
      *  \return Current state estimate.
      */
     DependentVector getCurrentStateEstimate( ) { return aPosterioriStateEstimate_; }
+
+    //! Function to retrieve current covariance estimate.
+    /*!
+     *  Function to retrieve current covariance estimate. The covariance estimate needs to first be computed by
+     *  updating the filter with the updateFilter function.
+     *  \return Current state estimate.
+     */
+    DependentMatrix getCurrentCovarianceEstimate( ) { return aPosterioriCovarianceEstimate_; }
 
     //! Function to retrieve the history of estimated states.
     /*!
@@ -256,25 +255,23 @@ protected:
 
     //! Function to create the function that defines the system model.
     /*!
-    *  Function to create the function that defines the system model. The output of this function is then bound
-    *  to the systemFunction_ variable, via the boost::bind command.
-    *  \param currentTime Scalar representing the current time.
-    *  \param currentStateVector Vector representing the current state.
-    *  \param currentControlVector Vector representing the current control input.
-    *  \return Vector representing the estimated state.
-    */
+     *  Function to create the function that defines the system model. The output of this function is then bound
+     *  to the systemFunction_ variable, via the boost::bind command.
+     *  \param currentTime Scalar representing the current time.
+     *  \param currentStateVector Vector representing the current state.
+     *  \return Vector representing the estimated state.
+     */
     virtual DependentVector createSystemFunction( const IndependentVariableType currentTime,
-                                                  const DependentVector& currentStateVector,
-                                                  const DependentVector& currentControlVector ) = 0;
+                                                  const DependentVector& currentStateVector ) = 0;
 
-    //! Function to create the function that defines the system model.
+    //! Function to create the function that defines the measurement model.
     /*!
-    *  Function to create the function that defines the system model. The output of this function is then bound
-    *  to the measurementFunction_ variable, via the boost::bind command.
-    *  \param currentTime Scalar representing the current time.
-    *  \param currentStateVector Vector representing the current state.
-    *  \return Vector representing the estimated measurement.
-    */
+     *  Function to create the function that defines the measurement model. The output of this function is then bound
+     *  to the measurementFunction_ variable, via the boost::bind command.
+     *  \param currentTime Scalar representing the current time.
+     *  \param currentStateVector Vector representing the current state.
+     *  \return Vector representing the estimated measurement.
+     */
     virtual DependentVector createMeasurementFunction( const IndependentVariableType currentTime,
                                                        const DependentVector& currentStateVector ) = 0;
 
@@ -283,11 +280,9 @@ protected:
      *  Function to predict the state for the next time step, with the either the use of the integrator provided in
      *  the integratorSettings, or the systemFunction_ input by the user.
      *  \param currentTime Scalar representing the current time.
-     *  \param currentControlVector Vector representing the current control input.
      *  \return Propagated state at the requested time.
      */
-    virtual DependentVector predictState( const IndependentVariableType currentTime,
-                                          const DependentVector& currentControlVector ) = 0;
+    virtual DependentVector predictState( const IndependentVariableType currentTime ) = 0;
 
     //! Function to correct the state for the next time step.
     /*!
@@ -316,14 +311,14 @@ protected:
     /*!
      *  System function that will be used to retrieve the a-priori estimated state for the next step.
      */
-    SystemFunction systemFunction_;
+    Function systemFunction_;
 
     //! Measurement function.
     /*!
      *  Measurement function that will be used to retrieve the estimated measurement for the next step,
      *  based on the current state.
      */
-    MeasurementFunction measurementFunction_;
+    Function measurementFunction_;
 
     //! Matrix representing the uncertainty in system modeling.
     DependentMatrix systemUncertainty_;
@@ -439,15 +434,15 @@ private:
         switch ( integratorSettings->integratorType_ )
         {
         case numerical_integrators::euler:
+        case numerical_integrators::rungeKutta4:
         {
-            integrator_ = NULL;
-//            integrator_ = boost::make_shared< numerical_integrators::EulerIntegrator< IndependentVariableType,
-//                    DependentVector, DependentVector, IndependentVariableType > >(
-//                        systemFunction_, initialTime_, aPosterioriStateEstimate_ );
+            integrator_ = numerical_integrators::createIntegrator< IndependentVariableType, DependentVector >(
+                        systemFunction_, aPosterioriStateEstimate_, integratorSettings );
             break;
         }
         default:
-            throw std::runtime_error( "Error in setting up filter. Only Euler integration is currently supported." );
+            throw std::runtime_error( "Error in setting up filter. Only Euler and Runge-Kutta 4 "
+                                      "integrators are currently supported." );
         }
     }
 

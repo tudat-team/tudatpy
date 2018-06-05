@@ -34,10 +34,8 @@ public:
     //! Inherit typedefs from base class.
     typedef typename FilterBase< IndependentVariableType, DependentVariableType >::DependentVector DependentVector;
     typedef typename FilterBase< IndependentVariableType, DependentVariableType >::DependentMatrix DependentMatrix;
-    typedef typename FilterBase< IndependentVariableType, DependentVariableType >::SystemFunction SystemFunction;
-    typedef typename FilterBase< IndependentVariableType, DependentVariableType >::MeasurementFunction MeasurementFunction;
-    typedef typename FilterBase< IndependentVariableType, DependentVariableType >::SystemMatrixFunction SystemMatrixFunction;
-    typedef typename FilterBase< IndependentVariableType, DependentVariableType >::MeasurementMatrixFunction MeasurementMatrixFunction;
+    typedef typename FilterBase< IndependentVariableType, DependentVariableType >::Function Function;
+    typedef typename FilterBase< IndependentVariableType, DependentVariableType >::MatrixFunction MatrixFunction;
     typedef typename FilterBase< IndependentVariableType, DependentVariableType >::IntegratorSettings IntegratorSettings;
     typedef typename FilterBase< IndependentVariableType, DependentVariableType >::Integrator Integrator;
 
@@ -81,10 +79,9 @@ protected:
      *  \param currentControlVector Vector representing the current control input.
      *  \return Propagated state at the requested time.
      */
-    DependentVector predictState( const IndependentVariableType currentTime,
-                                  const DependentVector& currentControlVector )
+    DependentVector predictState( const IndependentVariableType currentTime )
     {
-        return predictState( currentTime, this->aPosterioriStateEstimate_, currentControlVector );
+        return predictState( currentTime, this->aPosterioriStateEstimate_ );
     }
 
     //! Function to predict the state for the next time step, by overwriting previous state.
@@ -93,15 +90,13 @@ protected:
      *  the integrator provided in the integratorSettings, or the systemFunction_ input by the user.
      *  \param currentTime Scalar representing the current time.
      *  \param currentStateVector Vector representing the current state (which overwrites the previous state).
-     *  \param currentControlVector Vector representing the current control input.
      *  \return Propagated state at the requested time.
      */
     DependentVector predictState( const IndependentVariableType currentTime,
-                                  const DependentVector& currentStateVector,
-                                  const DependentVector& currentControlVector )
+                                  const DependentVector& currentStateVector )
     {
-        return this->isStateToBeIntegrated_ ? propagateState( currentTime, currentStateVector, currentControlVector ) :
-                                              this->systemFunction_( currentTime, currentStateVector, currentControlVector );
+        return this->isStateToBeIntegrated_ ? propagateState( currentTime, currentStateVector ) :
+                                              this->systemFunction_( currentTime, currentStateVector );
     }
 
     //! Function to correct the covariance for the next time step.
@@ -127,17 +122,16 @@ private:
      *  provided in the integratorSettings.
      *  \param currentTime Scalar representing the current time.
      *  \param currentStateVector Vector representing the current state (which overwrites the previous state).
-     *  \param currentControlVector Vector representing the current control input.
      *  \return Propagated state at the requested time.
      */
     DependentVector propagateState( const IndependentVariableType currentTime,
-                                    const DependentVector& currentStateVector,
-                                    const DependentVector& currentControlVector )
+                                    const DependentVector& currentStateVector )
     {
-        return currentStateVector +
-                this->systemFunction_( currentTime, currentStateVector, currentControlVector ) * this->integrationStepSize_;
-//        this->integrator_->modifyCurrentIndependentVariableAndState( currentTime, currentStateVector );
-//        return this->integrator_->performIntegrationStep( this->integrationStepSize_ );
+        // Reset time and state
+        this->integrator_->modifyCurrentState( currentStateVector, currentTime );
+
+        // Integrate equations
+        return this->integrator_->performIntegrationStep( this->integrationStepSize_ );
     }
 
 };

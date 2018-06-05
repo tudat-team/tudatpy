@@ -169,10 +169,17 @@ public:
      * Modify the state at the current value of the independent variable.
      * \param newState The new state to set the current state to.
      */
-    void modifyCurrentState( const StateType& newState )
+    void modifyCurrentState( const StateType& newState, const IndependentVariableType newTime = TUDAT_NAN )
     {
         this->currentState_ = newState;
-        this->lastIndependentVariable_ = currentIndependentVariable_;
+        if ( newTime == static_cast< IndependentVariableType >( TUDAT_NAN ) )
+        {
+            this->lastIndependentVariable_ = currentIndependentVariable_;
+        }
+        else
+        {
+            this->lastIndependentVariable_ = newTime;
+        }
     }
 
 protected:
