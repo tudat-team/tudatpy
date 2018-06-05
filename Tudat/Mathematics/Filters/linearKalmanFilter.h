@@ -36,10 +36,8 @@ public:
     //! Inherit typedefs from base class.
     typedef typename KalmanFilterBase< IndependentVariableType, DependentVariableType >::DependentVector DependentVector;
     typedef typename KalmanFilterBase< IndependentVariableType, DependentVariableType >::DependentMatrix DependentMatrix;
-    typedef typename KalmanFilterBase< IndependentVariableType, DependentVariableType >::SystemFunction SystemFunction;
-    typedef typename KalmanFilterBase< IndependentVariableType, DependentVariableType >::MeasurementFunction MeasurementFunction;
-    typedef typename KalmanFilterBase< IndependentVariableType, DependentVariableType >::SystemMatrixFunction SystemMatrixFunction;
-    typedef typename KalmanFilterBase< IndependentVariableType, DependentVariableType >::MeasurementMatrixFunction MeasurementMatrixFunction;
+    typedef typename KalmanFilterBase< IndependentVariableType, DependentVariableType >::Function Function;
+    typedef typename KalmanFilterBase< IndependentVariableType, DependentVariableType >::MatrixFunction MatrixFunction;
     typedef typename KalmanFilterBase< IndependentVariableType, DependentVariableType >::IntegratorSettings IntegratorSettings;
     typedef typename KalmanFilterBase< IndependentVariableType, DependentVariableType >::Integrator Integrator;
 
@@ -61,9 +59,9 @@ public:
      *      a-priori estimate of the covariance matrix.
      *  \param integrator Pointer to integrator to be used to propagate state.
      */
-    LinearKalmanFilter( const SystemMatrixFunction& stateTransitionMatrixFunction,
-                        const SystemMatrixFunction& controlMatrixFunction,
-                        const MeasurementMatrixFunction& measurementMatrixFunction,
+    LinearKalmanFilter( const MatrixFunction& stateTransitionMatrixFunction,
+                        const MatrixFunction& controlMatrixFunction,
+                        const MatrixFunction& measurementMatrixFunction,
                         const DependentMatrix& systemUncertainty,
                         const DependentMatrix& measurementUncertainty,
                         const IndependentVariableType initialTime,
@@ -125,19 +123,16 @@ public:
     /*!
      *  Function to update the filter with the new step data.
      *  \param currentTime Scalar representing current time.
-     *  \param currentControlVector Vector representing the current control input.
      *  \param currentMeasurementVector Vector representing current measurement.
      */
-    void updateFilter( const IndependentVariableType currentTime, const DependentVector& currentControlVector,
-                       const DependentVector& currentMeasurementVector )
+    void updateFilter( const IndependentVariableType currentTime, const DependentVector& currentMeasurementVector )
     {
         // Compute variables for current step
-        DependentMatrix currentSystemMatrix = stateTransitionMatrixFunction_( currentTime, this->aPosterioriStateEstimate_,
-                                                                              currentControlVector );
+        DependentMatrix currentSystemMatrix = stateTransitionMatrixFunction_( currentTime, this->aPosterioriStateEstimate_ );
         DependentMatrix currentMeasurementMatrix = measurementMatrixFunction_( currentTime, this->aPosterioriStateEstimate_ );
 
         // Prediction step
-        DependentVector aPrioriStateEstimate = this->predictState( currentTime, currentControlVector );
+        DependentVector aPrioriStateEstimate = this->predictState( currentTime );
         DependentVector measurmentEstimate = this->measurementFunction_( currentTime, aPrioriStateEstimate );
         DependentMatrix aPrioriCovarianceEstimate = currentSystemMatrix * this->aPosterioriCovarianceEstimate_ *
                 currentSystemMatrix.transpose( ) + this->systemUncertainty_;
@@ -160,15 +155,12 @@ private:
      *  to the systemFunction_ variable, via the boost::bind command.
      *  \param currentTime Scalar representing the current time.
      *  \param currentStateVector Vector representing the current state.
-     *  \param currentControlVector Vector representing the current control input.
      *  \return Vector representing the estimated state.
      */
     DependentVector createSystemFunction( const IndependentVariableType currentTime,
-                                          const DependentVector& currentStateVector,
-                                          const DependentVector& currentControlVector )
+                                          const DependentVector& currentStateVector )
     {
-        return stateTransitionMatrixFunction_( currentTime, currentStateVector, currentControlVector ) * currentStateVector +
-                controlMatrixFunction_( currentTime, currentStateVector, currentControlVector ) * currentControlVector;
+        return stateTransitionMatrixFunction_( currentTime, currentStateVector ) * currentStateVector;
     }
 
     //! Function to create the function that defines the system model.
@@ -190,21 +182,21 @@ private:
      *  State transition matrix function, which will be used to generate the system function, together with the controlMatrixFunction_,
      *  by multiplying the matrices with the state and control vectors, respectively.
      */
-    SystemMatrixFunction stateTransitionMatrixFunction_;
+    MatrixFunction stateTransitionMatrixFunction_;
 
     //! Control matrix function.
     /*!
      *  Control matrix function, which will be used to generate the system function, together with the stateTransitionMatrixFunction_,
      *  by multiplying the matrices with the control and state vectors, respectively.
      */
-    SystemMatrixFunction controlMatrixFunction_;
+    MatrixFunction controlMatrixFunction_;
 
     //! Measurement matrix function.
     /*!
      *  Measurement matrix function, which will be used to generate the measurement function, by multiplying the matrix with
      *  the state vector.
      */
-    MeasurementMatrixFunction measurementMatrixFunction_;
+    MatrixFunction measurementMatrixFunction_;
 
 };
 

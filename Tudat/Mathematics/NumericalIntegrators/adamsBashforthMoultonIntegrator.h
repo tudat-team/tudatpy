@@ -469,7 +469,7 @@ public:
      * Modify the state at the current value of the independent variable.
      * \param newState The new state to set the current state to.
      */
-    void modifyCurrentState( const StateType& newState )
+    void modifyCurrentState( const StateType& newState, const IndependentVariableType newTime = TUDAT_NAN )
     {
         currentState_ = newState;
 
@@ -479,7 +479,14 @@ public:
         stateHistory_.push_front( currentState_ );
         derivHistory_.push_front( this->stateDerivativeFunction_(
                                       currentIndependentVariable_, currentState_ ) );
-        lastIndependentVariable_ = currentIndependentVariable_;
+        if ( newTime == static_cast< IndependentVariableType >( TUDAT_NAN ) )
+        {
+            lastIndependentVariable_ = currentIndependentVariable_;
+        }
+        else
+        {
+            lastIndependentVariable_ = newTime;
+        }
         
         // Allow single step integrator to determine own stepsize
         fixedSingleStep_ = fixedStepSize_;

@@ -302,10 +302,17 @@ public:
      * to revert to the state before the discrete change.
      * \param newState The state to set the current state to.
      */
-    void modifyCurrentState( const StateType& newState )
+    void modifyCurrentState( const StateType& newState, const IndependentVariableType newTime = TUDAT_NAN )
     {
         this->currentState_ = newState;
-        this->lastIndependentVariable_ = currentIndependentVariable_;
+        if ( newTime == static_cast< IndependentVariableType >( TUDAT_NAN ) )
+        {
+            this->lastIndependentVariable_ = currentIndependentVariable_;
+        }
+        else
+        {
+            this->lastIndependentVariable_ = newTime;
+        }
     }
 
     //! Function to toggle the use of step-size control
@@ -620,7 +627,7 @@ RungeKuttaVariableStepSizeIntegrator< IndependentVariableType, StateType, StateD
         const StateType& lowerOrderEstimate,
         const StateType& higherOrderEstimate )
 {
-    TUDAT_UNUSED_PARAMETER( lowerOrder);
+    TUDAT_UNUSED_PARAMETER( lowerOrder );
 
     // Compute the truncation error based on the higher and lower order estimates.
     const StateType truncationError_ =
@@ -691,7 +698,9 @@ public:
     TimeStepType requestedStepSize;
 
 protected:
+
 private:
+
 };
 
 //! Typedef of variable-step size Runge-Kutta integrator (state/state derivative = VectorXd,

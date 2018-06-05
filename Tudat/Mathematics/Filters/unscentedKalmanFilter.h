@@ -64,8 +64,7 @@ public:
     //! Inherit typedefs from base class.
     typedef typename KalmanFilterBase< IndependentVariableType, DependentVariableType >::DependentVector DependentVector;
     typedef typename KalmanFilterBase< IndependentVariableType, DependentVariableType >::DependentMatrix DependentMatrix;
-    typedef typename KalmanFilterBase< IndependentVariableType, DependentVariableType >::SystemFunction SystemFunction;
-    typedef typename KalmanFilterBase< IndependentVariableType, DependentVariableType >::MeasurementFunction MeasurementFunction;
+    typedef typename KalmanFilterBase< IndependentVariableType, DependentVariableType >::Function Function;
     typedef typename KalmanFilterBase< IndependentVariableType, DependentVariableType >::IntegratorSettings IntegratorSettings;
     typedef typename KalmanFilterBase< IndependentVariableType, DependentVariableType >::Integrator Integrator;
 
@@ -89,8 +88,8 @@ public:
      *  \param customConstantParameters Values of the constant parameters \f$ \alpha \f$ and \f$ \kappa \f$, in case the custom_parameters
      *      enumeration is used in the previous field.
      */
-    UnscentedKalmanFilter( const SystemFunction& systemFunction,
-                           const MeasurementFunction& measurementFunction,
+    UnscentedKalmanFilter( const Function& systemFunction,
+                           const Function& measurementFunction,
                            const DependentMatrix& systemUncertainty,
                            const DependentMatrix& measurementUncertainty,
                            const IndependentVariableType initialTime,
@@ -134,11 +133,9 @@ public:
     /*!
      *  Function to update the filter with the new step data.
      *  \param currentTime Scalar representing current time.
-     *  \param currentControlVector Vector representing the current control input.
      *  \param currentMeasurementVector Vector representing current measurement.
      */
-    void updateFilter( const IndependentVariableType currentTime, const DependentVector& currentControlVector,
-                       const DependentVector& currentMeasurementVector )
+    void updateFilter( const IndependentVariableType currentTime, const DependentVector& currentMeasurementVector )
     {
         // Compute sigma points
         computeSigmaPoints( this->aPosterioriStateEstimate_, this->aPosterioriCovarianceEstimate_ );
@@ -152,8 +149,7 @@ public:
         {
             currentSigmaPoint_ = sigmaPointConstantIterator_->first;
             sigmaPointsStateEstimates[ currentSigmaPoint_ ] = this->predictState(
-                        currentTime, sigmaPointConstantIterator_->second.segment( 0, stateDimension_ ),
-                        currentControlVector );
+                        currentTime, sigmaPointConstantIterator_->second.segment( 0, stateDimension_ ) );
         }
 
         // Compute the weighted average to find the a-priori state vector
@@ -235,14 +231,12 @@ private:
      *  to the systemFunction_ variable, via the boost::bind command.
      *  \param currentTime Scalar representing the current time.
      *  \param currentStateVector Vector representing the current state.
-     *  \param currentControlVector Vector representing the current control input.
      *  \return Vector representing the estimated state.
      */
     DependentVector createSystemFunction( const IndependentVariableType currentTime,
-                                          const DependentVector& currentStateVector,
-                                          const DependentVector& currentControlVector )
+                                          const DependentVector& currentStateVector )
     {
-        return inputSystemFunction_( currentTime, currentStateVector, currentControlVector ) +
+        return inputSystemFunction_( currentTime, currentStateVector ) +
                 mapOfSigmaPoints_[ currentSigmaPoint_ ].segment( stateDimension_, stateDimension_ ); // add system noise
     }
 
@@ -382,10 +376,10 @@ private:
     }
 
     //! System function input by user.
-    SystemFunction inputSystemFunction_;
+    Function inputSystemFunction_;
 
     //! Measurement function input by user.
-    MeasurementFunction inputMeasurementFunction_;
+    Function inputMeasurementFunction_;
 
     //! Integer specifying length of state vector.
     unsigned int stateDimension_;
@@ -456,7 +450,8 @@ typedef UnscentedKalmanFilter< > UnscentedKalmanFilterDouble;
 typedef boost::shared_ptr< UnscentedKalmanFilterDouble > UnscentedKalmanFilterDoublePointer;
 
 //! Function to set the values of the constant parameters.
-void UnscentedKalmanFilter< typename IndependentVariableType, typename DependentVariableType >::setConstantParameterValues(
+template< typename IndependentVariableType, typename DependentVariableType >
+void UnscentedKalmanFilter< IndependentVariableType, DependentVariableType >::setConstantParameterValues(
         const ConstantParameterReferences constantValueReference,
         const std::pair< DependentVariableType, DependentVariableType >& customConstantParameters )
 {
@@ -496,11 +491,15 @@ void UnscentedKalmanFilter< typename IndependentVariableType, typename Dependent
         constantParameters_.at( kappa_index ) = customConstantParameters.second;
         break;
     }
+    default:
+        throw std::runtime_error( "Error in unscented Kalman filter. The name of the reference for the alpha and kappa "
+                                  "parameters is not recognized. To enter a custom pair of coefficients, "
+                                  "use the value custom_parameters." );
     }
 
     // Set augmented state and sigma parameters
     augmentedStateDimension_ = 2 * stateDimension_ + measurementDimension_;
-    numberOfSigmaPoints_ = 2.0 * augmentedStateDimension_ + 1.0;
+    numberOfSigmaPoints_ = 2 * augmentedStateDimension_ + 1;
 
     // Set remaining parameters
     constantParameters_.at( beta_index ) = 2.0;
@@ -510,7 +509,8 @@ void UnscentedKalmanFilter< typename IndependentVariableType, typename Dependent
 }
 
 //! Function to generate the weights for state and covariance estimation.
-void UnscentedKalmanFilter< typename IndependentVariableType, typename DependentVariableType >::generateEstimationWeights( )
+template< typename IndependentVariableType, typename DependentVariableType >
+void UnscentedKalmanFilter< IndependentVariableType, DependentVariableType >::generateEstimationWeights( )
 {
     // Generate state and covariance estimation weights
     stateEstimationWeights_.push_back( constantParameters_.at( lambda_index ) /

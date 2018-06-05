@@ -104,7 +104,7 @@ BOOST_AUTO_TEST_CASE( testLinearKalmanFilter )
         measurementVectorHistory[ currentTime ] = currentMeasurementVector;
 
         // Update filter
-        linearFilter->updateFilter( currentTime, currentControlVector, currentMeasurementVector );
+        linearFilter->updateFilter( currentTime, currentMeasurementVector );
 
         // Print progress
         if ( showProgress )

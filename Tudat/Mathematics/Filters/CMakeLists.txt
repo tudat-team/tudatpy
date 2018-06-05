@@ -15,6 +15,7 @@ set(FILTERS_HEADERS
   "${SRCROOT}${MATHEMATICSDIR}/Filters/kalmanFilter.h"
   "${SRCROOT}${MATHEMATICSDIR}/Filters/linearKalmanFilter.h"
   "${SRCROOT}${MATHEMATICSDIR}/Filters/unscentedKalmanFilter.h"
+  "${SRCROOT}${MATHEMATICSDIR}/Filters/UnitTests/controlClass.h"
 )
 
 set(FILTERS_SOURCES
