@@ -30,16 +30,17 @@ namespace aerodynamics
 {
 
 //! Class for calculating aerodynamic flight characteristics of a vehicle during numerical
-//! integration.
+//! integration, in the absence of an atmosphere.
 /*!
  *  Class for calculating aerodynamic flight characteristics of a vehicle during numerical
- *  integration. Class is used to ensure that dependent variables such as density, altitude, etc.
- *  are only calculated once during each numerical integration step. The get functions of this class
- *  are linked to the various models in the code that subsequently require these values.
+ *  integration, in the absence of an atmosphere. Class is used to ensure that dependent variables such as altitude, etc.
+ *  are only calculated once during each numerical integration step. The get functions of this class are linked to the various
+ *  models in the code that subsequently require these values. In the case of atmospheric flight, the AtmosphericFlightConditions
+ *  derived class should be used.
  */
 class FlightConditions
 {
-private:
+protected:
 
     //! List of variables that can be computed by flight condition
     enum FlightConditionVariables
@@ -63,6 +64,205 @@ public:
     /*!
      *  Constructor, sets objects and functions from which relevant environment and state variables
      *  are retrieved.
+     *  \param shapeModel Model describing the shape of the body w.r.t. which the flight is taking place.
+     *  \param aerodynamicAngleCalculator Object from which the aerodynamic/trajectory angles
+     *  of the vehicle are calculated.
+     */
+    FlightConditions( const boost::shared_ptr< basic_astrodynamics::BodyShapeModel > shapeModel,
+                      const boost::shared_ptr< reference_frames::AerodynamicAngleCalculator > aerodynamicAngleCalculator =
+            boost::shared_ptr< reference_frames::AerodynamicAngleCalculator >( ) );
+
+    //! Destructor
+    virtual ~FlightConditions( ){ }
+
+    //! Function to update all flight conditions.
+    /*!
+     *  Function to update all flight conditions (altitude, etc.) to
+     *  current state of vehicle and central body.
+     *  \param currentTime Time to which conditions are to be updated.
+     */
+    virtual void updateConditions( const double currentTime );
+
+    //! Function to retrieve (and compute if necessary) the current altitude
+    /*!
+     * Function to retrieve (and compute if necessary) the current altitude
+     * \return Current altitude
+     */
+    double getCurrentAltitude( )
+    {
+        if( scalarFlightConditions_.count( altitude_flight_condition ) == 0 )
+        {
+            computeAltitude( );
+        }
+        return scalarFlightConditions_.at( altitude_flight_condition );
+    }
+
+    //! Function to retrieve (and compute if necessary) the current geodetic latitude
+    /*!
+     * Function to retrieve (and compute if necessary) the current geodetic latitude
+     * \return Current geodetic latitude
+     */
+    double getCurrentGeodeticLatitude( )
+    {
+        if( scalarFlightConditions_.count( geodetic_latitude_condition ) == 0 )
+        {
+            computeGeodeticLatitude( );
+        }
+        return scalarFlightConditions_.at( geodetic_latitude_condition );
+    }
+
+    //! Function to return the current time of the AtmosphericFlightConditions
+    /*!
+     *  Function to return the current time of the AtmosphericFlightConditions.
+     *  \return Current time of the AtmosphericFlightConditions
+     */
+    double getCurrentTime( )
+    {
+        return currentTime_;
+    }
+
+    //! Function to (re)set aerodynamic angle calculator object
+    /*!
+     *  Function to (re)set aerodynamic angle calculator object
+     *  \param aerodynamicAngleCalculator Aerodynamic angle calculator object to set.
+     */
+    void setAerodynamicAngleCalculator(
+            const boost::shared_ptr< reference_frames::AerodynamicAngleCalculator >
+            aerodynamicAngleCalculator )
+    {
+        aerodynamicAngleCalculator_ = aerodynamicAngleCalculator;
+        bodyCenteredPseudoBodyFixedStateFunction_ = boost::bind(
+                    &reference_frames::AerodynamicAngleCalculator::getCurrentAirspeedBasedBodyFixedState, aerodynamicAngleCalculator_ );
+    }
+
+    //! Function to return aerodynamic angle calculator object
+    /*!
+     *  Function to return aerodynamic angle calculator object
+     *  \return Aerodynamic angle calculator object
+     */
+    boost::shared_ptr< reference_frames::AerodynamicAngleCalculator >
+    getAerodynamicAngleCalculator( )
+    {
+        return aerodynamicAngleCalculator_;
+    }
+
+    //! Function to reset the current time of the flight conditions.
+    /*!
+     *  Function to reset the current time of the flight conditions. This function is typically sused to set the current time
+     *  to NaN, indicating the need to recompute all quantities for the next time computation.
+     * \param currentTime
+     */
+    virtual void resetCurrentTime( const double currentTime = TUDAT_NAN )
+    {
+        currentTime_ = currentTime;
+
+        scalarFlightConditions_.clear( );
+        isLatitudeAndLongitudeSet_ = 0;
+
+        aerodynamicAngleCalculator_->resetCurrentTime( currentTime_ );
+    }
+
+    //! Function to return current central body-fixed state of vehicle.
+    /*!
+     *  Function to return central body-fixed state of vehicle.
+     *  \return Current central body-fixed state of vehicle.
+     */
+    Eigen::Vector6d getCurrentBodyCenteredBodyFixedState( )
+    {
+        return currentBodyCenteredAirspeedBasedBodyFixedState_;
+    }
+
+protected:
+
+    //! Function to compute and set the current latitude and longitude
+    void computeLatitudeAndLongitude( )
+    {
+        scalarFlightConditions_[ latitude_flight_condition ] = aerodynamicAngleCalculator_->getAerodynamicAngle(
+                    reference_frames::latitude_angle );
+        scalarFlightConditions_[ longitude_flight_condition ] = aerodynamicAngleCalculator_->getAerodynamicAngle(
+                    reference_frames::longitude_angle );
+        isLatitudeAndLongitudeSet_ = 1;
+    }
+
+    //! Function to compute and set the current altitude
+    void computeAltitude( )
+    {
+        scalarFlightConditions_[ altitude_flight_condition ] =
+                shapeModel_->getAltitude( currentBodyCenteredAirspeedBasedBodyFixedState_.segment( 0, 3 ) );
+    }
+
+    //! Function to compute and set the current geodetic latitude.
+    void computeGeodeticLatitude( )
+    {
+        if( !geodeticLatitudeFunction_.empty( ) )
+        {
+            scalarFlightConditions_[ geodetic_latitude_condition ] = geodeticLatitudeFunction_(
+                        currentBodyCenteredAirspeedBasedBodyFixedState_.segment( 0, 3 ) );
+        }
+        else
+        {
+            if( scalarFlightConditions_.count( latitude_flight_condition ) == 0 || !isLatitudeAndLongitudeSet_ )
+            {
+                computeLatitudeAndLongitude( );
+            }
+            scalarFlightConditions_[ geodetic_latitude_condition ] = scalarFlightConditions_[ latitude_flight_condition ] ;
+        }
+    }
+
+    //! Name of central body (i.e. body with the atmosphere)
+    std::string centralBody_;
+
+    //! Model describing the shape of the body w.r.t. which the flight is taking place.
+    const boost::shared_ptr< basic_astrodynamics::BodyShapeModel > shapeModel_;
+
+
+    //! Object from which the aerodynamic/trajectory angles of the vehicle are calculated.
+    boost::shared_ptr< reference_frames::AerodynamicAngleCalculator > aerodynamicAngleCalculator_;
+
+    //! Function to return the current state of the vehicle in a body-fixed frame.
+    boost::function< Eigen::Vector6d( ) > bodyCenteredPseudoBodyFixedStateFunction_;
+
+    //! Current state of vehicle in base frame for Body objects.
+    Eigen::Vector6d currentBodyCenteredState_;
+
+
+
+    //! Current state of vehicle in body-fixed frame.
+    Eigen::Vector6d currentBodyCenteredAirspeedBasedBodyFixedState_;
+
+    //! Current time of propagation.
+    double currentTime_;
+
+    //! Boolean denoting whether the current latitude and longitude have been computed at current time step
+    bool isLatitudeAndLongitudeSet_;
+
+
+    //! List of atmospheric/flight properties computed at current time step.
+    std::map< FlightConditionVariables, double > scalarFlightConditions_;
+
+    //! Function from which to compute the geodetic latitude as function of body-fixed position (empty if equal to
+    //! geographic latitude).
+    boost::function< double( const Eigen::Vector3d& ) > geodeticLatitudeFunction_;
+
+};
+
+//! Class for calculating aerodynamic flight characteristics of a vehicle during numerical
+//! integration.
+/*!
+ *  Class for calculating aerodynamic flight characteristics of a vehicle during numerical
+ *  integration. Class is used to ensure that dependent variables such as density, altitude, etc.
+ *  are only calculated once during each numerical integration step. The get functions of this class
+ *  are linked to the various models in the code that subsequently require these values.
+ */
+class AtmosphericFlightConditions: public FlightConditions
+{
+
+public:
+
+    //! Constructor, sets objects and functions from which relevant environment and state variables are retrieved.
+    /*!
+     *  Constructor, sets objects and functions from which relevant environment and state variables
+     *  are retrieved.
      *  \param atmosphereModel Atmosphere model of atmosphere through which vehicle is flying
      *  \param shapeModel Model describing the shape of the body w.r.t. which the flight is taking place.
      *  \param aerodynamicCoefficientInterface Class from which the aerodynamic (force and moment)
@@ -72,7 +272,7 @@ public:
      *  \param controlSurfaceDeflectionFunction Function returning control surface deflection, with input the control
      *  surface identifier.
      */
-    FlightConditions( const boost::shared_ptr< aerodynamics::AtmosphereModel > atmosphereModel,
+    AtmosphericFlightConditions( const boost::shared_ptr< aerodynamics::AtmosphereModel > atmosphereModel,
                       const boost::shared_ptr< basic_astrodynamics::BodyShapeModel > shapeModel,
                       const boost::shared_ptr< AerodynamicCoefficientInterface >
                       aerodynamicCoefficientInterface,
@@ -90,18 +290,6 @@ public:
      */
     void updateConditions( const double currentTime );
 
-    //! Function to retrieve (and compute if necessary) the current altitude
-    /*!
-     * Function to retrieve (and compute if necessary) the current altitude
-     * \return Current altitude
-     */
-    double getCurrentAltitude( )
-    {
-        if( scalarFlightConditions_.count( altitude_flight_condition ) == 0 )
-        {
-            computeAltitude( );
-        }
-        return scalarFlightConditions_.at( altitude_flight_condition );    }
 
     //! Function to retrieve (and compute if necessary) the current freestream density
     /*!
@@ -200,29 +388,7 @@ public:
         return scalarFlightConditions_.at( mach_number_flight_condition );
     }
 
-    //! Function to retrieve (and compute if necessary) the current geodetic latitude
-    /*!
-     * Function to retrieve (and compute if necessary) the current geodetic latitude
-     * \return Current geodetic latitude
-     */
-    double getCurrentGeodeticLatitude( )
-    {
-        if( scalarFlightConditions_.count( geodetic_latitude_condition ) == 0 )
-        {
-            computeGeodeticLatitude( );
-        }
-        return scalarFlightConditions_.at( geodetic_latitude_condition );
-    }
 
-    //! Function to return the current time of the FlightConditions
-    /*!
-     *  Function to return the current time of the FlightConditions.
-     *  \return Current time of the FlightConditions
-     */
-    double getCurrentTime( )
-    {
-        return currentTime_;
-    }
     //! Function to return atmosphere model object
     /*!
      *  Function to return atmosphere model object
@@ -231,20 +397,6 @@ public:
     boost::shared_ptr< aerodynamics::AtmosphereModel > getAtmosphereModel( ) const
     {
         return atmosphereModel_;
-    }
-
-    //! Function to (re)set aerodynamic angle calculator object
-    /*!
-     *  Function to (re)set aerodynamic angle calculator object
-     *  \param aerodynamicAngleCalculator Aerodynamic angle calculator object to set.
-     */
-    void setAerodynamicAngleCalculator(
-            const boost::shared_ptr< reference_frames::AerodynamicAngleCalculator >
-            aerodynamicAngleCalculator )
-    {
-        aerodynamicAngleCalculator_ = aerodynamicAngleCalculator;
-        bodyCenteredPseudoBodyFixedStateFunction_ = boost::bind(
-                    &reference_frames::AerodynamicAngleCalculator::getCurrentAirspeedBasedBodyFixedState, aerodynamicAngleCalculator_ );
     }
 
     //! Function to set custom dependency of aerodynamic coefficients
@@ -259,16 +411,6 @@ public:
             const AerodynamicCoefficientsIndependentVariables independentVariable,
             const boost::function< double( ) > coefficientDependency );
 
-    //! Function to return current central body-fixed state of vehicle.
-    /*!
-     *  Function to return central body-fixed state of vehicle.
-     *  \return Current central body-fixed state of vehicle.
-     */
-    Eigen::Vector6d getCurrentBodyCenteredBodyFixedState( )
-    {
-        return currentBodyCenteredAirspeedBasedBodyFixedState_;
-    }
-
     //! Function to return current central body-fixed velocity of vehicle.
     /*!
      *  Function to return central body-fixed velocity of vehicle.
@@ -277,19 +419,7 @@ public:
     Eigen::Vector3d getCurrentAirspeedBasedVelocity( )
     {
         return currentBodyCenteredAirspeedBasedBodyFixedState_.segment( 3, 3 );
-    }
-
-
-    //! Function to return aerodynamic angle calculator object
-    /*!
-     *  Function to return aerodynamic angle calculator object
-     *  \return Aerodynamic angle calculator object
-     */
-    boost::shared_ptr< reference_frames::AerodynamicAngleCalculator >
-    getAerodynamicAngleCalculator( )
-    {
-        return aerodynamicAngleCalculator_;
-    }
+    }    
 
     //! Function to return object from which the aerodynamic coefficients are obtained.
     /*!
@@ -365,23 +495,6 @@ private:
     double getAerodynamicCoefficientIndependentVariable(
             const AerodynamicCoefficientsIndependentVariables independentVariableType,
             const std::string& secondaryIdentifier = "" );
-
-    //! Function to compute and set the current latitude and longitude
-    void computeLatitudeAndLongitude( )
-    {
-        scalarFlightConditions_[ latitude_flight_condition ] = aerodynamicAngleCalculator_->getAerodynamicAngle(
-                    reference_frames::latitude_angle );
-        scalarFlightConditions_[ longitude_flight_condition ] = aerodynamicAngleCalculator_->getAerodynamicAngle(
-                    reference_frames::longitude_angle );
-        isLatitudeAndLongitudeSet_ = 1;
-    }
-
-    //! Function to compute and set the current altitude
-    void computeAltitude( )
-    {
-        scalarFlightConditions_[ altitude_flight_condition ] =
-                shapeModel_->getAltitude( currentBodyCenteredAirspeedBasedBodyFixedState_.segment( 0, 3 ) );
-    }
 
     //! Function to update input to atmosphere model (altitude, as well as latitude and longitude if needed).
     void updateAtmosphereInput( )
@@ -474,59 +587,19 @@ private:
                 getCurrentAirspeed( ) / getCurrentSpeedOfSound( );
     }
 
-    //! Function to compute and set the current geodetic latitude.
-    void computeGeodeticLatitude( )
-    {
-        if( !geodeticLatitudeFunction_.empty( ) )
-        {
-            scalarFlightConditions_[ geodetic_latitude_condition ] = geodeticLatitudeFunction_(
-                        currentBodyCenteredAirspeedBasedBodyFixedState_.segment( 0, 3 ) );
-        }
-        else
-        {
-            if( scalarFlightConditions_.count( latitude_flight_condition ) == 0 || !isLatitudeAndLongitudeSet_ )
-            {
-                computeLatitudeAndLongitude( );
-            }
-            scalarFlightConditions_[ geodetic_latitude_condition ] = scalarFlightConditions_[ latitude_flight_condition ] ;
-        }
-    }
-
     //! Function to update the independent variables of the aerodynamic coefficient interface
     void updateAerodynamicCoefficientInput( );
 
-    //! Name of central body (i.e. body with the atmosphere)
-    std::string centralBody_;
 
     //! Atmosphere model of atmosphere through which vehicle is flying
     boost::shared_ptr< aerodynamics::AtmosphereModel > atmosphereModel_;
 
-    //! Model describing the shape of the body w.r.t. which the flight is taking place.
-    const boost::shared_ptr< basic_astrodynamics::BodyShapeModel > shapeModel_;
-
-    //! Function to return the current state of the vehicle in a body-fixed frame.
-    boost::function< Eigen::Vector6d( ) > bodyCenteredPseudoBodyFixedStateFunction_;
-
     //! Object from which the aerodynamic coefficients are obtained.
     boost::shared_ptr< AerodynamicCoefficientInterface > aerodynamicCoefficientInterface_;
-
-    //! Object from which the aerodynamic/trajectory angles of the vehicle are calculated.
-    boost::shared_ptr< reference_frames::AerodynamicAngleCalculator > aerodynamicAngleCalculator_;
 
     //! Function returning control surface deflection, with input the control surface identifier.
     boost::function< double( const std::string& ) > controlSurfaceDeflectionFunction_;
 
-    //! Current state of vehicle in base frame for Body objects.
-    Eigen::Vector6d currentBodyCenteredState_;
-
-    //! Current state of vehicle in body-fixed frame.
-    Eigen::Vector6d currentBodyCenteredAirspeedBasedBodyFixedState_;
-
-    //! List of atmospheric/flight properties computed at current time step.
-    std::map< FlightConditionVariables, double > scalarFlightConditions_;
-
-    //! Current time of propagation.
-    double currentTime_;
 
     //! List of custom functions for aerodynamic coefficient dependencies.
     std::map< AerodynamicCoefficientsIndependentVariables, boost::function< double( ) > > customCoefficientDependencies_;
@@ -534,12 +607,6 @@ private:
     //! Boolean setting whether latitude and longitude are to be updated by updateConditions().
     bool updateLatitudeAndLongitudeForAtmosphere_;
 
-    //! Boolean denoting whether the current latitude and longitude have been computed at current time step
-    bool isLatitudeAndLongitudeSet_;
-
-    //! Function from which to compute the geodetic latitude as function of body-fixed position (empty if equal to
-    //! geographic latitude).
-    boost::function< double( const Eigen::Vector3d& ) > geodeticLatitudeFunction_;
 
     //! Current list of independent variables of the aerodynamic coefficient interface
     std::vector< double > aerodynamicCoefficientIndependentVariables_;
