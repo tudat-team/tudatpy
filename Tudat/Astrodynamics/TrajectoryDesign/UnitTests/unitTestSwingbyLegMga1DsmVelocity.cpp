@@ -100,7 +100,7 @@ BOOST_AUTO_TEST_CASE( testVelocitiesUnpoweredGravityAssist )
     const double swingbyDeltaV = 0.;
 
     // Set up the test leg.
-    using namespace tudat::spaceTrajectories;
+    using namespace tudat::transfer_trajectories;
     SwingbyLegMga1DsmVelocity legTest ( planet1Position, planet2Position, timeOfFlight,
                                         planet1Velocity, sunGravitationalParameter,
                                         planet1GravitationalParameter,
@@ -164,7 +164,7 @@ BOOST_AUTO_TEST_CASE( testVelocitiesPoweredGravityAssist )
     const double swingbyDeltaV = 1090.64622870007;
 
     // Set up the test leg.
-    using namespace tudat::spaceTrajectories;
+    using namespace tudat::transfer_trajectories;
     SwingbyLegMga1DsmVelocity legTest ( planet1Position, planet2Position, timeOfFlight,
                                         planet1Velocity, sunGravitationalParameter,
                                         planet1GravitationalParameter,
@@ -225,7 +225,7 @@ BOOST_AUTO_TEST_CASE( testUpdatingVariables )
     const double dummyVariable4 = TUDAT_NAN;
 
     // Set up the test leg.
-    using namespace tudat::spaceTrajectories;
+    using namespace tudat::transfer_trajectories;
     SwingbyLegMga1DsmVelocity legTest ( dummyPosition1, dummyPosition2, dummyTimeOfFlight,
                                         dummyVelocity1, sunGravitationalParameter,
                                         planet1GravitationalParameter,
@@ -315,7 +315,7 @@ BOOST_AUTO_TEST_CASE( testIntermediatePoints )
     const double swingbyDeltaV = 0;
 
     // Set up the test leg.
-    using namespace tudat::spaceTrajectories;
+    using namespace tudat::transfer_trajectories;
     SwingbyLegMga1DsmVelocity legTest ( planet1Position, planet2Position, timeOfFlight,
                                         planet1Velocity, sunGravitationalParameter,
                                         planet1GravitationalParameter,

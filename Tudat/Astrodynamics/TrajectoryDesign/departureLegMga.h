@@ -21,11 +21,11 @@
 
 #include <Tudat/Mathematics/BasicMathematics/mathematicalConstants.h>
 
-#include "departureLeg.h"
+#include "Tudat/Astrodynamics/TrajectoryDesign/departureLeg.h"
 
 namespace tudat
 {
-namespace spaceTrajectories
+namespace transfer_trajectories
 {
 
 //! Departure Leg class of an MGA trajectory model.
@@ -121,7 +121,7 @@ protected:
 private:
 
 };
-} // namespace spaceTrajectories
+} // namespace transfer_trajectories
 } // namespace tudat
 
 #endif // TUDAT_DEPARTURE_LEG_MGA_H

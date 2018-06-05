@@ -20,11 +20,11 @@
 #include <boost/make_shared.hpp>
 #include <boost/shared_ptr.hpp>
 
-#include "spaceLeg.h"
+#include "Tudat/Astrodynamics/TrajectoryDesign/spaceLeg.h"
 
 namespace tudat
 {
-namespace spaceTrajectories
+namespace transfer_trajectories
 {
 
 //! Swingby Leg base class.
@@ -91,7 +91,7 @@ protected:
 private:
 
 };
-} // namespace spaceTrajectories
+} // namespace transfer_trajectories
 } // namespace tudat
 
 #endif // TUDAT_SWINGBY_LEG_H

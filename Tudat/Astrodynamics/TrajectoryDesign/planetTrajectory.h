@@ -26,7 +26,7 @@
 
 namespace tudat
 {
-namespace spaceTrajectories
+namespace transfer_trajectories
 {
 
 //! Return a vector of positions and times from ephemeris data for a certain epoch and duration.
@@ -70,6 +70,6 @@ void returnSingleRevolutionPlanetTrajectory(
         std::vector < double >& timeVector,
         const double startingTime = 0. );
 
-} // namespace spaceTrajectories
+} // namespace transfer_trajectories
 } // namespace tudat
 

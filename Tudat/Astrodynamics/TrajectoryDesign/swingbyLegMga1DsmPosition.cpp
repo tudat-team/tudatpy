@@ -6,12 +6,12 @@
 #include "Tudat/Astrodynamics/MissionSegments/gravityAssist.h"
 #include "Tudat/Astrodynamics/MissionSegments/lambertRoutines.h"
 
-#include "exportTrajectory.h"
-#include "swingbyLegMga1DsmPosition.h"
+#include "Tudat/Astrodynamics/TrajectoryDesign/exportTrajectory.h"
+#include "Tudat/Astrodynamics/TrajectoryDesign/swingbyLegMga1DsmPosition.h"
 
 namespace tudat
 {
-namespace spaceTrajectories
+namespace transfer_trajectories
 {
 
 //! Calculate the leg and update the Delta V and the velocity before the next body.
@@ -159,5 +159,5 @@ void SwingbyLegMga1DsmPosition::updateDefiningVariables( const Eigen::VectorXd& 
     outOfPlaneAngle_ = variableVector[ 4 ];
 }
 
-} // namespace spaceTrajectories
+} // namespace transfer_trajectories
 } // namespace tudat

@@ -23,7 +23,7 @@
 
 namespace tudat
 {
-namespace spaceTrajectories
+namespace transfer_trajectories
 {
 
 //! Mission Leg base class.
@@ -179,7 +179,7 @@ private:
 
 
 };
-} // namespace spaceTrajectories
+} // namespace transfer_trajectories
 } // namespace tudat
 
 #endif // TUDAT_MISSION_LEG_H

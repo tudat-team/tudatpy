@@ -38,13 +38,11 @@
 #include "Tudat/Basics/basicTypedefs.h"
 #include "Tudat/InputOutput/parsedDataVectorUtilities.h"
 
-#include "spaceLeg.h"
-
-//#include "Ephemeris/ephemerisBase.h"
+#include "Tudat/Astrodynamics/TrajectoryDesign/spaceLeg.h"
 
 namespace tudat
 {
-namespace spaceTrajectories
+namespace transfer_trajectories
 {
 
 // Enumeration containing the different leg types that can be part of the trajectory.
@@ -156,8 +154,8 @@ public:
       * Returns vectors containing planetary orbits, which are simulated using the ephemeris at the
       * time of visitation.
       *  \param maximumTimeStep the maximum time between two points along the planet orbit.
-      *  \param positionVector Vector of positions along the orbit, space according to the maximum time step.
-      *  \param timeVector The times corresponding to the positions.
+      *  \param positionVectorVector Vector of positions along the orbit, space according to the maximum time step.
+      *  \param timeVectorVector The times corresponding to the positions.
       */
      void planetaryOrbits( double maximumTimeStep,
                            std::vector< std::vector < Eigen::Vector3d > >& positionVectorVector,
@@ -340,7 +338,7 @@ private:
      */
     void extractEphemeris( );
 };
-} // namespace spaceTrajectories
+} // namespace transfer_trajectories
 } // namespace tudat
 
 #endif // TUDAT_TRAJECTORY_H

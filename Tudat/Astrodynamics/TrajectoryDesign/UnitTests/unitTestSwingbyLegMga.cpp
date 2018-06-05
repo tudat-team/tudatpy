@@ -95,7 +95,7 @@ BOOST_AUTO_TEST_CASE( testVelocities )
     const double minimumRadiusPlanet1 = 6351800;
 
     // Set up the test leg
-    using namespace tudat::spaceTrajectories;
+    using namespace tudat::transfer_trajectories;
     SwingbyLegMga legTest ( planet1Position, planet2Position, timeOfFlight, planet1Velocity,
                             sunGravitationalParameter, planet1GravitationalParameter,
                             pointerToVelocityBeforePlanet1, minimumRadiusPlanet1 );
@@ -151,7 +151,7 @@ BOOST_AUTO_TEST_CASE( testUpdatingVariables )
     const double minimumRadiusPlanet1 = 6351800;
 
     // Set up the test leg
-    using namespace tudat::spaceTrajectories;
+    using namespace tudat::transfer_trajectories;
     SwingbyLegMga legTest ( dummyPosition1, dummyPosition2, dummyTimeOfFlight, dummyVelocity1,
                             sunGravitationalParameter, planet1GravitationalParameter,
                             pointerToVelocityBeforePlanet1, minimumRadiusPlanet1 );
@@ -223,7 +223,7 @@ BOOST_AUTO_TEST_CASE( testIntermediatePoints )
     const double minimumRadiusPlanet1 = 6351800;
 
     // Set up the test leg
-    using namespace tudat::spaceTrajectories;
+    using namespace tudat::transfer_trajectories;
     SwingbyLegMga legTest ( planet1Position, planet2Position, timeOfFlight, planet1Velocity,
                             sunGravitationalParameter, planet1GravitationalParameter,
                             pointerToVelocityBeforePlanet1, minimumRadiusPlanet1 );

@@ -21,11 +21,11 @@
 
 #include <Tudat/Mathematics/BasicMathematics/mathematicalConstants.h>
 
-#include "swingbyLeg.h"
+#include "Tudat/Astrodynamics/TrajectoryDesign/swingbyLeg.h"
 
 namespace tudat
 {
-namespace spaceTrajectories
+namespace transfer_trajectories
 {
 
 //! Swingby Leg class of an MGA trajectory model.
@@ -129,7 +129,7 @@ private:
     double minimumPericenterRadius_;
 
 };
-} // namespace spaceTrajectories
+} // namespace transfer_trajectories
 } // namespace tudat
 
 #endif // TUDAT_SWINGBY_LEG_MGA_H

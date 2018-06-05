@@ -65,7 +65,7 @@ namespace unit_tests
 // Additional namespaces to be used.
 using namespace tudat::input_output;
 using namespace tudat::input_output::parsed_data_vector_utilities;
-using namespace tudat::spaceTrajectories;
+using namespace tudat::transfer_trajectories;
 
 //! Test implementation of trajectory class
 BOOST_AUTO_TEST_SUITE( test_trajectory )

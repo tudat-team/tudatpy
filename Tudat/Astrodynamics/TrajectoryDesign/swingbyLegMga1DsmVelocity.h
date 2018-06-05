@@ -21,12 +21,12 @@
 
 #include <Tudat/Mathematics/BasicMathematics/mathematicalConstants.h>
 
-#include "swingbyLeg.h"
+#include "Tudat/Astrodynamics/TrajectoryDesign/swingbyLeg.h"
 
 
 namespace tudat
 {
-namespace spaceTrajectories
+namespace transfer_trajectories
 {
 
 //! Swingby Leg class of an MGA-1DSM velocity formulation trajectory model.
@@ -57,6 +57,7 @@ public:
      *  \param swingbyBodyGravitationalParameter gravitational parameter of the swing-by body.
      *  \param velocityBeforeDepartureBodyPtr pointer to the velocity before the swing-by.
      *  \param dsmTimeOfFlightFraction the fraction of the TOF at which the DSM is performed.
+     *  \param rotationAngle The rotation angle of the gravity assist.
      *  \param pericenterRadius the minimum pericenter radius for the swing-by body.
      *  \param swingbyDeltaV the delta V for the swing-by manuever.
     */
@@ -70,8 +71,7 @@ public:
                                const double dsmTimeOfFlightFraction,
                                const double rotationAngle,
                                const double pericenterRadius,
-                               const double swingbyDeltaV
-                               ):
+                               const double swingbyDeltaV ):
         SwingbyLeg( departureBodyPosition,
                     arrivalBodyPosition,
                     timeOfFlight,
@@ -192,7 +192,7 @@ private:
     double deltaVDsm_;
 
 };
-} // namespace spaceTrajectories
+} // namespace transfer_trajectories
 } // namespace tudat
 
 #endif // TUDAT_SWINGBY_LEG_MGA_1DSM_VELOCITY_H

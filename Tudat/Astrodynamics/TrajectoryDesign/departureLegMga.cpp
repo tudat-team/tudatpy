@@ -4,12 +4,12 @@
 #include "Tudat/Astrodynamics/MissionSegments/escapeAndCapture.h"
 #include "Tudat/Astrodynamics/MissionSegments/lambertRoutines.h"
 
-#include "departureLegMga.h"
-#include "exportTrajectory.h"
+#include "Tudat/Astrodynamics/TrajectoryDesign/departureLegMga.h"
+#include "Tudat/Astrodynamics/TrajectoryDesign/exportTrajectory.h"
 
 namespace tudat
 {
-namespace spaceTrajectories
+namespace transfer_trajectories
 {
 
 //! Calculate the leg and update the Delta V and the velocity before the next body.
@@ -90,5 +90,5 @@ void DepartureLegMga::updateDefiningVariables( const Eigen::VectorXd& variableVe
     timeOfFlight_ = variableVector[ 0 ];
 }
 
-} // namespace spaceTrajectories
+} // namespace transfer_trajectories
 } // namespace tudat

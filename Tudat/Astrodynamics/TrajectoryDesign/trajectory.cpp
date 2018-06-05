@@ -2,19 +2,19 @@
 #include "Tudat/Astrodynamics/BasicAstrodynamics/physicalConstants.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/unitConversions.h"
 
-#include "captureLeg.h"
-#include "departureLegMga.h"
-#include "departureLegMga1DsmPosition.h"
-#include "departureLegMga1DsmVelocity.h"
-#include "planetTrajectory.h"
-#include "swingbyLegMga.h"
-#include "swingbyLegMga1DsmPosition.h"
-#include "swingbyLegMga1DsmVelocity.h"
-#include "trajectory.h"
+#include "Tudat/Astrodynamics/TrajectoryDesign/captureLeg.h"
+#include "Tudat/Astrodynamics/TrajectoryDesign/departureLegMga.h"
+#include "Tudat/Astrodynamics/TrajectoryDesign/departureLegMga1DsmPosition.h"
+#include "Tudat/Astrodynamics/TrajectoryDesign/departureLegMga1DsmVelocity.h"
+#include "Tudat/Astrodynamics/TrajectoryDesign/planetTrajectory.h"
+#include "Tudat/Astrodynamics/TrajectoryDesign/swingbyLegMga.h"
+#include "Tudat/Astrodynamics/TrajectoryDesign/swingbyLegMga1DsmPosition.h"
+#include "Tudat/Astrodynamics/TrajectoryDesign/swingbyLegMga1DsmVelocity.h"
+#include "Tudat/Astrodynamics/TrajectoryDesign/trajectory.h"
 
 namespace tudat
 {
-namespace spaceTrajectories
+namespace transfer_trajectories
 {
 
 //! Calculate the legs
@@ -527,5 +527,5 @@ void Trajectory::getLaunchConditions( Eigen::Vector3d& departureBodyPosition,
                                                              velocityAfterDeparture );
 }
 
-} // namespace spaceTrajectories
+} // namespace transfer_trajectories
 } // namespace tudat
