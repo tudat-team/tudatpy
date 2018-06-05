@@ -100,11 +100,11 @@ Eigen::Vector6d ApproximatePlanetPositions::getKeplerianStateFromEphemeris(
             + ( approximatePlanetPositionsDataContainer_.additionalTermB_
                 * pow( numberOfCenturiesPastJ2000_, 2.0 ) )
             + ( approximatePlanetPositionsDataContainer_.additionalTermC_
-                * cos( approximatePlanetPositionsDataContainer_.additionalTermF_ *
-                       numberOfCenturiesPastJ2000_ ) )
+                * cos( unit_conversions::convertDegreesToRadians(approximatePlanetPositionsDataContainer_.additionalTermF_ *
+                       numberOfCenturiesPastJ2000_ )) )
             + ( approximatePlanetPositionsDataContainer_.additionalTermS_
-                * sin( approximatePlanetPositionsDataContainer_.additionalTermF_ *
-                       numberOfCenturiesPastJ2000_ ) );
+                * sin( unit_conversions::convertDegreesToRadians(approximatePlanetPositionsDataContainer_.additionalTermF_ *
+                       numberOfCenturiesPastJ2000_) ) );
 
     // Compute modulo of mean anomaly for interval :
     // 0 <= meanAnomalyAtGivenJulianDate_ < 360.
