@@ -130,8 +130,7 @@ BOOST_AUTO_TEST_CASE( testMGATrajectory )
     // Start the deltaV vector.
     double resultingDeltaV;
     Cassini1.calculateTrajectory( resultingDeltaV );
-    std::cout<<resultingDeltaV<<std::endl;
-    std::cout<<expectedDeltaV<<std::endl;
+
     // Test if the computed delta-V corresponds to the expected value within the specified
     // tolerance and if the computed velocity before target planet matches the expected velocity
     // within the specified tolerance.

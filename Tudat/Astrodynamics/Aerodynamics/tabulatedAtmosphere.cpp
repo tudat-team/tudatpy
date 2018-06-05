@@ -42,6 +42,8 @@ void TabulatedAtmosphere::initialize( const std::string& atmosphereTableFile )
     densityData_.resize( containerOfAtmosphereTableFileData.rows( ) );
     pressureData_.resize( containerOfAtmosphereTableFileData.rows( ) );
     temperatureData_.resize( containerOfAtmosphereTableFileData.rows( ) );
+    specificHeatRatioData_.resize( containerOfAtmosphereTableFileData.rows( ) );
+    gasConstantData_.resize( containerOfAtmosphereTableFileData.rows( ) );
 
     int densityIndex = 0;
     int pressureIndex = 0;
