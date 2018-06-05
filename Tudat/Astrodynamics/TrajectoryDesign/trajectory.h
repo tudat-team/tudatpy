@@ -1,39 +1,18 @@
-/*    Copyright (c) 2010-2012, Delft University of Technology
- *    All rights reserved.
+/*    Copyright (c) 2010-2018, Delft University of Technology
+ *    All rigths reserved
  *
- *    Redistribution and use in source and binary forms, with or without modification, are
- *    permitted provided that the following conditions are met:
- *      - Redistributions of source code must retain the above copyright notice, this list of
- *        conditions and the following disclaimer.
- *      - Redistributions in binary form must reproduce the above copyright notice, this list of
- *        conditions and the following disclaimer in the documentation and/or other materials
- *        provided with the distribution.
- *      - Neither the name of the Delft University of Technology nor the names of its contributors
- *        may be used to endorse or promote products derived from this software without specific
- *        prior written permission.
+ *    This file is part of the Tudat. Redistribution and use in source and
+ *    binary forms, with or without modification, are permitted exclusively
+ *    under the terms of the Modified BSD license. You should have received
+ *    a copy of the license with this file. If not, please or visit:
+ *    http://tudat.tudelft.nl/LICENSE.
  *
- *    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS
- *    OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
- *    MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
- *    COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
- *    EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
- *    GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
- *    AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
- *    NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
- *    OF THE POSSIBILITY OF SUCH DAMAGE.
+ *    Notes
+ *      More information on the trajectory design code and how the quantities
+ *      are calculated can be found in [Musegaas, 2012], who is also the author
+ *      of this code
  *
- *    Changelog
- *      YYMMDD    Author            Comment
- *      120509    P. Musegaas       First creation of code.
- *      120611    P. Musegaas       Adaptation to new mission segments functions and update of
- *                                  of functionality.
- *      120816    P. Musegaas       Made slightly more efficient, parameters passed by reference.
- *      120827    P. Musegaas       Adaptation to own ephemeris type.
- *      121017    P. Musegaas       Added get launch conditions function.
- *
- *    References
- *
- */
+*/
 
 // Some improvements are foreseen:
 // * The application of legs departure vs swingby vs capture is insecure. This could be improved.
@@ -91,6 +70,15 @@ public:
     //! Constructor with immediate definition of parameters.
     /*!
      * Constructor with immediate definition of parameters.
+     * \param numberOfLegs the number of legs in the trajectory.
+     * \param legTypeVector vector containing the leg types.
+     * \param ephemerisVector vector of ephemeris pointers to the different planets.
+     * \param gravitationalParameterVector vector of the gravitational parameters of the visited planets.
+     * \param trajectoryVariableVector vector containing all the defining variables for the whole trajectory.
+     * \param centralBodyGravitationalParameter gravitational parameter of the central body.
+     * \param minimumPericenterRadiiVector vector containing the minimum distance between the spacecraft and body.
+     * \param semiMajorAxesVector vector containing the semi-major axes for the departure and capture leg.
+     * \param eccentricityVector vector containing the eccentricities for the departure and capture leg.
      */
     Trajectory( const double numberOfLegs,
                 const std::vector< int >& legTypeVector,
@@ -136,6 +124,7 @@ public:
     //! Calculate the legs
     /*!
      * Performs all the calculations required for the trajectory.
+     * \param totalDeltaV the total delta V needed for the trajectory.
      */
     void calculateTrajectory( double& totalDeltaV );
 
@@ -143,6 +132,9 @@ public:
     /*!
      * Returns intermediate points along the trajectory, which can for instance be used to plot the
      * trajectory.
+     *  \param maximumTimeStep the maximum time between two points along the trajectory.
+     *  \param positionVector Vector of positions along the orbit, space according to the maximum time step.
+     *  \param timeVector The times corresponding to the positions.
      */
      void intermediatePoints( double maximumTimeStep,
                               std::vector < Eigen::Vector3d >& positionVector,
@@ -151,7 +143,10 @@ public:
      //! Return maneuvres along the trajectory.
      /*!
       * Returns the maneuver points, times and sizes along the trajectory.
-      */
+      *  \param positionVector Vector of the positions of the maneuvers.
+      *  \param timeVector The times corresponding to the positions.
+      *  \param deltaVVector the delta V required for each maneuver.
+     */
      void maneuvers( std::vector < Eigen::Vector3d >& positionVector,
                      std::vector < double >& timeVector,
                      std::vector < double >& deltaVVector );
@@ -160,6 +155,9 @@ public:
      /*!
       * Returns vectors containing planetary orbits, which are simulated using the ephemeris at the
       * time of visitation.
+      *  \param maximumTimeStep the maximum time between two points along the planet orbit.
+      *  \param positionVector Vector of positions along the orbit, space according to the maximum time step.
+      *  \param timeVector The times corresponding to the positions.
       */
      void planetaryOrbits( double maximumTimeStep,
                            std::vector< std::vector < Eigen::Vector3d > >& positionVectorVector,
@@ -168,6 +166,8 @@ public:
      //! Return planetary encounters.
      /*!
        * Returns vectors containing planetary encounters.
+       * \param positionVector Vector of positions of the encounters.
+       * \param timeVector The times corresponding to the positions.
        */
      void planetaryEncounters( std::vector < Eigen::Vector3d >& positionVector,
                                std::vector < double >& timeVector );
@@ -186,6 +186,7 @@ public:
      * Sets the trajectory defining variable vector to the newly specified values. Also sets all
      * the defining variables in the underlying mission leg classes to these new values. This is
      * required for re-using the class, without re-initializing it.
+     * \param trajectoryVariableVector the new variable vector.
      */
     void updateVariableVector( const Eigen::VectorXd& trajectoryVariableVector );
 
@@ -193,6 +194,9 @@ public:
     /*!
      * Returns the launch conditions, useful if additional information is needed regarding the
      * launch of the spacecraft. This is for instance required for the TandEM problems of GTOP.
+     *  \param departureBodyPosition the departure body position.
+     *  \param departureBodyVelocity the velocity of the departure body.
+     *  \param velocityAfterDeparture the velocity of the spacecraft after the departure maneuver.
      */
     void getLaunchConditions( Eigen::Vector3d& departureBodyPosition,
                               Eigen::Vector3d& departureBodyVelocity,
