@@ -4,12 +4,12 @@
 #include "Tudat/Astrodynamics/MissionSegments/gravityAssist.h"
 #include "Tudat/Astrodynamics/MissionSegments/lambertRoutines.h"
 
-#include "exportTrajectory.h"
-#include "swingbyLegMga.h"
+#include "Tudat/Astrodynamics/TrajectoryDesign/exportTrajectory.h"
+#include "Tudat/Astrodynamics/TrajectoryDesign/swingbyLegMga.h"
 
 namespace tudat
 {
-namespace spaceTrajectories
+namespace transfer_trajectories
 {
 
 //! Calculate the leg and update the Delta V and the velocity before the next body.
@@ -92,6 +92,6 @@ void SwingbyLegMga::updateDefiningVariables( const Eigen::VectorXd& variableVect
     timeOfFlight_ = variableVector[ 0 ];
 }
 
-} // namespace spaceTrajectories
+} // namespace transfer_trajectories
 } // namespace tudat
 

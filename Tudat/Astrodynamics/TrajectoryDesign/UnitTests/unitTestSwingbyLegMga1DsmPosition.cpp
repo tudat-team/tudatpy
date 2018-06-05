@@ -102,7 +102,7 @@ BOOST_AUTO_TEST_CASE( testVelocitiesUnpoweredGravityAssist )
     const double outOfPlaneAngle = -0.03659314664852;
 
     // Set test case.
-    using namespace tudat::spaceTrajectories;
+    using namespace tudat::transfer_trajectories;
     SwingbyLegMga1DsmPosition legTest ( planet1Position, planet2Position, timeOfFlight,
                                         planet1Velocity, sunGravitationalParameter,
                                         planet1GravitationalParameter,
@@ -167,7 +167,7 @@ BOOST_AUTO_TEST_CASE( testUpdatingVariables )
     const double dummyVariable4 = TUDAT_NAN;
 
     // Set test case.
-    using namespace tudat::spaceTrajectories;
+    using namespace tudat::transfer_trajectories;
     SwingbyLegMga1DsmPosition legTest ( dummyPosition1, dummyPosition2, dummyTimeOfFlight,
                                         dummyVelocity1, sunGravitationalParameter,
                                         planet1GravitationalParameter,
@@ -256,7 +256,7 @@ BOOST_AUTO_TEST_CASE( testIntermediatePoints )
 
 
     // Set test case.
-    using namespace tudat::spaceTrajectories;
+    using namespace tudat::transfer_trajectories;
     SwingbyLegMga1DsmPosition legTest ( planet1Position, planet2Position, timeOfFlight,
                                         planet1Velocity, sunGravitationalParameter,
                                         planet1GravitationalParameter,

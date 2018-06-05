@@ -21,11 +21,11 @@
 
 #include <Tudat/Mathematics/BasicMathematics/mathematicalConstants.h>
 
-#include "swingbyLeg.h"
+#include "Tudat/Astrodynamics/TrajectoryDesign/swingbyLeg.h"
 
 namespace tudat
 {
-namespace spaceTrajectories
+namespace transfer_trajectories
 {
 
 //! Swingby Leg class of an MGA-1DSM position formulation trajectory model.
@@ -56,7 +56,7 @@ public:
      *  \param dsmTimeOfFlightFraction the fraction of the TOF at which the DSM is performed.
      *  \param dimensionlessRadiusDsm the dimensionless radius of the DSM manuever, see Musegaas, 2012 for the definition.
      *  \param inPlaneAngle the in plane angle of the DSM.
-     *  \param 0utOfPlaneAngle the out of plane angle of the DSM.
+     *  \param outOfPlaneAngle the out of plane angle of the DSM.
      */
     SwingbyLegMga1DsmPosition( const Eigen::Vector3d& departureBodyPosition,
                                const Eigen::Vector3d& arrivalBodyPosition,
@@ -213,7 +213,7 @@ private:
     double deltaVDsm_;
 
 };
-} // namespace spaceTrajectories
+} // namespace transfer_trajectories
 } // namespace tudat
 
 #endif // TUDAT_SWINGBY_LEG_MGA_1DSM_POSITION_H

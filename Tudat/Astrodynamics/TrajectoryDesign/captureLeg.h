@@ -22,11 +22,11 @@
 
 #include <Tudat/Mathematics/BasicMathematics/mathematicalConstants.h>
 
-#include "missionLeg.h"
+#include "Tudat/Astrodynamics/TrajectoryDesign/missionLeg.h"
 
 namespace tudat
 {
-namespace spaceTrajectories
+namespace transfer_trajectories
 {
 
 //! Capture leg class.
@@ -165,7 +165,7 @@ private:
     double eccentricity_;
 
 };
-} // namespace spaceTrajectories
+} // namespace transfer_trajectories
 } // namespace tudat
 
 #endif // TUDAT_CAPTURE_LEG_H

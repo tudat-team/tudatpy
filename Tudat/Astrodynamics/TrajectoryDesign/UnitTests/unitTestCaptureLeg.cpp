@@ -93,7 +93,7 @@ BOOST_AUTO_TEST_CASE( testVelocitiesInfiniteParkingOrbit )
     const double eccentricity = 0.;
 
     // Set test case.
-    using namespace tudat::spaceTrajectories;
+    using namespace tudat::transfer_trajectories;
     CaptureLeg legTest ( planetPosition, timeOfFlight, planetVelocity, sunGravitationalParameter,
                          mercuryGravitationalParameter, pointerToVelocityBeforePlanet,
                          semiMajorAxis, eccentricity );
@@ -145,7 +145,7 @@ BOOST_AUTO_TEST_CASE( testVelocitiesCircularParkingOrbit )
     const double eccentricity = 0.;
 
     // Set test case.
-    using namespace tudat::spaceTrajectories;
+    using namespace tudat::transfer_trajectories;
     CaptureLeg legTest ( planetPosition, timeOfFlight, planetVelocity, sunGravitationalParameter,
                          marsGravitationalParameter, pointerToVelocityBeforePlanet,
                          semiMajorAxis, eccentricity );
@@ -198,7 +198,7 @@ BOOST_AUTO_TEST_CASE( testUpdatingVariables )
     const double eccentricity = 0.;
 
     // Set test case.
-    using namespace tudat::spaceTrajectories;
+    using namespace tudat::transfer_trajectories;
     CaptureLeg legTest ( dummyPosition, dummyTimeOfFlight, dummyVelocity,
                          sunGravitationalParameter, mercuryGravitationalParameter,
                          pointerToVelocityBeforePlanet, semiMajorAxis, eccentricity );

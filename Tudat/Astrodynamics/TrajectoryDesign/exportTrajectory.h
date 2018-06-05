@@ -24,7 +24,7 @@
 
 namespace tudat
 {
-namespace spaceTrajectories
+namespace transfer_trajectories
 {
 
 //! Return a vector of positions and times corresponding to a trajectory at a certain epoch.
@@ -88,6 +88,6 @@ void writeManeuversToFile( std::vector < Eigen::Vector3d > positionVector,
                            const char * fileName );
 
 
-} // namespace spaceTrajectories
+} // namespace transfer_trajectories
 } // namespace tudat
 

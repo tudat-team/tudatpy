@@ -17,12 +17,12 @@
 #ifndef TUDAT_DEPARTURE_LEG_H
 #define TUDAT_DEPARTURE_LEG_H
 
-#include "spaceLeg.h"
-#include "missionLeg.h"
+#include "Tudat/Astrodynamics/TrajectoryDesign/spaceLeg.h"
+#include "Tudat/Astrodynamics/TrajectoryDesign/missionLeg.h"
 
 namespace tudat
 {
-namespace spaceTrajectories
+namespace transfer_trajectories
 {
 
 //! Departure Leg base class.
@@ -89,7 +89,7 @@ protected:
 private:
 
 };
-} // namespace spaceTrajectories
+} // namespace transfer_trajectories
 } // namespace tudat
 
 #endif // TUDAT_DEPARTURE_LEG_H

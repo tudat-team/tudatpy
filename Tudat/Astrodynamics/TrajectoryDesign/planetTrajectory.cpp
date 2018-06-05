@@ -7,14 +7,14 @@
 #include "Tudat/Astrodynamics/BasicAstrodynamics/orbitalElementConversions.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/physicalConstants.h"
 
-#include "exportTrajectory.h"
-#include "planetTrajectory.h"
+#include "Tudat/Astrodynamics/TrajectoryDesign/exportTrajectory.h"
+#include "Tudat/Astrodynamics/TrajectoryDesign/planetTrajectory.h"
 
 //#include "Temporary/temporaryFunctions.h"
 
 namespace tudat
 {
-namespace spaceTrajectories
+namespace transfer_trajectories
 {
 
 //! Return a vector of positions and times from ephemeris data for a certain epoch and duration.
@@ -99,6 +99,6 @@ void returnSingleRevolutionPlanetTrajectory(const ephemerides::EphemerisPointer 
                       maximumTimeStep, positionVector, timeVector, startingTime );
 }
 
-} // namespace spaceTrajectories
+} // namespace transfer_trajectories
 } // namespace tudat
 

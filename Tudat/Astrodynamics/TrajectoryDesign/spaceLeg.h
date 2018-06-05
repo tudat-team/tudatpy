@@ -21,11 +21,11 @@
 
 #include <Eigen/Core>
 
-#include "missionLeg.h"
+#include "Tudat/Astrodynamics/TrajectoryDesign/missionLeg.h"
 
 namespace tudat
 {
-namespace spaceTrajectories
+namespace transfer_trajectories
 {
 
 //! Space Leg base class.
@@ -90,7 +90,7 @@ private:
 
 
 };
-} // namespace spaceTrajectories
+} // namespace transfer_trajectories
 } // namespace tudat
 
 #endif // TUDAT_SPACE_LEG_H

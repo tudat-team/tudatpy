@@ -6,12 +6,12 @@
 #include "Tudat/Astrodynamics/MissionSegments/escapeAndCapture.h"
 #include "Tudat/Astrodynamics/MissionSegments/lambertRoutines.h"
 
-#include "departureLegMga1DsmPosition.h"
-#include "exportTrajectory.h"
+#include "Tudat/Astrodynamics/TrajectoryDesign/departureLegMga1DsmPosition.h"
+#include "Tudat/Astrodynamics/TrajectoryDesign/exportTrajectory.h"
 
 namespace tudat
 {
-namespace spaceTrajectories
+namespace transfer_trajectories
 {
 
 //! Calculate the leg and update the Delta V and the velocity before the next body.

@@ -1,11 +1,11 @@
 #include "Tudat/Astrodynamics/MissionSegments/escapeAndCapture.h"
 
-#include "captureLeg.h"
-#include "exportTrajectory.h"
+#include "Tudat/Astrodynamics/TrajectoryDesign/captureLeg.h"
+#include "Tudat/Astrodynamics/TrajectoryDesign/exportTrajectory.h"
 
 namespace tudat
 {
-namespace spaceTrajectories
+namespace transfer_trajectories
 {
 
 //! Calculate the leg and update the Delta V and the velocity before the next body.
@@ -87,5 +87,5 @@ void CaptureLeg::updateDefiningVariables( const Eigen::VectorXd& variableVector 
     timeOfFlight_ = variableVector[ 0 ];
 }
 
-} // namespace spaceTrajectories
+} // namespace transfer_trajectories
 } // namespace tudat

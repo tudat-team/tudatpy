@@ -8,11 +8,11 @@
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/keplerPropagator.h"
 
-#include "exportTrajectory.h"
+#include "Tudat/Astrodynamics/TrajectoryDesign/exportTrajectory.h"
 
 namespace tudat
 {
-namespace spaceTrajectories
+namespace transfer_trajectories
 {
 
 //! Return a vector of positions and times corresponding to a trajectory at a certain epoch.
@@ -128,6 +128,6 @@ void writeManeuversToFile( std::vector < Eigen::Vector3d > positionVector,
     exportFile.close( );
 }
 
-} // namespace spaceTrajectories
+} // namespace transfer_trajectories
 } // namespace tudat
 

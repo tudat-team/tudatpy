@@ -91,7 +91,7 @@ BOOST_AUTO_TEST_CASE( testVelocities )
     const double eccentricity = 0.;
 
     // Set test case.
-    using namespace tudat::spaceTrajectories;
+    using namespace tudat::transfer_trajectories;
     DepartureLegMga legTest ( planet1Position, planet2Position, timeOfFlight, planet1Velocity,
                               sunGravitationalParameter, earthGravitationalParameter,
                               semiMajorAxis, eccentricity );
@@ -142,7 +142,7 @@ BOOST_AUTO_TEST_CASE( testUpdatingVariables )
     const double eccentricity = 0.;
 
     // Set test case.
-    using namespace tudat::spaceTrajectories;
+    using namespace tudat::transfer_trajectories;
     DepartureLegMga legTest ( dummyPosition1, dummyPosition2, dummyTimeOfFlight, dummyVelocity1,
                               sunGravitationalParameter, earthGravitationalParameter,
                               semiMajorAxis, eccentricity );
@@ -204,7 +204,7 @@ BOOST_AUTO_TEST_CASE( testIntermediatePoints )
     const double eccentricity = 0.;
 
     // Set test case.
-    using namespace tudat::spaceTrajectories;
+    using namespace tudat::transfer_trajectories;
     DepartureLegMga legTest ( planet1Position, planet2Position, timeOfFlight, planet1Velocity,
                               sunGravitationalParameter, earthGravitationalParameter,
                               semiMajorAxis, eccentricity );
