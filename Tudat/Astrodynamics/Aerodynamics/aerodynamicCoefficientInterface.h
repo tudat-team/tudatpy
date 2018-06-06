@@ -19,7 +19,7 @@
 #include <vector>
 #include <map>
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 #include <Eigen/Core>
 
 #include "Tudat/Astrodynamics/Aerodynamics/controlSurfaceAerodynamicCoefficientInterface.h"

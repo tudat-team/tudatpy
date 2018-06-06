@@ -78,7 +78,7 @@ BOOST_AUTO_TEST_CASE( testOneWayDoppplerModel )
 
     // Create range rate observation settings and model
     std::shared_ptr< ObservationSettings > rangeRateObservableSettings = std::make_shared<
-            OneWayDifferencedRangeRateObservationSettings >( std::bind( &integrationTimeFunction, _1 ) );
+            OneWayDifferencedRangeRateObservationSettings >( std::bind( &integrationTimeFunction, std::placeholders::_1 ) );
     std::shared_ptr< ObservationModel< 1, double, double> > rangeRateObservationModel =
             ObservationModelCreator< 1, double, double>::createObservationModel(
                 linkEnds, rangeRateObservableSettings, bodyMap );

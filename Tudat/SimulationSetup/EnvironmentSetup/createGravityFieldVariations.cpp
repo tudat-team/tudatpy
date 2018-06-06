@@ -141,7 +141,7 @@ std::shared_ptr< gravitation::GravityFieldVariations > createGravityFieldVariati
                     deformingBodyStateFunctions.push_back(
                                 std::bind(
                                     &Body::getStateInBaseFrameFromEphemeris< double, double >,
-                                    bodyMap.at( deformingBodies[ i ] ), _1 ) );
+                                    bodyMap.at( deformingBodies[ i ] ), std::placeholders::_1 ) );
                 }
                 else
                 {
@@ -169,10 +169,10 @@ std::shared_ptr< gravitation::GravityFieldVariations > createGravityFieldVariati
             if( gravityFieldVariationSettings->getInterpolatorSettings( ) != nullptr )
             {
                 deformedBodyStateFunction = std::bind( &Body::getStateInBaseFrameFromEphemeris< double, double >,
-                                                         bodyMap.at( body ), _1 );
+                                                         bodyMap.at( body ), std::placeholders::_1 );
                 deformedBodyOrientationFunction = std::bind(
                             &ephemerides::RotationalEphemeris::getRotationToTargetFrame,
-                            bodyMap.at( body )->getRotationalEphemeris( ), _1 );
+                            bodyMap.at( body )->getRotationalEphemeris( ), std::placeholders::_1 );
             }
             else
             {

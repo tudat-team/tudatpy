@@ -195,7 +195,7 @@ public:
         ppnParameterBetaFunction_( ppnParameterBetaFunction ),
         calculateSchwarzschildCorrection_( calculateSchwarzschildCorrection ),
         calculateDeSitterCorrection_( true ),
-        calculateLenseThirringCorrection_( !centalBodyAngularMomentumFunction.empty( ) )
+        calculateLenseThirringCorrection_( !( centalBodyAngularMomentumFunction == nullptr ) )
     { }
 
     //! Constructor, used when including Lense-Thirring, but not de Sitter, acceleration

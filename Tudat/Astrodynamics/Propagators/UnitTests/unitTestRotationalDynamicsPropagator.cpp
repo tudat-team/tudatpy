@@ -838,7 +838,7 @@ BOOST_AUTO_TEST_CASE( testRotationalAndTranslationalDynamicsPropagation )
             typedef interpolators::OneDimensionalInterpolator< double, Eigen::Vector3d > LocalInterpolator;
             std::function< Eigen::Vector3d( const double ) > angularMomentumFunction = std::bind(
                         static_cast< Eigen::Vector3d( LocalInterpolator::* )( const double ) >
-                        ( &LocalInterpolator::interpolate ), angularMomentumInterpolator, _1 );
+                        ( &LocalInterpolator::interpolate ), angularMomentumInterpolator, std::placeholders::_1 );
 
             double timeStep = 0.001;
 
@@ -849,7 +849,7 @@ BOOST_AUTO_TEST_CASE( testRotationalAndTranslationalDynamicsPropagation )
                 if( variableIterator->first < ( --inertialTorqueMap.end( ) )->first - 10.0
                         && variableIterator->first > inertialTorqueMap.begin( )->first + 10.0 )
                 {
-                    Eigen::Vector3d angularMomentumDerivative = numerical_derivatives::computeCentralDifference(
+                    Eigen::Vector3d angularMomentumDerivative = numerical_derivatives::computeCentralDifferenceFromFunction(
                                 angularMomentumFunction, variableIterator->first, timeStep, numerical_derivatives::order4 );
 
                     for( unsigned int i = 0; i < 3; i++ )

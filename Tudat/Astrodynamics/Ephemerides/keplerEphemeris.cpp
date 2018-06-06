@@ -94,7 +94,7 @@ KeplerEphemeris::KeplerEphemeris(
                 std::bind( &RootAbsoluteToleranceTerminationCondition< >::checkTerminationCondition,
                              std::make_shared< RootAbsoluteToleranceTerminationCondition< > >(
                                  rootFinderAbsoluteTolerance, rootFinderMaximumNumberOfIterations ),
-                             _1, _2, _3, _4, _5 ) );
+                             std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5 ) );
 }
 
 //! Function to get state from ephemeris.

@@ -12,7 +12,7 @@
 #ifndef TUDAT_STANDARD_ATMOSPHERE_H
 #define TUDAT_STANDARD_ATMOSPHERE_H
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include "Tudat/Astrodynamics/Aerodynamics/atmosphereModel.h"
 

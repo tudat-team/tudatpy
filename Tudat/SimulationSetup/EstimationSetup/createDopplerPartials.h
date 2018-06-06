@@ -15,7 +15,7 @@
 #include <vector>
 #include <map>
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include <Eigen/Core>
 
@@ -160,14 +160,14 @@ std::pair< SingleLinkObservationPartialList, std::shared_ptr< PositionPartialSca
     }
 
     std::function< Eigen::Vector6d( const double )> transmitterNumericalStateDerivativeFunction =
-            std::bind( &numerical_derivatives::computeCentralDifference< Eigen::Vector6d, double >,
+            std::bind( &numerical_derivatives::computeCentralDifferenceFromFunction< Eigen::Vector6d, double >,
                          observation_models::getLinkEndCompleteEphemerisFunction< double, double >(
-                             oneWayDopplerLinkEnds.at( observation_models::transmitter ), bodyMap ), _1, 100.0,
+                             oneWayDopplerLinkEnds.at( observation_models::transmitter ), bodyMap ), std::placeholders::_1, 100.0,
                          numerical_derivatives::order8 );
     std::function< Eigen::Vector6d( const double )> receiverNumericalStateDerivativeFunction =
-            std::bind( numerical_derivatives::computeCentralDifference< Eigen::Vector6d, double >,
+            std::bind( numerical_derivatives::computeCentralDifferenceFromFunction< Eigen::Vector6d, double >,
                          observation_models::getLinkEndCompleteEphemerisFunction< double, double >(
-                             oneWayDopplerLinkEnds.at( observation_models::receiver ), bodyMap ), _1, 100.0,
+                             oneWayDopplerLinkEnds.at( observation_models::receiver ), bodyMap ), std::placeholders::_1, 100.0,
                          numerical_derivatives::order8 );
 
     // Create scaling object, to be used for all one-way doppler partials in current link end.
@@ -179,8 +179,8 @@ std::pair< SingleLinkObservationPartialList, std::shared_ptr< PositionPartialSca
                                              observation_models::receiver  );
 
     std::shared_ptr< OneWayDopplerScaling > oneWayDopplerScaling = std::make_shared< OneWayDopplerScaling >(
-                std::bind( &linear_algebra::evaluateSecondBlockInStateVector, transmitterNumericalStateDerivativeFunction, _1 ),
-                std::bind( &linear_algebra::evaluateSecondBlockInStateVector, receiverNumericalStateDerivativeFunction, _1 ),
+                std::bind( &linear_algebra::evaluateSecondBlockInStateVector, transmitterNumericalStateDerivativeFunction, std::placeholders::_1 ),
+                std::bind( &linear_algebra::evaluateSecondBlockInStateVector, receiverNumericalStateDerivativeFunction, std::placeholders::_1 ),
                 transmitterProperTimePartials,
                 receiverProperTimePartials );
 

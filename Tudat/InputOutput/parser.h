@@ -12,7 +12,7 @@
 #ifndef TUDAT_PARSER_H
 #define TUDAT_PARSER_H
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include "Tudat/InputOutput/parsedDataVectorUtilities.h"
 

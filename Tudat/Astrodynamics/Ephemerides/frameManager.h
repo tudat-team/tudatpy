@@ -111,7 +111,7 @@ public:
                     totalEphemerisList[ i ] = std::make_pair(
                                 std::bind( &Ephemeris::getTemplatedStateFromEphemeris
                                              < StateScalarType, TimeType >,
-                                             ephemerisList[ i ], _1 ), false );
+                                             ephemerisList[ i ], std::placeholders::_1 ), false );
                 }
             }
             // If origin is nearest common frame, get set of ephemeris and set to add them when
@@ -124,7 +124,7 @@ public:
                     totalEphemerisList[ i ] = std::make_pair(
                                 std::bind( &Ephemeris::getTemplatedStateFromEphemeris
                                              < StateScalarType, TimeType >,
-                                             ephemerisList[ i ], _1 ), true );
+                                             ephemerisList[ i ], std::placeholders::_1 ), true );
                 }
             }
             // If nearest common frame is neither input, create link from both to nearest common frame.
@@ -138,7 +138,7 @@ public:
                     totalEphemerisList[ i ] = std::make_pair(
                                 std::bind( &Ephemeris::getTemplatedStateFromEphemeris
                                              < StateScalarType, TimeType >,
-                                             ephemerisList[ i ], _1 ), true );
+                                             ephemerisList[ i ], std::placeholders::_1 ), true );
                 }
                 int firstListSize = ephemerisList.size( );
 
@@ -150,7 +150,7 @@ public:
                     totalEphemerisList[ i + firstListSize ] = std::make_pair(
                                 std::bind( &Ephemeris::getTemplatedStateFromEphemeris
                                              < StateScalarType, TimeType >,
-                                             ephemerisList[ i ], _1 ), false );
+                                             ephemerisList[ i ], std::placeholders::_1 ), false );
                 }
             }
 
@@ -275,7 +275,7 @@ getTranslationFunctionsFromIntegrationFrameToEphemerisFrame(
                             &ephemerides::Ephemeris::getTemplatedStateFromEphemeris< StateScalarType, TimeType >,
                             frameManager->getEphemeris< StateScalarType, TimeType >(
                                 centralBodies.at( i ),
-                                frameManager->getBaseFrameNameOfBody( bodiesToIntegrate.at( i ) )  ), _1 );
+                                frameManager->getBaseFrameNameOfBody( bodiesToIntegrate.at( i ) )  ), std::placeholders::_1 );
             }
         }
     }

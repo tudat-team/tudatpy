@@ -65,7 +65,7 @@ public:
             const std::vector< std::string >& amplitudesFiles,
             const std::vector< std::string >& argumentMultipliersFile ,
             const std::function< Eigen::Vector6d( const double )  > argumentFunction =
-            std::bind( &sofa_interface::calculateDelaunayFundamentalArgumentsWithGmst, _1 ) ):
+            std::bind( &sofa_interface::calculateApproximateDelaunayFundamentalArgumentsWithGmst, std::placeholders::_1 ) ):
         argumentFunction_( argumentFunction )
     {
         if( amplitudesFiles.size( ) != argumentMultipliersFile.size( ) )

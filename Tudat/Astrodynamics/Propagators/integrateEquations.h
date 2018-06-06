@@ -96,7 +96,7 @@ void getFinalStateForExactDependentVariableTerminationCondition(
 
     // Function for which the root (zero value) occurs at the required end time/state
     std::function< TimeStepType( TimeStepType ) > dependentVariableErrorFunction =
-            std::bind( &getTerminationDependentVariableErrorForGivenTimeStep< StateType, TimeType, TimeStepType >, _1,
+            std::bind( &getTerminationDependentVariableErrorForGivenTimeStep< StateType, TimeType, TimeStepType >, std::placeholders::_1,
                          integrator, dependentVariableTerminationCondition );
 
     // Create root finder.
@@ -451,7 +451,7 @@ std::shared_ptr< PropagationTerminationDetails > integrateEquationsFromIntegrato
     solutionHistory[ currentTime ] = newState;
 
     dependentVariableHistory.clear( );
-    if( !dependentVariableFunction.empty( ) )
+    if( !( dependentVariableFunction == nullptr ) )
     {
         integrator->getStateDerivativeFunction( )( currentTime, newState );
         dependentVariableHistory[ currentTime ] = dependentVariableFunction( );
@@ -510,7 +510,7 @@ std::shared_ptr< PropagationTerminationDetails > integrateEquationsFromIntegrato
                 {
                     solutionHistory[ currentTime ] = newState;
 
-                    if( !dependentVariableFunction.empty( ) )
+                    if( !( dependentVariableFunction == nullptr ) )
                     {
                         integrator->getStateDerivativeFunction( )( currentTime, newState );
                         dependentVariableHistory[ currentTime ] = dependentVariableFunction( );
@@ -680,7 +680,7 @@ public:
             const std::chrono::steady_clock::time_point initialClockTime = std::chrono::steady_clock::now( ) )
     {
         std::function< bool( const double, const double ) > stopPropagationFunction =
-                std::bind( &PropagationTerminationCondition::checkStopCondition, propagationTerminationCondition, _1, _2 );
+                std::bind( &PropagationTerminationCondition::checkStopCondition, propagationTerminationCondition, std::placeholders::_1, std::placeholders::_2 );
 
         // Create numerical integrator.
         std::shared_ptr< numerical_integrators::NumericalIntegrator< double, StateType, StateType > > integrator =
@@ -743,7 +743,7 @@ public:
             const std::chrono::steady_clock::time_point initialClockTime = std::chrono::steady_clock::now( ) )
     {
         std::function< bool( const double, const double ) > stopPropagationFunction =
-                std::bind( &PropagationTerminationCondition::checkStopCondition, propagationTerminationCondition, _1, _2 );
+                std::bind( &PropagationTerminationCondition::checkStopCondition, propagationTerminationCondition, std::placeholders::_1, std::placeholders::_2 );
 
         // Create numerical integrator.
         std::shared_ptr< numerical_integrators::NumericalIntegrator< Time, StateType, StateType, long double > > integrator =

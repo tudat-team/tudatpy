@@ -125,7 +125,7 @@ DirectTidalDissipationAccelerationPartial::getParameterPartialFunction(
                             bodiesCausingDeformation.end( ) ) )
                 {
                     partialFunctionPair = std::make_pair(
-                                std::bind( &DirectTidalDissipationAccelerationPartial::wrtTidalTimeLag, this, _1 ), 1 );
+                                std::bind( &DirectTidalDissipationAccelerationPartial::wrtTidalTimeLag, this, std::placeholders::_1 ), 1 );
                 }
             }
 
@@ -147,7 +147,7 @@ DirectTidalDissipationAccelerationPartial::getParameterPartialFunction(
                             bodiesCausingDeformation.end( ) ) )
                 {
                     partialFunctionPair = std::make_pair(
-                                std::bind( &DirectTidalDissipationAccelerationPartial::wrtTidalTimeLag, this, _1 ), 1 );
+                                std::bind( &DirectTidalDissipationAccelerationPartial::wrtTidalTimeLag, this, std::placeholders::_1 ), 1 );
                 }
             }
 
@@ -213,7 +213,7 @@ DirectTidalDissipationAccelerationPartial::getGravitationalParameterPartialFunct
             if( !tidalAcceleration_->getModelTideOnPlanet( ) )
             {
                 partialFunction = std::bind( &DirectTidalDissipationAccelerationPartial::wrtGravitationalParameterOfPlanet,
-                                               this, _1 );
+                                               this, std::placeholders::_1 );
                 numberOfColumns = 1;
             }
 
@@ -224,7 +224,7 @@ DirectTidalDissipationAccelerationPartial::getGravitationalParameterPartialFunct
         {
 
             partialFunction = std::bind( &DirectTidalDissipationAccelerationPartial::wrtGravitationalParameterOfSatellite,
-                                           this, _1 );
+                                           this, std::placeholders::_1 );
             numberOfColumns = 1;
         }
     }

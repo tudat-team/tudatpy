@@ -13,7 +13,7 @@
 #define TUDAT_DIRECTTIDALDISSIPATIONACCELERATION_H
 
 #include <tr1/functional>
-#include <boost/shared_ptr.hpp>
+#include <memory>
 #include <boost/lambda/lambda.hpp>
 
 #include "Tudat/Basics/basicTypedefs.h"

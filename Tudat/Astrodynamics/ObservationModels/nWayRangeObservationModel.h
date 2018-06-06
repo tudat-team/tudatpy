@@ -120,7 +120,7 @@ public:
         linkEndStates.resize( 2 * ( numberOfLinkEnds_ - 1 ) );
 
         // Retrieve retransmission delays
-        if( !retransmissionDelays_.empty( ) )
+        if( !( retransmissionDelays_ == nullptr ) )
         {
             currentRetransmissionDelays_ = retransmissionDelays_( time );
             if( currentRetransmissionDelays_.size( ) != static_cast< unsigned int >( numberOfLinkEnds_ - 2 ) )

@@ -121,22 +121,22 @@ BOOST_AUTO_TEST_CASE( testOneWayDopplerPartials )
         // Partials for fixed receiver
         {
             // Compute numerical derivative of transmitter state for acceleration)
-            Eigen::Vector6d numericalStateDerivative = numerical_derivatives::computeCentralDifference(
+            Eigen::Vector6d numericalStateDerivative = numerical_derivatives::computeCentralDifferenceFromFunction(
                         transmitterStateFunction, transmissionTime, timePerturbation, numerical_derivatives::order8 );
 
             // Compute unit vector derivative numerically
             std::function< Eigen::Vector3d( const double ) > unitVectorFunction =
                     std::bind( &computeUnitVectorToReceiverFromTransmitterState,
-                                 nominalReceiverState.segment( 0, 3 ), transmitterStateFunction, _1 );
-            Eigen::Vector3d numericalUnitVectorDerivative = numerical_derivatives::computeCentralDifference(
+                                 nominalReceiverState.segment( 0, 3 ), transmitterStateFunction, std::placeholders::_1 );
+            Eigen::Vector3d numericalUnitVectorDerivative = numerical_derivatives::computeCentralDifferenceFromFunction(
                         unitVectorFunction, transmissionTime, timePerturbation, numerical_derivatives::order8 );
 
             // Compute projected velocoty vector derivative numerically
             std::function< double( const double) > projectedVelocityFunction =
                     std::bind( &calculateLineOfSightVelocityAsCFractionFromTransmitterStateFunction< double, double >,
-                                 nominalReceiverState.segment( 0, 3 ), transmitterStateFunction, _1 );
+                                 nominalReceiverState.segment( 0, 3 ), transmitterStateFunction, std::placeholders::_1 );
             double numericalProjectedVelocityDerivative =
-                    numerical_derivatives::computeCentralDifference(
+                    numerical_derivatives::computeCentralDifferenceFromFunction(
                         projectedVelocityFunction, transmissionTime, timePerturbation, numerical_derivatives::order8 );
 
             // Compute analytical partial derivatives
@@ -164,22 +164,22 @@ BOOST_AUTO_TEST_CASE( testOneWayDopplerPartials )
         // Partials for fixed transmitter
         {
             // Compute numerical derivative of receiver state for acceleration)
-            Eigen::Vector6d numericalStateDerivative = numerical_derivatives::computeCentralDifference(
+            Eigen::Vector6d numericalStateDerivative = numerical_derivatives::computeCentralDifferenceFromFunction(
                         receiverStateFunction, receptionTime, timePerturbation, numerical_derivatives::order8 );
 
             // Compute unit vector derivative numerically
             std::function< Eigen::Vector3d( const double ) > unitVectorFunction =
                     std::bind( &computeUnitVectorToReceiverFromReceiverState,
-                                 receiverStateFunction, nominalTransmitterState.segment( 0, 3 ), _1 );
-            Eigen::Vector3d numericalUnitVectorDerivative = numerical_derivatives::computeCentralDifference(
+                                 receiverStateFunction, nominalTransmitterState.segment( 0, 3 ), std::placeholders::_1 );
+            Eigen::Vector3d numericalUnitVectorDerivative = numerical_derivatives::computeCentralDifferenceFromFunction(
                         unitVectorFunction, receptionTime, timePerturbation, numerical_derivatives::order8 );
 
             // Compute projected velocoty vector derivative numerically
             std::function< double( const double) > projectedVelocityFunction =
                     std::bind( &calculateLineOfSightVelocityAsCFractionFromReceiverStateFunction< double, double >,
-                                 receiverStateFunction, nominalTransmitterState.segment( 0, 3 ), _1 );
+                                 receiverStateFunction, nominalTransmitterState.segment( 0, 3 ), std::placeholders::_1 );
             double numericalProjectedVelocityDerivative =
-                    numerical_derivatives::computeCentralDifference(
+                    numerical_derivatives::computeCentralDifferenceFromFunction(
                         projectedVelocityFunction, receptionTime, timePerturbation, numerical_derivatives::order8 );
 
             // Compute analytical partial derivatives

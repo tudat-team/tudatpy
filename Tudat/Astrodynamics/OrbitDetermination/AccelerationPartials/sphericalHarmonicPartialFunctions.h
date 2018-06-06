@@ -11,7 +11,7 @@
 #ifndef TUDAT_SPHERICALHARMONICPARTIALFUNCTIONS_H
 #define TUDAT_SPHERICALHARMONICPARTIALFUNCTIONS_H
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include <Eigen/Core>
 

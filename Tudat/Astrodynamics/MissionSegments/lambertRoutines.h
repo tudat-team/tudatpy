@@ -19,7 +19,7 @@
 #ifndef TUDAT_LAMBERT_ROUTINES_H
 #define TUDAT_LAMBERT_ROUTINES_H
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include <Eigen/Core>
 

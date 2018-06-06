@@ -16,7 +16,7 @@
 #include <string>
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/trim.hpp>
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include "Tudat/SimulationSetup/EnvironmentSetup/body.h"
 #include "Tudat/SimulationSetup/EnvironmentSetup/createGravityFieldVariations.h"

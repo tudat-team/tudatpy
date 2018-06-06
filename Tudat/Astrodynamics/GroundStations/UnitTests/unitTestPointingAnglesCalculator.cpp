@@ -52,7 +52,7 @@ BOOST_AUTO_TEST_CASE( test_PointingAnglesCalculator )
                     groundStationPosition, coordinate_conversions::cartesian_position, bodyShape );
         std::shared_ptr< PointingAnglesCalculator > pointAnglesCalculator = std::make_shared< PointingAnglesCalculator >(
                     boost::lambda::constant( Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) ) ),
-                    std::bind( &GroundStationState::getRotationFromBodyFixedToTopocentricFrame, stationState, _1 ) );
+                    std::bind( &GroundStationState::getRotationFromBodyFixedToTopocentricFrame, stationState, std::placeholders::_1 ) );
 
         // Define state of viewed point
         double testLatitude = 30.0 * degreesToRadians;
@@ -80,7 +80,7 @@ BOOST_AUTO_TEST_CASE( test_PointingAnglesCalculator )
                         groundStationPosition, coordinate_conversions::cartesian_position, bodyShape );
             std::shared_ptr< PointingAnglesCalculator > pointAnglesCalculator = std::make_shared< PointingAnglesCalculator >(
                         boost::lambda::constant( Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) ) ),
-                        std::bind( &GroundStationState::getRotationFromBodyFixedToTopocentricFrame, stationState, _1 ) );
+                        std::bind( &GroundStationState::getRotationFromBodyFixedToTopocentricFrame, stationState, std::placeholders::_1 ) );
 
             // Define state of viewed point
             double testLatitude = 21.0 * degreesToRadians;
@@ -108,7 +108,7 @@ BOOST_AUTO_TEST_CASE( test_PointingAnglesCalculator )
                         groundStationPosition, coordinate_conversions::cartesian_position, bodyShape );
             std::shared_ptr< PointingAnglesCalculator > pointAnglesCalculator = std::make_shared< PointingAnglesCalculator >(
                         boost::lambda::constant( Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) ) ),
-                        std::bind( &GroundStationState::getRotationFromBodyFixedToTopocentricFrame, stationState, _1 ) );
+                        std::bind( &GroundStationState::getRotationFromBodyFixedToTopocentricFrame, stationState, std::placeholders::_1 ) );
 
             // Define state of viewed point
             double testLatitude = -38.0 * degreesToRadians;
@@ -151,7 +151,7 @@ BOOST_AUTO_TEST_CASE( test_PointingAnglesCalculator )
                     groundStationPosition, coordinate_conversions::cartesian_position, bodyShape );
         std::shared_ptr< PointingAnglesCalculator > pointAnglesCalculator = std::make_shared< PointingAnglesCalculator >(
                     boost::lambda::constant( inertialToBodyFixedFrame ),
-                    std::bind( &GroundStationState::getRotationFromBodyFixedToTopocentricFrame, stationState, _1 ) );
+                    std::bind( &GroundStationState::getRotationFromBodyFixedToTopocentricFrame, stationState, std::placeholders::_1 ) );
 
         // Define state of viewed point
         double testLatitude = -38.0 * degreesToRadians;

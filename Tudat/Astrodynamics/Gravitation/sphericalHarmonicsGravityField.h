@@ -158,7 +158,7 @@ public:
      *  \return Cosine spherical harmonic coefficients (geodesy normalized) up to given
      *  degree and order
      */
-    Eigen::MatrixXd getCosineCoefficients( const int maximumDegree, const int maximumOrder )
+    Eigen::MatrixXd getCosineCoefficientsBlock( const int maximumDegree, const int maximumOrder )
     {
         return cosineCoefficients_.block( 0, 0, maximumDegree + 1, maximumOrder + 1 );
     }
@@ -172,7 +172,7 @@ public:
      *  \return Sine spherical harmonic coefficients (geodesy normalized) up to given
      *  degree and order
      */
-    Eigen::MatrixXd getSineCoefficients( const int maximumDegree, const int maximumOrder )
+    Eigen::MatrixXd getSineCoefficientsBlock( const int maximumDegree, const int maximumOrder )
     {
         return sineCoefficients_.block( 0, 0, maximumDegree + 1, maximumOrder + 1 );
     }

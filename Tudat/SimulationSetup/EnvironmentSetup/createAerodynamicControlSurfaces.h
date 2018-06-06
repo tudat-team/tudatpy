@@ -13,7 +13,7 @@
 
 #include <vector>
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 #include <boost/make_shared.hpp>
 
 #include "Tudat/InputOutput/aerodynamicCoefficientReader.h"
@@ -396,10 +396,10 @@ createTabulatedControlSurfaceIncrementAerodynamicCoefficientInterface(
     return  std::make_shared< aerodynamics::CustomControlSurfaceIncrementAerodynamicInterface >(
                 std::bind( &interpolators::MultiLinearInterpolator
                              < double, Eigen::Vector3d, NumberOfDimensions >::interpolate,
-                             forceInterpolator, _1 ),
+                             forceInterpolator, std::placeholders::_1 ),
                 std::bind( &interpolators::MultiLinearInterpolator
                              < double, Eigen::Vector3d, NumberOfDimensions >::interpolate,
-                             momentInterpolator, _1 ),
+                             momentInterpolator, std::placeholders::_1 ),
                 independentVariableNames );
 }
 

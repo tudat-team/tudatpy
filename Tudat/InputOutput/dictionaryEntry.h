@@ -15,7 +15,7 @@
 #include <set>
 #include <string>
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 namespace tudat
 {

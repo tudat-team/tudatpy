@@ -362,7 +362,7 @@ public:
                     createStateDerivativeModels< StateScalarType, TimeType >(
                         propagatorSettings_, bodyMap_, initialPropagationTime_ ),
                     std::bind( &EnvironmentUpdater< StateScalarType, TimeType >::updateEnvironment,
-                                 environmentUpdater_, _1, _2, _3 ) );
+                                 environmentUpdater_, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3 ) );
         propagationTerminationCondition_ = createPropagationTerminationConditions(
                     propagatorSettings_->getTerminationSettings( ), bodyMap_, integratorSettings->initialTimeStep_ );
 
@@ -386,10 +386,10 @@ public:
 
         stateDerivativeFunction_ =
                 std::bind( &DynamicsStateDerivativeModel< TimeType, StateScalarType >::computeStateDerivative,
-                             dynamicsStateDerivative_, _1, _2 );
+                             dynamicsStateDerivative_, std::placeholders::_1, std::placeholders::_2 );
         doubleStateDerivativeFunction_ =
                 std::bind( &DynamicsStateDerivativeModel< TimeType, StateScalarType >::computeStateDoubleDerivative,
-                             dynamicsStateDerivative_, _1, _2 );
+                             dynamicsStateDerivative_, std::placeholders::_1, std::placeholders::_2 );
 
         // Integrate equations of motion if required.
         if( areEquationsOfMotionToBeIntegrated )

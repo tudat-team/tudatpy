@@ -11,7 +11,7 @@
 #ifndef TUDAT_SIMULATEOBSERVATIONS_H
 #define TUDAT_SIMULATEOBSERVATIONS_H
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 #include <boost/bind.hpp>
 
 #include "Tudat/Astrodynamics/ObservationModels/observationSimulator.h"
@@ -456,7 +456,7 @@ simulateObservationsWithNoise(
             noiseVectorFunctions[ noiseIterator->first ][ linkEndIterator->first ] =
                     std::bind(
                         &getIdenticallyAndIndependentlyDistributedNoise, linkEndIterator->second,
-                        getObservableSize( noiseIterator->first ), _1 );
+                        getObservableSize( noiseIterator->first ), std::placeholders::_1 );
         }
     }
 
@@ -552,7 +552,7 @@ simulateObservationsWithNoise(
         noiseVectorFunctions[ noiseIterator->first ] =
                 std::bind(
                     &getIdenticallyAndIndependentlyDistributedNoise, noiseIterator->second,
-                    getObservableSize( noiseIterator->first ), _1 );
+                    getObservableSize( noiseIterator->first ), std::placeholders::_1 );
     }
     return simulateObservationsWithNoise(
                 observationsToSimulate, observationSimulators, noiseVectorFunctions, viabilityCalculatorList );

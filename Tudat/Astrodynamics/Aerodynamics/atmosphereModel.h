@@ -12,7 +12,7 @@
 #ifndef TUDAT_ATMOSPHERE_MODEL_H
 #define TUDAT_ATMOSPHERE_MODEL_H
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
 #include "Tudat/Astrodynamics/Aerodynamics/windModel.h"

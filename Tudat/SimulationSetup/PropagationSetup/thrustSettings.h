@@ -219,7 +219,7 @@ public:
         costateFunction_(
             std::bind( static_cast< Eigen::VectorXd( interpolators::OneDimensionalInterpolator< double, Eigen::VectorXd >::* )
                          ( const double ) >( &interpolators::OneDimensionalInterpolator< double, Eigen::VectorXd >::interpolate ),
-                         costateInterpolator, _1 ) ){ }
+                         costateInterpolator, std::placeholders::_1 ) ){ }
 
     //! Constructor with costate function
     /*!
@@ -765,9 +765,9 @@ public:
             const Eigen::Vector3d bodyFixedThrustDirection = Eigen::Vector3d::UnitX( ) ):
         ThrustEngineSettings( thrust_magnitude_from_dependent_variables, "" ),
         thrustMagnitudeFunction_( std::bind( &interpolators::Interpolator< double, double >::interpolate,
-                                               thrustMagnitudeInterpolator, _1 ) ),
+                                               thrustMagnitudeInterpolator, std::placeholders::_1 ) ),
         specificImpulseFunction_( std::bind( &interpolators::Interpolator< double, double >::interpolate,
-                                               specificImpulseInterpolator, _1 ) ),
+                                               specificImpulseInterpolator, std::placeholders::_1 ) ),
         thrustIndependentVariables_( thrustIndependentVariables ),
         specificImpulseDependentVariables_( specificImpulseDependentVariables ),
         thrustGuidanceInputVariables_( thrustGuidanceInputVariables ),
@@ -806,7 +806,7 @@ public:
             const Eigen::Vector3d bodyFixedThrustDirection = Eigen::Vector3d::UnitX( ) ):
         ThrustEngineSettings( thrust_magnitude_from_dependent_variables, "" ),
         thrustMagnitudeFunction_( std::bind( &interpolators::Interpolator< double, double >::interpolate,
-                                               thrustMagnitudeInterpolator, _1 ) ),
+                                               thrustMagnitudeInterpolator, std::placeholders::_1 ) ),
         specificImpulseFunction_( boost::lambda::constant( constantSpecificImpulse ) ),
         thrustIndependentVariables_( thrustIndependentVariables ),
         thrustGuidanceInputVariables_( thrustGuidanceInputVariables ),

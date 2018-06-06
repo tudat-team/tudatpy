@@ -49,7 +49,7 @@ BOOST_AUTO_TEST_CASE( testPolarMotionCalculator )
     double testUtc = sofa_interface::convertTTtoUTC( testEphemerisTime );
 
     // Compute fundamental arguments
-    Eigen::Vector6d fundamentalArguments = sofa_interface::calculateDelaunayFundamentalArgumentsWithGmst( testEphemerisTime );
+    Eigen::Vector6d fundamentalArguments = sofa_interface::calculateApproximateDelaunayFundamentalArgumentsWithGmst( testEphemerisTime );
 
     // Compute polar motion from both interfaces (time and arguments)
     Eigen::Vector2d totalPolarMotionFromTime =

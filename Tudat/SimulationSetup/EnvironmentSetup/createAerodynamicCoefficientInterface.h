@@ -12,7 +12,7 @@
 #define TUDAT_CREATEAERODYNAMICCOEFFICIENTINTERFACE_H
 
 #include <boost/assign/list_of.hpp>
-#include <boost/shared_ptr.hpp>
+#include <memory>
 #include <boost/make_shared.hpp>
 
 #include "Tudat/Astrodynamics/Aerodynamics/aerodynamicCoefficientInterface.h"
@@ -1092,10 +1092,10 @@ createTabulatedCoefficientAerodynamicCoefficientInterface(
     return  std::make_shared< aerodynamics::CustomAerodynamicCoefficientInterface >(
                 std::bind( &interpolators::MultiLinearInterpolator
                              < double, Eigen::Vector3d, NumberOfDimensions >::interpolate,
-                             forceInterpolator, _1 ),
+                             forceInterpolator, std::placeholders::_1 ),
                 std::bind( &interpolators::MultiLinearInterpolator
                              < double, Eigen::Vector3d, NumberOfDimensions >::interpolate,
-                             momentInterpolator, _1 ),
+                             momentInterpolator, std::placeholders::_1 ),
                 referenceLength, referenceArea, lateralReferenceLength, momentReferencePoint,
                 independentVariableNames,
                 areCoefficientsInAerodynamicFrame, areCoefficientsInNegativeAxisDirection );

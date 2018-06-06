@@ -16,7 +16,7 @@
 #include <tr1/functional>
 
 #include <boost/core/demangle.hpp>
-#include <boost/shared_ptr.hpp>
+#include <memory>
 #include <boost/make_shared.hpp>
 
 #include "Tudat/InputOutput/basicInputOutput.h"
@@ -212,7 +212,7 @@ ValueType getValue( const nlohmann::json& jsonObject, const KeyPath& keyPath )
                     currentKeyPath = canonicalKeyPath;
 
                     // Use jsonObject's root object instead
-                    if ( rootObject.is_nullptr( ) )
+                    if ( rootObject.is_null( ) )
                     {
                         throw UndefinedKeyError( canonicalKeyPath );
                     }
@@ -248,7 +248,7 @@ ValueType getValue( const nlohmann::json& jsonObject, const KeyPath& keyPath )
         if ( currentObject.is_object( ) )
         {
             // Define keys rootObject and keyPath of jsonObject to be returned
-            currentObject[ SpecialKeys::rootObject ] = rootObject.is_nullptr( ) ? jsonObject : rootObject;
+            currentObject[ SpecialKeys::rootObject ] = rootObject.is_null( ) ? jsonObject : rootObject;
             currentObject[ SpecialKeys::keyPath ] = canonicalKeyPath;
         }
     }

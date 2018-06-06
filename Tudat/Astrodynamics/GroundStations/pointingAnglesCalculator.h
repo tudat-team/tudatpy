@@ -12,7 +12,7 @@
 #ifndef TUDAT_POINTINGANGLESCALCULATOR_H
 #define TUDAT_POINTINGANGLESCALCULATOR_H
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 #include <boost/bind.hpp>
 
 #include <Eigen/Core>

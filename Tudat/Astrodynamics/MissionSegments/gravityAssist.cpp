@@ -170,13 +170,13 @@ double gravityAssist( const double centralBodyGravitationalParameter,
         UnivariateProxyPointer rootFunction = std::make_shared< UnivariateProxy >(
                     std::bind( &EccentricityFindingFunctions::
                                  computeIncomingEccentricityFunction,
-                                 eccentricityFindingFunctions, _1 ) );
+                                 eccentricityFindingFunctions, std::placeholders::_1 ) );
 
         // Add the first derivative of the root function.
         rootFunction->addBinding( -1, std::bind(
                                       &EccentricityFindingFunctions::
                                       computeFirstDerivativeIncomingEccentricityFunction,
-                                      eccentricityFindingFunctions, _1 ) );
+                                      eccentricityFindingFunctions, std::placeholders::_1 ) );
 
         // Initialize incoming eccentricity.
         double incomingEccentricity = TUDAT_NAN;
@@ -238,12 +238,12 @@ double gravityAssist( const double centralBodyGravitationalParameter,
         // Create an object containing the function of which we whish to obtain the root from.
         UnivariateProxyPointer rootFunction = std::make_shared< UnivariateProxy >(
                     std::bind( &PericenterFindingFunctions::computePericenterRadiusFunction,
-                                 pericenterFindingFunctions, _1 ) );
+                                 pericenterFindingFunctions, std::placeholders::_1 ) );
 
         // Add the first derivative of the root function.
         rootFunction->addBinding( -1, std::bind( &PericenterFindingFunctions::
                                                    computeFirstDerivativePericenterRadiusFunction,
-                                                   pericenterFindingFunctions, _1 ) );
+                                                   pericenterFindingFunctions, std::placeholders::_1 ) );
 
         // Set pericenter radius based on result of Newton-Raphson root-finding algorithm.
         const double pericenterRadius = rootFinder->execute( rootFunction,

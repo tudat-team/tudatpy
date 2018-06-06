@@ -74,7 +74,7 @@ std::pair< std::function< void( Eigen::MatrixXd& ) >, int > createMergedParamete
     {
         parameterPartialFunction = std::make_pair( std::bind(
                                                        &evaluateNegativeParameterPartialFunction,
-                                                       partialFunctionOfAccelerationToSubtract.first, _1 ),
+                                                       partialFunctionOfAccelerationToSubtract.first, std::placeholders::_1 ),
                                                    partialFunctionOfAccelerationToSubtract.second );
     }
     // Partial size must be equal if both non-zero
@@ -87,7 +87,7 @@ std::pair< std::function< void( Eigen::MatrixXd& ) >, int > createMergedParamete
     {
         parameterPartialFunction = std::make_pair( std::bind( &evaluateSubtractedParameterPartialFunction,
                                                                partialFunctionOfAccelerationToAdd.first,
-                                                               partialFunctionOfAccelerationToSubtract.first, _1 ),
+                                                               partialFunctionOfAccelerationToSubtract.first, std::placeholders::_1 ),
                                                   partialFunctionOfAccelerationToSubtract.second );
     }
     return parameterPartialFunction;
@@ -106,9 +106,9 @@ std::function< void( Eigen::MatrixXd& ) > getCombinedCurrentDoubleParameterFunct
 
     // Get two partial functions.
     std::function< void( Eigen::MatrixXd& ) > firstPartialFunction =
-            std::bind( &StateDerivativePartial::getCurrentDoubleParameterPartial, firstPartial, parameterObject, _1 );
+            std::bind( &StateDerivativePartial::getCurrentDoubleParameterPartial, firstPartial, parameterObject, std::placeholders::_1 );
     std::function< void( Eigen::MatrixXd& ) > secondPartialFunction =
-            std::bind( &StateDerivativePartial::getCurrentDoubleParameterPartial, secondPartial, parameterObject, _1 );
+            std::bind( &StateDerivativePartial::getCurrentDoubleParameterPartial, secondPartial, parameterObject, std::placeholders::_1 );
 
     // If both partial function sizes are zero, cannot create partial.
     if( firstPartialSize == 0 && secondPartialSize == 0 )
@@ -125,7 +125,7 @@ std::function< void( Eigen::MatrixXd& ) > getCombinedCurrentDoubleParameterFunct
         if( subtractPartials )
         {
             partialFunction = std::bind( &evaluateNegativeParameterPartialFunction,
-                                           secondPartialFunction, _1 );
+                                           secondPartialFunction, std::placeholders::_1 );
         }
         else
         {
@@ -139,13 +139,13 @@ std::function< void( Eigen::MatrixXd& ) > getCombinedCurrentDoubleParameterFunct
         {
             partialFunction = std::bind( &evaluateSubtractedParameterPartialFunction,
                                            firstPartialFunction,
-                                           secondPartialFunction, _1 );
+                                           secondPartialFunction, std::placeholders::_1 );
         }
         else
         {
             partialFunction = std::bind( &evaluateAddedParameterPartialFunction,
                                            firstPartialFunction,
-                                           secondPartialFunction, _1 );
+                                           secondPartialFunction, std::placeholders::_1 );
         }
 
     }
@@ -171,9 +171,9 @@ std::function< void( Eigen::MatrixXd& ) > getCombinedCurrentVectorParameterFunct
 
     // Get two partial functions.
     std::function< void( Eigen::MatrixXd& ) > firstPartialFunction =
-            std::bind( &StateDerivativePartial::getCurrentVectorParameterPartial, firstPartial, parameterObject, _1 );
+            std::bind( &StateDerivativePartial::getCurrentVectorParameterPartial, firstPartial, parameterObject, std::placeholders::_1 );
     std::function< void( Eigen::MatrixXd& ) > secondPartialFunction =
-            std::bind( &StateDerivativePartial::getCurrentVectorParameterPartial, secondPartial, parameterObject, _1 );
+            std::bind( &StateDerivativePartial::getCurrentVectorParameterPartial, secondPartial, parameterObject, std::placeholders::_1 );
 
 
     // If both partial function sizes are zero, cannot create partial.
@@ -191,7 +191,7 @@ std::function< void( Eigen::MatrixXd& ) > getCombinedCurrentVectorParameterFunct
         if( subtractPartials )
         {
             partialFunction = std::bind( &evaluateNegativeParameterPartialFunction,
-                                           secondPartialFunction, _1 );
+                                           secondPartialFunction, std::placeholders::_1 );
         }
         else
         {
@@ -205,13 +205,13 @@ std::function< void( Eigen::MatrixXd& ) > getCombinedCurrentVectorParameterFunct
         {
             partialFunction = std::bind( &evaluateSubtractedParameterPartialFunction,
                                            firstPartialFunction,
-                                           secondPartialFunction, _1 );
+                                           secondPartialFunction, std::placeholders::_1 );
         }
         else
         {
             partialFunction = std::bind( &evaluateAddedParameterPartialFunction,
                                            firstPartialFunction,
-                                           secondPartialFunction, _1 );
+                                           secondPartialFunction, std::placeholders::_1 );
         }
 
     }

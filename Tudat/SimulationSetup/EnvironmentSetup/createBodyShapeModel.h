@@ -11,7 +11,7 @@
 #ifndef TUDAT_CREATEBODYSHAPEMODEL_H
 #define TUDAT_CREATEBODYSHAPEMODEL_H
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/bodyShapeModel.h"
 #include "Tudat/SimulationSetup/EnvironmentSetup/body.h"

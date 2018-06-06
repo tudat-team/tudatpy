@@ -9,7 +9,7 @@
  */
 
 #include <boost/make_shared.hpp>
-#include <boost/shared_ptr.hpp>
+#include <memory>
 #include <boost/bind.hpp>
 
 #include "Tudat/Astrodynamics/Aerodynamics/aerodynamics.h"
@@ -44,7 +44,7 @@ FlightConditions::FlightConditions( const std::shared_ptr< basic_astrodynamics::
         geodeticLatitudeFunction_ = std::bind(
                     &basic_astrodynamics::OblateSpheroidBodyShapeModel::getGeodeticLatitude,
                     std::dynamic_pointer_cast< basic_astrodynamics::OblateSpheroidBodyShapeModel >( shapeModel ),
-                    _1, 1.0E-4 );
+                    std::placeholders::_1, 1.0E-4 );
     }
 }
 

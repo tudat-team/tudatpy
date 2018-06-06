@@ -80,7 +80,7 @@ Eigen::Vector6d  calculateDelaunayFundamentalArgumentsWithGmst(
 }
 
 //! Function to calculate the Delaunay fundamental arguments and (GMST + pi) at the requested time.
-Eigen::Vector6d  calculateDelaunayFundamentalArgumentsWithGmst(
+Eigen::Vector6d  calculateApproximateDelaunayFundamentalArgumentsWithGmst(
         const double tdbTime )
 {
     return calculateDelaunayFundamentalArgumentsWithGmst( tdbTime, tdbTime, convertTTtoUTC( tdbTime ) );

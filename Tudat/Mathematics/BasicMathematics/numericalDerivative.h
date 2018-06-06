@@ -141,7 +141,7 @@ Eigen::MatrixXd computeCentralDifference( const Eigen::VectorXd& input, const st
                                           CentralDifferenceOrders order = order2 );
 
 template< typename DependentVariableType, typename IndependentVariableType >
-DependentVariableType computeCentralDifference(
+DependentVariableType computeCentralDifferenceFromFunction(
         const std::function< DependentVariableType( const IndependentVariableType ) >& dependentVariableFunction,
         const IndependentVariableType nominalIndependentVariable,
         const IndependentVariableType independentVariableStepSize,

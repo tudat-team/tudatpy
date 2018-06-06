@@ -198,7 +198,7 @@ void setGlobalFrameBodyEphemerides( const NamedBodyMap& bodyMap,
                     {
                         std::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType ) > stateFunction =
                                 std::bind( &Body::getStateInBaseFrameFromEphemeris< StateScalarType, TimeType >,
-                                             bodyMap.at( ephemerisFrameOrigin ), _1 );
+                                             bodyMap.at( ephemerisFrameOrigin ), std::placeholders::_1 );
                         std::shared_ptr< BaseStateInterface > baseStateInterface =
                                 std::make_shared< BaseStateInterfaceImplementation< TimeType, StateScalarType > >(
                                     ephemerisFrameOrigin, stateFunction );
@@ -217,7 +217,7 @@ void setGlobalFrameBodyEphemerides( const NamedBodyMap& bodyMap,
 
                         std::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType ) > stateFunction =
                                 std::bind( &ephemerides::Ephemeris::getTemplatedStateFromEphemeris< StateScalarType, TimeType >,
-                                             frameManager->getEphemeris( globalFrameOrigin, "SSB" ), _1 );
+                                             frameManager->getEphemeris( globalFrameOrigin, "SSB" ), std::placeholders::_1 );
 
                         std::shared_ptr< BaseStateInterface > baseStateInterface =
                                 std::make_shared< BaseStateInterfaceImplementation< TimeType, StateScalarType > >(
@@ -231,7 +231,7 @@ void setGlobalFrameBodyEphemerides( const NamedBodyMap& bodyMap,
 
                         std::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType ) > stateFunction =
                                std::bind( &Body::getGlobalFrameOriginBarycentricStateFromEphemeris< StateScalarType, TimeType >,
-                                             bodyMap.at( globalFrameOrigin ), _1 );
+                                             bodyMap.at( globalFrameOrigin ), std::placeholders::_1 );
                         std::shared_ptr< BaseStateInterface > baseStateInterface =
                                 std::make_shared< BaseStateInterfaceImplementation< TimeType, StateScalarType > >(
                                     globalFrameOrigin, stateFunction, true );
@@ -252,7 +252,7 @@ void setGlobalFrameBodyEphemerides( const NamedBodyMap& bodyMap,
                             // Set correction function from ephemeris origin to global frame origin
                             std::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType ) > stateFunction =
                                     std::bind( &Body::getStateInBaseFrameFromEphemeris< StateScalarType, TimeType >,
-                                                 bodyMap.at( ephemerisFrameOrigin ), _1 );
+                                                 bodyMap.at( ephemerisFrameOrigin ), std::placeholders::_1 );
                             std::shared_ptr< BaseStateInterface > baseStateInterface =
                                     std::make_shared< BaseStateInterfaceImplementation< TimeType, StateScalarType > >(
                                         ephemerisFrameOrigin, stateFunction, false );

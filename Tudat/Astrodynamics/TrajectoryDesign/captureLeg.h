@@ -18,7 +18,7 @@
 #define TUDAT_CAPTURE_LEG_H
 
 #include <boost/make_shared.hpp>
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include <Tudat/Mathematics/BasicMathematics/mathematicalConstants.h>
 
@@ -58,7 +58,7 @@ public:
                 const Eigen::Vector3d& departureBodyVelocity,
                 const double centralBodyGravitationalParameter,
                 const double captureBodyGravitationalParameter,
-                boost::shared_ptr< Eigen::Vector3d > velocityBeforeDepartureBodyPtr,
+                std::shared_ptr< Eigen::Vector3d > velocityBeforeDepartureBodyPtr,
                 const double semiMajorAxis,
                 const double eccentricity ):
             MissionLeg( departureBodyPosition,
@@ -150,7 +150,7 @@ private:
      * because this parameter is dependent on the previous leg. The result of the previous leg is
      * not necessarily known when this leg is initiated.
      */
-    boost::shared_ptr< Eigen::Vector3d > velocityBeforeDepartureBodyPtr_;
+    std::shared_ptr< Eigen::Vector3d > velocityBeforeDepartureBodyPtr_;
 
     //! The capture orbit semi major axis.
     /*!

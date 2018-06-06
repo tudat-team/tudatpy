@@ -15,7 +15,7 @@
 #ifndef TUDAT_RUNGE_KUTTA_COEFFICIENTS_H
 #define TUDAT_RUNGE_KUTTA_COEFFICIENTS_H
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include <Eigen/Core>
 

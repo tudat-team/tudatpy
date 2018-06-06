@@ -15,7 +15,8 @@
 #include <iostream>
 #include <limits>
 
-#include <tr1/functional>
+#include <functional>
+#include <memory>
 #include <boost/lambda/lambda.hpp>
 
 #include <Eigen/Core>

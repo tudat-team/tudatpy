@@ -27,7 +27,7 @@
 #include <limits>
 
 #include <boost/make_shared.hpp>
-#include <boost/shared_ptr.hpp>
+#include <memory>
 #include <boost/lambda/lambda.hpp>
 #include <boost/test/floating_point_comparison.hpp>
 #include <boost/test/unit_test.hpp>
@@ -408,7 +408,7 @@ void testAerodynamicForceDirection( const bool includeThrustForce,
                             std::make_shared< ThrustAccelerationSettings >(
                                 std::make_shared< CustomThrustOrientationSettings >(
                                     std::bind( spice_interface::computeRotationQuaternionBetweenFrames,
-                                                     "IAU_Mars", "IAU_Earth", _1 ) ),
+                                                     "IAU_Mars", "IAU_Earth", std::placeholders::_1 ) ),
                                 std::make_shared< ConstantThrustEngineSettings >(
                                     thrustMagnitude, specificImpulse, bodyFixedThrustDirection ) ) );
             }
@@ -453,7 +453,7 @@ void testAerodynamicForceDirection( const bool includeThrustForce,
                             std::bind( &DummyAngleCalculator::getDummyAngleOfAttack, testAngles ),
                             std::bind( &DummyAngleCalculator::getDummyAngleOfSideslip, testAngles ),
                             std::bind( &DummyAngleCalculator::getDummyBankAngle, testAngles ),
-                            std::bind( &DummyAngleCalculator::updateGuidance, testAngles, _1 ) );
+                            std::bind( &DummyAngleCalculator::updateGuidance, testAngles, std::placeholders::_1 ) );
             }
         }
 

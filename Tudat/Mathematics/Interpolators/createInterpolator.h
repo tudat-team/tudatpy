@@ -14,7 +14,7 @@
 #include <iostream>
 
 #include <boost/make_shared.hpp>
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include "Tudat/Mathematics/Interpolators/linearInterpolator.h"
 #include "Tudat/Mathematics/Interpolators/cubicSplineInterpolator.h"

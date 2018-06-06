@@ -12,7 +12,7 @@
 #ifndef TUDAT_TORUS_H
 #define TUDAT_TORUS_H
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include <Eigen/Core>
 

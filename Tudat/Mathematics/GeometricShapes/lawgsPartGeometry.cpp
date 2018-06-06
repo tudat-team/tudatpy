@@ -13,7 +13,7 @@
  *
  */
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 #include "Tudat/Mathematics/GeometricShapes/lawgsPartGeometry.h"
 
 namespace tudat

@@ -108,7 +108,7 @@ RelativisticAccelerationPartial::getParameterPartialFunction(
         switch( parameter->getParameterName( ).first )
         {
         case estimatable_parameters::gravitational_parameter:
-            partialFunction = std::bind( &RelativisticAccelerationPartial::wrtGravitationalParameterOfCentralBody, this, _1 );
+            partialFunction = std::bind( &RelativisticAccelerationPartial::wrtGravitationalParameterOfCentralBody, this, std::placeholders::_1 );
             numberOfRows = 1;
             break;
         default:
@@ -121,11 +121,11 @@ RelativisticAccelerationPartial::getParameterPartialFunction(
         switch( parameter->getParameterName( ).first )
         {
         case estimatable_parameters::ppn_parameter_gamma:
-            partialFunction = std::bind( &RelativisticAccelerationPartial::wrtPpnParameterGamma, this, _1 );
+            partialFunction = std::bind( &RelativisticAccelerationPartial::wrtPpnParameterGamma, this, std::placeholders::_1 );
             numberOfRows = 1;
             break;
         case estimatable_parameters::ppn_parameter_beta:
-            partialFunction = std::bind( &RelativisticAccelerationPartial::wrtPpnParameterBeta, this, _1 );
+            partialFunction = std::bind( &RelativisticAccelerationPartial::wrtPpnParameterBeta, this, std::placeholders::_1 );
             numberOfRows = 1;
             break;
         default:

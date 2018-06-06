@@ -11,7 +11,7 @@
 #ifndef TUDAT_RELATIVISTICACCELERATIONPARTIAL_H
 #define TUDAT_RELATIVISTICACCELERATIONPARTIAL_H
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/physicalConstants.h"
 

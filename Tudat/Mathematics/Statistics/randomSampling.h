@@ -15,7 +15,7 @@
 
 #include <Eigen/Core>
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include "Tudat/Mathematics/Statistics/randomVariableGenerator.h"
 

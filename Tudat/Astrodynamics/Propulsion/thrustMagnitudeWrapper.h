@@ -11,7 +11,7 @@
 #ifndef TUDAT_THRUSTMAGNITUDEWRAPPER_H
 #define TUDAT_THRUSTMAGNITUDEWRAPPER_H
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 #include <tr1/functional>
 #include <boost/lambda/lambda.hpp>
 
@@ -185,7 +185,7 @@ public:
      */
     virtual void resetDerivedClassCurrentTime( const double currentTime = TUDAT_NAN )
     {
-        if( !( customThrustResetFunction_.empty( ) ) )
+        if( !( customThrustResetFunction_ == nullptr ) )
         {
             customThrustResetFunction_( currentTime );\
         }
@@ -399,7 +399,7 @@ public:
     {
         if( !( currentTime_ == time ) )
         {
-            if( !inputUpdateFunction_.empty( ) )
+            if( !( inputUpdateFunction_ == nullptr ) )
             {
                 inputUpdateFunction_( time );
             }
@@ -431,7 +431,7 @@ public:
      */
     virtual void resetDerivedClassCurrentTime( const double currentTime = TUDAT_NAN )
     {
-        if( !( inputUpdateFunction_.empty( ) ) )
+        if( !( inputUpdateFunction_ == nullptr ) )
         {
             inputUpdateFunction_( currentTime );
         }

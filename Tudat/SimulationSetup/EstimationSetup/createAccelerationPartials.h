@@ -347,7 +347,7 @@ std::shared_ptr< acceleration_partials::AccelerationPartial > createAnalyticalAc
                         ( aerodynamicAcceleration,
                           flightConditions,
                           std::bind( &Body::getState, acceleratedBody.second ),
-                          std::bind( &Body::setState, acceleratedBody.second, _1 ),
+                          std::bind( &Body::setState, acceleratedBody.second, std::placeholders::_1 ),
                           acceleratedBody.first, acceleratingBody.first );
             }
         }

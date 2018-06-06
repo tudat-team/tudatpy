@@ -16,7 +16,7 @@
 #ifndef TUDAT_APPROXIMATE_PLANET_POSITIONS_H
 #define TUDAT_APPROXIMATE_PLANET_POSITIONS_H
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
 

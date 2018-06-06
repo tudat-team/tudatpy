@@ -15,7 +15,7 @@
 #include <map>
 
 #include <tr1/functional>
-#include <boost/shared_ptr.hpp>
+#include <memory>
 #include <boost/make_shared.hpp>
 
 #include <Eigen/Core>
@@ -313,7 +313,7 @@ public:
     {
         if ( ! quadratureHasBeenPerformed_ )
         {
-            if ( integrand_.empty() )
+            if ( integrand_ == nullptr )
             {
                 throw std::runtime_error(
                             "The integrand for the Gaussian quadrature has not been set." );

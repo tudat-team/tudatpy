@@ -12,7 +12,7 @@
 
 #include <boost/array.hpp>
 #include <boost/make_shared.hpp>
-#include <boost/shared_ptr.hpp>
+#include <memory>
 #include <boost/test/floating_point_comparison.hpp>
 #include <boost/test/unit_test.hpp>
 #include <boost/assign/list_of.hpp>
@@ -52,7 +52,7 @@ public:
                     std::bind( &DummyGuidanceSystem::getCurrentAngleOfAttack, this ),
                     std::function< double( ) >( ),
                     std::function< double( ) >( ),
-                    std::bind( &DummyGuidanceSystem::updateGuidance, this, _1 ) );
+                    std::bind( &DummyGuidanceSystem::updateGuidance, this, std::placeholders::_1 ) );
 
         controlSurfaceFunction_( "TestSurface", 0.2 );
     }
@@ -310,7 +310,7 @@ BOOST_AUTO_TEST_CASE( testControlSurfaceIncrementInterfaceInPropagation )
 
     // Set update function for body orientation and control surface deflections
     std::shared_ptr< DummyGuidanceSystem > dummyGuidanceSystem = std::make_shared< DummyGuidanceSystem >(
-                std::bind( &system_models::VehicleSystems::setCurrentControlSurfaceDeflection, apolloSystems, _1, _2 ),
+                std::bind( &system_models::VehicleSystems::setCurrentControlSurfaceDeflection, apolloSystems, std::placeholders::_1, std::placeholders::_2 ),
             bodyMap[ "Apollo" ]->getFlightConditions( )->getAerodynamicAngleCalculator( ) );
 
     // Create propagation and integrtion settings.

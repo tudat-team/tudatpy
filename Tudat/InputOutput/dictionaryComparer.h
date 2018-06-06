@@ -16,7 +16,7 @@
 #include <string>
 
 #include <boost/algorithm/string/predicate.hpp>
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include "Tudat/InputOutput/dictionaryEntry.h"
 #include "Tudat/InputOutput/fieldType.h"

@@ -27,7 +27,7 @@ std::shared_ptr< numerical_integrators::NumericalIntegrator< double, Eigen::Vect
             std::make_shared< StateDerivativeCircularRestrictedThreeBodyProblem  >( massParameter );
     std::function< Eigen::Vector6d( const double, const Eigen::Vector6d& ) > stateDerivativeFunction =
             std::bind( &StateDerivativeCircularRestrictedThreeBodyProblem::computeStateDerivative, stateDerivativeModel,
-                         _1, _2 );
+                         std::placeholders::_1, std::placeholders::_2 );
 
     // Create integrator object
     return numerical_integrators::createIntegrator< double, Eigen::Vector6d >(

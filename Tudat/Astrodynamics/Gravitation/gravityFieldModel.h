@@ -12,7 +12,7 @@
 #ifndef TUDAT_GRAVITY_FIELD_MODEL_H
 #define TUDAT_GRAVITY_FIELD_MODEL_H
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 #include <Eigen/Core>
 #include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
 

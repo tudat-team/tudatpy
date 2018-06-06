@@ -12,7 +12,7 @@
 
 #include <boost/bind.hpp>
 #include <boost/make_shared.hpp>
-#include <boost/shared_ptr.hpp>
+#include <memory>
 #include <boost/test/unit_test.hpp>
 
 #include <Eigen/Core>
@@ -78,7 +78,7 @@ BOOST_AUTO_TEST_CASE( testSingleCustomStatePropagation )
     double initialCustomState = 500.0;
     std::shared_ptr< CustomStatePropagatorSettings< double > > propagatorSettings =
             std::make_shared< CustomStatePropagatorSettings< double > >(
-                std::bind( &getDummyCustomState1, _1, _2 ), initialCustomState,
+                std::bind( &getDummyCustomState1, std::placeholders::_1, std::placeholders::_2 ), initialCustomState,
                 std::make_shared< PropagationTimeTerminationSettings >( 1000.0 ) );
 
     // Define numerical integrator settings.
@@ -109,7 +109,7 @@ BOOST_AUTO_TEST_CASE( testSingleCustomStatePropagation2 )
     double initialCustomState = 500.0;
     std::shared_ptr< CustomStatePropagatorSettings< double > > propagatorSettings =
             std::make_shared< CustomStatePropagatorSettings< double > >(
-                std::bind( &getDummyCustomState2, _1, _2 ), initialCustomState,
+                std::bind( &getDummyCustomState2, std::placeholders::_1, std::placeholders::_2 ), initialCustomState,
                 std::make_shared< PropagationTimeTerminationSettings >( 1000.0 ) );
 
     // Define numerical integrator settings.
@@ -141,7 +141,7 @@ BOOST_AUTO_TEST_CASE( testSingleCustomStatePropagation3 )
     double initialCustomState = 500.0;
     std::shared_ptr< CustomStatePropagatorSettings< double > > propagatorSettings =
             std::make_shared< CustomStatePropagatorSettings< double > >(
-                std::bind( &getDummyCustomState3, _1, _2 ), initialCustomState,
+                std::bind( &getDummyCustomState3, std::placeholders::_1, std::placeholders::_2 ), initialCustomState,
                 std::make_shared< PropagationTimeTerminationSettings >( 1000.0 ) );
 
     // Define numerical integrator settings.
@@ -172,7 +172,7 @@ BOOST_AUTO_TEST_CASE( testSingleCustomStatePropagation4 )
     double initialCustomState = 500.0;
     std::shared_ptr< CustomStatePropagatorSettings< double > > propagatorSettings =
             std::make_shared< CustomStatePropagatorSettings< double > >(
-                std::bind( &getDummyCustomState4, _1, _2 ), initialCustomState,
+                std::bind( &getDummyCustomState4, std::placeholders::_1, std::placeholders::_2 ), initialCustomState,
                 std::make_shared< PropagationTimeTerminationSettings >( 100.0 ) );
 
     // Define numerical integrator settings.
@@ -292,7 +292,7 @@ BOOST_AUTO_TEST_CASE( testMultiTypeCustomStatePropagation )
     double initialCustomState = 500.0;
     std::shared_ptr< SingleArcPropagatorSettings< double > > customPropagatorSettings =
             std::make_shared< CustomStatePropagatorSettings< double > >(
-                std::bind( &getDummyCustomState1, _1, _2 ), initialCustomState,
+                std::bind( &getDummyCustomState1, std::placeholders::_1, std::placeholders::_2 ), initialCustomState,
                 std::make_shared< PropagationTimeTerminationSettings >( 1000.0 ) );
 
     // Create total propagator settings, depending on current case.

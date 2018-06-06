@@ -212,7 +212,7 @@ std::pair< std::function< Eigen::VectorXd( ) >, int > getVectorDependentVariable
     {
         // Retrieve functions for positions of two bodies.
         std::function< Eigen::Vector3d( const Eigen::Vector3d&, const Eigen::Vector3d& ) > functionToEvaluate =
-                std::bind( &linear_algebra::computeVectorDifference< 3 >, _1, _2 );
+                std::bind( &linear_algebra::computeVectorDifference< 3 >, std::placeholders::_1, std::placeholders::_2 );
         std::function< Eigen::Vector3d( ) > firstInput =
                 std::bind( &simulation_setup::Body::getPosition, bodyMap.at( bodyWithProperty ) );
         std::function< Eigen::Vector3d( ) > secondInput =
@@ -228,7 +228,7 @@ std::pair< std::function< Eigen::VectorXd( ) >, int > getVectorDependentVariable
     {
         // Retrieve functions for velocities of two bodies.
         std::function< Eigen::Vector3d( const Eigen::Vector3d&, const Eigen::Vector3d& ) > functionToEvaluate =
-                std::bind( &linear_algebra::computeVectorDifference< 3 >, _1, _2 );
+                std::bind( &linear_algebra::computeVectorDifference< 3 >, std::placeholders::_1, std::placeholders::_2 );
         std::function< Eigen::Vector3d( ) > firstInput =
                 std::bind( &simulation_setup::Body::getVelocity, bodyMap.at( bodyWithProperty ) );
         std::function< Eigen::Vector3d( ) > secondInput =
@@ -602,7 +602,7 @@ std::pair< std::function< Eigen::VectorXd( ) >, int > getVectorDependentVariable
 
         // Retrieve functions for positions of two bodies.
         std::function< Eigen::Vector6d( const Eigen::Vector6d&, const Eigen::Vector6d& ) > functionToEvaluate =
-                std::bind( &linear_algebra::computeVectorDifference< 6 >, _1, _2 );
+                std::bind( &linear_algebra::computeVectorDifference< 6 >, std::placeholders::_1, std::placeholders::_2 );
         std::function< Eigen::Vector6d( ) > firstInput =
                 std::bind( &simulation_setup::Body::getState, bodyMap.at( orbitingBody ) );
         std::function< Eigen::Vector6d( ) > secondInput =
@@ -662,7 +662,7 @@ std::pair< std::function< Eigen::VectorXd( ) >, int > getVectorDependentVariable
 
         // Retrieve functions for positions of two bodies.
         std::function< Eigen::Vector6d( const Eigen::Vector6d&, const Eigen::Vector6d& ) > functionToEvaluate =
-                std::bind( &linear_algebra::computeVectorDifference< 6 >, _1, _2 );
+                std::bind( &linear_algebra::computeVectorDifference< 6 >, std::placeholders::_1, std::placeholders::_2 );
         std::function< Eigen::Vector6d( ) > firstInput =
                 std::bind( &simulation_setup::Body::getState, bodyMap.at( orbitingBody ) );
         std::function< Eigen::Vector6d( ) > secondInput =
@@ -787,7 +787,7 @@ std::function< double( ) > getDoubleDependentVariableFunction(
             }
 
             std::function< double( const double, const double ) > functionToEvaluate =
-                    std::bind( &aerodynamics::computeMachNumber, _1, _2 );
+                    std::bind( &aerodynamics::computeMachNumber, std::placeholders::_1, std::placeholders::_2 );
 
             // Retrieve functions for airspeed and speed of sound.
             std::function< double( ) > firstInput =
@@ -852,7 +852,7 @@ std::function< double( ) > getDoubleDependentVariableFunction(
         {
             // Retrieve functions for positions of two bodies.
             std::function< double( const Eigen::Vector3d&, const Eigen::Vector3d& ) > functionToEvaluate =
-                    std::bind( &linear_algebra::computeNormOfVectorDifference, _1, _2 );
+                    std::bind( &linear_algebra::computeNormOfVectorDifference, std::placeholders::_1, std::placeholders::_2 );
             std::function< Eigen::Vector3d( ) > firstInput =
                     std::bind( &simulation_setup::Body::getPosition, bodyMap.at( bodyWithProperty ) );
             std::function< Eigen::Vector3d( ) > secondInput =
@@ -866,7 +866,7 @@ std::function< double( ) > getDoubleDependentVariableFunction(
         {
             // Retrieve functions for velicoty of two bodies.
             std::function< double( const Eigen::Vector3d&, const Eigen::Vector3d& ) > functionToEvaluate =
-                    std::bind( &linear_algebra::computeNormOfVectorDifference, _1, _2 );
+                    std::bind( &linear_algebra::computeNormOfVectorDifference, std::placeholders::_1, std::placeholders::_2 );
             std::function< Eigen::Vector3d( ) > firstInput =
                     std::bind( &simulation_setup::Body::getVelocity, bodyMap.at( bodyWithProperty ) );
             std::function< Eigen::Vector3d( ) > secondInput =
@@ -1028,7 +1028,7 @@ std::function< double( ) > getDoubleDependentVariableFunction(
 
 
             std::function< double( Eigen::Vector3d )> functionToEvaluate =
-                    std::bind( &aerodynamics::computeAerodynamicLoadFromAcceleration, _1 );
+                    std::bind( &aerodynamics::computeAerodynamicLoadFromAcceleration, std::placeholders::_1 );
             variableFunction = std::bind(
                         &evaluateReferenceFunction< double, Eigen::Vector3d >,
                         functionToEvaluate, aerodynamicAccelerationFunction );
@@ -1135,7 +1135,7 @@ std::function< double( ) > getDoubleDependentVariableFunction(
         {
             using namespace Eigen;
             std::function< double( const Vector6d&, const double, const double ) > functionToEvaluate =
-                    std::bind( &basic_astrodynamics::computePeriapsisAltitudeFromCartesianState, _1, _2, _3 );
+                    std::bind( &basic_astrodynamics::computePeriapsisAltitudeFromCartesianState, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3 );
 
             // Retrieve function for propagated body's Cartesian state in the global reference frame.
             std::function< Vector6d( ) > propagatedBodyStateFunction =

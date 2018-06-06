@@ -11,7 +11,7 @@
 #ifndef TUDAT_CREATEOBSERVATIONPARTIALS_H
 #define TUDAT_CREATEOBSERVATIONPARTIALS_H
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include "Tudat/Astrodynamics/ObservationModels/oneWayRangeObservationModel.h"
 #include "Tudat/Astrodynamics/ObservationModels/oneWayDopplerObservationModel.h"

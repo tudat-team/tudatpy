@@ -14,7 +14,7 @@
 
 #include <tr1/functional>
 #include <boost/lambda/lambda.hpp>
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include <Eigen/Core>
 

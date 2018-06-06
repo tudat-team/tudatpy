@@ -28,7 +28,7 @@
 #include <boost/make_shared.hpp>
 #include <boost/bind.hpp>
 #include <tr1/functional>
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/physicalConstants.h"
 #include "Tudat/Basics/testMacros.h"

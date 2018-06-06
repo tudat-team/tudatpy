@@ -382,12 +382,12 @@ public:
         interpolatorInterface_ = std::make_shared< FullThrustInterpolationInterface >(
                     interpolators::createOneDimensionalInterpolator( dataInterpolationSettings ) );
         thrustDirectionGuidanceSettings_ = std::make_shared< CustomThrustDirectionSettings >(
-                    std::bind( &FullThrustInterpolationInterface::getThrustDirection, interpolatorInterface_, _1 ) );
+                    std::bind( &FullThrustInterpolationInterface::getThrustDirection, interpolatorInterface_, std::placeholders::_1 ) );
         thrustMagnitudeSettings_ =  std::make_shared< FromFunctionThrustEngineSettings >(
-                    std::bind( &FullThrustInterpolationInterface::getThrustMagnitude, interpolatorInterface_, _1 ),
+                    std::bind( &FullThrustInterpolationInterface::getThrustMagnitude, interpolatorInterface_, std::placeholders::_1 ),
                     specificImpulseFunction, boost::lambda::constant( true ),
                     boost::lambda::constant( Eigen::Vector3d::UnitX( ) ),
-                    std::bind( &FullThrustInterpolationInterface::resetTime, interpolatorInterface_, _1 ) );
+                    std::bind( &FullThrustInterpolationInterface::resetTime, interpolatorInterface_, std::placeholders::_1 ) );
     }
 
     //! Constructor used for defining total thrust vector (in local or inertial frame) from interpolator using constant

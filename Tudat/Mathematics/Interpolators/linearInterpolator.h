@@ -20,7 +20,7 @@
 
 #include <boost/multi_array.hpp>
 #include <boost/array.hpp>
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include <Eigen/Core>
 

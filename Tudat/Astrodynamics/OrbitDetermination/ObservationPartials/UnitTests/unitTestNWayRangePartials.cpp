@@ -116,7 +116,7 @@ BOOST_AUTO_TEST_CASE( testnWayRangePartials )
             std::shared_ptr< ObservationModel< 1 > > nWayRangeModel =
                     observation_models::ObservationModelCreator< 1, double, double >::createObservationModel(
                         linkEnds, std::make_shared< observation_models::NWayRangeObservationSettings >(
-                            legObservationModels, std::bind( &getRetransmissionDelays, _1, linkNumber + 1 ) ), bodyMap  );
+                            legObservationModels, std::bind( &getRetransmissionDelays, std::placeholders::_1, linkNumber + 1 ) ), bodyMap  );
 
             // Create parameter objects.
             std::shared_ptr< EstimatableParameterSet< double > > fullEstimatableParameterSet =
@@ -147,7 +147,7 @@ BOOST_AUTO_TEST_CASE( testnWayRangePartials )
             std::shared_ptr< ObservationModel< 1 > > nWayRangeModel =
                     observation_models::ObservationModelCreator< 1, double, double >::createObservationModel(
                         linkEnds, std::make_shared< observation_models::NWayRangeObservationSettings >(
-                            legObservationModels, std::bind( &getRetransmissionDelays, _1, linkNumber + 1 ) ), bodyMap  );
+                            legObservationModels, std::bind( &getRetransmissionDelays, std::placeholders::_1, linkNumber + 1 ) ), bodyMap  );
 
             // Create parameter objects.
             std::shared_ptr< EstimatableParameterSet< double > > fullEstimatableParameterSet =

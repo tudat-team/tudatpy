@@ -42,7 +42,7 @@ void to_json( nlohmann::json& jsonObject, const std::shared_ptr< EphemerisSettin
     {
         std::shared_ptr< ApproximatePlanetPositionSettings > approximatePlanetPositionSettings =
                 std::dynamic_pointer_cast< ApproximatePlanetPositionSettings >( ephemerisSettings );
-        assertNonNullPointer( approximatePlanetPositionSettings );
+        assertNonnullptrPointer( approximatePlanetPositionSettings );
         jsonObject[ K::bodyIdentifier ] = approximatePlanetPositionSettings->getBodyIdentifier( );
         jsonObject[ K::useCircularCoplanarApproximation ] =
                 approximatePlanetPositionSettings->getUseCircularCoplanarApproximation( );
@@ -52,7 +52,7 @@ void to_json( nlohmann::json& jsonObject, const std::shared_ptr< EphemerisSettin
     {
         std::shared_ptr< DirectSpiceEphemerisSettings > directSpiceEphemerisSettings =
                 std::dynamic_pointer_cast< DirectSpiceEphemerisSettings >( ephemerisSettings );
-        assertNonNullPointer( directSpiceEphemerisSettings );
+        assertNonnullptrPointer( directSpiceEphemerisSettings );
         jsonObject[ K::correctForStellarAberration ] =
                 directSpiceEphemerisSettings->getCorrectForStellarAberration( );
         jsonObject[ K::correctForLightTimeAberration ] =
@@ -65,7 +65,7 @@ void to_json( nlohmann::json& jsonObject, const std::shared_ptr< EphemerisSettin
     {
         std::shared_ptr< InterpolatedSpiceEphemerisSettings > interpolatedSpiceEphemerisSettings =
                 std::dynamic_pointer_cast< InterpolatedSpiceEphemerisSettings >( ephemerisSettings );
-        assertNonNullPointer( interpolatedSpiceEphemerisSettings );
+        assertNonnullptrPointer( interpolatedSpiceEphemerisSettings );
         jsonObject[ K::initialTime ] = interpolatedSpiceEphemerisSettings->getInitialTime( );
         jsonObject[ K::finalTime ] = interpolatedSpiceEphemerisSettings->getFinalTime( );
         jsonObject[ K::timeStep ] = interpolatedSpiceEphemerisSettings->getTimeStep( );
@@ -77,7 +77,7 @@ void to_json( nlohmann::json& jsonObject, const std::shared_ptr< EphemerisSettin
     {
         std::shared_ptr< TabulatedEphemerisSettings > tabulatedEphemerisSettings =
                 std::dynamic_pointer_cast< TabulatedEphemerisSettings >( ephemerisSettings );
-        assertNonNullPointer( tabulatedEphemerisSettings );
+        assertNonnullptrPointer( tabulatedEphemerisSettings );
         jsonObject[ K::bodyStateHistory ] = tabulatedEphemerisSettings->getBodyStateHistory( );
         jsonObject[ K::useLongDoubleStates ] = tabulatedEphemerisSettings->getUseLongDoubleStates( );
         return;
@@ -86,7 +86,7 @@ void to_json( nlohmann::json& jsonObject, const std::shared_ptr< EphemerisSettin
     {
         std::shared_ptr< ConstantEphemerisSettings > constantEphemerisSettings =
                 std::dynamic_pointer_cast< ConstantEphemerisSettings >( ephemerisSettings );
-        assertNonNullPointer( constantEphemerisSettings );
+        assertNonnullptrPointer( constantEphemerisSettings );
         jsonObject[ K::constantState ] = constantEphemerisSettings->getConstantState( );
         return;
     }
@@ -94,7 +94,7 @@ void to_json( nlohmann::json& jsonObject, const std::shared_ptr< EphemerisSettin
     {
         std::shared_ptr< KeplerEphemerisSettings > keplerEphemerisSettings =
                 std::dynamic_pointer_cast< KeplerEphemerisSettings >( ephemerisSettings );
-        assertNonNullPointer( keplerEphemerisSettings );
+        assertNonnullptrPointer( keplerEphemerisSettings );
         jsonObject[ K::initialStateInKeplerianElements ] =
                 keplerEphemerisSettings->getInitialStateInKeplerianElements( );
         jsonObject[ K::epochOfInitialState ] =

@@ -22,7 +22,7 @@
 #include "Tudat/InputOutput/solarActivityData.h"
 #include "Tudat/InputOutput/extractor.h"
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 namespace tudat
 {

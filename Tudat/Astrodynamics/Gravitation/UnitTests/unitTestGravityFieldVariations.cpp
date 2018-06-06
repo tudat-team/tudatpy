@@ -156,7 +156,7 @@ std::shared_ptr< GravityFieldVariationsSet > getTestGravityFieldVariations( )
         deformingBodyStateFunctions.push_back(
                     std::bind( &getBodyCartesianStateAtEpoch,
                                  deformingBodies.at( i ), "SSB", "J2000",
-                                 "None", _1 ) );
+                                 "None", std::placeholders::_1 ) );
         deformingBodyMasses.push_back(
                     std::bind( &getBodyGravitationalParameter,
                                  deformingBodies.at( i ) ) );
@@ -172,9 +172,9 @@ std::shared_ptr< GravityFieldVariationsSet > getTestGravityFieldVariations( )
     std::shared_ptr< GravityFieldVariations > solidBodyGravityFieldVariations =
             std::make_shared< BasicSolidBodyTideGravityFieldVariations >(
                 std::bind( &getBodyCartesianStateAtEpoch,
-                             "Jupiter", "SSB", "J2000", "None", _1 ),
+                             "Jupiter", "SSB", "J2000", "None", std::placeholders::_1 ),
                 std::bind( &computeRotationQuaternionBetweenFrames,
-                             "J2000", "IAU_Jupiter", _1 ),
+                             "J2000", "IAU_Jupiter", std::placeholders::_1 ),
                 deformingBodyStateFunctions,
                 getAverageRadius( "Jupiter" ),
                 std::bind( &getBodyGravitationalParameter, "Jupiter" ),

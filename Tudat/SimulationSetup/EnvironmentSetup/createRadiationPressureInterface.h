@@ -11,7 +11,7 @@
 #ifndef TUDAT_CREATERADIATIONPRESSUREINTERFACE_H
 #define TUDAT_CREATERADIATIONPRESSUREINTERFACE_H
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 #include <boost/make_shared.hpp>
 
 #include "Tudat/SimulationSetup/EnvironmentSetup/body.h"

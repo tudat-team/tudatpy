@@ -43,12 +43,12 @@ std::shared_ptr< ephemerides::Ephemeris > createReferencePointEphemeris(
     // Create list of state/rotation functions that are to be used
     std::map< int, std::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType& ) > > stationEphemerisVector;
     stationEphemerisVector[ 2 ] = std::bind( &simulation_setup::Body::getStateInBaseFrameFromEphemeris
-                                               < StateScalarType, TimeType >, bodyWithReferencePoint, _1 );
+                                               < StateScalarType, TimeType >, bodyWithReferencePoint, std::placeholders::_1 );
     stationEphemerisVector[ 0 ] = referencePointStateFunction;
 
     std::map< int, std::function< StateType( const TimeType, const StateType& ) > > stationRotationVector;
     stationRotationVector[ 1 ] =  std::bind( &ephemerides::transformStateToGlobalFrame
-                                               < StateScalarType, TimeType >, _2, _1, bodyRotationModel );
+                                               < StateScalarType, TimeType >, std::placeholders::_2, std::placeholders::_1, bodyRotationModel );
 
     // Create and return ephemeris
     return std::make_shared< ephemerides::CompositeEphemeris< TimeType, StateScalarType > >(
@@ -89,7 +89,7 @@ std::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType& ) > getLi
                                  bodyWithLinkEnd, bodyWithLinkEnd->getRotationalEphemeris( ),
                                  std::bind( &ground_stations::GroundStation::getStateInPlanetFixedFrame
                                               < StateScalarType, TimeType >,
-                                              bodyWithLinkEnd->getGroundStation( linkEndId.second ), _1 ) ), _1 );
+                                              bodyWithLinkEnd->getGroundStation( linkEndId.second ), std::placeholders::_1 ) ), std::placeholders::_1 );
 
     }
     // Else, create state function for center of mass
@@ -98,7 +98,7 @@ std::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType& ) > getLi
         // Create function to calculate state of transmitting ground station.
         linkEndCompleteEphemerisFunction =
                 std::bind( &simulation_setup::Body::getStateInBaseFrameFromEphemeris< StateScalarType, TimeType >,
-                                                        bodyWithLinkEnd, _1 );
+                                                        bodyWithLinkEnd, std::placeholders::_1 );
     }
     return linkEndCompleteEphemerisFunction;
 }

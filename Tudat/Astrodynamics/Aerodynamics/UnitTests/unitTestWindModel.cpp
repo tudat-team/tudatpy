@@ -14,7 +14,7 @@
 #include <limits>
 
 #include <boost/make_shared.hpp>
-#include <boost/shared_ptr.hpp>
+#include <memory>
 #include <boost/lambda/lambda.hpp>
 #include <boost/test/floating_point_comparison.hpp>
 #include <boost/test/unit_test.hpp>
@@ -72,7 +72,7 @@ BOOST_AUTO_TEST_CASE( testWindModelInPropagation )
                 Eigen::Vector6d::Zero( ) );
     defaultBodySettings[ "Earth" ]->atmosphereSettings->setWindSettings(
                 std::make_shared< CustomWindModelSettings >(
-                    std::bind( &getCustomWindVector, _1, _2, _3, _4 ) ) );
+                    std::bind( &getCustomWindVector, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4 ) ) );
     NamedBodyMap bodyMap = createBodies( defaultBodySettings );
 
     // Create vehicle object.

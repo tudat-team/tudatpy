@@ -114,18 +114,18 @@ void TabulatedAtmosphere::initialize( const std::string& atmosphereTableFile )
     cubicSplineInterpolationForPressure_
             = std::make_shared< CubicSplineInterpolatorDouble >( altitudeData_, pressureData_ );
     cubicSplineInterpolationForTemperature_
-            = boost::make_shared< CubicSplineInterpolatorDouble >( altitudeData_, temperatureData_ );
+            = std::make_shared< CubicSplineInterpolatorDouble >( altitudeData_, temperatureData_ );
 
     if( containsSpecificHeatRatio_ )
     {
         cubicSplineInterpolationForSpecificHeatRatio_
-            = boost::make_shared< CubicSplineInterpolatorDouble >( altitudeData_, specificHeatRatioData_);
+            = std::make_shared< CubicSplineInterpolatorDouble >( altitudeData_, specificHeatRatioData_);
     }
 
     if( containsGasConstant_ )
     {
         cubicSplineInterpolationForGasConstant_
-            = boost::make_shared< CubicSplineInterpolatorDouble >( altitudeData_, gasConstantData_);
+            = std::make_shared< CubicSplineInterpolatorDouble >( altitudeData_, gasConstantData_);
     }
 }
 

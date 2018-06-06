@@ -310,11 +310,11 @@ public:
         {
             throw std::runtime_error( "Error when creating DirectFirstOrderDopplerProperTimeRateInterface, reference point must be receiver, transmitter or unidentified" );
         }
-        else if( ( referencePointLinkEndType == unidentified_link_end ) && referencePointStateFunction.empty( ) )
+        else if( ( referencePointLinkEndType == unidentified_link_end ) && ( referencePointStateFunction == nullptr ) )
         {
             throw std::runtime_error( "Error when creating DirectFirstOrderDopplerProperTimeRateInterface, reference point must have state information" );
         }
-        else if( ( referencePointLinkEndType != unidentified_link_end ) && !referencePointStateFunction.empty( ) )
+        else if( ( referencePointLinkEndType != unidentified_link_end ) && !( referencePointStateFunction == nullptr ) )
         {
             throw std::runtime_error( "Error when creating DirectFirstOrderDopplerProperTimeRateInterface, reference point must have unambiguous state information" );
         }
@@ -466,11 +466,11 @@ public:
         ObservationModel< 1, ObservationScalarType, TimeType >( one_way_doppler, observationBiasCalculator ),
         lightTimeCalculator_( lightTimeCalculator ),
         transmitterProperTimeRateCalculator_(
-            ( transmitterProperTimeRateFunction.empty( ) ) ?
+            ( transmitterProperTimeRateFunction == nullptr ) ?
                 nullptr : std::make_shared< CustomDopplerProperTimeRateInterface >(
                 transmitter, transmitterProperTimeRateFunction ) ),
         receiverProperTimeRateCalculator_(
-            receiverProperTimeRateFunction.empty( ) ?
+            ( receiverProperTimeRateFunction == nullptr ) ?
                 nullptr : std::make_shared< CustomDopplerProperTimeRateInterface >(
                 receiver, receiverProperTimeRateFunction ) )
     {

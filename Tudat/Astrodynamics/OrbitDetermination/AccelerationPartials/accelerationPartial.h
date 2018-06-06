@@ -86,16 +86,16 @@ public:
             // Check if propagated body corresponds to accelerated, accelerating, ro relevant third body.
             else if( stateReferencePoint.first == acceleratedBody_ )
             {
-                partialFunction = std::make_pair( std::bind( &AccelerationPartial::wrtStateOfAcceleratedBody, this, _1 ), 3 );
+                partialFunction = std::make_pair( std::bind( &AccelerationPartial::wrtStateOfAcceleratedBody, this, std::placeholders::_1 ), 3 );
             }
             else if( stateReferencePoint.first == acceleratingBody_ )
             {
-                partialFunction = std::make_pair( std::bind( &AccelerationPartial::wrtStateOfAcceleratingBody, this, _1 ), 3 );
+                partialFunction = std::make_pair( std::bind( &AccelerationPartial::wrtStateOfAcceleratingBody, this, std::placeholders::_1 ), 3 );
             }
             else if( isAccelerationPartialWrtAdditionalBodyNonnullptr( stateReferencePoint.first ) )
             {
                 partialFunction = std::make_pair( std::bind( &AccelerationPartial::wrtStateOfAdditionalBody,
-                                                               this, _1, stateReferencePoint.first ), 3 );
+                                                               this, std::placeholders::_1, stateReferencePoint.first ), 3 );
             }
             break;
         }
@@ -109,7 +109,7 @@ public:
             else if( isStateDerivativeDependentOnIntegratedNonTranslationalState( stateReferencePoint, integratedStateType ) )
             {
                 partialFunction = std::make_pair( std::bind( &AccelerationPartial::wrtNonTranslationalStateOfAdditionalBody,
-                                                               this, _1, stateReferencePoint, integratedStateType ), 1 );
+                                                               this, std::placeholders::_1, stateReferencePoint, integratedStateType ), 1 );
             }
         }
         case propagators::custom_state:

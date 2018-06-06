@@ -214,7 +214,7 @@ inline void testObservationPartials(
         // Define observation function for current observable/link end
         std::function< Eigen::VectorXd( const double ) > observationFunction = std::bind(
                     &ObservationModel< ObservableSize, double, double >::computeObservations,
-                    observationModel, _1, linkEndIterator->first );
+                    observationModel, std::placeholders::_1, linkEndIterator->first );
 
         if( testPositionPartial )
         {
@@ -311,7 +311,7 @@ inline void testObservationPartials(
             {
                 std::function< Eigen::VectorXd( const double ) > vectorObservationFunction = std::bind(
                             &ObservationModel< ObservableSize, double, double >::computeObservations,
-                            observationModel, _1, linkEndIterator->first );
+                            observationModel, std::placeholders::_1, linkEndIterator->first );
 
                 // Settings for parameter partial functions.
                 std::vector< Eigen::VectorXd > parameterPerturbations;

@@ -17,7 +17,7 @@
 #include <map>
 #include <string>
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 #include <tr1/functional>
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/torqueModel.h"

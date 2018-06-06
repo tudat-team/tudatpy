@@ -17,7 +17,7 @@
 #ifndef TUDAT_EXPONENTIAL_ATMOSPHERE_H
 #define TUDAT_EXPONENTIAL_ATMOSPHERE_H
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include <cmath>
 

@@ -12,7 +12,7 @@
 #ifndef TUDAT_FUNCTION_H
 #define TUDAT_FUNCTION_H
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 namespace tudat
 {

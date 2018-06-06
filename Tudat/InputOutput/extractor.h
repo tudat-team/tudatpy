@@ -12,7 +12,7 @@
 #ifndef TUDAT_EXTRACTOR_H
 #define TUDAT_EXTRACTOR_H
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 #include <map>
 #include <cstdarg>
 

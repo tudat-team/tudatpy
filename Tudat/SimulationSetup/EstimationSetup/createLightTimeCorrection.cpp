@@ -62,7 +62,7 @@ std::shared_ptr< LightTimeCorrection > createLightTimeCorrections(
                     // Set state function.
                     perturbingBodyStateFunctions.push_back(
                                 std::bind( &simulation_setup::Body::getStateInBaseFrameFromEphemeris< double, double >,
-                                                                         bodyMap.at( perturbingBodies[ i ] ), _1 ) );
+                                                                         bodyMap.at( perturbingBodies[ i ] ), std::placeholders::_1 ) );
 
                     // Set gravitational parameter function.
                     perturbingBodyGravitationalParameterFunctions.push_back(
