@@ -757,7 +757,7 @@ public:
 
         // Create numerical integrator.
         boost::shared_ptr< numerical_integrators::NumericalIntegrator< Time, StateType, StateType, long double > > integrator =
-                numerical_integrators::createIntegrator< Time, StateType, long double  >(
+                numerical_integrators::createIntegrator< Time, StateType, long double >(
                     stateDerivativeFunction, initialState, integratorSettings );
 
         if( integratorSettings->assessPropagationTerminationConditionDuringIntegrationSubsteps_ )
