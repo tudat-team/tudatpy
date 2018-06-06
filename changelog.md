@@ -13,6 +13,9 @@
 	- added base class for filters
 	- added base class for Kalman filters
 	- added linear, extended and unscented Kalman filters (see issue [#390](https://github.com/Tudat/tudat/issues/390))
+- **Numerical Integrators**
+	- modified constructor for RK integrators with variable step size to input all possible options
+	- added another constructor to input vector of relative and absolute tolerances
 - **Orbital Element Conversions**
 	- added conversions for position and velocity state variables: Cartesian<->USM7, Cartesian<->USM6, Keplerian<->USM6, Cartesian<->USMEM, Keplerian<->USMEM
 	- added conversions for attitude state variables: quaternion<->MRP, quaternion<->exponential map
