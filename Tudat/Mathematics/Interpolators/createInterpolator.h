@@ -61,7 +61,7 @@ public:
      */
     InterpolatorSettings( const OneDimensionalInterpolatorTypes interpolatorType,
                           const AvailableLookupScheme selectedLookupScheme = huntingAlgorithm,
-                          const bool useLongDoubleTimeStep = 0,
+                          const bool useLongDoubleTimeStep = false,
                           const BoundaryInterpolationType boundaryInterpolationType = extrapolate_at_boundary ):
         interpolatorType_( interpolatorType ), selectedLookupScheme_( selectedLookupScheme ),
         useLongDoubleTimeStep_( useLongDoubleTimeStep ),
@@ -91,7 +91,11 @@ public:
         return selectedLookupScheme_;
     }
 
-
+    //! Function to reset the use of long double type for time step.
+    /*!
+     * Function to reset the use of long double type for time step.
+     * \param Boolean denoting whether time step is to be a long double.
+     */
     void resetUseLongDoubleTimeStep( const bool useLongDoubleTimeStep )
     {
         useLongDoubleTimeStep_ = useLongDoubleTimeStep;
@@ -196,6 +200,7 @@ template< typename IndependentType, typename DependentType >
 class DataMapSettings
 {
 public:
+
     //! Empty constructor.
     /*!
      * Empty constructor.
@@ -223,10 +228,11 @@ public:
     }
 
 protected:
+
     //! The data map directly provided by the user in the constructor.
     const std::map< IndependentType, DependentType > dataMap_;
-};
 
+};
 
 //! Class defening the settings to be used to create a map of data (used for interpolation).
 /*!
@@ -237,6 +243,7 @@ template< typename IndependentType, typename DependentType >
 class IndependentDependentDataMapSettings : public DataMapSettings< IndependentType, DependentType >
 {
 public:
+
     //! Consturctor.
     /*!
      * Constructor.
@@ -279,8 +286,8 @@ public:
         }
         return dataMap;
     }
-};
 
+};
 
 //! Class defening the settings to be used to create a map of data (used for interpolation).
 /*!
@@ -291,6 +298,7 @@ template< typename EigenVectorType >
 class FromFileDataMapSettings : public DataMapSettings< typename EigenVectorType::Scalar, EigenVectorType >
 {
 public:
+
     //! Constructor.
     /*!
      * Constructor.
@@ -316,8 +324,8 @@ public:
     {
         return input_output::readEigenVectorMapFromFile< EigenVectorType >( relativeFilePath_ );
     }
-};
 
+};
 
 //! Class defening the settings to be used to create a map of data (used for interpolation).
 /*!
@@ -328,6 +336,7 @@ template< typename IndependentType, typename DependentType >
 class HermiteDataSettings : public DataMapSettings< IndependentType, DependentType >
 {
 public:
+
     //! Constructor.
     /*!
      * Constructor.
@@ -344,8 +353,8 @@ public:
 
     //! Vector containing the first derivatives of the depedent variables.
     std::vector< DependentType > firstDerivativeOfDependentVariables_;
-};
 
+};
 
 //! Class containing (the settings to create) the data needed for the interpolation and the settings to create the
 //! interpolator.
@@ -356,6 +365,7 @@ template< typename IndependentType, typename DependentType >
 class DataInterpolationSettings
 {
 public:
+
     //! Constructor.
     /*!
      * Constructor.
@@ -375,8 +385,8 @@ public:
 
     //! Object containing the settings to create the interpolator to be used.
     boost::shared_ptr< InterpolatorSettings > interpolatorSettings_;
-};
 
+};
 
 //! Function to create an interpolator
 /*!
