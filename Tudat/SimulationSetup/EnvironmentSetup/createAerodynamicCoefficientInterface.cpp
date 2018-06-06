@@ -27,7 +27,7 @@ boost::shared_ptr< AerodynamicCoefficientSettings > readTabulatedAerodynamicCoef
         const double lateralReferenceLength,
         const Eigen::Vector3d& momentReferencePoint,
         const std::vector< aerodynamics::AerodynamicCoefficientsIndependentVariables > independentVariableNames,
-        const bool areCoefficientsInAerodynamicFrame ,
+        const bool areCoefficientsInAerodynamicFrame,
         const bool areCoefficientsInNegativeAxisDirection )
 {
     // Retrieve number of independent variables from file.
