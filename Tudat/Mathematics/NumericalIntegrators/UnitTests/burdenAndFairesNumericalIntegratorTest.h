@@ -86,7 +86,7 @@ public:
         // used to recompute the current step.
         const double newStepSize = safetyFactorForNextStepSize * stepSize * std::pow(
                     absoluteErrorTolerance.array( ).minCoeff( )
-                    / relativeError_.array( ).abs( ).maxCoeff( ), 1.0 / ( orders.second - 1.0 ) );
+                    / relativeError_.array( ).abs( ).maxCoeff( ), 1.0 / ( orders.first ) );
 
         // Check if the current integration step is accepted, based on the allowed absolute
         // tolerance.
