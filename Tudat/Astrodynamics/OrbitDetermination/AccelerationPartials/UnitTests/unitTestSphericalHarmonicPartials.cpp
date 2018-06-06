@@ -570,9 +570,9 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicAccelerationPartial )
 
     // Create state access/modification functions for bodies.
     std::function< void( Eigen::Vector6d ) > earthStateSetFunction =
-            std::bind( &Body::setState, earth, _1  );
+            std::bind( &Body::setState, earth, std::placeholders::_1  );
     std::function< void( Eigen::Vector6d ) > vehicleStateSetFunction =
-            std::bind( &Body::setState, vehicle, _1  );
+            std::bind( &Body::setState, vehicle, std::placeholders::_1  );
     std::function< Eigen::Vector6d ( ) > earthStateGetFunction =
             std::bind( &Body::getState, earth );
     std::function< Eigen::Vector6d ( ) > vehicleStateGetFunction =
@@ -721,7 +721,7 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicAccelerationPartial )
                 doubleParametersIterator->second );
     Eigen::Vector3d testPartialWrtEarthRotationRate = calculateAccelerationWrtParameterPartials(
                 doubleParametersIterator->second, gravitationalAcceleration, 1.0E-12, &emptyFunction, testTime, std::bind(
-                    &Body::setCurrentRotationToLocalFrameFromEphemeris, earth, _1 ) );
+                    &Body::setCurrentRotationToLocalFrameFromEphemeris, earth, std::placeholders::_1 ) );
 
 
 
@@ -734,7 +734,7 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicAccelerationPartial )
     Eigen::MatrixXd testPartialWrtPosition = calculateAccelerationWrtParameterPartials(
                 vectorParametersIterator->second, gravitationalAcceleration, Eigen::Vector2d::Constant( 1.0E-6 ),
                 &emptyFunction, testTime, std::bind(
-                    &Body::setCurrentRotationToLocalFrameFromEphemeris, earth, _1 ) );
+                    &Body::setCurrentRotationToLocalFrameFromEphemeris, earth, std::placeholders::_1 ) );
     vectorParametersIterator++;
 
     std::function< void( ) > sphericalHarmonicFieldUpdate =

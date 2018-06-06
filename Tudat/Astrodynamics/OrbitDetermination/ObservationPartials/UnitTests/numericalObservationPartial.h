@@ -11,7 +11,7 @@
 #ifndef TUDAT_NUMERICALOBSERVATIONPARTIAL_H
 #define TUDAT_NUMERICALOBSERVATIONPARTIAL_H
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 #include <tr1/functional>
 #include <boost/bind.hpp>
 

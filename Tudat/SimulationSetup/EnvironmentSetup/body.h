@@ -14,7 +14,7 @@
 #include <map>
 #include <vector>
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include <Eigen/Core>
 
@@ -470,7 +470,7 @@ public:
         }
         else if( dependentOrientationCalculator_ != NULL )
         {
-            currentRotationToLocalFrame_ = dependentOrientationCalculator_->getRotationToLocalFrame( time );
+            currentRotationToLocalFrame_ = dependentOrientationCalculator_->computeAndGetRotationToLocalFrame( time );
         }
         else
         {
@@ -545,7 +545,7 @@ public:
         }
         else if( dependentOrientationCalculator_ != NULL )
         {
-            currentRotationToLocalFrame_ = dependentOrientationCalculator_->getRotationToLocalFrame( time );
+            currentRotationToLocalFrame_ = dependentOrientationCalculator_->computeAndGetRotationToLocalFrame( time );
             currentRotationToLocalFrameDerivative_.setZero( );
             currentAngularVelocityVectorInGlobalFrame_.setZero( );
         }
@@ -1250,8 +1250,8 @@ Eigen::Matrix< StateScalarType, 3, 1 > getBodyAccelerationInBaseFramefromNumeric
         const TimeType nominalEvalutationTime )
 {
     std::function< Eigen::Matrix< StateScalarType, 6, 1  >( const TimeType ) > bodyStateFunction =
-            std::bind( &Body::getStateInBaseFrameFromEphemeris< StateScalarType, TimeType >, bodyWithAcceleration, _1 );
-    return numerical_derivatives::computeCentralDifference(
+            std::bind( &Body::getStateInBaseFrameFromEphemeris< StateScalarType, TimeType >, bodyWithAcceleration, std::placeholders::_1 );
+    return numerical_derivatives::computeCentralDifferenceFromFunction(
                 bodyStateFunction, nominalEvalutationTime, 100.0, numerical_derivatives::order8 ).segment( 3, 3 );
 }
 

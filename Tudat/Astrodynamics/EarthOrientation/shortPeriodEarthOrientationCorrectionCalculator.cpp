@@ -93,7 +93,7 @@ std::shared_ptr< ShortPeriodEarthOrientationCorrectionCalculator< double > > get
                 std::vector< std::string >{
                     tudat::input_output::getEarthOrientationDataFilesPath( ) + "utcLibrationFundamentalArgumentMultipliers.txt",
                     tudat::input_output::getEarthOrientationDataFilesPath( ) + "utcOceanTidesFundamentalArgumentMultipliers.txt" },
-                std::bind( &sofa_interface::calculateDelaunayFundamentalArgumentsWithGmst, _1 ) );
+                std::bind( &sofa_interface::calculateApproximateDelaunayFundamentalArgumentsWithGmst, std::placeholders::_1 ) );
 }
 
 //! Function to retrieve the default polar motion short-period correction calculator
@@ -112,7 +112,7 @@ std::shared_ptr< ShortPeriodEarthOrientationCorrectionCalculator< Eigen::Vector2
                     "polarMotionLibrationFundamentalArgumentMultipliersQuasiDiurnalOnly.txt",
                     tudat::input_output::getEarthOrientationDataFilesPath( ) +
                     "polarMotionOceanTidesFundamentalArgumentMultipliers.txt" },
-                std::bind( &sofa_interface::calculateDelaunayFundamentalArgumentsWithGmst, _1 ) );
+                std::bind( &sofa_interface::calculateApproximateDelaunayFundamentalArgumentsWithGmst, std::placeholders::_1 ) );
 
 }
 

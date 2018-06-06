@@ -356,7 +356,7 @@ std::shared_ptr< EstimatableParameter< Eigen::VectorXd > > createVectorParameter
                     getCosineCoefficientsFunction = std::bind( &SphericalHarmonicsGravityField::getCosineCoefficients,
                                                                  shGravityField );
                     setCosineCoefficientsFunction = std::bind( &SphericalHarmonicsGravityField::setCosineCoefficients,
-                                                                 shGravityField, _1 );
+                                                                 shGravityField, std::placeholders::_1 );
                 }
                 else
                 {
@@ -365,7 +365,7 @@ std::shared_ptr< EstimatableParameter< Eigen::VectorXd > > createVectorParameter
                                 timeDependentShField );
                     setCosineCoefficientsFunction = std::bind(
                                 &TimeDependentSphericalHarmonicsGravityField::setNominalCosineCoefficients,
-                                timeDependentShField, _1 );
+                                timeDependentShField, std::placeholders::_1 );
                 }
 
                 // Create cosine coefficients estimation object.
@@ -416,7 +416,7 @@ std::shared_ptr< EstimatableParameter< Eigen::VectorXd > > createVectorParameter
                     getSineCoefficientsFunction = std::bind( &SphericalHarmonicsGravityField::getSineCoefficients,
                                                                shGravityField );
                     setSineCoefficientsFunction = std::bind( &SphericalHarmonicsGravityField::setSineCoefficients,
-                                                               shGravityField, _1 );
+                                                               shGravityField, std::placeholders::_1 );
                 }
                 else
                 {
@@ -425,7 +425,7 @@ std::shared_ptr< EstimatableParameter< Eigen::VectorXd > > createVectorParameter
                                 timeDependentShField );
                     setSineCoefficientsFunction = std::bind(
                                 &TimeDependentSphericalHarmonicsGravityField::setNominalSineCoefficients,
-                                timeDependentShField, _1 );
+                                timeDependentShField, std::placeholders::_1 );
                 }
 
                 // Create sine coefficients estimation object.

@@ -1272,7 +1272,7 @@ public:
                     ObservationScalarType, TimeType > >(
                         std::bind( &simulation_setup::Body::getStateInBaseFrameFromEphemeris<
                                      ObservationScalarType, TimeType >,
-                                     bodyMap.at( linkEnds.at( observed_body ).first ), _1 ),
+                                     bodyMap.at( linkEnds.at( observed_body ).first ), std::placeholders::_1 ),
                         observationBias );
 
             break;

@@ -38,7 +38,7 @@ double computeEquilibiumWallTemperature( const std::function< double( const doub
                              checkTerminationCondition,
                              std::make_shared< root_finders::termination_conditions::
                              RootRelativeToleranceTerminationCondition< double > >(
-                                 ), _1, _2, _3, _4, _5 );
+                                 ), std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5 );
         root_finders::SecantRootFinder secant( terminationConditionFunction );
         wallTemperature = secant.execute(
                     equilibriumTemperatureFunction, equilibriumTemperatureFunction->getInitialGuess( ) );
@@ -52,7 +52,7 @@ double computeEquilibiumWallTemperature( const std::function< double( const doub
                              checkTerminationCondition,
                              std::make_shared< root_finders::termination_conditions::
                              RootRelativeToleranceTerminationCondition< double > >(
-                                 ), _1, _2, _3, _4, _5 );
+                                 ), std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5 );
         root_finders::Bisection bisection( terminationConditionFunction );
         wallTemperature = bisection.execute(
                     equilibriumTemperatureFunction, equilibriumTemperatureFunction->getInitialGuess( ) );

@@ -44,8 +44,8 @@ void returnPlanetTrajectory(const ephemerides::EphemerisPointer &ephemerisPtr,
     double timeMJD2000 = startingEpochMJD2000 + MJD2000;
     double time = 0.0;
 
-    boost::shared_ptr<ephemerides::ApproximatePlanetPositions> approxEphemerisPtr =
-            boost::dynamic_pointer_cast<ephemerides::ApproximatePlanetPositions>(ephemerisPtr);
+    std::shared_ptr<ephemerides::ApproximatePlanetPositions> approxEphemerisPtr =
+            std::dynamic_pointer_cast<ephemerides::ApproximatePlanetPositions>(ephemerisPtr);
     double timeJD2000;
     double timeSecondsSinceEpoch;
     // Start the for loop to obtain positions along the trajectory.

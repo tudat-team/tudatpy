@@ -11,7 +11,7 @@
 #ifndef TUDAT_PROPAGATIONTERMINATIONCONDITIONS_H
 #define TUDAT_PROPAGATIONTERMINATIONCONDITIONS_H
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include "Tudat/SimulationSetup/PropagationSetup/propagationOutput.h"
 #include "Tudat/SimulationSetup/PropagationSetup/propagationSettings.h"

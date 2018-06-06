@@ -62,14 +62,14 @@ getLightTimeParameterPartialFunction(
                 int bodyIndex = std::distance( perturbingBodies.begin( ),  findIterator );
                 partialFunction = std::make_pair(
                             std::bind( &FirstOrderRelativisticLightTimeCorrectionPartial::wrtBodyGravitationalParameter,
-                                         currentLightTimeCorrectorPartial, _1, _2, bodyIndex ), 1 );
+                                         currentLightTimeCorrectorPartial, std::placeholders::_1, std::placeholders::_2, bodyIndex ), 1 );
             }
         }
         else if( parameterId.first == estimatable_parameters::ppn_parameter_gamma )
         {
             partialFunction = std::make_pair(
                         std::bind( &FirstOrderRelativisticLightTimeCorrectionPartial::wrtPpnParameterGamma,
-                                     currentLightTimeCorrectorPartial, _1, _2 ), 1 );
+                                     currentLightTimeCorrectorPartial, std::placeholders::_1, std::placeholders::_2 ), 1 );
         }
         break;
     }

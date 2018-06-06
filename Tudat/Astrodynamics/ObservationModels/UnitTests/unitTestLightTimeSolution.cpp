@@ -60,8 +60,8 @@ BOOST_AUTO_TEST_CASE( testLightWithSpice )
     // Create light-time calculator, Earth center transmitter, Moon center receiver.
     std::shared_ptr< LightTimeCalculator< > > lightTimeEarthToMoon =
             std::make_shared< LightTimeCalculator< > >
-            ( std::bind( &Ephemeris::getCartesianState, earthEphemeris, _1 ),
-              std::bind( &Ephemeris::getCartesianState, moonEphemeris, _1 ) );
+            ( std::bind( &Ephemeris::getCartesianState, earthEphemeris, std::placeholders::_1 ),
+              std::bind( &Ephemeris::getCartesianState, moonEphemeris, std::placeholders::_1 ) );
 
     // Define input time for tests.
     const double testTime = 1.0E6;
@@ -152,8 +152,8 @@ BOOST_AUTO_TEST_CASE( testLightWithSpice )
     // Create light-time object with correction.
     std::shared_ptr< LightTimeCalculator< > > lightTimeEarthToMoonWithCorrection =
             std::make_shared< LightTimeCalculator< > >
-            ( std::bind( &Ephemeris::getCartesianState, earthEphemeris, _1 ),
-              std::bind( &Ephemeris::getCartesianState, moonEphemeris, _1 ),
+            ( std::bind( &Ephemeris::getCartesianState, earthEphemeris, std::placeholders::_1 ),
+              std::bind( &Ephemeris::getCartesianState, moonEphemeris, std::placeholders::_1 ),
               lightTimeCorrections, true );
 
     // Calculate newtonian light time.
@@ -176,8 +176,8 @@ BOOST_AUTO_TEST_CASE( testLightWithSpice )
     // Create light-time object with correction, without iterating light-time corrections.
     lightTimeEarthToMoonWithCorrection =
             std::make_shared< LightTimeCalculator< > >
-            ( std::bind( &Ephemeris::getCartesianState, earthEphemeris, _1 ),
-              std::bind( &Ephemeris::getCartesianState, moonEphemeris, _1 ),
+            ( std::bind( &Ephemeris::getCartesianState, earthEphemeris, std::placeholders::_1 ),
+              std::bind( &Ephemeris::getCartesianState, moonEphemeris, std::placeholders::_1 ),
               lightTimeCorrections, false );
 
     // Calculate newtonian light time.
@@ -204,8 +204,8 @@ BOOST_AUTO_TEST_CASE( testLightWithSpice )
     // Create light-time object with multiple corrections.
     lightTimeEarthToMoonWithCorrection =
             std::make_shared< LightTimeCalculator< > >
-            ( std::bind( &Ephemeris::getCartesianState, earthEphemeris, _1 ),
-              std::bind( &Ephemeris::getCartesianState, moonEphemeris, _1 ),
+            ( std::bind( &Ephemeris::getCartesianState, earthEphemeris, std::placeholders::_1 ),
+              std::bind( &Ephemeris::getCartesianState, moonEphemeris, std::placeholders::_1 ),
               lightTimeCorrections, true );
 
     // Calculate newtonian light time.

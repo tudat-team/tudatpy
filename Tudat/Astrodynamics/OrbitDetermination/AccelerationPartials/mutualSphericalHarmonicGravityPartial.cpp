@@ -30,7 +30,7 @@ std::pair< std::function< void( Eigen::MatrixXd& ) >, int > MutualSphericalHarmo
                 ( parameter->getParameterName( ).second.first == acceleratedBody_ && accelerationUsesMutualAttraction_ ) )
         {
             parameterPartial = std::make_pair(
-                        std::bind( &MutualSphericalHarmonicsGravityPartial::wrtGravitationalParameter, this, _1 ), 1 );
+                        std::bind( &MutualSphericalHarmonicsGravityPartial::wrtGravitationalParameter, this, std::placeholders::_1 ), 1 );
         }
         else
         {

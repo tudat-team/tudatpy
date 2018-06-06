@@ -11,7 +11,7 @@
 #ifndef TUDAT_LIGHT_TIME_SOLUTIONS_H
 #define TUDAT_LIGHT_TIME_SOLUTIONS_H
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 #include <boost/make_shared.hpp>
 #include <tr1/functional>
 #include <iostream>

@@ -17,7 +17,7 @@
 #include <stdexcept>
 
 #include <tr1/functional>
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include "Tudat/InputOutput/dictionaryComparer.h"
 #include "Tudat/InputOutput/dictionaryEntry.h"

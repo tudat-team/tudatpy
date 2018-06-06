@@ -12,7 +12,7 @@
 #ifndef TUDAT_CONICAL_FRUSTUM_H
 #define TUDAT_CONICAL_FRUSTUM_H
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include <Eigen/Core>
 

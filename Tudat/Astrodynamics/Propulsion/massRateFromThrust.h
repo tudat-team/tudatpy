@@ -14,7 +14,7 @@
 #include <map>
 #include <vector>
 #include <tr1/functional>
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include <Eigen/Core>
 

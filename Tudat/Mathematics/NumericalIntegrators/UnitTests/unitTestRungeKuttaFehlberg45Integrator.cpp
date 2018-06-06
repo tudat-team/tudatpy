@@ -104,7 +104,7 @@ BOOST_AUTO_TEST_CASE( testRungeKuttaFehlberg45IntegratorUsingBurdenAndFairesData
         RungeKuttaVariableStepSizeIntegratorXd integrator(
                     RungeKuttaCoefficients::get( RungeKuttaCoefficients::rungeKuttaFehlberg45 ),
                     std::bind( &BurdenAndFairesNumericalIntegratorTest::computeStateDerivative,
-                                 &burdenAndFairesNumericalIntegratorTest, _1, _2 ),
+                                 &burdenAndFairesNumericalIntegratorTest, std::placeholders::_1, std::placeholders::_2 ),
                     initialTime,
                     initialState,
                     minimumStepSize,
@@ -116,7 +116,8 @@ BOOST_AUTO_TEST_CASE( testRungeKuttaFehlberg45IntegratorUsingBurdenAndFairesData
                     minimumFactorDecreaseForNextStepSize,
                     std::bind( &BurdenAndFairesNumericalIntegratorTest::computeNewStepSize,
                                  &burdenAndFairesNumericalIntegratorTest,
-                                 _1, _2, _3, _4, _5, _6, _7, _8 ) );
+                                 std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4,
+                               std::placeholders::_5, std::placeholders::_6, std::placeholders::_7, std::placeholders::_8 ) );
 
         // Integrator to final time.
         Eigen::VectorXd finalState = integrator.integrateTo( finalTime, initialStepSize );
@@ -157,7 +158,7 @@ BOOST_AUTO_TEST_CASE( testRungeKuttaFehlberg45IntegratorUsingBurdenAndFairesData
         RungeKuttaVariableStepSizeIntegratorXd integrator(
                     RungeKuttaCoefficients::get( RungeKuttaCoefficients::rungeKuttaFehlberg45 ),
                     std::bind( &BurdenAndFairesNumericalIntegratorTest::computeStateDerivative,
-                                 &burdenAndFairesNumericalIntegratorTest, _1, _2 ),
+                                 &burdenAndFairesNumericalIntegratorTest, std::placeholders::_1, std::placeholders::_2 ),
                     initialTime,
                     initialState,
                     minimumStepSize,
@@ -169,7 +170,8 @@ BOOST_AUTO_TEST_CASE( testRungeKuttaFehlberg45IntegratorUsingBurdenAndFairesData
                     minimumFactorDecreaseForNextStepSize,
                     std::bind( &BurdenAndFairesNumericalIntegratorTest::computeNewStepSize,
                                  &burdenAndFairesNumericalIntegratorTest,
-                                 _1, _2, _3, _4, _5, _6, _7, _8 ) );
+                                 std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4,
+                               std::placeholders::_5, std::placeholders::_6, std::placeholders::_7, std::placeholders::_8 ) );
 
         // Store the initial step size as the step size to perform the first integration step.
         double stepSize = initialStepSize;

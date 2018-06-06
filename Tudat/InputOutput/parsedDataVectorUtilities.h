@@ -18,7 +18,7 @@
 #include <vector>
 
 #include <boost/regex.hpp>
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include "Tudat/InputOutput/fieldType.h"
 #include "Tudat/InputOutput/fieldValue.h"

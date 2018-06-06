@@ -17,7 +17,7 @@
 #ifndef TUDAT_LAMBERT_TARGETER_H
 #define TUDAT_LAMBERT_TARGETER_H
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include <Eigen/Core>
 

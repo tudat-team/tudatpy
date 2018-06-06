@@ -25,8 +25,8 @@ void createGroundStation(
 {
     std::shared_ptr< ground_stations::PointingAnglesCalculator > pointingAnglesCalculator =
             std::make_shared< ground_stations::PointingAnglesCalculator >(
-                std::bind( &ephemerides::RotationalEphemeris::getRotationToTargetFrame, body->getRotationalEphemeris( ), _1 ),
-                std::bind( &ground_stations::GroundStationState::getRotationFromBodyFixedToTopocentricFrame, groundStationState, _1 ) );
+                std::bind( &ephemerides::RotationalEphemeris::getRotationToTargetFrame, body->getRotationalEphemeris( ), std::placeholders::_1 ),
+                std::bind( &ground_stations::GroundStationState::getRotationFromBodyFixedToTopocentricFrame, groundStationState, std::placeholders::_1 ) );
     body->addGroundStation( groundStationName, std::make_shared< ground_stations::GroundStation >(
                                 groundStationState, pointingAnglesCalculator, groundStationName ) );
 }

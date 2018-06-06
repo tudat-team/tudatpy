@@ -19,7 +19,7 @@
 #include <Eigen/Geometry>
 
 #include <tr1/functional>
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 namespace tudat
 {

@@ -84,7 +84,7 @@ public:
                                          areCoefficientsInNegativeAxisDirection )
     {
         coefficientFunction_ = std::bind(
-                    &concatenateForceAndMomentCoefficients, forceCoefficientFunction, momentCoefficientFunction, _1 );
+                    &concatenateForceAndMomentCoefficients, forceCoefficientFunction, momentCoefficientFunction, std::placeholders::_1 );
     }
 
     //! Constructor.

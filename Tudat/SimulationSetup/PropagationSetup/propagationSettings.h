@@ -998,7 +998,7 @@ public:
             custom_state, ( StateVectorType( 1 ) << initialState ).finished( ), terminationSettings,
             dependentVariablesToSave, printInterval ),
         stateDerivativeFunction_( std::bind( &convertScalarToVectorStateFunction< StateScalarType, TimeType >,
-                                               stateDerivativeFunction, _1, _2 ) ), stateSize_( 1 )
+                                               stateDerivativeFunction, std::placeholders::_1, std::placeholders::_2 ) ), stateSize_( 1 )
     { }
 
     //! Constructor for vector custom state

@@ -198,7 +198,7 @@ public:
             {
                 partialFunction = std::bind(
                             &AerodynamicAccelerationPartial::computeAccelerationPartialWrtCurrentDragCoefficient,
-                            this, _1 );
+                            this, std::placeholders::_1 );
                 numberOfColumns = 1;
 
             }

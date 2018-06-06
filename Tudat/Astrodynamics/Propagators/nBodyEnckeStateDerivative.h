@@ -97,7 +97,7 @@ public:
                                  std::make_shared< root_finders::termination_conditions::
                                  RootAbsoluteToleranceTerminationCondition< StateScalarType > >(
                                      20.0 * std::numeric_limits< StateScalarType >::epsilon( ), 1000 ),
-                                 _1, _2, _3, _4, _5 ) );
+                                 std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5 ) );
         this->createAccelerationModelList( );
     }
 

@@ -194,7 +194,7 @@ protected:
     //! Function to compute and set the current geodetic latitude.
     void computeGeodeticLatitude( )
     {
-        if( !geodeticLatitudeFunction_.empty( ) )
+        if( !( geodeticLatitudeFunction_ == nullptr ) )
         {
             scalarFlightConditions_[ geodetic_latitude_condition ] = geodeticLatitudeFunction_(
                         currentBodyCenteredAirspeedBasedBodyFixedState_.segment( 0, 3 ) );

@@ -164,9 +164,9 @@ createUnivariateTabulatedCoefficientAerodynamicCoefficientInterface(
         // Create aerodynamic coefficient interface.
         return  std::make_shared< aerodynamics::CustomAerodynamicCoefficientInterface >(
                     std::bind( &interpolators::Interpolator
-                                 < double, Eigen::Vector3d >::interpolate, forceInterpolator, _1 ),
+                                 < double, Eigen::Vector3d >::interpolate, forceInterpolator, std::placeholders::_1 ),
                     std::bind( &interpolators::Interpolator
-                                 < double, Eigen::Vector3d >::interpolate, momentInterpolator, _1 ),
+                                 < double, Eigen::Vector3d >::interpolate, momentInterpolator, std::placeholders::_1 ),
                     tabulatedCoefficientSettings->getReferenceLength( ),
                     tabulatedCoefficientSettings->getReferenceArea( ),
                     tabulatedCoefficientSettings->getReferenceLength( ),

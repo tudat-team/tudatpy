@@ -11,7 +11,7 @@
 #ifndef TUDAT_THIRDBODYGRAVITYPARTIAL_H
 #define TUDAT_THIRDBODYGRAVITYPARTIAL_H
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include "Tudat/Astrodynamics/OrbitDetermination/AccelerationPartials/centralGravityAccelerationPartial.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/AccelerationPartials/sphericalHarmonicAccelerationPartial.h"

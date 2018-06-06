@@ -20,7 +20,7 @@
 #include <boost/lambda/lambda.hpp>
 #include <boost/make_shared.hpp>
 #include <boost/pointer_cast.hpp>
-#include <boost/shared_ptr.hpp>
+#include <memory>
 #include <boost/assign/list_of.hpp>
 
 #include <Eigen/Geometry>
@@ -465,12 +465,12 @@ void HypersonicLocalInclinationAnalysis::updateCompressionPressures( const doubl
     {
     case 0:
         pressureFunction =
-                std::bind( aerodynamics::computeNewtonianPressureCoefficient, _1 );
+                std::bind( aerodynamics::computeNewtonianPressureCoefficient, std::placeholders::_1 );
         break;
 
     case 1:
         pressureFunction =
-                std::bind( aerodynamics::computeModifiedNewtonianPressureCoefficient, _1,
+                std::bind( aerodynamics::computeModifiedNewtonianPressureCoefficient, std::placeholders::_1,
                              stagnationPressureCoefficient );
         break;
 
@@ -484,37 +484,37 @@ void HypersonicLocalInclinationAnalysis::updateCompressionPressures( const doubl
 
     case 4:
         pressureFunction =
-                std::bind( aerodynamics::computeEmpiricalTangentWedgePressureCoefficient, _1,
+                std::bind( aerodynamics::computeEmpiricalTangentWedgePressureCoefficient, std::placeholders::_1,
                              machNumber );
         break;
 
     case 5:
         pressureFunction =
-                std::bind( aerodynamics::computeEmpiricalTangentConePressureCoefficient, _1,
+                std::bind( aerodynamics::computeEmpiricalTangentConePressureCoefficient, std::placeholders::_1,
                              machNumber );
         break;
 
     case 6:
         pressureFunction =
-                std::bind( aerodynamics::computeModifiedDahlemBuckPressureCoefficient, _1,
+                std::bind( aerodynamics::computeModifiedDahlemBuckPressureCoefficient, std::placeholders::_1,
                              machNumber );
         break;
 
     case 7:
         pressureFunction =
-                std::bind( aerodynamics::computeVanDykeUnifiedPressureCoefficient, _1,
+                std::bind( aerodynamics::computeVanDykeUnifiedPressureCoefficient, std::placeholders::_1,
                              machNumber, ratioOfSpecificHeats, 1 );
         break;
 
     case 8:
         pressureFunction =
-                std::bind( aerodynamics::computeSmythDeltaWingPressureCoefficient, _1,
+                std::bind( aerodynamics::computeSmythDeltaWingPressureCoefficient, std::placeholders::_1,
                              machNumber );
         break;
 
     case 9:
         pressureFunction =
-                std::bind( aerodynamics::computeHankeyFlatSurfacePressureCoefficient, _1,
+                std::bind( aerodynamics::computeHankeyFlatSurfacePressureCoefficient, std::placeholders::_1,
                              machNumber );
         break;
 
@@ -597,19 +597,19 @@ void HypersonicLocalInclinationAnalysis::updateExpansionPressures( const double 
                         machNumber, ratioOfSpecificHeats );
             pressureFunction =
                     std::bind( &aerodynamics::computePrandtlMeyerFreestreamPressureCoefficient,
-                                 _1, machNumber, ratioOfSpecificHeats,
+                                 std::placeholders::_1, machNumber, ratioOfSpecificHeats,
                                  freestreamPrandtlMeyerFunction );
             break;
 
         case 5:
             pressureFunction =
                     std::bind( &aerodynamics::computePrandtlMeyerFreestreamPressureCoefficient,
-                                 _1, machNumber, ratioOfSpecificHeats, -1 );
+                                 std::placeholders::_1, machNumber, ratioOfSpecificHeats, -1 );
             break;
 
         case 6:
             pressureFunction = std::bind( &aerodynamics::computeAcmEmpiricalPressureCoefficient,
-                                            _1, machNumber );
+                                            std::placeholders::_1, machNumber );
             break;
         }
 

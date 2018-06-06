@@ -17,7 +17,7 @@
 #ifndef TUDAT_SINGLE_SURFACE_GEOMETRY_H
 #define TUDAT_SINGLE_SURFACE_GEOMETRY_H
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include <Eigen/Core>
 

@@ -14,7 +14,7 @@
 
 #include <boost/bind.hpp>
 #include <boost/make_shared.hpp>
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include "Tudat/Mathematics/RootFinders/rootFinder.h"
 #include "Tudat/Mathematics/RootFinders/terminationConditions.h"
@@ -78,7 +78,7 @@ public:
                   &termination_conditions::RootRelativeToleranceTerminationCondition< DataType >::
                   checkTerminationCondition, std::make_shared<
                   termination_conditions::RootRelativeToleranceTerminationCondition< DataType > >(
-                      relativeXTolerance, maxIterations ), _1, _2, _3, _4, _5 ) )
+                      relativeXTolerance, maxIterations ), std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5 ) )
     {}
 
     //! Default destructor.

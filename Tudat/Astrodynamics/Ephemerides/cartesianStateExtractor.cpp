@@ -34,7 +34,7 @@ std::shared_ptr< Eigen::Vector6d > CartesianStateExtractor::extract(
 
     // Create a new CartesianElements object.
     std::shared_ptr< Vector6d > cartesianElements
-            = boost::allocate_shared< Vector6d >( Eigen::aligned_allocator< Vector6d >( ) );
+            = std::allocate_shared< Vector6d >( Eigen::aligned_allocator< Vector6d >( ) );
 
     // Find and set Cartesian x coordinate.
     if ( checkOptionalFieldType( dataLineMap, 1,

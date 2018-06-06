@@ -18,7 +18,7 @@
 
 #include <boost/bind.hpp>
 #include <tr1/functional>
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include <Eigen/Core>
 
@@ -142,7 +142,8 @@ public:
         {
             this->newStepSizeFunction_ = std::bind(
                         &RungeKuttaVariableStepSizeIntegrator::computeNewStepSize,
-                        this, _1, _2, _3, _4, _5, _6, _7, _8 );
+                        this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4,
+                        std::placeholders::_5, std::placeholders::_6, std::placeholders::_7, std::placeholders::_8 );
         }
     }
 
@@ -204,7 +205,8 @@ public:
         {
             this->newStepSizeFunction_ = std::bind(
                         &RungeKuttaVariableStepSizeIntegrator::computeNewStepSize,
-                        this, _1, _2, _3, _4, _5, _6, _7, _8 );
+                        this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4,
+                        std::placeholders::_5, std::placeholders::_6, std::placeholders::_7, std::placeholders::_8 );
         }
     }
 

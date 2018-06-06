@@ -11,7 +11,7 @@
 #ifndef TUDAT_RADIATIONPRESSUREACCELERATIONPARTIAL_H
 #define TUDAT_RADIATIONPRESSUREACCELERATIONPARTIAL_H
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include "Tudat/Astrodynamics/OrbitDetermination/AccelerationPartials/accelerationPartial.h"
 #include "Tudat/Astrodynamics/ElectroMagnetism/radiationPressureInterface.h"

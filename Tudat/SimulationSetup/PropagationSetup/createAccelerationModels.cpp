@@ -348,11 +348,11 @@ createSphericalHarmonicsGravityAcceleration(
                     ( std::bind( &Body::getPosition, bodyUndergoingAcceleration ),
                       gravitationalParameterFunction,
                       sphericalHarmonicsGravityField->getReferenceRadius( ),
-                      std::bind( &SphericalHarmonicsGravityField::getCosineCoefficients,
+                      std::bind( &SphericalHarmonicsGravityField::getCosineCoefficientsBlock,
                                    sphericalHarmonicsGravityField,
                                    sphericalHarmonicsSettings->maximumDegree_,
                                    sphericalHarmonicsSettings->maximumOrder_ ),
-                      std::bind( &SphericalHarmonicsGravityField::getSineCoefficients,
+                      std::bind( &SphericalHarmonicsGravityField::getSineCoefficientsBlock,
                                    sphericalHarmonicsGravityField,
                                    sphericalHarmonicsSettings->maximumDegree_,
                                    sphericalHarmonicsSettings->maximumOrder_ ),
@@ -462,19 +462,19 @@ createMutualSphericalHarmonicsGravityAcceleration(
                         gravitationalParameterFunction,
                         sphericalHarmonicsGravityFieldOfBodyExertingAcceleration->getReferenceRadius( ),
                         sphericalHarmonicsGravityFieldOfBodyUndergoingAcceleration->getReferenceRadius( ),
-                        std::bind( &SphericalHarmonicsGravityField::getCosineCoefficients,
+                        std::bind( &SphericalHarmonicsGravityField::getCosineCoefficientsBlock,
                                      sphericalHarmonicsGravityFieldOfBodyExertingAcceleration,
                                      mutualSphericalHarmonicsSettings->maximumDegreeOfBodyExertingAcceleration_,
                                      mutualSphericalHarmonicsSettings->maximumOrderOfBodyExertingAcceleration_ ),
-                        std::bind( &SphericalHarmonicsGravityField::getSineCoefficients,
+                        std::bind( &SphericalHarmonicsGravityField::getSineCoefficientsBlock,
                                      sphericalHarmonicsGravityFieldOfBodyExertingAcceleration,
                                      mutualSphericalHarmonicsSettings->maximumDegreeOfBodyExertingAcceleration_,
                                      mutualSphericalHarmonicsSettings->maximumOrderOfBodyExertingAcceleration_ ),
-                        std::bind( &SphericalHarmonicsGravityField::getCosineCoefficients,
+                        std::bind( &SphericalHarmonicsGravityField::getCosineCoefficientsBlock,
                                      sphericalHarmonicsGravityFieldOfBodyUndergoingAcceleration,
                                      maximumDegreeOfUndergoingBody,
                                      maximumOrderOfUndergoingBody ),
-                        std::bind( &SphericalHarmonicsGravityField::getSineCoefficients,
+                        std::bind( &SphericalHarmonicsGravityField::getSineCoefficientsBlock,
                                      sphericalHarmonicsGravityFieldOfBodyUndergoingAcceleration,
                                      maximumDegreeOfUndergoingBody,
                                      maximumOrderOfUndergoingBody ),
@@ -1033,9 +1033,9 @@ createThrustAcceleratioModel(
 
     // Create and return thrust acceleration object.
     std::function< void( const double ) > updateFunction =
-            std::bind( &updateThrustMagnitudeAndDirection, thrustMagnitude, thrustDirectionGuidance, _1 );
+            std::bind( &updateThrustMagnitudeAndDirection, thrustMagnitude, thrustDirectionGuidance, std::placeholders::_1 );
     std::function< void( const double ) > timeResetFunction =
-            std::bind( &resetThrustMagnitudeAndDirectionTime, thrustMagnitude, thrustDirectionGuidance, _1 );
+            std::bind( &resetThrustMagnitudeAndDirectionTime, thrustMagnitude, thrustDirectionGuidance, std::placeholders::_1 );
     return std::make_shared< propulsion::ThrustAcceleration >(
                 std::bind( &propulsion::ThrustMagnitudeWrapper::getCurrentThrustMagnitude, thrustMagnitude ),
                 std::bind( &propulsion::BodyFixedForceDirectionGuidance ::getCurrentForceDirectionInPropagationFrame, thrustDirectionGuidance ),

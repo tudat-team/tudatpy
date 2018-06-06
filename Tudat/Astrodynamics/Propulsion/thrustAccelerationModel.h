@@ -110,7 +110,7 @@ public:
     {
         currentTime_ = currentTime;
 
-        if( !timeResetFunction_.empty( ) )
+        if( !( timeResetFunction_ == nullptr ) )
         {
             timeResetFunction_( currentTime_ );
         }
@@ -130,7 +130,7 @@ public:
         if( !( currentTime_ == currentTime ) )
         {
             // Update thrust dependencies if needed
-            if( !thrustUpdateFunction_.empty( ) )
+            if( !( thrustUpdateFunction_ == nullptr ) )
             {
                 thrustUpdateFunction_( currentTime );
             }
@@ -195,13 +195,13 @@ public:
      */
     void setThrustUpdateFunction( const std::function< void( const double ) > thrustUpdateFunction )
     {
-        if( thrustUpdateFunction_.empty( ) )
+        if( ( thrustUpdateFunction_ == nullptr ) )
         {
             thrustUpdateFunction_ = thrustUpdateFunction;
         }
         else
         {
-            thrustUpdateFunction_ = std::bind( &mergeUpdateFunctions, thrustUpdateFunction, thrustUpdateFunction_, _1 );
+            thrustUpdateFunction_ = std::bind( &mergeUpdateFunctions, thrustUpdateFunction, thrustUpdateFunction_, std::placeholders::_1 );
         }
     }
 

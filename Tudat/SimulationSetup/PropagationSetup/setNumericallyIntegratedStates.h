@@ -630,7 +630,7 @@ void resetIntegratedBodyMass(
                     std::bind(
                         static_cast< double( LocalInterpolator::* )( const double ) >
                         ( &LocalInterpolator::interpolate ),
-                        std::make_shared< interpolators::LagrangeInterpolatorDouble >( currentBodyMassMap, 6 ), _1 ) );
+                        std::make_shared< interpolators::LagrangeInterpolatorDouble >( currentBodyMassMap, 6 ), std::placeholders::_1 ) );
     }
 }
 

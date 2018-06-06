@@ -285,7 +285,7 @@ void mergeJSON( nlohmann::json& jsonObject, const boost::filesystem::path& fileP
 void parseModularJSON( nlohmann::json& jsonObject, const boost::filesystem::path& filePath,
                        nlohmann::json parentObject = nlohmann::json( ), boost::filesystem::path rootFilePath = boost::filesystem::path( ) )
 {
-    if ( parentObject.is_nullptr( ) )
+    if ( parentObject.is_null( ) )
     {
         parentObject = jsonObject;
     }

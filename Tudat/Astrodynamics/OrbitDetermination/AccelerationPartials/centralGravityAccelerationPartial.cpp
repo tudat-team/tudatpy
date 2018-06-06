@@ -65,7 +65,7 @@ CentralGravitationPartial::CentralGravitationPartial(
     AccelerationPartial( acceleratedBody, acceleratingBody, basic_astrodynamics::central_gravity )
 {
     accelerationUpdateFunction_ =
-            std::bind( &basic_astrodynamics::AccelerationModel< Eigen::Vector3d>::updateMembers, gravitationalAcceleration, _1 );
+            std::bind( &basic_astrodynamics::AccelerationModel< Eigen::Vector3d>::updateMembers, gravitationalAcceleration, std::placeholders::_1 );
 
     gravitationalParameterFunction_ = gravitationalAcceleration->getGravitationalParameterFunction( );
     centralBodyState_ = gravitationalAcceleration->getStateFunctionOfBodyExertingAcceleration( );
@@ -110,7 +110,7 @@ CentralGravitationPartial::getGravitationalParameterPartialFunction(
         if( parameterId.second.first == acceleratingBody_ )
         {
             partialFunction = std::bind( &CentralGravitationPartial::wrtGravitationalParameterOfCentralBody,
-                                           this, _1 );
+                                           this, std::placeholders::_1 );
             numberOfColumns = 1;
 
         }
@@ -121,7 +121,7 @@ CentralGravitationPartial::getGravitationalParameterPartialFunction(
             if( accelerationUsesMutualAttraction_ )
             {
                 partialFunction = std::bind( &CentralGravitationPartial::wrtGravitationalParameterOfCentralBody,
-                                               this, _1 );
+                                               this, std::placeholders::_1 );
                 numberOfColumns = 1;
             }
         }

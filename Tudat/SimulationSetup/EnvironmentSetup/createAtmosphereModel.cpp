@@ -133,8 +133,10 @@ std::shared_ptr< aerodynamics::AtmosphereModel > createAtmosphereModel(
                 tudat::input_output::solar_activity::readSolarActivityData( spaceWeatherFilePath ) ;
 
         // Create atmosphere model using NRLMISE00 input function
-        std::function< tudat::aerodynamics::NRLMSISE00Input (double,double,double,double) > inputFunction =
-                std::bind(&tudat::aerodynamics::nrlmsiseInputFunction,_1,_2,_3,_4, solarActivityData , false , TUDAT_NAN );
+        std::function< tudat::aerodynamics::NRLMSISE00Input( double, double, double, double ) > inputFunction =
+                std::bind( &tudat::aerodynamics::nrlmsiseInputFunction,
+                           std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4,
+                           solarActivityData, false, TUDAT_NAN );
         atmosphereModel = std::make_shared< aerodynamics::NRLMSISE00Atmosphere >( inputFunction );
         break;
     }

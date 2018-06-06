@@ -11,7 +11,7 @@
 #include <iostream>
 
 #include <boost/bind.hpp>
-#include <boost/shared_ptr.hpp>
+#include <memory>
 #include <boost/make_shared.hpp>
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/sphericalStateConversions.h"
@@ -151,22 +151,22 @@ void AerodynamicAngleCalculator::update( const double currentTime, const bool up
 
     if( updateBodyOrientation  && !( currentBodyAngleTime_ == currentTime ) )
     {
-        if( !angleUpdateFunction_.empty( ) )
+        if( !( angleUpdateFunction_ == nullptr ) )
         {
             angleUpdateFunction_( currentTime );
         }
 
-        if( !angleOfAttackFunction_.empty( ) )
+        if( !( angleOfAttackFunction_ == nullptr ) )
         {
             currentAerodynamicAngles_[ angle_of_attack ] = angleOfAttackFunction_( );
         }
 
-        if( !angleOfSideslipFunction_.empty( ) )
+        if( !( angleOfSideslipFunction_ == nullptr ) )
         {
             currentAerodynamicAngles_[ angle_of_sideslip ] = angleOfSideslipFunction_( );
         }
 
-        if( !bankAngleFunction_.empty( ) )
+        if( !( bankAngleFunction_ == nullptr ) )
         {
             currentAerodynamicAngles_[ bank_angle ] = bankAngleFunction_( );
         }
@@ -389,36 +389,36 @@ void AerodynamicAngleCalculator::setOrientationAngleFunctions(
         const std::function< double( ) > bankAngleFunction,
         const std::function< void( const double ) > angleUpdateFunction )
 {
-    if( !angleOfAttackFunction.empty( ) )
+    if( !( angleOfAttackFunction == nullptr ) )
     {
-        if( !angleOfAttackFunction_.empty( ) )
+        if( !( angleOfAttackFunction_ == nullptr ) )
         {
             std::cerr << "Warning, overriding existing angle of attack function in AerodynamicAngleCalculator" << std::endl;
         }
         angleOfAttackFunction_ = angleOfAttackFunction;
     }
 
-    if( !angleOfSideslipFunction.empty( ) )
+    if( !( angleOfSideslipFunction == nullptr ) )
     {
-        if( !angleOfSideslipFunction_.empty( ) )
+        if( !( angleOfSideslipFunction_ == nullptr ) )
         {
             std::cerr << "Warning, overriding existing angle of sideslip function in AerodynamicAngleCalculator" << std::endl;
         }
         angleOfSideslipFunction_ = angleOfSideslipFunction;
     }
 
-    if( !bankAngleFunction.empty( ) )
+    if( !( bankAngleFunction == nullptr ) )
     {
-        if( !bankAngleFunction_.empty( ) )
+        if( !( bankAngleFunction_ == nullptr ) )
         {
             std::cerr << "Warning, overriding existing bank angle function in AerodynamicAngleCalculator" << std::endl;
         }
         bankAngleFunction_ = bankAngleFunction;
     }
 
-    if( !angleUpdateFunction.empty( ) )
+    if( !( angleUpdateFunction == nullptr ) )
     {
-        if( !angleUpdateFunction_.empty( ) )
+        if( !( angleUpdateFunction_ == nullptr ) )
         {
             std::cerr << "Warning, overriding existing aerodynamic angle update function in AerodynamicAngleCalculator" << std::endl;
         }
@@ -463,16 +463,16 @@ getAerodynamicForceTransformationFunction(
                              aerodynamicAngleCalculator, accelerationFrame, corotating_frame );
         rotationsList.push_back(
                     std::bind( &transformVectorFromQuaternionFunction,
-                                 _1, firstRotation ) );
+                                 std::placeholders::_1, firstRotation ) );
 
         // Add corotating to inertial frame.
         rotationsList.push_back(
                     std::bind( &transformVectorFromQuaternionFunction,
-                                 _1, bodyFixedToInertialFrameFunction ) );
+                                 std::placeholders::_1, bodyFixedToInertialFrameFunction ) );
 
         // Create transformation function.
         transformationFunction = std::bind( &transformVectorFromVectorFunctions,
-                                              _1, rotationsList );
+                                              std::placeholders::_1, rotationsList );
     }
     else
     {
@@ -482,7 +482,7 @@ getAerodynamicForceTransformationFunction(
                              aerodynamicAngleCalculator, accelerationFrame, propagationFrame );
 
         // Create transformation function.
-        transformationFunction = std::bind( &transformVectorFromQuaternionFunction, _1,
+        transformationFunction = std::bind( &transformVectorFromQuaternionFunction, std::placeholders::_1,
                                               rotationFunction );
     }
 
@@ -518,7 +518,7 @@ void setAerodynamicDependentOrientationCalculatorClosure(
                 std::bind( &AerodynamicAnglesClosure::getCurrentAngleOfAttack, aerodynamicAnglesClosure ),
                 std::bind( &AerodynamicAnglesClosure::getCurrentAngleOfSideslip, aerodynamicAnglesClosure ),
                 std::bind( &AerodynamicAnglesClosure::getCurrentBankAngle, aerodynamicAnglesClosure ),
-                std::bind( &AerodynamicAnglesClosure::updateAngles, aerodynamicAnglesClosure, _1 ) );
+                std::bind( &AerodynamicAnglesClosure::updateAngles, aerodynamicAnglesClosure, std::placeholders::_1 ) );
 }
 
 //! Function to make aerodynamic angle computation consistent with existing DependentOrientationCalculator
@@ -526,8 +526,10 @@ void setAerodynamicDependentOrientationCalculatorClosure(
         std::shared_ptr< DependentOrientationCalculator > dependentOrientationCalculator,
         std::shared_ptr< AerodynamicAngleCalculator > aerodynamicAngleCalculator )
 {
+    std::function< Eigen::Quaterniond( const double ) > imposedRotationFromInertialToBodyFixedFrame =
+            std::bind( &DependentOrientationCalculator::computeAndGetRotationToLocalFrame, dependentOrientationCalculator, std::placeholders::_1 );
     setAerodynamicDependentOrientationCalculatorClosure(
-                std::bind( &DependentOrientationCalculator::getRotationToLocalFrame, dependentOrientationCalculator, _1 ),
+                imposedRotationFromInertialToBodyFixedFrame,
                 aerodynamicAngleCalculator );
 }
 
@@ -538,7 +540,7 @@ void setAerodynamicDependentOrientationCalculatorClosure(
 {
     setAerodynamicDependentOrientationCalculatorClosure(
                 std::bind( &ephemerides::RotationalEphemeris::getRotationToTargetFrame,
-                             rotationalEphemeris, _1 ),
+                             rotationalEphemeris, std::placeholders::_1 ),
                 aerodynamicAngleCalculator );
 }
 

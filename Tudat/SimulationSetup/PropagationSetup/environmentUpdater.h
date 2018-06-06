@@ -451,7 +451,7 @@ private:
                                     std::bind(
                                         &simulation_setup::Body
                                             ::setStateFromEphemeris< StateScalarType, TimeType >,
-                                        bodyList_.at( currentBodies.at( i ) ), _1 );
+                                        bodyList_.at( currentBodies.at( i ) ), std::placeholders::_1 );
 
                             updateTimeFunctionList[ body_transational_state_update ].push_back(
                                         std::make_pair( currentBodies.at( i ), stateSetFunction ) );
@@ -490,7 +490,7 @@ private:
                                 std::function< void( const TimeType ) > rotationalStateSetFunction =
                                         std::bind( &simulation_setup::Body
                                                      ::setCurrentRotationalStateToLocalFrameFromEphemeris< TimeType >,
-                                                     bodyList_.at( currentBodies.at( i ) ), _1 );
+                                                     bodyList_.at( currentBodies.at( i ) ), std::placeholders::_1 );
                                 updateTimeFunctionList[ body_rotational_state_update ].push_back(
                                             std::make_pair( currentBodies.at( i ), rotationalStateSetFunction ) );
 
@@ -540,7 +540,7 @@ private:
                             updateTimeFunctionList[ body_mass_update ].push_back(
                                         std::make_pair( currentBodies.at( i ),
                                                         std::bind( &simulation_setup::Body::updateMass,
-                                                                     bodyList_.at( currentBodies.at( i ) ), _1  ) ) );
+                                                                     bodyList_.at( currentBodies.at( i ) ), std::placeholders::_1  ) ) );
                         }
                         break;
                     }
@@ -560,7 +560,7 @@ private:
                                             std::bind( &gravitation
                                                          ::TimeDependentSphericalHarmonicsGravityField
                                                          ::update,
-                                                         gravityField, _1 ) ) );
+                                                         gravityField, std::placeholders::_1 ) ) );
                         }
                         // If no sh field at all, throw eeror.
                         else if( std::dynamic_pointer_cast< gravitation::SphericalHarmonicsGravityField >
@@ -584,7 +584,7 @@ private:
                                             currentBodies.at( i ), std::bind(
                                                 &aerodynamics::FlightConditions::updateConditions,
                                                 bodyList_.at( currentBodies.at( i ) )
-                                                ->getFlightConditions( ), _1 ) ) );
+                                                ->getFlightConditions( ), std::placeholders::_1 ) ) );
 
                             resetFunctionVector_.push_back(
                                         boost::make_tuple(
@@ -634,7 +634,7 @@ private:
                                                             &electro_magnetism
                                                             ::RadiationPressureInterface
                                                             ::updateInterface,
-                                                            iterator->second, _1 ) ) );
+                                                            iterator->second, std::placeholders::_1 ) ) );
                         }
                         break;
                     }

@@ -68,7 +68,7 @@ TrimOrientationCalculator::TrimOrientationCalculator(
                         &root_finders::termination_conditions::RootAbsoluteToleranceTerminationCondition< double >::
                         checkTerminationCondition,
                         std::make_shared< root_finders::termination_conditions::RootAbsoluteToleranceTerminationCondition
-                        < double > >( 1.0E-15, 1000 ), _1, _2, _3, _4, _5 ), 0.5 );
+                        < double > >( 1.0E-15, 1000 ), std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5 ), 0.5 );
     }
 }
 
@@ -80,7 +80,7 @@ double TrimOrientationCalculator::findTrimAngleOfAttack(
     // Determine function for which the root is to be determined.
     std::function< double( const double ) > coefficientFunction =
             std::bind( &TrimOrientationCalculator::getPerturbedMomentCoefficient,
-                         this, _1, untrimmedIndependentVariables, untrimmedControlSurfaceIndependentVariables );
+                         this, std::placeholders::_1, untrimmedIndependentVariables, untrimmedControlSurfaceIndependentVariables );
 
     double trimmedAngleOfAttack = TUDAT_NAN;
 

@@ -190,7 +190,7 @@ void from_json( const nlohmann::json& jsonObject, std::shared_ptr< AerodynamicCo
     {
         const nlohmann::json jsonForceCoefficients = getValue< nlohmann::json >( jsonObject, K::forceCoefficients );
         const nlohmann::json jsonMomentCoefficients = getValue( jsonObject, K::momentCoefficients, nlohmann::json( ) );
-        const bool useMoments = ! jsonMomentCoefficients.is_nullptr( );
+        const bool useMoments = ! jsonMomentCoefficients.is_null( );
 
         bool readFromFiles = true;
         std::map< int, std::string > forceCoefficientsFiles;

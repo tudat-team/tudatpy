@@ -167,7 +167,7 @@ void ParameterizedThrustMagnitudeSettings::parseInputDataAndCheckConsistency(
                 thrustMagnitudeFunction_;
         thrustMagnitudeFunction_ = std::bind(
                     &multiplyMaximumThrustByScalingFactor, maximumThrustMagnitudeFunction,
-                    thrustGuidanceInputVariables_.at( entryForMaximumThrustMultiplierInGuidanceFunctions ), _1 );
+                    thrustGuidanceInputVariables_.at( entryForMaximumThrustMultiplierInGuidanceFunctions ), std::placeholders::_1 );
         thrustIndependentVariables_.erase( thrustIndependentVariables_.begin( ) +
                                          entryForMaximumThrustMultiplierInIndependentVariables);
         thrustGuidanceInputVariables_.erase( thrustGuidanceInputVariables_.begin( ) +
@@ -281,7 +281,7 @@ std::shared_ptr< ParameterizedThrustMagnitudeSettings > createParameterizedThrus
                 specificImpulseDependentVariables,
                 thrustGuidanceInputVariables,
                 specificImpulseGuidanceInputVariables,
-                std::bind( &ThrustInputParameterGuidance::update, thrustInputParameterGuidance, _1 ) );
+                std::bind( &ThrustInputParameterGuidance::update, thrustInputParameterGuidance, std::placeholders::_1 ) );
 }
 
 //! Function to create thrust magnitude settings from guidance input and tables
@@ -321,7 +321,7 @@ std::shared_ptr< ParameterizedThrustMagnitudeSettings > createParameterizedThrus
                 thrustIndependentVariables,
                 constantSpecificImpulse,
                 thrustGuidanceInputVariables,
-                std::bind( &ThrustInputParameterGuidance::update, thrustInputParameterGuidance, _1 ) );
+                std::bind( &ThrustInputParameterGuidance::update, thrustInputParameterGuidance, std::placeholders::_1 ) );
 }
 
 //! Function to create thrust magnitude settings from guidance input and tables, with constant specific impulse

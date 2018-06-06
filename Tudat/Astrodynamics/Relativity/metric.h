@@ -11,7 +11,7 @@
 #ifndef TUDAT_METRIC_H
 #define TUDAT_METRIC_H
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include <Eigen/Core>
 

@@ -196,7 +196,7 @@ BOOST_AUTO_TEST_CASE( testCartesianStatePartials )
             std::bind( &Ephemeris::getCartesianState, createReferencePointEphemeris< double, double >(
                              bodyMap.at( "Earth" )->getEphemeris( ), bodyMap.at( "Earth" )->getRotationalEphemeris( ),
                              std::bind( &GroundStation::getStateInPlanetFixedFrame< double, double >,
-                                          bodyMap[ "Earth" ]->getGroundStation( "Graz" ), _1 ) ), _1 );
+                                          bodyMap[ "Earth" ]->getGroundStation( "Graz" ), std::placeholders::_1 ) ), std::placeholders::_1 );
 
 
 

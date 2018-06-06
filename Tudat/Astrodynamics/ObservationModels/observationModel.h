@@ -14,7 +14,7 @@
 #include <vector>
 
 #include <boost/bind.hpp>
-#include <boost/shared_ptr.hpp>
+#include <memory>
 #include <tr1/functional>
 
 #include <Eigen/Core>
@@ -301,7 +301,7 @@ std::function< double( const double, const observation_models::LinkEndType ) > g
         std::function< Eigen::Matrix< ObservationScalarType, 1, 1 >(
             const TimeType, const observation_models::LinkEndType ) > observationFunction )
 {
-    return std::bind( &getSizeOneObservationAtDoublePrecision< ObservationScalarType, TimeType >, observationFunction, _1, _2 );
+    return std::bind( &getSizeOneObservationAtDoublePrecision< ObservationScalarType, TimeType >, observationFunction, std::placeholders::_1, std::placeholders::_2 );
 }
 
 //! Function to generate a function that computes an observation  from an ObservationModel
@@ -317,7 +317,7 @@ std::function< Eigen::Matrix< ObservationScalarType, 1, 1 >( const TimeType, con
 getSizeOneObservationFunctionFromObservationModel(
         const std::shared_ptr< ObservationModel< 1, ObservationScalarType, TimeType > > observationModel )
 {
-    return std::bind( &ObservationModel< 1, ObservationScalarType, TimeType >::computeObservations, observationModel, _1, _2 );
+    return std::bind( &ObservationModel< 1, ObservationScalarType, TimeType >::computeObservations, observationModel, std::placeholders::_1, std::placeholders::_2 );
 }
 
 //! Function to generate a function that computes an observation at double precision from an ObservationModel

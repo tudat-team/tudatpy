@@ -31,7 +31,7 @@
 #include <vector>
 
 #include <boost/make_shared.hpp>
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include <Eigen/Core>
 
@@ -245,7 +245,7 @@ private:
     /*!
      * In this vector the velocity of the spacecraft before visiting a new planet are stored.
      */
-    std::vector< boost::shared_ptr< Eigen::Vector3d > > spacecraftVelocityPtrVector_;
+    std::vector< std::shared_ptr< Eigen::Vector3d > > spacecraftVelocityPtrVector_;
 
     //! The deltaV vector.
     /*!
@@ -287,7 +287,7 @@ private:
     /*!
      * The vector containing all the different interplanetary legs.
      */
-    std::vector< boost::shared_ptr< MissionLeg > > missionLegPtrVector_;
+    std::vector< std::shared_ptr< MissionLeg > > missionLegPtrVector_;
 
     //! Temporary Keplerian elements vector.
     /*!

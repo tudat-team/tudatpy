@@ -25,7 +25,7 @@
 #include <algorithm>
 #include <limits>
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include <Eigen/Core>
 

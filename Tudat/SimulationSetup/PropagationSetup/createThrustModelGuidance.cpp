@@ -64,20 +64,20 @@ std::shared_ptr< propulsion::BodyFixedForceDirectionGuidance  > createThrustGuid
             // Define relative state function
             std::function< void( Eigen::Vector6d& ) > stateFunction =
                     std::bind(
-                        &ephemerides::getRelativeState, _1, bodyStateFunction, centralBodyStateFunction );
+                        &ephemerides::getRelativeState, std::placeholders::_1, bodyStateFunction, centralBodyStateFunction );
             std::function< Eigen::Vector3d( const double ) > thrustDirectionFunction;
 
             // Create force direction function.
             if( thrustDirectionFromStateGuidanceSettings->isColinearWithVelocity_ )
             {
                 thrustDirectionFunction =
-                        std::bind( &propulsion::getForceDirectionColinearWithVelocity, stateFunction, _1,
+                        std::bind( &propulsion::getForceDirectionColinearWithVelocity, stateFunction, std::placeholders::_1,
                                      thrustDirectionFromStateGuidanceSettings->directionIsOppositeToVector_ );
             }
             else
             {
                 thrustDirectionFunction =
-                        std::bind( &propulsion::getForceDirectionColinearWithPosition, stateFunction, _1,
+                        std::bind( &propulsion::getForceDirectionColinearWithPosition, stateFunction, std::placeholders::_1,
                                      thrustDirectionFromStateGuidanceSettings->directionIsOppositeToVector_ );
             }
 

@@ -89,7 +89,7 @@ std::shared_ptr< CentralBodyData< StateScalarType, TimeType > > createCentralBod
             bodyStateFunctions[ centralBodiesToUse.at( i ) ] =
                     std::bind( &simulation_setup::Body::getStateInBaseFrameFromEphemeris
                                  < StateScalarType, TimeType >,
-                                 bodyMap.at( centralBodiesToUse.at( i ) ), _1 );
+                                 bodyMap.at( centralBodiesToUse.at( i ) ), std::placeholders::_1 );
         }
         else
         {
@@ -110,7 +110,7 @@ std::shared_ptr< CentralBodyData< StateScalarType, TimeType > > createCentralBod
     {
         globalFrameOriginBarycentricFunction =
                 std::bind( &simulation_setup::Body::getGlobalFrameOriginBarycentricStateFromEphemeris< StateScalarType, TimeType >,
-                             bodyMap.at( globalFrameOrigin ), _1 );
+                             bodyMap.at( globalFrameOrigin ), std::placeholders::_1 );
     }
 
     return std::make_shared< CentralBodyData< StateScalarType, TimeType > >(

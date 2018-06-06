@@ -66,7 +66,7 @@ public:
      */
     Eigen::VectorXd getParameterValue( )
     {
-        if( !getCurrentBias_.empty( ) )
+        if( !( getCurrentBias_ == nullptr ) )
         {
             return getCurrentBias_( );
         }
@@ -108,7 +108,7 @@ public:
             const std::function< void( const Eigen::VectorXd& ) > resetCurrentBias )
     {
         // Check if functions already exist
-        if( !getCurrentBias_.empty( ) || !resetCurrentBias_.empty( ) )
+        if( !( getCurrentBias_ == nullptr ) || !( resetCurrentBias_ == nullptr ) )
         {
             std::cerr << "Warning when resetting observation bias in estimation object, existing contents not empty" << std::endl;
         }
@@ -216,7 +216,7 @@ public:
      */
     Eigen::VectorXd getParameterValue( )
     {
-        if( !getBiasList_.empty( ) )
+        if( !( getBiasList_ == nullptr ) )
         {
             std::vector< Eigen::VectorXd > observationBiases = getBiasList_( );
             Eigen::VectorXd currentParameterSet = Eigen::VectorXd::Zero(
@@ -272,7 +272,7 @@ public:
             const std::function< void( const std::vector< Eigen::VectorXd >& ) > resetBiasList )
     {
         // Check if functions already exist
-        if( !getBiasList_.empty( ) || !resetBiasList_.empty( ) )
+        if( !( getBiasList_ == nullptr ) || !( resetBiasList_ == nullptr ) )
         {
             std::cerr << "Warning when resetting arc-wise observation bias in estimation object, existing contents not empty" << std::endl;
         }

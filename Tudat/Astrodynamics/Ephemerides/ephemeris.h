@@ -12,7 +12,7 @@
 #ifndef TUDAT_EPHEMERIS_H
 #define TUDAT_EPHEMERIS_H
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 #include <tr1/functional>
 
 #include "Tudat/Astrodynamics/Ephemerides/ephemeris.h"

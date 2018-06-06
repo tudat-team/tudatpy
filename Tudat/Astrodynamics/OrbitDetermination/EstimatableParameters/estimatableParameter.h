@@ -17,7 +17,7 @@
 #include <vector>
 #include <map>
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 #include <boost/assign/list_of.hpp>
 #include <Eigen/Geometry>
 

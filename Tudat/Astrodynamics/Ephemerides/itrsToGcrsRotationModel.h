@@ -55,7 +55,7 @@ public:
     //        functionToGetRotationAngles = std::bind(
     //                    static_cast< Eigen::Vector6d(
     //                        interpolators::OneDimensionalInterpolator< double, Eigen::Vector6d >::* )( const double )>
-    //                    ( &interpolators::OneDimensionalInterpolator< double, Eigen::Vector6d >::interpolate ), anglesInterpolator, _1 );
+    //                    ( &interpolators::OneDimensionalInterpolator< double, Eigen::Vector6d >::interpolate ), anglesInterpolator, std::placeholders::_1 );
     //    }
 
     //! Constructor taking class calculating earth orientation angles directly
@@ -72,7 +72,7 @@ public:
     {
         functionToGetRotationAngles = std::bind(
                     &earth_orientation::EarthOrientationAnglesCalculator::getRotationAnglesFromItrsToGcrs< double >,
-                    anglesCalculator, _1, inputTimeScale );
+                    anglesCalculator, std::placeholders::_1, inputTimeScale );
     }
 
     //! Function to calculate the rotation quaternion from ITRS to GCRS

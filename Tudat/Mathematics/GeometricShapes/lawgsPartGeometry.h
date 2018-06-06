@@ -16,7 +16,7 @@
 #ifndef TUDAT_LAWGS_PART_GEOMETRY_H
 #define TUDAT_LAWGS_PART_GEOMETRY_H
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include <Eigen/Core>
 

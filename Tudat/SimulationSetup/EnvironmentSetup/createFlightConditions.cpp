@@ -112,7 +112,7 @@ std::shared_ptr< aerodynamics::AtmosphericFlightConditions > createAtmosphericFl
     {
         controlSurfaceDeflectionFunction = std::bind(
                     &system_models::VehicleSystems::getCurrentControlSurfaceDeflection,
-                    bodyWithFlightConditions->getVehicleSystems( ), _1 );
+                    bodyWithFlightConditions->getVehicleSystems( ), std::placeholders::_1 );
     }
     std::shared_ptr< aerodynamics::AtmosphericFlightConditions > flightConditions =
             std::make_shared< aerodynamics::AtmosphericFlightConditions >(
@@ -222,7 +222,7 @@ void setGuidanceAnglesFunctions(
                 std::bind( &aerodynamics::AerodynamicGuidance::getCurrentAngleOfAttack, aerodynamicGuidance ),
                 std::bind( &aerodynamics::AerodynamicGuidance::getCurrentAngleOfSideslip, aerodynamicGuidance ),
                 std::bind( &aerodynamics::AerodynamicGuidance::getCurrentBankAngle, aerodynamicGuidance ),
-                std::bind( &aerodynamics::AerodynamicGuidance::updateGuidance, aerodynamicGuidance,_1 ) );
+                std::bind( &aerodynamics::AerodynamicGuidance::updateGuidance, aerodynamicGuidance, std::placeholders::_1 ) );
 }
 
 //! Function that must be called to link the AerodynamicGuidance object to the simulation

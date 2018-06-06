@@ -120,7 +120,7 @@ public:
         radiationPressureInterface->resetRadiationPressureCoefficientFunction(
                     std::bind(
                         static_cast< double( LocalInterpolator::* )( const double ) >
-                        ( &LocalInterpolator::interpolate ), coefficientInterpolator_, _1 ) );
+                        ( &LocalInterpolator::interpolate ), coefficientInterpolator_, std::placeholders::_1 ) );
     }
 
     //! Destructor.

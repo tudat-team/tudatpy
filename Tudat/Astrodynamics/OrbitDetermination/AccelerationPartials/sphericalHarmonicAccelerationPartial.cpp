@@ -45,7 +45,7 @@ SphericalHarmonicsGravityPartial::SphericalHarmonicsGravityPartial(
     accelerationFunction_( std::bind( &gravitation::SphericalHarmonicsGravitationalAccelerationModel::getAcceleration,
                                         accelerationModel ) ),
     updateFunction_( std::bind( &gravitation::SphericalHarmonicsGravitationalAccelerationModel::updateMembers,
-                                  accelerationModel, _1 ) ),
+                                  accelerationModel, std::placeholders::_1 ) ),
     rotationMatrixPartials_( rotationMatrixPartials ),
     tidalLoveNumberPartialInterfaces_( tidalLoveNumberPartialInterfaces ),
     accelerationUsesMutualAttraction_( accelerationModel->getIsMutualAttractionUsed( ) )
@@ -93,7 +93,7 @@ std::pair< std::function< void( Eigen::MatrixXd& ) >, int > SphericalHarmonicsGr
                 // Get partial function.
                 partialFunction = std::bind(
                             &SphericalHarmonicsGravityPartial::wrtRotationModelParameter,
-                            this, _1, parameter->getParameterName( ).first, parameter->getSecondaryIdentifier( ) );
+                            this, std::placeholders::_1, parameter->getParameterName( ).first, parameter->getSecondaryIdentifier( ) );
                 numberOfRows = 1;
             }
             else
@@ -146,7 +146,7 @@ std::pair< std::function< void( Eigen::MatrixXd& ) >, int > SphericalHarmonicsGr
                                              parameter, currentTidalPartialOutput.second );
                         partialFunction = std::bind(
                                     &SphericalHarmonicsGravityPartial::wrtTidalModelParameter, this, coefficientPartialFunction, degree, orders, sumOrders,
-                                    parameter->getParameterSize( ), _1 );
+                                    parameter->getParameterSize( ), std::placeholders::_1 );
                         numberOfRows = currentTidalPartialOutput.first;
                     }
                 }
@@ -181,7 +181,7 @@ std::pair< std::function< void( Eigen::MatrixXd& ) >, int > SphericalHarmonicsGr
                 // Get partial function.
                 partialFunction = std::bind(
                             &SphericalHarmonicsGravityPartial::wrtRotationModelParameter,
-                            this,_1, parameter->getParameterName( ).first, parameter->getSecondaryIdentifier( ) );
+                            this, std::placeholders::_1, parameter->getParameterName( ).first, parameter->getSecondaryIdentifier( ) );
                 numberOfRows = parameter->getParameterSize( );
             }
             else
@@ -230,7 +230,7 @@ std::pair< std::function< void( Eigen::MatrixXd& ) >, int > SphericalHarmonicsGr
                                              tidalLoveNumberPartialInterfaces_.at( i ), parameter, currentTidalPartialOutput.second );
                         partialFunction = std::bind(
                                     &SphericalHarmonicsGravityPartial::wrtTidalModelParameter, this, coefficientPartialFunction, degree, orders, sumOrders,
-                                    parameter->getParameterSize( ), _1 );
+                                    parameter->getParameterSize( ), std::placeholders::_1 );
                         numberOfRows = currentTidalPartialOutput.first;
 
                     }
@@ -250,7 +250,7 @@ std::pair< std::function< void( Eigen::MatrixXd& ) >, int > SphericalHarmonicsGr
                         std::dynamic_pointer_cast< SphericalHarmonicsCosineCoefficients >( parameter );
 
                 partialFunction = std::bind( &SphericalHarmonicsGravityPartial::wrtCosineCoefficientBlock, this,
-                                               coefficientsParameter->getBlockIndices( ), _1 );
+                                               coefficientsParameter->getBlockIndices( ), std::placeholders::_1 );
                 numberOfRows = coefficientsParameter->getParameterSize( );
 
                 break;
@@ -263,7 +263,7 @@ std::pair< std::function< void( Eigen::MatrixXd& ) >, int > SphericalHarmonicsGr
                         std::dynamic_pointer_cast< SphericalHarmonicsSineCoefficients >( parameter );
 
                 partialFunction = std::bind( &SphericalHarmonicsGravityPartial::wrtSineCoefficientBlock, this,
-                                               coefficientsParameter->getBlockIndices( ), _1 );
+                                               coefficientsParameter->getBlockIndices( ), std::placeholders::_1 );
                 numberOfRows = coefficientsParameter->getParameterSize( );
 
                 break;
@@ -292,7 +292,7 @@ SphericalHarmonicsGravityPartial::getGravitationalParameterPartialFunction(
         if( parameterId.second.first == acceleratingBody_ )
         {
             partialFunction = std::bind( &SphericalHarmonicsGravityPartial::wrtGravitationalParameterOfCentralBody,
-                                           this, _1, 0 );
+                                           this, std::placeholders::_1, 0 );
             numberOfColumns = 1;
 
         }
@@ -302,7 +302,7 @@ SphericalHarmonicsGravityPartial::getGravitationalParameterPartialFunction(
             if( accelerationUsesMutualAttraction_ )
             {
                 partialFunction = std::bind( &SphericalHarmonicsGravityPartial::wrtGravitationalParameterOfCentralBody,
-                                               this, _1, 0 );
+                                               this, std::placeholders::_1, 0 );
                 numberOfColumns = 1;
             }
         }

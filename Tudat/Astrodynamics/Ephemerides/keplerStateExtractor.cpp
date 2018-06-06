@@ -43,7 +43,7 @@ std::shared_ptr< Eigen::Vector6d > KeplerStateExtractor::extract(
 
     // Create a new KeplerianElements object.
     std::shared_ptr< Vector6d > keplerianElements
-            = boost::allocate_shared< Vector6d >( Eigen::aligned_allocator< Vector6d >( ) );
+            = std::allocate_shared< Vector6d >( Eigen::aligned_allocator< Vector6d >( ) );
 
     // Find and set semi-major axis.
     if ( checkOptionalFieldType( dataLineMap, 1,

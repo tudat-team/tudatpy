@@ -14,7 +14,7 @@
 #include <string>
 #include <vector>
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include "Tudat/Mathematics/BasicMathematics/linearAlgebra.h"
 
@@ -288,7 +288,7 @@ private:
                                     estimatable_parameters::EstimatableParameter< CurrentParameterType > >,
                                     Eigen::Block< Eigen::MatrixXd > )>
                                   ( &orbit_determination::StateDerivativePartial::getCurrentParameterPartial ),
-                                  partialObject, parameterIterator->second, _1  ) ) );
+                                  partialObject, parameterIterator->second, std::placeholders::_1  ) ) );
             }
         }
     }

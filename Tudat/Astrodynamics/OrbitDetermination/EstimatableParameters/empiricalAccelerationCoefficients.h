@@ -288,7 +288,7 @@ public:
 
         empiricalAccelerationFunction_ =
                 std::bind( static_cast< Eigen::Matrix3d( LocalInterpolator::* )( const double ) >
-                             ( &LocalInterpolator::interpolate ), empiricalAccelerationInterpolator_, _1 );
+                             ( &LocalInterpolator::interpolate ), empiricalAccelerationInterpolator_, std::placeholders::_1 );
 
     }
 

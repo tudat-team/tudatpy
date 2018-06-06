@@ -12,7 +12,7 @@
 #ifndef TUDAT_EULER_INTEGRATOR_H
 #define TUDAT_EULER_INTEGRATOR_H
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include <Eigen/Core>
 

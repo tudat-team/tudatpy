@@ -13,7 +13,7 @@
 
 #include <string>
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 #include <boost/test/unit_test.hpp>
 
 #include "Tudat/InputOutput/fieldValue.h"

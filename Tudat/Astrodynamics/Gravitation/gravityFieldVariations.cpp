@@ -167,7 +167,7 @@ createInterpolatedSphericalHarmonicCorrectionFunctions(
 
     // Create update function.
     return std::bind( &PairInterpolationInterface::getCosineSinePair,
-                        interpolationInterface, _1, _2, _3 );
+                        interpolationInterface, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3 );
 }
 
 //! Class constructor.
@@ -250,7 +250,7 @@ GravityFieldVariationsSet::getVariationFunctions( )
             variationFunctions.push_back(
                         std::bind(
                             &GravityFieldVariations::addSphericalHarmonicsCorrections,
-                            variationObjects_[ i ], _1, _2, _3 ) );
+                            variationObjects_[ i ], std::placeholders::_1, std::placeholders::_2, std::placeholders::_3 ) );
         }
     }
 

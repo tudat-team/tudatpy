@@ -15,7 +15,7 @@
 #include <cstdarg>
 #include <string>
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include "Tudat/InputOutput/textParser.h"
 

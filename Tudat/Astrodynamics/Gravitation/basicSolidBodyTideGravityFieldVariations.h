@@ -175,7 +175,7 @@ public:
         correctionFunctions.push_back(
                     std::bind(
                         &BasicSolidBodyTideGravityFieldVariations::addBasicSolidBodyTideCorrections,
-                        this, _1, _2 ) );
+                        this, std::placeholders::_1, std::placeholders::_2 ) );
         currentCosineCorrections_ = Eigen::MatrixXd::Zero(
                     maximumDegree_ - minimumDegree_ + 1, maximumOrder_ - minimumOrder_ + 1 );
         currentSineCorrections_ = Eigen::MatrixXd::Zero(

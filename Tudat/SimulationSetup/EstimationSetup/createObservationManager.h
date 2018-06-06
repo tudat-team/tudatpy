@@ -15,7 +15,7 @@
 #include <vector>
 #include <map>
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include "Tudat/Astrodynamics/ObservationModels/observationManager.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/observationBiasParameter.h"
@@ -91,7 +91,7 @@ void performObservationParameterEstimationClosureForSingleModelSet(
                                 std::bind( &ConstantObservationBias< ObservationSize >::getTemplateFreeConstantObservationBias,
                                              constantBiasObject ),
                                 std::bind( &ConstantObservationBias< ObservationSize >::resetConstantObservationBiasTemplateFree,
-                                             constantBiasObject, _1 ) );
+                                             constantBiasObject, std::placeholders::_1 ) );
                 }
             }
             break;
@@ -137,7 +137,7 @@ void performObservationParameterEstimationClosureForSingleModelSet(
                                     std::bind( &ConstantArcWiseObservationBias< ObservationSize >::getTemplateFreeConstantObservationBias,
                                                  constantBiasObject ),
                                     std::bind( &ConstantArcWiseObservationBias< ObservationSize >::resetConstantObservationBiasTemplateFree,
-                                                 constantBiasObject, _1 ) );
+                                                 constantBiasObject, std::placeholders::_1 ) );
                         biasParameter->setLookupScheme( constantBiasObject->getLookupScheme( ) );
                     }
                 }
@@ -168,7 +168,7 @@ void performObservationParameterEstimationClosureForSingleModelSet(
                                 std::bind( &ConstantRelativeObservationBias< ObservationSize >::getTemplateFreeConstantObservationBias,
                                              constantBiasObject ),
                                 std::bind( &ConstantRelativeObservationBias< ObservationSize >::resetConstantObservationBiasTemplateFree,
-                                             constantBiasObject, _1 ) );
+                                             constantBiasObject, std::placeholders::_1 ) );
                 }
             }
             break;
@@ -214,7 +214,7 @@ void performObservationParameterEstimationClosureForSingleModelSet(
                                     std::bind( &ConstantRelativeArcWiseObservationBias< ObservationSize >::getTemplateFreeConstantObservationBias,
                                                  constantBiasObject ),
                                     std::bind( &ConstantRelativeArcWiseObservationBias< ObservationSize >::resetConstantObservationBiasTemplateFree,
-                                                 constantBiasObject, _1 ) );
+                                                 constantBiasObject, std::placeholders::_1 ) );
                         biasParameter->setLookupScheme( constantBiasObject->getLookupScheme( ) );
                     }
                 }

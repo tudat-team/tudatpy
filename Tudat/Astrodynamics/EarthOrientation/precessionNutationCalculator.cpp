@@ -33,7 +33,7 @@ PrecessionNutationCalculator::PrecessionNutationCalculator(
     // Link selected SOFA function wrapper for direct calculation of precession-nutation.
     nominalCipPositionFunction_ =
             std::bind( sofa_interface::getPositionOfCipInGcrs,
-                         _1, basic_astrodynamics::JULIAN_DAY_ON_J2000, precessionNutationTheory );
+                         std::placeholders::_1, basic_astrodynamics::JULIAN_DAY_ON_J2000, precessionNutationTheory );
 }
 
 //! Function to calculate the position of CIP in GCRS (CIO-based precession-nutation) and CIO-locator.

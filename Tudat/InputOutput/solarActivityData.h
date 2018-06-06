@@ -24,7 +24,7 @@
 
 #include <Eigen/Core>
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/timeConversions.h"
 namespace tudat

@@ -13,7 +13,7 @@
 
 #include <map>
 #include <boost/make_shared.hpp>
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include "Tudat/Mathematics/Statistics/continuousProbabilityDistributions.h"
 #include "Tudat/Mathematics/Statistics/boostProbabilityDistributions.h"

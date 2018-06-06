@@ -14,7 +14,7 @@
 #include <vector>
 
 #include <boost/bind.hpp>
-#include <boost/shared_ptr.hpp>
+#include <memory>
 #include <boost/make_shared.hpp>
 
 #include <Eigen/Core>
@@ -362,23 +362,23 @@ std::shared_ptr< Ephemeris > createReferencePointEphemeris(
     // Cast state fucntion of body (global) and reference point (local) into correct form.
     std::map< int, std::function< StateType( const TimeType& ) > > referencePointEphemerisVector;
     referencePointEphemerisVector[ 2 ] = std::bind(
-                &Ephemeris::getTemplatedStateFromEphemeris< StateScalarType, TimeType >, bodyEphemeris, _1 );
+                &Ephemeris::getTemplatedStateFromEphemeris< StateScalarType, TimeType >, bodyEphemeris, std::placeholders::_1 );
     referencePointEphemerisVector[ 0 ] = std::bind(
                 &convertStateFunctionStateScalarOutput< double, StateScalarType, TimeType, 6 >,
-                referencePointRelativeStateFunction, _1 );
+                referencePointRelativeStateFunction, std::placeholders::_1 );
 
 
     // Crate rotation functions from local to global frame.
     std::function< Eigen::Quaterniond( const TimeType ) > rotationToFrameFunction =
-            std::bind( &RotationalEphemeris::getRotationToBaseFrameTemplated< TimeType >, bodyRotationModel, _1 );
+            std::bind( &RotationalEphemeris::getRotationToBaseFrameTemplated< TimeType >, bodyRotationModel, std::placeholders::_1 );
     std::function< Eigen::Matrix3d( const TimeType ) > rotationMatrixToFrameDerivativeFunction =
-            std::bind( &RotationalEphemeris::getDerivativeOfRotationToBaseFrameTemplated< TimeType >, bodyRotationModel, _1 );
+            std::bind( &RotationalEphemeris::getDerivativeOfRotationToBaseFrameTemplated< TimeType >, bodyRotationModel, std::placeholders::_1 );
 
     // Create ephemeris
     std::map< int, std::function< StateType( const TimeType, const StateType& ) > > referencePointRotationVector;
     referencePointRotationVector[ 1 ] = std::bind(
                 transformStateToFrameFromRotationTimeFunctions< StateScalarType, TimeType >,
-                _2, _1, rotationToFrameFunction, rotationMatrixToFrameDerivativeFunction );
+                std::placeholders::_2, std::placeholders::_1, rotationToFrameFunction, rotationMatrixToFrameDerivativeFunction );
 
     return std::make_shared< CompositeEphemeris< TimeType, StateScalarType > >(
                 referencePointEphemerisVector, referencePointRotationVector, "SSB", "ECLIPJ2000" );

@@ -13,7 +13,7 @@
 #define TUDAT_CENTRAL_J2_GRAVITY_MODEL_H
 
 #include <boost/lambda/lambda.hpp>
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/accelerationModel.h"
 #include "Tudat/Astrodynamics/Gravitation/centralGravityModel.h"

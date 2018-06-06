@@ -21,7 +21,7 @@
 #include "Tudat/Astrodynamics/Aerodynamics/aerodynamics.h"
 #include "Tudat/Astrodynamics/Aerodynamics/equilibriumWallTemperature.h"
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 #include <boost/make_shared.hpp>
 
 namespace tudat
@@ -539,7 +539,7 @@ double computeEquilibriumFayRiddellHeatFlux( const double airDensity,
             = computeAdiabaticWallTemperature( airTemperature , machNumber );
 
     std::function< double( const double ) > heatTransferFunction = std::bind(
-                &computeFayRiddellHeatFlux, airDensity, airSpeed, airTemperature, noseRadius, _1 );
+                &computeFayRiddellHeatFlux, airDensity, airSpeed, airTemperature, noseRadius, std::placeholders::_1 );
 
     return computeEquilibriumHeatflux( heatTransferFunction, wallEmissivity, adiabaticWallTemperature );
 }

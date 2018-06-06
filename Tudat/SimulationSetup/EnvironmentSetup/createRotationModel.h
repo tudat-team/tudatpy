@@ -14,7 +14,7 @@
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include "Tudat/InputOutput/basicInputOutput.h"
 #include "Tudat/SimulationSetup/EnvironmentSetup/body.h"

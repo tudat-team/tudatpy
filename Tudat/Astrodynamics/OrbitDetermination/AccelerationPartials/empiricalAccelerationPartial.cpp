@@ -92,7 +92,7 @@ std::pair< std::function< void( Eigen::MatrixXd& ) >, int > EmpiricalAcceleratio
         {
             partialFunction = std::bind(
                         &EmpiricalAccelerationPartial::wrtEmpiricalAccelerationCoefficientFromIndices, this, parameter->getParameterSize( ),
-                        std::dynamic_pointer_cast< EmpiricalAccelerationCoefficientsParameter >( parameter )->getIndices( ), _1 );
+                        std::dynamic_pointer_cast< EmpiricalAccelerationCoefficientsParameter >( parameter )->getIndices( ), std::placeholders::_1 );
             numberOfRows = parameter->getParameterSize( );
             break;
         }
@@ -100,7 +100,7 @@ std::pair< std::function< void( Eigen::MatrixXd& ) >, int > EmpiricalAcceleratio
         {
             partialFunction = std::bind(
                         &EmpiricalAccelerationPartial::wrtArcWiseEmpiricalAccelerationCoefficient, this,
-                        std::dynamic_pointer_cast< ArcWiseEmpiricalAccelerationCoefficientsParameter >( parameter ), _1 );
+                        std::dynamic_pointer_cast< ArcWiseEmpiricalAccelerationCoefficientsParameter >( parameter ), std::placeholders::_1 );
             numberOfRows = parameter->getParameterSize( );
             break;
         }

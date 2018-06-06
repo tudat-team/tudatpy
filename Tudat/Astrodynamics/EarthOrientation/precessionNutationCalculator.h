@@ -12,7 +12,7 @@
 #ifndef TUDAT_PRECESSIONNUTATIONCALCULATOR_H
 #define TUDAT_PRECESSIONNUTATIONCALCULATOR_H
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 #include <tr1/functional>
 
 #include "Tudat/Mathematics/Interpolators/oneDimensionalInterpolator.h"

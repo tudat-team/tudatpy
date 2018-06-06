@@ -49,7 +49,7 @@ BOOST_AUTO_TEST_CASE( test_bisection_testFunction1 )
     Bisection::TerminationFunction terminationConditionFunction =
             std::bind( &RootAbsoluteToleranceTerminationCondition< double >::checkTerminationCondition,
                          std::make_shared< RootAbsoluteToleranceTerminationCondition< double > >(
-                             testFunction->getTrueRootAccuracy( ) ), _1, _2, _3, _4, _5 );
+                             testFunction->getTrueRootAccuracy( ) ), std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5 );
 
     // Test Bisection object.
     Bisection bisection( terminationConditionFunction,
@@ -73,7 +73,7 @@ BOOST_AUTO_TEST_CASE( test_bisection_testFunction2 )
     Bisection::TerminationFunction terminationConditionFunction =
             std::bind( &RootAbsoluteToleranceTerminationCondition< double >::checkTerminationCondition,
                          std::make_shared< RootAbsoluteToleranceTerminationCondition< double > >(
-                             testFunction->getTrueRootAccuracy( ) ), _1, _2, _3, _4, _5 );
+                             testFunction->getTrueRootAccuracy( ) ), std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5 );
 
     // Test Bisection object.
     Bisection bisection( terminationConditionFunction,
@@ -97,7 +97,7 @@ BOOST_AUTO_TEST_CASE( test_bisection_testFunction3 )
     Bisection::TerminationFunction terminationConditionFunction =
             std::bind( &RootAbsoluteToleranceTerminationCondition< double >::checkTerminationCondition,
                          std::make_shared< RootAbsoluteToleranceTerminationCondition< double > >(
-                             testFunction->getTrueRootAccuracy( ) ), _1, _2, _3, _4, _5 );
+                             testFunction->getTrueRootAccuracy( ) ), std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5 );
 
     // Test Bisection object.
     Bisection bisection( terminationConditionFunction,
@@ -140,7 +140,7 @@ BOOST_AUTO_TEST_CASE( test_bisection_testFunctionWithLargeRootDifference )
     Bisection::TerminationFunction terminationConditionFunction
             = std::bind( &RootRelativeToleranceTerminationCondition< >::checkTerminationCondition,
                            std::make_shared< RootRelativeToleranceTerminationCondition< > >(
-                               1.0e-10 ), _1, _2, _3, _4, _5 );
+                               1.0e-10 ), std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5 );
 
     // Test Bisection object, per case.
     Bisection bisectionLowCase( terminationConditionFunction, lowerBound, upperBound );
@@ -165,7 +165,7 @@ BOOST_AUTO_TEST_CASE( test_bisection_wrongBracket )
     Bisection::TerminationFunction terminationConditionFunction =
             std::bind( &RootAbsoluteToleranceTerminationCondition< double >::checkTerminationCondition,
                          std::make_shared< RootAbsoluteToleranceTerminationCondition< double > >(
-                             testFunction->getTrueRootAccuracy( ) ), _1, _2, _3, _4, _5 );
+                             testFunction->getTrueRootAccuracy( ) ), std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5 );
 
     // Test Bisection object. The input interval does not bracket the solution.
     Bisection bisection( terminationConditionFunction,
