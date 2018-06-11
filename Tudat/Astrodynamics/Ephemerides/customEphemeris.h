@@ -10,7 +10,7 @@
 #ifndef TUDAT_CUSTOMEPHEMERIS_H
 #define TUDAT_CUSTOMEPHEMERIS_H
 
-#include <tr1/functional>
+#include <functional>
 #include <boost/lambda/lambda.hpp>
 
 #include "Tudat/Astrodynamics/Ephemerides/ephemeris.h"

@@ -73,6 +73,10 @@ protected:
 private:
 };
 
+extern template class ReinitializableNumericalIntegrator < double, Eigen::VectorXd, Eigen::VectorXd >;
+extern template class ReinitializableNumericalIntegrator < double, Eigen::MatrixXd, Eigen::Vector6d >;
+extern template class ReinitializableNumericalIntegrator < double, Eigen::MatrixXd, Eigen::MatrixXd >;
+
 //! Typedef for shared-pointer to default, re-initializable numerical integrator.
 /*!
  * Typedef for shared-pointer to a default, re-initializable numerical integrator

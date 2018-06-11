@@ -31,7 +31,7 @@
 #ifndef TUDAT_IMPROVED_INVERSE_POLYNOMIAL_WALL_H
 #define TUDAT_IMPROVED_INVERSE_POLYNOMIAL_WALL_H
 
-#include <tr1/functional>
+#include <functional>
 #include <boost/make_shared.hpp>
 
 #include <Eigen/Core>

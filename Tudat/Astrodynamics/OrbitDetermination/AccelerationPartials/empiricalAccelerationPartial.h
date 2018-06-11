@@ -11,7 +11,7 @@
 #ifndef TUDAT_EMPIRICALACCELERATIONPARTIAL_H
 #define TUDAT_EMPIRICALACCELERATIONPARTIAL_H
 
-#include <tr1/functional>
+#include <functional>
 #include <boost/lambda/lambda.hpp>
 #include <memory>
 

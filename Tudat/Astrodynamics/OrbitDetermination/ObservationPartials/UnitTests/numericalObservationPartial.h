@@ -12,7 +12,7 @@
 #define TUDAT_NUMERICALOBSERVATIONPARTIAL_H
 
 #include <memory>
-#include <tr1/functional>
+#include <functional>
 #include <boost/bind.hpp>
 
 #include "Tudat/Astrodynamics/OrbitDetermination/ObservationPartials/observationPartial.h"

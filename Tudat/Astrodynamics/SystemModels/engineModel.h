@@ -12,7 +12,7 @@
 #define TUDAT_ENGINEMODEL_H
 
 #include <Eigen/Core>
-#include <tr1/functional>
+#include <functional>
 
 #include "Tudat/Astrodynamics/Propulsion/thrustFunctions.h"
 

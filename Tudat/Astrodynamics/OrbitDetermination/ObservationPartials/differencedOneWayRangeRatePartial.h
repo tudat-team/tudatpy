@@ -11,7 +11,7 @@
 #ifndef TUDAT_DIFFERENCEDONEWAYRANGERATEPARTIAL_H
 #define TUDAT_DIFFERENCEDONEWAYRANGERATEPARTIAL_H
 
-#include <tr1/functional>
+#include <functional>
 #include <boost/lambda/lambda.hpp>
 
 #include <Eigen/Core>

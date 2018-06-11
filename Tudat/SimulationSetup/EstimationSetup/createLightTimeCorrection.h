@@ -14,7 +14,7 @@
 #include <Eigen/Core>
 
 #include <memory>
-#include <tr1/functional>
+#include <functional>
 
 #include "Tudat/SimulationSetup/EnvironmentSetup/body.h"
 #include "Tudat/Astrodynamics/ObservationModels/linkTypeDefs.h"

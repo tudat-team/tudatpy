@@ -11,7 +11,7 @@
 #ifndef TUDAT_RELATIVISTICACCELERATIONCORRECTION_H
 #define TUDAT_RELATIVISTICACCELERATIONCORRECTION_H
 
-#include <tr1/functional>
+#include <functional>
 #include <boost/lambda/lambda.hpp>
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/physicalConstants.h"

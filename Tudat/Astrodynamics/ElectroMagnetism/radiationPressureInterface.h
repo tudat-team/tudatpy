@@ -14,7 +14,7 @@
 
 #include <vector>
 
-#include <tr1/functional>
+#include <functional>
 #include <boost/lambda/lambda.hpp>
 
 #include <Eigen/Core>

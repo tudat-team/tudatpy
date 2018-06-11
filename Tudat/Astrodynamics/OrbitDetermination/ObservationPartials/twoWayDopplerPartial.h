@@ -11,7 +11,7 @@
 #ifndef TUDAT_TWOWAYDOPPLERPARTIAL_H
 #define TUDAT_TWOWAYDOPPLERPARTIAL_H
 
-#include <tr1/functional>
+#include <functional>
 
 #include <Eigen/Core>
 

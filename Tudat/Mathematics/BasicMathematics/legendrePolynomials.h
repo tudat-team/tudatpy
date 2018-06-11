@@ -34,7 +34,7 @@
 #include <boost/bind.hpp>
 
 #include <boost/circular_buffer.hpp>
-#include <tr1/functional>
+#include <functional>
 #include <memory>
 #include <boost/unordered_map.hpp>
 #include <boost/enable_shared_from_this.hpp>

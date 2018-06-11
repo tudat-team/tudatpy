@@ -11,7 +11,7 @@
 
 #ifndef TUDAT_THRUSTGUIDANCE_H
 #define TUDAT_THRUSTGUIDANCE_H
-#include <tr1/functional>
+#include <functional>
 #include <boost/lambda/lambda.hpp>
 
 #include "Tudat/Astrodynamics/ReferenceFrames/referenceFrameTransformations.h"

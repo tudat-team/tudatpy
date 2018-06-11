@@ -13,7 +13,7 @@
 
 #include <unordered_map>
 #include <set>
-#include <tr1/functional>
+#include <functional>
 
 #include <boost/core/demangle.hpp>
 #include <memory>

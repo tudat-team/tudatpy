@@ -15,7 +15,7 @@
 #include <map>
 #include <utility>
 
-#include <tr1/functional>
+#include <functional>
 #include <memory>
 #include <boost/tuple/tuple.hpp>
 #include <boost/tuple/tuple_comparison.hpp>

@@ -16,7 +16,7 @@
 
 #include <memory>
 #include <boost/make_shared.hpp>
-#include <tr1/functional>
+#include <functional>
 
 #include <Eigen/Core>
 

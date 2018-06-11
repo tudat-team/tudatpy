@@ -17,7 +17,7 @@
 
 #define BOOST_TEST_MAIN
 
-#include <tr1/functional>
+#include <functional>
 #include <boost/lambda/lambda.hpp>
 #include <boost/make_shared.hpp>
 #include <memory>

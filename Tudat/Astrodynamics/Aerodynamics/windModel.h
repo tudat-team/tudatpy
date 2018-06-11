@@ -15,7 +15,7 @@
 #include <Eigen/Core>
 
 #include <memory>
-#include <tr1/functional>
+#include <functional>
 
 namespace tudat
 {

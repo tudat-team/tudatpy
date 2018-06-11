@@ -13,7 +13,7 @@
 
 #include <map>
 
-#include <tr1/functional>
+#include <functional>
 
 #include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/estimatableParameter.h"
 

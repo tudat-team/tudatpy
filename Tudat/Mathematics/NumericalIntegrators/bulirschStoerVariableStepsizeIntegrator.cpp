@@ -56,6 +56,11 @@ std::vector< unsigned int > getBulirschStoerStepSequence(
     return stepSequence;
 }
 
+template class BulirschStoerVariableStepSizeIntegrator < double, Eigen::VectorXd, Eigen::VectorXd >;
+template class BulirschStoerVariableStepSizeIntegrator < double, Eigen::MatrixXd, Eigen::Vector6d >;
+template class BulirschStoerVariableStepSizeIntegrator < double, Eigen::MatrixXd, Eigen::MatrixXd >;
+
+
 } // namespace numerical_integrators
 
 } // namespace tudat

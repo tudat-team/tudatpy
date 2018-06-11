@@ -15,7 +15,7 @@
 #include <map>
 
 #include <boost/bind.hpp>
-#include <tr1/functional>
+#include <functional>
 #include <boost/make_shared.hpp>
 #include <memory>
 

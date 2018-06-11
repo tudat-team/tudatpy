@@ -14,7 +14,7 @@
 
 #include <map>
 
-#include <tr1/functional>
+#include <functional>
 
 #include <Eigen/Core>
 #include <Eigen/SVD>

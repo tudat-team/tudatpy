@@ -25,7 +25,7 @@
 #ifndef TUDAT_ORBITAL_ELEMENT_CONVERSIONS_H
 #define TUDAT_ORBITAL_ELEMENT_CONVERSIONS_H
 
-#include <tr1/functional>
+#include <functional>
 #include <boost/math/special_functions/atanh.hpp>
 
 #include <cmath>

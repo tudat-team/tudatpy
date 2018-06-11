@@ -12,7 +12,7 @@
 #ifndef TUDAT_ROOT_FINDER_H
 #define TUDAT_ROOT_FINDER_H
 
-#include <tr1/functional>
+#include <functional>
 #include <memory>
 
 #include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"

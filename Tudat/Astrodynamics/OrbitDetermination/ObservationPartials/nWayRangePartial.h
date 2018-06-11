@@ -11,7 +11,7 @@
 #ifndef TUDAT_NWAYRANGEPARTIAL_H
 #define TUDAT_NWAYRANGEPARTIAL_H
 
-#include <tr1/functional>
+#include <functional>
 
 #include <Eigen/Core>
 

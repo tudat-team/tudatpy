@@ -17,7 +17,7 @@
 #define TUDAT_RUNGE_KUTTA_VARIABLE_STEP_SIZE_INTEGRATOR_H
 
 #include <boost/bind.hpp>
-#include <tr1/functional>
+#include <functional>
 #include <memory>
 
 #include <Eigen/Core>
@@ -460,6 +460,11 @@ protected:
     //! Boolean denoting whether step size control is to be used
     bool useStepSizeControl_;
 };
+
+extern template class RungeKuttaVariableStepSizeIntegrator < double, Eigen::VectorXd, Eigen::VectorXd >;
+extern template class RungeKuttaVariableStepSizeIntegrator < double, Eigen::MatrixXd, Eigen::Vector6d >;
+extern template class RungeKuttaVariableStepSizeIntegrator < double, Eigen::MatrixXd, Eigen::MatrixXd >;
+
 
 //! Perform a single integration step.
 template < typename IndependentVariableType, typename StateType, typename StateDerivativeType, typename TimeStepType >

@@ -10,7 +10,7 @@
 #ifndef TUDAT_CUSTOMSTATEDERIVATIVE_H
 #define TUDAT_CUSTOMSTATEDERIVATIVE_H
 
-#include <tr1/functional>
+#include <functional>
 
 #include "Tudat/Astrodynamics/Propagators/singleStateTypeDerivative.h"
 

@@ -14,7 +14,7 @@
  */
 
 #include <algorithm>
-#include <tr1/functional>
+#include <functional>
 #include <sstream>
 #include <stdexcept>
 

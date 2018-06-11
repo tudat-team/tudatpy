@@ -16,7 +16,7 @@
 #include <cmath>
 #include <algorithm>
 
-#include <tr1/functional>
+#include <functional>
 #include <boost/functional/hash.hpp>
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/physicalConstants.h"

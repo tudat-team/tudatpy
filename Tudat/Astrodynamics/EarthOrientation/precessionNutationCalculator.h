@@ -13,7 +13,7 @@
 #define TUDAT_PRECESSIONNUTATIONCALCULATOR_H
 
 #include <memory>
-#include <tr1/functional>
+#include <functional>
 
 #include "Tudat/Mathematics/Interpolators/oneDimensionalInterpolator.h"
 #include "Tudat/External/SofaInterface/earthOrientation.h"

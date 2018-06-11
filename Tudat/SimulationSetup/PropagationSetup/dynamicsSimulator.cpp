@@ -33,6 +33,12 @@ std::shared_ptr< ephemerides::ReferenceFrameManager > createFrameManager(
                 ephemerides );
 }
 
+template class DynamicsSimulator< double, double >;
+
+template class SingleArcDynamicsSimulator< double, double >;
+
+template class MultiArcDynamicsSimulator< double, double >;
+
 }
 
 }

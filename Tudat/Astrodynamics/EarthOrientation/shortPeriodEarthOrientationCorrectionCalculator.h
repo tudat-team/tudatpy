@@ -15,7 +15,7 @@
 
 #include <string>
 
-#include <tr1/functional>
+#include <functional>
 #include <boost/bind.hpp>
 #include <boost/make_shared.hpp>
 
