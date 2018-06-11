@@ -13,7 +13,7 @@
 #define TUDAT_EPHEMERIS_H
 
 #include <memory>
-#include <tr1/functional>
+#include <functional>
 
 #include "Tudat/Astrodynamics/Ephemerides/ephemeris.h"
 #include "Tudat/Mathematics/BasicMathematics/linearAlgebra.h"

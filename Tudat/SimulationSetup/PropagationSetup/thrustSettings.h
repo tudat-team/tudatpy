@@ -21,7 +21,7 @@
 #include <Eigen/Geometry>
 
 #include <boost/bind.hpp>
-#include <tr1/functional>
+#include <functional>
 
 #include "Tudat/Astrodynamics/Propulsion/thrustGuidance.h"
 #include "Tudat/Astrodynamics/Propulsion/thrustMagnitudeWrapper.h"

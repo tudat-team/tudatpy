@@ -12,7 +12,7 @@
 #define TUDAT_CUSTOM_AERODYNAMIC_COEFFICIENT_INTERFACE_H
 
 #include <boost/lambda/lambda.hpp>
-#include <tr1/functional>
+#include <functional>
 #include <boost/bind.hpp>
 #include <boost/make_shared.hpp>
 

@@ -18,7 +18,7 @@
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 
-#include <tr1/functional>
+#include <functional>
 #include <memory>
 
 namespace tudat

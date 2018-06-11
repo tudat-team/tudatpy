@@ -12,7 +12,7 @@
 #ifndef TUDAT_POLARMOTIONCALCULATOR_H
 #define TUDAT_POLARMOTIONCALCULATOR_H
 
-#include <tr1/functional>
+#include <functional>
 
 #include <Eigen/Core>
 

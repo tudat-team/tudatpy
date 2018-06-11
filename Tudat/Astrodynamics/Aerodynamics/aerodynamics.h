@@ -19,7 +19,7 @@
 #ifndef TUDAT_AERODYNAMICS_H
 #define TUDAT_AERODYNAMICS_H
 
-#include <tr1/functional>
+#include <functional>
 
 #include <Eigen/Core>
 

@@ -12,7 +12,7 @@
 #ifndef TUDAT_TERRESTRIALTIMESCALECONVERTER_H
 #define TUDAT_TERRESTRIALTIMESCALECONVERTER_H
 
-#include <tr1/functional>
+#include <functional>
 
 #include "Tudat/Mathematics/Interpolators/oneDimensionalInterpolator.h"
 #include "Tudat/Basics/timeType.h"

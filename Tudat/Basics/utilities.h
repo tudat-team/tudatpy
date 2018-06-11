@@ -16,7 +16,7 @@
 #include <iostream>
 #include <map>
 
-#include <tr1/functional>
+#include <functional>
 #include <boost/multi_array.hpp>
 #include <memory>
 

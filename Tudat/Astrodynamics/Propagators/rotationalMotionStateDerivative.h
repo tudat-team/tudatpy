@@ -18,7 +18,7 @@
 #include <string>
 
 #include <memory>
-#include <tr1/functional>
+#include <functional>
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/torqueModel.h"
 

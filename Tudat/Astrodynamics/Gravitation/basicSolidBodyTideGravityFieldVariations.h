@@ -11,7 +11,7 @@
 #ifndef TUDAT_BASICSOLIDBODYTIDEGRAVITYFIELDVARIATIONS_H
 #define TUDAT_BASICSOLIDBODYTIDEGRAVITYFIELDVARIATIONS_H
 
-#include <tr1/functional>
+#include <functional>
 #include <boost/multi_array.hpp>
 #include <boost/bind.hpp>
 

@@ -12,7 +12,7 @@
 #define TUDAT_MUTUALSPHERICALHARMONICGRAVITYMODEL_H
 
 
-#include <tr1/functional>
+#include <functional>
 #include <boost/lambda/lambda.hpp>
 #include <memory>
 #include <boost/bind.hpp>

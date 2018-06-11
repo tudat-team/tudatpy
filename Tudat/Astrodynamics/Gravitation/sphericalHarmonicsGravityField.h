@@ -17,7 +17,7 @@
 #ifndef TUDAT_SPHERICAL_HARMONICS_GRAVITY_FIELD_H
 #define TUDAT_SPHERICAL_HARMONICS_GRAVITY_FIELD_H
 
-#include <tr1/functional>
+#include <functional>
 #include <boost/lambda/lambda.hpp>
 #include <boost/make_shared.hpp>
 

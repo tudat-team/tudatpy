@@ -16,7 +16,7 @@
 #include <stdexcept>
 #include <string>
 
-#include <tr1/functional>
+#include <functional>
 #include <memory>
 
 namespace tudat

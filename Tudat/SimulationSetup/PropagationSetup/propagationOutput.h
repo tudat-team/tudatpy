@@ -11,7 +11,7 @@
 #ifndef TUDAT_PROPAGATIONOUTPUT_H
 #define TUDAT_PROPAGATIONOUTPUT_H
 
-#include <tr1/functional>
+#include <functional>
 
 #include "Tudat/Basics/utilities.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/astrodynamicsFunctions.h"

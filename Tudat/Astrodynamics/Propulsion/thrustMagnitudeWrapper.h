@@ -12,7 +12,7 @@
 #define TUDAT_THRUSTMAGNITUDEWRAPPER_H
 
 #include <memory>
-#include <tr1/functional>
+#include <functional>
 #include <boost/lambda/lambda.hpp>
 
 #include "Tudat/Astrodynamics/SystemModels/engineModel.h"

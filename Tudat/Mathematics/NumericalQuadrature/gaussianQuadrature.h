@@ -14,7 +14,7 @@
 #include <vector>
 #include <map>
 
-#include <tr1/functional>
+#include <functional>
 #include <memory>
 #include <boost/make_shared.hpp>
 

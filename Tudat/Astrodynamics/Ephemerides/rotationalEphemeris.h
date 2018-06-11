@@ -14,7 +14,7 @@
 
 #include <string>
 
-#include <tr1/functional>
+#include <functional>
 
 #include <Eigen/Core>
 #include <Eigen/Geometry>

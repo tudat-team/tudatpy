@@ -13,7 +13,7 @@
 
 #include <ctime>
 
-#include <tr1/functional>
+#include <functional>
 #include <boost/random.hpp>
 #include <boost/random/mersenne_twister.hpp>
 #include <boost/make_shared.hpp>

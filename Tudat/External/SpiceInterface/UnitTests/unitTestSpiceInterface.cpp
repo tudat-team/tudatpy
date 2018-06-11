@@ -27,7 +27,7 @@
 #include <boost/test/unit_test.hpp>
 #include <boost/make_shared.hpp>
 #include <boost/bind.hpp>
-#include <tr1/functional>
+#include <functional>
 #include <memory>
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/physicalConstants.h"

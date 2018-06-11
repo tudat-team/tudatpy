@@ -16,7 +16,7 @@
 #include <set>
 #include <stdexcept>
 
-#include <tr1/functional>
+#include <functional>
 #include <memory>
 
 #include "Tudat/InputOutput/dictionaryComparer.h"

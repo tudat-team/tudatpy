@@ -165,6 +165,8 @@ public:
               StateType::Constant( initialState.rows( ), initialState.cols( ), std::fabs( absoluteErrorTolerance ) ),
               bandwidth ) { }
     
+    ~AdamsBashforthMoultonIntegrator( ){ }
+
     //! Get step size of the next step.
     /*!
      * Returns the step size of the next step. If the
@@ -982,6 +984,11 @@ protected:
      */
     StateDerivativeType lastDerivative_;
 };
+
+extern template class AdamsBashforthMoultonIntegrator < double, Eigen::VectorXd, Eigen::VectorXd >;
+extern template class AdamsBashforthMoultonIntegrator < double, Eigen::MatrixXd, Eigen::Vector6d >;
+extern template class AdamsBashforthMoultonIntegrator < double, Eigen::MatrixXd, Eigen::MatrixXd >;
+
 
 //! Typedef of Adam-Bashforh-Moulton integrator (state/state derivative = VectorXd, independent variable = double).
 /*!

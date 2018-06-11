@@ -30,7 +30,7 @@
 #ifndef TUDAT_OSCILLATING_FUNCTION_NOVAK_H
 #define TUDAT_OSCILLATING_FUNCTION_NOVAK_H
 
-#include <tr1/functional>
+#include <functional>
 #include <boost/make_shared.hpp>
 
 #include <Eigen/Core>

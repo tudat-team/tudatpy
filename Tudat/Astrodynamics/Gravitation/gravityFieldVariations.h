@@ -11,7 +11,7 @@
 #ifndef TUDAT_GRAVITYFIELDVARIATIONS_H
 #define TUDAT_GRAVITYFIELDVARIATIONS_H
 
-#include <tr1/functional>
+#include <functional>
 #include <Eigen/Core>
 
 #include "Tudat/Basics/basicTypedefs.h"

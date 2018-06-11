@@ -1313,8 +1313,13 @@ protected:
     //! Propagator settings used by this objec
     std::shared_ptr< MultiArcPropagatorSettings< StateScalarType > > multiArcPropagatorSettings_;
 
-
 };
+
+extern template class DynamicsSimulator< double, double >;
+
+extern template class SingleArcDynamicsSimulator< double, double >;
+
+extern template class MultiArcDynamicsSimulator< double, double >;
 
 } // namespace propagators
 

@@ -15,7 +15,7 @@
 #ifndef TUDAT_APPARENT_ACCELERATION_MODEL_H
 #define TUDAT_APPARENT_ACCELERATION_MODEL_H
 
-#include <tr1/functional>
+#include <functional>
 #include <memory>
 
 #include <Eigen/Dense>

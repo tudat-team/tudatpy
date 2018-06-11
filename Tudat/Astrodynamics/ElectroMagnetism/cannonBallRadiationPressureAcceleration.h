@@ -17,7 +17,7 @@
 #ifndef TUDAT_CANNON_BALL_RADIATION_PRESSURE_ACCELERATION_H
 #define TUDAT_CANNON_BALL_RADIATION_PRESSURE_ACCELERATION_H 
 
-#include <tr1/functional>
+#include <functional>
 #include <boost/lambda/lambda.hpp>
 #include <memory>
 

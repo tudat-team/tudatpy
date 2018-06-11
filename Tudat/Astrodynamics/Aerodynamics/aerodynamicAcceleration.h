@@ -12,7 +12,7 @@
 #ifndef TUDAT_AERODYNAMIC_ACCELERATION_H
 #define TUDAT_AERODYNAMIC_ACCELERATION_H
 
-#include <tr1/functional>
+#include <functional>
 #include <boost/lambda/lambda.hpp>
 #include <memory>
 

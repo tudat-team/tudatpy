@@ -12,7 +12,7 @@
 #ifndef TUDAT_TEST_ACCELERATION_MODELS_H
 #define TUDAT_TEST_ACCELERATION_MODELS_H
 
-#include <tr1/functional>
+#include <functional>
 
 #include <Eigen/Core>
 

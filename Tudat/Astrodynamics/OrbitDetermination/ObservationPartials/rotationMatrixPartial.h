@@ -13,7 +13,7 @@
 
 #include <vector>
 
-#include <tr1/functional>
+#include <functional>
 #include <memory>
 #include <boost/assign/list_of.hpp>
 

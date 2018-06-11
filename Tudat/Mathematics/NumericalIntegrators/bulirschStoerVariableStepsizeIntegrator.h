@@ -189,6 +189,8 @@ public:
         }
     }
 
+    ~BulirschStoerVariableStepSizeIntegrator( ){ }
+
     //! Get step size of the next step.
     /*!
      * Returns the step size of the next step.
@@ -492,6 +494,11 @@ private:
     std::vector< double > subSteps_;
 
 };
+
+extern template class BulirschStoerVariableStepSizeIntegrator < double, Eigen::VectorXd, Eigen::VectorXd >;
+extern template class BulirschStoerVariableStepSizeIntegrator < double, Eigen::MatrixXd, Eigen::Vector6d >;
+extern template class BulirschStoerVariableStepSizeIntegrator < double, Eigen::MatrixXd, Eigen::MatrixXd >;
+
 
 //! Typedef of variable-step size Bulirsch-Stoer integrator (state/state derivative = VectorXd,
 //! independent variable = double).

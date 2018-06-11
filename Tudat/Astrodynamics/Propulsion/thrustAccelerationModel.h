@@ -13,7 +13,7 @@
 
 #include <limits>
 
-#include <tr1/functional>
+#include <functional>
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/accelerationModel.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/massRateModel.h"

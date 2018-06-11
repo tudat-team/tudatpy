@@ -16,7 +16,7 @@
 #include <string>
 
 #include <memory>
-#include <tr1/functional>
+#include <functional>
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/massRateModel.h"
 #include "Tudat/Astrodynamics/Propagators/singleStateTypeDerivative.h"

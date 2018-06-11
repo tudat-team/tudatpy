@@ -21,6 +21,8 @@
 
 #include <Eigen/Core>
 
+#include "Tudat/Basics/basicTypedefs.h"
+
 namespace tudat
 {
 namespace numerical_integrators
@@ -216,6 +218,11 @@ protected:
      */
     std::function< bool( const double, const double ) > propagationTerminationFunction_ = boost::lambda::constant( false );
 };
+
+
+extern template class NumericalIntegrator < double, Eigen::VectorXd, Eigen::VectorXd >;
+extern template class NumericalIntegrator < double, Eigen::Vector6d, Eigen::Vector6d >;
+extern template class NumericalIntegrator < double, Eigen::MatrixXd, Eigen::MatrixXd >;
 
 //! Perform an integration to a specified independent variable value.
 template < typename IndependentVariableType, typename StateType, typename StateDerivativeType, typename TimeStepType >

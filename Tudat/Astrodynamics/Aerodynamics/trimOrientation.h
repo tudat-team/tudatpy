@@ -13,7 +13,7 @@
 #ifndef TUDAT_TRIMORIENTATION_H
 #define TUDAT_TRIMORIENTATION_H
 
-#include <tr1/functional>
+#include <functional>
 #include <memory>
 
 #include <Eigen/Core>

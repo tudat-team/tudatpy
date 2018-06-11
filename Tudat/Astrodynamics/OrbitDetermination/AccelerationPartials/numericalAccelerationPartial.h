@@ -11,7 +11,7 @@
 #ifndef TUDAT_NUMERICALACCELERATIONPARTIAL_H
 #define TUDAT_NUMERICALACCELERATIONPARTIAL_H
 
-#include <tr1/functional>
+#include <functional>
 
 #include <Eigen/Core>
 

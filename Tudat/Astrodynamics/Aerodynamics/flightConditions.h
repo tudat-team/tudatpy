@@ -13,7 +13,7 @@
 
 #include <vector>
 
-#include <tr1/functional>
+#include <functional>
 #include <boost/bind.hpp>
 
 #include "Tudat/Astrodynamics/Aerodynamics/trimOrientation.h"

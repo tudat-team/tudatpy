@@ -16,7 +16,7 @@
 #define TUDAT_EMPIRICALACCELERATION_H
 
 
-#include <tr1/functional>
+#include <functional>
 #include <boost/lambda/lambda.hpp>
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/orbitalElementConversions.h"
