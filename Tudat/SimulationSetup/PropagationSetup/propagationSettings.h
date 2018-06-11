@@ -1014,7 +1014,7 @@ public:
      */
     CustomStatePropagatorSettings(
             const std::function< StateVectorType( const TimeType, const StateVectorType& ) > stateDerivativeFunction,
-            const Eigen::VectorXd initialState,
+            const StateVectorType initialState,
             const std::shared_ptr< PropagationTerminationSettings > terminationSettings,
             const std::shared_ptr< DependentVariableSaveSettings > dependentVariablesToSave =
             std::shared_ptr< DependentVariableSaveSettings >( ),
