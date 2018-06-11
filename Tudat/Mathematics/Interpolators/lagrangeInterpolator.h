@@ -474,6 +474,23 @@ private:
 
 };
 
+extern template class LagrangeInterpolator< double, Eigen::VectorXd >;
+extern template class LagrangeInterpolator< double, Eigen::Vector6d >;
+extern template class LagrangeInterpolator< double, Eigen::MatrixXd >;
+
+extern template class LagrangeInterpolator< Time, Eigen::VectorXd, long double >;
+extern template class LagrangeInterpolator< Time, Eigen::Vector6d, long double >;
+extern template class LagrangeInterpolator< Time, Eigen::MatrixXd, long double >;
+
+extern template class LagrangeInterpolator< double, Eigen::Matrix< long double, Eigen::Dynamic, 1 > >;
+extern template class LagrangeInterpolator< double, Eigen::Matrix< long double, Eigen::Dynamic, 6 > >;
+extern template class LagrangeInterpolator< double, Eigen::Matrix< long double, Eigen::Dynamic,  Eigen::Dynamic > >;
+
+extern template class LagrangeInterpolator< Time, Eigen::Matrix< long double, Eigen::Dynamic, 1 >, long double >;
+extern template class LagrangeInterpolator< Time, Eigen::Matrix< long double, Eigen::Dynamic, 6 >, long double >;
+extern template class LagrangeInterpolator< Time, Eigen::Matrix< long double, Eigen::Dynamic,  Eigen::Dynamic >, long double >;
+
+
 //! Typedef for LagrangeInterpolator with double as both its dependent and independent data type.
 typedef LagrangeInterpolator< double, double > LagrangeInterpolatorDouble;
 

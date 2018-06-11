@@ -292,6 +292,12 @@ private:
     boost::multi_array< DependentVariableType, static_cast< size_t >( NumberOfDimensions )> dependentData_;
 };
 
+extern template class MultiLinearInterpolator< double, Eigen::Vector6d, 1 >;
+extern template class MultiLinearInterpolator< double, Eigen::Vector6d, 2 >;
+extern template class MultiLinearInterpolator< double, Eigen::Vector6d, 3 >;
+extern template class MultiLinearInterpolator< double, Eigen::Vector6d, 4 >;
+extern template class MultiLinearInterpolator< double, Eigen::Vector6d, 5 >;
+
 } // namespace interpolators
 } // namespace tudat
 

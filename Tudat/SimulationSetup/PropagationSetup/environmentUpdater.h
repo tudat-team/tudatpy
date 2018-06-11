@@ -693,6 +693,11 @@ private:
 
 };
 
+extern template class EnvironmentUpdater< double, double >;
+extern template class EnvironmentUpdater< double, Time >;
+extern template class EnvironmentUpdater< long double, double >;
+extern template class EnvironmentUpdater< long double, Time >;
+
 } // namespace propagators
 
 } // namespace tudat
