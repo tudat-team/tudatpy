@@ -266,6 +266,10 @@ private:
 
 };
 
+extern template class NBodyGaussKeplerStateDerivative< double, double >;
+extern template class NBodyGaussKeplerStateDerivative< long double, double >;
+extern template class NBodyGaussKeplerStateDerivative< double, Time >;
+extern template class NBodyGaussKeplerStateDerivative< long double, Time >;
 
 } // namespace propagators
 

@@ -13,7 +13,7 @@
 #define TUDAT_CREATENUMERICALSIMULATOR_H
 
 #include "Tudat/SimulationSetup/PropagationSetup/dynamicsSimulator.h"
-#include "Tudat/SimulationSetup/PropagationSetup/variationalEquationsSolver.h"
+#include "Tudat/SimulationSetup/EstimationSetup/variationalEquationsSolver.h"
 
 namespace tudat
 {

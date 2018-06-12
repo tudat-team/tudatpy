@@ -384,6 +384,11 @@ std::shared_ptr< Ephemeris > createReferencePointEphemeris(
                 referencePointEphemerisVector, referencePointRotationVector, "SSB", "ECLIPJ2000" );
 }
 
+extern template class CompositeEphemeris< double, double >;
+extern template class CompositeEphemeris< Time, long double >;
+extern template class CompositeEphemeris< double, double >;
+extern template class CompositeEphemeris< Time, long double >;
+
 } // namespace ephemerides
 
 } // namespace tudat

@@ -236,6 +236,10 @@ private:
 
 };
 
+extern template class NBodyGaussModifiedEquinictialStateDerivative< double, double >;
+extern template class NBodyGaussModifiedEquinictialStateDerivative< long double, double >;
+extern template class NBodyGaussModifiedEquinictialStateDerivative< double, Time >;
+extern template class NBodyGaussModifiedEquinictialStateDerivative< long double, Time >;
 
 } // namespace propagators
 
