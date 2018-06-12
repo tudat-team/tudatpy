@@ -34,10 +34,19 @@ std::shared_ptr< ephemerides::ReferenceFrameManager > createFrameManager(
 }
 
 template class DynamicsSimulator< double, double >;
+template class DynamicsSimulator< long double, double >;
+template class DynamicsSimulator< double, Time >;
+template class DynamicsSimulator< long double, Time >;
 
 template class SingleArcDynamicsSimulator< double, double >;
+template class SingleArcDynamicsSimulator< long double, double >;
+template class SingleArcDynamicsSimulator< double, Time >;
+template class SingleArcDynamicsSimulator< long double, Time >;
 
 template class MultiArcDynamicsSimulator< double, double >;
+template class MultiArcDynamicsSimulator< long double, double >;
+template class MultiArcDynamicsSimulator< double, Time >;
+template class MultiArcDynamicsSimulator< long double, Time >;
 
 }
 

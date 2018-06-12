@@ -1322,10 +1322,19 @@ protected:
 };
 
 extern template class DynamicsSimulator< double, double >;
+extern template class DynamicsSimulator< long double, double >;
+extern template class DynamicsSimulator< double, Time >;
+extern template class DynamicsSimulator< long double, Time >;
 
 extern template class SingleArcDynamicsSimulator< double, double >;
+extern template class SingleArcDynamicsSimulator< long double, double >;
+extern template class SingleArcDynamicsSimulator< double, Time >;
+extern template class SingleArcDynamicsSimulator< long double, Time >;
 
 extern template class MultiArcDynamicsSimulator< double, double >;
+extern template class MultiArcDynamicsSimulator< long double, double >;
+extern template class MultiArcDynamicsSimulator< double, Time >;
+extern template class MultiArcDynamicsSimulator< long double, Time >;
 
 } // namespace propagators
 
