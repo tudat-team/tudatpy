@@ -201,6 +201,7 @@ private:
     int stateMultiplier_;
 };
 
+
 //! Body class representing the properties of a celestial body (natural or artificial).
 /*!
  *  Body class representing the properties of a celestial body (natural or artificial). By storing
@@ -349,6 +350,8 @@ public:
             timeOfCurrentState_ = static_cast< TimeType >( time );
         }
     }
+
+//    extern template void setStateFromEphemeris< double, double >( const double& time );
 
     //! Templated function to get the current state of the body from its ephemeris and
     //! global-to-ephemeris-frame function.

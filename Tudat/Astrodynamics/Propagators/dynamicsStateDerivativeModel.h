@@ -881,6 +881,8 @@ void convertNumericalStateSolutionsToOutputSolutions(
 }
 
 } // namespace propagators
+
 } // namespace tudat
+
 
 #endif // TUDAT_DYNAMICSSTATEDERIVATIVEMODEL_H

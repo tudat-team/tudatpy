@@ -301,6 +301,10 @@ private:
 
 };
 
+extern template class NBodyEnckeStateDerivative< double, double >;
+extern template class NBodyEnckeStateDerivative< long double, double >;
+extern template class NBodyEnckeStateDerivative< double, Time >;
+extern template class NBodyEnckeStateDerivative< long double, Time >;
 
 } // namespace propagators
 

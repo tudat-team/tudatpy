@@ -102,6 +102,12 @@ public:
     }
 };
 
+extern template class NBodyCowellStateDerivative< double, double >;
+extern template class NBodyCowellStateDerivative< long double, double >;
+extern template class NBodyCowellStateDerivative< double, Time >;
+extern template class NBodyCowellStateDerivative< long double, Time >;
+
+
 } // namespace propagators
 
 } // namespace tudat

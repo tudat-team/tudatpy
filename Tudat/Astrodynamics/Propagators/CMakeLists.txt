@@ -11,9 +11,11 @@
 # Add source files.
 set(PROPAGATORS_SOURCES
   "${SRCROOT}${PROPAGATORSDIR}/nBodyStateDerivative.cpp"
+  "${SRCROOT}${PROPAGATORSDIR}/nBodyCowellStateDerivative.cpp"
   "${SRCROOT}${PROPAGATORSDIR}/nBodyEnckeStateDerivative.cpp"
   "${SRCROOT}${PROPAGATORSDIR}/nBodyGaussKeplerStateDerivative.cpp"
   "${SRCROOT}${PROPAGATORSDIR}/nBodyGaussModifiedEquinoctialStateDerivative.cpp"
+  "${SRCROOT}${PROPAGATORSDIR}/dynamicsStateDerivativeModel.cpp"
   "${SRCROOT}${PROPAGATORSDIR}/variationalEquations.cpp"
   "${SRCROOT}${PROPAGATORSDIR}/stateTransitionMatrixInterface.cpp"
   "${SRCROOT}${PROPAGATORSDIR}/environmentUpdateTypes.cpp"

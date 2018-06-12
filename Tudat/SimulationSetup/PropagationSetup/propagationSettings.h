@@ -127,6 +127,7 @@ protected:
     bool isMultiArc_;
 };
 
+
 //! Base class for defining setting of a propagator for single-arc dynamics
 /*!
  *  Base class for defining setting of a propagator for single-arc dynamics. This class is non-functional, and each state type
@@ -250,7 +251,6 @@ protected:
     double printInterval_;
 
 };
-
 
 //! Function to get the total size of multi-arc initial state vector
 /*!
@@ -680,6 +680,7 @@ private:
 
 };
 
+
 //! Class for defining settings for propagating rotational dynamics.
 template< typename StateScalarType = double >
 class RotationalStatePropagatorSettings: public SingleArcPropagatorSettings< StateScalarType >
@@ -785,8 +786,6 @@ private:
     basic_astrodynamics::TorqueModelMap torqueModelMap_;
 
 };
-
-
 
 //! Class for defining settings for propagating the mass of a body
 /*!
@@ -962,6 +961,7 @@ Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > convertScalarToVectorStateFu
     return ( Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >( 1 )
              << stateDerivativeFunction( currentTime, currentStateVector( 0 ) ) ).finished( );
 }
+
 
 //! Class used to provide settings for a custom state derivative model
 /*!
@@ -1288,6 +1288,32 @@ public:
 
 };
 
+extern template class PropagatorSettings< double >;
+extern template class PropagatorSettings< long double >;
+
+extern template class SingleArcPropagatorSettings< double >;
+extern template class SingleArcPropagatorSettings< long double >;
+
+extern template class MultiArcPropagatorSettings< double >;
+extern template class MultiArcPropagatorSettings< long double >;
+
+extern template class TranslationalStatePropagatorSettings< double >;
+extern template class TranslationalStatePropagatorSettings< long double >;
+
+extern template class RotationalStatePropagatorSettings< double >;
+extern template class RotationalStatePropagatorSettings< long double >;
+
+extern template class MassPropagatorSettings< double >;
+extern template class MassPropagatorSettings< long double >;
+
+extern template class CustomStatePropagatorSettings< double >;
+extern template class CustomStatePropagatorSettings< long double >;
+extern template class CustomStatePropagatorSettings< double, Time >;
+extern template class CustomStatePropagatorSettings< long double, Time >;
+
+extern template class MultiTypePropagatorSettings< double >;
+extern template class MultiTypePropagatorSettings< long double >;
+
 //! Function to retrieve the list of integrated state types and reference ids
 /*!
 * Function to retrieve the list of integrated state types and reference ids. For translational and rotational dynamics,
@@ -1431,24 +1457,5 @@ extern template std::map< IntegratedStateType, std::vector< std::pair< std::stri
 } // namespace propagators
 
 } // namespace tudat
-
-namespace std
-{
-
-//! Hash for IntegratedStateType enum.
-template< >
-struct hash< tudat::propagators::IntegratedStateType >
-{
-    typedef tudat::propagators::IntegratedStateType argument_type;
-    typedef size_t result_type;
-
-    result_type operator () (const argument_type& x) const
-    {
-        using type = typename std::underlying_type<argument_type>::type;
-        return std::hash< type >( )( static_cast< type >( x ) );
-    }
-};
-
-} // namespace std
 
 #endif // TUDAT_PROPAGATIONSETTINGS_H

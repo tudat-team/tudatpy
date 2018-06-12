@@ -442,6 +442,11 @@ protected:
     std::vector< Eigen::Matrix< StateScalarType, 6, 1 >  > centralBodyStatesWrtGlobalOrigin_;
 };
 
+extern template class NBodyStateDerivative< double, double >;
+extern template class NBodyStateDerivative< long double, double >;
+extern template class NBodyStateDerivative< double, Time >;
+extern template class NBodyStateDerivative< long double, Time >;
+
 } // namespace propagators
 
 

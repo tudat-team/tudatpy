@@ -228,6 +228,11 @@ std::vector< std::string > determineEphemerisUpdateorder( std::vector< std::stri
     return updateOrder;
 }
 
+template class NBodyStateDerivative< double, double >;
+template class NBodyStateDerivative< long double, double >;
+template class NBodyStateDerivative< double, Time >;
+template class NBodyStateDerivative< long double, Time >;
+
 }
 
 }

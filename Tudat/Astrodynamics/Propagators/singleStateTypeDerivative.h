@@ -13,6 +13,8 @@
 
 #include <Eigen/Core>
 
+#include "Tudat/Basics/timeType.h"
+
 namespace tudat
 {
 
@@ -182,9 +184,33 @@ protected:
 
 };
 
+extern template class SingleStateTypeDerivative< double, double >;
+extern template class SingleStateTypeDerivative< long double, double >;
+extern template class SingleStateTypeDerivative< double, Time >;
+extern template class SingleStateTypeDerivative< long double, Time >;
+
 
 } // namespace propagators
 
 } // namespace tudat
+
+namespace std
+{
+
+//! Hash for IntegratedStateType enum.
+template< >
+struct hash< tudat::propagators::IntegratedStateType >
+{
+    typedef tudat::propagators::IntegratedStateType argument_type;
+    typedef size_t result_type;
+
+    result_type operator () (const argument_type& x) const
+    {
+        using type = typename std::underlying_type<argument_type>::type;
+        return std::hash< type >( )( static_cast< type >( x ) );
+    }
+};
+
+}
 
 #endif // TUDAT_STATEDERIVATIVE_H

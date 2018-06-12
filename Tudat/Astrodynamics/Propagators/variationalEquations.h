@@ -62,19 +62,19 @@ public:
             const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< ParameterType > > parametersToEstimate,
             const std::map< IntegratedStateType, int >& stateTypeStartIndices ):
         stateDerivativePartialList_( stateDerivativePartialList ), stateTypeStartIndices_( stateTypeStartIndices )
-    {        
+    {
         dynamicalStatesToEstimate_ =
                 estimatable_parameters::getListOfInitialDynamicalStateParametersEstimate< ParameterType >(
                     parametersToEstimate );
-        
+
         // Get size of dynamical state to estimate
         numberOfParameterValues_ = estimatable_parameters::getSingleArcParameterSetSize( parametersToEstimate );
-        totalDynamicalStateSize_ = 0;        
+        totalDynamicalStateSize_ = 0;
         for( std::map< IntegratedStateType, orbit_determination::StateDerivativePartialsMap >::iterator
              partialTypeIterator = stateDerivativePartialList_.begin( );
              partialTypeIterator != stateDerivativePartialList_.end( ); partialTypeIterator++ )
         {
-            
+
             if( dynamicalStatesToEstimate_.count( partialTypeIterator->first ) == 0 )
             {
                 std::string errorMessage = "Error when making variational equations object, found no state to estimate of type " +
@@ -86,11 +86,11 @@ public:
             {
                 throw std::runtime_error( "Error when making variational equations object, input partial list size is inconsistent" );
             }
-            
+
             totalDynamicalStateSize_ +=
                     getSingleIntegrationSize( partialTypeIterator->first ) * partialTypeIterator->second.size( );
         }
-        
+
         // Initialize matrices.
         variationalMatrix_ = Eigen::MatrixXd::Zero( totalDynamicalStateSize_, totalDynamicalStateSize_ );
         variationalParameterMatrix_ =
@@ -101,7 +101,7 @@ public:
         setTranslationalStatePartialFrameScalingFunctions( parametersToEstimate );
         setParameterPartialFunctionList( parametersToEstimate );
     }
-    
+
     //! Calculates matrix containing partial derivatives of state derivatives w.r.t. body state.
     /*!
      *  Calculates matrix containing partial derivatives of state derivatives w.r.t. body state, i.e.
@@ -121,14 +121,7 @@ public:
     template< typename StateScalarType >
     void getBodyInitialStatePartialMatrix(
             const Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >& stateTransitionAndSensitivityMatrices,
-            Eigen::Block< Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic > > currentMatrixDerivative )
-    {
-        setBodyStatePartialMatrix( );
-
-        // Add partials of body positions and velocities.
-        currentMatrixDerivative.block( 0, 0, totalDynamicalStateSize_, numberOfParameterValues_ ) =
-                ( variationalMatrix_.template cast< StateScalarType >( ) * stateTransitionAndSensitivityMatrices );
-    }
+            Eigen::Block< Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic > > currentMatrixDerivative );
 
     //! Calculates matrix containing partial derivatives of state derivatives w.r.t. parameters.
     /*!
@@ -237,7 +230,7 @@ private:
      * w.r.t. a current state (stored in the statePartialList_ member) from the state derivative partials.
      */
     void setStatePartialFunctionList( );
-        
+
     //! Function to add parameter partial functions for single state derivative model, and set of parameter objects.
     /*!
      *  Function to add parameter partial functions for single state derivative model, and set of parameter objects.
@@ -347,7 +340,7 @@ private:
                                 vectorParametersToEstimate, stateDerivativeTypeIterator->second.at( i ).at( j ),
                                 functionListOfBody, totalParameterVectorIndicesToSubtract );
                 }
-                                
+
                 // Add generated parameter partial list of current body.
                 parameterPartialList_[ stateDerivativeTypeIterator->first ][ i ] = functionListOfBody;
             }
@@ -496,6 +489,14 @@ private:
     //! Total matrix of partial derivatives of state derivatives w.r.t. parameter vectors.
     Eigen::MatrixXd variationalParameterMatrix_;
 };
+
+extern template void VariationalEquations::getBodyInitialStatePartialMatrix< double >(
+        const Eigen::Matrix< double, Eigen::Dynamic, Eigen::Dynamic >& stateTransitionAndSensitivityMatrices,
+        Eigen::Block< Eigen::Matrix< double, Eigen::Dynamic, Eigen::Dynamic > > currentMatrixDerivative );
+
+extern template void VariationalEquations::getBodyInitialStatePartialMatrix< long double >(
+        const Eigen::Matrix< long double, Eigen::Dynamic, Eigen::Dynamic >& stateTransitionAndSensitivityMatrices,
+        Eigen::Block< Eigen::Matrix< long double, Eigen::Dynamic, Eigen::Dynamic > > currentMatrixDerivative );
 
 
 } // namespace propagators

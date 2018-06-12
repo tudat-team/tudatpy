@@ -17,6 +17,7 @@
  *    Boudestijn (2014), Development of a Low-Thrust Earth-Centered Transfer Optimizer for the Preliminary Mission Design Phase,
  *    M.Sc. Thesis, Delft University of Technology
  */
+
 #include <cmath>
 
 #include <functional>

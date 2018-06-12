@@ -8,7 +8,7 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#include "Tudat/SimulationSetup/PropagationSetup/variationalEquationsSolver.h"
+#include "Tudat/SimulationSetup/EstimationSetup/variationalEquationsSolver.h"
 
 namespace tudat
 {

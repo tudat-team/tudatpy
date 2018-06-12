@@ -191,6 +191,7 @@ private:
     StateInterpolatorPointer interpolator_;
 };
 
+
 //! Function to check whether an ephemeris is a (type of) tabulated ephemeris
 /*!
  *  Function to check whether an ephemeris is a (type of) tabulated ephemeris, it checks all typical combinations of
