@@ -32,6 +32,9 @@ template class CustomStatePropagatorSettings< long double, Time >;
 template class MultiTypePropagatorSettings< double >;
 template class MultiTypePropagatorSettings< long double >;
 
+template std::map< IntegratedStateType, std::vector< std::pair< std::string, std::string > > > getIntegratedTypeAndBodyList< double >(
+        const std::shared_ptr< SingleArcPropagatorSettings< double > > propagatorSettings );
+
 } // namespace propagators
 
 } // namespace tudat

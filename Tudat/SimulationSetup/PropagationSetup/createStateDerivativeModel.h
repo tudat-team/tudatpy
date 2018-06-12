@@ -88,8 +88,8 @@ std::shared_ptr< CentralBodyData< StateScalarType, TimeType > > createCentralBod
         {
             bodyStateFunctions[ centralBodiesToUse.at( i ) ] =
                     std::bind( &simulation_setup::Body::getStateInBaseFrameFromEphemeris
-                                 < StateScalarType, TimeType >,
-                                 bodyMap.at( centralBodiesToUse.at( i ) ), std::placeholders::_1 );
+                               < StateScalarType, TimeType >,
+                               bodyMap.at( centralBodiesToUse.at( i ) ), std::placeholders::_1 );
         }
         else
         {
@@ -110,7 +110,7 @@ std::shared_ptr< CentralBodyData< StateScalarType, TimeType > > createCentralBod
     {
         globalFrameOriginBarycentricFunction =
                 std::bind( &simulation_setup::Body::getGlobalFrameOriginBarycentricStateFromEphemeris< StateScalarType, TimeType >,
-                             bodyMap.at( globalFrameOrigin ), std::placeholders::_1 );
+                           bodyMap.at( globalFrameOrigin ), std::placeholders::_1 );
     }
 
     return std::make_shared< CentralBodyData< StateScalarType, TimeType > >(
@@ -241,7 +241,7 @@ std::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > create
     {
         momentOfInertiaFunctions.push_back(
                     std::bind( &simulation_setup::Body::getBodyInertiaTensor,
-                                 bodyMap.at( rotationPropagatorSettings->bodiesToIntegrate_.at( i ) ) ) );
+                               bodyMap.at( rotationPropagatorSettings->bodiesToIntegrate_.at( i ) ) ) );
     }
     return std::make_shared< RotationalMotionStateDerivative< StateScalarType, TimeType > >(
                 rotationPropagatorSettings->getTorqueModelsMap( ), rotationPropagatorSettings->bodiesToIntegrate_,
@@ -459,7 +459,7 @@ void setMultiTypePropagationClosure(
                         bodyMap.at( bodiesWithPropagatedRotation.at( i ) )->getFlightConditions( );
                 reference_frames::setAerodynamicDependentOrientationCalculatorClosure(
                             std::bind( &simulation_setup::Body::getCurrentRotationToLocalFrame,
-                                         bodyMap.at( bodiesWithPropagatedRotation.at( i ) ) ),
+                                       bodyMap.at( bodiesWithPropagatedRotation.at( i ) ) ),
                             currentFlightConditions->getAerodynamicAngleCalculator( ) );
             }
         }
@@ -530,6 +530,18 @@ createStateDerivativeModels(
 
     return stateDerivativeModels;
 }
+
+extern template std::vector< std::shared_ptr< SingleStateTypeDerivative< double, double > > > createStateDerivativeModels< double, double >(
+        const std::shared_ptr< SingleArcPropagatorSettings< double > > propagatorSettings,
+        const simulation_setup::NamedBodyMap& bodyMap,
+        const double propagationStartTime );
+extern template std::shared_ptr< SingleStateTypeDerivative< double, double > > createStateDerivativeModel< double, double >(
+        const std::shared_ptr< SingleArcPropagatorSettings< double > > propagatorSettings,
+        const simulation_setup::NamedBodyMap& bodyMap,
+        const double propagationStartTime );
+//extern template void setMultiTypePropagationClosure< double >(
+//        const std::shared_ptr< SingleArcPropagatorSettings< double > > propagatorSettings,
+//const simulation_setup::NamedBodyMap& bodyMap );
 
 //! Function to create an integrator to propagate the dynamics (in normalized units) in CR3BP
 /*!

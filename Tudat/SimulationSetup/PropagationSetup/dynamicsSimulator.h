@@ -335,6 +335,7 @@ public:
         initialPropagationTime_( integratorSettings_->initialTime_ ), initialClockTime_( initialClockTime ),
         propagationTerminationReason_( std::make_shared< PropagationTerminationDetails >( propagation_never_run ) )
     {
+       //  16 s
         if( propagatorSettings == NULL )
         {
             throw std::runtime_error( "Error in dynamics simulator, propagator settings not defined" );
@@ -348,23 +349,26 @@ public:
         {
             throw std::runtime_error( "Error in dynamics simulator, integrator settings not defined" );
         }
-
+      // 17 s
         if( setIntegratedResult_ )
         {
             frameManager_ = createFrameManager( bodyMap );
             integratedStateProcessors_ = createIntegratedStateProcessors< TimeType, StateScalarType >(
                         propagatorSettings_, bodyMap_, frameManager_ );
         }
-
+      // 19 s / 17 s
         environmentUpdater_ = createEnvironmentUpdaterForDynamicalEquations< StateScalarType, TimeType >(
                     propagatorSettings_, bodyMap_ );
+      // 20 s ... 17 s
         dynamicsStateDerivative_ = std::make_shared< DynamicsStateDerivativeModel< TimeType, StateScalarType > >(
                     createStateDerivativeModels< StateScalarType, TimeType >(
                         propagatorSettings_, bodyMap_, initialPropagationTime_ ),
                     std::bind( &EnvironmentUpdater< StateScalarType, TimeType >::updateEnvironment,
                                  environmentUpdater_, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3 ) );
+        //  21 s
         propagationTerminationCondition_ = createPropagationTerminationConditions(
                     propagatorSettings_->getTerminationSettings( ), bodyMap_, integratorSettings->initialTimeStep_ );
+//     // 21 s
 
         if( propagatorSettings_->getDependentVariablesToSave( ) != NULL )
         {
@@ -396,6 +400,8 @@ public:
         {
             integrateEquationsOfMotion( propagatorSettings_->getInitialStates( ) );
         }
+
+//     // 30 s
     }
 
     //! Destructor

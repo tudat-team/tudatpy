@@ -593,6 +593,31 @@ std::shared_ptr< PropagationTerminationDetails > integrateEquationsFromIntegrato
     return propagationTerminationReason;
 }
 
+extern template std::shared_ptr< PropagationTerminationDetails > integrateEquationsFromIntegrator<
+Eigen::MatrixXd, double, double >(
+        const std::shared_ptr< numerical_integrators::NumericalIntegrator< double, Eigen::MatrixXd, Eigen::MatrixXd, double > > integrator,
+        const double initialTimeStep,
+        const std::shared_ptr< PropagationTerminationCondition > propagationTerminationCondition,
+        std::map< double, Eigen::MatrixXd >& solutionHistory,
+        std::map< double, Eigen::VectorXd >& dependentVariableHistory,
+        std::map< double, double >& cummulativeComputationTimeHistory,
+        const std::function< Eigen::VectorXd( ) > dependentVariableFunction,
+        const int saveFrequency,
+        const double printInterval,
+        const std::chrono::steady_clock::time_point initialClockTime );
+
+extern template std::shared_ptr< PropagationTerminationDetails > integrateEquationsFromIntegrator<
+Eigen::VectorXd, double, double >(
+        const std::shared_ptr< numerical_integrators::NumericalIntegrator< double, Eigen::VectorXd, Eigen::VectorXd, double > > integrator,
+        const double initialTimeStep,
+        const std::shared_ptr< PropagationTerminationCondition > propagationTerminationCondition,
+        std::map< double, Eigen::VectorXd >& solutionHistory,
+        std::map< double, Eigen::VectorXd >& dependentVariableHistory,
+        std::map< double, double >& cummulativeComputationTimeHistory,
+        const std::function< Eigen::VectorXd( ) > dependentVariableFunction,
+        const int saveFrequency,
+        const double printInterval,
+        const std::chrono::steady_clock::time_point initialClockTime );
 
 //! Interface class for integrating some state derivative function.
 /*!

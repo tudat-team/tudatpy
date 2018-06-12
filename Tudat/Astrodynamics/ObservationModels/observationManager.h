@@ -16,7 +16,6 @@
 #include "Tudat/Astrodynamics/ObservationModels/linkTypeDefs.h"
 #include "Tudat/Astrodynamics/ObservationModels/observationSimulator.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/ObservationPartials/observationPartial.h"
-#include "Tudat/SimulationSetup/PropagationSetup/variationalEquationsSolver.h"
 
 namespace tudat
 {

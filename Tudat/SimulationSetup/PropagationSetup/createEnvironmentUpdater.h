@@ -287,6 +287,13 @@ createEnvironmentUpdaterForDynamicalEquations(
                 bodyMap, environmentModelsToUpdate, integratedTypeAndBodyList );
 }
 
+extern template std::shared_ptr< propagators::EnvironmentUpdater< double, double > > createEnvironmentUpdaterForDynamicalEquations< double, double >(
+        const std::shared_ptr< SingleArcPropagatorSettings< double > > propagatorSettings,
+        const simulation_setup::NamedBodyMap& bodyMap );
+extern template std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > createEnvironmentUpdaterSettings< double >(
+        const std::shared_ptr< SingleArcPropagatorSettings< double > > propagatorSettings,
+        const simulation_setup::NamedBodyMap& bodyMap );
+
 } // namespace propagators
 
 } // namespace tudat

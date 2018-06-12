@@ -1425,6 +1425,9 @@ std::map< IntegratedStateType, std::vector< std::pair< std::string, std::string 
     return integratedStateList;
 }
 
+extern template std::map< IntegratedStateType, std::vector< std::pair< std::string, std::string > > > getIntegratedTypeAndBodyList< double >(
+        const std::shared_ptr< SingleArcPropagatorSettings< double > > propagatorSettings );
+
 } // namespace propagators
 
 } // namespace tudat
