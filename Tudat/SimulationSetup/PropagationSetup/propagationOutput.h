@@ -21,6 +21,7 @@
 #include "Tudat/Astrodynamics/Propagators/rotationalMotionStateDerivative.h"
 #include "Tudat/SimulationSetup/EnvironmentSetup/body.h"
 #include "Tudat/SimulationSetup/PropagationSetup/propagationOutputSettings.h"
+#include "Tudat/SimulationSetup/PropagationSetup/propagationSettings.h"
 
 namespace tudat
 {
@@ -193,7 +194,7 @@ std::pair< std::function< Eigen::VectorXd( ) >, int > getVectorDependentVariable
         const std::shared_ptr< SingleDependentVariableSaveSettings > dependentVariableSettings,
         const simulation_setup::NamedBodyMap& bodyMap,
         const std::unordered_map< IntegratedStateType,
-        std::vector< std::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > > > stateDerivativeModels =
+        std::vector< std::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > > >& stateDerivativeModels =
         std::unordered_map< IntegratedStateType,
         std::vector< std::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > > >( ) )
 {
@@ -747,7 +748,7 @@ std::function< double( ) > getDoubleDependentVariableFunction(
         const std::shared_ptr< SingleDependentVariableSaveSettings > dependentVariableSettings,
         const simulation_setup::NamedBodyMap& bodyMap,
         const std::unordered_map< IntegratedStateType,
-        std::vector< std::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > > > stateDerivativeModels =
+        std::vector< std::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > > >& stateDerivativeModels =
         std::unordered_map< IntegratedStateType,
         std::vector< std::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > > >( ) )
 {
@@ -1255,6 +1256,24 @@ std::pair< std::function< Eigen::VectorXd( ) >, std::map< int, std::string > > c
     return std::make_pair( std::bind( &evaluateListOfVectorFunctions, vectorFunctionList, totalVariableSize ),
                            dependentVariableIds );
 }
+
+extern template std::pair< std::function< Eigen::VectorXd( ) >, std::map< int, std::string > > createDependentVariableListFunction< double, double >(
+        const std::shared_ptr< DependentVariableSaveSettings > saveSettings,
+        const simulation_setup::NamedBodyMap& bodyMap,
+        const std::unordered_map< IntegratedStateType,
+        std::vector< std::shared_ptr< SingleStateTypeDerivative< double, double > > > >& stateDerivativeModels );
+
+extern template std::pair< std::function< Eigen::VectorXd( ) >, int > getVectorDependentVariableFunction< double, double >(
+        const std::shared_ptr< SingleDependentVariableSaveSettings > dependentVariableSettings,
+        const simulation_setup::NamedBodyMap& bodyMap,
+        const std::unordered_map< IntegratedStateType,
+        std::vector< std::shared_ptr< SingleStateTypeDerivative< double, double > > > >& stateDerivativeModels );
+
+extern template std::function< double( ) > getDoubleDependentVariableFunction< double, double >(
+        const std::shared_ptr< SingleDependentVariableSaveSettings > dependentVariableSettings,
+        const simulation_setup::NamedBodyMap& bodyMap,
+        const std::unordered_map< IntegratedStateType,
+        std::vector< std::shared_ptr< SingleStateTypeDerivative< double, double > > > >& stateDerivativeModels );
 
 
 } // namespace propagators

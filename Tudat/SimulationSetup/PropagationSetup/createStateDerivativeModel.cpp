@@ -67,6 +67,15 @@ std::map< double, Eigen::Vector6d > performCR3BPIntegration(
 
 }
 
+template std::vector< std::shared_ptr< SingleStateTypeDerivative< double, double > > > createStateDerivativeModels< double, double >(
+        const std::shared_ptr< SingleArcPropagatorSettings< double > > propagatorSettings,
+        const simulation_setup::NamedBodyMap& bodyMap,
+        const double propagationStartTime );
+template std::shared_ptr< SingleStateTypeDerivative< double, double > > createStateDerivativeModel< double, double >(
+        const std::shared_ptr< SingleArcPropagatorSettings< double > > propagatorSettings,
+        const simulation_setup::NamedBodyMap& bodyMap,
+        const double propagationStartTime );
+
 }
 
 }
