@@ -11,7 +11,7 @@
 #ifndef TUDAT_PODPROCESSING_H
 #define TUDAT_PODPROCESSING_H
 
-#include "Tudat/Astrodynamics/OrbitDetermination/orbitDeterminationManager.h"
+#include "Tudat/SimulationSetup/EstimationSetup/orbitDeterminationManager.h"
 
 namespace tudat
 {

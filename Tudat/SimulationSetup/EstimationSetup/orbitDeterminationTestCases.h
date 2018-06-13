@@ -15,7 +15,7 @@
 #include <boost/make_shared.hpp>
 
 #include "Tudat/Astrodynamics/ObservationModels/simulateObservations.h"
-#include "Tudat/Astrodynamics/OrbitDetermination/orbitDeterminationManager.h"
+#include "Tudat/SimulationSetup/EstimationSetup/orbitDeterminationManager.h"
 #include "Tudat/SimulationSetup/tudatSimulationHeader.h"
 #include "Tudat/SimulationSetup/EnvironmentSetup/createGroundStations.h"
 
@@ -39,18 +39,7 @@ using namespace tudat::basic_astrodynamics;
 using namespace tudat::coordinate_conversions;
 
 
-Eigen::VectorXd getDefaultInitialParameterPerturbation( )
-{
-    Eigen::VectorXd parameterPerturbations = Eigen::VectorXd( 7 );
-    for( int i = 0; i < 3; i++ )
-    {
-        parameterPerturbations( i ) = 1.0E3;
-        parameterPerturbations( i + 3 ) = 1.0E-2;
-    }
-    parameterPerturbations( 6 ) = 5.0E6;
-
-    return parameterPerturbations;
-}
+Eigen::VectorXd getDefaultInitialParameterPerturbation( );
 
 template< typename TimeType = double, typename StateScalarType  = double >
 std::pair< std::shared_ptr< PodOutput< StateScalarType > >, Eigen::VectorXd > executePlanetaryParameterEstimation(
@@ -298,6 +287,27 @@ std::pair< std::shared_ptr< PodOutput< StateScalarType > >, Eigen::VectorXd > ex
                            ( podOutput->parameterEstimate_.template cast< double >( ) -
                              truthParameters .template cast< double >( ) ) );
 }
+
+extern template std::pair< std::shared_ptr< PodOutput< double > >, Eigen::VectorXd > executePlanetaryParameterEstimation< double, double >(
+        const int observableType,
+        Eigen::VectorXd parameterPerturbation,
+        Eigen::MatrixXd inverseAPrioriCovariance,
+        const double weight );
+extern template std::pair< std::shared_ptr< PodOutput< long double > >, Eigen::VectorXd > executePlanetaryParameterEstimation< double, long double >(
+        const int observableType,
+        Eigen::VectorXd parameterPerturbation,
+        Eigen::MatrixXd inverseAPrioriCovariance,
+        const double weight );
+extern template std::pair< std::shared_ptr< PodOutput< double > >, Eigen::VectorXd > executePlanetaryParameterEstimation< Time, double >(
+        const int observableType ,
+        Eigen::VectorXd parameterPerturbation,
+        Eigen::MatrixXd inverseAPrioriCovariance,
+        const double weight );
+extern template std::pair< std::shared_ptr< PodOutput< long double > >, Eigen::VectorXd > executePlanetaryParameterEstimation< Time, long double >(
+        const int observableType,
+        Eigen::VectorXd parameterPerturbation,
+        Eigen::MatrixXd inverseAPrioriCovariance,
+        const double weight );
 
 template< typename TimeType = double, typename StateScalarType  = double >
 Eigen::VectorXd executeEarthOrbiterParameterEstimation(
@@ -619,6 +629,16 @@ Eigen::VectorXd executeEarthOrbiterParameterEstimation(
 
     return estimationError;
 }
+
+extern template Eigen::VectorXd executeEarthOrbiterParameterEstimation< double, double >(
+        std::pair< std::shared_ptr< PodOutput< double > >, std::shared_ptr< PodInput< double, double > > >& podData,
+        const double startTime,
+        const int numberOfDaysOfData,
+        const int numberOfIterations,
+        const bool useFullParameterSet );
+
+
+
 
 //! Test the estimation of observation biases.
 template< typename TimeType = double, typename StateScalarType  = double >
@@ -1063,6 +1083,14 @@ std::pair< Eigen::VectorXd, bool > executeEarthOrbiterBiasEstimation(
                            ( podOutput->exceptionDuringInversion_ ||
                              !( podOutput->getUnnormalizedCovarianceMatrix( ) == podOutput->getUnnormalizedCovarianceMatrix( ) ) ) );
 }
+
+extern template std::pair< Eigen::VectorXd, bool > executeEarthOrbiterBiasEstimation< double, double >(
+        const bool estimateRangeBiases,
+        const bool estimateTwoWayBiases,
+        const bool useSingleBiasModel,
+        const bool estimateAbsoluteBiases,
+        const bool omitRangeData,
+        const bool useMultiArcBiases );
 
 }
 

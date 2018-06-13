@@ -16,6 +16,9 @@ namespace tudat
 namespace estimatable_parameters
 {
 
+//template class EstimatableParameterSet< double >;
+//template class EstimatableParameterSet< long double >;
+
 std::string getParameterTypeString( const EstimatebleParametersEnum parameterType )
 {
     std::string parameterDescription;

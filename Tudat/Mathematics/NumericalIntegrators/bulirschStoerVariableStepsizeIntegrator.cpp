@@ -57,7 +57,7 @@ std::vector< unsigned int > getBulirschStoerStepSequence(
 }
 
 template class BulirschStoerVariableStepSizeIntegrator < double, Eigen::VectorXd, Eigen::VectorXd >;
-template class BulirschStoerVariableStepSizeIntegrator < double, Eigen::MatrixXd, Eigen::Vector6d >;
+template class BulirschStoerVariableStepSizeIntegrator < double, Eigen::Vector6d, Eigen::Vector6d >;
 template class BulirschStoerVariableStepSizeIntegrator < double, Eigen::MatrixXd, Eigen::MatrixXd >;
 
 

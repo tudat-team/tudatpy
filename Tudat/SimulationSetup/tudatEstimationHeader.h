@@ -15,10 +15,9 @@
 #include "Tudat/SimulationSetup/tudatSimulationHeader.h"
 #include "Tudat/SimulationSetup/EstimationSetup/createObservationModel.h"
 #include "Tudat/SimulationSetup/EnvironmentSetup/createGroundStations.h"
-#include "Tudat/Astrodynamics/OrbitDetermination/orbitDeterminationManager.h"
-#include "Tudat/Astrodynamics/OrbitDetermination/podProcessing.h"
+#include "Tudat/SimulationSetup/EstimationSetup/orbitDeterminationManager.h"
+#include "Tudat/SimulationSetup/EstimationSetup/podProcessing.h"
 #include "Tudat/Astrodynamics/ObservationModels/simulateObservations.h"
-#include "Tudat/Astrodynamics/OrbitDetermination/podProcessing.h"
 
 #include "Tudat/Mathematics/Statistics/basicStatistics.h"
 #include "Tudat/Mathematics/Statistics/randomVariableGenerator.h"

@@ -469,6 +469,9 @@ protected:
 
 };
 
+//extern template class EstimatableParameterSet< double >;
+//extern template class EstimatableParameterSet< long double >;
+
 template< typename InitialStateParameterType >
 void printEstimatableParameterEntries(
         const std::shared_ptr< EstimatableParameterSet< InitialStateParameterType > > estimatableParameters )

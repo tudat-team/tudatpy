@@ -986,7 +986,7 @@ protected:
 };
 
 extern template class AdamsBashforthMoultonIntegrator < double, Eigen::VectorXd, Eigen::VectorXd >;
-extern template class AdamsBashforthMoultonIntegrator < double, Eigen::MatrixXd, Eigen::Vector6d >;
+extern template class AdamsBashforthMoultonIntegrator < double, Eigen::Vector6d, Eigen::Vector6d >;
 extern template class AdamsBashforthMoultonIntegrator < double, Eigen::MatrixXd, Eigen::MatrixXd >;
 
 

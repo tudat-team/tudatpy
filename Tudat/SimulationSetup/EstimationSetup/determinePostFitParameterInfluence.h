@@ -16,7 +16,7 @@
 #include <boost/make_shared.hpp>
 
 #include "Tudat/Astrodynamics/ObservationModels/simulateObservations.h"
-#include "Tudat/Astrodynamics/OrbitDetermination/orbitDeterminationManager.h"
+#include "Tudat/SimulationSetup/EstimationSetup/orbitDeterminationManager.h"
 #include "Tudat/SimulationSetup/EstimationSetup/createEstimatableParameters.h"
 
 namespace tudat

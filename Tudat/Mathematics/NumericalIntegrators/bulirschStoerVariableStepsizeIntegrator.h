@@ -496,7 +496,7 @@ private:
 };
 
 extern template class BulirschStoerVariableStepSizeIntegrator < double, Eigen::VectorXd, Eigen::VectorXd >;
-extern template class BulirschStoerVariableStepSizeIntegrator < double, Eigen::MatrixXd, Eigen::Vector6d >;
+extern template class BulirschStoerVariableStepSizeIntegrator < double, Eigen::Vector6d, Eigen::Vector6d >;
 extern template class BulirschStoerVariableStepSizeIntegrator < double, Eigen::MatrixXd, Eigen::MatrixXd >;
 
 

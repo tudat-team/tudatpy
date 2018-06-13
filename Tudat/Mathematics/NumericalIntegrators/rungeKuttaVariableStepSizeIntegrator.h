@@ -462,7 +462,7 @@ protected:
 };
 
 extern template class RungeKuttaVariableStepSizeIntegrator < double, Eigen::VectorXd, Eigen::VectorXd >;
-extern template class RungeKuttaVariableStepSizeIntegrator < double, Eigen::MatrixXd, Eigen::Vector6d >;
+extern template class RungeKuttaVariableStepSizeIntegrator < double, Eigen::Vector6d, Eigen::Vector6d >;
 extern template class RungeKuttaVariableStepSizeIntegrator < double, Eigen::MatrixXd, Eigen::MatrixXd >;
 
 

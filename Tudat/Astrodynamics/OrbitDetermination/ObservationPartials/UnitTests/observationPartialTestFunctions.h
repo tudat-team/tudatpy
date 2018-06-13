@@ -115,7 +115,7 @@ std::vector< std::vector< double > > getAnalyticalPartialEvaluationTimes(
 
 //! Generalized test function for partial derivatives of observations
 template< int ObservableSize = 1 >
-inline void testObservationPartials(
+void testObservationPartials(
         const std::shared_ptr< ObservationModel< ObservableSize, double, double > > observationModel,
         NamedBodyMap& bodyMap,
         const std::shared_ptr< EstimatableParameterSet< double > > fullEstimatableParameterSet,
@@ -354,6 +354,29 @@ inline void testObservationPartials(
         }
     }
 }
+
+extern template void testObservationPartials< 1 >(
+        const std::shared_ptr< ObservationModel< 1, double, double > > observationModel,
+        NamedBodyMap& bodyMap,
+        const std::shared_ptr< EstimatableParameterSet< double > > fullEstimatableParameterSet,
+        const LinkEnds& linkEnds, const ObservableType observableType,
+        const double tolerance,
+        const bool testPositionPartial,
+        const bool testParameterPartial,
+        const double positionPerturbationMultiplier,
+        const Eigen::VectorXd parameterPerturbationMultipliers );
+
+extern template void testObservationPartials< 2 >(
+        const std::shared_ptr< ObservationModel< 2, double, double > > observationModel,
+        NamedBodyMap& bodyMap,
+        const std::shared_ptr< EstimatableParameterSet< double > > fullEstimatableParameterSet,
+        const LinkEnds& linkEnds, const ObservableType observableType,
+        const double tolerance,
+        const bool testPositionPartial,
+        const bool testParameterPartial,
+        const double positionPerturbationMultiplier,
+        const Eigen::VectorXd parameterPerturbationMultipliers );
+
 
 }
 
