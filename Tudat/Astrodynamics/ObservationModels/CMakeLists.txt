@@ -17,6 +17,10 @@ set(OBSERVATION_MODELS_SOURCES
   "${SRCROOT}${OBSERVATIONMODELSDIR}/observableTypes.cpp"
   "${SRCROOT}${OBSERVATIONMODELSDIR}/linkTypeDefs.cpp"
   "${SRCROOT}${OBSERVATIONMODELSDIR}/observationViabilityCalculator.cpp"
+  "${SRCROOT}${OBSERVATIONMODELSDIR}/observationManager.cpp"
+  "${SRCROOT}${OBSERVATIONMODELSDIR}/observationSimulator.cpp"
+  "${SRCROOT}${OBSERVATIONMODELSDIR}/observationModel.cpp"
+  "${SRCROOT}${OBSERVATIONMODELSDIR}/simulateObservations.cpp"
   "${SRCROOT}${OBSERVABLECORRECTIONSDIR}/firstOrderRelativisticLightTimeCorrection.cpp"  
 )
 

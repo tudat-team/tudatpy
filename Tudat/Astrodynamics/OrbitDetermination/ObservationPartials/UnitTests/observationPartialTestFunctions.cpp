@@ -420,6 +420,29 @@ std::vector< std::vector< double > > getAnalyticalPartialEvaluationTimes(
     return partialTimes;
 }
 
+template void testObservationPartials< 1 >(
+        const std::shared_ptr< ObservationModel< 1, double, double > > observationModel,
+        NamedBodyMap& bodyMap,
+        const std::shared_ptr< EstimatableParameterSet< double > > fullEstimatableParameterSet,
+        const LinkEnds& linkEnds, const ObservableType observableType,
+        const double tolerance,
+        const bool testPositionPartial,
+        const bool testParameterPartial,
+        const double positionPerturbationMultiplier,
+        const Eigen::VectorXd parameterPerturbationMultipliers );
+
+template void testObservationPartials< 2 >(
+        const std::shared_ptr< ObservationModel< 2, double, double > > observationModel,
+        NamedBodyMap& bodyMap,
+        const std::shared_ptr< EstimatableParameterSet< double > > fullEstimatableParameterSet,
+        const LinkEnds& linkEnds, const ObservableType observableType,
+        const double tolerance,
+        const bool testPositionPartial,
+        const bool testParameterPartial,
+        const double positionPerturbationMultiplier,
+        const Eigen::VectorXd parameterPerturbationMultipliers );
+
+
 }
 
 }

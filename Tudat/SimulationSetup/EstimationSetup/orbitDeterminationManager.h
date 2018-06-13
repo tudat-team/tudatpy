@@ -37,7 +37,7 @@ namespace simulation_setup
  *  \param weightsData Weights sorted by link ends and observation type
  *  \return Concatenated vector of weights
  */
-template< typename ObservationScalarType = double, typename TimeType = double >
+template< typename ObservationScalarType = double >
 Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > getConcatenatedWeightsVector(
         const typename std::map< observation_models::ObservableType, std::map<
         observation_models::LinkEnds, Eigen::VectorXd > >& weightsData )
@@ -56,7 +56,7 @@ Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > getConcatenatedWeights
             totalNumberOfObservations += dataIterator->second.rows( );
         }
     }
-    Eigen::VectorXd concatenatedWeights = Eigen::VectorXd::Zero( totalNumberOfObservations, 1 );
+    Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > concatenatedWeights = Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >::Zero( totalNumberOfObservations, 1 );
 
     // Iterate over all observations and concatenate the weight vectors.
     int currentIndex = 0;
@@ -66,7 +66,8 @@ Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > getConcatenatedWeights
         for( typename std::map< observation_models::LinkEnds, Eigen::VectorXd >::const_iterator dataIterator =
              observablesIterator->second.begin( ); dataIterator != observablesIterator->second.end( ); dataIterator++  )
         {
-            concatenatedWeights.segment( currentIndex, dataIterator->second.rows( ) ) = dataIterator->second;
+            concatenatedWeights.segment( currentIndex, dataIterator->second.rows( ) ) =
+                    dataIterator->second.template cast< ObservationScalarType >( );
             currentIndex += dataIterator->second.rows( );
         }
     }
@@ -923,6 +924,18 @@ protected:
     bool dynamicsIsMultiArc_;
 
 };
+
+extern template class OrbitDeterminationManager< double, double >;
+extern template class OrbitDeterminationManager< double, Time >;
+extern template class OrbitDeterminationManager< long double, double >;
+extern template class OrbitDeterminationManager< long double, Time >;
+
+extern template Eigen::Matrix< double, Eigen::Dynamic, 1 > getConcatenatedWeightsVector< double >(
+        const typename std::map< observation_models::ObservableType, std::map<
+        observation_models::LinkEnds, Eigen::VectorXd > >& weightsData );
+extern template Eigen::Matrix< long double, Eigen::Dynamic, 1 > getConcatenatedWeightsVector< long double >(
+        const typename std::map< observation_models::ObservableType, std::map<
+        observation_models::LinkEnds, Eigen::VectorXd > >& weightsData );
 
 
 

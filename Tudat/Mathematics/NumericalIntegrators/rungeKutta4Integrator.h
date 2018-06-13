@@ -240,7 +240,7 @@ protected:
 };
 
 extern template class RungeKutta4Integrator < double, Eigen::VectorXd, Eigen::VectorXd >;
-extern template class RungeKutta4Integrator < double, Eigen::MatrixXd, Eigen::Vector6d >;
+extern template class RungeKutta4Integrator < double, Eigen::Vector6d, Eigen::Vector6d >;
 extern template class RungeKutta4Integrator < double, Eigen::MatrixXd, Eigen::MatrixXd >;
 
 

@@ -16,8 +16,8 @@
 #include <boost/test/unit_test.hpp>
 
 #include "Tudat/Astrodynamics/ObservationModels/simulateObservations.h"
-#include "Tudat/Astrodynamics/OrbitDetermination/orbitDeterminationManager.h"
-#include "Tudat/Astrodynamics/OrbitDetermination/determinePostFitParameterInfluence.h"
+#include "Tudat/SimulationSetup/EstimationSetup/orbitDeterminationManager.h"
+#include "Tudat/SimulationSetup/EstimationSetup//determinePostFitParameterInfluence.h"
 #include "Tudat/SimulationSetup/tudatSimulationHeader.h"
 #include "Tudat/Astrodynamics/Aerodynamics/UnitTests/testApolloCapsuleCoefficients.h"
 #include "Tudat/SimulationSetup/EnvironmentSetup/createGroundStations.h"

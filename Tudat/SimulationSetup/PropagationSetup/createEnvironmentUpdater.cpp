@@ -154,7 +154,7 @@ void removePropagatedStatesFomEnvironmentUpdates(
                     }
                 }
                 break;
-            // Check for propagated rotational states in update list, and remove if necessary
+                // Check for propagated rotational states in update list, and remove if necessary
             case rotational_state:
                 if( environmentModelsToUpdate.count( body_rotational_state_update ) > 0 )
                 {
@@ -170,7 +170,7 @@ void removePropagatedStatesFomEnvironmentUpdates(
                     }
                 }
                 break;
-            // Check for propagated mass states in update list, and remove if necessary
+                // Check for propagated mass states in update list, and remove if necessary
             case body_mass_state:
                 if( environmentModelsToUpdate.count( body_mass_update ) > 0 )
                 {
@@ -866,8 +866,21 @@ std::vector< std::string > > createFullEnvironmentUpdaterSettings(
 template std::shared_ptr< propagators::EnvironmentUpdater< double, double > > createEnvironmentUpdaterForDynamicalEquations< double, double >(
         const std::shared_ptr< SingleArcPropagatorSettings< double > > propagatorSettings,
         const simulation_setup::NamedBodyMap& bodyMap );
+template std::shared_ptr< propagators::EnvironmentUpdater< double, Time > > createEnvironmentUpdaterForDynamicalEquations< double, Time >(
+        const std::shared_ptr< SingleArcPropagatorSettings< double > > propagatorSettings,
+        const simulation_setup::NamedBodyMap& bodyMap );
+template std::shared_ptr< propagators::EnvironmentUpdater< long double, double > > createEnvironmentUpdaterForDynamicalEquations< long double, double >(
+        const std::shared_ptr< SingleArcPropagatorSettings< long double > > propagatorSettings,
+        const simulation_setup::NamedBodyMap& bodyMap );
+template std::shared_ptr< propagators::EnvironmentUpdater< long double, Time > > createEnvironmentUpdaterForDynamicalEquations< long double, Time >(
+        const std::shared_ptr< SingleArcPropagatorSettings< long double > > propagatorSettings,
+        const simulation_setup::NamedBodyMap& bodyMap );
+
 template std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > createEnvironmentUpdaterSettings< double >(
         const std::shared_ptr< SingleArcPropagatorSettings< double > > propagatorSettings,
+        const simulation_setup::NamedBodyMap& bodyMap );
+template std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > createEnvironmentUpdaterSettings< long double >(
+        const std::shared_ptr< SingleArcPropagatorSettings< long double > > propagatorSettings,
         const simulation_setup::NamedBodyMap& bodyMap );
 
 } // namespace propagators
