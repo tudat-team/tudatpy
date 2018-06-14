@@ -190,6 +190,10 @@ protected:
     EstimatebleParameterIdentifier parameterName_;
 };
 
+extern template class EstimatableParameter< double >;
+extern template class EstimatableParameter< Eigen::VectorXd >;
+extern template class EstimatableParameter< Eigen::Matrix< long double, Eigen::Dynamic, 1 > >;
+
 //! Container class for all parameters that are to be estimated.
 /*!
  *  Container class for all parameters that are to be estimated. Class is templated with the scalar type used for the
@@ -391,7 +395,7 @@ public:
         return vectorParameters_;
     }
 
-    std::map< int, std::shared_ptr< EstimatableParameter< Eigen::VectorXd > > > getInitialStateParameters( )
+    std::map< int, std::shared_ptr< EstimatableParameter< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > > > getInitialStateParameters( )
     {
         return initialStateParameters_;
     }
@@ -469,8 +473,8 @@ protected:
 
 };
 
-//extern template class EstimatableParameterSet< double >;
-//extern template class EstimatableParameterSet< long double >;
+extern template class EstimatableParameterSet< double >;
+extern template class EstimatableParameterSet< long double >;
 
 template< typename InitialStateParameterType >
 void printEstimatableParameterEntries(
