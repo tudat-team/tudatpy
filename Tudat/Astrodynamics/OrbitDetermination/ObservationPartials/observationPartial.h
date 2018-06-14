@@ -124,6 +124,7 @@ protected:
 
 };
 
+
 //! Class for computing the derivative of any observable w.r.t. a constant absolute observation bias
 /*!
  *  Class for computing the derivative of any observable w.r.t. a constant absolute observation bias. Note that this partial is
@@ -186,6 +187,7 @@ private:
     Eigen::Matrix< double, ObservationSize, 1 > constantPartial_;
 
 };
+
 
 //! Class for computing the derivative of any observable w.r.t. an arc-wise constant absolute observation bias
 /*!
@@ -414,6 +416,29 @@ private:
     Eigen::VectorXd totalPartial_;
 
 };
+
+
+extern template class ObservationPartial< 1 >;
+extern template class ObservationPartial< 2 >;
+extern template class ObservationPartial< 3 >;
+
+extern template class ObservationPartialWrtConstantAbsoluteBias< 1 >;
+extern template class ObservationPartialWrtConstantAbsoluteBias< 2 >;
+extern template class ObservationPartialWrtConstantAbsoluteBias< 3 >;
+
+extern template class ObservationPartialWrtArcWiseAbsoluteBias< 1 >;
+extern template class ObservationPartialWrtArcWiseAbsoluteBias< 2 >;
+extern template class ObservationPartialWrtArcWiseAbsoluteBias< 3 >;
+
+extern template class ObservationPartialWrtConstantRelativeBias< 1 >;
+extern template class ObservationPartialWrtConstantRelativeBias< 2 >;
+extern template class ObservationPartialWrtConstantRelativeBias< 3 >;
+
+extern template class ObservationPartialWrtArcWiseRelativeBias< 1 >;
+extern template class ObservationPartialWrtArcWiseRelativeBias< 2 >;
+extern template class ObservationPartialWrtArcWiseRelativeBias< 3 >;
+
+
 
 //! Typedef for map of observation partials.
 /*!

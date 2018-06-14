@@ -16,9 +16,6 @@ namespace tudat
 namespace estimatable_parameters
 {
 
-//template class EstimatableParameterSet< double >;
-//template class EstimatableParameterSet< long double >;
-
 std::string getParameterTypeString( const EstimatebleParametersEnum parameterType )
 {
     std::string parameterDescription;
@@ -259,8 +256,13 @@ bool isParameterTidalProperty( const EstimatebleParametersEnum parameterType )
     return flag;
 }
 
+template class EstimatableParameter< double >;
+template class EstimatableParameter< Eigen::VectorXd >;
+template class EstimatableParameter< Eigen::Matrix< long double, Eigen::Dynamic, 1 > >;
 
 
+template class EstimatableParameterSet< double >;
+template class EstimatableParameterSet< long double >;
 
 }
 

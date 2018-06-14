@@ -17,6 +17,7 @@ set(OBSERVATION_PARTIALS_SOURCES
   "${SRCROOT}${OBSERVATIONPARTIALSDIR}/nWayRangePartial.cpp"
   "${SRCROOT}${OBSERVATIONPARTIALSDIR}/differencedOneWayRangeRatePartial.cpp"
   "${SRCROOT}${OBSERVATIONPARTIALSDIR}/oneWayDopplerPartial.cpp"
+  "${SRCROOT}${OBSERVATIONPARTIALSDIR}/observationPartial.cpp"
   "${SRCROOT}${LIGHTTIMECORRECTIONPARTIALSDIR}/lightTimeCorrectionPartial.cpp"
   "${SRCROOT}${LIGHTTIMECORRECTIONPARTIALSDIR}/firstOrderRelativisticLightTimeCorrectionPartial.cpp"
 )
