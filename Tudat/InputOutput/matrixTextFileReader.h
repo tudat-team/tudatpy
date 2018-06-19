@@ -58,7 +58,7 @@ Eigen::Matrix< ScalarType, Eigen::Dynamic, Eigen::Dynamic > readMatrixFromFile(
     std::fstream file( relativePath.c_str( ), std::ios::in );
     if ( file.fail( ) )
     {
-        throw std::runtime_error( "Data file could not be opened:" + relativePath ); 
+        throw std::runtime_error( "Data file could not be opened:" + relativePath );
     }
 
     std::stringstream filteredStream( std::ios::in | std::ios::out );
