@@ -113,7 +113,7 @@ boost::shared_ptr< acceleration_partials::AccelerationPartial > createAnalytical
                       acceleratedBody.first, acceleratingBody.first );
         }
         break;
-    case direct_tidal_dissipation_acceleration:
+    case direct_tidal_dissipation_in_central_body_acceleration:
     {
         // Check if identifier is consistent with type.
         if( boost::dynamic_pointer_cast< gravitation::DirectTidalDissipationAcceleration >( accelerationModel ) == NULL )
@@ -129,7 +129,22 @@ boost::shared_ptr< acceleration_partials::AccelerationPartial > createAnalytical
         }
         break;
     }
-
+    case direct_tidal_dissipation_in_orbiting_body_acceleration:
+    {
+        // Check if identifier is consistent with type.
+        if( boost::dynamic_pointer_cast< gravitation::DirectTidalDissipationAcceleration >( accelerationModel ) == NULL )
+        {
+            throw std::runtime_error( "Acceleration class type does not match acceleration type (direct_tidal_dissipation_acceleration) when making acceleration partial" );
+        }
+        else
+        {
+            // Create partial-calculating object.
+            accelerationPartial = boost::make_shared< DirectTidalDissipationAccelerationPartial  >
+                    ( boost::dynamic_pointer_cast< gravitation::DirectTidalDissipationAcceleration >( accelerationModel ),
+                      acceleratedBody.first, acceleratingBody.first );
+        }
+        break;
+    }
     case third_body_central_gravity:
         // Check if identifier is consistent with type.
         if( boost::dynamic_pointer_cast< ThirdBodyCentralGravityAcceleration >( accelerationModel ) == NULL )

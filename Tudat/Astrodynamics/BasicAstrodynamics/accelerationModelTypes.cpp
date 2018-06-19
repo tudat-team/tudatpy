@@ -56,8 +56,11 @@ std::string getAccelerationModelName( const AvailableAcceleration accelerationTy
     case empirical_acceleration:
         accelerationName  = "empirical correction ";
         break;
-    case direct_tidal_dissipation_acceleration:
-        accelerationName  = "direct tidal dissipation ";
+    case direct_tidal_dissipation_in_central_body_acceleration:
+        accelerationName  = "direct tidal dissipation in central body ";
+        break;
+    case direct_tidal_dissipation_in_orbiting_body_acceleration:
+        accelerationName  = "direct tidal dissipation in orbiting body ";
         break;
     default:
         std::string errorMessage = "Error, acceleration type " +
@@ -136,7 +139,16 @@ AvailableAcceleration getAccelerationModelType(
     }
     else if( boost::dynamic_pointer_cast<  gravitation::DirectTidalDissipationAcceleration >( accelerationModel ) != NULL )
     {
-        accelerationType = direct_tidal_dissipation_acceleration;
+        boost::shared_ptr< gravitation::DirectTidalDissipationAcceleration > dissipationAcceleration =
+             boost::dynamic_pointer_cast<  gravitation::DirectTidalDissipationAcceleration >( accelerationModel );
+        if( dissipationAcceleration->getModelTideOnPlanet( ) )
+        {
+            accelerationType = direct_tidal_dissipation_in_central_body_acceleration;
+        }
+        else
+        {
+            accelerationType = direct_tidal_dissipation_in_orbiting_body_acceleration;
+        }
     }
     else
     {
