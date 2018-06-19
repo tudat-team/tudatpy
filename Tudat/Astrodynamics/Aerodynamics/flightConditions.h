@@ -72,6 +72,9 @@ public:
                       const boost::shared_ptr< reference_frames::AerodynamicAngleCalculator > aerodynamicAngleCalculator =
             boost::shared_ptr< reference_frames::AerodynamicAngleCalculator >( ) );
 
+    //! Destructor
+    virtual ~FlightConditions( ){ }
+
     //! Function to update all flight conditions.
     /*!
      *  Function to update all flight conditions (altitude, etc.) to
