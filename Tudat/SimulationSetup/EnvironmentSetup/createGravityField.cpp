@@ -289,7 +289,7 @@ boost::shared_ptr< gravitation::GravityFieldModel > createGravityFieldModel(
             else
             {
                 inertiaTensorUpdateFunction =
-                    boost::bind( &Body::setBodyInertiaTensorFromGravityFieldAndExistingMeanMoment, bodyMap.at( body ), false );
+                    boost::bind( &Body::setBodyInertiaTensorFromGravityFieldAndExistingMeanMoment, bodyMap.at( body ), true );
             }
 
             // Check consistency of cosine and sine coefficients.

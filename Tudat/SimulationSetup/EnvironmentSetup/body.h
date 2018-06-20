@@ -1117,11 +1117,27 @@ public:
     void setBodyInertiaTensorFromGravityFieldAndExistingMeanMoment(
             const bool printWarningIfNotSet = true )
     {
-        if( !( scaledMeanMomentOfInertia_ == scaledMeanMomentOfInertia_ ) && printWarningIfNotSet )
+        if( !( scaledMeanMomentOfInertia_ == scaledMeanMomentOfInertia_ ) )
         {
-            std::cerr<<"Warning when setting body inertia tensor, mean moment of inertia set to zero. "<<std::endl;
+            boost::shared_ptr< gravitation::SphericalHarmonicsGravityField > sphericalHarmonicGravityField =
+                    boost::dynamic_pointer_cast< gravitation::SphericalHarmonicsGravityField >( gravityFieldModel_ );
+            if( sphericalHarmonicGravityField != NULL )
+            {
+                double normalizationFactor =
+                        sphericalHarmonicGravityField->getGravitationalParameter( ) *
+                        sphericalHarmonicGravityField->getReferenceRadius( ) *
+                        sphericalHarmonicGravityField->getReferenceRadius( ) / physical_constants::GRAVITATIONAL_CONSTANT;
+                scaledMeanMomentOfInertia_ =
+                        ( bodyInertiaTensor_( 0, 0 ) + bodyInertiaTensor_( 1, 1 ) + bodyInertiaTensor_( 2, 2 ) ) /
+                        ( 3.0 * normalizationFactor );
+            }
+            else if( printWarningIfNotSet )
+            {
+                std::cerr<<"Warning when setting body inertia tensor, mean moment of inertia set to zero. "<<std::endl;
+            }
         }
-        else if( scaledMeanMomentOfInertia_ == scaledMeanMomentOfInertia_ )
+
+        if( scaledMeanMomentOfInertia_ == scaledMeanMomentOfInertia_ )
         {
             setBodyInertiaTensorFromGravityField( scaledMeanMomentOfInertia_ );
         }
