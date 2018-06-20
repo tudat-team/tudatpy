@@ -137,6 +137,7 @@ public:
     void setCosineCoefficients( const Eigen::MatrixXd& cosineCoefficients )
     {
         cosineCoefficients_ = cosineCoefficients;
+
         if( !updateInertiaTensor_.empty( ) )
         {
             updateInertiaTensor_( );
