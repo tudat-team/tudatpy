@@ -13,7 +13,7 @@
 
 #include <vector>
 
-#include <boost/function.hpp>
+#include <functional>
 #include <boost/bind.hpp>
 
 #include "Tudat/Astrodynamics/Aerodynamics/trimOrientation.h"
@@ -68,9 +68,12 @@ public:
      *  \param aerodynamicAngleCalculator Object from which the aerodynamic/trajectory angles
      *  of the vehicle are calculated.
      */
-    FlightConditions( const boost::shared_ptr< basic_astrodynamics::BodyShapeModel > shapeModel,
-                      const boost::shared_ptr< reference_frames::AerodynamicAngleCalculator > aerodynamicAngleCalculator =
-            boost::shared_ptr< reference_frames::AerodynamicAngleCalculator >( ) );
+    FlightConditions( const std::shared_ptr< basic_astrodynamics::BodyShapeModel > shapeModel,
+                      const std::shared_ptr< reference_frames::AerodynamicAngleCalculator > aerodynamicAngleCalculator =
+            std::shared_ptr< reference_frames::AerodynamicAngleCalculator >( ) );
+
+    //! Destructor
+    virtual ~FlightConditions( ){ }
 
     //! Function to update all flight conditions.
     /*!
@@ -124,11 +127,11 @@ public:
      *  \param aerodynamicAngleCalculator Aerodynamic angle calculator object to set.
      */
     void setAerodynamicAngleCalculator(
-            const boost::shared_ptr< reference_frames::AerodynamicAngleCalculator >
+            const std::shared_ptr< reference_frames::AerodynamicAngleCalculator >
             aerodynamicAngleCalculator )
     {
         aerodynamicAngleCalculator_ = aerodynamicAngleCalculator;
-        bodyCenteredPseudoBodyFixedStateFunction_ = boost::bind(
+        bodyCenteredPseudoBodyFixedStateFunction_ = std::bind(
                     &reference_frames::AerodynamicAngleCalculator::getCurrentAirspeedBasedBodyFixedState, aerodynamicAngleCalculator_ );
     }
 
@@ -137,7 +140,7 @@ public:
      *  Function to return aerodynamic angle calculator object
      *  \return Aerodynamic angle calculator object
      */
-    boost::shared_ptr< reference_frames::AerodynamicAngleCalculator >
+    std::shared_ptr< reference_frames::AerodynamicAngleCalculator >
     getAerodynamicAngleCalculator( )
     {
         return aerodynamicAngleCalculator_;
@@ -191,7 +194,7 @@ protected:
     //! Function to compute and set the current geodetic latitude.
     void computeGeodeticLatitude( )
     {
-        if( !geodeticLatitudeFunction_.empty( ) )
+        if( !( geodeticLatitudeFunction_ == nullptr ) )
         {
             scalarFlightConditions_[ geodetic_latitude_condition ] = geodeticLatitudeFunction_(
                         currentBodyCenteredAirspeedBasedBodyFixedState_.segment( 0, 3 ) );
@@ -210,14 +213,14 @@ protected:
     std::string centralBody_;
 
     //! Model describing the shape of the body w.r.t. which the flight is taking place.
-    const boost::shared_ptr< basic_astrodynamics::BodyShapeModel > shapeModel_;
+    const std::shared_ptr< basic_astrodynamics::BodyShapeModel > shapeModel_;
 
 
     //! Object from which the aerodynamic/trajectory angles of the vehicle are calculated.
-    boost::shared_ptr< reference_frames::AerodynamicAngleCalculator > aerodynamicAngleCalculator_;
+    std::shared_ptr< reference_frames::AerodynamicAngleCalculator > aerodynamicAngleCalculator_;
 
     //! Function to return the current state of the vehicle in a body-fixed frame.
-    boost::function< Eigen::Vector6d( ) > bodyCenteredPseudoBodyFixedStateFunction_;
+    std::function< Eigen::Vector6d( ) > bodyCenteredPseudoBodyFixedStateFunction_;
 
     //! Current state of vehicle in base frame for Body objects.
     Eigen::Vector6d currentBodyCenteredState_;
@@ -239,7 +242,7 @@ protected:
 
     //! Function from which to compute the geodetic latitude as function of body-fixed position (empty if equal to
     //! geographic latitude).
-    boost::function< double( const Eigen::Vector3d& ) > geodeticLatitudeFunction_;
+    std::function< double( const Eigen::Vector3d& ) > geodeticLatitudeFunction_;
 
 };
 
@@ -269,15 +272,15 @@ public:
      *  \param controlSurfaceDeflectionFunction Function returning control surface deflection, with input the control
      *  surface identifier.
      */
-    AtmosphericFlightConditions( const boost::shared_ptr< aerodynamics::AtmosphereModel > atmosphereModel,
-                      const boost::shared_ptr< basic_astrodynamics::BodyShapeModel > shapeModel,
-                      const boost::shared_ptr< AerodynamicCoefficientInterface >
+    AtmosphericFlightConditions( const std::shared_ptr< aerodynamics::AtmosphereModel > atmosphereModel,
+                      const std::shared_ptr< basic_astrodynamics::BodyShapeModel > shapeModel,
+                      const std::shared_ptr< AerodynamicCoefficientInterface >
                       aerodynamicCoefficientInterface,
-                      const boost::shared_ptr< reference_frames::AerodynamicAngleCalculator >
+                      const std::shared_ptr< reference_frames::AerodynamicAngleCalculator >
                       aerodynamicAngleCalculator =
-            boost::shared_ptr< reference_frames::AerodynamicAngleCalculator >( ),
-                      const boost::function< double( const std::string& )> controlSurfaceDeflectionFunction =
-            boost::function< double( const std::string& )>( ) );
+            std::shared_ptr< reference_frames::AerodynamicAngleCalculator >( ),
+                      const std::function< double( const std::string& )> controlSurfaceDeflectionFunction =
+            std::function< double( const std::string& )>( ) );
 
     //! Function to update all flight conditions.
     /*!
@@ -391,7 +394,7 @@ public:
      *  Function to return atmosphere model object
      *  \return Atmosphere model object
      */
-    boost::shared_ptr< aerodynamics::AtmosphereModel > getAtmosphereModel( ) const
+    std::shared_ptr< aerodynamics::AtmosphereModel > getAtmosphereModel( ) const
     {
         return atmosphereModel_;
     }
@@ -406,7 +409,7 @@ public:
      */
     void setAerodynamicCoefficientsIndependentVariableFunction(
             const AerodynamicCoefficientsIndependentVariables independentVariable,
-            const boost::function< double( ) > coefficientDependency );
+            const std::function< double( ) > coefficientDependency );
 
     //! Function to return current central body-fixed velocity of vehicle.
     /*!
@@ -423,7 +426,7 @@ public:
      *  Function to return object from which the aerodynamic coefficients are obtained.
      *  \return Object from which the aerodynamic coefficients are obtained.
      */
-    boost::shared_ptr< AerodynamicCoefficientInterface > getAerodynamicCoefficientInterface( )
+    std::shared_ptr< AerodynamicCoefficientInterface > getAerodynamicCoefficientInterface( )
     {
         return aerodynamicCoefficientInterface_;
     }
@@ -589,17 +592,17 @@ private:
 
 
     //! Atmosphere model of atmosphere through which vehicle is flying
-    boost::shared_ptr< aerodynamics::AtmosphereModel > atmosphereModel_;
+    std::shared_ptr< aerodynamics::AtmosphereModel > atmosphereModel_;
 
     //! Object from which the aerodynamic coefficients are obtained.
-    boost::shared_ptr< AerodynamicCoefficientInterface > aerodynamicCoefficientInterface_;
+    std::shared_ptr< AerodynamicCoefficientInterface > aerodynamicCoefficientInterface_;
 
     //! Function returning control surface deflection, with input the control surface identifier.
-    boost::function< double( const std::string& ) > controlSurfaceDeflectionFunction_;
+    std::function< double( const std::string& ) > controlSurfaceDeflectionFunction_;
 
 
     //! List of custom functions for aerodynamic coefficient dependencies.
-    std::map< AerodynamicCoefficientsIndependentVariables, boost::function< double( ) > > customCoefficientDependencies_;
+    std::map< AerodynamicCoefficientsIndependentVariables, std::function< double( ) > > customCoefficientDependencies_;
 
     //! Boolean setting whether latitude and longitude are to be updated by updateConditions().
     bool updateLatitudeAndLongitudeForAtmosphere_;

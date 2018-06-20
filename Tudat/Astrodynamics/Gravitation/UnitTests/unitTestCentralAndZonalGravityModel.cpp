@@ -207,7 +207,7 @@ BOOST_AUTO_TEST_CASE( testGravitationalAccelerationZonalSumWrapperClassesMatlab 
                 {
                     // Declare central acceleration wrapper class object.
                     CentralGravitationalAccelerationModel3dPointer centralGravity
-                            = boost::make_shared< CentralGravitationalAccelerationModel3d >(
+                            = std::make_shared< CentralGravitationalAccelerationModel3d >(
                                 boost::lambda::constant(
                                     planetData.at( planet ).body2Positions.at( body2 ) ),
                                 planetData.at( planet ).gravitationalParameter,
@@ -232,7 +232,7 @@ BOOST_AUTO_TEST_CASE( testGravitationalAccelerationZonalSumWrapperClassesMatlab 
                 {
                     // Declare central + J2 acceleration wrapper class object.
                     CentralJ2GravitationalAccelerationModelPointer centralJ2Gravity
-                            = boost::make_shared< CentralJ2GravitationalAccelerationModel >(
+                            = std::make_shared< CentralJ2GravitationalAccelerationModel >(
                                 boost::lambda::constant(
                                     planetData.at( planet ).body2Positions.at( body2 ) ),
                                 planetData.at( planet ).gravitationalParameter,
@@ -259,7 +259,7 @@ BOOST_AUTO_TEST_CASE( testGravitationalAccelerationZonalSumWrapperClassesMatlab 
                 {
                     // Declare central + J2 + J3 acceleration wrapper class object.
                     CentralJ2J3GravitationalAccelerationModelPointer centralJ2J3Gravity
-                            = boost::make_shared< CentralJ2J3GravitationalAccelerationModel >(
+                            = std::make_shared< CentralJ2J3GravitationalAccelerationModel >(
                                 boost::lambda::constant(
                                     planetData.at( planet ).body2Positions.at( body2 ) ),
                                 planetData.at( planet ).gravitationalParameter,
@@ -292,7 +292,7 @@ BOOST_AUTO_TEST_CASE( testGravitationalAccelerationZonalSumWrapperClassesMatlab 
                     if ( planetData.at( planet ).zonalCoefficients.size( ) == 2 )
                     {
                         // Declare central + J2 + J3 + J4 acceleration wrapper class object.
-                        centralJ2J3J4Gravity = boost::make_shared<
+                        centralJ2J3J4Gravity = std::make_shared<
                                 CentralJ2J3J4GravitationalAccelerationModel >(
                                     boost::lambda::constant(
                                         planetData.at( planet ).body2Positions.at( body2 ) ),
@@ -309,7 +309,7 @@ BOOST_AUTO_TEST_CASE( testGravitationalAccelerationZonalSumWrapperClassesMatlab 
                     else
                     {
                         // Declare central + J2 + J3 + J4 acceleration wrapper class object.
-                        centralJ2J3J4Gravity = boost::make_shared<
+                        centralJ2J3J4Gravity = std::make_shared<
                                 CentralJ2J3J4GravitationalAccelerationModel >(
                                     boost::lambda::constant(
                                         planetData.at( planet ).body2Positions.at( body2 ) ),

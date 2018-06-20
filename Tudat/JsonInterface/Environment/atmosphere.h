@@ -45,10 +45,10 @@ inline void from_json( const nlohmann::json& jsonObject, AtmosphereTypes& atmosp
 }
 
 //! Create a `json` object from a shared pointer to a `AtmosphereSettings` object.
-void to_json( nlohmann::json& jsonObject, const boost::shared_ptr< AtmosphereSettings >& atmosphereSettings );
+void to_json( nlohmann::json& jsonObject, const std::shared_ptr< AtmosphereSettings >& atmosphereSettings );
 
 //! Create a shared pointer to a `AtmosphereSettings` object from a `json` object.
-void from_json( const nlohmann::json& jsonObject, boost::shared_ptr< AtmosphereSettings >& atmosphereSettings );
+void from_json( const nlohmann::json& jsonObject, std::shared_ptr< AtmosphereSettings >& atmosphereSettings );
 
 } // namespace simulation_setup
 

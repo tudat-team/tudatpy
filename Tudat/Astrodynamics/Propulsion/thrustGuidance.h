@@ -11,7 +11,7 @@
 
 #ifndef TUDAT_THRUSTGUIDANCE_H
 #define TUDAT_THRUSTGUIDANCE_H
-#include <boost/function.hpp>
+#include <functional>
 #include <boost/lambda/lambda.hpp>
 
 #include "Tudat/Astrodynamics/ReferenceFrames/referenceFrameTransformations.h"
@@ -40,7 +40,7 @@ public:
      * \param bodyFixedForceDirection Function returning the direction of the force in the body-fixed frame.
      */
     BodyFixedForceDirectionGuidance (
-            const boost::function< Eigen::Vector3d( ) > bodyFixedForceDirection ):
+            const std::function< Eigen::Vector3d( ) > bodyFixedForceDirection ):
     DependentOrientationCalculator( ), bodyFixedForceDirection_( bodyFixedForceDirection ){ }
 
     //! Destructor
@@ -89,7 +89,7 @@ protected:
     virtual void updateForceDirection( const double time ) = 0;
 
     //! Function returning the direction of the force in the body-fixed frame.
-    boost::function< Eigen::Vector3d( ) > bodyFixedForceDirection_;
+    std::function< Eigen::Vector3d( ) > bodyFixedForceDirection_;
 
     //! Current direction of the force in the body-fixed frame as set by last call to updateCalculator function.
     Eigen::Vector3d currentBodyFixedForceDirection_;
@@ -107,7 +107,7 @@ protected:
  * \return Unit vector colinear with velocity segment of currentState.
  */
 Eigen::Vector3d getForceDirectionColinearWithVelocity(
-        const boost::function< void( Eigen::Vector6d& ) > currentStateFunction,
+        const std::function< void( Eigen::Vector6d& ) > currentStateFunction,
         const double currentTime, const bool putForceInOppositeDirection );
 
 //! Function to get the unit vector colinear with position segment of a translational state.
@@ -121,7 +121,7 @@ Eigen::Vector3d getForceDirectionColinearWithVelocity(
  * \return Unit vector colinear with position segment of current state.
  */
 Eigen::Vector3d getForceDirectionColinearWithPosition(
-        const boost::function< void( Eigen::Vector6d& ) > currentStateFunction,
+        const std::function< void( Eigen::Vector6d& ) > currentStateFunction,
         const double currentTime, const bool putForceInOppositeDirection );
 
 //! Function to get the force direction from a time-only function.
@@ -133,7 +133,7 @@ Eigen::Vector3d getForceDirectionColinearWithPosition(
  */
 Eigen::Vector3d getForceDirectionFromTimeOnlyFunction(
         const double currentTime,
-        const boost::function< Eigen::Vector3d( const double ) > timeOnlyFunction );
+        const std::function< Eigen::Vector3d( const double ) > timeOnlyFunction );
 
 //! Class for computing the force direction directly from a function returning the associated unit vector of direction.
 class DirectionBasedForceGuidance: public BodyFixedForceDirectionGuidance
@@ -150,9 +150,9 @@ public:
      * engine thrust pointing in body-fixed frame).
      */
     DirectionBasedForceGuidance(
-            const boost::function< Eigen::Vector3d( const double ) > forceDirectionFunction,
+            const std::function< Eigen::Vector3d( const double ) > forceDirectionFunction,
             const std::string& centralBody,
-            const boost::function< Eigen::Vector3d( ) > bodyFixedForceDirection =
+            const std::function< Eigen::Vector3d( ) > bodyFixedForceDirection =
             boost::lambda::constant( Eigen::Vector3d::UnitX( ) ) ):
         BodyFixedForceDirectionGuidance ( bodyFixedForceDirection ),
         forceDirectionFunction_( forceDirectionFunction ),
@@ -201,7 +201,7 @@ protected:
     }
 
     //! Function returning thrust-direction (represented in the relevant propagation frame) as a function of time.
-    boost::function< Eigen::Vector3d( const double ) > forceDirectionFunction_;
+    std::function< Eigen::Vector3d( const double ) > forceDirectionFunction_;
 
     //! Current force direction, as computed by last call to updateCalculator/updateForceDirection.
     Eigen::Vector3d currentForceDirection_;
@@ -225,8 +225,8 @@ public:
      * engine thrust pointing in body-fixed frame).
      */
     OrientationBasedForceGuidance(
-            const boost::function< Eigen::Quaterniond( const double ) > bodyFixedFrameToBaseFrameFunction,
-            const boost::function< Eigen::Vector3d( ) > bodyFixedForceDirection =
+            const std::function< Eigen::Quaterniond( const double ) > bodyFixedFrameToBaseFrameFunction,
+            const std::function< Eigen::Vector3d( ) > bodyFixedForceDirection =
             boost::lambda::constant( Eigen::Vector3d::UnitX( ) ) ):
         BodyFixedForceDirectionGuidance ( bodyFixedForceDirection ),
         bodyFixedFrameToBaseFrameFunction_( bodyFixedFrameToBaseFrameFunction ){  }
@@ -265,7 +265,7 @@ protected:
     }
 
     //! Function returning rotation from the body-fixed frame to the relevant propagation frame as a function of time.
-    boost::function< Eigen::Quaterniond( const double ) > bodyFixedFrameToBaseFrameFunction_;
+    std::function< Eigen::Quaterniond( const double ) > bodyFixedFrameToBaseFrameFunction_;
 
     //! The rotation from body-fixed to inertial frame.
     Eigen::Quaterniond currentBodyFixedFrameToBaseFrame_;

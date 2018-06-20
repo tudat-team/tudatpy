@@ -29,10 +29,10 @@ class InertialTorquePartial: public TorquePartial
 public:
 
     InertialTorquePartial(
-            const boost::function< Eigen::Vector3d( ) > angularVelocityFunction,
-            const boost::function< Eigen::Matrix3d( ) > inertiaTensorFunction,
-            const boost::function< double( ) > inertiaTensorNormalizationFunction,
-            const boost::function< double( ) > bodyGravitationalParameterFunction,
+            const std::function< Eigen::Vector3d( ) > angularVelocityFunction,
+            const std::function< Eigen::Matrix3d( ) > inertiaTensorFunction,
+            const std::function< double( ) > inertiaTensorNormalizationFunction,
+            const std::function< double( ) > bodyGravitationalParameterFunction,
             const std::string acceleratedBody ):
         TorquePartial( acceleratedBody, acceleratedBody, basic_astrodynamics::torque_free ),
         angularVelocityFunction_( angularVelocityFunction ),
@@ -65,8 +65,8 @@ public:
      *  \param parameter Parameter w.r.t. which partial is to be taken.
      *  \return Pair of parameter partial function and number of columns in partial (0 for no dependency, 1 otherwise).
      */
-    std::pair< boost::function< void( Eigen::MatrixXd& ) >, int >
-    getParameterPartialFunction( boost::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter );
+    std::pair< std::function< void( Eigen::MatrixXd& ) >, int >
+    getParameterPartialFunction( std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter );
 
     //! Function for setting up and retrieving a function returning a partial w.r.t. a vector parameter.
     /*!
@@ -75,8 +75,8 @@ public:
      *  \param parameter Parameter w.r.t. which partial is to be taken.
      *  \return Pair of parameter partial function and number of columns in partial (0 for no dependency).
      */
-    std::pair< boost::function< void( Eigen::MatrixXd& ) >, int > getParameterPartialFunction(
-            boost::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter );
+    std::pair< std::function< void( Eigen::MatrixXd& ) >, int > getParameterPartialFunction(
+            std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter );
 
     void wrtOrientationOfAcceleratedBody(
             Eigen::Block< Eigen::MatrixXd > partialMatrix,
@@ -141,13 +141,13 @@ protected:
             const int s21Index, const int s22Index );
 
 
-    boost::function< Eigen::Vector3d( ) > angularVelocityFunction_;
+    std::function< Eigen::Vector3d( ) > angularVelocityFunction_;
 
-    boost::function< Eigen::Matrix3d( ) > inertiaTensorFunction_;
+    std::function< Eigen::Matrix3d( ) > inertiaTensorFunction_;
 
-    boost::function< double( ) > getInertiaTensorNormalizationFactor_;
+    std::function< double( ) > getInertiaTensorNormalizationFactor_;
 
-    boost::function< double( ) > bodyGravitationalParameterFunction_;
+    std::function< double( ) > bodyGravitationalParameterFunction_;
 
     Eigen::Vector3d currentAngularVelocityVector_;
 

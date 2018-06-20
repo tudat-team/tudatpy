@@ -89,7 +89,7 @@ BOOST_AUTO_TEST_CASE( testNRLMSISE00AtmosphereTestFunctions )
     double tolerance = 1.0E-18;
 
     // Create the model
-    NRLMSISE00Atmosphere model( boost::bind( &function, _1, _2, _3, _4, false, false ) );
+    NRLMSISE00Atmosphere model( std::bind( &function, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, false, false ) );
 
     // Create local copy of input and define variations
     data = gen_data;
@@ -120,7 +120,7 @@ BOOST_AUTO_TEST_CASE( testNRLMSISE00AtmosphereTestFunctions )
 BOOST_AUTO_TEST_CASE( testNRLMSISE00AtmosphereTestHashing )
 {
     // Create the model
-    NRLMSISE00Atmosphere model( boost::bind( &function, _1, _2, _3, _4, false, false ) );
+    NRLMSISE00Atmosphere model( std::bind( &function, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, false, false ) );
 
     // Create local copy of input and define variations
     data = gen_data;
@@ -188,7 +188,7 @@ BOOST_AUTO_TEST_CASE( testNRLMSISE00AtmosphereTest1 )
             (1.250539943561E+03)(1.241416130019E+03);
 
     // Create the model
-    NRLMSISE00Atmosphere model( boost::bind( &function, _1, _2, _3, _4, false, false ) );
+    NRLMSISE00Atmosphere model( std::bind( &function, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, false, false ) );
 
     // Create local copy of input and define variations
     data = gen_data;
@@ -228,7 +228,7 @@ BOOST_AUTO_TEST_CASE( testNRLMSISE00AtmosphereTest2 )
             (1.166754383757E+03)(1.161710451887E+03);
 
     // Create the model
-    NRLMSISE00Atmosphere model( boost::bind( &function, _1, _2, _3, _4, false, false ) );
+    NRLMSISE00Atmosphere model( std::bind( &function, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, false, false ) );
 
     // Create local copy of input and define variations
     data = gen_data;
@@ -272,7 +272,7 @@ BOOST_AUTO_TEST_CASE( testNRLMSISE00AtmosphereTest3 )
             (1.239892111717E+03)(1.239890640133E+03);
 
     // Create the model
-    NRLMSISE00Atmosphere model( boost::bind( &function, _1, _2, _3, _4, false, false ) );
+    NRLMSISE00Atmosphere model( std::bind( &function, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, false, false ) );
 
     // Create local copy of input and define variations
     data = gen_data;
@@ -317,7 +317,7 @@ BOOST_AUTO_TEST_CASE( testNRLMSISE00AtmosphereTest4 )
             (1.027318464900E+03)(2.068877764036E+02);
 
     // Create the model
-    NRLMSISE00Atmosphere model( boost::bind( &function, _1, _2, _3, _4, false, false ) );
+    NRLMSISE00Atmosphere model( std::bind( &function, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, false, false ) );
 
     // Create local copy of input and define variations
     data = gen_data;
@@ -362,7 +362,7 @@ BOOST_AUTO_TEST_CASE( testNRLMSISE00AtmosphereTest5 )
             (1.212396152121E+03)(1.208135425212E+03);
 
     // Create the model
-    NRLMSISE00Atmosphere model( boost::bind( &function, _1, _2, _3, _4, false, false ) );
+    NRLMSISE00Atmosphere model( std::bind( &function, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, false, false ) );
 
     // Create local copy of input and define variations
     data = gen_data;
@@ -407,7 +407,7 @@ BOOST_AUTO_TEST_CASE( testNRLMSISE00AtmosphereTest6 )
             (1.220146417915E+03)(1.212712083212E+03);
 
     // Create the model
-    NRLMSISE00Atmosphere model( boost::bind( &function, _1, _2, _3, _4, false, false ) );
+    NRLMSISE00Atmosphere model( std::bind( &function, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, false, false ) );
 
     // Create local copy of input and define variations
     data = gen_data;
@@ -452,7 +452,7 @@ BOOST_AUTO_TEST_CASE( testNRLMSISE00AtmosphereTest7 )
             (1.116385376043E+03)(1.112998568217E+03);
 
     // Create the model
-    NRLMSISE00Atmosphere model( boost::bind( &function, _1, _2, _3, _4, false, false ) );
+    NRLMSISE00Atmosphere model( std::bind( &function, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, false, false ) );
 
     // Create local copy of input and define variations
     data = gen_data;
@@ -497,7 +497,7 @@ BOOST_AUTO_TEST_CASE( testNRLMSISE00AtmosphereTest8 )
             (1.031247440715E+03)(1.024848492213E+03);
     
     // Create the model
-    NRLMSISE00Atmosphere model( boost::bind( &function, _1, _2, _3, _4, false, false ) );
+    NRLMSISE00Atmosphere model( std::bind( &function, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, false, false ) );
 
     // Create local copy of input and define variations
     data = gen_data;
@@ -542,7 +542,7 @@ BOOST_AUTO_TEST_CASE( testNRLMSISE00AtmosphereTest9 )
             (1.306052042027E+03)(1.293374040390E+03);
 
     // Create the model
-    NRLMSISE00Atmosphere model( boost::bind( &function, _1, _2, _3, _4, false, false ) );
+    NRLMSISE00Atmosphere model( std::bind( &function, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, false, false ) );
 
     // Create local copy of input and define variations
     data = gen_data;
@@ -587,7 +587,7 @@ BOOST_AUTO_TEST_CASE( testNRLMSISE00AtmosphereTest10 )
             (1.361868020785E+03)(1.347389183730E+03);
 
     // Create the model
-    NRLMSISE00Atmosphere model( boost::bind( &function, _1, _2, _3, _4, false, false ) );
+    NRLMSISE00Atmosphere model( std::bind( &function, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, false, false ) );
 
     // Create local copy of input and define variations
     data = gen_data;
@@ -632,7 +632,7 @@ BOOST_AUTO_TEST_CASE( testNRLMSISE00AtmosphereTest11 )
             (1.027318464900E+03)(2.814647576632E+02);
     
     // Create the model
-    NRLMSISE00Atmosphere model( boost::bind( &function, _1, _2, _3, _4, false, false ) );
+    NRLMSISE00Atmosphere model( std::bind( &function, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, false, false ) );
 
     // Create local copy of input and define variations
     data = gen_data;
@@ -677,7 +677,7 @@ BOOST_AUTO_TEST_CASE( testNRLMSISE00AtmosphereTest12 )
             (1.027318464900E+03)(2.274179808273E+02);
 
     // Create the model
-    NRLMSISE00Atmosphere model( boost::bind( &function, _1, _2, _3, _4, false, false ) );
+    NRLMSISE00Atmosphere model( std::bind( &function, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, false, false ) );
 
     // Create local copy of input and define variations
     data = gen_data;
@@ -722,7 +722,7 @@ BOOST_AUTO_TEST_CASE( testNRLMSISE00AtmosphereTest13 )
             (1.027318464900E+03)(2.374389145877E+02);
 
     // Create the model
-    NRLMSISE00Atmosphere model( boost::bind( &function, _1, _2, _3, _4, false, false ) );
+    NRLMSISE00Atmosphere model( std::bind( &function, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, false, false ) );
 
     // Create local copy of input and define variations
     data = gen_data;
@@ -767,7 +767,7 @@ BOOST_AUTO_TEST_CASE( testNRLMSISE00AtmosphereTest14 )
             (1.027318464900E+03)(2.795551129541E+02);
     
     // Create the model
-    NRLMSISE00Atmosphere model( boost::bind( &function, _1, _2, _3, _4, false, false ) );
+    NRLMSISE00Atmosphere model( std::bind( &function, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, false, false ) );
 
     // Create local copy of input and define variations
     data = gen_data;
@@ -812,7 +812,7 @@ BOOST_AUTO_TEST_CASE( testNRLMSISE00AtmosphereTest15 )
             (1.027318464900E+03)(2.190732313642E+02);
 
     // Create the model
-    NRLMSISE00Atmosphere model( boost::bind( &function, _1, _2, _3, _4, false, false ) );
+    NRLMSISE00Atmosphere model( std::bind( &function, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, false, false ) );
 
     // Create local copy of input and define variations
     data = gen_data;
@@ -857,7 +857,7 @@ BOOST_AUTO_TEST_CASE( testNRLMSISE00AtmosphereTest16 )
             (1.426411662282E+03)(1.408607795553E+03);
 
     // Create the model
-    NRLMSISE00Atmosphere model( boost::bind( &function, _1, _2, _3, _4, false, false ) );
+    NRLMSISE00Atmosphere model( std::bind( &function, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, false, false ) );
 
     // Create local copy of input and define variations
     data = gen_data;
@@ -903,7 +903,7 @@ BOOST_AUTO_TEST_CASE( testNRLMSISE00AtmosphereTest17 )
             (1.027318464900E+03)(1.934071062577E+02);
 
     // Create the model
-    NRLMSISE00Atmosphere model( boost::bind( &function, _1, _2, _3, _4, false, false ) );
+    NRLMSISE00Atmosphere model( std::bind( &function, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, false, false ) );
 
     // Create local copy of input and define variations
     data = gen_data;
@@ -941,7 +941,7 @@ BOOST_AUTO_TEST_CASE( testNRLMSISE00AtmosphereTest17 )
 BOOST_AUTO_TEST_CASE( testSpeedOfSound )
 {
     // Construct model with default properties
-    NRLMSISE00Atmosphere model( boost::bind( &function, _1, _2, _3, _4, false, false ) );
+    NRLMSISE00Atmosphere model( std::bind( &function, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, false, false ) );
 
     double altitude = 0.0 ;
     double longitude = 0.0 ;
@@ -980,7 +980,7 @@ BOOST_AUTO_TEST_CASE( testSpeedOfSound )
 BOOST_AUTO_TEST_CASE( testMolarMass )
 {
     // Construct model with default properties
-    NRLMSISE00Atmosphere model( boost::bind( &function, _1, _2, _3, _4, false, false ) );
+    NRLMSISE00Atmosphere model( std::bind( &function, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, false, false ) );
 
     double altitude = 0.0 ;
     double longitude = 0.0 ;
@@ -1005,7 +1005,7 @@ BOOST_AUTO_TEST_CASE( testMolarMass )
 BOOST_AUTO_TEST_CASE( testMeanFreePath )
 {
     // Construct model with default properties
-    NRLMSISE00Atmosphere model( boost::bind( &function, _1, _2, _3, _4, false, false ) );
+    NRLMSISE00Atmosphere model( std::bind( &function, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, false, false ) );
 
     double altitude = 20.0E3 ;
     double longitude = 0.5 ;
@@ -1059,8 +1059,9 @@ BOOST_AUTO_TEST_CASE( test_nrlmise_InputFunction_no_adjustment )
 
     // Create atmosphere model using NRLMISE00 input function
     // Local solar time is set to 16.0 to correspond with testing data!
-    boost::function< tudat::aerodynamics::NRLMSISE00Input (double,double,double,double) > inputFunction =
-            boost::bind(&tudat::aerodynamics::nrlmsiseInputFunction,_1,_2,_3,_4, solarActivityData , true , 16.0 );
+    std::function< tudat::aerodynamics::NRLMSISE00Input (double,double,double,double) > inputFunction =
+            std::bind( &tudat::aerodynamics::nrlmsiseInputFunction, std::placeholders::_1, std::placeholders::_2,
+                      std::placeholders::_3, std::placeholders::_4, solarActivityData , true , 16.0 );
 
     // Create Pointer to NRLMSISE model
     tudat::aerodynamics::NRLMSISE00Atmosphere atmosphereModel( inputFunction );
@@ -1104,8 +1105,9 @@ BOOST_AUTO_TEST_CASE( test_nrlmise_InputFunction_with_adjustment )
 
     // Create atmosphere model using NRLMISE00 input function
     // Local solar time is set to 16.0 to correspond with testing data!
-    boost::function< tudat::aerodynamics::NRLMSISE00Input (double,double,double,double) > inputFunction =
-            boost::bind(&tudat::aerodynamics::nrlmsiseInputFunction,_1,_2,_3,_4, solarActivityData , true , 16.0 );
+    std::function< tudat::aerodynamics::NRLMSISE00Input (double,double,double,double) > inputFunction =
+            std::bind(&tudat::aerodynamics::nrlmsiseInputFunction, std::placeholders::_1, std::placeholders::_2,
+                      std::placeholders::_3, std::placeholders::_4, solarActivityData , true , 16.0 );
 
     // Create Pointer to NRLMSISE model
     tudat::aerodynamics::NRLMSISE00Atmosphere atmosphereModel( inputFunction );

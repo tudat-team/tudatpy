@@ -49,24 +49,24 @@ BOOST_AUTO_TEST_CASE( test_json_propagator_translational )
     using namespace json_interface;
 
     // Create TranslationalStatePropagatorSettings from JSON file
-    const boost::shared_ptr< SingleArcPropagatorSettings< double > > fromFileSettings =
-            parseJSONFile< boost::shared_ptr< SingleArcPropagatorSettings< double > > >( INPUT( "translational" ) );
+    const std::shared_ptr< SingleArcPropagatorSettings< double > > fromFileSettings =
+            parseJSONFile< std::shared_ptr< SingleArcPropagatorSettings< double > > >( INPUT( "translational" ) );
 
     // Create TranslationalStatePropagatorSettings manually
     const TranslationalPropagatorType propagatorType = encke;
     const std::vector< std::string > bodiesToPropagate = { "a", "b" };
     const std::vector< std::string > centralBodies = { "A", "B" };
-    const boost::shared_ptr< PropagationTerminationSettings > terminationSettings;
+    const std::shared_ptr< PropagationTerminationSettings > terminationSettings;
     const Eigen::VectorXd initialStates = ( Eigen::VectorXd( 12 ) <<
                                             1.0, 2.0, 3.0,  4.0,  5.0,  6.0,
                                             7.0, 8.0, 9.0, 10.0, 11.0, 12.0 ).finished( );
     SelectedAccelerationMap accelerations;
-    accelerations[ "a" ][ "A" ] = { boost::make_shared< AccelerationSettings >( point_mass_gravity ) };
-    accelerations[ "a" ][ "B" ] = { boost::make_shared< AccelerationSettings >( point_mass_gravity ) };
-    accelerations[ "b" ][ "A" ] = { boost::make_shared< AccelerationSettings >( point_mass_gravity ) };
-    accelerations[ "b" ][ "B" ] = { boost::make_shared< AccelerationSettings >( point_mass_gravity ) };
-    const boost::shared_ptr< SingleArcPropagatorSettings< double > > manualSettings =
-            boost::make_shared< TranslationalStatePropagatorSettings< double > >( centralBodies,
+    accelerations[ "a" ][ "A" ] = { std::make_shared< AccelerationSettings >( point_mass_gravity ) };
+    accelerations[ "a" ][ "B" ] = { std::make_shared< AccelerationSettings >( point_mass_gravity ) };
+    accelerations[ "b" ][ "A" ] = { std::make_shared< AccelerationSettings >( point_mass_gravity ) };
+    accelerations[ "b" ][ "B" ] = { std::make_shared< AccelerationSettings >( point_mass_gravity ) };
+    const std::shared_ptr< SingleArcPropagatorSettings< double > > manualSettings =
+            std::make_shared< TranslationalStatePropagatorSettings< double > >( centralBodies,
                                                                                   accelerations,
                                                                                   bodiesToPropagate,
                                                                                   initialStates,
@@ -84,18 +84,18 @@ BOOST_AUTO_TEST_CASE( test_json_propagator_mass )
     using namespace json_interface;
 
     // Create MassPropagatorSettings from JSON file
-    const boost::shared_ptr< SingleArcPropagatorSettings< double > > fromFileSettings =
-            parseJSONFile< boost::shared_ptr< SingleArcPropagatorSettings< double > > >( INPUT( "mass" ) );
+    const std::shared_ptr< SingleArcPropagatorSettings< double > > fromFileSettings =
+            parseJSONFile< std::shared_ptr< SingleArcPropagatorSettings< double > > >( INPUT( "mass" ) );
 
     // Create MassPropagatorSettings manually
     const std::vector< std::string > bodiesToPropagate = { "a", "b" };
-    const boost::shared_ptr< PropagationTerminationSettings > terminationSettings;
+    const std::shared_ptr< PropagationTerminationSettings > terminationSettings;
     const Eigen::VectorXd initialStates = ( Eigen::VectorXd( 2 ) << 100.0, 200.0 ).finished( );
     SelectedMassRateModelMap massRateModels;
-    massRateModels[ "a" ] = { boost::make_shared< FromThrustMassModelSettings >( ) };
-    massRateModels[ "b" ] = { boost::make_shared< FromThrustMassModelSettings >( ) };
-    const boost::shared_ptr< SingleArcPropagatorSettings< double > > manualSettings =
-            boost::make_shared< MassPropagatorSettings< double > >( bodiesToPropagate,
+    massRateModels[ "a" ] = { std::make_shared< FromThrustMassModelSettings >( ) };
+    massRateModels[ "b" ] = { std::make_shared< FromThrustMassModelSettings >( ) };
+    const std::shared_ptr< SingleArcPropagatorSettings< double > > manualSettings =
+            std::make_shared< MassPropagatorSettings< double > >( bodiesToPropagate,
                                                                     massRateModels,
                                                                     initialStates,
                                                                     terminationSettings );
@@ -112,21 +112,21 @@ BOOST_AUTO_TEST_CASE( test_json_propagator_rotational )
     using namespace json_interface;
 
     // Create RotationalStatePropagatorSettings from JSON file
-    const boost::shared_ptr< SingleArcPropagatorSettings< double > > fromFileSettings =
-            parseJSONFile< boost::shared_ptr< SingleArcPropagatorSettings< double > > >( INPUT( "rotational" ) );
+    const std::shared_ptr< SingleArcPropagatorSettings< double > > fromFileSettings =
+            parseJSONFile< std::shared_ptr< SingleArcPropagatorSettings< double > > >( INPUT( "rotational" ) );
 
     // Create RotationalStatePropagatorSettings manually
     const std::vector< std::string > bodiesToPropagate = { "A", "B" };
-    const boost::shared_ptr< PropagationTerminationSettings > terminationSettings;
+    const std::shared_ptr< PropagationTerminationSettings > terminationSettings;
     const Eigen::VectorXd initialStates = ( Eigen::VectorXd( 14 ) <<
                                             0.0, 1.0, 2.0,  3.0,  4.0,  5.0,  6.0,
                                             7.0, 8.0, 9.0, 10.0, 11.0, 12.0, 13.0 ).finished( );
     SelectedTorqueMap torques;
-    torques[ "A" ][ "B" ] = { boost::make_shared< TorqueSettings >( second_order_gravitational_torque ) };
-    torques[ "B" ][ "A" ] = { boost::make_shared< TorqueSettings >( second_order_gravitational_torque ),
-            boost::make_shared< TorqueSettings >( aerodynamic_torque ) };
-    const boost::shared_ptr< SingleArcPropagatorSettings< double > > manualSettings =
-            boost::make_shared< RotationalStatePropagatorSettings< double > >( torques,
+    torques[ "A" ][ "B" ] = { std::make_shared< TorqueSettings >( second_order_gravitational_torque ) };
+    torques[ "B" ][ "A" ] = { std::make_shared< TorqueSettings >( second_order_gravitational_torque ),
+            std::make_shared< TorqueSettings >( aerodynamic_torque ) };
+    const std::shared_ptr< SingleArcPropagatorSettings< double > > manualSettings =
+            std::make_shared< RotationalStatePropagatorSettings< double > >( torques,
                                                                                bodiesToPropagate,
                                                                                initialStates,
                                                                                terminationSettings );

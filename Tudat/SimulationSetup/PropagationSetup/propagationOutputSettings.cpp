@@ -37,10 +37,10 @@ std::string getVariableName( const VariableType variableType )
 }
 
 //! Function to get a string representing a 'named identification' of a variable
-std::string getVariableId( const boost::shared_ptr< VariableSettings > variableSettings )
+std::string getVariableId( const std::shared_ptr< VariableSettings > variableSettings )
 {
-    boost::shared_ptr< SingleDependentVariableSaveSettings > singleDependentVariableSaveSettings =
-            boost::dynamic_pointer_cast< SingleDependentVariableSaveSettings >( variableSettings );
+    std::shared_ptr< SingleDependentVariableSaveSettings > singleDependentVariableSaveSettings =
+            std::dynamic_pointer_cast< SingleDependentVariableSaveSettings >( variableSettings );
     if ( singleDependentVariableSaveSettings )
     {
         return getDependentVariableId( singleDependentVariableSaveSettings );
@@ -181,16 +181,16 @@ std::string getDependentVariableName( const PropagationDependentVariables propag
 
 //! Function to get a string representing a 'named identification' of a dependent variable
 std::string getDependentVariableId(
-        const boost::shared_ptr< SingleDependentVariableSaveSettings > dependentVariableSettings )
+        const std::shared_ptr< SingleDependentVariableSaveSettings > dependentVariableSettings )
 {
     std::string variableId = getDependentVariableName( dependentVariableSettings->dependentVariableType_ );
 
     if( ( dependentVariableSettings->dependentVariableType_ == single_acceleration_dependent_variable ) ||
             ( dependentVariableSettings->dependentVariableType_ == single_acceleration_norm_dependent_variable ) )
     {
-        boost::shared_ptr< SingleAccelerationDependentVariableSaveSettings > accelerationDependentVariableSettings =
-                boost::dynamic_pointer_cast< SingleAccelerationDependentVariableSaveSettings >( dependentVariableSettings );
-        if( accelerationDependentVariableSettings == NULL )
+        std::shared_ptr< SingleAccelerationDependentVariableSaveSettings > accelerationDependentVariableSettings =
+                std::dynamic_pointer_cast< SingleAccelerationDependentVariableSaveSettings >( dependentVariableSettings );
+        if( accelerationDependentVariableSettings == nullptr )
         {
             throw std::runtime_error( "Error when getting dependent variable ID, input is inconsistent (acceleration type )" );
         }
@@ -203,9 +203,9 @@ std::string getDependentVariableId(
     else if( ( dependentVariableSettings->dependentVariableType_ == single_torque_dependent_variable ) ||
              ( dependentVariableSettings->dependentVariableType_ == single_torque_norm_dependent_variable ) )
     {
-        boost::shared_ptr< SingleTorqueDependentVariableSaveSettings > torqueDependentVariableSettings =
-                boost::dynamic_pointer_cast< SingleTorqueDependentVariableSaveSettings >( dependentVariableSettings );
-        if( torqueDependentVariableSettings == NULL )
+        std::shared_ptr< SingleTorqueDependentVariableSaveSettings > torqueDependentVariableSettings =
+                std::dynamic_pointer_cast< SingleTorqueDependentVariableSaveSettings >( dependentVariableSettings );
+        if( torqueDependentVariableSettings == nullptr )
         {
             throw std::runtime_error( "Error when getting dependent variable ID, input is inconsistent (torque type )" );
         }
@@ -217,9 +217,9 @@ std::string getDependentVariableId(
     }
     else if( dependentVariableSettings->dependentVariableType_ == intermediate_aerodynamic_rotation_matrix_variable )
     {
-        boost::shared_ptr< IntermediateAerodynamicRotationVariableSaveSettings > rotationDependentVariableSettings =
-                boost::dynamic_pointer_cast< IntermediateAerodynamicRotationVariableSaveSettings >( dependentVariableSettings );
-        if( rotationDependentVariableSettings == NULL )
+        std::shared_ptr< IntermediateAerodynamicRotationVariableSaveSettings > rotationDependentVariableSettings =
+                std::dynamic_pointer_cast< IntermediateAerodynamicRotationVariableSaveSettings >( dependentVariableSettings );
+        if( rotationDependentVariableSettings == nullptr )
         {
             throw std::runtime_error( "Error when getting dependent variable ID, input is inconsistent (rotation matrix)" );
         }
@@ -233,9 +233,9 @@ std::string getDependentVariableId(
 
     else if( dependentVariableSettings->dependentVariableType_ == relative_body_aerodynamic_orientation_angle_variable )
     {
-        boost::shared_ptr< BodyAerodynamicAngleVariableSaveSettings > angleDependentVariableSettings =
-                boost::dynamic_pointer_cast< BodyAerodynamicAngleVariableSaveSettings >( dependentVariableSettings );
-        if( angleDependentVariableSettings == NULL )
+        std::shared_ptr< BodyAerodynamicAngleVariableSaveSettings > angleDependentVariableSettings =
+                std::dynamic_pointer_cast< BodyAerodynamicAngleVariableSaveSettings >( dependentVariableSettings );
+        if( angleDependentVariableSettings == nullptr )
         {
             throw std::runtime_error( "Error when getting dependent variable ID, input is inconsistent (angle)" );
         }

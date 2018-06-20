@@ -114,14 +114,14 @@ double getVectorNorm( const Eigen::Vector3d& vector )
 }
 
 Eigen::Vector3d evaluateSecondBlockInStateVector(
-        const boost::function< Eigen::Vector6d( const double ) > stateFunction,
+        const std::function< Eigen::Vector6d( const double ) > stateFunction,
         const double time )
 {
     return stateFunction( time ).segment( 3, 3 );
 }
 
 //! Computes the norm of a 3d vector from a vector-returning function.
-double getVectorNormFromFunction( const boost::function< Eigen::Vector3d( ) > vectorFunction )
+double getVectorNormFromFunction( const std::function< Eigen::Vector3d( ) > vectorFunction )
 {
     return getVectorNorm( vectorFunction( ) );
 }

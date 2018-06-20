@@ -108,21 +108,21 @@ inline void from_json( const nlohmann::json& jsonObject, PropagationDependentVar
 // VariableSettings
 
 //! Create a `json` object from a shared pointer to a `VariableSettings` object.
-void to_json( nlohmann::json& jsonObject, const boost::shared_ptr< VariableSettings >& variableSettings );
+void to_json( nlohmann::json& jsonObject, const std::shared_ptr< VariableSettings >& variableSettings );
 
 //! Create a shared pointer to a `VariableSettings` object from a `json` object.
-void from_json( const nlohmann::json& jsonObject, boost::shared_ptr< VariableSettings >& variableSettings );
+void from_json( const nlohmann::json& jsonObject, std::shared_ptr< VariableSettings >& variableSettings );
 
 
 // SingleDependentVariableSaveSettings
 
 //! Create a `json` object from a shared pointer to a `SingleDependentVariableSaveSettings` object.
 void to_json( nlohmann::json& jsonObject,
-              const boost::shared_ptr< SingleDependentVariableSaveSettings >& dependentVariableSettings );
+              const std::shared_ptr< SingleDependentVariableSaveSettings >& dependentVariableSettings );
 
 //! Create a shared pointer to a `SingleDependentVariableSaveSettings` object from a `json` object.
 void from_json( const nlohmann::json& jsonObject,
-                boost::shared_ptr< SingleDependentVariableSaveSettings >& dependentVariableSettings );
+                std::shared_ptr< SingleDependentVariableSaveSettings >& dependentVariableSettings );
 
 } // namespace propagators
 

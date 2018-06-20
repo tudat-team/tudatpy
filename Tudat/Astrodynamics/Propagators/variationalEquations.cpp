@@ -9,12 +9,14 @@
  */
 #include <map>
 
-#include <boost/function.hpp>
+
+#include <functional>
 
 #include <Eigen/Core>
 
 #include "Tudat/Astrodynamics/Propagators/variationalEquations.h"
 #include "Tudat/Astrodynamics/Propagators/rotationalMotionStateDerivative.h"
+
 #include "Tudat/Astrodynamics/OrbitDetermination/AccelerationPartials/accelerationPartial.h"
 
 
@@ -23,6 +25,18 @@ namespace tudat
 
 namespace propagators
 {
+
+template< typename StateScalarType >
+void VariationalEquations::getBodyInitialStatePartialMatrix(
+        const Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >& stateTransitionAndSensitivityMatrices,
+        Eigen::Block< Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic > > currentMatrixDerivative )
+{
+    setBodyStatePartialMatrix( );
+
+    // Add partials of body positions and velocities.
+    currentMatrixDerivative.block( 0, 0, totalDynamicalStateSize_, numberOfParameterValues_ ) =
+            ( variationalMatrix_.template cast< StateScalarType >( ) * stateTransitionAndSensitivityMatrices );
+}
 
 //! Calculates matrix containing partial derivatives of state derivatives w.r.t. body state.
 void VariationalEquations::setBodyStatePartialMatrix( )
@@ -56,12 +70,13 @@ void VariationalEquations::setBodyStatePartialMatrix( )
 
     // Iterate over all bodies undergoing accelerations for which initial condition is to be estimated.
     for( std::map< IntegratedStateType, std::vector< std::multimap< std::pair< int, int >,
-         boost::function< void( Eigen::Block< Eigen::MatrixXd > ) > > > >::iterator
+         std::function< void( Eigen::Block< Eigen::MatrixXd > ) > > > >::iterator
          typeIterator = statePartialList_.begin( ); typeIterator != statePartialList_.end( ); typeIterator++ )
     {
         int startIndex = stateTypeStartIndices_.at( typeIterator->first );
         int currentStateSize = getSingleIntegrationSize( typeIterator->first );
         int entriesToSkipPerEntry = currentStateSize - getAccelerationSize( typeIterator->first );
+
         for( unsigned int i = 0; i < typeIterator->second.size( ); i++ )
         {
             // Iterate over all bodies exerting an acceleration on this body.
@@ -80,6 +95,7 @@ void VariationalEquations::setBodyStatePartialMatrix( )
 
 //    std::cout<<"Partials matrix A "<<std::endl<<variationalMatrix_<<std::endl;
 
+
     // Correct partials for hierarchical dynamics
    for( unsigned int i = 0; i < statePartialAdditionIndices_.size( ); i++ )
    {
@@ -97,6 +113,7 @@ void VariationalEquations::setBodyStatePartialMatrix( )
    }
 
 //   std::cout<<"Partials matrix "<<std::endl<<variationalMatrix_<<std::endl;
+
 }
 
 //! Function to clear reference/cached values of state derivative partials.
@@ -117,10 +134,45 @@ void VariationalEquations::clearPartials( )
     }
 }
 
+
+//! This function updates all state derivative models to the current time and state.
+void VariationalEquations::updatePartials( const double currentTime )
+{
+    // Update all acceleration partials to current state and time. Information is passed indirectly from here, through
+    // (function) pointers set in acceleration partial classes
+    for( stateDerivativeTypeIterator_ = stateDerivativePartialList_.begin( );
+         stateDerivativeTypeIterator_ != stateDerivativePartialList_.end( );
+         stateDerivativeTypeIterator_++ )
+    {
+        for( unsigned int i = 0; i < stateDerivativeTypeIterator_->second.size( ); i++ )
+        {
+            for( unsigned int j = 0; j < stateDerivativeTypeIterator_->second.at( i ).size( ); j++ )
+            {
+                stateDerivativeTypeIterator_->second.at( i ).at( j )->update( currentTime );
+            }
+
+        }
+    }
+
+    for( stateDerivativeTypeIterator_ = stateDerivativePartialList_.begin( );
+         stateDerivativeTypeIterator_ != stateDerivativePartialList_.end( );
+         stateDerivativeTypeIterator_++ )
+    {
+        for( unsigned int i = 0; i < stateDerivativeTypeIterator_->second.size( ); i++ )
+        {
+            for( unsigned int j = 0; j < stateDerivativeTypeIterator_->second.at( i ).size( ); j++ )
+            {
+                stateDerivativeTypeIterator_->second.at( i ).at( j )->updateParameterPartials( );
+            }
+
+        }
+    }
+}
+\
 //! Function (called by constructor) to set up the statePartialList_ member from the state derivative partials
 void VariationalEquations::setStatePartialFunctionList( )
 {
-    std::pair< boost::function< void( Eigen::Block< Eigen::MatrixXd > ) >, int > currentDerivativeFunction;
+    std::pair< std::function< void( Eigen::Block< Eigen::MatrixXd > ) >, int > currentDerivativeFunction;
 
     // Iterate over all state types
     for( std::map< propagators::IntegratedStateType,
@@ -132,7 +184,7 @@ void VariationalEquations::setStatePartialFunctionList( )
         // Iterate over all bodies undergoing 'accelerations' for which initial state is to be estimated.
         for( unsigned int i = 0; i < stateDerivativeTypeIterator_->second.size( ); i++ )
         {
-            std::multimap< std::pair< int, int >, boost::function< void( Eigen::Block< Eigen::MatrixXd > ) > >
+            std::multimap< std::pair< int, int >, std::function< void( Eigen::Block< Eigen::MatrixXd > ) > >
                     currentBodyPartialList;
 
             // Iterate over all 'accelerations' from single body on other single body
@@ -168,6 +220,15 @@ void VariationalEquations::setStatePartialFunctionList( )
         }
     }
 }
+
+
+template void VariationalEquations::getBodyInitialStatePartialMatrix< double >(
+        const Eigen::Matrix< double, Eigen::Dynamic, Eigen::Dynamic >& stateTransitionAndSensitivityMatrices,
+        Eigen::Block< Eigen::Matrix< double, Eigen::Dynamic, Eigen::Dynamic > > currentMatrixDerivative );
+
+template void VariationalEquations::getBodyInitialStatePartialMatrix< long double >(
+        const Eigen::Matrix< long double, Eigen::Dynamic, Eigen::Dynamic >& stateTransitionAndSensitivityMatrices,
+        Eigen::Block< Eigen::Matrix< long double, Eigen::Dynamic, Eigen::Dynamic > > currentMatrixDerivative );
 
 }
 

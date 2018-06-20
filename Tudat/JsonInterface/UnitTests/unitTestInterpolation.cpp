@@ -55,12 +55,12 @@ BOOST_AUTO_TEST_CASE( test_json_interpolation_interpolator )
     using namespace json_interface;
 
     // Create InterpolatorSettings from JSON file
-    const boost::shared_ptr< InterpolatorSettings > fromFileSettings =
-            parseJSONFile< boost::shared_ptr< InterpolatorSettings > >( INPUT( "interpolator" ) );
+    const std::shared_ptr< InterpolatorSettings > fromFileSettings =
+            parseJSONFile< std::shared_ptr< InterpolatorSettings > >( INPUT( "interpolator" ) );
 
     // Create InterpolatorSettings manually
-    const boost::shared_ptr< InterpolatorSettings > manualSettings =
-            boost::make_shared< InterpolatorSettings >( piecewise_constant_interpolator, binarySearch, true );
+    const std::shared_ptr< InterpolatorSettings > manualSettings =
+            std::make_shared< InterpolatorSettings >( piecewise_constant_interpolator, binarySearch, true );
 
     // Compare
     BOOST_CHECK_EQUAL_JSON( fromFileSettings, manualSettings );
@@ -73,12 +73,12 @@ BOOST_AUTO_TEST_CASE( test_json_interpolation_lagrangeInterpolator )
     using namespace json_interface;
 
     // Create InterpolatorSettings from JSON file
-    const boost::shared_ptr< InterpolatorSettings > fromFileSettings =
-            parseJSONFile< boost::shared_ptr< InterpolatorSettings > >( INPUT( "lagrangeInterpolator" ) );
+    const std::shared_ptr< InterpolatorSettings > fromFileSettings =
+            parseJSONFile< std::shared_ptr< InterpolatorSettings > >( INPUT( "lagrangeInterpolator" ) );
 
     // Create InterpolatorSettings manually
-    const boost::shared_ptr< InterpolatorSettings > manualSettings =
-            boost::make_shared< LagrangeInterpolatorSettings >( 8 );
+    const std::shared_ptr< InterpolatorSettings > manualSettings =
+            std::make_shared< LagrangeInterpolatorSettings >( 8 );
 
     // Compare
     BOOST_CHECK_EQUAL_JSON( fromFileSettings, manualSettings );
@@ -92,13 +92,13 @@ BOOST_AUTO_TEST_CASE( test_json_interpolation_modelInterpolation )
     using namespace json_interface;
 
     // Create ModelInterpolationSettings from JSON file
-    const boost::shared_ptr< ModelInterpolationSettings > fromFileSettings =
-            parseJSONFile< boost::shared_ptr< ModelInterpolationSettings > >( INPUT( "modelInterpolation" ) );
+    const std::shared_ptr< ModelInterpolationSettings > fromFileSettings =
+            parseJSONFile< std::shared_ptr< ModelInterpolationSettings > >( INPUT( "modelInterpolation" ) );
 
     // Create ModelInterpolationSettings manually
-    const boost::shared_ptr< ModelInterpolationSettings > manualSettings =
-            boost::make_shared< ModelInterpolationSettings >(
-                -5.0, 5.0, 0.5, boost::make_shared< InterpolatorSettings >( linear_interpolator ) );
+    const std::shared_ptr< ModelInterpolationSettings > manualSettings =
+            std::make_shared< ModelInterpolationSettings >(
+                -5.0, 5.0, 0.5, std::make_shared< InterpolatorSettings >( linear_interpolator ) );
 
     // Compare
     BOOST_CHECK_EQUAL_JSON( fromFileSettings, manualSettings );
@@ -112,8 +112,8 @@ BOOST_AUTO_TEST_CASE( test_json_interpolation_dataMap )
     using namespace json_interface;
 
     // Create DataMapSettings from JSON file
-    const boost::shared_ptr< DataMapSettings< double, Eigen::Vector2d > > fromFileSettings =
-            parseJSONFile< boost::shared_ptr< DataMapSettings< double, Eigen::Vector2d > > >( INPUT( "dataMap" ) );
+    const std::shared_ptr< DataMapSettings< double, Eigen::Vector2d > > fromFileSettings =
+            parseJSONFile< std::shared_ptr< DataMapSettings< double, Eigen::Vector2d > > >( INPUT( "dataMap" ) );
 
     // Create DataMapSettings manually
     std::map< double, Eigen::Vector2d > dataMap;
@@ -121,8 +121,8 @@ BOOST_AUTO_TEST_CASE( test_json_interpolation_dataMap )
     dataMap[ 2.0 ] = ( Eigen::Vector2d( ) << 1.5, 2.5 ).finished( );
 
 
-    const boost::shared_ptr< DataMapSettings< double, Eigen::Vector2d > > manualSettings =
-            boost::make_shared< DataMapSettings< double, Eigen::Vector2d > >( dataMap );
+    const std::shared_ptr< DataMapSettings< double, Eigen::Vector2d > > manualSettings =
+            std::make_shared< DataMapSettings< double, Eigen::Vector2d > >( dataMap );
 
     // Compare
     BOOST_CHECK_EQUAL_JSON( fromFileSettings, manualSettings );
@@ -136,13 +136,13 @@ BOOST_AUTO_TEST_CASE( test_json_interpolation_fromFileDataMap )
     using namespace json_interface;
 
     // Create DataMapSettings from JSON file
-    const boost::shared_ptr< DataMapSettings< double, Eigen::Vector2d > > fromFileSettings =
-            parseJSONFile< boost::shared_ptr< DataMapSettings< double, Eigen::Vector2d > > >(
+    const std::shared_ptr< DataMapSettings< double, Eigen::Vector2d > > fromFileSettings =
+            parseJSONFile< std::shared_ptr< DataMapSettings< double, Eigen::Vector2d > > >(
                 INPUT( "fromFileDataMap" ) );
 
     // Create DataMapSettings manually
-    const boost::shared_ptr< DataMapSettings< double, Eigen::Vector2d > > manualSettings =
-            boost::make_shared< FromFileDataMapSettings< Eigen::Vector2d > >( "thrustValues.txt" );
+    const std::shared_ptr< DataMapSettings< double, Eigen::Vector2d > > manualSettings =
+            std::make_shared< FromFileDataMapSettings< Eigen::Vector2d > >( "thrustValues.txt" );
 
     // Compare
     BOOST_CHECK_EQUAL_JSON( fromFileSettings, manualSettings );
@@ -156,8 +156,8 @@ BOOST_AUTO_TEST_CASE( test_json_interpolation_independentDependentDataMap )
     using namespace json_interface;
 
     // Create DataMapSettings from JSON file
-    const boost::shared_ptr< DataMapSettings< double, Eigen::Vector2d > > fromFileSettings =
-            parseJSONFile< boost::shared_ptr< DataMapSettings< double, Eigen::Vector2d > > >(
+    const std::shared_ptr< DataMapSettings< double, Eigen::Vector2d > > fromFileSettings =
+            parseJSONFile< std::shared_ptr< DataMapSettings< double, Eigen::Vector2d > > >(
                 INPUT( "independentDependentDataMap" ) );
 
     // Create DataMapSettings manually
@@ -169,8 +169,8 @@ BOOST_AUTO_TEST_CASE( test_json_interpolation_independentDependentDataMap )
     dependentVariableValues.push_back( ( Eigen::Vector2d( ) << 0.5, 1.5 ).finished( ) );
     dependentVariableValues.push_back( ( Eigen::Vector2d( ) << 1.5, 2.5 ).finished( ) );
 
-    const boost::shared_ptr< DataMapSettings< double, Eigen::Vector2d > > manualSettings =
-            boost::make_shared< IndependentDependentDataMapSettings< double, Eigen::Vector2d > >(
+    const std::shared_ptr< DataMapSettings< double, Eigen::Vector2d > > manualSettings =
+            std::make_shared< IndependentDependentDataMapSettings< double, Eigen::Vector2d > >(
                 independentVariableValues, dependentVariableValues );
 
     // Compare
@@ -185,8 +185,8 @@ BOOST_AUTO_TEST_CASE( test_json_interpolation_hermiteDataMap )
     using namespace json_interface;
 
     // Create DataMapSettings from JSON file
-    const boost::shared_ptr< DataMapSettings< double, Eigen::Vector2d > > fromFileSettings =
-            parseJSONFile< boost::shared_ptr< DataMapSettings< double, Eigen::Vector2d > > >(
+    const std::shared_ptr< DataMapSettings< double, Eigen::Vector2d > > fromFileSettings =
+            parseJSONFile< std::shared_ptr< DataMapSettings< double, Eigen::Vector2d > > >(
                 INPUT( "hermiteDataMap" ) );
 
     // Create DataMapSettings manually
@@ -198,8 +198,8 @@ BOOST_AUTO_TEST_CASE( test_json_interpolation_hermiteDataMap )
     dependentVariableFirstDerivativeValues.push_back( ( Eigen::Vector2d( ) << 1.0, 0.8 ).finished( ) );
     dependentVariableFirstDerivativeValues.push_back( ( Eigen::Vector2d( ) << 0.5, 0.4 ).finished( ) );
 
-    const boost::shared_ptr< DataMapSettings< double, Eigen::Vector2d > > manualSettings =
-            boost::make_shared< HermiteDataSettings< double, Eigen::Vector2d > >(
+    const std::shared_ptr< DataMapSettings< double, Eigen::Vector2d > > manualSettings =
+            std::make_shared< HermiteDataSettings< double, Eigen::Vector2d > >(
                 dataMap, dependentVariableFirstDerivativeValues );
 
     // Compare
@@ -214,15 +214,15 @@ BOOST_AUTO_TEST_CASE( test_json_interpolation_dataInterpolation )
     using namespace json_interface;
 
     // Create DataInterpolationSettings from JSON file
-    const boost::shared_ptr< DataInterpolationSettings< double, Eigen::Vector2d > > fromFileSettings =
-            parseJSONFile< boost::shared_ptr< DataInterpolationSettings< double, Eigen::Vector2d > > >(
+    const std::shared_ptr< DataInterpolationSettings< double, Eigen::Vector2d > > fromFileSettings =
+            parseJSONFile< std::shared_ptr< DataInterpolationSettings< double, Eigen::Vector2d > > >(
                 INPUT( "dataInterpolation" ) );
 
     // Create DataInterpolationSettings manually
-    const boost::shared_ptr< DataInterpolationSettings< double, Eigen::Vector2d > > manualSettings =
-            boost::make_shared< DataInterpolationSettings< double, Eigen::Vector2d > >(
-                boost::make_shared< FromFileDataMapSettings< Eigen::Vector2d > >( "thrustValues.txt" ),
-                boost::make_shared< LagrangeInterpolatorSettings >( 4 ) );
+    const std::shared_ptr< DataInterpolationSettings< double, Eigen::Vector2d > > manualSettings =
+            std::make_shared< DataInterpolationSettings< double, Eigen::Vector2d > >(
+                std::make_shared< FromFileDataMapSettings< Eigen::Vector2d > >( "thrustValues.txt" ),
+                std::make_shared< LagrangeInterpolatorSettings >( 4 ) );
 
     // Compare
     BOOST_CHECK_EQUAL_JSON( fromFileSettings, manualSettings );

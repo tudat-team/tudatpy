@@ -14,7 +14,7 @@
 
 #include <vector>
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include "Tudat/Mathematics/Interpolators/lookupScheme.h"
 #include "Tudat/Mathematics/Interpolators/interpolator.h"
@@ -107,7 +107,7 @@ public:
      *  Function to return the lookup scheme used by the interpolator.
      *  \return The lookup scheme used by the interpolator.
      */
-    boost::shared_ptr< LookUpScheme< IndependentVariableType > > getLookUpScheme( )
+    std::shared_ptr< LookUpScheme< IndependentVariableType > > getLookUpScheme( )
     {
         return lookUpScheme_;
     }
@@ -150,7 +150,7 @@ protected:
         case binarySearch:
 
             // Create binary search look up scheme.
-            lookUpScheme_ = boost::shared_ptr< LookUpScheme< IndependentVariableType > >
+            lookUpScheme_ = std::shared_ptr< LookUpScheme< IndependentVariableType > >
                     ( new BinarySearchLookupScheme< IndependentVariableType >
                       ( independentValues_ ) );
             break;
@@ -158,7 +158,7 @@ protected:
         case huntingAlgorithm:
 
             // Create hunting scheme, which uses an intial guess from previous look-ups.
-            lookUpScheme_ = boost::shared_ptr< LookUpScheme< IndependentVariableType > >
+            lookUpScheme_ = std::shared_ptr< LookUpScheme< IndependentVariableType > >
                     ( new HuntingAlgorithmLookupScheme< IndependentVariableType >
                       ( independentValues_ ) );
             break;
@@ -173,7 +173,7 @@ protected:
      * Pointer to the lookup scheme that is used to determine in which interval the requested
      * independent variable value falls.
      */
-    boost::shared_ptr< LookUpScheme< IndependentVariableType > > lookUpScheme_;
+    std::shared_ptr< LookUpScheme< IndependentVariableType > > lookUpScheme_;
 
     //! Vector with dependent variables.
     /*!

@@ -39,7 +39,7 @@ public:
      *  \param associatedBody Name of body of which parameter is a property.
      */
     ConstantRotationalOrientation(
-            const boost::shared_ptr< ephemerides::SimpleRotationalEphemeris > rotationModel,
+            const std::shared_ptr< ephemerides::SimpleRotationalEphemeris > rotationModel,
             const std::string& associatedBody ):
         EstimatableParameter< Eigen::VectorXd >( rotation_pole_position, associatedBody ),
         rotationModel_( rotationModel ) { }
@@ -83,7 +83,7 @@ protected:
 private:
 
     //! SimpleRotationalEphemeris object of which rotation rate parameter is a property
-    boost::shared_ptr< ephemerides::SimpleRotationalEphemeris > rotationModel_;
+    std::shared_ptr< ephemerides::SimpleRotationalEphemeris > rotationModel_;
 };
 
 } // namespace estimatable_parameters

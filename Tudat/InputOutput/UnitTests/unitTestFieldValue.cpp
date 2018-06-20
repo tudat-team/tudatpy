@@ -13,7 +13,7 @@
 
 #include <string>
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 #include <boost/test/unit_test.hpp>
 
 #include "Tudat/InputOutput/fieldValue.h"
@@ -29,12 +29,12 @@ using namespace input_output;
 //! Test transform struct used to test FieldTransform.
 struct TestTransform : public input_output::FieldTransform
 {
-    static const boost::shared_ptr< std::string > result;
-    boost::shared_ptr< std::string > transform( const std::string& input ) { return result; }
+    static const std::shared_ptr< std::string > result;
+    std::shared_ptr< std::string > transform( const std::string& input ) { return result; }
 };
 
 //! Set result of transform in TestTransform to a string.
-const boost::shared_ptr< std::string > TestTransform::result( new std::string( "Transformed!") );
+const std::shared_ptr< std::string > TestTransform::result( new std::string( "Transformed!") );
 
 // Define Boost test suite.
 BOOST_AUTO_TEST_SUITE( test_field_value )
@@ -46,7 +46,7 @@ BOOST_AUTO_TEST_CASE( testFieldValueGetRawFunction )
     const std::string testString = "raw";
 
     // Create a test transformer.
-    boost::shared_ptr< TestTransform > transform( new TestTransform( ) );
+    std::shared_ptr< TestTransform > transform( new TestTransform( ) );
 
     // Create a field value object.
     FieldValue testFieldValue( field_types::state::inclination, testString, transform );
@@ -65,7 +65,7 @@ BOOST_AUTO_TEST_CASE( testFieldValueGetTransformedFunction )
     const std::string testString = "raw";
 
     // Create a test transformer.
-    boost::shared_ptr< TestTransform > transform( new TestTransform( ) );
+    std::shared_ptr< TestTransform > transform( new TestTransform( ) );
 
     // Create a field value object.
     FieldValue testFieldValue( field_types::state::inclination, testString, transform );
@@ -84,7 +84,7 @@ BOOST_AUTO_TEST_CASE( testFieldValueGetFunction )
     const std::string testString = "raw";
 
     // Create a test transformer.
-    boost::shared_ptr< TestTransform > transform( new TestTransform( ) );
+    std::shared_ptr< TestTransform > transform( new TestTransform( ) );
 
     // Test 1: Test the get function with a transform.
     // Create a field value object with transform.
@@ -117,14 +117,14 @@ BOOST_AUTO_TEST_CASE( testFieldValueGetPointerFunction )
     const std::string testString = "raw";
 
     // Create a test transformer.
-    boost::shared_ptr< TestTransform > transform( new TestTransform( ) );
+    std::shared_ptr< TestTransform > transform( new TestTransform( ) );
 
     // Test 1: Test the get function with a transform.
     // Create a field value object with transform.
     FieldValue testFieldValue( field_types::state::inclination, testString, transform );
 
     // Retrieve (transformed) data.
-    boost::shared_ptr< std::string > returnedData = testFieldValue.getPointer< std::string >( );
+    std::shared_ptr< std::string > returnedData = testFieldValue.getPointer< std::string >( );
 
     // Expected data.
     const std::string expectedData = *TestTransform::result;
@@ -137,7 +137,7 @@ BOOST_AUTO_TEST_CASE( testFieldValueGetPointerFunction )
     FieldValue testFieldValue2( field_types::state::inclination, testString );
 
     // Retrieve (raw) data.
-    boost::shared_ptr< std::string > returnedRawData
+    std::shared_ptr< std::string > returnedRawData
             = testFieldValue2.getPointer< std::string >( );
 
     // Verify that returned data is correct.
@@ -155,7 +155,7 @@ BOOST_AUTO_TEST_CASE( testFieldValueType )
     BOOST_CHECK_EQUAL( testType, testFieldValue1.type );
 
     // Test constructor with transform.
-    FieldValue testFieldValue2( testType, "foo", boost::make_shared< TestTransform >(  ) );
+    FieldValue testFieldValue2( testType, "foo", std::make_shared< TestTransform >(  ) );
     BOOST_CHECK_EQUAL( testType, testFieldValue2.type );
 }
 

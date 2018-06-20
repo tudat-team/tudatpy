@@ -20,7 +20,7 @@
 #include <vector>
 #include <map>
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 #include <boost/test/unit_test.hpp>
 
 #include <Eigen/Core>
@@ -62,7 +62,7 @@ BOOST_AUTO_TEST_CASE( test_parsing_and_extraction )
     dataFile.close( );
 
     // Extract data to object of solarActivityData class
-    std::vector< boost::shared_ptr< tudat::input_output::solar_activity::SolarActivityData > >
+    std::vector< std::shared_ptr< tudat::input_output::solar_activity::SolarActivityData > >
             solarActivityData( 6 );
     solarActivityData[ 0 ] = solarActivityExtractor.extract( parsedDataVectorPtr->at( 0 ) );
     solarActivityData[ 1 ] = solarActivityExtractor.extract( parsedDataVectorPtr->at( 3 ) );

@@ -12,7 +12,7 @@
 #ifndef TUDAT_STANDARD_ATMOSPHERE_H
 #define TUDAT_STANDARD_ATMOSPHERE_H
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include "Tudat/Astrodynamics/Aerodynamics/atmosphereModel.h"
 
@@ -81,7 +81,7 @@ public:
 };
 
 //! Typedef for shared-pointer to StandardAtmosphere object.
-typedef boost::shared_ptr< StandardAtmosphere > StandardAtmospherePointer;
+typedef std::shared_ptr< StandardAtmosphere > StandardAtmospherePointer;
 
 } // namespace aerodynamics
 } // namespace tudat

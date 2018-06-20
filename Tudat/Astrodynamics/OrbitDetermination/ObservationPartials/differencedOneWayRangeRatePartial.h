@@ -11,7 +11,7 @@
 #ifndef TUDAT_DIFFERENCEDONEWAYRANGERATEPARTIAL_H
 #define TUDAT_DIFFERENCEDONEWAYRANGERATEPARTIAL_H
 
-#include <boost/function.hpp>
+#include <functional>
 #include <boost/lambda/lambda.hpp>
 
 #include <Eigen/Core>
@@ -37,8 +37,8 @@ public:
      * \param oneWayRangeScalerArcEnd Partial scaling for arc end range observation
      */
     OneWayRangeRateScaling(
-            const boost::shared_ptr< OneWayRangeScaling > oneWayRangeScalerArcStart,
-            const boost::shared_ptr< OneWayRangeScaling > oneWayRangeScalerArcEnd ):
+            const std::shared_ptr< OneWayRangeScaling > oneWayRangeScalerArcStart,
+            const std::shared_ptr< OneWayRangeScaling > oneWayRangeScalerArcEnd ):
         oneWayRangeScalerArcStart_( oneWayRangeScalerArcStart ), oneWayRangeScalerArcEnd_( oneWayRangeScalerArcEnd ){ }
 
     //! Destructor
@@ -68,10 +68,10 @@ public:
     }
 
     //! Partial scaling for arc start range observation
-    boost::shared_ptr< OneWayRangeScaling > oneWayRangeScalerArcStart_;
+    std::shared_ptr< OneWayRangeScaling > oneWayRangeScalerArcStart_;
 
     //! Partial scaling for arc end range observation
-    boost::shared_ptr< OneWayRangeScaling > oneWayRangeScalerArcEnd_;
+    std::shared_ptr< OneWayRangeScaling > oneWayRangeScalerArcEnd_;
 };
 
 //! Class to compute the partial derivatives of a one-way range-rate (differenced) observation
@@ -89,8 +89,8 @@ public:
      */
     DifferencedOneWayRangeRatePartial(
             const estimatable_parameters::EstimatebleParameterIdentifier parameterIdentifier,
-            const boost::shared_ptr< ObservationPartial< 1 > > arcStartRangePartial,
-            const boost::shared_ptr< ObservationPartial< 1 > > arcEndRangePartial):
+            const std::shared_ptr< ObservationPartial< 1 > > arcStartRangePartial,
+            const std::shared_ptr< ObservationPartial< 1 > > arcEndRangePartial):
         ObservationPartial< 1 >( parameterIdentifier ),
         arcStartRangePartial_( arcStartRangePartial ),
         arcEndRangePartial_( arcEndRangePartial ){ }
@@ -117,10 +117,10 @@ public:
 protected:
 
     //! Partial object for arc start range observation
-    boost::shared_ptr< ObservationPartial< 1 > > arcStartRangePartial_;
+    std::shared_ptr< ObservationPartial< 1 > > arcStartRangePartial_;
 
     //! Partial object for arc end range observation
-    boost::shared_ptr< ObservationPartial< 1 > > arcEndRangePartial_;
+    std::shared_ptr< ObservationPartial< 1 > > arcEndRangePartial_;
 };
 
 }

@@ -58,7 +58,7 @@ BOOST_AUTO_TEST_CASE( testDegreeTwoGravitationalTorque )
         Eigen::Matrix3d inertiaTensorDeviation = Eigen::Matrix3d::Zero( );
 
         // Create body objects.
-        std::map< std::string, boost::shared_ptr< BodySettings > > bodySettings =
+        std::map< std::string, std::shared_ptr< BodySettings > > bodySettings =
                 getDefaultBodySettings( bodiesToCreate );
 
         if( testCase > 0 )
@@ -86,7 +86,7 @@ BOOST_AUTO_TEST_CASE( testDegreeTwoGravitationalTorque )
                 sineCoefficients( 2, 1 ) = 0.01;
             }
 
-            bodySettings[ "Moon" ]->gravityFieldSettings = boost::make_shared< SphericalHarmonicsGravityFieldSettings >(
+            bodySettings[ "Moon" ]->gravityFieldSettings = std::make_shared< SphericalHarmonicsGravityFieldSettings >(
                         spice_interface::getBodyGravitationalParameter( "Moon" ), spice_interface::getAverageRadius( "Moon" ),
                         cosineCoefficients, sineCoefficients, "IAU_Moon" );
         }
@@ -128,12 +128,12 @@ BOOST_AUTO_TEST_CASE( testDegreeTwoGravitationalTorque )
 
         SelectedTorqueMap selectedTorqueModelMap;
         selectedTorqueModelMap[ "Moon" ][ "Earth" ].push_back(
-                    boost::make_shared< TorqueSettings >( second_order_gravitational_torque ) );
+                    std::make_shared< TorqueSettings >( second_order_gravitational_torque ) );
 
         basic_astrodynamics::TorqueModelMap torqueModelMap = createTorqueModelsMap(
                     bodyMap, selectedTorqueModelMap, { "Moon" } );
 
-        boost::shared_ptr< TorqueModel > secondDegreeGravitationalTorque =
+        std::shared_ptr< TorqueModel > secondDegreeGravitationalTorque =
                 torqueModelMap.at( "Moon" ).at( "Earth" ).at( 0 );
 
         double evaluationTime = tudat::physical_constants::JULIAN_DAY / 2.0;
@@ -150,7 +150,7 @@ BOOST_AUTO_TEST_CASE( testDegreeTwoGravitationalTorque )
         {
             inertiaTensorDeviation = bodyMap.at( "Moon" )->getBodyInertiaTensor( );
 
-            boost::shared_ptr< SphericalHarmonicsGravityField > moonGravityField =
+            std::shared_ptr< SphericalHarmonicsGravityField > moonGravityField =
                     boost::dynamic_pointer_cast< SphericalHarmonicsGravityField >(
                         bodyMap.at( "Moon" )->getGravityFieldModel( ) );
 
@@ -238,7 +238,7 @@ BOOST_AUTO_TEST_CASE( testSphericalGravitationalTorque )
         bodiesToCreate.push_back( "Moon" );
 
         // Create body objects.
-        std::map< std::string, boost::shared_ptr< BodySettings > > bodySettings =
+        std::map< std::string, std::shared_ptr< BodySettings > > bodySettings =
                 getDefaultBodySettings( bodiesToCreate );
 
 
@@ -247,7 +247,7 @@ BOOST_AUTO_TEST_CASE( testSphericalGravitationalTorque )
             Eigen::Matrix3d cosineCoefficients = Eigen::Matrix3d::Zero( );
             Eigen::Matrix3d sineCoefficients = Eigen::Matrix3d::Zero( );
             cosineCoefficients( 0, 0 ) = 1.0;
-            bodySettings[ "Moon" ]->gravityFieldSettings = boost::make_shared< SphericalHarmonicsGravityFieldSettings >(
+            bodySettings[ "Moon" ]->gravityFieldSettings = std::make_shared< SphericalHarmonicsGravityFieldSettings >(
                         spice_interface::getBodyGravitationalParameter( "Moon" ), spice_interface::getAverageRadius( "Moon" ),
                         cosineCoefficients, sineCoefficients, "IAU_Moon" );
         }
@@ -257,16 +257,16 @@ BOOST_AUTO_TEST_CASE( testSphericalGravitationalTorque )
 
         SelectedTorqueMap selectedTorqueModelMap;
         selectedTorqueModelMap[ "Moon" ][ "Earth" ].push_back(
-                    boost::make_shared< TorqueSettings >( second_order_gravitational_torque ) );
+                    std::make_shared< TorqueSettings >( second_order_gravitational_torque ) );
         selectedTorqueModelMap[ "Moon" ][ "Earth" ].push_back(
-                    boost::make_shared< SphericalHarmonicTorqueSettings >( 2, 2 ) );
+                    std::make_shared< SphericalHarmonicTorqueSettings >( 2, 2 ) );
 
         basic_astrodynamics::TorqueModelMap torqueModelMap = createTorqueModelsMap(
                     bodyMap, selectedTorqueModelMap, { "Moon" } );
 
-        boost::shared_ptr< TorqueModel > secondDegreeGravitationalTorque =
+        std::shared_ptr< TorqueModel > secondDegreeGravitationalTorque =
                 torqueModelMap.at( "Moon" ).at( "Earth" ).at( 0 );
-        boost::shared_ptr< TorqueModel > sphercialHarmonicGravitationalTorque =
+        std::shared_ptr< TorqueModel > sphercialHarmonicGravitationalTorque =
                 torqueModelMap.at( "Moon" ).at( "Earth" ).at( 1 );
 
         double evaluationTime = tudat::physical_constants::JULIAN_DAY / 2.0;

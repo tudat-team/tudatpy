@@ -19,26 +19,26 @@ namespace simulation_setup
 
 //! Function to create a ground station from pre-defined station state object, and add it to a Body object
 void createGroundStation(
-        const boost::shared_ptr< Body >& body,
+        const std::shared_ptr< Body >& body,
         const std::string groundStationName,
-        const boost::shared_ptr< ground_stations::GroundStationState > groundStationState )
+        const std::shared_ptr< ground_stations::GroundStationState > groundStationState )
 {
-    boost::shared_ptr< ground_stations::PointingAnglesCalculator > pointingAnglesCalculator =
-            boost::make_shared< ground_stations::PointingAnglesCalculator >(
-                boost::bind( &ephemerides::RotationalEphemeris::getRotationToTargetFrame, body->getRotationalEphemeris( ), _1 ),
-                boost::bind( &ground_stations::GroundStationState::getRotationFromBodyFixedToTopocentricFrame, groundStationState, _1 ) );
-    body->addGroundStation( groundStationName, boost::make_shared< ground_stations::GroundStation >(
+    std::shared_ptr< ground_stations::PointingAnglesCalculator > pointingAnglesCalculator =
+            std::make_shared< ground_stations::PointingAnglesCalculator >(
+                std::bind( &ephemerides::RotationalEphemeris::getRotationToTargetFrame, body->getRotationalEphemeris( ), std::placeholders::_1 ),
+                std::bind( &ground_stations::GroundStationState::getRotationFromBodyFixedToTopocentricFrame, groundStationState, std::placeholders::_1 ) );
+    body->addGroundStation( groundStationName, std::make_shared< ground_stations::GroundStation >(
                                 groundStationState, pointingAnglesCalculator, groundStationName ) );
 }
 
 //! Function to create a ground station and add it to a Body object
 void createGroundStation(
-        const boost::shared_ptr< Body >& body,
+        const std::shared_ptr< Body >& body,
         const std::string groundStationName,
         const Eigen::Vector3d groundStationPosition,
         const coordinate_conversions::PositionElementTypes positionElementType )
 {
-    createGroundStation( body, groundStationName, boost::make_shared< ground_stations::GroundStationState >(
+    createGroundStation( body, groundStationName, std::make_shared< ground_stations::GroundStationState >(
                              groundStationPosition, positionElementType, body->getShapeModel( ) ) );
 
 }
@@ -62,9 +62,9 @@ void createGroundStations(
 }
 
 void createGroundStation(
-        const boost::shared_ptr< Body >& body,
+        const std::shared_ptr< Body >& body,
         const std::string& bodyName,
-        const boost::shared_ptr< GroundStationSettings > groundStationSettings )
+        const std::shared_ptr< GroundStationSettings > groundStationSettings )
 {
 
     if( body->getGroundStationMap( ).count( groundStationSettings->getStationName( ) ) != 0 )

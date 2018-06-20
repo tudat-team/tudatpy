@@ -93,12 +93,12 @@ Eigen::Matrix3d computeDirectTidalAccelerationDueToTideOnSatelliteWrtVelocity(
 }
 
 //! Function for setting up and retrieving a function returning a partial w.r.t. a double parameter.
-std::pair< boost::function< void( Eigen::MatrixXd& ) >, int >
+std::pair< std::function< void( Eigen::MatrixXd& ) >, int >
 DirectTidalDissipationAccelerationPartial::getParameterPartialFunction(
-        boost::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter )
+        std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter )
 
 {
-    std::pair< boost::function< void( Eigen::MatrixXd& ) >, int > partialFunctionPair;
+    std::pair< std::function< void( Eigen::MatrixXd& ) >, int > partialFunctionPair;
 
     // Check dependencies.
     if( parameter->getParameterName( ).first == estimatable_parameters::gravitational_parameter )
@@ -111,9 +111,9 @@ DirectTidalDissipationAccelerationPartial::getParameterPartialFunction(
         if( ( parameter->getParameterName( ).second.first == acceleratingBody_ ) &&
                 tidalAcceleration_->getModelTideOnPlanet( ) )
         {
-            boost::shared_ptr< estimatable_parameters::DirectTidalTimeLag > timeLagParameter =
-                    boost::dynamic_pointer_cast< estimatable_parameters::DirectTidalTimeLag >( parameter );
-            if( timeLagParameter == NULL )
+            std::shared_ptr< estimatable_parameters::DirectTidalTimeLag > timeLagParameter =
+                    std::dynamic_pointer_cast< estimatable_parameters::DirectTidalTimeLag >( parameter );
+            if( timeLagParameter == nullptr )
             {
                 throw std::runtime_error( "Error when getting partial of DirectTidalDissipationAcceleration w.r.t. DirectTidalTimeLag, models are inconsistent" );
             }
@@ -125,7 +125,7 @@ DirectTidalDissipationAccelerationPartial::getParameterPartialFunction(
                             bodiesCausingDeformation.end( ) ) )
                 {
                     partialFunctionPair = std::make_pair(
-                                boost::bind( &DirectTidalDissipationAccelerationPartial::wrtTidalTimeLag, this, _1 ), 1 );
+                                std::bind( &DirectTidalDissipationAccelerationPartial::wrtTidalTimeLag, this, std::placeholders::_1 ), 1 );
                 }
             }
 
@@ -133,9 +133,9 @@ DirectTidalDissipationAccelerationPartial::getParameterPartialFunction(
         else if( ( parameter->getParameterName( ).second.first == acceleratedBody_ ) &&
                  !tidalAcceleration_->getModelTideOnPlanet( ) )
         {
-            boost::shared_ptr< estimatable_parameters::DirectTidalTimeLag > timeLagParameter =
-                    boost::dynamic_pointer_cast< estimatable_parameters::DirectTidalTimeLag >( parameter );
-            if( timeLagParameter == NULL )
+            std::shared_ptr< estimatable_parameters::DirectTidalTimeLag > timeLagParameter =
+                    std::dynamic_pointer_cast< estimatable_parameters::DirectTidalTimeLag >( parameter );
+            if( timeLagParameter == nullptr )
             {
                 throw std::runtime_error( "Error when getting partial of DirectTidalDissipationAcceleration w.r.t. DirectTidalTimeLag, models are inconsistent" );
             }
@@ -147,7 +147,7 @@ DirectTidalDissipationAccelerationPartial::getParameterPartialFunction(
                             bodiesCausingDeformation.end( ) ) )
                 {
                     partialFunctionPair = std::make_pair(
-                                boost::bind( &DirectTidalDissipationAccelerationPartial::wrtTidalTimeLag, this, _1 ), 1 );
+                                std::bind( &DirectTidalDissipationAccelerationPartial::wrtTidalTimeLag, this, std::placeholders::_1 ), 1 );
                 }
             }
 
@@ -156,7 +156,7 @@ DirectTidalDissipationAccelerationPartial::getParameterPartialFunction(
     }
     else
     {
-        partialFunctionPair = std::make_pair( boost::function< void( Eigen::MatrixXd& ) >( ), 0 );
+        partialFunctionPair = std::make_pair( std::function< void( Eigen::MatrixXd& ) >( ), 0 );
     }
 
 
@@ -197,11 +197,11 @@ void DirectTidalDissipationAccelerationPartial::update( const double currentTime
 }
 
 //! Function to create a function returning the current partial w.r.t. a gravitational parameter.
-std::pair< boost::function< void( Eigen::MatrixXd& ) >, int >
+std::pair< std::function< void( Eigen::MatrixXd& ) >, int >
 DirectTidalDissipationAccelerationPartial::getGravitationalParameterPartialFunction(
         const estimatable_parameters::EstimatebleParameterIdentifier& parameterId )
 {
-    boost::function< void( Eigen::MatrixXd& ) > partialFunction;
+    std::function< void( Eigen::MatrixXd& ) > partialFunction;
     int numberOfColumns = 0;
 
     // Check if parameter is gravitational parameter.
@@ -212,8 +212,8 @@ DirectTidalDissipationAccelerationPartial::getGravitationalParameterPartialFunct
         {
             if( !tidalAcceleration_->getModelTideOnPlanet( ) )
             {
-                partialFunction = boost::bind( &DirectTidalDissipationAccelerationPartial::wrtGravitationalParameterOfPlanet,
-                                               this, _1 );
+                partialFunction = std::bind( &DirectTidalDissipationAccelerationPartial::wrtGravitationalParameterOfPlanet,
+                                               this, std::placeholders::_1 );
                 numberOfColumns = 1;
             }
 
@@ -223,8 +223,8 @@ DirectTidalDissipationAccelerationPartial::getGravitationalParameterPartialFunct
         if( parameterId.second.first == acceleratedBody_ )
         {
 
-            partialFunction = boost::bind( &DirectTidalDissipationAccelerationPartial::wrtGravitationalParameterOfSatellite,
-                                           this, _1 );
+            partialFunction = std::bind( &DirectTidalDissipationAccelerationPartial::wrtGravitationalParameterOfSatellite,
+                                           this, std::placeholders::_1 );
             numberOfColumns = 1;
         }
     }

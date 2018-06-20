@@ -40,7 +40,7 @@ BOOST_AUTO_TEST_CASE( testShapiroDelay )
     satelliteState  <<  0.0, 0.0, 26600.0, 0.0, 0.0, 0.0;
     Eigen::Vector6d centralBodyPosition = Eigen::Vector6d::Zero( );
 
-    boost::shared_ptr< ConstantEphemeris > ephemeris = boost::make_shared< ConstantEphemeris >(
+    std::shared_ptr< ConstantEphemeris > ephemeris = std::make_shared< ConstantEphemeris >(
                 boost::lambda::constant( centralBodyPosition ) );
 
     double earthGravitationalParameter = 398600.44189E9;
@@ -49,10 +49,10 @@ BOOST_AUTO_TEST_CASE( testShapiroDelay )
                 earthGravitationalParameter, groundStationState.segment( 0, 3 ),
                 satelliteState.segment( 0, 3 ), centralBodyPosition.segment( 0, 3 ) );
 
-    std::vector< boost::function< Eigen::Vector6d( const double ) > > perturbingBodyStateFunctions;
-    std::vector< boost::function< double( ) > > perturbingBodyGravitationalParameterFunctions;
+    std::vector< std::function< Eigen::Vector6d( const double ) > > perturbingBodyStateFunctions;
+    std::vector< std::function< double( ) > > perturbingBodyGravitationalParameterFunctions;
 
-    perturbingBodyStateFunctions.push_back( boost::bind( &Ephemeris::getCartesianState, ephemeris, _1 ) );
+    perturbingBodyStateFunctions.push_back( std::bind( &Ephemeris::getCartesianState, ephemeris, std::placeholders::_1 ) );
     perturbingBodyGravitationalParameterFunctions.push_back( boost::lambda::constant( earthGravitationalParameter ) );
 
     FirstOrderLightTimeCorrectionCalculator correctionCalculator(

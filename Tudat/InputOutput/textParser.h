@@ -39,7 +39,7 @@ public:
      * The default constructor for TextParser causes the parser to behave as a line based parser.
      */
     TextParser( )
-        : parsedData( boost::make_shared< parsed_data_vector_utilities::ParsedDataVector >( ) ),
+        : parsedData( std::make_shared< parsed_data_vector_utilities::ParsedDataVector >( ) ),
           parseAsStream( false )
     { }
 
@@ -50,7 +50,7 @@ public:
      * stream (string is default).
      */
     TextParser( bool processAsStream )
-        : parsedData( boost::make_shared< parsed_data_vector_utilities::ParsedDataVector >( ) ),
+        : parsedData( std::make_shared< parsed_data_vector_utilities::ParsedDataVector >( ) ),
           parseAsStream( processAsStream )
     { }
 
@@ -120,7 +120,7 @@ private:
 };
 
 //! Typedef for shared-pointer to TextParser object.
-typedef boost::shared_ptr< TextParser > TextParserPointer;
+typedef std::shared_ptr< TextParser > TextParserPointer;
 
 } // namespace input_output
 } // namespace tudat

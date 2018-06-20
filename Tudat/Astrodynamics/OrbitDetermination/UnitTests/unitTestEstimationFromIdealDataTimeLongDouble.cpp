@@ -15,7 +15,7 @@
 
 #include <boost/test/unit_test.hpp>
 
-#include "Tudat/Astrodynamics/OrbitDetermination/UnitTests/orbitDeterminationTestCases.h"
+#include "Tudat/SimulationSetup/EstimationSetup/orbitDeterminationTestCases.h"
 
 
 namespace tudat

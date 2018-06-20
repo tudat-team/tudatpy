@@ -44,7 +44,7 @@ enum AvailableTorque
  *  \return Type of the torqueModel, as identified by AvailableTorque enum.
  */
 AvailableTorque getTorqueModelType(
-        boost::shared_ptr< basic_astrodynamics::TorqueModel > torqueModel );
+        std::shared_ptr< basic_astrodynamics::TorqueModel > torqueModel );
 
 //! Function to get a string representing a 'named identification' of an torque type
 /*!
@@ -61,8 +61,8 @@ std::string getTorqueModelName( const AvailableTorque torqueType );
  * \param modelType Type for which all models are to be retrieved
  * \return Subset of fullList for which the torque model type is modelType
  */
-std::vector< boost::shared_ptr< TorqueModel > > getTorqueModelsOfType(
-        const std::vector< boost::shared_ptr< TorqueModel > >& fullList,
+std::vector< std::shared_ptr< TorqueModel > > getTorqueModelsOfType(
+        const std::vector< std::shared_ptr< TorqueModel > >& fullList,
         const AvailableTorque modelType );
 }
 

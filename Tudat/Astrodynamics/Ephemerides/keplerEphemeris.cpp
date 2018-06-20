@@ -90,11 +90,11 @@ KeplerEphemeris::KeplerEphemeris(
                     argumentOfPeriapsisIndex ), Eigen::Vector3d::UnitZ( ) ) ;
 
     // Create root finder to be used for converting mean to eccentric anomaly
-    rootFinder_ = boost::make_shared< NewtonRaphsonCore< double > >(
-                boost::bind( &RootAbsoluteToleranceTerminationCondition< >::checkTerminationCondition,
-                             boost::make_shared< RootAbsoluteToleranceTerminationCondition< > >(
+    rootFinder_ = std::make_shared< NewtonRaphsonCore< double > >(
+                std::bind( &RootAbsoluteToleranceTerminationCondition< >::checkTerminationCondition,
+                             std::make_shared< RootAbsoluteToleranceTerminationCondition< > >(
                                  rootFinderAbsoluteTolerance, rootFinderMaximumNumberOfIterations ),
-                             _1, _2, _3, _4, _5 ) );
+                             std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5 ) );
 }
 
 //! Function to get state from ephemeris.

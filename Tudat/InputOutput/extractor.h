@@ -12,7 +12,7 @@
 #ifndef TUDAT_EXTRACTOR_H
 #define TUDAT_EXTRACTOR_H
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 #include <map>
 #include <cstdarg>
 
@@ -45,7 +45,7 @@ public:
      * \param data Raw (parsed) data to extract values from.
      * \return Extracted value.
      */
-    virtual boost::shared_ptr< T > extract(
+    virtual std::shared_ptr< T > extract(
         parsed_data_vector_utilities::ParsedDataLineMapPtr data ) = 0;
 
 protected:

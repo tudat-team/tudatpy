@@ -37,7 +37,7 @@ bool isFrameInertial( const std::string& frame )
 
 //! Constructor from named list of ephemerides.
 ReferenceFrameManager::ReferenceFrameManager(
-        const std::map< std::string, boost::shared_ptr< Ephemeris > >& ephemerisMap )
+        const std::map< std::string, std::shared_ptr< Ephemeris > >& ephemerisMap )
 {
     // Set name of global base frame.
     frameIndexList_[ getBaseFrameName( ) ] = -1;
@@ -48,14 +48,14 @@ ReferenceFrameManager::ReferenceFrameManager(
 
 //! Function to determine frame levels and base frames of all frames.
 void ReferenceFrameManager::setEphemerides(
-        const std::map< std::string, boost::shared_ptr< Ephemeris > >& additionalEphemerides )
+        const std::map< std::string, std::shared_ptr< Ephemeris > >& additionalEphemerides )
 {
     // Set list of all frames for which frame level and base frame have not yet been determined.
-    std::map< std::string, boost::shared_ptr< Ephemeris > > unhandledFrames_ = additionalEphemerides;
+    std::map< std::string, std::shared_ptr< Ephemeris > > unhandledFrames_ = additionalEphemerides;
 
     // Set list of available ephemerides and check whether it already exists (not possible incurrent
     // implementation)
-    for( std::map< std::string, boost::shared_ptr< Ephemeris > >::const_iterator ephemerisIterator =
+    for( std::map< std::string, std::shared_ptr< Ephemeris > >::const_iterator ephemerisIterator =
          additionalEphemerides.begin( ); ephemerisIterator != additionalEphemerides.end( );
          ephemerisIterator++ )
     {
@@ -82,7 +82,7 @@ void ReferenceFrameManager::setEphemerides(
         // If frame level is 0, base frame equals baseFrameName.
         if( currentLevel == 0 )
         {
-            for( std::map< std::string, boost::shared_ptr< Ephemeris > >::iterator
+            for( std::map< std::string, std::shared_ptr< Ephemeris > >::iterator
                          frameIterator = unhandledFrames_.begin( );
                  frameIterator != unhandledFrames_.end( ); frameIterator++ )
             {
@@ -97,7 +97,7 @@ void ReferenceFrameManager::setEphemerides(
         else
         {
             std::map< std::string, std::string >::iterator previousLevelIterator;
-            for( std::map< std::string, boost::shared_ptr< Ephemeris > >::iterator
+            for( std::map< std::string, std::shared_ptr< Ephemeris > >::iterator
                          frameIterator = unhandledFrames_.begin( );
                  frameIterator != unhandledFrames_.end( ); frameIterator++ )
             {
@@ -115,7 +115,7 @@ void ReferenceFrameManager::setEphemerides(
 
         // Go through all ephemerides set at current level, add to frame list and remove from
         // unhandled frame list if present.
-        std::map< std::string, boost::shared_ptr< Ephemeris > >::iterator frameIterator;
+        std::map< std::string, std::shared_ptr< Ephemeris > >::iterator frameIterator;
         for( std::map< std::string, std::string >::iterator singleListIterator = singleLevelList.begin( );
              singleListIterator != singleLevelList.end( ); singleListIterator++ )
         {
@@ -146,7 +146,7 @@ void ReferenceFrameManager::setEphemerides(
 
     // Check if all frames have same orientation.
     std::string firstFrameOrientation = availableEphemerides_.begin( )->second->getReferenceFrameOrientation( );
-    for( std::map< std::string, boost::shared_ptr< Ephemeris > >::iterator ephemerisIterator =
+    for( std::map< std::string, std::shared_ptr< Ephemeris > >::iterator ephemerisIterator =
          availableEphemerides_.begin( ); ephemerisIterator != availableEphemerides_.end( ); ephemerisIterator++ )
     {
         if( ephemerisIterator->second->getReferenceFrameOrientation( ) != firstFrameOrientation )
@@ -159,14 +159,14 @@ void ReferenceFrameManager::setEphemerides(
 
 
 //! Returns an ephemeris along a single line of the hierarchy tree.
-std::vector< boost::shared_ptr< Ephemeris > > ReferenceFrameManager::getDirectEphemerisFromLowerToUpperFrame(
+std::vector< std::shared_ptr< Ephemeris > > ReferenceFrameManager::getDirectEphemerisFromLowerToUpperFrame(
         const std::string& lowerFrame, const std::string& upperFrame )
 {
     // Get indices of frames.
     int upperIndex = frameIndexList_.at( upperFrame );
     int lowerIndex = frameIndexList_.at( lowerFrame );
 
-    std::vector< boost::shared_ptr< Ephemeris > > ephemerisList;
+    std::vector< std::shared_ptr< Ephemeris > > ephemerisList;
 
     // Check validity of input (i.e. upper > lower)
     if( upperIndex < lowerIndex )

@@ -21,18 +21,18 @@ namespace simulation_setup
 {
 
 //! Function to create default settings for a body's atmosphere model.
-boost::shared_ptr< AtmosphereSettings > getDefaultAtmosphereModelSettings(
+std::shared_ptr< AtmosphereSettings > getDefaultAtmosphereModelSettings(
         const std::string& bodyName,
         const double initialTime,
         const double finalTime )
 {
 
-    boost::shared_ptr< AtmosphereSettings > atmosphereSettings;
+    std::shared_ptr< AtmosphereSettings > atmosphereSettings;
 
     // A default atmosphere is only implemented for Earth.
     if( bodyName == "Earth" )
     {
-        atmosphereSettings = boost::make_shared< TabulatedAtmosphereSettings >(
+        atmosphereSettings = std::make_shared< TabulatedAtmosphereSettings >(
                     input_output::getAtmosphereTablesPath( ) + "USSA1976Until100kmPer100mUntil1000kmPer1000m.dat" );
     }
 
@@ -41,12 +41,12 @@ boost::shared_ptr< AtmosphereSettings > getDefaultAtmosphereModelSettings(
 }
 
 //! Function to create default settings for a body's ephemeris.
-boost::shared_ptr< EphemerisSettings > getDefaultEphemerisSettings(
+std::shared_ptr< EphemerisSettings > getDefaultEphemerisSettings(
         const std::string& bodyName )
 {
 #if USE_CSPICE
     // Create settings for an interpolated Spice ephemeris.
-    return boost::make_shared< DirectSpiceEphemerisSettings >(
+    return std::make_shared< DirectSpiceEphemerisSettings >(
                 "SSB", "ECLIPJ2000", false, false, false );
 #else
     throw std::runtime_error( "Default ephemeris settings can only be used together with the SPICE library" );
@@ -54,7 +54,7 @@ boost::shared_ptr< EphemerisSettings > getDefaultEphemerisSettings(
 }
 
 //! Function to create default settings for a body's ephemeris.
-boost::shared_ptr< EphemerisSettings > getDefaultEphemerisSettings(
+std::shared_ptr< EphemerisSettings > getDefaultEphemerisSettings(
         const std::string& bodyName,
         const double initialTime,
         const double finalTime,
@@ -62,7 +62,7 @@ boost::shared_ptr< EphemerisSettings > getDefaultEphemerisSettings(
 {
 #if USE_CSPICE
     // Create settings for an interpolated Spice ephemeris.
-    return boost::make_shared< InterpolatedSpiceEphemerisSettings >(
+    return std::make_shared< InterpolatedSpiceEphemerisSettings >(
                 initialTime, finalTime, timeStep, "SSB", "ECLIPJ2000" );
 #else
     throw std::runtime_error( "Default ephemeris settings can only be used together with the SPICE library" );
@@ -70,28 +70,28 @@ boost::shared_ptr< EphemerisSettings > getDefaultEphemerisSettings(
 }
 
 //! Function to create default settings for a body's gravity field model.
-boost::shared_ptr< GravityFieldSettings > getDefaultGravityFieldSettings(
+std::shared_ptr< GravityFieldSettings > getDefaultGravityFieldSettings(
         const std::string& bodyName,
         const double initialTime,
         const double finalTime )
 {
     if( bodyName == "Earth" )
     {
-        return boost::make_shared< FromFileSphericalHarmonicsGravityFieldSettings >( egm96 );
+        return std::make_shared< FromFileSphericalHarmonicsGravityFieldSettings >( egm96 );
     }
     else if( bodyName == "Moon" )
     {
-        return boost::make_shared< FromFileSphericalHarmonicsGravityFieldSettings >( lpe200 );
+        return std::make_shared< FromFileSphericalHarmonicsGravityFieldSettings >( lpe200 );
     }
     else if( bodyName == "Mars" )
     {
-        return boost::make_shared< FromFileSphericalHarmonicsGravityFieldSettings >( jgmro120d );
+        return std::make_shared< FromFileSphericalHarmonicsGravityFieldSettings >( jgmro120d );
     }
     else
     {
 #if USE_CSPICE
         // Create settings for a point mass gravity with data from Spice
-        return boost::make_shared< GravityFieldSettings >( central_spice );
+        return std::make_shared< GravityFieldSettings >( central_spice );
 #else
         throw std::runtime_error( "Default gravity field settings can only be used together with the SPICE library" );
 #endif
@@ -100,14 +100,14 @@ boost::shared_ptr< GravityFieldSettings > getDefaultGravityFieldSettings(
 
 
 //! Function to create default settings from which to create a single body object.
-boost::shared_ptr< RotationModelSettings > getDefaultRotationModelSettings(
+std::shared_ptr< RotationModelSettings > getDefaultRotationModelSettings(
         const std::string& bodyName,
         const double initialTime,
         const double finalTime )
 {
 #if USE_CSPICE
     // Create settings for a rotation model taken directly from Spice.
-    return boost::make_shared< RotationModelSettings >(
+    return std::make_shared< RotationModelSettings >(
                 spice_rotation_model, "ECLIPJ2000", "IAU_" + bodyName );
 #else
     throw std::runtime_error( "Default rotational model settings can only be used together with the SPICE library" );
@@ -115,12 +115,12 @@ boost::shared_ptr< RotationModelSettings > getDefaultRotationModelSettings(
 }
 
 //! Function to create default settings for a body's shape model.
-boost::shared_ptr< BodyShapeSettings > getDefaultBodyShapeSettings(
+std::shared_ptr< BodyShapeSettings > getDefaultBodyShapeSettings(
         const std::string& body,
         const double initialTime, const double finalTime )
 {
 #if USE_CSPICE
-    return boost::make_shared< SphericalBodyShapeSettings >(
+    return std::make_shared< SphericalBodyShapeSettings >(
                 spice_interface::getAverageRadius( body ) );
 #else
     throw std::runtime_error( "Default body settings can only be used together with the SPICE library" );
@@ -128,13 +128,13 @@ boost::shared_ptr< BodyShapeSettings > getDefaultBodyShapeSettings(
 }
 
 //! Function to create default settings for a body's rotation model.
-boost::shared_ptr< BodySettings > getDefaultSingleBodySettings(
+std::shared_ptr< BodySettings > getDefaultSingleBodySettings(
         const std::string& body,
         const double initialTime,
         const double finalTime,
         const double timeStep )
 {
-    boost::shared_ptr< BodySettings > singleBodySettings = boost::make_shared< BodySettings >( );
+    std::shared_ptr< BodySettings > singleBodySettings = std::make_shared< BodySettings >( );
 
     // Get default settings for each of the environment models in the body.
     singleBodySettings->atmosphereSettings = getDefaultAtmosphereModelSettings(
@@ -167,13 +167,13 @@ boost::shared_ptr< BodySettings > getDefaultSingleBodySettings(
 
 
 //! Function to create default settings from which to create a set of body objects.
-std::map< std::string, boost::shared_ptr< BodySettings > > getDefaultBodySettings(
+std::map< std::string, std::shared_ptr< BodySettings > > getDefaultBodySettings(
         const std::vector< std::string >& bodies,
         const double initialTime,
         const double finalTime,
         const double timeStep )
 {
-    std::map< std::string, boost::shared_ptr< BodySettings > > settingsMap;
+    std::map< std::string, std::shared_ptr< BodySettings > > settingsMap;
 
     // Iterative over all bodies and get default settings.
     for( unsigned int i = 0; i < bodies.size( ); i++ )
@@ -187,10 +187,10 @@ std::map< std::string, boost::shared_ptr< BodySettings > > getDefaultBodySetting
 
 //! Function to create default settings from which to create a set of body objects, without stringent limitations on
 //! time-interval of validity of environment.
-std::map< std::string, boost::shared_ptr< BodySettings > > getDefaultBodySettings(
+std::map< std::string, std::shared_ptr< BodySettings > > getDefaultBodySettings(
         const std::vector< std::string >& bodies )
 {
-    std::map< std::string, boost::shared_ptr< BodySettings > > settingsMap;
+    std::map< std::string, std::shared_ptr< BodySettings > > settingsMap;
 
     // Iterative over all bodies and get default settings.
     for( unsigned int i = 0; i < bodies.size( ); i++ )

@@ -17,13 +17,13 @@ namespace tudat
 namespace acceleration_partials
 {
 
-std::pair< boost::function< void( Eigen::MatrixXd& ) >, int >
-ConstantTorquePartial::getParameterPartialFunction( boost::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter )
+std::pair< std::function< void( Eigen::MatrixXd& ) >, int >
+ConstantTorquePartial::getParameterPartialFunction( std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter )
 {
     using namespace estimatable_parameters;
 
-    std::pair< boost::function< void( Eigen::MatrixXd& ) >, int >  partialFunction = std::make_pair(
-                boost::function< void( Eigen::MatrixXd& ) >( ), 0 );
+    std::pair< std::function< void( Eigen::MatrixXd& ) >, int >  partialFunction = std::make_pair(
+                std::function< void( Eigen::MatrixXd& ) >( ), 0 );
 
     if( parameter->getParameterName( ).second.first == bodyUndergoingTorque_ )
     {
@@ -37,7 +37,7 @@ ConstantTorquePartial::getParameterPartialFunction( boost::shared_ptr< estimatab
             }
 
             partialFunction = std::make_pair(
-                        boost::bind( &ConstantTorquePartial::wrtGravitationalParameter, this, _1 ), 1 );
+                        std::bind( &ConstantTorquePartial::wrtGravitationalParameter, this, _1 ), 1 );
             break;
         }
         case mean_moment_of_inertia:
@@ -47,7 +47,7 @@ ConstantTorquePartial::getParameterPartialFunction( boost::shared_ptr< estimatab
                 throw std::runtime_error( "Error when getting partial of inertial torque w.r.t. mean moment of inertia, inertia tensor normalization function not found." );
             }
             partialFunction = std::make_pair(
-                        boost::bind( &ConstantTorquePartial::wrtMeanMomentOfInertia, this, _1 ), 1 );
+                        std::bind( &ConstantTorquePartial::wrtMeanMomentOfInertia, this, _1 ), 1 );
             break;
         }
         default:
@@ -65,13 +65,13 @@ ConstantTorquePartial::getParameterPartialFunction( boost::shared_ptr< estimatab
      *  \param parameter Parameter w.r.t. which partial is to be taken.
      *  \return Pair of parameter partial function and number of columns in partial (0 for no dependency).
      */
-std::pair< boost::function< void( Eigen::MatrixXd& ) >, int > ConstantTorquePartial::getParameterPartialFunction(
-        boost::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter )
+std::pair< std::function< void( Eigen::MatrixXd& ) >, int > ConstantTorquePartial::getParameterPartialFunction(
+        std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter )
 {
     using namespace estimatable_parameters;
 
-    std::pair< boost::function< void( Eigen::MatrixXd& ) >, int >  partialFunction = std::make_pair(
-                boost::function< void( Eigen::MatrixXd& ) >( ), 0 );
+    std::pair< std::function< void( Eigen::MatrixXd& ) >, int >  partialFunction = std::make_pair(
+                std::function< void( Eigen::MatrixXd& ) >( ), 0 );
 
     if( parameter->getParameterName( ).second.first == bodyUndergoingTorque_ )
     {
@@ -80,7 +80,7 @@ std::pair< boost::function< void( Eigen::MatrixXd& ) >, int > ConstantTorquePart
         case spherical_harmonics_cosine_coefficient_block:
         {
             // Cast parameter object to required type.
-            boost::shared_ptr< SphericalHarmonicsCosineCoefficients > coefficientsParameter =
+            std::shared_ptr< SphericalHarmonicsCosineCoefficients > coefficientsParameter =
                     boost::dynamic_pointer_cast< SphericalHarmonicsCosineCoefficients >( parameter );
 
             int c20Index, c21Index, c22Index;
@@ -93,7 +93,7 @@ std::pair< boost::function< void( Eigen::MatrixXd& ) >, int > ConstantTorquePart
                     throw std::runtime_error( "Error when getting partial of 2nd degree grac torque w.r.t. cosine sh parameters, inertia tensor normalization function not found." );
                 }
                 partialFunction = std::make_pair(
-                            boost::bind( &ConstantTorquePartial::
+                            std::bind( &ConstantTorquePartial::
                                          wrtCosineSphericalHarmonicCoefficientsOfCentralBody, this,
                                          _1, c20Index, c21Index, c22Index ), coefficientsParameter->getParameterSize( ) );
             }
@@ -104,7 +104,7 @@ std::pair< boost::function< void( Eigen::MatrixXd& ) >, int > ConstantTorquePart
         {
             // Cast parameter object to required type.
 
-            boost::shared_ptr< SphericalHarmonicsSineCoefficients > coefficientsParameter =
+            std::shared_ptr< SphericalHarmonicsSineCoefficients > coefficientsParameter =
                     boost::dynamic_pointer_cast< SphericalHarmonicsSineCoefficients >( parameter );
 
             int s21Index, s22Index;
@@ -117,7 +117,7 @@ std::pair< boost::function< void( Eigen::MatrixXd& ) >, int > ConstantTorquePart
                     throw std::runtime_error( "Error when getting partial of 2nd degree grac torque w.r.t. sine sh parameters, inertia tensor normalization function not found." );
                 }
                 partialFunction = std::make_pair(
-                            boost::bind( &ConstantTorquePartial::
+                            std::bind( &ConstantTorquePartial::
                                          wrtSineSphericalHarmonicCoefficientsOfCentralBody, this,
                                          _1, s21Index, s22Index ), coefficientsParameter->getParameterSize( ) );
             }

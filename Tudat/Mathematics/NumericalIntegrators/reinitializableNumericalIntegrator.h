@@ -73,13 +73,17 @@ protected:
 private:
 };
 
+extern template class ReinitializableNumericalIntegrator < double, Eigen::VectorXd, Eigen::VectorXd >;
+extern template class ReinitializableNumericalIntegrator < double, Eigen::Vector6d, Eigen::Vector6d >;
+extern template class ReinitializableNumericalIntegrator < double, Eigen::MatrixXd, Eigen::MatrixXd >;
+
 //! Typedef for shared-pointer to default, re-initializable numerical integrator.
 /*!
  * Typedef for shared-pointer to a default, re-initializable numerical integrator
  * (IndependentVariableType = double, StateType = Eigen::VectorXd,
  * StateDerivativeType = Eigen::VectorXd).
  */
-typedef boost::shared_ptr< ReinitializableNumericalIntegrator< > >
+typedef std::shared_ptr< ReinitializableNumericalIntegrator< > >
 ReinitializableNumericalIntegratorXdPointer;
 
 //! Typedef for a shared-pointer to a scalar, re-initializable numerical integrator.
@@ -87,7 +91,7 @@ ReinitializableNumericalIntegratorXdPointer;
  * Typedef for shared-pointer to a scalar numerical, re-initializable integrator
  * (IndependentVariableType = double, StateType = double, StateDerivativeType = double).
  */
-typedef boost::shared_ptr< ReinitializableNumericalIntegrator< double, double, double > >
+typedef std::shared_ptr< ReinitializableNumericalIntegrator< double, double, double > >
 ReinitializableNumericalIntegratordPointer;
 
 

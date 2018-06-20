@@ -31,18 +31,18 @@ BOOST_AUTO_TEST_CASE( test_json_export_full_result )
     using namespace tudat::json_interface;
 
     // Create ExportSettings from JSON file
-    const boost::shared_ptr< ExportSettings > fromFileSettings =
-            parseJSONFile< boost::shared_ptr< ExportSettings > >( INPUT( "fullResult" ) );
+    const std::shared_ptr< ExportSettings > fromFileSettings =
+            parseJSONFile< std::shared_ptr< ExportSettings > >( INPUT( "fullResult" ) );
 
     // Create ExportSettings manually
     const std::string outputFile = "full.txt";
-    const std::vector< boost::shared_ptr< VariableSettings > > variables =
+    const std::vector< std::shared_ptr< VariableSettings > > variables =
     {
-        boost::make_shared< VariableSettings >( independentVariable ),
-        boost::make_shared< SingleDependentVariableSaveSettings >( altitude_dependent_variable, "body", "Earth" ),
+        std::make_shared< VariableSettings >( independentVariable ),
+        std::make_shared< SingleDependentVariableSaveSettings >( altitude_dependent_variable, "body", "Earth" ),
     };
-    boost::shared_ptr< ExportSettings > manualSettings =
-            boost::make_shared< ExportSettings >( outputFile, variables );
+    std::shared_ptr< ExportSettings > manualSettings =
+            std::make_shared< ExportSettings >( outputFile, variables );
     manualSettings->header_ = "Foo\n";
     manualSettings->epochsInFirstColumn_ = false;
 
@@ -57,17 +57,17 @@ BOOST_AUTO_TEST_CASE( test_json_export_partial_result )
     using namespace tudat::json_interface;
 
     // Create ExportSettings from JSON file
-    const boost::shared_ptr< ExportSettings > fromFileSettings =
-            parseJSONFile< boost::shared_ptr< ExportSettings > >( INPUT( "partialResult" ) );
+    const std::shared_ptr< ExportSettings > fromFileSettings =
+            parseJSONFile< std::shared_ptr< ExportSettings > >( INPUT( "partialResult" ) );
 
     // Create ExportSettings manually
     const std::string outputFile = "partial.txt";
-    const std::vector< boost::shared_ptr< VariableSettings > > variables =
+    const std::vector< std::shared_ptr< VariableSettings > > variables =
     {
-        boost::make_shared< SingleDependentVariableSaveSettings >( altitude_dependent_variable, "body", "Earth" ),
+        std::make_shared< SingleDependentVariableSaveSettings >( altitude_dependent_variable, "body", "Earth" ),
     };
-    boost::shared_ptr< ExportSettings > manualSettings =
-            boost::make_shared< ExportSettings >( outputFile, variables );
+    std::shared_ptr< ExportSettings > manualSettings =
+            std::make_shared< ExportSettings >( outputFile, variables );
     manualSettings->epochsInFirstColumn_ = true;
     manualSettings->onlyInitialStep_ = true;
     manualSettings->onlyFinalStep_ = true;

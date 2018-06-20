@@ -16,7 +16,7 @@
 #include <functional>
 
 #include <boost/core/demangle.hpp>
-#include <boost/shared_ptr.hpp>
+#include <memory>
 #include <boost/make_shared.hpp>
 
 #include "Tudat/InputOutput/basicInputOutput.h"
@@ -43,7 +43,7 @@ namespace json_interface
  * \param jsonObject The `json` object.
  * \param key The key to access.
  * \param mutator Whether to use mutator or accessor methods.
- * \return A reference to the value of the accessed key (will be a null `json` if the key did not exist).
+ * \return A reference to the value of the accessed key (will be a nullptr `json` if the key did not exist).
  */
 nlohmann::json& valueAt( nlohmann::json& jsonObject, const std::string& key, const bool mutator = false );
 
@@ -433,16 +433,16 @@ void assignIfNotNaN( nlohmann::json& jsonObject, const std::string& key, const E
     }
 }
 
-//! Assign \p object to `jsonObject[ key ]` if \p object is not NULL.
+//! Assign \p object to `jsonObject[ key ]` if \p object is not nullptr.
 /*!
- * @copybrief assignIfNotNull
- * \remark This function does nothing if \p object is `NULL`.
+ * @copybrief assignIfNotnullptr
+ * \remark This function does nothing if \p object is `nullptr`.
  * \param jsonObject The `json` object being updated.
  * \param key The key of \p jsonObject being updated.
  * \param object Shared pointer to the object that is being to be used to update `jsonObject[ key ]`.
  */
 template< typename T >
-void assignIfNotNull( nlohmann::json& jsonObject, const std::string& key, const boost::shared_ptr< T >& object )
+void assignIfNotnullptr( nlohmann::json& jsonObject, const std::string& key, const std::shared_ptr< T >& object )
 {
     if ( object )
     {
@@ -473,7 +473,7 @@ void assignIfNotEmpty( nlohmann::json& jsonObject, const std::string& key, const
 // Typedefs for single-body and body-to-body maps.
 
 template < typename T >
-using SingleBodyMap = std::unordered_map< std::string, std::vector< boost::shared_ptr< T > > >;
+using SingleBodyMap = std::unordered_map< std::string, std::vector< std::shared_ptr< T > > >;
 
 template < typename T >
 using BodyToBodyMap = std::unordered_map< std::string, SingleBodyMap< T > >;

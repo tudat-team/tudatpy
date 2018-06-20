@@ -26,11 +26,11 @@ namespace tudat
 namespace simulation_setup
 {
 
-typedef std::map< std::string, std::map< std::string, std::vector< boost::shared_ptr< TorqueSettings > > > > SelectedTorqueMap;
+typedef std::map< std::string, std::map< std::string, std::vector< std::shared_ptr< TorqueSettings > > > > SelectedTorqueMap;
 
 //! Function to create an aerodynamic torque model.
-boost::shared_ptr< basic_astrodynamics::InertialTorqueModel > createInertialTorqueModel(
-        const boost::shared_ptr< simulation_setup::Body > bodyUndergoingTorque,
+std::shared_ptr< basic_astrodynamics::InertialTorqueModel > createInertialTorqueModel(
+        const std::shared_ptr< simulation_setup::Body > bodyUndergoingTorque,
         const std::string& nameOfBodyUndergoingTorque );
 
 //! Function to create an aerodynamic torque model.
@@ -44,9 +44,9 @@ boost::shared_ptr< basic_astrodynamics::InertialTorqueModel > createInertialTorq
  *  \param nameOfBodyExertingTorque Name of object of body that is exerting the torque.
  *  \return Pointer to object for calculating aerodynamic torque.
  */
-boost::shared_ptr< aerodynamics::AerodynamicTorque > createAerodynamicTorqueModel(
-        const boost::shared_ptr< simulation_setup::Body > bodyUndergoingTorque,
-        const boost::shared_ptr< simulation_setup::Body > bodyExertingTorque,
+std::shared_ptr< aerodynamics::AerodynamicTorque > createAerodynamicTorqueModel(
+        const std::shared_ptr< simulation_setup::Body > bodyUndergoingTorque,
+        const std::shared_ptr< simulation_setup::Body > bodyExertingTorque,
         const std::string& nameOfBodyUndergoingTorque,
         const std::string& nameOfBodyExertingTorque );
 
@@ -59,9 +59,9 @@ boost::shared_ptr< aerodynamics::AerodynamicTorque > createAerodynamicTorqueMode
  *  \param nameOfBodyExertingTorque Name of body that is exerting the gravitational torque.
  *  \return Direct gravitational torque model of requested settings.
  */
-boost::shared_ptr< gravitation::SecondDegreeGravitationalTorqueModel > createSecondDegreeGravitationalTorqueModel(
-        const boost::shared_ptr< simulation_setup::Body > bodyUndergoingTorque,
-        const boost::shared_ptr< simulation_setup::Body > bodyExertingTorque,
+std::shared_ptr< gravitation::SecondDegreeGravitationalTorqueModel > createSecondDegreeGravitationalTorqueModel(
+        const std::shared_ptr< simulation_setup::Body > bodyUndergoingTorque,
+        const std::shared_ptr< simulation_setup::Body > bodyExertingTorque,
         const std::string& nameOfBodyUndergoingTorque,
         const std::string& nameOfBodyExertingTorque );
 
@@ -75,10 +75,10 @@ boost::shared_ptr< gravitation::SecondDegreeGravitationalTorqueModel > createSec
 *  \param nameOfBodyExertingTorque Name of body that is exerting the gravitational torque.
 *  \return Direct gravitational torque model of requested settings.
 */
-boost::shared_ptr< gravitation::SphericalHarmonicGravitationalTorqueModel > createSphericalHarmonicGravitationalTorqueModel(
-        const boost::shared_ptr< simulation_setup::Body > bodyUndergoingTorque,
-        const boost::shared_ptr< simulation_setup::Body > bodyExertingTorque,
-        const boost::shared_ptr< TorqueSettings > torqueSettings,
+std::shared_ptr< gravitation::SphericalHarmonicGravitationalTorqueModel > createSphericalHarmonicGravitationalTorqueModel(
+        const std::shared_ptr< simulation_setup::Body > bodyUndergoingTorque,
+        const std::shared_ptr< simulation_setup::Body > bodyExertingTorque,
+        const std::shared_ptr< TorqueSettings > torqueSettings,
         const std::string& nameOfBodyUndergoingTorque,
         const std::string& nameOfBodyExertingTorque );
 
@@ -93,10 +93,10 @@ boost::shared_ptr< gravitation::SphericalHarmonicGravitationalTorqueModel > crea
  *  \param nameOfBodyExertingTorque Name of object of body that is exerting the torque.
  *  \return Torque model pointer.
  */
-boost::shared_ptr< basic_astrodynamics::TorqueModel > createTorqueModel(
-        const boost::shared_ptr< simulation_setup::Body > bodyUndergoingTorque,
-        const boost::shared_ptr< simulation_setup::Body > bodyExertingTorque,
-        const boost::shared_ptr< TorqueSettings > torqueSettings,
+std::shared_ptr< basic_astrodynamics::TorqueModel > createTorqueModel(
+        const std::shared_ptr< simulation_setup::Body > bodyUndergoingTorque,
+        const std::shared_ptr< simulation_setup::Body > bodyExertingTorque,
+        const std::shared_ptr< TorqueSettings > torqueSettings,
         const std::string& nameOfBodyUndergoingTorque,
         const std::string& nameOfBodyExertingTorque );
 

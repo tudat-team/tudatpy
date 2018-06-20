@@ -39,8 +39,8 @@ public:
      * \param transformer Transformation to apply to field data.
      */
     FieldValue( const FieldType& type, const std::string& field,
-                const boost::shared_ptr< FieldTransform > transformer
-                = boost::shared_ptr< FieldTransform >( ) );
+                const std::shared_ptr< FieldTransform > transformer
+                = std::shared_ptr< FieldTransform >( ) );
 
     //! FieldType of the FieldValue.
     const FieldType type;
@@ -55,10 +55,10 @@ public:
 
     //! Get a shared pointer to the value of field content in SI units.
     template< typename T >
-    boost::shared_ptr< T > getPointer( )
+    std::shared_ptr< T > getPointer( )
     {
         loadTransformation( );
-        return boost::make_shared< T >( boost::lexical_cast<T>( transformedField ) );
+        return std::make_shared< T >( boost::lexical_cast<T>( transformedField ) );
     }
 
     //! Get transformed field content.
@@ -94,7 +94,7 @@ private:
 };
 
 //! Typedef for shared-pointer to FieldValue object.
-typedef boost::shared_ptr< FieldValue > FieldValuePointer;
+typedef std::shared_ptr< FieldValue > FieldValuePointer;
 
 } // namespace input_output
 } // namespace tudat

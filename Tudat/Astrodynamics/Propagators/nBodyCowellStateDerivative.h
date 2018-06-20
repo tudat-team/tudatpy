@@ -39,7 +39,7 @@ public:
      *  \param bodiesToIntegrate List of names of bodies that are to be integrated numerically.
      */
     NBodyCowellStateDerivative( const basic_astrodynamics::AccelerationMap& accelerationModelsPerBody,
-                                const boost::shared_ptr< CentralBodyData< StateScalarType, TimeType > > centralBodyData,
+                                const std::shared_ptr< CentralBodyData< StateScalarType, TimeType > > centralBodyData,
                                 const std::vector< std::string >& bodiesToIntegrate ):
         NBodyStateDerivative< StateScalarType, TimeType >(
             accelerationModelsPerBody, centralBodyData, cowell, bodiesToIntegrate ){ }
@@ -101,6 +101,12 @@ public:
         currentCartesianLocalSoluton = internalSolution;
     }
 };
+
+extern template class NBodyCowellStateDerivative< double, double >;
+extern template class NBodyCowellStateDerivative< long double, double >;
+extern template class NBodyCowellStateDerivative< double, Time >;
+extern template class NBodyCowellStateDerivative< long double, Time >;
+
 
 } // namespace propagators
 

@@ -19,7 +19,7 @@
 #include <vector>
 #include <map>
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 #include <Eigen/Core>
 
 #include "Tudat/Astrodynamics/Aerodynamics/controlSurfaceAerodynamicCoefficientInterface.h"
@@ -290,7 +290,7 @@ public:
      * denoting the coefficient interface of a single control sureface, where the map key denotes the surface's name.
      */
     void setControlSurfaceIncrements(
-            const std::map< std::string, boost::shared_ptr< ControlSurfaceIncrementAerodynamicInterface > >
+            const std::map< std::string, std::shared_ptr< ControlSurfaceIncrementAerodynamicInterface > >
             controlSurfaceIncrementInterfaces )
     {
         controlSurfaceIncrementInterfaces_ = controlSurfaceIncrementInterfaces;
@@ -339,7 +339,7 @@ public:
     {
         std::map< std::string, std::vector< AerodynamicCoefficientsIndependentVariables > >
                 controlSurfaceIndependentVariables;
-        for( std::map< std::string, boost::shared_ptr< ControlSurfaceIncrementAerodynamicInterface > >::iterator
+        for( std::map< std::string, std::shared_ptr< ControlSurfaceIncrementAerodynamicInterface > >::iterator
              contolSurfaceIterator = controlSurfaceIncrementInterfaces_.begin( );
              contolSurfaceIterator != controlSurfaceIncrementInterfaces_.end( ); contolSurfaceIterator++ )
         {
@@ -446,7 +446,7 @@ protected:
     bool areCoefficientsInNegativeAxisDirection_;
 
     //! List of control surface aerodynamic coefficient interfaces
-    std::map< std::string, boost::shared_ptr< ControlSurfaceIncrementAerodynamicInterface > >
+    std::map< std::string, std::shared_ptr< ControlSurfaceIncrementAerodynamicInterface > >
     controlSurfaceIncrementInterfaces_;
 
     //! Explicit list of control surface names, in same order as iterator over controlSurfaceIncrementInterfaces_
@@ -456,7 +456,7 @@ private:
 };
 
 //! Typedef for shared-pointer to AerodynamicCoefficientInterface object.
-typedef boost::shared_ptr< AerodynamicCoefficientInterface >
+typedef std::shared_ptr< AerodynamicCoefficientInterface >
 AerodynamicCoefficientInterfacePointer;
 
 } // namespace aerodynamics

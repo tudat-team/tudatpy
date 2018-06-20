@@ -12,7 +12,7 @@
 #define TUDAT_POSITIONOBSERVATIONMODEL_H
 
 #include <boost/bind.hpp>
-#include <boost/function.hpp>
+#include <functional>
 
 #include "Tudat/Astrodynamics/Ephemerides/ephemeris.h"
 
@@ -42,8 +42,8 @@ public:
      *  observable, i.e. deviations from the physically ideal observable (default none).
      */
     PositionObservationModel(
-            const boost::function<  Eigen::Matrix< ObservationScalarType, 6, 1 >( const TimeType& ) > stateFunction,
-            const boost::shared_ptr< ObservationBias< 3 > > observationBiasCalculator = NULL ):
+            const std::function<  Eigen::Matrix< ObservationScalarType, 6, 1 >( const TimeType& ) > stateFunction,
+            const std::shared_ptr< ObservationBias< 3 > > observationBiasCalculator = nullptr ):
         ObservationModel< 3, ObservationScalarType, TimeType >(
             position_observable, observationBiasCalculator ), stateFunction_( stateFunction ){ }
 
@@ -113,7 +113,7 @@ public:
 private:
 
     //! Function that returns the Cartesian state of the observed body as a function of time.
-    boost::function< Eigen::Matrix< ObservationScalarType, 6, 1 >( const TimeType& ) > stateFunction_;
+    std::function< Eigen::Matrix< ObservationScalarType, 6, 1 >( const TimeType& ) > stateFunction_;
 
     Eigen::Matrix< ObservationScalarType, 6, 1 > currentState_;
 };

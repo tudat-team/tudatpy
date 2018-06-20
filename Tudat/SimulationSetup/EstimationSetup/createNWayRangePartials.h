@@ -14,7 +14,7 @@
 #include <vector>
 #include <map>
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include <Eigen/Core>
 
@@ -50,19 +50,19 @@ namespace observation_partials
  *  scaling the position partial members of all NWayRangePartials in link end.
  */
 template< typename ParameterType >
-std::pair< SingleLinkObservationPartialList, boost::shared_ptr< PositionPartialScaling > > createNWayRangePartials(
+std::pair< SingleLinkObservationPartialList, std::shared_ptr< PositionPartialScaling > > createNWayRangePartials(
         const observation_models::LinkEnds& nWayRangeLinkEnds,
         const simulation_setup::NamedBodyMap& bodyMap,
-        const boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< ParameterType > > parametersToEstimate,
-        const std::vector< std::vector< boost::shared_ptr< observation_models::LightTimeCorrection > > > lightTimeCorrections =
-        std::vector< std::vector< boost::shared_ptr< observation_models::LightTimeCorrection > > >( ) )
+        const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< ParameterType > > parametersToEstimate,
+        const std::vector< std::vector< std::shared_ptr< observation_models::LightTimeCorrection > > > lightTimeCorrections =
+        std::vector< std::vector< std::shared_ptr< observation_models::LightTimeCorrection > > >( ) )
 
 {
     // Define return partial list
     SingleLinkObservationPartialList nWayRangePartialList;
 
     // Define list of constituent one-way partials.
-    typedef std::map< int, std::pair< SingleLinkObservationPartialList, boost::shared_ptr< PositionPartialScaling > > >
+    typedef std::map< int, std::pair< SingleLinkObservationPartialList, std::shared_ptr< PositionPartialScaling > > >
             OneWayRangePartialList;
     OneWayRangePartialList constituentOneWayRangePartials;
 
@@ -71,7 +71,7 @@ std::pair< SingleLinkObservationPartialList, boost::shared_ptr< PositionPartialS
     int numberOfLinkEnds = nWayRangeLinkEnds.size( );
 
     // Iterate over all links in the n-way range observable
-    std::vector< boost::shared_ptr< observation_models::LightTimeCorrection > > currentLightTimeCorrections;
+    std::vector< std::shared_ptr< observation_models::LightTimeCorrection > > currentLightTimeCorrections;
     for( int i = 0; i < numberOfLinkEnds - 1; i++ )
     {
         currentLightTimeCorrections.clear( );
@@ -93,14 +93,14 @@ std::pair< SingleLinkObservationPartialList, boost::shared_ptr< PositionPartialS
     }
 
     // Retrieve sorted (by parameter index and link index) one-way range partials and (by link index) opne-way range partials
-    std::map< int, boost::shared_ptr< OneWayRangeScaling > > oneWayRangeScalers;
-    std::map< std::pair< int, int >, std::map< int, boost::shared_ptr< ObservationPartial< 1 > > > > sortedOneWayRangePartials;
+    std::map< int, std::shared_ptr< OneWayRangeScaling > > oneWayRangeScalers;
+    std::map< std::pair< int, int >, std::map< int, std::shared_ptr< ObservationPartial< 1 > > > > sortedOneWayRangePartials;
     std::map< std::pair< int, int >, estimatable_parameters::EstimatebleParameterIdentifier > parameterIdList;
     for( OneWayRangePartialList::iterator oneWayPartialIterator = constituentOneWayRangePartials.begin( );
          oneWayPartialIterator != constituentOneWayRangePartials.end( ); oneWayPartialIterator++ )
     {
         // Retrieve one-way range paritals
-        oneWayRangeScalers[ oneWayPartialIterator->first ] = boost::dynamic_pointer_cast< OneWayRangeScaling >
+        oneWayRangeScalers[ oneWayPartialIterator->first ] = std::dynamic_pointer_cast< OneWayRangeScaling >
                 ( oneWayPartialIterator->second.second );
 
         // Iterate over all one-way range partials of current link
@@ -122,34 +122,34 @@ std::pair< SingleLinkObservationPartialList, boost::shared_ptr< PositionPartialS
 
 
     // Create n-way range scaling object
-    boost::shared_ptr< NWayRangeScaling > nWayRangeScaler = boost::make_shared< NWayRangeScaling >(
+    std::shared_ptr< NWayRangeScaling > nWayRangeScaler = std::make_shared< NWayRangeScaling >(
                 oneWayRangeScalers, nWayRangeLinkEnds.size( ) );
 
     // Create n-way range partial object
-    for( std::map< std::pair< int, int >, std::map< int, boost::shared_ptr< ObservationPartial< 1 > > > >::iterator sortedPartialIterator =
+    for( std::map< std::pair< int, int >, std::map< int, std::shared_ptr< ObservationPartial< 1 > > > >::iterator sortedPartialIterator =
          sortedOneWayRangePartials.begin( ); sortedPartialIterator != sortedOneWayRangePartials.end( ); sortedPartialIterator++ )
     {
-        nWayRangePartialList[ sortedPartialIterator->first ] = boost::make_shared< NWayRangePartial >(
+        nWayRangePartialList[ sortedPartialIterator->first ] = std::make_shared< NWayRangePartial >(
                     nWayRangeScaler, sortedPartialIterator->second, parameterIdList.at( sortedPartialIterator->first ),
                     numberOfLinkEnds );
     }
 
-    std::map< int, boost::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > >
+    std::map< int, std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > >
             vectorParametersToEstimate =  parametersToEstimate->getVectorParameters( );
-    for( std::map< int, boost::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd  > > >::iterator
+    for( std::map< int, std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd  > > >::iterator
          parameterIterator =
          vectorParametersToEstimate.begin( ); parameterIterator != vectorParametersToEstimate.end( ); parameterIterator++ )
     {
 
-        boost::shared_ptr< ObservationPartial< 1 > > currentNWayRangePartial;
+        std::shared_ptr< ObservationPartial< 1 > > currentNWayRangePartial;
         if( isParameterObservationLinkProperty( parameterIterator->second->getParameterName( ).first )  )
         {
             currentNWayRangePartial = createObservationPartialWrtLinkProperty< 1 >(
                         nWayRangeLinkEnds, observation_models::n_way_range, parameterIterator->second );
         }
 
-        // Check if partial is non-null
-        if( currentNWayRangePartial != NULL )
+        // Check if partial is non-nullptr
+        if( currentNWayRangePartial != nullptr )
         {
             // Add partial to the list.
             std::pair< double, double > currentPair = std::pair< int, int >( parameterIterator->first,
@@ -178,19 +178,19 @@ std::pair< SingleLinkObservationPartialList, boost::shared_ptr< PositionPartialS
  *  and NWayRangeScaling, object, used for scaling the position partial members of all NWayRangePartials in link end.
  */
 template< typename ParameterType >
-std::map< observation_models::LinkEnds, std::pair< SingleLinkObservationPartialList, boost::shared_ptr< PositionPartialScaling > > >
+std::map< observation_models::LinkEnds, std::pair< SingleLinkObservationPartialList, std::shared_ptr< PositionPartialScaling > > >
 createNWayRangePartials(
         const std::vector< observation_models::LinkEnds >& linkEnds,
         const simulation_setup::NamedBodyMap& bodyMap,
-        const boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< ParameterType > > parametersToEstimate,
+        const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< ParameterType > > parametersToEstimate,
         const std::map< observation_models::LinkEnds,
-        std::vector< std::vector< boost::shared_ptr< observation_models::LightTimeCorrection > > > >& lightTimeCorrections =
+        std::vector< std::vector< std::shared_ptr< observation_models::LightTimeCorrection > > > >& lightTimeCorrections =
         std::map< observation_models::LinkEnds,
-        std::vector< std::vector< boost::shared_ptr< observation_models::LightTimeCorrection > > > >( ) )
+        std::vector< std::vector< std::shared_ptr< observation_models::LightTimeCorrection > > > >( ) )
 {
     std::map< observation_models::LinkEnds,
-            std::pair< SingleLinkObservationPartialList, boost::shared_ptr< PositionPartialScaling > > > partialMap;
-    std::vector< std::vector< boost::shared_ptr< observation_models::LightTimeCorrection > > > currentLightTimeCorrections;
+            std::pair< SingleLinkObservationPartialList, std::shared_ptr< PositionPartialScaling > > > partialMap;
+    std::vector< std::vector< std::shared_ptr< observation_models::LightTimeCorrection > > > currentLightTimeCorrections;
 
     // Iterate over all sets of link ends, and  create associated n-way range partials
     for( unsigned int i = 0; i < linkEnds.size( ); i++ )

@@ -11,7 +11,7 @@
 #ifndef TUDAT_RADIATIONPRESSUREACCELERATIONPARTIAL_H
 #define TUDAT_RADIATIONPRESSUREACCELERATIONPARTIAL_H
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include "Tudat/Astrodynamics/OrbitDetermination/AccelerationPartials/accelerationPartial.h"
 #include "Tudat/Astrodynamics/ElectroMagnetism/radiationPressureInterface.h"
@@ -53,18 +53,18 @@ public:
      * \param acceleratingBody Name of the body exerting acceleration.
      */
     CannonBallRadiationPressurePartial(
-            const boost::shared_ptr< electro_magnetism::RadiationPressureInterface > radiationPressureInterface,
-            const boost::function< double( ) > massFunction,
+            const std::shared_ptr< electro_magnetism::RadiationPressureInterface > radiationPressureInterface,
+            const std::function< double( ) > massFunction,
             const std::string& acceleratedBody, const std::string& acceleratingBody ):
         AccelerationPartial( acceleratedBody, acceleratingBody,
                              basic_astrodynamics::cannon_ball_radiation_pressure ),
         sourceBodyState_( radiationPressureInterface->getSourcePositionFunction( ) ),
         acceleratedBodyState_( radiationPressureInterface->getTargetPositionFunction( ) ),
-        areaFunction_( boost::bind( &electro_magnetism::RadiationPressureInterface::getArea, radiationPressureInterface ) ),
+        areaFunction_( std::bind( &electro_magnetism::RadiationPressureInterface::getArea, radiationPressureInterface ) ),
         radiationPressureCoefficientFunction_(
-            boost::bind( &electro_magnetism::RadiationPressureInterface::getRadiationPressureCoefficient,
+            std::bind( &electro_magnetism::RadiationPressureInterface::getRadiationPressureCoefficient,
                          radiationPressureInterface ) ),
-        radiationPressureFunction_( boost::bind( &electro_magnetism::RadiationPressureInterface::getCurrentRadiationPressure,
+        radiationPressureFunction_( std::bind( &electro_magnetism::RadiationPressureInterface::getCurrentRadiationPressure,
                                                  radiationPressureInterface ) ),
         acceleratedBodyMassFunction_( massFunction ){ }
 
@@ -170,9 +170,9 @@ public:
      *  \param parameter Parameter w.r.t. which partial is to be taken.
      *  \return Pair of parameter partial function and number of columns in partial (0 for no dependency, 1 otherwise).
      */
-    std::pair< boost::function< void( Eigen::MatrixXd& ) >, int >
+    std::pair< std::function< void( Eigen::MatrixXd& ) >, int >
     getParameterPartialFunction(
-            boost::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter );
+            std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter );
 
     //! Function for setting up and retrieving a function returning a partial w.r.t. a vector parameter.
     /*!
@@ -181,8 +181,8 @@ public:
      *  \param parameter Parameter w.r.t. which partial is to be taken.
      *  \return Pair of parameter partial function and number of columns in partial (0 for no dependency).
      */
-    std::pair< boost::function< void( Eigen::MatrixXd& ) >, int > getParameterPartialFunction(
-            boost::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter );
+    std::pair< std::function< void( Eigen::MatrixXd& ) >, int > getParameterPartialFunction(
+            std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter );
 
     //! Function to compute the partial derivative w.r.t. a constant radiation pressure coefficient
     /*!
@@ -204,14 +204,14 @@ public:
      */
     void wrtArcWiseRadiationPressureCoefficient(
             Eigen::MatrixXd& partial,
-            const boost::shared_ptr< estimatable_parameters::ArcWiseRadiationPressureCoefficient > parameter )
+            const std::shared_ptr< estimatable_parameters::ArcWiseRadiationPressureCoefficient > parameter )
     {
         // Get partial w.r.t. radiation pressure coefficient
         Eigen::MatrixXd partialWrtSingleParameter = Eigen::Vector3d::Zero( );
         this->wrtRadiationPressureCoefficient( partialWrtSingleParameter );
 
         // Retrieve current arc
-        boost::shared_ptr< interpolators::LookUpScheme< double > > currentArcIndexLookUp =
+        std::shared_ptr< interpolators::LookUpScheme< double > > currentArcIndexLookUp =
                 parameter->getArcTimeLookupScheme( );
         int currentArc = currentArcIndexLookUp->findNearestLowerNeighbour( currentTime_ );
 
@@ -254,22 +254,22 @@ public:
 private:
 
     //! Function returning position of radiation source.
-    boost::function< Eigen::Vector3d( ) > sourceBodyState_;
+    std::function< Eigen::Vector3d( ) > sourceBodyState_;
 
     //! Function returning position of body undergoing acceleration.
-    boost::function< Eigen::Vector3d( )> acceleratedBodyState_;
+    std::function< Eigen::Vector3d( )> acceleratedBodyState_;
 
     //! Function returning reflecting (or reference) area of radiation pressure on acceleratedBody_
-    boost::function< double( ) > areaFunction_;
+    std::function< double( ) > areaFunction_;
 
     //! Function returning current radiation pressure coefficient (usually denoted C_{r}).
-    boost::function< double( ) > radiationPressureCoefficientFunction_;
+    std::function< double( ) > radiationPressureCoefficientFunction_;
 
     //! Function returning current radiation pressure (in N/m^{2})
-    boost::function< double( ) > radiationPressureFunction_;
+    std::function< double( ) > radiationPressureFunction_;
 
     //! Function returning the mass of the body undergoing the acceleration.
-    boost::function< double( ) > acceleratedBodyMassFunction_;
+    std::function< double( ) > acceleratedBodyMassFunction_;
 
     //! Current partial of acceleration w.r.t. position of body undergoing acceleration (equal to minus partial w.r.t.
     //! position of body exerting acceleration).

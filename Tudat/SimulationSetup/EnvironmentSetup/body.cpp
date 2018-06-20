@@ -16,6 +16,10 @@ namespace tudat
 namespace simulation_setup
 {
 
+
+//template void Body::setStateFromEphemeris< double, double >( const double& time );
+
+
 //! Function through which the state of baseFrameId_ in the inertial frame can be determined
 template< >
 Eigen::Matrix< double, 6, 1 > BaseStateInterface::getBaseFrameState( const double time )

@@ -149,16 +149,16 @@ public:
      * \param lighTimeCorrectionPartials List if light-time correction partial objects.
      */
     AngularPositionPartial(
-            const boost::shared_ptr< AngularPositionScaling > angularPositionScaler,
-            const std::map< observation_models::LinkEndType, boost::shared_ptr< CartesianStatePartial > >& positionPartialList,
+            const std::shared_ptr< AngularPositionScaling > angularPositionScaler,
+            const std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartial > >& positionPartialList,
             const estimatable_parameters::EstimatebleParameterIdentifier parameterIdentifier,
-            const std::vector< boost::shared_ptr< observation_partials::LightTimeCorrectionPartial > >& lighTimeCorrectionPartials =
-            std::vector< boost::shared_ptr< observation_partials::LightTimeCorrectionPartial > >( ) ):
+            const std::vector< std::shared_ptr< observation_partials::LightTimeCorrectionPartial > >& lighTimeCorrectionPartials =
+            std::vector< std::shared_ptr< observation_partials::LightTimeCorrectionPartial > >( ) ):
         ObservationPartial< 2 >( parameterIdentifier ),
         angularPositionScaler_( angularPositionScaler ), positionPartialList_( positionPartialList ),
         lighTimeCorrectionPartials_( lighTimeCorrectionPartials )
     {
-        std::pair< boost::function< SingleOneWayRangePartialReturnType(
+        std::pair< std::function< SingleOneWayRangePartialReturnType(
                     const std::vector< Eigen::Vector6d >&, const std::vector< double >& ) >,
                 bool > lightTimeCorrectionPartial;
 
@@ -207,21 +207,21 @@ public:
 protected:
 
     //! Scaling object used for mapping partials of positions to partials of observable
-    boost::shared_ptr< AngularPositionScaling > angularPositionScaler_;
+    std::shared_ptr< AngularPositionScaling > angularPositionScaler_;
 
     //! List of position partials per link end.
-    std::map< observation_models::LinkEndType, boost::shared_ptr< CartesianStatePartial > > positionPartialList_;
+    std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartial > > positionPartialList_;
 
     //! Iterator over list of position partials per link end.
-    std::map< observation_models::LinkEndType, boost::shared_ptr< CartesianStatePartial > >::iterator positionPartialIterator_;
+    std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartial > >::iterator positionPartialIterator_;
 
     //! List of light-time correction partial functions.
-    std::vector< boost::function< SingleOneWayRangePartialReturnType(
+    std::vector< std::function< SingleOneWayRangePartialReturnType(
             const std::vector< Eigen::Vector6d >&, const std::vector< double >& ) > >
     lighTimeCorrectionPartialsFunctions_;
 
     //! List of light-time correction partial objects.
-    std::vector< boost::shared_ptr< observation_partials::LightTimeCorrectionPartial > > lighTimeCorrectionPartials_;
+    std::vector< std::shared_ptr< observation_partials::LightTimeCorrectionPartial > > lighTimeCorrectionPartials_;
 
     //! Pre-declare partial for current link end.
     std::pair< Eigen::Matrix< double, 1, Eigen::Dynamic >, double > currentLinkTimeCorrectionPartial_;

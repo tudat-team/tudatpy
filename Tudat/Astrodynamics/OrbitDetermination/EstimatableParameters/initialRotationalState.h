@@ -39,7 +39,7 @@ public:
     InitialRotationalStateParameter(
             const std::string& associatedBody,
             const Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 >& initialRotationalState,
-            const boost::function< Eigen::Matrix3d( ) > inertiaTensorFunction,
+            const std::function< Eigen::Matrix3d( ) > inertiaTensorFunction,
             const std::string& centralBody = "SSB", const std::string& frameOrientation = "ECLIPJ2000" ):
         EstimatableParameter< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > >(
             initial_rotational_body_state, associatedBody ),
@@ -105,7 +105,7 @@ public:
         return Eigen::VectorXd::Zero( 1 );
     }
 
-    boost::function< Eigen::Matrix3d( ) > getBodyInertiaTensorFunction( )
+    std::function< Eigen::Matrix3d( ) > getBodyInertiaTensorFunction( )
     {
         return inertiaTensorFunction_;
     }
@@ -121,7 +121,7 @@ private:
     //! Orientation of the frame in which the state is defined.
     std::string frameOrientation_;
 
-    boost::function< Eigen::Matrix3d( ) > inertiaTensorFunction_;
+    std::function< Eigen::Matrix3d( ) > inertiaTensorFunction_;
 
 };
 

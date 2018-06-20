@@ -45,11 +45,11 @@ public:
      *  observable, i.e. deviations from the physically ideal observable between reference points (default none).
      */
     TwoWayDopplerObservationModel(
-            const boost::shared_ptr< observation_models::OneWayDopplerObservationModel< ObservationScalarType, TimeType > >
+            const std::shared_ptr< observation_models::OneWayDopplerObservationModel< ObservationScalarType, TimeType > >
             uplinkDopplerCalculator,
-            const boost::shared_ptr< observation_models::OneWayDopplerObservationModel< ObservationScalarType, TimeType > >
+            const std::shared_ptr< observation_models::OneWayDopplerObservationModel< ObservationScalarType, TimeType > >
             downlinkDopplerCalculator,
-            const boost::shared_ptr< ObservationBias< 1 > > observationBiasCalculator = NULL ):
+            const std::shared_ptr< ObservationBias< 1 > > observationBiasCalculator = nullptr ):
         ObservationModel< 1, ObservationScalarType, TimeType >( two_way_doppler, observationBiasCalculator ),
        uplinkDopplerCalculator_( uplinkDopplerCalculator ),
        downlinkDopplerCalculator_( downlinkDopplerCalculator )
@@ -161,7 +161,7 @@ public:
      * Function to retrieve the object that computes the one-way Doppler observable for the uplink
      * \return Object that computes the one-way Doppler observable for the uplink
      */
-    boost::shared_ptr< observation_models::OneWayDopplerObservationModel< ObservationScalarType, TimeType > >
+    std::shared_ptr< observation_models::OneWayDopplerObservationModel< ObservationScalarType, TimeType > >
     getUplinkDopplerCalculator( )
     {
         return uplinkDopplerCalculator_;
@@ -172,7 +172,7 @@ public:
      * Function to retrieve the object that computes the one-way Doppler observable for the downlink
      * \return Object that computes the one-way Doppler observable for the downlink
      */
-    boost::shared_ptr< observation_models::OneWayDopplerObservationModel< ObservationScalarType, TimeType > >
+    std::shared_ptr< observation_models::OneWayDopplerObservationModel< ObservationScalarType, TimeType > >
     getDownlinkDopplerCalculator( )
     {
         return downlinkDopplerCalculator_;
@@ -181,11 +181,11 @@ public:
 private:
 
     //! Object that computes the one-way Doppler observable for the uplink
-    boost::shared_ptr< observation_models::OneWayDopplerObservationModel< ObservationScalarType, TimeType > >
+    std::shared_ptr< observation_models::OneWayDopplerObservationModel< ObservationScalarType, TimeType > >
     uplinkDopplerCalculator_;
 
     //! Object that computes the one-way Doppler observable for the downlink
-    boost::shared_ptr< observation_models::OneWayDopplerObservationModel< ObservationScalarType, TimeType > >
+    std::shared_ptr< observation_models::OneWayDopplerObservationModel< ObservationScalarType, TimeType > >
     downlinkDopplerCalculator_;
 
     //! Pre-declared vector of link end times, used for computeIdealObservations function

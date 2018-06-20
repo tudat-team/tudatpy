@@ -37,11 +37,11 @@ Eigen::Matrix< double, 3, 4 > getPartialDerivativeOfSecondDegreeGravitationalTor
     return premultiplier * scalingMatrix * partialOfBodyFixedPositionWrtQuaternion;
 }
 
-std::pair< boost::function< void( Eigen::MatrixXd& ) >, int >
+std::pair< std::function< void( Eigen::MatrixXd& ) >, int >
 SecondDegreeGravitationalTorquePartial::getParameterPartialFunction(
-        boost::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter )
+        std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter )
 {
-    std::pair< boost::function< void( Eigen::MatrixXd& ) >, int > partialFunctionPair;
+    std::pair< std::function< void( Eigen::MatrixXd& ) >, int > partialFunctionPair;
 
     // Check dependencies.
     if( parameter->getParameterName( ).first ==  estimatable_parameters::gravitational_parameter && (
@@ -49,24 +49,24 @@ SecondDegreeGravitationalTorquePartial::getParameterPartialFunction(
     {
         // If parameter is gravitational parameter, check and create dependency function .
         partialFunctionPair = std::make_pair(
-                    boost::bind( &SecondDegreeGravitationalTorquePartial::wrtGravitationalParameterOfCentralBody,
+                    std::bind( &SecondDegreeGravitationalTorquePartial::wrtGravitationalParameterOfCentralBody,
                                  this, _1 ), 1 );
     }
     else
     {
-        partialFunctionPair = std::make_pair( boost::function< void( Eigen::MatrixXd& ) >( ), 0 );
+        partialFunctionPair = std::make_pair( std::function< void( Eigen::MatrixXd& ) >( ), 0 );
     }
 
     return partialFunctionPair;
 }
 
-std::pair< boost::function< void( Eigen::MatrixXd& ) >, int > SecondDegreeGravitationalTorquePartial::getParameterPartialFunction(
-        boost::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter )
+std::pair< std::function< void( Eigen::MatrixXd& ) >, int > SecondDegreeGravitationalTorquePartial::getParameterPartialFunction(
+        std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter )
 {
     using namespace estimatable_parameters;
 
-    std::pair< boost::function< void( Eigen::MatrixXd& ) >, int >  partialFunction = std::make_pair(
-                boost::function< void( Eigen::MatrixXd& ) >( ), 0 );
+    std::pair< std::function< void( Eigen::MatrixXd& ) >, int >  partialFunction = std::make_pair(
+                std::function< void( Eigen::MatrixXd& ) >( ), 0 );
 
     if( parameter->getParameterName( ).second.first == bodyUndergoingTorque_ )
     {
@@ -75,7 +75,7 @@ std::pair< boost::function< void( Eigen::MatrixXd& ) >, int > SecondDegreeGravit
         case spherical_harmonics_cosine_coefficient_block:
         {
             // Cast parameter object to required type.
-            boost::shared_ptr< SphericalHarmonicsCosineCoefficients > coefficientsParameter =
+            std::shared_ptr< SphericalHarmonicsCosineCoefficients > coefficientsParameter =
                     boost::dynamic_pointer_cast< SphericalHarmonicsCosineCoefficients >( parameter );
 
             int c20Index, c21Index, c22Index;
@@ -88,7 +88,7 @@ std::pair< boost::function< void( Eigen::MatrixXd& ) >, int > SecondDegreeGravit
                     throw std::runtime_error( "Error when getting partial of 2nd degree grac torque w.r.t. cosine sh parameters, inertia tensor normalization function not found." );
                 }
                 partialFunction = std::make_pair(
-                            boost::bind( &SecondDegreeGravitationalTorquePartial::
+                            std::bind( &SecondDegreeGravitationalTorquePartial::
                                          wrtCosineSphericalHarmonicCoefficientsOfCentralBody, this,
                                          _1, c20Index, c21Index, c22Index ), coefficientsParameter->getParameterSize( ) );
             }
@@ -99,7 +99,7 @@ std::pair< boost::function< void( Eigen::MatrixXd& ) >, int > SecondDegreeGravit
         {
             // Cast parameter object to required type.
 
-            boost::shared_ptr< SphericalHarmonicsSineCoefficients > coefficientsParameter =
+            std::shared_ptr< SphericalHarmonicsSineCoefficients > coefficientsParameter =
                     boost::dynamic_pointer_cast< SphericalHarmonicsSineCoefficients >( parameter );
 
             int s21Index, s22Index;
@@ -112,7 +112,7 @@ std::pair< boost::function< void( Eigen::MatrixXd& ) >, int > SecondDegreeGravit
                     throw std::runtime_error( "Error when getting partial of 2nd degree grac torque w.r.t. sine sh parameters, inertia tensor normalization function not found." );
                 }
                 partialFunction = std::make_pair(
-                            boost::bind( &SecondDegreeGravitationalTorquePartial::
+                            std::bind( &SecondDegreeGravitationalTorquePartial::
                                          wrtSineSphericalHarmonicCoefficientsOfCentralBody, this,
                                          _1, s21Index, s22Index ), coefficientsParameter->getParameterSize( ) );
             }

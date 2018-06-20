@@ -24,12 +24,12 @@ void emptyTimeFunction( const double time ){ }
 
 //! Function to numerical compute the partial derivative of an acceleration w.r.t. a body state.
 Eigen::Matrix3d calculateAccelerationWrtStatePartials(
-        boost::function< void( Eigen::Vector6d ) > setBodyState,
-        boost::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > accelerationModel,
+        std::function< void( Eigen::Vector6d ) > setBodyState,
+        std::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > accelerationModel,
         Eigen::Vector6d originalState,
         Eigen::Vector3d statePerturbation,
         int startIndex,
-        boost::function< void( ) > updateFunction,
+        std::function< void( ) > updateFunction,
         const double evaluationTime )
 {
     Eigen::Matrix3d upAccelerations = Eigen::Matrix3d::Zero( );
@@ -82,12 +82,12 @@ Eigen::Matrix3d calculateAccelerationWrtStatePartials(
 }
 
 Eigen::MatrixXd calculateTorqueWrtTranslationalStatePartials(
-        boost::function< void( Eigen::Vector6d ) > setBodyState,
-        boost::shared_ptr< basic_astrodynamics::TorqueModel > torqueModel,
+        std::function< void( Eigen::Vector6d ) > setBodyState,
+        std::shared_ptr< basic_astrodynamics::TorqueModel > torqueModel,
         Eigen::Vector6d originalState,
         Eigen::Vector3d statePerturbation,
         int startIndex,
-        boost::function< void( ) > updateFunction,
+        std::function< void( ) > updateFunction,
         const double evaluationTime )
 {
     Eigen::Matrix3d upTorques = Eigen::Matrix3d::Zero( );
@@ -140,13 +140,13 @@ Eigen::MatrixXd calculateTorqueWrtTranslationalStatePartials(
 
 
 Eigen::MatrixXd calculateTorqueWrtRotationalStatePartials(
-        boost::function< void( Eigen::Vector7d ) > setBodyRotationalState,
-        boost::shared_ptr< basic_astrodynamics::TorqueModel > torqueModel,
+        std::function< void( Eigen::Vector7d ) > setBodyRotationalState,
+        std::shared_ptr< basic_astrodynamics::TorqueModel > torqueModel,
         Eigen::Vector7d originalRotationalState,
         Eigen::VectorXd statePerturbations,
         int startIndex,
         int numberOfEntries,
-        boost::function< void( ) > updateFunction,
+        std::function< void( ) > updateFunction,
         const double evaluationTime )
 {
     Eigen::MatrixXd upTorques = Eigen::MatrixXd::Zero( 3, numberOfEntries );
@@ -199,12 +199,12 @@ Eigen::MatrixXd calculateTorqueWrtRotationalStatePartials(
 }
 
 Eigen::MatrixXd calculateAccelerationDeviationDueToOrientationChange(
-        const boost::function< void( Eigen::Vector7d ) > setBodyRotationalState,
-        boost::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > accelerationModel,
+        const std::function< void( Eigen::Vector7d ) > setBodyRotationalState,
+        std::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > accelerationModel,
         const Eigen::Vector7d& originalRotationalState,
         const Eigen::Vector4d& commandedQuaternionPerturbation,
         std::vector< Eigen::Vector4d >& appliedQuaternionPerturbation,
-        boost::function< void( ) > updateFunction,
+        std::function< void( ) > updateFunction,
         const double evaluationTime )
 {
     appliedQuaternionPerturbation.resize( 4 );
@@ -245,12 +245,12 @@ Eigen::MatrixXd calculateAccelerationDeviationDueToOrientationChange(
 }
 
 Eigen::MatrixXd calculateTorqueDeviationDueToOrientationChange(
-        const boost::function< void( Eigen::Vector7d ) > setBodyRotationalState,
-        const boost::shared_ptr< basic_astrodynamics::TorqueModel > torqueModel,
+        const std::function< void( Eigen::Vector7d ) > setBodyRotationalState,
+        const std::shared_ptr< basic_astrodynamics::TorqueModel > torqueModel,
         const Eigen::Vector7d& originalRotationalState,
         const Eigen::Vector4d& commandedQuaternionPerturbation,
         std::vector< Eigen::Vector4d >& appliedQuaternionPerturbation,
-        boost::function< void( ) > updateFunction,
+        std::function< void( ) > updateFunction,
         const double evaluationTime )
 {
     appliedQuaternionPerturbation.resize( 4 );
@@ -289,12 +289,12 @@ Eigen::MatrixXd calculateTorqueDeviationDueToOrientationChange(
 
 //! Function to numerical compute the partial derivative of an acceleration w.r.t. a double parameter
 Eigen::Vector3d calculateAccelerationWrtParameterPartials(
-        boost::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter,
-        boost::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > accelerationModel,
+        std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter,
+        std::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > accelerationModel,
         double parameterPerturbation,
-        boost::function< void( ) > updateDependentVariables,
+        std::function< void( ) > updateDependentVariables,
         const double currentTime,
-        boost::function< void( const double ) > timeDependentUpdateDependentVariables )
+        std::function< void( const double ) > timeDependentUpdateDependentVariables )
 {
     // Store uperturbed value.
     double unperturbedParameterValue = parameter->getParameterValue( );
@@ -336,12 +336,12 @@ Eigen::Vector3d calculateAccelerationWrtParameterPartials(
 }
 
 Eigen::Vector3d calculateTorqueWrtParameterPartials(
-        boost::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter,
-        boost::shared_ptr< basic_astrodynamics::TorqueModel > torqueModel,
+        std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter,
+        std::shared_ptr< basic_astrodynamics::TorqueModel > torqueModel,
         double parameterPerturbation,
-        boost::function< void( ) > updateDependentVariables,
+        std::function< void( ) > updateDependentVariables,
         const double currentTime,
-        boost::function< void( const double ) > timeDependentUpdateDependentVariables )
+        std::function< void( const double ) > timeDependentUpdateDependentVariables )
 {
     // Store uperturbed value.
     double unperturbedParameterValue = parameter->getParameterValue( );
@@ -385,12 +385,12 @@ Eigen::Vector3d calculateTorqueWrtParameterPartials(
 
 //! Function to numerical compute the partial derivative of an acceleration w.r.t. a vector parameter
 Eigen::Matrix< double, 3, Eigen::Dynamic > calculateAccelerationWrtParameterPartials(
-        boost::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter,
-        boost::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > accelerationModel,
+        std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter,
+        std::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > accelerationModel,
         Eigen::VectorXd parameterPerturbation,
-        boost::function< void( ) > updateDependentVariables,
+        std::function< void( ) > updateDependentVariables,
         const double currentTime,
-        boost::function< void( const double ) > timeDependentUpdateDependentVariables )
+        std::function< void( const double ) > timeDependentUpdateDependentVariables )
 {
     // Store uperturbed value.
 
@@ -452,12 +452,12 @@ Eigen::Matrix< double, 3, Eigen::Dynamic > calculateAccelerationWrtParameterPart
 
 //! Function to numerical compute the partial derivative of an torque w.r.t. a vector parameter
 Eigen::Matrix< double, 3, Eigen::Dynamic > calculateTorqueWrtParameterPartials(
-        boost::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter,
-        boost::shared_ptr< basic_astrodynamics::TorqueModel > torqueModel,
+        std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter,
+        std::shared_ptr< basic_astrodynamics::TorqueModel > torqueModel,
         Eigen::VectorXd parameterPerturbation,
-        boost::function< void( ) > updateDependentVariables,
+        std::function< void( ) > updateDependentVariables,
         const double currentTime,
-        boost::function< void( const double ) > timeDependentUpdateDependentVariables )
+        std::function< void( const double ) > timeDependentUpdateDependentVariables )
 {
     // Store uperturbed value.
 

@@ -13,7 +13,7 @@
 
 #include <iostream>
 
-#include <boost/function.hpp>
+#include <functional>
 #include <boost/lambda/lambda.hpp>
 
 #include <Eigen/Geometry>
@@ -71,12 +71,12 @@ public:
      *  undergoing torque.
      */
     SecondDegreeGravitationalTorqueModel(
-            const boost::function< Eigen::Vector3d( ) > positionOfBodySubjectToTorqueFunction,
-            const boost::function< double( ) > gravitationalParameterOfAttractingBodyFunction,
-            const boost::function< Eigen::Matrix3d( ) > inertiaTensorOfRotatingBodyFunction,
-            const boost::function< Eigen::Vector3d( ) > positionOfBodyExertingTorqueFunction =
+            const std::function< Eigen::Vector3d( ) > positionOfBodySubjectToTorqueFunction,
+            const std::function< double( ) > gravitationalParameterOfAttractingBodyFunction,
+            const std::function< Eigen::Matrix3d( ) > inertiaTensorOfRotatingBodyFunction,
+            const std::function< Eigen::Vector3d( ) > positionOfBodyExertingTorqueFunction =
             boost::lambda::constant( Eigen::Vector3d::Zero( ) ),
-            const boost::function< Eigen::Quaterniond( ) > rotationToBodyFixedFrameFunction =
+            const std::function< Eigen::Quaterniond( ) > rotationToBodyFixedFrameFunction =
             boost::lambda::constant( Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) ) ) ):
         positionOfBodySubjectToTorqueFunction_( positionOfBodySubjectToTorqueFunction ),
         gravitationalParameterOfAttractingBodyFunction_( gravitationalParameterOfAttractingBodyFunction ),
@@ -177,19 +177,19 @@ protected:
 private:
 
     //! Function returning the position of the body that is subject to the torque, in inertial frame.
-    boost::function< Eigen::Vector3d( ) > positionOfBodySubjectToTorqueFunction_;
+    std::function< Eigen::Vector3d( ) > positionOfBodySubjectToTorqueFunction_;
 
     //! Function returning the gravitational parameter of the body that is exerting the torque.
-    boost::function< double( ) > gravitationalParameterOfAttractingBodyFunction_;
+    std::function< double( ) > gravitationalParameterOfAttractingBodyFunction_;
 
     //! Function returning the inertia tensor of the body that is subject to the torque, in the frame fixed to that body.
-    boost::function< Eigen::Matrix3d( ) > inertiaTensorOfRotatingBodyFunction_;
+    std::function< Eigen::Matrix3d( ) > inertiaTensorOfRotatingBodyFunction_;
 
     //! Function returning the position of the body that is exerting to the torque, in inertial frame.
-    boost::function< Eigen::Vector3d( ) > positionOfBodyExertingTorqueFunction_;
+    std::function< Eigen::Vector3d( ) > positionOfBodyExertingTorqueFunction_;
 
     //! Function returning the rotation from inertial frame to frame fixed to body undergoing torque.
-    boost::function< Eigen::Quaterniond( ) > rotationToBodyFixedFrameFunction_;
+    std::function< Eigen::Quaterniond( ) > rotationToBodyFixedFrameFunction_;
 
     Eigen::Quaterniond currentRotationToBodyFixedFrame_;
 

@@ -12,9 +12,9 @@
 #ifndef TUDAT_AERODYNAMIC_ACCELERATION_H
 #define TUDAT_AERODYNAMIC_ACCELERATION_H
 
-#include <boost/function.hpp>
+#include <functional>
 #include <boost/lambda/lambda.hpp>
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include <Eigen/Core>
 
@@ -72,10 +72,10 @@ class AerodynamicAcceleration : public basic_astrodynamics::AccelerationModel< E
 private:
 
     //! Typedef for double-returning function.
-    typedef boost::function< double ( ) > DoubleReturningFunction;
+    typedef std::function< double ( ) > DoubleReturningFunction;
 
     //! Typedef for coefficient-returning function.
-    typedef boost::function< Eigen::Vector3d( ) > CoefficientReturningFunction;
+    typedef std::function< Eigen::Vector3d( ) > CoefficientReturningFunction;
 
 public:
 
@@ -229,7 +229,7 @@ private:
 };
 
 //! Typedef for shared-pointer to AerodynamicAcceleration object.
-typedef boost::shared_ptr< AerodynamicAcceleration > AerodynamicAccelerationPointer;
+typedef std::shared_ptr< AerodynamicAcceleration > AerodynamicAccelerationPointer;
 
 } // namespace aerodynamics
 } // namespace tudat

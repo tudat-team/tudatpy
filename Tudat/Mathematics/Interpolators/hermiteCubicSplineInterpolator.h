@@ -58,9 +58,9 @@ public:
                 "Error: derivative values incompatible in Hermite interpolator." );
         }
 
-        independentValues_ = independentValues;
-        dependentValues_ = dependentValues;
-        derivativeValues_ = derivativeValues;
+        independentValues_ = std::move( independentValues );
+        dependentValues_ = std::move( dependentValues );
+        derivativeValues_ = std::move( derivativeValues );
 
         // Check if data is in ascending order
         if( !std::is_sorted( independentValues_.begin( ), independentValues_.end( ) ) )
@@ -92,8 +92,8 @@ public:
         for( typename std::map< IndependentVariableType, DependentVariableType >::const_iterator
              mapIterator = dataMap.begin( ); mapIterator != dataMap.end( ); mapIterator++ )
         {
-            independentValues_.push_back( mapIterator->first );
-            dependentValues_.push_back( mapIterator->second );
+            independentValues_.push_back( std::move( mapIterator->first ) );
+            dependentValues_.push_back( std::move( mapIterator->second ) );
         }
 
         derivativeValues_ = derivativeValues;

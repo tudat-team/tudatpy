@@ -62,7 +62,7 @@ BOOST_AUTO_TEST_CASE( testOneWayDoppplerModel )
     double buffer = 10.0 * maximumTimeStep;
 
     // Create bodies settings needed in simulation
-    std::map< std::string, boost::shared_ptr< BodySettings > > defaultBodySettings =
+    std::map< std::string, std::shared_ptr< BodySettings > > defaultBodySettings =
             getDefaultBodySettings(
                 bodiesToCreate, initialEphemerisTime - buffer, finalEphemerisTime + buffer );
 
@@ -77,16 +77,16 @@ BOOST_AUTO_TEST_CASE( testOneWayDoppplerModel )
     linkEnds[ receiver ] = std::make_pair( "Mars" , ""  );
 
     // Create range rate observation settings and model
-    boost::shared_ptr< ObservationSettings > rangeRateObservableSettings = boost::make_shared<
-            OneWayDifferencedRangeRateObservationSettings >( boost::bind( &integrationTimeFunction, _1 ) );
-    boost::shared_ptr< ObservationModel< 1, double, double> > rangeRateObservationModel =
+    std::shared_ptr< ObservationSettings > rangeRateObservableSettings = std::make_shared<
+            OneWayDifferencedRangeRateObservationSettings >( std::bind( &integrationTimeFunction, std::placeholders::_1 ) );
+    std::shared_ptr< ObservationModel< 1, double, double> > rangeRateObservationModel =
             ObservationModelCreator< 1, double, double>::createObservationModel(
                 linkEnds, rangeRateObservableSettings, bodyMap );
 
     // Create range rate observation settings and model
-    boost::shared_ptr< ObservationSettings > rangeObservableSettings = boost::make_shared< ObservationSettings >
+    std::shared_ptr< ObservationSettings > rangeObservableSettings = std::make_shared< ObservationSettings >
             ( one_way_range );
-    boost::shared_ptr< ObservationModel< 1, double, double> > rangeObservationModel =
+    std::shared_ptr< ObservationModel< 1, double, double> > rangeObservationModel =
             ObservationModelCreator< 1, double, double>::createObservationModel(
                 linkEnds, rangeObservableSettings, bodyMap );
 

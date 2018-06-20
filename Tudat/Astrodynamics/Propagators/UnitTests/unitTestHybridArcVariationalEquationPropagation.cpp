@@ -86,23 +86,23 @@ executeHybridArcMarsAndOrbiterSensitivitySimulation(
     double buffer = 5.0 * maximumTimeStep;
 
     // Create bodies needed in simulation
-    std::map< std::string, boost::shared_ptr< BodySettings > > bodySettings =
+    std::map< std::string, std::shared_ptr< BodySettings > > bodySettings =
             getDefaultBodySettings( bodyNames, initialEphemerisTime - buffer, finalEphemerisTime + buffer );
 
     NamedBodyMap bodyMap = createBodies( bodySettings );
 
-    bodyMap[ "Orbiter" ] = boost::make_shared< Body >( );
+    bodyMap[ "Orbiter" ] = std::make_shared< Body >( );
     bodyMap[ "Orbiter" ]->setConstantBodyMass( 5.0E3 );
-    bodyMap[ "Orbiter" ]->setEphemeris( boost::make_shared< MultiArcEphemeris >(
-                                            std::map< double, boost::shared_ptr< Ephemeris > >( ),
+    bodyMap[ "Orbiter" ]->setEphemeris( std::make_shared< MultiArcEphemeris >(
+                                            std::map< double, std::shared_ptr< Ephemeris > >( ),
                                             "Mars", "ECLIPJ2000" ) );
 
     double referenceAreaRadiation = 4.0;
     double radiationPressureCoefficient = 1.2;
     std::vector< std::string > occultingBodies;
     occultingBodies.push_back( "Earth" );
-    boost::shared_ptr< RadiationPressureInterfaceSettings > orbiterRadiationPressureSettings =
-            boost::make_shared< CannonBallRadiationPressureInterfaceSettings >(
+    std::shared_ptr< RadiationPressureInterfaceSettings > orbiterRadiationPressureSettings =
+            std::make_shared< CannonBallRadiationPressureInterfaceSettings >(
                 "Sun", referenceAreaRadiation, radiationPressureCoefficient, occultingBodies );
 
     // Create and set radiation pressure settings
@@ -117,10 +117,10 @@ executeHybridArcMarsAndOrbiterSensitivitySimulation(
 
     // Set accelerations between bodies that are to be taken into account.
     SelectedAccelerationMap singleArcAccelerationMap;
-    std::map< std::string, std::vector< boost::shared_ptr< AccelerationSettings > > > accelerationsOfMars;
-    accelerationsOfMars[ "Earth" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );
-    accelerationsOfMars[ "Sun" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );
-    accelerationsOfMars[ "Jupiter" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );
+    std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfMars;
+    accelerationsOfMars[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( central_gravity ) );
+    accelerationsOfMars[ "Sun" ].push_back( std::make_shared< AccelerationSettings >( central_gravity ) );
+    accelerationsOfMars[ "Jupiter" ].push_back( std::make_shared< AccelerationSettings >( central_gravity ) );
     singleArcAccelerationMap[ "Mars" ] = accelerationsOfMars;
 
     std::vector< std::string > singleArcBodiesToIntegrate, singleArcCentralBodies;
@@ -135,18 +135,18 @@ executeHybridArcMarsAndOrbiterSensitivitySimulation(
     singleArcInitialStates += initialStateDifference.segment(
                 0, singleArcInitialStates.rows( ) );
 
-    boost::shared_ptr< TranslationalStatePropagatorSettings< > > singleArcPropagatorSettings =
-            boost::make_shared< TranslationalStatePropagatorSettings< > >(
+    std::shared_ptr< TranslationalStatePropagatorSettings< > > singleArcPropagatorSettings =
+            std::make_shared< TranslationalStatePropagatorSettings< > >(
                 singleArcCentralBodies, singleArcAccelerationModelMap, singleArcBodiesToIntegrate,
                 singleArcInitialStates, finalEphemerisTime );
 
 
     SelectedAccelerationMap multiArcAccelerationMap;
-    std::map< std::string, std::vector< boost::shared_ptr< AccelerationSettings > > > accelerationsOfOrbiter;
-    accelerationsOfOrbiter[ "Mars" ].push_back( boost::make_shared< SphericalHarmonicAccelerationSettings >( 2, 2 ) );
-    accelerationsOfOrbiter[ "Sun" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );
-    accelerationsOfOrbiter[ "Sun" ].push_back( boost::make_shared< AccelerationSettings >( cannon_ball_radiation_pressure ) );
-    accelerationsOfOrbiter[ "Jupiter" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );
+    std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfOrbiter;
+    accelerationsOfOrbiter[ "Mars" ].push_back( std::make_shared< SphericalHarmonicAccelerationSettings >( 2, 2 ) );
+    accelerationsOfOrbiter[ "Sun" ].push_back( std::make_shared< AccelerationSettings >( central_gravity ) );
+    accelerationsOfOrbiter[ "Sun" ].push_back( std::make_shared< AccelerationSettings >( cannon_ball_radiation_pressure ) );
+    accelerationsOfOrbiter[ "Jupiter" ].push_back( std::make_shared< AccelerationSettings >( central_gravity ) );
     multiArcAccelerationMap[ "Orbiter" ] = accelerationsOfOrbiter;
 
     std::vector< std::string > multiArcBodiesToIntegrate, multiArcCentralBodies;
@@ -211,45 +211,45 @@ executeHybridArcMarsAndOrbiterSensitivitySimulation(
     }
 
     // Create propagation settings for each arc
-    std::vector< boost::shared_ptr< SingleArcPropagatorSettings< double > > > arcPropagationSettingsList;
+    std::vector< std::shared_ptr< SingleArcPropagatorSettings< double > > > arcPropagationSettingsList;
     for( unsigned int i = 0; i < numberOfIntegrationArcs; i++ )
     {
         arcPropagationSettingsList.push_back(
-                    boost::make_shared< TranslationalStatePropagatorSettings< double > >
+                    std::make_shared< TranslationalStatePropagatorSettings< double > >
                     ( multiArcCentralBodies, multiArcAccelerationModelMap, multiArcBodiesToIntegrate,
                       multiArcSystemInitialStates.at( i ), integrationArcEnds.at( i ) ) );
     }
 
-    boost::shared_ptr< MultiArcPropagatorSettings< > > multiArcPropagatorSettings =
-            boost::make_shared< MultiArcPropagatorSettings< > >( arcPropagationSettingsList, patchMultiArcs );
+    std::shared_ptr< MultiArcPropagatorSettings< > > multiArcPropagatorSettings =
+            std::make_shared< MultiArcPropagatorSettings< > >( arcPropagationSettingsList, patchMultiArcs );
 
-    boost::shared_ptr< HybridArcPropagatorSettings< > > hybridArcPropagatorSettings =
-            boost::make_shared< HybridArcPropagatorSettings< > >(
+    std::shared_ptr< HybridArcPropagatorSettings< > > hybridArcPropagatorSettings =
+            std::make_shared< HybridArcPropagatorSettings< > >(
                 singleArcPropagatorSettings, multiArcPropagatorSettings );
 
-    boost::shared_ptr< IntegratorSettings< > > integratorSettings =
-            boost::make_shared< IntegratorSettings< > >
+    std::shared_ptr< IntegratorSettings< > > integratorSettings =
+            std::make_shared< IntegratorSettings< > >
             ( rungeKutta4, initialEphemerisTime, 60.0 );
 
 
 
     // Define parameters.
-    std::vector< boost::shared_ptr< EstimatableParameterSettings > > parameterNames;
+    std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames;
     {
         parameterNames.push_back(
-                    boost::make_shared< ArcWiseInitialTranslationalStateEstimatableParameterSettings< StateScalarType > >(
+                    std::make_shared< ArcWiseInitialTranslationalStateEstimatableParameterSettings< StateScalarType > >(
                         multiArcBodiesToIntegrate.at( 0 ), multiArcPropagatorSettings->getInitialStates( ),
                         integrationArcStarts, multiArcCentralBodies.at( 0 ) ) );
         parameterNames.push_back(
-                    boost::make_shared< InitialTranslationalStateEstimatableParameterSettings< StateScalarType > >(
+                    std::make_shared< InitialTranslationalStateEstimatableParameterSettings< StateScalarType > >(
                         singleArcBodiesToIntegrate.at( 0 ), singleArcInitialStates, singleArcCentralBodies.at( 0 ) ) );
 
-        parameterNames.push_back( boost::make_shared< EstimatableParameterSettings >( "Sun", gravitational_parameter ) );
-        parameterNames.push_back( boost::make_shared< EstimatableParameterSettings >( "Mars", gravitational_parameter ) );
+        parameterNames.push_back( std::make_shared< EstimatableParameterSettings >( "Sun", gravitational_parameter ) );
+        parameterNames.push_back( std::make_shared< EstimatableParameterSettings >( "Mars", gravitational_parameter ) );
     }
 
     // Create parameters
-    boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< StateScalarType > > parametersToEstimate =
+    std::shared_ptr< estimatable_parameters::EstimatableParameterSet< StateScalarType > > parametersToEstimate =
             createParametersToEstimate( parameterNames, bodyMap );
 
     // Perturb parameters.

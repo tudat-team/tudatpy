@@ -12,7 +12,7 @@
 #ifndef TUDAT_CONICAL_FRUSTUM_H
 #define TUDAT_CONICAL_FRUSTUM_H
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include <Eigen/Core>
 
@@ -169,7 +169,7 @@ private:
 };
 
 //! Typedef for shared-pointer to ConicalFrustum object.
-typedef boost::shared_ptr< ConicalFrustum > ConicalFrustumPointer;
+typedef std::shared_ptr< ConicalFrustum > ConicalFrustumPointer;
 
 } // namespace geometric_shapes
 } // namespace tudat

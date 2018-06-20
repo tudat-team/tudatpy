@@ -47,9 +47,9 @@ public:
      * \param perturberMassFunction Function returning the mass of the body exerting the torque.
      */
     SphericalHarmonicGravitationalTorqueModel(
-            const boost::shared_ptr< SphericalHarmonicsGravitationalAccelerationModel > sphericalHarmonicAcceleration,
-            const boost::function< Eigen::Quaterniond( ) > rotationToBodyUndergoingTorque,
-            const boost::function< double( ) > perturberMassFunction ):
+            const std::shared_ptr< SphericalHarmonicsGravitationalAccelerationModel > sphericalHarmonicAcceleration,
+            const std::function< Eigen::Quaterniond( ) > rotationToBodyUndergoingTorque,
+            const std::function< double( ) > perturberMassFunction ):
         sphericalHarmonicAcceleration_( sphericalHarmonicAcceleration ),
         rotationToBodyUndergoingTorque_( rotationToBodyUndergoingTorque ),
         perturberMassFunction_( perturberMassFunction ){ }
@@ -90,7 +90,7 @@ public:
 //                   sphericalHarmonicAcceleration_->getAccelerationInBodyFixedFrame( ).transpose( )<<std::endl;
     }
 
-    boost::shared_ptr< SphericalHarmonicsGravitationalAccelerationModel > getSphericalHarmonicAcceleration( )
+    std::shared_ptr< SphericalHarmonicsGravitationalAccelerationModel > getSphericalHarmonicAcceleration( )
     {
         return sphericalHarmonicAcceleration_;
     }
@@ -101,13 +101,13 @@ protected:
 private:
 
     //! Spherical harmonic acceleration that the body that undergoes the torque exerts on the body that exerts the torque
-    boost::shared_ptr< SphericalHarmonicsGravitationalAccelerationModel > sphericalHarmonicAcceleration_;
+    std::shared_ptr< SphericalHarmonicsGravitationalAccelerationModel > sphericalHarmonicAcceleration_;
 
     //! Function returning the rotation from an inertial frame to the body-fixed frame of the body undergoing the torque
-    boost::function< Eigen::Quaterniond( ) > rotationToBodyUndergoingTorque_;
+    std::function< Eigen::Quaterniond( ) > rotationToBodyUndergoingTorque_;
 
     //! Function returning the mass of the body exerting the torque.
-    boost::function< double( ) > perturberMassFunction_;
+    std::function< double( ) > perturberMassFunction_;
 
     //! Torque, as computed by last call to updateMembers function
     Eigen::Vector3d currentTorque_;

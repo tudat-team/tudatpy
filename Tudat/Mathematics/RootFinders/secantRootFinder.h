@@ -24,7 +24,7 @@
 
 #include <boost/bind.hpp>
 #include <boost/make_shared.hpp>
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include "Tudat/Mathematics/RootFinders/rootFinder.h"
 #include "Tudat/Mathematics/RootFinders/terminationConditions.h"
@@ -104,11 +104,11 @@ public:
     SecantRootFinderCore( const double relativeXTolerance, const unsigned int maxIterations,
                           const DataType initialGuessOfRootOne = 0.5 )
         : RootFinderCore< DataType >(
-              boost::bind(
+              std::bind(
                   &termination_conditions::RootRelativeToleranceTerminationCondition< DataType >::
-                  checkTerminationCondition, boost::make_shared<
+                  checkTerminationCondition, std::make_shared<
                   termination_conditions::RootRelativeToleranceTerminationCondition< DataType > >(
-                      relativeXTolerance, maxIterations ), _1, _2, _3, _4, _5 ) ),
+                      relativeXTolerance, maxIterations ), std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5 ) ),
           initialGuessOfRootOne_( initialGuessOfRootOne )
     { }
 
@@ -211,7 +211,7 @@ private:
 
 // Some handy typedefs.
 typedef SecantRootFinderCore< double > SecantRootFinder;
-typedef boost::shared_ptr< SecantRootFinder > SecantRootFinderPointer;
+typedef std::shared_ptr< SecantRootFinder > SecantRootFinderPointer;
 
 } // namespace root_finders
 } // namespace tudat

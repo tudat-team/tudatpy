@@ -8,7 +8,7 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#include "Tudat/SimulationSetup/PropagationSetup/variationalEquationsSolver.h"
+#include "Tudat/SimulationSetup/EstimationSetup/variationalEquationsSolver.h"
 
 namespace tudat
 {
@@ -18,14 +18,14 @@ namespace propagators
 
 //! Function to create interpolators for state transition and sensitivity matrices from numerical results.
 void createStateTransitionAndSensitivityMatrixInterpolator(
-        boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > >& stateTransitionMatrixInterpolator,
-        boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > >& sensitivityMatrixInterpolator,
+        std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > >& stateTransitionMatrixInterpolator,
+        std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > >& sensitivityMatrixInterpolator,
         std::vector< std::map< double, Eigen::MatrixXd > >& variationalEquationsSolution,
         const bool clearRawSolution )
 {
     // Create interpolator for state transition matrix.
     stateTransitionMatrixInterpolator=
-            boost::make_shared< interpolators::LagrangeInterpolator< double, Eigen::MatrixXd > >(
+            std::make_shared< interpolators::LagrangeInterpolator< double, Eigen::MatrixXd > >(
                 utilities::createVectorFromMapKeys< Eigen::MatrixXd, double >( variationalEquationsSolution[ 0 ] ),
                 utilities::createVectorFromMapValues< Eigen::MatrixXd, double >( variationalEquationsSolution[ 0 ] ), 4 );
     if( clearRawSolution )
@@ -38,7 +38,7 @@ void createStateTransitionAndSensitivityMatrixInterpolator(
 
     // Create interpolator for sensitivity matrix.
     sensitivityMatrixInterpolator =
-            boost::make_shared< interpolators::LagrangeInterpolator< double, Eigen::MatrixXd > >(
+            std::make_shared< interpolators::LagrangeInterpolator< double, Eigen::MatrixXd > >(
                 utilities::createVectorFromMapKeys< Eigen::MatrixXd, double >( variationalEquationsSolution[ 1 ] ),
                 utilities::createVectorFromMapValues< Eigen::MatrixXd, double >( variationalEquationsSolution[ 1 ] ), 4 );
 
@@ -50,6 +50,21 @@ void createStateTransitionAndSensitivityMatrixInterpolator(
     }
 
 }
+
+template class VariationalEquationsSolver< double, double >;
+template class VariationalEquationsSolver< long double, double >;
+template class VariationalEquationsSolver< double, Time >;
+template class VariationalEquationsSolver< long double, Time >;
+
+template class SingleArcVariationalEquationsSolver< double, double >;
+template class SingleArcVariationalEquationsSolver< long double, double >;
+template class SingleArcVariationalEquationsSolver< double, Time >;
+template class SingleArcVariationalEquationsSolver< long double, Time >;
+
+template class MultiArcVariationalEquationsSolver< double, double >;
+template class MultiArcVariationalEquationsSolver< long double, double >;
+template class MultiArcVariationalEquationsSolver< double, Time >;
+template class MultiArcVariationalEquationsSolver< long double, Time >;
 
 }
 

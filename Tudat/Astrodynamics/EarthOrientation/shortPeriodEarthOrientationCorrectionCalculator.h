@@ -15,7 +15,7 @@
 
 #include <string>
 
-#include <boost/function.hpp>
+#include <functional>
 #include <boost/bind.hpp>
 #include <boost/make_shared.hpp>
 
@@ -64,8 +64,8 @@ public:
             const double minimumAmplitude,
             const std::vector< std::string >& amplitudesFiles,
             const std::vector< std::string >& argumentMultipliersFile ,
-            const boost::function< Eigen::Vector6d( const double )  > argumentFunction =
-            boost::bind( &sofa_interface::calculateDelaunayFundamentalArgumentsWithGmst, _1 ) ):
+            const std::function< Eigen::Vector6d( const double )  > argumentFunction =
+            std::bind( &sofa_interface::calculateApproximateDelaunayFundamentalArgumentsWithGmst, std::placeholders::_1 ) ):
         argumentFunction_( argumentFunction )
     {
         if( amplitudesFiles.size( ) != argumentMultipliersFile.size( ) )
@@ -123,7 +123,7 @@ private:
     std::vector< Eigen::MatrixXd > argumentMultipliers_;
 
     //! Fundamental argument functions associated with multipliers.
-    boost::function< Eigen::Vector6d( const double ) > argumentFunction_;
+    std::function< Eigen::Vector6d( const double ) > argumentFunction_;
 
 
 };
@@ -135,7 +135,7 @@ private:
  * \param minimumAmplitude Variation amplitude below which corrections are not taken into account.
  * \return Default UT1 short-period correction calculator
  */
-boost::shared_ptr< ShortPeriodEarthOrientationCorrectionCalculator< double > > getDefaultUT1CorrectionCalculator(
+std::shared_ptr< ShortPeriodEarthOrientationCorrectionCalculator< double > > getDefaultUT1CorrectionCalculator(
         const double minimumAmplitude = 0.0 );
 
 //! Function to retrieve the default polar motion short-period correction calculator
@@ -145,7 +145,7 @@ boost::shared_ptr< ShortPeriodEarthOrientationCorrectionCalculator< double > > g
  * \param minimumAmplitude Variation amplitude below which corrections are not taken into account.
  * \return Default polar motion short-period correction calculator
  */
-boost::shared_ptr< ShortPeriodEarthOrientationCorrectionCalculator< Eigen::Vector2d > > getDefaultPolarMotionCorrectionCalculator(
+std::shared_ptr< ShortPeriodEarthOrientationCorrectionCalculator< Eigen::Vector2d > > getDefaultPolarMotionCorrectionCalculator(
         const double minimumAmplitude = 0.0 );
 
 }

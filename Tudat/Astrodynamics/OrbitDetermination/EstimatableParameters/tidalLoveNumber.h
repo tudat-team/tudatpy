@@ -50,7 +50,7 @@ public:
      * \param useComplexComponents True if the complex Love number is estimated, false if only teh real part is considered
      */
     TidalLoveNumber(
-            const boost::shared_ptr< gravitation::BasicSolidBodyTideGravityFieldVariations > gravityFieldVariationModel,
+            const std::shared_ptr< gravitation::BasicSolidBodyTideGravityFieldVariations > gravityFieldVariationModel,
             const std::string& associatedBody,
             const int degree,
             const std::vector< int > orders,
@@ -144,7 +144,7 @@ protected:
     bool sumOrders_;
 
     //! Tidal gravity field variation object of which estimated paraemeter is a property
-    boost::shared_ptr< gravitation::BasicSolidBodyTideGravityFieldVariations > gravityFieldVariationModel_;
+    std::shared_ptr< gravitation::BasicSolidBodyTideGravityFieldVariations > gravityFieldVariationModel_;
 
     //! True if the complex Love number is estimated, false if only teh real part is considered
     bool useComplexComponents_;
@@ -168,7 +168,7 @@ public:
      * \param useComplexComponents True if the complex Love number is estimated, false if only teh real part is considered
      */
     FullDegreeTidalLoveNumber(
-            const boost::shared_ptr< gravitation::BasicSolidBodyTideGravityFieldVariations > gravityFieldVariationModel,
+            const std::shared_ptr< gravitation::BasicSolidBodyTideGravityFieldVariations > gravityFieldVariationModel,
             const std::string& associatedBody,
             const int degree,
             const bool useComplexComponents = 0 ):
@@ -218,7 +218,7 @@ public:
      * \param useComplexComponents True if the complex Love number is estimated, false if only teh real part is considered
      */
     SingleDegreeVariableTidalLoveNumber(
-            const boost::shared_ptr< gravitation::BasicSolidBodyTideGravityFieldVariations > gravityFieldVariationModel,
+            const std::shared_ptr< gravitation::BasicSolidBodyTideGravityFieldVariations > gravityFieldVariationModel,
             const std::string& associatedBody,
             const int degree,
             const std::vector< int > orders,

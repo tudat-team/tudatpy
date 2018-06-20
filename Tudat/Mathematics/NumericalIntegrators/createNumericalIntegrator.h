@@ -11,7 +11,7 @@
 #define TUDAT_CREATENUMERICALINTEGRATOR_H
 
 #include <boost/make_shared.hpp>
-#include <boost/shared_ptr.hpp>
+#include <memory>
 #include <boost/lexical_cast.hpp>
 
 #include "Tudat/Mathematics/NumericalIntegrators/bulirschStoerVariableStepsizeIntegrator.h"
@@ -381,28 +381,28 @@ public:
  *  \return Numerical integrator object
  */
 template< typename IndependentVariableType, typename DependentVariableType, typename TimeStepType = IndependentVariableType >
-boost::shared_ptr< numerical_integrators::NumericalIntegrator< IndependentVariableType, DependentVariableType,
+std::shared_ptr< numerical_integrators::NumericalIntegrator< IndependentVariableType, DependentVariableType,
 DependentVariableType, TimeStepType > > createIntegrator(
-        boost::function< DependentVariableType(
+        std::function< DependentVariableType(
             const IndependentVariableType, const DependentVariableType& ) > stateDerivativeFunction,
         const DependentVariableType initialState,
-        boost::shared_ptr< IntegratorSettings< IndependentVariableType > > integratorSettings )
+        std::shared_ptr< IntegratorSettings< IndependentVariableType > > integratorSettings )
 
 {    
-    boost::shared_ptr< NumericalIntegrator
+    std::shared_ptr< NumericalIntegrator
             < IndependentVariableType, DependentVariableType, DependentVariableType, TimeStepType > > integrator;
 
     // Retrieve requested type of integrator
     switch( integratorSettings->integratorType_ )
     {
     case euler:
-        integrator = boost::make_shared< EulerIntegrator
+        integrator = std::make_shared< EulerIntegrator
                 < IndependentVariableType, DependentVariableType, DependentVariableType, TimeStepType > >
                 ( stateDerivativeFunction, integratorSettings->initialTime_, initialState ) ;
         break;
     case rungeKutta4:
 
-        integrator = boost::make_shared< RungeKutta4Integrator
+        integrator = std::make_shared< RungeKutta4Integrator
                 < IndependentVariableType, DependentVariableType, DependentVariableType, TimeStepType > >
                 ( stateDerivativeFunction, integratorSettings->initialTime_, initialState ) ;
         break;
@@ -411,10 +411,10 @@ DependentVariableType, TimeStepType > > createIntegrator(
     case rungeKuttaVariableStepSize:
     {
         // Check input consistency
-        boost::shared_ptr< RungeKuttaVariableStepSizeSettings< IndependentVariableType > > variableStepIntegratorSettings =
-                boost::dynamic_pointer_cast< RungeKuttaVariableStepSizeSettings< IndependentVariableType > >(
+        std::shared_ptr< RungeKuttaVariableStepSizeSettings< IndependentVariableType > > variableStepIntegratorSettings =
+                std::dynamic_pointer_cast< RungeKuttaVariableStepSizeSettings< IndependentVariableType > >(
                     integratorSettings );
-        if( variableStepIntegratorSettings == NULL )
+        if( variableStepIntegratorSettings == nullptr )
         {
             std::runtime_error( "Error, type of integrator settings (rungeKuttaVariableStepSize) not compatible with selected integrator (derived class of IntegratorSettings must be RungeKuttaVariableStepSizeSettings for this type)" );
         }
@@ -423,7 +423,7 @@ DependentVariableType, TimeStepType > > createIntegrator(
             // Get requested RK coefficients and create integrator.
             RungeKuttaCoefficients coefficients =  RungeKuttaCoefficients::get(
                         variableStepIntegratorSettings->coefficientSet_ );
-            integrator = boost::make_shared<
+            integrator = std::make_shared<
                     RungeKuttaVariableStepSizeIntegrator
                     < IndependentVariableType, DependentVariableType, DependentVariableType, TimeStepType > >
                     ( coefficients,
@@ -441,16 +441,16 @@ DependentVariableType, TimeStepType > > createIntegrator(
     case bulirschStoer:
     {
         // Check input consistency
-        boost::shared_ptr< BulirschStoerIntegratorSettings< IndependentVariableType > > bulirschStoerIntegratorSettings =
-                boost::dynamic_pointer_cast< BulirschStoerIntegratorSettings< IndependentVariableType > >(
+        std::shared_ptr< BulirschStoerIntegratorSettings< IndependentVariableType > > bulirschStoerIntegratorSettings =
+                std::dynamic_pointer_cast< BulirschStoerIntegratorSettings< IndependentVariableType > >(
                     integratorSettings );
-        if( bulirschStoerIntegratorSettings == NULL )
+        if( bulirschStoerIntegratorSettings == nullptr )
         {
             std::runtime_error( "Error, type of integrator settings (rungeKuttaVariableStepSize) not compatible with selected integrator (derived class of IntegratorSettings must be RungeKuttaVariableStepSizeSettings for this type)" );
         }
         else
         {
-            integrator = boost::make_shared<
+            integrator = std::make_shared<
                     BulirschStoerVariableStepSizeIntegrator
                     < IndependentVariableType, DependentVariableType, DependentVariableType, TimeStepType > >
                     ( getBulirschStoerStepSequence( bulirschStoerIntegratorSettings->extrapolationSequence_,
@@ -469,17 +469,17 @@ DependentVariableType, TimeStepType > > createIntegrator(
     case adamsBashforthMoulton:
     {
         // Check input consistency
-        boost::shared_ptr< AdamsBashforthMoultonSettings< IndependentVariableType > >
+        std::shared_ptr< AdamsBashforthMoultonSettings< IndependentVariableType > >
                 variableStepIntegratorSettings =
-                boost::dynamic_pointer_cast< AdamsBashforthMoultonSettings< IndependentVariableType > >(
+                std::dynamic_pointer_cast< AdamsBashforthMoultonSettings< IndependentVariableType > >(
                     integratorSettings );
-        if( variableStepIntegratorSettings == NULL )
+        if( variableStepIntegratorSettings == nullptr )
         {
             std::runtime_error( "Error, type of integrator settings (AdamsBashforthMoultonSettings) not compatible with selected integrator (derived class of IntegratorSettings must be AdamsBashforthMoultonSettings for this type)" );
         }
         else
         {
-            integrator = boost::make_shared<
+            integrator = std::make_shared<
                     AdamsBashforthMoultonIntegrator
                     < IndependentVariableType, DependentVariableType, DependentVariableType, TimeStepType > >
                     ( stateDerivativeFunction, integratorSettings->initialTime_, initialState,
@@ -489,18 +489,18 @@ DependentVariableType, TimeStepType > > createIntegrator(
                       variableStepIntegratorSettings->absoluteErrorTolerance_ ,
                       variableStepIntegratorSettings->bandwidth_ );
 
-            boost::dynamic_pointer_cast<
+            std::dynamic_pointer_cast<
                                 AdamsBashforthMoultonIntegrator
                                 < IndependentVariableType, DependentVariableType, DependentVariableType, TimeStepType > >(
                         integrator )->setMinimumOrder( variableStepIntegratorSettings->minimumOrder_ );
-            boost::dynamic_pointer_cast<
+            std::dynamic_pointer_cast<
                                 AdamsBashforthMoultonIntegrator
                                 < IndependentVariableType, DependentVariableType, DependentVariableType, TimeStepType > >(
                         integrator )->setMaximumOrder( variableStepIntegratorSettings->maximumOrder_ );
             if( variableStepIntegratorSettings->minimumOrder_ ==
                     variableStepIntegratorSettings->maximumOrder_ )
             {
-                boost::dynamic_pointer_cast<
+                std::dynamic_pointer_cast<
                                     AdamsBashforthMoultonIntegrator
                                     < IndependentVariableType, DependentVariableType, DependentVariableType, TimeStepType > >(
                             integrator )->setFixedOrder( true );
@@ -509,7 +509,7 @@ DependentVariableType, TimeStepType > > createIntegrator(
             if( variableStepIntegratorSettings->minimumStepSize_ ==
                     variableStepIntegratorSettings->maximumStepSize_ )
             {
-                boost::dynamic_pointer_cast<
+                std::dynamic_pointer_cast<
                                     AdamsBashforthMoultonIntegrator
                                     < IndependentVariableType, DependentVariableType, DependentVariableType, TimeStepType > >(
                             integrator )->setFixedStepSize( true );

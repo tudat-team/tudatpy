@@ -212,13 +212,13 @@ void OneWayDopplerScaling::update( const std::vector< Eigen::Vector6d >& linkEnd
     // Update proper time scaling objects.
     currentLinkEndType_ = fixedLinkEnd;
 
-    if( transmitterProperTimePartials_ != NULL )
+    if( transmitterProperTimePartials_ != nullptr )
     {
         transmitterProperTimePartials_->update(
                     linkEndStates, times, fixedLinkEnd, currentObservation );
     }
 
-    if( receiverProperTimePartials_ != NULL )
+    if( receiverProperTimePartials_ != nullptr )
     {
         receiverProperTimePartials_->update(
                     linkEndStates, times, fixedLinkEnd, currentObservation );
@@ -232,12 +232,12 @@ Eigen::Matrix< double, 1, 3 > OneWayDopplerScaling::getPositionScalingFactor( co
     Eigen::Matrix< double, 1, 3 > scalingFactor =
             positionScalingFactor_ * ( ( linkEndType == observation_models::receiver ) ? ( 1.0 ) : ( -1.0 ) );
 
-    if( transmitterProperTimePartials_ != NULL )
+    if( transmitterProperTimePartials_ != nullptr )
     {
         scalingFactor += transmitterProperTimePartials_->getPositionScalingFactor( linkEndType );
     }
 
-    if( receiverProperTimePartials_ != NULL )
+    if( receiverProperTimePartials_ != nullptr )
     {
         scalingFactor -= receiverProperTimePartials_->getPositionScalingFactor( linkEndType );
     }
@@ -252,12 +252,12 @@ Eigen::Matrix< double, 1, 3 > OneWayDopplerScaling::getVelocityScalingFactor( co
             ( ( linkEndType == observation_models::receiver ) ? ( transmitterVelocityScalingFactor_ ) :
                                                                 ( receiverVelocityScalingFactor_ ) );
 
-    if( transmitterProperTimePartials_ != NULL )
+    if( transmitterProperTimePartials_ != nullptr )
     {
         scalingFactor += transmitterProperTimePartials_->getVelocityScalingFactor( linkEndType );
     }
 
-    if( receiverProperTimePartials_ != NULL )
+    if( receiverProperTimePartials_ != nullptr )
     {
         scalingFactor -= receiverProperTimePartials_->getVelocityScalingFactor( linkEndType );
     }
@@ -270,13 +270,13 @@ int OneWayDopplerScaling::getProperTimeParameterDependencySize(
         const estimatable_parameters::EstimatebleParameterIdentifier parameterType )
 {
     int transmitterDependencySize = 0;
-    if( transmitterProperTimePartials_ != NULL )
+    if( transmitterProperTimePartials_ != nullptr )
     {
         transmitterDependencySize = transmitterProperTimePartials_->getParameterDependencySize( parameterType );
     }
 
     int receiverDependencySize = 0;
-    if( receiverProperTimePartials_ != NULL )
+    if( receiverProperTimePartials_ != nullptr )
     {
         receiverDependencySize = receiverProperTimePartials_->getParameterDependencySize( parameterType );
     }
@@ -337,15 +337,15 @@ std::vector< std::pair< Eigen::Matrix< double, 1, Eigen::Dynamic >, double > > O
 
 //! Constructor
 OneWayDopplerPartial::OneWayDopplerPartial(
-        const boost::shared_ptr< OneWayDopplerScaling > oneWayDopplerScaler,
-        const std::map< observation_models::LinkEndType, boost::shared_ptr< CartesianStatePartial > >& positionPartialList,
+        const std::shared_ptr< OneWayDopplerScaling > oneWayDopplerScaler,
+        const std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartial > >& positionPartialList,
         const estimatable_parameters::EstimatebleParameterIdentifier parameterIdentifier,
-        const std::vector< boost::shared_ptr< observation_partials::LightTimeCorrectionPartial > >&
+        const std::vector< std::shared_ptr< observation_partials::LightTimeCorrectionPartial > >&
         lighTimeCorrectionPartials ):
     ObservationPartial< 1 >( parameterIdentifier ), oneWayDopplerScaler_( oneWayDopplerScaler ),
     positionPartialList_( positionPartialList )
 {
-    std::pair< boost::function< SingleOneWayDopplerPartialReturnType(
+    std::pair< std::function< SingleOneWayDopplerPartialReturnType(
                 const std::vector< Eigen::Vector6d >&, const std::vector< double >& ) >, bool > lightTimeCorrectionPartial;
 
     // Create light time correction partial functions

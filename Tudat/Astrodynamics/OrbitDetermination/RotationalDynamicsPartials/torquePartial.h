@@ -71,14 +71,14 @@ public:
      * \param integratedStateType Type of propagated state.
      * \return Pair with function, returning partial derivative, and number of columns in partial vector,
      */
-    std::pair< boost::function< void( Eigen::Block< Eigen::MatrixXd > ) >, int >
+    std::pair< std::function< void( Eigen::Block< Eigen::MatrixXd > ) >, int >
     getDerivativeFunctionWrtStateOfIntegratedBody(
             const std::pair< std::string, std::string >& stateReferencePoint,
             const propagators::IntegratedStateType integratedStateType )
     {
         // Initialize to empty function; 0 parameter size.
-        std::pair< boost::function< void( Eigen::Block< Eigen::MatrixXd > ) >, int >
-                partialFunction = std::make_pair( boost::function< void( Eigen::Block< Eigen::MatrixXd > ) >( ), 0 );
+        std::pair< std::function< void( Eigen::Block< Eigen::MatrixXd > ) >, int >
+                partialFunction = std::make_pair( std::function< void( Eigen::Block< Eigen::MatrixXd > ) >( ), 0 );
 
         // Check if state dependency exists
         switch( integratedStateType )
@@ -93,15 +93,15 @@ public:
             // Check if propagated body corresponds to accelerated, accelerating, ro relevant third body.
             else if( stateReferencePoint.first == bodyUndergoingTorque_ )
             {
-                partialFunction = std::make_pair( boost::bind( &TorquePartial::wrtRotationalStateOfAcceleratedBody, this, _1 ), 7 );
+                partialFunction = std::make_pair( std::bind( &TorquePartial::wrtRotationalStateOfAcceleratedBody, this, _1 ), 7 );
             }
             else if( stateReferencePoint.first == bodyExertingTorque_ )
             {
-                partialFunction = std::make_pair( boost::bind( &TorquePartial::wrtRotationalStateOfAcceleratingBody, this, _1 ), 7 );
+                partialFunction = std::make_pair( std::bind( &TorquePartial::wrtRotationalStateOfAcceleratingBody, this, _1 ), 7 );
             }
             else if( isTorquePartialWrtAdditionalBodyNonNull( stateReferencePoint.first ) )
             {
-                partialFunction = std::make_pair( boost::bind( &TorquePartial::wrtRotationalStateOfAdditionalBody,
+                partialFunction = std::make_pair( std::bind( &TorquePartial::wrtRotationalStateOfAdditionalBody,
                                                                this, _1, stateReferencePoint.first ), 3 );
             }
             break;
@@ -115,7 +115,7 @@ public:
             }
             else if( isStateDerivativeDependentOnIntegratedAdditionalStateTypes( stateReferencePoint, integratedStateType ) )
             {
-                partialFunction = std::make_pair( boost::bind( &TorquePartial::wrtNonRotationalStateOfAdditionalBody,
+                partialFunction = std::make_pair( std::bind( &TorquePartial::wrtNonRotationalStateOfAdditionalBody,
                                                                this, _1, stateReferencePoint, integratedStateType ), 1 );
             }
         }

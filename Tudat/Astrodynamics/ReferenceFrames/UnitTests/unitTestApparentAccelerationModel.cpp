@@ -17,10 +17,10 @@
 
 #define BOOST_TEST_MAIN
 
-#include <boost/function.hpp>
+#include <functional>
 #include <boost/lambda/lambda.hpp>
 #include <boost/make_shared.hpp>
-#include <boost/shared_ptr.hpp>
+#include <memory>
 #include <boost/test/unit_test.hpp>
 
 #include <Eigen/Core>
@@ -145,15 +145,15 @@ BOOST_AUTO_TEST_CASE( testApparentAccelerationClass )
     const Eigen::Vector3d velocity( 10.0, 40.0, 25.0 );
 
     // Create functions returning the parameters defined above.
-    boost::function< Eigen::Vector3d( ) > accelerationFunction =
+    std::function< Eigen::Vector3d( ) > accelerationFunction =
             boost::lambda::constant( referenceFrameAcceleration );
-    boost::function< Eigen::Vector3d( ) > rotationRateFunction =
+    std::function< Eigen::Vector3d( ) > rotationRateFunction =
             boost::lambda::constant( rotationRate );
-    boost::function< Eigen::Vector3d( ) > rotationAccelerationFunction =
+    std::function< Eigen::Vector3d( ) > rotationAccelerationFunction =
             boost::lambda::constant( rotationAcceleration );
-    boost::function< Eigen::Vector3d( ) > positionFunction =
+    std::function< Eigen::Vector3d( ) > positionFunction =
             boost::lambda::constant( position );
-    boost::function< Eigen::Vector3d( ) > velocityFunction =
+    std::function< Eigen::Vector3d( ) > velocityFunction =
             boost::lambda::constant( velocity );
 
     // Create object of apparentAcceleraitonModel class; pass functions in constructor

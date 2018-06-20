@@ -24,7 +24,7 @@ Eigen::Vector3d convertPositionElements(
         const Eigen::Vector3d& originalElements,
         const PositionElementTypes originalElementType,
         const PositionElementTypes convertedElementType,
-        const boost::shared_ptr< basic_astrodynamics::BodyShapeModel > shapeModel,
+        const std::shared_ptr< basic_astrodynamics::BodyShapeModel > shapeModel,
         const double tolerance )
 {
     Eigen::Vector3d convertedElements = Eigen::Vector3d::Constant( TUDAT_NAN );
@@ -38,20 +38,20 @@ Eigen::Vector3d convertPositionElements(
         double flattening = TUDAT_NAN, equatorialRadius = TUDAT_NAN;
         if( ( originalElementType == geodetic_position ) || ( convertedElementType == geodetic_position ) )
         {
-            if( shapeModel == NULL )
+            if( shapeModel == nullptr )
             {
                 throw std::runtime_error( "Error when converting to/from geodetic position, no shape model is provided" );
             }
-            else if( boost::dynamic_pointer_cast< basic_astrodynamics::SphericalBodyShapeModel >( shapeModel ) != NULL )
+            else if( std::dynamic_pointer_cast< basic_astrodynamics::SphericalBodyShapeModel >( shapeModel ) != nullptr )
             {
                 flattening = 0.0;
-                equatorialRadius = boost::dynamic_pointer_cast< basic_astrodynamics::SphericalBodyShapeModel >(
+                equatorialRadius = std::dynamic_pointer_cast< basic_astrodynamics::SphericalBodyShapeModel >(
                             shapeModel )->getAverageRadius( );
             }
-            else if( boost::dynamic_pointer_cast< basic_astrodynamics::OblateSpheroidBodyShapeModel >( shapeModel ) != NULL )
+            else if( std::dynamic_pointer_cast< basic_astrodynamics::OblateSpheroidBodyShapeModel >( shapeModel ) != nullptr )
             {
-                boost::shared_ptr< basic_astrodynamics::OblateSpheroidBodyShapeModel > oblateSphereModel =
-                        boost::dynamic_pointer_cast< basic_astrodynamics::OblateSpheroidBodyShapeModel >( shapeModel );
+                std::shared_ptr< basic_astrodynamics::OblateSpheroidBodyShapeModel > oblateSphereModel =
+                        std::dynamic_pointer_cast< basic_astrodynamics::OblateSpheroidBodyShapeModel >( shapeModel );
                 flattening = oblateSphereModel->getFlattening( );
                 equatorialRadius = oblateSphereModel->getEquatorialRadius( );
             }

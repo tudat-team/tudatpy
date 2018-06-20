@@ -19,17 +19,17 @@ namespace simulation_setup
 {
 
 //! Function to create a list of functions that (compute and) return independent variables for thrust
-std::vector< boost::function< double( ) > > getPropulsionInputVariables(
-        const boost::shared_ptr< Body > bodyWithGuidance,
+std::vector< std::function< double( ) > > getPropulsionInputVariables(
+        const std::shared_ptr< Body > bodyWithGuidance,
         const std::vector< propulsion::ThrustIndependentVariables > independentVariables,
-        const std::vector< boost::function< double( ) > > guidanceInputFunctions )
+        const std::vector< std::function< double( ) > > guidanceInputFunctions )
 {
-    std::vector< boost::function< double( ) > > inputFunctions;
-    boost::shared_ptr< aerodynamics::FlightConditions > vehicleFlightConditions  =
+    std::vector< std::function< double( ) > > inputFunctions;
+    std::shared_ptr< aerodynamics::FlightConditions > vehicleFlightConditions  =
             bodyWithGuidance->getFlightConditions( );
 
-    boost::shared_ptr< aerodynamics::AtmosphericFlightConditions > vehicleAtmosphericFlightConditions  =
-             boost::dynamic_pointer_cast< aerodynamics::AtmosphericFlightConditions >(
+    std::shared_ptr< aerodynamics::AtmosphericFlightConditions > vehicleAtmosphericFlightConditions  =
+             std::dynamic_pointer_cast< aerodynamics::AtmosphericFlightConditions >(
                 bodyWithGuidance->getFlightConditions( ) );
 
     // Iterate over all dependent variables and create requested function.
@@ -40,39 +40,39 @@ std::vector< boost::function< double( ) > > getPropulsionInputVariables(
         {
         case propulsion::altitude_dependent_thrust:
             inputFunctions.push_back(
-                        boost::bind( &aerodynamics::FlightConditions::getCurrentAltitude, vehicleFlightConditions ) );
+                        std::bind( &aerodynamics::FlightConditions::getCurrentAltitude, vehicleFlightConditions ) );
             break;
         case propulsion::density_dependent_thrust:
-            if( vehicleAtmosphericFlightConditions == NULL )
+            if( vehicleAtmosphericFlightConditions == nullptr )
             {
                 throw std::runtime_error( "Error when making propulsion input variables, atmospheric flight conditions required, but not found" );
             }
             inputFunctions.push_back(
-                        boost::bind( &aerodynamics::AtmosphericFlightConditions::getCurrentDensity, vehicleAtmosphericFlightConditions ) );
+                        std::bind( &aerodynamics::AtmosphericFlightConditions::getCurrentDensity, vehicleAtmosphericFlightConditions ) );
             break;
         case propulsion::dynamic_pressure_dependent_thrust:
-            if( vehicleAtmosphericFlightConditions == NULL )
+            if( vehicleAtmosphericFlightConditions == nullptr )
             {
                 throw std::runtime_error( "Error when making propulsion input variables, atmospheric flight conditions required, but not found" );
             }
             inputFunctions.push_back(
-                        boost::bind( &aerodynamics::AtmosphericFlightConditions::getCurrentDynamicPressure, vehicleAtmosphericFlightConditions ) );
+                        std::bind( &aerodynamics::AtmosphericFlightConditions::getCurrentDynamicPressure, vehicleAtmosphericFlightConditions ) );
             break;
         case propulsion::mach_number_dependent_thrust:
-            if( vehicleAtmosphericFlightConditions == NULL )
+            if( vehicleAtmosphericFlightConditions == nullptr )
             {
                 throw std::runtime_error( "Error when making propulsion input variables, atmospheric flight conditions required, but not found" );
             }
             inputFunctions.push_back(
-                        boost::bind( &aerodynamics::AtmosphericFlightConditions::getCurrentMachNumber, vehicleAtmosphericFlightConditions ) );
+                        std::bind( &aerodynamics::AtmosphericFlightConditions::getCurrentMachNumber, vehicleAtmosphericFlightConditions ) );
             break;
         case propulsion::pressure_dependent_thrust:
-            if( vehicleAtmosphericFlightConditions == NULL )
+            if( vehicleAtmosphericFlightConditions == nullptr )
             {
                 throw std::runtime_error( "Error when making propulsion input variables, atmospheric flight conditions required, but not found" );
             }
             inputFunctions.push_back(
-                        boost::bind( &aerodynamics::AtmosphericFlightConditions::getCurrentPressure, vehicleAtmosphericFlightConditions ) );
+                        std::bind( &aerodynamics::AtmosphericFlightConditions::getCurrentPressure, vehicleAtmosphericFlightConditions ) );
             break;
         case propulsion::guidance_input_dependent_thrust:
             inputFunctions.push_back( guidanceInputFunctions.at( numberOfCustomInputs ) );
@@ -104,8 +104,8 @@ std::vector< boost::function< double( ) > > getPropulsionInputVariables(
 
 //! Interface function to multiply a maximum thrust by a multiplier to obtain the actual thrust
 double multiplyMaximumThrustByScalingFactor(
-        const boost::function< double( const std::vector< double >& ) > maximumThrustFunction,
-        const boost::function< double( ) > maximumThrustMultiplier,
+        const std::function< double( const std::vector< double >& ) > maximumThrustFunction,
+        const std::function< double( ) > maximumThrustMultiplier,
         const std::vector< double >& maximumThrustIndependentVariables )
 {
     return maximumThrustMultiplier( ) * maximumThrustFunction( maximumThrustIndependentVariables );
@@ -113,8 +113,8 @@ double multiplyMaximumThrustByScalingFactor(
 
 //! Function to check the validity of the input data, and process the maximum thrust multiplier if provided
 void ParameterizedThrustMagnitudeSettings::parseInputDataAndCheckConsistency(
-        const boost::shared_ptr< interpolators::Interpolator< double, double > > thrustMagnitudeInterpolator,
-        const boost::shared_ptr< interpolators::Interpolator< double, double > > specificImpulseInterpolator )
+        const std::shared_ptr< interpolators::Interpolator< double, double > > thrustMagnitudeInterpolator,
+        const std::shared_ptr< interpolators::Interpolator< double, double > > specificImpulseInterpolator )
 {
     int numberOfUserSpecifiedThrustInputs =
             std::count( thrustIndependentVariables_.begin( ), thrustIndependentVariables_.end( ),
@@ -163,11 +163,11 @@ void ParameterizedThrustMagnitudeSettings::parseInputDataAndCheckConsistency(
             }
         }
 
-        boost::function< double( const std::vector< double >& ) > maximumThrustMagnitudeFunction =
+        std::function< double( const std::vector< double >& ) > maximumThrustMagnitudeFunction =
                 thrustMagnitudeFunction_;
-        thrustMagnitudeFunction_ = boost::bind(
+        thrustMagnitudeFunction_ = std::bind(
                     &multiplyMaximumThrustByScalingFactor, maximumThrustMagnitudeFunction,
-                    thrustGuidanceInputVariables_.at( entryForMaximumThrustMultiplierInGuidanceFunctions ), _1 );
+                    thrustGuidanceInputVariables_.at( entryForMaximumThrustMultiplierInGuidanceFunctions ), std::placeholders::_1 );
         thrustIndependentVariables_.erase( thrustIndependentVariables_.begin( ) +
                                          entryForMaximumThrustMultiplierInIndependentVariables);
         thrustGuidanceInputVariables_.erase( thrustGuidanceInputVariables_.begin( ) +
@@ -175,7 +175,7 @@ void ParameterizedThrustMagnitudeSettings::parseInputDataAndCheckConsistency(
 
     }
 
-    if( specificImpulseInterpolator != NULL )
+    if( specificImpulseInterpolator != nullptr )
     {
         // Check consistency of user-defined specific impulse input.
         int numberOfUserSpecifiedSpecificImpulseInputs =
@@ -210,10 +210,10 @@ void ParameterizedThrustMagnitudeSettings::parseInputDataAndCheckConsistency(
 }
 
 //! Function to read a thrust or specific impulse interpolator from a file.
-boost::shared_ptr< interpolators::Interpolator< double, double > > readCoefficientInterpolatorFromFile(
+std::shared_ptr< interpolators::Interpolator< double, double > > readCoefficientInterpolatorFromFile(
         const std::string coefficientFile )
 {
-    boost::shared_ptr< interpolators::Interpolator< double, double > > coefficientInterpolator;
+    std::shared_ptr< interpolators::Interpolator< double, double > > coefficientInterpolator;
     int numberOfThrustIndependentVariables = input_output::getNumberOfIndependentVariablesInCoefficientFile(
                 coefficientFile );
     if( numberOfThrustIndependentVariables == 1 )
@@ -221,7 +221,7 @@ boost::shared_ptr< interpolators::Interpolator< double, double > > readCoefficie
         std::pair< boost::multi_array< double, 1 >, std::vector< std::vector< double > > > coefficientData =
                 input_output::MultiArrayFileReader< 1 >::readMultiArrayAndIndependentVariables(
                     coefficientFile );
-        coefficientInterpolator = boost::make_shared< interpolators::MultiLinearInterpolator< double, double, 1 > >(
+        coefficientInterpolator = std::make_shared< interpolators::MultiLinearInterpolator< double, double, 1 > >(
                     coefficientData.second, coefficientData.first );
     }
     else if( numberOfThrustIndependentVariables == 2 )
@@ -229,7 +229,7 @@ boost::shared_ptr< interpolators::Interpolator< double, double > > readCoefficie
         std::pair< boost::multi_array< double, 2 >, std::vector< std::vector< double > > > coefficientData =
                 input_output::MultiArrayFileReader< 2 >::readMultiArrayAndIndependentVariables(
                     coefficientFile );
-        coefficientInterpolator = boost::make_shared< interpolators::MultiLinearInterpolator< double, double, 2 > >(
+        coefficientInterpolator = std::make_shared< interpolators::MultiLinearInterpolator< double, double, 2 > >(
                     coefficientData.second, coefficientData.first );
     }
     else if( numberOfThrustIndependentVariables == 3 )
@@ -237,7 +237,7 @@ boost::shared_ptr< interpolators::Interpolator< double, double > > readCoefficie
         std::pair< boost::multi_array< double, 3 >, std::vector< std::vector< double > > > coefficientData =
                 input_output::MultiArrayFileReader< 3 >::readMultiArrayAndIndependentVariables(
                     coefficientFile );
-        coefficientInterpolator = boost::make_shared< interpolators::MultiLinearInterpolator< double, double, 3 > >(
+        coefficientInterpolator = std::make_shared< interpolators::MultiLinearInterpolator< double, double, 3 > >(
                     coefficientData.second, coefficientData.first );
     }
     else
@@ -248,45 +248,45 @@ boost::shared_ptr< interpolators::Interpolator< double, double > > readCoefficie
 }
 
 //! Function to create thrust magnitude settings from guidance input and tables
-boost::shared_ptr< ParameterizedThrustMagnitudeSettings > createParameterizedThrustMagnitudeSettings(
-        const boost::shared_ptr< ThrustInputParameterGuidance > thrustInputParameterGuidance,
-        const boost::shared_ptr< interpolators::Interpolator< double, double > > thrustMagnitudeInterpolator,
+std::shared_ptr< ParameterizedThrustMagnitudeSettings > createParameterizedThrustMagnitudeSettings(
+        const std::shared_ptr< ThrustInputParameterGuidance > thrustInputParameterGuidance,
+        const std::shared_ptr< interpolators::Interpolator< double, double > > thrustMagnitudeInterpolator,
         const std::vector< propulsion::ThrustIndependentVariables > thrustIndependentVariables,
-        const boost::shared_ptr< interpolators::Interpolator< double, double > > specificImpulseInterpolator,
+        const std::shared_ptr< interpolators::Interpolator< double, double > > specificImpulseInterpolator,
         const std::vector< propulsion::ThrustIndependentVariables > specificImpulseDependentVariables )
 {
     // Create guidance input functions.
-    std::vector< boost::function< double( ) > > thrustGuidanceInputVariables;
+    std::vector< std::function< double( ) > > thrustGuidanceInputVariables;
     for( int i = 0; i < thrustInputParameterGuidance->getNumberOfThrustInputParameters( ); i++ )
     {
         thrustGuidanceInputVariables.push_back(
-                    boost::bind( &ThrustInputParameterGuidance::getThrustInputGuidanceParameter,
+                    std::bind( &ThrustInputParameterGuidance::getThrustInputGuidanceParameter,
                                  thrustInputParameterGuidance, i ) );
     }
 
     // Create specific impulse input functions.
-    std::vector< boost::function< double( ) > > specificImpulseGuidanceInputVariables;
+    std::vector< std::function< double( ) > > specificImpulseGuidanceInputVariables;
     for( int i = 0; i < thrustInputParameterGuidance->getNumberOfSpecificImpulseInputParameters( ); i++ )
     {
         specificImpulseGuidanceInputVariables.push_back(
-                    boost::bind( &ThrustInputParameterGuidance::getSpecificImpulseInputGuidanceParameter,
+                    std::bind( &ThrustInputParameterGuidance::getSpecificImpulseInputGuidanceParameter,
                                  thrustInputParameterGuidance, i ) );
     }
 
     // Create thrust magnitude settings object.
-    return boost::make_shared< ParameterizedThrustMagnitudeSettings >(
+    return std::make_shared< ParameterizedThrustMagnitudeSettings >(
                 thrustMagnitudeInterpolator,
                 thrustIndependentVariables,
                 specificImpulseInterpolator,
                 specificImpulseDependentVariables,
                 thrustGuidanceInputVariables,
                 specificImpulseGuidanceInputVariables,
-                boost::bind( &ThrustInputParameterGuidance::update, thrustInputParameterGuidance, _1 ) );
+                std::bind( &ThrustInputParameterGuidance::update, thrustInputParameterGuidance, std::placeholders::_1 ) );
 }
 
 //! Function to create thrust magnitude settings from guidance input and tables
-boost::shared_ptr< ParameterizedThrustMagnitudeSettings > createParameterizedThrustMagnitudeSettings(
-        const boost::shared_ptr< ThrustInputParameterGuidance > thrustInputParameterGuidance,
+std::shared_ptr< ParameterizedThrustMagnitudeSettings > createParameterizedThrustMagnitudeSettings(
+        const std::shared_ptr< ThrustInputParameterGuidance > thrustInputParameterGuidance,
         const std::string thrustMagnitudeDataFile,
         const std::vector< propulsion::ThrustIndependentVariables > thrustIndependentVariables,
         const std::string specificImpulseDataFile,
@@ -300,33 +300,33 @@ boost::shared_ptr< ParameterizedThrustMagnitudeSettings > createParameterizedThr
 }
 
 //! Function to create thrust magnitude settings from guidance input and tables, with constant specific impulse
-boost::shared_ptr< ParameterizedThrustMagnitudeSettings > createParameterizedThrustMagnitudeSettings(
-        const boost::shared_ptr< ThrustInputParameterGuidance > thrustInputParameterGuidance,
-        const boost::shared_ptr< interpolators::Interpolator< double, double > > thrustMagnitudeInterpolator,
+std::shared_ptr< ParameterizedThrustMagnitudeSettings > createParameterizedThrustMagnitudeSettings(
+        const std::shared_ptr< ThrustInputParameterGuidance > thrustInputParameterGuidance,
+        const std::shared_ptr< interpolators::Interpolator< double, double > > thrustMagnitudeInterpolator,
         const std::vector< propulsion::ThrustIndependentVariables > thrustIndependentVariables,
         const double constantSpecificImpulse )
 {
     // Create guidance input functions.
-    std::vector< boost::function< double( ) > > thrustGuidanceInputVariables;
+    std::vector< std::function< double( ) > > thrustGuidanceInputVariables;
     for( int i = 0; i < thrustInputParameterGuidance->getNumberOfThrustInputParameters( ); i++ )
     {
         thrustGuidanceInputVariables.push_back(
-                    boost::bind( &ThrustInputParameterGuidance::getThrustInputGuidanceParameter,
+                    std::bind( &ThrustInputParameterGuidance::getThrustInputGuidanceParameter,
                                  thrustInputParameterGuidance, i ) );
     }
 
     // Create thrust magnitude settings object.
-    return boost::make_shared< ParameterizedThrustMagnitudeSettings >(
+    return std::make_shared< ParameterizedThrustMagnitudeSettings >(
                 thrustMagnitudeInterpolator,
                 thrustIndependentVariables,
                 constantSpecificImpulse,
                 thrustGuidanceInputVariables,
-                boost::bind( &ThrustInputParameterGuidance::update, thrustInputParameterGuidance, _1 ) );
+                std::bind( &ThrustInputParameterGuidance::update, thrustInputParameterGuidance, std::placeholders::_1 ) );
 }
 
 //! Function to create thrust magnitude settings from guidance input and tables, with constant specific impulse
-boost::shared_ptr< ParameterizedThrustMagnitudeSettings > createParameterizedThrustMagnitudeSettings(
-        const boost::shared_ptr< ThrustInputParameterGuidance > thrustInputParameterGuidance,
+std::shared_ptr< ParameterizedThrustMagnitudeSettings > createParameterizedThrustMagnitudeSettings(
+        const std::shared_ptr< ThrustInputParameterGuidance > thrustInputParameterGuidance,
         const std::string thrustMagnitudeDataFile,
         const std::vector< propulsion::ThrustIndependentVariables > thrustIndependentVariables,
         const double constantSpecificImpulse )
@@ -340,18 +340,18 @@ boost::shared_ptr< ParameterizedThrustMagnitudeSettings > createParameterizedThr
 
 //! Function to create a thrust magnitude settings based on interpolated maximum thrust, with throttle determined by
 //! maximum allowed axial acceleration (constant specific impulse).
-boost::shared_ptr< ParameterizedThrustMagnitudeSettings > createAccelerationLimitedParameterizedThrustMagnitudeSettings(
+std::shared_ptr< ParameterizedThrustMagnitudeSettings > createAccelerationLimitedParameterizedThrustMagnitudeSettings(
         const NamedBodyMap& bodyMap,
         const std::string nameOfBodyWithGuidance,
         const double maximumAcceleration,
-        const boost::shared_ptr< interpolators::Interpolator< double, double > > thrustMagnitudeInterpolator,
+        const std::shared_ptr< interpolators::Interpolator< double, double > > thrustMagnitudeInterpolator,
         const std::vector< propulsion::ThrustIndependentVariables > thrustIndependentVariables,
         const double specificImpulse,
         const std::string nameOfCentralBody )
 {
 
-    boost::shared_ptr< ThrustInputParameterGuidance > thrustGuidance =
-            boost::make_shared< AccelerationLimitedThrottleGuidance >(
+    std::shared_ptr< ThrustInputParameterGuidance > thrustGuidance =
+            std::make_shared< AccelerationLimitedThrottleGuidance >(
                 bodyMap, nameOfBodyWithGuidance, nameOfCentralBody, thrustIndependentVariables,
                thrustMagnitudeInterpolator, maximumAcceleration );
     return createParameterizedThrustMagnitudeSettings(
@@ -360,7 +360,7 @@ boost::shared_ptr< ParameterizedThrustMagnitudeSettings > createAccelerationLimi
 
 //! Function to create a thrust magnitude settings based on interpolated maximum thrust, with throttle determined by
 //! maximum allowed axial acceleration (constant specific impulse).
-boost::shared_ptr< ParameterizedThrustMagnitudeSettings > createAccelerationLimitedParameterizedThrustMagnitudeSettings(
+std::shared_ptr< ParameterizedThrustMagnitudeSettings > createAccelerationLimitedParameterizedThrustMagnitudeSettings(
         const NamedBodyMap& bodyMap,
         const std::string nameOfBodyWithGuidance,
         const double maximumAcceleration,
@@ -377,19 +377,19 @@ boost::shared_ptr< ParameterizedThrustMagnitudeSettings > createAccelerationLimi
 
 //! Function to create a thrust magnitude settings based on interpolated maximum thrust, with throttle determined by
 //! maximum allowed axial acceleration.
-boost::shared_ptr< ParameterizedThrustMagnitudeSettings > createAccelerationLimitedParameterizedThrustMagnitudeSettings(
+std::shared_ptr< ParameterizedThrustMagnitudeSettings > createAccelerationLimitedParameterizedThrustMagnitudeSettings(
         const NamedBodyMap& bodyMap,
         const std::string nameOfBodyWithGuidance,
         const double maximumAcceleration,
-        const boost::shared_ptr< interpolators::Interpolator< double, double > > thrustMagnitudeInterpolator,
+        const std::shared_ptr< interpolators::Interpolator< double, double > > thrustMagnitudeInterpolator,
         const std::vector< propulsion::ThrustIndependentVariables > thrustIndependentVariables,
-        const boost::shared_ptr< interpolators::Interpolator< double, double > > specificImpulseInterpolator,
+        const std::shared_ptr< interpolators::Interpolator< double, double > > specificImpulseInterpolator,
         const std::vector< propulsion::ThrustIndependentVariables > specificImpulseDependentVariables,
         const std::string nameOfCentralBody )
 {
 
-    boost::shared_ptr< ThrustInputParameterGuidance > thrustGuidance =
-            boost::make_shared< AccelerationLimitedThrottleGuidance >(
+    std::shared_ptr< ThrustInputParameterGuidance > thrustGuidance =
+            std::make_shared< AccelerationLimitedThrottleGuidance >(
                 bodyMap, nameOfBodyWithGuidance, nameOfCentralBody, thrustIndependentVariables,
                thrustMagnitudeInterpolator, maximumAcceleration );
     return createParameterizedThrustMagnitudeSettings(
@@ -399,7 +399,7 @@ boost::shared_ptr< ParameterizedThrustMagnitudeSettings > createAccelerationLimi
 
 //! Function to create a thrust magnitude settings based on interpolated maximum thrust, with throttle determined by
 //! maximum allowed axial acceleration.
-boost::shared_ptr< ParameterizedThrustMagnitudeSettings > createAccelerationLimitedParameterizedThrustMagnitudeSettings(
+std::shared_ptr< ParameterizedThrustMagnitudeSettings > createAccelerationLimitedParameterizedThrustMagnitudeSettings(
         const NamedBodyMap& bodyMap,
         const std::string nameOfBodyWithGuidance,
         const double maximumAcceleration,

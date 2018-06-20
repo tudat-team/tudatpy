@@ -31,7 +31,7 @@
 #ifndef TUDAT_IMPROVED_INVERSE_POLYNOMIAL_WALL_H
 #define TUDAT_IMPROVED_INVERSE_POLYNOMIAL_WALL_H
 
-#include <boost/function.hpp>
+#include <functional>
 #include <boost/make_shared.hpp>
 
 #include <Eigen/Core>
@@ -58,7 +58,7 @@ namespace mission_segments
  * seven parameters. These parameters are related to the boundary conditions of the problem: three
  * initial conditions, three final conditions and the total time-of-flight. One of the parameters
  * is used to solve for the time-of-flight and is therefore a time-dependent parameter. These
- * seven parameters are passed to this class as boost::functions to facilitate the flexible
+ * seven parameters are passed to this class as std::functions to facilitate the flexible
  * external manipulation of their values.
  *
  */
@@ -68,7 +68,7 @@ public:
 
     //! Default constructor with immediate definition of parameters.
     /*!
-     * Default constructor with immediate definition of parameters through boost::functions.
+     * Default constructor with immediate definition of parameters through std::functions.
      * This setup allows for a flexible external manipulation of the values of the parameters.
      *
      * \param aTimeDependentParameter The parameter that is used to solve for the time-of-flight.
@@ -84,8 +84,8 @@ public:
      *      aSetOfBoundaryParameters.second( 1 ) = f
      *      aSetOfBoundaryParameters.second( 2 ) = g
      */
-    ImprovedInversePolynomialWall( const boost::function< double(  ) > aTimeDependentParameter,
-                                   const boost::function< std::pair< Eigen::Vector3d ,
+    ImprovedInversePolynomialWall( const std::function< double(  ) > aTimeDependentParameter,
+                                   const std::function< std::pair< Eigen::Vector3d ,
                                    Eigen::Vector3d >(  ) > aSetOfBoundaryParameters ) :
         timeDependentParameter_( aTimeDependentParameter ),
         boundaryParameters_( aSetOfBoundaryParameters ){  }
@@ -209,7 +209,7 @@ private:
     /*!
      * The time-dependent parameter, which is used to satisfy a required time-of-flight.
      */
-    boost::function< double(  ) > timeDependentParameter_;
+    std::function< double(  ) > timeDependentParameter_;
 
     //! The parameters of the function, related to the boundary conditions.
     /*!
@@ -230,11 +230,11 @@ private:
      * boundaryParameters_.second( 1 ) = f
      * boundaryParameters_.second( 2 ) = g
      */
-    boost::function< std::pair< Eigen::Vector3d , Eigen::Vector3d >(  ) > boundaryParameters_;
+    std::function< std::pair< Eigen::Vector3d , Eigen::Vector3d >(  ) > boundaryParameters_;
 };
 
 //! Typedef for shared-pointer to ImprovedInversePolynomialWall object.
-typedef boost::shared_ptr< ImprovedInversePolynomialWall > ImprovedInversePolynomialWallPointer;
+typedef std::shared_ptr< ImprovedInversePolynomialWall > ImprovedInversePolynomialWallPointer;
 
 } // namespace mission_segments
 } // namespace tudat

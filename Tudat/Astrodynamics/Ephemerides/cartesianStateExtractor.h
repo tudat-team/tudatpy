@@ -12,7 +12,7 @@
 #ifndef TUDAT_CARTESIAN_STATE_EXTRACTOR_H
 #define TUDAT_CARTESIAN_STATE_EXTRACTOR_H
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include <Eigen/Core>
 
@@ -41,7 +41,7 @@ public:
      * \param dataLineMap Data map corresponding to a parsed line.
      * \return A CartesianElements object containing the orbital parameters found in the data map.
      */
-    boost::shared_ptr< Eigen::Vector6d > extract( ParsedDataLineMapPtr dataLineMap );
+    std::shared_ptr< Eigen::Vector6d > extract( ParsedDataLineMapPtr dataLineMap );
 
 protected:
 
@@ -49,7 +49,7 @@ private:
 };
 
 //! Typedef for shared-pointer to CartesianStateExtractor object.
-typedef boost::shared_ptr< CartesianStateExtractor > CartesianStateExtractorPointer;
+typedef std::shared_ptr< CartesianStateExtractor > CartesianStateExtractorPointer;
 
 } // namespace ephemerides
 } // namespace tudat

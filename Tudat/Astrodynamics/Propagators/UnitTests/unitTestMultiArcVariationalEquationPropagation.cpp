@@ -27,7 +27,7 @@
 #include "Tudat/InputOutput/basicInputOutput.h"
 
 #include "Tudat/SimulationSetup/EnvironmentSetup/body.h"
-#include "Tudat/SimulationSetup/PropagationSetup/variationalEquationsSolver.h"
+#include "Tudat/SimulationSetup/EstimationSetup/variationalEquationsSolver.h"
 #include "Tudat/SimulationSetup/EnvironmentSetup/defaultBodies.h"
 #include "Tudat/SimulationSetup/EnvironmentSetup/createBodies.h"
 #include "Tudat/SimulationSetup/PropagationSetup/createNumericalSimulator.h"
@@ -89,7 +89,7 @@ executeMultiArcEarthMoonSimulation(
     double buffer = 10.0 * maximumTimeStep;
 
     // Create bodies needed in simulation
-    std::map< std::string, boost::shared_ptr< BodySettings > > bodySettings =
+    std::map< std::string, std::shared_ptr< BodySettings > > bodySettings =
             getDefaultBodySettings( bodyNames, initialEphemerisTime - buffer, finalEphemerisTime + buffer );
     bodySettings[ "Moon" ]->ephemerisSettings->resetMakeMultiArcEphemeris( true );
     bodySettings[ "Earth" ]->ephemerisSettings->resetMakeMultiArcEphemeris( true );
@@ -101,14 +101,14 @@ executeMultiArcEarthMoonSimulation(
 
     // Set accelerations between bodies that are to be taken into account.
     SelectedAccelerationMap accelerationMap;
-    std::map< std::string, std::vector< boost::shared_ptr< AccelerationSettings > > > accelerationsOfEarth;
-    accelerationsOfEarth[ "Sun" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );
-    accelerationsOfEarth[ "Moon" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );
+    std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfEarth;
+    accelerationsOfEarth[ "Sun" ].push_back( std::make_shared< AccelerationSettings >( central_gravity ) );
+    accelerationsOfEarth[ "Moon" ].push_back( std::make_shared< AccelerationSettings >( central_gravity ) );
     accelerationMap[ "Earth" ] = accelerationsOfEarth;
 
-    std::map< std::string, std::vector< boost::shared_ptr< AccelerationSettings > > > accelerationsOfMoon;
-    accelerationsOfMoon[ "Sun" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );
-    accelerationsOfMoon[ "Earth" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );
+    std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfMoon;
+    accelerationsOfMoon[ "Sun" ].push_back( std::make_shared< AccelerationSettings >( central_gravity ) );
+    accelerationsOfMoon[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( central_gravity ) );
     accelerationMap[ "Moon" ] = accelerationsOfMoon;
 
     // Set bodies for which initial state is to be estimated and integrated.
@@ -131,8 +131,8 @@ executeMultiArcEarthMoonSimulation(
                 bodyMap, accelerationMap, centralBodyMap );
 
     // Create integrator settings
-    boost::shared_ptr< IntegratorSettings< TimeType > > integratorSettings =
-            boost::make_shared< IntegratorSettings< TimeType > >
+    std::shared_ptr< IntegratorSettings< TimeType > > integratorSettings =
+            std::make_shared< IntegratorSettings< TimeType > >
             ( rungeKutta4, TimeType( initialEphemerisTime ), 1800.0 );
 
 
@@ -181,46 +181,46 @@ executeMultiArcEarthMoonSimulation(
     {
         propagatorType = encke;
     }
-    std::vector< boost::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > > propagatorSettingsList;
+    std::vector< std::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > > propagatorSettingsList;
 
     for( unsigned int i = 0; i < arcStartTimes.size( ); i++ )
     {
-        propagatorSettingsList.push_back( boost::make_shared< TranslationalStatePropagatorSettings< StateScalarType > >
+        propagatorSettingsList.push_back( std::make_shared< TranslationalStatePropagatorSettings< StateScalarType > >
                                           ( centralBodies, accelerationModelMap, bodiesToIntegrate, systemInitialStates.at( i ),
                                             arcEndTimes.at( i ), propagatorType ) );
     }
-    boost::shared_ptr< MultiArcPropagatorSettings< StateScalarType > > multiArcPropagatorSettings;
+    std::shared_ptr< MultiArcPropagatorSettings< StateScalarType > > multiArcPropagatorSettings;
 
     if( patchArcsTogether && forcedArcInitialStates.size( ) == 0 )
     {
         multiArcPropagatorSettings =
-                boost::make_shared< MultiArcPropagatorSettings< StateScalarType > >(
+                std::make_shared< MultiArcPropagatorSettings< StateScalarType > >(
                     propagatorSettingsList, patchArcsTogether );
     }
     else
     {
         multiArcPropagatorSettings =
-                boost::make_shared< MultiArcPropagatorSettings< StateScalarType > >(
+                std::make_shared< MultiArcPropagatorSettings< StateScalarType > >(
                     propagatorSettingsList );
     }
 
     // Define parameters.
-    std::vector< boost::shared_ptr< EstimatableParameterSettings > > parameterNames;
+    std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames;
     {
         parameterNames.push_back(
-                    boost::make_shared< ArcWiseInitialTranslationalStateEstimatableParameterSettings< StateScalarType > >(
+                    std::make_shared< ArcWiseInitialTranslationalStateEstimatableParameterSettings< StateScalarType > >(
                         "Moon", arcStartTimes, centralBodies[ 0 ] ) );
         parameterNames.push_back(
-                    boost::make_shared< ArcWiseInitialTranslationalStateEstimatableParameterSettings< StateScalarType > >(
+                    std::make_shared< ArcWiseInitialTranslationalStateEstimatableParameterSettings< StateScalarType > >(
                         "Earth", arcStartTimes, centralBodies[ 1 ] ) );
-        parameterNames.push_back( boost::make_shared< EstimatableParameterSettings >( "Moon", gravitational_parameter ) );
-        parameterNames.push_back( boost::make_shared< EstimatableParameterSettings >( "Earth", gravitational_parameter ) );
-        parameterNames.push_back( boost::make_shared< EstimatableParameterSettings >( "Sun", gravitational_parameter ) );
+        parameterNames.push_back( std::make_shared< EstimatableParameterSettings >( "Moon", gravitational_parameter ) );
+        parameterNames.push_back( std::make_shared< EstimatableParameterSettings >( "Earth", gravitational_parameter ) );
+        parameterNames.push_back( std::make_shared< EstimatableParameterSettings >( "Sun", gravitational_parameter ) );
 
     }
 
     // Create parameters
-    boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< StateScalarType > > parametersToEstimate =
+    std::shared_ptr< estimatable_parameters::EstimatableParameterSet< StateScalarType > > parametersToEstimate =
             createParametersToEstimate( parameterNames, bodyMap );
 
     // Perturb parameters.

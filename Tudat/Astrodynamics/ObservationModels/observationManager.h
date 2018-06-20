@@ -16,7 +16,7 @@
 #include "Tudat/Astrodynamics/ObservationModels/linkTypeDefs.h"
 #include "Tudat/Astrodynamics/ObservationModels/observationSimulator.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/ObservationPartials/observationPartial.h"
-#include "Tudat/SimulationSetup/PropagationSetup/variationalEquationsSolver.h"
+#include "Tudat/Astrodynamics/Propagators/stateTransitionMatrixInterface.h"
 
 namespace tudat
 {
@@ -47,14 +47,14 @@ public:
      */
     ObservationManagerBase(
             const ObservableType observableType,
-            const boost::shared_ptr< propagators::CombinedStateTransitionAndSensitivityMatrixInterface >
+            const std::shared_ptr< propagators::CombinedStateTransitionAndSensitivityMatrixInterface >
             stateTransitionMatrixInterface,
-            const std::map< LinkEnds, boost::shared_ptr< observation_partials::PositionPartialScaling  > >&
+            const std::map< LinkEnds, std::shared_ptr< observation_partials::PositionPartialScaling  > >&
             observationPartialScalers ):
         observableType_( observableType ), stateTransitionMatrixInterface_( stateTransitionMatrixInterface ),
         observationPartialScalers_( observationPartialScalers )
     {
-        if( stateTransitionMatrixInterface_ != NULL )
+        if( stateTransitionMatrixInterface_ != nullptr )
         {
             stateTransitionMatrixSize_ = stateTransitionMatrixInterface_->getStateTransitionMatrixSize( );
         }
@@ -96,7 +96,7 @@ public:
      * Function (ṕure virtual) to return the object used to simulate noise-free observations
      * \return Object used to simulate ideal observations
      */
-    virtual boost::shared_ptr< ObservationSimulatorBase< ObservationScalarType, TimeType > > getObservationSimulator( ) = 0;
+    virtual std::shared_ptr< ObservationSimulatorBase< ObservationScalarType, TimeType > > getObservationSimulator( ) = 0;
 
 
 protected:
@@ -117,11 +117,11 @@ protected:
     ObservableType observableType_;
 
     //! Object used to compute the state transition/sensitivity matrix at a given time
-    boost::shared_ptr< propagators::CombinedStateTransitionAndSensitivityMatrixInterface > stateTransitionMatrixInterface_;
+    std::shared_ptr< propagators::CombinedStateTransitionAndSensitivityMatrixInterface > stateTransitionMatrixInterface_;
 
     //!  Map of objects (one per set of link ends) used to compute the scaling of position partials that are used to
     //! compute the observation partials in the derived class
-    std::map< LinkEnds, boost::shared_ptr< observation_partials::PositionPartialScaling  > > observationPartialScalers_;
+    std::map< LinkEnds, std::shared_ptr< observation_partials::PositionPartialScaling  > > observationPartialScalers_;
 
     //! Size of (square) state transition matrix.
     /*!
@@ -166,13 +166,13 @@ public:
      */
     ObservationManager(
             const ObservableType observableType,
-            const boost::shared_ptr< ObservationSimulator< ObservationSize, ObservationScalarType, TimeType > >&
+            const std::shared_ptr< ObservationSimulator< ObservationSize, ObservationScalarType, TimeType > >&
             observationSimulator,
             const std::map< LinkEnds, std::map< std::pair< int, int >,
-            boost::shared_ptr< observation_partials::ObservationPartial< ObservationSize > > > > observationPartials,
-            const std::map< LinkEnds, boost::shared_ptr< observation_partials::PositionPartialScaling  > >
+            std::shared_ptr< observation_partials::ObservationPartial< ObservationSize > > > > observationPartials,
+            const std::map< LinkEnds, std::shared_ptr< observation_partials::PositionPartialScaling  > >
             observationPartialScalers,
-            const boost::shared_ptr< propagators::CombinedStateTransitionAndSensitivityMatrixInterface >
+            const std::shared_ptr< propagators::CombinedStateTransitionAndSensitivityMatrixInterface >
             stateTransitionMatrixInterface ):
         ObservationManagerBase< ObservationScalarType, TimeType >(
             observableType, stateTransitionMatrixInterface, observationPartialScalers ),
@@ -198,7 +198,7 @@ public:
      *  \param linkEnds Link ends for which observation model is to be returned
      *  \return Observation model
      */
-    boost::shared_ptr< ObservationModel< ObservationSize, ObservationScalarType, TimeType > > getObservationModel(
+    std::shared_ptr< ObservationModel< ObservationSize, ObservationScalarType, TimeType > > getObservationModel(
             const LinkEnds linkEnds )
     {
        return observationSimulator_->getObservationModel( linkEnds );
@@ -209,7 +209,7 @@ public:
      * Function to return the object used to simulate noise-free observations
      * \return Object used to simulate ideal observations
      */
-    boost::shared_ptr< ObservationSimulatorBase< ObservationScalarType, TimeType > > getObservationSimulator( )
+    std::shared_ptr< ObservationSimulatorBase< ObservationScalarType, TimeType > > getObservationSimulator( )
     {
         return observationSimulator_;
     }
@@ -234,7 +234,7 @@ public:
         std::map< TimeType, Eigen::Matrix< double, ObservationSize, Eigen::Dynamic > > observationMatrices;
 
         // Get observation model.
-        boost::shared_ptr< ObservationModel< ObservationSize, ObservationScalarType, TimeType > > selectedObservationModel =
+        std::shared_ptr< ObservationModel< ObservationSize, ObservationScalarType, TimeType > > selectedObservationModel =
                 observationSimulator_->getObservationModel( linkEnds );
 
         // Initialize vectors of states and times of link ends to be used in calculations.
@@ -272,7 +272,7 @@ public:
      * Function to return the full list of observation partial objects
      * \return Full list of observation partial objects
      */
-    std::map< LinkEnds, std::map< std::pair< int, int >, boost::shared_ptr<
+    std::map< LinkEnds, std::map< std::pair< int, int >, std::shared_ptr<
     observation_partials::ObservationPartial< ObservationSize > > > > getObservationPartials( )
     {
         return observationPartials_;
@@ -283,7 +283,7 @@ public:
      * Function to return the observation partial objects for a single set of link ends
      * \return Observation partial objects for a single set of link ends
      */
-    std::map< std::pair< int, int >, boost::shared_ptr< observation_partials::ObservationPartial< ObservationSize > > >
+    std::map< std::pair< int, int >, std::shared_ptr< observation_partials::ObservationPartial< ObservationSize > > >
     getObservationPartials( const LinkEnds& linkEnds )
     {
         return observationPartials_.at( linkEnds );
@@ -350,7 +350,7 @@ protected:
         currentLinkEndPartials = observationPartials_[ linkEnds ];
 
         // Iterate over all observation partials associated with given link ends.
-        for( typename std::map< std::pair< int, int >, boost::shared_ptr<
+        for( typename std::map< std::pair< int, int >, std::shared_ptr<
              observation_partials::ObservationPartial< ObservationSize > > >::iterator
              partialIterator = currentLinkEndPartials.begin( );
              partialIterator != currentLinkEndPartials.end( ); partialIterator++ )
@@ -401,7 +401,7 @@ protected:
     }
 
     //! Object used to simulate ideal observations of the  observableType
-    boost::shared_ptr< ObservationSimulator< ObservationSize, ObservationScalarType, TimeType > > observationSimulator_;
+    std::shared_ptr< ObservationSimulator< ObservationSize, ObservationScalarType, TimeType > > observationSimulator_;
 
     //! Map of observation partials.
     /*!
@@ -410,14 +410,39 @@ protected:
      * The LinkEnds key denotes the specific geomtry of the observable, while the pair< int, int > key denotes the start
      * index and size, respectively, of the current parameter partial in the estimated parameter vector.
      */
-    std::map< LinkEnds, std::map< std::pair< int, int >, boost::shared_ptr<
+    std::map< LinkEnds, std::map< std::pair< int, int >, std::shared_ptr<
     observation_partials::ObservationPartial< ObservationSize > > > > observationPartials_;
 
     //! Pre-declared map used in computation of partials.
-    std::map< std::pair< int, int >, boost::shared_ptr< observation_partials::ObservationPartial< ObservationSize > > >
+    std::map< std::pair< int, int >, std::shared_ptr< observation_partials::ObservationPartial< ObservationSize > > >
     currentLinkEndPartials;
 
 };
+
+extern template class ObservationManagerBase< double, double >;
+extern template class ObservationManagerBase< double, Time >;
+extern template class ObservationManagerBase< long double, double >;
+extern template class ObservationManagerBase< long double, Time >;
+
+extern template class ObservationManager< 1, double, double >;
+extern template class ObservationManager< 1, double, Time >;
+extern template class ObservationManager< 1, long double, double >;
+extern template class ObservationManager< 1, long double, Time >;
+
+extern template class ObservationManager< 2, double, double >;
+extern template class ObservationManager< 2, double, Time >;
+extern template class ObservationManager< 2, long double, double >;
+extern template class ObservationManager< 2, long double, Time >;
+
+extern template class ObservationManager< 3, double, double >;
+extern template class ObservationManager< 3, double, Time >;
+extern template class ObservationManager< 3, long double, double >;
+extern template class ObservationManager< 3, long double, Time >;
+
+extern template class ObservationManager< 6, double, double >;
+extern template class ObservationManager< 6, double, Time >;
+extern template class ObservationManager< 6, long double, double >;
+extern template class ObservationManager< 6, long double, Time >;
 
 }
 

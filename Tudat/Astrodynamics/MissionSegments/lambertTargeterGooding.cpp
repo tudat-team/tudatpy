@@ -38,7 +38,7 @@ LambertTargeterGooding::LambertTargeterGooding(
     // Required because the make_shared in the function definition gives problems for MSVC.
     if ( !rootFinder.get( ) )
     {
-        rootFinder = boost::make_shared< NewtonRaphson >( 1.0e-12, 1000 );
+        rootFinder = std::make_shared< NewtonRaphson >( 1.0e-12, 1000 );
     }
 
     // Execute algorithm.
