@@ -13,7 +13,7 @@
 
 #include <map>
 #include <boost/make_shared.hpp>
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include "Tudat/Mathematics/Statistics/continuousProbabilityDistributions.h"
 #include "Tudat/Mathematics/Statistics/boostProbabilityDistributions.h"
@@ -276,15 +276,15 @@ private:
      * \param bandWidth Bandwidth of kernel thatr is to be created.
      * \return Probability distribution for single kernel.
      */
-    boost::shared_ptr< ContinuousProbabilityDistribution< double > > constructKernel(
+    std::shared_ptr< ContinuousProbabilityDistribution< double > > constructKernel(
             const double mean, const double bandWidth )
     {
-        boost::shared_ptr< ContinuousProbabilityDistribution< double > > kernelPointer;
+        std::shared_ptr< ContinuousProbabilityDistribution< double > > kernelPointer;
 
         // Check kernel type and create selected kernel.
         if( kernelType_ == KernelType::epanechnikov_kernel )
         {
-            kernelPointer = boost::make_shared< EpanechnikovKernelDistribution >( mean, bandWidth );
+            kernelPointer = std::make_shared< EpanechnikovKernelDistribution >( mean, bandWidth );
         }
         else if( kernelType_ == KernelType::gaussian_kernel )
         {
@@ -362,12 +362,12 @@ private:
     int numberOfSamples_;
 
     //! Matrix (vector of vectors) of 1D kernel pointers that define full kernel density distribution.
-    std::vector< std::vector< boost::shared_ptr< ContinuousProbabilityDistribution< double > > > > kernelPointersMatrix_;
+    std::vector< std::vector< std::shared_ptr< ContinuousProbabilityDistribution< double > > > > kernelPointersMatrix_;
 
 };
 
 //! Pointer to Kernel Density distribution class
-typedef boost::shared_ptr< KernelDensityDistribution > KernelDensityDistributionPointer;
+typedef std::shared_ptr< KernelDensityDistribution > KernelDensityDistributionPointer;
 
 
 } // namespace statistics

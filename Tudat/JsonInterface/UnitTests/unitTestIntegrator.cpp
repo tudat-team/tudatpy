@@ -47,15 +47,15 @@ BOOST_AUTO_TEST_CASE( test_json_integrator_euler )
     using namespace tudat::json_interface;
 
     // Create IntegratorSettings from JSON file
-    const boost::shared_ptr< IntegratorSettings< double > > fromFileSettings =
-            parseJSONFile< boost::shared_ptr< IntegratorSettings< double > > >( INPUT( "euler" ) );
+    const std::shared_ptr< IntegratorSettings< double > > fromFileSettings =
+            parseJSONFile< std::shared_ptr< IntegratorSettings< double > > >( INPUT( "euler" ) );
 
     // Create IntegratorSettings manually
     const AvailableIntegrators integratorType = euler;
     const double initialTime = 3.0;
     const double stepSize = 1.4;
-    const boost::shared_ptr< IntegratorSettings< double > > manualSettings =
-            boost::make_shared< IntegratorSettings< double > >( integratorType,
+    const std::shared_ptr< IntegratorSettings< double > > manualSettings =
+            std::make_shared< IntegratorSettings< double > >( integratorType,
                                                                 initialTime,
                                                                 stepSize );
 
@@ -70,8 +70,8 @@ BOOST_AUTO_TEST_CASE( test_json_integrator_rungeKutta4 )
     using namespace tudat::json_interface;
 
     // Create IntegratorSettings from JSON file
-    const boost::shared_ptr< IntegratorSettings< double > > fromFileSettings =
-            parseJSONFile< boost::shared_ptr< IntegratorSettings< double > > >( INPUT( "rungeKutta4" ) );
+    const std::shared_ptr< IntegratorSettings< double > > fromFileSettings =
+            parseJSONFile< std::shared_ptr< IntegratorSettings< double > > >( INPUT( "rungeKutta4" ) );
 
     // Create IntegratorSettings manually
     const AvailableIntegrators integratorType = rungeKutta4;
@@ -79,8 +79,8 @@ BOOST_AUTO_TEST_CASE( test_json_integrator_rungeKutta4 )
     const double stepSize = 1.4;
     const unsigned int saveFrequency = 2;
     const bool assessTerminationConditionDuringIntegrationSubsteps = true;
-    const boost::shared_ptr< IntegratorSettings< double > > manualSettings =
-            boost::make_shared< IntegratorSettings< double > >( integratorType,
+    const std::shared_ptr< IntegratorSettings< double > > manualSettings =
+            std::make_shared< IntegratorSettings< double > >( integratorType,
                                                                 initialTime,
                                                                 stepSize,
                                                                 saveFrequency,
@@ -98,8 +98,8 @@ BOOST_AUTO_TEST_CASE( test_json_integrator_rungeKuttaVariableStepSize )
     using namespace tudat::json_interface;
 
     // Create IntegratorSettings from JSON file
-    const boost::shared_ptr< IntegratorSettings< double > > fromFileSettings =
-            parseJSONFile< boost::shared_ptr< IntegratorSettings< double > > >( INPUT( "rungeKuttaVariableStepSize" ) );
+    const std::shared_ptr< IntegratorSettings< double > > fromFileSettings =
+            parseJSONFile< std::shared_ptr< IntegratorSettings< double > > >( INPUT( "rungeKuttaVariableStepSize" ) );
 
     // Create IntegratorSettings manually
     const AvailableIntegrators integratorType = rungeKuttaVariableStepSize;
@@ -114,8 +114,8 @@ BOOST_AUTO_TEST_CASE( test_json_integrator_rungeKuttaVariableStepSize )
     const double safetyFactorForNextStepSize = 2.0;
     const double maximumFactorIncreaseForNextStepSize = 10.0;
     const double minimumFactorDecreaseForNextStepSize = 0.1;
-    const boost::shared_ptr< IntegratorSettings< double > > manualSettings =
-            boost::make_shared< RungeKuttaVariableStepSizeSettings< double > >( integratorType,
+    const std::shared_ptr< IntegratorSettings< double > > manualSettings =
+            std::make_shared< RungeKuttaVariableStepSizeSettings< double > >( integratorType,
                                                                                 initialTime,
                                                                                 initialStepSize,
                                                                                 rungeKuttaCoefficientSet,
@@ -140,8 +140,8 @@ BOOST_AUTO_TEST_CASE( test_json_integrator_adamsBashforthMoulton )
     using namespace tudat::json_interface;
 
     // Create IntegratorSettings from JSON file
-    const boost::shared_ptr< IntegratorSettings< double > > fromFileSettings =
-            parseJSONFile< boost::shared_ptr< IntegratorSettings< double > > >( INPUT( "adamsBashforthMoulton" ) );
+    const std::shared_ptr< IntegratorSettings< double > > fromFileSettings =
+            parseJSONFile< std::shared_ptr< IntegratorSettings< double > > >( INPUT( "adamsBashforthMoulton" ) );
 
     // Create IntegratorSettings manually
     const AvailableIntegrators integratorType = adamsBashforthMoulton;
@@ -154,8 +154,8 @@ BOOST_AUTO_TEST_CASE( test_json_integrator_adamsBashforthMoulton )
     const double bandwidth = 200;
     const int minimumOrder = 6;
     const int maximumOrder = 11;
-    const boost::shared_ptr< IntegratorSettings< double > > manualSettings =
-            boost::make_shared< AdamsBashforthMoultonSettings< double > >(  initialTime,
+    const std::shared_ptr< IntegratorSettings< double > > manualSettings =
+            std::make_shared< AdamsBashforthMoultonSettings< double > >(  initialTime,
                                                                 initialStepSize,
                                                                 minimumStepSize,
                                                                 maximumStepSize,
@@ -178,8 +178,8 @@ BOOST_AUTO_TEST_CASE( test_json_integrator_bulirschStoer )
     using namespace tudat::json_interface;
 
     // Create IntegratorSettings from JSON file
-    const boost::shared_ptr< IntegratorSettings< double > > fromFileSettings =
-            parseJSONFile< boost::shared_ptr< IntegratorSettings< double > > >( INPUT( "bulirschStoer" ) );
+    const std::shared_ptr< IntegratorSettings< double > > fromFileSettings =
+            parseJSONFile< std::shared_ptr< IntegratorSettings< double > > >( INPUT( "bulirschStoer" ) );
 
     // Create IntegratorSettings manually
     const double initialTime = -0.3;
@@ -190,8 +190,8 @@ BOOST_AUTO_TEST_CASE( test_json_integrator_bulirschStoer )
     const double absoluteErrorTolerance = 1.0E-2;
     const int maximumNumberOfSteps = 8;
 
-    const boost::shared_ptr< IntegratorSettings< double > > manualSettings =
-            boost::make_shared< BulirschStoerIntegratorSettings< double > >(
+    const std::shared_ptr< IntegratorSettings< double > > manualSettings =
+            std::make_shared< BulirschStoerIntegratorSettings< double > >(
                 initialTime, initialStepSize, bulirsch_stoer_sequence, maximumNumberOfSteps,
                 minimumStepSize, maximumStepSize, relativeErrorTolerance, absoluteErrorTolerance );
 

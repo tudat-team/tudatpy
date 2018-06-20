@@ -31,17 +31,17 @@ BOOST_AUTO_TEST_CASE( test_json_body_settings )
     using namespace json_interface;
 
     // Create BodySettings from JSON file
-    const boost::shared_ptr< BodySettings > fromFileSettings = createBodySettings( parseJSONFile( INPUT( "body" ) ) );
+    const std::shared_ptr< BodySettings > fromFileSettings = createBodySettings( parseJSONFile( INPUT( "body" ) ) );
 
     // Create BodySettings manually
-    boost::shared_ptr< BodySettings > manualSettings = boost::make_shared< BodySettings >( );
+    std::shared_ptr< BodySettings > manualSettings = std::make_shared< BodySettings >( );
     manualSettings->constantMass = 3000;
-    manualSettings->aerodynamicCoefficientSettings = boost::make_shared< ConstantAerodynamicCoefficientSettings >(
+    manualSettings->aerodynamicCoefficientSettings = std::make_shared< ConstantAerodynamicCoefficientSettings >(
                 5.0, ( Eigen::Vector3d( ) << 1.7, 0.0, 0.0 ).finished( ) );
-    manualSettings->atmosphereSettings = boost::make_shared< AtmosphereSettings >( nrlmsise00 );
-    manualSettings->ephemerisSettings = boost::make_shared< ConstantEphemerisSettings >(
+    manualSettings->atmosphereSettings = std::make_shared< AtmosphereSettings >( nrlmsise00 );
+    manualSettings->ephemerisSettings = std::make_shared< ConstantEphemerisSettings >(
                 ( Eigen::Vector6d( ) << 0.0, 1.0, 0.0, -0.1, 0.0, 0.0 ).finished( ) );
-    manualSettings->gravityFieldSettings = boost::make_shared< CentralGravityFieldSettings >( 4.0e14 );
+    manualSettings->gravityFieldSettings = std::make_shared< CentralGravityFieldSettings >( 4.0e14 );
     const std::vector< std::string > deformingBodies = { "Moon" };
     const std::vector< std::vector< std::complex< double > > > loveNumbers =
     {
@@ -50,13 +50,13 @@ BOOST_AUTO_TEST_CASE( test_json_body_settings )
         { std::complex< double >( 0.0, 0.0 ), std::complex< double >( 0.0, 0.0 ), std::complex< double >( 0.0, 1.0 ) }
     };
     const double referenceRadius = 5e6;
-    manualSettings->gravityFieldVariationSettings = { boost::make_shared< BasicSolidBodyGravityFieldVariationSettings >(
+    manualSettings->gravityFieldVariationSettings = { std::make_shared< BasicSolidBodyGravityFieldVariationSettings >(
                                                       deformingBodies, loveNumbers, referenceRadius ) };
     manualSettings->radiationPressureSettings =
-    { { "Sun", boost::make_shared< CannonBallRadiationPressureInterfaceSettings >( "Sun", 5.0, 1.3 ) } };
+    { { "Sun", std::make_shared< CannonBallRadiationPressureInterfaceSettings >( "Sun", 5.0, 1.3 ) } };
     manualSettings->rotationModelSettings =
-            boost::make_shared< RotationModelSettings >( spice_rotation_model, "A", "B" );
-    manualSettings->shapeModelSettings = boost::make_shared< SphericalBodyShapeSettings >( 5.0e6 );
+            std::make_shared< RotationModelSettings >( spice_rotation_model, "A", "B" );
+    manualSettings->shapeModelSettings = std::make_shared< SphericalBodyShapeSettings >( 5.0e6 );
 
     // Compare
     BOOST_CHECK_EQUAL_JSON( fromFileSettings, manualSettings );

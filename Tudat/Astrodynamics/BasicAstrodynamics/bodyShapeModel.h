@@ -18,8 +18,8 @@
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 
-#include <boost/function.hpp>
-#include <boost/shared_ptr.hpp>
+#include <functional>
+#include <memory>
 
 namespace tudat
 {
@@ -78,7 +78,7 @@ protected:
  *  \return Altitude above body shape.
  */
 double getAltitudeFromNonBodyFixedPosition(
-        const boost::shared_ptr< BodyShapeModel > bodyShapeModel,
+        const std::shared_ptr< BodyShapeModel > bodyShapeModel,
         const Eigen::Vector3d& position,
         const Eigen::Vector3d& bodyPosition,
         const Eigen::Quaterniond& toBodyFixedFrame );
@@ -100,10 +100,10 @@ double getAltitudeFromNonBodyFixedPosition(
  *  \return Altitude above body shape.
  */
 double getAltitudeFromNonBodyFixedPositionFunctions(
-        const boost::shared_ptr< BodyShapeModel > bodyShapeModel,
+        const std::shared_ptr< BodyShapeModel > bodyShapeModel,
         const Eigen::Vector3d& position,
-        const boost::function< Eigen::Vector3d( ) > bodyPositionFunction,
-        const boost::function< Eigen::Quaterniond( ) > toBodyFixedFrameFunction );
+        const std::function< Eigen::Vector3d( ) > bodyPositionFunction,
+        const std::function< Eigen::Quaterniond( ) > toBodyFixedFrameFunction );
 
 
 } // namespace basic_astrodynamics

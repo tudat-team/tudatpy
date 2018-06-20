@@ -13,7 +13,7 @@
 
 #include <map>
 
-#include <boost/function.hpp>
+#include <functional>
 
 #include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/estimatableParameter.h"
 
@@ -46,8 +46,8 @@ public:
      * \param associatedBody Name of body for which cosine coefficients are to be estimated.
      */
     SphericalHarmonicsCosineCoefficients(
-            const boost::function< Eigen::MatrixXd( ) > getCosineCoefficients,
-            const boost::function< void( Eigen::MatrixXd ) > setCosineCoefficients,
+            const std::function< Eigen::MatrixXd( ) > getCosineCoefficients,
+            const std::function< void( Eigen::MatrixXd ) > setCosineCoefficients,
             const std::vector< std::pair< int, int > > blockIndices,
             const std::string& associatedBody ):
         EstimatableParameter< Eigen::VectorXd >( spherical_harmonics_cosine_coefficient_block, associatedBody ),
@@ -138,10 +138,10 @@ private:
 
 
     //! Function to retrieve the full set of sine coefficients, of which a subset is to be estimated.
-    boost::function< Eigen::MatrixXd( ) > getCosineCoefficients_;
+    std::function< Eigen::MatrixXd( ) > getCosineCoefficients_;
 
     //! Function to reset the full set of sine coefficients, of which a subset is to be estimated.
-    boost::function< void( Eigen::MatrixXd ) > setCosineCoefficients_;
+    std::function< void( Eigen::MatrixXd ) > setCosineCoefficients_;
 
     //! List of cosine coefficient indices which are to be estimated
     /*!

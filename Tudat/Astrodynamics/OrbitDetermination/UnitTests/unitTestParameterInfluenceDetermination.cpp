@@ -16,8 +16,8 @@
 #include <boost/test/unit_test.hpp>
 
 #include "Tudat/Astrodynamics/ObservationModels/simulateObservations.h"
-#include "Tudat/Astrodynamics/OrbitDetermination/orbitDeterminationManager.h"
-#include "Tudat/Astrodynamics/OrbitDetermination/determinePostFitParameterInfluence.h"
+#include "Tudat/SimulationSetup/EstimationSetup/orbitDeterminationManager.h"
+#include "Tudat/SimulationSetup/EstimationSetup//determinePostFitParameterInfluence.h"
 #include "Tudat/SimulationSetup/tudatSimulationHeader.h"
 #include "Tudat/Astrodynamics/Aerodynamics/UnitTests/testApolloCapsuleCoefficients.h"
 #include "Tudat/SimulationSetup/EnvironmentSetup/createGroundStations.h"
@@ -72,12 +72,12 @@ BOOST_AUTO_TEST_CASE( test_ParameterPostFitResiduals )
     // Test for full list of taret bodies, and then for the full list at the same time
     for( unsigned int testCase = 0; testCase < targetBodies.size( ) + 1; testCase++ )
     {
-        std::map< std::string, boost::shared_ptr< BodySettings > > bodySettings =
+        std::map< std::string, std::shared_ptr< BodySettings > > bodySettings =
                 getDefaultBodySettings( bodiesToCreate );
 
         // Set solar J2 value
         double sunNormalizedJ2 = 2.0E-7 / calculateLegendreGeodesyNormalizationFactor( 2, 0 );
-        bodySettings[ "Sun" ]->gravityFieldSettings = boost::make_shared< SphericalHarmonicsGravityFieldSettings >(
+        bodySettings[ "Sun" ]->gravityFieldSettings = std::make_shared< SphericalHarmonicsGravityFieldSettings >(
                     getBodyGravitationalParameter( "Sun" ), 695.7E6,
                     ( Eigen::Matrix3d( ) << 1.0, 0.0, 0.0,
                       0.0, 0.0, 0.0,
@@ -86,7 +86,7 @@ BOOST_AUTO_TEST_CASE( test_ParameterPostFitResiduals )
 
 //        // Setting approximate ephemeris for Jupiter to prevent having to use large Spice kernel.
 //        double jupiterGravitationalParameter = getBodyGravitationalParameter( "Jupiter" );
-//        bodySettings[ "Jupiter" ]->ephemerisSettings = boost::make_shared< KeplerEphemerisSettings >(
+//        bodySettings[ "Jupiter" ]->ephemerisSettings = std::make_shared< KeplerEphemerisSettings >(
 //                    convertCartesianToKeplerianElements(
 //                        getBodyCartesianStateAtEpoch(
 //                            "Jupiter", "SSB", "ECLIPJ2000", "None", simulationStartEpoch ),
@@ -105,7 +105,7 @@ BOOST_AUTO_TEST_CASE( test_ParameterPostFitResiduals )
 
         for( unsigned int body = 0; body < currentTargetBodies.size( ); body++ )
         {
-            bodySettings[ currentTargetBodies.at( body ) ]->ephemerisSettings = boost::make_shared< InterpolatedSpiceEphemerisSettings >(
+            bodySettings[ currentTargetBodies.at( body ) ]->ephemerisSettings = std::make_shared< InterpolatedSpiceEphemerisSettings >(
                         simulationStartEpoch - 86400.0, simulationStartEpoch + 86400.0, 300.0, "SSB", "ECLIPJ2000" );
         }
 
@@ -141,12 +141,12 @@ BOOST_AUTO_TEST_CASE( test_ParameterPostFitResiduals )
                 if( bodiesToCreate.at( j )  != "Sun" )
                 {
                     accelerationMap[ currentTargetBodies.at( body ) ][ bodiesToCreate.at( j ) ].push_back(
-                                boost::make_shared< AccelerationSettings >( basic_astrodynamics::central_gravity ) );
+                                std::make_shared< AccelerationSettings >( basic_astrodynamics::central_gravity ) );
                 }
                 else
                 {
                     accelerationMap[ currentTargetBodies.at( body ) ][ bodiesToCreate.at( j ) ].push_back(
-                                boost::make_shared< SphericalHarmonicAccelerationSettings >( 2, 0 ) );
+                                std::make_shared< SphericalHarmonicAccelerationSettings >( 2, 0 ) );
                 }
             }
         }
@@ -157,25 +157,25 @@ BOOST_AUTO_TEST_CASE( test_ParameterPostFitResiduals )
                     bodyMap, accelerationMap, bodiesToPropagate, centralBodies );
         Eigen::VectorXd systemInitialState = getInitialStatesOfBodies(
                     bodiesToPropagate, centralBodies, bodyMap, simulationStartEpoch );
-        boost::shared_ptr< PropagatorSettings< double > > propagatorSettings =
-                boost::make_shared< TranslationalStatePropagatorSettings< double > >
+        std::shared_ptr< PropagatorSettings< double > > propagatorSettings =
+                std::make_shared< TranslationalStatePropagatorSettings< double > >
                 ( centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState, simulationEndEpoch, cowell );
 
         // Create integrator settings.
-        boost::shared_ptr< IntegratorSettings< > > integratorSettings =
-                boost::make_shared< RungeKuttaVariableStepSizeSettings< > >
+        std::shared_ptr< IntegratorSettings< > > integratorSettings =
+                std::make_shared< RungeKuttaVariableStepSizeSettings< > >
                 ( rungeKuttaVariableStepSize, ( simulationStartEpoch ), 12.0 * 3600.0,
                   RungeKuttaCoefficients::CoefficientSets::rungeKuttaFehlberg78,
                   3.0 * 3600.0, 12.0 * 3600.0, 1.0E-12, 1.0E-12 );
 
         // Create settings for parameter that is to be perturbed
-        boost::shared_ptr< EstimatableParameterSettings > perturbedParameterSettings;
+        std::shared_ptr< EstimatableParameterSettings > perturbedParameterSettings;
         perturbedParameterSettings = (
-                    boost::make_shared< SphericalHarmonicEstimatableParameterSettings >(
+                    std::make_shared< SphericalHarmonicEstimatableParameterSettings >(
                         2, 0, 2, 0, "Sun", spherical_harmonics_cosine_coefficient_block ) );
 
         // Generate fit for observations with J2 to model without J2
-        std::pair< boost::shared_ptr< PodOutput< double > >, Eigen::VectorXd > estimationOutput =
+        std::pair< std::shared_ptr< PodOutput< double > >, Eigen::VectorXd > estimationOutput =
                 determinePostfitParameterInfluence(
                     bodyMap, integratorSettings, propagatorSettings, perturbedParameterSettings,
                     6.0 * 3600.0, boost::assign::list_of( -sunNormalizedJ2 ), boost::assign::list_of( 0 ) );
@@ -255,9 +255,9 @@ BOOST_AUTO_TEST_CASE( test_ParameterPostFitResidualsApollo )
     const double simulationStartEpoch = 0.0;
 
     // Define simulation body settings.
-    std::map< std::string, boost::shared_ptr< BodySettings > > bodySettings =
+    std::map< std::string, std::shared_ptr< BodySettings > > bodySettings =
             getDefaultBodySettings( { "Earth" } );
-    bodySettings[ "Earth" ]->ephemerisSettings = boost::make_shared< simulation_setup::ConstantEphemerisSettings >(
+    bodySettings[ "Earth" ]->ephemerisSettings = std::make_shared< simulation_setup::ConstantEphemerisSettings >(
                 Eigen::Vector6d::Zero( ), "SSB", "J2000" );
     bodySettings[ "Earth" ]->rotationModelSettings->resetOriginalFrame( "J2000" );
 
@@ -266,13 +266,13 @@ BOOST_AUTO_TEST_CASE( test_ParameterPostFitResidualsApollo )
 
     // Retrieve Earth J2
     double earthC20 =
-            boost::dynamic_pointer_cast< gravitation::SphericalHarmonicsGravityField >(
+            std::dynamic_pointer_cast< gravitation::SphericalHarmonicsGravityField >(
                 bodyMap.at( "Earth" )->getGravityFieldModel( ) )->getCosineCoefficients( )( 2, 0 );
 
     // Create vehicle objects.
-    bodyMap[ "Apollo" ] = boost::make_shared< simulation_setup::Body >( );
-    bodyMap[ "Apollo" ]->setEphemeris( boost::make_shared< TabulatedCartesianEphemeris< > >(
-                                           boost::shared_ptr< interpolators::OneDimensionalInterpolator
+    bodyMap[ "Apollo" ] = std::make_shared< simulation_setup::Body >( );
+    bodyMap[ "Apollo" ]->setEphemeris( std::make_shared< TabulatedCartesianEphemeris< > >(
+                                           std::shared_ptr< interpolators::OneDimensionalInterpolator
                                            < double, Eigen::Vector6d > >( ), "Earth", "J2000" ) );
     bodyMap[ "Apollo" ]->setAerodynamicCoefficientInterface(
                 unit_tests::getApolloCoefficientInterface( ) );
@@ -287,9 +287,9 @@ BOOST_AUTO_TEST_CASE( test_ParameterPostFitResidualsApollo )
     std::vector< std::string > centralBodies;
 
     // Define acceleration model settings.
-    std::map< std::string, std::vector< boost::shared_ptr< AccelerationSettings > > > accelerationsOfApollo;
-    accelerationsOfApollo[ "Earth" ].push_back( boost::make_shared< SphericalHarmonicAccelerationSettings >( 2, 0 ) );
-    accelerationsOfApollo[ "Earth" ].push_back( boost::make_shared< AccelerationSettings >( aerodynamic ) );
+    std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfApollo;
+    accelerationsOfApollo[ "Earth" ].push_back( std::make_shared< SphericalHarmonicAccelerationSettings >( 2, 0 ) );
+    accelerationsOfApollo[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( aerodynamic ) );
     accelerationMap[ "Apollo" ] = accelerationsOfApollo;
 
     bodiesToPropagate.push_back( "Apollo" );
@@ -321,38 +321,38 @@ BOOST_AUTO_TEST_CASE( test_ParameterPostFitResidualsApollo )
     // Convert apollo state from spherical elements to Cartesian elements.
     Eigen::Vector6d systemInitialState = convertSphericalOrbitalToCartesianState(
                 apolloSphericalEntryState );
-    boost::shared_ptr< ephemerides::RotationalEphemeris > earthRotationalEphemeris =
+    std::shared_ptr< ephemerides::RotationalEphemeris > earthRotationalEphemeris =
             bodyMap.at( "Earth" )->getRotationalEphemeris( );
     systemInitialState = transformStateToGlobalFrame( systemInitialState, simulationStartEpoch, earthRotationalEphemeris );
 
     // Define termination conditions
-    boost::shared_ptr< SingleDependentVariableSaveSettings > terminationDependentVariable =
-            boost::make_shared< SingleDependentVariableSaveSettings >(
+    std::shared_ptr< SingleDependentVariableSaveSettings > terminationDependentVariable =
+            std::make_shared< SingleDependentVariableSaveSettings >(
                 altitude_dependent_variable, "Apollo", "Earth" );
-    boost::shared_ptr< PropagationTerminationSettings > terminationSettings =
-            boost::make_shared< PropagationDependentVariableTerminationSettings >(
+    std::shared_ptr< PropagationTerminationSettings > terminationSettings =
+            std::make_shared< PropagationDependentVariableTerminationSettings >(
                 terminationDependentVariable, 25.0E3, true );
 
     // Create propagation settings.
-    boost::shared_ptr< PropagatorSettings< double > > propagatorSettings =
-            boost::make_shared< TranslationalStatePropagatorSettings< double > >
+    std::shared_ptr< PropagatorSettings< double > > propagatorSettings =
+            std::make_shared< TranslationalStatePropagatorSettings< double > >
             ( centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState,
               terminationSettings, cowell );
 
     // Create integrator settings.
-    boost::shared_ptr< IntegratorSettings< > > integratorSettings =
-            boost::make_shared< IntegratorSettings< > >
+    std::shared_ptr< IntegratorSettings< > > integratorSettings =
+            std::make_shared< IntegratorSettings< > >
             ( rungeKutta4, simulationStartEpoch, 1.0 );
 
     // Create settings for parameter that is to be perturbed
-    boost::shared_ptr< EstimatableParameterSettings > perturbedParameterSettings;
+    std::shared_ptr< EstimatableParameterSettings > perturbedParameterSettings;
     perturbedParameterSettings = (
-                boost::make_shared< SphericalHarmonicEstimatableParameterSettings >(
+                std::make_shared< SphericalHarmonicEstimatableParameterSettings >(
                     2, 0, 2, 0, "Earth", spherical_harmonics_cosine_coefficient_block ) );
 
 
     // Generate fit for observations with J2 to model without J2
-    std::pair< boost::shared_ptr< PodOutput< double > >, Eigen::VectorXd > estimationOutput =
+    std::pair< std::shared_ptr< PodOutput< double > >, Eigen::VectorXd > estimationOutput =
             determinePostfitParameterInfluence(
                 bodyMap, integratorSettings, propagatorSettings, perturbedParameterSettings,
                 1.0, boost::assign::list_of( -earthC20 ), boost::assign::list_of( 0 ) );

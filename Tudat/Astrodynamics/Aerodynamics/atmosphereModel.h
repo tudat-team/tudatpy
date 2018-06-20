@@ -12,7 +12,7 @@
 #ifndef TUDAT_ATMOSPHERE_MODEL_H
 #define TUDAT_ATMOSPHERE_MODEL_H
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
 #include "Tudat/Astrodynamics/Aerodynamics/windModel.h"
@@ -91,7 +91,7 @@ public:
      * Function to retrieve the model describing the wind velocity vector of the atmosphere
      * \return Model describing the wind velocity vector of the atmosphere
      */
-    boost::shared_ptr< WindModel > getWindModel( )
+    std::shared_ptr< WindModel > getWindModel( )
     {
         return windModel_;
     }
@@ -101,7 +101,7 @@ public:
      * Function to set the model describing the wind velocity vector of the atmosphere
      * \param windModel New model describing the wind velocity vector of the atmosphere
      */
-    void setWindModel( const boost::shared_ptr< WindModel > windModel )
+    void setWindModel( const std::shared_ptr< WindModel > windModel )
     {
         windModel_ = windModel;
     }
@@ -109,12 +109,12 @@ public:
 protected:
 
     //! Model describing the wind velocity vector of the atmosphere
-    boost::shared_ptr< WindModel > windModel_;
+    std::shared_ptr< WindModel > windModel_;
 private:
 };
 
 //! Typedef for shared-pointer to AtmosphereModel object.
-typedef boost::shared_ptr< AtmosphereModel > AtmosphereModelPointer;
+typedef std::shared_ptr< AtmosphereModel > AtmosphereModelPointer;
 
 } // namespace aerodynamics
 } // namespace tudat

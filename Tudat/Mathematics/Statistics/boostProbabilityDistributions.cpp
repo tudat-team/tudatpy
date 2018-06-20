@@ -20,12 +20,12 @@ namespace statistics
 {
 
 //! Function to create a random variable class of BoostContinuousProbabilityDistribution type
-boost::shared_ptr< InvertibleContinuousProbabilityDistribution< double > > createBoostRandomVariable(
+std::shared_ptr< InvertibleContinuousProbabilityDistribution< double > > createBoostRandomVariable(
         const ContinuousBoostStatisticalDistributions boostDistribution, const std::vector< double >& parameters )
 {
     using namespace boost::math;
 
-    boost::shared_ptr< InvertibleContinuousProbabilityDistribution< double > > continuousRandomVariable;
+    std::shared_ptr< InvertibleContinuousProbabilityDistribution< double > > continuousRandomVariable;
 
     // Check which distribution type is requested
     switch( boostDistribution )
@@ -42,7 +42,7 @@ boost::shared_ptr< InvertibleContinuousProbabilityDistribution< double > > creat
             // Create uniform distribution. parameters 0: lower bound, 1: upper bound
             uniform_distribution< > uniformDistribution( parameters.at( 0 ), parameters.at( 1 ) );
             continuousRandomVariable =
-                    boost::make_shared< BoostContinuousProbabilityDistribution< uniform_distribution< > > >(
+                    std::make_shared< BoostContinuousProbabilityDistribution< uniform_distribution< > > >(
                         uniformDistribution );
         }
         break;
@@ -59,7 +59,7 @@ boost::shared_ptr< InvertibleContinuousProbabilityDistribution< double > > creat
             // Create uniform distribution. parameters 0: mean, 1: standard deviation
             normal_distribution< > normalDistribution( parameters.at( 0 ), parameters.at( 1 ) );
             continuousRandomVariable =
-                    boost::make_shared< BoostContinuousProbabilityDistribution< normal_distribution< > > >(
+                    std::make_shared< BoostContinuousProbabilityDistribution< normal_distribution< > > >(
                         normalDistribution );
         }
         break;
@@ -76,7 +76,7 @@ boost::shared_ptr< InvertibleContinuousProbabilityDistribution< double > > creat
             // Create uniform distribution. parameters 0: lambda parameter
             exponential_distribution< > exponentialDistribution( parameters.at( 0 ) );
             continuousRandomVariable =
-                    boost::make_shared< BoostContinuousProbabilityDistribution< exponential_distribution< > > >(
+                    std::make_shared< BoostContinuousProbabilityDistribution< exponential_distribution< > > >(
                         exponentialDistribution );
         }
         break;
@@ -93,7 +93,7 @@ boost::shared_ptr< InvertibleContinuousProbabilityDistribution< double > > creat
             // Create uniform distribution. parameters 0: shape parameter, parameter 1: scale parameter
             gamma_distribution< > gammaDistribution( parameters.at( 0 ), parameters.at( 1 ) );
             continuousRandomVariable =
-                    boost::make_shared< BoostContinuousProbabilityDistribution< gamma_distribution< > > >(
+                    std::make_shared< BoostContinuousProbabilityDistribution< gamma_distribution< > > >(
                         gammaDistribution );
         }
         break;
@@ -110,7 +110,7 @@ boost::shared_ptr< InvertibleContinuousProbabilityDistribution< double > > creat
             // Create uniform distribution. parameters 0: location parameter, parameter 1: scale parameter
             lognormal_distribution< > logNormalDistribution( parameters.at( 0 ), parameters.at( 1 ) );
             continuousRandomVariable =
-                    boost::make_shared< BoostContinuousProbabilityDistribution< lognormal_distribution< > > >(
+                    std::make_shared< BoostContinuousProbabilityDistribution< lognormal_distribution< > > >(
                         logNormalDistribution );
         }
         break;
@@ -127,7 +127,7 @@ boost::shared_ptr< InvertibleContinuousProbabilityDistribution< double > > creat
             // Create uniform distribution. parameters 0: alpha parameter, parameter 1: beta parameter
             beta_distribution< > betaDistribution( parameters.at( 0 ), parameters.at( 1 ) );
             continuousRandomVariable =
-                    boost::make_shared< BoostContinuousProbabilityDistribution< beta_distribution< > > >(
+                    std::make_shared< BoostContinuousProbabilityDistribution< beta_distribution< > > >(
                         betaDistribution );
         }
         break;

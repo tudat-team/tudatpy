@@ -37,7 +37,7 @@
 #include <string>
 #include <vector>
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include "Tudat/InputOutput/twoLineElementData.h"
 
@@ -324,7 +324,7 @@ private:
 };
 
 //! Typedef for shared-pointer to TwoLineElementsTextFileReader object.
-typedef boost::shared_ptr< TwoLineElementsTextFileReader > TwoLineElementsTextFileReaderPointer;
+typedef std::shared_ptr< TwoLineElementsTextFileReader > TwoLineElementsTextFileReaderPointer;
 
 } // namespace input_output
 } // namespace tudat

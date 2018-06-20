@@ -12,7 +12,7 @@
 #ifndef TUDAT_TERRESTRIALTIMESCALECONVERTER_H
 #define TUDAT_TERRESTRIALTIMESCALECONVERTER_H
 
-#include <boost/function.hpp>
+#include <functional>
 
 #include "Tudat/Mathematics/Interpolators/oneDimensionalInterpolator.h"
 #include "Tudat/Basics/timeType.h"
@@ -96,10 +96,10 @@ public:
      *  (typically daily) values given by interpolator.
      */
     TerrestrialTimeScaleConverter(
-            const boost::shared_ptr< interpolators::OneDimensionalInterpolator < double, double > >
+            const std::shared_ptr< interpolators::OneDimensionalInterpolator < double, double > >
             dailyUtcUt1CorrectionInterpolator =
-            boost::shared_ptr< interpolators::OneDimensionalInterpolator < double, double > >( ),
-            const boost::shared_ptr< ShortPeriodEarthOrientationCorrectionCalculator< double > >
+            std::shared_ptr< interpolators::OneDimensionalInterpolator < double, double > >( ),
+            const std::shared_ptr< ShortPeriodEarthOrientationCorrectionCalculator< double > >
             shortPeriodUt1CorrectionCalculator = getDefaultUT1CorrectionCalculator( ) ):
         dailyUtcUt1CorrectionInterpolator_( dailyUtcUt1CorrectionInterpolator ),
         shortPeriodUt1CorrectionCalculator_( shortPeriodUt1CorrectionCalculator ),
@@ -273,7 +273,7 @@ public:
     }
 
     //! Interpolator for UT1 corrections, values published daily by IERS
-    boost::shared_ptr< interpolators::OneDimensionalInterpolator < double, double > > getDailyUtcUt1CorrectionInterpolator( )
+    std::shared_ptr< interpolators::OneDimensionalInterpolator < double, double > > getDailyUtcUt1CorrectionInterpolator( )
     {
         return dailyUtcUt1CorrectionInterpolator_;
     }
@@ -320,11 +320,11 @@ private:
     }
 
     //! Interpolator for UT1 corrections, values published daily by IERS
-    boost::shared_ptr< interpolators::OneDimensionalInterpolator
+    std::shared_ptr< interpolators::OneDimensionalInterpolator
     < double, double > > dailyUtcUt1CorrectionInterpolator_;
 
     //! Object to compute the short-period variations in UT1
-    boost::shared_ptr< ShortPeriodEarthOrientationCorrectionCalculator< double > > shortPeriodUt1CorrectionCalculator_;
+    std::shared_ptr< ShortPeriodEarthOrientationCorrectionCalculator< double > > shortPeriodUt1CorrectionCalculator_;
 
     //! Object containing current times, as set by last updateTimes< double > function.
     CurrentTimes< double > currentTimes_;
@@ -346,8 +346,8 @@ private:
  * \param eopReader Object that reads an Earth Orientation Parameters file.
  * \return Default Earth time scales conversion object
  */
-boost::shared_ptr< TerrestrialTimeScaleConverter >  createDefaultTimeConverter( const boost::shared_ptr< EOPReader > eopReader =
-        boost::make_shared< EOPReader >( ) );
+std::shared_ptr< TerrestrialTimeScaleConverter >  createDefaultTimeConverter( const std::shared_ptr< EOPReader > eopReader =
+        std::make_shared< EOPReader >( ) );
 
 }
 

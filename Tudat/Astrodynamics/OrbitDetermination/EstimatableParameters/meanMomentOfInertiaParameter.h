@@ -33,8 +33,8 @@ public:
      * \param associatedBody Name of body containing the gravityFieldModel object
      */
     MeanMomentOfInertiaParameter(
-            const boost::function< double( ) > getMeanMomentOfInertia,
-            const boost::function< void( const double ) > setMeanMomentOfInertia,
+            const std::function< double( ) > getMeanMomentOfInertia,
+            const std::function< void( const double ) > setMeanMomentOfInertia,
             const std::string& associatedBody ):
         EstimatableParameter< double >( mean_moment_of_inertia, associatedBody ),
         getMeanMomentOfInertia_( getMeanMomentOfInertia ), setMeanMomentOfInertia_( setMeanMomentOfInertia ){ }
@@ -77,9 +77,9 @@ protected:
 private:
 
     //! Gravity field object containing the gravitational parameter to be estimated.
-    boost::function< double( ) > getMeanMomentOfInertia_;
+    std::function< double( ) > getMeanMomentOfInertia_;
 
-    boost::function< void( const double ) > setMeanMomentOfInertia_;
+    std::function< void( const double ) > setMeanMomentOfInertia_;
 
 };
 

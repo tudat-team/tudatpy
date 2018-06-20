@@ -22,6 +22,7 @@ set(EPHEMERIDES_SOURCES
   "${SRCROOT}${EPHEMERIDESDIR}/simpleRotationalEphemeris.cpp"
   "${SRCROOT}${EPHEMERIDESDIR}/tabulatedEphemeris.cpp"
   "${SRCROOT}${EPHEMERIDESDIR}/frameManager.cpp"
+  "${SRCROOT}${EPHEMERIDESDIR}/compositeEphemeris.cpp"
 )
 
 # Set the header files.

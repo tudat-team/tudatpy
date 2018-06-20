@@ -34,7 +34,7 @@
 
 #include <boost/array.hpp>
 #include <boost/multi_array.hpp>
-#include <boost/shared_ptr.hpp>
+#include <memory>
 #include "Tudat/Mathematics/Interpolators/lookupScheme.h"
 #include "Tudat/Mathematics/Interpolators/interpolator.h"
 #include "Tudat/Mathematics/BasicMathematics/nearestNeighbourSearch.h"
@@ -75,8 +75,8 @@ public:
                              const boost::multi_array< DependentVariableType, static_cast< size_t >( NumberOfDimensions )>
                              dependentData,
                              const AvailableLookupScheme selectedLookupScheme = huntingAlgorithm )
-        : independentValues_( independentValues ),
-          dependentData_( dependentData )
+        : independentValues_( std::move( independentValues ) ),
+          dependentData_( std::move( dependentData ) )
     {
         // Check consistency of template arguments and input variables.
         if ( independentValues.size( ) != NumberOfDimensions )
@@ -170,7 +170,7 @@ private:
             for( int i = 0; i < NumberOfDimensions; i++ )
             {
                 // Create binary search look up scheme.
-                lookUpSchemes_[ i ] = boost::shared_ptr< LookUpScheme< IndependentVariableType > >
+                lookUpSchemes_[ i ] = std::shared_ptr< LookUpScheme< IndependentVariableType > >
                         ( new BinarySearchLookupScheme< IndependentVariableType >(
                               independentValues_[ i ] ) );
             }
@@ -182,7 +182,7 @@ private:
             for( int i = 0; i < NumberOfDimensions; i++ )
             {
                 // Create hunting scheme, which uses an intial guess from previous look-ups.
-                lookUpSchemes_[ i ] = boost::shared_ptr< LookUpScheme< IndependentVariableType > >
+                lookUpSchemes_[ i ] = std::shared_ptr< LookUpScheme< IndependentVariableType > >
                         ( new HuntingAlgorithmLookupScheme< IndependentVariableType >(
                               independentValues_[ i ] ) );
             }
@@ -275,7 +275,7 @@ private:
      * Pointers to the look-up schemes that is used to determine in which interval the requested
      * independent variable value falls.
      */
-    std::vector< boost::shared_ptr< LookUpScheme< IndependentVariableType > > > lookUpSchemes_;
+    std::vector< std::shared_ptr< LookUpScheme< IndependentVariableType > > > lookUpSchemes_;
 
     //! Vector of vectors containing independent variables.
     /*!
@@ -291,6 +291,12 @@ private:
      */
     boost::multi_array< DependentVariableType, static_cast< size_t >( NumberOfDimensions )> dependentData_;
 };
+
+extern template class MultiLinearInterpolator< double, Eigen::Vector6d, 1 >;
+extern template class MultiLinearInterpolator< double, Eigen::Vector6d, 2 >;
+extern template class MultiLinearInterpolator< double, Eigen::Vector6d, 3 >;
+extern template class MultiLinearInterpolator< double, Eigen::Vector6d, 4 >;
+extern template class MultiLinearInterpolator< double, Eigen::Vector6d, 5 >;
 
 } // namespace interpolators
 } // namespace tudat

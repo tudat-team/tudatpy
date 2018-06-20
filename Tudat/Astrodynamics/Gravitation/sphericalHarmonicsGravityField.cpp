@@ -32,7 +32,7 @@ double calculateSphericalHarmonicGravitationalPotential(
         const double referenceRadius,
         const Eigen::MatrixXd& cosineCoefficients,
         const Eigen::MatrixXd& sineCoefficients,
-        boost::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache,
+        std::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache,
         const int minimumumDegree,
         const int minimumumOrder )
 {
@@ -139,7 +139,7 @@ Eigen::Matrix3d getInertiaTensor(
 
 //! Function to determine a body's inertia tensor from its gravity field model
 Eigen::Matrix3d getInertiaTensor(
-        const boost::shared_ptr< SphericalHarmonicsGravityField > sphericalHarmonicGravityField,
+        const std::shared_ptr< SphericalHarmonicsGravityField > sphericalHarmonicGravityField,
         const double scaledMeanMomentOfInertia )
 {
     if( sphericalHarmonicGravityField->areCoefficientsGeodesyNormalized( ) )

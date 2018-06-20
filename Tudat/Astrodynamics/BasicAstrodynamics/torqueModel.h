@@ -17,8 +17,7 @@
 #include <iostream>
 #include <iomanip>
 
-#include <boost/function.hpp>
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include <Eigen/Core>
 
@@ -94,8 +93,8 @@ public:
 
     //! Constructor
     InertialTorqueModel(
-            const boost::function< Eigen::Vector3d( ) > angularVelocityFunction,
-            const boost::function< Eigen::Matrix3d( ) > inertiaTensorFunction ):TorqueModel( ),
+            const std::function< Eigen::Vector3d( ) > angularVelocityFunction,
+            const std::function< Eigen::Matrix3d( ) > inertiaTensorFunction ):TorqueModel( ),
     angularVelocityFunction_( angularVelocityFunction ),
     inertiaTensorFunction_( inertiaTensorFunction ){ }
 
@@ -119,9 +118,9 @@ public:
 
 protected:
 
-    boost::function< Eigen::Vector3d( ) > angularVelocityFunction_;
+    std::function< Eigen::Vector3d( ) > angularVelocityFunction_;
 
-    boost::function< Eigen::Matrix3d( ) > inertiaTensorFunction_;
+    std::function< Eigen::Matrix3d( ) > inertiaTensorFunction_;
 
     Eigen::Vector3d currentTorque_;
 
@@ -130,13 +129,13 @@ private:
 };
 
 //! Typedef for list of torques acting on a body (map key is body exerting torque).
-typedef std::map< std::string, std::vector< boost::shared_ptr< basic_astrodynamics::TorqueModel > > > SingleBodyTorqueModelMap;
+typedef std::map< std::string, std::vector< std::shared_ptr< basic_astrodynamics::TorqueModel > > > SingleBodyTorqueModelMap;
 
 //! Typedef for list of torques acting on a set of bodies (map key is body undergoing torque).
 typedef std::map< std::string, SingleBodyTorqueModelMap > TorqueModelMap;
 
 Eigen::Vector3d updateAndGetTorque(
-        const boost::shared_ptr< TorqueModel > torqueModel,
+        const std::shared_ptr< TorqueModel > torqueModel,
         const double currentTime = TUDAT_NAN );
 }
 

@@ -18,7 +18,7 @@ namespace json_interface
 {
 
 //! Create a `json` object from a shared pointer to a `ExportSettings` object.
-void to_json( nlohmann::json& jsonObject, const boost::shared_ptr< ExportSettings >& exportSettings )
+void to_json( nlohmann::json& jsonObject, const std::shared_ptr< ExportSettings >& exportSettings )
 {
     if ( ! exportSettings )
     {
@@ -36,14 +36,14 @@ void to_json( nlohmann::json& jsonObject, const boost::shared_ptr< ExportSetting
 }
 
 //! Create a shared pointer to a `ExportSettings` object from a `json` object.
-void from_json( const nlohmann::json& jsonObject, boost::shared_ptr< ExportSettings >& exportSettings )
+void from_json( const nlohmann::json& jsonObject, std::shared_ptr< ExportSettings >& exportSettings )
 {
     using namespace propagators;
     using K = Keys::Export;
 
-    exportSettings = boost::make_shared< ExportSettings >(
+    exportSettings = std::make_shared< ExportSettings >(
                 getValue< boost::filesystem::path >( jsonObject, K::file ),
-                getValue< std::vector< boost::shared_ptr< VariableSettings > > >( jsonObject, K::variables ) );
+                getValue< std::vector< std::shared_ptr< VariableSettings > > >( jsonObject, K::variables ) );
     updateFromJSONIfDefined( exportSettings->header_, jsonObject, K::header );
     updateFromJSONIfDefined( exportSettings->epochsInFirstColumn_, jsonObject, K::epochsInFirstColumn );
     updateFromJSONIfDefined( exportSettings->onlyInitialStep_, jsonObject, K::onlyInitialStep );

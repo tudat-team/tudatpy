@@ -20,7 +20,7 @@
 #include <vector>
 
 #include <boost/multi_array.hpp>
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include <Eigen/Core>
 
@@ -207,7 +207,7 @@ protected:
     {
         // Create interpolator for coefficients.
         coefficientInterpolator_ =
-                boost::make_shared< interpolators::MultiLinearInterpolator< double,
+                std::make_shared< interpolators::MultiLinearInterpolator< double,
                 Eigen::Vector6d, 3 > >
                 ( dataPointsOfIndependentVariables_, aerodynamicCoefficients_ );
 
@@ -234,7 +234,7 @@ protected:
 
     //! Interpolator producing continuous aerodynamic coefficients from the discrete calculations
     //! contained in aerodynamicCoefficients_.
-    boost::shared_ptr< interpolators::Interpolator< double, Eigen::Vector6d > >
+    std::shared_ptr< interpolators::Interpolator< double, Eigen::Vector6d > >
             coefficientInterpolator_;
 };
 

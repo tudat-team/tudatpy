@@ -54,7 +54,7 @@ BOOST_AUTO_TEST_CASE( testSettingAndGettingGravitationalParameter )
 BOOST_AUTO_TEST_CASE( testGetGravitationalParameterForPredefinedEarth )
 {
     // Create predefined Earth central gravity field.
-    boost::shared_ptr< gravitation::GravityFieldModel > predefinedEarthCentralGravityField =
+    std::shared_ptr< gravitation::GravityFieldModel > predefinedEarthCentralGravityField =
             gravitation::getPredefinedCentralGravityField( gravitation::earth );
 
     const double computedResultForTest2 =

@@ -62,7 +62,7 @@ BOOST_AUTO_TEST_CASE( testTabulatedDragCoefficient )
     bodiesToCreate.push_back( "Moon" );
 
     // Create body objects.
-    std::map< std::string, boost::shared_ptr< BodySettings > > bodySettings =
+    std::map< std::string, std::shared_ptr< BodySettings > > bodySettings =
             getDefaultBodySettings( bodiesToCreate, simulationStartEpoch - 300.0, simulationEndEpoch + 300.0 );
 
     for( unsigned int i = 0; i < bodiesToCreate.size( ); i++ ) {
@@ -71,11 +71,11 @@ BOOST_AUTO_TEST_CASE( testTabulatedDragCoefficient )
     }
 
     // EARTH
-    bodySettings[ "Earth" ]->gravityFieldSettings = boost::make_shared< GravityFieldSettings >( central_spice );
-    bodySettings[ "Earth" ]->atmosphereSettings = boost::make_shared< AtmosphereSettings >( nrlmsise00 );
+    bodySettings[ "Earth" ]->gravityFieldSettings = std::make_shared< GravityFieldSettings >( central_spice );
+    bodySettings[ "Earth" ]->atmosphereSettings = std::make_shared< AtmosphereSettings >( nrlmsise00 );
 
     // MOON
-    bodySettings[ "Moon" ]->gravityFieldSettings = boost::make_shared< GravityFieldSettings >( central_spice );
+    bodySettings[ "Moon" ]->gravityFieldSettings = std::make_shared< GravityFieldSettings >( central_spice );
 
     NamedBodyMap bodyMap = createBodies( bodySettings );
 
@@ -84,11 +84,11 @@ BOOST_AUTO_TEST_CASE( testTabulatedDragCoefficient )
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     // Create spacecraft object.
-    bodyMap[ "Vehicle" ] = boost::make_shared< simulation_setup::Body >( );
+    bodyMap[ "Vehicle" ] = std::make_shared< simulation_setup::Body >( );
     bodyMap[ "Vehicle" ]->setConstantBodyMass( 400.0 );
     double referenceArea = 10.0;
 
-    boost::shared_ptr< AerodynamicCoefficientSettings > aerodynamicCoefficientSettings;
+    std::shared_ptr< AerodynamicCoefficientSettings > aerodynamicCoefficientSettings;
 
     // Read CD as semiMajorAixsfunction of altitude
     Eigen::MatrixXd aerodynamicsDataFromFile = readMatrixFromFile(
@@ -109,11 +109,11 @@ BOOST_AUTO_TEST_CASE( testTabulatedDragCoefficient )
     }
 
     // Create interpolator
-    boost::shared_ptr< InterpolatorSettings > interpolatorSettings =
-            boost::make_shared< InterpolatorSettings >( OneDimensionalInterpolatorTypes::linear_interpolator );
+    std::shared_ptr< InterpolatorSettings > interpolatorSettings =
+            std::make_shared< InterpolatorSettings >( OneDimensionalInterpolatorTypes::linear_interpolator );
 
     // Tabulated aerodynamic settings
-    aerodynamicCoefficientSettings = boost::make_shared< TabulatedAerodynamicCoefficientSettings< 1 > >(
+    aerodynamicCoefficientSettings = std::make_shared< TabulatedAerodynamicCoefficientSettings< 1 > >(
                 altitudes, aerodynamicCoefficients, referenceArea,
                 aerodynamics::altitude_dependent, interpolatorSettings, 1, 1 );
 
@@ -134,15 +134,15 @@ BOOST_AUTO_TEST_CASE( testTabulatedDragCoefficient )
     std::vector< std::string > centralBodies;
 
     // Define propagation settings.
-    std::map< std::string, std::vector< boost::shared_ptr< AccelerationSettings > > > accelerationsOfVehicle;
+    std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfVehicle;
 
-    accelerationsOfVehicle[ "Earth" ].push_back( boost::make_shared< AccelerationSettings >(
+    accelerationsOfVehicle[ "Earth" ].push_back( std::make_shared< AccelerationSettings >(
                                                      basic_astrodynamics::central_gravity ) );
-    accelerationsOfVehicle[ "Sun" ].push_back( boost::make_shared< AccelerationSettings >(
+    accelerationsOfVehicle[ "Sun" ].push_back( std::make_shared< AccelerationSettings >(
                                                    basic_astrodynamics::central_gravity ) );
-    accelerationsOfVehicle[ "Moon" ].push_back( boost::make_shared< AccelerationSettings >(
+    accelerationsOfVehicle[ "Moon" ].push_back( std::make_shared< AccelerationSettings >(
                                                     basic_astrodynamics::central_gravity ) );
-    accelerationsOfVehicle[ "Earth" ].push_back( boost::make_shared< AccelerationSettings >(
+    accelerationsOfVehicle[ "Earth" ].push_back( std::make_shared< AccelerationSettings >(
                                                      basic_astrodynamics::aerodynamic ) );
 
     accelerationMap[ "Vehicle" ] = accelerationsOfVehicle;
@@ -175,40 +175,40 @@ BOOST_AUTO_TEST_CASE( testTabulatedDragCoefficient )
                 vehicleInitialStateInKeplerianElements, earthGravitationalParameter );
 
     // Hybrid termination conditions
-    std::vector< boost::shared_ptr< propagators::PropagationTerminationSettings > > constituentSettings;
+    std::vector< std::shared_ptr< propagators::PropagationTerminationSettings > > constituentSettings;
 
     // Time limit
-    constituentSettings.push_back( boost::make_shared< propagators::PropagationTimeTerminationSettings >(
+    constituentSettings.push_back( std::make_shared< propagators::PropagationTimeTerminationSettings >(
                                        simulationEndEpoch ) );
 
     // Altitude limit
-    boost::shared_ptr< PropagationTerminationSettings > altitudeTerminationSettings =
-            boost::make_shared< propagators::PropagationDependentVariableTerminationSettings >(
-                boost::make_shared< propagators::SingleDependentVariableSaveSettings >(
+    std::shared_ptr< PropagationTerminationSettings > altitudeTerminationSettings =
+            std::make_shared< propagators::PropagationDependentVariableTerminationSettings >(
+                std::make_shared< propagators::SingleDependentVariableSaveSettings >(
                     propagators::altitude_dependent_variable, "Vehicle" ), 100.0E3, 1 );
     constituentSettings.push_back( altitudeTerminationSettings );
 
     // Stop if ANY of the two is met
-    boost::shared_ptr< PropagationTerminationSettings > terminationSettings =
-            boost::make_shared< propagators::PropagationHybridTerminationSettings >( constituentSettings, 1 );
+    std::shared_ptr< PropagationTerminationSettings > terminationSettings =
+            std::make_shared< propagators::PropagationHybridTerminationSettings >( constituentSettings, 1 );
 
     // Save dependent variables
-    std::vector< boost::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariablesToSave;
-    dependentVariablesToSave.push_back( boost::make_shared< SingleDependentVariableSaveSettings >(
+    std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariablesToSave;
+    dependentVariablesToSave.push_back( std::make_shared< SingleDependentVariableSaveSettings >(
                                             altitude_dependent_variable, "Vehicle" ) );
-    dependentVariablesToSave.push_back( boost::make_shared< SingleDependentVariableSaveSettings >(
+    dependentVariablesToSave.push_back( std::make_shared< SingleDependentVariableSaveSettings >(
                                             aerodynamic_moment_coefficients_dependent_variable, "Vehicle" ) );
 
-    boost::shared_ptr< DependentVariableSaveSettings > dependentVariableSaveSettings =
-            boost::make_shared< DependentVariableSaveSettings >( dependentVariablesToSave, 0 ) ;
+    std::shared_ptr< DependentVariableSaveSettings > dependentVariableSaveSettings =
+            std::make_shared< DependentVariableSaveSettings >( dependentVariablesToSave, 0 ) ;
 
     // Translational propagator settings
-    boost::shared_ptr< TranslationalStatePropagatorSettings< double > > translationalPropagatorSettings =
-            boost::make_shared< TranslationalStatePropagatorSettings< double > > (
+    std::shared_ptr< TranslationalStatePropagatorSettings< double > > translationalPropagatorSettings =
+            std::make_shared< TranslationalStatePropagatorSettings< double > > (
                 centralBodies, accelerationModelMap, bodiesToPropagate, vehicleInitialState, terminationSettings );
 
 
-    boost::shared_ptr< IntegratorSettings< > > integratorSettings = boost::make_shared< IntegratorSettings< > > (
+    std::shared_ptr< IntegratorSettings< > > integratorSettings = std::make_shared< IntegratorSettings< > > (
                 rungeKutta4, simulationStartEpoch, 300.0 );
 
 
@@ -233,7 +233,7 @@ BOOST_AUTO_TEST_CASE( testTabulatedDragCoefficient )
     double currentAltitude;
     double computedDragCoefficient;
     LinearInterpolatorDoublePointer dragCoefficientInterpolator =
-            boost::make_shared<LinearInterpolatorDouble>( LinearInterpolatorDouble( altitudes, dragCoefficients ) );
+            std::make_shared<LinearInterpolatorDouble>( LinearInterpolatorDouble( altitudes, dragCoefficients ) );
 
 
     for ( std::map< double, Eigen::Matrix< double, Eigen::Dynamic, 1 > >::iterator outputIterator =

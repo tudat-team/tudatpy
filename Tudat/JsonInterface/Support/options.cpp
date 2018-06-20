@@ -18,7 +18,7 @@ namespace json_interface
 {
 
 //! Create a `json` object from a shared pointer to a `ApplicationOptions` object.
-void to_json( nlohmann::json& jsonObject, const boost::shared_ptr< ApplicationOptions >& applicationOptions )
+void to_json( nlohmann::json& jsonObject, const std::shared_ptr< ApplicationOptions >& applicationOptions )
 {
     if ( ! applicationOptions )
     {
@@ -35,11 +35,11 @@ void to_json( nlohmann::json& jsonObject, const boost::shared_ptr< ApplicationOp
 }
 
 //! Create a shared pointer to a `ApplicationOptions` object from a `json` object.
-void from_json( const nlohmann::json& jsonObject, boost::shared_ptr< ApplicationOptions >& applicationOptions )
+void from_json( const nlohmann::json& jsonObject, std::shared_ptr< ApplicationOptions >& applicationOptions )
 {
     using K = Keys::Options;
 
-    applicationOptions = boost::make_shared< ApplicationOptions >( );
+    applicationOptions = std::make_shared< ApplicationOptions >( );
 
     updateFromJSONIfDefined( applicationOptions->notifyOnPropagationStart_, jsonObject, K::notifyOnPropagationStart );
 

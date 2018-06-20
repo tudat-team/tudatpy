@@ -77,11 +77,11 @@ protected:
  * \return Pair (with second entry boolean which is true if the partial is non-zero). First entry of pair gives
  * partial and associated time as a function of link-end states and times.
  */
-std::pair< boost::function< LightTimeCorrectionPartial::SingleOneWayRangePartialReturnType(
+std::pair< std::function< LightTimeCorrectionPartial::SingleOneWayRangePartialReturnType(
         const std::vector< Eigen::Vector6d >&, const std::vector< double >& ) >, bool >
 getLightTimeParameterPartialFunction(
         const estimatable_parameters::EstimatebleParameterIdentifier parameterId,
-        const boost::shared_ptr< LightTimeCorrectionPartial > lightTimeCorrectionPartial );
+        const std::shared_ptr< LightTimeCorrectionPartial > lightTimeCorrectionPartial );
 
 }
 

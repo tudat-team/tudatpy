@@ -44,7 +44,7 @@ BOOST_AUTO_TEST_SUITE( test_one_way_observation_partials)
 
 Eigen::Vector3d computeUnitVectorToReceiverFromTransmitterState(
         const Eigen::Vector3d receiverPosition,
-        const boost::function< Eigen::Vector6d( const double ) > transmitterStateFunction,
+        const std::function< Eigen::Vector6d( const double ) > transmitterStateFunction,
         const double evaluationTime )
 {
     return ( receiverPosition - transmitterStateFunction( evaluationTime ).segment( 0, 3 ) ).normalized( );
@@ -52,7 +52,7 @@ Eigen::Vector3d computeUnitVectorToReceiverFromTransmitterState(
 
 
 Eigen::Vector3d computeUnitVectorToReceiverFromReceiverState(
-        const boost::function< Eigen::Vector6d( const double ) > receiverStateFunction,
+        const std::function< Eigen::Vector6d( const double ) > receiverStateFunction,
         const Eigen::Vector3d transmitterPosition,
         const double evaluationTime )
 {
@@ -60,7 +60,7 @@ Eigen::Vector3d computeUnitVectorToReceiverFromReceiverState(
 }
 
 Eigen::VectorXd getProperTimeRateInVectorForm(
-        boost::shared_ptr< DopplerProperTimeRateInterface > properTimeRateCalculator,
+        std::shared_ptr< DopplerProperTimeRateInterface > properTimeRateCalculator,
         const std::vector< double >& linkEndTimes,
         const std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates,
         const LinkEndType linkEndAssociatedWithTime )
@@ -104,37 +104,37 @@ BOOST_AUTO_TEST_CASE( testTwoWayDopplerPartials )
         {
             std::cout << "Case " << estimationCase << std::endl;
             // Generate one-way doppler model
-            boost::shared_ptr< ObservationModel< 1 > > twoWayDopplerModel;
+            std::shared_ptr< ObservationModel< 1 > > twoWayDopplerModel;
             std::vector< std::string > perturbingBodies;
             perturbingBodies.push_back( "Earth" );
             if( estimationCase  == 0 )
             {
                 twoWayDopplerModel =
                         observation_models::ObservationModelCreator< 1, double, double >::createObservationModel(
-                            linkEnds, boost::make_shared< observation_models::ObservationSettings >(
+                            linkEnds, std::make_shared< observation_models::ObservationSettings >(
                                 observation_models::two_way_doppler,
-                                boost::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >(
+                                std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >(
                                     perturbingBodies ) ), bodyMap  );
             }
             else
             {
                 twoWayDopplerModel =
                         observation_models::ObservationModelCreator< 1, double, double >::createObservationModel(
-                            linkEnds, boost::make_shared< TwoWayDopplerObservationSettings >
-                            (  boost::make_shared< OneWayDopplerObservationSettings >(
-                                   boost::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >(
+                            linkEnds, std::make_shared< TwoWayDopplerObservationSettings >
+                            (  std::make_shared< OneWayDopplerObservationSettings >(
+                                   std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >(
                                        perturbingBodies ),
-                                   boost::make_shared< DirectFirstOrderDopplerProperTimeRateSettings >( "Mars" ),
-                                   boost::make_shared< DirectFirstOrderDopplerProperTimeRateSettings >( "Earth" ) ),
-                               boost::make_shared< OneWayDopplerObservationSettings >(
-                                   boost::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >(
+                                   std::make_shared< DirectFirstOrderDopplerProperTimeRateSettings >( "Mars" ),
+                                   std::make_shared< DirectFirstOrderDopplerProperTimeRateSettings >( "Earth" ) ),
+                               std::make_shared< OneWayDopplerObservationSettings >(
+                                   std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >(
                                        perturbingBodies ),
-                                   boost::make_shared< DirectFirstOrderDopplerProperTimeRateSettings >( "Earth" ),
-                                   boost::make_shared< DirectFirstOrderDopplerProperTimeRateSettings >( "Mars" ) ) ), bodyMap );
+                                   std::make_shared< DirectFirstOrderDopplerProperTimeRateSettings >( "Earth" ),
+                                   std::make_shared< DirectFirstOrderDopplerProperTimeRateSettings >( "Mars" ) ) ), bodyMap );
             }
 
             // Create parameter objects.
-            boost::shared_ptr< EstimatableParameterSet< double > > fullEstimatableParameterSet;
+            std::shared_ptr< EstimatableParameterSet< double > > fullEstimatableParameterSet;
             Eigen::VectorXd parameterPerturbationMultipliers = Eigen::Vector4d::Constant( 1.0 );
             fullEstimatableParameterSet = createEstimatableParameters( bodyMap, 1.1E7 );
 
@@ -162,36 +162,36 @@ BOOST_AUTO_TEST_CASE( testTwoWayDopplerPartials )
         {
             std::cout << "Case (with motion): " << estimationCase << std::endl;
             // Generate two-way doppler model
-            boost::shared_ptr< ObservationModel< 1 > > twoWayDopplerModel;
+            std::shared_ptr< ObservationModel< 1 > > twoWayDopplerModel;
             std::vector< std::string > perturbingBodies;
             perturbingBodies.push_back( "Earth" );
             if( estimationCase  == 0 )
             {
                 twoWayDopplerModel =
                         observation_models::ObservationModelCreator< 1, double, double >::createObservationModel(
-                            linkEnds, boost::make_shared< observation_models::ObservationSettings >(
+                            linkEnds, std::make_shared< observation_models::ObservationSettings >(
                                 observation_models::two_way_doppler,
-                                boost::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >(
+                                std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >(
                                     perturbingBodies ) ), bodyMap  );
             }
             else
             {
                 twoWayDopplerModel =
                         observation_models::ObservationModelCreator< 1, double, double >::createObservationModel(
-                            linkEnds, boost::make_shared< TwoWayDopplerObservationSettings >
-                            (  boost::make_shared< OneWayDopplerObservationSettings >(
-                                   boost::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >(
+                            linkEnds, std::make_shared< TwoWayDopplerObservationSettings >
+                            (  std::make_shared< OneWayDopplerObservationSettings >(
+                                   std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >(
                                        perturbingBodies ),
-                                   boost::make_shared< DirectFirstOrderDopplerProperTimeRateSettings >( "Mars" ),
-                                   boost::make_shared< DirectFirstOrderDopplerProperTimeRateSettings >( "Earth" ) ),
-                               boost::make_shared< OneWayDopplerObservationSettings >(
-                                   boost::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >(
+                                   std::make_shared< DirectFirstOrderDopplerProperTimeRateSettings >( "Mars" ),
+                                   std::make_shared< DirectFirstOrderDopplerProperTimeRateSettings >( "Earth" ) ),
+                               std::make_shared< OneWayDopplerObservationSettings >(
+                                   std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >(
                                        perturbingBodies ),
-                                   boost::make_shared< DirectFirstOrderDopplerProperTimeRateSettings >( "Earth" ),
-                                   boost::make_shared< DirectFirstOrderDopplerProperTimeRateSettings >( "Mars" ) ) ), bodyMap );
+                                   std::make_shared< DirectFirstOrderDopplerProperTimeRateSettings >( "Earth" ),
+                                   std::make_shared< DirectFirstOrderDopplerProperTimeRateSettings >( "Mars" ) ) ), bodyMap );
             }
             // Create parameter objects.
-            boost::shared_ptr< EstimatableParameterSet< double > > fullEstimatableParameterSet;
+            std::shared_ptr< EstimatableParameterSet< double > > fullEstimatableParameterSet;
             Eigen::VectorXd parameterPerturbationMultipliers = Eigen::Vector4d::Constant( 1.0 );
             fullEstimatableParameterSet = createEstimatableParameters( bodyMap, 1.1E7 );
 

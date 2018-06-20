@@ -34,7 +34,7 @@ public:
      * \param associatedBody Body for which the drag coefficient is considered.
      */
     ConstantDragCoefficient(
-            const boost::shared_ptr< aerodynamics::CustomAerodynamicCoefficientInterface > coefficientInterface,
+            const std::shared_ptr< aerodynamics::CustomAerodynamicCoefficientInterface > coefficientInterface,
             const std::string& associatedBody ):
         EstimatableParameter< double >( constant_drag_coefficient, associatedBody ),
         coefficientInterface_( coefficientInterface )
@@ -86,7 +86,7 @@ protected:
 private:
 
     //! Object that contains the aerodynamic coefficients
-    boost::shared_ptr< aerodynamics::CustomAerodynamicCoefficientInterface > coefficientInterface_;
+    std::shared_ptr< aerodynamics::CustomAerodynamicCoefficientInterface > coefficientInterface_;
 
 };
 

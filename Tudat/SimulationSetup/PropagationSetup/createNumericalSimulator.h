@@ -23,76 +23,76 @@ namespace simulation_setup
 {
 
 template< typename StateScalarType = double, typename TimeType = double >
-boost::shared_ptr< propagators::SingleArcDynamicsSimulator< StateScalarType, TimeType > > createSingleArcDynamicsSimulator(
+std::shared_ptr< propagators::SingleArcDynamicsSimulator< StateScalarType, TimeType > > createSingleArcDynamicsSimulator(
         const  simulation_setup::NamedBodyMap& bodyMap,
-        const boost::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings,
-        const boost::shared_ptr< propagators::PropagatorSettings< StateScalarType > > propagatorSettings,
+        const std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings,
+        const std::shared_ptr< propagators::PropagatorSettings< StateScalarType > > propagatorSettings,
         const bool areEquationsOfMotionToBeIntegrated = true,
         const bool clearNumericalSolutions = true,
         const bool setIntegratedResult = true )
 {
-    return boost::make_shared< propagators::SingleArcDynamicsSimulator< StateScalarType, TimeType > >(
+    return std::make_shared< propagators::SingleArcDynamicsSimulator< StateScalarType, TimeType > >(
                 bodyMap,
                 integratorSettings, propagatorSettings, areEquationsOfMotionToBeIntegrated, clearNumericalSolutions,
                 setIntegratedResult );
 }
 
 template< typename StateScalarType = double, typename TimeType = double, typename ParameterType = double >
-boost::shared_ptr< propagators::SingleArcVariationalEquationsSolver< StateScalarType, TimeType > >
+std::shared_ptr< propagators::SingleArcVariationalEquationsSolver< StateScalarType, TimeType > >
 createSingleArcVariationalEquationsSolver(
         const simulation_setup::NamedBodyMap& bodyMap,
-        const boost::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings,
-        const boost::shared_ptr< propagators::PropagatorSettings< StateScalarType > > propagatorSettings,
-        const boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< ParameterType > > parametersToEstimate,
+        const std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings,
+        const std::shared_ptr< propagators::PropagatorSettings< StateScalarType > > propagatorSettings,
+        const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< ParameterType > > parametersToEstimate,
         const bool integrateDynamicalAndVariationalEquationsConcurrently = 1,
-        const boost::shared_ptr< numerical_integrators::IntegratorSettings< double > > variationalOnlyIntegratorSettings
-        = boost::shared_ptr< numerical_integrators::IntegratorSettings< double > >( ),
+        const std::shared_ptr< numerical_integrators::IntegratorSettings< double > > variationalOnlyIntegratorSettings
+        = std::shared_ptr< numerical_integrators::IntegratorSettings< double > >( ),
         const bool clearNumericalSolution = 1,
         const bool integrateEquationsOnCreation = 1 )
 {
-    return boost::make_shared< propagators::SingleArcVariationalEquationsSolver< StateScalarType, TimeType > >(
+    return std::make_shared< propagators::SingleArcVariationalEquationsSolver< StateScalarType, TimeType > >(
                 bodyMap, integratorSettings, propagatorSettings, parametersToEstimate,
                 integrateDynamicalAndVariationalEquationsConcurrently, variationalOnlyIntegratorSettings,
                 clearNumericalSolution, integrateEquationsOnCreation );
 }
 
 template< typename StateScalarType = double, typename TimeType = double, typename ParameterType = double >
-boost::shared_ptr< propagators::HybridArcVariationalEquationsSolver< StateScalarType, TimeType > >
+std::shared_ptr< propagators::HybridArcVariationalEquationsSolver< StateScalarType, TimeType > >
 createHybridArcVariationalEquationsSolver(
         const simulation_setup::NamedBodyMap& bodyMap,
-        const boost::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings,
-        const boost::shared_ptr< propagators::PropagatorSettings< StateScalarType > > propagatorSettings,
-        const boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< ParameterType > > parametersToEstimate,
+        const std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings,
+        const std::shared_ptr< propagators::PropagatorSettings< StateScalarType > > propagatorSettings,
+        const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< ParameterType > > parametersToEstimate,
         const bool integrateDynamicalAndVariationalEquationsConcurrently = 1,
-        const boost::shared_ptr< numerical_integrators::IntegratorSettings< double > > variationalOnlyIntegratorSettings
-        = boost::shared_ptr< numerical_integrators::IntegratorSettings< double > >( ),
+        const std::shared_ptr< numerical_integrators::IntegratorSettings< double > > variationalOnlyIntegratorSettings
+        = std::shared_ptr< numerical_integrators::IntegratorSettings< double > >( ),
         const bool clearNumericalSolution = 1,
         const bool integrateEquationsOnCreation = 1 )
 {
     std::vector< double > arcStartTimes = estimatable_parameters::getMultiArcStateEstimationArcStartTimes(
                 parametersToEstimate, false );
-    return boost::make_shared< propagators::HybridArcVariationalEquationsSolver< StateScalarType, TimeType > >(
+    return std::make_shared< propagators::HybridArcVariationalEquationsSolver< StateScalarType, TimeType > >(
                 bodyMap, integratorSettings, propagatorSettings, parametersToEstimate, arcStartTimes,
                 integrateDynamicalAndVariationalEquationsConcurrently,
                 clearNumericalSolution, integrateEquationsOnCreation );
 }
 
 template< typename StateScalarType = double, typename TimeType = double, typename ParameterType = double >
-boost::shared_ptr< propagators::MultiArcVariationalEquationsSolver< StateScalarType, TimeType > >
+std::shared_ptr< propagators::MultiArcVariationalEquationsSolver< StateScalarType, TimeType > >
 createMultiArcVariationalEquationsSolver(
         const simulation_setup::NamedBodyMap& bodyMap,
-        const boost::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings,
-        const boost::shared_ptr< propagators::PropagatorSettings< StateScalarType > > propagatorSettings,
-        const boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< ParameterType > > parametersToEstimate,
+        const std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings,
+        const std::shared_ptr< propagators::PropagatorSettings< StateScalarType > > propagatorSettings,
+        const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< ParameterType > > parametersToEstimate,
         const bool integrateDynamicalAndVariationalEquationsConcurrently = 1,
-        const boost::shared_ptr< numerical_integrators::IntegratorSettings< double > > variationalOnlyIntegratorSettings
-        = boost::shared_ptr< numerical_integrators::IntegratorSettings< double > >( ),
+        const std::shared_ptr< numerical_integrators::IntegratorSettings< double > > variationalOnlyIntegratorSettings
+        = std::shared_ptr< numerical_integrators::IntegratorSettings< double > >( ),
         const bool clearNumericalSolution = 1,
         const bool integrateEquationsOnCreation = 1 )
 {
     std::vector< double > arcStartTimes = estimatable_parameters::getMultiArcStateEstimationArcStartTimes(
                 parametersToEstimate, true );
-    return boost::make_shared< propagators::MultiArcVariationalEquationsSolver< StateScalarType, TimeType > >(
+    return std::make_shared< propagators::MultiArcVariationalEquationsSolver< StateScalarType, TimeType > >(
                 bodyMap, integratorSettings, propagatorSettings, parametersToEstimate, arcStartTimes,
                 integrateDynamicalAndVariationalEquationsConcurrently, variationalOnlyIntegratorSettings,
                 clearNumericalSolution, integrateEquationsOnCreation );
@@ -100,15 +100,15 @@ createMultiArcVariationalEquationsSolver(
 
 
 template< typename StateScalarType = double, typename TimeType = double, typename ParameterType = double >
-boost::shared_ptr< propagators::VariationalEquationsSolver< StateScalarType, TimeType > >
+std::shared_ptr< propagators::VariationalEquationsSolver< StateScalarType, TimeType > >
 createVariationalEquationsSolver(
         const simulation_setup::NamedBodyMap& bodyMap,
-        const boost::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings,
-        const boost::shared_ptr< propagators::PropagatorSettings< StateScalarType > > propagatorSettings,
-        const boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< ParameterType > > parametersToEstimate,
+        const std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings,
+        const std::shared_ptr< propagators::PropagatorSettings< StateScalarType > > propagatorSettings,
+        const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< ParameterType > > parametersToEstimate,
         const bool integrateDynamicalAndVariationalEquationsConcurrently = 1,
-        const boost::shared_ptr< numerical_integrators::IntegratorSettings< double > > variationalOnlyIntegratorSettings
-        = boost::shared_ptr< numerical_integrators::IntegratorSettings< double > >( ),
+        const std::shared_ptr< numerical_integrators::IntegratorSettings< double > > variationalOnlyIntegratorSettings
+        = std::shared_ptr< numerical_integrators::IntegratorSettings< double > >( ),
         const bool clearNumericalSolution = 1,
         const bool integrateEquationsOnCreation = 1 )
 {
@@ -137,25 +137,25 @@ createVariationalEquationsSolver(
 }
 
 template< typename StateScalarType = double >
-boost::shared_ptr< propagators::CombinedStateTransitionAndSensitivityMatrixInterface > createStateTransitionAndSensitivityMatrixInterface(
-        const boost::shared_ptr< propagators::PropagatorSettings< StateScalarType > > propagatorSettings,
+std::shared_ptr< propagators::CombinedStateTransitionAndSensitivityMatrixInterface > createStateTransitionAndSensitivityMatrixInterface(
+        const std::shared_ptr< propagators::PropagatorSettings< StateScalarType > > propagatorSettings,
         const int dynamicalStateSize,
         const int totalParameterSize )
 {
     if( boost::dynamic_pointer_cast< propagators::SingleArcPropagatorSettings< StateScalarType > >( propagatorSettings ) != NULL )
     {
-        return  boost::make_shared<
+        return  std::make_shared<
                 propagators::SingleArcCombinedStateTransitionAndSensitivityMatrixInterface >(
-                    boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > >( ),
-                    boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > >( ),
+                    std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > >( ),
+                    std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > >( ),
                     dynamicalStateSize, totalParameterSize );
     }
     else if( boost::dynamic_pointer_cast< propagators::MultiArcPropagatorSettings< StateScalarType > >( propagatorSettings ) != NULL )
     {
-        return  boost::make_shared<
+        return  std::make_shared<
                 propagators::MultiArcCombinedStateTransitionAndSensitivityMatrixInterface >(
-                    std::vector< boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > > >( ),
-                    std::vector< boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > > >( ),
+                    std::vector< std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > > >( ),
+                    std::vector< std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > > >( ),
                     std::vector< double >( ),
                     dynamicalStateSize, totalParameterSize );
     }

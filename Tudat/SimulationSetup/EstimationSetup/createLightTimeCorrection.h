@@ -13,8 +13,8 @@
 
 #include <Eigen/Core>
 
-#include <boost/shared_ptr.hpp>
-#include <boost/function.hpp>
+#include <memory>
+#include <functional>
 
 #include "Tudat/SimulationSetup/EnvironmentSetup/body.h"
 #include "Tudat/Astrodynamics/ObservationModels/linkTypeDefs.h"
@@ -27,7 +27,7 @@ namespace observation_models
 {
 
 //! Typedef for function calculating light-time correction in light-time calculation loop.
-typedef boost::function< double(
+typedef std::function< double(
         const Eigen::Vector6d&, const Eigen::Vector6d&,
         const double, const double ) > LightTimeCorrectionFunction;
 
@@ -69,7 +69,7 @@ protected:
 };
 
 //! Typedef for a list of list time correction settings per link end
-typedef std::map< LinkEnds, std::vector< boost::shared_ptr< LightTimeCorrectionSettings > > > LightTimeCorrectionSettingsMap;
+typedef std::map< LinkEnds, std::vector< std::shared_ptr< LightTimeCorrectionSettings > > > LightTimeCorrectionSettingsMap;
 
 //! Class to defining settings for first-order relativistic light time correction (Shapiro time delay)  due to a
 //! set of point masses
@@ -111,8 +111,8 @@ private:
  * \param receiver Id of receiving body/reference point (first/second)
  * \return Object for computing required light-time correction
  */
-boost::shared_ptr< LightTimeCorrection > createLightTimeCorrections(
-        const boost::shared_ptr< LightTimeCorrectionSettings > correctionSettings,
+std::shared_ptr< LightTimeCorrection > createLightTimeCorrections(
+        const std::shared_ptr< LightTimeCorrectionSettings > correctionSettings,
         const simulation_setup::NamedBodyMap& bodyMap,
         const std::pair< std::string, std::string >& transmitter,
         const std::pair< std::string, std::string >& receiver );

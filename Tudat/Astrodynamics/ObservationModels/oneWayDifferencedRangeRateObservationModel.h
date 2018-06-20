@@ -13,7 +13,7 @@
 
 #include <map>
 
-#include <boost/function.hpp>
+#include <functional>
 #include <boost/make_shared.hpp>
 
 #include <Eigen/Core>
@@ -55,12 +55,12 @@ public:
      *  current observation time.
      */
     OneWayDifferencedRangeObservationModel(
-            const boost::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > >
+            const std::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > >
             arcStartLightTimeCalculator,
-            const boost::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > >
+            const std::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > >
             arcEndLightTimeCalculator,
-            boost::function< double( const double ) > integrationTimeFunction,
-            const boost::shared_ptr< ObservationBias< 1 > > observationBiasCalculator = NULL ):
+            std::function< double( const double ) > integrationTimeFunction,
+            const std::shared_ptr< ObservationBias< 1 > > observationBiasCalculator = nullptr ):
         ObservationModel< 1, ObservationScalarType, TimeType >( one_way_differenced_range, observationBiasCalculator ),
         arcStartLightTimeCalculator_( arcStartLightTimeCalculator ), arcEndLightTimeCalculator_( arcEndLightTimeCalculator ),
         integrationTimeFunction_( integrationTimeFunction )
@@ -204,13 +204,13 @@ public:
     }
 
     //! Light time calculator to compute light time at the beginning of the integration time
-    boost::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > > getArcStartLightTimeCalculator( )
+    std::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > > getArcStartLightTimeCalculator( )
     {
         return arcStartLightTimeCalculator_;
     }
 
     //! Light time calculator to compute light time at the end of the integration time
-    boost::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > > getArcEndLightTimeCalculator( )
+    std::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > > getArcEndLightTimeCalculator( )
     {
         return arcEndLightTimeCalculator_;
     }
@@ -218,15 +218,15 @@ public:
 private:
 
     //! Light time calculator to compute light time at the beginning of the integration time
-    boost::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > >
+    std::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > >
     arcStartLightTimeCalculator_;
 
     //! Light time calculator to compute light time at the end of the integration time
-    boost::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > >
+    std::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > >
     arcEndLightTimeCalculator_;
 
     //! Function returning the integration time of the observable as a function of the current observation time.
-    boost::function< double( const double ) > integrationTimeFunction_;
+    std::function< double( const double ) > integrationTimeFunction_;
 
 };
 

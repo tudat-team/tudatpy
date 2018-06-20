@@ -11,7 +11,7 @@
 #ifndef TUDAT_PROPAGATIONTERMINATIONCONDITIONS_H
 #define TUDAT_PROPAGATIONTERMINATIONCONDITIONS_H
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include "Tudat/SimulationSetup/PropagationSetup/propagationOutput.h"
 #include "Tudat/SimulationSetup/PropagationSetup/propagationSettings.h"
@@ -200,19 +200,19 @@ public:
      * \param terminationRootFinderSettings Settings to create root finder used to converge on exact final condition.
      */
     SingleVariableLimitPropagationTerminationCondition(
-            const boost::shared_ptr< SingleDependentVariableSaveSettings > dependentVariableSettings,
-            const boost::function< double( ) > variableRetrievalFuntion,
+            const std::shared_ptr< SingleDependentVariableSaveSettings > dependentVariableSettings,
+            const std::function< double( ) > variableRetrievalFuntion,
             const double limitingValue,
             const bool useAsLowerBound,
             const bool terminateExactlyOnFinalCondition = false,
-            const boost::shared_ptr< root_finders::RootFinderSettings > terminationRootFinderSettings = NULL ):
+            const std::shared_ptr< root_finders::RootFinderSettings > terminationRootFinderSettings = nullptr ):
         PropagationTerminationCondition(
             dependent_variable_stopping_condition, terminateExactlyOnFinalCondition ),
         dependentVariableSettings_( dependentVariableSettings ), variableRetrievalFuntion_( variableRetrievalFuntion ),
         limitingValue_( limitingValue ), useAsLowerBound_( useAsLowerBound ),
         terminationRootFinderSettings_( terminationRootFinderSettings )
     {
-        if( ( terminateExactlyOnFinalCondition == false ) && ( terminationRootFinderSettings != NULL ) )
+        if( ( terminateExactlyOnFinalCondition == false ) && ( terminationRootFinderSettings != nullptr ) )
         {
             std::cerr<<"Warning, root finder provided to SingleVariableLimitPropagationTerminationCondition, but termination on final conditions set to false"<<std::endl;
         }
@@ -250,7 +250,7 @@ public:
      *  Function to retrieve settings to create root finder used to converge on exact final condition.
      *  \return Settings to create root finder used to converge on exact final condition.
      */
-    boost::shared_ptr< root_finders::RootFinderSettings > getTerminationRootFinderSettings( )
+    std::shared_ptr< root_finders::RootFinderSettings > getTerminationRootFinderSettings( )
     {
         return terminationRootFinderSettings_;
     }
@@ -258,10 +258,10 @@ public:
 private:
 
     //! Settings for dependent variable that is to be checked
-    boost::shared_ptr< SingleDependentVariableSaveSettings > dependentVariableSettings_;
+    std::shared_ptr< SingleDependentVariableSaveSettings > dependentVariableSettings_;
 
     //! Function returning the dependent variable.
-    boost::function< double( ) > variableRetrievalFuntion_;
+    std::function< double( ) > variableRetrievalFuntion_;
 
     //! Value at which the propagation is to be stopped
     double limitingValue_;
@@ -271,7 +271,7 @@ private:
     bool useAsLowerBound_;
 
     //! Settings to create root finder used to converge on exact final condition.
-    boost::shared_ptr< root_finders::RootFinderSettings > terminationRootFinderSettings_;
+    std::shared_ptr< root_finders::RootFinderSettings > terminationRootFinderSettings_;
 };
 
 //! Class for stopping the propagation when one or all of a given set of stopping conditions is reached.
@@ -290,7 +290,7 @@ public:
      * condition, or whether it is to terminate on the first step where it is violated.
      */
     HybridPropagationTerminationCondition(
-            const std::vector< boost::shared_ptr< PropagationTerminationCondition > > propagationTerminationCondition,
+            const std::vector< std::shared_ptr< PropagationTerminationCondition > > propagationTerminationCondition,
             const bool fulFillSingleCondition = 0,
             const bool terminateExactlyOnFinalCondition = 0 ):
         PropagationTerminationCondition( hybrid_stopping_condition, terminateExactlyOnFinalCondition ),
@@ -315,7 +315,7 @@ public:
      *  Function to retrieve list of termination conditions that are checked when calling checkStopCondition is called.
      *  \return List of termination conditions that are checked when calling checkStopCondition is called.
      */
-    std::vector< boost::shared_ptr< PropagationTerminationCondition > > getPropagationTerminationConditions( )
+    std::vector< std::shared_ptr< PropagationTerminationCondition > > getPropagationTerminationConditions( )
     {
         return propagationTerminationCondition_;
     }
@@ -340,7 +340,7 @@ public:
 private:
 
     //! List of termination conditions that are checked when calling checkStopCondition is called.
-    std::vector< boost::shared_ptr< PropagationTerminationCondition > > propagationTerminationCondition_;
+    std::vector< std::shared_ptr< PropagationTerminationCondition > > propagationTerminationCondition_;
 
     //!  Boolean denoting whether a single (if true) or all (if false) of the entries in the propagationTerminationCondition_
     //!  should return true from the checkStopCondition function to stop the propagation.
@@ -357,8 +357,8 @@ private:
  * \param initialTimeStep Time step at first call of numerical integration.
  * \return Object used to check whether propagation is to be stopped or not.
  */
-boost::shared_ptr< PropagationTerminationCondition > createPropagationTerminationConditions(
-        const boost::shared_ptr< PropagationTerminationSettings > terminationSettings,
+std::shared_ptr< PropagationTerminationCondition > createPropagationTerminationConditions(
+        const std::shared_ptr< PropagationTerminationSettings > terminationSettings,
         const simulation_setup::NamedBodyMap& bodyMap,
         const double initialTimeStep );
 
@@ -423,7 +423,7 @@ public:
      */
     PropagationTerminationDetailsFromHybridCondition(
             const bool terminationOnExactCondition,
-            const boost::shared_ptr< HybridPropagationTerminationCondition > terminationCondition ):
+            const std::shared_ptr< HybridPropagationTerminationCondition > terminationCondition ):
         PropagationTerminationDetails( termination_condition_reached, terminationOnExactCondition ),
         isConditionMetWhenStopping_( terminationCondition->getIsConditionMetWhenStopping( ) ){ }
 

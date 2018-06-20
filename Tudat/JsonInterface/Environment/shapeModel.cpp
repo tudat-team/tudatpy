@@ -18,7 +18,7 @@ namespace simulation_setup
 {
 
 //! Create a `json` object from a shared pointer to a `BodyShapeSettings` object.
-void to_json( nlohmann::json& jsonObject, const boost::shared_ptr< BodyShapeSettings >& bodyShapeSettings )
+void to_json( nlohmann::json& jsonObject, const std::shared_ptr< BodyShapeSettings >& bodyShapeSettings )
 {
     if ( ! bodyShapeSettings )
     {
@@ -34,9 +34,9 @@ void to_json( nlohmann::json& jsonObject, const boost::shared_ptr< BodyShapeSett
     {
     case spherical:
     {
-        boost::shared_ptr< SphericalBodyShapeSettings > sphericalBodyShapeSettings =
-                boost::dynamic_pointer_cast< SphericalBodyShapeSettings >( bodyShapeSettings );
-        assertNonNullPointer( sphericalBodyShapeSettings );
+        std::shared_ptr< SphericalBodyShapeSettings > sphericalBodyShapeSettings =
+                std::dynamic_pointer_cast< SphericalBodyShapeSettings >( bodyShapeSettings );
+        assertNonnullptrPointer( sphericalBodyShapeSettings );
         jsonObject[ K::radius ] = sphericalBodyShapeSettings->getRadius( );
         return;
     }
@@ -44,9 +44,9 @@ void to_json( nlohmann::json& jsonObject, const boost::shared_ptr< BodyShapeSett
         return;
     case oblate_spheroid:
     {
-        boost::shared_ptr< OblateSphericalBodyShapeSettings > oblateSphericalBodyShapeSettings =
-                boost::dynamic_pointer_cast< OblateSphericalBodyShapeSettings >( bodyShapeSettings );
-        assertNonNullPointer( oblateSphericalBodyShapeSettings );
+        std::shared_ptr< OblateSphericalBodyShapeSettings > oblateSphericalBodyShapeSettings =
+                std::dynamic_pointer_cast< OblateSphericalBodyShapeSettings >( bodyShapeSettings );
+        assertNonnullptrPointer( oblateSphericalBodyShapeSettings );
         jsonObject[ K::equatorialRadius ] = oblateSphericalBodyShapeSettings->getEquatorialRadius( );
         jsonObject[ K::flattening ] = oblateSphericalBodyShapeSettings->getFlattening( );
         return;
@@ -57,7 +57,7 @@ void to_json( nlohmann::json& jsonObject, const boost::shared_ptr< BodyShapeSett
 }
 
 //! Create a shared pointer to a `BodyShapeSettings` object from a `json` object.
-void from_json( const nlohmann::json& jsonObject, boost::shared_ptr< BodyShapeSettings >& bodyShapeSettings )
+void from_json( const nlohmann::json& jsonObject, std::shared_ptr< BodyShapeSettings >& bodyShapeSettings )
 {
     using namespace json_interface;
     using K = Keys::Body::ShapeModel;
@@ -68,18 +68,18 @@ void from_json( const nlohmann::json& jsonObject, boost::shared_ptr< BodyShapeSe
     switch ( bodyShapeType ) {
     case spherical:
     {
-        bodyShapeSettings = boost::make_shared< SphericalBodyShapeSettings >(
+        bodyShapeSettings = std::make_shared< SphericalBodyShapeSettings >(
                     getValue< double >( jsonObject, K::radius ) );
         return;
     }
     case spherical_spice:
     {
-        bodyShapeSettings = boost::make_shared< BodyShapeSettings >( bodyShapeType );
+        bodyShapeSettings = std::make_shared< BodyShapeSettings >( bodyShapeType );
         return;
     }
     case oblate_spheroid:
     {
-        bodyShapeSettings = boost::make_shared< OblateSphericalBodyShapeSettings >(
+        bodyShapeSettings = std::make_shared< OblateSphericalBodyShapeSettings >(
                     getValue< double >( jsonObject, K::equatorialRadius ),
                     getValue< double >( jsonObject, K::flattening ) );
         return;

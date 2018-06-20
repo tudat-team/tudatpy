@@ -39,10 +39,10 @@ BOOST_AUTO_TEST_SUITE( test_hybrid_arc_dynamics )
 void resetMarsEphemeris(
         const NamedBodyMap& bodyMap, const double ephemerisStartTime, const double ephemerisEndTime )
 {
-    boost::shared_ptr< Ephemeris > marsEphemeris =
+    std::shared_ptr< Ephemeris > marsEphemeris =
             createBodyEphemeris( getDefaultEphemerisSettings( "Mars", ephemerisStartTime, ephemerisEndTime ), "Mars" );
 
-    boost::shared_ptr< OneDimensionalInterpolator< double, Eigen::Vector6d > > defaultMarsStateInterpolator =
+    std::shared_ptr< OneDimensionalInterpolator< double, Eigen::Vector6d > > defaultMarsStateInterpolator =
             boost::dynamic_pointer_cast< TabulatedCartesianEphemeris< double, double > >( marsEphemeris )->getInterpolator( );
 
     boost::dynamic_pointer_cast< TabulatedCartesianEphemeris< double, double > >(
@@ -71,23 +71,23 @@ BOOST_AUTO_TEST_CASE( testHybridArcDynamics )
         double buffer = 5.0 * maximumTimeStep;
 
         // Create bodies needed in simulation
-        std::map< std::string, boost::shared_ptr< BodySettings > > bodySettings =
+        std::map< std::string, std::shared_ptr< BodySettings > > bodySettings =
                 getDefaultBodySettings( bodyNames, initialEphemerisTime - buffer, finalEphemerisTime + buffer );
 
         NamedBodyMap bodyMap = createBodies( bodySettings );
 
-        bodyMap[ "Orbiter" ] = boost::make_shared< Body >( );
+        bodyMap[ "Orbiter" ] = std::make_shared< Body >( );
         bodyMap[ "Orbiter" ]->setConstantBodyMass( 5.0E3 );
-        bodyMap[ "Orbiter" ]->setEphemeris( boost::make_shared< MultiArcEphemeris >(
-                                                std::map< double, boost::shared_ptr< Ephemeris > >( ),
+        bodyMap[ "Orbiter" ]->setEphemeris( std::make_shared< MultiArcEphemeris >(
+                                                std::map< double, std::shared_ptr< Ephemeris > >( ),
                                                 "Mars", "ECLIPJ2000" ) );
 
         double referenceAreaRadiation = 4.0;
         double radiationPressureCoefficient = 1.2;
         std::vector< std::string > occultingBodies;
         occultingBodies.push_back( "Earth" );
-        boost::shared_ptr< RadiationPressureInterfaceSettings > orbiterRadiationPressureSettings =
-                boost::make_shared< CannonBallRadiationPressureInterfaceSettings >(
+        std::shared_ptr< RadiationPressureInterfaceSettings > orbiterRadiationPressureSettings =
+                std::make_shared< CannonBallRadiationPressureInterfaceSettings >(
                     "Sun", referenceAreaRadiation, radiationPressureCoefficient, occultingBodies );
 
         // Create and set radiation pressure settings
@@ -102,10 +102,10 @@ BOOST_AUTO_TEST_CASE( testHybridArcDynamics )
 
         // Set accelerations between bodies that are to be taken into account.
         SelectedAccelerationMap singleArcAccelerationMap;
-        std::map< std::string, std::vector< boost::shared_ptr< AccelerationSettings > > > accelerationsOfMars;
-        accelerationsOfMars[ "Earth" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );
-        accelerationsOfMars[ "Sun" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );
-        accelerationsOfMars[ "Jupiter" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );
+        std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfMars;
+        accelerationsOfMars[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( central_gravity ) );
+        accelerationsOfMars[ "Sun" ].push_back( std::make_shared< AccelerationSettings >( central_gravity ) );
+        accelerationsOfMars[ "Jupiter" ].push_back( std::make_shared< AccelerationSettings >( central_gravity ) );
         singleArcAccelerationMap[ "Mars" ] = accelerationsOfMars;
 
         std::vector< std::string > singleArcBodiesToIntegrate, singleArcCentralBodies;
@@ -116,18 +116,18 @@ BOOST_AUTO_TEST_CASE( testHybridArcDynamics )
                     bodyMap, singleArcAccelerationMap, singleArcBodiesToIntegrate, singleArcCentralBodies );
         Eigen::VectorXd singleArcInitialStates = getInitialStatesOfBodies(
                     singleArcBodiesToIntegrate, singleArcCentralBodies, bodyMap, initialEphemerisTime );
-        boost::shared_ptr< TranslationalStatePropagatorSettings< > > singleArcPropagatorSettings =
-                boost::make_shared< TranslationalStatePropagatorSettings< > >(
+        std::shared_ptr< TranslationalStatePropagatorSettings< > > singleArcPropagatorSettings =
+                std::make_shared< TranslationalStatePropagatorSettings< > >(
                     singleArcCentralBodies, singleArcAccelerationModelMap, singleArcBodiesToIntegrate,
                     singleArcInitialStates, finalEphemerisTime );
 
 
         SelectedAccelerationMap multiArcAccelerationMap;
-        std::map< std::string, std::vector< boost::shared_ptr< AccelerationSettings > > > accelerationsOfOrbiter;
-        accelerationsOfOrbiter[ "Mars" ].push_back( boost::make_shared< SphericalHarmonicAccelerationSettings >( 2, 2 ) );
-        accelerationsOfOrbiter[ "Sun" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );
-        accelerationsOfOrbiter[ "Sun" ].push_back( boost::make_shared< AccelerationSettings >( cannon_ball_radiation_pressure ) );
-        accelerationsOfOrbiter[ "Jupiter" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );
+        std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfOrbiter;
+        accelerationsOfOrbiter[ "Mars" ].push_back( std::make_shared< SphericalHarmonicAccelerationSettings >( 2, 2 ) );
+        accelerationsOfOrbiter[ "Sun" ].push_back( std::make_shared< AccelerationSettings >( central_gravity ) );
+        accelerationsOfOrbiter[ "Sun" ].push_back( std::make_shared< AccelerationSettings >( cannon_ball_radiation_pressure ) );
+        accelerationsOfOrbiter[ "Jupiter" ].push_back( std::make_shared< AccelerationSettings >( central_gravity ) );
         multiArcAccelerationMap[ "Orbiter" ] = accelerationsOfOrbiter;
 
         std::vector< std::string > multiArcBodiesToIntegrate, multiArcCentralBodies;
@@ -181,23 +181,23 @@ BOOST_AUTO_TEST_CASE( testHybridArcDynamics )
         }
 
         // Create propagation settings for each arc
-        std::vector< boost::shared_ptr< SingleArcPropagatorSettings< double > > > arcPropagationSettingsList;
+        std::vector< std::shared_ptr< SingleArcPropagatorSettings< double > > > arcPropagationSettingsList;
         for( unsigned int i = 0; i < numberOfIntegrationArcs; i++ )
         {
             arcPropagationSettingsList.push_back(
-                        boost::make_shared< TranslationalStatePropagatorSettings< double > >
+                        std::make_shared< TranslationalStatePropagatorSettings< double > >
                         ( multiArcCentralBodies, multiArcAccelerationModelMap, multiArcBodiesToIntegrate,
                           multiArcSystemInitialStates.at( i ), integrationArcEnds.at( i ) ) );
         }
 
 
-        boost::shared_ptr< MultiArcPropagatorSettings< > > multiArcPropagatorSettings =
-                boost::make_shared< MultiArcPropagatorSettings< > >( arcPropagationSettingsList );
+        std::shared_ptr< MultiArcPropagatorSettings< > > multiArcPropagatorSettings =
+                std::make_shared< MultiArcPropagatorSettings< > >( arcPropagationSettingsList );
 
         std::map< double, Eigen::VectorXd > singleArcSolution;
         {
-            boost::shared_ptr< IntegratorSettings< > > integratorSettings =
-                    boost::make_shared< IntegratorSettings< > >
+            std::shared_ptr< IntegratorSettings< > > integratorSettings =
+                    std::make_shared< IntegratorSettings< > >
                     ( rungeKutta4, initialEphemerisTime, 120.0 );
             SingleArcDynamicsSimulator< > singleArcDynamicsSimulator(
                         bodyMap, integratorSettings, singleArcPropagatorSettings, true, false, true );
@@ -206,8 +206,8 @@ BOOST_AUTO_TEST_CASE( testHybridArcDynamics )
 
         std::vector< std::map< double, Eigen::VectorXd > > multiArcSolution;
         {
-            boost::shared_ptr< IntegratorSettings< > > integratorSettings =
-                    boost::make_shared< IntegratorSettings< > >
+            std::shared_ptr< IntegratorSettings< > > integratorSettings =
+                    std::make_shared< IntegratorSettings< > >
                     ( rungeKutta4, initialEphemerisTime, 120.0 );
             MultiArcDynamicsSimulator< > multiArcDynamicsSimulator(
                         bodyMap, integratorSettings, multiArcPropagatorSettings, integrationArcStarts, true, false, false );
@@ -216,11 +216,11 @@ BOOST_AUTO_TEST_CASE( testHybridArcDynamics )
 
         resetMarsEphemeris( bodyMap, initialEphemerisTime - buffer, finalEphemerisTime + buffer );
 
-        boost::shared_ptr< IntegratorSettings< > > integratorSettings =
-                boost::make_shared< IntegratorSettings< > >
+        std::shared_ptr< IntegratorSettings< > > integratorSettings =
+                std::make_shared< IntegratorSettings< > >
                 ( rungeKutta4, initialEphemerisTime, 120.0 );
         HybridArcDynamicsSimulator< > hybridArcDynamicsSimulator(
-                    bodyMap, integratorSettings, boost::make_shared< HybridArcPropagatorSettings< > >(
+                    bodyMap, integratorSettings, std::make_shared< HybridArcPropagatorSettings< > >(
                         singleArcPropagatorSettings, multiArcPropagatorSettings ), integrationArcStarts );
 
         std::map< double, Eigen::VectorXd > singleArcSolutionFromHybrid;

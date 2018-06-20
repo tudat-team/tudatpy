@@ -35,8 +35,8 @@ class SphericalHarmonicGravitationalTorquePartial: public TorquePartial
 public:
 
     SphericalHarmonicGravitationalTorquePartial(
-            const boost::shared_ptr< gravitation::SphericalHarmonicGravitationalTorqueModel > torqueModel,
-            const boost::shared_ptr< acceleration_partials::SphericalHarmonicsGravityPartial > accelerationPartial,
+            const std::shared_ptr< gravitation::SphericalHarmonicGravitationalTorqueModel > torqueModel,
+            const std::shared_ptr< acceleration_partials::SphericalHarmonicsGravityPartial > accelerationPartial,
             const std::string acceleratedBody,
             const std::string acceleratingBody ):
         TorquePartial( acceleratedBody, acceleratingBody, basic_astrodynamics::spherical_harmonic_gravitational_torque ),
@@ -70,8 +70,8 @@ public:
      *  \param parameter Parameter w.r.t. which partial is to be taken.
      *  \return Pair of parameter partial function and number of columns in partial (0 for no dependency, 1 otherwise).
      */
-    std::pair< boost::function< void( Eigen::MatrixXd& ) >, int >
-    getParameterPartialFunction( boost::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter );
+    std::pair< std::function< void( Eigen::MatrixXd& ) >, int >
+    getParameterPartialFunction( std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter );
 
     //! Function for setting up and retrieving a function returning a partial w.r.t. a vector parameter.
     /*!
@@ -80,8 +80,8 @@ public:
      *  \param parameter Parameter w.r.t. which partial is to be taken.
      *  \return Pair of parameter partial function and number of columns in partial (0 for no dependency).
      */
-    std::pair< boost::function< void( Eigen::MatrixXd& ) >, int > getParameterPartialFunction(
-            boost::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter );
+    std::pair< std::function< void( Eigen::MatrixXd& ) >, int > getParameterPartialFunction(
+            std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter );
 
     virtual void wrtOrientationOfAcceleratedBody(
             Eigen::Block< Eigen::MatrixXd > partialMatrix,
@@ -126,7 +126,7 @@ protected:
 
     void getParameterPartialFromAccelerationPartialFunction(
             Eigen::MatrixXd& partialMatrix,
-            const std::pair< boost::function< void( Eigen::MatrixXd& ) >, int >& accelerationPartialFunction );
+            const std::pair< std::function< void( Eigen::MatrixXd& ) >, int >& accelerationPartialFunction );
 
     Eigen::Vector4d currentQuaternionVector_;
 
@@ -148,9 +148,9 @@ protected:
     std::vector< Eigen::Matrix3d > currentRotationMatrixDerivativesWrtQuaternion_;
 
 
-    boost::shared_ptr< gravitation::SphericalHarmonicGravitationalTorqueModel > torqueModel_;
+    std::shared_ptr< gravitation::SphericalHarmonicGravitationalTorqueModel > torqueModel_;
 
-    const boost::shared_ptr< acceleration_partials::SphericalHarmonicsGravityPartial > accelerationPartial_;
+    const std::shared_ptr< acceleration_partials::SphericalHarmonicsGravityPartial > accelerationPartial_;
 
 };
 

@@ -7,34 +7,34 @@ namespace tudat
 namespace simulation_setup
 {
 
-boost::shared_ptr< acceleration_partials::TorquePartial > createConstantTorqueRotationalDynamicsPartial(
-        const std::pair< std::string, boost::shared_ptr< simulation_setup::Body > > acceleratedBody,
+std::shared_ptr< acceleration_partials::TorquePartial > createConstantTorqueRotationalDynamicsPartial(
+        const std::pair< std::string, std::shared_ptr< simulation_setup::Body > > acceleratedBody,
         const basic_astrodynamics::SingleBodyTorqueModelMap& torqueVector )
 {
-    boost::function< Eigen::Vector3d( ) > angularVelocityFunction =
-            boost::bind( &Body::getCurrentAngularVelocityVectorInLocalFrame, acceleratedBody.second );
-    boost::function< Eigen::Matrix3d( ) > inertiaTensorFunction =
-            boost::bind( &Body::getBodyInertiaTensor, acceleratedBody.second );
+    std::function< Eigen::Vector3d( ) > angularVelocityFunction =
+            std::bind( &Body::getCurrentAngularVelocityVectorInLocalFrame, acceleratedBody.second );
+    std::function< Eigen::Matrix3d( ) > inertiaTensorFunction =
+            std::bind( &Body::getBodyInertiaTensor, acceleratedBody.second );
 
-    boost::function< double( ) > inertiaTensorNormalizationFunction;
+    std::function< double( ) > inertiaTensorNormalizationFunction;
     if( boost::dynamic_pointer_cast< gravitation::SphericalHarmonicsGravityField >(
                 acceleratedBody.second->getGravityFieldModel( ) ) != NULL )
     {
         inertiaTensorNormalizationFunction =
-                boost::bind( &gravitation::SphericalHarmonicsGravityField::getInertiaTensorNormalizationFactor,
+                std::bind( &gravitation::SphericalHarmonicsGravityField::getInertiaTensorNormalizationFactor,
                              boost::dynamic_pointer_cast< gravitation::SphericalHarmonicsGravityField >(
                                  acceleratedBody.second->getGravityFieldModel( ) ) );
     }
 
-    boost::function< double( ) > gravitationalParameterFunction;
+    std::function< double( ) > gravitationalParameterFunction;
     if( acceleratedBody.second->getGravityFieldModel( ) != NULL )
     {
         gravitationalParameterFunction =
-                boost::bind( &gravitation::GravityFieldModel::getGravitationalParameter,
+                std::bind( &gravitation::GravityFieldModel::getGravitationalParameter,
                              acceleratedBody.second->getGravityFieldModel( ) );
     }
 
-    return boost::make_shared< acceleration_partials::ConstantTorquePartial >(
+    return std::make_shared< acceleration_partials::ConstantTorquePartial >(
                 angularVelocityFunction, inertiaTensorFunction, inertiaTensorNormalizationFunction, gravitationalParameterFunction,
                 torqueVector, acceleratedBody.first );
 }

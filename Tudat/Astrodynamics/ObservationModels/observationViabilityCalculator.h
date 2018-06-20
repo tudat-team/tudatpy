@@ -77,7 +77,7 @@ public:
  */
 bool isObservationViable(
         const std::vector< Eigen::Vector6d >& states, const std::vector< double >& times, const LinkEnds& linkEnds,
-        const std::map< LinkEnds, std::vector< boost::shared_ptr< ObservationViabilityCalculator > > >& viabilityCalculators );
+        const std::map< LinkEnds, std::vector< std::shared_ptr< ObservationViabilityCalculator > > >& viabilityCalculators );
 
 //! Function to check whether an observation is viable
 /*!
@@ -92,7 +92,7 @@ bool isObservationViable(
  */
 bool isObservationViable(
         const std::vector< Eigen::Vector6d >& states, const std::vector< double >& times,
-        const std::vector< boost::shared_ptr< ObservationViabilityCalculator > >& viabilityCalculators );
+        const std::vector< std::shared_ptr< ObservationViabilityCalculator > >& viabilityCalculators );
 
 
 //! Function to check whether an observation is possible based on minimum elevation angle criterion at one link end.
@@ -114,7 +114,7 @@ public:
     MinimumElevationAngleCalculator(
             const std::vector< std::pair< int, int > > linkEndIndices,
             const double minimumElevationAngle,
-            const boost::shared_ptr< ground_stations::PointingAnglesCalculator > pointingAngleCalculator ):
+            const std::shared_ptr< ground_stations::PointingAnglesCalculator > pointingAngleCalculator ):
         linkEndIndices_( linkEndIndices ), minimumElevationAngle_( minimumElevationAngle ),
         pointingAngleCalculator_( pointingAngleCalculator ){ }
 
@@ -149,7 +149,7 @@ private:
     double minimumElevationAngle_;
 
     //! Object to calculate pointing angles (elevation angle) at ground station
-    boost::shared_ptr< ground_stations::PointingAnglesCalculator > pointingAngleCalculator_;
+    std::shared_ptr< ground_stations::PointingAnglesCalculator > pointingAngleCalculator_;
 };
 
 //! Function to check whether an observation is possible, based on body avoidance angle, as vied from single link end
@@ -180,7 +180,7 @@ public:
      */
     BodyAvoidanceAngleCalculator( const std::vector< std::pair< int, int > > linkEndIndices,
                                   const double bodyAvoidanceAngle,
-                                  const boost::function< Eigen::Vector6d( const double ) > stateFunctionOfBodyToAvoid,
+                                  const std::function< Eigen::Vector6d( const double ) > stateFunctionOfBodyToAvoid,
                                   const std::string bodyToAvoid ):
         linkEndIndices_( linkEndIndices ),
         bodyAvoidanceAngle_( bodyAvoidanceAngle ),
@@ -220,7 +220,7 @@ private:
     double bodyAvoidanceAngle_;
 
     //! Function that returns the inertial state of the body that is to be avoided as a function of time
-    boost::function< Eigen::Vector6d( const double ) > stateFunctionOfBodyToAvoid_;
+    std::function< Eigen::Vector6d( const double ) > stateFunctionOfBodyToAvoid_;
 
     //! Name of the body that is to be avoided.
     std::string bodyToAvoid_;
@@ -238,7 +238,7 @@ public:
 
     OccultationCalculator(
             const std::vector< std::pair< int, int > > linkEndIndices,
-            const boost::function< Eigen::Vector6d( const double ) > stateFunctionOfOccultingBody,
+            const std::function< Eigen::Vector6d( const double ) > stateFunctionOfOccultingBody,
             const double radiusOfOccultingBody ):
         linkEndIndices_( linkEndIndices ),
         stateFunctionOfOccultingBody_( stateFunctionOfOccultingBody ),
@@ -271,7 +271,7 @@ private:
     std::vector< std::pair< int, int > > linkEndIndices_;
 
     //! Function that returns the inertial state of the body that for which it is checked whether it occults the link.
-    boost::function< Eigen::Vector6d( const double ) > stateFunctionOfOccultingBody_;
+    std::function< Eigen::Vector6d( const double ) > stateFunctionOfOccultingBody_;
 
     //! Radius of body causing occultation.
     double radiusOfOccultingBody_;
@@ -357,15 +357,15 @@ protected:
 };
 
 //! Typedef for a list of observation viability calculators, sorted by observable type and link ends.
-typedef std::map< ObservableType, std::map< LinkEnds, std::vector< boost::shared_ptr< ObservationViabilityCalculator > > > >
+typedef std::map< ObservableType, std::map< LinkEnds, std::vector< std::shared_ptr< ObservationViabilityCalculator > > > >
 PerObservableObservationViabilityCalculatorList;
 
 //! Typedef for a list of observation viability calculators for a single observable type, sorted by and link ends.
-typedef std::map< LinkEnds, std::vector< boost::shared_ptr< ObservationViabilityCalculator > > >
+typedef std::map< LinkEnds, std::vector< std::shared_ptr< ObservationViabilityCalculator > > >
 PerLinkEndsObservationViabilityCalculatorList;
 
 //! Typedef for vector of ObservationViabilitySettings pointers
-typedef std::vector< boost::shared_ptr< observation_models::ObservationViabilitySettings > > ObservationViabilitySettingsList;
+typedef std::vector< std::shared_ptr< observation_models::ObservationViabilitySettings > > ObservationViabilitySettingsList;
 
 }
 

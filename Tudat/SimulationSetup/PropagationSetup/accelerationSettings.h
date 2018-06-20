@@ -239,9 +239,9 @@ public:
      * propagation is performed.
      */
     FullThrustInterpolationInterface(
-            const boost::shared_ptr< interpolators::OneDimensionalInterpolator<
+            const std::shared_ptr< interpolators::OneDimensionalInterpolator<
             double, Eigen::Vector3d > > thrustInterpolator,
-            const boost::function< Eigen::Matrix3d( ) > rotationFunction =
+            const std::function< Eigen::Matrix3d( ) > rotationFunction =
             boost::lambda::constant( Eigen::Matrix3d::Identity( ) ) ):
         thrustInterpolator_( thrustInterpolator ), rotationFunction_( rotationFunction ),
         currentThrust_( Eigen::Vector3d::Constant( TUDAT_NAN ) ), currentTime_( TUDAT_NAN ){ }
@@ -278,7 +278,7 @@ public:
      *  \param rotationFunction New function that returns the rotation matrix from the frame B to teh frame in which the
      *  propagation is performed.
      */
-    void resetRotationFunction( const boost::function< Eigen::Matrix3d( ) > rotationFunction )
+    void resetRotationFunction( const std::function< Eigen::Matrix3d( ) > rotationFunction )
     {
         rotationFunction_ = rotationFunction;
     }
@@ -292,7 +292,7 @@ public:
     /*!
      * Function to retrieve the thrust interpolator.
      */
-    boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Vector3d > > getThrustInterpolator( )
+    std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Vector3d > > getThrustInterpolator( )
     {
         return thrustInterpolator_;
     }
@@ -314,10 +314,10 @@ private:
     }
 
     //! Object that returns the total thrust vector, expressed in some reference frame B
-    boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Vector3d > > thrustInterpolator_;
+    std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Vector3d > > thrustInterpolator_;
 
     //! Function that returns the rotation matrix from the frame B to teh frame in which the propagation is performed.
-    boost::function< Eigen::Matrix3d( ) > rotationFunction_;
+    std::function< Eigen::Matrix3d( ) > rotationFunction_;
 
     //! Total thrust vector (in propagation frame) computed by last call to updateThrust function.
     Eigen::Vector3d currentThrust_;
@@ -351,8 +351,8 @@ public:
      * \param thrustMagnitudeSettings Settings for the magnitude of the thrust
      */
     ThrustAccelerationSettings(
-            const boost::shared_ptr< ThrustDirectionGuidanceSettings > thrustDirectionGuidanceSettings,
-            const boost::shared_ptr< ThrustEngineSettings > thrustMagnitudeSettings ):
+            const std::shared_ptr< ThrustDirectionGuidanceSettings > thrustDirectionGuidanceSettings,
+            const std::shared_ptr< ThrustEngineSettings > thrustMagnitudeSettings ):
         AccelerationSettings( basic_astrodynamics::thrust_acceleration ),
         thrustDirectionGuidanceSettings_( thrustDirectionGuidanceSettings ),
         thrustMagnitudeSettings_( thrustMagnitudeSettings ),
@@ -370,24 +370,24 @@ public:
      * \param centralBody Central body identifier for thrustFrame (if needed; empty by default).
      */
     ThrustAccelerationSettings(
-            const boost::shared_ptr< interpolators::DataInterpolationSettings< double, Eigen::Vector3d > >&
+            const std::shared_ptr< interpolators::DataInterpolationSettings< double, Eigen::Vector3d > >&
             dataInterpolationSettings,
-            const boost::function< double( const double ) > specificImpulseFunction,
+            const std::function< double( const double ) > specificImpulseFunction,
             const ThrustFrames thrustFrame = unspecified_thurst_frame,
             const std::string centralBody = "" ):
         AccelerationSettings( basic_astrodynamics::thrust_acceleration ),
         constantSpecificImpulse_( TUDAT_NAN ), thrustFrame_( thrustFrame ),
         centralBody_( centralBody ), dataInterpolationSettings_( dataInterpolationSettings )
     {
-        interpolatorInterface_ = boost::make_shared< FullThrustInterpolationInterface >(
+        interpolatorInterface_ = std::make_shared< FullThrustInterpolationInterface >(
                     interpolators::createOneDimensionalInterpolator( dataInterpolationSettings ) );
-        thrustDirectionGuidanceSettings_ = boost::make_shared< CustomThrustDirectionSettings >(
-                    boost::bind( &FullThrustInterpolationInterface::getThrustDirection, interpolatorInterface_, _1 ) );
-        thrustMagnitudeSettings_ =  boost::make_shared< FromFunctionThrustEngineSettings >(
-                    boost::bind( &FullThrustInterpolationInterface::getThrustMagnitude, interpolatorInterface_, _1 ),
+        thrustDirectionGuidanceSettings_ = std::make_shared< CustomThrustDirectionSettings >(
+                    std::bind( &FullThrustInterpolationInterface::getThrustDirection, interpolatorInterface_, std::placeholders::_1 ) );
+        thrustMagnitudeSettings_ =  std::make_shared< FromFunctionThrustEngineSettings >(
+                    std::bind( &FullThrustInterpolationInterface::getThrustMagnitude, interpolatorInterface_, std::placeholders::_1 ),
                     specificImpulseFunction, boost::lambda::constant( true ),
                     boost::lambda::constant( Eigen::Vector3d::UnitX( ) ),
-                    boost::bind( &FullThrustInterpolationInterface::resetTime, interpolatorInterface_, _1 ) );
+                    std::bind( &FullThrustInterpolationInterface::resetTime, interpolatorInterface_, std::placeholders::_1 ) );
     }
 
     //! Constructor used for defining total thrust vector (in local or inertial frame) from interpolator using constant
@@ -402,7 +402,7 @@ public:
      * \param centralBody Central body identifier for thrustFrame (if needed; empty by default).
      */
     ThrustAccelerationSettings(
-            const boost::shared_ptr< interpolators::DataInterpolationSettings< double, Eigen::Vector3d > >&
+            const std::shared_ptr< interpolators::DataInterpolationSettings< double, Eigen::Vector3d > >&
             dataInterpolationSettings,
             const double constantSpecificImpulse,
             const ThrustFrames thrustFrame = unspecified_thurst_frame,
@@ -421,13 +421,13 @@ public:
 
 
     //! Settings for the direction of the thrust
-    boost::shared_ptr< ThrustDirectionGuidanceSettings > thrustDirectionGuidanceSettings_;
+    std::shared_ptr< ThrustDirectionGuidanceSettings > thrustDirectionGuidanceSettings_;
 
     //! Settings for the magnitude of the thrust
-    boost::shared_ptr< ThrustEngineSettings > thrustMagnitudeSettings_;
+    std::shared_ptr< ThrustEngineSettings > thrustMagnitudeSettings_;
 
     //! Constant specific impulse used when determining the direction and magnitude of thrust from an interpolator.
-    //! NaN if the specific impulse is not constant (i.e. is defined using a boost::function).
+    //! NaN if the specific impulse is not constant (i.e. is defined using a std::function).
     double constantSpecificImpulse_ = TUDAT_NAN;
 
     //! Identifier of frame in which thrust returned by fullThrustInterpolator is expressed.
@@ -445,10 +445,10 @@ public:
     std::string centralBody_;
 
     //! Settings to create the interpolator interface
-    boost::shared_ptr< interpolators::DataInterpolationSettings< double, Eigen::Vector3d > > dataInterpolationSettings_;
+    std::shared_ptr< interpolators::DataInterpolationSettings< double, Eigen::Vector3d > > dataInterpolationSettings_;
 
     //! Interface object used when full thrust (direction and magnitude) are defined by a single user-supplied interpolation.
-    boost::shared_ptr< FullThrustInterpolationInterface > interpolatorInterface_;
+    std::shared_ptr< FullThrustInterpolationInterface > interpolatorInterface_;
 
 };
 
@@ -493,10 +493,10 @@ public:
 
 //! Typedef defining a list of acceleration settings, set up in the same manner as the
 //! AccelerationMap typedef.
-typedef std::map< std::string, std::map< std::string, std::vector< boost::shared_ptr< AccelerationSettings > > > >
+typedef std::map< std::string, std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > >
 SelectedAccelerationMap;
 
-typedef std::map< std::string, std::vector< std::pair< std::string, boost::shared_ptr< AccelerationSettings > > > >
+typedef std::map< std::string, std::vector< std::pair< std::string, std::shared_ptr< AccelerationSettings > > > >
 SelectedAccelerationList;
 
 } // namespace simulation_setup

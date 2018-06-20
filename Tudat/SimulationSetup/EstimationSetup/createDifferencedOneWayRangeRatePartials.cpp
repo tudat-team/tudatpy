@@ -24,8 +24,8 @@ splitOneWayRangeRateLightTimeCorrectionsBetweenArcs(
     PerLinkEndPerLightTimeSolutionCorrections arcStartCorrections;
     PerLinkEndPerLightTimeSolutionCorrections arcEndCorrections;
 
-    std::vector< std::vector< boost::shared_ptr< observation_models::LightTimeCorrection > > > currentArcStartCorrections;
-    std::vector< std::vector< boost::shared_ptr< observation_models::LightTimeCorrection > > > currentArcEndCorrections;
+    std::vector< std::vector< std::shared_ptr< observation_models::LightTimeCorrection > > > currentArcStartCorrections;
+    std::vector< std::vector< std::shared_ptr< observation_models::LightTimeCorrection > > > currentArcEndCorrections;
 
     // Iterate over all link ends
     for( PerLinkEndPerLightTimeSolutionCorrections::const_iterator correctionIterator = combinedCorrections.begin( );

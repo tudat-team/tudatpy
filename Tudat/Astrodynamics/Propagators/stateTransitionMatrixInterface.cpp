@@ -20,9 +20,9 @@ namespace propagators
 
 //! Function to reset the state transition and sensitivity matrix interpolators
 void SingleArcCombinedStateTransitionAndSensitivityMatrixInterface::updateMatrixInterpolators(
-        const boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > >
+        const std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > >
         stateTransitionMatrixInterpolator,
-        const boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > >
+        const std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > >
         sensitivityMatrixInterpolator )
 {
     stateTransitionMatrixInterpolator_ = stateTransitionMatrixInterpolator;
@@ -50,9 +50,9 @@ Eigen::MatrixXd SingleArcCombinedStateTransitionAndSensitivityMatrixInterface::g
 
 //! Constructor
 MultiArcCombinedStateTransitionAndSensitivityMatrixInterface::MultiArcCombinedStateTransitionAndSensitivityMatrixInterface(
-        const std::vector< boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > > >
+        const std::vector< std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > > >
         stateTransitionMatrixInterpolators,
-        const std::vector< boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > > >
+        const std::vector< std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > > >
         sensitivityMatrixInterpolators,
         const std::vector< double >& arcStartTimes,
         const int numberOfInitialDynamicalParameters,
@@ -75,15 +75,15 @@ MultiArcCombinedStateTransitionAndSensitivityMatrixInterface::MultiArcCombinedSt
 
     std::vector< double > arcSplitTimes = arcStartTimes_;
     arcSplitTimes.push_back(  std::numeric_limits< double >::max( ));
-    lookUpscheme_ = boost::make_shared< interpolators::HuntingAlgorithmLookupScheme< double > >(
+    lookUpscheme_ = std::make_shared< interpolators::HuntingAlgorithmLookupScheme< double > >(
                 arcSplitTimes );
 }
 
 //! Function to reset the state transition and sensitivity matrix interpolators
 void MultiArcCombinedStateTransitionAndSensitivityMatrixInterface::updateMatrixInterpolators(
-        const std::vector< boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > > >
+        const std::vector< std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > > >
         stateTransitionMatrixInterpolators,
-        const std::vector< boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > > >
+        const std::vector< std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > > >
         sensitivityMatrixInterpolators,
         const std::vector< double >& arcStartTimes )
 {
@@ -101,7 +101,7 @@ void MultiArcCombinedStateTransitionAndSensitivityMatrixInterface::updateMatrixI
     std::vector< double > arcSplitTimes = arcStartTimes_;
     arcSplitTimes.push_back( std::numeric_limits< double >::max( ) );
 
-    lookUpscheme_ = boost::make_shared< interpolators::HuntingAlgorithmLookupScheme< double > >(
+    lookUpscheme_ = std::make_shared< interpolators::HuntingAlgorithmLookupScheme< double > >(
                 arcSplitTimes );
 }
 

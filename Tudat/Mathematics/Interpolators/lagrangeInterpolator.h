@@ -92,8 +92,8 @@ public:
         }
 
         // Set data vectors.
-        independentValues_ = independentVariables;
-        dependentValues_ = dependentVariables;
+        independentValues_ = std::move( independentVariables );
+        dependentValues_ = std::move( dependentVariables );
         numberOfIndependentValues_ = static_cast< int >( independentValues_.size( ) );
 
         // Check if data is in ascending order
@@ -177,8 +177,8 @@ public:
         for( typename std::map< IndependentVariableType, DependentVariableType >::const_iterator
              mapIterator = dataMap.begin( ); mapIterator != dataMap.end( ); mapIterator++ )
         {
-            independentValues_.push_back( mapIterator->first );
-            dependentValues_.push_back( mapIterator->second );
+            independentValues_.push_back( std::move( mapIterator->first ) );
+            dependentValues_.push_back( std::move( mapIterator->second ) );
         }
 
         // Define zero entry for dependent variable.
@@ -421,9 +421,9 @@ private:
             }
 
             // Create cubic spline interpolators
-            beginInterpolator_ = boost::make_shared< CubicSplineInterpolator
+            beginInterpolator_ = std::make_shared< CubicSplineInterpolator
                     < IndependentVariableType, DependentVariableType, ScalarType > >( startMap );
-            endInterpolator_ = boost::make_shared< CubicSplineInterpolator
+            endInterpolator_ = std::make_shared< CubicSplineInterpolator
                     < IndependentVariableType, DependentVariableType, ScalarType > >( endMap );
         }
     }
@@ -455,11 +455,11 @@ private:
     std::vector< ScalarType > independentVariableDifferenceCache;
 
     //! Interpolator to be used at beginning of domain.
-    boost::shared_ptr< OneDimensionalInterpolator
+    std::shared_ptr< OneDimensionalInterpolator
     < IndependentVariableType, DependentVariableType > > beginInterpolator_;
 
     //! Interpolator to be used at end of domain.
-    boost::shared_ptr< OneDimensionalInterpolator
+    std::shared_ptr< OneDimensionalInterpolator
     < IndependentVariableType, DependentVariableType > > endInterpolator_;
 
     //! Size of (in)dependent variable vector
@@ -473,6 +473,23 @@ private:
     LagrangeInterpolatorBoundaryHandling boundaryHandling_;
 
 };
+
+extern template class LagrangeInterpolator< double, Eigen::VectorXd >;
+extern template class LagrangeInterpolator< double, Eigen::Vector6d >;
+extern template class LagrangeInterpolator< double, Eigen::MatrixXd >;
+
+extern template class LagrangeInterpolator< Time, Eigen::VectorXd, long double >;
+extern template class LagrangeInterpolator< Time, Eigen::Vector6d, long double >;
+extern template class LagrangeInterpolator< Time, Eigen::MatrixXd, long double >;
+
+extern template class LagrangeInterpolator< double, Eigen::Matrix< long double, Eigen::Dynamic, 1 > >;
+extern template class LagrangeInterpolator< double, Eigen::Matrix< long double, Eigen::Dynamic, 6 > >;
+extern template class LagrangeInterpolator< double, Eigen::Matrix< long double, Eigen::Dynamic,  Eigen::Dynamic > >;
+
+extern template class LagrangeInterpolator< Time, Eigen::Matrix< long double, Eigen::Dynamic, 1 >, long double >;
+extern template class LagrangeInterpolator< Time, Eigen::Matrix< long double, Eigen::Dynamic, 6 >, long double >;
+extern template class LagrangeInterpolator< Time, Eigen::Matrix< long double, Eigen::Dynamic,  Eigen::Dynamic >, long double >;
+
 
 //! Typedef for LagrangeInterpolator with double as both its dependent and independent data type.
 typedef LagrangeInterpolator< double, double > LagrangeInterpolatorDouble;

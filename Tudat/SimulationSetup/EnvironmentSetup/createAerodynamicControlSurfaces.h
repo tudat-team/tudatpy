@@ -13,7 +13,7 @@
 
 #include <vector>
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 #include <boost/make_shared.hpp>
 
 #include "Tudat/InputOutput/aerodynamicCoefficientReader.h"
@@ -245,7 +245,7 @@ protected:
  *  defined in forceCoefficientFiles and momentCoefficientFiles
  */
 template< unsigned int NumberOfIndependentVariables >
-boost::shared_ptr< ControlSurfaceIncrementAerodynamicCoefficientSettings >
+std::shared_ptr< ControlSurfaceIncrementAerodynamicCoefficientSettings >
 readGivenSizeTabulatedControlIncrementAerodynamicCoefficientsFromFiles(
         const std::map< int, std::string > forceCoefficientFiles,
         const std::map< int, std::string > momentCoefficientFiles,
@@ -269,7 +269,7 @@ readGivenSizeTabulatedControlIncrementAerodynamicCoefficientsFromFiles(
         throw std::runtime_error( "Error when creating aerodynamic coefficient settings from file, input sizes are inconsistent" );
     }
 
-    return boost::make_shared< TabulatedControlSurfaceIncrementAerodynamicCoefficientSettings<
+    return std::make_shared< TabulatedControlSurfaceIncrementAerodynamicCoefficientSettings<
             NumberOfIndependentVariables > >(
                 aerodynamicForceCoefficients.second, aerodynamicForceCoefficients.first, aerodynamicMomentCoefficients.first,
                 independentVariableNames );
@@ -288,7 +288,7 @@ readGivenSizeTabulatedControlIncrementAerodynamicCoefficientsFromFiles(
  *   defined in forceCoefficientFiles and reference data given as input
  */
 template< unsigned int NumberOfIndependentVariables >
-boost::shared_ptr< ControlSurfaceIncrementAerodynamicCoefficientSettings >
+std::shared_ptr< ControlSurfaceIncrementAerodynamicCoefficientSettings >
 readGivenSizeTabulatedControlIncrementAerodynamicCoefficientsFromFiles(
         const std::map< int, std::string > forceCoefficientFiles,
         const std::vector< aerodynamics::AerodynamicCoefficientsIndependentVariables > independentVariableNames )
@@ -304,7 +304,7 @@ readGivenSizeTabulatedControlIncrementAerodynamicCoefficientsFromFiles(
     }
 
     // Create coefficient settings.
-    return boost::make_shared< TabulatedControlSurfaceIncrementAerodynamicCoefficientSettings<
+    return std::make_shared< TabulatedControlSurfaceIncrementAerodynamicCoefficientSettings<
             NumberOfIndependentVariables > >(
                 aerodynamicCoefficients.second, aerodynamicCoefficients.first, independentVariableNames );
 }
@@ -322,7 +322,7 @@ readGivenSizeTabulatedControlIncrementAerodynamicCoefficientsFromFiles(
  *  \return Settings for creation of control surface aerodynamic coefficient interface, based on contents read from files
  *  defined in forceCoefficientFiles and momentCoefficientFiles.
  */
-boost::shared_ptr< ControlSurfaceIncrementAerodynamicCoefficientSettings >
+std::shared_ptr< ControlSurfaceIncrementAerodynamicCoefficientSettings >
 readTabulatedControlIncrementAerodynamicCoefficientsFromFiles(
         const std::map< int, std::string > forceCoefficientFiles,
         const std::map< int, std::string > momentCoefficientFiles,
@@ -339,7 +339,7 @@ readTabulatedControlIncrementAerodynamicCoefficientsFromFiles(
  * \return Settings for creation of control surface aerodynamic coefficient interface, based on contents read from
  * files defined in forceCoefficientFiles
  */
-boost::shared_ptr< ControlSurfaceIncrementAerodynamicCoefficientSettings >
+std::shared_ptr< ControlSurfaceIncrementAerodynamicCoefficientSettings >
 readTabulatedControlIncrementAerodynamicCoefficientsFromFiles(
         const std::map< int, std::string > forceCoefficientFiles,
         const std::vector< aerodynamics::AerodynamicCoefficientsIndependentVariables > independentVariableNames );
@@ -360,7 +360,7 @@ readTabulatedControlIncrementAerodynamicCoefficientsFromFiles(
  * files defined in forceCoefficientFiles
  */
 template< unsigned int NumberOfDimensions >
-boost::shared_ptr< aerodynamics::ControlSurfaceIncrementAerodynamicInterface >
+std::shared_ptr< aerodynamics::ControlSurfaceIncrementAerodynamicInterface >
 createTabulatedControlSurfaceIncrementAerodynamicCoefficientInterface(
         const std::vector< std::vector< double > > independentVariables,
         const boost::multi_array< Eigen::Vector3d, static_cast< size_t >( NumberOfDimensions ) > forceCoefficients,
@@ -381,25 +381,25 @@ createTabulatedControlSurfaceIncrementAerodynamicCoefficientInterface(
     }
 
     // Create interpolators for coefficients.
-    boost::shared_ptr< interpolators::MultiLinearInterpolator
+    std::shared_ptr< interpolators::MultiLinearInterpolator
             < double, Eigen::Vector3d, NumberOfDimensions > > forceInterpolator =
-            boost::make_shared< interpolators::MultiLinearInterpolator
+            std::make_shared< interpolators::MultiLinearInterpolator
             < double, Eigen::Vector3d, NumberOfDimensions > >(
                 independentVariables, forceCoefficients );
-    boost::shared_ptr< interpolators::MultiLinearInterpolator
+    std::shared_ptr< interpolators::MultiLinearInterpolator
             < double, Eigen::Vector3d, NumberOfDimensions > > momentInterpolator =
-            boost::make_shared< interpolators::MultiLinearInterpolator
+            std::make_shared< interpolators::MultiLinearInterpolator
             < double, Eigen::Vector3d, NumberOfDimensions > >(
                 independentVariables, momentCoefficients );
 
     // Create aerodynamic coefficient interface.
-    return  boost::make_shared< aerodynamics::CustomControlSurfaceIncrementAerodynamicInterface >(
-                boost::bind( &interpolators::MultiLinearInterpolator
+    return  std::make_shared< aerodynamics::CustomControlSurfaceIncrementAerodynamicInterface >(
+                std::bind( &interpolators::MultiLinearInterpolator
                              < double, Eigen::Vector3d, NumberOfDimensions >::interpolate,
-                             forceInterpolator, _1 ),
-                boost::bind( &interpolators::MultiLinearInterpolator
+                             forceInterpolator, std::placeholders::_1 ),
+                std::bind( &interpolators::MultiLinearInterpolator
                              < double, Eigen::Vector3d, NumberOfDimensions >::interpolate,
-                             momentInterpolator, _1 ),
+                             momentInterpolator, std::placeholders::_1 ),
                 independentVariableNames );
 }
 
@@ -411,16 +411,16 @@ createTabulatedControlSurfaceIncrementAerodynamicCoefficientInterface(
  *  \return Object used to compute/update control surface aerodynamics during propagation.
  */
 template< unsigned int NumberOfDimensions >
-boost::shared_ptr< aerodynamics::ControlSurfaceIncrementAerodynamicInterface >
+std::shared_ptr< aerodynamics::ControlSurfaceIncrementAerodynamicInterface >
 createTabulatedControlSurfaceIncrementAerodynamicCoefficientInterface(
-        const boost::shared_ptr< ControlSurfaceIncrementAerodynamicCoefficientSettings > coefficientSettings,
+        const std::shared_ptr< ControlSurfaceIncrementAerodynamicCoefficientSettings > coefficientSettings,
         const std::string& body )
 {
     // Check consistency of type.
-    boost::shared_ptr< TabulatedControlSurfaceIncrementAerodynamicCoefficientSettings< NumberOfDimensions > >
-            tabulatedCoefficientSettings = boost::dynamic_pointer_cast<
+    std::shared_ptr< TabulatedControlSurfaceIncrementAerodynamicCoefficientSettings< NumberOfDimensions > >
+            tabulatedCoefficientSettings = std::dynamic_pointer_cast<
             TabulatedControlSurfaceIncrementAerodynamicCoefficientSettings< NumberOfDimensions > >( coefficientSettings );
-    if( tabulatedCoefficientSettings == NULL )
+    if( tabulatedCoefficientSettings == nullptr )
     {
         throw std::runtime_error(
                     "Error, expected tabulated control surface increment aerodynamic coefficients of size " +
@@ -443,9 +443,9 @@ createTabulatedControlSurfaceIncrementAerodynamicCoefficientInterface(
  *  \param body Name of body for which coefficients are to be created.
  *  \return Object used to compute/update control surface aerodynamics during propagation.
  */
-boost::shared_ptr< aerodynamics::ControlSurfaceIncrementAerodynamicInterface >
+std::shared_ptr< aerodynamics::ControlSurfaceIncrementAerodynamicInterface >
 createControlSurfaceIncrementAerodynamicCoefficientInterface(
-        const boost::shared_ptr< ControlSurfaceIncrementAerodynamicCoefficientSettings > coefficientSettings,
+        const std::shared_ptr< ControlSurfaceIncrementAerodynamicCoefficientSettings > coefficientSettings,
         const std::string& body );
 
 }

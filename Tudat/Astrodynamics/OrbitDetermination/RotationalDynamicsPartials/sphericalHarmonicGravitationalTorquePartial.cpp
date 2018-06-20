@@ -35,21 +35,21 @@ Eigen::Matrix< double, 3, 4 > getPartialDerivativeOfSphericalHarmonicGravitation
              bodyFixedPotentialGradientCrossProductMatrix ) * partialDerivative;
 }
 
-std::pair< boost::function< void( Eigen::MatrixXd& ) >, int >
+std::pair< std::function< void( Eigen::MatrixXd& ) >, int >
 SphericalHarmonicGravitationalTorquePartial::getParameterPartialFunction(
-        boost::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter )
+        std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter )
 {
-    std::pair< boost::function< void( Eigen::MatrixXd& ) >, int > partialFunctionPair;
-    partialFunctionPair = std::make_pair( boost::function< void( Eigen::MatrixXd& ) >( ), 0 );
+    std::pair< std::function< void( Eigen::MatrixXd& ) >, int > partialFunctionPair;
+    partialFunctionPair = std::make_pair( std::function< void( Eigen::MatrixXd& ) >( ), 0 );
 
     if( !estimatable_parameters::isParameterRotationMatrixProperty( parameter->getParameterName( ).first ) )
     {
-        std::pair< boost::function< void( Eigen::MatrixXd& ) >, int > accelerationPartialFunction =
+        std::pair< std::function< void( Eigen::MatrixXd& ) >, int > accelerationPartialFunction =
                 accelerationPartial_->getParameterPartialFunction( parameter );
         if( accelerationPartialFunction.second > 0 )
         {
             partialFunctionPair = std::make_pair(
-                        boost::bind( &SphericalHarmonicGravitationalTorquePartial::getParameterPartialFromAccelerationPartialFunction,
+                        std::bind( &SphericalHarmonicGravitationalTorquePartial::getParameterPartialFromAccelerationPartialFunction,
                                      this, _1, accelerationPartialFunction ), accelerationPartialFunction.second );
         }
     }
@@ -57,20 +57,20 @@ SphericalHarmonicGravitationalTorquePartial::getParameterPartialFunction(
     return partialFunctionPair;
 }
 
-std::pair< boost::function< void( Eigen::MatrixXd& ) >, int > SphericalHarmonicGravitationalTorquePartial::getParameterPartialFunction(
-        boost::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter )
+std::pair< std::function< void( Eigen::MatrixXd& ) >, int > SphericalHarmonicGravitationalTorquePartial::getParameterPartialFunction(
+        std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter )
 {
-    std::pair< boost::function< void( Eigen::MatrixXd& ) >, int > partialFunctionPair;
-    partialFunctionPair = std::make_pair( boost::function< void( Eigen::MatrixXd& ) >( ), 0 );
+    std::pair< std::function< void( Eigen::MatrixXd& ) >, int > partialFunctionPair;
+    partialFunctionPair = std::make_pair( std::function< void( Eigen::MatrixXd& ) >( ), 0 );
 
     if( !estimatable_parameters::isParameterRotationMatrixProperty( parameter->getParameterName( ).first ) )
     {
-        std::pair< boost::function< void( Eigen::MatrixXd& ) >, int > accelerationPartialFunction =
+        std::pair< std::function< void( Eigen::MatrixXd& ) >, int > accelerationPartialFunction =
                 accelerationPartial_->getParameterPartialFunction( parameter );
         if( accelerationPartialFunction.second > 0 )
         {
             partialFunctionPair = std::make_pair(
-                        boost::bind( &SphericalHarmonicGravitationalTorquePartial::getParameterPartialFromAccelerationPartialFunction,
+                        std::bind( &SphericalHarmonicGravitationalTorquePartial::getParameterPartialFromAccelerationPartialFunction,
                                      this, _1, accelerationPartialFunction ), accelerationPartialFunction.second );
         }
     }
@@ -131,7 +131,7 @@ void SphericalHarmonicGravitationalTorquePartial::update( const double currentTi
 
 void SphericalHarmonicGravitationalTorquePartial::getParameterPartialFromAccelerationPartialFunction(
         Eigen::MatrixXd& partialMatrix,
-        const std::pair< boost::function< void( Eigen::MatrixXd& ) >, int >& accelerationPartialFunction )
+        const std::pair< std::function< void( Eigen::MatrixXd& ) >, int >& accelerationPartialFunction )
 {
     Eigen::MatrixXd accelerationPartialsMatrix = Eigen::MatrixXd( 3, accelerationPartialFunction.second );
     accelerationPartialFunction.first( accelerationPartialsMatrix );

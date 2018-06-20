@@ -18,7 +18,7 @@ namespace simulation_setup
 {
 
 //! Create a `json` object from a shared pointer to a `MassRateModelSettings` object.
-void to_json( nlohmann::json& jsonObject, const boost::shared_ptr< MassRateModelSettings >& massRateModelSettings )
+void to_json( nlohmann::json& jsonObject, const std::shared_ptr< MassRateModelSettings >& massRateModelSettings )
 {
     if ( ! massRateModelSettings )
     {
@@ -34,9 +34,9 @@ void to_json( nlohmann::json& jsonObject, const boost::shared_ptr< MassRateModel
     switch ( massRateType ) {
     case from_thrust_mass_rate_model:
     {
-        boost::shared_ptr< FromThrustMassModelSettings > fromThrustMassModelSettings =
-                boost::dynamic_pointer_cast< FromThrustMassModelSettings >( massRateModelSettings );
-        assertNonNullPointer( fromThrustMassModelSettings );
+        std::shared_ptr< FromThrustMassModelSettings > fromThrustMassModelSettings =
+                std::dynamic_pointer_cast< FromThrustMassModelSettings >( massRateModelSettings );
+        assertNonnullptrPointer( fromThrustMassModelSettings );
         jsonObject[ K::useAllThrustModels ] = fromThrustMassModelSettings->useAllThrustModels_;
         assignIfNotEmpty( jsonObject, K::associatedThrustSource,
                           fromThrustMassModelSettings->associatedThrustSource_ );
@@ -48,7 +48,7 @@ void to_json( nlohmann::json& jsonObject, const boost::shared_ptr< MassRateModel
 }
 
 //! Create a shared pointer to a `MassRateModelSettings` object from a `json` object.
-void from_json( const nlohmann::json& jsonObject, boost::shared_ptr< MassRateModelSettings >& massRateModelSettings )
+void from_json( const nlohmann::json& jsonObject, std::shared_ptr< MassRateModelSettings >& massRateModelSettings )
 {
     using namespace json_interface;
     using namespace basic_astrodynamics;
@@ -60,8 +60,8 @@ void from_json( const nlohmann::json& jsonObject, boost::shared_ptr< MassRateMod
     switch ( massRateType ) {
     case from_thrust_mass_rate_model:
     {
-        boost::shared_ptr< FromThrustMassModelSettings > fromThrustMassModelSettings =
-                boost::make_shared< FromThrustMassModelSettings >( );
+        std::shared_ptr< FromThrustMassModelSettings > fromThrustMassModelSettings =
+                std::make_shared< FromThrustMassModelSettings >( );
         updateFromJSONIfDefined( fromThrustMassModelSettings->useAllThrustModels_, jsonObject, K::useAllThrustModels );
         if ( ! fromThrustMassModelSettings->useAllThrustModels_ )
         {

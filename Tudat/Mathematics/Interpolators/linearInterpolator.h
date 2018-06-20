@@ -20,7 +20,7 @@
 
 #include <boost/multi_array.hpp>
 #include <boost/array.hpp>
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include <Eigen/Core>
 
@@ -86,8 +86,8 @@ public:
         for ( typename std::map< IndependentVariableType, DependentVariableType >::const_iterator
               mapIterator = dataMap.begin( ); mapIterator != dataMap.end( ); mapIterator++ )
         {
-            independentValues_[ counter ] = mapIterator->first;
-            dependentValues_[ counter ] = mapIterator->second;
+            independentValues_[ counter ] = std::move( mapIterator->first );
+            dependentValues_[ counter ] = std::move( mapIterator->second );
             counter++;
         }
 
@@ -119,8 +119,8 @@ public:
         }
 
         // Set data vectors.
-        independentValues_ = independentValues;
-        dependentValues_= dependentValues;
+        independentValues_ = std::move( independentValues );
+        dependentValues_= std::move( dependentValues );
 
         // Check if data is in ascending order
         if( !std::is_sorted( independentValues_.begin( ), independentValues_.end( ) ) )
@@ -163,11 +163,21 @@ public:
     }
 };
 
+
+extern template class LinearInterpolator< double, Eigen::VectorXd >;
+extern template class LinearInterpolator< double, Eigen::Vector6d >;
+extern template class LinearInterpolator< double, Eigen::MatrixXd >;
+
+extern template class LinearInterpolator< double, Eigen::Matrix< long double, Eigen::Dynamic, 1 > >;
+extern template class LinearInterpolator< double, Eigen::Matrix< long double, Eigen::Dynamic, 6 > >;
+extern template class LinearInterpolator< double, Eigen::Matrix< long double, Eigen::Dynamic,  Eigen::Dynamic > >;
+
+
 //! Typedef for linear interpolator with (in)dependent variable = double.
 typedef LinearInterpolator< double, double > LinearInterpolatorDouble;
 
 //! Typedef for shared-pointer to linear interpolator with (in)dependent variable = double.
-typedef boost::shared_ptr< LinearInterpolatorDouble > LinearInterpolatorDoublePointer;
+typedef std::shared_ptr< LinearInterpolatorDouble > LinearInterpolatorDoublePointer;
 
 //! Compute linear interpolation free function.
 /*!

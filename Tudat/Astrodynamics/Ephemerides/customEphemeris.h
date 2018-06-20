@@ -10,7 +10,7 @@
 #ifndef TUDAT_CUSTOMEPHEMERIS_H
 #define TUDAT_CUSTOMEPHEMERIS_H
 
-#include <boost/function.hpp>
+#include <functional>
 #include <boost/lambda/lambda.hpp>
 
 #include "Tudat/Astrodynamics/Ephemerides/ephemeris.h"
@@ -36,7 +36,7 @@ public:
      *  \param referenceFrameOrigin Origin of reference frame in which state is defined.
      *  \param referenceFrameOrientation Orientation of reference frame in which state is defined.
      */
-    CustomEphemeris( const boost::function< Eigen::Vector6d( const double ) > stateFunction,
+    CustomEphemeris( const std::function< Eigen::Vector6d( const double ) > stateFunction,
                      const std::string& referenceFrameOrigin = "SSB",
                      const std::string& referenceFrameOrientation = "ECLIPJ2000" ):
         Ephemeris( referenceFrameOrigin, referenceFrameOrientation ),
@@ -61,7 +61,7 @@ private:
     /*!
      *  Function that returns a constant cartesian state.
      */
-    boost::function< Eigen::Vector6d( const double ) > stateFunction_;
+    std::function< Eigen::Vector6d( const double ) > stateFunction_;
 
 };
 

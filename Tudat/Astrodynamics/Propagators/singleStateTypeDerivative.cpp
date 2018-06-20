@@ -84,6 +84,11 @@ int getAccelerationSize( const IntegratedStateType stateType )
 }
 
 
+template class SingleStateTypeDerivative< double, double >;
+template class SingleStateTypeDerivative< long double, double >;
+template class SingleStateTypeDerivative< double, Time >;
+template class SingleStateTypeDerivative< long double, Time >;
+
 }
 
 }

@@ -48,15 +48,15 @@ BOOST_AUTO_TEST_CASE( test_json_ephemeris_approximatePlanetPositions )
     using namespace json_interface;
 
     // Create EphemerisSettings from JSON file
-    const boost::shared_ptr< EphemerisSettings > fromFileSettings =
-            parseJSONFile< boost::shared_ptr< EphemerisSettings > >( INPUT( "approximatePlanetPositions" ) );
+    const std::shared_ptr< EphemerisSettings > fromFileSettings =
+            parseJSONFile< std::shared_ptr< EphemerisSettings > >( INPUT( "approximatePlanetPositions" ) );
 
     // Create EphemerisSettings manually
     const ApproximatePlanetPositionsBase::BodiesWithEphemerisData bodyIdentifier =
             ApproximatePlanetPositionsBase::earthMoonBarycenter;
     const bool useCircularCoplanarApproximation = false;
-    const boost::shared_ptr< EphemerisSettings > manualSettings =
-            boost::make_shared< ApproximatePlanetPositionSettings >( bodyIdentifier,
+    const std::shared_ptr< EphemerisSettings > manualSettings =
+            std::make_shared< ApproximatePlanetPositionSettings >( bodyIdentifier,
                                                                      useCircularCoplanarApproximation );
 
     // Compare
@@ -70,8 +70,8 @@ BOOST_AUTO_TEST_CASE( test_json_ephemeris_directSpice )
     using namespace json_interface;
 
     // Create EphemerisSettings from JSON file
-    const boost::shared_ptr< EphemerisSettings > fromFileSettings =
-            parseJSONFile< boost::shared_ptr< EphemerisSettings > >( INPUT( "directSpice" ) );
+    const std::shared_ptr< EphemerisSettings > fromFileSettings =
+            parseJSONFile< std::shared_ptr< EphemerisSettings > >( INPUT( "directSpice" ) );
 
     // Create EphemerisSettings manually
     const std::string frameOrigin = "Foo";
@@ -79,8 +79,8 @@ BOOST_AUTO_TEST_CASE( test_json_ephemeris_directSpice )
     const bool correctForStellarAberration = true;
     const bool correctForLightTimeAberration = false;
     const bool convergeLighTimeAberration = true;
-    const boost::shared_ptr< EphemerisSettings > manualSettings =
-            boost::make_shared< DirectSpiceEphemerisSettings >( frameOrigin,
+    const std::shared_ptr< EphemerisSettings > manualSettings =
+            std::make_shared< DirectSpiceEphemerisSettings >( frameOrigin,
                                                                 frameOrientation,
                                                                 correctForStellarAberration,
                                                                 correctForLightTimeAberration,
@@ -97,8 +97,8 @@ BOOST_AUTO_TEST_CASE( test_json_ephemeris_tabulated )
     using namespace json_interface;
 
     // Create EphemerisSettings from JSON file
-    const boost::shared_ptr< EphemerisSettings > fromFileSettings =
-            parseJSONFile< boost::shared_ptr< EphemerisSettings > >( INPUT( "tabulated" ) );
+    const std::shared_ptr< EphemerisSettings > fromFileSettings =
+            parseJSONFile< std::shared_ptr< EphemerisSettings > >( INPUT( "tabulated" ) );
 
     // Create EphemerisSettings manually
     std::map< double, Eigen::Vector6d > bodyStateHistory;
@@ -107,8 +107,8 @@ BOOST_AUTO_TEST_CASE( test_json_ephemeris_tabulated )
     bodyStateHistory[ 2.0 ] = ( Eigen::Vector6d( ) << 4.0, 0.0, 0.0, 0.0, -0.1, 0.0 ).finished( );
 
 
-    const boost::shared_ptr< EphemerisSettings > manualSettings =
-            boost::make_shared< TabulatedEphemerisSettings >( bodyStateHistory );
+    const std::shared_ptr< EphemerisSettings > manualSettings =
+            std::make_shared< TabulatedEphemerisSettings >( bodyStateHistory );
 
     // Compare
     BOOST_CHECK_EQUAL_JSON( fromFileSettings, manualSettings );
@@ -121,8 +121,8 @@ BOOST_AUTO_TEST_CASE( test_json_ephemeris_interpolatedSpice )
     using namespace json_interface;
 
     // Create EphemerisSettings from JSON file
-    const boost::shared_ptr< EphemerisSettings > fromFileSettings =
-            parseJSONFile< boost::shared_ptr< EphemerisSettings > >( INPUT( "interpolatedSpice" ) );
+    const std::shared_ptr< EphemerisSettings > fromFileSettings =
+            parseJSONFile< std::shared_ptr< EphemerisSettings > >( INPUT( "interpolatedSpice" ) );
 
     // Create EphemerisSettings manually
     const double initialTime = 2.0;
@@ -130,10 +130,10 @@ BOOST_AUTO_TEST_CASE( test_json_ephemeris_interpolatedSpice )
     const double timeStep = 10.0;
     const std::string frameOrigin = "Foo";
     const std::string frameOrientation = "FOO";
-    const boost::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings =
-            boost::make_shared< interpolators::LagrangeInterpolatorSettings >( 4 );
-    boost::shared_ptr< EphemerisSettings > manualSettings =
-            boost::make_shared< InterpolatedSpiceEphemerisSettings >( initialTime,
+    const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings =
+            std::make_shared< interpolators::LagrangeInterpolatorSettings >( 4 );
+    std::shared_ptr< EphemerisSettings > manualSettings =
+            std::make_shared< InterpolatedSpiceEphemerisSettings >( initialTime,
                                                                       finalTime,
                                                                       timeStep,
                                                                       frameOrigin,
@@ -152,13 +152,13 @@ BOOST_AUTO_TEST_CASE( test_json_ephemeris_constant )
     using namespace json_interface;
 
     // Create EphemerisSettings from JSON file
-    const boost::shared_ptr< EphemerisSettings > fromFileSettings =
-            parseJSONFile< boost::shared_ptr< EphemerisSettings > >( INPUT( "constant" ) );
+    const std::shared_ptr< EphemerisSettings > fromFileSettings =
+            parseJSONFile< std::shared_ptr< EphemerisSettings > >( INPUT( "constant" ) );
 
     // Create EphemerisSettings manually
     const Eigen::Vector6d constantState = ( Eigen::Vector6d( ) << 0.0, 1.0, 0.0, -0.1, 0.0, 0.0 ).finished( );
-    const boost::shared_ptr< EphemerisSettings > manualSettings =
-            boost::make_shared< ConstantEphemerisSettings >( constantState );
+    const std::shared_ptr< EphemerisSettings > manualSettings =
+            std::make_shared< ConstantEphemerisSettings >( constantState );
 
     // Compare
     BOOST_CHECK_EQUAL_JSON( fromFileSettings, manualSettings );
@@ -171,8 +171,8 @@ BOOST_AUTO_TEST_CASE( test_json_ephemeris_kepler )
     using namespace json_interface;
 
     // Create EphemerisSettings from JSON file
-    const boost::shared_ptr< EphemerisSettings > fromFileSettings =
-            parseJSONFile< boost::shared_ptr< EphemerisSettings > >( INPUT( "kepler" ) );
+    const std::shared_ptr< EphemerisSettings > fromFileSettings =
+            parseJSONFile< std::shared_ptr< EphemerisSettings > >( INPUT( "kepler" ) );
 
     // Create EphemerisSettings manually
     const Eigen::Vector6d initialStateInKeplerianElements =
@@ -183,8 +183,8 @@ BOOST_AUTO_TEST_CASE( test_json_ephemeris_kepler )
     const std::string referenceFrameOrientation = "FOO";
     const double rootFinderAbsoluteTolerance = 1.0e-9;
     const double rootFinderMaximumNumberOfIterations = 100.0;
-    const boost::shared_ptr< EphemerisSettings > manualSettings =
-            boost::make_shared< KeplerEphemerisSettings >( initialStateInKeplerianElements,
+    const std::shared_ptr< EphemerisSettings > manualSettings =
+            std::make_shared< KeplerEphemerisSettings >( initialStateInKeplerianElements,
                                                            epochOfInitialState,
                                                            centralBodyGravitationalParameter,
                                                            referenceFrameOrigin,

@@ -37,7 +37,7 @@ BOOST_AUTO_TEST_SUITE( test_tabulated_ephemeris )
  *  \return State history map generated from given ephemeris
  */
 std::map< double, Eigen::Vector6d > getStateHistoryMap(
-        const boost::shared_ptr< ephemerides::Ephemeris > originalEphemeris  )
+        const std::shared_ptr< ephemerides::Ephemeris > originalEphemeris  )
 {
     std::map< double, Eigen::Vector6d > stateHistoryMap;
 
@@ -64,8 +64,8 @@ BOOST_AUTO_TEST_CASE( testTabulatedEphemeris )
 {
     // Create ephemeris from which table is to be generated; used as input to tabulated ephemeris
     using namespace ephemerides;
-    boost::shared_ptr< ApproximatePlanetPositions > marsNominalEphemeris =
-            boost::make_shared< ApproximatePlanetPositions >(
+    std::shared_ptr< ApproximatePlanetPositions > marsNominalEphemeris =
+            std::make_shared< ApproximatePlanetPositions >(
                 ApproximatePlanetPositionsBase::mars );
 
     // Generate state history map from ephemeris
@@ -73,14 +73,14 @@ BOOST_AUTO_TEST_CASE( testTabulatedEphemeris )
                 marsNominalEphemeris );
 
     // Create interpolator from state history map.
-    boost::shared_ptr< interpolators::OneDimensionalInterpolator
+    std::shared_ptr< interpolators::OneDimensionalInterpolator
             < double, Eigen::Vector6d > > marsStateInterpolator =
-            boost::make_shared< interpolators::CubicSplineInterpolator
+            std::make_shared< interpolators::CubicSplineInterpolator
             < double, Eigen::Vector6d > >( marsStateHistoryMap );
 
     // Create tabulated epehemeris from interpolator
-    boost::shared_ptr< TabulatedCartesianEphemeris< > > tabulatedEphemeris =
-            boost::make_shared< TabulatedCartesianEphemeris< > >(
+    std::shared_ptr< TabulatedCartesianEphemeris< > > tabulatedEphemeris =
+            std::make_shared< TabulatedCartesianEphemeris< > >(
                 marsStateInterpolator, "SSB", "J2000");
 
     // Compare interpolated and tabulated ephemeris state at dummy time.
@@ -111,16 +111,16 @@ BOOST_AUTO_TEST_CASE( testTabulatedEphemeris )
 
     // Create new ephemeris from which table is to be generated; used to reset input to tabulated
     // ephemeris
-    boost::shared_ptr< ApproximatePlanetPositions > jupiterNominalEphemeris =
-            boost::make_shared< ApproximatePlanetPositions >(
+    std::shared_ptr< ApproximatePlanetPositions > jupiterNominalEphemeris =
+            std::make_shared< ApproximatePlanetPositions >(
                 ApproximatePlanetPositionsBase::jupiter );
 
     // Reset tabulated ephemeris data.
     std::map< double, Eigen::Vector6d > jupiterStateHistoryMap = getStateHistoryMap(
                 jupiterNominalEphemeris );
-    boost::shared_ptr< interpolators::OneDimensionalInterpolator
+    std::shared_ptr< interpolators::OneDimensionalInterpolator
             < double, Eigen::Vector6d > > jupiterStateInterpolator =
-            boost::make_shared< interpolators::CubicSplineInterpolator
+            std::make_shared< interpolators::CubicSplineInterpolator
             < double, Eigen::Vector6d > >( jupiterStateHistoryMap );
     tabulatedEphemeris->resetInterpolator( jupiterStateInterpolator );
 

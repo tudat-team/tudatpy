@@ -278,7 +278,7 @@ void mergeJSON( nlohmann::json& jsonObject, const boost::filesystem::path& fileP
  * without providing an informative error message.
  * \param jsonObject The `json` object to be parsed (passed by reference).
  * \param filePath Path of the file from which \p jsonObject was retrieved.
- * \param parentObject The `json` object form which \p jsonObject was retrieved, if any (default is null `json`).
+ * \param parentObject The `json` object form which \p jsonObject was retrieved, if any (default is nullptr `json`).
  * \param rootFilePath Path to the root file that was passed as command-line argument to the application
  * (empty if \p filePath is equal to \p rootFilePath).
  */

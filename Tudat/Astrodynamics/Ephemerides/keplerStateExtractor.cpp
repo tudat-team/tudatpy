@@ -34,7 +34,7 @@ namespace ephemerides
 {
 
 //! Extract the Keplerian Elements.
-boost::shared_ptr< Eigen::Vector6d > KeplerStateExtractor::extract(
+std::shared_ptr< Eigen::Vector6d > KeplerStateExtractor::extract(
         ParsedDataLineMapPtr dataLineMap )
 {
     // Short-hand notation.
@@ -42,8 +42,8 @@ boost::shared_ptr< Eigen::Vector6d > KeplerStateExtractor::extract(
     using Eigen::Vector6d;
 
     // Create a new KeplerianElements object.
-    boost::shared_ptr< Vector6d > keplerianElements
-            = boost::allocate_shared< Vector6d >( Eigen::aligned_allocator< Vector6d >( ) );
+    std::shared_ptr< Vector6d > keplerianElements
+            = std::allocate_shared< Vector6d >( Eigen::aligned_allocator< Vector6d >( ) );
 
     // Find and set semi-major axis.
     if ( checkOptionalFieldType( dataLineMap, 1,

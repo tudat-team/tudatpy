@@ -25,27 +25,27 @@ namespace acceleration_partials
 SphericalHarmonicsGravityPartial::SphericalHarmonicsGravityPartial(
         const std::string& acceleratedBody,
         const std::string& acceleratingBody,
-        const boost::shared_ptr< gravitation::SphericalHarmonicsGravitationalAccelerationModel > accelerationModel,
+        const std::shared_ptr< gravitation::SphericalHarmonicsGravitationalAccelerationModel > accelerationModel,
         const observation_partials::RotationMatrixPartialNamedList& rotationMatrixPartials,
-        const std::vector< boost::shared_ptr< orbit_determination::TidalLoveNumberPartialInterface > >&
+        const std::vector< std::shared_ptr< orbit_determination::TidalLoveNumberPartialInterface > >&
         tidalLoveNumberPartialInterfaces ):
     AccelerationPartial( acceleratedBody, acceleratingBody, basic_astrodynamics::spherical_harmonic_gravity ),
     gravitationalParameterFunction_( accelerationModel->getGravitationalParameterFunction( ) ),
-    bodyReferenceRadius_( boost::bind( &gravitation::SphericalHarmonicsGravitationalAccelerationModel::getReferenceRadius,
+    bodyReferenceRadius_( std::bind( &gravitation::SphericalHarmonicsGravitationalAccelerationModel::getReferenceRadius,
                                        accelerationModel ) ),
     cosineCoefficients_( accelerationModel->getCosineHarmonicCoefficientsFunction( ) ),
     sineCoefficients_( accelerationModel->getSineHarmonicCoefficientsFunction( ) ),
     sphericalHarmonicCache_( accelerationModel->getSphericalHarmonicsCache( ) ),
-    positionFunctionOfAcceleratedBody_( boost::bind( &gravitation::SphericalHarmonicsGravitationalAccelerationModel::
+    positionFunctionOfAcceleratedBody_( std::bind( &gravitation::SphericalHarmonicsGravitationalAccelerationModel::
                                                      getCurrentPositionOfBodySubjectToAcceleration, accelerationModel ) ),
-    positionFunctionOfAcceleratingBody_( boost::bind( &gravitation::SphericalHarmonicsGravitationalAccelerationModel::
+    positionFunctionOfAcceleratingBody_( std::bind( &gravitation::SphericalHarmonicsGravitationalAccelerationModel::
                                                       getCurrentPositionOfBodyExertingAcceleration, accelerationModel ) ),
-    fromBodyFixedToIntegrationFrameRotation_( boost::bind( &gravitation::SphericalHarmonicsGravitationalAccelerationModel::
+    fromBodyFixedToIntegrationFrameRotation_( std::bind( &gravitation::SphericalHarmonicsGravitationalAccelerationModel::
                                                            getCurrentRotationToIntegrationFrameMatrix, accelerationModel ) ),
-    accelerationFunction_( boost::bind( &gravitation::SphericalHarmonicsGravitationalAccelerationModel::getAcceleration,
+    accelerationFunction_( std::bind( &gravitation::SphericalHarmonicsGravitationalAccelerationModel::getAcceleration,
                                         accelerationModel ) ),
-    updateFunction_( boost::bind( &gravitation::SphericalHarmonicsGravitationalAccelerationModel::updateMembers,
-                                  accelerationModel, _1 ) ),
+    updateFunction_( std::bind( &gravitation::SphericalHarmonicsGravitationalAccelerationModel::updateMembers,
+                                  accelerationModel, std::placeholders::_1 ) ),
     rotationMatrixPartials_( rotationMatrixPartials ),
     tidalLoveNumberPartialInterfaces_( tidalLoveNumberPartialInterfaces ),
     accelerationUsesMutualAttraction_( accelerationModel->getIsMutualAttractionUsed( ) )
@@ -65,18 +65,18 @@ SphericalHarmonicsGravityPartial::SphericalHarmonicsGravityPartial(
 }
 
 //! Function to create a function returning a partial w.r.t. a double parameter.
-std::pair< boost::function< void( Eigen::MatrixXd& ) >, int > SphericalHarmonicsGravityPartial::getParameterPartialFunction(
-        boost::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter )
+std::pair< std::function< void( Eigen::MatrixXd& ) >, int > SphericalHarmonicsGravityPartial::getParameterPartialFunction(
+        std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter )
 {
     // Declare return variables, default number of rows = 0 (i.e. no dependency)
-    boost::function< void( Eigen::MatrixXd& ) > partialFunction;
+    std::function< void( Eigen::MatrixXd& ) > partialFunction;
     int numberOfRows = 0;
 
 
     // Check properties of body exerting acceleration.
     if( parameter->getParameterName( ).first == estimatable_parameters::gravitational_parameter )
     {
-        std::pair< boost::function< void( Eigen::MatrixXd& ) >, int > partialFunctionPair =
+        std::pair< std::function< void( Eigen::MatrixXd& ) >, int > partialFunctionPair =
                 getGravitationalParameterPartialFunction( parameter->getParameterName( ) );
         partialFunction = partialFunctionPair.first;
         numberOfRows = partialFunctionPair.second;
@@ -91,9 +91,9 @@ std::pair< boost::function< void( Eigen::MatrixXd& ) >, int > SphericalHarmonics
                                                                parameter->getSecondaryIdentifier( ) ) ) != 0 )
             {
                 // Get partial function.
-                partialFunction = boost::bind(
+                partialFunction = std::bind(
                             &SphericalHarmonicsGravityPartial::wrtRotationModelParameter,
-                            this, _1, parameter->getParameterName( ).first, parameter->getSecondaryIdentifier( ) );
+                            this, std::placeholders::_1, parameter->getParameterName( ).first, parameter->getSecondaryIdentifier( ) );
                 numberOfRows = 1;
             }
             else
@@ -109,11 +109,11 @@ std::pair< boost::function< void( Eigen::MatrixXd& ) >, int > SphericalHarmonics
         else if( estimatable_parameters::isParameterTidalProperty( parameter->getParameterName( ).first ) )
         {
             // Check input consistency
-            boost::shared_ptr< estimatable_parameters::TidalLoveNumber< double > > tidalLoveNumber =
-                    boost::dynamic_pointer_cast< estimatable_parameters::TidalLoveNumber< double >  >( parameter );
-            if( tidalLoveNumber == NULL )
+            std::shared_ptr< estimatable_parameters::TidalLoveNumber< double > > tidalLoveNumber =
+                    std::dynamic_pointer_cast< estimatable_parameters::TidalLoveNumber< double >  >( parameter );
+            if( tidalLoveNumber == nullptr )
             {
-                throw std::runtime_error( "Error when getting tidal Love number vector parameter, object is NULL" );;
+                throw std::runtime_error( "Error when getting tidal Love number vector parameter, object is nullptr" );;
             }
 
             // Get degree and order(s) of tidal variations
@@ -140,13 +140,13 @@ std::pair< boost::function< void( Eigen::MatrixXd& ) >, int > SphericalHarmonics
                     // If tidal dependency esists, set partial function
                     if( currentTidalPartialOutput.first > 0 )
                     {
-                        boost::function< std::vector< Eigen::Matrix< double, 2, Eigen::Dynamic > >( ) > coefficientPartialFunction =
-                                boost::bind( &orbit_determination::TidalLoveNumberPartialInterface::getCurrentDoubleParameterPartial,
+                        std::function< std::vector< Eigen::Matrix< double, 2, Eigen::Dynamic > >( ) > coefficientPartialFunction =
+                                std::bind( &orbit_determination::TidalLoveNumberPartialInterface::getCurrentDoubleParameterPartial,
                                              tidalLoveNumberPartialInterfaces_.at( i ),
                                              parameter, currentTidalPartialOutput.second );
-                        partialFunction = boost::bind(
+                        partialFunction = std::bind(
                                     &SphericalHarmonicsGravityPartial::wrtTidalModelParameter, this, coefficientPartialFunction, degree, orders, sumOrders,
-                                    parameter->getParameterSize( ), _1 );
+                                    parameter->getParameterSize( ), std::placeholders::_1 );
                         numberOfRows = currentTidalPartialOutput.first;
                     }
                 }
@@ -159,13 +159,13 @@ std::pair< boost::function< void( Eigen::MatrixXd& ) >, int > SphericalHarmonics
 }
 
 //! Function to create a function returning a partial w.r.t. a vector parameter.
-std::pair< boost::function< void( Eigen::MatrixXd& ) >, int > SphericalHarmonicsGravityPartial::getParameterPartialFunction(
-        boost::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter )
+std::pair< std::function< void( Eigen::MatrixXd& ) >, int > SphericalHarmonicsGravityPartial::getParameterPartialFunction(
+        std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter )
 {
     using namespace tudat::estimatable_parameters;
 
     // Declare return variables, default number of rows = 0 (i.e. no dependency)
-    boost::function< void( Eigen::MatrixXd& ) > partialFunction;
+    std::function< void( Eigen::MatrixXd& ) > partialFunction;
     int numberOfRows = 0;
 
     // Check properties of body exerting acceleration.
@@ -179,9 +179,9 @@ std::pair< boost::function< void( Eigen::MatrixXd& ) >, int > SphericalHarmonics
                                                                parameter->getSecondaryIdentifier( ) ) ) != 0 )
             {
                 // Get partial function.
-                partialFunction = boost::bind(
+                partialFunction = std::bind(
                             &SphericalHarmonicsGravityPartial::wrtRotationModelParameter,
-                            this, _1, parameter->getParameterName( ).first, parameter->getSecondaryIdentifier( ) );
+                            this, std::placeholders::_1, parameter->getParameterName( ).first, parameter->getSecondaryIdentifier( ) );
                 numberOfRows = parameter->getParameterSize( );
             }
             else
@@ -196,11 +196,11 @@ std::pair< boost::function< void( Eigen::MatrixXd& ) >, int > SphericalHarmonics
         else if( estimatable_parameters::isParameterTidalProperty( parameter->getParameterName( ).first ) )
         {
             // Check input consistency
-            boost::shared_ptr< estimatable_parameters::TidalLoveNumber< Eigen::VectorXd > > tidalLoveNumber =
-                    boost::dynamic_pointer_cast< estimatable_parameters::TidalLoveNumber< Eigen::VectorXd >  >( parameter );
-            if( tidalLoveNumber == NULL )
+            std::shared_ptr< estimatable_parameters::TidalLoveNumber< Eigen::VectorXd > > tidalLoveNumber =
+                    std::dynamic_pointer_cast< estimatable_parameters::TidalLoveNumber< Eigen::VectorXd >  >( parameter );
+            if( tidalLoveNumber == nullptr )
             {
-                throw std::runtime_error( "Error when getting tidal Love number vector parameter, object is NULL" );
+                throw std::runtime_error( "Error when getting tidal Love number vector parameter, object is nullptr" );
             }
 
             // Get degree and order(s) of tidal variations
@@ -225,12 +225,12 @@ std::pair< boost::function< void( Eigen::MatrixXd& ) >, int > SphericalHarmonics
                     // If tidal dependency esists, set partial function
                     if( currentTidalPartialOutput.first > 0 )
                     {
-                        boost::function< std::vector< Eigen::Matrix< double, 2, Eigen::Dynamic > >( ) > coefficientPartialFunction =
-                                boost::bind( &orbit_determination::TidalLoveNumberPartialInterface::getCurrentVectorParameterPartial,
+                        std::function< std::vector< Eigen::Matrix< double, 2, Eigen::Dynamic > >( ) > coefficientPartialFunction =
+                                std::bind( &orbit_determination::TidalLoveNumberPartialInterface::getCurrentVectorParameterPartial,
                                              tidalLoveNumberPartialInterfaces_.at( i ), parameter, currentTidalPartialOutput.second );
-                        partialFunction = boost::bind(
+                        partialFunction = std::bind(
                                     &SphericalHarmonicsGravityPartial::wrtTidalModelParameter, this, coefficientPartialFunction, degree, orders, sumOrders,
-                                    parameter->getParameterSize( ), _1 );
+                                    parameter->getParameterSize( ), std::placeholders::_1 );
                         numberOfRows = currentTidalPartialOutput.first;
 
                     }
@@ -246,11 +246,11 @@ std::pair< boost::function< void( Eigen::MatrixXd& ) >, int > SphericalHarmonics
             case spherical_harmonics_cosine_coefficient_block:
             {
                 // Cast parameter object to required type.
-                boost::shared_ptr< SphericalHarmonicsCosineCoefficients > coefficientsParameter =
-                        boost::dynamic_pointer_cast< SphericalHarmonicsCosineCoefficients >( parameter );
+                std::shared_ptr< SphericalHarmonicsCosineCoefficients > coefficientsParameter =
+                        std::dynamic_pointer_cast< SphericalHarmonicsCosineCoefficients >( parameter );
 
-                partialFunction = boost::bind( &SphericalHarmonicsGravityPartial::wrtCosineCoefficientBlock, this,
-                                               coefficientsParameter->getBlockIndices( ), _1 );
+                partialFunction = std::bind( &SphericalHarmonicsGravityPartial::wrtCosineCoefficientBlock, this,
+                                               coefficientsParameter->getBlockIndices( ), std::placeholders::_1 );
                 numberOfRows = coefficientsParameter->getParameterSize( );
 
                 break;
@@ -259,11 +259,11 @@ std::pair< boost::function< void( Eigen::MatrixXd& ) >, int > SphericalHarmonics
             {
                 // Cast parameter object to required type.
 
-                boost::shared_ptr< SphericalHarmonicsSineCoefficients > coefficientsParameter =
-                        boost::dynamic_pointer_cast< SphericalHarmonicsSineCoefficients >( parameter );
+                std::shared_ptr< SphericalHarmonicsSineCoefficients > coefficientsParameter =
+                        std::dynamic_pointer_cast< SphericalHarmonicsSineCoefficients >( parameter );
 
-                partialFunction = boost::bind( &SphericalHarmonicsGravityPartial::wrtSineCoefficientBlock, this,
-                                               coefficientsParameter->getBlockIndices( ), _1 );
+                partialFunction = std::bind( &SphericalHarmonicsGravityPartial::wrtSineCoefficientBlock, this,
+                                               coefficientsParameter->getBlockIndices( ), std::placeholders::_1 );
                 numberOfRows = coefficientsParameter->getParameterSize( );
 
                 break;
@@ -279,11 +279,11 @@ std::pair< boost::function< void( Eigen::MatrixXd& ) >, int > SphericalHarmonics
 }
 
 //! Function to create a function returning the current partial w.r.t. a gravitational parameter.
-std::pair< boost::function< void( Eigen::MatrixXd& ) >, int >
+std::pair< std::function< void( Eigen::MatrixXd& ) >, int >
 SphericalHarmonicsGravityPartial::getGravitationalParameterPartialFunction(
         const estimatable_parameters::EstimatebleParameterIdentifier& parameterId )
 {
-    boost::function< void( Eigen::MatrixXd& ) > partialFunction;
+    std::function< void( Eigen::MatrixXd& ) > partialFunction;
     int numberOfColumns = 0;
 
     if( parameterId.first ==  estimatable_parameters::gravitational_parameter )
@@ -291,8 +291,8 @@ SphericalHarmonicsGravityPartial::getGravitationalParameterPartialFunction(
         // Check for dependency
         if( parameterId.second.first == acceleratingBody_ )
         {
-            partialFunction = boost::bind( &SphericalHarmonicsGravityPartial::wrtGravitationalParameterOfCentralBody,
-                                           this, _1, 0 );
+            partialFunction = std::bind( &SphericalHarmonicsGravityPartial::wrtGravitationalParameterOfCentralBody,
+                                           this, std::placeholders::_1, 0 );
             numberOfColumns = 1;
 
         }
@@ -301,8 +301,8 @@ SphericalHarmonicsGravityPartial::getGravitationalParameterPartialFunction(
         {
             if( accelerationUsesMutualAttraction_ )
             {
-                partialFunction = boost::bind( &SphericalHarmonicsGravityPartial::wrtGravitationalParameterOfCentralBody,
-                                               this, _1, 0 );
+                partialFunction = std::bind( &SphericalHarmonicsGravityPartial::wrtGravitationalParameterOfCentralBody,
+                                               this, std::placeholders::_1, 0 );
                 numberOfColumns = 1;
             }
         }
@@ -411,7 +411,7 @@ void SphericalHarmonicsGravityPartial::wrtRotationModelParameter(
 
 //! Function to calculate an acceleration partial wrt a tidal parameter.
 void SphericalHarmonicsGravityPartial::wrtTidalModelParameter(
-        const boost::function< std::vector< Eigen::Matrix< double, 2, Eigen::Dynamic > >( ) > coefficientPartialFunctions,
+        const std::function< std::vector< Eigen::Matrix< double, 2, Eigen::Dynamic > >( ) > coefficientPartialFunctions,
         const int degree,
         const std::vector< int >& orders,
         const bool sumOrders,

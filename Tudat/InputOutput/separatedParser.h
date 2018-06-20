@@ -15,7 +15,7 @@
 #include <cstdarg>
 #include <string>
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include "Tudat/InputOutput/textParser.h"
 
@@ -57,7 +57,7 @@ public:
      *          FieldTypes.
      */
     void setUnitTransformationMap(
-            std::map< FieldType, boost::shared_ptr< FieldTransform > > unitTransformationMap )
+            std::map< FieldType, std::shared_ptr< FieldTransform > > unitTransformationMap )
     {
         unitTransformationMap_ = unitTransformationMap;
     }
@@ -93,7 +93,7 @@ private:
 };
 
 //! Typedef for shared-pointer to SeparatedParser object.
-typedef boost::shared_ptr< SeparatedParser > SeparatedParserPointer;
+typedef std::shared_ptr< SeparatedParser > SeparatedParserPointer;
 
 } // namespace input_output
 } // namespace tudat

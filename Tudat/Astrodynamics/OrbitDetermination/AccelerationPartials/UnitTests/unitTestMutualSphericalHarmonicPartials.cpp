@@ -57,7 +57,7 @@ namespace unit_tests
 BOOST_AUTO_TEST_SUITE( test_mutual_sh_acceleration_partials )
 
 //! Retrieve Phobos gravity field
-boost::shared_ptr< GravityFieldSettings > getPhobosGravityFieldSettings( )
+std::shared_ptr< GravityFieldSettings > getPhobosGravityFieldSettings( )
 {
     Eigen::MatrixXd phobosCosineCoefficients = Eigen::MatrixXd::Zero( 20, 20 );
 
@@ -66,18 +66,18 @@ boost::shared_ptr< GravityFieldSettings > getPhobosGravityFieldSettings( )
     phobosCosineCoefficients( 2, 2 ) = -0.048 /basic_mathematics::calculateLegendreGeodesyNormalizationFactor( 2, 2 );
 
 
-    return boost::make_shared< SphericalHarmonicsGravityFieldSettings >(
+    return std::make_shared< SphericalHarmonicsGravityFieldSettings >(
                 7.087546066894452E05, 12.0E3, phobosCosineCoefficients,  Eigen::MatrixXd::Zero( 20, 20 ), "IAU_Phobos" );
 }
 
 //! Retrieve Moon gravity field and use as Mars gravity field (makes no difference for test purposes)
-boost::shared_ptr< GravityFieldSettings > getMarsGravityFieldSettings( )
+std::shared_ptr< GravityFieldSettings > getMarsGravityFieldSettings( )
 {
     std::pair< Eigen::MatrixXd, Eigen::MatrixXd > coefficients;
     std::pair< double, double > moonGravityFieldSettings = readGravityFieldFile(
                 input_output::getGravityModelsPath( ) + "Moon/lpe200.txt", 50, 50, coefficients, 0, 1 );
 
-    return boost::make_shared< SphericalHarmonicsGravityFieldSettings >
+    return std::make_shared< SphericalHarmonicsGravityFieldSettings >
             ( moonGravityFieldSettings.first, moonGravityFieldSettings.second,
               coefficients.first, coefficients.second, "IAU_Moon" );
 }
@@ -99,20 +99,20 @@ BOOST_AUTO_TEST_CASE( testMutualSphericalHarmonicGravityPartials )
         double initialTime = 1.0E6 - 1.0E5;
 
         // Retrieve body settings
-        std::map< std::string, boost::shared_ptr< BodySettings > > bodySettings = getDefaultBodySettings(
+        std::map< std::string, std::shared_ptr< BodySettings > > bodySettings = getDefaultBodySettings(
                     bodyList, 1.0E6 - 1.0E5, 1.0E6 + 1.0E5 );
-        bodySettings[ "Phobos" ] = boost::make_shared< BodySettings >( );
+        bodySettings[ "Phobos" ] = std::make_shared< BodySettings >( );
         bodySettings[ "Phobos" ]->ephemerisSettings = getDefaultEphemerisSettings(
                     "Phobos" );
 
         // Update rotation models
-        bodySettings[ "Mars" ]->rotationModelSettings = boost::make_shared< SimpleRotationModelSettings >(
+        bodySettings[ "Mars" ]->rotationModelSettings = std::make_shared< SimpleRotationModelSettings >(
                     "ECLIPJ2000", "IAU_Mars",
                     spice_interface::computeRotationQuaternionBetweenFrames(
                         "ECLIPJ2000", "IAU_Mars", initialTime ),
                     initialTime, 2.0 * mathematical_constants::PI /
                     ( physical_constants::JULIAN_DAY + 40.0 * 60.0 ) );
-        bodySettings[ "Phobos" ]->rotationModelSettings = boost::make_shared< SimpleRotationModelSettings >(
+        bodySettings[ "Phobos" ]->rotationModelSettings = std::make_shared< SimpleRotationModelSettings >(
                     "ECLIPJ2000", "IAU_Phobos",
                     spice_interface::computeRotationQuaternionBetweenFrames(
                         "ECLIPJ2000", "IAU_Phobos", initialTime ),
@@ -128,14 +128,14 @@ BOOST_AUTO_TEST_CASE( testMutualSphericalHarmonicGravityPartials )
         setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );
 
         // Create links to set and get state functions of bodies.
-        boost::shared_ptr< Body > mars = bodyMap.at( "Mars" );
-        boost::function< void( Eigen::Vector6d ) > marsStateSetFunction = boost::bind( &Body::setState, mars, _1  );
-        boost::function< Eigen::Vector6d( ) > marsStateGetFunction = boost::bind( &Body::getState, mars );
+        std::shared_ptr< Body > mars = bodyMap.at( "Mars" );
+        std::function< void( Eigen::Vector6d ) > marsStateSetFunction = std::bind( &Body::setState, mars, std::placeholders::_1  );
+        std::function< Eigen::Vector6d( ) > marsStateGetFunction = std::bind( &Body::getState, mars );
         mars->setStateFromEphemeris( 1.0E6 );
 
-        boost::shared_ptr< Body > phobos = boost::dynamic_pointer_cast< Body >( bodyMap.at( "Phobos" ) );
-        boost::function< void( Eigen::Vector6d ) > phobosStateSetFunction = boost::bind( &Body::setState, phobos, _1  );
-        boost::function< Eigen::Vector6d( ) > phobosStateGetFunction = boost::bind( &Body::getState, phobos );
+        std::shared_ptr< Body > phobos = std::dynamic_pointer_cast< Body >( bodyMap.at( "Phobos" ) );
+        std::function< void( Eigen::Vector6d ) > phobosStateSetFunction = std::bind( &Body::setState, phobos, std::placeholders::_1  );
+        std::function< Eigen::Vector6d( ) > phobosStateGetFunction = std::bind( &Body::getState, phobos );
         phobos->setStateFromEphemeris( 1.0E6 );
 
         // Calculate and set mars orientation at epoch.
@@ -146,7 +146,7 @@ BOOST_AUTO_TEST_CASE( testMutualSphericalHarmonicGravityPartials )
 
         // Define central body
         std::string centralBody = "";
-        boost::shared_ptr< Body > centralBodyObject;
+        std::shared_ptr< Body > centralBodyObject;
         if( testCase == 1 )
         {
             centralBody = "Mars";
@@ -154,88 +154,88 @@ BOOST_AUTO_TEST_CASE( testMutualSphericalHarmonicGravityPartials )
         }
 
         // Create acceleration model.
-        boost::shared_ptr< AccelerationSettings > accelerationSettings =
-                boost::make_shared< MutualSphericalHarmonicAccelerationSettings >( 10, 10, 6, 6, 0, 0 );
-        boost::shared_ptr< MutualSphericalHarmonicsGravitationalAccelerationModel > accelerationModel =
-                boost::dynamic_pointer_cast< MutualSphericalHarmonicsGravitationalAccelerationModel >(
+        std::shared_ptr< AccelerationSettings > accelerationSettings =
+                std::make_shared< MutualSphericalHarmonicAccelerationSettings >( 10, 10, 6, 6, 0, 0 );
+        std::shared_ptr< MutualSphericalHarmonicsGravitationalAccelerationModel > accelerationModel =
+                std::dynamic_pointer_cast< MutualSphericalHarmonicsGravitationalAccelerationModel >(
                     createAccelerationModel( phobos, mars, accelerationSettings, "Phobos", "Mars",
                                              centralBodyObject, centralBody ) );
 
         // Retrieve gravity fields
-        boost::shared_ptr< SphericalHarmonicsGravityField > marsGravityField =
-                boost::dynamic_pointer_cast< SphericalHarmonicsGravityField  >(
+        std::shared_ptr< SphericalHarmonicsGravityField > marsGravityField =
+                std::dynamic_pointer_cast< SphericalHarmonicsGravityField  >(
                     bodyMap.at( "Mars" )->getGravityFieldModel( ) );
 
-        boost::shared_ptr< SphericalHarmonicsGravityField > phobosGravityField =
-                boost::dynamic_pointer_cast< SphericalHarmonicsGravityField  >(
+        std::shared_ptr< SphericalHarmonicsGravityField > phobosGravityField =
+                std::dynamic_pointer_cast< SphericalHarmonicsGravityField  >(
                     bodyMap.at( "Phobos" )->getGravityFieldModel( ) );
 
         // Create gravitational parameter estimation settings.
-        boost::shared_ptr< EstimatableParameter< double > > marsGravitationalParameterObject = boost::make_shared<
+        std::shared_ptr< EstimatableParameter< double > > marsGravitationalParameterObject = std::make_shared<
                 GravitationalParameter >( marsGravityField, "Mars" );
-        boost::shared_ptr< EstimatableParameter< double > > phobosGravitationalParameterObject = boost::make_shared<
+        std::shared_ptr< EstimatableParameter< double > > phobosGravitationalParameterObject = std::make_shared<
                 GravitationalParameter >( phobosGravityField, "Phobos" );
 
         // Create rotation parameter estimation settings.
-        boost::shared_ptr< EstimatableParameter< double > > marsRotationRate = boost::make_shared<
-                RotationRate >( boost::dynamic_pointer_cast< SimpleRotationalEphemeris >(
+        std::shared_ptr< EstimatableParameter< double > > marsRotationRate = std::make_shared<
+                RotationRate >( std::dynamic_pointer_cast< SimpleRotationalEphemeris >(
                                     mars->getRotationalEphemeris( ) ), "Mars" );
-        boost::shared_ptr< EstimatableParameter< Eigen::VectorXd > > marsPolePosition = boost::make_shared<
-                ConstantRotationalOrientation >( boost::dynamic_pointer_cast< SimpleRotationalEphemeris >(
+        std::shared_ptr< EstimatableParameter< Eigen::VectorXd > > marsPolePosition = std::make_shared<
+                ConstantRotationalOrientation >( std::dynamic_pointer_cast< SimpleRotationalEphemeris >(
                                                      mars->getRotationalEphemeris( ) ), "Mars" );
-        boost::shared_ptr< EstimatableParameter< double > > phobosRotationRate = boost::make_shared<
-                RotationRate >( boost::dynamic_pointer_cast< SimpleRotationalEphemeris >(
+        std::shared_ptr< EstimatableParameter< double > > phobosRotationRate = std::make_shared<
+                RotationRate >( std::dynamic_pointer_cast< SimpleRotationalEphemeris >(
                                     phobos->getRotationalEphemeris( ) ), "Phobos" );
-        boost::shared_ptr< EstimatableParameter< Eigen::VectorXd > > phobosPolePosition = boost::make_shared<
-                ConstantRotationalOrientation >( boost::dynamic_pointer_cast< SimpleRotationalEphemeris >(
+        std::shared_ptr< EstimatableParameter< Eigen::VectorXd > > phobosPolePosition = std::make_shared<
+                ConstantRotationalOrientation >( std::dynamic_pointer_cast< SimpleRotationalEphemeris >(
                                                      phobos->getRotationalEphemeris( ) ), "Phobos" );
 
         // Create Mars gravity field coefficient estimation settings.
-        boost::function< Eigen::MatrixXd( ) > getSineCoefficientsFunction =
-                boost::bind( &SphericalHarmonicsGravityField::getSineCoefficients, marsGravityField );
-        boost::function< void( Eigen::MatrixXd ) > setSineCoefficientsFunction =
-                boost::bind( &SphericalHarmonicsGravityField::setSineCoefficients, marsGravityField, _1 );
-        boost::function< Eigen::MatrixXd( ) > getCosineCoefficientsFunction =
-                boost::bind( &SphericalHarmonicsGravityField::getCosineCoefficients, marsGravityField );
-        boost::function< void( Eigen::MatrixXd ) > setCosineCoefficientsFunction =
-                boost::bind( &SphericalHarmonicsGravityField::setCosineCoefficients, marsGravityField, _1 );
+        std::function< Eigen::MatrixXd( ) > getSineCoefficientsFunction =
+                std::bind( &SphericalHarmonicsGravityField::getSineCoefficients, marsGravityField );
+        std::function< void( Eigen::MatrixXd ) > setSineCoefficientsFunction =
+                std::bind( &SphericalHarmonicsGravityField::setSineCoefficients, marsGravityField, std::placeholders::_1 );
+        std::function< Eigen::MatrixXd( ) > getCosineCoefficientsFunction =
+                std::bind( &SphericalHarmonicsGravityField::getCosineCoefficients, marsGravityField );
+        std::function< void( Eigen::MatrixXd ) > setCosineCoefficientsFunction =
+                std::bind( &SphericalHarmonicsGravityField::setCosineCoefficients, marsGravityField, std::placeholders::_1 );
 
-        boost::shared_ptr< EstimatableParameter< Eigen::VectorXd > > marsSineCoefficients =
-                boost::make_shared< SphericalHarmonicsSineCoefficients >(
+        std::shared_ptr< EstimatableParameter< Eigen::VectorXd > > marsSineCoefficients =
+                std::make_shared< SphericalHarmonicsSineCoefficients >(
                     getSineCoefficientsFunction, setSineCoefficientsFunction,
                     getSphericalHarmonicBlockIndices( 3, 1, 5, 5 ), "Mars" );
-        boost::shared_ptr< EstimatableParameter< Eigen::VectorXd > > marsCosineCoefficients =
-                boost::make_shared< SphericalHarmonicsCosineCoefficients >(
+        std::shared_ptr< EstimatableParameter< Eigen::VectorXd > > marsCosineCoefficients =
+                std::make_shared< SphericalHarmonicsCosineCoefficients >(
                     getCosineCoefficientsFunction, setCosineCoefficientsFunction,
                     getSphericalHarmonicBlockIndices( 3, 0, 5, 5 ), "Mars" );
 
         // Create Phobos gravity field coefficient estimation settings.
         getSineCoefficientsFunction =
-                boost::bind( &SphericalHarmonicsGravityField::getSineCoefficients, phobosGravityField );
+                std::bind( &SphericalHarmonicsGravityField::getSineCoefficients, phobosGravityField );
         setSineCoefficientsFunction =
-                boost::bind( &SphericalHarmonicsGravityField::setSineCoefficients, phobosGravityField, _1 );
+                std::bind( &SphericalHarmonicsGravityField::setSineCoefficients, phobosGravityField, std::placeholders::_1 );
         getCosineCoefficientsFunction =
-                boost::bind( &SphericalHarmonicsGravityField::getCosineCoefficients, phobosGravityField );
+                std::bind( &SphericalHarmonicsGravityField::getCosineCoefficients, phobosGravityField );
         setCosineCoefficientsFunction =
-                boost::bind( &SphericalHarmonicsGravityField::setCosineCoefficients, phobosGravityField, _1 );
+                std::bind( &SphericalHarmonicsGravityField::setCosineCoefficients, phobosGravityField, std::placeholders::_1 );
 
-        boost::shared_ptr< EstimatableParameter< Eigen::VectorXd > > phobosSineCoefficients =
-                boost::make_shared< SphericalHarmonicsSineCoefficients >(
+        std::shared_ptr< EstimatableParameter< Eigen::VectorXd > > phobosSineCoefficients =
+                std::make_shared< SphericalHarmonicsSineCoefficients >(
                     getSineCoefficientsFunction, setSineCoefficientsFunction,
                     getSphericalHarmonicBlockIndices( 2, 1, 2, 2 ), "Phobos" );
-        boost::shared_ptr< EstimatableParameter< Eigen::VectorXd > > phobosCosineCoefficients =
-                boost::make_shared< SphericalHarmonicsCosineCoefficients >(
+        std::shared_ptr< EstimatableParameter< Eigen::VectorXd > > phobosCosineCoefficients =
+                std::make_shared< SphericalHarmonicsCosineCoefficients >(
                     getCosineCoefficientsFunction, setCosineCoefficientsFunction,
                     getSphericalHarmonicBlockIndices( 2, 0, 2, 2 ), "Phobos" );
 
         // Create parameter objects
-        std::vector< boost::shared_ptr< EstimatableParameter< double > > > doubleParameters;
+        std::vector< std::shared_ptr< EstimatableParameter< double > > > doubleParameters;
         doubleParameters.push_back( marsGravitationalParameterObject );
         doubleParameters.push_back( phobosGravitationalParameterObject );
         doubleParameters.push_back( marsRotationRate );
         doubleParameters.push_back( phobosRotationRate );
 
-        std::vector< boost::shared_ptr< EstimatableParameter< Eigen::VectorXd > > > vectorParameters;
+        std::vector< std::shared_ptr< EstimatableParameter< Eigen::VectorXd > > > vectorParameters;
         vectorParameters.push_back( marsSineCoefficients );
         vectorParameters.push_back( marsCosineCoefficients );
         vectorParameters.push_back( phobosSineCoefficients );
@@ -243,12 +243,12 @@ BOOST_AUTO_TEST_CASE( testMutualSphericalHarmonicGravityPartials )
         vectorParameters.push_back( marsPolePosition );
         vectorParameters.push_back( phobosPolePosition );
 
-        boost::shared_ptr< EstimatableParameterSet< double > > parameterSet =
-                boost::make_shared< EstimatableParameterSet< double > >( doubleParameters, vectorParameters );
+        std::shared_ptr< EstimatableParameterSet< double > > parameterSet =
+                std::make_shared< EstimatableParameterSet< double > >( doubleParameters, vectorParameters );
 
         // Create acceleration partial object.
-        boost::shared_ptr< MutualSphericalHarmonicsGravityPartial > accelerationPartial =
-                boost::dynamic_pointer_cast< MutualSphericalHarmonicsGravityPartial > (
+        std::shared_ptr< MutualSphericalHarmonicsGravityPartial > accelerationPartial =
+                std::dynamic_pointer_cast< MutualSphericalHarmonicsGravityPartial > (
                     createAnalyticalAccelerationPartial(
                         accelerationModel, std::make_pair( "Phobos", phobos ),
                         std::make_pair( "Mars", mars ), bodyMap, parameterSet ) );
@@ -312,20 +312,20 @@ BOOST_AUTO_TEST_CASE( testMutualSphericalHarmonicGravityPartials )
                     phobosGravitationalParameterObject, accelerationModel, 1.0E14 );
 
         Eigen::Vector3d testPartialWrtMarsRotationRate = calculateAccelerationWrtParameterPartials(
-                    marsRotationRate, accelerationModel, 1.0E-9, &emptyFunction, 1.0E6, boost::bind(
-                        &Body::setCurrentRotationToLocalFrameFromEphemeris, mars, _1 ) );
+                    marsRotationRate, accelerationModel, 1.0E-9, &emptyFunction, 1.0E6, std::bind(
+                        &Body::setCurrentRotationToLocalFrameFromEphemeris, mars, std::placeholders::_1 ) );
         Eigen::MatrixXd testPartialWrtPolePosition = calculateAccelerationWrtParameterPartials(
                     marsPolePosition, accelerationModel, ( Eigen::VectorXd( 2 ) << 1.0E-4, 1.0E-4 ).finished( ),
-                    &emptyFunction, 1.0E6, boost::bind(
-                        &Body::setCurrentRotationToLocalFrameFromEphemeris, mars, _1 ) );
+                    &emptyFunction, 1.0E6, std::bind(
+                        &Body::setCurrentRotationToLocalFrameFromEphemeris, mars, std::placeholders::_1 ) );
 
         Eigen::Vector3d testPartialWrtPhobosRotationRate = calculateAccelerationWrtParameterPartials(
-                    phobosRotationRate, accelerationModel, 1.0E-8, &emptyFunction, 1.0E6, boost::bind(
-                        &Body::setCurrentRotationToLocalFrameFromEphemeris, phobos, _1 ) );
+                    phobosRotationRate, accelerationModel, 1.0E-8, &emptyFunction, 1.0E6, std::bind(
+                        &Body::setCurrentRotationToLocalFrameFromEphemeris, phobos, std::placeholders::_1 ) );
         Eigen::MatrixXd testPartialWrtPhobosPolePosition = calculateAccelerationWrtParameterPartials(
                     phobosPolePosition, accelerationModel, ( Eigen::VectorXd( 2 ) << 1.0E-3, 1.0E-3 ).finished( ),
-                    &emptyFunction, 1.0E6, boost::bind(
-                        &Body::setCurrentRotationToLocalFrameFromEphemeris, phobos, _1 ) );
+                    &emptyFunction, 1.0E6, std::bind(
+                        &Body::setCurrentRotationToLocalFrameFromEphemeris, phobos, std::placeholders::_1 ) );
 
         Eigen::MatrixXd testPartialWrtMarsCosineCoefficients = calculateAccelerationWrtParameterPartials(
                     marsCosineCoefficients, accelerationModel, Eigen::VectorXd::Constant(

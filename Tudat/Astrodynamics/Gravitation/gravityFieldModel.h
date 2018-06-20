@@ -12,7 +12,7 @@
 #ifndef TUDAT_GRAVITY_FIELD_MODEL_H
 #define TUDAT_GRAVITY_FIELD_MODEL_H
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 #include <Eigen/Core>
 #include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
 
@@ -37,7 +37,7 @@ public:
      * \param gravitationalParameter Gravitational parameter associated with gravity field
      */
     GravityFieldModel( const double gravitationalParameter,
-                       const boost::function< void( ) > updateInertiaTensor = boost::function< void( ) > ( ) ):
+                       const std::function< void( ) > updateInertiaTensor = std::function< void( ) > ( ) ):
         gravitationalParameter_( gravitationalParameter ), updateInertiaTensor_( updateInertiaTensor )
     { }
 
@@ -102,7 +102,7 @@ protected:
      */
     double gravitationalParameter_;
 
-    boost::function< void( ) > updateInertiaTensor_;
+    std::function< void( ) > updateInertiaTensor_;
 
 private:
 };
@@ -115,7 +115,7 @@ enum BodiesWithPredefinedCentralGravityFields
 };
 
 //! Typedef for shared-pointer to GravityFieldModel object.
-typedef boost::shared_ptr< GravityFieldModel > GravityFieldModelPointer;
+typedef std::shared_ptr< GravityFieldModel > GravityFieldModelPointer;
 
 
 //! Function to create a central gravity field model of one of the planets, moon or sun.
@@ -125,7 +125,7 @@ typedef boost::shared_ptr< GravityFieldModel > GravityFieldModelPointer;
  *  gravity field is to be created.
  *  \return Central gravity field model of requested body.
  */
-boost::shared_ptr< GravityFieldModel > getPredefinedCentralGravityField(
+std::shared_ptr< GravityFieldModel > getPredefinedCentralGravityField(
     BodiesWithPredefinedCentralGravityFields bodyWithPredefinedCentralGravityField );
 
 } // namespace gravitation

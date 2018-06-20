@@ -12,7 +12,7 @@
 
 #include <boost/bind.hpp>
 #include <boost/make_shared.hpp>
-#include <boost/shared_ptr.hpp>
+#include <memory>
 #include <boost/test/unit_test.hpp>
 
 #include <Eigen/Core>
@@ -76,14 +76,14 @@ BOOST_AUTO_TEST_CASE( testSingleCustomStatePropagation )
 
     // Create settings for propagation
     double initialCustomState = 500.0;
-    boost::shared_ptr< CustomStatePropagatorSettings< double > > propagatorSettings =
-            boost::make_shared< CustomStatePropagatorSettings< double > >(
-                boost::bind( &getDummyCustomState1, _1, _2 ), initialCustomState,
-                boost::make_shared< PropagationTimeTerminationSettings >( 1000.0 ) );
+    std::shared_ptr< CustomStatePropagatorSettings< double > > propagatorSettings =
+            std::make_shared< CustomStatePropagatorSettings< double > >(
+                std::bind( &getDummyCustomState1, std::placeholders::_1, std::placeholders::_2 ), initialCustomState,
+                std::make_shared< PropagationTimeTerminationSettings >( 1000.0 ) );
 
     // Define numerical integrator settings.
-    boost::shared_ptr< IntegratorSettings< > > integratorSettings =
-            boost::make_shared< IntegratorSettings< > >( rungeKutta4, 0.0, 1.0 );
+    std::shared_ptr< IntegratorSettings< > > integratorSettings =
+            std::make_shared< IntegratorSettings< > >( rungeKutta4, 0.0, 1.0 );
 
     // Create dynamics simulation object.
     SingleArcDynamicsSimulator< double, double > dynamicsSimulator(
@@ -107,14 +107,14 @@ BOOST_AUTO_TEST_CASE( testSingleCustomStatePropagation2 )
 
     // Create settings for propagation
     double initialCustomState = 500.0;
-    boost::shared_ptr< CustomStatePropagatorSettings< double > > propagatorSettings =
-            boost::make_shared< CustomStatePropagatorSettings< double > >(
-                boost::bind( &getDummyCustomState2, _1, _2 ), initialCustomState,
-                boost::make_shared< PropagationTimeTerminationSettings >( 1000.0 ) );
+    std::shared_ptr< CustomStatePropagatorSettings< double > > propagatorSettings =
+            std::make_shared< CustomStatePropagatorSettings< double > >(
+                std::bind( &getDummyCustomState2, std::placeholders::_1, std::placeholders::_2 ), initialCustomState,
+                std::make_shared< PropagationTimeTerminationSettings >( 1000.0 ) );
 
     // Define numerical integrator settings.
-    boost::shared_ptr< IntegratorSettings< > > integratorSettings =
-            boost::make_shared< IntegratorSettings< > >( rungeKutta4, 0.0, 1.0 );
+    std::shared_ptr< IntegratorSettings< > > integratorSettings =
+            std::make_shared< IntegratorSettings< > >( rungeKutta4, 0.0, 1.0 );
 
     // Create dynamics simulation object.
     SingleArcDynamicsSimulator< double, double > dynamicsSimulator(
@@ -139,14 +139,14 @@ BOOST_AUTO_TEST_CASE( testSingleCustomStatePropagation3 )
 
     // Create settings for propagation
     double initialCustomState = 500.0;
-    boost::shared_ptr< CustomStatePropagatorSettings< double > > propagatorSettings =
-            boost::make_shared< CustomStatePropagatorSettings< double > >(
-                boost::bind( &getDummyCustomState3, _1, _2 ), initialCustomState,
-                boost::make_shared< PropagationTimeTerminationSettings >( 1000.0 ) );
+    std::shared_ptr< CustomStatePropagatorSettings< double > > propagatorSettings =
+            std::make_shared< CustomStatePropagatorSettings< double > >(
+                std::bind( &getDummyCustomState3, std::placeholders::_1, std::placeholders::_2 ), initialCustomState,
+                std::make_shared< PropagationTimeTerminationSettings >( 1000.0 ) );
 
     // Define numerical integrator settings.
-    boost::shared_ptr< IntegratorSettings< > > integratorSettings =
-            boost::make_shared< IntegratorSettings< > >( rungeKutta4, 0.0, 1.0 );
+    std::shared_ptr< IntegratorSettings< > > integratorSettings =
+            std::make_shared< IntegratorSettings< > >( rungeKutta4, 0.0, 1.0 );
 
     // Create dynamics simulation object.
     SingleArcDynamicsSimulator< double, double > dynamicsSimulator(
@@ -170,14 +170,14 @@ BOOST_AUTO_TEST_CASE( testSingleCustomStatePropagation4 )
 
     // Create settings for propagation
     double initialCustomState = 500.0;
-    boost::shared_ptr< CustomStatePropagatorSettings< double > > propagatorSettings =
-            boost::make_shared< CustomStatePropagatorSettings< double > >(
-                boost::bind( &getDummyCustomState4, _1, _2 ), initialCustomState,
-                boost::make_shared< PropagationTimeTerminationSettings >( 100.0 ) );
+    std::shared_ptr< CustomStatePropagatorSettings< double > > propagatorSettings =
+            std::make_shared< CustomStatePropagatorSettings< double > >(
+                std::bind( &getDummyCustomState4, std::placeholders::_1, std::placeholders::_2 ), initialCustomState,
+                std::make_shared< PropagationTimeTerminationSettings >( 100.0 ) );
 
     // Define numerical integrator settings.
-    boost::shared_ptr< IntegratorSettings< > > integratorSettings =
-            boost::make_shared< IntegratorSettings< > >( rungeKutta4, 0.0, 0.01 );
+    std::shared_ptr< IntegratorSettings< > > integratorSettings =
+            std::make_shared< IntegratorSettings< > >( rungeKutta4, 0.0, 0.01 );
 
     // Create dynamics simulation object.
     SingleArcDynamicsSimulator< double, double > dynamicsSimulator(
@@ -218,19 +218,19 @@ BOOST_AUTO_TEST_CASE( testMultiTypeCustomStatePropagation )
     const double fixedStepSize = 10.0;
 
     // Define body settings for simulation.
-    std::map< std::string, boost::shared_ptr< BodySettings > > bodySettings;
-    bodySettings[ "Earth" ] = boost::make_shared< BodySettings >( );
-    bodySettings[ "Earth" ]->ephemerisSettings = boost::make_shared< ConstantEphemerisSettings >(
+    std::map< std::string, std::shared_ptr< BodySettings > > bodySettings;
+    bodySettings[ "Earth" ] = std::make_shared< BodySettings >( );
+    bodySettings[ "Earth" ]->ephemerisSettings = std::make_shared< ConstantEphemerisSettings >(
                 Eigen::Vector6d::Zero( ), "SSB", "J2000" );
-    bodySettings[ "Earth" ]->gravityFieldSettings = boost::make_shared< GravityFieldSettings >( central_spice );
+    bodySettings[ "Earth" ]->gravityFieldSettings = std::make_shared< GravityFieldSettings >( central_spice );
 
     // Create Earth object
     NamedBodyMap bodyMap = createBodies( bodySettings );
 
     // Create spacecraft object.
-    bodyMap[ "Asterix" ] = boost::make_shared< simulation_setup::Body >( );
-    bodyMap[ "Asterix" ]->setEphemeris( boost::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
-                                            boost::shared_ptr< interpolators::OneDimensionalInterpolator
+    bodyMap[ "Asterix" ] = std::make_shared< simulation_setup::Body >( );
+    bodyMap[ "Asterix" ]->setEphemeris( std::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
+                                            std::shared_ptr< interpolators::OneDimensionalInterpolator
                                             < double, Eigen::Vector6d  > >( ), "Earth", "J2000" ) );
 
     // Finalize body creation.
@@ -242,8 +242,8 @@ BOOST_AUTO_TEST_CASE( testMultiTypeCustomStatePropagation )
     std::vector< std::string > centralBodies;
 
     // Define propagation settings.
-    std::map< std::string, std::vector< boost::shared_ptr< AccelerationSettings > > > accelerationsOfAsterix;
-    accelerationsOfAsterix[ "Earth" ].push_back( boost::make_shared< AccelerationSettings >(
+    std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfAsterix;
+    accelerationsOfAsterix[ "Earth" ].push_back( std::make_shared< AccelerationSettings >(
                                                      basic_astrodynamics::central_gravity ) );
     accelerationMap[  "Asterix" ] = accelerationsOfAsterix;
     bodiesToPropagate.push_back( "Asterix" );
@@ -272,44 +272,44 @@ BOOST_AUTO_TEST_CASE( testMultiTypeCustomStatePropagation )
                 earthGravitationalParameter );
 
 
-    boost::shared_ptr< SingleArcPropagatorSettings< double > > translationalPropagatorSettings =
-            boost::make_shared< TranslationalStatePropagatorSettings< double > >
+    std::shared_ptr< SingleArcPropagatorSettings< double > > translationalPropagatorSettings =
+            std::make_shared< TranslationalStatePropagatorSettings< double > >
             ( centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState,
-              boost::make_shared< PropagationTimeTerminationSettings >( simulationEndEpoch ) );
+              std::make_shared< PropagationTimeTerminationSettings >( simulationEndEpoch ) );
 
     // Create mass rate model and mass propagation settings
-    std::map< std::string, boost::shared_ptr< basic_astrodynamics::MassRateModel > > massRateModels;
-    massRateModels[ "Vehicle" ] = boost::make_shared< basic_astrodynamics::CustomMassRateModel >(
+    std::map< std::string, std::shared_ptr< basic_astrodynamics::MassRateModel > > massRateModels;
+    massRateModels[ "Vehicle" ] = std::make_shared< basic_astrodynamics::CustomMassRateModel >(
                 boost::lambda::constant( -0.01 ) );
     Eigen::VectorXd initialMass = Eigen::VectorXd( 1 );
     initialMass( 0 ) = 500.0;
-    boost::shared_ptr< SingleArcPropagatorSettings< double > > massPropagatorSettings =
-            boost::make_shared< MassPropagatorSettings< double > >(
+    std::shared_ptr< SingleArcPropagatorSettings< double > > massPropagatorSettings =
+            std::make_shared< MassPropagatorSettings< double > >(
                 boost::assign::list_of( "Asterix" ), massRateModels, initialMass,
-                boost::make_shared< PropagationTimeTerminationSettings >( simulationEndEpoch ) );
+                std::make_shared< PropagationTimeTerminationSettings >( simulationEndEpoch ) );
 
     // Create custom state derivative model settings
     double initialCustomState = 500.0;
-    boost::shared_ptr< SingleArcPropagatorSettings< double > > customPropagatorSettings =
-            boost::make_shared< CustomStatePropagatorSettings< double > >(
-                boost::bind( &getDummyCustomState1, _1, _2 ), initialCustomState,
-                boost::make_shared< PropagationTimeTerminationSettings >( 1000.0 ) );
+    std::shared_ptr< SingleArcPropagatorSettings< double > > customPropagatorSettings =
+            std::make_shared< CustomStatePropagatorSettings< double > >(
+                std::bind( &getDummyCustomState1, std::placeholders::_1, std::placeholders::_2 ), initialCustomState,
+                std::make_shared< PropagationTimeTerminationSettings >( 1000.0 ) );
 
     // Create total propagator settings, depending on current case.
-    boost::shared_ptr< PropagatorSettings< double > > propagatorSettings;
+    std::shared_ptr< PropagatorSettings< double > > propagatorSettings;
 
-    std::vector< boost::shared_ptr< SingleArcPropagatorSettings< double > > >  propagatorSettingsList;
+    std::vector< std::shared_ptr< SingleArcPropagatorSettings< double > > >  propagatorSettingsList;
     propagatorSettingsList.push_back( translationalPropagatorSettings );
     propagatorSettingsList.push_back( massPropagatorSettings );
     propagatorSettingsList.push_back( customPropagatorSettings );
 
-    propagatorSettings = boost::make_shared< MultiTypePropagatorSettings< double > >(
+    propagatorSettings = std::make_shared< MultiTypePropagatorSettings< double > >(
                 propagatorSettingsList,
-                boost::make_shared< PropagationTimeTerminationSettings >( simulationEndEpoch ) );
+                std::make_shared< PropagationTimeTerminationSettings >( simulationEndEpoch ) );
 
 
-    boost::shared_ptr< IntegratorSettings< > > integratorSettings =
-            boost::make_shared< IntegratorSettings< > >
+    std::shared_ptr< IntegratorSettings< > > integratorSettings =
+            std::make_shared< IntegratorSettings< > >
             ( rungeKutta4, 0.0, fixedStepSize );
 
     // Create simulation object and propagate dynamics.

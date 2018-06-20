@@ -20,7 +20,7 @@
 
 #include <map>
 
-#include <boost/function.hpp>
+#include <functional>
 
 #include <Eigen/Core>
 
@@ -70,7 +70,7 @@ const std::map< int, double >& getCentralDifferenceCoefficients( CentralDifferen
  */
 template < typename InputType, typename ResultType >
 ResultType computeCentralDifference( const InputType& input, const int derivativeIndex,
-                                     const boost::function< ResultType( const InputType& ) >& function,
+                                     const std::function< ResultType( const InputType& ) >& function,
                                      double minimumStep = 0.0, double relativeStepSize = 0.0,
                                      CentralDifferenceOrders order = order2 )
 {
@@ -135,14 +135,14 @@ ResultType computeCentralDifference( const InputType& input, const int derivativ
  * \param order The order of the algorithm to use. Will yield an assertion failure if not 2 or 4.
  * \return Numerical derivative calculated from input
  */
-Eigen::MatrixXd computeCentralDifference( const Eigen::VectorXd& input, const boost::function<
+Eigen::MatrixXd computeCentralDifference( const Eigen::VectorXd& input, const std::function<
                                           Eigen::VectorXd( const Eigen::VectorXd& ) >& function,
                                           double minimumStep = 0.0, double relativeStepSize = 0.0,
                                           CentralDifferenceOrders order = order2 );
 
 template< typename DependentVariableType, typename IndependentVariableType >
-DependentVariableType computeCentralDifference(
-        const boost::function< DependentVariableType( const IndependentVariableType ) >& dependentVariableFunction,
+DependentVariableType computeCentralDifferenceFromFunction(
+        const std::function< DependentVariableType( const IndependentVariableType ) >& dependentVariableFunction,
         const IndependentVariableType nominalIndependentVariable,
         const IndependentVariableType independentVariableStepSize,
         CentralDifferenceOrders order = order2 )

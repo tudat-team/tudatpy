@@ -23,7 +23,7 @@ namespace simulation_setup
 //! Function to obtain (by reference) the position functions and radii of occulting bodies
 void getOccultingBodiesInformation(
         const NamedBodyMap& bodyMap, const std::vector< std::string >& occultingBodies,
-        std::vector< boost::function< Eigen::Vector3d( ) > >& occultingBodyPositions,
+        std::vector< std::function< Eigen::Vector3d( ) > >& occultingBodyPositions,
         std::vector< double >& occultingBodyRadii )
 {
     // Iterate over occulring bodies and retrieve radius and position function.
@@ -36,26 +36,26 @@ void getOccultingBodiesInformation(
         }
         else
         {
-            boost::shared_ptr< basic_astrodynamics::BodyShapeModel > shapeModel =
+            std::shared_ptr< basic_astrodynamics::BodyShapeModel > shapeModel =
                     bodyMap.at( occultingBodies.at( i ) )->getShapeModel( );
-            if( shapeModel == NULL )
+            if( shapeModel == nullptr )
             {
                 throw std::runtime_error( "Error, no shape model for " + occultingBodies[ i ] +
                                           " when making occulting body settings" );
             }
             occultingBodyPositions.push_back(
-                        boost::bind( &Body::getPosition, bodyMap.at( occultingBodies[ i ] ) ) );
+                        std::bind( &Body::getPosition, bodyMap.at( occultingBodies[ i ] ) ) );
             occultingBodyRadii.push_back( shapeModel->getAverageRadius( ) );
         }
     }
 }
 
 //! Function to create a radiation pressure interface.
-boost::shared_ptr< electro_magnetism::RadiationPressureInterface > createRadiationPressureInterface(
-        const boost::shared_ptr< RadiationPressureInterfaceSettings > radiationPressureInterfaceSettings,
+std::shared_ptr< electro_magnetism::RadiationPressureInterface > createRadiationPressureInterface(
+        const std::shared_ptr< RadiationPressureInterfaceSettings > radiationPressureInterfaceSettings,
         const std::string& bodyName, const NamedBodyMap& bodyMap )
 {
-    boost::shared_ptr< electro_magnetism::RadiationPressureInterface > radiationPressureInterface;
+    std::shared_ptr< electro_magnetism::RadiationPressureInterface > radiationPressureInterface;
 
     // Check type of radiation pressure interface
     switch( radiationPressureInterfaceSettings->getRadiationPressureType( ) )
@@ -63,10 +63,10 @@ boost::shared_ptr< electro_magnetism::RadiationPressureInterface > createRadiati
     case cannon_ball:
     {
         // Check type consistency.
-        boost::shared_ptr< CannonBallRadiationPressureInterfaceSettings > cannonBallSettings =
-                boost::dynamic_pointer_cast< CannonBallRadiationPressureInterfaceSettings >(
+        std::shared_ptr< CannonBallRadiationPressureInterfaceSettings > cannonBallSettings =
+                std::dynamic_pointer_cast< CannonBallRadiationPressureInterfaceSettings >(
                     radiationPressureInterfaceSettings );
-        if( cannonBallSettings == NULL )
+        if( cannonBallSettings == nullptr )
         {
             throw std::runtime_error( "Error when making cannon ball radiation interface, type does not match object" );
         }
@@ -77,12 +77,12 @@ boost::shared_ptr< electro_magnetism::RadiationPressureInterface > createRadiati
             throw std::runtime_error( "Error when making cannon ball radiation interface, source not found.");
         }
 
-        boost::shared_ptr< Body > sourceBody =
+        std::shared_ptr< Body > sourceBody =
                 bodyMap.at( radiationPressureInterfaceSettings->getSourceBody( ) );
 
         // Get reqruied data for occulting bodies.
         std::vector< std::string > occultingBodies = cannonBallSettings->getOccultingBodies( );
-        std::vector< boost::function< Eigen::Vector3d( ) > > occultingBodyPositions;
+        std::vector< std::function< Eigen::Vector3d( ) > > occultingBodyPositions;
         std::vector< double > occultingBodyRadii;
         getOccultingBodiesInformation(
                     bodyMap, occultingBodies, occultingBodyPositions, occultingBodyRadii );
@@ -91,10 +91,10 @@ boost::shared_ptr< electro_magnetism::RadiationPressureInterface > createRadiati
         double sourceRadius;
         if( occultingBodyPositions.size( ) > 0 )
         {
-            boost::shared_ptr< basic_astrodynamics::BodyShapeModel > sourceShapeModel =
+            std::shared_ptr< basic_astrodynamics::BodyShapeModel > sourceShapeModel =
                     sourceBody->getShapeModel( );
 
-            if( sourceShapeModel == NULL )
+            if( sourceShapeModel == nullptr )
             {
                 throw std::runtime_error( "Error when making occulted body, source body " +
                                           radiationPressureInterfaceSettings->getSourceBody( ) +
@@ -111,7 +111,7 @@ boost::shared_ptr< electro_magnetism::RadiationPressureInterface > createRadiati
         }
 
         // Create function returning radiated power.
-        boost::function< double( ) > radiatedPowerFunction;
+        std::function< double( ) > radiatedPowerFunction;
         if( defaultRadiatedPowerValues.count(
                     radiationPressureInterfaceSettings->getSourceBody( ) ) == 0 )
         {
@@ -127,10 +127,10 @@ boost::shared_ptr< electro_magnetism::RadiationPressureInterface > createRadiati
 
         // Create radiation pressure interface.
         radiationPressureInterface =
-                boost::make_shared< electro_magnetism::RadiationPressureInterface >(
+                std::make_shared< electro_magnetism::RadiationPressureInterface >(
                     radiatedPowerFunction,
-                    boost::bind( &Body::getPosition, sourceBody ),
-                    boost::bind( &Body::getPosition, bodyMap.at( bodyName ) ),
+                    std::bind( &Body::getPosition, sourceBody ),
+                    std::bind( &Body::getPosition, bodyMap.at( bodyName ) ),
                     cannonBallSettings->getRadiationPressureCoefficient( ),
                     cannonBallSettings->getArea( ), occultingBodyPositions, occultingBodyRadii,
                     sourceRadius );

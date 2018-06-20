@@ -56,7 +56,7 @@ BOOST_AUTO_TEST_CASE( testPositionObsevableModel )
     double buffer = 10.0 * maximumTimeStep;
 
     // Create bodies settings needed in simulation
-    std::map< std::string, boost::shared_ptr< BodySettings > > defaultBodySettings =
+    std::map< std::string, std::shared_ptr< BodySettings > > defaultBodySettings =
             getDefaultBodySettings(
                 bodiesToCreate, initialEphemerisTime - buffer, finalEphemerisTime + buffer );
 
@@ -71,16 +71,16 @@ BOOST_AUTO_TEST_CASE( testPositionObsevableModel )
 
 
     // Create observation settings
-    boost::shared_ptr< ObservationSettings > observableSettings = boost::make_shared< ObservationSettings >
-            ( position_observable, std::vector< boost::shared_ptr< LightTimeCorrectionSettings > >( ),
-              boost::make_shared< ConstantObservationBiasSettings >(
+    std::shared_ptr< ObservationSettings > observableSettings = std::make_shared< ObservationSettings >
+            ( position_observable, std::vector< std::shared_ptr< LightTimeCorrectionSettings > >( ),
+              std::make_shared< ConstantObservationBiasSettings >(
                   ( Eigen::Vector3d( ) << 543.2454, -34.244, 3431.24345 ).finished( ), true ) );
 
     // Create observation model.
-    boost::shared_ptr< ObservationModel< 3, double, double > > observationModel =
+    std::shared_ptr< ObservationModel< 3, double, double > > observationModel =
            ObservationModelCreator< 3, double, double >::createObservationModel(
                 linkEnds, observableSettings, bodyMap );
-    boost::shared_ptr< ObservationBias< 3 > > observationBias = observationModel->getObservationBiasCalculator( );
+    std::shared_ptr< ObservationBias< 3 > > observationBias = observationModel->getObservationBiasCalculator( );
 
 
     // Compute observation separately with two functions.

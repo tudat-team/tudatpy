@@ -17,9 +17,9 @@ namespace geometric_shapes
 {
 
 CompositeSurfaceGeometry::CompositeSurfaceGeometry(
-                          std::vector< boost::shared_ptr< SingleSurfaceGeometry > >
+                          std::vector< std::shared_ptr< SingleSurfaceGeometry > >
                           singleSurfaceGeometryList,
-                          std::vector< boost::shared_ptr< CompositeSurfaceGeometry > >
+                          std::vector< std::shared_ptr< CompositeSurfaceGeometry > >
                           compositeSurfaceGeometryList )
 {
     setNumberOfSingleSurfaceGeometries( singleSurfaceGeometryList.size( ) );

@@ -11,7 +11,7 @@
 #ifndef TUDAT_GRAVITYFIELDVARIATIONS_H
 #define TUDAT_GRAVITYFIELDVARIATIONS_H
 
-#include <boost/function.hpp>
+#include <functional>
 #include <Eigen/Core>
 
 #include "Tudat/Basics/basicTypedefs.h"
@@ -57,7 +57,7 @@ public:
      *  \param numberOfOrders Size of the rectangular correction block in the order direction.
      */
     PairInterpolationInterface(
-            const boost::shared_ptr< interpolators::OneDimensionalInterpolator<
+            const std::shared_ptr< interpolators::OneDimensionalInterpolator<
             double, Eigen::MatrixXd > > cosineSineInterpolator,
             const int startDegree, const int startOrder,
             const int numberOfDegrees, const int numberOfOrders ):
@@ -88,7 +88,7 @@ private:
      *  sine corrections, concatenated next to each other (i.e. as [C S] row 'vector' of
      *  cosine and sine corrections C and S, respectively).
      */
-    boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > >
+    std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > >
     cosineSineInterpolator_;
 
     //! Degree where the rectangular correction block starts.
@@ -292,14 +292,14 @@ protected:
  *  \return Function pointer to function mimicing the addSphericalHarmonicsCorrections
  *  function of GravityFieldVariations.
  */
-boost::function< void( const double, Eigen::MatrixXd&, Eigen::MatrixXd& ) >
+std::function< void( const double, Eigen::MatrixXd&, Eigen::MatrixXd& ) >
 createInterpolatedSphericalHarmonicCorrectionFunctions(
-        boost::shared_ptr< GravityFieldVariations > variationObject,
+        std::shared_ptr< GravityFieldVariations > variationObject,
         const double initialTime,
         const double finalTime,
         const double timeStep,
-        const boost::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings =
-        boost::make_shared< interpolators::InterpolatorSettings >(
+        const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings =
+        std::make_shared< interpolators::InterpolatorSettings >(
             interpolators::linear_interpolator, interpolators::huntingAlgorithm ) );
 
 //! Container class containing all gravity field variations for a single Body
@@ -337,12 +337,12 @@ public:
      *  (map key denotes index of variationObjects) for which createInterpolator is true.
      */
     GravityFieldVariationsSet(
-            const std::vector< boost::shared_ptr< GravityFieldVariations > > variationObjects,
+            const std::vector< std::shared_ptr< GravityFieldVariations > > variationObjects,
             const std::vector< BodyDeformationTypes > variationType,
             const std::vector< std::string > variationIdentifier,
-            const std::map< int, boost::shared_ptr< interpolators::InterpolatorSettings > >
+            const std::map< int, std::shared_ptr< interpolators::InterpolatorSettings > >
             createInterpolator =
-            std::map< int, boost::shared_ptr< interpolators::InterpolatorSettings > >( ),
+            std::map< int, std::shared_ptr< interpolators::InterpolatorSettings > >( ),
             const std::map< int, double > initialTimes = std::map< int, double >( ),
             const std::map< int, double > finalTimes = std::map< int, double >( ),
             const std::map< int, double > timeSteps = std::map< int, double >( ) );
@@ -358,7 +358,7 @@ public:
      *  \return Pair containing boolean (true if requested variation found, false otherwise) and
      *  pointer to variation object (only if requested variation found).
      */
-    std::pair< bool, boost::shared_ptr< gravitation::GravityFieldVariations > >
+    std::pair< bool, std::shared_ptr< gravitation::GravityFieldVariations > >
      getGravityFieldVariation(
             const BodyDeformationTypes deformationType,
             const std::string identifier = "" );
@@ -371,7 +371,7 @@ public:
      *  \return List of gravity field coefficient variation functions, matching the interface of
      *  GravityFieldVariations::addSphericalHarmonicsCorrections
      */
-    std::vector< boost::function< void( const double, Eigen::MatrixXd&, Eigen::MatrixXd& ) > >
+    std::vector< std::function< void( const double, Eigen::MatrixXd&, Eigen::MatrixXd& ) > >
     getVariationFunctions( );
 
     //! Function to retrieve the complete set of variations to take nto account.
@@ -379,7 +379,7 @@ public:
      * Function to retrieve the complete set of variations to take nto account.
      * \return Complete set of variations to take nto account.
      */
-    std::vector< boost::shared_ptr< GravityFieldVariations > > getVariationObjects( )
+    std::vector< std::shared_ptr< GravityFieldVariations > > getVariationObjects( )
     {
         return variationObjects_;
     }
@@ -392,7 +392,7 @@ public:
      * \param deformingBodies List of objects that cause tidal gravity field variation
      * \return The tidal gravity field variation with the specified bodies causing deformation
      */
-    boost::shared_ptr< GravityFieldVariations > getDirectTidalGravityFieldVariation(
+    std::shared_ptr< GravityFieldVariations > getDirectTidalGravityFieldVariation(
             const std::vector< std::string >& deformingBodies );
 
     //! Function to retrieve the tidal gravity field variations
@@ -400,7 +400,7 @@ public:
      * Function to retrieve the tidal gravity field variations
      * \return List of tidal gravity field variations objects
      */
-    std::vector< boost::shared_ptr< GravityFieldVariations > > getDirectTidalGravityFieldVariations( );
+    std::vector< std::shared_ptr< GravityFieldVariations > > getDirectTidalGravityFieldVariations( );
 
 private:
 
@@ -408,7 +408,7 @@ private:
     /*!
      *  List of GravityFieldVariations objects denoting the complete set of variations to take into account.
      */
-    std::vector< boost::shared_ptr< GravityFieldVariations > > variationObjects_;
+    std::vector< std::shared_ptr< GravityFieldVariations > > variationObjects_;
 
     //! List of type identifiers of variationObjects.
     /*!
@@ -431,7 +431,7 @@ private:
      *  List of booleans denoting whether to interpolate a given entry of variationObjects or not,
      *  must be of same size as variationObjects.
      */
-    std::map< int, boost::shared_ptr< interpolators::InterpolatorSettings > > createInterpolator_;
+    std::map< int, std::shared_ptr< interpolators::InterpolatorSettings > > createInterpolator_;
 
     //! Initial times for interpolation,
     /*!

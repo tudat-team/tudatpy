@@ -73,9 +73,9 @@ void checkValidityOfRequiredEnvironmentUpdates(
                 }
                 case spherical_harmonic_gravity_field_update:
                 {
-                    boost::shared_ptr< gravitation::SphericalHarmonicsGravityField >
+                    std::shared_ptr< gravitation::SphericalHarmonicsGravityField >
                             gravityFieldModel =
-                            boost::dynamic_pointer_cast< gravitation::SphericalHarmonicsGravityField >(
+                            std::dynamic_pointer_cast< gravitation::SphericalHarmonicsGravityField >(
                                 bodyMap.at( updateIterator->second.at( i ) )->getGravityFieldModel( ) );
                     if( gravityFieldModel == NULL )
                     {
@@ -87,7 +87,7 @@ void checkValidityOfRequiredEnvironmentUpdates(
                 }
                 case vehicle_flight_conditions_update:
                 {
-                    boost::shared_ptr< aerodynamics::FlightConditions > flightConditions = bodyMap.at(
+                    std::shared_ptr< aerodynamics::FlightConditions > flightConditions = bodyMap.at(
                                 updateIterator->second.at( i ) )->getFlightConditions( );
                     if( flightConditions == NULL )
                     {
@@ -99,7 +99,7 @@ void checkValidityOfRequiredEnvironmentUpdates(
                 }
                 case radiation_pressure_interface_update:
                 {
-                    std::map< std::string, boost::shared_ptr< electro_magnetism::RadiationPressureInterface > >
+                    std::map< std::string, std::shared_ptr< electro_magnetism::RadiationPressureInterface > >
                             radiationPressureInterfaces = bodyMap.at(
                                 updateIterator->second.at( i ) )->getRadiationPressureInterfaces( );
                     if( radiationPressureInterfaces.size( ) == 0 )
@@ -154,7 +154,7 @@ void removePropagatedStatesFomEnvironmentUpdates(
                     }
                 }
                 break;
-            // Check for propagated rotational states in update list, and remove if necessary
+                // Check for propagated rotational states in update list, and remove if necessary
             case rotational_state:
                 if( environmentModelsToUpdate.count( body_rotational_state_update ) > 0 )
                 {
@@ -170,7 +170,7 @@ void removePropagatedStatesFomEnvironmentUpdates(
                     }
                 }
                 break;
-            // Check for propagated mass states in update list, and remove if necessary
+                // Check for propagated mass states in update list, and remove if necessary
             case body_mass_state:
                 if( environmentModelsToUpdate.count( body_mass_update ) > 0 )
                 {
@@ -310,8 +310,8 @@ createTranslationalEquationsOfMotionEnvironmentUpdaterSettings(
                     break;
                 case third_body_central_gravity:
                 {
-                    boost::shared_ptr< gravitation::ThirdBodyCentralGravityAcceleration >
-                            thirdBodyAcceleration = boost::dynamic_pointer_cast<
+                    std::shared_ptr< gravitation::ThirdBodyCentralGravityAcceleration >
+                            thirdBodyAcceleration = std::dynamic_pointer_cast<
                             gravitation::ThirdBodyCentralGravityAcceleration >(
                                 accelerationModelIterator->second.at( i ) );
                     if( thirdBodyAcceleration != NULL && translationalAccelerationModels.count(
@@ -368,9 +368,9 @@ createTranslationalEquationsOfMotionEnvironmentUpdaterSettings(
                     singleAccelerationUpdateNeeds[ spherical_harmonic_gravity_field_update ].
                             push_back( accelerationModelIterator->first );
 
-                    boost::shared_ptr<
+                    std::shared_ptr<
                             gravitation::ThirdBodySphericalHarmonicsGravitationalAccelerationModel >
-                            thirdBodyAcceleration = boost::dynamic_pointer_cast<
+                            thirdBodyAcceleration = std::dynamic_pointer_cast<
                             gravitation::ThirdBodySphericalHarmonicsGravitationalAccelerationModel >(
                                 accelerationModelIterator->second.at( i ) );;
                     if( thirdBodyAcceleration != NULL && translationalAccelerationModels.count(
@@ -399,8 +399,8 @@ createTranslationalEquationsOfMotionEnvironmentUpdaterSettings(
                     singleAccelerationUpdateNeeds[ spherical_harmonic_gravity_field_update ].push_back(
                                 acceleratedBodyIterator->first );
 
-                    boost::shared_ptr< gravitation::ThirdBodyMutualSphericalHarmonicsGravitationalAccelerationModel >
-                            thirdBodyAcceleration = boost::dynamic_pointer_cast<
+                    std::shared_ptr< gravitation::ThirdBodyMutualSphericalHarmonicsGravitationalAccelerationModel >
+                            thirdBodyAcceleration = std::dynamic_pointer_cast<
                             gravitation::ThirdBodyMutualSphericalHarmonicsGravitationalAccelerationModel >(
                                 accelerationModelIterator->second.at( i ) );
                     if( thirdBodyAcceleration != NULL && translationalAccelerationModels.count(
@@ -425,7 +425,7 @@ createTranslationalEquationsOfMotionEnvironmentUpdaterSettings(
                 case thrust_acceleration:
                 {
                     std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > thrustModelUpdates =
-                            boost::dynamic_pointer_cast< propulsion::ThrustAcceleration >(
+                            std::dynamic_pointer_cast< propulsion::ThrustAcceleration >(
                                 accelerationModelIterator->second.at( i ) )->getRequiredModelUpdates( );
                     addEnvironmentUpdates( singleAccelerationUpdateNeeds, thrustModelUpdates );
 
@@ -436,8 +436,8 @@ createTranslationalEquationsOfMotionEnvironmentUpdaterSettings(
                 }
                 case relativistic_correction_acceleration:
                 {
-                    boost::shared_ptr< relativity::RelativisticAccelerationCorrection >
-                            accelerationCorrection = boost::dynamic_pointer_cast< relativity::RelativisticAccelerationCorrection >(
+                    std::shared_ptr< relativity::RelativisticAccelerationCorrection >
+                            accelerationCorrection = std::dynamic_pointer_cast< relativity::RelativisticAccelerationCorrection >(
                                 accelerationModelIterator->second.at( i ) );
                     if( accelerationCorrection->getCalculateDeSitterCorrection( ) )
                     {
@@ -481,7 +481,7 @@ createTranslationalEquationsOfMotionEnvironmentUpdaterSettings(
 //! Get list of required environment model update settings from mass rate models.
 std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > >
 createMassPropagationEnvironmentUpdaterSettings(
-        const std::map< std::string, std::vector< boost::shared_ptr< basic_astrodynamics::MassRateModel > > > massRateModels,
+        const std::map< std::string, std::vector< std::shared_ptr< basic_astrodynamics::MassRateModel > > > massRateModels,
         const simulation_setup::NamedBodyMap& bodyMap )
 {
     using namespace basic_astrodynamics;
@@ -493,7 +493,7 @@ createMassPropagationEnvironmentUpdaterSettings(
             std::vector< std::string > > singleRateModelUpdateNeeds;
 
     // Iterate over all bodies with mass rate model.
-    for( std::map< std::string, std::vector< boost::shared_ptr< MassRateModel > > >::const_iterator massRateModelIterator =
+    for( std::map< std::string, std::vector< std::shared_ptr< MassRateModel > > >::const_iterator massRateModelIterator =
          massRateModels.begin( ); massRateModelIterator != massRateModels.end( ); massRateModelIterator++ )
     {
         for( unsigned int i = 0; i < massRateModelIterator->second.size( ); i++ )
@@ -530,7 +530,7 @@ createMassPropagationEnvironmentUpdaterSettings(
 //! Function to update environment to allow all required updates to be made
 void checkAndModifyEnvironmentForDependentVariableSaving(
         const EnvironmentModelsToUpdate updateType,
-        const boost::shared_ptr< SingleDependentVariableSaveSettings > dependentVariableSaveSettings,
+        const std::shared_ptr< SingleDependentVariableSaveSettings > dependentVariableSaveSettings,
         const simulation_setup::NamedBodyMap& bodyMap )
 {
     switch( updateType )
@@ -567,7 +567,7 @@ void checkAndModifyEnvironmentForDependentVariableSaving(
 //! Function to create environment update settings for a single dependent variable
 std::map< propagators::EnvironmentModelsToUpdate,
 std::vector< std::string > > createEnvironmentUpdaterSettingsForDependentVariables(
-        const boost::shared_ptr< SingleDependentVariableSaveSettings > dependentVariableSaveSettings,
+        const std::shared_ptr< SingleDependentVariableSaveSettings > dependentVariableSaveSettings,
         const simulation_setup::NamedBodyMap& bodyMap )
 {
     std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > >  variablesToUpdate;
@@ -746,14 +746,14 @@ std::vector< std::string > > createEnvironmentUpdaterSettingsForDependentVariabl
 
 //! Create environment update settings for dependent variables
 std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > createEnvironmentUpdaterSettings(
-        const boost::shared_ptr< DependentVariableSaveSettings > dependentVariableSaveSettings,
+        const std::shared_ptr< DependentVariableSaveSettings > dependentVariableSaveSettings,
         const simulation_setup::NamedBodyMap& bodyMap )
 {
     std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > environmentModelsToUpdate;
 
     if( dependentVariableSaveSettings != NULL )
     {
-        std::vector< boost::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariableList =
+        std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariableList =
                 dependentVariableSaveSettings->dependentVariables_;
         for( unsigned int i = 0; i < dependentVariableList.size( ); i++ )
         {
@@ -767,7 +767,7 @@ std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > c
 
 //! Create environment update settings for termination settings
 std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > createEnvironmentUpdaterSettings(
-        const boost::shared_ptr< PropagationTerminationSettings > terminationSettings,
+        const std::shared_ptr< PropagationTerminationSettings > terminationSettings,
         const simulation_setup::NamedBodyMap& bodyMap )
 {
     std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > environmentModelsToUpdate;
@@ -779,8 +779,8 @@ std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > c
         break;
     case dependent_variable_stopping_condition:
     {
-        boost::shared_ptr< PropagationDependentVariableTerminationSettings > dependentVariableTerminationSettings =
-                boost::dynamic_pointer_cast< PropagationDependentVariableTerminationSettings >( terminationSettings );
+        std::shared_ptr< PropagationDependentVariableTerminationSettings > dependentVariableTerminationSettings =
+                std::dynamic_pointer_cast< PropagationDependentVariableTerminationSettings >( terminationSettings );
         std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > >
                 environmentModelsToUpdateForSingleTerminationSetting =
                 createEnvironmentUpdaterSettingsForDependentVariables(
@@ -790,8 +790,8 @@ std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > c
     }
     case hybrid_stopping_condition:
     {
-        boost::shared_ptr< PropagationHybridTerminationSettings > hybridTerminationSettings =
-                boost::dynamic_pointer_cast< PropagationHybridTerminationSettings >( terminationSettings );
+        std::shared_ptr< PropagationHybridTerminationSettings > hybridTerminationSettings =
+                std::dynamic_pointer_cast< PropagationHybridTerminationSettings >( terminationSettings );
         for( unsigned int i = 0; i < hybridTerminationSettings->terminationSettings_.size( ); i++ )
         {
             std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > >
@@ -841,11 +841,11 @@ std::vector< std::string > > createFullEnvironmentUpdaterSettings(
 
         // Get body radiation pressure interface(s) (one per source)
         std::map< std::string,
-                boost::shared_ptr< RadiationPressureInterface > > radiationPressureInterfaces
+                std::shared_ptr< RadiationPressureInterface > > radiationPressureInterfaces
                 = bodyIterator->second->getRadiationPressureInterfaces( );
 
         // Add each interface update function to update list.
-        for( std::map< std::string, boost::shared_ptr< RadiationPressureInterface > >::iterator
+        for( std::map< std::string, std::shared_ptr< RadiationPressureInterface > >::iterator
              iterator = radiationPressureInterfaces.begin( );
              iterator != radiationPressureInterfaces.end( ); iterator++ )
         {
@@ -862,8 +862,8 @@ std::vector< std::string > > createFullEnvironmentUpdaterSettings(
         }
 
 
-        boost::shared_ptr< TimeDependentSphericalHarmonicsGravityField > gravityField =
-                boost::dynamic_pointer_cast< TimeDependentSphericalHarmonicsGravityField >
+        std::shared_ptr< TimeDependentSphericalHarmonicsGravityField > gravityField =
+                std::dynamic_pointer_cast< TimeDependentSphericalHarmonicsGravityField >
                 ( bodyIterator->second->getGravityFieldModel( ) );
         if( gravityField != NULL )
         {
@@ -881,6 +881,26 @@ std::vector< std::string > > createFullEnvironmentUpdaterSettings(
     }
     return environmentModelsToUpdate;
 }
+
+template std::shared_ptr< propagators::EnvironmentUpdater< double, double > > createEnvironmentUpdaterForDynamicalEquations< double, double >(
+        const std::shared_ptr< SingleArcPropagatorSettings< double > > propagatorSettings,
+        const simulation_setup::NamedBodyMap& bodyMap );
+template std::shared_ptr< propagators::EnvironmentUpdater< double, Time > > createEnvironmentUpdaterForDynamicalEquations< double, Time >(
+        const std::shared_ptr< SingleArcPropagatorSettings< double > > propagatorSettings,
+        const simulation_setup::NamedBodyMap& bodyMap );
+template std::shared_ptr< propagators::EnvironmentUpdater< long double, double > > createEnvironmentUpdaterForDynamicalEquations< long double, double >(
+        const std::shared_ptr< SingleArcPropagatorSettings< long double > > propagatorSettings,
+        const simulation_setup::NamedBodyMap& bodyMap );
+template std::shared_ptr< propagators::EnvironmentUpdater< long double, Time > > createEnvironmentUpdaterForDynamicalEquations< long double, Time >(
+        const std::shared_ptr< SingleArcPropagatorSettings< long double > > propagatorSettings,
+        const simulation_setup::NamedBodyMap& bodyMap );
+
+template std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > createEnvironmentUpdaterSettings< double >(
+        const std::shared_ptr< SingleArcPropagatorSettings< double > > propagatorSettings,
+        const simulation_setup::NamedBodyMap& bodyMap );
+template std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > createEnvironmentUpdaterSettings< long double >(
+        const std::shared_ptr< SingleArcPropagatorSettings< long double > > propagatorSettings,
+        const simulation_setup::NamedBodyMap& bodyMap );
 
 } // namespace propagators
 

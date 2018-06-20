@@ -28,10 +28,10 @@ Eigen::Vector3d computePartialOfCannonBallRadiationPressureAccelerationWrtRadiat
 }
 
 //! Function for setting up and retrieving a function returning a partial w.r.t. a double parameter.
-std::pair< boost::function< void( Eigen::MatrixXd& ) >, int > CannonBallRadiationPressurePartial::getParameterPartialFunction(
-        boost::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter )
+std::pair< std::function< void( Eigen::MatrixXd& ) >, int > CannonBallRadiationPressurePartial::getParameterPartialFunction(
+        std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter )
 {
-    boost::function< void( Eigen::MatrixXd& ) > partialFunction;
+    std::function< void( Eigen::MatrixXd& ) > partialFunction;
     int numberOfRows = 0;
 
     // Check if parameter dependency exists.
@@ -42,8 +42,8 @@ std::pair< boost::function< void( Eigen::MatrixXd& ) >, int > CannonBallRadiatio
         // Set function returning partial w.r.t. radiation pressure coefficient.
         case estimatable_parameters::radiation_pressure_coefficient:
 
-            partialFunction = boost::bind( &CannonBallRadiationPressurePartial::wrtRadiationPressureCoefficient,
-                                           this, _1 );
+            partialFunction = std::bind( &CannonBallRadiationPressurePartial::wrtRadiationPressureCoefficient,
+                                           this, std::placeholders::_1 );
             numberOfRows = 1;
 
             break;
@@ -56,10 +56,10 @@ std::pair< boost::function< void( Eigen::MatrixXd& ) >, int > CannonBallRadiatio
 
 
 //! Function for setting up and retrieving a function returning a partial w.r.t. a vector parameter.
-std::pair< boost::function< void( Eigen::MatrixXd& ) >, int > CannonBallRadiationPressurePartial::getParameterPartialFunction(
-        boost::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter )
+std::pair< std::function< void( Eigen::MatrixXd& ) >, int > CannonBallRadiationPressurePartial::getParameterPartialFunction(
+        std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter )
 {
-    boost::function< void( Eigen::MatrixXd& ) > partialFunction;
+    std::function< void( Eigen::MatrixXd& ) > partialFunction;
     int numberOfRows = 0;
 
     // Check if parameter dependency exists.
@@ -70,11 +70,11 @@ std::pair< boost::function< void( Eigen::MatrixXd& ) >, int > CannonBallRadiatio
         // Set function returning partial w.r.t. radiation pressure coefficient.
         case estimatable_parameters::arc_wise_radiation_pressure_coefficient:
 
-            if( boost::dynamic_pointer_cast< estimatable_parameters::ArcWiseRadiationPressureCoefficient >( parameter ) != NULL )
+            if( std::dynamic_pointer_cast< estimatable_parameters::ArcWiseRadiationPressureCoefficient >( parameter ) != nullptr )
             {
-                partialFunction = boost::bind(
-                            &CannonBallRadiationPressurePartial::wrtArcWiseRadiationPressureCoefficient, this, _1,
-                            boost::dynamic_pointer_cast< estimatable_parameters::ArcWiseRadiationPressureCoefficient >( parameter ) );
+                partialFunction = std::bind(
+                            &CannonBallRadiationPressurePartial::wrtArcWiseRadiationPressureCoefficient, this, std::placeholders::_1,
+                            std::dynamic_pointer_cast< estimatable_parameters::ArcWiseRadiationPressureCoefficient >( parameter ) );
             }
             else
             {

@@ -71,7 +71,7 @@ void checkRequiredParameters( const DictionaryPointer& aDictionary )
 void addEntry( const DictionaryPointer& dictionary, const std::string& parameterName,
                const bool isRequired, const bool isCaseSensitive, const StringSet& someSynonyms )
 {
-    dictionary->insert( boost::make_shared< DictionaryEntry >(
+    dictionary->insert( std::make_shared< DictionaryEntry >(
                             parameterName, isRequired, isCaseSensitive, someSynonyms ) );
 }
 

@@ -72,15 +72,15 @@ BOOST_AUTO_TEST_CASE( testOneWayRangePartials )
         // Generate one-way range model
         std::vector< std::string > perturbingBodies;
         perturbingBodies.push_back( "Earth" );
-        boost::shared_ptr< ObservationModel< 1 > > oneWayRangeModel =
+        std::shared_ptr< ObservationModel< 1 > > oneWayRangeModel =
                 observation_models::ObservationModelCreator< 1, double, double >::createObservationModel(
-                    linkEnds, boost::make_shared< observation_models::ObservationSettings >(
+                    linkEnds, std::make_shared< observation_models::ObservationSettings >(
                         observation_models::one_way_range,
-                        boost::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >(
+                        std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >(
          perturbingBodies ) ), bodyMap  );
 
         // Create parameter objects.
-        boost::shared_ptr< EstimatableParameterSet< double > > fullEstimatableParameterSet =
+        std::shared_ptr< EstimatableParameterSet< double > > fullEstimatableParameterSet =
                 createEstimatableParameters( bodyMap, 1.1E7 );
 
         std::cout<<"Test A"<<std::endl;
@@ -103,15 +103,15 @@ BOOST_AUTO_TEST_CASE( testOneWayRangePartials )
         // Generate one-way range model
         std::vector< std::string > perturbingBodies;
         perturbingBodies.push_back( "Earth" );
-        boost::shared_ptr< ObservationModel< 1 > > oneWayRangeModel =
+        std::shared_ptr< ObservationModel< 1 > > oneWayRangeModel =
                 observation_models::ObservationModelCreator< 1, double, double >::createObservationModel(
-                    linkEnds, boost::make_shared< observation_models::ObservationSettings >(
+                    linkEnds, std::make_shared< observation_models::ObservationSettings >(
                         observation_models::one_way_range,
-                        boost::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >(
+                        std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >(
          perturbingBodies ) ), bodyMap  );
 
         // Create parameter objects.
-        boost::shared_ptr< EstimatableParameterSet< double > > fullEstimatableParameterSet =
+        std::shared_ptr< EstimatableParameterSet< double > > fullEstimatableParameterSet =
                 createEstimatableParameters( bodyMap, 1.1E7 );
 
         testObservationPartials< 1 >(
@@ -134,15 +134,15 @@ BOOST_AUTO_TEST_CASE( testOneWayRangePartials )
         // Generate one-way range model
         std::vector< std::string > perturbingBodies;
         perturbingBodies.push_back( "Earth" );
-        boost::shared_ptr< ObservationModel< 1 > > oneWayRangeModel =
+        std::shared_ptr< ObservationModel< 1 > > oneWayRangeModel =
                 observation_models::ObservationModelCreator< 1, double, double >::createObservationModel(
-                    linkEnds, boost::make_shared< observation_models::ObservationSettings >(
+                    linkEnds, std::make_shared< observation_models::ObservationSettings >(
                         observation_models::one_way_range,
-                        boost::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >(
+                        std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >(
          perturbingBodies ) ), bodyMap  );
 
         // Create parameter objects.
-        boost::shared_ptr< EstimatableParameterSet< double > > fullEstimatableParameterSet =
+        std::shared_ptr< EstimatableParameterSet< double > > fullEstimatableParameterSet =
                 createEstimatableParameters( bodyMap, 1.1E7, false, true );
 
         testObservationPartials< 1 >(

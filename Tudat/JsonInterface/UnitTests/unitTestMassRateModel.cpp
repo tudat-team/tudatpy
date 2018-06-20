@@ -40,14 +40,14 @@ BOOST_AUTO_TEST_CASE( test_json_massRateModel_fromThrust )
     using namespace json_interface;
 
     // Create MassRateModelSettings from JSON file
-    const boost::shared_ptr< MassRateModelSettings > fromFileSettings =
-            parseJSONFile< boost::shared_ptr< MassRateModelSettings > >( INPUT( "fromThrust" ) );
+    const std::shared_ptr< MassRateModelSettings > fromFileSettings =
+            parseJSONFile< std::shared_ptr< MassRateModelSettings > >( INPUT( "fromThrust" ) );
 
     // Create MassRateModelSettings manually
     const bool useAllThrustModels = false;
     const std::string associatedThrustSource = "booster2";
-    const boost::shared_ptr< MassRateModelSettings > manualSettings =
-            boost::make_shared< FromThrustMassModelSettings >( useAllThrustModels, associatedThrustSource );
+    const std::shared_ptr< MassRateModelSettings > manualSettings =
+            std::make_shared< FromThrustMassModelSettings >( useAllThrustModels, associatedThrustSource );
 
     // Compare
     BOOST_CHECK_EQUAL_JSON( fromFileSettings, manualSettings );

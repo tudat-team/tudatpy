@@ -14,9 +14,9 @@
 #include <vector>
 #include <iostream>
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 #include <boost/make_shared.hpp>
-#include <boost/function.hpp>
+#include <functional>
 
 #include <Eigen/Core>
 
@@ -214,7 +214,7 @@ public:
         // Create current arc lookup scheme
         std::vector< double > lookupSchemeTimes = arcStartTimes_;
         lookupSchemeTimes.push_back( std::numeric_limits< double >::max( ) );
-        lookupScheme_ = boost::make_shared< interpolators::HuntingAlgorithmLookupScheme< double > >(
+        lookupScheme_ = std::make_shared< interpolators::HuntingAlgorithmLookupScheme< double > >(
                     lookupSchemeTimes );
     }
 
@@ -309,7 +309,7 @@ public:
      * Function to retrieve object used to determine the index from observationBiases_ to be used, based on the current time.
      * \return Object used to determine the index from observationBiases_ to be used, based on the current time.
      */
-    boost::shared_ptr< interpolators::LookUpScheme< double > > getLookupScheme( )
+    std::shared_ptr< interpolators::LookUpScheme< double > > getLookupScheme( )
     {
         return lookupScheme_;
     }
@@ -327,7 +327,7 @@ private:
     int linkEndIndexForTime_;
 
     //! Object used to determine the index from observationBiases_ to be used, based on the current time.
-    boost::shared_ptr< interpolators::LookUpScheme< double > > lookupScheme_;
+    std::shared_ptr< interpolators::LookUpScheme< double > > lookupScheme_;
 };
 
 //! Class for a constant relative observation bias of a given size
@@ -456,7 +456,7 @@ public:
         // Create current arc lookup scheme
         std::vector< double > lookupSchemeTimes = arcStartTimes_;
         lookupSchemeTimes.push_back( std::numeric_limits< double >::max( ) );
-        lookupScheme_ = boost::make_shared< interpolators::HuntingAlgorithmLookupScheme< double > >(
+        lookupScheme_ = std::make_shared< interpolators::HuntingAlgorithmLookupScheme< double > >(
                     lookupSchemeTimes );
     }
 
@@ -550,7 +550,7 @@ public:
      * Function to retrieve object used to determine the index from observationBiases_ to be used, based on the current time.
      * \return Object used to determine the index from observationBiases_ to be used, based on the current time.
      */
-    boost::shared_ptr< interpolators::LookUpScheme< double > > getLookupScheme( )
+    std::shared_ptr< interpolators::LookUpScheme< double > > getLookupScheme( )
     {
         return lookupScheme_;
     }
@@ -568,7 +568,7 @@ private:
     int linkEndIndexForTime_;
 
     //! Object used to determine the index from observationBiases_ to be used, based on the current time.
-    boost::shared_ptr< interpolators::LookUpScheme< double > > lookupScheme_;
+    std::shared_ptr< interpolators::LookUpScheme< double > > lookupScheme_;
 };
 
 //! Class for combining multiple observation bias models into a single bias value
@@ -586,7 +586,7 @@ public:
      * Constructor
      * \param biasList List of bias objects that are to be combined.
      */
-    MultiTypeObservationBias( const std::vector< boost::shared_ptr< ObservationBias< ObservationSize > > > biasList ):
+    MultiTypeObservationBias( const std::vector< std::shared_ptr< ObservationBias< ObservationSize > > > biasList ):
         biasList_( biasList ){ }
 
     //! Destructor
@@ -618,7 +618,7 @@ public:
      * Function to retrieve the list of bias objects that are to be combined.
      * \return The list of bias objects that are to be combined.
      */
-    std::vector< boost::shared_ptr< ObservationBias< ObservationSize > > > getBiasList( )
+    std::vector< std::shared_ptr< ObservationBias< ObservationSize > > > getBiasList( )
     {
         return biasList_;
     }
@@ -628,7 +628,7 @@ private:
 
 
     //! List of bias objects that are to be combined.
-    std::vector< boost::shared_ptr< ObservationBias< ObservationSize > > > biasList_;
+    std::vector< std::shared_ptr< ObservationBias< ObservationSize > > > biasList_;
 
 };
 
@@ -640,28 +640,28 @@ private:
  */
 template< int ObservationSize >
 ObservationBiasTypes getObservationBiasType(
-        const boost::shared_ptr< ObservationBias< ObservationSize > > biasObject )
+        const std::shared_ptr< ObservationBias< ObservationSize > > biasObject )
 {
     ObservationBiasTypes biasType;
 
     // Check available bias types
-    if( boost::dynamic_pointer_cast< ConstantObservationBias< ObservationSize > >( biasObject ) != NULL )
+    if( std::dynamic_pointer_cast< ConstantObservationBias< ObservationSize > >( biasObject ) != nullptr )
     {
         biasType = constant_absolute_bias;
     }
-    else if( boost::dynamic_pointer_cast< ConstantArcWiseObservationBias< ObservationSize > >( biasObject ) != NULL )
+    else if( std::dynamic_pointer_cast< ConstantArcWiseObservationBias< ObservationSize > >( biasObject ) != nullptr )
     {
         biasType = arc_wise_constant_absolute_bias;
     }
-    else if( boost::dynamic_pointer_cast< ConstantRelativeObservationBias< ObservationSize > >( biasObject ) != NULL )
+    else if( std::dynamic_pointer_cast< ConstantRelativeObservationBias< ObservationSize > >( biasObject ) != nullptr )
     {
         biasType = constant_relative_bias;
     }
-    else if( boost::dynamic_pointer_cast< ConstantRelativeArcWiseObservationBias< ObservationSize > >( biasObject ) != NULL )
+    else if( std::dynamic_pointer_cast< ConstantRelativeArcWiseObservationBias< ObservationSize > >( biasObject ) != nullptr )
     {
         biasType = arc_wise_constant_relative_bias;
     }
-    else if( boost::dynamic_pointer_cast< MultiTypeObservationBias< ObservationSize > >( biasObject ) != NULL )
+    else if( std::dynamic_pointer_cast< MultiTypeObservationBias< ObservationSize > >( biasObject ) != nullptr )
     {
         biasType = multiple_observation_biases;
     }

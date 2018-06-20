@@ -48,7 +48,7 @@ enum PositionElementTypes
  * \param originalElementTypes Element type used for input.
  * \param convertedElementTypes Element type to which originalElements is to be converted.
  * \param shapeModel Shape model associated with position (only required for specific element types, e.g. geodetic)
- * default NULL.
+ * default nullptr.
  * \param tolerance Tolerance used for conversion (only required for specific element types, e.g. geodetic), default 0.1 mm.
  * \return Position in requested element type.
  */
@@ -56,7 +56,7 @@ Eigen::Vector3d convertPositionElements(
         const Eigen::Vector3d& originalElements,
         const PositionElementTypes originalElementTypes,
         const PositionElementTypes convertedElementTypes,
-        const boost::shared_ptr< basic_astrodynamics::BodyShapeModel > shapeModel = NULL,
+        const std::shared_ptr< basic_astrodynamics::BodyShapeModel > shapeModel = nullptr,
         const double tolerance = 1.0E-4 );
 
 }

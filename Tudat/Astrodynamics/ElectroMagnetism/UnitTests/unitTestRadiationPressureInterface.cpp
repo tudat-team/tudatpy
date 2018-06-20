@@ -45,8 +45,8 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureCalculation )
     BOOST_CHECK_CLOSE_FRACTION( calculatedRadiationPressure, expectedRadiationPressure, 1.0E-4 );
 
     // Test calculation of radiation pressure from class interface.
-    boost::shared_ptr< electro_magnetism::RadiationPressureInterface > radiationPressureInterface =
-            boost::make_shared< electro_magnetism::RadiationPressureInterface >(
+    std::shared_ptr< electro_magnetism::RadiationPressureInterface > radiationPressureInterface =
+            std::make_shared< electro_magnetism::RadiationPressureInterface >(
                 boost::lambda::constant( totalSolarPower ),
                 boost::lambda::constant(
                     ( Eigen::Vector3d( ) <<
@@ -77,7 +77,7 @@ BOOST_AUTO_TEST_CASE( testShadowFunctionLink )
     const double occultedBodyRadius = 6.96e8; // Siedelmann 1992.
     const double occultingBodyRadius = 6378.137e3; // WGS-84.
 
-    std::vector< boost::function< Eigen::Vector3d( ) > > occultingBodyPositionFunctions;
+    std::vector< std::function< Eigen::Vector3d( ) > > occultingBodyPositionFunctions;
     occultingBodyPositionFunctions.push_back( boost::lambda::constant( occultingBodyPosition ) );
     std::vector< double > occultingBodyRadii;
     occultingBodyRadii.push_back( occultingBodyRadius );
@@ -88,9 +88,9 @@ BOOST_AUTO_TEST_CASE( testShadowFunctionLink )
     const Eigen::Vector3d occultedBodyPosition = -149598000.0e3 * Eigen::Vector3d( 1.0, 0.0, 0.0 );
 
     // Create radiation pressure interface with occultation.
-    boost::shared_ptr< electro_magnetism::RadiationPressureInterface >
+    std::shared_ptr< electro_magnetism::RadiationPressureInterface >
             occultedRadiationPressureInterface =
-            boost::make_shared< electro_magnetism::RadiationPressureInterface >(
+            std::make_shared< electro_magnetism::RadiationPressureInterface >(
                 boost::lambda::constant( totalSolarPower ),
                 boost::lambda::constant( occultedBodyPosition ),
                 boost::lambda::constant( satellitePosition ),
@@ -99,9 +99,9 @@ BOOST_AUTO_TEST_CASE( testShadowFunctionLink )
     occultedRadiationPressureInterface->updateInterface( );
 
     // Create radiation pressure interface without occultation.
-    boost::shared_ptr< electro_magnetism::RadiationPressureInterface >
+    std::shared_ptr< electro_magnetism::RadiationPressureInterface >
             unoccultedRadiationPressureInterface =
-            boost::make_shared< electro_magnetism::RadiationPressureInterface >(
+            std::make_shared< electro_magnetism::RadiationPressureInterface >(
                 boost::lambda::constant( totalSolarPower ),
                 boost::lambda::constant( occultedBodyPosition ),
                 boost::lambda::constant( satellitePosition ),

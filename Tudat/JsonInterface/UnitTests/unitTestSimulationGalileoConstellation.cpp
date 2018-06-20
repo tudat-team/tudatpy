@@ -84,12 +84,12 @@ BOOST_AUTO_TEST_CASE( test_json_simulationGalileoConstellation_main )
     spice_interface::loadStandardSpiceKernels( );
 
     // Define environment settings
-    std::map< std::string, boost::shared_ptr< BodySettings > > bodySettings = getDefaultBodySettings( { "Earth" } );
-    bodySettings[ "Earth" ]->ephemerisSettings = boost::make_shared< simulation_setup::ConstantEphemerisSettings >(
+    std::map< std::string, std::shared_ptr< BodySettings > > bodySettings = getDefaultBodySettings( { "Earth" } );
+    bodySettings[ "Earth" ]->ephemerisSettings = std::make_shared< simulation_setup::ConstantEphemerisSettings >(
                 Eigen::Vector6d::Zero( ), "SSB", "J2000" );
     bodySettings[ "Earth" ]->rotationModelSettings->resetOriginalFrame( "J2000" );
-    bodySettings[ "Earth" ]->atmosphereSettings = NULL;
-    bodySettings[ "Earth" ]->shapeModelSettings = NULL;
+    bodySettings[ "Earth" ]->atmosphereSettings = nullptr;
+    bodySettings[ "Earth" ]->shapeModelSettings = nullptr;
 
     // Create Earth object
     simulation_setup::NamedBodyMap bodyMap = simulation_setup::createBodies( bodySettings );
@@ -99,7 +99,7 @@ BOOST_AUTO_TEST_CASE( test_json_simulationGalileoConstellation_main )
     for ( unsigned int i = 0; i < numberOfSatellites; i++ )
     {
         currentSatelliteName =  "Satellite" + std::to_string( i );
-        bodyMap[ currentSatelliteName ] = boost::make_shared< simulation_setup::Body >( );
+        bodyMap[ currentSatelliteName ] = std::make_shared< simulation_setup::Body >( );
     }
 
     // Finalize body creation.
@@ -203,9 +203,9 @@ BOOST_AUTO_TEST_CASE( test_json_simulationGalileoConstellation_main )
     {
         currentSatelliteName =  "Satellite" + std::to_string( i );
 
-        std::map< std::string, std::vector< boost::shared_ptr< AccelerationSettings > > > accelerationsOfCurrentSatellite;
+        std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfCurrentSatellite;
         accelerationsOfCurrentSatellite[ "Earth" ].push_back(
-                    boost::make_shared< SphericalHarmonicAccelerationSettings >( 4, 0 ) );
+                    std::make_shared< SphericalHarmonicAccelerationSettings >( 4, 0 ) );
         accelerationMap[ currentSatelliteName ] = accelerationsOfCurrentSatellite;
 
         bodiesToPropagate.push_back( currentSatelliteName );
@@ -221,11 +221,11 @@ BOOST_AUTO_TEST_CASE( test_json_simulationGalileoConstellation_main )
     ///////////////////////             CREATE PROPAGATION SETTINGS            //////////////////////////////////////
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    boost::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
-            boost::make_shared< TranslationalStatePropagatorSettings< double > >
+    std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
+            std::make_shared< TranslationalStatePropagatorSettings< double > >
             ( centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState, simulationEndEpoch );
-    boost::shared_ptr< IntegratorSettings< > > integratorSettings =
-            boost::make_shared< IntegratorSettings< > >
+    std::shared_ptr< IntegratorSettings< > > integratorSettings =
+            std::make_shared< IntegratorSettings< > >
             ( rungeKutta4, simulationStartEpoch, fixedStepSize );
 
 
@@ -234,8 +234,8 @@ BOOST_AUTO_TEST_CASE( test_json_simulationGalileoConstellation_main )
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     // Create simulation object and propagate dynamics.
-    const boost::shared_ptr< SingleArcDynamicsSimulator< > > dynamicsSimulator =
-            boost::make_shared< SingleArcDynamicsSimulator< > >( bodyMap, integratorSettings, propagatorSettings );
+    const std::shared_ptr< SingleArcDynamicsSimulator< > > dynamicsSimulator =
+            std::make_shared< SingleArcDynamicsSimulator< > >( bodyMap, integratorSettings, propagatorSettings );
     const std::map< double, Eigen::VectorXd > results = dynamicsSimulator->getEquationsOfMotionNumericalSolution( );
 
 

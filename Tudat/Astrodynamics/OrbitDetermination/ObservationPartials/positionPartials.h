@@ -16,7 +16,7 @@
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 
-#include <boost/function.hpp>
+#include <functional>
 
 #include "Tudat/Basics/basicTypedefs.h"
 
@@ -156,8 +156,8 @@ public:
      * is to be computed.
      */
     CartesianStatePartialWrtRotationMatrixParameter(
-            const boost::shared_ptr< RotationMatrixPartial > rotationMatrixPartialObject,
-            const boost::function< Eigen::Vector3d( const double ) > positionFunctionInLocalFrame ):
+            const std::shared_ptr< RotationMatrixPartial > rotationMatrixPartialObject,
+            const std::function< Eigen::Vector3d( const double ) > positionFunctionInLocalFrame ):
         rotationMatrixPartialObject_( rotationMatrixPartialObject ),
         positionFunctionInLocalFrame_( positionFunctionInLocalFrame ){ }
 
@@ -196,10 +196,10 @@ public:
 private:
 
     //! Object to compute the associated partial of a rotation matrix
-    boost::shared_ptr< RotationMatrixPartial > rotationMatrixPartialObject_;
+    std::shared_ptr< RotationMatrixPartial > rotationMatrixPartialObject_;
 
     //! Function returning the body-fixed position of the point at which the partial is to be computed.
-    boost::function< Eigen::Vector3d( const double ) > positionFunctionInLocalFrame_;
+    std::function< Eigen::Vector3d( const double ) > positionFunctionInLocalFrame_;
 };
 
 //! Class to compute the partial derivative of the inertial Cartesian state of a point on a body w.r.t. the constant
@@ -213,7 +213,7 @@ public:
      * Constructor
      * \param bodyRotationModel Rotation model for body.
      */
-    CartesianPartialWrtBodyFixedPosition( const boost::shared_ptr< ephemerides::RotationalEphemeris > bodyRotationModel ):
+    CartesianPartialWrtBodyFixedPosition( const std::shared_ptr< ephemerides::RotationalEphemeris > bodyRotationModel ):
         bodyRotationModel_( bodyRotationModel ){ }
 
     //! Destructor
@@ -250,7 +250,7 @@ public:
 private:
 
     //! Rotation model for body.
-    boost::shared_ptr< ephemerides::RotationalEphemeris > bodyRotationModel_;
+    std::shared_ptr< ephemerides::RotationalEphemeris > bodyRotationModel_;
 };
 
 //! Derived class for scaling three-dimensional position partial to position observable partial
@@ -314,8 +314,8 @@ public:
      * \param parameterIdentifier Id of parameter for which instance of class computes partial derivatives
      */
     PositionObervationPartial(
-            const boost::shared_ptr< PositionObservationScaling > positionObservationScaler,
-            const std::map< observation_models::LinkEndType, boost::shared_ptr< CartesianStatePartial > >& positionPartialList,
+            const std::shared_ptr< PositionObservationScaling > positionObservationScaler,
+            const std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartial > >& positionPartialList,
             const estimatable_parameters::EstimatebleParameterIdentifier parameterIdentifier ):
         ObservationPartial< 3 >( parameterIdentifier ), positionObservationScaler_( positionObservationScaler ),
         positionPartialList_( positionPartialList )
@@ -376,13 +376,13 @@ public:
 protected:
 
     //!  Scaling object used for mapping partials of positions to partials of observable
-    boost::shared_ptr< PositionObservationScaling > positionObservationScaler_;
+    std::shared_ptr< PositionObservationScaling > positionObservationScaler_;
 
     //! List of position partial per link end.
-    std::map< observation_models::LinkEndType, boost::shared_ptr< CartesianStatePartial > > positionPartialList_;
+    std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartial > > positionPartialList_;
 
     //! Iterator over list of position partial per link end (predeclared for efficiency).
-    std::map< observation_models::LinkEndType, boost::shared_ptr< CartesianStatePartial > >::iterator positionPartialIterator_;
+    std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartial > >::iterator positionPartialIterator_;
 
 
     //! Pre-declared state variable to be used in calculatePartial function.

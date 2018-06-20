@@ -17,7 +17,7 @@
 
 #include <cmath>
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include <Eigen/Core>
 
@@ -217,7 +217,7 @@ private:
 };
 
 // Typedef for shared-pointer to LibrationPoint object.
-typedef boost::shared_ptr< LibrationPoint > LibrationPointPointer;
+typedef std::shared_ptr< LibrationPoint > LibrationPointPointer;
 
 } // namespace circular_restricted_three_body_problem
 } // namespace gravitation

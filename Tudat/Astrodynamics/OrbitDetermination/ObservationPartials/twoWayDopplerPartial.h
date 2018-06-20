@@ -11,7 +11,7 @@
 #ifndef TUDAT_TWOWAYDOPPLERPARTIAL_H
 #define TUDAT_TWOWAYDOPPLERPARTIAL_H
 
-#include <boost/function.hpp>
+#include <functional>
 
 #include <Eigen/Core>
 
@@ -44,9 +44,9 @@ public:
      * \param oneWayDopplerModels List of double precision observation functions for one-way Doppler, with entry i indicating
      * link i (0=transmitter to reflector, etc.)
      */
-    TwoWayDopplerScaling( const std::vector< boost::shared_ptr< OneWayDopplerScaling > > dopplerScalings,
-                          const std::vector< boost::shared_ptr< OneWayRangeScaling > > rangeScalings,
-                          const std::vector< boost::function< double( const double, const observation_models::LinkEndType ) > >
+    TwoWayDopplerScaling( const std::vector< std::shared_ptr< OneWayDopplerScaling > > dopplerScalings,
+                          const std::vector< std::shared_ptr< OneWayRangeScaling > > rangeScalings,
+                          const std::vector< std::function< double( const double, const observation_models::LinkEndType ) > >
                           oneWayDopplerModels )
     {
         if( dopplerScalings.size( ) != 2 )
@@ -125,24 +125,24 @@ public:
 private:
 
     //! One-way Doppler partial scaling object for uplink
-    boost::shared_ptr< OneWayDopplerScaling > uplinkDopplerScaling_;
+    std::shared_ptr< OneWayDopplerScaling > uplinkDopplerScaling_;
 
     //! One-way Doppler partial scaling object for downlink
-    boost::shared_ptr< OneWayDopplerScaling > downlinkDopplerScaling_;
+    std::shared_ptr< OneWayDopplerScaling > downlinkDopplerScaling_;
 
 
     //! One-way range partial scaling object for uplink
-    boost::shared_ptr< OneWayRangeScaling > uplinkRangeScaling_;
+    std::shared_ptr< OneWayRangeScaling > uplinkRangeScaling_;
 
     //! One-way range partial scaling object for downlink
-    boost::shared_ptr< OneWayRangeScaling > downlinkRangeScaling_;
+    std::shared_ptr< OneWayRangeScaling > downlinkRangeScaling_;
 
 
     //! Function to return the uplink one-way Doppler observation
-    boost::function< double( const double, const observation_models::LinkEndType ) > uplinkDopplerModel_;
+    std::function< double( const double, const observation_models::LinkEndType ) > uplinkDopplerModel_;
 
     //! Function to return the downlink one-way Doppler observation
-    boost::function< double( const double, const observation_models::LinkEndType ) > downlinkDopplerModel_;
+    std::function< double( const double, const observation_models::LinkEndType ) > downlinkDopplerModel_;
 
 
     //! Current partial time derivative of one-way Doppler for uplink.
@@ -173,9 +173,9 @@ public:
      * \param parameterIdentifier Id of parameter for which instance of class computes partial derivatives.
      * \param numberOfLinkEnds Number of link ends in two-way observable
      */
-    TwoWayDopplerPartial( const boost::shared_ptr< TwoWayDopplerScaling > twoWayDopplerScaler,
-                          const std::map< int, boost::shared_ptr< ObservationPartial< 1 > > >& dopplerPartialList,
-                          const std::map< int, boost::shared_ptr< ObservationPartial< 1 > > >& rangePartialList,
+    TwoWayDopplerPartial( const std::shared_ptr< TwoWayDopplerScaling > twoWayDopplerScaler,
+                          const std::map< int, std::shared_ptr< ObservationPartial< 1 > > >& dopplerPartialList,
+                          const std::map< int, std::shared_ptr< ObservationPartial< 1 > > >& rangePartialList,
                           const estimatable_parameters::EstimatebleParameterIdentifier parameterIdentifier,
                           const int numberOfLinkEnds ):
         ObservationPartial< 1 >( parameterIdentifier ), twoWayDopplerScaler_( twoWayDopplerScaler ), dopplerPartialList_( dopplerPartialList ),
@@ -204,20 +204,20 @@ public:
 protected:
 
     //! Scaling object used for mapping partials of one-way ranges to partials of observable
-    boost::shared_ptr< TwoWayDopplerScaling > twoWayDopplerScaler_;
+    std::shared_ptr< TwoWayDopplerScaling > twoWayDopplerScaler_;
 
     //! List of one-way range partials per link index.
-    std::map< int, boost::shared_ptr< ObservationPartial< 1 > > > dopplerPartialList_;
+    std::map< int, std::shared_ptr< ObservationPartial< 1 > > > dopplerPartialList_;
 
     //! Predeclared iterator
-    std::map< int, boost::shared_ptr< ObservationPartial< 1 > > >::iterator dopplerPartialIterator_;
+    std::map< int, std::shared_ptr< ObservationPartial< 1 > > >::iterator dopplerPartialIterator_;
 
 
     //! List of one-way range partials per link index.
-    std::map< int, boost::shared_ptr< ObservationPartial< 1 > > > rangePartialList_;
+    std::map< int, std::shared_ptr< ObservationPartial< 1 > > > rangePartialList_;
 
     //! Predeclared iterator
-    std::map< int, boost::shared_ptr< ObservationPartial< 1 > > >::iterator rangePartialIterator_;
+    std::map< int, std::shared_ptr< ObservationPartial< 1 > > >::iterator rangePartialIterator_;
 
 
     //! Number of link ends in two-way observable

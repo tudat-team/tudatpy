@@ -13,7 +13,7 @@
 
 #include <string>
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include "Tudat/Astrodynamics/Aerodynamics/atmosphereModel.h"
 
@@ -83,7 +83,7 @@ public:
      * order).
      */
     CustomWindModelSettings(
-            const boost::function< Eigen::Vector3d( const double, const double, const double, const double ) > windFunction ):
+            const std::function< Eigen::Vector3d( const double, const double, const double, const double ) > windFunction ):
         WindModelSettings( custom_wind_model ), windFunction_( windFunction ){ }
 
     //! Destructor
@@ -94,7 +94,7 @@ public:
      * Function to retrieve function that returns wind vector as a function of altitude, longitude, latitude and time
      * \return Function that returns wind vector as a function of altitude, longitude, latitude and time
      */
-    boost::function< Eigen::Vector3d( const double, const double, const double, const double ) > getWindFunction( )
+    std::function< Eigen::Vector3d( const double, const double, const double, const double ) > getWindFunction( )
     {
         return windFunction_;
     }
@@ -105,7 +105,7 @@ public:
      * \param windFunction New function that returns wind vector as a function of altitude, longitude, latitude and time
      */
     void setWindFunction(
-            const boost::function< Eigen::Vector3d( const double, const double, const double, const double ) > windFunction )
+            const std::function< Eigen::Vector3d( const double, const double, const double, const double ) > windFunction )
     {
         windFunction_ = windFunction;
     }
@@ -113,7 +113,7 @@ public:
 protected:
 
     //! Function that returns wind vector as a function of altitude, longitude, latitude and time (in that order).
-    boost::function< Eigen::Vector3d( const double, const double, const double, const double ) > windFunction_;
+    std::function< Eigen::Vector3d( const double, const double, const double, const double ) > windFunction_;
 };
 
 //! List of atmosphere models available in simulations
@@ -163,7 +163,7 @@ public:
      *  Function to return settings for the atmosphere's wind model.
      *  \return Settings for the atmosphere's wind model.
      */
-    boost::shared_ptr< WindModelSettings > getWindSettings( )
+    std::shared_ptr< WindModelSettings > getWindSettings( )
     {
         return windSettings_;
     }
@@ -173,7 +173,7 @@ public:
      *  Function to (re)set settings for the atmosphere's wind model.
      *  \param windSettings Settings for the atmosphere's wind model.
      */
-    void setWindSettings( const boost::shared_ptr< WindModelSettings > windSettings )
+    void setWindSettings( const std::shared_ptr< WindModelSettings > windSettings )
     {
         windSettings_ = windSettings;
     }
@@ -183,7 +183,7 @@ private:
     AtmosphereTypes atmosphereType_;
 
     //! Settings for the atmosphere's wind model.
-    boost::shared_ptr< WindModelSettings > windSettings_;
+    std::shared_ptr< WindModelSettings > windSettings_;
 };
 
 //! AtmosphereSettings for defining an exponential atmosphere.
@@ -323,8 +323,8 @@ private:
  *  \param body Name of the body for which the wind model is to be created.
  *  \return Wind model created according to settings in windSettings.
  */
-boost::shared_ptr< aerodynamics::WindModel > createWindModel(
-        const boost::shared_ptr< WindModelSettings > windSettings,
+std::shared_ptr< aerodynamics::WindModel > createWindModel(
+        const std::shared_ptr< WindModelSettings > windSettings,
         const std::string& body);
 
 //! Function to create an atmosphere model.
@@ -335,8 +335,8 @@ boost::shared_ptr< aerodynamics::WindModel > createWindModel(
  *  \param body Name of the body for which the atmosphere model is to be created.
  *  \return Atmosphere model created according to settings in atmosphereSettings.
  */
-boost::shared_ptr< aerodynamics::AtmosphereModel > createAtmosphereModel(
-        const boost::shared_ptr< AtmosphereSettings > atmosphereSettings,
+std::shared_ptr< aerodynamics::AtmosphereModel > createAtmosphereModel(
+        const std::shared_ptr< AtmosphereSettings > atmosphereSettings,
         const std::string& body );
 } // namespace simulation_setup
 

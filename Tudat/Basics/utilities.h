@@ -16,9 +16,9 @@
 #include <iostream>
 #include <map>
 
-#include <boost/function.hpp>
+#include <functional>
 #include <boost/multi_array.hpp>
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include <Eigen/Core>
 
@@ -127,7 +127,7 @@ std::vector< KeyType > createVectorFromMapKeys( const std::map< KeyType, VectorA
  * \return Sum of return values of function1 and function2
  */
 template< typename S >
-S sumFunctionReturn( const boost::function< S( ) > function1, const boost::function< S( ) > function2 )
+S sumFunctionReturn( const std::function< S( ) > function1, const std::function< S( ) > function2 )
 {
     return function1( ) + function2( );
 }
@@ -140,7 +140,7 @@ S sumFunctionReturn( const boost::function< S( ) > function1, const boost::funct
  * \return Return values of function1 - return value of function2
  */
 template< typename S >
-S subtractFunctionReturn( const boost::function< S( ) > function1, const boost::function< S( ) > function2 )
+S subtractFunctionReturn( const std::function< S( ) > function1, const std::function< S( ) > function2 )
 {
     return function1( ) - function2( );
 }
@@ -212,14 +212,14 @@ void castMatrixMap( const std::map< S, Eigen::Matrix< T, Rows, Columns > >& orig
  *  \return Dynamic casted vector of T shared pointers.
  */
 template< typename S, typename T >
-std::vector< boost::shared_ptr< T > >dynamicCastSVectorToTVector( const std::vector< boost::shared_ptr< S > >& originalVector )
+std::vector< std::shared_ptr< T > >dynamicCastSVectorToTVector( const std::vector< std::shared_ptr< S > >& originalVector )
 {
-    std::vector< boost::shared_ptr< T > > castVector;
+    std::vector< std::shared_ptr< T > > castVector;
 
     // Iterate over all entries and perform dynamic cast for each entry.
     for( unsigned int i = 0; i < originalVector.size( ); i++ )
     {
-        castVector.push_back( boost::dynamic_pointer_cast< T >( originalVector.at( i ) ) );
+        castVector.push_back( std::dynamic_pointer_cast< T >( originalVector.at( i ) ) );
     }
 
     return castVector;
@@ -409,7 +409,7 @@ std::vector< S > createVectorFromVectorOfPairFirsts( const std::vector< std::pai
 }
 
 template< typename T, typename S >
-T evaluateFunctionWithoutInputArgumentDependency( boost::function< T( ) > inputFreeFunction, const S dummyInput )
+T evaluateFunctionWithoutInputArgumentDependency( std::function< T( ) > inputFreeFunction, const S dummyInput )
 {
     return inputFreeFunction( );
 }

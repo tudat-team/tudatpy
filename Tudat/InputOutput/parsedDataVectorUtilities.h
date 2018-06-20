@@ -18,7 +18,7 @@
 #include <vector>
 
 #include <boost/regex.hpp>
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include "Tudat/InputOutput/fieldType.h"
 #include "Tudat/InputOutput/fieldValue.h"
@@ -31,21 +31,21 @@ namespace parsed_data_vector_utilities
 {
 
 //! Pointer to a field value (string).
-typedef boost::shared_ptr< FieldValue >         FieldValuePtr;
+typedef std::shared_ptr< FieldValue >         FieldValuePtr;
 
 //! Map containing field value pointers (mapped value), identified by their field type (key
 //! value). Such maps contain the information from one parsed line.
 typedef std::map< FieldType, FieldValuePtr >    ParsedDataLineMap;
 
 //! Pointer to a parsed data line (see ParsedDataLineMap).
-typedef boost::shared_ptr< ParsedDataLineMap >  ParsedDataLineMapPtr;
+typedef std::shared_ptr< ParsedDataLineMap >  ParsedDataLineMapPtr;
 
 //! Vector of data map pointers (see ParsedDataLineMapPtr). Each entry of the vector points to
 //! parsed data line.
 typedef std::vector< ParsedDataLineMapPtr >     ParsedDataVector;
 
 //! Pointer to the data map pointer vectors (see ParsedDataVector).
-typedef boost::shared_ptr< ParsedDataVector >   ParsedDataVectorPtr;
+typedef std::shared_ptr< ParsedDataVector >   ParsedDataVectorPtr;
 
 //! Get the value of a given field from the map containing data.
 /*!
@@ -67,7 +67,7 @@ typedef boost::shared_ptr< ParsedDataVector >   ParsedDataVectorPtr;
 template< typename T >
 inline T getField( ParsedDataLineMapPtr data, FieldType field )
 {
-    boost::shared_ptr< FieldValue > fieldValue = data->find( field )->second;
+    std::shared_ptr< FieldValue > fieldValue = data->find( field )->second;
     return fieldValue->get< T >( );
 }
 
@@ -80,11 +80,11 @@ inline T getField( ParsedDataLineMapPtr data, FieldType field )
  *
  * Example usage:
  *   ParsedDataLineMapPtr datamap;
- *   boost::shared_ptr<string> planetName
+ *   std::shared_ptr<string> planetName
  *                                    = getField<string>(datamap, fieldtypes::general::name);
- *   boost::shared_ptr<int>    planetID
+ *   std::shared_ptr<int>    planetID
  *                                    = getField< int  >(datamap, fieldtypes::general::id);
- *   boost::shared_ptr<double> planetEccentricity
+ *   std::shared_ptr<double> planetEccentricity
  *                                    = getField<double>(datamap, fieldtypes::state::eccentricity);
  *
  * \param data   Check this datamap for all the requested FieldTypes.
@@ -92,9 +92,9 @@ inline T getField( ParsedDataLineMapPtr data, FieldType field )
  * \return FieldValue The FieldValue string converted to the given type.
  */
 template< typename T >
-inline boost::shared_ptr< T > getFieldPointer( ParsedDataLineMapPtr data, FieldType field )
+inline std::shared_ptr< T > getFieldPointer( ParsedDataLineMapPtr data, FieldType field )
 {
-    boost::shared_ptr< FieldValue > fieldValue = data->find( field )->second;
+    std::shared_ptr< FieldValue > fieldValue = data->find( field )->second;
     return fieldValue->getPointer< T >( );
 }
 

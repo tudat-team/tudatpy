@@ -12,7 +12,7 @@
 #define TUDAT_CUSTOM_AERODYNAMIC_COEFFICIENT_INTERFACE_H
 
 #include <boost/lambda/lambda.hpp>
-#include <boost/function.hpp>
+#include <functional>
 #include <boost/bind.hpp>
 #include <boost/make_shared.hpp>
 
@@ -66,9 +66,9 @@ public:
      *  coefficients are typically defined in negative direction (default true).
      */
     CustomAerodynamicCoefficientInterface(
-            const boost::function< Eigen::Vector3d( const std::vector< double >& ) >
+            const std::function< Eigen::Vector3d( const std::vector< double >& ) >
             forceCoefficientFunction,
-            const boost::function< Eigen::Vector3d( const std::vector< double >& ) >
+            const std::function< Eigen::Vector3d( const std::vector< double >& ) >
             momentCoefficientFunction,
             const double referenceLength,
             const double referenceArea,
@@ -83,8 +83,8 @@ public:
                                          areCoefficientsInAerodynamicFrame,
                                          areCoefficientsInNegativeAxisDirection )
     {
-        coefficientFunction_ = boost::bind(
-                    &concatenateForceAndMomentCoefficients, forceCoefficientFunction, momentCoefficientFunction, _1 );
+        coefficientFunction_ = std::bind(
+                    &concatenateForceAndMomentCoefficients, forceCoefficientFunction, momentCoefficientFunction, std::placeholders::_1 );
     }
 
     //! Constructor.
@@ -110,7 +110,7 @@ public:
      *  coefficients are typically defined in negative direction (default true).
      */
     CustomAerodynamicCoefficientInterface(
-            const boost::function< Eigen::Vector6d( const std::vector< double >& ) >
+            const std::function< Eigen::Vector6d( const std::vector< double >& ) >
             coefficientFunction,
             const double referenceLength,
             const double referenceArea,
@@ -186,7 +186,7 @@ private:
 
     //! Function returning the concatenated aerodynamic force and moment coefficients as function of
     //! the set of independent variables.
-    boost::function< Eigen::Vector6d( const std::vector< double >& ) >
+    std::function< Eigen::Vector6d( const std::vector< double >& ) >
     coefficientFunction_;
 
 

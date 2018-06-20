@@ -17,7 +17,7 @@
 #ifndef TUDAT_SINGLE_SURFACE_GEOMETRY_H
 #define TUDAT_SINGLE_SURFACE_GEOMETRY_H
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include <Eigen/Core>
 
@@ -277,7 +277,7 @@ private:
 };
 
 //! Typedef for shared-pointer to SingleSurfaceGeometry object.
-typedef boost::shared_ptr< SingleSurfaceGeometry > SingleSurfaceGeometryPointer;
+typedef std::shared_ptr< SingleSurfaceGeometry > SingleSurfaceGeometryPointer;
 
 } // namespace geometric_shapes
 } // namespace tudat

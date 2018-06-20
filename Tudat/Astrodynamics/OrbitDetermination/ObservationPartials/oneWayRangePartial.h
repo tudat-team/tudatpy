@@ -11,7 +11,7 @@
 #ifndef TUDAT_ONEWAYRANGEPARTIAL_H
 #define TUDAT_ONEWAYRANGEPARTIAL_H
 
-#include <boost/function.hpp>
+#include <functional>
 
 #include <Eigen/Core>
 
@@ -118,16 +118,16 @@ public:
      * \param lighTimeCorrectionPartials List if light-time correction partial objects.
      */
     OneWayRangePartial(
-            const boost::shared_ptr< OneWayRangeScaling > oneWayRangeScaler,
-            const std::map< observation_models::LinkEndType, boost::shared_ptr< CartesianStatePartial > >& positionPartialList,
+            const std::shared_ptr< OneWayRangeScaling > oneWayRangeScaler,
+            const std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartial > >& positionPartialList,
             const estimatable_parameters::EstimatebleParameterIdentifier parameterIdentifier,
-            const std::vector< boost::shared_ptr< observation_partials::LightTimeCorrectionPartial > >&
+            const std::vector< std::shared_ptr< observation_partials::LightTimeCorrectionPartial > >&
             lighTimeCorrectionPartials =
-            std::vector< boost::shared_ptr< observation_partials::LightTimeCorrectionPartial > >( ) ):
+            std::vector< std::shared_ptr< observation_partials::LightTimeCorrectionPartial > >( ) ):
         ObservationPartial< 1 >( parameterIdentifier ), oneWayRangeScaler_( oneWayRangeScaler ),
         positionPartialList_( positionPartialList )
     {
-        std::pair< boost::function< SingleOneWayRangePartialReturnType(
+        std::pair< std::function< SingleOneWayRangePartialReturnType(
                     const std::vector< Eigen::Vector6d >&, const std::vector< double >& ) >,
                 bool > lightTimeCorrectionPartial;
 
@@ -168,7 +168,7 @@ public:
      * Function to get scaling object used for mapping partials of positions to partials of observable
      * \return
      */
-    boost::shared_ptr< OneWayRangeScaling > getOneWayRangeScaler( )
+    std::shared_ptr< OneWayRangeScaling > getOneWayRangeScaler( )
     {
         return oneWayRangeScaler_;
     }
@@ -186,21 +186,21 @@ public:
 protected:
 
     //! Scaling object used for mapping partials of positions to partials of observable
-    boost::shared_ptr< OneWayRangeScaling > oneWayRangeScaler_;
+    std::shared_ptr< OneWayRangeScaling > oneWayRangeScaler_;
 
     //! List of position partials per link end.
-    std::map< observation_models::LinkEndType, boost::shared_ptr< CartesianStatePartial > > positionPartialList_;
+    std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartial > > positionPartialList_;
 
     //! Iterator over list of position partials per link end.
-    std::map< observation_models::LinkEndType, boost::shared_ptr< CartesianStatePartial > >::iterator positionPartialIterator_;
+    std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartial > >::iterator positionPartialIterator_;
 
     //! List of light-time correction partial functions.
-    std::vector< boost::function< SingleOneWayRangePartialReturnType(
+    std::vector< std::function< SingleOneWayRangePartialReturnType(
             const std::vector< Eigen::Vector6d >&, const std::vector< double >& ) > >
     lighTimeCorrectionPartialsFunctions_;
 
     //! List of light-time correction partial objects.
-    std::vector< boost::shared_ptr< observation_partials::LightTimeCorrectionPartial > > lighTimeCorrectionPartials_;
+    std::vector< std::shared_ptr< observation_partials::LightTimeCorrectionPartial > > lighTimeCorrectionPartials_;
 
     //! Pre-declared state variable to be used in calculatePartial function.
     Eigen::Vector6d currentState_;

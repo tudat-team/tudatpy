@@ -1,7 +1,7 @@
 
 #include <cmath>
 
-#include <boost/function.hpp>
+#include <functional>
 
 #include <Eigen/Core>
 
@@ -16,11 +16,11 @@ namespace propulsion
 
 //! Constructor
 MeeCostateBasedThrustGuidance::MeeCostateBasedThrustGuidance(
-        const boost::function< Eigen::Vector6d( ) > thrustingBodyStateFunction,
-        const boost::function< Eigen::Vector6d( ) > centralBodyStateFunction,
-        const boost::function< double( ) > centralBodyGravitationalParameterFunction,
-        boost::function< Eigen::VectorXd( const double ) > costateFunction,
-        const boost::function< Eigen::Vector3d( ) > bodyFixedForceDirection )
+        const std::function< Eigen::Vector6d( ) > thrustingBodyStateFunction,
+        const std::function< Eigen::Vector6d( ) > centralBodyStateFunction,
+        const std::function< double( ) > centralBodyGravitationalParameterFunction,
+        std::function< Eigen::VectorXd( const double ) > costateFunction,
+        const std::function< Eigen::Vector3d( ) > bodyFixedForceDirection )
     : BodyFixedForceDirectionGuidance( bodyFixedForceDirection ),
       thrustingBodyStateFunction_( thrustingBodyStateFunction ),
       centralBodyStateFunction_( centralBodyStateFunction ),

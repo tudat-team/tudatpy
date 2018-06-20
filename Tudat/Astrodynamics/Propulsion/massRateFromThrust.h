@@ -13,8 +13,8 @@
 
 #include <map>
 #include <vector>
-#include <boost/function.hpp>
-#include <boost/shared_ptr.hpp>
+#include <functional>
+#include <memory>
 
 #include <Eigen/Core>
 
@@ -43,7 +43,7 @@ public:
      *  \param thrustAcceleration Thrust acceleration model from which the mass rate is to be retrieved.
      */
     FromThrustMassRateModel(
-            const boost::shared_ptr< ThrustAcceleration > thrustAcceleration )
+            const std::shared_ptr< ThrustAcceleration > thrustAcceleration )
     {
         thrustAccelerations_.push_back( thrustAcceleration );
     }
@@ -58,7 +58,7 @@ public:
      * Constructor
      */
     FromThrustMassRateModel(
-            const std::vector< boost::shared_ptr< ThrustAcceleration > > thrustAccelerations ):
+            const std::vector< std::shared_ptr< ThrustAcceleration > > thrustAccelerations ):
         thrustAccelerations_( thrustAccelerations ){ }
 
     //! Destructor.
@@ -95,7 +95,7 @@ public:
 private:
 
     //! List of thrust accelerations from which the total mass rate is to be computed.
-    std::vector< boost::shared_ptr< ThrustAcceleration > > thrustAccelerations_;
+    std::vector< std::shared_ptr< ThrustAcceleration > > thrustAccelerations_;
 };
 
 } // namespace propulsion

@@ -18,7 +18,7 @@
 #include <string>
 
 #include <boost/make_shared.hpp>
-#include <boost/shared_ptr.hpp>
+#include <memory>
 #include <boost/test/floating_point_comparison.hpp>
 #include <boost/test/unit_test.hpp>
 
@@ -51,7 +51,7 @@ BOOST_AUTO_TEST_CASE( testLinearFieldTransform1 )
     const double expectedValue = 39.0724;
 
     // Transform test string.
-    boost::shared_ptr< std::string > returnedValue =
+    std::shared_ptr< std::string > returnedValue =
             testLinearFieldTransform1.transform( testString );
 
     // Check that returned and expected strings are identical.
@@ -78,7 +78,7 @@ BOOST_AUTO_TEST_CASE( testLinearFieldTransform2 )
     const double expectedValue = 36.0;
 
     // Transform test string.
-    boost::shared_ptr< std::string > returnedValue =
+    std::shared_ptr< std::string > returnedValue =
             testLinearFieldTransform2.transform( testString );
 
     // Check that returned and expected strings are identical.
@@ -105,7 +105,7 @@ BOOST_AUTO_TEST_CASE( testLinearFieldTransform3 )
     const double expectedValue = -86.0272;
 
     // Transform test string.
-    boost::shared_ptr< std::string > returnedValue =
+    std::shared_ptr< std::string > returnedValue =
             testLinearFieldTransform3.transform( testString );
 
     // Check that returned and expected strings are identical.
@@ -129,7 +129,7 @@ BOOST_AUTO_TEST_CASE( testLinearFieldTransform4 )
     LinearFieldTransform testLinearFieldTransform4( 0.0, 0.0 );
 
     // Transform test string.
-    boost::shared_ptr< std::string > returnedValue =
+    std::shared_ptr< std::string > returnedValue =
             testLinearFieldTransform4.transform( testString );
 
     // Check that returned and expected strings are identical.

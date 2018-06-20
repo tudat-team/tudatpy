@@ -11,7 +11,7 @@
 #ifndef TUDAT_CREATEOBSERVATIONPARTIALS_H
 #define TUDAT_CREATEOBSERVATIONPARTIALS_H
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include "Tudat/Astrodynamics/ObservationModels/oneWayRangeObservationModel.h"
 #include "Tudat/Astrodynamics/ObservationModels/oneWayDopplerObservationModel.h"
@@ -31,7 +31,7 @@ namespace observation_partials
 
 //! Typedef for list of light time corrections for a list of link ends
 typedef std::map< observation_models::LinkEnds,
-std::vector< std::vector< boost::shared_ptr< observation_models::LightTimeCorrection > > > >
+std::vector< std::vector< std::shared_ptr< observation_models::LightTimeCorrection > > > >
 PerLinkEndPerLightTimeSolutionCorrections;
 
 //! Function to retrieve a list of light-time corrections per link end from a list of observation models.
@@ -42,17 +42,17 @@ PerLinkEndPerLightTimeSolutionCorrections;
  */
 template< typename ObservationScalarType, typename TimeType, int ObservationSize  >
 PerLinkEndPerLightTimeSolutionCorrections getLightTimeCorrectionsList(
-        const std::map< observation_models::LinkEnds, boost::shared_ptr< observation_models::ObservationModel<
+        const std::map< observation_models::LinkEnds, std::shared_ptr< observation_models::ObservationModel<
         ObservationSize, ObservationScalarType, TimeType> > > observationModels )
 {
     PerLinkEndPerLightTimeSolutionCorrections lightTimeCorrectionsList;
-    std::vector< std::vector< boost::shared_ptr< observation_models::LightTimeCorrection > > > currentLightTimeCorrections;
+    std::vector< std::vector< std::shared_ptr< observation_models::LightTimeCorrection > > > currentLightTimeCorrections;
 
     // Retrieve type of observable
     observation_models::ObservableType observableType = observationModels.begin( )->second->getObservableType( );
 
     // Iterate over link ends
-    for( typename  std::map< observation_models::LinkEnds, boost::shared_ptr< observation_models::ObservationModel<
+    for( typename  std::map< observation_models::LinkEnds, std::shared_ptr< observation_models::ObservationModel<
          ObservationSize, ObservationScalarType, TimeType> > >::const_iterator
          observationModelIterator = observationModels.begin( );
          observationModelIterator != observationModels.end( ); observationModelIterator++ )
@@ -66,16 +66,16 @@ PerLinkEndPerLightTimeSolutionCorrections getLightTimeCorrectionsList(
         }
         else
         {
-            std::vector< boost::shared_ptr< observation_models::LightTimeCorrection > > singleObservableCorrectionList;
+            std::vector< std::shared_ptr< observation_models::LightTimeCorrection > > singleObservableCorrectionList;
 
             // Check type of observable
             switch( observableType )
             {
             case observation_models::one_way_range:
             {
-                boost::shared_ptr< observation_models::OneWayRangeObservationModel
+                std::shared_ptr< observation_models::OneWayRangeObservationModel
                         < ObservationScalarType, TimeType> > oneWayRangeModel =
-                        boost::dynamic_pointer_cast< observation_models::OneWayRangeObservationModel
+                        std::dynamic_pointer_cast< observation_models::OneWayRangeObservationModel
                         < ObservationScalarType, TimeType> >
                         ( observationModelIterator->second );
                 singleObservableCorrectionList = (
@@ -84,9 +84,9 @@ PerLinkEndPerLightTimeSolutionCorrections getLightTimeCorrectionsList(
             }
             case observation_models::one_way_doppler:
             {
-                boost::shared_ptr< observation_models::OneWayDopplerObservationModel
+                std::shared_ptr< observation_models::OneWayDopplerObservationModel
                         < ObservationScalarType, TimeType> > oneWayRangeModel =
-                        boost::dynamic_pointer_cast< observation_models::OneWayDopplerObservationModel
+                        std::dynamic_pointer_cast< observation_models::OneWayDopplerObservationModel
                         < ObservationScalarType, TimeType> >
                         ( observationModelIterator->second );
                 singleObservableCorrectionList = (
@@ -95,9 +95,9 @@ PerLinkEndPerLightTimeSolutionCorrections getLightTimeCorrectionsList(
             }
             case observation_models::two_way_doppler:
             {
-                boost::shared_ptr< observation_models::TwoWayDopplerObservationModel
+                std::shared_ptr< observation_models::TwoWayDopplerObservationModel
                         < ObservationScalarType, TimeType> > twoWaDopplerModel =
-                        boost::dynamic_pointer_cast< observation_models::TwoWayDopplerObservationModel
+                        std::dynamic_pointer_cast< observation_models::TwoWayDopplerObservationModel
                         < ObservationScalarType, TimeType> >
                         ( observationModelIterator->second );
                 currentLightTimeCorrections.push_back(
@@ -108,9 +108,9 @@ PerLinkEndPerLightTimeSolutionCorrections getLightTimeCorrectionsList(
             }
             case observation_models::angular_position:
             {
-                boost::shared_ptr< observation_models::AngularPositionObservationModel
+                std::shared_ptr< observation_models::AngularPositionObservationModel
                         < ObservationScalarType, TimeType> > angularPositionModel =
-                        boost::dynamic_pointer_cast< observation_models::AngularPositionObservationModel
+                        std::dynamic_pointer_cast< observation_models::AngularPositionObservationModel
                         < ObservationScalarType, TimeType> >
                         ( observationModelIterator->second );
                 singleObservableCorrectionList = (
@@ -119,9 +119,9 @@ PerLinkEndPerLightTimeSolutionCorrections getLightTimeCorrectionsList(
             }
             case observation_models::one_way_differenced_range:
             {
-                boost::shared_ptr< observation_models::OneWayDifferencedRangeObservationModel
+                std::shared_ptr< observation_models::OneWayDifferencedRangeObservationModel
                         < ObservationScalarType, TimeType> > oneWayDifferencedRangeObservationModel =
-                        boost::dynamic_pointer_cast< observation_models::OneWayDifferencedRangeObservationModel
+                        std::dynamic_pointer_cast< observation_models::OneWayDifferencedRangeObservationModel
                         < ObservationScalarType, TimeType> >
                         ( observationModelIterator->second );
                 currentLightTimeCorrections.push_back(
@@ -135,10 +135,10 @@ PerLinkEndPerLightTimeSolutionCorrections getLightTimeCorrectionsList(
             }
             case observation_models::n_way_range:
             {
-                boost::shared_ptr< observation_models::NWayRangeObservationModel< ObservationScalarType, TimeType > > nWayRangeObservationModel =
-                        boost::dynamic_pointer_cast< observation_models::NWayRangeObservationModel< ObservationScalarType, TimeType > >
+                std::shared_ptr< observation_models::NWayRangeObservationModel< ObservationScalarType, TimeType > > nWayRangeObservationModel =
+                        std::dynamic_pointer_cast< observation_models::NWayRangeObservationModel< ObservationScalarType, TimeType > >
                         ( observationModelIterator->second );
-                std::vector< boost::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > > > lightTimeCalculatorList =
+                std::vector< std::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > > > lightTimeCalculatorList =
                          nWayRangeObservationModel->getLightTimeCalculators( );
                 for( unsigned int i = 0; i < lightTimeCalculatorList.size( ); i++ )
                 {
@@ -185,18 +185,18 @@ PerLinkEndPerLightTimeSolutionCorrections getLightTimeCorrectionsList(
 template< int ObservationSize >
 void splitObservationPartialsAndScalers(
         const std::map< observation_models::LinkEnds,
-        std::pair< std::map< std::pair< int, int >, boost::shared_ptr< ObservationPartial< ObservationSize > > >,
-        boost::shared_ptr< PositionPartialScaling > > >& observationPartialsAndScalers,
+        std::pair< std::map< std::pair< int, int >, std::shared_ptr< ObservationPartial< ObservationSize > > >,
+        std::shared_ptr< PositionPartialScaling > > >& observationPartialsAndScalers,
         std::map< observation_models::LinkEnds, std::map< std::pair< int, int >,
-        boost::shared_ptr< observation_partials::ObservationPartial< ObservationSize > > > >& observationPartials,
-        std::map< observation_models::LinkEnds, boost::shared_ptr< observation_partials::PositionPartialScaling  > >&
+        std::shared_ptr< observation_partials::ObservationPartial< ObservationSize > > > >& observationPartials,
+        std::map< observation_models::LinkEnds, std::shared_ptr< observation_partials::PositionPartialScaling  > >&
         observationPartialScalers )
 {
     observationPartials.clear( );
     observationPartialScalers.clear( );
     // Put one-way range partials and scalers in member variables.
-    for( typename std::map< observation_models::LinkEnds, std::pair< std::map< std::pair< int, int >, boost::shared_ptr< ObservationPartial< ObservationSize > > >,
-         boost::shared_ptr< PositionPartialScaling > > >::const_iterator
+    for( typename std::map< observation_models::LinkEnds, std::pair< std::map< std::pair< int, int >, std::shared_ptr< ObservationPartial< ObservationSize > > >,
+         std::shared_ptr< PositionPartialScaling > > >::const_iterator
          rangePartialPairIterator = observationPartialsAndScalers.begin( ); rangePartialPairIterator != observationPartialsAndScalers.end( );
          rangePartialPairIterator++ )
     {
@@ -233,14 +233,14 @@ public:
      * second: PositionPartialScaling object associated with all partials of single LinkEnds.
      */
     static std::map< observation_models::LinkEnds, std::pair< std::map< std::pair< int, int >,
-    boost::shared_ptr< ObservationPartial< ObservationSize > > >,
-    boost::shared_ptr< PositionPartialScaling > > > createObservationPartials(
+    std::shared_ptr< ObservationPartial< ObservationSize > > >,
+    std::shared_ptr< PositionPartialScaling > > > createObservationPartials(
             const observation_models::ObservableType observableType,
             const std::map< observation_models::LinkEnds,
-            boost::shared_ptr< observation_models::ObservationModel< ObservationSize, ObservationScalarType, TimeType > > >
+            std::shared_ptr< observation_models::ObservationModel< ObservationSize, ObservationScalarType, TimeType > > >
             observationModelList,
             const simulation_setup::NamedBodyMap& bodyMap,
-            const boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< ObservationScalarType > >
+            const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< ObservationScalarType > >
             parametersToEstimate );
 };
 
@@ -265,19 +265,19 @@ public:
      * second: PositionPartialScaling object associated with all partials of single LinkEnds.
      */
     static std::map< observation_models::LinkEnds, std::pair< std::map< std::pair< int, int >,
-    boost::shared_ptr< ObservationPartial< 1 > > >,
-    boost::shared_ptr< PositionPartialScaling > > > createObservationPartials(
+    std::shared_ptr< ObservationPartial< 1 > > >,
+    std::shared_ptr< PositionPartialScaling > > > createObservationPartials(
             const observation_models::ObservableType observableType,
             const std::map< observation_models::LinkEnds,
-            boost::shared_ptr< observation_models::ObservationModel< 1, ObservationScalarType, TimeType > > >
+            std::shared_ptr< observation_models::ObservationModel< 1, ObservationScalarType, TimeType > > >
             observationModelList,
             const simulation_setup::NamedBodyMap& bodyMap,
-            const boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< ObservationScalarType > >
+            const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< ObservationScalarType > >
             parametersToEstimate )
     {
         std::map< observation_models::LinkEnds, std::pair< std::map< std::pair< int, int >,
-                boost::shared_ptr< ObservationPartial< 1 > > >,
-                boost::shared_ptr< PositionPartialScaling > > > observationPartialList;
+                std::shared_ptr< ObservationPartial< 1 > > >,
+                std::shared_ptr< PositionPartialScaling > > > observationPartialList;
         switch( observableType )
         {
         case observation_models::one_way_range:
@@ -336,18 +336,18 @@ public:
      * second: PositionPartialScaling object associated with all partials of single LinkEnds.
      */
     static std::map< observation_models::LinkEnds, std::pair< std::map< std::pair< int, int >,
-    boost::shared_ptr< ObservationPartial< 2 > > >,
-    boost::shared_ptr< PositionPartialScaling > > > createObservationPartials(
+    std::shared_ptr< ObservationPartial< 2 > > >,
+    std::shared_ptr< PositionPartialScaling > > > createObservationPartials(
             const observation_models::ObservableType observableType,
             const std::map< observation_models::LinkEnds,
-            boost::shared_ptr< observation_models::ObservationModel< 2, ObservationScalarType, TimeType > > > observationModelList,
+            std::shared_ptr< observation_models::ObservationModel< 2, ObservationScalarType, TimeType > > > observationModelList,
             const simulation_setup::NamedBodyMap& bodyMap,
-            const boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< ObservationScalarType > >
+            const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< ObservationScalarType > >
             parametersToEstimate )
     {
         std::map< observation_models::LinkEnds, std::pair< std::map< std::pair< int, int >,
-                boost::shared_ptr< ObservationPartial< 2 > > >,
-                boost::shared_ptr< PositionPartialScaling > > > observationPartialList;
+                std::shared_ptr< ObservationPartial< 2 > > >,
+                std::shared_ptr< PositionPartialScaling > > > observationPartialList;
 
         switch( observableType )
         {
@@ -388,19 +388,19 @@ public:
      * second: PositionPartialScaling object associated with all partials of single LinkEnds.
      */
     static std::map< observation_models::LinkEnds, std::pair< std::map< std::pair< int, int >,
-    boost::shared_ptr< ObservationPartial< 3 > > >,
-    boost::shared_ptr< PositionPartialScaling > > > createObservationPartials(
+    std::shared_ptr< ObservationPartial< 3 > > >,
+    std::shared_ptr< PositionPartialScaling > > > createObservationPartials(
             const observation_models::ObservableType observableType,
             const std::map< observation_models::LinkEnds,
-            boost::shared_ptr< observation_models::ObservationModel< 3, ObservationScalarType, TimeType > > >
+            std::shared_ptr< observation_models::ObservationModel< 3, ObservationScalarType, TimeType > > >
             observationModelList,
             const simulation_setup::NamedBodyMap& bodyMap,
-            const boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< ObservationScalarType > >
+            const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< ObservationScalarType > >
             parametersToEstimate )
     {
         std::map< observation_models::LinkEnds, std::pair< std::map< std::pair< int, int >,
-                boost::shared_ptr< ObservationPartial< 3 > > >,
-                boost::shared_ptr< PositionPartialScaling > > > observationPartialList;
+                std::shared_ptr< ObservationPartial< 3 > > >,
+                std::shared_ptr< PositionPartialScaling > > > observationPartialList;
 
         switch( observableType )
         {
@@ -439,19 +439,19 @@ public:
      * second: PositionPartialScaling object associated with all partials of single LinkEnds.
      */
     static std::map< observation_models::LinkEnds, std::pair< std::map< std::pair< int, int >,
-    boost::shared_ptr< ObservationPartial< 6 > > >,
-    boost::shared_ptr< PositionPartialScaling > > > createObservationPartials(
+    std::shared_ptr< ObservationPartial< 6 > > >,
+    std::shared_ptr< PositionPartialScaling > > > createObservationPartials(
             const observation_models::ObservableType observableType,
             const std::map< observation_models::LinkEnds,
-            boost::shared_ptr< observation_models::ObservationModel< 6, ObservationScalarType, TimeType > > >
+            std::shared_ptr< observation_models::ObservationModel< 6, ObservationScalarType, TimeType > > >
             observationModelList,
             const simulation_setup::NamedBodyMap& bodyMap,
-            const boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< ObservationScalarType > >
+            const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< ObservationScalarType > >
             parametersToEstimate )
     {
         std::map< observation_models::LinkEnds, std::pair< std::map< std::pair< int, int >,
-                boost::shared_ptr< ObservationPartial< 6 > > >,
-                boost::shared_ptr< PositionPartialScaling > > > observationPartialList;
+                std::shared_ptr< ObservationPartial< 6 > > >,
+                std::shared_ptr< PositionPartialScaling > > > observationPartialList;
 
         switch( observableType )
         {
@@ -487,19 +487,19 @@ public:
      * second: PositionPartialScaling object associated with all partials of single LinkEnds.
      */
     static std::map< observation_models::LinkEnds, std::pair< std::map< std::pair< int, int >,
-    boost::shared_ptr< ObservationPartial< Eigen::Dynamic > > >,
-    boost::shared_ptr< PositionPartialScaling > > > createObservationPartials(
+    std::shared_ptr< ObservationPartial< Eigen::Dynamic > > >,
+    std::shared_ptr< PositionPartialScaling > > > createObservationPartials(
             const observation_models::ObservableType observableType,
             const std::map< observation_models::LinkEnds,
-            boost::shared_ptr< observation_models::ObservationModel< Eigen::Dynamic, ObservationScalarType, TimeType > > >
+            std::shared_ptr< observation_models::ObservationModel< Eigen::Dynamic, ObservationScalarType, TimeType > > >
             observationModelList,
             const simulation_setup::NamedBodyMap& bodyMap,
-            const boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< ObservationScalarType > >
+            const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< ObservationScalarType > >
             parametersToEstimate )
     {
         std::map< observation_models::LinkEnds, std::pair< std::map< std::pair< int, int >,
-                boost::shared_ptr< ObservationPartial< Eigen::Dynamic > > >,
-                boost::shared_ptr< PositionPartialScaling > > > observationPartialList;
+                std::shared_ptr< ObservationPartial< Eigen::Dynamic > > >,
+                std::shared_ptr< PositionPartialScaling > > > observationPartialList;
 
         switch( observableType )
         {

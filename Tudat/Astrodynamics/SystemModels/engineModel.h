@@ -12,7 +12,7 @@
 #define TUDAT_ENGINEMODEL_H
 
 #include <Eigen/Core>
-#include <boost/function.hpp>
+#include <functional>
 
 #include "Tudat/Astrodynamics/Propulsion/thrustFunctions.h"
 
@@ -121,8 +121,8 @@ public:
      *  to the positive x-direction, along the longitudinal axis.
      */
     DirectEngineModel(
-            const boost::function< double( ) > specificImpulseFunction,
-            const boost::function< double( ) > massFlowFunction,
+            const std::function< double( ) > specificImpulseFunction,
+            const std::function< double( ) > massFlowFunction,
             const Eigen::Vector3d bodyFixedThrustDirection = Eigen::Vector3d::UnitX( ) ):
         EngineModel( bodyFixedThrustDirection ),
         specificImpulseFunction_( specificImpulseFunction ),
@@ -154,10 +154,10 @@ public:
 protected:
 
     //! Variable specific impulse of engine (no input arguments provided; must be updated by associated guidance law).
-    boost::function< double( ) > specificImpulseFunction_;
+    std::function< double( ) > specificImpulseFunction_;
 
     //! Variable mass flow function (no input arguments provided; must be updated by associated guidance law).
-    boost::function< double( ) > massFlowFunction_;
+    std::function< double( ) > massFlowFunction_;
 };
 
 } // namespace system_models

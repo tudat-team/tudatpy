@@ -11,7 +11,7 @@
 #ifndef TUDAT_METRIC_H
 #define TUDAT_METRIC_H
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include <Eigen/Core>
 
@@ -98,7 +98,7 @@ protected:
 };
 
 //! Global PPN parameter set, initialized upon compilation (with values equal to GR).
-extern boost::shared_ptr< PPNParameterSet > ppnParameterSet;
+extern std::shared_ptr< PPNParameterSet > ppnParameterSet;
 
 //! Global parameter denoting EP violation in proper time rate, initialized to GR value of 0 upon compilation.
 extern double equivalencePrincipleLpiViolationParameter;

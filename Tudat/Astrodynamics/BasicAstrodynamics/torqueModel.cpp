@@ -7,7 +7,7 @@ namespace basic_astrodynamics
 {
 
 Eigen::Vector3d updateAndGetTorque(
-        const boost::shared_ptr< TorqueModel > torqueModel,
+        const std::shared_ptr< TorqueModel > torqueModel,
         const double currentTime )
 {
     // Update members.

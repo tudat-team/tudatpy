@@ -15,7 +15,7 @@
 #include <map>
 
 #include <boost/lambda/lambda.hpp>
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include <Eigen/Core>
 
@@ -223,7 +223,7 @@ private:
 };
 
 //! Typedef for shared-pointer to CentralJ2J3J4GravitationalAccelerationModel.
-typedef boost::shared_ptr< CentralJ2J3J4GravitationalAccelerationModel >
+typedef std::shared_ptr< CentralJ2J3J4GravitationalAccelerationModel >
 CentralJ2J3J4GravitationalAccelerationModelPointer;
 
 } // namespace gravitation

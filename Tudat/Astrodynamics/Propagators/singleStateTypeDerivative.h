@@ -13,6 +13,8 @@
 
 #include <Eigen/Core>
 
+#include "Tudat/Basics/timeType.h"
+
 namespace tudat
 {
 
@@ -183,6 +185,11 @@ protected:
 
 };
 
+extern template class SingleStateTypeDerivative< double, double >;
+extern template class SingleStateTypeDerivative< long double, double >;
+extern template class SingleStateTypeDerivative< double, Time >;
+extern template class SingleStateTypeDerivative< long double, Time >;
+
 
 } // namespace propagators
 
@@ -207,5 +214,6 @@ struct hash< tudat::propagators::IntegratedStateType >
 };
 
 } // namespace std
+
 
 #endif // TUDAT_STATEDERIVATIVE_H

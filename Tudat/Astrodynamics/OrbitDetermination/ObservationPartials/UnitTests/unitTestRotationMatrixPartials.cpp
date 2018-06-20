@@ -39,15 +39,15 @@ BOOST_AUTO_TEST_CASE( testSimpleRotationalEphemerisPartials )
 
     // Create rotation model
     double nominalRotationRate = 2.0 * mathematical_constants::PI / 86400.0;
-    boost::shared_ptr< SimpleRotationalEphemeris > rotationalEphemeris =
-            boost::make_shared< SimpleRotationalEphemeris >(
+    std::shared_ptr< SimpleRotationalEphemeris > rotationalEphemeris =
+            std::make_shared< SimpleRotationalEphemeris >(
                 spice_interface::computeRotationQuaternionBetweenFrames( "ECLIPJ2000", "IAU_Earth", 1.0E7 ),
                 nominalRotationRate, 1.0E7, "ECLIPJ2000", "IAU_Earth" );
 
     {
         // Create partial object.
-        boost::shared_ptr< RotationMatrixPartialWrtConstantRotationRate > rotationMatrixPartialObject =
-                boost::make_shared< RotationMatrixPartialWrtConstantRotationRate >( rotationalEphemeris );
+        std::shared_ptr< RotationMatrixPartialWrtConstantRotationRate > rotationMatrixPartialObject =
+                std::make_shared< RotationMatrixPartialWrtConstantRotationRate >( rotationalEphemeris );
 
         // Compute partial analytically
         double testTime = 1.0E6;
@@ -103,8 +103,8 @@ BOOST_AUTO_TEST_CASE( testSimpleRotationalEphemerisPartials )
 
     {
         // Create partial object.
-        boost::shared_ptr< RotationMatrixPartialWrtPoleOrientation > rotationMatrixPartialObject =
-                boost::make_shared< RotationMatrixPartialWrtPoleOrientation >( rotationalEphemeris );
+        std::shared_ptr< RotationMatrixPartialWrtPoleOrientation > rotationMatrixPartialObject =
+                std::make_shared< RotationMatrixPartialWrtPoleOrientation >( rotationalEphemeris );
 
         // Compute partial analytically
         double testTime = 1.0E6;

@@ -30,11 +30,11 @@ BOOST_AUTO_TEST_CASE( test_json_spice_standard )
     using namespace json_interface;
 
     // Create SpiceSettings from JSON file
-    const boost::shared_ptr< SpiceSettings > fromFileSettings =
-            parseJSONFile< boost::shared_ptr< SpiceSettings > >( INPUT( "standard" ) );
+    const std::shared_ptr< SpiceSettings > fromFileSettings =
+            parseJSONFile< std::shared_ptr< SpiceSettings > >( INPUT( "standard" ) );
 
     // Create SpiceSettings manually
-    boost::shared_ptr< SpiceSettings > manualSettings = boost::make_shared< SpiceSettings >( );
+    std::shared_ptr< SpiceSettings > manualSettings = std::make_shared< SpiceSettings >( );
     manualSettings->useStandardKernels_ = true;
     manualSettings->preloadEphemeris_ = true;
     manualSettings->interpolationOffsets_ = { 10.0, 400.0 };
@@ -49,11 +49,11 @@ BOOST_AUTO_TEST_CASE( test_json_spice_alternative )
     using namespace json_interface;
 
     // Create SpiceSettings from JSON file
-    const boost::shared_ptr< SpiceSettings > fromFileSettings =
-            parseJSONFile< boost::shared_ptr< SpiceSettings > >( INPUT( "alternative" ) );
+    const std::shared_ptr< SpiceSettings > fromFileSettings =
+            parseJSONFile< std::shared_ptr< SpiceSettings > >( INPUT( "alternative" ) );
 
     // Create SpiceSettings manually
-    boost::shared_ptr< SpiceSettings > manualSettings = boost::make_shared< SpiceSettings >( );
+    std::shared_ptr< SpiceSettings > manualSettings = std::make_shared< SpiceSettings >( );
     manualSettings->useStandardKernels_ = true;
     manualSettings->alternativeKernels_ = { "foo.txt", "oof.txt" };
     manualSettings->preloadEphemeris_ = false;
@@ -68,11 +68,11 @@ BOOST_AUTO_TEST_CASE( test_json_spice_custom )
     using namespace json_interface;
 
     // Create SpiceSettings from JSON file
-    const boost::shared_ptr< SpiceSettings > fromFileSettings =
-            parseJSONFile< boost::shared_ptr< SpiceSettings > >( INPUT( "custom" ) );
+    const std::shared_ptr< SpiceSettings > fromFileSettings =
+            parseJSONFile< std::shared_ptr< SpiceSettings > >( INPUT( "custom" ) );
 
     // Create SpiceSettings manually
-    boost::shared_ptr< SpiceSettings > manualSettings = boost::make_shared< SpiceSettings >( );
+    std::shared_ptr< SpiceSettings > manualSettings = std::make_shared< SpiceSettings >( );
     manualSettings->useStandardKernels_ = false;
     manualSettings->kernels_ = { "foo.txt" };
     manualSettings->preloadEphemeris_ = true;
