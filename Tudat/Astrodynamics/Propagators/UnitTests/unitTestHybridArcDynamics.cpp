@@ -43,9 +43,9 @@ void resetMarsEphemeris(
             createBodyEphemeris( getDefaultEphemerisSettings( "Mars", ephemerisStartTime, ephemerisEndTime ), "Mars" );
 
     std::shared_ptr< OneDimensionalInterpolator< double, Eigen::Vector6d > > defaultMarsStateInterpolator =
-            boost::dynamic_pointer_cast< TabulatedCartesianEphemeris< double, double > >( marsEphemeris )->getInterpolator( );
+            std::dynamic_pointer_cast< TabulatedCartesianEphemeris< double, double > >( marsEphemeris )->getInterpolator( );
 
-    boost::dynamic_pointer_cast< TabulatedCartesianEphemeris< double, double > >(
+    std::dynamic_pointer_cast< TabulatedCartesianEphemeris< double, double > >(
                 bodyMap.at( "Mars" )->getEphemeris( ) )->resetInterpolator( defaultMarsStateInterpolator );
 }
 

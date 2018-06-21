@@ -138,7 +138,7 @@ public:
     {
         cosineCoefficients_ = cosineCoefficients;
 
-        if( !updateInertiaTensor_.empty( ) )
+        if( !( updateInertiaTensor_ == nullptr ) )
         {
             updateInertiaTensor_( );
         }
@@ -152,7 +152,7 @@ public:
     void setSineCoefficients( const Eigen::MatrixXd& sineCoefficients )
     {
         sineCoefficients_ = sineCoefficients;
-        if( !updateInertiaTensor_.empty( ) )
+        if( !( updateInertiaTensor_ == nullptr ) )
         {
             updateInertiaTensor_( );
         }

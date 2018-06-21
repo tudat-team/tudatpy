@@ -220,9 +220,9 @@ BOOST_AUTO_TEST_CASE( testSecondDegreeGravitationalTorquePartials )
 
     // Create state access/modification functions for bodies.
     std::function< void( Eigen::Vector7d ) > phobosRotationalStateSetFunction =
-            std::bind( &Body::setCurrentRotationalStateToLocalFrame, phobos, _1 );
+            std::bind( &Body::setCurrentRotationalStateToLocalFrame, phobos, std::placeholders::_1 );
     std::function< void( Eigen::Vector7d ) > marsRotationalStateSetFunction =
-            std::bind( &Body::setCurrentRotationalStateToLocalFrame, mars, _1 );
+            std::bind( &Body::setCurrentRotationalStateToLocalFrame, mars, std::placeholders::_1 );
 
     //    // Calculate numerical partials.
     std::vector< Eigen::Vector4d > appliedQuaternionPerturbation;
@@ -240,9 +240,9 @@ BOOST_AUTO_TEST_CASE( testSecondDegreeGravitationalTorquePartials )
 
 
     std::function< void( Eigen::Vector6d ) > phobosStateSetFunction =
-            std::bind( &Body::setState,  phobos, _1 );
+            std::bind( &Body::setState,  phobos, std::placeholders::_1 );
     std::function< void( Eigen::Vector6d ) > marsStateSetFunction =
-            std::bind( &Body::setState, mars, _1 );
+            std::bind( &Body::setState, mars, std::placeholders::_1 );
 
     Eigen::Vector3d positionPerturbation;
     positionPerturbation << 1.0, 1.0, 100.0;
@@ -506,9 +506,9 @@ BOOST_AUTO_TEST_CASE( testInertialTorquePartials )
 
     // Create state access/modification functions for bodies.
     std::function< void( Eigen::Vector7d ) > phobosRotationalStateSetFunction =
-            std::bind( &Body::setCurrentRotationalStateToLocalFrame, phobos, _1 );
+            std::bind( &Body::setCurrentRotationalStateToLocalFrame, phobos, std::placeholders::_1 );
     std::function< void( Eigen::Vector7d ) > marsRotationalStateSetFunction =
-            std::bind( &Body::setCurrentRotationalStateToLocalFrame, mars, _1 );
+            std::bind( &Body::setCurrentRotationalStateToLocalFrame, mars, std::placeholders::_1 );
 
     //    // Calculate numerical partials.
     std::vector< Eigen::Vector4d > appliedQuaternionPerturbation;
@@ -526,9 +526,9 @@ BOOST_AUTO_TEST_CASE( testInertialTorquePartials )
 
 
     std::function< void( Eigen::Vector6d ) > phobosStateSetFunction =
-            std::bind( &Body::setState,  phobos, _1 );
+            std::bind( &Body::setState,  phobos, std::placeholders::_1 );
     std::function< void( Eigen::Vector6d ) > marsStateSetFunction =
-            std::bind( &Body::setState, mars, _1 );
+            std::bind( &Body::setState, mars, std::placeholders::_1 );
 
     Eigen::Vector3d positionPerturbation;
     positionPerturbation << 1.0, 1.0, 100.0;
@@ -836,9 +836,9 @@ BOOST_AUTO_TEST_CASE( testConstantTorquePartials )
 
     // Create state access/modification functions for bodies.
     std::function< void( Eigen::Vector7d ) > phobosRotationalStateSetFunction =
-            std::bind( &Body::setCurrentRotationalStateToLocalFrame, phobos, _1 );
+            std::bind( &Body::setCurrentRotationalStateToLocalFrame, phobos, std::placeholders::_1 );
     std::function< void( Eigen::Vector7d ) > marsRotationalStateSetFunction =
-            std::bind( &Body::setCurrentRotationalStateToLocalFrame, mars, _1 );
+            std::bind( &Body::setCurrentRotationalStateToLocalFrame, mars, std::placeholders::_1 );
 
     //    // Calculate numerical partials.
     std::vector< Eigen::Vector4d > appliedQuaternionPerturbation;
@@ -856,9 +856,9 @@ BOOST_AUTO_TEST_CASE( testConstantTorquePartials )
 
 
     std::function< void( Eigen::Vector6d ) > phobosStateSetFunction =
-            std::bind( &Body::setState,  phobos, _1 );
+            std::bind( &Body::setState,  phobos, std::placeholders::_1 );
     std::function< void( Eigen::Vector6d ) > marsStateSetFunction =
-            std::bind( &Body::setState, mars, _1 );
+            std::bind( &Body::setState, mars, std::placeholders::_1 );
 
     Eigen::Vector3d positionPerturbation;
     positionPerturbation << 1.0, 1.0, 100.0;

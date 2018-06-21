@@ -52,13 +52,13 @@ NamedBodyMap getTestBodyMap( const double phobosSemiMajorAxis,
     bodyMap[ "Mars" ]->setEphemeris( createBodyEphemeris(
                                          getDefaultEphemerisSettings( "Mars" ), "Mars" ) );
     std::shared_ptr< SphericalHarmonicsGravityFieldSettings > marsGravityFieldSettings =
-            boost::dynamic_pointer_cast< SphericalHarmonicsGravityFieldSettings >(
+            std::dynamic_pointer_cast< SphericalHarmonicsGravityFieldSettings >(
                 getDefaultGravityFieldSettings( "Mars", TUDAT_NAN, TUDAT_NAN ) );
     marsGravityFieldSettings->resetGravitationalParameter( spice_interface::getBodyGravitationalParameter( "Mars" ) );
     bodyMap[ "Mars" ]->setGravityFieldModel(
                 createGravityFieldModel( marsGravityFieldSettings, "Mars", bodyMap ) );
-//                std::make_shared< gravitation::GravityFieldModel >(
-//                    spice_interface::getBodyGravitationalParameter( "Mars" ) ) );
+    //                std::make_shared< gravitation::GravityFieldModel >(
+    //                    spice_interface::getBodyGravitationalParameter( "Mars" ) ) );
 
     bodyMap[ "Mars" ]->setRotationalEphemeris(
                 createRotationModel( getDefaultRotationModelSettings(
@@ -101,7 +101,7 @@ NamedBodyMap getTestBodyMap( const double phobosSemiMajorAxis,
                 std::make_shared< gravitation::SphericalHarmonicsGravityField >(
                     phobosGravitationalParameter, phobosReferenceRadius, phobosCosineGravityFieldCoefficients,
                     phobosSineGravityFieldCoefficients, "Phobos_Fixed",
-                     std::bind( &Body::setBodyInertiaTensorFromGravityFieldAndExistingMeanMoment, bodyMap.at( "Phobos" ), true ) ) );
+                    std::bind( &Body::setBodyInertiaTensorFromGravityFieldAndExistingMeanMoment, bodyMap.at( "Phobos" ), true ) ) );
 
 
 
@@ -127,7 +127,7 @@ NamedBodyMap getTestBodyMap( const double phobosSemiMajorAxis,
     bodyMap[ "Phobos" ]->setEphemeris(
                 ephemerides::getTabulatedEphemeris( std::make_shared< ephemerides::KeplerEphemeris >(
                                                         phobosKeplerElements, 0.0, spice_interface::getBodyGravitationalParameter( "Mars" ),
-                                                        "Mars", "ECLIPJ2000" ), -3600.0, 40.0 * 86400.0 + 3600.0, 120.0,
+                                                        "Mars", "ECLIPJ2000" ), -3600.0, 120.0 * 86400.0 + 3600.0, 120.0,
                                                     std::make_shared< interpolators::LagrangeInterpolatorSettings >( 8 ), "Mars" ) );
 
     return bodyMap;
@@ -141,11 +141,11 @@ BOOST_AUTO_TEST_CASE( test_RotationalDynamicsEstimationFromLanderData )
     // Retrieve list of body objects.
     NamedBodyMap bodyMap = getTestBodyMap( 9376.0E3, 0 );
     createGroundStation( bodyMap.at( "Phobos" ), "Lander", ( Eigen::Vector3d( ) << 0.1, 0.35, 0.0 ).finished( ), geodetic_position );
-    setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );
+    setGlobalFrameBodyEphemerides( bodyMap, "Mars", "ECLIPJ2000" );
 
     // Define time range of test.
     double initialEphemerisTime = 0.0;
-    double finalEphemerisTime = initialEphemerisTime + 40.0 * 86400.0;
+    double finalEphemerisTime = initialEphemerisTime + 60.0 * 86400.0;
 
     // Set torques between bodies that are to be taken into account.
     std::vector< std::string > bodiesToIntegrate;
@@ -157,8 +157,8 @@ BOOST_AUTO_TEST_CASE( test_RotationalDynamicsEstimationFromLanderData )
                                    std::pow( phobosSemiMajorAxis, 3.0 ) );
 
     // Define initial rotational state
-    double initialAnglePerturbation = 1.0E-6;
-    double initialRotationRatePerturbation = 1.0E-6;
+    double initialAnglePerturbation = 1.0E-2;
+    double initialRotationRatePerturbation = 1.0E-2;
 
     Eigen::Quaterniond nominalInitialRotation =
             Eigen::Quaterniond( Eigen::AngleAxisd( -initialAnglePerturbation, Eigen::Vector3d::UnitZ( ) ) );
@@ -177,9 +177,10 @@ BOOST_AUTO_TEST_CASE( test_RotationalDynamicsEstimationFromLanderData )
                 bodyMap, torqueMap, bodiesToIntegrate );
 
     // Define integrator settings.
+    double timeStep = 60.0;
     std::shared_ptr< IntegratorSettings< > > integratorSettings =
             std::make_shared< IntegratorSettings< > >
-            ( rungeKutta4, initialEphemerisTime, 5.0 );
+            ( rungeKutta4, initialEphemerisTime, timeStep );
 
     // Define propagator settings.
     std::shared_ptr< RotationalStatePropagatorSettings< double > > propagatorSettings =
@@ -201,7 +202,9 @@ BOOST_AUTO_TEST_CASE( test_RotationalDynamicsEstimationFromLanderData )
                 std::make_shared< InitialRotationalStateEstimatableParameterSettings< double > >(
                     "Phobos", systemInitialState ) );
     parameterNames.push_back( std::make_shared< SphericalHarmonicEstimatableParameterSettings >(
-                                  2, 0, 2, 2, "Phobos", spherical_harmonics_cosine_coefficient_block ) );
+                                  2, 1, 2, 2, "Phobos", spherical_harmonics_cosine_coefficient_block ) );
+    parameterNames.push_back( std::make_shared< SphericalHarmonicEstimatableParameterSettings >(
+                                  2, 1, 2, 2, "Phobos", spherical_harmonics_sine_coefficient_block ) );
 
     // Create parameters
     std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > parametersToEstimate =
@@ -221,9 +224,6 @@ BOOST_AUTO_TEST_CASE( test_RotationalDynamicsEstimationFromLanderData )
                                                            std::make_shared< ObservationSettings >( currentObservable ) ) );
         }
     }
-
-//    std::cout<<"Pre inertia tensor "<<std::setprecision( 16 )<<bodyMap.at( "Phobos" )->getBodyInertiaTensor( )<<std::endl;
-//    std::cout<<std::setprecision( 6 )<<std::endl;
 
     OrbitDeterminationManager< double, double > orbitDeterminationManager =
             OrbitDeterminationManager< double, double >(
@@ -265,14 +265,11 @@ BOOST_AUTO_TEST_CASE( test_RotationalDynamicsEstimationFromLanderData )
             parametersToEstimate->template getFullParameterValues< double >( );
     Eigen::Matrix< double, Eigen::Dynamic, 1 > truthParameters = initialParameterEstimate;
     int numberOfParameters = initialParameterEstimate.rows( );
-//    initialParameterEstimate( 1 ) += 1.0E-5;
+    //    initialParameterEstimate( 1 ) += 1.0E-5;
     initialParameterEstimate( 2 ) -= 1.0E-5;
 
     initialParameterEstimate.segment( 0, 4 ).normalize( );
     initialParameterEstimate( 4 ) += 1.0E-7;
-
-    initialParameterEstimate( 8 ) += 1.0E-3;
-    initialParameterEstimate( 9 ) += 1.0E-3;
 
     // Define estimation input
     std::shared_ptr< PodInput< double, double  > > podInput =
@@ -284,34 +281,44 @@ BOOST_AUTO_TEST_CASE( test_RotationalDynamicsEstimationFromLanderData )
     std::shared_ptr< PodOutput< double > > podOutput = orbitDeterminationManager.estimateParameters(
                 podInput, std::make_shared< EstimationConvergenceChecker >( 3 ) );
 
-//    std::cout<<podOutput->parameterEstimate_.transpose( )<<std::endl;
+    BOOST_CHECK_SMALL( std::fabs( podOutput->residualStandardDeviation_ ), 1.0E-3 );
+
+    //    std::cout<<podOutput->parameterEstimate_.transpose( )<<std::endl;
     for( unsigned int i = 0; i < 4; i++ )
     {
-        BOOST_CHECK_SMALL( std::fabs( podOutput->parameterEstimate_( i ) - truthParameters( i ) ), 1.0E-10 );
+        BOOST_CHECK_SMALL( std::fabs( podOutput->parameterEstimate_( i ) - truthParameters( i ) ), 5.0E-7 );
     }
 
     for( unsigned int i = 0; i < 3; i++ )
     {
-        BOOST_CHECK_SMALL( std::fabs( podOutput->parameterEstimate_( i + 4 ) - truthParameters( i + 4 ) ), 1.0E-14 );
+        BOOST_CHECK_SMALL( std::fabs( podOutput->parameterEstimate_( i + 4 ) - truthParameters( i + 4 ) ), 5.0E-10 );
+    }
+
+
+    for( unsigned int i = 0; i < 2; i++ )
+    {
+        BOOST_CHECK_SMALL( std::fabs( podOutput->parameterEstimate_( i + 7 ) - truthParameters( i + 7 ) ), 1.0E-10 );
+        BOOST_CHECK_SMALL( std::fabs( podOutput->parameterEstimate_( i + 9 ) - truthParameters( i + 9 ) ), 1.0E-7 );
+
     }
     std::cout<<( podOutput->parameterEstimate_ - truthParameters ).transpose( )<<std::endl;
 
-//    std::cout<<"Post inertia tensor "<<std::setprecision( 16 )<<bodyMap.at( "Phobos" )->getBodyInertiaTensor( )<<std::endl;
+    //    std::cout<<"Post inertia tensor "<<std::setprecision( 16 )<<bodyMap.at( "Phobos" )->getBodyInertiaTensor( )<<std::endl;
 
-    input_output::writeMatrixToFile( podOutput->normalizedInformationMatrix_,
-                                     "rotationInformationMatrix.dat", 16 );
-    input_output::writeMatrixToFile( podOutput->getCorrelationMatrix( ),
-                                     "rotationCorrelations.dat", 16 );
-    input_output::writeMatrixToFile( podOutput->inverseNormalizedCovarianceMatrix_,
-                                     "rotationInverseNormalizedCovariance.dat", 16 );
-    input_output::writeMatrixToFile( podOutput->getFormalErrorVector( ),
-                                     "rotationFormalEstimationError.dat", 16 );
-    input_output::writeMatrixToFile( truthParameters,
-                                     "rotationTruthParameters.dat", 16 );
-    input_output::writeMatrixToFile( podOutput->residuals_,
-                                     "rotationResiduals.dat", 16 );
-    input_output::writeMatrixToFile( podOutput->informationMatrixTransformationDiagonal_,
-                                     "rotationParameterNormalization.dat", 16 );
+    //        input_output::writeMatrixToFile( podOutput->normalizedInformationMatrix_,
+    //                                         "rotationInformationMatrix.dat", 16 );
+    //        input_output::writeMatrixToFile( podOutput->getCorrelationMatrix( ),
+    //                                         "rotationCorrelations.dat", 16 );
+    //        input_output::writeMatrixToFile( podOutput->inverseNormalizedCovarianceMatrix_,
+    //                                         "rotationInverseNormalizedCovariance.dat", 16 );
+    //        input_output::writeMatrixToFile( podOutput->getFormalErrorVector( ),
+    //                                         "rotationFormalEstimationError.dat", 16 );
+    //        input_output::writeMatrixToFile( truthParameters,
+    //                                         "rotationTruthParameters.dat", 16 );
+    //        input_output::writeMatrixToFile( podOutput->residuals_,
+    //                                         "rotationResiduals.dat", 16 );
+    //        input_output::writeMatrixToFile( podOutput->informationMatrixTransformationDiagonal_,
+    //                                         "rotationParameterNormalization.dat", 16 );
 }
 
 BOOST_AUTO_TEST_CASE( test_RotationalTranslationalDynamicsEstimationFromLanderData )
@@ -322,7 +329,7 @@ BOOST_AUTO_TEST_CASE( test_RotationalTranslationalDynamicsEstimationFromLanderDa
     // Retrieve list of body objects.
     NamedBodyMap bodyMap = getTestBodyMap( 9376.0E3, 0 );
     createGroundStation( bodyMap.at( "Phobos" ), "Lander", ( Eigen::Vector3d( ) << 0.1, 0.35, 0.0 ).finished( ), geodetic_position );
-    setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );
+    setGlobalFrameBodyEphemerides( bodyMap, "Mars", "ECLIPJ2000" );
 
     // Define time range of test.
     double initialEphemerisTime = 0.0;
@@ -338,8 +345,8 @@ BOOST_AUTO_TEST_CASE( test_RotationalTranslationalDynamicsEstimationFromLanderDa
                                    std::pow( phobosSemiMajorAxis, 3.0 ) );
 
     // Define initial rotational state
-    double initialAnglePerturbation = 1.0E-6;
-    double initialRotationRatePerturbation = 1.0E-6;
+    double initialAnglePerturbation = 1.0E-2;
+    double initialRotationRatePerturbation = 1.0E-2;
 
     Eigen::Quaterniond nominalInitialRotation =
             Eigen::Quaterniond( Eigen::AngleAxisd( -initialAnglePerturbation, Eigen::Vector3d::UnitZ( ) ) );
@@ -364,8 +371,8 @@ BOOST_AUTO_TEST_CASE( test_RotationalTranslationalDynamicsEstimationFromLanderDa
 
     // Define acceleration model settings.
     std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfPhobos;
-    accelerationsOfPhobos[ "Mars" ].push_back( std::make_shared< AccelerationSettings >( central_gravity ) );
-    //accelerationsOfPhobos[ "Mars" ].push_back( std::make_shared< MutualSphericalHarmonicAccelerationSettings >( 7, 7, 2, 2 ) );
+    //accelerationsOfPhobos[ "Mars" ].push_back( std::make_shared< AccelerationSettings >( central_gravity ) );
+    accelerationsOfPhobos[ "Mars" ].push_back( std::make_shared< MutualSphericalHarmonicAccelerationSettings >( 2, 2, 2, 2 ) );
 
     accelerationMap[ "Phobos" ] = accelerationsOfPhobos;
 
@@ -377,7 +384,7 @@ BOOST_AUTO_TEST_CASE( test_RotationalTranslationalDynamicsEstimationFromLanderDa
                 bodyMap, accelerationMap, translationalBodiesToPropagate, translationalCentralBodies );
 
     // Define integrator settings.
-    double timeStep = 180.0;
+    double timeStep = 120.0;
     std::shared_ptr< IntegratorSettings< > > integratorSettings =
             std::make_shared< RungeKuttaVariableStepSizeSettings< > >
             ( rungeKuttaVariableStepSize, initialEphemerisTime, timeStep,
@@ -424,6 +431,10 @@ BOOST_AUTO_TEST_CASE( test_RotationalTranslationalDynamicsEstimationFromLanderDa
     parameterNames.push_back(
                 std::make_shared< InitialRotationalStateEstimatableParameterSettings< double > >(
                     "Phobos", systemInitialState ) );
+    parameterNames.push_back( std::make_shared< SphericalHarmonicEstimatableParameterSettings >(
+                                  2, 0, 2, 2, "Phobos", spherical_harmonics_cosine_coefficient_block ) );
+    parameterNames.push_back( std::make_shared< SphericalHarmonicEstimatableParameterSettings >(
+                                  2, 1, 2, 2, "Phobos", spherical_harmonics_sine_coefficient_block ) );
 
 
     // Create parameters
@@ -449,6 +460,10 @@ BOOST_AUTO_TEST_CASE( test_RotationalTranslationalDynamicsEstimationFromLanderDa
             OrbitDeterminationManager< double, double >(
                 bodyMap, parametersToEstimate, observationSettingsMap,
                 integratorSettings, propagatorSettings );
+
+    std::map< double, Eigen::Matrix< double, Eigen::Dynamic, 1 > > originalStateHistory =
+            orbitDeterminationManager.getVariationalEquationsSolver( )->getDynamicsSimulatorBase( )->getEquationsOfMotionNumericalSolutionBase( )[ 0 ];
+
 
     std::vector< double > observationTimes;
     double currentTime = initialEphemerisTime + 1800.0;
@@ -484,8 +499,9 @@ BOOST_AUTO_TEST_CASE( test_RotationalTranslationalDynamicsEstimationFromLanderDa
     Eigen::Matrix< double, Eigen::Dynamic, 1 > initialParameterEstimate =
             parametersToEstimate->template getFullParameterValues< double >( );
     Eigen::Matrix< double, Eigen::Dynamic, 1 > truthParameters = initialParameterEstimate;
-    //    initialParameterEstimate( 1 ) += 1.0E-5;
-    initialParameterEstimate( 8 ) -= 1.0E-5;
+    initialParameterEstimate( 7 ) -= 1.0E-5;
+    initialParameterEstimate( 8 ) += 1.0E-5;
+    initialParameterEstimate( 9 ) += 1.0E-5;
 
     initialParameterEstimate.segment( 6, 4 ).normalize( );
     initialParameterEstimate( 10 ) += 1.0E-7;
@@ -494,54 +510,74 @@ BOOST_AUTO_TEST_CASE( test_RotationalTranslationalDynamicsEstimationFromLanderDa
     initialParameterEstimate( 1 ) += 1.0;
     initialParameterEstimate( 2 ) += 1.0;
 
+    initialParameterEstimate( 13 ) += 1.0E-6;
+    initialParameterEstimate( 14 ) += 1.0E-6;
+    initialParameterEstimate( 15 ) += 1.0E-6;
+    initialParameterEstimate( 16 ) += 1.0E-6;
+    initialParameterEstimate( 17 ) += 1.0E-6;
+
     std::cout<<"Truth: "<<( truthParameters ).transpose( )<<std::endl;
     std::cout<<"New: "<<( initialParameterEstimate ).transpose( )<<std::endl;
 
+    int parameterSize = initialParameterEstimate.rows( );
     // Define estimation input
     std::shared_ptr< PodInput< double, double  > > podInput =
             std::make_shared< PodInput< double, double > >(
-                observationsAndTimes, 13,
-                Eigen::MatrixXd::Zero( 13, 13 ), initialParameterEstimate - truthParameters );
-    podInput->defineEstimationSettings( true, false );
+                observationsAndTimes, parameterSize,
+                Eigen::MatrixXd::Zero( parameterSize, parameterSize ), initialParameterEstimate - truthParameters );
+    podInput->defineEstimationSettings( true, false, true, true, true, true );
 
     // Perform estimation
     std::shared_ptr< PodOutput< double > > podOutput = orbitDeterminationManager.estimateParameters(
-                podInput, std::make_shared< EstimationConvergenceChecker >( 4 ) );
+                podInput, std::make_shared< EstimationConvergenceChecker >( 6 ) );
 
-    //    std::cout<<podOutput->parameterEstimate_.transpose( )<<std::endl;
+    BOOST_CHECK_SMALL( std::fabs( podOutput->residualStandardDeviation_ ), 1.0E-3 );
+
+
     BOOST_CHECK_SMALL( std::fabs( podOutput->parameterEstimate_( 0 ) - truthParameters( 0 ) ), 1.0E-4 );
-    BOOST_CHECK_SMALL( std::fabs( podOutput->parameterEstimate_( 1 ) - truthParameters( 1 ) ), 1.0E-2 );
+    BOOST_CHECK_SMALL( std::fabs( podOutput->parameterEstimate_( 1 ) - truthParameters( 1 ) ), 1.0E-4 );
     BOOST_CHECK_SMALL( std::fabs( podOutput->parameterEstimate_( 2 ) - truthParameters( 2 ) ), 1.0E-2 );
 
-    BOOST_CHECK_SMALL( std::fabs( podOutput->parameterEstimate_( 3 ) - truthParameters( 3 ) ), 1.0E-6 );
+    BOOST_CHECK_SMALL( std::fabs( podOutput->parameterEstimate_( 3 ) - truthParameters( 3 ) ), 1.0E-8 );
     BOOST_CHECK_SMALL( std::fabs( podOutput->parameterEstimate_( 4 ) - truthParameters( 4 ) ), 1.0E-8 );
-    BOOST_CHECK_SMALL( std::fabs( podOutput->parameterEstimate_( 5 ) - truthParameters( 5 ) ), 1.0E-4 );
+    BOOST_CHECK_SMALL( std::fabs( podOutput->parameterEstimate_( 5 ) - truthParameters( 5 ) ), 1.0E-6 );
 
-    BOOST_CHECK_SMALL( std::fabs( podOutput->parameterEstimate_( 6 ) - truthParameters( 6 ) ), 1.0E-14 );
-    BOOST_CHECK_SMALL( std::fabs( podOutput->parameterEstimate_( 7 ) - truthParameters( 7 ) ), 1.0E-8 );
-    BOOST_CHECK_SMALL( std::fabs( podOutput->parameterEstimate_( 8 ) - truthParameters( 8 ) ), 1.0E-8 );
-    BOOST_CHECK_SMALL( std::fabs( podOutput->parameterEstimate_( 9 ) - truthParameters( 9 ) ), 1.0E-8 );
+    BOOST_CHECK_SMALL( std::fabs( podOutput->parameterEstimate_( 6 ) - truthParameters( 6 ) ), 1.0E-7 );
+    BOOST_CHECK_SMALL( std::fabs( podOutput->parameterEstimate_( 7 ) - truthParameters( 7 ) ), 1.0E-5 );
+    BOOST_CHECK_SMALL( std::fabs( podOutput->parameterEstimate_( 8 ) - truthParameters( 8 ) ), 1.0E-7 );
+    BOOST_CHECK_SMALL( std::fabs( podOutput->parameterEstimate_( 9 ) - truthParameters( 9 ) ), 1.0E-5 );
 
-    BOOST_CHECK_SMALL( std::fabs( podOutput->parameterEstimate_( 10 ) - truthParameters( 10 ) ), 1.0E-12 );
-    BOOST_CHECK_SMALL( std::fabs( podOutput->parameterEstimate_( 11 ) - truthParameters( 11 ) ), 1.0E-12 );
-    BOOST_CHECK_SMALL( std::fabs( podOutput->parameterEstimate_( 12 ) - truthParameters( 12 ) ), 1.0E-12 );
+    BOOST_CHECK_SMALL( std::fabs( podOutput->parameterEstimate_( 10 ) - truthParameters( 10 ) ), 1.0E-10 );
+    BOOST_CHECK_SMALL( std::fabs( podOutput->parameterEstimate_( 11 ) - truthParameters( 11 ) ), 1.0E-8 );
+    BOOST_CHECK_SMALL( std::fabs( podOutput->parameterEstimate_( 12 ) - truthParameters( 12 ) ), 1.0E-10 );
+
+    BOOST_CHECK_SMALL( std::fabs( podOutput->parameterEstimate_( 13 ) - truthParameters( 13 ) ), 1.0E-10 );
+    BOOST_CHECK_SMALL( std::fabs( podOutput->parameterEstimate_( 14 ) - truthParameters( 14 ) ), 1.0E-8 );
+    BOOST_CHECK_SMALL( std::fabs( podOutput->parameterEstimate_( 15 ) - truthParameters( 15 ) ), 1.0E-10 );
+
+    BOOST_CHECK_SMALL( std::fabs( podOutput->parameterEstimate_( 16 ) - truthParameters( 16 ) ), 1.0E-6 );
+    BOOST_CHECK_SMALL( std::fabs( podOutput->parameterEstimate_( 17 ) - truthParameters( 17 ) ), 1.0E-6 );
 
     std::cout<<( podOutput->parameterEstimate_ - truthParameters ).transpose( )<<std::endl;
 
-    input_output::writeMatrixToFile( podOutput->normalizedInformationMatrix_,
-                                     "rotationInformationMatrix.dat", 16 );
-    input_output::writeMatrixToFile( podOutput->getCorrelationMatrix( ),
-                                     "rotationCorrelations.dat", 16 );
-    input_output::writeMatrixToFile( podOutput->inverseNormalizedCovarianceMatrix_,
-                                     "rotationInverseNormalizedCovariance.dat", 16 );
-    input_output::writeMatrixToFile( podOutput->getFormalErrorVector( ),
-                                     "rotationFormalEstimationError.dat", 16 );
-    input_output::writeMatrixToFile( truthParameters,
-                                     "rotationTruthParameters.dat", 16 );
-    input_output::writeMatrixToFile( podOutput->residuals_,
-                                     "rotationResiduals.dat", 16 );
-    input_output::writeMatrixToFile( podOutput->informationMatrixTransformationDiagonal_,
-                                     "rotationParameterNormalization.dat", 16 );
+    //        input_output::writeMatrixToFile( podOutput->normalizedInformationMatrix_,
+    //                                         "rotationInformationMatrix" + std::to_string( testId ) + ".dat", 16 );
+    //        input_output::writeMatrixToFile( podOutput->getCorrelationMatrix( ),
+    //                                         "rotationCorrelations" + std::to_string( testId ) + ".dat", 16 );
+    //        input_output::writeMatrixToFile( podOutput->inverseNormalizedCovarianceMatrix_,
+    //                                         "rotationInverseNormalizedCovariance" + std::to_string( testId ) + ".dat", 16 );
+    //        input_output::writeMatrixToFile( podOutput->getFormalErrorVector( ),
+    //                                         "rotationFormalEstimationError" + std::to_string( testId ) + ".dat", 16 );
+    //        input_output::writeMatrixToFile( truthParameters,
+    //                                         "rotationTruthParameters" + std::to_string( testId ) + ".dat", 16 );
+    //        input_output::writeMatrixToFile( podOutput->residuals_,
+    //                                         "rotationResiduals" + std::to_string( testId ) + ".dat", 16 );
+    //        input_output::writeMatrixToFile( podOutput->informationMatrixTransformationDiagonal_,
+    //                                         "rotationParameterNormalization" + std::to_string( testId ) + ".dat", 16 );
+    //        input_output::writeMatrixToFile( podOutput->getResidualHistoryMatrix( ),
+    //                                         "rotationResidualHistory" + std::to_string( testId ) + ".dat", 16 );
+    //        input_output::writeMatrixToFile( podOutput->getParameterHistoryMatrix( ),
+    //                                         "rotationParameterHistory" + std::to_string( testId ) + ".dat", 16 );
 
 }
 

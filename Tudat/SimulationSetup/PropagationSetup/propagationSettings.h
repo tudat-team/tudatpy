@@ -1160,7 +1160,7 @@ std::shared_ptr< MultiArcPropagatorSettings< StateScalarType > > getExtendedMult
     {
         // Check single-arc consistency
         std::shared_ptr< TranslationalStatePropagatorSettings< StateScalarType > > singleArcTranslationalSettings =
-                boost::dynamic_pointer_cast< TranslationalStatePropagatorSettings< StateScalarType > >( singleArcSettings );
+                std::dynamic_pointer_cast< TranslationalStatePropagatorSettings< StateScalarType > >( singleArcSettings );
         if( singleArcTranslationalSettings == NULL )
         {
             throw std::runtime_error(
@@ -1169,7 +1169,7 @@ std::shared_ptr< MultiArcPropagatorSettings< StateScalarType > > getExtendedMult
 
         // Check multi-arc consistency
         std::shared_ptr< TranslationalStatePropagatorSettings< StateScalarType > > firstArcTranslationalSettings =
-                boost::dynamic_pointer_cast< TranslationalStatePropagatorSettings< StateScalarType > >(
+                std::dynamic_pointer_cast< TranslationalStatePropagatorSettings< StateScalarType > >(
                     multiArcSettings->getSingleArcSettings( ).at( 0 ) );
         if( firstArcTranslationalSettings == NULL )
         {

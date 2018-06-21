@@ -17,12 +17,12 @@ std::shared_ptr< acceleration_partials::TorquePartial > createConstantTorqueRota
             std::bind( &Body::getBodyInertiaTensor, acceleratedBody.second );
 
     std::function< double( ) > inertiaTensorNormalizationFunction;
-    if( boost::dynamic_pointer_cast< gravitation::SphericalHarmonicsGravityField >(
+    if( std::dynamic_pointer_cast< gravitation::SphericalHarmonicsGravityField >(
                 acceleratedBody.second->getGravityFieldModel( ) ) != NULL )
     {
         inertiaTensorNormalizationFunction =
                 std::bind( &gravitation::SphericalHarmonicsGravityField::getInertiaTensorNormalizationFactor,
-                             boost::dynamic_pointer_cast< gravitation::SphericalHarmonicsGravityField >(
+                             std::dynamic_pointer_cast< gravitation::SphericalHarmonicsGravityField >(
                                  acceleratedBody.second->getGravityFieldModel( ) ) );
     }
 

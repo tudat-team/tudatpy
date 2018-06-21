@@ -351,7 +351,7 @@ private:
 };
 
 //! Data structure through which the output of the orbit determination is communicated
-template< typename ObservationScalarType = double >
+template< typename ObservationScalarType = double, typename TimeType = double  >
 struct PodOutput
 {
 
@@ -384,7 +384,6 @@ struct PodOutput
                const std::vector< Eigen::VectorXd >& parameterHistory = std::vector< Eigen::VectorXd >( ),
                const bool exceptionDuringInversion = false,
                const bool exceptionDuringPropagation = false ):
-
         parameterEstimate_( parameterEstimate ), residuals_( residuals ),
         normalizedInformationMatrix_( normalizedInformationMatrix ), weightsMatrixDiagonal_( weightsMatrixDiagonal ),
         informationMatrixTransformationDiagonal_( informationMatrixTransformationDiagonal ),
@@ -496,6 +495,13 @@ struct PodOutput
         }
     }
 
+    void setStateHistories(
+            std::vector< std::vector< std::map< TimeType, Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > > > dynamicsHistoryPerIteration,
+            std::vector< std::vector< std::map< TimeType, Eigen::VectorXd > > > dependentVariableHistoryPerIteration )
+    {
+        dynamicsHistoryPerIteration_ = dynamicsHistoryPerIteration;
+        dependentVariableHistoryPerIteration_ = dependentVariableHistoryPerIteration;
+    }
     //! Vector of estimated parameter values.
     Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > parameterEstimate_;
 
@@ -522,6 +528,10 @@ struct PodOutput
 
     //! Vector of parameter vectors per iteration (entry 0 is pre-estimation values)
     std::vector< Eigen::VectorXd > parameterHistory_;
+
+    std::vector< std::vector< std::map< TimeType, Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > > > dynamicsHistoryPerIteration_;
+
+    std::vector< std::vector< std::map< TimeType, Eigen::VectorXd > > > dependentVariableHistoryPerIteration_;
 
     //! Boolean denoting whether an exception was caught during inversion of normal equations
     bool exceptionDuringInversion_;

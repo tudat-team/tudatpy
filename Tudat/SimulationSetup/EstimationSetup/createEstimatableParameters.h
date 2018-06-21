@@ -143,7 +143,7 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::Matrix
         case initial_rotational_body_state:
 
             // Check consistency of input.
-            if( boost::dynamic_pointer_cast<
+            if( std::dynamic_pointer_cast<
                     InitialRotationalStateEstimatableParameterSettings< InitialStateParameterType > >(
                         parameterSettings ) == NULL )
             {
@@ -152,7 +152,7 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::Matrix
             else
             {
                 std::shared_ptr< InitialRotationalStateEstimatableParameterSettings< InitialStateParameterType > >
-                        initialStateSettings = boost::dynamic_pointer_cast<
+                        initialStateSettings = std::dynamic_pointer_cast<
                         InitialRotationalStateEstimatableParameterSettings< InitialStateParameterType > >(
                             parameterSettings );
 
@@ -310,7 +310,7 @@ getAssociatedMultiArcParameter(
         // Check input consistency
         std::shared_ptr< estimatable_parameters::InitialTranslationalStateParameter< StateScalarType > >
                 singleArcTranslationalStateParameter =
-                boost::dynamic_pointer_cast< estimatable_parameters::InitialTranslationalStateParameter< StateScalarType > >(
+                std::dynamic_pointer_cast< estimatable_parameters::InitialTranslationalStateParameter< StateScalarType > >(
                     singleArcParameter );
         if( singleArcTranslationalStateParameter == NULL )
         {

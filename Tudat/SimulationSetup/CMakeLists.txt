@@ -12,16 +12,10 @@ set(ESTIMATIONSETUPSDIR "${SIMULATIONSETUPDIR}/EstimationSetup")
 set(ENVIRONMENTSETUPDIR "${SIMULATIONSETUPDIR}/EnvironmentSetup")
 set(PROPAGATIONSETUPSDIR "${SIMULATIONSETUPDIR}/PropagationSetup")
 
-<<<<<<< HEAD
-# Add source files.
-file(GLOB_RECURSE SIMULATION_SETUP_HEADERS ${SRCROOT}/SimulationSetup/EnvironmentSetup ${SRCROOT}/SimulationSetup/EstimationSetup ${SRCROOT}/SimulationSetup/PropagationSetup ABSOLUTE ${CODEROOT} *.h)
-file(GLOB_RECURSE SIMULATION_SETUP_SOURCES ${SRCROOT}/SimulationSetup/EnvironmentSetup ${SRCROOT}/SimulationSetup/EstimationSetup ${SRCROOT}/SimulationSetup/EstimationSetup ABSOLUTE ${CODEROOT} *.cpp)
-=======
 # Add subdirectories.
 add_subdirectory("${SRCROOT}${ESTIMATIONSETUPSDIR}")
 add_subdirectory("${SRCROOT}${ENVIRONMENTSETUPDIR}")
 add_subdirectory("${SRCROOT}${PROPAGATIONSETUPSDIR}")
->>>>>>> C++11Features
 
 # Get target properties for static libraries.
 get_target_property(SIMULATION_ENVIRONMENT_SETUP_SOURCES tudat_environment_setup SOURCES)

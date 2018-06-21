@@ -44,6 +44,8 @@ typedef Eigen::Matrix< int, 6, 6 > Matrix6i;
 //! Typedef for Matrix6f.
 typedef Eigen::Matrix< float, 6, 6 > Matrix6f;
 
+
+
 } // namespace Eigen
 
 #endif // TUDAT_BASIC_TYPEDEFS_H

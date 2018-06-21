@@ -333,7 +333,7 @@ bool checkPropagatorSettingsAndParameterEstimationConsistency(
     case rotational_state:
     {
         std::shared_ptr< RotationalStatePropagatorSettings< StateScalarType > > rotationalPropagatorSettings =
-                boost::dynamic_pointer_cast< RotationalStatePropagatorSettings< StateScalarType > >( propagatorSettings );
+                std::dynamic_pointer_cast< RotationalStatePropagatorSettings< StateScalarType > >( propagatorSettings );
 
         // Retrieve estimated and propagated translational states, and check equality.
         std::vector< std::string > propagatedBodies = rotationalPropagatorSettings->bodiesToIntegrate_;
@@ -367,7 +367,7 @@ bool checkPropagatorSettingsAndParameterEstimationConsistency(
     case hybrid:
     {
         std::shared_ptr< MultiTypePropagatorSettings< StateScalarType > > multiTypePropagatorSettings =
-                boost::dynamic_pointer_cast< MultiTypePropagatorSettings< StateScalarType > >( propagatorSettings );
+                std::dynamic_pointer_cast< MultiTypePropagatorSettings< StateScalarType > >( propagatorSettings );
         isInputConsistent = true;
 
 
@@ -1015,7 +1015,7 @@ public:
             const bool resetMultiArcDynamicsAfterPropagation = true ):
         VariationalEquationsSolver< StateScalarType, TimeType >(
             bodyMap, parametersToEstimate, clearNumericalSolution ),
-        propagatorSettings_( boost::dynamic_pointer_cast< MultiArcPropagatorSettings< StateScalarType > >( propagatorSettings ) ),
+        propagatorSettings_( std::dynamic_pointer_cast< MultiArcPropagatorSettings< StateScalarType > >( propagatorSettings ) ),
         resetMultiArcDynamicsAfterPropagation_( resetMultiArcDynamicsAfterPropagation )
     {
         if(  std::dynamic_pointer_cast< MultiArcPropagatorSettings< StateScalarType > >( propagatorSettings ) == NULL )
@@ -1559,7 +1559,7 @@ public:
     {
         // Cast propagator settings to correct type and check validity
         originalPopagatorSettings_ =
-                boost::dynamic_pointer_cast< HybridArcPropagatorSettings< StateScalarType > >( propagatorSettings );
+                std::dynamic_pointer_cast< HybridArcPropagatorSettings< StateScalarType > >( propagatorSettings );
         if( originalPopagatorSettings_ == NULL )
         {
             throw std::runtime_error( "Error when making HybridArcVariationalEquationsSolver, input propagation settings are not hybrid arc" );
@@ -1607,7 +1607,7 @@ public:
 
         // Create function to retrieve single-arc initial states for extended multi-arc
         std::shared_ptr< TranslationalStatePropagatorSettings< StateScalarType > > singleArcPropagationSettings =
-                boost::dynamic_pointer_cast< TranslationalStatePropagatorSettings< StateScalarType > >(
+                std::dynamic_pointer_cast< TranslationalStatePropagatorSettings< StateScalarType > >(
                     propagatorSettings_->getSingleArcPropagatorSettings( ) );
         if( singleArcPropagationSettings == NULL )
         {
@@ -1617,7 +1617,7 @@ public:
                     &getInitialStatesOfBodiesFromFrameManager< TimeType, StateScalarType >,
                     singleArcPropagationSettings->bodiesToIntegrate_,
                     singleArcPropagationSettings->centralBodies_,
-                    bodyMap, _1, createFrameManager( bodyMap ) );
+                    bodyMap, std::placeholders::_1, createFrameManager( bodyMap ) );
 
         // Propagate dynamical equations if requested
         if( integrateEquationsOnCreation )
@@ -1686,22 +1686,22 @@ public:
         // Create state transition matrix if not yet created.
         if( stateTransitionInterface_ == NULL )
         {
-            if( boost::dynamic_pointer_cast< SingleArcCombinedStateTransitionAndSensitivityMatrixInterface >(
+            if( std::dynamic_pointer_cast< SingleArcCombinedStateTransitionAndSensitivityMatrixInterface >(
                         singleArcSolver_->getStateTransitionMatrixInterface( ) ) == NULL )
             {
                 throw std::runtime_error( "Error when making hybrid state transition/sensitivity interface, single-arc input is NULL" );
             }
 
-            if( boost::dynamic_pointer_cast< MultiArcCombinedStateTransitionAndSensitivityMatrixInterface >(
+            if( std::dynamic_pointer_cast< MultiArcCombinedStateTransitionAndSensitivityMatrixInterface >(
                         multiArcSolver_->getStateTransitionMatrixInterface( ) ) == NULL )
             {
                 throw std::runtime_error( "Error when making hybrid state transition/sensitivity interface, multi-arc input is NULL" );
             }
 
             stateTransitionInterface_ = std::make_shared< HybridArcCombinedStateTransitionAndSensitivityMatrixInterface >(
-                        boost::dynamic_pointer_cast< SingleArcCombinedStateTransitionAndSensitivityMatrixInterface >(
+                        std::dynamic_pointer_cast< SingleArcCombinedStateTransitionAndSensitivityMatrixInterface >(
                             singleArcSolver_->getStateTransitionMatrixInterface( ) ),
-                        boost::dynamic_pointer_cast< MultiArcCombinedStateTransitionAndSensitivityMatrixInterface >(
+                        std::dynamic_pointer_cast< MultiArcCombinedStateTransitionAndSensitivityMatrixInterface >(
                             multiArcSolver_->getStateTransitionMatrixInterface( ) ) );
         }
     }
@@ -1963,6 +1963,13 @@ extern template class MultiArcVariationalEquationsSolver< double, double >;
 extern template class MultiArcVariationalEquationsSolver< long double, double >;
 extern template class MultiArcVariationalEquationsSolver< double, Time >;
 extern template class MultiArcVariationalEquationsSolver< long double, Time >;
+
+extern template class HybridArcVariationalEquationsSolver< double, double >;
+extern template class HybridArcVariationalEquationsSolver< long double, double >;
+extern template class HybridArcVariationalEquationsSolver< double, Time >;
+extern template class HybridArcVariationalEquationsSolver< long double, Time >;
+
+
 
 } // namespace propagators
 

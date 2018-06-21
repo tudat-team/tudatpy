@@ -26,7 +26,7 @@
 #include "Tudat/InputOutput/basicInputOutput.h"
 #include "Tudat/InputOutput/multiDimensionalArrayReader.h"
 #include "Tudat/SimulationSetup/EnvironmentSetup/body.h"
-#include "Tudat/SimulationSetup/PropagationSetup/createNumericalSimulator.h"
+#include "Tudat/SimulationSetup/EstimationSetup/createNumericalSimulator.h"
 #include "Tudat/SimulationSetup/PropagationSetup/createMassRateModels.h"
 #include "Tudat/SimulationSetup/EnvironmentSetup/defaultBodies.h"
 #include <limits>

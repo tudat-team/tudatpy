@@ -167,7 +167,7 @@ std::shared_ptr< gravitation::SphericalHarmonicGravitationalTorqueModel > create
         const std::string& nameOfBodyExertingTorque )
 {
     std::shared_ptr< SphericalHarmonicTorqueSettings > sphericalHarmonicTorqueSettings =
-            boost::dynamic_pointer_cast< SphericalHarmonicTorqueSettings >( torqueSettings );
+            std::dynamic_pointer_cast< SphericalHarmonicTorqueSettings >( torqueSettings );
 
     if( sphericalHarmonicTorqueSettings == NULL )
     {
@@ -178,7 +178,7 @@ std::shared_ptr< gravitation::SphericalHarmonicGravitationalTorqueModel > create
                 sphericalHarmonicTorqueSettings->maximumDegree_,
                 sphericalHarmonicTorqueSettings->maximumOrder_ );
     std::shared_ptr< gravitation::SphericalHarmonicsGravitationalAccelerationModel > sphericalHarmonicAcceleration =
-            boost::dynamic_pointer_cast< gravitation::SphericalHarmonicsGravitationalAccelerationModel >(
+            std::dynamic_pointer_cast< gravitation::SphericalHarmonicsGravitationalAccelerationModel >(
                  createSphericalHarmonicsGravityAcceleration(
                     bodyExertingTorque, bodyUndergoingTorque, nameOfBodyExertingTorque, nameOfBodyUndergoingTorque,
                     sphericalHarmonicAccelerationSettings, false, false ) );

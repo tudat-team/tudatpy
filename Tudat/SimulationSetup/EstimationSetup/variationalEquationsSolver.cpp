@@ -66,6 +66,13 @@ template class MultiArcVariationalEquationsSolver< long double, double >;
 template class MultiArcVariationalEquationsSolver< double, Time >;
 template class MultiArcVariationalEquationsSolver< long double, Time >;
 
+template class HybridArcVariationalEquationsSolver< double, double >;
+template class HybridArcVariationalEquationsSolver< long double, double >;
+template class HybridArcVariationalEquationsSolver< double, Time >;
+template class HybridArcVariationalEquationsSolver< long double, Time >;
+
+
+
 }
 
 }

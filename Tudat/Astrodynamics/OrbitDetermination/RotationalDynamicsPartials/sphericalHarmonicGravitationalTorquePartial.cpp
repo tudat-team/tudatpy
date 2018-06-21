@@ -50,7 +50,7 @@ SphericalHarmonicGravitationalTorquePartial::getParameterPartialFunction(
         {
             partialFunctionPair = std::make_pair(
                         std::bind( &SphericalHarmonicGravitationalTorquePartial::getParameterPartialFromAccelerationPartialFunction,
-                                     this, _1, accelerationPartialFunction ), accelerationPartialFunction.second );
+                                     this, std::placeholders::_1, accelerationPartialFunction ), accelerationPartialFunction.second );
         }
     }
 
@@ -71,7 +71,7 @@ std::pair< std::function< void( Eigen::MatrixXd& ) >, int > SphericalHarmonicGra
         {
             partialFunctionPair = std::make_pair(
                         std::bind( &SphericalHarmonicGravitationalTorquePartial::getParameterPartialFromAccelerationPartialFunction,
-                                     this, _1, accelerationPartialFunction ), accelerationPartialFunction.second );
+                                     this, std::placeholders::_1, accelerationPartialFunction ), accelerationPartialFunction.second );
         }
     }
 

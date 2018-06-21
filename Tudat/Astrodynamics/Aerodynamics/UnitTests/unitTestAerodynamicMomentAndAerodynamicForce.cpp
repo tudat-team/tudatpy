@@ -44,7 +44,7 @@
 #include "Tudat/External/SpiceInterface/spiceRotationalEphemeris.h"
 #include "Tudat/InputOutput/basicInputOutput.h"
 #include "Tudat/SimulationSetup/EnvironmentSetup/body.h"
-#include "Tudat/SimulationSetup/PropagationSetup/createNumericalSimulator.h"
+#include "Tudat/SimulationSetup/EstimationSetup/createNumericalSimulator.h"
 #include "Tudat/SimulationSetup/EnvironmentSetup/defaultBodies.h"
 namespace tudat
 {
