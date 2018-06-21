@@ -208,7 +208,7 @@ std::shared_ptr< EstimatableParameter< double > > createDoubleParameterToEstimat
             {
                 doubleParameterToEstimate = std::make_shared< MeanMomentOfInertiaParameter >
                         ( std::bind( &simulation_setup::Body::getScaledMeanMomentOfInertia, currentBody ),
-                          std::bind( &simulation_setup::Body::setScaledMeanMomentOfInertia, currentBody, _1 ),
+                          std::bind( &simulation_setup::Body::setScaledMeanMomentOfInertia, currentBody, std::placeholders::_1 ),
                           currentBodyName );
             }
             break;

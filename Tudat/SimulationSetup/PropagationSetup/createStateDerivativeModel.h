@@ -380,7 +380,7 @@ void setMultiTypePropagationClosure(
 {
     // Cast to multi-type settings, and perform closure if
     std::shared_ptr< MultiTypePropagatorSettings< StateScalarType > > multiTypePropagatorSettings =
-            boost::dynamic_pointer_cast< MultiTypePropagatorSettings< StateScalarType > >( propagatorSettings );
+            std::dynamic_pointer_cast< MultiTypePropagatorSettings< StateScalarType > >( propagatorSettings );
 
     if( multiTypePropagatorSettings != NULL )
     {

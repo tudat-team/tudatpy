@@ -55,7 +55,7 @@ public:
     void resetGravitationalParameter( const double gravitationalParameter )
     {
         gravitationalParameter_ = gravitationalParameter;
-        if( !updateInertiaTensor_.empty( ) )
+        if( !( updateInertiaTensor_ == nullptr ) )
         {
             updateInertiaTensor_( );
         }

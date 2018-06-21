@@ -89,13 +89,13 @@ std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartia
             std::function< Eigen::Vector3d( const double ) > groundStationPositionFunction =
                     std::bind( &ground_stations::GroundStationState::getCartesianPositionInTime,
                                  currentBody->getGroundStation( linkEndIterator->second.second )->getNominalStationState( ),
-                                 _1, basic_astrodynamics::JULIAN_DAY_ON_J2000 );
+                                 std::placeholders::_1, basic_astrodynamics::JULIAN_DAY_ON_J2000 );
 
             // Create partial
             partialMap[ linkEndIterator->first ] = std::make_shared< CartesianStatePartialWrtRotationMatrixParameter >(
                         std::make_shared< RotationMatrixPartialWrtRotationalState >(
                             std::bind( &ephemerides::RotationalEphemeris::getRotationToBaseFrame,
-                                         currentBody->getRotationalEphemeris( ), _1 ) ), groundStationPositionFunction );
+                                         currentBody->getRotationalEphemeris( ), std::placeholders::_1 ) ), groundStationPositionFunction );
         }
     }
 
@@ -217,7 +217,7 @@ std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartia
                 std::function< Eigen::Vector3d( const double ) > groundStationPositionFunction =
                         std::bind( &ground_stations::GroundStationState::getCartesianPositionInTime,
                                      currentBody->getGroundStation( linkEndIterator->second.second )
-                                     ->getNominalStationState( ), _1, basic_astrodynamics::JULIAN_DAY_ON_J2000 );
+                                     ->getNominalStationState( ), std::placeholders::_1, basic_astrodynamics::JULIAN_DAY_ON_J2000 );
 
                 // Create parameter partial object.
                 partialMap[ linkEndIterator->first ] = std::make_shared< CartesianStatePartialWrtRotationMatrixParameter >(

@@ -151,7 +151,7 @@ BOOST_AUTO_TEST_CASE( testDegreeTwoGravitationalTorque )
             inertiaTensorDeviation = bodyMap.at( "Moon" )->getBodyInertiaTensor( );
 
             std::shared_ptr< SphericalHarmonicsGravityField > moonGravityField =
-                    boost::dynamic_pointer_cast< SphericalHarmonicsGravityField >(
+                    std::dynamic_pointer_cast< SphericalHarmonicsGravityField >(
                         bodyMap.at( "Moon" )->getGravityFieldModel( ) );
 
             // From Klees, AE4-E03 Lecture Notes
@@ -278,10 +278,10 @@ BOOST_AUTO_TEST_CASE( testSphericalGravitationalTorque )
         // Test back
         {
             Eigen::Matrix3d moonCosineCoefficients =
-                    boost::dynamic_pointer_cast< tudat::gravitation::SphericalHarmonicsGravityField >(
+                    std::dynamic_pointer_cast< tudat::gravitation::SphericalHarmonicsGravityField >(
                         bodyMap.at( "Moon" )->getGravityFieldModel( ) )->getCosineCoefficients( );
             Eigen::Matrix3d moonSineCoefficients =
-                    boost::dynamic_pointer_cast< tudat::gravitation::SphericalHarmonicsGravityField >(
+                    std::dynamic_pointer_cast< tudat::gravitation::SphericalHarmonicsGravityField >(
                         bodyMap.at( "Moon" )->getGravityFieldModel( ) )->getSineCoefficients( );
 
             Eigen::MatrixXd moonReconstructedCosineCoefficients = Eigen::Matrix3d::Zero( ),
@@ -290,7 +290,7 @@ BOOST_AUTO_TEST_CASE( testSphericalGravitationalTorque )
             gravitation::getDegreeTwoSphericalHarmonicCoefficients(
                         bodyMap.at( "Moon" )->getBodyInertiaTensor( ),
                         bodyMap.at( "Moon" )->getGravityFieldModel( )->getGravitationalParameter( ),
-                        boost::dynamic_pointer_cast< SphericalHarmonicsGravityField >(
+                        std::dynamic_pointer_cast< SphericalHarmonicsGravityField >(
                             bodyMap.at( "Moon" )->getGravityFieldModel( ) )->getReferenceRadius( ), true,
                         moonReconstructedCosineCoefficients, moonReconstructedSineCoefficients,
                         reconstructedScaledMeanMomentOfInertia );

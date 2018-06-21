@@ -581,6 +581,8 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicAccelerationPartial )
 
 
     std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames;
+    parameterNames.push_back( std::make_shared< InitialRotationalStateEstimatableParameterSettings< double > >(
+                                  "Earth", 0.0, "ECLIPJ2000" ) );
     parameterNames.push_back( std::make_shared< EstimatableParameterSettings >( "Earth", gravitational_parameter) );
     parameterNames.push_back( std::make_shared< EstimatableParameterSettings >( "Earth", constant_rotation_rate ) );
     parameterNames.push_back( std::make_shared< EstimatableParameterSettings >( "Earth", rotation_pole_position ) );
@@ -707,7 +709,7 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicAccelerationPartial )
     orientationPerturbation << 1.0E-8, 1.0E-8, 1.0E-8, 1.0E-8;
 
     std::function< void( Eigen::Vector7d ) > earthRotationalStateSetFunction =
-            std::bind( &Body::setCurrentRotationalStateToLocalFrame, earth, _1 );
+            std::bind( &Body::setCurrentRotationalStateToLocalFrame, earth, std::placeholders::_1 );
     std::vector< Eigen::Vector4d > appliedQuaternionPerturbation;
     Eigen::MatrixXd accelerationDeviations = calculateAccelerationDeviationDueToOrientationChange(
                 earthRotationalStateSetFunction, gravitationalAcceleration, earth->getRotationalStateVector( ), orientationPerturbation,

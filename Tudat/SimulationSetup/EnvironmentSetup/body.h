@@ -1104,7 +1104,7 @@ public:
      */
     void setBodyInertiaTensorFromGravityField( const double scaledMeanMomentOfInertia )
     {
-        if( boost::dynamic_pointer_cast< gravitation::SphericalHarmonicsGravityField >( gravityFieldModel_ ) == NULL )
+        if( std::dynamic_pointer_cast< gravitation::SphericalHarmonicsGravityField >( gravityFieldModel_ ) == NULL )
         {
             throw std::runtime_error( "Error when setting inertia tensor from mean moments of inertia, gravity field model is not spherical harmonic" );
         }
@@ -1112,7 +1112,7 @@ public:
         {
             scaledMeanMomentOfInertia_ = scaledMeanMomentOfInertia;
             bodyInertiaTensor_ = gravitation::getInertiaTensor(
-                        boost::dynamic_pointer_cast< gravitation::SphericalHarmonicsGravityField >( gravityFieldModel_ ),
+                        std::dynamic_pointer_cast< gravitation::SphericalHarmonicsGravityField >( gravityFieldModel_ ),
                         scaledMeanMomentOfInertia );
         }
     }
@@ -1123,7 +1123,7 @@ public:
         if( !( scaledMeanMomentOfInertia_ == scaledMeanMomentOfInertia_ ) )
         {
             std::shared_ptr< gravitation::SphericalHarmonicsGravityField > sphericalHarmonicGravityField =
-                    boost::dynamic_pointer_cast< gravitation::SphericalHarmonicsGravityField >( gravityFieldModel_ );
+                    std::dynamic_pointer_cast< gravitation::SphericalHarmonicsGravityField >( gravityFieldModel_ );
             if( sphericalHarmonicGravityField != NULL )
             {
                 double normalizationFactor =

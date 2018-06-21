@@ -86,7 +86,7 @@ std::map< propagators::IntegratedStateType, orbit_determination::StateDerivative
             {
                 // Retrieve acceleration models and create partials
                 basic_astrodynamics::TorqueModelMap torqueModelList =
-                        boost::dynamic_pointer_cast< propagators::RotationalMotionStateDerivative< StateScalarType, TimeType > >(
+                        std::dynamic_pointer_cast< propagators::RotationalMotionStateDerivative< StateScalarType, TimeType > >(
                             stateDerivativeIterator->second.at( 0 ) )->getTorquesMap( );
                 stateDerivativePartials[ propagators::rotational_state ] =
                         createTorquePartialsMap< StateScalarType >(

@@ -134,41 +134,6 @@ void VariationalEquations::clearPartials( )
     }
 }
 
-
-//! This function updates all state derivative models to the current time and state.
-void VariationalEquations::updatePartials( const double currentTime )
-{
-    // Update all acceleration partials to current state and time. Information is passed indirectly from here, through
-    // (function) pointers set in acceleration partial classes
-    for( stateDerivativeTypeIterator_ = stateDerivativePartialList_.begin( );
-         stateDerivativeTypeIterator_ != stateDerivativePartialList_.end( );
-         stateDerivativeTypeIterator_++ )
-    {
-        for( unsigned int i = 0; i < stateDerivativeTypeIterator_->second.size( ); i++ )
-        {
-            for( unsigned int j = 0; j < stateDerivativeTypeIterator_->second.at( i ).size( ); j++ )
-            {
-                stateDerivativeTypeIterator_->second.at( i ).at( j )->update( currentTime );
-            }
-
-        }
-    }
-
-    for( stateDerivativeTypeIterator_ = stateDerivativePartialList_.begin( );
-         stateDerivativeTypeIterator_ != stateDerivativePartialList_.end( );
-         stateDerivativeTypeIterator_++ )
-    {
-        for( unsigned int i = 0; i < stateDerivativeTypeIterator_->second.size( ); i++ )
-        {
-            for( unsigned int j = 0; j < stateDerivativeTypeIterator_->second.at( i ).size( ); j++ )
-            {
-                stateDerivativeTypeIterator_->second.at( i ).at( j )->updateParameterPartials( );
-            }
-
-        }
-    }
-}
-\
 //! Function (called by constructor) to set up the statePartialList_ member from the state derivative partials
 void VariationalEquations::setStatePartialFunctionList( )
 {

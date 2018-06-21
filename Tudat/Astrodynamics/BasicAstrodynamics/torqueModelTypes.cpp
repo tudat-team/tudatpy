@@ -35,11 +35,11 @@ AvailableTorque getTorqueModelType(
     {
         torqueType = aerodynamic_torque;
     }
-    else if( boost::dynamic_pointer_cast< gravitation::SphericalHarmonicGravitationalTorqueModel >( torqueModel ) != NULL )
+    else if( std::dynamic_pointer_cast< gravitation::SphericalHarmonicGravitationalTorqueModel >( torqueModel ) != NULL )
     {
         torqueType = spherical_harmonic_gravitational_torque;
     }
-    else if( boost::dynamic_pointer_cast< InertialTorqueModel >( torqueModel ) != NULL )
+    else if( std::dynamic_pointer_cast< InertialTorqueModel >( torqueModel ) != NULL )
     {
         torqueType = inertial_torque;
     }

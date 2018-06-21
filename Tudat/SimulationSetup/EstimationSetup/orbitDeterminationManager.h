@@ -22,7 +22,7 @@
 #include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/initialTranslationalState.h"
 #include "Tudat/SimulationSetup/EstimationSetup/variationalEquationsSolver.h"
 #include "Tudat/SimulationSetup/EstimationSetup/createObservationManager.h"
-#include "Tudat/SimulationSetup/PropagationSetup/createNumericalSimulator.h"
+#include "Tudat/SimulationSetup/EstimationSetup/createNumericalSimulator.h"
 
 namespace tudat
 {
@@ -458,7 +458,7 @@ public:
      *  \param convergenceChecker Object used to check convergence/termination of algorithm
      *  \return Object containing estimated parameter value and associateed data, such as residuals and observation partials.
      */
-    std::shared_ptr< PodOutput< ObservationScalarType > > estimateParameters(
+    std::shared_ptr< PodOutput< ObservationScalarType, TimeType > > estimateParameters(
             const std::shared_ptr< PodInput< ObservationScalarType, TimeType > >& podInput,
             const std::shared_ptr< EstimationConvergenceChecker > convergenceChecker =
             std::make_shared< EstimationConvergenceChecker >( ) )
@@ -511,13 +511,13 @@ public:
                     resetParameterEstimate( newParameterEstimate, podInput->getReintegrateVariationalEquations( ) );
                 }
 
-//                if( podInput->getSaveStateHistoryForEachIteration( ) )
-//                {
-//                    dynamicsHistoryPerIteration.push_back(
-//                                variationalEquationsSolver_->getDynamicsSimulatorBase( )->getEquationsOfMotionNumericalSolutionBase( ) );
-//                    dependentVariableHistoryPerIteration.push_back(
-//                                variationalEquationsSolver_->getDynamicsSimulatorBase( )->getDependentVariableNumericalSolutionBase( ) );
-//                }
+                if( podInput->getSaveStateHistoryForEachIteration( ) )
+                {
+                    dynamicsHistoryPerIteration.push_back(
+                                variationalEquationsSolver_->getDynamicsSimulatorBase( )->getEquationsOfMotionNumericalSolutionBase( ) );
+                    dependentVariableHistoryPerIteration.push_back(
+                                variationalEquationsSolver_->getDynamicsSimulatorBase( )->getDependentVariableNumericalSolutionBase( ) );
+                }
             }
             catch( std::runtime_error )
             {
@@ -563,7 +563,7 @@ public:
                         std::move( linear_algebra::performLeastSquaresAdjustmentFromInformationMatrix(
                             residualsAndPartials.second.block( 0, 0, residualsAndPartials.second.rows( ), numberOfEstimatedParameters ),
                             residualsAndPartials.first, getConcatenatedWeightsVector( podInput->getWeightsMatrixDiagonals( ) ),
-                            normalizedInverseAprioriCovarianceMatrix, 1, 1.0E8, constraintStateMultiplier, constraintRightHandSide );
+                            normalizedInverseAprioriCovarianceMatrix, 1, 1.0E8, constraintStateMultiplier, constraintRightHandSide ) );
 
                 if( constraintStateMultiplier.rows( ) > 0 )
                 {
@@ -641,10 +641,20 @@ public:
             std::cout << "Final residual: " << bestResidual << std::endl;
         }
 
-        return std::make_shared< PodOutput< ObservationScalarType > >(
+
+        std::shared_ptr< PodOutput< ObservationScalarType, TimeType > > podOutput =
+                std::make_shared< PodOutput< ObservationScalarType, TimeType > >(
                     bestParameterEstimate, bestResiduals, bestInformationMatrix, bestWeightsMatrixDiagonal, bestTransformationData,
                     bestInverseNormalizedCovarianceMatrix, bestResidual, residualHistory, parameterHistory, exceptionDuringInversion,
                     exceptionDuringPropagation );
+
+        if( podInput->getSaveStateHistoryForEachIteration( ) )
+        {
+            podOutput->setStateHistories(
+                        dynamicsHistoryPerIteration, dependentVariableHistoryPerIteration );
+        }
+
+        return podOutput;
     }
 
     //! Function to reset the current parameter estimate.

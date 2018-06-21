@@ -70,7 +70,7 @@ std::shared_ptr< acceleration_partials::TorquePartial > createAnalyticalTorquePa
     case second_order_gravitational_torque:
 
         // Check if identifier is consistent with type.
-        if( boost::dynamic_pointer_cast< SecondDegreeGravitationalTorqueModel >( torqueModel ) == NULL )
+        if( std::dynamic_pointer_cast< SecondDegreeGravitationalTorqueModel >( torqueModel ) == NULL )
         {
             throw std::runtime_error( "Torque class type does not match torque type (second_order_gravitational_torque) when making torque partial" );
         }
@@ -78,23 +78,23 @@ std::shared_ptr< acceleration_partials::TorquePartial > createAnalyticalTorquePa
         {
             // Create partial-calculating object.
             std::function< double( ) > inertiaTensorNormalizationFunction;
-            if( boost::dynamic_pointer_cast< SphericalHarmonicsGravityField >( acceleratedBody.second->getGravityFieldModel( ) )
+            if( std::dynamic_pointer_cast< SphericalHarmonicsGravityField >( acceleratedBody.second->getGravityFieldModel( ) )
                     != NULL )
             {
                 inertiaTensorNormalizationFunction =
                         std::bind( &SphericalHarmonicsGravityField::getInertiaTensorNormalizationFactor,
-                                     boost::dynamic_pointer_cast< SphericalHarmonicsGravityField >(
+                                     std::dynamic_pointer_cast< SphericalHarmonicsGravityField >(
                                          acceleratedBody.second->getGravityFieldModel( ) ) );
             }
             torquePartial = std::make_shared< SecondDegreeGravitationalTorquePartial >
-                    ( boost::dynamic_pointer_cast< SecondDegreeGravitationalTorqueModel >( torqueModel ),
+                    ( std::dynamic_pointer_cast< SecondDegreeGravitationalTorqueModel >( torqueModel ),
                       inertiaTensorNormalizationFunction, acceleratedBody.first, acceleratingBody.first );
         }
         break;
     case spherical_harmonic_gravitational_torque:
 
         // Check if identifier is consistent with type.
-        if( boost::dynamic_pointer_cast< SphericalHarmonicGravitationalTorqueModel >( torqueModel ) == NULL )
+        if( std::dynamic_pointer_cast< SphericalHarmonicGravitationalTorqueModel >( torqueModel ) == NULL )
         {
             throw std::runtime_error( "Torque class type does not match torque type (spherical_harmonic_gravitational_torque) when making torque partial" );
         }
@@ -102,9 +102,9 @@ std::shared_ptr< acceleration_partials::TorquePartial > createAnalyticalTorquePa
         {
             // Create partial-calculating object.
             torquePartial = std::make_shared< SphericalHarmonicGravitationalTorquePartial >
-                    ( boost::dynamic_pointer_cast< SphericalHarmonicGravitationalTorqueModel >( torqueModel ),
-                      boost::dynamic_pointer_cast< SphericalHarmonicsGravityPartial >( createAnalyticalAccelerationPartial(
-                          boost::dynamic_pointer_cast< SphericalHarmonicGravitationalTorqueModel >(
+                    ( std::dynamic_pointer_cast< SphericalHarmonicGravitationalTorqueModel >( torqueModel ),
+                      std::dynamic_pointer_cast< SphericalHarmonicsGravityPartial >( createAnalyticalAccelerationPartial(
+                          std::dynamic_pointer_cast< SphericalHarmonicGravitationalTorqueModel >(
                               torqueModel )->getSphericalHarmonicAcceleration( ), acceleratedBody, acceleratingBody,
                           bodyMap, parametersToEstimate ) ),
                       acceleratedBody.first, acceleratingBody.first );
@@ -126,12 +126,12 @@ std::shared_ptr< acceleration_partials::TorquePartial > createAnalyticalTorquePa
         }
 
         std::function< double( ) > inertiaTensorNormalizationFunction;
-        if( boost::dynamic_pointer_cast< gravitation::SphericalHarmonicsGravityField >( acceleratedBody.second->getGravityFieldModel( ) )
+        if( std::dynamic_pointer_cast< gravitation::SphericalHarmonicsGravityField >( acceleratedBody.second->getGravityFieldModel( ) )
                 != NULL )
         {
             inertiaTensorNormalizationFunction =
                     std::bind( &gravitation::SphericalHarmonicsGravityField::getInertiaTensorNormalizationFactor,
-                                 boost::dynamic_pointer_cast< gravitation::SphericalHarmonicsGravityField >(
+                                 std::dynamic_pointer_cast< gravitation::SphericalHarmonicsGravityField >(
                                      acceleratedBody.second->getGravityFieldModel( ) ) );
         }
 

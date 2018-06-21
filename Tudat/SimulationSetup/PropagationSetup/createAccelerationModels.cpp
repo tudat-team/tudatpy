@@ -344,7 +344,7 @@ createSphericalHarmonicsGravityAcceleration(
             }
 
             std::function< Eigen::MatrixXd( ) > originalCosineCoefficientFunction =
-                    std::bind( &SphericalHarmonicsGravityField::getCosineCoefficients,
+                    std::bind( &SphericalHarmonicsGravityField::getCosineCoefficientsBlock,
                                  sphericalHarmonicsGravityField,
                                  sphericalHarmonicsSettings->maximumDegree_,
                                  sphericalHarmonicsSettings->maximumOrder_ );
@@ -367,7 +367,7 @@ createSphericalHarmonicsGravityAcceleration(
                       gravitationalParameterFunction,
                       sphericalHarmonicsGravityField->getReferenceRadius( ),
                       cosineCoefficientFunction,
-                      std::bind( &SphericalHarmonicsGravityField::getSineCoefficients,
+                      std::bind( &SphericalHarmonicsGravityField::getSineCoefficientsBlock,
                                    sphericalHarmonicsGravityField,
                                    sphericalHarmonicsSettings->maximumDegree_,
                                    sphericalHarmonicsSettings->maximumOrder_ ),
@@ -698,7 +698,7 @@ std::shared_ptr< aerodynamics::AerodynamicAcceleration > createAerodynamicAccele
 
     // Retrieve flight conditions; create object if not yet extant.
     std::shared_ptr< AtmosphericFlightConditions > bodyFlightConditions =
-            boost::dynamic_pointer_cast< AtmosphericFlightConditions >( bodyUndergoingAcceleration->getFlightConditions( ) );
+            std::dynamic_pointer_cast< AtmosphericFlightConditions >( bodyUndergoingAcceleration->getFlightConditions( ) );
 
     if( bodyFlightConditions == NULL && bodyUndergoingAcceleration->getFlightConditions( ) == NULL )
     {

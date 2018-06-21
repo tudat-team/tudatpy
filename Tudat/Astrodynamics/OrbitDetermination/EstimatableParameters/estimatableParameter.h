@@ -17,9 +17,9 @@
 #include <vector>
 #include <map>
 
-
+#include <boost/make_shared.hpp>
+#include <boost/shared_ptr.hpp>
 #include <memory>
-
 #include <boost/assign/list_of.hpp>
 #include <Eigen/Geometry>
 
@@ -514,7 +514,6 @@ public:
         return vectorParameters_;
     }
 
-
     std::map< int, std::shared_ptr< EstimatableParameter< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > > > getInitialStateParameters( )
     {
         return initialStateParameters_;
@@ -526,7 +525,8 @@ public:
      *  \return Map containing all single-arc initial state parameter objects, with map key start index of parameter in total
      *  vector.
      */
-    std::map< int, std::shared_ptr< EstimatableParameter< Eigen::VectorXd > > > getInitialSingleArcStateParameters( )
+    std::map< int, std::shared_ptr<
+    EstimatableParameter< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > > > getInitialSingleArcStateParameters( )
     {
         return initialSingleArcStateParameters_;
     }
@@ -537,7 +537,7 @@ public:
      *  \return Map containing all multi-arc initial state parameter objects, with map key start index of parameter in total
      * vector.
      */
-    std::map< int, std::shared_ptr< EstimatableParameter< Eigen::VectorXd > > > getInitialMultiArcStateParameters( )
+    std::map< int, std::shared_ptr< EstimatableParameter< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > > > getInitialMultiArcStateParameters( )
     {
         return initialMultiArcStateParameters_;
     }
@@ -887,7 +887,7 @@ getListOfBodiesWithTranslationalMultiArcStateToEstimate(
  * \return List of bodies for which an initial dynamical state is estimated.
  */
 template< typename InitialStateParameterType >
-std::vector< std::string > getListOfBodiesToEstimate(
+std::map< propagators::IntegratedStateType, std::vector< std::string > > getListOfBodiesToEstimate(
         const std::shared_ptr< EstimatableParameterSet< InitialStateParameterType > > estimatableParameters )
 {
     std::map< propagators::IntegratedStateType, std::vector< std::string > > bodiesToEstimate;

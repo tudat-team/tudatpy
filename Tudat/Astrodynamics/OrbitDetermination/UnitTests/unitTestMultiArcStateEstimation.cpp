@@ -265,7 +265,7 @@ Eigen::VectorXd  executeParameterEstimation(
             std::make_shared< PodInput< ObservationScalarType, TimeType > >(
                 observationsAndTimes, ( initialParameterEstimate ).rows( ) );
 
-    std::shared_ptr< PodOutput< StateScalarType > > podOutput = orbitDeterminationManager.estimateParameters(
+    std::shared_ptr< PodOutput< StateScalarType, TimeType > > podOutput = orbitDeterminationManager.estimateParameters(
                 podInput );
 
     return ( podOutput->parameterEstimate_ - truthParameters ).template cast< double >( );

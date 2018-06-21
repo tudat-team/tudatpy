@@ -148,18 +148,18 @@ std::shared_ptr< EstimatableParameterSet< double > > createEstimatableParameters
     if( !useRotationalStateAsParameter )
     {
         std::shared_ptr< RotationRate > earthRotationRate = std::make_shared< RotationRate >(
-                    boost::dynamic_pointer_cast< SimpleRotationalEphemeris >(
+                    std::dynamic_pointer_cast< SimpleRotationalEphemeris >(
                         bodyMap.at( "Earth" )->getRotationalEphemeris( ) ), "Earth" );
         std::shared_ptr< RotationRate > marsRotationRate = std::make_shared< RotationRate >(
-                    boost::dynamic_pointer_cast< SimpleRotationalEphemeris >(
+                    std::dynamic_pointer_cast< SimpleRotationalEphemeris >(
                         bodyMap.at( "Mars" )->getRotationalEphemeris( ) ), "Mars" );
         std::shared_ptr< ConstantRotationalOrientation > earthRotationOrientation =
                 std::make_shared< ConstantRotationalOrientation >(
-                    boost::dynamic_pointer_cast< SimpleRotationalEphemeris >(
+                    std::dynamic_pointer_cast< SimpleRotationalEphemeris >(
                         bodyMap.at( "Earth" )->getRotationalEphemeris( ) ), "Earth" );
         std::shared_ptr< ConstantRotationalOrientation > marsRotationOrientation =
                 std::make_shared< ConstantRotationalOrientation >(
-                    boost::dynamic_pointer_cast< SimpleRotationalEphemeris >(
+                    std::dynamic_pointer_cast< SimpleRotationalEphemeris >(
                         bodyMap.at( "Mars" )->getRotationalEphemeris( ) ), "Mars" );
 
         estimatableDoubleParameters.push_back( earthRotationRate );
@@ -258,7 +258,7 @@ Eigen::MatrixXd calculateChangeDueToConstantBodyOrientation(
 //    std::cout<<"T1 "<<bodyName<<std::endl;
     // Calculate numerical partials w.r.t. body state.
     std::shared_ptr< ephemerides::ConstantRotationalEphemeris > rotationalEphemeris =
-            boost::dynamic_pointer_cast< ephemerides::ConstantRotationalEphemeris >(
+            std::dynamic_pointer_cast< ephemerides::ConstantRotationalEphemeris >(
                 bodyMap.at( bodyName )->getRotationalEphemeris( ) );
 //    std::cout<<"T2 "<<( rotationalEphemeris == NULL )<<std::endl;
 

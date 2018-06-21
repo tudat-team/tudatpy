@@ -125,15 +125,7 @@ public:
     template< typename StateScalarType >
     void getBodyInitialStatePartialMatrix(
             const Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >& stateTransitionAndSensitivityMatrices,
-            Eigen::Block< Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic > > currentMatrixDerivative )
-    {
-        setBodyStatePartialMatrix( );
-
-        // Add partials of body positions and velocities.
-        currentMatrixDerivative.block( 0, 0, totalDynamicalStateSize_, numberOfParameterValues_ ) =
-                ( variationalMatrix_.template cast< StateScalarType >( ) * stateTransitionAndSensitivityMatrices );
-
-    }
+            Eigen::Block< Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic > > currentMatrixDerivative );
 
     //! Calculates matrix containing partial derivatives of state derivatives w.r.t. parameters.
     /*!
@@ -272,7 +264,7 @@ public:
             }
         }
     }
-    \
+
     
     //! Returns the number of parameter values.
     /*!
@@ -494,7 +486,7 @@ private:
             {
                 inertiaTensorsForMultiplication_.push_back( std::make_pair(
                                                                 stateTypeStartIndices_[ propagators::rotational_state ] + rotationalBodyCounter * 7 + 4,
-                                                            boost::dynamic_pointer_cast< estimatable_parameters::InitialRotationalStateParameter< ParameterType > >(
+                                                            std::dynamic_pointer_cast< estimatable_parameters::InitialRotationalStateParameter< ParameterType > >(
                                                                 initialDynamicalParameters.at( i ) )->getBodyInertiaTensorFunction( ) ) );
                 rotationalBodyCounter++;
             }

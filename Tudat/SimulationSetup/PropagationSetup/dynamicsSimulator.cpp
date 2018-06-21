@@ -48,6 +48,11 @@ template class MultiArcDynamicsSimulator< long double, double >;
 template class MultiArcDynamicsSimulator< double, Time >;
 template class MultiArcDynamicsSimulator< long double, Time >;
 
+template class HybridArcDynamicsSimulator< double, double >;
+template class HybridArcDynamicsSimulator< long double, double >;
+template class HybridArcDynamicsSimulator< double, Time >;
+template class HybridArcDynamicsSimulator< long double, Time >;
+
 }
 
 }

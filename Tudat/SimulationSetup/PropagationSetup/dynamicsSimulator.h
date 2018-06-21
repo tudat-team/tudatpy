@@ -1422,7 +1422,7 @@ public:
         addSingleArcBodiesToMultiArcDynamics_( addSingleArcBodiesToMultiArcDynamics )
     {       
         std::shared_ptr< HybridArcPropagatorSettings< StateScalarType > > hybridPropagatorSettings =
-                boost::dynamic_pointer_cast< HybridArcPropagatorSettings< StateScalarType > >( propagatorSettings );
+                std::dynamic_pointer_cast< HybridArcPropagatorSettings< StateScalarType > >( propagatorSettings );
         if( hybridPropagatorSettings == NULL )
         {
             throw std::runtime_error( "Error when making HybridArcDynamicsSimulator, propagator settings are incompatible" );
@@ -1613,6 +1613,13 @@ extern template class MultiArcDynamicsSimulator< double, double >;
 extern template class MultiArcDynamicsSimulator< long double, double >;
 extern template class MultiArcDynamicsSimulator< double, Time >;
 extern template class MultiArcDynamicsSimulator< long double, Time >;
+
+extern template class HybridArcDynamicsSimulator< double, double >;
+extern template class HybridArcDynamicsSimulator< long double, double >;
+extern template class HybridArcDynamicsSimulator< double, Time >;
+extern template class HybridArcDynamicsSimulator< long double, Time >;
+
+
 
 } // namespace propagators
 
