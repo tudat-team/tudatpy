@@ -36,6 +36,7 @@ void returnTrajectory( Eigen::VectorXd initialCartesianState,
     Eigen::Vector6d cartesianElements ( 6 ), keplerianElements ( 6 );
     cartesianElements = initialCartesianState;
 
+
     // Initiate the time variable.
     double time = 0.0 + startingTime;
 
@@ -50,13 +51,16 @@ void returnTrajectory( Eigen::VectorXd initialCartesianState,
         keplerianElements = orbital_element_conversions::convertCartesianToKeplerianElements(
                     cartesianElements, centralBodyGravitationalParameter );
 
+
         // Propagate the keplerian elements with one timestep.
         keplerianElements = orbital_element_conversions::propagateKeplerOrbit( keplerianElements,
                     timeStep, centralBodyGravitationalParameter );
 
+
         // Convert the keplerian elements back into Cartesian elements.
         cartesianElements = orbital_element_conversions::convertKeplerianToCartesianElements(
                     keplerianElements, centralBodyGravitationalParameter );
+
 
         // Update the time.
         time += timeStep;
@@ -100,7 +104,7 @@ void returnCircularTrajectory( double maximumTimeStep,
 //! Write a trajectory to a data file.
 void writeTrajectoryToFile( std::vector < Eigen::Vector3d > positionVector,
                             std::vector < double > timeVector,
-                            const char * fileName )
+                            const std::string fileName)
 {
     std::ofstream exportFile( fileName );
     for ( unsigned int counter = 0; counter < timeVector.size( ); counter++ )
