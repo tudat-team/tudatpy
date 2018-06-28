@@ -58,6 +58,27 @@ static std::vector< AvailableAcceleration > unsupportedAccelerationTypes =
     third_body_mutual_spherical_harmonic_gravity
 };
 
+static std::map< EmpiricalAccelerationComponents, std::string > empiricalAccelerationComponentTypes =
+{
+    { radial_empirical_acceleration_component, "radial" },
+    { along_track_empirical_acceleration_component, "alongTrack" },
+    { across_track_empirical_acceleration_component, "acrossTrack" }
+};
+
+static std::map< std::string, EmpiricalAccelerationComponents > empiricalAccelerationComponentTypesInverse =
+{
+    { "radial", radial_empirical_acceleration_component },
+    { "alongTrack", along_track_empirical_acceleration_component },
+    { "acrossTrack", across_track_empirical_acceleration_component }
+};
+
+static std::map< EmpiricalAccelerationFunctionalShapes, std::string > empiricalAccelerationFunctionalShapes =
+{
+    { constant_empirical, "constant" },
+    { sine_empirical, "sine" },
+    { cosine_empirical, "cosine" }
+};
+
 //! Convert `AvailableAcceleration` to `json`.
 inline void to_json( nlohmann::json& jsonObject, const AvailableAcceleration& accelerationType )
 {
@@ -68,6 +89,31 @@ inline void to_json( nlohmann::json& jsonObject, const AvailableAcceleration& ac
 inline void from_json( const nlohmann::json& jsonObject, AvailableAcceleration& accelerationType )
 {
     accelerationType = json_interface::enumFromString( jsonObject, accelerationTypes );
+}
+
+//! Convert `EmpiricalAccelerationComponents` to `json`.
+inline void to_json( nlohmann::json& jsonObject, const EmpiricalAccelerationComponents& empiricalAccelerationComponent )
+{
+    jsonObject = json_interface::stringFromEnum( empiricalAccelerationComponent, empiricalAccelerationComponentTypes );
+}
+
+//! Convert `json` to `EmpiricalAccelerationComponents`.
+inline void from_json( const nlohmann::json& jsonObject, EmpiricalAccelerationComponents& empiricalAccelerationComponent )
+{
+    empiricalAccelerationComponent = json_interface::enumFromString( jsonObject, empiricalAccelerationComponentTypes );
+}
+
+
+//! Convert `EmpiricalAccelerationFunctionalShapes` to `json`.
+inline void to_json( nlohmann::json& jsonObject, const EmpiricalAccelerationFunctionalShapes& empiricalAccelerationFunctionalShape )
+{
+    jsonObject = json_interface::stringFromEnum( empiricalAccelerationFunctionalShape, empiricalAccelerationFunctionalShapes );
+}
+
+//! Convert `json` to `EmpiricalAccelerationFunctionalShapes`.
+inline void from_json( const nlohmann::json& jsonObject, EmpiricalAccelerationFunctionalShapes& empiricalAccelerationFunctionalShape )
+{
+    empiricalAccelerationFunctionalShape = json_interface::enumFromString( jsonObject, empiricalAccelerationFunctionalShapes );
 }
 
 } // namespace basic_astrodynamics
@@ -85,5 +131,23 @@ void from_json( const nlohmann::json& jsonObject, boost::shared_ptr< Acceleratio
 } // namespace simulation_setup
 
 } // namespace tudat
+
+
+namespace boost
+{
+    template<>
+    tudat::basic_astrodynamics::EmpiricalAccelerationComponents lexical_cast(const std::string & s) {
+        return tudat::basic_astrodynamics::empiricalAccelerationComponentTypesInverse.at( s );
+    }
+}
+
+namespace boost
+{
+    template<>
+    std::string lexical_cast(const tudat::basic_astrodynamics::EmpiricalAccelerationComponents & component )
+    {
+        return tudat::basic_astrodynamics::empiricalAccelerationComponentTypes.at( component );
+    }
+}
 
 #endif // TUDAT_JSONINTERFACE_ACCELERATION_H
