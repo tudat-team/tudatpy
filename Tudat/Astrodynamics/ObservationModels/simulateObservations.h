@@ -22,6 +22,11 @@ namespace tudat
 namespace observation_models
 {
 
+enum ObservationSimulationTimesTypes
+{
+    tabulated_observation_simulation_times
+};
+
 //! Base struct for defining times at which observations are to be simulated.
 /*!
  *  Base struct for defining times at which observations are to be simulated. Here, only the link end from which the
@@ -408,15 +413,7 @@ simulateObservationsWithNoise(
 Eigen::VectorXd getIdenticallyAndIndependentlyDistributedNoise(
         const boost::function< double( const double ) > noiseFunction,
         const int observationSize,
-        const double evaluationTime )
-{
-    Eigen::VectorXd noiseValues = Eigen::VectorXd( observationSize );
-    for( int i = 0; i < observationSize; i++ )
-    {
-        noiseValues( i ) = noiseFunction( evaluationTime );
-    }
-    return noiseValues;
-}
+        const double evaluationTime );
 
 //! Function to simulate observations with observation noise from set of observables and link and sets
 /*!

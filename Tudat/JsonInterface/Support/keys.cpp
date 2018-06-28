@@ -236,6 +236,69 @@ const std::string Keys::Variable::targetFrame = "targetFrame";
 const std::string Keys::Variable::angle = "angle";
 
 
+// Parameter
+const std::string Keys::Parameter::parameterType = "parameterType";
+const std::string Keys::Parameter::associatedBody = "associatedBody";
+const std::string Keys::Parameter::secondaryIdentifier = "secondaryIdentifier";
+
+const std::string Keys::Parameter::initialStateValue = "initialStateValue";
+const std::string Keys::Parameter::centralBody = "centralBody";
+const std::string Keys::Parameter::frameOrientation = "frameOrientation";
+const std::string Keys::Parameter::arcStartTimes = "arcStartTimes";
+
+const std::string Keys::Parameter::deformingBodies = "deformingBodies";
+
+const std::string Keys::Parameter::componentsToEstimate = "componentsToEstimate";
+
+const std::string Keys::Parameter::observableType = "observableType";
+const std::string Keys::Parameter::linkEnds = "linkEnds";
+const std::string Keys::Parameter::referenceLinkEnd = "referenceLinkEnd";
+
+const std::string Keys::Parameter::degree = "degree";
+const std::string Keys::Parameter::orders = "orders";
+const std::string Keys::Parameter::useComplexValue = "useComplexValue";
+
+// Observation
+const std::string Keys::Observation::observableType = "observableType";
+const std::string Keys::Observation::lightTimeCorrectionSettingsList = "lightTimeCorrections";
+const std::string Keys::Observation::biasSettings = "bias";
+
+const std::string Keys::Observation::transmitterProperTimeRateSettings = "transmitterProperTimeRate";
+const std::string Keys::Observation::receiverProperTimeRateSettings = "receiverProperTimeRate";
+
+const std::string Keys::Observation::constantIntegrationTime = "constantIntegrationTime";
+
+const std::string Keys::Observation::oneWayRangeObsevationSettings = "oneWayRangeObsevation";
+const std::string Keys::Observation::retransmissionTimes = "retransmissionTimes";
+
+const std::string Keys::Observation::uplinkOneWayDopplerSettings = "uplinkOneWayDoppler";
+const std::string Keys::Observation::downlinkOneWayDopplerSettings = "downlinkOneWayDoppler";
+
+const std::string Keys::Observation::properTimeRateType = "properTimeRateType";
+const std::string Keys::Observation::centralBody = "centralBody";
+
+const std::string Keys::Observation::lightTimeCorrectionType = "lightTimeCorrectionType";
+const std::string Keys::Observation::perturbingBodies = "perturbingBodies";
+
+const std::string Keys::Observation::observationSimulationTimesType = "observationSimulationTimesType";
+const std::string Keys::Observation::observationSimulationTimesList = "observationSimulationTimesList";
+
+const std::string Keys::Observation::observableViabilityType = "viabilityType";
+const std::string Keys::Observation::associatedLinkEnd = "associatedLinkEnd";
+const std::string Keys::Observation::doubleParameter = "doubleParameter";
+const std::string Keys::Observation::stringParameter = "stringParameter";
+
+
+// ObservationBias
+const std::string Keys::ObservationBias::biasType = "biasType";
+const std::string Keys::ObservationBias::multipleBiasesList = "multipleBiasesList";
+const std::string Keys::ObservationBias::constantBias = "constantBias";
+
+const std::string Keys::ObservationBias::arcWiseBiasList = "arcWiseBiasList";
+const std::string Keys::ObservationBias::arcStartTimes = "arcStartTimes";
+const std::string Keys::ObservationBias::referenceLinkEnd = "referenceLinkEnd";
+
+
 //  Propagator
 const std::string Keys::propagators = "propagators";
 
