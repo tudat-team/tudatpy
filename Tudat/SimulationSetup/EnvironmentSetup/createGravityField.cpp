@@ -96,8 +96,8 @@ FromFileSphericalHarmonicsGravityFieldSettings::FromFileSphericalHarmonicsGravit
 FromFileSphericalHarmonicsGravityFieldSettings::FromFileSphericalHarmonicsGravityFieldSettings(
         const SphericalHarmonicsModel sphericalHarmonicsModel ) :
     FromFileSphericalHarmonicsGravityFieldSettings( getPathForSphericalHarmonicsModel( sphericalHarmonicsModel ),
-                                                 getReferenceFrameForSphericalHarmonicsModel( sphericalHarmonicsModel ),
-                                                 50, 50, 0, 1 )
+                                                    getReferenceFrameForSphericalHarmonicsModel( sphericalHarmonicsModel ),
+                                                    50, 50, 0, 1 )
 {
     sphericalHarmonicsModel_ = sphericalHarmonicsModel;
 }
@@ -180,25 +180,28 @@ std::pair< double, double  > readGravityFieldFile(
                                  boost::algorithm::token_compress_on );
 
         // Check current line for consistency
-        if( vectorOfIndividualStrings.size( ) < 4 )
+        if( vectorOfIndividualStrings.size( ) != 0 )
         {
-            std::string errorMessage = "Error when reading pds gravity field file, number of fields is " +
-                    std::to_string( vectorOfIndividualStrings.size( ) );
-            throw std::runtime_error( errorMessage );
-        }
-        else
-        {
-            // Read current degree and orde from line.
-            currentDegree = std::stoi( vectorOfIndividualStrings[ 0 ] );
-            currentOrder = std::stoi( vectorOfIndividualStrings[ 1 ] );
-
-            // Set cosine and sine coefficients for current degree and order.
-            if( currentDegree <= maximumDegree && currentOrder <= maximumOrder )
+            if( vectorOfIndividualStrings.size( ) < 4 )
             {
-                cosineCoefficients( currentDegree, currentOrder ) =
-                        std::stod( vectorOfIndividualStrings[ 2 ] );
-                sineCoefficients( currentDegree, currentOrder ) =
-                        std::stod( vectorOfIndividualStrings[ 3 ] );
+                std::string errorMessage = "Error when reading pds gravity field file, number of fields is " +
+                        std::to_string( vectorOfIndividualStrings.size( ) );
+                throw std::runtime_error( errorMessage );
+            }
+            else
+            {
+                // Read current degree and orde from line.
+                currentDegree = std::stoi( vectorOfIndividualStrings[ 0 ] );
+                currentOrder = std::stoi( vectorOfIndividualStrings[ 1 ] );
+
+                // Set cosine and sine coefficients for current degree and order.
+                if( currentDegree <= maximumDegree && currentOrder <= maximumOrder )
+                {
+                    cosineCoefficients( currentDegree, currentOrder ) =
+                            std::stod( vectorOfIndividualStrings[ 2 ] );
+                    sineCoefficients( currentDegree, currentOrder ) =
+                            std::stod( vectorOfIndividualStrings[ 3 ] );
+                }
             }
         }
     }
