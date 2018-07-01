@@ -56,7 +56,8 @@ enum AvailableAcceleration
     thrust_acceleration,
     relativistic_correction_acceleration,
     empirical_acceleration,
-    direct_tidal_dissipation_acceleration
+    direct_tidal_dissipation_in_central_body_acceleration,
+    direct_tidal_dissipation_in_orbiting_body_acceleration
 };
 
 //! Function to get a string representing a 'named identification' of an acceleration type

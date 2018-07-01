@@ -84,10 +84,29 @@ std::pair< double, double > computeKeplerElementRatesDueToDissipation(
         basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
                     bodyMap, accelerationMap, bodiesToPropagate, centralBodies );
 
+        // Save dependent variables
+        std::vector< boost::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariablesToSave;
+        if( usePlanetDissipation )
+        {
+            dependentVariablesToSave.push_back(
+                        boost::make_shared< SingleAccelerationDependentVariableSaveSettings >(
+                            direct_tidal_dissipation_in_central_body_acceleration, satelliteToPropagate, "Jupiter" ) );
+        }
+        else
+        {
+            dependentVariablesToSave.push_back(
+                        boost::make_shared< SingleAccelerationDependentVariableSaveSettings >(
+                            direct_tidal_dissipation_in_orbiting_body_acceleration, satelliteToPropagate, "Jupiter" ) );
+        }
+
+        boost::shared_ptr< DependentVariableSaveSettings > dependentVariableSaveSettings =
+                boost::make_shared< DependentVariableSaveSettings >( dependentVariablesToSave, 0 ) ;
+
         boost::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
                 boost::make_shared< TranslationalStatePropagatorSettings< double > >
                 ( centralBodies, accelerationModelMap, bodiesToPropagate, getInitialStatesOfBodies(
-                      bodiesToPropagate, centralBodies, bodyMap, initialTime ), finalTime );
+                      bodiesToPropagate, centralBodies, bodyMap, initialTime ), finalTime, cowell,
+                  dependentVariableSaveSettings );
 
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -113,9 +132,9 @@ std::pair< double, double > computeKeplerElementRatesDueToDissipation(
         }
     }
 
-//    input_output::writeDataMapToTextFile( integrationResultWithDissipationKepler,
-//                                          "keplerElements_"  + std::to_string( usePlanetDissipation ) +
-//                                          satelliteToPropagate + ".dat" );
+    //    input_output::writeDataMapToTextFile( integrationResultWithDissipationKepler,
+    //                                          "keplerElements_"  + std::to_string( usePlanetDissipation ) +
+    //                                          satelliteToPropagate + ".dat" );
 
     std::vector< double > semiMajorAxisFit = linear_algebra::getLeastSquaresPolynomialFit(
                 semiMajorAxes, boost::assign::list_of( 0 )( 1 ) );
