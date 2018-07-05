@@ -9,7 +9,7 @@
  *
  */
 
-
+#include "Tudat/JsonInterface/Estimation/observation.h"
 #include "Tudat/JsonInterface/Propagation/acceleration.h"
 #include "Tudat/JsonInterface/Estimation/parameter.h"
 #include "Tudat/SimulationSetup/EstimationSetup/estimatableParameterSettings.h"
@@ -35,7 +35,9 @@ void to_json( nlohmann::json& jsonObject,
     const EstimatebleParametersEnum parameterType = parameterSettings->parameterType_.first;
     jsonObject[ K::parameterType ] = parameterType;
     jsonObject[ K::associatedBody ] = parameterSettings->parameterType_.second.first;
+    assignIfNotEmpty( jsonObject, K::secondaryIdentifier, parameterSettings->parameterType_.second.second );
 
+    std::cout<<boost::lexical_cast< std::string >( parameterType )<<std::endl;
     switch ( parameterType )
     {
     case initial_body_state:
@@ -64,13 +66,6 @@ void to_json( nlohmann::json& jsonObject,
 
         return;
     }
-    case gravitational_parameter:
-    case radiation_pressure_coefficient:
-    case constant_rotation_rate:
-    case constant_drag_coefficient:
-    case ppn_parameter_gamma:
-    case ppn_parameter_beta:
-    case equivalence_principle_lpi_violation_parameter:
     case direct_dissipation_tidal_time_lag:
     {
         boost::shared_ptr< DirectTidalTimeLagEstimatableParameterSettings > dissipationSettings =
@@ -91,6 +86,7 @@ void to_json( nlohmann::json& jsonObject,
         jsonObject[ K::observableType ] = biasSettings->observableType_;
         jsonObject[ K::linkEnds ] = biasSettings->linkEnds_;
 
+        return;
     }
     case constant_relative_observation_bias:
     {
@@ -101,6 +97,8 @@ void to_json( nlohmann::json& jsonObject,
         assertNonNullPointer( biasSettings );
         jsonObject[ K::observableType ] = biasSettings->observableType_;
         jsonObject[ K::linkEnds ] = biasSettings->linkEnds_;
+
+        return;
     }
     case arcwise_constant_additive_observation_bias:
     {
@@ -114,21 +112,69 @@ void to_json( nlohmann::json& jsonObject,
         jsonObject[ K::arcStartTimes ] = biasSettings->arcStartTimes_;
         jsonObject[ K::referenceLinkEnd ] = biasSettings->linkEndForTime_;
 
+        return;
+
     }
     case arcwise_constant_relative_observation_bias:
     {
-        throw std::runtime_error( "JSON interface for bias estimation not yet imnplemented" );
+        boost::shared_ptr< ArcWiseConstantObservationBiasEstimatableParameterSettings > biasSettings =
+                boost::dynamic_pointer_cast<
+                ArcWiseConstantObservationBiasEstimatableParameterSettings >(
+                    parameterSettings );
+        assertNonNullPointer( biasSettings );
+        jsonObject[ K::observableType ] = biasSettings->observableType_;
+        jsonObject[ K::linkEnds ] = biasSettings->linkEnds_;
+        jsonObject[ K::arcStartTimes ] = biasSettings->arcStartTimes_;
+        jsonObject[ K::referenceLinkEnd ] = biasSettings->linkEndForTime_;
+
+        return;
     }
-    case rotation_pole_position:
     case spherical_harmonics_cosine_coefficient_block:
     {
-        throw std::runtime_error( "JSON interface for SH coefficient estimation not yet imnplemented" );
+        boost::shared_ptr< SphericalHarmonicEstimatableParameterSettings > coefficientSettings =
+                boost::dynamic_pointer_cast<
+                SphericalHarmonicEstimatableParameterSettings >(
+                    parameterSettings );
+        assertNonNullPointer( coefficientSettings );
+
+        if( coefficientSettings->maximumDegree_ < 0 )
+        {
+            jsonObject[ K::coefficientIndices ] = coefficientSettings->blockIndices_;
+        }
+        else
+        {
+            jsonObject[ K::maximumDegree ] = coefficientSettings->maximumDegree_;
+            jsonObject[ K::minimumDegree ] = coefficientSettings->minimumDegree_;
+            jsonObject[ K::maximumOrder ] = coefficientSettings->maximumOrder_;
+            jsonObject[ K::minimumOrder ] = coefficientSettings->minimumOrder_;
+
+        }
+
+        return;
     }
     case spherical_harmonics_sine_coefficient_block:
     {
-        throw std::runtime_error( "JSON interface for SH coefficient estimation not yet imnplemented" );
+        boost::shared_ptr< SphericalHarmonicEstimatableParameterSettings > coefficientSettings =
+                boost::dynamic_pointer_cast<
+                SphericalHarmonicEstimatableParameterSettings >(
+                    parameterSettings );
+        assertNonNullPointer( coefficientSettings );
+
+        if( coefficientSettings->maximumDegree_ < 0 )
+        {
+            jsonObject[ K::coefficientIndices ] = coefficientSettings->blockIndices_;
+        }
+        else
+        {
+            jsonObject[ K::maximumDegree ] = coefficientSettings->maximumDegree_;
+            jsonObject[ K::minimumDegree ] = coefficientSettings->minimumDegree_;
+            jsonObject[ K::maximumOrder ] = coefficientSettings->maximumOrder_;
+            jsonObject[ K::minimumOrder ] = coefficientSettings->minimumOrder_;
+
+        }
+
+        return;
     }
-    case ground_station_position:
     case empirical_acceleration_coefficients:
     {
         boost::shared_ptr< EmpiricalAccelerationEstimatableParameterSettings > empiricalAccelerationSettings =
@@ -142,7 +188,7 @@ void to_json( nlohmann::json& jsonObject,
         return;
     }
     case arc_wise_radiation_pressure_coefficient:
-    {        
+    {
         boost::shared_ptr< ArcWiseRadiationPressureCoefficientEstimatableParameterSettings > coefficientSettings =
                 boost::dynamic_pointer_cast<
                 ArcWiseRadiationPressureCoefficientEstimatableParameterSettings >(
@@ -195,7 +241,6 @@ void to_json( nlohmann::json& jsonObject,
     }
     default:
     {
-        assignIfNotEmpty( jsonObject, K::secondaryIdentifier, parameterSettings->parameterType_.second.second );
         return;
     }
     }
@@ -238,13 +283,6 @@ void from_json( const nlohmann::json& jsonObject,
                     getValue< std::string >( jsonObject, K::frameOrientation ) );
         return;
     }
-    case gravitational_parameter:
-    case radiation_pressure_coefficient:
-    case constant_rotation_rate:
-    case constant_drag_coefficient:
-    case ppn_parameter_gamma:
-    case ppn_parameter_beta:
-    case equivalence_principle_lpi_violation_parameter:
     case direct_dissipation_tidal_time_lag:
     {
         parameterSettings =
@@ -255,30 +293,96 @@ void from_json( const nlohmann::json& jsonObject,
     }
     case constant_additive_observation_bias:
     {
-        throw std::runtime_error( "JSON interface for bias estimation not yet imnplemented" );
+        parameterSettings = boost::make_shared< ConstantObservationBiasEstimatableParameterSettings >(
+                    getValue< observation_models::LinkEnds >( jsonObject, K::linkEnds ),
+                    getValue< observation_models::ObservableType >( jsonObject, K::observableType ), true );
     }
     case constant_relative_observation_bias:
     {
-        throw std::runtime_error( "JSON interface for bias estimation not yet imnplemented" );
+        parameterSettings = boost::make_shared< ConstantObservationBiasEstimatableParameterSettings >(
+                    getValue< observation_models::LinkEnds >( jsonObject, K::linkEnds ),
+                    getValue< observation_models::ObservableType >( jsonObject, K::observableType ), false );
     }
     case arcwise_constant_additive_observation_bias:
     {
-        throw std::runtime_error( "JSON interface for bias estimation not yet imnplemented" );
+        parameterSettings = boost::make_shared< ArcWiseConstantObservationBiasEstimatableParameterSettings >(
+                    getValue< observation_models::LinkEnds >( jsonObject, K::linkEnds ),
+                    getValue< observation_models::ObservableType >( jsonObject, K::observableType ),
+                    getValue< std::vector< double > >( jsonObject, K::arcStartTimes ),
+                    getValue< observation_models::LinkEndType >( jsonObject, K::referenceLinkEnd ), true );
     }
     case arcwise_constant_relative_observation_bias:
     {
-        throw std::runtime_error( "JSON interface for bias estimation not yet imnplemented" );
+        parameterSettings = boost::make_shared< ArcWiseConstantObservationBiasEstimatableParameterSettings >(
+                    getValue< observation_models::LinkEnds >( jsonObject, K::linkEnds ),
+                    getValue< observation_models::ObservableType >( jsonObject, K::observableType ),
+                    getValue< std::vector< double > >( jsonObject, K::arcStartTimes ),
+                    getValue< observation_models::LinkEndType >( jsonObject, K::referenceLinkEnd ), false );
     }
-    case rotation_pole_position:
     case spherical_harmonics_cosine_coefficient_block:
     {
-        throw std::runtime_error( "JSON interface for SH coefficient estimation not yet imnplemented" );
+        bool parameterSet = false;
+//        try
+//        {
+//            parameterSettings =
+//                    boost::make_shared< SphericalHarmonicEstimatableParameterSettings >(
+//                        bodyName,
+//                        getValue< std::vector< std::pair< int, int > > >( jsonObject, K::coefficientIndices ),
+//                        spherical_harmonics_cosine_coefficient_block );
+//            parameterSet = true;
+//        }
+//        catch ( ... ) { }
+
+        try
+        {
+            parameterSettings =
+                    boost::make_shared< SphericalHarmonicEstimatableParameterSettings >(
+                        getValue< int >( jsonObject, K::minimumDegree ),
+                        getValue< int >( jsonObject, K::minimumOrder ),
+                        getValue< int >( jsonObject, K::maximumDegree ),
+                        getValue< int >( jsonObject, K::maximumOrder ),
+                        bodyName,
+                        spherical_harmonics_cosine_coefficient_block );
+            if( parameterSet == true )
+            {
+                std::cerr<<"Warning when reading spherical harmonic coefficient estimation settings from JSON, duplicate information detected"<<std::endl;
+            }
+            parameterSet = true;
+        }
+        catch ( ... ) { }
     }
     case spherical_harmonics_sine_coefficient_block:
     {
-        throw std::runtime_error( "JSON interface for SH coefficient estimation not yet imnplemented" );
+        bool parameterSet = false;
+//        try
+//        {
+//            parameterSettings =
+//                    boost::make_shared< SphericalHarmonicEstimatableParameterSettings >(
+//                        bodyName,
+//                        getValue< std::vector< std::pair< int, int > > >( jsonObject, K::coefficientIndices ),
+//                        spherical_harmonics_sine_coefficient_block );
+//            parameterSet = true;
+//        }
+//        catch ( ... ) { }
+
+        try
+        {
+            parameterSettings =
+                    boost::make_shared< SphericalHarmonicEstimatableParameterSettings >(
+                        getValue< int >( jsonObject, K::minimumDegree ),
+                        getValue< int >( jsonObject, K::minimumOrder ),
+                        getValue< int >( jsonObject, K::maximumDegree ),
+                        getValue< int >( jsonObject, K::maximumOrder ),
+                        bodyName,
+                        spherical_harmonics_sine_coefficient_block );
+            if( parameterSet == true )
+            {
+                std::cerr<<"Warning when reading spherical harmonic coefficient estimation settings from JSON, duplicate information detected"<<std::endl;
+            }
+            parameterSet = true;
+        }
+        catch ( ... ) { }
     }
-    case ground_station_position:
     case empirical_acceleration_coefficients:
     {
         parameterSettings =
@@ -293,19 +397,42 @@ void from_json( const nlohmann::json& jsonObject,
     }
     case arc_wise_radiation_pressure_coefficient:
     {
-
+        parameterSettings =
+                boost::make_shared< ArcWiseRadiationPressureCoefficientEstimatableParameterSettings >(
+                    bodyName, getValue< std::vector< double > >( jsonObject, K::arcStartTimes ) );
+        return;
     }
     case arc_wise_empirical_acceleration_coefficients:
     {
 
+        parameterSettings =
+                boost::make_shared< ArcWiseEmpiricalAccelerationEstimatableParameterSettings >(
+                    bodyName,
+                    getValue< std::string >( jsonObject, K::centralBody ),
+                    getValue< std::map< basic_astrodynamics::EmpiricalAccelerationComponents,
+                    std::vector< basic_astrodynamics::EmpiricalAccelerationFunctionalShapes > > >(
+                        jsonObject, K::componentsToEstimate ),
+                    getValue< std::vector< double > >( jsonObject, K::arcStartTimes ) );
+        return;
     }
     case full_degree_tidal_love_number:
     {
-
+        parameterSettings =
+                boost::make_shared< FullDegreeTidalLoveNumberEstimatableParameterSettings >
+                ( bodyName, getValue< int >( jsonObject, K::degree ),
+                  getValue< std::vector< std::string > >( jsonObject, K::deformingBodies ),
+                  getValue< bool >( jsonObject, K::useComplexValue ) );
+        return;
     }
     case single_degree_variable_tidal_love_number:
     {
-
+        parameterSettings =
+                boost::make_shared< SingleDegreeVariableTidalLoveNumberEstimatableParameterSettings >
+                ( bodyName, getValue< int >( jsonObject, K::degree ),
+                  getValue< std::vector< int > >( jsonObject, K::orders ),
+                  getValue< std::vector< std::string > >( jsonObject, K::deformingBodies ),
+                  getValue< bool >( jsonObject, K::useComplexValue ) );
+        return;
     }
     default:
     {

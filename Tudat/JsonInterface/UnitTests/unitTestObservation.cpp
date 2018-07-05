@@ -71,6 +71,7 @@ BOOST_AUTO_TEST_CASE( test_json_acceleration_sphericalHarmonicGravity )
     // Iterate over all observable types and associated link ends, and creatin settings for observation
     //observation_models::ObservationSettingsMap observationSettingsMap;
     std::map< LinkEnds, boost::shared_ptr< ObservationSettings > > observationSettingsMap;
+    std::vector< boost::shared_ptr< ObservationSettings > > observationSettingsMap2;
 
     for( std::map< ObservableType, std::vector< LinkEnds > >::iterator linkEndIterator = linkEndsPerObservable.begin( );
          linkEndIterator != linkEndsPerObservable.end( ); linkEndIterator++ )
@@ -108,9 +109,10 @@ BOOST_AUTO_TEST_CASE( test_json_acceleration_sphericalHarmonicGravity )
         }
     }
 
+
     nlohmann::json jsonObject;
 
-    to_json( jsonObject, observationSettingsMap );
+    to_json( jsonObject, observationSettingsMap2 );
 
     std::ofstream outputFile( "/home/dominic/Software/numericalAstrodynamicsTudatBundle/tudatBundle/tudat/Tudat/JsonInterface/UnitTests/output.json" );
     outputFile << jsonObject.dump( 2 );

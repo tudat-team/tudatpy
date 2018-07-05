@@ -18,7 +18,6 @@
 
 #include "Tudat/JsonInterface/Environment/spice.h"
 #include "Tudat/JsonInterface/Environment/body.h"
-#include "Tudat/JsonInterface/Estimation/parameter.h"
 #include "Tudat/JsonInterface/Propagation/propagator.h"
 #include "Tudat/JsonInterface/Mathematics/integrator.h"
 #include "Tudat/JsonInterface/Propagation/export.h"
@@ -29,39 +28,6 @@ namespace tudat
 
 namespace json_interface
 {
-
-enum JsonSimulationTypes
-{
-    equations_of_motion_propagation,
-    variational_equations_propagation
-};
-
-
-//! Map of `ObservableType` string representations.
-static std::map< JsonSimulationTypes, std::string > simulationTypes =
-{
-    { equations_of_motion_propagation, "EoM" },
-    { variational_equations_propagation, "Variational" }
-};
-
-//! Map of `ObservableType` string representations.
-static std::map< std::string, JsonSimulationTypes > simulationTypesInverse =
-{
-    { "EoM", equations_of_motion_propagation },
-    { "Variational", variational_equations_propagation }
-};
-
-//! Convert `ObservableType` to `json`.
-inline void to_json( nlohmann::json& jsonObject, const JsonSimulationTypes& simulationType )
-{
-    jsonObject = json_interface::stringFromEnum( simulationType, simulationTypes );
-}
-
-//! Convert `json` to `ObservableType`.
-inline void from_json( const nlohmann::json& jsonObject, JsonSimulationTypes& simulationType )
-{
-    simulationType = json_interface::enumFromString( jsonObject, simulationTypes );
-}
 
 //! Class for managing JSON-based simulations.
 template< typename TimeType = double, typename StateScalarType = double >
@@ -139,20 +105,11 @@ public:
             initialClockTime_ = std::chrono::steady_clock::now( );
         }
 
-//        simulationType_ =
-//                boost::lexical_cast< JsonSimulationTypes >(
-//                    getValue< std::string >( jsonObject_, Keys::simulationType, "EoM" ) );
-
         resetIntegratorSettings( );
         resetSpice( );
         resetBodies( );              // must be called after resetIntegratorSettings and resetSpice
         resetExportSettings( );
         resetPropagatorSettings( );  // must be called after resetBodies and resetExportSettings
-        if( simulationType_ == variational_equations_propagation )
-        {
-            resetParameterSettings( );
-        }
-
         resetApplicationOptions( );
         resetDynamicsSimulator( );
     }
@@ -540,20 +497,6 @@ protected:
         }
     }
 
-    virtual void resetParameterSettings( )
-    {
-        globalFrameOrigin_ = getValue< std::string >( jsonObject_, Keys::globalFrameOrigin, "SSB" );
-        globalFrameOrientation_ = getValue< std::string >( jsonObject_, Keys::globalFrameOrientation, "ECLIPJ2000" );
-        updateFromJSON( parameterSettings_, jsonObject_ );
-
-        if ( profiling )
-        {
-            std::cout << "resetParameters: " << std::chrono::duration_cast< std::chrono::milliseconds >(
-                             std::chrono::steady_clock::now( ) - initialClockTime_ ).count( ) * 1.0e-3 << " s" << std::endl;
-            initialClockTime_ = std::chrono::steady_clock::now( );
-        }
-    }
-
     //! Reset applicationOptions_ from the current jsonObject_.
     /*!
      * @copybrief resetApplicationOptions
@@ -596,8 +539,6 @@ protected:
     //! Spice settings (NULL if Spice is not used).
     boost::shared_ptr< SpiceSettings > spiceSettings_;
 
-    JsonSimulationTypes simulationType_;
-
     //! Global frame origin.
     std::string globalFrameOrigin_;
 
@@ -612,8 +553,6 @@ protected:
 
     //! Propagation settings.
     boost::shared_ptr< propagators::MultiTypePropagatorSettings< StateScalarType > > propagatorSettings_;
-
-    std::vector< boost::shared_ptr< estimatable_parameters::EstimatableParameterSettings > > parameterSettings_;
 
     //! Vector of export settings (each element corresponds to an output file).
     std::vector< boost::shared_ptr< ExportSettings > > exportSettingsVector_;

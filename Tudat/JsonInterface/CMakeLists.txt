@@ -248,5 +248,9 @@ add_executable(test_JsonInterfaceObservation "${JSON_TESTS_DIR}/unitTestObservat
 setup_custom_test_program(test_JsonInterfaceObservation "")
 target_link_libraries(test_JsonInterfaceObservation ${JSON_PROPAGATION_LIBRARIES})
 
+add_executable(test_JsonInterfaceParameter "${JSON_TESTS_DIR}/unitTestParameter.cpp")
+setup_custom_test_program(test_JsonInterfaceParameter "")
+target_link_libraries(test_JsonInterfaceParameter ${JSON_PROPAGATION_LIBRARIES})
+
 
 
