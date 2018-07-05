@@ -35,7 +35,7 @@ struct SpecialKeys
 //! Keys recognised by json_interface.
 struct Keys
 {
-    // static const std::string simulationType;
+     static const std::string simulationType;
     static const std::string initialEpoch;
     static const std::string finalEpoch;
     static const std::string globalFrameOrigin;
@@ -257,6 +257,12 @@ struct Keys
         static const std::string centralBody;
         static const std::string frameOrientation;
         static const std::string arcStartTimes;
+
+        static const std::string coefficientIndices;
+        static const std::string maximumDegree;
+        static const std::string minimumDegree;
+        static const std::string maximumOrder;
+        static const std::string minimumOrder;
 
         static const std::string deformingBodies;
 

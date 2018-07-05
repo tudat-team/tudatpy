@@ -100,6 +100,18 @@ void from_json( const nlohmann::json& jsonObject, map< KeyType, ValueType >& ord
 
 // STD::VECTOR
 
+//! Create a `json` object from a `std::map` with arbitrary key type.
+template< typename ValueType >
+void to_json( nlohmann::json& jsonObject, const vector< ValueType >& vectorInput )
+{
+        nlohmann::json jsonArray;
+        for ( unsigned int r = 0; r < vectorInput.size( ); ++r )
+        {
+            jsonArray.push_back( vectorInput.at( r ) );
+        }
+        jsonObject.push_back( jsonArray );
+}
+
 //! Create a `std::vector` from a `json` object.
 template< typename ValueType >
 void from_json( const nlohmann::json& jsonObject, vector< ValueType >& myVector )

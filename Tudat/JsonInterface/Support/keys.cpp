@@ -45,7 +45,7 @@ const std::vector< std::string > SpecialKeys::all =
 
 // Keys recognised by json_interface.
 
-// const std::string Keys::simulationType = "simulationType";
+ const std::string Keys::simulationType = "simulationType";
 const std::string Keys::initialEpoch = "initialEpoch";
 const std::string Keys::finalEpoch = "finalEpoch";
 const std::string Keys::globalFrameOrigin = "globalFrameOrigin";
@@ -245,6 +245,12 @@ const std::string Keys::Parameter::initialStateValue = "initialStateValue";
 const std::string Keys::Parameter::centralBody = "centralBody";
 const std::string Keys::Parameter::frameOrientation = "frameOrientation";
 const std::string Keys::Parameter::arcStartTimes = "arcStartTimes";
+
+const std::string Keys::Parameter::coefficientIndices = "coefficientIndices";
+const std::string Keys::Parameter::maximumDegree = "maximumDegree";
+const std::string Keys::Parameter::minimumDegree = "minimumDegree";
+const std::string Keys::Parameter::maximumOrder = "maximumOrder";
+const std::string Keys::Parameter::minimumOrder = "minimumOrder";
 
 const std::string Keys::Parameter::deformingBodies = "deformingBodies";
 
