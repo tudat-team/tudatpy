@@ -43,6 +43,7 @@ set(PROPAGATORS_HEADERS
   "${SRCROOT}${PROPAGATORSDIR}/customStateDerivative.h"
   "${SRCROOT}${PROPAGATORSDIR}/rotationalMotionStateDerivative.h"
   "${SRCROOT}${PROPAGATORSDIR}/stateDerivativeCircularRestrictedThreeBodyProblem.h"
+  "${SRCROOT}${PROPAGATORSDIR}/getZeroProperModeRotationalInitialState.h"
 )
 
 # Add static libraries.

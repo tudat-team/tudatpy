@@ -867,6 +867,11 @@ public:
     }
 
 
+    void resetTorqueModelsMap( const basic_astrodynamics::TorqueModelMap& torqueModelMap )
+    {
+        torqueModelMap_ = torqueModelMap;
+    }
+
 private:
 
     //! List of torque settings that are to be used to create the torque models
