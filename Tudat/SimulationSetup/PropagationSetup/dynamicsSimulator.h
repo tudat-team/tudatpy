@@ -383,7 +383,6 @@ public:
         initialPropagationTime_( integratorSettings_->initialTime_ ), initialClockTime_( initialClockTime ),
         propagationTerminationReason_( std::make_shared< PropagationTerminationDetails >( propagation_never_run ) )
     {
-       //  16 s
         if( propagatorSettings == NULL )
         {
             throw std::runtime_error( "Error in dynamics simulator, propagator settings not defined" );
@@ -397,26 +396,21 @@ public:
         {
             throw std::runtime_error( "Error in dynamics simulator, integrator settings not defined" );
         }
-      // 17 s
         if( setIntegratedResult_ )
         {
             frameManager_ = createFrameManager( bodyMap );
             integratedStateProcessors_ = createIntegratedStateProcessors< TimeType, StateScalarType >(
                         propagatorSettings_, bodyMap_, frameManager_ );
         }
-      // 19 s / 17 s
         environmentUpdater_ = createEnvironmentUpdaterForDynamicalEquations< StateScalarType, TimeType >(
                     propagatorSettings_, bodyMap_ );
-      // 20 s ... 17 s
         dynamicsStateDerivative_ = std::make_shared< DynamicsStateDerivativeModel< TimeType, StateScalarType > >(
                     createStateDerivativeModels< StateScalarType, TimeType >(
                         propagatorSettings_, bodyMap_, initialPropagationTime_ ),
                     std::bind( &EnvironmentUpdater< StateScalarType, TimeType >::updateEnvironment,
                                  environmentUpdater_, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3 ) );
-        //  21 s
         propagationTerminationCondition_ = createPropagationTerminationConditions(
                     propagatorSettings_->getTerminationSettings( ), bodyMap_, integratorSettings->initialTimeStep_ );
-//     // 21 s
 
         if( propagatorSettings_->getDependentVariablesToSave( ) != NULL )
         {
@@ -474,10 +468,13 @@ public:
         dynamicsStateDerivative_->setPropagationSettings( std::vector< IntegratedStateType >( ), 1, 0 );
         dynamicsStateDerivative_->resetFunctionEvaluationCounter( );
 
+        std::cout<<"Start time "<<this->initialPropagationTime_<<" "<<integratorSettings_->initialTime_<<std::endl;
+
         // Reset initial time to ensure consistency with multi-arc propagation.
         integratorSettings_->initialTime_ = this->initialPropagationTime_;
 
         // Integrate equations of motion numerically.
+        resetPropagationTerminationConditions( );
         propagationTerminationReason_ =
                 EquationIntegrationInterface< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >, TimeType >::integrateEquations(
                     stateDerivativeFunction_, equationsOfMotionNumericalSolutionRaw_,
@@ -707,6 +704,11 @@ public:
     double getInitialPropagationTime( )
     {
         return this->initialPropagationTime_;
+    }
+
+    void resetInitialPropagationTime( const double initialPropagationTime )
+    {
+        initialPropagationTime_ = initialPropagationTime;
     }
 
     //! Function to retrieve the functions that compute the dependent variables at each time step

@@ -56,6 +56,7 @@ set(BASICASTRODYNAMICS_HEADERS
   "${SRCROOT}${BASICASTRODYNAMICSDIR}/empiricalAcceleration.h"
   "${SRCROOT}${BASICASTRODYNAMICSDIR}/torqueModel.h"
   "${SRCROOT}${BASICASTRODYNAMICSDIR}/torqueModelTypes.h"
+  "${SRCROOT}${BASICASTRODYNAMICSDIR}/dissipativeTorqueModel.h"
 )
 
 # Add static libraries.

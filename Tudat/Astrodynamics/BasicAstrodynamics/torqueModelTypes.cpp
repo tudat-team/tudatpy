@@ -12,6 +12,7 @@
 #include <iostream>
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/torqueModelTypes.h"
+#include "Tudat/Astrodynamics/BasicAstrodynamics/dissipativeTorqueModel.h"
 #include "Tudat/Astrodynamics/Gravitation/secondDegreeGravitationalTorque.h"
 #include "Tudat/Astrodynamics/Gravitation/sphericalHarmonicGravitationalTorque.h"
 #include "Tudat/Astrodynamics/Aerodynamics/aerodynamicTorque.h"
@@ -43,6 +44,10 @@ AvailableTorque getTorqueModelType(
     {
         torqueType = inertial_torque;
     }
+    else if( std::dynamic_pointer_cast< basic_astrodynamics::DissipativeTorqueModel >( torqueModel ) != NULL )
+    {
+        torqueType = dissipative_torque;
+    }
     else
     {
         std::cerr << "Error, could not identify torque type" << std::endl;
@@ -68,6 +73,9 @@ std::string getTorqueModelName( const AvailableTorque torqueType )
         break;
     case inertial_torque:
         torqueName = "inertial torque ";
+        break;
+    case dissipative_torque:
+        torqueName = "dissipative torque ";
         break;
     default:
         std::string errorMessage = "Error, torque type " +
