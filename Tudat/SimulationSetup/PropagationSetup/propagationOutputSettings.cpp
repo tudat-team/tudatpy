@@ -169,6 +169,9 @@ std::string getDependentVariableName( const PropagationDependentVariables propag
     case body_fixed_relative_spherical_position:
         variableName = "Body-fixed relative spherical position ";
         break;
+    case euler_angles_to_body_fixed_313:
+        variableName = "313 Euler angles to body-fixed frame ";
+        break;
     default:
         std::string errorMessage = "Error, dependent variable " +
                 std::to_string( propagationDependentVariables ) +

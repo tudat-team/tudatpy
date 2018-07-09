@@ -264,6 +264,9 @@ int getDependentVariableSize(
     case body_fixed_relative_spherical_position:
         variableSize = 3;
         break;
+    case euler_angles_to_body_fixed_313:
+        variableSize = 3;
+        break;
     default:
         std::string errorMessage = "Error, did not recognize dependent variable size of type: " +
                 std::to_string( dependentVariableSettings->dependentVariableType_ );

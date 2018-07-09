@@ -96,7 +96,8 @@ enum PropagationDependentVariables
     modified_equinocial_state_dependent_variable = 33,
     spherical_harmonic_acceleration_terms_dependent_variable = 34,
     body_fixed_relative_cartesian_position = 35,
-    body_fixed_relative_spherical_position = 36
+    body_fixed_relative_spherical_position = 36,
+    euler_angles_to_body_fixed_313 = 37
 };
 
 

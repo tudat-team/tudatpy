@@ -41,6 +41,16 @@ Eigen::Vector3d get132EulerAnglesFromRotationMatrix(
     return eulerAngles;
 }
 
+Eigen::Vector3d get313EulerAnglesFromQuaternion(
+        const Eigen::Quaterniond& quaternion )
+{
+    double theta = 2.0 * atan2( std::sqrt( quaternion.x( ) * quaternion.x( ) + quaternion.y( ) * quaternion.y( ) ),
+                          std::sqrt( quaternion.z( ) * quaternion.z( ) + quaternion.w( ) * quaternion.w( ) ) );
+    double phiPlus = atan2( quaternion.z( ), quaternion.w( ) );
+    double phiMinus = atan2( quaternion.y( ), quaternion.x( ) );
+    return ( Eigen::Vector3d( )<< phiPlus + phiMinus, phiPlus - phiMinus, theta ).finished( );
+}
+
 //! Function to compute pole right ascension and declination, as well as prime meridian of date, from rotation matrix
 Eigen::Vector3d calculateInertialToPlanetFixedRotationAnglesFromMatrix(
         const Eigen::Matrix3d& rotationMatrixFromInertialToPlanetFixedFrame )

@@ -223,6 +223,36 @@ private:
 
 };
 
+template< typename StateScalarType = double, typename TimeType = double >
+std::shared_ptr< RotationalEphemeris > getTabulatedRotationalEphemeris(
+        const std::shared_ptr< RotationalEphemeris > ephemerisToInterrogate,
+        const TimeType startTime,
+        const TimeType endTime,
+        const TimeType timeStep,
+        const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings =
+        std::make_shared< interpolators::LagrangeInterpolatorSettings >( 8 ) )
+{
+    typedef Eigen::Matrix< StateScalarType, 7, 1 > StateType;
+    std::map< TimeType, StateType >  stateMap;
+
+    TimeType currentTime = startTime;
+
+    while( currentTime <= endTime )
+    {
+        stateMap[ currentTime ] = ephemerisToInterrogate->getRotationStateVector( currentTime );
+        currentTime += timeStep;
+    }
+
+    //! Typedef for state interpolator
+    std::shared_ptr< interpolators::OneDimensionalInterpolator< TimeType, StateType  > > stateInterpolator =
+            interpolators::createOneDimensionalInterpolator( stateMap, interpolatorSettings );
+
+    return std::make_shared< TabulatedRotationalEphemeris< StateScalarType, TimeType > >(
+                stateInterpolator, ephemerisToInterrogate->getBaseFrameOrientation( ),
+                ephemerisToInterrogate->getTargetFrameOrientation( ) );
+
+}
+
 }
 
 }
