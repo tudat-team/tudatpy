@@ -712,6 +712,20 @@ std::pair< std::function< Eigen::VectorXd( ) >, int > getVectorDependentVariable
         parameterSize = 3;
         break;
     }
+    case euler_angles_to_body_fixed_313:
+    {
+        std::function< Eigen::Quaterniond( ) > orientationFunctionOfBody =
+                std::bind( &simulation_setup::Body::getCurrentRotationToLocalFrame, bodyMap.at( bodyWithProperty ) );
+
+        std::function< Eigen::Vector3d( const Eigen::Quaterniond ) > eulerAngleFunction =
+                std::bind( &reference_frames::get313EulerAnglesFromQuaternion, std::placeholders::_1 );
+
+        variableFunction = std::bind(
+                    &evaluateReferenceFunction< Eigen::Vector3d, Eigen::Quaterniond >,
+                    eulerAngleFunction, orientationFunctionOfBody );
+        parameterSize = 3;
+        break;
+    }
     default:
         std::string errorMessage =
                 "Error, did not recognize vector dependent variable type when making variable function: " +

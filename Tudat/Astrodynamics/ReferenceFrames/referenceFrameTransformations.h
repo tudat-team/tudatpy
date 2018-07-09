@@ -44,6 +44,10 @@ namespace reference_frames
 Eigen::Vector3d get132EulerAnglesFromRotationMatrix(
         const Eigen::Matrix3d& rotationMatrix );
 
+//psi, phi, theta
+Eigen::Vector3d get313EulerAnglesFromQuaternion(
+        const Eigen::Quaterniond& quaternion );
+
 //! Function to compute pole right ascension and declination, as well as prime meridian of date, from rotation matrix
 /*!
  *  Function to compute pole right ascension and declination, as well as prime meridian of date, from rotation matrix
