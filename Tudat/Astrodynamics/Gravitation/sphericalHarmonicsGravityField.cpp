@@ -14,6 +14,8 @@
  *
  */
 
+#include <iomanip>
+
 #include "Tudat/Astrodynamics/BasicAstrodynamics/physicalConstants.h"
 #include "Tudat/Astrodynamics/Gravitation/sphericalHarmonicsGravityField.h"
 #include "Tudat/Mathematics/BasicMathematics/coordinateConversions.h"
@@ -114,10 +116,10 @@ Eigen::Matrix3d getInertiaTensor(
               -2.0 * s22Coefficient, c20Coefficient / 3.0 + 2.0 * c22Coefficient, -s21Coefficient,
               -c21Coefficient, -s21Coefficient, -2.0 * c20Coefficient / 3.0 ).finished( );
 
-//    std::cout<<"Setting inertia tensor: "<<c20Coefficient<<" "<<c21Coefficient<<" "<<c22Coefficient<<" "<<
-//               s21Coefficient<<" "<<s22Coefficient<<" "<<scaledMeanMomentOfInertia<<" "<<bodyMass<<" "<<
-//               referenceRadius<<std::endl<<
-//               scalingConstant * ( inertiaTensor + Eigen::Matrix3d::Identity( ) * scaledMeanMomentOfInertia )<<std::endl;
+    std::cout<<std::setprecision( 10 )<<"Setting inertia tensor: "<<c20Coefficient<<" "<<c21Coefficient<<" "<<c22Coefficient<<" "<<
+               s21Coefficient<<" "<<s22Coefficient<<" "<<std::endl<<scaledMeanMomentOfInertia<<" "<<bodyMass<<" "<<
+               referenceRadius<<std::endl<<
+               scalingConstant * ( inertiaTensor + Eigen::Matrix3d::Identity( ) * scaledMeanMomentOfInertia )<<std::endl<<std::endl;
 
     return scalingConstant * ( inertiaTensor + Eigen::Matrix3d::Identity( ) * scaledMeanMomentOfInertia );
 }

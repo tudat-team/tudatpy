@@ -201,10 +201,12 @@ public:
             parametersToEstimate,
             const observation_models::SortedObservationSettingsMap& observationSettingsMap,
             const std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings,
-            const std::shared_ptr< propagators::PropagatorSettings< ObservationScalarType > > propagatorSettings ):
+            const std::shared_ptr< propagators::PropagatorSettings< ObservationScalarType > > propagatorSettings,
+            const bool propagateOnCreation = true ):
         parametersToEstimate_( parametersToEstimate )
     {
-        initializeOrbitDeterminationManager( bodyMap, observationSettingsMap, integratorSettings, propagatorSettings );
+        initializeOrbitDeterminationManager( bodyMap, observationSettingsMap, integratorSettings, propagatorSettings,
+                                             propagateOnCreation );
     }
 
     //! Constructor
@@ -224,11 +226,13 @@ public:
             parametersToEstimate,
             const observation_models::ObservationSettingsMap& observationSettingsMap,
             const std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings,
-            const std::shared_ptr< propagators::PropagatorSettings< ObservationScalarType > > propagatorSettings ):
+            const std::shared_ptr< propagators::PropagatorSettings< ObservationScalarType > > propagatorSettings,
+            const bool propagateOnCreation = true  ):
         parametersToEstimate_( parametersToEstimate )
     {
         initializeOrbitDeterminationManager( bodyMap, observation_models::convertUnsortedToSortedObservationSettingsMap(
-                                                 observationSettingsMap ), integratorSettings, propagatorSettings );
+                                                 observationSettingsMap ), integratorSettings, propagatorSettings,
+                                             propagateOnCreation );
     }
 
     //! Function to retrieve map of all observation managers
@@ -798,7 +802,8 @@ protected:
             const NamedBodyMap &bodyMap,
             const observation_models::SortedObservationSettingsMap& observationSettingsMap,
             const std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings,
-            const std::shared_ptr< propagators::PropagatorSettings< ObservationScalarType > > propagatorSettings )
+            const std::shared_ptr< propagators::PropagatorSettings< ObservationScalarType > > propagatorSettings,
+            const bool propagateOnCreation = true )
     {
         using namespace numerical_integrators;
         using namespace orbit_determination;
@@ -823,7 +828,7 @@ protected:
             variationalEquationsSolver_ =
                     simulation_setup::createVariationalEquationsSolver(
                         bodyMap, integratorSettings, propagatorSettings, parametersToEstimate_, 1,
-                        std::shared_ptr< numerical_integrators::IntegratorSettings< double > >( ), 0, 1 );
+                        std::shared_ptr< numerical_integrators::IntegratorSettings< double > >( ), 0, propagateOnCreation );
         }
 
         if( integrateAndEstimateOrbit_ )

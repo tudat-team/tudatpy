@@ -159,6 +159,10 @@ std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartia
                 case estimatable_parameters::radiation_pressure_coefficient:
                     break;
 
+
+                case estimatable_parameters::mean_moment_of_inertia:
+                    break;
+
                 default:
 
                     std::string errorMessage =

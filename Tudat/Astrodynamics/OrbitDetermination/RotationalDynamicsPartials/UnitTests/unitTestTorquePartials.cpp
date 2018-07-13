@@ -601,6 +601,15 @@ BOOST_AUTO_TEST_CASE( testInertialTorquePartials )
                                        Eigen::MatrixXd::Zero( 3, 3 ), std::numeric_limits< double >::epsilon( ) );
 
     // Check derivative of z-component w.r.t. C20 separately: value is slightly non-zero due to rounding error
+
+    std::cout<<"Inertial w.r.t. cosine: "<<std::endl<<
+               testPartialWrtPhobosCosineCoefficients<<std::endl<<std::endl<<
+               testPartialWrtPhobosCosineCoefficients - partialWrtPhobosCosineCoefficients<<std::endl<<std::endl;
+    std::cout<<"Inertial w.r.t. sine: "<<std::endl<<
+               testPartialWrtPhobosSineCoefficients<<std::endl<<std::endl<<
+               testPartialWrtPhobosSineCoefficients - partialWrtPhobosSineCoefficients<<std::endl<<std::endl;
+
+
     BOOST_CHECK_SMALL( std::fabs( testPartialWrtPhobosCosineCoefficients( 2, 2 ) ), 1.0E5 );
     testPartialWrtPhobosCosineCoefficients( 2, 2 ) = 0.0;
 
@@ -608,6 +617,7 @@ BOOST_AUTO_TEST_CASE( testInertialTorquePartials )
                                        partialWrtPhobosCosineCoefficients, 1.0E-9 );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtPhobosSineCoefficients,
                                        partialWrtPhobosSineCoefficients, 1.0E-9 );
+
 
     for( int i = 0; i < 3; i++ )
     {
