@@ -309,6 +309,11 @@ std::shared_ptr< OccultationCalculator > createOccultationCalculator(
                          bodyMap.at( observationViabilitySettings->getStringParameter( ) ), std::placeholders::_1 );
 
     // Create check object
+    if( bodyMap.at( observationViabilitySettings->getStringParameter( ) )->getShapeModel( ) == nullptr )
+    {
+        throw std::runtime_error( "Error when makig occultation calculator, no shape model found for " +
+                                  observationViabilitySettings->getStringParameter( ) );
+    }
     double occultingBodyRadius =
             bodyMap.at( observationViabilitySettings->getStringParameter( ) )->getShapeModel( )->getAverageRadius( );
     return std::make_shared< OccultationCalculator >(

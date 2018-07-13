@@ -127,7 +127,10 @@ Eigen::VectorXd getZeroProperModeRotationalState(
         std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > > >& propagatedStates,
         std::vector< std::pair< std::map< TimeType, Eigen::Matrix< double, Eigen::Dynamic, 1 > >,
         std::map< TimeType, Eigen::Matrix< double, Eigen::Dynamic, 1 > > > >& dependentVariables,
-        const bool propagateNominal = true )
+        const bool propagateNominal = true,
+        const bool writeToFileInLoop = false,
+        const std::string baseFileName = "",
+        const std::string outputFolder = input_output::getTudatRootPath( ) )
 {
     propagatedStates.resize( dissipationTimes.size( ) + 1 );
     dependentVariables.resize( dissipationTimes.size( ) + 1 );
@@ -185,36 +188,36 @@ Eigen::VectorXd getZeroProperModeRotationalState(
             std::make_shared< SingleArcDynamicsSimulator< StateScalarType, TimeType > >(
                 bodyMap, integratorSettings, propagatorSettings, 0, 0, 0 );
 
-    std::string dataFolder = "/home/dominic/Documents/Articles/PhobosCoupledDynamics/Data/Preliminary/";
-
     if( propagateNominal )
     {
         integrateForwardWithDissipationAndBackwardsWithout< StateScalarType, TimeType >(
                     dynamicsSimulator, dissipativeTorque, propagatedStates.at( 0 ), dependentVariables.at( 0 ) );
         int i = 0;
-        input_output::writeDataMapToTextFile(
-                    dependentVariables.at( i ).second,
-                    "rotStateDependentVariables_stateOnly_damped_" + std::to_string( i ) + ".dat", dataFolder );
-        input_output::writeDataMapToTextFile(
-                    dependentVariables.at( i ).first,
-                    "rotStateDependentVariables_stateOnly_damped_forward_" + std::to_string( i ) + ".dat", dataFolder );
-        input_output::writeDataMapToTextFile(
-                    propagatedStates.at( i ).second,
-                    "rotState_stateOnly_damped_" + std::to_string( i ) + ".dat", dataFolder );
-        input_output::writeDataMapToTextFile(
-                    propagatedStates.at( i ).first,
-                    "rotState_stateOnly_damped_forward_" + std::to_string( i ) + ".dat", dataFolder );
+        if( writeToFileInLoop )
+        {
+            input_output::writeDataMapToTextFile(
+                        dependentVariables.at( i ).second,
+                        baseFileName + "_dependent_damped_" + std::to_string( i ) + ".dat", outputFolder );
+            input_output::writeDataMapToTextFile(
+                        dependentVariables.at( i ).first,
+                        baseFileName + "_dependent_damped_forward_" + std::to_string( i ) + ".dat", outputFolder );
+            input_output::writeDataMapToTextFile(
+                        propagatedStates.at( i ).second,
+                        baseFileName + "_states_damped_" + std::to_string( i ) + ".dat", outputFolder );
+            input_output::writeDataMapToTextFile(
+                        propagatedStates.at( i ).first,
+                        baseFileName + "_states_damped_forward_" + std::to_string( i ) + ".dat", outputFolder );
+            propagatedStates[ 0 ].first.clear( );
+            dependentVariables[ 0 ].first.clear( );
 
-        propagatedStates[ 0 ].first.clear( );
-        dependentVariables[ 0 ].first.clear( );
+            propagatedStates[ 0 ].second.clear( );
+            dependentVariables[ 0 ].second.clear( );
+        }
 
-        propagatedStates[ 0 ].second.clear( );
-        dependentVariables[ 0 ].second.clear( );
     }
     Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > currentInitialState =
             propagatorSettings->getInitialStates( );
 
-    std::cout<<"Initial state: "<< propagatorSettings->getInitialStates( ).transpose( )<<std::endl;
 
     double newFinalTime;
 
@@ -235,29 +238,29 @@ Eigen::VectorXd getZeroProperModeRotationalState(
                     dynamicsSimulator, dissipativeTorque, propagatedStates.at( i + 1 ), dependentVariables.at( i + 1 ) );
 
         currentInitialState = propagatedStates.at( i + 1 ).second.begin( )->second;
-        std::cout<<"New initial state: "<< propagatedStates.at( i + 1 ).first.begin( )->second.transpose( )<<std::endl;
-
         propagatorSettings->resetInitialStates( currentInitialState );
-        std::cout<<"New initial state: "<< propagatedStates.at( i + 1 ).second.begin( )->second.transpose( )<<std::endl;
 
-        input_output::writeDataMapToTextFile(
-                    dependentVariables.at( i + 1 ).second,
-                    "rotStateDependentVariables_stateOnly_damped_" + std::to_string( i + 1  ) + ".dat", dataFolder );
-        input_output::writeDataMapToTextFile(
-                    dependentVariables.at( i ).first,
-                    "rotStateDependentVariables_stateOnly_damped_forward_" + std::to_string( i + 1  ) + ".dat", dataFolder );
-        input_output::writeDataMapToTextFile(
-                    propagatedStates.at( i + 1  ).second,
-                    "rotState_stateOnly_damped_" + std::to_string( i ) + ".dat", dataFolder );
-        input_output::writeDataMapToTextFile(
-                    propagatedStates.at( i + 1  ).first,
-                    "rotState_stateOnly_damped_forward_" + std::to_string( i + 1  ) + ".dat", dataFolder );
 
-        propagatedStates[ i + 1 ].first.clear( );
-        dependentVariables[ i + 1 ].first.clear( );
+        if( writeToFileInLoop )
+        {
+            input_output::writeDataMapToTextFile(
+                        dependentVariables.at(i + 1).second,
+                        baseFileName + "_dependent_damped_" + std::to_string(i + 1) + ".dat", outputFolder );
+            input_output::writeDataMapToTextFile(
+                        dependentVariables.at(i + 1).first,
+                        baseFileName + "_dependent_damped_forward_" + std::to_string(i + 1) + ".dat", outputFolder );
+            input_output::writeDataMapToTextFile(
+                        propagatedStates.at(i + 1).second,
+                        baseFileName + "_states_damped_" + std::to_string(i + 1) + ".dat", outputFolder );
+            input_output::writeDataMapToTextFile(
+                        propagatedStates.at(i + 1).first,
+                        baseFileName + "_states_damped_forward_" + std::to_string(i + 1) + ".dat", outputFolder );
+            propagatedStates[ i + 1 ].first.clear( );
+            dependentVariables[ i + 1 ].first.clear( );
 
-        propagatedStates[ i + 1 ].second.clear( );
-        dependentVariables[ i + 1 ].second.clear( );
+            propagatedStates[ i + 1 ].second.clear( );
+            dependentVariables[ i + 1 ].second.clear( );
+        }
 
 
     }

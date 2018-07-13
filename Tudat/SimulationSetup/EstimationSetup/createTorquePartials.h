@@ -105,7 +105,7 @@ std::shared_ptr< acceleration_partials::TorquePartial > createAnalyticalTorquePa
                     ( std::dynamic_pointer_cast< SphericalHarmonicGravitationalTorqueModel >( torqueModel ),
                       std::dynamic_pointer_cast< SphericalHarmonicsGravityPartial >( createAnalyticalAccelerationPartial(
                           std::dynamic_pointer_cast< SphericalHarmonicGravitationalTorqueModel >(
-                              torqueModel )->getSphericalHarmonicAcceleration( ), acceleratedBody, acceleratingBody,
+                              torqueModel )->getSphericalHarmonicAcceleration( ), acceleratingBody, acceleratedBody,
                           bodyMap, parametersToEstimate ) ),
                       acceleratedBody.first, acceleratingBody.first );
         }

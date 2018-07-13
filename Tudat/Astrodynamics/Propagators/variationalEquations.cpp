@@ -93,26 +93,18 @@ void VariationalEquations::setBodyStatePartialMatrix( )
         }
     }
 
-//    std::cout<<"Partials matrix A "<<std::endl<<variationalMatrix_<<std::endl;
-
-
-    // Correct partials for hierarchical dynamics
    for( unsigned int i = 0; i < statePartialAdditionIndices_.size( ); i++ )
    {
        variationalMatrix_.block( 0, statePartialAdditionIndices_.at( i ).second, totalDynamicalStateSize_, 3 ) +=
                variationalMatrix_.block( 0, statePartialAdditionIndices_.at( i ).first, totalDynamicalStateSize_, 3 );
    }
-//   std::cout<<"Partials matrix B "<<std::endl<<variationalMatrix_<<std::endl;
 
    for( unsigned int i = 0; i < inertiaTensorsForMultiplication_.size( ); i++ )
    {
-//       std::cout<<"Row index "<<inertiaTensorsForMultiplication_.at( i ).first<<std::endl;
        variationalMatrix_.block( inertiaTensorsForMultiplication_.at( i ).first, 0, 3, totalDynamicalStateSize_ ) =
                ( inertiaTensorsForMultiplication_.at( i ).second( ).inverse( ) ) *
                variationalMatrix_.block( inertiaTensorsForMultiplication_.at( i ).first, 0, 3, totalDynamicalStateSize_ ).eval( );
    }
-
-//   std::cout<<"Partials matrix "<<std::endl<<variationalMatrix_<<std::endl;
 
 }
 

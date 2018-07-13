@@ -653,6 +653,12 @@ public:
                     integrateVariationalAndDynamicalEquations( propagatorSettings_->getInitialStates( ), 0 );
                 }
             }
+            else
+            {
+                stateTransitionInterface_ = std::make_shared< SingleArcCombinedStateTransitionAndSensitivityMatrixInterface >(
+                            nullptr, nullptr,
+                            propagatorSettings_->getStateSize( ), parameterVectorSize_ );
+            }
         }
     }
 

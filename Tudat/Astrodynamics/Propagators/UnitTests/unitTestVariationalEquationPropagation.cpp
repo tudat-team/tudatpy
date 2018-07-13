@@ -660,6 +660,12 @@ executePhobosRotationSimulation(
                     phobosSineGravityFieldCoefficients, "Phobos_Fixed",
                     std::bind( &Body::setBodyInertiaTensorFromGravityFieldAndExistingMeanMoment, bodyMap.at( "Phobos" ), true ) ) );
 
+    std::cout<<"Cosine "<<std::endl<<phobosCosineGravityFieldCoefficients<<std::endl;
+    std::cout<<"Sine "<<std::endl<<phobosSineGravityFieldCoefficients<<std::endl;
+    std::cout<<"MOI "<<std::endl<<bodyMap.at( "Phobos" )->getBodyInertiaTensor( )<<std::endl;
+    std::cout<<"MOI "<<std::endl<<bodyMap.at( "Phobos" )->getScaledMeanMomentOfInertia( )<<std::endl;
+
+
 
     Eigen::Vector6d phobosKeplerElements = Eigen::Vector6d::Zero( );
     double phobosSemiMajorAxis = 9376.0E3;
@@ -711,8 +717,8 @@ executePhobosRotationSimulation(
 
     SelectedAccelerationMap accelerationMap;
     std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfEarth;
-    //accelerationMap[ "Phobos" ][ "Mars" ].push_back( std::make_shared< AccelerationSettings >( central_gravity ) );
-    accelerationMap[ "Phobos" ][ "Mars" ].push_back( std::make_shared< MutualSphericalHarmonicAccelerationSettings >( 2, 2, 2, 2 ) );
+    accelerationMap[ "Phobos" ][ "Mars" ].push_back( std::make_shared< AccelerationSettings >( central_gravity ) );
+   //accelerationMap[ "Phobos" ][ "Mars" ].push_back( std::make_shared< MutualSphericalHarmonicAccelerationSettings >( 2, 2, 2, 2 ) );
 
     std::vector< std::string > translationalBodiesToIntegrate;
     std::vector< std::string > translationalCentralBodies;
@@ -726,8 +732,8 @@ executePhobosRotationSimulation(
 
 
     SelectedTorqueMap torqueMap;
-    torqueMap[ "Phobos" ][ "Mars" ].push_back(
-                std::make_shared< TorqueSettings >( second_order_gravitational_torque ) );
+//    torqueMap[ "Phobos" ][ "Mars" ].push_back(
+//                std::make_shared< TorqueSettings >( second_order_gravitational_torque ) );
 
     // Define propagator settings.
     std::vector< std::string > bodiesToIntegrate;
