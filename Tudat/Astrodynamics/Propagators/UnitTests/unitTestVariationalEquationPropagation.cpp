@@ -732,8 +732,8 @@ executePhobosRotationSimulation(
 
 
     SelectedTorqueMap torqueMap;
-    torqueMap[ "Phobos" ][ "Mars" ].push_back(
-                std::make_shared< TorqueSettings >( second_order_gravitational_torque ) );
+//    torqueMap[ "Phobos" ][ "Mars" ].push_back(
+//                std::make_shared< TorqueSettings >( second_order_gravitational_torque ) );
 
     // Define propagator settings.
     std::vector< std::string > bodiesToIntegrate;
@@ -815,6 +815,7 @@ executePhobosRotationSimulation(
                ( parametersToEstimate->template getFullParameterValues< StateScalarType >( ) -
                  parameterVector ).transpose( )<<std::endl<<
                parameterPerturbation.transpose( )<<std::endl;;
+    parametersToEstimate->resetParameterValues( parameterVector );
 
 
     std::pair< std::vector< Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic > >,
@@ -826,8 +827,6 @@ executePhobosRotationSimulation(
                 propagators::SingleArcVariationalEquationsSolver< StateScalarType, TimeType >(
                     bodyMap, integratorSettings, propagatorSettings, parametersToEstimate,
                     1, std::shared_ptr< numerical_integrators::IntegratorSettings< double > >( ), 0, 0 );
-
-        parametersToEstimate->resetParameterValues( parameterVector );
 
         // Propagate requested equations.
         if( propagateVariationalEquations )
