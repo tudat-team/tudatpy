@@ -486,8 +486,8 @@ private:
             {
                 inertiaTensorsForMultiplication_.push_back( std::make_pair(
                                                                 stateTypeStartIndices_[ propagators::rotational_state ] + rotationalBodyCounter * 7 + 4,
-                                                            boost::lambda::constant( std::dynamic_pointer_cast< estimatable_parameters::InitialRotationalStateParameter< ParameterType > >(
-                                                                                         initialDynamicalParameters.at( i ) )->getBodyInertiaTensorFunction( )( ) ) ) );
+                                                            std::dynamic_pointer_cast< estimatable_parameters::InitialRotationalStateParameter< ParameterType > >(
+                                                                initialDynamicalParameters.at( i ) )->getBodyInertiaTensorFunction( ) ) );
                 rotationalBodyCounter++;
             }
         }

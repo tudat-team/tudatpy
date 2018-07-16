@@ -102,13 +102,9 @@ public:
             propagators::rotational_state ),
         torqueModelsPerBody_( torqueModelsPerBody ),
         bodiesToPropagate_( bodiesToPropagate ),
+        bodyInertiaTensorFunctions_( bodyInertiaTensorFunctions ),
         bodyInertiaTensorTimeDerivativeFunctions_( bodyInertiaTensorTimeDerivativeFunctions )
     {
-        for( unsigned int i = 0; i < bodyInertiaTensorFunctions.size( ); i++ )
-        {
-            bodyInertiaTensorFunctions_.push_back( boost::lambda::constant( bodyInertiaTensorFunctions.at( i )( ) ) );
-
-        }
         // Check input consistency
         if( bodiesToPropagate_.size( ) != bodyInertiaTensorFunctions_.size( ) )
         {
