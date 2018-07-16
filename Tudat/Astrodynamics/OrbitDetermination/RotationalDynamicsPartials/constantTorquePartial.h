@@ -104,6 +104,8 @@ public:
             currentInertiaTensor_ = inertiaTensorFunction_( );
             currentInverseInertiaTensor_ = currentInertiaTensor_.inverse( );
 
+            currentInertiaTensorNormalizationFactor_ = getInertiaTensorNormalizationFactor_( );
+
             currentTotalTorque_.setZero( );
             for( auto it = torqueVector_.begin( ); it != torqueVector_.end( ); it++ )
             {
