@@ -177,7 +177,7 @@ BOOST_AUTO_TEST_CASE( test_RotationalDynamicsEstimationFromLanderData )
                 bodyMap, torqueMap, bodiesToIntegrate );
 
     // Define integrator settings.
-    double timeStep = 60.0;
+    double timeStep = 240.0;
     std::shared_ptr< IntegratorSettings< > > integratorSettings =
             std::make_shared< IntegratorSettings< > >
             ( rungeKutta4, initialEphemerisTime, timeStep );
@@ -201,10 +201,14 @@ BOOST_AUTO_TEST_CASE( test_RotationalDynamicsEstimationFromLanderData )
     parameterNames.push_back(
                 std::make_shared< InitialRotationalStateEstimatableParameterSettings< double > >(
                     "Phobos", systemInitialState ) );
+
+    std::vector< std::pair< int, int > > blockIndices;
+//    blockIndices.push_back( std::make_pair( 2, 0 ) );
+    blockIndices.push_back( std::make_pair( 2, 2 ) );
     parameterNames.push_back( std::make_shared< SphericalHarmonicEstimatableParameterSettings >(
-                                  2, 1, 2, 2, "Phobos", spherical_harmonics_cosine_coefficient_block ) );
-    parameterNames.push_back( std::make_shared< SphericalHarmonicEstimatableParameterSettings >(
-                                  2, 1, 2, 2, "Phobos", spherical_harmonics_sine_coefficient_block ) );
+                                  blockIndices, "Phobos", spherical_harmonics_cosine_coefficient_block ) );
+//    parameterNames.push_back( std::make_shared< SphericalHarmonicEstimatableParameterSettings >(
+//                                  2, 1, 2, 2, "Phobos", spherical_harmonics_sine_coefficient_block ) );
 
     // Create parameters
     std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > parametersToEstimate =
@@ -264,12 +268,16 @@ BOOST_AUTO_TEST_CASE( test_RotationalDynamicsEstimationFromLanderData )
     Eigen::Matrix< double, Eigen::Dynamic, 1 > initialParameterEstimate =
             parametersToEstimate->template getFullParameterValues< double >( );
     Eigen::Matrix< double, Eigen::Dynamic, 1 > truthParameters = initialParameterEstimate;
-    int numberOfParameters = initialParameterEstimate.rows( );
+   int numberOfParameters = initialParameterEstimate.rows( );
     //    initialParameterEstimate( 1 ) += 1.0E-5;
     initialParameterEstimate( 2 ) -= 1.0E-5;
 
     initialParameterEstimate.segment( 0, 4 ).normalize( );
     initialParameterEstimate( 4 ) += 1.0E-7;
+//    initialParameterEstimate( 7 ) += 1.0E-8;
+//    initialParameterEstimate( 8 ) += 1.0E-8;
+//    initialParameterEstimate( 9 ) += 1.0E-5;
+//    initialParameterEstimate( 10 ) += 1.0E-5;
 
     // Define estimation input
     std::shared_ptr< PodInput< double, double  > > podInput =
@@ -286,29 +294,32 @@ BOOST_AUTO_TEST_CASE( test_RotationalDynamicsEstimationFromLanderData )
     //    std::cout<<podOutput->parameterEstimate_.transpose( )<<std::endl;
     for( unsigned int i = 0; i < 4; i++ )
     {
-        BOOST_CHECK_SMALL( std::fabs( podOutput->parameterEstimate_( i ) - truthParameters( i ) ), 5.0E-7 );
+        BOOST_CHECK_SMALL( std::fabs( podOutput->parameterEstimate_( i ) - truthParameters( i ) ), 1.0E-10 );
     }
 
     for( unsigned int i = 0; i < 3; i++ )
     {
-        BOOST_CHECK_SMALL( std::fabs( podOutput->parameterEstimate_( i + 4 ) - truthParameters( i + 4 ) ), 5.0E-10 );
+        BOOST_CHECK_SMALL( std::fabs( podOutput->parameterEstimate_( i + 4 ) - truthParameters( i + 4 ) ), 1.0E-14 );
     }
 
 
-    for( unsigned int i = 0; i < 2; i++ )
+    for( unsigned int i = 0; i < 1; i++ )
     {
-        BOOST_CHECK_SMALL( std::fabs( podOutput->parameterEstimate_( i + 7 ) - truthParameters( i + 7 ) ), 1.0E-10 );
-        BOOST_CHECK_SMALL( std::fabs( podOutput->parameterEstimate_( i + 9 ) - truthParameters( i + 9 ) ), 1.0E-7 );
+        BOOST_CHECK_SMALL( std::fabs( podOutput->parameterEstimate_( i + 7 ) - truthParameters( i + 7 ) ), 1.0E-12 );
 
     }
-    std::cout<<( podOutput->parameterEstimate_ - truthParameters ).transpose( )<<std::endl;
+    std::cout<<"True error: "<<( podOutput->parameterEstimate_ - truthParameters ).transpose( )<<std::endl;
+    std::cout<<"Formal error: "<<podOutput->getFormalErrorVector( ).transpose( )<<std::endl;
+    std::cout<<"Error ratio: "<<( ( 1.0E-3 * podOutput->getFormalErrorVector( ).segment( 0, numberOfParameters ) ).cwiseQuotient(
+                                      podOutput->parameterEstimate_ - truthParameters ) ).transpose( )<<std::endl;
+//    std::cout<<"Correlations "<<std::endl<<podOutput->getCorrelationMatrix( )<<std::endl<<std::endl;
 
     //    std::cout<<"Post inertia tensor "<<std::setprecision( 16 )<<bodyMap.at( "Phobos" )->getBodyInertiaTensor( )<<std::endl;
 
     //        input_output::writeMatrixToFile( podOutput->normalizedInformationMatrix_,
     //                                         "rotationInformationMatrix.dat", 16 );
-    //        input_output::writeMatrixToFile( podOutput->getCorrelationMatrix( ),
-    //                                         "rotationCorrelations.dat", 16 );
+//    input_output::writeMatrixToFile( podOutput->getCorrelationMatrix( ),
+//                                     "rotationCorrelations.dat", 16 );
     //        input_output::writeMatrixToFile( podOutput->inverseNormalizedCovarianceMatrix_,
     //                                         "rotationInverseNormalizedCovariance.dat", 16 );
     //        input_output::writeMatrixToFile( podOutput->getFormalErrorVector( ),
@@ -317,8 +328,8 @@ BOOST_AUTO_TEST_CASE( test_RotationalDynamicsEstimationFromLanderData )
     //                                         "rotationTruthParameters.dat", 16 );
     //        input_output::writeMatrixToFile( podOutput->residuals_,
     //                                         "rotationResiduals.dat", 16 );
-    //        input_output::writeMatrixToFile( podOutput->informationMatrixTransformationDiagonal_,
-    //                                         "rotationParameterNormalization.dat", 16 );
+//            input_output::writeMatrixToFile( podOutput->informationMatrixTransformationDiagonal_,
+//                                             "rotationParameterNormalization.dat", 16 );
 }
 
 BOOST_AUTO_TEST_CASE( test_RotationalTranslationalDynamicsEstimationFromLanderData )
@@ -384,7 +395,7 @@ BOOST_AUTO_TEST_CASE( test_RotationalTranslationalDynamicsEstimationFromLanderDa
                 bodyMap, accelerationMap, translationalBodiesToPropagate, translationalCentralBodies );
 
     // Define integrator settings.
-    double timeStep = 120.0;
+    double timeStep = 240.0;
     std::shared_ptr< IntegratorSettings< > > integratorSettings =
             std::make_shared< RungeKuttaVariableStepSizeSettings< > >
             ( rungeKuttaVariableStepSize, initialEphemerisTime, timeStep,
@@ -431,10 +442,14 @@ BOOST_AUTO_TEST_CASE( test_RotationalTranslationalDynamicsEstimationFromLanderDa
     parameterNames.push_back(
                 std::make_shared< InitialRotationalStateEstimatableParameterSettings< double > >(
                     "Phobos", systemInitialState ) );
+    std::vector< std::pair< int, int > > blockIndices;
+    blockIndices.push_back( std::make_pair( 2, 0 ) );
+    blockIndices.push_back( std::make_pair( 2, 2 ) );
     parameterNames.push_back( std::make_shared< SphericalHarmonicEstimatableParameterSettings >(
-                                  2, 0, 2, 2, "Phobos", spherical_harmonics_cosine_coefficient_block ) );
-    parameterNames.push_back( std::make_shared< SphericalHarmonicEstimatableParameterSettings >(
-                                  2, 1, 2, 2, "Phobos", spherical_harmonics_sine_coefficient_block ) );
+                                  blockIndices, "Phobos", spherical_harmonics_cosine_coefficient_block ) );
+
+//    parameterNames.push_back( std::make_shared< SphericalHarmonicEstimatableParameterSettings >(
+//                                  2, 1, 2, 2, "Phobos", spherical_harmonics_sine_coefficient_block ) );
 
 
     // Create parameters
@@ -498,6 +513,8 @@ BOOST_AUTO_TEST_CASE( test_RotationalTranslationalDynamicsEstimationFromLanderDa
     // Perturb parameter estimate
     Eigen::Matrix< double, Eigen::Dynamic, 1 > initialParameterEstimate =
             parametersToEstimate->template getFullParameterValues< double >( );
+    int numberOfParameters = initialParameterEstimate.rows( );
+
     Eigen::Matrix< double, Eigen::Dynamic, 1 > truthParameters = initialParameterEstimate;
     initialParameterEstimate( 7 ) -= 1.0E-5;
     initialParameterEstimate( 8 ) += 1.0E-5;
@@ -510,11 +527,11 @@ BOOST_AUTO_TEST_CASE( test_RotationalTranslationalDynamicsEstimationFromLanderDa
     initialParameterEstimate( 1 ) += 1.0;
     initialParameterEstimate( 2 ) += 1.0;
 
-    initialParameterEstimate( 13 ) += 1.0E-6;
-    initialParameterEstimate( 14 ) += 1.0E-6;
-    initialParameterEstimate( 15 ) += 1.0E-6;
-    initialParameterEstimate( 16 ) += 1.0E-6;
-    initialParameterEstimate( 17 ) += 1.0E-6;
+//    initialParameterEstimate( 13 ) += 1.0E-6;
+//    initialParameterEstimate( 14 ) += 1.0E-6;
+//    initialParameterEstimate( 15 ) += 1.0E-6;
+//    initialParameterEstimate( 16 ) += 1.0E-6;
+//    initialParameterEstimate( 17 ) += 1.0E-6;
 
     std::cout<<"Truth: "<<( truthParameters ).transpose( )<<std::endl;
     std::cout<<"New: "<<( initialParameterEstimate ).transpose( )<<std::endl;
@@ -542,28 +559,31 @@ BOOST_AUTO_TEST_CASE( test_RotationalTranslationalDynamicsEstimationFromLanderDa
     BOOST_CHECK_SMALL( std::fabs( podOutput->parameterEstimate_( 4 ) - truthParameters( 4 ) ), 1.0E-8 );
     BOOST_CHECK_SMALL( std::fabs( podOutput->parameterEstimate_( 5 ) - truthParameters( 5 ) ), 1.0E-6 );
 
-    BOOST_CHECK_SMALL( std::fabs( podOutput->parameterEstimate_( 6 ) - truthParameters( 6 ) ), 1.0E-7 );
-    BOOST_CHECK_SMALL( std::fabs( podOutput->parameterEstimate_( 7 ) - truthParameters( 7 ) ), 1.0E-5 );
-    BOOST_CHECK_SMALL( std::fabs( podOutput->parameterEstimate_( 8 ) - truthParameters( 8 ) ), 1.0E-7 );
-    BOOST_CHECK_SMALL( std::fabs( podOutput->parameterEstimate_( 9 ) - truthParameters( 9 ) ), 1.0E-5 );
+    BOOST_CHECK_SMALL( std::fabs( podOutput->parameterEstimate_( 6 ) - truthParameters( 6 ) ), 1.0E-12 );
+    BOOST_CHECK_SMALL( std::fabs( podOutput->parameterEstimate_( 7 ) - truthParameters( 7 ) ), 1.0E-9 );
+    BOOST_CHECK_SMALL( std::fabs( podOutput->parameterEstimate_( 8 ) - truthParameters( 8 ) ), 1.0E-9 );
+    BOOST_CHECK_SMALL( std::fabs( podOutput->parameterEstimate_( 9 ) - truthParameters( 9 ) ), 1.0E-9 );
 
-    BOOST_CHECK_SMALL( std::fabs( podOutput->parameterEstimate_( 10 ) - truthParameters( 10 ) ), 1.0E-10 );
-    BOOST_CHECK_SMALL( std::fabs( podOutput->parameterEstimate_( 11 ) - truthParameters( 11 ) ), 1.0E-8 );
-    BOOST_CHECK_SMALL( std::fabs( podOutput->parameterEstimate_( 12 ) - truthParameters( 12 ) ), 1.0E-10 );
+    BOOST_CHECK_SMALL( std::fabs( podOutput->parameterEstimate_( 10 ) - truthParameters( 10 ) ), 1.0E-13 );
+    BOOST_CHECK_SMALL( std::fabs( podOutput->parameterEstimate_( 11 ) - truthParameters( 11 ) ), 1.0E-13 );
+    BOOST_CHECK_SMALL( std::fabs( podOutput->parameterEstimate_( 12 ) - truthParameters( 12 ) ), 1.0E-13 );
 
     BOOST_CHECK_SMALL( std::fabs( podOutput->parameterEstimate_( 13 ) - truthParameters( 13 ) ), 1.0E-10 );
-    BOOST_CHECK_SMALL( std::fabs( podOutput->parameterEstimate_( 14 ) - truthParameters( 14 ) ), 1.0E-8 );
-    BOOST_CHECK_SMALL( std::fabs( podOutput->parameterEstimate_( 15 ) - truthParameters( 15 ) ), 1.0E-10 );
+    BOOST_CHECK_SMALL( std::fabs( podOutput->parameterEstimate_( 14 ) - truthParameters( 14 ) ), 1.0E-11 );
+    BOOST_CHECK_SMALL( std::fabs( podOutput->parameterEstimate_( 15 ) - truthParameters( 15 ) ), 1.0E-11 );
 
-    BOOST_CHECK_SMALL( std::fabs( podOutput->parameterEstimate_( 16 ) - truthParameters( 16 ) ), 1.0E-6 );
-    BOOST_CHECK_SMALL( std::fabs( podOutput->parameterEstimate_( 17 ) - truthParameters( 17 ) ), 1.0E-6 );
+//    BOOST_CHECK_SMALL( std::fabs( podOutput->parameterEstimate_( 16 ) - truthParameters( 16 ) ), 1.0E-6 );
+//    BOOST_CHECK_SMALL( std::fabs( podOutput->parameterEstimate_( 17 ) - truthParameters( 17 ) ), 1.0E-6 );
 
-    std::cout<<( podOutput->parameterEstimate_ - truthParameters ).transpose( )<<std::endl;
+    std::cout<<"True error: "<<( podOutput->parameterEstimate_ - truthParameters ).transpose( )<<std::endl;
+    std::cout<<"Formal error: "<<1.0E-3 * podOutput->getFormalErrorVector( ).transpose( )<<std::endl;
+    std::cout<<"Error ratio: "<<( ( 1.0E-3 * podOutput->getFormalErrorVector( ).segment( 0, numberOfParameters ) ).cwiseQuotient(
+                                      podOutput->parameterEstimate_ - truthParameters ) ).transpose( )<<std::endl;
 
     //        input_output::writeMatrixToFile( podOutput->normalizedInformationMatrix_,
     //                                         "rotationInformationMatrix" + std::to_string( testId ) + ".dat", 16 );
-    //        input_output::writeMatrixToFile( podOutput->getCorrelationMatrix( ),
-    //                                         "rotationCorrelations" + std::to_string( testId ) + ".dat", 16 );
+//    input_output::writeMatrixToFile( podOutput->getCorrelationMatrix( ),
+//                                     "rotationCorrelationsFull.dat", 16 );
     //        input_output::writeMatrixToFile( podOutput->inverseNormalizedCovarianceMatrix_,
     //                                         "rotationInverseNormalizedCovariance" + std::to_string( testId ) + ".dat", 16 );
     //        input_output::writeMatrixToFile( podOutput->getFormalErrorVector( ),
@@ -572,12 +592,14 @@ BOOST_AUTO_TEST_CASE( test_RotationalTranslationalDynamicsEstimationFromLanderDa
     //                                         "rotationTruthParameters" + std::to_string( testId ) + ".dat", 16 );
     //        input_output::writeMatrixToFile( podOutput->residuals_,
     //                                         "rotationResiduals" + std::to_string( testId ) + ".dat", 16 );
-    //        input_output::writeMatrixToFile( podOutput->informationMatrixTransformationDiagonal_,
-    //                                         "rotationParameterNormalization" + std::to_string( testId ) + ".dat", 16 );
+//            input_output::writeMatrixToFile( podOutput->informationMatrixTransformationDiagonal_,
+//                                             "rotationParameterNormalizationFull.dat", 16 );
     //        input_output::writeMatrixToFile( podOutput->getResidualHistoryMatrix( ),
     //                                         "rotationResidualHistory" + std::to_string( testId ) + ".dat", 16 );
     //        input_output::writeMatrixToFile( podOutput->getParameterHistoryMatrix( ),
     //                                         "rotationParameterHistory" + std::to_string( testId ) + ".dat", 16 );
+//    std::cout<<"Correlations "<<std::endl<<podOutput->getCorrelationMatrix( )<<std::endl<<std::endl;
+
 
 }
 

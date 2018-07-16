@@ -21,7 +21,7 @@
 #include <Eigen/Core>
 
 #include "Tudat/Mathematics/Interpolators/lookupScheme.h"
-#include "Tudat/Mathematics/Interpolators/linearInterpolator.h"
+#include "Tudat/Mathematics/Interpolators/createInterpolator.h"
 
 #include "Tudat/Astrodynamics/Ephemerides/rotationalEphemeris.h"
 
