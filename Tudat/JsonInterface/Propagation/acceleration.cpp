@@ -200,3 +200,19 @@ void from_json( const nlohmann::json& jsonObject, boost::shared_ptr< Acceleratio
 } // namespace simulation_setup
 
 } // namespace tudat
+
+namespace boost
+{
+
+template<>
+tudat::basic_astrodynamics::EmpiricalAccelerationComponents lexical_cast(const std::string & s) {
+    return tudat::basic_astrodynamics::empiricalAccelerationComponentTypesInverse.at( s );
+}
+
+template<>
+std::string lexical_cast(const tudat::basic_astrodynamics::EmpiricalAccelerationComponents & component )
+{
+    return tudat::basic_astrodynamics::empiricalAccelerationComponentTypes.at( component );
+}
+
+}
