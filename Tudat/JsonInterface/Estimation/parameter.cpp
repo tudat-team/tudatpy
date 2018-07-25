@@ -37,7 +37,6 @@ void to_json( nlohmann::json& jsonObject,
     jsonObject[ K::associatedBody ] = parameterSettings->parameterType_.second.first;
     assignIfNotEmpty( jsonObject, K::secondaryIdentifier, parameterSettings->parameterType_.second.second );
 
-    std::cout<<boost::lexical_cast< std::string >( parameterType )<<std::endl;
     switch ( parameterType )
     {
     case initial_body_state:
@@ -322,16 +321,6 @@ void from_json( const nlohmann::json& jsonObject,
     case spherical_harmonics_cosine_coefficient_block:
     {
         bool parameterSet = false;
-//        try
-//        {
-//            parameterSettings =
-//                    boost::make_shared< SphericalHarmonicEstimatableParameterSettings >(
-//                        bodyName,
-//                        getValue< std::vector< std::pair< int, int > > >( jsonObject, K::coefficientIndices ),
-//                        spherical_harmonics_cosine_coefficient_block );
-//            parameterSet = true;
-//        }
-//        catch ( ... ) { }
 
         try
         {
@@ -343,27 +332,33 @@ void from_json( const nlohmann::json& jsonObject,
                         getValue< int >( jsonObject, K::maximumOrder ),
                         bodyName,
                         spherical_harmonics_cosine_coefficient_block );
-            if( parameterSet == true )
-            {
-                std::cerr<<"Warning when reading spherical harmonic coefficient estimation settings from JSON, duplicate information detected"<<std::endl;
-            }
+
             parameterSet = true;
         }
-        catch ( ... ) { }
+        catch ( ... )
+        {
+            try
+            {
+                parameterSettings =
+                        boost::make_shared< SphericalHarmonicEstimatableParameterSettings >(
+                            getValue< std::vector< std::pair< int, int > > >( jsonObject, K::coefficientIndices ),
+                            bodyName,
+                            spherical_harmonics_cosine_coefficient_block );
+                if( parameterSet == true )
+                {
+                    std::cerr<<"Warning when reading spherical harmonic coefficient estimation settings from JSON, duplicate information detected"<<std::endl;
+                }
+
+                parameterSet = true;
+            }
+            catch ( ... ) { }
+        }
+
+
     }
     case spherical_harmonics_sine_coefficient_block:
     {
         bool parameterSet = false;
-//        try
-//        {
-//            parameterSettings =
-//                    boost::make_shared< SphericalHarmonicEstimatableParameterSettings >(
-//                        bodyName,
-//                        getValue< std::vector< std::pair< int, int > > >( jsonObject, K::coefficientIndices ),
-//                        spherical_harmonics_sine_coefficient_block );
-//            parameterSet = true;
-//        }
-//        catch ( ... ) { }
 
         try
         {
@@ -375,13 +370,27 @@ void from_json( const nlohmann::json& jsonObject,
                         getValue< int >( jsonObject, K::maximumOrder ),
                         bodyName,
                         spherical_harmonics_sine_coefficient_block );
-            if( parameterSet == true )
-            {
-                std::cerr<<"Warning when reading spherical harmonic coefficient estimation settings from JSON, duplicate information detected"<<std::endl;
-            }
+
             parameterSet = true;
         }
-        catch ( ... ) { }
+        catch ( ... )
+        {
+            try
+            {
+                parameterSettings =
+                        boost::make_shared< SphericalHarmonicEstimatableParameterSettings >(
+                            getValue< std::vector< std::pair< int, int > > >( jsonObject, K::coefficientIndices ),
+                            bodyName,
+                            spherical_harmonics_sine_coefficient_block );
+                if( parameterSet == true )
+                {
+                    std::cerr<<"Warning when reading spherical harmonic coefficient estimation settings from JSON, duplicate information detected"<<std::endl;
+                }
+
+                parameterSet = true;
+            }
+            catch ( ... ) { }
+        }
     }
     case empirical_acceleration_coefficients:
     {

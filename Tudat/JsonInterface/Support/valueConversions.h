@@ -104,12 +104,12 @@ void from_json( const nlohmann::json& jsonObject, map< KeyType, ValueType >& ord
 template< typename ValueType >
 void to_json( nlohmann::json& jsonObject, const vector< ValueType >& vectorInput )
 {
-        nlohmann::json jsonArray;
-        for ( unsigned int r = 0; r < vectorInput.size( ); ++r )
-        {
-            jsonArray.push_back( vectorInput.at( r ) );
-        }
-        jsonObject.push_back( jsonArray );
+    nlohmann::json jsonArray;
+    for ( unsigned int r = 0; r < vectorInput.size( ); ++r )
+    {
+        jsonArray.push_back( vectorInput.at( r ) );
+    }
+    jsonObject.push_back( jsonArray );
 }
 
 //! Create a `std::vector` from a `json` object.
@@ -117,7 +117,6 @@ template< typename ValueType >
 void from_json( const nlohmann::json& jsonObject, vector< ValueType >& myVector )
 {
     using namespace tudat::json_interface;
-
     const nlohmann::json jsonArray = getAsArray( jsonObject );
     if ( jsonArray.is_array( ) )
     {
@@ -287,3 +286,4 @@ inline void from_json( const nlohmann::json& jsonObject, Quaterniond& quaternion
 }  // namespace Eigen
 
 #endif // TUDAT_JSONINTERFACE_VALUECONVERSIONS_H
+

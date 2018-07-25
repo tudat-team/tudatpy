@@ -195,6 +195,7 @@ ValueType getValue( const nlohmann::json& jsonObject, const KeyPath& keyPath )
     if ( ! contains( currentKeyPath, SpecialKeys::keyPath ) )
     {
         canonicalKeyPath = currentKeyPath.canonical( getKeyPath( currentObject ) );
+
         if ( ! contains( currentKeyPath, SpecialKeys::rootObject ) )
         {
             if ( isDefined( currentObject, SpecialKeys::rootObject ) )

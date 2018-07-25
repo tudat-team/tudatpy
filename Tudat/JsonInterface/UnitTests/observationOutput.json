@@ -1,0 +1,9 @@
+{
+  "transmitter:(Vehicle, ); receiver:(Earth, Station1)": [
+    [
+      {
+        "observableType": "oneWayRange"
+      }
+    ]
+  ]
+}

@@ -33,11 +33,13 @@ void to_json( nlohmann::json& jsonObject,
 
     const ObservableType observableType = observationSettings->observableType_;
     jsonObject[ K::observableType ] = observableType;
+    std::cout<<"Obs type. "<<boost::lexical_cast< std::string >( observableType )<<std::endl;
     assignIfNotEmpty( jsonObject, K::lightTimeCorrectionSettingsList, observationSettings->lightTimeCorrectionsList_ );
     if( observationSettings->biasSettings_ != NULL )
     {
         jsonObject[ K::biasSettings ] = observationSettings->biasSettings_;
     }
+
 
     switch ( observableType )
     {
@@ -103,6 +105,121 @@ void to_json( nlohmann::json& jsonObject,
     }
     default:
     {
+        return;
+    }
+    }
+}
+
+void from_json( const nlohmann::json& jsonObject,
+                boost::shared_ptr< ObservationSettings >& observationSettings )
+{
+    using namespace json_interface;
+    using K = Keys::Observation;
+
+    const ObservableType observableType =
+            getValue< ObservableType >( jsonObject, K::observableType );
+
+    std::vector< boost::shared_ptr< LightTimeCorrectionSettings > > lightTimeCorrectionsList =
+            getValue< std::vector< boost::shared_ptr< LightTimeCorrectionSettings > > >(
+                jsonObject, K::lightTimeCorrectionSettingsList,
+                std::vector< boost::shared_ptr< LightTimeCorrectionSettings > >( ) );
+    boost::shared_ptr< ObservationBiasSettings > biasSettings =
+            getValue< boost::shared_ptr< ObservationBiasSettings > >(
+                jsonObject, K::biasSettings, nullptr );
+
+    switch ( observableType )
+    {
+    case one_way_doppler:
+    {
+        boost::shared_ptr< DopplerProperTimeRateSettings > transmitterProperTimeRateSettings =
+                getValue< boost::shared_ptr< DopplerProperTimeRateSettings > >(
+                    jsonObject, K::transmitterProperTimeRateSettings, nullptr );
+        boost::shared_ptr< DopplerProperTimeRateSettings > receiverProperTimeRateSettings =
+                getValue< boost::shared_ptr< DopplerProperTimeRateSettings > >(
+                    jsonObject, K::receiverProperTimeRateSettings, nullptr );
+
+        observationSettings = boost::make_shared< OneWayDopplerObservationSettings >(
+                    lightTimeCorrectionsList,
+                    transmitterProperTimeRateSettings,
+                    receiverProperTimeRateSettings,
+                    biasSettings );
+        return;
+    }
+    case one_way_differenced_range:
+    {
+        double constantIntegrationTime = getValue< double >(
+                    jsonObject, K::constantIntegrationTime );
+
+        observationSettings = boost::make_shared< OneWayDifferencedRangeRateObservationSettings >(
+                    boost::lambda::constant( constantIntegrationTime ),
+                    lightTimeCorrectionsList,
+                    biasSettings );
+        return;
+    }
+    case n_way_range:
+    {
+        std::vector< boost::shared_ptr< ObservationSettings > > oneWayRangeObsevationSettings =
+                getValue< std::vector< boost::shared_ptr< ObservationSettings > > >(
+                    jsonObject, K::oneWayRangeObsevationSettings,
+                    std::vector< boost::shared_ptr< ObservationSettings > >( ) );
+        if( oneWayRangeObsevationSettings.size( ) == 0 )
+        {
+            observationSettings = boost::make_shared< ObservationSettings >(
+                        observableType,
+                        lightTimeCorrectionsList,
+                        biasSettings );
+        }
+        else
+        {
+            std::vector< double > retransmissionTimes =
+                    getValue< std::vector< double > >(
+                        jsonObject, K::retransmissionTimes,
+                        std::vector< double >( ) );
+            observationSettings = boost::make_shared< NWayRangeObservationSettings >(
+                        oneWayRangeObsevationSettings, boost::lambda::constant( retransmissionTimes ),
+                        biasSettings );
+        }
+        return;
+    }
+    case two_way_doppler:
+    {
+        boost::shared_ptr< ObservationSettings > uplinkOneWayDopplerSettings =
+                getValue< boost::shared_ptr< ObservationSettings > >(
+                    jsonObject, K::uplinkOneWayDopplerSettings, nullptr );
+        boost::shared_ptr< ObservationSettings > downlinkOneWayDopplerSettings =
+                getValue< boost::shared_ptr< ObservationSettings > >(
+                    jsonObject, K::downlinkOneWayDopplerSettings, nullptr );
+        if( ( uplinkOneWayDopplerSettings == nullptr ) && ( downlinkOneWayDopplerSettings == nullptr ) )
+        {
+            observationSettings = boost::make_shared< ObservationSettings >(
+                        observableType,
+                        lightTimeCorrectionsList,
+                        biasSettings );
+        }
+        else if( ( uplinkOneWayDopplerSettings != nullptr ) && ( downlinkOneWayDopplerSettings != nullptr ) )
+        {
+            if( boost::dynamic_pointer_cast< OneWayDopplerObservationSettings >( uplinkOneWayDopplerSettings ) == nullptr ||
+                    boost::dynamic_pointer_cast< OneWayDopplerObservationSettings >( downlinkOneWayDopplerSettings ) == nullptr )
+            {
+                throw std::runtime_error( "Error when reading 2-way Doppler dettings from JSON file, link doppler settings are inconsistent" );
+            }
+            observationSettings = boost::make_shared< TwoWayDopplerObservationSettings >(
+                        boost::dynamic_pointer_cast< OneWayDopplerObservationSettings >( uplinkOneWayDopplerSettings ),
+                        boost::dynamic_pointer_cast< OneWayDopplerObservationSettings >( downlinkOneWayDopplerSettings ),
+                        biasSettings );
+        }
+        else
+        {
+            throw std::runtime_error( "Error when reading 2-way Doppler dettings from JSON file, settings are inconsistent" );
+        }
+        return;
+    }
+    default:
+    {
+        observationSettings = boost::make_shared< ObservationSettings >(
+                    observableType,
+                    lightTimeCorrectionsList,
+                    biasSettings );
         return;
     }
     }
@@ -178,6 +295,69 @@ void to_json( nlohmann::json& jsonObject, const boost::shared_ptr< ObservationBi
     }
 }
 
+void from_json( const nlohmann::json& jsonObject, boost::shared_ptr< ObservationBiasSettings >& biasSettings )
+{
+    using namespace json_interface;
+    using K = Keys::ObservationBias;
+
+    const ObservationBiasTypes biasType =
+            getValue< ObservationBiasTypes >( jsonObject, K::biasType );
+
+    switch( biasType )
+    {
+    case constant_absolute_bias:
+    {
+        Eigen::VectorXd constantBias =
+                getValue< Eigen::VectorXd >( jsonObject, K::constantBias );
+        biasSettings = boost::make_shared< ConstantObservationBiasSettings >( constantBias, true );
+        return;
+    }
+    case constant_relative_bias:
+    {
+        Eigen::VectorXd constantBias =
+                getValue< Eigen::VectorXd >( jsonObject, K::constantBias );
+        biasSettings = boost::make_shared< ConstantObservationBiasSettings >( constantBias, false );
+        return;
+    }
+    case arc_wise_constant_absolute_bias:
+    {
+        std::vector< double > arcStartTimes  =
+                getValue< std::vector< double > >( jsonObject, K::arcStartTimes );
+        std::vector< Eigen::VectorXd > observationBiases =
+                getValue< std::vector< Eigen::VectorXd > >( jsonObject, K::arcWiseBiasList );
+        LinkEndType linkEndForTime =
+                getValue< LinkEndType >( jsonObject, K::referenceLinkEnd );
+        biasSettings = boost::make_shared< ArcWiseConstantObservationBiasSettings >(
+                    arcStartTimes, observationBiases, linkEndForTime, true );
+        return;
+    }
+    case arc_wise_constant_relative_bias:
+    {
+        std::vector< double > arcStartTimes  =
+                getValue< std::vector< double > >( jsonObject, K::arcStartTimes );
+        std::vector< Eigen::VectorXd > observationBiases =
+                getValue< std::vector< Eigen::VectorXd > >( jsonObject, K::arcWiseBiasList );
+        LinkEndType linkEndForTime =
+                getValue< LinkEndType >( jsonObject, K::referenceLinkEnd );
+        biasSettings = boost::make_shared< ArcWiseConstantObservationBiasSettings >(
+                    arcStartTimes, observationBiases, linkEndForTime, false );
+        return;
+    }
+    case multiple_observation_biases:
+    {
+        std::vector< boost::shared_ptr< ObservationBiasSettings > > biasSettingsList =
+                getValue< std::vector< boost::shared_ptr< ObservationBiasSettings > > >( jsonObject, K::multipleBiasesList );
+        biasSettings = boost::make_shared< MultipleObservationBiasSettings >( biasSettingsList );
+
+        return;
+    }
+    default:
+        return;
+
+
+    }
+}
+
 //! Create a `json` object from a shared pointer to a `ObservationSettings` object.
 void to_json( nlohmann::json& jsonObject, const boost::shared_ptr< DopplerProperTimeRateSettings >& properTimeRateSettings )
 {
@@ -206,6 +386,28 @@ void to_json( nlohmann::json& jsonObject, const boost::shared_ptr< DopplerProper
     }
 }
 
+void from_json( const nlohmann::json& jsonObject, boost::shared_ptr< DopplerProperTimeRateSettings >& properTimeRateSettings )
+{
+    using namespace json_interface;
+    using K = Keys::Observation;
+
+    const DopplerProperTimeRateType rateType =
+            getValue< DopplerProperTimeRateType >( jsonObject, K::properTimeRateType );
+
+    switch( rateType )
+    {
+    case direct_first_order_doppler_proper_time_rate:
+    {
+        properTimeRateSettings = boost::make_shared< DirectFirstOrderDopplerProperTimeRateSettings >(
+                    getValue< std::string >( jsonObject, K::centralBody ) );
+        return;
+    }
+    default:
+    {
+        return;
+    }
+    }
+}
 
 //! Create a `json` object from a shared pointer to a `ObservationSettings` object.
 void to_json( nlohmann::json& jsonObject, const boost::shared_ptr< LightTimeCorrectionSettings >& lightTimeCorrectionSettings )
@@ -236,6 +438,34 @@ void to_json( nlohmann::json& jsonObject, const boost::shared_ptr< LightTimeCorr
         return;
     }
 }
+
+void from_json( const nlohmann::json& jsonObject, boost::shared_ptr< LightTimeCorrectionSettings >& lightTimeCorrectionSettings )
+{
+    using namespace json_interface;
+    using K = Keys::Observation;
+
+    try
+    {
+        const LightTimeCorrectionType correctionType =
+                getValue< LightTimeCorrectionType >( jsonObject, K::lightTimeCorrectionType );
+
+        switch( correctionType )
+        {
+        case first_order_relativistic:
+        {
+            lightTimeCorrectionSettings = boost::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >(
+                        getValue< std::vector< std::string > >( jsonObject, K::perturbingBodies ) );
+            return;
+        }
+        default:
+        {
+            return;
+        }
+        }
+    }
+    catch( ... ){ }
+}
+
 
 //! Create a `json` object from a shared pointer to a `ObservationSettings` object.
 void to_json( nlohmann::json& jsonObject, const boost::shared_ptr< ObservationSimulationTimeSettings< double > >& observationSimulationTimeSettings )
