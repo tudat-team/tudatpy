@@ -12,6 +12,8 @@
 #define TUDAT_JSONINTERFACE_H
 
 #include "Tudat/SimulationSetup/tudatSimulationHeader.h"
+#include "Tudat/SimulationSetup/EstimationSetup/createEstimatableParameters.h"
+
 #include "Support/deserialization.h"
 #include "Support/valueAccess.h"
 #include "Support/valueConversions.h"
@@ -153,7 +155,15 @@ public:
         }
 
         resetApplicationOptions( );
-        resetDynamicsSimulator( );
+
+        if( simulationType_ == equations_of_motion_propagation )
+        {
+            resetDynamicsSimulator( );
+        }
+        else if( simulationType_ == variational_equations_propagation )
+        {
+            resetVariationalEquationsSolver( );
+        }
     }
 
     //! Run the propagation.
@@ -547,9 +557,13 @@ protected:
     virtual void resetParameterSettings( )
     {
         updateFromJSON( parameterSettings_, jsonObject_ );
+        parametersToEstimate_ = simulation_setup::createParametersToEstimate(
+                    parameterSettings_, bodyMap_, propagators::getAccelerationMapFromPropagatorSettings< StateScalarType >(
+                        propagatorSettings_)  );
 
         if ( profiling )
         {
+
             std::cout << "resetParameterSettings: " << std::chrono::duration_cast< std::chrono::milliseconds >(
                              std::chrono::steady_clock::now( ) - initialClockTime_ ).count( ) * 1.0e-3 << " s" << std::endl;
             initialClockTime_ = std::chrono::steady_clock::now( );
@@ -591,6 +605,20 @@ protected:
         }
     }
 
+    virtual void resetVariationalEquationsSolver( )
+    {
+        variationalEquationsSolver_ =
+                boost::make_shared< propagators::SingleArcVariationalEquationsSolver< StateScalarType, TimeType > >(
+                    bodyMap_, integratorSettings_, propagatorSettings_, parametersToEstimate_, true,
+                    boost::shared_ptr< numerical_integrators::IntegratorSettings< double > >( ), false, true );
+
+        if ( profiling )
+        {
+            std::cout << "resetVariationalEquationsSolver: " << std::chrono::duration_cast< std::chrono::milliseconds >(
+                             std::chrono::steady_clock::now( ) - initialClockTime_ ).count( ) * 1.0e-3 << " s" << std::endl;
+            initialClockTime_ = std::chrono::steady_clock::now( );
+        }
+    }
 
     //! Integrator settings.
     boost::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings_;
@@ -615,7 +643,9 @@ protected:
     //! Propagation settings.
     boost::shared_ptr< propagators::MultiTypePropagatorSettings< StateScalarType > > propagatorSettings_;
 
-        std::vector< boost::shared_ptr< estimatable_parameters::EstimatableParameterSettings > > parameterSettings_;
+    std::vector< boost::shared_ptr< estimatable_parameters::EstimatableParameterSettings > > parameterSettings_;
+
+    boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< StateScalarType > > parametersToEstimate_;
 
     //! Vector of export settings (each element corresponds to an output file).
     std::vector< boost::shared_ptr< ExportSettings > > exportSettingsVector_;
@@ -626,6 +656,7 @@ protected:
     //! Dynamics simulator.
     boost::shared_ptr< propagators::SingleArcDynamicsSimulator< StateScalarType, TimeType > > dynamicsSimulator_;
 
+    boost::shared_ptr< propagators::SingleArcVariationalEquationsSolver< StateScalarType, TimeType > > variationalEquationsSolver_;
 
 private:
 
