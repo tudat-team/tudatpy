@@ -165,7 +165,7 @@ void determineInitialStates(
  */
 template< typename StateScalarType >
 void resetDependentVariableSaveSettings(
-        boost::shared_ptr< propagators::MultiTypePropagatorSettings< StateScalarType > >& propagatorSettings,
+        boost::shared_ptr< propagators::SingleArcPropagatorSettings< StateScalarType > >& propagatorSettings,
         const std::vector< boost::shared_ptr< ExportSettings > >& exportSettingsVector )
 {
     using namespace propagators;
