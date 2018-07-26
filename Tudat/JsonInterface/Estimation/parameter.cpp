@@ -295,12 +295,16 @@ void from_json( const nlohmann::json& jsonObject,
         parameterSettings = boost::make_shared< ConstantObservationBiasEstimatableParameterSettings >(
                     getValue< observation_models::LinkEnds >( jsonObject, K::linkEnds ),
                     getValue< observation_models::ObservableType >( jsonObject, K::observableType ), true );
+
+        return;
     }
     case constant_relative_observation_bias:
     {
         parameterSettings = boost::make_shared< ConstantObservationBiasEstimatableParameterSettings >(
                     getValue< observation_models::LinkEnds >( jsonObject, K::linkEnds ),
                     getValue< observation_models::ObservableType >( jsonObject, K::observableType ), false );
+
+        return;
     }
     case arcwise_constant_additive_observation_bias:
     {
@@ -309,6 +313,8 @@ void from_json( const nlohmann::json& jsonObject,
                     getValue< observation_models::ObservableType >( jsonObject, K::observableType ),
                     getValue< std::vector< double > >( jsonObject, K::arcStartTimes ),
                     getValue< observation_models::LinkEndType >( jsonObject, K::referenceLinkEnd ), true );
+
+        return;
     }
     case arcwise_constant_relative_observation_bias:
     {
@@ -317,6 +323,8 @@ void from_json( const nlohmann::json& jsonObject,
                     getValue< observation_models::ObservableType >( jsonObject, K::observableType ),
                     getValue< std::vector< double > >( jsonObject, K::arcStartTimes ),
                     getValue< observation_models::LinkEndType >( jsonObject, K::referenceLinkEnd ), false );
+
+        return;
     }
     case spherical_harmonics_cosine_coefficient_block:
     {
@@ -353,6 +361,8 @@ void from_json( const nlohmann::json& jsonObject,
             }
             catch ( ... ) { }
         }
+
+        return;
 
 
     }
@@ -391,6 +401,8 @@ void from_json( const nlohmann::json& jsonObject,
             }
             catch ( ... ) { }
         }
+
+        return;
     }
     case empirical_acceleration_coefficients:
     {
