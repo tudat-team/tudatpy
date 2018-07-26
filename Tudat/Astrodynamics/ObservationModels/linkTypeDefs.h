@@ -31,6 +31,7 @@ enum LinkEndType
     transmitter = 0,
     reflector1 = 1,
     reflector = reflector1,
+    retransmitter = reflector,
     reflector2 = 2,
     reflector3 = 3,
     reflector4 = 4,

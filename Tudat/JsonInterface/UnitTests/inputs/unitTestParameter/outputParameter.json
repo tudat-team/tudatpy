@@ -1,0 +1,353 @@
+[
+ {
+  "associatedBody": "Earth",
+  "centralBody": "Sun",
+  "frameOrientation": "ECLIPJ2000",
+  "initialStateValue": [
+   [
+    -121328597860.406
+   ],
+   [
+    -89136317860.3463
+   ],
+   [
+    302293.104216456
+   ],
+   [
+    17142.7089896454
+   ],
+   [
+    -24123.894413147
+   ],
+   [
+    1.06644083113316
+   ]
+  ],
+  "parameterType": "initialBodyState"
+ },
+ {
+  "arcStartTimes": [
+   10000000.0,
+   27452800.0,
+   44905600.0
+  ],
+  "associatedBody": "Mars",
+  "centralBody": "Sun",
+  "frameOrientation": "ECLIPJ2000",
+  "initialStateValue": [
+   [
+    89168784213.3471
+   ],
+   [
+    207896122338.366
+   ],
+   [
+    2163042294.27056
+   ],
+   [
+    -21346.7391339686
+   ],
+   [
+    11611.2327950273
+   ],
+   [
+    767.943938244597
+   ],
+   [
+    89168784213.3471
+   ],
+   [
+    207896122338.366
+   ],
+   [
+    2163042294.27056
+   ],
+   [
+    -21346.7391339686
+   ],
+   [
+    11611.2327950273
+   ],
+   [
+    767.943938244597
+   ],
+   [
+    89168784213.3471
+   ],
+   [
+    207896122338.366
+   ],
+   [
+    2163042294.27056
+   ],
+   [
+    -21346.7391339686
+   ],
+   [
+    11611.2327950273
+   ],
+   [
+    767.943938244597
+   ]
+  ],
+  "parameterType": "arcWiseInitialBodyState"
+ },
+ {
+  "associatedBody": "global_metric",
+  "parameterType": "ppnParameterGamma"
+ },
+ {
+  "associatedBody": "Vehicle",
+  "parameterType": "radiationPressureCoefficient"
+ },
+ {
+  "associatedBody": "Vehicle",
+  "parameterType": "constantDragCoefficient"
+ },
+ {
+  "associatedBody": "Earth",
+  "parameterType": "constantRotationRate"
+ },
+ {
+  "associatedBody": "Earth",
+  "parameterType": "rotationPolePosition"
+ },
+ {
+  "associatedBody": "Earth",
+  "parameterType": "groundStationPosition",
+  "secondaryIdentifier": "Station1"
+ },
+ {
+  "associatedBody": "Earth",
+  "parameterType": "groundStationPosition",
+  "secondaryIdentifier": "Station2"
+ },
+ {
+  "associatedBody": "Vehicle",
+  "linkEnds": {
+   "receiver": [
+    "Earth",
+    "Station1"
+   ],
+   "transmitter": [
+    "Vehicle",
+    ""
+   ]
+  },
+  "observableType": "oneWayRange",
+  "parameterType": "constantAdditiveObservationBias"
+ },
+ {
+  "associatedBody": "Earth",
+  "linkEnds": {
+   "receiver": [
+    "Vehicle",
+    ""
+   ],
+   "transmitter": [
+    "Earth",
+    "Station1"
+   ]
+  },
+  "observableType": "oneWayRange",
+  "parameterType": "constantRelativeObservationBias",
+  "secondaryIdentifier": "Station1"
+ },
+ {
+  "arcStartTimes": [
+   10000000.0,
+   27452800.0,
+   44905600.0
+  ],
+  "associatedBody": "Earth",
+  "linkEnds": {
+   "receiver": [
+    "Vehicle",
+    ""
+   ],
+   "transmitter": [
+    "Earth",
+    "Station1"
+   ]
+  },
+  "observableType": "oneWayRange",
+  "parameterType": "arcwiseConstantAdditiveObservationBias",
+  "referenceLinkEnd": "receiver",
+  "secondaryIdentifier": "Station1"
+ },
+ {
+  "arcStartTimes": [
+   10000000.0,
+   27452800.0,
+   44905600.0
+  ],
+  "associatedBody": "Vehicle",
+  "linkEnds": {
+   "receiver": [
+    "Earth",
+    "Station1"
+   ],
+   "transmitter": [
+    "Vehicle",
+    ""
+   ]
+  },
+  "observableType": "oneWayRange",
+  "parameterType": "arcwiseConstantRelativeObservationBias",
+  "referenceLinkEnd": "reflector1"
+ },
+ {
+  "associatedBody": "Earth",
+  "maximumDegree": 8,
+  "maximumOrder": 8,
+  "minimumDegree": 2,
+  "minimumOrder": 0,
+  "parameterType": "sphericalHarmonicsCosineCoefficientBlock"
+ },
+ {
+  "associatedBody": "Earth",
+  "maximumDegree": 8,
+  "maximumOrder": 8,
+  "minimumDegree": 2,
+  "minimumOrder": 1,
+  "parameterType": "sphericalHarmonicsSineCoefficientBlock"
+ },
+ {
+  "associatedBody": "Sun",
+  "coefficientIndices": [
+   [
+    2,
+    0
+   ],
+   [
+    2,
+    2
+   ]
+  ],
+  "parameterType": "sphericalHarmonicsCosineCoefficientBlock"
+ },
+ {
+  "associatedBody": "Sun",
+  "coefficientIndices": [
+   [
+    2,
+    0
+   ],
+   [
+    2,
+    2
+   ]
+  ],
+  "parameterType": "sphericalHarmonicsSineCoefficientBlock"
+ },
+ {
+  "arcStartTimes": [
+   10000000.0,
+   35920000.0
+  ],
+  "associatedBody": "Vehicle",
+  "centralBody": "Earth",
+  "componentsToEstimate": {
+   "acrossTrack": [
+    "cosine",
+    "constant"
+   ],
+   "alongTrack": [
+    "cosine",
+    "sine"
+   ],
+   "radial": [
+    "sine"
+   ]
+  },
+  "parameterType": "arcWiseEmpiricalAccelerationCoefficients"
+ },
+ {
+  "associatedBody": "Vehicle",
+  "centralBody": "Earth",
+  "componentsToEstimate": {
+   "acrossTrack": [
+    "cosine",
+    "constant"
+   ],
+   "alongTrack": [
+    "cosine",
+    "sine"
+   ],
+   "radial": [
+    "sine"
+   ]
+  },
+  "parameterType": "empiricalAccelerationCoefficients"
+ },
+ {
+  "arcStartTimes": [
+   10000000.0,
+   27452800.0,
+   44905600.0
+  ],
+  "associatedBody": "Vehicle",
+  "parameterType": "arcWiseRadiationPressureCoefficient"
+ },
+ {
+  "associatedBody": "Earth",
+  "deformingBodies": [
+   "Sun"
+  ],
+  "degree": 2,
+  "parameterType": "fullDegreeTidalLoveNumber",
+  "useComplexValue": false
+ },
+ {
+  "associatedBody": "Earth",
+  "deformingBodies": [
+   "Sun",
+   "Moon"
+  ],
+  "degree": 2,
+  "parameterType": "fullDegreeTidalLoveNumber",
+  "useComplexValue": true
+ },
+ {
+  "associatedBody": "Earth",
+  "deformingBodies": [
+   "Sun"
+  ],
+  "degree": 2,
+  "orders": [
+   0,
+   2
+  ],
+  "parameterType": "singleDegreeVariableTidalLoveNumber",
+  "useComplexValue": true
+ },
+ {
+  "associatedBody": "Earth",
+  "deformingBodies": [
+   "Sun",
+   "Moon"
+  ],
+  "degree": 2,
+  "orders": [
+   0,
+   2
+  ],
+  "parameterType": "singleDegreeVariableTidalLoveNumber",
+  "useComplexValue": false
+ },
+ {
+  "associatedBody": "Earth",
+  "deformingBodies": [
+   "Sun",
+   "Moon"
+  ],
+  "parameterType": "directDissipationTidalTimeLag"
+ },
+ {
+  "associatedBody": "Earth",
+  "deformingBodies": [
+   "Sun"
+  ],
+  "parameterType": "directDissipationTidalTimeLag"
+ }
+]

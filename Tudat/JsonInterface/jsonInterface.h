@@ -139,9 +139,8 @@ public:
             initialClockTime_ = std::chrono::steady_clock::now( );
         }
 
-//        simulationType_ =
-//                boost::lexical_cast< JsonSimulationTypes >(
-//                    getValue< std::string >( jsonObject_, Keys::simulationType, "EoM" ) );
+        simulationType_ =
+                simulationTypesInverse.at( getValue< std::string >( jsonObject_, Keys::simulationType, "EoM" ) );
 
         resetIntegratorSettings( );
         resetSpice( );
@@ -511,7 +510,12 @@ protected:
 
         // Update propagatorSettings_ from jsonObject_
         updateFromJSON( propagatorSettings_, jsonObject_ );
-
+        if ( profiling )
+        {
+            std::cout << "resetExportSettings: " << std::chrono::duration_cast< std::chrono::milliseconds >(
+                             std::chrono::steady_clock::now( ) - initialClockTime_ ).count( ) * 1.0e-3 << " s" << std::endl;
+            initialClockTime_ = std::chrono::steady_clock::now( );
+        }
         if ( profiling )
         {
             std::cout << "resetPropagatorSettings@updateFromJSON: " << std::chrono::duration_cast< std::chrono::milliseconds >(
@@ -542,13 +546,11 @@ protected:
 
     virtual void resetParameterSettings( )
     {
-        globalFrameOrigin_ = getValue< std::string >( jsonObject_, Keys::globalFrameOrigin, "SSB" );
-        globalFrameOrientation_ = getValue< std::string >( jsonObject_, Keys::globalFrameOrientation, "ECLIPJ2000" );
         updateFromJSON( parameterSettings_, jsonObject_ );
 
         if ( profiling )
         {
-            std::cout << "resetParameters: " << std::chrono::duration_cast< std::chrono::milliseconds >(
+            std::cout << "resetParameterSettings: " << std::chrono::duration_cast< std::chrono::milliseconds >(
                              std::chrono::steady_clock::now( ) - initialClockTime_ ).count( ) * 1.0e-3 << " s" << std::endl;
             initialClockTime_ = std::chrono::steady_clock::now( );
         }
@@ -613,7 +615,7 @@ protected:
     //! Propagation settings.
     boost::shared_ptr< propagators::MultiTypePropagatorSettings< StateScalarType > > propagatorSettings_;
 
-    std::vector< boost::shared_ptr< estimatable_parameters::EstimatableParameterSettings > > parameterSettings_;
+        std::vector< boost::shared_ptr< estimatable_parameters::EstimatableParameterSettings > > parameterSettings_;
 
     //! Vector of export settings (each element corresponds to an output file).
     std::vector< boost::shared_ptr< ExportSettings > > exportSettingsVector_;

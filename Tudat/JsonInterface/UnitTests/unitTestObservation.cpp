@@ -8,7 +8,7 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-//#define BOOST_TEST_MAIN
+#define BOOST_TEST_MAIN
 
 #include "Tudat/JsonInterface/UnitTests/unitTestSupport.h"
 #include "Tudat/JsonInterface/Propagation/acceleration.h"
@@ -19,20 +19,20 @@
 #include "Tudat/SimulationSetup/EstimationSetup/createObservationModel.h"
 #include "Tudat/SimulationSetup/EstimationSetup/createEstimatableParameters.h"
 #include "Tudat/SimulationSetup/PropagationSetup/createAccelerationModels.h"
-//namespace tudat
-//{
 
-//namespace unit_tests
-//{
+namespace tudat
+{
+
+namespace unit_tests
+{
 
 #define INPUT( filename ) \
     ( json_interface::inputDirectory( ) / boost::filesystem::path( __FILE__ ).stem( ) / filename ).string( )
 
-//BOOST_AUTO_TEST_SUITE( test_json_observation )
+BOOST_AUTO_TEST_SUITE( test_json_observation )
 
-//// Test 1: sphericalHarmonicGravity
-//BOOST_AUTO_TEST_CASE( test_json_acceleration_sphericalHarmonicGravity )
-int main( )
+// Test 1: sphericalHarmonicGravity
+BOOST_AUTO_TEST_CASE( test_json_acceleration_sphericalHarmonicGravity )
 {
     using namespace tudat;
     using namespace tudat::simulation_setup;
@@ -67,34 +67,17 @@ int main( )
         stationReceiverLinkEnds.push_back( linkEnds );
     }
 
-    std::vector< boost::shared_ptr < AccelerationSettings > > accSettings;
-    accSettings.push_back( boost::make_shared< AccelerationSettings >(
-                basic_astrodynamics::central_gravity ) );
-
-    {
-        nlohmann::json jsonObject;
-        std::cout<<"Converting"<<std::endl;
-        to_json( jsonObject, accSettings );
-        std::cout<<"Converted"<<std::endl;
-
-
-        std::vector< boost::shared_ptr < AccelerationSettings > > accSettingsFromJson;
-        from_json( jsonObject, accSettingsFromJson );
-    }
-
-    sleep( 10000.0 );
-
     // Define (arbitrarily) link ends to be used for 1-way range, 1-way doppler and angular position observables
     std::map< ObservableType, std::vector< LinkEnds > > linkEndsPerObservable;
     linkEndsPerObservable[ one_way_range ].push_back( stationReceiverLinkEnds[ 0 ] );
-//    linkEndsPerObservable[ one_way_range ].push_back( stationTransmitterLinkEnds[ 0 ] );
-//    linkEndsPerObservable[ one_way_range ].push_back( stationReceiverLinkEnds[ 1 ] );
+    linkEndsPerObservable[ one_way_range ].push_back( stationTransmitterLinkEnds[ 0 ] );
+    linkEndsPerObservable[ one_way_range ].push_back( stationReceiverLinkEnds[ 1 ] );
 
-//    linkEndsPerObservable[ one_way_doppler ].push_back( stationReceiverLinkEnds[ 1 ] );
-//    linkEndsPerObservable[ one_way_doppler ].push_back( stationTransmitterLinkEnds[ 2 ] );
+    linkEndsPerObservable[ one_way_doppler ].push_back( stationReceiverLinkEnds[ 1 ] );
+    linkEndsPerObservable[ one_way_doppler ].push_back( stationTransmitterLinkEnds[ 2 ] );
 
-//    linkEndsPerObservable[ angular_position ].push_back( stationReceiverLinkEnds[ 2 ] );
-//    linkEndsPerObservable[ angular_position ].push_back( stationTransmitterLinkEnds[ 1 ] );
+    linkEndsPerObservable[ angular_position ].push_back( stationReceiverLinkEnds[ 2 ] );
+    linkEndsPerObservable[ angular_position ].push_back( stationTransmitterLinkEnds[ 1 ] );
 
     // Iterate over all observable types and associated link ends, and creatin settings for observation
     //observation_models::ObservationSettingsMap observationSettingsMap;
@@ -111,26 +94,26 @@ int main( )
             // Define bias and light-time correction settings
             boost::shared_ptr< ObservationBiasSettings > biasSettings;
             boost::shared_ptr< LightTimeCorrectionSettings > lightTimeCorrections;
-//            if( currentObservable == one_way_range && i == 0)
-//            {
-//                biasSettings = boost::make_shared< ConstantObservationBiasSettings >(
-//                            Eigen::Vector1d::Constant( 1.0 ), true );
-//                std::vector< std::string > perturbingBodies = { "Mars", "Moon" };
-//                lightTimeCorrections = boost::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >(
-//                            perturbingBodies );
-//            }
+            if( currentObservable == one_way_range && i == 0)
+            {
+                biasSettings = boost::make_shared< ConstantObservationBiasSettings >(
+                            Eigen::Vector1d::Constant( 1.0 ), true );
+                std::vector< std::string > perturbingBodies = { "Mars", "Moon" };
+                lightTimeCorrections = boost::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >(
+                            perturbingBodies );
+            }
 
-//            if( currentObservable == angular_position && i == 1 )
-//            {
-//                biasSettings = boost::make_shared< ConstantObservationBiasSettings >(
-//                            Eigen::Vector2d::Constant( 1.0E-6 ), false );
-//            }
+            if( currentObservable == angular_position && i == 1 )
+            {
+                biasSettings = boost::make_shared< ConstantObservationBiasSettings >(
+                            Eigen::Vector2d::Constant( 1.0E-6 ), false );
+            }
 
-//            if( currentObservable == one_way_doppler )
-//            {
-//                biasSettings = boost::make_shared< ConstantObservationBiasSettings >(
-//                            Eigen::Vector1d::Constant( 1.0E-12 ), false );
-//            }
+            if( currentObservable == one_way_doppler )
+            {
+                biasSettings = boost::make_shared< ConstantObservationBiasSettings >(
+                            Eigen::Vector1d::Constant( 1.0E-12 ), false );
+            }
 
             boost::shared_ptr< ObservationSettings > currentObservationSettings;
             if( currentObservable == one_way_doppler && i == 0 )
@@ -155,38 +138,33 @@ int main( )
 
 
     nlohmann::json jsonObject;
-    std::cout<<"Converting"<<std::endl;
     to_json( jsonObject, observationSettingsMap );
-    std::cout<<"Converted"<<std::endl;
 
     std::string fileName = "/home/dominic/Software/numericalAstrodynamicsTudatBundle/tudatBundle/tudat/Tudat/JsonInterface/UnitTests/observationOutput.json";
     std::ofstream outputFile( fileName );
     outputFile << jsonObject.dump( 2 );
     outputFile.close( );
 
-//    std::map< LinkEnds, std::vector< boost::shared_ptr< ObservationSettings > > > observationSettingsMapFromJson;
-//    from_json( jsonObject, observationSettingsMapFromJson );
+    std::map< LinkEnds, std::vector< boost::shared_ptr< ObservationSettings > > > observationSettingsMapFromJson;
+    from_json( jsonObject, observationSettingsMapFromJson );
+
+    BOOST_CHECK_EQUAL_JSON( observationSettingsMap, observationSettingsMapFromJson );
 
     nlohmann::json jsonObjectFromFile = parseJSONFile( fileName );
 
     std::map< LinkEnds, std::vector< boost::shared_ptr< ObservationSettings > > > observationSettingsMapFromFile =
             parseJSONFile< std::map< LinkEnds, std::vector< boost::shared_ptr< ObservationSettings > > > >( fileName );
 
-    std::cout<<jsonObject<<std::endl;
+    BOOST_CHECK_EQUAL_JSON( observationSettingsMap, observationSettingsMapFromFile );
 
-    std::string linkEndString = "transmitter:(Earth, Station1); receiver:(Vehicle, )";
 
-    LinkEnds test = boost::lexical_cast< LinkEnds >( linkEndString );
-    for( auto it = test.begin( ); it != test.end( );it++ )
-    {
-        std::cout<<it->first<<" "<<it->second.first<<" "<<it->second.second<<std::endl;
-    }
+
 
 }
 
 
-//BOOST_AUTO_TEST_SUITE_END( )
+BOOST_AUTO_TEST_SUITE_END( )
 
-//} // namespace unit_tests
+} // namespace unit_tests
 
-//} // namespace tudat
+} // namespace tudat

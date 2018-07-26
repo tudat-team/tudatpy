@@ -33,7 +33,6 @@ void to_json( nlohmann::json& jsonObject,
 
     const ObservableType observableType = observationSettings->observableType_;
     jsonObject[ K::observableType ] = observableType;
-    std::cout<<"Obs type. "<<boost::lexical_cast< std::string >( observableType )<<std::endl;
     assignIfNotEmpty( jsonObject, K::lightTimeCorrectionSettingsList, observationSettings->lightTimeCorrectionsList_ );
     if( observationSettings->biasSettings_ != NULL )
     {
@@ -566,10 +565,15 @@ tudat::observation_models::LinkEnds lexical_cast( const std::string & s )
         std::vector< std::string > splitLinkEnd =
                 tudat::json_interface::split(
                     typeAndIdentifier.at( 1 ).substr(1, typeAndIdentifier.at( 1 ).size( ) - 2 ), ',', false );
+        if( splitLinkEnd.size( ) == 1 )
+        {
+            splitLinkEnd.push_back( "" );
+        }
 
         linkEnds[ tudat::observation_models::linkEndTypesInverse.at( typeAndIdentifier.at( 0 ) ) ] =
                 std::make_pair( splitLinkEnd.at( 0 ), splitLinkEnd.at( 1 ) );
     }
+
     return linkEnds;
 }
 
@@ -577,6 +581,7 @@ template<>
 std::string lexical_cast(const tudat::observation_models::LinkEnds & component )
 {
     std::string linkEndsString;
+
     for( auto it = component.begin( ); it != component.end( ); it++ )
     {
         if( it != component.begin( ) )
@@ -584,7 +589,7 @@ std::string lexical_cast(const tudat::observation_models::LinkEnds & component )
             linkEndsString += "; ";
         }
 
-        linkEndsString += boost::lexical_cast< std::string >( it->first ) + ":(" + it->second.first + ", " + it->second.second + ")";
+        linkEndsString += boost::lexical_cast< std::string >( it->first ) + ":(" + it->second.first + "," + it->second.second + ")";
     }
     return linkEndsString;
 }

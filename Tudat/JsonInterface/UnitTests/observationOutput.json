@@ -1,9 +1,87 @@
 {
-  "transmitter:(Vehicle, ); receiver:(Earth, Station1)": [
-    [
-      {
-        "observableType": "oneWayRange"
+  "transmitter:(Earth,Station1); receiver:(Vehicle,)": [
+    {
+      "observableType": "oneWayRange"
+    }
+  ],
+  "transmitter:(Earth,Station2); receiver:(Vehicle,)": [
+    {
+      "bias": {
+        "biasType": "constantRelativeBias",
+        "constantBias": [
+          [
+            1e-06
+          ],
+          [
+            1e-06
+          ]
+        ]
+      },
+      "observableType": "angularPosition"
+    }
+  ],
+  "transmitter:(Earth,Station3); receiver:(Vehicle,)": [
+    {
+      "bias": {
+        "biasType": "constantRelativeBias",
+        "constantBias": [
+          [
+            1e-12
+          ]
+        ]
+      },
+      "observableType": "oneWayDoppler"
+    }
+  ],
+  "transmitter:(Vehicle,); receiver:(Earth,Station1)": [
+    {
+      "bias": {
+        "biasType": "constantAbsoluteBias",
+        "constantBias": [
+          [
+            1.0
+          ]
+        ]
+      },
+      "lightTimeCorrections": [
+        {
+          "lightTimeCorrectionType": "firsOrderRelativistic",
+          "perturbingBodies": [
+            "Mars",
+            "Moon"
+          ]
+        }
+      ],
+      "observableType": "oneWayRange"
+    }
+  ],
+  "transmitter:(Vehicle,); receiver:(Earth,Station2)": [
+    {
+      "observableType": "oneWayRange"
+    },
+    {
+      "bias": {
+        "biasType": "constantRelativeBias",
+        "constantBias": [
+          [
+            1e-12
+          ]
+        ]
+      },
+      "observableType": "oneWayDoppler",
+      "receiverProperTimeRate": {
+        "centralBody": "Sun",
+        "properTimeRateType": "firsOrderProperTimeRate"
+      },
+      "transmitterProperTimeRate": {
+        "centralBody": "Earth",
+        "properTimeRateType": "firsOrderProperTimeRate"
       }
-    ]
+    }
+  ],
+  "transmitter:(Vehicle,); receiver:(Earth,Station3)": [
+    {
+      "observableType": "angularPosition"
+    }
   ]
 }
