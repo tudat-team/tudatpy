@@ -29,7 +29,8 @@ enum AvailableTorque
 {
     underfined_torque = -1,
     second_order_gravitational_torque = 0,
-    aerodynamic_torque = 1
+    aerodynamic_torque = 1,
+    control_torque = 2
 };
 
 //! Function to identify the derived class type of a torque model.

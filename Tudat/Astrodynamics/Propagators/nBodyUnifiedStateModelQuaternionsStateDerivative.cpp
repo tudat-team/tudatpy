@@ -41,7 +41,7 @@ Eigen::Vector7d computeStateDerivativeForUnifiedStateModelQuaternions(
     // Evaluate USM7 equations.
     Eigen::Vector7d stateDerivative;
     stateDerivative.segment( 0, 3 ) = hodographMatrix * accelerationsInRswFrame;
-    stateDerivative.segment( 3, 4 ) = calculateQuaternionsDerivative( currentUnifiedStateModelElements.segment( 3, 4 ),
+    stateDerivative.segment( 3, 4 ) = calculateQuaternionDerivative( currentUnifiedStateModelElements.segment( 3, 4 ),
                                                                       rotationalVelocityVector );
 
     // Give output

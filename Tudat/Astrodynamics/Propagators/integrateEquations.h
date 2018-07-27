@@ -131,10 +131,14 @@ void getFinalStateForExactDependentVariableTerminationCondition(
         endState = integrator->performIntegrationStep( finalTimeStep );
         endTime = integrator->getCurrentIndependentVariable( );
     }
-    // If dependent variable has no root in given interval, set end time at NaN
-    catch( std::runtime_error )
+    // If dependent variable has no root in given interval, set end time and state at NaN
+    catch( std::runtime_error& caughtException )
     {
+        std::cerr << "Warning in propagation to exact dependent variable value. Root finder could not find a "
+                     "root to the function. Returning time and state as NANs. Caught exception: "
+                  << caughtException.what( ) << std::endl;
         endTime = TUDAT_NAN;
+        endState = StateType::Constant( lastState.rows( ), lastState.cols( ), TUDAT_NAN );
     }
 }
 
@@ -270,7 +274,7 @@ void getFinalStateForExactTerminationCondition(
     // Check type of termination condition
     switch( terminationCondition->getTerminationType( ) )
     {
-    case  time_stopping_condition:
+    case time_stopping_condition:
     {
         // Check input consistency
         boost::shared_ptr< FixedTimePropagationTerminationCondition > timeTerminationCondition =
@@ -285,7 +289,7 @@ void getFinalStateForExactTerminationCondition(
 
         break;
     }
-    case  cpu_time_stopping_condition:
+    case cpu_time_stopping_condition:
     {
         // No exact final condition on CPU time is possible
         std::cerr<<"Error, cannot propagate to exact CPU time, returning state after condition violation:"<<std::endl;
@@ -306,7 +310,7 @@ void getFinalStateForExactTerminationCondition(
 
         break;
     }
-    case  hybrid_stopping_condition:
+    case hybrid_stopping_condition:
     {
         boost::shared_ptr< HybridPropagationTerminationCondition > hyrbidTerminationCondition =
                 boost::dynamic_pointer_cast< HybridPropagationTerminationCondition >( terminationCondition );
@@ -316,6 +320,10 @@ void getFinalStateForExactTerminationCondition(
                     secondToLastState, lastState, endTime, endState );
         break;
     }
+    case custom_stopping_condition:
+        endTime = lastTime;
+        endState = lastState;
+        break;
     default:
         throw std::runtime_error( "Error when propagating to exact final condition, did not recognize termination time" );
     }
@@ -418,6 +426,7 @@ void propagateToExactTerminationCondition(
  *  as map (time as key; returned by reference)
  *  \param dependentVariableFunction Function returning dependent variables (obtained from environment and state
  *  derivative model).
+ *  \param postProcessState Function to post-process state after numerical integration (obtained from state derivative model).
  *  \param saveFrequency Frequency at which to save the numerical integrated states (in units of i.e. per n integration time
  *  steps, with n = saveFrequency).
  *  \param printInterval Frequency with which to print progress to console (nan = never).
@@ -433,10 +442,8 @@ boost::shared_ptr< PropagationTerminationDetails > integrateEquationsFromIntegra
         std::map< TimeType, StateType >& solutionHistory,
         std::map< TimeType, Eigen::VectorXd >& dependentVariableHistory,
         std::map< TimeType, double >& cumulativeComputationTimeHistory,
-        const boost::function< Eigen::VectorXd( ) > dependentVariableFunction =
-        boost::function< Eigen::VectorXd( ) >( ),
-        boost::function< void( StateType& ) > postProcessState =
-        boost::function< void( StateType& ) >( ),
+        const boost::function< Eigen::VectorXd( ) > dependentVariableFunction = boost::function< Eigen::VectorXd( ) >( ),
+        const boost::function< void( StateType& ) > postProcessState = boost::function< void( StateType& ) >( ),
         const int saveFrequency = TUDAT_NAN,
         const TimeType printInterval = TUDAT_NAN,
         const std::chrono::steady_clock::time_point initialClockTime = std::chrono::steady_clock::now( ) )
@@ -532,7 +539,7 @@ boost::shared_ptr< PropagationTerminationDetails > integrateEquationsFromIntegra
             }
 
             currentCPUTime = std::chrono::duration_cast< std::chrono::nanoseconds >(
-                        std::chrono::steady_clock::now( ) - initialClockTime ).count() * 1.0e-9;
+                        std::chrono::steady_clock::now( ) - initialClockTime ).count( ) * 1.0e-9;
             cumulativeComputationTimeHistory[ currentTime ] = currentCPUTime;
 
             // Print solutions
@@ -579,14 +586,13 @@ boost::shared_ptr< PropagationTerminationDetails > integrateEquationsFromIntegra
                 }
                 breakPropagation = true;
             }
-
         }
-        catch( const std::exception &caughtException )
+        catch( const std::exception& caughtException )
         {
             std::cerr << caughtException.what( ) << std::endl;
             std::cerr << "Error, propagation terminated at t=" + std::to_string( static_cast< double >( currentTime ) ) +
-                         ", returning propagation data up to current time" << std::endl;
-            breakPropagation = 1;
+                         ", returning propagation data up to current time." << std::endl;
+            breakPropagation = true;
             propagationTerminationReason = boost::make_shared< PropagationTerminationDetails >(
                         runtime_error_caught_in_propagation );
         }
@@ -595,7 +601,6 @@ boost::shared_ptr< PropagationTerminationDetails > integrateEquationsFromIntegra
 
     return propagationTerminationReason;
 }
-
 
 //! Interface class for integrating some state derivative function.
 /*!
@@ -624,6 +629,7 @@ public:
      *  as map (time as key; returned by reference)
      *  \param dependentVariableFunction Function returning dependent variables (obtained from environment and state
      *  derivative model).
+     *  \param postProcessState Function to post-process state after numerical integration (obtained from state derivative model).
      *  \param printInterval Frequency with which to print progress to console (nan = never).
      *  \param initialClockTime Initial clock time from which to determine cumulative computation time.
      *  By default now(), i.e. the moment at which this function is called.
@@ -637,12 +643,11 @@ public:
             const boost::shared_ptr< PropagationTerminationCondition > propagationTerminationCondition,
             std::map< TimeType, Eigen::VectorXd >& dependentVariableHistory,
             std::map< TimeType, double >& cumulativeComputationTimeHistory,
-            const boost::function< Eigen::VectorXd( ) > dependentVariableFunction =
-            boost::function< Eigen::VectorXd( ) >( ),
-            boost::function< void( StateType& ) > postProcessState =
-            boost::function< void( StateType& ) >( ),
+            const boost::function< Eigen::VectorXd( ) > dependentVariableFunction = boost::function< Eigen::VectorXd( ) >( ),
+            const boost::function< void( StateType& ) > postProcessState = boost::function< void( StateType& ) >( ),
             const TimeType printInterval = TUDAT_NAN,
             const std::chrono::steady_clock::time_point initialClockTime = std::chrono::steady_clock::now( ) );
+
 };
 
 //! Interface class for integrating some state derivative function.
@@ -666,6 +671,7 @@ public:
      *  as map (time as key; returned by reference)
      *  \param dependentVariableFunction Function returning dependent variables (obtained from environment and state
      *  derivative model).
+     *  \param postProcessState Function to post-process state after numerical integration (obtained from state derivative model).
      *  \param printInterval Frequency with which to print progress to console (nan = never).
      *  \param initialClockTime Initial clock time from which to determine cumulative computation time.
      *  By default now(), i.e. the moment at which this function is called.
@@ -679,10 +685,8 @@ public:
             const boost::shared_ptr< PropagationTerminationCondition > propagationTerminationCondition,
             std::map< double, Eigen::VectorXd >& dependentVariableHistory,
             std::map< double, double >& cumulativeComputationTimeHistory,
-            const boost::function< Eigen::VectorXd( ) > dependentVariableFunction =
-            boost::function< Eigen::VectorXd( ) >( ),
-            boost::function< void( StateType& ) > postProcessState =
-            boost::function< void( StateType& ) >( ),
+            const boost::function< Eigen::VectorXd( ) > dependentVariableFunction = boost::function< Eigen::VectorXd( ) >( ),
+            const boost::function< void( StateType& ) > postProcessState = boost::function< void( StateType& ) >( ),
             const double printInterval = TUDAT_NAN,
             const std::chrono::steady_clock::time_point initialClockTime = std::chrono::steady_clock::now( ) )
     {
@@ -709,6 +713,7 @@ public:
                     printInterval,
                     initialClockTime );
     }
+
 };
 
 //! Interface class for integrating some state derivative function.
@@ -732,6 +737,7 @@ public:
      *  as map (time as key; returned by reference)
      *  \param dependentVariableFunction Function returning dependent variables (obtained from environment and state
      *  derivative model).
+     *  \param postProcessState Function to post-process state after numerical integration (obtained from state derivative model).
      *  \param printInterval Frequency with which to print progress to console (nan = never).
      *  \param initialClockTime Initial clock time from which to determine cumulative computation time.
      *  By default now(), i.e. the moment at which this function is called.
@@ -745,10 +751,8 @@ public:
             const boost::shared_ptr< PropagationTerminationCondition > propagationTerminationCondition,
             std::map< Time, Eigen::VectorXd >& dependentVariableHistory,
             std::map< Time, double >& cumulativeComputationTimeHistory,
-            const boost::function< Eigen::VectorXd( ) > dependentVariableFunction =
-            boost::function< Eigen::VectorXd( ) >( ),
-            boost::function< void( StateType& ) > postProcessState =
-            boost::function< void( StateType& ) >( ),
+            const boost::function< Eigen::VectorXd( ) > dependentVariableFunction = boost::function< Eigen::VectorXd( ) >( ),
+            const boost::function< void( StateType& ) > postProcessState = boost::function< void( StateType& ) >( ),
             const Time printInterval = TUDAT_NAN,
             const std::chrono::steady_clock::time_point initialClockTime = std::chrono::steady_clock::now( ) )
     {
@@ -775,6 +779,7 @@ public:
                     printInterval,
                     initialClockTime );
     }
+
 };
 
 } // namespace propagators

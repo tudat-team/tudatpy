@@ -118,7 +118,7 @@ std::pair< Eigen::VectorXd, Eigen::MatrixXd > performLeastSquaresAdjustmentFromI
         const Eigen::VectorXd& diagonalOfWeightMatrix,
         const Eigen::MatrixXd& inverseOfAPrioriCovarianceMatrix,
         const bool checkConditionNumber = 1,
-        const double maximumAllowedConditionNumber = 1.0E8  );
+        const double maximumAllowedConditionNumber = 1.0E8 );
 
 //! Function to perform an iteration of least squares estimation from information matrix, weights and residuals
 /*!
@@ -139,7 +139,7 @@ std::pair< Eigen::VectorXd, Eigen::MatrixXd > performLeastSquaresAdjustmentFromI
         const Eigen::VectorXd& observationResiduals,
         const Eigen::VectorXd& diagonalOfWeightMatrix,
         const bool checkConditionNumber = 1,
-        const double maximumAllowedConditionNumber = 1.0E8  );
+        const double maximumAllowedConditionNumber = 1.0E8 );
 
 //! Function to perform an iteration of least squares estimation from information matrix and residuals
 /*!

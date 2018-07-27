@@ -46,6 +46,22 @@ Eigen::Vector4d convertQuaternionToVectorFormat( const Eigen::Quaterniond& quate
  */
 Eigen::Quaterniond convertVectorToQuaternionFormat( const Eigen::Vector4d& vector );
 
+//! Function to take the product of two quaternions.
+/*!
+ *  Function to take the product of two quaternions, both expressed as vectors.
+ *  \param firstQuaternion First quaternion expressed as vector.
+ *  \param secondQuaternion Second quaternion expressed as vector.
+ *  \return Product of the two quaternions.
+ */
+Eigen::Vector4d quaternionProduct( const Eigen::Vector4d& firstQuaternion, const Eigen::Vector4d& secondQuaternion );
+
+//! Function to invert a quaternion.
+/*!
+ *  Function to invert a quaternion.
+ *  \param quaternionVector Quaternion expressed as vector.
+ */
+void invertQuaternion( Eigen::Vector4d& quaternionVector );
+
 //! Function that returns that 'cross-product matrix'
 /*!
  *  Function that returns that 'cross-product matrix', i.e. for vectors a,b and c, with c = a x b, the matrix A such that

@@ -83,15 +83,14 @@ public:
             const AvailableLookupScheme selectedLookupScheme = huntingAlgorithm,
             const LagrangeInterpolatorBoundaryHandling lagrangeBoundaryHandling = lagrange_cubic_spline_boundary_interpolation,
             const BoundaryInterpolationType boundaryHandling = extrapolate_at_boundary,
-            const DependentVariableType defaultExtrapolationValue = IdentityElement< DependentVariableType >::getAdditionIdentity( ) ):
+            const DependentVariableType& defaultExtrapolationValue = IdentityElement< DependentVariableType >::getAdditionIdentity( ) ):
         OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >( boundaryHandling,
                                                                                       defaultExtrapolationValue ),
         numberOfStages_( numberOfStages ), lagrangeBoundaryHandling_( lagrangeBoundaryHandling )
     {
         if( numberOfStages_ % 2 != 0 )
         {
-            throw std::runtime_error(
-                        "Error: Lagrange interpolator currently only handles even orders." );
+            throw std::runtime_error( "Error: Lagrange interpolator currently only handles even orders." );
         }
 
         // Set data vectors.
@@ -108,19 +107,17 @@ public:
         // Verify that the initialization variables are not empty.
         if ( numberOfIndependentValues_ == 0 || dependentValues_.size( ) == 0 )
         {
-            throw std::runtime_error(
-                        "Error: Vectors used in the Lagrange interpolator initialization are empty." );
+            throw std::runtime_error( "Error: Vectors used in the Lagrange interpolator initialization are empty." );
         }
 
         // Check consistency of input data.
         if( static_cast< int >( dependentValues_.size( ) ) != numberOfIndependentValues_ )
         {
-            throw std::runtime_error(
-                        "Error: indep. and dep. variables incompatible in Lagrange interpolator." );
+            throw std::runtime_error( "Error: indep. and dep. variables incompatible in Lagrange interpolator." );
         }
 
         // Define zero entry for dependent variable.
-        zeroEntry_ = dependentVariables[ 0 ] - dependentVariables[ 0 ];
+        zeroEntry_ = dependentValues_[ 0 ] - dependentValues_[ 0 ];
         if( zeroEntry_ != zeroEntry_ )
         {
             throw std::runtime_error(
@@ -159,15 +156,14 @@ public:
             const AvailableLookupScheme selectedLookupScheme = huntingAlgorithm,
             const LagrangeInterpolatorBoundaryHandling lagrangeBoundaryHandling = lagrange_cubic_spline_boundary_interpolation,
             const BoundaryInterpolationType boundaryHandling = extrapolate_at_boundary,
-            const DependentVariableType defaultExtrapolationValue = IdentityElement< DependentVariableType >::getAdditionIdentity( ) ):
+            const DependentVariableType& defaultExtrapolationValue = IdentityElement< DependentVariableType >::getAdditionIdentity( ) ):
         OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >( boundaryHandling,
                                                                                       defaultExtrapolationValue ),
         numberOfStages_( numberOfStages ), lagrangeBoundaryHandling_( lagrangeBoundaryHandling )
     {
         if( numberOfStages_ % 2 != 0 )
         {
-            throw std::runtime_error(
-                        "Error: Lagrange interpolator currently only handles even orders." );
+            throw std::runtime_error( "Error: Lagrange interpolator currently only handles even orders." );
         }
 
         numberOfIndependentValues_ = dataMap.size( );
@@ -231,9 +227,9 @@ public:
 
         // Check whether boundary handling needs to be applied, if independent variable is beyond its defined range.
         DependentVariableType interpolatedValue = zeroEntry_;
-        bool useBoundaryValue = false;
-        this->checkBoundaryCase( interpolatedValue, useBoundaryValue, targetIndependentVariableValue );
-        if( useBoundaryValue )
+        bool useValue = false;
+        this->checkBoundaryCase( interpolatedValue, useValue, targetIndependentVariableValue );
+        if( useValue )
         {
             return interpolatedValue;
         }
@@ -331,7 +327,6 @@ public:
         return numberOfStages_;
     }
 
-
 protected:
 
 private:
@@ -345,7 +340,7 @@ private:
     void initializeDenominators( )
     {
         // Check validity of requested number of stages"
-        if( numberOfStages_% 2 != 0 )
+        if( numberOfStages_ % 2 != 0 )
         {
             throw std::runtime_error(
                         "Error, Lagrange interp. only implemented for even number of stages." );
@@ -485,4 +480,5 @@ typedef LagrangeInterpolator< double, double > LagrangeInterpolatorDouble;
 } // namespace interpolators
 
 } // namespace tudat
+
 #endif // TUDAT_LAGRANGEINTERPOLATOR_H

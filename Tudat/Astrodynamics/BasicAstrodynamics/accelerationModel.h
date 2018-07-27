@@ -40,7 +40,6 @@ class AccelerationModel
 {
 public:
 
-
     //! Constructor.
     AccelerationModel( ):
         currentTime_( TUDAT_NAN ){ }
@@ -94,6 +93,7 @@ protected:
 protected:
 
 private:
+
 };
 
 //! Typedef to a 3D acceleration model.
@@ -141,7 +141,7 @@ boost::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > >
 SingleBodyAccelerationMap;
 
 //! Typedef defining a list of accelerations acting on a set of bodies, key is the name of each
-//! body undergoing a acceletation, value is SingleBodyAccelerationMap, defining all accelerations
+//! body undergoing an acceletation, value is SingleBodyAccelerationMap, defining all accelerations
 //! acting on it.
 typedef std::unordered_map< std::string, SingleBodyAccelerationMap > AccelerationMap;
 

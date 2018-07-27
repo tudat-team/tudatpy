@@ -21,6 +21,7 @@
 #include <Eigen/Core>
 
 #include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
+#include "Tudat/Basics/timeType.h"
 
 namespace tudat
 {
@@ -197,8 +198,9 @@ public:
      * Modify the state at the current value of the independent variable. This function is virtual, hence it
      * can be implemented in all derived classes.
      * \param newState The new state to set the current state to.
+     * \param newTime The new time to set the current time to.
      */
-    virtual void modifyCurrentState( const StateType& newState, const IndependentVariableType newTime = TUDAT_NAN ) { }
+    virtual void modifyCurrentState( const StateType& newState, const IndependentVariableType newTime = 0 ) { }
 
 protected:
 
@@ -224,6 +226,7 @@ protected:
      *  checked during the integration subteps.
      */
     boost::function< bool( const double, const double ) > propagationTerminationFunction_ = boost::lambda::constant( false );
+
 };
 
 //! Perform an integration to a specified independent variable value.

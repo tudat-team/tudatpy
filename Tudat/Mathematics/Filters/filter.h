@@ -18,6 +18,7 @@
 
 #include <Eigen/Core>
 #include <Eigen/Geometry>
+#include <Eigen/LU>
 #include <unsupported/Eigen/MatrixFunctions>
 
 #include <boost/bind.hpp>
@@ -31,6 +32,7 @@
 #include "Tudat/Mathematics/Statistics/randomVariableGenerator.h"
 
 #include "Tudat/Basics/identityElements.h"
+#include "Tudat/Basics/utilities.h"
 
 namespace tudat
 {
@@ -124,14 +126,11 @@ public:
         identityMatrix_ = DependentMatrix::Identity( systemUncertainty_.rows( ), systemUncertainty_.cols( ) );
 
         // Add initial values to history
-        estimatedStateHistory_[ initialTime ] = aPosterioriStateEstimate_;
-        estimatedCovarianceHistory_[ initialTime ] = aPosterioriCovarianceEstimate_;
+        historyOfStateEstimates_[ initialTime ] = aPosterioriStateEstimate_;
+        historyOfCovarianceEstimates_[ initialTime ] = aPosterioriCovarianceEstimate_;
     }
 
-    //! Default destructor.
-    /*!
-     *  Default destructor.
-     */
+    //! Destructor.
     virtual ~FilterBase( ){ }
 
     //! Function to update the filter with the data from the new time step.
@@ -143,6 +142,15 @@ public:
     virtual void updateFilter( const IndependentVariableType currentTime,
                                const DependentVector& currentMeasurementVector ) = 0;
 
+    //! Function to update the a-posteriori estimates of state and covariance with external data.
+    void modifyCurrentStateAndCovarianceEstimates( const DependentVector& newStateEstimate,
+                                                   const DependentMatrix& newCovarianceEstimate )
+    {
+        // Update estimates with user-provided data
+        aPosterioriStateEstimate_ = newStateEstimate;
+        aPosterioriCovarianceEstimate_ = newCovarianceEstimate;
+    }
+
     //! Function to produce system noise.
     /*!
      *  Function to produce system noise, based on a Gaussian distribution, with zero mean and standard
@@ -152,8 +160,7 @@ public:
     DependentVector produceSystemNoise( )
     {
         // Declare system noise vector
-        DependentVector systemNoise;
-        systemNoise.resize( systemUncertainty_.rows( ), 1 );
+        DependentVector systemNoise = DependentVector::Zero( systemUncertainty_.rows( ) );
 
         // Loop over dimensions and add noise
         for ( int i = 0; i < systemUncertainty_.rows( ); i++ )
@@ -162,10 +169,6 @@ public:
             {
                 systemNoise[ i ] = static_cast< DependentVariableType >(
                             systemNoiseDistribution_.at( i )->getRandomVariableValue( ) );
-            }
-            else
-            {
-                systemNoise[ i ] = static_cast< DependentVariableType >( 0.0 );
             }
         }
 
@@ -182,9 +185,8 @@ public:
      */
     DependentVector produceMeasurementNoise( )
     {
-        // Declare system noise vector
-        DependentVector measurementNoise;
-        measurementNoise.resize( measurementUncertainty_.rows( ), 1 );
+        // Declare measurement noise vector
+        DependentVector measurementNoise = DependentVector::Zero( measurementUncertainty_.rows( ) );
 
         // Loop over dimensions and add noise
         for ( int i = 0; i < measurementUncertainty_.rows( ); i++ )
@@ -194,16 +196,18 @@ public:
                 measurementNoise[ i ] = static_cast< DependentVariableType >(
                             measurementNoiseDistribution_.at( i )->getRandomVariableValue( ) );
             }
-            else
-            {
-                measurementNoise[ i ] = static_cast< DependentVariableType >( 0.0 );
-            }
         }
 
         // Give back noise
         measurementNoiseHistory_.push_back( measurementNoise );
         return measurementNoise;
     }
+
+    //! Function to retrieve initial time.
+    IndependentVariableType getInitialTime( ) { return initialTime_; }
+
+    //! Function to retrieve step size for integration.
+    IndependentVariableType getIntegrationStepSize( ) { return integrationStepSize_; }
 
     //! Function to retrieve current state estimate.
     /*!
@@ -228,7 +232,7 @@ public:
      */
     std::map< IndependentVariableType, DependentVector > getEstimatedStateHistory( )
     {
-        return estimatedStateHistory_;
+        return historyOfStateEstimates_;
     }
 
     //! Function to retrieve the history of estimated covariance matrices.
@@ -238,7 +242,7 @@ public:
      */
     std::map< IndependentVariableType, DependentMatrix > getEstimatedCovarianceHistory( )
     {
-        return estimatedCovarianceHistory_;
+        return historyOfCovarianceEstimates_;
     }
 
     //! Function to retrieve the history of system and measurement noise used by the updateFilter function.
@@ -249,6 +253,17 @@ public:
     std::pair< std::vector< DependentVector >, std::vector< DependentVector > > getNoiseHistory( )
     {
         return std::make_pair( systemNoiseHistory_, measurementNoiseHistory_ );
+    }
+
+    //! Function to clear the history of stored variables.
+    /*!
+     *  Function to clear the history of stored variables. This function should be called if the history of state and covariance
+     *  estimates over time needs to be deleted. This may be useful in case the filter is run for very long times.
+     */
+    virtual void clearFilterHistory( )
+    {
+        historyOfStateEstimates_.clear( );
+        historyOfCovarianceEstimates_.clear( );
     }
 
 protected:
@@ -289,13 +304,17 @@ protected:
      *  Function to predict the state for the next time step, by overwriting previous state, with the either the use of
      *  the integrator provided in the integratorSettings, or the systemFunction_ input by the user.
      *  \param currentTime Scalar representing the current time.
+     *  \param aPrioriStateEstimate Vector denoting the a-priori state estimate.
+     *  \param currentMeasurementVector Vector denoting the external measurement.
+     *  \param measurementEstimate Vector denoting the measurement estimate.
+     *  \param gainMatrix Gain matrix, such as Kalman gain (for Kalman filters).
      */
     void correctState( const IndependentVariableType currentTime,
                        const DependentVector& aPrioriStateEstimate, const DependentVector& currentMeasurementVector,
-                       const DependentVector& measurmentEstimate, const DependentMatrix& gainMatrix )
+                       const DependentVector& measurementEstimate, const DependentMatrix& gainMatrix )
     {
-        aPosterioriStateEstimate_ = aPrioriStateEstimate + gainMatrix * ( currentMeasurementVector - measurmentEstimate );
-        estimatedStateHistory_[ currentTime ] = aPosterioriStateEstimate_;
+        aPosterioriStateEstimate_ = aPrioriStateEstimate + gainMatrix * ( currentMeasurementVector - measurementEstimate );
+        historyOfStateEstimates_[ currentTime ] = aPosterioriStateEstimate_;
     }
 
     //! Function to correct the covariance for the next time step.
@@ -346,9 +365,9 @@ protected:
     //! Boolean specifying whether the state needs to be integrated.
     bool isStateToBeIntegrated_;
 
-    //! Pointer to the integrator settings.
+    //! Pointer to the integrator.
     /*!
-     *  Pointer to the integrator settings, which is used to propagate the state to the new time step.
+     *  Pointer to the integrator, which is used to propagate the state to the new time step.
      */
     boost::shared_ptr< Integrator > integrator_;
 
@@ -366,10 +385,10 @@ protected:
     DependentMatrix identityMatrix_;
 
     //! Map of estimated states vectors history.
-    std::map< IndependentVariableType, DependentVector > estimatedStateHistory_;
+    std::map< IndependentVariableType, DependentVector > historyOfStateEstimates_;
 
     //! Map of estimated covariance matrices history.
-    std::map< IndependentVariableType, DependentMatrix > estimatedCovarianceHistory_;
+    std::map< IndependentVariableType, DependentMatrix > historyOfCovarianceEstimates_;
 
 private:
 
@@ -441,8 +460,8 @@ private:
             break;
         }
         default:
-            throw std::runtime_error( "Error in setting up filter. Only Euler and Runge-Kutta 4 "
-                                      "integrators are currently supported." );
+            throw std::runtime_error( "Error in setting up filter. Only constant time step integrators (i.e., Euler and "
+                                      "Runge-Kutta 4) are supported." );
         }
     }
 
@@ -459,6 +478,12 @@ private:
     std::vector< DependentVector > measurementNoiseHistory_;
 
 };
+
+//! Typedef for a filter with double data type.
+typedef FilterBase< > FilterDouble;
+
+//! Typedef for a shared-pointer to a filter with double data type.
+typedef boost::shared_ptr< FilterDouble > FilterDoublePointer;
 
 } // namespace filters
 

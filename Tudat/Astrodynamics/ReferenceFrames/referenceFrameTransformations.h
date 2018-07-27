@@ -207,7 +207,6 @@ Eigen::Quaterniond getVelocityBasedLvlhToPlanetocentricRotationKeplerian(
 Eigen::Matrix3d getInertialToRswSatelliteCenteredFrameRotationMatrix(
         const Eigen::Vector6d bodyState );
 
-
 //! Get inertial (I) to rotating planetocentric (R) reference frame transformation quaternion.
 /*!
  * Returns transformation quaternion from inertial referenceframe (I) to the rotating

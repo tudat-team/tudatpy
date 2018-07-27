@@ -17,14 +17,12 @@
 
 #include "Tudat/Astrodynamics/OrbitDetermination/UnitTests/orbitDeterminationTestCases.h"
 
-
 namespace tudat
 {
 namespace unit_tests
 {
+
 BOOST_AUTO_TEST_SUITE( test_estimation_from_positions )
-
-
 
 //! This test checks whether observation biases are correctly estimated, using a variety of different settings
 //! for types of observables/biases.
@@ -91,5 +89,3 @@ BOOST_AUTO_TEST_SUITE_END( )
 }
 
 }
-
-

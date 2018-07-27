@@ -11,10 +11,9 @@
 #ifndef TUDAT_UTILITIES_H
 #define TUDAT_UTILITIES_H
 
-#include <vector>
-
-#include <iostream>
 #include <map>
+#include <vector>
+#include <iostream>
 
 #include <boost/function.hpp>
 #include <boost/multi_array.hpp>
@@ -278,22 +277,26 @@ Eigen::Matrix< ScalarType, Eigen::Dynamic, NumberOfColumns > createConcatenatedE
 }
 
 //! Function to extract both keys and values from map, and output them as a pair.
-template< typename KeyType, typename ScalarType, unsigned int NumberOfElements >
-std::pair< Eigen::Matrix< KeyType, Eigen::Dynamic, 1 >, Eigen::Matrix< ScalarType, Eigen::Dynamic, Eigen::Dynamic > >
-extractKeyAndValuesFromMap( const std::map< KeyType, Eigen::Matrix< ScalarType, NumberOfElements, 1 > >& inputMap )
+template< typename KeyType, typename ScalarType, int NumberOfRows >
+std::pair< Eigen::Matrix< ScalarType, Eigen::Dynamic, 1 >, Eigen::Matrix< ScalarType, Eigen::Dynamic, Eigen::Dynamic > >
+extractKeyAndValuesFromMap( const std::map< KeyType, Eigen::Matrix< ScalarType, NumberOfRows, 1 > >& inputMap )
 {
     // Declare eventual output variables
-    Eigen::Matrix< KeyType, Eigen::Dynamic, 1 > keyValuesVector;
-    Eigen::Matrix< ScalarType, NumberOfElements, Eigen::Dynamic > mappedValuesMatrix;
+    Eigen::Matrix< ScalarType, Eigen::Dynamic, 1 > keyValuesVector;
+    Eigen::Matrix< ScalarType, Eigen::Dynamic, Eigen::Dynamic > mappedValuesMatrix;
+
+    // Make compatible with Eigen::Dynamic vectors
+    bool dynamicInput = ( NumberOfRows == Eigen::Dynamic );
+    unsigned int resizingDimension = dynamicInput ? inputMap.begin( )->second.rows( ) : NumberOfRows;
 
     // Assign size to matrices
     unsigned int numberOfKeys = inputMap.size( );
     keyValuesVector.resize( numberOfKeys, 1 );
-    mappedValuesMatrix.resize( NumberOfElements, numberOfKeys );
+    mappedValuesMatrix.resize( resizingDimension, numberOfKeys );
 
     // Loop over map and save elements
     int i = 0;
-    for ( typename std::map< KeyType, Eigen::Matrix< ScalarType, NumberOfElements, 1 > >::const_iterator
+    for ( typename std::map< KeyType, Eigen::Matrix< ScalarType, NumberOfRows, 1 > >::const_iterator
           mapIterator = inputMap.begin( ); mapIterator != inputMap.end( ); mapIterator++, i++ )
     {
         keyValuesVector[ i ] = mapIterator->first;
@@ -330,12 +333,12 @@ Eigen::Matrix< T, Eigen::Dynamic, 1 > convertStlVectorToEigenVector( const std::
 }
 
 //! Function to convert std::vector to Eigen::Matrix.
-template< typename T >
+template< typename T, int Rows = Eigen::Dynamic >
 Eigen::Matrix< T, Eigen::Dynamic, Eigen::Dynamic > convertStlVectorToEigenMatrix(
-        const std::vector< Eigen::Matrix< T, Eigen::Dynamic, 1 > >& stlVector )
+        const std::vector< Eigen::Matrix< T, Rows, 1 > >& stlVector )
 {
     Eigen::Matrix< T, Eigen::Dynamic, Eigen::Dynamic > eigenMatrix =
-            Eigen::Matrix< T, Eigen::Dynamic, Eigen::Dynamic >::Zero( stlVector.at( 0 ).rows( ), stlVector.size( ) );
+            Eigen::Matrix< T, Eigen::Dynamic, Eigen::Dynamic >::Zero( Rows, stlVector.size( ) );
     for( unsigned int i = 0; i < stlVector.size( ); i++ )
     {
         eigenMatrix.col( i ) = stlVector.at( i );
@@ -345,16 +348,16 @@ Eigen::Matrix< T, Eigen::Dynamic, Eigen::Dynamic > convertStlVectorToEigenMatrix
 
 //! Function to add a double to all entries in an STL vector.
 /*!
- *  Function to add a double to all entries in an STL vector (addition of a double must be defined for Argument type).
+ *  Function to add a double to all entries in an STL vector (addition of a double must be defined for T type).
  *  \param vector Vector to which a double is to be added.
  *  \param scalar Value that is to be added to vector
  *  \return New vector with scalar added to all entries of input vector.
  */
-template< typename Argument >
-std::vector< Argument > addScalarToVector( const std::vector< Argument >& vector, const double scalar )
+template< typename T >
+std::vector< T > addScalarToVector( const std::vector< T >& vector, const double scalar )
 {
     // Declare and resize return vector.
-    std::vector< Argument > addedVector;
+    std::vector< T > addedVector;
     addedVector.resize( vector.size( ) );
 
     // Add scalar to all entries of input vector
@@ -397,8 +400,8 @@ typename boost::multi_array< double, NumberOfDimensions >::index getMultiArrayIn
         const unsigned short int direction )
 {
     int offset = requestedElement - multiArray.origin( );
-    return( offset / multiArray.strides( )[ direction] % multiArray.shape( )[ direction ] +
-            multiArray.index_bases( )[direction] );
+    return( offset / multiArray.strides( )[ direction ] % multiArray.shape( )[ direction ] +
+            multiArray.index_bases( )[ direction ] );
 }
 
 //! Get indices of pointer to single entry in multi-array (size 1) of doubles
@@ -573,6 +576,41 @@ std::map< MapKey, Eigen::Array< ScalarType, Eigen::Dynamic, 1 > > convertStlVect
         eigenMap[ ent.first ] = array;
     }
     return eigenMap;
+}
+
+//! Function to slice standard library vector, given an optional initial and final slicing values.
+template< typename T >
+std::vector< T > sliceStlVector( const std::vector< T >& vectorToBeSliced, unsigned int startIndex = 0,
+                                 unsigned int endIndex = std::numeric_limits< unsigned int >::signaling_NaN( ) )
+{
+    // Declare output vector
+    std::vector< T > slicedVector;
+
+    // Give value to end index
+    if ( endIndex == std::numeric_limits< unsigned int >::signaling_NaN( ) )
+    {
+        endIndex = vectorToBeSliced.size( ) - 1;
+    }
+
+    // Check that boundaries make sense
+    if ( startIndex > endIndex )
+    {
+        // Warn user of inconsistency
+        std::cerr << "Warning in slicing of std::vector. The starting index is greater than the end index. "
+                     "The indices will be swapped." << std::endl;
+
+        // Swap indices
+        unsigned int temporaryIndex = startIndex;
+        startIndex = endIndex;
+        endIndex = temporaryIndex;
+    }
+
+    // Transfer values to sliced array
+    for ( unsigned int i = startIndex; i < ( endIndex + 1 ); i++ )
+    {
+        slicedVector.push_back( vectorToBeSliced.at( i ) );
+    }
+    return slicedVector;
 }
 
 } // namespace utilities

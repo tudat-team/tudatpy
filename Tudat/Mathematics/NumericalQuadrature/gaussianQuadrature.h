@@ -259,7 +259,6 @@ class GaussianQuadrature : public NumericalQuadrature< IndependentVariableType ,
 {
 public:
 
-
     typedef Eigen::Array< DependentVariableType, Eigen::Dynamic, 1 > DependentVariableArray;
     typedef Eigen::Array< IndependentVariableType, Eigen::Dynamic, 1 > IndependentVariableArray;
 
@@ -281,7 +280,6 @@ public:
         gaussQuadratureNodesAndWeights_ = getGaussQuadratureNodesAndWeights< IndependentVariableType >( );
     }
 
-
     //! Reset the current Gaussian quadrature.
     /*!
      * The nodes and weights are not read/computed again if they had already been used previously.
@@ -301,7 +299,6 @@ public:
         numberOfNodes_ = numberOfNodes;
         quadratureHasBeenPerformed_ = false;
     }
-
 
     //! Function to return computed value of the quadrature.
     /*!
@@ -330,7 +327,7 @@ public:
                             "The number of nodes for the Gaussian quadrature must be between 2 and 64." );
             }
 
-            performQuadrature();
+            performQuadrature( );
             quadratureHasBeenPerformed_ = true;
         }
 

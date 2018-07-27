@@ -113,10 +113,7 @@ public:
                             initialCovarianceMatrix, integratorSettings )
     { }
 
-    //! Default destructor.
-    /*!
-     *  Default destructor.
-     */
+    //! Destructor.
     ~LinearKalmanFilter( ){ }
 
     //! Function to update the filter with the new step data.
@@ -133,7 +130,7 @@ public:
 
         // Prediction step
         DependentVector aPrioriStateEstimate = this->predictState( currentTime );
-        DependentVector measurmentEstimate = this->measurementFunction_( currentTime, aPrioriStateEstimate );
+        DependentVector measurementEstimate = this->measurementFunction_( currentTime, aPrioriStateEstimate );
         DependentMatrix aPrioriCovarianceEstimate = currentSystemMatrix * this->aPosterioriCovarianceEstimate_ *
                 currentSystemMatrix.transpose( ) + this->systemUncertainty_;
 
@@ -143,7 +140,7 @@ public:
                     this->measurementUncertainty_ ).inverse( );
 
         // Correction step
-        this->correctState( currentTime, aPrioriStateEstimate, currentMeasurementVector, measurmentEstimate, kalmanGain );
+        this->correctState( currentTime, aPrioriStateEstimate, currentMeasurementVector, measurementEstimate, kalmanGain );
         this->correctCovariance( currentTime, aPrioriCovarianceEstimate, currentMeasurementMatrix, kalmanGain );
     }
 

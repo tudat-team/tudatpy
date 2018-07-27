@@ -20,6 +20,7 @@
 
 namespace tudat
 {
+
 namespace system_models
 {
 
@@ -150,7 +151,6 @@ public:
         return massFlowFunction_( );
     }
 
-
 protected:
 
     //! Variable specific impulse of engine (no input arguments provided; must be updated by associated guidance law).
@@ -158,6 +158,7 @@ protected:
 
     //! Variable mass flow function (no input arguments provided; must be updated by associated guidance law).
     boost::function< double( ) > massFlowFunction_;
+
 };
 
 } // namespace system_models

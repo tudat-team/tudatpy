@@ -63,10 +63,7 @@ public:
                                                                       initialCovarianceMatrix, integratorSettings )
     { }
 
-    //! Default destructor.
-    /*!
-     *  Default destructor.
-     */
+    //! Destructor.
     virtual ~KalmanFilterBase( ){ }
 
 protected:
@@ -111,7 +108,7 @@ protected:
         this->aPosterioriCovarianceEstimate_ = ( this->identityMatrix_ - kalmanGain * currentMeasurementMatrix ) *
                 aPrioriCovarianceEstimate * ( this->identityMatrix_ - kalmanGain * currentMeasurementMatrix ).transpose( ) +
                 kalmanGain * this->measurementUncertainty_ * kalmanGain.transpose( );
-        this->estimatedCovarianceHistory_[ currentTime ] = this->aPosterioriCovarianceEstimate_;
+        this->historyOfCovarianceEstimates_[ currentTime ] = this->aPosterioriCovarianceEstimate_;
     }
 
 private:

@@ -100,6 +100,7 @@ protected:
     TerminationFunction terminationFunction;
 
 private:
+
 };
 
 //! Typedef for a root-finder with double data type.

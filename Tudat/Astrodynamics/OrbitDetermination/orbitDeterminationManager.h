@@ -588,7 +588,6 @@ public:
 
             oldParameterEstimate = newParameterEstimate;
 
-
             if( podInput->getPrintOutput( ) )
             {
                 std::cout << "Parameter update" << parameterAddition.transpose( ) << std::endl;
@@ -759,7 +758,6 @@ public:
     {
         return stateTransitionAndSensitivityMatrixInterface_;
     }
-
 
 protected:
 
