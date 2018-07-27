@@ -29,7 +29,6 @@
 #include "Tudat/SimulationSetup/PropagationSetup/propagationTermination.h"
 #include "Tudat/Astrodynamics/Propagators/dynamicsStateDerivativeModel.h"
 #include "Tudat/Mathematics/Interpolators/lagrangeInterpolator.h"
-#include "Tudat/Astrodynamics/GuidanceNavigationControl/controlSystem.h"
 
 namespace tudat
 {
