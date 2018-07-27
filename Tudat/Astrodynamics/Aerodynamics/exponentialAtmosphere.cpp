@@ -24,7 +24,7 @@ ExponentialAtmosphere::ExponentialAtmosphere(
     {
     case earth:
     {
-        // Set local variables for Earth exponential atmosphere. Based on  lecture notes
+        // Set local variables for Earth exponential atmosphere. Based on lecture notes
         // Rocket Motion by Prof. Ir. B.A.C. Ambrosius, November 2009.
 
         // Set scale height.
