@@ -60,17 +60,6 @@ boost::shared_ptr< gravitation::SecondDegreeGravitationalTorqueModel > createSec
         const std::string& nameOfBodyUndergoingTorque,
         const std::string& nameOfBodyExertingTorque );
 
-//! Function to create a control torque.
-/*!
- * Function to create a control torque, based on the control system object of the body.
- *  \param bodyUndergoingTorque Pointer to object of body that is being accelerated.
- *  \param nameOfBodyUndergoingTorque Name of body that is being accelerated.
- *  \return Pointer to object for calculating control torque.
- */
-boost::shared_ptr< basic_astrodynamics::CustomTorque > createControlTorqueModel(
-        const boost::shared_ptr< simulation_setup::Body > bodyUndergoingTorque,
-        const std::string& nameOfBodyUndergoingTorque );
-
 //! Function to create torque model object.
 /*!
  *  Function to create torque model object.

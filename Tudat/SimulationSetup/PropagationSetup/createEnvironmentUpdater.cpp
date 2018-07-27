@@ -230,8 +230,6 @@ createRotationalEquationsOfMotionEnvironmentUpdaterSettings(
                     singleTorqueUpdateNeeds[ vehicle_flight_conditions_update ].push_back(
                                 acceleratedBodyIterator->first );
                     break;
-                case control_torque:
-                    break;
                 default:
                     std::cerr << "Error, update information not found for torque model " << currentTorqueModelType << std::endl;
                     break;

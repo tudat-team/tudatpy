@@ -35,10 +35,6 @@ AvailableTorque getTorqueModelType(
     {
         torqueType = aerodynamic_torque;
     }
-    else if( boost::dynamic_pointer_cast< basic_astrodynamics::CustomTorque >( torqueModel ) != NULL )
-    {
-        torqueType = control_torque;
-    }
     else
     {
         std::cerr << "Error, could not identify torque type" << std::endl;
@@ -57,9 +53,6 @@ std::string getTorqueModelName( const AvailableTorque torqueType )
         break;
     case aerodynamic_torque:
         torqueName = "aerodynamic torque ";
-        break;
-    case control_torque:
-        torqueName = "control torque ";
         break;
     default:
         std::string errorMessage = "Error, torque type " +
