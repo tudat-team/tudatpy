@@ -93,10 +93,7 @@ public:
         }
     }
 
-    //! Default destructor.
-    /*!
-     *  Default destructor.
-     */
+    //! Destructor.
     ~ExtendedKalmanFilter( ){ }
 
     //! Function to update the filter with the new step data.
@@ -123,7 +120,7 @@ public:
             currentStateJacobianMatrix = stateJacobianFunction_( currentTime, aPrioriStateEstimate );
             currentStateNoiseJacobianMatrix = stateNoiseJacobianFunction_( currentTime, aPrioriStateEstimate );
         }
-        DependentVector measurmentEstimate = this->measurementFunction_( currentTime, aPrioriStateEstimate );
+        DependentVector measurementEstimate = this->measurementFunction_( currentTime, aPrioriStateEstimate );
 
         // Compute remaining Jacobians
         DependentMatrix currentMeasurementJacobianMatrix = measurementJacobianFunction_( currentTime, aPrioriStateEstimate );
@@ -141,7 +138,7 @@ public:
                     currentMeasurementNoiseJacobianMatrix.transpose( ) ).inverse( );
 
         // Correction step
-        this->correctState( currentTime, aPrioriStateEstimate, currentMeasurementVector, measurmentEstimate, kalmanGain );
+        this->correctState( currentTime, aPrioriStateEstimate, currentMeasurementVector, measurementEstimate, kalmanGain );
         this->correctCovariance( currentTime, aPrioriCovarianceEstimate, currentMeasurementJacobianMatrix, kalmanGain );
     }
 

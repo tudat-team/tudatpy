@@ -74,7 +74,7 @@ public:
                                 const DependentVariableType jumpSize,
                                 const AvailableLookupScheme selectedLookupScheme = huntingAlgorithm,
                                 const BoundaryInterpolationType boundaryHandling = extrapolate_at_boundary,
-                                const DependentVariableType defaultExtrapolationValue = IdentityElement< DependentVariableType >::getAdditionIdentity( ) ):
+                                const DependentVariableType& defaultExtrapolationValue = IdentityElement< DependentVariableType >::getAdditionIdentity( ) ):
         OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >( boundaryHandling,
                                                                                       defaultExtrapolationValue )
     {
@@ -120,7 +120,7 @@ public:
                                 const DependentVariableType jumpSize,
                                 const AvailableLookupScheme selectedLookupScheme = huntingAlgorithm,
                                 const BoundaryInterpolationType boundaryHandling = extrapolate_at_boundary,
-                                const DependentVariableType defaultExtrapolationValue = IdentityElement< DependentVariableType >::getAdditionIdentity( ) ):
+                                const DependentVariableType& defaultExtrapolationValue = IdentityElement< DependentVariableType >::getAdditionIdentity( ) ):
         OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >( boundaryHandling,
                                                                                       defaultExtrapolationValue )
     {
@@ -149,9 +149,9 @@ public:
     {
         // Check whether boundary handling needs to be applied, if independent variable is beyond its defined range.
         DependentVariableType interpolatedValue;
-        bool useBoundaryValue = false;
-        this->checkBoundaryCase( interpolatedValue, useBoundaryValue, independentVariableValue );
-        if( useBoundaryValue )
+        bool useValue = false;
+        this->checkBoundaryCase( interpolatedValue, useValue, independentVariableValue );
+        if( useValue )
         {
             return interpolatedValue;
         }

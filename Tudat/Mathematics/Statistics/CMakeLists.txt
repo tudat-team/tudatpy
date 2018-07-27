@@ -43,7 +43,7 @@ target_link_libraries(test_SimpleLinearRegression tudat_statistics ${Boost_LIBRA
 
 add_executable(test_BasicStatistics "${SRCROOT}${MATHEMATICSDIR}/Statistics/UnitTests/unitTestBasicStatistics.cpp")
 setup_custom_test_program(test_BasicStatistics "${SRCROOT}${MATHEMATICSDIR}/Statistics")
-target_link_libraries(test_BasicStatistics tudat_statistics ${Boost_LIBRARIES})
+target_link_libraries(test_BasicStatistics tudat_statistics tudat_basics ${Boost_LIBRARIES})
 
 add_executable(test_MultiVariateProbabilityDistributions "${SRCROOT}${MATHEMATICSDIR}/Statistics/UnitTests/unitTestMultiVariateGaussianProbabilityDistributions.cpp")
 setup_custom_test_program(test_MultiVariateProbabilityDistributions "${SRCROOT}${MATHEMATICSDIR}/Statistics")

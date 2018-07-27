@@ -200,7 +200,6 @@ public:
                             &AerodynamicAccelerationPartial::computeAccelerationPartialWrtCurrentDragCoefficient,
                             this, _1 );
                 numberOfColumns = 1;
-
             }
         }
 

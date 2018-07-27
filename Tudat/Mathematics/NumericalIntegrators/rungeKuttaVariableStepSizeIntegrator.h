@@ -302,10 +302,10 @@ public:
      * to revert to the state before the discrete change.
      * \param newState The state to set the current state to.
      */
-    void modifyCurrentState( const StateType& newState, const IndependentVariableType newTime = TUDAT_NAN )
+    void modifyCurrentState( const StateType& newState, const IndependentVariableType newTime = 0 )
     {
         this->currentState_ = newState;
-        if ( newTime == static_cast< IndependentVariableType >( TUDAT_NAN ) )
+        if ( newTime == 0 )
         {
             this->lastIndependentVariable_ = currentIndependentVariable_;
         }

@@ -162,8 +162,8 @@ BOOST_AUTO_TEST_CASE( test_ParameterPostFitResiduals )
                 ( centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState, simulationEndEpoch, cowell );
 
         // Create integrator settings.
-        boost::shared_ptr< IntegratorSettings< > > integratorSettings =
-                boost::make_shared< RungeKuttaVariableStepSizeSettings< > >
+        boost::shared_ptr< IntegratorSettings< > >
+                integratorSettings = boost::make_shared< RungeKuttaVariableStepSizeSettings< double, Eigen::MatrixXd > >
                 ( rungeKuttaVariableStepSize, ( simulationStartEpoch ), 12.0 * 3600.0,
                   RungeKuttaCoefficients::CoefficientSets::rungeKuttaFehlberg78,
                   3.0 * 3600.0, 12.0 * 3600.0, 1.0E-12, 1.0E-12 );
@@ -394,6 +394,3 @@ BOOST_AUTO_TEST_CASE( test_ParameterPostFitResidualsApollo )
 }
 
 }
-
-
-

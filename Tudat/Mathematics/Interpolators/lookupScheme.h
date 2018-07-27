@@ -211,6 +211,7 @@ public:
         return basic_mathematics::computeNearestLeftNeighborUsingBinarySearch
                 < IndependentVariableType >( independentVariableValues_, valueToLookup );
     }
+
 };
 
 //! Typedef for shared-pointer to LookUpScheme object with double-type entries.

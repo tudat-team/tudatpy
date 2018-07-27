@@ -50,6 +50,9 @@ typedef Eigen::Matrix< float, 6, 6 > Matrix6f;
 //! Typedef for Matrix6d.
 typedef Eigen::Matrix< double, 6, 6 > Matrix6d;
 
+//! Typedef for Matrix7d.
+typedef Eigen::Matrix< double, 7, 7 > Matrix7d;
+
 //! Typedef for MatrixXi.
 typedef Eigen::Matrix< int, Eigen::Dynamic, Eigen::Dynamic > MatrixXi;
 

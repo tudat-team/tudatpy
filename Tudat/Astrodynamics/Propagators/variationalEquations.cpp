@@ -175,6 +175,6 @@ void VariationalEquations::setStatePartialFunctionList( )
     }
 }
 
-}
+} // namespace propagators
 
-}
+} // namespace tudat

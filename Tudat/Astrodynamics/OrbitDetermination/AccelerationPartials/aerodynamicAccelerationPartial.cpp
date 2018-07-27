@@ -16,7 +16,6 @@ namespace tudat
 namespace acceleration_partials
 {
 
-
 //! Function for updating partial w.r.t. the bodies' positions
 void AerodynamicAccelerationPartial::update( const double currentTime )
 {
@@ -68,7 +67,6 @@ void AerodynamicAccelerationPartial::update( const double currentTime )
     flightConditions_->updateConditions( currentTime );
     aerodynamicAcceleration_->updateMembers( currentTime );
 }
-
 
 } // namespace acceleration_partials
 

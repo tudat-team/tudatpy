@@ -46,13 +46,13 @@ Eigen::Matrix< double, 4, 3 > getAngularVelocityToQuaternionRateMatrix( const Ei
 //! Function to obtain the time derivative of a quaternion (in vector representation) of body-fixed to inertial frame
 /*!
  * Function to obtain the time derivative of a quaternion (in vector representation) of body-fixed to inertial frame
- * \param currentQuaternionsToBaseFrame Quaternions (in vector representation) that defined the rotation from body-fixed to inertial
+ * \param currentQuaternionsToBaseFrame Quaternions (in vector representation) that define the rotation from body-fixed to inertial
  * frame.
  * \param angularVelocityVectorInBodyFixedFrame Current angular velocity vector of body, expressed in its body-fixed frame
  * \return Time derivative of a quaternion (in vector representation) of body-fixed to inertial frame
  */
-Eigen::Vector4d calculateQuaternionsDerivative( const Eigen::Vector4d& currentQuaternionsToBaseFrame,
-                                                const Eigen::Vector3d& angularVelocityVectorInBodyFixedFrame );
+Eigen::Vector4d calculateQuaternionDerivative( const Eigen::Vector4d& currentQuaternionsToBaseFrame,
+                                               const Eigen::Vector3d& angularVelocityVectorInBodyFixedFrame );
 
 //! Class for computing the state derivative for rotational dynamics of N bodies.
 /*!
@@ -112,7 +112,7 @@ public:
             Eigen::Matrix< StateScalarType, 4, 1 > currentQuaternions = stateOfSystemToBeIntegrated.block( i * 7, 0, 4, 1 );
             Eigen::Matrix< StateScalarType, 3, 1 > currentBodyFixedRotationRate = stateOfSystemToBeIntegrated.block( i * 7 + 4, 0, 3, 1 );
 
-            stateDerivative.block( i * 7, 0, 4, 1 ) = calculateQuaternionsDerivative(
+            stateDerivative.block( i * 7, 0, 4, 1 ) = calculateQuaternionDerivative(
                         currentQuaternions.template cast< double >( ), currentBodyFixedRotationRate.template cast< double >( ) ).
                     template cast< StateScalarType >( );
             stateDerivative.block( i * 7 + 4, 0, 3, 1 ) = evaluateRotationalEquationsOfMotion(

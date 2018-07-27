@@ -123,10 +123,7 @@ public:
                                           measurementDimension_, measurementDimension_ ) = measurementUncertainty;
     }
 
-    //! Default destructor.
-    /*!
-     *  Default destructor.
-     */
+    //! Destructor.
     ~UnscentedKalmanFilter( ){ }
 
     //! Function to update the filter with the new step data.
@@ -139,7 +136,7 @@ public:
     {
         // Compute sigma points
         computeSigmaPoints( this->aPosterioriStateEstimate_, this->aPosterioriCovarianceEstimate_ );
-        mapOfMapOfSigmaPoints_[ currentTime ] = mapOfSigmaPoints_; // store points
+        historyOfMapOfSigmaPoints_[ currentTime ] = mapOfSigmaPoints_; // store points
 
         // Prediction step
         // Compute series of state estimates based on sigma points
@@ -156,7 +153,7 @@ public:
         DependentVector aPrioriStateEstimate = DependentVector::Zero( stateDimension_ );
         computeWeightedAverageFromSigmaPointEstimates( aPrioriStateEstimate, sigmaPointsStateEstimates );
 
-        // Compute the a-priori covariance matrix
+        // Compute the weighted average to find the a-priori covariance matrix
         DependentMatrix aPrioriCovarianceEstimate = DependentMatrix::Zero( stateDimension_, stateDimension_ );
         computeWeightedAverageFromSigmaPointEstimates( aPrioriCovarianceEstimate, aPrioriStateEstimate, sigmaPointsStateEstimates );
 
@@ -174,26 +171,26 @@ public:
         }
 
         // Compute the weighted average to find the expected measurement vector
-        DependentVector measurmentEstimate = DependentVector::Zero( measurementDimension_ );
-        computeWeightedAverageFromSigmaPointEstimates( measurmentEstimate, sigmaPointsMeasurementEstimates );
+        DependentVector measurementEstimate = DependentVector::Zero( measurementDimension_ );
+        computeWeightedAverageFromSigmaPointEstimates( measurementEstimate, sigmaPointsMeasurementEstimates );
 
         // Compute innovation and cross-correlation matrices
         DependentMatrix innovationMatrix = DependentMatrix::Zero( measurementDimension_, measurementDimension_ );
-        computeWeightedAverageFromSigmaPointEstimates( innovationMatrix, measurmentEstimate, sigmaPointsMeasurementEstimates );
+        computeWeightedAverageFromSigmaPointEstimates( innovationMatrix, measurementEstimate, sigmaPointsMeasurementEstimates );
         DependentMatrix crossCorrelationMatrix = DependentMatrix::Zero( stateDimension_, measurementDimension_ );
         for ( sigmaPointConstantIterator_ = sigmaPointsStateEstimates.begin( );
               sigmaPointConstantIterator_ != sigmaPointsStateEstimates.end( ); sigmaPointConstantIterator_++ )
         {
             crossCorrelationMatrix += covarianceEstimationWeights_.at( sigmaPointConstantIterator_->first ) *
                     ( sigmaPointConstantIterator_->second - aPrioriStateEstimate ) *
-                    ( sigmaPointsMeasurementEstimates[ sigmaPointConstantIterator_->first ] - measurmentEstimate ).transpose( );
+                    ( sigmaPointsMeasurementEstimates[ sigmaPointConstantIterator_->first ] - measurementEstimate ).transpose( );
         }
 
         // Compute Kalman gain
         DependentMatrix kalmanGain = crossCorrelationMatrix * innovationMatrix.inverse( );
 
         // Correction step
-        this->correctState( currentTime, aPrioriStateEstimate, currentMeasurementVector, measurmentEstimate, kalmanGain );
+        this->correctState( currentTime, aPrioriStateEstimate, currentMeasurementVector, measurementEstimate, kalmanGain );
         correctCovariance( currentTime, aPrioriCovarianceEstimate, innovationMatrix, kalmanGain );
     }
 
@@ -202,13 +199,13 @@ public:
      *  Function to return the history of sigma points.
      *  \return History of map of sigma points for each time step.
      */
-    std::map< IndependentVariableType, DependentMatrix > getSigmaPointsHistory( )
+    std::map< IndependentVariableType, DependentMatrix > getHistoryOfSigmaPoints( )
     {
         // Convert map of maps into map of Eigen::Matrix
         DependentVector vectorOfSigmaPoints;
         std::map< IndependentVariableType, DependentMatrix > mapOfSigmaPointsHistory;
         for ( typename std::map< IndependentVariableType, std::map< unsigned int, DependentVector > >::const_iterator
-              mapIterator = mapOfMapOfSigmaPoints_.begin( ); mapIterator != mapOfMapOfSigmaPoints_.end( ); mapIterator++ )
+              mapIterator = historyOfMapOfSigmaPoints_.begin( ); mapIterator != historyOfMapOfSigmaPoints_.end( ); mapIterator++ )
         {
             // Extract current map of sigma points and turn it into a vector
             vectorOfSigmaPoints = utilities::createConcatenatedEigenMatrixFromMapValues( mapIterator->second );
@@ -221,6 +218,18 @@ public:
 
         // Give output
         return mapOfSigmaPointsHistory;
+    }
+
+    //! Function to clear the history of stored variables.
+    /*!
+     *  Function to clear the history of stored variables. This function should be called if the history of state, covariance
+     *  and sigma point estimates over time needs to be deleted. This may be useful in case the filter is run for very long times.
+     */
+    void clearFilterHistory( )
+    {
+        this->historyOfStateEstimates_.clear( );
+        this->historyOfCovarianceEstimates_.clear( );
+        historyOfMapOfSigmaPoints_.clear( );
     }
 
 private:
@@ -297,7 +306,28 @@ private:
         augmentedCovarianceMatrix_.topLeftCorner( stateDimension_, stateDimension_ ) = currentCovarianceEstimate;
 
         // Pre-compute square root of augmented covariance matrix
-        DependentMatrix augmentedCovarianceMatrixSquareRoot = augmentedCovarianceMatrix_.sqrt( );
+        DependentMatrix augmentedCovarianceMatrixSquareRoot;
+        if ( augmentedCovarianceMatrix_.determinant( ) != static_cast< DependentVariableType >( 0.0 ) )
+        {
+            // Matrix is invertible, so take matrix square-root directly
+            augmentedCovarianceMatrixSquareRoot = augmentedCovarianceMatrix_.sqrt( );
+        }
+        else
+        {
+            // Check if matrix is diagonal
+            DependentVector augmentedCovarianceMatrixDiagonal = augmentedCovarianceMatrix_.diagonal( );
+            if ( augmentedCovarianceMatrix_.isApprox( DependentMatrix( augmentedCovarianceMatrixDiagonal.asDiagonal( ) ) ) )
+            {
+                augmentedCovarianceMatrixDiagonal = augmentedCovarianceMatrixDiagonal.array( ).sqrt( );
+                augmentedCovarianceMatrixSquareRoot = augmentedCovarianceMatrixDiagonal.asDiagonal( );
+            }
+            else
+            {
+                // Otherwise, matrix is singular and the square-root cannot be computed
+                throw std::runtime_error( "Error in unscented Kalman filter. Augemented covariance matrix is singular. "
+                                          "Its square-root cannot be computed." );
+            }
+        }
 
         // Loop over sigma points and assign value
         for ( unsigned int i = 0; i < numberOfSigmaPoints_; i++ )
@@ -372,7 +402,7 @@ private:
                             const DependentMatrix& innovationMatrix, const DependentMatrix& kalmanGain )
     {
         this->aPosterioriCovarianceEstimate_ = aPrioriCovarianceEstimate - kalmanGain * innovationMatrix * kalmanGain.transpose( );
-        this->estimatedCovarianceHistory_[ currentTime ] = this->aPosterioriCovarianceEstimate_;
+        this->historyOfCovarianceEstimates_[ currentTime ] = this->aPosterioriCovarianceEstimate_;
     }
 
     //! System function input by user.
@@ -398,7 +428,7 @@ private:
      *  Vector of constant parameters. See description of setConstantParameterValues function for information on the order and
      *  meaning of the constant parameters.
      */
-    std::vector< DependentVariableType > constantParameters_ = std::vector< DependentVariableType >( 5, 0.0 );
+    std::vector< DependentVariableType > constantParameters_;
 
     //! Vector of weights used for the computation of the weighted average of the state and measurement vectors.
     std::vector< DependentVariableType > stateEstimationWeights_;
@@ -428,7 +458,7 @@ private:
     std::map< unsigned int, DependentVector > mapOfSigmaPoints_;
 
     //! Map of map of sigma points, used to store the history of sigma points.
-    std::map< IndependentVariableType, std::map< unsigned int, DependentVector > > mapOfMapOfSigmaPoints_;
+    std::map< IndependentVariableType, std::map< unsigned int, DependentVector > > historyOfMapOfSigmaPoints_;
 
     //! Constant iterator to loop over sigma points (introduced for convenience).
     typename std::map< unsigned int, DependentVector >::const_iterator sigmaPointConstantIterator_;
@@ -455,6 +485,9 @@ void UnscentedKalmanFilter< IndependentVariableType, DependentVariableType >::se
         const ConstantParameterReferences constantValueReference,
         const std::pair< DependentVariableType, DependentVariableType >& customConstantParameters )
 {
+    // Assign size to vector
+    constantParameters_.resize( 5 );
+
     // Set parameters based on input
     switch ( constantValueReference )
     {

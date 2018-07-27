@@ -37,7 +37,6 @@ double getConditionNumberOfDecomposedMatrix( const Eigen::JacobiSVD< Eigen::Matr
     return singularValues( 0 ) / singularValues( singularValues.rows( ) - 1 );
 }
 
-
 //! Solve system of equations with SVD decomposition, checking condition number in the process
 Eigen::VectorXd solveSystemOfEquationsWithSvd( const Eigen::MatrixXd matrixToInvert,
                                                const Eigen::VectorXd rightHandSideVector,
@@ -147,7 +146,8 @@ Eigen::VectorXd getLeastSquaresPolynomialFit(
 {
     if( independentValues.rows( ) != dependentValues.rows( ) )
     {
-        throw std::runtime_error( "Error when doing least squares polynomial fit, size of dependent and independent variable vectors is not equal" );
+        throw std::runtime_error( "Error when doing least squares polynomial fit, size of dependent and independent "
+                                  "variable vectors is not equal." );
     }
 
     Eigen::MatrixXd informationMatrix = Eigen::MatrixXd::Zero( dependentValues.rows( ), polynomialPowers.size( ) );

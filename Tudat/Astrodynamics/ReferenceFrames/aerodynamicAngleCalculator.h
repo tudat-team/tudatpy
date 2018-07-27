@@ -104,7 +104,7 @@ public:
             const boost::function< Eigen::Vector6d( ) > bodyFixedStateFunction,
             const boost::function< Eigen::Quaterniond( ) > rotationFromCorotatingToInertialFrame,
             const std::string centralBodyName,
-            const bool calculateVerticalToAerodynamicFrame = 0,
+            const bool calculateVerticalToAerodynamicFrame = false,
             const boost::function< double( ) > angleOfAttackFunction = boost::function< double( ) >( ),
             const boost::function< double( ) > angleOfSideslipFunction = boost::function< double( ) >( ),
             const boost::function< double( ) > bankAngleFunction = boost::function< double( ) >( ),
@@ -275,7 +275,6 @@ public:
     {
         return currentBodyFixedGroundSpeedBasedState_.segment( 3, 3 );
     }
-
 
     //! Function to reset the value of the currentBodyAngleTime_ variable
     /*!

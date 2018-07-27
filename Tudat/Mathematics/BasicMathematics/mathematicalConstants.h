@@ -115,7 +115,6 @@ ScalarType getPi( )
     return static_cast< ScalarType >( LONG_PI );
 }
 
-
 } // namespace mathematical_constants
 
 } // namespace tudat

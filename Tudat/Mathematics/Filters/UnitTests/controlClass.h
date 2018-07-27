@@ -61,7 +61,6 @@ private:
 
 };
 
-
 } // namespace filters
 
 } // namespace tudat

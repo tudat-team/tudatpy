@@ -206,9 +206,9 @@ public:
      *  Function for calculating and returning aerodynamic force and moment coefficients
      *  \return Force and moment coefficients at given independent variables
      */
-    Eigen::Matrix< double, 6, 1 > getCurrentAerodynamicCoefficients(  )
+    Eigen::Vector6d getCurrentAerodynamicCoefficients(  )
     {
-        Eigen::Matrix< double, 6, 1 > coefficients;
+        Eigen::Vector6d coefficients;
         coefficients.segment( 0, 3 ) = getCurrentForceCoefficients( );
         coefficients.segment( 3, 3 ) = getCurrentMomentCoefficients( );
         return coefficients;

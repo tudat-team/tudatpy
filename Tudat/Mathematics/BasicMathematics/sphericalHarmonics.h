@@ -34,7 +34,6 @@ class SphericalHarmonicsCache
 {
 public:
 
-
     //! Default constructor, initializes cache object with 0 maximum degree and order.
     /*!
      * Default constructor, initializes cache object with 0 mazimum degree and order.

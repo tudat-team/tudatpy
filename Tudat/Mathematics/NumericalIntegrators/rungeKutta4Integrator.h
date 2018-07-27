@@ -20,6 +20,7 @@
 
 namespace tudat
 {
+
 namespace numerical_integrators
 {
 
@@ -200,10 +201,10 @@ public:
      * Modify the state at the current value of the independent variable.
      * \param newState The new state to set the current state to.
      */
-    void modifyCurrentState( const StateType& newState, const IndependentVariableType newTime = TUDAT_NAN )
+    void modifyCurrentState( const StateType& newState, const IndependentVariableType newTime = 0 )
     {
         this->currentState_ = newState;
-        if ( newTime == static_cast< IndependentVariableType >( TUDAT_NAN ) )
+        if ( newTime == 0 )
         {
             this->lastIndependentVariable_ = currentIndependentVariable_;
         }
@@ -244,6 +245,7 @@ protected:
      * Last state as computed by performIntegrationStep().
      */
     StateType lastState_;
+
 };
 
 //! Typedef of RK4 integrator (state/state derivative = VectorXd, independent variable = double).
@@ -275,6 +277,7 @@ typedef boost::shared_ptr< RungeKutta4IntegratorXd > RungeKutta4IntegratorXdPoin
 typedef boost::shared_ptr< RungeKutta4Integratord > RungeKutta4IntegratordPointer;
 
 } // namespace numerical_integrators
+
 } // namespace tudat
 
 #endif // TUDAT_RUNGE_KUTTA_4_INTEGRATOR_H

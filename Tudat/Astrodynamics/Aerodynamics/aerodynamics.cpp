@@ -531,9 +531,7 @@ double computeEquilibriumFayRiddellHeatFlux( const double airDensity,
                                              const double machNumber,
                                              const double noseRadius,
                                              const double wallEmissivity )
-
 {
-
     // Compute adiabatic wall temperature.
     double adiabaticWallTemperature
             = computeAdiabaticWallTemperature( airTemperature , machNumber );
@@ -551,7 +549,6 @@ double computeFayRiddellHeatFlux( const double airDensity,
                                   const double noseRadius,
                                   const double wallTemperature )
 {
-
     // Compute the current heat flux.
     return FAY_RIDDEL_HEAT_FLUX_CONSTANT * sqrt( airDensity * std::pow( airSpeed , 2.0 ) / noseRadius )
             * ( 0.5 * std::pow( airSpeed , 2.0 ) + 1004.0 * ( airTemperature - wallTemperature ) );

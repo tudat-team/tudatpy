@@ -90,8 +90,7 @@ Eigen::Vector3d transformVectorFromVectorFunctions(
 }
 
 //! Get rotating planetocentric (R) to inertial (I) reference frame transformation matrix.
-Eigen::Matrix3d
-getRotatingPlanetocentricToInertialFrameTransformationMatrix( const double angleFromXItoXR )
+Eigen::Matrix3d getRotatingPlanetocentricToInertialFrameTransformationMatrix( const double angleFromXItoXR )
 {
     // Declare local variables.
     // Declare local matrix.

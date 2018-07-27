@@ -153,7 +153,7 @@ std::pair< boost::shared_ptr< PodOutput< StateScalarType > >, Eigen::VectorXd > 
     LinkEnds linkEnds;
     observation_models::ObservationSettingsMap observationSettingsMap;
 
-    if(observableType == 0 )
+    if( observableType == 0 )
     {
         linkEnds[ observed_body ] = std::make_pair( "Earth", "" );
         observationSettingsMap.insert( std::make_pair( linkEnds, boost::make_shared< ObservationSettings >(
@@ -299,7 +299,7 @@ std::pair< boost::shared_ptr< PodOutput< StateScalarType > >, Eigen::VectorXd > 
                              truthParameters .template cast< double >( ) ) );
 }
 
-template< typename TimeType = double, typename StateScalarType  = double >
+template< typename TimeType = double, typename StateScalarType = double >
 Eigen::VectorXd executeEarthOrbiterParameterEstimation(
         std::pair< boost::shared_ptr< PodOutput< StateScalarType > >,
         boost::shared_ptr< PodInput< StateScalarType, TimeType > > >& podData,
@@ -430,7 +430,8 @@ Eigen::VectorXd executeEarthOrbiterParameterEstimation(
 
     // Create integrator settings
     boost::shared_ptr< IntegratorSettings< TimeType > > integratorSettings =
-            boost::make_shared< RungeKuttaVariableStepSizeSettings< TimeType > >
+            boost::make_shared< RungeKuttaVariableStepSizeSettings< TimeType,
+            Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic > > >
             ( rungeKuttaVariableStepSize, TimeType( initialEphemerisTime ), 40.0,
               RungeKuttaCoefficients::CoefficientSets::rungeKuttaFehlberg78,
               40.0, 40.0, 1.0, 1.0 );
@@ -716,7 +717,8 @@ std::pair< Eigen::VectorXd, bool > executeEarthOrbiterBiasEstimation(
 
     // Create integrator settings
     boost::shared_ptr< IntegratorSettings< TimeType > > integratorSettings =
-            boost::make_shared< RungeKuttaVariableStepSizeSettings< TimeType > >
+            boost::make_shared< RungeKuttaVariableStepSizeSettings< TimeType,
+            Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic > > >
             ( rungeKuttaVariableStepSize, TimeType( initialEphemerisTime ), 120.0,
               RungeKuttaCoefficients::CoefficientSets::rungeKuttaFehlberg78,
               120.0, 120.0, 1.0, 1.0 );

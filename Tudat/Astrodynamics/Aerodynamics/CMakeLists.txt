@@ -15,6 +15,7 @@ set(AERODYNAMICS_SOURCES
   "${SRCROOT}${AERODYNAMICSDIR}/aerodynamicTorque.cpp"
   "${SRCROOT}${AERODYNAMICSDIR}/aerodynamicForce.cpp"
   "${SRCROOT}${AERODYNAMICSDIR}/aerodynamics.cpp"
+  "${SRCROOT}${AERODYNAMICSDIR}/customConstantTemperatureAtmosphere.cpp"
   "${SRCROOT}${AERODYNAMICSDIR}/exponentialAtmosphere.cpp"
   "${SRCROOT}${AERODYNAMICSDIR}/hypersonicLocalInclinationAnalysis.cpp"
   "${SRCROOT}${AERODYNAMICSDIR}/rarefiedFlowAnalysis.cpp"
@@ -34,6 +35,7 @@ set(AERODYNAMICS_HEADERS
   "${SRCROOT}${AERODYNAMICSDIR}/aerodynamicForce.h"
   "${SRCROOT}${AERODYNAMICSDIR}/aerodynamics.h"
   "${SRCROOT}${AERODYNAMICSDIR}/atmosphereModel.h"
+  "${SRCROOT}${AERODYNAMICSDIR}/customConstantTemperatureAtmosphere.h"
   "${SRCROOT}${AERODYNAMICSDIR}/exponentialAtmosphere.h"
   "${SRCROOT}${AERODYNAMICSDIR}/hypersonicLocalInclinationAnalysis.h"
   "${SRCROOT}${AERODYNAMICSDIR}/rarefiedFlowAnalysis.h"
@@ -78,6 +80,10 @@ target_link_libraries(test_AerodynamicCoefficientGenerator tudat_aerodynamics tu
 add_executable(test_ExponentialAtmosphere "${SRCROOT}${AERODYNAMICSDIR}/UnitTests/unitTestExponentialAtmosphere.cpp")
 setup_custom_test_program(test_ExponentialAtmosphere "${SRCROOT}${AERODYNAMICSDIR}")
 target_link_libraries(test_ExponentialAtmosphere tudat_aerodynamics tudat_basic_mathematics ${Boost_LIBRARIES})
+
+add_executable(test_CustomConstantTemperatureAtmosphere "${SRCROOT}${AERODYNAMICSDIR}/UnitTests/unitTestCustomConstantTemperatureAtmosphere.cpp")
+setup_custom_test_program(test_CustomConstantTemperatureAtmosphere "${SRCROOT}${AERODYNAMICSDIR}")
+target_link_libraries(test_CustomConstantTemperatureAtmosphere tudat_aerodynamics tudat_basic_mathematics ${Boost_LIBRARIES})
 
 add_executable(test_TabulatedAtmosphere "${SRCROOT}${AERODYNAMICSDIR}/UnitTests/unitTestTabulatedAtmosphere.cpp")
 setup_custom_test_program(test_TabulatedAtmosphere "${SRCROOT}${AERODYNAMICSDIR}")

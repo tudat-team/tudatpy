@@ -136,7 +136,7 @@ public:
         massFunction_( massFunction ),
         referenceAreaFunction_( referenceAreaFunction )
     {
-        coefficientMultiplier_ = areCoefficientsInNegativeDirection == true ? -1.0 : 1.0;
+        coefficientMultiplier_ = areCoefficientsInNegativeDirection ? -1.0 : 1.0;
     }
 
     //! Destructor
@@ -191,7 +191,6 @@ public:
         return currentMass_;
     }
 
-
 private:
 
     //! Function to retrieve the current aerodynamic force coefficients.
@@ -226,6 +225,7 @@ private:
 
     //! Multiplier to reverse direction of coefficients.
     double coefficientMultiplier_;
+
 };
 
 //! Typedef for shared-pointer to AerodynamicAcceleration object.

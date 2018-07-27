@@ -37,6 +37,7 @@ set(BASICASTRODYNAMICS_HEADERS
   "${SRCROOT}${BASICASTRODYNAMICSDIR}/celestialBodyConstants.h"
   "${SRCROOT}${BASICASTRODYNAMICSDIR}/convertMeanToEccentricAnomalies.h"
   "${SRCROOT}${BASICASTRODYNAMICSDIR}/clohessyWiltshirePropagator.h"
+  "${SRCROOT}${BASICASTRODYNAMICSDIR}/customTorque.h"
   "${SRCROOT}${BASICASTRODYNAMICSDIR}/geodeticCoordinateConversions.h"
   "${SRCROOT}${BASICASTRODYNAMICSDIR}/keplerPropagator.h"
   "${SRCROOT}${BASICASTRODYNAMICSDIR}/missionGeometry.h"
