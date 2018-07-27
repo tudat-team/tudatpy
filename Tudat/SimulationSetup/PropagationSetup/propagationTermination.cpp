@@ -43,7 +43,7 @@ bool FixedCPUTimePropagationTerminationCondition::checkStopCondition( const doub
 bool SingleVariableLimitPropagationTerminationCondition::checkStopCondition( const double time, const double cpuTime  )
 {
     bool stopPropagation = 0;
-    double currentVariable = variableRetrievalFuntion_( );
+    double currentVariable = variableRetrievalFunction_( );
 
     if( useAsLowerBound_ && ( currentVariable < limitingValue_ ) )
     {
@@ -184,11 +184,21 @@ boost::shared_ptr< PropagationTerminationCondition > createPropagationTerminatio
                     hybridTerminationSettings->terminateExactlyOnFinalCondition_ );
         break;
     }
+    case custom_stopping_condition:
+    {
+        boost::shared_ptr< CustomTerminationSettings > customTerminationSettings =
+                boost::dynamic_pointer_cast< CustomTerminationSettings >( terminationSettings );
+
+        // Create dependent variable termination condition.
+        propagationTerminationCondition = boost::make_shared< CustomTerminationCondition >(
+                    customTerminationSettings->checkStopCondition_,
+                    customTerminationSettings->terminateExactlyOnFinalCondition_ );
+        break;
+    }
     default:
         std::string errorMessage = "Error, stopping condition type " + std::to_string(
-                    terminationSettings->terminationType_ ) + "not recognized when making stopping conditions object";
+                    terminationSettings->terminationType_ ) + " not recognized when making stopping conditions object";
         throw std::runtime_error( errorMessage );
-        break;
     }
     return propagationTerminationCondition;
 

@@ -217,9 +217,8 @@ public:
 
     //! Link end index from which the 'current time' is determined
     observation_models::LinkEndType linkEndForTime_;
+
 };
-
-
 
 //! Class to define settings for estimating an initial translational state.
 template< typename InitialStateParameterType = double >

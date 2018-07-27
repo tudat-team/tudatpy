@@ -59,7 +59,8 @@ std::map< propagators::IntegratedStateType, orbit_determination::StateDerivative
             if( stateDerivativeIterator->second.size( ) > 1 )
             {
                 throw std::runtime_error(
-                            "Error, cannot yet process multiple separate same type propagators when making partial derivatives of translational state." );
+                            "Error, cannot yet process multiple separate same type propagators when making partial "
+                            "derivatives of translational state." );
             }
             else
             {

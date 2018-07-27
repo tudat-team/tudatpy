@@ -120,7 +120,6 @@ public:
         stopTime_( stopTime ),
         propagationDirectionIsPositive_( propagationDirectionIsPositive ){ }
 
-
     //! Function to check whether the propagation is to be be stopped
     /*!
      * Function to check whether the propagation is to be be stopped, i.e. whether the stopTime_ has been reached or not.
@@ -149,6 +148,7 @@ private:
 
     //!  Boolean denoting whether propagation is forward (if true) or backwards (if false) in time.
     bool propagationDirectionIsPositive_;
+
 };
 
 //! Class for stopping the propagation after a fixed amount of CPU time
@@ -208,17 +208,19 @@ public:
             const boost::shared_ptr< root_finders::RootFinderSettings > terminationRootFinderSettings = NULL ):
         PropagationTerminationCondition(
             dependent_variable_stopping_condition, terminateExactlyOnFinalCondition ),
-        dependentVariableSettings_( dependentVariableSettings ), variableRetrievalFuntion_( variableRetrievalFuntion ),
+        dependentVariableSettings_( dependentVariableSettings ), variableRetrievalFunction_( variableRetrievalFuntion ),
         limitingValue_( limitingValue ), useAsLowerBound_( useAsLowerBound ),
         terminationRootFinderSettings_( terminationRootFinderSettings )
     {
-        if( ( terminateExactlyOnFinalCondition == false ) && ( terminationRootFinderSettings != NULL ) )
+        if( ( !terminateExactlyOnFinalCondition ) && ( terminationRootFinderSettings != NULL ) )
         {
-            std::cerr<<"Warning, root finder provided to SingleVariableLimitPropagationTerminationCondition, but termination on final conditions set to false"<<std::endl;
+            std::cerr << "Warning, root finder provided to SingleVariableLimitPropagationTerminationCondition, "
+                         "but termination on final conditions set to false." << std::endl;
         }
-        if( ( terminateExactlyOnFinalCondition == true ) && doesRootFinderRequireDerivatives( terminationRootFinderSettings ) )
+        if( ( terminateExactlyOnFinalCondition ) && doesRootFinderRequireDerivatives( terminationRootFinderSettings ) )
         {
-            throw std::runtime_error( "Error when setting exact dependent variable termination, requested root finder requires derivatives; not available in state derivative model" );
+            throw std::runtime_error( "Error when setting exact dependent variable termination, requested root finder "
+                                      "requires derivatives; not available in state derivative model." );
         }
     }
 
@@ -242,7 +244,7 @@ public:
      */
     double getStopConditionError( )
     {
-        return variableRetrievalFuntion_( ) - limitingValue_;
+        return variableRetrievalFunction_( ) - limitingValue_;
     }
 
     //! Function to retrieve settings to create root finder used to converge on exact final condition.
@@ -261,7 +263,7 @@ private:
     boost::shared_ptr< SingleDependentVariableSaveSettings > dependentVariableSettings_;
 
     //! Function returning the dependent variable.
-    boost::function< double( ) > variableRetrievalFuntion_;
+    boost::function< double( ) > variableRetrievalFunction_;
 
     //! Value at which the propagation is to be stopped
     double limitingValue_;
@@ -336,7 +338,6 @@ public:
         return isConditionMetWhenStopping_;
     }
 
-
 private:
 
     //! List of termination conditions that are checked when calling checkStopCondition is called.
@@ -347,6 +348,7 @@ private:
     bool fulFillSingleCondition_;
 
     std::vector< bool > isConditionMetWhenStopping_;
+
 };
 
 //! Function to create propagation termination conditions from associated settings
@@ -397,6 +399,7 @@ public:
     {
         return terminationOnExactCondition_;
     }
+
 protected:
 
     //! Reason for termination
@@ -408,6 +411,7 @@ protected:
      *  false if not, -1 if neither is relevant.
      */
     bool terminationOnExactCondition_;
+
 };
 
 //! Class for storing details on the propagation termination when using hybrid termination conditions
@@ -436,7 +440,9 @@ public:
     {
         if( terminationOnExactCondition_ )
         {
-            std::cerr<<"Warning when retrieving list of conditions that were met in hybrid propagation termination details. Propagation was terminated on exact conditions using root finder, list of conditions may not be reliable"<<std::endl;
+            std::cerr << "Warning when retrieving list of conditions that were met in hybrid propagation "
+                         "termination details. Propagation was terminated on exact conditions using root finder, "
+                         "list of conditions may not be reliable" << std::endl;
         }
         return isConditionMetWhenStopping_;
     }
@@ -448,10 +454,47 @@ private:
 
 };
 
+//! Class for stopping the propagation with custom stopping function.
+class CustomTerminationCondition: public PropagationTerminationCondition
+{
+public:
+
+    //! Constructor
+    /*!
+     * Constructor
+     * \param checkStopCondition Custom function to check for the attainment of the propagation stopping conditions.
+     * \param terminateExactlyOnFinalCondition Boolean to denote whether the propagation is to terminate exactly on the final
+     * condition, or whether it is to terminate on the first step where it is violated.
+     */
+    CustomTerminationCondition(
+            boost::function< bool( const double ) >& checkStopCondition,
+            const bool terminateExactlyOnFinalCondition = false ):
+        PropagationTerminationCondition( custom_stopping_condition, terminateExactlyOnFinalCondition ),
+        checkStopCondition_( checkStopCondition )
+    { }
+
+    //! Function to check whether the propagation is to be be stopped
+    /*!
+     * Function to check whether the propagation is to be be stopped via the user-provided function.
+     * \param time Current time in propagation.
+     * \param cpuTime Current CPU time in propagation.
+     * \return True if propagation is to be stopped, false otherwise.
+     */
+    bool checkStopCondition( const double time, const double cpuTime )
+    {
+        TUDAT_UNUSED_PARAMETER( cpuTime );
+        return checkStopCondition_( time );
+    }
+
+private:
+
+    //! Custom temination function.
+    boost::function< bool( const double ) > checkStopCondition_;
+
+};
 
 } // namespace propagators
 
 } // namespace tudat
-
 
 #endif // TUDAT_PROPAGATIONTERMINATIONCONDITIONS_H

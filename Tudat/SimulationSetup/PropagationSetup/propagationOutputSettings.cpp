@@ -127,6 +127,12 @@ std::string getDependentVariableName( const PropagationDependentVariables propag
     case local_temperature_dependent_variable:
         variableName = "Local freestream temperature ";
         break;
+    case local_dynamic_pressure_dependent_variable:
+        variableName = "Local dynamic pressure ";
+        break;
+    case local_aerodynamic_heat_rate_dependent_variable:
+        variableName = "Local aerodynamic heat rate ";
+        break;
     case geodetic_latitude_dependent_variable:
         variableName = "Geodetic latitude ";
         break;

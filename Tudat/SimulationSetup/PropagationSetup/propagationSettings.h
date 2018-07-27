@@ -90,6 +90,11 @@ public:
         return stateSize_;
     }
 
+    //! Get total size of the conventional state.
+    /*!
+     * Get total size of the conventional state.
+     * \return Total size of the conventional state.
+     */
     int getConventionalStateSize( )
     {
         return stateSize_;
@@ -119,7 +124,6 @@ public:
      * \param bodyMap Map of bodies in the propagation, with keys the names of the bodies.
      */
     virtual void resetIntegratedStateModels( const simulation_setup::NamedBodyMap& bodyMap ) = 0;
-
 
 protected:
 
@@ -237,10 +241,7 @@ public:
         terminationSettings_ = terminationSettings;
     }
 
-
-
 protected:
-
 
     //!Type of state being propagated
     IntegratedStateType stateType_;
@@ -256,7 +257,6 @@ protected:
     double printInterval_;
 
 };
-
 
 //! Function to get the total size of multi-arc initial state vector
 /*!
@@ -448,7 +448,6 @@ public:
             singleArcSettings_.at( i )->resetInitialStates( initialStateList_[ i ] );
             currentIndex += singleArcSettings_.at( i )->getConventionalStateSize( );
         }
-
     }
 
 protected:
@@ -652,7 +651,7 @@ public:
     {
         if ( accelerationsMap_.size( ) == 0 && accelerationSettingsMap_.size( ) != 0 )
         {
-            std::cerr << "Unconsistent sizes for map of aceleration settings and map of acceleration models. "
+            std::cerr << "Inconsistent sizes for map of aceleration settings and map of acceleration models. "
                       << "Did you forget to call resetIntegratedStateModels on the propagator?" << std::endl;
         }
         return accelerationsMap_;
@@ -785,7 +784,7 @@ public:
     {
         if ( torqueModelMap_.size( ) == 0 && torqueSettingsMap_.size( ) != 0 )
         {
-            std::cerr << "Unconsistent sizes for map of torque settings and map of torque models. "
+            std::cerr << "Inconsistent sizes for map of torque settings and map of torque models. "
                       << "Did you forget to call resetIntegratedStateModels on the propagator?" << std::endl;
         }
         return torqueModelMap_;
@@ -940,7 +939,7 @@ public:
     {
         if ( massRateModels_.size( ) == 0 && massRateSettingsMap_.size( ) != 0 )
         {
-            std::cerr << "Unconsistent sizes for map of mass-rate settings and map of mass-rate models. "
+            std::cerr << "Inconsistent sizes for map of mass-rate settings and map of mass-rate models. "
                       << "Did you forget to call resetIntegratedStateModels on the propagator?" << std::endl;
         }
         return massRateModels_;
@@ -1126,7 +1125,7 @@ Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > createCombinedInitialState(
 }
 
 //! Class for defining settings for propagating multiple types of dynamics concurrently.
-template< typename StateScalarType >
+template< typename StateScalarType = double >
 class MultiTypePropagatorSettings: public SingleArcPropagatorSettings< StateScalarType >
 {
 public:

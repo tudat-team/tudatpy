@@ -683,14 +683,14 @@ boost::shared_ptr< aerodynamics::AerodynamicAcceleration > createAerodynamicAcce
 
     // Retrieve flight conditions; create object if not yet extant.
     boost::shared_ptr< AtmosphericFlightConditions > bodyFlightConditions =
-           boost::dynamic_pointer_cast< AtmosphericFlightConditions >( bodyUndergoingAcceleration->getFlightConditions( ) );
+            boost::dynamic_pointer_cast< AtmosphericFlightConditions >( bodyUndergoingAcceleration->getFlightConditions( ) );
 
     if( bodyFlightConditions == NULL && bodyUndergoingAcceleration->getFlightConditions( ) == NULL )
     {
         bodyFlightConditions = createAtmosphericFlightConditions( bodyUndergoingAcceleration,
-                                                       bodyExertingAcceleration,
-                                                       nameOfBodyUndergoingAcceleration,
-                                                       nameOfBodyExertingAcceleration );
+                                                                  bodyExertingAcceleration,
+                                                                  nameOfBodyUndergoingAcceleration,
+                                                                  nameOfBodyExertingAcceleration );
         bodyUndergoingAcceleration->setFlightConditions( bodyFlightConditions );
     }
     else if( bodyFlightConditions == NULL && bodyUndergoingAcceleration->getFlightConditions( ) != NULL )
@@ -719,7 +719,6 @@ boost::shared_ptr< aerodynamics::AerodynamicAcceleration > createAerodynamicAcce
                 accelerationFrame,
                 boost::bind( &Body::getCurrentRotationToGlobalFrame, bodyExertingAcceleration ),
                 reference_frames::inertial_frame );
-
 
     boost::function< Eigen::Vector3d( ) > coefficientFunction =
             boost::bind( &AerodynamicCoefficientInterface::getCurrentForceCoefficients,
@@ -768,7 +767,6 @@ createCannonballRadiationPressureAcceleratioModel(
                 boost::bind( &RadiationPressureInterface::getRadiationPressureCoefficient, radiationPressureInterface ),
                 boost::bind( &RadiationPressureInterface::getArea, radiationPressureInterface ),
                 boost::bind( &Body::getBodyMass, bodyUndergoingAcceleration ) );
-
 }
 
 //! Function to create an orbiter relativistic correction acceleration model

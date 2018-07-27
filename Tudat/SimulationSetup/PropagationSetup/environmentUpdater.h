@@ -32,7 +32,6 @@ namespace tudat
 namespace propagators
 {
 
-
 //! Class used to update the environment during numerical integration.
 /*!
  *  Class used to update the environment during numerical integration. The class ensures that the
