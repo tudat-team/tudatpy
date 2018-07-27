@@ -165,7 +165,7 @@ void determineInitialStates(
  */
 template< typename StateScalarType >
 void resetDependentVariableSaveSettings(
-        boost::shared_ptr< propagators::SingleArcPropagatorSettings< StateScalarType > >& propagatorSettings,
+        boost::shared_ptr< propagators::SingleArcPropagatorSettings< StateScalarType > > propagatorSettings,
         const std::vector< boost::shared_ptr< ExportSettings > >& exportSettingsVector )
 {
     using namespace propagators;
@@ -295,27 +295,6 @@ inline void from_json( const nlohmann::json& jsonObject, TranslationalPropagator
 
 // MultiTypePropagatorSettings
 
-//! Create a `json` object from a shared pointer to a `MultiTypePropagatorSettings` object.
-template< typename StateScalarType >
-void to_json( nlohmann::json& jsonObject,
-              const boost::shared_ptr< MultiTypePropagatorSettings< StateScalarType > >& multiTypePropagatorSettings )
-{
-    if ( ! multiTypePropagatorSettings )
-    {
-        return;
-    }
-    using namespace simulation_setup;
-    using namespace json_interface;
-
-    jsonObject[ Keys::propagators ] = getFlattenedMapValues< std::map, IntegratedStateType,
-            boost::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > >(
-                multiTypePropagatorSettings->propagatorSettingsMap_ );
-    jsonObject[ Keys::termination ] = multiTypePropagatorSettings->getTerminationSettings( );
-    if ( ! isNaN( multiTypePropagatorSettings->getPrintInterval( ) ) )
-    {
-        jsonObject[ Keys::options ][ Keys::Options::printInterval ] = multiTypePropagatorSettings->getPrintInterval( );
-    }
-}
 
 //! Create a shared pointer to a `MultiTypePropagatorSettings` object from a `json` object.
 template< typename StateScalarType >
@@ -382,6 +361,15 @@ void from_json( const nlohmann::json& jsonObject,
 
 // SingleArcPropagatorSettings
 
+////! Create a `json` object from a shared pointer to a `MultiTypePropagatorSettings` object.
+//template< typename StateScalarType >
+//void to_json( nlohmann::json& jsonObject,
+//              const boost::shared_ptr< MultiTypePropagatorSettings< StateScalarType > >& multiTypePropagatorSettings )
+//{
+
+//}
+
+
 //! Create a `json` object from a shared pointer to a `SingleArcPropagatorSettings` object.
 template< typename StateScalarType >
 void to_json( nlohmann::json& jsonObject,
@@ -394,6 +382,29 @@ void to_json( nlohmann::json& jsonObject,
     using namespace simulation_setup;
     using namespace json_interface;
     using K = Keys::Propagator;
+
+    if( singleArcPropagatorSettings->getStateType( ) == hybrid )
+    {
+        boost::shared_ptr< MultiTypePropagatorSettings< StateScalarType > > multiTypePropagatorSettings =
+                boost::dynamic_pointer_cast< MultiTypePropagatorSettings< StateScalarType > >( singleArcPropagatorSettings );
+        if ( ! multiTypePropagatorSettings )
+        {
+            return;
+        }
+        using namespace simulation_setup;
+        using namespace json_interface;
+
+        jsonObject[ Keys::propagators ] = getFlattenedMapValues< std::map, IntegratedStateType,
+                boost::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > >(
+                    multiTypePropagatorSettings->propagatorSettingsMap_ );
+        jsonObject[ Keys::termination ] = multiTypePropagatorSettings->getTerminationSettings( );
+        if ( ! isNaN( multiTypePropagatorSettings->getPrintInterval( ) ) )
+        {
+            jsonObject[ Keys::options ][ Keys::Options::printInterval ] = multiTypePropagatorSettings->getPrintInterval( );
+        }
+    }
+    else
+    {
 
     // Common keys
     const IntegratedStateType integratedStateType = singleArcPropagatorSettings->getStateType( );
@@ -444,6 +455,7 @@ void to_json( nlohmann::json& jsonObject,
     }
     default:
         handleUnimplementedEnumValue( integratedStateType, integratedStateTypes, unsupportedIntegratedStateTypes );
+    }
     }
 }
 

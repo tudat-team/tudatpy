@@ -1288,6 +1288,47 @@ public:
 
 };
 
+template< typename StateScalarType = double >
+basic_astrodynamics::AccelerationMap getAccelerationMapFromPropagatorSettings(
+        const boost::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > singleArcPropagatorSettings )
+{
+    basic_astrodynamics::AccelerationMap accelerationMap;
+
+    switch( singleArcPropagatorSettings->getStateType( ) )
+    {
+    case hybrid:
+    {
+        boost::shared_ptr< MultiTypePropagatorSettings< StateScalarType > > multiTypePropagatorSettings =
+                boost::dynamic_pointer_cast< MultiTypePropagatorSettings< StateScalarType > >( singleArcPropagatorSettings );
+        if( multiTypePropagatorSettings->propagatorSettingsMap_.count( translational_state ) > 0 )
+        {
+            if( multiTypePropagatorSettings->propagatorSettingsMap_.at( translational_state ).size( ) != 1 )
+            {
+                accelerationMap = getAccelerationMapFromPropagatorSettings(
+                            multiTypePropagatorSettings->propagatorSettingsMap_.at( translational_state ).at( 0 ) );
+            }
+            else
+            {
+                throw std::runtime_error( "Error when get accelerations map from propagator settings, multi-type cannot be parsed properly" );
+            }
+        }
+
+        break;
+    }
+    case translational_state:
+    {
+        accelerationMap = boost::dynamic_pointer_cast< TranslationalStatePropagatorSettings< StateScalarType > >(
+                    singleArcPropagatorSettings )->getAccelerationsMap( );
+
+        break;
+    }
+    default:
+        break;
+    }
+
+    return accelerationMap;
+}
+
 //! Function to retrieve the list of integrated state types and reference ids
 /*!
 * Function to retrieve the list of integrated state types and reference ids. For translational and rotational dynamics,

@@ -544,7 +544,7 @@ protected:
         }
 
         // Update dependent variables to save
-        resetDependentVariableSaveSettings( propagatorSettings_, exportSettingsVector_ );
+        resetDependentVariableSaveSettings< StateScalarType >( propagatorSettings_, exportSettingsVector_ );
 
         if ( profiling )
         {
@@ -556,18 +556,18 @@ protected:
 
     virtual void resetParameterSettings( )
     {
-        updateFromJSON( parameterSettings_, jsonObject_ );
-        parametersToEstimate_ = simulation_setup::createParametersToEstimate(
-                    parameterSettings_, bodyMap_, propagators::getAccelerationMapFromPropagatorSettings< StateScalarType >(
-                        propagatorSettings_)  );
+//        updateFromJSON( parameterSettings_, jsonObject_ );
+//        parametersToEstimate_ = simulation_setup::createParametersToEstimate(
+//                    parameterSettings_, bodyMap_, propagators::getAccelerationMapFromPropagatorSettings< StateScalarType >(
+//                        propagatorSettings_)  );
 
-        if ( profiling )
-        {
+//        if ( profiling )
+//        {
 
-            std::cout << "resetParameterSettings: " << std::chrono::duration_cast< std::chrono::milliseconds >(
-                             std::chrono::steady_clock::now( ) - initialClockTime_ ).count( ) * 1.0e-3 << " s" << std::endl;
-            initialClockTime_ = std::chrono::steady_clock::now( );
-        }
+//            std::cout << "resetParameterSettings: " << std::chrono::duration_cast< std::chrono::milliseconds >(
+//                             std::chrono::steady_clock::now( ) - initialClockTime_ ).count( ) * 1.0e-3 << " s" << std::endl;
+//            initialClockTime_ = std::chrono::steady_clock::now( );
+//        }
     }
 
     //! Reset applicationOptions_ from the current jsonObject_.
@@ -607,17 +607,17 @@ protected:
 
     virtual void resetVariationalEquationsSolver( )
     {
-        variationalEquationsSolver_ =
-                boost::make_shared< propagators::SingleArcVariationalEquationsSolver< StateScalarType, TimeType > >(
-                    bodyMap_, integratorSettings_, propagatorSettings_, parametersToEstimate_, true,
-                    boost::shared_ptr< numerical_integrators::IntegratorSettings< double > >( ), false, true );
+//        variationalEquationsSolver_ =
+//                boost::make_shared< propagators::SingleArcVariationalEquationsSolver< StateScalarType, TimeType > >(
+//                    bodyMap_, integratorSettings_, propagatorSettings_, parametersToEstimate_, true,
+//                    boost::shared_ptr< numerical_integrators::IntegratorSettings< double > >( ), false, true );
 
-        if ( profiling )
-        {
-            std::cout << "resetVariationalEquationsSolver: " << std::chrono::duration_cast< std::chrono::milliseconds >(
-                             std::chrono::steady_clock::now( ) - initialClockTime_ ).count( ) * 1.0e-3 << " s" << std::endl;
-            initialClockTime_ = std::chrono::steady_clock::now( );
-        }
+//        if ( profiling )
+//        {
+//            std::cout << "resetVariationalEquationsSolver: " << std::chrono::duration_cast< std::chrono::milliseconds >(
+//                             std::chrono::steady_clock::now( ) - initialClockTime_ ).count( ) * 1.0e-3 << " s" << std::endl;
+//            initialClockTime_ = std::chrono::steady_clock::now( );
+//        }
     }
 
     //! Integrator settings.
@@ -643,9 +643,9 @@ protected:
     //! Propagation settings.
     boost::shared_ptr< propagators::MultiTypePropagatorSettings< StateScalarType > > propagatorSettings_;
 
-    std::vector< boost::shared_ptr< estimatable_parameters::EstimatableParameterSettings > > parameterSettings_;
+//    std::vector< boost::shared_ptr< estimatable_parameters::EstimatableParameterSettings > > parameterSettings_;
 
-    boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< StateScalarType > > parametersToEstimate_;
+//    boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< StateScalarType > > parametersToEstimate_;
 
     //! Vector of export settings (each element corresponds to an output file).
     std::vector< boost::shared_ptr< ExportSettings > > exportSettingsVector_;
@@ -656,7 +656,7 @@ protected:
     //! Dynamics simulator.
     boost::shared_ptr< propagators::SingleArcDynamicsSimulator< StateScalarType, TimeType > > dynamicsSimulator_;
 
-    boost::shared_ptr< propagators::SingleArcVariationalEquationsSolver< StateScalarType, TimeType > > variationalEquationsSolver_;
+//    boost::shared_ptr< propagators::SingleArcVariationalEquationsSolver< StateScalarType, TimeType > > variationalEquationsSolver_;
 
 private:
 
@@ -709,7 +709,8 @@ void to_json( nlohmann::json& jsonObject,
     jsonObject[ Keys::options ] = jsonSimulationManager->getApplicationOptions( );
 
     // propagation + termination + options.printInterval
-    propagators::to_json( jsonObject, jsonSimulationManager->getPropagatorSettings( ) );
+    propagators::to_json( jsonObject, boost::dynamic_pointer_cast<
+                          propagators::SingleArcPropagatorSettings< StateScalarType > >( jsonSimulationManager->getPropagatorSettings( ) ) );
 }
 
 } // namespace json_interface
