@@ -17,6 +17,7 @@
 #include <boost/shared_ptr.hpp>
 
 #include "Tudat/Astrodynamics/Aerodynamics/atmosphereModel.h"
+#include "Tudat/Astrodynamics/Aerodynamics/exponentialAtmosphere.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/physicalConstants.h"
 #include "Tudat/Mathematics/Interpolators/interpolator.h"
 #include "Tudat/Basics/identityElements.h"
@@ -75,6 +76,7 @@ protected:
 
     //! Type of wind model that is to be created
     WindModelTypes windModelType_;
+
 };
 
 //! Class to define settings for a custom, user-defined, wind model
@@ -120,6 +122,7 @@ protected:
 
     //! Function that returns wind vector as a function of altitude, longitude, latitude and time (in that order).
     boost::function< Eigen::Vector3d( const double, const double, const double, const double ) > windFunction_;
+
 };
 
 //! List of atmosphere models available in simulations
@@ -197,9 +200,10 @@ private:
 class ExponentialAtmosphereSettings: public AtmosphereSettings
 {
 public:
-    //! Constructor.
+
+    //! Default constructor.
     /*!
-     *  Constructor.
+     *  Default constructor, taking full atmosphere model parameters.
      *  \param densityScaleHeight Scale height for density profile of atmosphere.
      *  \param constantTemperature Constant atmospheric temperature.
      *  \param densityAtZeroAltitude Atmospheric density at ground level.
@@ -208,7 +212,6 @@ public:
      *  \param ratioOfSpecificHeats Ratio of specific heats for (constant) atmospheric chemical
      *  composition.
      */
-
     ExponentialAtmosphereSettings(
             const double densityScaleHeight, const double constantTemperature,
             const double densityAtZeroAltitude,
@@ -217,8 +220,34 @@ public:
         AtmosphereSettings( exponential_atmosphere ),
         densityScaleHeight_( densityScaleHeight ), constantTemperature_( constantTemperature ),
         densityAtZeroAltitude_( densityAtZeroAltitude ), specificGasConstant_( specificGasConstant ),
-        ratioOfSpecificHeats_( ratioOfSpecificHeats )
+        ratioOfSpecificHeats_( ratioOfSpecificHeats ), bodyWithPredefinedExponentialAtmosphere_( undefined_body )
     { }
+
+    //! Default constructor.
+    /*!
+     *  Default constructor, taking only the name of the body for which to load the predefined
+     *  exponential atmosphere model parameters.
+     *  \param densityScaleHeight Enumeration denoting the name of the body for which to load the
+     *  predefined atmosphere model.
+     */
+    ExponentialAtmosphereSettings(
+            const BodiesWithPredefinedExponentialAtmospheres bodyWithPredefinedExponentialAtmosphere ):
+        AtmosphereSettings( exponential_atmosphere ),
+        bodyWithPredefinedExponentialAtmosphere_( bodyWithPredefinedExponentialAtmosphere )
+    {
+        // Check that the body name inserted is available
+        switch ( bodyWithPredefinedExponentialAtmosphere )
+        {
+        case earth:
+        case mars:
+            // all is good
+            break;
+        default:
+            throw std::runtime_error( "Error while creating exponential atmosphere. The body name provided "
+                                      "does not match any predefined atmosphere model. Available models for: "
+                                      "Earth, Mars." );
+        }
+    }
 
     //! Function to return scale heigh for density profile of atmosphere.
     /*!
@@ -255,6 +284,13 @@ public:
      */
     double getRatioOfSpecificHeats( ){ return ratioOfSpecificHeats_; }
 
+    //! Function to return the name of the body for which to load the predefined
+    //! atmosphere model parameters.
+    BodiesWithPredefinedExponentialAtmospheres getBodyName( )
+    {
+        return bodyWithPredefinedExponentialAtmosphere_;
+    }
+
 private:
 
     //! Scale heigh for density profile of atmosphere.
@@ -271,6 +307,11 @@ private:
 
     //! Ratio of specific heats for (constant) atmospheric chemical
     double ratioOfSpecificHeats_;
+
+    //! Enumeration denoting the name of the body for which to load the predefined
+    //! atmosphere model.
+    BodiesWithPredefinedExponentialAtmospheres bodyWithPredefinedExponentialAtmosphere_;
+
 };
 
 
@@ -325,15 +366,15 @@ public:
      *  \param defaultExtrapolationValue List of default values to be used for extrapolation, in case of
      *          use_default_value or use_default_value_with_warning as methods for boundaryHandling.
      */
-    TabulatedAtmosphereSettings( const std::map< int, std::string >& atmosphereTableFile,
-                                 const std::vector< AtmosphereIndependentVariables >& independentVariablesNames =
-    { altitude_dependent_atmosphere },
-                                 const std::vector< AtmosphereDependentVariables >& dependentVariablesNames =
-    { density_dependent_atmosphere, pressure_dependent_atmosphere, temperature_dependent_atmosphere },
-                                 const double specificGasConstant = physical_constants::SPECIFIC_GAS_CONSTANT_AIR,
-                                 const double ratioOfSpecificHeats = 1.4,
-                                 const std::vector< interpolators::BoundaryInterpolationType >& boundaryHandling = { },
-                                 const std::vector< double >& defaultExtrapolationValue = { } ):
+    TabulatedAtmosphereSettings(
+            const std::map< int, std::string >& atmosphereTableFile,
+            const std::vector< AtmosphereIndependentVariables >& independentVariablesNames = { altitude_dependent_atmosphere },
+            const std::vector< AtmosphereDependentVariables >& dependentVariablesNames = { density_dependent_atmosphere,
+            pressure_dependent_atmosphere, temperature_dependent_atmosphere },
+            const double specificGasConstant = physical_constants::SPECIFIC_GAS_CONSTANT_AIR,
+            const double ratioOfSpecificHeats = 1.4,
+            const std::vector< interpolators::BoundaryInterpolationType >& boundaryHandling = { },
+            const std::vector< std::vector< std::pair< double, double > > >& defaultExtrapolationValue = { } ) :
         AtmosphereSettings( tabulated_atmosphere ), atmosphereFile_( atmosphereTableFile ),
         independentVariables_( independentVariablesNames ), dependentVariables_( dependentVariablesNames ),
         specificGasConstant_( specificGasConstant ), ratioOfSpecificHeats_( ratioOfSpecificHeats ),
@@ -362,13 +403,16 @@ public:
                                  const double specificGasConstant,
                                  const double ratioOfSpecificHeats,
                                  const interpolators::BoundaryInterpolationType boundaryHandling,
-                                 const double defaultExtrapolationValue = IdentityElement< double >::getAdditionIdentity( ) ):
+                                 const double defaultExtrapolationValue = IdentityElement< double >::getAdditionIdentity( ) ) :
         TabulatedAtmosphereSettings( atmosphereTableFile, independentVariablesNames, dependentVariablesNames,
                                      specificGasConstant, ratioOfSpecificHeats,
                                      std::vector< interpolators::BoundaryInterpolationType >(
                                          independentVariablesNames.size( ), boundaryHandling ),
-                                     std::vector< double >( dependentVariablesNames.size( ),
-                                                            defaultExtrapolationValue ) ){ }
+                                     std::vector< std::vector< std::pair< double, double > > >(
+                                         dependentVariablesNames.size( ), std::vector< std::pair< double, double > >(
+                                             independentVariablesNames.size( ), std::make_pair(
+                                                 defaultExtrapolationValue, defaultExtrapolationValue ) ) ) )
+    { }
 
     //! Constructor compatible with old version.
     /*!
@@ -381,18 +425,48 @@ public:
      *  \param specificGasConstant The constant specific gas constant of the atmosphere.
      *  \param ratioOfSpecificHeats The constant ratio of specific heats of the atmosphere.
      */
-    TabulatedAtmosphereSettings( const std::string& atmosphereTableFile,
-                                 const std::vector< AtmosphereDependentVariables >& dependentVariablesNames = {
-                    density_dependent_atmosphere, pressure_dependent_atmosphere, temperature_dependent_atmosphere },
-                                 const double specificGasConstant = physical_constants::SPECIFIC_GAS_CONSTANT_AIR,
-                                 const double ratioOfSpecificHeats = 1.4,
-                                 const interpolators::BoundaryInterpolationType boundaryHandling = interpolators::use_boundary_value,
-                                 const double defaultExtrapolationValue = IdentityElement< double >::getAdditionIdentity( ) ) :
+    TabulatedAtmosphereSettings(
+            const std::string& atmosphereTableFile,
+            const std::vector< AtmosphereDependentVariables >& dependentVariablesNames = { density_dependent_atmosphere,
+            pressure_dependent_atmosphere, temperature_dependent_atmosphere },
+            const double specificGasConstant = physical_constants::SPECIFIC_GAS_CONSTANT_AIR,
+            const double ratioOfSpecificHeats = 1.4,
+            const interpolators::BoundaryInterpolationType boundaryHandling = interpolators::use_boundary_value,
+            const double defaultExtrapolationValue = IdentityElement< double >::getAdditionIdentity( ) ) :
         TabulatedAtmosphereSettings( { { 0, atmosphereTableFile } }, { altitude_dependent_atmosphere },
                                      dependentVariablesNames, specificGasConstant,
                                      ratioOfSpecificHeats, { boundaryHandling },
-                                     std::vector< double >( dependentVariablesNames.size( ),
-                                                            defaultExtrapolationValue ) ){ }
+                                     std::vector< std::vector< std::pair< double, double > > >(
+                                         dependentVariablesNames.size( ), std::vector< std::pair< double, double > >(
+                                             1, std::make_pair( defaultExtrapolationValue, defaultExtrapolationValue ) ) ) )
+    { }
+
+    //! Constructor with no specific gas constant nor ratio of specific heats.
+    /*!
+     *  Constructor with no specific gas constant nor ratio of specific heats.
+     *  \param atmosphereTableFile Map of files containing information on the atmosphere. The order of both
+     *          independent and dependent parameters needs to be specified in the independentVariablesNames and
+     *          dependentVariablesNames vectors, respectively. Note that specific gas constant and specific heat ratio
+     *          will be given the default constant values for Earth, unless they are included in the file map.
+     *  \param independentVariablesNames List of independent parameters describing the atmosphere.
+     *  \param dependentVariablesNames List of dependent parameters output by the atmosphere.
+     *  \param specificGasConstant The constant specific gas constant of the atmosphere.
+     *  \param ratioOfSpecificHeats The constant ratio of specific heats of the atmosphere.
+     *  \param boundaryHandling List of methods for interpolation behavior when independent variable is out of range.
+     *  \param defaultExtrapolationValue List of default values to be used for extrapolation, in case of
+     *          use_default_value or use_default_value_with_warning as methods for boundaryHandling.
+     */
+    TabulatedAtmosphereSettings(
+            const std::map< int, std::string >& atmosphereTableFile,
+            const std::vector< AtmosphereIndependentVariables >& independentVariablesNames,
+            const std::vector< AtmosphereDependentVariables >& dependentVariablesNames,
+            const std::vector< interpolators::BoundaryInterpolationType >& boundaryHandling,
+            const std::vector< std::vector< std::pair< double, double > > >& defaultExtrapolationValue ) :
+        AtmosphereSettings( tabulated_atmosphere ), atmosphereFile_( atmosphereTableFile ),
+        independentVariables_( independentVariablesNames ), dependentVariables_( dependentVariablesNames ),
+        specificGasConstant_( physical_constants::SPECIFIC_GAS_CONSTANT_AIR ), ratioOfSpecificHeats_( 1.4 ),
+        boundaryHandling_( boundaryHandling ), defaultExtrapolationValue_( defaultExtrapolationValue )
+    { }
 
     //! Constructor with no specific gas constant nor ratio of specific heats.
     /*!
@@ -414,9 +488,31 @@ public:
                                  const std::vector< AtmosphereDependentVariables >& dependentVariablesNames,
                                  const std::vector< interpolators::BoundaryInterpolationType >& boundaryHandling,
                                  const std::vector< double >& defaultExtrapolationValue ) :
-        TabulatedAtmosphereSettings( atmosphereTableFile, independentVariablesNames, dependentVariablesNames,
-                                     physical_constants::SPECIFIC_GAS_CONSTANT_AIR, 1.4, boundaryHandling,
-                                     defaultExtrapolationValue ){ }
+        AtmosphereSettings( tabulated_atmosphere ), atmosphereFile_( atmosphereTableFile ),
+        independentVariables_( independentVariablesNames ), dependentVariables_( dependentVariablesNames ),
+        specificGasConstant_( physical_constants::SPECIFIC_GAS_CONSTANT_AIR ), ratioOfSpecificHeats_( 1.4 ),
+        boundaryHandling_( boundaryHandling )
+    {
+        // Assign default values
+        defaultExtrapolationValue_.resize( dependentVariablesNames.size( ) );
+        for ( unsigned int i = 0; i < dependentVariablesNames.size( ); i++ )
+        {
+            for ( unsigned int j = 0; j < independentVariablesNames.size( ); j++ )
+            {
+                if ( boundaryHandling_.at( j ) == interpolators::use_default_value ||
+                     boundaryHandling_.at( j ) == interpolators::use_default_value_with_warning )
+                {
+                    defaultExtrapolationValue_.at( i ).push_back( std::make_pair( defaultExtrapolationValue.at( i ),
+                                                                                  defaultExtrapolationValue.at( i ) ) );
+                }
+                else
+                {
+                    defaultExtrapolationValue_.at( i ).push_back( std::make_pair( IdentityElement< double >::getAdditionIdentity( ),
+                                                                                  IdentityElement< double >::getAdditionIdentity( ) ) );
+                }
+            }
+        }
+    }
 
     //! Constructor with no specific gas constant nor ratio of specific heats, and with
     //! single boundary handling parameters.
@@ -444,8 +540,11 @@ public:
                                      physical_constants::SPECIFIC_GAS_CONSTANT_AIR, 1.4,
                                      std::vector< interpolators::BoundaryInterpolationType >(
                                          independentVariablesNames.size( ), boundaryHandling ),
-                                     std::vector< double >( dependentVariablesNames.size( ),
-                                                            defaultExtrapolationValue ) ){ }
+                                     std::vector< std::vector< std::pair< double, double > > >(
+                                         dependentVariablesNames.size( ), std::vector< std::pair< double, double > >(
+                                             independentVariablesNames.size( ), std::make_pair(
+                                                 defaultExtrapolationValue, defaultExtrapolationValue ) ) ) )
+    { }
 
     //! Function to return file containing atmospheric properties.
     /*!
@@ -494,14 +593,14 @@ public:
      *  Function to return boundary handling method.
      *  \return Boundary handling method for when independent variables are outside specified range.
      */
-     std::vector< interpolators::BoundaryInterpolationType > getBoundaryHandling( ){ return boundaryHandling_; }
+    std::vector< interpolators::BoundaryInterpolationType > getBoundaryHandling( ){ return boundaryHandling_; }
 
     //! Function to return default extrapolation value.
     /*!
      *  Function to return boundary handling method.
      *  \return Boundary handling method for when independent variables are outside specified range.
      */
-    std::vector< double > getDefaultExtrapolationValue( ){ return defaultExtrapolationValue_; }
+    std::vector< std::vector< std::pair< double, double > > > getDefaultExtrapolationValue( ){ return defaultExtrapolationValue_; }
 
 private:
 
@@ -550,7 +649,7 @@ private:
     /*!
      *  Default value to be used for extrapolation.
      */
-    std::vector< double > defaultExtrapolationValue_;
+    std::vector< std::vector< std::pair< double, double > > > defaultExtrapolationValue_;
 };
 
 //! Function to create a wind model.

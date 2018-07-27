@@ -222,7 +222,7 @@ void setGuidanceAnglesFunctions(
                 boost::bind( &aerodynamics::AerodynamicGuidance::getCurrentAngleOfAttack, aerodynamicGuidance ),
                 boost::bind( &aerodynamics::AerodynamicGuidance::getCurrentAngleOfSideslip, aerodynamicGuidance ),
                 boost::bind( &aerodynamics::AerodynamicGuidance::getCurrentBankAngle, aerodynamicGuidance ),
-                boost::bind( &aerodynamics::AerodynamicGuidance::updateGuidance, aerodynamicGuidance,_1 ) );
+                boost::bind( &aerodynamics::AerodynamicGuidance::updateGuidance, aerodynamicGuidance, _1 ) );
 }
 
 //! Function that must be called to link the AerodynamicGuidance object to the simulation

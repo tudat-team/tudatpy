@@ -182,8 +182,8 @@ std::vector< std::string > > createEnvironmentUpdaterSettings(
                 }
                 else
                 {
-                    throw std::runtime_error(
-                                "Error when making environment updater type list, cannot handle hybrid propagator inside hybrid propagator" );
+                    throw std::runtime_error( "Error when making environment updater type list, cannot handle hybrid "
+                                              "propagator inside hybrid propagator" );
                 }
             }
         }
@@ -275,7 +275,7 @@ createEnvironmentUpdaterForDynamicalEquations(
 {
     // Create environment update settings.
     std::map< IntegratedStateType,
-            std::vector< std::pair< std::string, std::string > > >integratedTypeAndBodyList =
+            std::vector< std::pair< std::string, std::string > > > integratedTypeAndBodyList =
             getIntegratedTypeAndBodyList< StateScalarType >( propagatorSettings );
 
     std::map< propagators::EnvironmentModelsToUpdate,

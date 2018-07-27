@@ -29,6 +29,7 @@
 #include "Tudat/SimulationSetup/PropagationSetup/propagationTermination.h"
 #include "Tudat/Astrodynamics/Propagators/dynamicsStateDerivativeModel.h"
 #include "Tudat/Mathematics/Interpolators/lagrangeInterpolator.h"
+#include "Tudat/Astrodynamics/GuidanceNavigationControl/controlSystem.h"
 
 namespace tudat
 {
@@ -291,7 +292,6 @@ protected:
 template< typename StateScalarType = double, typename TimeType = double >
 class SingleArcDynamicsSimulator: public DynamicsSimulator< StateScalarType, TimeType >
 {
-
 public:
 
     using DynamicsSimulator< StateScalarType, TimeType >::bodyMap_;
@@ -412,9 +412,11 @@ public:
     void integrateEquationsOfMotion(
             const Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >& initialStates )
     {
+        // Empty solution maps
         equationsOfMotionNumericalSolution_.clear( );
         equationsOfMotionNumericalSolutionRaw_.clear( );
 
+        // Reset functions
         dynamicsStateDerivative_->setPropagationSettings( std::vector< IntegratedStateType >( ), 1, 0 );
         dynamicsStateDerivative_->resetFunctionEvaluationCounter( );
         dynamicsStateDerivative_->resetCumulativeFunctionEvaluationCounter( );
@@ -440,14 +442,14 @@ public:
         dynamicsStateDerivative_->convertNumericalStateSolutionsToOutputSolutions(
                     equationsOfMotionNumericalSolution_, equationsOfMotionNumericalSolutionRaw_ );
 
-        // Retrieve number of function evaluations
-        int numberOfFunctionEvaluations = dynamicsStateDerivative_->getNumberOfFunctionEvaluations( );
+        // Retrieve number of cumulative function evaluations
         cumulativeNumberOfFunctionEvaluations_ = dynamicsStateDerivative_->getCumulativeNumberOfFunctionEvaluations( );
 
-        // Print number of total function evaluations
+        // Retrieve and print number of total function evaluations
         if ( printNumberOfFunctionEvaluations_ )
         {
-            std::cout << "Total Number of Function Evaluations: " << numberOfFunctionEvaluations << std::endl;
+            std::cout << "Total Number of Function Evaluations: " <<
+                         dynamicsStateDerivative_->getNumberOfFunctionEvaluations( ) << std::endl;
         }
 
         if( this->setIntegratedResult_ )
@@ -501,7 +503,7 @@ public:
      * Function to return the map of cumulative number of function evaluations that was saved during numerical propagation.
      * \return Map of cumulative number of function evaluations that was saved during numerical propagation.
      */
-    std::map< TimeType, TimeType > getCumulativeNumberOfFunctionEvaluations( )
+    std::map< TimeType, unsigned int > getCumulativeNumberOfFunctionEvaluations( )
     {
         return cumulativeNumberOfFunctionEvaluations_;
     }
@@ -777,7 +779,7 @@ protected:
     //! Function returning dependent variables (during numerical propagation)
     boost::function< Eigen::VectorXd( ) > dependentVariablesFunctions_;
 
-    //! Function to normalize state (during numerical propagation)
+    //! Function to post-process state (during numerical propagation)
     boost::function< void( Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& ) > statePostProcessingFunction_;
 
     //! Map listing starting entry of dependent variables in output vector, along with associated ID.
@@ -811,7 +813,7 @@ protected:
     std::map< TimeType, double > cumulativeComputationTimeHistory_;
 
     //! Map of cumulative number of function evaluations that was saved during numerical propagation.
-    std::map< TimeType, TimeType > cumulativeNumberOfFunctionEvaluations_;
+    std::map< TimeType, unsigned int > cumulativeNumberOfFunctionEvaluations_;
 
     //! Initial time of propagation
     double initialPropagationTime_;

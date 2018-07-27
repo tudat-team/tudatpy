@@ -39,7 +39,7 @@ void createStateTransitionAndSensitivityMatrixInterpolator(
         const bool clearRawSolution )
 {
     // Create interpolator for state transition matrix.
-    stateTransitionMatrixInterpolator=
+    stateTransitionMatrixInterpolator =
             boost::make_shared< interpolators::LagrangeInterpolator< double, Eigen::MatrixXd > >(
                 utilities::createVectorFromMapKeys< Eigen::MatrixXd, double >( variationalEquationsSolution[ 0 ] ),
                 utilities::createVectorFromMapValues< Eigen::MatrixXd, double >( variationalEquationsSolution[ 0 ] ), 4 );

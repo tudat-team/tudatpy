@@ -20,7 +20,6 @@
 #include "Tudat/SimulationSetup/PropagationSetup/createThrustModelGuidance.h"
 // #include "Tudat/Mathematics/Interpolators/createInterpolator.h"
 
-
 namespace tudat
 {
 
@@ -136,6 +135,7 @@ public:
 
     //! Maximum order of central body (only releveant for 3rd body acceleration).
     int maximumOrderOfCentralBody_;
+
 };
 
 //! Class to proivide settings for typical relativistic corrections to the dynamics of an orbiter.
@@ -192,6 +192,7 @@ public:
 
     //! Constant angular momentum of central body
     Eigen::Vector3d centralBodyAngularMomentum_;
+
 };
 
 //! Class to define settings for empirical accelerations
@@ -223,6 +224,7 @@ public:
 
     //! Acceleration (in RSW frame) that scales with cosine of true anomaly
     Eigen::Vector3d cosineAcceleration_;
+
 };
 
 //! Interface class that allows single interpolator to be used for thrust direction and magnitude (which are separated in
@@ -324,6 +326,7 @@ private:
 
     //! Time at which the last call to updateThrust was made (e.g. time associated with current thrust).
     double currentTime_;
+
 };
 
 

@@ -440,8 +440,6 @@ bool checkMultiArcPropagatorSettingsAndParameterEstimationConsistency(
 
                 }
             }
-
-
             break;
         }
         default:
@@ -532,12 +530,12 @@ public:
         VariationalEquationsSolver< StateScalarType, TimeType >(
             bodyMap, parametersToEstimate, clearNumericalSolution ),
         integratorSettings_( integratorSettings ),
-        propagatorSettings_( boost::dynamic_pointer_cast< SingleArcPropagatorSettings< StateScalarType > >(propagatorSettings ) ),
+        propagatorSettings_( boost::dynamic_pointer_cast< SingleArcPropagatorSettings< StateScalarType > >( propagatorSettings ) ),
         variationalOnlyIntegratorSettings_( variationalOnlyIntegratorSettings )
     {
-        if( boost::dynamic_pointer_cast< SingleArcPropagatorSettings< StateScalarType >  >( propagatorSettings ) == NULL )
+        if( boost::dynamic_pointer_cast< SingleArcPropagatorSettings< StateScalarType > >( propagatorSettings ) == NULL )
         {
-            throw std::runtime_error( "Error in variational equations solver, input must be single-arc" );
+            throw std::runtime_error( "Error in variational equations solver, input must be single-arc." );
         }
 
         // Check input consistency
@@ -545,15 +543,15 @@ public:
                     propagatorSettings_, parametersToEstimate ) )
         {
             throw std::runtime_error(
-                        "Error when making single arc variational equations solver, estimated and propagated bodies are inconsistent" );
+                        "Error when making single arc variational equations solver, estimated and propagated bodies are inconsistent." );
         }
         else
         {
             // Create simulation object for dynamics only.
-            dynamicsSimulator_ =  boost::make_shared< SingleArcDynamicsSimulator< StateScalarType, TimeType > >(
+            dynamicsSimulator_ = boost::make_shared< SingleArcDynamicsSimulator< StateScalarType, TimeType > >(
                         bodyMap, integratorSettings, propagatorSettings_, false, clearNumericalSolution, true );
             dynamicsStateDerivative_ = dynamicsSimulator_->getDynamicsStateDerivative( );
-            stateNormalizingFunction_ = boost::bind(
+            statePostProcessingFunction_ = boost::bind(
                         &DynamicsStateDerivativeModel< TimeType, StateScalarType >::postProcessStateAndVariationalEquations,
                         dynamicsStateDerivative_, _1 );
 
@@ -578,11 +576,11 @@ public:
             {
                 if( integrateDynamicalAndVariationalEquationsConcurrently )
                 {
-                    integrateVariationalAndDynamicalEquations( propagatorSettings_->getInitialStates( ), 1 );
+                    integrateVariationalAndDynamicalEquations( propagatorSettings_->getInitialStates( ), true );
                 }
                 else
                 {
-                    integrateVariationalAndDynamicalEquations( propagatorSettings_->getInitialStates( ), 0 );
+                    integrateVariationalAndDynamicalEquations( propagatorSettings_->getInitialStates( ), false );
                 }
             }
         }
@@ -621,7 +619,6 @@ public:
         variationalEquationsSolution_[ 0 ].clear( );
         variationalEquationsSolution_[ 1 ].clear( );
 
-
         if( integrateEquationsConcurrently )
         {
 
@@ -646,7 +643,7 @@ public:
                         dependentVariableHistory,
                         cumulativeComputationTimeHistory,
                         dynamicsSimulator_->getDependentVariablesFunctions( ),
-                        stateNormalizingFunction_,
+                        statePostProcessingFunction_,
                         propagatorSettings_->getPrintInterval( ) );
 
             std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > equationsOfMotionNumericalSolutionRaw;
@@ -697,7 +694,6 @@ public:
 
         // Reset solution for state transition and sensitivity matrices.
         resetVariationalEquationsInterpolators( );
-
     }
 
     //! Function to return the numerical solution history of numerically integrated variational equations.
@@ -817,7 +813,7 @@ private:
      */
     std::vector< std::map< double, Eigen::MatrixXd > > variationalEquationsSolution_;
 
-    boost::function< void( Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >& ) > stateNormalizingFunction_;
+    boost::function< void( Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >& ) > statePostProcessingFunction_;
 
 
     //! Settings for numerical integrator of combined propagation of variational equations and equations of motion.
@@ -1083,7 +1079,8 @@ public:
 
         if( currentIndex != concatenatedInitialStates.rows( ) )
         {
-            throw std::runtime_error( "Error when doing multi-arc variational equation integration, input state vector size is incompatible with settings" );
+            throw std::runtime_error( "Error when doing multi-arc variational equation integration, "
+                                      "input state vector size is incompatible with settings." );
         }
 
         integrateVariationalAndDynamicalEquations( splitInitialState, integrateEquationsConcurrently );
@@ -1226,7 +1223,8 @@ public:
                 // previous arc
                 if( ( i == 0 ) || ( !linear_algebra::doesMatrixHaveNanEntries( initialStateEstimate.at( i ) ) ) )
                 {
-                    throw std::runtime_error( "Error, arc information transferral not yet supported for separate dynamics and variational euations propagation" );
+                    throw std::runtime_error( "Error, arc information transferral not yet supported for separate "
+                                              "dynamics and variational euations propagation." );
                     updateInitialStates = true;
                 }
                 else

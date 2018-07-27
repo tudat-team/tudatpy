@@ -415,7 +415,6 @@ createAccelerationModel(
  */
 SelectedAccelerationList orderSelectedAccelerationMap( const SelectedAccelerationMap& selectedAccelerationPerBody );
 
-
 //! Function to create acceleration models from a map of bodies and acceleration model types.
 /*!
  *  Function to create acceleration models from a map of bodies and acceleration model types.
