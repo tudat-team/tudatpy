@@ -224,7 +224,7 @@ protected:
                 {
                     // Throw exception
                     std::string errorMessage = "Error in interpolator, requesting data point outside of boundaries, requested data of dimension " +
-                            boost::lexical_cast< std::string >( currentDimension ) + " at: " +
+                            boost::lexical_cast< std::string >( currentDimension ) + " at " +
                             boost::lexical_cast< std::string >( currentIndependentVariable ) + " but limit values are " +
                             boost::lexical_cast< std::string >( independentValues_.at( currentDimension ).front( ) ) + " and " +
                             boost::lexical_cast< std::string >( independentValues_.at( currentDimension ).back( ) );
@@ -235,7 +235,7 @@ protected:
                 {
                     // Warn user
                     std::string errorMessage = "Warning in interpolator, requesting data point outside of boundaries, requested data of dimension " +
-                            boost::lexical_cast< std::string >( currentDimension ) + " at: " +
+                            boost::lexical_cast< std::string >( currentDimension ) + " at " +
                             boost::lexical_cast< std::string >( currentIndependentVariable ) + " but limit values are " +
                             boost::lexical_cast< std::string >( independentValues_.at( currentDimension ).front( ) ) + " and " +
                             boost::lexical_cast< std::string >( independentValues_.at( currentDimension ).back( ) ) + ", applying extrapolation instead.";
@@ -249,7 +249,7 @@ protected:
                     if ( boundaryHandling_.at( currentDimension ) == use_boundary_value_with_warning )
                     {
                         std::string errorMessage = "Warning in interpolator, requesting data point outside of boundaries, requested data of dimension " +
-                                boost::lexical_cast< std::string >( currentDimension ) + " at: " +
+                                boost::lexical_cast< std::string >( currentDimension ) + " at " +
                                 boost::lexical_cast< std::string >( currentIndependentVariable ) + " but limit values are " +
                                 boost::lexical_cast< std::string >( independentValues_.at( currentDimension ).front( ) ) + " and " +
                                 boost::lexical_cast< std::string >( independentValues_.at( currentDimension ).back( ) ) + ", taking boundary value instead.";
@@ -274,7 +274,7 @@ protected:
                     if ( boundaryHandling_.at( currentDimension ) == use_default_value_with_warning )
                     {
                         std::string errorMessage = "Warning in interpolator, requesting data point outside of boundaries, requested data of dimension " +
-                                boost::lexical_cast< std::string >( currentDimension ) + " at: " +
+                                boost::lexical_cast< std::string >( currentDimension ) + " at " +
                                 boost::lexical_cast< std::string >( currentIndependentVariable ) + " but limit values are " +
                                 boost::lexical_cast< std::string >( independentValues_.at( currentDimension ).front( ) ) + " and " +
                                 boost::lexical_cast< std::string >( independentValues_.at( currentDimension ).back( ) ) + ", taking default value instead.";

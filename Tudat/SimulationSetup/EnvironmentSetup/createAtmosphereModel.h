@@ -314,7 +314,6 @@ private:
 
 };
 
-
 //! AtmosphereSettings for defining an NRLMSISE00 atmosphere reading space weather data from a text file.
 class NRLMSISE00AtmosphereSettings: public AtmosphereSettings
 {
