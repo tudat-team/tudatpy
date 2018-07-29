@@ -216,7 +216,7 @@ protected:
                 case throw_exception_at_boundary:
                 {
                     // Throw exception
-                    std::string errorMessage = "Error in interpolator, requesting data point outside of boundaries, requested data at: " +
+                    std::string errorMessage = "Error in interpolator, requesting data point outside of boundaries, requested data at " +
                             boost::lexical_cast< std::string >( targetIndependentVariable ) + " but limit values are " +
                             boost::lexical_cast< std::string >( independentValues_.front( ) ) + " and " +
                             boost::lexical_cast< std::string >( independentValues_.back( ) );
@@ -226,7 +226,7 @@ protected:
                 case extrapolate_at_boundary_with_warning:
                 {
                     // Warn user
-                    std::string errorMessage = "Warning in interpolator, requesting data point outside of boundaries, requested data at: " +
+                    std::string errorMessage = "Warning in interpolator, requesting data point outside of boundaries, requested data at " +
                             boost::lexical_cast< std::string >( targetIndependentVariable ) + " but limit values are " +
                             boost::lexical_cast< std::string >( independentValues_.front( ) ) + " and " +
                             boost::lexical_cast< std::string >( independentValues_.back( ) ) + ", applying extrapolation instead.";
@@ -239,7 +239,7 @@ protected:
                     // Warn user, if requested
                     if ( boundaryHandling_ == use_boundary_value_with_warning )
                     {
-                        std::string errorMessage = "Warning in interpolator, requesting data point outside of boundaries, requested data at: " +
+                        std::string errorMessage = "Warning in interpolator, requesting data point outside of boundaries, requested data at " +
                                 boost::lexical_cast< std::string >( targetIndependentVariable ) + " but limit values are " +
                                 boost::lexical_cast< std::string >( independentValues_.front( ) ) + " and " +
                                 boost::lexical_cast< std::string >( independentValues_.back( ) ) + ", taking boundary value instead.";
@@ -268,7 +268,7 @@ protected:
                     // Warn user, if requested
                     if ( boundaryHandling_ == use_default_value_with_warning )
                     {
-                        std::string errorMessage = "Warning in interpolator, requesting data point outside of boundaries, requested data at: " +
+                        std::string errorMessage = "Warning in interpolator, requesting data point outside of boundaries, requested data at " +
                                 boost::lexical_cast< std::string >( targetIndependentVariable ) + " but limit values are " +
                                 boost::lexical_cast< std::string >( independentValues_.front( ) ) + " and " +
                                 boost::lexical_cast< std::string >( independentValues_.back( ) ) + ", taking default value instead.";
