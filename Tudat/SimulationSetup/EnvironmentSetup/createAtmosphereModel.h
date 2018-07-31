@@ -460,7 +460,7 @@ public:
             const std::vector< AtmosphereIndependentVariables >& independentVariablesNames,
             const std::vector< AtmosphereDependentVariables >& dependentVariablesNames,
             const std::vector< interpolators::BoundaryInterpolationType >& boundaryHandling,
-            const std::vector< std::vector< std::pair< double, double > > >& defaultExtrapolationValue ) :
+            const std::vector< std::vector< std::pair< double, double > > >& defaultExtrapolationValue = { } ) :
         AtmosphereSettings( tabulated_atmosphere ), atmosphereFile_( atmosphereTableFile ),
         independentVariables_( independentVariablesNames ), dependentVariables_( dependentVariablesNames ),
         specificGasConstant_( physical_constants::SPECIFIC_GAS_CONSTANT_AIR ), ratioOfSpecificHeats_( 1.4 ),

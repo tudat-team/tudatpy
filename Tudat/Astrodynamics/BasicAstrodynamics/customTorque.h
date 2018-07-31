@@ -29,7 +29,13 @@ class CustomTorque : public TorqueModel
 {
 public:
 
-    //! Constructor
+    //! Constructor.
+    /*!
+     *  Constructor.
+     *  \param customTorqueFunction Function to retrieve the value of the custom torque.
+     *  \param customUpdateFunction Function to update the value of the custom torque based on the current time (which is the
+     *      only input).
+     */
     CustomTorque( const boost::function< Eigen::Vector3d( ) >& customTorqueFunction,
                   const boost::function< void( const double ) >& customUpdateFunction = boost::function< void( const double ) >( ) ) :
         customTorqueFunction_( customTorqueFunction ), customUpdateFunction_( customUpdateFunction )
