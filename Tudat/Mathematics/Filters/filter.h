@@ -58,12 +58,10 @@ public:
     typedef Eigen::Matrix< DependentVariableType, Eigen::Dynamic, Eigen::Dynamic > DependentMatrix;
 
     //! Typedef of the function describing the system and the measurements.
-    typedef boost::function< DependentVector( const IndependentVariableType,
-                                              const DependentVector& ) > Function;
+    typedef boost::function< DependentVector( const IndependentVariableType, const DependentVector& ) > Function;
 
     //! Typedefs for system and measurement matrix functions.
-    typedef boost::function< DependentMatrix( const IndependentVariableType,
-                                              const DependentVector& ) > MatrixFunction;
+    typedef boost::function< DependentMatrix( const IndependentVariableType, const DependentVector& ) > MatrixFunction;
 
     //! Typedef of the integrator settings.
     typedef numerical_integrators::IntegratorSettings< IndependentVariableType > IntegratorSettings;
@@ -108,11 +106,9 @@ public:
         generateNoiseDistributions( );
 
         // Create system and measurement functions based on input parameters
-        systemFunction_ = boost::bind( &FilterBase< IndependentVariableType,
-                                       DependentVariableType >::createSystemFunction,
+        systemFunction_ = boost::bind( &FilterBase< IndependentVariableType, DependentVariableType >::createSystemFunction,
                                        this, _1, _2 );
-        measurementFunction_ = boost::bind( &FilterBase< IndependentVariableType,
-                                            DependentVariableType >::createMeasurementFunction,
+        measurementFunction_ = boost::bind( &FilterBase< IndependentVariableType, DependentVariableType >::createMeasurementFunction,
                                             this, _1, _2 );
 
         // Create numerical integrator
@@ -260,10 +256,11 @@ public:
      *  Function to clear the history of stored variables. This function should be called if the history of state and covariance
      *  estimates over time needs to be deleted. This may be useful in case the filter is run for very long times.
      */
-    virtual void clearFilterHistory( )
+    void clearFilterHistory( )
     {
         historyOfStateEstimates_.clear( );
         historyOfCovarianceEstimates_.clear( );
+        clearSpecificFilterHistory( );
     }
 
 protected:
@@ -325,6 +322,13 @@ protected:
      */
     virtual void correctCovariance( const IndependentVariableType currentTime, const DependentMatrix& aPrioriCovarianceEstimate,
                                     const DependentMatrix& currentMeasurementMatrix, const DependentMatrix& kalmanGain ) = 0;
+
+    //! Function to clear the history of stored variables for derived class-specific variables.
+    /*!
+     *  Function to clear the history of stored variables for derived class-specific variables. This function can be overwritten in
+     *  a derived class, to add other variables to the list of variables to be cleared.
+     */
+    virtual void clearSpecificFilterHistory( ) { }
 
     //! System function.
     /*!

@@ -220,18 +220,6 @@ public:
         return mapOfSigmaPointsHistory;
     }
 
-    //! Function to clear the history of stored variables.
-    /*!
-     *  Function to clear the history of stored variables. This function should be called if the history of state, covariance
-     *  and sigma point estimates over time needs to be deleted. This may be useful in case the filter is run for very long times.
-     */
-    void clearFilterHistory( )
-    {
-        this->historyOfStateEstimates_.clear( );
-        this->historyOfCovarianceEstimates_.clear( );
-        historyOfMapOfSigmaPoints_.clear( );
-    }
-
 private:
 
     //! Function to create the function that defines the system model.
@@ -263,6 +251,13 @@ private:
         return inputMeasurementFunction_( currentTime, currentStateVector ) +
                 mapOfSigmaPoints_[ currentSigmaPoint_ ].segment( 2 * stateDimension_, measurementDimension_ ); // add measurement noise
     }
+
+    //! Function to clear the history of stored variables for derived class-specific variables.
+    /*!
+     *  Function to clear the history of stored variables for derived class-specific variables. This function adds to the list of
+     *  variables to be cleared, the history of sigma point estimates over time.
+     */
+    void clearSpecificFilterHistory( ) { historyOfMapOfSigmaPoints_.clear( ); }
 
     //! Function to set the values of the constant parameters.
     /*!
