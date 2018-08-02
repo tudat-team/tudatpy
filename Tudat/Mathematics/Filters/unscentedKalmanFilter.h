@@ -73,7 +73,7 @@ public:
      *  Default constructor. This constructor takes the system and measurement functions as models for the simulation.
      *  These functions can be a function of time, state and (for system) control vector.
      *  \param systemFunction Function returning the state as a function of time, state and control input. Can be a differential
-     *      equation if the integratorSettings is set (i.e., if it is not a NULL pointer).
+     *      equation if the integratorSettings is set (i.e., if it is not a nullptr).
      *  \param measurementFunction Function returning the measurement as a function of time and state.
      *  \param systemUncertainty Matrix defining the uncertainty in modeling of the system.
      *  \param measurementUncertainty Matrix defining the uncertainty in modeling of the measurements.
@@ -95,7 +95,7 @@ public:
                            const IndependentVariableType initialTime,
                            const DependentVector& initialStateVector,
                            const DependentMatrix& initialCovarianceMatrix,
-                           const boost::shared_ptr< IntegratorSettings > integratorSettings = NULL,
+                           const boost::shared_ptr< IntegratorSettings > integratorSettings = nullptr,
                            const ConstantParameterReferences constantValueReference = reference_Wan_and_Van_der_Merwe,
                            const std::pair< DependentVariableType, DependentVariableType > customConstantParameters =
             std::make_pair( static_cast< DependentVariableType >( TUDAT_NAN ),
