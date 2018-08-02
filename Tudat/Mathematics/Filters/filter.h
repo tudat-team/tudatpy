@@ -344,13 +344,13 @@ protected:
     Function measurementFunction_;
 
     //! Matrix representing the uncertainty in system modeling.
-    DependentMatrix systemUncertainty_;
+    const DependentMatrix systemUncertainty_;
 
     //! Matrix representing the uncertainty in measurement modeling.
-    DependentMatrix measurementUncertainty_;
+    const DependentMatrix measurementUncertainty_;
 
     //! Scalar representing the initial time.
-    IndependentVariableType initialTime_;
+    const IndependentVariableType initialTime_;
 
     //! Vector representing the a-posteriori estimated state.
     /*!
@@ -467,7 +467,7 @@ private:
         {
             // Warn user of changes that will be made
             std::cerr << "Warning in setting up filter. Integrator requested is variable step-size, but only constant "
-                         "step-size integrator are supported. Step-size control will be turned off." << std::endl;
+                         "step-size integrators are supported. Step-size control will be turned off." << std::endl;
 
             // Create integrator object
             integrator_ = numerical_integrators::createIntegrator< IndependentVariableType, DependentVector >(
