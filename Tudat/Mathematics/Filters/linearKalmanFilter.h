@@ -67,7 +67,7 @@ public:
                         const IndependentVariableType initialTime,
                         const DependentVector& initialStateVector,
                         const DependentMatrix& initialCovarianceMatrix,
-                        const boost::shared_ptr< IntegratorSettings > integratorSettings = NULL ) :
+                        const boost::shared_ptr< IntegratorSettings > integratorSettings = nullptr ) :
         KalmanFilterBase< IndependentVariableType, DependentVariableType >( systemUncertainty, measurementUncertainty,
                                                                             initialTime, initialStateVector,
                                                                             initialCovarianceMatrix, integratorSettings ),
@@ -75,7 +75,7 @@ public:
         measurementMatrixFunction_( measurementMatrixFunction )
     {
         // Temporary block of integration
-        if ( integratorSettings != NULL )
+        if ( integratorSettings != nullptr )
         {
             throw std::runtime_error( "Error in linear Kalman filter. Propagation of the state is "
                                       "not currently supported." );
@@ -105,7 +105,7 @@ public:
                         const IndependentVariableType initialTime,
                         const DependentVector& initialStateVector,
                         const DependentMatrix& initialCovarianceMatrix,
-                        const boost::shared_ptr< IntegratorSettings > integratorSettings = NULL ) :
+                        const boost::shared_ptr< IntegratorSettings > integratorSettings = nullptr ) :
         LinearKalmanFilter( boost::lambda::constant( stateTransitionMatrix ),
                             boost::lambda::constant( controlMatrix ),
                             boost::lambda::constant( measurementMatrix ),

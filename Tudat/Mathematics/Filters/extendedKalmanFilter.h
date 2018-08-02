@@ -46,7 +46,7 @@ public:
      *  Default constructor. This constructor takes state and measurement functions and their respective
      *  Jacobian functions as inputs. These functions can be a function of time, state and (for state) control vector.
      *  \param systemFunction Function returning the state as a function of time, state and control input. Can be a differential
-     *      equation if the integratorSettings is set (i.e., if it is not a NULL pointer).
+     *      equation if the integratorSettings is set (i.e., if it is not a nullptr).
      *  \param measurementFunction Function returning the measurement as a function of time and state.
      *  \param stateJacobianFunction Function returning the Jacobian of the system w.r.t. the state. The input values can
      *      be time, state and control input.
@@ -76,7 +76,7 @@ public:
                           const IndependentVariableType initialTime,
                           const DependentVector& initialStateVector,
                           const DependentMatrix& initialCovarianceMatrix,
-                          const boost::shared_ptr< IntegratorSettings > integratorSettings = NULL ) :
+                          const boost::shared_ptr< IntegratorSettings > integratorSettings = nullptr ) :
         KalmanFilterBase< IndependentVariableType, DependentVariableType >( systemUncertainty, measurementUncertainty,
                                                                             initialTime, initialStateVector,
                                                                             initialCovarianceMatrix, integratorSettings ),

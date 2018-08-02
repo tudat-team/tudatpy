@@ -112,7 +112,7 @@ public:
                                             this, _1, _2 );
 
         // Create numerical integrator
-        isStateToBeIntegrated_ = integratorSettings != NULL;
+        isStateToBeIntegrated_ = integratorSettings != nullptr;
         if ( isStateToBeIntegrated_ )
         {
             generateNumericalIntegrator( integratorSettings );
@@ -161,7 +161,7 @@ public:
         // Loop over dimensions and add noise
         for ( int i = 0; i < systemUncertainty_.rows( ); i++ )
         {
-            if ( systemNoiseDistribution_.at( i ) != NULL )
+            if ( systemNoiseDistribution_.at( i ) != nullptr )
             {
                 systemNoise[ i ] = static_cast< DependentVariableType >(
                             systemNoiseDistribution_.at( i )->getRandomVariableValue( ) );
@@ -187,7 +187,7 @@ public:
         // Loop over dimensions and add noise
         for ( int i = 0; i < measurementUncertainty_.rows( ); i++ )
         {
-            if ( measurementNoiseDistribution_.at( i ) != NULL )
+            if ( measurementNoiseDistribution_.at( i ) != nullptr )
             {
                 measurementNoise[ i ] = static_cast< DependentVariableType >(
                             measurementNoiseDistribution_.at( i )->getRandomVariableValue( ) );
@@ -202,7 +202,7 @@ public:
     //! Function to retrieve initial time.
     IndependentVariableType getInitialTime( ) { return initialTime_; }
 
-    //! Function to retrieve step size for integration.
+    //! Function to retrieve step-size for integration.
     IndependentVariableType getIntegrationStepSize( ) { return integrationStepSize_; }
 
     //! Function to retrieve current state estimate.
@@ -375,10 +375,10 @@ protected:
      */
     boost::shared_ptr< Integrator > integrator_;
 
-    //! Scalar representing step size for integration.
+    //! Scalar representing step-size for integration.
     /*!
-     *  Scalar representing step size for integration. If integrator_ points to a constant step size integrator, then
-     *  this will be the constant step size, otherwise it will be the initial step size.
+     *  Scalar representing step-size for integration. If integrator_ points to a constant step-size integrator, then
+     *  this will be the constant step-size, otherwise it will be the initial step-size.
      */
     IndependentVariableType integrationStepSize_;
 
@@ -419,7 +419,7 @@ private:
             }
             else
             {
-                systemNoiseDistribution_.push_back( NULL );
+                systemNoiseDistribution_.push_back( nullptr );
             }
         }
 
@@ -436,7 +436,7 @@ private:
             }
             else
             {
-                measurementNoiseDistribution_.push_back( NULL );
+                measurementNoiseDistribution_.push_back( nullptr );
             }
         }
     }
@@ -463,9 +463,22 @@ private:
                         systemFunction_, aPosterioriStateEstimate_, integratorSettings );
             break;
         }
+        case numerical_integrators::rungeKuttaVariableStepSize:
+        {
+            // Warn user of changes that will be made
+            std::cerr << "Warning in setting up filter. Integrator requested is variable step-size, but only constant "
+                         "step-size integrator are supported. Step-size control will be turned off." << std::endl;
+
+            // Create integrator object
+            integrator_ = numerical_integrators::createIntegrator< IndependentVariableType, DependentVector >(
+                        systemFunction_, aPosterioriStateEstimate_, integratorSettings );
+
+            // Turn off step-size control
+            integrator_->setStepSizeControl( false );
+            break;
+        }
         default:
-            throw std::runtime_error( "Error in setting up filter. Only constant time step integrators (i.e., Euler and "
-                                      "Runge-Kutta 4) are supported." );
+            throw std::runtime_error( "Error in setting up filter. Only Euler and Runge-Kutta integrators are supported." );
         }
     }
 
