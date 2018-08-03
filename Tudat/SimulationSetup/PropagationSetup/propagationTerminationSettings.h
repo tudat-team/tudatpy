@@ -120,6 +120,7 @@ public:
 
     //! Maximum cpu time for the propagation, upon which the propagation is to be stopped
     double cpuTerminationTime_;
+
 };
 
 //! Class for propagation stopping conditions settings: stopping the propagation after a given dependent variable reaches a
@@ -134,6 +135,7 @@ public:
 class PropagationDependentVariableTerminationSettings: public PropagationTerminationSettings
 {
 public:
+
     //! Constructor
     /*!
      * Constructor
@@ -178,6 +180,7 @@ public:
 
     //! Settings to create root finder used to converge on exact final condition.
     boost::shared_ptr< root_finders::RootFinderSettings > terminationRootFinderSettings_;
+
 };
 
 //! Class for propagation stopping conditions settings: stopping the propagation based on custom requirements
@@ -185,7 +188,7 @@ public:
  *  Class for propagation stopping conditions settings: stopping the propagation after a fixed amount of time. Note that the
  *  propagator will finish a given time step, slightly surpassing the defined final time.
  */
-class CustomTerminationSettings: public PropagationTerminationSettings
+class PropagationCustomTerminationSettings: public PropagationTerminationSettings
 {
 public:
 
@@ -195,12 +198,12 @@ public:
      * \param checkStopCondition Function that takes the current time as input and outputs whether the propagation should be
      *      stopped.
      */
-    CustomTerminationSettings( const boost::function< bool( const double ) >& checkStopCondition ):
+    PropagationCustomTerminationSettings( const boost::function< bool( const double ) >& checkStopCondition ):
         PropagationTerminationSettings( custom_stopping_condition ),
         checkStopCondition_( checkStopCondition ){ }
 
     //! Destructor
-    ~CustomTerminationSettings( ){ }
+    ~PropagationCustomTerminationSettings( ){ }
 
     //! Custom temination function.
     boost::function< bool( const double ) > checkStopCondition_;
@@ -253,6 +256,7 @@ public:
     //! Boolean denoting whether a single (if true) or all (if false) of the conditions
     //! defined by the entries in the terminationSettings list should be met.
     bool fulFillSingleCondition_;
+
 };
 
 } // namespace propagators

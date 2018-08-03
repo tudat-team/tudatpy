@@ -69,7 +69,8 @@ public:
         {
             if ( defaultExtrapolationValue_.at( i ) != defaultValueForBoundaryHandling )
             {
-                if ( !( boundaryHandling_.at( i ) == use_default_value || boundaryHandling_.at( i ) == use_default_value_with_warning ) )
+                if ( !( ( boundaryHandling_.at( i ) == use_default_value ) ||
+                        ( boundaryHandling_.at( i ) == use_default_value_with_warning ) ) )
                 {
                     std::cerr << "Warning in multi-dimensional interpolator. A default value has been set (for when the "
                                  "independent variable is out-of-range) but the boundary handling method is not "

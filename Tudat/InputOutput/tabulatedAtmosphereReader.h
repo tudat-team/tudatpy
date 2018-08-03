@@ -85,7 +85,6 @@ readTabulatedAtmosphere( const std::map< int, std::string >& fileNames )
         // Save file contents into rawAtmosphereArrays
         utilities::copyMultiArray< double, NumberOfDimensions >(
                     currentCoefficients.first, rawAtmosphereArrays[ fileIterator->first ] );
-
     }
 
     // Check if anything has been read from files.
@@ -113,7 +112,7 @@ readTabulatedAtmosphere( const std::map< int, std::string >& fileNames )
             {
                 std::vector< size_t > sizeVector;
                 const size_t* arrayShape = firstMultiArray.shape( );
-                sizeVector.assign( arrayShape, arrayShape+ firstMultiArray.num_dimensions( ) );
+                sizeVector.assign( arrayShape, arrayShape + firstMultiArray.num_dimensions( ) );
 
                 atmosphereArrays[ i ].resize( sizeVector );
 

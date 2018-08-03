@@ -62,16 +62,16 @@ public:
     /*!
      *  Default constructor.
      *  \param atmosphereTableFile Map of files containing information on the atmosphere. The order of both
-     *  independent and dependent parameters needs to be specified in the independentVariablesNames and
-     *  dependentVariablesNames vectors, respectively. Note that specific gas constant and specific heat ratio
-     *  will be given the default constant values for Earth, unless they are included in the file map.
+     *      independent and dependent parameters needs to be specified in the independentVariablesNames and
+     *      dependentVariablesNames vectors, respectively. Note that specific gas constant and specific heat ratio
+     *      will be given the default constant values for Earth, unless they are included in the file map.
      *  \param independentVariablesNames List of independent parameters describing the atmosphere.
      *  \param dependentVariablesNames List of dependent parameters output by the atmosphere.
      *  \param specificGasConstant The constant specific gas constant of the atmosphere.
      *  \param ratioOfSpecificHeats The constant ratio of specific heats of the atmosphere.
      *  \param boundaryHandling Method for interpolation behavior when independent variable is out of range.
      *  \param defaultExtrapolationValue Default value to be used for extrapolation, in case of use_default_value or
-     *  use_default_value_with_warning as methods for boundaryHandling.
+     *      use_default_value_with_warning as methods for boundaryHandling.
      */
     TabulatedAtmosphere(
             const std::map< int, std::string >& atmosphereTableFile,
@@ -92,23 +92,23 @@ public:
         dependentVariableIndices_ = std::vector< unsigned int >( 6, 0 ); // only 6 dependent variables supported
 
         // Initialize atmosphere
-        initialize( );
+        createAtmosphereInterpolators( );
     }
 
     //! Constructor with default gas constant and specific heat ratio.
     /*!
      *  Constructor with default gas constant and specific heat ratio.
      *  \param atmosphereTableFile Map of files containing information on the atmosphere. The order of both
-     *  independent and dependent parameters needs to be specified in the independentVariablesNames and
-     *  dependentVariablesNames vectors, respectively. Note that specific gas constant and specific heat ratio
-     *  will be given the default constant values for Earth, unless they are included in the file map.
+     *      independent and dependent parameters needs to be specified in the independentVariablesNames and
+     *      dependentVariablesNames vectors, respectively. Note that specific gas constant and specific heat ratio
+     *      will be given the default constant values for Earth, unless they are included in the file map.
      *  \param independentVariablesNames List of independent parameters describing the atmosphere.
      *  \param dependentVariablesNames List of dependent parameters output by the atmosphere.
      *  \param specificGasConstant The constant specific gas constant of the atmosphere.
      *  \param ratioOfSpecificHeats The constant ratio of specific heats of the atmosphere.
      *  \param boundaryHandling Method for interpolation behavior when independent variable is out of range.
      *  \param defaultExtrapolationValue Default value to be used for extrapolation, in case of use_default_value or
-     *  use_default_value_with_warning as methods for boundaryHandling.
+     *      use_default_value_with_warning as methods for boundaryHandling.
      */
     TabulatedAtmosphere( const std::map< int, std::string >& atmosphereTableFile,
                          const std::vector< AtmosphereIndependentVariables >& independentVariablesNames,
@@ -123,9 +123,9 @@ public:
     /*!
      *  Constructor compatible with old version.
      *  \param atmosphereTableFile File containing atmospheric properties.
-     *  The file name of the atmosphere table. The file should contain four columns of data,
-     *  containing altitude (first column), and the associated density, pressure and density values
-     *  in the second, third and fourth columns.
+     *      The file name of the atmosphere table. The file should contain four columns of data,
+     *      containing altitude (first column), and the associated density, pressure and density values
+     *      in the second, third and fourth columns.
      *  \param dependentVariablesNames List of dependent parameters output by the atmosphere.
      *  \param specificGasConstant The constant specific gas constant of the atmosphere.
      *  \param ratioOfSpecificHeats The constant ratio of specific heats of the atmosphere.
@@ -148,14 +148,14 @@ public:
     /*!
      *  Constructor.
      *  \param atmosphereTableFile Map of files containing information on the atmosphere. The order of both
-     *  independent and dependent parameters needs to be specified in the independentVariablesNames and
-     *  dependentVariablesNames vectors, respectively. Note that specific gas constant and specific heat ratio
-     *  will be given the default constant values for Earth, unless they are included in the file map.
+     *      independent and dependent parameters needs to be specified in the independentVariablesNames and
+     *      dependentVariablesNames vectors, respectively. Note that specific gas constant and specific heat ratio
+     *      will be given the default constant values for Earth, unless they are included in the file map.
      *  \param independentVariablesNames List of independent parameters describing the atmosphere.
      *  \param dependentVariablesNames List of dependent parameters output by the atmosphere.
      *  \param boundaryHandling Method for interpolation behavior when independent variable is out of range.
      *  \param defaultExtrapolationValue Default value to be used for extrapolation, in case of use_default_value or
-     *  use_default_value_with_warning as methods for boundaryHandling.
+     *      use_default_value_with_warning as methods for boundaryHandling.
      */
     TabulatedAtmosphere( const std::map< int, std::string >& atmosphereTableFile,
                          const std::vector< AtmosphereIndependentVariables >& independentVariablesNames,
@@ -191,7 +191,7 @@ public:
         dependentVariableIndices_ = std::vector< unsigned int >( 6, 0 ); // only 6 dependent variables supported
 
         // Initialize atmosphere
-        initialize( );
+        createAtmosphereInterpolators( );
     }
 
     //! Destructor
@@ -199,19 +199,19 @@ public:
 
     //! Get atmosphere table file name.
     /*!
-     * Returns atmosphere table file name.
-     * \return The atmosphere table file.
+     *  Returns atmosphere table file name.
+     *  \return The atmosphere table file.
      */
     std::map< int, std::string > getAtmosphereTableFile( ) { return atmosphereTableFile_; }
 
     //! Get local density.
     /*!
-     * Returns the local density parameter of the atmosphere in kg per meter^3, at the specified conditions.
-     * \param altitude Altitude at which density is to be computed.
-     * \param longitude Longitude at which density is to be computed.
-     * \param latitude Latitude at which density is to be computed.
-     * \param time Time at which density is to be computed.
-     * \return Atmospheric density at specified conditions.
+     *  Returns the local density parameter of the atmosphere in kg per meter^3, at the specified conditions.
+     *  \param altitude Altitude at which density is to be computed.
+     *  \param longitude Longitude at which density is to be computed.
+     *  \param latitude Latitude at which density is to be computed.
+     *  \param time Time at which density is to be computed.
+     *  \return Atmospheric density at specified conditions.
      */
     double getDensity( const double altitude, const double longitude = 0.0,
                        const double latitude = 0.0, const double time = 0.0 )
@@ -243,12 +243,12 @@ public:
 
     //! Get local pressure.
     /*!
-     * Returns the local pressure of the atmosphere in Newton per meter^2, at the specified conditions.
-     * \param altitude Altitude  at which pressure is to be computed.
-     * \param longitude Longitude at which pressure is to be computed.
-     * \param latitude Latitude at which pressure is to be computed.
-     * \param time Time at which pressure is to be computed.
-     * \return Atmospheric pressure at specified conditions.
+     *  Returns the local pressure of the atmosphere in Newton per meter^2, at the specified conditions.
+     *  \param altitude Altitude  at which pressure is to be computed.
+     *  \param longitude Longitude at which pressure is to be computed.
+     *  \param latitude Latitude at which pressure is to be computed.
+     *  \param time Time at which pressure is to be computed.
+     *  \return Atmospheric pressure at specified conditions.
      */
     double getPressure( const double altitude, const double longitude = 0.0,
                         const double latitude = 0.0, const double time = 0.0 )
@@ -280,12 +280,12 @@ public:
 
     //! Get local temperature.
     /*!
-     * Returns the local temperature of the atmosphere in Kelvin, at the specified conditions.
-     * \param altitude Altitude at which temperature is to be computed
-     * \param longitude Longitude at which temperature is to be computed.
-     * \param latitude Latitude at which temperature is to be computed.
-     * \param time Time at which temperature is to be computed.
-     * \return constantTemperature Atmospheric temperature at specified conditions.
+     *  Returns the local temperature of the atmosphere in Kelvin, at the specified conditions.
+     *  \param altitude Altitude at which temperature is to be computed
+     *  \param longitude Longitude at which temperature is to be computed.
+     *  \param latitude Latitude at which temperature is to be computed.
+     *  \param time Time at which temperature is to be computed.
+     *  \return constantTemperature Atmospheric temperature at specified conditions.
      */
     double getTemperature( const double altitude, const double longitude = 0.0,
                            const double latitude = 0.0, const double time = 0.0 )
@@ -317,12 +317,12 @@ public:
 
     //! Get specific gas constant.
     /*!
-     * Returns the specific gas constant of the atmosphere in J/(kg K), at the specified conditions.
-     * \param altitude Altitude at which specific gas constant is to be computed.
-     * \param longitude Longitude at which specific gas constant is to be computed.
-     * \param latitude Latitude at which specific gas constant is to be computed.
-     * \param time Time at which specific gas constant is to be computed.
-     * \return specificGasConstant Specific gas constant at specified conditions.
+     *  Returns the specific gas constant of the atmosphere in J/(kg K), at the specified conditions.
+     *  \param altitude Altitude at which specific gas constant is to be computed.
+     *  \param longitude Longitude at which specific gas constant is to be computed.
+     *  \param latitude Latitude at which specific gas constant is to be computed.
+     *  \param time Time at which specific gas constant is to be computed.
+     *  \return specificGasConstant Specific gas constant at specified conditions.
      */
     double getSpecificGasConstant( const double altitude, const double longitude = 0.0,
                                    const double latitude = 0.0, const double time = 0.0 )
@@ -361,12 +361,12 @@ public:
 
     //! Get ratio of specific heats.
     /*!
-     * Returns the ratio of specific heats of the atmosphere at the specified conditions.
-     * \param altitude Altitude at which ratio of specific heats is to be computed
-     * \param longitude Longitude at which ratio of specific heats is to be computed.
-     * \param latitude Latitude at which ratio of specific heats is to be computed.
-     * \param time Time at which ratio of specific heats is to be computed.
-     * \return Ratio of specific heats at specified conditions.
+     *  Returns the ratio of specific heats of the atmosphere at the specified conditions.
+     *  \param altitude Altitude at which ratio of specific heats is to be computed
+     *  \param longitude Longitude at which ratio of specific heats is to be computed.
+     *  \param latitude Latitude at which ratio of specific heats is to be computed.
+     *  \param time Time at which ratio of specific heats is to be computed.
+     *  \return Ratio of specific heats at specified conditions.
      */
     double getRatioOfSpecificHeats( const double altitude, const double longitude = 0.0,
                                     const double latitude = 0.0, const double time = 0.0 )
@@ -405,12 +405,12 @@ public:
 
     //! Get molar mass.
     /*!
-     * Returns the molar mass of the atmosphere in kilograms per mole, at the specified conditions.
-     * \param altitude Altitude at which molar mass is to be computed
-     * \param longitude Longitude at which molar mass is to be computed.
-     * \param latitude Latitude at which molar mass is to be computed.
-     * \param time Time at which molar mass is to be computed.
-     * \return Molar mass at specified conditions.
+     *  Returns the molar mass of the atmosphere in kilograms per mole, at the specified conditions.
+     *  \param altitude Altitude at which molar mass is to be computed
+     *  \param longitude Longitude at which molar mass is to be computed.
+     *  \param latitude Latitude at which molar mass is to be computed.
+     *  \param time Time at which molar mass is to be computed.
+     *  \return Molar mass at specified conditions.
      */
     double getMolarMass( const double altitude, const double longitude = 0.0,
                          const double latitude = 0.0, const double time = 0.0 )
@@ -450,34 +450,31 @@ public:
 
     //! Get local speed of sound in the atmosphere.
     /*!
-     * Returns the speed of sound in the atmosphere in m/s.
-     * \param altitude Altitude at which speed of sound is to be computed.
-     * \param longitude Longitude at which speed of sound is to be computed (not used but included
-     * for consistency with base class interface).
-     * \param latitude Latitude at which speed of sound is to be computed (not used but included
-     * for consistency with base class interface).
-     * \param time Time at which speed of sound is to be computed (not used but included for
-     * consistency with base class interface).
-     * \return Atmospheric speed of sound at specified conditions.
+     *  Returns the speed of sound in the atmosphere in m/s.
+     *  \param altitude Altitude at which speed of sound is to be computed.
+     *  \param longitude Longitude at which speed of sound is to be computed.
+     *  \param latitude Latitude at which speed of sound is to be computed.
+     *  \param time Time at which speed of sound is to be computed.
+     *  \return Atmospheric speed of sound at specified conditions.
      */
     double getSpeedOfSound( const double altitude, const double longitude = 0.0,
                             const double latitude = 0.0, const double time = 0.0 )
     {
-        return computeSpeedOfSound(
-                    getTemperature( altitude, longitude, latitude, time ),
-                    getSpecificGasConstant( altitude, longitude, latitude, time ),
-                    getRatioOfSpecificHeats( altitude, longitude, latitude, time ) );
+        return computeSpeedOfSound( getTemperature( altitude, longitude, latitude, time ),
+                                    getSpecificGasConstant( altitude, longitude, latitude, time ),
+                                    getRatioOfSpecificHeats( altitude, longitude, latitude, time ) );
     }
 
 protected:
 
 private:
 
-    //! Initialize atmosphere table reader.
+    //! Function to create the interpolators based on the tabulated atmosphere files.
     /*!
-     *  Initializes the atmosphere table reader.
+     *  Function to create the interpolators based on the tabulated atmosphere files, and the provided interpolation settings. This
+     *  function also checks the compatibility of (in)dependent variables and determines which (in)dependent variables are in use.
      */
-    void initialize( );
+    void createAtmosphereInterpolators( );
 
     //! Create interpolators for specified dependent variables, taking into consideration the number
     //! of independent variables (which is greater than one).
@@ -505,92 +502,47 @@ private:
     std::vector< AtmosphereIndependentVariables > independentVariables_;
 
     //! Vector containing the independent variables.
-    /*!
-     *  Vector containing the independent variables.
-     */
     std::vector< std::vector< double > > independentVariablesData_;
 
     //! Integer specifying number of independent variables.
-    /*!
-     *  Integer specifying number of independent variables.
-     */
     unsigned int numberOfIndependentVariables_;
 
-    //! A vector of strings containing the names of the variables contained in the atmosphere file
-    /*!
-     * A vector of strings containing the names of the variables contained in the atmosphere file,
-     * in the correct order (from left, being the first entry in the vector, to the right).
-     */
+    //! A vector of strings containing the names of the variables contained in the atmosphere file.
     std::vector< AtmosphereDependentVariables > dependentVariables_;
 
     //! Vector of booleans that determines if the atmosphere file contains dentity, pressure, temperature,
     //! gas constant and/or ratio of specific heats.
-    /*!
-     *  Vector of booleans that determines if the atmosphere file contains dentity, pressure, temperature,
-     *  gas constant and/or ratio of specific heats.
-     */
     std::vector< bool > dependentVariablesDependency_;
 
     //! Vector of integers that specifies the order of dentity, pressure, temperature, gas constant and
     //! ratio of specific heats are located.
-    /*!
-     *  Vector of integers that specifies the order of dentity, pressure, temperature, gas constant and
-     *  ratio of specific heats are located.
-     */
     std::vector< unsigned int > dependentVariableIndices_;
 
     //! Specific gas constant of the atmosphere.
-    /*!
-     *  Specific gas constant of the atmosphere.
-     */
     double specificGasConstant_;
 
     //! Ratio of specific heats of the atmosphere at constant pressure and constant volume.
-    /*!
-     *  Ratio of specific heats of the atmosphere at constant pressure and constant volume.
-     */
     double ratioOfSpecificHeats_;
 
     //! Interpolation for density. Note that type of interpolator depends on number of independent variables specified.
-    /*!
-     *  Interpolation for density. Note that type of interpolator depends on number of independent variables specified.
-     */
     boost::shared_ptr< interpolators::Interpolator< double, double > > interpolatorForDensity_;
 
     //! Interpolation for pressure. Note that type of interpolator depends on number of independent variables specified.
-    /*!
-     *  Interpolation for pressure. Note that type of interpolator depends on number of independent variables specified.
-     */
     boost::shared_ptr< interpolators::Interpolator< double, double > > interpolatorForPressure_;
 
     //! Interpolation for temperature. Note that type of interpolator depends on number of independent variables specified.
-    /*!
-     *  Interpolation for temperature. Note that type of interpolator depends on number of independent variables specified.
-     */
     boost::shared_ptr< interpolators::Interpolator< double, double > > interpolatorForTemperature_;
 
     //! Interpolation for specific gas constant. Note that type of interpolator depends on number of independent variables specified.
-    /*!
-     *  Interpolation for specific gas constant. Note that type of interpolator depends on number of independent variables specified.
-     */
     boost::shared_ptr< interpolators::Interpolator< double, double > > interpolatorForGasConstant_;
 
     //! Interpolation for ratio of specific heats. Note that type of interpolator depends on number of independent variables specified.
-    /*!
-     *  Interpolation for ratio of specific heats. Note that type of interpolator depends on number of independent variables specified.
-     */
     boost::shared_ptr< interpolators::Interpolator< double, double > > interpolatorForSpecificHeatRatio_;
 
     //! Interpolation for molar mass. Note that type of interpolator depends on number of independent variables specified.
-    /*!
-     *  Interpolation for molar mass. Note that type of interpolator depends on number of independent variables specified.
-     */
     boost::shared_ptr< interpolators::Interpolator< double, double > > interpolatorForMolarMass_;
 
     //! Behavior of interpolator when independent variable is outside range.
-    /*!
-     *  Behavior of interpolator when independent variable is outside range.
-     */
     std::vector< interpolators::BoundaryInterpolationType > boundaryHandling_;
 
     //! Default values to be used for extrapolation.
