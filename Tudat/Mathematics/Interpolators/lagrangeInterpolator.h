@@ -46,7 +46,7 @@ enum LagrangeInterpolatorBoundaryHandling
  *  for many function calls to interpolate, since the denominators for
  *  the interpolations are pre-computed for all interpolation intervals.
  *  See e.g. http://mathworld.wolfram.com/LagrangeInterpolatingPolynomial.html for
- *  mathematical details
+ *  mathematical details.
  */
 template< typename IndependentVariableType, typename DependentVariableType,
           typename ScalarType = IndependentVariableType >
@@ -67,14 +67,18 @@ public:
      *  variables and dependent variables. A look-up scheme can be provided to override the
      *  given default.
      *  \param independentVariables Vector of values of independent variables that are used, must be
-     *  sorted in ascending order.
+     *      sorted in ascending order.
      *  \param dependentVariables Vector of values of dependent variables that are used.
      *  \param numberOfStages Number of data points that are used to calculate the interpolating
-     *  polynomial (must be even).
+     *      polynomial (must be even).
      *  \param selectedLookupScheme Identifier of lookupscheme from enum. This algorithm is used
-     *  to find the nearest lower data point in the independent variables when requesting
-     *  interpolation.
+     *      to find the nearest lower data point in the independent variables when requesting
+     *      interpolation.
      *  \param lagrangeBoundaryHandling Boundary handling does something.
+     *  \param boundaryHandling Boundary handling method, in case the independent variable is outside the
+     *      specified range.
+     *  \param defaultExtrapolationValue Pairs of default values to be used for extrapolation, in case
+     *      of use_default_value or use_default_value_with_warning as methods for boundaryHandling.
      */
     LagrangeInterpolator(
             const std::vector< IndependentVariableType >& independentVariables,
@@ -83,7 +87,9 @@ public:
             const AvailableLookupScheme selectedLookupScheme = huntingAlgorithm,
             const LagrangeInterpolatorBoundaryHandling lagrangeBoundaryHandling = lagrange_cubic_spline_boundary_interpolation,
             const BoundaryInterpolationType boundaryHandling = extrapolate_at_boundary,
-            const DependentVariableType& defaultExtrapolationValue = IdentityElement< DependentVariableType >::getAdditionIdentity( ) ):
+            const std::pair< DependentVariableType, DependentVariableType >& defaultExtrapolationValue =
+            std::make_pair( IdentityElement< DependentVariableType >::getAdditionIdentity( ),
+                            IdentityElement< DependentVariableType >::getAdditionIdentity( ) ) ):
         OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >( boundaryHandling,
                                                                                       defaultExtrapolationValue ),
         numberOfStages_( numberOfStages ), lagrangeBoundaryHandling_( lagrangeBoundaryHandling )
@@ -142,13 +148,17 @@ public:
      *  as key and dependent variables as value. A look-up scheme can be provided to override the
      *  given default.
      *  \param dataMap Map containing independent variables as key and dependent variables as
-     *  value.
+     *      value.
      *  \param numberOfStages Number of data points that are used to calculate the interpolating
-     *  polynomial (must be even).
+     *      polynomial (must be even).
      *  \param selectedLookupScheme Identifier of lookupscheme from enum. This algorithm is used
-     *  to find the nearest lower data point in the independent variables when requesting
-     *  interpolation.
-     *  \param lagrangeBoundaryHandling Boundary Handling does something.
+     *      to find the nearest lower data point in the independent variables when requesting
+     *      interpolation.
+     *  \param lagrangeBoundaryHandling Boundary handling method specific to the Lagrange interpolator.
+     *  \param boundaryHandling Boundary handling method, in case the independent variable is outside the
+     *      specified range.
+     *  \param defaultExtrapolationValue Pairs of default values to be used for extrapolation, in case
+     *      of use_default_value or use_default_value_with_warning as methods for boundaryHandling.
      */
     LagrangeInterpolator(
             const std::map< IndependentVariableType, DependentVariableType >& dataMap,
@@ -156,7 +166,9 @@ public:
             const AvailableLookupScheme selectedLookupScheme = huntingAlgorithm,
             const LagrangeInterpolatorBoundaryHandling lagrangeBoundaryHandling = lagrange_cubic_spline_boundary_interpolation,
             const BoundaryInterpolationType boundaryHandling = extrapolate_at_boundary,
-            const DependentVariableType& defaultExtrapolationValue = IdentityElement< DependentVariableType >::getAdditionIdentity( ) ):
+            const std::pair< DependentVariableType, DependentVariableType >& defaultExtrapolationValue =
+            std::make_pair( IdentityElement< DependentVariableType >::getAdditionIdentity( ),
+                            IdentityElement< DependentVariableType >::getAdditionIdentity( ) ) ):
         OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >( boundaryHandling,
                                                                                       defaultExtrapolationValue ),
         numberOfStages_( numberOfStages ), lagrangeBoundaryHandling_( lagrangeBoundaryHandling )
@@ -217,11 +229,10 @@ public:
      *  interpolating polynimial goes beyond the independent variable bondaries,
      *  a cubic spline with natural boundary conditions is used.
      *  \param targetIndependentVariableValue Value of independent variable at which interpolation
-     *  is to take place.
+     *      is to take place.
      *  \return Interpolated value of dependent variable.
      */
-    DependentVariableType interpolate(
-            const IndependentVariableType targetIndependentVariableValue )
+    DependentVariableType interpolate( const IndependentVariableType targetIndependentVariableValue )
     {
         using std::pow;
 
@@ -319,8 +330,8 @@ public:
 
     //! Function to retrieve the number of stages of interpolator
     /*!
-     * Function to retrieve the number of stages of interpolator
-     * \return Number of stages of interpolator
+     *  Function to retrieve the number of stages of interpolator
+     *  \return Number of stages of interpolator
      */
     int getNumberOfStages( )
     {

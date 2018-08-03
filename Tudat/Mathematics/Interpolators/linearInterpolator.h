@@ -66,6 +66,10 @@ public:
      * \param selectedLookupScheme Identifier of lookupscheme from enum. This algorithm is used
      * to find the nearest lower data point in the independent variables when requesting
      * interpolation.
+     * \param boundaryHandling Boundary handling method, in case the independent variable is outside the
+     * specified range.
+     * \param defaultExtrapolationValue Pairs of default values to be used for extrapolation, in case
+     * of use_default_value or use_default_value_with_warning as methods for boundaryHandling.
      */
     LinearInterpolator( const std::map< IndependentVariableType, DependentVariableType >& dataMap,
                         const AvailableLookupScheme selectedLookupScheme = huntingAlgorithm,
@@ -79,8 +83,7 @@ public:
         // Verify that the initialization variables are not empty.
         if ( dataMap.size( ) == 0 )
         {
-            throw std::runtime_error(
-                        "The vectors used in the linear interpolator initialization are empty." );
+            throw std::runtime_error( "The vectors used in the linear interpolator initialization are empty." );
         }
 
         // Resize data vectors of independent/dependent values.
@@ -111,6 +114,10 @@ public:
      * \param selectedLookupScheme Identifier of lookupscheme from enum. This algorithm is used
      * to find the nearest lower data point in the independent variables when requesting
      * interpolation.
+     * \param boundaryHandling Boundary handling method, in case the independent variable is outside the
+     * specified range.
+     * \param defaultExtrapolationValue Default value to be used for extrapolation, in case
+     * of use_default_value or use_default_value_with_warning as methods for boundaryHandling.
      */
     LinearInterpolator( const std::map< IndependentVariableType, DependentVariableType >& dataMap,
                         const AvailableLookupScheme selectedLookupScheme,
@@ -132,6 +139,10 @@ public:
      *  \param selectedLookupScheme Identifier of lookupscheme from enum. This algorithm is used
      *  to find the nearest lower data point in the independent variables when requesting
      *  interpolation.
+     * \param boundaryHandling Boundary handling method, in case the independent variable is outside the
+     * specified range.
+     * \param defaultExtrapolationValue Pairs of default values to be used for extrapolation, in case
+     * of use_default_value or use_default_value_with_warning as methods for boundaryHandling.
      */
     LinearInterpolator( const std::vector< IndependentVariableType >& independentValues,
                         const std::vector< DependentVariableType >& dependentValues,
@@ -175,6 +186,10 @@ public:
      *  \param selectedLookupScheme Identifier of lookupscheme from enum. This algorithm is used
      *  to find the nearest lower data point in the independent variables when requesting
      *  interpolation.
+     * \param boundaryHandling Boundary handling method, in case the independent variable is outside the
+     * specified range.
+     * \param defaultExtrapolationValue Default value to be used for extrapolation, in case
+     * of use_default_value or use_default_value_with_warning as methods for boundaryHandling.
      */
     LinearInterpolator( const std::vector< IndependentVariableType >& independentValues,
                         const std::vector< DependentVariableType >& dependentValues,
@@ -197,7 +212,7 @@ public:
     /*!
      * Function interpolates dependent variable value at given independent variable value.
      * \param independentVariableValue Value of independent variable at which interpolation
-     *          is to take place.
+     * is to take place.
      * \return Interpolated value of dependent variable.
      */
     DependentVariableType interpolate( const IndependentVariableType independentVariableValue )
@@ -225,6 +240,7 @@ public:
 
         return interpolatedValue;
     }
+
 };
 
 //! Typedef for linear interpolator with (in)dependent variable = double.

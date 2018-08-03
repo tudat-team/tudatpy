@@ -123,6 +123,7 @@ public:
     static std::pair< boost::multi_array< double, 1 >, std::vector< std::vector< double > > >
     readMultiArrayAndIndependentVariables(
             const std::string fileName );
+
 };
 
 //! Interface class for reading coefficients as a function of 1 independent variables from a file.

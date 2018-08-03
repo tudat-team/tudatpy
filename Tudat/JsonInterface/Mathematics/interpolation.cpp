@@ -29,7 +29,7 @@ void to_json( nlohmann::json& jsonObject, const boost::shared_ptr< InterpolatorS
     using namespace json_interface;
     using K = Keys::Interpolation::Interpolator;
 
-    const OneDimensionalInterpolatorTypes interpolatorType  = interpolatorSettings->getInterpolatorType( );
+    const InterpolatorTypes interpolatorType = interpolatorSettings->getInterpolatorType( );
     jsonObject[ K::type ] = interpolatorType;
     jsonObject[ K::lookupScheme ] = interpolatorSettings->getSelectedLookupScheme( );
     jsonObject[ K::useLongDoubleTimeStep ] = interpolatorSettings->getUseLongDoubleTimeStep( );
@@ -63,8 +63,8 @@ void from_json( const nlohmann::json& jsonObject, boost::shared_ptr< Interpolato
     using K = Keys::Interpolation::Interpolator;
 
     // Get interpolator type
-    const OneDimensionalInterpolatorTypes interpolatorType =
-            getValue< OneDimensionalInterpolatorTypes >( jsonObject, K::type );
+    const InterpolatorTypes interpolatorType =
+            getValue< InterpolatorTypes >( jsonObject, K::type );
 
     switch ( interpolatorType ) {
     case linear_interpolator:
@@ -86,7 +86,7 @@ void from_json( const nlohmann::json& jsonObject, boost::shared_ptr< Interpolato
                     getValue< double >( jsonObject, K::order ),
                     getValue( jsonObject, K::useLongDoubleTimeStep, defaults.getUseLongDoubleTimeStep( ) ),
                     getValue( jsonObject, K::lookupScheme, defaults.getSelectedLookupScheme( ) ),
-                    getValue( jsonObject, K::boundaryHandling, defaults.getBoundaryHandling( ) ) );
+                    getValue( jsonObject, K::boundaryHandling, defaults.getLagrangeBoundaryHandling( ) ) );
         return;
     }
     default:

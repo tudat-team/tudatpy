@@ -186,8 +186,8 @@ boost::shared_ptr< PropagationTerminationCondition > createPropagationTerminatio
     }
     case custom_stopping_condition:
     {
-        boost::shared_ptr< CustomTerminationSettings > customTerminationSettings =
-                boost::dynamic_pointer_cast< CustomTerminationSettings >( terminationSettings );
+        boost::shared_ptr< PropagationCustomTerminationSettings > customTerminationSettings =
+                boost::dynamic_pointer_cast< PropagationCustomTerminationSettings >( terminationSettings );
 
         // Create dependent variable termination condition.
         propagationTerminationCondition = boost::make_shared< CustomTerminationCondition >(

@@ -9,11 +9,11 @@
  *
  */
 
-#include <boost/make_shared.hpp>
-#include <iostream>
-#include "Tudat/InputOutput/matrixTextFileReader.h"
-
 #include "Tudat/Astrodynamics/Aerodynamics/tabulatedAtmosphere.h"
+
+#include <iostream>
+#include <boost/make_shared.hpp>
+#include "Tudat/InputOutput/matrixTextFileReader.h"
 
 namespace tudat
 {
@@ -41,8 +41,8 @@ void checkVariableUniqueness( std::vector< VariableType > variables )
     }
 }
 
-//! Initialize atmosphere table reader.
-void TabulatedAtmosphere::initialize( )
+//! Function to create the interpolators based on the tabulated atmosphere files.
+void TabulatedAtmosphere::createAtmosphereInterpolators( )
 {
     // Check uniqueness
     checkVariableUniqueness< AtmosphereDependentVariables >( dependentVariables_ );
@@ -145,8 +145,7 @@ void TabulatedAtmosphere::initialize( )
     case 1:
     {
         // Call approriate file reading function for 1 independent variables
-        Eigen::MatrixXd tabulatedAtmosphereData = input_output::readMatrixFromFile(
-                    atmosphereTableFile_.at( 0 ), " \t", "%" );
+        Eigen::MatrixXd tabulatedAtmosphereData = input_output::readMatrixFromFile( atmosphereTableFile_.at( 0 ), " \t", "%" );
 
         // Extract information on file size
         unsigned int numberOfColumnsInFile = tabulatedAtmosphereData.cols( );
@@ -236,7 +235,8 @@ void TabulatedAtmosphere::initialize( )
     }
 }
 
-//! Initialize atmosphere table reader.
+//! Create interpolators for specified dependent variables, taking into consideration the number
+//! of independent variables (which is greater than one).
 template< unsigned int NumberOfIndependentVariables >
 void TabulatedAtmosphere::createMultiDimensionalAtmosphereInterpolators( )
 {

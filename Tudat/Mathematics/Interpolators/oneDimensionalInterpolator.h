@@ -36,10 +36,8 @@ namespace interpolators
  * \tparam IndependentVariableType Type of dependent variable
  */
 template< typename IndependentVariableType, typename DependentVariableType >
-class OneDimensionalInterpolator :
-        public Interpolator< IndependentVariableType, DependentVariableType >
+class OneDimensionalInterpolator : public Interpolator< IndependentVariableType, DependentVariableType >
 {
-
 public:
 
     // Using statements to prevent having to put 'this' everywhere in the code.
@@ -47,11 +45,11 @@ public:
 
     //! Constructor.
     /*!
-     * Constructor.
-     * \param boundaryHandling Boundary handling method in case independent variable is outside the
+     *  Constructor.
+     *  \param boundaryHandling Boundary handling method, in case the independent variable is outside the
      *      specified range.
-     * \param defaultExtrapolationValue Default value to be used for extrapolation, in case of use_default_value or
-     *      use_default_value_with_warning as methods for boundaryHandling.
+     *  \param defaultExtrapolationValue Pairs of default values to be used for extrapolation, in case
+     *      of use_default_value or use_default_value_with_warning as methods for boundaryHandling.
      */
     OneDimensionalInterpolator(
             const BoundaryInterpolationType boundaryHandling = extrapolate_at_boundary,
@@ -63,10 +61,10 @@ public:
 
     //! Constructor.
     /*!
-     * Constructor.
-     * \param boundaryHandling Boundary handling method in case independent variable is outside the
+     *  Constructor.
+     *  \param boundaryHandling Boundary handling method in case independent variable is outside the
      *      specified range.
-     * \param defaultExtrapolationValue Default value to be used for extrapolation, in case of use_default_value or
+     *  \param defaultExtrapolationValue Default value to be used for extrapolation, in case of use_default_value or
      *      use_default_value_with_warning as methods for boundaryHandling.
      */
     OneDimensionalInterpolator(
@@ -83,11 +81,11 @@ public:
 
     //! Function to perform interpolation.
     /*!
-     * This function performs the interpolation. It calls the function that takes a single
-     * independent variable value, which is to be implemented in derived classes.
-     * \param independentVariableValues Vector of values of independent variables at which
+     *  This function performs the interpolation. It calls the function that takes a single
+     *  independent variable value, which is to be implemented in derived classes.
+     *  \param independentVariableValues Vector of values of independent variables at which
      *      the value of the dependent variable is to be determined.
-     * \return Interpolated value of dependent variable.
+     *  \return Interpolated value of dependent variable.
      */
     virtual DependentVariableType
     interpolate( const std::vector< IndependentVariableType >& independentVariableValues )
@@ -104,21 +102,21 @@ public:
 
     //! Function to perform interpolation.
     /*!
-     * This function performs the interpolation
-     * \param independentVariableValue Independent variable value at which the value of the
+     *  This function performs the interpolation
+     *  \param independentVariableValue Independent variable value at which the value of the
      *      dependent variable is to be determined.
-     * \return Interpolated value of dependent variable.
+     *  \return Interpolated value of dependent variable.
      */
     virtual DependentVariableType
     interpolate( const IndependentVariableType independentVariableValue ) = 0;
 
     //! Function to perform interpolation, with non-const input argument.
     /*!
-     * This function performs the interpolation, with non-const input argument. Function calls the interpolate function and is
-     * included for compatibility with some function pointer binding interfaces.
-     * \param independentVariableValue Independent variable value at which the value of the
+     *  This function performs the interpolation, with non-const input argument. Function calls the interpolate function and is
+     *  included for compatibility with some function pointer binding interfaces.
+     *  \param independentVariableValue Independent variable value at which the value of the
      *          dependent variable is to be determined.
-     * \return Interpolated value of dependent variable.
+     *  \return Interpolated value of dependent variable.
      */
     DependentVariableType
     interpolateNonConst( IndependentVariableType independentVariableValue )
