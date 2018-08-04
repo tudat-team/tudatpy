@@ -158,7 +158,8 @@ public:
      *  each integration step (`false`).
      *  \param safetyFactorForNextStepSize Safety factor for step size control
      *  \param maximumFactorIncreaseForNextStepSize Maximum increase factor in time step in subsequent iterations.
-     *  \param minimumFactorDecreaseForNextStepSize Maximum decrease factor in time step in subsequent iterations.
+     *  \param minimumFactorDecreaseForNextStepSize Minimum decrease factor in time step in subsequent iterations.
+     *  \param newStepSizeFunction Custom function to compute the step-size for the next time step.
      */
     RungeKuttaVariableStepSizeSettings(
             const AvailableIntegrators integratorType,
@@ -205,7 +206,8 @@ public:
      *  each integration step (`false`).
      *  \param safetyFactorForNextStepSize Safety factor for step size control
      *  \param maximumFactorIncreaseForNextStepSize Maximum increase factor in time step in subsequent iterations.
-     *  \param minimumFactorDecreaseForNextStepSize Maximum decrease factor in time step in subsequent iterations.
+     *  \param minimumFactorDecreaseForNextStepSize Minimum decrease factor in time step in subsequent iterations.
+     *  \param newStepSizeFunction Custom function to compute the step-size for the next time step.
      */
     RungeKuttaVariableStepSizeSettings(
             const AvailableIntegrators integratorType,
@@ -259,7 +261,7 @@ public:
     //! Maximum increase factor in time step in subsequent iterations.
     IndependentVariableType maximumFactorIncreaseForNextStepSize_;
 
-    //! Maximum decrease factor in time step in subsequent iterations.
+    //! Minimum decrease factor in time step in subsequent iterations.
     IndependentVariableType minimumFactorDecreaseForNextStepSize_;
 
     //! Function that returns the new step size computed.
@@ -300,7 +302,7 @@ public:
      *  each integration step (`false`).
      *  \param safetyFactorForNextStepSize Safety factor for step size control
      *  \param maximumFactorIncreaseForNextStepSize Maximum increase factor in time step in subsequent iterations.
-     *  \param minimumFactorDecreaseForNextStepSize Maximum decrease factor in time step in subsequent iterations.
+     *  \param minimumFactorDecreaseForNextStepSize Minimum decrease factor in time step in subsequent iterations.
      */
     BulirschStoerIntegratorSettings(
             const IndependentVariableType initialTime,
@@ -358,7 +360,7 @@ public:
     //! Maximum increase factor in time step in subsequent iterations.
     const IndependentVariableType maximumFactorIncreaseForNextStepSize_;
 
-    //! Maximum decrease factor in time step in subsequent iterations.
+    //! Minimum decrease factor in time step in subsequent iterations.
     const IndependentVariableType minimumFactorDecreaseForNextStepSize_;
 
 };
