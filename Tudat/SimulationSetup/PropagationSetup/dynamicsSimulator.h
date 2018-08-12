@@ -332,16 +332,16 @@ public:
     {
         if( propagatorSettings == NULL )
         {
-            throw std::runtime_error( "Error in dynamics simulator, propagator settings not defined" );
+            throw std::runtime_error( "Error in dynamics simulator, propagator settings not defined." );
         }
         else if( boost::dynamic_pointer_cast< SingleArcPropagatorSettings< StateScalarType > >( propagatorSettings ) == NULL )
         {
-            throw std::runtime_error( "Error in dynamics simulator, input must be single-arc" );
+            throw std::runtime_error( "Error in dynamics simulator, input must be single-arc." );
         }
 
         if( integratorSettings == NULL )
         {
-            throw std::runtime_error( "Error in dynamics simulator, integrator settings not defined" );
+            throw std::runtime_error( "Error in dynamics simulator, integrator settings not defined." );
         }
 
         if( setIntegratedResult_ )

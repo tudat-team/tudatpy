@@ -140,11 +140,14 @@ public:
 
     //! Function to update the a-posteriori estimates of state and covariance with external data.
     void modifyCurrentStateAndCovarianceEstimates( const DependentVector& newStateEstimate,
-                                                   const DependentMatrix& newCovarianceEstimate )
+                                                   const DependentMatrix& newCovarianceEstimate = DependentMatrix::Zero( ) )
     {
         // Update estimates with user-provided data
         aPosterioriStateEstimate_ = newStateEstimate;
-        aPosterioriCovarianceEstimate_ = newCovarianceEstimate;
+        if ( newCovarianceEstimate.norm( ) != 0.0 )
+        {
+            aPosterioriCovarianceEstimate_ = newCovarianceEstimate;
+        }
     }
 
     //! Function to produce system noise.

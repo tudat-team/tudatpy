@@ -260,7 +260,6 @@ StateType NumericalIntegrator< IndependentVariableType, StateType, StateDerivati
             // off errors, it may not be possible to use
             // ( currentIndependentVariable >= independentVariableEnd ) // in the while condition.
             atIntegrationIntervalEnd = true;
-
         }
 
         // Perform the step.
