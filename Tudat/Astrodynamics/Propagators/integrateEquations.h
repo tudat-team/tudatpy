@@ -310,6 +310,10 @@ void getFinalStateForExactTerminationCondition(
 
         break;
     }
+    case custom_stopping_condition:
+        endTime = lastTime;
+        endState = lastState;
+        break;
     case hybrid_stopping_condition:
     {
         boost::shared_ptr< HybridPropagationTerminationCondition > hyrbidTerminationCondition =
@@ -320,10 +324,6 @@ void getFinalStateForExactTerminationCondition(
                     secondToLastState, lastState, endTime, endState );
         break;
     }
-    case custom_stopping_condition:
-        endTime = lastTime;
-        endState = lastState;
-        break;
     default:
         throw std::runtime_error( "Error when propagating to exact final condition, did not recognize termination time" );
     }
@@ -444,7 +444,7 @@ boost::shared_ptr< PropagationTerminationDetails > integrateEquationsFromIntegra
         std::map< TimeType, double >& cumulativeComputationTimeHistory,
         const boost::function< Eigen::VectorXd( ) > dependentVariableFunction = boost::function< Eigen::VectorXd( ) >( ),
         const boost::function< void( StateType& ) > postProcessState = boost::function< void( StateType& ) >( ),
-        const int saveFrequency = TUDAT_NAN,
+        const int saveFrequency = static_cast< int >( TUDAT_NAN ),
         const TimeType printInterval = TUDAT_NAN,
         const std::chrono::steady_clock::time_point initialClockTime = std::chrono::steady_clock::now( ) )
 {
@@ -469,7 +469,7 @@ boost::shared_ptr< PropagationTerminationDetails > integrateEquationsFromIntegra
     // CPU time
     cumulativeComputationTimeHistory.clear( );
     double currentCPUTime = std::chrono::duration_cast< std::chrono::nanoseconds >(
-                std::chrono::steady_clock::now( ) - initialClockTime ).count() * 1.0e-9;
+                std::chrono::steady_clock::now( ) - initialClockTime ).count( ) * 1.0e-9;
     cumulativeComputationTimeHistory[ currentTime ] = currentCPUTime;
 
     // Set initial time step and total integration time.
@@ -574,8 +574,7 @@ boost::shared_ptr< PropagationTerminationDetails > integrateEquationsFromIntegra
                 }
                 else
                 {
-                    if( boost::dynamic_pointer_cast< HybridPropagationTerminationCondition >( propagationTerminationCondition )
-                            == NULL )
+                    if( boost::dynamic_pointer_cast< HybridPropagationTerminationCondition >( propagationTerminationCondition ) == nullptr )
                     {
                         throw std::runtime_error( "Error when saving termination reason, type is hybrid, but class is not" );
                     }

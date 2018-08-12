@@ -466,6 +466,7 @@ protected:
 
     //! Boolean denoting whether step size control is to be used
     bool useStepSizeControl_;
+
 };
 
 //! Perform a single integration step.
