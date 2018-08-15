@@ -713,7 +713,7 @@ public:
         bodyMap_( bodyMap ), bodiesToIntegrate_( bodiesToIntegrate )
     {
         // Get update orders.
-        ephemerisUpdateOrder_ = determineEphemerisUpdateOrder(
+        ephemerisUpdateOrder_ = determineEphemerisUpdateorder(
                     bodiesToIntegrate_, centralBodies,
                     frameManager->getEphemerisOrigins( bodiesToIntegrate ) );
         
