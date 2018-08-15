@@ -398,7 +398,7 @@ private:
         }
 
         // Get order in which ephemerides were to be updated.
-        std::vector< std::string > updateOrder = determineEphemerisUpdateOrder(
+        std::vector< std::string > updateOrder = determineEphemerisUpdateorder(
                     propagatedBodies, centralBodies, centralBodies );
 
         // Iterate over central bodies and propagated bodies and check for dependencies

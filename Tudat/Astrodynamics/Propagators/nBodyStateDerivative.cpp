@@ -132,7 +132,7 @@ std::vector< boost::function< double( ) > > removeCentralGravityAccelerations(
 }
 
 //! Function to determine in which order the ephemerides are to be updated
-std::vector< std::string > determineEphemerisUpdateOrder( std::vector< std::string > integratedBodies,
+std::vector< std::string > determineEphemerisUpdateorder( std::vector< std::string > integratedBodies,
                                                           std::vector< std::string > centralBodies,
                                                           std::vector< std::string > ephemerisOrigins )
 {
