@@ -75,8 +75,6 @@ enum AerodynamicsReferenceFrameAngles
  */
 std::string getAerodynamicAngleName( const AerodynamicsReferenceFrameAngles angle );
 
-
-
 //! Object to calculate aerodynamic orientation angles from current vehicle state.
 /*!
  *  Object to calculate aerodynamic orientation angles from current vehicle state.
