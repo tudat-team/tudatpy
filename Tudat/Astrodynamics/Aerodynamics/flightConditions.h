@@ -98,6 +98,20 @@ public:
         return scalarFlightConditions_.at( altitude_flight_condition );
     }
 
+    //! Function to retrieve (and compute if necessary) the current longitude
+    /*!
+     * Function to retrieve (and compute if necessary) the current longitude
+     * \return Current longitude
+     */
+    double getCurrentLongitude( )
+    {
+        if( scalarFlightConditions_.count( longitude_flight_condition ) == 0 )
+        {
+            computeLatitudeAndLongitude( );
+        }
+        return scalarFlightConditions_.at( longitude_flight_condition );
+    }
+
     //! Function to retrieve (and compute if necessary) the current geodetic latitude
     /*!
      * Function to retrieve (and compute if necessary) the current geodetic latitude

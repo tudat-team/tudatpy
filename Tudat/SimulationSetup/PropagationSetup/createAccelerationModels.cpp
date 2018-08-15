@@ -671,8 +671,8 @@ boost::shared_ptr< aerodynamics::AerodynamicAcceleration > createAerodynamicAcce
 
     if( bodyExertingAcceleration->getAtmosphereModel( ) == NULL )
     {
-        throw std::runtime_error(  "Error when making aerodynamic acceleration, central body " +
-                                   nameOfBodyExertingAcceleration + " has no atmosphere model.");
+        throw std::runtime_error( "Error when making aerodynamic acceleration, central body " +
+                                  nameOfBodyExertingAcceleration + " has no atmosphere model.");
     }
 
     if( bodyExertingAcceleration->getShapeModel( ) == NULL )
