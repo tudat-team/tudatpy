@@ -72,7 +72,7 @@ std::vector< boost::function< double( ) > > removeCentralGravityAccelerations(
  * \param ephemerisOrigins Origin of the Ephemeris objects of the integratedBodies.
  * \return
  */
-std::vector< std::string > determineEphemerisUpdateorder( std::vector< std::string > integratedBodies,
+std::vector< std::string > determineEphemerisUpdateOrder( std::vector< std::string > integratedBodies,
                                                           std::vector< std::string > centralBodies,
                                                           std::vector< std::string > ephemerisOrigins );
 
