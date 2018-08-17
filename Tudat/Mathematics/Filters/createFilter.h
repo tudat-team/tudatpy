@@ -279,9 +279,9 @@ createFilter( const boost::shared_ptr< FilterSettings< IndependentVariableType, 
     case extended_kalman_filter:
     {
         // Cast filter settings to extended Kalman filter
-        boost::shared_ptr< UnscentedKalmanFilterSettings< IndependentVariableType, DependentVariableType > >
+        boost::shared_ptr< ExtendedKalmanFilterSettings< IndependentVariableType, DependentVariableType > >
                 extendedKalmanFilterSettings =
-                boost::dynamic_pointer_cast< UnscentedKalmanFilterSettings< IndependentVariableType, DependentVariableType > >(
+                boost::dynamic_pointer_cast< ExtendedKalmanFilterSettings< IndependentVariableType, DependentVariableType > >(
                     filterSettings );
         if ( extendedKalmanFilterSettings == nullptr )
         {
