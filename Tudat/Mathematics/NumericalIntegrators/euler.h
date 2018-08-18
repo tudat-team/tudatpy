@@ -169,16 +169,24 @@ public:
      * Modify the state at the current value of the independent variable.
      * \param newState The new state to set the current state to.
      */
-    void modifyCurrentState( const StateType& newState, const IndependentVariableType newTime = 0 )
+    void modifyCurrentState( const StateType& newState )
     {
         this->currentState_ = newState;
-        if ( newTime == 0 )
+        this->lastIndependentVariable_ = currentIndependentVariable_;
+    }
+
+    //! Modify the state and time for the current step.
+    /*!
+     * Modify the state and time for the current step.
+     * \param newState The new state to set the current state to.
+     * \param newTime The time to set the current time to.
+     */
+    void modifyCurrentIntegrationVariables( const StateType& newState, const IndependentVariableType newTime = 0 )
+    {
+        this->currentState_ = newState;
+        if ( !( newTime == 0 ) )
         {
-            this->lastIndependentVariable_ = currentIndependentVariable_;
-        }
-        else
-        {
-            this->lastIndependentVariable_ = newTime;
+            this->currentIndependentVariable_ = newTime;
         }
     }
 

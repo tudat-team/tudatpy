@@ -433,7 +433,6 @@ public:
         derivHistory_.push_front( this->stateDerivativeFunction_(
                                       currentIndependentVariable_, currentState_ ) );
         return currentState_;
-
     }
 
     //! Rollback internal state to the last state.
@@ -446,7 +445,8 @@ public:
      */
     virtual bool rollbackToPreviousState( )
     {
-        if ( currentIndependentVariable_ == lastIndependentVariable_ ) {
+        if ( currentIndependentVariable_ == lastIndependentVariable_ )
+        {
             return false;
         }
         currentIndependentVariable_ = lastIndependentVariable_;
@@ -469,7 +469,7 @@ public:
      * Modify the state at the current value of the independent variable.
      * \param newState The new state to set the current state to.
      */
-    void modifyCurrentState( const StateType& newState, const IndependentVariableType newTime = 0 )
+    void modifyCurrentState( const StateType& newState )
     {
         currentState_ = newState;
 
@@ -479,14 +479,32 @@ public:
         stateHistory_.push_front( currentState_ );
         derivHistory_.push_front( this->stateDerivativeFunction_(
                                       currentIndependentVariable_, currentState_ ) );
-        if ( newTime == 0 )
+        lastIndependentVariable_ = currentIndependentVariable_;
+
+        // Allow single step integrator to determine own stepsize
+        fixedSingleStep_ = fixedStepSize_;
+    }
+
+    //! Modify the state and time for the current step.
+    /*!
+     * Modify the state and time for the current step.
+     * \param newState The new state to set the current state to.
+     * \param newTime The time to set the current time to.
+     */
+    void modifyCurrentIntegrationVariables( const StateType& newState, const IndependentVariableType newTime = 0 )
+    {
+        currentState_ = newState;
+        if ( !( newTime == 0 ) )
         {
-            lastIndependentVariable_ = currentIndependentVariable_;
+            this->currentIndependentVariable_ = newTime;
         }
-        else
-        {
-            lastIndependentVariable_ = newTime;
-        }
+
+        // Clear the history and initiate with new state and derivative.
+        stateHistory_.clear( );
+        derivHistory_.clear( );
+        stateHistory_.push_front( currentState_ );
+        derivHistory_.push_front( this->stateDerivativeFunction_(
+                                      currentIndependentVariable_, currentState_ ) );
         
         // Allow single step integrator to determine own stepsize
         fixedSingleStep_ = fixedStepSize_;

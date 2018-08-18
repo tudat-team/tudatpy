@@ -33,9 +33,10 @@ namespace unit_tests
 BOOST_AUTO_TEST_SUITE( test_unscented_kalman_filter )
 
 // Functions for unscented Kalman filter
-Eigen::Vector2d stateFunction1( const double time, const Eigen::Vector2d& state,
-                                const Eigen::Vector2d& control )
+Eigen::Vector2d stateFunction1( const double time, const Eigen::Vector2d& state, const Eigen::Vector2d& control )
 {
+    TUDAT_UNUSED_PARAMETER( time );
+    TUDAT_UNUSED_PARAMETER( control );
     Eigen::Vector2d stateDerivative;
     stateDerivative[ 0 ] = state[ 1 ] * std::pow( std::cos( state[ 0 ] ), 3 );
     stateDerivative[ 1 ] = std::sin( state[ 0 ] );
@@ -43,6 +44,7 @@ Eigen::Vector2d stateFunction1( const double time, const Eigen::Vector2d& state,
 }
 Eigen::Vector1d measurementFunction1( const double time, const Eigen::Vector2d& state )
 {
+    TUDAT_UNUSED_PARAMETER( time );
     Eigen::Vector1d measurement;
     measurement[ 0 ] = std::pow( state[ 0 ], 3 );
     return measurement;
@@ -142,8 +144,8 @@ BOOST_AUTO_TEST_CASE( testUnscentedKalmanFilterFirstCase )
 
     // Check that noise is actually normally distributed (within 5 %)
     std::pair< std::vector< Eigen::VectorXd >, std::vector< Eigen::VectorXd > > noiseHistory = unscentedFilter->getNoiseHistory( );
-    Eigen::MatrixXd systemNoise = utilities::convertStlVectorToEigenMatrix( noiseHistory.first );
-    Eigen::MatrixXd measurementNoise = utilities::convertStlVectorToEigenMatrix( noiseHistory.second );
+    Eigen::MatrixXd systemNoise = utilities::convertStlVectorToEigenMatrix< double >( noiseHistory.first );
+    Eigen::MatrixXd measurementNoise = utilities::convertStlVectorToEigenMatrix< double >( noiseHistory.second );
     for ( unsigned int i = 0; i < 2; i++ )
     {
         BOOST_CHECK_CLOSE_FRACTION( statistics::computeStandardDeviationOfVectorComponents( systemNoise.row( i ) ),
@@ -151,28 +153,6 @@ BOOST_AUTO_TEST_CASE( testUnscentedKalmanFilterFirstCase )
     }
     BOOST_CHECK_CLOSE_FRACTION( statistics::computeStandardDeviationOfVectorComponents( measurementNoise.row( 0 ) ),
                                 std::sqrt( measurementUncertainty( 0, 0 ) ), 5e-2 );
-
-    // Save actual state history
-    input_output::writeDataMapToTextFile( actualStateVectorHistory, "UKFActualStateHistory.dat",
-                                          "/Users/Michele/GitHub/tudat/tudatBundle/tudatApplications/Test/SimulationOutput/KF" );
-
-    // Save estimated state history
-    input_output::writeDataMapToTextFile( unscentedFilter->getEstimatedStateHistory( ), "UKFEstimatedStateHistory.dat",
-                                          "/Users/Michele/GitHub/tudat/tudatBundle/tudatApplications/Test/SimulationOutput/KF" );
-
-    // Save measurement history
-    input_output::writeDataMapToTextFile( measurementVectorHistory, "UKFMeasurementHistory.dat",
-                                          "/Users/Michele/GitHub/tudat/tudatBundle/tudatApplications/Test/SimulationOutput/KF" );
-
-//    // Save noise histories
-//    systemNoise.transposeInPlace( );
-//    measurementNoise.transposeInPlace( );
-//    input_output::writeMatrixToFile( systemNoise, "systemNoise.dat", 16, "/Users/Michele/Desktop/KF" );
-//    input_output::writeMatrixToFile( measurementNoise, "measurementNoise.dat", 16, "/Users/Michele/Desktop/KF" );
-
-//    // Save sigma points history
-//    std::map< double, Eigen::MatrixXd > sigmaPointHistory = unscentedFilter->getHistoryOfSigmaPoints( );
-//    input_output::writeDataMapToTextFile( sigmaPointHistory, "UKFSigmaPoints.dat", "/Users/Michele/Desktop/KF" );
 }
 
 //! Typedefs.
@@ -183,14 +163,17 @@ typedef Eigen::Matrix< long double, 3, 3 > Matrix3ld;
 // Functions for unscented Kalman filter
 Vector3ld stateFunction2( const long double time, const Vector3ld& state, const Vector3ld& control )
 {
+    TUDAT_UNUSED_PARAMETER( time );
+    TUDAT_UNUSED_PARAMETER( control );
     Vector3ld stateFunction;
     stateFunction[ 0 ] = state[ 1 ];
     stateFunction[ 1 ] = state[ 2 ];
-    stateFunction[ 2 ] = 0.05 * state[ 0 ] * ( state[ 1 ] + state[ 2 ] );
+    stateFunction[ 2 ] = 0.05L * state[ 0 ] * ( state[ 1 ] + state[ 2 ] );
     return stateFunction;
 }
 Vector1ld measurementFunction2( const long double time, const Vector3ld& state )
 {
+    TUDAT_UNUSED_PARAMETER( time );
     Vector1ld measurement;
     measurement[ 0 ] = state[ 0 ];
     return measurement;
@@ -203,17 +186,17 @@ BOOST_AUTO_TEST_CASE( testUnscentedKalmanFilterSecondCase )
     using namespace tudat::filters;
 
     // Set initial conditions
-    const long double initialTime = 0;
-    const long double timeStep = 1.0;
+    const long double initialTime = 0.0L;
+    const long double timeStep = 1.0L;
     const unsigned int numberOfTimeSteps = 100;
 
     Vector3ld initialStateVector = Vector3ld::Zero( );
-    initialStateVector[ 2 ] = 1.0;
+    initialStateVector[ 2 ] = 1.0L;
 
     Vector3ld initialEstimatedStateVector;
-    initialEstimatedStateVector[ 0 ] = 0.05376671395461;
-    initialEstimatedStateVector[ 1 ] = 0.183388501459509;
-    initialEstimatedStateVector[ 2 ] = 0.774115313899635;
+    initialEstimatedStateVector[ 0 ] = 0.05376671395461L;
+    initialEstimatedStateVector[ 1 ] = 0.183388501459509L;
+    initialEstimatedStateVector[ 2 ] = 0.774115313899635L;
 
     Matrix3ld initialEstimatedStateCovarianceMatrix = Matrix3ld::Identity( );
 
@@ -222,7 +205,7 @@ BOOST_AUTO_TEST_CASE( testUnscentedKalmanFilterSecondCase )
     Vector1ld measurementUncertainty = 0.01 * Vector1ld::Identity( );
 
     // Set null integrator settings
-    boost::shared_ptr< numerical_integrators::IntegratorSettings< long double > > integratorSettings = NULL;
+    boost::shared_ptr< numerical_integrators::IntegratorSettings< long double > > integratorSettings = nullptr;
 
     // Create control class
     boost::shared_ptr< ControlWrapper< long double, long double, 3 > > control =
@@ -241,7 +224,7 @@ BOOST_AUTO_TEST_CASE( testUnscentedKalmanFilterSecondCase )
 
     // Loop over each time step
     const bool showProgress = false;
-    double currentTime = initialTime;
+    long double currentTime = initialTime;
     Vector3ld currentActualStateVector = initialStateVector;
     Vector3ld currentNoisyStateVector;
     Vector3ld currentControlVector = Vector3ld::Zero( );
@@ -288,6 +271,8 @@ const double gravitationalParameter = 32.2;
 // Functions for extended Kalman filter.
 Eigen::Vector3d stateFunction3( const double time, const Eigen::Vector3d& state, const Eigen::Vector3d& control )
 {
+    TUDAT_UNUSED_PARAMETER( time );
+    TUDAT_UNUSED_PARAMETER( control );
     Eigen::Vector3d stateDerivative = Eigen::Vector3d::Zero( );
     stateDerivative[ 0 ] = state[ 1 ];
     stateDerivative[ 1 ] = 0.0034 * gravitationalParameter * std::exp( - state[ 0 ] / 22000.0 ) *
@@ -296,6 +281,7 @@ Eigen::Vector3d stateFunction3( const double time, const Eigen::Vector3d& state,
 }
 Eigen::Vector1d measurementFunction3( const double time, const Eigen::Vector3d& state )
 {
+    TUDAT_UNUSED_PARAMETER( time );
     Eigen::Vector1d measurement;
     measurement[ 0 ] = state[ 0 ];
     return measurement;
@@ -408,22 +394,6 @@ BOOST_AUTO_TEST_CASE( testUnscentedKalmanFilterThirdCase )
     }
     BOOST_CHECK_CLOSE_FRACTION( statistics::computeStandardDeviationOfVectorComponents( measurementNoise.row( 0 ) ),
                                 std::sqrt( measurementUncertainty( 0, 0 ) ), 5e-2 );
-
-    // Save actual state history
-    input_output::writeDataMapToTextFile( actualStateVectorHistory, "UKFActualStateHistory.dat",
-                                          "/Users/Michele/GitHub/tudat/tudatBundle/tudatApplications/Test/SimulationOutput/KFBook" );
-
-    // Save estimated state history
-    input_output::writeDataMapToTextFile( unscentedFilter->getEstimatedStateHistory( ), "UKFEstimatedStateHistory.dat",
-                                          "/Users/Michele/GitHub/tudat/tudatBundle/tudatApplications/Test/SimulationOutput/KFBook" );
-
-    // Save estimated state history
-    input_output::writeDataMapToTextFile( unscentedFilter->getEstimatedCovarianceHistory( ), "UKFEstimatedCovarianceHistory.dat",
-                                          "/Users/Michele/GitHub/tudat/tudatBundle/tudatApplications/Test/SimulationOutput/KFBook" );
-
-    // Save measurement history
-    input_output::writeDataMapToTextFile( measurementVectorHistory, "UKFMeasurementHistory.dat",
-                                          "/Users/Michele/GitHub/tudat/tudatBundle/tudatApplications/Test/SimulationOutput/KFBook" );
 }
 
 BOOST_AUTO_TEST_SUITE_END( )

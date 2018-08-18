@@ -35,6 +35,8 @@ BOOST_AUTO_TEST_SUITE( test_extended_kalman_filter )
 // Functions for extended Kalman filter.
 Eigen::Vector2d stateFunction1( const double time, const Eigen::Vector2d& state, const Eigen::Vector2d& control )
 {
+    TUDAT_UNUSED_PARAMETER( time );
+    TUDAT_UNUSED_PARAMETER( control );
     Eigen::Vector2d stateDerivative;
     stateDerivative[ 0 ] = state[ 1 ] * std::pow( std::cos( state[ 0 ] ), 3 );
     stateDerivative[ 1 ] = std::sin( state[ 0 ] );
@@ -42,12 +44,15 @@ Eigen::Vector2d stateFunction1( const double time, const Eigen::Vector2d& state,
 }
 Eigen::Vector1d measurementFunction1( const double time, const Eigen::Vector2d& state )
 {
+    TUDAT_UNUSED_PARAMETER( time );
     Eigen::Vector1d measurement;
     measurement[ 0 ] = std::pow( state[ 0 ], 3 );
     return measurement;
 }
 Eigen::Matrix2d stateJacobianFunction1( const double time, const Eigen::Vector2d& state, const Eigen::Vector2d& control )
 {
+    TUDAT_UNUSED_PARAMETER( time );
+    TUDAT_UNUSED_PARAMETER( control );
     Eigen::Matrix2d stateJacobian = Eigen::Matrix2d::Zero( );
     stateJacobian( 0, 0 ) = - 3 * state[ 1 ] * std::pow( std::cos( state[ 0 ] ), 2 ) * std::sin( state[ 0 ] );
     stateJacobian( 0, 1 ) = std::pow( std::cos( state[ 0 ] ), 3 );
@@ -56,6 +61,7 @@ Eigen::Matrix2d stateJacobianFunction1( const double time, const Eigen::Vector2d
 }
 Eigen::RowVector2d measurementJacobianFunction1( const double time, const Eigen::Vector2d& state )
 {
+    TUDAT_UNUSED_PARAMETER( time );
     Eigen::RowVector2d measurementJacobian;
     measurementJacobian[ 0 ] = 3.0 * std::pow( state[ 0 ], 2 );
     return measurementJacobian;
@@ -150,7 +156,7 @@ BOOST_AUTO_TEST_CASE( testExtendedKalmanFilterFirstCase )
     }
 
     // Check that final state is as expected
-    Eigen::Vector2d expectedFinalState = Eigen::Vector2d::Zero( );
+    Eigen::Vector2d expectedFinalState;
     expectedFinalState << 4.5372985336740985, -9.5556424725983025;
     for ( int i = 0; i < expectedFinalState.rows( ); i++ )
     {
@@ -169,22 +175,6 @@ BOOST_AUTO_TEST_CASE( testExtendedKalmanFilterFirstCase )
     }
     BOOST_CHECK_CLOSE_FRACTION( statistics::computeStandardDeviationOfVectorComponents( measurementNoise.row( 0 ) ),
                                 std::sqrt( measurementUncertainty( 0, 0 ) ), 5e-2 );
-
-    // Save actual state history
-    input_output::writeDataMapToTextFile( actualStateVectorHistory, "EKFActualStateHistory.dat",
-                                          "/Users/Michele/GitHub/tudat/tudatBundle/tudatApplications/Test/SimulationOutput/KF" );
-
-    // Save estimated state history
-    input_output::writeDataMapToTextFile( extendedFilter->getEstimatedStateHistory( ), "EKFEstimatedStateHistory.dat",
-                                          "/Users/Michele/GitHub/tudat/tudatBundle/tudatApplications/Test/SimulationOutput/KF" );
-
-    // Save estimated covariance matrix history
-    input_output::writeDataMapToTextFile( extendedFilter->getEstimatedCovarianceHistory( ), "EKFEstimatedCovarianceHistory.dat",
-                                          "/Users/Michele/GitHub/tudat/tudatBundle/tudatApplications/Test/SimulationOutput/KF" );
-
-    // Save measurement history
-    input_output::writeDataMapToTextFile( measurementVectorHistory, "EKFMeasurementHistory.dat",
-                                          "/Users/Michele/GitHub/tudat/tudatBundle/tudatApplications/Test/SimulationOutput/KF" );
 }
 
 // Constant parameters for example
@@ -193,6 +183,8 @@ const double gravitationalParameter = 32.2;
 // Functions for extended Kalman filter.
 Eigen::Vector3d stateFunction2( const double time, const Eigen::Vector3d& state, const Eigen::Vector3d& control )
 {
+    TUDAT_UNUSED_PARAMETER( time );
+    TUDAT_UNUSED_PARAMETER( control );
     Eigen::Vector3d stateDerivative = Eigen::Vector3d::Zero( );
     stateDerivative[ 0 ] = state[ 1 ];
     stateDerivative[ 1 ] = 0.0034 * gravitationalParameter * std::exp( - state[ 0 ] / 22000.0 ) *
@@ -201,12 +193,15 @@ Eigen::Vector3d stateFunction2( const double time, const Eigen::Vector3d& state,
 }
 Eigen::Vector1d measurementFunction2( const double time, const Eigen::Vector3d& state )
 {
+    TUDAT_UNUSED_PARAMETER( time );
     Eigen::Vector1d measurement;
     measurement[ 0 ] = state[ 0 ];
     return measurement;
 }
 Eigen::Matrix3d stateJacobianFunction2( const double time, const Eigen::Vector3d& state, const Eigen::Vector3d& control )
 {
+    TUDAT_UNUSED_PARAMETER( time );
+    TUDAT_UNUSED_PARAMETER( control );
     Eigen::Matrix3d stateJacobian = Eigen::Matrix3d::Zero( );
     stateJacobian( 0, 1 ) = 1.0;
     stateJacobian( 1, 0 ) = - 0.0034 * gravitationalParameter * std::exp( - state[ 0 ] / 22000.0 ) *
@@ -219,6 +214,8 @@ Eigen::Matrix3d stateJacobianFunction2( const double time, const Eigen::Vector3d
 }
 Eigen::RowVector3d measurementJacobianFunction2( const double time, const Eigen::Vector3d& state )
 {
+    TUDAT_UNUSED_PARAMETER( time );
+    TUDAT_UNUSED_PARAMETER( state );
     Eigen::RowVector3d measurementJacobian = Eigen::RowVector3d::Zero( );
     measurementJacobian[ 0 ] = 1.0;
     return measurementJacobian;
@@ -317,7 +314,7 @@ BOOST_AUTO_TEST_CASE( testExtendedKalmanFilterSecondCase )
     }
 
     // Check that final state is as expected
-    Eigen::Vector3d expectedFinalState = Eigen::Vector3d::Zero( );
+    Eigen::Vector3d expectedFinalState;
     expectedFinalState << 25189.963892316107, -3313.5632678177799, 496.56194076280673;
     for ( int i = 0; i < expectedFinalState.rows( ); i++ )
     {
@@ -336,30 +333,6 @@ BOOST_AUTO_TEST_CASE( testExtendedKalmanFilterSecondCase )
     }
     BOOST_CHECK_CLOSE_FRACTION( statistics::computeStandardDeviationOfVectorComponents( measurementNoise.row( 0 ) ),
                                 std::sqrt( measurementUncertainty( 0, 0 ) ), 5e-2 );
-
-    // Save actual state history
-    input_output::writeDataMapToTextFile( actualStateVectorHistory, "EKFActualStateHistory.dat",
-                                          "/Users/Michele/GitHub/tudat/tudatBundle/tudatApplications/Test/SimulationOutput/KFBook" );
-
-    // Save estimated state history
-    input_output::writeDataMapToTextFile( extendedFilter->getEstimatedStateHistory( ), "EKFEstimatedStateHistory.dat",
-                                          "/Users/Michele/GitHub/tudat/tudatBundle/tudatApplications/Test/SimulationOutput/KFBook" );
-
-    // Save estimated covariance matrix history
-    input_output::writeDataMapToTextFile( extendedFilter->getEstimatedCovarianceHistory( ), "EKFEstimatedCovarianceHistory.dat",
-                                          "/Users/Michele/GitHub/tudat/tudatBundle/tudatApplications/Test/SimulationOutput/KFBook" );
-
-    // Save measurement history
-    input_output::writeDataMapToTextFile( measurementVectorHistory, "EKFMeasurementHistory.dat",
-                                          "/Users/Michele/GitHub/tudat/tudatBundle/tudatApplications/Test/SimulationOutput/KFBook" );
-
-    // Save noise histories
-    systemNoise.transposeInPlace( );
-    measurementNoise.transposeInPlace( );
-    input_output::writeMatrixToFile( systemNoise, "systemNoise.dat", 16,
-                                     "/Users/Michele/GitHub/tudat/tudatBundle/tudatApplications/Test/SimulationOutput/KFBook" );
-    input_output::writeMatrixToFile( measurementNoise, "measurementNoise.dat", 16,
-                                     "/Users/Michele/GitHub/tudat/tudatBundle/tudatApplications/Test/SimulationOutput/KFBook" );
 }
 
 BOOST_AUTO_TEST_SUITE_END( )

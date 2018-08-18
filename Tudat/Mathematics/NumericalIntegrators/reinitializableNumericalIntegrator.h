@@ -52,8 +52,7 @@ public:
 
     //! Default constructor.
     ReinitializableNumericalIntegrator(
-            const typename NumericalIntegratorBase::StateDerivativeFunction&
-            aStateDerivativeFunction )
+            const typename NumericalIntegratorBase::StateDerivativeFunction& aStateDerivativeFunction )
         : NumericalIntegratorBase( aStateDerivativeFunction )
     { }
 

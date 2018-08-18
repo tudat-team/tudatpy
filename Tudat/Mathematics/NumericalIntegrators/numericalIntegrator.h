@@ -195,12 +195,19 @@ public:
 
     //! Modify the state at the current value of the independent variable.
     /*!
-     * Modify the state at the current value of the independent variable. This function is virtual, hence it
+     * Modify the state at the current value of the independent variable.
+     * \param newState The new state to set the current state to.
+     */
+    virtual void modifyCurrentState( const StateType& newState ) { }
+
+    //! Modify the state and time for the current step.
+    /*!
+     * Modify the state and time for the current step. This function is virtual, hence it
      * can be implemented in all derived classes.
      * \param newState The new state to set the current state to.
-     * \param newTime The new time to set the current time to.
+     * \param newTime The time to set the current time to.
      */
-    virtual void modifyCurrentState( const StateType& newState, const IndependentVariableType newTime = 0 ) { }
+    virtual void modifyCurrentIntegrationVariables( const StateType& newState, const IndependentVariableType newTime = 0 ) { }
 
 protected:
 
@@ -307,8 +314,7 @@ typedef boost::shared_ptr< NumericalIntegrator< > > NumericalIntegratorXdPointer
  * Typedef for shared-pointer to a scalar numerical integrator (IndependentVariableType = double,
  * StateType = double, StateDerivativeType = double).
  */
-typedef boost::shared_ptr< NumericalIntegrator< double, double, double > >
-NumericalIntegratordPointer;
+typedef boost::shared_ptr< NumericalIntegrator< double, double, double > > NumericalIntegratordPointer;
 
 } // namespace numerical_integrators
 

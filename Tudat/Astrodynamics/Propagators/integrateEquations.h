@@ -93,6 +93,7 @@ void getFinalStateForExactDependentVariableTerminationCondition(
         TimeType& endTime,
         StateType& endState )
 {
+    TUDAT_UNUSED_PARAMETER( secondToLastState );
 
     // Function for which the root (zero value) occurs at the required end time/state
     boost::function< TimeStepType( TimeStepType ) > dependentVariableErrorFunction =
@@ -100,9 +101,9 @@ void getFinalStateForExactDependentVariableTerminationCondition(
                          integrator, dependentVariableTerminationCondition );
 
     // Create root finder.
-    double timeStepSign = ( static_cast< double >( lastTime - secondToLastTime ) > 0.0 ) ? 1.0 : -1.0;
+    bool increasingTime = static_cast< double >( lastTime - secondToLastTime ) > 0.0;
     boost::shared_ptr< root_finders::RootFinderCore< TimeStepType > > finalConditionRootFinder;
-    if( timeStepSign > 0 )
+    if( increasingTime )
     {
         finalConditionRootFinder = root_finders::createRootFinder< TimeStepType >(
                     dependentVariableTerminationCondition->getTerminationRootFinderSettings( ),
@@ -135,7 +136,7 @@ void getFinalStateForExactDependentVariableTerminationCondition(
     catch( std::runtime_error& caughtException )
     {
         std::cerr << "Warning in propagation to exact dependent variable value. Root finder could not find a "
-                     "root to the function. Returning time and state as NANs. Caught exception: "
+                     "root to the function. Returning time and state as NaNs. Caught exception: "
                   << caughtException.what( ) << std::endl;
         endTime = TUDAT_NAN;
         endState = StateType::Constant( lastState.rows( ), lastState.cols( ), TUDAT_NAN );
@@ -180,7 +181,7 @@ void getFinalStateForExactHybridVariableTerminationCondition(
     endStates.resize( terminationConditionList.size( ) );
 
     // Iterate over all constituent termination conditions, and determine separate end times/states
-    int minimumTimeIndex = 0, maximumTimeIndex = 0;
+    unsigned int minimumTimeIndex = 0, maximumTimeIndex = 0;
     TimeStepType minimumTimeStep, maximumTimeStep;
     bool timesAreSet = false;
     for( unsigned int i = 0; i < terminationConditionList.size( ); i++ )
@@ -292,7 +293,7 @@ void getFinalStateForExactTerminationCondition(
     case cpu_time_stopping_condition:
     {
         // No exact final condition on CPU time is possible
-        std::cerr<<"Error, cannot propagate to exact CPU time, returning state after condition violation:"<<std::endl;
+        std::cerr << "Error, cannot propagate to exact CPU time, returning state after condition violation." << std::endl;
 
         endTime = lastTime;
         endState = lastState;
@@ -311,9 +312,14 @@ void getFinalStateForExactTerminationCondition(
         break;
     }
     case custom_stopping_condition:
+    {
+        // No exact final condition on custom condition is possible
+        std::cerr << "Error, cannot propagate to exact custom condition, returning state after condition violation." << std::endl;
+
         endTime = lastTime;
         endState = lastState;
         break;
+    }
     case hybrid_stopping_condition:
     {
         boost::shared_ptr< HybridPropagationTerminationCondition > hyrbidTerminationCondition =
@@ -354,7 +360,7 @@ void propagateToExactTerminationCondition(
         std::map< TimeType, Eigen::VectorXd >& dependentVariableHistory,
         const double currentCpuTime )
 {
-    // Turn off step sie control
+    // Turn off step size control
     integrator->setStepSizeControl( false );
 
     // Determine exact final time/state
@@ -408,6 +414,7 @@ void propagateToExactTerminationCondition(
         propagationTerminationCondition->checkStopCondition( endTime, currentCpuTime );
     }
 
+    // Turn step size control back on
     integrator->setStepSizeControl( true );
 }
 
@@ -496,7 +503,7 @@ boost::shared_ptr< PropagationTerminationDetails > integrateEquationsFromIntegra
                 if( !postProcessState.empty( ) )
                 {
                     postProcessState( newState );
-                    integrator->modifyCurrentState( newState );
+                    integrator->modifyCurrentIntegrationVariables( newState );
                 }
 
                 // Check if the termination condition was reached during evaluation of integration sub-steps.
@@ -576,7 +583,7 @@ boost::shared_ptr< PropagationTerminationDetails > integrateEquationsFromIntegra
                 {
                     if( boost::dynamic_pointer_cast< HybridPropagationTerminationCondition >( propagationTerminationCondition ) == nullptr )
                     {
-                        throw std::runtime_error( "Error when saving termination reason, type is hybrid, but class is not" );
+                        throw std::runtime_error( "Error when saving termination reason, type is hybrid, but class is not." );
                     }
                     propagationTerminationReason = boost::make_shared< PropagationTerminationDetailsFromHybridCondition >(
                                 propagationTerminationCondition->getTerminateExactlyOnFinalCondition( ),
