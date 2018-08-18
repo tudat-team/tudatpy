@@ -337,8 +337,16 @@ template< typename T, int Rows = Eigen::Dynamic >
 Eigen::Matrix< T, Eigen::Dynamic, Eigen::Dynamic > convertStlVectorToEigenMatrix(
         const std::vector< Eigen::Matrix< T, Rows, 1 > >& stlVector )
 {
+    // Create empty vector
+    int numberOfRows = Rows;
+    if ( numberOfRows == Eigen::Dynamic )
+    {
+        numberOfRows = stlVector.front( ).rows( );
+    }
     Eigen::Matrix< T, Eigen::Dynamic, Eigen::Dynamic > eigenMatrix =
-            Eigen::Matrix< T, Eigen::Dynamic, Eigen::Dynamic >::Zero( Rows, stlVector.size( ) );
+            Eigen::Matrix< T, Eigen::Dynamic, Eigen::Dynamic >::Zero( numberOfRows, stlVector.size( ) );
+
+    // Assign values
     for( unsigned int i = 0; i < stlVector.size( ); i++ )
     {
         eigenMatrix.col( i ) = stlVector.at( i );

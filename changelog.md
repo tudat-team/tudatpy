@@ -21,8 +21,8 @@
 	- added conversions for position and velocity state variables: Cartesian<->USM7, Cartesian<->USM6, Keplerian<->USM6, Cartesian<->USMEM, Keplerian<->USMEM
 	- added conversions for attitude state variables: quaternion<->MRP, quaternion<->exponential map
 - **Propagators**
-	- added translational state derivatives: USM7, UMS6 and USMEM (see issue [#364](https://github.com/Tudat/tudat/issues/364))
-	- added rotational state derivatives: MRPs and exponential map (see issue [#385](https://github.com/Tudat/tudat/issues/385))
+	- added translational state derivative models: USM7, UMS6 and USMEM (see issue [#364](https://github.com/Tudat/tudat/issues/364))
+	- added rotational state derivative models: MRPs and exponential map (see issue [#385](https://github.com/Tudat/tudat/issues/385))
 - **Simulation Setup**
 	- added function to output cumulative number of function evaluations (see issue [#375](https://github.com/Tudat/tudat/issues/375))
 	- added function to output raw numerical solution

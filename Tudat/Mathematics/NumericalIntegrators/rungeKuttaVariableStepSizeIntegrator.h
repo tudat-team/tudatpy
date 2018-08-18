@@ -302,16 +302,24 @@ public:
      * to revert to the state before the discrete change.
      * \param newState The state to set the current state to.
      */
-    void modifyCurrentState( const StateType& newState, const IndependentVariableType newTime = 0 )
+    void modifyCurrentState( const StateType& newState )
     {
         this->currentState_ = newState;
-        if ( newTime == 0 )
+        this->lastIndependentVariable_ = currentIndependentVariable_;
+    }
+
+    //! Modify the state and time for the current step.
+    /*!
+     * Modify the state and time for the current step.
+     * \param newState The new state to set the current state to.
+     * \param newTime The time to set the current time to.
+     */
+    void modifyCurrentIntegrationVariables( const StateType& newState, const IndependentVariableType newTime = 0 )
+    {
+        this->currentState_ = newState;
+        if ( !( newTime == 0 ) )
         {
-            this->lastIndependentVariable_ = currentIndependentVariable_;
-        }
-        else
-        {
-            this->lastIndependentVariable_ = newTime;
+            this->currentIndependentVariable_ = newTime;
         }
     }
 
@@ -480,8 +488,7 @@ RungeKuttaVariableStepSizeIntegrator< IndependentVariableType, StateType, StateD
     currentStateDerivatives_.reserve( this->coefficients_.cCoefficients.rows( ) );
 
     // Define lower and higher order estimates.
-    StateType lowerOrderEstimate( this->currentState_ ),
-            higherOrderEstimate( this->currentState_ );
+    StateType lowerOrderEstimate( this->currentState_ ), higherOrderEstimate( this->currentState_ );
 
     // Compute the k_i state derivatives per stage.
     for ( int stage = 0; stage < this->coefficients_.cCoefficients.rows( ); stage++ )
@@ -492,8 +499,8 @@ RungeKuttaVariableStepSizeIntegrator< IndependentVariableType, StateType, StateD
         // Compute the intermediate state.
         for ( int column = 0; column < stage; column++ )
         {
-            intermediateState += stepSize * this->coefficients_.aCoefficients( stage, column )
-                    * currentStateDerivatives_[ column ];
+            intermediateState += stepSize * this->coefficients_.aCoefficients( stage, column ) *
+                    currentStateDerivatives_[ column ];
         }
 
         // Compute the state derivative.

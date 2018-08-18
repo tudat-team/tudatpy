@@ -125,7 +125,7 @@ private:
                                     const DependentVector& currentStateVector )
     {
         // Reset time and state
-        this->integrator_->modifyCurrentState( currentStateVector, currentTime );
+        this->integrator_->modifyCurrentIntegrationVariables( currentStateVector, currentTime );
 
         // Integrate equations
         return this->integrator_->performIntegrationStep( this->integrationStepSize_ );
