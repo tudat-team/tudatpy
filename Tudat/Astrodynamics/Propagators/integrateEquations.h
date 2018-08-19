@@ -433,7 +433,7 @@ void propagateToExactTerminationCondition(
  *  as map (time as key; returned by reference)
  *  \param dependentVariableFunction Function returning dependent variables (obtained from environment and state
  *  derivative model).
- *  \param postProcessState Function to post-process state after numerical integration (obtained from state derivative model).
+ *  \param statePostProcessingFunction Function to post-process state after numerical integration (obtained from state derivative model).
  *  \param saveFrequency Frequency at which to save the numerical integrated states (in units of i.e. per n integration time
  *  steps, with n = saveFrequency).
  *  \param printInterval Frequency with which to print progress to console (nan = never).
@@ -450,7 +450,7 @@ boost::shared_ptr< PropagationTerminationDetails > integrateEquationsFromIntegra
         std::map< TimeType, Eigen::VectorXd >& dependentVariableHistory,
         std::map< TimeType, double >& cumulativeComputationTimeHistory,
         const boost::function< Eigen::VectorXd( ) > dependentVariableFunction = boost::function< Eigen::VectorXd( ) >( ),
-        const boost::function< void( StateType& ) > postProcessState = boost::function< void( StateType& ) >( ),
+        const boost::function< void( StateType& ) > statePostProcessingFunction = boost::function< void( StateType& ) >( ),
         const int saveFrequency = static_cast< int >( TUDAT_NAN ),
         const TimeType printInterval = TUDAT_NAN,
         const std::chrono::steady_clock::time_point initialClockTime = std::chrono::steady_clock::now( ) )
@@ -500,10 +500,10 @@ boost::shared_ptr< PropagationTerminationDetails > integrateEquationsFromIntegra
 
                 // Perform integration step.
                 newState = integrator->performIntegrationStep( timeStep );
-                if( !postProcessState.empty( ) )
+                if( !statePostProcessingFunction.empty( ) )
                 {
-                    postProcessState( newState );
-                    integrator->modifyCurrentIntegrationVariables( newState );
+                    statePostProcessingFunction( newState );
+                    integrator->postProcessState( newState );
                 }
 
                 // Check if the termination condition was reached during evaluation of integration sub-steps.
@@ -635,7 +635,7 @@ public:
      *  as map (time as key; returned by reference)
      *  \param dependentVariableFunction Function returning dependent variables (obtained from environment and state
      *  derivative model).
-     *  \param postProcessState Function to post-process state after numerical integration (obtained from state derivative model).
+     *  \param statePostProcessingFunction Function to post-process state after numerical integration (obtained from state derivative model).
      *  \param printInterval Frequency with which to print progress to console (nan = never).
      *  \param initialClockTime Initial clock time from which to determine cumulative computation time.
      *  By default now(), i.e. the moment at which this function is called.
@@ -650,7 +650,7 @@ public:
             std::map< TimeType, Eigen::VectorXd >& dependentVariableHistory,
             std::map< TimeType, double >& cumulativeComputationTimeHistory,
             const boost::function< Eigen::VectorXd( ) > dependentVariableFunction = boost::function< Eigen::VectorXd( ) >( ),
-            const boost::function< void( StateType& ) > postProcessState = boost::function< void( StateType& ) >( ),
+            const boost::function< void( StateType& ) > statePostProcessingFunction = boost::function< void( StateType& ) >( ),
             const TimeType printInterval = TUDAT_NAN,
             const std::chrono::steady_clock::time_point initialClockTime = std::chrono::steady_clock::now( ) );
 
@@ -677,7 +677,7 @@ public:
      *  as map (time as key; returned by reference)
      *  \param dependentVariableFunction Function returning dependent variables (obtained from environment and state
      *  derivative model).
-     *  \param postProcessState Function to post-process state after numerical integration (obtained from state derivative model).
+     *  \param statePostProcessingFunction Function to post-process state after numerical integration (obtained from state derivative model).
      *  \param printInterval Frequency with which to print progress to console (nan = never).
      *  \param initialClockTime Initial clock time from which to determine cumulative computation time.
      *  By default now(), i.e. the moment at which this function is called.
@@ -692,7 +692,7 @@ public:
             std::map< double, Eigen::VectorXd >& dependentVariableHistory,
             std::map< double, double >& cumulativeComputationTimeHistory,
             const boost::function< Eigen::VectorXd( ) > dependentVariableFunction = boost::function< Eigen::VectorXd( ) >( ),
-            const boost::function< void( StateType& ) > postProcessState = boost::function< void( StateType& ) >( ),
+            const boost::function< void( StateType& ) > statePostProcessingFunction = boost::function< void( StateType& ) >( ),
             const double printInterval = TUDAT_NAN,
             const std::chrono::steady_clock::time_point initialClockTime = std::chrono::steady_clock::now( ) )
     {
@@ -714,7 +714,7 @@ public:
                     dependentVariableHistory,
                     cumulativeComputationTimeHistory,
                     dependentVariableFunction,
-                    postProcessState,
+                    statePostProcessingFunction,
                     integratorSettings->saveFrequency_,
                     printInterval,
                     initialClockTime );
@@ -743,7 +743,7 @@ public:
      *  as map (time as key; returned by reference)
      *  \param dependentVariableFunction Function returning dependent variables (obtained from environment and state
      *  derivative model).
-     *  \param postProcessState Function to post-process state after numerical integration (obtained from state derivative model).
+     *  \param statePostProcessingFunction Function to post-process state after numerical integration (obtained from state derivative model).
      *  \param printInterval Frequency with which to print progress to console (nan = never).
      *  \param initialClockTime Initial clock time from which to determine cumulative computation time.
      *  By default now(), i.e. the moment at which this function is called.
@@ -758,7 +758,7 @@ public:
             std::map< Time, Eigen::VectorXd >& dependentVariableHistory,
             std::map< Time, double >& cumulativeComputationTimeHistory,
             const boost::function< Eigen::VectorXd( ) > dependentVariableFunction = boost::function< Eigen::VectorXd( ) >( ),
-            const boost::function< void( StateType& ) > postProcessState = boost::function< void( StateType& ) >( ),
+            const boost::function< void( StateType& ) > statePostProcessingFunction = boost::function< void( StateType& ) >( ),
             const Time printInterval = TUDAT_NAN,
             const std::chrono::steady_clock::time_point initialClockTime = std::chrono::steady_clock::now( ) )
     {
@@ -780,7 +780,7 @@ public:
                     dependentVariableHistory,
                     cumulativeComputationTimeHistory,
                     dependentVariableFunction,
-                    postProcessState,
+                    statePostProcessingFunction,
                     integratorSettings->saveFrequency_,
                     printInterval,
                     initialClockTime );

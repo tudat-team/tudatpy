@@ -292,25 +292,23 @@ public:
         return this->lastState_;
     }
 
-    //! Modify the state at the current interval.
+    //! Replace the state with the post-processed version.
     /*!
-     * Modify the state at the current interval. This allows for discrete jumps in the state, often
-     * used in simulations of discrete events. In astrodynamics, this relates to simulations of
-     * rocket staging, impulsive shots, parachuting, attitude normalization, ideal control, etc.
-     * The modified state cannot be rolled back; to do this, just simply store the state before
-     * calling this function the first time, and call it again with the initial state as parameter
-     * to revert to the state before the discrete change.
-     * \param newState The state to set the current state to.
+     * Replace the state with the post-processed version.
+     * \param newState The new state after post-processing.
      */
-    void modifyCurrentState( const StateType& newState )
+    void postProcessState( const StateType& newState )
     {
         this->currentState_ = newState;
-        this->lastIndependentVariable_ = currentIndependentVariable_;
     }
 
     //! Modify the state and time for the current step.
     /*!
-     * Modify the state and time for the current step.
+     * Modify the state and time for the current step. This allows for discrete jumps in the state, often
+     * used in simulations of discrete events. In astrodynamics, this relates to simulations of rocket staging,
+     * impulsive shots, parachuting, ideal control, etc. The modified state cannot be rolled back; to do this,
+     * simply store the state before calling this function the first time, and call it again with the initial state
+     * as parameter to revert to the state before the discrete change.
      * \param newState The new state to set the current state to.
      * \param newTime The time to set the current time to.
      */
@@ -321,6 +319,7 @@ public:
         {
             this->currentIndependentVariable_ = newTime;
         }
+        this->lastIndependentVariable_ = currentIndependentVariable_;
     }
 
     //! Function to toggle the use of step-size control
