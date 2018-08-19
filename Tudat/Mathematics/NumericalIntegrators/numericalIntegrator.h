@@ -193,17 +193,20 @@ public:
      */
     virtual void setStepSizeControl( const bool useStepSizeControl ) { }
 
-    //! Modify the state at the current value of the independent variable.
+    //! Replace the state with the post-processed version.
     /*!
-     * Modify the state at the current value of the independent variable.
-     * \param newState The new state to set the current state to.
+     * Replace the state with the post-processed version.
+     * \param newState The new state after post-processing.
      */
-    virtual void modifyCurrentState( const StateType& newState ) { }
+    virtual void postProcessState( const StateType& newState ) { }
 
     //! Modify the state and time for the current step.
     /*!
-     * Modify the state and time for the current step. This function is virtual, hence it
-     * can be implemented in all derived classes.
+     * Modify the state and time for the current step. This allows for discrete jumps in the state, often
+     * used in simulations of discrete events. In astrodynamics, this relates to simulations of rocket staging,
+     * impulsive shots, parachuting, ideal control, etc. The modified state cannot be rolled back; to do this,
+     * simply store the state before calling this function the first time, and call it again with the initial state
+     * as parameter to revert to the state before the discrete change.
      * \param newState The new state to set the current state to.
      * \param newTime The time to set the current time to.
      */
