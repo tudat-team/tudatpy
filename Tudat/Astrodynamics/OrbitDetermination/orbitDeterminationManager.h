@@ -803,7 +803,7 @@ protected:
             {
                 std::vector< double > arcStartTimes = estimatable_parameters::getMultiArcStateEstimationArcStartTimes(
                             parametersToEstimate_ );
-                variationalEquationsSolver_ =  boost::make_shared< propagators::MultiArcVariationalEquationsSolver
+                variationalEquationsSolver_ = boost::make_shared< propagators::MultiArcVariationalEquationsSolver
                         < ObservationScalarType, TimeType > >(
                             bodyMap, integratorSettings, propagatorSettings, parametersToEstimate_, arcStartTimes, 1,
                             boost::shared_ptr< numerical_integrators::IntegratorSettings< double > >( ), 0, 1 );
@@ -824,8 +824,7 @@ protected:
 
         if( integrateAndEstimateOrbit_ )
         {
-            stateTransitionAndSensitivityMatrixInterface_ =
-                    variationalEquationsSolver_->getStateTransitionMatrixInterface( );
+            stateTransitionAndSensitivityMatrixInterface_ = variationalEquationsSolver_->getStateTransitionMatrixInterface( );
         }
         else if( propagatorSettings == NULL )
         {

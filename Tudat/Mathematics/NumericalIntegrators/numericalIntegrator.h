@@ -20,8 +20,9 @@
 
 #include <Eigen/Core>
 
-#include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
 #include "Tudat/Basics/timeType.h"
+#include "Tudat/Basics/utilityMacros.h"
+#include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
 
 namespace tudat
 {
@@ -193,24 +194,40 @@ public:
      */
     virtual void setStepSizeControl( const bool useStepSizeControl ) { }
 
-    //! Replace the state with the post-processed version.
+    //! Replace the state with a new value.
     /*!
-     * Replace the state with the post-processed version.
-     * \param newState The new state after post-processing.
+     * Replace the state with a new value. This allows for discrete jumps in the state, often
+     * used in simulations of discrete events. In astrodynamics, this relates to simulations of rocket staging,
+     * impulsive shots, parachuting, ideal control, etc. The modified state, by default, cannot be rolled back; to do this, either
+     * set the flag to true, or store the state before calling this function the first time, and call it again with the initial state
+     * as parameter to revert to the state before the discrete change.
+     * \param newState The value of the new state.
+     * \param allowRollback Boolean denoting whether roll-back should be allowed.
      */
-    virtual void postProcessState( const StateType& newState ) { }
+    virtual void modifyCurrentState( const StateType& newState, const bool allowRollback = false )
+    {
+        TUDAT_UNUSED_PARAMETER( newState );
+        TUDAT_UNUSED_PARAMETER( allowRollback );
+        throw std::runtime_error( "Error in numerical integrator. The function to modify the current state has not been implemented "
+                                  "in this integrator." );
+    }
 
     //! Modify the state and time for the current step.
     /*!
-     * Modify the state and time for the current step. This allows for discrete jumps in the state, often
-     * used in simulations of discrete events. In astrodynamics, this relates to simulations of rocket staging,
-     * impulsive shots, parachuting, ideal control, etc. The modified state cannot be rolled back; to do this,
-     * simply store the state before calling this function the first time, and call it again with the initial state
-     * as parameter to revert to the state before the discrete change.
+     * Modify the state and time for the current step.
      * \param newState The new state to set the current state to.
      * \param newTime The time to set the current time to.
+     * \param allowRollback Boolean denoting whether roll-back should be allowed.
      */
-    virtual void modifyCurrentIntegrationVariables( const StateType& newState, const IndependentVariableType newTime = 0 ) { }
+    virtual void modifyCurrentIntegrationVariables( const StateType& newState, const IndependentVariableType newTime,
+                                                    const bool allowRollback = false )
+    {
+        TUDAT_UNUSED_PARAMETER( newState );
+        TUDAT_UNUSED_PARAMETER( newTime );
+        TUDAT_UNUSED_PARAMETER( allowRollback );
+        throw std::runtime_error( "Error in numerical integrator. The function to modify the current integration variables has not "
+                                  "been implemented in this integrator." );
+    }
 
 protected:
 

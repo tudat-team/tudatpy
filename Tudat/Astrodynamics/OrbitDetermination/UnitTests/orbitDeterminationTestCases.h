@@ -432,8 +432,7 @@ Eigen::VectorXd executeEarthOrbiterParameterEstimation(
     boost::shared_ptr< IntegratorSettings< TimeType > > integratorSettings =
             boost::make_shared< RungeKuttaVariableStepSizeSettings< TimeType,
             Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic > > >
-            ( rungeKuttaVariableStepSize, TimeType( initialEphemerisTime ), 40.0,
-              RungeKuttaCoefficients::CoefficientSets::rungeKuttaFehlberg78,
+            ( TimeType( initialEphemerisTime ), 40.0, RungeKuttaCoefficients::CoefficientSets::rungeKuttaFehlberg78,
               40.0, 40.0, 1.0, 1.0 );
 
     // Define parameters.
@@ -719,9 +718,9 @@ std::pair< Eigen::VectorXd, bool > executeEarthOrbiterBiasEstimation(
     boost::shared_ptr< IntegratorSettings< TimeType > > integratorSettings =
             boost::make_shared< RungeKuttaVariableStepSizeSettings< TimeType,
             Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic > > >
-            ( rungeKuttaVariableStepSize, TimeType( initialEphemerisTime ), 120.0,
-              RungeKuttaCoefficients::CoefficientSets::rungeKuttaFehlberg78,
+            ( TimeType( initialEphemerisTime ), 120.0, RungeKuttaCoefficients::CoefficientSets::rungeKuttaFehlberg78,
               120.0, 120.0, 1.0, 1.0 );
+
 
     // Define parameters.
     std::vector< LinkEnds > stationReceiverLinkEnds;

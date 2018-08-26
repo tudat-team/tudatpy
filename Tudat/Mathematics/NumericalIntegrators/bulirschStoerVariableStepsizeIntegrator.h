@@ -31,9 +31,9 @@
 #include <Tudat/Mathematics/NumericalIntegrators/numericalIntegrator.h>
 #include <Tudat/Mathematics/BasicMathematics/mathematicalConstants.h>
 
-
 namespace tudat
 {
+
 namespace numerical_integrators
 {
 
@@ -371,6 +371,11 @@ public:
         return lastIndependentVariable_;
     }
 
+    //! Get previous state value.
+    /*!
+     * Returns the previous value of the state.
+     * \return Previous state
+     */
     StateType getPreviousState( )
     {
         return lastState_;
@@ -502,6 +507,7 @@ private:
 typedef BulirschStoerVariableStepSizeIntegrator< > BulirschStoerVariableStepSizeIntegratorXd;
 
 } // namespace numerical_integrators
+
 } // namespace tudat
 
 #endif // TUDAT_BULIRSCH_STOER_VARIABLE_STEP_SIZE_INTEGRATOR_H

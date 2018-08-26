@@ -23,6 +23,7 @@
 - **Propagators**
 	- added translational state derivative models: USM7, UMS6 and USMEM (see issue [#364](https://github.com/Tudat/tudat/issues/364))
 	- added rotational state derivative models: MRPs and exponential map (see issue [#385](https://github.com/Tudat/tudat/issues/385))
+	- added custom propagation stopping conditions
 - **Simulation Setup**
 	- added function to output cumulative number of function evaluations (see issue [#375](https://github.com/Tudat/tudat/issues/375))
 	- added function to output raw numerical solution

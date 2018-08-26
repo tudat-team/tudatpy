@@ -141,7 +141,6 @@ public:
     //! Default constructor
     /*!
      *  Default constructor for variable step RK integrator settings, taking vector of relative and absolute tolerances.
-     *  \param integratorType Type of numerical integrator (must be an RK variable step type)
      *  \param initialTime Start time (independent variable) of numerical integration.
      *  \param initialTimeStep Initial time (independent variable) step used in numerical integration.
      *  Adapted during integration
@@ -162,7 +161,6 @@ public:
      *  \param newStepSizeFunction Custom function to compute the step-size for the next time step.
      */
     RungeKuttaVariableStepSizeSettings(
-            const AvailableIntegrators integratorType,
             const IndependentVariableType initialTime,
             const IndependentVariableType initialTimeStep,
             const numerical_integrators::RungeKuttaCoefficients::CoefficientSets coefficientSet,
@@ -176,7 +174,7 @@ public:
             const IndependentVariableType minimumFactorDecreaseForNextStepSize = 0.1,
             const NewStepSizeFunction& newStepSizeFunction = 0 ) :
         IntegratorSettings< IndependentVariableType >(
-            integratorType, initialTime, initialTimeStep, saveFrequency,
+            rungeKuttaVariableStepSize, initialTime, initialTimeStep, saveFrequency,
             assessPropagationTerminationConditionDuringIntegrationSubsteps ),
         coefficientSet_( coefficientSet ), minimumStepSize_( minimumStepSize ), maximumStepSize_( maximumStepSize ),
         relativeErrorTolerance_( relativeErrorTolerance ), absoluteErrorTolerance_( absoluteErrorTolerance ),
@@ -189,7 +187,49 @@ public:
     //! Constructor
     /*!
      *  Constructor for variable step RK integrator settings, taking scalar values for relative and absolute tolerances.
-     *  \param integratorType Type of numerical integrator (must be an RK variable step type)
+     *  \param initialTime Start time (independent variable) of numerical integration.
+     *  \param initialTimeStep Initial time (independent variable) step used in numerical integration.
+     *  Adapted during integration
+     *  \param coefficientSet Coefficient set (butcher tableau) to use in integration.
+     *  \param minimumStepSize Minimum step size for integration. Integration stops (exception thrown) if time step
+     *  comes below this value.
+     *  \param maximumStepSize Maximum step size for integration.
+     *  \param relativeErrorTolerance Relative error tolerance for step size control.
+     *  \param absoluteErrorTolerance Absolute error tolerance for step size control.
+     *  \param saveFrequency Frequency at which to save the numerical integrated states (in units of i.e. per n integration
+     *  time steps, with n = saveFrequency).
+     *  \param assessPropagationTerminationConditionDuringIntegrationSubsteps Whether the propagation termination
+     *  conditions should be evaluated during the intermediate sub-steps of the integrator (`true`) or only at the end of
+     *  each integration step (`false`).
+     *  \param safetyFactorForNextStepSize Safety factor for step size control
+     *  \param maximumFactorIncreaseForNextStepSize Maximum increase factor in time step in subsequent iterations.
+     *  \param minimumFactorDecreaseForNextStepSize Minimum decrease factor in time step in subsequent iterations.
+     *  \param newStepSizeFunction Custom function to compute the step-size for the next time step.
+     */
+    RungeKuttaVariableStepSizeSettings(
+            const IndependentVariableType initialTime,
+            const IndependentVariableType initialTimeStep,
+            const numerical_integrators::RungeKuttaCoefficients::CoefficientSets coefficientSet,
+            const IndependentVariableType minimumStepSize, const IndependentVariableType maximumStepSize,
+            const typename DependentVariableType::Scalar relativeErrorTolerance = 1.0E-12,
+            const typename DependentVariableType::Scalar absoluteErrorTolerance = 1.0E-12,
+            const int saveFrequency = 1,
+            const bool assessPropagationTerminationConditionDuringIntegrationSubsteps = false,
+            const IndependentVariableType safetyFactorForNextStepSize = 0.8,
+            const IndependentVariableType maximumFactorIncreaseForNextStepSize = 4.0,
+            const IndependentVariableType minimumFactorDecreaseForNextStepSize = 0.1,
+            const NewStepSizeFunction& newStepSizeFunction = 0 ) :
+        RungeKuttaVariableStepSizeSettings(
+            rungeKuttaVariableStepSize, initialTime, initialTimeStep, coefficientSet, minimumStepSize, maximumStepSize,
+            Eigen::Matrix< typename DependentVariableType::Scalar, 1, 1 >::Constant( relativeErrorTolerance ),
+            Eigen::Matrix< typename DependentVariableType::Scalar, 1, 1 >::Constant( absoluteErrorTolerance ),
+            saveFrequency, assessPropagationTerminationConditionDuringIntegrationSubsteps, safetyFactorForNextStepSize,
+            maximumFactorIncreaseForNextStepSize, minimumFactorDecreaseForNextStepSize, newStepSizeFunction )
+    { }
+
+    //! Constructor
+    /*!
+     *  Constructor for variable step RK integrator settings, taking integrator type and scalar values for relative and absolute tolerances.
      *  \param initialTime Start time (independent variable) of numerical integration.
      *  \param initialTimeStep Initial time (independent variable) step used in numerical integration.
      *  Adapted during integration
@@ -229,7 +269,20 @@ public:
             Eigen::Matrix< typename DependentVariableType::Scalar, 1, 1 >::Constant( absoluteErrorTolerance ),
             saveFrequency, assessPropagationTerminationConditionDuringIntegrationSubsteps, safetyFactorForNextStepSize,
             maximumFactorIncreaseForNextStepSize, minimumFactorDecreaseForNextStepSize, newStepSizeFunction )
-    { }
+    {
+        // Give error if integrator type is wrong
+        if ( integratorType != rungeKuttaVariableStepSize )
+        {
+            throw std::runtime_error( "Error while creating numerical integrator. The integrator settings are of class "
+                                      "RungeKuttaVariableStepSizeSettings, but the input integrator type is not of type "
+                                      "rungeKuttaVariableStepSize." );
+        }
+
+        // Warn of different constructor
+        std::cerr << "Warning in numerical integrator. The Runge-Kutta variable step size integrator settings no longer require the "
+                     "input of the integrator type, i.e., rungeKuttaVariableStepSize. You can thus safely remove the first input, especially "
+                     "if you do not want this warning to show up again." << std::endl;
+    }
 
     //! Destructor
     /*!
@@ -527,9 +580,9 @@ DependentVariableType, IndependentVariableStepType > > createIntegrator(
                       ( absoluteErrorTolerance.rows( ) != initialState.rows( ) ) ||
                       ( absoluteErrorTolerance.cols( ) != initialState.cols( ) ) )
             {
-                throw std::runtime_error( "Error while creating Runge Kutta variable step size integrator. The sizes of the "
+                throw std::runtime_error( "Error while creating Runge-Kutta variable step size integrator. The sizes of the "
                                           "relative and absolute tolerance vectors do not match the size of the initial state. "
-                                          "This could be the case if you are propagating more than just the state, e.g., translational "
+                                          "This could be the case if you are propagating more than just one state, e.g., translational "
                                           "and/or rotational dynamics and mass." );
             }
 
