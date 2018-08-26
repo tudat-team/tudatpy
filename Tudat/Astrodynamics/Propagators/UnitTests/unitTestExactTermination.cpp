@@ -245,9 +245,8 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForSphericalHarmonicCentralBodies )
                 else
                 {
                     integratorSettings = boost::make_shared< RungeKuttaVariableStepSizeSettings< double > >
-                            ( rungeKuttaVariableStepSize, simulationStartEpoch, directionMultiplier * fixedStepSize,
-                              RungeKuttaCoefficients::CoefficientSets::rungeKuttaFehlberg45,
-                              1.0E-3, 1.0E3, 1.0E-12, 1.0E-12 );
+                            ( simulationStartEpoch, directionMultiplier * fixedStepSize,
+                              RungeKuttaCoefficients::CoefficientSets::rungeKuttaFehlberg45, 1.0E-3, 1.0E3, 1.0E-12, 1.0E-12 );
                 }
 
                 // Propagate orbit with Cowell method

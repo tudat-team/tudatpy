@@ -244,7 +244,7 @@ void performIntegrationStepToSpecifiedTimeWithEvents(
             i++;
 
             // Modify the current state based on the discrete event
-            integrator->modifyCurrentIntegrationVariables(
+            integrator->modifyCurrentState(
                         Eigen::VectorXd::Constant(
                             1, benchmarkData( i, STATE_COLUMN_INDEX ) ) );
 

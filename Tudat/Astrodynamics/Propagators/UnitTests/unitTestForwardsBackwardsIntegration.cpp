@@ -90,7 +90,7 @@ boost::shared_ptr< IntegratorSettings< TimeType > > getIntegrationSettings(
 
         }
         integratorSettings = boost::make_shared< RungeKuttaVariableStepSizeSettings< TimeType > >
-                ( rungeKuttaVariableStepSize, initialTime, initialTimeMultiplier * 300.0, coefficientSet, 1.0E-3, 3600.0 );
+                ( initialTime, initialTimeMultiplier * 300.0, coefficientSet, 1.0E-3, 3600.0 );
     }
     return integratorSettings;
 }

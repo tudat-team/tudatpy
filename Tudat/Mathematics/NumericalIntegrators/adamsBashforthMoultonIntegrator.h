@@ -464,42 +464,19 @@ public:
         return true;
     }
 
-    //! Replace the state with the post-processed version.
+    //! Replace the state with a new value.
     /*!
-     * Replace the state with the post-processed version.
-     * \param newState The new state after post-processing.
-     */
-    void postProcessState( const StateType& newState )
-    {
-        currentState_ = newState;
-
-        // Replace state and derivative history with the new variables.
-        stateHistory_.back( ) = currentState_;
-        derivHistory_.back( ) = this->stateDerivativeFunction_( currentIndependentVariable_,
-                                                                currentState_ );
-
-        // Allow single step integrator to determine own stepsize
-        fixedSingleStep_ = fixedStepSize_;
-    }
-
-    //! Modify the state and time for the current step.
-    /*!
-     * Modify the state and time for the current step. This allows for discrete jumps in the state, often
+     * Replace the state with a new value. This allows for discrete jumps in the state, often
      * used in simulations of discrete events. In astrodynamics, this relates to simulations of rocket staging,
-     * impulsive shots, parachuting, ideal control, etc. The modified state cannot be rolled back; to do this,
-     * simply store the state before calling this function the first time, and call it again with the initial state
+     * impulsive shots, parachuting, ideal control, etc. The modified state, by default, cannot be rolled back; to do this, either
+     * set the flag to true, or store the state before calling this function the first time, and call it again with the initial state
      * as parameter to revert to the state before the discrete change.
-     * \param newState The new state to set the current state to.
-     * \param newTime The time to set the current time to.
+     * \param newState The value of the new state.
+     * \param allowRollback Boolean denoting whether roll-back should be allowed.
      */
-    void modifyCurrentIntegrationVariables( const StateType& newState, const IndependentVariableType newTime = 0 )
+    void modifyCurrentState( const StateType& newState, const bool allowRollback = false )
     {
         currentState_ = newState;
-        if ( !( newTime == 0 ) )
-        {
-            this->currentIndependentVariable_ = newTime;
-        }
-        lastIndependentVariable_ = currentIndependentVariable_;
 
         // Clear the history and initiate with new state and derivative.
         stateHistory_.clear( );
@@ -507,7 +484,11 @@ public:
         stateHistory_.push_front( currentState_ );
         derivHistory_.push_front( this->stateDerivativeFunction_(
                                       currentIndependentVariable_, currentState_ ) );
-        
+        if ( !allowRollback )
+        {
+            lastIndependentVariable_ = currentIndependentVariable_;
+        }
+
         // Allow single step integrator to determine own stepsize
         fixedSingleStep_ = fixedStepSize_;
     }
@@ -781,7 +762,7 @@ protected:
         typename StateType::Scalar maximumTolerance = std::numeric_limits< typename StateType::Scalar >::infinity( );
         
         // FIXME: define these integrators in the private scope of class and initialize in constructor.
-        // Perhaps with an user-selectable RK variant. The postProcessState statements below should
+        // Perhaps with an user-selectable RK variant. The modifyCurrentState statements below should
         // are already implemented to ensure that this will work.
         
         // Single step integrator with fixed stepsize and no error control
@@ -800,13 +781,13 @@ protected:
         
         StateType currentState;
         if( fixedSingleStep_ ) {
-            singleFixedStepIntegrator_.postProcessState( currentState_ );
+            singleFixedStepIntegrator_.modifyCurrentState( currentState_ );
             currentState = singleFixedStepIntegrator_.performIntegrationStep( stepSize_ );
             
             // Find out the step size that was used during integration
             lastStepSize_ = singleFixedStepIntegrator_.getCurrentIndependentVariable( ) - currentIndependentVariable_;
         } else {
-            singleVariableStepIntegrator_.postProcessState( currentState_ );
+            singleVariableStepIntegrator_.modifyCurrentState( currentState_ );
             currentState = singleVariableStepIntegrator_.performIntegrationStep( stepSize_ );
             
             // Find out the step size that was used during integration

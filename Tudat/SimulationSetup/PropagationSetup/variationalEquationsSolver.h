@@ -666,7 +666,6 @@ public:
         }
         else
         {
-
             dynamicsStateDerivative_->setPropagationSettings( std::vector< IntegratedStateType >( ), 1, 0 );
             dynamicsSimulator_->integrateEquationsOfMotion( initialStateEstimate );
 

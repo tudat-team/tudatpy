@@ -161,8 +161,7 @@ BOOST_AUTO_TEST_CASE( testSimpleRotationalDynamicsPropagation )
             // Define integrator settings.
             boost::shared_ptr< numerical_integrators::IntegratorSettings< > > integratorSettings =
                     boost::make_shared< RungeKuttaVariableStepSizeSettings< > >
-                    ( rungeKuttaVariableStepSize,
-                      initialEphemerisTime, 10.0,
+                    ( initialEphemerisTime, 10.0,
                       RungeKuttaCoefficients::rungeKuttaFehlberg78,
                       2.0, 30.0, 1.0E-13, 1.0E-13 );
 
@@ -418,8 +417,7 @@ BOOST_AUTO_TEST_CASE( testSimpleRotationalDynamicsPropagationWithObliquity )
         // Define integrator settings.
         boost::shared_ptr< numerical_integrators::IntegratorSettings< > > integratorSettings =
                 boost::make_shared< RungeKuttaVariableStepSizeSettings< > >
-                ( rungeKuttaVariableStepSize,
-                  initialEphemerisTime, 10.0,
+                ( initialEphemerisTime, 10.0,
                   RungeKuttaCoefficients::rungeKuttaFehlberg78,
                   3.0, 300.0, 1.0E-14, 1.0E-14 );
 
@@ -708,13 +706,13 @@ BOOST_AUTO_TEST_CASE( testRotationalAndTranslationalDynamicsPropagation )
                     boost::make_shared< PropagationTimeTerminationSettings >( 250.0 );
 
             // Create propagator settings for rotation.
-            boost::shared_ptr< RotationalStatePropagatorSettings< double > > rotationalPropagatorSettings =
+            boost::shared_ptr< SingleArcPropagatorSettings< double > > rotationalPropagatorSettings =
                     boost::make_shared< RotationalStatePropagatorSettings< double > >
                     ( torqueModelMap, bodiesToPropagate, systemInitialRotationalState, terminationSettings,
                       static_cast< RotationalPropagatorType >( propagatorType ) );
 
             // Create propagation settings for translational dynamics.
-            boost::shared_ptr< TranslationalStatePropagatorSettings< double > > translationalPropagatorSettings =
+            boost::shared_ptr< SingleArcPropagatorSettings< double > > translationalPropagatorSettings =
                     boost::make_shared< TranslationalStatePropagatorSettings< double > >
                     ( centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState,
                       terminationSettings, cowell );
@@ -731,8 +729,7 @@ BOOST_AUTO_TEST_CASE( testRotationalAndTranslationalDynamicsPropagation )
             // Create integrator settings for rotation.
             boost::shared_ptr< IntegratorSettings< > > integratorSettings =
                     boost::make_shared< RungeKuttaVariableStepSizeSettings< > >
-                    ( rungeKuttaVariableStepSize, 0.0, 0.02,
-                      RungeKuttaCoefficients::rungeKuttaFehlberg78, 1.0E-4, 0.02, 1.0E-12, 1.0E-12 );
+                    ( 0.0, 0.02, RungeKuttaCoefficients::rungeKuttaFehlberg78, 1.0E-4, 0.02, 1.0E-12, 1.0E-12 );
 
             // Create simulation object and propagate dynamics.
             SingleArcDynamicsSimulator< > dynamicsSimulator(

@@ -503,7 +503,7 @@ boost::shared_ptr< PropagationTerminationDetails > integrateEquationsFromIntegra
                 if( !statePostProcessingFunction.empty( ) )
                 {
                     statePostProcessingFunction( newState );
-                    integrator->postProcessState( newState );
+                    integrator->modifyCurrentState( newState, true );
                 }
 
                 // Check if the termination condition was reached during evaluation of integration sub-steps.

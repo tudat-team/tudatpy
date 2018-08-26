@@ -403,6 +403,14 @@ BOOST_AUTO_TEST_CASE( testReasonAfterPropagationErrorCaught )
         bodySettings[ bodiesToCreate.at( i ) ]->ephemerisSettings->resetFrameOrientation( "J2000" );
         bodySettings[ bodiesToCreate.at( i ) ]->rotationModelSettings->resetOriginalFrame( "J2000" );
     }
+
+    std::string tabulatedAtmosphereFile = input_output::getAtmosphereTablesPath( ) + "USSA1976Until100kmPer100mUntil1000kmPer1000m.dat";
+    std::vector< AtmosphereDependentVariables > dependentVariables =
+    { density_dependent_atmosphere, pressure_dependent_atmosphere, temperature_dependent_atmosphere };
+    bodySettings[ "Earth" ]->atmosphereSettings = boost::make_shared< TabulatedAtmosphereSettings >(
+                tabulatedAtmosphereFile, dependentVariables,
+                physical_constants::SPECIFIC_GAS_CONSTANT_AIR, 1.4, interpolators::extrapolate_at_boundary );
+
     NamedBodyMap bodyMap = createBodies( bodySettings );
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -513,6 +521,11 @@ BOOST_AUTO_TEST_CASE( testReasonAfterPropagationErrorCaught )
 
     // Propagate dynamics.
     dynamicsSimulator.integrateEquationsOfMotion( propagatorSettings->getInitialStates( ) );
+
+    // Write body propagation history in conventional coordinates to file.
+    input_output::writeDataMapToTextFile( dynamicsSimulator.getEquationsOfMotionNumericalSolution( ),
+                                          "bodyPropagationHistory.dat",
+                                          "/Users/Michele/Desktop/" );
 
     // Check that the propagation termination reason after propagation.
     BOOST_CHECK( dynamicsSimulator.getPropagationTerminationReason( )->getPropagationTerminationReason( ) ==
