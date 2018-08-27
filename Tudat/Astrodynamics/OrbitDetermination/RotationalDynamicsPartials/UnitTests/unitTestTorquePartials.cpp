@@ -155,6 +155,7 @@ BOOST_AUTO_TEST_CASE( testSecondDegreeGravitationalTorquePartials )
     // Create gravitational parameter object.
     std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames;
     parameterNames.push_back( std::make_shared< EstimatableParameterSettings >( "Mars", gravitational_parameter) );
+    parameterNames.push_back( std::make_shared< EstimatableParameterSettings >( "Phobos", mean_moment_of_inertia ) );
 
     parameterNames.push_back( std::make_shared< SphericalHarmonicEstimatableParameterSettings >(
                                   1, 0, 3, 3, "Phobos", spherical_harmonics_cosine_coefficient_block ) );
@@ -166,6 +167,8 @@ BOOST_AUTO_TEST_CASE( testSecondDegreeGravitationalTorquePartials )
 
     std::shared_ptr< EstimatableParameter< double > > marsGravitationalParameterParameter =
             parameterSet->getEstimatedDoubleParameters( ).at( 0 );
+    std::shared_ptr< EstimatableParameter< double > > phobosMeanMomentOfInertia =
+            parameterSet->getEstimatedDoubleParameters( ).at( 1 );
     std::shared_ptr< EstimatableParameter< Eigen::VectorXd > > phobosCosineCoefficientsParameter =
             parameterSet->getEstimatedVectorParameters( ).at( 0 );
     std::shared_ptr< EstimatableParameter< Eigen::VectorXd > > phobosSineCoefficientsParameter =
@@ -194,6 +197,9 @@ BOOST_AUTO_TEST_CASE( testSecondDegreeGravitationalTorquePartials )
 
     Eigen::Vector3d partialWrtMarsGravitationalParameter = torquePartial->wrtParameter(
                 marsGravitationalParameterParameter );
+    Eigen::Vector3d partialWrtMeanMomentOfInertia = torquePartial->wrtParameter(
+                phobosMeanMomentOfInertia );
+
     Eigen::MatrixXd partialWrtPhobosCosineCoefficients = torquePartial->wrtParameter(
                 phobosCosineCoefficientsParameter );
     Eigen::MatrixXd partialWrtPhobosSineCoefficients = torquePartial->wrtParameter(
@@ -261,7 +267,8 @@ BOOST_AUTO_TEST_CASE( testSecondDegreeGravitationalTorquePartials )
 
     Eigen::Vector3d testPartialWrtMarsGravitationalParameter = calculateTorqueWrtParameterPartials(
                 marsGravitationalParameterParameter, gravitationalTorque, 1.0E12 );
-
+    Eigen::Vector3d testPartialWrtMeanMomentOfInertia = calculateTorqueWrtParameterPartials(
+                phobosMeanMomentOfInertia, gravitationalTorque, 1.0E-1 );
     std::function< void( ) > updateFunction = &emptyFunction;
             //boost::bind( &Body::setBodyInertiaTensorFromGravityFieldAndExistingMeanMoment, bodyMap.at( "Phobos" ), true );
     Eigen::MatrixXd testPartialWrtPhobosCosineCoefficients = calculateTorqueWrtParameterPartials(
@@ -303,7 +310,6 @@ BOOST_AUTO_TEST_CASE( testSecondDegreeGravitationalTorquePartials )
     //    std::cout<<( partialWrtMarsState.block( 0, 0, 3, 3 ) - testPartialWrtMarsPosition ).cwiseQuotient(
     //                   testPartialWrtMarsPosition )<<std::endl<<std::endl;
 
-
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(  partialWrtPhobosState.block( 0, 0, 3, 3 ),
                                         testPartialWrtPhobosPosition, 1.0E-8 );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(  partialWrtMarsState.block( 0, 0, 3, 3 ),
@@ -325,7 +331,10 @@ BOOST_AUTO_TEST_CASE( testSecondDegreeGravitationalTorquePartials )
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtPhobosSineCoefficients,
                                        partialWrtPhobosSineCoefficients, 1.0E-9 );
 
-
+    for( int i = 0; i < 3; i++ )
+    {
+        BOOST_CHECK_SMALL( std::fabs( partialWrtMeanMomentOfInertia( i, 0 ) - testPartialWrtMeanMomentOfInertia( i, 0 ) ), 1.0E1 );
+    }
 }
 
 BOOST_AUTO_TEST_CASE( testInertialTorquePartials )
@@ -551,7 +560,7 @@ BOOST_AUTO_TEST_CASE( testInertialTorquePartials )
     Eigen::Vector3d testPartialWrtPhobosGravitationalParameter = calculateTorqueWrtParameterPartials(
                 phobosGravitationalParameterParameter, inertialTorqueModel, 1.0E8, updateFunction );
     Eigen::MatrixXd testPartialWrtMeanMomentOfInertia = calculateTorqueWrtParameterPartials(
-                meanMomentOfInertiaParameter, inertialTorqueModel, 1.0E-4, updateFunction );
+                meanMomentOfInertiaParameter, inertialTorqueModel, 1.0E-1, updateFunction );
     Eigen::MatrixXd testPartialWrtPhobosCosineCoefficients = calculateTorqueWrtParameterPartials(
                 phobosCosineCoefficientsParameter, inertialTorqueModel,
                 Eigen::VectorXd::Constant( phobosCosineCoefficientsParameter->getParameterSize( ), 1.0E-6 ), updateFunction );
@@ -602,12 +611,12 @@ BOOST_AUTO_TEST_CASE( testInertialTorquePartials )
 
     // Check derivative of z-component w.r.t. C20 separately: value is slightly non-zero due to rounding error
 
-    std::cout<<"Inertial w.r.t. cosine: "<<std::endl<<
-               testPartialWrtPhobosCosineCoefficients<<std::endl<<std::endl<<
-               testPartialWrtPhobosCosineCoefficients - partialWrtPhobosCosineCoefficients<<std::endl<<std::endl;
-    std::cout<<"Inertial w.r.t. sine: "<<std::endl<<
-               testPartialWrtPhobosSineCoefficients<<std::endl<<std::endl<<
-               testPartialWrtPhobosSineCoefficients - partialWrtPhobosSineCoefficients<<std::endl<<std::endl;
+//    std::cout<<"Inertial w.r.t. cosine: "<<std::endl<<
+//               testPartialWrtPhobosCosineCoefficients<<std::endl<<std::endl<<
+//               testPartialWrtPhobosCosineCoefficients - partialWrtPhobosCosineCoefficients<<std::endl<<std::endl;
+//    std::cout<<"Inertial w.r.t. sine: "<<std::endl<<
+//               testPartialWrtPhobosSineCoefficients<<std::endl<<std::endl<<
+//               testPartialWrtPhobosSineCoefficients - partialWrtPhobosSineCoefficients<<std::endl<<std::endl;
 
 
     BOOST_CHECK_SMALL( std::fabs( testPartialWrtPhobosCosineCoefficients( 2, 2 ) ), 1.0E5 );
@@ -618,10 +627,9 @@ BOOST_AUTO_TEST_CASE( testInertialTorquePartials )
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtPhobosSineCoefficients,
                                        partialWrtPhobosSineCoefficients, 1.0E-9 );
 
-
     for( int i = 0; i < 3; i++ )
     {
-        BOOST_CHECK_SMALL( std::fabs( partialWrtMeanMomentOfInertia( i, 0 ) ), 1.0E3 );
+        BOOST_CHECK_SMALL( std::fabs( partialWrtMeanMomentOfInertia( i, 0 ) - testPartialWrtMeanMomentOfInertia( i, 0 ) ), 1.0E1 );
     }
 }
 

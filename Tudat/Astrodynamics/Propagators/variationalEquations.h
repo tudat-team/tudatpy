@@ -209,6 +209,9 @@ public:
             // Add partials of parameters.
             getParameterPartialMatrix< StateScalarType >( currentMatrixDerivative );
         }
+//        currentMatrixDerivative.block( 0, 6, 6, 7 ).setZero( );
+//        currentMatrixDerivative.block( 6, 0, 7, 6 ).setZero( );
+
     }
 
     //! Function to clear reference/cached values of state derivative partials.
