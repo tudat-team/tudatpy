@@ -1,0 +1,169 @@
+{
+  "transmitter:(Earth,Station1); receiver:(Vehicle,)": [
+    {
+      "bias": {
+        "biasType": "constantAbsoluteBias",
+        "constantBias": [
+          [
+            1.0
+          ]
+        ]
+      },
+      "lightTimeCorrections": [
+        {
+          "lightTimeCorrectionType": "firsOrderRelativistic",
+          "perturbingBodies": [
+            "Mars",
+            "Moon"
+          ]
+        }
+      ],
+      "observableType": "oneWayRange"
+    },
+    {
+      "observableType": "positionObservable"
+    }
+  ],
+  "transmitter:(Earth,Station2); receiver:(Vehicle,)": [
+    {
+      "bias": {
+        "arcStartTimes": [
+          0.0,
+          1000000.0,
+          3000000.0
+        ],
+        "arcWiseBiasList": [
+          [
+            [
+              1e-06
+            ],
+            [
+              1e-06
+            ]
+          ],
+          [
+            [
+              1e-07
+            ],
+            [
+              1e-07
+            ]
+          ],
+          [
+            [
+              2e-06
+            ],
+            [
+              100000.0
+            ]
+          ]
+        ],
+        "biasType": "arcWiseConstantAbsoluteBias",
+        "referenceLinkEnd": "transmitter"
+      },
+      "lightTimeCorrections": [
+        {
+          "lightTimeCorrectionType": "firsOrderRelativistic",
+          "perturbingBodies": [
+            "Mars",
+            "Moon"
+          ]
+        }
+      ],
+      "observableType": "angularPosition"
+    }
+  ],
+  "transmitter:(Earth,Station3); receiver:(Vehicle,)": [
+    {
+      "bias": {
+        "arcStartTimes": [
+          0.0,
+          1000000.0,
+          3000000.0
+        ],
+        "arcWiseBiasList": [
+          [
+            [
+              1e-12
+            ]
+          ],
+          [
+            [
+              1e-13
+            ]
+          ],
+          [
+            [
+              2e-12
+            ]
+          ]
+        ],
+        "biasType": "arcWiseConstantAbsoluteBias",
+        "referenceLinkEnd": "transmitter"
+      },
+      "observableType": "oneWayDoppler"
+    }
+  ],
+  "transmitter:(Vehicle,); receiver:(Earth,Station1)": [
+    {
+      "bias": {
+        "biasType": "multipleObservationBiases",
+        "multipleBiasesList": [
+          {
+            "biasType": "constantRelativeBias",
+            "constantBias": [
+              [
+                1e-06
+              ]
+            ]
+          },
+          {
+            "biasType": "constantAbsoluteBias",
+            "constantBias": [
+              [
+                2.0
+              ]
+            ]
+          }
+        ]
+      },
+      "lightTimeCorrections": [
+        {
+          "lightTimeCorrectionType": "firsOrderRelativistic",
+          "perturbingBodies": [
+            "Mars",
+            "Moon"
+          ]
+        }
+      ],
+      "observableType": "oneWayRange"
+    }
+  ],
+  "transmitter:(Vehicle,); receiver:(Earth,Station2)": [
+    {
+      "bias": {
+        "biasType": "constantAbsoluteBias",
+        "constantBias": [
+          [
+            1.0
+          ]
+        ]
+      },
+      "lightTimeCorrections": [
+        {
+          "lightTimeCorrectionType": "firsOrderRelativistic",
+          "perturbingBodies": [
+            "Mars",
+            "Moon"
+          ]
+        }
+      ],
+      "observableType": "oneWayRange"
+    }
+  ],
+  "transmitter:(Vehicle,); receiver:(Earth,Station3)": [
+    {
+      "observableType": "angularPosition"
+    }
+  ]
+}

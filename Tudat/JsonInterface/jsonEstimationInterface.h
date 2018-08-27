@@ -12,15 +12,12 @@
 #define TUDAT_JSONINTERFACE_H
 
 #include "Tudat/SimulationSetup/tudatSimulationHeader.h"
-#include "Tudat/SimulationSetup/EstimationSetup/createEstimatableParameters.h"
-
 #include "Support/deserialization.h"
 #include "Support/valueAccess.h"
 #include "Support/valueConversions.h"
 
 #include "Tudat/JsonInterface/Environment/spice.h"
 #include "Tudat/JsonInterface/Environment/body.h"
-#include "Tudat/JsonInterface/Estimation/parameter.h"
 #include "Tudat/JsonInterface/Propagation/propagator.h"
 #include "Tudat/JsonInterface/Mathematics/integrator.h"
 #include "Tudat/JsonInterface/Propagation/export.h"
@@ -31,39 +28,6 @@ namespace tudat
 
 namespace json_interface
 {
-
-enum JsonSimulationTypes
-{
-    equations_of_motion_propagation,
-    variational_equations_propagation
-};
-
-
-//! Map of `ObservableType` string representations.
-static std::map< JsonSimulationTypes, std::string > simulationTypes =
-{
-    { equations_of_motion_propagation, "EoM" },
-    { variational_equations_propagation, "Variational" }
-};
-
-//! Map of `ObservableType` string representations.
-static std::map< std::string, JsonSimulationTypes > simulationTypesInverse =
-{
-    { "EoM", equations_of_motion_propagation },
-    { "Variational", variational_equations_propagation }
-};
-
-//! Convert `ObservableType` to `json`.
-inline void to_json( nlohmann::json& jsonObject, const JsonSimulationTypes& simulationType )
-{
-    jsonObject = json_interface::stringFromEnum( simulationType, simulationTypes );
-}
-
-//! Convert `json` to `ObservableType`.
-inline void from_json( const nlohmann::json& jsonObject, JsonSimulationTypes& simulationType )
-{
-    simulationType = json_interface::enumFromString( jsonObject, simulationTypes );
-}
 
 //! Class for managing JSON-based simulations.
 template< typename TimeType = double, typename StateScalarType = double >
@@ -141,29 +105,13 @@ public:
             initialClockTime_ = std::chrono::steady_clock::now( );
         }
 
-        simulationType_ =
-                simulationTypesInverse.at( getValue< std::string >( jsonObject_, Keys::simulationType, "EoM" ) );
-
         resetIntegratorSettings( );
         resetSpice( );
         resetBodies( );              // must be called after resetIntegratorSettings and resetSpice
         resetExportSettings( );
         resetPropagatorSettings( );  // must be called after resetBodies and resetExportSettings
-        if( simulationType_ == variational_equations_propagation )
-        {
-            resetParameterSettings( );
-        }
-
         resetApplicationOptions( );
-
-        if( simulationType_ == equations_of_motion_propagation )
-        {
-            resetDynamicsSimulator( );
-        }
-        else if( simulationType_ == variational_equations_propagation )
-        {
-            resetVariationalEquationsSolver( );
-        }
+        resetDynamicsSimulator( );
     }
 
     //! Run the propagation.
@@ -352,7 +300,7 @@ public:
         return integratorSettings_;
     }
 
-    //! Get Spice settings (nullptr if Spice is not used).
+    //! Get Spice settings (NULL if Spice is not used).
     std::shared_ptr< SpiceSettings > getSpiceSettings( ) const
     {
         return spiceSettings_;
@@ -450,7 +398,7 @@ protected:
      */
     virtual void resetSpice( )
     {
-        spiceSettings_ = nullptr;
+        spiceSettings_ = NULL;
         updateFromJSONIfDefined( spiceSettings_, jsonObject_, Keys::spice );
         loadSpiceKernels( spiceSettings_ );
 
@@ -520,12 +468,7 @@ protected:
 
         // Update propagatorSettings_ from jsonObject_
         updateFromJSON( propagatorSettings_, jsonObject_ );
-        if ( profiling )
-        {
-            std::cout << "resetExportSettings: " << std::chrono::duration_cast< std::chrono::milliseconds >(
-                             std::chrono::steady_clock::now( ) - initialClockTime_ ).count( ) * 1.0e-3 << " s" << std::endl;
-            initialClockTime_ = std::chrono::steady_clock::now( );
-        }
+
         if ( profiling )
         {
             std::cout << "resetPropagatorSettings@updateFromJSON: " << std::chrono::duration_cast< std::chrono::milliseconds >(
@@ -544,7 +487,7 @@ protected:
         }
 
         // Update dependent variables to save
-        resetDependentVariableSaveSettings< StateScalarType >( propagatorSettings_, exportSettingsVector_ );
+        resetDependentVariableSaveSettings( propagatorSettings_, exportSettingsVector_ );
 
         if ( profiling )
         {
@@ -552,22 +495,6 @@ protected:
                              std::chrono::steady_clock::now( ) - initialClockTime_ ).count( ) * 1.0e-3 << " s" << std::endl;
             initialClockTime_ = std::chrono::steady_clock::now( );
         }
-    }
-
-    virtual void resetParameterSettings( )
-    {
-//        updateFromJSON( parameterSettings_, jsonObject_ );
-//        parametersToEstimate_ = simulation_setup::createParametersToEstimate(
-//                    parameterSettings_, bodyMap_, propagators::getAccelerationMapFromPropagatorSettings< StateScalarType >(
-//                        propagatorSettings_)  );
-
-//        if ( profiling )
-//        {
-
-//            std::cout << "resetParameterSettings: " << std::chrono::duration_cast< std::chrono::milliseconds >(
-//                             std::chrono::steady_clock::now( ) - initialClockTime_ ).count( ) * 1.0e-3 << " s" << std::endl;
-//            initialClockTime_ = std::chrono::steady_clock::now( );
-//        }
     }
 
     //! Reset applicationOptions_ from the current jsonObject_.
@@ -605,28 +532,12 @@ protected:
         }
     }
 
-    virtual void resetVariationalEquationsSolver( )
-    {
-//        variationalEquationsSolver_ =
-//                std::make_shared< propagators::SingleArcVariationalEquationsSolver< StateScalarType, TimeType > >(
-//                    bodyMap_, integratorSettings_, propagatorSettings_, parametersToEstimate_, true,
-//                    std::shared_ptr< numerical_integrators::IntegratorSettings< double > >( ), false, true );
-
-//        if ( profiling )
-//        {
-//            std::cout << "resetVariationalEquationsSolver: " << std::chrono::duration_cast< std::chrono::milliseconds >(
-//                             std::chrono::steady_clock::now( ) - initialClockTime_ ).count( ) * 1.0e-3 << " s" << std::endl;
-//            initialClockTime_ = std::chrono::steady_clock::now( );
-//        }
-    }
 
     //! Integrator settings.
     std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings_;
 
-    //! Spice settings (nullptr if Spice is not used).
+    //! Spice settings (NULL if Spice is not used).
     std::shared_ptr< SpiceSettings > spiceSettings_;
-
-    JsonSimulationTypes simulationType_;
 
     //! Global frame origin.
     std::string globalFrameOrigin_;
@@ -643,10 +554,6 @@ protected:
     //! Propagation settings.
     std::shared_ptr< propagators::MultiTypePropagatorSettings< StateScalarType > > propagatorSettings_;
 
-//    std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettings > > parameterSettings_;
-
-//    std::shared_ptr< estimatable_parameters::EstimatableParameterSet< StateScalarType > > parametersToEstimate_;
-
     //! Vector of export settings (each element corresponds to an output file).
     std::vector< std::shared_ptr< ExportSettings > > exportSettingsVector_;
 
@@ -656,7 +563,6 @@ protected:
     //! Dynamics simulator.
     std::shared_ptr< propagators::SingleArcDynamicsSimulator< StateScalarType, TimeType > > dynamicsSimulator_;
 
-//    std::shared_ptr< propagators::SingleArcVariationalEquationsSolver< StateScalarType, TimeType > > variationalEquationsSolver_;
 
 private:
 
@@ -695,7 +601,7 @@ void to_json( nlohmann::json& jsonObject,
     jsonObject[ Keys::integrator ] = jsonSimulationManager->getIntegratorSettings( );
 
     // spice
-    assignIfNotnullptr( jsonObject, Keys::spice, jsonSimulationManager->getSpiceSettings( ) );
+    assignIfNotNull( jsonObject, Keys::spice, jsonSimulationManager->getSpiceSettings( ) );
 
     // bodies
     jsonObject[ Keys::globalFrameOrigin ] = jsonSimulationManager->getGlobalFrameOrigin( );
@@ -709,8 +615,7 @@ void to_json( nlohmann::json& jsonObject,
     jsonObject[ Keys::options ] = jsonSimulationManager->getApplicationOptions( );
 
     // propagation + termination + options.printInterval
-    propagators::to_json( jsonObject, std::dynamic_pointer_cast<
-                          propagators::SingleArcPropagatorSettings< StateScalarType > >( jsonSimulationManager->getPropagatorSettings( ) ) );
+    propagators::to_json( jsonObject, jsonSimulationManager->getPropagatorSettings( ) );
 }
 
 } // namespace json_interface

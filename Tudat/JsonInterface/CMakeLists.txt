@@ -24,6 +24,8 @@ set(JSONINTERFACE_SOURCES
     "${SRCROOT}${JSONINTERFACEDIR}/Environment/shapeModel.cpp"
     "${SRCROOT}${JSONINTERFACEDIR}/Environment/radiationPressure.cpp"
     "${SRCROOT}${JSONINTERFACEDIR}/Environment/gravityFieldVariation.cpp"
+    "${SRCROOT}${JSONINTERFACEDIR}/Estimation/parameter.cpp"
+    "${SRCROOT}${JSONINTERFACEDIR}/Estimation/observation.cpp"
     "${SRCROOT}${JSONINTERFACEDIR}/Propagation/variable.cpp"
     "${SRCROOT}${JSONINTERFACEDIR}/Propagation/termination.cpp"
     "${SRCROOT}${JSONINTERFACEDIR}/Propagation/acceleration.cpp"
@@ -54,6 +56,8 @@ set(JSONINTERFACE_HEADERS
     "${SRCROOT}${JSONINTERFACEDIR}/Environment/shapeModel.h"
     "${SRCROOT}${JSONINTERFACEDIR}/Environment/radiationPressure.h"
     "${SRCROOT}${JSONINTERFACEDIR}/Environment/gravityFieldVariation.h"
+    "${SRCROOT}${JSONINTERFACEDIR}/Estimation/parameter.h"
+    "${SRCROOT}${JSONINTERFACEDIR}/Estimation/observation.h"
     "${SRCROOT}${JSONINTERFACEDIR}/Propagation/variable.h"
     "${SRCROOT}${JSONINTERFACEDIR}/Propagation/state.h"
     "${SRCROOT}${JSONINTERFACEDIR}/Propagation/propagator.h"
@@ -239,6 +243,14 @@ target_link_libraries(test_JsonInterfaceTorque ${JSON_PROPAGATION_LIBRARIES})
 add_executable(test_JsonInterfaceVariable "${JSON_TESTS_DIR}/unitTestVariable.cpp")
 setup_custom_test_program(test_JsonInterfaceVariable "")
 target_link_libraries(test_JsonInterfaceVariable ${JSON_PROPAGATION_LIBRARIES})
+
+add_executable(test_JsonInterfaceObservation "${JSON_TESTS_DIR}/unitTestObservation.cpp")
+setup_custom_test_program(test_JsonInterfaceObservation "")
+target_link_libraries(test_JsonInterfaceObservation ${JSON_PROPAGATION_LIBRARIES})
+
+add_executable(test_JsonInterfaceParameter "${JSON_TESTS_DIR}/unitTestParameter.cpp")
+setup_custom_test_program(test_JsonInterfaceParameter "")
+target_link_libraries(test_JsonInterfaceParameter ${JSON_PROPAGATION_LIBRARIES})
 
 
 
