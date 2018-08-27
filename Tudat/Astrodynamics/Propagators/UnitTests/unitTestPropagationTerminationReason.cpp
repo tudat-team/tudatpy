@@ -446,7 +446,6 @@ BOOST_AUTO_TEST_CASE( testReasonAfterPropagationErrorCaught )
                 "Sun", createRadiationPressureInterface(
                     asterixRadiationPressureSettings, "Asterix", bodyMap ) );
 
-
     // Finalize body creation.
     setGlobalFrameBodyEphemerides( bodyMap, "SSB", "J2000" );
 
@@ -521,11 +520,6 @@ BOOST_AUTO_TEST_CASE( testReasonAfterPropagationErrorCaught )
 
     // Propagate dynamics.
     dynamicsSimulator.integrateEquationsOfMotion( propagatorSettings->getInitialStates( ) );
-
-    // Write body propagation history in conventional coordinates to file.
-    input_output::writeDataMapToTextFile( dynamicsSimulator.getEquationsOfMotionNumericalSolution( ),
-                                          "bodyPropagationHistory.dat",
-                                          "/Users/Michele/Desktop/" );
 
     // Check that the propagation termination reason after propagation.
     BOOST_CHECK( dynamicsSimulator.getPropagationTerminationReason( )->getPropagationTerminationReason( ) ==

@@ -220,7 +220,7 @@ public:
             const IndependentVariableType minimumFactorDecreaseForNextStepSize = 0.1,
             const NewStepSizeFunction& newStepSizeFunction = 0 ) :
         RungeKuttaVariableStepSizeSettings(
-            rungeKuttaVariableStepSize, initialTime, initialTimeStep, coefficientSet, minimumStepSize, maximumStepSize,
+            initialTime, initialTimeStep, coefficientSet, minimumStepSize, maximumStepSize,
             Eigen::Matrix< typename DependentVariableType::Scalar, 1, 1 >::Constant( relativeErrorTolerance ),
             Eigen::Matrix< typename DependentVariableType::Scalar, 1, 1 >::Constant( absoluteErrorTolerance ),
             saveFrequency, assessPropagationTerminationConditionDuringIntegrationSubsteps, safetyFactorForNextStepSize,
@@ -230,6 +230,7 @@ public:
     //! Constructor
     /*!
      *  Constructor for variable step RK integrator settings, taking integrator type and scalar values for relative and absolute tolerances.
+     *  \param integratorType Type of numerical integrator.
      *  \param initialTime Start time (independent variable) of numerical integration.
      *  \param initialTimeStep Initial time (independent variable) step used in numerical integration.
      *  Adapted during integration
@@ -264,7 +265,7 @@ public:
             const IndependentVariableType minimumFactorDecreaseForNextStepSize = 0.1,
             const NewStepSizeFunction& newStepSizeFunction = 0 ) :
         RungeKuttaVariableStepSizeSettings(
-            integratorType, initialTime, initialTimeStep, coefficientSet, minimumStepSize, maximumStepSize,
+            initialTime, initialTimeStep, coefficientSet, minimumStepSize, maximumStepSize,
             Eigen::Matrix< typename DependentVariableType::Scalar, 1, 1 >::Constant( relativeErrorTolerance ),
             Eigen::Matrix< typename DependentVariableType::Scalar, 1, 1 >::Constant( absoluteErrorTolerance ),
             saveFrequency, assessPropagationTerminationConditionDuringIntegrationSubsteps, safetyFactorForNextStepSize,
