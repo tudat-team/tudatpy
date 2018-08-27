@@ -203,7 +203,15 @@ public:
         }
 
         // Run simulation
-        dynamicsSimulator_->integrateEquationsOfMotion( propagatorSettings_->getInitialStates( ) );
+        if( simulationType_ == equations_of_motion_propagation )
+        {
+            dynamicsSimulator_->integrateEquationsOfMotion( propagatorSettings_->getInitialStates( ) );
+        }
+        else if( simulationType_ == variational_equations_propagation )
+        {
+           variationalEquationsSolver_->integrateVariationalAndDynamicalEquations(
+                       propagatorSettings_->getInitialStates( ) , true );
+        }
 
         // Print message on propagation termination if requested
         if ( applicationOptions_->notifyOnPropagationTermination_ )
@@ -235,7 +243,7 @@ public:
     virtual void exportResults( )
     {
         if ( applicationOptions_->tagOutputFilesIfPropagationFails_ &&
-             ! dynamicsSimulator_->integrationCompletedSuccessfully( ) )
+             !dynamicsSimulator_->integrationCompletedSuccessfully( ) )
         {
             // Add header "FAILURE" to output files
             for ( std::shared_ptr< ExportSettings >& exportSettings : exportSettingsVector_ )
@@ -244,7 +252,13 @@ public:
             }
         }
 
-        exportResultsOfDynamicsSimulator( dynamicsSimulator_, exportSettingsVector_ );
+        exportResultsOfDynamicsSimulator( dynamicsSimulator_, exportSettingsVector_,
+                                          ( simulationType_ == variational_equations_propagation ) );
+
+        if( simulationType_ == variational_equations_propagation )
+        {
+            exportResultsOfVariationalEquations( variationalEquationsSolver_, exportSettingsVector_ );
+        }
 
         if ( profiling )
         {
@@ -424,6 +438,11 @@ public:
         return dynamicsSimulator_;
     }
 
+    std::shared_ptr< propagators::SingleArcVariationalEquationsSolver< StateScalarType, TimeType > > getVariationalEquationsSolver( ) const
+    {
+        return variationalEquationsSolver_;
+    }
+
 
 protected:
 
@@ -556,18 +575,18 @@ protected:
 
     virtual void resetParameterSettings( )
     {
-//        updateFromJSON( parameterSettings_, jsonObject_ );
-//        parametersToEstimate_ = simulation_setup::createParametersToEstimate(
-//                    parameterSettings_, bodyMap_, propagators::getAccelerationMapFromPropagatorSettings< StateScalarType >(
-//                        propagatorSettings_)  );
+        updateFromJSON( parameterSettings_, jsonObject_, Keys::parametersToEstimate );
+        parametersToEstimate_ = simulation_setup::createParametersToEstimate(
+                    parameterSettings_, bodyMap_, propagators::getAccelerationMapFromPropagatorSettings< StateScalarType >(
+                        propagatorSettings_)  );
 
-//        if ( profiling )
-//        {
+        if ( profiling )
+        {
 
-//            std::cout << "resetParameterSettings: " << std::chrono::duration_cast< std::chrono::milliseconds >(
-//                             std::chrono::steady_clock::now( ) - initialClockTime_ ).count( ) * 1.0e-3 << " s" << std::endl;
-//            initialClockTime_ = std::chrono::steady_clock::now( );
-//        }
+            std::cout << "resetParameterSettings: " << std::chrono::duration_cast< std::chrono::milliseconds >(
+                             std::chrono::steady_clock::now( ) - initialClockTime_ ).count( ) * 1.0e-3 << " s" << std::endl;
+            initialClockTime_ = std::chrono::steady_clock::now( );
+        }
     }
 
     //! Reset applicationOptions_ from the current jsonObject_.
@@ -607,17 +626,19 @@ protected:
 
     virtual void resetVariationalEquationsSolver( )
     {
-//        variationalEquationsSolver_ =
-//                std::make_shared< propagators::SingleArcVariationalEquationsSolver< StateScalarType, TimeType > >(
-//                    bodyMap_, integratorSettings_, propagatorSettings_, parametersToEstimate_, true,
-//                    std::shared_ptr< numerical_integrators::IntegratorSettings< double > >( ), false, true );
+        variationalEquationsSolver_ =
+                std::make_shared< propagators::SingleArcVariationalEquationsSolver< StateScalarType, TimeType > >(
+                    bodyMap_, integratorSettings_, propagatorSettings_, parametersToEstimate_, true,
+                    std::shared_ptr< numerical_integrators::IntegratorSettings< double > >( ), false, false, false );
+        dynamicsSimulator_ = variationalEquationsSolver_->getDynamicsSimulator( );
+        std::cout<<"Set result: "<<dynamicsSimulator_->getSetIntegratedResult( )<<std::endl;
 
-//        if ( profiling )
-//        {
-//            std::cout << "resetVariationalEquationsSolver: " << std::chrono::duration_cast< std::chrono::milliseconds >(
-//                             std::chrono::steady_clock::now( ) - initialClockTime_ ).count( ) * 1.0e-3 << " s" << std::endl;
-//            initialClockTime_ = std::chrono::steady_clock::now( );
-//        }
+        if ( profiling )
+        {
+            std::cout << "resetVariationalEquationsSolver: " << std::chrono::duration_cast< std::chrono::milliseconds >(
+                             std::chrono::steady_clock::now( ) - initialClockTime_ ).count( ) * 1.0e-3 << " s" << std::endl;
+            initialClockTime_ = std::chrono::steady_clock::now( );
+        }
     }
 
     //! Integrator settings.
@@ -643,9 +664,9 @@ protected:
     //! Propagation settings.
     std::shared_ptr< propagators::MultiTypePropagatorSettings< StateScalarType > > propagatorSettings_;
 
-//    std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettings > > parameterSettings_;
+    std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettings > > parameterSettings_;
 
-//    std::shared_ptr< estimatable_parameters::EstimatableParameterSet< StateScalarType > > parametersToEstimate_;
+    std::shared_ptr< estimatable_parameters::EstimatableParameterSet< StateScalarType > > parametersToEstimate_;
 
     //! Vector of export settings (each element corresponds to an output file).
     std::vector< std::shared_ptr< ExportSettings > > exportSettingsVector_;
@@ -656,7 +677,7 @@ protected:
     //! Dynamics simulator.
     std::shared_ptr< propagators::SingleArcDynamicsSimulator< StateScalarType, TimeType > > dynamicsSimulator_;
 
-//    std::shared_ptr< propagators::SingleArcVariationalEquationsSolver< StateScalarType, TimeType > > variationalEquationsSolver_;
+    std::shared_ptr< propagators::SingleArcVariationalEquationsSolver< StateScalarType, TimeType > > variationalEquationsSolver_;
 
 private:
 

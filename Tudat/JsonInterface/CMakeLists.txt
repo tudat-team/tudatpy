@@ -79,7 +79,7 @@ set(JSONINTERFACE_HEADERS
 add_library(json_interface_library STATIC ${JSONINTERFACE_SOURCES} ${JSONINTERFACE_HEADERS})
 setup_tudat_library_target(json_interface_library "")
 
-list(APPEND JSON_PROPAGATION_LIBRARIES json_interface_library ${TUDAT_PROPAGATION_LIBRARIES} ${Boost_LIBRARIES})
+list(APPEND JSON_PROPAGATION_LIBRARIES json_interface_library ${TUDAT_ESTIMATION_LIBRARIES} ${Boost_LIBRARIES})
 
 # Set the global macros for setting up targets.
 macro(setup_executable_target target_name)
@@ -188,6 +188,11 @@ target_link_libraries(test_JsonInterfaceShapeModel ${JSON_PROPAGATION_LIBRARIES}
 add_executable(test_JsonInterfaceSimulationSingleSatellite "${JSON_TESTS_DIR}/unitTestSimulationSingleSatellite.cpp")
 setup_custom_test_program(test_JsonInterfaceSimulationSingleSatellite "")
 target_link_libraries(test_JsonInterfaceSimulationSingleSatellite ${JSON_PROPAGATION_LIBRARIES})
+
+add_executable(test_JsonInterfaceSimulationSingleSatelliteVariational "${JSON_TESTS_DIR}/unitTestSimulationSingleSatelliteVariational.cpp")
+setup_custom_test_program(test_JsonInterfaceSimulationSingleSatelliteVariational "")
+target_link_libraries(test_JsonInterfaceSimulationSingleSatelliteVariational ${JSON_PROPAGATION_LIBRARIES})
+
 
 # SimulationSinglePerturbedSatellite
 add_executable(test_JsonInterfaceSimulationSinglePerturbedSatellite "${JSON_TESTS_DIR}/unitTestSimulationSinglePerturbedSatellite.cpp")

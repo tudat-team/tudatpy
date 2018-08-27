@@ -12,6 +12,7 @@
 #define TUDAT_JSONINTERFACE_EXPORT_H
 
 #include "Tudat/SimulationSetup/PropagationSetup/dynamicsSimulator.h"
+#include "Tudat/SimulationSetup/EstimationSetup/variationalEquationsSolver.h"
 #include "Tudat/JsonInterface/Propagation/variable.h"
 
 #include "Tudat/JsonInterface/Support/valueAccess.h"
@@ -82,7 +83,8 @@ void from_json( const nlohmann::json& jsonObject, std::shared_ptr< ExportSetting
 template< typename TimeType = double, typename StateScalarType = double >
 void exportResultsOfDynamicsSimulator(
         const std::shared_ptr< propagators::SingleArcDynamicsSimulator< StateScalarType, TimeType > >& singleArcDynamicsSimulator,
-        const std::vector< std::shared_ptr< ExportSettings > >& exportSettingsVector )
+        const std::vector< std::shared_ptr< ExportSettings > >& exportSettingsVector,
+        const bool variationalEquationsAreSaved = false )
 {
     using namespace propagators;
     using namespace input_output;
@@ -157,6 +159,22 @@ void exportResultsOfDynamicsSimulator(
                 }
                 break;
             }
+            case stateTransitionMatrix:
+            {
+                if( !variationalEquationsAreSaved )
+                {
+                    throw std::runtime_error( "Error, requested save of state transition matrix, but only equations of motion available" );
+                }
+                break;
+            }
+            case sensitivityMatrix:
+            {
+                if( !variationalEquationsAreSaved )
+                {
+                    throw std::runtime_error( "Error, requested save of sensitivity matrix, but only equations of motion available" );
+                }
+                break;
+            }
             default:
             {
                 std::cerr << "Could not export results for variable of unsupported type "
@@ -222,6 +240,14 @@ void exportResultsOfDynamicsSimulator(
                             dependentVariables.at( epoch ).segment( variableIndices.at( i ), variableSize );
                     break;
                 }
+                case stateTransitionMatrix:
+                {
+                    break;
+                }
+                case sensitivityMatrix:
+                {
+                    break;
+                }
                 default:
                     break;
                 }
@@ -255,6 +281,60 @@ void exportResultsOfDynamicsSimulator(
         }
     }
 }
+
+template< typename StateScalarType = double, typename TimeType = double >
+void exportResultsOfVariationalEquations(
+        const std::shared_ptr< propagators::SingleArcVariationalEquationsSolver< StateScalarType, TimeType > > variationalEquationsSolver,
+        const std::vector< std::shared_ptr< ExportSettings > >& exportSettingsVector )
+{
+    using namespace propagators;
+    using namespace input_output;
+
+    for ( std::shared_ptr< ExportSettings > exportSettings : exportSettingsVector )
+    {
+        for ( std::shared_ptr< VariableSettings > variable : exportSettings->variables_ )
+        {
+            switch ( variable->variableType_ )
+            {
+            case stateTransitionMatrix:
+            {
+                if ( exportSettings->epochsInFirstColumn_ )
+                {
+                    // Write results map to file.
+                    writeDataMapToTextFile( variationalEquationsSolver->getNumericalVariationalEquationsSolution( )[ 0 ],
+                                            exportSettings->outputFile_,
+                                            exportSettings->header_,
+                                            exportSettings->numericalPrecision_ );
+                }
+                else
+                {
+                    throw std::runtime_error( "Error saving state transition/sensitivity matrix without epochs not yet supported" );
+                }
+                break;
+            }
+            case sensitivityMatrix:
+            {
+                if ( exportSettings->epochsInFirstColumn_ )
+                {
+                    // Write results map to file.
+                    writeDataMapToTextFile( variationalEquationsSolver->getNumericalVariationalEquationsSolution( )[ 1 ],
+                                            exportSettings->outputFile_,
+                                            exportSettings->header_,
+                                            exportSettings->numericalPrecision_ );
+                }
+                else
+                {
+                    throw std::runtime_error( "Error saving state transition/sensitivity matrix without epochs not yet supported" );
+                }
+                break;
+            }
+            default:
+                break;
+            }
+        }
+    }
+}
+
 
 } // namespace json_interface
 

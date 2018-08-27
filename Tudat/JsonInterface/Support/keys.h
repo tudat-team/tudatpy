@@ -246,9 +246,9 @@ struct Keys
         static const std::string angle;
     };
 
+    static const std::string parametersToEstimate;
     struct Parameter
     {
-
         static const std::string parameterType;
         static const std::string associatedBody;
         static const std::string secondaryIdentifier;

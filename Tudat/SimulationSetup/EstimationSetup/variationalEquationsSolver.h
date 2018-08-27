@@ -599,7 +599,8 @@ public:
             const std::shared_ptr< numerical_integrators::IntegratorSettings< double > > variationalOnlyIntegratorSettings
             = std::shared_ptr< numerical_integrators::IntegratorSettings< double > >( ),
             const bool clearNumericalSolution = 1,
-            const bool integrateEquationsOnCreation = 1 ):
+            const bool integrateEquationsOnCreation = 1,
+            const bool setIntegratedResult = true ):
         VariationalEquationsSolver< StateScalarType, TimeType >(
             bodyMap, parametersToEstimate, clearNumericalSolution ),
         integratorSettings_( integratorSettings ),
@@ -622,7 +623,7 @@ public:
         {
             // Create simulation object for dynamics only.
             dynamicsSimulator_ =  std::make_shared< SingleArcDynamicsSimulator< StateScalarType, TimeType > >(
-                        bodyMap, integratorSettings, propagatorSettings_, false, clearNumericalSolution, true );
+                        bodyMap, integratorSettings, propagatorSettings_, false, clearNumericalSolution, setIntegratedResult );
             dynamicsStateDerivative_ = dynamicsSimulator_->getDynamicsStateDerivative( );
 
             // Create state derivative partials
@@ -730,7 +731,7 @@ public:
             convertNumericalStateSolutionsToOutputSolutions(
                         equationsOfMotionNumericalSolution, equationsOfMotionNumericalSolutionRaw, dynamicsStateDerivative_ );
             dynamicsSimulator_->manuallySetAndProcessRawNumericalEquationsOfMotionSolution(
-                        equationsOfMotionNumericalSolution, dependentVariableHistory );
+                        equationsOfMotionNumericalSolution, dependentVariableHistory, dynamicsSimulator_->getSetIntegratedResult( ) );
 
             // Reset solution for state transition and sensitivity matrices.
             setVariationalEquationsSolution< TimeType, StateScalarType >(
