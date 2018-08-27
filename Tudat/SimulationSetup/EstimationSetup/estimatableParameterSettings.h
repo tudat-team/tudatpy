@@ -103,7 +103,8 @@ public:
     SphericalHarmonicEstimatableParameterSettings( const std::vector< std::pair< int, int > > blockIndices,
                                                    const std::string associatedBody,
                                                    const EstimatebleParametersEnum parameterType ):
-        EstimatableParameterSettings( associatedBody, parameterType ), blockIndices_( blockIndices )
+        EstimatableParameterSettings( associatedBody, parameterType ), blockIndices_( blockIndices ),
+        minimumDegree_( -1 ), minimumOrder_( -1 ), maximumDegree_( -1 ), maximumOrder_( -1 )
     {
         if( ( parameterType != spherical_harmonics_cosine_coefficient_block ) &&
                 ( parameterType != spherical_harmonics_sine_coefficient_block ) )
@@ -131,7 +132,9 @@ public:
                                                    const int maximumOrder,
                                                    const std::string associatedBody,
                                                    const EstimatebleParametersEnum parameterType ):
-        EstimatableParameterSettings( associatedBody, parameterType )
+        EstimatableParameterSettings( associatedBody, parameterType ),
+        minimumDegree_( minimumDegree ), minimumOrder_( minimumOrder ), maximumDegree_( maximumDegree ),
+        maximumOrder_( maximumOrder )
     {
         if( ( parameterType != spherical_harmonics_cosine_coefficient_block ) &&
                 ( parameterType != spherical_harmonics_sine_coefficient_block ) )
@@ -144,6 +147,11 @@ public:
 
     //! List of degrees and orders that are to estimated (first and second of each entry are degree and order.
     std::vector< std::pair< int, int > > blockIndices_;
+
+    int minimumDegree_;
+    int minimumOrder_;
+    int maximumDegree_;
+    int maximumOrder_;
 };
 
 //! Class to define settings for estimation of constant observation biases (absolute or relative)
@@ -201,7 +209,7 @@ public:
             linkEnds.begin( )->second.first,
             isBiasAdditive ? arcwise_constant_additive_observation_bias : arcwise_constant_relative_observation_bias,
             linkEnds.begin( )->second.second ), linkEnds_( linkEnds ), observableType_( observableType ),
-    arcStartTimes_( arcStartTimes ), linkEndForTime_( linkEndForTime ){ }
+        arcStartTimes_( arcStartTimes ), linkEndForTime_( linkEndForTime ){ }
 
     //! Destructor
     ~ArcWiseConstantObservationBiasEstimatableParameterSettings( ){ }

@@ -22,6 +22,11 @@ namespace tudat
 namespace observation_models
 {
 
+enum ObservationSimulationTimesTypes
+{
+    tabulated_observation_simulation_times
+};
+
 //! Base struct for defining times at which observations are to be simulated.
 /*!
  *  Base struct for defining times at which observations are to be simulated. Here, only the link end from which the

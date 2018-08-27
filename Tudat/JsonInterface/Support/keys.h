@@ -35,7 +35,7 @@ struct SpecialKeys
 //! Keys recognised by json_interface.
 struct Keys
 {
-    // static const std::string simulationType;
+     static const std::string simulationType;
     static const std::string initialEpoch;
     static const std::string finalEpoch;
     static const std::string globalFrameOrigin;
@@ -246,6 +246,80 @@ struct Keys
         static const std::string angle;
     };
 
+    struct Parameter
+    {
+
+        static const std::string parameterType;
+        static const std::string associatedBody;
+        static const std::string secondaryIdentifier;
+
+        static const std::string initialStateValue;
+        static const std::string centralBody;
+        static const std::string frameOrientation;
+        static const std::string arcStartTimes;
+
+        static const std::string coefficientIndices;
+        static const std::string maximumDegree;
+        static const std::string minimumDegree;
+        static const std::string maximumOrder;
+        static const std::string minimumOrder;
+
+        static const std::string deformingBodies;
+
+        static const std::string observableType;
+        static const std::string linkEnds;
+        static const std::string referenceLinkEnd;
+
+        static const std::string componentsToEstimate;        
+
+        static const std::string degree;
+        static const std::string orders;
+        static const std::string useComplexValue;
+    };
+
+    struct Observation
+    {
+        static const std::string observableType;
+        static const std::string lightTimeCorrectionSettingsList;
+        static const std::string biasSettings;
+
+        static const std::string transmitterProperTimeRateSettings;
+        static const std::string receiverProperTimeRateSettings;
+
+        static const std::string constantIntegrationTime;
+
+        static const std::string oneWayRangeObsevationSettings;
+        static const std::string retransmissionTimes;
+
+        static const std::string uplinkOneWayDopplerSettings;
+        static const std::string downlinkOneWayDopplerSettings;
+
+        static const std::string properTimeRateType;
+        static const std::string centralBody;
+
+        static const std::string lightTimeCorrectionType;
+        static const std::string perturbingBodies;
+
+        static const std::string observationSimulationTimesType;
+        static const std::string observationSimulationTimesList;
+
+        static const std::string observableViabilityType;
+        static const std::string associatedLinkEnd;
+        static const std::string doubleParameter;
+        static const std::string stringParameter;
+    };
+
+    struct ObservationBias
+    {
+        static const std::string biasType;
+        static const std::string multipleBiasesList;
+        static const std::string constantBias;
+
+        static const std::string arcWiseBiasList;
+        static const std::string arcStartTimes;
+        static const std::string referenceLinkEnd;
+
+    };
 
     static const std::string propagators;
     struct Propagator

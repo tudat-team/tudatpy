@@ -90,7 +90,12 @@ static std::map< PropagationDependentVariables, std::string > dependentVariableT
 };
 
 //! `PropagationDependentVariables` not supported by `json_interface`.
-static std::vector< PropagationDependentVariables > unsupportedDependentVariableTypes = { };
+static std::vector< PropagationDependentVariables > unsupportedDependentVariableTypes =
+{
+    spherical_harmonic_acceleration_terms_dependent_variable ,
+    body_fixed_relative_cartesian_position,
+    body_fixed_relative_spherical_position
+};
 
 //! Convert `PropagationDependentVariables` to `json`.
 inline void to_json( nlohmann::json& jsonObject, const PropagationDependentVariables& dependentVariable )
