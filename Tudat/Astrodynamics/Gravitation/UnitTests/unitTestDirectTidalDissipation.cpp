@@ -67,7 +67,7 @@ std::pair< double, double > computeKeplerElementRatesDueToDissipation(
     const double fixedStepSize = 450.0;
     boost::shared_ptr< IntegratorSettings< > > integratorSettings =
             boost::make_shared< RungeKuttaVariableStepSizeSettings< > >
-            ( 0.0, fixedStepSize, RungeKuttaCoefficients::rungeKuttaFehlberg78, fixedStepSize, fixedStepSize, 1.0, 1.0);
+            ( 0.0, fixedStepSize, RungeKuttaCoefficients::rungeKuttaFehlberg78, fixedStepSize, fixedStepSize, 1.0, 1.0 );
 
     std::map< double, Eigen::VectorXd > integrationResultWithDissipation;
     std::map< double, Eigen::VectorXd > integrationResultWithDissipationKepler;
