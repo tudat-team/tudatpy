@@ -660,6 +660,7 @@ executePhobosRotationSimulation(
                     phobosSineGravityFieldCoefficients, "Phobos_Fixed",
                     std::bind( &Body::setBodyInertiaTensorFromGravityFieldAndExistingMeanMoment, bodyMap.at( "Phobos" ), true ) ) );
 
+
 //    std::cout<<"Cosine "<<std::endl<<phobosCosineGravityFieldCoefficients<<std::endl;
 //    std::cout<<"Sine "<<std::endl<<phobosSineGravityFieldCoefficients<<std::endl;
 //    std::cout<<"MOI "<<std::endl<<bodyMap.at( "Phobos" )->getBodyInertiaTensor( )<<std::endl;
@@ -783,10 +784,11 @@ executePhobosRotationSimulation(
         parameterNames.push_back( std::make_shared< InitialTranslationalStateEstimatableParameterSettings< double > >(
                                       "Phobos", initialTranslationalState, "Mars" ) );
 
+        parameterNames.push_back( std::make_shared< EstimatableParameterSettings >( "Phobos", mean_moment_of_inertia ) );
         parameterNames.push_back( std::make_shared< SphericalHarmonicEstimatableParameterSettings >(
                                       1, 0, 2, 2, "Phobos", spherical_harmonics_cosine_coefficient_block ) );
         parameterNames.push_back( std::make_shared< SphericalHarmonicEstimatableParameterSettings >(
-                                      1, 1, 2, 2, "Phobos", spherical_harmonics_sine_coefficient_block ) );
+                                      2, 1, 2, 2, "Phobos", spherical_harmonics_sine_coefficient_block ) );
     }
 
     // Create parameters
@@ -860,8 +862,6 @@ executePhobosRotationSimulation(
             results.first.push_back( dynamicsSimulator.getStateTransitionMatrixInterface( )->
                                      getCombinedStateTransitionAndSensitivityMatrix( testEpoch ) );
 
-            //            std::cout<<"State der. "<<results.first[ 0 ]<<std::endl;
-
         }
         results.second.push_back( testStates );
 
@@ -886,7 +886,7 @@ BOOST_AUTO_TEST_CASE( testPhobosRotationVariationalEquationCalculation )
     Eigen::Matrix< double, 8, 1 > perturbedParameter;
     Eigen::Matrix< double, 8, 1 > parameterPerturbation;
     parameterPerturbation = Eigen::Matrix< double, 8, 1 >::Constant( sphericalHarmonicsPerturbation );
-
+    parameterPerturbation( 0 ) = 1.0E-4;
 
     // Compute state transition and sensitivity matrices
     Eigen::Matrix< double, 13, 1 > appliedStateDifference;
@@ -1021,16 +1021,16 @@ BOOST_AUTO_TEST_CASE( testPhobosRotationVariationalEquationCalculation )
 
     // Check three values separately: could not find perturbations for which all partials are sufficiently within the linear regime
 
-    BOOST_CHECK_SMALL( std::fabs( manualPartial( 4, 4 + 13 ) -
-                                  stateTransitionAndSensitivityMatrixAtEpoch( 4, 4 + 13 ) ), 1.0E-4 );
-    BOOST_CHECK_SMALL( std::fabs( manualPartial( 11, 3 + 13 ) -
-                                  stateTransitionAndSensitivityMatrixAtEpoch( 11, 3 + 13 ) ), 1.0E-5 );
-    BOOST_CHECK_SMALL( std::fabs( manualPartial( 12, 2 + 13 ) -
-                                  stateTransitionAndSensitivityMatrixAtEpoch( 12, 2 + 13 ) ), 1.0E-2 );
+    BOOST_CHECK_SMALL( std::fabs( manualPartial( 4, 5 + 13 ) -
+                                  stateTransitionAndSensitivityMatrixAtEpoch( 4, 5 + 13 ) ), 1.0E-4 );
+    BOOST_CHECK_SMALL( std::fabs( manualPartial( 11, 4 + 13 ) -
+                                  stateTransitionAndSensitivityMatrixAtEpoch( 11, 4 + 13 ) ), 1.0E-5 );
+    BOOST_CHECK_SMALL( std::fabs( manualPartial( 12, 3 + 13 ) -
+                                  stateTransitionAndSensitivityMatrixAtEpoch( 12, 3 + 13 ) ), 1.0E-2 );
 
-    manualPartial( 4, 4 + 13 ) =  stateTransitionAndSensitivityMatrixAtEpoch( 4, 4 + 13 );
-    manualPartial( 11, 3 + 13 ) =  stateTransitionAndSensitivityMatrixAtEpoch( 11, 3 + 13 );
-    manualPartial( 12, 2 + 13 ) =  stateTransitionAndSensitivityMatrixAtEpoch( 12, 2 + 13 );
+    manualPartial( 4, 5 + 13 ) =  stateTransitionAndSensitivityMatrixAtEpoch( 4, 5 + 13 );
+    manualPartial( 11, 4 + 13 ) =  stateTransitionAndSensitivityMatrixAtEpoch( 11, 4 + 13 );
+    manualPartial( 12, 3 + 13 ) =  stateTransitionAndSensitivityMatrixAtEpoch( 12, 3 + 13 );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
                 ( manualPartial.block( 0, 13, 13, 8 ) ), ( stateTransitionAndSensitivityMatrixAtEpoch.block( 0, 13, 13, 8 ) ), 1.0E-4 );
 }
