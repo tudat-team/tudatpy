@@ -265,11 +265,12 @@ void from_json( const nlohmann::json& jsonObject,
         parameterSettings =
                 std::make_shared< InitialTranslationalStateEstimatableParameterSettings< double > >(
                     bodyName,
-                    getValue< Eigen::Matrix< double, 6, 1 > >( jsonObject, K::initialStateValue ),
-                    getValue< std::string >( jsonObject, K::centralBody ),
-                    getValue< std::string >( jsonObject, K::frameOrientation ) );
+                    getValue< Eigen::Matrix< double, 6, 1 > >(
+                        jsonObject, K::initialStateValue, Eigen::Matrix< double, 6, 1 >::Constant( TUDAT_NAN ) ),
+                        getValue< std::string >( jsonObject, K::centralBody ),
+                        getValue< std::string >( jsonObject, K::frameOrientation ) );
 
-        return;
+                return;
     }
     case arc_wise_initial_body_state:
     {

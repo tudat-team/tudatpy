@@ -29,7 +29,9 @@ enum VariableType
     independentVariable,
     cpuTimeVariable,
     stateVariable,
-    dependentVariable  // -> derivedVariable ?
+    dependentVariable,  // -> derivedVariable ?
+    stateTransitionMatrix,
+    sensitivityMatrix
 };
 
 //! Functional base class for defining settings for variables

@@ -237,6 +237,8 @@ const std::string Keys::Variable::angle = "angle";
 
 
 // Parameter
+const std::string Keys::parametersToEstimate = "parametersToEstimate";
+
 const std::string Keys::Parameter::parameterType = "parameterType";
 const std::string Keys::Parameter::associatedBody = "associatedBody";
 const std::string Keys::Parameter::secondaryIdentifier = "secondaryIdentifier";

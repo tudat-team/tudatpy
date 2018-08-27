@@ -1553,7 +1553,7 @@ basic_astrodynamics::AccelerationMap getAccelerationMapFromPropagatorSettings(
                 std::dynamic_pointer_cast< MultiTypePropagatorSettings< StateScalarType > >( singleArcPropagatorSettings );
         if( multiTypePropagatorSettings->propagatorSettingsMap_.count( translational_state ) > 0 )
         {
-            if( multiTypePropagatorSettings->propagatorSettingsMap_.at( translational_state ).size( ) != 1 )
+            if( multiTypePropagatorSettings->propagatorSettingsMap_.at( translational_state ).size( ) == 1 )
             {
                 accelerationMap = getAccelerationMapFromPropagatorSettings(
                             multiTypePropagatorSettings->propagatorSettingsMap_.at( translational_state ).at( 0 ) );

@@ -308,6 +308,11 @@ public:
         bodyMap_ = bodyMap;
     }
 
+    bool getSetIntegratedResult( )
+    {
+        return setIntegratedResult_;
+    }
+
     void resetSetIntegratedResult( const bool setIntegratedResult )
     {
         setIntegratedResult_ = setIntegratedResult;
