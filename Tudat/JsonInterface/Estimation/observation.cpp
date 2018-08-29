@@ -88,6 +88,9 @@ void to_json( nlohmann::json& jsonObject,
                 std::cerr<<"Warning, assuming constant delay times of n-way range when parsing to JSON, correctness not ensured"<<std::endl;
                 jsonObject[ K::retransmissionTimes ] = retransmissionTimes;
             }
+
+            std::cout<<"To JSON : "<<jsonObject<<std::endl;
+
             return;
         }
     }

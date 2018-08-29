@@ -14,6 +14,7 @@
 #include <map>
 #include <vector>
 #include <iostream>
+#include <memory>
 
 #include <Eigen/Core>
 #include <Eigen/LU>
@@ -43,7 +44,7 @@ public:
     typedef std::map< observation_models::LinkEnds, std::pair< ObservationVectorType,
     std::pair< std::vector< TimeType >, observation_models::LinkEndType > > > SingleObservablePodInputType;
 
-        //! List of SingleObservablePodInputType per observation type
+    //! List of SingleObservablePodInputType per observation type
     typedef std::map< observation_models::ObservableType, SingleObservablePodInputType > PodInputDataType;
 
     //! Constructor
@@ -102,7 +103,7 @@ public:
     void setConstantWeightsMatrix( const double constantWeight = 1.0 )
     {
         std::map< observation_models::ObservableType,
-                    std::map< observation_models::LinkEnds, double > > weightPerObservableAndLinkEnds;
+                std::map< observation_models::LinkEnds, double > > weightPerObservableAndLinkEnds;
         for( typename PodInputDataType::const_iterator observablesIterator = observationsAndTimes_.begin( );
              observablesIterator != observationsAndTimes_.end( ); observablesIterator++ )
         {
@@ -348,6 +349,194 @@ private:
     //! Boolean denoting whether the state history is to be saved on each iteration.
     bool saveStateHistoryForEachIteration_;
 
+};
+
+//! Class that is used during the orbit determination/parameter estimation to determine whether the estimation is converged.
+class EstimationConvergenceChecker
+{
+public:
+
+    //! Constructor
+    /*!
+     * Constructor, sets a number of values for stopping conditions. The estimation stops if one of these is met.
+     * \param maximumNumberOfIterations Maximum number of allowed iterations for estimation
+     * \param minimumResidualChange Minimum required change in residual between two iterations
+     * \param minimumResidual Minimum value of observation residual below which estimation is converged
+     * \param numberOfIterationsWithoutImprovement Number of iterations without reduction of residual
+     */
+    EstimationConvergenceChecker(
+            const unsigned int maximumNumberOfIterations = 5,
+            const double minimumResidualChange = 0.0,
+            const double minimumResidual = 1.0E-20,
+            const int numberOfIterationsWithoutImprovement = 2 ):
+        maximumNumberOfIterations_( maximumNumberOfIterations ), minimumResidualChange_( minimumResidualChange ),
+        minimumResidual_( minimumResidual ),
+        numberOfIterationsWithoutImprovement_( numberOfIterationsWithoutImprovement )
+    {
+
+    }
+
+    //! Function to determine whether the estimation is deemed to be converged
+    /*!
+     * Function to determine whether the estimation is deemed to be converged (i.e. if it should terminate)
+     * \param numberOfIterations Number of iterations of estimation procedure that have been completed
+     * \param rmsResidualHistory Rms residuals at current and all previous iterations
+     * \return True if estimation is to be terminated
+     */
+    bool isEstimationConverged( const int numberOfIterations, const std::vector< double > rmsResidualHistory )
+    {
+        bool isConverged = 0;
+        if( numberOfIterations >= maximumNumberOfIterations_ )
+        {
+            std::cout << "Maximum number of iterations reached" << std::endl;
+            isConverged = 1;
+        }
+        if( rmsResidualHistory[ rmsResidualHistory.size( ) - 1 ] < minimumResidual_ )
+        {
+            std::cout << "Required residual level achieved" << std::endl;
+            isConverged = 1;
+        }
+        if( ( std::distance( rmsResidualHistory.begin( ), std::max_element(
+                                 rmsResidualHistory.begin( ), rmsResidualHistory.end( ) ) ) - rmsResidualHistory.size( ) ) <
+                numberOfIterationsWithoutImprovement_ )
+        {
+            std::cout << "Too many iterations without parameter improvement" << std::endl;
+            isConverged = 1;
+        }
+        if( rmsResidualHistory.size( ) > 1 )
+        {
+            if( std::fabs( rmsResidualHistory.at( rmsResidualHistory.size( )  - 1 ) -
+                           rmsResidualHistory.at( rmsResidualHistory.size( )  - 2 ) ) < minimumResidualChange_ )
+            {
+                isConverged = 1;
+            }
+        }
+        return isConverged;
+    }
+protected:
+
+    //! Maximum number of allowed iterations for estimation
+    int maximumNumberOfIterations_;
+
+    //! Minimum required change in residual between two iterations
+    double minimumResidualChange_;
+
+    //! Minimum value of observation residual below which estimation is converged
+    double minimumResidual_;
+
+    //!  Number of iterations without reduction of residual
+    unsigned int numberOfIterationsWithoutImprovement_;
+};
+
+
+class PodSettings
+{
+public:
+    PodSettings( const std::shared_ptr< EstimationConvergenceChecker > convergenceChecker,
+                 const bool reintegrateEquationsOnFirstIteration = 1,
+                 const bool reintegrateVariationalEquations = 1,
+                 const bool saveInformationMatrix = 1,
+                 const bool printOutput = 1,
+                 const bool saveResidualsAndParametersFromEachIteration = 1,
+                 const bool saveStateHistoryForEachIteration = 0 )
+    {
+        convergenceChecker_ = convergenceChecker;
+        reintegrateEquationsOnFirstIteration_ = reintegrateEquationsOnFirstIteration;
+        reintegrateVariationalEquations_ = reintegrateVariationalEquations;
+        saveInformationMatrix_ = saveInformationMatrix;
+        printOutput_ = printOutput;
+        saveResidualsAndParametersFromEachIteration_ = saveResidualsAndParametersFromEachIteration;
+        saveStateHistoryForEachIteration_ = saveStateHistoryForEachIteration;
+    }
+
+    std::shared_ptr< EstimationConvergenceChecker > getConvergenceChecker( )
+    {
+        return convergenceChecker_;
+    }
+
+
+    //! Function to return the boolean denoting whether the dynamics and variational equations are reintegrated on first iteration
+    /*!
+    * Function to return the boolean denoting whether the dynamics and variational equations are to be reintegrated on first
+    * iteration
+    * \return Boolean denoting whether the dynamics and variational equations are to be reintegrated on first iteration
+    */
+    bool getReintegrateEquationsOnFirstIteration( )
+    {
+        return reintegrateEquationsOnFirstIteration_;
+    }
+
+    //! Function to return the boolean denoting whether the variational equations are to be reintegrated during estimation
+    /*!
+    * Function to return the boolean denoting whether the variational equations are to be reintegrated during estimation
+    * \return Boolean denoting whether the variational equations are to be reintegrated during estimation
+    */
+    bool getReintegrateVariationalEquations( )
+    {
+        return reintegrateVariationalEquations_;
+    }
+
+    //! Function to return the boolean denoting whether to print output to th terminal when running the estimation.
+    /*!
+    * Function to return the boolean denoting whether to print output to th terminal when running the estimation.
+    * \return Boolean denoting whether to print output to th terminal when running the estimation.
+    */
+    bool getSaveInformationMatrix( )
+    {
+        return saveInformationMatrix_;
+    }
+
+    //! Function to return the boolean denoting whether to print output to th terminal when running the estimation.
+    /*!
+    * Function to return the boolean denoting whether to print output to th terminal when running the estimation.
+    * \return Boolean denoting whether to print output to th terminal when running the estimation.
+    */
+    bool getPrintOutput( )
+    {
+        return printOutput_;
+    }
+
+    //! Function to return the boolean denoting whether the residuals and parameters from the each iteration are to be saved
+    /*!
+    * Function to return the boolean denoting whether the residuals and parameters from the each iteration are to be saved
+    * \return Boolean denoting whether the residuals and parameters from the each iteration are to be saved
+    */
+    bool getSaveResidualsAndParametersFromEachIteration( )
+    {
+        return saveResidualsAndParametersFromEachIteration_;
+    }
+
+    //! Function to return the boolean denoting whether the state history is to be saved on each iteration.
+    /*!
+    * Function to return the boolean denoting whether the state history is to be saved on each iteration.
+    * \return Boolean denoting whether the state history is to be saved on each iteration.
+    */
+    bool getSaveStateHistoryForEachIteration( )
+    {
+        return saveStateHistoryForEachIteration_;
+    }
+
+private:
+
+    std::shared_ptr< EstimationConvergenceChecker > convergenceChecker_;
+
+    //!  Boolean denoting whether the dynamics and variational equations are to be reintegrated on first iteration
+    bool reintegrateEquationsOnFirstIteration_;
+
+    //! Boolean denoting whether the variational equations are to be reintegrated during estimation
+    bool reintegrateVariationalEquations_;
+
+    //! Boolean denoting whether to print output to th terminal when running the estimation.
+    bool saveInformationMatrix_;
+
+    //! Boolean denoting whether to print output to th terminal when running the estimation.
+    bool printOutput_;
+
+    //! Boolean denoting whether the residuals and parameters from the each iteration are to be saved
+    bool saveResidualsAndParametersFromEachIteration_;
+
+    //! Boolean denoting whether the state history is to be saved on each iteration.
+    bool saveStateHistoryForEachIteration_;
 };
 
 //! Data structure through which the output of the orbit determination is communicated

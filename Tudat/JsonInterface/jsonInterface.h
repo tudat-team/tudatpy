@@ -35,7 +35,8 @@ namespace json_interface
 enum JsonSimulationTypes
 {
     equations_of_motion_propagation,
-    variational_equations_propagation
+    variational_equations_propagation,
+    state_estimation
 };
 
 
@@ -129,7 +130,7 @@ public:
     }
 
     //! Update all the settings (objects) from the JSON object.
-    virtual void updateSettings( )
+    void updateSettingsBase( )
     {
         // Clear global variable keeping track of the keys that have been accessed
         clearAccessHistory( );
@@ -149,13 +150,21 @@ public:
         resetBodies( );              // must be called after resetIntegratorSettings and resetSpice
         resetExportSettings( );
         resetPropagatorSettings( );  // must be called after resetBodies and resetExportSettings
-        if( simulationType_ == variational_equations_propagation )
+        if( simulationType_ == variational_equations_propagation || simulationType_ == state_estimation )
         {
             resetParameterSettings( );
         }
 
         resetApplicationOptions( );
+    }
 
+    virtual void updateSettingsDerived( )
+    {
+
+    }
+
+    virtual void parseSettingsObjects( )
+    {
         if( simulationType_ == equations_of_motion_propagation )
         {
             resetDynamicsSimulator( );
@@ -164,6 +173,13 @@ public:
         {
             resetVariationalEquationsSolver( );
         }
+    }
+
+    virtual void updateSettings( )
+    {
+        updateSettingsBase( );
+        updateSettingsDerived( );
+        parseSettingsObjects( );
     }
 
     //! Run the propagation.
@@ -207,7 +223,7 @@ public:
         {
             dynamicsSimulator_->integrateEquationsOfMotion( propagatorSettings_->getInitialStates( ) );
         }
-        else if( simulationType_ == variational_equations_propagation )
+        else if( simulationType_ == variational_equations_propagation || simulationType_ == state_estimation )
         {
            variationalEquationsSolver_->integrateVariationalAndDynamicalEquations(
                        propagatorSettings_->getInitialStates( ) , true );
@@ -253,9 +269,9 @@ public:
         }
 
         exportResultsOfDynamicsSimulator( dynamicsSimulator_, exportSettingsVector_,
-                                          ( simulationType_ == variational_equations_propagation ) );
+                                          !( simulationType_ != equations_of_motion_propagation ) );
 
-        if( simulationType_ == variational_equations_propagation )
+        if( simulationType_ == variational_equations_propagation || simulationType_ == state_estimation )
         {
             exportResultsOfVariationalEquations( variationalEquationsSolver_, exportSettingsVector_ );
         }
@@ -631,7 +647,6 @@ protected:
                     bodyMap_, integratorSettings_, propagatorSettings_, parametersToEstimate_, true,
                     std::shared_ptr< numerical_integrators::IntegratorSettings< double > >( ), false, false, false );
         dynamicsSimulator_ = variationalEquationsSolver_->getDynamicsSimulator( );
-        std::cout<<"Set result: "<<dynamicsSimulator_->getSetIntegratedResult( )<<std::endl;
 
         if ( profiling )
         {

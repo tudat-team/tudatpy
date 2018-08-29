@@ -277,6 +277,7 @@ struct Keys
         static const std::string useComplexValue;
     };
 
+    static const std::string observations;
     struct Observation
     {
         static const std::string observableType;
@@ -307,6 +308,25 @@ struct Keys
         static const std::string associatedLinkEnd;
         static const std::string doubleParameter;
         static const std::string stringParameter;
+    };
+
+    static const std::string estimationSettings;
+    struct Estimation
+    {
+        static const std::string inverseAprioriCovariance;
+        static const std::string reintegrateEquationsOnFirstIteration;
+        static const std::string reintegrateVariationalEquations;
+        static const std::string saveInformationMatrix;
+        static const std::string printOutput;
+        static const std::string saveResidualsAndParametersFromEachIteration;
+        static const std::string saveStateHistoryForEachIteration;
+
+        static const std::string maximumNumberOfIterations;
+        static const std::string minimumResidualChange;
+        static const std::string minimumResidual;
+        static const std::string numberOfIterationsWithoutImprovement;
+
+        static const std::string dataWeights;
     };
 
     struct ObservationBias

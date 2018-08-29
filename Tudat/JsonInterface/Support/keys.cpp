@@ -266,7 +266,25 @@ const std::string Keys::Parameter::degree = "degree";
 const std::string Keys::Parameter::orders = "orders";
 const std::string Keys::Parameter::useComplexValue = "useComplexValue";
 
+const std::string Keys::estimationSettings = "estimation";
+
+const std::string Keys::Estimation::inverseAprioriCovariance = "inverseAprioriCovariance";
+const std::string Keys::Estimation::reintegrateEquationsOnFirstIteration = "reintegrateOnFirstIteration";
+const std::string Keys::Estimation::reintegrateVariationalEquations = "reintegrateVariationalEquations";
+const std::string Keys::Estimation::saveInformationMatrix = "savePartials";
+const std::string Keys::Estimation::printOutput = "printOutput";
+const std::string Keys::Estimation::saveResidualsAndParametersFromEachIteration = "saveEstimationHistory";
+const std::string Keys::Estimation::saveStateHistoryForEachIteration = "saveStateHistory";
+
+const std::string Keys::Estimation::maximumNumberOfIterations = "maximumIteration";
+const std::string Keys::Estimation::minimumResidualChange = "minimumResidualChange";
+const std::string Keys::Estimation::minimumResidual = "minimumResidual";
+const std::string Keys::Estimation::numberOfIterationsWithoutImprovement = "numberOfUnimprovedIterations";
+
+const std::string Keys::Estimation::dataWeights = "dataWeights";
+
 // Observation
+const std::string Keys::observations = "observations";
 const std::string Keys::Observation::observableType = "observableType";
 const std::string Keys::Observation::lightTimeCorrectionSettingsList = "lightTimeCorrections";
 const std::string Keys::Observation::biasSettings = "bias";

@@ -26,6 +26,7 @@ set(JSONINTERFACE_SOURCES
     "${SRCROOT}${JSONINTERFACEDIR}/Environment/gravityFieldVariation.cpp"
     "${SRCROOT}${JSONINTERFACEDIR}/Estimation/parameter.cpp"
     "${SRCROOT}${JSONINTERFACEDIR}/Estimation/observation.cpp"
+    "${SRCROOT}${JSONINTERFACEDIR}/Estimation/orbitDetermination.cpp"
     "${SRCROOT}${JSONINTERFACEDIR}/Propagation/variable.cpp"
     "${SRCROOT}${JSONINTERFACEDIR}/Propagation/termination.cpp"
     "${SRCROOT}${JSONINTERFACEDIR}/Propagation/acceleration.cpp"
@@ -58,6 +59,7 @@ set(JSONINTERFACE_HEADERS
     "${SRCROOT}${JSONINTERFACEDIR}/Environment/gravityFieldVariation.h"
     "${SRCROOT}${JSONINTERFACEDIR}/Estimation/parameter.h"
     "${SRCROOT}${JSONINTERFACEDIR}/Estimation/observation.h"
+    "${SRCROOT}${JSONINTERFACEDIR}/Estimation/orbitDetermination.h"
     "${SRCROOT}${JSONINTERFACEDIR}/Propagation/variable.h"
     "${SRCROOT}${JSONINTERFACEDIR}/Propagation/state.h"
     "${SRCROOT}${JSONINTERFACEDIR}/Propagation/propagator.h"
@@ -73,6 +75,7 @@ set(JSONINTERFACE_HEADERS
     "${SRCROOT}${JSONINTERFACEDIR}/Support/options.h"
     "${SRCROOT}${JSONINTERFACEDIR}/UnitTests/unitTestSupport.h"
     "${SRCROOT}${JSONINTERFACEDIR}/jsonInterface.h"
+    "${SRCROOT}${JSONINTERFACEDIR}/jsonEstimationInterface.h"
 )
 
 # Add static libraries.
@@ -93,6 +96,10 @@ endmacro()
 add_executable(json_interface "${SRCROOT}${JSONINTERFACEDIR}/jsonInterface.cpp")
 setup_executable_target(json_interface)
 target_link_libraries(json_interface ${JSON_PROPAGATION_LIBRARIES})
+
+add_executable(json_estimation_interface "${SRCROOT}${JSONINTERFACEDIR}/jsonEstimationInterface.cpp")
+setup_executable_target(json_estimation_interface)
+target_link_libraries(json_estimation_interface ${JSON_PROPAGATION_LIBRARIES})
 
 
 # Add unit tests.

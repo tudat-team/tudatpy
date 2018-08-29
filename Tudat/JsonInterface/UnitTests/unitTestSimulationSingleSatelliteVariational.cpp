@@ -50,7 +50,7 @@ BOOST_AUTO_TEST_CASE( test_json_simulationSingleSatelliteVariational_main )
             jsonSimulation.getDynamicsSimulator( )->getEquationsOfMotionNumericalSolution( );
     std::map< double, Eigen::MatrixXd > jsonStateTransition =
             jsonSimulation.getVariationalEquationsSolver( )->getNumericalVariationalEquationsSolution( )[ 0 ];
-    std::map< double, Eigen::MatrixXd > jsonSensitivityResults =
+    std::map< double, Eigen::MatrixXd > jsonSensitivity =
             jsonSimulation.getVariationalEquationsSolver( )->getNumericalVariationalEquationsSolution( )[ 1 ];
 
 
@@ -142,6 +142,9 @@ BOOST_AUTO_TEST_CASE( test_json_simulationSingleSatelliteVariational_main )
     parameterNames.push_back(
                 std::make_shared< InitialTranslationalStateEstimatableParameterSettings< double > >(
                     "Asterix", asterixInitialState, "Earth" ) );
+    parameterNames.push_back(
+                std::make_shared< EstimatableParameterSettings >(
+                    "Earth", gravitational_parameter ) );
 
     // Create parameters
     std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > parametersToEstimate =
@@ -159,7 +162,7 @@ BOOST_AUTO_TEST_CASE( test_json_simulationSingleSatelliteVariational_main )
 
     const std::map< double, Eigen::VectorXd > states = variationalEquationsSolver->getDynamicsSimulator( )->getEquationsOfMotionNumericalSolution( );
     const std::map< double, Eigen::MatrixXd > stateTransition = variationalEquationsSolver->getNumericalVariationalEquationsSolution( )[ 0 ];
-    const std::map< double, Eigen::MatrixXd > sensitivityResults = variationalEquationsSolver->getNumericalVariationalEquationsSolution( )[ 1 ];
+    const std::map< double, Eigen::MatrixXd > sensitivity = variationalEquationsSolver->getNumericalVariationalEquationsSolution( )[ 1 ];
 
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -174,8 +177,50 @@ BOOST_AUTO_TEST_CASE( test_json_simulationSingleSatelliteVariational_main )
 
     BOOST_CHECK_CLOSE_INTEGRATION_RESULTS( jsonStates, states, indices, sizes, tolerance );
 
-    std::cout<<jsonStateTransition.rbegin( )->second<<std::endl<<std::endl;
-    std::cout<<stateTransition.rbegin( )->second<<std::endl<<std::endl;
+    Eigen::MatrixXd finalStateTransition = jsonStateTransition.rbegin( )->second;
+
+    std::vector< std::pair< unsigned int, unsigned int > > indicesStateTransition =
+    { { 0, 0 }, { 0, 3 }, { 3, 0 }, { 3, 3 } };
+    std::vector< std::pair< unsigned int, unsigned int > > sizesStateTransition =
+    { { 3, 3 }, { 3, 3 }, { 3, 3 }, { 3, 3 } };
+
+    std::vector< double > absoluteTolerancesStateTransition;
+    absoluteTolerancesStateTransition.push_back(
+                finalStateTransition.block( 0, 0, 3, 3 ).norm( ) * tolerance );
+    absoluteTolerancesStateTransition.push_back(
+                finalStateTransition.block( 0, 3, 3, 3 ).norm( ) * tolerance );
+    absoluteTolerancesStateTransition.push_back(
+                finalStateTransition.block( 3, 0, 3, 3 ).norm( ) * tolerance );
+    absoluteTolerancesStateTransition.push_back(
+                finalStateTransition.block( 3, 3, 3, 3 ).norm( ) * tolerance );
+
+    BOOST_CHECK_CLOSE_INTEGRATION_MATRIX_RESULTS(
+                stateTransition, jsonStateTransition, indicesStateTransition,
+                sizesStateTransition, absoluteTolerancesStateTransition );
+
+    Eigen::MatrixXd jsonFinalSensitivity = jsonSensitivity.rbegin( )->second;
+
+    std::vector< std::pair< unsigned int, unsigned int > > indicesSensitivity;
+    std::vector< std::pair< unsigned int, unsigned int > > sizesSensitivity;
+    std::vector< double > absoluteTolerancesSensitivity;
+
+    for( int i = 0; i < jsonFinalSensitivity.cols( ); i++ )
+    {
+        indicesSensitivity.push_back( std::make_pair( 0, i ) );
+        indicesSensitivity.push_back( std::make_pair( 3, i ) );
+
+        sizesSensitivity.push_back( std::make_pair( 3, 1 ) );
+        sizesSensitivity.push_back( std::make_pair( 3, 1 ) );
+
+        absoluteTolerancesSensitivity.push_back(
+                    jsonFinalSensitivity.block( 0, i, 3, 1 ).norm( ) * std::numeric_limits< double >::epsilon( ) );
+        absoluteTolerancesSensitivity.push_back(
+                    jsonFinalSensitivity.block( 3, i, 3, 1 ).norm( ) * std::numeric_limits< double >::epsilon( ) );
+    }
+
+    BOOST_CHECK_CLOSE_INTEGRATION_MATRIX_RESULTS(
+                sensitivity, jsonSensitivity, indicesSensitivity,
+                sizesSensitivity, absoluteTolerancesSensitivity );
 
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -195,14 +240,18 @@ BOOST_AUTO_TEST_CASE( test_json_simulationSingleSatelliteVariational_main )
             jsonSimulation.getDynamicsSimulator( )->getEquationsOfMotionNumericalSolution( );
     jsonStateTransition =
             jsonSimulation.getVariationalEquationsSolver( )->getNumericalVariationalEquationsSolution( )[ 0 ];
-    jsonSensitivityResults =
+    jsonSensitivity =
             jsonSimulation.getVariationalEquationsSolver( )->getNumericalVariationalEquationsSolution( )[ 1 ];
 
     BOOST_CHECK_CLOSE_INTEGRATION_RESULTS( jsonStates, states, indices, sizes, tolerance );
 
-    std::cout<<jsonStateTransition.rbegin( )->second<<std::endl<<std::endl;
-    std::cout<<stateTransition.rbegin( )->second<<std::endl<<std::endl;
+    BOOST_CHECK_CLOSE_INTEGRATION_MATRIX_RESULTS(
+                stateTransition, jsonStateTransition, indicesStateTransition,
+                sizesStateTransition, absoluteTolerancesStateTransition );
 
+    BOOST_CHECK_CLOSE_INTEGRATION_MATRIX_RESULTS(
+                sensitivity, jsonSensitivity, indicesSensitivity,
+                sizesSensitivity, absoluteTolerancesSensitivity );
 }
 
 
