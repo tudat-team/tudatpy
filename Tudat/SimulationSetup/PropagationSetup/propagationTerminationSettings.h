@@ -161,7 +161,7 @@ public:
     {
         if( terminateExactlyOnFinalCondition_ && ( terminationRootFinderSettings_ == NULL ) )
         {
-            throw std::runtime_error( "Error when defining exact dependent variable propagation termination settings. Root finder not defined" );
+            throw std::runtime_error( "Error when defining exact dependent variable propagation termination settings. Root finder not defined." );
         }
     }
 
@@ -224,15 +224,15 @@ public:
     /*!
      * \brief PropagationHybridTerminationSettings
      * \param terminationSettings List of termination settings for which stopping conditions are created.
-     * \param fulFillSingleCondition Boolean denoting whether a single (if true) or all (if false) of the conditions
+     * \param fulfillSingleCondition Boolean denoting whether a single (if true) or all (if false) of the conditions
      * defined by the entries in the terminationSettings list should be met.
      */
     PropagationHybridTerminationSettings(
             const std::vector< boost::shared_ptr< PropagationTerminationSettings > > terminationSettings,
-            const bool fulFillSingleCondition = false ):
+            const bool fulfillSingleCondition = false ):
         PropagationTerminationSettings( hybrid_stopping_condition ),
         terminationSettings_( terminationSettings ),
-        fulFillSingleCondition_( fulFillSingleCondition )
+        fulfillSingleCondition_( fulfillSingleCondition )
     {
         for( unsigned int i = 0; i < terminationSettings_.size( ); i++ )
         {
@@ -255,7 +255,7 @@ public:
 
     //! Boolean denoting whether a single (if true) or all (if false) of the conditions
     //! defined by the entries in the terminationSettings list should be met.
-    bool fulFillSingleCondition_;
+    bool fulfillSingleCondition_;
 
 };
 

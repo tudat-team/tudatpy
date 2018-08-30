@@ -48,6 +48,14 @@ double computeKeplerRadialDistance( const double semiMajorAxis,
                                     const double eccentricity,
                                     const double trueAnomaly );
 
+//! Compute two-body radial distance.
+/*!
+ * Compute two-body radial distance.
+ * \param keplerianElements Vector denoting the Keplerian elements (circle or ellipse).
+ * \return Two-body radial distance at specified true anomaly.
+ */
+double computeKeplerRadialDistance( const Eigen::Vector6d& keplerianElements );
+
 //! Compute two-body orbital velocity with vis-viva equation.
 /*!
  * Compute two-body orbital velocity with vis-viva equation.
@@ -61,6 +69,18 @@ double computeKeplerRadialDistance( const double semiMajorAxis,
 double computeKeplerOrbitalVelocity( const double semiMajorAxis,
                                      const double eccentricity,
                                      const double trueAnomaly,
+                                     const double gravitationalParameterOfCentralBody,
+                                     const double massOfOrbitingBody = 0.0 );
+
+//! Compute two-body orbital velocity with vis-viva equation.
+/*!
+ * Compute two-body orbital velocity with vis-viva equation.
+ * \param keplerianElements Vector denoting the Keplerian elements (circle or ellipse).
+ * \param gravitationalParameterOfCentralBody Gravitational parameter of central body.
+ * \param massOfOrbitingBody Mass of orbiting body.
+ * \return Two-body orbital velocity at current conditions.
+ */
+double computeKeplerOrbitalVelocity( const Eigen::Vector6d& keplerianElements,
                                      const double gravitationalParameterOfCentralBody,
                                      const double massOfOrbitingBody = 0.0 );
 

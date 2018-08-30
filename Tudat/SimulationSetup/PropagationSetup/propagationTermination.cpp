@@ -61,7 +61,7 @@ bool HybridPropagationTerminationCondition::checkStopCondition( const double tim
 {
     // Check if single condition is fulfilled.
     bool stopPropagation = -1;
-    if( fulFillSingleCondition_ )
+    if( fulfillSingleCondition_ )
     {
         stopPropagation = 0;
         for( unsigned int i = 0; i < propagationTerminationCondition_.size( ); i++ )
@@ -180,7 +180,7 @@ boost::shared_ptr< PropagationTerminationCondition > createPropagationTerminatio
                             bodyMap, initialTimeStep ) );
         }
         propagationTerminationCondition = boost::make_shared< HybridPropagationTerminationCondition >(
-                    propagationTerminationConditionList, hybridTerminationSettings->fulFillSingleCondition_,
+                    propagationTerminationConditionList, hybridTerminationSettings->fulfillSingleCondition_,
                     hybridTerminationSettings->terminateExactlyOnFinalCondition_ );
         break;
     }
