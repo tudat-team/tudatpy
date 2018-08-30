@@ -309,6 +309,8 @@ public:
      *  after propagation and resetting ephemerides (default false).
      *  \param setIntegratedResult Boolean to determine whether to automatically use the integrated results to set
      *  ephemerides (default false).
+     *  \param printNumberOfFunctionEvaluations Boolean denoting whether the number of function evaluations should be printed
+     *  at the end of propagation.
      *  \param initialClockTime Initial clock time from which to determine cumulative computation time.
      *  By default now( ), i.e. the moment at which this function is called.
      */
@@ -447,8 +449,8 @@ public:
         // Retrieve and print number of total function evaluations
         if ( printNumberOfFunctionEvaluations_ )
         {
-            std::cout << "Total Number of Function Evaluations: " <<
-                         dynamicsStateDerivative_->getNumberOfFunctionEvaluations( ) << std::endl;
+            std::cout << "Total Number of Function Evaluations: "
+                      << dynamicsStateDerivative_->getNumberOfFunctionEvaluations( ) << std::endl;
         }
 
         if( this->setIntegratedResult_ )
@@ -817,7 +819,7 @@ protected:
     //! Initial time of propagation
     double initialPropagationTime_;
 
-    //! Boolean specifiying whether number of evaluations has to be printed at the end of propagation.
+    //! Boolean denoting whether the number of function evaluations should be printed at the end of propagation.
     bool printNumberOfFunctionEvaluations_;
 
     //! Initial clock time

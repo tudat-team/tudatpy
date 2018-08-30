@@ -44,6 +44,16 @@ double computeKeplerRadialDistance( const double semiMajorAxis,
     return ( semiMajorAxis * ( 1.0 - eccentricity * eccentricity ) ) / ( 1.0 + eccentricity * std::cos( trueAnomaly ) );
 }
 
+//! Compute two-body radial distance.
+double computeKeplerRadialDistance( const Eigen::Vector6d& keplerianElements )
+{
+    return ( keplerianElements[ orbital_element_conversions::semiMajorAxisIndex ] *
+            ( 1.0 - keplerianElements[ orbital_element_conversions::eccentricityIndex ] *
+            keplerianElements[ orbital_element_conversions::eccentricityIndex ] ) ) /
+            ( 1.0 + keplerianElements[ orbital_element_conversions::eccentricityIndex ] *
+            std::cos( keplerianElements[ orbital_element_conversions::trueAnomalyIndex ] ) );
+}
+
 //! Compute two-body orbital velocity with vis-viva equation.
 double computeKeplerOrbitalVelocity( const double semiMajorAxis,
                                      const double eccentricity,
@@ -55,6 +65,17 @@ double computeKeplerOrbitalVelocity( const double semiMajorAxis,
                         gravitationalParameterOfCentralBody ) * (
                           2.0 / computeKeplerRadialDistance( semiMajorAxis, eccentricity, trueAnomaly ) -
                           1.0 / semiMajorAxis ) );
+}
+
+//! Compute two-body orbital velocity with vis-viva equation.
+double computeKeplerOrbitalVelocity( const Eigen::Vector6d& keplerianElements,
+                                     const double gravitationalParameterOfCentralBody,
+                                     const double massOfOrbitingBody )
+{
+    return std::sqrt( ( ( physical_constants::GRAVITATIONAL_CONSTANT * massOfOrbitingBody ) +
+                        gravitationalParameterOfCentralBody ) * (
+                          2.0 / computeKeplerRadialDistance( keplerianElements ) -
+                          1.0 / keplerianElements[ orbital_element_conversions::semiMajorAxisIndex ] ) );
 }
 
 //! Compute Kepler angular momentum.
