@@ -17,6 +17,8 @@
 #include <Eigen/Core>
 #include <Eigen/SVD>
 
+#include <boost/function.hpp>
+
 namespace tudat
 {
 
@@ -189,6 +191,28 @@ Eigen::VectorXd getLeastSquaresPolynomialFit(
 std::vector< double > getLeastSquaresPolynomialFit(
         const std::map< double, double >& independentDependentValueMap,
         const std::vector< double >& polynomialPowers );
+
+//! Function to perform a non-linear least squares estimation.
+/*!
+ *  Function to perform a non-linear least squares estimation. The non-linear least squares method is an iterative
+ *  process, which uses the information from the actual and estimated observations, to estimate the model parameters, with
+ *  the aid of a design matrix. The initial estimate of the model parameters is updated every iteration with the result of the
+ *  least squares equation. The iterative process is halted whenever the norm of the update is below the user-provided
+ *  threshold or when the maximum number of iterations is reached. The method used in this application is the Levenberg-Marquardt
+ *  method, which uses a damping parameter \f$ \lambda \f$ to make the iterative process more stable and accurate.
+ *  \param observationAndJacobianFunctions Function returning a pair of expected observations and Jacobian of the
+ *      observation function w.r.t. the model parameters (i.e., the design matrix), where the input is the current estimate
+ *      of the model parameters.
+ *  \param initialEstimate Initial estimate of the model parameters.
+ *  \param actualObservations Vector containing the actual observations that need to be fitted by the model.
+ *  \param convergenceTolerance Double denoting the convergence criterion for the norm of the update vector.
+ *  \param maximumNumberOfIterations Integer denoting the maximum number of iterations.
+ *  \return Optimal value of the model parameters that minimize the least squares error between expected and actual observations.
+ */
+Eigen::VectorXd nonLinearLeastSquaresFit(
+        const boost::function< std::pair< Eigen::VectorXd, Eigen::MatrixXd >( const Eigen::VectorXd& ) >& observationAndJacobianFunctions,
+        const Eigen::VectorXd& initialEstimate, const Eigen::VectorXd& actualObservations,
+        const double convergenceTolerance = 1.0e-8, const unsigned int maximumNumberOfIterations = 10 );
 
 } // namespace linear_algebra
 
