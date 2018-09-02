@@ -178,6 +178,92 @@ std::vector< double > getLeastSquaresPolynomialFit(
 
 }
 
+//! Function to perform a non-linear least squares estimation.
+Eigen::VectorXd nonLinearLeastSquaresFit(
+        const boost::function< std::pair< Eigen::VectorXd, Eigen::MatrixXd >( const Eigen::VectorXd& ) >& observationAndJacobianFunctions,
+        const Eigen::VectorXd& initialEstimate, const Eigen::VectorXd& actualObservations,
+        const double convergenceTolerance, const unsigned int maximumNumberOfIterations )
+{
+    // Set current estimate to initial value
+    Eigen::VectorXd currentEstimate = initialEstimate;
+
+    // Initialize variables
+    std::pair< Eigen::VectorXd, Eigen::MatrixXd > pairOfEstimatedObservationsAndDesignMatrix;
+    Eigen::MatrixXd designMatrix;
+    Eigen::VectorXd offsetInObservations;
+    Eigen::VectorXd updateInEstimate;
+
+    // Initial parameters for Levenberg–Marquardt method
+    double levenbergMarquardtDampingParameter = 0.0;
+    double scalingParameterUpdate = 2.0;
+    double initialScaling = 1.0e-6;
+    double levenbergMarquardtGainRatio = 0.0;
+
+    // Start iterative loop
+    unsigned int iteration = 0;
+    do
+    {
+        // Compute current system and jacobian functions
+        pairOfEstimatedObservationsAndDesignMatrix = observationAndJacobianFunctions( currentEstimate );
+        designMatrix = pairOfEstimatedObservationsAndDesignMatrix.second;
+
+        // Offset in observation
+        offsetInObservations = actualObservations - pairOfEstimatedObservationsAndDesignMatrix.first;
+
+        // Compute damping parameter for first iteration
+        if ( iteration == 0 )
+        {
+            levenbergMarquardtDampingParameter = initialScaling * ( designMatrix.transpose( ) * designMatrix ).diagonal( ).maxCoeff( );
+        }
+
+        // Compute update in estimate
+        Eigen::VectorXd diagonalOfWeightMatrix = Eigen::VectorXd::Ones( offsetInObservations.rows( ) );
+        Eigen::MatrixXd inverseOfAPrioriCovarianceMatrix = levenbergMarquardtDampingParameter *
+                Eigen::MatrixXd::Identity( currentEstimate.rows( ), currentEstimate.rows( ) );
+        updateInEstimate = linear_algebra::performLeastSquaresAdjustmentFromInformationMatrix(
+                    designMatrix, offsetInObservations, diagonalOfWeightMatrix, inverseOfAPrioriCovarianceMatrix, false ).first;
+//        std::cout << "Iter: " << iteration + 1 << ". Update: " << updateInEstimate.transpose( ) << std::endl;
+
+        // Check that update is real
+        if ( ( !updateInEstimate.allFinite( ) ) || ( updateInEstimate.hasNaN( ) ) )
+        {
+            throw std::runtime_error( "Error in non-linear least squares estimation. Iterative process diverges." );
+        }
+
+        // Compute gain ratio
+        levenbergMarquardtGainRatio =
+                ( pairOfEstimatedObservationsAndDesignMatrix.first.squaredNorm( ) -
+                  observationAndJacobianFunctions( currentEstimate + updateInEstimate ).first.squaredNorm( ) ) /
+                ( updateInEstimate.transpose( ) * ( levenbergMarquardtDampingParameter * updateInEstimate -
+                                                    designMatrix.transpose( ) * offsetInObservations ) );
+
+        // Update damping parameter
+        if ( levenbergMarquardtGainRatio > 0 )
+        {
+            // Reduce damping parameter, since good approximation
+            levenbergMarquardtDampingParameter *= std::max( 1.0 / 3.0, 1.0 - std::pow( 2.0 * levenbergMarquardtGainRatio - 1.0, 3 ) );
+            scalingParameterUpdate = 2; // reset
+
+            // Correct estimate
+            currentEstimate += updateInEstimate;
+        }
+        else
+        {
+            // Increase damping parameter, since bad approximation and reject step
+            levenbergMarquardtDampingParameter *= scalingParameterUpdate;
+            scalingParameterUpdate *= 2.0;
+        }
+
+        // Increase iteration counter
+        iteration++;
+    }
+    while ( ( updateInEstimate.norm( ) > convergenceTolerance ) && ( iteration < maximumNumberOfIterations ) );
+
+    // Give out new estimate in parameters
+//    std::cout << "Final: " << currentEstimate.transpose( ) << ". Iterations: " << iteration << std::endl;
+    return currentEstimate;
+}
+
 } // namespace linear_algebra
 
 } // namespace tudat
