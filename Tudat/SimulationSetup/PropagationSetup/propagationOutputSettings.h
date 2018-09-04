@@ -355,7 +355,6 @@ class SingleVariationSingleTermSphericalHarmonicAccelerationSaveSettings: public
 {
 public:
 
-
     SingleVariationSingleTermSphericalHarmonicAccelerationSaveSettings(
             const std::string& associatedBody,
             const std::string& centralBody,
