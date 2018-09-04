@@ -16,48 +16,6 @@ namespace tudat
 namespace simulation_setup
 {
 
-//! Create a `json` object from a shared pointer to a `EstimatableParameterSettings` object.
-void to_json( nlohmann::json& jsonObject, const std::shared_ptr< PodSettings >& parameterSettings )
-{
-
-}
-
-//! Create a shared pointer to a `EstimatableParameterSettings` object from a `json` object.
-void from_json( const nlohmann::json& jsonObject, std::shared_ptr< PodSettings >& parameterSettings )
-{
-    using namespace json_interface;
-    using K = Keys::Estimation;
-
-    const bool reintegrateEquationsOnFirstIteration =
-            getValue< bool >( jsonObject, K::reintegrateEquationsOnFirstIteration, true );
-    const bool reintegrateVariationalEquations =
-            getValue< bool >( jsonObject, K::reintegrateVariationalEquations, true );
-    const bool saveInformationMatrix =
-            getValue< bool >( jsonObject, K::saveInformationMatrix, true );
-    const bool printOutput =
-            getValue< bool >( jsonObject, K::printOutput, true );
-    const bool saveResidualsAndParametersFromEachIteration =
-            getValue< bool >( jsonObject, K::saveResidualsAndParametersFromEachIteration, true );
-    const bool saveStateHistoryForEachIteration =
-            getValue< bool >( jsonObject, K::saveStateHistoryForEachIteration, false );
-
-
-    const int maximumNumberOfIterations =
-            getValue< int >( jsonObject, K::maximumNumberOfIterations, 5 );
-    const double minimumResidualChange =
-            getValue< double >( jsonObject, K::reintegrateEquationsOnFirstIteration, 0.0 );
-    const double minimumResidual =
-            getValue< double >( jsonObject, K::reintegrateEquationsOnFirstIteration, 1.0E-20 );
-    const int numberOfIterationsWithoutImprovement =
-            getValue< int >( jsonObject, K::reintegrateEquationsOnFirstIteration, 2 );
-
-    parameterSettings = std::make_shared< PodSettings >(
-                std::make_shared< EstimationConvergenceChecker >(
-                    maximumNumberOfIterations, minimumResidualChange, minimumResidual, numberOfIterationsWithoutImprovement ),
-                reintegrateEquationsOnFirstIteration, reintegrateVariationalEquations, saveInformationMatrix,
-                printOutput, saveResidualsAndParametersFromEachIteration, saveStateHistoryForEachIteration );
-}
-
 void updateInverseAPrioriCovarianceFromJSON(
         const nlohmann::json& jsonObject, const int numberOfParameters, Eigen::MatrixXd& inverseAprioriCovariance )
 {

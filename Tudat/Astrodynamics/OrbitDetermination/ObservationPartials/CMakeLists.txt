@@ -33,6 +33,7 @@ set(OBSERVATION_PARTIALS_HEADERS
   "${SRCROOT}${OBSERVATIONPARTIALSDIR}/oneWayDopplerPartial.h"
   "${SRCROOT}${OBSERVATIONPARTIALSDIR}/twoWayDopplerPartial.h"
   "${SRCROOT}${OBSERVATIONPARTIALSDIR}/observationPartial.h"
+  "${SRCROOT}${OBSERVATIONPARTIALSDIR}/eulerAngleObservablePartials.h"
   "${SRCROOT}${LIGHTTIMECORRECTIONPARTIALSDIR}/lightTimeCorrectionPartial.h"
   "${SRCROOT}${LIGHTTIMECORRECTIONPARTIALSDIR}/firstOrderRelativisticLightTimeCorrectionPartial.h"
 )

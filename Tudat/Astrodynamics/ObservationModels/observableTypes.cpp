@@ -71,12 +71,16 @@ std::string getObservableName( const ObservableType observableType, const int nu
         observableName = numberOfWays + "WayRange";
         break;
     }
+    case euler_angle_313_observable:
+        observableName = "EulerAngle313";
+        break;
     default:
         std::string errorMessage =
                 "Error, could not find observable type " + std::to_string( observableType ) +
                 " when getting name from type";
         throw std::runtime_error( errorMessage );
     }
+
     return observableName;
 }
 
@@ -108,6 +112,10 @@ ObservableType getObservableType( const std::string& observableName )
     else if( observableName ==  "OneWayDifferencedRange" )
     {
         observableType = one_way_differenced_range;
+    }
+    else if( observableName == "EulerAngle313" )
+    {
+        observableType = euler_angle_313_observable;
     }
     else
     {
@@ -146,6 +154,9 @@ int getObservableSize( const ObservableType observableType )
         break;
     case n_way_range:
         observableSize = 1;
+        break;
+    case euler_angle_313_observable:
+        observableSize = 3;
         break;
     default:
        std::string errorMessage = "Error, did not recognize observable " + std::to_string( observableType )
@@ -254,6 +265,19 @@ std::vector< int > getLinkEndIndicesForLinkEndTypeAtObservable(
         }
         break;
     case position_observable:
+        if( linkEndType == observed_body )
+        {
+            linkEndIndices.push_back( 0 );
+        }
+        else
+        {
+            std::string errorMessage =
+                    "Error, could not find link end type index for link end " +
+                    std::to_string( linkEndType ) + " of observable " +
+                    std::to_string( observableType );
+            throw std::runtime_error( errorMessage );
+        }
+    case euler_angle_313_observable:
         if( linkEndType == observed_body )
         {
             linkEndIndices.push_back( 0 );

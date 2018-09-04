@@ -393,6 +393,11 @@ std::shared_ptr< ObservationManagerBase< ObservationScalarType, TimeType > > cre
                     observableType, settingsPerLinkEnds, bodyMap, parametersToEstimate,
                     stateTransitionMatrixInterface );
         break;
+    case euler_angle_313_observable:
+        observationManager = createObservationManager< 3, ObservationScalarType, TimeType >(
+                    observableType, settingsPerLinkEnds, bodyMap, parametersToEstimate,
+                    stateTransitionMatrixInterface );
+        break;
     default:
         throw std::runtime_error(
                     "Error when making observation manager, could not identify observable type " +

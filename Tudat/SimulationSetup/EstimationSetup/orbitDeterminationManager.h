@@ -386,10 +386,17 @@ public:
      *  \return Object containing estimated parameter value and associateed data, such as residuals and observation partials.
      */
     std::shared_ptr< PodOutput< ObservationScalarType, TimeType > > estimateParameters(
-            const std::shared_ptr< PodInput< ObservationScalarType, TimeType > >& podInput,
-            const std::shared_ptr< EstimationConvergenceChecker > convergenceChecker =
+            const std::shared_ptr< PodInput< ObservationScalarType, TimeType > > podInput,
+            std::shared_ptr< EstimationConvergenceChecker > convergenceChecker =
             std::make_shared< EstimationConvergenceChecker >( ) )
+
     {
+        if( std::dynamic_pointer_cast< PodSettings< ObservationScalarType, TimeType > >( podInput ) != nullptr )
+        {
+            convergenceChecker = std::dynamic_pointer_cast< PodSettings< ObservationScalarType, TimeType > >( podInput )->
+                    getConvergenceChecker( );
+        }
+
         currentParameterEstimate_ = parametersToEstimate_->template getFullParameterValues< ObservationScalarType >( );
 
         // Get size of parameter vector and number of observations (total and per type)

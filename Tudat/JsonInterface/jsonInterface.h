@@ -70,8 +70,6 @@ inline void from_json( const nlohmann::json& jsonObject, JsonSimulationTypes& si
 template< typename TimeType = double, typename StateScalarType = double >
 class JsonSimulationManager
 {
-private:
-    bool profiling = false;
 
 public:
     //! Constructor from JSON file.
@@ -462,6 +460,8 @@ public:
 
 protected:
 
+        bool profiling = false;
+
     //! Reset integratorSettings_ from the current jsonObject_.
     /*!
      * @copybrief resetIntegratorSettings
@@ -693,8 +693,6 @@ protected:
     std::shared_ptr< propagators::SingleArcDynamicsSimulator< StateScalarType, TimeType > > dynamicsSimulator_;
 
     std::shared_ptr< propagators::SingleArcVariationalEquationsSolver< StateScalarType, TimeType > > variationalEquationsSolver_;
-
-private:
 
     //! Update the JSON object with all the data from the current settings (objests).
     void updateJsonObjectFromSettings( )
