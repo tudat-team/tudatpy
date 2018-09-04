@@ -33,7 +33,6 @@ namespace simulation_setup
 template< typename ObservationScalarType = double, typename TimeType = double >
 class PodInput
 {
-
 public:
 
     //! Typedef of vector of observations of a single type
@@ -94,6 +93,8 @@ public:
 
         setConstantWeightsMatrix( 1.0 );
     }
+
+    virtual ~PodInput( ){ }
 
     //! Function to set a constant values for all observation weights
     /*!
@@ -429,114 +430,55 @@ protected:
 };
 
 
-class PodSettings
+template< typename ObservationScalarType = double, typename TimeType = double >
+class PodSettings: public PodInput< ObservationScalarType, TimeType >
 {
 public:
-    PodSettings( const std::shared_ptr< EstimationConvergenceChecker > convergenceChecker,
+
+    //! Typedef of vector of observations of a single type
+    typedef Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > ObservationVectorType;
+
+    //! Typedef of map of pairs (observation vector and pair (vector of associated times reference link end)), link ends
+    //! as map key
+    typedef std::map< observation_models::LinkEnds, std::pair< ObservationVectorType,
+    std::pair< std::vector< TimeType >, observation_models::LinkEndType > > > SingleObservablePodInputType;
+
+    //! List of SingleObservablePodInputType per observation type
+    typedef std::map< observation_models::ObservableType, SingleObservablePodInputType > PodInputDataType;
+
+
+    PodSettings( const int numberOfEstimatedParameters,
+                 const Eigen::MatrixXd inverseOfAprioriCovariance = Eigen::MatrixXd::Zero( 0, 0 ),
+                 const Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > initialParameterDeviationEstimate =
+            Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >::Zero( 0, 1 ),
+                 const std::shared_ptr< EstimationConvergenceChecker > convergenceChecker =
+            std::make_shared< EstimationConvergenceChecker >( ),
                  const bool reintegrateEquationsOnFirstIteration = 1,
                  const bool reintegrateVariationalEquations = 1,
                  const bool saveInformationMatrix = 1,
                  const bool printOutput = 1,
                  const bool saveResidualsAndParametersFromEachIteration = 1,
-                 const bool saveStateHistoryForEachIteration = 0 )
+                 const bool saveStateHistoryForEachIteration = 0 ):
+        PodInput< ObservationScalarType, TimeType >(
+            PodInputDataType( ), numberOfEstimatedParameters, inverseOfAprioriCovariance, initialParameterDeviationEstimate )
     {
         convergenceChecker_ = convergenceChecker;
-        reintegrateEquationsOnFirstIteration_ = reintegrateEquationsOnFirstIteration;
-        reintegrateVariationalEquations_ = reintegrateVariationalEquations;
-        saveInformationMatrix_ = saveInformationMatrix;
-        printOutput_ = printOutput;
-        saveResidualsAndParametersFromEachIteration_ = saveResidualsAndParametersFromEachIteration;
-        saveStateHistoryForEachIteration_ = saveStateHistoryForEachIteration;
+
+        this->defineEstimationSettings(
+                    reintegrateEquationsOnFirstIteration, reintegrateVariationalEquations, saveInformationMatrix,
+                    printOutput, saveResidualsAndParametersFromEachIteration, saveStateHistoryForEachIteration );
     }
+
+    ~PodSettings( ){ }
 
     std::shared_ptr< EstimationConvergenceChecker > getConvergenceChecker( )
     {
         return convergenceChecker_;
     }
 
-
-    //! Function to return the boolean denoting whether the dynamics and variational equations are reintegrated on first iteration
-    /*!
-    * Function to return the boolean denoting whether the dynamics and variational equations are to be reintegrated on first
-    * iteration
-    * \return Boolean denoting whether the dynamics and variational equations are to be reintegrated on first iteration
-    */
-    bool getReintegrateEquationsOnFirstIteration( )
-    {
-        return reintegrateEquationsOnFirstIteration_;
-    }
-
-    //! Function to return the boolean denoting whether the variational equations are to be reintegrated during estimation
-    /*!
-    * Function to return the boolean denoting whether the variational equations are to be reintegrated during estimation
-    * \return Boolean denoting whether the variational equations are to be reintegrated during estimation
-    */
-    bool getReintegrateVariationalEquations( )
-    {
-        return reintegrateVariationalEquations_;
-    }
-
-    //! Function to return the boolean denoting whether to print output to th terminal when running the estimation.
-    /*!
-    * Function to return the boolean denoting whether to print output to th terminal when running the estimation.
-    * \return Boolean denoting whether to print output to th terminal when running the estimation.
-    */
-    bool getSaveInformationMatrix( )
-    {
-        return saveInformationMatrix_;
-    }
-
-    //! Function to return the boolean denoting whether to print output to th terminal when running the estimation.
-    /*!
-    * Function to return the boolean denoting whether to print output to th terminal when running the estimation.
-    * \return Boolean denoting whether to print output to th terminal when running the estimation.
-    */
-    bool getPrintOutput( )
-    {
-        return printOutput_;
-    }
-
-    //! Function to return the boolean denoting whether the residuals and parameters from the each iteration are to be saved
-    /*!
-    * Function to return the boolean denoting whether the residuals and parameters from the each iteration are to be saved
-    * \return Boolean denoting whether the residuals and parameters from the each iteration are to be saved
-    */
-    bool getSaveResidualsAndParametersFromEachIteration( )
-    {
-        return saveResidualsAndParametersFromEachIteration_;
-    }
-
-    //! Function to return the boolean denoting whether the state history is to be saved on each iteration.
-    /*!
-    * Function to return the boolean denoting whether the state history is to be saved on each iteration.
-    * \return Boolean denoting whether the state history is to be saved on each iteration.
-    */
-    bool getSaveStateHistoryForEachIteration( )
-    {
-        return saveStateHistoryForEachIteration_;
-    }
-
 private:
 
     std::shared_ptr< EstimationConvergenceChecker > convergenceChecker_;
-
-    //!  Boolean denoting whether the dynamics and variational equations are to be reintegrated on first iteration
-    bool reintegrateEquationsOnFirstIteration_;
-
-    //! Boolean denoting whether the variational equations are to be reintegrated during estimation
-    bool reintegrateVariationalEquations_;
-
-    //! Boolean denoting whether to print output to th terminal when running the estimation.
-    bool saveInformationMatrix_;
-
-    //! Boolean denoting whether to print output to th terminal when running the estimation.
-    bool printOutput_;
-
-    //! Boolean denoting whether the residuals and parameters from the each iteration are to be saved
-    bool saveResidualsAndParametersFromEachIteration_;
-
-    //! Boolean denoting whether the state history is to be saved on each iteration.
-    bool saveStateHistoryForEachIteration_;
 };
 
 //! Data structure through which the output of the orbit determination is communicated

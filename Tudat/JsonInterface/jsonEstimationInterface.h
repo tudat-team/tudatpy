@@ -12,6 +12,7 @@
 #define TUDAT_JSONESTIMATIONINTERFACE_H
 
 #include "Tudat/JsonInterface/jsonInterface.h"
+#include "Tudat/JsonInterface/Estimation/orbitDetermination.h"
 #include "Tudat/SimulationSetup/tudatEstimationHeader.h"
 
 namespace tudat
@@ -28,6 +29,21 @@ class JsonEstimationManager: public JsonSimulationManager< TimeType, StateScalar
 {
 
 public:
+
+    using JsonSimulationManager< TimeType, StateScalarType >::jsonObject_;
+    using JsonSimulationManager< TimeType, StateScalarType >::applicationOptions_;
+    using JsonSimulationManager< TimeType, StateScalarType >::profiling;
+    using JsonSimulationManager< TimeType, StateScalarType >::initialClockTime_;
+    using JsonSimulationManager< TimeType, StateScalarType >::inputFilePath_;
+    using JsonSimulationManager< TimeType, StateScalarType >::variationalEquationsSolver_;
+    using JsonSimulationManager< TimeType, StateScalarType >::dynamicsSimulator_;
+    using JsonSimulationManager< TimeType, StateScalarType >::bodyMap_;
+    using JsonSimulationManager< TimeType, StateScalarType >::parametersToEstimate_;
+    using JsonSimulationManager< TimeType, StateScalarType >::integratorSettings_;
+    using JsonSimulationManager< TimeType, StateScalarType >::propagatorSettings_;
+    using JsonSimulationManager< TimeType, StateScalarType >::exportAsJson;
+
+
     //! Constructor from JSON file.
     /*!
      * Constructor.
@@ -38,7 +54,7 @@ public:
     JsonEstimationManager(
             const std::string& inputFilePath,
             const std::chrono::steady_clock::time_point initialClockTime = std::chrono::steady_clock::now( ) ):
-        JsonSimulationManager( inputFilePath, initialClockTime )
+        JsonSimulationManager< TimeType, StateScalarType >( inputFilePath, initialClockTime )
     { }
 
     //! Constructor from JSON object.
@@ -51,9 +67,9 @@ public:
     JsonEstimationManager(
             const nlohmann::json& jsonObject,
             const std::chrono::steady_clock::time_point initialClockTime = std::chrono::steady_clock::now( ) ):
-        JsonSimulationManager( jsonObject, initialClockTime ){ }
+        JsonSimulationManager< TimeType, StateScalarType >( jsonObject, initialClockTime ){ }
 
-    ~JsonEstimationManager( ){ }
+    virtual ~JsonEstimationManager( ){ }
 
     virtual void updateSettingsDerived( )
     {
@@ -86,7 +102,7 @@ public:
         }
 
         orbitDeterminationManager_->estimateParameters(
-                    podInput_, convergenceChecker_ );
+                    podSettings_ );
 
 //        // Print message on propagation termination if requested
 //        if ( applicationOptions_->notifyOnPropagationTermination_ )
@@ -124,7 +140,7 @@ protected:
 
     virtual void resetObservationSettings( )
     {
-        updateFromJSON( observationSettingsMap_, jsonObject_, Keys::observations );
+        //updateFromJSON( observationSettingsMap_, jsonObject_, Keys::observations );
 
         if ( profiling )
         {
@@ -165,10 +181,12 @@ protected:
     virtual void parseSettingsObjects( )
     {
         orbitDeterminationManager_ =
-                boost::make_shared< simulation_setup::OrbitDeterminationManager< StateScalarType, TimeType > >(
+                std::make_shared< simulation_setup::OrbitDeterminationManager< StateScalarType, TimeType > >(
                     bodyMap_, parametersToEstimate_, observationSettingsMap_, integratorSettings_, propagatorSettings_,
                     false );
-        variationalEquationsSolver_ = orbitDeterminationManager_->getVariationalEquationsSolver( );
+        variationalEquationsSolver_ =
+                std::dynamic_pointer_cast< propagators::SingleArcVariationalEquationsSolver< StateScalarType, TimeType > >(
+                    orbitDeterminationManager_->getVariationalEquationsSolver( ) );
         dynamicsSimulator_ = variationalEquationsSolver_->getDynamicsSimulator( );
     }
 
@@ -176,9 +194,9 @@ private:
 
     observation_models::ObservationSettingsMap observationSettingsMap_;
 
-    boost::shared_ptr< simulation_setup::OrbitDeterminationManager< StateScalarType, TimeType > > orbitDeterminationManager_;
+    std::shared_ptr< simulation_setup::OrbitDeterminationManager< StateScalarType, TimeType > > orbitDeterminationManager_;
 
-    std::shared_ptr< simulation_setup::PodSettings > podSettings_;
+    std::shared_ptr< simulation_setup::PodSettings< StateScalarType, TimeType > > podSettings_;
 
 };
 

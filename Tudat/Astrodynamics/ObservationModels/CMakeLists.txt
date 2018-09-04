@@ -41,6 +41,7 @@ set(OBSERVATION_MODELS_HEADERS
   "${SRCROOT}${OBSERVATIONMODELSDIR}/simulateObservations.h"
   "${SRCROOT}${OBSERVATIONMODELSDIR}/positionObservationModel.h"
   "${SRCROOT}${OBSERVATIONMODELSDIR}/twoWayDopplerObservationModel.h"
+  "${SRCROOT}${OBSERVATIONMODELSDIR}/eulerAngleObservationModel.h"
   "${SRCROOT}${OBSERVATIONMODELSDIR}/UnitTests/testLightTimeCorrections.h"
   "${SRCROOT}${OBSERVATIONMODELSDIR}/observationViabilityCalculator.h"
   "${SRCROOT}${OBSERVABLECORRECTIONSDIR}/lightTimeCorrection.h"
