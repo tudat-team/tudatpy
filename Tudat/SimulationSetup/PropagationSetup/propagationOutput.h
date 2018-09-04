@@ -385,48 +385,41 @@ std::pair< boost::function< Eigen::VectorXd( ) >, int > getVectorDependentVariab
     case total_gravity_field_variation_acceleration:
     {
 
-        // Check input consistency.
-        boost::shared_ptr< SphericalHarmonicAccelerationTermsDependentVariableSaveSettings > accelerationComponentVariableSettings =
-                boost::dynamic_pointer_cast< SphericalHarmonicAccelerationTermsDependentVariableSaveSettings >( dependentVariableSettings );
-        if( accelerationComponentVariableSettings == NULL )
+        boost::shared_ptr< gravitation::SphericalHarmonicsGravitationalAccelerationModel > sphericalHarmonicAcceleration =
+                getSphericalHarmonicAccelerationForDependentVariables(
+                    dependentVariableSettings, stateDerivativeModels );
+        boost::shared_ptr< gravitation::TimeDependentSphericalHarmonicsGravityField > timeDependentGravityField =
+                boost::dynamic_pointer_cast< gravitation::TimeDependentSphericalHarmonicsGravityField >(
+                    bodyMap.at( dependentVariableSettings->secondaryBody_ )->getGravityFieldModel( ) );
+
+        if( timeDependentGravityField == NULL )
         {
-            std::string errorMessage= "Error, inconsistent inout when creating dependent variable function of type single_acceleration_dependent_variable";
-            throw std::runtime_error( errorMessage );
+            throw std::runtime_error( "Error when requesting save of gravity field variation acceleration, central body " +
+                                      dependentVariableSettings->secondaryBody_ +
+                                      " has no TimeDependentSphericalHarmonicsGravityField." );
         }
         else
         {
-            boost::shared_ptr< gravitation::SphericalHarmonicsGravitationalAccelerationModel > sphericalHarmonicAcceleration =
-                    getSphericalHarmonicAccelerationForDependentVariables(
-                        accelerationComponentVariableSettings, stateDerivativeModels );
-            boost::shared_ptr< gravitation::TimeDependentSphericalHarmonicsGravityField > timeDependentGravityField =
-                    boost::dynamic_pointer_cast< gravitation::TimeDependentSphericalHarmonicsGravityField >(
-                        bodyMap.at( dependentVariableSettings->secondaryBody_ )->getGravityFieldModel( ) );
+            boost::function< Eigen::VectorXd( const Eigen::MatrixXd&, const Eigen::MatrixXd& ) > accelerationFunction =
+                    boost::bind( &gravitation::SphericalHarmonicsGravitationalAccelerationModel::getAccelerationWithAlternativeCoefficients,
+                                 sphericalHarmonicAcceleration, _1, _2 );
+            boost::function< Eigen::MatrixXd( ) > cosineCorrectionFunction =
+                    boost::bind( &gravitation::TimeDependentSphericalHarmonicsGravityField::getTotalCosineCoefficientCorrection,
+                                 timeDependentGravityField,
+                                 sphericalHarmonicAcceleration->getMaximumDegree( ),
+                                 sphericalHarmonicAcceleration->getMaximumOrder( ) );
+            boost::function< Eigen::MatrixXd( ) > sineCorrectionFunction =
+                    boost::bind( &gravitation::TimeDependentSphericalHarmonicsGravityField::getTotalSineCoefficientCorrection,
+                                 timeDependentGravityField,
+                                 sphericalHarmonicAcceleration->getMaximumDegree( ),
+                                 sphericalHarmonicAcceleration->getMaximumOrder( ) );
 
-            if( timeDependentGravityField == NULL )
-            {
-                throw std::runtime_error( "Error when requesting save of gravity field variation acceleration, central body " +
-                                          dependentVariableSettings->secondaryBody_ +
-                                          " has no TimeDependentSphericalHarmonicsGravityField." );
-            }
-            else
-            {
-                boost::function< Eigen::VectorXd( const Eigen::MatrixXd&, const Eigen::MatrixXd& ) > accelerationFunction =
-                        boost::bind( &gravitation::SphericalHarmonicsGravitationalAccelerationModel::getAccelerationWithAlternativeCoefficients,
-                                     sphericalHarmonicAcceleration, _1, _2 );
-                boost::function< Eigen::MatrixXd( ) > cosineCorrectionFunction =
-                        boost::bind( &gravitation::TimeDependentSphericalHarmonicsGravityField::getTotalCosineCoefficientCorrection,
-                                     timeDependentGravityField );
-                boost::function< Eigen::MatrixXd( ) > sineCorrectionFunction =
-                        boost::bind( &gravitation::TimeDependentSphericalHarmonicsGravityField::getTotalSineCoefficientCorrection,
-                                     timeDependentGravityField );
+            variableFunction = boost::bind( evaluateBivariateReferenceFunction< Eigen::VectorXd, Eigen::MatrixXd >,
+                                            accelerationFunction, cosineCorrectionFunction, sineCorrectionFunction );
 
-                variableFunction = boost::bind( evaluateBivariateReferenceFunction< Eigen::VectorXd, Eigen::MatrixXd >,
-                                                accelerationFunction, cosineCorrectionFunction, sineCorrectionFunction );
-
-                parameterSize = 3;
-            }
-
+            parameterSize = 3;
         }
+
         break;
     }
     case single_gravity_field_variation_acceleration:
@@ -466,7 +459,7 @@ std::pair< boost::function< Eigen::VectorXd( ) >, int > getVectorDependentVariab
 
                 boost::function< Eigen::MatrixXd( ) > cosineCorrectionFunction =
                         boost::bind( &gravitation::GravityFieldVariations::getLastCosineCorrection,
-                                     gravityFieldVatiation );
+                                     gravityFieldVatiation  );
                 boost::function< Eigen::MatrixXd( ) > sineCorrectionFunction =
                         boost::bind( &gravitation::GravityFieldVariations::getLastSineCorrection,
                                      gravityFieldVatiation );

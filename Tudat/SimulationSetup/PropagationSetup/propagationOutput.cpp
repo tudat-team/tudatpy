@@ -266,8 +266,10 @@ int getDependentVariableSize(
         break;
     case total_gravity_field_variation_acceleration:
         variableSize = 3;
+        break;
     case single_gravity_field_variation_acceleration:
         variableSize = 3;
+        break;
     case single_gravity_field_variation_acceleration_terms:
     {
         if( boost::dynamic_pointer_cast< SingleVariationSingleTermSphericalHarmonicAccelerationSaveSettings >(

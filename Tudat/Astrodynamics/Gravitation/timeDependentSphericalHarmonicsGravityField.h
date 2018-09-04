@@ -163,14 +163,19 @@ public:
         return nominalCosineCoefficients_;
     }
 
-    Eigen::MatrixXd getTotalCosineCoefficientCorrection( )
+    Eigen::MatrixXd getTotalCosineCoefficientCorrection(
+            const int maximumDegree, const int maximumOrder )
     {
-        return cosineCoefficients_ - nominalCosineCoefficients_;
+        return cosineCoefficients_.block( 0, 0, maximumDegree + 1, maximumOrder + 1 ) -
+                nominalCosineCoefficients_.block( 0, 0, maximumDegree + 1, maximumOrder + 1 );
     }
 
-    Eigen::MatrixXd getTotalSineCoefficientCorrection( )
+    Eigen::MatrixXd getTotalSineCoefficientCorrection(
+            const int maximumDegree, const int maximumOrder )
+
     {
-        return sineCoefficients_ - nominalSineCoefficients_;
+        return sineCoefficients_.block( 0, 0, maximumDegree + 1, maximumOrder + 1 ) -
+                nominalSineCoefficients_.block( 0, 0, maximumDegree + 1, maximumOrder + 1 );
     }
 
     //! Set nominal (i.e. with zero variations) cosine coefficients.

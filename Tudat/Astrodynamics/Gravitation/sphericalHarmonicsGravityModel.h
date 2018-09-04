@@ -223,10 +223,12 @@ public:
           currentAcceleration_( Eigen::Vector3d::Zero( ) ),
           saveSphericalHarmonicTermsSeparately_( false )
     {
+        maximumDegree_ = static_cast< int >( getCosineHarmonicsCoefficients( ).rows( ) );
+        maximumOrder_ = static_cast< int >( getCosineHarmonicsCoefficients( ).cols( ) );
         sphericalHarmonicsCache_->resetMaximumDegreeAndOrder(
-                    std::max< int >( static_cast< int >( getCosineHarmonicsCoefficients( ).rows( ) ),
+                    std::max< int >( maximumDegree_,
                                      sphericalHarmonicsCache_->getMaximumDegree( ) ),
-                    std::max< int >( static_cast< int >( getCosineHarmonicsCoefficients( ).cols( ) ),
+                    std::max< int >( maximumOrder_,
                                      sphericalHarmonicsCache_->getMaximumOrder( ) ) + 1 );
         this->updateMembers( );
     }
@@ -284,10 +286,12 @@ public:
           currentAcceleration_( Eigen::Vector3d::Zero( ) ),
           saveSphericalHarmonicTermsSeparately_( false )
     {
+        maximumDegree_ = static_cast< int >( getCosineHarmonicsCoefficients( ).rows( ) );
+        maximumOrder_ = static_cast< int >( getCosineHarmonicsCoefficients( ).cols( ) );
         sphericalHarmonicsCache_->resetMaximumDegreeAndOrder(
-                    std::max< int >( static_cast< int >( getCosineHarmonicsCoefficients( ).rows( ) ),
+                    std::max< int >( maximumDegree_,
                                      sphericalHarmonicsCache_->getMaximumDegree( ) ),
-                    std::max< int >( static_cast< int >( getCosineHarmonicsCoefficients( ).cols( ) ),
+                    std::max< int >( maximumOrder_,
                                      sphericalHarmonicsCache_->getMaximumOrder( ) ) + 1 );
 
 
@@ -325,8 +329,14 @@ public:
     {
         if( !( this->currentTime_ == currentTime ) )
         {
+
             cosineHarmonicCoefficients = getCosineHarmonicsCoefficients( );
             sineHarmonicCoefficients = getSineHarmonicsCoefficients( );
+
+//            std::cout<<"Nominal coeff: "<<std::endl<<
+//                       cosineHarmonicCoefficients<<std::endl<<std::endl<<
+//                       sineHarmonicCoefficients<<std::endl<<std::endl;
+
             rotationToIntegrationFrame_ = rotationFromBodyFixedToIntegrationFrameFunction_( );
             this->updateBaseMembers( );
 
@@ -353,8 +363,12 @@ public:
     Eigen::VectorXd getAccelerationWithAlternativeCoefficients(
             const Eigen::MatrixXd& cosineCoefficients, const Eigen::MatrixXd& sineCoefficients)
     {
+//        std::cout<<"Manual coeff: "<<std::endl<<
+//                   cosineCoefficients<<std::endl<<std::endl<<
+//                   sineCoefficients<<std::endl<<std::endl;
+
         std::map< std::pair< int, int >, Eigen::Vector3d > dummy;
-        return rotationToIntegrationFrame_.inverse( ) * computeGeodesyNormalizedGravitationalAccelerationSum(
+        return computeGeodesyNormalizedGravitationalAccelerationSum(
                     currentRelativePosition_,
                     gravitationalParameter,
                     equatorialRadius,
@@ -507,6 +521,16 @@ public:
         return returnVector;
     }
 
+    int getMaximumDegree( )
+    {
+        return maximumDegree_;
+    }
+
+    int getMaximumOrder( )
+    {
+        return maximumOrder_;
+    }
+
 
 protected:
 
@@ -571,6 +595,10 @@ private:
 
     //! Boolean that denotes whether each of the separate spherical harmonic terms should be saved (in accelerationPerTerm_)
     bool saveSphericalHarmonicTermsSeparately_;
+
+    int maximumDegree_;
+
+    int maximumOrder_;
 
 };
 
