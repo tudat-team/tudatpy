@@ -235,7 +235,6 @@ protected:
         }
     }
 
-
     //! Function to calculate the partial of the acceleration wrt a set of cosine coefficients.
     /*!
      *  Function to calculate the partial of the acceleration wrt a set of cosine coefficients.
@@ -303,7 +302,6 @@ protected:
             const int parameterSize,
             Eigen::MatrixXd& accelerationPartial );
 
-
     //! Function to return the gravitational parameter used for calculating the acceleration.
     boost::function< double( ) > gravitationalParameterFunction_;
 
@@ -328,7 +326,6 @@ protected:
 
     //! Function return current rotation from inertial frame to frame fixed to body exerting acceleration.
     boost::function< Eigen::Matrix3d( ) > fromBodyFixedToIntegrationFrameRotation_;
-
 
     //! Function to retrieve the current spherical harmonic acceleration.
     boost::function< Eigen::Matrix< double, 3, 1 >( ) > accelerationFunction_;
@@ -359,7 +356,6 @@ protected:
      *  set by update( time ) function.
      */
     Eigen::Vector3d bodyFixedPosition_;
-
 
     //! Current spherical coordinate of body undergoing acceleration
     /*!
@@ -393,7 +389,6 @@ protected:
      */
     Eigen::Matrix3d currentPartialWrtVelocity_;
 
-
     //! Maximum degree of spherical harmonic expansion.
     /*!
      *  Maximum degree of spherical harmonic expansion of body exerting acceleration used in the calculation
@@ -407,7 +402,6 @@ protected:
      *  of the acceleration.
      */
     int maximumOrder_;
-
 
     //! Map of RotationMatrixPartial, one for each relevant rotation parameter
     /*!
