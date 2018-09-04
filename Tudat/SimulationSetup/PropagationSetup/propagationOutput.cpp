@@ -264,6 +264,25 @@ int getDependentVariableSize(
     case body_fixed_relative_spherical_position:
         variableSize = 3;
         break;
+    case total_gravity_field_variation_acceleration:
+        variableSize = 3;
+    case single_gravity_field_variation_acceleration:
+        variableSize = 3;
+    case single_gravity_field_variation_acceleration_terms:
+    {
+        if( boost::dynamic_pointer_cast< SingleVariationSingleTermSphericalHarmonicAccelerationSaveSettings >(
+                    dependentVariableSettings ) == NULL )
+        {
+             std::string errorMessage = "Error, input for single_gravity_field_variation_acceleration_terms inconsistent when getting parameter size ";
+             throw std::runtime_error( errorMessage );
+        }
+        else
+        {
+            variableSize = 3 * boost::dynamic_pointer_cast< SingleVariationSingleTermSphericalHarmonicAccelerationSaveSettings >(
+                        dependentVariableSettings )->componentIndices_.size( );
+        }
+        break;
+    }
     default:
         std::string errorMessage = "Error, did not recognize dependent variable size of type: " +
                 std::to_string( dependentVariableSettings->dependentVariableType_ );

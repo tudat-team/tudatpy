@@ -350,6 +350,46 @@ public:
         }
     }
 
+    Eigen::VectorXd getAccelerationWithAlternativeCoefficients(
+            const Eigen::MatrixXd& cosineCoefficients, const Eigen::MatrixXd& sineCoefficients)
+    {
+        std::map< std::pair< int, int >, Eigen::Vector3d > dummy;
+        return rotationToIntegrationFrame_.inverse( ) * computeGeodesyNormalizedGravitationalAccelerationSum(
+                    currentRelativePosition_,
+                    gravitationalParameter,
+                    equatorialRadius,
+                    cosineCoefficients,
+                    sineCoefficients, sphericalHarmonicsCache_,
+                    dummy,
+                    false,
+                    rotationToIntegrationFrame_.toRotationMatrix( ) );
+    }
+
+    Eigen::VectorXd getAccelerationComponentsWithAlternativeCoefficients(
+            const Eigen::MatrixXd& cosineCoefficients, const Eigen::MatrixXd& sineCoefficients,
+            const std::vector< std::pair< int, int > >& coefficientIndices )
+    {
+        std::map< std::pair< int, int >, Eigen::Vector3d > accelerationPerTerm;
+
+        computeGeodesyNormalizedGravitationalAccelerationSum(
+                    currentRelativePosition_,
+                    gravitationalParameter,
+                    equatorialRadius,
+                    cosineCoefficients,
+                    sineCoefficients, sphericalHarmonicsCache_,
+                    accelerationPerTerm,
+                    true,
+                    rotationToIntegrationFrame_.toRotationMatrix( ) );
+
+
+        Eigen::VectorXd returnVector = Eigen::VectorXd( 3 * coefficientIndices.size( ) );
+        for( unsigned int i = 0; i < coefficientIndices.size( ); i++ )
+        {
+            returnVector.segment( i * 3, 3 ) = accelerationPerTerm.at( coefficientIndices.at( i ) );
+        }
+        return returnVector;
+   }
+
     //! Function to retrieve the spherical harmonics cache for this acceleration.
     /*!
      *  Function to retrieve the spherical harmonics cache for this acceleration.

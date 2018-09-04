@@ -163,6 +163,16 @@ public:
         return nominalCosineCoefficients_;
     }
 
+    Eigen::MatrixXd getTotalCosineCoefficientCorrection( )
+    {
+        return cosineCoefficients_ - nominalCosineCoefficients_;
+    }
+
+    Eigen::MatrixXd getTotalSineCoefficientCorrection( )
+    {
+        return sineCoefficients_ - nominalSineCoefficients_;
+    }
+
     //! Set nominal (i.e. with zero variations) cosine coefficients.
     /*!
      *  Function to set nominal (i.e. with zero variations) cosine coefficients.

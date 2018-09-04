@@ -46,8 +46,13 @@ void GravityFieldVariations::addSphericalHarmonicsCorrections(
     // Add corrections to existing values
     sineCoefficients.block( minimumDegree_, minimumOrder_, numberOfDegrees_, numberOfOrders_ )
             += correctionPair.second;
+    lastSineCorrection_.block( minimumDegree_, minimumOrder_, numberOfDegrees_, numberOfOrders_ )
+            = correctionPair.second;
+
     cosineCoefficients.block( minimumDegree_, minimumOrder_, numberOfDegrees_, numberOfOrders_ )
             += correctionPair.first;
+    lastCosineCorrection_.block( minimumDegree_, minimumOrder_, numberOfDegrees_, numberOfOrders_ )
+            = correctionPair.first;
 }
 
 //! Function to retrieve a variation object of given type (and name if necessary).

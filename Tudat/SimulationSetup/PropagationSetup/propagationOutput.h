@@ -177,6 +177,59 @@ double computeEquilibriumFayRiddellHeatFluxFromProperties(
         const boost::shared_ptr< aerodynamics::AtmosphericFlightConditions > flightConditions,
         const boost::shared_ptr< system_models::VehicleSystems > vehicleSystems );
 
+template< typename StateScalarType, typename TimeType >
+boost::shared_ptr< gravitation::SphericalHarmonicsGravitationalAccelerationModel >
+getSphericalHarmonicAccelerationForDependentVariables(
+        const boost::shared_ptr< SingleDependentVariableSaveSettings > dependentVariableSettings,
+        const std::unordered_map< IntegratedStateType,
+        std::vector< boost::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > > > stateDerivativeModels )
+{
+    boost::shared_ptr< gravitation::SphericalHarmonicsGravitationalAccelerationModel > sphericalHarmonicAcceleration;
+
+    // Retrieve list of suitable acceleration models (size should be one to avoid ambiguities)s
+    std::vector< boost::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > >
+            listOfSuitableAccelerationModels = getAccelerationBetweenBodies(
+                dependentVariableSettings->associatedBody_,
+                dependentVariableSettings->secondaryBody_, stateDerivativeModels,
+                basic_astrodynamics::spherical_harmonic_gravity );
+
+
+    // Check if third-body counterpart of acceleration is found
+    if( listOfSuitableAccelerationModels.size( ) == 0 )
+    {
+        listOfSuitableAccelerationModels = getAccelerationBetweenBodies(
+                    dependentVariableSettings->associatedBody_,
+                    dependentVariableSettings->secondaryBody_,
+                    stateDerivativeModels, basic_astrodynamics::getAssociatedThirdBodyAcceleration(
+                        basic_astrodynamics::spherical_harmonic_gravity ) );
+    }
+
+    if( listOfSuitableAccelerationModels.size( ) != 1 )
+    {
+        std::string errorMessage = "Error when getting spherical harmonic acceleration components between bodies " +
+                dependentVariableSettings->associatedBody_ + " and " +
+                dependentVariableSettings->secondaryBody_ + " of type " +
+                std::to_string(
+                    basic_astrodynamics::spherical_harmonic_gravity ) +
+                ", no such acceleration found";
+        throw std::runtime_error( errorMessage );
+    }
+    else
+    {
+        sphericalHarmonicAcceleration =
+                boost::dynamic_pointer_cast< gravitation::SphericalHarmonicsGravitationalAccelerationModel >(
+                    listOfSuitableAccelerationModels.at( 0 ) );
+        if( sphericalHarmonicAcceleration == NULL )
+        {
+            std::string errorMessage = "Error when getting spherical harmonic acceleration for dependent variable " +
+                    dependentVariableSettings->associatedBody_ + " and " +
+                    dependentVariableSettings->secondaryBody_ + " type is ionconsistent";
+            throw std::runtime_error( errorMessage );
+        }
+    }
+
+    return sphericalHarmonicAcceleration;
+}
 
 //! Function to create a function returning a requested dependent variable value (of type VectorXd).
 /*!
@@ -317,57 +370,164 @@ std::pair< boost::function< Eigen::VectorXd( ) >, int > getVectorDependentVariab
         }
         else
         {
-            // Retrieve list of suitable acceleration models (size should be one to avoid ambiguities)
-            std::vector< boost::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > >
-                    listOfSuitableAccelerationModels = getAccelerationBetweenBodies(
-                        accelerationComponentVariableSettings->associatedBody_,
-                        accelerationComponentVariableSettings->secondaryBody_, stateDerivativeModels,
-                        basic_astrodynamics::spherical_harmonic_gravity );
+            boost::shared_ptr< gravitation::SphericalHarmonicsGravitationalAccelerationModel > sphericalHarmonicAcceleration =
+                    getSphericalHarmonicAccelerationForDependentVariables(
+                        accelerationComponentVariableSettings, stateDerivativeModels );
 
-            // Check if third-body counterpart of acceleration is found
-            if( listOfSuitableAccelerationModels.size( ) == 0 )
-            {
-                listOfSuitableAccelerationModels = getAccelerationBetweenBodies(
-                            accelerationComponentVariableSettings->associatedBody_,
-                            accelerationComponentVariableSettings->secondaryBody_,
-                            stateDerivativeModels, basic_astrodynamics::getAssociatedThirdBodyAcceleration(
-                                basic_astrodynamics::spherical_harmonic_gravity ) );
-            }
+            sphericalHarmonicAcceleration->setSaveSphericalHarmonicTermsSeparately( true );
+            variableFunction = boost::bind(
+                        &gravitation::SphericalHarmonicsGravitationalAccelerationModel::getConcatenatedAccelerationComponents,
+                        sphericalHarmonicAcceleration, accelerationComponentVariableSettings->componentIndices_ );
+            parameterSize = 3 * accelerationComponentVariableSettings->componentIndices_.size( );
+        }
+        break;
+    }
+    case total_gravity_field_variation_acceleration:
+    {
 
-            if( listOfSuitableAccelerationModels.size( ) != 1 )
+        // Check input consistency.
+        boost::shared_ptr< SphericalHarmonicAccelerationTermsDependentVariableSaveSettings > accelerationComponentVariableSettings =
+                boost::dynamic_pointer_cast< SphericalHarmonicAccelerationTermsDependentVariableSaveSettings >( dependentVariableSettings );
+        if( accelerationComponentVariableSettings == NULL )
+        {
+            std::string errorMessage= "Error, inconsistent inout when creating dependent variable function of type single_acceleration_dependent_variable";
+            throw std::runtime_error( errorMessage );
+        }
+        else
+        {
+            boost::shared_ptr< gravitation::SphericalHarmonicsGravitationalAccelerationModel > sphericalHarmonicAcceleration =
+                    getSphericalHarmonicAccelerationForDependentVariables(
+                        accelerationComponentVariableSettings, stateDerivativeModels );
+            boost::shared_ptr< gravitation::TimeDependentSphericalHarmonicsGravityField > timeDependentGravityField =
+                    boost::dynamic_pointer_cast< gravitation::TimeDependentSphericalHarmonicsGravityField >(
+                        bodyMap.at( dependentVariableSettings->secondaryBody_ )->getGravityFieldModel( ) );
+
+            if( timeDependentGravityField == NULL )
             {
-                std::string errorMessage = "Error when getting spherical harmonic acceleration components between bodies " +
-                        accelerationComponentVariableSettings->associatedBody_ + " and " +
-                        accelerationComponentVariableSettings->secondaryBody_ + " of type " +
-                        std::to_string(
-                            basic_astrodynamics::spherical_harmonic_gravity ) +
-                        ", no such acceleration found";
-                throw std::runtime_error( errorMessage );
+                throw std::runtime_error( "Error when requesting save of gravity field variation acceleration, central body " +
+                                          dependentVariableSettings->secondaryBody_ +
+                                          " has no TimeDependentSphericalHarmonicsGravityField." );
             }
             else
             {
-                boost::shared_ptr< gravitation::SphericalHarmonicsGravitationalAccelerationModel > sphericalHarmonicAcceleration =
-                        boost::dynamic_pointer_cast< gravitation::SphericalHarmonicsGravitationalAccelerationModel >(
-                            listOfSuitableAccelerationModels.at( 0 ) );
-                if( sphericalHarmonicAcceleration == NULL )
-                {
-                    std::string errorMessage = "Error when getting spherical harmonic acceleration components between bodies " +
-                            accelerationComponentVariableSettings->associatedBody_ + " and " +
-                            accelerationComponentVariableSettings->secondaryBody_ + " type is ionconsistent";
-                    throw std::runtime_error( errorMessage );
-                }
-                else
-                {
+                boost::function< Eigen::VectorXd( const Eigen::MatrixXd&, const Eigen::MatrixXd& ) > accelerationFunction =
+                        boost::bind( &gravitation::SphericalHarmonicsGravitationalAccelerationModel::getAccelerationWithAlternativeCoefficients,
+                                     sphericalHarmonicAcceleration, _1, _2 );
+                boost::function< Eigen::MatrixXd( ) > cosineCorrectionFunction =
+                        boost::bind( &gravitation::TimeDependentSphericalHarmonicsGravityField::getTotalCosineCoefficientCorrection,
+                                     timeDependentGravityField );
+                boost::function< Eigen::MatrixXd( ) > sineCorrectionFunction =
+                        boost::bind( &gravitation::TimeDependentSphericalHarmonicsGravityField::getTotalSineCoefficientCorrection,
+                                     timeDependentGravityField );
 
-                    //boost::function< Eigen::Vector3d( ) > vectorFunction =
-                    sphericalHarmonicAcceleration->setSaveSphericalHarmonicTermsSeparately( true );
-                    variableFunction = boost::bind(
-                                &gravitation::SphericalHarmonicsGravitationalAccelerationModel::getConcatenatedAccelerationComponents,
-                                sphericalHarmonicAcceleration, accelerationComponentVariableSettings->componentIndices_ );
-                    parameterSize = 3 * accelerationComponentVariableSettings->componentIndices_.size( );
-                }
+                variableFunction = boost::bind( evaluateBivariateReferenceFunction< Eigen::VectorXd, Eigen::MatrixXd >,
+                                                accelerationFunction, cosineCorrectionFunction, sineCorrectionFunction );
+
+                parameterSize = 3;
+            }
+
+        }
+        break;
+    }
+    case single_gravity_field_variation_acceleration:
+    {
+        boost::shared_ptr< SingleVariationSphericalHarmonicAccelerationSaveSettings > accelerationVariableSettings =
+                boost::dynamic_pointer_cast< SingleVariationSphericalHarmonicAccelerationSaveSettings >( dependentVariableSettings );
+        if( accelerationVariableSettings == NULL )
+        {
+            std::string errorMessage= "Error, inconsistent inout when creating dependent variable function of type single_gravity_field_variation_acceleration";
+            throw std::runtime_error( errorMessage );
+        }
+        else
+        {
+            boost::shared_ptr< gravitation::SphericalHarmonicsGravitationalAccelerationModel > sphericalHarmonicAcceleration =
+                    getSphericalHarmonicAccelerationForDependentVariables(
+                        accelerationVariableSettings, stateDerivativeModels );
+            boost::shared_ptr< gravitation::TimeDependentSphericalHarmonicsGravityField > timeDependentGravityField =
+                    boost::dynamic_pointer_cast< gravitation::TimeDependentSphericalHarmonicsGravityField >(
+                        bodyMap.at( dependentVariableSettings->secondaryBody_ )->getGravityFieldModel( ) );
+
+            if( timeDependentGravityField == NULL )
+            {
+                throw std::runtime_error( "Error when requesting save of gravity field variation acceleration, central body " +
+                                          dependentVariableSettings->secondaryBody_ +
+                                          " has no TimeDependentSphericalHarmonicsGravityField." );
+            }
+            else
+            {
+                boost::function< Eigen::VectorXd( const Eigen::MatrixXd&, const Eigen::MatrixXd& ) > accelerationFunction =
+                        boost::bind( &gravitation::SphericalHarmonicsGravitationalAccelerationModel::getAccelerationWithAlternativeCoefficients,
+                                     sphericalHarmonicAcceleration, _1, _2 );
+
+                boost::shared_ptr< gravitation::GravityFieldVariations > gravityFieldVatiation =
+                        timeDependentGravityField->getGravityFieldVariationsSet( )->getGravityFieldVariation(
+                            accelerationVariableSettings->deformationType_,
+                            accelerationVariableSettings->identifier_ ).second;
+
+                boost::function< Eigen::MatrixXd( ) > cosineCorrectionFunction =
+                        boost::bind( &gravitation::GravityFieldVariations::getLastCosineCorrection,
+                                     gravityFieldVatiation );
+                boost::function< Eigen::MatrixXd( ) > sineCorrectionFunction =
+                        boost::bind( &gravitation::GravityFieldVariations::getLastSineCorrection,
+                                     gravityFieldVatiation );
+
+                variableFunction = boost::bind( evaluateBivariateReferenceFunction< Eigen::VectorXd, Eigen::MatrixXd >,
+                                                accelerationFunction, cosineCorrectionFunction, sineCorrectionFunction );
 
             }
+        }
+
+
+        break;
+    }
+    case single_gravity_field_variation_acceleration_terms:
+    {
+        boost::shared_ptr< SingleVariationSingleTermSphericalHarmonicAccelerationSaveSettings > accelerationVariableSettings =
+                boost::dynamic_pointer_cast< SingleVariationSingleTermSphericalHarmonicAccelerationSaveSettings >( dependentVariableSettings );
+        if( accelerationVariableSettings == NULL )
+        {
+            std::string errorMessage= "Error, inconsistent inout when creating dependent variable function of type single_gravity_field_variation_acceleration_terms";
+            throw std::runtime_error( errorMessage );
+        }
+        else
+        {
+            boost::shared_ptr< gravitation::SphericalHarmonicsGravitationalAccelerationModel > sphericalHarmonicAcceleration =
+                    getSphericalHarmonicAccelerationForDependentVariables(
+                        accelerationVariableSettings, stateDerivativeModels );
+            boost::shared_ptr< gravitation::TimeDependentSphericalHarmonicsGravityField > timeDependentGravityField =
+                    boost::dynamic_pointer_cast< gravitation::TimeDependentSphericalHarmonicsGravityField >(
+                        bodyMap.at( dependentVariableSettings->secondaryBody_ )->getGravityFieldModel( ) );
+
+            if( timeDependentGravityField == NULL )
+            {
+                throw std::runtime_error( "Error when requesting save of gravity field variation acceleration, central body " +
+                                          dependentVariableSettings->secondaryBody_ +
+                                          " has no TimeDependentSphericalHarmonicsGravityField." );
+            }
+            else
+            {
+                boost::function< Eigen::VectorXd( const Eigen::MatrixXd&, const Eigen::MatrixXd& ) > accelerationFunction =
+                        boost::bind( &gravitation::SphericalHarmonicsGravitationalAccelerationModel::getAccelerationComponentsWithAlternativeCoefficients,
+                                     sphericalHarmonicAcceleration, _1, _2, accelerationVariableSettings->componentIndices_ );
+
+                boost::shared_ptr< gravitation::GravityFieldVariations > gravityFieldVatiation =
+                        timeDependentGravityField->getGravityFieldVariationsSet( )->getGravityFieldVariation(
+                            accelerationVariableSettings->deformationType_,
+                            accelerationVariableSettings->identifier_ ).second;
+
+
+                boost::function< Eigen::MatrixXd( ) > cosineCorrectionFunction =
+                        boost::bind( &gravitation::GravityFieldVariations::getLastCosineCorrection,
+                                     gravityFieldVatiation );
+                boost::function< Eigen::MatrixXd( ) > sineCorrectionFunction =
+                        boost::bind( &gravitation::GravityFieldVariations::getLastSineCorrection,
+                                     gravityFieldVatiation );
+
+                variableFunction = boost::bind( evaluateBivariateReferenceFunction< Eigen::VectorXd, Eigen::MatrixXd >,
+                                                accelerationFunction, cosineCorrectionFunction, sineCorrectionFunction );
+
+            }
+
         }
         break;
     }
