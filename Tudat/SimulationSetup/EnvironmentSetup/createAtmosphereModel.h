@@ -18,6 +18,7 @@
 
 #include "Tudat/Astrodynamics/Aerodynamics/atmosphereModel.h"
 #include "Tudat/Astrodynamics/Aerodynamics/exponentialAtmosphere.h"
+#include "Tudat/Astrodynamics/Aerodynamics/customConstantTemperatureAtmosphere.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/physicalConstants.h"
 #include "Tudat/Mathematics/Interpolators/interpolator.h"
 #include "Tudat/Basics/identityElements.h"
@@ -133,6 +134,7 @@ protected:
 enum AtmosphereTypes
 {
     exponential_atmosphere,
+    custom_constant_temperature_atmosphere,
     tabulated_atmosphere,
     nrlmsise00
 };
@@ -194,6 +196,7 @@ private:
 
     //! Settings for the atmosphere's wind model.
     boost::shared_ptr< WindModelSettings > windSettings_;
+
 };
 
 //! AtmosphereSettings for defining an exponential atmosphere.
@@ -311,6 +314,148 @@ private:
     //! Enumeration denoting the name of the body for which to load the predefined
     //! atmosphere model.
     BodiesWithPredefinedExponentialAtmospheres bodyWithPredefinedExponentialAtmosphere_;
+
+};
+
+//! AtmosphereSettings for defining custom constant temperature atmosphere.
+class CustomConstantTemperatureAtmosphereSettings: public AtmosphereSettings
+{
+public:
+
+    //! Typedef for density function.
+    typedef boost::function< double( const double, const double,
+                                     const double, const double ) > DensityFunction;
+
+    //! Default constructor.
+    /*!
+     *  Default constructor setting all parameters manually.
+     *  \param densityFunction Function to retireve the density at the current altitude,
+     *      longitude, latitude and time.
+     *  \param constantTemperature Constant atmospheric temperature.
+     *  \param specificGasConstant The constant specific gas constant of the atmosphere.
+     *  \param ratioOfSpecificHeats The constant ratio of specific heats of the atmosphere.
+     */
+    CustomConstantTemperatureAtmosphereSettings(
+            const DensityFunction& densityFunction,
+            const double constantTemperature,
+            const double specificGasConstant = physical_constants::SPECIFIC_GAS_CONSTANT_AIR,
+            const double ratioOfSpecificHeats = 1.4 ) :
+        AtmosphereSettings( custom_constant_temperature_atmosphere ),
+        densityFunction_( densityFunction ),
+        constantTemperature_( constantTemperature ),
+        specificGasConstant_( specificGasConstant ),
+        ratioOfSpecificHeats_( ratioOfSpecificHeats )
+    { }
+
+    //! Constructor.
+    /*!
+     *  Constructor which uses one of the built-in density functions as input.
+     *  \param densityFunctionType Enumeration denoting which density function to implement.
+     *  \param constantTemperature Constant atmospheric temperature.
+     *  \param specificGasConstant The constant specific gas constant of the atmosphere.
+     *  \param ratioOfSpecificHeats The constant ratio of specific heats of the atmosphere.
+     *  \param modelSpecificParameters Vector of parameters to be used to set up the density
+     *      function. Both meaning and number of parameters depends on the model.
+     */
+    CustomConstantTemperatureAtmosphereSettings(
+            const AvailableConstantTemperatureAtmosphereModels densityFunctionType,
+            const double constantTemperature,
+            const double specificGasConstant,
+            const double ratioOfSpecificHeats,
+            const std::vector< double >& modelSpecificParameters ) :
+        AtmosphereSettings( custom_constant_temperature_atmosphere ),
+        densityFunctionType_( densityFunctionType ),
+        constantTemperature_( constantTemperature ),
+        specificGasConstant_( specificGasConstant ),
+        ratioOfSpecificHeats_( ratioOfSpecificHeats ),
+        modelSpecificParameters_( modelSpecificParameters )
+    { }
+
+    //! Get the function to compute the density at the current conditions.
+    /*!
+     *  Get the function to compute the density at the current conditions.
+     *  \return Function to compute the density at the current conditions.
+     */
+    DensityFunction getDensityFunction( ) { return densityFunction_; }
+
+    //! Get the type of function to compute the density at the current conditions.
+    /*!
+     *  Get the type of function to compute the density at the current conditions.
+     *  \return Type of function to compute the density at the current conditions.
+     */
+    AvailableConstantTemperatureAtmosphereModels getDensityFunctionType( ) { return densityFunctionType_; }
+
+    //! Get constant temperature.
+    /*!
+     *  Returns the atmospheric temperature (constant, property of exponential atmosphere) in
+     *  Kelvin.
+     *  \return constantTemperature Constant atmospheric temperature in exponential atmosphere.
+     */
+    double getConstantTemperature( ) { return constantTemperature_; }
+
+    //! Get specific gas constant.
+    /*!
+     *  Returns the specific gas constant of the atmosphere in J/(kg K), its value is assumed constant,
+     *  due to the assumption of constant atmospheric composition.
+     *  \return Specific gas constant in exponential atmosphere.
+     */
+    double getSpecificGasConstant( ) { return specificGasConstant_; }
+
+    //! Get ratio of specific heats.
+    /*!
+     *  Returns the ratio of specific hears of the atmosphere, its value is assumed constant,
+     *  due to the assumption of constant atmospheric composition.
+     *  \return Ratio of specific heats exponential atmosphere.
+     */
+    double getRatioOfSpecificHeats( ) { return ratioOfSpecificHeats_; }
+
+    //! Get model specific parameters.
+    /*!
+     *  Get model specific parameters.
+     *  \return Vector of parameters to be used to set up the density function.
+     */
+    std::vector< double > getModelSpecificParameters( ) { return modelSpecificParameters_; }
+
+private:
+
+    //! Function to compute the density at the current conditions.
+    /*!
+     *  Function to compute the density at the current conditions. Note that the independent
+     *  variables need to be altitude, longitude, latitude and time, in this precise order.
+     */
+    DensityFunction densityFunction_;
+
+    //! Enumeration denoting which density function to implement.
+    /*!
+     *  Enumeration denoting which density function to implement
+     */
+    AvailableConstantTemperatureAtmosphereModels densityFunctionType_;
+
+    //! Constant temperature.
+    /*!
+     *  The atmospheric temperature (constant, property of exponential atmosphere) in Kelvin.
+     */
+    const double constantTemperature_;
+
+    //! Specific gas constant.
+    /*!
+     *  Specific gas constant of the atmosphere, its value is assumed constant, due to the
+     *  assumption of constant atmospheric composition.
+     */
+    const double specificGasConstant_;
+
+    //! Ratio of specific heats at constant pressure and constant volume.
+    /*!
+     *  Ratio of specific heats of the atmosphere at constant pressure and constant volume.
+     *  This value is set to a constant, implying constant atmospheric composition.
+     */
+    const double ratioOfSpecificHeats_;
+
+    //! Vector of parameters to be used to set up the density function.
+    /*!
+     *  Vector of parameters to be used to set up the density function. Both meaning and number of parameters depends on the model.
+     */
+    std::vector< double > modelSpecificParameters_;
 
 };
 
@@ -649,6 +794,7 @@ private:
      *  Default value to be used for extrapolation.
      */
     std::vector< std::vector< std::pair< double, double > > > defaultExtrapolationValue_;
+
 };
 
 //! Function to create a wind model.

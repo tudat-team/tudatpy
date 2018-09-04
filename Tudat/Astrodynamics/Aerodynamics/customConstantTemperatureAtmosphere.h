@@ -155,7 +155,7 @@ public:
     //! Get the function to compute the density at the current conditions.
     /*!
      *  Function to return the function to compute the density at the current conditions.
-     *  \return densityFunction Function to compute the density at the current conditions.
+     *  \return Function to compute the density at the current conditions.
      */
     DensityFunction getDensityFunction( ) { return densityFunction_; }
 
@@ -173,7 +173,7 @@ public:
     /*!
      *  Returns the atmospheric temperature (constant, property of exponential atmosphere) in
      *  Kelvin.
-     *  \return constantTemperature Constant atmospheric temperature in exponential atmosphere.
+     *  \return Constant atmospheric temperature in exponential atmosphere.
      */
     double getConstantTemperature( ) { return constantTemperature_; }
 
