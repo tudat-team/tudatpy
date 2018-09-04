@@ -716,6 +716,11 @@ std::vector< std::string > > createEnvironmentUpdaterSettingsForDependentVariabl
     case periapsis_altitude_dependent_variable:
         variablesToUpdate[ body_translational_state_update ].push_back( dependentVariableSaveSettings->associatedBody_ );
         variablesToUpdate[ body_translational_state_update ].push_back( dependentVariableSaveSettings->secondaryBody_ );
+    case total_gravity_field_variation_acceleration:
+        break;
+    case single_gravity_field_variation_acceleration:
+        break;
+    case single_gravity_field_variation_acceleration_terms:
         break;
     default:
         throw std::runtime_error( "Error when getting environment updates for dependent variables, parameter " +

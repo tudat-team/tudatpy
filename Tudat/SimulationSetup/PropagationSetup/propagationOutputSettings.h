@@ -15,6 +15,7 @@
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/accelerationModelTypes.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/torqueModelTypes.h"
+#include "Tudat/Astrodynamics/Gravitation/gravityFieldVariations.h"
 #include "Tudat/Astrodynamics/ReferenceFrames/aerodynamicAngleCalculator.h"
 
 namespace tudat
@@ -96,7 +97,10 @@ enum PropagationDependentVariables
     modified_equinocial_state_dependent_variable = 33,
     spherical_harmonic_acceleration_terms_dependent_variable = 34,
     body_fixed_relative_cartesian_position = 35,
-    body_fixed_relative_spherical_position = 36
+    body_fixed_relative_spherical_position = 36,
+    total_gravity_field_variation_acceleration = 37,
+    single_gravity_field_variation_acceleration = 38,
+    single_gravity_field_variation_acceleration_terms = 39
 };
 
 
@@ -328,6 +332,47 @@ public:
     //! Orientation angle that is to be saved.
     reference_frames::AerodynamicsReferenceFrameAngles angle_;
 };
+
+class SingleVariationSphericalHarmonicAccelerationSaveSettings: public SingleDependentVariableSaveSettings
+{
+public:
+
+
+    SingleVariationSphericalHarmonicAccelerationSaveSettings(
+            const std::string& associatedBody,
+            const std::string& centralBody,
+            const gravitation::BodyDeformationTypes deformationType,
+            const std::string& identifier = "" ):
+        SingleDependentVariableSaveSettings( single_gravity_field_variation_acceleration, associatedBody, centralBody ),
+        deformationType_( deformationType ), identifier_( identifier ){ }
+
+    gravitation::BodyDeformationTypes deformationType_;
+
+    std::string identifier_;
+};
+
+class SingleVariationSingleTermSphericalHarmonicAccelerationSaveSettings: public SingleDependentVariableSaveSettings
+{
+public:
+
+
+    SingleVariationSingleTermSphericalHarmonicAccelerationSaveSettings(
+            const std::string& associatedBody,
+            const std::string& centralBody,
+            const std::vector< std::pair< int, int > > componentIndices,
+            const gravitation::BodyDeformationTypes deformationType,
+            const std::string& identifier = "" ):
+        SingleDependentVariableSaveSettings( single_gravity_field_variation_acceleration_terms, associatedBody, centralBody ),
+        componentIndices_( componentIndices ), deformationType_( deformationType ), identifier_( identifier ){ }
+
+    std::vector< std::pair< int, int > > componentIndices_;
+
+    gravitation::BodyDeformationTypes deformationType_;
+
+    std::string identifier_;
+};
+
+
 
 //! Container class for settings of all dependent variables that are to be saved.
 class DependentVariableSaveSettings

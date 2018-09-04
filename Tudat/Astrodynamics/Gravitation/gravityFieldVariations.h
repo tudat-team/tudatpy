@@ -149,6 +149,8 @@ public:
     {
         numberOfDegrees_ = maximumDegree_ - minimumDegree_ + 1;
         numberOfOrders_ = maximumOrder_ - minimumOrder_ + 1;
+        lastCosineCorrection_.setZero( maximumDegree_ + 1, maximumOrder_ + 1 );
+        lastSineCorrection_.setZero( maximumDegree_ + 1, maximumOrder_ + 1 );
     }
 
     //! Virtual destructor
@@ -237,6 +239,17 @@ public:
     {
         return numberOfOrders_;
     }
+
+    Eigen::MatrixXd getLastCosineCorrection( )
+    {
+        return lastCosineCorrection_;
+    }
+
+    Eigen::MatrixXd getLastSineCorrection( )
+    {
+        return lastSineCorrection_;
+    }
+
 protected:
 
     //! Minimum degree of variations
@@ -273,7 +286,11 @@ protected:
     /*!
      *  Number of orders of variations
      */
-    int numberOfOrders_;
+    int numberOfOrders_;    
+
+    Eigen::MatrixXd lastCosineCorrection_;
+
+    Eigen::MatrixXd lastSineCorrection_;
 };
 
 //! Function to create a function linearly interpolating the sine and cosine correction coefficients
@@ -453,7 +470,6 @@ private:
      *  (map key denotes index of variationObjects) for which createInterpolator is true.
      */
     std::map< int, double > timeSteps_;
-
 };
 
 } // namespace gravitation
