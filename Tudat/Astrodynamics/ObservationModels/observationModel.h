@@ -21,6 +21,7 @@
 
 #include "Tudat/Basics/basicTypedefs.h"
 #include "Tudat/Basics/timeType.h"
+#include "Tudat/Basics/tudatTypeTraits.h"
 
 #include "Tudat/Astrodynamics/ObservationModels/linkTypeDefs.h"
 #include "Tudat/Astrodynamics/ObservationModels/observableTypes.h"
@@ -42,7 +43,8 @@ namespace observation_models
  *  empty by default. Also, the observable may be a with/without returning (by reference) the times and states
  *  at each of the link ends. Returning these times/states prevents recomputations of these quantities in later calculations.
  */
-template< int ObservationSize = Eigen::Dynamic, typename ObservationScalarType = double, typename TimeType = double >
+template< int ObservationSize = Eigen::Dynamic, typename ObservationScalarType = double, typename TimeType = double,
+          typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type = 0 >
 class ObservationModel
 {
 public:

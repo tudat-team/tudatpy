@@ -159,7 +159,8 @@ protected:
  *  estimation itself is performed by providing measurement data and related metadata (as PodInput) to the estimateParameters
  *  function.
  */
-template< typename ObservationScalarType = double, typename TimeType = double >
+template< typename ObservationScalarType = double, typename TimeType = double,
+          typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type = 0 >
 class OrbitDeterminationManager
 {
 public:
