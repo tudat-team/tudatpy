@@ -93,7 +93,7 @@ GravityFieldVariationsSet::getGravityFieldVariation(
         {
             // Check if type and identifer match
             if( ( variationType_[ i ] == deformationType ) &&
-                    ( variationIdentifier_[ i ] == identifier ) )
+                    ( ( variationIdentifier_[ i ] == identifier ) || ( identifierPerType_.at( variationType_[ i ] ).size( ) == 1 ) ) )
             {
                 // Set return pointer and exit loop.
                 gravityFieldVariation = variationObjects_[ i ];
@@ -105,7 +105,7 @@ GravityFieldVariationsSet::getGravityFieldVariation(
         // Provide warning if no matches are found
         if( isCorrectIdentifierFound == 0 )
         {
-            std::string errorMessage = "Error when retrieving gravity field variation of typ " +
+            std::string errorMessage = "Error when retrieving gravity field variation of type " +
                     std::to_string( deformationType ) +
                     ", none of " +
                     std::to_string( numberOfEntries ) +
@@ -198,6 +198,11 @@ GravityFieldVariationsSet::GravityFieldVariationsSet(
     if( variationObjects_.size( ) != variationIdentifier_.size( ) )
     {
         throw std::runtime_error(  "Error when making GravityFieldVariationsSet, inconsistent input, type 2" );
+    }
+
+    for( unsigned int i = 0; i < variationType_.size( ); i++ )
+    {
+        identifierPerType_[ variationType_.at( i ) ].push_back( variationIdentifier_.at( i ) );
     }
 
     // Check if interpolation information is provided where required.

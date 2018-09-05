@@ -434,6 +434,8 @@ private:
      */
     std::vector< BodyDeformationTypes > variationType_;
 
+    std::map< BodyDeformationTypes, std::vector< std::string > > identifierPerType_;
+
     //! Name of variation object for each entry of variationObjects
     /*!
      *  Name of variation object for each entry of variationObjects, must be of same size as
