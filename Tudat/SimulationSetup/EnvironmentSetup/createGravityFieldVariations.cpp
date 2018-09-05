@@ -52,7 +52,22 @@ boost::shared_ptr< gravitation::GravityFieldVariationsSet > createGravityFieldMo
         variationObjects.push_back( createGravityFieldVariationsModel(
                                         gravityFieldVariationSettings.at( i ), body, bodyMap  ) );
 
-        variationIdentifiers.push_back( "" );
+        if( gravityFieldVariationSettings.at( i )->getBodyDeformationType( ) == basic_solid_body )
+        {
+           std::vector< std::string > deformingBodies =
+                   boost::dynamic_pointer_cast< BasicSolidBodyGravityFieldVariationSettings >(
+                       gravityFieldVariationSettings.at( i ) )->getDeformingBodies( );
+           std::string currentIdentifier = deformingBodies.at( 0 );
+           for( unsigned int j = 1; j < deformingBodies.size( ); j++ )
+           {
+               currentIdentifier += "_" + deformingBodies.at( j );
+           }
+           variationIdentifiers.push_back( currentIdentifier );
+        }
+        else
+        {
+            variationIdentifiers.push_back( "" );
+        }
 
         // Check if current variation is interpolated, and set settings if necessary.
         if( gravityFieldVariationSettings.at( i )->getInterpolatorSettings( ) != NULL )

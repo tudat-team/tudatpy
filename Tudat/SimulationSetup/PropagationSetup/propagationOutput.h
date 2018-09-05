@@ -469,7 +469,7 @@ std::pair< boost::function< Eigen::VectorXd( ) >, int > getVectorDependentVariab
 
             }
         }
-
+        parameterSize = 3;
 
         break;
     }
