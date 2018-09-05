@@ -18,6 +18,7 @@
 #include <boost/make_shared.hpp>
 #include <boost/assign/list_of.hpp>
 
+#include "Tudat/Basics/tudatTypeTraits.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/accelerationModel.h"
 #include "Tudat/Mathematics/NumericalIntegrators/rungeKuttaVariableStepSizeIntegrator.h"
 #include "Tudat/Mathematics/NumericalIntegrators/rungeKuttaCoefficients.h"
@@ -177,7 +178,8 @@ Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > getInitialArcWiseStateOfBody
  *  Derived classes define the specific kind of integration that is performed
  *  (single-arc/multi-arc/etc.)
  */
-template< typename StateScalarType = double, typename TimeType = double >
+template< typename StateScalarType = double, typename TimeType = double,
+          typename std::enable_if< is_state_scalar_and_time_type< StateScalarType, TimeType >::value, int >::type = 0 >
 class DynamicsSimulator
 {
 public:

@@ -42,7 +42,8 @@ namespace propagators
  *  instance of the class. Derived classes define the specific kind of integration that is performed
  *  (single-arc/multi-arc; dynamics/variational equations, etc.)
  */
-template< typename StateScalarType = double, typename TimeType = double >
+template< typename StateScalarType = double, typename TimeType = double,
+          typename std::enable_if< is_state_scalar_and_time_type< StateScalarType, TimeType >::value, int >::type = 0 >
 class VariationalEquationsSolver
 {
 public:
