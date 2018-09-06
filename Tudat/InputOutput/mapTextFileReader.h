@@ -19,6 +19,7 @@
 #include <map>
 #include <fstream>
 #include <sstream>
+#include <iostream>
 
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/trim.hpp>

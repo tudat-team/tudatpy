@@ -229,14 +229,14 @@ void getFinalStateForExactHybridVariableTerminationCondition(
 
     // Set converged end time/state
     bool propagationIsForwards = ( ( lastTime - secondToLastTime ) > 0.0 ) ? true : false;
-    if( ( propagationIsForwards && !hyrbidTerminationCondition->getFulFillSingleCondition( ) ) ||
-            ( !propagationIsForwards && hyrbidTerminationCondition->getFulFillSingleCondition( ) ) )
+    if( ( propagationIsForwards && !hyrbidTerminationCondition->getFulfillSingleCondition( ) ) ||
+            ( !propagationIsForwards && hyrbidTerminationCondition->getFulfillSingleCondition( ) ) )
     {
         endState = endStates[ maximumTimeIndex ];
         endTime = endTimes[ maximumTimeIndex ];
     }
-    else if( ( propagationIsForwards && hyrbidTerminationCondition->getFulFillSingleCondition( ) ) ||
-             ( !propagationIsForwards && !hyrbidTerminationCondition->getFulFillSingleCondition( ) ) )
+    else if( ( propagationIsForwards && hyrbidTerminationCondition->getFulfillSingleCondition( ) ) ||
+             ( !propagationIsForwards && !hyrbidTerminationCondition->getFulfillSingleCondition( ) ) )
     {
         endState = endStates[ minimumTimeIndex ];
         endTime = endTimes[ minimumTimeIndex ];
@@ -540,7 +540,7 @@ boost::shared_ptr< PropagationTerminationDetails > integrateEquationsFromIntegra
             {
                 std::cerr << "Error, propagation terminated at t=" + std::to_string( static_cast< double >( currentTime ) ) +
                              ", found NaN/Inf entry, returning propagation data up to current time" << std::endl;
-                breakPropagation = 1;
+                breakPropagation = true;
                 propagationTerminationReason = boost::make_shared< PropagationTerminationDetails >(
                             nan_or_inf_detected_in_state );
             }

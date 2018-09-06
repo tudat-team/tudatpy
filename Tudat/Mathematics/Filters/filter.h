@@ -144,7 +144,7 @@ public:
     {
         // Update estimates with user-provided data
         aPosterioriStateEstimate_ = newStateEstimate;
-        if ( newCovarianceEstimate.isZero( ) )
+        if ( !newCovarianceEstimate.isZero( ) )
         {
             aPosterioriCovarianceEstimate_ = newCovarianceEstimate;
         }
@@ -252,6 +252,12 @@ public:
     std::pair< std::vector< DependentVector >, std::vector< DependentVector > > getNoiseHistory( )
     {
         return std::make_pair( systemNoiseHistory_, measurementNoiseHistory_ );
+    }
+
+    //! Function to reset the step size for integration.
+    void resetIntegrationStepSize( const double newIntegrationStepSize )
+    {
+        integrationStepSize_ = newIntegrationStepSize;
     }
 
     //! Function to clear the history of stored variables.

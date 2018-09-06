@@ -276,6 +276,45 @@ private:
     boost::shared_ptr< root_finders::RootFinderSettings > terminationRootFinderSettings_;
 };
 
+//! Class for stopping the propagation with custom stopping function.
+class CustomTerminationCondition: public PropagationTerminationCondition
+{
+public:
+
+    //! Constructor
+    /*!
+     * Constructor
+     * \param checkStopCondition Custom function to check for the attainment of the propagation stopping conditions.
+     * \param terminateExactlyOnFinalCondition Boolean to denote whether the propagation is to terminate exactly on the final
+     * condition, or whether it is to terminate on the first step where it is violated.
+     */
+    CustomTerminationCondition(
+            boost::function< bool( const double ) >& checkStopCondition,
+            const bool terminateExactlyOnFinalCondition = false ):
+        PropagationTerminationCondition( custom_stopping_condition, terminateExactlyOnFinalCondition ),
+        checkStopCondition_( checkStopCondition )
+    { }
+
+    //! Function to check whether the propagation is to be be stopped
+    /*!
+     * Function to check whether the propagation is to be be stopped via the user-provided function.
+     * \param time Current time in propagation.
+     * \param cpuTime Current CPU time in propagation.
+     * \return True if propagation is to be stopped, false otherwise.
+     */
+    bool checkStopCondition( const double time, const double cpuTime )
+    {
+        TUDAT_UNUSED_PARAMETER( cpuTime );
+        return checkStopCondition_( time );
+    }
+
+private:
+
+    //! Custom temination function.
+    boost::function< bool( const double ) > checkStopCondition_;
+
+};
+
 //! Class for stopping the propagation when one or all of a given set of stopping conditions is reached.
 class HybridPropagationTerminationCondition: public PropagationTerminationCondition
 {
@@ -328,7 +367,7 @@ public:
      *  \return Boolean denoting whether a single (if true) or all (if false) of the entries in the
      *  propagationTerminationCondition_ should return true from the checkStopCondition function to stop the propagation.
      */
-    bool getFulFillSingleCondition( )
+    bool getFulfillSingleCondition( )
     {
         return fulfillSingleCondition_;
     }
@@ -379,6 +418,9 @@ public:
                                    const bool terminationOnExactCondition = -1 ):
         propagationTerminationReason_( propagationTerminationReason ),
         terminationOnExactCondition_( terminationOnExactCondition ){ }
+
+    //! Destructor
+    virtual ~PropagationTerminationDetails( ) { }
 
     //! Function to retrieve reason for termination
     /*!
@@ -431,10 +473,13 @@ public:
         PropagationTerminationDetails( termination_condition_reached, terminationOnExactCondition ),
         isConditionMetWhenStopping_( terminationCondition->getIsConditionMetWhenStopping( ) ){ }
 
+    //! Destructor
+    ~PropagationTerminationDetailsFromHybridCondition( ) { }
+
     //! Function to retrieve list of booleans, denoting for each of the constituent stopping conditions whether or not is was met.
     /*!
      * Function to retrieve list of booleans, denoting for each of the constituent stopping conditions whether or not is was met.
-     * \return list of booleans, denoting for each of the constituent stopping conditions whether or not is was met.
+     * \return List of booleans, denoting for each of the constituent stopping conditions whether or not is was met.
      */
     std::vector< bool > getWasConditionMetWhenStopping( )
     {
@@ -451,45 +496,6 @@ private:
 
     //! List of booleans, denoting for each of the constituent stopping conditions whether or not is was met.
     std::vector< bool > isConditionMetWhenStopping_;
-
-};
-
-//! Class for stopping the propagation with custom stopping function.
-class CustomTerminationCondition: public PropagationTerminationCondition
-{
-public:
-
-    //! Constructor
-    /*!
-     * Constructor
-     * \param checkStopCondition Custom function to check for the attainment of the propagation stopping conditions.
-     * \param terminateExactlyOnFinalCondition Boolean to denote whether the propagation is to terminate exactly on the final
-     * condition, or whether it is to terminate on the first step where it is violated.
-     */
-    CustomTerminationCondition(
-            boost::function< bool( const double ) >& checkStopCondition,
-            const bool terminateExactlyOnFinalCondition = false ):
-        PropagationTerminationCondition( custom_stopping_condition, terminateExactlyOnFinalCondition ),
-        checkStopCondition_( checkStopCondition )
-    { }
-
-    //! Function to check whether the propagation is to be be stopped
-    /*!
-     * Function to check whether the propagation is to be be stopped via the user-provided function.
-     * \param time Current time in propagation.
-     * \param cpuTime Current CPU time in propagation.
-     * \return True if propagation is to be stopped, false otherwise.
-     */
-    bool checkStopCondition( const double time, const double cpuTime )
-    {
-        TUDAT_UNUSED_PARAMETER( cpuTime );
-        return checkStopCondition_( time );
-    }
-
-private:
-
-    //! Custom temination function.
-    boost::function< bool( const double ) > checkStopCondition_;
 
 };
 

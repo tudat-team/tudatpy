@@ -61,6 +61,7 @@ bool HybridPropagationTerminationCondition::checkStopCondition( const double tim
 {
     // Check if single condition is fulfilled.
     bool stopPropagation = -1;
+    unsigned int stopIndex = 0;
     if( fulfillSingleCondition_ )
     {
         stopPropagation = 0;
@@ -68,8 +69,14 @@ bool HybridPropagationTerminationCondition::checkStopCondition( const double tim
         {
             if( propagationTerminationCondition_.at( i )->checkStopCondition( time, cpuTime ) )
             {
+                stopIndex = i;
                 stopPropagation = 1;
+                isConditionMetWhenStopping_[ i ] = true;
                 break;
+            }
+            else
+            {
+                isConditionMetWhenStopping_[ i ] = false;
             }
         }
     }
@@ -81,20 +88,10 @@ bool HybridPropagationTerminationCondition::checkStopCondition( const double tim
         {
             if( !propagationTerminationCondition_.at( i )->checkStopCondition( time, cpuTime ) )
             {
+                stopIndex = i;
                 stopPropagation = 0;
-                break;
-            }
-        }
-    }
-
-    // Save if conditions were met
-    if( stopPropagation )
-    {
-        for( unsigned int i = 0; i < propagationTerminationCondition_.size( ); i++ )
-        {
-            if( propagationTerminationCondition_.at( i )->checkStopCondition( time, cpuTime ) )
-            {
                 isConditionMetWhenStopping_[ i ] = false;
+                break;
             }
             else
             {
@@ -103,8 +100,16 @@ bool HybridPropagationTerminationCondition::checkStopCondition( const double tim
         }
     }
 
-    return stopPropagation;
+    // Save if conditions were met
+    if( stopPropagation )
+    {
+        for( unsigned int i = ( stopIndex + 1 ); i < propagationTerminationCondition_.size( ); i++ )
+        {
+            isConditionMetWhenStopping_[ i ] = propagationTerminationCondition_.at( i )->checkStopCondition( time, cpuTime );
+        }
+    }
 
+    return stopPropagation;
 }
 
 
@@ -165,6 +170,17 @@ boost::shared_ptr< PropagationTerminationCondition > createPropagationTerminatio
                     dependentVariableTerminationSettings->terminationRootFinderSettings_ );
         break;
     }
+    case custom_stopping_condition:
+    {
+        boost::shared_ptr< PropagationCustomTerminationSettings > customTerminationSettings =
+                boost::dynamic_pointer_cast< PropagationCustomTerminationSettings >( terminationSettings );
+
+        // Create dependent variable termination condition.
+        propagationTerminationCondition = boost::make_shared< CustomTerminationCondition >(
+                    customTerminationSettings->checkStopCondition_,
+                    customTerminationSettings->terminateExactlyOnFinalCondition_ );
+        break;
+    }
     case hybrid_stopping_condition:
     {
         boost::shared_ptr< PropagationHybridTerminationSettings > hybridTerminationSettings =
@@ -182,17 +198,6 @@ boost::shared_ptr< PropagationTerminationCondition > createPropagationTerminatio
         propagationTerminationCondition = boost::make_shared< HybridPropagationTerminationCondition >(
                     propagationTerminationConditionList, hybridTerminationSettings->fulfillSingleCondition_,
                     hybridTerminationSettings->terminateExactlyOnFinalCondition_ );
-        break;
-    }
-    case custom_stopping_condition:
-    {
-        boost::shared_ptr< PropagationCustomTerminationSettings > customTerminationSettings =
-                boost::dynamic_pointer_cast< PropagationCustomTerminationSettings >( terminationSettings );
-
-        // Create dependent variable termination condition.
-        propagationTerminationCondition = boost::make_shared< CustomTerminationCondition >(
-                    customTerminationSettings->checkStopCondition_,
-                    customTerminationSettings->terminateExactlyOnFinalCondition_ );
         break;
     }
     default:

@@ -178,10 +178,10 @@ std::vector< double > getLeastSquaresPolynomialFit(
 
 }
 
-//! Function to perform a non-linear least squares estimation.
+//! Function to perform a non-linear least squares estimation with the Levenberg-Marquardt method.
 Eigen::VectorXd nonLinearLeastSquaresFit(
         const boost::function< std::pair< Eigen::VectorXd, Eigen::MatrixXd >( const Eigen::VectorXd& ) >& observationAndJacobianFunctions,
-        const Eigen::VectorXd& initialEstimate, const Eigen::VectorXd& actualObservations,
+        const Eigen::VectorXd& initialEstimate, const Eigen::VectorXd& actualObservations, const double initialScaling,
         const double convergenceTolerance, const unsigned int maximumNumberOfIterations )
 {
     // Set current estimate to initial value
@@ -196,7 +196,6 @@ Eigen::VectorXd nonLinearLeastSquaresFit(
     // Initial parameters for Levenberg–Marquardt method
     double levenbergMarquardtDampingParameter = 0.0;
     double scalingParameterUpdate = 2.0;
-    double initialScaling = 1.0e-6;
     double levenbergMarquardtGainRatio = 0.0;
 
     // Start iterative loop
@@ -219,10 +218,10 @@ Eigen::VectorXd nonLinearLeastSquaresFit(
         // Compute update in estimate
         Eigen::VectorXd diagonalOfWeightMatrix = Eigen::VectorXd::Ones( offsetInObservations.rows( ) );
         Eigen::MatrixXd inverseOfAPrioriCovarianceMatrix = levenbergMarquardtDampingParameter *
+//                Eigen::MatrixXd( ( designMatrix.transpose( ) * designMatrix ).diagonal( ).asDiagonal( ) ); // Marquardt’s update
                 Eigen::MatrixXd::Identity( currentEstimate.rows( ), currentEstimate.rows( ) );
         updateInEstimate = linear_algebra::performLeastSquaresAdjustmentFromInformationMatrix(
                     designMatrix, offsetInObservations, diagonalOfWeightMatrix, inverseOfAPrioriCovarianceMatrix, false ).first;
-//        std::cout << "Iter: " << iteration + 1 << ". Update: " << updateInEstimate.transpose( ) << std::endl;
 
         // Check that update is real
         if ( ( !updateInEstimate.allFinite( ) ) || ( updateInEstimate.hasNaN( ) ) )
@@ -232,9 +231,9 @@ Eigen::VectorXd nonLinearLeastSquaresFit(
 
         // Compute gain ratio
         levenbergMarquardtGainRatio =
-                ( pairOfEstimatedObservationsAndDesignMatrix.first.squaredNorm( ) -
-                  observationAndJacobianFunctions( currentEstimate + updateInEstimate ).first.squaredNorm( ) ) /
-                ( updateInEstimate.transpose( ) * ( levenbergMarquardtDampingParameter * updateInEstimate -
+                ( offsetInObservations.squaredNorm( ) -
+                  ( actualObservations - observationAndJacobianFunctions( currentEstimate + updateInEstimate ).first ).squaredNorm( ) ) /
+                ( updateInEstimate.transpose( ) * ( levenbergMarquardtDampingParameter * updateInEstimate +
                                                     designMatrix.transpose( ) * offsetInObservations ) );
 
         // Update damping parameter
@@ -253,6 +252,8 @@ Eigen::VectorXd nonLinearLeastSquaresFit(
             levenbergMarquardtDampingParameter *= scalingParameterUpdate;
             scalingParameterUpdate *= 2.0;
         }
+//        std::cout << "Iter: " << iteration + 1 << ". Update: " << updateInEstimate.transpose( ) << ". "
+//                  << ( ( levenbergMarquardtGainRatio > 0 ) ? "Accepted." : "Rejected." ) << std::endl;
 
         // Increase iteration counter
         iteration++;
