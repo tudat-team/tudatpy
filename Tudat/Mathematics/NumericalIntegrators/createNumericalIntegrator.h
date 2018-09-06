@@ -282,7 +282,8 @@ public:
         // Warn of different constructor
         std::cerr << "Warning in numerical integrator. The Runge-Kutta variable step size integrator settings no longer require the "
                      "input of the integrator type, i.e., rungeKuttaVariableStepSize. You can thus safely remove the first input, especially "
-                     "if you do not want this warning to show up again." << std::endl;
+                     "if you do not want this warning to show up again. Note that this constructor will be removed in a "
+                     "future release." << std::endl;
     }
 
     //! Destructor
