@@ -19,16 +19,16 @@ namespace propagators
 //! Function to check whether the propagation is to be be stopped
 bool FixedTimePropagationTerminationCondition::checkStopCondition( const double time, const double cpuTime )
 {
-    bool stopPropagation = 0;
+    bool stopPropagation = false;
 
     // Check whether stop time has been reached
     if( propagationDirectionIsPositive_ && ( time >= stopTime_ ) )
     {
-        stopPropagation = 1;
+        stopPropagation = true;
     }
     else if( !propagationDirectionIsPositive_ && ( time <= stopTime_ ) )
     {
-        stopPropagation = 1;
+        stopPropagation = true;
     }
     return stopPropagation;
 }
@@ -42,16 +42,16 @@ bool FixedCPUTimePropagationTerminationCondition::checkStopCondition( const doub
 //! Function to check whether the propagation is to be be stopped
 bool SingleVariableLimitPropagationTerminationCondition::checkStopCondition( const double time, const double cpuTime  )
 {
-    bool stopPropagation = 0;
+    bool stopPropagation = false;
     double currentVariable = variableRetrievalFunction_( );
 
     if( useAsLowerBound_ && ( currentVariable < limitingValue_ ) )
     {
-        stopPropagation = 1;
+        stopPropagation = true;
     }
     else if( !useAsLowerBound_ && ( currentVariable > limitingValue_ ) )
     {
-        stopPropagation = 1;
+        stopPropagation = true;
     }
     return stopPropagation;
 }
@@ -64,13 +64,13 @@ bool HybridPropagationTerminationCondition::checkStopCondition( const double tim
     unsigned int stopIndex = 0;
     if( fulfillSingleCondition_ )
     {
-        stopPropagation = 0;
+        stopPropagation = false;
         for( unsigned int i = 0; i < propagationTerminationCondition_.size( ); i++ )
         {
             if( propagationTerminationCondition_.at( i )->checkStopCondition( time, cpuTime ) )
             {
                 stopIndex = i;
-                stopPropagation = 1;
+                stopPropagation = true;
                 isConditionMetWhenStopping_[ i ] = true;
                 break;
             }
@@ -83,13 +83,13 @@ bool HybridPropagationTerminationCondition::checkStopCondition( const double tim
     // Check all conditions are fulfilled.
     else
     {
-        stopPropagation = 1;
+        stopPropagation = true;
         for( unsigned int i = 0; i < propagationTerminationCondition_.size( ); i++ )
         {
             if( !propagationTerminationCondition_.at( i )->checkStopCondition( time, cpuTime ) )
             {
                 stopIndex = i;
-                stopPropagation = 0;
+                stopPropagation = false;
                 isConditionMetWhenStopping_[ i ] = false;
                 break;
             }
