@@ -46,6 +46,8 @@
 
 #include "Tudat/Astrodynamics/MissionSegments/gravityAssist.h"
 #include "Tudat/Mathematics/BasicMathematics/functionProxy.h"
+#include "Tudat/Mathematics/RootFinders/bisection.h"
+
 
 namespace tudat
 {
@@ -188,7 +190,17 @@ double gravityAssist( const double centralBodyGravitationalParameter,
             // result in no convergence. Hence a higher value of 1.01 is necessary. This will not
             // result in 'going through' 1.0 as mentioned below, because the eccentricity in these
             // cases is always high!
-            incomingEccentricity = rootFinder->execute( rootFunction, 1.0 + 1.0e-2 );
+            try
+            {
+                incomingEccentricity = rootFinder->execute( rootFunction, 1.0 + 1.0e-2 );
+            }
+            catch(std::runtime_error)
+            {
+                root_finders::RootFinderPointer rootFinder_temp
+                  = boost::make_shared< root_finders::Bisection >( 1.0e-12, 1000 ) ;
+                incomingEccentricity = rootFinder_temp->execute( rootFunction, 1.0 + 1.0e-2 );
+
+            }
         }
 
         else
@@ -196,7 +208,17 @@ double gravityAssist( const double centralBodyGravitationalParameter,
             // This is set to a value that is close to 1.0. This is more robust than higher values,
             // because for those higher values Newton Raphson sometimes 'goes through' 1.0. This
             // results in NaN values for the derivative of the eccentricity finding function.
-            incomingEccentricity = rootFinder->execute( rootFunction, 1.0 + 1.0e-10 );
+            try
+            {
+                incomingEccentricity = rootFinder->execute( rootFunction, 1.0 + 1.0e-10 );
+            }
+            catch(std::runtime_error)
+            {
+                root_finders::RootFinderPointer rootFinder_temp
+                  = boost::make_shared< root_finders::Bisection >( 1.0e-12, 1000 ) ;
+                incomingEccentricity = rootFinder_temp->execute( rootFunction, 1.0 + 1.0e-10 );
+
+            }
         }
 
         // Compute outgoing hyperbolic leg eccentricity.
@@ -246,6 +268,7 @@ double gravityAssist( const double centralBodyGravitationalParameter,
                                                    pericenterFindingFunctions, _1 ) );
 
         // Set pericenter radius based on result of Newton-Raphson root-finding algorithm.
+        std::cout<<"here3"<<std::endl;
         const double pericenterRadius = rootFinder->execute( rootFunction,
                                                              smallestPeriapsisDistance );
 

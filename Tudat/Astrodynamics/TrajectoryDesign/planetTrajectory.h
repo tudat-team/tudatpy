@@ -41,9 +41,7 @@ namespace transfer_trajectories
  * \param timeVector times corresponding to the positions.
  * \param startingTime initial time of the trajectory.
  */
-void returnPlanetTrajectory( const ephemerides::EphemerisPointer& ephemerisPtr,
-                             const double centralBodyGravitationalParameter,
-                             const double startingEpochMJD2000,
+void returnPlanetTrajectory(const ephemerides::EphemerisPointer& ephemerisPtr,
                              const double duration,
                              const double maximumTimeStep,
                              std::vector < Eigen::Vector3d >& positionVector,
