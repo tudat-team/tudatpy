@@ -22,10 +22,18 @@ void DepartureLegMga::calculateLeg( Eigen::Vector3d& velocityBeforeArrivalBody,
                                                velocityAfterDeparture_, velocityBeforeArrivalBody );
 
     // The deltaV is calculated using the escape and capture module.
-    deltaV_ = mission_segments::computeEscapeOrCaptureDeltaV( departureBodyGravitationalParameter_,
-                                                              semiMajorAxis_, eccentricity_,
-                                                              ( velocityAfterDeparture_ -
-                                                                departureBodyVelocity_ ).norm( ) );
+    escapeDeltaV_ = mission_segments::computeEscapeOrCaptureDeltaV( departureBodyGravitationalParameter_,
+                                                                    semiMajorAxis_, eccentricity_,
+                                                                    ( velocityAfterDeparture_ -
+                                                                      departureBodyVelocity_ ).norm( ) );
+    if( includeDepartureDeltaV_ )
+    {
+        deltaV_ = escapeDeltaV_;
+    }
+    else
+    {
+        deltaV_ = 0.0;
+    }
 
     // Return the deltaV
     deltaV = deltaV_;

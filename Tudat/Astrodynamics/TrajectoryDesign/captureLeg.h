@@ -60,7 +60,8 @@ public:
                 const double captureBodyGravitationalParameter,
                 boost::shared_ptr< Eigen::Vector3d > velocityBeforeDepartureBodyPtr,
                 const double semiMajorAxis,
-                const double eccentricity ):
+                const double eccentricity,
+                const bool includeArrivalDeltaV = true ):
             MissionLeg( departureBodyPosition,
                         timeOfFlight,
                         departureBodyVelocity,
@@ -68,8 +69,8 @@ public:
             captureBodyGravitationalParameter_( captureBodyGravitationalParameter ),
             velocityBeforeDepartureBodyPtr_( velocityBeforeDepartureBodyPtr ),
             semiMajorAxis_( semiMajorAxis ),
-            eccentricity_( eccentricity )
-
+            eccentricity_( eccentricity ),
+            includeArrivalDeltaV_( includeArrivalDeltaV )
     {
         velocityAfterDeparture_( 0 ) = TUDAT_NAN;
     }
@@ -134,6 +135,11 @@ public:
      */
     void updateDefiningVariables( const Eigen::VectorXd& variableVector );
 
+    void getCaptureDeltaV( double captureDeltaV )
+    {
+        captureDeltaV = deltaV_;
+    }
+
 protected:
 
 private:
@@ -163,6 +169,8 @@ private:
      * The eccentricity of the intended capture orbit.
      */
     double eccentricity_;
+
+    bool includeArrivalDeltaV_;
 
 };
 } // namespace transfer_trajectories
