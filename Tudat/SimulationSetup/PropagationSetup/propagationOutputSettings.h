@@ -363,6 +363,25 @@ public:
         SingleDependentVariableSaveSettings( single_gravity_field_variation_acceleration_terms, associatedBody, centralBody ),
         componentIndices_( componentIndices ), deformationType_( deformationType ), identifier_( identifier ){ }
 
+    SingleVariationSingleTermSphericalHarmonicAccelerationSaveSettings(
+            const std::string& associatedBody,
+            const std::string& centralBody,
+            const int maximumDegree,
+            const int maximumOrder,
+            const gravitation::BodyDeformationTypes deformationType,
+            const std::string& identifier = "" ):
+        SingleDependentVariableSaveSettings( single_gravity_field_variation_acceleration_terms, associatedBody, centralBody ),
+        deformationType_( deformationType ), identifier_( identifier )
+    {
+        for( int i = 0; i <= maximumDegree; i++ )
+        {
+            for( int j = 0; ( j <= i && j <= maximumOrder ); j++ )
+            {
+                componentIndices_.push_back( std::make_pair( i, j ) );
+            }
+        }
+    }
+
     std::vector< std::pair< int, int > > componentIndices_;
 
     gravitation::BodyDeformationTypes deformationType_;
