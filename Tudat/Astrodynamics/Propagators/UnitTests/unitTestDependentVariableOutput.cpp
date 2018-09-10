@@ -865,7 +865,14 @@ BOOST_AUTO_TEST_CASE( test_LoveNumberEstimationFromOrbiterData )
     dependentVariables.push_back(
                 boost::make_shared< SingleVariationSphericalHarmonicAccelerationSaveSettings >(
                     "Vehicle", "Earth", gravitation::basic_solid_body, "Moon" ) );
+    dependentVariables.push_back(
+                boost::make_shared< SingleVariationSingleTermSphericalHarmonicAccelerationSaveSettings >(
+                    "Vehicle", "Earth", 3, 3, gravitation::basic_solid_body, "Moon" ) );
 
+    std::vector< std::pair< int, int > > componentIndices = { { 1, 0 }, { 2, 0 }, { 2, 2 }, { 3, 1 } };
+    dependentVariables.push_back(
+                boost::make_shared< SingleVariationSingleTermSphericalHarmonicAccelerationSaveSettings >(
+                    "Vehicle", "Earth", componentIndices, gravitation::basic_solid_body, "Moon" ) );
 
     boost::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
             boost::make_shared< TranslationalStatePropagatorSettings< double > >
@@ -913,7 +920,14 @@ BOOST_AUTO_TEST_CASE( test_LoveNumberEstimationFromOrbiterData )
         Eigen::Vector3d currentTotalTidalCorrection = dependentVariableSolution.at( variableIterator->first ).segment( 3, 3 );
         Eigen::Vector3d currentTotalSunTidalCorrection = dependentVariableSolution.at( variableIterator->first ).segment( 6, 3 );
         Eigen::Vector3d currentTotalMoonTidalCorrection = dependentVariableSolution.at( variableIterator->first ).segment( 9, 3 );
+        Eigen::VectorXd perTermMoonTidalCorrections = dependentVariableSolution.at( variableIterator->first ).segment( 12, 30 );
+        Eigen::VectorXd perTermMoonTidalSelectedCorrections = dependentVariableSolution.at( variableIterator->first ).segment( 42, 12 );
 
+        Eigen::Vector3d reconstructedTotalMoonTidalCorrection = Eigen::Vector3d::Zero( );
+        for( int j = 0; j < 10; j++ )
+        {
+            reconstructedTotalMoonTidalCorrection += perTermMoonTidalCorrections.segment( j * 3, 3 );
+        }
         Eigen::Vector3d computedTotalCoefficientAcceleration =
                 sphericalHarmonicAcceleration->getAccelerationWithAlternativeCoefficients(
                     earthGravityField->getCosineCoefficients( ).block( 0, 0, 4, 4 ),
@@ -929,9 +943,21 @@ BOOST_AUTO_TEST_CASE( test_LoveNumberEstimationFromOrbiterData )
         {
             BOOST_CHECK_SMALL( std::fabs( currentTotalSunTidalCorrection( i ) + currentTotalMoonTidalCorrection( i ) -
                                           currentTotalTidalCorrection( i ) ), 1.0E-14 );
+
             BOOST_CHECK_SMALL( std::fabs( currentTotalAcceleration( i ) - currentTotalTidalCorrection( i ) -
                                           computedNominalCoefficientAcceleration( i ) ), 1.0E-14 );
             BOOST_CHECK_SMALL( std::fabs( currentTotalTidalCorrection( i ) - computedTotalTidalCorrection( i ) ), 1.0E-14 );
+            BOOST_CHECK_SMALL( std::fabs( reconstructedTotalMoonTidalCorrection( i ) - currentTotalMoonTidalCorrection( i ) ),
+                               1.0E-14 );
+            BOOST_CHECK_SMALL( std::fabs( perTermMoonTidalCorrections( i + 3 ) - perTermMoonTidalSelectedCorrections( i ) ),
+                               1.0E-14 );
+            BOOST_CHECK_SMALL( std::fabs( perTermMoonTidalCorrections( i + 9 ) - perTermMoonTidalSelectedCorrections( i + 3 ) ),
+                               1.0E-14 );
+            BOOST_CHECK_SMALL( std::fabs( perTermMoonTidalCorrections( i + 15 ) - perTermMoonTidalSelectedCorrections( i + 6 ) ),
+                               1.0E-14 );
+            BOOST_CHECK_SMALL( std::fabs( perTermMoonTidalCorrections( i + 21 ) - perTermMoonTidalSelectedCorrections( i + 9 ) ),
+                               1.0E-14 );
+
         }
 
     }

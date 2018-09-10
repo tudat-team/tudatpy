@@ -520,6 +520,7 @@ std::pair< boost::function< Eigen::VectorXd( ) >, int > getVectorDependentVariab
                                                 accelerationFunction, cosineCorrectionFunction, sineCorrectionFunction );
 
             }
+            parameterSize = 3 * accelerationVariableSettings->componentIndices_.size( );
 
         }
         break;
