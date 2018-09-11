@@ -131,24 +131,13 @@ public:
 
     //! Function to update the filter with the data from the new time step.
     /*!
-     *  Function to update the filter with the new step data.
+     *  Function to update the filter with the data from the new time step. Note that this is a pure virtual function and as such
+     *  has to be implemented in the derived classes.
      *  \param currentTime Scalar representing current time.
      *  \param currentMeasurementVector Vector representing current measurement.
      */
     virtual void updateFilter( const IndependentVariableType currentTime,
                                const DependentVector& currentMeasurementVector ) = 0;
-
-    //! Function to update the a-posteriori estimates of state and covariance with external data.
-    void modifyCurrentStateAndCovarianceEstimates( const DependentVector& newStateEstimate,
-                                                   const DependentMatrix& newCovarianceEstimate = DependentMatrix::Zero( ) )
-    {
-        // Update estimates with user-provided data
-        aPosterioriStateEstimate_ = newStateEstimate;
-        if ( !newCovarianceEstimate.isZero( ) )
-        {
-            aPosterioriCovarianceEstimate_ = newCovarianceEstimate;
-        }
-    }
 
     //! Function to produce system noise.
     /*!
@@ -254,7 +243,23 @@ public:
         return std::make_pair( systemNoiseHistory_, measurementNoiseHistory_ );
     }
 
+    //! Function to update the a-posteriori estimates of state and covariance with external data.
+    void modifyCurrentStateAndCovarianceEstimates( const DependentVector& newStateEstimate,
+                                                   const DependentMatrix& newCovarianceEstimate = DependentMatrix::Zero( ) )
+    {
+        // Update estimates with user-provided data
+        aPosterioriStateEstimate_ = newStateEstimate;
+        if ( !newCovarianceEstimate.isZero( ) )
+        {
+            aPosterioriCovarianceEstimate_ = newCovarianceEstimate;
+        }
+    }
+
     //! Function to reset the step size for integration.
+    /*!
+     *  Function to reset the step size for integration without interrupting the filtering process.
+     *  \param newIntegrationStepSize Double denoting the new step size for integration.
+     */
     void resetIntegrationStepSize( const double newIntegrationStepSize )
     {
         integrationStepSize_ = newIntegrationStepSize;

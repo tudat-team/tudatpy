@@ -21,7 +21,7 @@ namespace tudat
 namespace filters
 {
 
-//! Class for control vector
+//! Class for control vector.
 template< typename IndependentVariableType, typename DependentVariableType, int NumberOfElements >
 class ControlWrapper
 {
@@ -35,29 +35,51 @@ public:
                                               const DependentVector& ) > ControlFunction;
 
     //! Default constructor.
+    /*!
+     *  Default constructor.
+     *  \param controlFunction Function to compute the control vector.
+     */
     ControlWrapper( const ControlFunction& controlFunction ) :
         controlFunction_( controlFunction )
-    { }
-
-    //! Default destructor.
-    ~ControlWrapper( ){ }
-
-    DependentVector getControlVector( )
     {
-        return controlVector_;
+        // Set control vector to zero
+        currentControlVector_.setZero( );
     }
 
-    void setControlVector( const IndependentVariableType currentTime,
-                           const DependentVector& currentStateVector )
+    //! Default destructor.
+    ~ControlWrapper( ) { }
+
+    //! Function to retireve the current control vector.
+    /*!
+     *  Function to retireve the current control vector. The function setCurrentControlVector needs to be called before the control
+     *  vector is retrieved.
+     *  \return Vector denoting the current control.
+     */
+    DependentVector getCurrentControlVector( )
     {
-        controlVector_ = controlFunction_( currentTime, currentStateVector );
+        return currentControlVector_;
+    }
+
+    //! Function to set the control vector.
+    /*!
+     *  Function to set the control vector, based on the current time and state. The control vector is then
+     *  computed based on the input control function.
+     *  \param currentTime Double denoting the current time.
+     *  \param currentStateVector Vector denoting the current state.
+     */
+    void setCurrentControlVector( const IndependentVariableType currentTime,
+                                  const DependentVector& currentStateVector )
+    {
+        currentControlVector_ = controlFunction_( currentTime, currentStateVector );
     }
 
 private:
 
+    //! Function to compute the control vector.
     ControlFunction controlFunction_;
 
-    DependentVector controlVector_;
+    //! Vector denoting the current control.
+    DependentVector currentControlVector_;
 
 };
 

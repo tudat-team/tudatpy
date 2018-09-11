@@ -88,10 +88,10 @@ BOOST_AUTO_TEST_CASE( testUnscentedKalmanFilterFirstCase )
     boost::shared_ptr< ControlWrapper< double, double, 2 > > control =
             boost::make_shared< ControlWrapper< double, double, 2 > >( boost::lambda::constant( Eigen::Vector2d::Zero( ) ) );
 
-    // Create extended Kalman filter object
+    // Create unscented Kalman filter object
     UnscentedKalmanFilterDoublePointer unscentedFilter = boost::make_shared< UnscentedKalmanFilterDouble >(
                 boost::bind( &stateFunction1, _1, _2,
-                             boost::bind( &ControlWrapper< double, double, 2 >::getControlVector, control ) ),
+                             boost::bind( &ControlWrapper< double, double, 2 >::getCurrentControlVector, control ) ),
                 boost::bind( &measurementFunction1, _1, _2 ),
                 systemUncertainty, measurementUncertainty,
                 initialTime, initialEstimatedStateVector, initialEstimatedStateCovarianceMatrix,
@@ -119,7 +119,7 @@ BOOST_AUTO_TEST_CASE( testUnscentedKalmanFilterFirstCase )
         measurementVectorHistory[ currentTime ] = currentMeasurementVector;
 
         // Update control class
-        control->setControlVector( currentTime, unscentedFilter->getCurrentStateEstimate( ) );
+        control->setCurrentControlVector( currentTime, unscentedFilter->getCurrentStateEstimate( ) );
 
         // Update filter
         unscentedFilter->updateFilter( currentTime, currentMeasurementVector );
@@ -212,11 +212,11 @@ BOOST_AUTO_TEST_CASE( testUnscentedKalmanFilterSecondCase )
             boost::make_shared< ControlWrapper< long double, long double, 3 > >(
                 boost::lambda::constant( Vector3ld::Zero( ) ) );
 
-    // Create extended Kalman filter object
+    // Create unscented Kalman filter object
     boost::shared_ptr< KalmanFilterBase< long double, long double > > unscentedFilter =
             boost::make_shared< UnscentedKalmanFilter< long double, long double > >(
                 boost::bind( &stateFunction2, _1, _2,
-                             boost::bind( &ControlWrapper< long double, long double, 3 >::getControlVector, control ) ),
+                             boost::bind( &ControlWrapper< long double, long double, 3 >::getCurrentControlVector, control ) ),
                 boost::bind( &measurementFunction2, _1, _2 ),
                 systemUncertainty, measurementUncertainty,
                 initialTime, initialEstimatedStateVector, initialEstimatedStateCovarianceMatrix,
@@ -244,7 +244,7 @@ BOOST_AUTO_TEST_CASE( testUnscentedKalmanFilterSecondCase )
         measurementVectorHistory[ currentTime ] = currentMeasurementVector;
 
         // Update control class
-        control->setControlVector( currentTime, unscentedFilter->getCurrentStateEstimate( ) );
+        control->setCurrentControlVector( currentTime, unscentedFilter->getCurrentStateEstimate( ) );
 
         // Update filter
         unscentedFilter->updateFilter( currentTime, currentMeasurementVector );
@@ -268,7 +268,7 @@ BOOST_AUTO_TEST_CASE( testUnscentedKalmanFilterSecondCase )
 // Constant parameters for example
 const double gravitationalParameter = 32.2;
 
-// Functions for extended Kalman filter.
+// Functions for unscented Kalman filter.
 Eigen::Vector3d stateFunction3( const double time, const Eigen::Vector3d& state, const Eigen::Vector3d& control )
 {
     TUDAT_UNUSED_PARAMETER( time );
@@ -329,10 +329,10 @@ BOOST_AUTO_TEST_CASE( testUnscentedKalmanFilterThirdCase )
     boost::shared_ptr< ControlWrapper< double, double, 3 > > control =
             boost::make_shared< ControlWrapper< double, double, 3 > >( boost::lambda::constant( Eigen::Vector3d::Zero( ) ) );
 
-    // Create extended Kalman filter object
+    // Create unscented Kalman filter object
     UnscentedKalmanFilterDoublePointer unscentedFilter = boost::make_shared< UnscentedKalmanFilterDouble >(
                 boost::bind( &stateFunction3, _1, _2,
-                             boost::bind( &ControlWrapper< double, double, 3 >::getControlVector, control ) ),
+                             boost::bind( &ControlWrapper< double, double, 3 >::getCurrentControlVector, control ) ),
                 boost::bind( &measurementFunction3, _1, _2 ),
                 systemUncertainty, measurementUncertainty,
                 initialTime, initialEstimatedStateVector, initialEstimatedStateCovarianceMatrix,
@@ -360,7 +360,7 @@ BOOST_AUTO_TEST_CASE( testUnscentedKalmanFilterThirdCase )
         measurementVectorHistory[ currentTime ] = currentMeasurementVector;
 
         // Update control class
-        control->setControlVector( currentTime, unscentedFilter->getCurrentStateEstimate( ) );
+        control->setCurrentControlVector( currentTime, unscentedFilter->getCurrentStateEstimate( ) );
 
         // Update filter
         unscentedFilter->updateFilter( currentTime, currentMeasurementVector );

@@ -71,8 +71,8 @@ public:
     //! Default constructor.
     /*!
      *  Default constructor. This constructor takes the system and measurement functions as models for the simulation.
-     *  These functions can be a function of time, state and (for system) control vector.
-     *  \param systemFunction Function returning the state as a function of time, state and control input. Can be a differential
+     *  These functions can be a function of time and state vector.
+     *  \param systemFunction Function returning the state as a function of time and state vector. Can be a differential
      *      equation if the integratorSettings is set (i.e., if it is not a nullptr).
      *  \param measurementFunction Function returning the measurement as a function of time and state.
      *  \param systemUncertainty Matrix defining the uncertainty in modeling of the system.

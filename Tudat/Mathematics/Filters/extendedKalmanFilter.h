@@ -44,18 +44,18 @@ public:
     //! Default constructor.
     /*!
      *  Default constructor. This constructor takes state and measurement functions and their respective
-     *  Jacobian functions as inputs. These functions can be a function of time, state and (for state) control vector.
-     *  \param systemFunction Function returning the state as a function of time, state and control input. Can be a differential
+     *  Jacobian functions as inputs. These functions can be a function of time and state vector.
+     *  \param systemFunction Function returning the state as a function of time and state vector. Can be a differential
      *      equation if the integratorSettings is set (i.e., if it is not a nullptr).
      *  \param measurementFunction Function returning the measurement as a function of time and state.
      *  \param stateJacobianFunction Function returning the Jacobian of the system w.r.t. the state. The input values can
-     *      be time, state and control input.
-     *  \param stateNoiseJacobianFunction Function returning the Jacobian of the system function w.r.t. the system noise. The input
-     *      values can be time, state and control input.
+     *      be time and state vector.
+     *  \param stateNoiseJacobianFunction Function returning the Jacobian of the system function w.r.t. the system noise. The
+     *      input values can be time and state vector.
      *  \param measurementJacobianFunction Function returning the Jacobian of the measurement function w.r.t. the state. The input
-     *      values can be time and state.
+     *      values can be time and state vector.
      *  \param measurementNoiseJacobianFunction Function returning the Jacobian of the measurement function w.r.t. the measurement
-     *      noise. The input values can be time and state.
+     *      noise. The input values can be time and state vector.
      *  \param systemUncertainty Matrix defining the uncertainty in modeling of the system.
      *  \param measurementUncertainty Matrix defining the uncertainty in modeling of the measurements.
      *  \param initialTime Scalar representing the value of the initial time.
@@ -214,28 +214,28 @@ private:
     //! State Jacobian matrix function.
     /*!
      *  Function returning the continuous-time Jacobian of the systemFunction_ w.r.t. the state vector. The input values
-     *  can be time, state and control input.
+     *  can be time and state vector.
      */
     MatrixFunction stateJacobianFunction_;
 
     //! State noise Jacobian matrix function.
     /*!
      *  Function returning the continuous-time Jacobian of the systemFunction_ w.r.t. the state noise. The input values
-     *  can be time, state and control input.
+     *  can be time and state vector.
      */
     MatrixFunction stateNoiseJacobianFunction_;
 
     //! Measurement Jacobian matrix function.
     /*!
      *  Function returning the continuous-time Jacobian of the measurementFunction_ w.r.t. the state vector.
-     *  The input values can be time, state and control input.
+     *  The input values can be time and state vector.
      */
     MatrixFunction measurementJacobianFunction_;
 
     //! Measurement noise Jacobian matrix function.
     /*!
      *  Function returning the continuous-time Jacobian of the measurementFunction_ w.r.t. the measurement noise.
-     *  The input values can be time, state and control input.
+     *  The input values can be time and state vector.
      */
     MatrixFunction measurementNoiseJacobianFunction_;
 
