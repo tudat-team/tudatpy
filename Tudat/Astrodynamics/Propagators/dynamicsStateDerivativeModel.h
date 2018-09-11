@@ -864,6 +864,41 @@ boost::shared_ptr< BodyMassStateDerivative< StateScalarType, TimeType > > getBod
     return modelForBody;
 }
 
+boost::shared_ptr< acceleration_partials::AccelerationPartial > getAccelerationPartialForBody(
+        const orbit_determination::StateDerivativePartialsMap& accelerationPartials,
+        const basic_astrodynamics::AvailableAcceleration accelerationType,
+        const std::string& bodyExertingAcceleration,
+        const std::string& bodyUndergoignAcceleration,
+        const std::string& derivativeWrtBody,
+        const std::string& thirdBody = "" )
+{
+    for( int i = 0; i < accelerationPartials.size( ); i++ )
+    {
+        for( int j = 0; j < accelerationPartials.at( i ).size( ); j++ )
+        {
+            boost::shared_ptr< acceleration_partials::AccelerationPartial > accelerationPartial =
+                    boost::dynamic_pointer_cast< acceleration_partials::AccelerationPartial >(
+                                   accelerationPartials.at( i ).at( j ) );
+            if( accelerationPartial == NULL )
+            {
+                throw std::runtime_error( "Error when getting acceleration partial, input contained non-acceleration partial" );
+            }
+            else
+            {
+                if( ( accelerationPartial->getAccelerationType( ) == accelerationType ) &&
+                    ( accelerationPartial->getAcceleratedBody( ) == bodyExertingAcceleration ) &&
+                        ( accelerationPartial->getAcceleratingBody( ) == bodyUndergoignAcceleration ) )
+                {
+                    if( basic_astrodynamics::isAccelerationFromThirdBody( accelerationType ) )
+                    {
+
+                    }
+                }
+            }
+        }
+    }
+}
+
 template< typename TimeType = double, typename StateScalarType = double,
           typename ConversionClassType = DynamicsStateDerivativeModel< TimeType, StateScalarType > >
 void convertNumericalStateSolutionsToOutputSolutions(

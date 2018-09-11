@@ -254,9 +254,11 @@ std::pair< boost::function< Eigen::VectorXd( ) >, int > getVectorDependentVariab
         const boost::shared_ptr< SingleDependentVariableSaveSettings > dependentVariableSettings,
         const simulation_setup::NamedBodyMap& bodyMap,
         const std::unordered_map< IntegratedStateType,
-        std::vector< boost::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > > > stateDerivativeModels =
+        const std::vector< boost::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > > >& stateDerivativeModels =
         std::unordered_map< IntegratedStateType,
-        std::vector< boost::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > > >( ) )
+        std::vector< boost::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > > >( ),
+        const std::map< propagators::IntegratedStateType, orbit_determination::StateDerivativePartialsMap >& stateDerivativePartials =
+        std::map< propagators::IntegratedStateType, orbit_determination::StateDerivativePartialsMap >( ) )
 {
     boost::function< Eigen::VectorXd( ) > variableFunction;
     int parameterSize;
@@ -873,6 +875,26 @@ std::pair< boost::function< Eigen::VectorXd( ) >, int > getVectorDependentVariab
         parameterSize = 3;
         break;
     }
+    case acceleration_partial_wrt_body_state:
+    {
+
+        boost::shared_ptr< AccelerationPartialWrtStateSaveSettings > accelerationPartialVariableSettings =
+                boost::dynamic_pointer_cast< AccelerationPartialWrtStateSaveSettings >( dependentVariableSettings );
+        if( accelerationPartialVariableSettings == NULL )
+        {
+            std::string errorMessage= "Error, inconsistent inout when creating dependent variable function of type acceleration_partial_wrt_body_state";
+            throw std::runtime_error( errorMessage );
+        }
+        else
+        {
+            boost::shared_ptr< acceleration_partials::AccelerationPartial > partialToUse =
+                    getAccelerationPartialForBody(
+                        stateDerivativePartials.at( transational_state ), accelerationPartialVariableSettings->associatedBody_,
+                        accelerationPartialVariableSettings->secondaryBody_, accelerationPartialVariableSettings->derivativeWrtBody_,
+                        accelerationPartialVariableSettings->thirdBody_ );
+        }
+        break;
+    }
     default:
         std::string errorMessage =
                 "Error, did not recognize vector dependent variable type when making variable function: " +
@@ -1398,7 +1420,8 @@ std::pair< boost::function< Eigen::VectorXd( ) >, std::map< int, std::string > >
         // Create vector parameter
         else
         {
-            vectorFunction = getVectorDependentVariableFunction( variable, bodyMap, stateDerivativeModels );
+            vectorFunction = getVectorDependentVariableFunction(
+                        variable, bodyMap, stateDerivativeModels, saveSettings->stateDerivativePartials_ );
         }
         vectorFunctionList.push_back( vectorFunction );
         vectorVariableList.push_back( std::make_pair( getDependentVariableId( variable ), vectorFunction.second ) );

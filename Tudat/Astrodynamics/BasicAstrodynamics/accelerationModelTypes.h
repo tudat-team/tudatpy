@@ -121,6 +121,8 @@ std::vector< boost::shared_ptr< AccelerationModel3d > > getAccelerationModelsOfT
  */
 bool isAccelerationDirectGravitational( const AvailableAcceleration accelerationType );
 
+bool isAccelerationFromThirdBody( const AvailableAcceleration accelerationType );
+
 //! Function to get the third-body counterpart of a direct gravitational acceleration type
 /*!
  * Function to get the third-body counterpart of a direct gravitational acceleration type, e.g. a third_body_central_gravity
