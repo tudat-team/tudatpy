@@ -801,8 +801,6 @@ private:
 
 };
 
-
-
 //! Class for defining settings for propagating the mass of a body
 /*!
  *  Class for defining settings for propagating the mass of a body. The body masses are propagated in their natural

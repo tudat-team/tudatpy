@@ -41,6 +41,7 @@ enum VariableType
 class VariableSettings
 {
 public:
+
     //! Constructor.
     /*!
      * Constructor.

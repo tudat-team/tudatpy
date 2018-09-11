@@ -358,7 +358,6 @@ std::pair< boost::function< Eigen::VectorXd( ) >, int > getVectorDependentVariab
                 }
                 else
                 {
-
                     //boost::function< Eigen::Vector3d( ) > vectorFunction =
                     sphericalHarmonicAcceleration->setSaveSphericalHarmonicTermsSeparately( true );
                     variableFunction = boost::bind(

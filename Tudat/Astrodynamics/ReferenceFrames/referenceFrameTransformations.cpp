@@ -542,7 +542,7 @@ Eigen::Vector3d getBodyFixedCartesianPosition(
         const boost::function< Eigen::Vector3d( ) > positionFunctionOfRelativeBody,
         const boost::function< Eigen::Quaterniond( ) > orientationFunctionOfCentralBody )
 {
-    return  orientationFunctionOfCentralBody( ) * (
+    return orientationFunctionOfCentralBody( ) * (
                 positionFunctionOfRelativeBody( ) - positionFunctionOfCentralBody( ) );
 }
 
