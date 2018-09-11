@@ -190,7 +190,7 @@ public:
     //! Default constructor.
     /*!
      *  Default constructor. This constructor takes the system and measurement functions as models for the simulation.
-     *  These functions can be a function of time, state and (for system) control vector.
+     *  These functions can be a function of time and state vector.
      *  \param systemUncertainty Matrix defining the uncertainty in modeling of the system.
      *  \param measurementUncertainty Matrix defining the uncertainty in modeling of the measurements.
      *  \param initialTime Scalar representing the value of the initial time.
@@ -234,13 +234,13 @@ public:
  *  Function to create a filter object with the use of filter settings.
  *  \tparam IndependentVariableType Type of independent variable. Default is double.
  *  \tparam DependentVariableType Type of dependent variable. Default is double.
- *  \param systemFunction Function returning the state as a function of time, state and control input. Can be a differential
+ *  \param systemFunction Function returning the state as a function of time and state vector. Can be a differential
  *      equation if the integratorSettings is set (i.e., if it is not a nullptr).
  *  \param measurementFunction Function returning the measurement as a function of time and state.
  *  \param stateJacobianFunction Function returning the Jacobian of the system w.r.t. the state. The input values can
- *      be time, state and control input.
+ *      be time and state vector.
  *  \param stateNoiseJacobianFunction Function returning the Jacobian of the system function w.r.t. the system noise. The input
- *      values can be time, state and control input.
+ *      values can be time and state vector.
  *  \param measurementJacobianFunction Function returning the Jacobian of the measurement function w.r.t. the state. The input
  *      values can be time and state.
  *  \param measurementNoiseJacobianFunction Function returning the Jacobian of the measurement function w.r.t. the measurement

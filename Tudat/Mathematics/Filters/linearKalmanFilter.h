@@ -46,10 +46,9 @@ public:
      *  Default constructor. This constructor takes state, control and measurement matrix functions as inputs.
      *  These functions can be a function of time, state and (for state and control matrices) control vector.
      *  \param stateTransitionMatrixFunction Function returning the state transition matrix, as a function
-     *      of time, state and control input.
-     *  \param controlMatrixFunction Function returning the control matrix as a function of time, state and control input.
-     *  \param measurementMatrixFunction Function returning the measurement matrix as a function of time, state and
-     *      control input.
+     *      of time and state vector.
+     *  \param controlMatrixFunction Function returning the control matrix, as a function of time and state vector.
+     *  \param measurementMatrixFunction Function returning the measurement matrix, as a function of time and state vector.
      *  \param systemUncertainty Matrix defining the uncertainty in modeling of the system.
      *  \param measurementUncertainty Matrix defining the uncertainty in modeling of the measurements.
      *  \param initialTime Scalar representing the value of the initial time.
