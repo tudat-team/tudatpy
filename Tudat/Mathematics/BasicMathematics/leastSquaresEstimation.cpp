@@ -258,10 +258,16 @@ Eigen::VectorXd nonLinearLeastSquaresFit(
         // Increase iteration counter
         iteration++;
     }
-    while ( ( updateInEstimate.norm( ) > convergenceTolerance ) && ( iteration < maximumNumberOfIterations ) );
+    while ( ( updateInEstimate.norm( ) > convergenceTolerance ) && ( iteration <= maximumNumberOfIterations ) );
+//    std::cout << "Final: " << currentEstimate.transpose( ) << ". Iterations: " << iteration << std::endl;
+
+    // Warn user of exceeded maximum number of iterations
+    if ( iteration > maximumNumberOfIterations )
+    {
+        std::cerr << "Warning in non-linear least squares estimation. Maximum number of iterations exceeded." << std::endl;
+    }
 
     // Give out new estimate in parameters
-//    std::cout << "Final: " << currentEstimate.transpose( ) << ". Iterations: " << iteration << std::endl;
     return currentEstimate;
 }
 

@@ -72,7 +72,7 @@ class AerodynamicAcceleration : public basic_astrodynamics::AccelerationModel< E
 private:
 
     //! Typedef for double-returning function.
-    typedef boost::function< double ( ) > DoubleReturningFunction;
+    typedef boost::function< double( ) > DoubleReturningFunction;
 
     //! Typedef for coefficient-returning function.
     typedef boost::function< Eigen::Vector3d( ) > CoefficientReturningFunction;
