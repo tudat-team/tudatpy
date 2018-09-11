@@ -177,6 +177,14 @@ double computeEquilibriumFayRiddellHeatFluxFromProperties(
         const boost::shared_ptr< aerodynamics::AtmosphericFlightConditions > flightConditions,
         const boost::shared_ptr< system_models::VehicleSystems > vehicleSystems );
 
+//! Function to retrieve relevant spherical harmonic acceleration model for dependent variable setting
+/*!
+ *  Function to retrieve relevant spherical harmonic acceleration model for dependent variable setting
+ *  \param dependentVariableSettings Settings for dependent variable, associatedBody_ defines body undergoing acceleration,
+ *  secondaryBody_ body exerting acceleration
+ *  \param stateDerivativeModels List of state derivative models from which acceleration is to be retrieved
+ *  \return Relevant spherical harmonic acceleration model for dependent variable setting
+ */
 template< typename StateScalarType, typename TimeType >
 boost::shared_ptr< gravitation::SphericalHarmonicsGravitationalAccelerationModel >
 getSphericalHarmonicAccelerationForDependentVariables(

@@ -333,10 +333,19 @@ public:
     reference_frames::AerodynamicsReferenceFrameAngles angle_;
 };
 
+//! Class to define variations in spherical harmonic acceleration due to single gravity field variation
 class SingleVariationSphericalHarmonicAccelerationSaveSettings: public SingleDependentVariableSaveSettings
 {
 public:
 
+    //! Constructor
+    /*!
+     * Constructor
+     * \param associatedBody Body undergoing acceleration
+     * \param centralBody Body exerting acceleration
+     * \param deformationType Type of gravity field variation
+     * \param identifier Identifier for gravity field variation
+     */
     SingleVariationSphericalHarmonicAccelerationSaveSettings(
             const std::string& associatedBody,
             const std::string& centralBody,
@@ -345,15 +354,27 @@ public:
         SingleDependentVariableSaveSettings( single_gravity_field_variation_acceleration, associatedBody, centralBody ),
         deformationType_( deformationType ), identifier_( identifier ){ }
 
+    //! Type of gravity field variation
     gravitation::BodyDeformationTypes deformationType_;
 
+    //!  Identifier for gravity field variation
     std::string identifier_;
 };
 
+//! Class to define variations in spherical harmonic acceleration due to single gravity field variation at separate degrees/orders
 class SingleVariationSingleTermSphericalHarmonicAccelerationSaveSettings: public SingleDependentVariableSaveSettings
 {
 public:
 
+    //! Constructor
+    /*!
+     * Constructor
+     * \param associatedBody Body undergoing acceleration
+     * \param centralBody Body exerting acceleration
+     * \param componentIndices Degrees and orders for which to computed contribution
+     * \param deformationType Type of gravity field variation
+     * \param identifier Identifier for gravity field variation
+     */
     SingleVariationSingleTermSphericalHarmonicAccelerationSaveSettings(
             const std::string& associatedBody,
             const std::string& centralBody,
@@ -363,6 +384,16 @@ public:
         SingleDependentVariableSaveSettings( single_gravity_field_variation_acceleration_terms, associatedBody, centralBody ),
         componentIndices_( componentIndices ), deformationType_( deformationType ), identifier_( identifier ){ }
 
+    //! Constructor
+    /*!
+     * Constructor
+     * \param associatedBody Body undergoing acceleration
+     * \param centralBody Body exerting acceleration
+     * \param maximumDegree Maximum degree for which to computed contribution
+     * \param maximumOrder Maximum order for which to computed contribution
+     * \param deformationType Type of gravity field variation
+     * \param identifier Identifier for gravity field variation
+     */
     SingleVariationSingleTermSphericalHarmonicAccelerationSaveSettings(
             const std::string& associatedBody,
             const std::string& centralBody,
@@ -382,10 +413,13 @@ public:
         }
     }
 
+    //! Degrees and orders for which to computed contribution
     std::vector< std::pair< int, int > > componentIndices_;
 
+    //! Type of gravity field variation
     gravitation::BodyDeformationTypes deformationType_;
 
+    //!  Identifier for gravity field variation
     std::string identifier_;
 };
 
