@@ -216,6 +216,20 @@ bool isAccelerationDirectGravitational( const AvailableAcceleration acceleration
     return accelerationIsDirectGravity;
 }
 
+bool isAccelerationFromThirdBody( const AvailableAcceleration accelerationType )
+{
+    bool accelerationIsFromThirdBody = false;
+    if( ( accelerationType == third_body_point_mass_gravity ) ||
+            ( accelerationType == third_body_spherical_harmonic_gravity ) ||
+            ( accelerationType == third_body_mutual_spherical_harmonic_gravity ) )
+    {
+        accelerationIsFromThirdBody = true;
+    }
+
+    return accelerationIsFromThirdBody;
+}
+
+
 //! Function to get the third-body counterpart of a direct gravitational acceleration type
 AvailableAcceleration getAssociatedThirdBodyAcceleration( const AvailableAcceleration accelerationType )
 {

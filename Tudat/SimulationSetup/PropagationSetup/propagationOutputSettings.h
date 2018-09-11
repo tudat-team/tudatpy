@@ -17,6 +17,7 @@
 #include "Tudat/Astrodynamics/BasicAstrodynamics/torqueModelTypes.h"
 #include "Tudat/Astrodynamics/Gravitation/gravityFieldVariations.h"
 #include "Tudat/Astrodynamics/ReferenceFrames/aerodynamicAngleCalculator.h"
+#include "Tudat/Astrodynamics/OrbitDetermination/stateDerivativePartial.h"
 
 namespace tudat
 {
@@ -100,7 +101,8 @@ enum PropagationDependentVariables
     body_fixed_relative_spherical_position = 36,
     total_gravity_field_variation_acceleration = 37,
     single_gravity_field_variation_acceleration = 38,
-    single_gravity_field_variation_acceleration_terms = 39
+    single_gravity_field_variation_acceleration_terms = 39,
+    acceleration_partial_wrt_body_state = 40
 };
 
 
@@ -423,6 +425,38 @@ public:
     std::string identifier_;
 };
 
+//! Class to define variations in spherical harmonic acceleration due to single gravity field variation
+class AccelerationPartialWrtStateSaveSettings: public SingleDependentVariableSaveSettings
+{
+public:
+
+    //! Constructor
+    /*!
+     * Constructor
+     * \param associatedBody Body undergoing acceleration
+     * \param centralBody Body exerting acceleration
+     * \param deformationType Type of gravity field variation
+     * \param identifier Identifier for gravity field variation
+     */
+    AccelerationPartialWrtStateSaveSettings(
+            const std::string& bodyUndergoingAcceleration,
+            const std::string& bodyExertingAcceleration,
+            const basic_astrodynamics::AvailableAcceleration accelerationModeType,
+            const std::string derivativeWrtBody,
+            const std::string thirdBody = "" ):
+        SingleDependentVariableSaveSettings(
+            acceleration_partial_wrt_body_state, bodyUndergoingAcceleration, bodyExertingAcceleration ),
+        accelerationModeType_( accelerationModeType ), derivativeWrtBody_( derivativeWrtBody ),
+        thirdBody_( thirdBody ){ }
+
+    basic_astrodynamics::AvailableAcceleration accelerationModeType_;
+
+    std::string derivativeWrtBody_;
+
+    std::string thirdBody_;
+};
+
+
 
 
 //! Container class for settings of all dependent variables that are to be saved.
@@ -447,6 +481,8 @@ public:
 
     //! Variable denoting whether to print the list and vector entries of dependent variables when propagating.
     bool printDependentVariableTypes_;
+
+    std::map< propagators::IntegratedStateType, orbit_determination::StateDerivativePartialsMap > stateDerivativePartials_;
 };
 
 
