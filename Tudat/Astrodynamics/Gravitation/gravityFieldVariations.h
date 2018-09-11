@@ -240,11 +240,21 @@ public:
         return numberOfOrders_;
     }
 
+    //! Function to retrieve correction to cosine coefficients, as computed by last call to addSphericalHarmonicsCorrections
+    /*!
+     *  Function to retrieve correction to cosine coefficients, as computed by last call to addSphericalHarmonicsCorrections
+     * \return Correction to cosine coefficients, as computed by last call to addSphericalHarmonicsCorrections
+     */
     Eigen::MatrixXd getLastCosineCorrection( )
     {
         return lastCosineCorrection_;
     }
 
+    //! Function to retrieve correction to sine coefficients, as computed by last call to addSphericalHarmonicsCorrections
+    /*!
+     *  Function to retrieve correction tosine coefficients, as computed by last call to addSphericalHarmonicsCorrections
+     * \return Correction to sine coefficients, as computed by last call to addSphericalHarmonicsCorrections
+     */
     Eigen::MatrixXd getLastSineCorrection( )
     {
         return lastSineCorrection_;
@@ -288,8 +298,10 @@ protected:
      */
     int numberOfOrders_;    
 
+    //! Latest correction to cosine coefficients, as computed by last call to addSphericalHarmonicsCorrections
     Eigen::MatrixXd lastCosineCorrection_;
 
+    //! Latest correction to sine coefficients, as computed by last call to addSphericalHarmonicsCorrections
     Eigen::MatrixXd lastSineCorrection_;
 };
 

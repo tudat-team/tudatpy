@@ -333,10 +333,6 @@ public:
             cosineHarmonicCoefficients = getCosineHarmonicsCoefficients( );
             sineHarmonicCoefficients = getSineHarmonicsCoefficients( );
 
-//            std::cout<<"Nominal coeff: "<<std::endl<<
-//                       cosineHarmonicCoefficients<<std::endl<<std::endl<<
-//                       sineHarmonicCoefficients<<std::endl<<std::endl;
-
             rotationToIntegrationFrame_ = rotationFromBodyFixedToIntegrationFrameFunction_( );
             this->updateBaseMembers( );
 
@@ -360,13 +356,17 @@ public:
         }
     }
 
+    //! Function to retrieve total spherical harmonic acceleration in inertial frame, with alternative coefficients
+    /*!
+     * Function to retrieve total spherical harmonic acceleration in inertial frame, with alternative coefficients, e.g.
+     * different from those defined in this class
+     * \param cosineCoefficients Cosine coefficients to use
+     * \param sineCoefficients Sine coefficients to use
+     * \return Total spherical harmonic acceleration in inertial frame, with alternative coefficients
+     */
     Eigen::VectorXd getAccelerationWithAlternativeCoefficients(
             const Eigen::MatrixXd& cosineCoefficients, const Eigen::MatrixXd& sineCoefficients)
     {
-//        std::cout<<"Manual coeff: "<<std::endl<<
-//                   cosineCoefficients<<std::endl<<std::endl<<
-//                   sineCoefficients<<std::endl<<std::endl;
-
         std::map< std::pair< int, int >, Eigen::Vector3d > dummy;
         return computeGeodesyNormalizedGravitationalAccelerationSum(
                     currentRelativePosition_,
@@ -379,6 +379,15 @@ public:
                     rotationToIntegrationFrame_.toRotationMatrix( ) );
     }
 
+    //! Function to retrieve spherical harmonic acceleration in inertial frame, with alternative coefficients, per term
+    /*!
+     * Function to retrieve spherical harmonic acceleration in inertial frame, with alternative coefficients, per term.
+     * The acceleration is calculated separately for the contribution of each degree/order of the spherical harmonic field
+     * \param cosineCoefficients Cosine coefficients to use
+     * \param sineCoefficients Sine coefficients to use
+     * \param coefficientIndices Degrees and orders for which acceleration contributions are to be determined.
+     * \return Total spherical harmonic acceleration in inertial frame, with alternative coefficients
+     */
     Eigen::VectorXd getAccelerationComponentsWithAlternativeCoefficients(
             const Eigen::MatrixXd& cosineCoefficients, const Eigen::MatrixXd& sineCoefficients,
             const std::vector< std::pair< int, int > >& coefficientIndices )
@@ -521,11 +530,21 @@ public:
         return returnVector;
     }
 
+    //! Function to retrieve maximum degree of gravity field expansion
+    /*!
+     * Function to retrieve maximum degree of gravity field expansion
+     * \return Maximum degree of gravity field expansion
+     */
     int getMaximumDegree( )
     {
         return maximumDegree_;
     }
 
+    //! Function to retrieve maximum order of gravity field expansion
+    /*!
+     * Function to retrieve maximum order of gravity field expansion
+     * \return Maximum order of gravity field expansion
+     */
     int getMaximumOrder( )
     {
         return maximumOrder_;
@@ -596,8 +615,10 @@ private:
     //! Boolean that denotes whether each of the separate spherical harmonic terms should be saved (in accelerationPerTerm_)
     bool saveSphericalHarmonicTermsSeparately_;
 
+    //! Maximum degree of gravity field expansion
     int maximumDegree_;
 
+    //! Maximum order of gravity field expansion
     int maximumOrder_;
 
 };
