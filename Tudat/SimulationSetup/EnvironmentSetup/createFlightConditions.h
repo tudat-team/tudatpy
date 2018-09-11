@@ -71,7 +71,7 @@ boost::shared_ptr< aerodynamics::FlightConditions >  createFlightConditions(
 
 //! Function to set the angle of attack to trimmed conditions.
 /*!
- * Function to set the angle of attack to trimmed conditions. Using this function requires teh aerodynamic coefficient
+ * Function to set the angle of attack to trimmed conditions. Using this function requires the aerodynamic coefficient
  * interface to be dependent on the angle of attack.
  * \param flightConditions Flight conditions for body that is to have trimmed conditions.
  */
@@ -81,7 +81,7 @@ boost::shared_ptr< aerodynamics::TrimOrientationCalculator > setTrimmedCondition
 
 //! Function to set the angle of attack to trimmed conditions.
 /*!
- * Function to set the angle of attack to trimmed conditions. Using this function requires teh aerodynamic coefficient
+ * Function to set the angle of attack to trimmed conditions. Using this function requires the aerodynamic coefficient
  * interface to be dependent on the angle of attack.
  * \param bodyWithFlightConditions Body for which trimmed conditions are to be imposed.
  */

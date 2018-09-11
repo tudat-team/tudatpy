@@ -28,8 +28,6 @@ Eigen::Vector3d calculateSecondDegreeGravitationalTorque(
             relativePositionOfBodySubjectToTorque.cross( multipliedRelativePosition );
 }
 
-}
+} // namespace gravitation
 
-}
-
-
+} // namespace tudat

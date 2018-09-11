@@ -96,10 +96,10 @@ enum PropagationDependentVariables
     modified_equinocial_state_dependent_variable = 33,
     spherical_harmonic_acceleration_terms_dependent_variable = 34,
     body_fixed_relative_cartesian_position = 35,
-    body_fixed_relative_spherical_position = 36
+    body_fixed_relative_spherical_position = 36,
+    local_dynamic_pressure_dependent_variable = 37,
+    local_aerodynamic_heat_rate_dependent_variable = 38
 };
-
-
 
 //! Functional base class for defining settings for dependent variables that are to be saved during propagation
 /*!
@@ -343,7 +343,7 @@ public:
      */
     DependentVariableSaveSettings(
             const std::vector< boost::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariables,
-            const bool printDependentVariableTypes = 1 ):
+            const bool printDependentVariableTypes = true ):
         dependentVariables_( dependentVariables ), printDependentVariableTypes_( printDependentVariableTypes ){ }
 
     //! List of settings for parameters that are to be saved.

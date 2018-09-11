@@ -41,66 +41,18 @@ BOOST_AUTO_TEST_SUITE( test_multi_array_reader )
 // Test if multi-array file reader is working correctly
 BOOST_AUTO_TEST_CASE( testMultiArrayReader )
 {
-    // Test functionality of 3-dimensional multi-array reader
-    {
-        std::string fileName = tudat::input_output::getTudatRootPath( )
-                + "/Astrodynamics/Aerodynamics/UnitTests/dCDwTest.txt";
-
-        for( unsigned int i = 0; i < 2; i++)
-        {
-            boost::multi_array< double, 3 > multiArrayFromFile =
-                    tudat::input_output::MultiArrayFileReader< 3 >::readMultiArray( fileName );
-
-            // Read only multi-array from file
-            if( i == 0 )
-            {
-                multiArrayFromFile = tudat::input_output::MultiArrayFileReader< 3 >::readMultiArray( fileName );
-            }
-            // Read multi-array and independent variable values
-            else
-            {
-                std::pair< boost::multi_array< double, 3 >, std::vector< std::vector< double > > > fileContents =
-                        tudat::input_output::MultiArrayFileReader< 3 >::readMultiArrayAndIndependentVariables( fileName );
-                multiArrayFromFile = fileContents.first;
-                std::vector< std::vector< double > > independentVariables = fileContents.second;
-
-                // Test independent variable sizes
-                BOOST_CHECK_EQUAL( independentVariables.size( ), 3 );
-                BOOST_CHECK_EQUAL( independentVariables.at( 0 ).size( ), 11 );
-                BOOST_CHECK_EQUAL( independentVariables.at( 1 ).size( ), 9 );
-                BOOST_CHECK_EQUAL( independentVariables.at( 2 ).size( ), 5 );
-
-
-            }
-
-            // Test multi-array size
-            BOOST_CHECK_EQUAL( multiArrayFromFile.shape( )[ 0 ], 11 );
-            BOOST_CHECK_EQUAL( multiArrayFromFile.shape( )[ 1 ], 9 );
-            BOOST_CHECK_EQUAL( multiArrayFromFile.shape( )[ 2 ], 5 );
-
-            // Test selected multi-array values
-            BOOST_CHECK_SMALL( multiArrayFromFile[ 1 ][ 3 ][ 1 ], std::numeric_limits< double >::epsilon( ) );
-            BOOST_CHECK_SMALL( std::fabs( multiArrayFromFile[ 2 ][ 4 ][ 1 ] + 0.002 ),
-                    std::numeric_limits< double >::epsilon( ) );
-            BOOST_CHECK_SMALL( std::fabs( multiArrayFromFile[ 2 ][ 6 ][ 1 ] + 0.008 ),
-                    std::numeric_limits< double >::epsilon( ) );
-            BOOST_CHECK_SMALL( std::fabs( multiArrayFromFile[ 1 ][ 3 ][ 3 ] - 0.0028 ),
-                    std::numeric_limits< double >::epsilon( ) );
-        }
-    }
-
     // Test functionality of 2-dimensional multi-array reader
     {
         std::string fileName = tudat::input_output::getTudatRootPath( )
                 + "Astrodynamics/Propulsion/UnitTests/Isp_test.txt";
 
-        for( unsigned int i = 0; i < 2; i++)
+        for ( unsigned int i = 0; i < 2; i++)
         {
             boost::multi_array< double, 2 > multiArrayFromFile =
                     tudat::input_output::MultiArrayFileReader< 2 >::readMultiArray( fileName );
 
             // Read only multi-array from file
-            if( i == 0 )
+            if ( i == 0 )
             {
                 multiArrayFromFile = tudat::input_output::MultiArrayFileReader< 2 >::readMultiArray( fileName );
             }
@@ -116,8 +68,6 @@ BOOST_AUTO_TEST_CASE( testMultiArrayReader )
                 BOOST_CHECK_EQUAL( independentVariables.size( ), 2 );
                 BOOST_CHECK_EQUAL( independentVariables.at( 0 ).size( ), 17 );
                 BOOST_CHECK_EQUAL( independentVariables.at( 1 ).size( ), 5 );
-
-
             }
 
             // Test multi-array size
@@ -136,6 +86,131 @@ BOOST_AUTO_TEST_CASE( testMultiArrayReader )
             BOOST_CHECK_SMALL( std::fabs( multiArrayFromFile[ 16 ][ 4 ] - 888.0 ),
                     std::numeric_limits< double >::epsilon( ) );
 
+        }
+    }
+
+    // Test functionality of 3-dimensional multi-array reader
+    {
+        std::string fileName = tudat::input_output::getTudatRootPath( )
+                + "/Astrodynamics/Aerodynamics/UnitTests/dCDwTest.txt";
+
+        for ( unsigned int i = 0; i < 2; i++)
+        {
+            boost::multi_array< double, 3 > multiArrayFromFile =
+                    tudat::input_output::MultiArrayFileReader< 3 >::readMultiArray( fileName );
+
+            // Read only multi-array from file
+            if ( i == 0 )
+            {
+                multiArrayFromFile = tudat::input_output::MultiArrayFileReader< 3 >::readMultiArray( fileName );
+            }
+            // Read multi-array and independent variable values
+            else
+            {
+                std::pair< boost::multi_array< double, 3 >, std::vector< std::vector< double > > > fileContents =
+                        tudat::input_output::MultiArrayFileReader< 3 >::readMultiArrayAndIndependentVariables( fileName );
+                multiArrayFromFile = fileContents.first;
+                std::vector< std::vector< double > > independentVariables = fileContents.second;
+
+                // Test independent variable sizes
+                BOOST_CHECK_EQUAL( independentVariables.size( ), 3 );
+                BOOST_CHECK_EQUAL( independentVariables.at( 0 ).size( ), 11 );
+                BOOST_CHECK_EQUAL( independentVariables.at( 1 ).size( ), 9 );
+                BOOST_CHECK_EQUAL( independentVariables.at( 2 ).size( ), 5 );
+            }
+
+            // Test multi-array size
+            BOOST_CHECK_EQUAL( multiArrayFromFile.shape( )[ 0 ], 11 );
+            BOOST_CHECK_EQUAL( multiArrayFromFile.shape( )[ 1 ], 9 );
+            BOOST_CHECK_EQUAL( multiArrayFromFile.shape( )[ 2 ], 5 );
+
+            // Test selected multi-array values
+            BOOST_CHECK_SMALL( multiArrayFromFile[ 1 ][ 3 ][ 1 ], std::numeric_limits< double >::epsilon( ) );
+            BOOST_CHECK_SMALL( std::fabs( multiArrayFromFile[ 2 ][ 4 ][ 1 ] + 0.002 ),
+                    std::numeric_limits< double >::epsilon( ) );
+            BOOST_CHECK_SMALL( std::fabs( multiArrayFromFile[ 2 ][ 6 ][ 1 ] + 0.008 ),
+                    std::numeric_limits< double >::epsilon( ) );
+            BOOST_CHECK_SMALL( std::fabs( multiArrayFromFile[ 1 ][ 3 ][ 3 ] - 0.0028 ),
+                    std::numeric_limits< double >::epsilon( ) );
+        }
+    }
+
+    // Test functionality of 4-dimensional multi-array reader
+    {
+        for ( unsigned int j = 0; j < 2; j++ )
+        {
+            std::string fileName;
+            if ( j == 0 )
+            {
+                fileName = tudat::input_output::getTudatRootPath( )
+                        + "/Astrodynamics/Aerodynamics/UnitTests/dCDw4DTest1.txt";
+            }
+            else
+            {
+                fileName = tudat::input_output::getTudatRootPath( )
+                        + "/Astrodynamics/Aerodynamics/UnitTests/dCDw4DTest2.txt";
+            }
+
+            for ( unsigned int i = 0; i < 2; i++)
+            {
+                boost::multi_array< double, 4 > multiArrayFromFile =
+                        tudat::input_output::MultiArrayFileReader< 4 >::readMultiArray( fileName );
+
+                // Read only multi-array from file
+                if ( i == 0 )
+                {
+                    multiArrayFromFile = tudat::input_output::MultiArrayFileReader< 4 >::readMultiArray( fileName );
+                }
+                // Read multi-array and independent variable values
+                else
+                {
+                    std::pair< boost::multi_array< double, 4 >, std::vector< std::vector< double > > > fileContents =
+                            tudat::input_output::MultiArrayFileReader< 4 >::readMultiArrayAndIndependentVariables( fileName );
+                    multiArrayFromFile = fileContents.first;
+                    std::vector< std::vector< double > > independentVariables = fileContents.second;
+
+                    // Test independent variable sizes
+                    BOOST_CHECK_EQUAL( independentVariables.size( ), 4 );
+                    BOOST_CHECK_EQUAL( independentVariables.at( 0 ).size( ), 11 );
+                    BOOST_CHECK_EQUAL( independentVariables.at( 1 ).size( ), 9 );
+                    BOOST_CHECK_EQUAL( independentVariables.at( 2 ).size( ), 5 );
+                    BOOST_CHECK_EQUAL( independentVariables.at( 3 ).size( ), 2 );
+                }
+
+                // Test multi-array size
+                BOOST_CHECK_EQUAL( multiArrayFromFile.shape( )[ 0 ], 11 );
+                BOOST_CHECK_EQUAL( multiArrayFromFile.shape( )[ 1 ], 9 );
+                BOOST_CHECK_EQUAL( multiArrayFromFile.shape( )[ 2 ], 5 );
+                BOOST_CHECK_EQUAL( multiArrayFromFile.shape( )[ 3 ], 2 );
+
+                // Test selected multi-array values in first 4th dimension
+                BOOST_CHECK_SMALL( multiArrayFromFile[ 1 ][ 3 ][ 1 ][ 0 ], std::numeric_limits< double >::epsilon( ) );
+                BOOST_CHECK_SMALL( std::fabs( multiArrayFromFile[ 2 ][ 4 ][ 1 ][ 0 ] + 0.002 ),
+                        std::numeric_limits< double >::epsilon( ) );
+                BOOST_CHECK_SMALL( std::fabs( multiArrayFromFile[ 2 ][ 6 ][ 1 ][ 0 ] + 0.008 ),
+                        std::numeric_limits< double >::epsilon( ) );
+                BOOST_CHECK_SMALL( std::fabs( multiArrayFromFile[ 1 ][ 3 ][ 3 ][ 0 ] - 0.0028 ),
+                        std::numeric_limits< double >::epsilon( ) );
+
+                // Test selected multi-array values in second 4th dimension
+                BOOST_CHECK_SMALL( multiArrayFromFile[ 1 ][ 3 ][ 1 ][ 1 ], std::numeric_limits< double >::epsilon( ) );
+                BOOST_CHECK_SMALL( std::fabs( multiArrayFromFile[ 2 ][ 4 ][ 1 ][ 1 ] + 0.002 ),
+                        std::numeric_limits< double >::epsilon( ) );
+                BOOST_CHECK_SMALL( std::fabs( multiArrayFromFile[ 2 ][ 6 ][ 1 ][ 1 ] + 0.008 ),
+                        std::numeric_limits< double >::epsilon( ) );
+                BOOST_CHECK_SMALL( std::fabs( multiArrayFromFile[ 1 ][ 3 ][ 3 ][ 1 ] - 0.0028 ),
+                        std::numeric_limits< double >::epsilon( ) );
+                if ( j == 0 )
+                {
+                    BOOST_CHECK_SMALL( std::fabs( multiArrayFromFile[ 9 ][ 6 ][ 4 ][ 1 ] - 0.2949 ),
+                            std::numeric_limits< double >::epsilon( ) );
+                }
+                else
+                {
+                    BOOST_CHECK_SMALL( std::fabs( multiArrayFromFile[ 9 ][ 6 ][ 4 ][ 1 ] - 0.3949 ),
+                            std::numeric_limits< double >::epsilon( ) );
+                }
+            }
         }
     }
 }

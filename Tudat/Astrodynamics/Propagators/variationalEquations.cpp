@@ -29,10 +29,10 @@ void VariationalEquations::setBodyStatePartialMatrix( )
     // Initialize partial matrix
     variationalMatrix_.setZero( );
 
-    if( dynamicalStatesToEstimate_.count( propagators::transational_state ) > 0 )
+    if( dynamicalStatesToEstimate_.count( propagators::translational_state ) > 0 )
     {
-        int startIndex = stateTypeStartIndices_.at( propagators::transational_state );
-        for( unsigned int i = 0; i < dynamicalStatesToEstimate_.at( propagators::transational_state ).size( ); i++ )
+        int startIndex = stateTypeStartIndices_.at( propagators::translational_state );
+        for( unsigned int i = 0; i < dynamicalStatesToEstimate_.at( propagators::translational_state ).size( ); i++ )
         {
             variationalMatrix_.block( startIndex + i * 6, startIndex + i * 6 + 3, 3, 3 ).setIdentity( );
         }
@@ -175,6 +175,6 @@ void VariationalEquations::setStatePartialFunctionList( )
     }
 }
 
-}
+} // namespace propagators
 
-}
+} // namespace tudat

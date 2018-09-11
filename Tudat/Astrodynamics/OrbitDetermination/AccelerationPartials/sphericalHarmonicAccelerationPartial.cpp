@@ -145,8 +145,8 @@ std::pair< boost::function< void( Eigen::MatrixXd& ) >, int > SphericalHarmonics
                                              tidalLoveNumberPartialInterfaces_.at( i ),
                                              parameter, currentTidalPartialOutput.second );
                         partialFunction = boost::bind(
-                                    &SphericalHarmonicsGravityPartial::wrtTidalModelParameter, this, coefficientPartialFunction, degree, orders, sumOrders,
-                                    parameter->getParameterSize( ), _1 );
+                                    &SphericalHarmonicsGravityPartial::wrtTidalModelParameter, this, coefficientPartialFunction, degree,
+                                    orders, sumOrders, parameter->getParameterSize( ), _1 );
                         numberOfRows = currentTidalPartialOutput.first;
                     }
                 }
@@ -229,14 +229,13 @@ std::pair< boost::function< void( Eigen::MatrixXd& ) >, int > SphericalHarmonics
                                 boost::bind( &orbit_determination::TidalLoveNumberPartialInterface::getCurrentVectorParameterPartial,
                                              tidalLoveNumberPartialInterfaces_.at( i ), parameter, currentTidalPartialOutput.second );
                         partialFunction = boost::bind(
-                                    &SphericalHarmonicsGravityPartial::wrtTidalModelParameter, this, coefficientPartialFunction, degree, orders, sumOrders,
-                                    parameter->getParameterSize( ), _1 );
+                                    &SphericalHarmonicsGravityPartial::wrtTidalModelParameter, this, coefficientPartialFunction, degree,
+                                    orders, sumOrders, parameter->getParameterSize( ), _1 );
                         numberOfRows = currentTidalPartialOutput.first;
 
                     }
                 }
             }
-
         }
         // Check non-rotational parameters.
         else
@@ -315,7 +314,6 @@ void SphericalHarmonicsGravityPartial::update( const double currentTime )
 {
     using namespace tudat::coordinate_conversions;
 
-
     if( !( currentTime_ == currentTime ) )
     {
         // Update acceleration model
@@ -338,7 +336,6 @@ void SphericalHarmonicsGravityPartial::update( const double currentTime )
         sphericalHarmonicCache_->update(
                     bodyFixedSphericalPosition_( 0 ), std::sin( bodyFixedSphericalPosition_( 1 ) ),
                     bodyFixedSphericalPosition_( 2 ), bodyReferenceRadius_( ) );
-
 
         // Calculate partial of acceleration wrt position of body undergoing acceleration.
         currentBodyFixedPartialWrtPosition_ = computePartialDerivativeOfBodyFixedSphericalHarmonicAcceleration(

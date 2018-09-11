@@ -109,7 +109,7 @@ BOOST_AUTO_TEST_CASE( test_centralGravityEnvironmentUpdate )
 
         // Define (arbitrary) test state.
         Eigen::VectorXd testState = ( Eigen::VectorXd( 6 ) << 1.44E6, 2.234E8, -3343.246E7, 1.2E4, 1.344E3, -22.343E3 ).finished( );
-        integratedStateToSet[ transational_state ] = testState;
+        integratedStateToSet[ translational_state ] = testState;
         testTime = 2.0 * 86400.0;
 
         // Test if environment is updated for inly central gravity accelerations
@@ -169,7 +169,7 @@ BOOST_AUTO_TEST_CASE( test_centralGravityEnvironmentUpdate )
             // Update environment to new time, and state from environment.
             updater->updateEnvironment(
                         0.5 * testTime, std::unordered_map< IntegratedStateType, Eigen::VectorXd >( ),
-                        boost::assign::list_of( transational_state ) );
+                        boost::assign::list_of( translational_state ) );
             TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
                         bodyMap.at( "Earth" )->getState( ),
                         bodyMap.at( "Earth" )->getEphemeris( )->getCartesianState( 0.5 * testTime ),
@@ -253,7 +253,7 @@ BOOST_AUTO_TEST_CASE( test_centralGravityEnvironmentUpdate )
             // Update environment to new time, and state from environment.
             updater->updateEnvironment(
                         0.5 * testTime, std::unordered_map< IntegratedStateType, Eigen::VectorXd >( ),
-                        boost::assign::list_of( transational_state ) );
+                        boost::assign::list_of( translational_state ) );
 
         }
 
@@ -360,7 +360,7 @@ BOOST_AUTO_TEST_CASE( test_centralGravityEnvironmentUpdate )
             // Update environment to new time, and state from environment.
             updater->updateEnvironment(
                         0.5 * testTime, std::unordered_map< IntegratedStateType, Eigen::VectorXd >( ),
-                        boost::assign::list_of( transational_state ) );
+                        boost::assign::list_of( translational_state ) );
 
         }
     }
@@ -413,7 +413,7 @@ BOOST_AUTO_TEST_CASE( test_NonConservativeForceEnvironmentUpdate )
     std::unordered_map< IntegratedStateType, Eigen::VectorXd > integratedStateToSet;
     Eigen::VectorXd testState = 1.1 * bodyMap[ "Vehicle" ]->getEphemeris( )->getCartesianState( testTime ) +
             bodyMap.at( "Earth" )->getEphemeris( )->getCartesianState( testTime );
-    integratedStateToSet[ transational_state ] = testState;
+    integratedStateToSet[ translational_state ] = testState;
 
     {
         // Define settings for accelerations
@@ -471,7 +471,7 @@ BOOST_AUTO_TEST_CASE( test_NonConservativeForceEnvironmentUpdate )
 
         updater->updateEnvironment(
                     0.5 * testTime, std::unordered_map< IntegratedStateType, Eigen::VectorXd >( ),
-                    boost::assign::list_of( transational_state ) );
+                    boost::assign::list_of( translational_state ) );
     }
 
     {
@@ -585,7 +585,7 @@ BOOST_AUTO_TEST_CASE( test_NonConservativeForceEnvironmentUpdate )
 
         updater->updateEnvironment(
                     0.5 * testTime, std::unordered_map< IntegratedStateType, Eigen::VectorXd >( ),
-                    boost::assign::list_of( transational_state ) );
+                    boost::assign::list_of( translational_state ) );
 
 
     }

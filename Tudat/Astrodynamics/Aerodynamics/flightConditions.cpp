@@ -31,8 +31,7 @@ FlightConditions::FlightConditions( const boost::shared_ptr< basic_astrodynamics
                   aerodynamicAngleCalculator ):
     shapeModel_( shapeModel ),
     aerodynamicAngleCalculator_( aerodynamicAngleCalculator ),
-        currentTime_( TUDAT_NAN )
-
+    currentTime_( TUDAT_NAN )
 {
     // Link body-state function.
     bodyCenteredPseudoBodyFixedStateFunction_ = boost::bind(
@@ -88,7 +87,6 @@ AtmosphericFlightConditions::AtmosphericFlightConditions(
         updateLatitudeAndLongitudeForAtmosphere_ = 0;
     }
     isLatitudeAndLongitudeSet_ = 0;
-
 
     if( updateLatitudeAndLongitudeForAtmosphere_ && aerodynamicAngleCalculator_== NULL )
     {
@@ -162,7 +160,6 @@ double AtmosphericFlightConditions::getAerodynamicCoefficientIndependentVariable
         break;
         //Get angle of attack if needed.
     case angle_of_attack_dependent:
-
         if( aerodynamicAngleCalculator_== NULL )
         {
             throw std::runtime_error( "Error, aerodynamic angle calculator is null, but require angle of attack" );
@@ -196,7 +193,6 @@ double AtmosphericFlightConditions::getAerodynamicCoefficientIndependentVariable
         {
             throw std::runtime_error( "Error, control surface " + secondaryIdentifier + "not recognized when updating coefficients" );
         }
-
         break;
     }
     default:

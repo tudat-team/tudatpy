@@ -136,10 +136,9 @@ integrateEquations( const bool performIntegrationsSequentially )
             createParametersToEstimate( parameterNames, bodyMap, accelerationModelMap );
 
     // Define integrator settings.
-    boost::shared_ptr< IntegratorSettings< > > integratorSettings =
-            boost::make_shared< RungeKuttaVariableStepSizeSettings< > >
-            ( rungeKuttaVariableStepSize, initialEphemerisTime, 10.0,
-              RungeKuttaCoefficients::rungeKuttaFehlberg45, 0.01, 10.0, 1.0E-6, 1.0E-6 );
+    boost::shared_ptr< IntegratorSettings< > > matrixTypeIntegratorSettings =
+            boost::make_shared< RungeKuttaVariableStepSizeSettings< double > >
+            ( initialEphemerisTime, 10.0, RungeKuttaCoefficients::rungeKuttaFehlberg45, 0.01, 10.0, 1.0E-6, 1.0E-6 );
 
     // Define propagator settings.
     boost::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
@@ -147,19 +146,26 @@ integrateEquations( const bool performIntegrationsSequentially )
             ( centralBodies, accelerationModelMap, bodiesToIntegrate, lageosState, finalEphemerisTime );
 
     // Perform requested propagation
-    boost::shared_ptr< SingleArcVariationalEquationsSolver< double, double> > variationalEquationSolver;
+    boost::shared_ptr< SingleArcVariationalEquationsSolver< double, double > > variationalEquationSolver;
     if( !performIntegrationsSequentially )
     {
-        variationalEquationSolver = boost::make_shared< SingleArcVariationalEquationsSolver< double, double> >(
-                    bodyMap, integratorSettings,
+        // Propagate
+        variationalEquationSolver = boost::make_shared< SingleArcVariationalEquationsSolver< double, double > >(
+                    bodyMap, matrixTypeIntegratorSettings,
                     propagatorSettings, parametersToEstimate );
     }
     else
     {
-        variationalEquationSolver = boost::make_shared< SingleArcVariationalEquationsSolver< double, double> >(
-                    bodyMap, integratorSettings,
+        // Define integrator settings for vector type.
+        boost::shared_ptr< IntegratorSettings< > > vectorTypeIntegratorSettings =
+                boost::make_shared< RungeKuttaVariableStepSizeSettings< > >
+                ( initialEphemerisTime, 10.0, RungeKuttaCoefficients::rungeKuttaFehlberg45, 0.01, 10.0, 1.0E-6, 1.0E-6 );
+
+        // Propagate
+        variationalEquationSolver = boost::make_shared< SingleArcVariationalEquationsSolver< double, double > >(
+                    bodyMap, vectorTypeIntegratorSettings,
                     propagatorSettings, parametersToEstimate, 0,
-                    integratorSettings );
+                    matrixTypeIntegratorSettings );
     }
 
     return std::make_pair( variationalEquationSolver->getStateTransitionMatrixInterface( ),
@@ -187,7 +193,6 @@ BOOST_AUTO_TEST_CASE( testSequentialVariationalEquationIntegration )
                 concurrentResult.second->getCartesianState( 1.0E7 + 14.0 * 80000.0 ),
                 sequentialResult.second->getCartesianState( 1.0E7 + 14.0 * 80000.0 ),
                 std::numeric_limits< double >::epsilon( ) );
-
 }
 
 BOOST_AUTO_TEST_SUITE_END( )
@@ -195,6 +200,3 @@ BOOST_AUTO_TEST_SUITE_END( )
 }
 
 }
-
-
-
