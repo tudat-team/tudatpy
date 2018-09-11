@@ -8,15 +8,16 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-
 #ifndef TUDAT_THRUSTGUIDANCE_H
 #define TUDAT_THRUSTGUIDANCE_H
+
 #include <boost/function.hpp>
 #include <boost/lambda/lambda.hpp>
 
 #include "Tudat/Astrodynamics/ReferenceFrames/referenceFrameTransformations.h"
 #include "Tudat/Astrodynamics/ReferenceFrames/dependentOrientationCalculator.h"
 #include "Tudat/Basics/basicTypedefs.h"
+
 namespace tudat
 {
 
@@ -154,7 +155,7 @@ public:
             const std::string& centralBody,
             const boost::function< Eigen::Vector3d( ) > bodyFixedForceDirection =
             boost::lambda::constant( Eigen::Vector3d::UnitX( ) ) ):
-        BodyFixedForceDirectionGuidance ( bodyFixedForceDirection ),
+        BodyFixedForceDirectionGuidance( bodyFixedForceDirection ),
         forceDirectionFunction_( forceDirectionFunction ),
         centralBody_( centralBody ){ }
 
@@ -170,12 +171,12 @@ public:
 
     //! Function to get the rotation from body-fixed to inertial frame.
     /*!
-     *  Function to get the rotation from body-fixed to inertial frame. NOT YET IMPLEMENTED IN THIS DERIVED CLASS.
-     *  \return NOT YET IMPLEMENTED IN THIS DERIVED CLASS.
+     *  Function to get the rotation from body-fixed to inertial frame.
+     *  \return Current quaternion representing rotation from body-fixed to inertial frame.
      */
     Eigen::Quaterniond getRotationToGlobalFrame( )
     {
-        throw std::runtime_error( "Error, body-fixed frame to propagation frame not yet implemented for DirectionBasedForceGuidance." );
+        return Eigen::Quaterniond( Eigen::AngleAxisd( 0, currentForceDirection_ ) );
     }
 
     //! Function to return the name of the central body.

@@ -14,11 +14,17 @@ set(PROPAGATORS_SOURCES
   "${SRCROOT}${PROPAGATORSDIR}/nBodyEnckeStateDerivative.cpp"
   "${SRCROOT}${PROPAGATORSDIR}/nBodyGaussKeplerStateDerivative.cpp"
   "${SRCROOT}${PROPAGATORSDIR}/nBodyGaussModifiedEquinoctialStateDerivative.cpp"
+  "${SRCROOT}${PROPAGATORSDIR}/nBodyUnifiedStateModelQuaternionsStateDerivative.cpp"
+  "${SRCROOT}${PROPAGATORSDIR}/nBodyUnifiedStateModelModifiedRodriguesParametersStateDerivative.cpp"
+  "${SRCROOT}${PROPAGATORSDIR}/nBodyUnifiedStateModelExponentialMapStateDerivative.cpp"
   "${SRCROOT}${PROPAGATORSDIR}/variationalEquations.cpp"
   "${SRCROOT}${PROPAGATORSDIR}/stateTransitionMatrixInterface.cpp"
   "${SRCROOT}${PROPAGATORSDIR}/environmentUpdateTypes.cpp"
   "${SRCROOT}${PROPAGATORSDIR}/singleStateTypeDerivative.cpp"
   "${SRCROOT}${PROPAGATORSDIR}/rotationalMotionStateDerivative.cpp"
+  "${SRCROOT}${PROPAGATORSDIR}/rotationalMotionQuaternionsStateDerivative.cpp"
+  "${SRCROOT}${PROPAGATORSDIR}/rotationalMotionModifiedRodriguesParametersStateDerivative.cpp"
+  "${SRCROOT}${PROPAGATORSDIR}/rotationalMotionExponentialMapStateDerivative.cpp"
   "${SRCROOT}${PROPAGATORSDIR}/stateDerivativeCircularRestrictedThreeBodyProblem.cpp"
 )
 
@@ -30,6 +36,9 @@ set(PROPAGATORS_HEADERS
   "${SRCROOT}${PROPAGATORSDIR}/nBodyEnckeStateDerivative.h"
   "${SRCROOT}${PROPAGATORSDIR}/nBodyGaussKeplerStateDerivative.h"
   "${SRCROOT}${PROPAGATORSDIR}/nBodyGaussModifiedEquinoctialStateDerivative.h"
+  "${SRCROOT}${PROPAGATORSDIR}/nBodyUnifiedStateModelQuaternionsStateDerivative.h"
+  "${SRCROOT}${PROPAGATORSDIR}/nBodyUnifiedStateModelModifiedRodriguesParametersStateDerivative.h"
+  "${SRCROOT}${PROPAGATORSDIR}/nBodyUnifiedStateModelExponentialMapStateDerivative.h"
   "${SRCROOT}${PROPAGATORSDIR}/dynamicsStateDerivativeModel.h"
   "${SRCROOT}${PROPAGATORSDIR}/singleStateTypeDerivative.h"
   "${SRCROOT}${PROPAGATORSDIR}/integrateEquations.h"
@@ -39,6 +48,9 @@ set(PROPAGATORS_HEADERS
   "${SRCROOT}${PROPAGATORSDIR}/environmentUpdateTypes.h"
   "${SRCROOT}${PROPAGATORSDIR}/customStateDerivative.h"
   "${SRCROOT}${PROPAGATORSDIR}/rotationalMotionStateDerivative.h"
+  "${SRCROOT}${PROPAGATORSDIR}/rotationalMotionQuaternionsStateDerivative.h"
+  "${SRCROOT}${PROPAGATORSDIR}/rotationalMotionModifiedRodriguesParametersStateDerivative.h"
+  "${SRCROOT}${PROPAGATORSDIR}/rotationalMotionExponentialMapStateDerivative.h"
   "${SRCROOT}${PROPAGATORSDIR}/stateDerivativeCircularRestrictedThreeBodyProblem.h"
 )
 
@@ -66,6 +78,10 @@ target_link_libraries(test_EnckeStateDerivative ${TUDAT_PROPAGATION_LIBRARIES} $
 add_executable(test_GaussStateDerivative "${SRCROOT}${PROPAGATORSDIR}/UnitTests/unitTestGaussStateDerivative.cpp")
 setup_custom_test_program(test_GaussStateDerivative "${SRCROOT}${PROPAGATORSDIR}")
 target_link_libraries(test_GaussStateDerivative ${TUDAT_PROPAGATION_LIBRARIES} ${Boost_LIBRARIES})
+
+add_executable(test_UnifiedStateModelStateDerivative "${SRCROOT}${PROPAGATORSDIR}/UnitTests/unitTestUnifiedStateModelStateDerivative.cpp")
+setup_custom_test_program(test_UnifiedStateModelStateDerivative "${SRCROOT}${PROPAGATORSDIR}")
+target_link_libraries(test_UnifiedStateModelStateDerivative ${TUDAT_PROPAGATION_LIBRARIES} ${Boost_LIBRARIES})
 
 add_executable(test_SequentialVariationEquationIntegration "${SRCROOT}${PROPAGATORSDIR}/UnitTests/unitTestSequentialVariationalEquationIntegration.cpp")
 setup_custom_test_program(test_SequentialVariationEquationIntegration "${SRCROOT}${PROPAGATORSDIR}")

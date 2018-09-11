@@ -22,6 +22,32 @@ namespace tudat
 namespace aerodynamics
 {
 
+//! Enum of all the possible independent variables on which the atmosphere can depend.
+/*!
+ * Enum of all the possible independent variables on which the atmosphere can depend.
+ */
+enum AtmosphereIndependentVariables
+{
+    altitude_dependent_atmosphere = 0,
+    longitude_dependent_atmosphere = 1,
+    latitude_dependent_atmosphere = 2,
+    time_dependent_atmosphere = 3
+};
+
+//! Enum of all the possible dependent variables that an atmosphere can describe.
+/*!
+ * Enum of all the possible dependent variables that an atmosphere can describe.
+ */
+enum AtmosphereDependentVariables
+{
+    density_dependent_atmosphere = 0,
+    pressure_dependent_atmosphere = 1,
+    temperature_dependent_atmosphere = 2,
+    gas_constant_dependent_atmosphere = 3,
+    specific_heat_ratio_dependent_atmosphere = 4,
+    molar_mass_dependent_atmosphere = 5
+};
+
 //! Atmosphere model class.
 /*!
  * Base class for all atmosphere models.
@@ -110,7 +136,9 @@ protected:
 
     //! Model describing the wind velocity vector of the atmosphere
     boost::shared_ptr< WindModel > windModel_;
+
 private:
+
 };
 
 //! Typedef for shared-pointer to AtmosphereModel object.

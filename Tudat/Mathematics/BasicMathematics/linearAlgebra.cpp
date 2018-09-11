@@ -26,15 +26,41 @@ namespace linear_algebra
 Eigen::Vector4d convertQuaternionToVectorFormat( const Eigen::Quaterniond& quaternion )
 {
     Eigen::Vector4d vector;
-
     vector( 0 ) = quaternion.w( );
     vector( 1 ) = quaternion.x( );
     vector( 2 ) = quaternion.y( );
     vector( 3 ) = quaternion.z( );
-
     return vector;
 }
 
+//! Function to put a vector in 'quaternion format', i.e. a Quaterniond.
+Eigen::Quaterniond convertVectorToQuaternionFormat( const Eigen::Vector4d& vector )
+{
+    Eigen::Quaterniond quaternion;
+    quaternion.w( ) = vector( 0 );
+    quaternion.x( ) = vector( 1 );
+    quaternion.y( ) = vector( 2 );
+    quaternion.z( ) = vector( 3 );
+    return quaternion;
+}
+
+//! Function to take the product of two quaternions.
+Eigen::Vector4d quaternionProduct( const Eigen::Vector4d& firstQuaternion, const Eigen::Vector4d& secondQuaternion )
+{
+    Eigen::Vector4d resultantQuaternion;
+    resultantQuaternion[ 0 ] = firstQuaternion[ 0 ] * secondQuaternion[ 0 ] -
+            firstQuaternion.segment( 1, 3 ).dot( secondQuaternion.segment( 1, 3 ) );
+    resultantQuaternion.segment( 1, 3 ) = firstQuaternion[ 0 ] * secondQuaternion.segment( 1, 3 ) +
+            secondQuaternion[ 0 ] * firstQuaternion.segment( 1, 3 ) +
+            getCrossProductMatrix( firstQuaternion.segment( 1, 3 ) ) * secondQuaternion.segment( 1, 3 );
+    return resultantQuaternion;
+}
+
+//! Function to invert a quaternion.
+void invertQuaternion( Eigen::Vector4d& quaternionVector )
+{
+    quaternionVector.segment( 1, 3 ) *= -1.0;
+}
 
 //! Function that returns that 'cross-product matrix'
 Eigen::Matrix3d getCrossProductMatrix( const Eigen::Vector3d& vector )

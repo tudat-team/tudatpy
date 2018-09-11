@@ -32,7 +32,7 @@ void to_json( nlohmann::json& jsonObject,
     using namespace json_interface;
     using K = Keys::Termination;
 
-    jsonObject[ hybridTerminationSettings->fulFillSingleCondition_ ? K::anyOf : K::allOf ] =
+    jsonObject[ hybridTerminationSettings->fulfillSingleCondition_ ? K::anyOf : K::allOf ] =
             hybridTerminationSettings->terminationSettings_;
 }
 

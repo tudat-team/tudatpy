@@ -36,6 +36,7 @@
 #include "Tudat/Astrodynamics/Ephemerides/rotationalEphemeris.h"
 #include "Tudat/Astrodynamics/SystemModels/vehicleSystems.h"
 #include "Tudat/Mathematics/BasicMathematics/numericalDerivative.h"
+
 namespace tudat
 {
 
@@ -219,16 +220,14 @@ public:
      * Constructor for a body, sets current state (with zero default value).
      * \param state Current state of body at initialization (default = zeroes).
      */
-    Body( const Eigen::Vector6d& state =
-            Eigen::Vector6d::Zero( ) )
-        : bodyIsGlobalFrameOrigin_( -1 ), currentState_( state ), timeOfCurrentState_( TUDAT_NAN ),
-          ephemerisFrameToBaseFrame_( boost::make_shared< BaseStateInterfaceImplementation< double, double > >(
-                                          "", boost::lambda::constant( Eigen::Vector6d::Zero( ) ) ) ),
-          currentRotationToLocalFrame_( Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) ) ),
-          currentRotationToLocalFrameDerivative_( Eigen::Matrix3d::Zero( ) ),
-          currentAngularVelocityVectorInGlobalFrame_( Eigen::Vector3d::Zero( ) ),
-          bodyMassFunction_( NULL ),
-          bodyInertiaTensor_( Eigen::Matrix3d::Zero( ) )
+    Body( const Eigen::Vector6d& state = Eigen::Vector6d::Zero( ) ) :
+        bodyIsGlobalFrameOrigin_( -1 ), currentState_( state ), timeOfCurrentState_( TUDAT_NAN ),
+        ephemerisFrameToBaseFrame_( boost::make_shared< BaseStateInterfaceImplementation< double, double > >(
+                                        "", boost::lambda::constant( Eigen::Vector6d::Zero( ) ) ) ),
+        currentRotationToLocalFrame_( Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) ) ),
+        currentRotationToLocalFrameDerivative_( Eigen::Matrix3d::Zero( ) ),
+        currentAngularVelocityVectorInGlobalFrame_( Eigen::Vector3d::Zero( ) ),
+        bodyMassFunction_( NULL ), bodyInertiaTensor_( Eigen::Matrix3d::Zero( ) )
     {
         currentLongState_ = currentState_.cast< long double >( );
     }
@@ -252,7 +251,6 @@ public:
     {
         ephemerisFrameToBaseFrame_ = ephemerisFrameToBaseFrame;
     }
-
 
     //! Set current state of body manually
     /*!
@@ -321,7 +319,7 @@ public:
                 }
             }
             // If body is global frame origin, set state to zeroes, and barycentric state value.
-            else if( bodyIsGlobalFrameOrigin_  == 1 )
+            else if( bodyIsGlobalFrameOrigin_ == 1 )
             {
                 currentState_.setZero( );
                 currentLongState_.setZero( );
@@ -403,8 +401,6 @@ public:
         }
     }
 
-
-
     //! Get current state.
     /*!
      * Returns the internally stored current state vector.
@@ -425,7 +421,6 @@ public:
      * \return Current velocity.
      */
     Eigen::Vector3d getVelocity( ) { return currentState_.segment( 3, 3 ); }
-
 
     //! Get current state, in long double precision
     /*!
@@ -537,7 +532,7 @@ public:
     template< typename TimeType >
     void setCurrentRotationalStateToLocalFrameFromEphemeris( const TimeType time )
     {
-        if( rotationalEphemeris_!= NULL )
+        if( rotationalEphemeris_ != NULL )
         {
             rotationalEphemeris_->getFullRotationalQuantitiesToTargetFrameTemplated< TimeType >(
                         currentRotationToLocalFrame_, currentRotationToLocalFrameDerivative_,
@@ -564,7 +559,7 @@ public:
      * \param currentRotationalStateFromLocalToGlobalFrame Quaternion from body-fixed to propagation frame
      * (in vector form) and the body's angular velocity vector in body-fixed frame.
      */
-    void setCurrentRotationalStateToLocalFrame( const Eigen::Matrix< double, 7, 1 > currentRotationalStateFromLocalToGlobalFrame )
+    void setCurrentRotationalStateToLocalFrame( const Eigen::Vector7d currentRotationalStateFromLocalToGlobalFrame )
     {
         Eigen::Quaterniond currentRotationToGlobalFrame =
                 Eigen::Quaterniond( currentRotationalStateFromLocalToGlobalFrame( 0 ),
@@ -588,7 +583,7 @@ public:
      *  by the setCurrentRotationalStateToLocalFrameFromEphemeris or
      *  setCurrentRotationToLocalFrameFromEphemeris function.  If body has no rotational ephemeris,
      *  an identity quaternion (no rotation) is returned.
-     *  \return Current rotation from body-fixed to inertial frame
+     *  \return Current rotation from body-fixed to inertial frame.
      */
     Eigen::Quaterniond getCurrentRotationToGlobalFrame( )
     {
@@ -601,11 +596,23 @@ public:
      *  by the setCurrentRotationalStateToLocalFrameFromEphemeris or
      *  setCurrentRotationToLocalFrameFromEphemeris function.  If body has no rotational ephemeris,
      *  an identity quaternion (no rotation) is returned.
-     *  \return Current rotation from inertial to body-fixed frame
+     *  \return Current rotation from inertial to body-fixed frame.
      */
     Eigen::Quaterniond getCurrentRotationToLocalFrame( )
     {
         return currentRotationToLocalFrame_;
+    }
+
+    //! Get current rotational state.
+    /*!
+     *  Get current rotational state, expressed as a quaternion from global to body-fixed frame
+     *  (in vector form) and the body's angular velocity vector in inertial frame.
+     *  \return Current rotational state in quaternions and rotational velocity.
+     */
+    Eigen::Vector7d getCurrentRotationalState( )
+    {
+        return ( Eigen::VectorXd( 7 ) << linear_algebra::convertQuaternionToVectorFormat( getCurrentRotationToGlobalFrame( ) ),
+                 getCurrentAngularVelocityVectorInGlobalFrame( ) ).finished( );
     }
 
     //! Get current rotation matrix derivative from body-fixed to global frame.
@@ -636,7 +643,7 @@ public:
 
     //! Get current angular velocity vector for body's rotation, expressed in the global frame.
     /*!
-     *  Get current angular velocity vector for body's rotation, expressed in the global frame
+     *  Get current angular velocity vector for body's rotation, expressed in the global frame.
      *  \return Current angular velocity vector for body's rotation, expressed in the global frame.
      */
     Eigen::Vector3d getCurrentAngularVelocityVectorInGlobalFrame( )
@@ -644,6 +651,17 @@ public:
         return currentAngularVelocityVectorInGlobalFrame_;
     }
 
+    //! Get current angular velocity vector for body's rotation, expressed in the local frame.
+    /*!
+     *  Get current angular velocity vector for body's rotation, expressed in the local frame.
+     *  Transformation from the global to the local frame is done by rotating the vector with the
+     *  current quaternion to local frame.
+     *  \return Current angular velocity vector for body's rotation, expressed in the local frame.
+     */
+    Eigen::Vector3d getCurrentAngularVelocityVectorInLocalFrame( )
+    {
+        return getCurrentRotationToLocalFrame( ) * currentAngularVelocityVectorInGlobalFrame_;
+    }
 
     //! Function to set the ephemeris of the body.
     /*!
@@ -950,7 +968,7 @@ public:
     //! Function to retrieve container object with hardware systems present on/in body
     /*!
      * Function to retrieve container object with hardware systems present on/in body.
-     * \return Container object with hardware systems present on/in body
+     * \return Container object with hardware systems present on/in body.
      */
     boost::shared_ptr< system_models::VehicleSystems > getVehicleSystems( )
     {
@@ -960,7 +978,7 @@ public:
     //! Function to set container object with hardware systems present on/in body
     /*!
      * Function to set container object with hardware systems present on/in body (typically only non-NULL for a vehicle).
-     * \param vehicleSystems Container object with hardware systems present on/in body
+     * \param vehicleSystems Container object with hardware systems present on/in body.
      */
     void setVehicleSystems( const boost::shared_ptr< system_models::VehicleSystems > vehicleSystems )
     {
@@ -1148,13 +1166,8 @@ private:
     //! Current state with long double precision.
     Eigen::Matrix< long double, 6, 1 > currentBarycentricLongState_;
 
-
-
-
     //! Time at which state was last set from ephemeris
     Time timeOfCurrentState_;
-
-
 
     //! Class returning the state of this body's ephemeris origin w.r.t. the global origin (as typically created by
     //! setGlobalFrameBodyEphemerides function).
@@ -1170,17 +1183,14 @@ private:
     //! Current angular velocity vector for body's rotation, expressed in the global frame.
     Eigen::Vector3d currentAngularVelocityVectorInGlobalFrame_;
 
-
     //! Mass of body (default set to zero, calculated from GravityFieldModel when it is set).
     double currentMass_;
 
     //! Function returning body mass as a function of time.
     boost::function< double( const double ) > bodyMassFunction_;
 
-
     //! Body moment-of-inertia tensor.
     Eigen::Matrix3d bodyInertiaTensor_;
-
 
     //! Ephemeris of body.
     boost::shared_ptr< ephemerides::Ephemeris > bodyEphemeris_;

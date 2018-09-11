@@ -22,6 +22,7 @@
 
 namespace tudat
 {
+
 namespace root_finders
 {
 
@@ -99,6 +100,7 @@ protected:
     TerminationFunction terminationFunction;
 
 private:
+
 };
 
 //! Typedef for a root-finder with double data type.
@@ -108,6 +110,7 @@ typedef RootFinderCore< > RootFinder;
 typedef boost::shared_ptr< RootFinder > RootFinderPointer;
 
 } // namespace root_finders
+
 } // namespace tudat
 
 #endif // TUDAT_ROOT_FINDER_H
