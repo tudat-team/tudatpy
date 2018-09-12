@@ -217,9 +217,8 @@ public:
 
     //! Link end index from which the 'current time' is determined
     observation_models::LinkEndType linkEndForTime_;
+
 };
-
-
 
 //! Class to define settings for estimating an initial translational state.
 template< typename InitialStateParameterType = double >
@@ -437,7 +436,7 @@ public:
      * \param associatedBody Deformed body
      * \param degree Degree of Love number that is to be estimated
      * \param deformingBody Name of body causing tidal deformation
-     * \param useComplexValue True if the complex Love number is estimated, false if only teh real part is considered
+     * \param useComplexValue True if the complex Love number is estimated, false if only the real part is considered
      */
     FullDegreeTidalLoveNumberEstimatableParameterSettings(  const std::string& associatedBody,
                                                             const int degree,
@@ -458,7 +457,7 @@ public:
      * \param associatedBody Deformed body
      * \param degree Degree of Love number that is to be estimated
      * \param deformingBodies Names of bodies causing tidal deformation
-     * \param useComplexValue True if the complex Love number is estimated, false if only teh real part is considered
+     * \param useComplexValue True if the complex Love number is estimated, false if only the real part is considered
      */
     FullDegreeTidalLoveNumberEstimatableParameterSettings(  const std::string& associatedBody,
                                                             const int degree ,
@@ -473,7 +472,7 @@ public:
     //! Names of bodies causing tidal deformation
     std::vector< std::string > deformingBodies_;
 
-    //! True if the complex Love number is estimated, false if only teh real part is considered
+    //! True if the complex Love number is estimated, false if only the real part is considered
     bool useComplexValue_;
 
 };
@@ -498,7 +497,7 @@ public:
      * \param degree Degree of Love number that is to be estimated
      * \param orders List of orders at which Love numbers are to be estimated.
      * \param deformingBody Names of body causing tidal deformation
-     * \param useComplexValue True if the complex Love number is estimated, false if only teh real part is considered
+     * \param useComplexValue True if the complex Love number is estimated, false if only the real part is considered
      */
     SingleDegreeVariableTidalLoveNumberEstimatableParameterSettings(  const std::string associatedBody,
                                                                       const int degree,
@@ -521,7 +520,7 @@ public:
      * \param degree Degree of Love number that is to be estimated
      * \param orders List of orders at which Love numbers are to be estimated.
      * \param deformingBodies Names of bodies causing tidal deformation
-     * \param useComplexValue True if the complex Love number is estimated, false if only teh real part is considered
+     * \param useComplexValue True if the complex Love number is estimated, false if only the real part is considered
      */
     SingleDegreeVariableTidalLoveNumberEstimatableParameterSettings(  const std::string associatedBody,
                                                                       const int degree,
@@ -540,7 +539,7 @@ public:
     //! Names of bodies causing tidal deformation
     std::vector< std::string > deformingBodies_;
 
-    //! True if the complex Love number is estimated, false if only teh real part is considered
+    //! True if the complex Love number is estimated, false if only the real part is considered
     bool useComplexValue_;
 
 };

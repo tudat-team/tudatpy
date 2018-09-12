@@ -32,27 +32,26 @@
 
 namespace tudat
 {
+
 namespace root_finders
 {
 
 //! Bisection root-finding method.
 /*!
- * The bisection root-finding method, a basic and robust root-finder that will always find a root
- * given that a root exists, the function is continuous on the interval, and that it is bracketed
- * by the lower and upper bound (required). For this method only the function of which the zero is
- * sought is required, and no derivatives. It is recommended to use this method for validation only,
- * as it is relatively slow.
+ *  The bisection root-finding method, a basic and robust root-finder that will always find a root
+ *  given that a root exists, the function is continuous on the interval, and that it is bracketed
+ *  by the lower and upper bound (required). For this method only the function of which the zero is
+ *  sought is required, and no derivatives. It is recommended to use this method for validation only,
+ *  as it is relatively slow.
  *
- * It works by repeatedly shrinking the [lowerbound, upperbound] interval until the root has been
- * found with sufficient accuracy. The shrinking is done by dividing the interval in half and
- * evaluating in which interval the root lies. This sub-interval is then kept for the next
- * iteration. The process is continued until the interval is sufficiently small.
- * [Press et al., 2007]
- *
- * Defined shorthand notations:
- *  BisectionCore< double >   =>   Bisection
- *
- * \tparam DataType Data type used to represent floating-point values.
+ *  It works by repeatedly shrinking the [lowerbound, upperbound] interval until the root has been
+ *  found with sufficient accuracy. The shrinking is done by dividing the interval in half and
+ *  evaluating in which interval the root lies. This sub-interval is then kept for the next
+ *  iteration. The process is continued until the interval is sufficiently small.
+ *  [Press et al., 2007]
+ *  Defined shorthand notations:
+ *      BisectionCore< double >   =>   Bisection
+ *  \tparam DataType Data type used to represent floating-point values.
  */
 template< typename DataType = double >
 class BisectionCore : public RootFinderCore< DataType >
@@ -67,49 +66,44 @@ public:
 
     //! Constructor taking a general termination function and the bracket of the solution.
     /*!
-     * Constructor of the Bisection root-finder, taking the termination function (function
-     * determining whether to terminate the root-finding process) and the search interval with an
-     * upper and lower bound. It is required that the function values at upper and lower bound have
-     * an opposite sign. The default interval is [-1, 1].
-     *
-     * \param terminationFunction The function specifying the termination conditions of the
-     *          root-finding process. \sa RootFinderCore::terminationFunction
-     * \param lowerBound Lower bound of the interval containing a root. (Default is -1.0).
-     * \param upperBound Upper bound of the interval containing a root. (Default is 1.0).
+     *  Constructor of the Bisection root-finder, taking the termination function (function
+     *  determining whether to terminate the root-finding process) and the search interval with an
+     *  upper and lower bound. It is required that the function values at upper and lower bound have
+     *  an opposite sign. The default interval is [-1, 1].
+     *  \param terminationFunction The function specifying the termination conditions of the
+     *      root-finding process. \sa RootFinderCore::terminationFunction
+     *  \param lowerBound Lower bound of the interval containing a root. (Default is -1.0).
+     *  \param upperBound Upper bound of the interval containing a root. (Default is 1.0).
      */
     BisectionCore( const TerminationFunction terminationFunction,
-                   const DataType lowerBound = -1.0,
-                   const DataType upperBound = 1.0 )
-        : RootFinderCore< DataType >( terminationFunction ),
-          lowerBound_( lowerBound ),
-          upperBound_( upperBound )
+                   const DataType lowerBound = -1.0, const DataType upperBound = 1.0 ) :
+        RootFinderCore< DataType >( terminationFunction ),
+        lowerBound_( lowerBound ), upperBound_( upperBound )
     { }
 
     //! Constructor taking typical convergence criteria and the bracket of the solution.
     /*!
-     * Constructor of the Bisection root-finder, taking the maximum number of iterations, the
-     * relative tolerance for the independent variable, and the search interval with upper and
-     * lower bound. It is required that the function values at upper and lower bound have an
-     * opposite sign. The default interval is [-1, 1]. If desired, a custom convergence function
-     * can be provided to the alternative constructor.
-     *
-     * \param relativeXTolerance Relative difference between the root solution of two subsequent
-     *          solutions below which convergence is reached.
-     * \param maxIterations Maximum number of iterations after which the root finder is
-     *          terminated, i.e. convergence is assumed.
-     * \param lowerBound Lower bound of the interval containing a root. (Default is -1.0).
-     * \param upperBound Upper bound of the interval containing a root. (Default is 1.0).
+     *  Constructor of the Bisection root-finder, taking the maximum number of iterations, the
+     *  relative tolerance for the independent variable, and the search interval with upper and
+     *  lower bound. It is required that the function values at upper and lower bound have an
+     *  opposite sign. The default interval is [-1, 1]. If desired, a custom convergence function
+     *  can be provided to the alternative constructor.
+     *  \param relativeXTolerance Relative difference between the root solution of two subsequent
+     *      solutions below which convergence is reached.
+     *  \param maxIterations Maximum number of iterations after which the root finder is
+     *      terminated, i.e. convergence is assumed.
+     *  \param lowerBound Lower bound of the interval containing a root. (Default is -1.0).
+     *  \param upperBound Upper bound of the interval containing a root. (Default is 1.0).
      */
     BisectionCore( const DataType relativeXTolerance, const unsigned int maxIterations,
-                   const DataType lowerBound = -1.0, const DataType upperBound = 1.0 ):
+                   const DataType lowerBound = -1.0, const DataType upperBound = 1.0 ) :
         RootFinderCore< DataType >(
             boost::bind(
                 &termination_conditions::RootRelativeToleranceTerminationCondition< DataType >::
                 checkTerminationCondition, boost::make_shared<
                 termination_conditions::RootRelativeToleranceTerminationCondition< DataType > >(
                     relativeXTolerance, maxIterations ), _1, _2, _3, _4, _5 ) ),
-        lowerBound_( lowerBound ),
-        upperBound_( upperBound )
+        lowerBound_( lowerBound ), upperBound_( upperBound )
     { }
 
     //! Default destructor.
@@ -117,16 +111,14 @@ public:
 
     //! Find a root of the function provided as input.
     /*!
-     * Find a root of the function provided as input, using the termination function set by the
-     * constructor. (Note that the initial guess is not used, but is a requirement of the
-     * root-finder architecture.)
-     *
-     * \param rootFunction Function to find the root of.
-     * \param initialGuess The initial guess of the root. (Not used, default is 0.0).
-     * \return Root of the rootFunction that is found.
-     *
-     * \throws ConvergenceExeption If the solution does not converge to a root value.
-     * \throws std::runtime_error If the interval does not bracket the root.
+     *  Find a root of the function provided as input, using the termination function set by the
+     *  constructor. (Note that the initial guess is not used, but is a requirement of the
+     *  root-finder architecture.)
+     *  \param rootFunction Function to find the root of.
+     *  \param initialGuess The initial guess of the root. (Not used, default is 0.0).
+     *  \return Root of the rootFunction that is found.
+     *  \throws ConvergenceExeption If the solution does not converge to a root value.
+     *  \throws std::runtime_error If the interval does not bracket the root.
      */
     DataType execute( const FunctionPointer rootFunction, const DataType initialGuess = 0.0 )
     {
@@ -156,8 +148,8 @@ public:
         // (requirement).
         if( currentLowerBoundFunctionValue * currentUpperBoundFunctionValue > 0.0 )
         {
-            throw std::runtime_error(
-                        "The Bisection algorithm requires that the values at the upper, and lower bounds have a different sign." );
+            throw std::runtime_error( "The Bisection algorithm requires that the values at the upper, "
+                                      "and lower bounds have a different sign." );
         }
 
         // Loop counter.
@@ -169,9 +161,10 @@ public:
             // Sanity check.
             if( currentLowerBoundFunctionValue * currentUpperBoundFunctionValue > 0.0 )
             {
-                throw std::runtime_error(
-                            "The Bisection algorithm requires that the values at the upper, and lower bounds have a different sign, error during iteration." );
+                throw std::runtime_error( "The Bisection algorithm requires that the values at the upper, "
+                                          "and lower bounds have a different sign, error during iteration." );
             }
+
             // Save old values.
             previousRootValue = rootValue;
             previousRootFunctionValue = rootFunctionValue;
@@ -201,16 +194,14 @@ public:
                                            previousRootFunctionValue, counter ) );
 
         return rootValue;
-
     }
 
     //! Reset the bracket of the solution.
     /*!
-     * Resets the search interval with an upper and lower bound. It is required that the function
-     * values at upper and lower bound have an opposite sign.
-     *
-     * \param lowerBound Lower bound of the interval containing a root.
-     * \param upperBound Upper bound of the interval containing a root.
+     *  Resets the search interval with an upper and lower bound. It is required that the function
+     *  values at upper and lower bound have an opposite sign.
+     *  \param lowerBound Lower bound of the interval containing a root.
+     *  \param upperBound Upper bound of the interval containing a root.
      */
     void resetBoundaries( const DataType lowerBound, const DataType upperBound )
     {
@@ -235,6 +226,7 @@ typedef BisectionCore< double > Bisection;
 typedef boost::shared_ptr< Bisection > BisectionPointer;
 
 } // namespace root_finders
+
 } // namespace tudat
 
 #endif // TUDAT_BISECTION_H

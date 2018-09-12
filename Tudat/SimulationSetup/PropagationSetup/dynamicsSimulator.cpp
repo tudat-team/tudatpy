@@ -9,6 +9,7 @@
  */
 
 #include "Tudat/SimulationSetup/PropagationSetup/dynamicsSimulator.h"
+#include "Tudat/Basics/timeType.h"
 
 namespace tudat
 {
@@ -32,6 +33,21 @@ boost::shared_ptr< ephemerides::ReferenceFrameManager > createFrameManager(
     return boost::make_shared< ephemerides::ReferenceFrameManager >(
                 ephemerides );
 }
+
+//template class DynamicsSimulator< double, double >;
+//template class DynamicsSimulator< long double, double >;
+//template class DynamicsSimulator< double, Time >;
+//template class DynamicsSimulator< long double, Time >;
+
+//template class SingleArcDynamicsSimulator< double, double >;
+//template class SingleArcDynamicsSimulator< long double, double >;
+//template class SingleArcDynamicsSimulator< double, Time >;
+//template class SingleArcDynamicsSimulator< long double, Time >;
+
+//template class MultiArcDynamicsSimulator< double, double >;
+//template class MultiArcDynamicsSimulator< long double, double >;
+//template class MultiArcDynamicsSimulator< double, Time >;
+//template class MultiArcDynamicsSimulator< long double, Time >;
 
 }
 

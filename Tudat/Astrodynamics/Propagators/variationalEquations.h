@@ -195,7 +195,7 @@ public:
             Eigen::Block< Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic > > currentMatrixDerivative )
     {
         // Compute and add state partials.
-        getBodyInitialStatePartialMatrix< StateScalarType >( stateTransitionAndSensitivityMatrices,currentMatrixDerivative );
+        getBodyInitialStatePartialMatrix< StateScalarType >( stateTransitionAndSensitivityMatrices, currentMatrixDerivative );
 
         if( numberOfParameterValues_ > totalDynamicalStateSize_ )
         {
@@ -413,10 +413,10 @@ private:
                 {
 
                     statePartialAdditionIndices_.push_back(
-                                std::make_pair( stateTypeStartIndices_[ propagators::transational_state ] +
-                                currentBodyIndex * propagators::getSingleIntegrationSize( propagators::transational_state ),
-                                stateTypeStartIndices_[ propagators::transational_state ] +
-                            j * propagators::getSingleIntegrationSize( propagators::transational_state ) ) );
+                                std::make_pair( stateTypeStartIndices_[ propagators::translational_state ] +
+                                currentBodyIndex * propagators::getSingleIntegrationSize( propagators::translational_state ),
+                                stateTypeStartIndices_[ propagators::translational_state ] +
+                            j * propagators::getSingleIntegrationSize( propagators::translational_state ) ) );
                 }
             }
         }

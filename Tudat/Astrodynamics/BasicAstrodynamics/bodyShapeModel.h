@@ -105,8 +105,8 @@ double getAltitudeFromNonBodyFixedPositionFunctions(
         const boost::function< Eigen::Vector3d( ) > bodyPositionFunction,
         const boost::function< Eigen::Quaterniond( ) > toBodyFixedFrameFunction );
 
-
 } // namespace basic_astrodynamics
+
 } // namespace tudat
 
 #endif // TUDAT_BODYSHAPEMODEL_H

@@ -42,7 +42,7 @@ double getDeltaAtFromUtc( const double utcInJulianDays );
 //! Function to calculate number of leap seconds from TAI input
 /*!
  *  Function to calculate number of leap seconds from UTC (International Atomic Time) input. Note: this function will not
- *  work properly near the introduction of a leap second (specifically if TAI is less than teh number of leap seconds from
+ *  work properly near the introduction of a leap second (specifically if TAI is less than the number of leap seconds from
  *  the leap second introduction) . In case of incorrect conversion, an error message is produced.
  *  \param taiInJulianDays Time in TAI; in seconds since J2000.
  *  \return Number of leap seconds at requested time.

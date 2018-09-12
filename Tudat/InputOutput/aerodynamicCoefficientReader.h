@@ -30,9 +30,9 @@ namespace input_output
  */
 template< unsigned int NumberOfDimensions >
 boost::multi_array< Eigen::Vector3d, static_cast< size_t >( NumberOfDimensions ) > mergeNDimensionalCoefficients(
-        boost::multi_array< double,static_cast< size_t >( NumberOfDimensions ) > xComponents,
-        boost::multi_array< double,static_cast< size_t >( NumberOfDimensions ) > yComponents,
-        boost::multi_array< double,static_cast< size_t >( NumberOfDimensions ) > zComponents )
+        boost::multi_array< double, static_cast< size_t >( NumberOfDimensions ) > xComponents,
+        boost::multi_array< double, static_cast< size_t >( NumberOfDimensions ) > yComponents,
+        boost::multi_array< double, static_cast< size_t >( NumberOfDimensions ) > zComponents )
 {
     boost::multi_array< Eigen::Vector3d, static_cast< size_t >( NumberOfDimensions ) > vectorArray;
 
@@ -54,15 +54,12 @@ boost::multi_array< Eigen::Vector3d, static_cast< size_t >( NumberOfDimensions )
     // Resize coefficient multi-array
     vectorArray.resize( sizeVector );
 
-
-
-
     // Iterate over all elements and combine x,y and z-components into vector3d of associated entry in vectorVector
     int numberOfEntries = xComponents.num_elements( );
     Eigen::Vector3d* vectorVector = new Eigen::Vector3d[ numberOfEntries ] ;
 
-    typedef typename  boost::multi_array <double,NumberOfDimensions>::index tIndex;
-    typedef boost::array<tIndex, NumberOfDimensions> tIndexArray;
+    typedef typename boost::multi_array< double, NumberOfDimensions >::index tIndex;
+    typedef boost::array< tIndex, NumberOfDimensions > tIndexArray;
 
     double* p = xComponents.data( );
     tIndexArray index;
@@ -91,7 +88,6 @@ boost::multi_array< Eigen::Vector3d, static_cast< size_t >( NumberOfDimensions )
  */
 bool compareIndependentVariables( const std::vector< std::vector< double > >& list1,
                                   const std::vector< std::vector< double > >& list2 );
-
 
 //! Function to read a list of aerodynamic coefficients and associated independent variables from a set of files
 /*!
@@ -163,7 +159,7 @@ readAerodynamicCoefficients( const std::map< int, std::string >& fileNames )
 
             if( !areIndependentVariablesEqual )
             {
-                throw std::runtime_error( "Error when reading 1-Dimensional aeroynamic coefficients, inconsistent aerodynamic coefficients" );
+                throw std::runtime_error( "Error when reading 1-Dimensional aeroynamic coefficients, inconsistent independent variables." );
             }
         }
 
@@ -180,7 +176,6 @@ readAerodynamicCoefficients( const std::map< int, std::string >& fileNames )
     }
     else
     {
-
         coefficientArrays.resize( 3 );
         boost::multi_array< double, static_cast< size_t >( NumberOfDimensions ) > firstMultiArray =
                 rawCoefficientArrays.begin( )->second;
@@ -215,6 +210,6 @@ readAerodynamicCoefficients( const std::map< int, std::string >& fileNames )
                     coefficientArrays.at( 0 ), coefficientArrays.at( 1 ), coefficientArrays.at( 2 ) ), independentVariables );
 }
 
-}
+} // namespace input_output
 
-}
+} // namespace tudat

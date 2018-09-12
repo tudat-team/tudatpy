@@ -69,6 +69,14 @@ BOOST_AUTO_TEST_CASE( testOtherConstants )
     BOOST_CHECK_CLOSE_FRACTION( ASTRONOMICAL_UNIT, 1.49597870691e11,
                                 std::numeric_limits< double >::epsilon( ) );
 
+    // Test for molar gas constant.
+    BOOST_CHECK_CLOSE_FRACTION( MOLAR_GAS_CONSTANT, 8.3144598,
+                                std::numeric_limits< double >::epsilon( ) );
+
+    // Test for Avogadro's number.
+    BOOST_CHECK_CLOSE_FRACTION( AVOGADRO_CONSTANT, 6.022140857e23,
+                                std::numeric_limits< double >::epsilon( ) );
+
     // Test for Planck constant.
     BOOST_CHECK_CLOSE_FRACTION( PLANCK_CONSTANT, 6.62606957E-34,
                                 std::numeric_limits< double >::epsilon( ) );

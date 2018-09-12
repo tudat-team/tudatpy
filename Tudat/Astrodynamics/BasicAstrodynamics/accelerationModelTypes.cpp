@@ -219,7 +219,6 @@ bool isAccelerationDirectGravitational( const AvailableAcceleration acceleration
 //! Function to get the third-body counterpart of a direct gravitational acceleration type
 AvailableAcceleration getAssociatedThirdBodyAcceleration( const AvailableAcceleration accelerationType )
 {
-
     AvailableAcceleration thirdBodyAccelerationType;
     if( !isAccelerationDirectGravitational( accelerationType ) )
     {
