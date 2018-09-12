@@ -42,7 +42,7 @@ boost::shared_ptr< aerodynamics::WindModel > createWindModel(
         // Check input consistency
         boost::shared_ptr< CustomWindModelSettings > customWindModelSettings =
                 boost::dynamic_pointer_cast< CustomWindModelSettings >( windSettings );
-        if( customWindModelSettings == NULL )
+        if( customWindModelSettings == nullptr )
         {
             throw std::runtime_error( "Error when making custom wind model for body " + body + ", input is incompatible" );
         }
@@ -76,21 +76,63 @@ boost::shared_ptr< aerodynamics::AtmosphereModel > createAtmosphereModel(
         // Check whether settings for atmosphere are consistent with its type.
         boost::shared_ptr< ExponentialAtmosphereSettings > exponentialAtmosphereSettings =
                 boost::dynamic_pointer_cast< ExponentialAtmosphereSettings >( atmosphereSettings );
-        if( exponentialAtmosphereSettings == NULL )
+        if( exponentialAtmosphereSettings == nullptr )
         {
-            throw std::runtime_error(
-                        "Error, expected exponential atmosphere settings for body " + body );
+            throw std::runtime_error( "Error, expected exponential atmosphere settings for body " + body );
         }
         else
         {
             // Create and initialize exponential atmosphere model.
-            boost::shared_ptr< ExponentialAtmosphere > exponentialAtmosphereModel =
-                    boost::make_shared< ExponentialAtmosphere >(
-                        exponentialAtmosphereSettings->getDensityScaleHeight( ) ,
-                        exponentialAtmosphereSettings->getConstantTemperature( ),
-                        exponentialAtmosphereSettings->getDensityAtZeroAltitude( ),
-                        exponentialAtmosphereSettings->getSpecificGasConstant( ) );
+            boost::shared_ptr< ExponentialAtmosphere > exponentialAtmosphereModel;
+            if ( exponentialAtmosphereSettings->getBodyName( ) == undefined_body )
+            {
+                exponentialAtmosphereModel = boost::make_shared< ExponentialAtmosphere >(
+                            exponentialAtmosphereSettings->getDensityScaleHeight( ) ,
+                            exponentialAtmosphereSettings->getConstantTemperature( ),
+                            exponentialAtmosphereSettings->getDensityAtZeroAltitude( ),
+                            exponentialAtmosphereSettings->getSpecificGasConstant( ),
+                            exponentialAtmosphereSettings->getRatioOfSpecificHeats( ) );
+            }
+            else
+            {
+                exponentialAtmosphereModel = boost::make_shared< ExponentialAtmosphere >(
+                            exponentialAtmosphereSettings->getBodyName( ) );
+            }
             atmosphereModel = exponentialAtmosphereModel;
+        }
+        break;
+    }
+    case custom_constant_temperature_atmosphere:
+    {
+        // Check whether settings for atmosphere are consistent with its type.
+        boost::shared_ptr< CustomConstantTemperatureAtmosphereSettings > customConstantTemperatureAtmosphereSettings =
+                boost::dynamic_pointer_cast< CustomConstantTemperatureAtmosphereSettings >( atmosphereSettings );
+        if( customConstantTemperatureAtmosphereSettings == nullptr )
+        {
+            throw std::runtime_error( "Error, expected exponential atmosphere settings for body " + body );
+        }
+        else
+        {
+            // Create and initialize exponential atmosphere model.
+            boost::shared_ptr< CustomConstantTemperatureAtmosphere > customConstantTemperatureAtmosphereModel;
+            if ( customConstantTemperatureAtmosphereSettings->getModelSpecificParameters( ).empty( ) )
+            {
+                customConstantTemperatureAtmosphereModel = boost::make_shared< CustomConstantTemperatureAtmosphere >(
+                            customConstantTemperatureAtmosphereSettings->getDensityFunction( ) ,
+                            customConstantTemperatureAtmosphereSettings->getConstantTemperature( ),
+                            customConstantTemperatureAtmosphereSettings->getSpecificGasConstant( ),
+                            customConstantTemperatureAtmosphereSettings->getRatioOfSpecificHeats( ) );
+            }
+            else
+            {
+                customConstantTemperatureAtmosphereModel = boost::make_shared< CustomConstantTemperatureAtmosphere >(
+                            customConstantTemperatureAtmosphereSettings->getDensityFunctionType( ),
+                            customConstantTemperatureAtmosphereSettings->getConstantTemperature( ),
+                            customConstantTemperatureAtmosphereSettings->getSpecificGasConstant( ),
+                            customConstantTemperatureAtmosphereSettings->getRatioOfSpecificHeats( ),
+                            customConstantTemperatureAtmosphereSettings->getModelSpecificParameters( ) );
+            }
+            atmosphereModel = customConstantTemperatureAtmosphereModel;
         }
         break;
     }
@@ -99,16 +141,21 @@ boost::shared_ptr< aerodynamics::AtmosphereModel > createAtmosphereModel(
         // Check whether settings for atmosphere are consistent with its type
         boost::shared_ptr< TabulatedAtmosphereSettings > tabulatedAtmosphereSettings =
                 boost::dynamic_pointer_cast< TabulatedAtmosphereSettings >( atmosphereSettings );
-        if( tabulatedAtmosphereSettings == NULL )
+        if( tabulatedAtmosphereSettings == nullptr )
         {
-            throw std::runtime_error(
-                        "Error, expected tabulated atmosphere settings for body " + body );
+            throw std::runtime_error( "Error, expected tabulated atmosphere settings for body " + body );
         }
         else
         {
-            // Create and initialize tabulatedl atmosphere model.
+            // Create and initialize tabulated atmosphere model.
             atmosphereModel = boost::make_shared< TabulatedAtmosphere >(
-                        tabulatedAtmosphereSettings->getAtmosphereFile( ) );
+                        tabulatedAtmosphereSettings->getAtmosphereFile( ),
+                        tabulatedAtmosphereSettings->getIndependentVariables( ),
+                        tabulatedAtmosphereSettings->getDependentVariables( ),
+                        tabulatedAtmosphereSettings->getSpecificGasConstant( ),
+                        tabulatedAtmosphereSettings->getRatioOfSpecificHeats( ),
+                        tabulatedAtmosphereSettings->getBoundaryHandling( ),
+                        tabulatedAtmosphereSettings->getDefaultExtrapolationValue( ) );
         }
         break;
     }
@@ -118,7 +165,7 @@ boost::shared_ptr< aerodynamics::AtmosphereModel > createAtmosphereModel(
         std::string spaceWeatherFilePath;
         boost::shared_ptr< NRLMSISE00AtmosphereSettings > nrlmsise00AtmosphereSettings =
                 boost::dynamic_pointer_cast< NRLMSISE00AtmosphereSettings >( atmosphereSettings );
-        if( nrlmsise00AtmosphereSettings == NULL )
+        if( nrlmsise00AtmosphereSettings == nullptr )
         {
             // Use default space weather file stored in tudatBundle.
             spaceWeatherFilePath = input_output::getSpaceWeatherDataPath( ) + "sw19571001.txt";
@@ -140,19 +187,17 @@ boost::shared_ptr< aerodynamics::AtmosphereModel > createAtmosphereModel(
     }
 #endif
     default:
-        throw std::runtime_error(
-                    "Error, did not recognize atmosphere model settings type " +
-                    std::to_string( atmosphereSettings->getAtmosphereType( ) ) );
+        throw std::runtime_error( "Error, did not recognize atmosphere model settings type " +
+                                  std::to_string( atmosphereSettings->getAtmosphereType( ) ) );
     }
 
-    if( atmosphereSettings->getWindSettings( ) != NULL )
+    if( atmosphereSettings->getWindSettings( ) != nullptr )
     {
         atmosphereModel->setWindModel( createWindModel( atmosphereSettings->getWindSettings( ), body ) );
     }
 
     return atmosphereModel;
 }
-
 
 } // namespace simulation_setup
 

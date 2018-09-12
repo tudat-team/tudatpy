@@ -52,7 +52,8 @@ template< typename ScalarType = double >
 Eigen::Matrix< ScalarType, Eigen::Dynamic, Eigen::Dynamic > readMatrixFromFile(
         const std::string& relativePath,
         const std::string& separators = "\t ;,",
-        const std::string& skipLinesCharacter = "%" )
+        const std::string& skipLinesCharacter = "%",
+        const int numberOfHeaderLines = 0 )
 {
     // Open input and output.
     std::fstream file( relativePath.c_str( ), std::ios::in );
@@ -86,15 +87,20 @@ Eigen::Matrix< ScalarType, Eigen::Dynamic, Eigen::Dynamic > readMatrixFromFile(
 
     // Read the filtered stream into lines.
     std::vector< std::string > lines_;
+    int numberOfLinesParsed = 0;
     while ( !filteredStream.eof( ) )
     {
         std::string line_;
         getline( filteredStream, line_ );
-        if ( !line_.empty( ) )
+        if ( numberOfLinesParsed >= numberOfHeaderLines )
         {
-            boost::trim_all( line_ );
-            lines_.push_back( line_ );
+            if ( !line_.empty( ) )
+            {
+                boost::trim_all( line_ );
+                lines_.push_back( line_ );
+            }
         }
+        numberOfLinesParsed++;
     }
 
     // If there are no lines, return an empty matrix.

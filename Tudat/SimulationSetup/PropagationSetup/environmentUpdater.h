@@ -32,7 +32,6 @@ namespace tudat
 namespace propagators
 {
 
-
 //! Class used to update the environment during numerical integration.
 /*!
  *  Class used to update the environment during numerical integration. The class ensures that the
@@ -144,12 +143,12 @@ private:
         {
             switch( integratedStateIterator_->first )
             {
-            case transational_state:
+            case translational_state:
             {
                 // Set translational states for bodies provided as input.
-                for( unsigned int i = 0; i < integratedStates_[ transational_state ].size( ); i++ )
+                for( unsigned int i = 0; i < integratedStates_[ translational_state ].size( ); i++ )
                 {
-                    bodyList_[ integratedStates_[ transational_state ][ i ].first ]->template
+                    bodyList_[ integratedStates_[ translational_state ][ i ].first ]->template
                             setTemplatedState< StateScalarType >(
                                 integratedStateIterator_->second.segment( i * 6, 6 ) );
                 }
@@ -206,11 +205,11 @@ private:
         {
             switch( statesToSet.at( i ) )
             {
-            case transational_state:
+            case translational_state:
             {
                 // Iterate over all integrated translational states.
                 std::vector< std::pair< std::string, std::string > > bodiesWithIntegratedStates =
-                        integratedStates_[ transational_state ];
+                        integratedStates_[ translational_state ];
                 for( unsigned int i = 0; i < bodiesWithIntegratedStates.size( ); i++ )
                 {
                     bodyList_[ bodiesWithIntegratedStates[ i ].first ]->
@@ -429,13 +428,13 @@ private:
                         bool addUpdate = 1;
 
                         // Check if mass is propagated
-                        if( integratedStates_.count( transational_state ) > 0 )
+                        if( integratedStates_.count( translational_state ) > 0 )
                         {
                             // Check if current body is propagated
                             std::pair< std::string, std::string > bodyToCheck
                                     = std::make_pair( currentBodies.at( i ), "" );
                             std::vector< std::pair< std::string, std::string > > integratedTranslationalStates
-                                    = integratedStates_.at( transational_state );
+                                    = integratedStates_.at( translational_state );
                             if( std::find( integratedTranslationalStates.begin( ),
                                            integratedTranslationalStates.end( ),
                                            bodyToCheck ) != integratedTranslationalStates.end( ) )

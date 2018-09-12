@@ -25,6 +25,7 @@
 
 namespace tudat
 {
+
 namespace basic_mathematics
 {
 
@@ -48,14 +49,16 @@ public:
     /*!
      * the independent and dependent variables are both doubles.
      */
-    typedef BasicFunction< IndependentVariable, DependentVariable >           Parent;
+    typedef BasicFunction< IndependentVariable, DependentVariable > Parent;
+
     //! Typedef for the function that relates the dependent variable to the independent variable.
     /*!
      * the independent and dependent variables are both doubles.
      */
-    typedef boost::function< DependentVariable( IndependentVariable ) >       FunctionSignature;
+    typedef boost::function< DependentVariable( IndependentVariable ) > FunctionSignature;
+
     //! Typedef for a shared pointer to the class FunctionProxy
-    typedef boost::shared_ptr< FunctionProxy >                                FunctionProxyPointer;
+    typedef boost::shared_ptr< FunctionProxy > FunctionProxyPointer;
 
     //! Create a Function object, using a specified function pointer.
     /*!
@@ -132,12 +135,13 @@ private:
 
     //! Lookup table used to find explicit derivative or integral forms.
     std::map< int, FunctionSignature >  functionCallTable_;
+
 };
 
 // Type definitions for the commonly used double form.
-typedef FunctionProxy< double, double >         UnivariateProxy;
-typedef UnivariateProxy::FunctionSignature      UnivariateSignature;
-typedef UnivariateProxy::FunctionProxyPointer   UnivariateProxyPointer;
+typedef FunctionProxy< double, double > UnivariateProxy;
+typedef UnivariateProxy::FunctionSignature UnivariateSignature;
+typedef UnivariateProxy::FunctionProxyPointer UnivariateProxyPointer;
 
 //! Factory for creating a UnivariateProxyPointer from a C++ function UnivariateSignature.
 /*!
@@ -228,6 +232,7 @@ inline UnivariateProxyPointer univariateProxy( UnivariateSignature function,
 }
 
 } // namespace basic_mathematics
+
 } // namespace tudat
 
 #endif // TUDAT_FUNCTION_PROXY_H

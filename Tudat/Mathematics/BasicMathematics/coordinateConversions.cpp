@@ -354,7 +354,7 @@ Eigen::Matrix3d getDerivativeOfSphericalToCartesianGradient( const Eigen::Vector
 Eigen::Matrix3d getDerivativeOfSphericalToCartesianGradient( const Eigen::Vector3d& sphericalGradient,
                                                              const Eigen::Vector3d& cartesianCoordinates )
 {
-    static  std::vector< Eigen::Matrix3d > subMatrices( 3 );
+    static std::vector< Eigen::Matrix3d > subMatrices( 3 );
     return getDerivativeOfSphericalToCartesianGradient(
                 sphericalGradient, cartesianCoordinates, subMatrices );
 }

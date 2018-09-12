@@ -139,7 +139,7 @@ int computeNearestNeighborUsingBinarySearch(
 
 //! Nearest left neighbor binary search.
 int computeNearestLeftNeighborUsingBinarySearch(
-        const std::map < double, Eigen::VectorXd >& sortedIndepedentAndDependentVariables,
+        const std::map< double, Eigen::VectorXd >& sortedIndepedentAndDependentVariables,
         const double targetValueInMapOfData )
 {
     // Declare local variables.

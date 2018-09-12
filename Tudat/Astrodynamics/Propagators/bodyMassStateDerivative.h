@@ -190,7 +190,7 @@ public:
      * is propagated.
      * \return Size of propagated mass state.
      */
-    virtual int getStateSize( )
+    virtual int getConventionalStateSize( )
     {
         return bodiesToIntegrate_.size( );
     }

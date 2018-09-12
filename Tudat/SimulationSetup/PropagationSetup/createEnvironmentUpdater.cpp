@@ -659,6 +659,18 @@ std::vector< std::string > > createEnvironmentUpdaterSettingsForDependentVariabl
         variablesToUpdate[ body_translational_state_update ].push_back( dependentVariableSaveSettings->associatedBody_ );
         variablesToUpdate[ body_translational_state_update ].push_back( dependentVariableSaveSettings->secondaryBody_ );
         break;
+    case local_dynamic_pressure_dependent_variable:
+        variablesToUpdate[ vehicle_flight_conditions_update ].push_back( dependentVariableSaveSettings->associatedBody_ );
+        variablesToUpdate[ body_rotational_state_update ].push_back( dependentVariableSaveSettings->secondaryBody_ );
+        variablesToUpdate[ body_translational_state_update ].push_back( dependentVariableSaveSettings->associatedBody_ );
+        variablesToUpdate[ body_translational_state_update ].push_back( dependentVariableSaveSettings->secondaryBody_ );
+        break;
+    case local_aerodynamic_heat_rate_dependent_variable:
+        variablesToUpdate[ vehicle_flight_conditions_update ].push_back( dependentVariableSaveSettings->associatedBody_ );
+        variablesToUpdate[ body_rotational_state_update ].push_back( dependentVariableSaveSettings->secondaryBody_ );
+        variablesToUpdate[ body_translational_state_update ].push_back( dependentVariableSaveSettings->associatedBody_ );
+        variablesToUpdate[ body_translational_state_update ].push_back( dependentVariableSaveSettings->secondaryBody_ );
+        break;
     case geodetic_latitude_dependent_variable:
         variablesToUpdate[ vehicle_flight_conditions_update ].push_back( dependentVariableSaveSettings->associatedBody_ );
         variablesToUpdate[ body_rotational_state_update ].push_back( dependentVariableSaveSettings->secondaryBody_ );
@@ -788,6 +800,8 @@ std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > c
         }
         break;
     }
+    case custom_stopping_condition:
+        break;
     default:
         throw std::runtime_error( "Error when creating environment updater settings for termination conditions, type not found" );
     }
