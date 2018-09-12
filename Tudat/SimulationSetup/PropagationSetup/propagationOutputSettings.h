@@ -102,7 +102,7 @@ enum PropagationDependentVariables
     total_gravity_field_variation_acceleration = 37,
     single_gravity_field_variation_acceleration = 38,
     single_gravity_field_variation_acceleration_terms = 39,
-    acceleration_partial_wrt_body_state = 40
+    acceleration_partial_wrt_body_translational_state = 40
 };
 
 
@@ -445,7 +445,7 @@ public:
             const std::string derivativeWrtBody,
             const std::string thirdBody = "" ):
         SingleDependentVariableSaveSettings(
-            acceleration_partial_wrt_body_state, bodyUndergoingAcceleration, bodyExertingAcceleration ),
+            acceleration_partial_wrt_body_translational_state, bodyUndergoingAcceleration, bodyExertingAcceleration ),
         accelerationModeType_( accelerationModeType ), derivativeWrtBody_( derivativeWrtBody ),
         thirdBody_( thirdBody ){ }
 

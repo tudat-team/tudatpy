@@ -787,7 +787,7 @@ std::vector< boost::shared_ptr< GravityFieldVariationSettings > > getEarthGravit
 }
 
 //! Unit test to check if acceleration contributions due to gravity field variations are being correctly stored
-BOOST_AUTO_TEST_CASE( test_LoveNumberEstimationFromOrbiterData )
+BOOST_AUTO_TEST_CASE( test_GravityFieldVariationAccelerationSaving )
 {
 
     //Load spice kernels.
@@ -961,6 +961,7 @@ BOOST_AUTO_TEST_CASE( test_LoveNumberEstimationFromOrbiterData )
 
     }
 }
+
 BOOST_AUTO_TEST_SUITE_END( )
 
 }

@@ -178,6 +178,9 @@ std::string getDependentVariableName( const PropagationDependentVariables propag
     case single_gravity_field_variation_acceleration_terms:
         variableName = "Single-source time-variable gravity field per-term acceleration correction ";
         break;
+    case acceleration_partial_wrt_body_translational_state:
+        variableName = "Acceleration partial w.r.t body state ";
+        break;
     default:
         std::string errorMessage = "Error, dependent variable " +
                 std::to_string( propagationDependentVariables ) +

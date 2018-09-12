@@ -74,14 +74,14 @@ Eigen::Quaterniond getQuaternionFromVectorRotationRepresentation(
     return Eigen::Quaterniond( getMatrixFromVectorRotationRepresentation( vectorRepresentation ) );
 }
 
-boost::function< Eigen::VectorXd( ) > getVectorFunctionFromBlockFunction(
+Eigen::VectorXd getVectorFunctionFromBlockFunction(
         const boost::function< void( Eigen::Block< Eigen::MatrixXd > ) > blockFunction,
                                     const int numberOfRows, const int numberOfColumns )
 {
     Eigen::MatrixXd matrixEvaluation = Eigen::MatrixXd::Zero( numberOfRows, numberOfColumns );
-    blockFunction( matrixEvaluation );
+    blockFunction( matrixEvaluation.block( 0, 0, numberOfRows, numberOfColumns ) );
 
-    Eigen::VectorXd vectorEvaluation = Eigen::VectorXd::Zero( matrixEvaluation );
+    Eigen::VectorXd vectorEvaluation = Eigen::VectorXd::Zero( numberOfRows * numberOfColumns );
     for( int i = 0; i < numberOfRows; i++ )
     {
         vectorEvaluation.segment( i * numberOfColumns, numberOfColumns ) =
@@ -302,6 +302,9 @@ int getDependentVariableSize(
         }
         break;
     }
+    case acceleration_partial_wrt_body_translational_state:
+        variableSize = 18;
+        break;
     default:
         std::string errorMessage = "Error, did not recognize dependent variable size of type: " +
                 std::to_string( dependentVariableSettings->dependentVariableType_ );

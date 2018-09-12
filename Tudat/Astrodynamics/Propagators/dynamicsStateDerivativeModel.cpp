@@ -1,4 +1,5 @@
 #include "Tudat/Astrodynamics/Propagators/dynamicsStateDerivativeModel.h"
+#include "Tudat/Astrodynamics/OrbitDetermination/AccelerationPartials/thirdBodyGravityPartial.h"
 
 namespace tudat
 {
@@ -10,13 +11,13 @@ boost::shared_ptr< acceleration_partials::AccelerationPartial > getAccelerationP
         const basic_astrodynamics::AvailableAcceleration accelerationType,
         const std::string& bodyExertingAcceleration,
         const std::string& bodyUndergoignAcceleration,
-        const std::string& thirdBody = "" )
+        const std::string& thirdBody )
 {
     boost::shared_ptr< acceleration_partials::AccelerationPartial > matchingAccelerationPartial;
 
-    for( int i = 0; i < accelerationPartials.size( ); i++ )
+    for( unsigned int i = 0; i < accelerationPartials.size( ); i++ )
     {
-        for( int j = 0; j < accelerationPartials.at( i ).size( ); j++ )
+        for( unsigned int j = 0; j < accelerationPartials.at( i ).size( ); j++ )
         {
             boost::shared_ptr< acceleration_partials::AccelerationPartial > accelerationPartial =
                     boost::dynamic_pointer_cast< acceleration_partials::AccelerationPartial >(
