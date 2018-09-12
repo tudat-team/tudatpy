@@ -34,9 +34,9 @@ namespace orbit_determination
 //! Base class for computing the partial derivatives of a state derivative model
 /*!
  * Base class for computing the partial derivatives of a state derivative model (i.e. acceleration model for
- * translational dynamics, torque model for rottional dynamics, etc.
+ * translational dynamics, torque model for rottional dynamics, etc.).
  * Typically, two levels of derived classes are required: one for the type of dynamics, and one for the type of model
- * (e.g. one level for acceleration model, and one level for central gravitational, spherical harmonic, etc. model).
+ * (e.g. one level for acceleration model, and one level for central gravitational, spherical harmonic model, etc.).
  */
 class StateDerivativePartial
 {

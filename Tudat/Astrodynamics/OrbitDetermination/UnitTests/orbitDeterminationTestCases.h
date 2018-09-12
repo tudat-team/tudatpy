@@ -153,7 +153,7 @@ std::pair< boost::shared_ptr< PodOutput< StateScalarType > >, Eigen::VectorXd > 
     LinkEnds linkEnds;
     observation_models::ObservationSettingsMap observationSettingsMap;
 
-    if(observableType == 0 )
+    if( observableType == 0 )
     {
         linkEnds[ observed_body ] = std::make_pair( "Earth", "" );
         observationSettingsMap.insert( std::make_pair( linkEnds, boost::make_shared< ObservationSettings >(
@@ -299,7 +299,7 @@ std::pair< boost::shared_ptr< PodOutput< StateScalarType > >, Eigen::VectorXd > 
                              truthParameters .template cast< double >( ) ) );
 }
 
-template< typename TimeType = double, typename StateScalarType  = double >
+template< typename TimeType = double, typename StateScalarType = double >
 Eigen::VectorXd executeEarthOrbiterParameterEstimation(
         std::pair< boost::shared_ptr< PodOutput< StateScalarType > >,
         boost::shared_ptr< PodInput< StateScalarType, TimeType > > >& podData,
@@ -431,8 +431,7 @@ Eigen::VectorXd executeEarthOrbiterParameterEstimation(
     // Create integrator settings
     boost::shared_ptr< IntegratorSettings< TimeType > > integratorSettings =
             boost::make_shared< RungeKuttaVariableStepSizeSettings< TimeType > >
-            ( rungeKuttaVariableStepSize, TimeType( initialEphemerisTime ), 40.0,
-              RungeKuttaCoefficients::CoefficientSets::rungeKuttaFehlberg78,
+            ( TimeType( initialEphemerisTime ), 40.0, RungeKuttaCoefficients::CoefficientSets::rungeKuttaFehlberg78,
               40.0, 40.0, 1.0, 1.0 );
 
     // Define parameters.
@@ -672,7 +671,7 @@ std::pair< Eigen::VectorXd, bool > executeEarthOrbiterBiasEstimation(
     std::vector< std::string > groundStationNames;
     groundStationNames.push_back( "Station1" );
     groundStationNames.push_back( "Station2" );
-    \
+
     createGroundStation( bodyMap.at( "Earth" ), "Station1", ( Eigen::Vector3d( ) << 0.0, 0.35, 0.0 ).finished( ),
                          geodetic_position );
     createGroundStation( bodyMap.at( "Earth" ), "Station2", ( Eigen::Vector3d( ) << 0.0, -0.55, 2.0 ).finished( ),
@@ -717,9 +716,9 @@ std::pair< Eigen::VectorXd, bool > executeEarthOrbiterBiasEstimation(
     // Create integrator settings
     boost::shared_ptr< IntegratorSettings< TimeType > > integratorSettings =
             boost::make_shared< RungeKuttaVariableStepSizeSettings< TimeType > >
-            ( rungeKuttaVariableStepSize, TimeType( initialEphemerisTime ), 120.0,
-              RungeKuttaCoefficients::CoefficientSets::rungeKuttaFehlberg78,
+            ( TimeType( initialEphemerisTime ), 120.0, RungeKuttaCoefficients::CoefficientSets::rungeKuttaFehlberg78,
               120.0, 120.0, 1.0, 1.0 );
+
 
     // Define parameters.
     std::vector< LinkEnds > stationReceiverLinkEnds;

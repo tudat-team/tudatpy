@@ -309,7 +309,7 @@ boost::function< double( const double, const observation_models::LinkEndType ) >
  *  Function to generate a function that produces an observation, only applicable for observation models
  *  of size one. This function uses boost::bind to link the computeObservations function of the observationModel to the output
  *  of this function.
- *  \param observationModel Observation model for which teh observation function is to be returned.
+ *  \param observationModel Observation model for which the observation function is to be returned.
  *  \return Function that computes the observation as a function of observation time and reference link end time.
  */
 template< typename ObservationScalarType = double, typename TimeType = double >
@@ -325,7 +325,7 @@ getSizeOneObservationFunctionFromObservationModel(
  *  Function to generate a function that computes an observation at double precision, only applicable for observation models
  *  of size one. This function uses boost::bind to link the computeObservations function of the observationModel to the output
  *  of this function, casting in/and output to double precisiono if needed.
- *  \param observationModel Observation model for which teh observation function is to be returned.
+ *  \param observationModel Observation model for which the observation function is to be returned.
  *  \return Function that computes the observation as a function of observation time and reference link end time.
  */
 template< typename ObservationScalarType = double, typename TimeType = double >

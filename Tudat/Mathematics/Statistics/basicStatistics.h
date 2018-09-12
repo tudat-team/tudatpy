@@ -12,12 +12,14 @@
 #ifndef TUDAT_BASIC_STATISTICS_H
 #define TUDAT_BASIC_STATISTICS_H
 
+#include <map>
 #include <vector>
 
 #include <Eigen/Core>
 
 namespace tudat
 {
+
 namespace statistics
 {
 
@@ -107,7 +109,44 @@ double computeSampleMedian( std::vector< double > sampleData );
  */
 Eigen::VectorXd computeSampleVariance( const std::vector< Eigen::VectorXd >& sampleData );
 
+//! Compute moving average of vector.
+/*!
+ *  Compute moving average of vector, where the moving average is computed by sliding a window of
+ *  the specified length along the data. Note that since the window is centered at the current element,
+ *  the window size (numberOfAveragingPoints) has to be odd.
+ *  \param sampleData Vector of sample data.
+ *  \param numberOfAveragingPoints Number of points (including the center point) to be used to compute
+ *      the moving average. Needs to be an odd number.
+ *  \return Vector containing the moving average of the data.
+ */
+Eigen::VectorXd computeMovingAverage( const Eigen::VectorXd& sampleData, const unsigned int numberOfAveragingPoints = 5 );
+
+//! Compute moving average of a set of Eigen vectors in a STL vector.
+/*!
+ *  Compute moving average of a set of Eigen vectors in a STL vector.
+ *  \param sampleData Vector of sample data.
+ *  \param numberOfAveragingPoints Number of points (including the center point) to be used to compute
+ *      the moving average. Needs to be an odd number.
+ *  \return Vector containing the moving average of the data.
+ */
+std::vector< Eigen::Vector3d > computeMovingAverage(
+        const std::vector< Eigen::Vector3d >& sampleData, const unsigned int numberOfAveragingPoints = 5 );
+
+//! Compute moving average of a set of Eigen vectors in a map.
+/*!
+ *  Compute moving average of a set of Eigen vectors in a map. The moving average is computed by first
+ *  combining the map values into a matrix, and then the moving average along each row is taken. Note that
+ *  since the computeMovingAverage function is used, the window size (numberOfAveragingPoints) has to be odd.
+ *  \param sampleData Map of sample data.
+ *  \param numberOfAveragingPoints Number of points (including the center point) to be used to compute
+ *      the moving average. Needs to be an odd number.
+ *  \return Map of data after moving average is applied.
+ */
+std::map< double, Eigen::VectorXd > computeMovingAverage(
+        const std::map< double, Eigen::VectorXd >& sampleData, const unsigned int numberOfAveragingPoints = 5 );
+
 } // namespace statistics
+
 } // namespace tudat
 
 #endif // TUDAT_BASIC_STATISTICS_H

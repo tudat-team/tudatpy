@@ -78,6 +78,7 @@ public:
     */
     virtual double getSpeedOfSound( const double altitude, const double longitude = 0.0,
                                     const double latitude = 0.0, const double time = 0.0 ) = 0;
+
 };
 
 //! Typedef for shared-pointer to StandardAtmosphere object.

@@ -130,7 +130,6 @@ boost::function< void( Eigen::MatrixXd& ) > getCombinedCurrentDoubleParameterFun
         else
         {
             partialFunction = secondPartialFunction;
-
         }
     }
     else if( firstPartialSize == secondPartialSize )
@@ -147,7 +146,6 @@ boost::function< void( Eigen::MatrixXd& ) > getCombinedCurrentDoubleParameterFun
                                            firstPartialFunction,
                                            secondPartialFunction, _1 );
         }
-
     }
     // Partial size must be equal if both non-zero
     else
@@ -174,7 +172,6 @@ boost::function< void( Eigen::MatrixXd& ) > getCombinedCurrentVectorParameterFun
             boost::bind( &StateDerivativePartial::getCurrentVectorParameterPartial, firstPartial, parameterObject, _1 );
     boost::function< void( Eigen::MatrixXd& ) > secondPartialFunction =
             boost::bind( &StateDerivativePartial::getCurrentVectorParameterPartial, secondPartial, parameterObject, _1 );
-
 
     // If both partial function sizes are zero, cannot create partial.
     if( firstPartialSize == 0 && secondPartialSize == 0 )

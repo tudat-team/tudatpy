@@ -23,8 +23,6 @@
 #include "Tudat/Astrodynamics/BasicAstrodynamics/unitConversions.h"
 #include "Tudat/External/SofaInterface/earthOrientation.h"
 
-
-
 namespace tudat
 {
 
@@ -206,7 +204,6 @@ struct EopCorrectionSettings
     //! Fundamental argument multiplier for corrections
     std::vector< std::string > argumentMultipliersFile_;
 };
-
 
 //! Settings for creating a GCRS<->ITRS rotation model
 class GcrsToItrsRotationModelSettings: public RotationModelSettings
