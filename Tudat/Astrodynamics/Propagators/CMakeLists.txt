@@ -20,6 +20,7 @@ set(PROPAGATORS_SOURCES
   "${SRCROOT}${PROPAGATORSDIR}/singleStateTypeDerivative.cpp"
   "${SRCROOT}${PROPAGATORSDIR}/rotationalMotionStateDerivative.cpp"
   "${SRCROOT}${PROPAGATORSDIR}/stateDerivativeCircularRestrictedThreeBodyProblem.cpp"
+  "${SRCROOT}${PROPAGATORSDIR}/dynamicsStateDerivativeModel.cpp"
 )
 
 # Add header files.
