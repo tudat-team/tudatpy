@@ -544,17 +544,24 @@ public:
         }
         else
         {
-            // Create simulation object for dynamics only.
-            dynamicsSimulator_ =  boost::make_shared< SingleArcDynamicsSimulator< StateScalarType, TimeType > >(
-                        bodyMap, integratorSettings, propagatorSettings_, false, clearNumericalSolution, true );
-            dynamicsStateDerivative_ = dynamicsSimulator_->getDynamicsStateDerivative( );
+            std::vector< boost::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > > stateDerivativeModels =
+                    createStateDerivativeModels( propagatorSettings, bodyMap, integratorSettings_->initialTime_ );
 
             // Create state derivative partials
             std::map< IntegratedStateType, orbit_determination::StateDerivativePartialsMap >
                     stateDerivativePartials =
                     simulation_setup::createStateDerivativePartials
                     < StateScalarType, TimeType >(
-                        dynamicsStateDerivative_->getStateDerivativeModels( ), bodyMap, parametersToEstimate );
+                        getStateDerivativeModelMapFromVector( stateDerivativeModels ), bodyMap, parametersToEstimate );
+
+            // Create simulation object for dynamics only.
+            propagatorSettings_->dependentVariablesToSave_->stateDerivativePartials_ = stateDerivativePartials;
+            dynamicsSimulator_ =  boost::make_shared< SingleArcDynamicsSimulator< StateScalarType, TimeType > >(
+                        bodyMap, integratorSettings, propagatorSettings_, false, clearNumericalSolution, true, std::chrono::steady_clock::now( ),
+                        stateDerivativeModels );
+            dynamicsStateDerivative_ = dynamicsSimulator_->getDynamicsStateDerivative( );
+
+
 
             // Create variational equations objects.
             variationalEquationsObject_ = boost::make_shared< VariationalEquations >(

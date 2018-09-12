@@ -531,6 +531,34 @@ createStateDerivativeModels(
     return stateDerivativeModels;
 }
 
+template< typename StateScalarType = double, typename TimeType = double >
+std::unordered_map< IntegratedStateType, std::vector< boost::shared_ptr<
+SingleStateTypeDerivative< StateScalarType, TimeType > > > > getStateDerivativeModelMapFromVector(
+        const std::vector< boost::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > >& stateDerivativeModelList )
+{
+    std::unordered_map< IntegratedStateType, std::vector< boost::shared_ptr<
+            SingleStateTypeDerivative< StateScalarType, TimeType > > > > stateDerivativeModelsMap;
+    for( unsigned int i = 0; i < stateDerivativeModelList.size( ); i++ )
+    {
+        stateDerivativeModelsMap[ stateDerivativeModelList.at( i )->getIntegratedStateType( ) ].push_back(
+                    stateDerivativeModelList.at( i ) );
+    }
+    return stateDerivativeModelsMap;
+}
+
+
+template< typename StateScalarType = double, typename TimeType = double >
+std::unordered_map< IntegratedStateType, std::vector< boost::shared_ptr<
+SingleStateTypeDerivative< StateScalarType, TimeType > > > >
+createStateDerivativeModelMap(
+        const boost::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > propagatorSettings,
+        const simulation_setup::NamedBodyMap& bodyMap,
+        const TimeType propagationStartTime )
+{
+    return getStateDerivativeModelMapFromVector( createStateDerivativeModels(
+                propagatorSettings, bodyMap, propagationStartTime ) );
+}
+
 //! Function to create an integrator to propagate the dynamics (in normalized units) in CR3BP
 /*!
  *  Function to create an integrator to propagate the dynamics (in normalized units) in Circularly Restricted Three-Body Problem.

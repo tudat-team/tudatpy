@@ -595,7 +595,7 @@ std::vector< boost::shared_ptr< basic_astrodynamics::AccelerationModel3d > > get
         const std::string bodyUndergoingAcceleration,
         const std::string bodyExertingAcceleration,
         const std::unordered_map< IntegratedStateType,
-        std::vector< boost::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > > > stateDerivativeModels,
+        std::vector< boost::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > > >& stateDerivativeModels,
         const basic_astrodynamics::AvailableAcceleration accelerationModeType )
 
 {
@@ -655,7 +655,7 @@ std::vector< boost::shared_ptr< basic_astrodynamics::TorqueModel > > getTorqueBe
         const std::string bodyUndergoingTorque,
         const std::string bodyExertingTorque,
         const std::unordered_map< IntegratedStateType,
-        std::vector< boost::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > > > stateDerivativeModels,
+        std::vector< boost::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > > >& stateDerivativeModels,
         const basic_astrodynamics::AvailableTorque torqueModeType )
 
 {

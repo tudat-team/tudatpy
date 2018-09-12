@@ -11,8 +11,8 @@
 set(ESTIMATIONSETUPSDIR "${SIMULATIONSETUPDIR}/EstimationSetup")
 
 # Add source files.
-file(GLOB_RECURSE SIMULATION_SETUP_HEADERS ${SRCROOT}/SimulationSetup ABSOLUTE ${CODEROOT} *.h)
-file(GLOB_RECURSE SIMULATION_SETUP_SOURCES ${SRCROOT}/SimulationSetup ABSOLUTE ${CODEROOT} *.cpp)
+file(GLOB_RECURSE SIMULATION_SETUP_HEADERS ${SRCROOT}/SimulationSetup/EnvironmentSetup ${SRCROOT}/SimulationSetup/EstimationSetup ${SRCROOT}/SimulationSetup/PropagationSetup ABSOLUTE ${CODEROOT} *.h)
+file(GLOB_RECURSE SIMULATION_SETUP_SOURCES ${SRCROOT}/SimulationSetup/EnvironmentSetup ${SRCROOT}/SimulationSetup/EstimationSetup ${SRCROOT}/SimulationSetup/PropagationSetup ABSOLUTE ${CODEROOT} *.cpp)
 
 
 # Add static libraries.

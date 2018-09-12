@@ -166,6 +166,10 @@ Eigen::Matrix3d getMatrixFromVectorRotationRepresentation(
 Eigen::Quaterniond getQuaternionFromVectorRotationRepresentation(
         const Eigen::VectorXd vectorRepresentation );
 
+Eigen::VectorXd getVectorFunctionFromBlockFunction(
+        const boost::function< void( Eigen::Block< Eigen::MatrixXd > ) > blockFunction,
+                                    const int numberOfRows, const int numberOfColumns );
+
 //! Function to compute the Fay-Riddell equilibrium heat flux from body properties
 /*!
  * Function to compute the Fay-Riddell equilibrium heat flux from body properties
@@ -190,7 +194,7 @@ boost::shared_ptr< gravitation::SphericalHarmonicsGravitationalAccelerationModel
 getSphericalHarmonicAccelerationForDependentVariables(
         const boost::shared_ptr< SingleDependentVariableSaveSettings > dependentVariableSettings,
         const std::unordered_map< IntegratedStateType,
-        std::vector< boost::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > > > stateDerivativeModels )
+        std::vector< boost::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > > >& stateDerivativeModels )
 {
     boost::shared_ptr< gravitation::SphericalHarmonicsGravitationalAccelerationModel > sphericalHarmonicAcceleration;
 
@@ -239,15 +243,6 @@ getSphericalHarmonicAccelerationForDependentVariables(
     return sphericalHarmonicAcceleration;
 }
 
-std::pair< boost::function< void( Eigen::Block< Eigen::MatrixXd > ) >, int > partialFunction =
-        partialToUse->getDerivativeFunctionWrtStateOfIntegratedBody(
-                std::make_pair( accelerationPartialVariableSettings->derivativeWrtBody_, "" ),
-            propagators::translational_state );
-
-boost::function< Eigen::VectorXd( ) > getVectorFunctionFromBlockFunction(
-        const boost::function< void( Eigen::Block< Eigen::MatrixXd > ) > blockFunction,
-                                    const int numberOfRows, const int numberOfColumns );
-
 
 //! Function to create a function returning a requested dependent variable value (of type VectorXd).
 /*!
@@ -264,7 +259,7 @@ std::pair< boost::function< Eigen::VectorXd( ) >, int > getVectorDependentVariab
         const boost::shared_ptr< SingleDependentVariableSaveSettings > dependentVariableSettings,
         const simulation_setup::NamedBodyMap& bodyMap,
         const std::unordered_map< IntegratedStateType,
-        const std::vector< boost::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > > >& stateDerivativeModels =
+        std::vector< boost::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > > >& stateDerivativeModels =
         std::unordered_map< IntegratedStateType,
         std::vector< boost::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > > >( ),
         const std::map< propagators::IntegratedStateType, orbit_determination::StateDerivativePartialsMap >& stateDerivativePartials =
@@ -520,14 +515,14 @@ std::pair< boost::function< Eigen::VectorXd( ) >, int > getVectorDependentVariab
             else
             {
                 boost::function< Eigen::VectorXd( const Eigen::MatrixXd&, const Eigen::MatrixXd& ) > accelerationFunction =
-                        boost::bind( &gravitation::SphericalHarmonicsGravitationalAccelerationModel::getAccelerationComponentsWithAlternativeCoefficients,
+                        boost::bind( &gravitation::SphericalHarmonicsGravitationalAccelerationModel::
+                                     getAccelerationComponentsWithAlternativeCoefficients,
                                      sphericalHarmonicAcceleration, _1, _2, accelerationVariableSettings->componentIndices_ );
 
                 boost::shared_ptr< gravitation::GravityFieldVariations > gravityFieldVatiation =
                         timeDependentGravityField->getGravityFieldVariationsSet( )->getGravityFieldVariation(
                             accelerationVariableSettings->deformationType_,
                             accelerationVariableSettings->identifier_ ).second;
-
 
                 boost::function< Eigen::MatrixXd( ) > cosineCorrectionFunction =
                         boost::bind( &gravitation::GravityFieldVariations::getLastCosineCorrection,
@@ -885,21 +880,22 @@ std::pair< boost::function< Eigen::VectorXd( ) >, int > getVectorDependentVariab
         parameterSize = 3;
         break;
     }
-    case acceleration_partial_wrt_body_state:
+    case acceleration_partial_wrt_body_translational_state:
     {
 
         boost::shared_ptr< AccelerationPartialWrtStateSaveSettings > accelerationPartialVariableSettings =
                 boost::dynamic_pointer_cast< AccelerationPartialWrtStateSaveSettings >( dependentVariableSettings );
         if( accelerationPartialVariableSettings == NULL )
         {
-            std::string errorMessage= "Error, inconsistent inout when creating dependent variable function of type acceleration_partial_wrt_body_state";
+            std::string errorMessage= "Error, inconsistent inout when creating dependent variable function of type acceleration_partial_wrt_body_translational_state";
             throw std::runtime_error( errorMessage );
         }
         else
         {
             boost::shared_ptr< acceleration_partials::AccelerationPartial > partialToUse =
                     getAccelerationPartialForBody(
-                        stateDerivativePartials.at( transational_state ), accelerationPartialVariableSettings->associatedBody_,
+                        stateDerivativePartials.at( transational_state ), accelerationPartialVariableSettings->accelerationModeType_,
+                        accelerationPartialVariableSettings->associatedBody_,
                         accelerationPartialVariableSettings->secondaryBody_,
                         accelerationPartialVariableSettings->thirdBody_ );
             std::pair< boost::function< void( Eigen::Block< Eigen::MatrixXd > ) >, int > partialFunction =
@@ -913,7 +909,8 @@ std::pair< boost::function< Eigen::VectorXd( ) >, int > getVectorDependentVariab
             }
             else
             {
-                variableFunction = getVectorFunctionFromBlockFunction( partialFunction.first, 3, 6 );
+                variableFunction = boost::bind(
+                            &getVectorFunctionFromBlockFunction, partialFunction.first, 3, 6 );
             }
             parameterSize = 18;
         }
@@ -969,7 +966,7 @@ boost::function< double( ) > getDoubleDependentVariableFunction(
         }
 
         const std::pair< boost::function< Eigen::VectorXd( ) >, int > vectorFunction =
-                getVectorDependentVariableFunction( dependentVariableSettings, bodyMap, stateDerivativeModels );
+                getVectorDependentVariableFunction< TimeType, StateScalarType >( dependentVariableSettings, bodyMap, stateDerivativeModels );
         return boost::bind( &elementAtIndexFunction, vectorFunction.first, componentIndex );
     }
     else
