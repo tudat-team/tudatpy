@@ -239,6 +239,16 @@ getSphericalHarmonicAccelerationForDependentVariables(
     return sphericalHarmonicAcceleration;
 }
 
+std::pair< boost::function< void( Eigen::Block< Eigen::MatrixXd > ) >, int > partialFunction =
+        partialToUse->getDerivativeFunctionWrtStateOfIntegratedBody(
+                std::make_pair( accelerationPartialVariableSettings->derivativeWrtBody_, "" ),
+            propagators::translational_state );
+
+boost::function< Eigen::VectorXd( ) > getVectorFunctionFromBlockFunction(
+        const boost::function< void( Eigen::Block< Eigen::MatrixXd > ) > blockFunction,
+                                    const int numberOfRows, const int numberOfColumns );
+
+
 //! Function to create a function returning a requested dependent variable value (of type VectorXd).
 /*!
  *  Function to create a function returning a requested dependent variable value (of type VectorXd), retrieved from
@@ -890,8 +900,22 @@ std::pair< boost::function< Eigen::VectorXd( ) >, int > getVectorDependentVariab
             boost::shared_ptr< acceleration_partials::AccelerationPartial > partialToUse =
                     getAccelerationPartialForBody(
                         stateDerivativePartials.at( transational_state ), accelerationPartialVariableSettings->associatedBody_,
-                        accelerationPartialVariableSettings->secondaryBody_, accelerationPartialVariableSettings->derivativeWrtBody_,
+                        accelerationPartialVariableSettings->secondaryBody_,
                         accelerationPartialVariableSettings->thirdBody_ );
+            std::pair< boost::function< void( Eigen::Block< Eigen::MatrixXd > ) >, int > partialFunction =
+                    partialToUse->getDerivativeFunctionWrtStateOfIntegratedBody(
+                            std::make_pair( accelerationPartialVariableSettings->derivativeWrtBody_, "" ),
+                        propagators::translational_state );
+
+            if( partialFunction.second == 0 )
+            {
+                variableFunction = boost::lambda::constant( Eigen::VectorXd::Zero( 18 ) );
+            }
+            else
+            {
+                variableFunction = getVectorFunctionFromBlockFunction( partialFunction.first, 3, 6 );
+            }
+            parameterSize = 18;
         }
         break;
     }

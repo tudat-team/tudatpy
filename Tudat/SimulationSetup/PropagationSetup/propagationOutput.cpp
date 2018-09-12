@@ -74,6 +74,23 @@ Eigen::Quaterniond getQuaternionFromVectorRotationRepresentation(
     return Eigen::Quaterniond( getMatrixFromVectorRotationRepresentation( vectorRepresentation ) );
 }
 
+boost::function< Eigen::VectorXd( ) > getVectorFunctionFromBlockFunction(
+        const boost::function< void( Eigen::Block< Eigen::MatrixXd > ) > blockFunction,
+                                    const int numberOfRows, const int numberOfColumns )
+{
+    Eigen::MatrixXd matrixEvaluation = Eigen::MatrixXd::Zero( numberOfRows, numberOfColumns );
+    blockFunction( matrixEvaluation );
+
+    Eigen::VectorXd vectorEvaluation = Eigen::VectorXd::Zero( matrixEvaluation );
+    for( int i = 0; i < numberOfRows; i++ )
+    {
+        vectorEvaluation.segment( i * numberOfColumns, numberOfColumns ) =
+              matrixEvaluation.block( i, 0, numberOfColumns, 1 ).transpose( );
+    }
+
+    return vectorEvaluation;
+}
+
 //! Function to compute the Fay-Riddell equilibrium heat flux from body properties
 double computeEquilibriumFayRiddellHeatFluxFromProperties(
         const boost::shared_ptr< aerodynamics::AtmosphericFlightConditions > flightConditions,

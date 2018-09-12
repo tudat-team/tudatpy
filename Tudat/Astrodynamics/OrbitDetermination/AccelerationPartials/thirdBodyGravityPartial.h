@@ -504,6 +504,10 @@ private:
 
 };
 
+std::string getThirdBodyFromAccelerationPartial(
+        const boost::shared_ptr< AccelerationPartial > accelerationPartial );
+
+
 } // namespace acceleration_partials
 
 } // namespace tudat
