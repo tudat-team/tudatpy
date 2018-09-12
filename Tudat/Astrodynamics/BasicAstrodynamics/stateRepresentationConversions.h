@@ -15,7 +15,10 @@
 #include "Tudat/Astrodynamics/BasicAstrodynamics/geodeticCoordinateConversions.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/orbitalElementConversions.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/modifiedEquinoctialElementConversions.h"
-#include "Tudat/Astrodynamics/BasicAstrodynamics/unifiedStateModelElementConversions.h"
+#include "Tudat/Astrodynamics/BasicAstrodynamics/unifiedStateModelQuaternionElementConversions.h"
+#include "Tudat/Astrodynamics/BasicAstrodynamics/unifiedStateModelModifiedRodriguesParameterElementConversions.h"
+#include "Tudat/Astrodynamics/BasicAstrodynamics/unifiedStateModelExponentialMapElementConversions.h"
+#include "Tudat/Astrodynamics/BasicAstrodynamics/attitudeElementConversions.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/stateVectorIndices.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/bodyShapeModel.h"
 
@@ -30,7 +33,10 @@ enum StateElementTypes
 {
     cartesian_state,
     keplerian_state,
-    modified_equinoctial_state
+    modified_equinoctial_state,
+    unified_state_model_quaternions_state,
+    unified_state_model_modified_rodrigues_parameters_state,
+    unified_state_model_exponential_map_state
 };
 
 //! Enum defining available types of position representations

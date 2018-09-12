@@ -71,9 +71,9 @@ BOOST_AUTO_TEST_CASE( test_atmosphereModelSetup )
 {
 
     // Create settings for tabulated atmosphere.
+    std::string atmosphereTableFile = tudat::input_output::getAtmosphereTablesPath( ) + "USSA1976Until100kmPer100mUntil1000kmPer1000m.dat";
     boost::shared_ptr< TabulatedAtmosphereSettings > tabulatedAtmosphereSettings =
-            boost::make_shared< TabulatedAtmosphereSettings >(
-                input_output::getAtmosphereTablesPath( ) + "USSA1976Until100kmPer100mUntil1000kmPer1000m.dat" );
+            boost::make_shared< TabulatedAtmosphereSettings >( atmosphereTableFile );
 
     // Create settings for exponential atmosphere
     double densityScaleHeight = 8.0E3;
@@ -93,8 +93,7 @@ BOOST_AUTO_TEST_CASE( test_atmosphereModelSetup )
             createAtmosphereModel( tabulatedAtmosphereSettings, "Earth" );
 
     // Create atmosphere models manually.
-    aerodynamics::TabulatedAtmosphere manualTabulatedAtmosphere(
-                input_output::getAtmosphereTablesPath( ) + "USSA1976Until100kmPer100mUntil1000kmPer1000m.dat" );
+    aerodynamics::TabulatedAtmosphere manualTabulatedAtmosphere( atmosphereTableFile );
     aerodynamics::ExponentialAtmosphere manualExponentialAtmosphere(
                 densityScaleHeight, constantTemperature, densityAtZeroAltitude,
                 specificGasConstant );

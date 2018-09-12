@@ -16,6 +16,21 @@ namespace tudat
 namespace propagators
 {
 
+//template class VariationalEquationsSolver< double, double >;
+//template class VariationalEquationsSolver< long double, double >;
+//template class VariationalEquationsSolver< double, Time >;
+//template class VariationalEquationsSolver< long double, Time >;
+
+//template class SingleArcVariationalEquationsSolver< double, double >;
+//template class SingleArcVariationalEquationsSolver< long double, double >;
+//template class SingleArcVariationalEquationsSolver< double, Time >;
+//template class SingleArcVariationalEquationsSolver< long double, Time >;
+
+//template class MultiArcVariationalEquationsSolver< double, double >;
+//template class MultiArcVariationalEquationsSolver< long double, double >;
+//template class MultiArcVariationalEquationsSolver< double, Time >;
+//template class MultiArcVariationalEquationsSolver< long double, Time >;
+
 //! Function to create interpolators for state transition and sensitivity matrices from numerical results.
 void createStateTransitionAndSensitivityMatrixInterpolator(
         boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > >& stateTransitionMatrixInterpolator,
@@ -24,7 +39,7 @@ void createStateTransitionAndSensitivityMatrixInterpolator(
         const bool clearRawSolution )
 {
     // Create interpolator for state transition matrix.
-    stateTransitionMatrixInterpolator=
+    stateTransitionMatrixInterpolator =
             boost::make_shared< interpolators::LagrangeInterpolator< double, Eigen::MatrixXd > >(
                 utilities::createVectorFromMapKeys< Eigen::MatrixXd, double >( variationalEquationsSolution[ 0 ] ),
                 utilities::createVectorFromMapValues< Eigen::MatrixXd, double >( variationalEquationsSolution[ 0 ] ), 4 );

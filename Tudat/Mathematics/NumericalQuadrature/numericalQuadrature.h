@@ -17,6 +17,7 @@
 
 namespace tudat
 {
+
 namespace numerical_quadrature
 {
 
@@ -40,7 +41,6 @@ public:
      */
     virtual DependentVariableType getQuadrature( ) = 0;
 
-
 protected:
 
     //! Function that is called to perform the numerical quadrature
@@ -51,7 +51,6 @@ protected:
     virtual void performQuadrature( ) = 0;
 
 private:
-
 
 };
 

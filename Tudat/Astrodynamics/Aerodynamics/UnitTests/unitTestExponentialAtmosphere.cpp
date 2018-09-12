@@ -86,9 +86,9 @@ BOOST_AUTO_TEST_CASE( testExponentialAtmosphereSeaLevel )
 BOOST_AUTO_TEST_CASE( testExponentialAtmosphereAt10km )
 {
     // Initialize constants that need to be set.
-    const double constantTemperature = 288.16;
+    const double constantTemperature = 246.0;//288.16;
     const double densityAtZeroAltitude = 1.225;
-    const double scaleHeight = 7.050e3;
+    const double scaleHeight = 7.200e3;//7.050e3;
     const double altitude = 10.0e3;
 
     // Longitude, latitude and time to check overloading.
@@ -100,19 +100,30 @@ BOOST_AUTO_TEST_CASE( testExponentialAtmosphereAt10km )
     aerodynamics::ExponentialAtmosphere exponentialAtmosphere(
                 scaleHeight, constantTemperature, densityAtZeroAltitude );
 
+    // Create an exponential atmosphere object.
+    aerodynamics::ExponentialAtmosphere defaultExponentialAtmosphere( aerodynamics::earth );
+
     // Declare and set expected density.
     const double expectedDensity  = densityAtZeroAltitude * std::exp ( -altitude / scaleHeight );
-    const double expectedPressure = 24526.24934607106;
+    const double expectedPressure = expectedDensity *
+            physical_constants::SPECIFIC_GAS_CONSTANT_AIR * constantTemperature;//24526.24934607106;
 
     // Declare tolerance used for Boost tests.
     const double tolerance = std::numeric_limits< double >::epsilon( );
 
-
     BOOST_CHECK_CLOSE_FRACTION( constantTemperature, exponentialAtmosphere.
                                 getTemperature( altitude, longitude, latitude, time ), tolerance );
+    BOOST_CHECK_CLOSE_FRACTION( constantTemperature, defaultExponentialAtmosphere.
+                                getTemperature( altitude, longitude, latitude, time ), tolerance );
+
     BOOST_CHECK_CLOSE_FRACTION( expectedDensity, exponentialAtmosphere.
                                 getDensity( altitude, longitude, latitude, time ), tolerance );
+    BOOST_CHECK_CLOSE_FRACTION( expectedDensity, defaultExponentialAtmosphere.
+                                getDensity( altitude, longitude, latitude, time ), tolerance );
+
     BOOST_CHECK_CLOSE_FRACTION( expectedPressure, exponentialAtmosphere.
+                                getPressure( altitude, longitude, latitude, time ), tolerance );
+    BOOST_CHECK_CLOSE_FRACTION( expectedPressure, defaultExponentialAtmosphere.
                                 getPressure( altitude, longitude, latitude, time ), tolerance );
 }
 

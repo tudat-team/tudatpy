@@ -54,12 +54,13 @@ std::map< propagators::IntegratedStateType, orbit_determination::StateDerivative
         // Identify state types
         switch( stateDerivativeIterator->first )
         {
-        case propagators::transational_state:
+        case propagators::translational_state:
         {
             if( stateDerivativeIterator->second.size( ) > 1 )
             {
                 throw std::runtime_error(
-                            "Error, cannot yet process multiple separate same type propagators when making partial derivatives of translational state." );
+                            "Error, cannot yet process multiple separate same type propagators when making partial "
+                            "derivatives of translational state." );
             }
             else
             {
@@ -67,7 +68,7 @@ std::map< propagators::IntegratedStateType, orbit_determination::StateDerivative
                 basic_astrodynamics::AccelerationMap accelerationModelList =
                         boost::dynamic_pointer_cast< propagators::NBodyStateDerivative< StateScalarType, TimeType > >(
                             stateDerivativeIterator->second.at( 0 ) )->getFullAccelerationsMap( );
-                stateDerivativePartials[ propagators::transational_state ] =
+                stateDerivativePartials[ propagators::translational_state ] =
                         createAccelerationPartialsMap< StateScalarType >(
                             accelerationModelList, bodyMap, parametersToEstimate );
             }

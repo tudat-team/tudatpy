@@ -6,11 +6,6 @@
  *    under the terms of the Modified BSD license. You should have received
  *    a copy of the license with this file. If not, please or visit:
  *    http://tudat.tudelft.nl/LICENSE.
- *
- *    Notes
- *      Backwards compatibility of namespaces is implemented for Tudat Core 2 in this file. The
- *      code block marked "DEPRECATED!" at the end of the file should be removed in Tudat Core 3.
- *
  */
 
 #ifndef TUDAT_ASTRODYNAMICS_FUNCTIONS_H
@@ -41,10 +36,58 @@ double computeKeplerOrbitalPeriod( const double semiMajorAxis,
                                    const double gravitationalParameterOfCentralBody,
                                    const double massOfOrbitingBody = 0.0 );
 
+//! Compute two-body radial distance.
+/*!
+ * Compute two-body radial distance.
+ * \param semiMajorAxis Semi-major axis of Kepler orbit (circle or ellipse).
+ * \param eccentricity Eccentricity of Kepler orbit (circle or ellipse).
+ * \param trueAnomaly True anomaly of Kepler orbit (circle or ellipse).
+ * \return Two-body radial distance at specified true anomaly.
+ */
+double computeKeplerRadialDistance( const double semiMajorAxis,
+                                    const double eccentricity,
+                                    const double trueAnomaly );
+
+//! Compute two-body radial distance.
+/*!
+ * Compute two-body radial distance.
+ * \param keplerianElements Vector denoting the Keplerian elements (circle or ellipse).
+ * \return Two-body radial distance at specified true anomaly.
+ */
+double computeKeplerRadialDistance( const Eigen::Vector6d& keplerianElements );
+
+//! Compute two-body orbital velocity with vis-viva equation.
+/*!
+ * Compute two-body orbital velocity with vis-viva equation.
+ * \param semiMajorAxis Semi-major axis of Kepler orbit (circle or ellipse).
+ * \param eccentricity Eccentricity of Kepler orbit (circle or ellipse).
+ * \param trueAnomaly True anomaly of Kepler orbit (circle or ellipse).
+ * \param gravitationalParameterOfCentralBody Gravitational parameter of central body.
+ * \param massOfOrbitingBody Mass of orbiting body.
+ * \return Two-body orbital velocity at current conditions.
+ */
+double computeKeplerOrbitalVelocity( const double semiMajorAxis,
+                                     const double eccentricity,
+                                     const double trueAnomaly,
+                                     const double gravitationalParameterOfCentralBody,
+                                     const double massOfOrbitingBody = 0.0 );
+
+//! Compute two-body orbital velocity with vis-viva equation.
+/*!
+ * Compute two-body orbital velocity with vis-viva equation.
+ * \param keplerianElements Vector denoting the Keplerian elements (circle or ellipse).
+ * \param gravitationalParameterOfCentralBody Gravitational parameter of central body.
+ * \param massOfOrbitingBody Mass of orbiting body.
+ * \return Two-body orbital velocity at current conditions.
+ */
+double computeKeplerOrbitalVelocity( const Eigen::Vector6d& keplerianElements,
+                                     const double gravitationalParameterOfCentralBody,
+                                     const double massOfOrbitingBody = 0.0 );
+
 //! Compute two-body angular momentum.
 /*!
- * Computes the angular momentum of an orbiting body that follows a conic section (Kepler orbit), 
- * relative to the center-of-mass of the central body. The default mass value is for the angular 
+ * Computes the angular momentum of an orbiting body that follows a conic section (Kepler orbit),
+ * relative to the center-of-mass of the central body. The default mass value is for the angular
  * momentum per unit mass.
  * \param semiMajorAxis Semi-major axis of Kepler orbit.
  * \param eccentricity Eccentricity of Kepler orbit.
@@ -54,7 +97,7 @@ double computeKeplerOrbitalPeriod( const double semiMajorAxis,
  */
 double computeKeplerAngularMomentum( const double semiMajorAxis, const double eccentricity,
                                      const double gravitationalParameterOfCentralBody,
-                                     const double massOfOrbitingBody = 1.0 );
+                                     const double massOfOrbitingBody = 0.0 );
 
 //! Compute two-body mean motion.
 /*!
@@ -66,14 +109,14 @@ double computeKeplerAngularMomentum( const double semiMajorAxis, const double ec
  * \return Two-body mean motion.
  */
 double computeKeplerMeanMotion( const double semiMajorAxis,
-                                 const double gravitationalParameterOfCentralBody,
-                                 const double massOfOrbitingBody = 0.0 );
+                                const double gravitationalParameterOfCentralBody,
+                                const double massOfOrbitingBody = 0.0 );
 
 //! Compute Kepler energy.
 /*!
- * Computes the energy of an orbiting body that follows a conic section (Kepler orbit). The 
- * default mass value is for the two-body orbital energy per unit mass. For closed conic sections 
- * (circles, ellipses), the semi-major axis is positive, and for open sections (hyperbolas) the 
+ * Computes the energy of an orbiting body that follows a conic section (Kepler orbit). The
+ * default mass value is for the two-body orbital energy per unit mass. For closed conic sections
+ * (circles, ellipses), the semi-major axis is positive, and for open sections (hyperbolas) the
  * semi-major axis is negative.
  * \param semiMajorAxis Semi-major axis of Kepler orbit.
  * \param gravitationalParameterOfCentralBody Gravitational parameter of central body.

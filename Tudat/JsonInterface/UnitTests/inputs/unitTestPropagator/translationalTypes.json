@@ -2,5 +2,8 @@
   "cowell",
   "encke",
   "gaussKeplerian",
-  "gaussModifiedEquinoctial"
+  "gaussModifiedEquinoctial",
+  "unifiedStateModelQuaternions",
+  "unifiedStateModelModifiedRodriguesParameters",
+  "unifiedStateModelExponentialMap"
 ]

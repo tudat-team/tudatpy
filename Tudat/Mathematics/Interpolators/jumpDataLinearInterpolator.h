@@ -72,7 +72,11 @@ public:
     JumpDataLinearInterpolator( const std::map< IndependentVariableType, DependentVariableType >& dataMap,
                                 const DependentVariableType maximumAllowableVariation,
                                 const DependentVariableType jumpSize,
-                                const AvailableLookupScheme selectedLookupScheme = huntingAlgorithm)
+                                const AvailableLookupScheme selectedLookupScheme = huntingAlgorithm,
+                                const BoundaryInterpolationType boundaryHandling = extrapolate_at_boundary,
+                                const DependentVariableType& defaultExtrapolationValue = IdentityElement< DependentVariableType >::getAdditionIdentity( ) ):
+        OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >( boundaryHandling,
+                                                                                      defaultExtrapolationValue )
     {
         maximumAllowableVariation_ = maximumAllowableVariation;
         jumpSize_ = jumpSize;
@@ -114,7 +118,11 @@ public:
                                 const std::vector< DependentVariableType > dependentValues,
                                 const DependentVariableType maximumAllowableVariation,
                                 const DependentVariableType jumpSize,
-                                const AvailableLookupScheme selectedLookupScheme = huntingAlgorithm)
+                                const AvailableLookupScheme selectedLookupScheme = huntingAlgorithm,
+                                const BoundaryInterpolationType boundaryHandling = extrapolate_at_boundary,
+                                const DependentVariableType& defaultExtrapolationValue = IdentityElement< DependentVariableType >::getAdditionIdentity( ) ):
+        OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >( boundaryHandling,
+                                                                                      defaultExtrapolationValue )
     {
         maximumAllowableVariation_ = maximumAllowableVariation;
         jumpSize_ = jumpSize;
@@ -139,10 +147,18 @@ public:
      */
     DependentVariableType interpolate( const IndependentVariableType independentVariableValue )
     {
+        // Check whether boundary handling needs to be applied, if independent variable is beyond its defined range.
+        DependentVariableType interpolatedValue;
+        bool useValue = false;
+        this->checkBoundaryCase( interpolatedValue, useValue, independentVariableValue );
+        if( useValue )
+        {
+            return interpolatedValue;
+        }
+
         // Lookup nearest lower index.
         int newNearestLowerIndex = lookUpScheme_->findNearestLowerNeighbour( independentVariableValue );
 
-        DependentVariableType interpolatedValue;
 
         // Check if jump occurs
         if( std::abs( dependentValues_[ newNearestLowerIndex ] - dependentValues_[ newNearestLowerIndex + 1 ] ) >

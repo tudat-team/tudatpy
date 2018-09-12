@@ -136,7 +136,7 @@ boost::shared_ptr< gravitation::SecondDegreeGravitationalTorqueModel > createSec
     boost::function< Eigen::Quaterniond( ) > rotationToBodyFixedFrameFunction =
             boost::bind( &simulation_setup::Body::getCurrentRotationToLocalFrame, bodyUndergoingTorque );
 
-    return boost::make_shared<gravitation::SecondDegreeGravitationalTorqueModel >(
+    return boost::make_shared< gravitation::SecondDegreeGravitationalTorqueModel >(
                 positionOfBodySubjectToTorqueFunction, gravitationalParameterOfAttractingBodyFunction,
                 inertiaTensorOfRotatingBodyFunction, positionOfBodyExertingTorqueFunction, rotationToBodyFixedFrameFunction );
 
