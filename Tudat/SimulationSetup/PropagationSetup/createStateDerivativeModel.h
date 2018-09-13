@@ -586,6 +586,12 @@ createStateDerivativeModels(
     return stateDerivativeModels;
 }
 
+//! Function to convert a list of state derivative models to a map sorted by state type
+/*!
+ *  Function to convert a list of state derivative models to a map sorted by state type
+ *  \param stateDerivativeModelList List of state derivative models
+ *  \return Map of state derivative models
+ */
 template< typename StateScalarType = double, typename TimeType = double >
 std::unordered_map< IntegratedStateType, std::vector< boost::shared_ptr<
 SingleStateTypeDerivative< StateScalarType, TimeType > > > > getStateDerivativeModelMapFromVector(
@@ -601,7 +607,16 @@ SingleStateTypeDerivative< StateScalarType, TimeType > > > > getStateDerivativeM
     return stateDerivativeModelsMap;
 }
 
-
+//! Function to create a map of state derivative models.
+/*!
+ *  Function to create a map of state derivative models from
+ *  propagation settings and the environment.
+ *  \param propagatorSettings Settings for the dynamical model.
+ *  \param bodyMap List of body objects in the environment.
+ *  \param propagationStartTime Time from which numerical propagation starts.
+ *  \return Map of state derivative models (instances of required
+ *  derived class of SingleStateTypeDerivative)
+ */
 template< typename StateScalarType = double, typename TimeType = double >
 std::unordered_map< IntegratedStateType, std::vector< boost::shared_ptr<
 SingleStateTypeDerivative< StateScalarType, TimeType > > > >

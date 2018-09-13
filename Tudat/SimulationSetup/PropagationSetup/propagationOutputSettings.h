@@ -483,6 +483,7 @@ public:
     //! Variable denoting whether to print the list and vector entries of dependent variables when propagating.
     bool printDependentVariableTypes_;
 
+    //! Map of state derivative partials, to be used when saving state derivative partials as dependent variables
     std::map< propagators::IntegratedStateType, orbit_determination::StateDerivativePartialsMap > stateDerivativePartials_;
 };
 
