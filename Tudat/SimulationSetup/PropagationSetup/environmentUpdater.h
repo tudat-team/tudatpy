@@ -294,7 +294,7 @@ private:
                         // Check if the state or orientation of the central body of AerodynamicAngleCalculator is updated.
                         for( unsigned int j = 0; j < updateFunctionVector_.size( ); j++ )
                         {
-                            if( ( updateFunctionVector_.at( j ).template get< 0 >( ) == body_transational_state_update ) &&
+                            if( ( updateFunctionVector_.at( j ).template get< 0 >( ) == body_translational_state_update ) &&
                                     ( updateFunctionVector_.at( j ).template get< 1 >( ) ==
                                       aerodynamicAngleCalculator->getCentralBodyName( ) ) )
                             {
@@ -310,7 +310,7 @@ private:
                                 centralRotationalUpdateIndexSet = true;
                             }
 
-                            if( ( updateFunctionVector_.at( j ).template get< 0 >( ) == body_transational_state_update ) &&
+                            if( ( updateFunctionVector_.at( j ).template get< 0 >( ) == body_translational_state_update ) &&
                                     ( updateFunctionVector_.at( j ).template get< 1 >( ) ==
                                       updateFunctionVector_.at( i ).template get< 1 >( ) ) )
                             {
@@ -423,7 +423,7 @@ private:
                     {
 
                     // If requested body is not propagated, add to list.
-                    case body_transational_state_update:
+                    case body_translational_state_update:
                     {
                         bool addUpdate = 1;
 
@@ -452,12 +452,12 @@ private:
                                             ::setStateFromEphemeris< StateScalarType, TimeType >,
                                         bodyList_.at( currentBodies.at( i ) ), _1 );
 
-                            updateTimeFunctionList[ body_transational_state_update ].push_back(
+                            updateTimeFunctionList[ body_translational_state_update ].push_back(
                                         std::make_pair( currentBodies.at( i ), stateSetFunction ) );
 
                             resetFunctionVector_.push_back(
                                         boost::make_tuple(
-                                            body_transational_state_update, currentBodies.at( i ),
+                                            body_translational_state_update, currentBodies.at( i ),
                                             boost::bind( &simulation_setup::Body::recomputeStateOnNextCall,
                                                          bodyList_.at( currentBodies.at( i ) ) ) ) );
                         }

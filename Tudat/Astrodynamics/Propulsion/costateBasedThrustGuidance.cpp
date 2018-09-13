@@ -5,7 +5,6 @@
 
 #include <Eigen/Core>
 
-#include "Tudat/SimulationSetup/tudatSimulationHeader.h"
 #include "Tudat/Astrodynamics/Propulsion/costateBasedThrustGuidance.h"
 
 namespace tudat

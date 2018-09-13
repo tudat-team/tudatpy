@@ -15,7 +15,9 @@
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/accelerationModelTypes.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/torqueModelTypes.h"
+#include "Tudat/Astrodynamics/Gravitation/gravityFieldVariations.h"
 #include "Tudat/Astrodynamics/ReferenceFrames/aerodynamicAngleCalculator.h"
+#include "Tudat/Astrodynamics/OrbitDetermination/stateDerivativePartial.h"
 
 namespace tudat
 {
@@ -98,8 +100,12 @@ enum PropagationDependentVariables
     spherical_harmonic_acceleration_terms_dependent_variable = 34,
     body_fixed_relative_cartesian_position = 35,
     body_fixed_relative_spherical_position = 36,
-    local_dynamic_pressure_dependent_variable = 37,
-    local_aerodynamic_heat_rate_dependent_variable = 38
+    total_gravity_field_variation_acceleration = 37,
+    single_gravity_field_variation_acceleration = 38,
+    single_gravity_field_variation_acceleration_terms = 39,
+    acceleration_partial_wrt_body_translational_state = 40,
+    local_dynamic_pressure_dependent_variable = 41,
+    local_aerodynamic_heat_rate_dependent_variable = 42
 };
 
 //! Functional base class for defining settings for dependent variables that are to be saved during propagation
@@ -330,6 +336,130 @@ public:
     reference_frames::AerodynamicsReferenceFrameAngles angle_;
 };
 
+//! Class to define variations in spherical harmonic acceleration due to single gravity field variation
+class SingleVariationSphericalHarmonicAccelerationSaveSettings: public SingleDependentVariableSaveSettings
+{
+public:
+
+    //! Constructor
+    /*!
+     * Constructor
+     * \param associatedBody Body undergoing acceleration
+     * \param centralBody Body exerting acceleration
+     * \param deformationType Type of gravity field variation
+     * \param identifier Identifier for gravity field variation
+     */
+    SingleVariationSphericalHarmonicAccelerationSaveSettings(
+            const std::string& associatedBody,
+            const std::string& centralBody,
+            const gravitation::BodyDeformationTypes deformationType,
+            const std::string& identifier = "" ):
+        SingleDependentVariableSaveSettings( single_gravity_field_variation_acceleration, associatedBody, centralBody ),
+        deformationType_( deformationType ), identifier_( identifier ){ }
+
+    //! Type of gravity field variation
+    gravitation::BodyDeformationTypes deformationType_;
+
+    //!  Identifier for gravity field variation
+    std::string identifier_;
+};
+
+//! Class to define variations in spherical harmonic acceleration due to single gravity field variation at separate degrees/orders
+class SingleVariationSingleTermSphericalHarmonicAccelerationSaveSettings: public SingleDependentVariableSaveSettings
+{
+public:
+
+    //! Constructor
+    /*!
+     * Constructor
+     * \param associatedBody Body undergoing acceleration
+     * \param centralBody Body exerting acceleration
+     * \param componentIndices Degrees and orders for which to computed contribution
+     * \param deformationType Type of gravity field variation
+     * \param identifier Identifier for gravity field variation
+     */
+    SingleVariationSingleTermSphericalHarmonicAccelerationSaveSettings(
+            const std::string& associatedBody,
+            const std::string& centralBody,
+            const std::vector< std::pair< int, int > > componentIndices,
+            const gravitation::BodyDeformationTypes deformationType,
+            const std::string& identifier = "" ):
+        SingleDependentVariableSaveSettings( single_gravity_field_variation_acceleration_terms, associatedBody, centralBody ),
+        componentIndices_( componentIndices ), deformationType_( deformationType ), identifier_( identifier ){ }
+
+    //! Constructor
+    /*!
+     * Constructor
+     * \param associatedBody Body undergoing acceleration
+     * \param centralBody Body exerting acceleration
+     * \param maximumDegree Maximum degree for which to computed contribution
+     * \param maximumOrder Maximum order for which to computed contribution
+     * \param deformationType Type of gravity field variation
+     * \param identifier Identifier for gravity field variation
+     */
+    SingleVariationSingleTermSphericalHarmonicAccelerationSaveSettings(
+            const std::string& associatedBody,
+            const std::string& centralBody,
+            const int maximumDegree,
+            const int maximumOrder,
+            const gravitation::BodyDeformationTypes deformationType,
+            const std::string& identifier = "" ):
+        SingleDependentVariableSaveSettings( single_gravity_field_variation_acceleration_terms, associatedBody, centralBody ),
+        deformationType_( deformationType ), identifier_( identifier )
+    {
+        for( int i = 0; i <= maximumDegree; i++ )
+        {
+            for( int j = 0; ( j <= i && j <= maximumOrder ); j++ )
+            {
+                componentIndices_.push_back( std::make_pair( i, j ) );
+            }
+        }
+    }
+
+    //! Degrees and orders for which to computed contribution
+    std::vector< std::pair< int, int > > componentIndices_;
+
+    //! Type of gravity field variation
+    gravitation::BodyDeformationTypes deformationType_;
+
+    //!  Identifier for gravity field variation
+    std::string identifier_;
+};
+
+//! Class to define variations in spherical harmonic acceleration due to single gravity field variation
+class AccelerationPartialWrtStateSaveSettings: public SingleDependentVariableSaveSettings
+{
+public:
+
+    //! Constructor
+    /*!
+     * Constructor
+     * \param associatedBody Body undergoing acceleration
+     * \param centralBody Body exerting acceleration
+     * \param deformationType Type of gravity field variation
+     * \param identifier Identifier for gravity field variation
+     */
+    AccelerationPartialWrtStateSaveSettings(
+            const std::string& bodyUndergoingAcceleration,
+            const std::string& bodyExertingAcceleration,
+            const basic_astrodynamics::AvailableAcceleration accelerationModeType,
+            const std::string derivativeWrtBody,
+            const std::string thirdBody = "" ):
+        SingleDependentVariableSaveSettings(
+            acceleration_partial_wrt_body_translational_state, bodyUndergoingAcceleration, bodyExertingAcceleration ),
+        accelerationModeType_( accelerationModeType ), derivativeWrtBody_( derivativeWrtBody ),
+        thirdBody_( thirdBody ){ }
+
+    basic_astrodynamics::AvailableAcceleration accelerationModeType_;
+
+    std::string derivativeWrtBody_;
+
+    std::string thirdBody_;
+};
+
+
+
+
 //! Container class for settings of all dependent variables that are to be saved.
 class DependentVariableSaveSettings
 {
@@ -352,6 +482,9 @@ public:
 
     //! Variable denoting whether to print the list and vector entries of dependent variables when propagating.
     bool printDependentVariableTypes_;
+
+    //! Map of state derivative partials, to be used when saving state derivative partials as dependent variables
+    std::map< propagators::IntegratedStateType, orbit_determination::StateDerivativePartialsMap > stateDerivativePartials_;
 };
 
 
