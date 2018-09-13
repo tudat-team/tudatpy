@@ -216,6 +216,7 @@ bool isAccelerationDirectGravitational( const AvailableAcceleration acceleration
     return accelerationIsDirectGravity;
 }
 
+//! Function to check whether an acceleration type is a third-body gravitational acceleration
 bool isAccelerationFromThirdBody( const AvailableAcceleration accelerationType )
 {
     bool accelerationIsFromThirdBody = false;
