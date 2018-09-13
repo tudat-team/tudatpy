@@ -105,7 +105,7 @@ public:
      */
     double getAverageRadius( )
     {
-        return ( ( 2.0 * equatorialRadius_+ polarRadius_) / 3.0 );
+        return ( ( 2.0 * equatorialRadius_ + polarRadius_ ) / 3.0 );
     }
 
     //! Function to obtain the equatorial radius

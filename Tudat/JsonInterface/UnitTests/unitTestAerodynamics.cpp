@@ -142,9 +142,9 @@ BOOST_AUTO_TEST_CASE( test_json_aerodynamics_tabulated1 )
                                                                                 lateralReferenceLength,
                                                                                 momentReferencePoint,
                                                                                 independentVariableName,
-                                                                                interpolatorSettings,
                                                                                 areCoefficientsInAerodynamicFrame,
-                                                                                areCoefficientsInNegativeAxisDirection );
+                                                                                areCoefficientsInNegativeAxisDirection,
+                                                                                interpolatorSettings );
 
     // Compare
     BOOST_CHECK_EQUAL_JSON( fromFileSettings, manualSettings );

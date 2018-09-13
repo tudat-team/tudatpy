@@ -63,7 +63,8 @@ public:
             const int numberOfDegrees, const int numberOfOrders ):
         cosineSineInterpolator_( cosineSineInterpolator ),
         startDegree_( startDegree ), startOrder_( startOrder ),
-        numberOfDegrees_( numberOfDegrees ), numberOfOrders_( numberOfOrders ){ }
+        numberOfDegrees_( numberOfDegrees ), numberOfOrders_( numberOfOrders )
+    { }
 
     //! Function to add sine and cosine corrections at given time to coefficient matrices.
     /*!

@@ -44,7 +44,7 @@ namespace simulation_setup
  *  be calculated.
  *  \param isCentralBody Boolean defining whether the body undergoing the acceleration is the central body for a
  *  third-body acceleration, of which the return object of this funciton is one of the sub-parts. Boolean is
- *  only used when creating mutual spherical harmonic acceleration, to ensure teh correct usage of the acceleration
+ *  only used when creating mutual spherical harmonic acceleration, to ensure the correct usage of the acceleration
  *  settings.
  *  \return Direct gravitational acceleration model of requested settings.
  */
@@ -414,7 +414,6 @@ createAccelerationModel(
  * \return selectedAccelerationPerBody, put in order to ensure correct model creation.
  */
 SelectedAccelerationList orderSelectedAccelerationMap( const SelectedAccelerationMap& selectedAccelerationPerBody );
-
 
 //! Function to create acceleration models from a map of bodies and acceleration model types.
 /*!

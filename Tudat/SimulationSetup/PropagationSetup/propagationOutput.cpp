@@ -74,6 +74,33 @@ Eigen::Quaterniond getQuaternionFromVectorRotationRepresentation(
     return Eigen::Quaterniond( getMatrixFromVectorRotationRepresentation( vectorRepresentation ) );
 }
 
+void getMatrixInOutputVectorRepresentation(
+        const Eigen::MatrixXd& matrix, Eigen::VectorXd& vector )
+{
+    vector.setZero( matrix.rows( ) * matrix.cols( ) );
+    for( int i = 0; i < matrix.rows( ); i++ )
+    {
+        vector.segment( i * matrix.cols( ), matrix.cols( ) ) =
+              matrix.block( i, 0, 1, matrix.cols( ) ).transpose( );
+    }
+}
+
+void getOutputVectorInMatrixRepresentation(
+        const Eigen::VectorXd& vector, Eigen::MatrixXd& matrix,
+        const int rows, const int columns )
+{
+    if( rows * columns != vector.rows( ) )
+    {
+        throw std::runtime_error( "Error when getting matrix from output vector: sizes are incompatible" );
+    }
+    matrix.setZero( rows, columns );
+    for( int i = 0; i < rows; i++ )
+    {
+        matrix.block( i, 0, 1, columns ) = vector.segment( i * columns, columns ).transpose( );
+    }
+}
+
+
 Eigen::VectorXd getVectorFunctionFromBlockFunction(
         const boost::function< void( Eigen::Block< Eigen::MatrixXd > ) > blockFunction,
                                     const int numberOfRows, const int numberOfColumns )
@@ -81,12 +108,8 @@ Eigen::VectorXd getVectorFunctionFromBlockFunction(
     Eigen::MatrixXd matrixEvaluation = Eigen::MatrixXd::Zero( numberOfRows, numberOfColumns );
     blockFunction( matrixEvaluation.block( 0, 0, numberOfRows, numberOfColumns ) );
 
-    Eigen::VectorXd vectorEvaluation = Eigen::VectorXd::Zero( numberOfRows * numberOfColumns );
-    for( int i = 0; i < numberOfRows; i++ )
-    {
-        vectorEvaluation.segment( i * numberOfColumns, numberOfColumns ) =
-              matrixEvaluation.block( i, 0, numberOfColumns, 1 ).transpose( );
-    }
+    Eigen::VectorXd vectorEvaluation;
+    getMatrixInOutputVectorRepresentation( matrixEvaluation, vectorEvaluation );
 
     return vectorEvaluation;
 }
@@ -225,6 +248,12 @@ int getDependentVariableSize(
         variableSize = 1;
         break;
     case local_temperature_dependent_variable:
+        variableSize = 1;
+        break;
+    case local_dynamic_pressure_dependent_variable:
+        variableSize = 1;
+        break;
+    case local_aerodynamic_heat_rate_dependent_variable:
         variableSize = 1;
         break;
     case geodetic_latitude_dependent_variable:

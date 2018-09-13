@@ -40,7 +40,8 @@ public:
      *  Constructor, sets type of torque.
      *  \param torqueType Type of torque from AvailableTorque enum.
      */
-    TorqueSettings( const basic_astrodynamics::AvailableTorque torqueType ):torqueType_( torqueType ){ }
+    TorqueSettings( const basic_astrodynamics::AvailableTorque torqueType ) :
+        torqueType_( torqueType ){ }
 
     //! Destructor
     virtual ~TorqueSettings( ){ }

@@ -100,6 +100,7 @@ public:
     {
         currentCartesianLocalSoluton = internalSolution;
     }
+
 };
 
 } // namespace propagators

@@ -18,10 +18,6 @@
  *    Notes
  *      The behaviour of the template conversion functions has not been tested for integer
  *      datatypes.
- *
- *      Backwards compatibility of namespaces is implemented for Tudat Core 2 in this file. The
- *      code block marked "DEPRECATED!" at the end of the file should be removed in Tudat Core 3.
- *
  */
 
 #ifndef TUDAT_UNIT_CONVERSIONS_H
@@ -42,7 +38,7 @@ namespace unit_conversions
  * \param angleInRadians Angle in radians.
  * \return Angle in degrees.
  */
-template < typename T >
+template< typename T >
 T convertRadiansToDegrees( T angleInRadians )
 { return angleInRadians / mathematical_constants::PI * 180.0; }
 
@@ -52,7 +48,7 @@ T convertRadiansToDegrees( T angleInRadians )
  * \param angleInDegrees Angle in degrees.
  * \return Angle in radians.
  */
-template < typename T >
+template< typename T >
 T convertDegreesToRadians( T angleInDegrees )
 { return angleInDegrees / 180.0 * mathematical_constants::PI; }
 
@@ -62,7 +58,7 @@ T convertDegreesToRadians( T angleInDegrees )
  * \param angleInDegrees Angle in degrees.
  * \return Angle in arcminutes.
  */
-template < typename T >
+template< typename T >
 T convertDegreesToArcminutes( T angleInDegrees )
 { return angleInDegrees * 60.0; }
 
@@ -72,11 +68,11 @@ T convertDegreesToArcminutes( T angleInDegrees )
  * \param angleInArcSeconds Angle in arc seconds.
  * \return Angle in degrees.
  */
-template < typename T >
+template< typename T >
 T convertArcSecondsToRadians( T angleInArcSeconds )
 { return angleInArcSeconds / 3600.0 * mathematical_constants::PI / 180.0; }
 
-template < typename T >
+template< typename T >
 T convertRadiansToArcSeconds( T angleInRadians )
 { return angleInRadians * 3600.0 / mathematical_constants::PI * 180.0; }
 
@@ -88,7 +84,7 @@ T convertRadiansToArcSeconds( T angleInRadians )
  * \param angleInArcminutes Angle in arcminutes.
  * \return Angle in arcseconds.
  */
-template < typename T >
+template< typename T >
 T convertArcminutesToArcseconds( T angleInArcminutes )
 { return angleInArcminutes * 60.0; }
 
@@ -98,7 +94,7 @@ T convertArcminutesToArcseconds( T angleInArcminutes )
  * \param distanceInMeters Distance in meters.
  * \return Distance in kilometers.
  */
-template < typename T >
+template< typename T >
 T convertMetersToKilometers( T distanceInMeters )
 { return distanceInMeters / 1000.0; }
 
@@ -108,7 +104,7 @@ T convertMetersToKilometers( T distanceInMeters )
  * \param distanceInKilometers Distance in kilometers.
  * \return Distance in meters.
  */
-template < typename T >
+template< typename T >
 T convertKilometersToMeters( T distanceInKilometers )
 { return distanceInKilometers * 1000.0; }
 
@@ -118,7 +114,7 @@ T convertKilometersToMeters( T distanceInKilometers )
  * \param distanceInMeters Distance in meters.
  * \return Distance in astronomical units.
  */
-template < typename T >
+template< typename T >
 T convertMetersToAstronomicalUnits( T distanceInMeters )
 { return distanceInMeters / physical_constants::ASTRONOMICAL_UNIT; }
 
@@ -128,7 +124,7 @@ T convertMetersToAstronomicalUnits( T distanceInMeters )
  * \param distanceInAstronomicalUnits Distance in astronomical units.
  * \return Distance in meters.
  */
-template < typename T >
+template< typename T >
 T convertAstronomicalUnitsToMeters( T distanceInAstronomicalUnits )
 { return distanceInAstronomicalUnits * physical_constants::ASTRONOMICAL_UNIT; }
 
@@ -138,7 +134,7 @@ T convertAstronomicalUnitsToMeters( T distanceInAstronomicalUnits )
  * \param timeInSeconds Time in seconds.
  * \return Time in minutes.
  */
-template < typename T >
+template< typename T >
 T convertSecondsToMinutes( T timeInSeconds )
 { return timeInSeconds / 60.0; }
 
@@ -148,7 +144,7 @@ T convertSecondsToMinutes( T timeInSeconds )
  * \param timeInMinutes Time in minutes.
  * \return Time in seconds.
  */
-template < typename T >
+template< typename T >
 T convertMinutesToSeconds( T timeInMinutes )
 { return timeInMinutes * 60.0; }
 
@@ -158,7 +154,7 @@ T convertMinutesToSeconds( T timeInMinutes )
  * \param timeInSeconds Time in seconds.
  * \return Time in hours.
  */
-template < typename T >
+template< typename T >
 T convertSecondsToHours( T timeInSeconds )
 { return timeInSeconds / 3600.0; }
 
@@ -168,7 +164,7 @@ T convertSecondsToHours( T timeInSeconds )
  * \param timeInHours Time in hours.
  * \return Time in seconds.
  */
-template < typename T >
+template< typename T >
 T convertHoursToSeconds( T timeInHours )
 { return timeInHours * 3600.0; }
 
@@ -178,7 +174,7 @@ T convertHoursToSeconds( T timeInHours )
  * \param timeInSeconds Time in seconds.
  * \return Time in Julian days.
  */
-template < typename T >
+template< typename T >
 T convertSecondsToJulianDays( T timeInSeconds )
 { return timeInSeconds / physical_constants::JULIAN_DAY; }
 
@@ -188,7 +184,7 @@ T convertSecondsToJulianDays( T timeInSeconds )
  * \param timeInJulianDays Time in Julian days.
  * \return Time in seconds.
  */
-template < typename T >
+template< typename T >
 T convertJulianDaysToSeconds( T timeInJulianDays )
 { return timeInJulianDays * physical_constants::JULIAN_DAY; }
 
@@ -198,7 +194,7 @@ T convertJulianDaysToSeconds( T timeInJulianDays )
  * \param timeInSeconds Time in seconds.
  * \return Time in sidereal days.
  */
-template < typename T >
+template< typename T >
 T convertSecondsToSiderealDays( T timeInSeconds )
 { return timeInSeconds / physical_constants::SIDEREAL_DAY; }
 
@@ -208,7 +204,7 @@ T convertSecondsToSiderealDays( T timeInSeconds )
  * \param timeInSiderealDays Time in sidereal days.
  * \return Time in seconds.
  */
-template < typename T >
+template< typename T >
 T convertSiderealDaysToSeconds( T timeInSiderealDays )
 { return timeInSiderealDays * physical_constants::SIDEREAL_DAY; }
 
@@ -218,7 +214,7 @@ T convertSiderealDaysToSeconds( T timeInSiderealDays )
  * \param timeInJulianDays Time in Julian days.
  * \return Time in Julian years.
  */
-template < typename T >
+template< typename T >
 T convertJulianDaysToJulianYears( T timeInJulianDays )
 { return timeInJulianDays / physical_constants::JULIAN_YEAR_IN_DAYS; }
 
@@ -228,7 +224,7 @@ T convertJulianDaysToJulianYears( T timeInJulianDays )
  * \param timeInJulianYears Time in Julian years.
  * \return Time in Julian days.
  */
-template < typename T >
+template< typename T >
 T convertJulianYearsToJulianDays( T timeInJulianYears )
 { return timeInJulianYears * physical_constants::JULIAN_YEAR_IN_DAYS; }
 
@@ -238,7 +234,7 @@ T convertJulianYearsToJulianDays( T timeInJulianYears )
  * \param temperatureInRankine Temperature in Rankine.
  * \return Temperature in Kelvin.
  */
-template < typename T >
+template< typename T >
 T convertRankineToKelvin( T temperatureInRankine )
 { return temperatureInRankine * 5.0 / 9.0; }
 
@@ -248,7 +244,7 @@ T convertRankineToKelvin( T temperatureInRankine )
  * \param distanceInFeet Distance in feet.
  * \return Distance in meters.
  */
-template < typename T >
+template< typename T >
 T convertFeetToMeter( T distanceInFeet )
 { return distanceInFeet * 0.3048; }
 
@@ -259,7 +255,7 @@ T convertFeetToMeter( T distanceInFeet )
  * \param pressureInPoundPerSquareFeet Pressure in pound per square feet.
  * \return Pressure in Newton per square meter (Pascal).
  */
-template < typename T >
+template< typename T >
 T convertPoundPerSquareFeetToPascal( T pressureInPoundPerSquareFeet )
 { return pressureInPoundPerSquareFeet * 47.880259; }
 

@@ -41,7 +41,7 @@ public:
      *  for each leg of the n-way range. First entry starts at transmitter; last entry is to receiver.
      *  \param retransmissionDelays Function that returns the list of retransmission delays as a function of observation time.
      *  The retransmission delays represent the time difference between the reception of a singal by an intermediate link end,
-     *  and the retransmission to teh subsequent link end. By default, this function is empty, in which case no retransmission
+     *  and the retransmission to the subsequent link end. By default, this function is empty, in which case no retransmission
      *  delays are used.
      *  \param observationBiasCalculator Object for calculating (system-dependent) errors in the
      *  observable, i.e. deviations from the physically ideal observable between reference points (default none).
@@ -227,7 +227,7 @@ private:
     /*!
      *  Function that returns the list of retransmission delays as a function of observation time.
      *  The retransmission delays represent the time difference between the reception of a singal by an intermediate link end,
-     *  and the retransmission to teh subsequent link end. By default, this function is empty, in which case no retransmission
+     *  and the retransmission to the subsequent link end. By default, this function is empty, in which case no retransmission
      *  delays are used.
      */
     boost::function< std::vector< double >( const double ) > retransmissionDelays_;

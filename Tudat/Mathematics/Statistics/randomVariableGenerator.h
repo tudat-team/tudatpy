@@ -108,7 +108,6 @@ private:
 
 };
 
-
 //! Function to create a random number generating function from a continuous univariate distribution implemented in boost
 /*!
  *  Function to create a random number generating function from a continuous univariate distribution implemented in boost
@@ -135,7 +134,8 @@ boost::function< double( ) > createBoostContinuousRandomVariableGeneratorFunctio
 boost::shared_ptr< RandomVariableGenerator< double > > createBoostContinuousRandomVariableGenerator(
         const ContinuousBoostStatisticalDistributions boostDistribution,
         const std::vector< double >& parameters,
-        const double seed  );
+        const double seed );
+
 } // namespace statistics
 
 } // namespace tudat

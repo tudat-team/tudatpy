@@ -24,7 +24,7 @@ namespace interpolators
 /*!
  *  This class is used to perform piecewise constant interpolation in a single dimension from a set of
  *  data in independent and dependent variables. The interpolated values is equal to the dependent variable at the
- *  nearest lower neighbour at a given independent variable
+ *  nearest lower neighbour at a given independent variable.
  */
 template< typename IndependentVariableType, typename DependentVariableType >
 class PiecewiseConstantInterpolator : public OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >
@@ -43,15 +43,25 @@ public:
      *  variables and dependent variables. A look-up scheme can be provided to
      *  override the given default.
      *  \param independentVariables Vector of values of independent variables that are used, must be
-     *  sorted in ascending order.
+     *      sorted in ascending order.
      *  \param dependentVariables Vector of values of dependent variables that are used.
      *  \param selectedLookupScheme Identifier of lookupscheme from enum. This algorithm is used
-     *  to find the nearest lower data point in the independent variables when requesting
-     *  interpolation.
+     *      to find the nearest lower data point in the independent variables when requesting
+     *      interpolation.
+     *  \param boundaryHandling Boundary handling method, in case the independent variable is outside the
+     *      specified range.
+     *  \param defaultExtrapolationValue Pairs of default values to be used for extrapolation, in case
+     *      of use_default_value or use_default_value_with_warning as methods for boundaryHandling.
      */
     PiecewiseConstantInterpolator( const std::vector< IndependentVariableType > independentVariables,
                                    const std::vector< DependentVariableType > dependentVariables,
-                                   const AvailableLookupScheme selectedLookupScheme = huntingAlgorithm)
+                                   const AvailableLookupScheme selectedLookupScheme = huntingAlgorithm,
+                                   const BoundaryInterpolationType boundaryHandling = extrapolate_at_boundary,
+                                   const std::pair< DependentVariableType, DependentVariableType >& defaultExtrapolationValue =
+            std::make_pair( IdentityElement< DependentVariableType >::getAdditionIdentity( ),
+                            IdentityElement< DependentVariableType >::getAdditionIdentity( ) ) ):
+        OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >( boundaryHandling,
+                                                                                      defaultExtrapolationValue )
     {
         independentValues_ = independentVariables;
         dependentValues_ = dependentVariables;
@@ -67,23 +77,33 @@ public:
 
     //! Constructor from map of independent/dependent data.
     /*!
-     * This constructor initializes the interpolator from a map containing independent variables
-     * as key and dependent variables as value. A look-up scheme can be provided to override the
-     * given default.
-     * \param dataMap Map containing independent variables as key and dependent variables as
-     *          value.
-     * \param selectedLookupScheme Identifier of lookupscheme from enum. This algorithm is used
-     *          to find the nearest lower data point in the independent variables when requesting
-     *          interpolation.
+     *  This constructor initializes the interpolator from a map containing independent variables
+     *  as key and dependent variables as value. A look-up scheme can be provided to override the
+     *  given default.
+     *  \param dataMap Map containing independent variables as key and dependent variables as
+     *      value.
+     *  \param selectedLookupScheme Identifier of lookupscheme from enum. This algorithm is used
+     *      to find the nearest lower data point in the independent variables when requesting
+     *      interpolation.
+     *  \param boundaryHandling Boundary handling method, in case the independent variable is outside the
+     *      specified range.
+     *  \param defaultExtrapolationValue Pairs of default values to be used for extrapolation, in case
+     *      of use_default_value or use_default_value_with_warning as methods for boundaryHandling.
      */
     PiecewiseConstantInterpolator( const std::map< IndependentVariableType, DependentVariableType > dataMap,
-                                   const AvailableLookupScheme selectedLookupScheme = huntingAlgorithm)
+                                   const AvailableLookupScheme selectedLookupScheme = huntingAlgorithm,
+                                   const BoundaryInterpolationType boundaryHandling = extrapolate_at_boundary,
+                                   const std::pair< DependentVariableType, DependentVariableType >& defaultExtrapolationValue =
+            std::make_pair( IdentityElement< DependentVariableType >::getAdditionIdentity( ),
+                            IdentityElement< DependentVariableType >::getAdditionIdentity( ) ) ):
+        OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >( boundaryHandling,
+                                                                                      defaultExtrapolationValue )
     {
         // Verify that the initialization variables are not empty.
         if ( dataMap.size( ) == 0 )
         {
             throw std::runtime_error(
-                    "The vectors used in the piecewise constant interpolator initialization are empty." );
+                        "The vectors used in the piecewise constant interpolator initialization are empty." );
         }
 
         // Resize data vectors of independent/dependent values.
@@ -107,12 +127,21 @@ public:
 
     //! Function interpolates dependent variable value at given independent variable value.
     /*!
-     * Function interpolates dependent variable value at given independent variable value using piecewise constant algorithm.
-     * \param targetIndependentVariableValue Value of independent variable at which interpolation is to take place.
-     * \return Interpolated value of dependent variable.
+     *  Function interpolates dependent variable value at given independent variable value using piecewise constant algorithm.
+     *  \param targetIndependentVariableValue Value of independent variable at which interpolation is to take place.
+     *  \return Interpolated value of dependent variable.
      */
     DependentVariableType interpolate( const IndependentVariableType targetIndependentVariableValue )
     {
+        // Check whether boundary handling needs to be applied, if independent variable is beyond its defined range.
+        DependentVariableType interpolatedValue;
+        bool useValue = false;
+        this->checkBoundaryCase( interpolatedValue, useValue, targetIndependentVariableValue );
+        if( useValue )
+        {
+            return interpolatedValue;
+        }
+
         // Determine the lower entry in the table corresponding to the target independent variable value.
         int lowerEntry;
         if( targetIndependentVariableValue <= independentValues_.at( 0 ) )
@@ -134,8 +163,8 @@ public:
 
     //! Function to reset the values of dependent variables used by interpolator
     /*!
-     * Function to reset the values of dependent variables used by interpolator
-     * \param dependentValues New list of values of dependent variables. List must be of same size as original list
+     *  Function to reset the values of dependent variables used by interpolator
+     *  \param dependentValues New list of values of dependent variables. List must be of same size as original list
      */
     void resetDependentValues( const std::vector< DependentVariableType >&  dependentValues )
     {
@@ -154,8 +183,8 @@ private:
 
 };
 
-}
+} // namespace interpolators
 
-}
+} // namespace tudat
 
 #endif // TUDAT_PIECEWISECONSTANTINTERPOLATOR_H
