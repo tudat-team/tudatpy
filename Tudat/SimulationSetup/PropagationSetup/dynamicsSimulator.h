@@ -64,7 +64,7 @@ Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > getInitialStatesOfBodies(
     {
         ephemerisOfCurrentBody = bodyMap.at( bodiesToIntegrate.at( i ) )->getEphemeris( );
 
-        if ( ! ephemerisOfCurrentBody )
+        if ( !ephemerisOfCurrentBody )
         {
             throw std::runtime_error( "Could not determine initial state for body " + bodiesToIntegrate.at( i ) +
                                       " because it does not have a valid Ephemeris object." );

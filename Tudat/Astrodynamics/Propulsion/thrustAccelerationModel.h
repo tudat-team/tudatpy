@@ -13,6 +13,7 @@
 
 #include <limits>
 
+#include <boost/bind.hpp>
 #include <boost/function.hpp>
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/accelerationModel.h"
@@ -205,7 +206,6 @@ public:
         }
     }
 
-
 protected:
 
     //! Function returning the current magnitude of the thrust.
@@ -255,6 +255,7 @@ protected:
      *  list is included here to account for versatility of dependencies of thrust model (guidance) algorithms.
      */
     std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > requiredModelUpdates_;
+
 };
 
 } // namespace propulsion
