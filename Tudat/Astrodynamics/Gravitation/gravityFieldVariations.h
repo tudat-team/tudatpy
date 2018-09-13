@@ -447,6 +447,7 @@ private:
      */
     std::vector< BodyDeformationTypes > variationType_;
 
+    //! List of model identifiers per deformation type.
     std::map< BodyDeformationTypes, std::vector< std::string > > identifierPerType_;
 
     //! Name of variation object for each entry of variationObjects

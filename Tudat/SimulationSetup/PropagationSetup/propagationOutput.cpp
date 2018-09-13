@@ -74,6 +74,7 @@ Eigen::Quaterniond getQuaternionFromVectorRotationRepresentation(
     return Eigen::Quaterniond( getMatrixFromVectorRotationRepresentation( vectorRepresentation ) );
 }
 
+//! Function to convert a matrix to the format used to save dependent variables
 void getMatrixInOutputVectorRepresentation(
         const Eigen::MatrixXd& matrix, Eigen::VectorXd& vector )
 {
@@ -85,6 +86,7 @@ void getMatrixInOutputVectorRepresentation(
     }
 }
 
+//! Function to convert a vector dependent variable output to its original matrix representation
 void getOutputVectorInMatrixRepresentation(
         const Eigen::VectorXd& vector, Eigen::MatrixXd& matrix,
         const int rows, const int columns )
@@ -100,7 +102,7 @@ void getOutputVectorInMatrixRepresentation(
     }
 }
 
-
+//! Function to retrieve matrix block function output in vector representation
 Eigen::VectorXd getVectorFunctionFromBlockFunction(
         const boost::function< void( Eigen::Block< Eigen::MatrixXd > ) > blockFunction,
                                     const int numberOfRows, const int numberOfColumns )

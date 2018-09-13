@@ -166,13 +166,35 @@ Eigen::Matrix3d getMatrixFromVectorRotationRepresentation(
 Eigen::Quaterniond getQuaternionFromVectorRotationRepresentation(
         const Eigen::VectorXd vectorRepresentation );
 
+//! Function to convert a matrix to the format used to save dependent variables
+/*!
+ * Function to convert a matrix to the format used to save dependent variables
+ * \param matrix Matrix that is to be converted
+ * \param vector Vector storage format of matrix
+ */
 void getMatrixInOutputVectorRepresentation(
         const Eigen::MatrixXd& matrix, Eigen::VectorXd& vector );
 
+//! Function to convert a vector dependent variable output to its original matrix representation
+/*!
+ *  Function to convert a vector dependent variable output to its original matrix representation
+ *  \param vector Vector dependent variable output
+ *  \param matrix Original matrix representation
+ *  \param rows Number of rows in matrix output
+ *  \param columns Number of columns in matrix output
+ */
 void getOutputVectorInMatrixRepresentation(
         const Eigen::VectorXd& vector, Eigen::MatrixXd& matrix,
         const int rows, const int columns );
 
+//! Function to retrieve matrix block function output in vector representation
+/*!
+ *  Function to retrieve matrix block function output in vector representation
+ * \param blockFunction Function that returns (by reference) a matrix block
+ * \param numberOfRows Number of rows in matrix output
+ * \param numberOfColumns Number of columns in matrix output
+ * \return Block-matrix in vector representation
+ */
 Eigen::VectorXd getVectorFunctionFromBlockFunction(
         const boost::function< void( Eigen::Block< Eigen::MatrixXd > ) > blockFunction,
                                     const int numberOfRows, const int numberOfColumns );

@@ -504,10 +504,17 @@ private:
 
 };
 
-inline std::string getThirdBodyFromAccelerationPartial(
+//! Function to retrieve name of central body of third-body acceleration partial
+/*!
+ *  Function to retrieve name of central body of third-body acceleration partial, from AccelerationPartial base class object input
+ *  \param accelerationPartial Acceleration partial model from which central body name is to be retrieved (must be of derived
+ *  class ThirdBodyGravityPartial< T >
+ *  \return Name of central body of third-body acceleration partial
+ */
+inline std::string getCentralBodyNameFromThirdBodyAccelerationPartial(
         const boost::shared_ptr< AccelerationPartial > accelerationPartial )
 {
-    std::string thirdBody;
+    std::string centralBody;
     if( !basic_astrodynamics::isAccelerationFromThirdBody( accelerationPartial->getAccelerationType( ) ) )
     {
         throw std::runtime_error( "Error, requested third body from acceleration partial, but input is incompatible." );
@@ -516,17 +523,17 @@ inline std::string getThirdBodyFromAccelerationPartial(
     {
         if( accelerationPartial->getAccelerationType( ) == basic_astrodynamics::third_body_point_mass_gravity )
         {
-            thirdBody = boost::dynamic_pointer_cast< ThirdBodyGravityPartial< CentralGravitationPartial > >(
+            centralBody = boost::dynamic_pointer_cast< ThirdBodyGravityPartial< CentralGravitationPartial > >(
                         accelerationPartial )->getCentralBodyName( );
         }
         else if( accelerationPartial->getAccelerationType( ) == basic_astrodynamics::third_body_spherical_harmonic_gravity )
         {
-            thirdBody = boost::dynamic_pointer_cast< ThirdBodyGravityPartial< SphericalHarmonicsGravityPartial > >(
+            centralBody = boost::dynamic_pointer_cast< ThirdBodyGravityPartial< SphericalHarmonicsGravityPartial > >(
                         accelerationPartial )->getCentralBodyName( );
         }
         else if( accelerationPartial->getAccelerationType( ) == basic_astrodynamics::third_body_mutual_spherical_harmonic_gravity )
         {
-            thirdBody = boost::dynamic_pointer_cast< ThirdBodyGravityPartial< MutualSphericalHarmonicsGravityPartial > >(
+            centralBody = boost::dynamic_pointer_cast< ThirdBodyGravityPartial< MutualSphericalHarmonicsGravityPartial > >(
                         accelerationPartial )->getCentralBodyName( );
         }
         else
@@ -535,7 +542,7 @@ inline std::string getThirdBodyFromAccelerationPartial(
         }
     }
 
-    return thirdBody;
+    return centralBody;
 }
 
 } // namespace acceleration_partials

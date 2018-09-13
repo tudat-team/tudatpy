@@ -558,10 +558,15 @@ public:
                         getStateDerivativeModelMapFromVector( stateDerivativeModels ), bodyMap, parametersToEstimate );
 
             // Create simulation object for dynamics only.
-            propagatorSettings_->getDependentVariablesToSave( )->stateDerivativePartials_ = stateDerivativePartials;
+            if( propagatorSettings_->getDependentVariablesToSave( ) != NULL )
+            {
+                propagatorSettings_->getDependentVariablesToSave( )->stateDerivativePartials_ = stateDerivativePartials;
+            }
+
             dynamicsSimulator_ =  boost::make_shared< SingleArcDynamicsSimulator< StateScalarType, TimeType > >(
                         bodyMap, integratorSettings, propagatorSettings_, false, clearNumericalSolution, true, false, std::chrono::steady_clock::now( ),
                         stateDerivativeModels );
+
             dynamicsStateDerivative_ = dynamicsSimulator_->getDynamicsStateDerivative( );
             statePostProcessingFunction_ = boost::bind(
                         &DynamicsStateDerivativeModel< TimeType, StateScalarType >::postProcessStateAndVariationalEquations,
