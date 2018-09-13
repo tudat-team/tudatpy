@@ -277,6 +277,41 @@ public:
         clearSpecificFilterHistory( );
     }
 
+    //! Function to revert to the previous time step.
+    /*!
+     *  Function to revert to the previous time step.
+     *  \param currentTime Double denoting the current time, i.e., the instant that has to be discarded.
+     */
+    void revertToPreviousTimeStep( const double currentTime )
+    {
+        // Erase state estimate corresponding to current time
+        if ( historyOfStateEstimates_.count( currentTime ) != 0 )
+        {
+            historyOfStateEstimates_.erase( currentTime );
+        }
+        aPosterioriStateEstimate_ = historyOfStateEstimates_.rbegin( )->second;
+
+        // Erase covariance estimate corresponding to current time
+        if ( historyOfCovarianceEstimates_.count( currentTime ) != 0 )
+        {
+            historyOfCovarianceEstimates_.erase( currentTime );
+        }
+        aPosterioriCovarianceEstimate_ = historyOfCovarianceEstimates_.rbegin( )->second;
+
+        // Erase last noise entries
+        if ( systemNoiseHistory_.size( ) > 0 )
+        {
+            systemNoiseHistory_.pop_back( );
+        }
+        if ( measurementNoiseHistory_.size( ) > 0 )
+        {
+            measurementNoiseHistory_.pop_back( );
+        }
+
+        // Revert elements specific to each filter
+        specificRevertToPreviousTimeStep( currentTime );
+    }
+
 protected:
 
     //! Function to create the function that defines the system model.
@@ -343,6 +378,14 @@ protected:
      *  a derived class, to add other variables to the list of variables to be cleared.
      */
     virtual void clearSpecificFilterHistory( ) { }
+
+    //! Function to revert to the previous time step for derived class-specific variables.
+    /*!
+     *  Function to revert to the previous time step for derived class-specific variables. This function can be overwritten in
+     *  a derived class, to add other variables to the list of elements to be reverted.
+     *  \param currentTime Double denoting the current time, i.e., the instant that has to be discarded.
+     */
+    virtual void specificRevertToPreviousTimeStep( const double currentTime ) { TUDAT_UNUSED_PARAMETER( currentTime ); }
 
     //! System function.
     /*!

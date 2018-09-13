@@ -259,6 +259,20 @@ private:
      */
     void clearSpecificFilterHistory( ) { historyOfMapOfSigmaPoints_.clear( ); }
 
+    //! Function to revert to the previous time step for derived class-specific variables.
+    /*!
+     *  Function to revert to the previous time step for derived class-specific variables. This function adds to the list of
+     *  elements to be reverted, the latest sigma point estimates.
+     *  \param currentTime Double denoting the current time, i.e., the instant that has to be discarded.
+     */
+    virtual void specificRevertToPreviousTimeStep( const double currentTime )
+    {
+        if ( historyOfSigmaPoints_.count( currentTime ) != 0 )
+        {
+            historyOfSigmaPoints_.erase( currentTime );
+        }
+    }
+
     //! Function to set the values of the constant parameters.
     /*!
      *  Function to set the values of the constant parameters, used by the unscented Kalman filter for various purposes.
