@@ -331,8 +331,7 @@ createFilter( const boost::shared_ptr< FilterSettings< IndependentVariableType, 
         break;
     }
     default:
-        throw std::runtime_error( "Error while creating filter obejct. Only the creation of unscented Kalman filters is "
-                                  "currently supported." );
+        throw std::runtime_error( "Error while creating filter obejct. The creation of linear filters is not yet supported." );
     }
 
     // Check that filter was properly created

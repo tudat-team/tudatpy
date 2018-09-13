@@ -8,7 +8,6 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-
 #ifndef TUDAT_SIMULATIONHEADER_H
 #define TUDAT_SIMULATIONHEADER_H
 
