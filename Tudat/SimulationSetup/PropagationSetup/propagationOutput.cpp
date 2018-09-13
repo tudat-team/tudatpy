@@ -74,6 +74,48 @@ Eigen::Quaterniond getQuaternionFromVectorRotationRepresentation(
     return Eigen::Quaterniond( getMatrixFromVectorRotationRepresentation( vectorRepresentation ) );
 }
 
+//! Function to convert a matrix to the format used to save dependent variables
+void getMatrixInOutputVectorRepresentation(
+        const Eigen::MatrixXd& matrix, Eigen::VectorXd& vector )
+{
+    vector.setZero( matrix.rows( ) * matrix.cols( ) );
+    for( int i = 0; i < matrix.rows( ); i++ )
+    {
+        vector.segment( i * matrix.cols( ), matrix.cols( ) ) =
+              matrix.block( i, 0, 1, matrix.cols( ) ).transpose( );
+    }
+}
+
+//! Function to convert a vector dependent variable output to its original matrix representation
+void getOutputVectorInMatrixRepresentation(
+        const Eigen::VectorXd& vector, Eigen::MatrixXd& matrix,
+        const int rows, const int columns )
+{
+    if( rows * columns != vector.rows( ) )
+    {
+        throw std::runtime_error( "Error when getting matrix from output vector: sizes are incompatible" );
+    }
+    matrix.setZero( rows, columns );
+    for( int i = 0; i < rows; i++ )
+    {
+        matrix.block( i, 0, 1, columns ) = vector.segment( i * columns, columns ).transpose( );
+    }
+}
+
+//! Function to retrieve matrix block function output in vector representation
+Eigen::VectorXd getVectorFunctionFromBlockFunction(
+        const boost::function< void( Eigen::Block< Eigen::MatrixXd > ) > blockFunction,
+                                    const int numberOfRows, const int numberOfColumns )
+{
+    Eigen::MatrixXd matrixEvaluation = Eigen::MatrixXd::Zero( numberOfRows, numberOfColumns );
+    blockFunction( matrixEvaluation.block( 0, 0, numberOfRows, numberOfColumns ) );
+
+    Eigen::VectorXd vectorEvaluation;
+    getMatrixInOutputVectorRepresentation( matrixEvaluation, vectorEvaluation );
+
+    return vectorEvaluation;
+}
+
 //! Function to compute the Fay-Riddell equilibrium heat flux from body properties
 double computeEquilibriumFayRiddellHeatFluxFromProperties(
         const boost::shared_ptr< aerodynamics::AtmosphericFlightConditions > flightConditions,
@@ -269,6 +311,30 @@ int getDependentVariableSize(
         break;
     case body_fixed_relative_spherical_position:
         variableSize = 3;
+        break;
+    case total_gravity_field_variation_acceleration:
+        variableSize = 3;
+        break;
+    case single_gravity_field_variation_acceleration:
+        variableSize = 3;
+        break;
+    case single_gravity_field_variation_acceleration_terms:
+    {
+        if( boost::dynamic_pointer_cast< SingleVariationSingleTermSphericalHarmonicAccelerationSaveSettings >(
+                    dependentVariableSettings ) == NULL )
+        {
+             std::string errorMessage = "Error, input for single_gravity_field_variation_acceleration_terms inconsistent when getting parameter size ";
+             throw std::runtime_error( errorMessage );
+        }
+        else
+        {
+            variableSize = 3 * boost::dynamic_pointer_cast< SingleVariationSingleTermSphericalHarmonicAccelerationSaveSettings >(
+                        dependentVariableSettings )->componentIndices_.size( );
+        }
+        break;
+    }
+    case acceleration_partial_wrt_body_translational_state:
+        variableSize = 18;
         break;
     default:
         std::string errorMessage = "Error, did not recognize dependent variable size of type: " +

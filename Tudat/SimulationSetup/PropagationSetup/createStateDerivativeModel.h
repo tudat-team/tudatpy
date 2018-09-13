@@ -586,6 +586,49 @@ createStateDerivativeModels(
     return stateDerivativeModels;
 }
 
+//! Function to convert a list of state derivative models to a map sorted by state type
+/*!
+ *  Function to convert a list of state derivative models to a map sorted by state type
+ *  \param stateDerivativeModelList List of state derivative models
+ *  \return Map of state derivative models
+ */
+template< typename StateScalarType = double, typename TimeType = double >
+std::unordered_map< IntegratedStateType, std::vector< boost::shared_ptr<
+SingleStateTypeDerivative< StateScalarType, TimeType > > > > getStateDerivativeModelMapFromVector(
+        const std::vector< boost::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > >& stateDerivativeModelList )
+{
+    std::unordered_map< IntegratedStateType, std::vector< boost::shared_ptr<
+            SingleStateTypeDerivative< StateScalarType, TimeType > > > > stateDerivativeModelsMap;
+    for( unsigned int i = 0; i < stateDerivativeModelList.size( ); i++ )
+    {
+        stateDerivativeModelsMap[ stateDerivativeModelList.at( i )->getIntegratedStateType( ) ].push_back(
+                    stateDerivativeModelList.at( i ) );
+    }
+    return stateDerivativeModelsMap;
+}
+
+//! Function to create a map of state derivative models.
+/*!
+ *  Function to create a map of state derivative models from
+ *  propagation settings and the environment.
+ *  \param propagatorSettings Settings for the dynamical model.
+ *  \param bodyMap List of body objects in the environment.
+ *  \param propagationStartTime Time from which numerical propagation starts.
+ *  \return Map of state derivative models (instances of required
+ *  derived class of SingleStateTypeDerivative)
+ */
+template< typename StateScalarType = double, typename TimeType = double >
+std::unordered_map< IntegratedStateType, std::vector< boost::shared_ptr<
+SingleStateTypeDerivative< StateScalarType, TimeType > > > >
+createStateDerivativeModelMap(
+        const boost::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > propagatorSettings,
+        const simulation_setup::NamedBodyMap& bodyMap,
+        const TimeType propagationStartTime )
+{
+    return getStateDerivativeModelMapFromVector( createStateDerivativeModels(
+                propagatorSettings, bodyMap, propagationStartTime ) );
+}
+
 //! Function to create an integrator to propagate the dynamics (in normalized units) in CR3BP
 /*!
  *  Function to create an integrator to propagate the dynamics (in normalized units) in Circularly Restricted Three-Body Problem.
