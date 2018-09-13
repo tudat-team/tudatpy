@@ -115,8 +115,7 @@ BOOST_AUTO_TEST_CASE( test_json_integrator_rungeKuttaVariableStepSize )
     const double maximumFactorIncreaseForNextStepSize = 10.0;
     const double minimumFactorDecreaseForNextStepSize = 0.1;
     const boost::shared_ptr< IntegratorSettings< double > > manualSettings =
-            boost::make_shared< RungeKuttaVariableStepSizeSettings< double > >( integratorType,
-                                                                                initialTime,
+            boost::make_shared< RungeKuttaVariableStepSizeSettings< double > >( initialTime,
                                                                                 initialStepSize,
                                                                                 rungeKuttaCoefficientSet,
                                                                                 minimumStepSize,

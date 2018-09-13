@@ -33,7 +33,6 @@ namespace tudat
 namespace basic_astrodynamics
 {
 
-
 //! List of accelerations available in simulations
 /*!
  *  List of accelerations available in simulations. Acceleration models not defined by this

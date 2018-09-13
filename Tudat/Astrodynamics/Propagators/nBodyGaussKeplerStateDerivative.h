@@ -76,9 +76,9 @@ Eigen::Vector6d computeGaussPlanetaryEquationsForKeplerElements(
         const Eigen::Vector3d& accelerationsInInertialFrame,
         const double centralBodyGravitationalParameter );
 
-//! Class for computing the state derivative of translational motion of N bodies, using a Gauss method with Kepler elememnts.
+//! Class for computing the state derivative of translational motion of N bodies, using a Gauss method with Kepler elements.
 /*!
- * Class for computing the state derivative of translational motion of N bodies, using a Gauss method with Kepler elememnts.
+ * Class for computing the state derivative of translational motion of N bodies, using a Gauss method with Kepler elements.
  * In this method, the derivative of the Kepler elements are computed from the total Cartesian accelerations, with the Kepler
  * elements of the bodies the states being numerically propagated.
  */
@@ -93,7 +93,7 @@ public:
      *  \param accelerationModelsPerBody A map containing the list of accelerations acting on each
      *  body, identifying the body being acted on and the body acted on by an acceleration. The map
      *  has as key a string denoting the name of the body the list of accelerations, provided as the
-     *  value corresponding to a key, is acting on.  This map-value is again a map with string as
+     *  value corresponding to a key, is acting on. This map-value is again a map with string as
      *  key, denoting the body exerting the acceleration, and as value a pointer to an acceleration
      *  model.
      *  \param centralBodyData Object responsible for providing the current integration origins from
@@ -138,15 +138,16 @@ public:
             const TimeType time, const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& stateOfSystemToBeIntegrated,
             Eigen::Block< Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic > > stateDerivative )
     {
+        // Get total inertial accelerations acting on bodies
         stateDerivative.setZero( );
         this->sumStateDerivativeContributions( stateOfSystemToBeIntegrated, stateDerivative, false );
 
-
+        // Compute RSW accelerations for each body, and evaluate Gauss equations for Keplerian elements.
         Eigen::Vector3d currentAccelerationInRswFrame;
         for( unsigned int i = 0; i < this->bodiesToBeIntegratedNumerically_.size( ); i++ )
         {
-            currentAccelerationInRswFrame = reference_frames::getInertialToRswSatelliteCenteredFrameRotationMatrx(
-                        currentCartesianLocalSoluton_.segment( i * 6, 6 ) ) *
+            currentAccelerationInRswFrame = reference_frames::getInertialToRswSatelliteCenteredFrameRotationMatrix(
+                        currentCartesianLocalSolution_.segment( i * 6, 6 ) ) *
                     stateDerivative.block( i * 6 + 3, 0, 3, 1 ).template cast< double >( );
 
                 stateDerivative.block( i * 6, 0, 6, 1 ) = computeGaussPlanetaryEquationsForKeplerElements(
@@ -154,7 +155,6 @@ public:
                               currentTrueAnomalies_.at( i ) ).finished( ), currentAccelerationInRswFrame,
                             centralBodyGravitationalParameters_.at( i )( ) ).template cast< StateScalarType >( );
         }
-
     }
 
     //! Function to convert the state in the conventional form to the Kepler Elements form.
@@ -204,12 +204,12 @@ public:
      * \param internalSolution State in Kepler Elemements (i.e. form that is used in
      * numerical integration)
      * \param time Current time at which the state is valid
-     * \param currentCartesianLocalSoluton State (internalSolution, which is Encke-formulation),
+     * \param currentCartesianLocalSolution State (internalSolution, which is Encke-formulation),
      *  converted to the 'conventional form' (returned by reference).
      */
     void convertToOutputSolution(
             const Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >& internalSolution, const TimeType& time,
-            Eigen::Block< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > currentCartesianLocalSoluton )
+            Eigen::Block< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > currentCartesianLocalSolution )
     {
         // Add Keplerian state to perturbation from Encke algorithm to get Cartesian state in local frames.
         Eigen::Matrix< StateScalarType, 6, 1 > currentKeplerianState;
@@ -223,12 +223,12 @@ public:
             currentKeplerianState( 5 ) = currentTrueAnomaly;
 
             currentTrueAnomalies_[ i ] = currentTrueAnomaly;
-            currentCartesianLocalSoluton.segment( i * 6, 6 ) = orbital_element_conversions::convertKeplerianToCartesianElements(
+            currentCartesianLocalSolution.segment( i * 6, 6 ) = orbital_element_conversions::convertKeplerianToCartesianElements(
                         currentKeplerianState, static_cast< StateScalarType >( centralBodyGravitationalParameters_.at( i )( ) ) );
 
         }
 
-        currentCartesianLocalSoluton_ = currentCartesianLocalSoluton.template cast< double >( );
+        currentCartesianLocalSolution_ = currentCartesianLocalSolution.template cast< double >( );
     }
 
     //! Function to get the acceleration models
@@ -259,7 +259,7 @@ private:
      *  Current full Cartesian state of the propagated bodies, w.r.t. trhe central bodies. These variables are set when calling
      *  the convertToOutputSolution function.
      */
-    Eigen::VectorXd currentCartesianLocalSoluton_;
+    Eigen::VectorXd currentCartesianLocalSolution_;
 
     //! List of true anomalies of the bodies being propagated, computed by the last call to the convertToOutputSolution function
     std::vector< double > currentTrueAnomalies_;

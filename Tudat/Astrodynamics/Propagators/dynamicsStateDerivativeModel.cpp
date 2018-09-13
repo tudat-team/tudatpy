@@ -21,7 +21,7 @@ boost::shared_ptr< acceleration_partials::AccelerationPartial > getAccelerationP
         {
             boost::shared_ptr< acceleration_partials::AccelerationPartial > accelerationPartial =
                     boost::dynamic_pointer_cast< acceleration_partials::AccelerationPartial >(
-                                   accelerationPartials.at( i ).at( j ) );
+                        accelerationPartials.at( i ).at( j ) );
             if( accelerationPartial == NULL )
             {
                 throw std::runtime_error( "Error when getting acceleration partial, input contained non-acceleration partial" );
@@ -30,17 +30,19 @@ boost::shared_ptr< acceleration_partials::AccelerationPartial > getAccelerationP
             {
                 bool partialIdentified = false;
                 if( ( accelerationPartial->getAccelerationType( ) == accelerationType ) &&
-                    ( accelerationPartial->getAcceleratedBody( ) == bodyExertingAcceleration ) &&
+                        ( accelerationPartial->getAcceleratedBody( ) == bodyExertingAcceleration ) &&
                         ( accelerationPartial->getAcceleratingBody( ) == bodyUndergoignAcceleration ) )
                 {
-                    partialIdentified = true;
+                    if( !basic_astrodynamics::isAccelerationFromThirdBody( accelerationType  ) )
+                    {
+                        partialIdentified = true;
+                    }
+                    else if( getThirdBodyFromAccelerationPartial( accelerationPartial ) == thirdBody )
+                    {
+                        partialIdentified = true;
+                    }
                 }
 
-                if( basic_astrodynamics::isAccelerationFromThirdBody( accelerationType ) &&
-                        getThirdBodyFromAccelerationPartial( accelerationPartial ) == thirdBody )
-                {
-                    partialIdentified = true;
-                }
 
                 if( partialIdentified )
                 {

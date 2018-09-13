@@ -21,6 +21,7 @@ set(INTERPOLATORS_HEADERS
   "${SRCROOT}${MATHEMATICSDIR}/Interpolators/lagrangeInterpolator.h"
   "${SRCROOT}${MATHEMATICSDIR}/Interpolators/interpolator.h"
   "${SRCROOT}${MATHEMATICSDIR}/Interpolators/lookupScheme.h"
+  "${SRCROOT}${MATHEMATICSDIR}/Interpolators/multiDimensionalInterpolator.h"
   "${SRCROOT}${MATHEMATICSDIR}/Interpolators/oneDimensionalInterpolator.h"
   "${SRCROOT}${MATHEMATICSDIR}/Interpolators/multiLinearInterpolator.h"
   "${SRCROOT}${MATHEMATICSDIR}/Interpolators/piecewiseConstantInterpolator.h"

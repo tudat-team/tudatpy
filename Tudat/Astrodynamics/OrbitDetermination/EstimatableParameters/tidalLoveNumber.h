@@ -47,7 +47,7 @@ public:
      * \param sumOrders True of the contributions of the various orders are to be summed (i.e. assumed to be constant for all
      * orders at given degree), or if they are handled separately
      * \param loveNumberType Type of Love number property that is to be estimated.
-     * \param useComplexComponents True if the complex Love number is estimated, false if only teh real part is considered
+     * \param useComplexComponents True if the complex Love number is estimated, false if only the real part is considered
      */
     TidalLoveNumber(
             const boost::shared_ptr< gravitation::BasicSolidBodyTideGravityFieldVariations > gravityFieldVariationModel,
@@ -91,7 +91,7 @@ public:
     //! Function to retrieve whether complex or true Love number(s) is(are) to be estimated
     /*!
      * Function to retrieve whether complex or true Love number(s) is(are) to be estimated
-     * \return True if the complex Love number is estimated, false if only teh real part is considered
+     * \return True if the complex Love number is estimated, false if only the real part is considered
      */
     bool useComplexComponents( )
     {
@@ -146,7 +146,7 @@ protected:
     //! Tidal gravity field variation object of which estimated paraemeter is a property
     boost::shared_ptr< gravitation::BasicSolidBodyTideGravityFieldVariations > gravityFieldVariationModel_;
 
-    //! True if the complex Love number is estimated, false if only teh real part is considered
+    //! True if the complex Love number is estimated, false if only the real part is considered
     bool useComplexComponents_;
 
     //! Size of the estimated parameter
@@ -165,7 +165,7 @@ public:
      * \param gravityFieldVariationModel Tidal gravity field variation object of which estimated paraemeter is a property
      * \param associatedBody Deformed body
      * \param degree Degree of Love number that is to be estimateds
-     * \param useComplexComponents True if the complex Love number is estimated, false if only teh real part is considered
+     * \param useComplexComponents True if the complex Love number is estimated, false if only the real part is considered
      */
     FullDegreeTidalLoveNumber(
             const boost::shared_ptr< gravitation::BasicSolidBodyTideGravityFieldVariations > gravityFieldVariationModel,
@@ -215,7 +215,7 @@ public:
      * \param associatedBody Deformed body
      * \param degree Degree of Love number that is to be estimated
      * \param orders List of orders at which Love numbers are to be estimated.
-     * \param useComplexComponents True if the complex Love number is estimated, false if only teh real part is considered
+     * \param useComplexComponents True if the complex Love number is estimated, false if only the real part is considered
      */
     SingleDegreeVariableTidalLoveNumber(
             const boost::shared_ptr< gravitation::BasicSolidBodyTideGravityFieldVariations > gravityFieldVariationModel,

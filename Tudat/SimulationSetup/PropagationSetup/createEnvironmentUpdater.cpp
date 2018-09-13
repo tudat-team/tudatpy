@@ -49,7 +49,7 @@ void checkValidityOfRequiredEnvironmentUpdates(
                 // Check if requested environment model exists.
                 switch( updateIterator->first )
                 {
-                case body_transational_state_update:
+                case body_translational_state_update:
                 {
                     if( bodyMap.at( updateIterator->second.at( i ) )->getEphemeris( ) == NULL )
                     {
@@ -280,7 +280,7 @@ createTranslationalEquationsOfMotionEnvironmentUpdaterSettings(
                 // Add translational state of both bodies to update list for current acceleration model.
                 if( translationalAccelerationModels.count( accelerationModelIterator->first ) == 0 )
                 {
-                    singleAccelerationUpdateNeeds[ body_transational_state_update ].push_back(
+                    singleAccelerationUpdateNeeds[ body_translational_state_update ].push_back(
                                 accelerationModelIterator->first );
                 }
 
@@ -300,7 +300,7 @@ createTranslationalEquationsOfMotionEnvironmentUpdaterSettings(
                     {
                         if( translationalAccelerationModels.count( thirdBodyAcceleration->getCentralBodyName( ) ) == 0 )
                         {
-                            singleAccelerationUpdateNeeds[ body_transational_state_update ].push_back(
+                            singleAccelerationUpdateNeeds[ body_translational_state_update ].push_back(
                                         thirdBodyAcceleration->getCentralBodyName( ) );
                         }
                     }
@@ -357,7 +357,7 @@ createTranslationalEquationsOfMotionEnvironmentUpdaterSettings(
                     if( thirdBodyAcceleration != NULL && translationalAccelerationModels.count(
                                 thirdBodyAcceleration->getCentralBodyName( ) ) == 0  )
                     {
-                        singleAccelerationUpdateNeeds[ body_transational_state_update ].push_back(
+                        singleAccelerationUpdateNeeds[ body_translational_state_update ].push_back(
                                     thirdBodyAcceleration->getCentralBodyName( ) );
                     }
                     else if( thirdBodyAcceleration == NULL )
@@ -387,7 +387,7 @@ createTranslationalEquationsOfMotionEnvironmentUpdaterSettings(
                     if( thirdBodyAcceleration != NULL && translationalAccelerationModels.count(
                                 thirdBodyAcceleration->getCentralBodyName( ) ) == 0  )
                     {
-                        singleAccelerationUpdateNeeds[ body_transational_state_update ].push_back(
+                        singleAccelerationUpdateNeeds[ body_translational_state_update ].push_back(
                                     thirdBodyAcceleration->getCentralBodyName( ) );
                         singleAccelerationUpdateNeeds[ body_rotational_state_update ].push_back(
                                     thirdBodyAcceleration->getCentralBodyName( ) );
@@ -425,7 +425,7 @@ createTranslationalEquationsOfMotionEnvironmentUpdaterSettings(
                         std::string primaryBody = accelerationCorrection->getPrimaryBodyName( );
                         if( translationalAccelerationModels.count(primaryBody ) == 0 )
                         {
-                            singleAccelerationUpdateNeeds[ body_transational_state_update ].push_back(
+                            singleAccelerationUpdateNeeds[ body_translational_state_update ].push_back(
                                         primaryBody );
                         }
                     }
@@ -659,6 +659,18 @@ std::vector< std::string > > createEnvironmentUpdaterSettingsForDependentVariabl
         variablesToUpdate[ body_translational_state_update ].push_back( dependentVariableSaveSettings->associatedBody_ );
         variablesToUpdate[ body_translational_state_update ].push_back( dependentVariableSaveSettings->secondaryBody_ );
         break;
+    case local_dynamic_pressure_dependent_variable:
+        variablesToUpdate[ vehicle_flight_conditions_update ].push_back( dependentVariableSaveSettings->associatedBody_ );
+        variablesToUpdate[ body_rotational_state_update ].push_back( dependentVariableSaveSettings->secondaryBody_ );
+        variablesToUpdate[ body_translational_state_update ].push_back( dependentVariableSaveSettings->associatedBody_ );
+        variablesToUpdate[ body_translational_state_update ].push_back( dependentVariableSaveSettings->secondaryBody_ );
+        break;
+    case local_aerodynamic_heat_rate_dependent_variable:
+        variablesToUpdate[ vehicle_flight_conditions_update ].push_back( dependentVariableSaveSettings->associatedBody_ );
+        variablesToUpdate[ body_rotational_state_update ].push_back( dependentVariableSaveSettings->secondaryBody_ );
+        variablesToUpdate[ body_translational_state_update ].push_back( dependentVariableSaveSettings->associatedBody_ );
+        variablesToUpdate[ body_translational_state_update ].push_back( dependentVariableSaveSettings->secondaryBody_ );
+        break;
     case geodetic_latitude_dependent_variable:
         variablesToUpdate[ vehicle_flight_conditions_update ].push_back( dependentVariableSaveSettings->associatedBody_ );
         variablesToUpdate[ body_rotational_state_update ].push_back( dependentVariableSaveSettings->secondaryBody_ );
@@ -721,6 +733,8 @@ std::vector< std::string > > createEnvironmentUpdaterSettingsForDependentVariabl
     case single_gravity_field_variation_acceleration:
         break;
     case single_gravity_field_variation_acceleration_terms:
+        break;
+    case acceleration_partial_wrt_body_translational_state:
         break;
     default:
         throw std::runtime_error( "Error when getting environment updates for dependent variables, parameter " +
@@ -793,6 +807,8 @@ std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > c
         }
         break;
     }
+    case custom_stopping_condition:
+        break;
     default:
         throw std::runtime_error( "Error when creating environment updater settings for termination conditions, type not found" );
     }

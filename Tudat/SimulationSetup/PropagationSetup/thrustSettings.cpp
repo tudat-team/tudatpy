@@ -138,7 +138,7 @@ void ParameterizedThrustMagnitudeSettings::parseInputDataAndCheckConsistency(
 
     if( numberOfMaximumThrustMultipliers > 1 )
     {
-        throw std::runtime_error( "Error  in parameterized thrust settings, only 1 maximum thrust multiplier may be defined." );
+        throw std::runtime_error( "Error in parameterized thrust settings, only 1 maximum thrust multiplier may be defined." );
     }
 
     // Parse maximum thrust multiplier function

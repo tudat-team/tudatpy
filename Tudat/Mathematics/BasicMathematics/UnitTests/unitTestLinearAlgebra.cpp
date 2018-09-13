@@ -21,11 +21,92 @@
 
 namespace tudat
 {
+
 namespace unit_tests
 {
 
 //! Test suite for unit conversion functions.
 BOOST_AUTO_TEST_SUITE( test_unit_conversions )
+
+//! Test if quaternion multiplication is computed correctly. The expected results are computed with the
+//! built-in MATLAB function quatmultiply.
+BOOST_AUTO_TEST_CASE( testQuaternionMultiplication )
+{
+    // Define tolerance
+    double tolerance = 10.0 * std::numeric_limits< double >::epsilon( );
+
+    // Test 1
+    {
+        // Define quaternions to multiply
+        Eigen::Vector4d firstQuaternion;
+        firstQuaternion << 1.0, 0.0, 0.0, 0.0;
+        Eigen::Vector4d secondQuaternion;
+        secondQuaternion << 0.062246819542533, -0.210426307554654, -0.276748204905855, 0.935551459636048;
+
+        // Multiply quaternions
+        Eigen::Vector4d computedResultantQuaternion = linear_algebra::quaternionProduct( firstQuaternion,
+                                                                                         secondQuaternion );
+
+        // Expected result
+        Eigen::Vector4d expectedResultantQuaternion;
+        expectedResultantQuaternion << 0.062246819542533, -0.210426307554654, -0.276748204905855, 0.935551459636048;
+
+        // Check if result is correct
+        for ( unsigned int i = 0; i < 4; i++ )
+        {
+            BOOST_CHECK_CLOSE_FRACTION( computedResultantQuaternion[ i ], expectedResultantQuaternion[ i ],
+                                        tolerance );
+        }
+    }
+
+    // Test 2
+    {
+        // Define quaternions to multiply
+        Eigen::Vector4d firstQuaternion;
+        firstQuaternion << 0.808563085773298, -0.184955787789735, -0.218853569995773, 0.513926266878768;
+        Eigen::Vector4d secondQuaternion;
+        secondQuaternion << 0.062246819542533, -0.276748204905855, 0.935551459636048, -0.210426307554654;
+
+        // Multiply quaternions
+        Eigen::Vector4d computedResultantQuaternion = linear_algebra::quaternionProduct( firstQuaternion,
+                                                                                         secondQuaternion );
+
+        // Expected result
+        Eigen::Vector4d expectedResultantQuaternion;
+        expectedResultantQuaternion << 0.312036681781879, -0.670033212581165, 0.561681701127148, -0.371755658840092;
+
+        // Check if result is correct
+        for ( unsigned int i = 0; i < 4; i++ )
+        {
+            BOOST_CHECK_CLOSE_FRACTION( computedResultantQuaternion[ i ], expectedResultantQuaternion[ i ],
+                                        tolerance );
+        }
+    }
+
+    // Test 3
+    {
+        // Define quaternions to multiply
+        Eigen::Vector4d firstQuaternion;
+        firstQuaternion << -0.522659045487757, -0.363000140684436, 0.699634559308423, -0.324915225026798;
+        Eigen::Vector4d secondQuaternion;
+        secondQuaternion << 0.242385025550030, 0.655897240236433, 0.670554074388965, -0.247801418397274;
+
+        // Multiply quaternions
+        Eigen::Vector4d computedResultantQuaternion = linear_algebra::quaternionProduct( firstQuaternion,
+                                                                                         secondQuaternion );
+
+        // Expected result
+        Eigen::Vector4d expectedResultantQuaternion;
+        expectedResultantQuaternion << -0.438251193562246, -0.386293632078142, -0.483953161080297, -0.651538532273827;
+
+        // Check if result is correct
+        for ( unsigned int i = 0; i < 4; i++ )
+        {
+            BOOST_CHECK_CLOSE_FRACTION( computedResultantQuaternion[ i ], expectedResultantQuaternion[ i ],
+                                        tolerance );
+        }
+    }
+}
 
 //! Test if angle between vectors is computed correctly.
 BOOST_AUTO_TEST_CASE( testAngleBetweenVectorFunctions )
@@ -116,4 +197,5 @@ BOOST_AUTO_TEST_CASE( testAngleBetweenVectorFunctions )
 BOOST_AUTO_TEST_SUITE_END( )
 
 } // namespace unit_tests
+
 } // namespace tudat

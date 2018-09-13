@@ -31,9 +31,9 @@
 #include <Tudat/Mathematics/NumericalIntegrators/numericalIntegrator.h>
 #include <Tudat/Mathematics/BasicMathematics/mathematicalConstants.h>
 
-
 namespace tudat
 {
+
 namespace numerical_integrators
 {
 
@@ -65,7 +65,7 @@ std::vector< unsigned int > getBulirschStoerStepSequence(
  *          either a float or double.
  * \sa NumericalIntegrator.
  */
-template < typename IndependentVariableType = double, typename StateType = Eigen::VectorXd,
+template< typename IndependentVariableType = double, typename StateType = Eigen::VectorXd,
            typename StateDerivativeType = Eigen::VectorXd, typename TimeStepType = double >
 class BulirschStoerVariableStepSizeIntegrator :
         public NumericalIntegrator< IndependentVariableType, StateType, StateDerivativeType, TimeStepType >
@@ -371,6 +371,11 @@ public:
         return lastIndependentVariable_;
     }
 
+    //! Get previous state value.
+    /*!
+     * Returns the previous value of the state.
+     * \return Previous state
+     */
     StateType getPreviousState( )
     {
         return lastState_;
@@ -502,6 +507,7 @@ private:
 typedef BulirschStoerVariableStepSizeIntegrator< > BulirschStoerVariableStepSizeIntegratorXd;
 
 } // namespace numerical_integrators
+
 } // namespace tudat
 
 #endif // TUDAT_BULIRSCH_STOER_VARIABLE_STEP_SIZE_INTEGRATOR_H

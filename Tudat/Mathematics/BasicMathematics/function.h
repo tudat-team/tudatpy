@@ -69,6 +69,7 @@ public:
     virtual DependentVariable computeDefiniteIntegral( const unsigned int order,
                                                        const IndependentVariable lowerBound,
                                                        const IndependentVariable upperbound ) = 0;
+
 };
 
 //! Typedef for shared-pointer to Function object.

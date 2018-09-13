@@ -32,5 +32,10 @@
   "torque",
   "bodyFixedGroundspeedBasedVelocity",
   "keplerElements",
-  "modifiedEquinoctialElements" 
+  "modifiedEquinoctialElements",
+  "sphericalHarmonicsAccelerationTerms",
+  "bodyFixedRelativeCartesianPosition",
+  "bodyFixedRelativeSphericalPosition",
+  "localDynamicPressure",
+  "localAerodynamicHeatRate"
 ]

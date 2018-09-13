@@ -58,15 +58,16 @@ public:
      * Computes the new step size based on the error estimation method given in Algorithm 5.3 in
      * (Burden and Faires, 2001).
      */
-    std::pair< double, bool > computeNewStepSize( const double stepSize, const double lowerOrder,
-                                                  const double higherOrder,
+    std::pair< double, bool > computeNewStepSize( const double stepSize,
+                                                  const std::pair< double, double >& orders,
                                                   const double safetyFactorForNextStepSize,
+                                                  const std::pair< double, double >& minimumAndMaximumFactorsForNextStepSize,
                                                   const Eigen::VectorXd& relativeErrorTolerance,
                                                   const Eigen::VectorXd& absoluteErrorTolerance,
                                                   const Eigen::VectorXd& lowerOrderEstimate,
                                                   const Eigen::VectorXd& higherOrderEstimate )
     {
-        TUDAT_UNUSED_PARAMETER( higherOrder );
+        TUDAT_UNUSED_PARAMETER( minimumAndMaximumFactorsForNextStepSize );
         TUDAT_UNUSED_PARAMETER( relativeErrorTolerance );
 
         // Set higher and lower order estimates.
@@ -85,7 +86,7 @@ public:
         // used to recompute the current step.
         const double newStepSize = safetyFactorForNextStepSize * stepSize * std::pow(
                     absoluteErrorTolerance.array( ).minCoeff( )
-                    / relativeError_.array( ).abs( ).maxCoeff( ), 1.0 / lowerOrder );
+                    / relativeError_.array( ).abs( ).maxCoeff( ), 1.0 / ( orders.first ) );
 
         // Check if the current integration step is accepted, based on the allowed absolute
         // tolerance.
