@@ -136,7 +136,7 @@ public:
     {
         // Compute sigma points
         computeSigmaPoints( this->aPosterioriStateEstimate_, this->aPosterioriCovarianceEstimate_ );
-        historyOfMapOfSigmaPoints_[ currentTime ] = mapOfSigmaPoints_; // store points
+        historyOfSigmaPoints_[ currentTime ] = mapOfSigmaPoints_; // store points
 
         // Prediction step
         // Compute series of state estimates based on sigma points
@@ -205,7 +205,7 @@ public:
         DependentVector vectorOfSigmaPoints;
         std::map< IndependentVariableType, DependentMatrix > mapOfSigmaPointsHistory;
         for ( typename std::map< IndependentVariableType, std::map< unsigned int, DependentVector > >::const_iterator
-              mapIterator = historyOfMapOfSigmaPoints_.begin( ); mapIterator != historyOfMapOfSigmaPoints_.end( ); mapIterator++ )
+              mapIterator = historyOfSigmaPoints_.begin( ); mapIterator != historyOfSigmaPoints_.end( ); mapIterator++ )
         {
             // Extract current map of sigma points and turn it into a vector
             vectorOfSigmaPoints = utilities::createConcatenatedEigenMatrixFromMapValues( mapIterator->second );
@@ -257,7 +257,21 @@ private:
      *  Function to clear the history of stored variables for derived class-specific variables. This function adds to the list of
      *  variables to be cleared, the history of sigma point estimates over time.
      */
-    void clearSpecificFilterHistory( ) { historyOfMapOfSigmaPoints_.clear( ); }
+    void clearSpecificFilterHistory( ) { historyOfSigmaPoints_.clear( ); }
+
+    //! Function to revert to the previous time step for derived class-specific variables.
+    /*!
+     *  Function to revert to the previous time step for derived class-specific variables. This function adds to the list of
+     *  elements to be reverted, the latest sigma point estimates.
+     *  \param currentTime Double denoting the current time, i.e., the instant that has to be discarded.
+     */
+    virtual void specificRevertToPreviousTimeStep( const double currentTime )
+    {
+        if ( historyOfSigmaPoints_.count( currentTime ) != 0 )
+        {
+            historyOfSigmaPoints_.erase( currentTime );
+        }
+    }
 
     //! Function to set the values of the constant parameters.
     /*!
@@ -453,7 +467,7 @@ private:
     std::map< unsigned int, DependentVector > mapOfSigmaPoints_;
 
     //! Map of map of sigma points, used to store the history of sigma points.
-    std::map< IndependentVariableType, std::map< unsigned int, DependentVector > > historyOfMapOfSigmaPoints_;
+    std::map< IndependentVariableType, std::map< unsigned int, DependentVector > > historyOfSigmaPoints_;
 
     //! Constant iterator to loop over sigma points (introduced for convenience).
     typename std::map< unsigned int, DependentVector >::const_iterator sigmaPointConstantIterator_;

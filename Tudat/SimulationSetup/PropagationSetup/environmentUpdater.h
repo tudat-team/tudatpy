@@ -95,7 +95,7 @@ public:
             std::vector< IntegratedStateType >( ) )
     {
         // Check consistency of input.
-        if( integratedStatesToSet.size( ) + setIntegratedStatesFromEnvironment.size( ) != integratedStates_.size( ) )
+        if( ( integratedStatesToSet.size( ) + setIntegratedStatesFromEnvironment.size( ) ) != integratedStates_.size( ) )
         {
             throw std::runtime_error( "Error when updating environment, input size is inconsistent " +
                                       std::to_string( integratedStatesToSet.size( ) ) + " " +
