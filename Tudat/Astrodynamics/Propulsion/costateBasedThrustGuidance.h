@@ -60,7 +60,7 @@ public:
             const std::function< double( ) > centralBodyGravitationalParameterFunction,
             const std::function< Eigen::VectorXd( const double ) > costateFunction,
             const std::function< Eigen::Vector3d( ) > bodyFixedForceDirection =
-            boost::lambda::constant( Eigen::Vector3d::UnitX( ) ) );
+            [](){ return  Eigen::Vector3d::UnitX( ); } );
 
     //! Destructor
     ~MeeCostateBasedThrustGuidance( ){ }

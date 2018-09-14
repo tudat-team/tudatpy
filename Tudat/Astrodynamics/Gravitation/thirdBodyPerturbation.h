@@ -18,6 +18,7 @@
 
 #include <Eigen/Core>
 
+#include "Tudat/Basics/tudatTypeTraits.h"
 #include "Tudat/Astrodynamics/Gravitation/centralGravityModel.h"
 #include "Tudat/Astrodynamics/Gravitation/sphericalHarmonicsGravityModel.h"
 #include "Tudat/Astrodynamics/Gravitation/mutualSphericalHarmonicGravityModel.h"
@@ -75,7 +76,8 @@ Eigen::Vector3d computeThirdBodyPerturbingAcceleration(
  *  calculated (CentralGravitationalAccelerationModel,
  *  SphericalHarmonicsGravitationalAccelerationModel, ...)
  */
-template< typename DirectAccelerationModelType >
+template< typename DirectAccelerationModelType,
+          typename std::enable_if< is_direct_gravity_acceleration< DirectAccelerationModelType >::value, int >::type = 0 >
 class ThirdBodyAcceleration: public basic_astrodynamics::AccelerationModel< Eigen::Vector3d >
 {
 public:
