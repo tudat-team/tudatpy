@@ -280,7 +280,7 @@ BOOST_AUTO_TEST_CASE( testMultiTypeCustomStatePropagation )
     // Create mass rate model and mass propagation settings
     std::map< std::string, std::shared_ptr< basic_astrodynamics::MassRateModel > > massRateModels;
     massRateModels[ "Vehicle" ] = std::make_shared< basic_astrodynamics::CustomMassRateModel >(
-                boost::lambda::constant( -0.01 ) );
+                []( const double ){ return -0.01; } );
     Eigen::VectorXd initialMass = Eigen::VectorXd( 1 );
     initialMass( 0 ) = 500.0;
     std::shared_ptr< SingleArcPropagatorSettings< double > > massPropagatorSettings =

@@ -141,7 +141,7 @@ Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > getInitialStateOfBody(
         const TimeType initialTime )
 {
     return getInitialStatesOfBodies< TimeType, StateScalarType >(
-                boost::assign::list_of( bodyToIntegrate ), boost::assign::list_of( centralBody ), bodyMap, initialTime );
+    { bodyToIntegrate }, { centralBody }, bodyMap, initialTime );
 }
 
 //! Function to get the state of single body, w.r.t. some central body, at a set of requested times, concatanated into one vector.

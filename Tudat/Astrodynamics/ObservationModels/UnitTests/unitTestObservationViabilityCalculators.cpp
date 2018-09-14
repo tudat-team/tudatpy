@@ -477,7 +477,7 @@ BOOST_AUTO_TEST_CASE( testObservationViabilityCalculators )
             {
                 observationSettingsMap[ observableIterator->first ][ observableIterator->second.at( i ) ] =
                         std::make_shared< OneWayDifferencedRangeRateObservationSettings >(
-                            boost::lambda::constant( 60.0 ), std::shared_ptr< LightTimeCorrectionSettings > ( ) );
+                            []( const double ){ return 60.0; }, std::shared_ptr< LightTimeCorrectionSettings > ( ) );
             }
             else if( observableIterator->first == n_way_range )
             {

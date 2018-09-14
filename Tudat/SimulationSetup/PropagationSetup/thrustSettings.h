@@ -233,7 +233,7 @@ public:
             const std::string& centralBodyName,
             const Eigen::VectorXd constantCostates ):
         ThrustDirectionGuidanceSettings( mee_costate_based_thrust_direction, centralBodyName ),
-    vehicleName_( vehicleName ), costateFunction_( boost::lambda::constant( constantCostates ) ){ }
+    vehicleName_( vehicleName ), costateFunction_( [&]( const double ){ return constantCostates; } ){ }
 
 
     ~MeeCostateBasedThrustDirectionSettings( ){ }
@@ -387,9 +387,9 @@ public:
     FromFunctionThrustEngineSettings(
             const std::function< double( const double ) > thrustMagnitudeFunction,
             const std::function< double( const double ) > specificImpulseFunction,
-            const std::function< bool( const double ) > isEngineOnFunction = boost::lambda::constant( true ),
+            const std::function< bool( const double ) > isEngineOnFunction = []( const double ){ return true; },
             const std::function< Eigen::Vector3d( ) > bodyFixedThrustDirection =
-            boost::lambda::constant( Eigen::Vector3d::UnitX( ) ),
+            [](){ return  Eigen::Vector3d::UnitX( ); },
             const std::function< void( const double ) > customThrustResetFunction = std::function< void( const double ) >( ) ):
         ThrustEngineSettings( thrust_magnitude_from_time_function, "" ),
         thrustMagnitudeFunction_( thrustMagnitudeFunction ),
@@ -807,7 +807,7 @@ public:
         ThrustEngineSettings( thrust_magnitude_from_dependent_variables, "" ),
         thrustMagnitudeFunction_( std::bind( &interpolators::Interpolator< double, double >::interpolate,
                                                thrustMagnitudeInterpolator, std::placeholders::_1 ) ),
-        specificImpulseFunction_( boost::lambda::constant( constantSpecificImpulse ) ),
+        specificImpulseFunction_( [&]( const std::vector< double >& ){ return constantSpecificImpulse; } ),
         thrustIndependentVariables_( thrustIndependentVariables ),
         thrustGuidanceInputVariables_( thrustGuidanceInputVariables ),
         inputUpdateFunction_( inputUpdateFunction ),

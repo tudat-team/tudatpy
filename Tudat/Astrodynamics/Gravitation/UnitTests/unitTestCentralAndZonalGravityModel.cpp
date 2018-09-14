@@ -208,11 +208,11 @@ BOOST_AUTO_TEST_CASE( testGravitationalAccelerationZonalSumWrapperClassesMatlab 
                     // Declare central acceleration wrapper class object.
                     CentralGravitationalAccelerationModel3dPointer centralGravity
                             = std::make_shared< CentralGravitationalAccelerationModel3d >(
-                                boost::lambda::constant(
-                                    planetData.at( planet ).body2Positions.at( body2 ) ),
+                                [&]( ){ return
+                                    planetData.at( planet ).body2Positions.at( body2 ); },
                                 planetData.at( planet ).gravitationalParameter,
-                                boost::lambda::constant(
-                                    planetData.at( planet ).body1Positions.at( body1 ) ) );
+                                [&]( ){ return
+                                    planetData.at( planet ).body1Positions.at( body1 ); } );
 
                     // Compute central gravitational acceleration term [m s^-2].
                     const Eigen::Vector3d computedCentralAcceleration
@@ -233,13 +233,13 @@ BOOST_AUTO_TEST_CASE( testGravitationalAccelerationZonalSumWrapperClassesMatlab 
                     // Declare central + J2 acceleration wrapper class object.
                     CentralJ2GravitationalAccelerationModelPointer centralJ2Gravity
                             = std::make_shared< CentralJ2GravitationalAccelerationModel >(
-                                boost::lambda::constant(
-                                    planetData.at( planet ).body2Positions.at( body2 ) ),
+                                [&]( ){ return
+                                    planetData.at( planet ).body2Positions.at( body2 ); },
                                 planetData.at( planet ).gravitationalParameter,
                                 planetData.at( planet ).equatorialRadius,
                                 planetData.at( planet ).zonalCoefficients[ 2 ],
-                            boost::lambda::constant(
-                                planetData.at( planet ).body1Positions.at( body1 ) ) );
+                            [&]( ){ return
+                                planetData.at( planet ).body1Positions.at( body1 ); } );
 
                     // Compute gravitational acceleration sum [m s^-2].
                     const Eigen::Vector3d computedCentralJ2AccelerationSum
@@ -260,14 +260,14 @@ BOOST_AUTO_TEST_CASE( testGravitationalAccelerationZonalSumWrapperClassesMatlab 
                     // Declare central + J2 + J3 acceleration wrapper class object.
                     CentralJ2J3GravitationalAccelerationModelPointer centralJ2J3Gravity
                             = std::make_shared< CentralJ2J3GravitationalAccelerationModel >(
-                                boost::lambda::constant(
-                                    planetData.at( planet ).body2Positions.at( body2 ) ),
+                                [&]( ){ return
+                                    planetData.at( planet ).body2Positions.at( body2 ); },
                                 planetData.at( planet ).gravitationalParameter,
                                 planetData.at( planet ).equatorialRadius,
                                 planetData.at( planet ).zonalCoefficients[ 2 ],
                             planetData.at( planet ).zonalCoefficients[ 3 ],
-                            boost::lambda::constant(
-                                planetData.at( planet ).body1Positions.at( body1 ) ) );
+                            [&]( ){ return
+                                planetData.at( planet ).body1Positions.at( body1 ); } );
 
                     // Compute gravitational acceleration sum [m s^-2].
                     const Eigen::Vector3d computedCentralJ2J3AccelerationSum
@@ -294,15 +294,15 @@ BOOST_AUTO_TEST_CASE( testGravitationalAccelerationZonalSumWrapperClassesMatlab 
                         // Declare central + J2 + J3 + J4 acceleration wrapper class object.
                         centralJ2J3J4Gravity = std::make_shared<
                                 CentralJ2J3J4GravitationalAccelerationModel >(
-                                    boost::lambda::constant(
-                                        planetData.at( planet ).body2Positions.at( body2 ) ),
+                                    [&]( ){ return
+                                        planetData.at( planet ).body2Positions.at( body2 ); },
                                     planetData.at( planet ).gravitationalParameter,
                                     planetData.at( planet ).equatorialRadius,
                                     planetData.at( planet ).zonalCoefficients[ 2 ],
                                 0.0,
                                 planetData.at( planet ).zonalCoefficients[ 4 ],
-                                boost::lambda::constant(
-                                    planetData.at( planet ).body1Positions.at( body1 ) ) );
+                                [&]( ){ return
+                                    planetData.at( planet ).body1Positions.at( body1 ); } );
                     }
 
                     // Else, include given J3.
@@ -311,15 +311,15 @@ BOOST_AUTO_TEST_CASE( testGravitationalAccelerationZonalSumWrapperClassesMatlab 
                         // Declare central + J2 + J3 + J4 acceleration wrapper class object.
                         centralJ2J3J4Gravity = std::make_shared<
                                 CentralJ2J3J4GravitationalAccelerationModel >(
-                                    boost::lambda::constant(
-                                        planetData.at( planet ).body2Positions.at( body2 ) ),
+                                    [&]( ){ return
+                                        planetData.at( planet ).body2Positions.at( body2 ); },
                                     planetData.at( planet ).gravitationalParameter,
                                     planetData.at( planet ).equatorialRadius,
                                     planetData.at( planet ).zonalCoefficients[ 2 ],
                                 planetData.at( planet ).zonalCoefficients[ 3 ],
                                 planetData.at( planet ).zonalCoefficients[ 4 ],
-                                boost::lambda::constant(
-                                    planetData.at( planet ).body1Positions.at( body1 ) ) );
+                                [&]( ){ return
+                                    planetData.at( planet ).body1Positions.at( body1 ); } );
                     }
 
                     // Compute gravitational acceleration sum [m s^-2].

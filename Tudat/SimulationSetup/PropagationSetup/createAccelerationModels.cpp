@@ -864,8 +864,8 @@ std::shared_ptr< relativity::RelativisticAccelerationCorrection > createRelativi
             std::function< Eigen::Vector3d( ) > angularMomentumFunction;
             if( relativisticAccelerationSettings->calculateLenseThirringCorrection_ == true  )
             {
-                angularMomentumFunction = boost::lambda::constant(
-                            relativisticAccelerationSettings->centralBodyAngularMomentum_ );
+                angularMomentumFunction = [&](){ return
+                            relativisticAccelerationSettings->centralBodyAngularMomentum_; };
             }
 
             if( relativisticAccelerationSettings->calculateDeSitterCorrection_ == true )
@@ -986,7 +986,7 @@ createThrustAcceleratioModel(
 
                 if( ephemerides::isFrameInertial( thrustAccelerationSettings->centralBody_ ) )
                 {
-                    centralBodyStateFunction =  boost::lambda::constant( Eigen::Vector6d::Zero( ) );
+                    centralBodyStateFunction =  [](){ return Eigen::Vector6d::Zero( ); };
                 }
                 else
                 {

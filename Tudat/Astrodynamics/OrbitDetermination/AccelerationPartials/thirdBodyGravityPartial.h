@@ -13,6 +13,8 @@
 
 #include <memory>
 
+#include "Tudat/Basics/tudatTypeTraits.h"
+
 #include "Tudat/Astrodynamics/OrbitDetermination/AccelerationPartials/centralGravityAccelerationPartial.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/AccelerationPartials/sphericalHarmonicAccelerationPartial.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/AccelerationPartials/mutualSphericalHarmonicGravityPartial.h"
@@ -67,7 +69,8 @@ basic_astrodynamics::AvailableAcceleration getAccelerationTypeOfThirdBodyGravity
  *  providin a generic third-body partial interface. The template parameter is the derived class of AccelerationPartial
  *  for the associated direct acceleration partial.
  */
-template< typename DirectGravityPartial >
+template< typename DirectGravityPartial,
+                    typename std::enable_if< is_direct_gravity_partial< DirectGravityPartial >::value, int >::type = 0 >
 class ThirdBodyGravityPartial: public AccelerationPartial
 {
 public:

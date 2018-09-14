@@ -55,7 +55,7 @@ BOOST_AUTO_TEST_CASE( testBodyMassPropagation )
     // Create mass rate model.
     std::map< std::string, std::shared_ptr< basic_astrodynamics::MassRateModel > > massRateModels;
     massRateModels[ "Vehicle" ] = std::make_shared< basic_astrodynamics::CustomMassRateModel >(
-                boost::lambda::constant( -0.01 ) );
+                []( const double ){ return -0.01; } );
 
     // Create settings for propagation
     Eigen::VectorXd initialMass = Eigen::VectorXd( 1 );
@@ -99,11 +99,11 @@ BOOST_AUTO_TEST_CASE( testTwoBodyMassPropagation )
                 std::bind( &getDummyMassRate2, bodyMap ) );
     bodyMap[ "Earth" ] = std::make_shared< Body >( );
     bodyMap[ "Earth" ]->setEphemeris( std::make_shared< ephemerides::ConstantEphemeris >(
-                                          boost::lambda::constant( Eigen::Vector6d::Zero( ) ) ) );
+                                          [](){ return Eigen::Vector6d::Zero( ); } ) );
     bodyMap[ "Vehicle1" ]->setEphemeris( std::make_shared< ephemerides::ConstantEphemeris >(
-                                          boost::lambda::constant( Eigen::Vector6d::Zero( ) ), "Earth" ) );
+                                          [](){ return Eigen::Vector6d::Zero( ); }, "Earth" ) );
     bodyMap[ "Vehicle2" ]->setEphemeris( std::make_shared< ephemerides::ConstantEphemeris >(
-                                          boost::lambda::constant( Eigen::Vector6d::Zero( ) ), "Earth" ) );
+                                          [](){ return Eigen::Vector6d::Zero( ); }, "Earth" ) );
 
     // Create settings for propagation
     Eigen::VectorXd initialMass = Eigen::VectorXd( 2 );

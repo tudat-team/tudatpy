@@ -69,9 +69,9 @@ public:
             const std::function< double( ) > gravitationalParameterOfAttractingBodyFunction,
             const std::function< Eigen::Matrix3d( ) > inertiaTensorOfRotatingBodyFunction,
             const std::function< Eigen::Vector3d( ) > positionOfBodyExertingTorqueFunction =
-            boost::lambda::constant( Eigen::Vector3d::Zero( ) ),
+            []( ){ return Eigen::Vector3d::Zero( ); },
             const std::function< Eigen::Quaterniond( ) > rotationToBodyFixedFrameFunction =
-            boost::lambda::constant( Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) ) ) ):
+            []( ){ return Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) ); } ):
         positionOfBodySubjectToTorqueFunction_( positionOfBodySubjectToTorqueFunction ),
         gravitationalParameterOfAttractingBodyFunction_( gravitationalParameterOfAttractingBodyFunction ),
         inertiaTensorOfRotatingBodyFunction_( inertiaTensorOfRotatingBodyFunction ),

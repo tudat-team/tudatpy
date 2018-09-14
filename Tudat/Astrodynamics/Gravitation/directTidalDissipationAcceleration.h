@@ -135,7 +135,7 @@ public:
         stateFunctionOfBodyUndergoingTide_( stateFunctionOfBodyUndergoingTide ),
         gravitationalParameterFunctionOfBodyExertingTide_( gravitationalParameterFunctionOfBodyExertingTide ),
         gravitationalParameterFunctionOfBodyUndergoingTide_( gravitationalParameterFunctionOfBodyUndergoingTide ),
-        angularVelocityVectorOfBodyUndergoingTide_( boost::lambda::constant( Eigen::Vector3d::Constant( TUDAT_NAN ) ) ),
+        angularVelocityVectorOfBodyUndergoingTide_( [&]( ){ return Eigen::Vector3d::Constant( TUDAT_NAN ); } ),
         k2LoveNumber_( k2LoveNumber ), timeLag_( timeLag ),
         equatorialRadiusOfBodyUndergoingTide_( equatorialRadiusOfBodyUndergoingTide ),
         includeDirectRadialComponent_( includeDirectRadialComponent ), modelTideOnPlanet_( false )

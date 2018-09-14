@@ -434,11 +434,11 @@ void AerodynamicAngleCalculator::setOrientationAngleFunctions(
         const double bankAngle )
 {
     std::function< double( ) > angleOfAttackFunction =
-            ( ( angleOfAttack == angleOfAttack ) ? boost::lambda::constant( angleOfAttack ) : std::function< double( ) >( ) );
+            ( ( angleOfAttack == angleOfAttack ) ? [&](){ return angleOfAttack; } : std::function< double( ) >( ) );
     std::function< double( ) > angleOfSideslipFunction =
-            ( ( angleOfSideslip == angleOfSideslip ) ? boost::lambda::constant( angleOfSideslip ) : std::function< double( ) >( ) );
+            ( ( angleOfSideslip == angleOfSideslip ) ? [&](){ return angleOfSideslip; } : std::function< double( ) >( ) );
     std::function< double( ) > bankAngleFunction =
-            ( ( bankAngle == bankAngle ) ? boost::lambda::constant( bankAngle ): std::function< double( ) >( ) );
+            ( ( bankAngle == bankAngle ) ? [&](){ return bankAngle; }: std::function< double( ) >( ) );
     setOrientationAngleFunctions( angleOfAttackFunction, angleOfSideslipFunction, bankAngleFunction );
 }
 
