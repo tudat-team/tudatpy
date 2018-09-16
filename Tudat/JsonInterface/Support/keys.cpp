@@ -326,6 +326,7 @@ const std::string Keys::Integrator::minimumStepSize = "minimumStepSize";
 const std::string Keys::Integrator::maximumStepSize = "maximumStepSize";
 const std::string Keys::Integrator::relativeErrorTolerance = "relativeErrorTolerance";
 const std::string Keys::Integrator::absoluteErrorTolerance = "absoluteErrorTolerance";
+const std::string Keys::Integrator::areTolerancesDefinedAsScalar = "areTolerancesDefinedAsScalar";
 const std::string Keys::Integrator::safetyFactorForNextStepSize = "safetyFactorForNextStepSize";
 const std::string Keys::Integrator::maximumFactorIncreaseForNextStepSize = "maximumFactorIncreaseForNextStepSize";
 const std::string Keys::Integrator::minimumFactorDecreaseForNextStepSize = "minimumFactorDecreaseForNextStepSize";
