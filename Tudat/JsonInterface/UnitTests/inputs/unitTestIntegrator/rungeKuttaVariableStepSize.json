@@ -9,5 +9,6 @@
   "maximumFactorIncreaseForNextStepSize": 10,
   "minimumFactorDecreaseForNextStepSize": 0.1,
   "type": "rungeKuttaVariableStepSize",
-  "initialTime": -0.3
+  "initialTime": -0.3,
+  "areTolerancesDefinedAsScalar": true
 }

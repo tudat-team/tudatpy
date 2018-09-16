@@ -347,6 +347,7 @@ struct Keys
         static const std::string maximumStepSize;
         static const std::string relativeErrorTolerance;
         static const std::string absoluteErrorTolerance;
+        static const std::string areTolerancesDefinedAsScalar;
         static const std::string safetyFactorForNextStepSize;
         static const std::string maximumFactorIncreaseForNextStepSize;
         static const std::string minimumFactorDecreaseForNextStepSize;
@@ -355,8 +356,6 @@ struct Keys
         static const std::string maximumNumberOfSteps;
         static const std::string minimumOrder;
         static const std::string maximumOrder;
-
-
     };
 
     struct Interpolation
