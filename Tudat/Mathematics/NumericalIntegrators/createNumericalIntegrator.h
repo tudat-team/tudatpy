@@ -626,6 +626,13 @@ DependentVariableType, IndependentVariableStepType > > createIntegrator(
                     scalarTolerancesIntegratorSettings = boost::dynamic_pointer_cast<
                     RungeKuttaVariableStepSizeSettingsScalarTolerances< IndependentVariableType > >( variableStepIntegratorSettings );
 
+            // Check input consistency
+            if ( scalarTolerancesIntegratorSettings == nullptr )
+            {
+                throw std::runtime_error( "Error while creating Runge-Kutta variable step size integrator. Input class must be of "
+                                          "RungeKuttaVariableStepSizeSettingsScalarTolerances type." );
+            }
+
             // Create Runge-Kutta integrator with scalar tolerances
             integrator = boost::make_shared<
                     RungeKuttaVariableStepSizeIntegrator
@@ -650,8 +657,8 @@ DependentVariableType, IndependentVariableStepType > > createIntegrator(
             // Check input consistency
             if ( vectorTolerancesIntegratorSettings == nullptr )
             {
-                throw std::runtime_error( "Error while creating Runge-Kutta variable step size integrator. Input class uses "
-                                          "neither scalar nor vector tolerances." );
+                throw std::runtime_error( "Error while creating Runge-Kutta variable step size integrator. Input class must be of "
+                                          "RungeKuttaVariableStepSizeSettingsVectorTolerances type." );
             }
 
             // Check that sizes of tolerances and initial state match
