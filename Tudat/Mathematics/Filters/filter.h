@@ -102,6 +102,12 @@ public:
             throw std::runtime_error( "Error in setting up filter. The measurement uncertainty matrix has to be square." );
         }
 
+        // Check that state vector and system uncertainty match in size
+        if ( initialStateVector.rows( ) != systemUncertainty.rows( ) )
+        {
+            throw std::runtime_error( "Error in setting up filter. The state vector and system uncertainty have different sizes." );
+        }
+
         // Create noise distributions
         generateNoiseDistributions( );
 
@@ -299,11 +305,11 @@ public:
         aPosterioriCovarianceEstimate_ = historyOfCovarianceEstimates_.rbegin( )->second;
 
         // Erase last noise entries
-        if ( systemNoiseHistory_.size( ) > 0 )
+        if ( !systemNoiseHistory_.empty( ) )
         {
             systemNoiseHistory_.pop_back( );
         }
-        if ( measurementNoiseHistory_.size( ) > 0 )
+        if ( !measurementNoiseHistory_.empty( ) )
         {
             measurementNoiseHistory_.pop_back( );
         }
