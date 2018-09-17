@@ -114,7 +114,7 @@ public:
         {
             for( unsigned int i = 0; i < bodiesToPropagate.size( ); i++ )
             {
-                bodyInertiaTensorTimeDerivativeFunctions_.push_back( [&]( ){ return Eigen::Matrix3d::Zero( ); } );
+                bodyInertiaTensorTimeDerivativeFunctions_.push_back( []( ){ return Eigen::Matrix3d::Zero( ); } );
             }
         }
         else if( bodiesToPropagate_.size( ) != bodyInertiaTensorTimeDerivativeFunctions_.size( ) )

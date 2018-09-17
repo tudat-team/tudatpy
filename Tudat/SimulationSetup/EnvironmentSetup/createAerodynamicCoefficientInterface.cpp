@@ -124,8 +124,8 @@ createConstantCoefficientAerodynamicCoefficientInterface(
     // Create coefficient interface
     std::shared_ptr< aerodynamics::AerodynamicCoefficientInterface > coefficientInterface =
             std::make_shared< aerodynamics::CustomAerodynamicCoefficientInterface >(
-                [&]( const std::vector< double >& ){ return constantForceCoefficient; },
-                [&]( const std::vector< double >& ){ return constantMomentCoefficient; },
+                [=]( const std::vector< double >& ){ return constantForceCoefficient; },
+                [=]( const std::vector< double >& ){ return constantMomentCoefficient; },
                 referenceLength, referenceArea, lateralReferenceLength, momentReferencePoint,
                 std::vector< aerodynamics::AerodynamicCoefficientsIndependentVariables >( ),
                 areCoefficientsInAerodynamicFrame, areCoefficientsInNegativeAxisDirection );

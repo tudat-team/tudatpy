@@ -224,7 +224,7 @@ public:
             Eigen::Vector6d::Zero( ) )
         : bodyIsGlobalFrameOrigin_( -1 ), currentState_( state ), timeOfCurrentState_( TUDAT_NAN ),
           ephemerisFrameToBaseFrame_( std::make_shared< BaseStateInterfaceImplementation< double, double > >(
-                                          "", [&]( const double ){ return Eigen::Vector6d::Zero( ); } ) ),
+                                          "", [=]( const double ){ return Eigen::Vector6d::Zero( ); } ) ),
           currentRotationToLocalFrame_( Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) ) ),
           currentRotationToLocalFrameDerivative_( Eigen::Matrix3d::Zero( ) ),
           currentAngularVelocityVectorInGlobalFrame_( Eigen::Vector3d::Zero( ) ),
@@ -678,7 +678,7 @@ public:
 
         currentMass_ = gravityFieldModel_->getGravitationalParameter( )
                        / physical_constants::GRAVITATIONAL_CONSTANT;
-        bodyMassFunction_ = [&]( const double ){ return currentMass_; };
+        bodyMassFunction_ = [=]( const double ){ return currentMass_; };
     }
 
     //! Function to set the atmosphere model of the body.
@@ -987,7 +987,7 @@ public:
      */
     void setConstantBodyMass( const double bodyMass )
     {
-        bodyMassFunction_ = [&]( const double ){ return bodyMass; };
+        bodyMassFunction_ = [=]( const double ){ return bodyMass; };
         currentMass_ = bodyMass;
     }
 

@@ -233,7 +233,7 @@ public:
             const std::string& centralBodyName,
             const Eigen::VectorXd constantCostates ):
         ThrustDirectionGuidanceSettings( mee_costate_based_thrust_direction, centralBodyName ),
-    vehicleName_( vehicleName ), costateFunction_( [&]( const double ){ return constantCostates; } ){ }
+    vehicleName_( vehicleName ), costateFunction_( [=]( const double ){ return constantCostates; } ){ }
 
 
     ~MeeCostateBasedThrustDirectionSettings( ){ }
@@ -807,7 +807,7 @@ public:
         ThrustEngineSettings( thrust_magnitude_from_dependent_variables, "" ),
         thrustMagnitudeFunction_( std::bind( &interpolators::Interpolator< double, double >::interpolate,
                                                thrustMagnitudeInterpolator, std::placeholders::_1 ) ),
-        specificImpulseFunction_( [&]( const std::vector< double >& ){ return constantSpecificImpulse; } ),
+        specificImpulseFunction_( [=]( const std::vector< double >& ){ return constantSpecificImpulse; } ),
         thrustIndependentVariables_( thrustIndependentVariables ),
         thrustGuidanceInputVariables_( thrustGuidanceInputVariables ),
         inputUpdateFunction_( inputUpdateFunction ),

@@ -103,8 +103,8 @@ public:
         coefficientFunction_( coefficientFunction ),
         densityFunction_( densityFunction ),
         airSpeedFunction_( airSpeedFunction ),
-        massFunction_( [&]( ){ return constantMass; } ),
-        referenceAreaFunction_( [&]( ){ return constantReferenceArea; } )
+        massFunction_( [=]( ){ return constantMass; } ),
+        referenceAreaFunction_( [=]( ){ return constantReferenceArea; } )
     {
         coefficientMultiplier_ = areCoefficientsInNegativeDirection == true ? -1.0 : 1.0;
     }

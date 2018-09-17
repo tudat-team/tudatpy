@@ -258,7 +258,7 @@ std::function< Eigen::Vector3d( ) > getBodyFixedThrustDirection(
         }
         else
         {
-            thrustDirectionFunction = [&](){ return constantThrustMagnitudeSettings->bodyFixedThrustDirection_; };
+            thrustDirectionFunction = [=](){ return constantThrustMagnitudeSettings->bodyFixedThrustDirection_; };
         }
         break;
     }
@@ -355,7 +355,7 @@ std::function< Eigen::Vector3d( ) > getBodyFixedThrustDirection(
         }
         else
         {
-            thrustDirectionFunction = [&](){ return fromFunctionThrustMagnitudeSettings->bodyFixedThrustDirection_; };
+            thrustDirectionFunction = [=](){ return fromFunctionThrustMagnitudeSettings->bodyFixedThrustDirection_; };
         }
         break;
     }
@@ -388,8 +388,8 @@ std::shared_ptr< propulsion::ThrustMagnitudeWrapper > createThrustMagnitudeWrapp
         }
 
         thrustMagnitudeWrapper = std::make_shared< propulsion::CustomThrustMagnitudeWrapper >(
-                    [&]( const double ){ return constantThrustMagnitudeSettings->thrustMagnitude_; },
-                    [&]( const double ){ return constantThrustMagnitudeSettings->specificImpulse_; } );
+                    [=]( const double ){ return constantThrustMagnitudeSettings->thrustMagnitude_; },
+                    [=]( const double ){ return constantThrustMagnitudeSettings->specificImpulse_; } );
         break;
 
     }
