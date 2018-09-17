@@ -171,7 +171,7 @@ public:
             = []( ){ return StateMatrix::Zero( ); },
             const bool isMutualAttractionUsed = false )
         : Base( positionOfBodySubjectToAccelerationFunction,
-                [&]( ){ return aGravitationalParameter; },
+                [=]( ){ return aGravitationalParameter; },
                 positionOfBodyExertingAccelerationFunction,
                 isMutualAttractionUsed )
     {

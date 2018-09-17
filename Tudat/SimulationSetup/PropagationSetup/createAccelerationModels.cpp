@@ -864,7 +864,7 @@ std::shared_ptr< relativity::RelativisticAccelerationCorrection > createRelativi
             std::function< Eigen::Vector3d( ) > angularMomentumFunction;
             if( relativisticAccelerationSettings->calculateLenseThirringCorrection_ == true  )
             {
-                angularMomentumFunction = [&](){ return
+                angularMomentumFunction = [=](){ return
                             relativisticAccelerationSettings->centralBodyAngularMomentum_; };
             }
 

@@ -552,7 +552,7 @@ void HypersonicLocalInclinationAnalysis::updateExpansionPressures( const double 
             break;
 
         case 1:
-            pressureFunction = [&]( ){ return 0.0; };
+            pressureFunction = []( ){ return 0.0; };
             break;
 
         case 4:

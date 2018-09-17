@@ -408,7 +408,7 @@ public:
             const ThrustFrames thrustFrame = unspecified_thurst_frame,
             const std::string centralBody = "" ):
         ThrustAccelerationSettings( dataInterpolationSettings,
-                                    [&]( const double ){ return constantSpecificImpulse; },
+                                    [=]( const double ){ return constantSpecificImpulse; },
                                     thrustFrame,
                                     centralBody )
     {

@@ -488,7 +488,7 @@ std::pair< std::function< Eigen::VectorXd( ) >, int > getVectorDependentVariable
 
         if( ephemerides::isFrameInertial( dependentVariableSettings->secondaryBody_ ) )
         {
-            centralBodyStateFunction =  [&](){ return Eigen::Vector6d::Zero( ); };
+            centralBodyStateFunction =  [](){ return Eigen::Vector6d::Zero( ); };
         }
         else
         {

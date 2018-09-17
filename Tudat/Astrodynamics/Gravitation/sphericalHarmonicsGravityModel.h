@@ -214,9 +214,8 @@ public:
                 positionOfBodyExertingAccelerationFunction,
                 isMutualAttractionUsed ),
           equatorialRadius( anEquatorialRadius ),
-          getCosineHarmonicsCoefficients(
-              [&]( ){ return aCosineHarmonicCoefficientMatrix; } ),
-          getSineHarmonicsCoefficients( [&]( ){ return aSineHarmonicCoefficientMatrix; } ),
+          getCosineHarmonicsCoefficients( [=]( ){ return aCosineHarmonicCoefficientMatrix; } ),
+          getSineHarmonicsCoefficients( [=]( ){ return aSineHarmonicCoefficientMatrix; } ),
           rotationFromBodyFixedToIntegrationFrameFunction_(
               rotationFromBodyFixedToIntegrationFrameFunction ),
           sphericalHarmonicsCache_( sphericalHarmonicsCache ),
