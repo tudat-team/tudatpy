@@ -252,7 +252,12 @@ BOOST_AUTO_TEST_CASE( testDependentVariableOutput )
         dependentVariables.push_back(
                     boost::make_shared< SingleDependentVariableSaveSettings >(
                         modified_equinocial_state_dependent_variable,  "Apollo", "Earth" ) );
-
+        dependentVariables.push_back(
+                    boost::make_shared< SingleDependentVariableSaveSettings >(
+                        body_fixed_relative_cartesian_position,  "Apollo", "Earth" ) );
+        dependentVariables.push_back(
+                    boost::make_shared< SingleDependentVariableSaveSettings >(
+                        body_fixed_relative_spherical_position,  "Apollo", "Earth" ) );
 
         // Create acceleration models and propagation settings.
         basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
@@ -328,6 +333,8 @@ BOOST_AUTO_TEST_CASE( testDependentVariableOutput )
 
             Eigen::Vector6d keplerElements =  variableIterator->second.segment( 42, 6 );
             Eigen::Vector6d modifiedEquinoctialElements =  variableIterator->second.segment( 48, 6 );
+            Eigen::Vector3d bodyFixedCartesianPosition = variableIterator->second.segment( 54, 3 );
+            Eigen::Vector3d bodyFixedSphericalPosition = variableIterator->second.segment( 57, 3 );
 
             currentStateDerivative = dynamicsSimulator.getDynamicsStateDerivative( )->computeStateDerivative(
                         variableIterator->first, numericalSolution.at( variableIterator->first ) );
@@ -496,8 +503,22 @@ BOOST_AUTO_TEST_CASE( testDependentVariableOutput )
             TUDAT_CHECK_MATRIX_CLOSE_FRACTION( expectedModifiedEquinoctialElements, modifiedEquinoctialElements,
                                                ( 10.0 * std::numeric_limits< double >::epsilon( ) ) );
 
-
-
+            for( unsigned int i = 0; i < 3; i ++ )
+            {
+                BOOST_CHECK_SMALL(
+                            std::fabs( computedBodyFixedPosition( i ) - bodyFixedCartesianPosition( i ) ),
+                            1.0E-8 );
+            }
+            BOOST_CHECK_SMALL(
+                        std::fabs( computedSphericalBodyFixedPosition( 0 ) - bodyFixedSphericalPosition( 0 ) ),
+                        1.0E-8 );
+            BOOST_CHECK_SMALL(
+                        std::fabs( tudat::mathematical_constants::PI / 2.0 - computedSphericalBodyFixedPosition( 1 ) -
+                                   bodyFixedSphericalPosition( 1 ) ),
+                        10.0 * std::numeric_limits< double >::epsilon( ) );
+            BOOST_CHECK_SMALL(
+                        std::fabs( computedSphericalBodyFixedPosition( 2 ) - bodyFixedSphericalPosition( 2 ) ),
+                        10.0 * std::numeric_limits< double >::epsilon( ));
         }
     }
 }

@@ -879,9 +879,9 @@ std::pair< boost::function< Eigen::VectorXd( ) >, int > getVectorDependentVariab
     }
     case body_fixed_relative_cartesian_position:
     {
-        boost::function< Eigen::Vector3d( ) > positionFunctionOfCentralBody =
-                boost::bind( &simulation_setup::Body::getPosition, bodyMap.at( bodyWithProperty ) );
         boost::function< Eigen::Vector3d( ) > positionFunctionOfRelativeBody =
+                boost::bind( &simulation_setup::Body::getPosition, bodyMap.at( bodyWithProperty ) );
+        boost::function< Eigen::Vector3d( ) > positionFunctionOfCentralBody =
                 boost::bind( &simulation_setup::Body::getPosition, bodyMap.at( secondaryBody ) );
         boost::function< Eigen::Quaterniond( ) > orientationFunctionOfCentralBody =
                 boost::bind( &simulation_setup::Body::getCurrentRotationToLocalFrame, bodyMap.at( secondaryBody ) );
@@ -895,9 +895,9 @@ std::pair< boost::function< Eigen::VectorXd( ) >, int > getVectorDependentVariab
     }
     case body_fixed_relative_spherical_position:
     {
-        boost::function< Eigen::Vector3d( ) > positionFunctionOfCentralBody =
-                boost::bind( &simulation_setup::Body::getPosition, bodyMap.at( bodyWithProperty ) );
         boost::function< Eigen::Vector3d( ) > positionFunctionOfRelativeBody =
+                boost::bind( &simulation_setup::Body::getPosition, bodyMap.at( bodyWithProperty ) );
+        boost::function< Eigen::Vector3d( ) > positionFunctionOfCentralBody =
                 boost::bind( &simulation_setup::Body::getPosition, bodyMap.at( secondaryBody ) );
         boost::function< Eigen::Quaterniond( ) > orientationFunctionOfCentralBody =
                 boost::bind( &simulation_setup::Body::getCurrentRotationToLocalFrame, bodyMap.at( secondaryBody ) );
