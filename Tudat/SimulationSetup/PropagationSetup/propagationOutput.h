@@ -900,8 +900,7 @@ std::pair< boost::function< Eigen::VectorXd( ) >, int > getVectorDependentVariab
         boost::function< Eigen::Vector3d( ) > positionFunctionOfRelativeBody =
                 boost::bind( &simulation_setup::Body::getPosition, bodyMap.at( secondaryBody ) );
         boost::function< Eigen::Quaterniond( ) > orientationFunctionOfCentralBody =
-                boost::bind( &simulation_setup::Body::getCurrentRotationToLocalFrame, bodyMap.at( bodyWithProperty ) );
-
+                boost::bind( &simulation_setup::Body::getCurrentRotationToLocalFrame, bodyMap.at( secondaryBody ) );
 
         variableFunction = boost::bind(
                     &reference_frames::getBodyFixedSphericalPosition, positionFunctionOfCentralBody,
