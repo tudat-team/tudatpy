@@ -63,7 +63,8 @@ public:
             const int numberOfDegrees, const int numberOfOrders ):
         cosineSineInterpolator_( cosineSineInterpolator ),
         startDegree_( startDegree ), startOrder_( startOrder ),
-        numberOfDegrees_( numberOfDegrees ), numberOfOrders_( numberOfOrders ){ }
+        numberOfDegrees_( numberOfDegrees ), numberOfOrders_( numberOfOrders )
+    { }
 
     //! Function to add sine and cosine corrections at given time to coefficient matrices.
     /*!
@@ -149,6 +150,8 @@ public:
     {
         numberOfDegrees_ = maximumDegree_ - minimumDegree_ + 1;
         numberOfOrders_ = maximumOrder_ - minimumOrder_ + 1;
+        lastCosineCorrection_.setZero( maximumDegree_ + 1, maximumOrder_ + 1 );
+        lastSineCorrection_.setZero( maximumDegree_ + 1, maximumOrder_ + 1 );
     }
 
     //! Virtual destructor
@@ -237,6 +240,27 @@ public:
     {
         return numberOfOrders_;
     }
+
+    //! Function to retrieve correction to cosine coefficients, as computed by last call to addSphericalHarmonicsCorrections
+    /*!
+     *  Function to retrieve correction to cosine coefficients, as computed by last call to addSphericalHarmonicsCorrections
+     * \return Correction to cosine coefficients, as computed by last call to addSphericalHarmonicsCorrections
+     */
+    Eigen::MatrixXd getLastCosineCorrection( )
+    {
+        return lastCosineCorrection_;
+    }
+
+    //! Function to retrieve correction to sine coefficients, as computed by last call to addSphericalHarmonicsCorrections
+    /*!
+     *  Function to retrieve correction tosine coefficients, as computed by last call to addSphericalHarmonicsCorrections
+     * \return Correction to sine coefficients, as computed by last call to addSphericalHarmonicsCorrections
+     */
+    Eigen::MatrixXd getLastSineCorrection( )
+    {
+        return lastSineCorrection_;
+    }
+
 protected:
 
     //! Minimum degree of variations
@@ -273,7 +297,13 @@ protected:
     /*!
      *  Number of orders of variations
      */
-    int numberOfOrders_;
+    int numberOfOrders_;    
+
+    //! Latest correction to cosine coefficients, as computed by last call to addSphericalHarmonicsCorrections
+    Eigen::MatrixXd lastCosineCorrection_;
+
+    //! Latest correction to sine coefficients, as computed by last call to addSphericalHarmonicsCorrections
+    Eigen::MatrixXd lastSineCorrection_;
 };
 
 //! Function to create a function linearly interpolating the sine and cosine correction coefficients
@@ -417,6 +447,9 @@ private:
      */
     std::vector< BodyDeformationTypes > variationType_;
 
+    //! List of model identifiers per deformation type.
+    std::map< BodyDeformationTypes, std::vector< std::string > > identifierPerType_;
+
     //! Name of variation object for each entry of variationObjects
     /*!
      *  Name of variation object for each entry of variationObjects, must be of same size as
@@ -453,7 +486,6 @@ private:
      *  (map key denotes index of variationObjects) for which createInterpolator is true.
      */
     std::map< int, double > timeSteps_;
-
 };
 
 } // namespace gravitation

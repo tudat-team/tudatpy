@@ -19,6 +19,7 @@
 #include "Tudat/Basics/testMacros.h"
 #include "Tudat/InputOutput/matrixTextFileReader.h"
 #include "Tudat/InputOutput/basicInputOutput.h"
+#include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
 
 namespace tudat
 {
@@ -150,6 +151,306 @@ BOOST_AUTO_TEST_CASE( test_linearInterpolation_matlab_compare )
 
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( benchmarkData.block( 0, 1, benchmarkData.rows( ), 1 ),
                                        outputData, 1.0E-13 );
+}
+
+// Test linear interpolation outside of independent variable range
+BOOST_AUTO_TEST_CASE( test_linearInterpolation_boundary_case )
+{
+    using namespace interpolators;
+
+    // Load input data used for generating matlab interpolation.
+    Eigen::MatrixXd inputData = input_output::readMatrixFromFile(
+                input_output::getTudatRootPath( ) +
+                "Mathematics/Interpolators/UnitTests/interpolator_test_input_data.dat","," );
+
+    // Put data in STL vectors.
+    std::vector< double > independentVariableValues;
+    std::vector< double > dependentVariableValues;
+
+    for ( int i = 0; i < inputData.rows( ); i++ )
+    {
+        independentVariableValues.push_back( inputData( i, 0 ) );
+        dependentVariableValues.push_back( inputData( i, 1 ) );
+    }
+
+    // Create linear interpolator using hunting algorithm.
+    double valueOffset = 2.0;
+    double valueBelowMinimumValue = independentVariableValues[ 0 ] - valueOffset;
+    double valueAboveMaximumValue = independentVariableValues[ inputData.rows( ) - 1 ] + valueOffset;
+    double interpolatedValue = TUDAT_NAN, expectedValue = TUDAT_NAN;
+    bool exceptionIsCaught = false;
+
+    for( unsigned int i = 0; i < 7; i++ )
+    {
+        LinearInterpolatorDouble linearInterpolator(
+                    independentVariableValues, dependentVariableValues, huntingAlgorithm,
+                    static_cast< BoundaryInterpolationType >( i ) );
+
+        if( static_cast< BoundaryInterpolationType >( i ) == throw_exception_at_boundary )
+        {
+            try
+            {
+                linearInterpolator.interpolate( valueBelowMinimumValue );
+            }
+            catch( std::runtime_error )
+            {
+                exceptionIsCaught = true;
+            }
+            BOOST_CHECK_EQUAL( exceptionIsCaught, true );
+
+            exceptionIsCaught = false;
+            try
+            {
+                linearInterpolator.interpolate( valueAboveMaximumValue );
+            }
+            catch( std::runtime_error )
+            {
+                exceptionIsCaught = true;
+            }
+            BOOST_CHECK_EQUAL( exceptionIsCaught, true );
+        }
+        else if( ( static_cast< BoundaryInterpolationType >( i ) == use_boundary_value ) ||
+                 ( static_cast< BoundaryInterpolationType >( i ) == use_boundary_value_with_warning ) )
+        {
+            interpolatedValue = linearInterpolator.interpolate( valueBelowMinimumValue );
+            BOOST_CHECK_CLOSE_FRACTION( interpolatedValue, dependentVariableValues.at( 0 ), 1.0E-15 );
+
+            interpolatedValue = linearInterpolator.interpolate( valueAboveMaximumValue );
+            BOOST_CHECK_CLOSE_FRACTION( interpolatedValue, dependentVariableValues.at( inputData.rows( ) - 1 ), 1.0E-15 );
+
+        }
+        else if( ( static_cast< BoundaryInterpolationType >( i ) == extrapolate_at_boundary ) ||
+                 ( static_cast< BoundaryInterpolationType >( i ) == extrapolate_at_boundary_with_warning ) )
+        {
+            interpolatedValue = linearInterpolator.interpolate( valueBelowMinimumValue );
+            expectedValue = dependentVariableValues.at( 0 ) - valueOffset * (
+                        dependentVariableValues.at( 1 ) - dependentVariableValues.at( 0 ) ) / (
+                        independentVariableValues.at( 1 ) - independentVariableValues.at( 0 ) );
+            BOOST_CHECK_CLOSE_FRACTION( interpolatedValue, expectedValue, 1.0E-15 );
+
+            interpolatedValue = linearInterpolator.interpolate( valueAboveMaximumValue );
+            expectedValue = dependentVariableValues.at( inputData.rows( ) - 1 ) + valueOffset * (
+                        dependentVariableValues.at( inputData.rows( ) - 1 ) - dependentVariableValues.at( inputData.rows( ) - 2 ) ) / (
+                        independentVariableValues.at( inputData.rows( ) - 1 ) - independentVariableValues.at( inputData.rows( ) - 2 ) );
+            BOOST_CHECK_CLOSE_FRACTION( interpolatedValue, expectedValue, 1.0E-15 );
+        }
+        else if( ( static_cast< BoundaryInterpolationType >( i ) == use_default_value ) ||
+                 ( static_cast< BoundaryInterpolationType >( i ) == use_default_value_with_warning ) )
+        {
+            interpolatedValue = linearInterpolator.interpolate( valueBelowMinimumValue );
+            BOOST_CHECK_CLOSE_FRACTION( interpolatedValue, 0.0, 1.0E-15 );
+
+            interpolatedValue = linearInterpolator.interpolate( valueAboveMaximumValue );
+            BOOST_CHECK_CLOSE_FRACTION( interpolatedValue, 0.0, 1.0E-15 );
+        }
+    }
+}
+
+// Test linear interpolation outside of independent variable range with default extrapolation value
+BOOST_AUTO_TEST_CASE( test_linearInterpolation_boundary_case_extrapolation_default_value )
+{
+    using namespace interpolators;
+
+    // Load input data used for generating matlab interpolation.
+    Eigen::MatrixXd inputData = input_output::readMatrixFromFile(
+                input_output::getTudatRootPath( ) +
+                "Mathematics/Interpolators/UnitTests/interpolator_test_input_data.dat","," );
+
+    // Put data in STL vectors.
+    std::vector< double > independentVariableValues;
+
+    for ( int i = 0; i < inputData.rows( ); i++ )
+    {
+        independentVariableValues.push_back( inputData( i, 0 ) );
+    }
+
+    // Create linear interpolator using hunting algorithm.
+    double valueOffset = 2.0;
+    double valueBelowMinimumValue = independentVariableValues[ 0 ] - valueOffset;
+    double valueAboveMaximumValue = independentVariableValues[ inputData.rows( ) - 1 ] + valueOffset;
+
+    // Test with long double
+    {
+        // Put data in STL vectors.
+        std::vector< long double > dependentVariableValues;
+        for ( int i = 0; i < inputData.rows( ); i++ )
+        {
+            dependentVariableValues.push_back( inputData( i, 1 ) );
+        }
+        long double interpolatedValue;
+
+        for( unsigned int i = 5; i < 7; i++ )
+        {
+            LinearInterpolator< double, long double > linearInterpolator(
+                        independentVariableValues, dependentVariableValues, huntingAlgorithm,
+                        static_cast< BoundaryInterpolationType >( i ) );
+
+            interpolatedValue = linearInterpolator.interpolate( valueBelowMinimumValue );
+            BOOST_CHECK_CLOSE_FRACTION( interpolatedValue, 0.0L, 1.0E-15 );
+
+            interpolatedValue = linearInterpolator.interpolate( valueAboveMaximumValue );
+            BOOST_CHECK_CLOSE_FRACTION( interpolatedValue, 0.0L, 1.0E-15 );
+        }
+    }
+
+    // Test with Eigen::Vector3d
+    {
+        // Put data in STL vectors.
+        std::vector< Eigen::Vector3d > dependentVariableValues;
+        Eigen::Vector3d tempData = Eigen::Vector3d::Zero( );
+        for ( int i = 0; i < inputData.rows( ); i++ )
+        {
+            tempData[ 0 ] = inputData( i, 1 );
+            dependentVariableValues.push_back( tempData );
+        }
+        Eigen::Vector3d interpolatedValue;
+
+        for( unsigned int i = 5; i < 7; i++ )
+        {
+            LinearInterpolator< double, Eigen::Vector3d > linearInterpolator(
+                        independentVariableValues, dependentVariableValues, huntingAlgorithm,
+                        static_cast< BoundaryInterpolationType >( i ) );
+
+            interpolatedValue = linearInterpolator.interpolate( valueBelowMinimumValue );
+            BOOST_CHECK_SMALL( ( interpolatedValue - Eigen::Vector3d::Zero( ) ).norm( ), 1.0E-15 );
+
+            interpolatedValue = linearInterpolator.interpolate( valueAboveMaximumValue );
+            BOOST_CHECK_SMALL( ( interpolatedValue - Eigen::Vector3d::Zero( ) ).norm( ), 1.0E-15 );
+        }
+    }
+
+    // Test with Eigen::Matrix3d
+    {
+        // Put data in STL vectors.
+        std::vector< Eigen::Matrix3d > dependentVariableValues;
+        Eigen::Matrix3d tempData = Eigen::Matrix3d::Zero( );
+        for ( int i = 0; i < inputData.rows( ); i++ )
+        {
+            tempData( 0, 2 ) = inputData( i, 1 );
+            dependentVariableValues.push_back( tempData );
+        }
+        Eigen::Matrix3d interpolatedValue;
+
+        for( unsigned int i = 5; i < 7; i++ )
+        {
+            LinearInterpolator< double, Eigen::Matrix3d > linearInterpolator(
+                        independentVariableValues, dependentVariableValues, huntingAlgorithm,
+                        static_cast< BoundaryInterpolationType >( i ) );
+
+            interpolatedValue = linearInterpolator.interpolate( valueBelowMinimumValue );
+            BOOST_CHECK_SMALL( ( interpolatedValue - Eigen::Matrix3d::Zero( ) ).norm( ), 1.0E-15 );
+
+            interpolatedValue = linearInterpolator.interpolate( valueAboveMaximumValue );
+            BOOST_CHECK_SMALL( ( interpolatedValue - Eigen::Matrix3d::Zero( ) ).norm( ), 1.0E-15 );
+        }
+    }
+}
+
+// Test linear interpolation outside of independent variable range with extrapolation value given by user
+BOOST_AUTO_TEST_CASE( test_linearInterpolation_boundary_case_extrapolation_user_value )
+{
+    using namespace interpolators;
+
+    // Load input data used for generating matlab interpolation.
+    Eigen::MatrixXd inputData = input_output::readMatrixFromFile(
+                input_output::getTudatRootPath( ) +
+                "Mathematics/Interpolators/UnitTests/interpolator_test_input_data.dat","," );
+
+    // Put data in STL vectors.
+    std::vector< double > independentVariableValues;
+
+    for ( int i = 0; i < inputData.rows( ); i++ )
+    {
+        independentVariableValues.push_back( inputData( i, 0 ) );
+    }
+
+    // Create linear interpolator using hunting algorithm.
+    double valueOffset = 2.0;
+    double valueBelowMinimumValue = independentVariableValues[ 0 ] - valueOffset;
+    double valueAboveMaximumValue = independentVariableValues[ inputData.rows( ) - 1 ] + valueOffset;
+
+    // Test with long double
+    {
+        // Put data in STL vectors.
+        std::vector< long double > dependentVariableValues;
+
+        for ( int i = 0; i < inputData.rows( ); i++ )
+        {
+            dependentVariableValues.push_back( inputData( i, 1 ) );
+        }
+        long double interpolatedValue;
+        long double extrapolationValue = 1.0L;
+
+        for( unsigned int i = 5; i < 7; i++ )
+        {
+            LinearInterpolator< double, long double > linearInterpolator(
+                        independentVariableValues, dependentVariableValues, huntingAlgorithm,
+                        static_cast< BoundaryInterpolationType >( i ), extrapolationValue );
+
+            interpolatedValue = linearInterpolator.interpolate( valueBelowMinimumValue );
+            BOOST_CHECK_CLOSE_FRACTION( interpolatedValue, extrapolationValue, 1.0E-15 );
+
+            interpolatedValue = linearInterpolator.interpolate( valueAboveMaximumValue );
+            BOOST_CHECK_CLOSE_FRACTION( interpolatedValue, extrapolationValue, 1.0E-15 );
+        }
+    }
+
+    // Test with Eigen::Vector3d
+    {
+        // Put data in STL vectors.
+        std::vector< Eigen::Vector3d > dependentVariableValues;
+        Eigen::Vector3d tempData = Eigen::Vector3d::Zero( );
+        for ( int i = 0; i < inputData.rows( ); i++ )
+        {
+            tempData[ 0 ] = inputData( i, 1 );
+            dependentVariableValues.push_back( tempData );
+        }
+        Eigen::Vector3d interpolatedValue;
+        Eigen::Vector3d extrapolationValue;
+        extrapolationValue[ 0 ] = 1.5;
+        extrapolationValue[ 1 ] = -3;
+        extrapolationValue[ 2 ] = 0;
+
+        for( unsigned int i = 5; i < 7; i++ )
+        {
+            LinearInterpolator< double, Eigen::Vector3d > linearInterpolator(
+                        independentVariableValues, dependentVariableValues, huntingAlgorithm,
+                        static_cast< BoundaryInterpolationType >( i ), extrapolationValue );
+
+            interpolatedValue = linearInterpolator.interpolate( valueBelowMinimumValue );
+            BOOST_CHECK_SMALL( ( interpolatedValue - extrapolationValue ).norm( ), 1.0E-15 );
+
+            interpolatedValue = linearInterpolator.interpolate( valueAboveMaximumValue );
+            BOOST_CHECK_SMALL( ( interpolatedValue - extrapolationValue ).norm( ), 1.0E-15 );
+        }
+    }
+
+    // Test with Eigen::Matrix3d
+    {
+        // Put data in STL vectors.
+        std::vector< Eigen::Matrix3d > dependentVariableValues;
+        Eigen::Matrix3d tempData = Eigen::Matrix3d::Zero( );
+        for ( int i = 0; i < inputData.rows( ); i++ )
+        {
+            tempData( 0, 2 ) = inputData( i, 1 );
+            dependentVariableValues.push_back( tempData );
+        }
+        Eigen::Matrix3d interpolatedValue;
+        Eigen::Matrix3d extrapolationValue = Eigen::Matrix3d::Random( );
+
+        for( unsigned int i = 5; i < 7; i++ )
+        {
+            LinearInterpolator< double, Eigen::Matrix3d > linearInterpolator(
+                        independentVariableValues, dependentVariableValues, huntingAlgorithm,
+                        static_cast< BoundaryInterpolationType >( i ), extrapolationValue );
+
+            interpolatedValue = linearInterpolator.interpolate( valueBelowMinimumValue );
+            BOOST_CHECK_SMALL( ( interpolatedValue - extrapolationValue ).norm( ), 1.0E-15 );
+
+            interpolatedValue = linearInterpolator.interpolate( valueAboveMaximumValue );
+            BOOST_CHECK_SMALL( ( interpolatedValue - extrapolationValue ).norm( ), 1.0E-15 );
+        }
+    }
 }
 
 BOOST_AUTO_TEST_SUITE_END( )

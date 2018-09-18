@@ -100,6 +100,7 @@ public:
     {
         currentCartesianLocalSoluton = internalSolution;
     }
+
 };
 
 extern template class NBodyCowellStateDerivative< double, double >;

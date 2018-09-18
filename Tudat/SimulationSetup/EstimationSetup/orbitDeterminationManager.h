@@ -590,7 +590,6 @@ public:
 
             oldParameterEstimate = newParameterEstimate;
 
-
             if( podInput->getPrintOutput( ) )
             {
                 std::cout << "Parameter update" << parameterAddition.transpose( ) << std::endl;
@@ -762,7 +761,6 @@ public:
         return stateTransitionAndSensitivityMatrixInterface_;
     }
 
-
 protected:
 
     //! Function called by either constructor to initialize the object.
@@ -828,8 +826,7 @@ protected:
 
         if( integrateAndEstimateOrbit_ )
         {
-            stateTransitionAndSensitivityMatrixInterface_ =
-                    variationalEquationsSolver_->getStateTransitionMatrixInterface( );
+            stateTransitionAndSensitivityMatrixInterface_ = variationalEquationsSolver_->getStateTransitionMatrixInterface( );
         }
         else if( propagatorSettings == NULL )
         {

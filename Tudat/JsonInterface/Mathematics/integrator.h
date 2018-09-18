@@ -191,10 +191,9 @@ void from_json( const nlohmann::json& jsonObject, std::shared_ptr< IntegratorSet
     case rungeKuttaVariableStepSize:
     {
         RungeKuttaVariableStepSizeSettings< TimeType > defaults(
-                    integratorType, 0.0, 0.0, RungeKuttaCoefficientSet::rungeKuttaFehlberg45, 0.0, 0.0 );
+                    0.0, 0.0, RungeKuttaCoefficientSet::rungeKuttaFehlberg45, 0.0, 0.0 );
 
         integratorSettings = std::make_shared< RungeKuttaVariableStepSizeSettings< TimeType > >(
-                    integratorType,
                     initialTime,
                     getValue< TimeType >( jsonObject, K::initialStepSize ),
                     getValue< RungeKuttaCoefficientSet >( jsonObject, K::rungeKuttaCoefficientSet ),

@@ -25,6 +25,7 @@
 #include "Tudat/Astrodynamics/Aerodynamics/controlSurfaceAerodynamicCoefficientInterface.h"
 #include "Tudat/Astrodynamics/Aerodynamics/aerodynamics.h"
 #include "Tudat/Basics/utilities.h"
+
 namespace tudat
 {
 namespace aerodynamics
@@ -159,7 +160,7 @@ public:
     //! Function to update the aerodynamic coefficients of the full body with control surfaces
     /*!
      *  Function to update the aerodynamic coefficients of the full body with control surfaces. The full body coefficients
-     *  are cimputed first, after which the control surfaces are updated and the results added to teh full coefficients.
+     *  are cimputed first, after which the control surfaces are updated and the results added to the full coefficients.
      *  \param independentVariables Independent variables of force and moment coefficient of body without control surfaces
      *  \param controlSurfaceIndependentVariables Map of independent variables of force and moment coefficient of
      *  control surfaces, with map key denoting the control surface identifier.
@@ -205,9 +206,9 @@ public:
      *  Function for calculating and returning aerodynamic force and moment coefficients
      *  \return Force and moment coefficients at given independent variables
      */
-    Eigen::Matrix< double, 6, 1 > getCurrentAerodynamicCoefficients(  )
+    Eigen::Vector6d getCurrentAerodynamicCoefficients(  )
     {
-        Eigen::Matrix< double, 6, 1 > coefficients;
+        Eigen::Vector6d coefficients;
         coefficients.segment( 0, 3 ) = getCurrentForceCoefficients( );
         coefficients.segment( 3, 3 ) = getCurrentMomentCoefficients( );
         return coefficients;

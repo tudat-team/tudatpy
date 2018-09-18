@@ -178,7 +178,6 @@ private:
     std::function< Eigen::Vector6d( const std::vector< double >& ) >
     coefficientFunction_;
 
-
 };
 
 } // namespace aerodynamics

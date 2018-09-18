@@ -11,10 +11,10 @@
 #ifndef TUDAT_EQUILIBRIUMWALLTEMPERATURE_H
 #define TUDAT_EQUILIBRIUMWALLTEMPERATURE_H
 
-
 #include "Tudat/Mathematics/BasicMathematics/basicFunction.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/physicalConstants.h"
 #include "Tudat/Astrodynamics/ElectroMagnetism/basicElectroMagnetism.h"
+
 namespace tudat
 {
 
@@ -38,7 +38,6 @@ public:
             double adiabaticWallTemperature ):
        heatTransferFunction_( heatTransferFunction ), wallEmissivity_( wallEmissivity ),
        adiabaticWallTemperature_( adiabaticWallTemperature ){ }
-
 
     //! Destructor.
     ~EquilibriumTemperatureFunction(){}

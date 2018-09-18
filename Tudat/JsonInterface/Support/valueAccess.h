@@ -475,13 +475,13 @@ void assignIfNotEmpty( nlohmann::json& jsonObject, const std::string& key, const
 template < typename T >
 using SingleBodyMap = std::unordered_map< std::string, std::vector< std::shared_ptr< T > > >;
 
-template < typename T >
+template< typename T >
 using BodyToBodyMap = std::unordered_map< std::string, SingleBodyMap< T > >;
 
-template < typename T >
+template< typename T >
 using NoPointerSingleBodyMap = std::unordered_map< std::string, std::vector< T > >;
 
-template < typename T >
+template< typename T >
 using NoPointerBodyToBodyMap = std::unordered_map< std::string, NoPointerSingleBodyMap< T > >;
 
 } // namespace json_interface

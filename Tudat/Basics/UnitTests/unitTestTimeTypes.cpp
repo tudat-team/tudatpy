@@ -405,9 +405,7 @@ BOOST_AUTO_TEST_CASE( testComparisonOperators )
     }
 }
 
-
 BOOST_AUTO_TEST_SUITE_END( )
-
 
 }
 

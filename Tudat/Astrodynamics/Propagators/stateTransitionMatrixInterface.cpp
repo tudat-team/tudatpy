@@ -41,7 +41,7 @@ Eigen::MatrixXd SingleArcCombinedStateTransitionAndSensitivityMatrixInterface::g
 
     if( sensitivityMatrixSize_ > 0 )
     {
-        combinedStateTransitionMatrix_.block( 0, stateTransitionMatrixSize_, stateTransitionMatrixSize_, sensitivityMatrixSize_ )=
+        combinedStateTransitionMatrix_.block( 0, stateTransitionMatrixSize_, stateTransitionMatrixSize_, sensitivityMatrixSize_ ) =
                 sensitivityMatrixInterpolator_->interpolate( evaluationTime );
     }
 

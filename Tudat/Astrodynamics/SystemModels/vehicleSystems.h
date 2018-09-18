@@ -162,8 +162,8 @@ private:
 
     //! Wall emissivity of the vehicle (used for heating computations)
     double wallEmissivity_;
-};
 
+};
 
 } // namespace system_models
 

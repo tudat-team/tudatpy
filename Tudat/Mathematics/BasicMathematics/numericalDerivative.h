@@ -68,7 +68,7 @@ const std::map< int, double >& getCentralDifferenceCoefficients( CentralDifferen
  * \param order The order of the algorithm to use.
  * \return Numerical derivative calculated from input
  */
-template < typename InputType, typename ResultType >
+template< typename InputType, typename ResultType >
 ResultType computeCentralDifference( const InputType& input, const int derivativeIndex,
                                      const std::function< ResultType( const InputType& ) >& function,
                                      double minimumStep = 0.0, double relativeStepSize = 0.0,

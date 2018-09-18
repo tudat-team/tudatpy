@@ -31,7 +31,7 @@ namespace input_output
  * \tparam T Generic-type returned by extract() function.
  * \sa ParsedDataLineMapPtr, Parser
  */
-template < class T >
+template< class T >
 class Extractor
 {
 public:

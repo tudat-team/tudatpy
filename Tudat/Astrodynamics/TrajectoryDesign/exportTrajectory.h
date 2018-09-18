@@ -70,9 +70,9 @@ void returnCircularTrajectory( double maximumTimeStep,
  * \param timeVector vector of times corresponding to the positions.
  * \param fileName name of the exported file
  */
-void writeTrajectoryToFile( std::vector < Eigen::Vector3d > positionVector,
+void writeTrajectoryToFile(std::vector < Eigen::Vector3d > positionVector,
                             std::vector < double > timeVector,
-                            const char * fileName );
+                            const std::string fileName );
 
 //! Write a trajectory to a data file.
 /*!

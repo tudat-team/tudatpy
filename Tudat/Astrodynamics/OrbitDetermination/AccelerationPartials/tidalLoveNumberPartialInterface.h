@@ -34,7 +34,7 @@ void getMaximumUsedDegreeAndOrder(
  *  (Base) class for calculating the partial of a spherical harmonic acceleration w.r.t. a tidal love number. These calculations
  *  are implemented separately from the SphericalHarmonicsGravityPartial class as its functionality is quite specific and only
  *  used by the SphericalHarmonicsGravityPartial for certain cases. Also, this architecture allows different implementations for
- *  different tidal models. This base class assumes no direct tidal lag in teh calculations, i.e. state and rotation functions are
+ *  different tidal models. This base class assumes no direct tidal lag in the calculations, i.e. state and rotation functions are
  *  all evaluated at same time and lag is implemented by the possibility of complex love numbers (for non-zonal terms).
  */
 class TidalLoveNumberPartialInterface

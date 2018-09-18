@@ -16,11 +16,28 @@
 
 #include "Tudat/Basics/timeType.h"
 #include "Tudat/Basics/basicTypedefs.h"
+#include "Tudat/Basics/identityElements.h"
 
 namespace tudat
 {
 namespace interpolators
 {
+
+//! Enumeration for types of boundary interpolation methods.
+/*!
+ *  Enumeration for types of boundary interpolation methods, i.e., for when the independent variable requested for interpolation
+ *  is outside the domain of the independent variables input in the interpolator constructor.
+ */
+enum BoundaryInterpolationType
+{
+    throw_exception_at_boundary = 0,
+    use_boundary_value = 1,
+    use_boundary_value_with_warning = 2,
+    extrapolate_at_boundary = 3,
+    extrapolate_at_boundary_with_warning = 4,
+    use_default_value = 5,
+    use_default_value_with_warning = 6
+};
 
 //! Base class for interpolator.
 /*!
@@ -37,8 +54,6 @@ class Interpolator
 {
 public:
 
-    Interpolator( ){ }
-
     //! Destructor.
     /*!
      * Destructor.
@@ -47,10 +62,10 @@ public:
 
     //! Interpolate.
     /*!
-     * This function performs the interpolation. It must be implemented in derived classes.
-     * \param independentVariableValues Vector of values of independent variables at which
-     *          the value of the dependent variable is to be determined.
-     * \return Interpolated value of dependent variable.
+     *  This function performs the interpolation. It must be implemented in derived classes.
+     *  \param independentVariableValues Vector of values of independent variables at which
+     *      the value of the dependent variable is to be determined.
+     *  \return Interpolated value of dependent variable.
      */
     virtual DependentVariableType interpolate( const std::vector< IndependentVariableType >&
                                                independentVariableValues ) = 0;
@@ -62,7 +77,6 @@ public:
      *  \return Number of independent variables of the interpolation.
      */
     virtual int getNumberOfDimensions( ) = 0;
-
 
 };
 
@@ -81,6 +95,7 @@ extern template class Interpolator< double, Eigen::Matrix< long double, Eigen::D
 extern template class Interpolator< Time, Eigen::Matrix< long double, Eigen::Dynamic, 1 > >;
 extern template class Interpolator< Time, Eigen::Matrix< long double, Eigen::Dynamic, 6 > >;
 extern template class Interpolator< Time, Eigen::Matrix< long double, Eigen::Dynamic, Eigen::Dynamic > >;
+
 
 } // namespace interpolators
 } // namespace tudat

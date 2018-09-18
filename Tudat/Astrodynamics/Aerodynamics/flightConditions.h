@@ -55,7 +55,8 @@ protected:
         speed_of_sound_flight_condition,
         airspeed_flight_condition,
         geodetic_latitude_condition,
-        dynamic_pressure_condition
+        dynamic_pressure_condition,
+        aerodynamic_heat_rate
     };
 
 public:
@@ -95,6 +96,20 @@ public:
             computeAltitude( );
         }
         return scalarFlightConditions_.at( altitude_flight_condition );
+    }
+
+    //! Function to retrieve (and compute if necessary) the current longitude
+    /*!
+     * Function to retrieve (and compute if necessary) the current longitude
+     * \return Current longitude
+     */
+    double getCurrentLongitude( )
+    {
+        if( scalarFlightConditions_.count( longitude_flight_condition ) == 0 )
+        {
+            computeLatitudeAndLongitude( );
+        }
+        return scalarFlightConditions_.at( longitude_flight_condition );
     }
 
     //! Function to retrieve (and compute if necessary) the current geodetic latitude
@@ -215,7 +230,6 @@ protected:
     //! Model describing the shape of the body w.r.t. which the flight is taking place.
     const std::shared_ptr< basic_astrodynamics::BodyShapeModel > shapeModel_;
 
-
     //! Object from which the aerodynamic/trajectory angles of the vehicle are calculated.
     std::shared_ptr< reference_frames::AerodynamicAngleCalculator > aerodynamicAngleCalculator_;
 
@@ -225,8 +239,6 @@ protected:
     //! Current state of vehicle in base frame for Body objects.
     Eigen::Vector6d currentBodyCenteredState_;
 
-
-
     //! Current state of vehicle in body-fixed frame.
     Eigen::Vector6d currentBodyCenteredAirspeedBasedBodyFixedState_;
 
@@ -235,7 +247,6 @@ protected:
 
     //! Boolean denoting whether the current latitude and longitude have been computed at current time step
     bool isLatitudeAndLongitudeSet_;
-
 
     //! List of atmospheric/flight properties computed at current time step.
     std::map< FlightConditionVariables, double > scalarFlightConditions_;
@@ -273,14 +284,15 @@ public:
      *  surface identifier.
      */
     AtmosphericFlightConditions( const std::shared_ptr< aerodynamics::AtmosphereModel > atmosphereModel,
-                      const std::shared_ptr< basic_astrodynamics::BodyShapeModel > shapeModel,
-                      const std::shared_ptr< AerodynamicCoefficientInterface >
-                      aerodynamicCoefficientInterface,
-                      const std::shared_ptr< reference_frames::AerodynamicAngleCalculator >
-                      aerodynamicAngleCalculator =
+                                 const std::shared_ptr< basic_astrodynamics::BodyShapeModel > shapeModel,
+                                 const std::shared_ptr< AerodynamicCoefficientInterface >
+                                 aerodynamicCoefficientInterface,
+                                 const std::shared_ptr< reference_frames::AerodynamicAngleCalculator >
+                                 aerodynamicAngleCalculator =
             std::shared_ptr< reference_frames::AerodynamicAngleCalculator >( ),
-                      const std::function< double( const std::string& )> controlSurfaceDeflectionFunction =
+                                 const std::function< double( const std::string& )> controlSurfaceDeflectionFunction =
             std::function< double( const std::string& )>( ) );
+
 
     //! Function to update all flight conditions.
     /*!
@@ -289,7 +301,6 @@ public:
      *  \param currentTime Time to which conditions are to be updated.
      */
     void updateConditions( const double currentTime );
-
 
     //! Function to retrieve (and compute if necessary) the current freestream density
     /*!
@@ -331,6 +342,20 @@ public:
             computeDynamicPressure( );
         }
         return scalarFlightConditions_.at( dynamic_pressure_condition );
+    }
+
+    //! Function to retrieve (and compute if necessary) the current aerodynamic heat rate
+    /*!
+     * Function to retrieve (and compute if necessary) the current aerodynamic heat rate
+     * \return Current aerodynamic heat rate
+     */
+    double getCurrentAerodynamicHeatRate( )
+    {
+        if( scalarFlightConditions_.count( aerodynamic_heat_rate ) == 0 )
+        {
+            computeAerodynamicHeatRate( );
+        }
+        return scalarFlightConditions_.at( aerodynamic_heat_rate );
     }
 
     //! Function to retrieve (and compute if necessary) the current freestream pressure
@@ -388,7 +413,6 @@ public:
         return scalarFlightConditions_.at( mach_number_flight_condition );
     }
 
-
     //! Function to return atmosphere model object
     /*!
      *  Function to return atmosphere model object
@@ -419,7 +443,7 @@ public:
     Eigen::Vector3d getCurrentAirspeedBasedVelocity( )
     {
         return currentBodyCenteredAirspeedBasedBodyFixedState_.segment( 3, 3 );
-    }    
+    }
 
     //! Function to return object from which the aerodynamic coefficients are obtained.
     /*!
@@ -464,7 +488,6 @@ public:
         return controlSurfaceAerodynamicCoefficientIndependentVariables_;
     }
 
-
     //! Function to reset the current time of the flight conditions.
     /*!
      *  Function to reset the current time of the flight conditions. This function is typically sused to set the current time
@@ -502,7 +525,7 @@ private:
         if( ( scalarFlightConditions_.count( latitude_flight_condition ) == 0 ||
               scalarFlightConditions_.count( longitude_flight_condition ) == 0 ) )
         {
-           if( updateLatitudeAndLongitudeForAtmosphere_ )
+            if( updateLatitudeAndLongitudeForAtmosphere_ )
             {
                 computeLatitudeAndLongitude( );
             }
@@ -534,24 +557,22 @@ private:
     void computeTemperature( )
     {
         updateAtmosphereInput( );
-
-             scalarFlightConditions_[ temperature_flight_condition ] =
-                     atmosphereModel_->getTemperature(
-                         scalarFlightConditions_.at( altitude_flight_condition ),
-                         scalarFlightConditions_.at( longitude_flight_condition ),
-                         scalarFlightConditions_.at( latitude_flight_condition ), currentTime_ );
+        scalarFlightConditions_[ temperature_flight_condition ] =
+                atmosphereModel_->getTemperature(
+                    scalarFlightConditions_.at( altitude_flight_condition ),
+                    scalarFlightConditions_.at( longitude_flight_condition ),
+                    scalarFlightConditions_.at( latitude_flight_condition ), currentTime_ );
     }
 
     //! Function to compute and set the current freestream pressure.
     void computeFreestreamPressure( )
     {
         updateAtmosphereInput( );
-
-             scalarFlightConditions_[ pressure_flight_condition ] =
-                     atmosphereModel_->getPressure(
-                         scalarFlightConditions_.at( altitude_flight_condition ),
-                         scalarFlightConditions_.at( longitude_flight_condition ),
-                         scalarFlightConditions_.at( latitude_flight_condition ), currentTime_ );
+        scalarFlightConditions_[ pressure_flight_condition ] =
+                atmosphereModel_->getPressure(
+                    scalarFlightConditions_.at( altitude_flight_condition ),
+                    scalarFlightConditions_.at( longitude_flight_condition ),
+                    scalarFlightConditions_.at( latitude_flight_condition ), currentTime_ );
     }
 
 
@@ -580,7 +601,15 @@ private:
                 getCurrentDensity( ) * currentAirspeed * currentAirspeed;
     }
 
-    //! Function to compute and set the current Mach number
+    //! Function to compute and set the current aerodynamic heat rate.
+    void computeAerodynamicHeatRate( )
+    {
+        double currentAirspeed = getCurrentAirspeed( );
+        scalarFlightConditions_[ aerodynamic_heat_rate ] = 0.5 *
+                getCurrentDensity( ) * currentAirspeed * currentAirspeed * currentAirspeed;
+    }
+
+    //! Function to compute and set the current Mach number.
     void computeMachNumber( )
     {
         scalarFlightConditions_[ mach_number_flight_condition ] =

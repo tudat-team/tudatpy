@@ -61,9 +61,9 @@ public:
      */
     virtual void updateCalculator( const double currentTime ) = 0;
 
-    //! Function to update the object to teh current time and retrieve the rotation to the local frame
+    //! Function to update the object to the current time and retrieve the rotation to the local frame
     /*!
-     * Function to update the object to teh current time and retrieve the rotation to the local frame
+     * Function to update the object to the current time and retrieve the rotation to the local frame
      * Note that the environment must have been updated to the current time before calling this function.
      * \param currentTime Time to which angle calculator is to be updated.
      * \return Current rotation from the global (propagation/inertial) to the local (body-fixed) frame.
@@ -74,9 +74,9 @@ public:
         return getRotationToLocalFrame( );
     }
 
-    //! Function to update the object to teh current time and retrieve the rotation to the global frame
+    //! Function to update the object to the current time and retrieve the rotation to the global frame
     /*!
-     * Function to update the object to teh current time and retrieve the rotation to the global frame
+     * Function to update the object to the current time and retrieve the rotation to the global frame
      * Note that the environment must have been updated to the current time before calling this function.
      * \param currentTime Time to which angle calculator is to be updated.
      * \return Current rotation from the local (body-fixed) to the global (propagation/inertial) frame.

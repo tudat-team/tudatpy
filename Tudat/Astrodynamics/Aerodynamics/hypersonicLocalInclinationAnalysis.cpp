@@ -129,7 +129,7 @@ HypersonicLocalInclinationAnalysis::HypersonicLocalInclinationAnalysis(
         const Eigen::Vector3d& momentReferencePoint )
     : AerodynamicCoefficientGenerator< 3, 6 >(
           dataPointsOfIndependentVariables, referenceLength, referenceArea, referenceLength,
-          momentReferencePoint, { mach_number_dependent, angle_of_attack_dependent, angle_of_sideslip_dependent }, 1, 0 ),
+          momentReferencePoint, { mach_number_dependent, angle_of_attack_dependent, angle_of_sideslip_dependent },true, false ),
       stagnationPressureCoefficient( 2.0 ),
       ratioOfSpecificHeats( 1.4 ),
       selectedMethods_( selectedMethods )
@@ -243,7 +243,6 @@ Vector6d HypersonicLocalInclinationAnalysis::getAerodynamicCoefficientsDataPoint
 
     // Return requested coefficients.
     return aerodynamicCoefficients_( independentVariables );
-
 }
 
 //! Generate aerodynamic database.
@@ -386,7 +385,7 @@ Eigen::Vector3d HypersonicLocalInclinationAnalysis::calculateMomentCoefficients(
     Eigen::Vector3d momentCoefficients = Eigen::Vector3d::Zero( );
 
     // Declare moment arm for panel moment determination.
-    Eigen::Vector3d referenceDistance ;
+    Eigen::Vector3d referenceDistance;
 
     // Loop over all panels and add moments due pressures.
     for ( int i = 0 ; i < vehicleParts_[ partNumber ]->getNumberOfLines( ) - 1 ; i++ )
@@ -394,8 +393,8 @@ Eigen::Vector3d HypersonicLocalInclinationAnalysis::calculateMomentCoefficients(
         for ( int j = 0 ; j < vehicleParts_[ partNumber ]->getNumberOfPoints( ) - 1 ; j++ )
         {
             // Determine moment arm for given panel centroid.
-            referenceDistance = ( vehicleParts_[ partNumber ]->
-                                  getPanelCentroid( i, j ) -  momentReferencePoint_ );
+            referenceDistance = ( vehicleParts_[ partNumber ]->getPanelCentroid( i, j ) -
+                                  momentReferencePoint_ );
 
             momentCoefficients -=
                     pressureCoefficient_[ partNumber ][ i ][ j ] *

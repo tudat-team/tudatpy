@@ -7,6 +7,9 @@
  *    a copy of the license with this file. If not, please or visit:
  *    http://tudat.tudelft.nl/LICENSE.
  *
+ *    References:
+ *      Madsen, K., Nielsen, H., and Tingleff, O., Methods for Non-Linear Least Squares Problems, 2nd ed.,
+ *          Technical University of Denmark, Faculty of Informatics and Mathematical Modelling, April 2004.
  */
 
 #ifndef TUDAT_LEASTSQUARESESTIMATION_H
@@ -16,6 +19,8 @@
 
 #include <Eigen/Core>
 #include <Eigen/SVD>
+
+#include <boost/function.hpp>
 
 namespace tudat
 {
@@ -118,7 +123,7 @@ std::pair< Eigen::VectorXd, Eigen::MatrixXd > performLeastSquaresAdjustmentFromI
         const Eigen::VectorXd& diagonalOfWeightMatrix,
         const Eigen::MatrixXd& inverseOfAPrioriCovarianceMatrix,
         const bool checkConditionNumber = 1,
-        const double maximumAllowedConditionNumber = 1.0E8  );
+        const double maximumAllowedConditionNumber = 1.0E8 );
 
 //! Function to perform an iteration of least squares estimation from information matrix, weights and residuals
 /*!
@@ -139,7 +144,7 @@ std::pair< Eigen::VectorXd, Eigen::MatrixXd > performLeastSquaresAdjustmentFromI
         const Eigen::VectorXd& observationResiduals,
         const Eigen::VectorXd& diagonalOfWeightMatrix,
         const bool checkConditionNumber = 1,
-        const double maximumAllowedConditionNumber = 1.0E8  );
+        const double maximumAllowedConditionNumber = 1.0E8 );
 
 //! Function to perform an iteration of least squares estimation from information matrix and residuals
 /*!
@@ -189,6 +194,30 @@ Eigen::VectorXd getLeastSquaresPolynomialFit(
 std::vector< double > getLeastSquaresPolynomialFit(
         const std::map< double, double >& independentDependentValueMap,
         const std::vector< double >& polynomialPowers );
+
+//! Function to perform a non-linear least squares estimation with the Levenberg-Marquardt method.
+/*!
+ *  Function to perform a non-linear least squares estimation. The non-linear least squares method is an iterative
+ *  process, which uses the information from the actual and estimated observations, to estimate the model parameters, with
+ *  the aid of a design matrix. The initial estimate of the model parameters is updated every iteration with the result of the
+ *  least squares equation. The iterative process is halted whenever the norm of the update is below the user-provided
+ *  threshold or when the maximum number of iterations is reached. The method used in this application is the Levenberg-Marquardt
+ *  method, which uses a damping parameter \f$ \lambda \f$ to make the iterative process more stable and accurate.
+ *  The reference for this implementation is (Madsen, K., et al.).
+ *  \param observationAndJacobianFunctions Function returning a pair of expected observations and Jacobian of the
+ *      observation function w.r.t. the model parameters (i.e., the design matrix), where the input is the current estimate
+ *      of the model parameters.
+ *  \param initialEstimate Initial estimate of the model parameters.
+ *  \param actualObservations Vector containing the actual observations that need to be fitted by the model.
+ *  \param initialScaling Double denoting the multiplicative factor to determine the damping parameter during the first iteration.
+ *  \param convergenceTolerance Double denoting the convergence criterion for the norm of the update vector.
+ *  \param maximumNumberOfIterations Integer denoting the maximum number of iterations.
+ *  \return Optimal value of the model parameters that minimize the least squares error between expected and actual observations.
+ */
+Eigen::VectorXd nonLinearLeastSquaresFit(
+        const std::function< std::pair< Eigen::VectorXd, Eigen::MatrixXd >( const Eigen::VectorXd& ) >& observationAndJacobianFunctions,
+        const Eigen::VectorXd& initialEstimate, const Eigen::VectorXd& actualObservations, const double initialScaling = 1.0e-6,
+        const double convergenceTolerance = 1.0e-8, const unsigned int maximumNumberOfIterations = 25 );
 
 } // namespace linear_algebra
 

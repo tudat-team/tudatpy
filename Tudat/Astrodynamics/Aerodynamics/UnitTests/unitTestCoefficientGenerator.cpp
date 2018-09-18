@@ -44,11 +44,9 @@ using namespace aerodynamics;
 
 BOOST_AUTO_TEST_SUITE( test_aerodynamic_coefficient_generator )
 
-//! Test coefficient generator.
-BOOST_AUTO_TEST_CASE( testAerodynamicCoefficientGenerator )
+//! Test coefficient generator for hypersonic local inclination.
+BOOST_AUTO_TEST_CASE( testAerodynamicCoefficientGeneratorHypersonicLocalInclination )
 {
-
-
     // Set units of coefficients
     const double expectedValueOfForceCoefficient = 1.0;
 
@@ -306,6 +304,7 @@ std::shared_ptr< HypersonicLocalInclinationAnalysis > getApolloCoefficientInterf
                 invertOrders, selectedMethods, PI * pow( capsule->getMiddleRadius( ), 2.0 ),
                 3.9116, momentReference );
 }
+
 //! Apollo capsule test case.
 BOOST_AUTO_TEST_CASE( testApolloCapsule )
 {

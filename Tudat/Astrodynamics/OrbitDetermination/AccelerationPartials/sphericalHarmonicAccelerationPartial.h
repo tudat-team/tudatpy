@@ -116,7 +116,6 @@ public:
         }
     }
 
-
     //! Function for determining if the acceleration is dependent on a non-translational integrated state.
     /*!
      *  Function for determining if the acceleration is dependent on a non-translational integrated state.
@@ -179,7 +178,6 @@ public:
      */
     virtual void update( const double currentTime = TUDAT_NAN );
 
-
     //! Function to calculate the partial wrt the gravitational parameter.
     /*!
      *  Function to calculate the partial wrt the gravitational parameter of the central body. Note that in the case of
@@ -234,7 +232,6 @@ protected:
             tidalLoveNumberPartialInterfaces_.at( i )->updateParameterPartials( );
         }
     }
-
 
     //! Function to calculate the partial of the acceleration wrt a set of cosine coefficients.
     /*!
@@ -303,7 +300,6 @@ protected:
             const int parameterSize,
             Eigen::MatrixXd& accelerationPartial );
 
-
     //! Function to return the gravitational parameter used for calculating the acceleration.
     std::function< double( ) > gravitationalParameterFunction_;
 
@@ -328,7 +324,6 @@ protected:
 
     //! Function return current rotation from inertial frame to frame fixed to body exerting acceleration.
     std::function< Eigen::Matrix3d( ) > fromBodyFixedToIntegrationFrameRotation_;
-
 
     //! Function to retrieve the current spherical harmonic acceleration.
     std::function< Eigen::Matrix< double, 3, 1 >( ) > accelerationFunction_;
@@ -359,7 +354,6 @@ protected:
      *  set by update( time ) function.
      */
     Eigen::Vector3d bodyFixedPosition_;
-
 
     //! Current spherical coordinate of body undergoing acceleration
     /*!
@@ -393,7 +387,6 @@ protected:
      */
     Eigen::Matrix3d currentPartialWrtVelocity_;
 
-
     //! Maximum degree of spherical harmonic expansion.
     /*!
      *  Maximum degree of spherical harmonic expansion of body exerting acceleration used in the calculation
@@ -407,7 +400,6 @@ protected:
      *  of the acceleration.
      */
     int maximumOrder_;
-
 
     //! Map of RotationMatrixPartial, one for each relevant rotation parameter
     /*!

@@ -49,7 +49,7 @@ void to_json( nlohmann::json& jsonObject, const std::shared_ptr< AtmosphereSetti
         std::shared_ptr< TabulatedAtmosphereSettings > tabulatedAtmosphereSettings =
                 std::dynamic_pointer_cast< TabulatedAtmosphereSettings >( atmosphereSettings );
         assertNonnullptrPointer( tabulatedAtmosphereSettings );
-        jsonObject[ K::file ] = boost::filesystem::path( tabulatedAtmosphereSettings->getAtmosphereFile( ) );
+        jsonObject[ K::file ] = boost::filesystem::path( tabulatedAtmosphereSettings->getAtmosphereFile( 0 ) );
         return;
     }
     case nrlmsise00:

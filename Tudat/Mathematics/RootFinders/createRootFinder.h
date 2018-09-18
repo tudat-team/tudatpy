@@ -103,7 +103,6 @@ std::shared_ptr< RootFinderCore< DataType > > createRootFinder(
                     rootFinderSettings->terminationTolerance_, rootFinderSettings->maximumNumberOfIterations_ );
         break;
     case newton_raphson_root_finder:
-
         rootFinder = std::make_shared< NewtonRaphsonCore< DataType > >(
                     rootFinderSettings->terminationTolerance_, rootFinderSettings->maximumNumberOfIterations_ );
         break;

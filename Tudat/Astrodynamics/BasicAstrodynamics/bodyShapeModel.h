@@ -21,6 +21,7 @@
 #include <functional>
 #include <memory>
 
+
 namespace tudat
 {
 
@@ -107,6 +108,7 @@ double getAltitudeFromNonBodyFixedPositionFunctions(
 
 
 } // namespace basic_astrodynamics
+
 } // namespace tudat
 
 #endif // TUDAT_BODYSHAPEMODEL_H

@@ -97,7 +97,7 @@ public:
      * Function to get the total size of the state of propagated masses.
      * \return Size of propagated custom state.
      */
-    virtual int getStateSize( )
+    virtual int getConventionalStateSize( )
     {
         return stateSize_;
     }

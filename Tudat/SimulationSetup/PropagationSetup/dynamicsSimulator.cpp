@@ -9,6 +9,7 @@
  */
 
 #include "Tudat/SimulationSetup/PropagationSetup/dynamicsSimulator.h"
+#include "Tudat/Basics/timeType.h"
 
 namespace tudat
 {
@@ -47,6 +48,7 @@ template class MultiArcDynamicsSimulator< double, double >;
 template class MultiArcDynamicsSimulator< long double, double >;
 template class MultiArcDynamicsSimulator< double, Time >;
 template class MultiArcDynamicsSimulator< long double, Time >;
+
 
 }
 

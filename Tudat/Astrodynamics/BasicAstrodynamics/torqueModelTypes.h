@@ -60,9 +60,9 @@ std::string getTorqueModelName( const AvailableTorque torqueType );
 std::vector< std::shared_ptr< TorqueModel > > getTorqueModelsOfType(
         const std::vector< std::shared_ptr< TorqueModel > >& fullList,
         const AvailableTorque modelType );
-}
 
 }
 
+}
 
 #endif // TUDAT_TORQUEMODELTYPES_H

@@ -20,7 +20,6 @@
 #include "Tudat/SimulationSetup/PropagationSetup/createThrustModelGuidance.h"
 // #include "Tudat/Mathematics/Interpolators/createInterpolator.h"
 
-
 namespace tudat
 {
 
@@ -136,6 +135,7 @@ public:
 
     //! Maximum order of central body (only releveant for 3rd body acceleration).
     int maximumOrderOfCentralBody_;
+
 };
 
 //! Class to proivide settings for typical relativistic corrections to the dynamics of an orbiter.
@@ -192,6 +192,7 @@ public:
 
     //! Constant angular momentum of central body
     Eigen::Vector3d centralBodyAngularMomentum_;
+
 };
 
 //! Class to define settings for empirical accelerations
@@ -223,6 +224,7 @@ public:
 
     //! Acceleration (in RSW frame) that scales with cosine of true anomaly
     Eigen::Vector3d cosineAcceleration_;
+
 };
 
 //! Interface class that allows single interpolator to be used for thrust direction and magnitude (which are separated in
@@ -235,7 +237,7 @@ public:
     /*!
      * Constructor
      * \param thrustInterpolator Object that returns the total thrust vector, expressed in some reference frame B
-     * \param rotationFunction Function that returns the rotation matrix from the frame B to teh frame in which the
+     * \param rotationFunction Function that returns the rotation matrix from the frame B to the frame in which the
      * propagation is performed.
      */
     FullThrustInterpolationInterface(
@@ -275,7 +277,7 @@ public:
     //! Function to reset the function to rotate to propation frame
     /*!
      *  Function to reset the function to rotate to propation frame
-     *  \param rotationFunction New function that returns the rotation matrix from the frame B to teh frame in which the
+     *  \param rotationFunction New function that returns the rotation matrix from the frame B to the frame in which the
      *  propagation is performed.
      */
     void resetRotationFunction( const std::function< Eigen::Matrix3d( ) > rotationFunction )
@@ -316,7 +318,7 @@ private:
     //! Object that returns the total thrust vector, expressed in some reference frame B
     std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Vector3d > > thrustInterpolator_;
 
-    //! Function that returns the rotation matrix from the frame B to teh frame in which the propagation is performed.
+    //! Function that returns the rotation matrix from the frame B to the frame in which the propagation is performed.
     std::function< Eigen::Matrix3d( ) > rotationFunction_;
 
     //! Total thrust vector (in propagation frame) computed by last call to updateThrust function.
@@ -324,6 +326,7 @@ private:
 
     //! Time at which the last call to updateThrust was made (e.g. time associated with current thrust).
     double currentTime_;
+
 };
 
 
@@ -474,7 +477,9 @@ public:
     DirectTidalDissipationAccelerationSettings( const double k2LoveNumber, const double timeLag,
                                                 const bool includeDirectRadialComponent = true,
                                                 const bool useTideRaisedOnPlanet = true ):
-        AccelerationSettings( basic_astrodynamics::direct_tidal_dissipation_acceleration ),
+        AccelerationSettings(
+            ( useTideRaisedOnPlanet ? basic_astrodynamics::direct_tidal_dissipation_in_central_body_acceleration :
+                                      basic_astrodynamics::direct_tidal_dissipation_in_orbiting_body_acceleration ) ),
         k2LoveNumber_( k2LoveNumber ), timeLag_( timeLag ), includeDirectRadialComponent_( includeDirectRadialComponent ),
         useTideRaisedOnPlanet_( useTideRaisedOnPlanet ){ }
 

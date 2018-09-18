@@ -361,9 +361,10 @@ BOOST_AUTO_TEST_CASE( testAssessPropagationTerminationConditionDuringIntegration
         const double tolerance = 1.0E-11;
         std::shared_ptr< IntegratorSettings< > > integratorSettings =
                 std::make_shared< RungeKuttaVariableStepSizeSettings< > >
-                ( rungeKuttaVariableStepSize, simulationStartEpoch, initialStepSize,
+                ( simulationStartEpoch, initialStepSize,
                   RungeKuttaCoefficients::rungeKuttaFehlberg78, minStepSize, maxStepSize, tolerance, tolerance, 1,
                   assessDuringSubsteps );
+
 
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
