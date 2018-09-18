@@ -51,7 +51,7 @@ public:
      */
     AccelerationPartial( const std::string& acceleratedBody, const std::string& acceleratingBody,
                          const basic_astrodynamics::AvailableAcceleration accelerationType ):
-        StateDerivativePartial( propagators::transational_state, std::make_pair( acceleratedBody, "" ) ),
+        StateDerivativePartial( propagators::translational_state, std::make_pair( acceleratedBody, "" ) ),
         acceleratedBody_( acceleratedBody ), acceleratingBody_( acceleratingBody ),accelerationType_( accelerationType ) { }
 
     //! Virtual destructor.
@@ -76,7 +76,7 @@ public:
         // Check if state dependency exists
         switch( integratedStateType )
         {
-        case propagators::transational_state:
+        case propagators::translational_state:
         {
             // Check if reference id is consistent.
             if( stateReferencePoint.second != "" )
@@ -159,7 +159,7 @@ public:
         // Check if state is translational.
         switch( integratedStateType )
         {
-        case propagators::transational_state:
+        case propagators::translational_state:
         {
             // Check if reference id is consistent.
             if( stateReferencePoint.second != "" )

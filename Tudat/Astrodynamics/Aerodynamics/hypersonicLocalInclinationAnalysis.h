@@ -120,7 +120,7 @@ public:
     //! Get aerodynamic coefficients.
     /*!
      *  Returns aerodynamic coefficients.
-     *  The physical meaning of each of the three independent variables is: 0 = mach numner,
+     *  The physical meaning of each of the three independent variables is: 0 = mach number,
      *  1 = angle of attack, 2 = angle of sideslip.
      * \param independentVariables Array of values of independent variable
      *          indices in dataPointsOfIndependentVariables_.
@@ -161,6 +161,7 @@ public:
          return vehicleParts_[ vehicleIndex ];
      }
 
+
     //! Overload ostream to print class information.
     /*!
      * Overloads ostream to print class information, prints the number of lawgs geometry parts and
@@ -170,8 +171,8 @@ public:
      * \return Stream object.
      */
     friend std::ostream& operator << ( std::ostream& stream,
-                                     HypersonicLocalInclinationAnalysis&
-                                     hypersonicLocalInclinationAnalysis );
+                                       HypersonicLocalInclinationAnalysis&
+                                       hypersonicLocalInclinationAnalysis );
 
 private:
 
@@ -179,7 +180,7 @@ private:
     /*!
      * Generates aerodynamic database. Settings of geometry,
      * reference quantities, database point settings and analysis methods
-     *  should have been set previously.
+     * should have been set previously.
      */
     void generateCoefficients( );
 
@@ -275,7 +276,7 @@ private:
      * Map of angle of attack and -sideslip pair and associated panel inclinations.
      */
     std::map< std::pair< double, double >, std::vector< std::vector< std::vector< double > > > >
-            previouslyComputedInclinations_;
+    previouslyComputedInclinations_;
 
     //! Three-dimensional array of panel pressure coefficients.
     /*!
@@ -296,7 +297,7 @@ private:
      * Ratio of specific heat at constant pressure to specific heat at constant pressure.
      */
     double ratioOfSpecificHeats;
-\
+    \
     //! Array of selected methods.
     /*!
      * Array of selected methods, first index represents compression/expansion,

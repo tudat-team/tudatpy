@@ -141,7 +141,7 @@ public:
 
             // Calculate current body-fixed state of accelerated body.
             currentRotationFromRswToInertialFrame_ = Eigen::Quaterniond(
-                        reference_frames::getInertialToRswSatelliteCenteredFrameRotationMatrx( currentState_ ) ).inverse( );
+                        reference_frames::getInertialToRswSatelliteCenteredFrameRotationMatrix( currentState_ ) ).inverse( );
 
             // Calculate current true anomaly of accelerated body.
             currentTrueAnomaly_ = orbital_element_conversions::convertCartesianToKeplerianElements(

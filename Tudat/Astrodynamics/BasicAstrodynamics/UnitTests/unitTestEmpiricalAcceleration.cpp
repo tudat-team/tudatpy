@@ -156,7 +156,7 @@ BOOST_AUTO_TEST_CASE( testEmpiricalAccelerations )
         // Define integrator settings
         std::shared_ptr< IntegratorSettings< > > integratorSettings =
                 std::make_shared< RungeKuttaVariableStepSizeSettings< > >
-                ( rungeKuttaVariableStepSize, 0.0, fixedStepSize,
+                ( 0.0, fixedStepSize,
                   RungeKuttaCoefficients::rungeKuttaFehlberg78, 1.0E-4, 3600.0, 1.0E-14, 1.0E-14 );
 
         // Create simulation object and propagate dynamics.
@@ -187,7 +187,7 @@ BOOST_AUTO_TEST_CASE( testEmpiricalAccelerations )
             BOOST_CHECK_CLOSE_FRACTION( totalEmpiricalAcceleration.norm( ), testMultiplier * empiricalAccelerationNorm,
                                         8.0 * std::numeric_limits< double >::epsilon( ) );
             Eigen::Matrix3d currentRotationMatrix =
-                    reference_frames::getInertialToRswSatelliteCenteredFrameRotationMatrx( resultIterator->second );
+                    reference_frames::getInertialToRswSatelliteCenteredFrameRotationMatrix( resultIterator->second );
             Eigen::Vector3d totalEmpiricalAccelerationInRswFrame = currentRotationMatrix * totalEmpiricalAcceleration;
 
             // Compute vector directions in RSW frame

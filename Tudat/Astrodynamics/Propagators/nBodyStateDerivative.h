@@ -24,7 +24,6 @@
 #include "Tudat/Astrodynamics/Propagators/centralBodyData.h"
 #include "Tudat/Astrodynamics/Propagators/singleStateTypeDerivative.h"
 
-
 namespace tudat
 {
 
@@ -34,11 +33,14 @@ namespace propagators
 //! Enum listing propagator types for translational dynamics that can be used.
 enum TranslationalPropagatorType
 {
-    undefined_propagator = -1,
+    undefined_translational_propagator = -1,
     cowell = 0,
     encke = 1,
     gauss_keplerian = 2,
-    gauss_modified_equinoctial = 3
+    gauss_modified_equinoctial = 3,
+    unified_state_model_quaternions = 4,
+    unified_state_model_modified_rodrigues_parameters = 5,
+    unified_state_model_exponential_map = 6
 };
 
 //! Function to remove the central gravity acceleration from an AccelerationMap
@@ -87,7 +89,6 @@ public:
 
     using propagators::SingleStateTypeDerivative< StateScalarType, TimeType >::calculateSystemStateDerivative;
 
-
     //! Constructor from data for translational Cartesian state derivative creation.
     //! It is assumed that all acceleration are exerted on bodies by bodies.
     /*!
@@ -112,7 +113,7 @@ public:
                           const TranslationalPropagatorType propagatorType,
                           const std::vector< std::string >& bodiesToIntegrate ):
         propagators::SingleStateTypeDerivative< StateScalarType, TimeType >(
-            propagators::transational_state ),
+            propagators::translational_state ),
         accelerationModelsPerBody_( accelerationModelsPerBody ),
         centralBodyData_( centralBodyData ),
         propagatorType_( propagatorType ),
@@ -255,7 +256,7 @@ public:
      * Function to type of propagator that is to be used (i.e. Cowell, Encke, etc.)
      * \return Type of propagator that is to be used (i.e. Cowell, Encke, etc.)
      */
-    TranslationalPropagatorType getPropagatorType( )
+    TranslationalPropagatorType getTranslationalPropagatorType( )
     {
         return propagatorType_;
     }
@@ -265,7 +266,7 @@ public:
      * Function to return the size of the state handled by the object
      * \return Size of the state under consideration (6 times the number if integrated bodies).
      */
-    int getStateSize( )
+    int getConventionalStateSize( )
     {
         return 6 * bodiesToBeIntegratedNumerically_.size( );
     }
@@ -323,7 +324,6 @@ public:
     basic_astrodynamics::AccelerationMap getAccelerationsMap( )
     {
         return accelerationModelsPerBody_;
-
     }
 
 protected:
@@ -332,8 +332,8 @@ protected:
     //! acceleration models (accelerationModelsPerBody_).
     void createAccelerationModelList( )
     {
-        accelerationModelList_.clear( );
         // Iterate over all accelerations and update their internal state.
+        accelerationModelList_.clear( );
         for( outerAccelerationIterator = accelerationModelsPerBody_.begin( );
              outerAccelerationIterator != accelerationModelsPerBody_.end( ); outerAccelerationIterator++ )
         {
@@ -405,6 +405,26 @@ protected:
         }
     }
 
+    //! Function to get the state derivative of the system in Cartesian coordinates.
+    /*!
+     * Function to get the state derivative of the system in Cartesian coordinates. The environment
+     * and acceleration models must have been updated to the current state before calling this
+     * function.
+     * \param stateOfSystemToBeIntegrated Current Cartesian state of the system.
+     * \param stateDerivative State derivative of the system in Cartesian coordinates (returned by reference).
+     * \param addPositionDerivatives Boolean denoting whether the derivatives of the position (e.g. velocity) are to be added
+     * to the state derivative vector.
+     */
+    void sumStateDerivativeContributions(
+            const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& stateOfSystemToBeIntegrated,
+            Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >& stateDerivative,
+            const bool addPositionDerivatives = true )
+    {
+        return sumStateDerivativeContributions(
+                    stateOfSystemToBeIntegrated,
+                    stateDerivative.block( 0, 0, stateDerivative.rows( ), stateDerivative.cols( ) ),
+                    addPositionDerivatives );
+    }
 
     //! A map containing the list of accelerations acting on each body,
     /*!
@@ -438,8 +458,9 @@ protected:
     std::unordered_map< std::string, std::unordered_map< std::string, std::vector<
     std::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > > > >::iterator outerAccelerationIterator;
 
-    //! List of states of teh central bodies of the propagated bodies.
+    //! List of states of the central bodies of the propagated bodies.
     std::vector< Eigen::Matrix< StateScalarType, 6, 1 >  > centralBodyStatesWrtGlobalOrigin_;
+
 };
 
 extern template class NBodyStateDerivative< double, double >;
@@ -448,7 +469,6 @@ extern template class NBodyStateDerivative< double, Time >;
 extern template class NBodyStateDerivative< long double, Time >;
 
 } // namespace propagators
-
 
 } // namespace tudat
 

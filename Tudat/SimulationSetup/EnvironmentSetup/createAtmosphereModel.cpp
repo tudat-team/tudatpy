@@ -42,6 +42,7 @@ std::shared_ptr< aerodynamics::WindModel > createWindModel(
         // Check input consistency
         std::shared_ptr< CustomWindModelSettings > customWindModelSettings =
                 std::dynamic_pointer_cast< CustomWindModelSettings >( windSettings );
+
         if( customWindModelSettings == nullptr )
         {
             throw std::runtime_error( "Error when making custom wind model for body " + body + ", input is incompatible" );
@@ -76,21 +77,64 @@ std::shared_ptr< aerodynamics::AtmosphereModel > createAtmosphereModel(
         // Check whether settings for atmosphere are consistent with its type.
         std::shared_ptr< ExponentialAtmosphereSettings > exponentialAtmosphereSettings =
                 std::dynamic_pointer_cast< ExponentialAtmosphereSettings >( atmosphereSettings );
+
         if( exponentialAtmosphereSettings == nullptr )
         {
-            throw std::runtime_error(
-                        "Error, expected exponential atmosphere settings for body " + body );
+            throw std::runtime_error( "Error, expected exponential atmosphere settings for body " + body );
         }
         else
         {
             // Create and initialize exponential atmosphere model.
-            std::shared_ptr< ExponentialAtmosphere > exponentialAtmosphereModel =
-                    std::make_shared< ExponentialAtmosphere >(
-                        exponentialAtmosphereSettings->getDensityScaleHeight( ) ,
-                        exponentialAtmosphereSettings->getConstantTemperature( ),
-                        exponentialAtmosphereSettings->getDensityAtZeroAltitude( ),
-                        exponentialAtmosphereSettings->getSpecificGasConstant( ) );
+            std::shared_ptr< ExponentialAtmosphere > exponentialAtmosphereModel;
+            if ( exponentialAtmosphereSettings->getBodyName( ) == undefined_body )
+            {
+                exponentialAtmosphereModel = std::make_shared< ExponentialAtmosphere >(
+                            exponentialAtmosphereSettings->getDensityScaleHeight( ) ,
+                            exponentialAtmosphereSettings->getConstantTemperature( ),
+                            exponentialAtmosphereSettings->getDensityAtZeroAltitude( ),
+                            exponentialAtmosphereSettings->getSpecificGasConstant( ),
+                            exponentialAtmosphereSettings->getRatioOfSpecificHeats( ) );
+            }
+            else
+            {
+                exponentialAtmosphereModel = std::make_shared< ExponentialAtmosphere >(
+                            exponentialAtmosphereSettings->getBodyName( ) );
+            }
             atmosphereModel = exponentialAtmosphereModel;
+        }
+        break;
+    }
+    case custom_constant_temperature_atmosphere:
+    {
+        // Check whether settings for atmosphere are consistent with its type.
+        std::shared_ptr< CustomConstantTemperatureAtmosphereSettings > customConstantTemperatureAtmosphereSettings =
+                std::dynamic_pointer_cast< CustomConstantTemperatureAtmosphereSettings >( atmosphereSettings );
+        if( customConstantTemperatureAtmosphereSettings == nullptr )
+        {
+            throw std::runtime_error( "Error, expected exponential atmosphere settings for body " + body );
+        }
+        else
+        {
+            // Create and initialize exponential atmosphere model.
+            std::shared_ptr< CustomConstantTemperatureAtmosphere > customConstantTemperatureAtmosphereModel;
+            if ( customConstantTemperatureAtmosphereSettings->getModelSpecificParameters( ).empty( ) )
+            {
+                customConstantTemperatureAtmosphereModel = std::make_shared< CustomConstantTemperatureAtmosphere >(
+                            customConstantTemperatureAtmosphereSettings->getDensityFunction( ) ,
+                            customConstantTemperatureAtmosphereSettings->getConstantTemperature( ),
+                            customConstantTemperatureAtmosphereSettings->getSpecificGasConstant( ),
+                            customConstantTemperatureAtmosphereSettings->getRatioOfSpecificHeats( ) );
+            }
+            else
+            {
+                customConstantTemperatureAtmosphereModel = std::make_shared< CustomConstantTemperatureAtmosphere >(
+                            customConstantTemperatureAtmosphereSettings->getDensityFunctionType( ),
+                            customConstantTemperatureAtmosphereSettings->getConstantTemperature( ),
+                            customConstantTemperatureAtmosphereSettings->getSpecificGasConstant( ),
+                            customConstantTemperatureAtmosphereSettings->getRatioOfSpecificHeats( ),
+                            customConstantTemperatureAtmosphereSettings->getModelSpecificParameters( ) );
+            }
+            atmosphereModel = customConstantTemperatureAtmosphereModel;
         }
         break;
     }
@@ -101,14 +145,19 @@ std::shared_ptr< aerodynamics::AtmosphereModel > createAtmosphereModel(
                 std::dynamic_pointer_cast< TabulatedAtmosphereSettings >( atmosphereSettings );
         if( tabulatedAtmosphereSettings == nullptr )
         {
-            throw std::runtime_error(
-                        "Error, expected tabulated atmosphere settings for body " + body );
+            throw std::runtime_error( "Error, expected tabulated atmosphere settings for body " + body );
         }
         else
         {
-            // Create and initialize tabulatedl atmosphere model.
+            // Create and initialize tabulated atmosphere model.
             atmosphereModel = std::make_shared< TabulatedAtmosphere >(
-                        tabulatedAtmosphereSettings->getAtmosphereFile( ) );
+                        tabulatedAtmosphereSettings->getAtmosphereFile( ),
+                        tabulatedAtmosphereSettings->getIndependentVariables( ),
+                        tabulatedAtmosphereSettings->getDependentVariables( ),
+                        tabulatedAtmosphereSettings->getSpecificGasConstant( ),
+                        tabulatedAtmosphereSettings->getRatioOfSpecificHeats( ),
+                        tabulatedAtmosphereSettings->getBoundaryHandling( ),
+                        tabulatedAtmosphereSettings->getDefaultExtrapolationValue( ) );
         }
         break;
     }
@@ -118,6 +167,7 @@ std::shared_ptr< aerodynamics::AtmosphereModel > createAtmosphereModel(
         std::string spaceWeatherFilePath;
         std::shared_ptr< NRLMSISE00AtmosphereSettings > nrlmsise00AtmosphereSettings =
                 std::dynamic_pointer_cast< NRLMSISE00AtmosphereSettings >( atmosphereSettings );
+
         if( nrlmsise00AtmosphereSettings == nullptr )
         {
             // Use default space weather file stored in tudatBundle.
@@ -142,9 +192,8 @@ std::shared_ptr< aerodynamics::AtmosphereModel > createAtmosphereModel(
     }
 #endif
     default:
-        throw std::runtime_error(
-                    "Error, did not recognize atmosphere model settings type " +
-                    std::to_string( atmosphereSettings->getAtmosphereType( ) ) );
+        throw std::runtime_error( "Error, did not recognize atmosphere model settings type " +
+                                  std::to_string( atmosphereSettings->getAtmosphereType( ) ) );
     }
 
     if( atmosphereSettings->getWindSettings( ) != nullptr )
@@ -154,7 +203,6 @@ std::shared_ptr< aerodynamics::AtmosphereModel > createAtmosphereModel(
 
     return atmosphereModel;
 }
-
 
 } // namespace simulation_setup
 

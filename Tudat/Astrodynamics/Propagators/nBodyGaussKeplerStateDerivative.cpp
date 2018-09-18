@@ -106,7 +106,7 @@ Eigen::Vector6d computeGaussPlanetaryEquationsForKeplerElements(
 
     return  computeGaussPlanetaryEquationsForKeplerElements(
                 currentOsculatingKeplerElements,
-                reference_frames::getInertialToRswSatelliteCenteredFrameRotationMatrx(
+                reference_frames::getInertialToRswSatelliteCenteredFrameRotationMatrix(
                     currentCartesianState ) * accelerationsInInertialFrame, centralBodyGravitationalParameter );
 }
 

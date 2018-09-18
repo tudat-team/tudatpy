@@ -101,7 +101,7 @@ double calculateLongitudeOfMoonsAscendingNode( const double julianCenturiesSince
 //! Function to calculate the Delaunay fundamental arguments at the requested time.
 /*!
  * Function to calculate the Delaunay fundamental arguments at the requested time, using Sofa implementation of
- * angle calculations. Using the typical notation of teh angles, the output order is: l, l', F, D, Omega.
+ * angle calculations. Using the typical notation of the angles, the output order is: l, l', F, D, Omega.
  * \param tdbTime Time in TDB at which the arguments are to be calculated.
  * \return Delaunay fundamental arguments at the requested time.
  */
@@ -112,7 +112,7 @@ Eigen::Matrix< double, 5, 1 > calculateDelaunayFundamentalArguments(
 /*!
  * Function to calculate the Delaunay fundamental arguments and (GMST + pi) at the requested time, using Sofa implementation
  * of angle calculations.
- * Using the typical notation of teh angles, the output order is: (GMST + pi), l, l', F, D, Omega.
+ * Using the typical notation of the angles, the output order is: (GMST + pi), l, l', F, D, Omega.
  * We stress that the first argument is GMST with a 180 degree phase shift
  * \param tdbTime Time in TDB at which the arguments are to be calculated, in seconds since J2000.
  * \param terrestrialTime Time in TT at which the arguments are to be calculated, in seconds since J2000.
@@ -127,7 +127,7 @@ Eigen::Vector6d  calculateDelaunayFundamentalArgumentsWithGmst(
  * Function to calculate the Delaunay fundamental arguments and (GMST + pi) at the requested time, using Sofa implementation
  * of angle calculations. When using this function, TT and TDB are assumed equal, as are UTC and UT1, for the purposes of
  * calculating GMST (which requires TT and UT1).
- * Using the typical notation of teh angles, the output order is: (GMST + pi), l, l', F, D, Omega.
+ * Using the typical notation of the angles, the output order is: (GMST + pi), l, l', F, D, Omega.
  * We stress that the first argument is GMST with a 180 degree phase shift
  * \param tdbTime Time in TDB at which the arguments are to be calculated, in seconds since J2000.
  * \return Delaunay fundamental arguments and (GMST + pi) at the requested time.
@@ -139,7 +139,7 @@ Eigen::Vector6d  calculateApproximateDelaunayFundamentalArgumentsWithGmst(
 /*!
  * Function to calculate the Doodson arguments at the requested time, using Sofa implementation
  * of angle calculations.
- * Using the typical notation of teh angles, the output order is: (GMST + pi - s), s, h, p, N', p_{s}.
+ * Using the typical notation of the angles, the output order is: (GMST + pi - s), s, h, p, N', p_{s}.
  * \param tdbTime Time in TDB at which the arguments are to be calculated, in seconds since J2000.
  * \param terrestrialTime Time in TT at which the arguments are to be calculated, in seconds since J2000.
  * \param universalTime1 Time in UT1 at which the arguments are to be calculated, in seconds since J2000.
@@ -154,7 +154,7 @@ Eigen::Vector6d calculateDoodsonFundamentalArguments(
  * of angle calculations. he Delaunay fundamental arguments and (GMST + pi) at the requested time, using Sofa implementation
  * of angle calculations. When using this function, TT and TDB are assumed equal, as are UTC and UT1, for the purposes of
  * calculating GMST (which requires TT and UT1).
- * Using the typical notation of teh angles, the output order is: (GMST + pi - s), s, h, p, N', p_{s}.
+ * Using the typical notation of the angles, the output order is: (GMST + pi - s), s, h, p, N', p_{s}.
  * \param tdbTime Time in TDB at which the arguments are to be calculated, in seconds since J2000.
  * \return Doodson arguments and at the requested time.
  */

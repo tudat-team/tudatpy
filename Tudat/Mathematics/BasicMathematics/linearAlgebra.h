@@ -7,6 +7,8 @@
  *    a copy of the license with this file. If not, please or visit:
  *    http://tudat.tudelft.nl/LICENSE.
  *
+ *    References:
+ *      Ogata, K., Discrete-Time Control Systems, 2nd ed. Pearson Education Asia, 2002.
  */
 
 #ifndef TUDAT_LINEAR_ALGEBRA_H
@@ -21,19 +23,44 @@
 #include <Eigen/Geometry>
 
 #include "Tudat/Basics/basicTypedefs.h"
+
 namespace tudat
 {
 
 namespace linear_algebra
 {
 
-//! Function to put a quaternion in 'vector format', e.g. a Vector4d with entries (w,x,y,z) of the quaternion
+//! Function to put a quaternion in 'vector format', e.g. a Vector4d with entries (w,x,y,z) of the quaternion.
 /*!
- * Function to put a quaternion in 'vector format', e.g. a Vector4d with entries (w,x,y,z) of the quaternion
+ * Function to put a quaternion in 'vector format', e.g. a Vector4d with entries (w,x,y,z) of the quaternion.
  * \param quaternion Quaternion that is to be put into vector format.
- * \return Vector format of input quaternion
+ * \return Vector format of input quaternion.
  */
 Eigen::Vector4d convertQuaternionToVectorFormat( const Eigen::Quaterniond& quaternion );
+
+//! Function to put a vector in 'quaternion format', i.e. a Quaterniond.
+/*!
+ * Function to put a vector in 'quaternion format', i.e. a Quaterniond.
+ * \param Vector format of input quaternion.
+ * \return quaternion Quaternion that is to be put into vector format.
+ */
+Eigen::Quaterniond convertVectorToQuaternionFormat( const Eigen::Vector4d& vector );
+
+//! Function to take the product of two quaternions.
+/*!
+ *  Function to take the product of two quaternions, both expressed as vectors.
+ *  \param firstQuaternion First quaternion expressed as vector.
+ *  \param secondQuaternion Second quaternion expressed as vector.
+ *  \return Product of the two quaternions.
+ */
+Eigen::Vector4d quaternionProduct( const Eigen::Vector4d& firstQuaternion, const Eigen::Vector4d& secondQuaternion );
+
+//! Function to invert a quaternion.
+/*!
+ *  Function to invert a quaternion.
+ *  \param quaternionVector Quaternion expressed as vector.
+ */
+void invertQuaternion( Eigen::Vector4d& quaternionVector );
 
 //! Function that returns that 'cross-product matrix'
 /*!
@@ -178,7 +205,6 @@ bool doesMatrixHaveNanEntries( const Eigen::Matrix< StateScalarType, NumberOfRow
  * \return RMS of input vector
  */
 double getVectorEntryRootMeanSquare( const Eigen::VectorXd& inputVector );
-
 
 } // namespace linear_algebra
 

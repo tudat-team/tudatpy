@@ -53,7 +53,7 @@ std::shared_ptr< propulsion::BodyFixedForceDirectionGuidance  > createThrustGuid
             {
                 centralBodyStateFunction = std::bind( &Body::getState, bodyMap.at(
                                                             thrustDirectionFromStateGuidanceSettings->relativeBody_ ) );
-                magnitudeUpdateSettings[ propagators::body_transational_state_update ].push_back(
+                magnitudeUpdateSettings[ propagators::body_translational_state_update ].push_back(
                             thrustDirectionFromStateGuidanceSettings->relativeBody_ );
             }
             else
@@ -105,7 +105,7 @@ std::shared_ptr< propulsion::BodyFixedForceDirectionGuidance  > createThrustGuid
             magnitudeUpdateSettings[ propagators::body_rotational_state_update ].push_back( nameOfBodyWithGuidance );
             magnitudeUpdateSettings[ propagators::body_rotational_state_update ].push_back(
                         thrustDirectionGuidanceSettings->relativeBody_ );
-            magnitudeUpdateSettings[ propagators::body_transational_state_update ].push_back(
+            magnitudeUpdateSettings[ propagators::body_translational_state_update ].push_back(
                         thrustDirectionGuidanceSettings->relativeBody_);
         }
         else if( bodyWithGuidance->getRotationalEphemeris( ) != nullptr )

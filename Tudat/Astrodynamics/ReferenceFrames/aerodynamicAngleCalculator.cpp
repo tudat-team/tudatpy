@@ -105,7 +105,6 @@ void AerodynamicAngleCalculator::update( const double currentTime, const bool up
     // Get current body-fixed state.
     if( !( currentTime == currentTime_ ) )
     {
-
         currentBodyFixedGroundSpeedBasedState_ = bodyFixedStateFunction_( );
         currentRotationFromCorotatingToInertialFrame_ = rotationFromCorotatingToInertialFrame_( );
 

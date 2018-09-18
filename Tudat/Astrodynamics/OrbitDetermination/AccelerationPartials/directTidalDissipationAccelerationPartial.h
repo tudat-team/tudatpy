@@ -96,7 +96,8 @@ public:
             const std::shared_ptr< gravitation::DirectTidalDissipationAcceleration > tidalAcceleration,
             const std::string acceleratedBody,
             const std::string acceleratingBody ):
-        AccelerationPartial( acceleratedBody, acceleratingBody, basic_astrodynamics::direct_tidal_dissipation_acceleration ),
+        AccelerationPartial( acceleratedBody, acceleratingBody,
+                             basic_astrodynamics::getAccelerationModelType( tidalAcceleration ) ),
         tidalAcceleration_( tidalAcceleration )
     { }
 

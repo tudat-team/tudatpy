@@ -21,10 +21,10 @@ namespace tudat
 namespace interpolators
 {
 
-// OneDimensionalInterpolatorTypes
+// InterpolatorTypes
 
-//! Map of `OneDimensionalInterpolatorTypes` string representations.
-static std::map< OneDimensionalInterpolatorTypes, std::string > oneDimensionalInterpolatorTypes =
+//! Map of `InterpolatorTypes` string representations.
+static std::map< InterpolatorTypes, std::string > oneDimensionalInterpolatorTypes =
 {
     { linear_interpolator, "linear" },
     { cubic_spline_interpolator, "cubicSpline" },
@@ -33,17 +33,17 @@ static std::map< OneDimensionalInterpolatorTypes, std::string > oneDimensionalIn
     { piecewise_constant_interpolator, "piecewiseConstant" }
 };
 
-//! `OneDimensionalInterpolatorTypes` not supported by `json_interface`.
-static std::vector< OneDimensionalInterpolatorTypes > unsupportedOneDimensionalInterpolatorTypes = { };
+//! `InterpolatorTypes` not supported by `json_interface`.
+static std::vector< InterpolatorTypes > unsupportedOneDimensionalInterpolatorTypes = { };
 
-//! Convert `OneDimensionalInterpolatorTypes` to `json`.
-inline void to_json( nlohmann::json& jsonObject, const OneDimensionalInterpolatorTypes& oneDimensionalInterpolatorType )
+//! Convert `InterpolatorTypes` to `json`.
+inline void to_json( nlohmann::json& jsonObject, const InterpolatorTypes& oneDimensionalInterpolatorType )
 {
     jsonObject = json_interface::stringFromEnum( oneDimensionalInterpolatorType, oneDimensionalInterpolatorTypes );
 }
 
-//! Convert `json` to `OneDimensionalInterpolatorTypes`.
-inline void from_json( const nlohmann::json& jsonObject, OneDimensionalInterpolatorTypes& oneDimensionalInterpolatorType )
+//! Convert `json` to `InterpolatorTypes`.
+inline void from_json( const nlohmann::json& jsonObject, InterpolatorTypes& oneDimensionalInterpolatorType )
 {
     oneDimensionalInterpolatorType =
             json_interface::enumFromString( jsonObject, oneDimensionalInterpolatorTypes );
@@ -74,6 +74,34 @@ inline void from_json( const nlohmann::json& jsonObject, AvailableLookupScheme& 
     availableLookupScheme = json_interface::enumFromString( jsonObject, lookupSchemeTypes );
 }
 
+// BoundaryHandling
+
+//! Map of `AvailableLookupScheme`s string representations.
+static std::map< BoundaryInterpolationType, std::string > boundaryInterpolationTypes =
+{
+    { throw_exception_at_boundary, "throwException" },
+    { use_boundary_value, "boundaryValue" },
+    { use_boundary_value_with_warning, "boundaryValueWithWarning" },
+    { extrapolate_at_boundary, "extrapolate" },
+    { extrapolate_at_boundary_with_warning, "extrapolateWithWarning" },
+    { use_default_value, "defaultValue" },
+    { use_default_value_with_warning, "defaultValueWithWarning" }
+};
+
+//! `BoundaryInterpolationType`s not supported by `json_interface`.
+static std::vector< BoundaryInterpolationType > unsupportedBoundaryInterpolationTypes = { };
+
+//! Convert `BoundaryInterpolationType` to `json`.
+inline void to_json( nlohmann::json& jsonObject, const BoundaryInterpolationType& boundaryHandling )
+{
+    jsonObject = json_interface::stringFromEnum( boundaryHandling, boundaryInterpolationTypes );
+}
+
+//! Convert `json` to `BoundaryInterpolationType`.
+inline void from_json( const nlohmann::json& jsonObject, BoundaryInterpolationType& boundaryHandling )
+{
+    boundaryHandling = json_interface::enumFromString( jsonObject, boundaryInterpolationTypes );
+}
 
 // LagrangeInterpolatorBoundaryHandling
 

@@ -20,6 +20,7 @@
 
 namespace tudat
 {
+
 namespace system_models
 {
 
@@ -61,7 +62,7 @@ public:
 
     //! Pure virtual function to update the engine model to the current time
     /*!
-     *  Pure virtual function to update the engine model to the current time. This function must be implemented in teh derived
+     *  Pure virtual function to update the engine model to the current time. This function must be implemented in the derived
      *  class, wehre it typically resets the currentThrust_ variable (and any associated variables).
      *  \param currentTime Current itme in simulation.
      */
@@ -99,9 +100,9 @@ protected:
 
 };
 
-//! Engine model derived class in which the thrust is computed directly from teh propellant mass flow and specific impulse
+//! Engine model derived class in which the thrust is computed directly from the propellant mass flow and specific impulse
 /*!
- *  Engine model derived class in which the thrust is computed directly from teh propellant mass flow and specific impulse
+ *  Engine model derived class in which the thrust is computed directly from the propellant mass flow and specific impulse
  *  These two variables may be either constant or variable (magnitudes controlled by associated class defining e.g. GNC
  *  system.
  */
@@ -150,7 +151,6 @@ public:
         return massFlowFunction_( );
     }
 
-
 protected:
 
     //! Variable specific impulse of engine (no input arguments provided; must be updated by associated guidance law).
@@ -158,6 +158,7 @@ protected:
 
     //! Variable mass flow function (no input arguments provided; must be updated by associated guidance law).
     std::function< double( ) > massFlowFunction_;
+
 };
 
 } // namespace system_models

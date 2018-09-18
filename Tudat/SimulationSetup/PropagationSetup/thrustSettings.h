@@ -335,6 +335,7 @@ public:
 
     //! Direction of thrust force in body-fixed frame
     Eigen::Vector3d bodyFixedThrustDirection_;
+
 };
 
 //! Class to define thrust magnitude  to be taken directly from an engine model
@@ -358,6 +359,7 @@ public:
 
     //! Boolean denoting whether all engines of the associated body are to be combined into a single thrust magnitude
     bool useAllEngines_;
+
 };
 
 //! Class to define custom settings for thrust magnitude/specific impulse.
@@ -429,7 +431,6 @@ double multiplyMaximumThrustByScalingFactor(
         const std::function< double( const std::vector< double >& ) > maximumThrustFunction,
         const std::function< double( ) > maximumThrustMultiplier,
         const std::vector< double >& maximumThrustIndependentVariables );
-
 
 //! Interface base class that can be defined by user to make the use of the ParameterizedThrustMagnitudeSettings class easier
 /*!
@@ -711,6 +712,7 @@ private:
 
     //! Pre-declared vector used as input to thrustInterpolator_.
     std::vector< double >  currentThrustInput_;
+
 };
 
 //! Class to define the thrust magnitude and specific impulse as an interpolated function of N independent variables
@@ -1056,8 +1058,8 @@ std::shared_ptr< ParameterizedThrustMagnitudeSettings > createAccelerationLimite
         const std::vector< propulsion::ThrustIndependentVariables > specificImpulseDependentVariables,
         const std::string nameOfCentralBody = "" );
 
-
 } // namespace simulation_setup
 
 } // namespace tudat
+
 #endif // TUDAT_THRUSTSETTINGS_H

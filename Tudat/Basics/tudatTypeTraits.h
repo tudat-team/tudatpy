@@ -12,10 +12,24 @@
 #ifndef TUDAT_TYPE_TRAITS_H
 #define TUDAT_TYPE_TRAITS_H
 
+#include <type_traits>
+
 #include "Tudat/Basics/timeType.h"
 
 namespace tudat
 {
+
+
+namespace is_eigen_matrix_detail
+{
+    template< typename T >
+    std::true_type test( const Eigen::MatrixBase< T >* );
+    std::false_type test( ... );
+}
+
+template< typename T >
+struct is_eigen_matrix: public decltype( is_eigen_matrix_detail::test( std::declval< T* >( ) ) )
+{};
 
 template< typename T >
 struct is_state_scalar {

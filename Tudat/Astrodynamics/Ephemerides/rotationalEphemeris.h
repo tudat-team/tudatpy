@@ -346,7 +346,7 @@ public:
     //! Function to retrieve the angular velocity vector, expressed in target frame.
     /*!
      * Function to retrieve the angular velocity vector, expressed in target frame. This function calls the function
-     * that calculates the angular velocioty vector in the base frame, and rotates it to teh target frame.
+     * that calculates the angular velocioty vector in the base frame, and rotates it to the target frame.
      * It may be redefined in a derived class, to calculate the angular velocity vector directly
      * \param secondsSinceEpoch Seconds since epoch at which ephemeris is to be evaluated.
      * \return Angular velocity vector, expressed in target frame.

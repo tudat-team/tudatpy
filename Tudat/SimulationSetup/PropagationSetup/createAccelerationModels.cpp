@@ -671,8 +671,8 @@ std::shared_ptr< aerodynamics::AerodynamicAcceleration > createAerodynamicAccele
 
     if( bodyExertingAcceleration->getAtmosphereModel( ) == NULL )
     {
-        throw std::runtime_error(  "Error when making aerodynamic acceleration, central body " +
-                                   nameOfBodyExertingAcceleration + " has no atmosphere model.");
+        throw std::runtime_error( "Error when making aerodynamic acceleration, central body " +
+                                  nameOfBodyExertingAcceleration + " has no atmosphere model.");
     }
 
     if( bodyExertingAcceleration->getShapeModel( ) == NULL )
@@ -688,9 +688,9 @@ std::shared_ptr< aerodynamics::AerodynamicAcceleration > createAerodynamicAccele
     if( bodyFlightConditions == NULL && bodyUndergoingAcceleration->getFlightConditions( ) == NULL )
     {
         bodyFlightConditions = createAtmosphericFlightConditions( bodyUndergoingAcceleration,
-                                                       bodyExertingAcceleration,
-                                                       nameOfBodyUndergoingAcceleration,
-                                                       nameOfBodyExertingAcceleration );
+                                                                  bodyExertingAcceleration,
+                                                                  nameOfBodyUndergoingAcceleration,
+                                                                  nameOfBodyExertingAcceleration );
         bodyUndergoingAcceleration->setFlightConditions( bodyFlightConditions );
     }
     else if( bodyFlightConditions == NULL && bodyUndergoingAcceleration->getFlightConditions( ) != NULL )
@@ -719,7 +719,6 @@ std::shared_ptr< aerodynamics::AerodynamicAcceleration > createAerodynamicAccele
                 accelerationFrame,
                 std::bind( &Body::getCurrentRotationToGlobalFrame, bodyExertingAcceleration ),
                 reference_frames::inertial_frame );
-
 
     std::function< Eigen::Vector3d( ) > coefficientFunction =
             std::bind( &AerodynamicCoefficientInterface::getCurrentForceCoefficients,
@@ -1234,7 +1233,15 @@ std::shared_ptr< AccelerationModel< Eigen::Vector3d > > createAccelerationModel(
                     nameOfBodyExertingAcceleration,
                     accelerationSettings );
         break;
-    case direct_tidal_dissipation_acceleration:
+    case direct_tidal_dissipation_in_central_body_acceleration:
+        accelerationModelPointer = createDirectTidalDissipationAcceleration(
+                    bodyUndergoingAcceleration,
+                    bodyExertingAcceleration,
+                    nameOfBodyUndergoingAcceleration,
+                    nameOfBodyExertingAcceleration,
+                    accelerationSettings );
+        break;
+    case direct_tidal_dissipation_in_orbiting_body_acceleration:
         accelerationModelPointer = createDirectTidalDissipationAcceleration(
                     bodyUndergoingAcceleration,
                     bodyExertingAcceleration,

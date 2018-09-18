@@ -12,9 +12,9 @@
 #ifndef TUDAT_AERODYNAMIC_ACCELERATION_H
 #define TUDAT_AERODYNAMIC_ACCELERATION_H
 
-#include <functional>
+#include <boost/function.hpp>
 #include <boost/lambda/lambda.hpp>
-#include <memory>
+#include <boost/shared_ptr.hpp>
 
 #include <Eigen/Core>
 
@@ -103,8 +103,8 @@ public:
         coefficientFunction_( coefficientFunction ),
         densityFunction_( densityFunction ),
         airSpeedFunction_( airSpeedFunction ),
-        massFunction_( [=]( ){ return constantMass; } ),
-        referenceAreaFunction_( [=]( ){ return constantReferenceArea; } )
+        massFunction_( boost::lambda::constant( constantMass ) ),
+        referenceAreaFunction_( boost::lambda::constant( constantReferenceArea ) )
     {
         coefficientMultiplier_ = areCoefficientsInNegativeDirection == true ? -1.0 : 1.0;
     }
@@ -136,7 +136,7 @@ public:
         massFunction_( massFunction ),
         referenceAreaFunction_( referenceAreaFunction )
     {
-        coefficientMultiplier_ = areCoefficientsInNegativeDirection == true ? -1.0 : 1.0;
+        coefficientMultiplier_ = areCoefficientsInNegativeDirection ? -1.0 : 1.0;
     }
 
     //! Destructor

@@ -34,7 +34,7 @@ void checkTranslationalStatesFeasibility(
                     = bodyIterator->second->getEphemeris( )->getReferenceFrameOrigin( );
 
             if( std::find( bodiesToIntegrate.begin( ), bodiesToIntegrate.end( ), ephemerisOrigin )
-                != bodiesToIntegrate.end( ) )
+                    != bodiesToIntegrate.end( ) )
             {
                 std::cerr << "Warning, found non-integrated body with an integrated body as ephemeris origin" +
                              bodyIterator->second->getEphemeris( )->getReferenceFrameOrigin( ) + " " +
@@ -54,7 +54,7 @@ void checkTranslationalStatesFeasibility(
             if( bodyMap.at( bodyToIntegrate )->getEphemeris( ) == nullptr )
             {
                 throw std::runtime_error( "Error when checking translational dynamics feasibility of body " +
-                                          bodyToIntegrate + "no such body found" );
+                                          bodyToIntegrate + " no such body found" );
             }
         }
         else
@@ -76,6 +76,7 @@ createStateInterpolator( const std::map< double, Eigen::Matrix< double, 6, 1 > >
 {
     return std::make_shared<
         interpolators::LagrangeInterpolator< double, Eigen::Matrix< double, 6, 1 > > >( stateMap, 6 );
+
 }
 
 //! Function to create an interpolator for the new translational state of a body.
@@ -84,8 +85,7 @@ std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Matri
 createStateInterpolator( const std::map< double, Eigen::Matrix< long double, 6, 1 > >& stateMap )
 {
     return std::make_shared<
-        interpolators::LagrangeInterpolator< double,
-                                             Eigen::Matrix< long double, 6, 1 > > >( stateMap, 6 );
+        interpolators::LagrangeInterpolator< double, Eigen::Matrix< long double, 6, 1 > > >( stateMap, 6 );
 }
 
 //! Function to create an interpolator for the new translational state of a body.
@@ -94,8 +94,7 @@ std::shared_ptr< interpolators::OneDimensionalInterpolator< Time, Eigen::Matrix<
 createStateInterpolator( const std::map< Time, Eigen::Matrix< long double, 6, 1 > >& stateMap )
 {
     return std::make_shared<
-        interpolators::LagrangeInterpolator<
-            Time, Eigen::Matrix< long double, 6, 1 >, long double > >( stateMap, 6 );
+        interpolators::LagrangeInterpolator< Time, Eigen::Matrix< long double, 6, 1 >, long double > >( stateMap, 6 );
 }
 
 
@@ -105,8 +104,7 @@ std::shared_ptr< interpolators::OneDimensionalInterpolator< Time, Eigen::Matrix<
 createStateInterpolator( const std::map< Time, Eigen::Matrix< double, 6, 1 > >& stateMap )
 {
     return std::make_shared<
-        interpolators::LagrangeInterpolator<
-            Time, Eigen::Matrix< double, 6, 1 >, long double > >( stateMap, 6 );
+        interpolators::LagrangeInterpolator< Time, Eigen::Matrix< double, 6, 1 >, long double > >( stateMap, 6 );
 }
 
 
@@ -137,7 +135,6 @@ createRotationalStateInterpolator( const std::map< Time, Eigen::Matrix< long dou
 {
     return std::make_shared< interpolators::LagrangeInterpolator< Time, Eigen::Matrix< long double, 7, 1 >, long double > >( stateMap, 6 );
 }
-
 
 } // namespace propagators
 
