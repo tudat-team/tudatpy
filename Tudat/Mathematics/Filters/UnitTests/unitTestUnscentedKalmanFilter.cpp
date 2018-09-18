@@ -93,7 +93,7 @@ BOOST_AUTO_TEST_CASE( testUnscentedKalmanFilterFirstCase )
                 boost::bind( &stateFunction1, _1, _2,
                              boost::bind( &ControlWrapper< double, double, 2 >::getCurrentControlVector, control ) ),
                 boost::bind( &measurementFunction1, _1, _2 ),
-                systemUncertainty, measurementUncertainty,
+                systemUncertainty, measurementUncertainty, timeStep,
                 initialTime, initialEstimatedStateVector, initialEstimatedStateCovarianceMatrix,
                 integratorSettings );
 
@@ -122,7 +122,7 @@ BOOST_AUTO_TEST_CASE( testUnscentedKalmanFilterFirstCase )
         control->setCurrentControlVector( currentTime, unscentedFilter->getCurrentStateEstimate( ) );
 
         // Update filter
-        unscentedFilter->updateFilter( currentTime, currentMeasurementVector );
+        unscentedFilter->updateFilter( currentMeasurementVector );
 
         // Print progress
         if ( showProgress )
@@ -218,7 +218,7 @@ BOOST_AUTO_TEST_CASE( testUnscentedKalmanFilterSecondCase )
                 boost::bind( &stateFunction2, _1, _2,
                              boost::bind( &ControlWrapper< long double, long double, 3 >::getCurrentControlVector, control ) ),
                 boost::bind( &measurementFunction2, _1, _2 ),
-                systemUncertainty, measurementUncertainty,
+                systemUncertainty, measurementUncertainty, timeStep,
                 initialTime, initialEstimatedStateVector, initialEstimatedStateCovarianceMatrix,
                 integratorSettings, custom_parameters, std::make_pair( 0.001, 0.0 ) );
 
@@ -247,7 +247,7 @@ BOOST_AUTO_TEST_CASE( testUnscentedKalmanFilterSecondCase )
         control->setCurrentControlVector( currentTime, unscentedFilter->getCurrentStateEstimate( ) );
 
         // Update filter
-        unscentedFilter->updateFilter( currentTime, currentMeasurementVector );
+        unscentedFilter->updateFilter( currentMeasurementVector );
 
         // Print progress
         if ( showProgress )
@@ -334,7 +334,7 @@ BOOST_AUTO_TEST_CASE( testUnscentedKalmanFilterThirdCase )
                 boost::bind( &stateFunction3, _1, _2,
                              boost::bind( &ControlWrapper< double, double, 3 >::getCurrentControlVector, control ) ),
                 boost::bind( &measurementFunction3, _1, _2 ),
-                systemUncertainty, measurementUncertainty,
+                systemUncertainty, measurementUncertainty, timeStep,
                 initialTime, initialEstimatedStateVector, initialEstimatedStateCovarianceMatrix,
                 integratorSettings );
 
@@ -363,7 +363,7 @@ BOOST_AUTO_TEST_CASE( testUnscentedKalmanFilterThirdCase )
         control->setCurrentControlVector( currentTime, unscentedFilter->getCurrentStateEstimate( ) );
 
         // Update filter
-        unscentedFilter->updateFilter( currentTime, currentMeasurementVector );
+        unscentedFilter->updateFilter( currentMeasurementVector );
 
         // Print progress
         if ( showProgress )

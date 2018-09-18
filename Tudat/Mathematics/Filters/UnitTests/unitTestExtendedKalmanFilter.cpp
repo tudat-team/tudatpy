@@ -115,7 +115,7 @@ BOOST_AUTO_TEST_CASE( testExtendedKalmanFilterFirstCase )
                 boost::lambda::constant( Eigen::Matrix2d::Identity( ) ),
                 boost::bind( &measurementJacobianFunction1, _1, _2 ),
                 boost::lambda::constant( Eigen::Vector1d::Identity( ) ),
-                systemUncertainty, measurementUncertainty,
+                systemUncertainty, measurementUncertainty, timeStep,
                 initialTime, initialEstimatedStateVector, initialEstimatedStateCovarianceMatrix,
                 integratorSettings );
 
@@ -144,7 +144,7 @@ BOOST_AUTO_TEST_CASE( testExtendedKalmanFilterFirstCase )
         control->setCurrentControlVector( currentTime, extendedFilter->getCurrentStateEstimate( ) );
 
         // Update filter
-        extendedFilter->updateFilter( currentTime, currentMeasurementVector );
+        extendedFilter->updateFilter( currentMeasurementVector );
 
         // Print progress
         if ( showProgress )
@@ -273,7 +273,7 @@ BOOST_AUTO_TEST_CASE( testExtendedKalmanFilterSecondCase )
                 boost::lambda::constant( Eigen::Matrix3d::Zero( ) ),
                 boost::bind( &measurementJacobianFunction2, _1, _2 ),
                 boost::lambda::constant( Eigen::Vector1d::Zero( ) ),
-                systemUncertainty, measurementUncertainty,
+                systemUncertainty, measurementUncertainty, timeStep,
                 initialTime, initialEstimatedStateVector, initialEstimatedStateCovarianceMatrix,
                 integratorSettings );
 
@@ -302,7 +302,7 @@ BOOST_AUTO_TEST_CASE( testExtendedKalmanFilterSecondCase )
         control->setCurrentControlVector( currentTime, extendedFilter->getCurrentStateEstimate( ) );
 
         // Update filter
-        extendedFilter->updateFilter( currentTime, currentMeasurementVector );
+        extendedFilter->updateFilter( currentMeasurementVector );
 
         // Print progress
         if ( showProgress )
