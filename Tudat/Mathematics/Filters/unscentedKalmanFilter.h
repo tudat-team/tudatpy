@@ -77,6 +77,7 @@ public:
      *  \param measurementFunction Function returning the measurement as a function of time and state.
      *  \param systemUncertainty Matrix defining the uncertainty in modeling of the system.
      *  \param measurementUncertainty Matrix defining the uncertainty in modeling of the measurements.
+     *  \param filteringStepSize Scalar representing the value of the constant filtering time step.
      *  \param initialTime Scalar representing the value of the initial time.
      *  \param initialStateVector Vector representing the initial (estimated) state of the system. It is used as first
      *      a-priori estimate of the state vector.
@@ -92,6 +93,7 @@ public:
                            const Function& measurementFunction,
                            const DependentMatrix& systemUncertainty,
                            const DependentMatrix& measurementUncertainty,
+                           const IndependentVariableType filteringStepSize,
                            const IndependentVariableType initialTime,
                            const DependentVector& initialStateVector,
                            const DependentMatrix& initialCovarianceMatrix,
@@ -101,7 +103,7 @@ public:
             std::make_pair( static_cast< DependentVariableType >( TUDAT_NAN ),
                             static_cast< DependentVariableType >( TUDAT_NAN ) ) ) :
         KalmanFilterBase< IndependentVariableType, DependentVariableType >( systemUncertainty, measurementUncertainty,
-                                                                            initialTime, initialStateVector,
+                                                                            filteringStepSize, initialTime, initialStateVector,
                                                                             initialCovarianceMatrix, integratorSettings ),
         inputSystemFunction_( systemFunction ), inputMeasurementFunction_( measurementFunction )
     {
@@ -129,14 +131,13 @@ public:
     //! Function to update the filter with the new step data.
     /*!
      *  Function to update the filter with the new step data.
-     *  \param currentTime Scalar representing current time.
      *  \param currentMeasurementVector Vector representing current measurement.
      */
-    void updateFilter( const IndependentVariableType currentTime, const DependentVector& currentMeasurementVector )
+    void updateFilter( const DependentVector& currentMeasurementVector )
     {
         // Compute sigma points
         computeSigmaPoints( this->aPosterioriStateEstimate_, this->aPosterioriCovarianceEstimate_ );
-        historyOfSigmaPoints_[ currentTime ] = mapOfSigmaPoints_; // store points
+        historyOfSigmaPoints_[ this->currentTime_ ] = mapOfSigmaPoints_; // store points
 
         // Prediction step
         // Compute series of state estimates based on sigma points
@@ -146,7 +147,7 @@ public:
         {
             currentSigmaPoint_ = sigmaPointConstantIterator_->first;
             sigmaPointsStateEstimates[ currentSigmaPoint_ ] = this->predictState(
-                        currentTime, sigmaPointConstantIterator_->second.segment( 0, stateDimension_ ) );
+                        sigmaPointConstantIterator_->second.segment( 0, stateDimension_ ) );
         }
 
         // Compute the weighted average to find the a-priori state vector
@@ -167,7 +168,7 @@ public:
         {
             currentSigmaPoint_ = sigmaPointConstantIterator_->first;
             sigmaPointsMeasurementEstimates[ currentSigmaPoint_ ] = this->measurementFunction_(
-                        currentTime, sigmaPointConstantIterator_->second.segment( 0, stateDimension_ ) );
+                        this->currentTime_, sigmaPointConstantIterator_->second.segment( 0, stateDimension_ ) );
         }
 
         // Compute the weighted average to find the expected measurement vector
@@ -190,8 +191,9 @@ public:
         DependentMatrix kalmanGain = crossCorrelationMatrix * innovationMatrix.inverse( );
 
         // Correction step
-        this->correctState( currentTime, aPrioriStateEstimate, currentMeasurementVector, measurementEstimate, kalmanGain );
-        correctCovariance( currentTime, aPrioriCovarianceEstimate, innovationMatrix, kalmanGain );
+        this->correctState( aPrioriStateEstimate, currentMeasurementVector, measurementEstimate, kalmanGain );
+        correctCovariance( aPrioriCovarianceEstimate, innovationMatrix, kalmanGain );
+        this->currentTime_ += this->filteringStepSize_;
     }
 
     //! Function to return the history of sigma points.
@@ -263,13 +265,13 @@ private:
     /*!
      *  Function to revert to the previous time step for derived class-specific variables. This function adds to the list of
      *  elements to be reverted, the latest sigma point estimates.
-     *  \param currentTime Double denoting the current time, i.e., the instant that has to be discarded.
+     *  \param timeToBeRemoved Double denoting the current time, i.e., the instant that has to be discarded.
      */
-    virtual void specificRevertToPreviousTimeStep( const double currentTime )
+    virtual void specificRevertToPreviousTimeStep( const double timeToBeRemoved )
     {
-        if ( historyOfSigmaPoints_.count( currentTime ) != 0 )
+        if ( historyOfSigmaPoints_.count( timeToBeRemoved ) != 0 )
         {
-            historyOfSigmaPoints_.erase( currentTime );
+            historyOfSigmaPoints_.erase( timeToBeRemoved );
         }
     }
 
@@ -403,15 +405,16 @@ private:
 
     //! Function to correct the covariance for the next time step.
     /*!
-     *  Function to predict the state for the next time step, by overwriting previous state, with the either the use of
-     *  the integrator provided in the integratorSettings, or the systemFunction_ input by the user.
-     *  \param currentTime Scalar representing the current time.
+     *  Function to correct the covariance for the next time step.
+     *  \param aPrioriCovarianceEstimate Matrix denoting the a-priori covariance estimate.
+     *  \param innovationMatrix Matrix denoting the innovation, i.e., the correlation between system and measurement.
+     *  \param kalmanGain Matrix denoting the Kalman gain, to be used to correct the state estimate with the external measurement data.
      */
-    void correctCovariance( const IndependentVariableType currentTime, const DependentMatrix& aPrioriCovarianceEstimate,
+    void correctCovariance( const DependentMatrix& aPrioriCovarianceEstimate,
                             const DependentMatrix& innovationMatrix, const DependentMatrix& kalmanGain )
     {
         this->aPosterioriCovarianceEstimate_ = aPrioriCovarianceEstimate - kalmanGain * innovationMatrix * kalmanGain.transpose( );
-        this->historyOfCovarianceEstimates_[ currentTime ] = this->aPosterioriCovarianceEstimate_;
+        this->historyOfCovarianceEstimates_[ this->currentTime_ ] = this->aPosterioriCovarianceEstimate_;
     }
 
     //! System function input by user.
