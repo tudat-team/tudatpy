@@ -101,28 +101,29 @@ BOOST_AUTO_TEST_CASE( testUnscentedKalmanFilterFirstCase )
     const bool showProgress = false;
     double currentTime = initialTime;
     Eigen::Vector2d currentActualStateVector = initialStateVector;
-    Eigen::Vector2d currentNoisyStateVector;
     Eigen::Vector2d currentControlVector = Eigen::Vector2d::Zero( );
     Eigen::Vector1d currentMeasurementVector;
     std::map< double, Eigen::Vector2d > actualStateVectorHistory;
     std::map< double, Eigen::Vector1d > measurementVectorHistory;
     actualStateVectorHistory[ initialTime ] = initialStateVector;
-    for( unsigned int i = 0; i < numberOfTimeSteps; i++ )
+    for ( unsigned int i = 0; i < numberOfTimeSteps; i++ )
     {
         // Compute actual values and perturb them
-        currentTime += timeStep;
-        currentActualStateVector += stateFunction1( currentTime, currentActualStateVector, currentControlVector ) * timeStep;
-        currentNoisyStateVector = currentActualStateVector + unscentedFilter->produceSystemNoise( ) * timeStep;
+        currentActualStateVector += ( stateFunction1( currentTime, currentActualStateVector, currentControlVector ) +
+                                      unscentedFilter->produceSystemNoise( ) ) * timeStep;
         currentMeasurementVector = measurementFunction1( currentTime, currentActualStateVector ) +
                 unscentedFilter->produceMeasurementNoise( );
-        actualStateVectorHistory[ currentTime ] = currentActualStateVector;
-        measurementVectorHistory[ currentTime ] = currentMeasurementVector;
 
         // Update control class
         control->setCurrentControlVector( currentTime, unscentedFilter->getCurrentStateEstimate( ) );
 
         // Update filter
         unscentedFilter->updateFilter( currentMeasurementVector );
+        currentTime = unscentedFilter->getCurrentTime( );
+
+        // Store values
+        actualStateVectorHistory[ currentTime ] = currentActualStateVector;
+        measurementVectorHistory[ currentTime ] = currentMeasurementVector;
 
         // Print progress
         if ( showProgress )
@@ -135,11 +136,11 @@ BOOST_AUTO_TEST_CASE( testUnscentedKalmanFilterFirstCase )
 
     // Check that final state is as expected
     Eigen::Vector2d expectedFinalState = Eigen::Vector2d::Zero( );
-    expectedFinalState << 4.5338646359583299, -10.411203259530938;
+    expectedFinalState << 4.9651546003074403, -12.544916512181523;
     for ( int i = 0; i < expectedFinalState.rows( ); i++ )
     {
         BOOST_CHECK_SMALL( unscentedFilter->getCurrentStateEstimate( )[ i ] - expectedFinalState[ i ],
-                           std::numeric_limits< double >::epsilon( ) );
+                           100.0 * std::numeric_limits< double >::epsilon( ) );
     }
 
     // Check that noise is actually normally distributed (within 5 %)
@@ -226,28 +227,29 @@ BOOST_AUTO_TEST_CASE( testUnscentedKalmanFilterSecondCase )
     const bool showProgress = false;
     long double currentTime = initialTime;
     Vector3ld currentActualStateVector = initialStateVector;
-    Vector3ld currentNoisyStateVector;
     Vector3ld currentControlVector = Vector3ld::Zero( );
     Vector1ld currentMeasurementVector;
     std::map< long double, Vector3ld > actualStateVectorHistory;
     std::map< long double, Vector1ld > measurementVectorHistory;
     actualStateVectorHistory[ initialTime ] = initialStateVector;
-    for( unsigned int i = 0; i < numberOfTimeSteps; i++ )
+    for ( unsigned int i = 0; i < numberOfTimeSteps; i++ )
     {
         // Compute actual values and perturb them
-        currentTime += timeStep;
-        currentActualStateVector = stateFunction2( currentTime, currentActualStateVector, currentControlVector );
-        currentNoisyStateVector = currentActualStateVector + unscentedFilter->produceSystemNoise( );
+        currentActualStateVector = stateFunction2( currentTime, currentActualStateVector, currentControlVector ) +
+                unscentedFilter->produceSystemNoise( );
         currentMeasurementVector = measurementFunction2( currentTime, currentActualStateVector ) +
                 unscentedFilter->produceMeasurementNoise( );
-        actualStateVectorHistory[ currentTime ] = currentActualStateVector;
-        measurementVectorHistory[ currentTime ] = currentMeasurementVector;
 
         // Update control class
         control->setCurrentControlVector( currentTime, unscentedFilter->getCurrentStateEstimate( ) );
 
         // Update filter
         unscentedFilter->updateFilter( currentMeasurementVector );
+        currentTime = unscentedFilter->getCurrentTime( );
+
+        // Store values
+        actualStateVectorHistory[ currentTime ] = currentActualStateVector;
+        measurementVectorHistory[ currentTime ] = currentMeasurementVector;
 
         // Print progress
         if ( showProgress )
@@ -342,28 +344,29 @@ BOOST_AUTO_TEST_CASE( testUnscentedKalmanFilterThirdCase )
     const bool showProgress = false;
     double currentTime = initialTime;
     Eigen::Vector3d currentActualStateVector = initialStateVector;
-    Eigen::Vector3d currentNoisyStateVector;
     Eigen::Vector3d currentControlVector = Eigen::Vector3d::Zero( );
     Eigen::Vector1d currentMeasurementVector;
     std::map< double, Eigen::Vector3d > actualStateVectorHistory;
     std::map< double, Eigen::Vector1d > measurementVectorHistory;
     actualStateVectorHistory[ initialTime ] = initialStateVector;
-    for( unsigned int i = 0; i < numberOfTimeSteps; i++ )
+    for ( unsigned int i = 0; i < numberOfTimeSteps; i++ )
     {
         // Compute actual values and perturb them
-        currentTime += timeStep;
-        currentActualStateVector += stateFunction3( currentTime, currentActualStateVector, currentControlVector ) * timeStep;
-        currentNoisyStateVector = currentActualStateVector + unscentedFilter->produceSystemNoise( ) * timeStep;
+        currentActualStateVector += ( stateFunction3( currentTime, currentActualStateVector, currentControlVector ) +
+                                      unscentedFilter->produceSystemNoise( ) ) * timeStep;
         currentMeasurementVector = measurementFunction3( currentTime, currentActualStateVector ) +
                 unscentedFilter->produceMeasurementNoise( );
-        actualStateVectorHistory[ currentTime ] = currentActualStateVector;
-        measurementVectorHistory[ currentTime ] = currentMeasurementVector;
 
         // Update control class
         control->setCurrentControlVector( currentTime, unscentedFilter->getCurrentStateEstimate( ) );
 
         // Update filter
         unscentedFilter->updateFilter( currentMeasurementVector );
+        currentTime = unscentedFilter->getCurrentTime( );
+
+        // Store values
+        actualStateVectorHistory[ currentTime ] = currentActualStateVector;
+        measurementVectorHistory[ currentTime ] = currentMeasurementVector;
 
         // Print progress
         if ( showProgress )
@@ -376,11 +379,11 @@ BOOST_AUTO_TEST_CASE( testUnscentedKalmanFilterThirdCase )
 
     // Check that final state is as expected
     Eigen::Vector3d expectedFinalState = Eigen::Vector3d::Zero( );
-    expectedFinalState << 25180.660764835568, -3330.7628220316465, 502.65462274722211;
+    expectedFinalState << 25200.383066001908, -3334.8971957588378, 502.3444368942321;
     for ( int i = 0; i < expectedFinalState.rows( ); i++ )
     {
         BOOST_CHECK_SMALL( unscentedFilter->getCurrentStateEstimate( )[ i ] - expectedFinalState[ i ],
-                           std::numeric_limits< double >::epsilon( ) );
+                           100.0 * std::numeric_limits< double >::epsilon( ) );
     }
 
     // Check that noise is actually normally distributed (within 5 %)

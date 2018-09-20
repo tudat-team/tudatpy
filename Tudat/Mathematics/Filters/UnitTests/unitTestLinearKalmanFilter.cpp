@@ -82,7 +82,7 @@ BOOST_AUTO_TEST_CASE( testLinearKalmanFilter )
                 boost::lambda::constant( stateTransitionMatrix ),
                 boost::lambda::constant( controlMatrix ),
                 boost::lambda::constant( measurementMatrix ),
-                systemUncertainty, measurementUncertainty,
+                systemUncertainty, measurementUncertainty, timeStep,
                 initialTime, initialEstimatedStateVector, initialEstimatedStateCovarianceMatrix );
 
     // Loop over each time step
@@ -93,18 +93,21 @@ BOOST_AUTO_TEST_CASE( testLinearKalmanFilter )
     Eigen::Vector1d currentMeasurementVector;
     std::map< double, Eigen::Vector3d > actualStateVectorHistory;
     std::map< double, Eigen::Vector1d > measurementVectorHistory;
-    for( unsigned int i = 0; i < numberOfTimeSteps; i++ )
+    actualStateVectorHistory[ initialTime ] = initialStateVector;
+    for ( unsigned int i = 0; i < numberOfTimeSteps; i++ )
     {
         // Compute actual values and perturb them
-        currentTime += timeStep;
         currentStateVector = stateTransitionMatrix * currentStateVector + controlMatrix * currentControlVector +
                 linearFilter->produceSystemNoise( );
         currentMeasurementVector = measurementMatrix * currentStateVector + linearFilter->produceMeasurementNoise( );
-        actualStateVectorHistory[ currentTime ] = currentStateVector;
-        measurementVectorHistory[ currentTime ] = currentMeasurementVector;
 
         // Update filter
         linearFilter->updateFilter( currentMeasurementVector );
+        currentTime = linearFilter->getCurrentTime( );
+
+        // Store values
+        actualStateVectorHistory[ currentTime ] = currentStateVector;
+        measurementVectorHistory[ currentTime ] = currentMeasurementVector;
 
         // Print progress
         if ( showProgress )
