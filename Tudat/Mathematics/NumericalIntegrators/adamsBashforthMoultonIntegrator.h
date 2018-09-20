@@ -751,7 +751,7 @@ protected:
      */
     StateType performSingleStep( )
     {
-        typename StateType::Scalar maximumTolerance = std::numeric_limits< typename StateType::Scalar >::infinity( );
+        typename StateType::Scalar maximumTolerance = 1.0;
         
         // FIXME: define these integrators in the private scope of class and initialize in constructor.
         // Perhaps with an user-selectable RK variant. The modifyCurrentState statements below should
