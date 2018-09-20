@@ -961,7 +961,6 @@ std::pair< std::function< Eigen::VectorXd( ) >, int > getVectorDependentVariable
 
             parameterSize = 18;
         }
->>>>>>> dominic-origin/C++11Features
         break;
     }
     default:

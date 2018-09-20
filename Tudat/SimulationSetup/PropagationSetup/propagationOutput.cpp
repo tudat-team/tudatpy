@@ -339,7 +339,7 @@ int getDependentVariableSize(
     case acceleration_partial_wrt_body_translational_state:
         variableSize = 18;
         break;
->>>>>>> dominic-origin/C++11Features
+
     default:
         std::string errorMessage = "Error, did not recognize dependent variable size of type: " +
                 std::to_string( dependentVariableSettings->dependentVariableType_ );
