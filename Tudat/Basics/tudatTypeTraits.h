@@ -19,17 +19,38 @@
 namespace tudat
 {
 
+/// Implementation of \p std::enable_if_t.
+/**
+ * Implementation of \p std::enable_if_t, from C++14. See: http://en.cppreference.com/w/cpp/types/enable_if.
+ */
+template <bool B, typename T = void>
+using enable_if_t = typename std::enable_if<B, T>::type;
 
 namespace is_eigen_matrix_detail
 {
-    template< typename T >
-    std::true_type test( const Eigen::MatrixBase< T >* );
-    std::false_type test( ... );
+template< typename T >
+std::true_type test( const Eigen::MatrixBase< T >* );
+
+std::false_type test( ... );
 }
 
 template< typename T >
 struct is_eigen_matrix: public decltype( is_eigen_matrix_detail::test( std::declval< T* >( ) ) )
-{};
+{ };
+
+//template< typename T,
+//          enable_if_t< is_eigen_matrix< T >::value, int > = 0 >
+//struct is_eigen_vector
+//{
+//    static const int value = ( T::ColsAtCompileTime == 1 );
+//};
+
+//template< typename T,
+//          enable_if_t< !is_eigen_matrix< T >::value, int > = 0 >
+//struct is_eigen_vector
+//{
+//    static const int value = false;
+//};
 
 template< typename T >
 struct is_state_scalar {
@@ -136,8 +157,6 @@ template< >
 struct is_direct_gravity_acceleration< gravitation::MutualSphericalHarmonicsGravitationalAccelerationModel > {
     static const bool value = true;
 };
-
-
 
 
 
