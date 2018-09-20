@@ -24,7 +24,7 @@ std::string getVariableName( const VariableType variableType )
     case independentVariable:
         return "Independent variable ";
     case cpuTimeVariable:
-        return "Cummulative computation time variable ";
+        return "Cumulative computation time variable ";
     case stateVariable:
         return "Integrated state ";
     case dependentVariable:
@@ -127,6 +127,12 @@ std::string getDependentVariableName( const PropagationDependentVariables propag
     case local_temperature_dependent_variable:
         variableName = "Local freestream temperature ";
         break;
+    case local_dynamic_pressure_dependent_variable:
+        variableName = "Local dynamic pressure ";
+        break;
+    case local_aerodynamic_heat_rate_dependent_variable:
+        variableName = "Local aerodynamic heat rate ";
+        break;
     case geodetic_latitude_dependent_variable:
         variableName = "Geodetic latitude ";
         break;
@@ -171,6 +177,18 @@ std::string getDependentVariableName( const PropagationDependentVariables propag
         break;
     case euler_angles_to_body_fixed_313:
         variableName = "313 Euler angles to body-fixed frame ";
+        break;
+    case total_gravity_field_variation_acceleration:
+        variableName = "Total time-variable gravity field acceleration correction ";
+        break;
+    case single_gravity_field_variation_acceleration:
+        variableName = "Single-source time-variable gravity field acceleration correction ";
+        break;
+    case single_gravity_field_variation_acceleration_terms:
+        variableName = "Single-source time-variable gravity field per-term acceleration correction ";
+        break;
+    case acceleration_partial_wrt_body_translational_state:
+        variableName = "Acceleration partial w.r.t body state ";
         break;
     default:
         std::string errorMessage = "Error, dependent variable " +

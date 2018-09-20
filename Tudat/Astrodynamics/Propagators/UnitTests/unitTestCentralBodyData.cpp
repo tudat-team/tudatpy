@@ -59,13 +59,13 @@ BOOST_AUTO_TEST_CASE( testCentralBodyData )
     for( unsigned int i = 0; i < bodiesToIntegrate.size( ); i++ )
     {
         stateFunctions[ bodiesToIntegrate[ i ] ]
-            =  boost::lambda::constant( Eigen::Matrix< double, 6, 1 >::Zero( ) );
+            = []( const double ){ return Eigen::Vector6d::Zero( ); };
     }
 
     // Create central bodies object.
     std::shared_ptr< CentralBodyData< double > > centralBodyData
         = std::make_shared< CentralBodyData< double > >(
-                centralBodies, bodiesToIntegrate, stateFunctions, boost::lambda::constant( Eigen::Vector6d::Zero( ) ), "SSB" );
+                centralBodies, bodiesToIntegrate, stateFunctions, []( const double ){ return Eigen::Vector6d::Zero( ); }, "SSB" );
 
     // Get update order.
     std::vector< int > updateOrder = centralBodyData->getUpdateOrder( );

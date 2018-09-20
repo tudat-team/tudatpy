@@ -111,8 +111,7 @@ protected:
 
 //! Interface object of interpolation of numerically propagated state transition and sensitivity matrices for single-arc
 //! estimation.
-class SingleArcCombinedStateTransitionAndSensitivityMatrixInterface:
-        public CombinedStateTransitionAndSensitivityMatrixInterface
+class SingleArcCombinedStateTransitionAndSensitivityMatrixInterface : public CombinedStateTransitionAndSensitivityMatrixInterface
 {
 public:
 
@@ -207,7 +206,6 @@ public:
     {
         return sensitivityMatrixSize_ + stateTransitionMatrixSize_;
     }
-
 
 private:
 
@@ -457,4 +455,5 @@ private:
 } // namespace propagators
 
 } // namespace tudat
+
 #endif // TUDAT_STATETRANSITIONMATRIXINTERFACE_H

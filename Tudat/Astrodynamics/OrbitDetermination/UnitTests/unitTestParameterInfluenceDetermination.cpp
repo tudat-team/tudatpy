@@ -164,7 +164,7 @@ BOOST_AUTO_TEST_CASE( test_ParameterPostFitResiduals )
         // Create integrator settings.
         std::shared_ptr< IntegratorSettings< > > integratorSettings =
                 std::make_shared< RungeKuttaVariableStepSizeSettings< > >
-                ( rungeKuttaVariableStepSize, ( simulationStartEpoch ), 12.0 * 3600.0,
+                ( simulationStartEpoch, 12.0 * 3600.0,
                   RungeKuttaCoefficients::CoefficientSets::rungeKuttaFehlberg78,
                   3.0 * 3600.0, 12.0 * 3600.0, 1.0E-12, 1.0E-12 );
 
@@ -302,7 +302,7 @@ BOOST_AUTO_TEST_CASE( test_ParameterPostFitResidualsApollo )
     // Define constant 25 degree angle of attack
     double constantAngleOfAttack = 25.0 * mathematical_constants::PI / 180.0;
     bodyMap.at( "Apollo" )->getFlightConditions( )->getAerodynamicAngleCalculator( )->setOrientationAngleFunctions(
-                boost::lambda::constant( constantAngleOfAttack ) );
+                [&]( ){ return constantAngleOfAttack; } );
 
     // Set initial spherical elements for Apollo.
     Eigen::Vector6d apolloSphericalEntryState;
@@ -394,6 +394,3 @@ BOOST_AUTO_TEST_CASE( test_ParameterPostFitResidualsApollo )
 }
 
 }
-
-
-

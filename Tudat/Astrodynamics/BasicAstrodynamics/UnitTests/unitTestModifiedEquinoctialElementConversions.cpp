@@ -8,7 +8,7 @@
  *    http://tudat.tudelft.nl/LICENSE.
  *
  *    References
- *      B. Rmgens, "Verified Interval Propagation" (2011). MSc thesis,
+ *      B. Romgens, "Verified Interval Propagation" (2011). MSc thesis,
  *          Delft University of Technology.
  *
  */
@@ -68,7 +68,7 @@ BOOST_AUTO_TEST_CASE( testConvertKeplerianToModifiedEquinoctialElements )
         // Default case, so no modification necessary.
 
         // Expected modified equinoctial elements [m,-,-,-,-,rad].
-        // (Results obtained using code archive B. Rmgens (2011)).
+        // (Results obtained using code archive B. Romgens (2011)).
         expectedModifiedEquinoctialElements( semiLatusRectumIndex ) = 9900000.0;
         expectedModifiedEquinoctialElements( fElementIndex ) = 0.09961946980917456;
         expectedModifiedEquinoctialElements( gElementIndex ) = 0.008715574274765783;
@@ -184,7 +184,7 @@ BOOST_AUTO_TEST_CASE( testConvertKeplerianToModifiedEquinoctialElements )
         avoidSingularity = false;
 
         // Expected modified equinoctial elements [m,-,-,-,-,rad].
-        // (Results obtained using code archive B. Rmgens (2011)).
+        // (Results obtained using code archive B. Romgens (2011)).
         expectedModifiedEquinoctialElements( semiLatusRectumIndex ) = 10000000;
         expectedModifiedEquinoctialElements( fElementIndex ) = 0;
         expectedModifiedEquinoctialElements( gElementIndex ) = 0;
@@ -219,7 +219,7 @@ BOOST_AUTO_TEST_CASE( testConvertKeplerianToModifiedEquinoctialElements )
         avoidSingularity = false;
 
         // Expected modified equinoctial elements [m,-,-,-,-,rad].
-        // (Results obtained using code archive B. Rmgens (2011)).
+        // (Results obtained using code archive B. Romgens (2011)).
         expectedModifiedEquinoctialElements( semiLatusRectumIndex ) = 9900000;
         expectedModifiedEquinoctialElements( fElementIndex ) = 0.09961946980917456;
         expectedModifiedEquinoctialElements( gElementIndex ) = 0.008715574274765783;
@@ -304,7 +304,7 @@ BOOST_AUTO_TEST_CASE( testConvertKeplerianToModifiedEquinoctialElements )
         avoidSingularity = false;
 
         // Expected modified equinoctial elements [m,-,-,-,-,rad].
-        // (Results obtained using code archive B. Rmgens (2011)).
+        // (Results obtained using code archive B. Romgens (2011)).
         expectedModifiedEquinoctialElements( semiLatusRectumIndex ) = 10000000;
         expectedModifiedEquinoctialElements( fElementIndex ) = 0;
         expectedModifiedEquinoctialElements( gElementIndex ) = 0;

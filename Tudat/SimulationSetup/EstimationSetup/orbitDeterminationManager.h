@@ -83,7 +83,8 @@ Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > getConcatenatedWeights
  *  estimation itself is performed by providing measurement data and related metadata (as PodInput) to the estimateParameters
  *  function.
  */
-template< typename ObservationScalarType = double, typename TimeType = double >
+template< typename ObservationScalarType = double, typename TimeType = double,
+          typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type = 0 >
 class OrbitDeterminationManager
 {
 public:
@@ -533,7 +534,6 @@ public:
 
             oldParameterEstimate = newParameterEstimate;
 
-
             if( podInput->getPrintOutput( ) )
             {
                 std::cout << "Parameter update" << parameterAddition.transpose( ) << std::endl;
@@ -715,7 +715,6 @@ public:
         return stateTransitionAndSensitivityMatrixInterface_;
     }
 
-
 protected:
 
     //! Function called by either constructor to initialize the object.
@@ -763,8 +762,7 @@ protected:
 
         if( integrateAndEstimateOrbit_ )
         {
-            stateTransitionAndSensitivityMatrixInterface_ =
-                    variationalEquationsSolver_->getStateTransitionMatrixInterface( );
+            stateTransitionAndSensitivityMatrixInterface_ = variationalEquationsSolver_->getStateTransitionMatrixInterface( );
         }
         else if( propagatorSettings == NULL )
         {

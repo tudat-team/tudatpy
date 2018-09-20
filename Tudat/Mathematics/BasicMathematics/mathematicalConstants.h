@@ -10,11 +10,6 @@
  *    References
  *      Wolfram MathWorld, Constant:
  *          http://mathworld.wolfram.com/Constant.html (retrieved 2012/02/08).
- *
- *    Notes
- *      Backwards compatibility of namespaces is implemented for Tudat Core 2 in this file. The
- *      code block marked "DEPRECATED!" at the end of the file should be removed in Tudat Core 3.
- *
  */
 
 #ifndef TUDAT_MATHEMATICAL_CONSTANTS_H
@@ -119,7 +114,6 @@ ScalarType getPi( )
 {
     return static_cast< ScalarType >( LONG_PI );
 }
-
 
 } // namespace mathematical_constants
 

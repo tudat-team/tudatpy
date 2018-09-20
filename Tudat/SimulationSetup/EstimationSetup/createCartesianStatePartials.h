@@ -155,7 +155,7 @@ std::shared_ptr< RotationMatrixPartial > createRotationMatrixPartialsWrtParamete
  *  Function to create rotation matrix partial objects for all rotation model parameters of given body in given set of
  *  parameters. All parameter objects of given EstimatableParameterSet are checked whether they are firstly a property of
  *  the requested body, and secondly if they represent a property of the rotation from the body-fixed to base frame.
- *  If both conditions are met, a partial  is created and added to teh return list.
+ *  If both conditions are met, a partial  is created and added to the return list.
  *  \param parametersToEstimate Set of all parameters which are to be estimated.
  *  \param bodyName Name of body for which to create partials of rotation from body-fixed to base frame
  *  \param bodyMap Map of body objects, used in the creation of the partials.

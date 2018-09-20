@@ -16,6 +16,21 @@ namespace tudat
 namespace propagators
 {
 
+//template class VariationalEquationsSolver< double, double >;
+//template class VariationalEquationsSolver< long double, double >;
+//template class VariationalEquationsSolver< double, Time >;
+//template class VariationalEquationsSolver< long double, Time >;
+
+//template class SingleArcVariationalEquationsSolver< double, double >;
+//template class SingleArcVariationalEquationsSolver< long double, double >;
+//template class SingleArcVariationalEquationsSolver< double, Time >;
+//template class SingleArcVariationalEquationsSolver< long double, Time >;
+
+//template class MultiArcVariationalEquationsSolver< double, double >;
+//template class MultiArcVariationalEquationsSolver< long double, double >;
+//template class MultiArcVariationalEquationsSolver< double, Time >;
+//template class MultiArcVariationalEquationsSolver< long double, Time >;
+
 //! Function to create interpolators for state transition and sensitivity matrices from numerical results.
 void createStateTransitionAndSensitivityMatrixInterpolator(
         std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > >& stateTransitionMatrixInterpolator,

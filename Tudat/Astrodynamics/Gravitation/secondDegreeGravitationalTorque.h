@@ -14,7 +14,6 @@
 #include <iostream>
 
 #include <functional>
-#include <boost/lambda/lambda.hpp>
 
 #include <Eigen/Geometry>
 
@@ -37,7 +36,7 @@ Eigen::Vector3d calculateSecondDegreeGravitationalTorque(
  * provided here as an inertia tensor. Higher order terms of the torque are omitted.
  * \param relativePositionOfBodySubjectToTorque Position of body exerting torque, w.r.t. body undergoing torque (typically
  * expressed in frame fixed to body undergoing torque).
- * \param gravitationalParameterOfAttractingBody Tha gravitational parameter of teh body that exerts the torque
+ * \param gravitationalParameterOfAttractingBody Tha gravitational parameter of the body that exerts the torque
  * \param inertiaTensorOfRotatingBody The inertia tensor of the body undergoing the torqie, in the same frame as
  * relativePositionOfBodySubjectToTorque (typically frame fixed to body undergoing torque)
  * \return Gravitational torque of point mass on second-degree body.
@@ -75,9 +74,9 @@ public:
             const std::function< double( ) > gravitationalParameterOfAttractingBodyFunction,
             const std::function< Eigen::Matrix3d( ) > inertiaTensorOfRotatingBodyFunction,
             const std::function< Eigen::Vector3d( ) > positionOfBodyExertingTorqueFunction =
-            boost::lambda::constant( Eigen::Vector3d::Zero( ) ),
+            []( ){ return Eigen::Vector3d::Zero( ); },
             const std::function< Eigen::Quaterniond( ) > rotationToBodyFixedFrameFunction =
-            boost::lambda::constant( Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) ) ) ):
+            []( ){ return Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) ); } ):
         positionOfBodySubjectToTorqueFunction_( positionOfBodySubjectToTorqueFunction ),
         gravitationalParameterOfAttractingBodyFunction_( gravitationalParameterOfAttractingBodyFunction ),
         inertiaTensorOfRotatingBodyFunction_( inertiaTensorOfRotatingBodyFunction ),

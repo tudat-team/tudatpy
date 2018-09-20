@@ -6,10 +6,8 @@
  *    under the terms of the Modified BSD license. You should have received
  *    a copy of the license with this file. If not, please or visit:
  *    http://tudat.tudelft.nl/LICENSE.
- *
  */
 
-#include "Tudat/Astrodynamics/Gravitation/sphericalHarmonicsGravityField.h"
 #include "Tudat/Astrodynamics/Propagators/rotationalMotionStateDerivative.h"
 
 namespace tudat
@@ -21,7 +19,8 @@ namespace propagators
 //! Function to evaluated the classical rotational equations of motion (Euler equations)
 Eigen::Vector3d evaluateRotationalEquationsOfMotion(
         const Eigen::Matrix3d& inertiaTensor, const Eigen::Vector3d& totalTorque,
-        const Eigen::Vector3d& angularVelocityVector, const Eigen::Matrix3d& inertiaTensorTimeDerivative )
+        const Eigen::Vector3d& angularVelocityVector,
+        const Eigen::Matrix3d& inertiaTensorTimeDerivative )
 {
     return inertiaTensor.inverse( ) * ( totalTorque );
 }
@@ -81,6 +80,7 @@ Eigen::Vector4d calculateQuaternionDerivative(
 {
     return getQuaterionToQuaternionRateMatrix( angularVelocityVectorInBodyFixedFrame ) * currentQuaternionToBaseFrame;
 }
+
 
 }
 

@@ -99,7 +99,7 @@ public:
             const std::function< Eigen::Vector6d( ) > bodyStateFunction,
             const std::function< double( ) > centralBodyGravitationalParameterFunction,
             const std::function< Eigen::Vector6d( ) > centralBodyStateFunction =
-            boost::lambda::constant( Eigen::Vector6d::Zero( ) ) ):
+            []( ){ return Eigen::Vector6d::Zero( ); } ):
         bodyStateFunction_( bodyStateFunction ), centralBodyStateFunction_( centralBodyStateFunction ),
         centralBodyGravitationalParameterFunction_( centralBodyGravitationalParameterFunction )
     {
@@ -108,7 +108,7 @@ public:
         accelerationComponents.block( 0, 0, 3, 1 ) = constantAcceleration;
         accelerationComponents.block( 0, 1, 3, 1 ) = sineAcceleration;
         accelerationComponents.block( 0, 2, 3, 1 ) = cosineAcceleration;
-        accelerationComponentsFunction_ = boost::lambda::constant( accelerationComponents );
+        accelerationComponentsFunction_ = [=]( const double ){ return accelerationComponents; };
 
         updateAccelerationComponents( 0.0 );
         areAccelerationComponentsTimeDependent_ = 0;
@@ -141,7 +141,7 @@ public:
 
             // Calculate current body-fixed state of accelerated body.
             currentRotationFromRswToInertialFrame_ = Eigen::Quaterniond(
-                        reference_frames::getInertialToRswSatelliteCenteredFrameRotationMatrx( currentState_ ) ).inverse( );
+                        reference_frames::getInertialToRswSatelliteCenteredFrameRotationMatrix( currentState_ ) ).inverse( );
 
             // Calculate current true anomaly of accelerated body.
             currentTrueAnomaly_ = orbital_element_conversions::convertCartesianToKeplerianElements(
@@ -221,7 +221,7 @@ public:
         }
 
         areAccelerationComponentsTimeDependent_ = 0;
-        accelerationComponentsFunction_ = boost::lambda::constant( newAccelerationComponents );
+        accelerationComponentsFunction_ = [=]( const double ){ return newAccelerationComponents; };
 
     }
 

@@ -46,6 +46,7 @@
 #include "Tudat/SimulationSetup/EnvironmentSetup/body.h"
 #include "Tudat/SimulationSetup/EstimationSetup/createNumericalSimulator.h"
 #include "Tudat/SimulationSetup/EnvironmentSetup/defaultBodies.h"
+
 namespace tudat
 {
 
@@ -155,9 +156,9 @@ BOOST_AUTO_TEST_CASE( testAerodynamicForceAndAcceleration )
         // and reference area.
         AerodynamicAccelerationPointer accelerationClass
                 = std::make_shared< AerodynamicAcceleration >(
-                    boost::lambda::constant( forceCoefficients ),
-                    boost::lambda::constant( density ),
-                    boost::lambda::constant( airSpeed ),
+                    [&]( ){ return forceCoefficients; },
+                    [&]( ){ return density; },
+                    [&]( ){ return airSpeed; },
                     mass, referenceArea, false );
         accelerationClass->updateMembers( );
         Eigen::Vector3d force = accelerationClass->getAcceleration( ) * mass;
@@ -169,11 +170,11 @@ BOOST_AUTO_TEST_CASE( testAerodynamicForceAndAcceleration )
         // reference area set through std::functions.
         AerodynamicAccelerationPointer accelerationClass2 =
                 std::make_shared< AerodynamicAcceleration >(
-                    boost::lambda::constant( forceCoefficients ),
-                    boost::lambda::constant( density ),
-                    boost::lambda::constant( airSpeed ),
-                    boost::lambda::constant( mass ),
-                    boost::lambda::constant( referenceArea ),
+                    [&]( ){ return forceCoefficients; },
+                    [&]( ){ return density; },
+                    [&]( ){ return airSpeed; },
+                    [&]( ){ return mass; },
+                    [&]( ){ return referenceArea; },
                     false );
         accelerationClass2->updateMembers( );
         force = accelerationClass2->getAcceleration( ) * mass;
@@ -188,9 +189,9 @@ BOOST_AUTO_TEST_CASE( testAerodynamicForceAndAcceleration )
         // and reference area.
         AerodynamicAccelerationPointer accelerationClass =
                 std::make_shared< AerodynamicAcceleration >(
-                    boost::lambda::constant( -forceCoefficients ),
-                    boost::lambda::constant( density ),
-                    boost::lambda::constant( airSpeed ),
+                    [&]( ){ return -forceCoefficients; },
+                    [&]( ){ return density; },
+                    [&]( ){ return airSpeed; },
                     mass, referenceArea, true );
         accelerationClass->updateMembers( );
         Eigen::Vector3d force = accelerationClass->getAcceleration( ) * mass;
@@ -202,11 +203,11 @@ BOOST_AUTO_TEST_CASE( testAerodynamicForceAndAcceleration )
         // reference area set through std::functions.
         AerodynamicAccelerationPointer accelerationClass2 =
                 std::make_shared< AerodynamicAcceleration >(
-                    boost::lambda::constant( -forceCoefficients ),
-                    boost::lambda::constant( density ),
-                    boost::lambda::constant( airSpeed ),
-                    boost::lambda::constant( mass ),
-                    boost::lambda::constant( referenceArea ),
+                    [&]( ){ return -forceCoefficients; },
+                    [&]( ){ return density; },
+                    [&]( ){ return airSpeed; },
+                    [&]( ){ return mass; },
+                    [&]( ){ return referenceArea; },
                     true );
         accelerationClass2->updateMembers( );
         force = accelerationClass2->getAcceleration( ) * mass;

@@ -22,7 +22,6 @@
 #include "Tudat/Mathematics/Interpolators/createInterpolator.h"
 #include "Tudat/Mathematics/Interpolators/lagrangeInterpolator.h"
 
-
 namespace tudat
 {
 
@@ -51,6 +50,7 @@ public:
     //! Typedef for state interpolator
     typedef std::shared_ptr< interpolators::OneDimensionalInterpolator
     < TimeType, StateType  > > StateInterpolatorPointer;
+
 
     //! Constructor, sets data interpolator and frame data.
     /*!
@@ -179,7 +179,6 @@ public:
         }
         return safeInterpolationInterval;
     }
-
 
 private:
 

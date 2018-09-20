@@ -67,7 +67,7 @@ std::pair< double, double > computeKeplerElementRatesDueToDissipation(
     const double fixedStepSize = 450.0;
     std::shared_ptr< IntegratorSettings< > > integratorSettings =
             std::make_shared< RungeKuttaVariableStepSizeSettings< > >
-            ( rungeKuttaVariableStepSize, 0.0, fixedStepSize,
+            ( 0.0, fixedStepSize,
               RungeKuttaCoefficients::rungeKuttaFehlberg78, fixedStepSize, fixedStepSize, 1.0, 1.0);
 
     std::map< double, Eigen::VectorXd > integrationResultWithDissipation;
@@ -84,10 +84,30 @@ std::pair< double, double > computeKeplerElementRatesDueToDissipation(
         basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
                     bodyMap, accelerationMap, bodiesToPropagate, centralBodies );
 
+
+        // Save dependent variables
+        std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariablesToSave;
+        if( usePlanetDissipation )
+        {
+            dependentVariablesToSave.push_back(
+                        std::make_shared< SingleAccelerationDependentVariableSaveSettings >(
+                            direct_tidal_dissipation_in_central_body_acceleration, satelliteToPropagate, "Jupiter" ) );
+        }
+        else
+        {
+            dependentVariablesToSave.push_back(
+                        std::make_shared< SingleAccelerationDependentVariableSaveSettings >(
+                            direct_tidal_dissipation_in_orbiting_body_acceleration, satelliteToPropagate, "Jupiter" ) );
+        }
+
+        std::shared_ptr< DependentVariableSaveSettings > dependentVariableSaveSettings =
+                std::make_shared< DependentVariableSaveSettings >( dependentVariablesToSave, 0 ) ;
+
         std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
                 std::make_shared< TranslationalStatePropagatorSettings< double > >
                 ( centralBodies, accelerationModelMap, bodiesToPropagate, getInitialStatesOfBodies(
-                      bodiesToPropagate, centralBodies, bodyMap, initialTime ), finalTime );
+                      bodiesToPropagate, centralBodies, bodyMap, initialTime ), finalTime, cowell,
+                  dependentVariableSaveSettings );
 
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -113,9 +133,9 @@ std::pair< double, double > computeKeplerElementRatesDueToDissipation(
         }
     }
 
-//    input_output::writeDataMapToTextFile( integrationResultWithDissipationKepler,
-//                                          "keplerElements_"  + std::to_string( usePlanetDissipation ) +
-//                                          satelliteToPropagate + ".dat" );
+    //    input_output::writeDataMapToTextFile( integrationResultWithDissipationKepler,
+    //                                          "keplerElements_"  + std::to_string( usePlanetDissipation ) +
+    //                                          satelliteToPropagate + ".dat" );
 
     std::vector< double > semiMajorAxisFit = linear_algebra::getLeastSquaresPolynomialFit(
                 semiMajorAxes, boost::assign::list_of( 0 )( 1 ) );

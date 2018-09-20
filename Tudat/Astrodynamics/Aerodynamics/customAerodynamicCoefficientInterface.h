@@ -168,7 +168,7 @@ public:
         {
             throw std::runtime_error( "Error when setting constant aerodynamic coefficients, numberOfIndependentVariables_ is not equal to 0 " );
         }
-        coefficientFunction_ = boost::lambda::constant( constantCoefficients );
+        coefficientFunction_ = [=]( const std::vector< double >& ){ return constantCoefficients; };
     }
 
    Eigen::Vector6d getConstantCoefficients( )
@@ -188,7 +188,6 @@ private:
     //! the set of independent variables.
     std::function< Eigen::Vector6d( const std::vector< double >& ) >
     coefficientFunction_;
-
 
 };
 

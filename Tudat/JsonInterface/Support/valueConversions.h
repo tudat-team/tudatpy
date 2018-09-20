@@ -28,7 +28,7 @@ namespace json_interface
 
 //! Template used by to_json methods for std::unodered_map and std::map.
 //! Use of this function outside those methods is discouraged.
-template< template < typename ... > class MapType, typename KeyType, typename ValueType >
+template< template< typename ... > class MapType, typename KeyType, typename ValueType >
 nlohmann::json jsonFromMap( const MapType< KeyType, ValueType >& map )
 {
     nlohmann::json jsonObject;
@@ -56,7 +56,7 @@ nlohmann::json jsonFromVector( const VectorType< ValueType >& vector )
 
 //! Template used by from_json methods for std::unodered_map and std::map.
 //! Use of this function outside those methods is discouraged.
-template< template < typename ... > class MapType, typename KeyType, typename ValueType >
+template< template< typename ... > class MapType, typename KeyType, typename ValueType >
 MapType< KeyType, ValueType > mapFromJson( const nlohmann::json& jsonObject )
 {
     MapType< KeyType, ValueType > map;

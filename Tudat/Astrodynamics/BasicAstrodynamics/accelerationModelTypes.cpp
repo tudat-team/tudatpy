@@ -56,8 +56,11 @@ std::string getAccelerationModelName( const AvailableAcceleration accelerationTy
     case empirical_acceleration:
         accelerationName  = "empirical correction ";
         break;
-    case direct_tidal_dissipation_acceleration:
-        accelerationName  = "direct tidal dissipation ";
+    case direct_tidal_dissipation_in_central_body_acceleration:
+        accelerationName  = "direct tidal dissipation in central body ";
+        break;
+    case direct_tidal_dissipation_in_orbiting_body_acceleration:
+        accelerationName  = "direct tidal dissipation in orbiting body ";
         break;
     default:
         std::string errorMessage = "Error, acceleration type " +
@@ -136,7 +139,16 @@ AvailableAcceleration getAccelerationModelType(
     }
     else if( std::dynamic_pointer_cast<  gravitation::DirectTidalDissipationAcceleration >( accelerationModel ) != nullptr )
     {
-        accelerationType = direct_tidal_dissipation_acceleration;
+        std::shared_ptr< gravitation::DirectTidalDissipationAcceleration > dissipationAcceleration =
+             std::dynamic_pointer_cast<  gravitation::DirectTidalDissipationAcceleration >( accelerationModel );
+        if( dissipationAcceleration->getModelTideOnPlanet( ) )
+        {
+            accelerationType = direct_tidal_dissipation_in_central_body_acceleration;
+        }
+        else
+        {
+            accelerationType = direct_tidal_dissipation_in_orbiting_body_acceleration;
+        }
     }
     else
     {
@@ -204,10 +216,24 @@ bool isAccelerationDirectGravitational( const AvailableAcceleration acceleration
     return accelerationIsDirectGravity;
 }
 
+//! Function to check whether an acceleration type is a third-body gravitational acceleration
+bool isAccelerationFromThirdBody( const AvailableAcceleration accelerationType )
+{
+    bool accelerationIsFromThirdBody = false;
+    if( ( accelerationType == third_body_point_mass_gravity ) ||
+            ( accelerationType == third_body_spherical_harmonic_gravity ) ||
+            ( accelerationType == third_body_mutual_spherical_harmonic_gravity ) )
+    {
+        accelerationIsFromThirdBody = true;
+    }
+
+    return accelerationIsFromThirdBody;
+}
+
+
 //! Function to get the third-body counterpart of a direct gravitational acceleration type
 AvailableAcceleration getAssociatedThirdBodyAcceleration( const AvailableAcceleration accelerationType )
 {
-
     AvailableAcceleration thirdBodyAccelerationType;
     if( !isAccelerationDirectGravitational( accelerationType ) )
     {

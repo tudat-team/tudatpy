@@ -28,7 +28,6 @@ using namespace mathematical_constants;
 //! Test if Time objects cast to the expected precision
 BOOST_AUTO_TEST_CASE( testTimeBasicCasts )
 {
-
     Time testTime( 2, LONG_PI );
 
     //Test if Time casts to double/long double at the expected precision
@@ -405,9 +404,7 @@ BOOST_AUTO_TEST_CASE( testComparisonOperators )
     }
 }
 
-
 BOOST_AUTO_TEST_SUITE_END( )
-
 
 }
 

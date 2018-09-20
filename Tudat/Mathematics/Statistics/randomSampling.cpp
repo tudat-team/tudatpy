@@ -29,7 +29,6 @@ std::vector< Eigen::VectorXd > generateRandomSampleFromGenerator(
         const int numberOfSamples,
         const std::vector< std::shared_ptr< RandomVariableGenerator< double > > > randomVariableGenerators )
 {
-
     std::vector< Eigen::VectorXd > randomSamples;
     Eigen::VectorXd randomSample( randomVariableGenerators.size( ) );
 
@@ -63,7 +62,7 @@ std::vector< Eigen::VectorXd > generateRandomSampleFromGenerator(
 
 
 //! Generator random vector using pseudo random generator
-std::vector<Eigen::VectorXd> generateUniformRandomSample(
+std::vector< Eigen::VectorXd > generateUniformRandomSample(
         const int seed, const int numberOfSamples,
         const Eigen::VectorXd& lowerBound, const Eigen::VectorXd& upperBound )
 {
@@ -88,7 +87,7 @@ std::vector<Eigen::VectorXd> generateUniformRandomSample(
 }
 
 //! Generator random vector using pseudo random generator
-std::vector<Eigen::VectorXd> generateUniformRandomSample(
+std::vector< Eigen::VectorXd > generateUniformRandomSample(
         const int seed, const int numberOfSamples, const int numberOfDimensions,
          const double lowerBound, const double upperBound )
 {

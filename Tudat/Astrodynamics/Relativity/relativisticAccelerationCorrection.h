@@ -180,8 +180,8 @@ public:
             std::function< double( ) > gravitationalParameterFunctionOfPrimaryBody,
             std::string primaryBodyName,
             std::function< Eigen::Vector3d( ) > centalBodyAngularMomentumFunction = std::function< Eigen::Vector3d( ) >( ),
-            std::function< double( ) > ppnParameterGammaFunction = boost::lambda::constant( 1.0 ),
-            std::function< double( ) > ppnParameterBetaFunction = boost::lambda::constant( 1.0 ),
+            std::function< double( ) > ppnParameterGammaFunction = [](){ return 1.0; },
+            std::function< double( ) > ppnParameterBetaFunction = [](){ return 1.0; },
             const bool calculateSchwarzschildCorrection = true ):
         AccelerationModel< Eigen::Vector3d >( ),
         stateFunctionOfAcceleratedBody_( stateFunctionOfAcceleratedBody ),
@@ -216,8 +216,8 @@ public:
             std::function< Eigen::Vector6d( ) > stateFunctionOfCentralBody,
             std::function< double( ) > gravitationalParameterFunctionOfCentralBody,
             std::function< Eigen::Vector3d( ) > centalBodyAngularMomentumFunction,
-            std::function< double( ) > ppnParameterGammaFunction = boost::lambda::constant( 1.0 ),
-            std::function< double( ) > ppnParameterBetaFunction = boost::lambda::constant( 1.0 ),
+            std::function< double( ) > ppnParameterGammaFunction = [](){ return 1.0; },
+            std::function< double( ) > ppnParameterBetaFunction = [](){ return 1.0; },
             const bool calculateSchwarzschildCorrection = true ):
         AccelerationModel< Eigen::Vector3d >( ),
         stateFunctionOfAcceleratedBody_( stateFunctionOfAcceleratedBody ),
@@ -245,8 +245,8 @@ public:
             std::function< Eigen::Vector6d( ) > stateFunctionOfAcceleratedBody,
             std::function< Eigen::Vector6d( ) > stateFunctionOfCentralBody,
             std::function< double( ) > gravitationalParameterFunctionOfCentralBody,
-            std::function< double( ) > ppnParameterGammaFunction = boost::lambda::constant( 1.0 ),
-            std::function< double( ) > ppnParameterBetaFunction = boost::lambda::constant( 1.0 ) ):
+            std::function< double( ) > ppnParameterGammaFunction = [](){ return 1.0; },
+            std::function< double( ) > ppnParameterBetaFunction = [](){ return 1.0; } ):
         AccelerationModel< Eigen::Vector3d >( ),
         stateFunctionOfAcceleratedBody_( stateFunctionOfAcceleratedBody ),
         stateFunctionOfCentralBody_( stateFunctionOfCentralBody ),

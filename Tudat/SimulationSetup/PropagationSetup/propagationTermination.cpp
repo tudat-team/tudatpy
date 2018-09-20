@@ -19,16 +19,16 @@ namespace propagators
 //! Function to check whether the propagation is to be be stopped
 bool FixedTimePropagationTerminationCondition::checkStopCondition( const double time, const double cpuTime )
 {
-    bool stopPropagation = 0;
+    bool stopPropagation = false;
 
     // Check whether stop time has been reached
     if( propagationDirectionIsPositive_ && ( time >= stopTime_ ) )
     {
-        stopPropagation = 1;
+        stopPropagation = true;
     }
     else if( !propagationDirectionIsPositive_ && ( time <= stopTime_ ) )
     {
-        stopPropagation = 1;
+        stopPropagation = true;
     }
     return stopPropagation;
 }
@@ -42,16 +42,16 @@ bool FixedCPUTimePropagationTerminationCondition::checkStopCondition( const doub
 //! Function to check whether the propagation is to be be stopped
 bool SingleVariableLimitPropagationTerminationCondition::checkStopCondition( const double time, const double cpuTime  )
 {
-    bool stopPropagation = 0;
-    double currentVariable = variableRetrievalFuntion_( );
+    bool stopPropagation = false;
+    double currentVariable = variableRetrievalFunction_( );
 
     if( useAsLowerBound_ && ( currentVariable < limitingValue_ ) )
     {
-        stopPropagation = 1;
+        stopPropagation = true;
     }
     else if( !useAsLowerBound_ && ( currentVariable > limitingValue_ ) )
     {
-        stopPropagation = 1;
+        stopPropagation = true;
     }
     return stopPropagation;
 }
@@ -61,40 +61,37 @@ bool HybridPropagationTerminationCondition::checkStopCondition( const double tim
 {
     // Check if single condition is fulfilled.
     bool stopPropagation = -1;
-    if( fulFillSingleCondition_ )
+    unsigned int stopIndex = 0;
+    if( fulfillSingleCondition_ )
     {
-        stopPropagation = 0;
+        stopPropagation = false;
         for( unsigned int i = 0; i < propagationTerminationCondition_.size( ); i++ )
         {
             if( propagationTerminationCondition_.at( i )->checkStopCondition( time, cpuTime ) )
             {
-                stopPropagation = 1;
+                stopIndex = i;
+                stopPropagation = true;
+                isConditionMetWhenStopping_[ i ] = true;
                 break;
+            }
+            else
+            {
+                isConditionMetWhenStopping_[ i ] = false;
             }
         }
     }
     // Check all conditions are fulfilled.
     else
     {
-        stopPropagation = 1;
+        stopPropagation = true;
         for( unsigned int i = 0; i < propagationTerminationCondition_.size( ); i++ )
         {
             if( !propagationTerminationCondition_.at( i )->checkStopCondition( time, cpuTime ) )
             {
-                stopPropagation = 0;
-                break;
-            }
-        }
-    }
-
-    // Save if conditions were met
-    if( stopPropagation )
-    {
-        for( unsigned int i = 0; i < propagationTerminationCondition_.size( ); i++ )
-        {
-            if( propagationTerminationCondition_.at( i )->checkStopCondition( time, cpuTime ) )
-            {
+                stopIndex = i;
+                stopPropagation = false;
                 isConditionMetWhenStopping_[ i ] = false;
+                break;
             }
             else
             {
@@ -103,8 +100,16 @@ bool HybridPropagationTerminationCondition::checkStopCondition( const double tim
         }
     }
 
-    return stopPropagation;
+    // Save if conditions were met
+    if( stopPropagation )
+    {
+        for( unsigned int i = ( stopIndex + 1 ); i < propagationTerminationCondition_.size( ); i++ )
+        {
+            isConditionMetWhenStopping_[ i ] = propagationTerminationCondition_.at( i )->checkStopCondition( time, cpuTime );
+        }
+    }
 
+    return stopPropagation;
 }
 
 
@@ -165,6 +170,17 @@ std::shared_ptr< PropagationTerminationCondition > createPropagationTerminationC
                     dependentVariableTerminationSettings->terminationRootFinderSettings_ );
         break;
     }
+    case custom_stopping_condition:
+    {
+        std::shared_ptr< PropagationCustomTerminationSettings > customTerminationSettings =
+                std::dynamic_pointer_cast< PropagationCustomTerminationSettings >( terminationSettings );
+
+        // Create dependent variable termination condition.
+        propagationTerminationCondition = std::make_shared< CustomTerminationCondition >(
+                    customTerminationSettings->checkStopCondition_,
+                    customTerminationSettings->terminateExactlyOnFinalCondition_ );
+        break;
+    }
     case hybrid_stopping_condition:
     {
         std::shared_ptr< PropagationHybridTerminationSettings > hybridTerminationSettings =
@@ -180,15 +196,14 @@ std::shared_ptr< PropagationTerminationCondition > createPropagationTerminationC
                             bodyMap, initialTimeStep ) );
         }
         propagationTerminationCondition = std::make_shared< HybridPropagationTerminationCondition >(
-                    propagationTerminationConditionList, hybridTerminationSettings->fulFillSingleCondition_,
+                    propagationTerminationConditionList, hybridTerminationSettings->fulfillSingleCondition_,
                     hybridTerminationSettings->terminateExactlyOnFinalCondition_ );
         break;
     }
     default:
         std::string errorMessage = "Error, stopping condition type " + std::to_string(
-                    terminationSettings->terminationType_ ) + "not recognized when making stopping conditions object";
+                    terminationSettings->terminationType_ ) + " not recognized when making stopping conditions object";
         throw std::runtime_error( errorMessage );
-        break;
     }
     return propagationTerminationCondition;
 

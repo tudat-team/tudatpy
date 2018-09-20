@@ -65,7 +65,8 @@ BOOST_AUTO_TEST_CASE( testTabulatedDragCoefficient )
     std::map< std::string, std::shared_ptr< BodySettings > > bodySettings =
             getDefaultBodySettings( bodiesToCreate, simulationStartEpoch - 300.0, simulationEndEpoch + 300.0 );
 
-    for( unsigned int i = 0; i < bodiesToCreate.size( ); i++ ) {
+    for( unsigned int i = 0; i < bodiesToCreate.size( ); i++ )
+    {
         bodySettings[ bodiesToCreate.at( i ) ]->ephemerisSettings->resetFrameOrientation( "J2000" );
         bodySettings[ bodiesToCreate.at( i ) ]->rotationModelSettings->resetOriginalFrame( "J2000" );
     }
@@ -110,12 +111,12 @@ BOOST_AUTO_TEST_CASE( testTabulatedDragCoefficient )
 
     // Create interpolator
     std::shared_ptr< InterpolatorSettings > interpolatorSettings =
-            std::make_shared< InterpolatorSettings >( OneDimensionalInterpolatorTypes::linear_interpolator );
+            std::make_shared< InterpolatorSettings >( InterpolatorTypes::linear_interpolator );
 
     // Tabulated aerodynamic settings
     aerodynamicCoefficientSettings = std::make_shared< TabulatedAerodynamicCoefficientSettings< 1 > >(
                 altitudes, aerodynamicCoefficients, referenceArea,
-                aerodynamics::altitude_dependent, interpolatorSettings, 1, 1 );
+                aerodynamics::altitude_dependent, 1, 1, interpolatorSettings );
 
     // Aerodynamics interface
     bodyMap[ "Vehicle" ]->setAerodynamicCoefficientInterface(

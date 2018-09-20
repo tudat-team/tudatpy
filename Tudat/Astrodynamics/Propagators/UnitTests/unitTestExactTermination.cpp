@@ -67,7 +67,6 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForSphericalHarmonicCentralBodies )
                 using namespace orbital_element_conversions;
                 using namespace basic_mathematics;
                 using namespace gravitation;
-                using namespace numerical_integrators;
 
                 // Load Spice kernels.
                 spice_interface::loadStandardSpiceKernels( );
@@ -118,6 +117,7 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForSphericalHarmonicCentralBodies )
                                                         < double, Eigen::Vector6d  > >( ), "Earth", "ECLIPJ2000" ) );
 
 
+
                 // Finalize body creation.
                 setGlobalFrameBodyEphemerides( bodyMap, "Earth", "ECLIPJ2000" );
 
@@ -138,7 +138,7 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForSphericalHarmonicCentralBodies )
                                                                     basic_astrodynamics::central_gravity ) );
                 }
 
-                accelerationMap[  "Vehicle" ] = accelerationsOfVehicle;
+                accelerationMap[ "Vehicle" ] = accelerationsOfVehicle;
                 bodiesToPropagate.push_back( "Vehicle" );
                 centralBodies.push_back( "Earth" );
                 basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
@@ -230,7 +230,6 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForSphericalHarmonicCentralBodies )
                                 terminationSettingsList, false );
                 }
 
-
                 std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
                         std::make_shared< TranslationalStatePropagatorSettings< double > >
                         ( centralBodies, accelerationModelMap, bodiesToPropagate, vehicleInitialState, terminationSettings, cowell,
@@ -243,12 +242,11 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForSphericalHarmonicCentralBodies )
                 {
                     integratorSettings = std::make_shared< IntegratorSettings< > >
                             ( rungeKutta4, simulationStartEpoch, directionMultiplier * fixedStepSize );
-
                 }
                 else
                 {
                     integratorSettings = std::make_shared< RungeKuttaVariableStepSizeSettings< double > >
-                            ( rungeKuttaVariableStepSize, simulationStartEpoch, directionMultiplier * fixedStepSize,
+                            ( simulationStartEpoch, directionMultiplier * fixedStepSize,
                               RungeKuttaCoefficients::CoefficientSets::rungeKuttaFehlberg45,
                               1.0E-3, 1.0E3, 1.0E-12, 1.0E-12 );
                 }

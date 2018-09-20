@@ -51,7 +51,7 @@ public:
      */
     TorquePartial( const std::string& bodyUndergoingTorque, const std::string& bodyExertingTorque,
                    const basic_astrodynamics::AvailableTorque torqueType ):
-        StateDerivativePartial( propagators::transational_state, std::make_pair( bodyUndergoingTorque, "" ) ),
+        StateDerivativePartial( propagators::translational_state, std::make_pair( bodyUndergoingTorque, "" ) ),
         bodyUndergoingTorque_( bodyUndergoingTorque ), bodyExertingTorque_( bodyExertingTorque ),torqueType_( torqueType ) { }
 
     //! Virtual destructor.

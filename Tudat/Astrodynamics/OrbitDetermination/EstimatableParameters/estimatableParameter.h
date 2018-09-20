@@ -902,7 +902,7 @@ std::map< propagators::IntegratedStateType, std::vector< std::string > > getList
         if( ( initialDynamicalParameters.at( i )->getParameterName( ).first == initial_body_state )  ||
                 ( initialDynamicalParameters.at( i )->getParameterName( ).first == arc_wise_initial_body_state ) )
         {
-            bodiesToEstimate[ propagators::transational_state ].push_back(  initialDynamicalParameters.at( i )->getParameterName( ).second.first );
+            bodiesToEstimate[ propagators::translational_state ].push_back(  initialDynamicalParameters.at( i )->getParameterName( ).second.first );
         }
         else if( ( initialDynamicalParameters.at( i )->getParameterName( ).first == initial_rotational_body_state ) )
          {
@@ -984,7 +984,7 @@ getListOfInitialDynamicalStateParametersEstimate(
         if( ( initialDynamicalParameters.at( i )->getParameterName( ).first == initial_body_state ) ||
                 ( initialDynamicalParameters.at( i )->getParameterName( ).first == arc_wise_initial_body_state ) )
         {
-            initialDynamicalStateParametersEstimate[ propagators::transational_state ].push_back(
+            initialDynamicalStateParametersEstimate[ propagators::translational_state ].push_back(
                         initialDynamicalParameters.at( i )->getParameterName( ).second );
         }
         else if( ( initialDynamicalParameters.at( i )->getParameterName( ).first == initial_rotational_body_state ) )

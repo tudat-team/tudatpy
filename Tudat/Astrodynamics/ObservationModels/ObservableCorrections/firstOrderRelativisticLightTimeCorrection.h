@@ -61,7 +61,7 @@ public:
             const std::vector< std::string > perturbingBodyNames,
             const std::string transmittingBody,
             const std::string receivingBody,
-            const std::function< double( ) >& ppnParameterGammaFunction = boost::lambda::constant( 1.0 ) ):
+            const std::function< double( ) >& ppnParameterGammaFunction = [](){ return 1.0; } ):
         LightTimeCorrection( first_order_relativistic ),
         perturbingBodyStateFunctions_( perturbingBodyStateFunctions ),
         perturbingBodyGravitationalParameterFunctions_( perturbingBodyGravitationalParameterFunctions ),

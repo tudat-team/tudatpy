@@ -8,15 +8,15 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-
 #ifndef TUDAT_THRUSTGUIDANCE_H
 #define TUDAT_THRUSTGUIDANCE_H
+
 #include <functional>
-#include <boost/lambda/lambda.hpp>
 
 #include "Tudat/Astrodynamics/ReferenceFrames/referenceFrameTransformations.h"
 #include "Tudat/Astrodynamics/ReferenceFrames/dependentOrientationCalculator.h"
 #include "Tudat/Basics/basicTypedefs.h"
+
 namespace tudat
 {
 
@@ -153,7 +153,7 @@ public:
             const std::function< Eigen::Vector3d( const double ) > forceDirectionFunction,
             const std::string& centralBody,
             const std::function< Eigen::Vector3d( ) > bodyFixedForceDirection =
-            boost::lambda::constant( Eigen::Vector3d::UnitX( ) ) ):
+            [](){ return  Eigen::Vector3d::UnitX( ); } ):
         BodyFixedForceDirectionGuidance ( bodyFixedForceDirection ),
         forceDirectionFunction_( forceDirectionFunction ),
         centralBody_( centralBody ){ }
@@ -170,12 +170,12 @@ public:
 
     //! Function to get the rotation from body-fixed to inertial frame.
     /*!
-     *  Function to get the rotation from body-fixed to inertial frame. NOT YET IMPLEMENTED IN THIS DERIVED CLASS.
-     *  \return NOT YET IMPLEMENTED IN THIS DERIVED CLASS.
+     *  Function to get the rotation from body-fixed to inertial frame.
+     *  \return Current quaternion representing rotation from body-fixed to inertial frame.
      */
     Eigen::Quaterniond getRotationToGlobalFrame( )
     {
-        return Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) );
+        return Eigen::Quaterniond( Eigen::AngleAxisd( 0, currentForceDirection_ ) );
     }
 
     //! Function to return the name of the central body.
@@ -227,7 +227,7 @@ public:
     OrientationBasedForceGuidance(
             const std::function< Eigen::Quaterniond( const double ) > bodyFixedFrameToBaseFrameFunction,
             const std::function< Eigen::Vector3d( ) > bodyFixedForceDirection =
-            boost::lambda::constant( Eigen::Vector3d::UnitX( ) ) ):
+            [](){ return  Eigen::Vector3d::UnitX( ); } ):
         BodyFixedForceDirectionGuidance ( bodyFixedForceDirection ),
         bodyFixedFrameToBaseFrameFunction_( bodyFixedFrameToBaseFrameFunction ){  }
 

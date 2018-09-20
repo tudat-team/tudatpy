@@ -471,6 +471,7 @@ struct Keys
             static const std::string useLongDoubleTimeStep;
             static const std::string order;
             static const std::string boundaryHandling;
+            static const std::string lagrangeBoundaryHandling;
         };
 
         struct DataInterpolation

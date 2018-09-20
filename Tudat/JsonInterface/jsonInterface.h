@@ -76,7 +76,7 @@ public:
     /*!
      * Constructor.
      * \param inputFilePath Path to the root JSON input file. Can be absolute or relative (to the working directory).
-     * \param initialClockTime Initial clock time from which the cummulative CPU time during the propagation will be
+     * \param initialClockTime Initial clock time from which the cumulative CPU time during the propagation will be
      * computed. Default is the moment at which the constructor was called.
      */
     JsonSimulationManager(
@@ -91,7 +91,7 @@ public:
     /*!
      * Constructor.
      * \param jsonObject The root JSON object.
-     * \param initialClockTime Initial clock time from which the cummulative CPU time during the propagation will be
+     * \param initialClockTime Initial clock time from which the cumulative CPU time during the propagation will be
      * computed. Default is the moment at which the constructor was called.
      */
     JsonSimulationManager(
@@ -630,7 +630,7 @@ protected:
     {
         dynamicsSimulator_ =
                 std::make_shared< propagators::SingleArcDynamicsSimulator< StateScalarType, TimeType > >(
-                    bodyMap_, integratorSettings_, propagatorSettings_, false, false, false, initialClockTime_ );
+                    bodyMap_, integratorSettings_, propagatorSettings_, false, false, false, false, initialClockTime_ );
 
         if ( profiling )
         {

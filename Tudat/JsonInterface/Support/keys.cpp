@@ -439,6 +439,7 @@ const std::string Keys::Interpolation::Interpolator::lookupScheme = "lookupSchem
 const std::string Keys::Interpolation::Interpolator::useLongDoubleTimeStep = "useLongDoubleTimeStep";
 const std::string Keys::Interpolation::Interpolator::order = "order";
 const std::string Keys::Interpolation::Interpolator::boundaryHandling = "boundaryHandling";
+const std::string Keys::Interpolation::Interpolator::lagrangeBoundaryHandling = "lagrangeBoundaryHandling";
 
 // //  Interpolation::DataInterpolation
 const std::string Keys::Interpolation::DataInterpolation::data = "data";

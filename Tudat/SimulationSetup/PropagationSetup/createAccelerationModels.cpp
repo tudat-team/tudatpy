@@ -686,8 +686,8 @@ std::shared_ptr< aerodynamics::AerodynamicAcceleration > createAerodynamicAccele
 
     if( bodyExertingAcceleration->getAtmosphereModel( ) == NULL )
     {
-        throw std::runtime_error(  "Error when making aerodynamic acceleration, central body " +
-                                   nameOfBodyExertingAcceleration + " has no atmosphere model.");
+        throw std::runtime_error( "Error when making aerodynamic acceleration, central body " +
+                                  nameOfBodyExertingAcceleration + " has no atmosphere model.");
     }
 
     if( bodyExertingAcceleration->getShapeModel( ) == NULL )
@@ -734,7 +734,6 @@ std::shared_ptr< aerodynamics::AerodynamicAcceleration > createAerodynamicAccele
                 accelerationFrame,
                 std::bind( &Body::getCurrentRotationToGlobalFrame, bodyExertingAcceleration ),
                 reference_frames::inertial_frame );
-
 
     std::function< Eigen::Vector3d( ) > coefficientFunction =
             std::bind( &AerodynamicCoefficientInterface::getCurrentForceCoefficients,
@@ -879,8 +878,8 @@ std::shared_ptr< relativity::RelativisticAccelerationCorrection > createRelativi
             std::function< Eigen::Vector3d( ) > angularMomentumFunction;
             if( relativisticAccelerationSettings->calculateLenseThirringCorrection_ == true  )
             {
-                angularMomentumFunction = boost::lambda::constant(
-                            relativisticAccelerationSettings->centralBodyAngularMomentum_ );
+                angularMomentumFunction = [=](){ return
+                            relativisticAccelerationSettings->centralBodyAngularMomentum_; };
             }
 
             if( relativisticAccelerationSettings->calculateDeSitterCorrection_ == true )
@@ -1001,7 +1000,7 @@ createThrustAcceleratioModel(
 
                 if( ephemerides::isFrameInertial( thrustAccelerationSettings->centralBody_ ) )
                 {
-                    centralBodyStateFunction =  boost::lambda::constant( Eigen::Vector6d::Zero( ) );
+                    centralBodyStateFunction =  [](){ return Eigen::Vector6d::Zero( ); };
                 }
                 else
                 {
@@ -1249,7 +1248,15 @@ std::shared_ptr< AccelerationModel< Eigen::Vector3d > > createAccelerationModel(
                     nameOfBodyExertingAcceleration,
                     accelerationSettings );
         break;
-    case direct_tidal_dissipation_acceleration:
+    case direct_tidal_dissipation_in_central_body_acceleration:
+        accelerationModelPointer = createDirectTidalDissipationAcceleration(
+                    bodyUndergoingAcceleration,
+                    bodyExertingAcceleration,
+                    nameOfBodyUndergoingAcceleration,
+                    nameOfBodyExertingAcceleration,
+                    accelerationSettings );
+        break;
+    case direct_tidal_dissipation_in_orbiting_body_acceleration:
         accelerationModelPointer = createDirectTidalDissipationAcceleration(
                     bodyUndergoingAcceleration,
                     bodyExertingAcceleration,

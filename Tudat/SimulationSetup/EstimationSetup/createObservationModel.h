@@ -190,9 +190,9 @@ public:
     /*!
      * Constructor (single light-time correction)
      * \param observableType Type of observation model that is to be created
-     * \param lightTimeCorrections Settings for a single light-time correction that is to be used for teh observation model
+     * \param lightTimeCorrections Settings for a single light-time correction that is to be used for the observation model
      * (nullptr if none)
-     * \param biasSettings Settings for the observation bias model that is to be used (default none: nullptr)
+     * \param biasSettings Settings for the observation bias model that is to be used (default none: NULL)
      */
     ObservationSettings(
             const observation_models::ObservableType observableType,
@@ -290,7 +290,7 @@ public:
     //! Constructor
     /*!
      * Constructor
-     * \param lightTimeCorrections Settings for a single light-time correction that is to be used for teh observation model
+     * \param lightTimeCorrections Settings for a single light-time correction that is to be used for the observation model
      * (nullptr if none)
      * \param transmitterProperTimeRateSettings Settings for proper time rate at transmitter
      * \param receiverProperTimeRateSettings Settings for proper time rate at receiver
@@ -308,7 +308,7 @@ public:
     //! Constructor
     /*!
      * Constructor
-     * \param lightTimeCorrectionsList List of settings for a single light-time correction that is to be used for teh observation
+     * \param lightTimeCorrectionsList List of settings for a single light-time correction that is to be used for the observation
      * model (empty if none)
      * \param transmitterProperTimeRateSettings Settings for proper time rate at transmitter
      * \param receiverProperTimeRateSettings Settings for proper time rate at receiver
@@ -378,9 +378,9 @@ public:
     /*!
      * Constructor
      * \param integrationTimeFunction Function that returns the integration time of observable as a function of time
-     * \param lightTimeCorrections Settings for a single light-time correction that is to be used for teh observation model
+     * \param lightTimeCorrections Settings for a single light-time correction that is to be used for the observation model
      * (nullptr if none)
-     * \param biasSettings Settings for the observation bias model that is to be used (default none: nullptr)
+     * \param biasSettings Settings for the observation bias model that is to be used (default none: NULL)
      */
     OneWayDifferencedRangeRateObservationSettings(
             const std::function< double( const double ) > integrationTimeFunction,
@@ -393,7 +393,7 @@ public:
     /*!
      * Constructor
      * \param integrationTimeFunction Function that returns the integration time of observable as a function of time
-     * \param lightTimeCorrectionsList List of ettings for a single light-time correction that is to be used for teh observation model
+     * \param lightTimeCorrectionsList List of ettings for a single light-time correction that is to be used for the observation model
      * (empty if none)
      * \param biasSettings Settings for the observation bias model that is to be used (default none: nullptr)
      */
@@ -440,7 +440,7 @@ public:
     //! Constructor
     /*!
      * Constructor for same light-time corrections per link
-     * \param lightTimeCorrections Settings for a single light-time correction that is to be used for teh observation model
+     * \param lightTimeCorrections Settings for a single light-time correction that is to be used for the observation model
      * (nullptr if none)
      * \param numberOfLinkEnds Number of link ends in observable (equal to n+1 for 'n'-way observable)
      * \param retransmissionTimesFunction Function that returns the retransmission delay time of the signal as a function of
@@ -578,7 +578,7 @@ SortedObservationSettingsMap convertUnsortedToSortedObservationSettingsMap(
  *  on the observed value (e.g. absolute bias, relative bias, clock drift, etc.)
  *  \param linkEnds Observation link ends for which the bias is to be created.
  *  \param observableType Observable type for which bias is to be created
- *  \param biasSettings Settings for teh observation bias that is to be created.
+ *  \param biasSettings Settings for the observation bias that is to be created.
  *  \param bodyMap List of body objects that comprises the environment.
  *  \return Object that computes an observation bias according to requested settings.
  */
@@ -1462,7 +1462,7 @@ ObservationViabilitySettingsList filterObservationViabilitySettings(
 /*!
  * Function to retrieve the link end indices in link end states/times that are to be used in viability calculation.
  * Return variable is a vector of pairs, where each the first entry denotes the index of the point at which the link is to be
- * checkd. The second entry denotes the index for the opposite end of teh link.
+ * checkd. The second entry denotes the index for the opposite end of the link.
  * \param linkEnds Complete set of link ends for which check is to be performed
  * \param observableType Observable type for which check is to be performed
  * \param linkEndToCheck Link end at which check is to be performed

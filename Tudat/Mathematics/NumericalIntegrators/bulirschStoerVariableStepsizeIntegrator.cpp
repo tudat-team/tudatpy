@@ -31,7 +31,7 @@ std::vector< unsigned int > getBulirschStoerStepSequence(
         const ExtrapolationMethodStepSequences& extrapolationMethodStepSequenceType,
         const unsigned int lengthOfSequence )
 {
-    std::vector< unsigned int >  stepSequence;
+    std::vector< unsigned int > stepSequence;
     switch ( extrapolationMethodStepSequenceType )
     {
     case bulirsch_stoer_sequence:

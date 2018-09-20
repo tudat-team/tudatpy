@@ -13,6 +13,8 @@
 
 #include <memory>
 
+#include "Tudat/Basics/tudatTypeTraits.h"
+
 #include "Tudat/Astrodynamics/OrbitDetermination/AccelerationPartials/centralGravityAccelerationPartial.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/AccelerationPartials/sphericalHarmonicAccelerationPartial.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/AccelerationPartials/mutualSphericalHarmonicGravityPartial.h"
@@ -67,7 +69,8 @@ basic_astrodynamics::AvailableAcceleration getAccelerationTypeOfThirdBodyGravity
  *  providin a generic third-body partial interface. The template parameter is the derived class of AccelerationPartial
  *  for the associated direct acceleration partial.
  */
-template< typename DirectGravityPartial >
+template< typename DirectGravityPartial,
+                    typename std::enable_if< is_direct_gravity_partial< DirectGravityPartial >::value, int >::type = 0 >
 class ThirdBodyGravityPartial: public AccelerationPartial
 {
 public:
@@ -504,6 +507,47 @@ private:
     std::string centralBodyName_;
 
 };
+
+//! Function to retrieve name of central body of third-body acceleration partial
+/*!
+ *  Function to retrieve name of central body of third-body acceleration partial, from AccelerationPartial base class object input
+ *  \param accelerationPartial Acceleration partial model from which central body name is to be retrieved (must be of derived
+ *  class ThirdBodyGravityPartial< T >
+ *  \return Name of central body of third-body acceleration partial
+ */
+inline std::string getCentralBodyNameFromThirdBodyAccelerationPartial(
+        const std::shared_ptr< AccelerationPartial > accelerationPartial )
+{
+    std::string centralBody;
+    if( !basic_astrodynamics::isAccelerationFromThirdBody( accelerationPartial->getAccelerationType( ) ) )
+    {
+        throw std::runtime_error( "Error, requested third body from acceleration partial, but input is incompatible." );
+    }
+    else
+    {
+        if( accelerationPartial->getAccelerationType( ) == basic_astrodynamics::third_body_point_mass_gravity )
+        {
+            centralBody = std::dynamic_pointer_cast< ThirdBodyGravityPartial< CentralGravitationPartial > >(
+                        accelerationPartial )->getCentralBodyName( );
+        }
+        else if( accelerationPartial->getAccelerationType( ) == basic_astrodynamics::third_body_spherical_harmonic_gravity )
+        {
+            centralBody = std::dynamic_pointer_cast< ThirdBodyGravityPartial< SphericalHarmonicsGravityPartial > >(
+                        accelerationPartial )->getCentralBodyName( );
+        }
+        else if( accelerationPartial->getAccelerationType( ) == basic_astrodynamics::third_body_mutual_spherical_harmonic_gravity )
+        {
+            centralBody = std::dynamic_pointer_cast< ThirdBodyGravityPartial< MutualSphericalHarmonicsGravityPartial > >(
+                        accelerationPartial )->getCentralBodyName( );
+        }
+        else
+        {
+            throw std::runtime_error( "Error, requested third body from acceleration partial, input third-body type not recognized." );
+        }
+    }
+
+    return centralBody;
+}
 
 } // namespace acceleration_partials
 
