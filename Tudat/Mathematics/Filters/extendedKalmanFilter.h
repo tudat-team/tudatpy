@@ -138,9 +138,9 @@ public:
                     currentMeasurementNoiseJacobianMatrix.transpose( ) ).inverse( );
 
         // Correction step
+        this->currentTime_ += this->filteringStepSize_;
         this->correctState( aPrioriStateEstimate, currentMeasurementVector, measurementEstimate, kalmanGain );
         this->correctCovariance( aPrioriCovarianceEstimate, currentMeasurementJacobianMatrix, kalmanGain );
-        this->currentTime_ += this->filteringStepSize_;
     }
 
 private:

@@ -191,9 +191,9 @@ public:
         DependentMatrix kalmanGain = crossCorrelationMatrix * innovationMatrix.inverse( );
 
         // Correction step
+        this->currentTime_ += this->filteringStepSize_;
         this->correctState( aPrioriStateEstimate, currentMeasurementVector, measurementEstimate, kalmanGain );
         correctCovariance( aPrioriCovarianceEstimate, innovationMatrix, kalmanGain );
-        this->currentTime_ += this->filteringStepSize_;
     }
 
     //! Function to return the history of sigma points.

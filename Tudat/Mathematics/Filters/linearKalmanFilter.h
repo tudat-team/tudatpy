@@ -131,7 +131,7 @@ public:
         DependentMatrix currentMeasurementMatrix = measurementMatrixFunction_( this->currentTime_, this->aPosterioriStateEstimate_ );
 
         // Prediction step
-        DependentVector aPrioriStateEstimate = this->predictState( this->currentTime_ );
+        DependentVector aPrioriStateEstimate = this->predictState( );
         DependentVector measurementEstimate = this->measurementFunction_( this->currentTime_, aPrioriStateEstimate );
         DependentMatrix aPrioriCovarianceEstimate = currentSystemMatrix * this->aPosterioriCovarianceEstimate_ *
                 currentSystemMatrix.transpose( ) + this->systemUncertainty_;
@@ -142,9 +142,9 @@ public:
                     this->measurementUncertainty_ ).inverse( );
 
         // Correction step
+        this->currentTime_ += this->filteringStepSize_;
         this->correctState( aPrioriStateEstimate, currentMeasurementVector, measurementEstimate, kalmanGain );
         this->correctCovariance( aPrioriCovarianceEstimate, currentMeasurementMatrix, kalmanGain );
-        this->currentTime_ += this->filteringStepSize_;
     }
 
 private:
