@@ -46,10 +46,10 @@ class NewtonRaphsonCore : public RootFinderCore< DataType >
 {
 public:
 
-    //! Usefull type definition for the function pointer (from base class)
+    //! Useful type definition for the function pointer (from base class)
     typedef typename RootFinderCore< DataType >::FunctionPointer FunctionPointer;
 
-    //! Usefull type definition for the termination function (from base class)
+    //! Useful type definition for the termination function (from base class)
     typedef typename RootFinderCore< DataType >::TerminationFunction TerminationFunction;
 
     //! This is the constructor taking the general termination function

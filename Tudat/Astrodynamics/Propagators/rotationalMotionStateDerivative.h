@@ -9,9 +9,8 @@
  *
  */
 
-#ifndef TUDAT_ROTATIONALMOTIONSTATEDERIVATIVE_H
-#define TUDAT_ROTATIONALMOTIONSTATEDERIVATIVE_H
-
+#ifndef TUDAT_ROTATIONAL_MOTION_STATE_DERIVATIVE_H
+#define TUDAT_ROTATIONAL_MOTION_STATE_DERIVATIVE_H
 
 #include <vector>
 #include <map>
@@ -30,6 +29,15 @@ namespace tudat
 
 namespace propagators
 {
+
+//! Enum listing propagator types for rotational dynamics that can be used.
+enum RotationalPropagatorType
+{
+    undefined_rotational_propagator = -1,
+    quaternions = 0,
+    modified_rodrigues_parameters = 1,
+    exponential_map = 2
+};
 
 //! Function to evaluated the classical rotational equations of motion (Euler equations)
 /*!
@@ -82,18 +90,19 @@ public:
 
     using propagators::SingleStateTypeDerivative< StateScalarType, TimeType >::calculateSystemStateDerivative;
 
-    //! Constructor
+    //! Constructor.
     /*!
-     * Constructor
+     * Constructor.
      * \param torqueModelsPerBody List of torque models (first map key body undergoing acceleration, second map key body exerting
-     * acceleration)
-     * \param bodiesToPropagate List of names of bodies for which rotational state is to be propagated
-     * \param bodyInertiaTensorFunctions List of functions returning inertia tensors of bodiesToPropagate (in same order)
+     * acceleration).
+     * \param bodiesToPropagate List of names of bodies for which rotational state is to be propagated.
+     * \param bodyInertiaTensorFunctions List of functions returning inertia tensors of bodiesToPropagate (in same order).
      * \param bodyInertiaTensorTimeDerivativeFunctions List of functions returning time derivatives of inertia tensors of
      *  bodiesToPropagate (in same order). Default empty, denoting time-invariant inertia tensors.
      */
     RotationalMotionStateDerivative(
             const basic_astrodynamics::TorqueModelMap& torqueModelsPerBody,
+            const RotationalPropagatorType propagatorType,
             const std::vector< std::string >& bodiesToPropagate,
             std::vector< std::function< Eigen::Matrix3d( ) > > bodyInertiaTensorFunctions,
             std::vector< std::function< Eigen::Matrix3d( ) > > bodyInertiaTensorTimeDerivativeFunctions =
@@ -101,6 +110,7 @@ public:
         propagators::SingleStateTypeDerivative< StateScalarType, TimeType >(
             propagators::rotational_state ),
         torqueModelsPerBody_( torqueModelsPerBody ),
+        propagatorType_( propagatorType ),
         bodiesToPropagate_( bodiesToPropagate ),
         bodyInertiaTensorFunctions_( bodyInertiaTensorFunctions ),
         bodyInertiaTensorTimeDerivativeFunctions_( bodyInertiaTensorTimeDerivativeFunctions )
@@ -116,7 +126,7 @@ public:
         {
             for( unsigned int i = 0; i < bodiesToPropagate.size( ); i++ )
             {
-                bodyInertiaTensorTimeDerivativeFunctions_.push_back( boost::lambda::constant( Eigen::Matrix3d::Zero( ) ) );
+                bodyInertiaTensorTimeDerivativeFunctions_.push_back( []( ){ return Eigen::Matrix3d::Zero( ); } );
             }
         }
         else if( bodiesToPropagate_.size( ) != bodyInertiaTensorTimeDerivativeFunctions_.size( ) )
@@ -136,7 +146,47 @@ public:
     }
 
     //! Destructor
-    ~RotationalMotionStateDerivative( ){ }
+    virtual ~RotationalMotionStateDerivative( ){ }
+
+    //! Function to clear any reference/cached values of state derivative model
+    /*!
+     * Function to clear any reference/cached values of state derivative model, in addition to those performed in the
+     * clearTranslationalStateDerivativeModel function. Default implementation is empty.
+     */
+    virtual void clearDerivedRotationalStateDerivativeModel( ){ }
+
+    //! Function to clear reference/cached values of acceleration models
+    /*!
+     * Function to clear reference/cached values of acceleration models, to ensure that they are all recalculated.
+     */
+    void clearRotationalStateDerivativeModel( )
+    {
+        for( torqueModelMapIterator = torqueModelsPerBody_.begin( );
+             torqueModelMapIterator != torqueModelsPerBody_.end( ); torqueModelMapIterator++ )
+        {
+            for( innerTorqueIterator = torqueModelMapIterator->second.begin( ); innerTorqueIterator !=
+                 torqueModelMapIterator->second.end( ); innerTorqueIterator++ )
+            {
+                for( unsigned int j = 0; j < innerTorqueIterator->second.size( ); j++ )
+                {
+                    innerTorqueIterator->second[ j ]->resetTime( TUDAT_NAN );
+                }
+            }
+        }
+    }
+
+    //! Function to clear reference/cached values of translational state derivative model
+    /*!
+     * Function to clear reference/cached values of translational state derivative model. For each derived class, this
+     * entails resetting the current time in the acceleration models to NaN (see clearRotationalStateDerivativeModel).
+     * Every derived class requiring additional values to be cleared should implement the
+     * clearDerivedRotationalStateDerivativeModel function.
+     */
+    void clearStateDerivativeModel(  )
+    {
+        clearRotationalStateDerivativeModel( );
+        clearDerivedRotationalStateDerivativeModel( );
+    }
 
     //! Function to update the state derivative model to the current time.
     /*!
@@ -150,7 +200,7 @@ public:
         for( torqueModelMapIterator = torqueModelsPerBody_.begin( );
              torqueModelMapIterator != torqueModelsPerBody_.end( ); torqueModelMapIterator++ )
         {
-            for( innerTorqueIterator  = torqueModelMapIterator->second.begin( ); innerTorqueIterator !=
+            for( innerTorqueIterator = torqueModelMapIterator->second.begin( ); innerTorqueIterator !=
                  torqueModelMapIterator->second.end( ); innerTorqueIterator++ )
             {
                 for( unsigned int j = 0; j < innerTorqueIterator->second.size( ); j++ )
@@ -160,7 +210,6 @@ public:
             }
         }
     }
-
 
     //! Function to convert the propagator-specific form of the state to the conventional form in the global frame.
     /*!
@@ -178,99 +227,9 @@ public:
             const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& internalSolution, const TimeType& time,
             Eigen::Block< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > currentRotationalState )
     {
-        currentRotationalState = internalSolution;
-        for( unsigned int i = 0; i < bodiesToPropagate_.size( ); i++ )
-        {
-            currentRotationalState.block( 7 * i, 0, 4, 1 ) =
-                    internalSolution.block( 7 * i, 0, 4, 1 ).normalized( );
-        }
+        this->convertToOutputSolution( internalSolution, time, currentRotationalState );
     }
 
-    //! Function to clear reference/cached values of rotational state derivative model
-    /*!
-     *  Function to clear reference/cached values of rotational state derivative model. For each derived class, this
-     *  entails resetting the current time in the acceleration models to NaN.
-     */
-    void clearStateDerivativeModel( )
-    {
-        for( torqueModelMapIterator = torqueModelsPerBody_.begin( );
-             torqueModelMapIterator != torqueModelsPerBody_.end( ); torqueModelMapIterator++ )
-        {
-            for( innerTorqueIterator  = torqueModelMapIterator->second.begin( ); innerTorqueIterator !=
-                 torqueModelMapIterator->second.end( ); innerTorqueIterator++ )
-            {
-                for( unsigned int j = 0; j < innerTorqueIterator->second.size( ); j++ )
-                {
-                    innerTorqueIterator->second[ j ]->resetTime( TUDAT_NAN );
-                }
-            }
-        }
-    }
-
-    //! Calculates the state derivative of the rotational motion of the system.
-    /*!
-     *  Calculates the state derivative of the rotational motion of the system at the given time and rotational state.
-     *  \param time Time (seconds since reference epoch) at which the system is to be updated.
-     *  \param stateOfSystemToBeIntegrated List of 7 * bodiesToPropagate_.size( ), containing rotation quaternion/angular
-     *  velocity of the bodies being propagated. The order of the values is defined by the order of bodies in
-     *  bodiesToPropagate_
-     *  \param stateDerivative Current state derivative (quaternion rate+angular acceleration) of system of bodies
-     *  integrated numerically (returned by reference).
-     */
-    void calculateSystemStateDerivative(
-            const TimeType time,
-            const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& stateOfSystemToBeIntegrated,
-            Eigen::Block< Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic > > stateDerivative )
-    {
-        stateDerivative = Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >::Zero( stateOfSystemToBeIntegrated.rows( ), 1 );
-        std::vector< Eigen::Vector3d > torquesActingOnBodies = sumTorquesPerBody( );
-
-        for( unsigned int i = 0; i < torquesActingOnBodies.size( ); i++ )
-        {
-            Eigen::Matrix< StateScalarType, 4, 1 > currentQuaternion = ( stateOfSystemToBeIntegrated.block( 7 * i, 0, 4, 1 ) ).normalized( );
-            Eigen::Matrix< StateScalarType, 3, 1 > currentBodyFixedRotationRate = stateOfSystemToBeIntegrated.block( 7 * i + 4, 0, 3, 1 );
-
-            stateDerivative.block( 7 * i, 0, 4, 1 ) = calculateQuaternionDerivative(
-                        currentQuaternion.template cast< double >( ), currentBodyFixedRotationRate.template cast< double >( ) ).
-                    template cast< StateScalarType >( );
-            stateDerivative.block( 7 * i + 4, 0, 3, 1 ) = evaluateRotationalEquationsOfMotion(
-                        bodyInertiaTensorFunctions_.at( i )( ), torquesActingOnBodies.at( i ),
-                        currentBodyFixedRotationRate.template cast< double >( ),
-                        bodyInertiaTensorTimeDerivativeFunctions_.at( i )( ) ).template cast< StateScalarType >( );
-
-        }
-    }
-
-    //! Function to convert the state in the conventional form to the propagator-specific form.
-    /*!
-     * Function to convert the state in the conventional form to the propagator-specific form. For this propagator,
-     * the two are equivalent, and this function returns the input state.
-     * \param outputSolution State in 'conventional form'
-     * \param time Current time at which the state is valid (not used in this class).
-     * \return State (outputSolution), converted to the 'propagator-specific form' (which is equal to outputSolution).
-     */
-    Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic > convertFromOutputSolution(
-            const Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >& outputSolution, const TimeType& time )
-    {
-        return outputSolution;
-    }
-
-    //! Function to convert the propagator-specific form of the state to the conventional form.
-    /*!
-     * Function to convert the propagator-specific form of the state to the conventional form. For the this propagator,
-     * the two are equivalent, and this function returns the input state.
-     * \param internalSolution State in propagator-specific form (which is equal to outputSolution to conventional form for
-     * this propagator)
-     * \param time Current time at which the state is valid (not used in this class).
-     * \param currentLocalSoluton State (internalSolution), converted to the 'conventional form',
-     *  which is equal to outputSolution for this class (returned by reference).
-     */
-    void convertToOutputSolution(
-            const Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >& internalSolution, const TimeType& time,
-            Eigen::Block< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > currentLocalSoluton )
-    {
-        currentLocalSoluton = internalSolution;
-    }
     //! Function to get list of names of bodies that are to be integrated numerically.
     /*!
      * Function to get list of names of bodies that are to be integrated numerically.
@@ -281,18 +240,22 @@ public:
         return bodiesToPropagate_;
     }
 
-    //! Function to return the size of the state handled by the object
+    //! Function to return the size of the state handled by the object.
     /*!
-     * Function to return the size of the state handled by the object
-     * \return Size of the state under consideration (7 times the number if integrated bodies).
+     * Function to return the size of the state handled by the object.
+     * \return Size of the state under consideration (7 times the number of integrated bodies).
      */
-    int getStateSize( )
+    int getConventionalStateSize( )
     {
         return 7 * bodiesToPropagate_.size( );
     }
 
-    Eigen::Vector3d getTotalTorqueForBody(
-            const std::string& bodyName )
+    //! Function to get total torque acting on specific body.
+    /*!
+     * Function to get total torque acting on specific body.
+     * \return bodyName Name of body for which total torque needs to be retrieved.
+     */
+    Eigen::Vector3d getTotalTorqueForBody( const std::string& bodyName )
     {
         // Check if body is propagated.
         Eigen::Vector3d totalTorque = Eigen::Vector3d::Zero( );
@@ -327,9 +290,24 @@ public:
         return totalTorque;
     }
 
+    //! Function to get map of torques acting on each body.
+    /*!
+     * Function to get map of torques acting on each body.
+     * \return TorqueModelMap Map of torques acting on each body.
+     */
     basic_astrodynamics::TorqueModelMap getTorquesMap( )
     {
         return torqueModelsPerBody_;
+    }
+
+    //! Function to get type of propagator that is to be used (i.e., quaternions, etc.).
+    /*!
+     * Function to type of propagator that is to be used (i.e., quaternions, etc.).
+     * \return Type of propagator that is to be used (i.e., quaternions, etc.).
+     */
+    RotationalPropagatorType getRotationalPropagatorType( )
+    {
+        return propagatorType_;
     }
 
 protected:
@@ -375,10 +353,13 @@ protected:
      * A map containing the list of torques acting on each body, identifying the body being
      * acted on and the body acted on by an acceleration. The map has as key a string denoting the
      * name of the body the list of torques, provided as the value corresponding to a key, is
-     * acting on.  This map-value is again a map with string as key, denoting the body exerting the
+     * acting on. This map-value is again a map with string as key, denoting the body exerting the
      * acceleration, and as value a pointer to an acceleration model.
      */
     basic_astrodynamics::TorqueModelMap torqueModelsPerBody_;
+
+    //! Type of propagator that is to be used (i.e., quaternions, etc.)
+    RotationalPropagatorType propagatorType_;
 
     //! List of names of bodies for which rotational state is to be propagated
     std::vector< std::string > bodiesToPropagate_;
@@ -389,7 +370,6 @@ protected:
     //!  List of functions returning time derivatives of inertia tensors of bodiesToPropagate (in same order)
     std::vector< std::function< Eigen::Matrix3d( ) > > bodyInertiaTensorTimeDerivativeFunctions_;
 
-
     //! Predefined iterator to save (de-)allocation time.
     basic_astrodynamics::TorqueModelMap::iterator torqueModelMapIterator;
 
@@ -398,8 +378,8 @@ protected:
 
 };
 
-}
+} // namespace propagators
 
-}
+} // namespace tudat
 
-#endif // TUDAT_ROTATIONALMOTIONSTATEDERIVATIVE_H
+#endif // TUDAT_ROTATIONAL_MOTION_STATE_DERIVATIVE_H

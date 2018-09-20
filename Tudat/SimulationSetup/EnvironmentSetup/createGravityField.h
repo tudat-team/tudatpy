@@ -274,14 +274,13 @@ public:
      * \param referenceRadius Reference radius of gravity field to be used if file has no header.
      */
     FromFileSphericalHarmonicsGravityFieldSettings( const std::string& filePath,
-                                                 const std::string& associatedReferenceFrame,
-                                                 const int maximumDegree,
-                                                 const int maximumOrder,
-                                                 const int gravitationalParameterIndex,
-                                                 const int referenceRadiusIndex,
-                                                 const double gravitationalParameter = TUDAT_NAN,
-                                                 const double referenceRadius = TUDAT_NAN );
-
+                                                    const std::string& associatedReferenceFrame,
+                                                    const int maximumDegree,
+                                                    const int maximumOrder,
+                                                    const int gravitationalParameterIndex,
+                                                    const int referenceRadiusIndex,
+                                                    const double gravitationalParameter = TUDAT_NAN,
+                                                    const double referenceRadius = TUDAT_NAN );
     //! Constructor with model included in Tudat.
     /*!
      * Constructor with model included in Tudat.

@@ -105,7 +105,6 @@ void AerodynamicAngleCalculator::update( const double currentTime, const bool up
     // Get current body-fixed state.
     if( !( currentTime == currentTime_ ) )
     {
-
         currentBodyFixedGroundSpeedBasedState_ = bodyFixedStateFunction_( );
         currentRotationFromCorotatingToInertialFrame_ = rotationFromCorotatingToInertialFrame_( );
 
@@ -434,11 +433,11 @@ void AerodynamicAngleCalculator::setOrientationAngleFunctions(
         const double bankAngle )
 {
     std::function< double( ) > angleOfAttackFunction =
-            ( ( angleOfAttack == angleOfAttack ) ? boost::lambda::constant( angleOfAttack ) : std::function< double( ) >( ) );
+            ( ( angleOfAttack == angleOfAttack ) ? [=](){ return angleOfAttack; } : std::function< double( ) >( ) );
     std::function< double( ) > angleOfSideslipFunction =
-            ( ( angleOfSideslip == angleOfSideslip ) ? boost::lambda::constant( angleOfSideslip ) : std::function< double( ) >( ) );
+            ( ( angleOfSideslip == angleOfSideslip ) ? [=](){ return angleOfSideslip; } : std::function< double( ) >( ) );
     std::function< double( ) > bankAngleFunction =
-            ( ( bankAngle == bankAngle ) ? boost::lambda::constant( bankAngle ): std::function< double( ) >( ) );
+            ( ( bankAngle == bankAngle ) ? [=](){ return bankAngle; }: std::function< double( ) >( ) );
     setOrientationAngleFunctions( angleOfAttackFunction, angleOfSideslipFunction, bankAngleFunction );
 }
 

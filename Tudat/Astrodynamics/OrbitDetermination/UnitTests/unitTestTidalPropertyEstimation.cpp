@@ -176,7 +176,7 @@ BOOST_AUTO_TEST_CASE( test_DissipationParameterEstimation )
         // Define integrator and propagator settings.
         std::shared_ptr< IntegratorSettings< > > integratorSettings =
                 std::make_shared< RungeKuttaVariableStepSizeSettings< > >
-                ( rungeKuttaVariableStepSize, 0.0, fixedStepSize,
+                ( 0.0, fixedStepSize,
                   RungeKuttaCoefficients::rungeKuttaFehlberg78, fixedStepSize, fixedStepSize, 1.0, 1.0 );
 
         std::shared_ptr< PropagatorSettings< double > > propagatorSettings =
@@ -403,7 +403,7 @@ BOOST_AUTO_TEST_CASE( test_LoveNumberEstimationFromOrbiterData )
     // Create integrator settings
     std::shared_ptr< IntegratorSettings< double > > integratorSettings =
             std::make_shared< RungeKuttaVariableStepSizeSettings< double > >
-            ( rungeKuttaVariableStepSize, double( initialEphemerisTime ), 60.0,
+            ( initialEphemerisTime, 60.0,
               RungeKuttaCoefficients::CoefficientSets::rungeKuttaFehlberg78,
               60.0, 60.0, 1.0, 1.0 );
 

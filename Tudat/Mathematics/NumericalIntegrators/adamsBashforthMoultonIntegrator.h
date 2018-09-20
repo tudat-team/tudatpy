@@ -50,7 +50,7 @@ namespace numerical_integrators
  * \tparam IndependentVariableType The type of the independent variable.
  * \sa NumericalIntegrator.
  */
-template < typename IndependentVariableType = double, typename StateType = Eigen::VectorXd,
+template< typename IndependentVariableType = double, typename StateType = Eigen::VectorXd,
            typename StateDerivativeType = Eigen::VectorXd, typename TimeStepType = IndependentVariableType >
 class AdamsBashforthMoultonIntegrator
         : public ReinitializableNumericalIntegrator<
@@ -435,7 +435,6 @@ public:
         derivHistory_.push_front( this->stateDerivativeFunction_(
                                       currentIndependentVariable_, currentState_ ) );
         return currentState_;
-
     }
 
     //! Rollback internal state to the last state.
@@ -448,7 +447,8 @@ public:
      */
     virtual bool rollbackToPreviousState( )
     {
-        if ( currentIndependentVariable_ == lastIndependentVariable_ ) {
+        if ( currentIndependentVariable_ == lastIndependentVariable_ )
+        {
             return false;
         }
         currentIndependentVariable_ = lastIndependentVariable_;
@@ -466,12 +466,17 @@ public:
         return true;
     }
 
-    //! Modify the state at the current value of the independent variable.
+    //! Replace the state with a new value.
     /*!
-     * Modify the state at the current value of the independent variable.
-     * \param newState The new state to set the current state to.
+     * Replace the state with a new value. This allows for discrete jumps in the state, often
+     * used in simulations of discrete events. In astrodynamics, this relates to simulations of rocket staging,
+     * impulsive shots, parachuting, ideal control, etc. The modified state, by default, cannot be rolled back; to do this, either
+     * set the flag to true, or store the state before calling this function the first time, and call it again with the initial state
+     * as parameter to revert to the state before the discrete change.
+     * \param newState The value of the new state.
+     * \param allowRollback Boolean denoting whether roll-back should be allowed.
      */
-    void modifyCurrentState( const StateType& newState )
+    void modifyCurrentState( const StateType& newState, const bool allowRollback = false )
     {
         currentState_ = newState;
 
@@ -481,8 +486,11 @@ public:
         stateHistory_.push_front( currentState_ );
         derivHistory_.push_front( this->stateDerivativeFunction_(
                                       currentIndependentVariable_, currentState_ ) );
-        lastIndependentVariable_ = currentIndependentVariable_;
-        
+        if ( !allowRollback )
+        {
+            lastIndependentVariable_ = currentIndependentVariable_;
+        }
+
         // Allow single step integrator to determine own stepsize
         fixedSingleStep_ = fixedStepSize_;
     }
@@ -1022,7 +1030,7 @@ typedef std::shared_ptr< AdamsBashforthMoultonIntegratord > AdamsBashforthMoulto
 /*!
  * truncationErrorCoefficients( o - 1 )
  */
-template < typename IndependentVariableType, typename StateType, typename StateDerivativeType, typename TimeStepType>
+template< typename IndependentVariableType, typename StateType, typename StateDerivativeType, typename TimeStepType>
 const double AdamsBashforthMoultonIntegrator< IndependentVariableType, StateType, StateDerivativeType, TimeStepType >::truncationErrorCoefficients[ 12 ] = {
     +2.00000000000000000e+00, +6.00000000000000000e+00, +1.00000000000000000e+01, +1.42105263157894743e+01,
     +1.85925925925925917e+01, +2.31170336037079949e+01, +2.77629090909090905e+01, +3.25146526080169664e+01,
@@ -1034,7 +1042,7 @@ const double AdamsBashforthMoultonIntegrator< IndependentVariableType, StateType
  * extrapolationCoefficients( o * 2 - 2, i )                 <--- predictor coefficients
  * extrapolationCoefficients( o * 2 - 1, i )                 <--- corrector coefficients
  */
-template < typename IndependentVariableType, typename StateType, typename StateDerivativeType, typename TimeStepType >
+template< typename IndependentVariableType, typename StateType, typename StateDerivativeType, typename TimeStepType >
 const double AdamsBashforthMoultonIntegrator< IndependentVariableType, StateType, StateDerivativeType, TimeStepType >::extrapolationCoefficients[ 24 ][ 12 ] = {
     {+1.00000000000000000e+00, +0.00000000000000000e+00, +0.00000000000000000e+00, +0.00000000000000000e+00,
      +0.00000000000000000e+00, +0.00000000000000000e+00, +0.00000000000000000e+00, +0.00000000000000000e+00,
@@ -1120,7 +1128,7 @@ const double AdamsBashforthMoultonIntegrator< IndependentVariableType, StateType
  *
  * Order k occupies : registers ( k - 1 )^2 - k + 1 to k^2 - k - 1
  */
-template < typename IndependentVariableType, typename StateType, typename StateDerivativeType, typename TimeStepType >
+template< typename IndependentVariableType, typename StateType, typename StateDerivativeType, typename TimeStepType >
 const double AdamsBashforthMoultonIntegrator< IndependentVariableType, StateType, StateDerivativeType, TimeStepType >::interpolationCoefficients[ 132 ][ 24 ] = {
     {+5.00000000000000000e-01, +5.00000000000000000e-01, -1.25000000000000000e-01, +1.25000000000000000e-01,
      +0.00000000000000000e+00, +0.00000000000000000e+00, +0.00000000000000000e+00, +0.00000000000000000e+00,

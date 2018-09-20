@@ -23,6 +23,7 @@
 
 namespace tudat
 {
+
 namespace aerodynamics
 {
 
@@ -115,7 +116,7 @@ public:
         referenceAreaFunction_( referenceAreaFunction ),
         referenceLengthsFunction_( referenceLengthsFunction )
     {
-        coefficientMultiplier_ = areCoefficientsInNegativeDirection == true ? -1.0 : 1.0;
+        coefficientMultiplier_ = areCoefficientsInNegativeDirection ? -1.0 : 1.0;
     }
 
     //! Get aerodynamic torque.
@@ -157,7 +158,6 @@ public:
         }
     }
 
-
 private:
 
     //! Function to retrieve the current aerodynamic moment coefficients.
@@ -189,7 +189,6 @@ private:
     //! Current airspeed, as set by updateMembers function.
     double currentAirspeed_;
 
-
     //! Current reference area, as set by updateMembers function.
     double currentReferenceArea_;
 
@@ -198,8 +197,8 @@ private:
 
 };
 
-
 } // namespace aerodynamics
+
 } // namespace tudat
 
 #endif // TUDAT_AERODYNAMIC_TORQUE_H

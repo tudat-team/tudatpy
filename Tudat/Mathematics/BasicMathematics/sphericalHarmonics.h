@@ -26,14 +26,13 @@ namespace basic_mathematics
 //! Cache object in which variables that are required for the computation of spherical harmonic potential are stored.
 /*!
  *  Cache object in which variables that are required for the computation of spherical harmonic potential are stored.
- *  The variables are the Legendre polynomials at the required degree and order, the cosine of teh latitude, the
+ *  The variables are the Legendre polynomials at the required degree and order, the cosine of the latitude, the
  *  sine and cosine of the order times the longitude, and the ratio of the distance and the reference radius to the
  *  power degree + 1.
  */
 class SphericalHarmonicsCache
 {
 public:
-
 
     //! Default constructor, initializes cache object with 0 maximum degree and order.
     /*!
@@ -44,7 +43,6 @@ public:
     SphericalHarmonicsCache( const bool useGeodesyNormalization = 1 )
     {
         legendreCache_ = std::make_shared< LegendreCache >( useGeodesyNormalization );
-
         currentLongitude_ = TUDAT_NAN;
         referenceRadiusRatio_ = TUDAT_NAN;
 
@@ -241,8 +239,6 @@ private:
 
     //! Object for caching and computing Legendre polynomials.
     std::shared_ptr< LegendreCache > legendreCache_;
-
-
 
 };
 

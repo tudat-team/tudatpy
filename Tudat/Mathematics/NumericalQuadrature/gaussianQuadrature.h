@@ -32,7 +32,6 @@ namespace tudat
 namespace numerical_quadrature
 {
 
-
 //! Read Gaussian nodes from text file
 /*!
  *  Read Gaussian nodes from text file, file name is hard-coded into this function, read nodes are returned by reference
@@ -44,7 +43,7 @@ void readGaussianQuadratureNodes(
         std::map< unsigned int, Eigen::Array< IndependentVariableType, Eigen::Dynamic, 1> >& gaussQuadratureNodes )
 {
     gaussQuadratureNodes =
-            utilities::convertSTLVectorMapToEigenVectorMap< unsigned int, IndependentVariableType >(
+            utilities::convertStlVectorMapToEigenVectorMap< unsigned int, IndependentVariableType >(
                 input_output::readStlVectorMapFromFile< unsigned int, IndependentVariableType >(
                     input_output::getTudatRootPath( ) + "/Mathematics/NumericalQuadrature/gaussianNodes.txt" ) );
 }
@@ -59,7 +58,7 @@ template< typename IndependentVariableType >
 void readGaussianQuadratureWeights(
         std::map< unsigned int, Eigen::Array< IndependentVariableType, Eigen::Dynamic, 1> >& gaussQuadratureWeights )
 {
-    gaussQuadratureWeights = utilities::convertSTLVectorMapToEigenVectorMap< unsigned int, IndependentVariableType >(
+    gaussQuadratureWeights = utilities::convertStlVectorMapToEigenVectorMap< unsigned int, IndependentVariableType >(
                 input_output::readStlVectorMapFromFile< unsigned int, IndependentVariableType >(
                     input_output::getTudatRootPath( ) + "/Mathematics/NumericalQuadrature/gaussianWeights.txt" ) );
 }
@@ -260,7 +259,6 @@ class GaussianQuadrature : public NumericalQuadrature< IndependentVariableType ,
 {
 public:
 
-
     typedef Eigen::Array< DependentVariableType, Eigen::Dynamic, 1 > DependentVariableArray;
     typedef Eigen::Array< IndependentVariableType, Eigen::Dynamic, 1 > IndependentVariableArray;
 
@@ -282,7 +280,6 @@ public:
         gaussQuadratureNodesAndWeights_ = getGaussQuadratureNodesAndWeights< IndependentVariableType >( );
     }
 
-
     //! Reset the current Gaussian quadrature.
     /*!
      * The nodes and weights are not read/computed again if they had already been used previously.
@@ -302,7 +299,6 @@ public:
         numberOfNodes_ = numberOfNodes;
         quadratureHasBeenPerformed_ = false;
     }
-
 
     //! Function to return computed value of the quadrature.
     /*!
@@ -331,7 +327,7 @@ public:
                             "The number of nodes for the Gaussian quadrature must be between 2 and 64." );
             }
 
-            performQuadrature();
+            performQuadrature( );
             quadratureHasBeenPerformed_ = true;
         }
 
@@ -390,6 +386,7 @@ private:
     DependentVariableType quadratureResult_;
 
     std::shared_ptr< GaussQuadratureNodesAndWeights< IndependentVariableType > > gaussQuadratureNodesAndWeights_;
+
 };
 
 } // namespace numerical_quadrature

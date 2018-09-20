@@ -20,6 +20,8 @@ set(BASICSDIR_HEADERS
   "${SRCROOT}${BASICSDIR}/utilityMacros.h"
   "${SRCROOT}${BASICSDIR}/timeType.h"
   "${SRCROOT}${BASICSDIR}/basicTypedefs.h"
+  "${SRCROOT}${BASICSDIR}/identityElements.h"
+  "${SRCROOT}${BASICSDIR}/tudatTypeTraits.h"
 )
 
 # Add unit test files.
@@ -35,4 +37,9 @@ setup_tudat_library_target(tudat_basics "${SRCROOT}${BASICSDIR}")
 add_executable(test_TimeTypes "${SRCROOT}${BASICSDIR}/UnitTests/unitTestTimeTypes.cpp")
 setup_custom_test_program(test_TimeTypes "${SRCROOT}${BASICSDIR}")
 target_link_libraries(test_TimeTypes ${Boost_LIBRARIES})
+
+
+add_executable(test_TudatTypeTraits "${SRCROOT}${BASICSDIR}/UnitTests/unitTestTudatTypeTraits.cpp")
+setup_custom_test_program(test_TudatTypeTraits "${SRCROOT}${BASICSDIR}")
+target_link_libraries(test_TudatTypeTraits tudat_basics ${Boost_LIBRARIES})
 

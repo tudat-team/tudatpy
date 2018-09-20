@@ -29,6 +29,7 @@ set(INPUTOUTPUT_SOURCES
   "${SRCROOT}${INPUTOUTPUTDIR}/solarActivityData.cpp"
   "${SRCROOT}${INPUTOUTPUTDIR}/multiDimensionalArrayReader.cpp"
   "${SRCROOT}${INPUTOUTPUTDIR}/aerodynamicCoefficientReader.cpp"
+  "${SRCROOT}${INPUTOUTPUTDIR}/tabulatedAtmosphereReader.cpp"
 )
 
 # Add header files.
@@ -59,8 +60,10 @@ set(INPUTOUTPUT_HEADERS
   "${SRCROOT}${INPUTOUTPUTDIR}/extractSolarActivityData.h"
   "${SRCROOT}${INPUTOUTPUTDIR}/solarActivityData.h"
   "${SRCROOT}${INPUTOUTPUTDIR}/multiDimensionalArrayReader.h"
+  "${SRCROOT}${INPUTOUTPUTDIR}/multiDimensionalArrayWriter.h"
   "${SRCROOT}${INPUTOUTPUTDIR}/aerodynamicCoefficientReader.h"
   "${SRCROOT}${INPUTOUTPUTDIR}/readHistoryFromFile.h"
+  "${SRCROOT}${INPUTOUTPUTDIR}/tabulatedAtmosphereReader.h"
 )
 
 # Add unit test files.
@@ -142,6 +145,10 @@ target_link_libraries(test_SolarActivityData tudat_input_output tudat_basic_astr
 add_executable(test_MultiArrayReader "${SRCROOT}${INPUTOUTPUTDIR}/UnitTests/unitTestMultiArrayReader.cpp")
 setup_custom_test_program(test_MultiArrayReader "${SRCROOT}${INPUTOUTPUTDIR}")
 target_link_libraries(test_MultiArrayReader tudat_input_output tudat_basic_astrodynamics ${Boost_LIBRARIES})
+
+add_executable(test_MultiArrayWriter "${SRCROOT}${INPUTOUTPUTDIR}/UnitTests/unitTestMultiArrayWriter.cpp")
+setup_custom_test_program(test_MultiArrayWriter "${SRCROOT}${INPUTOUTPUTDIR}")
+target_link_libraries(test_MultiArrayWriter tudat_input_output tudat_basic_astrodynamics ${Boost_LIBRARIES})
 
 add_executable(test_AerodynamicCoefficientReader "${SRCROOT}${INPUTOUTPUTDIR}/UnitTests/unitTestAerodynamicCoefficientReader.cpp" )
 setup_custom_test_program(test_AerodynamicCoefficientReader "${SRCROOT}${INPUTOUTPUTDIR}")

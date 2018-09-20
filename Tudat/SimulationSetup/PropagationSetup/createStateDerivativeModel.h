@@ -22,7 +22,13 @@
 #include "Tudat/Astrodynamics/Propagators/nBodyEnckeStateDerivative.h"
 #include "Tudat/Astrodynamics/Propagators/nBodyGaussKeplerStateDerivative.h"
 #include "Tudat/Astrodynamics/Propagators/nBodyGaussModifiedEquinoctialStateDerivative.h"
+#include "Tudat/Astrodynamics/Propagators/nBodyUnifiedStateModelQuaternionsStateDerivative.h"
+#include "Tudat/Astrodynamics/Propagators/nBodyUnifiedStateModelModifiedRodriguesParametersStateDerivative.h"
+#include "Tudat/Astrodynamics/Propagators/nBodyUnifiedStateModelExponentialMapStateDerivative.h"
 #include "Tudat/Astrodynamics/Propagators/rotationalMotionStateDerivative.h"
+#include "Tudat/Astrodynamics/Propagators/rotationalMotionQuaternionsStateDerivative.h"
+#include "Tudat/Astrodynamics/Propagators/rotationalMotionModifiedRodriguesParametersStateDerivative.h"
+#include "Tudat/Astrodynamics/Propagators/rotationalMotionExponentialMapStateDerivative.h"
 #include "Tudat/Astrodynamics/Propagators/bodyMassStateDerivative.h"
 #include "Tudat/Astrodynamics/Propagators/customStateDerivative.h"
 #include "Tudat/Astrodynamics/Propagators/stateDerivativeCircularRestrictedThreeBodyProblem.h"
@@ -93,8 +99,8 @@ std::shared_ptr< CentralBodyData< StateScalarType, TimeType > > createCentralBod
         }
         else
         {
-            bodyStateFunctions[ centralBodiesToUse.at( i ) ] = boost::lambda::constant(
-                        Eigen::Matrix< StateScalarType, 6, 1 >::Zero( ) );
+            bodyStateFunctions[ centralBodiesToUse.at( i ) ] = []( const TimeType ){ return
+                        Eigen::Matrix< StateScalarType, 6, 1 >::Zero( ); };
         }
     }
 
@@ -103,8 +109,8 @@ std::shared_ptr< CentralBodyData< StateScalarType, TimeType > > createCentralBod
     std::string globalFrameOrigin = simulation_setup::getGlobalFrameOrigin( bodyMap );
     if( globalFrameOrigin == "SSB" )
     {
-        globalFrameOriginBarycentricFunction = boost::lambda::constant(
-                    Eigen::Matrix< StateScalarType, 6, 1 >::Zero( ) );
+        globalFrameOriginBarycentricFunction = []( const TimeType ){ return
+                    Eigen::Matrix< StateScalarType, 6, 1 >::Zero( ); };
     }
     else
     {
@@ -184,11 +190,10 @@ createTranslationalStateDerivativeModel(
     }
     case gauss_keplerian:
     {
-        // Create Encke state derivative object.
+        // Create Keplerian state derivative object.
         stateDerivativeModel = std::make_shared< NBodyGaussKeplerStateDerivative< StateScalarType, TimeType > >
                 ( translationPropagatorSettings->getAccelerationsMap( ), centralBodyData,
                   translationPropagatorSettings->bodiesToIntegrate_ );
-
         break;
     }
     case gauss_modified_equinoctial:
@@ -200,7 +205,7 @@ createTranslationalStateDerivativeModel(
         {
             if( bodyMap.count( centralBodies[ i ] ) == 0 )
             {
-                std::string errorMessage = "Error when creating Encke propagator, did not find central body " + centralBodies[ i ];
+                std::string errorMessage = "Error when creating modified equinoctial propagator, did not find central body " + centralBodies[ i ];
                 throw std::runtime_error( errorMessage );
             }
             initialKeplerElements.push_back( orbital_element_conversions::convertCartesianToKeplerianElements< StateScalarType >(
@@ -208,17 +213,40 @@ createTranslationalStateDerivativeModel(
                                                      bodyMap.at( centralBodies[ i ] )->getGravityFieldModel( )->getGravitationalParameter( ) ) ) );
         }
 
-        // Create Encke state derivative object.:
+        // Create modified equinoctial state derivative object.:
         stateDerivativeModel = std::make_shared< NBodyGaussModifiedEquinictialStateDerivative< StateScalarType, TimeType > >
                 ( translationPropagatorSettings->getAccelerationsMap( ), centralBodyData,
                   translationPropagatorSettings->bodiesToIntegrate_, initialKeplerElements );
 
         break;
     }
+    case unified_state_model_quaternions:
+    {
+        // Create USM7 state derivative object.
+        stateDerivativeModel = std::make_shared< NBodyUnifiedStateModelQuaternionsStateDerivative< StateScalarType, TimeType > >
+                ( translationPropagatorSettings->getAccelerationsMap( ), centralBodyData,
+                  translationPropagatorSettings->bodiesToIntegrate_ );
+        break;
+    }
+    case unified_state_model_modified_rodrigues_parameters:
+    {
+        // Create USM6 state derivative object.
+        stateDerivativeModel = std::make_shared< NBodyUnifiedStateModelModifiedRodriguesParametersStateDerivative< StateScalarType, TimeType > >
+                ( translationPropagatorSettings->getAccelerationsMap( ), centralBodyData,
+                  translationPropagatorSettings->bodiesToIntegrate_ );
+        break;
+    }
+    case unified_state_model_exponential_map:
+    {
+        // Create USMEM state derivative object.
+        stateDerivativeModel = std::make_shared< NBodyUnifiedStateModelExponentialMapStateDerivative< StateScalarType, TimeType > >
+                ( translationPropagatorSettings->getAccelerationsMap( ), centralBodyData,
+                  translationPropagatorSettings->bodiesToIntegrate_ );
+        break;
+    }
     default:
-        throw std::runtime_error(
-                    "Error, did not recognize translational state propagation type: " +
-                    std::to_string( translationPropagatorSettings->propagator_ ) );
+        throw std::runtime_error( "Error, did not recognize translational state propagation type: " +
+                                  std::to_string( translationPropagatorSettings->propagator_ ) );
     }
     return stateDerivativeModel;
 }
@@ -243,12 +271,39 @@ std::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > create
                     std::bind( &simulation_setup::Body::getBodyInertiaTensor,
                                bodyMap.at( rotationPropagatorSettings->bodiesToIntegrate_.at( i ) ) ) );
     }
-    return std::make_shared< RotationalMotionStateDerivative< StateScalarType, TimeType > >(
-                rotationPropagatorSettings->getTorqueModelsMap( ), rotationPropagatorSettings->bodiesToIntegrate_,
-                momentOfInertiaFunctions );
+
+    // Check propagator type and create corresponding state derivative object.
+    std::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > stateDerivativeModel;
+    switch( rotationPropagatorSettings->propagator_ )
+    {
+    case quaternions:
+    {
+        stateDerivativeModel = std::make_shared< RotationalMotionQuaternionsStateDerivative< StateScalarType, TimeType > >(
+                    rotationPropagatorSettings->getTorqueModelsMap( ), rotationPropagatorSettings->bodiesToIntegrate_,
+                    momentOfInertiaFunctions );
+        break;
+    }
+    case modified_rodrigues_parameters:
+    {
+        stateDerivativeModel = std::make_shared< RotationalMotionModifiedRodriguesParametersStateDerivative< StateScalarType, TimeType > >(
+                    rotationPropagatorSettings->getTorqueModelsMap( ), rotationPropagatorSettings->bodiesToIntegrate_,
+                    momentOfInertiaFunctions );
+        break;
+    }
+    case exponential_map:
+    {
+        stateDerivativeModel = std::make_shared< RotationalMotionExponentialMapStateDerivative< StateScalarType, TimeType > >(
+                    rotationPropagatorSettings->getTorqueModelsMap( ), rotationPropagatorSettings->bodiesToIntegrate_,
+                    momentOfInertiaFunctions );
+        break;
+    }
+    default:
+        throw std::runtime_error( "Error, did not recognize rotational state propagation type: " +
+                                  std::to_string( rotationPropagatorSettings->propagator_ ) );
+    }
+
+    return stateDerivativeModel;
 }
-
-
 
 //! Function to create a mass state derivative model.
 /*!
@@ -288,7 +343,7 @@ createStateDerivativeModel(
     // specific type of state derivative model.
     switch( propagatorSettings->getStateType( ) )
     {
-    case transational_state:
+    case translational_state:
     {
         // Check input consistency.
         std::shared_ptr< TranslationalStatePropagatorSettings< StateScalarType > >
@@ -370,7 +425,7 @@ createStateDerivativeModel(
 //! Function that finalized multi-type propagator creation by ensuring that any mutual dependencies are correctly set
 /*!
  *  Function that finalized multi-type propagator creation by ensuring that any mutual dependencies are correctly set
- *  \param propagatorSettings Settings for teh numerical propagation
+ *  \param propagatorSettings Settings for the numerical propagation
  *  \param bodyMap List of body objects that comprises the environment
  */
 template< typename StateScalarType = double >
@@ -385,11 +440,11 @@ void setMultiTypePropagationClosure(
     if( multiTypePropagatorSettings != NULL )
     {
         // Perform closure for the case where both translational and rotational states are propagated
-        if( multiTypePropagatorSettings->propagatorSettingsMap_.count( transational_state ) > 0 &&
+        if( multiTypePropagatorSettings->propagatorSettingsMap_.count( translational_state ) > 0 &&
                 multiTypePropagatorSettings->propagatorSettingsMap_.count( rotational_state ) > 0 )
         {
             std::vector< std::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > > translationalStateSettings =
-                    multiTypePropagatorSettings->propagatorSettingsMap_.at( transational_state );
+                    multiTypePropagatorSettings->propagatorSettingsMap_.at( translational_state );
             std::vector< std::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > > rotationalStateSettings =
                     multiTypePropagatorSettings->propagatorSettingsMap_.at( rotational_state );
 
@@ -567,9 +622,49 @@ extern template std::shared_ptr< SingleStateTypeDerivative< long double, Time > 
         const simulation_setup::NamedBodyMap& bodyMap,
         const Time propagationStartTime );
 
-//extern template void setMultiTypePropagationClosure< double >(
-//        const std::shared_ptr< SingleArcPropagatorSettings< double > > propagatorSettings,
-//const simulation_setup::NamedBodyMap& bodyMap );
+
+//! Function to convert a list of state derivative models to a map sorted by state type
+/*!
+ *  Function to convert a list of state derivative models to a map sorted by state type
+ *  \param stateDerivativeModelList List of state derivative models
+ *  \return Map of state derivative models
+ */
+template< typename StateScalarType = double, typename TimeType = double >
+std::unordered_map< IntegratedStateType, std::vector< std::shared_ptr<
+SingleStateTypeDerivative< StateScalarType, TimeType > > > > getStateDerivativeModelMapFromVector(
+        const std::vector< std::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > >& stateDerivativeModelList )
+{
+    std::unordered_map< IntegratedStateType, std::vector< std::shared_ptr<
+            SingleStateTypeDerivative< StateScalarType, TimeType > > > > stateDerivativeModelsMap;
+    for( unsigned int i = 0; i < stateDerivativeModelList.size( ); i++ )
+    {
+        stateDerivativeModelsMap[ stateDerivativeModelList.at( i )->getIntegratedStateType( ) ].push_back(
+                    stateDerivativeModelList.at( i ) );
+    }
+    return stateDerivativeModelsMap;
+}
+
+//! Function to create a map of state derivative models.
+/*!
+ *  Function to create a map of state derivative models from
+ *  propagation settings and the environment.
+ *  \param propagatorSettings Settings for the dynamical model.
+ *  \param bodyMap List of body objects in the environment.
+ *  \param propagationStartTime Time from which numerical propagation starts.
+ *  \return Map of state derivative models (instances of required
+ *  derived class of SingleStateTypeDerivative)
+ */
+template< typename StateScalarType = double, typename TimeType = double >
+std::unordered_map< IntegratedStateType, std::vector< std::shared_ptr<
+SingleStateTypeDerivative< StateScalarType, TimeType > > > >
+createStateDerivativeModelMap(
+        const std::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > propagatorSettings,
+        const simulation_setup::NamedBodyMap& bodyMap,
+        const TimeType propagationStartTime )
+{
+    return getStateDerivativeModelMapFromVector( createStateDerivativeModels(
+                propagatorSettings, bodyMap, propagationStartTime ) );
+}
 
 //! Function to create an integrator to propagate the dynamics (in normalized units) in CR3BP
 /*!

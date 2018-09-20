@@ -42,9 +42,7 @@ Eigen::Vector3d calculateSecondDegreeGravitationalTorque(
 
 }
 
-}
-
-}
+} // namespace gravitation
 
 
-
+} // namespace tudat

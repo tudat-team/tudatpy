@@ -118,7 +118,7 @@ void NRLMSISE00Atmosphere::computeProperties(
 
 //! Overloaded ostream to print class information.
 std::ostream& operator << ( std::ostream& stream,
-                                 NRLMSISE00Input& nrlmsiseInput ){
+                            NRLMSISE00Input& nrlmsiseInput ){
     stream << "This is a NRLMSISE Input data object." << std::endl;
     stream << "The input data is stored as: " << std::endl;
 

@@ -12,11 +12,6 @@
  *          University Press, February 2002.
  *      Spiegel, M.R., Stephens, L.J. Statistics, Fourth Edition, Schaum's Outlines, McGraw-Hill,
  *          2008.
- *
- *    Notes
- *      Backwards compatibility of namespaces is implemented for Tudat Core 2 in this file. The
- *      code block marked "DEPRECATED!" at the end of the file should be removed in Tudat Core 3.
- *
  */
 
 #ifndef TUDAT_BASIC_MATHEMATICS_FUNCTIONS_H
@@ -28,6 +23,7 @@
 
 namespace tudat
 {
+
 namespace basic_mathematics
 {
 
@@ -87,7 +83,7 @@ inline void computeModuloAndRemainder( const ScalarType dividend, const ScalarTy
 //! Raise floating point variable to integer power.
 template< typename ScalarType >
 ScalarType raiseToIntegerPower( const ScalarType baseValue,
-                            const int integerPower )
+                                const int integerPower )
 {
     // Declare local variable.
     // Declare result of raising base to integer power.
@@ -131,6 +127,7 @@ ScalarType raiseToIntegerPower( const ScalarType baseValue,
 
 
 } // namespace basic_mathematics
+
 } // namespace tudat
 
 

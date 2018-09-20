@@ -33,7 +33,6 @@ namespace tudat
 namespace basic_astrodynamics
 {
 
-
 //! List of accelerations available in simulations
 /*!
  *  List of accelerations available in simulations. Acceleration models not defined by this
@@ -56,7 +55,8 @@ enum AvailableAcceleration
     thrust_acceleration,
     relativistic_correction_acceleration,
     empirical_acceleration,
-    direct_tidal_dissipation_acceleration
+    direct_tidal_dissipation_in_central_body_acceleration,
+    direct_tidal_dissipation_in_orbiting_body_acceleration
 };
 
 //! Function to get a string representing a 'named identification' of an acceleration type
@@ -119,6 +119,14 @@ std::vector< std::shared_ptr< AccelerationModel3d > > getAccelerationModelsOfTyp
  * \return True if acceleration type is direct gravitational, false otherwise.
  */
 bool isAccelerationDirectGravitational( const AvailableAcceleration accelerationType );
+
+//! Function to check whether an acceleration type is a third-body gravitational acceleration
+/*!
+ * Function to check whether an acceleration type is a third-body gravitational acceleration
+ * \param accelerationType Acceleration type for which it is to be checked whether it is third-body gravitational.
+ * \return True if acceleration type is third-body gravitational, false otherwise.
+ */
+bool isAccelerationFromThirdBody( const AvailableAcceleration accelerationType );
 
 //! Function to get the third-body counterpart of a direct gravitational acceleration type
 /*!

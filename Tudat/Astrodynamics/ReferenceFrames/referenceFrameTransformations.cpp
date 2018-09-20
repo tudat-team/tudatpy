@@ -100,8 +100,7 @@ Eigen::Vector3d transformVectorFromVectorFunctions(
 }
 
 //! Get rotating planetocentric (R) to inertial (I) reference frame transformation matrix.
-Eigen::Matrix3d
-getRotatingPlanetocentricToInertialFrameTransformationMatrix( const double angleFromXItoXR )
+Eigen::Matrix3d getRotatingPlanetocentricToInertialFrameTransformationMatrix( const double angleFromXItoXR )
 {
     // Declare local variables.
     // Declare local matrix.
@@ -237,7 +236,7 @@ Eigen::Quaterniond getVelocityBasedLvlhToPlanetocentricRotationKeplerian(
 }
 
 //! Function to compute the rotation matrix to RSW frame, from the frame in which the input state is given.
-Eigen::Matrix3d getInertialToRswSatelliteCenteredFrameRotationMatrx(
+Eigen::Matrix3d getInertialToRswSatelliteCenteredFrameRotationMatrix(
         const Eigen::Vector6d bodyState )
 {
     Eigen::Vector3d vehicleVelocity, vehicleRadius;
@@ -553,7 +552,7 @@ Eigen::Vector3d getBodyFixedCartesianPosition(
         const std::function< Eigen::Vector3d( ) > positionFunctionOfRelativeBody,
         const std::function< Eigen::Quaterniond( ) > orientationFunctionOfCentralBody )
 {
-    return  orientationFunctionOfCentralBody( ) * (
+    return orientationFunctionOfCentralBody( ) * (
                 positionFunctionOfRelativeBody( ) - positionFunctionOfCentralBody( ) );
 }
 

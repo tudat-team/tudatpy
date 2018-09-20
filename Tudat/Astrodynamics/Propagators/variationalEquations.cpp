@@ -44,10 +44,10 @@ void VariationalEquations::setBodyStatePartialMatrix( )
     // Initialize partial matrix
     variationalMatrix_.setZero( );
 
-    if( dynamicalStatesToEstimate_.count( propagators::transational_state ) > 0 )
+    if( dynamicalStatesToEstimate_.count( propagators::translational_state ) > 0 )
     {
-        int startIndex = stateTypeStartIndices_.at( propagators::transational_state );
-        for( unsigned int i = 0; i < dynamicalStatesToEstimate_.at( propagators::transational_state ).size( ); i++ )
+        int startIndex = stateTypeStartIndices_.at( propagators::translational_state );
+        for( unsigned int i = 0; i < dynamicalStatesToEstimate_.at( propagators::translational_state ).size( ); i++ )
         {
             variationalMatrix_.block( startIndex + i * 6, startIndex + i * 6 + 3, 3, 3 ).setIdentity( );
         }
@@ -131,6 +131,7 @@ void VariationalEquations::setStatePartialFunctionList( )
 {
     std::pair< std::function< void( Eigen::Block< Eigen::MatrixXd > ) >, int > currentDerivativeFunction;
 
+
     // Iterate over all state types
     for( std::map< propagators::IntegratedStateType,
          orbit_determination::StateDerivativePartialsMap >::iterator
@@ -187,6 +188,7 @@ template void VariationalEquations::getBodyInitialStatePartialMatrix< long doubl
         const Eigen::Matrix< long double, Eigen::Dynamic, Eigen::Dynamic >& stateTransitionAndSensitivityMatrices,
         Eigen::Block< Eigen::Matrix< long double, Eigen::Dynamic, Eigen::Dynamic > > currentMatrixDerivative );
 
-}
 
-}
+} // namespace propagators
+
+} // namespace tudat

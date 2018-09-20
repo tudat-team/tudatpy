@@ -35,11 +35,10 @@ namespace basic_astrodynamics
  * \tparam AccelerationDataType Data type used to represent accelerations
  *          (default=Eigen::Vector3d).
  */
-template < typename AccelerationDataType = Eigen::Vector3d >
+template< typename AccelerationDataType = Eigen::Vector3d >
 class AccelerationModel
 {
 public:
-
 
     //! Constructor.
     AccelerationModel( ):
@@ -94,6 +93,7 @@ protected:
 protected:
 
 private:
+
 };
 
 //! Typedef to a 3D acceleration model.
@@ -102,11 +102,15 @@ typedef AccelerationModel< > AccelerationModel3d;
 //! Typedef for shared-pointer to a 3D acceleration model.
 typedef std::shared_ptr< AccelerationModel3d > AccelerationModel3dPointer;
 
+
 //! Typedef to a 2D acceleration model.
 typedef AccelerationModel< Eigen::Vector2d > AccelerationModel2d;
 
 //! Typedef for shared-pointer to a 2D acceleration model.
 typedef std::shared_ptr< AccelerationModel2d > AccelerationModel2dPointer;
+
+//extern template class AccelerationModel< Eigen::Vector3d >;
+
 
 //! Update the members of an acceleration model and evaluate the acceleration.
 /*!
@@ -137,8 +141,9 @@ typedef std::unordered_map< std::string, std::vector<
 std::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > > >
 SingleBodyAccelerationMap;
 
+
 //! Typedef defining a list of accelerations acting on a set of bodies, key is the name of each
-//! body undergoing a acceletation, value is SingleBodyAccelerationMap, defining all accelerations
+//! body undergoing an acceletation, value is SingleBodyAccelerationMap, defining all accelerations
 //! acting on it.
 typedef std::unordered_map< std::string, SingleBodyAccelerationMap > AccelerationMap;
 

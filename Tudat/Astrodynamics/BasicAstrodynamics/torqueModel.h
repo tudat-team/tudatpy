@@ -45,9 +45,9 @@ public:
     //! Destructor
     virtual ~TorqueModel( ) { }
 
-    //! Function to retrieve the current value of the toruqe
+    //! Function to retrieve the current value of the torque
     /*!
-     * Returns the toruqe. No arguments are passed to this function for generality.
+     * Returns the torque. No arguments are passed to this function for generality.
      * Instead, all data required for computation is to be obtained from pointers to functions/
      * classes/structs, etc which are to be set in a derived class and evaluated by the
      * updateMembers() function below.

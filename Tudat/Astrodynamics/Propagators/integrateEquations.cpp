@@ -13,8 +13,9 @@ Eigen::MatrixXd, double, double >(
         const std::shared_ptr< PropagationTerminationCondition > propagationTerminationCondition,
         std::map< double, Eigen::MatrixXd >& solutionHistory,
         std::map< double, Eigen::VectorXd >& dependentVariableHistory,
-        std::map< double, double >& cummulativeComputationTimeHistory,
+        std::map< double, double >& cumulativeComputationTimeHistory,
         const std::function< Eigen::VectorXd( ) > dependentVariableFunction,
+        const std::function< void( Eigen::MatrixXd& ) > statePostProcessingFunction,
         const int saveFrequency,
         const double printInterval,
         const std::chrono::steady_clock::time_point initialClockTime );
@@ -26,8 +27,9 @@ Eigen::VectorXd, double, double >(
         const std::shared_ptr< PropagationTerminationCondition > propagationTerminationCondition,
         std::map< double, Eigen::VectorXd >& solutionHistory,
         std::map< double, Eigen::VectorXd >& dependentVariableHistory,
-        std::map< double, double >& cummulativeComputationTimeHistory,
+        std::map< double, double >& cumulativeComputationTimeHistory,
         const std::function< Eigen::VectorXd( ) > dependentVariableFunction,
+        const std::function< void( Eigen::VectorXd& ) > statePostProcessingFunction,
         const int saveFrequency,
         const double printInterval,
         const std::chrono::steady_clock::time_point initialClockTime );

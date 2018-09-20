@@ -197,7 +197,7 @@ BOOST_AUTO_TEST_CASE( testWindModelInPropagation )
         // Manually compute aerodynamic acceleration vector
         Eigen::Vector3d airSpeedVelocityUnitVectorInInertialFrame =
                 reference_frames::transformVectorFunctionFromVectorFunctions(
-                    boost::lambda::constant( Eigen::Vector3d::UnitX( ) ), toPropagationFrameTransformation );
+                    [&]( ){ return Eigen::Vector3d::UnitX( ); }, toPropagationFrameTransformation );
         Eigen::Vector3d expectedAerodynamicAcceleration = -0.5 * localDensity * airspeed * airspeed *
                 airSpeedVelocityUnitVectorInInertialFrame * 4.0 / vehicleMass;
 

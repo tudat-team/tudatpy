@@ -107,7 +107,7 @@ BOOST_AUTO_TEST_CASE( testAerodynamicCoefficientsFromFile )
         std::shared_ptr< AerodynamicCoefficientSettings > aerodynamicCoefficientSettings =
                 simulation_setup::readTabulatedAerodynamicCoefficientsFromFiles(
                     forceCoefficientFiles, momentCoefficientFiles, 60.734, 600.0, 60.734, Eigen::Vector3d::Zero( ),
-                    boost::assign::list_of( aerodynamics::mach_number_dependent )( aerodynamics::angle_of_attack_dependent ),
+        { aerodynamics::mach_number_dependent, aerodynamics::angle_of_attack_dependent },
                     true, true );
         if( i == 1 )
         {

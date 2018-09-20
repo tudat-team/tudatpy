@@ -28,7 +28,6 @@
 #include "Tudat/Astrodynamics/Aerodynamics/windModel.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/bodyShapeModel.h"
 
-
 namespace tudat
 {
 
@@ -76,8 +75,6 @@ enum AerodynamicsReferenceFrameAngles
  */
 std::string getAerodynamicAngleName( const AerodynamicsReferenceFrameAngles angle );
 
-
-
 //! Object to calculate aerodynamic orientation angles from current vehicle state.
 /*!
  *  Object to calculate aerodynamic orientation angles from current vehicle state.
@@ -105,7 +102,7 @@ public:
             const std::function< Eigen::Vector6d( ) > bodyFixedStateFunction,
             const std::function< Eigen::Quaterniond( ) > rotationFromCorotatingToInertialFrame,
             const std::string centralBodyName,
-            const bool calculateVerticalToAerodynamicFrame = 0,
+            const bool calculateVerticalToAerodynamicFrame = false,
             const std::function< double( ) > angleOfAttackFunction = std::function< double( ) >( ),
             const std::function< double( ) > angleOfSideslipFunction = std::function< double( ) >( ),
             const std::function< double( ) > bankAngleFunction = std::function< double( ) >( ),
@@ -277,7 +274,6 @@ public:
         return currentBodyFixedGroundSpeedBasedState_.segment( 3, 3 );
     }
 
-
     //! Function to reset the value of the currentBodyAngleTime_ variable
     /*!
      * Function to reset the value of the currentBodyAngleTime_ variable. Typically used to reset the time to NaN,
@@ -365,7 +361,7 @@ getAerodynamicForceTransformationFunction(
         const std::shared_ptr< AerodynamicAngleCalculator > aerodynamicAngleCalculator,
         const AerodynamicsReferenceFrames accelerationFrame,
         const std::function< Eigen::Quaterniond( ) > bodyFixedToInertialFrameFunction =
-        boost::lambda::constant( Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) ) ),
+        [](){ return Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) ); },
         const AerodynamicsReferenceFrames propagationFrame = inertial_frame );
 
 //! Wrapper class to set closure between an imposed orientation of a body and its bank, sideslip and attack angles.
@@ -466,7 +462,7 @@ void setAerodynamicDependentOrientationCalculatorClosure(
 //! Function to make aerodynamic angle computation consistent with existing DependentOrientationCalculator
 /*!
  * Function to make aerodynamic angle computation consistent with existing DependentOrientationCalculator
- * \param dependentOrientationCalculator Object computing the current orientation based on teh current state of the
+ * \param dependentOrientationCalculator Object computing the current orientation based on the current state of the
  * environment. Aerodynamic angles are to be computed from output given by this class.
  * \param aerodynamicAngleCalculator Object from which the aerodynamic angles are computed.
  */

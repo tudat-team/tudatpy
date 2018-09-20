@@ -16,6 +16,7 @@
 #include "Tudat/Astrodynamics/Gravitation/secondDegreeGravitationalTorque.h"
 #include "Tudat/Astrodynamics/Gravitation/sphericalHarmonicGravitationalTorque.h"
 #include "Tudat/Astrodynamics/Aerodynamics/aerodynamicTorque.h"
+#include "Tudat/Astrodynamics/BasicAstrodynamics/customTorque.h"
 
 namespace tudat
 {
@@ -58,7 +59,6 @@ AvailableTorque getTorqueModelType(
 //! Function to get a string representing a 'named identification' of an torque type
 std::string getTorqueModelName( const AvailableTorque torqueType )
 {
-
     std::string torqueName;
     switch( torqueType )
     {
@@ -105,4 +105,3 @@ std::vector< std::shared_ptr< TorqueModel > > getTorqueModelsOfType(
 }
 
 }
-

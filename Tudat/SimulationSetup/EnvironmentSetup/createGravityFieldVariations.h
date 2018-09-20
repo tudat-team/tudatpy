@@ -301,7 +301,7 @@ std::shared_ptr< gravitation::GravityFieldVariationsSet > createGravityFieldMode
  * \param gravityFieldVariationSettings Settings for the gravity field variation object that is to
  * be created. Depending on the settings and type of the gravity field variations, spherical
  * harmonic corrections are calculated a priori and handled by an interpolator during propagation,
- * or they are directly calculated from teh current state during numerical propagation.
+ * or they are directly calculated from the current state during numerical propagation.
  * \param body Body for which gravity field variations are createad
  * \param bodyMap List of body objects in simulations.
  * \return Single gravity field variation object.

@@ -273,7 +273,10 @@ static std::map< TranslationalPropagatorType, std::string > translationalPropaga
     { cowell, "cowell" },
     { encke, "encke" },
     { gauss_keplerian, "gaussKeplerian" },
-    { gauss_modified_equinoctial, "gaussModifiedEquinoctial" }
+    { gauss_modified_equinoctial, "gaussModifiedEquinoctial" },
+    { unified_state_model_quaternions, "unifiedStateModelQuaternions" },
+    { unified_state_model_modified_rodrigues_parameters, "unifiedStateModelModifiedRodriguesParameters" },
+    { unified_state_model_exponential_map, "unifiedStateModelExponentialMap" }
 };
 
 //! `TranslationalPropagatorType`s not supported by `json_interface`.
@@ -288,8 +291,33 @@ inline void to_json( nlohmann::json& jsonObject, const TranslationalPropagatorTy
 //! Convert `json` to `TranslationalPropagatorType`.
 inline void from_json( const nlohmann::json& jsonObject, TranslationalPropagatorType& translationalPropagatorType )
 {
-    translationalPropagatorType =
-            json_interface::enumFromString( jsonObject, translationalPropagatorTypes );
+    translationalPropagatorType = json_interface::enumFromString( jsonObject, translationalPropagatorTypes );
+}
+
+
+// RotationalPropagatorType
+
+//! Map of `RotationalPropagatorType`s string representations.
+static std::map< RotationalPropagatorType, std::string > rotationalPropagatorTypes =
+{
+    { quaternions, "quaternions" },
+    { modified_rodrigues_parameters, "modifiedRodriguesParameters" },
+    { exponential_map, "exponentialMap" }
+};
+
+//! `RotationalPropagatorType`s not supported by `json_interface`.
+static std::vector< RotationalPropagatorType > unsupportedRotationalPropagatorTypes = { };
+
+//! Convert `RotationalPropagatorType` to `json`.
+inline void to_json( nlohmann::json& jsonObject, const RotationalPropagatorType& rotationalPropagatorType )
+{
+    jsonObject = json_interface::stringFromEnum( rotationalPropagatorType, rotationalPropagatorTypes );
+}
+
+//! Convert `json` to `RotationalPropagatorType`.
+inline void from_json( const nlohmann::json& jsonObject, RotationalPropagatorType& rotationalPropagatorType )
+{
+    rotationalPropagatorType = json_interface::enumFromString( jsonObject, rotationalPropagatorTypes );
 }
 
 
@@ -464,7 +492,9 @@ void to_json( nlohmann::json& jsonObject,
         std::shared_ptr< RotationalStatePropagatorSettings< StateScalarType > > rotationalStatePropagatorSettings =
                 std::dynamic_pointer_cast< RotationalStatePropagatorSettings< StateScalarType > >(
                     singleArcPropagatorSettings );
+
         assertNonnullptrPointer( rotationalStatePropagatorSettings );
+        jsonObject[ K::type ] = rotationalStatePropagatorSettings->propagator_;
         jsonObject[ K::bodiesToPropagate ] = rotationalStatePropagatorSettings->bodiesToIntegrate_;
         jsonObject[ K::torques ] = rotationalStatePropagatorSettings->getTorqueSettingsMap( );
         return;
@@ -541,7 +571,8 @@ void from_json( const nlohmann::json& jsonObject,
                     getValue< SelectedTorqueMap >( jsonObject, K::torques ),
                     bodiesToPropagate,
                     initialStates,
-                    terminationSettings );
+                    terminationSettings,
+                    getValue( jsonObject, K::type, defaults.propagator_ ) );
         return;
     }
     case hybrid:

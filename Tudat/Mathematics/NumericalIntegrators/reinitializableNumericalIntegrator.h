@@ -14,11 +14,11 @@
 
 #include <Eigen/Core>
 
-#include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
 #include "Tudat/Mathematics/NumericalIntegrators/numericalIntegrator.h"
 
 namespace tudat
 {
+
 namespace numerical_integrators
 {
 
@@ -52,25 +52,17 @@ public:
 
     //! Default constructor.
     ReinitializableNumericalIntegrator(
-            const typename NumericalIntegratorBase::StateDerivativeFunction&
-            aStateDerivativeFunction )
+            const typename NumericalIntegratorBase::StateDerivativeFunction& aStateDerivativeFunction )
         : NumericalIntegratorBase( aStateDerivativeFunction )
     { }
 
     //! Default destructor.
     virtual ~ReinitializableNumericalIntegrator( ) { }
 
-    //! Modify the state at the current value of the independent variable.
-    /*!
-     * Modify the state at the current value of the independent variable. This function is pure
-     * virtual; hence it must be implemented in all derived classes.
-     * \param newState The new state to set the current state to.
-     */
-    virtual void modifyCurrentState( const StateType& newState ) = 0;
-
 protected:
 
 private:
+
 };
 
 extern template class ReinitializableNumericalIntegrator < double, Eigen::VectorXd, Eigen::VectorXd >;
@@ -94,8 +86,8 @@ ReinitializableNumericalIntegratorXdPointer;
 typedef std::shared_ptr< ReinitializableNumericalIntegrator< double, double, double > >
 ReinitializableNumericalIntegratordPointer;
 
-
 } // namespace numerical_integrators
+
 } // namespace tudat
 
 #endif // TUDAT_REINITIALIZABLE_NUMERICAL_INTEGRATOR_H

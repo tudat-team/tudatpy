@@ -75,7 +75,7 @@ public:
         sourcePower_( sourcePower ), sourcePositionFunction_( sourcePositionFunction ),
         targetPositionFunction_( targetPositionFunction ),
         radiationPressureCoefficient_( radiationPressureCoefficient ),
-        radiationPressureCoefficientFunction_( boost::lambda::constant( radiationPressureCoefficient ) ),
+        radiationPressureCoefficientFunction_( [=]( const double ){ return radiationPressureCoefficient; } ),
         area_( area ),
         occultingBodyPositions_( occultingBodyPositions ),
         occultingBodyRadii_( occultingBodyRadii ),
@@ -163,7 +163,7 @@ public:
     void resetRadiationPressureCoefficient( const double radiationPressureCoefficient )
     {
         radiationPressureCoefficient_ = radiationPressureCoefficient;
-        radiationPressureCoefficientFunction_ = boost::lambda::constant( radiationPressureCoefficient );
+        radiationPressureCoefficientFunction_ = [=]( const double ){ return radiationPressureCoefficient; };
     }
 
     //! Function to reset the function to obtain the radiation pressure coefficient of the target body.

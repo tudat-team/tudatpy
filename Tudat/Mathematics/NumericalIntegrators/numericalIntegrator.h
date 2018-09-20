@@ -22,9 +22,13 @@
 #include <Eigen/Core>
 
 #include "Tudat/Basics/basicTypedefs.h"
+#include "Tudat/Basics/timeType.h"
+#include "Tudat/Basics/utilityMacros.h"
+#include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
 
 namespace tudat
 {
+
 namespace numerical_integrators
 {
 
@@ -37,7 +41,7 @@ namespace numerical_integrators
  *          multiplication with IndependentVariableType and doubles.
  * \tparam IndependentVariableType The type of the independent variable.
  */
-template < typename IndependentVariableType = double, typename StateType = Eigen::VectorXd,
+template< typename IndependentVariableType = double, typename StateType = Eigen::VectorXd,
            typename StateDerivativeType = StateType, typename TimeStepType = IndependentVariableType >
 class NumericalIntegrator
 {
@@ -139,7 +143,7 @@ public:
     virtual StateType integrateTo(
             const IndependentVariableType intervalEnd,
             const TimeStepType initialStepSize,
-            const TimeStepType finalTimeTolerance = std::numeric_limits< TimeStepType >::epsilon( )  );
+            const TimeStepType finalTimeTolerance = std::numeric_limits< TimeStepType >::epsilon( ) );
 
     //! Perform a single integration step.
     /*!
@@ -187,11 +191,45 @@ public:
 
     //! Function to toggle the use of step-size control
     /*!
-     * Function to toggle the use of step-size control To be implemented in derived classes with variable step sizes
+     * Function to toggle the use of step-size control. To be implemented in derived classes with variable step sizes
      * \param useStepSizeControl Boolean denoting whether step size control is to be used
      */
-    virtual void setStepSizeControl( const bool useStepSizeControl )
-    { }
+    virtual void setStepSizeControl( const bool useStepSizeControl ) { }
+
+    //! Replace the state with a new value.
+    /*!
+     * Replace the state with a new value. This allows for discrete jumps in the state, often
+     * used in simulations of discrete events. In astrodynamics, this relates to simulations of rocket staging,
+     * impulsive shots, parachuting, ideal control, etc. The modified state, by default, cannot be rolled back; to do this, either
+     * set the flag to true, or store the state before calling this function the first time, and call it again with the initial state
+     * as parameter to revert to the state before the discrete change.
+     * \param newState The value of the new state.
+     * \param allowRollback Boolean denoting whether roll-back should be allowed.
+     */
+    virtual void modifyCurrentState( const StateType& newState, const bool allowRollback = false )
+    {
+        TUDAT_UNUSED_PARAMETER( newState );
+        TUDAT_UNUSED_PARAMETER( allowRollback );
+        throw std::runtime_error( "Error in numerical integrator. The function to modify the current state has not been implemented "
+                                  "in this integrator." );
+    }
+
+    //! Modify the state and time for the current step.
+    /*!
+     * Modify the state and time for the current step.
+     * \param newState The new state to set the current state to.
+     * \param newTime The time to set the current time to.
+     * \param allowRollback Boolean denoting whether roll-back should be allowed.
+     */
+    virtual void modifyCurrentIntegrationVariables( const StateType& newState, const IndependentVariableType newTime,
+                                                    const bool allowRollback = false )
+    {
+        TUDAT_UNUSED_PARAMETER( newState );
+        TUDAT_UNUSED_PARAMETER( newTime );
+        TUDAT_UNUSED_PARAMETER( allowRollback );
+        throw std::runtime_error( "Error in numerical integrator. The function to modify the current integration variables has not "
+                                  "been implemented in this integrator." );
+    }
 
 protected:
 
@@ -225,7 +263,7 @@ extern template class NumericalIntegrator < double, Eigen::Vector6d, Eigen::Vect
 extern template class NumericalIntegrator < double, Eigen::MatrixXd, Eigen::MatrixXd >;
 
 //! Perform an integration to a specified independent variable value.
-template < typename IndependentVariableType, typename StateType, typename StateDerivativeType, typename TimeStepType >
+template< typename IndependentVariableType, typename StateType, typename StateDerivativeType, typename TimeStepType >
 StateType NumericalIntegrator< IndependentVariableType, StateType, StateDerivativeType, TimeStepType >::integrateTo(
         const IndependentVariableType intervalEnd,
         const TimeStepType initialStepSize,
@@ -255,7 +293,6 @@ StateType NumericalIntegrator< IndependentVariableType, StateType, StateDerivati
             // off errors, it may not be possible to use
             // ( currentIndependentVariable >= independentVariableEnd ) // in the while condition.
             atIntegrationIntervalEnd = true;
-
         }
 
         // Perform the step.
@@ -303,10 +340,10 @@ typedef std::shared_ptr< NumericalIntegrator< > > NumericalIntegratorXdPointer;
  * Typedef for shared-pointer to a scalar numerical integrator (IndependentVariableType = double,
  * StateType = double, StateDerivativeType = double).
  */
-typedef std::shared_ptr< NumericalIntegrator< double, double, double > >
-NumericalIntegratordPointer;
+typedef std::shared_ptr< NumericalIntegrator< double, double, double > > NumericalIntegratordPointer;
 
 } // namespace numerical_integrators
+
 } // namespace tudat
 
 #endif // TUDAT_NUMERICAL_INTEGRATOR_H

@@ -21,7 +21,7 @@ int getSingleIntegrationSize( const IntegratedStateType stateType )
     int singleStateSize = 0;
     switch( stateType )
     {
-    case transational_state:
+    case translational_state:
         singleStateSize = 6;
         break;
     case rotational_state:
@@ -44,7 +44,7 @@ int getSingleIntegrationDifferentialEquationOrder( const IntegratedStateType sta
     int singleStateSize = 0;
     switch( stateType )
     {
-    case transational_state:
+    case translational_state:
         singleStateSize = 2;
         break;
     case body_mass_state:
@@ -66,7 +66,7 @@ int getAccelerationSize( const IntegratedStateType stateType )
     int accelerationSize = 0;
     switch( stateType )
     {
-    case transational_state:
+    case translational_state:
         accelerationSize = 3;
         break;
     case body_mass_state:

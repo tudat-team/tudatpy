@@ -17,14 +17,12 @@
 
 #include "Tudat/SimulationSetup/EstimationSetup/orbitDeterminationTestCases.h"
 
-
 namespace tudat
 {
 namespace unit_tests
 {
+
 BOOST_AUTO_TEST_SUITE( test_estimation_from_positions )
-
-
 
 //! This test checks whether observation biases are correctly estimated, using a variety of different settings
 //! for types of observables/biases.
@@ -76,6 +74,7 @@ BOOST_AUTO_TEST_CASE( test_EstimationFromPosition )
                                 BOOST_CHECK_SMALL( std::fabs( totalError( j ) ), 1.0E-13 );
                             }
                         }
+                        break;
                     }
 
                 }
@@ -91,5 +90,3 @@ BOOST_AUTO_TEST_SUITE_END( )
 }
 
 }
-
-

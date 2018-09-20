@@ -164,6 +164,35 @@ public:
         return nominalCosineCoefficients_;
     }
 
+    //! Get current total correction to cosine coefficients
+    /*!
+     * Get current total correction to cosine coefficients up to given degree and order
+     * \param maximumDegree Maximum degree of coefficients
+     * \param maximumOrder Maximum order of coefficients
+     * \return Total correction to cosine coefficients up to given degree and order
+     */
+    Eigen::MatrixXd getTotalCosineCoefficientCorrection(
+            const int maximumDegree, const int maximumOrder )
+    {
+        return cosineCoefficients_.block( 0, 0, maximumDegree + 1, maximumOrder + 1 ) -
+                nominalCosineCoefficients_.block( 0, 0, maximumDegree + 1, maximumOrder + 1 );
+    }
+
+    //! Get current total correction to sine coefficients
+    /*!
+     * Get current total correction to sine coefficients up to given degree and order
+     * \param maximumDegree Maximum degree of coefficients
+     * \param maximumOrder Maximum order of coefficients
+     * \return Total correction to sine coefficients up to given degree and order
+     */
+    Eigen::MatrixXd getTotalSineCoefficientCorrection(
+            const int maximumDegree, const int maximumOrder )
+
+    {
+        return sineCoefficients_.block( 0, 0, maximumDegree + 1, maximumOrder + 1 ) -
+                nominalSineCoefficients_.block( 0, 0, maximumDegree + 1, maximumOrder + 1 );
+    }
+
     //! Set nominal (i.e. with zero variations) cosine coefficients.
     /*!
      *  Function to set nominal (i.e. with zero variations) cosine coefficients.

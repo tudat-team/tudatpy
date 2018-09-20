@@ -19,6 +19,7 @@
 #include "Tudat/Astrodynamics/Gravitation/secondDegreeGravitationalTorque.h"
 #include "Tudat/Astrodynamics/Gravitation/sphericalHarmonicGravitationalTorque.h"
 #include "Tudat/Astrodynamics/Aerodynamics/aerodynamicTorque.h"
+#include "Tudat/Astrodynamics/BasicAstrodynamics/customTorque.h"
 
 namespace tudat
 {
@@ -57,7 +58,7 @@ std::shared_ptr< aerodynamics::AerodynamicTorque > createAerodynamicTorqueModel(
  *  \param bodyExertingTorque Pointer to object of body that is exerting the gravitational torque.
  *  \param nameOfBodyUndergoingTorque Name of body that is being accelerated.
  *  \param nameOfBodyExertingTorque Name of body that is exerting the gravitational torque.
- *  \return Direct gravitational torque model of requested settings.
+ *  \return Pointer to object for calculating gravitational torque.
  */
 std::shared_ptr< gravitation::SecondDegreeGravitationalTorqueModel > createSecondDegreeGravitationalTorqueModel(
         const std::shared_ptr< simulation_setup::Body > bodyUndergoingTorque,
@@ -100,7 +101,6 @@ std::shared_ptr< basic_astrodynamics::TorqueModel > createTorqueModel(
         const std::string& nameOfBodyUndergoingTorque,
         const std::string& nameOfBodyExertingTorque );
 
-
 //! Function to create torque models from a map of bodies and torque model settings.
 /*!
  *  Function to create torque models from a map of bodies and torque model settings.
@@ -114,7 +114,6 @@ basic_astrodynamics::TorqueModelMap createTorqueModelsMap(
         const NamedBodyMap& bodyMap,
         SelectedTorqueMap selectedTorquePerBody,
         const std::vector< std::string >& propagatedBodies );
-
 
 }  // namespace simulation_setup
 

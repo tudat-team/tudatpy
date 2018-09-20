@@ -15,11 +15,6 @@
  *          Orbit and Attitude Systems, Microcosm Press, Kluwer Academic Publishers, 2001.
  *      Advanced Concepts Team, ESA. Keplerian Toolbox, http://sourceforge.net/projects/keptoolbox,
  *          last accessed: 21st April, 2012.
- *
- *    Notes
- *      Backwards compatibility of namespaces is implemented for Tudat Core 2 in this file. The
- *      code block marked "DEPRECATED!" at the end of the file should be removed in Tudat Core 3.
- *
  */
 
 #ifndef TUDAT_ORBITAL_ELEMENT_CONVERSIONS_H

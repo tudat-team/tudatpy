@@ -93,16 +93,17 @@ void getFinalStateForExactDependentVariableTerminationCondition(
         TimeType& endTime,
         StateType& endState )
 {
+    TUDAT_UNUSED_PARAMETER( secondToLastState );
 
     // Function for which the root (zero value) occurs at the required end time/state
     std::function< TimeStepType( TimeStepType ) > dependentVariableErrorFunction =
             std::bind( &getTerminationDependentVariableErrorForGivenTimeStep< StateType, TimeType, TimeStepType >, std::placeholders::_1,
-                         integrator, dependentVariableTerminationCondition );
+                       integrator, dependentVariableTerminationCondition );
 
     // Create root finder.
-    double timeStepSign = ( static_cast< double >( lastTime - secondToLastTime ) > 0.0 ) ? 1.0 : -1.0;
+    bool increasingTime = static_cast< double >( lastTime - secondToLastTime ) > 0.0;
     std::shared_ptr< root_finders::RootFinderCore< TimeStepType > > finalConditionRootFinder;
-    if( timeStepSign > 0 )
+    if( increasingTime )
     {
         finalConditionRootFinder = root_finders::createRootFinder< TimeStepType >(
                     dependentVariableTerminationCondition->getTerminationRootFinderSettings( ),
@@ -131,17 +132,21 @@ void getFinalStateForExactDependentVariableTerminationCondition(
         endState = integrator->performIntegrationStep( finalTimeStep );
         endTime = integrator->getCurrentIndependentVariable( );
     }
-    // If dependent variable has no root in given interval, set end time at NaN
-    catch( std::runtime_error )
+    // If dependent variable has no root in given interval, set end time and state at NaN
+    catch( std::runtime_error& caughtException )
     {
+        std::cerr << "Warning in propagation to exact dependent variable value. Root finder could not find a "
+                     "root to the function. Returning time and state as NaNs. Caught exception: "
+                  << caughtException.what( ) << std::endl;
         endTime = TUDAT_NAN;
+        endState = StateType::Constant( lastState.rows( ), lastState.cols( ), TUDAT_NAN );
     }
 }
 
 //! Function that propagates to an exact final condition (within tolerance) for hybrid termination condition
 /*!
  * Function that propagates to an exact final condition (within tolerance) for hybrid termination condition. Determines
- * the termination time/state for each of the constituent termination condition, and chooses teh hybrid termiantion time/state
+ * the termination time/state for each of the constituent termination condition, and chooses the hybrid termiantion time/state
  * accordingly
  * \param integrator Numerical integrator that is used for propagation. Upon input to this function, the integrator is rolled
  * back to the secondToLastTime/secondToLastState
@@ -176,7 +181,7 @@ void getFinalStateForExactHybridVariableTerminationCondition(
     endStates.resize( terminationConditionList.size( ) );
 
     // Iterate over all constituent termination conditions, and determine separate end times/states
-    int minimumTimeIndex = 0, maximumTimeIndex = 0;
+    unsigned int minimumTimeIndex = 0, maximumTimeIndex = 0;
     TimeStepType minimumTimeStep, maximumTimeStep;
     bool timesAreSet = false;
     for( unsigned int i = 0; i < terminationConditionList.size( ); i++ )
@@ -224,14 +229,14 @@ void getFinalStateForExactHybridVariableTerminationCondition(
 
     // Set converged end time/state
     bool propagationIsForwards = ( ( lastTime - secondToLastTime ) > 0.0 ) ? true : false;
-    if( ( propagationIsForwards && !hyrbidTerminationCondition->getFulFillSingleCondition( ) ) ||
-            ( !propagationIsForwards && hyrbidTerminationCondition->getFulFillSingleCondition( ) ) )
+    if( ( propagationIsForwards && !hyrbidTerminationCondition->getFulfillSingleCondition( ) ) ||
+            ( !propagationIsForwards && hyrbidTerminationCondition->getFulfillSingleCondition( ) ) )
     {
         endState = endStates[ maximumTimeIndex ];
         endTime = endTimes[ maximumTimeIndex ];
     }
-    else if( ( propagationIsForwards && hyrbidTerminationCondition->getFulFillSingleCondition( ) ) ||
-             ( !propagationIsForwards && !hyrbidTerminationCondition->getFulFillSingleCondition( ) ) )
+    else if( ( propagationIsForwards && hyrbidTerminationCondition->getFulfillSingleCondition( ) ) ||
+             ( !propagationIsForwards && !hyrbidTerminationCondition->getFulfillSingleCondition( ) ) )
     {
         endState = endStates[ minimumTimeIndex ];
         endTime = endTimes[ minimumTimeIndex ];
@@ -270,7 +275,7 @@ void getFinalStateForExactTerminationCondition(
     // Check type of termination condition
     switch( terminationCondition->getTerminationType( ) )
     {
-    case  time_stopping_condition:
+    case time_stopping_condition:
     {
         // Check input consistency
         std::shared_ptr< FixedTimePropagationTerminationCondition > timeTerminationCondition =
@@ -285,15 +290,15 @@ void getFinalStateForExactTerminationCondition(
 
         break;
     }
-    case  cpu_time_stopping_condition:
-
+    case cpu_time_stopping_condition:
+    {
         // No exact final condition on CPU time is possible
-        std::cerr<<"Error, cannot propagate to exact CPU time, returning state after condition violation:"<<std::endl;
+        std::cerr << "Error, cannot propagate to exact CPU time, returning state after condition violation." << std::endl;
 
         endTime = lastTime;
         endState = lastState;
         break;
-
+    }
     case dependent_variable_stopping_condition:
     {
         integrator->rollbackToPreviousState( );
@@ -306,7 +311,16 @@ void getFinalStateForExactTerminationCondition(
 
         break;
     }
-    case  hybrid_stopping_condition:
+    case custom_stopping_condition:
+    {
+        // No exact final condition on custom condition is possible
+        std::cerr << "Error, cannot propagate to exact custom condition, returning state after condition violation." << std::endl;
+
+        endTime = lastTime;
+        endState = lastState;
+        break;
+    }
+    case hybrid_stopping_condition:
     {
         std::shared_ptr< HybridPropagationTerminationCondition > hyrbidTerminationCondition =
                 std::dynamic_pointer_cast< HybridPropagationTerminationCondition >( terminationCondition );
@@ -346,7 +360,7 @@ void propagateToExactTerminationCondition(
         std::map< TimeType, Eigen::VectorXd >& dependentVariableHistory,
         const double currentCpuTime )
 {
-    // Turn off step sie control
+    // Turn off step size control
     integrator->setStepSizeControl( false );
 
     // Determine exact final time/state
@@ -400,6 +414,7 @@ void propagateToExactTerminationCondition(
         propagationTerminationCondition->checkStopCondition( endTime, currentCpuTime );
     }
 
+    // Turn step size control back on
     integrator->setStepSizeControl( true );
 }
 
@@ -414,14 +429,15 @@ void propagateToExactTerminationCondition(
  *  (time as key; returned by reference)
  *  \param dependentVariableHistory History of dependent variables that are to be saved given as map
  *  (time as key; returned by reference)
- *  \param cummulativeComputationTimeHistory History of cummulative computation times that are to be saved given
+ *  \param cumulativeComputationTimeHistory History of cumulative computation times that are to be saved given
  *  as map (time as key; returned by reference)
  *  \param dependentVariableFunction Function returning dependent variables (obtained from environment and state
  *  derivative model).
+ *  \param statePostProcessingFunction Function to post-process state after numerical integration (obtained from state derivative model).
  *  \param saveFrequency Frequency at which to save the numerical integrated states (in units of i.e. per n integration time
  *  steps, with n = saveFrequency).
  *  \param printInterval Frequency with which to print progress to console (nan = never).
- *  \param initialClockTime Initial clock time from which to determine cummulative computation time.
+ *  \param initialClockTime Initial clock time from which to determine cumulative computation time.
  *  By default now(), i.e. the moment at which this function is called.
  *  \return Event that triggered the termination of the propagation
  */
@@ -432,9 +448,9 @@ std::shared_ptr< PropagationTerminationDetails > integrateEquationsFromIntegrato
         const std::shared_ptr< PropagationTerminationCondition > propagationTerminationCondition,
         std::map< TimeType, StateType >& solutionHistory,
         std::map< TimeType, Eigen::VectorXd >& dependentVariableHistory,
-        std::map< TimeType, double >& cummulativeComputationTimeHistory,
-        const std::function< Eigen::VectorXd( ) > dependentVariableFunction =
-        std::function< Eigen::VectorXd( ) >( ),
+        std::map< TimeType, double >& cumulativeComputationTimeHistory,
+        const std::function< Eigen::VectorXd( ) > dependentVariableFunction = std::function< Eigen::VectorXd( ) >( ),
+        const std::function< void( StateType& ) > statePostProcessingFunction = std::function< void( StateType& ) >( ),
         const int saveFrequency = TUDAT_NAN,
         const TimeType printInterval = TUDAT_NAN,
         const std::chrono::steady_clock::time_point initialClockTime = std::chrono::steady_clock::now( ) )
@@ -459,11 +475,10 @@ std::shared_ptr< PropagationTerminationDetails > integrateEquationsFromIntegrato
     }
 
     // CPU time
-    cummulativeComputationTimeHistory.clear( );
+    cumulativeComputationTimeHistory.clear( );
     double currentCPUTime = std::chrono::duration_cast< std::chrono::nanoseconds >(
-                std::chrono::steady_clock::now( ) - initialClockTime ).count() * 1.0e-9;
-    cummulativeComputationTimeHistory[ currentTime ] = currentCPUTime;
-
+                std::chrono::steady_clock::now( ) - initialClockTime ).count( ) * 1.0e-9;
+    cumulativeComputationTimeHistory[ currentTime ] = currentCPUTime;
 
     // Set initial time step and total integration time.
     TimeStepType timeStep = initialTimeStep;
@@ -481,13 +496,17 @@ std::shared_ptr< PropagationTerminationDetails > integrateEquationsFromIntegrato
     {
         try
         {
-
             if( ( newState.allFinite( ) == true ) && ( !newState.hasNaN( ) ) )
             {
                 previousTime = currentTime;
 
                 // Perform integration step.
                 newState = integrator->performIntegrationStep( timeStep );
+                if( statePostProcessingFunction != nullptr )
+                {
+                    statePostProcessingFunction( newState );
+                    integrator->modifyCurrentState( newState, true );
+                }
 
                 //std::cout<<"Current state "<<currentTime<<std::endl<<newState<<std::endl<<std::endl;
 
@@ -496,7 +515,7 @@ std::shared_ptr< PropagationTerminationDetails > integrateEquationsFromIntegrato
                 // this function returns always `false`.
                 // If the termination condition was reached, the last step could not be computed correctly because some
                 // of the integrator sub-steps were not computed. Thus, return immediately without saving the `newState`.
-                if ( integrator->getPropagationTerminationConditionReached() )
+                if( integrator->getPropagationTerminationConditionReached( ) )
                 {
                     propagationTerminationReason = std::make_shared< PropagationTerminationDetails >(
                                 termination_condition_reached );
@@ -524,17 +543,15 @@ std::shared_ptr< PropagationTerminationDetails > integrateEquationsFromIntegrato
             else
             {
                 std::cerr << "Error, propagation terminated at t=" + std::to_string( static_cast< double >( currentTime ) ) +
-                             ", found Nan/inf entry, returning propagation data up to current time" << std::endl;
-                breakPropagation = 1;
+                             ", found NaN/Inf entry, returning propagation data up to current time" << std::endl;
+                breakPropagation = true;
                 propagationTerminationReason = std::make_shared< PropagationTerminationDetails >(
                             nan_or_inf_detected_in_state );
             }
 
-
             currentCPUTime = std::chrono::duration_cast< std::chrono::nanoseconds >(
-                        std::chrono::steady_clock::now( ) - initialClockTime ).count() * 1.0e-9;
-            cummulativeComputationTimeHistory[ currentTime ] = currentCPUTime;
-
+                        std::chrono::steady_clock::now( ) - initialClockTime ).count( ) * 1.0e-9;
+            cumulativeComputationTimeHistory[ currentTime ] = currentCPUTime;
 
             // Print solutions
             if( printInterval == printInterval )
@@ -563,7 +580,7 @@ std::shared_ptr< PropagationTerminationDetails > integrateEquationsFromIntegrato
                 if( propagationTerminationCondition->getTerminationType( ) != hybrid_stopping_condition )
                 {
                     propagationTerminationReason = std::make_shared< PropagationTerminationDetails >(
-                            termination_condition_reached,
+                                termination_condition_reached,
                                 propagationTerminationCondition->getTerminateExactlyOnFinalCondition( ) );
                 }
                 else
@@ -571,7 +588,7 @@ std::shared_ptr< PropagationTerminationDetails > integrateEquationsFromIntegrato
                     if( std::dynamic_pointer_cast< HybridPropagationTerminationCondition >( propagationTerminationCondition )
                             == nullptr )
                     {
-                        throw std::runtime_error( "Error when saving termination reason, type is hybrid, but class is not" );
+                        throw std::runtime_error( "Error when saving termination reason, type is hybrid, but class is not." );
                     }
                     propagationTerminationReason = std::make_shared< PropagationTerminationDetailsFromHybridCondition >(
                                 propagationTerminationCondition->getTerminateExactlyOnFinalCondition( ),
@@ -580,14 +597,13 @@ std::shared_ptr< PropagationTerminationDetails > integrateEquationsFromIntegrato
                 }
                 breakPropagation = true;
             }
-
         }
-        catch( const std::exception &caughtException )
+        catch( const std::exception& caughtException )
         {
             std::cerr << caughtException.what( ) << std::endl;
             std::cerr << "Error, propagation terminated at t=" + std::to_string( static_cast< double >( currentTime ) ) +
-                         ", returning propagation data up to current time" << std::endl;
-            breakPropagation = 1;
+                         ", returning propagation data up to current time." << std::endl;
+            breakPropagation = true;
             propagationTerminationReason = std::make_shared< PropagationTerminationDetails >(
                         runtime_error_caught_in_propagation );
         }
@@ -604,11 +620,13 @@ Eigen::MatrixXd, double, double >(
         const std::shared_ptr< PropagationTerminationCondition > propagationTerminationCondition,
         std::map< double, Eigen::MatrixXd >& solutionHistory,
         std::map< double, Eigen::VectorXd >& dependentVariableHistory,
-        std::map< double, double >& cummulativeComputationTimeHistory,
+        std::map< double, double >& cumulativeComputationTimeHistory,
         const std::function< Eigen::VectorXd( ) > dependentVariableFunction,
+        const std::function< void( Eigen::MatrixXd& ) > statePostProcessingFunction,
         const int saveFrequency,
         const double printInterval,
         const std::chrono::steady_clock::time_point initialClockTime );
+
 
 extern template std::shared_ptr< PropagationTerminationDetails > integrateEquationsFromIntegrator<
 Eigen::VectorXd, double, double >(
@@ -617,11 +635,13 @@ Eigen::VectorXd, double, double >(
         const std::shared_ptr< PropagationTerminationCondition > propagationTerminationCondition,
         std::map< double, Eigen::VectorXd >& solutionHistory,
         std::map< double, Eigen::VectorXd >& dependentVariableHistory,
-        std::map< double, double >& cummulativeComputationTimeHistory,
+        std::map< double, double >& cumulativeComputationTimeHistory,
         const std::function< Eigen::VectorXd( ) > dependentVariableFunction,
+        const std::function< void( Eigen::VectorXd& ) > statePostProcessingFunction,
         const int saveFrequency,
         const double printInterval,
         const std::chrono::steady_clock::time_point initialClockTime );
+
 
 //! Interface class for integrating some state derivative function.
 /*!
@@ -646,12 +666,13 @@ public:
      *  \param propagationTerminationCondition Object to determine when/how the propagation is to be stopped at the current time.
      *  \param dependentVariableHistory History of dependent variables that are to be saved given as map
      *  (time as key; returned by reference)
-     *  \param cummulativeComputationTimeHistory History of cummulative computation times that are to be saved given
+     *  \param cumulativeComputationTimeHistory History of cumulative computation times that are to be saved given
      *  as map (time as key; returned by reference)
      *  \param dependentVariableFunction Function returning dependent variables (obtained from environment and state
      *  derivative model).
+     *  \param statePostProcessingFunction Function to post-process state after numerical integration (obtained from state derivative model).
      *  \param printInterval Frequency with which to print progress to console (nan = never).
-     *  \param initialClockTime Initial clock time from which to determine cummulative computation time.
+     *  \param initialClockTime Initial clock time from which to determine cumulative computation time.
      *  By default now(), i.e. the moment at which this function is called.
      *  \return Event that triggered the termination of the propagation
      */
@@ -662,11 +683,12 @@ public:
             const std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings,
             const std::shared_ptr< PropagationTerminationCondition > propagationTerminationCondition,
             std::map< TimeType, Eigen::VectorXd >& dependentVariableHistory,
-            std::map< TimeType, double >& cummulativeComputationTimeHistory,
-            const std::function< Eigen::VectorXd( ) > dependentVariableFunction =
-            std::function< Eigen::VectorXd( ) >( ),
+            std::map< TimeType, double >& cumulativeComputationTimeHistory,
+            const std::function< Eigen::VectorXd( ) > dependentVariableFunction = std::function< Eigen::VectorXd( ) >( ),
+            const std::function< void( StateType& ) > statePostProcessingFunction = std::function< void( StateType& ) >( ),
             const TimeType printInterval = TUDAT_NAN,
             const std::chrono::steady_clock::time_point initialClockTime = std::chrono::steady_clock::now( ) );
+
 };
 
 //! Interface class for integrating some state derivative function.
@@ -686,12 +708,13 @@ public:
      *  \param propagationTerminationCondition Object to determine when/how the propagation is to be stopped at the current time.
      *  \param dependentVariableHistory History of dependent variables that are to be saved given as map
      *  (time as key; returned by reference)
-     *  \param cummulativeComputationTimeHistory History of cummulative computation times that are to be saved given
+     *  \param cumulativeComputationTimeHistory History of cumulative computation times that are to be saved given
      *  as map (time as key; returned by reference)
      *  \param dependentVariableFunction Function returning dependent variables (obtained from environment and state
      *  derivative model).
+     *  \param statePostProcessingFunction Function to post-process state after numerical integration (obtained from state derivative model).
      *  \param printInterval Frequency with which to print progress to console (nan = never).
-     *  \param initialClockTime Initial clock time from which to determine cummulative computation time.
+     *  \param initialClockTime Initial clock time from which to determine cumulative computation time.
      *  By default now(), i.e. the moment at which this function is called.
      *  \return Event that triggered the termination of the propagation
      */
@@ -702,9 +725,9 @@ public:
             const std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings,
             const std::shared_ptr< PropagationTerminationCondition > propagationTerminationCondition,
             std::map< double, Eigen::VectorXd >& dependentVariableHistory,
-            std::map< double, double >& cummulativeComputationTimeHistory,
-            const std::function< Eigen::VectorXd( ) > dependentVariableFunction =
-            std::function< Eigen::VectorXd( ) >( ),
+            std::map< double, double >& cumulativeComputationTimeHistory,
+            const std::function< Eigen::VectorXd( ) > dependentVariableFunction = std::function< Eigen::VectorXd( ) >( ),
+            const std::function< void( StateType& ) > statePostProcessingFunction = std::function< void( StateType& ) >( ),
             const double printInterval = TUDAT_NAN,
             const std::chrono::steady_clock::time_point initialClockTime = std::chrono::steady_clock::now( ) )
     {
@@ -716,7 +739,7 @@ public:
                 numerical_integrators::createIntegrator< double, StateType >(
                     stateDerivativeFunction, initialState, integratorSettings );
 
-        if ( integratorSettings->assessPropagationTerminationConditionDuringIntegrationSubsteps_ )
+        if( integratorSettings->assessPropagationTerminationConditionDuringIntegrationSubsteps_ )
         {
             integrator->setPropagationTerminationFunction( stopPropagationFunction );
         }
@@ -724,12 +747,14 @@ public:
         return integrateEquationsFromIntegrator< StateType, double >(
                     integrator, integratorSettings->initialTimeStep_, propagationTerminationCondition, solutionHistory,
                     dependentVariableHistory,
-                    cummulativeComputationTimeHistory,
+                    cumulativeComputationTimeHistory,
                     dependentVariableFunction,
+                    statePostProcessingFunction,
                     integratorSettings->saveFrequency_,
                     printInterval,
                     initialClockTime );
     }
+
 };
 
 //! Interface class for integrating some state derivative function.
@@ -749,12 +774,13 @@ public:
      *  \param propagationTerminationCondition Object to determine when/how the propagation is to be stopped at the current time.
      *  \param dependentVariableHistory History of dependent variables that are to be saved given as map
      *  (time as key; returned by reference)
-     *  \param cummulativeComputationTimeHistory History of cummulative computation times that are to be saved given
+     *  \param cumulativeComputationTimeHistory History of cumulative computation times that are to be saved given
      *  as map (time as key; returned by reference)
      *  \param dependentVariableFunction Function returning dependent variables (obtained from environment and state
      *  derivative model).
+     *  \param statePostProcessingFunction Function to post-process state after numerical integration (obtained from state derivative model).
      *  \param printInterval Frequency with which to print progress to console (nan = never).
-     *  \param initialClockTime Initial clock time from which to determine cummulative computation time.
+     *  \param initialClockTime Initial clock time from which to determine cumulative computation time.
      *  By default now(), i.e. the moment at which this function is called.
      *  \return Event that triggered the termination of the propagation
      */
@@ -765,9 +791,9 @@ public:
             const std::shared_ptr< numerical_integrators::IntegratorSettings< Time > > integratorSettings,
             const std::shared_ptr< PropagationTerminationCondition > propagationTerminationCondition,
             std::map< Time, Eigen::VectorXd >& dependentVariableHistory,
-            std::map< Time, double >& cummulativeComputationTimeHistory,
-            const std::function< Eigen::VectorXd( ) > dependentVariableFunction =
-            std::function< Eigen::VectorXd( ) >( ),
+            std::map< Time, double >& cumulativeComputationTimeHistory,
+            const std::function< Eigen::VectorXd( ) > dependentVariableFunction = std::function< Eigen::VectorXd( ) >( ),
+            const std::function< void( StateType& ) > statePostProcessingFunction = std::function< void( StateType& ) >( ),
             const Time printInterval = TUDAT_NAN,
             const std::chrono::steady_clock::time_point initialClockTime = std::chrono::steady_clock::now( ) )
     {
@@ -779,7 +805,7 @@ public:
                 numerical_integrators::createIntegrator< Time, StateType, long double  >(
                     stateDerivativeFunction, initialState, integratorSettings );
 
-        if ( integratorSettings->assessPropagationTerminationConditionDuringIntegrationSubsteps_ )
+        if( integratorSettings->assessPropagationTerminationConditionDuringIntegrationSubsteps_ )
         {
             integrator->setPropagationTerminationFunction( stopPropagationFunction );
         }
@@ -787,12 +813,14 @@ public:
         return integrateEquationsFromIntegrator< StateType, Time, long double >(
                     integrator, integratorSettings->initialTimeStep_, propagationTerminationCondition, solutionHistory,
                     dependentVariableHistory,
-                    cummulativeComputationTimeHistory,
+                    cumulativeComputationTimeHistory,
                     dependentVariableFunction,
+                    statePostProcessingFunction,
                     integratorSettings->saveFrequency_,
                     printInterval,
                     initialClockTime );
     }
+
 };
 
 } // namespace propagators

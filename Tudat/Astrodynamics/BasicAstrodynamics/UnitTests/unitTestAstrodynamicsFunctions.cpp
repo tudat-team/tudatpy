@@ -61,6 +61,28 @@ BOOST_AUTO_TEST_CASE( testKeplerOrbitalPeriod )
     BOOST_CHECK_CLOSE_FRACTION( orbitalPeriod, expectedOrbitalPeriod, 1.0e-5 );
 }
 
+//! Test if the orbital distance of a Kepler orbit is computed correctly.
+BOOST_AUTO_TEST_CASE( testKeplerRadialDistance )
+{
+    // Declare and set Keplerian elements.
+    Eigen::Vector6d keplerianElements = Eigen::Vector6d::Constant( TUDAT_NAN );
+    keplerianElements[ 0 ] = 25999.683025291e3;
+    keplerianElements[ 1 ] = 0.864564003552322;
+    keplerianElements[ 5 ] = 0.757654217738482;
+
+    // Compute radial distance of the satellite.
+    double radialDistance1 = basic_astrodynamics::computeKeplerRadialDistance(
+                keplerianElements[ 0 ], keplerianElements[ 1 ], keplerianElements[ 5 ] );
+    double radialDistance2 = basic_astrodynamics::computeKeplerRadialDistance( keplerianElements );
+
+    // Declare and set expected radial distance [m].
+    double expectedRadialDistance = 4032815.56442827;
+
+    // Check if computed distance matches expected distance.
+    BOOST_CHECK_CLOSE_FRACTION( radialDistance1, expectedRadialDistance, 1.0e-5 );
+    BOOST_CHECK_CLOSE_FRACTION( radialDistance2, expectedRadialDistance, 1.0e-5 );
+}
+
 //! Test if the orbital angular momentum of a kepler orbit is computed correctly.
 BOOST_AUTO_TEST_CASE( testKeplerAngularMomentum )
 {
@@ -93,6 +115,32 @@ BOOST_AUTO_TEST_CASE( testKeplerAngularMomentum )
     // Check if computed angular momentum matches expected angular momentum.
     BOOST_CHECK_CLOSE_FRACTION( angularMomentum, expectedAngularMomentum,
                                 std::numeric_limits< double >::epsilon( ) );
+}
+
+//! Test if the orbital velocity of a Kepler orbit is computed correctly.
+BOOST_AUTO_TEST_CASE( testKeplerOrbitalVelocity )
+{
+    // Declare and set Keplerian elements.
+    Eigen::Vector6d keplerianElements = Eigen::Vector6d::Constant( TUDAT_NAN );
+    keplerianElements[ 0 ] = 25999.683025291e3;
+    keplerianElements[ 1 ] = 0.864564003552322;
+    keplerianElements[ 5 ] = 0.757654217738482;
+
+    // Declare and set gravitational parameter of Earth [m^3 s^-2].
+    double earthGravitationalParameter = physical_constants::GRAVITATIONAL_CONSTANT * 5.9736e24;
+
+    // Compute radial distance of the satellite.
+    double orbitalVelocity1 = basic_astrodynamics::computeKeplerOrbitalVelocity(
+                keplerianElements[ 0 ], keplerianElements[ 1 ], keplerianElements[ 5 ], earthGravitationalParameter );
+    double orbitalVelocity2 = basic_astrodynamics::computeKeplerOrbitalVelocity(
+                keplerianElements, earthGravitationalParameter );
+
+    // Declare and set expected orbital velocity [m/s].
+    double expectedOrbitalVelocity = 13503.4992923871;
+
+    // Check if computed distance matches expected distance.
+    BOOST_CHECK_CLOSE_FRACTION( orbitalVelocity1, expectedOrbitalVelocity, 1.0e-5 );
+    BOOST_CHECK_CLOSE_FRACTION( orbitalVelocity2, expectedOrbitalVelocity, 1.0e-5 );
 }
 
 //! Test if the mean motion of a kepler orbit is computed correctly.

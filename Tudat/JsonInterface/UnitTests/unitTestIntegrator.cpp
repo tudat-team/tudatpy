@@ -115,19 +115,19 @@ BOOST_AUTO_TEST_CASE( test_json_integrator_rungeKuttaVariableStepSize )
     const double maximumFactorIncreaseForNextStepSize = 10.0;
     const double minimumFactorDecreaseForNextStepSize = 0.1;
     const std::shared_ptr< IntegratorSettings< double > > manualSettings =
-            std::make_shared< RungeKuttaVariableStepSizeSettings< double > >( integratorType,
-                                                                                initialTime,
-                                                                                initialStepSize,
-                                                                                rungeKuttaCoefficientSet,
-                                                                                minimumStepSize,
-                                                                                maximumStepSize,
-                                                                                relativeErrorTolerance,
-                                                                                absoluteErrorTolerance,
-                                                                                1,
-                                                                                false,
-                                                                                safetyFactorForNextStepSize,
-                                                                                maximumFactorIncreaseForNextStepSize,
-                                                                                minimumFactorDecreaseForNextStepSize );
+            std::make_shared< RungeKuttaVariableStepSizeSettings< double > >(
+                initialTime,
+                initialStepSize,
+                rungeKuttaCoefficientSet,
+                minimumStepSize,
+                maximumStepSize,
+                relativeErrorTolerance,
+                absoluteErrorTolerance,
+                1,
+                false,
+                safetyFactorForNextStepSize,
+                maximumFactorIncreaseForNextStepSize,
+                minimumFactorDecreaseForNextStepSize );
 
     // Compare
     BOOST_CHECK_EQUAL_JSON( fromFileSettings, manualSettings );

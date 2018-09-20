@@ -71,9 +71,10 @@ BOOST_AUTO_TEST_CASE( test_atmosphereModelSetup )
 {
 
     // Create settings for tabulated atmosphere.
+    std::string atmosphereTableFile =
+            tudat::input_output::getAtmosphereTablesPath( ) + "USSA1976Until100kmPer100mUntil1000kmPer1000m.dat";
     std::shared_ptr< TabulatedAtmosphereSettings > tabulatedAtmosphereSettings =
-            std::make_shared< TabulatedAtmosphereSettings >(
-                input_output::getAtmosphereTablesPath( ) + "USSA1976Until100kmPer100mUntil1000kmPer1000m.dat" );
+            std::make_shared< TabulatedAtmosphereSettings >( atmosphereTableFile );
 
     // Create settings for exponential atmosphere
     double densityScaleHeight = 8.0E3;
@@ -93,8 +94,7 @@ BOOST_AUTO_TEST_CASE( test_atmosphereModelSetup )
             createAtmosphereModel( tabulatedAtmosphereSettings, "Earth" );
 
     // Create atmosphere models manually.
-    aerodynamics::TabulatedAtmosphere manualTabulatedAtmosphere(
-                input_output::getAtmosphereTablesPath( ) + "USSA1976Until100kmPer100mUntil1000kmPer1000m.dat" );
+    aerodynamics::TabulatedAtmosphere manualTabulatedAtmosphere( atmosphereTableFile );
     aerodynamics::ExponentialAtmosphere manualExponentialAtmosphere(
                 densityScaleHeight, constantTemperature, densityAtZeroAltitude,
                 specificGasConstant );
@@ -956,9 +956,9 @@ BOOST_AUTO_TEST_CASE( test_flightConditionsSetup )
     std::shared_ptr< aerodynamics::FlightConditions > vehicleFlightConditions =
             createAtmosphericFlightConditions( bodyMap.at( "Vehicle" ), bodyMap.at( "Earth" ),
                                     "Vehicle", "Earth",
-                                    boost::lambda::constant( angleOfAttack ),
-                                    boost::lambda::constant( angleOfSideslip ),
-                                    boost::lambda::constant( bankAngle ) );
+                                    [&](){ return angleOfAttack; },
+                                    [&](){ return angleOfSideslip; },
+                                    [&](){ return bankAngle; } );
 
     // Set vehicle body-fixed state (see testAerodynamicAngleCalculator)
     Eigen::Vector6d vehicleBodyFixedState =

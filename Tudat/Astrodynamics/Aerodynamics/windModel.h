@@ -93,6 +93,7 @@ private:
 
     //! Function that returns wind vector as a function of altitude, longitude, latitude and time (in that order).
     std::function< Eigen::Vector3d( const double, const double, const double, const double ) > windFunction_;
+
 };
 
 } // namespace aerodynamics
