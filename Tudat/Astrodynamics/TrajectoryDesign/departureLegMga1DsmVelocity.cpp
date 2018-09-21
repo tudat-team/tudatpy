@@ -67,14 +67,21 @@ void DepartureLegMga1DsmVelocity::calculateLeg( Eigen::Vector3d& velocityBeforeA
                                                velocityAfterDsm_, velocityBeforeArrivalBody );
 
     // Calculate the deltaV originating from the departure maneuver and the DSM.
-    deltaVDeparture_ = mission_segments::computeEscapeOrCaptureDeltaV(
+    escapeDeltaV_ = mission_segments::computeEscapeOrCaptureDeltaV(
                 departureBodyGravitationalParameter_, semiMajorAxis_, eccentricity_,
                 excessVelocityMagnitude_ );
 
     deltaVDsm_ = ( velocityAfterDsm_ - velocityBeforeDsm_ ).norm( );
 
     //Calculate the total deltaV.
-    deltaV_ = deltaVDeparture_ + deltaVDsm_;
+    if( includeDepartureDeltaV_ )
+    {
+        deltaV_ = escapeDeltaV_ + deltaVDsm_;
+    }
+    else
+    {
+        deltaV_ = deltaVDsm_;
+    }
 
     // Return the deltaV
     deltaV = deltaV_;
@@ -151,7 +158,7 @@ void DepartureLegMga1DsmVelocity::maneuvers( std::vector < Eigen::Vector3d >& po
     // Assign correct values to the vectors.
     positionVector[ 0 ] = departureBodyPosition_;
     timeVector[ 0 ] = 0.0 + startingTime;
-    deltaVVector[ 0 ] = deltaVDeparture_;
+    deltaVVector[ 0 ] = escapeDeltaV_;
     positionVector[ 1 ] = dsmLocation_;
     timeVector[ 1 ] = dsmTime_ + startingTime;
     deltaVVector[ 1 ] = deltaVDsm_;

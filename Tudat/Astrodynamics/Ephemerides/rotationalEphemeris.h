@@ -8,7 +8,6 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-
 #ifndef TUDAT_ROTATIONAL_EPHEMERIS_H
 #define TUDAT_ROTATIONAL_EPHEMERIS_H
 
@@ -26,9 +25,9 @@
 
 namespace tudat
 {
+
 namespace ephemerides
 {
-
 
 //! Function to calculate the rotational velocity vector of frame B w.r.t frame A.
 /*!
@@ -81,7 +80,6 @@ Eigen::Matrix< StateScalarType, 6, 1 > transformStateToFrameFromRotations(
             rotationMatrixToFrameDerivative.template cast< StateScalarType >( ) * stateInBaseFrame.segment( 0, 3 ) +
             rotationToFrame.template cast< StateScalarType >( ) * stateInBaseFrame.segment( 3, 3 );
     return stateInTargetFrame;
-
 }
 
 //! Transform a state (Cartesian position and velocity) from one frame to another.
@@ -493,6 +491,7 @@ Eigen::Matrix< StateScalarType, 6, 1 > transformStateToTargetFrame(
 }
 
 } // namespace ephemerides
+
 } // namespace tudat
 
 #endif // TUDAT_ROTATIONAL_EPHEMERIS_H

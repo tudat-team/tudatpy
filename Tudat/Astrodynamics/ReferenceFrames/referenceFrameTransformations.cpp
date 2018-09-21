@@ -27,6 +27,7 @@
 
 namespace tudat
 {
+
 namespace reference_frames
 {
 
@@ -559,6 +560,6 @@ Eigen::Vector3d getBodyFixedSphericalPosition(
    return sphericalPosition;
 }
 
-
 } // namespace reference_frames
+
 } // namespace tudat
