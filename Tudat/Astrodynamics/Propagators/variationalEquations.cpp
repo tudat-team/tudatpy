@@ -75,7 +75,7 @@ void VariationalEquations::setBodyStatePartialMatrix( )
     {
         int startIndex = stateTypeStartIndices_.at( typeIterator->first );
         int currentStateSize = getSingleIntegrationSize( typeIterator->first );
-        int entriesToSkipPerEntry = currentStateSize - getAccelerationSize( typeIterator->first );
+        int entriesToSkipPerEntry = currentStateSize - getGeneralizedAccelerationSize( typeIterator->first );
 
         for( unsigned int i = 0; i < typeIterator->second.size( ); i++ )
         {

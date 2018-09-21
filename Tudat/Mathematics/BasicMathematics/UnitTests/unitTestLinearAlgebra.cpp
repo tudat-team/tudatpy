@@ -263,6 +263,7 @@ BOOST_AUTO_TEST_CASE( testAngleBetweenVectorFunctions )
     }
 }
 
+//! Test whether rotation matrix partial derivatives are correctly implemented
 BOOST_AUTO_TEST_CASE( testRotationMatrixDerivatives )
 {
     using namespace tudat::linear_algebra;

@@ -57,6 +57,7 @@ std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartia
     return partialMap;
 }
 
+//! Function to return partial(s) of position of ground station(s) w.r.t. rotational state of a single body.
 std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartial > > createCartesianStatePartialsWrtBodyRotationalState(
         const observation_models::LinkEnds& linkEnds,
         const simulation_setup::NamedBodyMap& bodyMap,

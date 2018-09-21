@@ -118,6 +118,8 @@ public:
      *  (through estimateParameters function)
      *  \param integratorSettings Settings for numerical integrator.
      *  \param propagatorSettings Settings for propagator.
+     *  \param propagateOnCreation Boolean denoting whether initial propagatoon is to be performed upon object creation (default
+     *  true)
      */
     OrbitDeterminationManager(
             const NamedBodyMap &bodyMap,
@@ -143,6 +145,8 @@ public:
      *  (through estimateParameters function)
      *  \param integratorSettings Settings for numerical integrator.
      *  \param propagatorSettings Settings for propagator.
+     *  \param propagateOnCreation Boolean denoting whether initial propagatoon is to be performed upon object creation (default
+     *  true)
      */
     OrbitDeterminationManager(
             const NamedBodyMap &bodyMap,
@@ -151,7 +155,7 @@ public:
             const observation_models::ObservationSettingsMap& observationSettingsMap,
             const std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings,
             const std::shared_ptr< propagators::PropagatorSettings< ObservationScalarType > > propagatorSettings,
-            const bool propagateOnCreation = true  ):
+            const bool propagateOnCreation = true ):
         parametersToEstimate_( parametersToEstimate )
     {
         initializeOrbitDeterminationManager( bodyMap, observation_models::convertUnsortedToSortedObservationSettingsMap(
@@ -726,6 +730,8 @@ protected:
      *  (through estimateParameters function)
      *  \param integratorSettings Settings for numerical integrator.
      *  \param propagatorSettings Settings for propagator.
+     *  \param propagateOnCreation Boolean denoting whether initial propagatoon is to be performed upon object creation (default
+     *  true)
      */
     void initializeOrbitDeterminationManager(
             const NamedBodyMap &bodyMap,

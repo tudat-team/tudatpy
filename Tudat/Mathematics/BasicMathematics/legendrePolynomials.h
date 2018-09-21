@@ -667,6 +667,15 @@ void convertGeodesyNormalizedToUnnormalizedCoefficients(
         Eigen::MatrixXd& unnormalizedCosineCoefficients,
         Eigen::MatrixXd& unnormalizedSineCoefficients );
 
+//! Function to convert unnormalized to geodesy-normalized (4-pi normalized) spherical harmonic coefficients
+/*!
+ * Function to convert unnormalized to geodesy-normalized (4-pi normalized) spherical harmonic coefficients, by modifying input
+ * coefficients
+ * \param cosineCoefficients Original, unnormalized, cosine coefficients, to be transformed to normalized coefficients (returned
+ * by reference)
+ * \param sineCoefficients Original, unnormalized, cosine coefficients, to be transformed to normalized coefficients (returned
+ * by reference)
+ */
 void geodesyNormalizeUnnormalizedCoefficients(
         Eigen::MatrixXd& cosineCoefficients,
         Eigen::MatrixXd& sineCoefficients );

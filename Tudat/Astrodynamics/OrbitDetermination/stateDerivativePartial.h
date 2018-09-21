@@ -56,7 +56,7 @@ public:
         integratedStateType_( integratedStateType ), integrationReferencePoint_( integrationReferencePoint )
     {
         currentTime_ = TUDAT_NAN;
-        accelerationSize_ = propagators::getAccelerationSize( integratedStateType );
+        accelerationSize_ = propagators::getGeneralizedAccelerationSize( integratedStateType );
     }
 
     //! Destructor.
@@ -110,7 +110,7 @@ public:
         else
         {
             partial = Eigen::MatrixXd::Zero(
-                        propagators::getAccelerationSize( integratedStateType_ ), 1 );
+                        propagators::getGeneralizedAccelerationSize( integratedStateType_ ), 1 );
         }
 
         return partial;

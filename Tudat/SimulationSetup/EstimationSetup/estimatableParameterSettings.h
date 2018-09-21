@@ -148,9 +148,16 @@ public:
     //! List of degrees and orders that are to estimated (first and second of each entry are degree and order.
     std::vector< std::pair< int, int > > blockIndices_;
 
+    //!  Minimum degree of field that is to be estimated.
     int minimumDegree_;
+
+    //! Minimum order of field that is to be estimated.
     int minimumOrder_;
+
+    //! Maximum degree of field that is to be estimated.
     int maximumDegree_;
+
+    //! Maximum order of field that is to be estimated.
     int maximumOrder_;
 };
 

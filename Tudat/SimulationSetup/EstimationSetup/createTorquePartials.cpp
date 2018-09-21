@@ -7,6 +7,7 @@ namespace tudat
 namespace simulation_setup
 {
 
+//! Function to create torque partial to be used for constant torques in angular acceleration
 std::shared_ptr< acceleration_partials::TorquePartial > createConstantTorqueRotationalDynamicsPartial(
         const std::pair< std::string, std::shared_ptr< simulation_setup::Body > > acceleratedBody,
         const basic_astrodynamics::SingleBodyTorqueModelMap& torqueVector )

@@ -18,6 +18,7 @@ namespace tudat
 namespace acceleration_partials
 {
 
+//! Function that computes the partial of degree 2 torque w.r.t. the current quaternion elements
 Eigen::Matrix< double, 3, 4 > getPartialDerivativeOfSecondDegreeGravitationalTorqueWrtQuaternion(
         const double premultiplier,
         const Eigen::Matrix3d& inertiaTensor,
@@ -37,6 +38,7 @@ Eigen::Matrix< double, 3, 4 > getPartialDerivativeOfSecondDegreeGravitationalTor
     return premultiplier * scalingMatrix * partialOfBodyFixedPositionWrtQuaternion;
 }
 
+//! Function for setting up and retrieving a function returning a partial w.r.t. a double parameter.
 std::pair< std::function< void( Eigen::MatrixXd& ) >, int >
 SecondDegreeGravitationalTorquePartial::getParameterPartialFunction(
         std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter )
@@ -60,6 +62,7 @@ SecondDegreeGravitationalTorquePartial::getParameterPartialFunction(
     return partialFunctionPair;
 }
 
+//! Function for setting up and retrieving a function returning a partial w.r.t. a vector parameter.
 std::pair< std::function< void( Eigen::MatrixXd& ) >, int > SecondDegreeGravitationalTorquePartial::getParameterPartialFunction(
         std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter )
 {
@@ -127,6 +130,7 @@ std::pair< std::function< void( Eigen::MatrixXd& ) >, int > SecondDegreeGravitat
     return partialFunction;
 }
 
+//! Function for calculating the partial of the torque w.r.t. a non-rotational integrated state
 void SecondDegreeGravitationalTorquePartial::wrtNonRotationalStateOfAdditionalBody(
         Eigen::Block< Eigen::MatrixXd > partialMatrix,
         const std::pair< std::string, std::string >& stateReferencePoint,
@@ -148,6 +152,7 @@ void SecondDegreeGravitationalTorquePartial::wrtNonRotationalStateOfAdditionalBo
     }
 }
 
+//! Update partial model to current time
 void SecondDegreeGravitationalTorquePartial::update( const double currentTime )
 {
     if( !( currentTime_ == currentTime ) )
@@ -184,6 +189,7 @@ void SecondDegreeGravitationalTorquePartial::wrtGravitationalParameterOfCentralB
             torqueModel_->getTorque( ) / torqueModel_->getCurrentGravitationalParameterOfAttractingBody( );
 }
 
+//! Function to compute partial of torque w.r.t. spherical harmonic cosine coefficients
 void SecondDegreeGravitationalTorquePartial::wrtCosineSphericalHarmonicCoefficientsOfCentralBody(
         Eigen::MatrixXd& sphericalHarmonicCoefficientPartial,
         const int c20Index, const int c21Index, const int c22Index )
@@ -215,6 +221,7 @@ void SecondDegreeGravitationalTorquePartial::wrtCosineSphericalHarmonicCoefficie
     }
 }
 
+//! Function to compute partial of torque w.r.t. spherical harmonic sine coefficients
 void SecondDegreeGravitationalTorquePartial::wrtSineSphericalHarmonicCoefficientsOfCentralBody(
         Eigen::MatrixXd& sphericalHarmonicCoefficientPartial,
         const int s21Index, const int s22Index )

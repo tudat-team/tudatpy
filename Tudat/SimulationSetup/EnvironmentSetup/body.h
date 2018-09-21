@@ -415,6 +415,11 @@ public:
      */
     Eigen::Vector6d getState( ) { return currentState_; }
 
+    //! Get current rotational state.
+    /*!
+     * Returns the internally stored current rotational state vector.
+     * \return Current rotational state.
+     */
     Eigen::Vector7d getRotationalStateVector( )
     {
         Eigen::Vector7d rotationalStateVector;
@@ -1076,11 +1081,21 @@ public:
         return bodyInertiaTensor_;
     }
 
+    //! Function to retrieve body scaled mean moment of inertia
+    /*!
+     *  Function to retrieve body scaled mean moment of inertia
+     * \return Body scaled mean moment of inertia
+     */
     double getScaledMeanMomentOfInertia( )
     {
         return scaledMeanMomentOfInertia_;
     }
 
+    //! Function to reset body scaled mean moment of inertia
+    /*!
+     *  Function to reset body scaled mean moment of inertia, and update associated inertia tensor
+     *  \param scaledMeanMomentOfInertia New body scaled mean moment of inertia
+     */
     void setScaledMeanMomentOfInertia( const double scaledMeanMomentOfInertia )
     {
         double oldScaledMeanMomentOfInertia = scaledMeanMomentOfInertia_;
@@ -1103,6 +1118,12 @@ public:
     {
         bodyInertiaTensor_ = bodyInertiaTensor;
     }
+    //! Function to (re)set the body moment-of-inertia tensor and scaled mean-moment of inertia.
+    /*!
+     * Function to (re)set the body moment-of-inertia tensor and scaled mean-moment of inertia.
+     * \param bodyInertiaTensor Body moment-of-inertia tensor.
+     * \param bodyInertiaTensor Body scaled mean-moment of inertia
+     */
 
     void setBodyInertiaTensor( const Eigen::Matrix3d& bodyInertiaTensor, const double scaledMeanMomentOfInertia )
     {
@@ -1132,6 +1153,11 @@ public:
         }
     }
 
+    //! Function to (re)set the body moment-of-inertia tensor from existing gravity field and mean moment of inertia.
+    /*!
+     * Function to (re)set the body moment-of-inertia tensor from existing gravity field and mean moment of inertia.
+     * \param printWarningIfNotSet  Boolean to denote whether a warning is to be printed if scaled mean moment is not defined.
+     */
     void setBodyInertiaTensorFromGravityFieldAndExistingMeanMoment(
             const bool printWarningIfNotSet = true )
     {
@@ -1281,6 +1307,7 @@ private:
     //! Current angular velocity vector for body's rotation, expressed in the global frame.
     Eigen::Vector3d currentAngularVelocityVectorInGlobalFrame_;
 
+    //! Current angular velocity vector for body's rotation, expressed in the body-fixed frame.
     Eigen::Vector3d currentAngularVelocityVectorInLocalFrame_;
 
 
@@ -1293,6 +1320,7 @@ private:
     //! Body moment-of-inertia tensor.
     Eigen::Matrix3d bodyInertiaTensor_;
 
+    //! Body scaled mean moment of inertia
     double scaledMeanMomentOfInertia_;
 
 

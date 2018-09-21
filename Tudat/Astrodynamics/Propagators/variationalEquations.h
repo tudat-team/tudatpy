@@ -148,7 +148,7 @@ public:
         {
             int startIndex = stateTypeStartIndices_.at( typeIterator->first );
             int currentStateSize = getSingleIntegrationSize( typeIterator->first );
-            int entriesToSkipPerEntry = currentStateSize - getAccelerationSize( typeIterator->first );
+            int entriesToSkipPerEntry = currentStateSize - getGeneralizedAccelerationSize( typeIterator->first );
 
             // Iterate over all bodies being estimated.
             for( unsigned int i = 0; i < typeIterator->second.size( ); i++ )
@@ -473,6 +473,11 @@ private:
         }
     }
 
+    //! Function that sets the pre-multipliers for angular acceleration partial derivatives
+    /*!
+     *  Function that sets the pre-multipliers for angular acceleration partial derivatives
+     *  \param parametersToEstimate Total list of parameters to estimate.
+     */
     template< typename ParameterType >
     void setRotationalStatePartialScalingFunctions(
             const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< ParameterType > >
@@ -487,10 +492,11 @@ private:
         {
             if( initialDynamicalParameters.at( i )->getParameterName( ).first == estimatable_parameters::initial_rotational_body_state )
             {
-                inertiaTensorsForMultiplication_.push_back( std::make_pair(
-                                                                stateTypeStartIndices_[ propagators::rotational_state ] + rotationalBodyCounter * 7 + 4,
-                                                            std::dynamic_pointer_cast< estimatable_parameters::InitialRotationalStateParameter< ParameterType > >(
-                                                                initialDynamicalParameters.at( i ) )->getBodyInertiaTensorFunction( ) ) );
+                inertiaTensorsForMultiplication_.push_back(
+                            std::make_pair(
+                                stateTypeStartIndices_[ propagators::rotational_state ] + rotationalBodyCounter * 7 + 4,
+                            std::dynamic_pointer_cast< estimatable_parameters::InitialRotationalStateParameter< ParameterType > >(
+                                initialDynamicalParameters.at( i ) )->getBodyInertiaTensorFunction( ) ) );
                 rotationalBodyCounter++;
             }
         }

@@ -36,7 +36,7 @@ namespace observation_partials
 /*!
  *  Function to return partial(s) of position of reference point w.r.t state of a single body. A set of link ends and the
  *  name  of the body wrt the position of which the partials are to be created. A map is returned, with the LinkEndType as
- *  key and  pointer to position partial as value. An entry for the map is created for each link end which corresponds to
+ *  key and  pointer to state partial as value. An entry for the map is created for each link end which corresponds to
  *  the body wrt the position of which the partial is to be taken.
  *  \param linkEnds Set of link ends, for each entry of this map, it is checked whether the body corresponds to the
  *  requested body and, if so, a partial object is created.
@@ -49,6 +49,18 @@ std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartia
         const simulation_setup::NamedBodyMap& bodyMap,
         const std::string bodyToEstimate );
 
+//! Function to return partial(s) of position of ground station(s) w.r.t. rotational state of a single body.
+/*!
+ *  Function to return partial(s) of position of reference point w.r.t rotational state of a single body. A set of link ends
+ *  and the name of the body wrt the position of which the partials are to be created. A map is returned, with the LinkEndType as
+ *  key and pointer to state partial as value. An entry for the map is created for each link end which corresponds to
+ *  the body wrt the position of which the partial is to be taken.
+ *  \param linkEnds Set of link ends, for each entry of this map, it is checked whether the body corresponds to the
+ *  requested body and, if so, a partial object is created.
+ *  \param bodyMap Map of body objects, used in the creation of the partials.
+ *  \param bodyToEstimate Name of body wrt the position of which partials are to be created.
+ *  \return Map of position partial objects, one entry for each link end corresponding to the bodyToEstimate.
+ */
 std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartial > > createCartesianStatePartialsWrtBodyRotationalState(
         const observation_models::LinkEnds& linkEnds,
         const simulation_setup::NamedBodyMap& bodyMap,
@@ -90,7 +102,13 @@ std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartia
 
 
 
-//! Function to create partial object(s) of rotation matrix wrt a (vector) parameter.
+//! Function to create partial object(s) of rotation matrix wrt a state parameter
+/*!
+ *  Function to create partial object(s) of rotation matrix wrt a state parameter
+ *  \param bodyMap Map of body objects, used in the creation of the partials.
+ *  \param parameterToEstimate Parameter object wrt which partials are to be calculated.
+ *  \return Rotation matrix partial object
+ */
 template< typename InitialStateParameterType >
 std::shared_ptr< RotationMatrixPartial > createRotationMatrixPartialsWrtStateParameter(
         const simulation_setup::NamedBodyMap& bodyMap,
