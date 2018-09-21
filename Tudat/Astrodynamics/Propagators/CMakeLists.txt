@@ -26,6 +26,7 @@ set(PROPAGATORS_SOURCES
   "${SRCROOT}${PROPAGATORSDIR}/rotationalMotionModifiedRodriguesParametersStateDerivative.cpp"
   "${SRCROOT}${PROPAGATORSDIR}/rotationalMotionExponentialMapStateDerivative.cpp"
   "${SRCROOT}${PROPAGATORSDIR}/stateDerivativeCircularRestrictedThreeBodyProblem.cpp"
+  "${SRCROOT}${PROPAGATORSDIR}/dynamicsStateDerivativeModel.cpp"
 )
 
 # Add header files.
@@ -97,7 +98,7 @@ target_link_libraries(test_MultiArcVariationalEquations ${TUDAT_ESTIMATION_LIBRA
 
 add_executable(test_DependentVariableOutput "${SRCROOT}${PROPAGATORSDIR}/UnitTests/unitTestDependentVariableOutput.cpp")
 setup_custom_test_program(test_DependentVariableOutput "${SRCROOT}${PROPAGATORSDIR}")
-target_link_libraries(test_DependentVariableOutput ${TUDAT_PROPAGATION_LIBRARIES} ${Boost_LIBRARIES})
+target_link_libraries(test_DependentVariableOutput ${TUDAT_ESTIMATION_LIBRARIES} ${Boost_LIBRARIES})
 
 endif( )
 

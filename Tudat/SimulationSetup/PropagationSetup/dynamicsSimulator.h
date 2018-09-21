@@ -322,7 +322,9 @@ public:
             const bool clearNumericalSolutions = false,
             const bool setIntegratedResult = false,
             const bool printNumberOfFunctionEvaluations = false,
-            const std::chrono::steady_clock::time_point initialClockTime = std::chrono::steady_clock::now( ) ):
+            const std::chrono::steady_clock::time_point initialClockTime = std::chrono::steady_clock::now( ),
+            const std::vector< boost::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > >& stateDerivativeModels =
+            std::vector< boost::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > >( ) ):
         DynamicsSimulator< StateScalarType, TimeType >(
             bodyMap, clearNumericalSolutions, setIntegratedResult ),
         integratorSettings_( integratorSettings ),
@@ -355,11 +357,21 @@ public:
 
         environmentUpdater_ = createEnvironmentUpdaterForDynamicalEquations< StateScalarType, TimeType >(
                     propagatorSettings_, bodyMap_ );
-        dynamicsStateDerivative_ = boost::make_shared< DynamicsStateDerivativeModel< TimeType, StateScalarType > >(
-                    createStateDerivativeModels< StateScalarType, TimeType >(
-                        propagatorSettings_, bodyMap_, initialPropagationTime_ ),
-                    boost::bind( &EnvironmentUpdater< StateScalarType, TimeType >::updateEnvironment,
-                                 environmentUpdater_, _1, _2, _3 ) );
+        if( stateDerivativeModels.size( ) == 0 )
+        {
+            dynamicsStateDerivative_ = boost::make_shared< DynamicsStateDerivativeModel< TimeType, StateScalarType > >(
+                        createStateDerivativeModels< StateScalarType, TimeType >(
+                            propagatorSettings_, bodyMap_, initialPropagationTime_ ),
+                        boost::bind( &EnvironmentUpdater< StateScalarType, TimeType >::updateEnvironment,
+                                     environmentUpdater_, _1, _2, _3 ) );
+        }
+        else
+        {
+            dynamicsStateDerivative_ = boost::make_shared< DynamicsStateDerivativeModel< TimeType, StateScalarType > >(
+                        stateDerivativeModels,
+                        boost::bind( &EnvironmentUpdater< StateScalarType, TimeType >::updateEnvironment,
+                                     environmentUpdater_, _1, _2, _3 ) );
+        }
         propagationTerminationCondition_ = createPropagationTerminationConditions(
                     propagatorSettings_->getTerminationSettings( ), bodyMap_, integratorSettings->initialTimeStep_ );
 
