@@ -18,6 +18,7 @@ namespace tudat
 namespace acceleration_partials
 {
 
+//! Function to compute partial derivative of spherical harmonic torque w.r.t. quaternion elements
 Eigen::Matrix< double, 3, 4 > getPartialDerivativeOfSphericalHarmonicGravitationalTorqueWrtQuaternion(
         const Eigen::Matrix3d& bodyFixedRelativePositionCrossProductMatrix,
         const Eigen::Matrix3d& bodyFixedPotentialGradientPositionPartial,
@@ -35,6 +36,7 @@ Eigen::Matrix< double, 3, 4 > getPartialDerivativeOfSphericalHarmonicGravitation
              bodyFixedPotentialGradientCrossProductMatrix ) * partialDerivative;
 }
 
+//! Function for setting up and retrieving a function returning a partial w.r.t. a double parameter.
 std::pair< std::function< void( Eigen::MatrixXd& ) >, int >
 SphericalHarmonicGravitationalTorquePartial::getParameterPartialFunction(
         std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter )
@@ -57,6 +59,7 @@ SphericalHarmonicGravitationalTorquePartial::getParameterPartialFunction(
     return partialFunctionPair;
 }
 
+//! Function for setting up and retrieving a function returning a partial w.r.t. a vector parameter.
 std::pair< std::function< void( Eigen::MatrixXd& ) >, int > SphericalHarmonicGravitationalTorquePartial::getParameterPartialFunction(
         std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter )
 {
@@ -78,6 +81,7 @@ std::pair< std::function< void( Eigen::MatrixXd& ) >, int > SphericalHarmonicGra
     return partialFunctionPair;
 }
 
+//! Function for calculating the partial of the torque w.r.t. a non-rotational integrated state
 void SphericalHarmonicGravitationalTorquePartial::wrtNonRotationalStateOfAdditionalBody(
         Eigen::Block< Eigen::MatrixXd > partialMatrix,
         const std::pair< std::string, std::string >& stateReferencePoint,
@@ -94,6 +98,7 @@ void SphericalHarmonicGravitationalTorquePartial::wrtNonRotationalStateOfAdditio
     }
 }
 
+//! Update partial model to current time
 void SphericalHarmonicGravitationalTorquePartial::update( const double currentTime )
 {
     if( !( currentTime_ == currentTime ) )

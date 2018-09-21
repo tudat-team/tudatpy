@@ -110,6 +110,7 @@ std::pair< Eigen::VectorXd, Eigen::MatrixXd > performLeastSquaresAdjustmentFromI
     Eigen::MatrixXd inverseOfCovarianceMatrix = calculateInverseOfUpdatedCovarianceMatrix(
                 informationMatrix, diagonalOfWeightMatrix, inverseOfAPrioriCovarianceMatrix );
 
+    // Add constraints to inverse covariance matrix if required
     if( constraintMultiplier.rows( ) != 0 )
     {
         if( constraintMultiplier.rows( ) != constraintRightHandside.rows( ) )

@@ -62,22 +62,6 @@ public:
     //! Destructor
     ~ConstantTorquePartial( ){ }
 
-    //! Function for determining if the torque is dependent on a non-rotational integrated state.
-    /*!
-     *  Function for determining if the torque is dependent on a non-rotational integrated state.
-     *  No dependency is implemented, but a warning is provided if partial w.r.t. mass of body exerting torque
-     *  (and undergoing torque if mutual attraction is used) is requested.
-     *  \param stateReferencePoint Reference point id of propagated state
-     *  \param integratedStateType Type of propagated state for which dependency is to be determined.
-     *  \return True if dependency exists (non-zero partial), false otherwise.
-     */
-    bool isStateDerivativeDependentOnIntegratedNonRotationalState(
-            const std::pair< std::string, std::string >& stateReferencePoint,
-            const propagators::IntegratedStateType integratedStateType )
-    {
-        return 0;
-    }
-
     //! Function for setting up and retrieving a function returning a partial w.r.t. a double parameter.
     /*!
      *  Function for setting up and retrieving a function returning a partial w.r.t. a double parameter.
@@ -156,35 +140,42 @@ public:
 
 protected:
 
-    //! Function to computed partial of torque w.r.t. mean moment of inertia
+    //! Function to compute partial of torque w.r.t. mean moment of inertia
     /*!
-     * Function to computed partial of torque w.r.t. mean moment of inertia
+     * Function to compute partial of torque w.r.t. mean moment of inertia
      * \param momentOfInertiaPartial Computed partial of torque w.r.t. mean moment of inertia (returned by reference)
      */
     void wrtMeanMomentOfInertia(
             Eigen::MatrixXd& momentOfInertiaPartial );
 
-    //! Function to computed partial of torque w.r.t. gravitational parameter
+    //! Function to compute partial of torque w.r.t. gravitational parameter
     /*!
-     * Function to computed partial of torque w.r.t. gravitational parameter
-     * \param momentOfInertiaPartial Computed partial of torque w.r.t. gravitational parameter (returned by reference)
+     * Function to compute partial of torque w.r.t. gravitational parameter
+     * \param gravitationalParameterPartial Computed partial of torque w.r.t. gravitational parameter (returned by reference)
      */
     void wrtGravitationalParameter(
-            Eigen::MatrixXd& momentOfInertiaPartial );
+            Eigen::MatrixXd& gravitationalParameterPartial );
 
-    //! Function to computed partial of torque w.r.t. spherical harmonic cosine coefficients
+    //! Function to compute partial of torque w.r.t. spherical harmonic cosine coefficients
     /*!
-     * Function to computed partial of torque w.r.t. spherical harmonic cosine coefficients
-     * \param momentOfInertiaPartial Computed partial of torque w.r.t. spherical harmonic cosine coefficients (returned by reference)
+     * Function to compute partial of torque w.r.t. spherical harmonic cosine coefficients
+     * \param sphericalHarmonicCoefficientPartial Computed partial of torque w.r.t. spherical harmonic cosine coefficients
+     * (returned by reference)
+     * \param c20Index for degree=2,order=0 coefficient
+     * \param c21Index for degree=2,order=1 coefficient
+     * \param c22Index for degree=2,order=2 coefficient
      */
     void wrtCosineSphericalHarmonicCoefficientsOfCentralBody(
             Eigen::MatrixXd& sphericalHarmonicCoefficientPartial,
             const int c20Index, const int c21Index, const int c22Index );
 
-    //! Function to computed partial of torque w.r.t. spherical harmonic sine coefficients
+    //! Function to compute partial of torque w.r.t. spherical harmonic sine coefficients
     /*!
-     * Function to computed partial of torque w.r.t. spherical harmonic sine coefficients
-     * \param momentOfInertiaPartial Computed partial of torque w.r.t. spherical harmonic sine coefficients (returned by reference)
+     * Function to compute partial of torque w.r.t. spherical harmonic sine coefficients
+     * \param sphericalHarmonicCoefficientPartial Computed partial of torque w.r.t. spherical harmonic sine coefficients
+     * (returned by reference)
+     * \param s21Index for degree=2,order=1 coefficient
+     * \param s22Index for degree=2,order=2 coefficient
      */
     void wrtSineSphericalHarmonicCoefficientsOfCentralBody(
             Eigen::MatrixXd& sphericalHarmonicCoefficientPartial,

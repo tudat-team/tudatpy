@@ -142,6 +142,7 @@ Eigen::MatrixXd MultiArcCombinedStateTransitionAndSensitivityMatrixInterface::ge
     return combinedStateTransitionMatrix;
 }
 
+//! Function to retrieve the current arc for a given time
 std::pair< int, double > MultiArcCombinedStateTransitionAndSensitivityMatrixInterface::getCurrentArc( const double evaluationTime )
 {
     int currentArc =  lookUpscheme_->findNearestLowerNeighbour( evaluationTime );

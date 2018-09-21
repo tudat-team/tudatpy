@@ -18,6 +18,7 @@ namespace tudat
 namespace acceleration_partials
 {
 
+//! Function for setting up and retrieving a function returning a partial w.r.t. a double parameter.
 std::pair< std::function< void( Eigen::MatrixXd& ) >, int >
 InertialTorquePartial::getParameterPartialFunction( std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter )
 {
@@ -61,12 +62,6 @@ InertialTorquePartial::getParameterPartialFunction( std::shared_ptr< estimatable
 }
 
 //! Function for setting up and retrieving a function returning a partial w.r.t. a vector parameter.
-/*!
-     *  Function for setting up and retrieving a function returning a partial w.r.t. a vector parameter.
-     *  Function returns empty function and zero size indicator for parameters with no dependency for current torque.
-     *  \param parameter Parameter w.r.t. which partial is to be taken.
-     *  \return Pair of parameter partial function and number of columns in partial (0 for no dependency).
-     */
 std::pair< std::function< void( Eigen::MatrixXd& ) >, int > InertialTorquePartial::getParameterPartialFunction(
         std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter )
 {
@@ -134,6 +129,7 @@ std::pair< std::function< void( Eigen::MatrixXd& ) >, int > InertialTorquePartia
     return partialFunction;
 }
 
+//! Function to compute partial of torque w.r.t. mean moment of inertia
 void InertialTorquePartial::wrtMeanMomentOfInertia(
         Eigen::MatrixXd& momentOfInertiaPartial )
 {
@@ -142,15 +138,16 @@ void InertialTorquePartial::wrtMeanMomentOfInertia(
             UNSCALED_INERTIAL_TENSOR_PARTIAL_WRT_MEAN_MOMENT * currentAngularVelocityVector_;
 }
 
+//! Function to compute partial of torque w.r.t. gravitational parameter
 void InertialTorquePartial::wrtGravitationalParameter(
-        Eigen::MatrixXd& momentOfInertiaPartial )
+        Eigen::MatrixXd& gravitationalParameterPartial )
 {
-    momentOfInertiaPartial .block( 0, 0, 3, 1 ) =
+    gravitationalParameterPartial .block( 0, 0, 3, 1 ) =
             - currentAngularVelocityCrossProductMatrix_ * currentInertiaTensor_ * currentAngularVelocityVector_ /
             currentGravitationalParameter_ ;
 }
 
-
+//! Function to compute partial of torque w.r.t. spherical harmonic cosine coefficients
 void InertialTorquePartial::wrtCosineSphericalHarmonicCoefficientsOfCentralBody(
         Eigen::MatrixXd& sphericalHarmonicCoefficientPartial,
         const int c20Index, const int c21Index, const int c22Index )
@@ -182,6 +179,7 @@ void InertialTorquePartial::wrtCosineSphericalHarmonicCoefficientsOfCentralBody(
     }
 }
 
+//! Function to compute partial of torque w.r.t. spherical harmonic sine coefficients
 void InertialTorquePartial::wrtSineSphericalHarmonicCoefficientsOfCentralBody(
         Eigen::MatrixXd& sphericalHarmonicCoefficientPartial,
         const int s21Index, const int s22Index )

@@ -99,7 +99,18 @@ std::shared_ptr< OneWayRangePartial > createOneWayRangePartialWrtBodyPosition(
         lightTimeCorrectionPartialObjects =
         std::vector< std::shared_ptr< observation_partials::LightTimeCorrectionPartial > >( ) );
 
-//! Function to generate one-way range partial wrt an initial position of a body.
+//! Function to generate one-way range partial wrt a rotational state of a body.
+/*!
+ *  Function to generate one-way range partial wrt a rotational state of a body, for a single link ends (which must contain a
+ *  transmitter and receiever  linkEndType).
+ *  \param oneWayRangeLinkEnds Link ends (transmitter and receiever) for which one-way range partials are to be calculated
+ *  (i.e. for which one-way range observations are to be processed).
+ *  \param bodyMap List of all bodies, for creating one-way range partial.
+ *  \param bodyToEstimate Name of body wrt rotational state of which a partial is to be created.
+ *  \param oneWayRangeScaler Object scale position partials to one-way range partials for current link ends.
+ *  \param lightTimeCorrectionPartialObjects List of light time correction partials to be used (empty by default)
+ *  \return One-way range partial object wrt a current rotational state of a body (is nullptr if no parameter dependency exists).
+ */
 std::shared_ptr< OneWayRangePartial > createOneWayRangePartialWrtBodyRotationalState(
         const observation_models::LinkEnds oneWayRangeLinkEnds,
         const simulation_setup::NamedBodyMap& bodyMap,

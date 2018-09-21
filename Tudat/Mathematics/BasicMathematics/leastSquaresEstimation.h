@@ -115,6 +115,8 @@ Eigen::MatrixXd calculateInverseOfUpdatedCovarianceMatrix(
  * \param checkConditionNumber Boolean to denote whether the condition number is checked when estimating (warning is printed
  * when value exceeds maximumAllowedConditionNumber)
  * \param maximumAllowedConditionNumber Maximum value of the condition number of the covariance matrix that is allowed
+ * \param constraintMultiplier Multiplier for estimated parameter that defines linear constraint
+ * \param constraintRightHandside Right-hand side estimation linear constraint
  * \return Pair containing: (first: parameter adjustment, second: inverse covariance)
  */
 std::pair< Eigen::VectorXd, Eigen::MatrixXd > performLeastSquaresAdjustmentFromInformationMatrix(

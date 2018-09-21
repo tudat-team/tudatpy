@@ -57,7 +57,14 @@ public:
     //! Virtual destructor.
     virtual ~TorquePartial( ) { }
 
-    //
+    //! Function for determining if the torque is dependent on a non-rotational integrated state.
+    /*!
+     *  Function for determining if the torque is dependent on a non-rotational integrated state. Default none, may be
+     *  overridden by derived class
+     *  \param stateReferencePoint Reference point id of propagated state
+     *  \param integratedStateType Type of propagated state for which dependency is to be determined.
+     *  \return True if dependency exists (non-zero partial), false otherwise.
+     */
     virtual bool isStateDerivativeDependentOnIntegratedAdditionalStateTypes(
             const std::pair< std::string, std::string >& stateReferencePoint,
             const propagators::IntegratedStateType integratedStateType )
@@ -134,21 +141,6 @@ public:
 
 
         return partialFunction;
-    }
-
-    //! Function for determining if the torque is dependent on a non-rotational integrated state (default none).
-    /*!
-     *  Function for determining if the torque is dependent on a non-rotational integrated state.
-     *  No dependency is implemented is returned in this base class function, but may be overriden by derived class.
-     *  \param stateReferencePoint Reference point id of propagated state
-     *  \param integratedStateType Type of propagated state for which dependency is to be determined.
-     *  \return True if dependency exists (non-zero partial), false otherwise.
-     */
-    virtual bool isStateDerivativeDependentOnIntegratedNonRotationalState(
-            const std::pair< std::string, std::string >& stateReferencePoint,
-            const propagators::IntegratedStateType integratedStateType )
-    {
-        return false;
     }
 
     //! Pure virtual function for calculating the partial of the torque w.r.t. the orientation of the accelerated body.

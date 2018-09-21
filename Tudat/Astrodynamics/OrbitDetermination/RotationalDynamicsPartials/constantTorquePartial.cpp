@@ -127,7 +127,7 @@ std::pair< std::function< void( Eigen::MatrixXd& ) >, int > ConstantTorquePartia
     return partialFunction;
 }
 
-//! Function to computed partial of torque w.r.t. mean moment of inertia
+//! Function to compute partial of torque w.r.t. mean moment of inertia
 void ConstantTorquePartial::wrtMeanMomentOfInertia(
         Eigen::MatrixXd& momentOfInertiaPartial )
 {
@@ -136,16 +136,16 @@ void ConstantTorquePartial::wrtMeanMomentOfInertia(
             currentInverseInertiaTensor_* currentTotalTorque_;
 }
 
-//! Function to computed partial of torque w.r.t. gravitational parameter
+//! Function to compute partial of torque w.r.t. gravitational parameter
 void ConstantTorquePartial::wrtGravitationalParameter(
-        Eigen::MatrixXd& momentOfInertiaPartial )
+        Eigen::MatrixXd& gravitationalParameterPartial )
 {
-    momentOfInertiaPartial .block( 0, 0, 3, 1 ) =
+    gravitationalParameterPartial .block( 0, 0, 3, 1 ) =
             -currentInertiaTensor_ / bodyGravitationalParameterFunction_( ) *
             currentInverseInertiaTensor_* currentTotalTorque_;
 }
 
-//! Function to computed partial of torque w.r.t. spherical harmonic cosine coefficients
+//! Function to compute partial of torque w.r.t. spherical harmonic cosine coefficients
 void ConstantTorquePartial::wrtCosineSphericalHarmonicCoefficientsOfCentralBody(
         Eigen::MatrixXd& sphericalHarmonicCoefficientPartial,
         const int c20Index, const int c21Index, const int c22Index )
@@ -177,7 +177,7 @@ void ConstantTorquePartial::wrtCosineSphericalHarmonicCoefficientsOfCentralBody(
     }
 }
 
-//! Function to computed partial of torque w.r.t. spherical harmonic sine coefficients
+//! Function to compute partial of torque w.r.t. spherical harmonic sine coefficients
 void ConstantTorquePartial::wrtSineSphericalHarmonicCoefficientsOfCentralBody(
         Eigen::MatrixXd& sphericalHarmonicCoefficientPartial,
         const int s21Index, const int s22Index )

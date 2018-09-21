@@ -94,6 +94,7 @@ public:
         setConstantWeightsMatrix( 1.0 );
     }
 
+    //! Destructor
     virtual ~PodInput( ){ }
 
     //! Function to set a constant values for all observation weights
@@ -373,9 +374,7 @@ public:
         maximumNumberOfIterations_( maximumNumberOfIterations ), minimumResidualChange_( minimumResidualChange ),
         minimumResidual_( minimumResidual ),
         numberOfIterationsWithoutImprovement_( numberOfIterationsWithoutImprovement )
-    {
-
-    }
+    { }
 
     //! Function to determine whether the estimation is deemed to be converged
     /*!
@@ -626,8 +625,15 @@ struct PodOutput
         }
     }
 
+    //! Function to set the full state histories of numerical solutions and dependent variables
+    /*!
+     * Function to set the full state histories of numerical solutions and dependent variables
+     * \param dynamicsHistoryPerIteration List of numerical solutions of dynamics (per iteration, per arc)
+     * \param dependentVariableHistoryPerIteration List of numerical solutions of dependent variables (per iteration, per arc)
+     */
     void setStateHistories(
-            std::vector< std::vector< std::map< TimeType, Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > > > dynamicsHistoryPerIteration,
+            std::vector< std::vector< std::map< TimeType, Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > > >
+            dynamicsHistoryPerIteration,
             std::vector< std::vector< std::map< TimeType, Eigen::VectorXd > > > dependentVariableHistoryPerIteration )
     {
         dynamicsHistoryPerIteration_ = dynamicsHistoryPerIteration;
@@ -660,8 +666,10 @@ struct PodOutput
     //! Vector of parameter vectors per iteration (entry 0 is pre-estimation values)
     std::vector< Eigen::VectorXd > parameterHistory_;
 
+    //! List of numerical solutions of dynamics (per iteration, per arc)
     std::vector< std::vector< std::map< TimeType, Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > > > dynamicsHistoryPerIteration_;
 
+    //! List of numerical solutions of dependent variables (per iteration, per arc)
     std::vector< std::vector< std::map< TimeType, Eigen::VectorXd > > > dependentVariableHistoryPerIteration_;
 
     //! Boolean denoting whether an exception was caught during inversion of normal equations

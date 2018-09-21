@@ -1,5 +1,5 @@
-#ifndef GETZEROPROPERMODEROTATIONALINITIALSTATE_H
-#define GETZEROPROPERMODEROTATIONALINITIALSTATE_H
+#ifndef TUDAT_GETZEROPROPERMODEROTATIONALINITIALSTATE_H
+#define TUDAT_GETZEROPROPERMODEROTATIONALINITIALSTATE_H
 
 #include <Eigen/Core>
 
@@ -19,43 +19,6 @@ Eigen::Matrix3d getDissipationMatrix(
 {
     return inertiaTensor / dampingTime;
 }
-
-//class RotationalDissipationWrapper
-//{
-//public:
-//    RotationalDissipationWrapper( const Eigen::Matrix3d& dissipationMatrix ):
-//        dissipationMatrix_( dissipationMatrix ){ }
-
-//    Eigen::Matrix3d getDissipationMatrix( )
-//    {
-//        return dissipationMatrix_;
-//    }
-
-//    void setDissipationMatrix( const Eigen::Matrix3d dissipationMatrix )
-//    {
-//        dissipationMatrix_ = dissipationMatrix;
-//    }
-
-//private:
-//    Eigen::Matrix3d dissipationMatrix_;
-//};
-
-
-//template< typename StateScalarType = double, typename TimeType = double >
-//std::map< TimeType, Eigen::Matrix< StateScalarType, 3, 3 > > getRotationMatrixHistoryFromRotationalStateHistory(
-//        const std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > rotationalStateHistory )
-//{
-//    std::map< TimeType, Eigen::Matrix< StateScalarType, 3, 3 > > rotationMatrixHistory;
-//    for( typename std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >::const_iterator stateIterator =
-//         rotationalStateHistory.begin( ); stateIterator != rotationalStateHistory.end( ); stateIterator++ )
-//    {
-//        Eigen::Quaterniond currentRotation = ( Eigen::Quaterniond( Eigen::Vector4d( stateIterator->second.block( 0, 0, 4, 1 ) ) ) );
-
-//        rotationMatrixHistory[ stateIterator->first ] = ( currentRotation ).toRotationMatrix( );
-//    }
-//    return rotationMatrixHistory;
-//}
-
 
 template< typename StateScalarType = double, typename TimeType = double >
 void integrateForwardWithDissipationAndBackwardsWithout(
@@ -289,4 +252,4 @@ Eigen::VectorXd getZeroProperModeRotationalState(
 
 }
 
-#endif // GETZEROPROPERMODEROTATIONALINITIALSTATE_H
+#endif // TUDAT_GETZEROPROPERMODEROTATIONALINITIALSTATE_H

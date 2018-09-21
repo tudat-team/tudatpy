@@ -61,7 +61,8 @@ int getSingleIntegrationDifferentialEquationOrder( const IntegratedStateType sta
     return singleStateSize;
 }
 
-int getAccelerationSize( const IntegratedStateType stateType )
+//! Function to get the size of the generalized acceleration for a given state type
+int getGeneralizedAccelerationSize( const IntegratedStateType stateType )
 {
     int accelerationSize = 0;
     switch( stateType )
