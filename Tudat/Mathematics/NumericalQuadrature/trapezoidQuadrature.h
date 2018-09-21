@@ -105,7 +105,7 @@ DependentVariableType performExtendedSimpsonsQuadrature(
     }
     else
     {
-        integral = IdentityElement< DependentVariableType >::getAdditionIdentity( );
+        integral = IdentityElement::getAdditionIdentity< DependentVariableType >( );
     }
     return integral;
 }

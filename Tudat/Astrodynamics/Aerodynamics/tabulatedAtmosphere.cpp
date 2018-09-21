@@ -127,8 +127,8 @@ void TabulatedAtmosphere::createAtmosphereInterpolators( )
         defaultExtrapolationValue_ = std::vector< std::vector< std::pair< double, double > > >(
                     numberOfDependentVariables, std::vector< std::pair< double, double > >(
                         numberOfIndependentVariables_, std::make_pair(
-                            IdentityElement< double >::getAdditionIdentity( ),
-                            IdentityElement< double >::getAdditionIdentity( ) ) ) );
+                            IdentityElement::getAdditionIdentity< double >( ),
+                            IdentityElement::getAdditionIdentity< double >( ) ) ) );
     }
     else
     {

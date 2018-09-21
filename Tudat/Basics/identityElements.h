@@ -26,7 +26,6 @@ namespace tudat
  *  Interface class to output the identity elements for any type. This class is then specialized for
  *  each type needed in Tudat.
  */
-template< typename VariableType >
 class IdentityElement
 {
 public:
@@ -36,7 +35,7 @@ public:
      *  Function to output the zero value (i.e., the addition identity) for Eigen types.
      *  \return Addition identity of Eigen types.
      */
-    template< typename std::enable_if< is_eigen_matrix< VariableType >::value, int >::type = 0 >
+    template< typename VariableType, typename std::enable_if< is_eigen_matrix< VariableType >::value, int >::type = 0 >
     static VariableType getAdditionIdentity( )
     {
         return VariableType::Zero(
@@ -49,7 +48,7 @@ public:
      *  Function to output the zero value (i.e., the addition identity) for integer and floating point types.
      *  \return Addition identity of Eigen types.
      */
-    template< typename std::enable_if< ( std::is_integral< VariableType >::value ||
+    template< typename VariableType, typename std::enable_if< ( std::is_integral< VariableType >::value ||
                                        std::is_floating_point< VariableType >::value ), int >::type = 0 >
     static VariableType getAdditionIdentity( )
     {
@@ -61,7 +60,7 @@ public:
      *  Function to output the unit value (i.e., the multiplication identity) for Eigen types.
      *  \return Multiplication identity of Eigen types.
      */
-    template< typename std::enable_if< is_eigen_matrix< VariableType >::value, int >::type = 0 >
+    template< typename VariableType, typename std::enable_if< is_eigen_matrix< VariableType >::value, int >::type = 0 >
     static VariableType getMultiplicationIdentity( )
     {
         if( VariableType::RowsAtCompileTime == VariableType::ColsAtCompileTime )
@@ -80,7 +79,7 @@ public:
      *  Function to output the unit value (i.e., the multiplication identity) for integer and floating point types.
      *  \return Multiplication identity of Eigen types.
      */
-    template< typename std::enable_if< ( std::is_integral< VariableType >::value ||
+    template< typename VariableType, typename std::enable_if< ( std::is_integral< VariableType >::value ||
                                        std::is_floating_point< VariableType >::value ), int >::type = 0 >
     static VariableType getMultiplicationIdentity( )
     {
@@ -92,7 +91,7 @@ public:
      *  Function to output the NaN value (i.e., the null identity) for Eigen types.
      *  \return Null identity of Eigen types.
      */
-    template< typename std::enable_if< is_eigen_matrix< VariableType >::value, int >::type = 0 >
+    template< typename VariableType, typename std::enable_if< is_eigen_matrix< VariableType >::value, int >::type = 0 >
     static VariableType getNullIdentity( )
     {
         return VariableType::Constant( ( VariableType::RowsAtCompileTime > 0 ) ? VariableType::RowsAtCompileTime : 0,
@@ -104,7 +103,7 @@ public:
      *  Function to output the NaN value (i.e., the null identity) for integer and floating point types.
      *  \return Null identity of Eigen types.
      */
-    template< typename std::enable_if< std::is_floating_point< VariableType >::value, int >::type = 0 >
+    template< typename VariableType, typename std::enable_if< std::is_floating_point< VariableType >::value, int >::type = 0 >
     static VariableType getNullIdentity( )
     {
         return TUDAT_NAN;

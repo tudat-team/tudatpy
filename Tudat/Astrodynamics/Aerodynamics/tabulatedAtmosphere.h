@@ -137,7 +137,7 @@ public:
             const double specificGasConstant = physical_constants::SPECIFIC_GAS_CONSTANT_AIR,
             const double ratioOfSpecificHeats = 1.4,
             const interpolators::BoundaryInterpolationType boundaryHandling = interpolators::use_boundary_value,
-            const double defaultExtrapolationValue = IdentityElement< double >::getAdditionIdentity( ) ) :
+            const double defaultExtrapolationValue = IdentityElement::getAdditionIdentity< double >( ) ) :
         TabulatedAtmosphere( { { 0, atmosphereTableFile } }, { altitude_dependent_atmosphere },
                              dependentVariablesNames, specificGasConstant, ratioOfSpecificHeats, { boundaryHandling },
                              std::vector< std::vector< std::pair< double, double > > >(
@@ -180,8 +180,8 @@ public:
                 }
                 else
                 {
-                    defaultExtrapolationValue_.at( i ).push_back( std::make_pair( IdentityElement< double >::getAdditionIdentity( ),
-                                                                                  IdentityElement< double >::getAdditionIdentity( ) ) );
+                    defaultExtrapolationValue_.at( i ).push_back( std::make_pair( IdentityElement::getAdditionIdentity< double >( ),
+                                                                                  IdentityElement::getAdditionIdentity< double >( ) ) );
                 }
             }
         }
