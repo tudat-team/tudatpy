@@ -36,6 +36,10 @@
   "sphericalHarmonicsAccelerationTerms",
   "bodyFixedRelativeCartesianPosition",
   "bodyFixedRelativeSphericalPosition",
+  "totalGravityFieldVariationAcceleration",
+  "singleGravityFieldVariationAcceleration",
+  "singleGravityFieldVariationAccelerationTerms",
+  "accelerationPartialWrtBodyTranslationalState",
   "localDynamicPressure",
   "localAerodynamicHeatRate"
 ]
