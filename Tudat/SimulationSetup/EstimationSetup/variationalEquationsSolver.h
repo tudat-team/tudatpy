@@ -927,13 +927,6 @@ private:
     std::shared_ptr< DynamicsStateDerivativeModel< TimeType, StateScalarType > > dynamicsStateDerivative_;
 };
 
-
-//extern template class SingleArcVariationalEquationsSolver< double, double >;
-//extern template class SingleArcVariationalEquationsSolver< long double, double >;
-//extern template class SingleArcVariationalEquationsSolver< double, Time >;
-//extern template class SingleArcVariationalEquationsSolver< long double, Time >;
-
-
 //! Function to transfer the initial multi-arc states from propagator settings to associated initial state estimation parameters.
 /*!
  *  Function to transfer the initial multi-arc states from propagator settings to associated initial state estimation parameters.
