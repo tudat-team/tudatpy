@@ -57,6 +57,7 @@ public:
     //! Virtual destructor.
     virtual ~TorquePartial( ) { }
 
+    //
     virtual bool isStateDerivativeDependentOnIntegratedAdditionalStateTypes(
             const std::pair< std::string, std::string >& stateReferencePoint,
             const propagators::IntegratedStateType integratedStateType )

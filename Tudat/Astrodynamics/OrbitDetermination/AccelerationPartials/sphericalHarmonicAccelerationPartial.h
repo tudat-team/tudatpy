@@ -241,16 +241,23 @@ public:
         }
     }
 
-    //! Function to retrieve the current partial of the acceleration wrt the position of the body undergoing the acceleration.
+    //! Function to retrieve partial of acceleration wrt the position of body undergoing acceleration, in inertial coordinates.
     /*!
-     * Function to retrieve the current partial of the acceleration wrt the position of the body undergoing the acceleration.
-     * \return Current partial of the acceleration wrt the position of the body undergoing the acceleration.
+     * Function to retrieve the current partial of the acceleration wrt the position of the body undergoing the acceleration,
+     * in inertial coordinates
+     * \return Current partial of the acceleration wrt the position of the body undergoing the acceleration, in inertial coordinates.
      */
     Eigen::Matrix3d getCurrentPartialWrtPosition( )
     {
         return currentPartialWrtPosition_;
     }
 
+    //! Function to retrieve partial of acceleration wrt the position of body undergoing acceleration, in body-fixed coordinates.
+    /*!
+     * Function to retrieve the current partial of the acceleration wrt the position of the body undergoing the acceleration,
+     * in body-fixed coordinates
+     * \return Current partial of the acceleration wrt the position of the body undergoing the acceleration, in body-fixed coordinates.
+     */
     Eigen::Matrix3d getCurrentBodyFixedPartialWrtPosition( )
     {
         return currentBodyFixedPartialWrtPosition_;

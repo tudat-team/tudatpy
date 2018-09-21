@@ -858,6 +858,12 @@ std::vector< std::string > getListOfBodiesWithTranslationalStateToEstimate(
     return bodiesToEstimate;
 }
 
+//! Function to get the list of names of bodies for which initial rotational dynamical state is estimated.
+/*!
+ *  Function to get the list of names of bodies for which initial rotational dynamical state is estimated.
+ *  \param estimatableParameters Object containing all parameters that are to be estimated.
+ *  \return List of names of bodies for which initial rotational state is estimated.
+ */
 template< typename InitialStateParameterType >
 std::vector< std::string > getListOfBodiesWithRotationalStateToEstimate(
         const std::shared_ptr< EstimatableParameterSet< InitialStateParameterType > > estimatableParameters )
@@ -869,7 +875,6 @@ std::vector< std::string > getListOfBodiesWithRotationalStateToEstimate(
             Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > > > initialDynamicalParameters =
             estimatableParameters->getEstimatedInitialStateParameters( );
 
-    // Iterate over list of bodies of which the partials of the accelerations acting on them are required.
     for( unsigned int i = 0; i < initialDynamicalParameters.size( ); i++ )
     {
         if( initialDynamicalParameters.at( i )->getParameterName( ).first == initial_rotational_body_state )
@@ -947,6 +952,12 @@ std::map< propagators::IntegratedStateType, std::vector< std::string > > getList
     return bodiesToEstimate;
 }
 
+//! Function to retrieve the list of translational state parameters from full parameter list
+/*!
+ * Function to retrieve the list of translational state parameters from full parameter list
+ * \param estimatableParameters Full set of estimated parameters
+ * \return List of translational state parameters
+ */
 template< typename InitialStateParameterType >
 std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameter<
         Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > > > getListOfTranslationalStateParametersToEstimate(
@@ -971,6 +982,12 @@ std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameter<
     return translationalStateParameters;
 }
 
+//! Function to retrieve the list of rotational state parameters from full parameter list
+/*!
+ * Function to retrieve the list of rotational state parameters from full parameter list
+ * \param estimatableParameters Full set of estimated parameters
+ * \return List of rotational state parameters
+ */
 template< typename InitialStateParameterType >
 std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameter<
         Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > > > getListOfRotationalStateParametersToEstimate(
