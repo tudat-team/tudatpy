@@ -16,6 +16,7 @@
 
 namespace tudat
 {
+
 namespace interpolators
 {
 
@@ -77,6 +78,7 @@ public:
 };
 
 } // namespace interpolators
+
 } // namespace tudat
 
 #endif // TUDAT_INTERPOLATOR_H

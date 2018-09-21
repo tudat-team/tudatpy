@@ -67,6 +67,7 @@ public:
      *  Constructor.
      *  \param systemUncertainty Matrix defining the uncertainty in modeling of the system.
      *  \param measurementUncertainty Matrix defining the uncertainty in modeling of the measurements.
+     *  \param filteringStepSize Scalar representing the value of the constant filtering time step.
      *  \param initialTime Scalar representing the value of the initial time.
      *  \param initialStateVector Vector representing the initial (estimated) state of the system. It is used as first
      *      a-priori estimate of the state vector.
@@ -78,12 +79,13 @@ public:
     FilterSettings( const AvailableFilteringTechniques filteringTechnique,
                     const DependentMatrix& systemUncertainty,
                     const DependentMatrix& measurementUncertainty,
+                    const IndependentVariableType filteringStepSize,
                     const IndependentVariableType initialTime,
                     const DependentVector& initialStateVector,
                     const DependentMatrix& initialCovarianceMatrix,
                     const boost::shared_ptr< IntegratorSettings > integratorSettings = nullptr ) :
         filteringTechnique_( filteringTechnique ), systemUncertainty_( systemUncertainty ),
-        measurementUncertainty_( measurementUncertainty ), initialTime_( initialTime ),
+        measurementUncertainty_( measurementUncertainty ), filteringStepSize_( filteringStepSize ), initialTime_( initialTime ),
         initialStateEstimate_( initialStateVector ), initialCovarianceEstimate_( initialCovarianceMatrix ),
         integratorSettings_( integratorSettings )
     { }
@@ -102,6 +104,9 @@ public:
 
     //! Matrix representing the uncertainty in measurement modeling.
     const DependentMatrix measurementUncertainty_;
+
+    //! Scalar representing step-size for filtering process.
+    const IndependentVariableType filteringStepSize_;
 
     //! Scalar representing the initial time.
     const IndependentVariableType initialTime_;
@@ -150,6 +155,7 @@ public:
      *  Jacobian functions as inputs. These functions can be a function of time, state and (for state) control vector.
      *  \param systemUncertainty Matrix defining the uncertainty in modeling of the system.
      *  \param measurementUncertainty Matrix defining the uncertainty in modeling of the measurements.
+     *  \param filteringStepSize Scalar representing the value of the constant filtering time step.
      *  \param initialTime Scalar representing the value of the initial time.
      *  \param initialStateVector Vector representing the initial (estimated) state of the system. It is used as first
      *      a-priori estimate of the state vector.
@@ -159,13 +165,14 @@ public:
      */
     ExtendedKalmanFilterSettings( const DependentMatrix& systemUncertainty,
                                   const DependentMatrix& measurementUncertainty,
+                                  const IndependentVariableType filteringStepSize,
                                   const IndependentVariableType initialTime,
                                   const DependentVector& initialStateVector,
                                   const DependentMatrix& initialCovarianceMatrix,
                                   const boost::shared_ptr< IntegratorSettings > integratorSettings = nullptr ) :
         FilterSettings< IndependentVariableType, DependentVariableType >( extended_kalman_filter,
                                                                           systemUncertainty, measurementUncertainty,
-                                                                          initialTime, initialStateVector,
+                                                                          filteringStepSize, initialTime, initialStateVector,
                                                                           initialCovarianceMatrix, integratorSettings )
     { }
 
@@ -193,6 +200,7 @@ public:
      *  These functions can be a function of time and state vector.
      *  \param systemUncertainty Matrix defining the uncertainty in modeling of the system.
      *  \param measurementUncertainty Matrix defining the uncertainty in modeling of the measurements.
+     *  \param filteringStepSize Scalar representing the value of the constant filtering time step.
      *  \param initialTime Scalar representing the value of the initial time.
      *  \param initialStateVector Vector representing the initial (estimated) state of the system. It is used as first
      *      a-priori estimate of the state vector.
@@ -206,6 +214,7 @@ public:
      */
     UnscentedKalmanFilterSettings( const DependentMatrix& systemUncertainty,
                                    const DependentMatrix& measurementUncertainty,
+                                   const IndependentVariableType filteringStepSize,
                                    const IndependentVariableType initialTime,
                                    const DependentVector& initialStateVector,
                                    const DependentMatrix& initialCovarianceMatrix,
@@ -216,7 +225,7 @@ public:
                             static_cast< DependentVariableType >( TUDAT_NAN ) ) ) :
         FilterSettings< IndependentVariableType, DependentVariableType >( unscented_kalman_filter,
                                                                           systemUncertainty, measurementUncertainty,
-                                                                          initialTime, initialStateVector,
+                                                                          filteringStepSize, initialTime, initialStateVector,
                                                                           initialCovarianceMatrix, integratorSettings ),
         constantValueReference_( constantValueReference ), customConstantParameters_( customConstantParameters )
     { }
@@ -279,8 +288,7 @@ createFilter( const boost::shared_ptr< FilterSettings< IndependentVariableType, 
     case extended_kalman_filter:
     {
         // Cast filter settings to extended Kalman filter
-        boost::shared_ptr< ExtendedKalmanFilterSettings< IndependentVariableType, DependentVariableType > >
-                extendedKalmanFilterSettings =
+        boost::shared_ptr< ExtendedKalmanFilterSettings< IndependentVariableType, DependentVariableType > > extendedKalmanFilterSettings =
                 boost::dynamic_pointer_cast< ExtendedKalmanFilterSettings< IndependentVariableType, DependentVariableType > >(
                     filterSettings );
         if ( extendedKalmanFilterSettings == nullptr )
@@ -303,15 +311,15 @@ createFilter( const boost::shared_ptr< FilterSettings< IndependentVariableType, 
                     systemFunction, measurementFunction, stateJacobianFunction, stateNoiseJacobianFunction,
                     measurementJacobianFunction, measurementNoiseJacobianFunction,
                     extendedKalmanFilterSettings->systemUncertainty_, extendedKalmanFilterSettings->measurementUncertainty_,
-                    extendedKalmanFilterSettings->initialTime_, extendedKalmanFilterSettings->initialStateEstimate_,
-                    extendedKalmanFilterSettings->initialCovarianceEstimate_, extendedKalmanFilterSettings->integratorSettings_ );
+                    extendedKalmanFilterSettings->filteringStepSize_, extendedKalmanFilterSettings->initialTime_,
+                    extendedKalmanFilterSettings->initialStateEstimate_, extendedKalmanFilterSettings->initialCovarianceEstimate_,
+                    extendedKalmanFilterSettings->integratorSettings_ );
         break;
     }
     case unscented_kalman_filter:
     {
         // Cast filter settings to unscented Kalman filter
-        boost::shared_ptr< UnscentedKalmanFilterSettings< IndependentVariableType, DependentVariableType > >
-                unscentedKalmanFilterSettings =
+        boost::shared_ptr< UnscentedKalmanFilterSettings< IndependentVariableType, DependentVariableType > > unscentedKalmanFilterSettings =
                 boost::dynamic_pointer_cast< UnscentedKalmanFilterSettings< IndependentVariableType, DependentVariableType > >(
                     filterSettings );
         if ( unscentedKalmanFilterSettings == nullptr )
@@ -325,14 +333,14 @@ createFilter( const boost::shared_ptr< FilterSettings< IndependentVariableType, 
         createdFilter = boost::make_shared< UnscentedKalmanFilter< IndependentVariableType, DependentVariableType > >(
                     systemFunction, measurementFunction,
                     unscentedKalmanFilterSettings->systemUncertainty_, unscentedKalmanFilterSettings->measurementUncertainty_,
-                    unscentedKalmanFilterSettings->initialTime_, unscentedKalmanFilterSettings->initialStateEstimate_,
-                    unscentedKalmanFilterSettings->initialCovarianceEstimate_, unscentedKalmanFilterSettings->integratorSettings_,
-                    unscentedKalmanFilterSettings->constantValueReference_, unscentedKalmanFilterSettings->customConstantParameters_ );
+                    unscentedKalmanFilterSettings->filteringStepSize_, unscentedKalmanFilterSettings->initialTime_,
+                    unscentedKalmanFilterSettings->initialStateEstimate_, unscentedKalmanFilterSettings->initialCovarianceEstimate_,
+                    unscentedKalmanFilterSettings->integratorSettings_, unscentedKalmanFilterSettings->constantValueReference_,
+                    unscentedKalmanFilterSettings->customConstantParameters_ );
         break;
     }
     default:
-        throw std::runtime_error( "Error while creating filter obejct. Only the creation of unscented Kalman filters is "
-                                  "currently supported." );
+        throw std::runtime_error( "Error while creating filter obejct. The creation of linear filters is not yet supported." );
     }
 
     // Check that filter was properly created
