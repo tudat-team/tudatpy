@@ -81,6 +81,7 @@ Eigen::Matrix3d calculateAccelerationWrtStatePartials(
     return accelerationPartials;
 }
 
+//! Function to numerical compute the partial derivative of a torque w.r.t. a body translational state.
 Eigen::MatrixXd calculateTorqueWrtTranslationalStatePartials(
         std::function< void( Eigen::Vector6d ) > setBodyState,
         std::shared_ptr< basic_astrodynamics::TorqueModel > torqueModel,
@@ -138,7 +139,7 @@ Eigen::MatrixXd calculateTorqueWrtTranslationalStatePartials(
     return torquePartials;
 }
 
-
+//! Function to numerical compute the partial derivative of a torque w.r.t. a body rotational state.
 Eigen::MatrixXd calculateTorqueWrtRotationalStatePartials(
         std::function< void( Eigen::Vector7d ) > setBodyRotationalState,
         std::shared_ptr< basic_astrodynamics::TorqueModel > torqueModel,
@@ -198,6 +199,7 @@ Eigen::MatrixXd calculateTorqueWrtRotationalStatePartials(
     return accelerationPartials;
 }
 
+//! Function to numerical compute the partial derivative of a acceleration w.r.t. a body rotational quaternion.
 Eigen::MatrixXd calculateAccelerationDeviationDueToOrientationChange(
         const std::function< void( Eigen::Vector7d ) > setBodyRotationalState,
         std::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > accelerationModel,
@@ -244,6 +246,7 @@ Eigen::MatrixXd calculateAccelerationDeviationDueToOrientationChange(
     return deviations;
 }
 
+//! Function to numerical compute the partial derivative of a torque w.r.t. a body rotational quaternion.
 Eigen::MatrixXd calculateTorqueDeviationDueToOrientationChange(
         const std::function< void( Eigen::Vector7d ) > setBodyRotationalState,
         const std::shared_ptr< basic_astrodynamics::TorqueModel > torqueModel,
@@ -335,6 +338,7 @@ Eigen::Vector3d calculateAccelerationWrtParameterPartials(
 
 }
 
+//! Function to numerical compute the partial derivative of an torque w.r.t. a double parameter
 Eigen::Vector3d calculateTorqueWrtParameterPartials(
         std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter,
         std::shared_ptr< basic_astrodynamics::TorqueModel > torqueModel,

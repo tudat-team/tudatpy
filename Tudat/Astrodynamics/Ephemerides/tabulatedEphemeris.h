@@ -230,6 +230,16 @@ std::shared_ptr< Ephemeris > createEmptyTabulatedEphemeris(
                 referenceFrameOrigin, referenceFrameOrientation );
 }
 
+//! Create a tabulated ephemeris from a given ephemeris model and interpolation settings
+/*!
+ * Create a tabulated ephemeris from a given ephemeris model and interpolation settings
+ * \param ephemerisToInterrogate Ephemeris model from which the tabulated model is tpo be synthesized
+ * \param startTime Start time for tabulated ephemeris
+ * \param endTime End time for tabulated ephemeris
+ * \param timeStep Constant time step for tabulated ephemeris
+ * \param interpolatorSettings Interpolation settings for tabulated ephemeris
+ * \return Tabulated ephemeris, as synthesized from a given ephemeris model and interpolation settings
+ */
 template< typename StateScalarType = double, typename TimeType = double >
 std::shared_ptr< Ephemeris > getTabulatedEphemeris(
         const std::shared_ptr< Ephemeris > ephemerisToInterrogate,
@@ -237,15 +247,13 @@ std::shared_ptr< Ephemeris > getTabulatedEphemeris(
         const TimeType endTime,
         const TimeType timeStep,
         const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings =
-        std::make_shared< interpolators::LagrangeInterpolatorSettings >( 8 ),
-        const std::string referenceFrameOrigin = "SSB",
-        const std::string referenceFrameOrientation = "ECLIPJ2000" )
+        std::make_shared< interpolators::LagrangeInterpolatorSettings >( 8 ) )
 {
     typedef Eigen::Matrix< StateScalarType, 6, 1 > StateType;
+
+    // Create state map that is to be interpolated
     std::map< TimeType, StateType >  stateMap;
-
     TimeType currentTime = startTime;
-
     while( currentTime <= endTime )
     {
         stateMap[ currentTime ] = ephemerisToInterrogate->getTemplatedStateFromEphemeris<
@@ -253,12 +261,11 @@ std::shared_ptr< Ephemeris > getTabulatedEphemeris(
         currentTime += timeStep;
     }
 
-    //! Typedef for state interpolator
-    std::shared_ptr< interpolators::OneDimensionalInterpolator< TimeType, StateType  > > stateInterpolator =
-            interpolators::createOneDimensionalInterpolator( stateMap, interpolatorSettings );
-
+    // Create tabulated ephemeris model
     return std::make_shared< TabulatedCartesianEphemeris< StateScalarType, TimeType > >(
-                stateInterpolator, referenceFrameOrigin, referenceFrameOrientation );
+                interpolators::createOneDimensionalInterpolator( stateMap, interpolatorSettings ),
+                ephemerisToInterrogate->getReferenceFrameOrigin( ),
+                ephemerisToInterrogate->getReferenceFrameOrientation( ) );
 
 }
 

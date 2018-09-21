@@ -39,8 +39,7 @@ public:
                                  const std::string& targetFrameOrientation = "" ):
         RotationalEphemeris( baseFrameOrientation, targetFrameOrientation )
     {
-        constantState_ = constantState;
-        updateRotationVariables( );
+        updateConstantState( constantState );
     }
 
 
@@ -96,31 +95,30 @@ public:
     void updateConstantState( const Eigen::Vector7d& newState )
     {
         constantState_ = newState;
-        updateRotationVariables( );
+
+        Eigen::Quaterniond currentRotationToGlobalFrame =
+                 Eigen::Quaterniond( constantState_( 0 ),
+                                     constantState_( 1 ),
+                                     constantState_( 2 ),
+                                     constantState_( 3 ) );
+         currentRotationToGlobalFrame.normalize( );
+
+         currentRotationToLocalFrame_ = currentRotationToGlobalFrame.inverse( );
+
+         Eigen::Matrix3d currentRotationMatrixToLocalFrame = ( currentRotationToLocalFrame_ ).toRotationMatrix( );
+         currentRotationToLocalFrameDerivative_ = linear_algebra::getCrossProductMatrix(
+                     constantState_.block( 4, 0, 3, 1 ) ) * currentRotationMatrixToLocalFrame;
     }
 
 private:
 
-    void updateRotationVariables( )
-    {
-       Eigen::Quaterniond currentRotationToGlobalFrame =
-                Eigen::Quaterniond( constantState_( 0 ),
-                                    constantState_( 1 ),
-                                    constantState_( 2 ),
-                                    constantState_( 3 ) );
-        currentRotationToGlobalFrame.normalize( );
-
-        currentRotationToLocalFrame_ = currentRotationToGlobalFrame.inverse( );
-
-        Eigen::Matrix3d currentRotationMatrixToLocalFrame = ( currentRotationToLocalFrame_ ).toRotationMatrix( );
-        currentRotationToLocalFrameDerivative_ = linear_algebra::getCrossProductMatrix(
-                    constantState_.block( 4, 0, 3, 1 ) ) * currentRotationMatrixToLocalFrame;
-    }
-
+    //! Constant rotational state vector
     Eigen::Vector7d constantState_;
 
+    //! Rotation quaternion to local frame
     Eigen::Quaterniond currentRotationToLocalFrame_;
 
+    //! Current derivative of rotation matrix to local frame
     Eigen::Matrix3d currentRotationToLocalFrameDerivative_;
 
 

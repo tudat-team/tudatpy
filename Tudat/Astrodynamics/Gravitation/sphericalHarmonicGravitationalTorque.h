@@ -82,14 +82,15 @@ public:
         currentTorque_ = -perturberMassFunction_( ) *
                 ( ( sphericalHarmonicAcceleration_->getCurrentRelativePosition( ) ).cross(
                       sphericalHarmonicAcceleration_->getAccelerationInBodyFixedFrame( ) ) );
-
-//        std::cout<<"Torque cross-product sh: "<<std::endl<<
-//                   sphericalHarmonicAcceleration_->getCurrentRelativePosition( ).norm( )<<" "<<
-//                   sphericalHarmonicAcceleration_->getCurrentRelativePosition( ).transpose( )<<std::endl<<
-//                   sphericalHarmonicAcceleration_->getAccelerationInBodyFixedFrame( ).norm( )<<" "<<
-//                   sphericalHarmonicAcceleration_->getAccelerationInBodyFixedFrame( ).transpose( )<<std::endl;
     }
 
+    //! Function to retrieve spherical harmonic acceleration
+    /*!
+     *  Function to retrieve spherical harmonic acceleration that the body that undergoes the torque exerts on the body that
+     *  exerts the torque
+     *  \return Spherical harmonic acceleration that the body that undergoes the torque exerts on the body that
+     *  exerts the torque
+     */
     std::shared_ptr< SphericalHarmonicsGravitationalAccelerationModel > getSphericalHarmonicAcceleration( )
     {
         return sphericalHarmonicAcceleration_;

@@ -110,16 +110,12 @@ Eigen::Matrix3d getInertiaTensor(
         const double bodyMass,
         const double referenceRadius )
 {
+    // Compute inertia tensor
     double scalingConstant = bodyMass * referenceRadius * referenceRadius;
     Eigen::Matrix3d inertiaTensor =
             ( Eigen::Matrix3d( )<< c20Coefficient / 3.0 - 2.0 * c22Coefficient, -2.0 * s22Coefficient, -c21Coefficient,
               -2.0 * s22Coefficient, c20Coefficient / 3.0 + 2.0 * c22Coefficient, -s21Coefficient,
               -c21Coefficient, -s21Coefficient, -2.0 * c20Coefficient / 3.0 ).finished( );
-
-//    std::cout<<std::setprecision( 10 )<<"Setting inertia tensor: "<<c20Coefficient<<" "<<c21Coefficient<<" "<<c22Coefficient<<" "<<
-//               s21Coefficient<<" "<<s22Coefficient<<" "<<std::endl<<scaledMeanMomentOfInertia<<" "<<bodyMass<<" "<<
-//               referenceRadius<<std::endl<<
-//               scalingConstant * ( inertiaTensor + Eigen::Matrix3d::Identity( ) * scaledMeanMomentOfInertia )<<std::endl<<std::endl;
 
     return scalingConstant * ( inertiaTensor + Eigen::Matrix3d::Identity( ) * scaledMeanMomentOfInertia );
 }
@@ -144,6 +140,7 @@ Eigen::Matrix3d getInertiaTensor(
         const std::shared_ptr< SphericalHarmonicsGravityField > sphericalHarmonicGravityField,
         const double scaledMeanMomentOfInertia )
 {
+    // Denormalize coefficients if needed, and compute inertia tensor
     if( sphericalHarmonicGravityField->areCoefficientsGeodesyNormalized( ) )
     {
         Eigen::MatrixXd normalizedCosineCoefficients = Eigen::Matrix3d::Zero( );
@@ -171,6 +168,7 @@ Eigen::Matrix3d getInertiaTensor(
     }
 }
 
+//! Retrieve degree 2 spherical harmonic coefficients from inertia tensor and assiciated parameters
 void getDegreeTwoSphericalHarmonicCoefficients(
         const Eigen::Matrix3d inertiaTensor, const double bodyGravitationalParameter, const double referenceRadius,
         const bool useNormalizedCoefficients,

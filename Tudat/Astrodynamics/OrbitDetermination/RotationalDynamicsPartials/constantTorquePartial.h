@@ -24,10 +24,27 @@ namespace tudat
 namespace acceleration_partials
 {
 
+//! Class to calculate the partials of the effective torque (if all constituent torques are constant) w.r.t. parameters and states.
+/*!
+ * Class to calculate the partials of the effective torque (if all constituent torques are constant) w.r.t. parameters and states.
+ * Terms in the model are a result of the face that the derivative of angular acceleration is premultiplied by I^-1, for which
+ * partial derivatives must be computed
+ */
 class ConstantTorquePartial: public TorquePartial
 {
 public:
 
+
+    //! Constructor
+    /*!
+     * Constructor
+     * \param angularVelocityFunction Function returning body angular velocity vector in body fixed frame.
+     * \param inertiaTensorFunction Function returning body inertia tensor
+     * \param inertiaTensorNormalizationFunction Function the inertia tensor normalization factor
+     * \param bodyGravitationalParameterFunction Function returning body gravitational parameter
+     * \param torqueVector List of torques acting on body
+     * \param acceleratedBody Name of body undergoing torque
+     */
     ConstantTorquePartial(
             const std::function< Eigen::Vector3d( ) > angularVelocityFunction,
             const std::function< Eigen::Matrix3d( ) > inertiaTensorFunction,
@@ -42,13 +59,14 @@ public:
         getInertiaTensorNormalizationFactor_( inertiaTensorNormalizationFunction ),
         bodyGravitationalParameterFunction_( bodyGravitationalParameterFunction ){ }
 
+    //! Destructor
     ~ConstantTorquePartial( ){ }
 
-    //! Function for determining if the acceleration is dependent on a non-rotational integrated state.
+    //! Function for determining if the torque is dependent on a non-rotational integrated state.
     /*!
-     *  Function for determining if the acceleration is dependent on a non-rotational integrated state.
-     *  No dependency is implemented, but a warning is provided if partial w.r.t. mass of body exerting acceleration
-     *  (and undergoing acceleration if mutual attraction is used) is requested.
+     *  Function for determining if the torque is dependent on a non-rotational integrated state.
+     *  No dependency is implemented, but a warning is provided if partial w.r.t. mass of body exerting torque
+     *  (and undergoing torque if mutual attraction is used) is requested.
      *  \param stateReferencePoint Reference point id of propagated state
      *  \param integratedStateType Type of propagated state for which dependency is to be determined.
      *  \return True if dependency exists (non-zero partial), false otherwise.
@@ -80,23 +98,41 @@ public:
     std::pair< std::function< void( Eigen::MatrixXd& ) >, int > getParameterPartialFunction(
             std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter );
 
+    //! Function for calculating the partial of the torque w.r.t. the orientation of the accelerated body.
+    /*!
+     *  Function for calculating the partial of the torque w.r.t. the orientation of the accelerated body and
+     *  adding it to the existing partial block.
+     *  \param partialMatrix Block of partial derivatives of torque w.r.t. Orientation of body
+     *  undergoing torque where current partial is to be added.
+     *  \param addContribution Variable denoting whether to return the partial itself (true) or the negative partial (false).
+     *  \param startRow First row in partialMatrix block where the computed partial is to be added.
+     *  \param startColumn First column in partialMatrix block where the computed partial is to be added.
+     */
     void wrtOrientationOfAcceleratedBody(
             Eigen::Block< Eigen::MatrixXd > partialMatrix,
             const bool addContribution = 1, const int startRow = 0, const int startColumn = 0 )
     { }
 
+    //! Function for calculating the partial of the torque w.r.t. the angular velocity of the accelerated body.
+    /*!
+     *  Function for calculating the partial of the torque w.r.t. the angular velocity of the accelerated body and
+     *  adding it to the existing partial block.
+     *  \param partialMatrix Block of partial derivatives of torque w.r.t. angular velocity of body
+     *  undergoing torque where current partial is to be added.
+     *  \param addContribution Variable denoting whether to return the partial itself (true) or the negative partial (false).
+     *  \param startRow First row in partialMatrix block where the computed partial is to be added.
+     *  \param startColumn First column in partialMatrix block where the computed partial is to be added.
+     */
     void wrtRotationalVelocityOfAcceleratedBody(
             Eigen::Block< Eigen::MatrixXd > partialMatrix,
             const bool addContribution = 1, const int startRow = 0, const int startColumn = 3 )
     { }
 
-    bool isStateDerivativeDependentOnIntegratedAdditionalStateTypes(
-            const std::pair< std::string, std::string >& stateReferencePoint,
-            const propagators::IntegratedStateType integratedStateType )
-    {
-        return false;
-    }
-
+    //! Update partial model to current time
+    /*!
+     * Update partial model to current time, retrieving information from consituent functions
+     * \param currentTime Time to which partial is to be updated
+     */
     void update( const double currentTime = TUDAT_NAN )
     {
         if( !( currentTime_ == currentTime ) )
@@ -120,41 +156,71 @@ public:
 
 protected:
 
+    //! Function to computed partial of torque w.r.t. mean moment of inertia
+    /*!
+     * Function to computed partial of torque w.r.t. mean moment of inertia
+     * \param momentOfInertiaPartial Computed partial of torque w.r.t. mean moment of inertia (returned by reference)
+     */
     void wrtMeanMomentOfInertia(
             Eigen::MatrixXd& momentOfInertiaPartial );
 
+    //! Function to computed partial of torque w.r.t. gravitational parameter
+    /*!
+     * Function to computed partial of torque w.r.t. gravitational parameter
+     * \param momentOfInertiaPartial Computed partial of torque w.r.t. gravitational parameter (returned by reference)
+     */
     void wrtGravitationalParameter(
             Eigen::MatrixXd& momentOfInertiaPartial );
 
+    //! Function to computed partial of torque w.r.t. spherical harmonic cosine coefficients
+    /*!
+     * Function to computed partial of torque w.r.t. spherical harmonic cosine coefficients
+     * \param momentOfInertiaPartial Computed partial of torque w.r.t. spherical harmonic cosine coefficients (returned by reference)
+     */
     void wrtCosineSphericalHarmonicCoefficientsOfCentralBody(
             Eigen::MatrixXd& sphericalHarmonicCoefficientPartial,
             const int c20Index, const int c21Index, const int c22Index );
 
+    //! Function to computed partial of torque w.r.t. spherical harmonic sine coefficients
+    /*!
+     * Function to computed partial of torque w.r.t. spherical harmonic sine coefficients
+     * \param momentOfInertiaPartial Computed partial of torque w.r.t. spherical harmonic sine coefficients (returned by reference)
+     */
     void wrtSineSphericalHarmonicCoefficientsOfCentralBody(
             Eigen::MatrixXd& sphericalHarmonicCoefficientPartial,
             const int s21Index, const int s22Index );
 
-
+    //! Function returning body angular velocity vector in body fixed frame.
     std::function< Eigen::Vector3d( ) > angularVelocityFunction_;
 
+    //! Function returning body inertia tensor
     std::function< Eigen::Matrix3d( ) > inertiaTensorFunction_;
 
+    //! List of torques acting on body
     basic_astrodynamics::SingleBodyTorqueModelMap torqueVector_;
 
+    //! Function the inertia tensor normalization factor
     std::function< double( ) > getInertiaTensorNormalizationFactor_;
 
+    //!  Function returning body gravitational parameter
     std::function< double( ) > bodyGravitationalParameterFunction_;
 
+    //! Current total torque acting on body
     Eigen::Vector3d currentTotalTorque_;
 
+    //! Current angular velocity vector
     Eigen::Vector3d currentAngularVelocityVector_;
 
+    //! Current inertia tensor
     Eigen::Matrix3d currentInertiaTensor_;
 
+    //! Current inverse inertia tensor
     Eigen::Matrix3d currentInverseInertiaTensor_;
 
+    //! Current partial derivative w.r.t. angular velocity vector
     Eigen::Matrix3d currentPartialDerivativeWrtAngularVelocity_;
 
+    //! Current inertia tensor normalization
     double currentInertiaTensorNormalizationFactor_;
 
 };

@@ -128,7 +128,7 @@ NamedBodyMap getTestBodyMap( const double phobosSemiMajorAxis,
                 ephemerides::getTabulatedEphemeris( std::make_shared< ephemerides::KeplerEphemeris >(
                                                         phobosKeplerElements, 0.0, spice_interface::getBodyGravitationalParameter( "Mars" ),
                                                         "Mars", "ECLIPJ2000" ), -3600.0, 120.0 * 86400.0 + 3600.0, 120.0,
-                                                    std::make_shared< interpolators::LagrangeInterpolatorSettings >( 8 ), "Mars" ) );
+                                                    std::make_shared< interpolators::LagrangeInterpolatorSettings >( 8 ) ) );
 
     return bodyMap;
 }

@@ -20,7 +20,7 @@ namespace tudat
 namespace estimatable_parameters
 {
 
-//! Interface class for the estimation of a gravitational parameter
+//! Interface class for the estimation of a mean moment of inertia parameter
 class MeanMomentOfInertiaParameter: public EstimatableParameter< double >
 {
 
@@ -29,7 +29,8 @@ public:
     //! Constructor
     /*!
      * Constructor
-     * \param gravityFieldModel Gravity field object containing the gravitational parameter to be estimated.
+     * \param getMeanMomentOfInertia Function that returns the current mean moment of inertia
+     * \param setMeanMomentOfInertia Function that resets the mean moment of inertia
      * \param associatedBody Name of body containing the gravityFieldModel object
      */
     MeanMomentOfInertiaParameter(
@@ -42,20 +43,20 @@ public:
     //! Destructor
     ~MeanMomentOfInertiaParameter( ) { }
 
-    //! Function to get the current value of the gravitational parameter that is to be estimated.
+    //! Function to get the current value of the mean moment of inertia that is to be estimated.
     /*!
-     * Function to get the current value of the gravitational parameter that is to be estimated.
-     * \return Current value of the gravitational parameter that is to be estimated.
+     * Function to get the current value of the mean moment of inertia that is to be estimated.
+     * \return Current value of the mean moment of inertia that is to be estimated.
      */
     double getParameterValue( )
     {
         return getMeanMomentOfInertia_( );
     }
 
-    //! Function to reset the value of the gravitational parameter that is to be estimated.
+    //! Function to reset the value of the mean moment of inertia that is to be estimated.
     /*!
-     * Function to reset the value of the gravitational parameter that is to be estimated.
-     * \param parameterValue New value of the gravitational parameter that is to be estimated.
+     * Function to reset the value of the mean moment of inertia that is to be estimated.
+     * \param parameterValue New value of the mean moment of inertia that is to be estimated.
      */
     void setParameterValue( double parameterValue )
     {
@@ -76,9 +77,10 @@ protected:
 
 private:
 
-    //! Gravity field object containing the gravitational parameter to be estimated.
+    //! Function that returns the current mean moment of inertia
     std::function< double( ) > getMeanMomentOfInertia_;
 
+    //! Function that resets the mean moment of inertia
     std::function< void( const double ) > setMeanMomentOfInertia_;
 
 };

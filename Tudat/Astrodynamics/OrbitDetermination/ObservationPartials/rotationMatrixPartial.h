@@ -330,10 +330,7 @@ public:
         linear_algebra::computePartialDerivativeOfRotationMatrixWrtQuaternion(
         linear_algebra::convertQuaternionToVectorFormat( currentRotationToInertialFrameFunction_( ) ),
                    currentQuaternionPartials_ );
-//        for( int i = 0; i < 4; i++ )
-//        {
-//            currentQuaternionPartials_[ i ].transposeInPlace( );
-//        }
+
         return currentQuaternionPartials_;
     }
 
@@ -373,17 +370,8 @@ public:
         linear_algebra::convertQuaternionToVectorFormat( currentRotationToInertialFrameFunction_( time ) ),
                    currentQuaternionPartials_ );
 
-//        std::cout<<"Current rotation when getting an. partial: "<<std::endl<<
-//                   currentRotationToInertialFrameFunction_( time ).toRotationMatrix( )<<std::endl;
-
-//        for( int i = 0; i < 2; i++ )
-//        {
-//            std::cout<<"Rot mat. partial "<<i<<std::endl<<currentQuaternionPartials_[ i ]<<std::endl;
-//        }
-//        std::cout<<std::endl;
         for( int i = 0; i < 3; i++ )
         {
-            //currentQuaternionPartials_[ i ].transposeInPlace( );
             currentQuaternionPartials_[ i + 4 ] =  Eigen::Matrix3d::Zero( );
         }
         return currentQuaternionPartials_;

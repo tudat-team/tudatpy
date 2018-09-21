@@ -107,6 +107,13 @@ public:
         return parameterDescription;
     }
 
+    //! Function that returns the indices for degree two coefficients (if any)
+    /*!
+     * Function that returns the indices for degree two coefficients (if any)
+     * \param c20Index Index for degree=2, order=0 entry (-1 if none; returned by reference)
+     * \param c21Index Index for degree=2, order=1 entry (-1 if none; returned by reference)
+     * \param c22Index Index for degree=2, order=2 entry (-1 if none; returned by reference)
+     */
     void getDegreeTwoEntries(
             int& c20Index, int& c21Index, int& c22Index )
     {

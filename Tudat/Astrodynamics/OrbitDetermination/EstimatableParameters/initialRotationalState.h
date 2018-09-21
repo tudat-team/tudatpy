@@ -88,11 +88,21 @@ public:
         return centralBody_;
     }
 
+    //! Function to retrieve size of constraint to be applied on parameter
+    /*!
+     * Function to retrieve size of constraint to be applied on parameter, equal to 1 for this parameter (quaternion norm).
+     * \return Size of constraint to be applied on parameter
+     */
     int getConstraintSize( )
     {
         return 1;
     }
 
+    //! Function to retrieve multiplier for parameter linear constraint
+    /*!
+     * Function to retrieve multiplier for parameter linear constraint.
+     * \return Multiplier for parameter linear constraint
+     */
     Eigen::MatrixXd getConstraintStateMultipler( )
     {
         Eigen::MatrixXd constraintsMatrix = Eigen::MatrixXd::Zero( 1, 7 );
@@ -100,11 +110,21 @@ public:
         return constraintsMatrix;
     }
 
+    //! Function to retrieve right-hand side for parameter linear constraint
+    /*!
+     * Function to retrieve right-hand side for parameter linear constraint.
+     * \return Right-hand side for parameter linear constraint
+     */
     Eigen::VectorXd getConstraintRightHandSide( )
     {
         return Eigen::VectorXd::Zero( 1 );
     }
 
+    //! Function to retrieve function that returns the current inertia tensor
+    /*!
+     * Function to retrieve function that returns the current inertia tensor
+     * \return Function that returns the current inertia tensor
+     */
     std::function< Eigen::Matrix3d( ) > getBodyInertiaTensorFunction( )
     {
         return inertiaTensorFunction_;
@@ -121,6 +141,7 @@ private:
     //! Orientation of the frame in which the state is defined.
     std::string frameOrientation_;
 
+    //! Function that returns the current inertia tensor
     std::function< Eigen::Matrix3d( ) > inertiaTensorFunction_;
 
 };
