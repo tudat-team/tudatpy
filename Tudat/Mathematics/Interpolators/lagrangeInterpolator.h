@@ -88,8 +88,8 @@ public:
             const LagrangeInterpolatorBoundaryHandling lagrangeBoundaryHandling = lagrange_cubic_spline_boundary_interpolation,
             const BoundaryInterpolationType boundaryHandling = extrapolate_at_boundary,
             const std::pair< DependentVariableType, DependentVariableType >& defaultExtrapolationValue =
-            std::make_pair( IdentityElement< DependentVariableType >::getAdditionIdentity( ),
-                            IdentityElement< DependentVariableType >::getAdditionIdentity( ) ) ):
+            std::make_pair( IdentityElement::getAdditionIdentity< DependentVariableType >( ),
+                            IdentityElement::getAdditionIdentity< DependentVariableType >( ) ) ):
         OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >( boundaryHandling,
                                                                                       defaultExtrapolationValue ),
         numberOfStages_( numberOfStages ), lagrangeBoundaryHandling_( lagrangeBoundaryHandling )
@@ -167,8 +167,8 @@ public:
             const LagrangeInterpolatorBoundaryHandling lagrangeBoundaryHandling = lagrange_cubic_spline_boundary_interpolation,
             const BoundaryInterpolationType boundaryHandling = extrapolate_at_boundary,
             const std::pair< DependentVariableType, DependentVariableType >& defaultExtrapolationValue =
-            std::make_pair( IdentityElement< DependentVariableType >::getAdditionIdentity( ),
-                            IdentityElement< DependentVariableType >::getAdditionIdentity( ) ) ):
+            std::make_pair( IdentityElement::getAdditionIdentity< DependentVariableType >( ),
+                            IdentityElement::getAdditionIdentity< DependentVariableType >( ) ) ):
         OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >( boundaryHandling,
                                                                                       defaultExtrapolationValue ),
         numberOfStages_( numberOfStages ), lagrangeBoundaryHandling_( lagrangeBoundaryHandling )

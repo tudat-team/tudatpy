@@ -55,8 +55,8 @@ public:
     OneDimensionalInterpolator(
             const BoundaryInterpolationType boundaryHandling = extrapolate_at_boundary,
             const std::pair< DependentVariableType, DependentVariableType >& defaultExtrapolationValue =
-            std::make_pair( IdentityElement< DependentVariableType >::getAdditionIdentity( ),
-                            IdentityElement< DependentVariableType >::getAdditionIdentity( ) ) ):
+            std::make_pair( IdentityElement::getAdditionIdentity< DependentVariableType >( ),
+                            IdentityElement::getAdditionIdentity< DependentVariableType >( ) ) ):
         boundaryHandling_( boundaryHandling ), defaultExtrapolationValue_( defaultExtrapolationValue )
     { }
 

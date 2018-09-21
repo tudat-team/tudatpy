@@ -56,15 +56,15 @@ public:
             std::vector< BoundaryInterpolationType >( NumberOfDimensions, extrapolate_at_boundary ),
             const std::vector< std::pair< DependentVariableType, DependentVariableType > >& defaultExtrapolationValue =
             std::vector< std::pair< DependentVariableType, DependentVariableType > >(
-                NumberOfDimensions, std::make_pair( IdentityElement< DependentVariableType >::getAdditionIdentity( ),
-                                                    IdentityElement< DependentVariableType >::getAdditionIdentity( ) ) ) ) :
+                NumberOfDimensions, std::make_pair( IdentityElement::getAdditionIdentity< DependentVariableType >( ),
+                                                    IdentityElement::getAdditionIdentity< DependentVariableType >( ) ) ) ) :
         boundaryHandling_( boundaryHandling ), defaultExtrapolationValue_( defaultExtrapolationValue )
     {
         // Check that the user-defined default value does not correspond to a boundary method that does not use the
         // default value
         std::pair< DependentVariableType, DependentVariableType > defaultValueForBoundaryHandling =
-                std::make_pair( IdentityElement< DependentVariableType >::getAdditionIdentity( ),
-                                IdentityElement< DependentVariableType >::getAdditionIdentity( ) );
+                std::make_pair( IdentityElement::getAdditionIdentity< DependentVariableType >( ),
+                                IdentityElement::getAdditionIdentity< DependentVariableType >( ) );
         for ( unsigned int i = 0; i < NumberOfDimensions; i++ )
         {
             if ( defaultExtrapolationValue_.at( i ) != defaultValueForBoundaryHandling )

@@ -709,6 +709,7 @@ BOOST_AUTO_TEST_CASE( testRotationalAndTranslationalDynamicsPropagation )
             basic_astrodynamics::TorqueModelMap torqueModelMap = createTorqueModelsMap(
                         bodyMap, selectedTorqueModelMap, bodiesToPropagate );
 
+
             // Define list of dependent variables to save.
             std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariablesList;
             dependentVariablesList.push_back(

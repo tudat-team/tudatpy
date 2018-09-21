@@ -447,8 +447,8 @@ createOneDimensionalInterpolator(
         const std::map< IndependentVariableType, DependentVariableType > dataToInterpolate,
         const std::shared_ptr< InterpolatorSettings > interpolatorSettings,
         const std::pair< DependentVariableType, DependentVariableType >& defaultExtrapolationValue =
-        std::make_pair( IdentityElement< DependentVariableType >::getAdditionIdentity( ),
-                        IdentityElement< DependentVariableType >::getAdditionIdentity( ) ),
+        std::make_pair( IdentityElement::getAdditionIdentity< DependentVariableType >( ),
+                        IdentityElement::getAdditionIdentity< DependentVariableType >( ) ),
         const std::vector< DependentVariableType > firstDerivativeOfDependentVariables =
         std::vector< DependentVariableType >( ) )
 {
@@ -563,8 +563,8 @@ template< typename IndependentType, typename DependentType >
 std::shared_ptr< OneDimensionalInterpolator< IndependentType, DependentType > > createOneDimensionalInterpolator(
         const std::shared_ptr< DataInterpolationSettings< IndependentType, DependentType > > dataInterpolationSettings,
         const std::pair< DependentType, DependentType >& defaultExtrapolationValue =
-        std::make_pair( IdentityElement< DependentType >::getAdditionIdentity( ),
-                        IdentityElement< DependentType >::getAdditionIdentity( ) ) )
+        std::make_pair( IdentityElement::getAdditionIdentity< DependentType >( ),
+                        IdentityElement::getAdditionIdentity< DependentType >( ) ) )
 {
     std::vector< DependentType > firstDerivativeOfDependentVariables;
     std::shared_ptr< HermiteDataSettings< IndependentType, DependentType > > hermiteDataSettings =
@@ -599,8 +599,8 @@ createMultiDimensionalInterpolator(
         const std::shared_ptr< InterpolatorSettings > interpolatorSettings,
         const std::vector< std::pair< DependentVariableType, DependentVariableType > >& defaultExtrapolationValue =
         std::vector< std::pair< DependentVariableType, DependentVariableType > >
-        ( NumberOfDimensions, std::make_pair( IdentityElement< DependentVariableType >::getAdditionIdentity( ),
-                                              IdentityElement< DependentVariableType >::getAdditionIdentity( ) ) ) )
+        ( NumberOfDimensions, std::make_pair( IdentityElement::getAdditionIdentity< DependentVariableType >( ),
+                                              IdentityElement::getAdditionIdentity< DependentVariableType >( ) ) ) )
 {
     std::shared_ptr< MultiDimensionalInterpolator< IndependentVariableType, DependentVariableType, NumberOfDimensions > >
             createdInterpolator;
