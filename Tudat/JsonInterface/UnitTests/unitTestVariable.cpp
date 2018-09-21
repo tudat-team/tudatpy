@@ -208,7 +208,6 @@ BOOST_AUTO_TEST_CASE( test_json_variable_singleGravityFieldVariationAcceleration
 BOOST_AUTO_TEST_CASE( test_json_variable_accelerationPartialWrtBodyTranslationalState )
 {
     using namespace basic_astrodynamics;
-    using namespace gravitation;
     using namespace propagators;
     using namespace json_interface;
 
