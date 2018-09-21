@@ -46,7 +46,7 @@ public:
     //! Function to output the zero value (i.e., the addition identity) for integer and floating point types.
     /*!
      *  Function to output the zero value (i.e., the addition identity) for integer and floating point types.
-     *  \return Addition identity of Eigen types.
+     *  \return Addition identity of integer and floating point types.
      */
     template< typename VariableType, typename std::enable_if< ( std::is_integral< VariableType >::value ||
                                        std::is_floating_point< VariableType >::value ), int >::type = 0 >
@@ -77,7 +77,7 @@ public:
     //! Function to output the unit value (i.e., the multiplication identity) for integer and floating point types.
     /*!
      *  Function to output the unit value (i.e., the multiplication identity) for integer and floating point types.
-     *  \return Multiplication identity of Eigen types.
+     *  \return Multiplication identity of integer and floating point types.
      */
     template< typename VariableType, typename std::enable_if< ( std::is_integral< VariableType >::value ||
                                        std::is_floating_point< VariableType >::value ), int >::type = 0 >
@@ -98,10 +98,10 @@ public:
                                        ( VariableType::ColsAtCompileTime > 0 ) ? VariableType::ColsAtCompileTime : 0, TUDAT_NAN );
     }
 
-    //! Function to output the NaN value (i.e., the null identity) for integer and floating point types.
+    //! Function to output the NaN value (i.e., the null identity) for floating point types.
     /*!
-     *  Function to output the NaN value (i.e., the null identity) for integer and floating point types.
-     *  \return Null identity of Eigen types.
+     *  Function to output the NaN value (i.e., the null identity) for floating point types.
+     *  \return Null identity of floating point types.
      */
     template< typename VariableType, typename std::enable_if< std::is_floating_point< VariableType >::value, int >::type = 0 >
     static VariableType getNullIdentity( )
