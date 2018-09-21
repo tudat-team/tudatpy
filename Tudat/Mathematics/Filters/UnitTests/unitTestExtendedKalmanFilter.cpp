@@ -54,7 +54,7 @@ Eigen::Matrix2d stateJacobianFunction1( const double time, const Eigen::Vector2d
     TUDAT_UNUSED_PARAMETER( time );
     TUDAT_UNUSED_PARAMETER( control );
     Eigen::Matrix2d stateJacobian = Eigen::Matrix2d::Zero( );
-    stateJacobian( 0, 0 ) = - 3 * state[ 1 ] * std::pow( std::cos( state[ 0 ] ), 2 ) * std::sin( state[ 0 ] );
+    stateJacobian( 0, 0 ) = - 3.0 * state[ 1 ] * std::pow( std::cos( state[ 0 ] ), 2 ) * std::sin( state[ 0 ] );
     stateJacobian( 0, 1 ) = std::pow( std::cos( state[ 0 ] ), 3 );
     stateJacobian( 1, 0 ) = std::cos( state[ 0 ] );
     return stateJacobian;
@@ -73,7 +73,7 @@ BOOST_AUTO_TEST_CASE( testExtendedKalmanFilterFirstCase )
     using namespace tudat::filters;
 
     // Set initial conditions
-    const double initialTime = 0;
+    const double initialTime = 0.0;
     const double timeStep = 0.01;
     const unsigned int numberOfTimeSteps = 1000;
 
@@ -83,18 +83,18 @@ BOOST_AUTO_TEST_CASE( testExtendedKalmanFilterFirstCase )
 
     Eigen::Vector2d initialEstimatedStateVector;
     initialEstimatedStateVector[ 0 ] = 10.0;
-    initialEstimatedStateVector[ 1 ] = -3;
+    initialEstimatedStateVector[ 1 ] = -3.0;
 
     Eigen::Matrix2d initialEstimatedStateCovarianceMatrix = Eigen::Matrix2d::Zero( );
-    initialEstimatedStateCovarianceMatrix( 0, 0 ) = 100;
-    initialEstimatedStateCovarianceMatrix( 1, 1 ) = 100;
+    initialEstimatedStateCovarianceMatrix( 0, 0 ) = 100.0;
+    initialEstimatedStateCovarianceMatrix( 1, 1 ) = 100.0;
 
     // Set system and measurement uncertainty
     Eigen::Matrix2d systemUncertainty = Eigen::Matrix2d::Zero( );
     Eigen::Vector1d measurementUncertainty = Eigen::Vector1d::Zero( );
-    systemUncertainty( 0, 0 ) = 100;
-    systemUncertainty( 1, 1 ) = 100;
-    measurementUncertainty[ 0 ] = 100;
+    systemUncertainty( 0, 0 ) = 100.0;
+    systemUncertainty( 1, 1 ) = 100.0;
+    measurementUncertainty[ 0 ] = 100.0;
 
     // Set integrator settings
     boost::shared_ptr< numerical_integrators::IntegratorSettings< > > integratorSettings =
@@ -172,10 +172,10 @@ BOOST_AUTO_TEST_CASE( testExtendedKalmanFilterFirstCase )
     for ( unsigned int i = 0; i < 2; i++ )
     {
         BOOST_CHECK_CLOSE_FRACTION( statistics::computeStandardDeviationOfVectorComponents( systemNoise.row( i ) ),
-                                    std::sqrt( systemUncertainty( i, i ) ), 5e-2 );
+                                    std::sqrt( systemUncertainty( i, i ) ), 5.0e-2 );
     }
     BOOST_CHECK_CLOSE_FRACTION( statistics::computeStandardDeviationOfVectorComponents( measurementNoise.row( 0 ) ),
-                                std::sqrt( measurementUncertainty( 0, 0 ) ), 5e-2 );
+                                std::sqrt( measurementUncertainty( 0, 0 ) ), 5.0e-2 );
 }
 
 // Constant parameters for example
@@ -228,7 +228,7 @@ BOOST_AUTO_TEST_CASE( testExtendedKalmanFilterSecondCase )
     using namespace tudat::filters;
 
     // Set initial conditions
-    const double initialTime = 0;
+    const double initialTime = 0.0;
     const double timeStep = 0.1;
     const unsigned int numberOfTimeSteps = 300;
 
@@ -331,10 +331,10 @@ BOOST_AUTO_TEST_CASE( testExtendedKalmanFilterSecondCase )
     for ( unsigned int i = 0; i < 2; i++ )
     {
         BOOST_CHECK_CLOSE_FRACTION( statistics::computeStandardDeviationOfVectorComponents( systemNoise.row( i ) ),
-                                    std::sqrt( systemUncertainty( i, i ) ), 5e-2 );
+                                    std::sqrt( systemUncertainty( i, i ) ), 5.0e-2 );
     }
     BOOST_CHECK_CLOSE_FRACTION( statistics::computeStandardDeviationOfVectorComponents( measurementNoise.row( 0 ) ),
-                                std::sqrt( measurementUncertainty( 0, 0 ) ), 5e-2 );
+                                std::sqrt( measurementUncertainty( 0, 0 ) ), 5.0e-2 );
 }
 
 BOOST_AUTO_TEST_SUITE_END( )
