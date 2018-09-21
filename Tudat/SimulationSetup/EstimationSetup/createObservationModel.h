@@ -562,6 +562,8 @@ typedef std::map< ObservableType, std::map< LinkEnds, std::shared_ptr< Observati
 //! since this typedef represents a multimap.
 typedef std::multimap< LinkEnds, std::shared_ptr< ObservationSettings > > ObservationSettingsMap;
 
+typedef std::map< LinkEnds, std::vector< std::shared_ptr< ObservationSettings > > > ObservationSettingsListPerLinkEnd;
+
 //! Function to create list of observation models sorted by observable type and link ends from list only sorted in link ends.
 /*!
  * Function to create list of observation models sorted by observable type and link ends from list only sorted in link ends.
@@ -570,6 +572,9 @@ typedef std::multimap< LinkEnds, std::shared_ptr< ObservationSettings > > Observ
  */
 SortedObservationSettingsMap convertUnsortedToSortedObservationSettingsMap(
         const ObservationSettingsMap& unsortedObservationSettingsMap );
+
+SortedObservationSettingsMap convertUnsortedToSortedObservationSettingsMap(
+        const ObservationSettingsListPerLinkEnd& unsortedObservationSettingsMap );
 
 
 //! Function to create an object that computes an observation bias

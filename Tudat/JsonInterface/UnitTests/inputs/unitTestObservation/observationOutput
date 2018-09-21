@@ -1,5 +1,0 @@
-{
-  "nWayRange": {
-    "transmitter:(Vehicle,); reflector1:(Earth,Station1); receiver:(Vehicle,)": null
-  }
-}

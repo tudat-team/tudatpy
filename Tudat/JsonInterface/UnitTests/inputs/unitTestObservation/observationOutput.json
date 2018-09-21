@@ -22,6 +22,10 @@
     },
     {
       "observableType": "positionObservable"
+    },
+    {
+      "constantIntegrationTime": 60.0,
+      "observableType": "oneWayDifferencedRange"
     }
   ],
   "transmitter:(Earth,Station2); receiver:(Vehicle,)": [
@@ -159,11 +163,73 @@
         }
       ],
       "observableType": "oneWayRange"
+    },
+    {
+      "bias": {
+        "biasType": "constantAbsoluteBias",
+        "constantBias": [
+          [
+            1e-12
+          ]
+        ]
+      },
+      "observableType": "oneWayDoppler",
+      "receiverProperTimeRate": {
+        "centralBody": "Sun",
+        "properTimeRateType": "firsOrderProperTimeRate"
+      },
+      "transmitterProperTimeRate": {
+        "centralBody": "Earth",
+        "properTimeRateType": "firsOrderProperTimeRate"
+      }
     }
   ],
   "transmitter:(Vehicle,); receiver:(Earth,Station3)": [
     {
       "observableType": "angularPosition"
+    }
+  ],
+  "transmitter:(Vehicle,); reflector1:(Earth,Station1); receiver:(Vehicle,)": [
+    {
+      "observableType": "nWayRange",
+      "oneWayRangeObsevation": [
+        {
+          "observableType": "oneWayRange"
+        },
+        {
+          "observableType": "oneWayRange"
+        }
+      ]
+    }
+  ],
+  "transmitter:(Vehicle,); reflector1:(Earth,Station2); receiver:(Vehicle,)": [
+    {
+      "observableType": "nWayRange",
+      "oneWayRangeObsevation": [
+        {
+          "lightTimeCorrections": [
+            {
+              "lightTimeCorrectionType": "firsOrderRelativistic",
+              "perturbingBodies": [
+                "Mars",
+                "Moon"
+              ]
+            }
+          ],
+          "observableType": "oneWayRange"
+        },
+        {
+          "bias": {
+            "biasType": "constantAbsoluteBias",
+            "constantBias": [
+              [
+                1.0
+              ]
+            ]
+          },
+          "observableType": "oneWayRange"
+        }
+      ]
     }
   ]
 }

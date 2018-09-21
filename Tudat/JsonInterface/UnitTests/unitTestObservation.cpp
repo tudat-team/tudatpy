@@ -8,7 +8,7 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-//#define BOOST_TEST_MAIN
+#define BOOST_TEST_MAIN
 
 #include "Tudat/JsonInterface/UnitTests/unitTestSupport.h"
 #include "Tudat/JsonInterface/Propagation/acceleration.h"
@@ -20,20 +20,19 @@
 #include "Tudat/SimulationSetup/EstimationSetup/createEstimatableParameters.h"
 #include "Tudat/SimulationSetup/PropagationSetup/createAccelerationModels.h"
 
-//namespace tudat
-//{
+namespace tudat
+{
 
-//namespace unit_tests
-//{
+namespace unit_tests
+{
 
 #define INPUT( filename ) \
     ( json_interface::inputDirectory( ) / boost::filesystem::path( __FILE__ ).stem( ) / filename ).string( )
 
-//BOOST_AUTO_TEST_SUITE( test_json_observation )
+BOOST_AUTO_TEST_SUITE( test_json_observation )
 
-//// Test 1: sphericalHarmonicGravity
-//BOOST_AUTO_TEST_CASE( test_json_acceleration_sphericalHarmonicGravity )
-int main( )
+// Test 1: sphericalHarmonicGravity
+BOOST_AUTO_TEST_CASE( test_json_acceleration_sphericalHarmonicGravity )
 {
     using namespace tudat;
     using namespace tudat::simulation_setup;
@@ -78,28 +77,28 @@ int main( )
 
     // Define (arbitrarily) link ends to be used for 1-way range, 1-way doppler and angular position observables
     std::map< ObservableType, std::vector< LinkEnds > > linkEndsPerObservable;
-//    linkEndsPerObservable[ one_way_range ].push_back( stationReceiverLinkEnds[ 0 ] );
-//    linkEndsPerObservable[ one_way_range ].push_back( stationTransmitterLinkEnds[ 0 ] );
-//    linkEndsPerObservable[ one_way_range ].push_back( stationReceiverLinkEnds[ 1 ] );
+    linkEndsPerObservable[ one_way_range ].push_back( stationReceiverLinkEnds[ 0 ] );
+    linkEndsPerObservable[ one_way_range ].push_back( stationTransmitterLinkEnds[ 0 ] );
+    linkEndsPerObservable[ one_way_range ].push_back( stationReceiverLinkEnds[ 1 ] );
 
-//    linkEndsPerObservable[ one_way_doppler ].push_back( stationReceiverLinkEnds[ 1 ] );
-//    linkEndsPerObservable[ one_way_doppler ].push_back( stationTransmitterLinkEnds[ 2 ] );
+    linkEndsPerObservable[ one_way_doppler ].push_back( stationReceiverLinkEnds[ 1 ] );
+    linkEndsPerObservable[ one_way_doppler ].push_back( stationTransmitterLinkEnds[ 2 ] );
 
-//    linkEndsPerObservable[ angular_position ].push_back( stationReceiverLinkEnds[ 2 ] );
-//    linkEndsPerObservable[ angular_position ].push_back( stationTransmitterLinkEnds[ 1 ] );
+    linkEndsPerObservable[ angular_position ].push_back( stationReceiverLinkEnds[ 2 ] );
+    linkEndsPerObservable[ angular_position ].push_back( stationTransmitterLinkEnds[ 1 ] );
 
-//    linkEndsPerObservable[ position_observable ].push_back( stationTransmitterLinkEnds[ 0 ] );
+    linkEndsPerObservable[ position_observable ].push_back( stationTransmitterLinkEnds[ 0 ] );
 
-//    linkEndsPerObservable[ one_way_differenced_range ].push_back( stationTransmitterLinkEnds[ 0 ] );
+    linkEndsPerObservable[ one_way_differenced_range ].push_back( stationTransmitterLinkEnds[ 0 ] );
 
     linkEndsPerObservable[ n_way_range ].push_back( twoWayLinkEnds[ 0 ] );
-//    linkEndsPerObservable[ n_way_range ].push_back( twoWayLinkEnds[ 1 ] );
+    linkEndsPerObservable[ n_way_range ].push_back( twoWayLinkEnds[ 1 ] );
 
     //    n_way_range = 5,
     //    two_way_doppler = 6
 
     // Iterate over all observable types and associated link ends, and creatin settings for observation
-    observation_models::SortedObservationSettingsMap observationSettingsMap;
+    observation_models::ObservationSettingsListPerLinkEnd observationSettingsMap;
     //std::map< LinkEnds, std::vector< std::shared_ptr < ObservationSettings > > > observationSettingsMap;
 
     for( std::map< ObservableType, std::vector< LinkEnds > >::iterator linkEndIterator = linkEndsPerObservable.begin( );
@@ -204,7 +203,7 @@ int main( )
                 retransmissionTimes.push_back( 1.0E-3 );
                 if( i == 0 )
                 {
-                    std::make_shared< NWayRangeObservationSettings >(
+                    currentObservationSettings = std::make_shared< NWayRangeObservationSettings >(
                                 lightTimeCorrections, 3, boost::lambda::constant( retransmissionTimes ), biasSettings );
                 }
                 else if( i == 1 )
@@ -231,51 +230,42 @@ int main( )
                             currentObservable, lightTimeCorrections, biasSettings );
             }
 
-
-
-
             // Define settings for observable, no light-time corrections, and biases for selected links
-            observationSettingsMap[ currentObservable ][ currentLinkEndsList.at( i ) ] = ( currentObservationSettings );
+            observationSettingsMap[ currentLinkEndsList.at( i ) ].push_back( currentObservationSettings );
 
         }
     }
 
 
     nlohmann::json jsonObject;
-    std::cout<<"A"<<std::endl;
     to_json( jsonObject, observationSettingsMap );
-    std::cout<<"B"<<std::endl;
 
-    std::string fileName = INPUT( "observationOutput" );
+    std::string fileName = INPUT( "observationOutput.json" );
 
     std::ofstream outputFile( fileName );
     outputFile << jsonObject.dump( 2 );
     outputFile.close( );
 
 
-    observation_models::SortedObservationSettingsMap observationSettingsMapFromJson;
+    observation_models::ObservationSettingsListPerLinkEnd observationSettingsMapFromJson;
 
-    std::cout<<"C"<<std::endl<<jsonObject<<std::endl;
     from_json( jsonObject, observationSettingsMapFromJson );
-    std::cout<<"D"<<std::endl;
 
-    //BOOST_CHECK_EQUAL_JSON( observationSettingsMap, observationSettingsMapFromJson );
+    BOOST_CHECK_EQUAL_JSON( observationSettingsMap, observationSettingsMapFromJson );
 
-    std::cout<<"E"<<std::endl;
     nlohmann::json jsonObjectFromFile = parseJSONFile( fileName );
-    std::cout<<"F"<<std::endl;
 
-//    observation_models::SortedObservationSettingsMap observationSettingsMapFromFile =
-//            parseJSONFile< observation_models::SortedObservationSettingsMap >( fileName );
-
+    observation_models::ObservationSettingsListPerLinkEnd observationSettingsMapFromFile =
+            parseJSONFile< observation_models::ObservationSettingsListPerLinkEnd >( fileName );
 
 
-    //BOOST_CHECK_EQUAL_JSON( observationSettingsMap, observationSettingsMapFromFile );
+
+    BOOST_CHECK_EQUAL_JSON( observationSettingsMap, observationSettingsMapFromFile );
 }
 
 
-//BOOST_AUTO_TEST_SUITE_END( )
+BOOST_AUTO_TEST_SUITE_END( )
 
-//} // namespace unit_tests
+} // namespace unit_tests
 
-//} // namespace tudat
+} // namespace tudat
