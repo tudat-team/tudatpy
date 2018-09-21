@@ -14,6 +14,7 @@
 #include <string>
 #include <thread>
 
+
 #include <boost/make_shared.hpp>
 #include <boost/test/unit_test.hpp>
 
@@ -22,35 +23,32 @@
 #include "Tudat/Basics/testMacros.h"
 
 #include "Tudat/Mathematics/BasicMathematics/linearAlgebra.h"
-#include "Tudat/Mathematics/NumericalIntegrators/createNumericalIntegrator.h"
-#include "Tudat/Mathematics/NumericalIntegrators/rungeKuttaCoefficients.h"
+#include "Tudat/Astrodynamics/BasicAstrodynamics/physicalConstants.h"
+#include "Tudat/Astrodynamics/BasicAstrodynamics/orbitalElementConversions.h"
+#include "Tudat/Astrodynamics/Ephemerides/tabulatedEphemeris.h"
 
 #include "Tudat/External/SpiceInterface/spiceInterface.h"
-#include "Tudat/External/SpiceInterface/spiceRotationalEphemeris.h"
+#include "Tudat/Mathematics/NumericalIntegrators/rungeKuttaCoefficients.h"
+#include "Tudat/Astrodynamics/BasicAstrodynamics/accelerationModel.h"
 #include "Tudat/InputOutput/basicInputOutput.h"
 
-#include "Tudat/Astrodynamics/Aerodynamics/UnitTests/testApolloCapsuleCoefficients.h"
-#include "Tudat/Astrodynamics/BasicAstrodynamics/accelerationModel.h"
-#include "Tudat/Astrodynamics/BasicAstrodynamics/orbitalElementConversions.h"
-#include "Tudat/Astrodynamics/BasicAstrodynamics/physicalConstants.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/sphericalStateConversions.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/torqueModelTypes.h"
+#include "Tudat/External/SpiceInterface/spiceRotationalEphemeris.h"
 #include "Tudat/Astrodynamics/Ephemerides/constantEphemeris.h"
 #include "Tudat/Astrodynamics/Ephemerides/keplerEphemeris.h"
-#include "Tudat/Astrodynamics/Ephemerides/tabulatedEphemeris.h"
-#include "Tudat/Astrodynamics/Gravitation/centralGravityModel.h"
-#include "Tudat/Astrodynamics/Propagators/rotationalMotionStateDerivative.h"
-
 #include "Tudat/SimulationSetup/EnvironmentSetup/body.h"
-#include "Tudat/SimulationSetup/EnvironmentSetup/createBodies.h"
+#include "Tudat/Astrodynamics/Gravitation/centralGravityModel.h"
 #include "Tudat/SimulationSetup/EnvironmentSetup/defaultBodies.h"
+#include "Tudat/SimulationSetup/EnvironmentSetup/createBodies.h"
 #include "Tudat/SimulationSetup/PropagationSetup/createNumericalSimulator.h"
-#include "Tudat/SimulationSetup/PropagationSetup/dynamicsSimulator.h"
+#include "Tudat/Mathematics/NumericalIntegrators/createNumericalIntegrator.h"
 #include "Tudat/SimulationSetup/PropagationSetup/propagationSettings.h"
+#include "Tudat/SimulationSetup/PropagationSetup/dynamicsSimulator.h"
+#include "Tudat/Astrodynamics/Aerodynamics/UnitTests/testApolloCapsuleCoefficients.h"
 
 namespace tudat
 {
-
 namespace unit_tests
 {
 
@@ -90,13 +88,13 @@ NamedBodyMap getTestBodyMap( const double phobosSemiMajorAxis,
     bodyMap[ "Phobos" ]->setBodyInertiaTensor( phobosInertiaTensor );
 
     Eigen::Quaterniond noRotationQuaternion = Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) );
-    Eigen::Vector7d unitRotationState = Eigen::Vector7d::Zero( );
+    Eigen::Matrix< double, 7, 1 > unitRotationState = Eigen::Matrix< double, 7, 1 >::Zero( );
     unitRotationState( 0 ) = noRotationQuaternion.w( );
     unitRotationState( 1 ) = noRotationQuaternion.x( );
     unitRotationState( 2 ) = noRotationQuaternion.y( );
     unitRotationState( 3 ) = noRotationQuaternion.z( );
 
-    std::map< double, Eigen::Vector7d > dummyRotationMap;
+    std::map< double, Eigen::Matrix< double, 7, 1 > > dummyRotationMap;
     dummyRotationMap[ -1.0E100 ] = unitRotationState;
     dummyRotationMap[ 1.0E100 ] = unitRotationState;
 
@@ -104,6 +102,7 @@ NamedBodyMap getTestBodyMap( const double phobosSemiMajorAxis,
             std::make_shared< interpolators::LinearInterpolator< double, Eigen::Matrix< double, 7, 1 > > >( dummyRotationMap );
     bodyMap[ "Phobos" ]->setRotationalEphemeris( std::make_shared< TabulatedRotationalEphemeris< double, double > >(
                                                      dummyInterpolator, "ECLIPJ2000", "Phobos_Fixed" ) );
+
 
     return bodyMap;
 }
@@ -113,11 +112,12 @@ BOOST_AUTO_TEST_SUITE( test_rotational_dynamics_propagation )
 //! Function to test torque-free propagation with initial rotation around one of its principal axes
 BOOST_AUTO_TEST_CASE( testSimpleRotationalDynamicsPropagation )
 {
+    //Load spice kernels.
+    spice_interface::loadStandardSpiceKernels( );
+
+    // Test code for different propagation schemes
     for( int propagatorType = 0; propagatorType < 3; propagatorType++ )
     {
-        //Load spice kernels.
-        spice_interface::loadStandardSpiceKernels( );
-
         // Perform test for initial rotationa about body-fixed x, y and z axes.
         for( unsigned axisCase = 0; axisCase < 3; axisCase++ )
         {
@@ -156,7 +156,7 @@ BOOST_AUTO_TEST_CASE( testSimpleRotationalDynamicsPropagation )
             std::shared_ptr< RotationalStatePropagatorSettings< double > > propagatorSettings =
                     std::make_shared< RotationalStatePropagatorSettings< double > >
                     ( torqueModelMap, bodiesToIntegrate, systemInitialState, std::make_shared< PropagationTimeTerminationSettings >(
-                          finalEphemerisTime ), static_cast< RotationalPropagatorType >( propagatorType ) );
+                          finalEphemerisTime ) );
 
             // Define integrator settings.
             std::shared_ptr< numerical_integrators::IntegratorSettings< > > integratorSettings =
@@ -165,9 +165,12 @@ BOOST_AUTO_TEST_CASE( testSimpleRotationalDynamicsPropagation )
                       RungeKuttaCoefficients::rungeKuttaFehlberg78,
                       2.0, 30.0, 1.0E-13, 1.0E-13 );
 
+
+
             // Propagate dynamics
             SingleArcDynamicsSimulator< double > dynamicsSimulator(
                         bodyMap, integratorSettings, propagatorSettings, true, false, true );
+
 
             // Retrieve Phobos rotation model with reset rotational state
             std::shared_ptr< RotationalEphemeris > phobosRotationalEphemeris = bodyMap[ "Phobos" ]->getRotationalEphemeris( );
@@ -194,7 +197,7 @@ BOOST_AUTO_TEST_CASE( testSimpleRotationalDynamicsPropagation )
 
             // Compare expected and true rotational state for list of times
             double startTime = initialEphemerisTime;
-            double endTime = initialEphemerisTime + 601.0;//finalEphemerisTime - 3600.0;
+            double endTime = finalEphemerisTime - 3600.0;
             double currentTime = startTime;
             double timeStep = 600.0;
             while ( currentTime < endTime )
@@ -227,8 +230,9 @@ BOOST_AUTO_TEST_CASE( testSimpleRotationalDynamicsPropagation )
                 {
                     for( unsigned int j = 0; j < 3; j++ )
                     {
-                        BOOST_CHECK_SMALL( std::fabs( currentRotationMatrixToTargetFrame( i, j ) -
-                                                      expectedRotationToTargetFrameFromInitialRotation( i, j ) ), 1.0E-10 );
+                        BOOST_CHECK_SMALL(
+                                    std::fabs( currentRotationMatrixToTargetFrame( i, j ) -
+                                               expectedRotationToTargetFrameFromInitialRotation( i, j ) ), 1.0E-10 );
                     }
                 }
 
@@ -239,8 +243,9 @@ BOOST_AUTO_TEST_CASE( testSimpleRotationalDynamicsPropagation )
                 {
                     for( unsigned int j = 0; j < 3; j++ )
                     {
-                        BOOST_CHECK_SMALL( std::fabs( currentRotationMatrixToBaseFrame( i, j ) -
-                                                      expectedRotationToBaseFrameFromInitialRotation( i, j ) ), 1.0E-10 );
+                        BOOST_CHECK_SMALL(
+                                    std::fabs( currentRotationMatrixToBaseFrame( i, j ) -
+                                               expectedRotationToBaseFrameFromInitialRotation( i, j ) ), 1.0E-10 );
                     }
                 }
 
@@ -270,8 +275,9 @@ BOOST_AUTO_TEST_CASE( testSimpleRotationalDynamicsPropagation )
                 {
                     for( unsigned int j = 0; j < 3; j++ )
                     {
-                        BOOST_CHECK_SMALL( std::fabs( currentRotationMatrixDerivativeToTargetFrame( i, j ) -
-                                                      expectedRotationMatrixDerivativeToTargetFrame( i, j ) ), meanMotion * 1.0E-10 );
+                        BOOST_CHECK_SMALL(
+                                    std::fabs( currentRotationMatrixDerivativeToTargetFrame( i, j ) -
+                                               expectedRotationMatrixDerivativeToTargetFrame( i, j ) ), meanMotion * 1.0E-10 );
                     }
                 }
 
@@ -284,8 +290,9 @@ BOOST_AUTO_TEST_CASE( testSimpleRotationalDynamicsPropagation )
                 {
                     for( unsigned int j = 0; j < 3; j++ )
                     {
-                        BOOST_CHECK_SMALL( std::fabs( currentRotationMatrixDerivativeToBaseFrame( i, j ) -
-                                                      expectedRotationMatrixDerivativeToBaseFrame( i, j ) ), meanMotion * 1.0E-10 );
+                        BOOST_CHECK_SMALL(
+                                    std::fabs( currentRotationMatrixDerivativeToBaseFrame( i, j ) -
+                                               expectedRotationMatrixDerivativeToBaseFrame( i, j ) ), meanMotion * 1.0E-10 );
                     }
                 }
 
@@ -342,8 +349,9 @@ BOOST_AUTO_TEST_CASE( testSimpleRotationalDynamicsPropagation )
                 {
                     for( unsigned int j = 0; j < 3; j++ )
                     {
-                        BOOST_CHECK_SMALL( std::fabs( numericalRotationMatrixDerivativeToBaseFrame( i, j ) -
-                                                      currentRotationMatrixDerivativeToBaseFrame( i, j ) ), 1.0E-12 );
+                        BOOST_CHECK_SMALL(
+                                    std::fabs( numericalRotationMatrixDerivativeToBaseFrame( i, j ) -
+                                               currentRotationMatrixDerivativeToBaseFrame( i, j ) ), 1.0E-12 );
                     }
                 }
 
@@ -362,12 +370,14 @@ BOOST_AUTO_TEST_CASE( testSimpleRotationalDynamicsPropagation )
                 {
                     for( unsigned int j = 0; j < 3; j++ )
                     {
-                        BOOST_CHECK_SMALL( std::fabs( numericalRotationMatrixDerivativeToTargetFrame( i, j ) -
-                                                      currentRotationMatrixDerivativeToTargetFrame( i, j ) ), 1.0E-12 );
+                        BOOST_CHECK_SMALL(
+                                    std::fabs( numericalRotationMatrixDerivativeToTargetFrame( i, j ) -
+                                               currentRotationMatrixDerivativeToTargetFrame( i, j ) ), 1.0E-12 );
                     }
                 }
 
                 currentTime += timeStep;
+
             }
         }
     }
@@ -377,11 +387,12 @@ BOOST_AUTO_TEST_CASE( testSimpleRotationalDynamicsPropagation )
 //! are compared to the expected precession
 BOOST_AUTO_TEST_CASE( testSimpleRotationalDynamicsPropagationWithObliquity )
 {
+    //Load spice kernels.
+    spice_interface::loadStandardSpiceKernels( );
+
+    // Test code for different propagation schemes
     for( int propagatorType = 0; propagatorType < 3; propagatorType++ )
     {
-        //Load spice kernels.
-        spice_interface::loadStandardSpiceKernels( );
-
         // Retrieve list of body objects.
         NamedBodyMap bodyMap = getTestBodyMap( 9376.0E3, 1 );
 
@@ -419,17 +430,18 @@ BOOST_AUTO_TEST_CASE( testSimpleRotationalDynamicsPropagationWithObliquity )
                 std::make_shared< RungeKuttaVariableStepSizeSettings< > >
                 ( initialEphemerisTime, 10.0,
                   RungeKuttaCoefficients::rungeKuttaFehlberg78,
-                  3.0, 300.0, 1.0E-14, 1.0E-14 );
+                  30.0, 300.0, 1.0E-14, 1.0E-14 );
 
         // Define propagator settings.
         std::shared_ptr< RotationalStatePropagatorSettings< double > > propagatorSettings =
                 std::make_shared< RotationalStatePropagatorSettings< double > >
                 ( torqueModelMap, bodiesToIntegrate, systemInitialState, std::make_shared< PropagationTimeTerminationSettings >(
-                      finalEphemerisTime ), static_cast< RotationalPropagatorType >( propagatorType ) );
+                      finalEphemerisTime ) );
 
         // Propagate dynamics
         SingleArcDynamicsSimulator< double > dynamicsSimulator(
                     bodyMap, integratorSettings, propagatorSettings, true, false, true );
+
 
         // Retrieve Phobos rotation model with reset rotational state
         std::shared_ptr< RotationalEphemeris > phobosRotationalEphemeris = bodyMap[ "Phobos" ]->getRotationalEphemeris( );
@@ -516,519 +528,355 @@ BOOST_AUTO_TEST_CASE( testSimpleRotationalDynamicsPropagationWithObliquity )
                         phobosRotationalEphemeris->getRotationToTargetFrame( currentTime ).toRotationMatrix( ),
                         phobosRotationalEphemeris->getDerivativeOfRotationToBaseFrame( currentTime ) );
 
+            currentRotationalVelocityInBaseFrame = phobosRotationalEphemeris->getRotationalVelocityVectorInBaseFrame( currentTime );
+            for( unsigned int j = 0; j < 3; j++ )
+            {
+                BOOST_CHECK_SMALL(
+                            std::fabs( indirectRotationalVelocityInBaseFrame( j ) -
+                                       currentRotationalVelocityInBaseFrame( j ) ), 1.0E-15 );
+            }
+
+            currentRotationalVelocityInBaseFrame =
+                    phobosRotationalEphemeris->getRotationToBaseFrame( currentTime ) * currentRotationalVelocityInTargetFrame;
+            for( unsigned int j = 0; j < 3; j++ )
+            {
+                BOOST_CHECK_SMALL(
+                            std::fabs( indirectRotationalVelocityInBaseFrame( j ) -
+                                       currentRotationalVelocityInBaseFrame( j ) ), 1.0E-15 );
+            }
+
+            currentTime += timeStep;
         }
     }
 }
 
-
-////! Perform concurrent rotational and translational dynamics, with aerodynamic force and torque-free rotational motion, and
-////! check if aerodynamic angles and force coefficients are indeed taken from propagated rotation.
-//BOOST_AUTO_TEST_CASE( testRotationalAndTranslationalDynamicsPropagation )
-//{
-//    // Load Spice kernels.
-//    spice_interface::loadStandardSpiceKernels( );
-
-//    // Set simulation start epoch.
-//    const double simulationStartEpoch = 0.0;
-
-//    // Set simulation end epoch.
-//    const double simulationEndEpoch = 3100.0;
-
-//    // Set numerical integration fixed step size.
-//    const double fixedStepSize = 1.0;
-
-//    // Define simulation body settings.
-//    std::map< std::string, std::shared_ptr< BodySettings > > bodySettings =
-//            getDefaultBodySettings( { "Earth" }, simulationStartEpoch - 10.0 * fixedStepSize,
-//                                    simulationEndEpoch + 10.0 * fixedStepSize );
-//    bodySettings[ "Earth" ]->ephemerisSettings = std::make_shared< simulation_setup::ConstantEphemerisSettings >(
-//                Eigen::Vector6d::Zero( ), "SSB", "J2000" );
-//    bodySettings[ "Earth" ]->rotationModelSettings->resetOriginalFrame( "J2000" );
-
-//    // Create Earth object
-//    simulation_setup::NamedBodyMap bodyMap = simulation_setup::createBodies( bodySettings );
-
-//    // Create vehicle objects.
-//    bodyMap[ "Apollo" ] = std::make_shared< simulation_setup::Body >( );
-//    bodyMap[ "Apollo" ]->setConstantBodyMass( 5.0E3 );
-
-//    // Create vehicle aerodynamic coefficients
-//    bodyMap[ "Apollo" ]->setAerodynamicCoefficientInterface(
-//                unit_tests::getApolloCoefficientInterface( ) );
-
-//    // Set inertia tensor (dummy values)
-//    Eigen::Matrix3d inertiaTensor = Eigen::Matrix3d::Zero( );
-//    inertiaTensor( 0, 0 ) = 0.3615;
-//    inertiaTensor( 1, 1 ) = 0.4265;
-//    inertiaTensor( 2, 2 ) = 0.5024;
-//    inertiaTensor *= ( 0.1 * 25.0 * 5.0E3 );
-//    bodyMap[ "Apollo" ]->setBodyInertiaTensor( inertiaTensor );
-
-//    std::map< double, Eigen::Vector7d > dummyRotationMap;
-//    dummyRotationMap[ -1.0E100 ] = Eigen::Vector7d::Zero( );
-//    dummyRotationMap[ 1.0E100 ] = Eigen::Vector7d::Zero( );
-
-//    // Set tabulated ephemerides for orbit and rotation
-//    <<<<<<< HEAD
-//            std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Matrix< double, 7, 1 > > >
-//            dummyRotationInterpolator =
-//            std::make_shared< interpolators::LinearInterpolator< double, Eigen::Matrix< double, 7, 1 > > >( dummyRotationMap );
-//    bodyMap[ "Apollo" ]->setRotationalEphemeris( std::make_shared< TabulatedRotationalEphemeris< double, double > >(
-//                                                     =======
-//            std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Vector7d > >
-//                                                     dummyRotationInterpolator =
-//            std::make_shared< interpolators::LinearInterpolator< double, Eigen::Vector7d > >( dummyRotationMap );
-//                                                 bodyMap[ "Apollo" ]->setRotationalEphemeris( std::make_shared< TabulatedRotationalEphemeris< double, double > >(
-//                                                                                                  >>>>>>> master
-//                                                                                                  dummyRotationInterpolator, "J2000", "Apollo_Fixed" ) );
-
-//    std::map< double, Eigen::Matrix< double, 6, 1 > > dummyStateMap;
-//    dummyStateMap[ -1.0E100 ] = Eigen::Matrix< double, 6, 1 >::Zero( );
-//    dummyStateMap[ 1.0E100 ] = Eigen::Matrix< double, 6, 1 >::Zero( );
-//    std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Matrix< double, 6, 1 > > >
-//            dummyStateInterpolator =
-//            std::make_shared< interpolators::LinearInterpolator< double, Eigen::Matrix< double, 6, 1 > > >( dummyStateMap );
-//    bodyMap[ "Apollo" ]->setEphemeris( std::make_shared< TabulatedCartesianEphemeris< double, double > >(
-//                                           dummyStateInterpolator, "SSB", "J2000" ) );
-
-//    // Finalize body creation.
-//    setGlobalFrameBodyEphemerides( bodyMap, "SSB", "J2000" );
-
-//    // Test simulation with and without torques.
-//    for( int propagatorType = 0; propagatorType < 3; propagatorType++ )
-//    {
-//        <<<<<<< HEAD
-//                // Define propagator settings variables.
-//                SelectedAccelerationMap accelerationMap;
-//        std::vector< std::string > bodiesToPropagate;
-//        std::vector< std::string > centralBodies;
-
-//        // Define acceleration model settings.
-//        std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfApollo;
-//        accelerationsOfApollo[ "Earth" ].push_back( std::make_shared< SphericalHarmonicAccelerationSettings >( 4, 0 ) );
-//        accelerationsOfApollo[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( aerodynamic ) );
-//        accelerationMap[  "Apollo" ] = accelerationsOfApollo;
-
-//        bodiesToPropagate.push_back( "Apollo" );
-//        centralBodies.push_back( "Earth" );
-
-//        // Create acceleration models
-//        basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
-//                    bodyMap, accelerationMap, bodiesToPropagate, centralBodies );
-
-//        // Set spherical elements for Apollo.
-//        Eigen::Vector6d apolloSphericalEntryState;
-//        apolloSphericalEntryState( SphericalOrbitalStateElementIndices::radiusIndex ) =
-//                spice_interface::getAverageRadius( "Earth" ) + 120.0E3;
-//        apolloSphericalEntryState( SphericalOrbitalStateElementIndices::latitudeIndex ) = 0.0;
-//        apolloSphericalEntryState( SphericalOrbitalStateElementIndices::longitudeIndex ) = 1.2;
-//        apolloSphericalEntryState( SphericalOrbitalStateElementIndices::speedIndex ) = 7.4E3;
-//        apolloSphericalEntryState( SphericalOrbitalStateElementIndices::flightPathIndex ) =
-//                -1.2 * mathematical_constants::PI / 180.0;
-//        apolloSphericalEntryState( SphericalOrbitalStateElementIndices::headingAngleIndex ) = 0.6;
-
-//        // Convert apollo state from spherical elements to Cartesian elements.
-//        Eigen::Vector6d systemInitialState = convertSphericalOrbitalToCartesianState(
-//                    apolloSphericalEntryState );
-//        std::shared_ptr< ephemerides::RotationalEphemeris > earthRotationalEphemeris =
-//                bodyMap.at( "Earth" )->getRotationalEphemeris( );
-//        systemInitialState = transformStateToGlobalFrame( systemInitialState, simulationStartEpoch, earthRotationalEphemeris );
-
-
-//        // Define initial rotational state
-//        Eigen::Quaterniond initialRotation = Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) );
-//        Eigen::VectorXd systemInitialRotationalState = Eigen::VectorXd::Zero( 7 );
-//        systemInitialRotationalState.segment( 0, 4 ) = linear_algebra::convertQuaternionToVectorFormat(
-//                    initialRotation );
-//        systemInitialRotationalState( 4 ) = 1.0E-4;
-
-//        // Create torque models
-//        SelectedTorqueMap selectedTorqueModelMap;
-//        if( simulationCase > 0 )
-//        {
-//            selectedTorqueModelMap[ "Apollo" ][ "Earth" ].push_back(
-//                        std::make_shared< TorqueSettings >( aerodynamic_torque ) );
-//        }
-
-//        basic_astrodynamics::TorqueModelMap torqueModelMap = createTorqueModelsMap(
-//                    bodyMap, selectedTorqueModelMap );
-
-//        // Define list of dependent variables to save.
-//        std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariablesList;
-//        dependentVariablesList.push_back(
-//                    std::make_shared< BodyAerodynamicAngleVariableSaveSettings >(
-//                        "Apollo", reference_frames::latitude_angle ) );
-//        dependentVariablesList.push_back(
-//                    std::make_shared< BodyAerodynamicAngleVariableSaveSettings >(
-//                        "Apollo", reference_frames::longitude_angle ) );
-//        dependentVariablesList.push_back(
-//                    std::make_shared< BodyAerodynamicAngleVariableSaveSettings >(
-//                        "Apollo", reference_frames::heading_angle ) );
-//        dependentVariablesList.push_back(
-//                    std::make_shared< BodyAerodynamicAngleVariableSaveSettings >(
-//                        "Apollo", reference_frames::flight_path_angle ) );
-//        dependentVariablesList.push_back(
-//                    std::make_shared< BodyAerodynamicAngleVariableSaveSettings >(
-//                        "Apollo", reference_frames::angle_of_attack ) );
-//        dependentVariablesList.push_back(
-//                    std::make_shared< BodyAerodynamicAngleVariableSaveSettings >(
-//                        "Apollo", reference_frames::angle_of_sideslip ) );
-//        dependentVariablesList.push_back(
-//                    std::make_shared< BodyAerodynamicAngleVariableSaveSettings >(
-//                        "Apollo", reference_frames::bank_angle   ) );
-//        if( simulationCase == 1 )
-//        {
-//            dependentVariablesList.push_back(
-//                        std::make_shared< SingleDependentVariableSaveSettings >(
-//                            aerodynamic_force_coefficients_dependent_variable, "Apollo" ) );
-//            dependentVariablesList.push_back(
-//                        std::make_shared< SingleTorqueDependentVariableSaveSettings >(
-//                            aerodynamic_torque, "Apollo", "Earth" ) );
-//            dependentVariablesList.push_back(
-//                        std::make_shared< SingleDependentVariableSaveSettings >(
-//                            total_torque_dependent_variable, "Apollo" ) );
-//        }
-
-//        // Create object with list of dependent variables
-//        std::shared_ptr< DependentVariableSaveSettings > dependentVariablesToSave =
-//                std::make_shared< DependentVariableSaveSettings >( dependentVariablesList );
-
-//        // Define termination conditions
-//        std::shared_ptr< PropagationTerminationSettings > terminationSettings =
-//                std::make_shared< PropagationTimeTerminationSettings >( 250.0 );
-
-//        // Create propagator settings for rotation.
-//        std::shared_ptr< RotationalStatePropagatorSettings< double > > rotationalPropagatorSettings =
-//                std::make_shared< RotationalStatePropagatorSettings< double > >
-//                ( torqueModelMap, bodiesToPropagate, systemInitialRotationalState, terminationSettings );
-
-//        // Create propagation settings for translational dynamics.
-//        std::shared_ptr< TranslationalStatePropagatorSettings< double > > translationalPropagatorSettings =
-//                std::make_shared< TranslationalStatePropagatorSettings< double > >
-//                ( centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState,
-//                  terminationSettings, cowell );
-
-//        // Create full propagator settings for rotation.
-//        std::vector< std::shared_ptr< SingleArcPropagatorSettings< double > > >  propagatorSettingsList;
-//        propagatorSettingsList.push_back( translationalPropagatorSettings );
-//        propagatorSettingsList.push_back( rotationalPropagatorSettings );
-
-//        std::shared_ptr< PropagatorSettings< double > > propagatorSettings =
-//                std::make_shared< MultiTypePropagatorSettings< double > >(
-//                    propagatorSettingsList, terminationSettings, dependentVariablesToSave );
-
-
-//        // Create integrator settings for rotation.
-//        std::shared_ptr< IntegratorSettings< > > integratorSettings =
-//                std::make_shared< RungeKuttaVariableStepSizeSettings< > >
-//                ( rungeKuttaVariableStepSize, 0.0, 0.02,
-//                  RungeKuttaCoefficients::rungeKuttaFehlberg78, 1.0E-4, 0.02, 1.0E-12, 1.0E-12 );
-
-//        // Create simulation object and propagate dynamics.
-//        SingleArcDynamicsSimulator< > dynamicsSimulator(
-//                    bodyMap, integratorSettings, propagatorSettings, true, false, true);
-//        std::map< double, Eigen::VectorXd > dependentVariableHistory = dynamicsSimulator.getDependentVariableHistory( );
-//        std::map< double, Eigen::VectorXd > propagationHistory = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
-
-//        // Define test variables
-//        double currentLatitude, currentLongitude, currentFlightPathAngle, currentHeadingAngle,
-//                currentAngleOfAttack, currentSideslipAngle, currentBankAngle, currentRotationAngle;
-//        Eigen::Matrix3d currentInertialToBodyFixedFrameRotation, currentEarthFixedToLVLHFrameRotation,
-//                currentLVLHToTrajectoryFrameRotation,
-//                currentTrajectoryToAerodynamicFrameRotation, currentAerodynamicToBodyFixesFrameRotation,
-//                currentInertialToBodyFixedFrame, expectedInertialToBodyFixedFrame;
-//        Eigen::Matrix3d expectedInertialToBodyFixedFrameRotation;
-//        std::shared_ptr< RotationalEphemeris > earthRotationModel = bodyMap.at( "Earth" )->getRotationalEphemeris( );
-//        std::shared_ptr< RotationalEphemeris > apolloRotationModel = bodyMap.at( "Apollo" )->getRotationalEphemeris( );
-
-//        // Iterate over saved data, manually compute inertial to body-fixed rotation, and compare to expected matrix for
-//        // simulationCase=0; test inertial time-derivative of angular momentum to check consistency with magnitude of torque
-//        std::map< double, Eigen::Vector3d > inertialAngularMomentumMap;
-//        std::map< double, Eigen::Vector3d > inertialTorqueMap;
-//        for( std::map< double, Eigen::VectorXd >::const_iterator variableIterator = dependentVariableHistory.begin( );
-//             variableIterator != dependentVariableHistory.end( ); variableIterator++ )
-//        {
-//            if( simulationCase == 0 )
-//                =======
-//                for( int simulationCase = 0; simulationCase < 2; simulationCase++ )
-//                {
-//                    // Define propagator settings variables.
-//                    SelectedAccelerationMap accelerationMap;
-//                    std::vector< std::string > bodiesToPropagate;
-//                    std::vector< std::string > centralBodies;
-
-//                    // Define acceleration model settings.
-//                    std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfApollo;
-//                    accelerationsOfApollo[ "Earth" ].push_back( std::make_shared< SphericalHarmonicAccelerationSettings >( 4, 0 ) );
-//                    accelerationsOfApollo[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( aerodynamic ) );
-//                    accelerationMap[  "Apollo" ] = accelerationsOfApollo;
-
-//                    bodiesToPropagate.push_back( "Apollo" );
-//                    centralBodies.push_back( "Earth" );
-
-//                    // Create acceleration models
-//                    basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
-//                                bodyMap, accelerationMap, bodiesToPropagate, centralBodies );
-
-//                    // Set spherical elements for Apollo.
-//                    Eigen::Vector6d apolloSphericalEntryState;
-//                    apolloSphericalEntryState( SphericalOrbitalStateElementIndices::radiusIndex ) =
-//                            spice_interface::getAverageRadius( "Earth" ) + 120.0E3;
-//                    apolloSphericalEntryState( SphericalOrbitalStateElementIndices::latitudeIndex ) = 0.0;
-//                    apolloSphericalEntryState( SphericalOrbitalStateElementIndices::longitudeIndex ) = 1.2;
-//                    apolloSphericalEntryState( SphericalOrbitalStateElementIndices::speedIndex ) = 7.4E3;
-//                    apolloSphericalEntryState( SphericalOrbitalStateElementIndices::flightPathIndex ) =
-//                            -1.2 * mathematical_constants::PI / 180.0;
-//                    apolloSphericalEntryState( SphericalOrbitalStateElementIndices::headingAngleIndex ) = 0.6;
-
-//                    // Convert apollo state from spherical elements to Cartesian elements.
-//                    Eigen::Vector6d systemInitialState = convertSphericalOrbitalToCartesianState(
-//                                apolloSphericalEntryState );
-//                    std::shared_ptr< ephemerides::RotationalEphemeris > earthRotationalEphemeris =
-//                            bodyMap.at( "Earth" )->getRotationalEphemeris( );
-//                    systemInitialState = transformStateToGlobalFrame( systemInitialState, simulationStartEpoch, earthRotationalEphemeris );
-
-//                    // Define initial rotational state
-//                    Eigen::Quaterniond initialRotation = Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) );
-//                    Eigen::VectorXd systemInitialRotationalState = Eigen::VectorXd::Zero( 7 );
-//                    systemInitialRotationalState.segment( 0, 4 ) = linear_algebra::convertQuaternionToVectorFormat(
-//                                initialRotation );
-//                    systemInitialRotationalState( 4 ) = 1.0E-4;
-
-//                    // Create torque models
-//                    SelectedTorqueMap selectedTorqueModelMap;
-//                    if( simulationCase > 0 )
-//                    {
-//                        selectedTorqueModelMap[ "Apollo" ][ "Earth" ].push_back(
-//                                    std::make_shared< TorqueSettings >( aerodynamic_torque ) );
-//                    }
-
-//                    basic_astrodynamics::TorqueModelMap torqueModelMap = createTorqueModelsMap(
-//                                bodyMap, selectedTorqueModelMap );
-
-//                    // Define list of dependent variables to save.
-//                    std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariablesList;
-//                    dependentVariablesList.push_back(
-//                                std::make_shared< BodyAerodynamicAngleVariableSaveSettings >(
-//                                    "Apollo", reference_frames::latitude_angle ) );
-//                    dependentVariablesList.push_back(
-//                                std::make_shared< BodyAerodynamicAngleVariableSaveSettings >(
-//                                    "Apollo", reference_frames::longitude_angle ) );
-//                    dependentVariablesList.push_back(
-//                                std::make_shared< BodyAerodynamicAngleVariableSaveSettings >(
-//                                    "Apollo", reference_frames::heading_angle ) );
-//                    dependentVariablesList.push_back(
-//                                std::make_shared< BodyAerodynamicAngleVariableSaveSettings >(
-//                                    "Apollo", reference_frames::flight_path_angle ) );
-//                    dependentVariablesList.push_back(
-//                                std::make_shared< BodyAerodynamicAngleVariableSaveSettings >(
-//                                    "Apollo", reference_frames::angle_of_attack ) );
-//                    dependentVariablesList.push_back(
-//                                std::make_shared< BodyAerodynamicAngleVariableSaveSettings >(
-//                                    "Apollo", reference_frames::angle_of_sideslip ) );
-//                    dependentVariablesList.push_back(
-//                                std::make_shared< BodyAerodynamicAngleVariableSaveSettings >(
-//                                    "Apollo", reference_frames::bank_angle   ) );
-//                    if( simulationCase == 1 )
-//                    {
-//                        dependentVariablesList.push_back(
-//                                    std::make_shared< SingleDependentVariableSaveSettings >(
-//                                        aerodynamic_force_coefficients_dependent_variable, "Apollo" ) );
-//                        dependentVariablesList.push_back(
-//                                    std::make_shared< SingleTorqueDependentVariableSaveSettings >(
-//                                        aerodynamic_torque, "Apollo", "Earth" ) );
-//                        dependentVariablesList.push_back(
-//                                    std::make_shared< SingleDependentVariableSaveSettings >(
-//                                        total_torque_dependent_variable, "Apollo" ) );
-//                    }
-
-//                    // Create object with list of dependent variables
-//                    std::shared_ptr< DependentVariableSaveSettings > dependentVariablesToSave =
-//                            std::make_shared< DependentVariableSaveSettings >( dependentVariablesList );
-
-//                    // Define termination conditions
-//                    std::shared_ptr< PropagationTerminationSettings > terminationSettings =
-//                            std::make_shared< PropagationTimeTerminationSettings >( 250.0 );
-
-//                    // Create propagator settings for rotation.
-//                    std::shared_ptr< SingleArcPropagatorSettings< double > > rotationalPropagatorSettings =
-//                            std::make_shared< RotationalStatePropagatorSettings< double > >
-//                            ( torqueModelMap, bodiesToPropagate, systemInitialRotationalState, terminationSettings,
-//                              static_cast< RotationalPropagatorType >( propagatorType ) );
-
-//                    // Create propagation settings for translational dynamics.
-//                    std::shared_ptr< SingleArcPropagatorSettings< double > > translationalPropagatorSettings =
-//                            std::make_shared< TranslationalStatePropagatorSettings< double > >
-//                            ( centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState,
-//                              terminationSettings, cowell );
-
-//                    // Create full propagator settings for rotation.
-//                    std::vector< std::shared_ptr< SingleArcPropagatorSettings< double > > > propagatorSettingsList;
-//                    propagatorSettingsList.push_back( translationalPropagatorSettings );
-//                    propagatorSettingsList.push_back( rotationalPropagatorSettings );
-
-//                    std::shared_ptr< PropagatorSettings< double > > propagatorSettings =
-//                            std::make_shared< MultiTypePropagatorSettings< double > >(
-//                                propagatorSettingsList, terminationSettings, dependentVariablesToSave );
-
-//                    // Create integrator settings for rotation.
-//                    std::shared_ptr< IntegratorSettings< > > integratorSettings =
-//                            std::make_shared< RungeKuttaVariableStepSizeSettings< > >
-//                            ( 0.0, 0.02, RungeKuttaCoefficients::rungeKuttaFehlberg78, 1.0E-4, 0.02, 1.0E-12, 1.0E-12 );
-
-//                    // Create simulation object and propagate dynamics.
-//                    SingleArcDynamicsSimulator< > dynamicsSimulator(
-//                                bodyMap, integratorSettings, propagatorSettings, true, false, true );
-//                    std::map< double, Eigen::VectorXd > dependentVariableHistory = dynamicsSimulator.getDependentVariableHistory( );
-//                    std::map< double, Eigen::VectorXd > propagationHistory = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
-
-//                    // Define test variables
-//                    double currentLatitude, currentLongitude, currentFlightPathAngle, currentHeadingAngle,
-//                            currentAngleOfAttack, currentSideslipAngle, currentBankAngle, currentRotationAngle;
-//                    Eigen::Matrix3d currentInertialToBodyFixedFrameRotation, currentEarthFixedToLVLHFrameRotation,
-//                            currentLVLHToTrajectoryFrameRotation,
-//                            currentTrajectoryToAerodynamicFrameRotation, currentAerodynamicToBodyFixesFrameRotation,
-//                            currentInertialToBodyFixedFrame, expectedInertialToBodyFixedFrame;
-//                    Eigen::Matrix3d expectedInertialToBodyFixedFrameRotation;
-//                    std::shared_ptr< RotationalEphemeris > earthRotationModel = bodyMap.at( "Earth" )->getRotationalEphemeris( );
-//                    std::shared_ptr< RotationalEphemeris > apolloRotationModel = bodyMap.at( "Apollo" )->getRotationalEphemeris( );
-
-//                    // Iterate over saved data, manually compute inertial to body-fixed rotation, and compare to expected matrix for
-//                    // simulationCase=0; test inertial time-derivative of angular momentum to check consistency with magnitude of torque
-//                    std::map< double, Eigen::Vector3d > inertialAngularMomentumMap;
-//                    std::map< double, Eigen::Vector3d > inertialTorqueMap;
-//                    for( std::map< double, Eigen::VectorXd >::const_iterator variableIterator = dependentVariableHistory.begin( );
-//                         variableIterator != dependentVariableHistory.end( ); variableIterator++ )
-//                        >>>>>>> master
-//                    {
-//                        if( simulationCase == 0 )
-//                        {
-//                            // Retrieve saved angles
-//                            currentLatitude = variableIterator->second( 0 );
-//                            currentLongitude = variableIterator->second( 1 );
-//                            currentHeadingAngle = variableIterator->second( 2 );
-//                            currentFlightPathAngle = variableIterator->second( 3 );
-//                            currentAngleOfAttack = variableIterator->second( 4 );
-//                            currentSideslipAngle = variableIterator->second( 5 );
-//                            currentBankAngle = variableIterator->second( 6 );
-
-//                            // Compute matrices from angles
-//                            currentInertialToBodyFixedFrameRotation = earthRotationModel->getRotationToTargetFrame( variableIterator->first );
-//                            currentEarthFixedToLVLHFrameRotation = getRotatingPlanetocentricToLocalVerticalFrameTransformationQuaternion(
-//                                        currentLongitude, currentLatitude );
-//                            currentLVLHToTrajectoryFrameRotation = getLocalVerticalFrameToTrajectoryTransformationQuaternion(
-//                                        currentFlightPathAngle, currentHeadingAngle );
-//                            currentTrajectoryToAerodynamicFrameRotation = getTrajectoryToAerodynamicFrameTransformationQuaternion(
-//                                        currentBankAngle );
-//                            currentAerodynamicToBodyFixesFrameRotation = getAirspeedBasedAerodynamicToBodyFrameTransformationQuaternion(
-//                                        currentAngleOfAttack, currentSideslipAngle );
-//                            currentInertialToBodyFixedFrame = currentAerodynamicToBodyFixesFrameRotation *
-//                                    currentTrajectoryToAerodynamicFrameRotation *
-//                                    currentLVLHToTrajectoryFrameRotation * currentEarthFixedToLVLHFrameRotation *
-//                                    currentInertialToBodyFixedFrameRotation;
-
-//                            // Compure expected rotation angle and rotation matrix
-//                            currentRotationAngle = systemInitialRotationalState( 4 ) * variableIterator->first;
-//                            expectedInertialToBodyFixedFrame =
-//                                    Eigen::AngleAxisd( -1.0 * currentRotationAngle, Eigen::Vector3d::UnitX( ) ).toRotationMatrix( );
-
-//                            // Compare expected and actual rotation matrices
-//                            for( unsigned int i = 0; i < 3; i++ )
-//                            {
-//                                for( unsigned int j = 0; j < 3; j++ )
-//                                {
-//                                    BOOST_CHECK_SMALL( std::fabs( expectedInertialToBodyFixedFrame( i, j ) -
-//                                                                  currentInertialToBodyFixedFrame( i, j ) ), 1.0E-13 );
-//                                }
-//                            }
-//                        }
-
-//                        // Retrieve torque and angular momentum in inertial frame.
-//                        else if( simulationCase == 1 )
-//                        {
-//                            Eigen::Matrix3d currentRotationFromApolloFixedToInertialFrame = apolloRotationModel->getRotationToBaseFrame(
-//                                        variableIterator->first ).toRotationMatrix( );
-//                            Eigen::Matrix3d currentRotationFromInertialToBodyFixedFrame =
-//                                    currentRotationFromApolloFixedToInertialFrame.transpose( );
-//                            Eigen::Matrix3d apolloInertiaTensorInInertialFrame =
-//                                    currentRotationFromApolloFixedToInertialFrame * inertiaTensor *
-//                                    currentRotationFromInertialToBodyFixedFrame;
-//                            Eigen::Vector3d apolloAngularVelocityVectorInInertialFrame =
-//                                    apolloRotationModel->getRotationalVelocityVectorInBaseFrame( variableIterator->first );
-//                            inertialAngularMomentumMap[ variableIterator->first ] =
-//                                    apolloInertiaTensorInInertialFrame * apolloAngularVelocityVectorInInertialFrame;
-//                            inertialTorqueMap[ variableIterator->first ] =
-//                                    currentRotationFromApolloFixedToInertialFrame * variableIterator->second.segment( 10, 3 );
-//                        }
-//                    }
-
-//                        <<<<<<< HEAD
-//                            // Compare time rate of angular momentum (using finite differences) with torque magnitudes
-//                            if( simulationCase == 1 )
-//                    {
-//                        // Create and set interpolator for angular momentum.
-//                        std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Vector3d > >
-//                                angularMomentumInterpolator =
-//                                std::make_shared< interpolators::LagrangeInterpolator< double, Eigen::Vector3d > >(
-//                                    inertialAngularMomentumMap, 6 );
-//                        typedef interpolators::OneDimensionalInterpolator< double, Eigen::Vector3d > LocalInterpolator;
-//                        std::function< Eigen::Vector3d( const double ) > angularMomentumFunction = std::bind(
-//                                    static_cast< Eigen::Vector3d( LocalInterpolator::* )( const double ) >
-//                                    ( &LocalInterpolator::interpolate ), angularMomentumInterpolator, std::placeholders::_1 );
-
-//                        double timeStep = 0.001;
-
-//                        // Iterate over saved data, and check consistency of torque and angular momentum
-//                        for( std::map< double, Eigen::Vector3d >::const_iterator variableIterator = ( inertialTorqueMap.begin( )++ );
-//                             variableIterator != inertialTorqueMap.end( ); variableIterator++ )
-//                            =======
-//                            // Compare time rate of angular momentum (using finite differences) with torque magnitudes
-//                            if( simulationCase == 1 )
-//                                >>>>>>> master
-//                            {
-//                                // Create and set interpolator for angular momentum.
-//                                std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Vector3d > >
-//                                        angularMomentumInterpolator =
-//                                        std::make_shared< interpolators::LagrangeInterpolator< double, Eigen::Vector3d > >(
-//                                            inertialAngularMomentumMap, 6 );
-//                                typedef interpolators::OneDimensionalInterpolator< double, Eigen::Vector3d > LocalInterpolator;
-//                                std::function< Eigen::Vector3d( const double ) > angularMomentumFunction = std::bind(
-//                                            static_cast< Eigen::Vector3d( LocalInterpolator::* )( const double ) >
-//                                            ( &LocalInterpolator::interpolate ), angularMomentumInterpolator, std::placeholders::_1 );
-
-//                                double timeStep = 0.001;
-
-//                                // Iterate over saved data, and check consistency of torque and angular momentum
-//                                for( std::map< double, Eigen::Vector3d >::const_iterator variableIterator = ( inertialTorqueMap.begin( )++ );
-//                                     variableIterator != inertialTorqueMap.end( ); variableIterator++ )
-//                                {
-//                                    <<<<<<< HEAD
-//                                            Eigen::Vector3d angularMomentumDerivative = numerical_derivatives::computeCentralDifferenceFromFunction(
-//                                                angularMomentumFunction, variableIterator->first, timeStep, numerical_derivatives::order4 );
-
-//                                    for( unsigned int i = 0; i < 3; i++ )
-//                                        =======
-//                                        if( variableIterator->first < ( --inertialTorqueMap.end( ) )->first - 10.0
-//                                                && variableIterator->first > inertialTorqueMap.begin( )->first + 10.0 )
-//                                            >>>>>>> master
-//                                        {
-//                                            Eigen::Vector3d angularMomentumDerivative = numerical_derivatives::computeCentralDifference(
-//                                                        angularMomentumFunction, variableIterator->first, timeStep, numerical_derivatives::order4 );
-
-//                                            for( unsigned int i = 0; i < 3; i++ )
-//                                            {
-//                                                BOOST_CHECK_SMALL( std::fabs( inertialTorqueMap.at( variableIterator->first )( i ) -
-//                                                                              angularMomentumDerivative( i ) ), 0.25 );
-//                                            }
-//                                        }
-//                                }
-//                            }
-//                    }
-//                }
-//        }
-
-        BOOST_AUTO_TEST_SUITE_END( )
-
-    } // namespace unit_tests
-
-} // namespace tudat
+//! Perform concurrent rotational and translational dynamics, with aerodynamic force and torque-free rotational motion, and
+//! check if aerodynamic angles and force coefficients are indeed taken from propagated rotation.
+BOOST_AUTO_TEST_CASE( testRotationalAndTranslationalDynamicsPropagation )
+{
+
+    // Load Spice kernels.
+    spice_interface::loadStandardSpiceKernels( );
+
+    // Set simulation start epoch.
+    const double simulationStartEpoch = 0.0;
+
+    // Set simulation end epoch.
+    const double simulationEndEpoch = 3100.0;
+
+    // Set numerical integration fixed step size.
+    const double fixedStepSize = 1.0;
+
+    // Define simulation body settings.
+    std::map< std::string, std::shared_ptr< BodySettings > > bodySettings =
+            getDefaultBodySettings( { "Earth" }, simulationStartEpoch - 10.0 * fixedStepSize,
+                                    simulationEndEpoch + 10.0 * fixedStepSize );
+    bodySettings[ "Earth" ]->ephemerisSettings = std::make_shared< simulation_setup::ConstantEphemerisSettings >(
+                Eigen::Vector6d::Zero( ), "SSB", "J2000" );
+    bodySettings[ "Earth" ]->rotationModelSettings->resetOriginalFrame( "J2000" );
+
+    // Create Earth object
+    simulation_setup::NamedBodyMap bodyMap = simulation_setup::createBodies( bodySettings );
+
+    // Create vehicle objects.
+    bodyMap[ "Apollo" ] = std::make_shared< simulation_setup::Body >( );
+    bodyMap[ "Apollo" ]->setConstantBodyMass( 5.0E3 );
+
+    // Create vehicle aerodynamic coefficients
+    bodyMap[ "Apollo" ]->setAerodynamicCoefficientInterface(
+                unit_tests::getApolloCoefficientInterface( ) );
+
+    // Set inertia tensor (dummy values)
+    Eigen::Matrix3d inertiaTensor = Eigen::Matrix3d::Zero( );
+    inertiaTensor( 0, 0 ) = 0.3615;
+    inertiaTensor( 1, 1 ) = 0.4265;
+    inertiaTensor( 2, 2 ) = 0.5024;
+    inertiaTensor *= ( 0.1 * 25.0 * 5.0E3 );
+    bodyMap[ "Apollo" ]->setBodyInertiaTensor( inertiaTensor );
+
+    std::map< double, Eigen::Matrix< double, 7, 1 > > dummyRotationMap;
+    dummyRotationMap[ -1.0E100 ] = Eigen::Matrix< double, 7, 1 >::Zero( );
+    dummyRotationMap[ 1.0E100 ] = Eigen::Matrix< double, 7, 1 >::Zero( );
+
+    // Set tabulated ephemerides for orbit and rotation
+    std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Matrix< double, 7, 1 > > >
+            dummyRotationInterpolator =
+            std::make_shared< interpolators::LinearInterpolator< double, Eigen::Matrix< double, 7, 1 > > >( dummyRotationMap );
+    bodyMap[ "Apollo" ]->setRotationalEphemeris( std::make_shared< TabulatedRotationalEphemeris< double, double > >(
+                                                     dummyRotationInterpolator, "J2000", "Apollo_Fixed" ) );
+
+    std::map< double, Eigen::Matrix< double, 6, 1 > > dummyStateMap;
+    dummyStateMap[ -1.0E100 ] = Eigen::Matrix< double, 6, 1 >::Zero( );
+    dummyStateMap[ 1.0E100 ] = Eigen::Matrix< double, 6, 1 >::Zero( );
+    std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Matrix< double, 6, 1 > > >
+            dummyStateInterpolator =
+            std::make_shared< interpolators::LinearInterpolator< double, Eigen::Matrix< double, 6, 1 > > >( dummyStateMap );
+    bodyMap[ "Apollo" ]->setEphemeris( std::make_shared< TabulatedCartesianEphemeris< double, double > >(
+                                           dummyStateInterpolator, "SSB", "J2000" ) );
+
+    // Finalize body creation.
+    setGlobalFrameBodyEphemerides( bodyMap, "SSB", "J2000" );
+
+
+    // Test code for different propagation schemes
+    for( int propagatorType = 0; propagatorType < 3; propagatorType++ )
+    {
+        // Test simulation with and without torques.
+        for( int simulationCase = 0; simulationCase < 2; simulationCase++ )
+        {
+            // Define propagator settings variables.
+            SelectedAccelerationMap accelerationMap;
+            std::vector< std::string > bodiesToPropagate;
+            std::vector< std::string > centralBodies;
+
+            // Define acceleration model settings.
+            std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfApollo;
+            accelerationsOfApollo[ "Earth" ].push_back( std::make_shared< SphericalHarmonicAccelerationSettings >( 4, 0 ) );
+            accelerationsOfApollo[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( aerodynamic ) );
+            accelerationMap[  "Apollo" ] = accelerationsOfApollo;
+
+            bodiesToPropagate.push_back( "Apollo" );
+            centralBodies.push_back( "Earth" );
+
+            // Create acceleration models
+            basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
+                        bodyMap, accelerationMap, bodiesToPropagate, centralBodies );
+
+            // Set spherical elements for Apollo.
+            Eigen::Vector6d apolloSphericalEntryState;
+            apolloSphericalEntryState( SphericalOrbitalStateElementIndices::radiusIndex ) =
+                    spice_interface::getAverageRadius( "Earth" ) + 120.0E3;
+            apolloSphericalEntryState( SphericalOrbitalStateElementIndices::latitudeIndex ) = 0.0;
+            apolloSphericalEntryState( SphericalOrbitalStateElementIndices::longitudeIndex ) = 1.2;
+            apolloSphericalEntryState( SphericalOrbitalStateElementIndices::speedIndex ) = 7.4E3;
+            apolloSphericalEntryState( SphericalOrbitalStateElementIndices::flightPathIndex ) =
+                    -1.2 * mathematical_constants::PI / 180.0;
+            apolloSphericalEntryState( SphericalOrbitalStateElementIndices::headingAngleIndex ) = 0.6;
+
+            // Convert apollo state from spherical elements to Cartesian elements.
+            Eigen::Vector6d systemInitialState = convertSphericalOrbitalToCartesianState(
+                        apolloSphericalEntryState );
+            std::shared_ptr< ephemerides::RotationalEphemeris > earthRotationalEphemeris =
+                    bodyMap.at( "Earth" )->getRotationalEphemeris( );
+            systemInitialState = transformStateToGlobalFrame( systemInitialState, simulationStartEpoch, earthRotationalEphemeris );
+
+
+            // Define initial rotational state
+            Eigen::Quaterniond initialRotation = Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) );
+            Eigen::VectorXd systemInitialRotationalState = Eigen::VectorXd::Zero( 7 );
+            systemInitialRotationalState.segment( 0, 4 ) = linear_algebra::convertQuaternionToVectorFormat(
+                        initialRotation );
+            systemInitialRotationalState( 4 ) = 1.0E-4;
+
+            // Create torque models
+            SelectedTorqueMap selectedTorqueModelMap;
+            if( simulationCase > 0 )
+            {
+                selectedTorqueModelMap[ "Apollo" ][ "Earth" ].push_back(
+                            std::make_shared< TorqueSettings >( aerodynamic_torque ) );
+            }
+
+            basic_astrodynamics::TorqueModelMap torqueModelMap = createTorqueModelsMap(
+                        bodyMap, selectedTorqueModelMap );
+
+            // Define list of dependent variables to save.
+            std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariablesList;
+            dependentVariablesList.push_back(
+                        std::make_shared< BodyAerodynamicAngleVariableSaveSettings >(
+                            "Apollo", reference_frames::latitude_angle ) );
+            dependentVariablesList.push_back(
+                        std::make_shared< BodyAerodynamicAngleVariableSaveSettings >(
+                            "Apollo", reference_frames::longitude_angle ) );
+            dependentVariablesList.push_back(
+                        std::make_shared< BodyAerodynamicAngleVariableSaveSettings >(
+                            "Apollo", reference_frames::heading_angle ) );
+            dependentVariablesList.push_back(
+                        std::make_shared< BodyAerodynamicAngleVariableSaveSettings >(
+                            "Apollo", reference_frames::flight_path_angle ) );
+            dependentVariablesList.push_back(
+                        std::make_shared< BodyAerodynamicAngleVariableSaveSettings >(
+                            "Apollo", reference_frames::angle_of_attack ) );
+            dependentVariablesList.push_back(
+                        std::make_shared< BodyAerodynamicAngleVariableSaveSettings >(
+                            "Apollo", reference_frames::angle_of_sideslip ) );
+            dependentVariablesList.push_back(
+                        std::make_shared< BodyAerodynamicAngleVariableSaveSettings >(
+                            "Apollo", reference_frames::bank_angle   ) );
+            if( simulationCase == 1 )
+            {
+                dependentVariablesList.push_back(
+                            std::make_shared< SingleDependentVariableSaveSettings >(
+                                aerodynamic_force_coefficients_dependent_variable, "Apollo" ) );
+                dependentVariablesList.push_back(
+                            std::make_shared< SingleTorqueDependentVariableSaveSettings >(
+                                aerodynamic_torque, "Apollo", "Earth" ) );
+                dependentVariablesList.push_back(
+                            std::make_shared< SingleDependentVariableSaveSettings >(
+                                total_torque_dependent_variable, "Apollo" ) );
+            }
+
+            // Create object with list of dependent variables
+            std::shared_ptr< DependentVariableSaveSettings > dependentVariablesToSave =
+                    std::make_shared< DependentVariableSaveSettings >( dependentVariablesList );
+
+            // Define termination conditions
+            std::shared_ptr< PropagationTerminationSettings > terminationSettings =
+                    std::make_shared< PropagationTimeTerminationSettings >( 250.0 );
+
+            // Create propagator settings for rotation.
+            std::shared_ptr< RotationalStatePropagatorSettings< double > > rotationalPropagatorSettings =
+                    std::make_shared< RotationalStatePropagatorSettings< double > >
+                    ( torqueModelMap, bodiesToPropagate, systemInitialRotationalState, terminationSettings );
+
+            // Create propagation settings for translational dynamics.
+            std::shared_ptr< TranslationalStatePropagatorSettings< double > > translationalPropagatorSettings =
+                    std::make_shared< TranslationalStatePropagatorSettings< double > >
+                    ( centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState,
+                      terminationSettings, cowell );
+
+            // Create full propagator settings for rotation.
+            std::vector< std::shared_ptr< SingleArcPropagatorSettings< double > > >  propagatorSettingsList;
+            propagatorSettingsList.push_back( translationalPropagatorSettings );
+            propagatorSettingsList.push_back( rotationalPropagatorSettings );
+
+            std::shared_ptr< PropagatorSettings< double > > propagatorSettings =
+                    std::make_shared< MultiTypePropagatorSettings< double > >(
+                        propagatorSettingsList, terminationSettings, dependentVariablesToSave );
+
+
+            // Create integrator settings for rotation.
+            std::shared_ptr< IntegratorSettings< > > integratorSettings =
+                    std::make_shared< RungeKuttaVariableStepSizeSettings< > >
+                    ( 0.0, 0.02,
+                      RungeKuttaCoefficients::rungeKuttaFehlberg78, 1.0E-4, 0.02, 1.0E-12, 1.0E-12 );
+
+            // Create simulation object and propagate dynamics.
+            SingleArcDynamicsSimulator< > dynamicsSimulator(
+                        bodyMap, integratorSettings, propagatorSettings, true, false, true);
+            std::map< double, Eigen::VectorXd > dependentVariableHistory = dynamicsSimulator.getDependentVariableHistory( );
+            std::map< double, Eigen::VectorXd > propagationHistory = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
+
+            // Define test variables
+            double currentLatitude, currentLongitude, currentFlightPathAngle, currentHeadingAngle,
+                    currentAngleOfAttack, currentSideslipAngle, currentBankAngle, currentRotationAngle;
+            Eigen::Matrix3d currentInertialToBodyFixedFrameRotation, currentEarthFixedToLVLHFrameRotation,
+                    currentLVLHToTrajectoryFrameRotation,
+                    currentTrajectoryToAerodynamicFrameRotation, currentAerodynamicToBodyFixesFrameRotation,
+                    currentInertialToBodyFixedFrame, expectedInertialToBodyFixedFrame;
+            Eigen::Matrix3d expectedInertialToBodyFixedFrameRotation;
+            std::shared_ptr< RotationalEphemeris > earthRotationModel = bodyMap.at( "Earth" )->getRotationalEphemeris( );
+            std::shared_ptr< RotationalEphemeris > apolloRotationModel = bodyMap.at( "Apollo" )->getRotationalEphemeris( );
+
+            // Iterate over saved data, manually compute inertial to body-fixed rotation, and compare to expected matrix for
+            // simulationCase=0; test inertial time-derivative of angular momentum to check consistency with magnitude of torque
+            std::map< double, Eigen::Vector3d > inertialAngularMomentumMap;
+            std::map< double, Eigen::Vector3d > inertialTorqueMap;
+            for( std::map< double, Eigen::VectorXd >::const_iterator variableIterator = dependentVariableHistory.begin( );
+                 variableIterator != dependentVariableHistory.end( ); variableIterator++ )
+            {
+                if( simulationCase == 0 )
+                {
+                    // Retrieve saved angles
+                    currentLatitude = variableIterator->second( 0 );
+                    currentLongitude = variableIterator->second( 1 );
+                    currentHeadingAngle = variableIterator->second( 2 );
+                    currentFlightPathAngle = variableIterator->second( 3 );
+                    currentAngleOfAttack = variableIterator->second( 4 );
+                    currentSideslipAngle = variableIterator->second( 5 );
+                    currentBankAngle = variableIterator->second( 6 );
+
+                    // Compute matrices from angles
+                    currentInertialToBodyFixedFrameRotation = earthRotationModel->getRotationToTargetFrame( variableIterator->first );
+                    currentEarthFixedToLVLHFrameRotation = getRotatingPlanetocentricToLocalVerticalFrameTransformationQuaternion(
+                                currentLongitude, currentLatitude );
+                    currentLVLHToTrajectoryFrameRotation = getLocalVerticalFrameToTrajectoryTransformationQuaternion(
+                                currentFlightPathAngle, currentHeadingAngle );
+                    currentTrajectoryToAerodynamicFrameRotation = getTrajectoryToAerodynamicFrameTransformationQuaternion(
+                                currentBankAngle );
+                    currentAerodynamicToBodyFixesFrameRotation = getAirspeedBasedAerodynamicToBodyFrameTransformationQuaternion(
+                                currentAngleOfAttack, currentSideslipAngle );
+                    currentInertialToBodyFixedFrame = currentAerodynamicToBodyFixesFrameRotation *
+                            currentTrajectoryToAerodynamicFrameRotation *
+                            currentLVLHToTrajectoryFrameRotation * currentEarthFixedToLVLHFrameRotation *
+                            currentInertialToBodyFixedFrameRotation;
+
+                    // Compure expected rotation angle and rotation matrix
+                    currentRotationAngle = systemInitialRotationalState( 4 ) * variableIterator->first;
+                    expectedInertialToBodyFixedFrame =
+                            Eigen::AngleAxisd( -1.0 * currentRotationAngle, Eigen::Vector3d::UnitX( ) ).toRotationMatrix( );
+
+
+                    // Compare expected and actual rotation matrices
+                    for( unsigned int i = 0; i < 3; i++ )
+                    {
+                        for( unsigned int j = 0; j < 3; j++ )
+                        {
+                            BOOST_CHECK_SMALL(
+                                        std::fabs( expectedInertialToBodyFixedFrame( i, j ) -
+                                                   currentInertialToBodyFixedFrame( i, j ) ), 1.0E-13 );
+                        }
+                    }
+                }
+
+                // Retrieve torque and angular momentum in inertial frame.
+                else if( simulationCase == 1 )
+                {
+                    Eigen::Matrix3d currentRotationFromApolloFixedToInertialFrame = apolloRotationModel->getRotationToBaseFrame(
+                                variableIterator->first ).toRotationMatrix( );
+                    Eigen::Matrix3d currentRotationFromInertialToBodyFixedFrame =
+                            currentRotationFromApolloFixedToInertialFrame.transpose( );
+                    Eigen::Matrix3d apolloInertiaTensorInInertialFrame =
+                            currentRotationFromApolloFixedToInertialFrame * inertiaTensor *
+                            currentRotationFromInertialToBodyFixedFrame;
+                    Eigen::Vector3d apolloAngularVelocityVectorInInertialFrame =
+                            apolloRotationModel->getRotationalVelocityVectorInBaseFrame( variableIterator->first );
+                    inertialAngularMomentumMap[ variableIterator->first ] =
+                            apolloInertiaTensorInInertialFrame * apolloAngularVelocityVectorInInertialFrame;
+                    inertialTorqueMap[ variableIterator->first ] =
+                            currentRotationFromApolloFixedToInertialFrame * variableIterator->second.segment( 10, 3 );
+                }
+            }
+
+            // Compare time rate of angular momentum (using finite differences) with torque magnitudes
+            if( simulationCase == 1 )
+            {
+                // Create and set interpolator for angular momentum.
+                std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Vector3d > >
+                        angularMomentumInterpolator =
+                        std::make_shared< interpolators::LagrangeInterpolator< double, Eigen::Vector3d > >(
+                            inertialAngularMomentumMap, 6 );
+                typedef interpolators::OneDimensionalInterpolator< double, Eigen::Vector3d > LocalInterpolator;
+                std::function< Eigen::Vector3d( const double ) > angularMomentumFunction = std::bind(
+                            static_cast< Eigen::Vector3d( LocalInterpolator::* )( const double ) >
+                            ( &LocalInterpolator::interpolate ), angularMomentumInterpolator, std::placeholders::_1 );
+
+                double timeStep = 0.001;
+
+                // Iterate over saved data, and check consistency of torque and angular momentum
+                for( std::map< double, Eigen::Vector3d >::const_iterator variableIterator = ( inertialTorqueMap.begin( )++ );
+                     variableIterator != inertialTorqueMap.end( ); variableIterator++ )
+                {
+                    if( variableIterator->first < ( --inertialTorqueMap.end( ) )->first - 10.0
+                            && variableIterator->first > inertialTorqueMap.begin( )->first + 10.0 )
+                    {
+                        Eigen::Vector3d angularMomentumDerivative = numerical_derivatives::computeCentralDifferenceFromFunction(
+                                    angularMomentumFunction, variableIterator->first, timeStep, numerical_derivatives::order4 );
+
+                        for( unsigned int i = 0; i < 3; i++ )
+                        {
+                            BOOST_CHECK_SMALL(
+                                        std::fabs( inertialTorqueMap.at( variableIterator->first )( i ) -
+                                                   angularMomentumDerivative( i ) ), 0.25 );
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+BOOST_AUTO_TEST_SUITE_END( )
+
+}
+
+}
