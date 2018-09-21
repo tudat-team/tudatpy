@@ -546,7 +546,7 @@ public:
                                  const double specificGasConstant,
                                  const double ratioOfSpecificHeats,
                                  const interpolators::BoundaryInterpolationType boundaryHandling,
-                                 const double defaultExtrapolationValue = IdentityElement< double >::getAdditionIdentity( ) ) :
+                                 const double defaultExtrapolationValue = IdentityElement::getAdditionIdentity< double >( ) ) :
         TabulatedAtmosphereSettings( atmosphereTableFile, independentVariablesNames, dependentVariablesNames,
                                      specificGasConstant, ratioOfSpecificHeats,
                                      std::vector< interpolators::BoundaryInterpolationType >(
@@ -575,7 +575,7 @@ public:
             const double specificGasConstant = physical_constants::SPECIFIC_GAS_CONSTANT_AIR,
             const double ratioOfSpecificHeats = 1.4,
             const interpolators::BoundaryInterpolationType boundaryHandling = interpolators::use_boundary_value,
-            const double defaultExtrapolationValue = IdentityElement< double >::getAdditionIdentity( ) ) :
+            const double defaultExtrapolationValue = IdentityElement::getAdditionIdentity< double >( ) ) :
         TabulatedAtmosphereSettings( { { 0, atmosphereTableFile } }, { altitude_dependent_atmosphere },
                                      dependentVariablesNames, specificGasConstant,
                                      ratioOfSpecificHeats, { boundaryHandling },
@@ -650,8 +650,8 @@ public:
                 }
                 else
                 {
-                    defaultExtrapolationValue_.at( i ).push_back( std::make_pair( IdentityElement< double >::getAdditionIdentity( ),
-                                                                                  IdentityElement< double >::getAdditionIdentity( ) ) );
+                    defaultExtrapolationValue_.at( i ).push_back( std::make_pair( IdentityElement::getAdditionIdentity< double >( ),
+                                                                                  IdentityElement::getAdditionIdentity< double >( ) ) );
                 }
             }
         }
@@ -678,7 +678,7 @@ public:
                                  const std::vector< AtmosphereIndependentVariables >& independentVariablesNames,
                                  const std::vector< AtmosphereDependentVariables >& dependentVariablesNames,
                                  const interpolators::BoundaryInterpolationType boundaryHandling,
-                                 const double defaultExtrapolationValue = IdentityElement< double >::getAdditionIdentity( ) ) :
+                                 const double defaultExtrapolationValue = IdentityElement::getAdditionIdentity< double >( ) ) :
         TabulatedAtmosphereSettings( atmosphereTableFile, independentVariablesNames, dependentVariablesNames,
                                      physical_constants::SPECIFIC_GAS_CONSTANT_AIR, 1.4,
                                      std::vector< interpolators::BoundaryInterpolationType >(

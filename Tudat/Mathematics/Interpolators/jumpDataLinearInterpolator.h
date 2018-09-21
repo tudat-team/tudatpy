@@ -74,7 +74,7 @@ public:
                                 const DependentVariableType jumpSize,
                                 const AvailableLookupScheme selectedLookupScheme = huntingAlgorithm,
                                 const BoundaryInterpolationType boundaryHandling = extrapolate_at_boundary,
-                                const DependentVariableType& defaultExtrapolationValue = IdentityElement< DependentVariableType >::getAdditionIdentity( ) ):
+                                const DependentVariableType& defaultExtrapolationValue = IdentityElement::getAdditionIdentity< DependentVariableType >( ) ):
         OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >( boundaryHandling,
                                                                                       defaultExtrapolationValue )
     {
@@ -120,7 +120,7 @@ public:
                                 const DependentVariableType jumpSize,
                                 const AvailableLookupScheme selectedLookupScheme = huntingAlgorithm,
                                 const BoundaryInterpolationType boundaryHandling = extrapolate_at_boundary,
-                                const DependentVariableType& defaultExtrapolationValue = IdentityElement< DependentVariableType >::getAdditionIdentity( ) ):
+                                const DependentVariableType& defaultExtrapolationValue = IdentityElement::getAdditionIdentity< DependentVariableType >( ) ):
         OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >( boundaryHandling,
                                                                                       defaultExtrapolationValue )
     {

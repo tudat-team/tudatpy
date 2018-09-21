@@ -93,8 +93,8 @@ public:
             std::vector< BoundaryInterpolationType >( NumberOfDimensions, extrapolate_at_boundary ),
             const std::vector< std::pair< DependentVariableType, DependentVariableType > >& defaultExtrapolationValue =
             std::vector< std::pair< DependentVariableType, DependentVariableType > >(
-                NumberOfDimensions, std::make_pair( IdentityElement< DependentVariableType >::getAdditionIdentity( ),
-                                                    IdentityElement< DependentVariableType >::getAdditionIdentity( ) ) ) ) :
+                NumberOfDimensions, std::make_pair( IdentityElement::getAdditionIdentity< DependentVariableType >( ),
+                                                    IdentityElement::getAdditionIdentity< DependentVariableType >( ) ) ) ) :
         MultiDimensionalInterpolator< IndependentVariableType, DependentVariableType, NumberOfDimensions >(
             boundaryHandling, defaultExtrapolationValue )
     {
@@ -149,7 +149,7 @@ public:
             const boost::multi_array< DependentVariableType, static_cast< size_t >( NumberOfDimensions ) >& dependentData,
             const AvailableLookupScheme selectedLookupScheme,
             const BoundaryInterpolationType boundaryHandling,
-            const DependentVariableType& defaultExtrapolationValue = IdentityElement< DependentVariableType >::getAdditionIdentity( ) ) :
+            const DependentVariableType& defaultExtrapolationValue = IdentityElement::getAdditionIdentity< DependentVariableType >( ) ) :
         MultiLinearInterpolator( independentValues, dependentData, selectedLookupScheme,
                                  std::vector< BoundaryInterpolationType >( NumberOfDimensions, boundaryHandling ),
                                  std::vector< std::pair< DependentVariableType, DependentVariableType > >(
