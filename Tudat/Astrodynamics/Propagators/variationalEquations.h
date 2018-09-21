@@ -492,15 +492,6 @@ private:
                                                             std::dynamic_pointer_cast< estimatable_parameters::InitialRotationalStateParameter< ParameterType > >(
                                                                 initialDynamicalParameters.at( i ) )->getBodyInertiaTensorFunction( ) ) );
                 rotationalBodyCounter++;
-                if( centralBodies.at( currentBodyIndex ) == propagatedBodies.at( j ) )
-                {
-
-                    statePartialAdditionIndices_.push_back(
-                                std::make_pair( stateTypeStartIndices_[ propagators::translational_state ] +
-                                currentBodyIndex * propagators::getSingleIntegrationSize( propagators::translational_state ),
-                                stateTypeStartIndices_[ propagators::translational_state ] +
-                            j * propagators::getSingleIntegrationSize( propagators::translational_state ) ) );
-                }
             }
         }
     }

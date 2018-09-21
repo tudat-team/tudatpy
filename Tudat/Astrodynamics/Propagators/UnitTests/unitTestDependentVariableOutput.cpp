@@ -904,7 +904,7 @@ BOOST_AUTO_TEST_CASE( test_GravityFieldVariationAccelerationSaving )
     // Create integrator settings
     std::shared_ptr< IntegratorSettings< double > > integratorSettings =
             std::make_shared< RungeKuttaVariableStepSizeSettings< double > >
-            ( rungeKuttaVariableStepSize, double( initialEphemerisTime ), 300.0,
+            ( double( initialEphemerisTime ), 300.0,
               RungeKuttaCoefficients::CoefficientSets::rungeKuttaFehlberg78,
               300.0, 300.0, 1.0, 1.0 );
 

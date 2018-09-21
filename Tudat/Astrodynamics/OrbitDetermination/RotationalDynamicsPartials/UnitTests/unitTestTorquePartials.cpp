@@ -112,7 +112,6 @@ BOOST_AUTO_TEST_CASE( testSecondDegreeGravitationalTorquePartials )
                                                      dummyInterpolator, "ECLIPJ2000", "Phobos_Fixed" ) );
 
 
-
     Eigen::Vector6d phobosKeplerElements = Eigen::Vector6d::Zero( );
     double phobosSemiMajorAxis = 9376.0E3;
     phobosKeplerElements( 0 ) = phobosSemiMajorAxis;
@@ -151,7 +150,6 @@ BOOST_AUTO_TEST_CASE( testSecondDegreeGravitationalTorquePartials )
             createAnalyticalTorquePartial( gravitationalTorque, std::make_pair( "Phobos", phobos ),
                                            std::make_pair( "Mars", mars ) );
 
-
     // Create gravitational parameter object.
     std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames;
     parameterNames.push_back( std::make_shared< EstimatableParameterSettings >( "Mars", gravitational_parameter) );
@@ -181,10 +179,13 @@ BOOST_AUTO_TEST_CASE( testSecondDegreeGravitationalTorquePartials )
 
     Eigen::MatrixXd partialWrtPhobosOrientation = Eigen::MatrixXd::Zero( 3, 4 );
     torquePartial->wrtOrientationOfAcceleratedBody( partialWrtPhobosOrientation.block( 0, 0, 3, 4 ) );
+
     Eigen::MatrixXd partialWrtPhobosRotationalVelocity = Eigen::Matrix3d::Zero( );
     torquePartial->wrtRotationalVelocityOfAcceleratedBody( partialWrtPhobosRotationalVelocity.block( 0, 0, 3, 3 ), 1, 0, 0 );
+
     Eigen::MatrixXd partialWrtMarsOrientation = Eigen::MatrixXd::Zero( 3, 4  );
-    torquePartial->wrtOrientationOfAcceleratingBody( partialWrtMarsOrientation.block( 0, 0, 4, 3 ) );
+    torquePartial->wrtOrientationOfAcceleratingBody( partialWrtMarsOrientation.block( 0, 0, 3, 4 ) );
+
     Eigen::MatrixXd partialWrtMarsRotationalVelocity = Eigen::Matrix3d::Zero( );
     torquePartial->wrtRotationalVelocityOfAcceleratingBody( partialWrtMarsRotationalVelocity.block( 0, 0, 3, 3 ), 1, 0, 0 );
 
@@ -475,7 +476,7 @@ BOOST_AUTO_TEST_CASE( testInertialTorquePartials )
     Eigen::MatrixXd partialWrtPhobosRotationalVelocity = Eigen::Matrix3d::Zero( );
     torquePartial->wrtRotationalVelocityOfAcceleratedBody( partialWrtPhobosRotationalVelocity.block( 0, 0, 3, 3 ), 1, 0, 0 );
     Eigen::MatrixXd partialWrtMarsOrientation = Eigen::MatrixXd::Zero( 3, 4  );
-    torquePartial->wrtOrientationOfAcceleratingBody( partialWrtMarsOrientation.block( 0, 0, 4, 3 ) );
+    torquePartial->wrtOrientationOfAcceleratingBody( partialWrtMarsOrientation.block( 0, 0, 3, 4 ) );
     Eigen::MatrixXd partialWrtMarsRotationalVelocity = Eigen::Matrix3d::Zero( );
     torquePartial->wrtRotationalVelocityOfAcceleratingBody( partialWrtMarsRotationalVelocity.block( 0, 0, 3, 3 ), 1, 0, 0 );
 
@@ -815,7 +816,7 @@ BOOST_AUTO_TEST_CASE( testConstantTorquePartials )
     Eigen::MatrixXd partialWrtPhobosRotationalVelocity = Eigen::Matrix3d::Zero( );
     torquePartial->wrtRotationalVelocityOfAcceleratedBody( partialWrtPhobosRotationalVelocity.block( 0, 0, 3, 3 ), 1, 0, 0 );
     Eigen::MatrixXd partialWrtMarsOrientation = Eigen::MatrixXd::Zero( 3, 4  );
-    torquePartial->wrtOrientationOfAcceleratingBody( partialWrtMarsOrientation.block( 0, 0, 4, 3 ) );
+    torquePartial->wrtOrientationOfAcceleratingBody( partialWrtMarsOrientation.block( 0, 0, 3, 4 ) );
     Eigen::MatrixXd partialWrtMarsRotationalVelocity = Eigen::Matrix3d::Zero( );
     torquePartial->wrtRotationalVelocityOfAcceleratingBody( partialWrtMarsRotationalVelocity.block( 0, 0, 3, 3 ), 1, 0, 0 );
 
@@ -935,32 +936,30 @@ BOOST_AUTO_TEST_CASE( testConstantTorquePartials )
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(  partialWrtMarsState.block( 0, 3, 3, 3 ),
                                         testPartialWrtMarsVelocity, std::numeric_limits< double >::epsilon( ) );
 
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( ( Eigen::MatrixXd( phobosInertiaTensor ) * testPartialWrtPhobosGravitationalParameter ),
+    Eigen::Vector3d sclaedPartialWrtPhobosGravitationalParameter = phobosInertiaTensor * testPartialWrtPhobosGravitationalParameter;
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( sclaedPartialWrtPhobosGravitationalParameter,
                                        partialWrtPhobosGravitationalParameter, 1.0E-6 );
 
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( ( Eigen::MatrixXd( phobosInertiaTensor ) * testPartialWrtMeanMomentOfInertia ),
+    Eigen::Vector3d scaledPartialWrtMeanMomentOfInertia = phobosInertiaTensor * testPartialWrtMeanMomentOfInertia;
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( scaledPartialWrtMeanMomentOfInertia,
                                        partialWrtMeanMomentOfInertia, 1.0E-6 );
-
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( partialWrtPhobosCosineCoefficients.block( 0, 0, 3, 2 ),
                                        Eigen::MatrixXd::Zero( 3, 2 ), std::numeric_limits< double >::epsilon( ) );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( partialWrtPhobosCosineCoefficients.block( 0, 5, 3, 4 ),
                                        Eigen::MatrixXd::Zero( 3, 4 ), std::numeric_limits< double >::epsilon( ) );
-
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( partialWrtPhobosSineCoefficients.block( 0, 0, 3, 1 ),
                                        Eigen::MatrixXd::Zero( 3, 1 ), std::numeric_limits< double >::epsilon( ) );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( partialWrtPhobosSineCoefficients.block( 0, 3, 3, 3 ),
                                        Eigen::MatrixXd::Zero( 3, 3 ), std::numeric_limits< double >::epsilon( ) );
 
     // Check derivative of z-component w.r.t. C20 separately: value is slightly non-zero due to rounding error
-    BOOST_CHECK_SMALL( std::fabs(
-                           ( Eigen::MatrixXd( phobosInertiaTensor ) * testPartialWrtPhobosCosineCoefficients )( 2, 4 ) ), 1.0E5 );
-    testPartialWrtPhobosCosineCoefficients( 2, 4 ) = 0.0;
+    Eigen::MatrixXd scaledPartialWrtPhobosCosineCoefficients = phobosInertiaTensor * testPartialWrtPhobosCosineCoefficients;
+    BOOST_CHECK_SMALL( std::fabs( scaledPartialWrtPhobosCosineCoefficients( 2, 4 ) ), 1.0E5 );
+    scaledPartialWrtPhobosCosineCoefficients( 2, 4 ) = 0.0;
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( scaledPartialWrtPhobosCosineCoefficients, partialWrtPhobosCosineCoefficients, 1.0E-9 );
 
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                ( Eigen::MatrixXd( phobosInertiaTensor ) * testPartialWrtPhobosCosineCoefficients ), partialWrtPhobosCosineCoefficients, 1.0E-9 );
-
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                ( Eigen::MatrixXd( phobosInertiaTensor ) * testPartialWrtPhobosSineCoefficients ), partialWrtPhobosSineCoefficients, 1.0E-9 );
+    Eigen::MatrixXd scaledPartialWrtPhobosSineCoefficients = phobosInertiaTensor * testPartialWrtPhobosSineCoefficients;
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( scaledPartialWrtPhobosSineCoefficients, partialWrtPhobosSineCoefficients, 1.0E-9 );
 
 }
 

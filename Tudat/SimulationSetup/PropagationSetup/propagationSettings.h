@@ -484,14 +484,14 @@ public:
         // Set initial states
         this->initialStates_ =
                 Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >(
-                    singleArcPropagatorSettings->getStateSize( ) +
-                    multiArcPropagatorSettings->getStateSize( ) );
+                    singleArcPropagatorSettings->getPropagatedStateSize( ) +
+                    multiArcPropagatorSettings->getPropagatedStateSize( ) );
         setInitialStatesFromConstituents( );
 
         // Set initial state sizes
         this->stateSize_ = this->initialStates_.rows( );
-        singleArcStateSize_ = singleArcPropagatorSettings_->getStateSize( );
-        multiArcStateSize_ = multiArcPropagatorSettings_->getStateSize( );
+        singleArcStateSize_ = singleArcPropagatorSettings_->getPropagatedStateSize( );
+        multiArcStateSize_ = multiArcPropagatorSettings_->getPropagatedStateSize( );
     }
 
     //! Function to reset the initial state used as input for numerical integration
@@ -524,10 +524,10 @@ public:
     //! Function that sets initial states from single- and multi-arc initial states
     void setInitialStatesFromConstituents( )
     {
-        this->initialStates_.segment( 0, singleArcPropagatorSettings_->getStateSize( ) ) =
+        this->initialStates_.segment( 0, singleArcPropagatorSettings_->getPropagatedStateSize( ) ) =
                 singleArcPropagatorSettings_->getInitialStates( );
         this->initialStates_.segment(
-                    singleArcPropagatorSettings_->getStateSize( ), multiArcPropagatorSettings_->getStateSize( ) ) =
+                    singleArcPropagatorSettings_->getPropagatedStateSize( ), multiArcPropagatorSettings_->getPropagatedStateSize( ) ) =
                 multiArcPropagatorSettings_->getInitialStates( );
     }
 

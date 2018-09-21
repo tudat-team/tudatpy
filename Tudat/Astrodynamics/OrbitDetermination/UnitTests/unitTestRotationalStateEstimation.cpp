@@ -398,7 +398,7 @@ BOOST_AUTO_TEST_CASE( test_RotationalTranslationalDynamicsEstimationFromLanderDa
     double timeStep = 240.0;
     std::shared_ptr< IntegratorSettings< > > integratorSettings =
             std::make_shared< RungeKuttaVariableStepSizeSettings< > >
-            ( rungeKuttaVariableStepSize, initialEphemerisTime, timeStep,
+            ( initialEphemerisTime, timeStep,
               RungeKuttaCoefficients::rungeKuttaFehlberg78, timeStep, timeStep, 1.0, 1.0 );
 
 
@@ -571,36 +571,6 @@ BOOST_AUTO_TEST_CASE( test_RotationalTranslationalDynamicsEstimationFromLanderDa
     BOOST_CHECK_SMALL( std::fabs( podOutput->parameterEstimate_( 13 ) - truthParameters( 13 ) ), 1.0E-10 );
     BOOST_CHECK_SMALL( std::fabs( podOutput->parameterEstimate_( 14 ) - truthParameters( 14 ) ), 1.0E-11 );
     BOOST_CHECK_SMALL( std::fabs( podOutput->parameterEstimate_( 15 ) - truthParameters( 15 ) ), 1.0E-11 );
-
-//    BOOST_CHECK_SMALL( std::fabs( podOutput->parameterEstimate_( 16 ) - truthParameters( 16 ) ), 1.0E-6 );
-//    BOOST_CHECK_SMALL( std::fabs( podOutput->parameterEstimate_( 17 ) - truthParameters( 17 ) ), 1.0E-6 );
-
-    std::cout<<"True error: "<<( podOutput->parameterEstimate_ - truthParameters ).transpose( )<<std::endl;
-    std::cout<<"Formal error: "<<1.0E-3 * podOutput->getFormalErrorVector( ).transpose( )<<std::endl;
-    std::cout<<"Error ratio: "<<( ( 1.0E-3 * podOutput->getFormalErrorVector( ).segment( 0, numberOfParameters ) ).cwiseQuotient(
-                                      podOutput->parameterEstimate_ - truthParameters ) ).transpose( )<<std::endl;
-
-    //        input_output::writeMatrixToFile( podOutput->normalizedInformationMatrix_,
-    //                                         "rotationInformationMatrix" + std::to_string( testId ) + ".dat", 16 );
-//    input_output::writeMatrixToFile( podOutput->getCorrelationMatrix( ),
-//                                     "rotationCorrelationsFull.dat", 16 );
-    //        input_output::writeMatrixToFile( podOutput->inverseNormalizedCovarianceMatrix_,
-    //                                         "rotationInverseNormalizedCovariance" + std::to_string( testId ) + ".dat", 16 );
-    //        input_output::writeMatrixToFile( podOutput->getFormalErrorVector( ),
-    //                                         "rotationFormalEstimationError" + std::to_string( testId ) + ".dat", 16 );
-    //        input_output::writeMatrixToFile( truthParameters,
-    //                                         "rotationTruthParameters" + std::to_string( testId ) + ".dat", 16 );
-    //        input_output::writeMatrixToFile( podOutput->residuals_,
-    //                                         "rotationResiduals" + std::to_string( testId ) + ".dat", 16 );
-//            input_output::writeMatrixToFile( podOutput->informationMatrixTransformationDiagonal_,
-//                                             "rotationParameterNormalizationFull.dat", 16 );
-    //        input_output::writeMatrixToFile( podOutput->getResidualHistoryMatrix( ),
-    //                                         "rotationResidualHistory" + std::to_string( testId ) + ".dat", 16 );
-    //        input_output::writeMatrixToFile( podOutput->getParameterHistoryMatrix( ),
-    //                                         "rotationParameterHistory" + std::to_string( testId ) + ".dat", 16 );
-//    std::cout<<"Correlations "<<std::endl<<podOutput->getCorrelationMatrix( )<<std::endl<<std::endl;
-
-
 }
 
 BOOST_AUTO_TEST_SUITE_END( )

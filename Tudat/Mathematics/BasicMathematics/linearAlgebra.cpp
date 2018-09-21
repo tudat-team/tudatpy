@@ -36,6 +36,7 @@ Eigen::Vector4d convertQuaternionToVectorFormat( const Eigen::Quaterniond& quate
 Eigen::Quaterniond getQuaternionFromVectorFormat( const Eigen::Vector4d& vector )
 {
     Eigen::Quaterniond quaternion;
+    return quaternion;
 }
 
 //! Function to put a vector in 'quaternion format', i.e. a Quaterniond.

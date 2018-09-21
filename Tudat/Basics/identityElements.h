@@ -36,8 +36,10 @@ public:
      */
     template< typename std::enable_if< is_eigen_matrix< VariableType >::value, int >::type = 0 >
     static VariableType getAdditionIdentity( )
-    {        
-        return VariableType::Zero( VariableType::RowsAtCompileTime, VariableType::ColsAtCompileTime );
+    {
+        return VariableType::Zero(
+                    VariableType::RowsAtCompileTime < 0 ? 0 : VariableType::RowsAtCompileTime,
+                    VariableType::ColsAtCompileTime < 0 ? 0 : VariableType::ColsAtCompileTime );
     }
 
     //! Function to output the unit value (i.e., the multiplication identity) for the specified type.
@@ -50,7 +52,9 @@ public:
     {
         if( VariableType::RowsAtCompileTime == VariableType::ColsAtCompileTime )
         {
-        return VariableType::Identity( VariableType::RowsAtCompileTime, VariableType::ColsAtCompileTime );
+            return VariableType::Identity(
+                        VariableType::RowsAtCompileTime < 0 ? 0 : VariableType::RowsAtCompileTime,
+                        VariableType::ColsAtCompileTime < 0 ? 0 : VariableType::ColsAtCompileTime );
         }
         else
         {
@@ -66,7 +70,9 @@ public:
     template< typename std::enable_if< is_eigen_matrix< VariableType >::value, int >::type = 0 >
     static VariableType getNullIdentity( )
     {
-        return VariableType::Constant( VariableType::RowsAtCompileTime, VariableType::ColsAtCompileTime , TUDAT_NAN );
+        return VariableType::Constant(
+                    VariableType::RowsAtCompileTime < 0 ? 0 : VariableType::RowsAtCompileTime,
+                    VariableType::ColsAtCompileTime < 0 ? 0 : VariableType::ColsAtCompileTime , TUDAT_NAN );
     }
 
 };
