@@ -677,7 +677,7 @@ public:
             {
                 stateTransitionInterface_ = std::make_shared< SingleArcCombinedStateTransitionAndSensitivityMatrixInterface >(
                             nullptr, nullptr,
-                            propagatorSettings_->getStateSize( ), parameterVectorSize_ );
+                            propagatorSettings_->getConventionalStateSize( ), parameterVectorSize_ );
             }
         }
     }
@@ -1604,9 +1604,9 @@ public:
         }
 
         // Get input size of single-arc and input multi-arc
-        singleArcDynamicsSize_ = originalPopagatorSettings_->getSingleArcPropagatorSettings( )->getStateSize( );
-        originalMultiArcDynamicsSize_ = originalPopagatorSettings_->getMultiArcPropagatorSettings( )->getStateSize( );
-        originalMultiArcDynamicsSingleArcSize_ = originalPopagatorSettings_->getMultiArcPropagatorSettings( )->getStateSize( ) /
+        singleArcDynamicsSize_ = originalPopagatorSettings_->getSingleArcPropagatorSettings( )->getConventionalStateSize( );
+        originalMultiArcDynamicsSize_ = originalPopagatorSettings_->getMultiArcPropagatorSettings( )->getConventionalStateSize( );
+        originalMultiArcDynamicsSingleArcSize_ = originalPopagatorSettings_->getMultiArcPropagatorSettings( )->getConventionalStateSize( ) /
                 arcStartTimes.size( );
 
         // Create propagator settings with the single arc settings included (at the beginning) in each arc
@@ -1615,8 +1615,8 @@ public:
                     originalPopagatorSettings_->getSingleArcPropagatorSettings( ),
                     originalPopagatorSettings_->getMultiArcPropagatorSettings( ),
                     arcStartTimes.size( ) );
-        multiArcDynamicsSize_ = extendedMultiArcSettings->getStateSize( );
-        multiArcDynamicsSingleArcSize_ = extendedMultiArcSettings->getStateSize( ) / arcStartTimes_.size( );
+        multiArcDynamicsSize_ = extendedMultiArcSettings->getConventionalStateSize( );
+        multiArcDynamicsSingleArcSize_ = extendedMultiArcSettings->getConventionalStateSize( ) / arcStartTimes_.size( );
         propagatorSettings_ = std::make_shared< HybridArcPropagatorSettings< StateScalarType> >(
                     originalPopagatorSettings_->getSingleArcPropagatorSettings( ), extendedMultiArcSettings );
 

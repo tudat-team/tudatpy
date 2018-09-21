@@ -272,7 +272,7 @@ Eigen::MatrixXd calculateChangeDueToConstantBodyOrientation(
     Eigen::Vector7d perturbedBodyState;
 
     Eigen::Matrix< double, Eigen::Dynamic, 4 > numericalChangeDueToQuaternionChange =
-            Eigen::Matrix< double, Eigen::Dynamic, 4 >::Zero( observableSize, 3 );
+            Eigen::Matrix< double, Eigen::Dynamic, 4 >::Zero( observableSize, 4 );
     for( int i = 0; i < 4; i++ )
     {
         perturbedBodyState = bodyUnperturbedState;

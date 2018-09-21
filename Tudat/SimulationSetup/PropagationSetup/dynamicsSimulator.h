@@ -1501,8 +1501,8 @@ public:
             throw std::runtime_error( "Error when making HybridArcDynamicsSimulator, propagator settings are incompatible" );
         }
 
-        singleArcDynamicsSize_ = hybridPropagatorSettings->getSingleArcPropagatorSettings( )->getStateSize( );
-        multiArcDynamicsSize_ = hybridPropagatorSettings->getMultiArcPropagatorSettings( )->getStateSize( );
+        singleArcDynamicsSize_ = hybridPropagatorSettings->getSingleArcPropagatorSettings( )->getPropagatedStateSize( );
+        multiArcDynamicsSize_ = hybridPropagatorSettings->getMultiArcPropagatorSettings( )->getPropagatedStateSize( );
 
         if( !addSingleArcBodiesToMultiArcDynamics )
         {
@@ -1641,12 +1641,12 @@ public:
         return numericalSolution;
     }
 
-    std::vector< std::map< TimeType, double > > getCummulativeComputationTimeHistoryBase( )
+    std::vector< std::map< TimeType, double > > getCumulativeComputationTimeHistoryBase( )
     {
         std::vector< std::map< TimeType, double > >
-                computationTime = singleArcDynamicsSimulator_->getCummulativeComputationTimeHistoryBase( );
+                computationTime = singleArcDynamicsSimulator_->getCumulativeComputationTimeHistoryBase( );
         std::vector< std::map< TimeType, double > >
-                multiArcComputationTime = multiArcDynamicsSimulator_->getCummulativeComputationTimeHistoryBase( );
+                multiArcComputationTime = multiArcDynamicsSimulator_->getCumulativeComputationTimeHistoryBase( );
         computationTime.insert( computationTime.end( ), multiArcComputationTime.begin( ), multiArcComputationTime.end( ) );
 
         return computationTime;

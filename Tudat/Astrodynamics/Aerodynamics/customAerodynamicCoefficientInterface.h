@@ -171,6 +171,13 @@ public:
         coefficientFunction_ = [=]( const std::vector< double >& ){ return constantCoefficients; };
     }
 
+    //! Function to retrieve constant aerodynamic coefficients, only valid if coefficients are already constant
+    /*!
+     * Function to retrieve the constant aerodynamic coefficients, only valid if coefficients are already constant. Function
+     * checks if the numberOfIndependentVariables_ is equal to zero, and throws an error if it is not.
+     * \return Force and moment coefficients (in that order) expressed in the same frame as existing
+     * coefficients.
+     */
    Eigen::Vector6d getConstantCoefficients( )
    {
        if( numberOfIndependentVariables_ != 0 )

@@ -331,32 +331,16 @@ void testObservationPartials(
                             0, 0, ObservableSize, 7 );
             }
 
-            std::cout<<"Quat. part: "<<changeDueToQuaternionChange<<std::endl;
             for( int i = 0; i < 4; i++ )
             {
+                Eigen::MatrixXd testPartial = ( bodyRotationalStatePartial.block( 0, 0, ObservableSize, 4 ) * appliedQuaternionPerturbation.at( i ).segment( 0, 4 ) );
                 BOOST_CHECK_SMALL(
-                            std::fabs( ( bodyRotationalStatePartial * appliedQuaternionPerturbation.at( i ).segment( 0, 4 ) )( 0 ) -
-                              changeDueToQuaternionChange( i ) ), 1.0E-4 );
+                            std::fabs( testPartial( 0 ) - changeDueToQuaternionChange( i ) ), 1.0E-4 );
             }
-            // Test position partial
 
             TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
                         ( bodyRotationalStatePartial.block( 0, 4, ObservableSize, 3 ) ), numericalPartialWrtAngularVelocityVector,
                         std::numeric_limits< double >::epsilon( ) );
-            std::cout << "PARTIALS AA: "
-                      << bodyRotationalStatePartial << std::endl
-                      << numericalPartialWrtAngularVelocityVector << std::endl<< std::endl;
-            //                }
-            //                else
-            //                {
-            //                    BOOST_CHECK_SMALL( std::fabs( bodyPositionPartial( 0, 2 ) - numericalPartialWrtBodyPosition( 0, 2 ) ),
-            //                                       1.0E-20 );
-            //                    bodyPositionPartial( 0, 2 ) = 0.0;
-            //                    numericalPartialWrtBodyPosition( 0, 2 ) = 0.0;
-
-            //                    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( bodyPositionPartial, ( numericalPartialWrtBodyPosition ), tolerance );
-
-            //                }
         }
 
 

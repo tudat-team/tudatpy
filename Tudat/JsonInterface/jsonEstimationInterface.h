@@ -153,7 +153,7 @@ protected:
 
     void resetEstimationSettings( )
     {
-        updateFromJSON( podSettings_, jsonObject_, Keys::estimationSettings );
+        //updateFromJSON( podSettings_, jsonObject_, Keys::estimationSettings );
 
         if ( profiling )
         {

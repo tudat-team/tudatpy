@@ -247,6 +247,7 @@ BOOST_AUTO_TEST_CASE( testSphericalGravitationalTorque )
             Eigen::Matrix3d cosineCoefficients = Eigen::Matrix3d::Zero( );
             Eigen::Matrix3d sineCoefficients = Eigen::Matrix3d::Zero( );
             cosineCoefficients( 0, 0 ) = 1.0;
+
             bodySettings[ "Moon" ]->gravityFieldSettings = std::make_shared< SphericalHarmonicsGravityFieldSettings >(
                         spice_interface::getBodyGravitationalParameter( "Moon" ), spice_interface::getAverageRadius( "Moon" ),
                         cosineCoefficients, sineCoefficients, "IAU_Moon" );
@@ -279,13 +280,15 @@ BOOST_AUTO_TEST_CASE( testSphericalGravitationalTorque )
         {
             Eigen::Matrix3d moonCosineCoefficients =
                     std::dynamic_pointer_cast< tudat::gravitation::SphericalHarmonicsGravityField >(
-                        bodyMap.at( "Moon" )->getGravityFieldModel( ) )->getCosineCoefficients( );
+                        bodyMap.at( "Moon" )->getGravityFieldModel( ) )->getCosineCoefficients( ).block( 0, 0, 3, 3 );
             Eigen::Matrix3d moonSineCoefficients =
                     std::dynamic_pointer_cast< tudat::gravitation::SphericalHarmonicsGravityField >(
-                        bodyMap.at( "Moon" )->getGravityFieldModel( ) )->getSineCoefficients( );
+                        bodyMap.at( "Moon" )->getGravityFieldModel( ) )->getSineCoefficients( ).block( 0, 0, 3, 3 );
 
             Eigen::MatrixXd moonReconstructedCosineCoefficients = Eigen::Matrix3d::Zero( ),
                     moonReconstructedSineCoefficients = Eigen::Matrix3d::Zero( );
+
+
             double reconstructedScaledMeanMomentOfInertia;
             gravitation::getDegreeTwoSphericalHarmonicCoefficients(
                         bodyMap.at( "Moon" )->getBodyInertiaTensor( ),
@@ -294,6 +297,7 @@ BOOST_AUTO_TEST_CASE( testSphericalGravitationalTorque )
                             bodyMap.at( "Moon" )->getGravityFieldModel( ) )->getReferenceRadius( ), true,
                         moonReconstructedCosineCoefficients, moonReconstructedSineCoefficients,
                         reconstructedScaledMeanMomentOfInertia );
+
             for( unsigned int j = 0; j < 3; j++ )
             {
                 for( unsigned int k = 0; k <= j; k++ )
