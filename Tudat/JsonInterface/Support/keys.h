@@ -235,15 +235,20 @@ struct Keys
         static const std::string body;
         static const std::string relativeToBody;
         static const std::string componentIndex;
+        static const std::string componentIndices;
         static const std::string accelerationType;
-        // static const std::string bodyUndergoingAcceleration;
+//        static const std::string bodyUndergoingAcceleration;
         static const std::string bodyExertingAcceleration;
         static const std::string torqueType;
-        // static const std::string bodyUndergoingTorque;
+//        static const std::string bodyUndergoingTorque;
         static const std::string bodyExertingTorque;
         static const std::string baseFrame;
         static const std::string targetFrame;
         static const std::string angle;
+        static const std::string deformationType;
+        static const std::string identifier;
+        static const std::string derivativeWrtBody;
+        static const std::string thirdBody;
     };
 
 

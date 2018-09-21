@@ -224,16 +224,21 @@ const std::string Keys::Variable::type = "type";
 const std::string Keys::Variable::dependentVariableType = "dependentVariableType";
 const std::string Keys::Variable::body = "body";
 const std::string Keys::Variable::componentIndex = "componentIndex";
+const std::string Keys::Variable::componentIndices = "componentIndices";
 const std::string Keys::Variable::relativeToBody = "relativeToBody";
 const std::string Keys::Variable::accelerationType = "accelerationType";
-// const std::string Keys::Variable::bodyUndergoingAcceleration = "bodyUndergoingAcceleration";
+//const std::string Keys::Variable::bodyUndergoingAcceleration = "bodyUndergoingAcceleration";
 const std::string Keys::Variable::bodyExertingAcceleration = "bodyExertingAcceleration";
 const std::string Keys::Variable::torqueType = "torqueType";
-// const std::string Keys::Variable::bodyUndergoingTorque = "bodyUndergoingTorque";
+//const std::string Keys::Variable::bodyUndergoingTorque = "bodyUndergoingTorque";
 const std::string Keys::Variable::bodyExertingTorque = "bodyExertingTorque";
 const std::string Keys::Variable::baseFrame = "baseFrame";
 const std::string Keys::Variable::targetFrame = "targetFrame";
 const std::string Keys::Variable::angle = "angle";
+const std::string Keys::Variable::deformationType = "deformationType";
+const std::string Keys::Variable::identifier = "identifier";
+const std::string Keys::Variable::derivativeWrtBody = "derivativeWrtBody";
+const std::string Keys::Variable::thirdBody = "thirdBody";
 
 
 //  Propagator
