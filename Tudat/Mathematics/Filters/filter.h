@@ -75,6 +75,7 @@ public:
      *  Constructor.
      *  \param systemUncertainty Matrix defining the uncertainty in modeling of the system.
      *  \param measurementUncertainty Matrix defining the uncertainty in modeling of the measurements.
+     *  \param filteringStepSize Scalar representing the value of the constant filtering time step.
      *  \param initialTime Scalar representing the value of the initial time.
      *  \param initialStateVector Vector representing the initial (estimated) state of the system. It is used as first
      *      a-priori estimate of the state vector.
@@ -85,11 +86,13 @@ public:
      */
     FilterBase( const DependentMatrix& systemUncertainty,
                 const DependentMatrix& measurementUncertainty,
+                const IndependentVariableType filteringStepSize,
                 const IndependentVariableType initialTime,
                 const DependentVector& initialStateVector,
                 const DependentMatrix& initialCovarianceMatrix,
                 const std::shared_ptr< IntegratorSettings > integratorSettings ) :
-        systemUncertainty_( systemUncertainty ), measurementUncertainty_( measurementUncertainty ), initialTime_( initialTime ),
+        systemUncertainty_( systemUncertainty ), measurementUncertainty_( measurementUncertainty ),
+        filteringStepSize_( filteringStepSize ), initialTime_( initialTime ), currentTime_( initialTime ),
         aPosterioriStateEstimate_( initialStateVector ), aPosterioriCovarianceEstimate_( initialCovarianceMatrix )
     {
         // Check that uncertainty matrices are square
@@ -102,14 +105,20 @@ public:
             throw std::runtime_error( "Error in setting up filter. The measurement uncertainty matrix has to be square." );
         }
 
+        // Check that state vector and system uncertainty match in size
+        if ( initialStateVector.rows( ) != systemUncertainty.rows( ) )
+        {
+            throw std::runtime_error( "Error in setting up filter. The state vector and system uncertainty have different sizes." );
+        }
+
         // Create noise distributions
         generateNoiseDistributions( );
 
-        // Create system and measurement functions based on input parameters
+        // Create system and measurement functions based on input parameters// Get time step information
         systemFunction_ = std::bind( &FilterBase< IndependentVariableType, DependentVariableType >::createSystemFunction,
-                                       this, std::placeholders::_1,std::placeholders::_2 );
+                                       this, std::placeholders::_1, std::placeholders::_2 );
         measurementFunction_ = std::bind( &FilterBase< IndependentVariableType, DependentVariableType >::createMeasurementFunction,
-                                            this, std::placeholders::_1,std::placeholders::_2 );
+                                            this, std::placeholders::_1, std::placeholders::_2 );
 
         // Create numerical integrator
         isStateToBeIntegrated_ = integratorSettings != nullptr;
@@ -133,11 +142,9 @@ public:
     /*!
      *  Function to update the filter with the data from the new time step. Note that this is a pure virtual function and as such
      *  has to be implemented in the derived classes.
-     *  \param currentTime Scalar representing current time.
      *  \param currentMeasurementVector Vector representing current measurement.
      */
-    virtual void updateFilter( const IndependentVariableType currentTime,
-                               const DependentVector& currentMeasurementVector ) = 0;
+    virtual void updateFilter( const DependentVector& currentMeasurementVector ) = 0;
 
     //! Function to produce system noise.
     /*!
@@ -191,11 +198,14 @@ public:
         return measurementNoise;
     }
 
+    //! Function to retrieve step-size for filtering.
+    IndependentVariableType getFilteringStepSize( ) { return filteringStepSize_; }
+
     //! Function to retrieve initial time.
     IndependentVariableType getInitialTime( ) { return initialTime_; }
 
-    //! Function to retrieve step-size for integration.
-    IndependentVariableType getIntegrationStepSize( ) { return integrationStepSize_; }
+    //! Function to retrieve current time.
+    IndependentVariableType getCurrentTime( ) { return currentTime_; }
 
     //! Function to retrieve current state estimate.
     /*!
@@ -243,7 +253,33 @@ public:
         return std::make_pair( systemNoiseHistory_, measurementNoiseHistory_ );
     }
 
+    //! Function to reset the step size for filtering.
+    /*!
+     *  Function to reset the step size for filtering, without interrupting the filtering process.
+     *  \param newFilteringStepSize Double denoting the new step size for filtering.
+     */
+    void resetFilteringStepSize( const double newFilteringStepSize )
+    {
+        filteringStepSize_ = newFilteringStepSize;
+    }
+
+    //! Function to modify the current time.
+    /*!
+     *  Function to modify the current time, without interrupting the filtering process.
+     *  \param newFilteringStepSize Double denoting the new current time.
+     */
+    void modifyCurrentTime( const double newCurrentTime )
+    {
+        currentTime_ = newCurrentTime;
+    }
+
     //! Function to update the a-posteriori estimates of state and covariance with external data.
+    /*!
+     *  Function to update the a-posteriori estimates of state and covariance with external data, without interrupting the
+     *  filtering process.
+     *  \param newStateEstimate Vector denoting the new a-posteriori state estimate.
+     *  \param newCovarianceEstimate Matrix denoting the new a-posteriori covariance estimate.
+     */
     void modifyCurrentStateAndCovarianceEstimates( const DependentVector& newStateEstimate,
                                                    const DependentMatrix& newCovarianceEstimate = DependentMatrix::Zero( ) )
     {
@@ -253,16 +289,6 @@ public:
         {
             aPosterioriCovarianceEstimate_ = newCovarianceEstimate;
         }
-    }
-
-    //! Function to reset the step size for integration.
-    /*!
-     *  Function to reset the step size for integration without interrupting the filtering process.
-     *  \param newIntegrationStepSize Double denoting the new step size for integration.
-     */
-    void resetIntegrationStepSize( const double newIntegrationStepSize )
-    {
-        integrationStepSize_ = newIntegrationStepSize;
     }
 
     //! Function to clear the history of stored variables.
@@ -275,6 +301,44 @@ public:
         historyOfStateEstimates_.clear( );
         historyOfCovarianceEstimates_.clear( );
         clearSpecificFilterHistory( );
+    }
+
+    //! Function to revert to the previous time step.
+    /*!
+     *  Function to revert to the previous time step.
+     *  \param timeToBeRemoved Double denoting the current time, i.e., the instant that has to be discarded.
+     */
+    void revertToPreviousTimeStep( const double timeToBeRemoved )
+    {
+        // Revert to previous time
+        currentTime_ -= filteringStepSize_;
+
+        // Erase state estimate corresponding to current time
+        if ( historyOfStateEstimates_.count( timeToBeRemoved ) != 0 )
+        {
+            historyOfStateEstimates_.erase( timeToBeRemoved );
+        }
+        aPosterioriStateEstimate_ = historyOfStateEstimates_.rbegin( )->second;
+
+        // Erase covariance estimate corresponding to current time
+        if ( historyOfCovarianceEstimates_.count( timeToBeRemoved ) != 0 )
+        {
+            historyOfCovarianceEstimates_.erase( timeToBeRemoved );
+        }
+        aPosterioriCovarianceEstimate_ = historyOfCovarianceEstimates_.rbegin( )->second;
+
+        // Erase last noise entries
+        if ( !systemNoiseHistory_.empty( ) )
+        {
+            systemNoiseHistory_.pop_back( );
+        }
+        if ( !measurementNoiseHistory_.empty( ) )
+        {
+            measurementNoiseHistory_.pop_back( );
+        }
+
+        // Revert elements specific to each filter
+        specificRevertToPreviousTimeStep( timeToBeRemoved );
     }
 
 protected:
@@ -305,36 +369,32 @@ protected:
     /*!
      *  Function to predict the state for the next time step, with the either the use of the integrator provided in
      *  the integratorSettings, or the systemFunction_ input by the user.
-     *  \param currentTime Scalar representing the current time.
      *  \return Propagated state at the requested time.
      */
-    virtual DependentVector predictState( const IndependentVariableType currentTime ) = 0;
+    virtual DependentVector predictState( ) = 0;
 
     //! Function to correct the state for the next time step.
     /*!
      *  Function to predict the state for the next time step, by overwriting previous state, with the either the use of
      *  the integrator provided in the integratorSettings, or the systemFunction_ input by the user.
-     *  \param currentTime Scalar representing the current time.
      *  \param aPrioriStateEstimate Vector denoting the a-priori state estimate.
      *  \param currentMeasurementVector Vector denoting the external measurement.
      *  \param measurementEstimate Vector denoting the measurement estimate.
      *  \param gainMatrix Gain matrix, such as Kalman gain (for Kalman filters).
      */
-    void correctState( const IndependentVariableType currentTime,
-                       const DependentVector& aPrioriStateEstimate, const DependentVector& currentMeasurementVector,
+    void correctState( const DependentVector& aPrioriStateEstimate, const DependentVector& currentMeasurementVector,
                        const DependentVector& measurementEstimate, const DependentMatrix& gainMatrix )
     {
         aPosterioriStateEstimate_ = aPrioriStateEstimate + gainMatrix * ( currentMeasurementVector - measurementEstimate );
-        historyOfStateEstimates_[ currentTime ] = aPosterioriStateEstimate_;
+        historyOfStateEstimates_[ currentTime_ ] = aPosterioriStateEstimate_;
     }
 
     //! Function to correct the covariance for the next time step.
     /*!
      *  Function to predict the state for the next time step, by overwriting previous state, with the either the use of
      *  the integrator provided in the integratorSettings, or the systemFunction_ input by the user.
-     *  \param currentTime Scalar representing the current time.
      */
-    virtual void correctCovariance( const IndependentVariableType currentTime, const DependentMatrix& aPrioriCovarianceEstimate,
+    virtual void correctCovariance( const DependentMatrix& aPrioriCovarianceEstimate,
                                     const DependentMatrix& currentMeasurementMatrix, const DependentMatrix& kalmanGain ) = 0;
 
     //! Function to clear the history of stored variables for derived class-specific variables.
@@ -343,6 +403,14 @@ protected:
      *  a derived class, to add other variables to the list of variables to be cleared.
      */
     virtual void clearSpecificFilterHistory( ) { }
+
+    //! Function to revert to the previous time step for derived class-specific variables.
+    /*!
+     *  Function to revert to the previous time step for derived class-specific variables. This function can be overwritten in
+     *  a derived class, to add other variables to the list of elements to be reverted.
+     *  \param timeToBeRemoved Double denoting the current time, i.e., the instant that has to be discarded.
+     */
+    virtual void specificRevertToPreviousTimeStep( const double timeToBeRemoved ) { TUDAT_UNUSED_PARAMETER( timeToBeRemoved ); }
 
     //! System function.
     /*!
@@ -363,8 +431,14 @@ protected:
     //! Matrix representing the uncertainty in measurement modeling.
     const DependentMatrix measurementUncertainty_;
 
+    //! Scalar representing step-size for filtering process.
+    IndependentVariableType filteringStepSize_;
+
     //! Scalar representing the initial time.
     const IndependentVariableType initialTime_;
+
+    //! Scalar representing the current time.
+    IndependentVariableType currentTime_;
 
     //! Vector representing the a-posteriori estimated state.
     /*!
@@ -388,13 +462,6 @@ protected:
      *  Pointer to the integrator, which is used to propagate the state to the new time step.
      */
     std::shared_ptr< Integrator > integrator_;
-
-    //! Scalar representing step-size for integration.
-    /*!
-     *  Scalar representing step-size for integration. If integrator_ points to a constant step-size integrator, then
-     *  this will be the constant step-size, otherwise it will be the initial step-size.
-     */
-    IndependentVariableType integrationStepSize_;
 
     //! Indentity matrix.
     /*!
@@ -459,13 +526,16 @@ private:
     /*!
      *  Function to generate the numerical integrator to be used for propagation of the state, based on the integrator
      *  settings and the systemFunction_ input by the user. The systemFunction_ therefore acts as the differential equation
-     *  for the system. Currently, only Euler integration is supported.
+     *  for the system.
      *  \param integratorSettings Pointer to integration settings.
      */
     void generateNumericalIntegrator( const std::shared_ptr< IntegratorSettings > integratorSettings )
     {
-        // Get time step information
-        integrationStepSize_ = integratorSettings->initialTimeStep_;
+        // Check that integration time-step matches filtering time-step
+        if ( filteringStepSize_ != integratorSettings->initialTimeStep_ )
+        {
+            throw std::runtime_error( "Error while setting up filter. The filtering and integration step sizes do not match." );
+        }
 
         // Generate integrator
         switch ( integratorSettings->integratorType_ )

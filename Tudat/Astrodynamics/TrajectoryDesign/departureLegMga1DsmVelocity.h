@@ -70,7 +70,8 @@ public:
                                  const double dsmTimeOfFlightFraction,
                                  const double excessVelocityMagnitude,
                                  const double excessVelocityInPlaneAngle,
-                                 const double excessVelocityOutOfPlaneAngle ):
+                                 const double excessVelocityOutOfPlaneAngle,
+                                 const bool includeDepartureDeltaV = true ):
         DepartureLeg( departureBodyPosition,
                       arrivalBodyPosition,
                       timeOfFlight,
@@ -78,7 +79,7 @@ public:
                       centralBodyGravitationalParameter,
                       departureBodyGravitationalParameter,
                       semiMajorAxis,
-                      eccentricity),
+                      eccentricity, includeDepartureDeltaV ),
         dsmTimeOfFlightFraction_( dsmTimeOfFlightFraction ),
         excessVelocityMagnitude_( excessVelocityMagnitude ),
         excessVelocityInPlaneAngle_( excessVelocityInPlaneAngle ),
@@ -190,13 +191,6 @@ private:
      * The deltaV of the deep Space Maneuver.
      */
     double deltaVDsm_;
-
-    //! The deltaV of the departure maneuver.
-    /*!
-     * The deltaV of the departure maneuver.
-     */
-    double deltaVDeparture_;
-
 };
 
 } // namespace transfer_trajectories

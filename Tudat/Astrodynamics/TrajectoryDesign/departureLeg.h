@@ -57,15 +57,23 @@ public:
                   const double centralBodyGravitationalParameter,
                   const double departureBodyGravitationalParameter,
                   const double semiMajorAxis,
-                  const double eccentricity):
-                SpaceLeg( departureBodyPosition,
-                          arrivalBodyPosition,
-                          timeOfFlight,
-                          departureBodyVelocity,
-                          centralBodyGravitationalParameter),
-                departureBodyGravitationalParameter_( departureBodyGravitationalParameter ),
-                semiMajorAxis_( semiMajorAxis ),
-                eccentricity_( eccentricity ){ }
+                  const double eccentricity,
+                  const bool includeDepartureDeltaV = true ):
+        SpaceLeg( departureBodyPosition,
+                  arrivalBodyPosition,
+                  timeOfFlight,
+                  departureBodyVelocity,
+                  centralBodyGravitationalParameter),
+        departureBodyGravitationalParameter_( departureBodyGravitationalParameter ),
+        semiMajorAxis_( semiMajorAxis ),
+        eccentricity_( eccentricity ),
+        includeDepartureDeltaV_( includeDepartureDeltaV ){ }
+
+    void getEscapeDeltaV( double escapeDeltaV )
+    {
+        escapeDeltaV = escapeDeltaV_;
+    }
+
 protected:
 
     //! The departure body gravitational parameter.
@@ -85,6 +93,10 @@ protected:
      * The eccentricity of the departure orbit, where the escape maneuver is applied.
      */
     double eccentricity_;
+
+    bool includeDepartureDeltaV_;
+
+    double escapeDeltaV_;
 
 private:
 

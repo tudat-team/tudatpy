@@ -100,22 +100,37 @@ void to_json( nlohmann::json& jsonObject, const std::shared_ptr< IntegratorSetti
         return;
     case rungeKuttaVariableStepSize:
     {
-        std::shared_ptr< RungeKuttaVariableStepSizeSettings< TimeType > > rungeKuttaVariableStepSizeSettings =
-                std::dynamic_pointer_cast< RungeKuttaVariableStepSizeSettings< TimeType > >( integratorSettings );
+        // Create Runge-Kutta base object
+        std::shared_ptr< RungeKuttaVariableStepSizeBaseSettings< TimeType > > rungeKuttaVariableStepSizeSettings =
+                std::dynamic_pointer_cast< RungeKuttaVariableStepSizeBaseSettings< TimeType > >( integratorSettings );
         assertNonnullptrPointer( rungeKuttaVariableStepSizeSettings );
-        jsonObject[ K::rungeKuttaCoefficientSet ] =
-                stringFromEnum( rungeKuttaVariableStepSizeSettings->coefficientSet_, rungeKuttaCoefficientSets );
-        jsonObject[ K::initialStepSize ] = rungeKuttaVariableStepSizeSettings->initialTimeStep_;
-        jsonObject[ K::minimumStepSize ] = rungeKuttaVariableStepSizeSettings->minimumStepSize_;
-        jsonObject[ K::maximumStepSize ] = rungeKuttaVariableStepSizeSettings->maximumStepSize_;
-        jsonObject[ K::relativeErrorTolerance ] = rungeKuttaVariableStepSizeSettings->relativeErrorTolerance_;
-        jsonObject[ K::absoluteErrorTolerance ] = rungeKuttaVariableStepSizeSettings->absoluteErrorTolerance_;
-        jsonObject[ K::safetyFactorForNextStepSize ] =
-                rungeKuttaVariableStepSizeSettings->safetyFactorForNextStepSize_;
-        jsonObject[ K::maximumFactorIncreaseForNextStepSize ] =
-                rungeKuttaVariableStepSizeSettings->maximumFactorIncreaseForNextStepSize_;
-        jsonObject[ K::minimumFactorDecreaseForNextStepSize ] =
-                rungeKuttaVariableStepSizeSettings->minimumFactorDecreaseForNextStepSize_;
+
+        // Check which integrator settings is requested
+        if ( rungeKuttaVariableStepSizeSettings->areTolerancesDefinedAsScalar_ )
+        {
+            // Integrator with scalar tolerances
+            std::shared_ptr< RungeKuttaVariableStepSizeSettingsScalarTolerances< TimeType > > scalarTolerancesIntegratorSettings =
+                    std::dynamic_pointer_cast< RungeKuttaVariableStepSizeSettingsScalarTolerances< TimeType > >( integratorSettings );
+
+            jsonObject[ K::rungeKuttaCoefficientSet ] =
+                    stringFromEnum( scalarTolerancesIntegratorSettings->coefficientSet_, rungeKuttaCoefficientSets );
+            jsonObject[ K::initialStepSize ] = scalarTolerancesIntegratorSettings->initialTimeStep_;
+            jsonObject[ K::minimumStepSize ] = scalarTolerancesIntegratorSettings->minimumStepSize_;
+            jsonObject[ K::maximumStepSize ] = scalarTolerancesIntegratorSettings->maximumStepSize_;
+            jsonObject[ K::relativeErrorTolerance ] = scalarTolerancesIntegratorSettings->relativeErrorTolerance_;
+            jsonObject[ K::absoluteErrorTolerance ] = scalarTolerancesIntegratorSettings->absoluteErrorTolerance_;
+            jsonObject[ K::areTolerancesDefinedAsScalar ] = scalarTolerancesIntegratorSettings->areTolerancesDefinedAsScalar_;
+            jsonObject[ K::safetyFactorForNextStepSize ] = scalarTolerancesIntegratorSettings->safetyFactorForNextStepSize_;
+            jsonObject[ K::maximumFactorIncreaseForNextStepSize ] =
+                    scalarTolerancesIntegratorSettings->maximumFactorIncreaseForNextStepSize_;
+            jsonObject[ K::minimumFactorDecreaseForNextStepSize ] =
+                    scalarTolerancesIntegratorSettings->minimumFactorDecreaseForNextStepSize_;
+        }
+        else
+        {
+            throw std::runtime_error( "Error while creating Runge-Kutta variable step-size integrator via JSON interface. RK "
+                                      "integrators with vector tolerances are not yet supported via JSON." );
+        }
         return;
     }
     case adamsBashforthMoulton:
@@ -190,26 +205,36 @@ void from_json( const nlohmann::json& jsonObject, std::shared_ptr< IntegratorSet
     }
     case rungeKuttaVariableStepSize:
     {
-        RungeKuttaVariableStepSizeSettings< TimeType > defaults(
-                    0.0, 0.0, RungeKuttaCoefficientSet::rungeKuttaFehlberg45, 0.0, 0.0 );
+        // Check which constructor to use
+        if ( getValue< bool >( jsonObject, K::areTolerancesDefinedAsScalar ) )
+        {
+            // Scalar tolerances
+            RungeKuttaVariableStepSizeSettingsScalarTolerances< TimeType > defaults(
+                        0.0, 0.0, RungeKuttaCoefficientSet::rungeKuttaFehlberg45, 0.0, 0.0 );
 
-        integratorSettings = std::make_shared< RungeKuttaVariableStepSizeSettings< TimeType > >(
-                    initialTime,
-                    getValue< TimeType >( jsonObject, K::initialStepSize ),
-                    getValue< RungeKuttaCoefficientSet >( jsonObject, K::rungeKuttaCoefficientSet ),
-                    getValue< TimeType >( jsonObject, K::minimumStepSize ),
-                    getValue< TimeType >( jsonObject, K::maximumStepSize ),
-                    getValue( jsonObject, K::relativeErrorTolerance, defaults.relativeErrorTolerance_ ),
-                    getValue( jsonObject, K::absoluteErrorTolerance, defaults.absoluteErrorTolerance_ ),
-                    getValue( jsonObject, K::saveFrequency, defaults.saveFrequency_ ),
-                    getValue( jsonObject, K::assessPropagationTerminationConditionDuringIntegrationSubsteps,
-                              defaults.assessPropagationTerminationConditionDuringIntegrationSubsteps_ ),
-                    getValue( jsonObject, K::safetyFactorForNextStepSize,
-                              defaults.safetyFactorForNextStepSize_ ),
-                    getValue( jsonObject, K::maximumFactorIncreaseForNextStepSize,
-                              defaults.maximumFactorIncreaseForNextStepSize_ ),
-                    getValue( jsonObject, K::minimumFactorDecreaseForNextStepSize,
-                              defaults.minimumFactorDecreaseForNextStepSize_ ) );
+            integratorSettings = std::make_shared< RungeKuttaVariableStepSizeSettingsScalarTolerances< TimeType > >(
+                        initialTime,
+                        getValue< TimeType >( jsonObject, K::initialStepSize ),
+                        getValue< RungeKuttaCoefficientSet >( jsonObject, K::rungeKuttaCoefficientSet ),
+                        getValue< TimeType >( jsonObject, K::minimumStepSize ),
+                        getValue< TimeType >( jsonObject, K::maximumStepSize ),
+                        getValue( jsonObject, K::relativeErrorTolerance, defaults.relativeErrorTolerance_ ),
+                        getValue( jsonObject, K::absoluteErrorTolerance, defaults.absoluteErrorTolerance_ ),
+                        getValue( jsonObject, K::saveFrequency, defaults.saveFrequency_ ),
+                        getValue( jsonObject, K::assessPropagationTerminationConditionDuringIntegrationSubsteps,
+                                  defaults.assessPropagationTerminationConditionDuringIntegrationSubsteps_ ),
+                        getValue( jsonObject, K::safetyFactorForNextStepSize,
+                                  defaults.safetyFactorForNextStepSize_ ),
+                        getValue( jsonObject, K::maximumFactorIncreaseForNextStepSize,
+                                  defaults.maximumFactorIncreaseForNextStepSize_ ),
+                        getValue( jsonObject, K::minimumFactorDecreaseForNextStepSize,
+                                  defaults.minimumFactorDecreaseForNextStepSize_ ) );
+        }
+        else
+        {
+            throw std::runtime_error( "Error while creating Runge-Kutta variable step-size integrator from JSON object. RK "
+                                      "integrators with vector tolerances are not yet supported via JSON." );
+        }
         return;
     }
     case adamsBashforthMoulton:

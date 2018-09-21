@@ -59,7 +59,8 @@ public:
                      const double centralBodyGravitationalParameter,
                      const double departureBodyGravitationalParameter,
                      const double semiMajorAxis,
-                     const double eccentricity ):
+                     const double eccentricity,
+                     const bool includeDepartureDeltaV = true ):
                 DepartureLeg( departureBodyPosition,
                               arrivalBodyPosition,
                               timeOfFlight,
@@ -67,7 +68,7 @@ public:
                               centralBodyGravitationalParameter,
                               departureBodyGravitationalParameter,
                               semiMajorAxis,
-                              eccentricity)
+                              eccentricity, includeDepartureDeltaV )
     {
         velocityAfterDeparture_( 0 ) = TUDAT_NAN;
     }
