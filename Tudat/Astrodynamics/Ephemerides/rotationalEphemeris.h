@@ -423,6 +423,13 @@ public:
             Eigen::Vector3d& currentAngularVelocityVectorInGlobalFrame,
             const TimeType timeSinceEpoch );
 
+    //! Function to retrieve the current rotation as a state vector
+    /*!
+     * Function to retrieve the current rotation as a state vector (quaternion entries of body-fixed to base frame, and
+     * angular velocity vector in body-fixed frame.
+     * \param time Seconds since epoch at which ephemeris is to be evaluated.
+     * \return Current rotation as a state vector
+     */
     Eigen::Vector7d getRotationStateVector( const double time )
     {
         Eigen::Vector7d rotationalState;

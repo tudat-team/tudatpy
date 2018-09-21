@@ -188,16 +188,31 @@ public:
         return "";
     }
 
+    //! Function to retrieve size of constraint to be applied on parameter
+    /*!
+     * Function to retrieve size of constraint to be applied on parameter, zero by default. Can be overridden in derived class
+     * \return Size of constraint to be applied on parameter
+     */
     virtual int getConstraintSize( )
     {
         return 0;
     }
 
+    //! Function to retrieve multiplier for parameter linear constraint
+    /*!
+     * Function to retrieve multiplier for parameter linear constraint, empty by default. Can be overridden in derived class
+     * \return Multiplier for parameter linear constraint
+     */
     virtual Eigen::MatrixXd getConstraintStateMultipler( )
     {
         return Eigen::MatrixXd::Zero( 0, 0 );
     }
 
+    //! Function to retrieve right-hand side for parameter linear constraint
+    /*!
+     * Function to retrieve right-hand side for parameter linear constraint, empty by default. Can be overridden in derived class
+     * \return Right-hand side for parameter linear constraint
+     */
     virtual Eigen::VectorXd getConstraintRightHandSide( )
     {
         return Eigen::VectorXd::Zero( 0 );
@@ -598,16 +613,25 @@ public:
         return parameterIndices_;
     }
 
+    //! Function to retrieve total multiplier and right-hand side for parameter estimation linear constraint
+    /*!
+     * Function to retrieve total multiplier and right-hand side for parameter estimation linear constraint
+     * \param constraintStateMultiplier Multiplier for parameter linear constraint
+     * \param constraintRightHandSide Right-hand side for parameter linear constraint
+     */
     void getConstraints( Eigen::MatrixXd& constraintStateMultiplier, Eigen::VectorXd& constraintRightHandSide )
     {
+        // Resize constraint elements
         constraintStateMultiplier.setZero( totalConstraintSize_, estimatedParameterSetSize_ );
         constraintRightHandSide.setZero( totalConstraintSize_, 1 );
 
+        // Iterate over all state parameters
         int currentConstraintRow = 0;
         int currentConstraintSize = 0;
         for( auto parameterIterator = initialStateParameters_.begin( ); parameterIterator != initialStateParameters_.end( );
              parameterIterator++ )
         {
+            // Add constraint if of non-zero size
             currentConstraintSize = parameterIterator->second->getConstraintSize( );
             if( currentConstraintSize > 0 )
             {
@@ -623,9 +647,11 @@ public:
 
         }
 
+        // Iterate over all double parameters
         for( auto parameterIterator = doubleParameters_.begin( ); parameterIterator != doubleParameters_.end( );
              parameterIterator++ )
         {
+            // Add constraint if of non-zero size
             currentConstraintSize = parameterIterator->second->getConstraintSize( );
             if( currentConstraintSize > 0 )
             {
@@ -640,9 +666,11 @@ public:
             }
         }
 
+        // Iterate over all vector parameters
         for( auto parameterIterator = vectorParameters_.begin( ); parameterIterator != vectorParameters_.end( );
              parameterIterator++ )
         {
+            // Add constraint if of non-zero size
             currentConstraintSize = parameterIterator->second->getConstraintSize( );
             if( currentConstraintSize > 0 )
             {
@@ -658,6 +686,11 @@ public:
         }
     }
 
+    //! Total size of linear constraint that is to be applied during estimation
+    /*!
+     * Total size of linear constraint that is to be applied during estimation
+     * \return Size of linear constraint that is to be applied during estimation
+     */
     int getConstraintSize( )
     {
         return totalConstraintSize_;
@@ -715,6 +748,7 @@ protected:
     std::map< int, std::shared_ptr<
     EstimatableParameter< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > > > initialStateParameters_;
 
+    //! Size of linear constraint that is to be applied during estimation
     int totalConstraintSize_;
 
     //! Map containing all single-arc initial state parameter objects, with map key start index of parameter in total vector.

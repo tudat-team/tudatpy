@@ -76,6 +76,8 @@ public:
      *  \param cosineCoefficients Cosine spherical harmonic coefficients (geodesy normalized)
      *  \param sineCoefficients Sine spherical harmonic coefficients (geodesy normalized)
      *  \param fixedReferenceFrame Identifier for body-fixed reference frame to which the field is fixed (optional).
+     *  \param updateInertiaTensor Function that is to be called to update the inertia tensor (typicaly in Body class; default
+     *  empty)
      */
     SphericalHarmonicsGravityField(
             const double gravitationalParameter,
@@ -293,11 +295,21 @@ public:
         return fixedReferenceFrame_;
     }
 
+    //! Function to retrieve if spherical harmonic coefficients are normalized
+    /*!
+     * Function to retrieve if spherical harmonic coefficients are normalized
+     * \return Boolean stating whether spherical harmonic coefficients are normalized
+     */
     bool areCoefficientsGeodesyNormalized( )
     {
         return true;
     }
 
+    //! Function to get inertia tensor normalization factor
+    /*!
+     * Function to get inertia tensor normalization factor (M*R^2)
+     * \return Inertia tensor normalization factor (M*R^2)
+     */
     double getInertiaTensorNormalizationFactor( )
     {
         return gravitationalParameter_ * referenceRadius_ * referenceRadius_ / physical_constants::GRAVITATIONAL_CONSTANT;
@@ -388,6 +400,17 @@ Eigen::Matrix3d getInertiaTensor(
         const std::shared_ptr< SphericalHarmonicsGravityField > sphericalHarmonicGravityField,
         const double scaledMeanMomentOfInertia );
 
+//! Retrieve degree 2 spherical harmonic coefficients from inertia tensor and assiciated parameters
+/*!
+ * Retrieve degree 2 spherical harmonic coefficients from inertia tensor and assiciated parameters
+ * \param inertiaTensor Inertia tensor
+ * \param bodyGravitationalParameter Gravitational paramater of gravity field
+ * \param referenceRadius Reference radius of gravity field
+ * \param useNormalizedCoefficients Boolean stating whether spherical harmonic coefficients are normalized
+ * \param cosineCoefficients Cosine coefficients of  of gravity field (returned by reference)
+ * \param sineCoefficients Sine coefficients of  of gravity field (returned by reference)
+ * \param scaledMeanMomentOfInertia Scaled mean moment of inertia (returned by reference)
+ */
 void getDegreeTwoSphericalHarmonicCoefficients(
         const Eigen::Matrix3d inertiaTensor, const double bodyGravitationalParameter, const double referenceRadius,
         const bool useNormalizedCoefficients,

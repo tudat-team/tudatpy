@@ -17,6 +17,7 @@ namespace tudat
 namespace acceleration_partials
 {
 
+//! Function for setting up and retrieving a function returning a partial w.r.t. a double parameter.
 std::pair< std::function< void( Eigen::MatrixXd& ) >, int >
 ConstantTorquePartial::getParameterPartialFunction( std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter )
 {
@@ -59,12 +60,6 @@ ConstantTorquePartial::getParameterPartialFunction( std::shared_ptr< estimatable
 }
 
 //! Function for setting up and retrieving a function returning a partial w.r.t. a vector parameter.
-/*!
-     *  Function for setting up and retrieving a function returning a partial w.r.t. a vector parameter.
-     *  Function returns empty function and zero size indicator for parameters with no dependency for current torque.
-     *  \param parameter Parameter w.r.t. which partial is to be taken.
-     *  \return Pair of parameter partial function and number of columns in partial (0 for no dependency).
-     */
 std::pair< std::function< void( Eigen::MatrixXd& ) >, int > ConstantTorquePartial::getParameterPartialFunction(
         std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter )
 {
@@ -132,6 +127,7 @@ std::pair< std::function< void( Eigen::MatrixXd& ) >, int > ConstantTorquePartia
     return partialFunction;
 }
 
+//! Function to computed partial of torque w.r.t. mean moment of inertia
 void ConstantTorquePartial::wrtMeanMomentOfInertia(
         Eigen::MatrixXd& momentOfInertiaPartial )
 {
@@ -140,6 +136,7 @@ void ConstantTorquePartial::wrtMeanMomentOfInertia(
             currentInverseInertiaTensor_* currentTotalTorque_;
 }
 
+//! Function to computed partial of torque w.r.t. gravitational parameter
 void ConstantTorquePartial::wrtGravitationalParameter(
         Eigen::MatrixXd& momentOfInertiaPartial )
 {
@@ -148,6 +145,7 @@ void ConstantTorquePartial::wrtGravitationalParameter(
             currentInverseInertiaTensor_* currentTotalTorque_;
 }
 
+//! Function to computed partial of torque w.r.t. spherical harmonic cosine coefficients
 void ConstantTorquePartial::wrtCosineSphericalHarmonicCoefficientsOfCentralBody(
         Eigen::MatrixXd& sphericalHarmonicCoefficientPartial,
         const int c20Index, const int c21Index, const int c22Index )
@@ -179,6 +177,7 @@ void ConstantTorquePartial::wrtCosineSphericalHarmonicCoefficientsOfCentralBody(
     }
 }
 
+//! Function to computed partial of torque w.r.t. spherical harmonic sine coefficients
 void ConstantTorquePartial::wrtSineSphericalHarmonicCoefficientsOfCentralBody(
         Eigen::MatrixXd& sphericalHarmonicCoefficientPartial,
         const int s21Index, const int s22Index )

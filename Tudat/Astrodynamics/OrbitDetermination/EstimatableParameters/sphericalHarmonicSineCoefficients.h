@@ -109,6 +109,12 @@ public:
         return parameterDescription;
     }
 
+    //! Function that returns the indices for degree two coefficients (if any)
+    /*!
+     * Function that returns the indices for degree two coefficients (if any)
+     * \param s21Index Index for degree=2, order=1 entry (-1 if none; returned by reference)
+     * \param s22Index Index for degree=2, order=2 entry (-1 if none; returned by reference)
+     */
     void getDegreeTwoEntries(
             int& s21Index, int& s22Index )
     {

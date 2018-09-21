@@ -87,6 +87,16 @@ Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > getInitialStatesOfBodiesFrom
     return systemInitialState;
 }
 
+//! Function to get the rotational states states of a set of bodies, at the requested time.
+/*!
+* Function to get the rotational states states of a set of bodies, at the requested time.
+* \param bodiesToIntegrate List of bodies for which to retrieve rotational state.
+* \param baseOrientations Reference base frame orientation
+* \param bodyMap List of bodies to use in simulations.
+* \param initialTime Time at which to retrieve states.
+* \return Initial rotational state vector (with 7 elements: 4 for quaternion; 3 for angular velocity) per body,
+* in order of bodiesToIntegrate vector).
+*/
 template< typename TimeType = double, typename StateScalarType = double >
 Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > getInitialRotationalStatesOfBodies(
         const std::vector< std::string >& bodiesToIntegrate,
@@ -171,6 +181,15 @@ Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > getInitialStateOfBody(
     { bodyToIntegrate }, { centralBody }, bodyMap, initialTime );
 }
 
+//! Function to get the rotational states state of a body, at the requested time.
+/*!
+* Function to get the rotational states state of a body, at the requested time..
+* \param bodyToIntegrate Body for which to retrieve rotational state.
+* \param bodyToIntegrate Reference base frame orientation
+* \param bodyMap List of bodies to use in simulations.
+* \param initialTime Time at which to retrieve states.
+* \return Initial rotational state vector (with 7 elements: 4 for quaternion; 3 for angular velocity)
+*/
 template< typename TimeType = double, typename StateScalarType = double >
 Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > getInitialRotationalStateOfBody(
         const std::string& bodyToIntegrate,
@@ -300,11 +319,18 @@ public:
         bodyMap_ = bodyMap;
     }
 
+    //! fu
     bool getSetIntegratedResult( )
     {
         return setIntegratedResult_;
     }
 
+    //! Function to reset whether to automatically use the integrated results to set ephemerides.
+    /*!
+     * Function to reset whether to automatically use the integrated results to set ephemerides.
+     * \param setIntegratedResult New boolean to determine whether to automatically use the integrated results to set ephemerides.
+
+     */
     void resetSetIntegratedResult( const bool setIntegratedResult )
     {
         setIntegratedResult_ = setIntegratedResult;
@@ -330,11 +356,6 @@ protected:
     //! Boolean to determine whether to automatically use the integrated results to set ephemerides.
     bool setIntegratedResult_;
 };
-
-//extern template class DynamicsSimulator< double, double >;
-//extern template class DynamicsSimulator< long double, double >;
-//extern template class DynamicsSimulator< double, Time >;
-//extern template class DynamicsSimulator< long double, Time >;
 
 //! Class for performing full numerical integration of a dynamical system in a single arc.
 /*!
@@ -760,6 +781,11 @@ public:
         return this->initialPropagationTime_;
     }
 
+    //! Function to reset initial propagation time
+    /*!
+     *  Function to reset initial propagation time
+     * \param New initial propagation time
+     */
     void resetInitialPropagationTime( const double initialPropagationTime )
     {
         initialPropagationTime_ = initialPropagationTime;
@@ -1311,9 +1337,9 @@ public:
      *  provided by a variational equations solver.
      *  \param equationsOfMotionNumericalSolution Vector of state histories
      *  (externally provided equationsOfMotionNumericalSolution_)
-     *  \param processSolution True if the new solution is to be immediately processed (default true).
      *  \param dependentVariableHistory Vector of dependent variable histories
      *  (externally provided dependentVariableHistory_)
+     *  \param processSolution True if the new solution is to be immediately processed (default true).
      */
     void manuallySetAndProcessRawNumericalEquationsOfMotionSolution(
             std::vector< std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > >&
@@ -1522,7 +1548,6 @@ public:
             throw std::runtime_error( "Cannot yet add single-arc bodies to multi-arc propagation" );
         }
 
-
         if( areEquationsOfMotionToBeIntegrated )
         {
             integrateEquationsOfMotion( hybridPropagatorSettings->getInitialStates( ) );
@@ -1592,15 +1617,8 @@ public:
      */
     virtual bool integrationCompletedSuccessfully( ) const
     {
-        if( singleArcDynamicsSimulator_->integrationCompletedSuccessfully( ) == false ||
-                multiArcDynamicsSimulator_->integrationCompletedSuccessfully( ) == false )
-        {
-            return false;
-        }
-        else
-        {
-            return true;
-        }
+        return !( singleArcDynamicsSimulator_->integrationCompletedSuccessfully( ) == false ||
+                multiArcDynamicsSimulator_->integrationCompletedSuccessfully( ) == false );
 
     }
 

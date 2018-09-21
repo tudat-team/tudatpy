@@ -150,11 +150,11 @@ public:
         return false;
     }
 
-    //! Pure virtual function for calculating the partial of the torque w.r.t. the position of the accelerated body.
+    //! Pure virtual function for calculating the partial of the torque w.r.t. the orientation of the accelerated body.
     /*!
-     *  Pure virtual function for calculating the partial of the torque w.r.t. the position of the accelerated body and
+     *  Pure virtual function for calculating the partial of the torque w.r.t. the orientation of the accelerated body and
      *  adding it to the existing partial block.
-     *  \param partialMatrix Block of partial derivatives of torque w.r.t. Cartesian position of body
+     *  \param partialMatrix Block of partial derivatives of torque w.r.t. Orientation of body
      *  undergoing torque where current partial is to be added.
      *  \param addContribution Variable denoting whether to return the partial itself (true) or the negative partial (false).
      *  \param startRow First row in partialMatrix block where the computed partial is to be added.
@@ -164,11 +164,11 @@ public:
             Eigen::Block< Eigen::MatrixXd > partialMatrix,
             const bool addContribution = 1, const int startRow = 0, const int startColumn = 0 ) = 0;
 
-    //! Function for calculating the partial of the torque w.r.t. the velocity of the accelerated body.
+    //! Function for calculating the partial of the torque w.r.t. the angular velocity of the accelerated body.
     /*!
-     *  Function for calculating the partial of the torque w.r.t. the velocity of the accelerated body and
+     *  Function for calculating the partial of the torque w.r.t. the angular velocity of the accelerated body and
      *  adding it to the existing partial block. Function may be overridden in derived class, default dependency is none.
-     *  \param partialMatrix Block of partial derivatives of torque w.r.t. Cartesian velocity of body
+     *  \param partialMatrix Block of partial derivatives of torque w.r.t. angular velocity of body
      *  undergoing torque where current partial is to be added.
      *  \param addContribution Variable denoting whether to return the partial itself (true) or the negative partial (false).
      *  \param startRow First row in partialMatrix block where the computed partial is to be added.
@@ -179,9 +179,9 @@ public:
             const bool addContribution = 1, const int startRow = 0, const int startColumn = 3 )
     { }
 
-    //! Function for calculating the partial of the torque w.r.t. the Cartesian state of the body undergoing torque.
+    //! Function for calculating the partial of the torque w.r.t. the rotational state of the body undergoing torque.
     /*!
-     *  Function for calculating the partial of the torque w.r.t. the Cartesian state of the body
+     *  Function for calculating the partial of the torque w.r.t. the rotational state of the body
      *  undergoing torque  and adding it to the existing partial block.
      *  \param partialMatrix Block of partial derivatives of torque w.r.t. Cartesian state of body
      *  undergoing torque where current partial is to be added.
@@ -192,11 +192,11 @@ public:
         wrtRotationalVelocityOfAcceleratedBody( partialMatrix, true, 0, 4 );
     }
 
-    //! Pure virtual function for calculating the partial of the torque w.r.t. the position of the body exerting torque.
+    //! Pure virtual function for calculating the partial of the torque w.r.t. the orientation of the body exerting torque.
     /*!
-     *  Pure virtual function for calculating the partial of the torque w.r.t. the position of the body exerting
+     *  Pure virtual function for calculating the partial of the torque w.r.t. the orientation of the body exerting
      *  torque and adding it to the existing partial block.
-     *  \param partialMatrix Block of partial derivatives of torque w.r.t. Cartesian position of body
+     *  \param partialMatrix Block of partial derivatives of torque w.r.t. Orientation of body
      *  exerting torque where current partial is to be added.
      *  \param addContribution Variable denoting whether to return the partial itself (true) or the negative partial (false).
      *  \param startRow First row in partialMatrix block where the computed partial is to be added.
@@ -207,14 +207,14 @@ public:
             const bool addContribution = 1, const int startRow = 0, const int startColumn = 0 )
     { }
 
-    //! Function for calculating the partial of the torque w.r.t. the velocity of the body exerting torque.
+    //! Function for calculating the partial of the torque w.r.t. the angular velocity of the body exerting torque.
     /*!
-     *  Function for calculating the partial of the torque w.r.t. the velocity of the body exerting a
+     *  Function for calculating the partial of the torque w.r.t. the angular velocity of the body exerting a
      *  torque. . Function may be overridden in derived class, default dependency is none.
      *  \param addContribution Variable denoting whether to return the partial itself (true) or the negative partial (false).
      *  \param startRow First row in partialMatrix block where the computed partial is to be added.
      *  \param startColumn First column in partialMatrix block where the computed partial is to be added.
-     *  \param partialMatrix Block of partial derivatives of torque w.r.t. Cartesian velocity of body
+     *  \param partialMatrix Block of partial derivatives of torque w.r.t. angular velocity of body
      *  exerting torque where current partial is to be added.
      */
     virtual void wrtRotationalVelocityOfAcceleratingBody(
@@ -234,12 +234,12 @@ public:
         wrtRotationalVelocityOfAcceleratingBody( partialMatrix, true, 0, 3 );
     }
 
-    //! Function for calculating the partial of the torque w.r.t. the position of the third body.
+    //! Function for calculating the partial of the torque w.r.t. the orientation of the third body.
     /*!
-     *  Function for calculating the partial of the torque w.r.t. the position of the third body
+     *  Function for calculating the partial of the torque w.r.t. the orientation of the third body
      *  and adding it to the existing partial block. Function may be overridden in derived class, default dependency is none.
      *  \param bodyName Name of third body.
-     *  \param partialMatrix Block of partial derivatives of torque w.r.t. Cartesian position of third body where
+     *  \param partialMatrix Block of partial derivatives of torque w.r.t. Orientation of third body where
      *  current partial is to be added.
      *  \param addContribution Variable denoting whether to return the partial itself (true) or the negative partial (false).
      *  \param startRow First row in partialMatrix block where the computed partial is to be added.
@@ -249,13 +249,13 @@ public:
             const std::string& bodyName, Eigen::Block< Eigen::MatrixXd > partialMatrix,
             const bool addContribution = 1, const int startRow = 0, const int startColumn = 0 ){ }
 
-    //! Function for calculating the partial of the torque w.r.t. the velocity of the third body.
+    //! Function for calculating the partial of the torque w.r.t. the angular velocity of the third body.
     /*!
-     *  Function for calculating the partial of the torque w.r.t. the velocity of the third body
+     *  Function for calculating the partial of the torque w.r.t. the angular velocity of the third body
      *  and adding it to the existing partial block. . Function may be overridden in derived class, default dependency is
      *  none.
      *  \param bodyName Name of third body.
-     *  \param partialMatrix Block of partial derivatives of torque w.r.t. Cartesian velocity of third body where
+     *  \param partialMatrix Block of partial derivatives of torque w.r.t. angular velocity of third body where
      *  current partial is to be added.
      *  \param addContribution Variable denoting whether to return the partial itself (true) or the negative partial (false).
      *  \param startRow First row in partialMatrix block where the computed partial is to be added.

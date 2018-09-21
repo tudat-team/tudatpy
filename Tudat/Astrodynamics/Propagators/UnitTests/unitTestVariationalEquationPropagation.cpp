@@ -675,8 +675,8 @@ executePhobosRotationSimulation(
 
     bodyMap[ "Phobos" ]->setEphemeris(
                 tudat::ephemerides::getTabulatedEphemeris( std::make_shared< ephemerides::KeplerEphemeris >(
-                                                               phobosKeplerElements, 0.0, marsGravitationalParameter,
-                                                               "Mars", "ECLIPJ2000" ), initialEphemerisTime - 3600.0,
+                                                               phobosKeplerElements, 0.0, marsGravitationalParameter ),
+                                                           initialEphemerisTime - 3600.0,
                                                            finalEphemerisTime + 3600, 60.0 ) );
 
     Eigen::Quaterniond noRotationQuaternion = Eigen::Quaterniond( Eigen::AngleAxisd( 1.0E-0, Eigen::Vector3d::UnitZ( ) ) *

@@ -223,6 +223,16 @@ private:
 
 };
 
+//! Create a tabulated rotation model from a given rotation model and interpolation settings
+/*!
+ * Create a tabulated rotation model from a given rotation model and interpolation settings
+ * \param ephemerisToInterrogate Rotation model from which the tabulated model is tpo be synthesized
+ * \param startTime Start time for tabulated model
+ * \param endTime End time for tabulated model
+ * \param timeStep Constant time step for tabulated model
+ * \param interpolatorSettings Interpolation settings for tabulated model
+ * \return Tabulated rotation model, as synthesized from a given rotation model and interpolation settings
+ */
 template< typename StateScalarType = double, typename TimeType = double >
 std::shared_ptr< RotationalEphemeris > getTabulatedRotationalEphemeris(
         const std::shared_ptr< RotationalEphemeris > ephemerisToInterrogate,
@@ -233,22 +243,20 @@ std::shared_ptr< RotationalEphemeris > getTabulatedRotationalEphemeris(
         std::make_shared< interpolators::LagrangeInterpolatorSettings >( 8 ) )
 {
     typedef Eigen::Matrix< StateScalarType, 7, 1 > StateType;
+
+    // Create state map that is to be interpolated
     std::map< TimeType, StateType >  stateMap;
-
     TimeType currentTime = startTime;
-
     while( currentTime <= endTime )
     {
         stateMap[ currentTime ] = ephemerisToInterrogate->getRotationStateVector( currentTime );
         currentTime += timeStep;
     }
 
-    //! Typedef for state interpolator
-    std::shared_ptr< interpolators::OneDimensionalInterpolator< TimeType, StateType  > > stateInterpolator =
-            interpolators::createOneDimensionalInterpolator( stateMap, interpolatorSettings );
-
+    // Create tabulated ephemeris model
     return std::make_shared< TabulatedRotationalEphemeris< StateScalarType, TimeType > >(
-                stateInterpolator, ephemerisToInterrogate->getBaseFrameOrientation( ),
+                interpolators::createOneDimensionalInterpolator( stateMap, interpolatorSettings ),
+                ephemerisToInterrogate->getBaseFrameOrientation( ),
                 ephemerisToInterrogate->getTargetFrameOrientation( ) );
 
 }

@@ -6,6 +6,7 @@ namespace tudat
 namespace basic_astrodynamics
 {
 
+//! Update the members of a torque model and evaluate the acceleration.
 Eigen::Vector3d updateAndGetTorque(
         const std::shared_ptr< TorqueModel > torqueModel,
         const double currentTime )
