@@ -547,20 +547,31 @@ public:
         }
         else
         {
-            // Create simulation object for dynamics only.
-            dynamicsSimulator_ = boost::make_shared< SingleArcDynamicsSimulator< StateScalarType, TimeType > >(
-                        bodyMap, integratorSettings, propagatorSettings_, false, clearNumericalSolution, true );
-            dynamicsStateDerivative_ = dynamicsSimulator_->getDynamicsStateDerivative( );
-            statePostProcessingFunction_ = boost::bind(
-                        &DynamicsStateDerivativeModel< TimeType, StateScalarType >::postProcessStateAndVariationalEquations,
-                        dynamicsStateDerivative_, _1 );
+            std::vector< boost::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > > stateDerivativeModels =
+                    createStateDerivativeModels( propagatorSettings_, bodyMap, integratorSettings_->initialTime_ );
 
             // Create state derivative partials
             std::map< IntegratedStateType, orbit_determination::StateDerivativePartialsMap >
                     stateDerivativePartials =
                     simulation_setup::createStateDerivativePartials
                     < StateScalarType, TimeType >(
-                        dynamicsStateDerivative_->getStateDerivativeModels( ), bodyMap, parametersToEstimate );
+                        getStateDerivativeModelMapFromVector( stateDerivativeModels ), bodyMap, parametersToEstimate );
+
+            // Create simulation object for dynamics only.
+            if( propagatorSettings_->getDependentVariablesToSave( ) != NULL )
+            {
+                propagatorSettings_->getDependentVariablesToSave( )->stateDerivativePartials_ = stateDerivativePartials;
+            }
+
+            dynamicsSimulator_ =  boost::make_shared< SingleArcDynamicsSimulator< StateScalarType, TimeType > >(
+                        bodyMap, integratorSettings, propagatorSettings_, false, clearNumericalSolution, true, false, std::chrono::steady_clock::now( ),
+                        stateDerivativeModels );
+
+            dynamicsStateDerivative_ = dynamicsSimulator_->getDynamicsStateDerivative( );
+            statePostProcessingFunction_ = boost::bind(
+                        &DynamicsStateDerivativeModel< TimeType, StateScalarType >::postProcessStateAndVariationalEquations,
+                        dynamicsStateDerivative_, _1 );
+
 
             // Create variational equations objects.
             variationalEquationsObject_ = boost::make_shared< VariationalEquations >(
@@ -1178,8 +1189,8 @@ public:
                             cumulativeComputationTimeHistorySolutions.at( i ),
                             singleArcDynamicsSimulators.at( i )->getDependentVariablesFunctions( ),
                             boost::bind(
-                            &DynamicsStateDerivativeModel< TimeType, StateScalarType >::postProcessStateAndVariationalEquations,
-                            singleArcDynamicsSimulators.at( i )->getDynamicsStateDerivative( ), _1 ) );
+                                &DynamicsStateDerivativeModel< TimeType, StateScalarType >::postProcessStateAndVariationalEquations,
+                                singleArcDynamicsSimulators.at( i )->getDynamicsStateDerivative( ), _1 ) );
 
                 // Extract solution of equations of motion.
                 utilities::createVectorBlockMatrixHistory(

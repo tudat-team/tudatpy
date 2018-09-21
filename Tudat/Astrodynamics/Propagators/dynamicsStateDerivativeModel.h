@@ -720,7 +720,7 @@ std::vector< boost::shared_ptr< basic_astrodynamics::AccelerationModel3d > > get
         const std::string bodyUndergoingAcceleration,
         const std::string bodyExertingAcceleration,
         const std::unordered_map< IntegratedStateType,
-        std::vector< boost::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > > > stateDerivativeModels,
+        std::vector< boost::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > > >& stateDerivativeModels,
         const basic_astrodynamics::AvailableAcceleration accelerationModeType )
 
 {
@@ -780,7 +780,7 @@ std::vector< boost::shared_ptr< basic_astrodynamics::TorqueModel > > getTorqueBe
         const std::string bodyUndergoingTorque,
         const std::string bodyExertingTorque,
         const std::unordered_map< IntegratedStateType,
-        std::vector< boost::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > > > stateDerivativeModels,
+        std::vector< boost::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > > >& stateDerivativeModels,
         const basic_astrodynamics::AvailableTorque torqueModeType )
 
 {
@@ -987,6 +987,23 @@ boost::shared_ptr< BodyMassStateDerivative< StateScalarType, TimeType > > getBod
 
     return modelForBody;
 }
+
+//! Function to retrieve specific acceleration partial object from list of state derivative partials
+/*!
+ * Function to retrieve specific acceleration partial object from list of state derivative partials
+ * \param accelerationPartials List of state derivative partials
+ * \param accelerationType Type of acceleration for which partial is to be retrieved
+ * \param bodyExertingAcceleration Name of body exerting acceleration
+ * \param bodyUndergoignAcceleration Name of body undergoing acceleration
+ * \param centralBody Name of central body (only required for third-body acceleration types).
+ * \return Required acceleration partial from list.
+ */
+boost::shared_ptr< acceleration_partials::AccelerationPartial > getAccelerationPartialForBody(
+        const orbit_determination::StateDerivativePartialsMap& accelerationPartials,
+        const basic_astrodynamics::AvailableAcceleration accelerationType,
+        const std::string& bodyExertingAcceleration,
+        const std::string& bodyUndergoignAcceleration,
+        const std::string& centralBody = "" );
 
 template< typename TimeType = double, typename StateScalarType = double,
           typename ConversionClassType = DynamicsStateDerivativeModel< TimeType, StateScalarType > >
