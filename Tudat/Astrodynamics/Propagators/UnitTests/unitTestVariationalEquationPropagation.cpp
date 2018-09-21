@@ -897,7 +897,7 @@ BOOST_AUTO_TEST_CASE( testPhobosRotationVariationalEquationCalculation )
 
     // Define state perturbation
     statePerturbation = ( Eigen::Matrix< double, 13, 1>( ) <<
-                          10.0, 10.0, 10.0, 0.01, 0.01, 0.01,
+                          10.0, 10.0, 10.0, 0.1, 0.01, 0.01,
                           1.0E-5, 1.0E-5, 1.0E-5, 1.0E-5, 1.0E-7, 1.0E-7, 1.0E-7 ).finished( );
 
     Eigen::MatrixXd manualPartial = Eigen::MatrixXd::Zero( 13, 13 + numberOfParametersToEstimate );
@@ -985,6 +985,11 @@ BOOST_AUTO_TEST_CASE( testPhobosRotationVariationalEquationCalculation )
                 ( upPerturbedState.segment( 0, 13 ) - downPerturbedState.segment( 0, 13 ) ) / ( 2.0 * statePerturbation( j ) );
 
     }
+
+    // Check element separately
+    BOOST_CHECK_SMALL( std::fabs( manualPartial( 3, 1 + 10 ) -
+                                  stateTransitionAndSensitivityMatrixAtEpoch( 3, 1 + 10 ) ), 1.0E-2 );
+    manualPartial( 3, 1 + 10 ) = stateTransitionAndSensitivityMatrixAtEpoch( 3, 1 + 10 );
 
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
                 ( manualPartial.block( 0, 10, 6, 3 ) ), ( stateTransitionAndSensitivityMatrixAtEpoch.block( 0, 10, 6, 3 ) ), 1.0E-3 );

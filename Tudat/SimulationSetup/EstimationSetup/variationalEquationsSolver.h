@@ -643,7 +643,8 @@ public:
             }
 
             dynamicsSimulator_ =  std::make_shared< SingleArcDynamicsSimulator< StateScalarType, TimeType > >(
-                        bodyMap, integratorSettings, propagatorSettings_, false, clearNumericalSolution, true, false, std::chrono::steady_clock::now( ),
+                        bodyMap, integratorSettings, propagatorSettings_, false, clearNumericalSolution, setIntegratedResult, false,
+                        std::chrono::steady_clock::now( ),
                         stateDerivativeModels );
 
             dynamicsStateDerivative_ = dynamicsSimulator_->getDynamicsStateDerivative( );

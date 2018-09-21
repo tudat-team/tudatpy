@@ -329,7 +329,6 @@ public:
     /*!
      * Function to reset whether to automatically use the integrated results to set ephemerides.
      * \param setIntegratedResult New boolean to determine whether to automatically use the integrated results to set ephemerides.
-
      */
     void resetSetIntegratedResult( const bool setIntegratedResult )
     {
@@ -423,6 +422,7 @@ public:
         {
             throw std::runtime_error( "Error in dynamics simulator, integrator settings not defined." );
         }
+
         if( setIntegratedResult_ )
         {
             frameManager_ = createFrameManager( bodyMap );
