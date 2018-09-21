@@ -44,6 +44,7 @@ public:
      *  Constructor.
      *  \param systemUncertainty Matrix defining the uncertainty in modeling of the system.
      *  \param measurementUncertainty Matrix defining the uncertainty in modeling of the measurements.
+     *  \param filteringStepSize Scalar representing the value of the constant filtering time step.
      *  \param initialTime Scalar representing the value of the initial time.
      *  \param initialStateVector Vector representing the initial (estimated) state of the system. It is used as first
      *      a-priori estimate of the state vector.
@@ -54,12 +55,13 @@ public:
      */
     KalmanFilterBase( const DependentMatrix& systemUncertainty,
                       const DependentMatrix& measurementUncertainty,
+                      const IndependentVariableType filteringStepSize,
                       const IndependentVariableType initialTime,
                       const DependentVector& initialStateVector,
                       const DependentMatrix& initialCovarianceMatrix,
                       const boost::shared_ptr< IntegratorSettings > integratorSettings ) :
         FilterBase< IndependentVariableType, DependentVariableType >( systemUncertainty, measurementUncertainty,
-                                                                      initialTime, initialStateVector,
+                                                                      filteringStepSize, initialTime, initialStateVector,
                                                                       initialCovarianceMatrix, integratorSettings )
     { }
 
@@ -72,43 +74,41 @@ protected:
     /*!
      *  Function to predict the state for the next time step, with the either the use of the integrator provided in
      *  the integratorSettings, or the systemFunction_ input by the user.
-     *  \param currentTime Scalar representing the current time.
-     *  \param currentControlVector Vector representing the current control input.
      *  \return Propagated state at the requested time.
      */
-    DependentVector predictState( const IndependentVariableType currentTime )
+    DependentVector predictState( )
     {
-        return predictState( currentTime, this->aPosterioriStateEstimate_ );
+        return predictState( this->aPosterioriStateEstimate_ );
     }
 
     //! Function to predict the state for the next time step, by overwriting previous state.
     /*!
      *  Function to predict the state for the next time step, by overwriting previous state, with the either the use of
      *  the integrator provided in the integratorSettings, or the systemFunction_ input by the user.
-     *  \param currentTime Scalar representing the current time.
      *  \param currentStateVector Vector representing the current state (which overwrites the previous state).
      *  \return Propagated state at the requested time.
      */
-    DependentVector predictState( const IndependentVariableType currentTime,
-                                  const DependentVector& currentStateVector )
+    DependentVector predictState( const DependentVector& currentStateVector )
     {
-        return this->isStateToBeIntegrated_ ? propagateState( currentTime, currentStateVector ) :
-                                              this->systemFunction_( currentTime, currentStateVector );
+        return this->isStateToBeIntegrated_ ? propagateState( currentStateVector ) :
+                                              this->systemFunction_( this->currentTime_, currentStateVector );
     }
 
     //! Function to correct the covariance for the next time step.
     /*!
-     *  Function to predict the state for the next time step, by overwriting previous state, with the either the use of
-     *  the integrator provided in the integratorSettings, or the systemFunction_ input by the user.
-     *  \param currentTime Scalar representing the current time.
+     *  Function to correct the covariance for the next time step.
+     *  \param aPrioriCovarianceEstimate Matrix denoting the a-priori covariance estimate.
+     *  \param currentMeasurementMatrix Matrix denoting the innovation, i.e., the correlation between system and measurement.
+     *  \param kalmanGain Matrix denoting the Kalman gain, to be used to correct the state estimate with the external measurement data.
      */
-    virtual void correctCovariance( const IndependentVariableType currentTime, const DependentMatrix& aPrioriCovarianceEstimate,
-                                    const DependentMatrix& currentMeasurementMatrix, const DependentMatrix& kalmanGain )
+    virtual void correctCovariance( const DependentMatrix& aPrioriCovarianceEstimate,
+                                    const DependentMatrix& currentMeasurementMatrix,
+                                    const DependentMatrix& kalmanGain )
     {
         this->aPosterioriCovarianceEstimate_ = ( this->identityMatrix_ - kalmanGain * currentMeasurementMatrix ) *
                 aPrioriCovarianceEstimate * ( this->identityMatrix_ - kalmanGain * currentMeasurementMatrix ).transpose( ) +
                 kalmanGain * this->measurementUncertainty_ * kalmanGain.transpose( );
-        this->historyOfCovarianceEstimates_[ currentTime ] = this->aPosterioriCovarianceEstimate_;
+        this->historyOfCovarianceEstimates_[ this->currentTime_ ] = this->aPosterioriCovarianceEstimate_;
     }
 
 private:
@@ -117,18 +117,16 @@ private:
     /*!
      *  Function to propagate state to the next time step, by overwriting previous state, with the use of the integrator
      *  provided in the integratorSettings.
-     *  \param currentTime Scalar representing the current time.
      *  \param currentStateVector Vector representing the current state (which overwrites the previous state).
      *  \return Propagated state at the requested time.
      */
-    DependentVector propagateState( const IndependentVariableType currentTime,
-                                    const DependentVector& currentStateVector )
+    DependentVector propagateState( const DependentVector& currentStateVector )
     {
         // Reset time and state
-        this->integrator_->modifyCurrentIntegrationVariables( currentStateVector, currentTime );
+        this->integrator_->modifyCurrentIntegrationVariables( currentStateVector, this->currentTime_ );
 
         // Integrate equations
-        return this->integrator_->performIntegrationStep( this->integrationStepSize_ );
+        return this->integrator_->performIntegrationStep( this->filteringStepSize_ );
     }
 
 };

@@ -115,18 +115,19 @@ BOOST_AUTO_TEST_CASE( test_json_integrator_rungeKuttaVariableStepSize )
     const double maximumFactorIncreaseForNextStepSize = 10.0;
     const double minimumFactorDecreaseForNextStepSize = 0.1;
     const boost::shared_ptr< IntegratorSettings< double > > manualSettings =
-            boost::make_shared< RungeKuttaVariableStepSizeSettings< double > >( initialTime,
-                                                                                initialStepSize,
-                                                                                rungeKuttaCoefficientSet,
-                                                                                minimumStepSize,
-                                                                                maximumStepSize,
-                                                                                relativeErrorTolerance,
-                                                                                absoluteErrorTolerance,
-                                                                                1,
-                                                                                false,
-                                                                                safetyFactorForNextStepSize,
-                                                                                maximumFactorIncreaseForNextStepSize,
-                                                                                minimumFactorDecreaseForNextStepSize );
+            boost::make_shared< RungeKuttaVariableStepSizeSettingsScalarTolerances< double > >(
+                initialTime,
+                initialStepSize,
+                rungeKuttaCoefficientSet,
+                minimumStepSize,
+                maximumStepSize,
+                relativeErrorTolerance,
+                absoluteErrorTolerance,
+                1,
+                false,
+                safetyFactorForNextStepSize,
+                maximumFactorIncreaseForNextStepSize,
+                minimumFactorDecreaseForNextStepSize );
 
     // Compare
     BOOST_CHECK_EQUAL_JSON( fromFileSettings, manualSettings );

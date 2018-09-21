@@ -59,7 +59,7 @@ BOOST_AUTO_TEST_CASE( testIntegralSineFunction )
         int numberOfSamples = numberOfSamplesList.at( test );
 
         std::vector< double > bounds( 2 );
-        bounds[ 0 ] = 0.0 ;
+        bounds[ 0 ] = 0.0;
         bounds[ 1 ] = mathematical_constants::PI;
         std::vector< double > independentVariables = linspace( bounds[ 0 ], bounds[ 1 ], numberOfSamples );
 
@@ -73,11 +73,11 @@ BOOST_AUTO_TEST_CASE( testIntegralSineFunction )
                     independentVariables, dependentVariables );
 
         double expectedIntegral = 2.0;
-        double computedIntegralTrapezoid = integrator.getQuadrature();
+        double computedIntegralTrapezoid = integrator.getQuadrature( );
         double computedIntegralSimpson = tudat::numerical_quadrature::performExtendedSimpsonsQuadrature(
                     independentVariables.at( 1 ) - independentVariables.at( 0 ), dependentVariables );
 
-        // Check if computed sample mean matches expected value.
+        // Check if computed integral matches expected value.
         BOOST_CHECK_CLOSE_FRACTION( computedIntegralTrapezoid, expectedIntegral, tolerances.at( test ) );
         BOOST_CHECK_CLOSE_FRACTION( computedIntegralSimpson, expectedIntegral, tolerances.at( test ) );
 

@@ -115,7 +115,8 @@ public:
         {
             IndependentVariableType time;
             StateType state;
-            switch ( i ) {
+            switch ( i )
+            {
             case 1:
                 time = currentIndependentVariable_;
                 state = currentState_;
