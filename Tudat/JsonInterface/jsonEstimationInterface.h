@@ -11,9 +11,16 @@
 #ifndef TUDAT_JSONESTIMATIONINTERFACE_H
 #define TUDAT_JSONESTIMATIONINTERFACE_H
 
-#include "Tudat/JsonInterface/jsonInterface.h"
+#include "Tudat/JsonInterface/UnitTests/unitTestSupport.h"
+#include "Tudat/JsonInterface/Propagation/acceleration.h"
+#include "Tudat/JsonInterface/Estimation/observation.h"
+#include "Tudat/JsonInterface/Estimation/parameter.h"
 #include "Tudat/JsonInterface/Estimation/orbitDetermination.h"
+#include "Tudat/JsonInterface/Support/valueConversions.h"
+#include "Tudat/JsonInterface/jsonInterface.h"
+
 #include "Tudat/SimulationSetup/tudatEstimationHeader.h"
+
 
 namespace tudat
 {
@@ -140,7 +147,7 @@ protected:
 
     virtual void resetObservationSettings( )
     {
-        //updateFromJSON( observationSettingsMap_, jsonObject_, Keys::observations );
+        from_json( jsonObject_, observationSettingsMap_ );
 
         if ( profiling )
         {
@@ -153,7 +160,7 @@ protected:
 
     void resetEstimationSettings( )
     {
-        //updateFromJSON( podSettings_, jsonObject_, Keys::estimationSettings );
+        updatePodSettingsFromJSON( jsonObject_[ "estimation" ], podSettings_, parametersToEstimate_->getParameterSetSize( )  );
 
         if ( profiling )
         {
@@ -182,7 +189,8 @@ protected:
     {
         orbitDeterminationManager_ =
                 std::make_shared< simulation_setup::OrbitDeterminationManager< StateScalarType, TimeType > >(
-                    bodyMap_, parametersToEstimate_, observationSettingsMap_, integratorSettings_, propagatorSettings_,
+                    bodyMap_, parametersToEstimate_, observation_models::convertUnsortedToSortedObservationSettingsMap(
+                        observationSettingsMap_ ), integratorSettings_, propagatorSettings_,
                     false );
         variationalEquationsSolver_ =
                 std::dynamic_pointer_cast< propagators::SingleArcVariationalEquationsSolver< StateScalarType, TimeType > >(
@@ -192,7 +200,7 @@ protected:
 
 private:
 
-    observation_models::ObservationSettingsMap observationSettingsMap_;
+    observation_models::ObservationSettingsListPerLinkEnd observationSettingsMap_;
 
     std::shared_ptr< simulation_setup::OrbitDeterminationManager< StateScalarType, TimeType > > orbitDeterminationManager_;
 

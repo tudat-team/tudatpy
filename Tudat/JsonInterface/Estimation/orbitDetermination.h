@@ -28,9 +28,16 @@ void to_json( nlohmann::json& jsonObject, const std::shared_ptr< PodSettings< Ob
 
 }
 
+void updateInverseAPrioriCovarianceFromJSON(
+        const nlohmann::json& jsonObject, const int numberOfParameters, Eigen::MatrixXd& inverseAprioriCovariance );
+
+
 //! Create a shared pointer to a `EstimatableParameterSettings` object from a `json` object.
 template< typename ObservationScalarType = double, typename TimeType = double >
-void from_json( const nlohmann::json& jsonObject, std::shared_ptr< PodSettings< ObservationScalarType, TimeType > >& parameterSettings )
+void updatePodSettingsFromJSON(
+        const nlohmann::json& jsonObject,
+        std::shared_ptr< PodSettings< ObservationScalarType, TimeType > >& parameterSettings,
+        const int numberOfEstimatedParameters )
 {
     using namespace json_interface;
     using K = Keys::Estimation;
@@ -58,20 +65,22 @@ void from_json( const nlohmann::json& jsonObject, std::shared_ptr< PodSettings< 
     const int numberOfIterationsWithoutImprovement =
             getValue< int >( jsonObject, K::reintegrateEquationsOnFirstIteration, 2 );
 
+    Eigen::MatrixXd inverseAprioriCovariance;
+    updateInverseAPrioriCovarianceFromJSON(
+           jsonObject, numberOfEstimatedParameters, inverseAprioriCovariance );
     parameterSettings = std::make_shared< PodSettings< ObservationScalarType, TimeType > >(
+                numberOfEstimatedParameters, inverseAprioriCovariance, Eigen::VectorXd::Zero( numberOfEstimatedParameters ),
                 std::make_shared< EstimationConvergenceChecker >(
                     maximumNumberOfIterations, minimumResidualChange, minimumResidual, numberOfIterationsWithoutImprovement ),
                 reintegrateEquationsOnFirstIteration, reintegrateVariationalEquations, saveInformationMatrix,
                 printOutput, saveResidualsAndParametersFromEachIteration, saveStateHistoryForEachIteration );
 }
 
-void updateInverseAPrioriCovarianceFromJSON(
-        const nlohmann::json& jsonObject, const int numberOfParameters, Eigen::MatrixXd& inverseAprioriCovariance );
-
 void updateObservationWeightsFromJSON(
         const nlohmann::json& jsonObject,
         const std::map< observation_models::ObservableType, std::map< observation_models::LinkEnds, int > > numberOfObservations,
         std::map< observation_models::ObservableType, std::map< observation_models::LinkEnds, Eigen::VectorXd > >& observableWeights );
+
 
 } // namespace propagators
 

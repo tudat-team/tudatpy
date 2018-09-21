@@ -89,8 +89,6 @@ void to_json( nlohmann::json& jsonObject,
                 jsonObject[ K::retransmissionTimes ] = retransmissionTimes;
             }
 
-            std::cout<<"To JSON : "<<jsonObject<<std::endl;
-
             return;
         }
     }
