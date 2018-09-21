@@ -717,7 +717,7 @@ private:
  *  \param bodyUndergoingAcceleration Name of body undergoing the acceleration.
  *  \param bodyExertingAcceleration Name of body exerting the acceleration.
  *  \param stateDerivativeModels Complete list of state derivativ models
- *  \param accelerationModeType Type of acceleration model that is to be retrieved.
+ *  \param accelerationModelType Type of acceleration model that is to be retrieved.
  */
 template< typename TimeType = double, typename StateScalarType = double >
 std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel3d > > getAccelerationBetweenBodies(
@@ -725,7 +725,7 @@ std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel3d > > getAc
         const std::string bodyExertingAcceleration,
         const std::unordered_map< IntegratedStateType,
         std::vector< std::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > > >& stateDerivativeModels,
-        const basic_astrodynamics::AvailableAcceleration accelerationModeType )
+        const basic_astrodynamics::AvailableAcceleration accelerationModelType )
 {
     std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > >
             listOfSuitableAccelerationModels;
@@ -757,7 +757,7 @@ std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel3d > > getAc
             {
                 // Retrieve required acceleration.
                 listOfSuitableAccelerationModels = basic_astrodynamics::getAccelerationModelsOfType(
-                            accelerationModelList.at( bodyUndergoingAcceleration ).at( bodyExertingAcceleration ), accelerationModeType );
+                            accelerationModelList.at( bodyUndergoingAcceleration ).at( bodyExertingAcceleration ), accelerationModelType );
             }
         }
     }
@@ -777,7 +777,7 @@ std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel3d > > getAc
  *  \param bodyUndergoingTorque Name of body undergoing the torque.
  *  \param bodyExertingTorque Name of body exerting the torque.
  *  \param stateDerivativeModels Complete list of state derivativ models
- *  \param torqueModeType Type of torque model that is to be retrieved.
+ *  \param torqueModelType Type of torque model that is to be retrieved.
  */
 template< typename TimeType = double, typename StateScalarType = double >
 std::vector< std::shared_ptr< basic_astrodynamics::TorqueModel > > getTorqueBetweenBodies(
@@ -785,7 +785,7 @@ std::vector< std::shared_ptr< basic_astrodynamics::TorqueModel > > getTorqueBetw
         const std::string bodyExertingTorque,
         const std::unordered_map< IntegratedStateType,
         std::vector< std::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > > >& stateDerivativeModels,
-        const basic_astrodynamics::AvailableTorque torqueModeType )
+        const basic_astrodynamics::AvailableTorque torqueModelType )
 
 {
     std::vector< std::shared_ptr< basic_astrodynamics::TorqueModel > >
@@ -816,7 +816,7 @@ std::vector< std::shared_ptr< basic_astrodynamics::TorqueModel > > getTorqueBetw
             {
                 // Retrieve required torque.
                 listOfSuitableTorqueModels = basic_astrodynamics::getTorqueModelsOfType(
-                            torqueModelList.at( bodyUndergoingTorque ).at( bodyExertingTorque ), torqueModeType );
+                            torqueModelList.at( bodyUndergoingTorque ).at( bodyExertingTorque ), torqueModelType );
             }
         }
     }

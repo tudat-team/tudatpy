@@ -12,6 +12,7 @@
 #define TUDAT_VEHICLESYSTEMS_H
 
 #include <map>
+#include <iostream>
 
 #include <memory>
 
