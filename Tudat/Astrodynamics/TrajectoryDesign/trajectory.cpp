@@ -236,7 +236,8 @@ bool Trajectory::incorrectSize( )
     // Check the size of the trajectoryDefiningParameterVector.
     if ( trajectoryVariableVector_.size( ) != checkTrajectoryVariableVectorSize( ) )
     {
-        std::cerr << "\nIncorrect size of trajectoryDefiningParameterVector.";
+        std::cerr << "\nIncorrect size of trajectoryDefiningParameterVector. "<<checkTrajectoryVariableVectorSize( )<<" "<<
+                     trajectoryVariableVector_.size( )<<std::endl;;
         return true;
     }
     return false;
@@ -315,9 +316,11 @@ void Trajectory::prepareLegs( )
                              centralBodyGravitationalParameter_,
                              gravitationalParameterVector_[ counter ],
                              semiMajorAxesVector_[ departureOrCaptureCounter ],
-                             eccentricityVector_[ departureOrCaptureCounter ] );
+                             eccentricityVector_[ departureOrCaptureCounter ],
+                        includeDepartureDeltaV_ );
 
                 missionLeg = departureLegMga;
+                departureLeg_ = departureLegMga;
 
                 // Update the departure and capture counter.
                 departureOrCaptureCounter++;
@@ -339,6 +342,7 @@ void Trajectory::prepareLegs( )
                            minimumPericenterRadiiVector_[ counter ] );
 
                 missionLeg = swingbyLegMga;
+
                 break;
             }
 
@@ -362,10 +366,12 @@ void Trajectory::prepareLegs( )
                              trajectoryVariableVector_[ numberOfLegs_ +
                                    additionalVariableCounter + 3 ],
                              trajectoryVariableVector_[ numberOfLegs_ +
-                                   additionalVariableCounter + 4 ] );
+                                   additionalVariableCounter + 4 ],
+                        includeDepartureDeltaV_  );
 
 
                 missionLeg = departureLegMga1DsmPosition;
+                departureLeg_ = departureLegMga1DsmPosition;
 
                 // Update the additional variable counter
                 additionalVariableCounter += 4;
@@ -424,9 +430,11 @@ void Trajectory::prepareLegs( )
                              trajectoryVariableVector_[ numberOfLegs_ +
                                     additionalVariableCounter + 3 ],
                              trajectoryVariableVector_[ numberOfLegs_ +
-                                    additionalVariableCounter + 4 ] );
+                                    additionalVariableCounter + 4 ],
+                        includeDepartureDeltaV_  );
 
                 missionLeg = departureLegMga1DsmVelocity;
+                departureLeg_ = departureLegMga1DsmVelocity;
 
                 // Update the additional variable counter
                 additionalVariableCounter += 4;
@@ -476,9 +484,11 @@ void Trajectory::prepareLegs( )
                              gravitationalParameterVector_[ counter ],
                              spacecraftVelocityPtrVector_[ counter - 1],
                              semiMajorAxesVector_[ departureOrCaptureCounter ],
-                             eccentricityVector_[ departureOrCaptureCounter ] );
+                             eccentricityVector_[ departureOrCaptureCounter ],
+                        includeArrivalDeltaV_ );
 
                 missionLeg = captureLeg;
+                captureLeg_ = captureLeg;
 
                 // Update the departure and capture counter.
                 departureOrCaptureCounter++;

@@ -17,6 +17,7 @@
 #include "Tudat/Astrodynamics/Gravitation/sphericalHarmonicsGravityField.h"
 #include "Tudat/Mathematics/BasicMathematics/coordinateConversions.h"
 #include "Tudat/Mathematics/BasicMathematics/basicMathematicsFunctions.h"
+
 namespace tudat
 {
 

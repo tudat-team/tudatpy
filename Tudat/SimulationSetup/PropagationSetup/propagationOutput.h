@@ -370,17 +370,17 @@ std::pair< std::function< Eigen::VectorXd( ) >, int > getVectorDependentVariable
                     listOfSuitableAccelerationModels = getAccelerationBetweenBodies(
                         accelerationDependentVariableSettings->associatedBody_,
                         accelerationDependentVariableSettings->secondaryBody_,
-                        stateDerivativeModels, accelerationDependentVariableSettings->accelerationModeType_ );
+                        stateDerivativeModels, accelerationDependentVariableSettings->accelerationModelType_ );
 
             // Check if third-body counterpart of acceleration is found
             if( listOfSuitableAccelerationModels.size( ) == 0 && basic_astrodynamics::isAccelerationDirectGravitational(
-                        accelerationDependentVariableSettings->accelerationModeType_ ) )
+                        accelerationDependentVariableSettings->accelerationModelType_ ) )
             {
                 listOfSuitableAccelerationModels = getAccelerationBetweenBodies(
                             accelerationDependentVariableSettings->associatedBody_,
                             accelerationDependentVariableSettings->secondaryBody_,
                             stateDerivativeModels, basic_astrodynamics::getAssociatedThirdBodyAcceleration(
-                                accelerationDependentVariableSettings->accelerationModeType_  ) );
+                                accelerationDependentVariableSettings->accelerationModelType_  ) );
             }
 
             if( listOfSuitableAccelerationModels.size( ) != 1 )
@@ -389,7 +389,7 @@ std::pair< std::function< Eigen::VectorXd( ) >, int > getVectorDependentVariable
                         accelerationDependentVariableSettings->associatedBody_ + " and " +
                         accelerationDependentVariableSettings->secondaryBody_ + " of type " +
                         std::to_string(
-                            accelerationDependentVariableSettings->accelerationModeType_ ) +
+                            accelerationDependentVariableSettings->accelerationModelType_ ) +
                         ", no such acceleration found";
                 throw std::runtime_error( errorMessage );
             }
@@ -734,7 +734,7 @@ std::pair< std::function< Eigen::VectorXd( ) >, int > getVectorDependentVariable
                     listOfSuitableTorqueModels = getTorqueBetweenBodies(
                         torqueDependentVariableSettings->associatedBody_,
                         torqueDependentVariableSettings->secondaryBody_,
-                        stateDerivativeModels, torqueDependentVariableSettings->torqueModeType_ );
+                        stateDerivativeModels, torqueDependentVariableSettings->torqueModelType_ );
 
 
             if( listOfSuitableTorqueModels.size( ) != 1 )
@@ -743,7 +743,7 @@ std::pair< std::function< Eigen::VectorXd( ) >, int > getVectorDependentVariable
                         torqueDependentVariableSettings->associatedBody_ + " and " +
                         torqueDependentVariableSettings->secondaryBody_ + " of type " +
                         std::to_string(
-                            torqueDependentVariableSettings->torqueModeType_ ) +
+                            torqueDependentVariableSettings->torqueModelType_ ) +
                         ", no such torque found";
                 throw std::runtime_error( errorMessage );
             }
@@ -926,7 +926,7 @@ std::pair< std::function< Eigen::VectorXd( ) >, int > getVectorDependentVariable
 
             std::shared_ptr< acceleration_partials::AccelerationPartial > partialToUse =
                     getAccelerationPartialForBody(
-                        stateDerivativePartials.at( translational_state ), accelerationPartialVariableSettings->accelerationModeType_,
+                        stateDerivativePartials.at( translational_state ), accelerationPartialVariableSettings->accelerationModelType_,
                         accelerationPartialVariableSettings->associatedBody_,
                         accelerationPartialVariableSettings->secondaryBody_,
                         accelerationPartialVariableSettings->thirdBody_ );
@@ -1137,17 +1137,17 @@ std::function< double( ) > getDoubleDependentVariableFunction(
                         listOfSuitableAccelerationModels = getAccelerationBetweenBodies(
                             accelerationDependentVariableSettings->associatedBody_,
                             accelerationDependentVariableSettings->secondaryBody_,
-                            stateDerivativeModels, accelerationDependentVariableSettings->accelerationModeType_ );
+                            stateDerivativeModels, accelerationDependentVariableSettings->accelerationModelType_ );
 
                 // Check if third-body counterpart of acceleration is found
                 if( listOfSuitableAccelerationModels.size( ) == 0 && basic_astrodynamics::isAccelerationDirectGravitational(
-                            accelerationDependentVariableSettings->accelerationModeType_ ) )
+                            accelerationDependentVariableSettings->accelerationModelType_ ) )
                 {
                     listOfSuitableAccelerationModels = getAccelerationBetweenBodies(
                                 accelerationDependentVariableSettings->associatedBody_,
                                 accelerationDependentVariableSettings->secondaryBody_,
                                 stateDerivativeModels, basic_astrodynamics::getAssociatedThirdBodyAcceleration(
-                                    accelerationDependentVariableSettings->accelerationModeType_  ) );
+                                    accelerationDependentVariableSettings->accelerationModelType_  ) );
                 }
 
                 if( listOfSuitableAccelerationModels.size( ) != 1 )
@@ -1156,7 +1156,7 @@ std::function< double( ) > getDoubleDependentVariableFunction(
                             accelerationDependentVariableSettings->associatedBody_ + " and " +
                             accelerationDependentVariableSettings->secondaryBody_ + " of type " +
                             std::to_string(
-                                accelerationDependentVariableSettings->accelerationModeType_ ) +
+                                accelerationDependentVariableSettings->accelerationModelType_ ) +
                             ", no such acceleration found";
                     throw std::runtime_error( errorMessage );
                 }
@@ -1212,7 +1212,7 @@ std::function< double( ) > getDoubleDependentVariableFunction(
                         listOfSuitableTorqueModels = getTorqueBetweenBodies(
                             torqueDependentVariableSettings->associatedBody_,
                             torqueDependentVariableSettings->secondaryBody_,
-                            stateDerivativeModels, torqueDependentVariableSettings->torqueModeType_ );
+                            stateDerivativeModels, torqueDependentVariableSettings->torqueModelType_ );
 
 
                 if( listOfSuitableTorqueModels.size( ) != 1 )
@@ -1221,7 +1221,7 @@ std::function< double( ) > getDoubleDependentVariableFunction(
                             torqueDependentVariableSettings->associatedBody_ + " and " +
                             torqueDependentVariableSettings->secondaryBody_ + " of type " +
                             std::to_string(
-                                torqueDependentVariableSettings->torqueModeType_ ) +
+                                torqueDependentVariableSettings->torqueModelType_ ) +
                             ", no such torque found";
                     throw std::runtime_error( errorMessage );
                 }

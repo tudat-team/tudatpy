@@ -71,13 +71,13 @@ DependentVariableType performExtendedSimpsonsQuadrature(
     DependentVariableType integral = dependentVariables.at( 0 ) - dependentVariables.at( 0 );
     unsigned int numberOfVariables = dependentVariables.size( );
 
-    // Create vector of weights
-    std::vector< IndependentVariableType > vectorOfWeights = std::vector< IndependentVariableType >( numberOfVariables,
-                                                                                                     constantIndependentVariableStep );
-
     // Check that there are enough elements in the vector
     if ( numberOfVariables > 6 )
     {
+        // Create vector of weights
+        std::vector< IndependentVariableType > vectorOfWeights = std::vector< IndependentVariableType >( numberOfVariables,
+                                                                                                         constantIndependentVariableStep );
+
         // Add weights
         vectorOfWeights.at( 0 ) *= 3.0 / 8.0;
         vectorOfWeights.at( numberOfVariables - 1 ) *= 3.0 / 8.0;

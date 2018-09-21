@@ -20,6 +20,7 @@
 
 namespace tudat
 {
+
 namespace interpolators
 {
 
@@ -98,6 +99,7 @@ extern template class Interpolator< Time, Eigen::Matrix< long double, Eigen::Dyn
 
 
 } // namespace interpolators
+
 } // namespace tudat
 
 #endif // TUDAT_INTERPOLATOR_H
