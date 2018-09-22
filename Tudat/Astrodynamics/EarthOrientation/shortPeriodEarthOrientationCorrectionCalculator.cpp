@@ -82,10 +82,10 @@ Eigen::Vector2d ShortPeriodEarthOrientationCorrectionCalculator< Eigen::Vector2d
 }
 
 //! Function to retrieve the default UT1 short-period correction calculator
-boost::shared_ptr< ShortPeriodEarthOrientationCorrectionCalculator< double > > getDefaultUT1CorrectionCalculator(
+std::shared_ptr< ShortPeriodEarthOrientationCorrectionCalculator< double > > getDefaultUT1CorrectionCalculator(
         const double minimumAmplitude )
 {
-    return boost::make_shared< ShortPeriodEarthOrientationCorrectionCalculator< double > >(
+    return std::make_shared< ShortPeriodEarthOrientationCorrectionCalculator< double > >(
                 1.0E-6, minimumAmplitude,
                 std::vector< std::string >{
                     tudat::input_output::getEarthOrientationDataFilesPath( ) + "utcLibrationAmplitudes.txt",
@@ -93,14 +93,14 @@ boost::shared_ptr< ShortPeriodEarthOrientationCorrectionCalculator< double > > g
                 std::vector< std::string >{
                     tudat::input_output::getEarthOrientationDataFilesPath( ) + "utcLibrationFundamentalArgumentMultipliers.txt",
                     tudat::input_output::getEarthOrientationDataFilesPath( ) + "utcOceanTidesFundamentalArgumentMultipliers.txt" },
-                boost::bind( &sofa_interface::calculateDelaunayFundamentalArgumentsWithGmst, _1 ) );
+                std::bind( &sofa_interface::calculateApproximateDelaunayFundamentalArgumentsWithGmst, std::placeholders::_1 ) );
 }
 
 //! Function to retrieve the default polar motion short-period correction calculator
-boost::shared_ptr< ShortPeriodEarthOrientationCorrectionCalculator< Eigen::Vector2d > > getDefaultPolarMotionCorrectionCalculator(
+std::shared_ptr< ShortPeriodEarthOrientationCorrectionCalculator< Eigen::Vector2d > > getDefaultPolarMotionCorrectionCalculator(
         const double minimumAmplitude )
 {
-    return boost::make_shared< ShortPeriodEarthOrientationCorrectionCalculator< Eigen::Vector2d > >(
+    return std::make_shared< ShortPeriodEarthOrientationCorrectionCalculator< Eigen::Vector2d > >(
                 unit_conversions::convertArcSecondsToRadians< double >( 1.0E-6 ), minimumAmplitude,
                 std::vector< std::string >{
                     tudat::input_output::getEarthOrientationDataFilesPath( ) +
@@ -112,7 +112,7 @@ boost::shared_ptr< ShortPeriodEarthOrientationCorrectionCalculator< Eigen::Vecto
                     "polarMotionLibrationFundamentalArgumentMultipliersQuasiDiurnalOnly.txt",
                     tudat::input_output::getEarthOrientationDataFilesPath( ) +
                     "polarMotionOceanTidesFundamentalArgumentMultipliers.txt" },
-                boost::bind( &sofa_interface::calculateDelaunayFundamentalArgumentsWithGmst, _1 ) );
+                std::bind( &sofa_interface::calculateApproximateDelaunayFundamentalArgumentsWithGmst, std::placeholders::_1 ) );
 
 }
 

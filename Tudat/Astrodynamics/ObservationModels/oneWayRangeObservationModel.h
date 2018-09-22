@@ -13,7 +13,7 @@
 
 #include <map>
 
-#include <boost/function.hpp>
+#include <functional>
 #include <boost/make_shared.hpp>
 
 #include <Eigen/Geometry>
@@ -52,9 +52,9 @@ public:
      *  observable, i.e. deviations from the physically ideal observable between reference points (default none).
      */
     OneWayRangeObservationModel(
-            const boost::shared_ptr< observation_models::LightTimeCalculator
+            const std::shared_ptr< observation_models::LightTimeCalculator
             < ObservationScalarType, TimeType > > lightTimeCalculator,
-            const boost::shared_ptr< ObservationBias< 1 > > observationBiasCalculator = NULL ):
+            const std::shared_ptr< ObservationBias< 1 > > observationBiasCalculator = nullptr ):
         ObservationModel< 1, ObservationScalarType, TimeType >( one_way_range, observationBiasCalculator ),
       lightTimeCalculator_( lightTimeCalculator ){ }
 
@@ -166,7 +166,7 @@ public:
      * Function to get the object to calculate light time.
      * \return Object to calculate light time.
      */
-    boost::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > >
+    std::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > >
     getLightTimeCalculator( )
     {
         return lightTimeCalculator_;
@@ -178,7 +178,7 @@ private:
     /*!
      *  Object to calculate light time, including possible corrections from troposphere, relativistic corrections, etc.
      */
-    boost::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > >
+    std::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > >
     lightTimeCalculator_;
 
     //! Pre-declared receiver state, to prevent many (de-)allocations

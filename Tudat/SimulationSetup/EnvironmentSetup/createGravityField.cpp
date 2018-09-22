@@ -214,16 +214,16 @@ std::pair< double, double  > readGravityFieldFile(
 }
 
 //! Function to create a gravity field model.
-boost::shared_ptr< gravitation::GravityFieldModel > createGravityFieldModel(
-        const boost::shared_ptr< GravityFieldSettings > gravityFieldSettings,
+std::shared_ptr< gravitation::GravityFieldModel > createGravityFieldModel(
+        const std::shared_ptr< GravityFieldSettings > gravityFieldSettings,
         const std::string& body,
         const NamedBodyMap& bodyMap,
-        const std::vector< boost::shared_ptr< GravityFieldVariationSettings > >& gravityFieldVariationSettings )
+        const std::vector< std::shared_ptr< GravityFieldVariationSettings > >& gravityFieldVariationSettings )
 {
     using namespace tudat::gravitation;
 
     // Declare return object.
-    boost::shared_ptr< GravityFieldModel > gravityFieldModel;
+    std::shared_ptr< GravityFieldModel > gravityFieldModel;
 
     // Check which type of gravity field model is to be created.
     switch( gravityFieldSettings->getGravityFieldType( ) )
@@ -231,9 +231,9 @@ boost::shared_ptr< gravitation::GravityFieldModel > createGravityFieldModel(
     case central:
     {
         // Check whether settings for point mass gravity field model are consistent with its type.
-        boost::shared_ptr< CentralGravityFieldSettings > centralFieldSettings =
-                boost::dynamic_pointer_cast< CentralGravityFieldSettings >( gravityFieldSettings );
-        if( centralFieldSettings == NULL )
+        std::shared_ptr< CentralGravityFieldSettings > centralFieldSettings =
+                std::dynamic_pointer_cast< CentralGravityFieldSettings >( gravityFieldSettings );
+        if( centralFieldSettings == nullptr )
         {
             throw std::runtime_error(
                         "Error, expected central field settings when making gravity field model for body " +
@@ -246,7 +246,7 @@ boost::shared_ptr< gravitation::GravityFieldModel > createGravityFieldModel(
         else
         {
             // Create and initialize point mass gravity field model.
-            gravityFieldModel = boost::make_shared< GravityFieldModel >(
+            gravityFieldModel = std::make_shared< GravityFieldModel >(
                         centralFieldSettings->getGravitationalParameter( ) );
         }
         break;
@@ -261,7 +261,7 @@ boost::shared_ptr< gravitation::GravityFieldModel > createGravityFieldModel(
         else
         {
             // Create and initialize point mass gravity field model from Spice.
-            gravityFieldModel = boost::make_shared< GravityFieldModel >(
+            gravityFieldModel = std::make_shared< GravityFieldModel >(
                         spice_interface::getBodyGravitationalParameter( body ) );
         }
 
@@ -272,11 +272,11 @@ boost::shared_ptr< gravitation::GravityFieldModel > createGravityFieldModel(
     {
         // Check whether settings for spherical harmonic gravity field model are consistent with
         // its type.
-        boost::shared_ptr< SphericalHarmonicsGravityFieldSettings > sphericalHarmonicFieldSettings =
-                boost::dynamic_pointer_cast< SphericalHarmonicsGravityFieldSettings >(
+        std::shared_ptr< SphericalHarmonicsGravityFieldSettings > sphericalHarmonicFieldSettings =
+                std::dynamic_pointer_cast< SphericalHarmonicsGravityFieldSettings >(
                     gravityFieldSettings );
 
-        if( sphericalHarmonicFieldSettings == NULL )
+        if( sphericalHarmonicFieldSettings == nullptr )
         {
             throw std::runtime_error(
                         "Error, expected spherical harmonic field settings when making gravity field model of "
@@ -301,7 +301,7 @@ boost::shared_ptr< gravitation::GravityFieldModel > createGravityFieldModel(
                         sphericalHarmonicFieldSettings->getCreateTimeDependentField( ) == 0 )
                 {
                     // Create and initialize spherical harmonic gravity field model.
-                    gravityFieldModel = boost::make_shared< SphericalHarmonicsGravityField >(
+                    gravityFieldModel = std::make_shared< SphericalHarmonicsGravityField >(
                                 sphericalHarmonicFieldSettings->getGravitationalParameter( ),
                                 sphericalHarmonicFieldSettings->getReferenceRadius( ),
                                 sphericalHarmonicFieldSettings->getCosineCoefficients( ),
@@ -310,7 +310,7 @@ boost::shared_ptr< gravitation::GravityFieldModel > createGravityFieldModel(
                 }
                 else
                 {
-                    if( bodyMap.at( body )->getGravityFieldModel( ) != NULL )
+                    if( bodyMap.at( body )->getGravityFieldModel( ) != nullptr )
                     {
                         std::string errorMessage = "Warning when making time-dependent gravity field model for body " + body +
                                 " existing gravity field is not empty but overwritten in Body! ";
@@ -318,7 +318,7 @@ boost::shared_ptr< gravitation::GravityFieldModel > createGravityFieldModel(
                     }
 
                     // Create preliminary TimeDependentSphericalHarmonicsGravityField, without actual variation settings.
-                    gravityFieldModel = boost::make_shared< TimeDependentSphericalHarmonicsGravityField >(
+                    gravityFieldModel = std::make_shared< TimeDependentSphericalHarmonicsGravityField >(
                                 sphericalHarmonicFieldSettings->getGravitationalParameter( ),
                                 sphericalHarmonicFieldSettings->getReferenceRadius( ),
                                 sphericalHarmonicFieldSettings->getCosineCoefficients( ),
@@ -342,7 +342,7 @@ boost::shared_ptr< gravitation::GravityFieldModel > createGravityFieldModel(
 }
 
 //! Function to create gravity field settings for a homogeneous triaxial ellipsoid
-boost::shared_ptr< SphericalHarmonicsGravityFieldSettings > createHomogeneousTriAxialEllipsoidGravitySettings(
+std::shared_ptr< SphericalHarmonicsGravityFieldSettings > createHomogeneousTriAxialEllipsoidGravitySettings(
         const double axisA, const double axisB, const double axisC, const double ellipsoidDensity,
         const int maximumDegree, const int maximumOrder,
         const std::string& associatedReferenceFrame  )
@@ -358,7 +358,7 @@ boost::shared_ptr< SphericalHarmonicsGravityFieldSettings > createHomogeneousTri
             gravitation::createTriAxialEllipsoidNormalizedSphericalHarmonicCoefficients(
                 axisA, axisB, axisC, maximumDegree, maximumOrder );
 
-    return boost::make_shared< SphericalHarmonicsGravityFieldSettings >(
+    return std::make_shared< SphericalHarmonicsGravityFieldSettings >(
                 ellipsoidGravitationalParameter, ellipsoidReferenceRadius, coefficients.first,
                 coefficients.second, associatedReferenceFrame );
 }

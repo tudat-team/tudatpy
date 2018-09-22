@@ -83,7 +83,7 @@ public:
                     const IndependentVariableType initialTime,
                     const DependentVector& initialStateVector,
                     const DependentMatrix& initialCovarianceMatrix,
-                    const boost::shared_ptr< IntegratorSettings > integratorSettings = nullptr ) :
+                    const std::shared_ptr< IntegratorSettings > integratorSettings = nullptr ) :
         filteringTechnique_( filteringTechnique ), systemUncertainty_( systemUncertainty ),
         measurementUncertainty_( measurementUncertainty ), filteringStepSize_( filteringStepSize ), initialTime_( initialTime ),
         initialStateEstimate_( initialStateVector ), initialCovarianceEstimate_( initialCovarianceMatrix ),
@@ -129,7 +129,7 @@ public:
     /*!
      *  Pointer to the integrator settings, which are used to create the filter integrator.
      */
-    const boost::shared_ptr< IntegratorSettings > integratorSettings_;
+    const std::shared_ptr< IntegratorSettings > integratorSettings_;
 
 };
 
@@ -169,7 +169,7 @@ public:
                                   const IndependentVariableType initialTime,
                                   const DependentVector& initialStateVector,
                                   const DependentMatrix& initialCovarianceMatrix,
-                                  const boost::shared_ptr< IntegratorSettings > integratorSettings = nullptr ) :
+                                  const std::shared_ptr< IntegratorSettings > integratorSettings = nullptr ) :
         FilterSettings< IndependentVariableType, DependentVariableType >( extended_kalman_filter,
                                                                           systemUncertainty, measurementUncertainty,
                                                                           filteringStepSize, initialTime, initialStateVector,
@@ -218,7 +218,7 @@ public:
                                    const IndependentVariableType initialTime,
                                    const DependentVector& initialStateVector,
                                    const DependentMatrix& initialCovarianceMatrix,
-                                   const boost::shared_ptr< IntegratorSettings > integratorSettings = nullptr,
+                                   const std::shared_ptr< IntegratorSettings > integratorSettings = nullptr,
                                    const ConstantParameterReferences constantValueReference = reference_Wan_and_Van_der_Merwe,
                                    const std::pair< DependentVariableType, DependentVariableType > customConstantParameters =
             std::make_pair( static_cast< DependentVariableType >( TUDAT_NAN ),
@@ -256,31 +256,31 @@ public:
  *      noise. The input values can be time and state.
  */
 template< typename IndependentVariableType = double, typename DependentVariableType = double >
-boost::shared_ptr< filters::FilterBase< IndependentVariableType, DependentVariableType > >
-createFilter( const boost::shared_ptr< FilterSettings< IndependentVariableType, DependentVariableType > > filterSettings,
-              const boost::function< Eigen::Matrix< DependentVariableType, Eigen::Dynamic, 1 >(
+std::shared_ptr< filters::FilterBase< IndependentVariableType, DependentVariableType > >
+createFilter( const std::shared_ptr< FilterSettings< IndependentVariableType, DependentVariableType > > filterSettings,
+              const std::function< Eigen::Matrix< DependentVariableType, Eigen::Dynamic, 1 >(
                   const IndependentVariableType, const Eigen::Matrix< DependentVariableType, Eigen::Dynamic, 1 >& ) >& systemFunction,
-              const boost::function< Eigen::Matrix< DependentVariableType, Eigen::Dynamic, 1 >(
+              const std::function< Eigen::Matrix< DependentVariableType, Eigen::Dynamic, 1 >(
                   const IndependentVariableType, const Eigen::Matrix< DependentVariableType, Eigen::Dynamic, 1 >& ) >& measurementFunction,
-              const boost::function< Eigen::Matrix< DependentVariableType, Eigen::Dynamic, Eigen::Dynamic >(
+              const std::function< Eigen::Matrix< DependentVariableType, Eigen::Dynamic, Eigen::Dynamic >(
                   const IndependentVariableType, const Eigen::Matrix< DependentVariableType, Eigen::Dynamic, 1 >& ) >&
-              stateJacobianFunction = boost::function< Eigen::Matrix< DependentVariableType, Eigen::Dynamic, Eigen::Dynamic >(
+              stateJacobianFunction = std::function< Eigen::Matrix< DependentVariableType, Eigen::Dynamic, Eigen::Dynamic >(
                   const IndependentVariableType, const Eigen::Matrix< DependentVariableType, Eigen::Dynamic, 1 >& ) >( ),
-              const boost::function< Eigen::Matrix< DependentVariableType, Eigen::Dynamic, Eigen::Dynamic >(
+              const std::function< Eigen::Matrix< DependentVariableType, Eigen::Dynamic, Eigen::Dynamic >(
                   const IndependentVariableType, const Eigen::Matrix< DependentVariableType, Eigen::Dynamic, 1 >& ) >&
-              stateNoiseJacobianFunction = boost::function< Eigen::Matrix< DependentVariableType, Eigen::Dynamic, Eigen::Dynamic >(
+              stateNoiseJacobianFunction = std::function< Eigen::Matrix< DependentVariableType, Eigen::Dynamic, Eigen::Dynamic >(
                   const IndependentVariableType, const Eigen::Matrix< DependentVariableType, Eigen::Dynamic, 1 >& ) >( ),
-              const boost::function< Eigen::Matrix< DependentVariableType, Eigen::Dynamic, Eigen::Dynamic >(
+              const std::function< Eigen::Matrix< DependentVariableType, Eigen::Dynamic, Eigen::Dynamic >(
                   const IndependentVariableType, const Eigen::Matrix< DependentVariableType, Eigen::Dynamic, 1 >& ) >&
-              measurementJacobianFunction = boost::function< Eigen::Matrix< DependentVariableType, Eigen::Dynamic, Eigen::Dynamic >(
+              measurementJacobianFunction = std::function< Eigen::Matrix< DependentVariableType, Eigen::Dynamic, Eigen::Dynamic >(
                   const IndependentVariableType, const Eigen::Matrix< DependentVariableType, Eigen::Dynamic, 1 >& ) >( ),
-              const boost::function< Eigen::Matrix< DependentVariableType, Eigen::Dynamic, Eigen::Dynamic >(
+              const std::function< Eigen::Matrix< DependentVariableType, Eigen::Dynamic, Eigen::Dynamic >(
                   const IndependentVariableType, const Eigen::Matrix< DependentVariableType, Eigen::Dynamic, 1 >& ) >&
-              measurementNoiseJacobianFunction = boost::function< Eigen::Matrix< DependentVariableType, Eigen::Dynamic, Eigen::Dynamic >(
+              measurementNoiseJacobianFunction = std::function< Eigen::Matrix< DependentVariableType, Eigen::Dynamic, Eigen::Dynamic >(
                   const IndependentVariableType, const Eigen::Matrix< DependentVariableType, Eigen::Dynamic, 1 >& ) >( ) )
 {
     // Create an empty filter object
-    boost::shared_ptr< filters::FilterBase< IndependentVariableType, DependentVariableType > > createdFilter;
+    std::shared_ptr< filters::FilterBase< IndependentVariableType, DependentVariableType > > createdFilter;
 
     // Check type of filter
     switch ( filterSettings->filteringTechnique_ )
@@ -288,8 +288,8 @@ createFilter( const boost::shared_ptr< FilterSettings< IndependentVariableType, 
     case extended_kalman_filter:
     {
         // Cast filter settings to extended Kalman filter
-        boost::shared_ptr< ExtendedKalmanFilterSettings< IndependentVariableType, DependentVariableType > > extendedKalmanFilterSettings =
-                boost::dynamic_pointer_cast< ExtendedKalmanFilterSettings< IndependentVariableType, DependentVariableType > >(
+        std::shared_ptr< ExtendedKalmanFilterSettings< IndependentVariableType, DependentVariableType > > extendedKalmanFilterSettings =
+                std::dynamic_pointer_cast< ExtendedKalmanFilterSettings< IndependentVariableType, DependentVariableType > >(
                     filterSettings );
         if ( extendedKalmanFilterSettings == nullptr )
         {
@@ -307,7 +307,7 @@ createFilter( const boost::shared_ptr< FilterSettings< IndependentVariableType, 
         }
 
         // Create filter
-        createdFilter = boost::make_shared< ExtendedKalmanFilter< IndependentVariableType, DependentVariableType > >(
+        createdFilter = std::make_shared< ExtendedKalmanFilter< IndependentVariableType, DependentVariableType > >(
                     systemFunction, measurementFunction, stateJacobianFunction, stateNoiseJacobianFunction,
                     measurementJacobianFunction, measurementNoiseJacobianFunction,
                     extendedKalmanFilterSettings->systemUncertainty_, extendedKalmanFilterSettings->measurementUncertainty_,
@@ -319,8 +319,8 @@ createFilter( const boost::shared_ptr< FilterSettings< IndependentVariableType, 
     case unscented_kalman_filter:
     {
         // Cast filter settings to unscented Kalman filter
-        boost::shared_ptr< UnscentedKalmanFilterSettings< IndependentVariableType, DependentVariableType > > unscentedKalmanFilterSettings =
-                boost::dynamic_pointer_cast< UnscentedKalmanFilterSettings< IndependentVariableType, DependentVariableType > >(
+        std::shared_ptr< UnscentedKalmanFilterSettings< IndependentVariableType, DependentVariableType > > unscentedKalmanFilterSettings =
+                std::dynamic_pointer_cast< UnscentedKalmanFilterSettings< IndependentVariableType, DependentVariableType > >(
                     filterSettings );
         if ( unscentedKalmanFilterSettings == nullptr )
         {
@@ -330,7 +330,7 @@ createFilter( const boost::shared_ptr< FilterSettings< IndependentVariableType, 
         }
 
         // Create filter
-        createdFilter = boost::make_shared< UnscentedKalmanFilter< IndependentVariableType, DependentVariableType > >(
+        createdFilter = std::make_shared< UnscentedKalmanFilter< IndependentVariableType, DependentVariableType > >(
                     systemFunction, measurementFunction,
                     unscentedKalmanFilterSettings->systemUncertainty_, unscentedKalmanFilterSettings->measurementUncertainty_,
                     unscentedKalmanFilterSettings->filteringStepSize_, unscentedKalmanFilterSettings->initialTime_,

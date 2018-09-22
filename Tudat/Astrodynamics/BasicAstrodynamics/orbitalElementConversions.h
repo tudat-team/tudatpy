@@ -20,7 +20,7 @@
 #ifndef TUDAT_ORBITAL_ELEMENT_CONVERSIONS_H
 #define TUDAT_ORBITAL_ELEMENT_CONVERSIONS_H
 
-#include <boost/function.hpp>
+#include <functional>
 #include <boost/math/special_functions/atanh.hpp>
 
 #include <cmath>
@@ -447,8 +447,8 @@ Eigen::Matrix< ScalarType, 6, 1 > convertCartesianToKeplerianElements(
  */
 template< typename ScalarType = double >
 Eigen::Matrix< ScalarType, 6, 1 > convertCartesianToKeplerianElementsFromFunctions(
-        const boost::function< Eigen::Matrix< ScalarType, 6, 1 >( ) > cartesianElementsFunction,
-        const boost::function< ScalarType( ) > centralBodyGravitationalParameterFunction )
+        const std::function< Eigen::Matrix< ScalarType, 6, 1 >( ) > cartesianElementsFunction,
+        const std::function< ScalarType( ) > centralBodyGravitationalParameterFunction )
 {
     return convertCartesianToKeplerianElements(
                 cartesianElementsFunction( ), centralBodyGravitationalParameterFunction( ) );

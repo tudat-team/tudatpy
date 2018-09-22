@@ -12,7 +12,7 @@
 #ifndef TUDAT_TORUS_H
 #define TUDAT_TORUS_H
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include <Eigen/Core>
 
@@ -178,7 +178,7 @@ private:
 };
 
 //! Typedef for shared-pointer to Torus object.
-typedef boost::shared_ptr< Torus > TorusPointer;
+typedef std::shared_ptr< Torus > TorusPointer;
 
 } // namespace geometric_shapes
 } // namespace tudat

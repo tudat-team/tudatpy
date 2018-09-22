@@ -58,6 +58,11 @@ int getSingleIntegrationDifferentialEquationOrder( const IntegratedStateType sta
     return singleStateSize;
 }
 
+template class SingleStateTypeDerivative< double, double >;
+template class SingleStateTypeDerivative< long double, double >;
+template class SingleStateTypeDerivative< double, Time >;
+template class SingleStateTypeDerivative< long double, Time >;
+
 }
 
 }

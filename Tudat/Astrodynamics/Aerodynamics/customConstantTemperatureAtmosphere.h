@@ -112,7 +112,7 @@ class CustomConstantTemperatureAtmosphere : public StandardAtmosphere
 public:
 
     //! Typedef for density function.
-    typedef boost::function< double( const double, const double,
+    typedef std::function< double( const double, const double,
                                      const double, const double ) > DensityFunction;
 
     //! Default constructor.
@@ -300,7 +300,7 @@ private:
 };
 
 //! Typedef for shared-pointer to CustomConstantTemperatureAtmosphere object.
-typedef boost::shared_ptr< CustomConstantTemperatureAtmosphere > CustomConstantTemperatureAtmospherePointer;
+typedef std::shared_ptr< CustomConstantTemperatureAtmosphere > CustomConstantTemperatureAtmospherePointer;
 
 } // namespace aerodynamics
 

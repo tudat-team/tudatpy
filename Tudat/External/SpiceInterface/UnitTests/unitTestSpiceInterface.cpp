@@ -27,8 +27,8 @@
 #include <boost/test/unit_test.hpp>
 #include <boost/make_shared.hpp>
 #include <boost/bind.hpp>
-#include <boost/function.hpp>
-#include <boost/shared_ptr.hpp>
+#include <functional>
+#include <memory>
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/physicalConstants.h"
 #include "Tudat/Basics/testMacros.h"
@@ -165,8 +165,8 @@ BOOST_AUTO_TEST_CASE( testSpiceWrappers_3 )
                 observer, target, ephemerisTime );
 
     // Create rotational ephemeris with Spice
-    boost::shared_ptr< ephemerides::SpiceRotationalEphemeris > spiceRotationalEphemeris =
-            boost::make_shared< ephemerides::SpiceRotationalEphemeris >(
+    std::shared_ptr< ephemerides::SpiceRotationalEphemeris > spiceRotationalEphemeris =
+            std::make_shared< ephemerides::SpiceRotationalEphemeris >(
                 observer, target );
     Eigen::Quaterniond rotationQuaternionFromObject = spiceRotationalEphemeris->
             getRotationToTargetFrame( ephemerisTime );

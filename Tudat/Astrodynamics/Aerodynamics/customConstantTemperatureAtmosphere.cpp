@@ -76,7 +76,8 @@ CustomConstantTemperatureAtmosphere::CustomConstantTemperatureAtmosphere(
         }
 
         // Set density function
-        densityFunction_ = boost::bind( &exponentialAtmosphereModel, _1, _2, _3, _4,
+        densityFunction_ = std::bind( &exponentialAtmosphereModel, std::placeholders::_1,std::placeholders::_2,
+                                      std::placeholders::_3, std::placeholders::_4,
                                         modelSpecificParameters.at( 0 ), modelSpecificParameters.at( 1 ),
                                         modelSpecificParameters.at( 2 ) );
         break;
@@ -93,7 +94,8 @@ CustomConstantTemperatureAtmosphere::CustomConstantTemperatureAtmosphere(
         }
 
         // Set density function
-        densityFunction_ = boost::bind( &threeWaveAtmosphereModel, _1, _2, _3, _4,
+        densityFunction_ = std::bind( &threeWaveAtmosphereModel, std::placeholders::_1,std::placeholders::_2,
+                                      std::placeholders::_3, std::placeholders::_4,
                                         modelSpecificParameters.at( 0 ), modelSpecificParameters.at( 1 ),
                                         modelSpecificParameters.at( 2 ), modelSpecificParameters.at( 3 ),
                                         modelSpecificParameters.at( 4 ) );
@@ -117,7 +119,8 @@ CustomConstantTemperatureAtmosphere::CustomConstantTemperatureAtmosphere(
         modelWeights.push_back( modelSpecificParameters.at( 5 ) );
 
         // Set density function
-        densityFunction_ = boost::bind( &threeTermAtmosphereModel, _1, _2, _3, _4,
+        densityFunction_ = std::bind( &threeTermAtmosphereModel, std::placeholders::_1,std::placeholders::_2,
+                                      std::placeholders::_3, std::placeholders::_4,
                                         modelSpecificParameters.at( 0 ), modelSpecificParameters.at( 1 ),
                                         modelSpecificParameters.at( 2 ), modelWeights );
         break;

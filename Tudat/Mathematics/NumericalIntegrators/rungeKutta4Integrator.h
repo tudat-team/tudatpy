@@ -12,7 +12,7 @@
 #ifndef TUDAT_RUNGE_KUTTA_4_INTEGRATOR_H
 #define TUDAT_RUNGE_KUTTA_4_INTEGRATOR_H
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include <Eigen/Core>
 
@@ -268,6 +268,11 @@ protected:
 
 };
 
+extern template class RungeKutta4Integrator < double, Eigen::VectorXd, Eigen::VectorXd >;
+extern template class RungeKutta4Integrator < double, Eigen::Vector6d, Eigen::Vector6d >;
+extern template class RungeKutta4Integrator < double, Eigen::MatrixXd, Eigen::MatrixXd >;
+
+
 //! Typedef of RK4 integrator (state/state derivative = VectorXd, independent variable = double).
 /*!
  * Typedef of a RK4 integrator with VectorXds as state and state derivative and double as
@@ -287,14 +292,14 @@ typedef RungeKutta4Integrator< double, double, double > RungeKutta4Integratord;
  * Typedef of pointer to a RK4 integrator with VectorXds as state and state derivative and double
  * as independent variable.
  */
-typedef boost::shared_ptr< RungeKutta4IntegratorXd > RungeKutta4IntegratorXdPointer;
+typedef std::shared_ptr< RungeKutta4IntegratorXd > RungeKutta4IntegratorXdPointer;
 
 //! Typedef of pointer to a scalar RK4 integrator.
 /*!
  * Typedef of pointer to an RK4 integrator with doubles as state and state derivative and
  * independent variable.
  */
-typedef boost::shared_ptr< RungeKutta4Integratord > RungeKutta4IntegratordPointer;
+typedef std::shared_ptr< RungeKutta4Integratord > RungeKutta4IntegratordPointer;
 
 } // namespace numerical_integrators
 

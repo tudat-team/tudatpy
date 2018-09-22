@@ -30,7 +30,7 @@ double calculateSphericalHarmonicGravitationalPotential(
         const double referenceRadius,
         const Eigen::MatrixXd& cosineCoefficients,
         const Eigen::MatrixXd& sineCoefficients,
-        boost::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache,
+        std::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache,
         const int minimumumDegree,
         const int minimumumOrder )
 {

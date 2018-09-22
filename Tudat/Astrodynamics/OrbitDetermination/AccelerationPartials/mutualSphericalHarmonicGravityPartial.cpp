@@ -17,10 +17,10 @@ namespace acceleration_partials
 {
 
 //! Function for setting up and retrieving a function returning a partial w.r.t. a double parameter.
-std::pair< boost::function< void( Eigen::MatrixXd& ) >, int > MutualSphericalHarmonicsGravityPartial::getParameterPartialFunction(
-        boost::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter )
+std::pair< std::function< void( Eigen::MatrixXd& ) >, int > MutualSphericalHarmonicsGravityPartial::getParameterPartialFunction(
+        std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter )
 {
-    std::pair< boost::function< void( Eigen::MatrixXd& ) >, int > parameterPartial;
+    std::pair< std::function< void( Eigen::MatrixXd& ) >, int > parameterPartial;
 
     // Check if parameter is gravitational parameter of either
     if( parameter->getParameterName( ).first == estimatable_parameters::gravitational_parameter )
@@ -30,19 +30,19 @@ std::pair< boost::function< void( Eigen::MatrixXd& ) >, int > MutualSphericalHar
                 ( parameter->getParameterName( ).second.first == acceleratedBody_ && accelerationUsesMutualAttraction_ ) )
         {
             parameterPartial = std::make_pair(
-                        boost::bind( &MutualSphericalHarmonicsGravityPartial::wrtGravitationalParameter, this, _1 ), 1 );
+                        std::bind( &MutualSphericalHarmonicsGravityPartial::wrtGravitationalParameter, this, std::placeholders::_1 ), 1 );
         }
         else
         {
-            parameterPartial = std::make_pair( boost::function< void( Eigen::MatrixXd& ) >( ), 0 );
+            parameterPartial = std::make_pair( std::function< void( Eigen::MatrixXd& ) >( ), 0 );
         }
     }
     else
     {
         // Get partial functions for constituent partial objects
-        std::pair< boost::function< void( Eigen::MatrixXd& ) >, int > partialFunctionFromBodyExertingAcceleration =
+        std::pair< std::function< void( Eigen::MatrixXd& ) >, int > partialFunctionFromBodyExertingAcceleration =
                 accelerationPartialOfShExpansionOfBodyExertingAcceleration_->getParameterPartialFunction( parameter );
-        std::pair< boost::function< void( Eigen::MatrixXd& ) >, int > partialFunctionFromBodyUndergoingAcceleration =
+        std::pair< std::function< void( Eigen::MatrixXd& ) >, int > partialFunctionFromBodyUndergoingAcceleration =
                 accelerationPartialOfShExpansionOfBodyUndergoingAcceleration_->getParameterPartialFunction( parameter );
 
         // Combine partial functions
@@ -53,12 +53,12 @@ std::pair< boost::function< void( Eigen::MatrixXd& ) >, int > MutualSphericalHar
 }
 
 //! Function for setting up and retrieving a function returning a partial w.r.t. a vector parameter.
-std::pair< boost::function< void( Eigen::MatrixXd& ) >, int > MutualSphericalHarmonicsGravityPartial::getParameterPartialFunction(
-        boost::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter )
+std::pair< std::function< void( Eigen::MatrixXd& ) >, int > MutualSphericalHarmonicsGravityPartial::getParameterPartialFunction(
+        std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter )
 {
-    std::pair< boost::function< void( Eigen::MatrixXd& ) >, int > partialFunctionFromBodyExertingAcceleration =
+    std::pair< std::function< void( Eigen::MatrixXd& ) >, int > partialFunctionFromBodyExertingAcceleration =
             accelerationPartialOfShExpansionOfBodyExertingAcceleration_->getParameterPartialFunction( parameter );
-    std::pair< boost::function< void( Eigen::MatrixXd& ) >, int > partialFunctionFromBodyUndergoingAcceleration =
+    std::pair< std::function< void( Eigen::MatrixXd& ) >, int > partialFunctionFromBodyUndergoingAcceleration =
             accelerationPartialOfShExpansionOfBodyUndergoingAcceleration_->getParameterPartialFunction( parameter );
 
     return  orbit_determination::createMergedParameterPartialFunction(
@@ -67,14 +67,14 @@ std::pair< boost::function< void( Eigen::MatrixXd& ) >, int > MutualSphericalHar
 
 //! Function to set a dependency of this partial object w.r.t. a given double parameter.
 int MutualSphericalHarmonicsGravityPartial::setParameterPartialUpdateFunction(
-        boost::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter )
+        std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter )
 {
     int partialSize = 0;
 
     // Check if parameter is gravitational parameter of either
     if( parameter->getParameterName( ).first == estimatable_parameters::gravitational_parameter )
     {
-        std::pair< boost::function< void( Eigen::MatrixXd& ) >, int >  partialFunction  =
+        std::pair< std::function< void( Eigen::MatrixXd& ) >, int >  partialFunction  =
                 getParameterPartialFunction( parameter );
         partialSize = partialFunction.second;
 
@@ -88,7 +88,7 @@ int MutualSphericalHarmonicsGravityPartial::setParameterPartialUpdateFunction(
     else
     {
         // Get partial function for acceleration from body exerting acceleration
-        std::pair< boost::function< void( Eigen::MatrixXd& ) >, int > partialFunctionFromExertingExpansion =
+        std::pair< std::function< void( Eigen::MatrixXd& ) >, int > partialFunctionFromExertingExpansion =
                 accelerationPartialOfShExpansionOfBodyExertingAcceleration_->getParameterPartialFunction( parameter );
         if( partialFunctionFromExertingExpansion.second > 0 )
         {
@@ -96,7 +96,7 @@ int MutualSphericalHarmonicsGravityPartial::setParameterPartialUpdateFunction(
         }
 
         // Get partial function for acceleration from body undergoing acceleration
-        std::pair< boost::function< void( Eigen::MatrixXd& ) >, int > partialFunctionFromUndergoingGravity =
+        std::pair< std::function< void( Eigen::MatrixXd& ) >, int > partialFunctionFromUndergoingGravity =
                 accelerationPartialOfShExpansionOfBodyUndergoingAcceleration_->getParameterPartialFunction( parameter );
         if( partialFunctionFromUndergoingGravity.second > 0 )
         {
@@ -121,10 +121,10 @@ int MutualSphericalHarmonicsGravityPartial::setParameterPartialUpdateFunction(
 
 //! Function to set a dependency of this partial object w.r.t. a given vector parameter.
 int MutualSphericalHarmonicsGravityPartial::setParameterPartialUpdateFunction(
-        boost::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter )
+        std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter )
 {
     // Get partial function for acceleration from body exerting acceleration
-    std::pair< boost::function< void( Eigen::MatrixXd& ) >, int > partialFunctionFromExertingExpansion =
+    std::pair< std::function< void( Eigen::MatrixXd& ) >, int > partialFunctionFromExertingExpansion =
             accelerationPartialOfShExpansionOfBodyExertingAcceleration_->getParameterPartialFunction( parameter );
     if( partialFunctionFromExertingExpansion.second > 0 )
     {
@@ -132,7 +132,7 @@ int MutualSphericalHarmonicsGravityPartial::setParameterPartialUpdateFunction(
     }
 
     // Get partial function for acceleration from body undergoing acceleration
-    std::pair< boost::function< void( Eigen::MatrixXd& ) >, int > partialFunctionFromUndergoingGravity =
+    std::pair< std::function< void( Eigen::MatrixXd& ) >, int > partialFunctionFromUndergoingGravity =
             accelerationPartialOfShExpansionOfBodyUndergoingAcceleration_->getParameterPartialFunction( parameter );
     if( partialFunctionFromUndergoingGravity.second > 0 )
     {

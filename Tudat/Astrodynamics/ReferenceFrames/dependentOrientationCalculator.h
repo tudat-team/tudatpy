@@ -68,7 +68,7 @@ public:
      * \param currentTime Time to which angle calculator is to be updated.
      * \return Current rotation from the global (propagation/inertial) to the local (body-fixed) frame.
      */
-    Eigen::Quaterniond getRotationToLocalFrame( const double currentTime )
+    Eigen::Quaterniond computeAndGetRotationToLocalFrame( const double currentTime )
     {
         updateCalculator( currentTime );
         return getRotationToLocalFrame( );

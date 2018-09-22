@@ -14,7 +14,7 @@
 #include <string>
 #include <map>
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include "Tudat/Astrodynamics/Aerodynamics/atmosphereModel.h"
 #include "Tudat/Astrodynamics/Aerodynamics/exponentialAtmosphere.h"
@@ -92,7 +92,7 @@ public:
      * order).
      */
     CustomWindModelSettings(
-            const boost::function< Eigen::Vector3d( const double, const double, const double, const double ) > windFunction ):
+            const std::function< Eigen::Vector3d( const double, const double, const double, const double ) > windFunction ):
         WindModelSettings( custom_wind_model ), windFunction_( windFunction ){ }
 
     //! Destructor
@@ -103,7 +103,7 @@ public:
      * Function to retrieve function that returns wind vector as a function of altitude, longitude, latitude and time
      * \return Function that returns wind vector as a function of altitude, longitude, latitude and time
      */
-    boost::function< Eigen::Vector3d( const double, const double, const double, const double ) > getWindFunction( )
+    std::function< Eigen::Vector3d( const double, const double, const double, const double ) > getWindFunction( )
     {
         return windFunction_;
     }
@@ -114,7 +114,7 @@ public:
      * \param windFunction New function that returns wind vector as a function of altitude, longitude, latitude and time
      */
     void setWindFunction(
-            const boost::function< Eigen::Vector3d( const double, const double, const double, const double ) > windFunction )
+            const std::function< Eigen::Vector3d( const double, const double, const double, const double ) > windFunction )
     {
         windFunction_ = windFunction;
     }
@@ -122,8 +122,7 @@ public:
 protected:
 
     //! Function that returns wind vector as a function of altitude, longitude, latitude and time (in that order).
-    boost::function< Eigen::Vector3d( const double, const double, const double, const double ) > windFunction_;
-
+    std::function< Eigen::Vector3d( const double, const double, const double, const double ) > windFunction_;
 };
 
 //! List of atmosphere models available in simulations
@@ -174,7 +173,7 @@ public:
      *  Function to return settings for the atmosphere's wind model.
      *  \return Settings for the atmosphere's wind model.
      */
-    boost::shared_ptr< WindModelSettings > getWindSettings( )
+    std::shared_ptr< WindModelSettings > getWindSettings( )
     {
         return windSettings_;
     }
@@ -184,7 +183,7 @@ public:
      *  Function to (re)set settings for the atmosphere's wind model.
      *  \param windSettings Settings for the atmosphere's wind model.
      */
-    void setWindSettings( const boost::shared_ptr< WindModelSettings > windSettings )
+    void setWindSettings( const std::shared_ptr< WindModelSettings > windSettings )
     {
         windSettings_ = windSettings;
     }
@@ -195,7 +194,7 @@ private:
     AtmosphereTypes atmosphereType_;
 
     //! Settings for the atmosphere's wind model.
-    boost::shared_ptr< WindModelSettings > windSettings_;
+    std::shared_ptr< WindModelSettings > windSettings_;
 
 };
 
@@ -323,7 +322,7 @@ class CustomConstantTemperatureAtmosphereSettings: public AtmosphereSettings
 public:
 
     //! Typedef for density function.
-    typedef boost::function< double( const double, const double,
+    typedef std::function< double( const double, const double,
                                      const double, const double ) > DensityFunction;
 
     //! Default constructor.
@@ -547,7 +546,7 @@ public:
                                  const double specificGasConstant,
                                  const double ratioOfSpecificHeats,
                                  const interpolators::BoundaryInterpolationType boundaryHandling,
-                                 const double defaultExtrapolationValue = IdentityElement< double >::getAdditionIdentity( ) ) :
+                                 const double defaultExtrapolationValue = IdentityElement::getAdditionIdentity< double >( ) ) :
         TabulatedAtmosphereSettings( atmosphereTableFile, independentVariablesNames, dependentVariablesNames,
                                      specificGasConstant, ratioOfSpecificHeats,
                                      std::vector< interpolators::BoundaryInterpolationType >(
@@ -576,7 +575,7 @@ public:
             const double specificGasConstant = physical_constants::SPECIFIC_GAS_CONSTANT_AIR,
             const double ratioOfSpecificHeats = 1.4,
             const interpolators::BoundaryInterpolationType boundaryHandling = interpolators::use_boundary_value,
-            const double defaultExtrapolationValue = IdentityElement< double >::getAdditionIdentity( ) ) :
+            const double defaultExtrapolationValue = IdentityElement::getAdditionIdentity< double >( ) ) :
         TabulatedAtmosphereSettings( { { 0, atmosphereTableFile } }, { altitude_dependent_atmosphere },
                                      dependentVariablesNames, specificGasConstant,
                                      ratioOfSpecificHeats, { boundaryHandling },
@@ -651,8 +650,8 @@ public:
                 }
                 else
                 {
-                    defaultExtrapolationValue_.at( i ).push_back( std::make_pair( IdentityElement< double >::getAdditionIdentity( ),
-                                                                                  IdentityElement< double >::getAdditionIdentity( ) ) );
+                    defaultExtrapolationValue_.at( i ).push_back( std::make_pair( IdentityElement::getAdditionIdentity< double >( ),
+                                                                                  IdentityElement::getAdditionIdentity< double >( ) ) );
                 }
             }
         }
@@ -679,7 +678,7 @@ public:
                                  const std::vector< AtmosphereIndependentVariables >& independentVariablesNames,
                                  const std::vector< AtmosphereDependentVariables >& dependentVariablesNames,
                                  const interpolators::BoundaryInterpolationType boundaryHandling,
-                                 const double defaultExtrapolationValue = IdentityElement< double >::getAdditionIdentity( ) ) :
+                                 const double defaultExtrapolationValue = IdentityElement::getAdditionIdentity< double >( ) ) :
         TabulatedAtmosphereSettings( atmosphereTableFile, independentVariablesNames, dependentVariablesNames,
                                      physical_constants::SPECIFIC_GAS_CONSTANT_AIR, 1.4,
                                      std::vector< interpolators::BoundaryInterpolationType >(
@@ -805,9 +804,9 @@ private:
  *  \param body Name of the body for which the wind model is to be created.
  *  \return Wind model created according to settings in windSettings.
  */
-boost::shared_ptr< WindModel > createWindModel(
-        const boost::shared_ptr< WindModelSettings > windSettings,
-        const std::string& body );
+std::shared_ptr< aerodynamics::WindModel > createWindModel(
+        const std::shared_ptr< WindModelSettings > windSettings,
+        const std::string& body);
 
 //! Function to create an atmosphere model.
 /*!
@@ -817,8 +816,8 @@ boost::shared_ptr< WindModel > createWindModel(
  *  \param body Name of the body for which the atmosphere model is to be created.
  *  \return Atmosphere model created according to settings in atmosphereSettings.
  */
-boost::shared_ptr< AtmosphereModel > createAtmosphereModel(
-        const boost::shared_ptr< AtmosphereSettings > atmosphereSettings,
+std::shared_ptr< aerodynamics::AtmosphereModel > createAtmosphereModel(
+        const std::shared_ptr< AtmosphereSettings > atmosphereSettings,
         const std::string& body );
 
 } // namespace simulation_setup

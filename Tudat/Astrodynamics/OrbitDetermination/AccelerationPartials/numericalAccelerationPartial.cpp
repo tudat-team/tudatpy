@@ -24,12 +24,12 @@ void emptyTimeFunction( const double time ){ }
 
 //! Function to numerical compute the partial derivative of an acceleration w.r.t. a body state.
 Eigen::Matrix3d calculateAccelerationWrtStatePartials(
-        boost::function< void( Eigen::Vector6d ) > setBodyState,
-        boost::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > accelerationModel,
+        std::function< void( Eigen::Vector6d ) > setBodyState,
+        std::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > accelerationModel,
         Eigen::Vector6d originalState,
         Eigen::Vector3d statePerturbation,
         int startIndex,
-        boost::function< void( ) > updateFunction,
+        std::function< void( ) > updateFunction,
         const double evaluationTime )
 {
     Eigen::Matrix3d upAccelerations = Eigen::Matrix3d::Zero( );
@@ -83,12 +83,12 @@ Eigen::Matrix3d calculateAccelerationWrtStatePartials(
 
 //! Function to numerical compute the partial derivative of an acceleration w.r.t. a double parameter
 Eigen::Vector3d calculateAccelerationWrtParameterPartials(
-        boost::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter,
-        boost::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > accelerationModel,
+        std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter,
+        std::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > accelerationModel,
         double parameterPerturbation,
-        boost::function< void( ) > updateDependentVariables,
+        std::function< void( ) > updateDependentVariables,
         const double currentTime,
-        boost::function< void( const double ) > timeDependentUpdateDependentVariables )
+        std::function< void( const double ) > timeDependentUpdateDependentVariables )
 {
     // Store uperturbed value.
     double unperturbedParameterValue = parameter->getParameterValue( );
@@ -131,12 +131,12 @@ Eigen::Vector3d calculateAccelerationWrtParameterPartials(
 
 //! Function to numerical compute the partial derivative of an acceleration w.r.t. a vector parameter
 Eigen::Matrix< double, 3, Eigen::Dynamic > calculateAccelerationWrtParameterPartials(
-        boost::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter,
-        boost::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > accelerationModel,
+        std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter,
+        std::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > accelerationModel,
         Eigen::VectorXd parameterPerturbation,
-        boost::function< void( ) > updateDependentVariables,
+        std::function< void( ) > updateDependentVariables,
         const double currentTime,
-        boost::function< void( const double ) > timeDependentUpdateDependentVariables )
+        std::function< void( const double ) > timeDependentUpdateDependentVariables )
 {
     // Store uperturbed value.
 

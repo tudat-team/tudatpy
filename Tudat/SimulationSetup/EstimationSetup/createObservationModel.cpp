@@ -10,7 +10,7 @@
 
 #include <map>
 
-#include <boost/function.hpp>
+#include <functional>
 #include <boost/make_shared.hpp>
 
 
@@ -208,11 +208,11 @@ std::vector< std::pair< int, int > > getLinkEndIndicesForObservationViability(
 }
 
 //! Function to create an object to check if a minimum elevation angle condition is met for an observation
-boost::shared_ptr< MinimumElevationAngleCalculator > createMinimumElevationAngleCalculator(
+std::shared_ptr< MinimumElevationAngleCalculator > createMinimumElevationAngleCalculator(
         const simulation_setup::NamedBodyMap& bodyMap,
         const LinkEnds linkEnds,
         const ObservableType observationType,
-        const boost::shared_ptr< ObservationViabilitySettings > observationViabilitySettings,
+        const std::shared_ptr< ObservationViabilitySettings > observationViabilitySettings,
         const std::string& stationName )
 {
     if( observationViabilitySettings->observationViabilityType_ != minimum_elevation_angle )
@@ -242,24 +242,24 @@ boost::shared_ptr< MinimumElevationAngleCalculator > createMinimumElevationAngle
     }
 
     // Retrieve pointing angles calculator
-    boost::shared_ptr< ground_stations::PointingAnglesCalculator > pointingAngleCalculator =
+    std::shared_ptr< ground_stations::PointingAnglesCalculator > pointingAngleCalculator =
             bodyMap.at( observationViabilitySettings->getAssociatedLinkEnd( ).first )->
             getGroundStation( groundStationNameToUse )->getPointingAnglesCalculator( );
 
     // Create check object
     double minimumElevationAngle = observationViabilitySettings->getDoubleParameter( );
-    return boost::make_shared< MinimumElevationAngleCalculator >(
+    return std::make_shared< MinimumElevationAngleCalculator >(
                 getLinkEndIndicesForObservationViability(
                     linkEnds,observationType, observationViabilitySettings->getAssociatedLinkEnd( ) ),
                 minimumElevationAngle, pointingAngleCalculator );
 }
 
 //! Function to create an object to check if a body avoidance angle condition is met for an observation
-boost::shared_ptr< BodyAvoidanceAngleCalculator > createBodyAvoidanceAngleCalculator(
+std::shared_ptr< BodyAvoidanceAngleCalculator > createBodyAvoidanceAngleCalculator(
         const simulation_setup::NamedBodyMap& bodyMap,
         const LinkEnds linkEnds,
         const ObservableType observationType,
-        const boost::shared_ptr< ObservationViabilitySettings > observationViabilitySettings )
+        const std::shared_ptr< ObservationViabilitySettings > observationViabilitySettings )
 {
     if( observationViabilitySettings->observationViabilityType_ != body_avoidance_angle )
     {
@@ -273,24 +273,24 @@ boost::shared_ptr< BodyAvoidanceAngleCalculator > createBodyAvoidanceAngleCalcul
     }
 
     // Create state function of body to be avoided.
-    boost::function< Eigen::Vector6d( const double ) > stateFunctionOfBodyToAvoid =
-            boost::bind( &simulation_setup::Body::getStateInBaseFrameFromEphemeris< double, double >,
-                         bodyMap.at( observationViabilitySettings->getStringParameter( ) ), _1 );
+    std::function< Eigen::Vector6d( const double ) > stateFunctionOfBodyToAvoid =
+            std::bind( &simulation_setup::Body::getStateInBaseFrameFromEphemeris< double, double >,
+                         bodyMap.at( observationViabilitySettings->getStringParameter( ) ), std::placeholders::_1 );
 
     // Create check object
     double bodyAvoidanceAngle = observationViabilitySettings->getDoubleParameter( );
-    return boost::make_shared< BodyAvoidanceAngleCalculator >(
+    return std::make_shared< BodyAvoidanceAngleCalculator >(
                 getLinkEndIndicesForObservationViability(
                     linkEnds,observationType, observationViabilitySettings->getAssociatedLinkEnd( ) ),
                 bodyAvoidanceAngle, stateFunctionOfBodyToAvoid, observationViabilitySettings->getStringParameter( ) );
 }
 
 //! Function to create an object to check if a body occultation condition is met for an observation
-boost::shared_ptr< OccultationCalculator > createOccultationCalculator(
+std::shared_ptr< OccultationCalculator > createOccultationCalculator(
         const simulation_setup::NamedBodyMap& bodyMap,
         const LinkEnds linkEnds,
         const ObservableType observationType,
-        const boost::shared_ptr< ObservationViabilitySettings > observationViabilitySettings )
+        const std::shared_ptr< ObservationViabilitySettings > observationViabilitySettings )
 {
     if( observationViabilitySettings->observationViabilityType_ != body_occultation )
     {
@@ -304,29 +304,29 @@ boost::shared_ptr< OccultationCalculator > createOccultationCalculator(
     }
 
     // Create state function of occulting body.
-    boost::function< Eigen::Vector6d( const double ) > stateOfOccultingBody =
-            boost::bind( &simulation_setup::Body::getStateInBaseFrameFromEphemeris< double, double >,
-                         bodyMap.at( observationViabilitySettings->getStringParameter( ) ), _1 );
+    std::function< Eigen::Vector6d( const double ) > stateOfOccultingBody =
+            std::bind( &simulation_setup::Body::getStateInBaseFrameFromEphemeris< double, double >,
+                         bodyMap.at( observationViabilitySettings->getStringParameter( ) ), std::placeholders::_1 );
 
     // Create check object
     double occultingBodyRadius =
             bodyMap.at( observationViabilitySettings->getStringParameter( ) )->getShapeModel( )->getAverageRadius( );
-    return boost::make_shared< OccultationCalculator >(
+    return std::make_shared< OccultationCalculator >(
                 getLinkEndIndicesForObservationViability(
                     linkEnds, observationType, observationViabilitySettings->getAssociatedLinkEnd( ) ),
                 stateOfOccultingBody, occultingBodyRadius );
 }
 
 //! Function to create an list of obervation viability conditions for a single set of link ends
-std::vector< boost::shared_ptr< ObservationViabilityCalculator > > createObservationViabilityCalculators(
+std::vector< std::shared_ptr< ObservationViabilityCalculator > > createObservationViabilityCalculators(
         const simulation_setup::NamedBodyMap& bodyMap,
         const LinkEnds linkEnds,
         const ObservableType observationType,
-        const std::vector< boost::shared_ptr< ObservationViabilitySettings > >& observationViabilitySettings )
+        const std::vector< std::shared_ptr< ObservationViabilitySettings > >& observationViabilitySettings )
 {
-    std::vector< boost::shared_ptr< ObservationViabilityCalculator > > linkViabilityCalculators;
+    std::vector< std::shared_ptr< ObservationViabilityCalculator > > linkViabilityCalculators;
 
-    std::vector< boost::shared_ptr< ObservationViabilitySettings > > relevantObservationViabilitySettings =
+    std::vector< std::shared_ptr< ObservationViabilitySettings > > relevantObservationViabilitySettings =
             filterObservationViabilitySettings( observationViabilitySettings, linkEnds );
 
     for( unsigned int i = 0; i < relevantObservationViabilitySettings.size( ); i++ )
@@ -385,14 +385,14 @@ std::vector< boost::shared_ptr< ObservationViabilityCalculator > > createObserva
 }
 
 //! Function to create an list of obervation viability conditions for a number of sets of link ends, for a single observable type
-std::map< LinkEnds, std::vector< boost::shared_ptr< ObservationViabilityCalculator > > >
+std::map< LinkEnds, std::vector< std::shared_ptr< ObservationViabilityCalculator > > >
 createObservationViabilityCalculators(
         const simulation_setup::NamedBodyMap& bodyMap,
         const std::vector< LinkEnds > linkEnds,
         const ObservableType observationType,
-        const std::vector< boost::shared_ptr< ObservationViabilitySettings > >& observationViabilitySettings )
+        const std::vector< std::shared_ptr< ObservationViabilitySettings > >& observationViabilitySettings )
 {
-    std::map< LinkEnds, std::vector< boost::shared_ptr< ObservationViabilityCalculator > > > viabilityCalculators;
+    std::map< LinkEnds, std::vector< std::shared_ptr< ObservationViabilityCalculator > > > viabilityCalculators;
 
     for( unsigned int i = 0; i < linkEnds.size( ); i++ )
     {
@@ -409,7 +409,7 @@ PerObservableObservationViabilityCalculatorList
 createObservationViabilityCalculators(
         const simulation_setup::NamedBodyMap& bodyMap,
         const std::map< ObservableType, std::vector< LinkEnds > > linkEndsPerObservable,
-        const std::vector< boost::shared_ptr< ObservationViabilitySettings > >& observationViabilitySettings )
+        const std::vector< std::shared_ptr< ObservationViabilitySettings > >& observationViabilitySettings )
 {
     PerObservableObservationViabilityCalculatorList viabilityCalculators;
 

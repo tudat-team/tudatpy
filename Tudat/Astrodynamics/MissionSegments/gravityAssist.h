@@ -63,7 +63,7 @@ double gravityAssist( const double centralBodyGravitationalParameter,
                       const bool useEccentricityInsteadOfPericenter = true,
                       const double speedTolerance = 1.0e-6,
                       root_finders::RootFinderPointer rootFinder
-                        = boost::make_shared< root_finders::NewtonRaphson >( 1.0e-12, 1000 ) );
+                        = std::make_shared< root_finders::NewtonRaphson >( 1.0e-12, 1000 ) );
 
 //! Propagate an unpowered gravity assist.
 /*!
@@ -180,7 +180,7 @@ private:
 };
 
 //! Typedef for shared-pointer to PericenterFindingFunctions object.
-typedef boost::shared_ptr< PericenterFindingFunctions > PericenterFindingFunctionsPointer;
+typedef std::shared_ptr< PericenterFindingFunctions > PericenterFindingFunctionsPointer;
 
 //! Eccentricity finding functions class.
 /*!
@@ -253,7 +253,7 @@ private:
 };
 
 //! Typedef for shared-pointer to EccentricityFindingFunctions object.
-typedef boost::shared_ptr< EccentricityFindingFunctions > EccentricityFindingFunctionsPointer;
+typedef std::shared_ptr< EccentricityFindingFunctions > EccentricityFindingFunctionsPointer;
 
 } // namespace mission_segments
 } // namespace tudat

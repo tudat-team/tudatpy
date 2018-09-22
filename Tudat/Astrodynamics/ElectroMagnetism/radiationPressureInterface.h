@@ -14,7 +14,7 @@
 
 #include <vector>
 
-#include <boost/function.hpp>
+#include <functional>
 #include <boost/lambda/lambda.hpp>
 
 #include <Eigen/Core>
@@ -63,19 +63,19 @@ public:
      *  \param sourceRadius Radius of the source body (used for occultation calculations) (default 0).
      */
     RadiationPressureInterface(
-            const boost::function< double( ) > sourcePower,
-            const boost::function< Eigen::Vector3d( ) > sourcePositionFunction,
-            const boost::function< Eigen::Vector3d( ) > targetPositionFunction,
+            const std::function< double( ) > sourcePower,
+            const std::function< Eigen::Vector3d( ) > sourcePositionFunction,
+            const std::function< Eigen::Vector3d( ) > targetPositionFunction,
             const double radiationPressureCoefficient,
             const double area,
-            const std::vector< boost::function< Eigen::Vector3d( ) > > occultingBodyPositions =
-            std::vector< boost::function< Eigen::Vector3d( ) > >( ),
+            const std::vector< std::function< Eigen::Vector3d( ) > > occultingBodyPositions =
+            std::vector< std::function< Eigen::Vector3d( ) > >( ),
             const std::vector< double > occultingBodyRadii = std::vector< double > ( ),
             const double sourceRadius = 0.0 ):
         sourcePower_( sourcePower ), sourcePositionFunction_( sourcePositionFunction ),
         targetPositionFunction_( targetPositionFunction ),
         radiationPressureCoefficient_( radiationPressureCoefficient ),
-        radiationPressureCoefficientFunction_( boost::lambda::constant( radiationPressureCoefficient ) ),
+        radiationPressureCoefficientFunction_( [=]( const double ){ return radiationPressureCoefficient; } ),
         area_( area ),
         occultingBodyPositions_( occultingBodyPositions ),
         occultingBodyRadii_( occultingBodyRadii ),
@@ -120,7 +120,7 @@ public:
      *  Function to return the function returning the current position of the source body.
      *  \return The function returning the current position of the source body.
      */
-    boost::function< Eigen::Vector3d( ) > getSourcePositionFunction( ) const
+    std::function< Eigen::Vector3d( ) > getSourcePositionFunction( ) const
     {
         return sourcePositionFunction_;
     }
@@ -130,7 +130,7 @@ public:
      *  Function to return the function returning the current position of the target body.
      *  \return The function returning the current position of the target body.
      */
-    boost::function< Eigen::Vector3d( ) > getTargetPositionFunction( ) const
+    std::function< Eigen::Vector3d( ) > getTargetPositionFunction( ) const
     {
         return targetPositionFunction_;
     }
@@ -163,7 +163,7 @@ public:
     void resetRadiationPressureCoefficient( const double radiationPressureCoefficient )
     {
         radiationPressureCoefficient_ = radiationPressureCoefficient;
-        radiationPressureCoefficientFunction_ = boost::lambda::constant( radiationPressureCoefficient );
+        radiationPressureCoefficientFunction_ = [=]( const double ){ return radiationPressureCoefficient; };
     }
 
     //! Function to reset the function to obtain the radiation pressure coefficient of the target body.
@@ -172,7 +172,7 @@ public:
      *  \param radiationPressureCoefficientFunction New function to obtain the radiation pressure coefficient of the target body.
      */
     void resetRadiationPressureCoefficientFunction(
-            const boost::function< double( const double ) > radiationPressureCoefficientFunction )
+            const std::function< double( const double ) > radiationPressureCoefficientFunction )
     {
         radiationPressureCoefficientFunction_ = radiationPressureCoefficientFunction;
     }
@@ -184,7 +184,7 @@ public:
      *  source body.
      *  \return  The function returning the current total power emitted by the source body.
      */
-    boost::function< double( ) > getSourcePowerFunction( ) const
+    std::function< double( ) > getSourcePowerFunction( ) const
     {
         return sourcePower_;
     }
@@ -207,7 +207,7 @@ public:
      *  \return List of functions returning the positions of the bodies causing
      *  occultations
      */
-    std::vector< boost::function< Eigen::Vector3d( ) > > getOccultingBodyPositions( )
+    std::vector< std::function< Eigen::Vector3d( ) > > getOccultingBodyPositions( )
     {
         return occultingBodyPositions_;
     }
@@ -236,25 +236,25 @@ public:
 protected:
 
     //! Function returning the current total power (in W) emitted by the source body.
-    boost::function< double( ) > sourcePower_;
+    std::function< double( ) > sourcePower_;
 
     //! Function returning the current position of the source body.
-    boost::function< Eigen::Vector3d( ) > sourcePositionFunction_;
+    std::function< Eigen::Vector3d( ) > sourcePositionFunction_;
 
     //! Function returning the current position of the target body.
-    boost::function< Eigen::Vector3d( ) > targetPositionFunction_;
+    std::function< Eigen::Vector3d( ) > targetPositionFunction_;
 
     //! Radiation pressure coefficient of the target body.
     double radiationPressureCoefficient_;
 
     //! Function to reset a constant radiation pressure coefficient of the target body.
-    boost::function< double( const double ) > radiationPressureCoefficientFunction_;
+    std::function< double( const double ) > radiationPressureCoefficientFunction_;
 
     //! Reflecting area of the target body.
     double area_;
 
     //! List of functions returning the positions of the bodies causing occultations
-    std::vector< boost::function< Eigen::Vector3d( ) > > occultingBodyPositions_;
+    std::vector< std::function< Eigen::Vector3d( ) > > occultingBodyPositions_;
 
     //! List of radii of the bodies causing occultations.
     std::vector< double > occultingBodyRadii_;

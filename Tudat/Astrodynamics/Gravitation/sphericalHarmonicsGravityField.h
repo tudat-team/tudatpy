@@ -17,7 +17,7 @@
 #ifndef TUDAT_SPHERICAL_HARMONICS_GRAVITY_FIELD_H
 #define TUDAT_SPHERICAL_HARMONICS_GRAVITY_FIELD_H
 
-#include <boost/function.hpp>
+#include <functional>
 #include <boost/lambda/lambda.hpp>
 #include <boost/make_shared.hpp>
 
@@ -56,7 +56,7 @@ double calculateSphericalHarmonicGravitationalPotential(
         const Eigen::Vector3d& bodyFixedPosition, const double gravitationalParameter,
         const double referenceRadius,
         const Eigen::MatrixXd& cosineCoefficients, const Eigen::MatrixXd& sineCoefficients,
-        boost::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache,
+        std::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache,
         const int minimumumDegree = 0, const int minimumumOrder = 0 );
 
 //! Class to represent a spherical harmonic gravity field expansion.
@@ -88,7 +88,7 @@ public:
           cosineCoefficients_( cosineCoefficients ), sineCoefficients_( sineCoefficients ),
           fixedReferenceFrame_( fixedReferenceFrame )
     {
-        sphericalHarmonicsCache_ = boost::make_shared< basic_mathematics::SphericalHarmonicsCache >( );
+        sphericalHarmonicsCache_ = std::make_shared< basic_mathematics::SphericalHarmonicsCache >( );
         sphericalHarmonicsCache_->resetMaximumDegreeAndOrder( cosineCoefficients_.rows( ) + 1,
                                                               cosineCoefficients_.cols( ) + 1 );
     }
@@ -158,7 +158,7 @@ public:
      *  \return Cosine spherical harmonic coefficients (geodesy normalized) up to given
      *  degree and order
      */
-    Eigen::MatrixXd getCosineCoefficients( const int maximumDegree, const int maximumOrder )
+    Eigen::MatrixXd getCosineCoefficientsBlock( const int maximumDegree, const int maximumOrder )
     {
         return cosineCoefficients_.block( 0, 0, maximumDegree + 1, maximumOrder + 1 );
     }
@@ -172,7 +172,7 @@ public:
      *  \return Sine spherical harmonic coefficients (geodesy normalized) up to given
      *  degree and order
      */
-    Eigen::MatrixXd getSineCoefficients( const int maximumDegree, const int maximumOrder )
+    Eigen::MatrixXd getSineCoefficientsBlock( const int maximumDegree, const int maximumOrder )
     {
         return sineCoefficients_.block( 0, 0, maximumDegree + 1, maximumOrder + 1 );
     }
@@ -311,7 +311,7 @@ protected:
     std::string fixedReferenceFrame_;
 
     //! Cache object for potential calculations.
-    boost::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache_;
+    std::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache_;
 };
 
 } // namespace gravitation

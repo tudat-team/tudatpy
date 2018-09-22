@@ -80,19 +80,19 @@ BOOST_AUTO_TEST_CASE( testUnscentedKalmanFilterFirstCase )
     measurementUncertainty[ 0 ] = 100.0;
 
     // Set integrator settings
-    boost::shared_ptr< numerical_integrators::IntegratorSettings< > > integratorSettings =
-            boost::make_shared< numerical_integrators::IntegratorSettings< > > (
+    std::shared_ptr< numerical_integrators::IntegratorSettings< > > integratorSettings =
+            std::make_shared< numerical_integrators::IntegratorSettings< > > (
                 numerical_integrators::euler, initialTime, timeStep );
 
     // Create control class
-    boost::shared_ptr< ControlWrapper< double, double, 2 > > control =
-            boost::make_shared< ControlWrapper< double, double, 2 > >( boost::lambda::constant( Eigen::Vector2d::Zero( ) ) );
+    std::shared_ptr< ControlWrapper< double, double, 2 > > control =
+            std::make_shared< ControlWrapper< double, double, 2 > >( boost::lambda::constant( Eigen::Vector2d::Zero( ) ) );
 
     // Create unscented Kalman filter object
-    UnscentedKalmanFilterDoublePointer unscentedFilter = boost::make_shared< UnscentedKalmanFilterDouble >(
-                boost::bind( &stateFunction1, _1, _2,
-                             boost::bind( &ControlWrapper< double, double, 2 >::getCurrentControlVector, control ) ),
-                boost::bind( &measurementFunction1, _1, _2 ),
+    UnscentedKalmanFilterDoublePointer unscentedFilter = std::make_shared< UnscentedKalmanFilterDouble >(
+                std::bind( &stateFunction1, std::placeholders::_1, std::placeholders::_2,
+                           std::bind( &ControlWrapper< double, double, 2 >::getCurrentControlVector, control ) ),
+                std::bind( &measurementFunction1, std::placeholders::_1, std::placeholders::_2 ),
                 systemUncertainty, measurementUncertainty, timeStep,
                 initialTime, initialEstimatedStateVector, initialEstimatedStateCovarianceMatrix,
                 integratorSettings );
@@ -207,19 +207,19 @@ BOOST_AUTO_TEST_CASE( testUnscentedKalmanFilterSecondCase )
     Vector1ld measurementUncertainty = 0.01 * Vector1ld::Identity( );
 
     // Set null integrator settings
-    boost::shared_ptr< numerical_integrators::IntegratorSettings< long double > > integratorSettings = nullptr;
+    std::shared_ptr< numerical_integrators::IntegratorSettings< long double > > integratorSettings = nullptr;
 
     // Create control class
-    boost::shared_ptr< ControlWrapper< long double, long double, 3 > > control =
-            boost::make_shared< ControlWrapper< long double, long double, 3 > >(
+    std::shared_ptr< ControlWrapper< long double, long double, 3 > > control =
+            std::make_shared< ControlWrapper< long double, long double, 3 > >(
                 boost::lambda::constant( Vector3ld::Zero( ) ) );
 
     // Create unscented Kalman filter object
-    boost::shared_ptr< KalmanFilterBase< long double, long double > > unscentedFilter =
-            boost::make_shared< UnscentedKalmanFilter< long double, long double > >(
-                boost::bind( &stateFunction2, _1, _2,
-                             boost::bind( &ControlWrapper< long double, long double, 3 >::getCurrentControlVector, control ) ),
-                boost::bind( &measurementFunction2, _1, _2 ),
+    std::shared_ptr< KalmanFilterBase< long double, long double > > unscentedFilter =
+            std::make_shared< UnscentedKalmanFilter< long double, long double > >(
+                std::bind( &stateFunction2, std::placeholders::_1, std::placeholders::_2,
+                           std::bind( &ControlWrapper< long double, long double, 3 >::getCurrentControlVector, control ) ),
+                std::bind( &measurementFunction2, std::placeholders::_1, std::placeholders::_2 ),
                 systemUncertainty, measurementUncertainty, timeStep,
                 initialTime, initialEstimatedStateVector, initialEstimatedStateCovarianceMatrix,
                 integratorSettings, custom_parameters, std::make_pair( 0.001, 0.0 ) );
@@ -324,19 +324,19 @@ BOOST_AUTO_TEST_CASE( testUnscentedKalmanFilterThirdCase )
     measurementUncertainty[ 0 ] = std::pow( 25.0, 2 );
 
     // Set integrator settings
-    boost::shared_ptr< numerical_integrators::IntegratorSettings< > > integratorSettings =
-            boost::make_shared< numerical_integrators::IntegratorSettings< > > (
+    std::shared_ptr< numerical_integrators::IntegratorSettings< > > integratorSettings =
+            std::make_shared< numerical_integrators::IntegratorSettings< > > (
                 numerical_integrators::euler, initialTime, timeStep );
 
     // Create control class
-    boost::shared_ptr< ControlWrapper< double, double, 3 > > control =
-            boost::make_shared< ControlWrapper< double, double, 3 > >( boost::lambda::constant( Eigen::Vector3d::Zero( ) ) );
+    std::shared_ptr< ControlWrapper< double, double, 3 > > control =
+            std::make_shared< ControlWrapper< double, double, 3 > >( boost::lambda::constant( Eigen::Vector3d::Zero( ) ) );
 
     // Create unscented Kalman filter object
-    UnscentedKalmanFilterDoublePointer unscentedFilter = boost::make_shared< UnscentedKalmanFilterDouble >(
-                boost::bind( &stateFunction3, _1, _2,
-                             boost::bind( &ControlWrapper< double, double, 3 >::getCurrentControlVector, control ) ),
-                boost::bind( &measurementFunction3, _1, _2 ),
+    UnscentedKalmanFilterDoublePointer unscentedFilter = std::make_shared< UnscentedKalmanFilterDouble >(
+                std::bind( &stateFunction3, std::placeholders::_1, std::placeholders::_2,
+                           std::bind( &ControlWrapper< double, double, 3 >::getCurrentControlVector, control ) ),
+                std::bind( &measurementFunction3, std::placeholders::_1, std::placeholders::_2 ),
                 systemUncertainty, measurementUncertainty, timeStep,
                 initialTime, initialEstimatedStateVector, initialEstimatedStateCovarianceMatrix,
                 integratorSettings );

@@ -59,7 +59,7 @@ public:
                       const IndependentVariableType initialTime,
                       const DependentVector& initialStateVector,
                       const DependentMatrix& initialCovarianceMatrix,
-                      const boost::shared_ptr< IntegratorSettings > integratorSettings ) :
+                      const std::shared_ptr< IntegratorSettings > integratorSettings ) :
         FilterBase< IndependentVariableType, DependentVariableType >( systemUncertainty, measurementUncertainty,
                                                                       filteringStepSize, initialTime, initialStateVector,
                                                                       initialCovarianceMatrix, integratorSettings )
@@ -135,7 +135,7 @@ private:
 typedef KalmanFilterBase< > KalmanFilterDouble;
 
 //! Typedef for a shared-pointer to a filter with double data type.
-typedef boost::shared_ptr< KalmanFilterDouble > KalmanFilterDoublePointer;
+typedef std::shared_ptr< KalmanFilterDouble > KalmanFilterDoublePointer;
 
 } // namespace filters
 

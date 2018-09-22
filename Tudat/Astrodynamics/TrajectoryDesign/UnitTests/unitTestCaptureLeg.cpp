@@ -77,8 +77,8 @@ BOOST_AUTO_TEST_CASE( testVelocitiesInfiniteParkingOrbit )
     const Eigen::Vector3d velocityBeforePlanet ( -5080.6362408257, 55179.1205883308,
                                                  3549.4183219232 );
 
-    boost::shared_ptr< Eigen::Vector3d > pointerToVelocityBeforePlanet
-            = boost::make_shared< Eigen::Vector3d > ( velocityBeforePlanet );
+    std::shared_ptr< Eigen::Vector3d > pointerToVelocityBeforePlanet
+            = std::make_shared< Eigen::Vector3d > ( velocityBeforePlanet );
 
     // Set the time of flight, which is irrelevant for the deltaV consumption.
     const double timeOfFlight = 1.0;
@@ -129,8 +129,8 @@ BOOST_AUTO_TEST_CASE( testVelocitiesCircularParkingOrbit )
     // Set velocity before capture body.
     const Eigen::Vector3d velocityBeforePlanet ( 0.0, 21480.6500358053, 0.0 );
 
-    boost::shared_ptr< Eigen::Vector3d > pointerToVelocityBeforePlanet
-            = boost::make_shared< Eigen::Vector3d > ( velocityBeforePlanet );
+    std::shared_ptr< Eigen::Vector3d > pointerToVelocityBeforePlanet
+            = std::make_shared< Eigen::Vector3d > ( velocityBeforePlanet );
 
     // Set the time of flight, which is irrelevant for the deltaV consumption.
     const double timeOfFlight = 1.0;
@@ -182,8 +182,8 @@ BOOST_AUTO_TEST_CASE( testUpdatingVariables )
     const Eigen::Vector3d velocityBeforePlanet ( -5080.6362408257, 55179.1205883308,
                                                  3549.4183219232 );
 
-    boost::shared_ptr< Eigen::Vector3d > pointerToVelocityBeforePlanet
-            = boost::make_shared< Eigen::Vector3d > ( velocityBeforePlanet );
+    std::shared_ptr< Eigen::Vector3d > pointerToVelocityBeforePlanet
+            = std::make_shared< Eigen::Vector3d > ( velocityBeforePlanet );
 
     // Set the dummy time of flight.
     const double dummyTimeOfFlight = TUDAT_NAN;

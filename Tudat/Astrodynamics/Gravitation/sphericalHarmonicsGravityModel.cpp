@@ -40,7 +40,7 @@ Eigen::Vector3d computeGeodesyNormalizedGravitationalAccelerationSum(
         const double equatorialRadius,
         const Eigen::MatrixXd& cosineHarmonicCoefficients,
         const Eigen::MatrixXd& sineHarmonicCoefficients,
-        boost::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache,
+        std::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache,
         std::map< std::pair< int, int >, Eigen::Vector3d >& accelerationPerTerm,
         const bool saveSeparateTerms,
         const Eigen::Matrix3d& accelerationRotation )
@@ -61,7 +61,7 @@ Eigen::Vector3d computeGeodesyNormalizedGravitationalAccelerationSum(
                                      sphericalpositionOfBodySubjectToAcceleration( 2 ),
                                      equatorialRadius );
 
-    boost::shared_ptr< basic_mathematics::LegendreCache > legendreCacheReference =
+    std::shared_ptr< basic_mathematics::LegendreCache > legendreCacheReference =
             sphericalHarmonicsCache->getLegendreCache( );
 
 
@@ -136,7 +136,7 @@ Eigen::Vector3d computeSingleGeodesyNormalizedGravitationalAcceleration(
         const int order,
         const double cosineHarmonicCoefficient,
         const double sineHarmonicCoefficient,
-        boost::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache )
+        std::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache )
 {
     // Declare spherical position vector.
     Eigen::Vector3d sphericalpositionOfBodySubjectToAcceleration = coordinate_conversions::

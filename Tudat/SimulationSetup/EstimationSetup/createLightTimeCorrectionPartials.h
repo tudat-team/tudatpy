@@ -27,8 +27,8 @@ namespace observation_partials
  * \param lightTimeCorrectionList List of light time corrections.
  * \return List of light-time correction partial objects
  */
-std::vector< boost::shared_ptr< LightTimeCorrectionPartial > > createLightTimeCorrectionPartials(
-        const std::vector< boost::shared_ptr< observation_models::LightTimeCorrection > >& lightTimeCorrectionList );
+std::vector< std::shared_ptr< LightTimeCorrectionPartial > > createLightTimeCorrectionPartials(
+        const std::vector< std::shared_ptr< observation_models::LightTimeCorrection > >& lightTimeCorrectionList );
 
 }
 

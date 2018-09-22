@@ -48,10 +48,10 @@ input_output::dictionary::DictionaryPointer getExampleDictionary( )
 {
     using namespace input_output::dictionary;
     using boost::assign::list_of;
-    using boost::make_shared;
+    using std::make_shared;
 
     // Create new dictionary.
-    DictionaryPointer dictionary = boost::make_shared< Dictionary >( );
+    DictionaryPointer dictionary = std::make_shared< Dictionary >( );
 
     // Insert example entries.
     addEntry( dictionary, "stringParameter",             true,  false                       );

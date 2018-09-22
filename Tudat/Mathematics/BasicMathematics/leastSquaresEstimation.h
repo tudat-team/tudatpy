@@ -215,7 +215,7 @@ std::vector< double > getLeastSquaresPolynomialFit(
  *  \return Optimal value of the model parameters that minimize the least squares error between expected and actual observations.
  */
 Eigen::VectorXd nonLinearLeastSquaresFit(
-        const boost::function< std::pair< Eigen::VectorXd, Eigen::MatrixXd >( const Eigen::VectorXd& ) >& observationAndJacobianFunctions,
+        const std::function< std::pair< Eigen::VectorXd, Eigen::MatrixXd >( const Eigen::VectorXd& ) >& observationAndJacobianFunctions,
         const Eigen::VectorXd& initialEstimate, const Eigen::VectorXd& actualObservations, const double initialScaling = 1.0e-6,
         const double convergenceTolerance = 1.0e-8, const unsigned int maximumNumberOfIterations = 25 );
 

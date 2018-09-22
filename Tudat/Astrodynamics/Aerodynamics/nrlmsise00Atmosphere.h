@@ -16,7 +16,7 @@
 #include <cmath>
 #include <algorithm>
 
-#include <boost/function.hpp>
+#include <functional>
 #include <boost/functional/hash.hpp>
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/physicalConstants.h"
@@ -185,7 +185,7 @@ class NRLMSISE00Atmosphere : public AtmosphereModel
     /*!
      * Boost function that accepts (altitude, longitude, latitude, time ) and returns NRLMSISEInput data.
      */
-    typedef boost::function< NRLMSISE00Input( double, double, double, double ) >
+    typedef std::function< NRLMSISE00Input( double, double, double, double ) >
         NRLMSISE00InputFunction;
 
     //! Default constructor.

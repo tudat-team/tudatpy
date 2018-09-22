@@ -17,7 +17,7 @@
 #ifndef TUDAT_EXPONENTIAL_ATMOSPHERE_H
 #define TUDAT_EXPONENTIAL_ATMOSPHERE_H
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include <cmath>
 
@@ -251,7 +251,7 @@ private:
 };
 
 //! Typedef for shared-pointer to ExponentialAtmosphere object.
-typedef boost::shared_ptr< ExponentialAtmosphere > ExponentialAtmospherePointer;
+typedef std::shared_ptr< ExponentialAtmosphere > ExponentialAtmospherePointer;
 
 } // namespace aerodynamics
 

@@ -57,9 +57,9 @@ public:
     RotationalMotionModifiedRodriguesParametersStateDerivative(
             const basic_astrodynamics::TorqueModelMap& torqueModelsPerBody,
             const std::vector< std::string >& bodiesToPropagate,
-            std::vector< boost::function< Eigen::Matrix3d( ) > > bodyInertiaTensorFunctions,
-            std::vector< boost::function< Eigen::Matrix3d( ) > > bodyInertiaTensorTimeDerivativeFunctions =
-            std::vector< boost::function< Eigen::Matrix3d( ) > >( ) ):
+            std::vector< std::function< Eigen::Matrix3d( ) > > bodyInertiaTensorFunctions,
+            std::vector< std::function< Eigen::Matrix3d( ) > > bodyInertiaTensorTimeDerivativeFunctions =
+            std::vector< std::function< Eigen::Matrix3d( ) > >( ) ):
         RotationalMotionStateDerivative< StateScalarType, TimeType >(
             torqueModelsPerBody, modified_rodrigues_parameters, bodiesToPropagate, bodyInertiaTensorFunctions,
             bodyInertiaTensorTimeDerivativeFunctions )

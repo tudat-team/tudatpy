@@ -25,7 +25,7 @@
 #include <algorithm>
 #include <limits>
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include <Eigen/Core>
 
@@ -165,6 +165,8 @@ public:
               StateType::Constant( initialState.rows( ), initialState.cols( ), std::fabs( absoluteErrorTolerance ) ),
               bandwidth ) { }
     
+    ~AdamsBashforthMoultonIntegrator( ){ }
+
     //! Get step size of the next step.
     /*!
      * Returns the step size of the next step. If the
@@ -991,6 +993,11 @@ protected:
     StateDerivativeType lastDerivative_;
 };
 
+extern template class AdamsBashforthMoultonIntegrator < double, Eigen::VectorXd, Eigen::VectorXd >;
+extern template class AdamsBashforthMoultonIntegrator < double, Eigen::Vector6d, Eigen::Vector6d >;
+extern template class AdamsBashforthMoultonIntegrator < double, Eigen::MatrixXd, Eigen::MatrixXd >;
+
+
 //! Typedef of Adam-Bashforh-Moulton integrator (state/state derivative = VectorXd, independent variable = double).
 /*!
  * Typedef of a Adams-Bashforth-Moulton integrator with VectorXds as state and state derivative and double as
@@ -1010,14 +1017,14 @@ typedef AdamsBashforthMoultonIntegrator< double, double, double, double > AdamsB
  * Typedef of pointer to a Adams-Bashforth-Moulton integrator with VectorXds as state and state derivative and double
  * as independent variable.
  */
-typedef boost::shared_ptr< AdamsBashforthMoultonIntegratorXd > AdamsBashforthMoultonIntegratorXdPointer;
+typedef std::shared_ptr< AdamsBashforthMoultonIntegratorXd > AdamsBashforthMoultonIntegratorXdPointer;
 
 //! Typedef of pointer to a scalar Adams-Bashforth-Moulton integrator.
 /*!
  * Typedef of pointer to an Adams-Bashforth-Moulton integrator with doubles as state and state derivative and
  * independent variable.
  */
-typedef boost::shared_ptr< AdamsBashforthMoultonIntegratord > AdamsBashforthMoultonIntegratordPointer;
+typedef std::shared_ptr< AdamsBashforthMoultonIntegratord > AdamsBashforthMoultonIntegratordPointer;
 
 //! Truncation error coefficients ( size: 1 x o )
 /*!

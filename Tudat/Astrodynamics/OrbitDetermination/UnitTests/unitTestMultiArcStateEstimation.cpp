@@ -23,7 +23,7 @@
 #include "Tudat/SimulationSetup/tudatSimulationHeader.h"
 #include "Tudat/Astrodynamics/ObservationModels/linkTypeDefs.h"
 #include "Tudat/Astrodynamics/ObservationModels/simulateObservations.h"
-#include "Tudat/Astrodynamics/OrbitDetermination/orbitDeterminationManager.h"
+#include "Tudat/SimulationSetup/EstimationSetup/orbitDeterminationManager.h"
 #include "Tudat/SimulationSetup/EnvironmentSetup/createGroundStations.h"
 
 
@@ -70,11 +70,11 @@ Eigen::VectorXd  executeParameterEstimation(
 
     double buffer = 10.0 * maximumTimeStep;
 
-    std::map< std::string, boost::shared_ptr< BodySettings > > bodySettings =
+    std::map< std::string, std::shared_ptr< BodySettings > > bodySettings =
             getDefaultBodySettings( bodyNames, initialEphemerisTime - buffer, finalEphemerisTime + buffer );
     bodySettings[ "Earth" ]->ephemerisSettings-> resetMakeMultiArcEphemeris( true );
     bodySettings[ "Moon" ]->ephemerisSettings->resetFrameOrigin( "Sun" );
-    bodySettings[ "Mars" ]->rotationModelSettings = boost::make_shared< SimpleRotationModelSettings >(
+    bodySettings[ "Mars" ]->rotationModelSettings = std::make_shared< SimpleRotationModelSettings >(
                 "ECLIPJ2000", "IAU_Mars",
                 spice_interface::computeRotationQuaternionBetweenFrames(
                     "ECLIPJ2000", "IAU_Mars", initialEphemerisTime ),
@@ -97,9 +97,9 @@ Eigen::VectorXd  executeParameterEstimation(
 
     // Set accelerations between bodies that are to be taken into account.
     SelectedAccelerationMap accelerationMap;
-    std::map< std::string, std::vector< boost::shared_ptr< AccelerationSettings > > > accelerationsOfEarth;
-    accelerationsOfEarth[ "Sun" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );
-    accelerationsOfEarth[ "Moon" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );
+    std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfEarth;
+    accelerationsOfEarth[ "Sun" ].push_back( std::make_shared< AccelerationSettings >( central_gravity ) );
+    accelerationsOfEarth[ "Moon" ].push_back( std::make_shared< AccelerationSettings >( central_gravity ) );
     accelerationMap[ "Earth" ] = accelerationsOfEarth;
 
     // Set bodies for which initial state is to be estimated and integrated.
@@ -147,15 +147,15 @@ Eigen::VectorXd  executeParameterEstimation(
     integrationArcLimits.push_back( currentStartTime + arcOverlap );
 
     // Set parameters that are to be estimated.
-    std::vector< boost::shared_ptr< EstimatableParameterSettings > > parameterNames;
-    parameterNames.push_back( boost::make_shared< ArcWiseInitialTranslationalStateEstimatableParameterSettings< StateScalarType > >(
+    std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames;
+    parameterNames.push_back( std::make_shared< ArcWiseInitialTranslationalStateEstimatableParameterSettings< StateScalarType > >(
                                   "Earth", integrationArcStartTimes ) );
-    parameterNames.push_back( boost::make_shared< EstimatableParameterSettings >
+    parameterNames.push_back( std::make_shared< EstimatableParameterSettings >
                               ( "Mars", constant_rotation_rate ) );
-    parameterNames.push_back(  boost::make_shared< EstimatableParameterSettings >
+    parameterNames.push_back(  std::make_shared< EstimatableParameterSettings >
                                ( "Mars", rotation_pole_position ) );
 
-    boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< StateScalarType > > parametersToEstimate =
+    std::shared_ptr< estimatable_parameters::EstimatableParameterSet< StateScalarType > > parametersToEstimate =
             createParametersToEstimate< StateScalarType >( parameterNames, bodyMap );
 
 
@@ -169,30 +169,30 @@ Eigen::VectorXd  executeParameterEstimation(
     linkEnds2[ 1 ][ transmitter ] = mslStation;
 
     observation_models::ObservationSettingsMap observationSettingsMap;
-    observationSettingsMap.insert( std::make_pair( linkEnds2[ 0 ], boost::make_shared< ObservationSettings >(
+    observationSettingsMap.insert( std::make_pair( linkEnds2[ 0 ], std::make_shared< ObservationSettings >(
                                        one_way_range ) ) );
-    observationSettingsMap.insert( std::make_pair( linkEnds2[ 1 ], boost::make_shared< ObservationSettings >(
+    observationSettingsMap.insert( std::make_pair( linkEnds2[ 1 ], std::make_shared< ObservationSettings >(
                                        one_way_range ) ) );
 
     // Define integrator settings.
-    boost::shared_ptr< IntegratorSettings< TimeType > > integratorSettings =
-            boost::make_shared< IntegratorSettings< TimeType > >
+    std::shared_ptr< IntegratorSettings< TimeType > > integratorSettings =
+            std::make_shared< IntegratorSettings< TimeType > >
             ( rungeKutta4, TimeType( initialEphemerisTime - 4.0 * maximumTimeStep ), 3600.0 );
 
-    std::vector< boost::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > > propagatorSettingsList;
+    std::vector< std::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > > propagatorSettingsList;
     for( unsigned int i = 0; i < integrationArcStartTimes.size( ); i++ )
     {
         Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > currentInitialState =
                 getInitialStateOfBody< TimeType, StateScalarType>(
                     bodiesToIntegrate.at( 0 ), centralBodies.at( 0 ), bodyMap, integrationArcStartTimes.at( i ) );
         propagatorSettingsList.push_back(
-                    boost::make_shared< TranslationalStatePropagatorSettings< StateScalarType > >
+                    std::make_shared< TranslationalStatePropagatorSettings< StateScalarType > >
                     ( centralBodies, accelerationModelMap, bodiesToIntegrate,
                       currentInitialState,
                       integrationArcEndTimes.at( i ) ) );
     }
-    boost::shared_ptr< PropagatorSettings< StateScalarType > > propagatorSettings =
-            boost::make_shared< MultiArcPropagatorSettings< StateScalarType > >( propagatorSettingsList, linkArcs );
+    std::shared_ptr< PropagatorSettings< StateScalarType > > propagatorSettings =
+            std::make_shared< MultiArcPropagatorSettings< StateScalarType > >( propagatorSettingsList, linkArcs );
 
     // Create orbit determination object.
     OrbitDeterminationManager< ObservationScalarType, TimeType > orbitDeterminationManager =
@@ -261,11 +261,11 @@ Eigen::VectorXd  executeParameterEstimation(
 
     parametersToEstimate->resetParameterValues( initialParameterEstimate );
 
-    boost::shared_ptr< PodInput< ObservationScalarType, TimeType > > podInput =
-            boost::make_shared< PodInput< ObservationScalarType, TimeType > >(
+    std::shared_ptr< PodInput< ObservationScalarType, TimeType > > podInput =
+            std::make_shared< PodInput< ObservationScalarType, TimeType > >(
                 observationsAndTimes, ( initialParameterEstimate ).rows( ) );
 
-    boost::shared_ptr< PodOutput< StateScalarType > > podOutput = orbitDeterminationManager.estimateParameters(
+    std::shared_ptr< PodOutput< StateScalarType > > podOutput = orbitDeterminationManager.estimateParameters(
                 podInput );
 
     return ( podOutput->parameterEstimate_ - truthParameters ).template cast< double >( );

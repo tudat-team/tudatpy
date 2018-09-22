@@ -72,10 +72,10 @@ class AerodynamicAcceleration : public basic_astrodynamics::AccelerationModel< E
 private:
 
     //! Typedef for double-returning function.
-    typedef boost::function< double( ) > DoubleReturningFunction;
+    typedef std::function< double ( ) > DoubleReturningFunction;
 
     //! Typedef for coefficient-returning function.
-    typedef boost::function< Eigen::Vector3d( ) > CoefficientReturningFunction;
+    typedef std::function< Eigen::Vector3d( ) > CoefficientReturningFunction;
 
 public:
 
@@ -191,6 +191,7 @@ public:
         return currentMass_;
     }
 
+
 private:
 
     //! Function to retrieve the current aerodynamic force coefficients.
@@ -225,11 +226,10 @@ private:
 
     //! Multiplier to reverse direction of coefficients.
     double coefficientMultiplier_;
-
 };
 
 //! Typedef for shared-pointer to AerodynamicAcceleration object.
-typedef boost::shared_ptr< AerodynamicAcceleration > AerodynamicAccelerationPointer;
+typedef std::shared_ptr< AerodynamicAcceleration > AerodynamicAccelerationPointer;
 
 } // namespace aerodynamics
 } // namespace tudat

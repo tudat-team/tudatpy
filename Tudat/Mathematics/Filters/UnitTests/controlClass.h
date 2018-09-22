@@ -31,7 +31,7 @@ public:
     typedef Eigen::Matrix< DependentVariableType, NumberOfElements, 1 > DependentVector;
 
     //! Typedef of the function describing the system.
-    typedef boost::function< DependentVector( const IndependentVariableType,
+    typedef std::function< DependentVector( const IndependentVariableType,
                                               const DependentVector& ) > ControlFunction;
 
     //! Default constructor.

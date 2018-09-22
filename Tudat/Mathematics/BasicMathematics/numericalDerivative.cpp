@@ -63,7 +63,7 @@ const std::map< int, double >& getCentralDifferenceCoefficients( CentralDifferen
     return coefficients[ order ];
 }
 
-Eigen::MatrixXd computeCentralDifference( const Eigen::VectorXd& input, const boost::function<
+Eigen::MatrixXd computeCentralDifference( const Eigen::VectorXd& input, const std::function<
                                           Eigen::VectorXd( const Eigen::VectorXd& ) >& function,
                                           double minimumStep, double relativeStepSize,
                                           CentralDifferenceOrders order )

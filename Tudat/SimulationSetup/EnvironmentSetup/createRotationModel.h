@@ -14,7 +14,7 @@
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include "Tudat/InputOutput/basicInputOutput.h"
 #include "Tudat/SimulationSetup/EnvironmentSetup/body.h"
@@ -227,8 +227,8 @@ public:
             const std::string baseFrameName = "GCRS",
             const std::string targetFrameName = "ITRS",
             const basic_astrodynamics::TimeScales inputTimeScale = basic_astrodynamics::tdb_scale,
-            const boost::shared_ptr< EopCorrectionSettings > ut1CorrectionSettings =
-            boost::make_shared< EopCorrectionSettings >(
+            const std::shared_ptr< EopCorrectionSettings > ut1CorrectionSettings =
+            std::make_shared< EopCorrectionSettings >(
                 1.0E-6, 0.0, std::vector< std::string >{
                     input_output::getEarthOrientationDataFilesPath( ) + "utcLibrationAmplitudes.txt",
                     input_output::getEarthOrientationDataFilesPath( ) + "utcOceanTidesAmplitudes.txt" },
@@ -237,8 +237,8 @@ public:
                     "utcLibrationFundamentalArgumentMultipliers.txt",
                     input_output::getEarthOrientationDataFilesPath( ) +
                     "utcOceanTidesFundamentalArgumentMultipliers.txt" } ),
-            const boost::shared_ptr< EopCorrectionSettings > polarMotionCorrectionSettings =
-            boost::make_shared< EopCorrectionSettings >(
+            const std::shared_ptr< EopCorrectionSettings > polarMotionCorrectionSettings =
+            std::make_shared< EopCorrectionSettings >(
                 unit_conversions::convertArcSecondsToRadians< double >( 1.0E-6 ), 0.0, std::vector< std::string >{
                     input_output::getEarthOrientationDataFilesPath( ) +
                     "polarMotionLibrationAmplitudesQuasiDiurnalOnly.txt",
@@ -301,7 +301,7 @@ public:
      * Function to retrieve the settings for short-period UT1-UTC variations
      * \return Settings for short-period UT1-UTC variations
      */
-    boost::shared_ptr< EopCorrectionSettings > getUt1CorrectionSettings( )
+    std::shared_ptr< EopCorrectionSettings > getUt1CorrectionSettings( )
     {
         return ut1CorrectionSettings_;
     }
@@ -311,7 +311,7 @@ public:
      * Function to retrieve the Settings for short-period polar motion variations
      * \return settings for short-period polar motion variations
      */
-    boost::shared_ptr< EopCorrectionSettings > getPolarMotionCorrectionSettings( )
+    std::shared_ptr< EopCorrectionSettings > getPolarMotionCorrectionSettings( )
     {
         return polarMotionCorrectionSettings_;
     }
@@ -331,10 +331,10 @@ private:
     std::string eopFileFormat_;
 
     //! Settings for short-period UT1-UTC variations
-    boost::shared_ptr< EopCorrectionSettings > ut1CorrectionSettings_;
+    std::shared_ptr< EopCorrectionSettings > ut1CorrectionSettings_;
 
     //! Settings for short-period polar motion variations
-    boost::shared_ptr< EopCorrectionSettings > polarMotionCorrectionSettings_;
+    std::shared_ptr< EopCorrectionSettings > polarMotionCorrectionSettings_;
 
 };
 #endif
@@ -347,8 +347,8 @@ private:
  *  \param body Name of the body for which the rotation model is to be created.
  *  \return Rotation model created according to settings in rotationModelSettings.
  */
-boost::shared_ptr< ephemerides::RotationalEphemeris > createRotationModel(
-        const boost::shared_ptr< RotationModelSettings > rotationModelSettings,
+std::shared_ptr< ephemerides::RotationalEphemeris > createRotationModel(
+        const std::shared_ptr< RotationModelSettings > rotationModelSettings,
         const std::string& body );
 
 } // namespace simulation_setup

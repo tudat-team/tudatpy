@@ -19,7 +19,7 @@
 #include <cmath>
 #include <Eigen/Core>
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include "Tudat/Mathematics/Interpolators/oneDimensionalInterpolator.h"
 #include "Tudat/Mathematics/BasicMathematics/nearestNeighbourSearch.h"
@@ -136,8 +136,8 @@ public:
                              const AvailableLookupScheme selectedLookupScheme = huntingAlgorithm,
                              const BoundaryInterpolationType boundaryHandling = extrapolate_at_boundary,
                              const std::pair< DependentVariableType, DependentVariableType >& defaultExtrapolationValue =
-            std::make_pair( IdentityElement< DependentVariableType >::getAdditionIdentity( ),
-                            IdentityElement< DependentVariableType >::getAdditionIdentity( ) ) ) :
+            std::make_pair( IdentityElement::getAdditionIdentity< DependentVariableType >( ),
+                            IdentityElement::getAdditionIdentity< DependentVariableType >( ) ) ) :
         OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >( boundaryHandling, defaultExtrapolationValue )
     {
         // Verify that the initialization variables are not empty.
@@ -148,8 +148,8 @@ public:
         }
 
         // Set dependent and independent variable values.
-        independentValues_ = independentVariables;
-        dependentValues_ = dependentVariables;
+        independentValues_ = std::move( independentVariables );
+        dependentValues_ = std::move( dependentVariables );
 
         // Check if data is in ascending order
         if( !std::is_sorted( independentVariables.begin( ), independentVariables.end( ) ) )
@@ -213,8 +213,8 @@ public:
             const AvailableLookupScheme selectedLookupScheme = huntingAlgorithm,
             const BoundaryInterpolationType boundaryHandling = extrapolate_at_boundary,
             const std::pair< DependentVariableType, DependentVariableType >& defaultExtrapolationValue =
-            std::make_pair( IdentityElement< DependentVariableType >::getAdditionIdentity( ),
-                            IdentityElement< DependentVariableType >::getAdditionIdentity( ) ) ):
+            std::make_pair( IdentityElement::getAdditionIdentity< DependentVariableType >( ),
+                            IdentityElement::getAdditionIdentity< DependentVariableType >( ) ) ):
         OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >( boundaryHandling,
                                                                                       defaultExtrapolationValue )
     {
@@ -231,8 +231,8 @@ public:
         for ( typename std::map< IndependentVariableType, DependentVariableType >::const_iterator
               mapIterator = dataMap.begin( ); mapIterator != dataMap.end( ); mapIterator++ )
         {
-            independentValues_[ counter ] = mapIterator->first;
-            dependentValues_[ counter ] = mapIterator->second;
+            independentValues_[ counter ] = std::move( mapIterator->first );
+            dependentValues_[ counter ] = std::move( mapIterator->second );
             counter++;
         }
 
@@ -411,11 +411,29 @@ private:
 
 };
 
+
+extern template class CubicSplineInterpolator< double, Eigen::VectorXd >;
+extern template class CubicSplineInterpolator< double, Eigen::Vector6d >;
+extern template class CubicSplineInterpolator< double, Eigen::MatrixXd >;
+
+extern template class CubicSplineInterpolator< Time, Eigen::VectorXd, long double >;
+extern template class CubicSplineInterpolator< Time, Eigen::Vector6d, long double >;
+extern template class CubicSplineInterpolator< Time, Eigen::MatrixXd, long double >;
+
+extern template class CubicSplineInterpolator< double, Eigen::Matrix< long double, Eigen::Dynamic, 1 > >;
+extern template class CubicSplineInterpolator< double, Eigen::Matrix< long double, Eigen::Dynamic, 6 > >;
+extern template class CubicSplineInterpolator< double, Eigen::Matrix< long double, Eigen::Dynamic,  Eigen::Dynamic > >;
+
+extern template class CubicSplineInterpolator< Time, Eigen::Matrix< long double, Eigen::Dynamic, 1 >, long double >;
+extern template class CubicSplineInterpolator< Time, Eigen::Matrix< long double, Eigen::Dynamic, 6 >, long double >;
+extern template class CubicSplineInterpolator< Time, Eigen::Matrix< long double, Eigen::Dynamic,  Eigen::Dynamic >, long double >;
+
+
 //! Typedef for cubic spline interpolator with (in)dependent = double.
 typedef CubicSplineInterpolator< double, double > CubicSplineInterpolatorDouble;
 
 //! Typedef for shared-pointer to cubic spline interpolator with (in)dependent = double.
-typedef boost::shared_ptr< CubicSplineInterpolatorDouble > CubicSplineInterpolatorDoublePointer;
+typedef std::shared_ptr< CubicSplineInterpolatorDouble > CubicSplineInterpolatorDoublePointer;
 
 } // namespace interpolators
 

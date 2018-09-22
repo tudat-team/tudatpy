@@ -11,7 +11,9 @@
 #ifndef TUDAT_THIRDBODYGRAVITYPARTIAL_H
 #define TUDAT_THIRDBODYGRAVITYPARTIAL_H
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
+
+#include "Tudat/Basics/tudatTypeTraits.h"
 
 #include "Tudat/Astrodynamics/OrbitDetermination/AccelerationPartials/centralGravityAccelerationPartial.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/AccelerationPartials/sphericalHarmonicAccelerationPartial.h"
@@ -34,21 +36,21 @@ namespace acceleration_partials
  */
 template< typename DirectGravityPartial >
 basic_astrodynamics::AvailableAcceleration getAccelerationTypeOfThirdBodyGravity(
-        const boost::shared_ptr< DirectGravityPartial > directGravityPartial )
+        const std::shared_ptr< DirectGravityPartial > directGravityPartial )
 {
     using namespace basic_astrodynamics;
     AvailableAcceleration accelerationType;
 
     // Check type of direct partial derivative.
-    if( boost::dynamic_pointer_cast< CentralGravitationPartial >( directGravityPartial ) != NULL )
+    if( std::dynamic_pointer_cast< CentralGravitationPartial >( directGravityPartial ) != nullptr )
     {
         accelerationType = third_body_central_gravity;
     }
-    else if( boost::dynamic_pointer_cast< SphericalHarmonicsGravityPartial >( directGravityPartial ) != NULL )
+    else if( std::dynamic_pointer_cast< SphericalHarmonicsGravityPartial >( directGravityPartial ) != nullptr )
     {
         accelerationType = third_body_spherical_harmonic_gravity;
     }
-    else if( boost::dynamic_pointer_cast< MutualSphericalHarmonicsGravityPartial >( directGravityPartial ) != NULL )
+    else if( std::dynamic_pointer_cast< MutualSphericalHarmonicsGravityPartial >( directGravityPartial ) != nullptr )
     {
         accelerationType = third_body_mutual_spherical_harmonic_gravity;
     }
@@ -67,7 +69,8 @@ basic_astrodynamics::AvailableAcceleration getAccelerationTypeOfThirdBodyGravity
  *  providin a generic third-body partial interface. The template parameter is the derived class of AccelerationPartial
  *  for the associated direct acceleration partial.
  */
-template< typename DirectGravityPartial >
+template< typename DirectGravityPartial,
+                    typename std::enable_if< is_direct_gravity_partial< DirectGravityPartial >::value, int >::type = 0 >
 class ThirdBodyGravityPartial: public AccelerationPartial
 {
 public:
@@ -84,8 +87,8 @@ public:
      * \param centralBodyName Name of central body w.r.t. which the acceleration is computed.
      */
     ThirdBodyGravityPartial(
-            const boost::shared_ptr< DirectGravityPartial > partialOfDirectGravityOnBodyUndergoingAcceleration,
-            const boost::shared_ptr< DirectGravityPartial > partialOfDirectGravityOnCentralBody,
+            const std::shared_ptr< DirectGravityPartial > partialOfDirectGravityOnBodyUndergoingAcceleration,
+            const std::shared_ptr< DirectGravityPartial > partialOfDirectGravityOnCentralBody,
             const std::string& acceleratedBody, const std::string& acceleratingBody,
             const std::string& centralBodyName ):
         AccelerationPartial( acceleratedBody, acceleratingBody, getAccelerationTypeOfThirdBodyGravity(
@@ -106,7 +109,7 @@ public:
                     partialMatrix, addContribution, startRow, startColumn );
 
         // Check if acceleration on central body is dependent on acceleratedBody_
-        if( partialOfDirectGravityOnCentralBody_->isAccelerationPartialWrtAdditionalBodyNonNull( acceleratedBody_ ) == 1 )
+        if( partialOfDirectGravityOnCentralBody_->isAccelerationPartialWrtAdditionalBodyNonnullptr( acceleratedBody_ ) == 1 )
         {
             partialOfDirectGravityOnCentralBody_->wrtPositionOfAdditionalBody(
                         acceleratedBody_, partialMatrix, addContribution, startRow, startColumn   );
@@ -126,7 +129,7 @@ public:
                     partialMatrix, addContribution, startRow, startColumn  );
 
         // Check if acceleration on central body is dependent on acceleratedBody_
-        if( partialOfDirectGravityOnCentralBody_->isAccelerationPartialWrtAdditionalBodyNonNull( acceleratedBody_ ) == 1 )
+        if( partialOfDirectGravityOnCentralBody_->isAccelerationPartialWrtAdditionalBodyNonnullptr( acceleratedBody_ ) == 1 )
         {
             partialOfDirectGravityOnCentralBody_->wrtVelocityOfAdditionalBody(
                         acceleratedBody_, partialMatrix, addContribution, startRow, startColumn  );
@@ -191,13 +194,13 @@ public:
                         partialMatrix, ( ( addContribution == true ) ? ( false ) : ( true ) ), startRow, startColumn  );
         }
 
-        if( partialOfDirectGravityOnBodyUndergoingAcceleration_->isAccelerationPartialWrtAdditionalBodyNonNull( bodyName ) )
+        if( partialOfDirectGravityOnBodyUndergoingAcceleration_->isAccelerationPartialWrtAdditionalBodyNonnullptr( bodyName ) )
         {
             partialOfDirectGravityOnBodyUndergoingAcceleration_->wrtPositionOfAdditionalBody(
                         bodyName, partialMatrix, addContribution, startRow, startColumn  );
         }
 
-        if( partialOfDirectGravityOnCentralBody_->isAccelerationPartialWrtAdditionalBodyNonNull( bodyName ) )
+        if( partialOfDirectGravityOnCentralBody_->isAccelerationPartialWrtAdditionalBodyNonnullptr( bodyName ) )
         {
             partialOfDirectGravityOnCentralBody_->wrtPositionOfAdditionalBody(
                         bodyName, partialMatrix, ( ( addContribution == true ) ? ( false ) : ( true ) ), startRow, startColumn );
@@ -227,13 +230,13 @@ public:
                         partialMatrix, ( ( addContribution == true ) ? ( false ) : ( true ) ), startRow, startColumn  );
         }
 
-        if( partialOfDirectGravityOnBodyUndergoingAcceleration_->isAccelerationPartialWrtAdditionalBodyNonNull( bodyName ) )
+        if( partialOfDirectGravityOnBodyUndergoingAcceleration_->isAccelerationPartialWrtAdditionalBodyNonnullptr( bodyName ) )
         {
             partialOfDirectGravityOnBodyUndergoingAcceleration_->wrtVelocityOfAdditionalBody(
                         bodyName, partialMatrix, addContribution, startRow, startColumn );
         }
 
-        if( partialOfDirectGravityOnCentralBody_->isAccelerationPartialWrtAdditionalBodyNonNull( bodyName ) )
+        if( partialOfDirectGravityOnCentralBody_->isAccelerationPartialWrtAdditionalBodyNonnullptr( bodyName ) )
         {
             partialOfDirectGravityOnCentralBody_->wrtVelocityOfAdditionalBody(
                         bodyName, partialMatrix, ( ( addContribution == true ) ? ( false ) : ( true ) ), startRow, startColumn );
@@ -246,7 +249,7 @@ public:
      *  \param bodyName Name of additional body.
      *  \return True if dependency exists
      */
-    bool isAccelerationPartialWrtAdditionalBodyNonNull( const std::string& bodyName )
+    bool isAccelerationPartialWrtAdditionalBodyNonnullptr( const std::string& bodyName )
     {
         bool isAccelerationDependentOnBody = 0;
         if( bodyName == centralBodyName_ )
@@ -254,8 +257,8 @@ public:
             isAccelerationDependentOnBody = 1;
         }
 
-        if( ( partialOfDirectGravityOnCentralBody_->isAccelerationPartialWrtAdditionalBodyNonNull( bodyName ) == 1 ) ||
-                ( partialOfDirectGravityOnBodyUndergoingAcceleration_->isAccelerationPartialWrtAdditionalBodyNonNull( bodyName ) == 1 ) )
+        if( ( partialOfDirectGravityOnCentralBody_->isAccelerationPartialWrtAdditionalBodyNonnullptr( bodyName ) == 1 ) ||
+                ( partialOfDirectGravityOnBodyUndergoingAcceleration_->isAccelerationPartialWrtAdditionalBodyNonnullptr( bodyName ) == 1 ) )
         {
             isAccelerationDependentOnBody = 1;
         }
@@ -319,12 +322,12 @@ public:
      *  \param parameter Parameter w.r.t. which partial is to be taken.
      *  \return Pair of parameter partial function and number of columns in partial (0 for no dependency, 1 otherwise).
      */
-    std::pair< boost::function< void( Eigen::MatrixXd& ) >, int > getParameterPartialFunction(
-            boost::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter )
+    std::pair< std::function< void( Eigen::MatrixXd& ) >, int > getParameterPartialFunction(
+            std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter )
     {
-        std::pair< boost::function< void( Eigen::MatrixXd& ) >, int > partialFunctionFromDirectGravity =
+        std::pair< std::function< void( Eigen::MatrixXd& ) >, int > partialFunctionFromDirectGravity =
                 partialOfDirectGravityOnBodyUndergoingAcceleration_->getParameterPartialFunction( parameter );
-        std::pair< boost::function< void( Eigen::MatrixXd& ) >, int > partialFunctionFromCentralGravity =
+        std::pair< std::function< void( Eigen::MatrixXd& ) >, int > partialFunctionFromCentralGravity =
                 partialOfDirectGravityOnCentralBody_->getParameterPartialFunction( parameter );
 
         return orbit_determination::createMergedParameterPartialFunction(
@@ -338,12 +341,12 @@ public:
      *  \param parameter Parameter w.r.t. which partial is to be taken.
      *  \return Pair of parameter partial function and number of columns in partial (0 for no dependency).
      */
-    std::pair< boost::function< void( Eigen::MatrixXd& ) >, int > getParameterPartialFunction(
-            boost::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter )
+    std::pair< std::function< void( Eigen::MatrixXd& ) >, int > getParameterPartialFunction(
+            std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter )
     {
-        std::pair< boost::function< void( Eigen::MatrixXd& ) >, int > partialFunctionFromDirectGravity =
+        std::pair< std::function< void( Eigen::MatrixXd& ) >, int > partialFunctionFromDirectGravity =
                 partialOfDirectGravityOnBodyUndergoingAcceleration_->getParameterPartialFunction( parameter );
-        std::pair< boost::function< void( Eigen::MatrixXd& ) >, int > partialFunctionFromCentralGravity =
+        std::pair< std::function< void( Eigen::MatrixXd& ) >, int > partialFunctionFromCentralGravity =
                 partialOfDirectGravityOnCentralBody_->getParameterPartialFunction( parameter );
 
         return orbit_determination::createMergedParameterPartialFunction(
@@ -358,10 +361,10 @@ public:
      * \return Size (number of columns) of parameter partial. Zero if no dependency, 1 otherwise.
      */
     int setParameterPartialUpdateFunction(
-            boost::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter )
+            std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter )
     {
         // Check parameter dependency of direct acceleration.
-        std::pair< boost::function< void( Eigen::MatrixXd& ) >, int > partialFunctionFromDirectGravity =
+        std::pair< std::function< void( Eigen::MatrixXd& ) >, int > partialFunctionFromDirectGravity =
                 partialOfDirectGravityOnBodyUndergoingAcceleration_->getParameterPartialFunction( parameter );
         if( partialFunctionFromDirectGravity.second > 0 )
         {
@@ -369,7 +372,7 @@ public:
         }
 
         // Check parameter dependency of indirect acceleration.
-        std::pair< boost::function< void( Eigen::MatrixXd& ) >, int > partialFunctionFromCentralGravity =
+        std::pair< std::function< void( Eigen::MatrixXd& ) >, int > partialFunctionFromCentralGravity =
                 partialOfDirectGravityOnCentralBody_->getParameterPartialFunction( parameter );
         if( partialFunctionFromCentralGravity.second > 0 )
         {
@@ -398,10 +401,10 @@ public:
      * \return Size (number of columns) of parameter partial. Zero if no dependency, size of parameter otherwise.
      */
     int setParameterPartialUpdateFunction(
-            boost::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter )
+            std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter )
     {
         // Check parameter dependency of direct acceleration.
-        std::pair< boost::function< void( Eigen::MatrixXd& ) >, int > partialFunctionFromDirectGravity =
+        std::pair< std::function< void( Eigen::MatrixXd& ) >, int > partialFunctionFromDirectGravity =
                 partialOfDirectGravityOnBodyUndergoingAcceleration_->getParameterPartialFunction( parameter );
         if( partialFunctionFromDirectGravity.second > 0 )
         {
@@ -409,7 +412,7 @@ public:
         }
 
         // Check parameter dependency of indirect acceleration.
-        std::pair< boost::function< void( Eigen::MatrixXd& ) >, int > partialFunctionFromCentralGravity =
+        std::pair< std::function< void( Eigen::MatrixXd& ) >, int > partialFunctionFromCentralGravity =
                 partialOfDirectGravityOnCentralBody_->getParameterPartialFunction( parameter );
         if( partialFunctionFromCentralGravity.second > 0 )
         {
@@ -450,7 +453,7 @@ public:
      * Function to get the partial derivative object of direct acceleration from centralBodyName on acceleratedBody.
      * \return Partial derivative object of direct acceleration from centralBodyName on acceleratedBody.
      */
-    boost::shared_ptr< DirectGravityPartial > getPartialOfDirectGravityOnBodyUndergoingAcceleration( )
+    std::shared_ptr< DirectGravityPartial > getPartialOfDirectGravityOnBodyUndergoingAcceleration( )
     {
         return partialOfDirectGravityOnBodyUndergoingAcceleration_;
     }
@@ -460,7 +463,7 @@ public:
      * Function to get the partial derivative object of direct acceleration from acceleratingBody on acceleratedBody.
      * \return Partial derivative object of direct acceleration from acceleratingBody on acceleratedBody.
      */
-    boost::shared_ptr< DirectGravityPartial > getPartialOfDirectGravityOnCentralBody( )
+    std::shared_ptr< DirectGravityPartial > getPartialOfDirectGravityOnCentralBody( )
     {
         return partialOfDirectGravityOnCentralBody_;
     }
@@ -494,10 +497,10 @@ protected:
 
 private:
     //! Partial derivative object of direct acceleration from acceleratingBody on acceleratedBody.
-    boost::shared_ptr< DirectGravityPartial > partialOfDirectGravityOnBodyUndergoingAcceleration_;
+    std::shared_ptr< DirectGravityPartial > partialOfDirectGravityOnBodyUndergoingAcceleration_;
 
     //! Partial derivative object of direct acceleration from centralBodyName on acceleratedBody.
-    boost::shared_ptr< DirectGravityPartial > partialOfDirectGravityOnCentralBody_;
+    std::shared_ptr< DirectGravityPartial > partialOfDirectGravityOnCentralBody_;
 
     //! Name of central body w.r.t. which the acceleration is computed.
     std::string centralBodyName_;
@@ -512,7 +515,7 @@ private:
  *  \return Name of central body of third-body acceleration partial
  */
 inline std::string getCentralBodyNameFromThirdBodyAccelerationPartial(
-        const boost::shared_ptr< AccelerationPartial > accelerationPartial )
+        const std::shared_ptr< AccelerationPartial > accelerationPartial )
 {
     std::string centralBody;
     if( !basic_astrodynamics::isAccelerationFromThirdBody( accelerationPartial->getAccelerationType( ) ) )
@@ -523,17 +526,17 @@ inline std::string getCentralBodyNameFromThirdBodyAccelerationPartial(
     {
         if( accelerationPartial->getAccelerationType( ) == basic_astrodynamics::third_body_point_mass_gravity )
         {
-            centralBody = boost::dynamic_pointer_cast< ThirdBodyGravityPartial< CentralGravitationPartial > >(
+            centralBody = std::dynamic_pointer_cast< ThirdBodyGravityPartial< CentralGravitationPartial > >(
                         accelerationPartial )->getCentralBodyName( );
         }
         else if( accelerationPartial->getAccelerationType( ) == basic_astrodynamics::third_body_spherical_harmonic_gravity )
         {
-            centralBody = boost::dynamic_pointer_cast< ThirdBodyGravityPartial< SphericalHarmonicsGravityPartial > >(
+            centralBody = std::dynamic_pointer_cast< ThirdBodyGravityPartial< SphericalHarmonicsGravityPartial > >(
                         accelerationPartial )->getCentralBodyName( );
         }
         else if( accelerationPartial->getAccelerationType( ) == basic_astrodynamics::third_body_mutual_spherical_harmonic_gravity )
         {
-            centralBody = boost::dynamic_pointer_cast< ThirdBodyGravityPartial< MutualSphericalHarmonicsGravityPartial > >(
+            centralBody = std::dynamic_pointer_cast< ThirdBodyGravityPartial< MutualSphericalHarmonicsGravityPartial > >(
                         accelerationPartial )->getCentralBodyName( );
         }
         else

@@ -102,7 +102,7 @@ private:
  *  distribution, see  implementation for order of parameter, if relevant)
  *  \return Random variable class of BoostContinuousProbabilityDistribution type
  */
-boost::shared_ptr< InvertibleContinuousProbabilityDistribution< double > > createBoostRandomVariable(
+std::shared_ptr< InvertibleContinuousProbabilityDistribution< double > > createBoostRandomVariable(
         const ContinuousBoostStatisticalDistributions boostDistribution, const std::vector< double >& parameters );
 
 } // namespace statistics

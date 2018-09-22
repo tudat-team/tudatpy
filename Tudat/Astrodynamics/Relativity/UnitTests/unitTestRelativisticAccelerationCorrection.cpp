@@ -224,14 +224,14 @@ BOOST_AUTO_TEST_CASE( testLenseThirring )
     bodiesToCreate.push_back( "Earth" );
     bodiesToCreate.push_back( "Sun" );
 
-    std::map< std::string, boost::shared_ptr< BodySettings > > bodySettings =
+    std::map< std::string, std::shared_ptr< BodySettings > > bodySettings =
             getDefaultBodySettings( bodiesToCreate );
 
     // Create Earth object
     NamedBodyMap bodyMap = createBodies( bodySettings );
 
     // Create spacecraft object.
-    bodyMap[ "Asterix" ] = boost::make_shared< simulation_setup::Body >( );
+    bodyMap[ "Asterix" ] = std::make_shared< simulation_setup::Body >( );
 
     // Finalize body creation.
     setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );
@@ -251,22 +251,22 @@ BOOST_AUTO_TEST_CASE( testLenseThirring )
         centralBodies.push_back( "Earth" );
 
         // Define propagation settings.
-        std::map< std::string, std::vector< boost::shared_ptr< AccelerationSettings > > > accelerationsOfAsterix;
-        accelerationsOfAsterix[ "Earth" ].push_back( boost::make_shared< AccelerationSettings >(
+        std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfAsterix;
+        accelerationsOfAsterix[ "Earth" ].push_back( std::make_shared< AccelerationSettings >(
                                                          basic_astrodynamics::central_gravity ) );
         if( testCase == 1 )
         {
-            accelerationsOfAsterix[ "Earth" ].push_back( boost::make_shared< RelativisticAccelerationCorrectionSettings >(
+            accelerationsOfAsterix[ "Earth" ].push_back( std::make_shared< RelativisticAccelerationCorrectionSettings >(
                                                              false, true, false, "", 1.0E9 * Eigen::Vector3d::UnitZ( ) ) );
         }
         if( testCase == 2 )
         {
-            accelerationsOfAsterix[ "Earth" ].push_back( boost::make_shared< RelativisticAccelerationCorrectionSettings >(
+            accelerationsOfAsterix[ "Earth" ].push_back( std::make_shared< RelativisticAccelerationCorrectionSettings >(
                                                              true, false, false ) );
         }
         if( testCase == 3 )
         {
-            accelerationsOfAsterix[ "Earth" ].push_back( boost::make_shared< RelativisticAccelerationCorrectionSettings >(
+            accelerationsOfAsterix[ "Earth" ].push_back( std::make_shared< RelativisticAccelerationCorrectionSettings >(
                                                              false, false, true, "Sun" ) );
         }
         accelerationMap[  "Asterix" ] = accelerationsOfAsterix;
@@ -302,15 +302,16 @@ BOOST_AUTO_TEST_CASE( testLenseThirring )
                     asterixInitialStateInKeplerianElements,
                     earthGravitationalParameter );
 
-        boost::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
-                boost::make_shared< TranslationalStatePropagatorSettings< double > >
+        std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
+                std::make_shared< TranslationalStatePropagatorSettings< double > >
                 ( centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState, simulationEndEpoch, encke );
 
 
         // Create numerical integrator.
-        boost::shared_ptr< IntegratorSettings< > > integratorSettings =
-                boost::make_shared< RungeKuttaVariableStepSizeSettings< > >
-                ( 0.0, 10.0, RungeKuttaCoefficients::rungeKuttaFehlberg78, 1.0E-3, 1.0E3, 1.0E-12, 1.0E-12 );
+        std::shared_ptr< IntegratorSettings< > > integratorSettings =
+                std::make_shared< RungeKuttaVariableStepSizeSettings< > >
+                ( 0.0, 10.0,
+                  RungeKuttaCoefficients::rungeKuttaFehlberg78, 1.0E-3, 1.0E3, 1.0E-12, 1.0E-12 );
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         ///////////////////////             PROPAGATE ORBIT            ////////////////////////////////////////////////////////

@@ -66,7 +66,7 @@ template< typename TimeType, typename StateScalarType >
 void determineInitialStates(
         nlohmann::json& jsonObject,
         const simulation_setup::NamedBodyMap& bodyMap,
-        const boost::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > >& integratorSettings )
+        const std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > >& integratorSettings )
 {
     using namespace propagators;
     using namespace basic_astrodynamics;
@@ -165,20 +165,20 @@ void determineInitialStates(
  */
 template< typename StateScalarType >
 void resetDependentVariableSaveSettings(
-        boost::shared_ptr< propagators::MultiTypePropagatorSettings< StateScalarType > >& propagatorSettings,
-        const std::vector< boost::shared_ptr< ExportSettings > >& exportSettingsVector )
+        std::shared_ptr< propagators::MultiTypePropagatorSettings< StateScalarType > >& propagatorSettings,
+        const std::vector< std::shared_ptr< ExportSettings > >& exportSettingsVector )
 {
     using namespace propagators;
 
     // Determine save settings from variables to be exported
     std::vector< std::string > addedVariablesIDs;
-    std::vector< boost::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariables;
-    for ( const boost::shared_ptr< ExportSettings > exportSettings : exportSettingsVector )
+    std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariables;
+    for ( const std::shared_ptr< ExportSettings > exportSettings : exportSettingsVector )
     {
-        for ( const boost::shared_ptr< propagators::VariableSettings > variable : exportSettings->variables_ )
+        for ( const std::shared_ptr< propagators::VariableSettings > variable : exportSettings->variables_ )
         {
-            boost::shared_ptr< SingleDependentVariableSaveSettings > dependentVariable =
-                    boost::dynamic_pointer_cast< SingleDependentVariableSaveSettings >( variable );
+            std::shared_ptr< SingleDependentVariableSaveSettings > dependentVariable =
+                    std::dynamic_pointer_cast< SingleDependentVariableSaveSettings >( variable );
             if ( dependentVariable )
             {
                 const std::string variableID = getVariableId( dependentVariable );
@@ -192,25 +192,25 @@ void resetDependentVariableSaveSettings(
     }
 
     propagatorSettings->resetDependentVariablesToSave(
-                boost::make_shared< DependentVariableSaveSettings >( dependentVariables, false ) );
+                std::make_shared< DependentVariableSaveSettings >( dependentVariables, false ) );
 }
 
 //! Get end epoch for propagator. Returns `TUDAT_NAN` if there is no time termination condition.
 template< typename TimeType >
 TimeType getTerminationEpoch(
-        const boost::shared_ptr< propagators::PropagationTerminationSettings >& terminationSettings )
+        const std::shared_ptr< propagators::PropagationTerminationSettings >& terminationSettings )
 {
     using namespace propagators;
 
-    boost::shared_ptr< PropagationTimeTerminationSettings > timeTerminationSettings =
-            boost::dynamic_pointer_cast< PropagationTimeTerminationSettings >( terminationSettings );
+    std::shared_ptr< PropagationTimeTerminationSettings > timeTerminationSettings =
+            std::dynamic_pointer_cast< PropagationTimeTerminationSettings >( terminationSettings );
     if ( timeTerminationSettings )
     {
         return timeTerminationSettings->terminationTime_;
     }
 
-    boost::shared_ptr< PropagationHybridTerminationSettings > hybridTerminationSettings =
-            boost::dynamic_pointer_cast< PropagationHybridTerminationSettings >( terminationSettings );
+    std::shared_ptr< PropagationHybridTerminationSettings > hybridTerminationSettings =
+            std::dynamic_pointer_cast< PropagationHybridTerminationSettings >( terminationSettings );
     if ( hybridTerminationSettings )
     {
         for ( unsigned int i = 0; i < hybridTerminationSettings->terminationSettings_.size( ); ++i )
@@ -326,7 +326,7 @@ inline void from_json( const nlohmann::json& jsonObject, RotationalPropagatorTyp
 //! Create a `json` object from a shared pointer to a `MultiTypePropagatorSettings` object.
 template< typename StateScalarType >
 void to_json( nlohmann::json& jsonObject,
-              const boost::shared_ptr< MultiTypePropagatorSettings< StateScalarType > >& multiTypePropagatorSettings )
+              const std::shared_ptr< MultiTypePropagatorSettings< StateScalarType > >& multiTypePropagatorSettings )
 {
     if ( ! multiTypePropagatorSettings )
     {
@@ -336,7 +336,7 @@ void to_json( nlohmann::json& jsonObject,
     using namespace json_interface;
 
     jsonObject[ Keys::propagators ] = getFlattenedMapValues< std::map, IntegratedStateType,
-            boost::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > >(
+            std::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > >(
                 multiTypePropagatorSettings->propagatorSettingsMap_ );
     jsonObject[ Keys::termination ] = multiTypePropagatorSettings->getTerminationSettings( );
     if ( ! isNaN( multiTypePropagatorSettings->getPrintInterval( ) ) )
@@ -348,26 +348,26 @@ void to_json( nlohmann::json& jsonObject,
 //! Create a shared pointer to a `MultiTypePropagatorSettings` object from a `json` object.
 template< typename StateScalarType >
 void from_json( const nlohmann::json& jsonObject,
-                boost::shared_ptr< MultiTypePropagatorSettings< StateScalarType > >& multiTypePropagatorSettings )
+                std::shared_ptr< MultiTypePropagatorSettings< StateScalarType > >& multiTypePropagatorSettings )
 {
     using namespace simulation_setup;
     using namespace json_interface;
 
     // Termination settings. If not provided, stop when epoch > simulation.finalEpoch
-    std::vector< boost::shared_ptr< PropagationTerminationSettings > > terminationConditions;
+    std::vector< std::shared_ptr< PropagationTerminationSettings > > terminationConditions;
 
     // Find user-defined conditions (and determine if time condition is missing)
     bool timeConditionMissing = true;
     if ( isDefined( jsonObject, Keys::termination ) )
     {
-        boost::shared_ptr< PropagationHybridTerminationSettings > userConditions =
-                getValue< boost::shared_ptr< PropagationHybridTerminationSettings > >( jsonObject, Keys::termination );
+        std::shared_ptr< PropagationHybridTerminationSettings > userConditions =
+                getValue< std::shared_ptr< PropagationHybridTerminationSettings > >( jsonObject, Keys::termination );
         terminationConditions.push_back( userConditions );
 
-        for ( boost::shared_ptr< PropagationTerminationSettings > condition : userConditions->terminationSettings_ )
+        for ( std::shared_ptr< PropagationTerminationSettings > condition : userConditions->terminationSettings_ )
         {
-            boost::shared_ptr< PropagationTimeTerminationSettings > timeCondition =
-                    boost::dynamic_pointer_cast< PropagationTimeTerminationSettings >( condition );
+            std::shared_ptr< PropagationTimeTerminationSettings > timeCondition =
+                    std::dynamic_pointer_cast< PropagationTimeTerminationSettings >( condition );
             if ( timeCondition )
             {
                 timeConditionMissing = false;
@@ -380,13 +380,13 @@ void from_json( const nlohmann::json& jsonObject,
     if ( ! isDefined( jsonObject, Keys::termination ) ||
          ( isDefined( jsonObject, Keys::finalEpoch ) && timeConditionMissing ) )
     {
-        terminationConditions.push_back( boost::make_shared< PropagationTimeTerminationSettings >(
+        terminationConditions.push_back( std::make_shared< PropagationTimeTerminationSettings >(
                                              getValue< double >( jsonObject, Keys::finalEpoch ) ) );
     }
 
     // If there's only one condition in total (either user-provided time, user-provided dependent or created time)
     // use it as termination settings.
-    boost::shared_ptr< PropagationTerminationSettings > terminationSettings;
+    std::shared_ptr< PropagationTerminationSettings > terminationSettings;
     if ( terminationConditions.size( ) == 1 )
     {
         terminationSettings = terminationConditions.at( 0 );
@@ -395,14 +395,14 @@ void from_json( const nlohmann::json& jsonObject,
     // hybrid termination settings satisfying any of the two conditions.
     else
     {
-        terminationSettings = boost::make_shared< PropagationHybridTerminationSettings >( terminationConditions, true );
+        terminationSettings = std::make_shared< PropagationHybridTerminationSettings >( terminationConditions, true );
     }
 
-    multiTypePropagatorSettings = boost::make_shared< MultiTypePropagatorSettings< StateScalarType > >(
-                getValue< std::vector< boost::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > > >(
+    multiTypePropagatorSettings = std::make_shared< MultiTypePropagatorSettings< StateScalarType > >(
+                getValue< std::vector< std::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > > >(
                     jsonObject, Keys::propagators ),
                 terminationSettings,
-                boost::shared_ptr< DependentVariableSaveSettings >( ),
+                std::shared_ptr< DependentVariableSaveSettings >( ),
                 getValue< double >( jsonObject, Keys::options / Keys::Options::printInterval, TUDAT_NAN ) );
 }
 
@@ -413,7 +413,7 @@ void from_json( const nlohmann::json& jsonObject,
 //! Create a `json` object from a shared pointer to a `SingleArcPropagatorSettings` object.
 template< typename StateScalarType >
 void to_json( nlohmann::json& jsonObject,
-              const boost::shared_ptr< SingleArcPropagatorSettings< StateScalarType > >& singleArcPropagatorSettings )
+              const std::shared_ptr< SingleArcPropagatorSettings< StateScalarType > >& singleArcPropagatorSettings )
 {
     if ( ! singleArcPropagatorSettings )
     {
@@ -435,10 +435,10 @@ void to_json( nlohmann::json& jsonObject,
     {
     case translational_state:
     {
-        boost::shared_ptr< TranslationalStatePropagatorSettings< StateScalarType > >
-                translationalStatePropagatorSettings = boost::dynamic_pointer_cast<
+        std::shared_ptr< TranslationalStatePropagatorSettings< StateScalarType > >
+                translationalStatePropagatorSettings = std::dynamic_pointer_cast<
                 TranslationalStatePropagatorSettings< StateScalarType > >( singleArcPropagatorSettings );
-        assertNonNullPointer( translationalStatePropagatorSettings );
+        assertNonnullptrPointer( translationalStatePropagatorSettings );
         jsonObject[ K::type ] = translationalStatePropagatorSettings->propagator_;
         jsonObject[ K::centralBodies ] = translationalStatePropagatorSettings->centralBodies_;
         jsonObject[ K::bodiesToPropagate ] = translationalStatePropagatorSettings->bodiesToIntegrate_;
@@ -447,19 +447,20 @@ void to_json( nlohmann::json& jsonObject,
     }
     case body_mass_state:
     {
-        boost::shared_ptr< MassPropagatorSettings< StateScalarType > > massPropagatorSettings =
-                boost::dynamic_pointer_cast< MassPropagatorSettings< StateScalarType > >( singleArcPropagatorSettings );
-        assertNonNullPointer( massPropagatorSettings );
+        std::shared_ptr< MassPropagatorSettings< StateScalarType > > massPropagatorSettings =
+                std::dynamic_pointer_cast< MassPropagatorSettings< StateScalarType > >( singleArcPropagatorSettings );
+        assertNonnullptrPointer( massPropagatorSettings );
         jsonObject[ K::bodiesToPropagate ] = massPropagatorSettings->bodiesWithMassToPropagate_;
         jsonObject[ K::massRateModels ] = massPropagatorSettings->getMassRateSettingsMap( );
         return;
     }
     case rotational_state:
     {
-        boost::shared_ptr< RotationalStatePropagatorSettings< StateScalarType > > rotationalStatePropagatorSettings =
-                boost::dynamic_pointer_cast< RotationalStatePropagatorSettings< StateScalarType > >(
+        std::shared_ptr< RotationalStatePropagatorSettings< StateScalarType > > rotationalStatePropagatorSettings =
+                std::dynamic_pointer_cast< RotationalStatePropagatorSettings< StateScalarType > >(
                     singleArcPropagatorSettings );
-        assertNonNullPointer( rotationalStatePropagatorSettings );
+
+        assertNonnullptrPointer( rotationalStatePropagatorSettings );
         jsonObject[ K::type ] = rotationalStatePropagatorSettings->propagator_;
         jsonObject[ K::bodiesToPropagate ] = rotationalStatePropagatorSettings->bodiesToIntegrate_;
         jsonObject[ K::torques ] = rotationalStatePropagatorSettings->getTorqueSettingsMap( );
@@ -479,7 +480,7 @@ void to_json( nlohmann::json& jsonObject,
 //! Create a shared pointer to a `SingleArcPropagatorSettings` object from a `json` object.
 template< typename StateScalarType >
 void from_json( const nlohmann::json& jsonObject,
-                boost::shared_ptr< SingleArcPropagatorSettings< StateScalarType > >& singleArcPropagatorSettings )
+                std::shared_ptr< SingleArcPropagatorSettings< StateScalarType > >& singleArcPropagatorSettings )
 {
     using namespace simulation_setup;
     using namespace json_interface;
@@ -498,8 +499,8 @@ void from_json( const nlohmann::json& jsonObject,
             getValue< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >( jsonObject, K::initialStates );
 
     // No termination settings ( epoch > TUDAT_NAN will always be false )
-    boost::shared_ptr< PropagationTerminationSettings > terminationSettings =
-            boost::make_shared< PropagationTimeTerminationSettings >( TUDAT_NAN );
+    std::shared_ptr< PropagationTerminationSettings > terminationSettings =
+            std::make_shared< PropagationTimeTerminationSettings >( TUDAT_NAN );
 
     switch ( integratedStateType )
     {
@@ -507,8 +508,8 @@ void from_json( const nlohmann::json& jsonObject,
     {
         TranslationalStatePropagatorSettings< StateScalarType > defaults(
         { }, SelectedAccelerationMap( ), { }, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >( ),
-                    boost::shared_ptr< PropagationTerminationSettings >( ) );
-        singleArcPropagatorSettings = boost::make_shared< TranslationalStatePropagatorSettings< StateScalarType > >(
+                    std::shared_ptr< PropagationTerminationSettings >( ) );
+        singleArcPropagatorSettings = std::make_shared< TranslationalStatePropagatorSettings< StateScalarType > >(
                     getValue< std::vector< std::string > >( jsonObject, K::centralBodies ),
                     getValue< SelectedAccelerationMap >( jsonObject, K::accelerations ),
                     bodiesToPropagate,
@@ -520,9 +521,8 @@ void from_json( const nlohmann::json& jsonObject,
     case body_mass_state:
     {
         MassPropagatorSettings< StateScalarType > defaults(
-        { }, SelectedMassRateModelMap( ), Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >( ),
-                    boost::shared_ptr< PropagationTerminationSettings >( ) );
-        singleArcPropagatorSettings = boost::make_shared< MassPropagatorSettings< StateScalarType > >(
+        { }, SelectedMassRateModelMap( ), Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >( ), nullptr );
+        singleArcPropagatorSettings = std::make_shared< MassPropagatorSettings< StateScalarType > >(
                     bodiesToPropagate,
                     getValue< SelectedMassRateModelMap >( jsonObject, K::massRateModels ),
                     initialStates,
@@ -532,9 +532,8 @@ void from_json( const nlohmann::json& jsonObject,
     case rotational_state:
     {
         RotationalStatePropagatorSettings< StateScalarType > defaults(
-                    SelectedTorqueMap( ), { }, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >( ),
-                    boost::shared_ptr< PropagationTerminationSettings >( ) );
-        singleArcPropagatorSettings = boost::make_shared< RotationalStatePropagatorSettings< StateScalarType > >(
+                    SelectedTorqueMap( ), { }, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >( ), nullptr );
+        singleArcPropagatorSettings = std::make_shared< RotationalStatePropagatorSettings< StateScalarType > >(
                     getValue< SelectedTorqueMap >( jsonObject, K::torques ),
                     bodiesToPropagate,
                     initialStates,

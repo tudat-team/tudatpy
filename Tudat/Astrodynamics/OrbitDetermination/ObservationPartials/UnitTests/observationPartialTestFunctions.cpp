@@ -42,14 +42,14 @@ NamedBodyMap setupEnvironment( const std::vector< LinkEndId > groundStations,
 
     // Create bodies.
     NamedBodyMap bodyMap;
-    bodyMap[ "Earth" ] = boost::make_shared< Body >( );
-    bodyMap[ "Mars" ] = boost::make_shared< Body >( );
-    bodyMap[ "Moon" ] = boost::make_shared< Body >( );
-    bodyMap[ "Sun" ] = boost::make_shared< Body >( );
+    bodyMap[ "Earth" ] = std::make_shared< Body >( );
+    bodyMap[ "Mars" ] = std::make_shared< Body >( );
+    bodyMap[ "Moon" ] = std::make_shared< Body >( );
+    bodyMap[ "Sun" ] = std::make_shared< Body >( );
 
-    bodyMap[ "Earth" ]->setShapeModel( boost::make_shared< basic_astrodynamics::SphericalBodyShapeModel >(
+    bodyMap[ "Earth" ]->setShapeModel( std::make_shared< basic_astrodynamics::SphericalBodyShapeModel >(
                                            spice_interface::getAverageRadius( "Earth" ) ) );
-    bodyMap[ "Mars" ]->setShapeModel( boost::make_shared< basic_astrodynamics::SphericalBodyShapeModel >(
+    bodyMap[ "Mars" ]->setShapeModel( std::make_shared< basic_astrodynamics::SphericalBodyShapeModel >(
                                           spice_interface::getAverageRadius( "Mars" ) ) );
 
     if( useConstantEphemerides )
@@ -57,40 +57,40 @@ NamedBodyMap setupEnvironment( const std::vector< LinkEndId > groundStations,
         Eigen::Vector6d bodyState = Eigen::Vector6d::Zero( );
         bodyState.segment( 0, 3 ) = getBodyCartesianPositionAtEpoch(
                     "Earth", "SSB", "ECLIPJ2000", "NONE", stateEvaluationTime );
-        bodyMap[ "Earth" ]->setEphemeris( boost::make_shared< ConstantEphemeris >( bodyState, "SSB", "ECLIPJ2000" ) );
+        bodyMap[ "Earth" ]->setEphemeris( std::make_shared< ConstantEphemeris >( bodyState, "SSB", "ECLIPJ2000" ) );
         bodyState.segment( 0, 3 ) = getBodyCartesianPositionAtEpoch(
                     "Mars", "SSB", "ECLIPJ2000", "NONE", stateEvaluationTime );
-        bodyMap[ "Mars" ]->setEphemeris( boost::make_shared< ConstantEphemeris >( bodyState, "SSB", "ECLIPJ2000" ) );
+        bodyMap[ "Mars" ]->setEphemeris( std::make_shared< ConstantEphemeris >( bodyState, "SSB", "ECLIPJ2000" ) );
         bodyState.segment( 0, 3 ) = getBodyCartesianPositionAtEpoch(
                     "Moon", "SSB", "ECLIPJ2000", "NONE", stateEvaluationTime );
-        bodyMap[ "Moon" ]->setEphemeris( boost::make_shared< ConstantEphemeris >( bodyState, "SSB", "ECLIPJ2000" ) );
+        bodyMap[ "Moon" ]->setEphemeris( std::make_shared< ConstantEphemeris >( bodyState, "SSB", "ECLIPJ2000" ) );
         bodyState.segment( 0, 3 ) = getBodyCartesianPositionAtEpoch(
                     "Sun", "SSB", "ECLIPJ2000", "NONE", stateEvaluationTime );
-        bodyMap[ "Sun" ]->setEphemeris( boost::make_shared< ConstantEphemeris >( bodyState, "SSB", "ECLIPJ2000" ) );
+        bodyMap[ "Sun" ]->setEphemeris( std::make_shared< ConstantEphemeris >( bodyState, "SSB", "ECLIPJ2000" ) );
     }
     else
     {
-        bodyMap[ "Earth" ]->setEphemeris( boost::make_shared< SpiceEphemeris >( "Earth", "SSB", false, false ) );
-        bodyMap[ "Mars" ]->setEphemeris( boost::make_shared< SpiceEphemeris >( "Mars", "SSB", false, false ) );
-        bodyMap[ "Moon" ]->setEphemeris( boost::make_shared< SpiceEphemeris >( "Moon", "SSB", false, false ) );
-        bodyMap[ "Sun" ]->setEphemeris( boost::make_shared< SpiceEphemeris >( "Sun", "SSB", false, false ) );
+        bodyMap[ "Earth" ]->setEphemeris( std::make_shared< SpiceEphemeris >( "Earth", "SSB", false, false ) );
+        bodyMap[ "Mars" ]->setEphemeris( std::make_shared< SpiceEphemeris >( "Mars", "SSB", false, false ) );
+        bodyMap[ "Moon" ]->setEphemeris( std::make_shared< SpiceEphemeris >( "Moon", "SSB", false, false ) );
+        bodyMap[ "Sun" ]->setEphemeris( std::make_shared< SpiceEphemeris >( "Sun", "SSB", false, false ) );
     }
 
     ( bodyMap[ "Sun" ] )->setGravityFieldModel(
-                boost::make_shared< GravityFieldModel >( getBodyGravitationalParameter( "Sun" ) ) );
+                std::make_shared< GravityFieldModel >( getBodyGravitationalParameter( "Sun" ) ) );
     ( bodyMap[ "Moon" ] )->setGravityFieldModel(
-                boost::make_shared< GravityFieldModel >( getBodyGravitationalParameter( "Moon" ) ) );
+                std::make_shared< GravityFieldModel >( getBodyGravitationalParameter( "Moon" ) ) );
     ( bodyMap[ "Mars" ] )->setGravityFieldModel(
-                boost::make_shared< GravityFieldModel >( getBodyGravitationalParameter( "Mars" ) *
+                std::make_shared< GravityFieldModel >( getBodyGravitationalParameter( "Mars" ) *
                                                          gravitationalParameterScaling ) );
     ( bodyMap[ "Earth" ] )->setGravityFieldModel(
-                boost::make_shared< GravityFieldModel >( getBodyGravitationalParameter( "Earth" ) *
+                std::make_shared< GravityFieldModel >( getBodyGravitationalParameter( "Earth" ) *
                                                          gravitationalParameterScaling ) );
 
 
     ( bodyMap[ "Earth" ] )->setRotationalEphemeris(
                 createRotationModel(
-                    boost::make_shared< SimpleRotationModelSettings >(
+                    std::make_shared< SimpleRotationModelSettings >(
                         "ECLIPJ2000", "IAU_Earth",
                         spice_interface::computeRotationQuaternionBetweenFrames(
                             "ECLIPJ2000", "IAU_Earth", initialEphemerisTime ),
@@ -98,7 +98,7 @@ NamedBodyMap setupEnvironment( const std::vector< LinkEndId > groundStations,
                         physical_constants::JULIAN_DAY ), "Earth" ) );
     ( bodyMap[ "Mars" ] )->setRotationalEphemeris(
                 createRotationModel(
-                    boost::make_shared< SimpleRotationModelSettings >(
+                    std::make_shared< SimpleRotationModelSettings >(
                         "ECLIPJ2000", "IAU_Mars",
                         spice_interface::computeRotationQuaternionBetweenFrames(
                             "ECLIPJ2000", "IAU_Mars", initialEphemerisTime ),
@@ -124,58 +124,58 @@ NamedBodyMap setupEnvironment( const std::vector< LinkEndId > groundStations,
 }
 
 //! Function to create estimated parameters for general observation partial tests.
-boost::shared_ptr< EstimatableParameterSet< double > > createEstimatableParameters(
+std::shared_ptr< EstimatableParameterSet< double > > createEstimatableParameters(
         const NamedBodyMap& bodyMap, const double initialTime,
         const bool useEquivalencePrincipleParameter )
 {
-    boost::shared_ptr< RotationRate > earthRotationRate = boost::make_shared< RotationRate >(
-                boost::dynamic_pointer_cast< SimpleRotationalEphemeris >(
+    std::shared_ptr< RotationRate > earthRotationRate = std::make_shared< RotationRate >(
+                std::dynamic_pointer_cast< SimpleRotationalEphemeris >(
                     bodyMap.at( "Earth" )->getRotationalEphemeris( ) ), "Earth" );
-    boost::shared_ptr< RotationRate > marsRotationRate = boost::make_shared< RotationRate >(
-                boost::dynamic_pointer_cast< SimpleRotationalEphemeris >(
+    std::shared_ptr< RotationRate > marsRotationRate = std::make_shared< RotationRate >(
+                std::dynamic_pointer_cast< SimpleRotationalEphemeris >(
                     bodyMap.at( "Mars" )->getRotationalEphemeris( ) ), "Mars" );
-    boost::shared_ptr< ConstantRotationalOrientation > earthRotationOrientation =
-            boost::make_shared< ConstantRotationalOrientation >(
-                boost::dynamic_pointer_cast< SimpleRotationalEphemeris >(
+    std::shared_ptr< ConstantRotationalOrientation > earthRotationOrientation =
+            std::make_shared< ConstantRotationalOrientation >(
+                std::dynamic_pointer_cast< SimpleRotationalEphemeris >(
                     bodyMap.at( "Earth" )->getRotationalEphemeris( ) ), "Earth" );
-    boost::shared_ptr< ConstantRotationalOrientation > marsRotationOrientation =
-            boost::make_shared< ConstantRotationalOrientation >(
-                boost::dynamic_pointer_cast< SimpleRotationalEphemeris >(
+    std::shared_ptr< ConstantRotationalOrientation > marsRotationOrientation =
+            std::make_shared< ConstantRotationalOrientation >(
+                std::dynamic_pointer_cast< SimpleRotationalEphemeris >(
                     bodyMap.at( "Mars" )->getRotationalEphemeris( ) ), "Mars" );
-    boost::shared_ptr< EstimatableParameter< double > > relativisticParameter;
+    std::shared_ptr< EstimatableParameter< double > > relativisticParameter;
     if( useEquivalencePrincipleParameter )
     {
-        relativisticParameter = boost::make_shared< EquivalencePrincipleLpiViolationParameter >( );
+        relativisticParameter = std::make_shared< EquivalencePrincipleLpiViolationParameter >( );
     }
     else
     {
-        relativisticParameter = boost::make_shared< PPNParameterGamma >( );
+        relativisticParameter = std::make_shared< PPNParameterGamma >( );
     }
 
 
 
 
-    std::vector< boost::shared_ptr< EstimatableParameter< double > > > estimatableDoubleParameters;
+    std::vector< std::shared_ptr< EstimatableParameter< double > > > estimatableDoubleParameters;
     estimatableDoubleParameters.push_back( earthRotationRate );
     estimatableDoubleParameters.push_back( marsRotationRate );
     estimatableDoubleParameters.push_back( relativisticParameter );
 
-    std::vector< boost::shared_ptr< EstimatableParameter< Eigen::VectorXd > > > estimatableVectorParameters;
+    std::vector< std::shared_ptr< EstimatableParameter< Eigen::VectorXd > > > estimatableVectorParameters;
     estimatableVectorParameters.push_back( earthRotationOrientation );
     estimatableVectorParameters.push_back( marsRotationOrientation );
 
 
-    std::vector< boost::shared_ptr< EstimatableParameter< Eigen::VectorXd > > > estimatedInitialStateParameters;
+    std::vector< std::shared_ptr< EstimatableParameter< Eigen::VectorXd > > > estimatedInitialStateParameters;
     estimatedInitialStateParameters.push_back(
-                boost::make_shared< InitialTranslationalStateParameter< double > >(
+                std::make_shared< InitialTranslationalStateParameter< double > >(
                     "Earth", propagators::getInitialStateOfBody(
                         "Earth", "SSB", bodyMap, initialTime ) ) );
     estimatedInitialStateParameters.push_back(
-                boost::make_shared< InitialTranslationalStateParameter< double > >(
+                std::make_shared< InitialTranslationalStateParameter< double > >(
                     "Mars", propagators::getInitialStateOfBody(
                         "Mars", "SSB", bodyMap, initialTime ) ) );
 
-    return boost::make_shared< EstimatableParameterSet< double > >(
+    return std::make_shared< EstimatableParameterSet< double > >(
                 estimatableDoubleParameters,
                 estimatableVectorParameters,
                 estimatedInitialStateParameters );
@@ -184,11 +184,11 @@ boost::shared_ptr< EstimatableParameterSet< double > > createEstimatableParamete
 //! Function to compute numerical partials w.r.t. constant body states for general observation partial tests.
 Eigen::Matrix< double, Eigen::Dynamic, 3 > calculatePartialWrtConstantBodyState(
         const std::string& bodyName, const NamedBodyMap& bodyMap, const Eigen::Vector3d& bodyPositionVariation,
-        const boost::function< Eigen::VectorXd( const double ) > observationFunction, const double observationTime,
+        const std::function< Eigen::VectorXd( const double ) > observationFunction, const double observationTime,
         const int observableSize )
 {
     // Calculate numerical partials w.r.t. body state.
-    boost::shared_ptr< ConstantEphemeris > bodyEphemeris = boost::dynamic_pointer_cast< ConstantEphemeris >(
+    std::shared_ptr< ConstantEphemeris > bodyEphemeris = std::dynamic_pointer_cast< ConstantEphemeris >(
                 bodyMap.at( bodyName )->getEphemeris( ) );
     Eigen::Vector6d bodyUnperturbedState = bodyEphemeris->getCartesianState( 0.0 );
     Eigen::Vector6d perturbedBodyState;
@@ -221,11 +221,11 @@ Eigen::Matrix< double, Eigen::Dynamic, 3 > calculatePartialWrtConstantBodyState(
 //! Function to compute numerical partials w.r.t. constant body states for general observation partial tests.
 Eigen::Matrix< double, Eigen::Dynamic, 3 > calculatePartialWrtConstantBodyVelocity(
         const std::string& bodyName, const NamedBodyMap& bodyMap, const Eigen::Vector3d& bodyVelocityVariation,
-        const boost::function< Eigen::VectorXd( const double ) > observationFunction, const double observationTime,
+        const std::function< Eigen::VectorXd( const double ) > observationFunction, const double observationTime,
         const int observableSize )
 {
     // Calculate numerical partials w.r.t. body state.
-    boost::shared_ptr< ConstantEphemeris > bodyEphemeris = boost::dynamic_pointer_cast< ConstantEphemeris >(
+    std::shared_ptr< ConstantEphemeris > bodyEphemeris = std::dynamic_pointer_cast< ConstantEphemeris >(
                 bodyMap.at( bodyName )->getEphemeris( ) );
     Eigen::Vector6d bodyUnperturbedState = bodyEphemeris->getCartesianState( 0.0 );
     Eigen::Vector6d perturbedBodyState;
@@ -258,10 +258,10 @@ Eigen::Matrix< double, Eigen::Dynamic, 3 > calculatePartialWrtConstantBodyVeloci
 
 //! Function to compute numerical partials w.r.t. double parameters for general observation partial tests.
 std::vector< Eigen::VectorXd > calculateNumericalPartialsWrtDoubleParameters(
-        const std::vector< boost::shared_ptr< EstimatableParameter< double > > >& doubleParameters,
-        const std::vector< boost::function< void( ) > > updateFunctions,
+        const std::vector< std::shared_ptr< EstimatableParameter< double > > >& doubleParameters,
+        const std::vector< std::function< void( ) > > updateFunctions,
         const std::vector< double >& parameterPerturbations,
-        const boost::function< Eigen::VectorXd( const double ) > observationFunction,
+        const std::function< Eigen::VectorXd( const double ) > observationFunction,
         const double observationTime )
 {
     std::vector< Eigen::VectorXd > partialVector;
@@ -277,10 +277,10 @@ std::vector< Eigen::VectorXd > calculateNumericalPartialsWrtDoubleParameters(
 }
 
 std::vector< Eigen::MatrixXd > calculateNumericalPartialsWrtVectorParameters(
-        const std::vector< boost::shared_ptr< EstimatableParameter< Eigen::VectorXd > > >& vectorParameters,
-        const std::vector< boost::function< void( ) > > updateFunctions,
+        const std::vector< std::shared_ptr< EstimatableParameter< Eigen::VectorXd > > >& vectorParameters,
+        const std::vector< std::function< void( ) > > updateFunctions,
         const std::vector< Eigen::VectorXd >& parameterPerturbations,
-        const boost::function< Eigen::VectorXd( const double ) > observationFunction,
+        const std::function< Eigen::VectorXd( const double ) > observationFunction,
         const double observationTime )
 {
     std::vector< Eigen::MatrixXd > partialVector;
@@ -300,7 +300,7 @@ std::vector< std::vector< double > > getAnalyticalPartialEvaluationTimes(
         const LinkEnds& linkEnds,
         const ObservableType observableType,
         const std::vector< double >& linkEndTimes,
-        const boost::shared_ptr< EstimatableParameterSet< double > >& estimatedParameters )
+        const std::shared_ptr< EstimatableParameterSet< double > >& estimatedParameters )
 {
     std::vector< std::vector< double > > partialTimes;
     std::vector< double > currentPartialTimes;
@@ -419,6 +419,29 @@ std::vector< std::vector< double > > getAnalyticalPartialEvaluationTimes(
 
     return partialTimes;
 }
+
+template void testObservationPartials< 1 >(
+        const std::shared_ptr< ObservationModel< 1, double, double > > observationModel,
+        NamedBodyMap& bodyMap,
+        const std::shared_ptr< EstimatableParameterSet< double > > fullEstimatableParameterSet,
+        const LinkEnds& linkEnds, const ObservableType observableType,
+        const double tolerance,
+        const bool testPositionPartial,
+        const bool testParameterPartial,
+        const double positionPerturbationMultiplier,
+        const Eigen::VectorXd parameterPerturbationMultipliers );
+
+template void testObservationPartials< 2 >(
+        const std::shared_ptr< ObservationModel< 2, double, double > > observationModel,
+        NamedBodyMap& bodyMap,
+        const std::shared_ptr< EstimatableParameterSet< double > > fullEstimatableParameterSet,
+        const LinkEnds& linkEnds, const ObservableType observableType,
+        const double tolerance,
+        const bool testPositionPartial,
+        const bool testParameterPartial,
+        const double positionPerturbationMultiplier,
+        const Eigen::VectorXd parameterPerturbationMultipliers );
+
 
 }
 

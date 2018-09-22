@@ -30,7 +30,7 @@
 #ifndef TUDAT_OSCILLATING_FUNCTION_NOVAK_H
 #define TUDAT_OSCILLATING_FUNCTION_NOVAK_H
 
-#include <boost/function.hpp>
+#include <functional>
 #include <boost/make_shared.hpp>
 
 #include <Eigen/Core>
@@ -56,7 +56,7 @@ namespace mission_segments
  * The function is completely described by the independent variable \f$ \theta \f$ and a set of
  * four parameters. These parameters are related to the boundary conditions of the problem: two
  * initial conditions and two final conditions. These parameters are passed to this class as
- * boost::functions to facilitate the flexible external manipulation of their values.
+ * std::functions to facilitate the flexible external manipulation of their values.
  *
  */
 class OscillatingFunctionNovak : public basic_mathematics::Function< >
@@ -65,7 +65,7 @@ public:
 
     //! Default constructor with immediate definition of parameters.
     /*!
-     * Default constructor with immediate definition of parameters through boost::functions.
+     * Default constructor with immediate definition of parameters through std::functions.
      * This setup allows for a flexible external manipulation of the values of the parameters.
      *
      * \param aSetOfBoundaryParameters A set of four parameters, related to the boundary conditions.
@@ -76,7 +76,7 @@ public:
      *      aSetOfBoundaryParameters.second( 0 ) = b2
      *      aSetOfBoundaryParameters.second( 1 ) = b3
      */
-    OscillatingFunctionNovak( const boost::function< std::pair< Eigen::Vector2d,
+    OscillatingFunctionNovak( const std::function< std::pair< Eigen::Vector2d,
                               const Eigen::Vector2d >(  ) > aSetOfBoundaryParameters ) :
         boundaryParameters_( aSetOfBoundaryParameters ){  }
 
@@ -183,11 +183,11 @@ private:
      * boundaryParameters_.second( 0 ) = b_2
      * boundaryParameters_.second( 1 ) = b_3
      */
-    boost::function< std::pair< Eigen::Vector2d, Eigen::Vector2d >(  ) > boundaryParameters_;
+    std::function< std::pair< Eigen::Vector2d, Eigen::Vector2d >(  ) > boundaryParameters_;
 };
 
 //! Typedef for shared-pointer to oscillatingFunctionNovak object.
-typedef boost::shared_ptr< OscillatingFunctionNovak > OscillatingFunctionNovakPointer;
+typedef std::shared_ptr< OscillatingFunctionNovak > OscillatingFunctionNovakPointer;
 
 } // namespace mission_segments
 } // namespace tudat

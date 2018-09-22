@@ -17,8 +17,8 @@
 
 #include "Tudat/Basics/testMacros.h"
 
-#include "Tudat/Astrodynamics/OrbitDetermination/UnitTests/orbitDeterminationTestCases.h"
-#include "Tudat/Astrodynamics/OrbitDetermination/podProcessing.h"
+#include "Tudat/SimulationSetup/EstimationSetup/orbitDeterminationTestCases.h"
+#include "Tudat/SimulationSetup/EstimationSetup/podProcessing.h"
 
 
 namespace tudat
@@ -46,28 +46,28 @@ BOOST_AUTO_TEST_CASE( test_EstimationInputAndOutput )
     }
 
     // Run estimation with strong a priori covariance
-    std::pair< boost::shared_ptr< PodOutput< double > >, Eigen::VectorXd > estimationOutputWithAprioriCovariance =
+    std::pair< std::shared_ptr< PodOutput< double > >, Eigen::VectorXd > estimationOutputWithAprioriCovariance =
             executePlanetaryParameterEstimation< double, double >(
                 simulationType, parameterPerturbation, inverseAPrioriCovariance );
 
     // Run estimation with effectively zero covariance
-    std::pair< boost::shared_ptr< PodOutput< double > >, Eigen::VectorXd > estimationOutputWithSmallAprioriCovariance =
+    std::pair< std::shared_ptr< PodOutput< double > >, Eigen::VectorXd > estimationOutputWithSmallAprioriCovariance =
             executePlanetaryParameterEstimation< double, double >(
                 simulationType, parameterPerturbation, 1.0E-64 * inverseAPrioriCovariance );
 
     // Run estimation with moderate a priori covariance
-    std::pair< boost::shared_ptr< PodOutput< double > >, Eigen::VectorXd > estimationOutputWithModerateAprioriCovariance =
+    std::pair< std::shared_ptr< PodOutput< double > >, Eigen::VectorXd > estimationOutputWithModerateAprioriCovariance =
             executePlanetaryParameterEstimation< double, double >(
                 simulationType, parameterPerturbation,  moderateInverseAPriopriCovariance );
 
     // Run estimation without a priori covariance
-    std::pair< boost::shared_ptr< PodOutput< double > >, Eigen::VectorXd > estimationOutputWithoutAprioriCovariance =
+    std::pair< std::shared_ptr< PodOutput< double > >, Eigen::VectorXd > estimationOutputWithoutAprioriCovariance =
             executePlanetaryParameterEstimation< double, double >(
                 simulationType, parameterPerturbation );
 
     // Run estimation without a priori covariance and increased weights
     double constantWeight = 100.0;
-    std::pair< boost::shared_ptr< PodOutput< double > >, Eigen::VectorXd > estimationOutputWithoutAprioriCovarianceAndWeakWeight =
+    std::pair< std::shared_ptr< PodOutput< double > >, Eigen::VectorXd > estimationOutputWithoutAprioriCovarianceAndWeakWeight =
             executePlanetaryParameterEstimation< double, double >(
                 simulationType, parameterPerturbation, Eigen::MatrixXd::Zero( 7, 7 ), constantWeight);
 
@@ -145,7 +145,7 @@ BOOST_AUTO_TEST_CASE( test_EstimationInputAndOutput )
 //! Test whether the covariance is correctly computed as a function of time
 BOOST_AUTO_TEST_CASE( test_CovarianceAsFunctionOfTime )
 {
-    std::pair< boost::shared_ptr< PodOutput< double > >, boost::shared_ptr< PodInput< double, double > > > podData;
+    std::pair< std::shared_ptr< PodOutput< double > >, std::shared_ptr< PodInput< double, double > > > podData;
 
     // Simulate covariances directly by propagating to different final tomes
     std::map< int, Eigen::MatrixXd > manualCovarianes;

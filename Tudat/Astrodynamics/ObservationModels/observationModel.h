@@ -14,12 +14,14 @@
 #include <vector>
 
 #include <boost/bind.hpp>
-#include <boost/shared_ptr.hpp>
-#include <boost/function.hpp>
+#include <memory>
+#include <functional>
 
 #include <Eigen/Core>
 
 #include "Tudat/Basics/basicTypedefs.h"
+#include "Tudat/Basics/timeType.h"
+#include "Tudat/Basics/tudatTypeTraits.h"
 
 #include "Tudat/Astrodynamics/ObservationModels/linkTypeDefs.h"
 #include "Tudat/Astrodynamics/ObservationModels/observableTypes.h"
@@ -41,7 +43,8 @@ namespace observation_models
  *  empty by default. Also, the observable may be a with/without returning (by reference) the times and states
  *  at each of the link ends. Returning these times/states prevents recomputations of these quantities in later calculations.
  */
-template< int ObservationSize = Eigen::Dynamic, typename ObservationScalarType = double, typename TimeType = double >
+template< int ObservationSize = Eigen::Dynamic, typename ObservationScalarType = double, typename TimeType = double,
+          typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type = 0 >
 class ObservationModel
 {
 public:
@@ -56,14 +59,14 @@ public:
      */
     ObservationModel(
             const ObservableType observableType ,
-            const boost::shared_ptr< ObservationBias< ObservationSize > > observationBiasCalculator = NULL ):
+            const std::shared_ptr< ObservationBias< ObservationSize > > observationBiasCalculator = nullptr ):
         observableType_( observableType ),
         observationBiasCalculator_( observationBiasCalculator )
     {
         // Check if bias is empty
-        if( observationBiasCalculator_ != NULL )
+        if( observationBiasCalculator_ != nullptr )
         {
-            isBiasNull_ = 0;
+            isBiasnullptr_ = 0;
             if( observationBiasCalculator_->getObservationSize( ) != ObservationSize )
             {
                 throw std::runtime_error( "Error when making observation model, bias size is inconsistent" );
@@ -71,7 +74,7 @@ public:
         }
         else
         {
-            isBiasNull_ = 1;
+            isBiasnullptr_ = 1;
         }
     }
 
@@ -128,7 +131,7 @@ public:
                 std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates )
     {
         // Check if any non-ideal models are set.
-        if( isBiasNull_ )
+        if( isBiasnullptr_ )
         {
             return computeIdealObservationsWithLinkEndData(
                         time, linkEndAssociatedWithTime, linkEndTimes, linkEndStates );
@@ -181,7 +184,7 @@ public:
             const LinkEndType linkEndAssociatedWithTime )
     {
         // Check if any non-ideal models are set.
-        if( isBiasNull_ )
+        if( isBiasnullptr_ )
         {
             return computeIdealObservationsWithLinkEndData(
                         time, linkEndAssociatedWithTime, linkEndTimes_, linkEndStates_ );
@@ -241,7 +244,7 @@ public:
      * Functiomn to return the object for calculating system-dependent errors in the observable.
      * \return Object for calculating system-dependent errors in the observable.
      */
-    boost::shared_ptr< ObservationBias< ObservationSize > > getObservationBiasCalculator( )
+    std::shared_ptr< ObservationBias< ObservationSize > > getObservationBiasCalculator( )
     {
         return observationBiasCalculator_;
     }
@@ -257,10 +260,10 @@ protected:
      *  Object for calculating system-dependent errors in the observable, i.e. deviations from the
      *  physically true observable
      */
-    boost::shared_ptr< ObservationBias< ObservationSize > > observationBiasCalculator_;
+    std::shared_ptr< ObservationBias< ObservationSize > > observationBiasCalculator_;
 
-    //! Boolean set by constructor to denote whether observationBiasCalculator_ is NULL.
-    bool isBiasNull_;
+    //! Boolean set by constructor to denote whether observationBiasCalculator_ is nullptr.
+    bool isBiasnullptr_;
 
 
     //! Pre-define list of times used when calling function returning link-end states/times from interface function.
@@ -270,6 +273,26 @@ protected:
     std::vector< Eigen::Matrix< double, 6, 1 > > linkEndStates_;
 
 };
+
+extern template class ObservationModel< 1, double, double >;
+extern template class ObservationModel< 1, double, Time >;
+extern template class ObservationModel< 1, long double, double >;
+extern template class ObservationModel< 1, long double, Time >;
+
+extern template class ObservationModel< 2, double, double >;
+extern template class ObservationModel< 2, double, Time >;
+extern template class ObservationModel< 2, long double, double >;
+extern template class ObservationModel< 2, long double, Time >;
+
+extern template class ObservationModel< 3, double, double >;
+extern template class ObservationModel< 3, double, Time >;
+extern template class ObservationModel< 3, long double, double >;
+extern template class ObservationModel< 3, long double, Time >;
+
+extern template class ObservationModel< 6, double, double >;
+extern template class ObservationModel< 6, double, Time >;
+extern template class ObservationModel< 6, long double, double >;
+extern template class ObservationModel< 6, long double, Time >;
 
 //! Function to compute an observation of size 1 at double precision, with double precision input
 /*!
@@ -283,7 +306,7 @@ protected:
  */
 template< typename ObservationScalarType = double, typename TimeType = double >
 double getSizeOneObservationAtDoublePrecision(
-        boost::function< Eigen::Matrix< ObservationScalarType, 1, 1 >( const TimeType, const observation_models::LinkEndType ) >
+        std::function< Eigen::Matrix< ObservationScalarType, 1, 1 >( const TimeType, const observation_models::LinkEndType ) >
         observationFunction, const double currentTime, const LinkEndType referenceLinkEnd )
 {
     return static_cast< double >( observationFunction( static_cast< TimeType >( currentTime ), referenceLinkEnd )( 0 ) );
@@ -297,41 +320,41 @@ double getSizeOneObservationAtDoublePrecision(
  *  \return Function that computes the observation as a function of observation time and reference link end time.
  */
 template< typename ObservationScalarType = double, typename TimeType = double >
-boost::function< double( const double, const observation_models::LinkEndType ) > getSizeOneObservationFunctionAtDoublePrecision(
-        boost::function< Eigen::Matrix< ObservationScalarType, 1, 1 >(
+std::function< double( const double, const observation_models::LinkEndType ) > getSizeOneObservationFunctionAtDoublePrecision(
+        std::function< Eigen::Matrix< ObservationScalarType, 1, 1 >(
             const TimeType, const observation_models::LinkEndType ) > observationFunction )
 {
-    return boost::bind( &getSizeOneObservationAtDoublePrecision< ObservationScalarType, TimeType >, observationFunction, _1, _2 );
+    return std::bind( &getSizeOneObservationAtDoublePrecision< ObservationScalarType, TimeType >, observationFunction, std::placeholders::_1, std::placeholders::_2 );
 }
 
 //! Function to generate a function that computes an observation  from an ObservationModel
 /*!
  *  Function to generate a function that produces an observation, only applicable for observation models
- *  of size one. This function uses boost::bind to link the computeObservations function of the observationModel to the output
+ *  of size one. This function uses std::bind to link the computeObservations function of the observationModel to the output
  *  of this function.
  *  \param observationModel Observation model for which the observation function is to be returned.
  *  \return Function that computes the observation as a function of observation time and reference link end time.
  */
 template< typename ObservationScalarType = double, typename TimeType = double >
-boost::function< Eigen::Matrix< ObservationScalarType, 1, 1 >( const TimeType, const observation_models::LinkEndType ) >
+std::function< Eigen::Matrix< ObservationScalarType, 1, 1 >( const TimeType, const observation_models::LinkEndType ) >
 getSizeOneObservationFunctionFromObservationModel(
-        const boost::shared_ptr< ObservationModel< 1, ObservationScalarType, TimeType > > observationModel )
+        const std::shared_ptr< ObservationModel< 1, ObservationScalarType, TimeType > > observationModel )
 {
-    return boost::bind( &ObservationModel< 1, ObservationScalarType, TimeType >::computeObservations, observationModel, _1, _2 );
+    return std::bind( &ObservationModel< 1, ObservationScalarType, TimeType >::computeObservations, observationModel, std::placeholders::_1, std::placeholders::_2 );
 }
 
 //! Function to generate a function that computes an observation at double precision from an ObservationModel
 /*!
  *  Function to generate a function that computes an observation at double precision, only applicable for observation models
- *  of size one. This function uses boost::bind to link the computeObservations function of the observationModel to the output
+ *  of size one. This function uses std::bind to link the computeObservations function of the observationModel to the output
  *  of this function, casting in/and output to double precisiono if needed.
  *  \param observationModel Observation model for which the observation function is to be returned.
  *  \return Function that computes the observation as a function of observation time and reference link end time.
  */
 template< typename ObservationScalarType = double, typename TimeType = double >
-boost::function< double( const double, const observation_models::LinkEndType ) >
+std::function< double( const double, const observation_models::LinkEndType ) >
 getSizeOneObservationFunctionAtDoublePrecisionFromObservationModel(
-        const boost::shared_ptr< ObservationModel< 1, ObservationScalarType, TimeType > > observationModel )
+        const std::shared_ptr< ObservationModel< 1, ObservationScalarType, TimeType > > observationModel )
 {
     return getSizeOneObservationFunctionAtDoublePrecision(
                 getSizeOneObservationFunctionFromObservationModel( observationModel ) );
@@ -340,23 +363,23 @@ getSizeOneObservationFunctionAtDoublePrecisionFromObservationModel(
 //! Function to extract a list of observtion bias models from a list of observation models.
 /*!
  *  Function to extract a list of observtion bias models from a list of observation models. Function iterates over input
- *  map of observationModels, extracts the bias from it and adds it to the list of bias objects if it is not NULL.
+ *  map of observationModels, extracts the bias from it and adds it to the list of bias objects if it is not nullptr.
  *  \param observationModels List of observation models (per LinkEnds) from which the bias objects are to be extracted
- *  \return List of observation bias objects (per LinkEnds), as extracted from observationModels (NULL bias objects not
+ *  \return List of observation bias objects (per LinkEnds), as extracted from observationModels (nullptr bias objects not
  *  added to list).
  */
 template< int ObservationSize = Eigen::Dynamic, typename ObservationScalarType = double, typename TimeType = double >
-std::map< LinkEnds, boost::shared_ptr< ObservationBias< ObservationSize > > > extractObservationBiasList(
-        std::map< LinkEnds, boost::shared_ptr< ObservationModel< ObservationSize, ObservationScalarType, TimeType > > >
+std::map< LinkEnds, std::shared_ptr< ObservationBias< ObservationSize > > > extractObservationBiasList(
+        std::map< LinkEnds, std::shared_ptr< ObservationModel< ObservationSize, ObservationScalarType, TimeType > > >
         observationModels )
 {
-    std::map< LinkEnds, boost::shared_ptr< ObservationBias< ObservationSize > > > biasList;
-    for( typename std::map< LinkEnds, boost::shared_ptr<
+    std::map< LinkEnds, std::shared_ptr< ObservationBias< ObservationSize > > > biasList;
+    for( typename std::map< LinkEnds, std::shared_ptr<
          ObservationModel< ObservationSize, ObservationScalarType, TimeType > > >::const_iterator
          observationModelIterator = observationModels.begin( ); observationModelIterator != observationModels.end( );
          observationModelIterator++ )
     {
-        if( observationModelIterator->second->getObservationBiasCalculator( ) != NULL )
+        if( observationModelIterator->second->getObservationBiasCalculator( ) != nullptr )
         {
             biasList[ observationModelIterator->first ] = observationModelIterator->second->getObservationBiasCalculator( );
         }

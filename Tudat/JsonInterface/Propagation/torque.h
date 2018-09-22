@@ -51,10 +51,10 @@ namespace simulation_setup
 {
 
 //! Create a `json` object from a shared pointer to a `TorqueSettings` object.
-void to_json( nlohmann::json& jsonObject, const boost::shared_ptr< TorqueSettings >& torqueSettings );
+void to_json( nlohmann::json& jsonObject, const std::shared_ptr< TorqueSettings >& torqueSettings );
 
 //! Create a shared pointer to a `TorqueSettings` object from a `json` object.
-void from_json( const nlohmann::json& jsonObject, boost::shared_ptr< TorqueSettings >& torqueSettings );
+void from_json( const nlohmann::json& jsonObject, std::shared_ptr< TorqueSettings >& torqueSettings );
 
 } // namespace simulation_setup
 

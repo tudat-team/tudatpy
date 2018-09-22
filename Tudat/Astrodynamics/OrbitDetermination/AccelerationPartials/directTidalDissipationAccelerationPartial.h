@@ -93,7 +93,7 @@ public:
      *  \param acceleratingBody Body exerting acceleration.
      */
     DirectTidalDissipationAccelerationPartial(
-            const boost::shared_ptr< gravitation::DirectTidalDissipationAcceleration > tidalAcceleration,
+            const std::shared_ptr< gravitation::DirectTidalDissipationAcceleration > tidalAcceleration,
             const std::string acceleratedBody,
             const std::string acceleratingBody ):
         AccelerationPartial( acceleratedBody, acceleratingBody,
@@ -231,8 +231,8 @@ public:
      *  \param parameter Parameter w.r.t. which partial is to be taken.
      *  \return Pair of parameter partial function and number of columns in partial (0 for no dependency, 1 otherwise).
      */
-    std::pair< boost::function< void( Eigen::MatrixXd& ) >, int >
-    getParameterPartialFunction( boost::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter );
+    std::pair< std::function< void( Eigen::MatrixXd& ) >, int >
+    getParameterPartialFunction( std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter );
 
     //! Function for setting up and retrieving a function returning a partial w.r.t. a vector parameter.
     /*!
@@ -241,10 +241,10 @@ public:
      *  \param parameter Parameter w.r.t. which partial is to be taken.
      *  \return Pair of parameter partial function and number of columns in partial (0 for no dependency).
      */
-    std::pair< boost::function< void( Eigen::MatrixXd& ) >, int > getParameterPartialFunction(
-            boost::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter )
+    std::pair< std::function< void( Eigen::MatrixXd& ) >, int > getParameterPartialFunction(
+            std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter )
     {
-        boost::function< void( Eigen::MatrixXd& ) > partialFunction;
+        std::function< void( Eigen::MatrixXd& ) > partialFunction;
         return std::make_pair( partialFunction, 0 );
     }
 
@@ -263,7 +263,7 @@ protected:
      * \param parameterId Identifier of parameter for which the partial is to be created.
      * \return Pair with partial function and paramater partial size.
      */
-    std::pair< boost::function< void( Eigen::MatrixXd& ) >, int > getGravitationalParameterPartialFunction(
+    std::pair< std::function< void( Eigen::MatrixXd& ) >, int > getGravitationalParameterPartialFunction(
             const estimatable_parameters::EstimatebleParameterIdentifier& parameterId );
 
     //! Function to compute derivative w.r.t. gravitational parameter of planet
@@ -276,7 +276,7 @@ protected:
     void wrtTidalTimeLag( Eigen::MatrixXd& gravitationalParameterPartial );
 
     //! Acceleration model of which partial derivatives are to be computed
-    boost::shared_ptr< gravitation::DirectTidalDissipationAcceleration > tidalAcceleration_;
+    std::shared_ptr< gravitation::DirectTidalDissipationAcceleration > tidalAcceleration_;
 
     //! Current state of satellite w.r.t. planet
     Eigen::Vector6d currentRelativeBodyState_;

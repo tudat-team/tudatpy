@@ -51,12 +51,12 @@ void LibrationPoint::computeLocationOfLibrationPoint(
     case l1:
     {
         // Create an object containing the function of which we whish to obtain the root from.
-        UnivariateProxyPointer rootFunction = boost::make_shared< UnivariateProxy >(
-                    boost::bind( &LibrationPoint::computeL1LocationFunction, this, _1 ) );
+        UnivariateProxyPointer rootFunction = std::make_shared< UnivariateProxy >(
+                    std::bind( &LibrationPoint::computeL1LocationFunction, this, std::placeholders::_1 ) );
 
         // Add the first derivative of the root function.
-        rootFunction->addBinding( -1, boost::bind( &LibrationPoint::
-                computeL1FirstDerivativeLocationFunction, this, _1 ) );
+        rootFunction->addBinding( -1, std::bind( &LibrationPoint::
+                computeL1FirstDerivativeLocationFunction, this, std::placeholders::_1 ) );
 
         // Set position vector of L1 in Cartesian elements based on result of Newton-Raphson
         // root-finding algorithm.
@@ -67,12 +67,12 @@ void LibrationPoint::computeLocationOfLibrationPoint(
     case l2:
     {
         // Create an object containing the function of which we whish to obtain the root from.
-        UnivariateProxyPointer rootFunction = boost::make_shared< UnivariateProxy >(
-                    boost::bind( &LibrationPoint::computeL2LocationFunction, this, _1 ) );
+        UnivariateProxyPointer rootFunction = std::make_shared< UnivariateProxy >(
+                    std::bind( &LibrationPoint::computeL2LocationFunction, this, std::placeholders::_1 ) );
 
         // Add the first derivative of the root function.
-        rootFunction->addBinding( -1, boost::bind( &LibrationPoint::
-                computeL2FirstDerivativeLocationFunction, this, _1 ) );
+        rootFunction->addBinding( -1, std::bind( &LibrationPoint::
+                computeL2FirstDerivativeLocationFunction, this, std::placeholders::_1 ) );
 
         // Set position vector of L1 in Cartesian elements based on result of Newton-Raphson
         // root-finding algorithm.
@@ -83,12 +83,12 @@ void LibrationPoint::computeLocationOfLibrationPoint(
     case l3:
     {
         // Create an object containing the function of which we whish to obtain the root from.
-        UnivariateProxyPointer rootFunction = boost::make_shared< UnivariateProxy >(
-                    boost::bind( &LibrationPoint::computeL3LocationFunction, this, _1 ) );
+        UnivariateProxyPointer rootFunction = std::make_shared< UnivariateProxy >(
+                    std::bind( &LibrationPoint::computeL3LocationFunction, this, std::placeholders::_1 ) );
 
         // Add the first derivative of the root function.
-        rootFunction->addBinding( -1, boost::bind( &LibrationPoint::
-                computeL3FirstDerivativeLocationFunction, this, _1 ) );
+        rootFunction->addBinding( -1, std::bind( &LibrationPoint::
+                computeL3FirstDerivativeLocationFunction, this, std::placeholders::_1 ) );
 
         // Set position vector of L1 in Cartesian elements based on result of Newton-Raphson
         // root-finding algorithm.

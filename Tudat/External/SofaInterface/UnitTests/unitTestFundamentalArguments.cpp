@@ -64,7 +64,7 @@ BOOST_AUTO_TEST_CASE( testSofaFundamentalArguments )
 
     // Calculate Delaunay arguments with GMST.
     Eigen::Matrix< double, 6, 1 > fundamentalArgumentValuesWithGmst =
-            calculateDelaunayFundamentalArgumentsWithGmst( testSecondsSinceJ2000 );
+            calculateApproximateDelaunayFundamentalArgumentsWithGmst( testSecondsSinceJ2000 );
     for( unsigned int i = 0; i < 5; i++ )
     {
         BOOST_CHECK_SMALL( std::fabs( fundamentalArgumentValuesWithGmst( i + 1 ) - fundamentalArgumentValues( i ) ), 1.0E-15  );

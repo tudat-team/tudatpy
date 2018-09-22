@@ -71,25 +71,26 @@ BOOST_AUTO_TEST_CASE( test_atmosphereModelSetup )
 {
 
     // Create settings for tabulated atmosphere.
-    std::string atmosphereTableFile = tudat::input_output::getAtmosphereTablesPath( ) + "USSA1976Until100kmPer100mUntil1000kmPer1000m.dat";
-    boost::shared_ptr< TabulatedAtmosphereSettings > tabulatedAtmosphereSettings =
-            boost::make_shared< TabulatedAtmosphereSettings >( atmosphereTableFile );
+    std::string atmosphereTableFile =
+            tudat::input_output::getAtmosphereTablesPath( ) + "USSA1976Until100kmPer100mUntil1000kmPer1000m.dat";
+    std::shared_ptr< TabulatedAtmosphereSettings > tabulatedAtmosphereSettings =
+            std::make_shared< TabulatedAtmosphereSettings >( atmosphereTableFile );
 
     // Create settings for exponential atmosphere
     double densityScaleHeight = 8.0E3;
     double constantTemperature = 270.0;
     double densityAtZeroAltitude = 1.225;
     double specificGasConstant = 287.1;
-    boost::shared_ptr< ExponentialAtmosphereSettings > exponentialAtmosphereSettings =
-            boost::make_shared< ExponentialAtmosphereSettings >(
+    std::shared_ptr< ExponentialAtmosphereSettings > exponentialAtmosphereSettings =
+            std::make_shared< ExponentialAtmosphereSettings >(
                 densityScaleHeight, constantTemperature,
                 densityAtZeroAltitude, specificGasConstant );
 
 
     // Create atmpshere models using setup function
-    boost::shared_ptr< aerodynamics::AtmosphereModel > exponentialAtmosphere =
+    std::shared_ptr< aerodynamics::AtmosphereModel > exponentialAtmosphere =
             createAtmosphereModel( exponentialAtmosphereSettings, "Earth" );
-    boost::shared_ptr< aerodynamics::AtmosphereModel > tabulatedAtmosphere =
+    std::shared_ptr< aerodynamics::AtmosphereModel > tabulatedAtmosphere =
             createAtmosphereModel( tabulatedAtmosphereSettings, "Earth" );
 
     // Create atmosphere models manually.
@@ -114,21 +115,21 @@ BOOST_AUTO_TEST_CASE( test_atmosphereModelSetup )
                        exponentialAtmosphere->getTemperature( 32.0, 0.0, 0.0, 0.0 ) );
 
 #if USE_NRLMSISE00
-    boost::shared_ptr< AtmosphereSettings > nrlmsise00AtmosphereSettings;
+    std::shared_ptr< AtmosphereSettings > nrlmsise00AtmosphereSettings;
     for( int atmosphereTest = 0; atmosphereTest < 2; atmosphereTest++ )
     {
         if( atmosphereTest == 0 )
         {
             nrlmsise00AtmosphereSettings =
-                    boost::make_shared< AtmosphereSettings >( nrlmsise00 );
+                    std::make_shared< AtmosphereSettings >( nrlmsise00 );
         }
         else
         {
             nrlmsise00AtmosphereSettings =
-                    boost::make_shared< NRLMSISE00AtmosphereSettings >(
+                    std::make_shared< NRLMSISE00AtmosphereSettings >(
                         input_output::getSpaceWeatherDataPath( ) + "sw19571001.txt" );
         }
-        boost::shared_ptr< aerodynamics::AtmosphereModel > nrlmsiseAtmosphere =
+        std::shared_ptr< aerodynamics::AtmosphereModel > nrlmsiseAtmosphere =
                 createAtmosphereModel( nrlmsise00AtmosphereSettings, "Earth" );
 
         // Compute properties using NRLMSISE00
@@ -137,7 +138,7 @@ BOOST_AUTO_TEST_CASE( test_atmosphereModelSetup )
         nrlmsiseAtmosphere->getDensity( 150.0E3, 1.0, 0.1, julianDaysSinceJ2000 * physical_constants::JULIAN_DAY );
 
         // Check if input to NRLMSISE00 is correctly computed (actual density computations tested in dedicated test).
-        aerodynamics::NRLMSISE00Input nrlMSISE00Input = boost::dynamic_pointer_cast< aerodynamics::NRLMSISE00Atmosphere >(
+        aerodynamics::NRLMSISE00Input nrlMSISE00Input = std::dynamic_pointer_cast< aerodynamics::NRLMSISE00Atmosphere >(
                     nrlmsiseAtmosphere )->getNRLMSISE00Input( );
         BOOST_CHECK_EQUAL( nrlMSISE00Input.year, 2005 );
         BOOST_CHECK_EQUAL( nrlMSISE00Input.dayOfTheYear, 31 + 28 + 31 + 30 + 3 );
@@ -175,12 +176,12 @@ BOOST_AUTO_TEST_CASE( test_ephemerisSetup )
         ephemerides::ApproximatePlanetPositionsBase::BodiesWithEphemerisData bodyIdentifier =
                 ephemerides::ApproximatePlanetPositionsBase::mars;
         bool useCircularCoplanarApproximation = 0;
-        boost::shared_ptr< ApproximatePlanetPositionSettings > approximateEphemerisSettings =
-                boost::make_shared< ApproximatePlanetPositionSettings >(
+        std::shared_ptr< ApproximatePlanetPositionSettings > approximateEphemerisSettings =
+                std::make_shared< ApproximatePlanetPositionSettings >(
                     bodyIdentifier, useCircularCoplanarApproximation );
 
         // Create ephemeris using setup function.
-        boost::shared_ptr< ephemerides::Ephemeris > approximateEphemeris =
+        std::shared_ptr< ephemerides::Ephemeris > approximateEphemeris =
                 createBodyEphemeris( approximateEphemerisSettings, "Earth" );
 
         // Create manual ephemeris.
@@ -196,9 +197,9 @@ BOOST_AUTO_TEST_CASE( test_ephemerisSetup )
 
     {
         // Create spice ephemeris.
-        boost::shared_ptr< EphemerisSettings > spiceEphemerisSettings =
-                boost::make_shared< DirectSpiceEphemerisSettings >( "Earth", "J2000" );
-        boost::shared_ptr< ephemerides::Ephemeris > spiceEphemeris =
+        std::shared_ptr< EphemerisSettings > spiceEphemerisSettings =
+                std::make_shared< DirectSpiceEphemerisSettings >( "Earth", "J2000" );
+        std::shared_ptr< ephemerides::Ephemeris > spiceEphemeris =
                 createBodyEphemeris( spiceEphemerisSettings, "Moon" );
 
         // Compare spice ephemeris against direct spice state.
@@ -215,11 +216,11 @@ BOOST_AUTO_TEST_CASE( test_ephemerisSetup )
         double radius = 8000.0E3;
         double speed = 5000.0;
 
-        boost::shared_ptr< EphemerisSettings > customEphemerisSettings =
-                boost::make_shared< CustomEphemerisSettings >(
-                    boost::bind( &computeCustomState, _1,  angularVelocity, radius, speed ),
+        std::shared_ptr< EphemerisSettings > customEphemerisSettings =
+                std::make_shared< CustomEphemerisSettings >(
+                    std::bind( &computeCustomState, std::placeholders::_1,  angularVelocity, radius, speed ),
                     "Earth", "J2000" );
-        boost::shared_ptr< ephemerides::Ephemeris > customEphemeris =
+        std::shared_ptr< ephemerides::Ephemeris > customEphemeris =
                 createBodyEphemeris( customEphemerisSettings, "Satellite" );
 
         double testTime = 4.0E8;
@@ -240,10 +241,10 @@ BOOST_AUTO_TEST_CASE( test_ephemerisSetup )
 
     {
         // Create tabulated spice ephemeris
-        boost::shared_ptr< EphemerisSettings > spiceEphemerisSettings =
-                boost::make_shared< InterpolatedSpiceEphemerisSettings >(
+        std::shared_ptr< EphemerisSettings > spiceEphemerisSettings =
+                std::make_shared< InterpolatedSpiceEphemerisSettings >(
                     1.0E7 - 50.0 * 600.0, 1.0E7 + 50.0 * 600.0, 600.0, "Earth", "J2000" );
-        boost::shared_ptr< ephemerides::Ephemeris > spiceEphemeris =
+        std::shared_ptr< ephemerides::Ephemeris > spiceEphemeris =
                 createBodyEphemeris( spiceEphemerisSettings, "Moon" );
 
         // Compare tabulated spice ephemeris against direct spice state on node point.
@@ -264,16 +265,16 @@ BOOST_AUTO_TEST_CASE( test_ephemerisSetup )
         }
 
         // Create tabulated ephemeris.
-        boost::shared_ptr< EphemerisSettings > tabulatedEphemerisSettings =
-                boost::make_shared< TabulatedEphemerisSettings >(
+        std::shared_ptr< EphemerisSettings > tabulatedEphemerisSettings =
+                std::make_shared< TabulatedEphemerisSettings >(
                     tabulatedStates, "Earth", "J2000" );
-        boost::shared_ptr< ephemerides::Ephemeris > tabulatedEphemeris =
+        std::shared_ptr< ephemerides::Ephemeris > tabulatedEphemeris =
                 createBodyEphemeris( tabulatedEphemerisSettings, "Moon" );
 
         // Manually create tabulated ephemeris.
-        boost::shared_ptr< ephemerides::Ephemeris > manualTabulatedEphemeris =
-                boost::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
-                    boost::make_shared< interpolators::LagrangeInterpolator
+        std::shared_ptr< ephemerides::Ephemeris > manualTabulatedEphemeris =
+                std::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
+                    std::make_shared< interpolators::LagrangeInterpolator
                     < double, Eigen::Vector6d > >( tabulatedStates, 6 ),
                     "Earth", "J2000" );
 
@@ -300,11 +301,11 @@ BOOST_AUTO_TEST_CASE( test_gravityFieldSetup )
     spice_interface::loadStandardSpiceKernels( );
 
     // Create settings for spice central gravity field model.
-    boost::shared_ptr< GravityFieldSettings > spiceCentralGravityFieldSettings =
-            boost::make_shared< GravityFieldSettings >( central_spice );
+    std::shared_ptr< GravityFieldSettings > spiceCentralGravityFieldSettings =
+            std::make_shared< GravityFieldSettings >( central_spice );
 
     // Create spice central gravity field model from setup function.
-    boost::shared_ptr< gravitation::GravityFieldModel > spiceCentralGravityField =
+    std::shared_ptr< gravitation::GravityFieldModel > spiceCentralGravityField =
             createGravityFieldModel( spiceCentralGravityFieldSettings, "Venus" );
 
     // Check correct creation of gravity field.
@@ -338,11 +339,11 @@ BOOST_AUTO_TEST_CASE( test_gravityFieldSetup )
               ).finished( );
 
     // Create settings for central gravity field.
-    boost::shared_ptr< CentralGravityFieldSettings > centralGravityFieldSettings =
-            boost::make_shared< CentralGravityFieldSettings >( gravitationalParameter );
+    std::shared_ptr< CentralGravityFieldSettings > centralGravityFieldSettings =
+            std::make_shared< CentralGravityFieldSettings >( gravitationalParameter );
 
     // Create central gravity field with setup function.
-    boost::shared_ptr< gravitation::GravityFieldModel > centralGravityField =
+    std::shared_ptr< gravitation::GravityFieldModel > centralGravityField =
             createGravityFieldModel( centralGravityFieldSettings, "Earth" );
 
     // Create central gravity field manually.
@@ -359,13 +360,13 @@ BOOST_AUTO_TEST_CASE( test_gravityFieldSetup )
                 std::numeric_limits< double >::epsilon( ) );
 
     // Create settings for sh gravity field.
-    boost::shared_ptr< SphericalHarmonicsGravityFieldSettings > shGravityFieldSettings =
-            boost::make_shared< SphericalHarmonicsGravityFieldSettings >(
+    std::shared_ptr< SphericalHarmonicsGravityFieldSettings > shGravityFieldSettings =
+            std::make_shared< SphericalHarmonicsGravityFieldSettings >(
                 gravitationalParameter, 6378.0E3, cosineCoefficients, sineCoefficients,
                 "Earth_fixed" );
 
     // Create sh gravity field with setup function.
-    boost::shared_ptr< gravitation::GravityFieldModel > shGravityField =
+    std::shared_ptr< gravitation::GravityFieldModel > shGravityField =
             createGravityFieldModel( shGravityFieldSettings, "Earth" );
 
     // Create sh gravity field manually.
@@ -381,8 +382,8 @@ BOOST_AUTO_TEST_CASE( test_gravityFieldSetup )
                 ( shGravityField->getGradientOfPotential( testPosition ) ),
                 std::numeric_limits< double >::epsilon( ) );
 
-    boost::shared_ptr< gravitation::SphericalHarmonicsGravityField > defaultEarthField =
-            boost::dynamic_pointer_cast< gravitation::SphericalHarmonicsGravityField >(
+    std::shared_ptr< gravitation::SphericalHarmonicsGravityField > defaultEarthField =
+            std::dynamic_pointer_cast< gravitation::SphericalHarmonicsGravityField >(
                 createGravityFieldModel( getDefaultGravityFieldSettings(
                                              "Earth", TUDAT_NAN, TUDAT_NAN ), "Earth" ) );
     BOOST_CHECK_EQUAL(
@@ -404,8 +405,8 @@ BOOST_AUTO_TEST_CASE( test_gravityFieldSetup )
     BOOST_CHECK_EQUAL(
                 ( defaultEarthField->getSineCoefficients( )( 7, 1 ) ), 0.954336911867E-07 );
 
-    boost::shared_ptr< gravitation::SphericalHarmonicsGravityField > defaultMoonField =
-            boost::dynamic_pointer_cast< gravitation::SphericalHarmonicsGravityField >(
+    std::shared_ptr< gravitation::SphericalHarmonicsGravityField > defaultMoonField =
+            std::dynamic_pointer_cast< gravitation::SphericalHarmonicsGravityField >(
                 createGravityFieldModel( getDefaultGravityFieldSettings(
                                              "Moon", TUDAT_NAN, TUDAT_NAN ), "Moon" ) );
     BOOST_CHECK_EQUAL(
@@ -436,7 +437,7 @@ BOOST_AUTO_TEST_CASE( test_triaxialEllipsoidGravityFieldSetup )
 
     double density = 2.7E3;
 
-    boost::shared_ptr< SphericalHarmonicsGravityFieldSettings > gravityFieldSettings =
+    std::shared_ptr< SphericalHarmonicsGravityFieldSettings > gravityFieldSettings =
             createHomogeneousTriAxialEllipsoidGravitySettings(
                 axisA, axisB, axisC, density, 11, 11, "TestFrame" );
 
@@ -539,12 +540,12 @@ BOOST_AUTO_TEST_CASE( test_gravityFieldVariationSetup )
 
 
     // Define body settings.
-    std::map< std::string, boost::shared_ptr< BodySettings > > bodySettings;
+    std::map< std::string, std::shared_ptr< BodySettings > > bodySettings;
     bodySettings[ "Moon" ] = getDefaultSingleBodySettings( "Moon", 0.0, 1.0E7 );
     bodySettings[ "Sun" ] = getDefaultSingleBodySettings( "Sun", 0.0, 1.0E7 );
     bodySettings[ "Earth" ] = getDefaultSingleBodySettings( "Earth", 0.0, 1.0E7 );
 
-    bodySettings[ "Earth" ]->gravityFieldSettings = boost::make_shared< SphericalHarmonicsGravityFieldSettings >(
+    bodySettings[ "Earth" ]->gravityFieldSettings = std::make_shared< SphericalHarmonicsGravityFieldSettings >(
                 gravitationalParameter, referenceRadius, cosineCoefficients, sineCoefficients, "IAU_Earth" );
 
 
@@ -566,7 +567,7 @@ BOOST_AUTO_TEST_CASE( test_gravityFieldVariationSetup )
         deformingBodies.push_back( "Sun" );
 
         bodySettings[ "Earth" ]->gravityFieldVariationSettings.push_back(
-                    boost::make_shared< BasicSolidBodyGravityFieldVariationSettings >(
+                    std::make_shared< BasicSolidBodyGravityFieldVariationSettings >(
                         deformingBodies, fullLoveNumberVector, referenceRadius ) );
 
         // Create bodies
@@ -581,8 +582,8 @@ BOOST_AUTO_TEST_CASE( test_gravityFieldVariationSetup )
         bodyMap[ "Moon" ]->setStateFromEphemeris( testTime );
 
         // Update gravity field
-        boost::shared_ptr< gravitation::TimeDependentSphericalHarmonicsGravityField > earthGravityField =
-                boost::dynamic_pointer_cast< gravitation::TimeDependentSphericalHarmonicsGravityField >(
+        std::shared_ptr< gravitation::TimeDependentSphericalHarmonicsGravityField > earthGravityField =
+                std::dynamic_pointer_cast< gravitation::TimeDependentSphericalHarmonicsGravityField >(
                     bodyMap[ "Earth" ]->getGravityFieldModel( ) );
         earthGravityField->update( testTime );
 
@@ -601,13 +602,13 @@ BOOST_AUTO_TEST_CASE( test_gravityFieldVariationSetup )
         std::vector< std::string > deformingBodies;
         deformingBodies.push_back( "Moon" );
         bodySettings[ "Earth" ]->gravityFieldVariationSettings.push_back(
-                    boost::make_shared< BasicSolidBodyGravityFieldVariationSettings >(
+                    std::make_shared< BasicSolidBodyGravityFieldVariationSettings >(
                         deformingBodies, fullLoveNumberVector, referenceRadius ) );
 
         deformingBodies.clear( );
         deformingBodies.push_back( "Sun" );
         bodySettings[ "Earth" ]->gravityFieldVariationSettings.push_back(
-                    boost::make_shared< BasicSolidBodyGravityFieldVariationSettings >(
+                    std::make_shared< BasicSolidBodyGravityFieldVariationSettings >(
                         deformingBodies, fullLoveNumberVector, referenceRadius ) );
 
         // Create bodies
@@ -621,8 +622,8 @@ BOOST_AUTO_TEST_CASE( test_gravityFieldVariationSetup )
         bodyMap[ "Moon" ]->setStateFromEphemeris( testTime );
 
         // Update gravity field
-        boost::shared_ptr< gravitation::TimeDependentSphericalHarmonicsGravityField > earthGravityField =
-                boost::dynamic_pointer_cast< gravitation::TimeDependentSphericalHarmonicsGravityField >(
+        std::shared_ptr< gravitation::TimeDependentSphericalHarmonicsGravityField > earthGravityField =
+                std::dynamic_pointer_cast< gravitation::TimeDependentSphericalHarmonicsGravityField >(
                     bodyMap[ "Earth" ]->getGravityFieldModel( ) );
         earthGravityField->update( testTime );
 
@@ -639,11 +640,11 @@ BOOST_AUTO_TEST_CASE( test_gravityFieldVariationSetup )
         deformingBodies.push_back( "Moon" );
         deformingBodies.push_back( "Sun" );
         bodySettings[ "Earth" ]->gravityFieldVariationSettings.push_back(
-                    boost::make_shared< BasicSolidBodyGravityFieldVariationSettings >(
+                    std::make_shared< BasicSolidBodyGravityFieldVariationSettings >(
                         deformingBodies, fullLoveNumberVector, referenceRadius,
-                        boost::make_shared< ModelInterpolationSettings >(
+                        std::make_shared< ModelInterpolationSettings >(
                             0.25E7, 0.75E7, 600.0,
-                            boost::make_shared< interpolators::LagrangeInterpolatorSettings >( 8 ) ) ) );
+                            std::make_shared< interpolators::LagrangeInterpolatorSettings >( 8 ) ) ) );
 
         // Create bodies
         NamedBodyMap bodyMap = createBodies( bodySettings );
@@ -651,8 +652,8 @@ BOOST_AUTO_TEST_CASE( test_gravityFieldVariationSetup )
         setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );
 
         // Update gravity field
-        boost::shared_ptr< gravitation::TimeDependentSphericalHarmonicsGravityField > earthGravityField =
-                boost::dynamic_pointer_cast< gravitation::TimeDependentSphericalHarmonicsGravityField >(
+        std::shared_ptr< gravitation::TimeDependentSphericalHarmonicsGravityField > earthGravityField =
+                std::dynamic_pointer_cast< gravitation::TimeDependentSphericalHarmonicsGravityField >(
                     bodyMap[ "Earth" ]->getGravityFieldModel( ) );
 
         earthGravityField->update( testTime );
@@ -730,13 +731,13 @@ BOOST_AUTO_TEST_CASE( test_rotationModelSetup )
             0.01869081416890206, -0.3877088083617987, 0.9215923900425707;
     double venusRotationRate = unit_conversions::convertDegreesToRadians( -1.4813688 ) /
             physical_constants::JULIAN_DAY;
-    boost::shared_ptr< SimpleRotationModelSettings > simpleRotationSettings =
-            boost::make_shared< SimpleRotationModelSettings >
+    std::shared_ptr< SimpleRotationModelSettings > simpleRotationSettings =
+            std::make_shared< SimpleRotationModelSettings >
             ( "IAU_VENUS", "J2000", Eigen::Quaterniond( spiceInitialRotationToTargetFrameMatrix ),
               1.0E7, venusRotationRate );
 
     // Create rotation model using setup function
-    boost::shared_ptr< ephemerides::RotationalEphemeris > approximateEphemeris =
+    std::shared_ptr< ephemerides::RotationalEphemeris > approximateEphemeris =
             createRotationModel( simpleRotationSettings, "Earth" );
 
     // Create rotation model manually.
@@ -766,23 +767,23 @@ BOOST_AUTO_TEST_CASE( test_rotationModelSetup )
 //! Test set up of GCRS<->ITRS rotation model
 BOOST_AUTO_TEST_CASE( test_earthRotationModelSetup )
 {
-    boost::shared_ptr< GcrsToItrsRotationModelSettings > rotationSettings =
-            boost::make_shared< GcrsToItrsRotationModelSettings >( );
+    std::shared_ptr< GcrsToItrsRotationModelSettings > rotationSettings =
+            std::make_shared< GcrsToItrsRotationModelSettings >( );
 
     // Create rotation model using setup function
-    boost::shared_ptr< tudat::ephemerides::RotationalEphemeris > earthRotationModel =
+    std::shared_ptr< tudat::ephemerides::RotationalEphemeris > earthRotationModel =
             createRotationModel( rotationSettings, "Earth" );
 
     double testTime = 5.0E7;
 
-    boost::shared_ptr< GcrsToItrsRotationModelSettings > gcrsToItrsRotationSettings2000a =
-            boost::make_shared< GcrsToItrsRotationModelSettings >( basic_astrodynamics::iau_2000_a );
-    boost::shared_ptr< GcrsToItrsRotationModelSettings > gcrsToItrsRotationSettings2000b =
-            boost::make_shared< GcrsToItrsRotationModelSettings >( basic_astrodynamics::iau_2000_b );
+    std::shared_ptr< GcrsToItrsRotationModelSettings > gcrsToItrsRotationSettings2000a =
+            std::make_shared< GcrsToItrsRotationModelSettings >( basic_astrodynamics::iau_2000_a );
+    std::shared_ptr< GcrsToItrsRotationModelSettings > gcrsToItrsRotationSettings2000b =
+            std::make_shared< GcrsToItrsRotationModelSettings >( basic_astrodynamics::iau_2000_b );
 
-    boost::shared_ptr< tudat::ephemerides::RotationalEphemeris > earthRotationModel2000a =
+    std::shared_ptr< tudat::ephemerides::RotationalEphemeris > earthRotationModel2000a =
             createRotationModel( gcrsToItrsRotationSettings2000a, "Earth" );
-    boost::shared_ptr< tudat::ephemerides::RotationalEphemeris > earthRotationModel2000b =
+    std::shared_ptr< tudat::ephemerides::RotationalEphemeris > earthRotationModel2000b =
             createRotationModel( gcrsToItrsRotationSettings2000b, "Earth" );
 
     Eigen::Quaterniond rotationMatrix = earthRotationModel->getRotationToBaseFrame( testTime );
@@ -793,8 +794,8 @@ BOOST_AUTO_TEST_CASE( test_earthRotationModelSetup )
     Eigen::Quaterniond rotationMatrix2000b = earthRotationModel2000b->getRotationToBaseFrame( testTime );
     Eigen::Matrix3d matrixDeviation2000b = rotationMatrix2000b.toRotationMatrix( ) - rotationMatrix.toRotationMatrix( );
 
-    boost::shared_ptr< tudat::ephemerides::GcrsToItrsRotationModel >  defaultEarthModel =
-            boost::make_shared< ephemerides::GcrsToItrsRotationModel >(
+    std::shared_ptr< tudat::ephemerides::GcrsToItrsRotationModel >  defaultEarthModel =
+            std::make_shared< ephemerides::GcrsToItrsRotationModel >(
                 tudat::earth_orientation::createStandardEarthOrientationCalculator( ) );
 
     Eigen::Quaterniond defaultRotationMatrix = defaultEarthModel->getRotationToBaseFrame( testTime );
@@ -829,7 +830,7 @@ BOOST_AUTO_TEST_CASE( test_radiationPressureInterfaceSetup )
     spice_interface::loadStandardSpiceKernels( );
 
     // Define body settings.
-    std::map< std::string, boost::shared_ptr< BodySettings > > bodySettings;
+    std::map< std::string, std::shared_ptr< BodySettings > > bodySettings;
     bodySettings[ "Earth" ] = getDefaultSingleBodySettings( "Earth", 0.0, 1.0E7 );
     bodySettings[ "Sun" ] = getDefaultSingleBodySettings( "Sun", 0.0, 1.0E7 );
 
@@ -838,11 +839,11 @@ BOOST_AUTO_TEST_CASE( test_radiationPressureInterfaceSetup )
     double coefficient = 1.2;
     Eigen::Vector6d initialKeplerElements =
             ( Eigen::Vector6d( ) << 12000.0E3, 0.13, 0.3, 0.0, 0.0, 0.0 ).finished( );
-    bodySettings[ "Vehicle" ] = boost::make_shared< BodySettings >( );
+    bodySettings[ "Vehicle" ] = std::make_shared< BodySettings >( );
     bodySettings[ "Vehicle" ]->radiationPressureSettings[ "Sun" ] =
-            boost::make_shared< CannonBallRadiationPressureInterfaceSettings >( "Sun", area, coefficient );
+            std::make_shared< CannonBallRadiationPressureInterfaceSettings >( "Sun", area, coefficient );
     bodySettings[ "Vehicle" ]->ephemerisSettings =
-            boost::make_shared< KeplerEphemerisSettings >(
+            std::make_shared< KeplerEphemerisSettings >(
                 initialKeplerElements,
                 0.0, spice_interface::getBodyGravitationalParameter( "Earth" ), "Earth", "ECLIPJ2000" );
 
@@ -860,7 +861,7 @@ BOOST_AUTO_TEST_CASE( test_radiationPressureInterfaceSetup )
     bodyMap[ "Earth" ]->setStateFromEphemeris< double, double >( testTime );
     bodyMap[ "Vehicle" ]->setStateFromEphemeris< double, double >( testTime );
 
-    boost::shared_ptr< electro_magnetism::RadiationPressureInterface > vehicleRadiationPressureInterface =
+    std::shared_ptr< electro_magnetism::RadiationPressureInterface > vehicleRadiationPressureInterface =
             bodyMap[ "Vehicle" ]->getRadiationPressureInterfaces( ).at( "Sun" );
 
     vehicleRadiationPressureInterface->updateInterface( testTime );
@@ -887,9 +888,9 @@ BOOST_AUTO_TEST_CASE( test_shapeModelSetup )
 
     // Test spherical body setup
     {
-        boost::shared_ptr< BodyShapeSettings > shapeSettings = boost::make_shared< SphericalBodyShapeSettings >(
+        std::shared_ptr< BodyShapeSettings > shapeSettings = std::make_shared< SphericalBodyShapeSettings >(
                     equatorialRadius );
-        boost::shared_ptr< BodyShapeModel > shapeModel = createBodyShapeModel(
+        std::shared_ptr< BodyShapeModel > shapeModel = createBodyShapeModel(
                     shapeSettings, "Earth" );
 
 
@@ -902,9 +903,9 @@ BOOST_AUTO_TEST_CASE( test_shapeModelSetup )
     }
     // Test oblate spheroid setup
     {
-        boost::shared_ptr< BodyShapeSettings > shapeSettings = boost::make_shared< OblateSphericalBodyShapeSettings >(
+        std::shared_ptr< BodyShapeSettings > shapeSettings = std::make_shared< OblateSphericalBodyShapeSettings >(
                     equatorialRadius, flattening );
-        boost::shared_ptr< BodyShapeModel > shapeModel = createBodyShapeModel(
+        std::shared_ptr< BodyShapeModel > shapeModel = createBodyShapeModel(
                     shapeSettings, "Earth" );
 
 
@@ -927,12 +928,12 @@ BOOST_AUTO_TEST_CASE( test_flightConditionsSetup )
     spice_interface::loadStandardSpiceKernels( );
 
     // Define body settings/
-    std::map< std::string, boost::shared_ptr< BodySettings > > bodySettings;
+    std::map< std::string, std::shared_ptr< BodySettings > > bodySettings;
     bodySettings[ "Earth" ] = getDefaultSingleBodySettings(
                 "Earth", 0.0, 1.0E7 );
-    bodySettings[ "Vehicle" ] = boost::make_shared< BodySettings >( );
+    bodySettings[ "Vehicle" ] = std::make_shared< BodySettings >( );
     bodySettings[ "Vehicle" ] ->aerodynamicCoefficientSettings =
-            boost::make_shared< ConstantAerodynamicCoefficientSettings >(
+            std::make_shared< ConstantAerodynamicCoefficientSettings >(
                 1.0, 2.0, 3.0, Eigen::Vector3d::Zero( ),
                 ( Eigen::Vector3d( ) << -1.1, 0.1, 2.3 ).finished( ),
                 Eigen::Vector3d::Zero( ), 1, 1 );
@@ -952,12 +953,12 @@ BOOST_AUTO_TEST_CASE( test_flightConditionsSetup )
     double bankAngle = 2.323432;
 
     // Create flight conditions object.
-    boost::shared_ptr< aerodynamics::FlightConditions > vehicleFlightConditions =
+    std::shared_ptr< aerodynamics::FlightConditions > vehicleFlightConditions =
             createAtmosphericFlightConditions( bodyMap.at( "Vehicle" ), bodyMap.at( "Earth" ),
                                     "Vehicle", "Earth",
-                                    boost::lambda::constant( angleOfAttack ),
-                                    boost::lambda::constant( angleOfSideslip ),
-                                    boost::lambda::constant( bankAngle ) );
+                                    [&](){ return angleOfAttack; },
+                                    [&](){ return angleOfSideslip; },
+                                    [&](){ return bankAngle; } );
 
     // Set vehicle body-fixed state (see testAerodynamicAngleCalculator)
     Eigen::Vector6d vehicleBodyFixedState =
@@ -1025,9 +1026,9 @@ BOOST_AUTO_TEST_CASE( test_groundStationCreation )
     const double flattening = 1.0 / 298.257223563;
     const double equatorialRadius = 6378137.0;
 
-    std::map< std::string, boost::shared_ptr< BodySettings > > bodySettings;
-    bodySettings[ "Earth" ] = boost::make_shared< BodySettings >( );
-    bodySettings[ "Earth" ]->shapeModelSettings = boost::make_shared< OblateSphericalBodyShapeSettings >(
+    std::map< std::string, std::shared_ptr< BodySettings > > bodySettings;
+    bodySettings[ "Earth" ] = std::make_shared< BodySettings >( );
+    bodySettings[ "Earth" ]->shapeModelSettings = std::make_shared< OblateSphericalBodyShapeSettings >(
                 equatorialRadius, flattening );
 
     Eigen::Vector3d testCartesianPosition( 1917032.190, 6029782.349, -801376.113 );
@@ -1038,11 +1039,11 @@ BOOST_AUTO_TEST_CASE( test_groundStationCreation )
     testSphericalPosition( 1 ) = mathematical_constants::PI / 2.0 - testSphericalPosition( 1 );
 
     bodySettings[ "Earth" ]->groundStationSettings.push_back(
-                boost::make_shared< GroundStationSettings >( "Station1", testCartesianPosition, cartesian_position  ) );
+                std::make_shared< GroundStationSettings >( "Station1", testCartesianPosition, cartesian_position  ) );
     bodySettings[ "Earth" ]->groundStationSettings.push_back(
-                boost::make_shared< GroundStationSettings >( "Station2", testSphericalPosition, spherical_position ) );
+                std::make_shared< GroundStationSettings >( "Station2", testSphericalPosition, spherical_position ) );
     bodySettings[ "Earth" ]->groundStationSettings.push_back(
-                boost::make_shared< GroundStationSettings >( "Station3", testGeodeticPosition, geodetic_position ) );
+                std::make_shared< GroundStationSettings >( "Station3", testGeodeticPosition, geodetic_position ) );
 
     // Create bodies
     NamedBodyMap bodyMap = createBodies( bodySettings );

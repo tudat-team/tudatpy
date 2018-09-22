@@ -13,7 +13,7 @@
 
 #include <string>
 
-#include <boost/function.hpp>
+#include <functional>
 
 #include <Eigen/Core>
 #include <Eigen/Geometry>
@@ -96,8 +96,8 @@ Eigen::Matrix< StateScalarType, 6, 1 > transformStateToFrameFromRotations(
 template< typename StateScalarType >
 Eigen::Matrix< StateScalarType, 6, 1 > transformStateToFrameFromRotationFunctions(
         const Eigen::Matrix< StateScalarType, 6, 1 >& stateInBaseFrame,
-        const boost::function< Eigen::Quaterniond( ) > rotationToFrameFunction,
-        const boost::function< Eigen::Matrix3d( ) > rotationMatrixToFrameDerivativeFunction )
+        const std::function< Eigen::Quaterniond( ) > rotationToFrameFunction,
+        const std::function< Eigen::Matrix3d( ) > rotationMatrixToFrameDerivativeFunction )
 {
     return transformStateToFrameFromRotations< StateScalarType >(
                 stateInBaseFrame, rotationToFrameFunction( ),
@@ -119,10 +119,10 @@ Eigen::Matrix< StateScalarType, 6, 1 > transformStateToFrameFromRotationFunction
  */
 template< typename StateScalarType >
 Eigen::Matrix< StateScalarType, 6, 1 > transformRelativeStateToFrame(
-        const boost::function< Eigen::Matrix< StateScalarType, 6, 1 >( ) > stateInBaseFrame,
-        const boost::function< Eigen::Matrix< StateScalarType, 6, 1 >( ) > centralBodyStateInBaseFrame,
-        const boost::function< Eigen::Quaterniond( ) > rotationToFrameFunction,
-        const boost::function< Eigen::Matrix3d( ) > rotationMatrixToFrameDerivativeFunction )
+        const std::function< Eigen::Matrix< StateScalarType, 6, 1 >( ) > stateInBaseFrame,
+        const std::function< Eigen::Matrix< StateScalarType, 6, 1 >( ) > centralBodyStateInBaseFrame,
+        const std::function< Eigen::Quaterniond( ) > rotationToFrameFunction,
+        const std::function< Eigen::Matrix3d( ) > rotationMatrixToFrameDerivativeFunction )
 {
     return transformStateToFrameFromRotations< StateScalarType >(
                 stateInBaseFrame( ) - centralBodyStateInBaseFrame( ), rotationToFrameFunction( ),
@@ -147,8 +147,8 @@ template< typename StateScalarType, typename TimeType >
 Eigen::Matrix< StateScalarType, 6, 1 > transformStateToFrameFromRotationTimeFunctions(
         const Eigen::Matrix< StateScalarType, 6, 1 >& stateInBaseFrame,
         const double currentTime,
-        const boost::function< Eigen::Quaterniond( const TimeType ) > rotationToFrameFunction,
-        const boost::function< Eigen::Matrix3d( const TimeType ) > rotationMatrixToFrameDerivativeFunction )
+        const std::function< Eigen::Quaterniond( const TimeType ) > rotationToFrameFunction,
+        const std::function< Eigen::Matrix3d( const TimeType ) > rotationMatrixToFrameDerivativeFunction )
 {
     return transformStateToFrameFromRotations(
                 stateInBaseFrame, rotationToFrameFunction( currentTime ),
@@ -462,7 +462,7 @@ template< typename StateScalarType, typename TimeType >
 Eigen::Matrix< StateScalarType, 6, 1 > transformStateToGlobalFrame(
         const Eigen::Matrix< StateScalarType, 6, 1 >& stateInLocalFrame,
         const TimeType currentTime,
-        const boost::shared_ptr< RotationalEphemeris > rotationalEphemeris )
+        const std::shared_ptr< RotationalEphemeris > rotationalEphemeris )
 {
     return transformStateToFrameFromRotations< StateScalarType >(
                 stateInLocalFrame, rotationalEphemeris->getRotationToBaseFrameTemplated< TimeType >( currentTime ),
@@ -482,7 +482,7 @@ template< typename StateScalarType, typename TimeType >
 Eigen::Matrix< StateScalarType, 6, 1 > transformStateToTargetFrame(
         const Eigen::Matrix< StateScalarType, 6, 1 >& stateInGlobalFrame,
         const TimeType currentTime,
-        const boost::shared_ptr< RotationalEphemeris > rotationalEphemeris )
+        const std::shared_ptr< RotationalEphemeris > rotationalEphemeris )
 {
     return transformStateToFrameFromRotations< StateScalarType >(
                 stateInGlobalFrame, rotationalEphemeris->getRotationToTargetFrameTemplated< TimeType >( currentTime ),
