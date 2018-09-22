@@ -32,7 +32,7 @@ public:
 
     //! Typedef of the function describing the system.
     typedef std::function< DependentVector( const IndependentVariableType,
-                                              const DependentVector& ) > ControlFunction;
+                                            const DependentVector& ) > ControlFunction;
 
     //! Default constructor.
     /*!
