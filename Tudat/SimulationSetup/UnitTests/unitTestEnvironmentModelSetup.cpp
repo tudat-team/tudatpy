@@ -956,9 +956,9 @@ BOOST_AUTO_TEST_CASE( test_flightConditionsSetup )
     std::shared_ptr< aerodynamics::FlightConditions > vehicleFlightConditions =
             createAtmosphericFlightConditions( bodyMap.at( "Vehicle" ), bodyMap.at( "Earth" ),
                                     "Vehicle", "Earth",
-                                    [&](){ return angleOfAttack; },
-                                    [&](){ return angleOfSideslip; },
-                                    [&](){ return bankAngle; } );
+                                    [ & ]( ){ return angleOfAttack; },
+                                    [ & ]( ){ return angleOfSideslip; },
+                                    [ & ]( ){ return bankAngle; } );
 
     // Set vehicle body-fixed state (see testAerodynamicAngleCalculator)
     Eigen::Vector6d vehicleBodyFixedState =

@@ -302,7 +302,7 @@ BOOST_AUTO_TEST_CASE( test_ParameterPostFitResidualsApollo )
     // Define constant 25 degree angle of attack
     double constantAngleOfAttack = 25.0 * mathematical_constants::PI / 180.0;
     bodyMap.at( "Apollo" )->getFlightConditions( )->getAerodynamicAngleCalculator( )->setOrientationAngleFunctions(
-                [&]( ){ return constantAngleOfAttack; } );
+                [ & ]( ){ return constantAngleOfAttack; } );
 
     // Set initial spherical elements for Apollo.
     Eigen::Vector6d apolloSphericalEntryState;

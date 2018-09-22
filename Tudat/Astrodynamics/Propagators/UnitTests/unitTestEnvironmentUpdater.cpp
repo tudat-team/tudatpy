@@ -503,9 +503,9 @@ BOOST_AUTO_TEST_CASE( test_NonConservativeForceEnvironmentUpdate )
         double angleOfSideslip = -0.00322;
         double bankAngle = 2.323432;
         vehicleFlightConditions->getAerodynamicAngleCalculator( )->setOrientationAngleFunctions(
-                    [&]( ){ return angleOfAttack; },
-                    [&]( ){ return angleOfSideslip; },
-                    [&]( ){ return bankAngle; } );
+                    [ & ]( ){ return angleOfAttack; },
+                    [ & ]( ){ return angleOfSideslip; },
+                    [ & ]( ){ return bankAngle; } );
 
         std::shared_ptr< SingleArcPropagatorSettings< double > > propagatorSettings =
                 std::make_shared< TranslationalStatePropagatorSettings< double > >(

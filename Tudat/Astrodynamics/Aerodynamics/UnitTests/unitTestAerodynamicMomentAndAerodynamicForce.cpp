@@ -156,9 +156,9 @@ BOOST_AUTO_TEST_CASE( testAerodynamicForceAndAcceleration )
         // and reference area.
         AerodynamicAccelerationPointer accelerationClass
                 = std::make_shared< AerodynamicAcceleration >(
-                    [&]( ){ return forceCoefficients; },
-                    [&]( ){ return density; },
-                    [&]( ){ return airSpeed; },
+                    [ & ]( ){ return forceCoefficients; },
+                    [ & ]( ){ return density; },
+                    [ & ]( ){ return airSpeed; },
                     mass, referenceArea, false );
         accelerationClass->updateMembers( );
         Eigen::Vector3d force = accelerationClass->getAcceleration( ) * mass;
@@ -170,11 +170,11 @@ BOOST_AUTO_TEST_CASE( testAerodynamicForceAndAcceleration )
         // reference area set through std::functions.
         AerodynamicAccelerationPointer accelerationClass2 =
                 std::make_shared< AerodynamicAcceleration >(
-                    [&]( ){ return forceCoefficients; },
-                    [&]( ){ return density; },
-                    [&]( ){ return airSpeed; },
-                    [&]( ){ return mass; },
-                    [&]( ){ return referenceArea; },
+                    [ & ]( ){ return forceCoefficients; },
+                    [ & ]( ){ return density; },
+                    [ & ]( ){ return airSpeed; },
+                    [ & ]( ){ return mass; },
+                    [ & ]( ){ return referenceArea; },
                     false );
         accelerationClass2->updateMembers( );
         force = accelerationClass2->getAcceleration( ) * mass;
@@ -189,9 +189,9 @@ BOOST_AUTO_TEST_CASE( testAerodynamicForceAndAcceleration )
         // and reference area.
         AerodynamicAccelerationPointer accelerationClass =
                 std::make_shared< AerodynamicAcceleration >(
-                    [&]( ){ return -forceCoefficients; },
-                    [&]( ){ return density; },
-                    [&]( ){ return airSpeed; },
+                    [ & ]( ){ return -forceCoefficients; },
+                    [ & ]( ){ return density; },
+                    [ & ]( ){ return airSpeed; },
                     mass, referenceArea, true );
         accelerationClass->updateMembers( );
         Eigen::Vector3d force = accelerationClass->getAcceleration( ) * mass;
@@ -203,11 +203,11 @@ BOOST_AUTO_TEST_CASE( testAerodynamicForceAndAcceleration )
         // reference area set through std::functions.
         AerodynamicAccelerationPointer accelerationClass2 =
                 std::make_shared< AerodynamicAcceleration >(
-                    [&]( ){ return -forceCoefficients; },
-                    [&]( ){ return density; },
-                    [&]( ){ return airSpeed; },
-                    [&]( ){ return mass; },
-                    [&]( ){ return referenceArea; },
+                    [ & ]( ){ return -forceCoefficients; },
+                    [ & ]( ){ return density; },
+                    [ & ]( ){ return airSpeed; },
+                    [ & ]( ){ return mass; },
+                    [ & ]( ){ return referenceArea; },
                     true );
         accelerationClass2->updateMembers( );
         force = accelerationClass2->getAcceleration( ) * mass;
