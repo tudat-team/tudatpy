@@ -216,7 +216,7 @@ BOOST_AUTO_TEST_CASE( test_json_state_spherical )
     // Central body
 
     spice_interface::loadStandardSpiceKernels( );
-    boost::shared_ptr< Body > centralBody = createBodies( getDefaultBodySettings( { "Earth" } ) ).at( "Earth" );
+    std::shared_ptr< Body > centralBody = createBodies( getDefaultBodySettings( { "Earth" } ) ).at( "Earth" );
 
 
     // From radius

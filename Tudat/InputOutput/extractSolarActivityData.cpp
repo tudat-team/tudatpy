@@ -29,7 +29,7 @@ namespace solar_activity
 {
 
 //! Extracts the solar activity data to a SolarActivityData container.
-boost::shared_ptr< SolarActivityData > ExtractSolarActivityData::extract(
+std::shared_ptr< SolarActivityData > ExtractSolarActivityData::extract(
         tudat::input_output::parsed_data_vector_utilities::ParsedDataLineMapPtr data )
 {
 
@@ -56,7 +56,7 @@ boost::shared_ptr< SolarActivityData > ExtractSolarActivityData::extract(
                             last81DaySolarRadioFlux107Observed );
 
     // Create the resulting solar activity data object (will be returned at the end)
-    boost::shared_ptr< SolarActivityData > solarActivityContainer( new SolarActivityData( ) );
+    std::shared_ptr< SolarActivityData > solarActivityContainer( new SolarActivityData( ) );
 
     // Convert string data and append to solar activity data object
     solarActivityContainer->year = getField< unsigned int >( data, year );

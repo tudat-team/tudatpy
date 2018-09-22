@@ -27,7 +27,7 @@
 #include "Tudat/InputOutput/basicInputOutput.h"
 
 #include "Tudat/SimulationSetup/EnvironmentSetup/body.h"
-#include "Tudat/SimulationSetup/PropagationSetup/variationalEquationsSolver.h"
+#include "Tudat/SimulationSetup/EstimationSetup/variationalEquationsSolver.h"
 #include "Tudat/SimulationSetup/EnvironmentSetup/defaultBodies.h"
 #include "Tudat/SimulationSetup/EnvironmentSetup/createBodies.h"
 #include "Tudat/SimulationSetup/PropagationSetup/createNumericalSimulator.h"
@@ -84,7 +84,7 @@ executeEarthMoonSimulation(
     double buffer = 10.0 * maximumTimeStep;
 
     // Create bodies needed in simulation
-    std::map< std::string, boost::shared_ptr< BodySettings > > bodySettings =
+    std::map< std::string, std::shared_ptr< BodySettings > > bodySettings =
             getDefaultBodySettings( bodyNames, initialEphemerisTime - buffer, finalEphemerisTime + buffer );
 
     NamedBodyMap bodyMap = createBodies( bodySettings );
@@ -93,14 +93,14 @@ executeEarthMoonSimulation(
 
     // Set accelerations between bodies that are to be taken into account.
     SelectedAccelerationMap accelerationMap;
-    std::map< std::string, std::vector< boost::shared_ptr< AccelerationSettings > > > accelerationsOfEarth;
-    accelerationsOfEarth[ "Sun" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );
-    accelerationsOfEarth[ "Moon" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );
+    std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfEarth;
+    accelerationsOfEarth[ "Sun" ].push_back( std::make_shared< AccelerationSettings >( central_gravity ) );
+    accelerationsOfEarth[ "Moon" ].push_back( std::make_shared< AccelerationSettings >( central_gravity ) );
     accelerationMap[ "Earth" ] = accelerationsOfEarth;
 
-    std::map< std::string, std::vector< boost::shared_ptr< AccelerationSettings > > > accelerationsOfMoon;
-    accelerationsOfMoon[ "Sun" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );
-    accelerationsOfMoon[ "Earth" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );
+    std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfMoon;
+    accelerationsOfMoon[ "Sun" ].push_back( std::make_shared< AccelerationSettings >( central_gravity ) );
+    accelerationsOfMoon[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( central_gravity ) );
     accelerationMap[ "Moon" ] = accelerationsOfMoon;
 
     // Set bodies for which initial state is to be estimated and integrated.
@@ -123,8 +123,8 @@ executeEarthMoonSimulation(
                 bodyMap, accelerationMap, centralBodyMap );
 
     // Create integrator settings
-    boost::shared_ptr< IntegratorSettings< TimeType > > integratorSettings =
-            boost::make_shared< IntegratorSettings< TimeType > >
+    std::shared_ptr< IntegratorSettings< TimeType > > integratorSettings =
+            std::make_shared< IntegratorSettings< TimeType > >
             ( rungeKutta4, TimeType( initialEphemerisTime ), 1800.0 );
 
 
@@ -138,7 +138,7 @@ executeEarthMoonSimulation(
     systemInitialState += initialStateDifference;
 
     // Create propagator settings
-    boost::shared_ptr< TranslationalStatePropagatorSettings< StateScalarType > > propagatorSettings;
+    std::shared_ptr< TranslationalStatePropagatorSettings< StateScalarType > > propagatorSettings;
     TranslationalPropagatorType propagatorType;
     if( propagationType == 0 )
     {
@@ -148,33 +148,33 @@ executeEarthMoonSimulation(
     {
         propagatorType = encke;
     }
-    propagatorSettings =  boost::make_shared< TranslationalStatePropagatorSettings< StateScalarType > >
+    propagatorSettings =  std::make_shared< TranslationalStatePropagatorSettings< StateScalarType > >
             ( centralBodies, accelerationModelMap, bodiesToIntegrate, systemInitialState,
               TimeType( finalEphemerisTime ), propagatorType );
 
     // Define parameters.
-    std::vector< boost::shared_ptr< EstimatableParameterSettings > > parameterNames;
+    std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames;
     {
         parameterNames.push_back(
-                    boost::make_shared< InitialTranslationalStateEstimatableParameterSettings< StateScalarType > >(
+                    std::make_shared< InitialTranslationalStateEstimatableParameterSettings< StateScalarType > >(
                         "Moon", propagators::getInitialStateOfBody< TimeType, StateScalarType >(
                             "Moon", centralBodies[ 0 ], bodyMap, TimeType( initialEphemerisTime ) ) +
                     initialStateDifference.segment( 0, 6 ),
                     centralBodies[ 0 ] ) );
         parameterNames.push_back(
-                    boost::make_shared< InitialTranslationalStateEstimatableParameterSettings< StateScalarType > >(
+                    std::make_shared< InitialTranslationalStateEstimatableParameterSettings< StateScalarType > >(
                         "Earth", propagators::getInitialStateOfBody< TimeType, StateScalarType >(
                             "Earth", centralBodies[ 1 ], bodyMap, TimeType( initialEphemerisTime ) ) +
                     initialStateDifference.segment( 6, 6 ),
                     centralBodies[ 1 ] ) );
-        parameterNames.push_back( boost::make_shared< EstimatableParameterSettings >( "Moon", gravitational_parameter ) );
-        parameterNames.push_back( boost::make_shared< EstimatableParameterSettings >( "Earth", gravitational_parameter ) );
-        parameterNames.push_back( boost::make_shared< EstimatableParameterSettings >( "Sun", gravitational_parameter ) );
+        parameterNames.push_back( std::make_shared< EstimatableParameterSettings >( "Moon", gravitational_parameter ) );
+        parameterNames.push_back( std::make_shared< EstimatableParameterSettings >( "Earth", gravitational_parameter ) );
+        parameterNames.push_back( std::make_shared< EstimatableParameterSettings >( "Sun", gravitational_parameter ) );
 
     }
 
     // Create parameters
-    boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< StateScalarType > > parametersToEstimate =
+    std::shared_ptr< estimatable_parameters::EstimatableParameterSet< StateScalarType > > parametersToEstimate =
             createParametersToEstimate( parameterNames, bodyMap );
 
     // Perturb parameters.
@@ -191,7 +191,7 @@ executeEarthMoonSimulation(
         SingleArcVariationalEquationsSolver< StateScalarType, TimeType > dynamicsSimulator =
                 SingleArcVariationalEquationsSolver< StateScalarType, TimeType >(
                     bodyMap, integratorSettings, propagatorSettings, parametersToEstimate,
-                    1, boost::shared_ptr< numerical_integrators::IntegratorSettings< double > >( ), 1, 0 );
+                    1, std::shared_ptr< numerical_integrators::IntegratorSettings< double > >( ), 1, 0 );
 
         // Propagate requested equations.
         if( propagateVariationalEquations )
@@ -364,17 +364,17 @@ executeOrbiterSimulation(
     TimeType finalEphemerisTime = initialEphemerisTime + 4.0 * 3600.0;
 
     // Create bodies needed in simulation
-    std::map< std::string, boost::shared_ptr< BodySettings > > bodySettings =
+    std::map< std::string, std::shared_ptr< BodySettings > > bodySettings =
             getDefaultBodySettings( bodyNames );
     NamedBodyMap bodyMap = createBodies( bodySettings );
-    bodyMap[ "Vehicle" ] = boost::make_shared< Body >( );
+    bodyMap[ "Vehicle" ] = std::make_shared< Body >( );
     bodyMap[ "Vehicle" ]->setConstantBodyMass( 400.0 );
 
     // Create aerodynamic coefficient interface settings.
     double referenceArea = 4.0;
     double aerodynamicCoefficient = 1.2;
-    boost::shared_ptr< AerodynamicCoefficientSettings > aerodynamicCoefficientSettings =
-            boost::make_shared< ConstantAerodynamicCoefficientSettings >(
+    std::shared_ptr< AerodynamicCoefficientSettings > aerodynamicCoefficientSettings =
+            std::make_shared< ConstantAerodynamicCoefficientSettings >(
                 referenceArea, aerodynamicCoefficient * ( Eigen::Vector3d( ) << 1.2, -0.1, -0.4 ).finished( ), 1, 1 );
 
     // Create and set aerodynamic coefficients object
@@ -386,8 +386,8 @@ executeOrbiterSimulation(
     double radiationPressureCoefficient = 1.2;
     std::vector< std::string > occultingBodies;
     occultingBodies.push_back( "Earth" );
-    boost::shared_ptr< RadiationPressureInterfaceSettings > asterixRadiationPressureSettings =
-            boost::make_shared< CannonBallRadiationPressureInterfaceSettings >(
+    std::shared_ptr< RadiationPressureInterfaceSettings > asterixRadiationPressureSettings =
+            std::make_shared< CannonBallRadiationPressureInterfaceSettings >(
                 "Sun", referenceAreaRadiation, radiationPressureCoefficient, occultingBodies );
 
     // Create and set radiation pressure settings
@@ -395,8 +395,8 @@ executeOrbiterSimulation(
                 "Sun", createRadiationPressureInterface(
                     asterixRadiationPressureSettings, "Vehicle", bodyMap ) );
 
-    bodyMap[ "Vehicle" ]->setEphemeris( boost::make_shared< TabulatedCartesianEphemeris< > >(
-                                            boost::shared_ptr< interpolators::OneDimensionalInterpolator
+    bodyMap[ "Vehicle" ]->setEphemeris( std::make_shared< TabulatedCartesianEphemeris< > >(
+                                            std::shared_ptr< interpolators::OneDimensionalInterpolator
                                             < double, Eigen::Vector6d > >( ), "Earth", "ECLIPJ2000" ) );
 
     setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );
@@ -404,18 +404,18 @@ executeOrbiterSimulation(
 
     // Set accelerations on Vehicle that are to be taken into account.
     SelectedAccelerationMap accelerationMap;
-    std::map< std::string, std::vector< boost::shared_ptr< AccelerationSettings > > > accelerationsOfVehicle;
-    accelerationsOfVehicle[ "Earth" ].push_back( boost::make_shared< SphericalHarmonicAccelerationSettings >( 8, 8 ) );
+    std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfVehicle;
+    accelerationsOfVehicle[ "Earth" ].push_back( std::make_shared< SphericalHarmonicAccelerationSettings >( 8, 8 ) );
 
-    accelerationsOfVehicle[ "Sun" ].push_back( boost::make_shared< AccelerationSettings >(
+    accelerationsOfVehicle[ "Sun" ].push_back( std::make_shared< AccelerationSettings >(
                                                    basic_astrodynamics::central_gravity ) );
-    accelerationsOfVehicle[ "Moon" ].push_back( boost::make_shared< AccelerationSettings >(
+    accelerationsOfVehicle[ "Moon" ].push_back( std::make_shared< AccelerationSettings >(
                                                     basic_astrodynamics::central_gravity ) );
-    accelerationsOfVehicle[ "Mars" ].push_back( boost::make_shared< AccelerationSettings >(
+    accelerationsOfVehicle[ "Mars" ].push_back( std::make_shared< AccelerationSettings >(
                                                     basic_astrodynamics::central_gravity ) );
-    accelerationsOfVehicle[ "Sun" ].push_back( boost::make_shared< AccelerationSettings >(
+    accelerationsOfVehicle[ "Sun" ].push_back( std::make_shared< AccelerationSettings >(
                                                    basic_astrodynamics::cannon_ball_radiation_pressure ) );
-    accelerationsOfVehicle[ "Earth" ].push_back( boost::make_shared< AccelerationSettings >(
+    accelerationsOfVehicle[ "Earth" ].push_back( std::make_shared< AccelerationSettings >(
                                                      basic_astrodynamics::aerodynamic ) );
     accelerationMap[ "Vehicle" ] = accelerationsOfVehicle;
 
@@ -431,8 +431,8 @@ executeOrbiterSimulation(
                 bodyMap, accelerationMap, bodiesToIntegrate, centralBodies );
 
     // Create integrator settings
-    boost::shared_ptr< IntegratorSettings< TimeType > > integratorSettings =
-            boost::make_shared< IntegratorSettings< TimeType > >
+    std::shared_ptr< IntegratorSettings< TimeType > > integratorSettings =
+            std::make_shared< IntegratorSettings< TimeType > >
             ( rungeKutta4, TimeType( initialEphemerisTime ), 5.0 );
 
     // Set Keplerian elements for Asterix.
@@ -454,30 +454,30 @@ executeOrbiterSimulation(
     systemInitialState += initialStateDifference;
 
     // Create propagator settings
-    boost::shared_ptr< TranslationalStatePropagatorSettings< StateScalarType > > propagatorSettings =
-            boost::make_shared< TranslationalStatePropagatorSettings< StateScalarType > >
+    std::shared_ptr< TranslationalStatePropagatorSettings< StateScalarType > > propagatorSettings =
+            std::make_shared< TranslationalStatePropagatorSettings< StateScalarType > >
             ( centralBodies, accelerationModelMap, bodiesToIntegrate, systemInitialState,
               TimeType( finalEphemerisTime ), cowell );
 
     // Define parameters.
-    std::vector< boost::shared_ptr< EstimatableParameterSettings > > parameterNames;
+    std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames;
     {
         parameterNames.push_back(
-                    boost::make_shared< InitialTranslationalStateEstimatableParameterSettings< StateScalarType > >(
+                    std::make_shared< InitialTranslationalStateEstimatableParameterSettings< StateScalarType > >(
                         "Vehicle", systemInitialState, "Earth" ) );
 
-        parameterNames.push_back( boost::make_shared< EstimatableParameterSettings >( "Vehicle", radiation_pressure_coefficient ) );
-        parameterNames.push_back( boost::make_shared< EstimatableParameterSettings >( "Vehicle", constant_drag_coefficient ) );
-        parameterNames.push_back( boost::make_shared< EstimatableParameterSettings >( "Moon", gravitational_parameter ) );
+        parameterNames.push_back( std::make_shared< EstimatableParameterSettings >( "Vehicle", radiation_pressure_coefficient ) );
+        parameterNames.push_back( std::make_shared< EstimatableParameterSettings >( "Vehicle", constant_drag_coefficient ) );
+        parameterNames.push_back( std::make_shared< EstimatableParameterSettings >( "Moon", gravitational_parameter ) );
 
-        parameterNames.push_back( boost::make_shared< SphericalHarmonicEstimatableParameterSettings >(
+        parameterNames.push_back( std::make_shared< SphericalHarmonicEstimatableParameterSettings >(
                                       3, 0, 3, 3, "Earth", spherical_harmonics_cosine_coefficient_block ) );
-        parameterNames.push_back( boost::make_shared< SphericalHarmonicEstimatableParameterSettings >(
+        parameterNames.push_back( std::make_shared< SphericalHarmonicEstimatableParameterSettings >(
                                       3, 1, 3, 3, "Earth", spherical_harmonics_sine_coefficient_block ) );
     }
 
     // Create parameters
-    boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< StateScalarType > > parametersToEstimate =
+    std::shared_ptr< estimatable_parameters::EstimatableParameterSet< StateScalarType > > parametersToEstimate =
             createParametersToEstimate( parameterNames, bodyMap );
 
     // Perturb parameters.
@@ -495,7 +495,7 @@ executeOrbiterSimulation(
         SingleArcVariationalEquationsSolver< StateScalarType, TimeType > dynamicsSimulator =
                 SingleArcVariationalEquationsSolver< StateScalarType, TimeType >(
                     bodyMap, integratorSettings, propagatorSettings, parametersToEstimate,
-                    1, boost::shared_ptr< numerical_integrators::IntegratorSettings< double > >( ), 0, 0 );
+                    1, std::shared_ptr< numerical_integrators::IntegratorSettings< double > >( ), 0, 0 );
 
         // Propagate requested equations.
         if( propagateVariationalEquations )

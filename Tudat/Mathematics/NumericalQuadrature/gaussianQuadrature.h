@@ -14,8 +14,8 @@
 #include <vector>
 #include <map>
 
-#include <boost/function.hpp>
-#include <boost/shared_ptr.hpp>
+#include <functional>
+#include <memory>
 #include <boost/make_shared.hpp>
 
 #include <Eigen/Core>
@@ -189,16 +189,16 @@ struct GaussQuadratureNodesAndWeights
 };
 
 //! Object containing nodes/weights for long double Gauss quadrature
-static const boost::shared_ptr< GaussQuadratureNodesAndWeights< long double > > longDoubleGaussQuadratureNodesAndWeights =
-        boost::make_shared< GaussQuadratureNodesAndWeights< long double > >( );
+static const std::shared_ptr< GaussQuadratureNodesAndWeights< long double > > longDoubleGaussQuadratureNodesAndWeights =
+        std::make_shared< GaussQuadratureNodesAndWeights< long double > >( );
 
 //! Object containing nodes/weights for double Gauss quadrature
-static const boost::shared_ptr< GaussQuadratureNodesAndWeights< double > > doubleGaussQuadratureNodesAndWeights =
-        boost::make_shared< GaussQuadratureNodesAndWeights< double > >( );
+static const std::shared_ptr< GaussQuadratureNodesAndWeights< double > > doubleGaussQuadratureNodesAndWeights =
+        std::make_shared< GaussQuadratureNodesAndWeights< double > >( );
 
 //! Object containing nodes/weights for float Gauss quadrature
-static const boost::shared_ptr< GaussQuadratureNodesAndWeights< float > > floatGaussQuadratureNodesAndWeights =
-        boost::make_shared< GaussQuadratureNodesAndWeights< float > >( );
+static const std::shared_ptr< GaussQuadratureNodesAndWeights< float > > floatGaussQuadratureNodesAndWeights =
+        std::make_shared< GaussQuadratureNodesAndWeights< float > >( );
 
 //! Function to create Gauss quadrature node/weight container
 /*!
@@ -206,10 +206,10 @@ static const boost::shared_ptr< GaussQuadratureNodesAndWeights< float > > floatG
  *  \return Gauss quadrature node/weight container
  */
 template< typename IndependentVariableType >
-boost::shared_ptr< GaussQuadratureNodesAndWeights< IndependentVariableType > >
+std::shared_ptr< GaussQuadratureNodesAndWeights< IndependentVariableType > >
 getGaussQuadratureNodesAndWeights( )
 {
-    return boost::make_shared< GaussQuadratureNodesAndWeights< IndependentVariableType > >( );
+    return std::make_shared< GaussQuadratureNodesAndWeights< IndependentVariableType > >( );
 }
 
 //! Function to create Gauss quadrature node/weight container with long double precision.
@@ -218,7 +218,7 @@ getGaussQuadratureNodesAndWeights( )
  *  \return Gauss quadrature node/weight container
  */
 template< >
-boost::shared_ptr< GaussQuadratureNodesAndWeights< long double > >
+std::shared_ptr< GaussQuadratureNodesAndWeights< long double > >
 getGaussQuadratureNodesAndWeights( )
 {
     return longDoubleGaussQuadratureNodesAndWeights;
@@ -230,7 +230,7 @@ getGaussQuadratureNodesAndWeights( )
  *  \return Gauss quadrature node/weight container
  */
 template< >
-boost::shared_ptr< GaussQuadratureNodesAndWeights< double > >
+std::shared_ptr< GaussQuadratureNodesAndWeights< double > >
 getGaussQuadratureNodesAndWeights( )
 {
     return doubleGaussQuadratureNodesAndWeights;
@@ -242,7 +242,7 @@ getGaussQuadratureNodesAndWeights( )
  *  \return Gauss quadrature node/weight container
  */
 template< >
-boost::shared_ptr< GaussQuadratureNodesAndWeights< float > >
+std::shared_ptr< GaussQuadratureNodesAndWeights< float > >
 getGaussQuadratureNodesAndWeights( )
 {
     return floatGaussQuadratureNodesAndWeights;
@@ -271,7 +271,7 @@ public:
      * \param numberOfNodes Number of nodes (i.e. nodes) at which the integrand will be evaluated.
      * Must be an integer value between 2 and 64.
      */
-    GaussianQuadrature( const boost::function< DependentVariableType( IndependentVariableType ) > integrand,
+    GaussianQuadrature( const std::function< DependentVariableType( IndependentVariableType ) > integrand,
                         const IndependentVariableType lowerLimit, const IndependentVariableType upperLimit,
                         const unsigned int numberOfNodes ):
         integrand_ ( integrand ), lowerLimit_( lowerLimit ), upperLimit_ ( upperLimit ),
@@ -289,7 +289,7 @@ public:
      * \param numberOfNodes Number of nodes (i.e. nodes) at which the integrand will be evaluated.
      * Must be an integer value between 2 and 64.
      */
-    void reset( const boost::function< DependentVariableType( IndependentVariableType ) > integrand,
+    void reset( const std::function< DependentVariableType( IndependentVariableType ) > integrand,
                 const IndependentVariableType lowerLimit, const IndependentVariableType upperLimit,
                 const unsigned int numberOfNodes )
     {
@@ -309,7 +309,7 @@ public:
     {
         if ( ! quadratureHasBeenPerformed_ )
         {
-            if ( integrand_.empty() )
+            if ( integrand_ == nullptr )
             {
                 throw std::runtime_error(
                             "The integrand for the Gaussian quadrature has not been set." );
@@ -368,7 +368,7 @@ protected:
 private:
 
     //! Function returning the integrand.
-    boost::function< DependentVariableType( IndependentVariableType ) > integrand_;
+    std::function< DependentVariableType( IndependentVariableType ) > integrand_;
 
     //! Lower limit for the integral.
     IndependentVariableType lowerLimit_;
@@ -385,7 +385,7 @@ private:
     //! Computed value of the quadrature, as computed by last call to performQuadrature.
     DependentVariableType quadratureResult_;
 
-    boost::shared_ptr< GaussQuadratureNodesAndWeights< IndependentVariableType > > gaussQuadratureNodesAndWeights_;
+    std::shared_ptr< GaussQuadratureNodesAndWeights< IndependentVariableType > > gaussQuadratureNodesAndWeights_;
 
 };
 

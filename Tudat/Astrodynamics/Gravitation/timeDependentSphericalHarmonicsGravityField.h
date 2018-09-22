@@ -11,7 +11,7 @@
 #ifndef TUDAT_TIMEDEPENDENTSPHERICALHARMONICSGRAVITYFIELD_H
 #define TUDAT_TIMEDEPENDENTSPHERICALHARMONICSGRAVITYFIELD_H
 
-#include <boost/function.hpp>
+#include <functional>
 #include <boost/make_shared.hpp>
 
 #include <vector>
@@ -87,7 +87,7 @@ public:
             const double gravitationalParameter, const double referenceRadius,
             const Eigen::MatrixXd& nominalCosineCoefficients,
             const Eigen::MatrixXd& nominalSineCoefficients,
-            const boost::shared_ptr< GravityFieldVariationsSet > gravityFieldVariationUpdateSettings,
+            const std::shared_ptr< GravityFieldVariationsSet > gravityFieldVariationUpdateSettings,
             const std::string& fixedReferenceFrame = "" ):
         SphericalHarmonicsGravityField(
             gravitationalParameter, referenceRadius,
@@ -121,9 +121,9 @@ public:
     void updateCorrectionFunctions( )
     {
         // Check if field variation set exists.
-        if( gravityFieldVariationsSet_ == NULL )
+        if( gravityFieldVariationsSet_ == nullptr )
         {
-            throw std::runtime_error( "Warning, gravity field coefficient update functions are NULL when requesting update" );
+            throw std::runtime_error( "Warning, gravity field coefficient update functions are nullptr when requesting update" );
         }
         else
         {
@@ -143,13 +143,13 @@ public:
      *  should be immediately updated with new settings.
      */
     void setFieldVariationSettings(
-           const boost::shared_ptr< GravityFieldVariationsSet > gravityFieldVariationUpdateSettings,
+           const std::shared_ptr< GravityFieldVariationsSet > gravityFieldVariationUpdateSettings,
            const bool updateCorrections = 1 );
 
     //! Function to clear all gravity field variations
     /*!
      *  Function to clear all gravity field variations, the gravityFieldVariationsSet_ is set to
-     *  NULL, and the correctionFunctions_ list is cleared.
+     *  nullptr, and the correctionFunctions_ list is cleared.
      */
     void clearVariations( );
 
@@ -266,7 +266,7 @@ public:
     /*!
      *  Function to get object containing all gravity field variations and related settings
      */
-    boost::shared_ptr< GravityFieldVariationsSet > getGravityFieldVariationsSet( )
+    std::shared_ptr< GravityFieldVariationsSet > getGravityFieldVariationsSet( )
     {
         return gravityFieldVariationsSet_;
     }
@@ -296,7 +296,7 @@ private:
      *  created from a GravityFieldVariations object, or the addSphericalHarmonicsCorrections of the
      *  GravityFieldVariations object directly.
      */
-    std::vector< boost::function< void( const double, Eigen::MatrixXd&, Eigen::MatrixXd& ) > >
+    std::vector< std::function< void( const double, Eigen::MatrixXd&, Eigen::MatrixXd& ) > >
         correctionFunctions_;
 
     //! Object containing all GravityFieldVariations objects and update settings.
@@ -304,7 +304,7 @@ private:
      *  Object containing all GravityFieldVariations objects and update settings
      *  (i.e. time settings for interpolator)
      */
-    boost::shared_ptr< GravityFieldVariationsSet > gravityFieldVariationsSet_;
+    std::shared_ptr< GravityFieldVariationsSet > gravityFieldVariationsSet_;
 
 };
 

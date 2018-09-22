@@ -11,9 +11,9 @@
 #ifndef TUDAT_LIGHT_TIME_SOLUTIONS_H
 #define TUDAT_LIGHT_TIME_SOLUTIONS_H
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 #include <boost/make_shared.hpp>
-#include <boost/function.hpp>
+#include <functional>
 #include <iostream>
 #include <map>
 #include <vector>
@@ -38,7 +38,7 @@ ObservationScalarType getDefaultLightTimeTolerance( );
 
 
 //! Typedef for function calculating light-time correction in light-time calculation loop.
-typedef boost::function< double(
+typedef std::function< double(
         const Eigen::Vector6d&, const Eigen::Vector6d&,
         const double, const double ) > LightTimeCorrectionFunction;
 
@@ -171,10 +171,10 @@ public:
      *  correction during each iteration.
      */
     LightTimeCalculator(
-            const boost::function< StateType( const TimeType ) > positionFunctionOfTransmittingBody,
-            const boost::function< StateType( const TimeType ) > positionFunctionOfReceivingBody,
-            const std::vector< boost::shared_ptr< LightTimeCorrection > > correctionFunctions =
-            std::vector< boost::shared_ptr< LightTimeCorrection > >( ),
+            const std::function< StateType( const TimeType ) > positionFunctionOfTransmittingBody,
+            const std::function< StateType( const TimeType ) > positionFunctionOfReceivingBody,
+            const std::vector< std::shared_ptr< LightTimeCorrection > > correctionFunctions =
+            std::vector< std::shared_ptr< LightTimeCorrection > >( ),
             const bool iterateCorrections = false ):
         stateFunctionOfTransmittingBody_( positionFunctionOfTransmittingBody ),
         stateFunctionOfReceivingBody_( positionFunctionOfReceivingBody ),
@@ -192,8 +192,8 @@ public:
      *  correction during each iteration.
      */
     LightTimeCalculator(
-            const boost::function< StateType( const TimeType ) > positionFunctionOfTransmittingBody,
-            const boost::function< StateType( const TimeType ) > positionFunctionOfReceivingBody,
+            const std::function< StateType( const TimeType ) > positionFunctionOfTransmittingBody,
+            const std::function< StateType( const TimeType ) > positionFunctionOfReceivingBody,
             const std::vector< LightTimeCorrectionFunction > correctionFunctions,
             const bool iterateCorrections = false ):
         stateFunctionOfTransmittingBody_( positionFunctionOfTransmittingBody ),
@@ -204,7 +204,7 @@ public:
         for( unsigned int i = 0; i < correctionFunctions.size( ); i++ )
         {
             correctionFunctions_.push_back(
-                        boost::make_shared< LightTimeCorrectionFunctionWrapper >(
+                        std::make_shared< LightTimeCorrectionFunctionWrapper >(
                                                 correctionFunctions.at( i ) ) );
         }
     }
@@ -415,7 +415,7 @@ public:
      * Function to get list of light-time correction functions
      * \return List of light-time correction functions
      */
-    std::vector< boost::shared_ptr< LightTimeCorrection > > getLightTimeCorrection( )
+    std::vector< std::shared_ptr< LightTimeCorrection > > getLightTimeCorrection( )
     {
         return correctionFunctions_;
     }
@@ -426,21 +426,21 @@ protected:
     /*!
      *  Transmitter state function.
      */
-    boost::function< StateType( const double ) >
+    std::function< StateType( const double ) >
     stateFunctionOfTransmittingBody_;
 
     //! Receiver state function.
     /*!
      *  Receiver state function.
      */
-    boost::function< StateType( const double ) >
+    std::function< StateType( const double ) >
     stateFunctionOfReceivingBody_;
 
     //! List of light-time correction functions.
     /*!
      *  List of light-time correction functions, i.e. tropospheric, relativistic, etc.
      */
-    std::vector< boost::shared_ptr< LightTimeCorrection > > correctionFunctions_;
+    std::vector< std::shared_ptr< LightTimeCorrection > > correctionFunctions_;
 
     //! Boolean deciding whether to recalculate the correction during each iteration.
     /*!

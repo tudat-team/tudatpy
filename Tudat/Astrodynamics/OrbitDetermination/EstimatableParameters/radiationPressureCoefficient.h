@@ -39,7 +39,7 @@ public:
      * \param associatedBody Name of body containing the radiationPressureInterface object
      */
     RadiationPressureCoefficient(
-            boost::shared_ptr< electro_magnetism::RadiationPressureInterface > radiationPressureInterface,
+            std::shared_ptr< electro_magnetism::RadiationPressureInterface > radiationPressureInterface,
             std::string& associatedBody ):
         EstimatableParameter< double >( radiation_pressure_coefficient, associatedBody ),
         radiationPressureInterface_( radiationPressureInterface )
@@ -80,7 +80,7 @@ protected:
 private:
 
     //! Object containing the radiation pressure coefficient to be estimated.
-    boost::shared_ptr< electro_magnetism::RadiationPressureInterface > radiationPressureInterface_;
+    std::shared_ptr< electro_magnetism::RadiationPressureInterface > radiationPressureInterface_;
 };
 
 //! Interface class for the estimation of an arc-wise (piecewise constant) radiation pressure coefficient
@@ -96,7 +96,7 @@ public:
      * \param associatedBody Name of body containing the radiationPressureInterface object
      */
     ArcWiseRadiationPressureCoefficient(
-            const boost::shared_ptr< electro_magnetism::RadiationPressureInterface > radiationPressureInterface,
+            const std::shared_ptr< electro_magnetism::RadiationPressureInterface > radiationPressureInterface,
             const std::vector< double > timeLimits,
             const std::string& associatedBody ):
         EstimatableParameter< Eigen::VectorXd >( arc_wise_radiation_pressure_coefficient, associatedBody ),
@@ -113,14 +113,14 @@ public:
         fullRadiationPressureCoefficients_.push_back( radiationPressureCoefficient );
 
 
-        coefficientInterpolator_ = boost::make_shared< interpolators::PiecewiseConstantInterpolator< double, double > >(
+        coefficientInterpolator_ = std::make_shared< interpolators::PiecewiseConstantInterpolator< double, double > >(
                     timeLimits_, fullRadiationPressureCoefficients_ );
 
         typedef interpolators::OneDimensionalInterpolator< double, double > LocalInterpolator;
         radiationPressureInterface->resetRadiationPressureCoefficientFunction(
-                    boost::bind(
+                    std::bind(
                         static_cast< double( LocalInterpolator::* )( const double ) >
-                        ( &LocalInterpolator::interpolate ), coefficientInterpolator_, _1 ) );
+                        ( &LocalInterpolator::interpolate ), coefficientInterpolator_, std::placeholders::_1 ) );
     }
 
     //! Destructor.
@@ -167,7 +167,7 @@ public:
     int getParameterSize( ){ return radiationPressureCoefficients_.size( ); }
 
 
-    boost::shared_ptr< interpolators::LookUpScheme< double > > getArcTimeLookupScheme( )
+    std::shared_ptr< interpolators::LookUpScheme< double > > getArcTimeLookupScheme( )
     {
         return coefficientInterpolator_->getLookUpScheme( );
     }
@@ -177,7 +177,7 @@ protected:
 private:
 
     //! Object containing the radiation pressure coefficient to be estimated.
-    boost::shared_ptr< electro_magnetism::RadiationPressureInterface > radiationPressureInterface_;
+    std::shared_ptr< electro_magnetism::RadiationPressureInterface > radiationPressureInterface_;
 
     //! Times at which the arcs are to start (including end time at maximum double value).
     std::vector< double > timeLimits_;
@@ -189,7 +189,7 @@ private:
     std::vector< double > fullRadiationPressureCoefficients_;
 
     //! Interpolator that returns the radiation pressure coefficient as a function of time.
-    boost::shared_ptr< interpolators::PiecewiseConstantInterpolator< double, double > > coefficientInterpolator_;
+    std::shared_ptr< interpolators::PiecewiseConstantInterpolator< double, double > > coefficientInterpolator_;
 };
 
 } // namespace estimatable_parameters

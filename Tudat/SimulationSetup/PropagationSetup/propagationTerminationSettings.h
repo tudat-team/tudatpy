@@ -13,7 +13,7 @@
 
 #include <vector>
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include "Tudat/Mathematics/RootFinders/createRootFinder.h"
 
@@ -148,18 +148,18 @@ public:
      * \param terminationRootFinderSettings Settings to create root finder used to converge on exact final condition.
      */
     PropagationDependentVariableTerminationSettings(
-            const boost::shared_ptr< SingleDependentVariableSaveSettings > dependentVariableSettings,
+            const std::shared_ptr< SingleDependentVariableSaveSettings > dependentVariableSettings,
             const double limitValue,
             const bool useAsLowerLimit,
             const bool terminateExactlyOnFinalCondition = false,
-            const boost::shared_ptr< root_finders::RootFinderSettings > terminationRootFinderSettings = NULL ):
+            const std::shared_ptr< root_finders::RootFinderSettings > terminationRootFinderSettings = nullptr ):
         PropagationTerminationSettings(
             dependent_variable_stopping_condition, terminateExactlyOnFinalCondition ),
         dependentVariableSettings_( dependentVariableSettings ),
         limitValue_( limitValue ), useAsLowerLimit_( useAsLowerLimit ),
         terminationRootFinderSettings_( terminationRootFinderSettings )
     {
-        if( terminateExactlyOnFinalCondition_ && ( terminationRootFinderSettings_ == NULL ) )
+        if( terminateExactlyOnFinalCondition_ && ( terminationRootFinderSettings_ == nullptr ) )
         {
             throw std::runtime_error( "Error when defining exact dependent variable propagation termination settings. Root finder not defined." );
         }
@@ -169,7 +169,7 @@ public:
     ~PropagationDependentVariableTerminationSettings( ){ }
 
     //! Settings for dependent variable that is to be checked
-    boost::shared_ptr< SingleDependentVariableSaveSettings > dependentVariableSettings_;
+    std::shared_ptr< SingleDependentVariableSaveSettings > dependentVariableSettings_;
 
     //! Value at which the propagation is to be stopped
     double limitValue_;
@@ -179,8 +179,7 @@ public:
     bool useAsLowerLimit_;
 
     //! Settings to create root finder used to converge on exact final condition.
-    boost::shared_ptr< root_finders::RootFinderSettings > terminationRootFinderSettings_;
-
+    std::shared_ptr< root_finders::RootFinderSettings > terminationRootFinderSettings_;
 };
 
 //! Class for propagation stopping conditions settings: stopping the propagation based on custom requirements
@@ -198,7 +197,7 @@ public:
      * \param checkStopCondition Function that takes the current time as input and outputs whether the propagation should be
      *      stopped.
      */
-    PropagationCustomTerminationSettings( const boost::function< bool( const double ) >& checkStopCondition ):
+    PropagationCustomTerminationSettings( const std::function< bool( const double ) >& checkStopCondition ):
         PropagationTerminationSettings( custom_stopping_condition ),
         checkStopCondition_( checkStopCondition ){ }
 
@@ -206,7 +205,7 @@ public:
     ~PropagationCustomTerminationSettings( ){ }
 
     //! Custom temination function.
-    boost::function< bool( const double ) > checkStopCondition_;
+    std::function< bool( const double ) > checkStopCondition_;
 
 };
 
@@ -228,7 +227,7 @@ public:
      * defined by the entries in the terminationSettings list should be met.
      */
     PropagationHybridTerminationSettings(
-            const std::vector< boost::shared_ptr< PropagationTerminationSettings > > terminationSettings,
+            const std::vector< std::shared_ptr< PropagationTerminationSettings > > terminationSettings,
             const bool fulfillSingleCondition = false ):
         PropagationTerminationSettings( hybrid_stopping_condition ),
         terminationSettings_( terminationSettings ),
@@ -251,7 +250,7 @@ public:
     ~PropagationHybridTerminationSettings( ){ }
 
     //! List of termination settings for which stopping conditions are created.
-    std::vector< boost::shared_ptr< PropagationTerminationSettings > > terminationSettings_;
+    std::vector< std::shared_ptr< PropagationTerminationSettings > > terminationSettings_;
 
     //! Boolean denoting whether a single (if true) or all (if false) of the conditions
     //! defined by the entries in the terminationSettings list should be met.

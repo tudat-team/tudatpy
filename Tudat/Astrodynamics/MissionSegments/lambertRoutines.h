@@ -19,7 +19,7 @@
 #ifndef TUDAT_LAMBERT_ROUTINES_H
 #define TUDAT_LAMBERT_ROUTINES_H
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include <Eigen/Core>
 
@@ -195,7 +195,7 @@ private:
 };
 
 //! Typedef for shared-pointer to LambertFunctionsGooding object.
-typedef boost::shared_ptr< LambertFunctionsGooding > LambertFunctionsGoodingPointer;
+typedef std::shared_ptr< LambertFunctionsGooding > LambertFunctionsGoodingPointer;
 
 } // namespace mission_segments
 } // namespace tudat

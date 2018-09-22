@@ -53,10 +53,10 @@ public:
      *  \param deformedBody Name of body being tidally deformed.
      */
     TidalLoveNumberPartialInterface(
-            const boost::shared_ptr< gravitation::BasicSolidBodyTideGravityFieldVariations > gravityFieldVariations,
-            const boost::function< Eigen::Vector3d( ) > deformedBodyPositionFunction,
-            const std::vector< boost::function< Eigen::Vector3d( ) > > deformingBodyStateFunctions,
-            const boost::function< Eigen::Quaterniond( ) > rotationToDeformedBodyFrameFrameFunction,
+            const std::shared_ptr< gravitation::BasicSolidBodyTideGravityFieldVariations > gravityFieldVariations,
+            const std::function< Eigen::Vector3d( ) > deformedBodyPositionFunction,
+            const std::vector< std::function< Eigen::Vector3d( ) > > deformingBodyStateFunctions,
+            const std::function< Eigen::Quaterniond( ) > rotationToDeformedBodyFrameFrameFunction,
             const std::string& deformedBody ):
         deformedBodyPositionFunction_( deformedBodyPositionFunction ),
         deformingBodyStateFunctions_( deformingBodyStateFunctions ),
@@ -259,7 +259,7 @@ public:
      *  maximum degree and order of gravity field that are affected by the partials (NaN if no dependency).
      */
     virtual std::pair< int, std::pair< int, int > > setParameterPartialFunction(
-            const boost::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter,
+            const std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter,
             const int maximumDegree,
             const int maximumOrder );
 
@@ -274,7 +274,7 @@ public:
      *  maximum degree and order of gravity field that are affected by the partials (NaN if no dependency).
      */
     virtual std::pair< int, std::pair< int, int > > setParameterPartialFunction(
-            const boost::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter,
+            const std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter,
             const int maximumDegree,
             const int maximumOrder );
 
@@ -288,7 +288,7 @@ public:
      * \return Partial of state derivative w.r.t. given parameter
      */
     std::vector< Eigen::Matrix< double, 2, Eigen::Dynamic > >& getCurrentParameterPartial(
-            const boost::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter,
+            const std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter,
             const std::pair< int, int > maximumDegreeAndOrder )
     {
         if( currentDoubleParameterPartials_.count( std::make_pair( parameter, maximumDegreeAndOrder ) ) == 0 )
@@ -321,7 +321,7 @@ public:
      * \return Partial of state derivative w.r.t. given parameter
      */
     std::vector< Eigen::Matrix< double, 2, Eigen::Dynamic > >& getCurrentDoubleParameterPartial(
-            const boost::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter,
+            const std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter,
             const std::pair< int, int > maximumDegreeAndOrder )
     {
         return getCurrentParameterPartial( parameter, maximumDegreeAndOrder );
@@ -338,7 +338,7 @@ public:
      * \return Partial of state derivative w.r.t. given parameter
      */
     std::vector< Eigen::Matrix< double, 2, Eigen::Dynamic > >& getCurrentParameterPartial(
-            const boost::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter,
+            const std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter,
             const std::pair< int, int > maximumDegreeAndOrder  )
     {
 
@@ -373,7 +373,7 @@ public:
      * \return Partial of state derivative w.r.t. given parameter
      */
     std::vector< Eigen::Matrix< double, 2, Eigen::Dynamic > >& getCurrentVectorParameterPartial(
-            const boost::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter,
+            const std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter,
             const std::pair< int, int > maximumDegreeAndOrder )
     {
         return getCurrentParameterPartial( parameter, maximumDegreeAndOrder );
@@ -451,28 +451,28 @@ protected:
      *  Function to retrieve current state of  body being tidally deformed. Typically linked to spherical harmonic acceleration
      *  model. Function is also used for tidal spherical harmonic variation calculations in case of no tidal time delay.
      */
-    boost::function< Eigen::Vector3d( ) > deformedBodyPositionFunction_;
+    std::function< Eigen::Vector3d( ) > deformedBodyPositionFunction_;
 
     //! Function to retrieve current state of body being accelerated.
-    boost::function< Eigen::Vector3d( ) > acceleratingBodyPositionFunction_;
+    std::function< Eigen::Vector3d( ) > acceleratingBodyPositionFunction_;
 
 
 
     //! Function to retrieve current gravitational parameter of body being deformed.
-    boost::function< double( ) > deformedBodyGravitationalParameterFunction_;
+    std::function< double( ) > deformedBodyGravitationalParameterFunction_;
 
 
     //! Current gravitational parameter of body being deformed.
     double deformedBodyGravitationalParameter_;
 
     //! Vector of function to retrieve current gravitational parameters of bodies causing deformation.
-    std::vector< boost::function< double( ) > > deformingBodyGravitationalParameters_;
+    std::vector< std::function< double( ) > > deformingBodyGravitationalParameters_;
 
     //! Functions for retrieving states at current time of bodies causing deformation.
-    std::vector< boost::function< Eigen::Vector3d( ) > > deformingBodyStateFunctions_;
+    std::vector< std::function< Eigen::Vector3d( ) > > deformingBodyStateFunctions_;
 
     //! Function returning the rotation from inertial to body-fixed frame of deformed body.
-    boost::function< Eigen::Quaterniond( ) > rotationToDeformedBodyFrameFrameFunction_;
+    std::function< Eigen::Quaterniond( ) > rotationToDeformedBodyFrameFrameFunction_;
 
     //! Current time to which object has been updated.
     double currentTime_;
@@ -526,32 +526,32 @@ protected:
 
 
     //! List of functions to compute values of partials w.r.t. double parameter partials
-    std::map< std::pair< boost::shared_ptr< estimatable_parameters::EstimatableParameter< double > >,
+    std::map< std::pair< std::shared_ptr< estimatable_parameters::EstimatableParameter< double > >,
     std::pair< int, int > >, std::vector< Eigen::Matrix< double, 2, Eigen::Dynamic > > > currentDoubleParameterPartials_;
 
     //! List of functions to compute values of partials w.r.t. double parameter partials
-    std::map< std::pair< boost::shared_ptr< estimatable_parameters::EstimatableParameter< double > >,
-    std::pair< int, int > >, boost::function< std::vector< Eigen::Matrix< double, 2, Eigen::Dynamic > >( ) > >
+    std::map< std::pair< std::shared_ptr< estimatable_parameters::EstimatableParameter< double > >,
+    std::pair< int, int > >, std::function< std::vector< Eigen::Matrix< double, 2, Eigen::Dynamic > >( ) > >
     parameterDoublePartialFunctions_;
 
     //! Iterator over list of functions to compute values of partials w.r.t. double parameter partials
-    std::map< std::pair< boost::shared_ptr< estimatable_parameters::EstimatableParameter< double > >,
-    std::pair< int, int > >, boost::function< std::vector< Eigen::Matrix< double, 2, Eigen::Dynamic > >( ) > >::iterator
+    std::map< std::pair< std::shared_ptr< estimatable_parameters::EstimatableParameter< double > >,
+    std::pair< int, int > >, std::function< std::vector< Eigen::Matrix< double, 2, Eigen::Dynamic > >( ) > >::iterator
     parameterDoublePartialFunctionIterator_;
 
 
     //! List of current values of partials w.r.t. double parameter values (emptied at beginning of every time step).
-    std::map< std::pair< boost::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > >,
+    std::map< std::pair< std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > >,
     std::pair< int, int > >, std::vector< Eigen::Matrix< double, 2, Eigen::Dynamic > > > currentVectorParameterPartials_;
 
     //! List of functions to compute values of partials w.r.t. vector parameter partials
-    std::map< std::pair< boost::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > >,
-    std::pair< int, int > >, boost::function< std::vector< Eigen::Matrix< double, 2, Eigen::Dynamic > >( ) > >
+    std::map< std::pair< std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > >,
+    std::pair< int, int > >, std::function< std::vector< Eigen::Matrix< double, 2, Eigen::Dynamic > >( ) > >
     parameterVectorPartialFunctions_;
 
     //! Iterator over list of functions to compute values of partials w.r.t. vector parameter partials
-    std::map< std::pair< boost::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > >,
-    std::pair< int, int > >, boost::function< std::vector< Eigen::Matrix< double, 2, Eigen::Dynamic > >( ) > >::iterator
+    std::map< std::pair< std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > >,
+    std::pair< int, int > >, std::function< std::vector< Eigen::Matrix< double, 2, Eigen::Dynamic > >( ) > >::iterator
     parameterVectorPartialFunctionIterator_;
 };
 

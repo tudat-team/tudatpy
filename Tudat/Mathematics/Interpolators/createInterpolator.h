@@ -14,7 +14,7 @@
 #include <iostream>
 
 #include <boost/make_shared.hpp>
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include "Tudat/Mathematics/Interpolators/linearInterpolator.h"
 #include "Tudat/Mathematics/Interpolators/cubicSplineInterpolator.h"
@@ -413,20 +413,21 @@ public:
      * \param interpolatorSettings Object containing the settings to create the interpolator to be used.
      */
     DataInterpolationSettings(
-            const boost::shared_ptr< DataMapSettings< IndependentType, DependentType > >& dataSettings,
-            const boost::shared_ptr< InterpolatorSettings >& interpolatorSettings ) :
+            const std::shared_ptr< DataMapSettings< IndependentType, DependentType > >& dataSettings,
+            const std::shared_ptr< InterpolatorSettings >& interpolatorSettings ) :
         dataSettings_( dataSettings ), interpolatorSettings_( interpolatorSettings ) { }
 
     //! Virtual destructor
     virtual ~DataInterpolationSettings( ){ }
 
     //! Object containing (the settings to create) the data needed for the interpolation.
-    boost::shared_ptr< DataMapSettings< IndependentType, DependentType > > dataSettings_;
+    std::shared_ptr< DataMapSettings< IndependentType, DependentType > > dataSettings_;
 
     //! Object containing the settings to create the interpolator to be used.
-    boost::shared_ptr< InterpolatorSettings > interpolatorSettings_;
-
+    std::shared_ptr< InterpolatorSettings > interpolatorSettings_;
 };
+
+
 
 //! Function to create a one-dimensional interpolator
 /*!
@@ -441,17 +442,17 @@ public:
  *  \return Interpolator created from dataToInterpolate using interpolatorSettings.
  */
 template< typename IndependentVariableType, typename DependentVariableType >
-boost::shared_ptr< OneDimensionalInterpolator< IndependentVariableType, DependentVariableType > >
+std::shared_ptr< OneDimensionalInterpolator< IndependentVariableType, DependentVariableType > >
 createOneDimensionalInterpolator(
         const std::map< IndependentVariableType, DependentVariableType > dataToInterpolate,
-        const boost::shared_ptr< InterpolatorSettings > interpolatorSettings,
+        const std::shared_ptr< InterpolatorSettings > interpolatorSettings,
         const std::pair< DependentVariableType, DependentVariableType >& defaultExtrapolationValue =
-        std::make_pair( IdentityElement< DependentVariableType >::getAdditionIdentity( ),
-                        IdentityElement< DependentVariableType >::getAdditionIdentity( ) ),
+        std::make_pair( IdentityElement::getAdditionIdentity< DependentVariableType >( ),
+                        IdentityElement::getAdditionIdentity< DependentVariableType >( ) ),
         const std::vector< DependentVariableType > firstDerivativeOfDependentVariables =
         std::vector< DependentVariableType >( ) )
 {
-    boost::shared_ptr< OneDimensionalInterpolator< IndependentVariableType, DependentVariableType > >
+    std::shared_ptr< OneDimensionalInterpolator< IndependentVariableType, DependentVariableType > >
             createdInterpolator;
 
     // Check that boundary handling is one-dimensional
@@ -467,7 +468,7 @@ createOneDimensionalInterpolator(
     switch( interpolatorSettings->getInterpolatorType( ) )
     {
     case linear_interpolator:
-        createdInterpolator = boost::make_shared< LinearInterpolator
+        createdInterpolator = std::make_shared< LinearInterpolator
                 < IndependentVariableType, DependentVariableType > >(
                     dataToInterpolate, interpolatorSettings->getSelectedLookupScheme( ),
                     interpolatorSettings->getBoundaryHandling( ).at( 0 ), defaultExtrapolationValue );
@@ -476,14 +477,14 @@ createOneDimensionalInterpolator(
     {
         if( !interpolatorSettings->getUseLongDoubleTimeStep( ) )
         {
-            createdInterpolator = boost::make_shared< CubicSplineInterpolator
+            createdInterpolator = std::make_shared< CubicSplineInterpolator
                     < IndependentVariableType, DependentVariableType > >(
                         dataToInterpolate, interpolatorSettings->getSelectedLookupScheme( ),
                         interpolatorSettings->getBoundaryHandling( ).at( 0 ) );
         }
         else
         {
-            createdInterpolator = boost::make_shared< CubicSplineInterpolator
+            createdInterpolator = std::make_shared< CubicSplineInterpolator
                     < IndependentVariableType, DependentVariableType, long double > >(
                         dataToInterpolate, interpolatorSettings->getSelectedLookupScheme( ),
                         interpolatorSettings->getBoundaryHandling( ).at( 0 ), defaultExtrapolationValue );
@@ -493,14 +494,14 @@ createOneDimensionalInterpolator(
     case lagrange_interpolator:
     {
         // Check consistency of input
-        boost::shared_ptr< LagrangeInterpolatorSettings > lagrangeInterpolatorSettings =
-                boost::dynamic_pointer_cast< LagrangeInterpolatorSettings >( interpolatorSettings );
-        if( lagrangeInterpolatorSettings != NULL )
+        std::shared_ptr< LagrangeInterpolatorSettings > lagrangeInterpolatorSettings =
+                std::dynamic_pointer_cast< LagrangeInterpolatorSettings >( interpolatorSettings );
+        if( lagrangeInterpolatorSettings != nullptr )
         {
             // Create Lagrange interpolator with requested time step type
             if( !lagrangeInterpolatorSettings->getUseLongDoubleTimeStep( ) )
             {
-                createdInterpolator = boost::make_shared< LagrangeInterpolator
+                createdInterpolator = std::make_shared< LagrangeInterpolator
                         < IndependentVariableType, DependentVariableType, double > >(
                             dataToInterpolate, lagrangeInterpolatorSettings->getInterpolatorOrder( ),
                             interpolatorSettings->getSelectedLookupScheme( ),
@@ -509,7 +510,7 @@ createOneDimensionalInterpolator(
             }
             else
             {
-                createdInterpolator = boost::make_shared< LagrangeInterpolator
+                createdInterpolator = std::make_shared< LagrangeInterpolator
                         < IndependentVariableType, DependentVariableType, long double > >(
                             dataToInterpolate, lagrangeInterpolatorSettings->getInterpolatorOrder( ),
                             interpolatorSettings->getSelectedLookupScheme( ),
@@ -531,7 +532,7 @@ createOneDimensionalInterpolator(
             throw std::runtime_error(
                         "Error when creating hermite spline interpolator, derivative size is inconsistent" );
         }
-        createdInterpolator = boost::make_shared< HermiteCubicSplineInterpolator
+        createdInterpolator = std::make_shared< HermiteCubicSplineInterpolator
                 < IndependentVariableType, DependentVariableType > >(
                     dataToInterpolate, firstDerivativeOfDependentVariables,
                     interpolatorSettings->getSelectedLookupScheme( ),
@@ -539,7 +540,7 @@ createOneDimensionalInterpolator(
         break;
     }
     case piecewise_constant_interpolator:
-        createdInterpolator = boost::make_shared< PiecewiseConstantInterpolator
+        createdInterpolator = std::make_shared< PiecewiseConstantInterpolator
                 < IndependentVariableType, DependentVariableType > >(
                     dataToInterpolate, interpolatorSettings->getSelectedLookupScheme( ),
                     interpolatorSettings->getBoundaryHandling( ).at( 0 ), defaultExtrapolationValue );
@@ -559,15 +560,15 @@ createOneDimensionalInterpolator(
  *  \return Interpolator created from dataToInterpolate using interpolatorSettings.
  */
 template< typename IndependentType, typename DependentType >
-boost::shared_ptr< OneDimensionalInterpolator< IndependentType, DependentType > > createOneDimensionalInterpolator(
-        const boost::shared_ptr< DataInterpolationSettings< IndependentType, DependentType > > dataInterpolationSettings,
+std::shared_ptr< OneDimensionalInterpolator< IndependentType, DependentType > > createOneDimensionalInterpolator(
+        const std::shared_ptr< DataInterpolationSettings< IndependentType, DependentType > > dataInterpolationSettings,
         const std::pair< DependentType, DependentType >& defaultExtrapolationValue =
-        std::make_pair( IdentityElement< DependentType >::getAdditionIdentity( ),
-                        IdentityElement< DependentType >::getAdditionIdentity( ) ) )
+        std::make_pair( IdentityElement::getAdditionIdentity< DependentType >( ),
+                        IdentityElement::getAdditionIdentity< DependentType >( ) ) )
 {
     std::vector< DependentType > firstDerivativeOfDependentVariables;
-    boost::shared_ptr< HermiteDataSettings< IndependentType, DependentType > > hermiteDataSettings =
-            boost::dynamic_pointer_cast< HermiteDataSettings< IndependentType, DependentType > >(
+    std::shared_ptr< HermiteDataSettings< IndependentType, DependentType > > hermiteDataSettings =
+            std::dynamic_pointer_cast< HermiteDataSettings< IndependentType, DependentType > >(
                 dataInterpolationSettings->dataSettings_ );
     if ( hermiteDataSettings )
     {
@@ -591,17 +592,17 @@ boost::shared_ptr< OneDimensionalInterpolator< IndependentType, DependentType > 
  *  \return Interpolator created from independentValues and dependentData using interpolatorSettings.
  */
 template< typename IndependentVariableType, typename DependentVariableType, unsigned int NumberOfDimensions >
-boost::shared_ptr< MultiDimensionalInterpolator< IndependentVariableType, DependentVariableType, NumberOfDimensions > >
+std::shared_ptr< MultiDimensionalInterpolator< IndependentVariableType, DependentVariableType, NumberOfDimensions > >
 createMultiDimensionalInterpolator(
         const std::vector< std::vector< IndependentVariableType > >& independentValues,
         const boost::multi_array< DependentVariableType, static_cast< size_t >( NumberOfDimensions ) >& dependentData,
-        const boost::shared_ptr< InterpolatorSettings > interpolatorSettings,
+        const std::shared_ptr< InterpolatorSettings > interpolatorSettings,
         const std::vector< std::pair< DependentVariableType, DependentVariableType > >& defaultExtrapolationValue =
         std::vector< std::pair< DependentVariableType, DependentVariableType > >
-        ( NumberOfDimensions, std::make_pair( IdentityElement< DependentVariableType >::getAdditionIdentity( ),
-                                              IdentityElement< DependentVariableType >::getAdditionIdentity( ) ) ) )
+        ( NumberOfDimensions, std::make_pair( IdentityElement::getAdditionIdentity< DependentVariableType >( ),
+                                              IdentityElement::getAdditionIdentity< DependentVariableType >( ) ) ) )
 {
-    boost::shared_ptr< MultiDimensionalInterpolator< IndependentVariableType, DependentVariableType, NumberOfDimensions > >
+    std::shared_ptr< MultiDimensionalInterpolator< IndependentVariableType, DependentVariableType, NumberOfDimensions > >
             createdInterpolator;
 
     // Assign default values
@@ -622,7 +623,7 @@ createMultiDimensionalInterpolator(
     {
     case multi_linear_interpolator:
     {
-        createdInterpolator = boost::make_shared< MultiLinearInterpolator
+        createdInterpolator = std::make_shared< MultiLinearInterpolator
                 < IndependentVariableType, DependentVariableType, NumberOfDimensions > >(
                     independentValues, dependentData, interpolatorSettings->getSelectedLookupScheme( ),
                     interpolatorSettings->getBoundaryHandling( ), defaultExtrapolationValue );

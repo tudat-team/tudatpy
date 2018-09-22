@@ -14,8 +14,8 @@
 #include <map>
 #include <utility>
 
-#include <boost/function.hpp>
-#include <boost/shared_ptr.hpp>
+#include <functional>
+#include <memory>
 #include <boost/tuple/tuple.hpp>
 #include <boost/tuple/tuple_comparison.hpp>
 #include <boost/tuple/tuple_io.hpp>
@@ -48,7 +48,7 @@ class DynamicsStateDerivativeModel
 public:
 
     typedef Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic > StateType;
-    typedef std::map< IntegratedStateType, std::vector< boost::shared_ptr
+    typedef std::map< IntegratedStateType, std::vector< std::shared_ptr
     < SingleStateTypeDerivative< StateScalarType, TimeType > > > > StateDerivativeCalculatorList;
 
     //! Derivative model constructor.
@@ -61,13 +61,13 @@ public:
      *  \param variationalEquations Object used for computing the state derivative in the variational equations
      */
     DynamicsStateDerivativeModel(
-            const std::vector< boost::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > >
+            const std::vector< std::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > >
             stateDerivativeModels,
-            const boost::function< void(
+            const std::function< void(
                 const TimeType, const std::unordered_map< IntegratedStateType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >&,
                 const std::vector< IntegratedStateType > ) > environmentUpdateFunction,
-            const boost::shared_ptr< VariationalEquations > variationalEquations =
-            boost::shared_ptr< VariationalEquations >( ) ):
+            const std::shared_ptr< VariationalEquations > variationalEquations =
+            std::shared_ptr< VariationalEquations >( ) ):
         environmentUpdateFunction_( environmentUpdateFunction ), variationalEquations_( variationalEquations ),
         functionEvaluationCounter_( 0 )
     {
@@ -417,7 +417,7 @@ public:
      * Function to add variational equations to the state derivative model.
      * \param variationalEquations Object used for computing the state derivative in the variational equations
      */
-    void addVariationalEquations( boost::shared_ptr< VariationalEquations > variationalEquations )
+    void addVariationalEquations( std::shared_ptr< VariationalEquations > variationalEquations )
     {
         variationalEquations_ = variationalEquations;
     }
@@ -470,8 +470,8 @@ public:
             {
                 for( unsigned int i = 0; i < stateDerivativeModelsIterator_->second.size( ); i++ )
                 {
-                    boost::shared_ptr< NBodyStateDerivative< StateScalarType, TimeType > > currentTranslationalStateDerivative =
-                            boost::dynamic_pointer_cast< NBodyStateDerivative< StateScalarType, TimeType > >(
+                    std::shared_ptr< NBodyStateDerivative< StateScalarType, TimeType > > currentTranslationalStateDerivative =
+                            std::dynamic_pointer_cast< NBodyStateDerivative< StateScalarType, TimeType > >(
                                 stateDerivativeModelsIterator_->second.at( i ) );
                     switch( currentTranslationalStateDerivative->getTranslationalPropagatorType( ) )
                     {
@@ -514,7 +514,7 @@ public:
      * Function to get complete list of state derivative models, sorted per state type.
      * \return Complete list of state derivative models, sorted per state type.
      */
-    std::unordered_map< IntegratedStateType, std::vector< boost::shared_ptr
+    std::unordered_map< IntegratedStateType, std::vector< std::shared_ptr
     < SingleStateTypeDerivative< StateScalarType, TimeType > > > > getStateDerivativeModels( )
     {
         return stateDerivativeModels_;
@@ -633,13 +633,13 @@ private:
 //        std::cout<<std::endl;
     }
 
-    boost::function<
+    std::function<
     void( const TimeType, const std::unordered_map< IntegratedStateType,
           Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >&,
           const std::vector< IntegratedStateType > ) > environmentUpdateFunction_;
 
     //! Object used for computing the state derivative in the variational equations
-    boost::shared_ptr< VariationalEquations > variationalEquations_;
+    std::shared_ptr< VariationalEquations > variationalEquations_;
 
     //! Map that denotes for each state derivative model the start index and size of the associated
     //! state in the full state vector.
@@ -659,10 +659,10 @@ private:
 
     //! Complete list of state derivative models, sorted per state type.
     std::unordered_map< IntegratedStateType,
-    std::vector< boost::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > > > stateDerivativeModels_;
+    std::vector< std::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > > > stateDerivativeModels_;
 
     //! Predefined iterator for computational efficiency.
-    typename std::unordered_map< IntegratedStateType, std::vector< boost::shared_ptr
+    typename std::unordered_map< IntegratedStateType, std::vector< std::shared_ptr
     < SingleStateTypeDerivative< StateScalarType, TimeType > > > >::iterator stateDerivativeModelsIterator_;
 
     //! Total length of conventional state vector.
@@ -716,23 +716,23 @@ private:
  *  \param accelerationModelType Type of acceleration model that is to be retrieved.
  */
 template< typename TimeType = double, typename StateScalarType = double >
-std::vector< boost::shared_ptr< basic_astrodynamics::AccelerationModel3d > > getAccelerationBetweenBodies(
+std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel3d > > getAccelerationBetweenBodies(
         const std::string bodyUndergoingAcceleration,
         const std::string bodyExertingAcceleration,
         const std::unordered_map< IntegratedStateType,
-        std::vector< boost::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > > >& stateDerivativeModels,
-        const basic_astrodynamics::AvailableAcceleration accelerationModelType )
-
+        std::vector< std::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > > >& stateDerivativeModels,
+        const basic_astrodynamics::AvailableAcceleration accelerationModeType )
 {
-    std::vector< boost::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > >
+    std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > >
             listOfSuitableAccelerationModels;
 
     // Retrieve acceleration models
     if( stateDerivativeModels.count( propagators::translational_state ) == 1 )
     {
         basic_astrodynamics::AccelerationMap accelerationModelList =
-                boost::dynamic_pointer_cast< NBodyStateDerivative< StateScalarType, TimeType > >(
+                std::dynamic_pointer_cast< NBodyStateDerivative< StateScalarType, TimeType > >(
                     stateDerivativeModels.at( propagators::translational_state ).at( 0 ) )->getAccelerationsMap( );
+
         if( accelerationModelList.count( bodyUndergoingAcceleration ) == 0 )
         {
 
@@ -776,22 +776,21 @@ std::vector< boost::shared_ptr< basic_astrodynamics::AccelerationModel3d > > get
  *  \param torqueModelType Type of torque model that is to be retrieved.
  */
 template< typename TimeType = double, typename StateScalarType = double >
-std::vector< boost::shared_ptr< basic_astrodynamics::TorqueModel > > getTorqueBetweenBodies(
+std::vector< std::shared_ptr< basic_astrodynamics::TorqueModel > > getTorqueBetweenBodies(
         const std::string bodyUndergoingTorque,
         const std::string bodyExertingTorque,
         const std::unordered_map< IntegratedStateType,
-        std::vector< boost::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > > >& stateDerivativeModels,
-        const basic_astrodynamics::AvailableTorque torqueModelType )
-
+        std::vector< std::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > > >& stateDerivativeModels,
+        const basic_astrodynamics::AvailableTorque torqueModeType )
 {
-    std::vector< boost::shared_ptr< basic_astrodynamics::TorqueModel > >
+    std::vector< std::shared_ptr< basic_astrodynamics::TorqueModel > >
             listOfSuitableTorqueModels;
 
     // Retrieve torque models
     if( stateDerivativeModels.count( propagators::rotational_state ) == 1 )
     {
         basic_astrodynamics::TorqueModelMap torqueModelList =
-                boost::dynamic_pointer_cast< RotationalMotionStateDerivative< StateScalarType, TimeType > >(
+                std::dynamic_pointer_cast< RotationalMotionStateDerivative< StateScalarType, TimeType > >(
                     stateDerivativeModels.at( propagators::rotational_state ).at( 0 ) )->getTorquesMap( );
         if( torqueModelList.count( bodyUndergoingTorque ) == 0 )
         {
@@ -833,22 +832,22 @@ std::vector< boost::shared_ptr< basic_astrodynamics::TorqueModel > > getTorqueBe
  *  \return State derivative model computing derivative of translational state of requested body.
  */
 template< typename TimeType = double, typename StateScalarType = double >
-boost::shared_ptr< NBodyStateDerivative< StateScalarType, TimeType > > getTranslationalStateDerivativeModelForBody(
+std::shared_ptr< NBodyStateDerivative< StateScalarType, TimeType > > getTranslationalStateDerivativeModelForBody(
         const std::string bodyUndergoingAcceleration,
         const std::unordered_map< IntegratedStateType,
-        std::vector< boost::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > > >& stateDerivativeModels )
+        std::vector< std::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > > >& stateDerivativeModels )
 
 {
     bool modelFound = 0;
-    boost::shared_ptr< NBodyStateDerivative< StateScalarType, TimeType > > modelForBody;
+    std::shared_ptr< NBodyStateDerivative< StateScalarType, TimeType > > modelForBody;
 
     // Check if translational state derivative models exists
     if( stateDerivativeModels.count( propagators::translational_state ) > 0 )
     {
         for( unsigned int i = 0; i < stateDerivativeModels.at( propagators::translational_state ).size( ); i++ )
         {
-            boost::shared_ptr< NBodyStateDerivative< StateScalarType, TimeType > > nBodyModel =
-                    boost::dynamic_pointer_cast< NBodyStateDerivative< StateScalarType, TimeType > >(
+            std::shared_ptr< NBodyStateDerivative< StateScalarType, TimeType > > nBodyModel =
+                    std::dynamic_pointer_cast< NBodyStateDerivative< StateScalarType, TimeType > >(
                         stateDerivativeModels.at( propagators::translational_state ).at( i ) );
             std::vector< std::string > propagatedBodies = nBodyModel->getBodiesToBeIntegratedNumerically( );
 
@@ -880,22 +879,22 @@ boost::shared_ptr< NBodyStateDerivative< StateScalarType, TimeType > > getTransl
 }
 
 template< typename TimeType = double, typename StateScalarType = double >
-boost::shared_ptr< RotationalMotionStateDerivative< StateScalarType, TimeType > > getRotationalStateDerivativeModelForBody(
+std::shared_ptr< RotationalMotionStateDerivative< StateScalarType, TimeType > > getRotationalStateDerivativeModelForBody(
         const std::string bodyUndergoingTorque,
         const std::unordered_map< IntegratedStateType,
-        std::vector< boost::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > > >& stateDerivativeModels )
+        std::vector< std::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > > >& stateDerivativeModels )
 
 {
     bool modelFound = 0;
-    boost::shared_ptr< RotationalMotionStateDerivative< StateScalarType, TimeType > > modelForBody;
+    std::shared_ptr< RotationalMotionStateDerivative< StateScalarType, TimeType > > modelForBody;
 
     // Check if translational state derivative models exists
     if( stateDerivativeModels.count( propagators::rotational_state ) > 0 )
     {
         for( unsigned int i = 0; i < stateDerivativeModels.at( propagators::rotational_state ).size( ); i++ )
         {
-            boost::shared_ptr< RotationalMotionStateDerivative< StateScalarType, TimeType > > rotationalDynamicsModel =
-                    boost::dynamic_pointer_cast< RotationalMotionStateDerivative< StateScalarType, TimeType > >(
+            std::shared_ptr< RotationalMotionStateDerivative< StateScalarType, TimeType > > rotationalDynamicsModel =
+                    std::dynamic_pointer_cast< RotationalMotionStateDerivative< StateScalarType, TimeType > >(
                         stateDerivativeModels.at( propagators::rotational_state ).at( i ) );
             std::vector< std::string > propagatedBodies = rotationalDynamicsModel->getBodiesToBeIntegratedNumerically( );
 
@@ -935,14 +934,14 @@ boost::shared_ptr< RotationalMotionStateDerivative< StateScalarType, TimeType > 
  *  \return State derivative model computing derivative of body mass of requested body.
  */
 template< typename TimeType = double, typename StateScalarType = double >
-boost::shared_ptr< BodyMassStateDerivative< StateScalarType, TimeType > > getBodyMassStateDerivativeModelForBody(
+std::shared_ptr< BodyMassStateDerivative< StateScalarType, TimeType > > getBodyMassStateDerivativeModelForBody(
         const std::string bodyWithMassDerivative,
         const std::unordered_map< IntegratedStateType,
-        std::vector< boost::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > > >& stateDerivativeModels )
+        std::vector< std::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > > >& stateDerivativeModels )
 
 {
     bool modelFound = 0;
-    boost::shared_ptr< BodyMassStateDerivative< StateScalarType, TimeType > > modelForBody;
+    std::shared_ptr< BodyMassStateDerivative< StateScalarType, TimeType > > modelForBody;
 
     // Check if body mass derivative models exists
     if( stateDerivativeModels.count( propagators::body_mass_state ) > 0 )
@@ -950,8 +949,8 @@ boost::shared_ptr< BodyMassStateDerivative< StateScalarType, TimeType > > getBod
         for( unsigned int i = 0; i < stateDerivativeModels.at( propagators::body_mass_state ).size( ); i++ )
         {
             // Test consistency of current object
-            boost::shared_ptr< BodyMassStateDerivative< StateScalarType, TimeType > > massRateModel =
-                    boost::dynamic_pointer_cast< BodyMassStateDerivative< StateScalarType, TimeType > >(
+            std::shared_ptr< BodyMassStateDerivative< StateScalarType, TimeType > > massRateModel =
+                    std::dynamic_pointer_cast< BodyMassStateDerivative< StateScalarType, TimeType > >(
                         stateDerivativeModels.at( propagators::body_mass_state ).at( i ) );
             if( massRateModel == NULL )
             {
@@ -998,7 +997,7 @@ boost::shared_ptr< BodyMassStateDerivative< StateScalarType, TimeType > > getBod
  * \param centralBody Name of central body (only required for third-body acceleration types).
  * \return Required acceleration partial from list.
  */
-boost::shared_ptr< acceleration_partials::AccelerationPartial > getAccelerationPartialForBody(
+std::shared_ptr< acceleration_partials::AccelerationPartial > getAccelerationPartialForBody(
         const orbit_determination::StateDerivativePartialsMap& accelerationPartials,
         const basic_astrodynamics::AvailableAcceleration accelerationType,
         const std::string& bodyExertingAcceleration,
@@ -1010,7 +1009,7 @@ template< typename TimeType = double, typename StateScalarType = double,
 void convertNumericalStateSolutionsToOutputSolutions(
         std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >& convertedSolution,
         const std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >& rawSolution,
-        boost::shared_ptr< ConversionClassType > converterClass )
+        std::shared_ptr< ConversionClassType > converterClass )
 {
     // Iterate over all times.
     for( typename std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >::const_iterator stateIterator =
@@ -1024,5 +1023,6 @@ void convertNumericalStateSolutionsToOutputSolutions(
 } // namespace propagators
 
 } // namespace tudat
+
 
 #endif // TUDAT_DYNAMICSSTATEDERIVATIVEMODEL_H

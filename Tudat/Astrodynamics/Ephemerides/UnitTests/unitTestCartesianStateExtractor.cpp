@@ -88,7 +88,7 @@ BOOST_AUTO_TEST_CASE( cartesianStateExtractor_Extract )
 
     // Create a new pointer to data map.
     parsed_data_vector_utilities::ParsedDataLineMapPtr testDataMap =
-            boost::make_shared< parsed_data_vector_utilities::ParsedDataLineMap >(
+            std::make_shared< parsed_data_vector_utilities::ParsedDataLineMap >(
                 std::map< input_output::FieldType,
                           parsed_data_vector_utilities::FieldValuePtr >( ) );
 
@@ -110,7 +110,7 @@ BOOST_AUTO_TEST_CASE( cartesianStateExtractor_Extract )
     CartesianStateExtractor testCartesianStateExtractor;
 
     // Extract test data map.
-    boost::shared_ptr< Vector6d > returnedCartesianElements =
+    std::shared_ptr< Vector6d > returnedCartesianElements =
             testCartesianStateExtractor.extract( testDataMap );
 
     // Verify that the returned value corresponds to the expected value.
@@ -166,7 +166,7 @@ BOOST_AUTO_TEST_CASE( cartesianStateExtractor_MissingX )
 
     // Create a new pointer to data map.
     parsed_data_vector_utilities::ParsedDataLineMapPtr testDataMap =
-            boost::make_shared< parsed_data_vector_utilities::ParsedDataLineMap >(
+            std::make_shared< parsed_data_vector_utilities::ParsedDataLineMap >(
                 std::map< input_output::FieldType,
                           parsed_data_vector_utilities::FieldValuePtr >( ) );
 
@@ -192,7 +192,7 @@ BOOST_AUTO_TEST_CASE( cartesianStateExtractor_MissingX )
     try
     {
         // Extract test data map.
-        boost::shared_ptr< Vector6d > returnedCartesianElements =
+        std::shared_ptr< Vector6d > returnedCartesianElements =
                 testCartesianStateExtractor.extract( testDataMap );
     }
 
@@ -244,7 +244,7 @@ BOOST_AUTO_TEST_CASE( cartesianStateExtractor_MissingY )
 
     // Create a new pointer to data map.
     parsed_data_vector_utilities::ParsedDataLineMapPtr testDataMap =
-            boost::make_shared< parsed_data_vector_utilities::ParsedDataLineMap >(
+            std::make_shared< parsed_data_vector_utilities::ParsedDataLineMap >(
                 std::map< input_output::FieldType,
                           parsed_data_vector_utilities::FieldValuePtr >( ) );
 
@@ -270,7 +270,7 @@ BOOST_AUTO_TEST_CASE( cartesianStateExtractor_MissingY )
     try
     {
         // Extract test data map.
-        boost::shared_ptr< Vector6d > returnedCartesianElements =
+        std::shared_ptr< Vector6d > returnedCartesianElements =
                 testCartesianStateExtractor.extract( testDataMap );
     }
 
@@ -322,7 +322,7 @@ BOOST_AUTO_TEST_CASE( cartesianStateExtractor_MissingZ )
 
     // Create a new pointer to data map.
     parsed_data_vector_utilities::ParsedDataLineMapPtr testDataMap =
-            boost::make_shared< parsed_data_vector_utilities::ParsedDataLineMap >(
+            std::make_shared< parsed_data_vector_utilities::ParsedDataLineMap >(
                 std::map< input_output::FieldType,
                           parsed_data_vector_utilities::FieldValuePtr >( ) );
 
@@ -348,7 +348,7 @@ BOOST_AUTO_TEST_CASE( cartesianStateExtractor_MissingZ )
     try
     {
         // Extract test data map.
-        boost::shared_ptr< Vector6d > returnedCartesianElements =
+        std::shared_ptr< Vector6d > returnedCartesianElements =
                 testCartesianStateExtractor.extract( testDataMap );
     }
 
@@ -400,7 +400,7 @@ BOOST_AUTO_TEST_CASE( cartesianStateExtractor_MissingXDot )
 
     // Create a new pointer to data map.
     parsed_data_vector_utilities::ParsedDataLineMapPtr testDataMap =
-            boost::make_shared< parsed_data_vector_utilities::ParsedDataLineMap >(
+            std::make_shared< parsed_data_vector_utilities::ParsedDataLineMap >(
                 std::map< input_output::FieldType,
                           parsed_data_vector_utilities::FieldValuePtr >( ) );
 
@@ -426,7 +426,7 @@ BOOST_AUTO_TEST_CASE( cartesianStateExtractor_MissingXDot )
     try
     {
         // Extract test data map.
-        boost::shared_ptr< Vector6d > returnedCartesianElements =
+        std::shared_ptr< Vector6d > returnedCartesianElements =
                 testCartesianStateExtractor.extract( testDataMap );
     }
 
@@ -478,7 +478,7 @@ BOOST_AUTO_TEST_CASE( cartesianStateExtractor_MissingYDot )
 
     // Create a new pointer to data map.
     parsed_data_vector_utilities::ParsedDataLineMapPtr testDataMap =
-            boost::make_shared< parsed_data_vector_utilities::ParsedDataLineMap >(
+            std::make_shared< parsed_data_vector_utilities::ParsedDataLineMap >(
                 std::map< input_output::FieldType,
                           parsed_data_vector_utilities::FieldValuePtr >( ) );
 
@@ -504,7 +504,7 @@ BOOST_AUTO_TEST_CASE( cartesianStateExtractor_MissingYDot )
     try
     {
         // Extract test data map.
-        boost::shared_ptr< Vector6d > returnedCartesianElements =
+        std::shared_ptr< Vector6d > returnedCartesianElements =
                 testCartesianStateExtractor.extract( testDataMap );
     }
 
@@ -556,7 +556,7 @@ BOOST_AUTO_TEST_CASE( cartesianStateExtractor_MissingZDot )
 
     // Create a new pointer to data map.
     parsed_data_vector_utilities::ParsedDataLineMapPtr testDataMap =
-            boost::make_shared< parsed_data_vector_utilities::ParsedDataLineMap >(
+            std::make_shared< parsed_data_vector_utilities::ParsedDataLineMap >(
                 std::map< input_output::FieldType,
                           parsed_data_vector_utilities::FieldValuePtr >( ) );
 
@@ -582,7 +582,7 @@ BOOST_AUTO_TEST_CASE( cartesianStateExtractor_MissingZDot )
     try
     {
         // Extract test data map.
-        boost::shared_ptr< Vector6d > returnedCartesianElements =
+        std::shared_ptr< Vector6d > returnedCartesianElements =
                 testCartesianStateExtractor.extract( testDataMap );
     }
 

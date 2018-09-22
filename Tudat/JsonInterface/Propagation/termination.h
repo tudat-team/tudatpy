@@ -25,22 +25,22 @@ namespace propagators
 
 //! Create a `json` object from a shared pointer to a `PropagationHybridTerminationSettings` object.
 void to_json( nlohmann::json& jsonObject,
-              const boost::shared_ptr< PropagationHybridTerminationSettings >& hybridTerminationSettings );
+              const std::shared_ptr< PropagationHybridTerminationSettings >& hybridTerminationSettings );
 
 //! Create a shared pointer to a `PropagationHybridTerminationSettings` object from a `json` object.
 void from_json( const nlohmann::json& jsonObject,
-                boost::shared_ptr< PropagationHybridTerminationSettings >& hybridTerminationSettings );
+                std::shared_ptr< PropagationHybridTerminationSettings >& hybridTerminationSettings );
 
 
 // PropagationTerminationSettings
 
 //! Create a `json` object from a shared pointer to a `PropagationTerminationSettings` object.
 void to_json( nlohmann::json& jsonObject,
-              const boost::shared_ptr< PropagationTerminationSettings >& terminationSettings );
+              const std::shared_ptr< PropagationTerminationSettings >& terminationSettings );
 
 //! Create a shared pointer to a `PropagationTerminationSettings` object from a `json` object.
 void from_json( const nlohmann::json& jsonObject,
-                boost::shared_ptr< PropagationTerminationSettings >& terminationSettings );
+                std::shared_ptr< PropagationTerminationSettings >& terminationSettings );
 
 } // namespace propagators
 

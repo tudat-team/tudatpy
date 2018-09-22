@@ -18,7 +18,7 @@ namespace simulation_setup
 {
 
 //! Create a `json` object from a shared pointer to a `RotationModelSettings` object.
-void to_json( nlohmann::json& jsonObject, const boost::shared_ptr< RotationModelSettings >& rotationModelSettings )
+void to_json( nlohmann::json& jsonObject, const std::shared_ptr< RotationModelSettings >& rotationModelSettings )
 {
     if ( ! rotationModelSettings )
     {
@@ -36,9 +36,9 @@ void to_json( nlohmann::json& jsonObject, const boost::shared_ptr< RotationModel
     {
     case simple_rotation_model:
     {
-        boost::shared_ptr< SimpleRotationModelSettings > simpleRotationModelSettings =
-                boost::dynamic_pointer_cast< SimpleRotationModelSettings >( rotationModelSettings );
-        assertNonNullPointer( simpleRotationModelSettings );
+        std::shared_ptr< SimpleRotationModelSettings > simpleRotationModelSettings =
+                std::dynamic_pointer_cast< SimpleRotationModelSettings >( rotationModelSettings );
+        assertNonnullptrPointer( simpleRotationModelSettings );
         jsonObject[ K::initialOrientation ] = simpleRotationModelSettings->getInitialOrientation( );
         jsonObject[ K::initialTime ] = simpleRotationModelSettings->getInitialTime( );
         jsonObject[ K::rotationRate ] = simpleRotationModelSettings->getRotationRate( );
@@ -52,7 +52,7 @@ void to_json( nlohmann::json& jsonObject, const boost::shared_ptr< RotationModel
 }
 
 //! Create a shared pointer to a `RotationModelSettings` object from a `json` object.
-void from_json( const nlohmann::json& jsonObject, boost::shared_ptr< RotationModelSettings >& rotationModelSettings )
+void from_json( const nlohmann::json& jsonObject, std::shared_ptr< RotationModelSettings >& rotationModelSettings )
 {
     using namespace json_interface;
     using K = Keys::Body::RotationModel;
@@ -80,7 +80,7 @@ void from_json( const nlohmann::json& jsonObject, boost::shared_ptr< RotationMod
             jsonInitialOrientation[ K::initialTime ] = initialTime;
         }
 
-        rotationModelSettings = boost::make_shared< SimpleRotationModelSettings >(
+        rotationModelSettings = std::make_shared< SimpleRotationModelSettings >(
                     originalFrame,
                     targetFrame,
                     getAs< Eigen::Quaterniond >( jsonInitialOrientation ),
@@ -90,7 +90,7 @@ void from_json( const nlohmann::json& jsonObject, boost::shared_ptr< RotationMod
     }
     case spice_rotation_model:
     {
-        rotationModelSettings = boost::make_shared< RotationModelSettings >(
+        rotationModelSettings = std::make_shared< RotationModelSettings >(
                     rotationModelType, originalFrame, targetFrame );
         return;
     }

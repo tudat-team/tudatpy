@@ -17,9 +17,9 @@
 #ifndef TUDAT_CANNON_BALL_RADIATION_PRESSURE_ACCELERATION_H
 #define TUDAT_CANNON_BALL_RADIATION_PRESSURE_ACCELERATION_H 
 
-#include <boost/function.hpp>
+#include <functional>
 #include <boost/lambda/lambda.hpp>
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include <Eigen/Core>
 
@@ -69,10 +69,10 @@ class CannonBallRadiationPressureAcceleration: public basic_astrodynamics::Accel
 private:
 
     //! Typedef for double-returning function.
-    typedef boost::function< double( ) > DoubleReturningFunction;
+    typedef std::function< double( ) > DoubleReturningFunction;
 
     //! Typedef for Eigen::Vector3d-returning function.
-    typedef boost::function< Eigen::Vector3d( ) > Vector3dReturningFunction;
+    typedef std::function< Eigen::Vector3d( ) > Vector3dReturningFunction;
 
 public:
 
@@ -131,9 +131,9 @@ public:
           acceleratedBodyPositionFunction_( acceleratedBodyPositionFunction ),
           radiationPressureFunction_( radiationPressureFunction ),
           radiationPressureCoefficientFunction_(
-              boost::lambda::constant( radiationPressureCoefficient ) ),
-          areaFunction_( boost::lambda::constant( area ) ),
-          massFunction_( boost::lambda::constant( mass ) )
+              [=]( ){ return radiationPressureCoefficient; } ),
+          areaFunction_( [=]( ){ return area; } ),
+          massFunction_( [=]( ){ return mass; } )
     {
         this->updateMembers( );
     }
@@ -180,7 +180,7 @@ public:
      * Function to retrieve the function pointer returning mass of accelerated body.
      * \return Function pointer returning mass of accelerated body.
      */
-    boost::function< double( ) > getMassFunction( )
+    std::function< double( ) > getMassFunction( )
     {
         return massFunction_;
     }
@@ -255,7 +255,7 @@ private:
 };
 
 //! Typedef for shared-pointer to CannonBallRadiationPressureAcceleration.
-typedef boost::shared_ptr< CannonBallRadiationPressureAcceleration > CannonBallRadiationPressurePointer;
+typedef std::shared_ptr< CannonBallRadiationPressureAcceleration > CannonBallRadiationPressurePointer;
 
 } // namespace electro_magnetism
 } // namespace tudat

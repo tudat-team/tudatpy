@@ -11,7 +11,7 @@
 #ifndef TUDAT_CREATERADIATIONPRESSUREINTERFACE_H
 #define TUDAT_CREATERADIATIONPRESSUREINTERFACE_H
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 #include <boost/make_shared.hpp>
 
 #include "Tudat/SimulationSetup/EnvironmentSetup/body.h"
@@ -154,7 +154,7 @@ private:
  */
 void getOccultingBodiesInformation(
         const NamedBodyMap& bodyMap, const std::vector< std::string >& occultingBodies,
-        std::vector< boost::function< Eigen::Vector3d( ) > >& occultingBodyPositions,
+        std::vector< std::function< Eigen::Vector3d( ) > >& occultingBodyPositions,
         std::vector< double >& occultingBodyRadii );
 
 //! Function to create a radiation pressure interface.
@@ -165,8 +165,8 @@ void getOccultingBodiesInformation(
  *  \param bodyMap List of body objects to use for creation of radiation pressure interface.
  *  \return Radiation pressure interface pointer of requested type and settings.
  */
-boost::shared_ptr< electro_magnetism::RadiationPressureInterface > createRadiationPressureInterface(
-        const boost::shared_ptr< RadiationPressureInterfaceSettings > radiationPressureInterfaceSettings,
+std::shared_ptr< electro_magnetism::RadiationPressureInterface > createRadiationPressureInterface(
+        const std::shared_ptr< RadiationPressureInterfaceSettings > radiationPressureInterfaceSettings,
         const std::string& bodyName, const NamedBodyMap& bodyMap );
 
 

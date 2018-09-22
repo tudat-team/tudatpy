@@ -20,13 +20,13 @@ namespace tudat
 namespace aerodynamics
 {
 //! Function to compute the equilibrium wall temperature from the heat input and emmisivity
-double computeEquilibiumWallTemperature( const boost::function< double( const double ) > heatTransferFunction,
+double computeEquilibiumWallTemperature( const std::function< double( const double ) > heatTransferFunction,
                                          const double wallEmmisivity,
                                          const double adiabaticWallTemperature )
 {
     // Create the object that contains the function who's root needs to be found.
-    boost::shared_ptr< EquilibriumTemperatureFunction > equilibriumTemperatureFunction
-            = boost::make_shared< EquilibriumTemperatureFunction >(
+    std::shared_ptr< EquilibriumTemperatureFunction > equilibriumTemperatureFunction
+            = std::make_shared< EquilibriumTemperatureFunction >(
                 heatTransferFunction, wallEmmisivity, adiabaticWallTemperature  );
 
     // Compute wall temperature, first try secant method, use bisection as backup if secany unsuccesfull.
@@ -34,11 +34,11 @@ double computeEquilibiumWallTemperature( const boost::function< double( const do
     try
     {
         root_finders::SecantRootFinder::TerminationFunction terminationConditionFunction =
-                boost::bind( &root_finders::termination_conditions::RootRelativeToleranceTerminationCondition< double >::
+                std::bind( &root_finders::termination_conditions::RootRelativeToleranceTerminationCondition< double >::
                              checkTerminationCondition,
-                             boost::make_shared< root_finders::termination_conditions::
+                             std::make_shared< root_finders::termination_conditions::
                              RootRelativeToleranceTerminationCondition< double > >(
-                                 ), _1, _2, _3, _4, _5 );
+                                 ), std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5 );
         root_finders::SecantRootFinder secant( terminationConditionFunction );
         wallTemperature = secant.execute(
                     equilibriumTemperatureFunction, equilibriumTemperatureFunction->getInitialGuess( ) );
@@ -48,11 +48,11 @@ double computeEquilibiumWallTemperature( const boost::function< double( const do
         try
         {
         root_finders::Bisection::TerminationFunction terminationConditionFunction =
-                boost::bind( &root_finders::termination_conditions::RootRelativeToleranceTerminationCondition< double >::
+                std::bind( &root_finders::termination_conditions::RootRelativeToleranceTerminationCondition< double >::
                              checkTerminationCondition,
-                             boost::make_shared< root_finders::termination_conditions::
+                             std::make_shared< root_finders::termination_conditions::
                              RootRelativeToleranceTerminationCondition< double > >(
-                                 ), _1, _2, _3, _4, _5 );
+                                 ), std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5 );
         root_finders::Bisection bisection( terminationConditionFunction );
         wallTemperature = bisection.execute(
                     equilibriumTemperatureFunction, equilibriumTemperatureFunction->getInitialGuess( ) );

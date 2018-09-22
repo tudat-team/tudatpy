@@ -54,14 +54,14 @@ public:
      *  Constructor
      * \param stationPosition Position of ground station in body-fixed frame
      * \param inputElementType Element type (e.g. Cartesian, spherical, etc.) of groundStationPosition.
-     * \param bodySurface Shape of body on which state is defined. If NULL (default), no conversions to/from
+     * \param bodySurface Shape of body on which state is defined. If nullptr (default), no conversions to/from
      * geodetic position are possible.
      */
     GroundStationState(
             const Eigen::Vector3d stationPosition,
             const coordinate_conversions::PositionElementTypes inputElementType = coordinate_conversions::cartesian_position,
-            const boost::shared_ptr< basic_astrodynamics::BodyShapeModel > bodySurface =
-            boost::shared_ptr< basic_astrodynamics::BodyShapeModel >( ) );
+            const std::shared_ptr< basic_astrodynamics::BodyShapeModel > bodySurface =
+            std::shared_ptr< basic_astrodynamics::BodyShapeModel >( ) );
 
     virtual ~GroundStationState( ){ }
 
@@ -120,7 +120,7 @@ public:
     /*!
      *  Function to return the nominal geodetic (unperturbed, i.e. not including linear drift, eccentricity,
      *  tidal variations, etc.) position of the station in body-fixed system.
-     *  NOTE: This vector is only defined in bodySurface_ was non-NULL at last setting of nominal state
+     *  NOTE: This vector is only defined in bodySurface_ was non-nullptr at last setting of nominal state
      *  (call to resetGroundStationPositionAtEpoch).
      *  \return Unperturbed geodetic position of the station
      */
@@ -181,7 +181,7 @@ public:
      *  Function to retrieve the shape of body on which state is defined
      * \ return Shape of body on which state is defined
      */
-    boost::shared_ptr< basic_astrodynamics::BodyShapeModel > getBodySurface( )
+    std::shared_ptr< basic_astrodynamics::BodyShapeModel > getBodySurface( )
     {
         return bodySurface_;
     }
@@ -209,7 +209,7 @@ protected:
     /*!
      *  Geodetic position of station, without variations (linear drift, eccentricity, tides, etc.), in the body-fixed frame.
      *  The order of the entries is: altitude, geodetic latitude, longitude. This vector is only defined in bodySurface_ was
-     *  non-NULL at last setting of nominal state (call to resetGroundStationPositionAtEpoch).
+     *  non-nullptr at last setting of nominal state (call to resetGroundStationPositionAtEpoch).
      */
     Eigen::Vector3d geodeticPosition;
 
@@ -232,7 +232,7 @@ protected:
     Eigen::Quaterniond bodyFixedToTopocentricFrameRotation_;
 
     //! Shape of body on which state is defined
-    boost::shared_ptr< basic_astrodynamics::BodyShapeModel > bodySurface_;
+    std::shared_ptr< basic_astrodynamics::BodyShapeModel > bodySurface_;
 };
 
 //! Function to calculate the rotation from a body-fixed to a topocentric frame.
@@ -249,7 +249,7 @@ protected:
  *  \return The rotation from the body-fixed to the topocentric frame at localPoint.
  */
 Eigen::Quaterniond getRotationQuaternionFromBodyFixedToTopocentricFrame(
-        const boost::shared_ptr< basic_astrodynamics::BodyShapeModel > bodyShapeModel,
+        const std::shared_ptr< basic_astrodynamics::BodyShapeModel > bodyShapeModel,
         const double geocentricLatitude,
         const double geocentricLongitude,
         const Eigen::Vector3d localPoint );

@@ -12,7 +12,7 @@
 #ifndef TUDAT_POINTINGANGLESCALCULATOR_H
 #define TUDAT_POINTINGANGLESCALCULATOR_H
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 #include <boost/bind.hpp>
 
 #include <Eigen/Core>
@@ -46,8 +46,8 @@ public:
      *  topocentric frame at a specified time (note that this rotation is typically time-independent).
      */
     PointingAnglesCalculator(
-            const boost::function< Eigen::Quaterniond( const double ) > rotationFromInertialToBodyFixedFrame,
-            const boost::function< Eigen::Quaterniond( const double ) > rotationFromBodyFixedToTopoCentricFrame ):
+            const std::function< Eigen::Quaterniond( const double ) > rotationFromInertialToBodyFixedFrame,
+            const std::function< Eigen::Quaterniond( const double ) > rotationFromBodyFixedToTopoCentricFrame ):
         rotationFromInertialToBodyFixedFrame_( rotationFromInertialToBodyFixedFrame ),
         rotationFromBodyFixedToTopoCentricFrame_( rotationFromBodyFixedToTopoCentricFrame ){ }
 
@@ -94,14 +94,14 @@ public:
 private:
 
     //! Function returning the rotation from the inertial to the body-fixed frame at a specified time.
-    const boost::function< Eigen::Quaterniond( const double ) > rotationFromInertialToBodyFixedFrame_;
+    const std::function< Eigen::Quaterniond( const double ) > rotationFromInertialToBodyFixedFrame_;
 
     //! Function returning the rotation from the body-fixed to the topocentric frame
     /*!
      *  Function returning the rotation from the body-fixed to the topocentric frame at a
      *  specified time (note that this rotation is typically time-independent).
      */
-    const boost::function< Eigen::Quaterniond( const double ) > rotationFromBodyFixedToTopoCentricFrame_;
+    const std::function< Eigen::Quaterniond( const double ) > rotationFromBodyFixedToTopoCentricFrame_;
 };
 
 }

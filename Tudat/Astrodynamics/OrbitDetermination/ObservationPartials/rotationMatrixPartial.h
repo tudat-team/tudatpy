@@ -13,8 +13,8 @@
 
 #include <vector>
 
-#include <boost/function.hpp>
-#include <boost/shared_ptr.hpp>
+#include <functional>
+#include <memory>
 #include <boost/assign/list_of.hpp>
 
 #include <Eigen/Core>
@@ -97,7 +97,7 @@ class RotationMatrixPartial
 {
 public:
 
-    RotationMatrixPartial( const boost::shared_ptr< ephemerides::RotationalEphemeris > rotationModel ):
+    RotationMatrixPartial( const std::shared_ptr< ephemerides::RotationalEphemeris > rotationModel ):
         rotationModel_( rotationModel ){ }
 
     //! Virtual destructor
@@ -176,7 +176,7 @@ public:
         return "";
     }
 protected:
-    boost::shared_ptr< ephemerides::RotationalEphemeris > rotationModel_;
+    std::shared_ptr< ephemerides::RotationalEphemeris > rotationModel_;
 
 };
 
@@ -195,7 +195,7 @@ public:
      * \param bodyRotationModel Rotation model for which the partial derivative w.r.t. the rotation rate is to be taken.
      */
     RotationMatrixPartialWrtConstantRotationRate(
-            const boost::shared_ptr< ephemerides::SimpleRotationalEphemeris > bodyRotationModel ):
+            const std::shared_ptr< ephemerides::SimpleRotationalEphemeris > bodyRotationModel ):
         RotationMatrixPartial( bodyRotationModel ),
         bodyRotationModel_( bodyRotationModel ){ }
 
@@ -241,7 +241,7 @@ public:
 private:
 
     //! Rotation model for which the partial derivative w.r.t. the rotation rate is to be taken.
-    boost::shared_ptr< ephemerides::SimpleRotationalEphemeris > bodyRotationModel_;
+    std::shared_ptr< ephemerides::SimpleRotationalEphemeris > bodyRotationModel_;
 };
 
 //! Class to calculate a rotation matrix from a body-fixed to inertial frame w.r.t. a constant pole right ascension
@@ -260,7 +260,7 @@ public:
      * \param bodyRotationModel Rotation model for which the partial derivative w.r.t. the pole position is to be taken.
      */
     RotationMatrixPartialWrtPoleOrientation(
-            const boost::shared_ptr< ephemerides::SimpleRotationalEphemeris > bodyRotationModel ):
+            const std::shared_ptr< ephemerides::SimpleRotationalEphemeris > bodyRotationModel ):
         RotationMatrixPartial( bodyRotationModel ),
         bodyRotationModel_( bodyRotationModel ){ }
 
@@ -305,12 +305,12 @@ public:
 private:
 
     //! Rotation model for which the partial derivative w.r.t. the rotation rate is to be taken.
-    boost::shared_ptr< ephemerides::SimpleRotationalEphemeris > bodyRotationModel_;
+    std::shared_ptr< ephemerides::SimpleRotationalEphemeris > bodyRotationModel_;
 };
 
 //! Typedef of list of RotationMatrixPartial objects, ordered by parameter.
 typedef std::map< std::pair< estimatable_parameters::EstimatebleParametersEnum, std::string >,
-boost::shared_ptr< observation_partials::RotationMatrixPartial > > RotationMatrixPartialNamedList;
+std::shared_ptr< observation_partials::RotationMatrixPartial > > RotationMatrixPartialNamedList;
 
 }
 

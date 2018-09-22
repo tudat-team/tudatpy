@@ -31,7 +31,7 @@ public:
      * Constuctor
      * \param ppnParameterSet Object used to store PPN parameters
      */
-    PPNParameterGamma( const boost::shared_ptr< relativity::PPNParameterSet > ppnParameterSet
+    PPNParameterGamma( const std::shared_ptr< relativity::PPNParameterSet > ppnParameterSet
                        = relativity::ppnParameterSet ):
         EstimatableParameter< double >( ppn_parameter_gamma, "global_metric" ),
       ppnParameterSet_( ppnParameterSet ){ }
@@ -74,7 +74,7 @@ protected:
 private:
 
     //! Object used to store PPN parameters
-    boost::shared_ptr< relativity::PPNParameterSet > ppnParameterSet_;
+    std::shared_ptr< relativity::PPNParameterSet > ppnParameterSet_;
 
 };
 
@@ -89,7 +89,7 @@ public:
      * Constuctor
      * \param ppnParameterSet Object used to store PPN parameters
      */
-    PPNParameterBeta( const boost::shared_ptr< relativity::PPNParameterSet > ppnParameterSet
+    PPNParameterBeta( const std::shared_ptr< relativity::PPNParameterSet > ppnParameterSet
                       = relativity::ppnParameterSet  ):
         EstimatableParameter< double >( ppn_parameter_beta, "global_metric" ),
       ppnParameterSet_( ppnParameterSet ){ }
@@ -132,7 +132,7 @@ protected:
 private:
 
     //! Object used to store PPN parameters
-    boost::shared_ptr< relativity::PPNParameterSet > ppnParameterSet_;
+    std::shared_ptr< relativity::PPNParameterSet > ppnParameterSet_;
 
 };
 

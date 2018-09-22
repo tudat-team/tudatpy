@@ -18,7 +18,7 @@
 #define TUDAT_SWINGBY_LEG_H
 
 #include <boost/make_shared.hpp>
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include "Tudat/Astrodynamics/TrajectoryDesign/spaceLeg.h"
 
@@ -61,7 +61,7 @@ protected:
                 const Eigen::Vector3d& departureBodyVelocity,
                 const double centralBodyGravitationalParameter,
                 double swingbyBodyGravitationalParameter,
-                boost::shared_ptr< Eigen::Vector3d > velocityBeforeDepartureBodyPtr ):
+                std::shared_ptr< Eigen::Vector3d > velocityBeforeDepartureBodyPtr ):
         SpaceLeg( departureBodyPosition,
                   arrivalBodyPosition,
                   timeOfFlight,
@@ -85,7 +85,7 @@ protected:
      * using a pointer, because this parameter is dependent on the previous leg. The result of
      * the previous leg is not necessarily known when this leg is initiated.
      */
-    boost::shared_ptr< Eigen::Vector3d > velocityBeforeDepartureBodyPtr_;
+    std::shared_ptr< Eigen::Vector3d > velocityBeforeDepartureBodyPtr_;
 
 
 private:

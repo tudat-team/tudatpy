@@ -12,7 +12,7 @@
 #ifndef TUDAT_POLARMOTIONCALCULATOR_H
 #define TUDAT_POLARMOTIONCALCULATOR_H
 
-#include <boost/function.hpp>
+#include <functional>
 
 #include <Eigen/Core>
 
@@ -43,9 +43,9 @@ public:
      *  \param shortPeriodPolarMotionCalculator Object calculating short period polar motion variations.
      */
     PolarMotionCalculator(
-            const boost::shared_ptr< interpolators::OneDimensionalInterpolator < double, Eigen::Vector2d > >
+            const std::shared_ptr< interpolators::OneDimensionalInterpolator < double, Eigen::Vector2d > >
             dailyIersValueInterpolator,
-            const boost::shared_ptr< ShortPeriodEarthOrientationCorrectionCalculator< Eigen::Vector2d > >
+            const std::shared_ptr< ShortPeriodEarthOrientationCorrectionCalculator< Eigen::Vector2d > >
             shortPeriodPolarMotionCalculator ):
         dailyIersValueInterpolator_( dailyIersValueInterpolator ),
         shortPeriodPolarMotionCalculator_( shortPeriodPolarMotionCalculator )
@@ -80,7 +80,7 @@ public:
      * Function to retrieve interpolator for daily IERS-measured pole offsets
      * \return Interpolator for daily IERS-measured pole offsets
      */
-    boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Vector2d > >
+    std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Vector2d > >
     getDailyIersValueInterpolator( )
     {
         return dailyIersValueInterpolator_;
@@ -91,7 +91,7 @@ public:
      * Function to retrieve object calculating short period polar motion variations.
      * \return Object calculating short period polar motion variations.
      */
-    boost::shared_ptr< ShortPeriodEarthOrientationCorrectionCalculator< Eigen::Vector2d > > getShortPeriodPolarMotionCalculator( )
+    std::shared_ptr< ShortPeriodEarthOrientationCorrectionCalculator< Eigen::Vector2d > > getShortPeriodPolarMotionCalculator( )
     {
         return shortPeriodPolarMotionCalculator_;
     }
@@ -101,11 +101,11 @@ private:
     /*!
      *  Interpolator, with time in UTC since J2000 as input and interpolated measured daily pole offset values as output.
      */
-    boost::shared_ptr< interpolators::OneDimensionalInterpolator
+    std::shared_ptr< interpolators::OneDimensionalInterpolator
     < double, Eigen::Vector2d > > dailyIersValueInterpolator_;
 
     //! Object calculating short period polar motion variations.
-    boost::shared_ptr< ShortPeriodEarthOrientationCorrectionCalculator< Eigen::Vector2d > > shortPeriodPolarMotionCalculator_;
+    std::shared_ptr< ShortPeriodEarthOrientationCorrectionCalculator< Eigen::Vector2d > > shortPeriodPolarMotionCalculator_;
 };
 
 }

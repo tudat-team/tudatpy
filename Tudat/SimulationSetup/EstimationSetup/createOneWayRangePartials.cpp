@@ -24,29 +24,29 @@ namespace observation_partials
 using namespace ephemerides;
 
 //! Function to generate one-way range partial wrt an initial position of a body.
-boost::shared_ptr< OneWayRangePartial > createOneWayRangePartialWrtBodyPosition(
+std::shared_ptr< OneWayRangePartial > createOneWayRangePartialWrtBodyPosition(
         const observation_models::LinkEnds oneWayRangeLinkEnds,
         const simulation_setup::NamedBodyMap& bodyMap,
         const std::string bodyToEstimate,
-        const boost::shared_ptr< OneWayRangeScaling > oneWayRangeScaler,
-        const std::vector< boost::shared_ptr< observation_partials::LightTimeCorrectionPartial > >&
+        const std::shared_ptr< OneWayRangeScaling > oneWayRangeScaler,
+        const std::vector< std::shared_ptr< observation_partials::LightTimeCorrectionPartial > >&
         lightTimeCorrectionPartialObjects  )
 {
     // Create position partials of link ends for current body position
-    std::map< observation_models::LinkEndType, boost::shared_ptr< CartesianStatePartial > > positionPartials =
+    std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartial > > positionPartials =
             createCartesianStatePartialsWrtBodyState( oneWayRangeLinkEnds, bodyMap, bodyToEstimate );
 
     // Create one-range partials if any position partials are created (i.e. if any dependency exists).
-    boost::shared_ptr< OneWayRangePartial > oneWayRangePartial;
+    std::shared_ptr< OneWayRangePartial > oneWayRangePartial;
     if( positionPartials.size( ) > 0 )
     {
-        oneWayRangePartial = boost::make_shared< OneWayRangePartial >(
+        oneWayRangePartial = std::make_shared< OneWayRangePartial >(
                     oneWayRangeScaler, positionPartials, std::make_pair(
                         estimatable_parameters::initial_body_state, std::make_pair( bodyToEstimate, "" ) ),
                     lightTimeCorrectionPartialObjects );
     }
 
-    // Return range partial object (NULL if no dependency exists).
+    // Return range partial object (nullptr if no dependency exists).
     return oneWayRangePartial;
 }
 

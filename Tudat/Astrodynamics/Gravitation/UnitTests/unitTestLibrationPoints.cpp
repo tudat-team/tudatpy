@@ -27,7 +27,7 @@
 #include <limits>
 
 #include <boost/make_shared.hpp>
-#include <boost/shared_ptr.hpp>
+#include <memory>
 #include <boost/test/floating_point_comparison.hpp>
 #include <boost/test/unit_test.hpp>
 
@@ -78,7 +78,7 @@ BOOST_AUTO_TEST_CASE( testComputationOfLocationOfL1LibrationPoint )
     // Declare L1 libration point object with Earth-Moon mass parameter and Newton-Raphson method
     // with 1000 iterations as maximum and 1.0e-14 relative X-tolerance.
     crtbp::LibrationPoint librationPointL1( earthMoonMassParameter,
-                                            boost::make_shared< NewtonRaphson >( 1.0e-14, 1000 ) );
+                                            std::make_shared< NewtonRaphson >( 1.0e-14, 1000 ) );
 
     // Compute location of Lagrange libration point.
     librationPointL1.computeLocationOfLibrationPoint( crtbp::LibrationPoint::l1 );
@@ -107,7 +107,7 @@ BOOST_AUTO_TEST_CASE( testComputationOfLocationOfL2LibrationPoint )
     // Declare L2 libration point object with Earth-Moon mass parameter and Newton-Raphson method
     // with 1000 iterations as maximum and 1.0e-14 relative X-tolerance.
     crtbp::LibrationPoint librationPointL2( earthMoonMassParameter,
-                                            boost::make_shared< NewtonRaphson >( 1.0e-14, 1000 ) );
+                                            std::make_shared< NewtonRaphson >( 1.0e-14, 1000 ) );
 
     // Compute location of Lagrange libration point.
     librationPointL2.computeLocationOfLibrationPoint( crtbp::LibrationPoint::l2 );
@@ -137,7 +137,7 @@ BOOST_AUTO_TEST_CASE( testComputationOfLocationOfL3LibrationPoint )
     // Declare L3 libration point object with Earth-Moon mass parameter and Newton-Raphson method
     // with 1000 iterations as maximum and 1.0e-14 relative X-tolerance.
     crtbp::LibrationPoint librationPointL3( earthMoonMassParameter,
-                                            boost::make_shared< NewtonRaphson >( 1.0e-14, 1000 ) );
+                                            std::make_shared< NewtonRaphson >( 1.0e-14, 1000 ) );
 
     // Compute location of Lagrange libration point.
     librationPointL3.computeLocationOfLibrationPoint( crtbp::LibrationPoint::l3 );
@@ -166,7 +166,7 @@ BOOST_AUTO_TEST_CASE( testComputationOfLocationOfL4LibrationPoint )
     // Declare L4 libration point object with Earth-Moon mass parameter and Newton-Raphson method
     // with 1000 iterations as maximum and 1.0e-14 relative X-tolerance.
     crtbp::LibrationPoint librationPointL4( earthMoonMassParameter,
-                                            boost::make_shared< NewtonRaphson >( 1.0e-14, 1000 ) );
+                                            std::make_shared< NewtonRaphson >( 1.0e-14, 1000 ) );
 
     // Compute location of Lagrange libration point.
     librationPointL4.computeLocationOfLibrationPoint( crtbp::LibrationPoint::l4 );
@@ -197,7 +197,7 @@ BOOST_AUTO_TEST_CASE( testComputationOfLocationOfL5LibrationPoint )
     // Declare L5 libration point object with Earth-Moon mass parameter and Newton-Raphson method
     // with 1000 iterations as maximum and 1.0e-14 relative X-tolerance.
     crtbp::LibrationPoint librationPointL5( earthMoonMassParameter,
-                                            boost::make_shared< NewtonRaphson >( 1.0e-14, 1000 ) );
+                                            std::make_shared< NewtonRaphson >( 1.0e-14, 1000 ) );
 
     // Compute location of Lagrange libration point.
     librationPointL5.computeLocationOfLibrationPoint( crtbp::LibrationPoint::l5 );

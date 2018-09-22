@@ -24,7 +24,7 @@
 #ifndef TUDAT_LAMBERT_TARGETER_IZZO_H
 #define TUDAT_LAMBERT_TARGETER_IZZO_H
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include <Eigen/Core>
 
@@ -141,7 +141,7 @@ private:
 };
 
 //! Typedef for shared-pointer to LambertTargeterIzzo object.
-typedef boost::shared_ptr< LambertTargeterIzzo > LambertTargeterIzzoPointer;
+typedef std::shared_ptr< LambertTargeterIzzo > LambertTargeterIzzoPointer;
 
 } // namespace mission_segments
 } // namespace tudat

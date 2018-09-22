@@ -16,9 +16,9 @@
 
 #include <iostream>
 
-#include <boost/function.hpp>
+#include <functional>
 #include <boost/lambda/lambda.hpp>
-#include <boost/shared_ptr.hpp>
+#include <memory>
 #include <boost/make_shared.hpp>
 
 #include <Eigen/Core>
@@ -88,7 +88,7 @@ Eigen::Vector3d computeGeodesyNormalizedGravitationalAccelerationSum(
         const double equatorialRadius,
         const Eigen::MatrixXd& cosineHarmonicCoefficients,
         const Eigen::MatrixXd& sineHarmonicCoefficients,
-        boost::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache,
+        std::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache,
         std::map< std::pair< int, int >, Eigen::Vector3d >& accelerationPerTerm,
         const bool saveSeparateTerms = 0,
         const Eigen::Matrix3d& accelerationRotation = Eigen::Matrix3d::Identity( ) );
@@ -142,7 +142,7 @@ Eigen::Vector3d computeSingleGeodesyNormalizedGravitationalAcceleration(
         const int order,
         const double cosineHarmonicCoefficient,
         const double sineHarmonicCoefficient,
-        boost::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache );
+        std::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache );
 
 //! Template class for general spherical harmonics gravitational acceleration model.
 /*!
@@ -162,7 +162,7 @@ private:
     typedef SphericalHarmonicsGravitationalAccelerationModelBase< Eigen::Vector3d > Base;
 
     //! Typedef for coefficient-matrix-returning function.
-    typedef boost::function< Eigen::MatrixXd( ) > CoefficientMatrixReturningFunction;
+    typedef std::function< Eigen::MatrixXd( ) > CoefficientMatrixReturningFunction;
 
 public:
 
@@ -202,21 +202,20 @@ public:
             const Eigen::MatrixXd aCosineHarmonicCoefficientMatrix,
             const Eigen::MatrixXd aSineHarmonicCoefficientMatrix,
             const StateFunction positionOfBodyExertingAccelerationFunction
-            = boost::lambda::constant( Eigen::Vector3d::Zero( ) ),
-            const boost::function< Eigen::Quaterniond( ) >
+            = []( ){ return Eigen::Vector3d::Zero( ); },
+            const std::function< Eigen::Quaterniond( ) >
             rotationFromBodyFixedToIntegrationFrameFunction =
-            boost::lambda::constant( Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) ) ),
+            []( ){ return Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) ); },
             const bool isMutualAttractionUsed = 0,
-            boost::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache =
-            boost::make_shared< basic_mathematics::SphericalHarmonicsCache >( ) )
+            std::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache =
+            std::make_shared< basic_mathematics::SphericalHarmonicsCache >( ) )
         : Base( positionOfBodySubjectToAccelerationFunction,
                 aGravitationalParameter,
                 positionOfBodyExertingAccelerationFunction,
                 isMutualAttractionUsed ),
           equatorialRadius( anEquatorialRadius ),
-          getCosineHarmonicsCoefficients(
-              boost::lambda::constant(aCosineHarmonicCoefficientMatrix ) ),
-          getSineHarmonicsCoefficients( boost::lambda::constant(aSineHarmonicCoefficientMatrix ) ),
+          getCosineHarmonicsCoefficients( [=]( ){ return aCosineHarmonicCoefficientMatrix; } ),
+          getSineHarmonicsCoefficients( [=]( ){ return aSineHarmonicCoefficientMatrix; } ),
           rotationFromBodyFixedToIntegrationFrameFunction_(
               rotationFromBodyFixedToIntegrationFrameFunction ),
           sphericalHarmonicsCache_( sphericalHarmonicsCache ),
@@ -262,18 +261,18 @@ public:
      */
     SphericalHarmonicsGravitationalAccelerationModel(
             const StateFunction positionOfBodySubjectToAccelerationFunction,
-            const boost::function< double( ) > aGravitationalParameterFunction,
+            const std::function< double( ) > aGravitationalParameterFunction,
             const double anEquatorialRadius,
             const CoefficientMatrixReturningFunction cosineHarmonicCoefficientsFunction,
             const CoefficientMatrixReturningFunction sineHarmonicCoefficientsFunction,
             const StateFunction positionOfBodyExertingAccelerationFunction
-            = boost::lambda::constant( Eigen::Vector3d::Zero( ) ),
-            const boost::function< Eigen::Quaterniond( ) >
+            = []( ){ return Eigen::Vector3d::Zero( ); },
+            const std::function< Eigen::Quaterniond( ) >
             rotationFromBodyFixedToIntegrationFrameFunction =
-            boost::lambda::constant( Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) ) ),
+            []( ){ return Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) ); },
             const bool isMutualAttractionUsed = 0,
-            boost::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache
-            = boost::make_shared< basic_mathematics::SphericalHarmonicsCache >( ) )
+            std::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache
+            = std::make_shared< basic_mathematics::SphericalHarmonicsCache >( ) )
         : Base( positionOfBodySubjectToAccelerationFunction,
                 aGravitationalParameterFunction,
                 positionOfBodyExertingAccelerationFunction,
@@ -418,7 +417,7 @@ public:
      *  Function to retrieve the spherical harmonics cache for this acceleration.
      *  \return Spherical harmonics cache for this acceleration
      */
-    boost::shared_ptr< basic_mathematics::SphericalHarmonicsCache > getSphericalHarmonicsCache( )
+    std::shared_ptr< basic_mathematics::SphericalHarmonicsCache > getSphericalHarmonicsCache( )
     {
         return sphericalHarmonicsCache_;
     }
@@ -588,7 +587,7 @@ private:
     const CoefficientMatrixReturningFunction getSineHarmonicsCoefficients;
 
     //! Function returning the current rotation from body-fixed frame to integration frame.
-    boost::function< Eigen::Quaterniond( ) > rotationFromBodyFixedToIntegrationFrameFunction_;
+    std::function< Eigen::Quaterniond( ) > rotationFromBodyFixedToIntegrationFrameFunction_;
 
     //! Current rotation from body-fixed frame to integration frame.
     Eigen::Quaterniond rotationToIntegrationFrame_;
@@ -601,7 +600,7 @@ private:
     Eigen::Vector3d currentInertialRelativePosition_;
 
     //!  Spherical harmonics cache for this acceleration
-    boost::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache_;
+    std::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache_;
 
     //! Current acceleration in inertial frame, as computed by last call to updateMembers function
     Eigen::Vector3d currentAcceleration_;
@@ -625,7 +624,7 @@ private:
 
 
 //! Typedef for shared-pointer to SphericalHarmonicsGravitationalAccelerationModel.
-typedef boost::shared_ptr< SphericalHarmonicsGravitationalAccelerationModel >
+typedef std::shared_ptr< SphericalHarmonicsGravitationalAccelerationModel >
 SphericalHarmonicsGravitationalAccelerationModelPointer;
 
 

@@ -482,12 +482,12 @@ public:
      * dependent variables when propagating.
      */
     DependentVariableSaveSettings(
-            const std::vector< boost::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariables,
+            const std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariables,
             const bool printDependentVariableTypes = true ):
         dependentVariables_( dependentVariables ), printDependentVariableTypes_( printDependentVariableTypes ){ }
 
     //! List of settings for parameters that are to be saved.
-    std::vector< boost::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariables_;
+    std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariables_;
 
     //! Variable denoting whether to print the list and vector entries of dependent variables when propagating.
     bool printDependentVariableTypes_;
@@ -511,7 +511,7 @@ std::string getVariableName( const VariableType variableType );
  * \param variableSettings Variable.
  * \return String with variable id.
  */
-std::string getVariableId( const boost::shared_ptr< VariableSettings > variableSettings );
+std::string getVariableId( const std::shared_ptr< VariableSettings > variableSettings );
 
 //! Function to get a string representing a 'named identification' of a dependent variable type.
 /*!
@@ -528,7 +528,7 @@ std::string getDependentVariableName( const PropagationDependentVariables propag
  * \return String with dependent variable id.
  */
 std::string getDependentVariableId(
-        const boost::shared_ptr< SingleDependentVariableSaveSettings > dependentVariableSettings );
+        const std::shared_ptr< SingleDependentVariableSaveSettings > dependentVariableSettings );
 
 } // namespace propagators
 

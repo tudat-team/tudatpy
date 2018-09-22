@@ -14,7 +14,7 @@
 
 #include <vector>
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include "Tudat/Mathematics/GeometricShapes/singleSurfaceGeometry.h"
 #include "Tudat/Mathematics/GeometricShapes/surfaceGeometry.h"
@@ -39,7 +39,7 @@ class CompositeSurfaceGeometry: public SurfaceGeometry
 public:
 
     //! Typedef for shared-pointer to CompositeSurfaceGeometry object.
-    typedef boost::shared_ptr< CompositeSurfaceGeometry > CompositeSurfaceGeometryPointer;
+    typedef std::shared_ptr< CompositeSurfaceGeometry > CompositeSurfaceGeometryPointer;
 
     //! Default constructor.
     /*!
@@ -53,9 +53,9 @@ public:
      *  \param singleSurfaceGeometryList vector of pointers to SingleSurfaceGeometries
      *  \param compositeSurfaceGeometryList vector of pointers to CompositeSurfaceGeometries
      */
-    CompositeSurfaceGeometry( std::vector< boost::shared_ptr< SingleSurfaceGeometry > >
+    CompositeSurfaceGeometry( std::vector< std::shared_ptr< SingleSurfaceGeometry > >
                               singleSurfaceGeometryList,
-                              std::vector< boost::shared_ptr< CompositeSurfaceGeometry > >
+                              std::vector< std::shared_ptr< CompositeSurfaceGeometry > >
                               compositeSurfaceGeometryList );
 
     //! Default destructor.
@@ -73,7 +73,7 @@ public:
      * \return Pointer to SingleSurfaceGeometry object at index location in
      *          singleSurfaceGeometryList_.
      */
-    boost::shared_ptr< SingleSurfaceGeometry > getSingleSurfaceGeometry( const unsigned int index )
+    std::shared_ptr< SingleSurfaceGeometry > getSingleSurfaceGeometry( const unsigned int index )
     {
         return singleSurfaceGeometryList_[ index ];
     }
@@ -87,7 +87,7 @@ public:
      * \return Pointer to CompositeSurfaceGeometry object at index location in
      *          compositeSurfaceGeometryList_.
      */
-    boost::shared_ptr< CompositeSurfaceGeometry > getCompositeSurfaceGeometry(
+    std::shared_ptr< CompositeSurfaceGeometry > getCompositeSurfaceGeometry(
             const unsigned int index )
     {
         return compositeSurfaceGeometryList_[ index ];
@@ -136,7 +136,7 @@ protected:
      *           object which is to be stored in singleSurfaceGeometryList_.
      * \param index Index of singleSurfaceGeometryList_ at which the surface is to be set.
      */
-    void setSingleSurfaceGeometry( boost::shared_ptr< SingleSurfaceGeometry >
+    void setSingleSurfaceGeometry( std::shared_ptr< SingleSurfaceGeometry >
                                    singleSurfaceGeometry, const unsigned int index )
     {
         singleSurfaceGeometryList_[ index ] = singleSurfaceGeometry;
@@ -151,7 +151,7 @@ protected:
      *          compositeSurfaceGeometryList_.
      * \param index Index of compositeSurfaceGeometryList_ at which the surface is to be set.
      */
-    void setCompositeSurfaceGeometry( boost::shared_ptr< CompositeSurfaceGeometry>
+    void setCompositeSurfaceGeometry( std::shared_ptr< CompositeSurfaceGeometry>
                                       compositeSurfaceGeometry, const unsigned int index )
     {
         compositeSurfaceGeometryList_[ index ] = compositeSurfaceGeometry;

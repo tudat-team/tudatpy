@@ -58,10 +58,10 @@ public:
     typedef Eigen::Matrix< DependentVariableType, Eigen::Dynamic, Eigen::Dynamic > DependentMatrix;
 
     //! Typedef of the function describing the system and the measurements.
-    typedef boost::function< DependentVector( const IndependentVariableType, const DependentVector& ) > Function;
+    typedef std::function< DependentVector( const IndependentVariableType, const DependentVector& ) > Function;
 
     //! Typedefs for system and measurement matrix functions.
-    typedef boost::function< DependentMatrix( const IndependentVariableType, const DependentVector& ) > MatrixFunction;
+    typedef std::function< DependentMatrix( const IndependentVariableType, const DependentVector& ) > MatrixFunction;
 
     //! Typedef of the integrator settings.
     typedef numerical_integrators::IntegratorSettings< IndependentVariableType > IntegratorSettings;
@@ -90,7 +90,7 @@ public:
                 const IndependentVariableType initialTime,
                 const DependentVector& initialStateVector,
                 const DependentMatrix& initialCovarianceMatrix,
-                const boost::shared_ptr< IntegratorSettings > integratorSettings ) :
+                const std::shared_ptr< IntegratorSettings > integratorSettings ) :
         systemUncertainty_( systemUncertainty ), measurementUncertainty_( measurementUncertainty ),
         filteringStepSize_( filteringStepSize ), initialTime_( initialTime ), currentTime_( initialTime ),
         aPosterioriStateEstimate_( initialStateVector ), aPosterioriCovarianceEstimate_( initialCovarianceMatrix )
@@ -115,10 +115,10 @@ public:
         generateNoiseDistributions( );
 
         // Create system and measurement functions based on input parameters// Get time step information
-        systemFunction_ = boost::bind( &FilterBase< IndependentVariableType, DependentVariableType >::createSystemFunction,
-                                       this, _1, _2 );
-        measurementFunction_ = boost::bind( &FilterBase< IndependentVariableType, DependentVariableType >::createMeasurementFunction,
-                                            this, _1, _2 );
+        systemFunction_ = std::bind( &FilterBase< IndependentVariableType, DependentVariableType >::createSystemFunction,
+                                     this, std::placeholders::_1, std::placeholders::_2 );
+        measurementFunction_ = std::bind( &FilterBase< IndependentVariableType, DependentVariableType >::createMeasurementFunction,
+                                          this, std::placeholders::_1, std::placeholders::_2 );
 
         // Create numerical integrator
         isStateToBeIntegrated_ = integratorSettings != nullptr;
@@ -346,7 +346,7 @@ protected:
     //! Function to create the function that defines the system model.
     /*!
      *  Function to create the function that defines the system model. The output of this function is then bound
-     *  to the systemFunction_ variable, via the boost::bind command.
+     *  to the systemFunction_ variable, via the std::bind command.
      *  \param currentTime Scalar representing the current time.
      *  \param currentStateVector Vector representing the current state.
      *  \return Vector representing the estimated state.
@@ -357,7 +357,7 @@ protected:
     //! Function to create the function that defines the measurement model.
     /*!
      *  Function to create the function that defines the measurement model. The output of this function is then bound
-     *  to the measurementFunction_ variable, via the boost::bind command.
+     *  to the measurementFunction_ variable, via the std::bind command.
      *  \param currentTime Scalar representing the current time.
      *  \param currentStateVector Vector representing the current state.
      *  \return Vector representing the estimated measurement.
@@ -461,7 +461,7 @@ protected:
     /*!
      *  Pointer to the integrator, which is used to propagate the state to the new time step.
      */
-    boost::shared_ptr< Integrator > integrator_;
+    std::shared_ptr< Integrator > integrator_;
 
     //! Indentity matrix.
     /*!
@@ -529,7 +529,7 @@ private:
      *  for the system.
      *  \param integratorSettings Pointer to integration settings.
      */
-    void generateNumericalIntegrator( const boost::shared_ptr< IntegratorSettings > integratorSettings )
+    void generateNumericalIntegrator( const std::shared_ptr< IntegratorSettings > integratorSettings )
     {
         // Check that integration time-step matches filtering time-step
         if ( filteringStepSize_ != integratorSettings->initialTimeStep_ )
@@ -567,10 +567,10 @@ private:
     }
 
     //! Vector where the system noise generators are stored.
-    std::vector< boost::shared_ptr< statistics::RandomVariableGenerator< double > > > systemNoiseDistribution_;
+    std::vector< std::shared_ptr< statistics::RandomVariableGenerator< double > > > systemNoiseDistribution_;
 
     //! Vector where the measurement noise generators are stored.
-    std::vector< boost::shared_ptr< statistics::RandomVariableGenerator< double > > > measurementNoiseDistribution_;
+    std::vector< std::shared_ptr< statistics::RandomVariableGenerator< double > > > measurementNoiseDistribution_;
 
     //! Vector of system noise hisotries.
     std::vector< DependentVector > systemNoiseHistory_;
@@ -584,7 +584,7 @@ private:
 typedef FilterBase< > FilterDouble;
 
 //! Typedef for a shared-pointer to a filter with double data type.
-typedef boost::shared_ptr< FilterDouble > FilterDoublePointer;
+typedef std::shared_ptr< FilterDouble > FilterDoublePointer;
 
 } // namespace filters
 

@@ -24,6 +24,8 @@
 #include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
 #include "Tudat/Mathematics/BasicMathematics/basicMathematicsFunctions.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/missionGeometry.h"
+#include "Tudat/Astrodynamics/BasicAstrodynamics/stateVectorIndices.h"
+#include "Tudat/Astrodynamics/BasicAstrodynamics/orbitalElementConversions.h"
 
 namespace tudat
 {
@@ -356,8 +358,8 @@ Eigen::Matrix< ScalarType, 6, 1 > convertCartesianToModifiedEquinoctialElements(
 
 template< typename ScalarType = double >
 Eigen::Matrix< ScalarType, 6, 1 > convertCartesianToModifiedEquinoctialElementsFromStateFunction(
-        const boost::function< Eigen::Matrix< ScalarType, 6, 1 >(  ) >& cartesianElementsFunction,
-        const boost::function< ScalarType( ) > centralBodyGravitationalParameterFunction )
+        const std::function< Eigen::Matrix< ScalarType, 6, 1 >(  ) >& cartesianElementsFunction,
+        const std::function< ScalarType( ) > centralBodyGravitationalParameterFunction )
 {
     return convertCartesianToModifiedEquinoctialElements(
                 cartesianElementsFunction( ), centralBodyGravitationalParameterFunction( ) );

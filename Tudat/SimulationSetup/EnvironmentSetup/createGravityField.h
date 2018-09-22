@@ -16,7 +16,7 @@
 #include <string>
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/trim.hpp>
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include "Tudat/SimulationSetup/EnvironmentSetup/body.h"
 #include "Tudat/SimulationSetup/EnvironmentSetup/createGravityFieldVariations.h"
@@ -383,7 +383,7 @@ protected:
  * the coefficients are referred.
  * \return Gravity field settings for a homogeneous triaxial ellipsoid of given properties.
  */
-boost::shared_ptr< SphericalHarmonicsGravityFieldSettings > createHomogeneousTriAxialEllipsoidGravitySettings(
+std::shared_ptr< SphericalHarmonicsGravityFieldSettings > createHomogeneousTriAxialEllipsoidGravitySettings(
         const double axisA, const double axisB, const double axisC, const double ellipsoidDensity,
         const int maximumDegree, const int maximumOrder,
         const std::string& associatedReferenceFrame  );
@@ -425,12 +425,12 @@ std::pair< double, double > readGravityFieldFile(
  *  that are to be used (but not immediately set!) by current body under consideration.
  *  \return Gravity field model created according to settings in gravityFieldSettings.
  */
-boost::shared_ptr< gravitation::GravityFieldModel > createGravityFieldModel(
-        const boost::shared_ptr< GravityFieldSettings > gravityFieldSettings,
+std::shared_ptr< gravitation::GravityFieldModel > createGravityFieldModel(
+        const std::shared_ptr< GravityFieldSettings > gravityFieldSettings,
         const std::string& body,
         const NamedBodyMap& bodyMap = NamedBodyMap( ),
-        const std::vector< boost::shared_ptr< GravityFieldVariationSettings > >& gravityFieldVariationSettings =
-        std::vector< boost::shared_ptr< GravityFieldVariationSettings > >( ) );
+        const std::vector< std::shared_ptr< GravityFieldVariationSettings > >& gravityFieldVariationSettings =
+        std::vector< std::shared_ptr< GravityFieldVariationSettings > >( ) );
 
 } // namespace simulation_setup
 

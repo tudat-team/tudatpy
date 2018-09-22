@@ -14,7 +14,7 @@
 #include <vector>
 #include <map>
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include <Eigen/Core>
 
@@ -43,16 +43,16 @@ namespace observation_partials
  *  \param bodyToEstimate Name of body wrt position of which a partial is to be created.
  *  \param angularPositionScaler Object scale position partials to angular position partials for current link ends.
  *  \param lightTimeCorrectionPartialObjects List of light time correction partials to be used (empty by default)
- *  \return Angular position partial object wrt a current position of a body (is NULL if no parameter dependency exists).
+ *  \return Angular position partial object wrt a current position of a body (is nullptr if no parameter dependency exists).
  */
-boost::shared_ptr< AngularPositionPartial > createAngularPositionPartialWrtBodyPosition(
+std::shared_ptr< AngularPositionPartial > createAngularPositionPartialWrtBodyPosition(
         const observation_models::LinkEnds angularPositionLinkEnds,
         const simulation_setup::NamedBodyMap& bodyMap,
         const std::string bodyToEstimate,
-        const boost::shared_ptr< AngularPositionScaling > angularPositionScaler,
-        const std::vector< boost::shared_ptr< observation_partials::LightTimeCorrectionPartial > >&
+        const std::shared_ptr< AngularPositionScaling > angularPositionScaler,
+        const std::vector< std::shared_ptr< observation_partials::LightTimeCorrectionPartial > >&
         lightTimeCorrectionPartialObjects =
-        std::vector< boost::shared_ptr< observation_partials::LightTimeCorrectionPartial > >( ) );
+        std::vector< std::shared_ptr< observation_partials::LightTimeCorrectionPartial > >( ) );
 
 //! Function to generate angular position partial wrt a single  parameter.
 /*!
@@ -65,25 +65,25 @@ boost::shared_ptr< AngularPositionPartial > createAngularPositionPartialWrtBodyP
  *  \param parameterToEstimate Object of current parameter that is to be estimated.
  *  \param angularPositionScaler Object scale position partials to angular position partials for current link ends.
  *  \param lightTimeCorrectionPartialObjects List of light time correction partials to be used (empty by default)
- *  \return Angular position partial object wrt a single parameter (is NULL if no parameter dependency exists).
+ *  \return Angular position partial object wrt a single parameter (is nullptr if no parameter dependency exists).
  */
 template< typename ParameterType >
-boost::shared_ptr< AngularPositionPartial > createAngularPositionPartialWrtParameter(
+std::shared_ptr< AngularPositionPartial > createAngularPositionPartialWrtParameter(
         const observation_models::LinkEnds angularPositionLinkEnds,
         const simulation_setup::NamedBodyMap& bodyMap,
-        const boost::shared_ptr< estimatable_parameters::EstimatableParameter< ParameterType > > parameterToEstimate,
-        const boost::shared_ptr< AngularPositionScaling > angularPositionScaler,
-        const std::vector< boost::shared_ptr< observation_partials::LightTimeCorrectionPartial > >&
+        const std::shared_ptr< estimatable_parameters::EstimatableParameter< ParameterType > > parameterToEstimate,
+        const std::shared_ptr< AngularPositionScaling > angularPositionScaler,
+        const std::vector< std::shared_ptr< observation_partials::LightTimeCorrectionPartial > >&
         lightTimeCorrectionPartialObjects =
-        std::vector< boost::shared_ptr< observation_partials::LightTimeCorrectionPartial > >( ) )
+        std::vector< std::shared_ptr< observation_partials::LightTimeCorrectionPartial > >( ) )
 {
-    boost::shared_ptr< AngularPositionPartial > angularPositionPartial;
+    std::shared_ptr< AngularPositionPartial > angularPositionPartial;
 
     {
-        std::map< observation_models::LinkEndType, boost::shared_ptr< CartesianStatePartial > > positionPartials =
+        std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartial > > positionPartials =
                 createCartesianStatePartialsWrtParameter( angularPositionLinkEnds, bodyMap, parameterToEstimate );
 
-        boost::shared_ptr< AngularPositionPartial > testAngularPositionPartial = boost::make_shared< AngularPositionPartial >(
+        std::shared_ptr< AngularPositionPartial > testAngularPositionPartial = std::make_shared< AngularPositionPartial >(
                     angularPositionScaler, positionPartials, parameterToEstimate->getParameterName( ),
                     lightTimeCorrectionPartialObjects );
         // Create angular position partials if any position partials are created (i.e. if any dependency exists).
@@ -112,25 +112,25 @@ boost::shared_ptr< AngularPositionPartial > createAngularPositionPartialWrtParam
  *  scaling the position partial members of all AngularPositionPartials in link end.
  */
 template< typename ParameterType >
-std::pair< std::map< std::pair< int, int >, boost::shared_ptr< ObservationPartial< 2 > > >,
-boost::shared_ptr< PositionPartialScaling > >
+std::pair< std::map< std::pair< int, int >, std::shared_ptr< ObservationPartial< 2 > > >,
+std::shared_ptr< PositionPartialScaling > >
 createAngularPositionPartials(
         const observation_models::LinkEnds angularPositionLinkEnds,
         const simulation_setup::NamedBodyMap& bodyMap,
-        const boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< ParameterType > > parametersToEstimate,
-        const std::vector< boost::shared_ptr< observation_models::LightTimeCorrection > >& lightTimeCorrections =
-        std::vector< boost::shared_ptr< observation_models::LightTimeCorrection > >( ) )
+        const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< ParameterType > > parametersToEstimate,
+        const std::vector< std::shared_ptr< observation_models::LightTimeCorrection > >& lightTimeCorrections =
+        std::vector< std::shared_ptr< observation_models::LightTimeCorrection > >( ) )
 
 {
-    std::vector< boost::shared_ptr< observation_partials::LightTimeCorrectionPartial > > lightTimeCorrectionPartialObjects;
+    std::vector< std::shared_ptr< observation_partials::LightTimeCorrectionPartial > > lightTimeCorrectionPartialObjects;
     if( lightTimeCorrections.size( ) > 0 )
     {
         lightTimeCorrectionPartialObjects = observation_partials::createLightTimeCorrectionPartials( lightTimeCorrections );
     }
 
     // Create scaling object, to be used for all angular position partials in current link end.
-    boost::shared_ptr< AngularPositionScaling > angularPositionScaling =
-            boost::make_shared< AngularPositionScaling >( );
+    std::shared_ptr< AngularPositionScaling > angularPositionScaling =
+            std::make_shared< AngularPositionScaling >( );
 
     SingleLinkObservationTwoPartialList angularPositionPartials;
 
@@ -139,7 +139,7 @@ createAngularPositionPartials(
     int currentIndex = 0;
     std::pair< int, int > currentPair = std::pair< int, int >( currentIndex, 1 );
 
-    std::vector< boost::shared_ptr< estimatable_parameters::EstimatableParameter<
+    std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameter<
             Eigen::Matrix< ParameterType, Eigen::Dynamic, 1 > > > > initialDynamicalParameters =
             parametersToEstimate->getEstimatedInitialStateParameters( );
 
@@ -162,12 +162,12 @@ createAngularPositionPartials(
         }
 
         // Create position angular position partial for current body
-        boost::shared_ptr< AngularPositionPartial > currentAngularPositionPartial = createAngularPositionPartialWrtBodyPosition(
+        std::shared_ptr< AngularPositionPartial > currentAngularPositionPartial = createAngularPositionPartialWrtBodyPosition(
                     angularPositionLinkEnds, bodyMap, acceleratedBody, angularPositionScaling,
                     lightTimeCorrectionPartialObjects );
 
-        // Check if partial is non-null (i.e. whether dependency exists between current angular position and current body)
-        if( currentAngularPositionPartial != NULL )
+        // Check if partial is non-nullptr (i.e. whether dependency exists between current angular position and current body)
+        if( currentAngularPositionPartial != nullptr )
         {
             // Add partial to the list.
             currentPair = std::pair< int, int >( currentIndex, 6 );
@@ -179,18 +179,18 @@ createAngularPositionPartials(
     }
 
     // Iterate over all double parameters that are to be estimated.
-    std::map< int, boost::shared_ptr< estimatable_parameters::EstimatableParameter< double > > > doubleParametersToEstimate =
+    std::map< int, std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > > doubleParametersToEstimate =
             parametersToEstimate->getDoubleParameters( );
-    for( std::map< int, boost::shared_ptr< estimatable_parameters::EstimatableParameter< double > > >::iterator
+    for( std::map< int, std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > >::iterator
          parameterIterator = doubleParametersToEstimate.begin( );
          parameterIterator != doubleParametersToEstimate.end( ); parameterIterator++ )
     {
         // Create position angular position partial for current parameter
-        boost::shared_ptr< AngularPositionPartial > currentAngularPositionPartial = createAngularPositionPartialWrtParameter(
+        std::shared_ptr< AngularPositionPartial > currentAngularPositionPartial = createAngularPositionPartialWrtParameter(
                     angularPositionLinkEnds, bodyMap, parameterIterator->second, angularPositionScaling,
                     lightTimeCorrectionPartialObjects );
 
-        if( currentAngularPositionPartial != NULL )
+        if( currentAngularPositionPartial != nullptr )
         {
             // Add partial to the list.
             currentPair = std::pair< int, int >( parameterIterator->first, 1 );
@@ -199,15 +199,15 @@ createAngularPositionPartials(
     }
 
     // Iterate over all vector parameters that are to be estimated.
-    std::map< int, boost::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > >
+    std::map< int, std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > >
             vectorParametersToEstimate = parametersToEstimate->getVectorParameters( );
-    for( std::map< int, boost::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd  > > >::iterator
+    for( std::map< int, std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd  > > >::iterator
          parameterIterator = vectorParametersToEstimate.begin( );
          parameterIterator != vectorParametersToEstimate.end( ); parameterIterator++ )
     {
 
         // Create position angular position partial for current parameter
-        boost::shared_ptr< ObservationPartial< 2 > > currentAngularPositionPartial;
+        std::shared_ptr< ObservationPartial< 2 > > currentAngularPositionPartial;
 
         if( !isParameterObservationLinkProperty( parameterIterator->second->getParameterName( ).first )  )
         {
@@ -221,8 +221,8 @@ createAngularPositionPartials(
                         angularPositionLinkEnds, observation_models::angular_position, parameterIterator->second );
         }
 
-        // Check if partial is non-null (i.e. whether dependency exists between current observable and current parameter)
-        if( currentAngularPositionPartial != NULL )
+        // Check if partial is non-nullptr (i.e. whether dependency exists between current observable and current parameter)
+        if( currentAngularPositionPartial != nullptr )
         {
             // Add partial to the list.
             currentPair = std::pair< int, int >( parameterIterator->first,
@@ -252,19 +252,19 @@ createAngularPositionPartials(
  */
 template< typename ParameterType >
 std::map< observation_models::LinkEnds, std::pair< SingleLinkObservationTwoPartialList,
-boost::shared_ptr< PositionPartialScaling > > >
+std::shared_ptr< PositionPartialScaling > > >
 createAngularPositionPartials(
         const std::vector< observation_models::LinkEnds > linkEnds,
         const simulation_setup::NamedBodyMap& bodyMap,
-        const boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< ParameterType > > parametersToEstimate,
+        const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< ParameterType > > parametersToEstimate,
         const std::map< observation_models::LinkEnds,
-        std::vector< std::vector< boost::shared_ptr< observation_models::LightTimeCorrection > > > >& lightTimeCorrections =
+        std::vector< std::vector< std::shared_ptr< observation_models::LightTimeCorrection > > > >& lightTimeCorrections =
         std::map< observation_models::LinkEnds,
-        std::vector< std::vector< boost::shared_ptr< observation_models::LightTimeCorrection > > > >( ) )
+        std::vector< std::vector< std::shared_ptr< observation_models::LightTimeCorrection > > > >( ) )
 {
     // Declare return list.
     std::map< observation_models::LinkEnds, std::pair< SingleLinkObservationTwoPartialList,
-            boost::shared_ptr< PositionPartialScaling > > > angularPositionPartials;
+            std::shared_ptr< PositionPartialScaling > > > angularPositionPartials;
 
     // Iterate over all link ends.
     for( unsigned int i = 0; i < linkEnds.size( ); i++ )
@@ -277,7 +277,7 @@ createAngularPositionPartials(
 
         }
 
-        std::vector< boost::shared_ptr< observation_models::LightTimeCorrection > > singleLinkLightTimeCorrections;
+        std::vector< std::shared_ptr< observation_models::LightTimeCorrection > > singleLinkLightTimeCorrections;
         if( lightTimeCorrections.count( linkEnds.at( i ) ) > 0 )
         {
             if( lightTimeCorrections.at( linkEnds.at( i ) ).size( ) != 1 )

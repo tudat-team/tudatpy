@@ -30,6 +30,14 @@
 #ifndef TUDAT_MULTI_LINEAR_INTERPOLATOR_H
 #define TUDAT_MULTI_LINEAR_INTERPOLATOR_H
 
+#include <vector>
+
+#include <boost/array.hpp>
+#include <boost/multi_array.hpp>
+#include <memory>
+#include "Tudat/Mathematics/Interpolators/lookupScheme.h"
+#include "Tudat/Mathematics/Interpolators/interpolator.h"
+
 #include "Tudat/Mathematics/BasicMathematics/nearestNeighbourSearch.h"
 #include "Tudat/Mathematics/Interpolators/multiDimensionalInterpolator.h"
 
@@ -85,8 +93,8 @@ public:
             std::vector< BoundaryInterpolationType >( NumberOfDimensions, extrapolate_at_boundary ),
             const std::vector< std::pair< DependentVariableType, DependentVariableType > >& defaultExtrapolationValue =
             std::vector< std::pair< DependentVariableType, DependentVariableType > >(
-                NumberOfDimensions, std::make_pair( IdentityElement< DependentVariableType >::getAdditionIdentity( ),
-                                                    IdentityElement< DependentVariableType >::getAdditionIdentity( ) ) ) ) :
+                NumberOfDimensions, std::make_pair( IdentityElement::getAdditionIdentity< DependentVariableType >( ),
+                                                    IdentityElement::getAdditionIdentity< DependentVariableType >( ) ) ) ) :
         MultiDimensionalInterpolator< IndependentVariableType, DependentVariableType, NumberOfDimensions >(
             boundaryHandling, defaultExtrapolationValue )
     {
@@ -141,7 +149,7 @@ public:
             const boost::multi_array< DependentVariableType, static_cast< size_t >( NumberOfDimensions ) >& dependentData,
             const AvailableLookupScheme selectedLookupScheme,
             const BoundaryInterpolationType boundaryHandling,
-            const DependentVariableType& defaultExtrapolationValue = IdentityElement< DependentVariableType >::getAdditionIdentity( ) ) :
+            const DependentVariableType& defaultExtrapolationValue = IdentityElement::getAdditionIdentity< DependentVariableType >( ) ) :
         MultiLinearInterpolator( independentValues, dependentData, selectedLookupScheme,
                                  std::vector< BoundaryInterpolationType >( NumberOfDimensions, boundaryHandling ),
                                  std::vector< std::pair< DependentVariableType, DependentVariableType > >(
@@ -211,6 +219,50 @@ public:
     }
 
 private:
+
+    //! Make the lookup scheme that is to be used.
+    /*!
+     * This function creates the look up scheme that is to be used in determining the interval of
+     * the independent variable grid where the interpolation is to be performed. It takes the type
+     * of lookup scheme as an enum and constructs the lookup scheme from the independentValues_
+     * that have been set previously.
+     *  \param selectedScheme Type of look-up scheme that is to be used
+     */
+    void makeLookupSchemes( const AvailableLookupScheme selectedScheme )
+    {
+        lookUpSchemes_.resize( NumberOfDimensions );
+        // Find which type of scheme is used.
+        switch( selectedScheme )
+        {
+        case binarySearch:
+
+            for( unsigned int i = 0; i < NumberOfDimensions; i++ )
+            {
+                // Create binary search look up scheme.
+                lookUpSchemes_[ i ] = std::shared_ptr< LookUpScheme< IndependentVariableType > >
+                        ( new BinarySearchLookupScheme< IndependentVariableType >(
+                              independentValues_[ i ] ) );
+            }
+
+            break;
+
+        case huntingAlgorithm:
+
+            for( unsigned int i = 0; i < NumberOfDimensions; i++ )
+            {
+                // Create hunting scheme, which uses an intial guess from previous look-ups.
+                lookUpSchemes_[ i ] = std::shared_ptr< LookUpScheme< IndependentVariableType > >
+                        ( new HuntingAlgorithmLookupScheme< IndependentVariableType >(
+                              independentValues_[ i ] ) );
+            }
+
+            break;
+
+        default:
+
+            throw std::runtime_error( "Warning: lookup scheme not found when making scheme for 1-D interpolator" );
+        }
+    }
 
     //! Perform the step in a single dimension of the interpolation process.
     /*!
@@ -286,8 +338,13 @@ private:
                 lowerFraction * lowerContribution;
         return returnValue;
     }
-
 };
+
+extern template class MultiLinearInterpolator< double, Eigen::Vector6d, 1 >;
+extern template class MultiLinearInterpolator< double, Eigen::Vector6d, 2 >;
+extern template class MultiLinearInterpolator< double, Eigen::Vector6d, 3 >;
+extern template class MultiLinearInterpolator< double, Eigen::Vector6d, 4 >;
+extern template class MultiLinearInterpolator< double, Eigen::Vector6d, 5 >;
 
 } // namespace interpolators
 

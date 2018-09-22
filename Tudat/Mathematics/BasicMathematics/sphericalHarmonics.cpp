@@ -102,7 +102,7 @@ Eigen::Vector3d computePotentialGradient( const Eigen::Vector3d& sphericalPositi
                                           const double sineHarmonicCoefficient,
                                           const double legendrePolynomial,
                                           const double legendrePolynomialDerivative,
-                                          const boost::shared_ptr< SphericalHarmonicsCache > sphericalHarmonicsCache )
+                                          const std::shared_ptr< SphericalHarmonicsCache > sphericalHarmonicsCache )
 {
     return computePotentialGradient(
                 sphericalPosition( radiusIndex ),

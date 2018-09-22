@@ -121,7 +121,7 @@ void getTabulatedGravityFieldVariationValues(
  * for test purposes) using getTabulatedGravityFieldVariationValues function
  * \return Predefined tabulated gravity field variations.
  */
-boost::shared_ptr< TabulatedGravityFieldVariations > getTabulatedGravityFieldVariations( )
+std::shared_ptr< TabulatedGravityFieldVariations > getTabulatedGravityFieldVariations( )
 {
     // Get coefficient tables.
     std::map< double, Eigen::MatrixXd > cosineCoefficientCorrections;
@@ -130,7 +130,7 @@ boost::shared_ptr< TabulatedGravityFieldVariations > getTabulatedGravityFieldVar
                 cosineCoefficientCorrections, sineCoefficientCorrections );
 
     // Create correction object.
-    return boost::make_shared< TabulatedGravityFieldVariations >(
+    return std::make_shared< TabulatedGravityFieldVariations >(
                 cosineCoefficientCorrections, sineCoefficientCorrections, 1, 0 );
 }
 
@@ -140,7 +140,7 @@ boost::shared_ptr< TabulatedGravityFieldVariations > getTabulatedGravityFieldVar
  *  variations from getTabulatedGravityFieldVariationValues and degree 2 tidal variations.
  * \return Predefined gravity field variations object.
  */
-boost::shared_ptr< GravityFieldVariationsSet > getTestGravityFieldVariations( )
+std::shared_ptr< GravityFieldVariationsSet > getTestGravityFieldVariations( )
 {
     // Define bodies raising rides.
     std::vector< std::string > deformingBodies;
@@ -148,17 +148,17 @@ boost::shared_ptr< GravityFieldVariationsSet > getTestGravityFieldVariations( )
     deformingBodies.push_back( "Europa" );
 
     // Retrieve required data of bodies raising tides.
-    std::vector< boost::function< Eigen::Vector6d( const double ) > >
+    std::vector< std::function< Eigen::Vector6d( const double ) > >
             deformingBodyStateFunctions;
-    std::vector< boost::function< double( ) > > deformingBodyMasses;
+    std::vector< std::function< double( ) > > deformingBodyMasses;
     for( unsigned int i = 0; i < deformingBodies.size( ); i++ )
     {
         deformingBodyStateFunctions.push_back(
-                    boost::bind( &getBodyCartesianStateAtEpoch,
+                    std::bind( &getBodyCartesianStateAtEpoch,
                                  deformingBodies.at( i ), "SSB", "J2000",
-                                 "None", _1 ) );
+                                 "None", std::placeholders::_1 ) );
         deformingBodyMasses.push_back(
-                    boost::bind( &getBodyGravitationalParameter,
+                    std::bind( &getBodyGravitationalParameter,
                                  deformingBodies.at( i ) ) );
     }
 
@@ -169,23 +169,23 @@ boost::shared_ptr< GravityFieldVariationsSet > getTestGravityFieldVariations( )
         loveNumbers( 1, constantSingleDegreeLoveNumber );
 
     // Set up gravity field variation of Jupiter due to Galilean moons.
-    boost::shared_ptr< GravityFieldVariations > solidBodyGravityFieldVariations =
-            boost::make_shared< BasicSolidBodyTideGravityFieldVariations >(
-                boost::bind( &getBodyCartesianStateAtEpoch,
-                             "Jupiter", "SSB", "J2000", "None", _1 ),
-                boost::bind( &computeRotationQuaternionBetweenFrames,
-                             "J2000", "IAU_Jupiter", _1 ),
+    std::shared_ptr< GravityFieldVariations > solidBodyGravityFieldVariations =
+            std::make_shared< BasicSolidBodyTideGravityFieldVariations >(
+                std::bind( &getBodyCartesianStateAtEpoch,
+                             "Jupiter", "SSB", "J2000", "None", std::placeholders::_1 ),
+                std::bind( &computeRotationQuaternionBetweenFrames,
+                             "J2000", "IAU_Jupiter", std::placeholders::_1 ),
                 deformingBodyStateFunctions,
                 getAverageRadius( "Jupiter" ),
-                boost::bind( &getBodyGravitationalParameter, "Jupiter" ),
+                std::bind( &getBodyGravitationalParameter, "Jupiter" ),
                 deformingBodyMasses, loveNumbers, deformingBodies );
 
     // Get tabulated gravity field variations.
-    boost::shared_ptr< GravityFieldVariations > tabulatedGravityFieldVariations =
+    std::shared_ptr< GravityFieldVariations > tabulatedGravityFieldVariations =
             getTabulatedGravityFieldVariations( );
 
     // Create and return full gravity field variations object.
-    return boost::make_shared< GravityFieldVariationsSet >(
+    return std::make_shared< GravityFieldVariationsSet >(
                 boost::assign::list_of( solidBodyGravityFieldVariations )
                 ( tabulatedGravityFieldVariations ),
                 boost::assign::list_of( basic_solid_body )( tabulated_variation ),
@@ -205,7 +205,7 @@ BOOST_AUTO_TEST_CASE( testGravityFieldVariations )
     getNominalJupiterGravityField( nominalCosineCoefficients, nominalSineCoefficients );
 
     // Create gravity field corrections object and retrieve corrections
-    std::vector< boost::shared_ptr< GravityFieldVariations > > gravityFieldVariationsList =
+    std::vector< std::shared_ptr< GravityFieldVariations > > gravityFieldVariationsList =
             getTestGravityFieldVariations( )->getVariationObjects( );
 
     // Define data structures for storing expected gravity field variations.
@@ -238,8 +238,8 @@ BOOST_AUTO_TEST_CASE( testGravityFieldVariations )
     }
 
     // Create time-varying gravity field.
-    boost::shared_ptr< TimeDependentSphericalHarmonicsGravityField > timeDependentGravityField =
-            boost::make_shared< TimeDependentSphericalHarmonicsGravityField >(
+    std::shared_ptr< TimeDependentSphericalHarmonicsGravityField > timeDependentGravityField =
+            std::make_shared< TimeDependentSphericalHarmonicsGravityField >(
                 gravitationalParameter, referenceRadius, nominalCosineCoefficients,
                 nominalSineCoefficients, getTestGravityFieldVariations( ) );
     timeDependentGravityField->update( 2.0 * testTime );

@@ -33,25 +33,25 @@ namespace observation_models
  *  \return Reference point ephemeris in global coordinates.
  */
 template< typename TimeType = double, typename StateScalarType = double >
-boost::shared_ptr< ephemerides::Ephemeris > createReferencePointEphemeris(
-        const boost::shared_ptr< simulation_setup::Body > bodyWithReferencePoint,
-        const boost::shared_ptr< ephemerides::RotationalEphemeris > bodyRotationModel,
-        const boost::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType& ) > referencePointStateFunction )
+std::shared_ptr< ephemerides::Ephemeris > createReferencePointEphemeris(
+        const std::shared_ptr< simulation_setup::Body > bodyWithReferencePoint,
+        const std::shared_ptr< ephemerides::RotationalEphemeris > bodyRotationModel,
+        const std::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType& ) > referencePointStateFunction )
 {
     typedef Eigen::Matrix< StateScalarType, 6, 1 > StateType;
 
     // Create list of state/rotation functions that are to be used
-    std::map< int, boost::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType& ) > > stationEphemerisVector;
-    stationEphemerisVector[ 2 ] = boost::bind( &simulation_setup::Body::getStateInBaseFrameFromEphemeris
-                                               < StateScalarType, TimeType >, bodyWithReferencePoint, _1 );
+    std::map< int, std::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType& ) > > stationEphemerisVector;
+    stationEphemerisVector[ 2 ] = std::bind( &simulation_setup::Body::getStateInBaseFrameFromEphemeris
+                                               < StateScalarType, TimeType >, bodyWithReferencePoint, std::placeholders::_1 );
     stationEphemerisVector[ 0 ] = referencePointStateFunction;
 
-    std::map< int, boost::function< StateType( const TimeType, const StateType& ) > > stationRotationVector;
-    stationRotationVector[ 1 ] =  boost::bind( &ephemerides::transformStateToGlobalFrame
-                                               < StateScalarType, TimeType >, _2, _1, bodyRotationModel );
+    std::map< int, std::function< StateType( const TimeType, const StateType& ) > > stationRotationVector;
+    stationRotationVector[ 1 ] =  std::bind( &ephemerides::transformStateToGlobalFrame
+                                               < StateScalarType, TimeType >, std::placeholders::_2, std::placeholders::_1, bodyRotationModel );
 
     // Create and return ephemeris
-    return boost::make_shared< ephemerides::CompositeEphemeris< TimeType, StateScalarType > >(
+    return std::make_shared< ephemerides::CompositeEphemeris< TimeType, StateScalarType > >(
                 stationEphemerisVector, stationRotationVector, "SSB", "ECLIPJ2000" );
 }
 
@@ -64,13 +64,13 @@ boost::shared_ptr< ephemerides::Ephemeris > createReferencePointEphemeris(
  *  \return Requested state function
  */
 template< typename TimeType = double, typename StateScalarType = double >
-boost::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType& ) > getLinkEndCompleteEphemerisFunction(
-        const boost::shared_ptr< simulation_setup::Body > bodyWithLinkEnd,
+std::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType& ) > getLinkEndCompleteEphemerisFunction(
+        const std::shared_ptr< simulation_setup::Body > bodyWithLinkEnd,
         const std::pair< std::string, std::string >& linkEndId )
 {
     typedef Eigen::Matrix< StateScalarType, 6, 1 > StateType;
 
-    boost::function< StateType( const TimeType& ) > linkEndCompleteEphemerisFunction;
+    std::function< StateType( const TimeType& ) > linkEndCompleteEphemerisFunction;
 
     // Checking transmitter if a reference point is to be used
     if( linkEndId.second != "" )
@@ -84,12 +84,12 @@ boost::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType& ) > get
 
         // Retrieve function to calculate state of transmitter S/C
         linkEndCompleteEphemerisFunction =
-                boost::bind( &ephemerides::Ephemeris::getTemplatedStateFromEphemeris< StateScalarType,TimeType >,
+                std::bind( &ephemerides::Ephemeris::getTemplatedStateFromEphemeris< StateScalarType,TimeType >,
                              createReferencePointEphemeris< TimeType, StateScalarType >(
                                  bodyWithLinkEnd, bodyWithLinkEnd->getRotationalEphemeris( ),
-                                 boost::bind( &ground_stations::GroundStation::getStateInPlanetFixedFrame
+                                 std::bind( &ground_stations::GroundStation::getStateInPlanetFixedFrame
                                               < StateScalarType, TimeType >,
-                                              bodyWithLinkEnd->getGroundStation( linkEndId.second ), _1 ) ), _1 );
+                                              bodyWithLinkEnd->getGroundStation( linkEndId.second ), std::placeholders::_1 ) ), std::placeholders::_1 );
 
     }
     // Else, create state function for center of mass
@@ -97,8 +97,8 @@ boost::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType& ) > get
     {
         // Create function to calculate state of transmitting ground station.
         linkEndCompleteEphemerisFunction =
-                boost::bind( &simulation_setup::Body::getStateInBaseFrameFromEphemeris< StateScalarType, TimeType >,
-                                                        bodyWithLinkEnd, _1 );
+                std::bind( &simulation_setup::Body::getStateInBaseFrameFromEphemeris< StateScalarType, TimeType >,
+                                                        bodyWithLinkEnd, std::placeholders::_1 );
     }
     return linkEndCompleteEphemerisFunction;
 }
@@ -111,7 +111,7 @@ boost::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType& ) > get
  *  \return Requested state function.
  */
 template< typename TimeType = double, typename StateScalarType = double >
-boost::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType ) > getLinkEndCompleteEphemerisFunction(
+std::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType ) > getLinkEndCompleteEphemerisFunction(
         const std::pair< std::string, std::string > linkEndId, const simulation_setup::NamedBodyMap& bodyMap )
 {
     if( bodyMap.count( linkEndId.first ) == 0  )
@@ -136,16 +136,16 @@ boost::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType ) > getL
  *  \param receivingLinkEnd Identifier for receiving link end.
  */
 template< typename ObservationScalarType = double, typename TimeType = double >
-boost::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > >
+std::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > >
 createLightTimeCalculator(
-        const boost::function< Eigen::Matrix< ObservationScalarType, 6, 1 >( const TimeType ) >& transmitterCompleteEphemeris,
-        const boost::function< Eigen::Matrix< ObservationScalarType, 6, 1 >( const TimeType ) >& receiverCompleteEphemeris,
+        const std::function< Eigen::Matrix< ObservationScalarType, 6, 1 >( const TimeType ) >& transmitterCompleteEphemeris,
+        const std::function< Eigen::Matrix< ObservationScalarType, 6, 1 >( const TimeType ) >& receiverCompleteEphemeris,
         const simulation_setup::NamedBodyMap& bodyMap,
-        const std::vector< boost::shared_ptr< LightTimeCorrectionSettings > >& lightTimeCorrections,
+        const std::vector< std::shared_ptr< LightTimeCorrectionSettings > >& lightTimeCorrections,
         const LinkEndId& transmittingLinkEnd,
         const LinkEndId& receivingLinkEnd )
 {
-    std::vector< boost::shared_ptr< LightTimeCorrection > > lightTimeCorrectionFunctions;
+    std::vector< std::shared_ptr< LightTimeCorrection > > lightTimeCorrectionFunctions;
 
     // Create lighttime correction functions from lightTimeCorrections
     for( unsigned int i = 0; i < lightTimeCorrections.size( ); i++ )
@@ -157,7 +157,7 @@ createLightTimeCalculator(
     }
 
     // Create light time calculator.
-    return boost::make_shared< LightTimeCalculator< ObservationScalarType, TimeType > >
+    return std::make_shared< LightTimeCalculator< ObservationScalarType, TimeType > >
             ( transmitterCompleteEphemeris, receiverCompleteEphemeris, lightTimeCorrectionFunctions );
 }
 
@@ -172,13 +172,13 @@ createLightTimeCalculator(
  *  light time.
  */
 template< typename ObservationScalarType = double, typename TimeType = double >
-boost::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > >
+std::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > >
 createLightTimeCalculator(
         const LinkEndId& transmittingLinkEnd,
         const LinkEndId& receivingLinkEnd,
         const simulation_setup::NamedBodyMap& bodyMap,
-        const std::vector< boost::shared_ptr< LightTimeCorrectionSettings > >& lightTimeCorrections =
-        std::vector< boost::shared_ptr< LightTimeCorrectionSettings > >( ) )
+        const std::vector< std::shared_ptr< LightTimeCorrectionSettings > >& lightTimeCorrections =
+        std::vector< std::shared_ptr< LightTimeCorrectionSettings > >( ) )
 {
 
     // Get link end state functions and create light time calculator.

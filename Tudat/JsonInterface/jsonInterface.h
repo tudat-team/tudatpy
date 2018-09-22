@@ -186,7 +186,7 @@ public:
              ! dynamicsSimulator_->integrationCompletedSuccessfully( ) )
         {
             // Add header "FAILURE" to output files
-            for ( boost::shared_ptr< ExportSettings >& exportSettings : exportSettingsVector_ )
+            for ( std::shared_ptr< ExportSettings >& exportSettings : exportSettingsVector_ )
             {
                 exportSettings->header_ = "FAILURE\n" + exportSettings->header_;
             }
@@ -295,13 +295,13 @@ public:
     }
 
     //! Get integrator settings.
-    boost::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > getIntegratorSettings( ) const
+    std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > getIntegratorSettings( ) const
     {
         return integratorSettings_;
     }
 
-    //! Get Spice settings (NULL if Spice is not used).
-    boost::shared_ptr< SpiceSettings > getSpiceSettings( ) const
+    //! Get Spice settings (nullptr if Spice is not used).
+    std::shared_ptr< SpiceSettings > getSpiceSettings( ) const
     {
         return spiceSettings_;
     }
@@ -319,7 +319,7 @@ public:
     }
 
     //! Get map of body settings.
-    std::map< std::string, boost::shared_ptr< simulation_setup::BodySettings > > getBodySettingsMap( ) const
+    std::map< std::string, std::shared_ptr< simulation_setup::BodySettings > > getBodySettingsMap( ) const
     {
         return bodySettingsMap_;
     }
@@ -333,41 +333,41 @@ public:
     //! Add a body named \p bodyName.
     void addBody( const std::string& bodyName )
     {
-        bodyMap_[ bodyName ] = boost::make_shared< simulation_setup::Body >( );
+        bodyMap_[ bodyName ] = std::make_shared< simulation_setup::Body >( );
     }
 
     //! Get body named \p bodyName.
-    boost::shared_ptr< simulation_setup::Body > getBody( const std::string& bodyName ) const
+    std::shared_ptr< simulation_setup::Body > getBody( const std::string& bodyName ) const
     {
         return bodyMap_.at( bodyName );
     }
 
     //! Get propagator settings.
-    boost::shared_ptr< propagators::MultiTypePropagatorSettings< StateScalarType > > getPropagatorSettings( ) const
+    std::shared_ptr< propagators::MultiTypePropagatorSettings< StateScalarType > > getPropagatorSettings( ) const
     {
         return propagatorSettings_;
     }
 
     //! Get vector of export settings (each element corresponds to an output file).
-    std::vector< boost::shared_ptr< ExportSettings > > getExportSettingsVector( ) const
+    std::vector< std::shared_ptr< ExportSettings > > getExportSettingsVector( ) const
     {
         return exportSettingsVector_;
     }
 
     //! Get export settings at \p index.
-    boost::shared_ptr< ExportSettings > getExportSettings( const unsigned int index ) const
+    std::shared_ptr< ExportSettings > getExportSettings( const unsigned int index ) const
     {
         return exportSettingsVector_.at( index );
     }
 
     //! Get application options.
-    boost::shared_ptr< ApplicationOptions > getApplicationOptions( ) const
+    std::shared_ptr< ApplicationOptions > getApplicationOptions( ) const
     {
         return applicationOptions_;
     }
 
     //! Get dynamics simulator.
-    boost::shared_ptr< propagators::SingleArcDynamicsSimulator< StateScalarType, TimeType > > getDynamicsSimulator( ) const
+    std::shared_ptr< propagators::SingleArcDynamicsSimulator< StateScalarType, TimeType > > getDynamicsSimulator( ) const
     {
         return dynamicsSimulator_;
     }
@@ -398,7 +398,7 @@ protected:
      */
     virtual void resetSpice( )
     {
-        spiceSettings_ = NULL;
+        spiceSettings_ = nullptr;
         updateFromJSONIfDefined( spiceSettings_, jsonObject_, Keys::spice );
         loadSpiceKernels( spiceSettings_ );
 
@@ -503,7 +503,7 @@ protected:
      */
     virtual void resetApplicationOptions( )
     {
-        applicationOptions_ = boost::make_shared< ApplicationOptions >( );
+        applicationOptions_ = std::make_shared< ApplicationOptions >( );
         updateFromJSONIfDefined( applicationOptions_, jsonObject_, Keys::options );
 
         if ( profiling )
@@ -521,7 +521,7 @@ protected:
     virtual void resetDynamicsSimulator( )
     {
         dynamicsSimulator_ =
-                boost::make_shared< propagators::SingleArcDynamicsSimulator< StateScalarType, TimeType > >(
+                std::make_shared< propagators::SingleArcDynamicsSimulator< StateScalarType, TimeType > >(
                     bodyMap_, integratorSettings_, propagatorSettings_, false, false, false, false, initialClockTime_ );
 
         if ( profiling )
@@ -534,10 +534,10 @@ protected:
 
 
     //! Integrator settings.
-    boost::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings_;
+    std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings_;
 
-    //! Spice settings (NULL if Spice is not used).
-    boost::shared_ptr< SpiceSettings > spiceSettings_;
+    //! Spice settings (nullptr if Spice is not used).
+    std::shared_ptr< SpiceSettings > spiceSettings_;
 
     //! Global frame origin.
     std::string globalFrameOrigin_;
@@ -546,22 +546,22 @@ protected:
     std::string globalFrameOrientation_;
 
     //! Map of body settings.
-    std::map< std::string, boost::shared_ptr< simulation_setup::BodySettings > > bodySettingsMap_;
+    std::map< std::string, std::shared_ptr< simulation_setup::BodySettings > > bodySettingsMap_;
 
     //! Body map.
     simulation_setup::NamedBodyMap bodyMap_;
 
     //! Propagation settings.
-    boost::shared_ptr< propagators::MultiTypePropagatorSettings< StateScalarType > > propagatorSettings_;
+    std::shared_ptr< propagators::MultiTypePropagatorSettings< StateScalarType > > propagatorSettings_;
 
     //! Vector of export settings (each element corresponds to an output file).
-    std::vector< boost::shared_ptr< ExportSettings > > exportSettingsVector_;
+    std::vector< std::shared_ptr< ExportSettings > > exportSettingsVector_;
 
     //! Application options.
-    boost::shared_ptr< ApplicationOptions > applicationOptions_;
+    std::shared_ptr< ApplicationOptions > applicationOptions_;
 
     //! Dynamics simulator.
-    boost::shared_ptr< propagators::SingleArcDynamicsSimulator< StateScalarType, TimeType > > dynamicsSimulator_;
+    std::shared_ptr< propagators::SingleArcDynamicsSimulator< StateScalarType, TimeType > > dynamicsSimulator_;
 
 
 private:
@@ -569,7 +569,7 @@ private:
     //! Update the JSON object with all the data from the current settings (objests).
     void updateJsonObjectFromSettings( )
     {
-        jsonObject_ = boost::make_shared< JsonSimulationManager< TimeType, StateScalarType > >( *this );
+        jsonObject_ = std::make_shared< JsonSimulationManager< TimeType, StateScalarType > >( *this );
     }
 
     //! Absolute path to the input file.
@@ -590,7 +590,7 @@ private:
 //! Function to create a `json` object from a Simulation object.
 template< typename TimeType, typename StateScalarType >
 void to_json( nlohmann::json& jsonObject,
-              const boost::shared_ptr< JsonSimulationManager< TimeType, StateScalarType > >& jsonSimulationManager )
+              const std::shared_ptr< JsonSimulationManager< TimeType, StateScalarType > >& jsonSimulationManager )
 {
     if ( ! jsonSimulationManager )
     {
@@ -601,7 +601,7 @@ void to_json( nlohmann::json& jsonObject,
     jsonObject[ Keys::integrator ] = jsonSimulationManager->getIntegratorSettings( );
 
     // spice
-    assignIfNotNull( jsonObject, Keys::spice, jsonSimulationManager->getSpiceSettings( ) );
+    assignIfNotnullptr( jsonObject, Keys::spice, jsonSimulationManager->getSpiceSettings( ) );
 
     // bodies
     jsonObject[ Keys::globalFrameOrigin ] = jsonSimulationManager->getGlobalFrameOrigin( );

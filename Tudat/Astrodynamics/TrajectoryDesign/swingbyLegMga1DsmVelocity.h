@@ -67,7 +67,7 @@ public:
                                const Eigen::Vector3d& departureBodyVelocity,
                                const double centralBodyGravitationalParameter,
                                const double swingbyBodyGravitationalParameter,
-                               boost::shared_ptr< Eigen::Vector3d > velocityBeforeDepartureBodyPtr,
+                               std::shared_ptr< Eigen::Vector3d > velocityBeforeDepartureBodyPtr,
                                const double dsmTimeOfFlightFraction,
                                const double rotationAngle,
                                const double pericenterRadius,

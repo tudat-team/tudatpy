@@ -12,8 +12,8 @@
 #ifndef TUDAT_EPHEMERIS_H
 #define TUDAT_EPHEMERIS_H
 
-#include <boost/shared_ptr.hpp>
-#include <boost/function.hpp>
+#include <memory>
+#include <functional>
 
 #include "Tudat/Astrodynamics/Ephemerides/ephemeris.h"
 #include "Tudat/Mathematics/BasicMathematics/linearAlgebra.h"
@@ -146,7 +146,7 @@ protected:
 };
 
 //! Typedef for shared-pointer to Ephemeris object.
-typedef boost::shared_ptr< Ephemeris > EphemerisPointer;
+typedef std::shared_ptr< Ephemeris > EphemerisPointer;
 
 //! Function to compute the relative state from two state functions.
 /*!
@@ -159,8 +159,8 @@ typedef boost::shared_ptr< Ephemeris > EphemerisPointer;
  */
 void getRelativeState(
         Eigen::Vector6d& relativeState,
-        const boost::function< Eigen::Vector6d( ) > stateFunctionOfBody,
-        const boost::function< Eigen::Vector6d( ) > stateFunctionOfCentralBody );
+        const std::function< Eigen::Vector6d( ) > stateFunctionOfBody,
+        const std::function< Eigen::Vector6d( ) > stateFunctionOfCentralBody );
 
 } // namespace ephemerides
 } // namespace tudat

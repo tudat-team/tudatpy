@@ -36,7 +36,7 @@ public:
      *  \param rotationModel SimpleRotationalEphemeris object of which rotation rate parameter is a property
      *  \param associatedBody Name of body of which parameter is a property.
      */
-    RotationRate( const boost::shared_ptr< ephemerides::SimpleRotationalEphemeris > rotationModel,
+    RotationRate( const std::shared_ptr< ephemerides::SimpleRotationalEphemeris > rotationModel,
                   const std::string& associatedBody ):
         EstimatableParameter< double >( constant_rotation_rate, associatedBody ),
         rotationModel_( rotationModel ){ }
@@ -79,7 +79,7 @@ protected:
 private:
 
     //! SimpleRotationalEphemeris object of which rotation rate parameter is a property
-    boost::shared_ptr< ephemerides::SimpleRotationalEphemeris > rotationModel_;
+    std::shared_ptr< ephemerides::SimpleRotationalEphemeris > rotationModel_;
 };
 
 } // namespace estimatable_parameters

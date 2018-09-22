@@ -56,15 +56,15 @@ public:
             std::vector< BoundaryInterpolationType >( NumberOfDimensions, extrapolate_at_boundary ),
             const std::vector< std::pair< DependentVariableType, DependentVariableType > >& defaultExtrapolationValue =
             std::vector< std::pair< DependentVariableType, DependentVariableType > >(
-                NumberOfDimensions, std::make_pair( IdentityElement< DependentVariableType >::getAdditionIdentity( ),
-                                                    IdentityElement< DependentVariableType >::getAdditionIdentity( ) ) ) ) :
+                NumberOfDimensions, std::make_pair( IdentityElement::getAdditionIdentity< DependentVariableType >( ),
+                                                    IdentityElement::getAdditionIdentity< DependentVariableType >( ) ) ) ) :
         boundaryHandling_( boundaryHandling ), defaultExtrapolationValue_( defaultExtrapolationValue )
     {
         // Check that the user-defined default value does not correspond to a boundary method that does not use the
         // default value
         std::pair< DependentVariableType, DependentVariableType > defaultValueForBoundaryHandling =
-                std::make_pair( IdentityElement< DependentVariableType >::getAdditionIdentity( ),
-                                IdentityElement< DependentVariableType >::getAdditionIdentity( ) );
+                std::make_pair( IdentityElement::getAdditionIdentity< DependentVariableType >( ),
+                                IdentityElement::getAdditionIdentity< DependentVariableType >( ) );
         for ( unsigned int i = 0; i < NumberOfDimensions; i++ )
         {
             if ( defaultExtrapolationValue_.at( i ) != defaultValueForBoundaryHandling )
@@ -75,8 +75,8 @@ public:
                     std::cerr << "Warning in multi-dimensional interpolator. A default value has been set (for when the "
                                  "independent variable is out-of-range) but the boundary handling method is not "
                                  "use_default_value or use_default_value_with_warning. The method selected for dimension " <<
-                                 boost::lexical_cast< std::string >( i ) << " is: " <<
-                                 boost::lexical_cast< std::string >( boundaryHandling_.at( i ) ) << std::endl;
+                                 std::to_string( i ) << " is: " <<
+                                 std::to_string( boundaryHandling_.at( i ) ) << std::endl;
                 }
             }
         }
@@ -145,7 +145,7 @@ public:
      *  Function to return the lookup scheme used by the interpolator.
      *  \return The lookup scheme used by the interpolator.
      */
-    std::vector< boost::shared_ptr< LookUpScheme< IndependentVariableType > > > getLookUpScheme( )
+    std::vector< std::shared_ptr< LookUpScheme< IndependentVariableType > > > getLookUpScheme( )
     {
         return lookUpSchemes_;
     }
@@ -225,10 +225,10 @@ protected:
                 {
                     // Throw exception
                     std::string errorMessage = "Error in interpolator, requesting data point outside of boundaries, requested data of dimension " +
-                            boost::lexical_cast< std::string >( currentDimension ) + " at " +
-                            boost::lexical_cast< std::string >( currentIndependentVariable ) + " but limit values are " +
-                            boost::lexical_cast< std::string >( independentValues_.at( currentDimension ).front( ) ) + " and " +
-                            boost::lexical_cast< std::string >( independentValues_.at( currentDimension ).back( ) );
+                            std::to_string( currentDimension ) + " at " +
+                            std::to_string( currentIndependentVariable ) + " but limit values are " +
+                            std::to_string( independentValues_.at( currentDimension ).front( ) ) + " and " +
+                            std::to_string( independentValues_.at( currentDimension ).back( ) );
                     throw std::runtime_error( errorMessage );
                     break;
                 }
@@ -236,10 +236,10 @@ protected:
                 {
                     // Warn user
                     std::string errorMessage = "Warning in interpolator, requesting data point outside of boundaries, requested data of dimension " +
-                            boost::lexical_cast< std::string >( currentDimension ) + " at " +
-                            boost::lexical_cast< std::string >( currentIndependentVariable ) + " but limit values are " +
-                            boost::lexical_cast< std::string >( independentValues_.at( currentDimension ).front( ) ) + " and " +
-                            boost::lexical_cast< std::string >( independentValues_.at( currentDimension ).back( ) ) + ", applying extrapolation instead.";
+                            std::to_string( currentDimension ) + " at " +
+                            std::to_string( currentIndependentVariable ) + " but limit values are " +
+                            std::to_string( independentValues_.at( currentDimension ).front( ) ) + " and " +
+                            std::to_string( independentValues_.at( currentDimension ).back( ) ) + ", applying extrapolation instead.";
                     std::cerr << errorMessage << std::endl;
                     break;
                 }
@@ -250,10 +250,10 @@ protected:
                     if ( boundaryHandling_.at( currentDimension ) == use_boundary_value_with_warning )
                     {
                         std::string errorMessage = "Warning in interpolator, requesting data point outside of boundaries, requested data of dimension " +
-                                boost::lexical_cast< std::string >( currentDimension ) + " at " +
-                                boost::lexical_cast< std::string >( currentIndependentVariable ) + " but limit values are " +
-                                boost::lexical_cast< std::string >( independentValues_.at( currentDimension ).front( ) ) + " and " +
-                                boost::lexical_cast< std::string >( independentValues_.at( currentDimension ).back( ) ) + ", taking boundary value instead.";
+                                std::to_string( currentDimension ) + " at " +
+                                std::to_string( currentIndependentVariable ) + " but limit values are " +
+                                std::to_string( independentValues_.at( currentDimension ).front( ) ) + " and " +
+                                std::to_string( independentValues_.at( currentDimension ).back( ) ) + ", taking boundary value instead.";
                         std::cerr << errorMessage << std::endl;
                     }
 
@@ -275,10 +275,10 @@ protected:
                     if ( boundaryHandling_.at( currentDimension ) == use_default_value_with_warning )
                     {
                         std::string errorMessage = "Warning in interpolator, requesting data point outside of boundaries, requested data of dimension " +
-                                boost::lexical_cast< std::string >( currentDimension ) + " at " +
-                                boost::lexical_cast< std::string >( currentIndependentVariable ) + " but limit values are " +
-                                boost::lexical_cast< std::string >( independentValues_.at( currentDimension ).front( ) ) + " and " +
-                                boost::lexical_cast< std::string >( independentValues_.at( currentDimension ).back( ) ) + ", taking default value instead.";
+                                std::to_string( currentDimension ) + " at " +
+                                std::to_string( currentIndependentVariable ) + " but limit values are " +
+                                std::to_string( independentValues_.at( currentDimension ).front( ) ) + " and " +
+                                std::to_string( independentValues_.at( currentDimension ).back( ) ) + ", taking default value instead.";
                         std::cerr << errorMessage << std::endl;
                     }
 
@@ -324,7 +324,7 @@ protected:
             for ( unsigned int i = 0; i < NumberOfDimensions; i++ )
             {
                 // Create binary search look up scheme.
-                lookUpSchemes_[ i ] = boost::shared_ptr< LookUpScheme< IndependentVariableType > >
+                lookUpSchemes_[ i ] = std::shared_ptr< LookUpScheme< IndependentVariableType > >
                         ( new BinarySearchLookupScheme< IndependentVariableType >(
                               independentValues_[ i ] ) );
             }
@@ -335,7 +335,7 @@ protected:
             for ( unsigned int i = 0; i < NumberOfDimensions; i++ )
             {
                 // Create hunting scheme, which uses an intial guess from previous look-ups.
-                lookUpSchemes_[ i ] = boost::shared_ptr< LookUpScheme< IndependentVariableType > >
+                lookUpSchemes_[ i ] = std::shared_ptr< LookUpScheme< IndependentVariableType > >
                         ( new HuntingAlgorithmLookupScheme< IndependentVariableType >(
                               independentValues_[ i ] ) );
             }
@@ -351,7 +351,7 @@ protected:
      *  Pointers to the look-up schemes that is used to determine in which interval the requested
      *  independent variable value falls.
      */
-    std::vector< boost::shared_ptr< LookUpScheme< IndependentVariableType > > > lookUpSchemes_;
+    std::vector< std::shared_ptr< LookUpScheme< IndependentVariableType > > > lookUpSchemes_;
 
     //! Vector of vectors containing independent variables.
     /*!

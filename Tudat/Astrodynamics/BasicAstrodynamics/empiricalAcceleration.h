@@ -16,7 +16,7 @@
 #define TUDAT_EMPIRICALACCELERATION_H
 
 
-#include <boost/function.hpp>
+#include <functional>
 #include <boost/lambda/lambda.hpp>
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/orbitalElementConversions.h"
@@ -96,10 +96,10 @@ public:
             const Eigen::Vector3d constantAcceleration,
             const Eigen::Vector3d sineAcceleration,
             const Eigen::Vector3d cosineAcceleration,
-            const boost::function< Eigen::Vector6d( ) > bodyStateFunction,
-            const boost::function< double( ) > centralBodyGravitationalParameterFunction,
-            const boost::function< Eigen::Vector6d( ) > centralBodyStateFunction =
-            boost::lambda::constant( Eigen::Vector6d::Zero( ) ) ):
+            const std::function< Eigen::Vector6d( ) > bodyStateFunction,
+            const std::function< double( ) > centralBodyGravitationalParameterFunction,
+            const std::function< Eigen::Vector6d( ) > centralBodyStateFunction =
+            []( ){ return Eigen::Vector6d::Zero( ); } ):
         bodyStateFunction_( bodyStateFunction ), centralBodyStateFunction_( centralBodyStateFunction ),
         centralBodyGravitationalParameterFunction_( centralBodyGravitationalParameterFunction )
     {
@@ -108,7 +108,7 @@ public:
         accelerationComponents.block( 0, 0, 3, 1 ) = constantAcceleration;
         accelerationComponents.block( 0, 1, 3, 1 ) = sineAcceleration;
         accelerationComponents.block( 0, 2, 3, 1 ) = cosineAcceleration;
-        accelerationComponentsFunction_ = boost::lambda::constant( accelerationComponents );
+        accelerationComponentsFunction_ = [=]( const double ){ return accelerationComponents; };
 
         updateAccelerationComponents( 0.0 );
         areAccelerationComponentsTimeDependent_ = 0;
@@ -221,7 +221,7 @@ public:
         }
 
         areAccelerationComponentsTimeDependent_ = 0;
-        accelerationComponentsFunction_ = boost::lambda::constant( newAccelerationComponents );
+        accelerationComponentsFunction_ = [=]( const double ){ return newAccelerationComponents; };
 
     }
 
@@ -232,7 +232,7 @@ public:
      *  Constant, sine and cosine terms are given in first, second and third column of return matrix, respectively.
      */
     void resetAccelerationComponentsFunction(
-            const boost::function< Eigen::Matrix3d( const double ) > & accelerationComponentsFunction )
+            const std::function< Eigen::Matrix3d( const double ) > & accelerationComponentsFunction )
     {
         areAccelerationComponentsTimeDependent_ = 1;
         accelerationComponentsFunction_ = accelerationComponentsFunction;
@@ -311,7 +311,7 @@ private:
      *  Function returning empirical acceleration components as a function of time.
      *  Constant, sine and cosine terms are given in first, second and third column of return matrix, respectively.
      */
-    boost::function< Eigen::Matrix3d( const double ) > accelerationComponentsFunction_;
+    std::function< Eigen::Matrix3d( const double ) > accelerationComponentsFunction_;
 
     //! Boolean denoting whether empirical accelerations are time-dependent.
     bool areAccelerationComponentsTimeDependent_;
@@ -328,10 +328,10 @@ private:
 
 
     //! State function of the body that is undergoing the empirical acceleration.
-    boost::function< Eigen::Vector6d( ) > bodyStateFunction_;
+    std::function< Eigen::Vector6d( ) > bodyStateFunction_;
 
     //! State function of the body that is being orbited
-    boost::function< Eigen::Vector6d( ) > centralBodyStateFunction_;
+    std::function< Eigen::Vector6d( ) > centralBodyStateFunction_;
 
     //! Current state of the body that is undergoing the empirical acceleration, relative to central body, in global frame.
     Eigen::Vector6d currentState_;
@@ -346,7 +346,7 @@ private:
     Eigen::Vector3d currentLocalAcclereration_;
 
     //! Function returning the gravitational parameter of the central body (for calculation of Kepler elements)
-    boost::function< double( ) > centralBodyGravitationalParameterFunction_;
+    std::function< double( ) > centralBodyGravitationalParameterFunction_;
 };
 
 }

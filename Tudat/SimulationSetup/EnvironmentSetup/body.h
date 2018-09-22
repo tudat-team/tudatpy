@@ -14,7 +14,7 @@
 #include <map>
 #include <vector>
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include <Eigen/Core>
 
@@ -133,7 +133,7 @@ public:
      */
     BaseStateInterfaceImplementation(
             const std::string baseFrameId,
-            const boost::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType ) > stateFunction,
+            const std::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType ) > stateFunction,
             const bool subtractStateFunction = 0 ):
         BaseStateInterface( baseFrameId ),
         stateFunction_( stateFunction ), stateMultiplier_( ( subtractStateFunction == 0 ) ? 1.0 : -1.0 )
@@ -196,11 +196,12 @@ protected:
 private:
 
     //! Function returning frame's inertial state as a function of time.
-    boost::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType ) > stateFunction_;
+    std::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType ) > stateFunction_;
 
     //! Value (1 or -1) by which to multiply the state returned by stateFunction_.
     int stateMultiplier_;
 };
+
 
 //! Body class representing the properties of a celestial body (natural or artificial).
 /*!
@@ -220,14 +221,16 @@ public:
      * Constructor for a body, sets current state (with zero default value).
      * \param state Current state of body at initialization (default = zeroes).
      */
-    Body( const Eigen::Vector6d& state = Eigen::Vector6d::Zero( ) ) :
-        bodyIsGlobalFrameOrigin_( -1 ), currentState_( state ), timeOfCurrentState_( TUDAT_NAN ),
-        ephemerisFrameToBaseFrame_( boost::make_shared< BaseStateInterfaceImplementation< double, double > >(
-                                        "", boost::lambda::constant( Eigen::Vector6d::Zero( ) ) ) ),
-        currentRotationToLocalFrame_( Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) ) ),
-        currentRotationToLocalFrameDerivative_( Eigen::Matrix3d::Zero( ) ),
-        currentAngularVelocityVectorInGlobalFrame_( Eigen::Vector3d::Zero( ) ),
-        bodyMassFunction_( NULL ), bodyInertiaTensor_( Eigen::Matrix3d::Zero( ) )
+    Body( const Eigen::Vector6d& state =
+            Eigen::Vector6d::Zero( ) )
+        : bodyIsGlobalFrameOrigin_( -1 ), currentState_( state ), timeOfCurrentState_( TUDAT_NAN ),
+          ephemerisFrameToBaseFrame_( std::make_shared< BaseStateInterfaceImplementation< double, double > >(
+                                          "", [=]( const double ){ return Eigen::Vector6d::Zero( ); } ) ),
+          currentRotationToLocalFrame_( Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) ) ),
+          currentRotationToLocalFrameDerivative_( Eigen::Matrix3d::Zero( ) ),
+          currentAngularVelocityVectorInGlobalFrame_( Eigen::Vector3d::Zero( ) ),
+          bodyMassFunction_( NULL ),
+          bodyInertiaTensor_( Eigen::Matrix3d::Zero( ) )
     {
         currentLongState_ = currentState_.cast< long double >( );
     }
@@ -237,7 +240,7 @@ public:
      * Function to retrieve the class returning the state of this body's ephemeris origin w.r.t. the global origin
      * \return Class returning the state of this body's ephemeris origin w.r.t. the global origin
      */
-    boost::shared_ptr< BaseStateInterface > getEphemerisFrameToBaseFrame( )
+    std::shared_ptr< BaseStateInterface > getEphemerisFrameToBaseFrame( )
     {
         return ephemerisFrameToBaseFrame_;
     }
@@ -247,7 +250,7 @@ public:
      * Function to set the class returning the state of this body's ephemeris origin w.r.t. the global origin
      * \param ephemerisFrameToBaseFrame Class returning the state of this body's ephemeris origin w.r.t. the global origin
      */
-    void setEphemerisFrameToBaseFrame( const boost::shared_ptr< BaseStateInterface > ephemerisFrameToBaseFrame )
+    void setEphemerisFrameToBaseFrame( const std::shared_ptr< BaseStateInterface > ephemerisFrameToBaseFrame )
     {
         ephemerisFrameToBaseFrame_ = ephemerisFrameToBaseFrame;
     }
@@ -347,6 +350,8 @@ public:
             timeOfCurrentState_ = static_cast< TimeType >( time );
         }
     }
+
+//    extern template void setStateFromEphemeris< double, double >( const double& time );
 
     //! Templated function to get the current state of the body from its ephemeris and
     //! global-to-ephemeris-frame function.
@@ -465,7 +470,7 @@ public:
         }
         else if( dependentOrientationCalculator_ != NULL )
         {
-            currentRotationToLocalFrame_ = dependentOrientationCalculator_->getRotationToLocalFrame( time );
+            currentRotationToLocalFrame_ = dependentOrientationCalculator_->computeAndGetRotationToLocalFrame( time );
         }
         else
         {
@@ -540,7 +545,7 @@ public:
         }
         else if( dependentOrientationCalculator_ != NULL )
         {
-            currentRotationToLocalFrame_ = dependentOrientationCalculator_->getRotationToLocalFrame( time );
+            currentRotationToLocalFrame_ = dependentOrientationCalculator_->computeAndGetRotationToLocalFrame( time );
             currentRotationToLocalFrameDerivative_.setZero( );
             currentAngularVelocityVectorInGlobalFrame_.setZero( );
         }
@@ -669,7 +674,7 @@ public:
      *  state history of the body.
      *  \param bodyEphemeris New ephemeris of the body.
      */
-    void setEphemeris( const boost::shared_ptr< ephemerides::Ephemeris > bodyEphemeris )
+    void setEphemeris( const std::shared_ptr< ephemerides::Ephemeris > bodyEphemeris )
     {
         bodyEphemeris_ = bodyEphemeris;
     }
@@ -681,7 +686,7 @@ public:
      *  \param gravityFieldModel New gravity field of the body.
      */
     void setGravityFieldModel(
-            const boost::shared_ptr< gravitation::GravityFieldModel > gravityFieldModel )
+            const std::shared_ptr< gravitation::GravityFieldModel > gravityFieldModel )
     {
         gravityFieldModel_ = gravityFieldModel;
 
@@ -693,7 +698,7 @@ public:
 
         currentMass_ = gravityFieldModel_->getGravitationalParameter( )
                        / physical_constants::GRAVITATIONAL_CONSTANT;
-        bodyMassFunction_ = boost::lambda::constant( currentMass_ );
+        bodyMassFunction_ = [=]( const double ){ return currentMass_; };
     }
 
     //! Function to set the atmosphere model of the body.
@@ -702,7 +707,7 @@ public:
      *  \param atmosphereModel Atmosphere model of the body.
      */
     void setAtmosphereModel(
-            const boost::shared_ptr< aerodynamics::AtmosphereModel > atmosphereModel )
+            const std::shared_ptr< aerodynamics::AtmosphereModel > atmosphereModel )
     {
         atmosphereModel_ = atmosphereModel;
     }
@@ -713,7 +718,7 @@ public:
      *  \param rotationalEphemeris Rotation model of the body.
      */
     void setRotationalEphemeris(
-            const boost::shared_ptr< ephemerides::RotationalEphemeris > rotationalEphemeris )
+            const std::shared_ptr< ephemerides::RotationalEphemeris > rotationalEphemeris )
     {
         if( dependentOrientationCalculator_ != NULL )
         {
@@ -729,31 +734,31 @@ public:
      *  \param dependentOrientationCalculator Object from which the orientation is computed.
      */
     void setDependentOrientationCalculator(
-            const boost::shared_ptr< reference_frames::DependentOrientationCalculator > dependentOrientationCalculator )
+            const std::shared_ptr< reference_frames::DependentOrientationCalculator > dependentOrientationCalculator )
     {
         // Check if object already exists
         if( dependentOrientationCalculator_ != NULL )
         {
             // Try to create closure between new and existing objects (i.e ensure that they end up computing the same rotation
             // in differen manenrs.
-            if( ( boost::dynamic_pointer_cast< reference_frames::AerodynamicAngleCalculator >(
+            if( ( std::dynamic_pointer_cast< reference_frames::AerodynamicAngleCalculator >(
                       dependentOrientationCalculator ) != NULL ) &&
-                    ( boost::dynamic_pointer_cast< reference_frames::AerodynamicAngleCalculator >(
+                    ( std::dynamic_pointer_cast< reference_frames::AerodynamicAngleCalculator >(
                           dependentOrientationCalculator_ ) == NULL ) )
             {
                 reference_frames::setAerodynamicDependentOrientationCalculatorClosure(
                             dependentOrientationCalculator_,
-                            boost::dynamic_pointer_cast< reference_frames::AerodynamicAngleCalculator >(
+                            std::dynamic_pointer_cast< reference_frames::AerodynamicAngleCalculator >(
                                 dependentOrientationCalculator ) );
             }
-            else if( ( boost::dynamic_pointer_cast< reference_frames::AerodynamicAngleCalculator >(
+            else if( ( std::dynamic_pointer_cast< reference_frames::AerodynamicAngleCalculator >(
                            dependentOrientationCalculator_ ) != NULL ) &&
-                     ( boost::dynamic_pointer_cast< reference_frames::AerodynamicAngleCalculator >(
+                     ( std::dynamic_pointer_cast< reference_frames::AerodynamicAngleCalculator >(
                            dependentOrientationCalculator ) == NULL ) )
             {
                 reference_frames::setAerodynamicDependentOrientationCalculatorClosure(
                             dependentOrientationCalculator,
-                            boost::dynamic_pointer_cast< reference_frames::AerodynamicAngleCalculator >(
+                            std::dynamic_pointer_cast< reference_frames::AerodynamicAngleCalculator >(
                                 dependentOrientationCalculator_ ) );
             }
             else
@@ -772,7 +777,7 @@ public:
      *  Function to set the shape model of the body.
      *  \param shapeModel Shape model of the body.
      */
-    void setShapeModel( const boost::shared_ptr< basic_astrodynamics::BodyShapeModel > shapeModel )
+    void setShapeModel( const std::shared_ptr< basic_astrodynamics::BodyShapeModel > shapeModel )
     {
         shapeModel_ = shapeModel;
     }
@@ -783,7 +788,7 @@ public:
      *  \param aerodynamicCoefficientInterface Aerodynamic coefficient interface of the body.
      */
     void setAerodynamicCoefficientInterface(
-            const boost::shared_ptr< aerodynamics::AerodynamicCoefficientInterface >
+            const std::shared_ptr< aerodynamics::AerodynamicCoefficientInterface >
             aerodynamicCoefficientInterface)
     {
         aerodynamicCoefficientInterface_ = aerodynamicCoefficientInterface;
@@ -796,7 +801,7 @@ public:
      * \param aerodynamicFlightConditions Body flight conditions
      */
     void setFlightConditions(
-            const boost::shared_ptr< aerodynamics::FlightConditions > aerodynamicFlightConditions )
+            const std::shared_ptr< aerodynamics::FlightConditions > aerodynamicFlightConditions )
     {
         aerodynamicFlightConditions_ = aerodynamicFlightConditions;
 
@@ -827,7 +832,7 @@ public:
      */
     void setRadiationPressureInterface(
             const std::string& radiatingBody,
-            const boost::shared_ptr< electro_magnetism::RadiationPressureInterface >
+            const std::shared_ptr< electro_magnetism::RadiationPressureInterface >
                 radiationPressureInterface )
     {
         radiationPressureInterfaces_[ radiatingBody ] = radiationPressureInterface;
@@ -839,7 +844,7 @@ public:
      * \param gravityFieldVariationSet Object containing all variations in the gravity field of this body.
      */
     void setGravityFieldVariationSet(
-            const boost::shared_ptr< gravitation::GravityFieldVariationsSet >
+            const std::shared_ptr< gravitation::GravityFieldVariationsSet >
                 gravityFieldVariationSet )
     {
         gravityFieldVariationSet_ = gravityFieldVariationSet;
@@ -850,7 +855,7 @@ public:
      *  Function to get the gravity field model of the body.
      *  \return Gravity field model of the body.
      */
-    boost::shared_ptr< gravitation::GravityFieldModel > getGravityFieldModel( )
+    std::shared_ptr< gravitation::GravityFieldModel > getGravityFieldModel( )
     {
         return gravityFieldModel_;
     }
@@ -860,7 +865,7 @@ public:
      *  Function to get the ephemeris of the body.
      *  \return Ephemeris of the body.
      */
-    boost::shared_ptr< ephemerides::Ephemeris > getEphemeris( )
+    std::shared_ptr< ephemerides::Ephemeris > getEphemeris( )
     {
         return bodyEphemeris_;
     }
@@ -870,7 +875,7 @@ public:
      *  Function to get the atmosphere model of the body.
      *  \return Atmosphere model of the body.
      */
-    boost::shared_ptr< aerodynamics::AtmosphereModel > getAtmosphereModel( )
+    std::shared_ptr< aerodynamics::AtmosphereModel > getAtmosphereModel( )
     {
         return atmosphereModel_;
     }
@@ -880,7 +885,7 @@ public:
      *  Function to get the rotation model of the body.
      *  \return Rotation model of the body.
      */
-    boost::shared_ptr< ephemerides::RotationalEphemeris > getRotationalEphemeris( )
+    std::shared_ptr< ephemerides::RotationalEphemeris > getRotationalEphemeris( )
     {
         return rotationalEphemeris_;
     }
@@ -891,7 +896,7 @@ public:
      * (model is only valid during propagation).
      * \return Model to compute the rotation of the body based on the current state of the environment
      */
-    boost::shared_ptr< reference_frames::DependentOrientationCalculator > getDependentOrientationCalculator( )
+    std::shared_ptr< reference_frames::DependentOrientationCalculator > getDependentOrientationCalculator( )
     {
         return dependentOrientationCalculator_;
     }
@@ -901,7 +906,7 @@ public:
      * Function to retrieve the shape model of body.
      * \return Shape model of body.
      */
-    boost::shared_ptr< basic_astrodynamics::BodyShapeModel > getShapeModel( )
+    std::shared_ptr< basic_astrodynamics::BodyShapeModel > getShapeModel( )
     {
         return shapeModel_;
     }
@@ -911,7 +916,7 @@ public:
      * Function to retrieve the body aerodynamic coefficient model of body.
      * \return Aerodynamic coefficient model of body.
      */
-    boost::shared_ptr< aerodynamics::AerodynamicCoefficientInterface >
+    std::shared_ptr< aerodynamics::AerodynamicCoefficientInterface >
     getAerodynamicCoefficientInterface( )
     {
         return aerodynamicCoefficientInterface_;
@@ -923,7 +928,7 @@ public:
      * altitude, etc.
      * \return Body flight conditions
      */
-    boost::shared_ptr< aerodynamics::FlightConditions > getFlightConditions( )
+    std::shared_ptr< aerodynamics::FlightConditions > getFlightConditions( )
     {
         return aerodynamicFlightConditions_;
     }
@@ -933,7 +938,7 @@ public:
      *  Function to retrieve the shape model of the body.
      *  \return Shape model of the body.
      */
-    std::map< std::string, boost::shared_ptr< electro_magnetism::RadiationPressureInterface > >
+    std::map< std::string, std::shared_ptr< electro_magnetism::RadiationPressureInterface > >
     getRadiationPressureInterfaces( )
     {
         return radiationPressureInterfaces_;
@@ -947,7 +952,7 @@ public:
      *  if multiple variations of same type are present)
      *  \return Object describing requested variation in the gravity field of this body.
      */
-    std::pair< bool, boost::shared_ptr< gravitation::GravityFieldVariations > >
+    std::pair< bool, std::shared_ptr< gravitation::GravityFieldVariations > >
             getGravityFieldVariation(
                 const gravitation::BodyDeformationTypes& deformationType,
                 const std::string identifier = "" )
@@ -960,7 +965,7 @@ public:
      * Function to retrieve object containing all variations in the gravity field of this body.
      * \return Object containing all variations in the gravity field of this body.
      */
-    boost::shared_ptr< gravitation::GravityFieldVariationsSet > getGravityFieldVariationSet( )
+    std::shared_ptr< gravitation::GravityFieldVariationsSet > getGravityFieldVariationSet( )
     {
         return gravityFieldVariationSet_;
     }
@@ -970,7 +975,7 @@ public:
      * Function to retrieve container object with hardware systems present on/in body.
      * \return Container object with hardware systems present on/in body.
      */
-    boost::shared_ptr< system_models::VehicleSystems > getVehicleSystems( )
+    std::shared_ptr< system_models::VehicleSystems > getVehicleSystems( )
     {
         return vehicleSystems_;
     }
@@ -980,7 +985,7 @@ public:
      * Function to set container object with hardware systems present on/in body (typically only non-NULL for a vehicle).
      * \param vehicleSystems Container object with hardware systems present on/in body.
      */
-    void setVehicleSystems( const boost::shared_ptr< system_models::VehicleSystems > vehicleSystems )
+    void setVehicleSystems( const std::shared_ptr< system_models::VehicleSystems > vehicleSystems )
     {
         vehicleSystems_ = vehicleSystems;
     }
@@ -990,7 +995,7 @@ public:
      * Function to set the function returning body mass as a function of time
      * \param bodyMassFunction Function returning body mass as a function of time
      */
-    void setBodyMassFunction( const boost::function< double( const double ) > bodyMassFunction )
+    void setBodyMassFunction( const std::function< double( const double ) > bodyMassFunction )
     {
         bodyMassFunction_ = bodyMassFunction;
     }
@@ -1002,7 +1007,7 @@ public:
      */
     void setConstantBodyMass( const double bodyMass )
     {
-        bodyMassFunction_ = boost::lambda::constant( bodyMass );
+        bodyMassFunction_ = [=]( const double ){ return bodyMass; };
         currentMass_ = bodyMass;
     }
 
@@ -1011,7 +1016,7 @@ public:
      * Function to get the function returning body mass as a function of time
      * \return Function returning body mass as a function of time
      */
-    boost::function< double( const double ) > getBodyMassFunction( )
+    std::function< double( const double ) > getBodyMassFunction( )
     {
         return bodyMassFunction_;
     }
@@ -1070,7 +1075,7 @@ public:
      * \param station Ground station object that is to be set
      */
     void addGroundStation( const std::string& stationName,
-                           const boost::shared_ptr< ground_stations::GroundStation >& station )
+                           const std::shared_ptr< ground_stations::GroundStation >& station )
     {
         groundStationMap[ stationName ] = station;
     }
@@ -1081,7 +1086,7 @@ public:
      * \param stationName Name of ground station
      * \return Ground station object that is retrieved
      */
-    boost::shared_ptr< ground_stations::GroundStation > getGroundStation( const std::string& stationName ) const
+    std::shared_ptr< ground_stations::GroundStation > getGroundStation( const std::string& stationName ) const
     {
         if( groundStationMap.count( stationName ) == 0 )
         {
@@ -1096,7 +1101,7 @@ public:
      * Function to retrieve full list of ground stations
      * \return Full list of ground stations
      */
-    std::map< std::string, boost::shared_ptr< ground_stations::GroundStation > > getGroundStationMap( ) const
+    std::map< std::string, std::shared_ptr< ground_stations::GroundStation > > getGroundStationMap( ) const
     {
         return groundStationMap;
     }
@@ -1109,10 +1114,10 @@ public:
      */
     void updateConstantEphemerisDependentMemberQuantities( )
     {
-        if( boost::dynamic_pointer_cast< gravitation::TimeDependentSphericalHarmonicsGravityField >(
+        if( std::dynamic_pointer_cast< gravitation::TimeDependentSphericalHarmonicsGravityField >(
                     gravityFieldModel_ ) != NULL )
         {
-            boost::dynamic_pointer_cast< gravitation::TimeDependentSphericalHarmonicsGravityField >(
+            std::dynamic_pointer_cast< gravitation::TimeDependentSphericalHarmonicsGravityField >(
                         gravityFieldModel_ )->updateCorrectionFunctions( );
         }
     }
@@ -1171,7 +1176,7 @@ private:
 
     //! Class returning the state of this body's ephemeris origin w.r.t. the global origin (as typically created by
     //! setGlobalFrameBodyEphemerides function).
-    boost::shared_ptr< BaseStateInterface > ephemerisFrameToBaseFrame_;
+    std::shared_ptr< BaseStateInterface > ephemerisFrameToBaseFrame_;
 
     //! Current rotation from the global to the body-fixed frame.
     Eigen::Quaterniond currentRotationToLocalFrame_;
@@ -1187,57 +1192,57 @@ private:
     double currentMass_;
 
     //! Function returning body mass as a function of time.
-    boost::function< double( const double ) > bodyMassFunction_;
+    std::function< double( const double ) > bodyMassFunction_;
 
     //! Body moment-of-inertia tensor.
     Eigen::Matrix3d bodyInertiaTensor_;
 
     //! Ephemeris of body.
-    boost::shared_ptr< ephemerides::Ephemeris > bodyEphemeris_;
+    std::shared_ptr< ephemerides::Ephemeris > bodyEphemeris_;
 
     //! Gravity field model of body.
-    boost::shared_ptr< gravitation::GravityFieldModel > gravityFieldModel_;
+    std::shared_ptr< gravitation::GravityFieldModel > gravityFieldModel_;
 
     //! Object containing all variations in the gravity field of this body.
-    boost::shared_ptr< gravitation::GravityFieldVariationsSet > gravityFieldVariationSet_;
+    std::shared_ptr< gravitation::GravityFieldVariationsSet > gravityFieldVariationSet_;
 
     //! Atmosphere model of body.
-    boost::shared_ptr< aerodynamics::AtmosphereModel > atmosphereModel_;
+    std::shared_ptr< aerodynamics::AtmosphereModel > atmosphereModel_;
 
     //! Shape model of body.
-    boost::shared_ptr< basic_astrodynamics::BodyShapeModel > shapeModel_;
+    std::shared_ptr< basic_astrodynamics::BodyShapeModel > shapeModel_;
 
     //! Aerodynamic coefficient model of body.
-    boost::shared_ptr< aerodynamics::AerodynamicCoefficientInterface > aerodynamicCoefficientInterface_;
+    std::shared_ptr< aerodynamics::AerodynamicCoefficientInterface > aerodynamicCoefficientInterface_;
 
     //! Object used for calculating current aerodynamic angles, altitude, etc.
-    boost::shared_ptr< aerodynamics::FlightConditions > aerodynamicFlightConditions_;
+    std::shared_ptr< aerodynamics::FlightConditions > aerodynamicFlightConditions_;
 
     //! Rotation model of body.
-    boost::shared_ptr< ephemerides::RotationalEphemeris > rotationalEphemeris_;
+    std::shared_ptr< ephemerides::RotationalEphemeris > rotationalEphemeris_;
 
     //! Model to compute the rotation of the body based on the current state of the environment, only valid during propagation.
-    boost::shared_ptr< reference_frames::DependentOrientationCalculator > dependentOrientationCalculator_;
+    std::shared_ptr< reference_frames::DependentOrientationCalculator > dependentOrientationCalculator_;
 
     //! List of radiation pressure models for the body, with the sources bodies as key
-    std::map< std::string, boost::shared_ptr< electro_magnetism::RadiationPressureInterface > >
+    std::map< std::string, std::shared_ptr< electro_magnetism::RadiationPressureInterface > >
             radiationPressureInterfaces_;
 
     //! Predefined iterator for efficiency purposes.
     std::map< std::string,
-              boost::shared_ptr< electro_magnetism::RadiationPressureInterface > >::iterator
+              std::shared_ptr< electro_magnetism::RadiationPressureInterface > >::iterator
     radiationPressureIterator_;
 
     //! List of ground station objects on Body
-    std::map< std::string, boost::shared_ptr< ground_stations::GroundStation > > groundStationMap;
+    std::map< std::string, std::shared_ptr< ground_stations::GroundStation > > groundStationMap;
 
     //! Container object with hardware systems present on/in body (typically only non-NULL for a vehicle).
-    boost::shared_ptr< system_models::VehicleSystems > vehicleSystems_;
+    std::shared_ptr< system_models::VehicleSystems > vehicleSystems_;
 
 };
 
 //! Typdef for a list of body objects (as unordered_map for efficiency reasons)
-typedef std::unordered_map< std::string, boost::shared_ptr< Body > > NamedBodyMap;
+typedef std::unordered_map< std::string, std::shared_ptr< Body > > NamedBodyMap;
 
 //! Function ot retrieve the common global translational state origin of the environment
 /*!
@@ -1256,12 +1261,12 @@ std::string getGlobalFrameOrigin( const NamedBodyMap& bodyMap );
  */
 template< typename StateScalarType = double, typename TimeType = double >
 Eigen::Matrix< StateScalarType, 3, 1 > getBodyAccelerationInBaseFramefromNumericalDifferentiation(
-        const boost::shared_ptr< Body > bodyWithAcceleration,
+        const std::shared_ptr< Body > bodyWithAcceleration,
         const TimeType nominalEvalutationTime )
 {
-    boost::function< Eigen::Matrix< StateScalarType, 6, 1  >( const TimeType ) > bodyStateFunction =
-            boost::bind( &Body::getStateInBaseFrameFromEphemeris< StateScalarType, TimeType >, bodyWithAcceleration, _1 );
-    return numerical_derivatives::computeCentralDifference(
+    std::function< Eigen::Matrix< StateScalarType, 6, 1  >( const TimeType ) > bodyStateFunction =
+            std::bind( &Body::getStateInBaseFrameFromEphemeris< StateScalarType, TimeType >, bodyWithAcceleration, std::placeholders::_1 );
+    return numerical_derivatives::computeCentralDifferenceFromFunction(
                 bodyStateFunction, nominalEvalutationTime, 100.0, numerical_derivatives::order8 ).segment( 3, 3 );
 }
 

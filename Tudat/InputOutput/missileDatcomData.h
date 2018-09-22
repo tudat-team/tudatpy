@@ -19,7 +19,7 @@
 #include <string>
 #include <vector>
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 namespace tudat
 {
@@ -220,7 +220,7 @@ private:
 };
 
 //! Typedef for shared-pointer to MissileDatcomData object.
-typedef boost::shared_ptr< MissileDatcomData > MissileDatcomDataPointer;
+typedef std::shared_ptr< MissileDatcomData > MissileDatcomDataPointer;
 
 } // namespace input_output
 } // namespace tudat

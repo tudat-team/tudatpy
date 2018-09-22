@@ -18,7 +18,7 @@ namespace simulation_setup
 {
 
 //! Create a `json` object from a shared pointer to a `AtmosphereSettings` object.
-void to_json( nlohmann::json& jsonObject, const boost::shared_ptr< AtmosphereSettings >& atmosphereSettings )
+void to_json( nlohmann::json& jsonObject, const std::shared_ptr< AtmosphereSettings >& atmosphereSettings )
 {
     if ( ! atmosphereSettings )
     {
@@ -35,9 +35,9 @@ void to_json( nlohmann::json& jsonObject, const boost::shared_ptr< AtmosphereSet
     {
     case exponential_atmosphere:
     {
-        boost::shared_ptr< ExponentialAtmosphereSettings > exponentialAtmosphereSettings =
-                boost::dynamic_pointer_cast< ExponentialAtmosphereSettings >( atmosphereSettings );
-        assertNonNullPointer( exponentialAtmosphereSettings );
+        std::shared_ptr< ExponentialAtmosphereSettings > exponentialAtmosphereSettings =
+                std::dynamic_pointer_cast< ExponentialAtmosphereSettings >( atmosphereSettings );
+        assertNonnullptrPointer( exponentialAtmosphereSettings );
         jsonObject[ K::densityScaleHeight ] = exponentialAtmosphereSettings->getDensityScaleHeight( );
         jsonObject[ K::constantTemperature ] = exponentialAtmosphereSettings->getConstantTemperature( );
         jsonObject[ K::densityAtZeroAltitude ] = exponentialAtmosphereSettings->getDensityAtZeroAltitude( );
@@ -46,16 +46,16 @@ void to_json( nlohmann::json& jsonObject, const boost::shared_ptr< AtmosphereSet
     }
     case tabulated_atmosphere:
     {
-        boost::shared_ptr< TabulatedAtmosphereSettings > tabulatedAtmosphereSettings =
-                boost::dynamic_pointer_cast< TabulatedAtmosphereSettings >( atmosphereSettings );
-        assertNonNullPointer( tabulatedAtmosphereSettings );
+        std::shared_ptr< TabulatedAtmosphereSettings > tabulatedAtmosphereSettings =
+                std::dynamic_pointer_cast< TabulatedAtmosphereSettings >( atmosphereSettings );
+        assertNonnullptrPointer( tabulatedAtmosphereSettings );
         jsonObject[ K::file ] = boost::filesystem::path( tabulatedAtmosphereSettings->getAtmosphereFile( 0 ) );
         return;
     }
     case nrlmsise00:
     {
-        boost::shared_ptr< NRLMSISE00AtmosphereSettings > nrlmsise00AtmosphereSettings =
-                boost::dynamic_pointer_cast< NRLMSISE00AtmosphereSettings >( atmosphereSettings );
+        std::shared_ptr< NRLMSISE00AtmosphereSettings > nrlmsise00AtmosphereSettings =
+                std::dynamic_pointer_cast< NRLMSISE00AtmosphereSettings >( atmosphereSettings );
         if ( nrlmsise00AtmosphereSettings )
         {
             jsonObject[ K::spaceWeatherFile ] = boost::filesystem::path( nrlmsise00AtmosphereSettings->getSpaceWeatherFile( ) );
@@ -70,7 +70,7 @@ void to_json( nlohmann::json& jsonObject, const boost::shared_ptr< AtmosphereSet
 }
 
 //! Create a shared pointer to a `AtmosphereSettings` object from a `json` object.
-void from_json( const nlohmann::json& jsonObject, boost::shared_ptr< AtmosphereSettings >& atmosphereSettings )
+void from_json( const nlohmann::json& jsonObject, std::shared_ptr< AtmosphereSettings >& atmosphereSettings )
 {
     using namespace json_interface;
     using K = Keys::Body::Atmosphere;
@@ -81,7 +81,7 @@ void from_json( const nlohmann::json& jsonObject, boost::shared_ptr< AtmosphereS
     switch ( atmosphereType ) {
     case exponential_atmosphere:
     {
-        atmosphereSettings = boost::make_shared< ExponentialAtmosphereSettings >(
+        atmosphereSettings = std::make_shared< ExponentialAtmosphereSettings >(
                     getValue< double >( jsonObject, K::densityScaleHeight ),
                     getValue< double >( jsonObject, K::constantTemperature ),
                     getValue< double >( jsonObject, K::densityAtZeroAltitude ),
@@ -90,7 +90,7 @@ void from_json( const nlohmann::json& jsonObject, boost::shared_ptr< AtmosphereS
     }
     case tabulated_atmosphere:
     {
-        atmosphereSettings = boost::make_shared< TabulatedAtmosphereSettings >(
+        atmosphereSettings = std::make_shared< TabulatedAtmosphereSettings >(
                     getValue< boost::filesystem::path >( jsonObject, K::file ).string( ) );
         return;
     }
@@ -98,12 +98,12 @@ void from_json( const nlohmann::json& jsonObject, boost::shared_ptr< AtmosphereS
     {
         if ( isDefined( jsonObject, K::spaceWeatherFile ) )
         {
-            atmosphereSettings = boost::make_shared< NRLMSISE00AtmosphereSettings >(
+            atmosphereSettings = std::make_shared< NRLMSISE00AtmosphereSettings >(
                         getValue< boost::filesystem::path >( jsonObject, K::spaceWeatherFile ).string( ) );
         }
         else
         {
-            atmosphereSettings = boost::make_shared< AtmosphereSettings >( nrlmsise00 );
+            atmosphereSettings = std::make_shared< AtmosphereSettings >( nrlmsise00 );
         }
         return;
     }

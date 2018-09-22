@@ -16,7 +16,7 @@
 #ifndef TUDAT_APPROXIMATE_PLANET_POSITIONS_H
 #define TUDAT_APPROXIMATE_PLANET_POSITIONS_H
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
 
@@ -114,7 +114,7 @@ private:
 };
 
 //! Typedef for shared-pointer to ApproximatePlanetPositions object.
-typedef boost::shared_ptr< ApproximatePlanetPositions > ApproximatePlanetPositionsPointer;
+typedef std::shared_ptr< ApproximatePlanetPositions > ApproximatePlanetPositionsPointer;
 
 } // namespace ephemerides
 } // namespace tudat

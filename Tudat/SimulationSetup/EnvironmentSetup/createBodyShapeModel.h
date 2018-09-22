@@ -11,7 +11,7 @@
 #ifndef TUDAT_CREATEBODYSHAPEMODEL_H
 #define TUDAT_CREATEBODYSHAPEMODEL_H
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/bodyShapeModel.h"
 #include "Tudat/SimulationSetup/EnvironmentSetup/body.h"
@@ -140,8 +140,8 @@ private:
  *  \param body Name of the body for which the shape model is to be created.
  *  \return Shape model created according to settings in shapeSettings.
  */
-boost::shared_ptr< basic_astrodynamics::BodyShapeModel > createBodyShapeModel(
-        const boost::shared_ptr< BodyShapeSettings > shapeSettings,
+std::shared_ptr< basic_astrodynamics::BodyShapeModel > createBodyShapeModel(
+        const std::shared_ptr< BodyShapeSettings > shapeSettings,
         const std::string& body );
 
 

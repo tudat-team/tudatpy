@@ -18,7 +18,7 @@
 #ifndef TUDAT_CAPSULE_H
 #define TUDAT_CAPSULE_H
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include "Tudat/Mathematics/GeometricShapes/compositeSurfaceGeometry.h"
 
@@ -138,7 +138,7 @@ private:
 };
 
 //! Typedef for shared-pointer to Capsule object.
-typedef boost::shared_ptr< Capsule > CapsulePointer;
+typedef std::shared_ptr< Capsule > CapsulePointer;
 
 } // namespace geometric_shapes
 } // namespace tudat

@@ -13,8 +13,8 @@
 
 #include <map>
 #include <vector>
-#include <boost/function.hpp>
-#include <boost/shared_ptr.hpp>
+#include <functional>
+#include <memory>
 
 #include <Eigen/Core>
 
@@ -100,7 +100,7 @@ public:
      * \param massRateFunction Function returning mass rate as a function of time.
      */
     CustomMassRateModel(
-            const boost::function< double( const double ) > massRateFunction ):
+            const std::function< double( const double ) > massRateFunction ):
     massRateFunction_( massRateFunction ){ }
 
     //! Destructor.
@@ -123,12 +123,12 @@ public:
 private:
 
     //! Function returning mass rate as a function of time.
-    boost::function< double( const double ) > massRateFunction_;
+    std::function< double( const double ) > massRateFunction_;
 
 };
 
 //! Typedef for the massrate model map.
-typedef std::map< std::string, std::vector< boost::shared_ptr< MassRateModel > > > MassRateModelMap;
+typedef std::map< std::string, std::vector< std::shared_ptr< MassRateModel > > > MassRateModelMap;
 
 
 } // namespace basic_astrodynamics

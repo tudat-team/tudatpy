@@ -60,15 +60,15 @@ Eigen::Vector3d calculateInertialToPlanetFixedRotationAnglesFromMatrix(
 //! Wrapper function to transform a vector to a different frame from a single rotation function.
 Eigen::Vector3d transformVectorFromQuaternionFunction(
         const Eigen::Vector3d& originalVector,
-        const boost::function< Eigen::Quaterniond( ) > rotation )
+        const std::function< Eigen::Quaterniond( ) > rotation )
 {
     return rotation( ) * originalVector;
 }
 
 //! Wrapper function to transform a vector to a different frame from a single transformation function.
 Eigen::Vector3d transformVectorFunctionFromVectorFunctions(
-        const boost::function< Eigen::Vector3d( ) > originalVector,
-        const boost::function< Eigen::Vector3d( const Eigen::Vector3d& ) > transformationFunction )
+        const std::function< Eigen::Vector3d( ) > originalVector,
+        const std::function< Eigen::Vector3d( const Eigen::Vector3d& ) > transformationFunction )
 {
     return transformationFunction( originalVector( ) );
 }
@@ -76,7 +76,7 @@ Eigen::Vector3d transformVectorFunctionFromVectorFunctions(
 //! Wrapper function to transform a vector to a different frame from a list of transformation function.
 Eigen::Vector3d transformVectorFromVectorFunctions(
         const Eigen::Vector3d& originalVector,
-        const std::vector< boost::function< Eigen::Vector3d( const Eigen::Vector3d& ) > >& rotationsList )
+        const std::vector< std::function< Eigen::Vector3d( const Eigen::Vector3d& ) > >& rotationsList )
 {
     Eigen::Vector3d currentVector = originalVector;
     Eigen::Vector3d newVector;
@@ -186,8 +186,8 @@ Eigen::Matrix3d getVelocityBasedLvlhToInertialRotation(
 
 //! Get rotation from velocity based LVLH frame to inertial frame (I) frame.
 Eigen::Matrix3d getVelocityBasedLvlhToInertialRotationFromFunctions(
-        const boost::function< Eigen::Vector6d( ) >& vehicleStateFunction,
-        const boost::function< Eigen::Vector6d( ) >& centralBodyStateFunction,
+        const std::function< Eigen::Vector6d( ) >& vehicleStateFunction,
+        const std::function< Eigen::Vector6d( ) >& centralBodyStateFunction,
         const bool doesNaxisPointAwayFromCentralBody )
 {
     return getVelocityBasedLvlhToInertialRotation(
@@ -539,9 +539,9 @@ Eigen::Matrix3d getDerivativeOfZAxisRotationWrtAngle( const Eigen::Matrix3d& rot
 
 //! Function to compute a body-fixed relative cartesian position
 Eigen::Vector3d getBodyFixedCartesianPosition(
-        const boost::function< Eigen::Vector3d( ) > positionFunctionOfCentralBody,
-        const boost::function< Eigen::Vector3d( ) > positionFunctionOfRelativeBody,
-        const boost::function< Eigen::Quaterniond( ) > orientationFunctionOfCentralBody )
+        const std::function< Eigen::Vector3d( ) > positionFunctionOfCentralBody,
+        const std::function< Eigen::Vector3d( ) > positionFunctionOfRelativeBody,
+        const std::function< Eigen::Quaterniond( ) > orientationFunctionOfCentralBody )
 {
     return orientationFunctionOfCentralBody( ) * (
                 positionFunctionOfRelativeBody( ) - positionFunctionOfCentralBody( ) );
@@ -549,9 +549,9 @@ Eigen::Vector3d getBodyFixedCartesianPosition(
 
 //! Function to compute a body-fixed relative spherical position
 Eigen::Vector3d getBodyFixedSphericalPosition(
-        const boost::function< Eigen::Vector3d( ) > positionFunctionOfCentralBody,
-        const boost::function< Eigen::Vector3d( ) > positionFunctionOfRelativeBody,
-        const boost::function< Eigen::Quaterniond( ) > orientationFunctionOfCentralBody )
+        const std::function< Eigen::Vector3d( ) > positionFunctionOfCentralBody,
+        const std::function< Eigen::Vector3d( ) > positionFunctionOfRelativeBody,
+        const std::function< Eigen::Quaterniond( ) > orientationFunctionOfCentralBody )
 {
    Eigen::Vector3d sphericalPosition = coordinate_conversions::convertCartesianToSpherical(
                getBodyFixedCartesianPosition( positionFunctionOfCentralBody, positionFunctionOfRelativeBody,

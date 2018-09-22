@@ -17,14 +17,15 @@
  *    Boudestijn (2014), Development of a Low-Thrust Earth-Centered Transfer Optimizer for the Preliminary Mission Design Phase,
  *    M.Sc. Thesis, Delft University of Technology
  */
+
 #include <cmath>
 
-#include <boost/function.hpp>
+#include <functional>
 
 #include <Eigen/Core>
 
-#include "Tudat/SimulationSetup/tudatSimulationHeader.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/missionGeometry.h"
+#include "Tudat/Astrodynamics/Propulsion/thrustGuidance.h"
 
 namespace tudat
 {
@@ -54,12 +55,12 @@ public:
      * \param bodyFixedForceDirection Function returning the direction of the force in the body-fixed frame.
      */
     MeeCostateBasedThrustGuidance(
-            const boost::function< Eigen::Vector6d( ) > thrustingBodyStateFunction,
-            const boost::function< Eigen::Vector6d( ) > centralBodyStateFunction,
-            const boost::function< double( ) > centralBodyGravitationalParameterFunction,
-            const boost::function< Eigen::VectorXd( const double ) > costateFunction,
-            const boost::function< Eigen::Vector3d( ) > bodyFixedForceDirection =
-            boost::lambda::constant( Eigen::Vector3d::UnitX( ) ) );
+            const std::function< Eigen::Vector6d( ) > thrustingBodyStateFunction,
+            const std::function< Eigen::Vector6d( ) > centralBodyStateFunction,
+            const std::function< double( ) > centralBodyGravitationalParameterFunction,
+            const std::function< Eigen::VectorXd( const double ) > costateFunction,
+            const std::function< Eigen::Vector3d( ) > bodyFixedForceDirection =
+            [](){ return  Eigen::Vector3d::UnitX( ); } );
 
     //! Destructor
     ~MeeCostateBasedThrustGuidance( ){ }
@@ -96,16 +97,16 @@ private:
 
 
     //!  Function returning the state of the body under thrust as a function of time
-    boost::function< Eigen::Vector6d( ) > thrustingBodyStateFunction_;
+    std::function< Eigen::Vector6d( ) > thrustingBodyStateFunction_;
 
     //!  Function returning the state of the central body as a function of time
-    boost::function< Eigen::Vector6d( ) > centralBodyStateFunction_;
+    std::function< Eigen::Vector6d( ) > centralBodyStateFunction_;
 
     //!  Function returning the gravitational parameter of the central body as a function of time
-    boost::function< double( ) > centralBodyGravitationalParameterFunction_;
+    std::function< double( ) > centralBodyGravitationalParameterFunction_;
 
     //! General function which gives the costates vector as a function of time.
-    boost::function< Eigen::VectorXd( const double ) > costateFunction_;
+    std::function< Eigen::VectorXd( const double ) > costateFunction_;
 
     //! Direction of thrust force in propagation frame, as computed by last call to updateForceDirection function.
     Eigen::Vector3d currentForceDirection_;

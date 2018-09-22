@@ -11,9 +11,9 @@
 #ifndef TUDAT_EMPIRICALACCELERATIONPARTIAL_H
 #define TUDAT_EMPIRICALACCELERATIONPARTIAL_H
 
-#include <boost/function.hpp>
+#include <functional>
 #include <boost/lambda/lambda.hpp>
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include "Tudat/Astrodynamics/OrbitDetermination/AccelerationPartials/accelerationPartial.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/empiricalAccelerationCoefficients.h"
@@ -45,7 +45,7 @@ public:
     using AccelerationPartial::getParameterPartialFunction;
 
     EmpiricalAccelerationPartial(
-            boost::shared_ptr< basic_astrodynamics::EmpiricalAcceleration > empiricalAcceleration,
+            std::shared_ptr< basic_astrodynamics::EmpiricalAcceleration > empiricalAcceleration,
             std::string acceleratedBody,
             std::string acceleratingBody ):
         AccelerationPartial( acceleratedBody, acceleratingBody, basic_astrodynamics::empirical_acceleration ),
@@ -156,8 +156,8 @@ public:
      *  \param parameter Parameter w.r.t. which partial is to be taken.
      *  \return Pair of parameter partial function and number of columns in partial
      */
-    std::pair< boost::function< void( Eigen::MatrixXd& ) >, int > getParameterPartialFunction(
-            boost::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter );
+    std::pair< std::function< void( Eigen::MatrixXd& ) >, int > getParameterPartialFunction(
+            std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter );
 
     //! Function for updating common blocks of partial to current state.
     /*!
@@ -174,7 +174,7 @@ public:
      * by reference)
      */
     void wrtArcWiseEmpiricalAccelerationCoefficient(
-            boost::shared_ptr< estimatable_parameters::ArcWiseEmpiricalAccelerationCoefficientsParameter > parameter,
+            std::shared_ptr< estimatable_parameters::ArcWiseEmpiricalAccelerationCoefficientsParameter > parameter,
             Eigen::MatrixXd& partialDerivativeMatrix );
 
     //! Function to compute the partial w.r.t. time-independent empirical acceleration components
@@ -185,7 +185,7 @@ public:
      * by reference)
      */
     void wrtEmpiricalAccelerationCoefficient(
-            boost::shared_ptr< estimatable_parameters::EmpiricalAccelerationCoefficientsParameter > parameter,
+            std::shared_ptr< estimatable_parameters::EmpiricalAccelerationCoefficientsParameter > parameter,
             Eigen::MatrixXd& partialDerivativeMatrix )
     {
         return wrtEmpiricalAccelerationCoefficientFromIndices(
@@ -213,7 +213,7 @@ public:
 private:
 
     //! Acceleration w.r.t. which partials are to be computed.
-    boost::shared_ptr< basic_astrodynamics::EmpiricalAcceleration > empiricalAcceleration_;
+    std::shared_ptr< basic_astrodynamics::EmpiricalAcceleration > empiricalAcceleration_;
 
     //! Current partial of empirical acceleration w.r.t. position of body undergoing acceleration.
     Eigen::Matrix3d currentPositionPartial_;

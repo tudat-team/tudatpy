@@ -47,11 +47,11 @@ public:
      *  observable, i.e. deviations from the physically ideal observable between reference points (default none).
      */
     NWayRangeObservationModel(
-            const std::vector< boost::shared_ptr< observation_models::LightTimeCalculator
+            const std::vector< std::shared_ptr< observation_models::LightTimeCalculator
             < ObservationScalarType, TimeType > > > lightTimeCalculators,
-            const boost::function< std::vector< double >( const double ) > retransmissionDelays =
-            boost::function< std::vector< double >( const double ) >( ),
-            const boost::shared_ptr< ObservationBias< 1 > > observationBiasCalculator = NULL ):
+            const std::function< std::vector< double >( const double ) > retransmissionDelays =
+            std::function< std::vector< double >( const double ) >( ),
+            const std::shared_ptr< ObservationBias< 1 > > observationBiasCalculator = nullptr ):
         ObservationModel< 1, ObservationScalarType, TimeType >( n_way_range, observationBiasCalculator ),
         lightTimeCalculators_( lightTimeCalculators ), retransmissionDelays_( retransmissionDelays )
     {
@@ -120,7 +120,7 @@ public:
         linkEndStates.resize( 2 * ( numberOfLinkEnds_ - 1 ) );
 
         // Retrieve retransmission delays
-        if( !retransmissionDelays_.empty( ) )
+        if( !( retransmissionDelays_ == nullptr ) )
         {
             currentRetransmissionDelays_ = retransmissionDelays_( time );
             if( currentRetransmissionDelays_.size( ) != static_cast< unsigned int >( numberOfLinkEnds_ - 2 ) )
@@ -208,7 +208,7 @@ public:
                      ) << totalLightTime * physical_constants::getSpeedOfLight< ObservationScalarType >( ) ).finished( );
     }
 
-    std::vector< boost::shared_ptr< LightTimeCalculator< ObservationScalarType, TimeType > > > getLightTimeCalculators( )
+    std::vector< std::shared_ptr< LightTimeCalculator< ObservationScalarType, TimeType > > > getLightTimeCalculators( )
     {
         return lightTimeCalculators_;
     }
@@ -220,7 +220,7 @@ private:
      *  List of objects to compute the light-times (including any corrections w.r.t. Euclidean case)  for each leg of the
      *  n-way range.  First entry starts at transmitter; last entry is to receiver.
      */
-    std::vector< boost::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > > >
+    std::vector< std::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > > >
     lightTimeCalculators_;
 
     //!  Function that returns the list of retransmission delays as a function of observation time.
@@ -230,7 +230,7 @@ private:
      *  and the retransmission to the subsequent link end. By default, this function is empty, in which case no retransmission
      *  delays are used.
      */
-    boost::function< std::vector< double >( const double ) > retransmissionDelays_;
+    std::function< std::vector< double >( const double ) > retransmissionDelays_;
 
     //! List of retransmission delays, as computed by last call to computeIdealObservationsWithLinkEndData.
     std::vector< double > currentRetransmissionDelays_;

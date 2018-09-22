@@ -95,11 +95,11 @@ void computePartialOfSchwarzschildAccelerationCorrectionWrtPpnParameterBeta(
 }
 
 //! Function for setting up and retrieving a function returning a partial w.r.t. a double parameter.
-std::pair< boost::function< void( Eigen::MatrixXd& ) >, int >
+std::pair< std::function< void( Eigen::MatrixXd& ) >, int >
 RelativisticAccelerationPartial::getParameterPartialFunction(
-        boost::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter )
+        std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter )
 {
-    boost::function< void( Eigen::MatrixXd& ) > partialFunction;
+    std::function< void( Eigen::MatrixXd& ) > partialFunction;
     int numberOfRows = 0;
 
     // Create partial function if parameter is central body gravitational parameter
@@ -108,7 +108,7 @@ RelativisticAccelerationPartial::getParameterPartialFunction(
         switch( parameter->getParameterName( ).first )
         {
         case estimatable_parameters::gravitational_parameter:
-            partialFunction = boost::bind( &RelativisticAccelerationPartial::wrtGravitationalParameterOfCentralBody, this, _1 );
+            partialFunction = std::bind( &RelativisticAccelerationPartial::wrtGravitationalParameterOfCentralBody, this, std::placeholders::_1 );
             numberOfRows = 1;
             break;
         default:
@@ -121,11 +121,11 @@ RelativisticAccelerationPartial::getParameterPartialFunction(
         switch( parameter->getParameterName( ).first )
         {
         case estimatable_parameters::ppn_parameter_gamma:
-            partialFunction = boost::bind( &RelativisticAccelerationPartial::wrtPpnParameterGamma, this, _1 );
+            partialFunction = std::bind( &RelativisticAccelerationPartial::wrtPpnParameterGamma, this, std::placeholders::_1 );
             numberOfRows = 1;
             break;
         case estimatable_parameters::ppn_parameter_beta:
-            partialFunction = boost::bind( &RelativisticAccelerationPartial::wrtPpnParameterBeta, this, _1 );
+            partialFunction = std::bind( &RelativisticAccelerationPartial::wrtPpnParameterBeta, this, std::placeholders::_1 );
             numberOfRows = 1;
             break;
         default:
