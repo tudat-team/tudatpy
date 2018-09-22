@@ -319,7 +319,7 @@ BOOST_AUTO_TEST_CASE( testExtendedKalmanFilterSecondCase )
 
     // Check that final state is as expected
     Eigen::Vector3d expectedFinalState = Eigen::Vector3d::Zero( );
-    expectedFinalState << 25228.771361929019, -3314.8978688868333, 495.59792918566092;
+    expectedFinalState << 25202.174591778028, -3327.344292984541, 498.97471055815663;
     for ( int i = 0; i < expectedFinalState.rows( ); i++ )
     {
         BOOST_CHECK_SMALL( extendedFilter->getCurrentStateEstimate( )[ i ] - expectedFinalState[ i ],
