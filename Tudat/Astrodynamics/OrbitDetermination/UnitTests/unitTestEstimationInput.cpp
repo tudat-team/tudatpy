@@ -111,7 +111,6 @@ BOOST_AUTO_TEST_CASE( test_EstimationInputAndOutput )
     BOOST_CHECK_SMALL( std::fabs( noConstraintError( 6 ) ), 500.0 );
     BOOST_CHECK_SMALL( std::fabs( noConstraintWeakWeightError( 6 ) ), 500.0 );
 
-    std::cout << weakConstraintError( 6 ) << " " << weakConstraintError( 6 ) << " " << noConstraintWeakWeightError( 6 ) << std::endl;
     for( unsigned int i = 0; i < 7; i++ )
     {
         // Check if moderately constrained solution has intermediate accuracy

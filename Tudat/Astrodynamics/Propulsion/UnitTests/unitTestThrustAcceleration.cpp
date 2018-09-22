@@ -1946,10 +1946,6 @@ BOOST_AUTO_TEST_CASE( testMeeCostateBasedThrust )
         {
             BOOST_CHECK_EQUAL( ( std::fabs( finalModifiedEquinoctialElementsError( 4 ) ) < 0.005 ), true );
         }
-
-//        std::cout<<finalModifiedEquinoctialElementsError.transpose( )<<std::endl;
-//        input_output::writeDataMapToTextFile( dependentVariableSolution, "meeThrustDep_" + std::to_string( i ) + ".dat" );
-//        input_output::writeDataMapToTextFile( numericalSolution, "meeThrustState_" + std::to_string( i ) + ".dat" );
     }
 }
 

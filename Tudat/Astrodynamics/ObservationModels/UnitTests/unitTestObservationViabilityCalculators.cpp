@@ -604,8 +604,6 @@ BOOST_AUTO_TEST_CASE( testObservationViabilityCalculators )
         int numberOfLinkEnds = testLinkEndsList.at( unconstrainedIterator->first ).size( );
         int currentObservableSize = getObservableSize( unconstrainedIterator->first );
 
-        std::cout << "Obs: " << unconstrainedIterator->first << std::endl;
-
         // Check consistency of simulated observations from ObservationSimulator objects/simulateObservations function
         BOOST_CHECK_EQUAL( numberOfLinkEnds, unconstrainedIterator->second.size( ) );
         BOOST_CHECK_EQUAL( numberOfLinkEnds, unconstrainedIteratorFromObjects->second.size( ) );

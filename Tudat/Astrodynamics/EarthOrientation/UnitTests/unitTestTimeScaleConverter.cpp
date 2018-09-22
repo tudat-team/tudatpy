@@ -302,7 +302,6 @@ BOOST_AUTO_TEST_CASE( testTimeScaleConversionPrecisionWithTimeType )
                         originScales.at( j ), originScales.at( i ), currentTimes[ originScales.at( j ) ],
                     stationCartesianPosition );
             BOOST_CHECK_SMALL( std::fabs( static_cast< long double >( currentBackConvertedTime - baseTime ) ), 1.0E-12L );
-            std::cout << i << " " << j << " " << std::fabs( static_cast< long double >( currentBackConvertedTime - baseTime ) ) << std::endl;
         }
     }
 }

@@ -69,9 +69,6 @@ BOOST_AUTO_TEST_CASE( test_ItrsToGcrsRotationAgainstSpice )
 
             }
         }
-
-        std::cout << sofaRotationDerivative << std::endl << std::endl
-                  << sofaRotationDerivative - spiceRotationDerivative << std::endl << std::endl << std::endl << std::endl;
     }
 }
 

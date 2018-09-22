@@ -624,7 +624,7 @@ Eigen::VectorXd executeEarthOrbiterParameterEstimation(
                 podInput, std::make_shared< EstimationConvergenceChecker >( numberOfIterations ) );
 
     Eigen::VectorXd estimationError = podOutput->parameterEstimate_ - truthParameters;
-    std::cout << ( estimationError ).transpose( ) << std::endl;
+    std::cout <<"Estimation error: "<< ( estimationError ).transpose( ) << std::endl;
 
     podData = std::make_pair( podOutput, podInput );
 
@@ -1079,7 +1079,7 @@ std::pair< Eigen::VectorXd, bool > executeEarthOrbiterBiasEstimation(
                 podInput, std::make_shared< EstimationConvergenceChecker >( numberOfIterations ) );
 
     Eigen::VectorXd estimationError = podOutput->parameterEstimate_ - truthParameters;
-    std::cout << ( estimationError ).transpose( ) << std::endl<< std::endl;
+    std::cout <<"Estimation error: "<< ( estimationError ).transpose( ) << std::endl<< std::endl;
 
     return std::make_pair( estimationError,
                            ( podOutput->exceptionDuringInversion_ ||

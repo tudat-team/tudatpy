@@ -906,6 +906,7 @@ BOOST_AUTO_TEST_CASE( testRotationalAndTranslationalDynamicsPropagation )
     }
 }
 
+//! Test if rotational dynamics propagation correctly produces in-plane libration
 BOOST_AUTO_TEST_CASE( testSimpleRotationalDynamicsPropagationWithLibration )
 {
     //Load spice kernels.

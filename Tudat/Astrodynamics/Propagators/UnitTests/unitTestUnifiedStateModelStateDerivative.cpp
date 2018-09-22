@@ -455,7 +455,6 @@ BOOST_AUTO_TEST_CASE( testUnifiedStateModelPopagatorForSphericalHarmonicCentralB
             std::map< double, Eigen::Matrix< double, 6, 1 > >::iterator cowellIterator = cowellIntegrationResults.begin( );
             for( unsigned int i = 0; i < usmIntegrationResults.size( ); i++ )
             {
-                //std::cout << ( usmIterator->second - cowellIterator->second ).transpose( ) << std::endl;
                 for( int j= 0; j< 3; j++ )
                 {
                     BOOST_CHECK_SMALL( ( usmIterator->second - cowellIterator->second )( j ), 0.02 );

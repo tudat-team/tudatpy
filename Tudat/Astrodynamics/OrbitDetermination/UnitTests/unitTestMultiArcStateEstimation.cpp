@@ -242,7 +242,6 @@ Eigen::VectorXd  executeParameterEstimation(
 
 
     Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > truthParameters = initialParameterEstimate;
-    std::cout << "Truth " << std::setprecision( 16 ) << truthParameters.transpose( ) << std::endl;
 
     for( unsigned int i = 0; i < numberOfNumericalBodies * integrationArcStartTimes.size( ); i++ )
     {
@@ -281,7 +280,7 @@ BOOST_AUTO_TEST_CASE( test_MultiArcStateEstimation )
                     testCase );
         int numberOfEstimatedArcs = ( parameterError.rows( ) - 3 ) / 6;
 
-        std::cout << parameterError.transpose( ) << std::endl;
+        std::cout <<"Estimation error: "<< parameterError.transpose( ) << std::endl;
         for( int i = 0; i < numberOfEstimatedArcs; i++ )
         {
             for( unsigned int j = 0; j < 3; j++ )

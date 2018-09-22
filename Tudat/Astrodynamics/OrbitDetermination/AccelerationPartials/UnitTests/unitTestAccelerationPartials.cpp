@@ -1109,9 +1109,6 @@ BOOST_AUTO_TEST_CASE( testDirectDissipationAccelerationPartial )
                 // Calculate analytical partials.
                 accelerationModel->updateMembers( );
 
-                std::cout << "Current acceleration: " << useRadialTerm << " " << usePlanetTide << " "
-                          << accelerationModel->getAcceleration( ).transpose( ) << std::endl;
-
                 accelerationPartial->update( );
                 Eigen::MatrixXd partialWrtJupiterPosition = Eigen::Matrix3d::Zero( );
                 accelerationPartial->wrtPositionOfAcceleratingBody( partialWrtJupiterPosition.block( 0, 0, 3, 3 ) );
@@ -1174,12 +1171,6 @@ BOOST_AUTO_TEST_CASE( testDirectDissipationAccelerationPartial )
 
                 TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtTidalTimeLag,
                                                    partialWrtTidalTimeLag, 1.0e-6 );
-
-
-//                std::cout << testPartialWrtTidalTimeLag << std::endl << std::endl << partialWrtTidalTimeLag
-//                        << std::endl << std::endl << ( partialWrtTidalTimeLag  - testPartialWrtTidalTimeLag ).cwiseQuotient(
-//                              testPartialWrtTidalTimeLag ) << std::endl << std::endl << std::endl;
-
 
             }
         }

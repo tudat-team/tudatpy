@@ -445,9 +445,6 @@ BOOST_AUTO_TEST_CASE( testMarsAndOrbiterHybridArcVariationalEquationCalculation 
 
                 for( unsigned int arc = 0; arc < manualPartial.size( ); arc++ )
                 {
-                    //std::cout<<( manualPartial.at( arc ).block( 0, 0, 12, 14 ) - stateTransitionAndSensitivityMatrixAtEpoch.at( arc ) ).cwiseQuotient(
-                    //               stateTransitionAndSensitivityMatrixAtEpoch.at( arc ) )<<std::endl<<std::endl;
-
                     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
                                 stateTransitionAndSensitivityMatrixAtEpoch.at( arc ).block( 0, 0, 6, 6 ),
                                 manualPartial.at( arc ).block( 0, 0, 6, 6 ), 5.0E-5 );
@@ -469,7 +466,8 @@ BOOST_AUTO_TEST_CASE( testMarsAndOrbiterHybridArcVariationalEquationCalculation 
                         couplingTolerance = 1.0E-2;
                     }
 
-                    // One component is, by chance, not computed properly, next lines mitigate
+                    // One component is, by chance, not computed to within relative precision (due to small numerical value),
+                    // next lines mitigate
                     if( patchArcs == 0 )
                     {
                         stateTransitionAndSensitivityMatrixAtEpoch[ arc ]( 7, 4 ) = 0.0;

@@ -387,7 +387,6 @@ protected:
             {
                 for( unsigned int j = 0; j < innerAccelerationIterator->second.size( ); j++ )
                 {
-                    //std::cout << "Getting acceleration " << outerAccelerationIterator->first << " " << innerAccelerationIterator->first << std::endl;
                     // Calculate acceleration and add to state derivative.
                     stateDerivative.block( currentBodyIndex * 6 + 3, 0, 3, 1 ) += (
                                 innerAccelerationIterator->second[ j ]->getAcceleration( ) ).
