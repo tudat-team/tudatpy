@@ -146,15 +146,15 @@ BOOST_AUTO_TEST_CASE( testApparentAccelerationClass )
 
     // Create functions returning the parameters defined above.
     std::function< Eigen::Vector3d( ) > accelerationFunction =
-            [&](){ return referenceFrameAcceleration; };
+            [ & ]( ){ return referenceFrameAcceleration; };
     std::function< Eigen::Vector3d( ) > rotationRateFunction =
-            [&](){ return rotationRate; };
+            [ & ]( ){ return rotationRate; };
     std::function< Eigen::Vector3d( ) > rotationAccelerationFunction =
-            [&](){ return rotationAcceleration; };
+            [ & ]( ){ return rotationAcceleration; };
     std::function< Eigen::Vector3d( ) > positionFunction =
-            [&](){ return position; };
+            [ & ]( ){ return position; };
     std::function< Eigen::Vector3d( ) > velocityFunction =
-            [&](){ return velocity; };
+            [ & ]( ){ return velocity; };
 
     // Create object of apparentAcceleraitonModel class; pass functions in constructor
     ApparentAccelerationModel apparentAccelerationModel(

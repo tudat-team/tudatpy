@@ -71,7 +71,7 @@ NamedBodyMap getTestBodyMap( const double phobosSemiMajorAxis,
     NamedBodyMap bodyMap;
     bodyMap[ "Mars" ] = std::make_shared< Body >( );
     bodyMap[ "Mars" ]->setEphemeris( std::make_shared< ephemerides::ConstantEphemeris >(
-                                         [&]( ){ return Eigen::Vector6d::Zero( ); } ) );
+                                         [ & ]( ){ return Eigen::Vector6d::Zero( ); } ) );
     bodyMap[ "Phobos" ] = std::make_shared< Body >( );
 
     Eigen::Matrix3d phobosInertiaTensor = Eigen::Matrix3d::Zero( );
