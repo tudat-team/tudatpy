@@ -230,9 +230,6 @@ public:
         functionEvaluationCounter_++;
         cumulativeFunctionEvaluationCounter_[ time ] = functionEvaluationCounter_;
 
-//        std::cout<<"Var. State "<<std::endl<<( state.block( 0, 0, totalStateSize_, totalStateSize_ ) ).transpose( )<<std::endl;
-//        std::cout<<"State "<<( state.block( 0, totalStateSize_, totalStateSize_, 1 ) ).transpose( )<<std::endl;
-//        std::cout<<"State derivative "<<std::endl<<stateDerivative_<<std::endl<<std::endl;
         return stateDerivative_;
 
     }
@@ -629,12 +626,9 @@ private:
                             currentStatesPerTypeInConventionalRepresentation_.at(
                                 stateDerivativeModelsIterator_->first ).block(
                                 currentStateTypeSize, 0, currentConventionalIndices.second, 1 ) );
-//                std::cout << "Computing Cart. state: " <<currentStatesPerTypeInConventionalRepresentation_.at(
-//                                 stateDerivativeModelsIterator_->first ).transpose( ) << std::endl;
 
             }
         }
-//        std::cout<<std::endl;
     }
 
     std::function<

@@ -83,7 +83,6 @@ BOOST_AUTO_TEST_CASE( testOneWayRangePartials )
         std::shared_ptr< EstimatableParameterSet< double > > fullEstimatableParameterSet =
                 createEstimatableParameters( bodyMap, 1.1E7 );
 
-        std::cout<<"Test A"<<std::endl;
         testObservationPartials< 1 >(
                     oneWayRangeModel, bodyMap, fullEstimatableParameterSet, linkEnds, one_way_range, 1.0E-6, true, true );
     }

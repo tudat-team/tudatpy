@@ -398,9 +398,6 @@ BOOST_AUTO_TEST_CASE( testEarthMoonMultiArcVariationalEquationCalculation )
                     }
                 }
 
-                std::cout << manualPartial.at( 1 ) << std::endl << std::endl
-                          << stateTransitionAndSensitivityMatrixAtEpoch.at( 1 ) << std::endl;
-
                 // Check results
                 for( unsigned int arc = 0; arc < manualPartial.size( ); arc++ )
                 {

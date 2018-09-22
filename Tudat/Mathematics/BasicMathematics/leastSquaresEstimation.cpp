@@ -285,14 +285,11 @@ Eigen::VectorXd nonLinearLeastSquaresFit(
             levenbergMarquardtDampingParameter *= scalingParameterUpdate;
             scalingParameterUpdate *= 2.0;
         }
-//        std::cout << "Iter: " << iteration + 1 << ". Update: " << updateInEstimate.transpose( ) << ". "
-//                  << ( ( levenbergMarquardtGainRatio > 0 ) ? "Accepted." : "Rejected." ) << std::endl;
 
         // Increase iteration counter
         iteration++;
     }
     while ( ( updateInEstimate.norm( ) > convergenceTolerance ) && ( iteration <= maximumNumberOfIterations ) );
-//    std::cout << "Final: " << currentEstimate.transpose( ) << ". Iterations: " << iteration << std::endl;
 
     // Warn user of exceeded maximum number of iterations
     if ( iteration > maximumNumberOfIterations )

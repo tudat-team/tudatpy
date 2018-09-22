@@ -660,14 +660,6 @@ executePhobosRotationSimulation(
                     phobosSineGravityFieldCoefficients, "Phobos_Fixed",
                     std::bind( &Body::setBodyInertiaTensorFromGravityFieldAndExistingMeanMoment, bodyMap.at( "Phobos" ), true ) ) );
 
-
-//    std::cout<<"Cosine "<<std::endl<<phobosCosineGravityFieldCoefficients<<std::endl;
-//    std::cout<<"Sine "<<std::endl<<phobosSineGravityFieldCoefficients<<std::endl;
-//    std::cout<<"MOI "<<std::endl<<bodyMap.at( "Phobos" )->getBodyInertiaTensor( )<<std::endl;
-//    std::cout<<"MOI "<<std::endl<<bodyMap.at( "Phobos" )->getScaledMeanMomentOfInertia( )<<std::endl;
-
-
-
     Eigen::Vector6d phobosKeplerElements = Eigen::Vector6d::Zero( );
     double phobosSemiMajorAxis = 9376.0E3;
     phobosKeplerElements( 0 ) = phobosSemiMajorAxis;
@@ -854,9 +846,6 @@ executePhobosRotationSimulation(
         testStates.segment( 6, 7 ) = bodyMap[ "Phobos" ]->getRotationalEphemeris( )->getRotationStateVector( testEpoch );
         testStates.segment( 0, 6 ) = bodyMap[ "Phobos" ]->getEphemeris( )->getCartesianState( testEpoch );
 
-        //        std::cout<<"State "<<testStates.transpose( )<<std::endl;
-        //std::cout<<"State diff "<<testStates - propagatorSettings->getInitialStates( )<<std::endl;
-
         if( propagateVariationalEquations )
         {
             results.first.push_back( dynamicsSimulator.getStateTransitionMatrixInterface( )->
@@ -902,10 +891,6 @@ BOOST_AUTO_TEST_CASE( testPhobosRotationVariationalEquationCalculation )
 
     Eigen::MatrixXd manualPartial = Eigen::MatrixXd::Zero( 13, 13 + numberOfParametersToEstimate );
 
-    //    std::cout<<stateTransitionAndSensitivityMatrixAtEpoch<<std::endl<<std::endl<<
-    //               nominalState.transpose( )<<std::endl<<std::endl;
-
-
     // Numerically compute state transition matrix
     for( unsigned int test = 0; test < 2; test++ )
     {
@@ -934,12 +919,6 @@ BOOST_AUTO_TEST_CASE( testPhobosRotationVariationalEquationCalculation )
                             ( ( stateTransitionAndSensitivityMatrixAtEpoch * appliedStateDifferenceUp ).segment( 6, 7 ) ),
                             ( stateDifferenceUp.segment( 6, 7 ) ), 1.0E-5 );
             }
-            //            std::cout<<std::endl<<"Up"<<j<<" "<<( appliedStateDifferenceUp ).transpose( )<<std::endl;
-            //            std::cout<<"Up"<<j<<" "<<( stateDifferenceUp ).transpose( )<<std::endl;
-            //            std::cout<<"Up"<<j<<" "<<( stateTransitionAndSensitivityMatrixAtEpoch * appliedStateDifferenceUp ).transpose( )<<std::endl;
-            //            std::cout<<"Up"<<j<<" "<<( ( stateTransitionAndSensitivityMatrixAtEpoch * appliedStateDifferenceUp -
-            //                                         stateDifferenceUp ) ).cwiseQuotient( stateDifferenceUp ).transpose( )<<std::endl;
-
         }
     }
 

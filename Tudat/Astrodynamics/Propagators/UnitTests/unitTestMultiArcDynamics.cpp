@@ -34,7 +34,6 @@ namespace unit_tests
 {
 
 //! Using declarations.
-using namespace tudat;
 using namespace interpolators;
 using namespace numerical_integrators;
 using namespace spice_interface;
@@ -42,7 +41,7 @@ using namespace ephemerides;
 using namespace simulation_setup;
 using namespace basic_astrodynamics;
 using namespace orbital_element_conversions;
-using namespace tudat::propagators;
+using namespace propagators;
 
 BOOST_AUTO_TEST_SUITE( test_multi_arc_dynamics )
 

@@ -152,7 +152,6 @@ void testSchwarzschildPropagation(
     {
         std::vector< double > fitOutput = linear_algebra::getLeastSquaresPolynomialFit(
                     elementMaps[ elementIndex ], polynomialPowers );
-        //std::cout << theoreticalSchwarzschildPericenterPrecession << " " << fitOutput.at( 1 ) << std::endl;
         if( elementIndex != 1 )
         {
             BOOST_CHECK_CLOSE_FRACTION( asterixInitialStateInKeplerianElements( elementIndex ), fitOutput.at( 0 ), 1.0E-8 );

@@ -376,10 +376,6 @@ protected:
                                 this->getCombinedStateTransitionAndSensitivityMatrix( singlePartialSet[ i ].second );
                     }
 
-//                    std::cout<<currentIndexInfo.first<<" "<<currentIndexInfo.second<<" "<<singlePartialSet[ i ].first<<std::endl<<
-//                               combinedStateTransitionMatrices[ singlePartialSet[ i ].second ].block
-//                               ( currentIndexInfo.first, 0, currentIndexInfo.second, fullParameterVector )<<std::endl<<std::endl;
-
                     // Add partial of observation h w.r.t. initial state x_{0} (dh/dx_{0}=dh/dx*dx/dx_{0})
                     partialMatrix += ( singlePartialSet[ i ].first ) *
                             combinedStateTransitionMatrices[ singlePartialSet[ i ].second ].block

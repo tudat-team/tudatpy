@@ -66,12 +66,14 @@ Eigen::Matrix< double, Eigen::Dynamic, 3 > calculatePartialWrtConstantBodyState(
         const std::function< Eigen::VectorXd( const double ) > observationFunction,
         const double observationTime, const int observableSize );
 
+//! Function to compute numerical partials w.r.t. constant body orientation for general observation partial tests.
 Eigen::MatrixXd calculateChangeDueToConstantBodyOrientation(
         const std::string& bodyName, const NamedBodyMap& bodyMap, const Eigen::Vector4d& bodyQuaternionVariation,
         const std::function< Eigen::VectorXd( const double ) > observationFunction, const double observationTime,
         const int observableSize,
         std::vector< Eigen::Vector4d >& appliedQuaternionPerturbation );
 
+//! Function to compute numerical partials w.r.t. constant body angular velocity for general observation partial tests.
 Eigen::Matrix< double, Eigen::Dynamic, 3 > calculatePartialWrtConstantBodyAngularVelocityVector(
         const std::string& bodyName, const NamedBodyMap& bodyMap, const Eigen::Vector3d& bodyRotationVariation,
         const std::function< Eigen::VectorXd( const double ) > observationFunction, const double observationTime,
@@ -155,9 +157,6 @@ void testObservationPartials(
                 estimatable_parameters::getListOfBodiesToEstimate(
                     fullEstimatableParameterSet ).at( propagators::rotational_state );
     }
-
-    std::cout<<"Size: "<<numberOfBodiesWithEstimatedTranslationalState<<" "<<
-               bodiesWithEstimatedRotationalState.size( )<<std::endl;
 
     std::vector< std::shared_ptr< EstimatableParameter< double > > > doubleParameterVector =
             fullEstimatableParameterSet->getEstimatedDoubleParameters( );
@@ -277,11 +276,6 @@ void testObservationPartials(
                 if( observableType != angular_position )
                 {
                     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( bodyPositionPartial, ( numericalPartialWrtBodyPosition ), tolerance );
-                    std::cout << "PARTIALS A: "
-                              << bodyPositionPartial << std::endl
-                              << numericalPartialWrtBodyPosition << std::endl
-                              << numericalPartialWrtBodyPosition-bodyPositionPartial << std::endl
-                              << ( bodyPositionPartial - numericalPartialWrtBodyPosition ).cwiseQuotient( numericalPartialWrtBodyPosition ) << " " << tolerance << std::endl << std::endl;
                 }
                 else
                 {
@@ -382,18 +376,11 @@ void testObservationPartials(
                     currentParameterPartial.setZero( ObservableSize );
                     for( unsigned int j = 0; j < analyticalObservationPartials[ i + numberOfEstimatedBodies ].size( ); j++ )
                     {
-                        //std::cout << "Adding component: " << analyticalObservationPartials[ i + numberOfEstimatedBodies ][ j ].first << std::endl;
                         currentParameterPartial += analyticalObservationPartials[ i + numberOfEstimatedBodies ][ j ].first;
 
                     }
                     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
                                 currentParameterPartial, ( numericalPartialsWrtDoubleParameters[ i ] ), tolerance );
-
-                    std::cout << "PARTIALS BB: " << i << " " << std::endl
-                              << currentParameterPartial << std::endl
-                              << numericalPartialsWrtDoubleParameters[ i ] << std::endl
-                              << ( currentParameterPartial - numericalPartialsWrtDoubleParameters[ i ] ).cwiseQuotient( numericalPartialsWrtDoubleParameters[ i ] ) << " " << tolerance << std::endl << std::endl;
-
                 }
             }
 
@@ -434,12 +421,6 @@ void testObservationPartials(
                     }
                     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
                                 ( currentParameterPartial ), ( numericalPartialsWrtVectorParameters[ i ] ), tolerance );
-
-                    std::cout << "PARTIALS B: " << i << " " << std::endl
-                              << currentParameterPartial << std::endl
-                              << numericalPartialsWrtVectorParameters[ i ] << std::endl
-                              << ( currentParameterPartial - numericalPartialsWrtVectorParameters[ i ] ).cwiseQuotient( numericalPartialsWrtVectorParameters[ i ] ) << " " << tolerance << std::endl << std::endl;
-
                 }
             }
         }

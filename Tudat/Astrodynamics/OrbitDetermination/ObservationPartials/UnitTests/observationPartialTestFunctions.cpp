@@ -113,7 +113,6 @@ NamedBodyMap setupEnvironment( const std::vector< LinkEndId > groundStations,
     }
     else
     {
-        std::cout<<"Creating constant ephemeris"<<std::endl;
         bodyMap[ "Mars" ]->setRotationalEphemeris(
                     std::make_shared< ephemerides::ConstantRotationalEphemeris >(
                         marsRotationModel->getRotationStateVector( 0.0 ), "ECLIPJ2000", "IAU_Mars" ) );
@@ -241,6 +240,7 @@ Eigen::Matrix< double, Eigen::Dynamic, 3 > calculatePartialWrtConstantBodyState(
     return numericalPartialWrtBodyPosition;
 }
 
+//! Function to compute numerical partials w.r.t. constant body orientation for general observation partial tests.
 Eigen::MatrixXd calculateChangeDueToConstantBodyOrientation(
         const std::string& bodyName, const NamedBodyMap& bodyMap, const Eigen::Vector4d& bodyQuaternionVariation,
         const std::function< Eigen::VectorXd( const double ) > observationFunction, const double observationTime,
@@ -255,20 +255,11 @@ Eigen::MatrixXd calculateChangeDueToConstantBodyOrientation(
         appliedQuaternionPerturbation[ i ].setZero( );
     }
 
-//    std::cout<<"T1 "<<bodyName<<std::endl;
-    // Calculate numerical partials w.r.t. body state.
     std::shared_ptr< ephemerides::ConstantRotationalEphemeris > rotationalEphemeris =
             std::dynamic_pointer_cast< ephemerides::ConstantRotationalEphemeris >(
                 bodyMap.at( bodyName )->getRotationalEphemeris( ) );
-//    std::cout<<"T2 "<<( rotationalEphemeris == NULL )<<std::endl;
 
     Eigen::Vector7d bodyUnperturbedState = rotationalEphemeris->getRotationStateVector( observationTime );
-
-//    std::cout<<"Current rotation when getting num. partial: "<<std::endl<<
-//               linear_algebra::getQuaternionFromVectorFormat(
-//                           bodyUnperturbedState.segment( 0, 4 ) ).toRotationMatrix( )<<std::endl;
-
-
     Eigen::Vector7d perturbedBodyState;
 
     Eigen::Matrix< double, Eigen::Dynamic, 4 > numericalChangeDueToQuaternionChange =
@@ -280,25 +271,13 @@ Eigen::MatrixXd calculateChangeDueToConstantBodyOrientation(
 
         perturbedBodyState( 0 ) = ( bodyUnperturbedState( 0 ) > 0 ? 1.0 : -1.0 ) *
                 std::sqrt( 1.0 - std::pow( perturbedBodyState.segment( 1, 3 ).norm( ), 2 ) );
-
-//        std::cout<<"Applied quat. diff: "<<std::setprecision( 12 )<<bodyName<<" "<<std::pow( perturbedBodyState.segment( 1, 3 ).norm( ), 2 )<<" "<<
-//                   std::sqrt( 1.0 - std::pow( perturbedBodyState.segment( 1, 3 ).norm( ), 2 ) )<<std::endl<<
-//                   perturbedBodyState.segment( 0, 4 ).norm( )<<" "<<
-//                   perturbedBodyState.transpose( )<<std::endl<<
-//                   bodyUnperturbedState.transpose( )<<std::endl;
         appliedQuaternionPerturbation[ i ] = perturbedBodyState.segment( 0, 4 ).normalized( ) -
                 bodyUnperturbedState.segment( 0, 4 );
-//        std::cout<<"Applied quat. diff: "<<appliedQuaternionPerturbation[ i ].transpose( )<<std::endl;
-//        std::cout<<"Applied matrix. diff: "<<std::endl<<
-//        linear_algebra::getQuaternionFromVectorFormat(
-//                    perturbedBodyState.segment( 0, 4 ).normalized( ) ).toRotationMatrix( ) -
-//                linear_algebra::getQuaternionFromVectorFormat(
-//                            bodyUnperturbedState.segment( 0, 4 ) ).toRotationMatrix( )<<std::endl;
 
         rotationalEphemeris->updateConstantState( perturbedBodyState );
         bodyMap.at( bodyName )->recomputeStateOnNextCall( );
         Eigen::VectorXd upPerturbedObservation = observationFunction( observationTime );
-//        std::cout<<"Obs "<<std::setprecision( 16 )<<upPerturbedObservation<<" "<<nominalObservation<<std::endl;
+
         upPerturbedObservation -= nominalObservation;
 
         numericalChangeDueToQuaternionChange.block( 0, i, observableSize, 1  ) = upPerturbedObservation;
@@ -312,6 +291,7 @@ Eigen::MatrixXd calculateChangeDueToConstantBodyOrientation(
     return numericalChangeDueToQuaternionChange;
 }
 
+//! Function to compute numerical partials w.r.t. constant body angular velocity for general observation partial tests.
 Eigen::Matrix< double, Eigen::Dynamic, 3 > calculatePartialWrtConstantBodyAngularVelocityVector(
         const std::string& bodyName, const NamedBodyMap& bodyMap, const Eigen::Vector3d& bodyRotationVariation,
         const std::function< Eigen::VectorXd( const double ) > observationFunction, const double observationTime,

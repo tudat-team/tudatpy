@@ -16,9 +16,6 @@ namespace transfer_trajectories
 void SwingbyLegMga::calculateLeg( Eigen::Vector3d& velocityBeforeArrivalBody,
                                   double& deltaV )
 {
-    std::cout<<velocityBeforeArrivalBody.transpose( )<<std::endl;
-    std::cout<<( *velocityBeforeDepartureBodyPtr_ ).transpose( )<<std::endl;
-
     // Calculate and set the spacecraft velocities after departure and before arrival.
     mission_segments::solveLambertProblemIzzo( departureBodyPosition_, arrivalBodyPosition_,
                                                timeOfFlight_, centralBodyGravitationalParameter_,

@@ -161,7 +161,6 @@ BOOST_AUTO_TEST_CASE( testCowellPropagatorKeplerCompare )
         {
             Eigen::Vector6d currentFinalState = testGlobalFrameOrigin< double, double >(
                         origins.at( i ), origins.at( j ) );
-            std::cout << ( currentFinalState - benchmarkFinalState ).transpose( ) << std::endl;
             for( unsigned int k = 0; k < 3 ; k++ )
             {
                 BOOST_CHECK_SMALL( std::fabs( benchmarkFinalState( k ) - currentFinalState( k ) ), 1.0E-4 );
