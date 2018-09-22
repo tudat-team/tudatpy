@@ -244,7 +244,7 @@ public:
             const std::shared_ptr< interpolators::OneDimensionalInterpolator<
             double, Eigen::Vector3d > > thrustInterpolator,
             const std::function< Eigen::Matrix3d( ) > rotationFunction =
-            [](){ return Eigen::Matrix3d::Identity( ); } ):
+            [ ]( ){ return Eigen::Matrix3d::Identity( ); } ):
         thrustInterpolator_( thrustInterpolator ), rotationFunction_( rotationFunction ),
         currentThrust_( Eigen::Vector3d::Constant( TUDAT_NAN ) ), currentTime_( TUDAT_NAN ){ }
 
@@ -389,7 +389,7 @@ public:
         thrustMagnitudeSettings_ =  std::make_shared< FromFunctionThrustEngineSettings >(
                     std::bind( &FullThrustInterpolationInterface::getThrustMagnitude, interpolatorInterface_, std::placeholders::_1 ),
                     specificImpulseFunction, []( const double ){ return true; },
-                    [](){ return  Eigen::Vector3d::UnitX( ); },
+                    [ ]( ){ return  Eigen::Vector3d::UnitX( ); },
                     std::bind( &FullThrustInterpolationInterface::resetTime, interpolatorInterface_, std::placeholders::_1 ) );
     }
 
@@ -411,7 +411,7 @@ public:
             const ThrustFrames thrustFrame = unspecified_thurst_frame,
             const std::string centralBody = "" ):
         ThrustAccelerationSettings( dataInterpolationSettings,
-                                    [=]( const double ){ return constantSpecificImpulse; },
+                                    [ = ]( const double ){ return constantSpecificImpulse; },
                                     thrustFrame,
                                     centralBody )
     {

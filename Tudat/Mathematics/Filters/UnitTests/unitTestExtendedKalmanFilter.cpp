@@ -103,7 +103,7 @@ BOOST_AUTO_TEST_CASE( testExtendedKalmanFilterFirstCase )
 
     // Create control class
     std::shared_ptr< ControlWrapper< double, double, 2 > > control =
-            std::make_shared< ControlWrapper< double, double, 2 > >( boost::lambda::constant( Eigen::Vector2d::Zero( ) ) );
+            std::make_shared< ControlWrapper< double, double, 2 > >( [ = ]( ){ return Eigen::Vector2d::Zero( ); } );
 
     // Create extended Kalman filter object
     KalmanFilterDoublePointer extendedFilter = std::make_shared< ExtendedKalmanFilterDouble >(
@@ -112,9 +112,9 @@ BOOST_AUTO_TEST_CASE( testExtendedKalmanFilterFirstCase )
                 std::bind( &measurementFunction1, std::placeholders::_1,std::placeholders::_2 ),
                 std::bind( &stateJacobianFunction1, std::placeholders::_1,std::placeholders::_2,
                              std::bind( &ControlWrapper< double, double, 2 >::getCurrentControlVector, control ) ),
-                boost::lambda::constant( Eigen::Matrix2d::Identity( ) ),
+                [ = ]( ){ return Eigen::Matrix2d::Identity( ); },
                 std::bind( &measurementJacobianFunction1, std::placeholders::_1,std::placeholders::_2 ),
-                boost::lambda::constant( Eigen::Vector1d::Identity( ) ),
+                [ = ]( ){ return Eigen::Vector1d::Identity( ); },
                 systemUncertainty, measurementUncertainty, timeStep,
                 initialTime, initialEstimatedStateVector, initialEstimatedStateCovarianceMatrix,
                 integratorSettings );
@@ -262,7 +262,7 @@ BOOST_AUTO_TEST_CASE( testExtendedKalmanFilterSecondCase )
 
     // Create control class
     std::shared_ptr< ControlWrapper< double, double, 3 > > control =
-            std::make_shared< ControlWrapper< double, double, 3 > >( boost::lambda::constant( Eigen::Vector3d::Zero( ) ) );
+            std::make_shared< ControlWrapper< double, double, 3 > >( [ = ]( ){ return Eigen::Vector3d::Zero( ); } );
 
     // Create extended Kalman filter object
     KalmanFilterDoublePointer extendedFilter = std::make_shared< ExtendedKalmanFilterDouble >(
@@ -271,9 +271,9 @@ BOOST_AUTO_TEST_CASE( testExtendedKalmanFilterSecondCase )
                 std::bind( &measurementFunction2, std::placeholders::_1,std::placeholders::_2 ),
                 std::bind( &stateJacobianFunction2, std::placeholders::_1,std::placeholders::_2,
                              std::bind( &ControlWrapper< double, double, 3 >::getCurrentControlVector, control ) ),
-                boost::lambda::constant( Eigen::Matrix3d::Zero( ) ),
+                [ = ]( ){ return Eigen::Matrix3d::Zero( ); },
                 std::bind( &measurementJacobianFunction2, std::placeholders::_1,std::placeholders::_2 ),
-                boost::lambda::constant( Eigen::Vector1d::Zero( ) ),
+                [ = ]( ){ return Eigen::Vector1d::Zero( ); },
                 systemUncertainty, measurementUncertainty, timeStep,
                 initialTime, initialEstimatedStateVector, initialEstimatedStateCovarianceMatrix,
                 integratorSettings );

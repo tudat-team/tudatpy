@@ -115,7 +115,7 @@ void to_json( nlohmann::json& jsonObject,
         std::shared_ptr< SingleAccelerationDependentVariableSaveSettings > accelerationVariableSettings =
                 std::dynamic_pointer_cast< SingleAccelerationDependentVariableSaveSettings >(
                     dependentVariableSettings );
-        assertNonNullPointer( accelerationVariableSettings );
+        assertNonnullptrPointer( accelerationVariableSettings );
         jsonObject[ K::accelerationType ] = accelerationVariableSettings->accelerationModelType_;
         jsonObject[ K::bodyExertingAcceleration ] = dependentVariableSettings->secondaryBody_;
         return;
@@ -163,10 +163,10 @@ void to_json( nlohmann::json& jsonObject,
     }
     case single_gravity_field_variation_acceleration:
     {
-        boost::shared_ptr< SingleVariationSphericalHarmonicAccelerationSaveSettings > variationalSphericalHarmonicsAccelerationSettings =
-                boost::dynamic_pointer_cast< SingleVariationSphericalHarmonicAccelerationSaveSettings >(
+        std::shared_ptr< SingleVariationSphericalHarmonicAccelerationSaveSettings > variationalSphericalHarmonicsAccelerationSettings =
+                std::dynamic_pointer_cast< SingleVariationSphericalHarmonicAccelerationSaveSettings >(
                     dependentVariableSettings );
-        assertNonNullPointer( variationalSphericalHarmonicsAccelerationSettings );
+        assertNonnullptrPointer( variationalSphericalHarmonicsAccelerationSettings );
         jsonObject[ K::bodyExertingAcceleration ] = variationalSphericalHarmonicsAccelerationSettings->secondaryBody_;
         jsonObject[ K::deformationType ] = variationalSphericalHarmonicsAccelerationSettings->deformationType_;
         jsonObject[ K::identifier ] = variationalSphericalHarmonicsAccelerationSettings->identifier_;
@@ -174,11 +174,11 @@ void to_json( nlohmann::json& jsonObject,
     }
     case single_gravity_field_variation_acceleration_terms:
     {
-        boost::shared_ptr< SingleVariationSingleTermSphericalHarmonicAccelerationSaveSettings >
+        std::shared_ptr< SingleVariationSingleTermSphericalHarmonicAccelerationSaveSettings >
                 variationalSphericalHarmonicsAccelerationTermsSettings =
-                boost::dynamic_pointer_cast< SingleVariationSingleTermSphericalHarmonicAccelerationSaveSettings >(
+                std::dynamic_pointer_cast< SingleVariationSingleTermSphericalHarmonicAccelerationSaveSettings >(
                     dependentVariableSettings );
-        assertNonNullPointer( variationalSphericalHarmonicsAccelerationTermsSettings );
+        assertNonnullptrPointer( variationalSphericalHarmonicsAccelerationTermsSettings );
         jsonObject[ K::bodyExertingAcceleration ] = variationalSphericalHarmonicsAccelerationTermsSettings->secondaryBody_;
         jsonObject[ K::componentIndices ] = variationalSphericalHarmonicsAccelerationTermsSettings->componentIndices_;
         jsonObject[ K::deformationType ] = variationalSphericalHarmonicsAccelerationTermsSettings->deformationType_;
@@ -187,10 +187,10 @@ void to_json( nlohmann::json& jsonObject,
     }
     case acceleration_partial_wrt_body_translational_state:
     {
-        boost::shared_ptr< AccelerationPartialWrtStateSaveSettings > accelerationPartialSettings =
-                boost::dynamic_pointer_cast< AccelerationPartialWrtStateSaveSettings >(
+        std::shared_ptr< AccelerationPartialWrtStateSaveSettings > accelerationPartialSettings =
+                std::dynamic_pointer_cast< AccelerationPartialWrtStateSaveSettings >(
                     dependentVariableSettings );
-        assertNonNullPointer( accelerationPartialSettings );
+        assertNonnullptrPointer( accelerationPartialSettings );
         jsonObject[ K::bodyExertingAcceleration ] = accelerationPartialSettings->secondaryBody_;
         jsonObject[ K::componentIndices ] = accelerationPartialSettings->accelerationModelType_;
         jsonObject[ K::deformationType ] = accelerationPartialSettings->derivativeWrtBody_;
@@ -234,7 +234,7 @@ void from_json( const nlohmann::json& jsonObject,
     }
     case spherical_harmonic_acceleration_terms_dependent_variable:
     {
-        dependentVariableSettings = boost::make_shared< SphericalHarmonicAccelerationTermsDependentVariableSaveSettings >(
+        dependentVariableSettings = std::make_shared< SphericalHarmonicAccelerationTermsDependentVariableSaveSettings >(
                     getValue< std::string >( jsonObject, K::body ),
                     getValue< std::string >( jsonObject, K::bodyExertingAcceleration ),
                     getValue< std::vector< std::pair< int, int > > >( jsonObject, K::componentIndices ),
@@ -271,7 +271,7 @@ void from_json( const nlohmann::json& jsonObject,
     }
     case single_gravity_field_variation_acceleration:
     {
-        dependentVariableSettings = boost::make_shared< SingleVariationSphericalHarmonicAccelerationSaveSettings >(
+        dependentVariableSettings = std::make_shared< SingleVariationSphericalHarmonicAccelerationSaveSettings >(
                     getValue< std::string >( jsonObject, K::body ),
                     getValue< std::string >( jsonObject, K::bodyExertingAcceleration ),
                     getValue< gravitation::BodyDeformationTypes >( jsonObject, K::deformationType ),
@@ -280,7 +280,7 @@ void from_json( const nlohmann::json& jsonObject,
     }
     case single_gravity_field_variation_acceleration_terms:
     {
-        dependentVariableSettings = boost::make_shared< SingleVariationSingleTermSphericalHarmonicAccelerationSaveSettings >(
+        dependentVariableSettings = std::make_shared< SingleVariationSingleTermSphericalHarmonicAccelerationSaveSettings >(
                     getValue< std::string >( jsonObject, K::body ),
                     getValue< std::string >( jsonObject, K::bodyExertingAcceleration ),
                     getValue< std::vector< std::pair< int, int > > >( jsonObject, K::componentIndices ),
@@ -290,7 +290,7 @@ void from_json( const nlohmann::json& jsonObject,
     }
     case acceleration_partial_wrt_body_translational_state:
     {
-        dependentVariableSettings = boost::make_shared< AccelerationPartialWrtStateSaveSettings >(
+        dependentVariableSettings = std::make_shared< AccelerationPartialWrtStateSaveSettings >(
                     getValue< std::string >( jsonObject, K::body ),
                     getValue< std::string >( jsonObject, K::bodyExertingAcceleration ),
                     getValue< basic_astrodynamics::AvailableAcceleration >( jsonObject, K::accelerationType ),

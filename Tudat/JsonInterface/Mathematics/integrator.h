@@ -103,14 +103,14 @@ void to_json( nlohmann::json& jsonObject, const std::shared_ptr< IntegratorSetti
         // Create Runge-Kutta base object
         std::shared_ptr< RungeKuttaVariableStepSizeBaseSettings< TimeType > > rungeKuttaVariableStepSizeSettings =
                 std::dynamic_pointer_cast< RungeKuttaVariableStepSizeBaseSettings< TimeType > >( integratorSettings );
-        assertNonNullPointer( rungeKuttaVariableStepSizeSettings );
+        assertNonnullptrPointer( rungeKuttaVariableStepSizeSettings );
 
         // Check which integrator settings is requested
         if ( rungeKuttaVariableStepSizeSettings->areTolerancesDefinedAsScalar_ )
         {
             // Integrator with scalar tolerances
-            boost::shared_ptr< RungeKuttaVariableStepSizeSettingsScalarTolerances< TimeType > > scalarTolerancesIntegratorSettings =
-                    boost::dynamic_pointer_cast< RungeKuttaVariableStepSizeSettingsScalarTolerances< TimeType > >( integratorSettings );
+            std::shared_ptr< RungeKuttaVariableStepSizeSettingsScalarTolerances< TimeType > > scalarTolerancesIntegratorSettings =
+                    std::dynamic_pointer_cast< RungeKuttaVariableStepSizeSettingsScalarTolerances< TimeType > >( integratorSettings );
 
             jsonObject[ K::rungeKuttaCoefficientSet ] =
                     stringFromEnum( scalarTolerancesIntegratorSettings->coefficientSet_, rungeKuttaCoefficientSets );

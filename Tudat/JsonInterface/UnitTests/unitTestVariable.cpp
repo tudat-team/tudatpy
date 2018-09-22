@@ -149,13 +149,13 @@ BOOST_AUTO_TEST_CASE( test_json_variable_sphericalHarmonicAccelerationTermsDepen
     using namespace json_interface;
 
     // Create SingleDependentVariableSaveSettings from JSON file
-    const boost::shared_ptr< SingleDependentVariableSaveSettings > fromFileSettings =
-            parseJSONFile< boost::shared_ptr< SingleDependentVariableSaveSettings > >(
+    const std::shared_ptr< SingleDependentVariableSaveSettings > fromFileSettings =
+            parseJSONFile< std::shared_ptr< SingleDependentVariableSaveSettings > >(
                 INPUT( "sphericalHarmonicAccelerationTerms" ) );
 
     // Create SingleDependentVariableSaveSettings manually
-    const boost::shared_ptr< SingleDependentVariableSaveSettings > manualSettings =
-            boost::make_shared< SphericalHarmonicAccelerationTermsDependentVariableSaveSettings >(
+    const std::shared_ptr< SingleDependentVariableSaveSettings > manualSettings =
+            std::make_shared< SphericalHarmonicAccelerationTermsDependentVariableSaveSettings >(
                 "vehicle", "body", 1, 1 );
 
     // Compare
@@ -170,13 +170,13 @@ BOOST_AUTO_TEST_CASE( test_json_variable_singleGravityFieldVariationAcceleration
     using namespace json_interface;
 
     // Create SingleDependentVariableSaveSettings from JSON file
-    const boost::shared_ptr< SingleDependentVariableSaveSettings > fromFileSettings =
-            parseJSONFile< boost::shared_ptr< SingleDependentVariableSaveSettings > >(
+    const std::shared_ptr< SingleDependentVariableSaveSettings > fromFileSettings =
+            parseJSONFile< std::shared_ptr< SingleDependentVariableSaveSettings > >(
                 INPUT( "singleGravityFieldVariationAcceleration" ) );
 
     // Create SingleVariationSphericalHarmonicAccelerationSaveSettings manually
-    const boost::shared_ptr< SingleDependentVariableSaveSettings > manualSettings =
-            boost::make_shared< SingleVariationSphericalHarmonicAccelerationSaveSettings >(
+    const std::shared_ptr< SingleDependentVariableSaveSettings > manualSettings =
+            std::make_shared< SingleVariationSphericalHarmonicAccelerationSaveSettings >(
                 "vehicle", "body", basic_solid_body );
 
     // Compare
@@ -191,13 +191,13 @@ BOOST_AUTO_TEST_CASE( test_json_variable_singleGravityFieldVariationAcceleration
     using namespace json_interface;
 
     // Create SingleDependentVariableSaveSettings from JSON file
-    const boost::shared_ptr< SingleDependentVariableSaveSettings > fromFileSettings =
-            parseJSONFile< boost::shared_ptr< SingleDependentVariableSaveSettings > >(
+    const std::shared_ptr< SingleDependentVariableSaveSettings > fromFileSettings =
+            parseJSONFile< std::shared_ptr< SingleDependentVariableSaveSettings > >(
                 INPUT( "singleGravityFieldVariationAccelerationTerms" ) );
 
     // Create SingleVariationSingleTermSphericalHarmonicAccelerationSaveSettings manually
-    const boost::shared_ptr< SingleDependentVariableSaveSettings > manualSettings =
-            boost::make_shared< SingleVariationSingleTermSphericalHarmonicAccelerationSaveSettings >(
+    const std::shared_ptr< SingleDependentVariableSaveSettings > manualSettings =
+            std::make_shared< SingleVariationSingleTermSphericalHarmonicAccelerationSaveSettings >(
                 "vehicle", "body", 1, 1, basic_solid_body );
 
     // Compare
@@ -212,13 +212,13 @@ BOOST_AUTO_TEST_CASE( test_json_variable_accelerationPartialWrtBodyTranslational
     using namespace json_interface;
 
     // Create SingleDependentVariableSaveSettings from JSON file
-    const boost::shared_ptr< SingleDependentVariableSaveSettings > fromFileSettings =
-            parseJSONFile< boost::shared_ptr< SingleDependentVariableSaveSettings > >(
+    const std::shared_ptr< SingleDependentVariableSaveSettings > fromFileSettings =
+            parseJSONFile< std::shared_ptr< SingleDependentVariableSaveSettings > >(
                 INPUT( "accelerationPartialWrtBodyTranslationalState" ) );
 
     // Create AccelerationPartialWrtStateSaveSettings manually
-    const boost::shared_ptr< SingleDependentVariableSaveSettings > manualSettings =
-            boost::make_shared< AccelerationPartialWrtStateSaveSettings >(
+    const std::shared_ptr< SingleDependentVariableSaveSettings > manualSettings =
+            std::make_shared< AccelerationPartialWrtStateSaveSettings >(
                 "vehicle", "body", thrust_acceleration, "otherBody" );
 
     // Compare

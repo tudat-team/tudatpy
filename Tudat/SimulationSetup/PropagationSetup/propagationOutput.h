@@ -686,7 +686,7 @@ std::pair< std::function< Eigen::VectorXd( ) >, int > getVectorDependentVariable
 
         if( ephemerides::isFrameInertial( dependentVariableSettings->secondaryBody_ ) )
         {
-            centralBodyStateFunction =  [](){ return Eigen::Vector6d::Zero( ); };
+            centralBodyStateFunction =  [ ]( ){ return Eigen::Vector6d::Zero( ); };
         }
         else
         {
@@ -938,7 +938,7 @@ std::pair< std::function< Eigen::VectorXd( ) >, int > getVectorDependentVariable
 
             if( partialFunction.second == 0 )
             {
-                variableFunction = boost::lambda::constant( Eigen::VectorXd::Zero( 18 ) );
+                variableFunction = [ = ]( ){ return Eigen::VectorXd::Zero( 18 ); };
             }
             else
             {
