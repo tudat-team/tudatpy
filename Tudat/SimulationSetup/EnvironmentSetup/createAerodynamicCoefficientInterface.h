@@ -661,14 +661,14 @@ public:
      *  conditions for interpolation are saved.
      */
     TabulatedAerodynamicCoefficientSettings< 1 >(
-            const std::vector< std::vector< double > > independentVariables,
-            const boost::multi_array< Eigen::Vector3d, 1 > forceCoefficients,
-            const boost::multi_array< Eigen::Vector3d, 1 > momentCoefficients,
+            const std::vector< std::vector< double > >& independentVariables,
+            const boost::multi_array< Eigen::Vector3d, 1 >& forceCoefficients,
+            const boost::multi_array< Eigen::Vector3d, 1 >& momentCoefficients,
             const double referenceLength,
             const double referenceArea,
             const double lateralReferenceLength,
             const Eigen::Vector3d& momentReferencePoint,
-            const std::vector< aerodynamics::AerodynamicCoefficientsIndependentVariables > independentVariableName,
+            const std::vector< aerodynamics::AerodynamicCoefficientsIndependentVariables >& independentVariableName,
             const bool areCoefficientsInAerodynamicFrame = true,
             const bool areCoefficientsInNegativeAxisDirection = true,
             const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings = NULL ) :
@@ -717,8 +717,8 @@ public:
      *  conditions for interpolation are saved.
      */
     TabulatedAerodynamicCoefficientSettings< 1 >(
-            const std::vector< double > independentVariables,
-            const std::vector< Eigen::Vector3d > forceCoefficients,
+            const std::vector< double >& independentVariables,
+            const std::vector< Eigen::Vector3d >& forceCoefficients,
             const double referenceArea,
             const aerodynamics::AerodynamicCoefficientsIndependentVariables independentVariableName,
             const bool areCoefficientsInAerodynamicFrame = true,
@@ -764,10 +764,10 @@ public:
      *  conditions for interpolation are saved.
      */
     TabulatedAerodynamicCoefficientSettings< 1 >(
-            const std::vector< std::vector< double > > independentVariables,
-            const boost::multi_array< Eigen::Vector3d, 1 > forceCoefficients,
+            const std::vector< std::vector< double > >& independentVariables,
+            const boost::multi_array< Eigen::Vector3d, 1 >& forceCoefficients,
             const double referenceArea,
-            const std::vector< aerodynamics::AerodynamicCoefficientsIndependentVariables > independentVariableNames,
+            const std::vector< aerodynamics::AerodynamicCoefficientsIndependentVariables >& independentVariableNames,
             const bool areCoefficientsInAerodynamicFrame = true,
             const bool areCoefficientsInNegativeAxisDirection = true,
             const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings = NULL ) :
@@ -866,13 +866,13 @@ private:
 template< unsigned int NumberOfDimensions >
 std::shared_ptr< AerodynamicCoefficientSettings >
 readGivenSizeTabulatedAerodynamicCoefficientsFromFiles(
-        const std::map< int, std::string > forceCoefficientFiles,
-        const std::map< int, std::string > momentCoefficientFiles,
+        const std::map< int, std::string >& forceCoefficientFiles,
+        const std::map< int, std::string >& momentCoefficientFiles,
         const double referenceLength,
         const double referenceArea,
         const double lateralReferenceLength,
         const Eigen::Vector3d& momentReferencePoint,
-        const std::vector< aerodynamics::AerodynamicCoefficientsIndependentVariables > independentVariableNames,
+        const std::vector< aerodynamics::AerodynamicCoefficientsIndependentVariables >& independentVariableNames,
         const bool areCoefficientsInAerodynamicFrame = true,
         const bool areCoefficientsInNegativeAxisDirection = true,
         const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings = NULL )
@@ -934,9 +934,9 @@ readGivenSizeTabulatedAerodynamicCoefficientsFromFiles(
 template< unsigned int NumberOfDimensions >
 std::shared_ptr< AerodynamicCoefficientSettings >
 readGivenSizeTabulatedAerodynamicCoefficientsFromFiles(
-        const std::map< int, std::string > forceCoefficientFiles,
+        const std::map< int, std::string >& forceCoefficientFiles,
         const double referenceArea,
-        const std::vector< aerodynamics::AerodynamicCoefficientsIndependentVariables > independentVariableNames,
+        const std::vector< aerodynamics::AerodynamicCoefficientsIndependentVariables >& independentVariableNames,
         const bool areCoefficientsInAerodynamicFrame = true,
         const bool areCoefficientsInNegativeAxisDirection = true,
         const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings = NULL )
@@ -987,13 +987,13 @@ readGivenSizeTabulatedAerodynamicCoefficientsFromFiles(
  *  forceCoefficientFiles and reference data given as input.
  */
 std::shared_ptr< AerodynamicCoefficientSettings > readTabulatedAerodynamicCoefficientsFromFiles(
-        const std::map< int, std::string > forceCoefficientFiles,
-        const std::map< int, std::string > momentCoefficientFiles,
+        const std::map< int, std::string >& forceCoefficientFiles,
+        const std::map< int, std::string >& momentCoefficientFiles,
         const double referenceLength,
         const double referenceArea,
         const double lateralReferenceLength,
         const Eigen::Vector3d& momentReferencePoint,
-        const std::vector< aerodynamics::AerodynamicCoefficientsIndependentVariables > independentVariableNames,
+        const std::vector< aerodynamics::AerodynamicCoefficientsIndependentVariables >& independentVariableNames,
         const bool areCoefficientsInAerodynamicFrame = true,
         const bool areCoefficientsInNegativeAxisDirection = true,
         const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings = NULL );
@@ -1020,9 +1020,9 @@ std::shared_ptr< AerodynamicCoefficientSettings > readTabulatedAerodynamicCoeffi
  */
 std::shared_ptr< AerodynamicCoefficientSettings >
 readTabulatedAerodynamicCoefficientsFromFiles(
-        const std::map< int, std::string > forceCoefficientFiles,
+        const std::map< int, std::string >& forceCoefficientFiles,
         const double referenceArea,
-        const std::vector< aerodynamics::AerodynamicCoefficientsIndependentVariables > independentVariableNames,
+        const std::vector< aerodynamics::AerodynamicCoefficientsIndependentVariables >& independentVariableNames,
         const bool areCoefficientsInAerodynamicFrame = true,
         const bool areCoefficientsInNegativeAxisDirection = true,
         const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings = NULL );
@@ -1051,8 +1051,8 @@ readTabulatedAerodynamicCoefficientsFromFiles(
  */
 std::shared_ptr< aerodynamics::AerodynamicCoefficientInterface >
 createConstantCoefficientAerodynamicCoefficientInterface(
-        const Eigen::Vector3d constantForceCoefficient,
-        const Eigen::Vector3d constantMomentCoefficient,
+        const Eigen::Vector3d& constantForceCoefficient,
+        const Eigen::Vector3d& constantMomentCoefficient,
         const double referenceLength,
         const double referenceArea,
         const double lateralReferenceLength,
@@ -1092,10 +1092,10 @@ createConstantCoefficientAerodynamicCoefficientInterface(
 template< unsigned int NumberOfDimensions >
 std::shared_ptr< aerodynamics::AerodynamicCoefficientInterface >
 createTabulatedCoefficientAerodynamicCoefficientInterface(
-        const std::vector< std::vector< double > > independentVariables,
-        const boost::multi_array< Eigen::Vector3d, static_cast< size_t >( NumberOfDimensions ) > forceCoefficients,
-        const boost::multi_array< Eigen::Vector3d, static_cast< size_t >( NumberOfDimensions ) > momentCoefficients,
-        const std::vector< aerodynamics::AerodynamicCoefficientsIndependentVariables > independentVariableNames,
+        const std::vector< std::vector< double > >& independentVariables,
+        const boost::multi_array< Eigen::Vector3d, static_cast< size_t >( NumberOfDimensions ) >& forceCoefficients,
+        const boost::multi_array< Eigen::Vector3d, static_cast< size_t >( NumberOfDimensions ) >& momentCoefficients,
+        const std::vector< aerodynamics::AerodynamicCoefficientsIndependentVariables >& independentVariableNames,
         const double referenceLength,
         const double referenceArea,
         const double lateralReferenceLength,
