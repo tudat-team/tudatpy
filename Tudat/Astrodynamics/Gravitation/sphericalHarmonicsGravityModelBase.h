@@ -61,7 +61,7 @@ public:
             const StateFunction positionOfBodyExertingAccelerationFunction,
             const bool isMutualAttractionUsed )
         : subjectPositionFunction( positionOfBodySubjectToAccelerationFunction ),
-          gravitationalParameterFunction( [=](){ return aGravitationalParameter; } ),
+          gravitationalParameterFunction( [ = ]( ){ return aGravitationalParameter; } ),
           sourcePositionFunction( positionOfBodyExertingAccelerationFunction ),
           isMutualAttractionUsed_( isMutualAttractionUsed )
     { }

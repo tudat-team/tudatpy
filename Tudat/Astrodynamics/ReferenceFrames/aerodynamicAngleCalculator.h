@@ -361,7 +361,7 @@ getAerodynamicForceTransformationFunction(
         const std::shared_ptr< AerodynamicAngleCalculator > aerodynamicAngleCalculator,
         const AerodynamicsReferenceFrames accelerationFrame,
         const std::function< Eigen::Quaterniond( ) > bodyFixedToInertialFrameFunction =
-        [](){ return Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) ); },
+        [ ]( ){ return Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) ); },
         const AerodynamicsReferenceFrames propagationFrame = inertial_frame );
 
 //! Wrapper class to set closure between an imposed orientation of a body and its bank, sideslip and attack angles.

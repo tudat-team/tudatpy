@@ -101,8 +101,8 @@ public:
             const double aGravitationalParameter,
             const double anEquatorialRadius,
             const double aJ2GravityCoefficient,
-            const Base::StateFunction positionOfBodyExertingAccelerationFunction
-            = [](){ return Eigen::Vector3d::Zero( ); } )
+            const Base::StateFunction positionOfBodyExertingAccelerationFunction =
+            [ ]( ){ return Eigen::Vector3d::Zero( ); } )
         : Base( positionOfBodySubjectToAccelerationFunction,
                 aGravitationalParameter,
                 positionOfBodyExertingAccelerationFunction, false ),

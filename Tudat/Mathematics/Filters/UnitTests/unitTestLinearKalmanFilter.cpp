@@ -79,9 +79,9 @@ BOOST_AUTO_TEST_CASE( testLinearKalmanFilter )
 
     // Create linear Kalman filter object
     KalmanFilterDoublePointer linearFilter = std::make_shared< LinearKalmanFilterDouble >(
-                boost::lambda::constant( stateTransitionMatrix ),
-                boost::lambda::constant( controlMatrix ),
-                boost::lambda::constant( measurementMatrix ),
+                [ = ]( ){ return stateTransitionMatrix; },
+                [ = ]( ){ return controlMatrix; },
+                [ = ]( ){ return measurementMatrix; },
                 systemUncertainty, measurementUncertainty, timeStep,
                 initialTime, initialEstimatedStateVector, initialEstimatedStateCovarianceMatrix );
 

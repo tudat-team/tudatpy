@@ -86,7 +86,7 @@ BOOST_AUTO_TEST_CASE( testUnscentedKalmanFilterFirstCase )
 
     // Create control class
     std::shared_ptr< ControlWrapper< double, double, 2 > > control =
-            std::make_shared< ControlWrapper< double, double, 2 > >( boost::lambda::constant( Eigen::Vector2d::Zero( ) ) );
+            std::make_shared< ControlWrapper< double, double, 2 > >( [ = ]( ){ return Eigen::Vector2d::Zero( ); } );
 
     // Create unscented Kalman filter object
     UnscentedKalmanFilterDoublePointer unscentedFilter = std::make_shared< UnscentedKalmanFilterDouble >(
@@ -212,7 +212,7 @@ BOOST_AUTO_TEST_CASE( testUnscentedKalmanFilterSecondCase )
     // Create control class
     std::shared_ptr< ControlWrapper< long double, long double, 3 > > control =
             std::make_shared< ControlWrapper< long double, long double, 3 > >(
-                boost::lambda::constant( Vector3ld::Zero( ) ) );
+                [ = ]( ){ return Vector3ld::Zero( ); } );
 
     // Create unscented Kalman filter object
     std::shared_ptr< KalmanFilterBase< long double, long double > > unscentedFilter =
@@ -330,7 +330,7 @@ BOOST_AUTO_TEST_CASE( testUnscentedKalmanFilterThirdCase )
 
     // Create control class
     std::shared_ptr< ControlWrapper< double, double, 3 > > control =
-            std::make_shared< ControlWrapper< double, double, 3 > >( boost::lambda::constant( Eigen::Vector3d::Zero( ) ) );
+            std::make_shared< ControlWrapper< double, double, 3 > >( [ = ]( ){ return Eigen::Vector3d::Zero( ); } );
 
     // Create unscented Kalman filter object
     UnscentedKalmanFilterDoublePointer unscentedFilter = std::make_shared< UnscentedKalmanFilterDouble >(

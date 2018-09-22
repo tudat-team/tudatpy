@@ -433,11 +433,11 @@ void AerodynamicAngleCalculator::setOrientationAngleFunctions(
         const double bankAngle )
 {
     std::function< double( ) > angleOfAttackFunction =
-            ( ( angleOfAttack == angleOfAttack ) ? [=](){ return angleOfAttack; } : std::function< double( ) >( ) );
+            ( ( angleOfAttack == angleOfAttack ) ? [ = ]( ){ return angleOfAttack; } : std::function< double( ) >( ) );
     std::function< double( ) > angleOfSideslipFunction =
-            ( ( angleOfSideslip == angleOfSideslip ) ? [=](){ return angleOfSideslip; } : std::function< double( ) >( ) );
+            ( ( angleOfSideslip == angleOfSideslip ) ? [ = ]( ){ return angleOfSideslip; } : std::function< double( ) >( ) );
     std::function< double( ) > bankAngleFunction =
-            ( ( bankAngle == bankAngle ) ? [=](){ return bankAngle; }: std::function< double( ) >( ) );
+            ( ( bankAngle == bankAngle ) ? [ = ]( ){ return bankAngle; }: std::function< double( ) >( ) );
     setOrientationAngleFunctions( angleOfAttackFunction, angleOfSideslipFunction, bankAngleFunction );
 }
 

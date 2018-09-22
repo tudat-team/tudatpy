@@ -109,9 +109,9 @@ public:
                         const DependentVector& initialStateVector,
                         const DependentMatrix& initialCovarianceMatrix,
                         const std::shared_ptr< IntegratorSettings > integratorSettings = nullptr ) :
-        LinearKalmanFilter( boost::lambda::constant( stateTransitionMatrix ),
-                            boost::lambda::constant( controlMatrix ),
-                            boost::lambda::constant( measurementMatrix ),
+        LinearKalmanFilter( [ = ]( ){ return stateTransitionMatrix; },
+                            [ = ]( ){ return controlMatrix; },
+                            [ = ]( ){ return measurementMatrix; },
                             systemUncertainty, measurementUncertainty, filteringStepSize, initialTime, initialStateVector,
                             initialCovarianceMatrix, integratorSettings )
     { }

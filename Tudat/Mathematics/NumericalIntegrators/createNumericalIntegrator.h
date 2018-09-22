@@ -613,8 +613,8 @@ DependentVariableType, IndependentVariableStepType > > createIntegrator(
         if ( variableStepIntegratorSettings->areTolerancesDefinedAsScalar_ )
         {
             // Settings with scalar tolerances
-            boost::shared_ptr< RungeKuttaVariableStepSizeSettingsScalarTolerances< IndependentVariableType > >
-                    scalarTolerancesIntegratorSettings = boost::dynamic_pointer_cast<
+            std::shared_ptr< RungeKuttaVariableStepSizeSettingsScalarTolerances< IndependentVariableType > >
+                    scalarTolerancesIntegratorSettings = std::dynamic_pointer_cast<
                     RungeKuttaVariableStepSizeSettingsScalarTolerances< IndependentVariableType > >( variableStepIntegratorSettings );
 
             // Check input consistency
@@ -625,7 +625,7 @@ DependentVariableType, IndependentVariableStepType > > createIntegrator(
             }
 
             // Create Runge-Kutta integrator with scalar tolerances
-            integrator = boost::make_shared< RungeKuttaVariableStepSizeIntegrator
+            integrator = std::make_shared< RungeKuttaVariableStepSizeIntegrator
                     < IndependentVariableType, DependentVariableType, DependentVariableType, IndependentVariableStepType > >
                     ( coefficients, stateDerivativeFunction, integratorSettings->initialTime_, initialState,
                       static_cast< IndependentVariableStepType >( scalarTolerancesIntegratorSettings->minimumStepSize_ ),
@@ -639,8 +639,8 @@ DependentVariableType, IndependentVariableStepType > > createIntegrator(
         else
         {
             // Settings with vector tolerances
-            boost::shared_ptr< RungeKuttaVariableStepSizeSettingsVectorTolerances< IndependentVariableType, DependentVariableType > >
-                    vectorTolerancesIntegratorSettings = boost::dynamic_pointer_cast<
+            std::shared_ptr< RungeKuttaVariableStepSizeSettingsVectorTolerances< IndependentVariableType, DependentVariableType > >
+                    vectorTolerancesIntegratorSettings = std::dynamic_pointer_cast<
                     RungeKuttaVariableStepSizeSettingsVectorTolerances< IndependentVariableType, DependentVariableType > >(
                         variableStepIntegratorSettings );
 

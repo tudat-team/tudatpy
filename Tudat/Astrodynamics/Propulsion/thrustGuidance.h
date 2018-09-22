@@ -153,7 +153,7 @@ public:
             const std::function< Eigen::Vector3d( const double ) > forceDirectionFunction,
             const std::string& centralBody,
             const std::function< Eigen::Vector3d( ) > bodyFixedForceDirection =
-            [](){ return  Eigen::Vector3d::UnitX( ); } ):
+            [ ]( ){ return  Eigen::Vector3d::UnitX( ); } ):
         BodyFixedForceDirectionGuidance ( bodyFixedForceDirection ),
         forceDirectionFunction_( forceDirectionFunction ),
         centralBody_( centralBody ){ }
@@ -227,7 +227,7 @@ public:
     OrientationBasedForceGuidance(
             const std::function< Eigen::Quaterniond( const double ) > bodyFixedFrameToBaseFrameFunction,
             const std::function< Eigen::Vector3d( ) > bodyFixedForceDirection =
-            [](){ return  Eigen::Vector3d::UnitX( ); } ):
+            [ ]( ){ return  Eigen::Vector3d::UnitX( ); } ):
         BodyFixedForceDirectionGuidance ( bodyFixedForceDirection ),
         bodyFixedFrameToBaseFrameFunction_( bodyFixedFrameToBaseFrameFunction ){  }
 
