@@ -18,10 +18,6 @@
 
 #include <Eigen/Core>
 
-#include <boost/function.hpp>
-#include <boost/shared_ptr.hpp>
-#include <boost/make_shared.hpp>
-
 #include "Tudat/Mathematics/NumericalIntegrators/createNumericalIntegrator.h"
 
 #include "Tudat/Mathematics/Filters/extendedKalmanFilter.h"
@@ -299,8 +295,8 @@ createFilter( const std::shared_ptr< FilterSettings< IndependentVariableType, De
         }
 
         // Check that optional inputs are present
-        if ( stateJacobianFunction.empty( ) || stateNoiseJacobianFunction.empty( ) ||
-             measurementJacobianFunction.empty( ) || measurementNoiseJacobianFunction.empty( ) )
+        if ( ( stateJacobianFunction != nullptr ) || ( stateNoiseJacobianFunction != nullptr ) ||
+             ( measurementJacobianFunction != nullptr ) || ( measurementNoiseJacobianFunction != nullptr ) )
         {
             throw std::runtime_error( "Error while creating extended Kalman filter object. An ExtendedKalmanFilter object "
                                       "requires the input of the four Jacobian functions for state and measurement (including noise)." );
