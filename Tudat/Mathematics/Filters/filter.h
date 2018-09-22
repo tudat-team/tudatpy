@@ -21,11 +21,8 @@
 #include <Eigen/LU>
 #include <unsupported/Eigen/MatrixFunctions>
 
-#include <boost/bind.hpp>
-#include <boost/function.hpp>
-#include <boost/shared_ptr.hpp>
-#include <boost/make_shared.hpp>
-#include <boost/lambda/lambda.hpp>
+#include <memory>
+#include <functional>
 
 #include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
 #include "Tudat/Mathematics/NumericalIntegrators/createNumericalIntegrator.h"

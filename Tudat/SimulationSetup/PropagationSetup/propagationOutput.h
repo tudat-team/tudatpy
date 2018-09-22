@@ -942,8 +942,7 @@ std::pair< std::function< Eigen::VectorXd( ) >, int > getVectorDependentVariable
             }
             else
             {
-                variableFunction = std::bind(
-                            &getVectorFunctionFromBlockFunction, partialFunction.first, 3, 6 );
+                variableFunction = std::bind( &getVectorFunctionFromBlockFunction, partialFunction.first, 3, 6 );
             }
 
             parameterSize = 18;
