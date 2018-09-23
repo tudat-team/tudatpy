@@ -116,44 +116,40 @@ public:
 
 };
 
-//! Class to define settings of variable step RK numerical integrator
+//! Base class to define settings of variable step RK numerical integrator.
 /*!
- *  Class to define settings of variable step RK  numerical integrator, for instance for use in numerical integration of equations of motion/
- *  variational equations.
+ *  Base class to define settings of variable step RK numerical integrator. From this class, two classes are derived, to
+ *  define the relative and absolute error tolerances. These can be defined as a scalar or as a vector.
  */
 template< typename IndependentVariableType = double >
-class RungeKuttaVariableStepSizeSettings: public IntegratorSettings< IndependentVariableType >
+class RungeKuttaVariableStepSizeBaseSettings: public IntegratorSettings< IndependentVariableType >
 {
 public:
 
-    //! Default constructor
+    //! Default constructor.
     /*!
-     *  Constructor for variable step RK integrator settings, taking scalar values for relative and absolute tolerances.
+     *  Constructor for variable step RK integrator base settings.
      *  \param initialTime Start time (independent variable) of numerical integration.
-     *  \param initialTimeStep Initial time (independent variable) step used in numerical integration.
-     *  Adapted during integration
+     *  \param initialTimeStep Initial time (independent variable) step used in numerical integration. Adapted during integration.
      *  \param coefficientSet Coefficient set (butcher tableau) to use in integration.
      *  \param minimumStepSize Minimum step size for integration. Integration stops (exception thrown) if time step
-     *  comes below this value.
+     *      comes below this value.
      *  \param maximumStepSize Maximum step size for integration.
-     *  \param relativeErrorTolerance Relative error tolerance for step size control.
-     *  \param absoluteErrorTolerance Absolute error tolerance for step size control.
      *  \param saveFrequency Frequency at which to save the numerical integrated states (in units of i.e. per n integration
-     *  time steps, with n = saveFrequency).
+     *      time steps, with n = saveFrequency).
      *  \param assessPropagationTerminationConditionDuringIntegrationSubsteps Whether the propagation termination
-     *  conditions should be evaluated during the intermediate sub-steps of the integrator (`true`) or only at the end of
-     *  each integration step (`false`).
-     *  \param safetyFactorForNextStepSize Safety factor for step size control
+     *      conditions should be evaluated during the intermediate sub-steps of the integrator (`true`) or only at the end of
+     *      each integration step (`false`).
+     *  \param safetyFactorForNextStepSize Safety factor for step size control.
      *  \param maximumFactorIncreaseForNextStepSize Maximum increase factor in time step in subsequent iterations.
      *  \param minimumFactorDecreaseForNextStepSize Minimum decrease factor in time step in subsequent iterations.
      */
-    RungeKuttaVariableStepSizeSettings(
+    RungeKuttaVariableStepSizeBaseSettings(
+            const bool areTolerancesDefinedAsScalar,
             const IndependentVariableType initialTime,
             const IndependentVariableType initialTimeStep,
             const numerical_integrators::RungeKuttaCoefficients::CoefficientSets coefficientSet,
             const IndependentVariableType minimumStepSize, const IndependentVariableType maximumStepSize,
-            const IndependentVariableType relativeErrorTolerance = 1.0E-12,
-            const IndependentVariableType absoluteErrorTolerance = 1.0E-12,
             const int saveFrequency = 1,
             const bool assessPropagationTerminationConditionDuringIntegrationSubsteps = false,
             const IndependentVariableType safetyFactorForNextStepSize = 0.8,
@@ -162,76 +158,23 @@ public:
         IntegratorSettings< IndependentVariableType >(
             rungeKuttaVariableStepSize, initialTime, initialTimeStep, saveFrequency,
             assessPropagationTerminationConditionDuringIntegrationSubsteps ),
-        coefficientSet_( coefficientSet ), minimumStepSize_( minimumStepSize ), maximumStepSize_( maximumStepSize ),
-        relativeErrorTolerance_( relativeErrorTolerance ), absoluteErrorTolerance_( absoluteErrorTolerance ),
+        areTolerancesDefinedAsScalar_( areTolerancesDefinedAsScalar ), coefficientSet_( coefficientSet ),
+        minimumStepSize_( minimumStepSize ), maximumStepSize_( maximumStepSize ),
         safetyFactorForNextStepSize_( safetyFactorForNextStepSize ),
         maximumFactorIncreaseForNextStepSize_( maximumFactorIncreaseForNextStepSize ),
         minimumFactorDecreaseForNextStepSize_( minimumFactorDecreaseForNextStepSize )
     { }
 
-    //! Constructor
+    //! Virtual destructor.
     /*!
-     *  Constructor for variable step RK integrator settings, taking integrator type and scalar values for relative and absolute tolerances.
-     *  \param integratorType Type of numerical integrator.
-     *  \param initialTime Start time (independent variable) of numerical integration.
-     *  \param initialTimeStep Initial time (independent variable) step used in numerical integration.
-     *  Adapted during integration
-     *  \param coefficientSet Coefficient set (butcher tableau) to use in integration.
-     *  \param minimumStepSize Minimum step size for integration. Integration stops (exception thrown) if time step
-     *  comes below this value.
-     *  \param maximumStepSize Maximum step size for integration.
-     *  \param relativeErrorTolerance Relative error tolerance for step size control.
-     *  \param absoluteErrorTolerance Absolute error tolerance for step size control.
-     *  \param saveFrequency Frequency at which to save the numerical integrated states (in units of i.e. per n integration
-     *  time steps, with n = saveFrequency).
-     *  \param assessPropagationTerminationConditionDuringIntegrationSubsteps Whether the propagation termination
-     *  conditions should be evaluated during the intermediate sub-steps of the integrator (`true`) or only at the end of
-     *  each integration step (`false`).
-     *  \param safetyFactorForNextStepSize Safety factor for step size control
-     *  \param maximumFactorIncreaseForNextStepSize Maximum increase factor in time step in subsequent iterations.
-     *  \param minimumFactorDecreaseForNextStepSize Minimum decrease factor in time step in subsequent iterations.
+     *  Virtual destructor.
      */
-    RungeKuttaVariableStepSizeSettings(
-            const AvailableIntegrators integratorType,
-            const IndependentVariableType initialTime,
-            const IndependentVariableType initialTimeStep,
-            const numerical_integrators::RungeKuttaCoefficients::CoefficientSets coefficientSet,
-            const IndependentVariableType minimumStepSize, const IndependentVariableType maximumStepSize,
-            const IndependentVariableType relativeErrorTolerance = 1.0E-12,
-            const IndependentVariableType absoluteErrorTolerance = 1.0E-12,
-            const int saveFrequency = 1,
-            const bool assessPropagationTerminationConditionDuringIntegrationSubsteps = false,
-            const IndependentVariableType safetyFactorForNextStepSize = 0.8,
-            const IndependentVariableType maximumFactorIncreaseForNextStepSize = 4.0,
-            const IndependentVariableType minimumFactorDecreaseForNextStepSize = 0.1 ) :
-        RungeKuttaVariableStepSizeSettings(
-            initialTime, initialTimeStep, coefficientSet, minimumStepSize, maximumStepSize,
-            relativeErrorTolerance, absoluteErrorTolerance, saveFrequency,
-            assessPropagationTerminationConditionDuringIntegrationSubsteps, safetyFactorForNextStepSize,
-            maximumFactorIncreaseForNextStepSize, minimumFactorDecreaseForNextStepSize )
-    {
-        // Give error if integrator type is wrong
-        if ( integratorType != rungeKuttaVariableStepSize )
-        {
-            throw std::runtime_error( "Error while creating numerical integrator. The integrator settings are of class "
-                                      "RungeKuttaVariableStepSizeSettings, but the input integrator type is not of type "
-                                      "rungeKuttaVariableStepSize." );
-        }
+    virtual ~RungeKuttaVariableStepSizeBaseSettings( ) { }
 
-        // Warn of different constructor
-        std::cerr << "Warning in numerical integrator. The Runge-Kutta variable step size integrator settings no longer require the "
-                     "input of the integrator type, i.e., rungeKuttaVariableStepSize. You can thus safely remove the first input, especially "
-                     "if you do not want this warning to show up again. Note that this constructor will be removed in a "
-                     "future release." << std::endl;
-    }
+    //! Boolean denoting whether integration error tolerances are defined as a scalar (or vector).
+    bool areTolerancesDefinedAsScalar_;
 
-    //! Destructor
-    /*!
-     *  Destructor
-     */
-    ~RungeKuttaVariableStepSizeSettings( ){ }
-
-    //! Type of numerical integrator (must be an RK variable step type)
+    //! Type of numerical integrator (must be an RK variable step type).
     numerical_integrators::RungeKuttaCoefficients::CoefficientSets coefficientSet_;
 
     //! Minimum step size for integration.
@@ -242,12 +185,6 @@ public:
 
     //! Maximum step size for integration.
     IndependentVariableType maximumStepSize_;
-
-    //! Relative error tolerance for step size control
-    IndependentVariableType relativeErrorTolerance_;
-
-    //! Absolute error tolerance for step size control
-    IndependentVariableType absoluteErrorTolerance_;
 
     //! Safety factor for step size control
     IndependentVariableType safetyFactorForNextStepSize_;
@@ -260,35 +197,214 @@ public:
 
 };
 
-template< typename IndependentVariableType = double,
-          typename DependentVariableScalarType = IndependentVariableType >
+//! Class to define settings of variable step RK numerical integrator with scalar tolerances.
+/*!
+ *  Class to define settings of variable step RK numerical integrator with scalar tolerances.
+ */
+template< typename IndependentVariableType = double >
+class RungeKuttaVariableStepSizeSettingsScalarTolerances: public RungeKuttaVariableStepSizeBaseSettings< IndependentVariableType >
+{
+public:
+
+    //! Default constructor.
+    /*!
+     *  Constructor for variable step RK integrator settings with scalar tolerances.
+     *  \param initialTime Start time (independent variable) of numerical integration.
+     *  \param initialTimeStep Initial time (independent variable) step used in numerical integration. Adapted during integration.
+     *  \param coefficientSet Coefficient set (butcher tableau) to use in integration.
+     *  \param minimumStepSize Minimum step size for integration. Integration stops (exception thrown) if time step
+     *      comes below this value.
+     *  \param maximumStepSize Maximum step size for integration.
+     *  \param relativeErrorTolerance Relative error tolerance for step size control, expressed as a scalar.
+     *  \param absoluteErrorTolerance Absolute error tolerance for step size control, expressed as a scalar.
+     *  \param saveFrequency Frequency at which to save the numerical integrated states (in units of i.e. per n integration
+     *      time steps, with n = saveFrequency).
+     *  \param assessPropagationTerminationConditionDuringIntegrationSubsteps Whether the propagation termination
+     *      conditions should be evaluated during the intermediate sub-steps of the integrator (`true`) or only at the end of
+     *      each integration step (`false`).
+     *  \param safetyFactorForNextStepSize Safety factor for step size control.
+     *  \param maximumFactorIncreaseForNextStepSize Maximum increase factor in time step in subsequent iterations.
+     *  \param minimumFactorDecreaseForNextStepSize Minimum decrease factor in time step in subsequent iterations.
+     */
+    RungeKuttaVariableStepSizeSettingsScalarTolerances(
+            const IndependentVariableType initialTime,
+            const IndependentVariableType initialTimeStep,
+            const numerical_integrators::RungeKuttaCoefficients::CoefficientSets coefficientSet,
+            const IndependentVariableType minimumStepSize, const IndependentVariableType maximumStepSize,
+            const IndependentVariableType relativeErrorTolerance = 1.0E-12,
+            const IndependentVariableType absoluteErrorTolerance = 1.0E-12,
+            const int saveFrequency = 1,
+            const bool assessPropagationTerminationConditionDuringIntegrationSubsteps = false,
+            const IndependentVariableType safetyFactorForNextStepSize = 0.8,
+            const IndependentVariableType maximumFactorIncreaseForNextStepSize = 4.0,
+            const IndependentVariableType minimumFactorDecreaseForNextStepSize = 0.1 ) :
+        RungeKuttaVariableStepSizeBaseSettings< IndependentVariableType >(
+            true, initialTime, initialTimeStep, coefficientSet, minimumStepSize, maximumStepSize, saveFrequency,
+            assessPropagationTerminationConditionDuringIntegrationSubsteps, safetyFactorForNextStepSize,
+            maximumFactorIncreaseForNextStepSize, minimumFactorDecreaseForNextStepSize ),
+        relativeErrorTolerance_( relativeErrorTolerance ), absoluteErrorTolerance_( absoluteErrorTolerance )
+    { }
+
+    //! Constructor.
+    /*!
+     *  Constructor for variable step RK integrator settings with scalar tolerances (also requires the input of the integratorType,
+     *  which has to be rungeKyttaVariableStepSize by definition).
+     *  \param integratorType Type of numerical integrator.
+     *  \param initialTime Start time (independent variable) of numerical integration.
+     *  \param initialTimeStep Initial time (independent variable) step used in numerical integration. Adapted during integration.
+     *  \param coefficientSet Coefficient set (butcher tableau) to use in integration.
+     *  \param minimumStepSize Minimum step size for integration. Integration stops (exception thrown) if time step
+     *      comes below this value.
+     *  \param maximumStepSize Maximum step size for integration.
+     *  \param relativeErrorTolerance Relative error tolerance for step size control, expressed as a scalar.
+     *  \param absoluteErrorTolerance Absolute error tolerance for step size control, expressed as a scalar.
+     *  \param saveFrequency Frequency at which to save the numerical integrated states (in units of i.e. per n integration
+     *      time steps, with n = saveFrequency).
+     *  \param assessPropagationTerminationConditionDuringIntegrationSubsteps Whether the propagation termination
+     *      conditions should be evaluated during the intermediate sub-steps of the integrator (`true`) or only at the end of
+     *      each integration step (`false`).
+     *  \param safetyFactorForNextStepSize Safety factor for step size control.
+     *  \param maximumFactorIncreaseForNextStepSize Maximum increase factor in time step in subsequent iterations.
+     *  \param minimumFactorDecreaseForNextStepSize Minimum decrease factor in time step in subsequent iterations.
+     */
+    RungeKuttaVariableStepSizeSettingsScalarTolerances(
+            const AvailableIntegrators integratorType,
+            const IndependentVariableType initialTime,
+            const IndependentVariableType initialTimeStep,
+            const numerical_integrators::RungeKuttaCoefficients::CoefficientSets coefficientSet,
+            const IndependentVariableType minimumStepSize, const IndependentVariableType maximumStepSize,
+            const IndependentVariableType relativeErrorTolerance = 1.0E-12,
+            const IndependentVariableType absoluteErrorTolerance = 1.0E-12,
+            const int saveFrequency = 1,
+            const bool assessPropagationTerminationConditionDuringIntegrationSubsteps = false,
+            const IndependentVariableType safetyFactorForNextStepSize = 0.8,
+            const IndependentVariableType maximumFactorIncreaseForNextStepSize = 4.0,
+            const IndependentVariableType minimumFactorDecreaseForNextStepSize = 0.1 ) :
+        RungeKuttaVariableStepSizeSettingsScalarTolerances(
+            initialTime, initialTimeStep, coefficientSet, minimumStepSize, maximumStepSize,
+            relativeErrorTolerance, absoluteErrorTolerance, saveFrequency,
+            assessPropagationTerminationConditionDuringIntegrationSubsteps, safetyFactorForNextStepSize,
+            maximumFactorIncreaseForNextStepSize, minimumFactorDecreaseForNextStepSize )
+    {
+        // Give error if integrator type is wrong
+        if ( integratorType != rungeKuttaVariableStepSize )
+        {
+            throw std::runtime_error( "Error while creating numerical integrator. The integrator settings are of class "
+                                      "RungeKuttaVariableStepSizeSettingsScalarTolerances, but the input integrator type is not of type "
+                                      "rungeKuttaVariableStepSize." );
+        }
+
+        // Warn of different constructor
+        std::cerr << "Warning in numerical integrator. The Runge-Kutta variable step size integrator settings no longer require the "
+                     "input of the integrator type, i.e., rungeKuttaVariableStepSize. You can thus safely remove the first input, especially "
+                     "if you do not want this warning to show up again. Note that this constructor will be removed in a "
+                     "future release." << std::endl;
+    }
+
+    //! Destructor.
+    /*!
+     *  Destructor.
+     */
+    ~RungeKuttaVariableStepSizeSettingsScalarTolerances( ) { }
+
+    //! Relative error tolerance for step size control.
+    IndependentVariableType relativeErrorTolerance_;
+
+    //! Absolute error tolerance for step size control.
+    IndependentVariableType absoluteErrorTolerance_;
+
+};
+
+//! Alias for variable step RK numerical integrator with scalar tolerances (added for compatibility with old code).
+template< typename IndependentVariableType = double >
+using RungeKuttaVariableStepSizeSettings = RungeKuttaVariableStepSizeSettingsScalarTolerances< IndependentVariableType >;
+
+//! Class to define settings of variable step RK numerical integrator with vector tolerances.
+/*!
+ *  Class to define settings of variable step RK numerical integrator with vector tolerances.
+ */
+template< typename IndependentVariableType = double, typename DependentVariableType = Eigen::VectorXd >
+class RungeKuttaVariableStepSizeSettingsVectorTolerances: public RungeKuttaVariableStepSizeBaseSettings< IndependentVariableType >
+{
+public:
+
+    //! Default constructor.
+    /*!
+     *  Constructor for variable step RK integrator settings with vector tolerances.
+     *  \param initialTime Start time (independent variable) of numerical integration.
+     *  \param initialTimeStep Initial time (independent variable) step used in numerical integration. Adapted during integration.
+     *  \param coefficientSet Coefficient set (butcher tableau) to use in integration.
+     *  \param minimumStepSize Minimum step size for integration. Integration stops (exception thrown) if time step
+     *      comes below this value.
+     *  \param maximumStepSize Maximum step size for integration.
+     *  \param relativeErrorTolerance Relative error tolerance for step size control, expressed as a vector.
+     *  \param absoluteErrorTolerance Absolute error tolerance for step size control, expressed as a vector.
+     *  \param saveFrequency Frequency at which to save the numerical integrated states (in units of i.e. per n integration
+     *      time steps, with n = saveFrequency).
+     *  \param assessPropagationTerminationConditionDuringIntegrationSubsteps Whether the propagation termination
+     *      conditions should be evaluated during the intermediate sub-steps of the integrator (`true`) or only at the end of
+     *      each integration step (`false`).
+     *  \param safetyFactorForNextStepSize Safety factor for step size control.
+     *  \param maximumFactorIncreaseForNextStepSize Maximum increase factor in time step in subsequent iterations.
+     *  \param minimumFactorDecreaseForNextStepSize Minimum decrease factor in time step in subsequent iterations.
+     */
+    RungeKuttaVariableStepSizeSettingsVectorTolerances(
+            const IndependentVariableType initialTime,
+            const IndependentVariableType initialTimeStep,
+            const numerical_integrators::RungeKuttaCoefficients::CoefficientSets coefficientSet,
+            const IndependentVariableType minimumStepSize, const IndependentVariableType maximumStepSize,
+            const DependentVariableType& relativeErrorTolerance,
+            const DependentVariableType& absoluteErrorTolerance,
+            const int saveFrequency = 1,
+            const bool assessPropagationTerminationConditionDuringIntegrationSubsteps = false,
+            const IndependentVariableType safetyFactorForNextStepSize = 0.8,
+            const IndependentVariableType maximumFactorIncreaseForNextStepSize = 4.0,
+            const IndependentVariableType minimumFactorDecreaseForNextStepSize = 0.1 ) :
+        RungeKuttaVariableStepSizeBaseSettings< IndependentVariableType >(
+            false, initialTime, initialTimeStep, coefficientSet, minimumStepSize, maximumStepSize, saveFrequency,
+            assessPropagationTerminationConditionDuringIntegrationSubsteps, safetyFactorForNextStepSize,
+            maximumFactorIncreaseForNextStepSize, minimumFactorDecreaseForNextStepSize ),
+        relativeErrorTolerance_( relativeErrorTolerance ), absoluteErrorTolerance_( absoluteErrorTolerance )
+    { }
+
+    //! Destructor.
+    /*!
+     *  Destructor.
+     */
+    ~RungeKuttaVariableStepSizeSettingsVectorTolerances( ) { }
+
+    //! Relative error tolerance for step size control.
+    DependentVariableType relativeErrorTolerance_;
+
+    //! Absolute error tolerance for step size control.
+    DependentVariableType absoluteErrorTolerance_;
+
+};
+
+template< typename IndependentVariableType = double >
 class BulirschStoerIntegratorSettings: public IntegratorSettings< IndependentVariableType >
 {
 public:
 
-    //! Typedef for vector of dependent variables.
-    typedef Eigen::Matrix< DependentVariableScalarType, Eigen::Dynamic, 1 > DependentVector;
-
-    //! Constructor
+    //! Constructor.
     /*!
      *  Constructor for variable step RK integrator settings.
      *  \param initialTime Start time (independent variable) of numerical integration.
-     *  \param initialTimeStep Initial time (independent variable) step used in numerical integration.
-     *  Adapted during integration
-     *  \param extrapolationSequence Type of sequence that is to be used for Bulirsch-Stoer integrator
+     *  \param initialTimeStep Initial time (independent variable) step used in numerical integration. Adapted during integration.
+     *  \param extrapolationSequence Type of sequence that is to be used for Bulirsch-Stoer integrator.
      *  \param maximumNumberOfSteps Number of entries in the sequence, e.g. number of integrations used for a single
-     *  extrapolation.
+     *      extrapolation.
      *  \param minimumStepSize Minimum step size for integration. Integration stops (exception thrown) if time step
-     *  comes below this value.
+     *      comes below this value.
      *  \param maximumStepSize Maximum step size for integration.
-     *  \param relativeErrorTolerance Relative error tolerance for step size control
-     *  \param absoluteErrorTolerance Absolute error tolerance for step size control
+     *  \param relativeErrorTolerance Relative error tolerance for step size control.
+     *  \param absoluteErrorTolerance Absolute error tolerance for step size control.
      *  \param saveFrequency Frequency at which to save the numerical integrated states (in units of i.e. per n integration
-     *  time steps, with n = saveFrequency).
+     *      time steps, with n = saveFrequency).
      *  \param assessPropagationTerminationConditionDuringIntegrationSubsteps Whether the propagation termination
-     *  conditions should be evaluated during the intermediate sub-steps of the integrator (`true`) or only at the end of
-     *  each integration step (`false`).
-     *  \param safetyFactorForNextStepSize Safety factor for step size control
+     *      conditions should be evaluated during the intermediate sub-steps of the integrator (`true`) or only at the end of
+     *      each integration step (`false`).
+     *  \param safetyFactorForNextStepSize Safety factor for step size control.
      *  \param maximumFactorIncreaseForNextStepSize Maximum increase factor in time step in subsequent iterations.
      *  \param minimumFactorDecreaseForNextStepSize Minimum decrease factor in time step in subsequent iterations.
      */
@@ -298,8 +414,8 @@ public:
             const ExtrapolationMethodStepSequences extrapolationSequence,
             const unsigned int maximumNumberOfSteps,
             const IndependentVariableType minimumStepSize, const IndependentVariableType maximumStepSize,
-            const DependentVariableScalarType relativeErrorTolerance = 1.0E-12,
-            const DependentVariableScalarType absoluteErrorTolerance = 1.0E-12,
+            const IndependentVariableType relativeErrorTolerance = 1.0E-12,
+            const IndependentVariableType absoluteErrorTolerance = 1.0E-12,
             const int saveFrequency = 1,
             const bool assessPropagationTerminationConditionDuringIntegrationSubsteps = false,
             const IndependentVariableType safetyFactorForNextStepSize = 0.7,
@@ -315,9 +431,9 @@ public:
         maximumFactorIncreaseForNextStepSize_( maximumFactorIncreaseForNextStepSize ),
         minimumFactorDecreaseForNextStepSize_( minimumFactorDecreaseForNextStepSize ){ }
 
-    //! Destructor
+    //! Destructor.
     /*!
-     *  Destructor
+     *  Destructor.
      */
     ~BulirschStoerIntegratorSettings( ){ }
 
@@ -337,10 +453,10 @@ public:
     const IndependentVariableType maximumStepSize_;
 
     //! Relative error tolerance for step size control
-    const DependentVariableScalarType relativeErrorTolerance_;
+    const IndependentVariableType relativeErrorTolerance_;
 
     //! Absolute error tolerance for step size control
-    const DependentVariableScalarType absoluteErrorTolerance_;
+    const IndependentVariableType absoluteErrorTolerance_;
 
     //! Safety factor for step size control
     const IndependentVariableType safetyFactorForNextStepSize_;
@@ -353,48 +469,43 @@ public:
 
 };
 
-
 //! Class to define settings of variable step ABAM numerical integrator
 /*!
  *  Class to define settings of variable step ABAM  numerical integrator,
  *  for instance for use in numerical integration of equations of motion/
  *  variational equations.
  */
-template< typename IndependentVariableType = double,
-          typename DependentVariableScalarType = IndependentVariableType >
+template< typename IndependentVariableType = double >
 class AdamsBashforthMoultonSettings: public IntegratorSettings< IndependentVariableType >
 {
 public:
-
-    //! Typedef for vector of dependent variables.
-    typedef Eigen::Matrix< DependentVariableScalarType, Eigen::Dynamic, 1 > DependentVector;
 
     //! Constructor
     /*!
      *  Constructor for variable step RK integrator settings.
      *  \param initialTime Start time (independent variable) of numerical integration.
-     *  \param initialTimeStep Initial time (independent variable) step used in numerical integration.
-     *  Adapted during integration
+     *  \param initialTimeStep Initial time (independent variable) step used in numerical integration. Adapted during integration.
      *  \param minimumStepSize Minimum step size for integration. Integration stops (exception thrown) if time step
-     *  comes below this value.
+     *      comes below this value.
      *  \param maximumStepSize Maximum step size for integration.
-     *  \param relativeErrorTolerance Relative error tolerance for step size control
-     *  \param absoluteErrorTolerance Absolute error tolerance for step size control
-     *  \param minimumOrder Minimum order of integrator (default 6)
-     *  \param maximumOrder Maximum order of integrator (default 11)
+     *  \param relativeErrorTolerance Relative error tolerance for step size control.
+     *  \param absoluteErrorTolerance Absolute error tolerance for step size control.
+     *  \param minimumOrder Minimum order of integrator (default 6).
+     *  \param maximumOrder Maximum order of integrator (default 11).
      *  \param saveFrequency Frequency at which to save the numerical integrated states (in units of i.e. per n integration
-     *  time steps, with n = saveFrequency).
+     *      time steps, with n = saveFrequency).
      *  \param assessPropagationTerminationConditionDuringIntegrationSubsteps Whether the propagation termination
-     *  conditions should be evaluated during the intermediate sub-steps of the integrator (`true`) or only at the end of
-     *  each integration step (`false`).
-     *  \param bandwidth Maximum error factor for doubling the stepsize (default: 200)
+     *      conditions should be evaluated during the intermediate sub-steps of the integrator (`true`) or only at the end of
+     *      each integration step (`false`).
+     *  \param bandwidth Maximum error factor for doubling the stepsize (default: 200).
      */
     AdamsBashforthMoultonSettings(
             const IndependentVariableType initialTime,
             const IndependentVariableType initialTimeStep,
-            const IndependentVariableType minimumStepSize, const IndependentVariableType maximumStepSize,
-            const DependentVariableScalarType relativeErrorTolerance = 1.0E-12,
-            const DependentVariableScalarType absoluteErrorTolerance = 1.0E-12,
+            const IndependentVariableType minimumStepSize,
+            const IndependentVariableType maximumStepSize,
+            const IndependentVariableType relativeErrorTolerance = 1.0E-12,
+            const IndependentVariableType absoluteErrorTolerance = 1.0E-12,
             const int minimumOrder = 6,
             const int maximumOrder = 11,
             const int saveFrequency = 1,
@@ -424,10 +535,10 @@ public:
     IndependentVariableType maximumStepSize_;
 
     //! Relative error tolerance for step size control
-    DependentVariableScalarType relativeErrorTolerance_;
+    IndependentVariableType relativeErrorTolerance_;
 
     //! Absolute error tolerance for step size control
-    DependentVariableScalarType absoluteErrorTolerance_;
+    IndependentVariableType absoluteErrorTolerance_;
 
     //! Minimum order of integrator
     const int minimumOrder_;
@@ -444,9 +555,9 @@ public:
 /*!
  *  Function to create a numerical integrator from given integrator settings, state derivative function and initial state.
  *  \param stateDerivativeFunction Function returning the state derivative from current time and state.
- *  \param initialState Initial state for numerical integration
+ *  \param initialState Initial state for numerical integration.
  *  \param integratorSettings Settings for numerical integrator.
- *  \return Numerical integrator object
+ *  \return Numerical integrator object.
  */
 template< typename IndependentVariableType, typename DependentVariableType,
           typename IndependentVariableStepType = IndependentVariableType >
@@ -456,7 +567,8 @@ DependentVariableType, IndependentVariableStepType > > createIntegrator(
             const IndependentVariableType, const DependentVariableType& ) > stateDerivativeFunction,
         const DependentVariableType initialState,
         boost::shared_ptr< IntegratorSettings< IndependentVariableType > > integratorSettings )
-{    
+{
+    // Declare eventual output
     boost::shared_ptr< NumericalIntegrator
             < IndependentVariableType, DependentVariableType, DependentVariableType, IndependentVariableStepType > > integrator;
 
@@ -481,48 +593,102 @@ DependentVariableType, IndependentVariableStepType > > createIntegrator(
     }
     case rungeKuttaVariableStepSize:
     {
-        // Check input consistency
-        boost::shared_ptr< RungeKuttaVariableStepSizeSettings< IndependentVariableType > >
-                variableStepIntegratorSettings = boost::dynamic_pointer_cast< RungeKuttaVariableStepSizeSettings<
+        // Cast integrator
+        boost::shared_ptr< RungeKuttaVariableStepSizeBaseSettings< IndependentVariableType > >
+                variableStepIntegratorSettings = boost::dynamic_pointer_cast< RungeKuttaVariableStepSizeBaseSettings<
                 IndependentVariableType > >( integratorSettings );
 
-        // Check that integrator type has been cast properly
-        if( variableStepIntegratorSettings == NULL )
+        // Check input consistency
+        if ( variableStepIntegratorSettings == nullptr )
         {
             throw std::runtime_error( "Error, type of integrator settings (rungeKuttaVariableStepSize) not compatible with "
                                       "selected integrator (derived class of IntegratorSettings must be "
-                                      "RungeKuttaVariableStepSizeSettings for this type)." );
+                                      "RungeKuttaVariableStepSizeBaseSettings for this type)." );
+        }
+
+        // Get requested RK coefficients
+        RungeKuttaCoefficients coefficients = RungeKuttaCoefficients::get( variableStepIntegratorSettings->coefficientSet_ );
+
+        // Check which constructor is being used
+        if ( variableStepIntegratorSettings->areTolerancesDefinedAsScalar_ )
+        {
+            // Settings with scalar tolerances
+            boost::shared_ptr< RungeKuttaVariableStepSizeSettingsScalarTolerances< IndependentVariableType > >
+                    scalarTolerancesIntegratorSettings = boost::dynamic_pointer_cast<
+                    RungeKuttaVariableStepSizeSettingsScalarTolerances< IndependentVariableType > >( variableStepIntegratorSettings );
+
+            // Check input consistency
+            if ( scalarTolerancesIntegratorSettings == nullptr )
+            {
+                throw std::runtime_error( "Error while creating Runge-Kutta variable step size integrator. Input class must be of "
+                                          "RungeKuttaVariableStepSizeSettingsScalarTolerances type." );
+            }
+
+            // Create Runge-Kutta integrator with scalar tolerances
+            integrator = boost::make_shared< RungeKuttaVariableStepSizeIntegrator
+                    < IndependentVariableType, DependentVariableType, DependentVariableType, IndependentVariableStepType > >
+                    ( coefficients, stateDerivativeFunction, integratorSettings->initialTime_, initialState,
+                      static_cast< IndependentVariableStepType >( scalarTolerancesIntegratorSettings->minimumStepSize_ ),
+                      static_cast< IndependentVariableStepType >( scalarTolerancesIntegratorSettings->maximumStepSize_ ),
+                      static_cast< typename DependentVariableType::Scalar >( scalarTolerancesIntegratorSettings->relativeErrorTolerance_ ),
+                      static_cast< typename DependentVariableType::Scalar >( scalarTolerancesIntegratorSettings->absoluteErrorTolerance_ ),
+                      static_cast< IndependentVariableStepType >( scalarTolerancesIntegratorSettings->safetyFactorForNextStepSize_ ),
+                      static_cast< IndependentVariableStepType >( scalarTolerancesIntegratorSettings->maximumFactorIncreaseForNextStepSize_ ),
+                      static_cast< IndependentVariableStepType >( scalarTolerancesIntegratorSettings->minimumFactorDecreaseForNextStepSize_ ) );
         }
         else
         {
-            // Get requested RK coefficients
-            RungeKuttaCoefficients coefficients = RungeKuttaCoefficients::get(
-                        variableStepIntegratorSettings->coefficientSet_ );
+            // Settings with vector tolerances
+            boost::shared_ptr< RungeKuttaVariableStepSizeSettingsVectorTolerances< IndependentVariableType, DependentVariableType > >
+                    vectorTolerancesIntegratorSettings = boost::dynamic_pointer_cast<
+                    RungeKuttaVariableStepSizeSettingsVectorTolerances< IndependentVariableType, DependentVariableType > >(
+                        variableStepIntegratorSettings );
 
-            // Create Runge-Kutta integrator.
-            integrator = boost::make_shared<
-                    RungeKuttaVariableStepSizeIntegrator
+            // Check input consistency
+            if ( vectorTolerancesIntegratorSettings == nullptr )
+            {
+                throw std::runtime_error( "Error while creating Runge-Kutta variable step size integrator. Input class must be of "
+                                          "RungeKuttaVariableStepSizeSettingsVectorTolerances type." );
+            }
+
+            // Check that sizes of tolerances and initial state match
+            DependentVariableType relativeErrorTolerance = vectorTolerancesIntegratorSettings->relativeErrorTolerance_.template cast<
+                    typename DependentVariableType::Scalar >( );
+            DependentVariableType absoluteErrorTolerance = vectorTolerancesIntegratorSettings->absoluteErrorTolerance_.template cast<
+                    typename DependentVariableType::Scalar >( );
+            if ( ( relativeErrorTolerance.rows( ) != initialState.rows( ) ) ||
+                 ( relativeErrorTolerance.cols( ) != initialState.cols( ) ) ||
+                 ( absoluteErrorTolerance.rows( ) != initialState.rows( ) ) ||
+                 ( absoluteErrorTolerance.cols( ) != initialState.cols( ) ) )
+            {
+                throw std::runtime_error( "Error while creating Runge-Kutta variable step size integrator. The sizes of the "
+                                          "relative and absolute tolerance vectors do not match the size of the initial state. "
+                                          "This could be the case if you are propagating more than just one state, e.g., translational "
+                                          "and/or rotational dynamics and mass, or more than one body." );
+            }
+
+            // Create Runge-Kutta integrator with vector tolerances
+            integrator = boost::make_shared< RungeKuttaVariableStepSizeIntegrator
                     < IndependentVariableType, DependentVariableType, DependentVariableType, IndependentVariableStepType > >
                     ( coefficients, stateDerivativeFunction, integratorSettings->initialTime_, initialState,
-                      static_cast< IndependentVariableStepType >( variableStepIntegratorSettings->minimumStepSize_ ),
-                      static_cast< IndependentVariableStepType >( variableStepIntegratorSettings->maximumStepSize_ ),
-                      static_cast< typename DependentVariableType::Scalar >( variableStepIntegratorSettings->relativeErrorTolerance_ ),
-                      static_cast< typename DependentVariableType::Scalar >( variableStepIntegratorSettings->absoluteErrorTolerance_ ),
-                      static_cast< IndependentVariableStepType >( variableStepIntegratorSettings->safetyFactorForNextStepSize_ ),
-                      static_cast< IndependentVariableStepType >( variableStepIntegratorSettings->maximumFactorIncreaseForNextStepSize_ ),
-                      static_cast< IndependentVariableStepType >( variableStepIntegratorSettings->minimumFactorDecreaseForNextStepSize_ ) );
+                      static_cast< IndependentVariableStepType >( vectorTolerancesIntegratorSettings->minimumStepSize_ ),
+                      static_cast< IndependentVariableStepType >( vectorTolerancesIntegratorSettings->maximumStepSize_ ),
+                      relativeErrorTolerance, absoluteErrorTolerance,
+                      static_cast< IndependentVariableStepType >( vectorTolerancesIntegratorSettings->safetyFactorForNextStepSize_ ),
+                      static_cast< IndependentVariableStepType >( vectorTolerancesIntegratorSettings->maximumFactorIncreaseForNextStepSize_ ),
+                      static_cast< IndependentVariableStepType >( vectorTolerancesIntegratorSettings->minimumFactorDecreaseForNextStepSize_ ) );
         }
         break;
     }
     case bulirschStoer:
     {
         // Check input consistency
-        boost::shared_ptr< BulirschStoerIntegratorSettings< IndependentVariableType, DependentVariableType > > bulirschStoerIntegratorSettings =
-                boost::dynamic_pointer_cast< BulirschStoerIntegratorSettings< IndependentVariableType, DependentVariableType > >(
+        boost::shared_ptr< BulirschStoerIntegratorSettings< IndependentVariableType > > bulirschStoerIntegratorSettings =
+                boost::dynamic_pointer_cast< BulirschStoerIntegratorSettings< IndependentVariableType > >(
                     integratorSettings );
 
         // Check that integrator type has been cast properly
-        if( bulirschStoerIntegratorSettings == NULL )
+        if ( bulirschStoerIntegratorSettings == NULL )
         {
             throw std::runtime_error( "Error, type of integrator settings (bulirschStoer) not compatible with "
                                       "selected integrator (derived class of IntegratorSettings must be BulirschStoerIntegratorSettings "
@@ -530,8 +696,7 @@ DependentVariableType, IndependentVariableStepType > > createIntegrator(
         }
         else
         {
-            integrator = boost::make_shared<
-                    BulirschStoerVariableStepSizeIntegrator
+            integrator = boost::make_shared< BulirschStoerVariableStepSizeIntegrator
                     < IndependentVariableType, DependentVariableType, DependentVariableType, IndependentVariableStepType > >
                     ( getBulirschStoerStepSequence( bulirschStoerIntegratorSettings->extrapolationSequence_,
                                                     bulirschStoerIntegratorSettings->maximumNumberOfSteps_ ),
@@ -549,13 +714,12 @@ DependentVariableType, IndependentVariableStepType > > createIntegrator(
     case adamsBashforthMoulton:
     {
         // Check input consistency
-        boost::shared_ptr< AdamsBashforthMoultonSettings< IndependentVariableType, DependentVariableType > >
-                variableStepIntegratorSettings =
-                boost::dynamic_pointer_cast< AdamsBashforthMoultonSettings< IndependentVariableType, DependentVariableType > >(
+        boost::shared_ptr< AdamsBashforthMoultonSettings< IndependentVariableType > > adamsBashforthMoultonIntegratorSettings =
+                boost::dynamic_pointer_cast< AdamsBashforthMoultonSettings< IndependentVariableType > >(
                     integratorSettings );
 
         // Check that integrator type has been cast properly
-        if( variableStepIntegratorSettings == NULL )
+        if ( adamsBashforthMoultonIntegratorSettings == NULL )
         {
             throw std::runtime_error( "Error, type of integrator settings (AdamsBashforthMoultonSettings) not compatible with "
                                       "selected integrator (derived class of IntegratorSettings must be AdamsBashforthMoultonSettings "
@@ -563,42 +727,37 @@ DependentVariableType, IndependentVariableStepType > > createIntegrator(
         }
         else
         {
-            integrator = boost::make_shared<
-                    AdamsBashforthMoultonIntegrator
+            // Create integrator
+            integrator = boost::make_shared< AdamsBashforthMoultonIntegrator
                     < IndependentVariableType, DependentVariableType, DependentVariableType, IndependentVariableStepType > >
                     ( stateDerivativeFunction, integratorSettings->initialTime_, initialState,
-                      static_cast< IndependentVariableStepType >( variableStepIntegratorSettings->minimumStepSize_ ),
-                      static_cast< IndependentVariableStepType >( variableStepIntegratorSettings->maximumStepSize_ ),
-                      variableStepIntegratorSettings->relativeErrorTolerance_,
-                      variableStepIntegratorSettings->absoluteErrorTolerance_ ,
-                      static_cast< IndependentVariableStepType >( variableStepIntegratorSettings->bandwidth_ ) );
+                      static_cast< IndependentVariableStepType >( adamsBashforthMoultonIntegratorSettings->minimumStepSize_ ),
+                      static_cast< IndependentVariableStepType >( adamsBashforthMoultonIntegratorSettings->maximumStepSize_ ),
+                      adamsBashforthMoultonIntegratorSettings->relativeErrorTolerance_,
+                      adamsBashforthMoultonIntegratorSettings->absoluteErrorTolerance_ ,
+                      static_cast< IndependentVariableStepType >( adamsBashforthMoultonIntegratorSettings->bandwidth_ ) );
 
-            boost::dynamic_pointer_cast<
-                    AdamsBashforthMoultonIntegrator
+            boost::dynamic_pointer_cast< AdamsBashforthMoultonIntegrator
                     < IndependentVariableType, DependentVariableType, DependentVariableType, IndependentVariableStepType > >(
-                        integrator )->setMinimumOrder( variableStepIntegratorSettings->minimumOrder_ );
-            boost::dynamic_pointer_cast<
-                    AdamsBashforthMoultonIntegrator
+                        integrator )->setMinimumOrder( adamsBashforthMoultonIntegratorSettings->minimumOrder_ );
+            boost::dynamic_pointer_cast< AdamsBashforthMoultonIntegrator
                     < IndependentVariableType, DependentVariableType, DependentVariableType, IndependentVariableStepType > >(
-                        integrator )->setMaximumOrder( variableStepIntegratorSettings->maximumOrder_ );
-            if( variableStepIntegratorSettings->minimumOrder_ ==
-                    variableStepIntegratorSettings->maximumOrder_ )
+                        integrator )->setMaximumOrder( adamsBashforthMoultonIntegratorSettings->maximumOrder_ );
+
+            if ( adamsBashforthMoultonIntegratorSettings->minimumOrder_ == adamsBashforthMoultonIntegratorSettings->maximumOrder_ )
             {
-                boost::dynamic_pointer_cast<
-                        AdamsBashforthMoultonIntegrator
+                boost::dynamic_pointer_cast< AdamsBashforthMoultonIntegrator
                         < IndependentVariableType, DependentVariableType, DependentVariableType, IndependentVariableStepType > >(
                             integrator )->setFixedOrder( true );
             }
 
-            if( variableStepIntegratorSettings->minimumStepSize_ ==
-                    variableStepIntegratorSettings->maximumStepSize_ )
+            if ( adamsBashforthMoultonIntegratorSettings->minimumStepSize_ ==
+                 adamsBashforthMoultonIntegratorSettings->maximumStepSize_ )
             {
-                boost::dynamic_pointer_cast<
-                        AdamsBashforthMoultonIntegrator
+                boost::dynamic_pointer_cast< AdamsBashforthMoultonIntegrator
                         < IndependentVariableType, DependentVariableType, DependentVariableType, IndependentVariableStepType > >(
                             integrator )->setFixedStepSize( true );
             }
-
         }
         break;
     }
