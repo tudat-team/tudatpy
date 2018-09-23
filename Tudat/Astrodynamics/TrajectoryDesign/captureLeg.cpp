@@ -10,7 +10,7 @@ namespace transfer_trajectories
 
 //! Calculate the leg and update the Delta V and the velocity before the next body.
 void CaptureLeg::calculateLeg( Eigen::Vector3d& velocityBeforeArrivalBody,
-                                    double& deltaV )
+                               double& deltaV )
 {
     // This velocity does not have physical meaning in this leg. (Should be programmed differently)
     velocityBeforeArrivalBody << TUDAT_NAN, TUDAT_NAN, TUDAT_NAN;
@@ -20,10 +20,16 @@ void CaptureLeg::calculateLeg( Eigen::Vector3d& velocityBeforeArrivalBody,
     velocityAfterDeparture_ = departureBodyVelocity_;
 
     // Calculate the required deltaV for capture.
-    deltaV_ = mission_segments::computeEscapeOrCaptureDeltaV( captureBodyGravitationalParameter_,
-                                                              semiMajorAxis_, eccentricity_,
-                                                              ( *velocityBeforeDepartureBodyPtr_ -
-                                                                departureBodyVelocity_ ).norm( ) );
+    if( includeArrivalDeltaV_ )
+    {
+        deltaV_ = mission_segments::computeEscapeOrCaptureDeltaV( captureBodyGravitationalParameter_,
+                                                                  semiMajorAxis_, eccentricity_,
+                                                                  ( *velocityBeforeDepartureBodyPtr_ -
+                                                                    departureBodyVelocity_ ).norm( ) );    }
+    else
+    {
+        deltaV_ = 0.0;
+    }
 
     // Return the deltaV
     deltaV = deltaV_;

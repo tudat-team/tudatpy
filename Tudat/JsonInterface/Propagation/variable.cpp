@@ -14,6 +14,7 @@
 #include "Tudat/JsonInterface/Propagation/acceleration.h"
 #include "Tudat/JsonInterface/Propagation/torque.h"
 #include "Tudat/JsonInterface/Propagation/referenceFrames.h"
+#include "Tudat/JsonInterface/Environment/gravityFieldVariation.h"
 
 #include "Tudat/JsonInterface/Environment/gravityFieldVariation.h"
 
@@ -117,6 +118,7 @@ void to_json( nlohmann::json& jsonObject,
                     dependentVariableSettings );
         assertNonnullptrPointer( accelerationVariableSettings );
         jsonObject[ K::accelerationType ] = accelerationVariableSettings->accelerationModelType_;
+
         jsonObject[ K::bodyExertingAcceleration ] = dependentVariableSettings->secondaryBody_;
         return;
     }

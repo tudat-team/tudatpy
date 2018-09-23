@@ -39,6 +39,8 @@
 #include "Tudat/InputOutput/parsedDataVectorUtilities.h"
 
 #include "Tudat/Astrodynamics/TrajectoryDesign/spaceLeg.h"
+#include "Tudat/Astrodynamics/TrajectoryDesign/departureLeg.h"
+#include "Tudat/Astrodynamics/TrajectoryDesign/captureLeg.h"
 
 namespace tudat
 {
@@ -58,13 +60,6 @@ enum legTypes{ mga_Departure = 1, mga_Swingby, mga1DsmPosition_Departure, mga1Ds
 class Trajectory
 {
 public:
-    //! Default Constructor.
-    /*!
-     * Default constructor, which is required to allow this class to be a member of a different
-     * class.
-     */
-    Trajectory( ) { }
-
     //! Constructor with immediate definition of parameters.
     /*!
      * Constructor with immediate definition of parameters.
@@ -87,8 +82,13 @@ public:
                 const double centralBodyGravitationalParameter,
                 const Eigen::VectorXd& minimumPericenterRadiiVector,
                 const Eigen::VectorXd& semiMajorAxesVector,
-                const Eigen::VectorXd& eccentricityVector )
+                const Eigen::VectorXd& eccentricityVector,
+                const bool includeDepartureDeltaV = true,
+                const bool includeArrivalDeltaV = true )
     {
+        includeDepartureDeltaV_ = includeDepartureDeltaV;
+        includeArrivalDeltaV_ = includeArrivalDeltaV;
+
         // Set the number of legs.
         numberOfLegs_ = numberOfLegs;
 
@@ -125,6 +125,16 @@ public:
      * \param totalDeltaV the total delta V needed for the trajectory.
      */
     void calculateTrajectory( double& totalDeltaV );
+
+    void getCaptureDeltaV( double& captureDeltaV )
+    {
+        captureLeg_->getCaptureDeltaV( captureDeltaV );
+    }
+
+    void getDepartureDeltaV( double& departureDeltaV )
+    {
+        departureLeg_->getEscapeDeltaV( departureDeltaV );
+    }
 
     //! Return intermediate points along the trajectory.
     /*!
@@ -282,6 +292,14 @@ private:
      * The central body gravitational parameter.
      */
     double centralBodyGravitationalParameter_;
+
+    bool includeDepartureDeltaV_;
+
+    std::shared_ptr< DepartureLeg > departureLeg_;
+
+    bool includeArrivalDeltaV_;
+
+    std::shared_ptr< CaptureLeg > captureLeg_;
 
     //! The interplanetary leg vector.
     /*!
