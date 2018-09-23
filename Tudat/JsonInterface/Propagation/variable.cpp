@@ -15,6 +15,8 @@
 #include "Tudat/JsonInterface/Propagation/torque.h"
 #include "Tudat/JsonInterface/Propagation/referenceFrames.h"
 
+#include "Tudat/JsonInterface/Environment/gravityFieldVariation.h"
+
 namespace tudat
 {
 
