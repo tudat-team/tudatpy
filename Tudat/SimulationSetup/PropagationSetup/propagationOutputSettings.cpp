@@ -215,7 +215,7 @@ std::string getDependentVariableId(
         else
         {
             variableId += basic_astrodynamics::getAccelerationModelName(
-                        accelerationDependentVariableSettings->accelerationModeType_ );
+                        accelerationDependentVariableSettings->accelerationModelType_ );
         }
     }
     else if( ( dependentVariableSettings->dependentVariableType_ == single_torque_dependent_variable ) ||
@@ -230,7 +230,7 @@ std::string getDependentVariableId(
         else
         {
             variableId += basic_astrodynamics::getTorqueModelName(
-                        torqueDependentVariableSettings->torqueModeType_ );
+                        torqueDependentVariableSettings->torqueModelType_ );
         }
     }
     else if( dependentVariableSettings->dependentVariableType_ == intermediate_aerodynamic_rotation_matrix_variable )
