@@ -69,7 +69,8 @@ public:
                                   const double dsmTimeOfFlightFraction,
                                   const double dimensionlessRadiusDsm,
                                   const double inPlaneAngle,
-                                  const double outOfPlaneAngle ):
+                                  const double outOfPlaneAngle,
+                                  const bool includeDepartureDeltaV = true ):
         DepartureLeg( departureBodyPosition,
                       arrivalBodyPosition,
                       timeOfFlight,
@@ -77,7 +78,7 @@ public:
                       centralBodyGravitationalParameter,
                       departureBodyGravitationalParameter,
                       semiMajorAxis,
-                      eccentricity),
+                      eccentricity, includeDepartureDeltaV ),
         dsmTimeOfFlightFraction_( dsmTimeOfFlightFraction ),
         dimensionlessRadiusDsm_( dimensionlessRadiusDsm ),
         inPlaneAngle_( inPlaneAngle ),
@@ -192,12 +193,6 @@ private:
      * The velocity of the spacecraft just after the deep space maneuver is performed.
      */
     Eigen::Vector3d velocityAfterDsm_;
-
-    //! The deltaV of the departure maneuver.
-    /*!
-     * The deltaV of the departure maneuver.
-     */
-    double deltaVDeparture_;
 
     //! The deltaV of the DSM.
     /*!

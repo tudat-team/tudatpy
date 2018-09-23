@@ -15,8 +15,8 @@
 
 #include <Eigen/Core>
 
-#include <Tudat/Basics/utilityMacros.h>
 #include "Tudat/Basics/timeType.h"
+#include <Tudat/Basics/utilityMacros.h>
 
 namespace tudat
 {
