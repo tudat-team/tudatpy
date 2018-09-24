@@ -43,7 +43,7 @@ BOOST_AUTO_TEST_CASE( test_json_simulationSingleSatelliteVariational_main )
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    JsonSimulationManager< > jsonSimulation( INPUT( "main" ) );
+    JsonVariationalEquationsSimulationManager< > jsonSimulation( INPUT( "main" ) );
     jsonSimulation.updateSettings( );
     jsonSimulation.runPropagation( );
     std::map< double, Eigen::VectorXd > jsonStates =
