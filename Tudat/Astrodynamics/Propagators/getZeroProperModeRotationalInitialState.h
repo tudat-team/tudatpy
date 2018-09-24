@@ -103,11 +103,11 @@ Eigen::VectorXd getZeroProperModeRotationalState(
     std::shared_ptr< RotationalStatePropagatorSettings< StateScalarType > > rotationPropagationSettings_ =
             std::dynamic_pointer_cast< RotationalStatePropagatorSettings< StateScalarType > >(
                 propagatorSettings );
-    if( rotationPropagationSettings_ == NULL )
+    if( rotationPropagationSettings_ == nullptr )
     {
         std::shared_ptr< MultiTypePropagatorSettings< StateScalarType > > multiTypePropagatorSettings =
                 std::dynamic_pointer_cast< MultiTypePropagatorSettings< StateScalarType > >( propagatorSettings );
-        if( multiTypePropagatorSettings != NULL )
+        if( multiTypePropagatorSettings != nullptr )
         {
             std::map< IntegratedStateType, std::vector< std::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > > >
                     propagatorSettingsMap = multiTypePropagatorSettings->propagatorSettingsMap_;

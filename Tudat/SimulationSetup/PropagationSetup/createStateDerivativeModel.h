@@ -437,7 +437,7 @@ void setMultiTypePropagationClosure(
     std::shared_ptr< MultiTypePropagatorSettings< StateScalarType > > multiTypePropagatorSettings =
             std::dynamic_pointer_cast< MultiTypePropagatorSettings< StateScalarType > >( propagatorSettings );
 
-    if( multiTypePropagatorSettings != NULL )
+    if( multiTypePropagatorSettings != nullptr )
     {
         // Perform closure for the case where both translational and rotational states are propagated
         if( multiTypePropagatorSettings->propagatorSettingsMap_.count( translational_state ) > 0 &&

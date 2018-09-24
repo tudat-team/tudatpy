@@ -321,7 +321,7 @@ public:
      */
     RotationMatrixPartialWrtQuaternion(
             const std::function< Eigen::Quaterniond( ) > currentRotationToInertialFrameFunction ):
-        RotationMatrixPartial( NULL ),
+        RotationMatrixPartial( nullptr ),
         currentRotationToInertialFrameFunction_( currentRotationToInertialFrameFunction )
     {
         currentQuaternionPartials_.resize( 4 );
@@ -388,7 +388,7 @@ public:
      */
     RotationMatrixPartialWrtRotationalState(
             const std::function< Eigen::Quaterniond( const double ) > currentRotationToInertialFrameFunction ):
-        RotationMatrixPartial( NULL ),
+        RotationMatrixPartial( nullptr ),
         currentRotationToInertialFrameFunction_( currentRotationToInertialFrameFunction )
     {
         currentQuaternionPartials_.resize( 7 );

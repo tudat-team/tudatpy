@@ -179,7 +179,7 @@ std::pair< SingleLinkObservationPartialList, std::shared_ptr< PositionPartialSca
                         oneWayRangeLinkEnds, bodyMap, acceleratedBody, oneWayRangeScaling, lightTimeCorrectionPartialObjects );
 
             // Check if partial is non-null (i.e. whether dependency exists between current range and current body)
-            if( currentRangePartial != NULL )
+            if( currentRangePartial != nullptr )
             {
                 // Add partial to the list.
                 currentPair = std::pair< int, int >( currentIndex, 6 );

@@ -169,7 +169,7 @@ std::shared_ptr< gravitation::SphericalHarmonicGravitationalTorqueModel > create
     std::shared_ptr< SphericalHarmonicTorqueSettings > sphericalHarmonicTorqueSettings =
             std::dynamic_pointer_cast< SphericalHarmonicTorqueSettings >( torqueSettings );
 
-    if( sphericalHarmonicTorqueSettings == NULL )
+    if( sphericalHarmonicTorqueSettings == nullptr )
     {
         throw std::runtime_error( "Error when creating spherical harmonic torque, input is inconsistent" );
     }

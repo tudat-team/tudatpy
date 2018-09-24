@@ -618,7 +618,7 @@ public:
         propagatorSettings_( std::dynamic_pointer_cast< SingleArcPropagatorSettings< StateScalarType > >(propagatorSettings ) ),
         variationalOnlyIntegratorSettings_( variationalOnlyIntegratorSettings )
     {
-        if( std::dynamic_pointer_cast< SingleArcPropagatorSettings< StateScalarType >  >( propagatorSettings ) == NULL )
+        if( std::dynamic_pointer_cast< SingleArcPropagatorSettings< StateScalarType >  >( propagatorSettings ) == nullptr )
         {
             throw std::runtime_error( "Error in variational equations solver, input must be single-arc." );
         }
@@ -644,7 +644,7 @@ public:
                         getStateDerivativeModelMapFromVector( stateDerivativeModels ), bodyMap, parametersToEstimate );
 
             // Create simulation object for dynamics only.
-            if( propagatorSettings_->getDependentVariablesToSave( ) != NULL )
+            if( propagatorSettings_->getDependentVariablesToSave( ) != nullptr )
             {
                 propagatorSettings_->getDependentVariablesToSave( )->stateDerivativePartials_ = stateDerivativePartials;
             }
@@ -887,7 +887,7 @@ private:
                     this->clearNumericalSolution_ );
 
         // Create (if non-existent) or reset state transition matrix interface
-        if( stateTransitionInterface_ == NULL )
+        if( stateTransitionInterface_ == nullptr )
         {
             stateTransitionInterface_ = std::make_shared< SingleArcCombinedStateTransitionAndSensitivityMatrixInterface >(
                         stateTransitionMatrixInterpolator, sensitivityMatrixInterpolator,
@@ -1052,7 +1052,7 @@ public:
         propagatorSettings_( std::dynamic_pointer_cast< MultiArcPropagatorSettings< StateScalarType > >( propagatorSettings ) ),
         resetMultiArcDynamicsAfterPropagation_( resetMultiArcDynamicsAfterPropagation )
     {
-        if(  std::dynamic_pointer_cast< MultiArcPropagatorSettings< StateScalarType > >( propagatorSettings ) == NULL )
+        if(  std::dynamic_pointer_cast< MultiArcPropagatorSettings< StateScalarType > >( propagatorSettings ) == nullptr )
         {
             throw std::runtime_error( "Error when making multi-arc variational equartions solver, input is single-arc" );
         }
@@ -1498,7 +1498,7 @@ private:
         }
 
         // Create stare transition matrix interface if needed, reset otherwise.
-        if( stateTransitionInterface_ == NULL )
+        if( stateTransitionInterface_ == nullptr )
         {
             stateTransitionInterface_ = std::make_shared< MultiArcCombinedStateTransitionAndSensitivityMatrixInterface >(
                         stateTransitionMatrixInterpolators, sensitivityMatrixInterpolators,
@@ -1599,7 +1599,7 @@ public:
         // Cast propagator settings to correct type and check validity
         originalPopagatorSettings_ =
                 std::dynamic_pointer_cast< HybridArcPropagatorSettings< StateScalarType > >( propagatorSettings );
-        if( originalPopagatorSettings_ == NULL )
+        if( originalPopagatorSettings_ == nullptr )
         {
             throw std::runtime_error( "Error when making HybridArcVariationalEquationsSolver, input propagation settings are not hybrid arc" );
         }
@@ -1648,7 +1648,7 @@ public:
         std::shared_ptr< TranslationalStatePropagatorSettings< StateScalarType > > singleArcPropagationSettings =
                 std::dynamic_pointer_cast< TranslationalStatePropagatorSettings< StateScalarType > >(
                     propagatorSettings_->getSingleArcPropagatorSettings( ) );
-        if( singleArcPropagationSettings == NULL )
+        if( singleArcPropagationSettings == nullptr )
         {
             throw std::runtime_error( "Error when making HybridArcVariationalEquationsSolver, input single arc is not translational" );
         }
@@ -1723,18 +1723,18 @@ public:
                     numericalMultiArcSolution, dependentVariableHistory, true );
 
         // Create state transition matrix if not yet created.
-        if( stateTransitionInterface_ == NULL )
+        if( stateTransitionInterface_ == nullptr )
         {
             if( std::dynamic_pointer_cast< SingleArcCombinedStateTransitionAndSensitivityMatrixInterface >(
-                        singleArcSolver_->getStateTransitionMatrixInterface( ) ) == NULL )
+                        singleArcSolver_->getStateTransitionMatrixInterface( ) ) == nullptr )
             {
-                throw std::runtime_error( "Error when making hybrid state transition/sensitivity interface, single-arc input is NULL" );
+                throw std::runtime_error( "Error when making hybrid state transition/sensitivity interface, single-arc input is nullptr" );
             }
 
             if( std::dynamic_pointer_cast< MultiArcCombinedStateTransitionAndSensitivityMatrixInterface >(
-                        multiArcSolver_->getStateTransitionMatrixInterface( ) ) == NULL )
+                        multiArcSolver_->getStateTransitionMatrixInterface( ) ) == nullptr )
             {
-                throw std::runtime_error( "Error when making hybrid state transition/sensitivity interface, multi-arc input is NULL" );
+                throw std::runtime_error( "Error when making hybrid state transition/sensitivity interface, multi-arc input is nullptr" );
             }
 
             stateTransitionInterface_ = std::make_shared< HybridArcCombinedStateTransitionAndSensitivityMatrixInterface >(

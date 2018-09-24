@@ -50,7 +50,7 @@ std::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > cre
 {
     // Check if sum of gravitational parameters (i.e. inertial force w.r.t. central body) should be used.
     bool sumGravitationalParameters = 0;
-    if( ( nameOfCentralBody == nameOfBodyExertingAcceleration ) && bodyUndergoingAcceleration != NULL )
+    if( ( nameOfCentralBody == nameOfBodyExertingAcceleration ) && bodyUndergoingAcceleration != nullptr )
     {
         sumGravitationalParameters = 1;
     }
@@ -211,7 +211,7 @@ std::shared_ptr< CentralGravitationalAccelerationModel3d > createCentralGravityA
 
     // Check if body is endowed with a gravity field model (i.e. is capable of exerting
     // gravitation acceleration).
-    if( bodyExertingAcceleration->getGravityFieldModel( ) == NULL )
+    if( bodyExertingAcceleration->getGravityFieldModel( ) == nullptr )
     {
         throw std::runtime_error(
                     std::string( "Error, gravity field model not set when making central ") +
@@ -224,7 +224,7 @@ std::shared_ptr< CentralGravitationalAccelerationModel3d > createCentralGravityA
 
         // Set correct value for gravitational parameter.
         if( useCentralBodyFixedFrame == 0  ||
-                bodyUndergoingAcceleration->getGravityFieldModel( ) == NULL )
+                bodyUndergoingAcceleration->getGravityFieldModel( ) == nullptr )
         {
             gravitationalParameterFunction =
                     std::bind( &gravitation::GravityFieldModel::getGravitationalParameter,
@@ -275,7 +275,7 @@ createSphericalHarmonicsGravityAcceleration(
     std::shared_ptr< SphericalHarmonicAccelerationSettings > sphericalHarmonicsSettings =
             std::dynamic_pointer_cast< SphericalHarmonicAccelerationSettings >(
                 accelerationSettings );
-    if( sphericalHarmonicsSettings == NULL )
+    if( sphericalHarmonicsSettings == nullptr )
     {
         throw std::runtime_error(
                     std::string( "Error, acceleration settings inconsistent ") +
@@ -291,7 +291,7 @@ createSphericalHarmonicsGravityAcceleration(
 
         std::shared_ptr< RotationalEphemeris> rotationalEphemeris =
                 bodyExertingAcceleration->getRotationalEphemeris( );
-        if( sphericalHarmonicsGravityField == NULL )
+        if( sphericalHarmonicsGravityField == nullptr )
         {
             throw std::runtime_error(
                         std::string( "Error, spherical harmonic gravity field model not set when ")
@@ -301,7 +301,7 @@ createSphericalHarmonicsGravityAcceleration(
         }
         else
         {
-            if( rotationalEphemeris == NULL )
+            if( rotationalEphemeris == nullptr )
             {
                 throw std::runtime_error( "Warning when making spherical harmonic acceleration on body " +
                                           nameOfBodyUndergoingAcceleration + ", no rotation model found for " +
@@ -322,7 +322,7 @@ createSphericalHarmonicsGravityAcceleration(
 
             // Check if mutual acceleration is to be used.
             if( useCentralBodyFixedFrame == false ||
-                    bodyUndergoingAcceleration->getGravityFieldModel( ) == NULL )
+                    bodyUndergoingAcceleration->getGravityFieldModel( ) == nullptr )
             {
                 gravitationalParameterFunction =
                         std::bind( &SphericalHarmonicsGravityField::getGravitationalParameter,
@@ -398,7 +398,7 @@ createMutualSphericalHarmonicsGravityAcceleration(
     // Dynamic cast acceleration settings to required type and check consistency.
     std::shared_ptr< MutualSphericalHarmonicAccelerationSettings > mutualSphericalHarmonicsSettings =
             std::dynamic_pointer_cast< MutualSphericalHarmonicAccelerationSettings >( accelerationSettings );
-    if( mutualSphericalHarmonicsSettings == NULL )
+    if( mutualSphericalHarmonicsSettings == nullptr )
     {
         std::string errorMessage = "Error, expected mutual spherical harmonics acceleration settings when making acceleration model on " +
                 nameOfBodyUndergoingAcceleration + "due to " + nameOfBodyExertingAcceleration;
@@ -414,7 +414,7 @@ createMutualSphericalHarmonicsGravityAcceleration(
                 std::dynamic_pointer_cast< SphericalHarmonicsGravityField >(
                     bodyUndergoingAcceleration->getGravityFieldModel( ) );
 
-        if( sphericalHarmonicsGravityFieldOfBodyExertingAcceleration == NULL )
+        if( sphericalHarmonicsGravityFieldOfBodyExertingAcceleration == nullptr )
         {
 
             std::string errorMessage = "Error " + nameOfBodyExertingAcceleration + " does not have a spherical harmonics gravity field " +
@@ -423,7 +423,7 @@ createMutualSphericalHarmonicsGravityAcceleration(
             throw std::runtime_error( errorMessage );
 
         }
-        else if( sphericalHarmonicsGravityFieldOfBodyUndergoingAcceleration == NULL )
+        else if( sphericalHarmonicsGravityFieldOfBodyUndergoingAcceleration == nullptr )
         {
 
             std::string errorMessage = "Error " + nameOfBodyUndergoingAcceleration + " does not have a spherical harmonics gravity field " +
@@ -551,7 +551,7 @@ createThirdBodySphericalHarmonicGravityAccelerationModel(
     // Dynamic cast acceleration settings to required type and check consistency.
     std::shared_ptr< SphericalHarmonicAccelerationSettings > sphericalHarmonicsSettings =
             std::dynamic_pointer_cast< SphericalHarmonicAccelerationSettings >( accelerationSettings );
-    if( sphericalHarmonicsSettings == NULL )
+    if( sphericalHarmonicsSettings == nullptr )
     {
         std::string errorMessage = "Error, expected spherical harmonics acceleration settings when making acceleration model on " +
                 nameOfBodyUndergoingAcceleration + " due to " + nameOfBodyExertingAcceleration;
@@ -563,7 +563,7 @@ createThirdBodySphericalHarmonicGravityAccelerationModel(
         std::shared_ptr< SphericalHarmonicsGravityField > sphericalHarmonicsGravityField =
                 std::dynamic_pointer_cast< SphericalHarmonicsGravityField >(
                     bodyExertingAcceleration->getGravityFieldModel( ) );
-        if( sphericalHarmonicsGravityField == NULL )
+        if( sphericalHarmonicsGravityField == nullptr )
         {
             std::string errorMessage = "Error " + nameOfBodyExertingAcceleration + " does not have a spherical harmonics gravity field " +
                     "when making third body spherical harmonics gravity acceleration on " +
@@ -604,7 +604,7 @@ createThirdBodyMutualSphericalHarmonicGravityAccelerationModel(
     // Dynamic cast acceleration settings to required type and check consistency.
     std::shared_ptr< MutualSphericalHarmonicAccelerationSettings > mutualSphericalHarmonicsSettings =
             std::dynamic_pointer_cast< MutualSphericalHarmonicAccelerationSettings >( accelerationSettings );
-    if( mutualSphericalHarmonicsSettings == NULL )
+    if( mutualSphericalHarmonicsSettings == nullptr )
     {
 
         std::string errorMessage = "Error, expected mutual spherical harmonics acceleration settings when making acceleration model on " +
@@ -625,21 +625,21 @@ createThirdBodyMutualSphericalHarmonicGravityAccelerationModel(
                 std::dynamic_pointer_cast< SphericalHarmonicsGravityField >(
                     centralBody->getGravityFieldModel( ) );
 
-        if( sphericalHarmonicsGravityFieldOfBodyExertingAcceleration == NULL )
+        if( sphericalHarmonicsGravityFieldOfBodyExertingAcceleration == nullptr )
         {
             std::string errorMessage = "Error " + nameOfBodyExertingAcceleration + " does not have a spherical harmonics gravity field " +
                     "when making mutual spherical harmonics gravity acceleration on " +
                     nameOfBodyUndergoingAcceleration;
             throw std::runtime_error( errorMessage );
         }
-        else if( sphericalHarmonicsGravityFieldOfBodyUndergoingAcceleration == NULL )
+        else if( sphericalHarmonicsGravityFieldOfBodyUndergoingAcceleration == nullptr )
         {
             std::string errorMessage = "Error " + nameOfBodyUndergoingAcceleration + " does not have a spherical harmonics gravity field " +
                     "when making mutual spherical harmonics gravity acceleration on " +
                     nameOfBodyUndergoingAcceleration;
             throw std::runtime_error( errorMessage );
         }
-        else if( sphericalHarmonicsGravityFieldOfCentralBody == NULL )
+        else if( sphericalHarmonicsGravityFieldOfCentralBody == nullptr )
         {
             std::string errorMessage = "Error " + nameOfCentralBody + " does not have a spherical harmonics gravity field " +
                     "when making mutual spherical harmonics gravity acceleration on " +
@@ -677,20 +677,20 @@ std::shared_ptr< aerodynamics::AerodynamicAcceleration > createAerodynamicAccele
         const std::string& nameOfBodyExertingAcceleration )
 {
     // Check existence of required environment models
-    if( bodyUndergoingAcceleration->getAerodynamicCoefficientInterface( ) == NULL )
+    if( bodyUndergoingAcceleration->getAerodynamicCoefficientInterface( ) == nullptr )
     {
         throw std::runtime_error( "Error when making aerodynamic acceleration, body " +
                                   nameOfBodyUndergoingAcceleration +
                                   "has no aerodynamic coefficients." );
     }
 
-    if( bodyExertingAcceleration->getAtmosphereModel( ) == NULL )
+    if( bodyExertingAcceleration->getAtmosphereModel( ) == nullptr )
     {
         throw std::runtime_error( "Error when making aerodynamic acceleration, central body " +
                                   nameOfBodyExertingAcceleration + " has no atmosphere model.");
     }
 
-    if( bodyExertingAcceleration->getShapeModel( ) == NULL )
+    if( bodyExertingAcceleration->getShapeModel( ) == nullptr )
     {
         throw std::runtime_error( "Error when making aerodynamic acceleration, central body " +
                                   nameOfBodyExertingAcceleration + " has no shape model." );
@@ -700,7 +700,7 @@ std::shared_ptr< aerodynamics::AerodynamicAcceleration > createAerodynamicAccele
     std::shared_ptr< AtmosphericFlightConditions > bodyFlightConditions =
             std::dynamic_pointer_cast< AtmosphericFlightConditions >( bodyUndergoingAcceleration->getFlightConditions( ) );
 
-    if( bodyFlightConditions == NULL && bodyUndergoingAcceleration->getFlightConditions( ) == NULL )
+    if( bodyFlightConditions == nullptr && bodyUndergoingAcceleration->getFlightConditions( ) == nullptr )
     {
         bodyFlightConditions = createAtmosphericFlightConditions( bodyUndergoingAcceleration,
                                                                   bodyExertingAcceleration,
@@ -708,7 +708,7 @@ std::shared_ptr< aerodynamics::AerodynamicAcceleration > createAerodynamicAccele
                                                                   nameOfBodyExertingAcceleration );
         bodyUndergoingAcceleration->setFlightConditions( bodyFlightConditions );
     }
-    else if( bodyFlightConditions == NULL && bodyUndergoingAcceleration->getFlightConditions( ) != NULL )
+    else if( bodyFlightConditions == nullptr && bodyUndergoingAcceleration->getFlightConditions( ) != nullptr )
     {
         throw std::runtime_error( "Error when making aerodynamic acceleration, found flight conditions that are not atmospheric." );
     }
@@ -803,7 +803,7 @@ std::shared_ptr< relativity::RelativisticAccelerationCorrection > createRelativi
     std::shared_ptr< RelativisticAccelerationCorrectionSettings > relativisticAccelerationSettings =
             std::dynamic_pointer_cast< RelativisticAccelerationCorrectionSettings >(
                 accelerationSettings );
-    if( relativisticAccelerationSettings == NULL )
+    if( relativisticAccelerationSettings == nullptr )
     {
         throw std::runtime_error( "Error, expected relativistic acceleration settings when making acceleration model on " +
                                   nameOfBodyUndergoingAcceleration + " due to " + nameOfBodyExertingAcceleration );
@@ -819,7 +819,7 @@ std::shared_ptr< relativity::RelativisticAccelerationCorrection > createRelativi
 
         std::function< double( ) > centralBodyGravitationalParameterFunction;
         std::shared_ptr< GravityFieldModel > gravityField = bodyExertingAcceleration->getGravityFieldModel( );
-        if( gravityField == NULL )
+        if( gravityField == nullptr )
         {
             throw std::runtime_error( "Error " + nameOfBodyExertingAcceleration + " does not have a gravity field " +
                                       "when making relativistic acceleration on" + nameOfBodyUndergoingAcceleration );
@@ -861,7 +861,7 @@ std::shared_ptr< relativity::RelativisticAccelerationCorrection > createRelativi
                 stateFunctionOfPrimaryBody =
                         std::bind( &Body::getState, bodyMap.at( relativisticAccelerationSettings->primaryBody_ ) );
 
-                if(  bodyMap.at( relativisticAccelerationSettings->primaryBody_ )->getGravityFieldModel( ) == NULL )
+                if(  bodyMap.at( relativisticAccelerationSettings->primaryBody_ )->getGravityFieldModel( ) == nullptr )
                 {
                     throw std::runtime_error( "Error, primary body " + relativisticAccelerationSettings->primaryBody_ +
                                               " has no gravity field when making de Sitter acceleration correction" );
@@ -930,7 +930,7 @@ std::shared_ptr< EmpiricalAcceleration > createEmpiricalAcceleration(
     std::shared_ptr< EmpiricalAccelerationSettings > empiricalSettings =
             std::dynamic_pointer_cast< EmpiricalAccelerationSettings >(
                 accelerationSettings );
-    if( empiricalSettings == NULL )
+    if( empiricalSettings == nullptr )
     {
         throw std::runtime_error( "Error, expected empirical acceleration settings when making acceleration model on " +
                                   nameOfBodyUndergoingAcceleration + " due to " + nameOfBodyExertingAcceleration );
@@ -940,7 +940,7 @@ std::shared_ptr< EmpiricalAcceleration > createEmpiricalAcceleration(
         // Get pointer to gravity field of central body (for determining keplerian elememts)
         std::shared_ptr< GravityFieldModel > gravityField = bodyExertingAcceleration->getGravityFieldModel( );
 
-        if( gravityField == NULL )
+        if( gravityField == nullptr )
         {
             throw std::runtime_error( "Error " + nameOfBodyExertingAcceleration + " does not have a gravity field " +
                                       "when making empirical acceleration on" + nameOfBodyUndergoingAcceleration );
@@ -971,7 +971,7 @@ createThrustAcceleratioModel(
     // Check input consistency
     std::shared_ptr< ThrustAccelerationSettings > thrustAccelerationSettings =
             std::dynamic_pointer_cast< ThrustAccelerationSettings >( accelerationSettings );
-    if( thrustAccelerationSettings == NULL )
+    if( thrustAccelerationSettings == nullptr )
     {
         throw std::runtime_error( "Error when creating thrust acceleration, input is inconsistent" );
     }
@@ -982,7 +982,7 @@ createThrustAcceleratioModel(
 
 
     // Check if user-supplied interpolator for full thrust ius present.
-    if( thrustAccelerationSettings->interpolatorInterface_ != NULL )
+    if( thrustAccelerationSettings->interpolatorInterface_ != nullptr )
     {
         // Check input consisten
         if( thrustAccelerationSettings->thrustFrame_ == unspecified_thurst_frame )
@@ -1070,7 +1070,7 @@ std::shared_ptr< gravitation::DirectTidalDissipationAcceleration > createDirectT
     // Check input consistency
     std::shared_ptr< DirectTidalDissipationAccelerationSettings > tidalAccelerationSettings =
             std::dynamic_pointer_cast< DirectTidalDissipationAccelerationSettings >( accelerationSettings );
-    if( tidalAccelerationSettings == NULL )
+    if( tidalAccelerationSettings == nullptr )
     {
         throw std::runtime_error( "Error when creating direct tidal dissipation acceleration, input is inconsistent" );
     }
@@ -1080,7 +1080,7 @@ std::shared_ptr< gravitation::DirectTidalDissipationAcceleration > createDirectT
 
     if( tidalAccelerationSettings->useTideRaisedOnPlanet_ )
     {
-        if( bodyUndergoingAcceleration->getGravityFieldModel( ) == NULL )
+        if( bodyUndergoingAcceleration->getGravityFieldModel( ) == nullptr )
         {
             throw std::runtime_error( "Error when creating direct tidal dissipation acceleration, satellite " +
                                       nameOfBodyUndergoingAcceleration + " has no gravity field" );
@@ -1093,7 +1093,7 @@ std::shared_ptr< gravitation::DirectTidalDissipationAcceleration > createDirectT
     }
     else
     {
-        if( bodyExertingAcceleration->getGravityFieldModel( ) == NULL )
+        if( bodyExertingAcceleration->getGravityFieldModel( ) == nullptr )
         {
             throw std::runtime_error( "Error when creating direct tidal dissipation acceleration, satellite " +
                                       nameOfBodyExertingAcceleration + " has no gravity field" );
@@ -1105,7 +1105,7 @@ std::shared_ptr< gravitation::DirectTidalDissipationAcceleration > createDirectT
         }
 
 
-        if( bodyUndergoingAcceleration->getGravityFieldModel( ) == NULL )
+        if( bodyUndergoingAcceleration->getGravityFieldModel( ) == nullptr )
         {
             throw std::runtime_error( "Error when creating direct tidal dissipation acceleration, satellite " +
                                       nameOfBodyUndergoingAcceleration + " has no gravity field" );
@@ -1121,7 +1121,7 @@ std::shared_ptr< gravitation::DirectTidalDissipationAcceleration > createDirectT
     if( tidalAccelerationSettings->useTideRaisedOnPlanet_ )
     {
         if( std::dynamic_pointer_cast< gravitation::SphericalHarmonicsGravityField >(
-                    bodyExertingAcceleration->getGravityFieldModel( ) ) == NULL )
+                    bodyExertingAcceleration->getGravityFieldModel( ) ) == nullptr )
         {
             throw std::runtime_error( "Error when creating direct tidal dissipation acceleration, planet " +
                                       nameOfBodyExertingAcceleration + " has no s.h. gravity field" );
@@ -1135,7 +1135,7 @@ std::shared_ptr< gravitation::DirectTidalDissipationAcceleration > createDirectT
     else
     {
         if( std::dynamic_pointer_cast< gravitation::SphericalHarmonicsGravityField >(
-                    bodyUndergoingAcceleration->getGravityFieldModel( ) ) == NULL )
+                    bodyUndergoingAcceleration->getGravityFieldModel( ) ) == nullptr )
         {
             throw std::runtime_error( "Error when creating direct tidal dissipation acceleration, planet " +
                                       nameOfBodyUndergoingAcceleration + " has no s.h. gravity field" );

@@ -770,7 +770,7 @@ protected:
         {
             stateTransitionAndSensitivityMatrixInterface_ = variationalEquationsSolver_->getStateTransitionMatrixInterface( );
         }
-        else if( propagatorSettings == NULL )
+        else if( propagatorSettings == nullptr )
         {
             stateTransitionAndSensitivityMatrixInterface_ = createStateTransitionAndSensitivityMatrixInterface(
                         propagatorSettings, 0, parametersToEstimate_->getParameterSetSize( ) );

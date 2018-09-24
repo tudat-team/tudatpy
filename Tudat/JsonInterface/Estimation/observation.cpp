@@ -34,7 +34,7 @@ void to_json( nlohmann::json& jsonObject,
     const ObservableType observableType = observationSettings->observableType_;
     jsonObject[ K::observableType ] = observableType;
     assignIfNotEmpty( jsonObject, K::lightTimeCorrectionSettingsList, observationSettings->lightTimeCorrectionsList_ );
-    if( observationSettings->biasSettings_ != NULL )
+    if( observationSettings->biasSettings_ != nullptr )
     {
         jsonObject[ K::biasSettings ] = observationSettings->biasSettings_;
     }
@@ -49,14 +49,14 @@ void to_json( nlohmann::json& jsonObject,
     {
         std::shared_ptr< OneWayDopplerObservationSettings > oneWayDopplerObservationSettings =
                 std::dynamic_pointer_cast< OneWayDopplerObservationSettings >( observationSettings );
-        if( !( oneWayDopplerObservationSettings == NULL ) )
+        if( !( oneWayDopplerObservationSettings == nullptr ) )
         {
-            if( oneWayDopplerObservationSettings->transmitterProperTimeRateSettings_ != NULL )
+            if( oneWayDopplerObservationSettings->transmitterProperTimeRateSettings_ != nullptr )
             {
                 jsonObject[ K::transmitterProperTimeRateSettings ] = oneWayDopplerObservationSettings->transmitterProperTimeRateSettings_;
             }
 
-            if( oneWayDopplerObservationSettings->receiverProperTimeRateSettings_ != NULL )
+            if( oneWayDopplerObservationSettings->receiverProperTimeRateSettings_ != nullptr )
             {
                 jsonObject[ K::receiverProperTimeRateSettings ] = oneWayDopplerObservationSettings->receiverProperTimeRateSettings_ ;
             }
@@ -78,7 +78,7 @@ void to_json( nlohmann::json& jsonObject,
     {
         std::shared_ptr< NWayRangeObservationSettings > nWayRangeObservationSettings =
                 std::dynamic_pointer_cast< NWayRangeObservationSettings >( observationSettings );
-        if( !( nWayRangeObservationSettings == NULL ) )
+        if( !( nWayRangeObservationSettings == nullptr ) )
         {
             jsonObject[ K::oneWayRangeObsevationSettings ] = nWayRangeObservationSettings->oneWayRangeObsevationSettings_;
 
@@ -96,7 +96,7 @@ void to_json( nlohmann::json& jsonObject,
     {
         std::shared_ptr< TwoWayDopplerObservationSettings > twoWayDopplerObservationSettings =
                 std::dynamic_pointer_cast< TwoWayDopplerObservationSettings >( observationSettings );
-        if( !( twoWayDopplerObservationSettings == NULL ) )
+        if( !( twoWayDopplerObservationSettings == nullptr ) )
         {
             jsonObject[ K::uplinkOneWayDopplerSettings ] = twoWayDopplerObservationSettings->uplinkOneWayDopplerSettings_;
             jsonObject[ K::downlinkOneWayDopplerSettings ] = twoWayDopplerObservationSettings->downlinkOneWayDopplerSettings_;
@@ -479,7 +479,7 @@ void to_json( nlohmann::json& jsonObject, const std::shared_ptr< ObservationSimu
     using K = Keys::Observation;
 
     if( std::dynamic_pointer_cast< TabulatedObservationSimulationTimeSettings< double > >(
-                observationSimulationTimeSettings ) != NULL )
+                observationSimulationTimeSettings ) != nullptr )
     {
         std::vector< double > simulationTimes = std::dynamic_pointer_cast<
                 TabulatedObservationSimulationTimeSettings< double > >( observationSimulationTimeSettings )->simulationTimes_;
