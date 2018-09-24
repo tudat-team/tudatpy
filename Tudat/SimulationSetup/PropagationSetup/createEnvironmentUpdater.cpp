@@ -51,7 +51,7 @@ void checkValidityOfRequiredEnvironmentUpdates(
                 {
                 case body_translational_state_update:
                 {
-                    if( bodyMap.at( updateIterator->second.at( i ) )->getEphemeris( ) == NULL )
+                    if( bodyMap.at( updateIterator->second.at( i ) )->getEphemeris( ) == nullptr )
                     {
                         throw std::runtime_error(
                                     "Error when making environment model update settings, could not find ephemeris of body "
@@ -62,8 +62,8 @@ void checkValidityOfRequiredEnvironmentUpdates(
                 case body_rotational_state_update:
                 {
                     if( ( bodyMap.at( updateIterator->second.at( i ) )->
-                          getRotationalEphemeris( ) == NULL ) &&
-                            ( bodyMap.at( updateIterator->second.at( i ) )->getDependentOrientationCalculator( ) == NULL ) )
+                          getRotationalEphemeris( ) == nullptr ) &&
+                            ( bodyMap.at( updateIterator->second.at( i ) )->getDependentOrientationCalculator( ) == nullptr ) )
                     {
                         throw std::runtime_error(
                                     "Error when making environment model update settings, could not find rotational ephemeris or dependent orientation calculator of body "
@@ -77,7 +77,7 @@ void checkValidityOfRequiredEnvironmentUpdates(
                             gravityFieldModel =
                             std::dynamic_pointer_cast< gravitation::SphericalHarmonicsGravityField >(
                                 bodyMap.at( updateIterator->second.at( i ) )->getGravityFieldModel( ) );
-                    if( gravityFieldModel == NULL )
+                    if( gravityFieldModel == nullptr )
                     {
                         throw std::runtime_error(
                                     "Error when making environment model update settings, could not find spherical harmonic gravity field of body "
@@ -89,7 +89,7 @@ void checkValidityOfRequiredEnvironmentUpdates(
                 {
                     std::shared_ptr< aerodynamics::FlightConditions > flightConditions = bodyMap.at(
                                 updateIterator->second.at( i ) )->getFlightConditions( );
-                    if( flightConditions == NULL )
+                    if( flightConditions == nullptr )
                     {
                         throw std::runtime_error(
                                     "Error when making environment model update settings, could not find flight conditions of body "
@@ -111,7 +111,7 @@ void checkValidityOfRequiredEnvironmentUpdates(
                     break;
                 }
                 case body_mass_update:
-                    if( bodyMap.at( updateIterator->second.at( i ) )->getBodyMassFunction( ) == NULL )
+                    if( bodyMap.at( updateIterator->second.at( i ) )->getBodyMassFunction( ) == nullptr )
                     {
                         throw std::runtime_error(
                                     "Error when making environment model update settings, no body mass function of body "
@@ -314,7 +314,7 @@ createTranslationalEquationsOfMotionEnvironmentUpdaterSettings(
                             thirdBodyAcceleration = std::dynamic_pointer_cast<
                             gravitation::ThirdBodyCentralGravityAcceleration >(
                                 accelerationModelIterator->second.at( i ) );
-                    if( thirdBodyAcceleration != NULL && translationalAccelerationModels.count(
+                    if( thirdBodyAcceleration != nullptr && translationalAccelerationModels.count(
                                 thirdBodyAcceleration->getCentralBodyName( ) ) == 0 )
                     {
                         if( translationalAccelerationModels.count( thirdBodyAcceleration->getCentralBodyName( ) ) == 0 )
@@ -323,7 +323,7 @@ createTranslationalEquationsOfMotionEnvironmentUpdaterSettings(
                                         thirdBodyAcceleration->getCentralBodyName( ) );
                         }
                     }
-                    else if( thirdBodyAcceleration == NULL )
+                    else if( thirdBodyAcceleration == nullptr )
                     {
                         throw std::runtime_error(
                                     std::string( "Error, incompatible input (ThirdBodyCentralGravityAcceleration) to" )
@@ -373,13 +373,13 @@ createTranslationalEquationsOfMotionEnvironmentUpdaterSettings(
                             thirdBodyAcceleration = std::dynamic_pointer_cast<
                             gravitation::ThirdBodySphericalHarmonicsGravitationalAccelerationModel >(
                                 accelerationModelIterator->second.at( i ) );;
-                    if( thirdBodyAcceleration != NULL && translationalAccelerationModels.count(
+                    if( thirdBodyAcceleration != nullptr && translationalAccelerationModels.count(
                                 thirdBodyAcceleration->getCentralBodyName( ) ) == 0  )
                     {
                         singleAccelerationUpdateNeeds[ body_translational_state_update ].push_back(
                                     thirdBodyAcceleration->getCentralBodyName( ) );
                     }
-                    else if( thirdBodyAcceleration == NULL )
+                    else if( thirdBodyAcceleration == nullptr )
                     {
                         throw std::runtime_error(
                                     std::string( "Error, incompatible input (ThirdBodySphericalHarmonicsGravitational" )
@@ -403,7 +403,7 @@ createTranslationalEquationsOfMotionEnvironmentUpdaterSettings(
                             thirdBodyAcceleration = std::dynamic_pointer_cast<
                             gravitation::ThirdBodyMutualSphericalHarmonicsGravitationalAccelerationModel >(
                                 accelerationModelIterator->second.at( i ) );
-                    if( thirdBodyAcceleration != NULL && translationalAccelerationModels.count(
+                    if( thirdBodyAcceleration != nullptr && translationalAccelerationModels.count(
                                 thirdBodyAcceleration->getCentralBodyName( ) ) == 0  )
                     {
                         singleAccelerationUpdateNeeds[ body_translational_state_update ].push_back(
@@ -413,7 +413,7 @@ createTranslationalEquationsOfMotionEnvironmentUpdaterSettings(
                         singleAccelerationUpdateNeeds[ spherical_harmonic_gravity_field_update ].push_back(
                                     thirdBodyAcceleration->getCentralBodyName( ) );
                     }
-                    else if( thirdBodyAcceleration == NULL )
+                    else if( thirdBodyAcceleration == nullptr )
                     {
                         throw std::runtime_error(
                                     std::string( "Error, incompatible input (ThirdBodyMutualSphericalHarmonicsGravitational" ) +
@@ -542,10 +542,10 @@ void checkAndModifyEnvironmentForDependentVariableSaving(
     switch( updateType )
     {
     case vehicle_flight_conditions_update:
-        if( bodyMap.at( dependentVariableSaveSettings->associatedBody_ )->getFlightConditions( ) == NULL )
+        if( bodyMap.at( dependentVariableSaveSettings->associatedBody_ )->getFlightConditions( ) == nullptr )
         {
-            if( ( bodyMap.at( dependentVariableSaveSettings->secondaryBody_ )->getAtmosphereModel( ) ) != NULL &&
-                    ( bodyMap.at( dependentVariableSaveSettings->associatedBody_ )->getAerodynamicCoefficientInterface( ) != NULL ) )
+            if( ( bodyMap.at( dependentVariableSaveSettings->secondaryBody_ )->getAtmosphereModel( ) ) != nullptr &&
+                    ( bodyMap.at( dependentVariableSaveSettings->associatedBody_ )->getAerodynamicCoefficientInterface( ) != nullptr ) )
             {
                 bodyMap.at( dependentVariableSaveSettings->associatedBody_ )->setFlightConditions(
                             simulation_setup::createAtmosphericFlightConditions(
@@ -779,7 +779,7 @@ std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > c
 {
     std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > environmentModelsToUpdate;
 
-    if( dependentVariableSaveSettings != NULL )
+    if( dependentVariableSaveSettings != nullptr )
     {
         std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariableList =
                 dependentVariableSaveSettings->dependentVariables_;
@@ -862,7 +862,7 @@ std::vector< std::string > > createFullEnvironmentUpdaterSettings(
         // Check if current body is a vehicle.
 
         // Check if current body has flight conditions set.
-        if( bodyIterator->second ->getFlightConditions( ) != NULL )
+        if( bodyIterator->second ->getFlightConditions( ) != nullptr )
         {
             // If vehicle has flight conditions, add flight conditions update function to update list.
             singleAccelerationUpdateNeeds[ vehicle_flight_conditions_update ].
@@ -884,8 +884,8 @@ std::vector< std::string > > createFullEnvironmentUpdaterSettings(
         }
 
         // If body has rotation model, update rotational state in each time step.;
-        if( ( bodyIterator->second->getRotationalEphemeris( ) != NULL ) ||
-                ( bodyIterator->second->getDependentOrientationCalculator( ) != NULL ) )
+        if( ( bodyIterator->second->getRotationalEphemeris( ) != nullptr ) ||
+                ( bodyIterator->second->getDependentOrientationCalculator( ) != nullptr ) )
         {
             singleAccelerationUpdateNeeds[ body_rotational_state_update ].
                     push_back( bodyIterator->first );
@@ -895,7 +895,7 @@ std::vector< std::string > > createFullEnvironmentUpdaterSettings(
         std::shared_ptr< TimeDependentSphericalHarmonicsGravityField > gravityField =
                 std::dynamic_pointer_cast< TimeDependentSphericalHarmonicsGravityField >
                 ( bodyIterator->second->getGravityFieldModel( ) );
-        if( gravityField != NULL )
+        if( gravityField != nullptr )
         {
             singleAccelerationUpdateNeeds[ spherical_harmonic_gravity_field_update ].
                     push_back( bodyIterator->first );

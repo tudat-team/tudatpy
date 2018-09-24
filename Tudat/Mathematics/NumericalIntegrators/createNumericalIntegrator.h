@@ -689,7 +689,7 @@ DependentVariableType, IndependentVariableStepType > > createIntegrator(
                     integratorSettings );
 
         // Check that integrator type has been cast properly
-        if ( bulirschStoerIntegratorSettings == NULL )
+        if ( bulirschStoerIntegratorSettings == nullptr )
         {
             throw std::runtime_error( "Error, type of integrator settings (bulirschStoer) not compatible with "
                                       "selected integrator (derived class of IntegratorSettings must be BulirschStoerIntegratorSettings "
@@ -769,7 +769,7 @@ DependentVariableType, IndependentVariableStepType > > createIntegrator(
     }
 
     // Check that assignment of integrator went well
-    if ( integrator == NULL )
+    if ( integrator == nullptr )
     {
         throw std::runtime_error( "Error while creating integrator. The resulting integrator pointer is null." );
     }

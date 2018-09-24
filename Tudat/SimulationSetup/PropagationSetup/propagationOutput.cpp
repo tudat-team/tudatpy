@@ -324,7 +324,7 @@ int getDependentVariableSize(
     case single_gravity_field_variation_acceleration_terms:
     {
         if( std::dynamic_pointer_cast< SingleVariationSingleTermSphericalHarmonicAccelerationSaveSettings >(
-                    dependentVariableSettings ) == NULL )
+                    dependentVariableSettings ) == nullptr )
         {
              std::string errorMessage = "Error, input for single_gravity_field_variation_acceleration_terms inconsistent when getting parameter size ";
              throw std::runtime_error( errorMessage );
