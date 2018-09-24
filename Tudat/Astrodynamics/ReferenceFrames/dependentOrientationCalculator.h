@@ -8,12 +8,13 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-
 #ifndef TUDAT_DEPENDENTORIENTATIONCALCULATOR_H
 #define TUDAT_DEPENDENTORIENTATIONCALCULATOR_H
 
 #include <Eigen/Core>
 #include <Eigen/Geometry>
+
+#include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
 
 namespace tudat
 {
@@ -112,6 +113,7 @@ protected:
 
     //! Current simulation time.
     double currentTime_;
+
 };
 
 } // namespace reference_frames
