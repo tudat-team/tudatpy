@@ -1444,20 +1444,22 @@ private:
 };
 
 extern template class VariationalEquationsSolver< double, double >;
+extern template class SingleArcVariationalEquationsSolver< double, double >;
+extern template class MultiArcVariationalEquationsSolver< double, double >;
+
+#if( BUILD_EXTENDED_PRECISION_PROPAGATION_TOOLS )
 extern template class VariationalEquationsSolver< long double, double >;
 extern template class VariationalEquationsSolver< double, Time >;
 extern template class VariationalEquationsSolver< long double, Time >;
 
-extern template class SingleArcVariationalEquationsSolver< double, double >;
 extern template class SingleArcVariationalEquationsSolver< long double, double >;
 extern template class SingleArcVariationalEquationsSolver< double, Time >;
 extern template class SingleArcVariationalEquationsSolver< long double, Time >;
 
-extern template class MultiArcVariationalEquationsSolver< double, double >;
 extern template class MultiArcVariationalEquationsSolver< long double, double >;
 extern template class MultiArcVariationalEquationsSolver< double, Time >;
 extern template class MultiArcVariationalEquationsSolver< long double, Time >;
-
+#endif
 } // namespace propagators
 
 } // namespace tudat

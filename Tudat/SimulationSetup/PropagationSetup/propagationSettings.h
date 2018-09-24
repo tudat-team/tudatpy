@@ -1014,7 +1014,7 @@ public:
             custom_state, ( StateVectorType( 1 ) << initialState ).finished( ), terminationSettings,
             dependentVariablesToSave, printInterval ),
         stateDerivativeFunction_( std::bind( &convertScalarToVectorStateFunction< StateScalarType, TimeType >,
-                                               stateDerivativeFunction, std::placeholders::_1, std::placeholders::_2 ) ), stateSize_( 1 )
+                                             stateDerivativeFunction, std::placeholders::_1, std::placeholders::_2 ) ), stateSize_( 1 )
     { }
 
     //! Constructor for vector custom state
@@ -1305,30 +1305,26 @@ public:
 };
 
 extern template class PropagatorSettings< double >;
-extern template class PropagatorSettings< long double >;
-
 extern template class SingleArcPropagatorSettings< double >;
-extern template class SingleArcPropagatorSettings< long double >;
-
 extern template class MultiArcPropagatorSettings< double >;
-extern template class MultiArcPropagatorSettings< long double >;
-
 extern template class TranslationalStatePropagatorSettings< double >;
-extern template class TranslationalStatePropagatorSettings< long double >;
-
 extern template class RotationalStatePropagatorSettings< double >;
-extern template class RotationalStatePropagatorSettings< long double >;
-
 extern template class MassPropagatorSettings< double >;
-extern template class MassPropagatorSettings< long double >;
-
 extern template class CustomStatePropagatorSettings< double >;
+extern template class MultiTypePropagatorSettings< double >;
+
+#if( BUILD_EXTENDED_PRECISION_PROPAGATION_TOOLS )
+extern template class PropagatorSettings< long double >;
+extern template class SingleArcPropagatorSettings< long double >;
+extern template class MultiArcPropagatorSettings< long double >;
+extern template class TranslationalStatePropagatorSettings< long double >;
+extern template class RotationalStatePropagatorSettings< long double >;
+extern template class MassPropagatorSettings< long double >;
+extern template class MultiTypePropagatorSettings< long double >;
 extern template class CustomStatePropagatorSettings< long double >;
 extern template class CustomStatePropagatorSettings< double, Time >;
 extern template class CustomStatePropagatorSettings< long double, Time >;
-
-extern template class MultiTypePropagatorSettings< double >;
-extern template class MultiTypePropagatorSettings< long double >;
+#endif
 
 //! Function to retrieve the list of integrated state types and reference ids
 /*!
