@@ -131,13 +131,13 @@ void BasicSolidBodyTideGravityFieldVariations::setBodyGeometryParameters(
     // Calculate current state and orientation of deformed body.
     if( bodyIndex == 0 )
     {
-        deformedBodyPosition = deformedBodyStateFunction_( evaluationTime ).segment( 0, 3 );
+        deformedBodyPosition = std::move( deformedBodyStateFunction_( evaluationTime ) ).segment( 0, 3 );
         toDeformedBodyFrameRotation = deformedBodyOrientationFunction_( evaluationTime );
     }
 
     // Calculate current state of body causing deformation.
     Eigen::Vector3d relativeDeformingBodyPosition = toDeformedBodyFrameRotation * (
-                deformingBodyStateFunctions_[ bodyIndex ]( evaluationTime ).segment( 0, 3 ) -
+                std::move( deformingBodyStateFunctions_[ bodyIndex ]( evaluationTime ) ).segment( 0, 3 ) -
             deformedBodyPosition );
     Eigen::Vector3d  relativeDeformingBodySphericalPosition =coordinate_conversions::
             convertCartesianToSpherical( relativeDeformingBodyPosition );
