@@ -32,7 +32,7 @@ namespace json_interface
 
 //! Class for managing JSON-based simulations.
 template< typename TimeType = double, typename StateScalarType = double >
-class JsonEstimationManager: public JsonSimulationManager< TimeType, StateScalarType >
+class JsonEstimationManager: public JsonVariationalEquationsSimulationManager< TimeType, StateScalarType >
 {
 
 public:
@@ -42,14 +42,14 @@ public:
     using JsonSimulationManager< TimeType, StateScalarType >::profiling;
     using JsonSimulationManager< TimeType, StateScalarType >::initialClockTime_;
     using JsonSimulationManager< TimeType, StateScalarType >::inputFilePath_;
-    using JsonSimulationManager< TimeType, StateScalarType >::variationalEquationsSolver_;
     using JsonSimulationManager< TimeType, StateScalarType >::dynamicsSimulator_;
     using JsonSimulationManager< TimeType, StateScalarType >::bodyMap_;
-    using JsonSimulationManager< TimeType, StateScalarType >::parametersToEstimate_;
     using JsonSimulationManager< TimeType, StateScalarType >::integratorSettings_;
     using JsonSimulationManager< TimeType, StateScalarType >::propagatorSettings_;
     using JsonSimulationManager< TimeType, StateScalarType >::exportAsJson;
 
+    using JsonVariationalEquationsSimulationManager< TimeType, StateScalarType >::variationalEquationsSolver_;
+    using JsonVariationalEquationsSimulationManager< TimeType, StateScalarType >::parametersToEstimate_;
 
     //! Constructor from JSON file.
     /*!
@@ -61,7 +61,7 @@ public:
     JsonEstimationManager(
             const std::string& inputFilePath,
             const std::chrono::steady_clock::time_point initialClockTime = std::chrono::steady_clock::now( ) ):
-        JsonSimulationManager< TimeType, StateScalarType >( inputFilePath, initialClockTime )
+        JsonVariationalEquationsSimulationManager< TimeType, StateScalarType >( inputFilePath, initialClockTime )
     { }
 
     //! Constructor from JSON object.
@@ -74,7 +74,7 @@ public:
     JsonEstimationManager(
             const nlohmann::json& jsonObject,
             const std::chrono::steady_clock::time_point initialClockTime = std::chrono::steady_clock::now( ) ):
-        JsonSimulationManager< TimeType, StateScalarType >( jsonObject, initialClockTime ){ }
+        JsonVariationalEquationsSimulationManager< TimeType, StateScalarType >( jsonObject, initialClockTime ){ }
 
     virtual ~JsonEstimationManager( ){ }
 
