@@ -849,9 +849,12 @@ protected:
 };
 
 extern template class OrbitDeterminationManager< double, double >;
+
+#if( BUILD_EXTENDED_PRECISION_PROPAGATION_TOOLS )
 extern template class OrbitDeterminationManager< double, Time >;
 extern template class OrbitDeterminationManager< long double, double >;
 extern template class OrbitDeterminationManager< long double, Time >;
+#endif
 
 extern template Eigen::Matrix< double, Eigen::Dynamic, 1 > getConcatenatedWeightsVector< double >(
         const typename std::map< observation_models::ObservableType, std::map<
