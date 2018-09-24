@@ -311,6 +311,13 @@ bool checkPropagatorSettingsAndParameterEstimationConsistency(
         std::vector< std::string > propagatedBodies = translationalPropagatorSettings->bodiesToIntegrate_;
         std::vector< std::string > estimatedBodies = estimatable_parameters::getListOfBodiesWithTranslationalStateToEstimate(
                     parametersToEstimate );
+
+        if( static_cast< unsigned int >( translationalPropagatorSettings->getPropagatedStateSize( ) ) !=
+                propagatedBodies.size( ) * 6 )
+        {
+            throw std::runtime_error( "Error when propagating variational equations, tranbbslational state vectors not of size 6." );
+        }
+
         if( propagatedBodies.size( ) != estimatedBodies.size( ) )
         {
             std::string errorMessage = "Error, propagated and estimated body vector sizes are inconsistent " +
