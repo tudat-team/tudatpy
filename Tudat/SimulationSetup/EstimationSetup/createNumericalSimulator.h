@@ -149,19 +149,19 @@ createVariationalEquationsSolver(
         const bool clearNumericalSolution = 1,
         const bool integrateEquationsOnCreation = 1 )
 {
-    if( std::dynamic_pointer_cast< propagators::SingleArcPropagatorSettings< StateScalarType > >( propagatorSettings ) != NULL )
+    if( std::dynamic_pointer_cast< propagators::SingleArcPropagatorSettings< StateScalarType > >( propagatorSettings ) != nullptr )
     {
         return createSingleArcVariationalEquationsSolver(
                     bodyMap, integratorSettings, propagatorSettings, parametersToEstimate, integrateDynamicalAndVariationalEquationsConcurrently,
                     variationalOnlyIntegratorSettings, clearNumericalSolution, integrateEquationsOnCreation );
     }
-    else if( std::dynamic_pointer_cast< propagators::MultiArcPropagatorSettings< StateScalarType > >( propagatorSettings ) != NULL )
+    else if( std::dynamic_pointer_cast< propagators::MultiArcPropagatorSettings< StateScalarType > >( propagatorSettings ) != nullptr )
     {
         return createMultiArcVariationalEquationsSolver(
                     bodyMap, integratorSettings, propagatorSettings, parametersToEstimate, integrateDynamicalAndVariationalEquationsConcurrently,
                     variationalOnlyIntegratorSettings, clearNumericalSolution, integrateEquationsOnCreation );
     }
-    else if( std::dynamic_pointer_cast< propagators::HybridArcPropagatorSettings< StateScalarType > >( propagatorSettings ) != NULL )
+    else if( std::dynamic_pointer_cast< propagators::HybridArcPropagatorSettings< StateScalarType > >( propagatorSettings ) != nullptr )
     {
         return createHybridArcVariationalEquationsSolver(
                     bodyMap, integratorSettings, propagatorSettings, parametersToEstimate, integrateDynamicalAndVariationalEquationsConcurrently,
@@ -363,7 +363,7 @@ std::shared_ptr< propagators::CombinedStateTransitionAndSensitivityMatrixInterfa
         const int dynamicalStateSize,
         const int totalParameterSize )
 {
-    if( std::dynamic_pointer_cast< propagators::SingleArcPropagatorSettings< StateScalarType > >( propagatorSettings ) != NULL )
+    if( std::dynamic_pointer_cast< propagators::SingleArcPropagatorSettings< StateScalarType > >( propagatorSettings ) != nullptr )
     {
         return  std::make_shared<
                 propagators::SingleArcCombinedStateTransitionAndSensitivityMatrixInterface >(
@@ -371,7 +371,7 @@ std::shared_ptr< propagators::CombinedStateTransitionAndSensitivityMatrixInterfa
                     std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > >( ),
                     dynamicalStateSize, totalParameterSize );
     }
-    else if( std::dynamic_pointer_cast< propagators::MultiArcPropagatorSettings< StateScalarType > >( propagatorSettings ) != NULL )
+    else if( std::dynamic_pointer_cast< propagators::MultiArcPropagatorSettings< StateScalarType > >( propagatorSettings ) != nullptr )
     {
         return  std::make_shared<
                 propagators::MultiArcCombinedStateTransitionAndSensitivityMatrixInterface >(
@@ -380,10 +380,10 @@ std::shared_ptr< propagators::CombinedStateTransitionAndSensitivityMatrixInterfa
                     std::vector< double >( ),
                     dynamicalStateSize, totalParameterSize );
     }
-    else if( std::dynamic_pointer_cast< propagators::HybridArcPropagatorSettings< StateScalarType > >( propagatorSettings ) != NULL )
+    else if( std::dynamic_pointer_cast< propagators::HybridArcPropagatorSettings< StateScalarType > >( propagatorSettings ) != nullptr )
     {
         throw std::runtime_error( "Error, cannot yet create empty hybrid arc state transition interface" );
-        return NULL;
+        return nullptr;
     }
     else
     {

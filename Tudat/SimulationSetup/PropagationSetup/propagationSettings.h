@@ -1183,7 +1183,7 @@ std::shared_ptr< MultiArcPropagatorSettings< StateScalarType > > getExtendedMult
         // Check single-arc consistency
         std::shared_ptr< TranslationalStatePropagatorSettings< StateScalarType > > singleArcTranslationalSettings =
                 std::dynamic_pointer_cast< TranslationalStatePropagatorSettings< StateScalarType > >( singleArcSettings );
-        if( singleArcTranslationalSettings == NULL )
+        if( singleArcTranslationalSettings == nullptr )
         {
             throw std::runtime_error(
                         "Error when making multi-arc propagator settings from single arc. Translational input not consistent." );
@@ -1193,7 +1193,7 @@ std::shared_ptr< MultiArcPropagatorSettings< StateScalarType > > getExtendedMult
         std::shared_ptr< TranslationalStatePropagatorSettings< StateScalarType > > firstArcTranslationalSettings =
                 std::dynamic_pointer_cast< TranslationalStatePropagatorSettings< StateScalarType > >(
                     multiArcSettings->getSingleArcSettings( ).at( 0 ) );
-        if( firstArcTranslationalSettings == NULL )
+        if( firstArcTranslationalSettings == nullptr )
         {
             throw std::runtime_error(
                         "Error when making multi-arc propagator settings from single arc. Multi-arc input not consistent with single-arc (translational)." );
@@ -1244,12 +1244,12 @@ std::shared_ptr< MultiArcPropagatorSettings< StateScalarType > > getExtendedMult
 
         // Retrieve dependent variables that are to be saved.
         std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > multiArcDependentVariablesToSave;
-        if( firstArcTranslationalSettings->getDependentVariablesToSave( ) != NULL )
+        if( firstArcTranslationalSettings->getDependentVariablesToSave( ) != nullptr )
         {
             multiArcDependentVariablesToSave  = firstArcTranslationalSettings->getDependentVariablesToSave( )->dependentVariables_;
         }
         std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > fullDependentVariablesToSave;
-        if( singleArcTranslationalSettings->getDependentVariablesToSave( ) != NULL )
+        if( singleArcTranslationalSettings->getDependentVariablesToSave( ) != nullptr )
         {
             fullDependentVariablesToSave = singleArcTranslationalSettings->getDependentVariablesToSave( )->dependentVariables_;
         }

@@ -199,9 +199,9 @@ std::shared_ptr< EstimatableParameter< double > > createDoubleParameterToEstimat
         }
         case mean_moment_of_inertia:
         {
-            if( currentBody == NULL )
+            if( currentBody == nullptr )
             {
-                std::string errorMessage = "Error, body is NULL when making mean moment of inertia parameter.";
+                std::string errorMessage = "Error, body is nullptr when making mean moment of inertia parameter.";
                 throw std::runtime_error( errorMessage );
             }
             else

@@ -19,7 +19,7 @@ std::shared_ptr< acceleration_partials::TorquePartial > createConstantTorqueRota
 
     std::function< double( ) > inertiaTensorNormalizationFunction;
     if( std::dynamic_pointer_cast< gravitation::SphericalHarmonicsGravityField >(
-                acceleratedBody.second->getGravityFieldModel( ) ) != NULL )
+                acceleratedBody.second->getGravityFieldModel( ) ) != nullptr )
     {
         inertiaTensorNormalizationFunction =
                 std::bind( &gravitation::SphericalHarmonicsGravityField::getInertiaTensorNormalizationFactor,
@@ -28,7 +28,7 @@ std::shared_ptr< acceleration_partials::TorquePartial > createConstantTorqueRota
     }
 
     std::function< double( ) > gravitationalParameterFunction;
-    if( acceleratedBody.second->getGravityFieldModel( ) != NULL )
+    if( acceleratedBody.second->getGravityFieldModel( ) != nullptr )
     {
         gravitationalParameterFunction =
                 std::bind( &gravitation::GravityFieldModel::getGravitationalParameter,

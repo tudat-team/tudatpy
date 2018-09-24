@@ -1522,7 +1522,7 @@ public:
     {       
         std::shared_ptr< HybridArcPropagatorSettings< StateScalarType > > hybridPropagatorSettings =
                 std::dynamic_pointer_cast< HybridArcPropagatorSettings< StateScalarType > >( propagatorSettings );
-        if( hybridPropagatorSettings == NULL )
+        if( hybridPropagatorSettings == nullptr )
         {
             throw std::runtime_error( "Error when making HybridArcDynamicsSimulator, propagator settings are incompatible" );
         }

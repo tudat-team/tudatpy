@@ -73,7 +73,7 @@ std::shared_ptr< OneWayRangePartial > createOneWayRangePartialWrtBodyRotationalS
                     lightTimeCorrectionPartialObjects );
     }
 
-    // Return range partial object (NULL if no dependency exists).
+    // Return range partial object (nullptr if no dependency exists).
     return oneWayRangePartial;
 }
 

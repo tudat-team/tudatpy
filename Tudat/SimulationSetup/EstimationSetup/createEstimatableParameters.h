@@ -145,7 +145,7 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::Matrix
             // Check consistency of input.
             if( std::dynamic_pointer_cast<
                     InitialRotationalStateEstimatableParameterSettings< InitialStateParameterType > >(
-                        parameterSettings ) == NULL )
+                        parameterSettings ) == nullptr )
             {
                 throw std::runtime_error( "Error when making body initial state parameter, settings type is incompatible" );
             }
@@ -312,7 +312,7 @@ getAssociatedMultiArcParameter(
                 singleArcTranslationalStateParameter =
                 std::dynamic_pointer_cast< estimatable_parameters::InitialTranslationalStateParameter< StateScalarType > >(
                     singleArcParameter );
-        if( singleArcTranslationalStateParameter == NULL )
+        if( singleArcTranslationalStateParameter == nullptr )
         {
             throw std::runtime_error(
                         "Error when getting multi-arc parameter from single-arc equivalent, single-arc translational state is inconsistent " );
