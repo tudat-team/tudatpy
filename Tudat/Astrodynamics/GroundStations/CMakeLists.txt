@@ -29,8 +29,8 @@ setup_tudat_library_target(tudat_ground_stations "${SRCROOT}{GROUNDSTATIONSDIR}"
 
 add_executable(test_GroundStationState "${SRCROOT}${GROUNDSTATIONSDIR}/UnitTests/unitTestGroundStationState.cpp")
 setup_custom_test_program(test_GroundStationState "${SRCROOT}${GROUNDSTATIONSDIR}")
-target_link_libraries(test_GroundStationState ${TUDAT_ESTIMATION_LIBRARIES} ${Boost_LIBRARIES})
+target_link_libraries(test_GroundStationState ${TUDAT_PROPAGATION_LIBRARIES} ${Boost_LIBRARIES})
 
 add_executable(test_PointingAnglesCalculator "${SRCROOT}${GROUNDSTATIONSDIR}/UnitTests/unitTestPointingAnglesCalculator.cpp")
 setup_custom_test_program(test_PointingAnglesCalculator "${SRCROOT}${GROUNDSTATIONSDIR}")
-target_link_libraries(test_PointingAnglesCalculator ${TUDAT_ESTIMATION_LIBRARIES} ${Boost_LIBRARIES})
+target_link_libraries(test_PointingAnglesCalculator ${TUDAT_PROPAGATION_LIBRARIES} ${Boost_LIBRARIES})
