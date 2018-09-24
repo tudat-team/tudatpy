@@ -154,7 +154,7 @@ protected:
      */
     Eigen::Matrix< double, 6, 1 > getBaseFrameDoubleState( const double time )
     {
-        return static_cast< double >( stateMultiplier_ ) * stateFunction_( time ).template cast< double >( );
+        return static_cast< double >( stateMultiplier_ ) * std::move( stateFunction_( time ) ).template cast< double >( );
     }
 
     //! Function through which the state of baseFrameId_ in the inertial frame can be determined
@@ -166,7 +166,7 @@ protected:
      */
     Eigen::Matrix< long double, 6, 1 > getBaseFrameLongDoubleState( const double time )
     {
-        return static_cast< long double >( stateMultiplier_ ) * stateFunction_( time ).template cast< long double >( );
+        return static_cast< long double >( stateMultiplier_ ) * std::move( stateFunction_( time ) ).template cast< long double >( );
     }
 
     //! Function through which the state of baseFrameId_ in the inertial frame can be determined
@@ -190,7 +190,7 @@ protected:
      */
     Eigen::Matrix< long double, 6, 1 > getBaseFrameLongDoubleState( const Time& time )
     {
-        return static_cast< long double >( stateMultiplier_ ) * stateFunction_( time ).template cast< long double >( );
+        return static_cast< long double >( stateMultiplier_ ) * std::move( stateFunction_( time ) ).template cast< long double >( );
     }
 
 private:
