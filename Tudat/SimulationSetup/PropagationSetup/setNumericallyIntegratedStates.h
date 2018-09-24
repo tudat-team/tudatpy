@@ -76,7 +76,7 @@ void resetIntegratedEphemerisOfBody(
     using namespace tudat::ephemerides;
     
     // If body does not have ephemeris, give error message.
-    if( bodyMap.at( bodyToIntegrate )->getEphemeris( ) == NULL )
+    if( bodyMap.at( bodyToIntegrate )->getEphemeris( ) == nullptr )
     {
         throw std::runtime_error( "Error when resetting integrated ephemeris of body " +
                                   bodyToIntegrate + "no ephemeris found" );
@@ -94,7 +94,7 @@ void resetIntegratedEphemerisOfBody(
     {
         std::cerr << "Warning, tabulated ephemeris is being reset using data at different precision" << std::endl;
         if( std::dynamic_pointer_cast< TabulatedCartesianEphemeris< StateScalarType, TimeType > >(
-                    bodyMap.at( bodyToIntegrate )->getEphemeris( ) ) != NULL )
+                    bodyMap.at( bodyToIntegrate )->getEphemeris( ) ) != nullptr )
         {
             std::shared_ptr< OneDimensionalInterpolator< TimeType, Eigen::Matrix< StateScalarType, 6, 1 > > >
                     ephemerisInterpolator = createStateInterpolator( ephemerisInput );
@@ -106,28 +106,28 @@ void resetIntegratedEphemerisOfBody(
         else
         {
             if( std::dynamic_pointer_cast< TabulatedCartesianEphemeris< double, double > >(
-                        bodyMap.at( bodyToIntegrate )->getEphemeris( ) ) != NULL )
+                        bodyMap.at( bodyToIntegrate )->getEphemeris( ) ) != nullptr )
             {
                 resetIntegratedEphemerisOfBody(
                             ephemerisInput, std::dynamic_pointer_cast< TabulatedCartesianEphemeris< double, double > >(
                                 bodyMap.at( bodyToIntegrate )->getEphemeris( ) ) );
             }
             else if( std::dynamic_pointer_cast< TabulatedCartesianEphemeris< long double, double > >(
-                         bodyMap.at( bodyToIntegrate )->getEphemeris( ) ) != NULL )
+                         bodyMap.at( bodyToIntegrate )->getEphemeris( ) ) != nullptr )
             {
                 resetIntegratedEphemerisOfBody(
                             ephemerisInput, std::dynamic_pointer_cast< TabulatedCartesianEphemeris< long double, double > >(
                                 bodyMap.at( bodyToIntegrate )->getEphemeris( ) ) );
             }
             else if( std::dynamic_pointer_cast< TabulatedCartesianEphemeris< double, Time > >(
-                         bodyMap.at( bodyToIntegrate )->getEphemeris( ) ) != NULL )
+                         bodyMap.at( bodyToIntegrate )->getEphemeris( ) ) != nullptr )
             {
                 resetIntegratedEphemerisOfBody(
                             ephemerisInput, std::dynamic_pointer_cast< TabulatedCartesianEphemeris< double, Time > >(
                                 bodyMap.at( bodyToIntegrate )->getEphemeris( ) ) );
             }
             else if( std::dynamic_pointer_cast< TabulatedCartesianEphemeris< long double, Time > >(
-                         bodyMap.at( bodyToIntegrate )->getEphemeris( ) ) != NULL )
+                         bodyMap.at( bodyToIntegrate )->getEphemeris( ) ) != nullptr )
             {
                 resetIntegratedEphemerisOfBody(
                             ephemerisInput, std::dynamic_pointer_cast< TabulatedCartesianEphemeris< long double, Time > >(
@@ -164,7 +164,7 @@ void convertNumericalSolutionToEphemerisInput(
         equationsOfMotionNumericalSolution,
         std::map< TimeType, Eigen::Matrix< StateScalarType, 6, 1 > >& ephemerisTable,
         const std::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType ) >
-        integrationToEphemerisFrameFunction = NULL )
+        integrationToEphemerisFrameFunction = nullptr )
 {
     // If no integrationToEphemerisFrameFunction is provided, origin is already correct; only
     // extract required indices.
@@ -229,7 +229,7 @@ void getSingleBodyStateHistoryFromPropagationOutpiut(
     bodyIndex = std::distance( bodiesToIntegrate.begin( ), bodyFindIterator );
     
     // Get frame origin function if applicable
-    std::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType ) > integrationToEphemerisFrameFunction = NULL;
+    std::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType ) > integrationToEphemerisFrameFunction = nullptr;
     if( integrationToEphemerisFrameFunctions.count( bodiesToIntegrate.at( bodyIndex ) ) > 0 )
     {
         integrationToEphemerisFrameFunction =
@@ -389,7 +389,7 @@ void resetMultiArcIntegratedEphemerides(
         std::shared_ptr< MultiArcEphemeris > currentBodyEphemeris =
                 std::dynamic_pointer_cast< MultiArcEphemeris >(
                     bodyMap.at( bodiesToIntegrate.at( bodyIndex ) )->getEphemeris( ) );
-        if( currentBodyEphemeris == NULL )
+        if( currentBodyEphemeris == nullptr )
         {
             throw std::runtime_error( "Error when resetting ephemeris of body " + bodiesToIntegrate.at( bodyIndex ) +
                                       ", original ephemeris is of incompatible type" );
@@ -399,7 +399,7 @@ void resetMultiArcIntegratedEphemerides(
         for( unsigned int j = 0; j < arcStartTimes.size( ); j++ )
         {
             std::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType ) >
-                    integrationToEphemerisFrameFunction = NULL;
+                    integrationToEphemerisFrameFunction = nullptr;
             
             // Create transformation function, if needed.
             if( integrationToEphemerisFrameFunctions.count( bodiesToIntegrate.at( bodyIndex ) ) > 0 )
@@ -450,14 +450,14 @@ void resetIntegratedRotationalEphemerisOfBody(
     using namespace tudat::interpolators;
     using namespace tudat::ephemerides;
     
-    if( bodyMap.at( bodyToIntegrate )->getRotationalEphemeris( ) == NULL )
+    if( bodyMap.at( bodyToIntegrate )->getRotationalEphemeris( ) == nullptr )
     {
         throw std::runtime_error( "Error, no rotational ephemeris detected for body " +
                                   bodyToIntegrate + " when resetting ephemeris" );
     }
     // If current ephemeris is not already a tabulated ephemeris, create new ephemeris.
     else if( std::dynamic_pointer_cast< TabulatedRotationalEphemeris< StateScalarType, TimeType > >(
-                 bodyMap.at( bodyToIntegrate )->getRotationalEphemeris( ) ) == NULL )
+                 bodyMap.at( bodyToIntegrate )->getRotationalEphemeris( ) ) == nullptr )
     {
         throw std::runtime_error( "Error when resetting integrated rotational ephemeris of body, rotation model type is incompatible " );
         
@@ -958,7 +958,7 @@ createIntegratedStateProcessors(
         // Check input consistency
         std::shared_ptr< MultiTypePropagatorSettings< StateScalarType > > multiTypePropagatorSettings =
                 std::dynamic_pointer_cast< MultiTypePropagatorSettings< StateScalarType > >( propagatorSettings );
-        if( multiTypePropagatorSettings == NULL )
+        if( multiTypePropagatorSettings == nullptr )
         {
             throw std::runtime_error( "Error, multi-type propagator settings are inconsistent when make state processors" );
         }
@@ -977,7 +977,7 @@ createIntegratedStateProcessors(
             {
                 for( unsigned int i = 0; i < typeIterator->second.size( ); i++ )
                 {
-                    if(  typeIterator->second.at( i ) == NULL )
+                    if(  typeIterator->second.at( i ) == nullptr )
                     {
                         std::string errorMessage = "Error in when processing hybrid propagator settings, propagator entry " +
                                 std::to_string( i ) + " is not defined.";
@@ -1027,7 +1027,7 @@ createIntegratedStateProcessors(
         std::shared_ptr< TranslationalStatePropagatorSettings< StateScalarType > >
                 translationalPropagatorSettings = std::dynamic_pointer_cast
                 < TranslationalStatePropagatorSettings< StateScalarType > >( propagatorSettings );
-        if( translationalPropagatorSettings == NULL )
+        if( translationalPropagatorSettings == nullptr )
         {
             throw std::runtime_error( "Error, input type is inconsistent in createIntegratedStateProcessors" );
         }
@@ -1057,7 +1057,7 @@ createIntegratedStateProcessors(
         std::shared_ptr< MassPropagatorSettings< StateScalarType > >
                 massPropagatorSettings = std::dynamic_pointer_cast
                 < MassPropagatorSettings< StateScalarType > >( propagatorSettings );
-        if( massPropagatorSettings == NULL )
+        if( massPropagatorSettings == nullptr )
         {
             throw std::runtime_error( "Error, input type is inconsistent in createIntegratedStateProcessors" );
         }

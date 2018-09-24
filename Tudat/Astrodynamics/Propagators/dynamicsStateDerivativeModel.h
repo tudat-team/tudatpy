@@ -953,7 +953,7 @@ std::shared_ptr< BodyMassStateDerivative< StateScalarType, TimeType > > getBodyM
             std::shared_ptr< BodyMassStateDerivative< StateScalarType, TimeType > > massRateModel =
                     std::dynamic_pointer_cast< BodyMassStateDerivative< StateScalarType, TimeType > >(
                         stateDerivativeModels.at( propagators::body_mass_state ).at( i ) );
-            if( massRateModel == NULL )
+            if( massRateModel == nullptr )
             {
                 throw std::runtime_error( "Error when finding body's mass rate model, model type is inconsistent" );
             }
