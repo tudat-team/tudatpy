@@ -30,7 +30,7 @@ std::shared_ptr< acceleration_partials::AccelerationPartial > getAccelerationPar
             std::shared_ptr< acceleration_partials::AccelerationPartial > accelerationPartial =
                     std::dynamic_pointer_cast< acceleration_partials::AccelerationPartial >(
                         accelerationPartials.at( i ).at( j ) );
-            if( accelerationPartial != NULL )
+            if( accelerationPartial != nullptr )
             {
                 // Compare current partial against required data
                 bool partialIdentified = false;
@@ -51,7 +51,7 @@ std::shared_ptr< acceleration_partials::AccelerationPartial > getAccelerationPar
                 // Set output; check if multiple models are identified.
                 if( partialIdentified )
                 {
-                    if( matchingAccelerationPartial != NULL )
+                    if( matchingAccelerationPartial != nullptr )
                     {
                         throw std::runtime_error( "Error when getting acceleration partial, found multiple matching accelerations." );
                     }

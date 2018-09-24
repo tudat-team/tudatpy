@@ -72,7 +72,7 @@ public:
             const std::vector< aerodynamics::AerodynamicCoefficientsIndependentVariables > independentVariableNames,
             const bool areCoefficientsInAerodynamicFrame = true,
             const bool areCoefficientsInNegativeAxisDirection = true,
-            const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings = NULL ) :
+            const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings = nullptr ) :
         aerodynamicCoefficientTypes_( aerodynamicCoefficientTypes ),
         referenceLength_( referenceLength ), referenceArea_( referenceArea ),
         lateralReferenceLength_( lateralReferenceLength ),
@@ -272,7 +272,7 @@ public:
             const Eigen::Vector3d& constantMomentCoefficient = Eigen::Vector3d::Zero( ),
             const bool areCoefficientsInAerodynamicFrame = true,
             const bool areCoefficientsInNegativeAxisDirection = true,
-            const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings = NULL ) :
+            const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings = nullptr ) :
         AerodynamicCoefficientSettings(
             constant_aerodynamic_coefficients, referenceLength, referenceArea,
             lateralReferenceLength, momentReferencePoint,
@@ -305,7 +305,7 @@ public:
             constant_aerodynamic_coefficients, TUDAT_NAN, referenceArea,
             TUDAT_NAN, Eigen::Vector3d::Zero( ),
             std::vector< aerodynamics::AerodynamicCoefficientsIndependentVariables >( ),
-            areCoefficientsInAerodynamicFrame, areCoefficientsInNegativeAxisDirection, NULL ),
+            areCoefficientsInAerodynamicFrame, areCoefficientsInNegativeAxisDirection, nullptr ),
         constantForceCoefficient_( constantForceCoefficient ),
         constantMomentCoefficient_( Eigen::Vector3d::Zero( ) ){ }
 
@@ -451,7 +451,7 @@ public:
             const std::vector< aerodynamics::AerodynamicCoefficientsIndependentVariables > independentVariableNames,
             const bool areCoefficientsInAerodynamicFrame = true,
             const bool areCoefficientsInNegativeAxisDirection = true,
-            const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings = NULL ) :
+            const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings = nullptr ) :
         TabulatedAerodynamicCoefficientSettingsBase(
             tabulated_coefficients, referenceLength, referenceArea,
             lateralReferenceLength, momentReferencePoint,
@@ -490,7 +490,7 @@ public:
             const std::vector< aerodynamics::AerodynamicCoefficientsIndependentVariables > independentVariableNames,
             const bool areCoefficientsInAerodynamicFrame = true,
             const bool areCoefficientsInNegativeAxisDirection = true,
-            const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings = NULL ) :
+            const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings = nullptr ) :
         TabulatedAerodynamicCoefficientSettingsBase(
             tabulated_coefficients, TUDAT_NAN, referenceArea,
             TUDAT_NAN, Eigen::Vector3d::Constant( TUDAT_NAN ),
@@ -671,7 +671,7 @@ public:
             const std::vector< aerodynamics::AerodynamicCoefficientsIndependentVariables > independentVariableName,
             const bool areCoefficientsInAerodynamicFrame = true,
             const bool areCoefficientsInNegativeAxisDirection = true,
-            const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings = NULL ) :
+            const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings = nullptr ) :
         TabulatedAerodynamicCoefficientSettingsBase(
             tabulated_coefficients, referenceLength, referenceArea,
             lateralReferenceLength, momentReferencePoint,
@@ -723,7 +723,7 @@ public:
             const aerodynamics::AerodynamicCoefficientsIndependentVariables independentVariableName,
             const bool areCoefficientsInAerodynamicFrame = true,
             const bool areCoefficientsInNegativeAxisDirection = true,
-            const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings = NULL ) :
+            const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings = nullptr ) :
         TabulatedAerodynamicCoefficientSettingsBase(
             tabulated_coefficients, TUDAT_NAN, referenceArea,
             TUDAT_NAN, Eigen::Vector3d::Constant( TUDAT_NAN ),
@@ -770,7 +770,7 @@ public:
             const std::vector< aerodynamics::AerodynamicCoefficientsIndependentVariables > independentVariableNames,
             const bool areCoefficientsInAerodynamicFrame = true,
             const bool areCoefficientsInNegativeAxisDirection = true,
-            const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings = NULL ) :
+            const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings = nullptr ) :
         TabulatedAerodynamicCoefficientSettingsBase(
             tabulated_coefficients, TUDAT_NAN, referenceArea,
             TUDAT_NAN, Eigen::Vector3d::Constant( TUDAT_NAN ),
@@ -875,7 +875,7 @@ readGivenSizeTabulatedAerodynamicCoefficientsFromFiles(
         const std::vector< aerodynamics::AerodynamicCoefficientsIndependentVariables > independentVariableNames,
         const bool areCoefficientsInAerodynamicFrame = true,
         const bool areCoefficientsInNegativeAxisDirection = true,
-        const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings = NULL )
+        const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings = nullptr )
 {
     std::pair< boost::multi_array< Eigen::Vector3d, static_cast< size_t >( NumberOfDimensions ) >,
             std::vector< std::vector< double > > >
@@ -939,7 +939,7 @@ readGivenSizeTabulatedAerodynamicCoefficientsFromFiles(
         const std::vector< aerodynamics::AerodynamicCoefficientsIndependentVariables > independentVariableNames,
         const bool areCoefficientsInAerodynamicFrame = true,
         const bool areCoefficientsInNegativeAxisDirection = true,
-        const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings = NULL )
+        const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings = nullptr )
 {
     std::pair< boost::multi_array< Eigen::Vector3d, static_cast< size_t >( NumberOfDimensions ) >,
             std::vector< std::vector< double > > >
@@ -996,7 +996,7 @@ std::shared_ptr< AerodynamicCoefficientSettings > readTabulatedAerodynamicCoeffi
         const std::vector< aerodynamics::AerodynamicCoefficientsIndependentVariables > independentVariableNames,
         const bool areCoefficientsInAerodynamicFrame = true,
         const bool areCoefficientsInNegativeAxisDirection = true,
-        const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings = NULL );
+        const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings = nullptr );
 
 //! Function to create aerodynamic coefficient settings from coefficients stored in data files
 /*!
@@ -1025,7 +1025,7 @@ readTabulatedAerodynamicCoefficientsFromFiles(
         const std::vector< aerodynamics::AerodynamicCoefficientsIndependentVariables > independentVariableNames,
         const bool areCoefficientsInAerodynamicFrame = true,
         const bool areCoefficientsInNegativeAxisDirection = true,
-        const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings = NULL );
+        const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings = nullptr );
 
 //! Function to create an aerodynamic coefficient interface containing constant coefficients.
 /*!
@@ -1102,7 +1102,7 @@ createTabulatedCoefficientAerodynamicCoefficientInterface(
         const Eigen::Vector3d& momentReferencePoint,
         const bool areCoefficientsInAerodynamicFrame = false,
         const bool areCoefficientsInNegativeAxisDirection = true,
-        const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings = NULL )
+        const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings = nullptr )
 {
     using namespace tudat::interpolators;
 
@@ -1122,7 +1122,7 @@ createTabulatedCoefficientAerodynamicCoefficientInterface(
     // Create interpolators for coefficients.
     std::shared_ptr< MultiDimensionalInterpolator < double, Eigen::Vector3d, NumberOfDimensions > > forceInterpolator;
     std::shared_ptr< MultiDimensionalInterpolator< double, Eigen::Vector3d, NumberOfDimensions > > momentInterpolator;
-    if ( interpolatorSettings == NULL )
+    if ( interpolatorSettings == nullptr )
     {
         forceInterpolator = createMultiDimensionalInterpolator< double, Eigen::Vector3d, NumberOfDimensions >(
                     independentVariables, forceCoefficients,

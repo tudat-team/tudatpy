@@ -261,7 +261,7 @@ getSphericalHarmonicAccelerationForDependentVariables(
         sphericalHarmonicAcceleration =
                 std::dynamic_pointer_cast< gravitation::SphericalHarmonicsGravitationalAccelerationModel >(
                     listOfSuitableAccelerationModels.at( 0 ) );
-        if( sphericalHarmonicAcceleration == NULL )
+        if( sphericalHarmonicAcceleration == nullptr )
         {
             std::string errorMessage = "Error when getting spherical harmonic acceleration for dependent variable " +
                     dependentVariableSettings->associatedBody_ + " and " +
@@ -437,7 +437,7 @@ std::pair< std::function< Eigen::VectorXd( ) >, int > getVectorDependentVariable
                 std::dynamic_pointer_cast< gravitation::TimeDependentSphericalHarmonicsGravityField >(
                     bodyMap.at( dependentVariableSettings->secondaryBody_ )->getGravityFieldModel( ) );
 
-        if( timeDependentGravityField == NULL )
+        if( timeDependentGravityField == nullptr )
         {
             throw std::runtime_error( "Error when requesting save of gravity field variation acceleration, central body " +
                                       dependentVariableSettings->secondaryBody_ +
@@ -471,7 +471,7 @@ std::pair< std::function< Eigen::VectorXd( ) >, int > getVectorDependentVariable
     {
         std::shared_ptr< SingleVariationSphericalHarmonicAccelerationSaveSettings > accelerationVariableSettings =
                 std::dynamic_pointer_cast< SingleVariationSphericalHarmonicAccelerationSaveSettings >( dependentVariableSettings );
-        if( accelerationVariableSettings == NULL )
+        if( accelerationVariableSettings == nullptr )
         {
             std::string errorMessage= "Error, inconsistent inout when creating dependent variable function of type single_gravity_field_variation_acceleration";
             throw std::runtime_error( errorMessage );
@@ -485,7 +485,7 @@ std::pair< std::function< Eigen::VectorXd( ) >, int > getVectorDependentVariable
                     std::dynamic_pointer_cast< gravitation::TimeDependentSphericalHarmonicsGravityField >(
                         bodyMap.at( dependentVariableSettings->secondaryBody_ )->getGravityFieldModel( ) );
 
-            if( timeDependentGravityField == NULL )
+            if( timeDependentGravityField == nullptr )
             {
                 throw std::runtime_error( "Error when requesting save of gravity field variation acceleration, central body " +
                                           dependentVariableSettings->secondaryBody_ +
@@ -522,7 +522,7 @@ std::pair< std::function< Eigen::VectorXd( ) >, int > getVectorDependentVariable
     {
         std::shared_ptr< SingleVariationSingleTermSphericalHarmonicAccelerationSaveSettings > accelerationVariableSettings =
                 std::dynamic_pointer_cast< SingleVariationSingleTermSphericalHarmonicAccelerationSaveSettings >( dependentVariableSettings );
-        if( accelerationVariableSettings == NULL )
+        if( accelerationVariableSettings == nullptr )
         {
             std::string errorMessage= "Error, inconsistent inout when creating dependent variable function of type single_gravity_field_variation_acceleration_terms";
             throw std::runtime_error( errorMessage );
@@ -536,7 +536,7 @@ std::pair< std::function< Eigen::VectorXd( ) >, int > getVectorDependentVariable
                     std::dynamic_pointer_cast< gravitation::TimeDependentSphericalHarmonicsGravityField >(
                         bodyMap.at( dependentVariableSettings->secondaryBody_ )->getGravityFieldModel( ) );
 
-            if( timeDependentGravityField == NULL )
+            if( timeDependentGravityField == nullptr )
             {
                 throw std::runtime_error( "Error when requesting save of gravity field variation acceleration, central body " +
                                           dependentVariableSettings->secondaryBody_ +
@@ -925,7 +925,7 @@ std::pair< std::function< Eigen::VectorXd( ) >, int > getVectorDependentVariable
     {
         std::shared_ptr< AccelerationPartialWrtStateSaveSettings > accelerationPartialVariableSettings =
                 std::dynamic_pointer_cast< AccelerationPartialWrtStateSaveSettings >( dependentVariableSettings );
-        if( accelerationPartialVariableSettings == NULL )
+        if( accelerationPartialVariableSettings == nullptr )
         {
             std::string errorMessage= "Error, inconsistent inout when creating dependent variable function of type acceleration_partial_wrt_body_translational_state";
             throw std::runtime_error( errorMessage );
@@ -1351,7 +1351,7 @@ std::function< double( ) > getDoubleDependentVariableFunction(
         case local_dynamic_pressure_dependent_variable:
         {
             if( std::dynamic_pointer_cast< aerodynamics::AtmosphericFlightConditions >(
-                        bodyMap.at( bodyWithProperty )->getFlightConditions( ) ) == NULL )
+                        bodyMap.at( bodyWithProperty )->getFlightConditions( ) ) == nullptr )
             {
                 std::string errorMessage = "Error, no atmospheric flight conditions available when requesting dynamic pressure "
                                            "output of " + bodyWithProperty + "w.r.t." + secondaryBody;
@@ -1365,7 +1365,7 @@ std::function< double( ) > getDoubleDependentVariableFunction(
         case local_aerodynamic_heat_rate_dependent_variable:
         {
             if( std::dynamic_pointer_cast< aerodynamics::AtmosphericFlightConditions >(
-                        bodyMap.at( bodyWithProperty )->getFlightConditions( ) ) == NULL )
+                        bodyMap.at( bodyWithProperty )->getFlightConditions( ) ) == nullptr )
             {
                 std::string errorMessage = "Error, no atmospheric flight conditions available when requesting heat rate "
                                            "output of " + bodyWithProperty + "w.r.t." + secondaryBody;
