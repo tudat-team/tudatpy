@@ -126,8 +126,10 @@ Eigen::Matrix< StateScalarType, 6, 1 > transformRelativeStateToFrame(
         const std::function< Eigen::Matrix3d( ) > rotationMatrixToFrameDerivativeFunction )
 {
     return transformStateToFrameFromRotations< StateScalarType >(
-                stateInBaseFrame( ) - centralBodyStateInBaseFrame( ), rotationToFrameFunction( ),
-                rotationMatrixToFrameDerivativeFunction( ) );
+                std::move( stateInBaseFrame( ) ) -
+                std::move( centralBodyStateInBaseFrame( ) ),
+                std::move( rotationToFrameFunction( ) ),
+                std::move( rotationMatrixToFrameDerivativeFunction( ) ) );
 }
 
 
