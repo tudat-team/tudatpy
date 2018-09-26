@@ -18,8 +18,8 @@ Eigen::Matrix< double, 3, 4 > calculateEulerAngle313WrtQuaternionPartial(
     Eigen::Matrix< double, 3, 4 > partialMatrix;
 
     partialMatrix( 0, 0 ) = quaternion.z( ) / termsSquared1;
-    partialMatrix( 0, 1 ) = -quaternion.y( ) / termsSquared2;
-    partialMatrix( 0, 2 ) = quaternion.x( ) / termsSquared2;
+    partialMatrix( 0, 1 ) = quaternion.y( ) / termsSquared2;
+    partialMatrix( 0, 2 ) = -quaternion.x( ) / termsSquared2;
     partialMatrix( 0, 3 ) = -quaternion.w( ) / termsSquared1;
 
     partialMatrix( 1, 0 ) = -2.0 * quaternion.w( ) * recurrentTerm;
@@ -41,9 +41,9 @@ Eigen::Matrix< double, 3, 4 > calculateEulerAngle313WrtQuaternionPartialFromEule
 {
     return calculateEulerAngle313WrtQuaternionPartial(
                 Eigen::Quaterniond(
-                    Eigen::AngleAxisd( -eulerAngles( 2 ), Eigen::Vector3d::UnitZ( ) ) *
+                    Eigen::AngleAxisd( -eulerAngles( 0 ), Eigen::Vector3d::UnitZ( ) ) *
                     Eigen::AngleAxisd( -eulerAngles( 1 ), Eigen::Vector3d::UnitX( ) ) *
-                    Eigen::AngleAxisd( -eulerAngles( 0 ), Eigen::Vector3d::UnitZ( ) ) ) );
+                    Eigen::AngleAxisd( -eulerAngles( 2 ), Eigen::Vector3d::UnitZ( ) ) ) );
 }
 
 Eigen::Quaterniond getQuaternionFrom313EulerAngles(
@@ -54,23 +54,53 @@ Eigen::Quaterniond getQuaternionFrom313EulerAngles(
 
     return Eigen::Quaterniond( cosineHalfTheta * std::cos( ( eulerAngles( 0 ) + eulerAngles( 2 ) ) / 2.0 ),
                                -sineHalfTheta * std::cos( ( eulerAngles( 0 ) - eulerAngles( 2 ) ) / 2.0 ),
-                               -sineHalfTheta * std::sin( ( eulerAngles( 0 ) - eulerAngles( 2 ) ) / 2.0 ),
+                               sineHalfTheta * std::sin( ( eulerAngles( 0 ) - eulerAngles( 2 ) ) / 2.0 ),
                                -cosineHalfTheta * std::sin( ( eulerAngles( 0 ) + eulerAngles( 2 ) ) / 2.0 ) );
 
+}
+
+//! Get classical 1-3-2 Euler angles set from rotation matrix
+Eigen::Vector3d get132EulerAnglesFromRotationMatrix(
+        const Eigen::Matrix3d& rotationMatrix )
+{
+    Eigen::Vector3d eulerAngles;
+    eulerAngles( 0 ) = std::atan2( -rotationMatrix( 2, 1 ), rotationMatrix( 1, 1 ) );
+    eulerAngles( 1 ) = std::asin( rotationMatrix( 0, 1 ) );
+    eulerAngles( 2 ) = std::atan2( -rotationMatrix( 0, 2 ), rotationMatrix( 0, 0 ) );
+    return eulerAngles;
 }
 
 Eigen::Vector3d get313EulerAnglesFromQuaternion(
         const Eigen::Quaterniond& quaternion )
 {
-    double theta = 2.0 * atan2( std::sqrt( quaternion.x( ) * quaternion.x( ) + quaternion.y( ) * quaternion.y( ) ),
-                                std::sqrt( quaternion.z( ) * quaternion.z( ) + quaternion.w( ) * quaternion.w( ) ) );
-    double phiPlus = atan2( -quaternion.z( ), quaternion.w( ) );
-    double phiMinus = atan2( -quaternion.y( ), -quaternion.x( ) );
-    Eigen::Vector3d eulerAngles = ( Eigen::Vector3d( )<< phiPlus + phiMinus, theta, phiPlus - phiMinus ).finished( );
 
-    return eulerAngles;
+    double phiPlus = -std::atan2( quaternion.z( ), quaternion.w( ) );
+    double phiMinus = -std::atan2( quaternion.y( ), -quaternion.x( ) );
 
+    double psi = phiPlus - phiMinus;
+//            atan2( 2.0 * quaternion.x( ) * quaternion.z( ) + 2.0 * quaternion.w( ) * quaternion.y( ),
+//                        ( 2.0 * quaternion.y( ) * quaternion.z( ) - 2.0 * quaternion.w( ) * quaternion.x( ) ) );
+
+    double theta = std::acos( -quaternion.x( ) * quaternion.x( ) - quaternion.y( ) * quaternion.y( ) +
+                              quaternion.z( ) * quaternion.z( ) + quaternion.w( ) * quaternion.w( ) );
+
+    double phi = phiPlus + phiMinus;
+//            atan2( 2.0 * quaternion.x( ) * quaternion.z( ) - 2.0 * quaternion.w( ) * quaternion.y( ),
+//                        - 2.0 * quaternion.y( ) * quaternion.z( ) - 2.0 * quaternion.w( ) * quaternion.x( ) );
+
+    return ( Eigen::Vector3d( )<< psi, theta, phi ).finished( );
 }
+
+Eigen::Vector3d get313EulerAnglesFromRotationMatrix(
+        const Eigen::Matrix3d& rotationMatrix )
+{
+    double theta = std::acos( rotationMatrix( 2, 2 ) );
+    double psi = std::atan2( rotationMatrix( 0, 2 ), rotationMatrix( 1, 2 ) );
+    double phi = std::atan2( rotationMatrix( 2, 0 ), -rotationMatrix( 2, 1 ) );
+
+    return ( Eigen::Vector3d( )<< psi, theta, phi ).finished( );
+}
+
 
 }
 

@@ -34,20 +34,6 @@ namespace tudat
 namespace reference_frames
 {
 
-//! Get classical 1-3-2 Euler angles set from rotation matrix
-/*!
- * Get classical 1-3-2 Euler angles set from rotation matrix R. That is, the Euler angles x, y, z are returned such that
- * R = R_{1}(x)R_{3}(y)R_{2}(z)
- * \param rotationMatrix Rotation matrix for which the equivalent Euler angles are to be computed.
- * \return Euler angles x,y,z (about 1, 3 and 2 axes, respectively).
- */
-Eigen::Vector3d get132EulerAnglesFromRotationMatrix(
-        const Eigen::Matrix3d& rotationMatrix );
-
-//psi, phi, theta
-Eigen::Vector3d get313EulerAnglesFromQuaternion(
-        const Eigen::Quaterniond& quaternion );
-
 //! Function to compute pole right ascension and declination, as well as prime meridian of date, from rotation matrix
 /*!
  *  Function to compute pole right ascension and declination, as well as prime meridian of date, from rotation matrix

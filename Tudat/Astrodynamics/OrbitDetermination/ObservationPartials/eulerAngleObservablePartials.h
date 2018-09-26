@@ -34,7 +34,7 @@ namespace observation_partials
 
 
 //! Class to compute the partial derivatives of a three-dimensional position observable.
-class EulerAngleObervationPartialWrtCurrentOrientation: public ObservationPartial< 3 >
+class EulerAngleObervationPartialWrtCurrentRotationalState: public ObservationPartial< 3 >
 {
 
 public:
@@ -44,12 +44,12 @@ public:
     EulerAngleObservationPartialReturnType;
 
 
-    EulerAngleObervationPartialWrtCurrentOrientation(
+    EulerAngleObervationPartialWrtCurrentRotationalState(
             const estimatable_parameters::EstimatebleParameterIdentifier parameterIdentifier ):
         ObservationPartial< 3 >( parameterIdentifier ){ }
 
     //! Destructor
-    ~EulerAngleObervationPartialWrtCurrentOrientation( ) { }
+    ~EulerAngleObervationPartialWrtCurrentRotationalState( ) { }
 
 
     virtual EulerAngleObservationPartialReturnType calculatePartial(
@@ -57,22 +57,21 @@ public:
             const std::vector< double >& times,
             const observation_models::LinkEndType linkEndOfFixedTime,
             const Eigen::Vector3d& currentObservation = Eigen::Vector3d::Constant( TUDAT_NAN ) )
-    {
-        
+    {        
         EulerAngleObservationPartialReturnType returnPartial;
 
         currentTime_ = times.at( 0 );
-
-        Eigen::Matrix< double, 3, Eigen::Dynamic > currentPartial =
+        currentPartial_.setZero( );
+        currentPartial_.block( 0, 0, 3, 4 ) =
                 basic_mathematics::calculateEulerAngle313WrtQuaternionPartialFromEulerAngles(
                                                             currentObservation );
-        returnPartial.push_back( std::make_pair( currentPartial, currentTime_ ) );
+        returnPartial.push_back( std::make_pair( currentPartial_, currentTime_ ) );
         return returnPartial;
     }
 
 protected:
 
-
+    Eigen::Matrix< double, 3, 7 > currentPartial_;
 
     //! Pre-declared time variable to be used in calculatePartial function.
     double currentTime_;
