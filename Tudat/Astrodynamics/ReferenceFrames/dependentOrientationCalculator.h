@@ -46,7 +46,6 @@ public:
      */
     virtual Eigen::Quaterniond getRotationToLocalFrame( ) = 0;
 
-
     //! Function to get the current rotation from the local (body-fixed) to the global (propagation/inertial) frame.
     /*!
      * Function to get the current rotation from the local (body-fixed) to the global (propagation/inertial) frame.
