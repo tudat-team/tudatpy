@@ -23,6 +23,7 @@
 #include "Tudat/Astrodynamics/ObservationModels/observationModel.h"
 #include "Tudat/Astrodynamics/ObservationModels/lightTimeSolution.h"
 #include "Tudat/Astrodynamics/ReferenceFrames/referenceFrameTransformations.h"
+#include "Tudat/Mathematics/BasicMathematics/rotationRepresentations.h"
 
 namespace tudat
 {
@@ -58,7 +59,7 @@ public:
         }
 
         // Compute and return state.
-        return reference_frames::get313EulerAnglesFromQuaternion(
+        return basic_mathematics::get313EulerAnglesFromQuaternion(
                     toBodyFixedFrameFunction_( time ) ).template cast< ObservationScalarType >( );
     }
 
@@ -82,7 +83,7 @@ public:
         linkEndStates.clear( );
         linkEndStates.push_back( Eigen::Matrix< double, 6, 1 >::Constant( TUDAT_NAN ) );
 
-        return reference_frames::get313EulerAnglesFromQuaternion(
+        return basic_mathematics::get313EulerAnglesFromQuaternion(
                     toBodyFixedFrameFunction_( time ) ).template cast< ObservationScalarType >( );
     }
 

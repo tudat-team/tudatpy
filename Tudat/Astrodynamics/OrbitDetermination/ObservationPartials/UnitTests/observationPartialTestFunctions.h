@@ -108,7 +108,9 @@ calculateAnalyticalPartials(
         const std::map< std::pair< int, int >, std::shared_ptr< ObservationPartial< ObservableSize > > >& partialObjectList,
         const std::vector< Eigen::Vector6d >& states,
         const std::vector< double >& times,
-        const LinkEndType linkEndOfFixedTime )
+        const LinkEndType linkEndOfFixedTime,
+        const Eigen::Matrix< double, ObservableSize, Eigen::Dynamic > currentObservation =
+        Eigen::Matrix< double, ObservableSize, Eigen::Dynamic >::Constant( ObservableSize, TUDAT_NAN ) )
 {
     std::vector< std::vector< std::pair< Eigen::Matrix< double, ObservableSize, Eigen::Dynamic >, double > > > partialList;
 
@@ -116,7 +118,7 @@ calculateAnalyticalPartials(
          std::shared_ptr< ObservationPartial< ObservableSize > > >::const_iterator partialIterator =
          partialObjectList.begin( ); partialIterator != partialObjectList.end( ); partialIterator++ )
     {
-        partialList.push_back( partialIterator->second->calculatePartial( states, times, linkEndOfFixedTime ) );
+        partialList.push_back( partialIterator->second->calculatePartial( states, times, linkEndOfFixedTime, currentObservation ) );
     }
     return partialList;
 }
@@ -168,7 +170,7 @@ void testObservationPartials(
     observationModelList[ linkEnds ] = observationModel;
 
     std::shared_ptr< ObservationPartialCreator< ObservableSize, double, double > > observationPartialCreator =
-        std::make_shared< ObservationPartialCreator< ObservableSize, double, double > >( );
+            std::make_shared< ObservationPartialCreator< ObservableSize, double, double > >( );
     std::pair< std::map< std::pair< int, int >, std::shared_ptr< ObservationPartial< ObservableSize > > >,
             std::shared_ptr< PositionPartialScaling > > fullAnalyticalPartialSet =
             observationPartialCreator->createObservationPartials(
@@ -189,17 +191,20 @@ void testObservationPartials(
                     observationTime, linkEndIterator->first, vectorOfTimes, vectorOfStates );
 
         // Calculate analytical observation partials.
-        positionPartialScaler->update( vectorOfStates, vectorOfTimes, static_cast< LinkEndType >( linkEndIterator->first ),
-                                       currentObservation );
+        if( positionPartialScaler != NULL )
+        {
+            positionPartialScaler->update( vectorOfStates, vectorOfTimes, static_cast< LinkEndType >( linkEndIterator->first ),
+                                           currentObservation );
+        }
+
         typedef std::vector< std::pair< Eigen::Matrix< double, ObservableSize, Eigen::Dynamic >, double > >
                 ObservationPartialReturnType;
         std::vector< ObservationPartialReturnType > analyticalObservationPartials =
                 calculateAnalyticalPartials< ObservableSize >(
-                    fullAnalyticalPartialSet.first, vectorOfStates, vectorOfTimes, linkEndIterator->first );
-
+                    fullAnalyticalPartialSet.first, vectorOfStates, vectorOfTimes, linkEndIterator->first, currentObservation );
 
         // Set and test expected partial size and time
-        //if( observableType != two_way_doppler )
+        if( observableType != euler_angle_313_observable )
         {
             std::vector< std::vector< double > > expectedPartialTimes = getAnalyticalPartialEvaluationTimes(
                         linkEnds, observableType, vectorOfTimes, fullEstimatableParameterSet );
@@ -242,7 +247,6 @@ void testObservationPartials(
             }
         }
 
-
         // Define observation function for current observable/link end
         std::function< Eigen::VectorXd( const double ) > observationFunction = std::bind(
                     &ObservationModel< ObservableSize, double, double >::computeObservations,
@@ -272,6 +276,7 @@ void testObservationPartials(
                 {
                     bodyPositionPartial +=  analyticalObservationPartials[ i ][ j ].first.block( 0, 0, ObservableSize, 3 );;
                 }
+
                 // Test position partial
                 if( observableType != angular_position )
                 {
@@ -289,7 +294,6 @@ void testObservationPartials(
                 }
             }
         }
-
 
         Eigen::Vector4d quaternionVariation;
         quaternionVariation << 1.0E-6, 1.0E-6, 1.0E-6, 1.0E-6;
@@ -315,13 +319,16 @@ void testObservationPartials(
                         bodiesWithEstimatedRotationalState[ i ], bodyMap, quaternionVariation,
                         observationFunction, observationTime, ObservableSize, appliedQuaternionPerturbation );
 
-
-
+            int indexToUse = i + numberOfBodiesWithEstimatedTranslationalState;
+            if( observableType == euler_angle_313_observable )
+            {
+                indexToUse = i;
+            }
             // Set total analytical partial
             bodyRotationalStatePartial.setZero( );
-            for( unsigned int j = 0; j < analyticalObservationPartials[ i + numberOfBodiesWithEstimatedTranslationalState ].size( ); j++ )
+            for( unsigned int j = 0; j < analyticalObservationPartials[ indexToUse ].size( ); j++ )
             {
-                bodyRotationalStatePartial +=  analyticalObservationPartials[ i + numberOfBodiesWithEstimatedTranslationalState ][ j ].first.block(
+                bodyRotationalStatePartial +=  analyticalObservationPartials[ indexToUse ][ j ].first.block(
                             0, 0, ObservableSize, 7 );
             }
 
@@ -371,6 +378,7 @@ void testObservationPartials(
                 Eigen::VectorXd currentParameterPartial;
                 int numberOfEstimatedBodies =
                         bodiesWithEstimatedTranslationalState.size( ) + bodiesWithEstimatedRotationalState.size( );
+
                 for( unsigned int i = 0; i < numericalPartialsWrtDoubleParameters.size( ); i++ )
                 {
                     currentParameterPartial.setZero( ObservableSize );
@@ -428,26 +436,26 @@ void testObservationPartials(
 }
 
 extern template void testObservationPartials< 1 >(
-        const std::shared_ptr< ObservationModel< 1, double, double > > observationModel,
-        NamedBodyMap& bodyMap,
-        const std::shared_ptr< EstimatableParameterSet< double > > fullEstimatableParameterSet,
-        const LinkEnds& linkEnds, const ObservableType observableType,
-        const double tolerance,
-        const bool testPositionPartial,
-        const bool testParameterPartial,
-        const double positionPerturbationMultiplier,
-        const Eigen::VectorXd parameterPerturbationMultipliers );
+const std::shared_ptr< ObservationModel< 1, double, double > > observationModel,
+NamedBodyMap& bodyMap,
+const std::shared_ptr< EstimatableParameterSet< double > > fullEstimatableParameterSet,
+const LinkEnds& linkEnds, const ObservableType observableType,
+const double tolerance,
+const bool testPositionPartial,
+const bool testParameterPartial,
+const double positionPerturbationMultiplier,
+const Eigen::VectorXd parameterPerturbationMultipliers );
 
 extern template void testObservationPartials< 2 >(
-        const std::shared_ptr< ObservationModel< 2, double, double > > observationModel,
-        NamedBodyMap& bodyMap,
-        const std::shared_ptr< EstimatableParameterSet< double > > fullEstimatableParameterSet,
-        const LinkEnds& linkEnds, const ObservableType observableType,
-        const double tolerance,
-        const bool testPositionPartial,
-        const bool testParameterPartial,
-        const double positionPerturbationMultiplier,
-        const Eigen::VectorXd parameterPerturbationMultipliers );
+const std::shared_ptr< ObservationModel< 2, double, double > > observationModel,
+NamedBodyMap& bodyMap,
+const std::shared_ptr< EstimatableParameterSet< double > > fullEstimatableParameterSet,
+const LinkEnds& linkEnds, const ObservableType observableType,
+const double tolerance,
+const bool testPositionPartial,
+const bool testParameterPartial,
+const double positionPerturbationMultiplier,
+const Eigen::VectorXd parameterPerturbationMultipliers );
 
 
 }

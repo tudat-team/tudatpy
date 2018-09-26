@@ -71,9 +71,9 @@ BOOST_AUTO_TEST_CASE( testPositionObsevableModel )
 
     // Create observation settings
     std::shared_ptr< ObservationSettings > observableSettings = std::make_shared< ObservationSettings >
-            ( position_observable, std::vector< std::shared_ptr< LightTimeCorrectionSettings > >( ),
+            ( euler_angle_313_observable, std::vector< std::shared_ptr< LightTimeCorrectionSettings > >( ),
               std::make_shared< ConstantObservationBiasSettings >(
-                  ( Eigen::Vector3d( ) << 543.2454, -34.244, 3431.24345 ).finished( ), true ) );
+                  ( Eigen::Vector3d( ) << 0.6, -0.3, 0.2 ).finished( ), true ) );
 
     // Create observation model.
     std::shared_ptr< ObservationModel< 3, double, double > > observationModel =
@@ -96,20 +96,34 @@ BOOST_AUTO_TEST_CASE( testPositionObsevableModel )
     BOOST_CHECK_EQUAL( linkEndTimes.size( ), 1 );
     BOOST_CHECK_EQUAL( linkEndStates.size( ), 1 );
 
-    // Check link end state/time.
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                bodyMap.at( "Earth" )->getStateInBaseFrameFromEphemeris( observationTime ),
-                linkEndStates[ 0 ], std::numeric_limits< double >::epsilon( ) );
+                observation, observation2, std::numeric_limits< double >::epsilon( ) );
+
+    // Check link end state/time.
     BOOST_CHECK_CLOSE_FRACTION( observationTime, linkEndTimes[ 0 ], std::numeric_limits< double >::epsilon( ) );
 
     // Check biased observable
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                ( bodyMap.at( "Earth" )->getStateInBaseFrameFromEphemeris( observationTime ).segment( 0, 3 ) +
-                observationBias->getObservationBias(
-                      std::vector< double >( ), std::vector< Eigen::Vector6d>( ) ) ),
-                observation, std::numeric_limits< double >::epsilon( ) );
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                observation, observation2, std::numeric_limits< double >::epsilon( ) );
+    Eigen::Quaterniond currentRotationToBodyFixedFrame = bodyMap.at( "Earth" )->getRotationalEphemeris( )->
+                getRotationToTargetFrame( observationTime );
+
+    Eigen::Vector3d currentBias =
+            observationBias->getObservationBias(
+                  std::vector< double >( ), std::vector< Eigen::Vector6d>( ) );
+    Eigen::Quaterniond computedRotationToBodyFixedFrame =
+            Eigen::Quaterniond(
+                            Eigen::AngleAxisd( -( observation( 0 ) - currentBias( 0 ) ), Eigen::Vector3d::UnitZ( ) ) *
+                            Eigen::AngleAxisd( -( observation( 1 ) - currentBias( 1 ) ), Eigen::Vector3d::UnitX( ) ) *
+                            Eigen::AngleAxisd( -( observation( 2 ) - currentBias( 2 ) ), Eigen::Vector3d::UnitZ( ) ) );
+
+    for( int i = 0; i < 3; i++ )
+    {
+        for( int j = 0; j < 3; j++ )
+        {
+            BOOST_CHECK_SMALL( std::fabs( currentRotationToBodyFixedFrame.toRotationMatrix( )( i, j ) -
+                    computedRotationToBodyFixedFrame.toRotationMatrix( )( i, j ) ),
+                    5.0 * std::numeric_limits< double >::epsilon( ) );
+        }
+    }
 
     // Check ideal observable
     observation = observationModel->computeIdealObservations(
@@ -117,14 +131,24 @@ BOOST_AUTO_TEST_CASE( testPositionObsevableModel )
     observation2 = observationModel->computeIdealObservationsWithLinkEndData(
                 observationTime, observed_body, linkEndTimes, linkEndStates );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                bodyMap.at( "Earth" )->getStateInBaseFrameFromEphemeris( observationTime ),
-                linkEndStates[ 0 ], std::numeric_limits< double >::epsilon( ) );
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                bodyMap.at( "Earth" )->getStateInBaseFrameFromEphemeris( observationTime ).segment( 0, 3 ),
-                observation, std::numeric_limits< double >::epsilon( ) );
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
                 observation, observation2, std::numeric_limits< double >::epsilon( ) );
     BOOST_CHECK_CLOSE_FRACTION( observationTime, linkEndTimes[ 0 ], std::numeric_limits< double >::epsilon( ) );
+
+
+    computedRotationToBodyFixedFrame =
+                Eigen::Quaterniond(
+                                Eigen::AngleAxisd( -observation( 0 ), Eigen::Vector3d::UnitZ( ) ) *
+                                Eigen::AngleAxisd( -observation( 1 ), Eigen::Vector3d::UnitX( ) ) *
+                                Eigen::AngleAxisd( -observation( 2 ), Eigen::Vector3d::UnitZ( ) ) );
+    for( int i = 0; i < 3; i++ )
+    {
+        for( int j = 0; j < 3; j++ )
+        {
+            BOOST_CHECK_SMALL( std::fabs( currentRotationToBodyFixedFrame.toRotationMatrix( )( i, j ) -
+                    computedRotationToBodyFixedFrame.toRotationMatrix( )( i, j ) ),
+                    5.0 * std::numeric_limits< double >::epsilon( ) );
+        }
+    }
 
 }
 

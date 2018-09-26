@@ -19,6 +19,7 @@
 #include "Tudat/Astrodynamics/ReferenceFrames/referenceFrameTransformations.h"
 #include "Tudat/Mathematics/BasicMathematics/coordinateConversions.h"
 #include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
+#include "Tudat/Mathematics/BasicMathematics/rotationRepresentations.h"
 
 namespace tudat
 {
@@ -498,11 +499,11 @@ void AerodynamicAnglesClosure::updateAngles( const double currentTime )
                     trajectory_frame, inertial_frame ).toRotationMatrix( ) ) ).transpose( );
 
     // Compute associated Euler angles and set as orientation angles.
-    Eigen::Vector3d eulerAngles = reference_frames::get132EulerAnglesFromRotationMatrix(
+    Eigen::Vector3d eulerAngles = basic_mathematics::get132EulerAnglesFromRotationMatrix(
                 currentRotationFromBodyToTrajectoryFrame_ );
-    currentBankAngle_ = eulerAngles.x( );
-    currentAngleOfSideslip_ = eulerAngles.y( );
-    currentAngleOfAttack_ = -eulerAngles.z( );
+    currentBankAngle_ = eulerAngles( 0 );
+    currentAngleOfSideslip_ = eulerAngles( 1 );
+    currentAngleOfAttack_ = -eulerAngles( 2 );
 }
 
 //! Function to make aerodynamic angle computation consistent with imposed body-fixed to inertial rotation.

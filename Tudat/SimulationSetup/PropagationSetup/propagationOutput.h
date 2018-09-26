@@ -22,6 +22,7 @@
 #include "Tudat/SimulationSetup/EnvironmentSetup/body.h"
 #include "Tudat/SimulationSetup/PropagationSetup/propagationOutputSettings.h"
 #include "Tudat/SimulationSetup/PropagationSetup/propagationSettings.h"
+#include "Tudat/Mathematics/BasicMathematics/rotationRepresentations.h"
 
 namespace tudat
 {
@@ -914,7 +915,7 @@ std::pair< std::function< Eigen::VectorXd( ) >, int > getVectorDependentVariable
                 std::bind( &simulation_setup::Body::getCurrentRotationToLocalFrame, bodyMap.at( bodyWithProperty ) );
 
         std::function< Eigen::Vector3d( const Eigen::Quaterniond ) > eulerAngleFunction =
-                std::bind( &reference_frames::get313EulerAnglesFromQuaternion, std::placeholders::_1 );
+                std::bind( &basic_mathematics::get313EulerAnglesFromQuaternion, std::placeholders::_1 );
 
         variableFunction = std::bind(
                     &evaluateReferenceFunction< Eigen::Vector3d, Eigen::Quaterniond >,
