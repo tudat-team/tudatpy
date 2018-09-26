@@ -37,9 +37,9 @@ namespace physical_constants
 {
 
 template<typename T, typename U>
-T constexpr pow(T base, U exponent) {
+T constexpr compile_time_pow(T base, U exponent) {
     static_assert(std::is_integral<U>(), "exponent must be integral");
-    return exponent == 0 ? 1 : base * pow(base, exponent - 1);
+    return exponent == 0 ? 1 : base * compile_time_pow(base, exponent - 1);
 }
 
 //! Standard gravitational acceleration at sea-level.
@@ -179,8 +179,8 @@ constexpr static double BOLTZMANN_CONSTANT = 1.3806488E-23;
  * in J / (s m^{2} K{4} )
  */
 constexpr static double STEFAN_BOLTZMANN_CONSTANT = 2.0 *
-        pow( mathematical_constants::PI, 5 ) *
-        pow( BOLTZMANN_CONSTANT, 4 ) /
+        compile_time_pow( mathematical_constants::PI, 5 ) *
+        compile_time_pow( BOLTZMANN_CONSTANT, 4 ) /
         ( 15.0 * SPEED_OF_LIGHT * SPEED_OF_LIGHT *
           PLANCK_CONSTANT * PLANCK_CONSTANT * PLANCK_CONSTANT );
 
