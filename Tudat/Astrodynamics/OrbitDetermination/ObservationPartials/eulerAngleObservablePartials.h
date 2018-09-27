@@ -33,7 +33,7 @@ namespace observation_partials
 {
 
 
-//! Class to compute the partial derivatives of a three-dimensional position observable.
+//! Class to compute the partial derivatives of a 3-1-3 Euler angle observable.
 class EulerAngleObervationPartialWrtCurrentRotationalState: public ObservationPartial< 3 >
 {
 
@@ -43,7 +43,11 @@ public:
     typedef std::vector< std::pair< Eigen::Matrix< double, 3, Eigen::Dynamic >, double > >
     EulerAngleObservationPartialReturnType;
 
-
+    //! Constructor
+    /*!
+     * Constructor
+     * \param parameterIdentifier Id of parameter for which instance of class computes partial derivatives.
+     */
     EulerAngleObervationPartialWrtCurrentRotationalState(
             const estimatable_parameters::EstimatebleParameterIdentifier parameterIdentifier ):
         ObservationPartial< 3 >( parameterIdentifier ){ }
@@ -51,8 +55,18 @@ public:
     //! Destructor
     ~EulerAngleObervationPartialWrtCurrentRotationalState( ) { }
 
-
-    virtual EulerAngleObservationPartialReturnType calculatePartial(
+    //! Function to calculate the observation partial(s) at required time.
+    /*!
+     *  Function to calculate the observation partial(s) at required time. Time is
+     *  typically obtained from evaluation of observation model.
+     *  \param states Link end state. (Not used; vector contains NaN entry)
+     *  \param times Link end time (size 1 std::vector).
+     *  \param linkEndOfFixedTime Link end that is kept fixed when computing the observable.
+     *  \param currentObservation Value of the observation for which the partial is to be computed (default NaN for
+     *  compatibility purposes)
+     *  \return Vector of pairs containing partial values and associated times.
+     */
+    EulerAngleObservationPartialReturnType calculatePartial(
             const std::vector< Eigen::Vector6d >& states,
             const std::vector< double >& times,
             const observation_models::LinkEndType linkEndOfFixedTime,
@@ -71,6 +85,7 @@ public:
 
 protected:
 
+    //! Partial derivative, as computed by last call to calculatePartial function
     Eigen::Matrix< double, 3, 7 > currentPartial_;
 
     //! Pre-declared time variable to be used in calculatePartial function.

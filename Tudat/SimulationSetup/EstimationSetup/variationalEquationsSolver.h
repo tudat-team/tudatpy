@@ -1459,6 +1459,11 @@ public:
         return variationalEquationsSolution_;
     }
 
+    //! Function to return list of start times of each arc. NOTE: This list is updated after every propagation.
+    /*!
+     * Function to return list of start times of each arc. NOTE: This list is updated after every propagation.
+     * \return List of start times of each arc. NOTE: This list is updated after every propagation.
+     */
     std::vector< double > getArcStartTimes( )
     {
         return arcStartTimes_;
@@ -1699,7 +1704,7 @@ public:
 
         // Extract single arc state to update multi-arc initial states
         integratorSettings_->initialTime_ = arcStartTimes_.at( 0 );
-        resetMultiArcInitialStatesFromSingleArcPropagation(
+        resetMultiArcInitialStates(
                     initialStateEstimate.block( singleArcDynamicsSize_, 0, multiArcDynamicsSize_, 1 ) );
 
         // Reset initial time and propagate single-arc equations
@@ -1763,7 +1768,7 @@ public:
 
         // Extract single arc state to update multi-arc initial states
         integratorSettings_->initialTime_ = arcStartTimes_.at( 0 );
-        resetMultiArcInitialStatesFromSingleArcPropagation(
+        resetMultiArcInitialStates(
                     initialStateEstimate.block( singleArcDynamicsSize_, 0, multiArcDynamicsSize_, 1 ) );
 
         // Reset initial time and propagate single-arc equations
@@ -1843,6 +1848,12 @@ public:
         return propagatorSettings_;
     }
 
+    //! Function to retrieve the dynamics simulator object (as base-class pointer)
+    /*!
+     * Function to retrieve the dynamics simulator object (as base-class pointer). This function is not yet implemented
+     * in hybric-arc model, as no single DynamicsSimulator model is used. Calling this function throws an error
+     * \return Dynamics simulator object (as base-class pointer)
+     */
     virtual std::shared_ptr< DynamicsSimulator< StateScalarType, TimeType > > getDynamicsSimulatorBase( )
     {
         throw std::runtime_error( "Error, getDynamicsSimulatorBase not implemented in hyrbid arc propagator" );
@@ -1851,6 +1862,11 @@ public:
 
 protected:
 
+    //! Function to set and process the arc start times of the multi-arc propagation
+    /*!
+     * Function to set and process the arc start times of the multi-arc propagation
+     * \param arcStartTimes Arc start times of the multi-arc propagation
+     */
     void setExtendedMultiArcParameters( const std::vector< double >& arcStartTimes )
     {
         // Retrieve and set original single and multi-arc parameter set
@@ -1886,11 +1902,17 @@ protected:
                     extendedMultiArcParameters );
     }
 
-    void resetMultiArcInitialStatesFromSingleArcPropagation(
+    //! Function to reset the initial multi-arc states
+    /*!
+     * Function to reset the initial multi-arc states
+     * \param manualMultiArcStates New multi-arc states
+     */
+    void resetMultiArcInitialStates(
             const VectorType& manualMultiArcStates )
     {
         // Retrieve full multi-arc initial states, with single-arc bodies not (correctly) set
-        std::vector< VectorType > arcInitialStates = propagatorSettings_->getMultiArcPropagatorSettings( )->getInitialStateList( );
+        std::vector< VectorType > arcInitialStates =
+                propagatorSettings_->getMultiArcPropagatorSettings( )->getInitialStateList( );
 
         // Retrieve single-arc states from ephemerides
         int currentArcSize = 0;
@@ -1909,6 +1931,11 @@ protected:
         propagatorSettings_->setInitialStatesFromConstituents( );
     }
 
+    //! Function that removes the single-arc body data from propagation results before processing data
+    /*!
+     * Function that removes the single-arc body data from propagation results before processing data
+     * \param numericalMultiArcSolution Full numerical solution of single and multi-arc bodies.
+     */
     void removeSingleArcBodiesFromMultiArcSolultion(
             std::vector< std::map< TimeType, VectorType > >& numericalMultiArcSolution )
     {
@@ -1925,6 +1952,7 @@ protected:
         }
     }
 
+    //! Update original propagator settings
     void copyExtendedMultiArcInitialStatesToOriginalSettins( )
     {
         std::vector< VectorType > extendedMultiArcInitialStates =
@@ -1941,16 +1969,22 @@ protected:
         originalPopagatorSettings_->setInitialStatesFromConstituents( );
     }
 
+    //! Object to solve multi-arc variational equations (multi-arc bodies only).
     std::shared_ptr< MultiArcVariationalEquationsSolver< StateScalarType, TimeType > > originalMultiArcSolver_;
 
+    //! Object to solve single-arc variational equations.
     std::shared_ptr< SingleArcVariationalEquationsSolver< StateScalarType, TimeType > > singleArcSolver_;
 
+    //! Object to solve multi-arc variational equations (single- and multi-arc bodies).
     std::shared_ptr< MultiArcVariationalEquationsSolver< StateScalarType, TimeType > > multiArcSolver_;
 
+    //! Propagator settings, with single- and multi-arc separately
     std::shared_ptr< HybridArcPropagatorSettings< StateScalarType > > originalPopagatorSettings_;
 
+    //! Propagator settings, with single-arc bodies added to multi-arc list
     std::shared_ptr< HybridArcPropagatorSettings< StateScalarType > > propagatorSettings_;
 
+    //! Settings to be used for integrator
     std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings_;
 
     //! Size of estimated single-arc dynamical parameters
@@ -1977,6 +2011,7 @@ protected:
     //! Estimated parameter set with extended multi-arc dynamical parameters only
     std::shared_ptr< estimatable_parameters::EstimatableParameterSet< StateScalarType > > multiArcParametersToEstimate_ ;
 
+    //! Times at which arcs for multi-arc solution start
     std::vector< double > arcStartTimes_;
 
     //! Function that retrieves the single-arc bodies' initial states as a function of time

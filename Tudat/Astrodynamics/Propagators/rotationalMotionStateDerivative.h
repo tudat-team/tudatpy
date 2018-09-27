@@ -64,6 +64,13 @@ Eigen::Vector3d evaluateRotationalEquationsOfMotion(
  */
 Eigen::Matrix4d getQuaterionToQuaternionRateMatrix( const Eigen::Vector3d& angularVelocityVectorInBodyFixedFrame );
 
+//! Function to obtain the matrix by which an angular velocity vector is to be pre-multiplied to get quaternion's time-derivative
+/*!
+ *  Function to obtain the matrix by which a body-fixed angular velocity vector is to be pre-multiplied to get the associated
+ *  quaternion's (body-fixed to inertial) time-derivative
+ *  \param quaternionVector  Current quaternion in vector representation
+ *  \return Matrix by which an angular velocity vector is to be pre-multiplied to get quaternion's time-derivative
+ */
 Eigen::Matrix< double, 4, 3 > getAngularVelocityToQuaternionRateMatrix( const Eigen::Vector4d& quaternionVector );
 
 //! Function to obtain the time derivative of a quaternion (in vector representation) of body-fixed to inertial frame

@@ -8,6 +8,7 @@ namespace tudat
 namespace basic_mathematics
 {
 
+//! Function to compute the partial derivative of 3-1-3 Euler angles w.r.t. entries of associated quaternion
 Eigen::Matrix< double, 3, 4 > calculateEulerAngle313WrtQuaternionPartial(
         const Eigen::Quaterniond& quaternion )
 {
@@ -36,6 +37,7 @@ Eigen::Matrix< double, 3, 4 > calculateEulerAngle313WrtQuaternionPartial(
 
 }
 
+//! Function to compute the partial derivative of 3-1-3 Euler angles w.r.t. entries of associated quaternion
 Eigen::Matrix< double, 3, 4 > calculateEulerAngle313WrtQuaternionPartialFromEulerAngles(
         const Eigen::Vector3d& eulerAngles )
 {
@@ -46,6 +48,7 @@ Eigen::Matrix< double, 3, 4 > calculateEulerAngle313WrtQuaternionPartialFromEule
                     Eigen::AngleAxisd( -eulerAngles( 2 ), Eigen::Vector3d::UnitZ( ) ) ) );
 }
 
+//! Get quaternion from associated 3-1-3 Euler angles
 Eigen::Quaterniond getQuaternionFrom313EulerAngles(
         const Eigen::Vector3d& eulerAngles )
 {
@@ -70,6 +73,7 @@ Eigen::Vector3d get132EulerAnglesFromRotationMatrix(
     return eulerAngles;
 }
 
+//! Get classical 3-1-3 Euler angles set from quaternion
 Eigen::Vector3d get313EulerAnglesFromQuaternion(
         const Eigen::Quaterniond& quaternion )
 {
@@ -95,6 +99,7 @@ Eigen::Vector3d get313EulerAnglesFromQuaternion(
     return ( Eigen::Vector3d( )<< psi, theta, phi ).finished( );
 }
 
+//! Get classical 3-1-3 Euler angles set from rotation matrix
 Eigen::Vector3d get313EulerAnglesFromRotationMatrix(
         const Eigen::Matrix3d& rotationMatrix )
 {

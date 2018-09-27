@@ -50,6 +50,7 @@ Eigen::Matrix4d getQuaterionToQuaternionRateMatrix( const Eigen::Vector3d& angul
     return 0.5 * ( conversionMatrix );
 }
 
+//! Function to obtain the matrix by which an angular velocity vector is to be pre-multiplied to get quaternion's time-derivative
 Eigen::Matrix< double, 4, 3 > getAngularVelocityToQuaternionRateMatrix( const Eigen::Vector4d& quaternionVector )
 {
     Eigen::Matrix< double, 4, 3 > conversionMatrix = Eigen::Matrix< double, 4, 3 >::Zero( );

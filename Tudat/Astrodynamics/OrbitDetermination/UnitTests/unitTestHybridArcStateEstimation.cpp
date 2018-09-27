@@ -31,7 +31,7 @@ namespace tudat
 {
 namespace unit_tests
 {
-BOOST_AUTO_TEST_SUITE( test_multi_arc_state_estimation )
+BOOST_AUTO_TEST_SUITE( test_hybrid_arc_state_estimation )
 
 //Using declarations.
 using namespace tudat::observation_models;
@@ -356,7 +356,7 @@ Eigen::VectorXd  executeParameterEstimation(
 }
 
 
-BOOST_AUTO_TEST_CASE( test_MultiArcStateEstimation )
+BOOST_AUTO_TEST_CASE( test_HybridArcStateEstimation )
 {
     // Perform estimation
     Eigen::VectorXd parameterError = executeParameterEstimation< double, double, double >( );

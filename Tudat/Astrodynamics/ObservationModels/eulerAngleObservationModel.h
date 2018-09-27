@@ -31,12 +31,25 @@ namespace tudat
 namespace observation_models
 {
 
-
+//! Class for simulating Z-X-Z Euler angle body orientation angles
+/*!
+ *  Class for simulating Z-X-Z Euler angle body orientation angles, as generated with e.g. star tracker observations. The
+ * observable is a Vector of size 3, with entries [alpha,beta,gamma], where the inertial-to-body-fixed rotation matrix is
+ * defined as R=R_z(alpha)R_x(beta)R_z(gamma).
+ */
 template< typename ObservationScalarType = double,
           typename TimeType = double >
 class EulerAngle313ObservationModel: public ObservationModel< 3, ObservationScalarType, TimeType >
 {
 public:    
+
+    //! Constructor
+    /*!
+     * Constructor
+     * \param toBodyFixedFrameFunction Function that returns the rotation from inertial to body-fixed frame as a function of time
+     *  \param observationBiasCalculator Object for calculating system-dependent errors in the
+     *  observable, i.e. deviations from the physically ideal observable between reference points (default none)
+     */
     EulerAngle313ObservationModel(
             const std::function< Eigen::Quaterniond( const TimeType ) > toBodyFixedFrameFunction,
             const std::shared_ptr< ObservationBias< 3 > > observationBiasCalculator = nullptr ):
@@ -46,23 +59,18 @@ public:
     //! Destructor
     ~EulerAngle313ObservationModel( ){ }
 
-    Eigen::Matrix< ObservationScalarType, 3, 1 > computeIdealObservations(
-            const TimeType time,
-            const LinkEndType linkEndAssociatedWithTime )
-
-    {
-        // Check link end
-        if( linkEndAssociatedWithTime != observed_body )
-        {
-            throw std::runtime_error(
-                        "Error when computing euler angle observable, associated link end must be observed_body " );
-        }
-
-        // Compute and return state.
-        return basic_mathematics::get313EulerAnglesFromQuaternion(
-                    toBodyFixedFrameFunction_( time ) ).template cast< ObservationScalarType >( );
-    }
-
+    //! Function to compute ideal Euler angle observation at given time.
+    /*!
+     *  This function computes the ideal Euler angle observation at a given time (without biases).
+     *  The times and states of the link ends are also returned in full precision (determined by class template
+     *  arguments). These states and times are returned by reference. For this observable, the link end states are NOT filled,
+     *  as no translational state is used by the observation model.
+     *  \param time Time at which observable is to be evaluated.
+     *  \param linkEndAssociatedWithTime Link end at which given time is valid (must be observed_body for this derived class)
+     *  \param linkEndTimes List of times at each link end during observation.
+     *  \param linkEndStates List of states at each link end during observation: filled with NaN vector by this function
+     *  \return Ideal Euler angle position observable.
+     */
     Eigen::Matrix< ObservationScalarType, 3, 1 > computeIdealObservationsWithLinkEndData(
                     const TimeType time,
                     const LinkEndType linkEndAssociatedWithTime,
@@ -89,6 +97,7 @@ public:
 
 private:
 
+    //! Function that returns the rotation from inertial to body-fixed frame as a function of time
     std::function< Eigen::Quaterniond( const TimeType ) > toBodyFixedFrameFunction_;
 };
 
