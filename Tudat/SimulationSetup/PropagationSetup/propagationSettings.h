@@ -511,11 +511,21 @@ public:
                     this->initialStates_.segment( singleArcStateSize_, multiArcStateSize_ ) );
     }
 
+    //! Function to retrieve settings for single-arc propagation component
+    /*!
+     * Function to retrieve settings for single-arc propagation component
+     * \return Settings for single-arc propagation component
+     */
     std::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > getSingleArcPropagatorSettings( )
     {
         return singleArcPropagatorSettings_;
     }
 
+    //! Function to retrieve settings for multi-arc propagation component
+    /*!
+     * Function to retrieve settings for multi-arc propagation component
+     * \return Settings for multi-arc propagation component
+     */
     std::shared_ptr< MultiArcPropagatorSettings< StateScalarType > > getMultiArcPropagatorSettings( )
     {
         return multiArcPropagatorSettings_;
@@ -531,6 +541,11 @@ public:
                 multiArcPropagatorSettings_->getInitialStates( );
     }
 
+    //! Function to create the integrated state models (e.g. acceleration/torque/mass-rate models).
+    /*!
+     * Function to create the integrated state models (e.g. acceleration/torque/mass-rate models) from associated settings objects.
+     * \param bodyMap Map of bodies in the propagation, with keys the names of the bodies.
+     */
     void resetIntegratedStateModels( const simulation_setup::NamedBodyMap& bodyMap )
     {
         singleArcPropagatorSettings_->resetIntegratedStateModels( bodyMap );
@@ -1552,6 +1567,13 @@ extern template class CustomStatePropagatorSettings< double, Time >;
 extern template class CustomStatePropagatorSettings< long double, Time >;
 #endif
 
+//! Function to retrieve list of accelerations from propagator settings
+/*!
+ *  Function to retrieve list of accelerations from propagator settings. Extracts the translational dynamics elements, and
+ *  the associated acceleration models
+ *  \param singleArcPropagatorSettings Propagator settings
+ *  \return List of acceleration models
+ */
 template< typename StateScalarType = double >
 basic_astrodynamics::AccelerationMap getAccelerationMapFromPropagatorSettings(
         const std::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > singleArcPropagatorSettings )

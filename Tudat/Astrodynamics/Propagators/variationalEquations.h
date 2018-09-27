@@ -539,6 +539,7 @@ private:
      */
     std::vector< std::pair< int, int > > statePartialAdditionIndices_;
 
+    //! Functions returning inertia tensors of bodies, to be used for rotational variational equations
     std::vector< std::pair< int, std::function< Eigen::Matrix3d( ) > > > inertiaTensorsForMultiplication_;
     
     //! List of all functions returning current partial derivative w.r.t. a parameter
@@ -577,6 +578,7 @@ private:
     //! Total matrix of partial derivatives of state derivatives w.r.t. parameter vectors.
     Eigen::MatrixXd variationalParameterMatrix_;
 
+    //! Current states, in conventional representation (e.g. transformed from specific propagator) sorted per state type
     std::unordered_map< IntegratedStateType, Eigen::VectorXd > currentStatesPerTypeInConventionalRepresentation_;
 };
 

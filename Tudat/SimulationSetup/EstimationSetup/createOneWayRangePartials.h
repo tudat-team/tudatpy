@@ -128,8 +128,7 @@ std::shared_ptr< OneWayRangePartial > createOneWayRangePartialWrtBodyRotationalS
  *  \param oneWayRangeLinkEnds Link ends (transmitter and receiever) for which one-way range partials are to be calculated
  *  (i.e. for which one-way range observations are to be processed).
  *  \param bodyMap List of all bodies, for creating one-way range partials.
- *  \param parametersToEstimate Set of parameters that are to be estimated (in addition to initial states of
- *  requested bodies)
+ *  \param parametersToEstimate Set of parameters that are to be estimated
  *  \param lightTimeCorrections List of light time correction partials to be used (empty by default)
  *  \param useBiasPartials Boolean to denote whether this function should create partials w.r.t. observation bias parameters
  *  \return Set of observation partials with associated indices in complete vector of parameters that are estimated,

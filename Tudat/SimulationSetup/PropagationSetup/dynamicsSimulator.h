@@ -1514,11 +1514,9 @@ public:
             const std::vector< double > arcStartTimes,
             const bool areEquationsOfMotionToBeIntegrated = true,
             const bool clearNumericalSolutions = true,
-            const bool setIntegratedResult = true,
-            const bool addSingleArcBodiesToMultiArcDynamics = false ):
+            const bool setIntegratedResult = true ):
         DynamicsSimulator< StateScalarType, TimeType >(
-            bodyMap, clearNumericalSolutions, setIntegratedResult ),
-        addSingleArcBodiesToMultiArcDynamics_( addSingleArcBodiesToMultiArcDynamics )
+            bodyMap, clearNumericalSolutions, setIntegratedResult )
     {       
         std::shared_ptr< HybridArcPropagatorSettings< StateScalarType > > hybridPropagatorSettings =
                 std::dynamic_pointer_cast< HybridArcPropagatorSettings< StateScalarType > >( propagatorSettings );
@@ -1574,20 +1572,18 @@ public:
         multiArcDynamicsSimulator_->integrateEquationsOfMotion(
                     initialGlobalStates.block( singleArcDynamicsSize_, 0, multiArcDynamicsSize_, 1 ) );
 
-        if( this->setIntegratedResult_ )
-        {
-            processNumericalEquationsOfMotionSolution( );
-        }
     }
 
     //! This function updates the environment with the numerical solution of the propagation
-    //! (no additional functionality in hybrid arc)
+    /*!
+     *  This function updates the environment with the numerical solution of the propagation
+     *  (no additional functionality in hybrid arc). Function may be used to process manually updtaed propagation results in
+     *  single and/or multi-arc model
+     */
     void processNumericalEquationsOfMotionSolution( )
     {
-        if( addSingleArcBodiesToMultiArcDynamics_ )
-        {
-            throw std::runtime_error( "Cannot yet add single-arc bodies to multi-arc propagation" );
-        }
+        singleArcDynamicsSimulator_->processNumericalEquationsOfMotionSolution( );
+        multiArcDynamicsSimulator_->processNumericalEquationsOfMotionSolution( );
     }
 
     //! Function to retrieve the single-arc dynamics simulator
@@ -1659,6 +1655,13 @@ public:
         return numericalSolution;
     }
 
+    //! Function to return the map of cumulative computation time history that was saved during numerical propagation.
+    /*!
+     *  Function to return the map of cumulative computation time history that was saved during numerical propagation.  First vector
+     *  entry contains single-arc results. Each subsequent vector entry contains one of the multi-arcs. Key of map denotes time,
+     *  values are computation times.
+     *  \return Vector is size 1, with entry: map of cumulative computation time history that was saved during numerical propagation.
+     */
     std::vector< std::map< TimeType, double > > getCumulativeComputationTimeHistoryBase( )
     {
         std::vector< std::map< TimeType, double > >
@@ -1678,21 +1681,17 @@ protected:
     //! Object used to propagate multi-arc dynamics
     std::shared_ptr< MultiArcDynamicsSimulator< StateScalarType, TimeType > > multiArcDynamicsSimulator_;
 
-    bool addSingleArcBodiesToMultiArcDynamics_;
-
     //! Size of single-arc (initial) state vector
     int singleArcDynamicsSize_;
 
     //! Size of multi-arc concatenated initial state vector
     int multiArcDynamicsSize_;
-
-    std::shared_ptr< MultiArcPropagatorSettings< StateScalarType > > multiArcPropagatorSettings_;
-
 };
 
 extern template class DynamicsSimulator< double, double >;
 extern template class SingleArcDynamicsSimulator< double, double >;
 extern template class MultiArcDynamicsSimulator< double, double >;
+extern template class HybridArcDynamicsSimulator< double, double >;
 
 #if( BUILD_EXTENDED_PRECISION_PROPAGATION_TOOLS )
 extern template class DynamicsSimulator< long double, double >;
@@ -1706,12 +1705,11 @@ extern template class SingleArcDynamicsSimulator< long double, Time >;
 extern template class MultiArcDynamicsSimulator< long double, double >;
 extern template class MultiArcDynamicsSimulator< double, Time >;
 extern template class MultiArcDynamicsSimulator< long double, Time >;
-#endif
 
-extern template class HybridArcDynamicsSimulator< double, double >;
 extern template class HybridArcDynamicsSimulator< long double, double >;
 extern template class HybridArcDynamicsSimulator< double, Time >;
 extern template class HybridArcDynamicsSimulator< long double, Time >;
+#endif
 
 
 

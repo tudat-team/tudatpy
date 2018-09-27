@@ -564,15 +564,21 @@ typedef std::multimap< LinkEnds, std::shared_ptr< ObservationSettings > > Observ
 
 typedef std::map< LinkEnds, std::vector< std::shared_ptr< ObservationSettings > > > ObservationSettingsListPerLinkEnd;
 
-//! Function to create list of observation models sorted by observable type and link ends from list only sorted in link ends.
+//! Function to create list of observation models sorted by observable type and link ends from list only sorted in link ends (as multimap).
 /*!
- * Function to create list of observation models sorted by observable type and link ends from list only sorted in link ends.
+ * Function to create list of observation models sorted by observable type and link ends from list only sorted in link ends (as multimap).
  * \param unsortedObservationSettingsMap List (multimap_) of observation models sorted link ends
  * \return List (map of maps) of observation models sorted by observable type and link ends
  */
 SortedObservationSettingsMap convertUnsortedToSortedObservationSettingsMap(
         const ObservationSettingsMap& unsortedObservationSettingsMap );
 
+//! Function to create list of observation models sorted by observable type and link ends from list only sorted in link ends (as map).
+/*!
+ * Function to create list of observation models sorted by observable type and link ends from list only sorted in link ends (as map).
+ * \param unsortedObservationSettingsMap List (map_) of observation models sorted link ends
+ * \return List (map of maps) of observation models sorted by observable type and link ends
+ */
 SortedObservationSettingsMap convertUnsortedToSortedObservationSettingsMap(
         const ObservationSettingsListPerLinkEnd& unsortedObservationSettingsMap );
 

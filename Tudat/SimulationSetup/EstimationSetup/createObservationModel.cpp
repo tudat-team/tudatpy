@@ -38,6 +38,7 @@ SortedObservationSettingsMap convertUnsortedToSortedObservationSettingsMap(
     return sortedObservationSettingsMap;
 }
 
+//! Function to create list of observation models sorted by observable type and link ends from list only sorted in link ends (as map).
 SortedObservationSettingsMap convertUnsortedToSortedObservationSettingsMap(
         const ObservationSettingsListPerLinkEnd& unsortedObservationSettingsMap )
 {

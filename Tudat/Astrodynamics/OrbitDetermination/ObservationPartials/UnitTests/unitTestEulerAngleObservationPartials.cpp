@@ -49,7 +49,7 @@ using namespace tudat::estimatable_parameters;
 
 BOOST_AUTO_TEST_SUITE( test_euler_angle_partials)
 
-//! Test partial derivatives of one-way range observable, using general test suite of observation partials.
+//! Test partial derivatives of Euler angle observable, using general test suite of observation partials.
 BOOST_AUTO_TEST_CASE( testEulerAnglePartials )
 {
 
