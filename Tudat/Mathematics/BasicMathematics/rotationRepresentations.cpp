@@ -78,15 +78,19 @@ Eigen::Vector3d get313EulerAnglesFromQuaternion(
     double phiMinus = -std::atan2( quaternion.y( ), -quaternion.x( ) );
 
     double psi = phiPlus - phiMinus;
-//            atan2( 2.0 * quaternion.x( ) * quaternion.z( ) + 2.0 * quaternion.w( ) * quaternion.y( ),
-//                        ( 2.0 * quaternion.y( ) * quaternion.z( ) - 2.0 * quaternion.w( ) * quaternion.x( ) ) );
-
-    double theta = std::acos( -quaternion.x( ) * quaternion.x( ) - quaternion.y( ) * quaternion.y( ) +
-                              quaternion.z( ) * quaternion.z( ) + quaternion.w( ) * quaternion.w( ) );
+    double cosineTheta = -quaternion.x( ) * quaternion.x( ) - quaternion.y( ) * quaternion.y( ) +
+            quaternion.z( ) * quaternion.z( ) + quaternion.w( ) * quaternion.w( );
+    if( cosineTheta > 1.0 )
+    {
+        cosineTheta = 1.0;
+    }
+    else if( cosineTheta < -1.0 )
+    {
+        cosineTheta = -1.0;
+    }
+    double theta = std::acos( cosineTheta );
 
     double phi = phiPlus + phiMinus;
-//            atan2( 2.0 * quaternion.x( ) * quaternion.z( ) - 2.0 * quaternion.w( ) * quaternion.y( ),
-//                        - 2.0 * quaternion.y( ) * quaternion.z( ) - 2.0 * quaternion.w( ) * quaternion.x( ) );
 
     return ( Eigen::Vector3d( )<< psi, theta, phi ).finished( );
 }

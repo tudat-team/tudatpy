@@ -63,7 +63,7 @@ public:
         currentTime_ = times.at( 0 );
         currentPartial_.setZero( );
         currentPartial_.block( 0, 0, 3, 4 ) =
-                basic_mathematics::calculateEulerAngle313WrtQuaternionPartialFromEulerAngles(
+                -basic_mathematics::calculateEulerAngle313WrtQuaternionPartialFromEulerAngles(
                                                             currentObservation );
         returnPartial.push_back( std::make_pair( currentPartial_, currentTime_ ) );
         return returnPartial;

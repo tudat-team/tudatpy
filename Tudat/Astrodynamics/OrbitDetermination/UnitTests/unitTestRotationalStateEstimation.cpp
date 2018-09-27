@@ -155,10 +155,10 @@ BOOST_AUTO_TEST_CASE( test_RotationalDynamicsEstimationFromLanderData )
                                    std::pow( phobosSemiMajorAxis, 3.0 ) );
 
     // Define initial rotational state (slight-perturbation from tidally locked)
-    double initialAnglePerturbation = 1.0E-2;
+    double initialAnglePerturbation = 1.0E-3;
     double initialRotationRatePerturbation = 1.0E-2;
     Eigen::Quaterniond nominalInitialRotation =
-            Eigen::Quaterniond( Eigen::AngleAxisd( -initialAnglePerturbation, Eigen::Vector3d::UnitZ( ) ) );
+            Eigen::Quaterniond( Eigen::AngleAxisd( -initialAnglePerturbation, Eigen::Vector3d::UnitX( ) ) );
     Eigen::VectorXd systemInitialState = Eigen::VectorXd::Zero( 7 );
     systemInitialState.segment( 0, 4 ) = linear_algebra::convertQuaternionToVectorFormat( nominalInitialRotation );
     systemInitialState( 6 ) = meanMotion * ( 1.0 + initialRotationRatePerturbation );
@@ -191,7 +191,11 @@ BOOST_AUTO_TEST_CASE( test_RotationalDynamicsEstimationFromLanderData )
     currentLinkEnds[ receiver ] = std::make_pair( "Phobos", "Lander" );
     linkEndsList.push_back( currentLinkEnds );
     std::map< ObservableType, std::vector< LinkEnds > > linkEndsPerObservable;
-    linkEndsPerObservable[ one_way_range ].push_back( linkEndsList[ 0 ] );
+    //linkEndsPerObservable[ one_way_range ].push_back( linkEndsList[ 0 ] );
+
+    LinkEnds currentLinkEnds2;
+    currentLinkEnds2[ observed_body ] = std::make_pair( "Phobos", "" );
+    linkEndsPerObservable[ euler_angle_313_observable ].push_back( currentLinkEnds2 );
 
     // Create parameters to estimate
     std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames;
@@ -230,7 +234,7 @@ BOOST_AUTO_TEST_CASE( test_RotationalDynamicsEstimationFromLanderData )
     // Deifne observation times
     std::vector< double > observationTimes;
     double currentTime = initialEphemerisTime + 1800.0;
-    double observationTimeStep = 120.0;
+    double observationTimeStep = 60.0;
     while( currentTime < finalEphemerisTime - 1800.0 )
     {
         observationTimes.push_back( currentTime );
@@ -245,7 +249,7 @@ BOOST_AUTO_TEST_CASE( test_RotationalDynamicsEstimationFromLanderData )
         for( unsigned int i = 0; i < currentLinkEndsList.size( ); i++ )
         {
             measurementSimulationInput[ currentObservable ][ currentLinkEndsList.at( i ) ] =
-                    std::make_pair( observationTimes, receiver );
+                    std::make_pair( observationTimes, observed_body );
         }
     }
 
@@ -262,9 +266,13 @@ BOOST_AUTO_TEST_CASE( test_RotationalDynamicsEstimationFromLanderData )
             parametersToEstimate->template getFullParameterValues< double >( );
     Eigen::Matrix< double, Eigen::Dynamic, 1 > truthParameters = initialParameterEstimate;
     int numberOfParameters = initialParameterEstimate.rows( );
-    initialParameterEstimate( 2 ) -= 1.0E-5;
+    initialParameterEstimate( 1 ) -= 1.0E-7;
+    initialParameterEstimate( 2 ) -= 1.0E-7;
+    initialParameterEstimate( 3 ) += 1.0E-7;
+
     initialParameterEstimate.segment( 0, 4 ).normalize( );
-    initialParameterEstimate( 4 ) += 1.0E-7;
+    initialParameterEstimate( 5 ) += 1.0E-9;
+    initialParameterEstimate( 7 ) += 1.0E-12;
 
     // Define estimation input
     std::shared_ptr< PodInput< double, double  > > podInput =
@@ -274,7 +282,7 @@ BOOST_AUTO_TEST_CASE( test_RotationalDynamicsEstimationFromLanderData )
 
     // Perform estimation
     std::shared_ptr< PodOutput< double > > podOutput = orbitDeterminationManager.estimateParameters(
-                podInput, std::make_shared< EstimationConvergenceChecker >( 3 ) );
+                podInput, std::make_shared< EstimationConvergenceChecker >( 6 ) );
 
     // Check residual size (sub-mm over >1 AU)
     BOOST_CHECK_SMALL( std::fabs( podOutput->residualStandardDeviation_ ), 1.0E-3 );
@@ -282,21 +290,61 @@ BOOST_AUTO_TEST_CASE( test_RotationalDynamicsEstimationFromLanderData )
     // Check parameter errors
     for( unsigned int i = 0; i < 4; i++ )
     {
-        BOOST_CHECK_SMALL( std::fabs( podOutput->parameterEstimate_( i ) - truthParameters( i ) ), 1.0E-10 );
+        BOOST_CHECK_SMALL( std::fabs( podOutput->parameterEstimate_( i ) - truthParameters( i ) ), 1.0E-14 );
     }
     for( unsigned int i = 0; i < 3; i++ )
     {
-        BOOST_CHECK_SMALL( std::fabs( podOutput->parameterEstimate_( i + 4 ) - truthParameters( i + 4 ) ), 1.0E-14 );
+        BOOST_CHECK_SMALL( std::fabs( podOutput->parameterEstimate_( i + 4 ) - truthParameters( i + 4 ) ), 1.0E-17 );
     }
     for( unsigned int i = 0; i < 1; i++ )
     {
-        BOOST_CHECK_SMALL( std::fabs( podOutput->parameterEstimate_( i + 7 ) - truthParameters( i + 7 ) ), 1.0E-12 );
+        BOOST_CHECK_SMALL( std::fabs( podOutput->parameterEstimate_( i + 7 ) - truthParameters( i + 7 ) ), 1.0E-16 );
 
     }
     std::cout<<"True error: "<<( podOutput->parameterEstimate_ - truthParameters ).transpose( )<<std::endl;
     std::cout<<"Formal error: "<<podOutput->getFormalErrorVector( ).transpose( )<<std::endl;
     std::cout<<"Error ratio: "<<( ( 1.0E-3 * podOutput->getFormalErrorVector( ).segment( 0, numberOfParameters ) ).cwiseQuotient(
                                       podOutput->parameterEstimate_ - truthParameters ) ).transpose( )<<std::endl;
+
+//    input_output::writeMatrixToFile( podOutput->normalizedInformationMatrix_,
+//                                     "rotationTestEstimationInformationMatrix.dat", 16,
+//                                     input_output::getTudatRootPath( ) );
+//    input_output::writeMatrixToFile( podOutput->informationMatrixTransformationDiagonal_,
+//                                     "rotationTestEstimationInformationMatrixNormalization.dat", 16,
+//                                     input_output::getTudatRootPath( ) );
+//    input_output::writeMatrixToFile( podOutput->weightsMatrixDiagonal_,
+//                                     "rotationTestEstimationWeightsDiagonal.dat", 16,
+//                                     input_output::getTudatRootPath( ) );
+//    input_output::writeMatrixToFile( podOutput->residuals_,
+//                                     "rotationTestEstimationResiduals.dat", 16,
+//                                     input_output::getTudatRootPath( ) );
+//    input_output::writeMatrixToFile( podOutput->getCorrelationMatrix( ),
+//                                     "rotationTestEstimationCorrelations.dat", 16,
+//                                     input_output::getTudatRootPath( ) );
+//    input_output::writeMatrixToFile( podOutput->getResidualHistoryMatrix( ),
+//                                     "rotationTestResidualHistory.dat", 16,
+//                                     input_output::getTudatRootPath( ) );
+//    input_output::writeMatrixToFile( podOutput->getParameterHistoryMatrix( ),
+//                                     "rotationTestParameterHistory.dat", 16,
+//                                     input_output::getTudatRootPath( ) );
+//    input_output::writeMatrixToFile( getConcatenatedMeasurementVector( podInput->getObservationsAndTimes( ) ),
+//                                     "rotationTestObservationMeasurements.dat", 16,
+//                                     input_output::getTudatRootPath( ) );
+//    input_output::writeMatrixToFile( utilities::convertStlVectorToEigenVector(
+//                                         getConcatenatedTimeVector( podInput->getObservationsAndTimes( ) ) ),
+//                                     "rotationTestObservationTimes.dat", 16,
+//                                     input_output::getTudatRootPath( ) );
+//    input_output::writeMatrixToFile( utilities::convertStlVectorToEigenVector(
+//                                         getConcatenatedGroundStationIndex( podInput->getObservationsAndTimes( ) ).first ),
+//                                     "rotationTestObservationLinkEnds.dat", 16,
+//                                     input_output::getTudatRootPath( ) );
+//    input_output::writeMatrixToFile( getConcatenatedMeasurementVector( podInput->getObservationsAndTimes( ) ),
+//                                     "rotationTestObservationMeasurements.dat", 16,
+//                                     input_output::getTudatRootPath( ) );
+
+//    input_output::writeMatrixToFile( podOutput->getFormalErrorVector( ),
+//                                     "rotationTestObservationFormalEstimationError.dat", 16,
+//                                     input_output::getTudatRootPath( ) );
 }
 
 //! Test if Phobos coupled translational-rotational dynamics is correctly estimation from lander tracking data

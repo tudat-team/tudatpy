@@ -105,6 +105,10 @@ std::pair< Eigen::VectorXd, Eigen::MatrixXd > performLeastSquaresAdjustmentFromI
         const Eigen::MatrixXd& constraintMultiplier,
         const Eigen::VectorXd& constraintRightHandside )
 {
+//    std::cout<<"Residuals "<<observationResiduals.transpose( )<<std::endl;
+//    std::cout<<"Weight diag. "<<diagonalOfWeightMatrix.transpose( )<<std::endl;
+//    std::cout<<"Partials "<<informationMatrix.transpose( )<<std::endl;
+
     Eigen::VectorXd rightHandSide = informationMatrix.transpose( ) *
             ( diagonalOfWeightMatrix.cwiseProduct( observationResiduals ) );
     Eigen::MatrixXd inverseOfCovarianceMatrix = calculateInverseOfUpdatedCovarianceMatrix(
@@ -138,6 +142,9 @@ std::pair< Eigen::VectorXd, Eigen::MatrixXd > performLeastSquaresAdjustmentFromI
         rightHandSide.conservativeResize( numberOfParameters + numberOfConstraints );
         rightHandSide.segment( numberOfParameters, numberOfConstraints ) = constraintRightHandside;
     }
+
+//    std::cout<<"RHS "<<rightHandSide.transpose( )<<std::endl;
+//    std::cout<<"Inv cov "<<inverseOfCovarianceMatrix<<std::endl;
 
     return std::make_pair( solveSystemOfEquationsWithSvd(
                                inverseOfCovarianceMatrix, rightHandSide, checkConditionNumber, maximumAllowedConditionNumber ),
