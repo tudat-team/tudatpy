@@ -8,6 +8,8 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
+#include <iostream>
+
 #include "Tudat/Astrodynamics/ObservationModels/observableTypes.h"
 #include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
 
@@ -319,6 +321,34 @@ std::vector< int > getLinkEndIndicesForLinkEndTypeAtObservable(
     }
 
     return linkEndIndices;
+}
+
+void checkObservationResidualDiscontinuities(
+        Eigen::Block< Eigen::VectorXd > observationResidualBlock,
+        const ObservableType observableType )
+{
+    if( observableType == angular_position || observableType == euler_angle_313_observable )
+    {
+        for( int i = 1; i < observationResidualBlock.rows( ); i++ )
+        {
+            if( std::fabs( observationResidualBlock( i, 0 ) - observationResidualBlock( i - 1, 0 ) ) > 6.0 )
+            {
+                if( observationResidualBlock( i, 0 ) > 0 )
+                {
+                    observationResidualBlock( i, 0 ) = observationResidualBlock( i, 0 ) - 2.0 * mathematical_constants::PI;
+                }
+                else
+                {
+                    observationResidualBlock( i, 0 ) = observationResidualBlock( i, 0 ) + 2.0 * mathematical_constants::PI;
+                }
+            }
+            else if( std::fabs( observationResidualBlock( i, 0 ) - observationResidualBlock( i - 1, 0 ) ) > 3.0 )
+            {
+                std::cerr<<"Warning, detected jump in observation residual of size "<<std::fabs( observationResidualBlock( i, 0 ) - observationResidualBlock( i - 1, 0 ) )<<
+                           " for observable type "<<observableType<<std::endl;
+            }
+        }
+    }
 }
 
 }

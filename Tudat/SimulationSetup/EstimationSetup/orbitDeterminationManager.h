@@ -289,6 +289,8 @@ public:
         for( typename PodInputType::const_iterator observablesIterator = observationsAndTimes.begin( );
              observablesIterator != observationsAndTimes.end( ); observablesIterator++ )
         {
+            int observableStartIndex = startIndex;
+
             // Iterate over all link ends for current observable type in observationsAndTimes
             for( typename SingleObservablePodInputType::const_iterator dataIterator = observablesIterator->second.begin( );
                  dataIterator != observablesIterator->second.end( ); dataIterator++  )
@@ -306,7 +308,6 @@ public:
                 residualsAndPartials.first.segment( startIndex, dataIterator->second.first.size( ) ) =
                         ( dataIterator->second.first - observationsWithPartials.first ).template cast< double >( );
 
-
                 // Set current observation partials in matrix of all partials
                 residualsAndPartials.second.block( startIndex, 0, dataIterator->second.first.size( ), parameterVectorSize ) =
                         observationsWithPartials.second;
@@ -315,8 +316,16 @@ public:
                 startIndex += dataIterator->second.first.size( );
 
             }
+
+            int currentObservableSize = startIndex - observableStartIndex;
+            observation_models::checkObservationResidualDiscontinuities(
+                        residualsAndPartials.first.block( observableStartIndex, 0, currentObservableSize, 1 ),
+                        observablesIterator->first );
         }
+
     }
+
+
 
     //! Function to normalize the matrix of partial derivatives so that each column is in the range [-1,1]
     /*!
@@ -500,9 +509,9 @@ public:
                 parametersToEstimate_->getConstraints( constraintStateMultiplier, constraintRightHandSide );
                 leastSquaresOutput =
                         std::move( linear_algebra::performLeastSquaresAdjustmentFromInformationMatrix(
-                            residualsAndPartials.second.block( 0, 0, residualsAndPartials.second.rows( ), numberOfEstimatedParameters ),
-                            residualsAndPartials.first, getConcatenatedWeightsVector( podInput->getWeightsMatrixDiagonals( ) ),
-                            normalizedInverseAprioriCovarianceMatrix, 1, 1.0E8, constraintStateMultiplier, constraintRightHandSide ) );
+                                       residualsAndPartials.second.block( 0, 0, residualsAndPartials.second.rows( ), numberOfEstimatedParameters ),
+                                       residualsAndPartials.first, getConcatenatedWeightsVector( podInput->getWeightsMatrixDiagonals( ) ),
+                                       normalizedInverseAprioriCovarianceMatrix, 1, 1.0E8, constraintStateMultiplier, constraintRightHandSide ) );
 
                 if( constraintStateMultiplier.rows( ) > 0 )
                 {
@@ -519,6 +528,10 @@ public:
             ParameterVectorType parameterAddition =
                     ( leastSquaresOutput.first.cwiseQuotient( transformationData.segment( 0, numberOfEstimatedParameters ) ) ).
                     template cast< ObservationScalarType >( );
+
+            //            std::cout<<"LSQ: "<<leastSquaresOutput.first<<std::endl<<
+            //                       transformationData.segment( 0, numberOfEstimatedParameters ).transpose( )<<std::endl;
+
 
 
             // Update value of parameter vector
@@ -603,7 +616,7 @@ public:
      */
     void resetParameterEstimate( const ParameterVectorType& newParameterEstimate, const bool reintegrateVariationalEquations = 1 )
     {
-       if( integrateAndEstimateOrbit_ )
+        if( integrateAndEstimateOrbit_ )
         {
             variationalEquationsSolver_->resetParameterEstimate( newParameterEstimate, reintegrateVariationalEquations );
         }

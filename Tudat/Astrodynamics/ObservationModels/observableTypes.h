@@ -13,6 +13,8 @@
 
 #include <string>
 
+#include <Eigen/Core>
+
 #include "Tudat/Astrodynamics/ObservationModels/linkTypeDefs.h"
 
 namespace tudat
@@ -70,6 +72,10 @@ int getObservableSize( const ObservableType observableType );
  */
 std::vector< int > getLinkEndIndicesForLinkEndTypeAtObservable(
         const ObservableType observableType, const LinkEndType linkEndType, const int numberOfLinkEnds );
+
+void checkObservationResidualDiscontinuities(
+        Eigen::Block< Eigen::VectorXd > observationBlock,
+        const ObservableType observableType );
 
 } // namespace observation_models
 

@@ -366,6 +366,9 @@ protected:
             std::vector< std::pair< Eigen::Matrix< double, ObservationSize, Eigen::Dynamic >, double > > singlePartialSet =
                     partialIterator->second->calculatePartial( states, times, linkEndAssociatedWithTime, currentObservation.template cast< double >( ) );
 
+//            std::cout<<"Obs. "<<currentObservation.transpose( )<<std::endl;
+//            std::cout<<"Partial "<<singlePartialSet.at( 0 ).first<<std::endl<<std::endl;
+
             // If start index is smaller than size of state transition,
             // current partial is w.r.t. to a body to be estimated current state.
             if( currentIndexInfo.first < stateTransitionMatrixSize_ )
