@@ -426,29 +426,32 @@ protected:
 };
 
 extern template class ObservationSimulatorBase< double, double >;
+extern template class ObservationSimulator< 1, double, double >;
+extern template class ObservationSimulator< 2, double, double >;
+extern template class ObservationSimulator< 3, double, double >;
+extern template class ObservationSimulator< 6, double, double >;
+
+#if( BUILD_EXTENDED_PRECISION_PROPAGATION_TOOLS )
 extern template class ObservationSimulatorBase< double, Time >;
 extern template class ObservationSimulatorBase< long double, double >;
 extern template class ObservationSimulatorBase< long double, Time >;
 
-extern template class ObservationSimulator< 1, double, double >;
 extern template class ObservationSimulator< 1, double, Time >;
 extern template class ObservationSimulator< 1, long double, double >;
 extern template class ObservationSimulator< 1, long double, Time >;
 
-extern template class ObservationSimulator< 2, double, double >;
 extern template class ObservationSimulator< 2, double, Time >;
 extern template class ObservationSimulator< 2, long double, double >;
 extern template class ObservationSimulator< 2, long double, Time >;
 
-extern template class ObservationSimulator< 3, double, double >;
 extern template class ObservationSimulator< 3, double, Time >;
 extern template class ObservationSimulator< 3, long double, double >;
 extern template class ObservationSimulator< 3, long double, Time >;
 
-extern template class ObservationSimulator< 6, double, double >;
 extern template class ObservationSimulator< 6, double, Time >;
 extern template class ObservationSimulator< 6, long double, double >;
 extern template class ObservationSimulator< 6, long double, Time >;
+#endif
 
 }
 
