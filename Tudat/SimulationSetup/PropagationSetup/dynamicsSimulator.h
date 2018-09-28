@@ -315,6 +315,7 @@ public:
      *  at the end of propagation.
      *  \param initialClockTime Initial clock time from which to determine cumulative computation time.
      *  By default now( ), i.e. the moment at which this function is called.
+     *  \param stateDerivativeModels List of state derivative models used in the simulation.
      */
     SingleArcDynamicsSimulator(
             const simulation_setup::NamedBodyMap& bodyMap,

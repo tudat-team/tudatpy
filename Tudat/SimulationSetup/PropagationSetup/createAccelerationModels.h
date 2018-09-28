@@ -92,7 +92,6 @@ std::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > cre
  *  \param nameOfBodyExertingAcceleration Name of body that is exerting the gravitational acceleration.
  *  \param nameOfCentralBody Name of central body in frame centered at which acceleration is to
  *  be calculated.
- *  \param accelerationSettings Settings object for the gravitational acceleration.
  *  \return Gravitational acceleration model of requested settings.
  */
 std::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > createGravitationalAccelerationModel(
@@ -347,8 +346,7 @@ std::shared_ptr< gravitation::DirectTidalDissipationAcceleration > createDirectT
  *  around the Earth).
  *  \param nameOfBodyUndergoingAcceleration Name of object of body that is being accelerated.
  *  \param nameOfBodyExertingAcceleration Name of object of body that is exerting the acceleration
- *  \param accelerationSettings Settings for the acceleration model
- *  \param accelerationSettings Settings for the acceleration model
+ *  \param accelerationSettings Settings for the acceleration model.
  *  \param bodyMap List of pointers to bodies that comprise the full environment.
  *  \return Pointer to object for calculating relativistic correction acceleration.
  */

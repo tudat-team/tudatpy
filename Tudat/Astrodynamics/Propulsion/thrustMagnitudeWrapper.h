@@ -349,8 +349,6 @@ public:
      * the thrustMagnitudeFunction function.
      * \param specificImpulseDependentVariables List of identifiers for the physical meaning of each of the entries of the
      * input to the specificImpulseDependentVariables function.
-     * \param specificImpulseDependentVariables List of identifiers for the physical meaning of each of the entries of the
-     * input to the specificImpulseDependentVariables function.
      * \param inputUpdateFunction Function that is called to update the user-defined guidance to the current time
      * (empty by default).
      */

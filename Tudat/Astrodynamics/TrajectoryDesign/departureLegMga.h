@@ -25,6 +25,7 @@
 
 namespace tudat
 {
+
 namespace transfer_trajectories
 {
 
@@ -51,6 +52,7 @@ public:
      *  \param departureBodyGravitationalParameter gravitational parameter of the departure body.
      *  \param semiMajorAxis semi-major axis of the orbit after the capture is performed.
      *  \param eccentricity eccentricity of the orbit after the capture is performed.
+     *  \param includeArrivalDeltaV Boolean denoting whether to include the Delta V of arrival.
      */
     DepartureLegMga( const Eigen::Vector3d& departureBodyPosition,
                      const Eigen::Vector3d& arrivalBodyPosition,
@@ -75,7 +77,7 @@ public:
 
     //! Calculate the leg
     /*!
-     * Performs all calculations required for this leg.
+     *  Performs all calculations required for this leg.
      *  \param velocityBeforeArrivalBody the velocity of the spacecraft before it arrives at the target body.
      *  \param deltaV the delta V required to perform the leg.
      */
@@ -84,8 +86,8 @@ public:
 
     //! Calculate intermediate positions and their corresponding times.
     /*!
-     * Calculates intermediate positions and their corresponding times in the leg, based on a
-     * maximum time between two points.
+     *  Calculates intermediate positions and their corresponding times in the leg, based on a
+     *  maximum time between two points.
      *  \param maximumTimeStep the maximum time between two points along the trajectory.
      *  \param positionVector Vector of positions along the orbit, space according to the maximum time step.
      *  \param timeVector The times corresponding to the positions.
@@ -94,11 +96,11 @@ public:
     void intermediatePoints( const double maximumTimeStep,
                              std::vector < Eigen::Vector3d >& positionVector,
                              std::vector < double >& timeVector,
-                             const double startingTime = 0. );
+                             const double startingTime = 0.0 );
 
     //! Return maneuvres along the leg.
     /*!
-     * Returns the maneuver points, times and sizes along the trajectory.
+     *  Returns the maneuver points, times and sizes along the trajectory.
      *  \param positionVector Vector of the positions of the maneuvers.
      *  \param timeVector The times corresponding to the positions.
      *  \param deltaVVector the delta V required for each maneuver.
@@ -111,8 +113,8 @@ public:
 
     //! Update the defining variables.
     /*!
-     * Sets the trajectory defining variables to the newly specified values. Required for re-using
-     * the class, without re-initializing it. For this leg: time of flight.
+     *  Sets the trajectory defining variables to the newly specified values. Required for re-using
+     *  the class, without re-initializing it. For this leg: time of flight.
      *  \param variableVector the new variable vector.
      */
     void updateDefiningVariables( const Eigen::VectorXd& variableVector );
@@ -122,7 +124,9 @@ protected:
 private:
 
 };
+
 } // namespace transfer_trajectories
+
 } // namespace tudat
 
 #endif // TUDAT_DEPARTURE_LEG_MGA_H
