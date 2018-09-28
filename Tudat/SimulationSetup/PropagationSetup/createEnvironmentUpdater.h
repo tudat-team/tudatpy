@@ -98,11 +98,10 @@ void checkAndModifyEnvironmentForDependentVariableSaving(
 
 //! Function to create environment update settings for a single dependent variable
 /*!
- *Function to create environment update settings for a single dependent variable
+ * Function to create environment update settings for a single dependent variable
  * \param dependentVariableSaveSettings Settings for single dependent variable
- * \param bodyMap
- *  \param bodyMap List of body objects that comprises the environment
- *  \return List of required environment model updates.
+ * \param bodyMap List of body objects that comprises the environment
+ * \return List of required environment model updates.
  */
 std::map< propagators::EnvironmentModelsToUpdate,
 std::vector< std::string > > createEnvironmentUpdaterSettingsForDependentVariables(

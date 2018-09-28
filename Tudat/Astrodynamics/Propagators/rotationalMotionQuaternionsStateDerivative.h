@@ -56,7 +56,7 @@ Eigen::Vector4d calculateQuaternionDerivative( const Eigen::Vector4d& currentQua
 
 //! Class for computing the state derivative for rotational dynamics of N bodies.
 /*!
- *  Class for computing the state derivative for rotational dynamics of N bodies., using quaternion from body-fixed to inertial
+ *  Class for computing the state derivative for rotational dynamics of N bodies, using quaternion from body-fixed to inertial
  *  frame (in quaternion format) and angular velocity-vector of body expressed in body-fixed frame as the rotational state of a
  *  single body
  */

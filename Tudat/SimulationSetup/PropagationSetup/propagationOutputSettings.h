@@ -441,8 +441,8 @@ public:
     //! Constructor
     /*!
      * Constructor
-     * \param associatedBody Body undergoing acceleration.
-     * \param centralBody Body exerting acceleration.
+     * \param bodyUndergoingAcceleration Body undergoing acceleration.
+     * \param bodyExertingAcceleration Body exerting acceleration.
      * \param accelerationModelType Type of acceleration that is to be saved.
      * \param derivativeWrtBody
      * \param thirdBody

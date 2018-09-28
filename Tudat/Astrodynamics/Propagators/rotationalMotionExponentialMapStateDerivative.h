@@ -26,17 +26,17 @@ namespace propagators
 //! Function to obtain the time derivative of an exponential map (in vector representation) of body-fixed to inertial frame
 /*!
  * Function to obtain the time derivative of an exponential map (in vector representation) of body-fixed to inertial frame
- * \param currentExponentialMapToBaseFrame ExponentialMap (in vector representation) that defined the rotation from body-fixed to inertial
- * frame.
+ * \param currentExponentialMapToBaseFrame ExponentialMap (in vector representation) that define the rotation from body-fixed to
+ * inertial frame.
  * \param angularVelocityVectorInBodyFixedFrame Current angular velocity vector of body, expressed in its body-fixed frame
  * \return Time derivative of an exponential map (in vector representation) of body-fixed to inertial frame
  */
-Eigen::Vector4d calculateExponentialMapDerivative( const Eigen::Vector4d& currentExponantialMapToBaseFrame,
+Eigen::Vector4d calculateExponentialMapDerivative( const Eigen::Vector4d& currentExponentialMapToBaseFrame,
                                                    const Eigen::Vector3d& angularVelocityVectorInBodyFixedFrame );
 
 //! Class for computing the state derivative for rotational dynamics of N bodies.
 /*!
- *  Class for computing the state derivative for rotational dynamics of N bodies., using exponential map from body-fixed to inertial
+ *  Class for computing the state derivative for rotational dynamics of N bodies, using exponential map from body-fixed to inertial
  *  frame (in exponential map format) and angular velocity-vector of body expressed in body-fixed frame as the rotational state of a
  *  single body
  */

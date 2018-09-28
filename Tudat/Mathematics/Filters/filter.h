@@ -78,8 +78,7 @@ public:
      *      a-priori estimate of the state vector.
      *  \param initialCovarianceMatrix Matrix representing the initial (estimated) covariance of the system. It is used as first
      *      a-priori estimate of the covariance matrix.
-     *  \param isStateToBeIntegrated Boolean defining whether the system function needs to be integrated.
-     *  \param integrator Pointer to integrator to be used to propagate state.
+     *  \param integratorSettings Settings for the numerical integrator to be used to propagate state.
      */
     FilterBase( const DependentMatrix& systemUncertainty,
                 const DependentMatrix& measurementUncertainty,
@@ -263,7 +262,7 @@ public:
     //! Function to modify the current time.
     /*!
      *  Function to modify the current time, without interrupting the filtering process.
-     *  \param newFilteringStepSize Double denoting the new current time.
+     *  \param newCurrentTime Double denoting the new current time.
      */
     void modifyCurrentTime( const double newCurrentTime )
     {

@@ -57,17 +57,19 @@ public:
 
     //! Constructor from map of independent/dependent data.
     /*!
-     * This constructor initializes the interpolator from a map containing independent variables
-     * as key and dependent variables as value. A look-up scheme can be provided to override the
-     * given default.
-     * \param dataMap Map containing independent variables as key and dependent variables as
-     *          value.
-     * \param maximumAllowableVariation Maximum allowable deviation between two dependent variable values, above which a jump is
-     *          identified.
-     * \param jumpSize Magnitude of jumps in dependent variable data.
-     * \param selectedLookupScheme Identifier of lookupscheme from enum. This algorithm is used
-     *          to find the nearest lower data point in the independent variables when requesting
-     *          interpolation.
+     *  This constructor initializes the interpolator from a map containing independent variables
+     *  as key and dependent variables as value. A look-up scheme can be provided to override the
+     *  given default.
+     *  \param dataMap Map containing independent variables as key and dependent variables as value.
+     *  \param maximumAllowableVariation Maximum allowable deviation between two dependent variable values, above which a
+     *      jump is identified.
+     *  \param jumpSize Magnitude of jumps in dependent variable data.
+     *  \param selectedLookupScheme Identifier of lookupscheme from enum. This algorithm is used to find the nearest
+     *      lower data point in the independent variables when requesting interpolation.
+     *  \param boundaryHandling Boundary handling method, in case the independent variable is outside the
+     *      specified range.
+     *  \param defaultExtrapolationValue Pair of default values to be used for extrapolation, in case
+     *      of use_default_value or use_default_value_with_warning as methods for boundaryHandling.
      */
     JumpDataLinearInterpolator( const std::map< IndependentVariableType, DependentVariableType >& dataMap,
                                 const DependentVariableType maximumAllowableVariation,
