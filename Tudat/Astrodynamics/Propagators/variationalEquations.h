@@ -498,7 +498,7 @@ extern template void VariationalEquations::getBodyInitialStatePartialMatrix< dou
 extern template void VariationalEquations::getBodyInitialStatePartialMatrix< long double >(
         const Eigen::Matrix< long double, Eigen::Dynamic, Eigen::Dynamic >& stateTransitionAndSensitivityMatrices,
         Eigen::Block< Eigen::Matrix< long double, Eigen::Dynamic, Eigen::Dynamic > > currentMatrixDerivative );
-//#endif
+
 
 } // namespace propagators
 
