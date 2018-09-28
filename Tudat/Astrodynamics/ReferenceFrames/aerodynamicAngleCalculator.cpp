@@ -180,7 +180,6 @@ void AerodynamicAngleCalculator::update( const double currentTime, const bool up
     }
 }
 
-
 //! Function to get the rotation quaternion between two frames
 Eigen::Quaterniond AerodynamicAngleCalculator::getRotationQuaternionBetweenFrames(
         const AerodynamicsReferenceFrames originalFrame,
@@ -188,7 +187,6 @@ Eigen::Quaterniond AerodynamicAngleCalculator::getRotationQuaternionBetweenFrame
 {
     // Initialize rotation to identity matrix.
     Eigen::Quaterniond rotationToFrame = Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) );
-
 
     // Check if update settings are consistent with requested frames.
     if( !calculateVerticalToAerodynamicFrame_ &&
@@ -225,7 +223,6 @@ Eigen::Quaterniond AerodynamicAngleCalculator::getRotationQuaternionBetweenFrame
             {
                 throw std::runtime_error(
                             "Error when identifying target frame direction in AerodynamicAngleCalculator." );
-
             }
 
             // Add rotation sequence until final frame is reached.
@@ -234,7 +231,6 @@ Eigen::Quaterniond AerodynamicAngleCalculator::getRotationQuaternionBetweenFrame
                 switch( currentFrameIndex )
                 {
                 case static_cast< int >( inertial_frame ):
-
                     if( isTargetFrameUp )
                     {
                         rotationToFrame = currentRotationFromCorotatingToInertialFrame_.inverse( ) *
@@ -247,7 +243,6 @@ Eigen::Quaterniond AerodynamicAngleCalculator::getRotationQuaternionBetweenFrame
                     }
                     break;
                 case static_cast< int >( corotating_frame ):
-
                     if( isTargetFrameUp )
                     {
                         rotationToFrame =
@@ -287,7 +282,6 @@ Eigen::Quaterniond AerodynamicAngleCalculator::getRotationQuaternionBetweenFrame
                                 getTrajectoryToAerodynamicFrameTransformationQuaternion(
                                     currentAerodynamicAngles_.at( bank_angle ) ) *
                                 rotationToFrame;
-
                     }
                     else
                     {
@@ -318,7 +312,6 @@ Eigen::Quaterniond AerodynamicAngleCalculator::getRotationQuaternionBetweenFrame
                 case static_cast< int >( body_frame ):
                     if( isTargetFrameUp )
                     {
-
                         throw std::runtime_error(
                                     "Error, body frame is end frame in AerodynamicAngleCalculator." );
                     }
@@ -333,10 +326,8 @@ Eigen::Quaterniond AerodynamicAngleCalculator::getRotationQuaternionBetweenFrame
                     break;
                 default:
                     throw std::runtime_error(
-                                "Error, index " +
-                                std::to_string( currentFrameIndex ) +
-                                "not found in AerodynamicAngleCalculator" );
-
+                                "Error, index " + std::to_string( currentFrameIndex ) +
+                                "not found in AerodynamicAngleCalculator." );
                 }
 
                 // Increment/decrement current frame.
@@ -371,8 +362,8 @@ double AerodynamicAngleCalculator::getAerodynamicAngle(
     double angleValue = TUDAT_NAN;
     if( currentAerodynamicAngles_.count( angleId ) == 0 )
     {
-        throw std::runtime_error( "Error in AerodynamicAngleCalculator, angleId " +
-                                  std::to_string( angleId ) + "not found" );
+        throw std::runtime_error( "Error in AerodynamicAngleCalculator, angle " +
+                                  std::to_string( angleId ) + " not found" );
     }
     else
     {
@@ -423,7 +414,6 @@ void AerodynamicAngleCalculator::setOrientationAngleFunctions(
         }
         angleUpdateFunction_ = angleUpdateFunction;
     }
-
 }
 
 //! Function to set constant trajectory<->body-fixed orientation angles.

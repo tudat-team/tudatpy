@@ -11,7 +11,6 @@
  *      Mooij, E. The Motion of a vehicle in a Planetary Atmosphere, TU Delft, 1997.
  *      Seidelmann, P. K. (Ed.). (2005). Explanatory supplement to the astronomical almanac.
  *              Univ Science Books.
- *
  */
 
 #ifndef TUDAT_REFERENCE_FRAME_TRANSFORMATIONS_H
@@ -31,6 +30,7 @@
 
 namespace tudat
 {
+
 namespace reference_frames
 {
 
