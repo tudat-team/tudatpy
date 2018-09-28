@@ -190,12 +190,12 @@ protected:
     EstimatebleParameterIdentifier parameterName_;
 };
 
-extern template class EstimatableParameter< double >;
-extern template class EstimatableParameter< Eigen::VectorXd >;
+//extern template class EstimatableParameter< double >;
+//extern template class EstimatableParameter< Eigen::VectorXd >;
 
-#if( BUILD_EXTENDED_PRECISION_PROPAGATION_TOOLS )
-extern template class EstimatableParameter< Eigen::Matrix< long double, Eigen::Dynamic, 1 > >;
-#endif
+//#if( BUILD_EXTENDED_PRECISION_PROPAGATION_TOOLS )
+//extern template class EstimatableParameter< Eigen::Matrix< long double, Eigen::Dynamic, 1 > >;
+//#endif
 
 //! Container class for all parameters that are to be estimated.
 /*!
@@ -476,11 +476,11 @@ protected:
 
 };
 
-extern template class EstimatableParameterSet< double >;
+//extern template class EstimatableParameterSet< double >;
 
-#if( BUILD_EXTENDED_PRECISION_PROPAGATION_TOOLS )
-extern template class EstimatableParameterSet< long double >;
-#endif
+//#if( BUILD_EXTENDED_PRECISION_PROPAGATION_TOOLS )
+//extern template class EstimatableParameterSet< long double >;
+//#endif
 
 template< typename InitialStateParameterType >
 void printEstimatableParameterEntries(
