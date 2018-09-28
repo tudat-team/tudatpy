@@ -196,24 +196,24 @@ std::shared_ptr< acceleration_partials::AccelerationPartial > createAnalyticalAc
         }
         else
         {
-                std::map< std::pair< estimatable_parameters::EstimatebleParametersEnum, std::string >,
-                        std::shared_ptr< observation_partials::RotationMatrixPartial > >
-                        rotationMatrixPartials = observation_partials::createRotationMatrixPartials(
-                            parametersToEstimate, acceleratingBody.first, bodyMap );
+            std::map< std::pair< estimatable_parameters::EstimatebleParametersEnum, std::string >,
+                    std::shared_ptr< observation_partials::RotationMatrixPartial > >
+                    rotationMatrixPartials = observation_partials::createRotationMatrixPartials(
+                        parametersToEstimate, acceleratingBody.first, bodyMap );
 
-                // If body has gravity field variations, create partial objects
-                std::vector< std::shared_ptr< orbit_determination::TidalLoveNumberPartialInterface > >
-                        currentBodyLoveNumberPartialInterfaces;
-                if( acceleratingBody.second->getGravityFieldVariationSet( ) != NULL )
-                {
-                    currentBodyLoveNumberPartialInterfaces = createTidalLoveNumberInterfaces(
-                                bodyMap, acceleratingBody.first );
-                }
+            // If body has gravity field variations, create partial objects
+            std::vector< std::shared_ptr< orbit_determination::TidalLoveNumberPartialInterface > >
+                    currentBodyLoveNumberPartialInterfaces;
+            if( acceleratingBody.second->getGravityFieldVariationSet( ) != NULL )
+            {
+                currentBodyLoveNumberPartialInterfaces = createTidalLoveNumberInterfaces(
+                            bodyMap, acceleratingBody.first );
+            }
 
-                // Create partial-calculating object.
-                accelerationPartial = std::make_shared< SphericalHarmonicsGravityPartial >
-                        ( acceleratedBody.first, acceleratingBody.first,
-                          sphericalHarmonicAcceleration, rotationMatrixPartials, currentBodyLoveNumberPartialInterfaces );
+            // Create partial-calculating object.
+            accelerationPartial = std::make_shared< SphericalHarmonicsGravityPartial >
+                    ( acceleratedBody.first, acceleratingBody.first,
+                      sphericalHarmonicAcceleration, rotationMatrixPartials, currentBodyLoveNumberPartialInterfaces );
         }
         break;
     }
@@ -392,7 +392,7 @@ std::shared_ptr< acceleration_partials::AccelerationPartial > createAnalyticalAc
         else
         {
             accelerationPartial = std::make_shared< EmpiricalAccelerationPartial >( empiricalAcceleration,
-                                                                                      acceleratedBody.first, acceleratingBody.first );
+                                                                                    acceleratedBody.first, acceleratingBody.first );
         }
         break;
     }
@@ -512,15 +512,18 @@ orbit_determination::StateDerivativePartialsMap createAccelerationPartialsMap(
 }
 
 extern template orbit_determination::StateDerivativePartialsMap createAccelerationPartialsMap< double >(
-        const basic_astrodynamics::AccelerationMap& accelerationMap,
-        const simulation_setup::NamedBodyMap& bodyMap,
-        const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > >
-        parametersToEstimate );
-        extern template orbit_determination::StateDerivativePartialsMap createAccelerationPartialsMap< long double >(
-                const basic_astrodynamics::AccelerationMap& accelerationMap,
-                const simulation_setup::NamedBodyMap& bodyMap,
-                const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< long double > >
-                parametersToEstimate );
+const basic_astrodynamics::AccelerationMap& accelerationMap,
+const simulation_setup::NamedBodyMap& bodyMap,
+const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > >
+parametersToEstimate );
+
+#if( BUILD_EXTENDED_PRECISION_PROPAGATION_TOOLS )
+extern template orbit_determination::StateDerivativePartialsMap createAccelerationPartialsMap< long double >(
+const basic_astrodynamics::AccelerationMap& accelerationMap,
+const simulation_setup::NamedBodyMap& bodyMap,
+const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< long double > >
+parametersToEstimate );
+#endif
 
 } // namespace simulation_setup
 
