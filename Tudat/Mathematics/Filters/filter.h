@@ -249,12 +249,12 @@ public:
         return std::make_pair( systemNoiseHistory_, measurementNoiseHistory_ );
     }
 
-    //! Function to reset the step size for filtering.
+    //! Function to modify the step size for filtering.
     /*!
-     *  Function to reset the step size for filtering, without interrupting the filtering process.
+     *  Function to modify the step size for filtering, without interrupting the filtering process.
      *  \param newFilteringStepSize Double denoting the new step size for filtering.
      */
-    void resetFilteringStepSize( const double newFilteringStepSize )
+    void modifyFilteringStepSize( const double newFilteringStepSize )
     {
         filteringStepSize_ = newFilteringStepSize;
     }
