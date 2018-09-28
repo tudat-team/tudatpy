@@ -3,5 +3,6 @@
   "constantTemperature": 290,
   "densityAtZeroAltitude": 1,
   "specificGasConstant": 3,
+  "ratioOfSpecificHeats": -10.0,
   "type": "exponential"
 }

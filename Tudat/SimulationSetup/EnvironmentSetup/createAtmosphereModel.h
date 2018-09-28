@@ -215,7 +215,8 @@ public:
      *  composition.
      */
     ExponentialAtmosphereSettings(
-            const double densityScaleHeight, const double constantTemperature,
+            const double densityScaleHeight,
+            const double constantTemperature,
             const double densityAtZeroAltitude,
             const double specificGasConstant = physical_constants::SPECIFIC_GAS_CONSTANT_AIR,
             const double ratioOfSpecificHeats = 1.4 ):
@@ -322,8 +323,7 @@ class CustomConstantTemperatureAtmosphereSettings: public AtmosphereSettings
 public:
 
     //! Typedef for density function.
-    typedef std::function< double( const double, const double,
-                                     const double, const double ) > DensityFunction;
+    typedef std::function< double( const double, const double, const double, const double ) > DensityFunction;
 
     //! Default constructor.
     /*!
@@ -701,7 +701,10 @@ public:
      *  Function to return file containing atmospheric properties.
      *  \return Filename containing atmospheric properties.
      */
-    std::string getAtmosphereFile( const unsigned int fileIndex ){ return atmosphereFile_.at( fileIndex ); }
+    std::string getAtmosphereFile( const unsigned int fileIndex )
+    {
+        return atmosphereFile_.at( fileIndex );
+    }
 
     //! Function to return independent variables names.
     /*!
