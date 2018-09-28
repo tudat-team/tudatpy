@@ -57,7 +57,7 @@ public:
      *      a-priori estimate of the state vector.
      *  \param initialCovarianceMatrix Matrix representing the initial (estimated) covariance of the system. It is used as first
      *      a-priori estimate of the covariance matrix.
-     *  \param integrator Pointer to integrator to be used to propagate state.
+     *  \param integratorSettings Settings for the numerical integrator to be used to propagate state.
      */
     LinearKalmanFilter( const MatrixFunction& stateTransitionMatrixFunction,
                         const MatrixFunction& controlMatrixFunction,

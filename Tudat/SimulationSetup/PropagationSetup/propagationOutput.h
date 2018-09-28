@@ -280,7 +280,8 @@ getSphericalHarmonicAccelerationForDependentVariables(
  *  environment and/or state derivative models.
  *  \param dependentVariableSettings Settings for dependent variable that is to be returned by function created here.
  *  \param bodyMap List of bodies to use in simulations (containing full environment).
- *  \param stateDerivativeModels List of state derivative models used in simulations (sorted by dynamics type as key)
+ *  \param stateDerivativeModels List of state derivative models used in simulations (sorted by dynamics type as key).
+ *  \param stateDerivativePartials List of state derivative partials used in simulations (sorted by dynamics type as key).
  *  \return Function returning requested dependent variable. NOTE: The environment and state derivative models need to
  *  be updated to current state and independent variable before computation is performed.
  */
@@ -976,7 +977,8 @@ inline double elementAtIndexFunction( const std::function< Eigen::VectorXd( ) >&
  *  environment and/or state derivative models.
  *  \param dependentVariableSettings Settings for dependent variable that is to be returned by function created here.
  *  \param bodyMap List of bodies to use in simulations (containing full environment).
- *  \param stateDerivativeModels List of state derivative models used in simulations (sorted by dynamics type as key)
+ *  \param stateDerivativeModels List of state derivative models used in simulations (sorted by dynamics type as key).
+ *  \param stateDerivativePartials List of state derivative partials used in simulations (sorted by dynamics type as key).
  *  \return Function returning requested dependent variable. NOTE: The environment and state derivative models need to
  *  be updated to current state and independent variable before computation is performed.
  */

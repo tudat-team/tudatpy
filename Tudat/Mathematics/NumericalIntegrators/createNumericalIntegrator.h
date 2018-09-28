@@ -129,6 +129,8 @@ public:
     //! Default constructor.
     /*!
      *  Constructor for variable step RK integrator base settings.
+     *  \param areTolerancesDefinedAsScalar Boolean denoting whether the relative and absolute error tolerances are
+     *      defined as a scalar. Alternatively, they can be defined as a vector.
      *  \param initialTime Start time (independent variable) of numerical integration.
      *  \param initialTimeStep Initial time (independent variable) step used in numerical integration. Adapted during integration.
      *  \param coefficientSet Coefficient set (butcher tableau) to use in integration.

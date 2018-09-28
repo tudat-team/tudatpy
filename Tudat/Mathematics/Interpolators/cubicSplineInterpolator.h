@@ -128,7 +128,7 @@ public:
      *      of requested independent variable value.
      *  \param boundaryHandling Boundary handling method, in case the independent variable is outside the
      *      specified range.
-     *  \param defaultExtrapolationValue Pairs of default values to be used for extrapolation, in case
+     *  \param defaultExtrapolationValue Pair of default values to be used for extrapolation, in case
      *      of use_default_value or use_default_value_with_warning as methods for boundaryHandling.
      */
     CubicSplineInterpolator( const std::vector< IndependentVariableType >& independentVariables,

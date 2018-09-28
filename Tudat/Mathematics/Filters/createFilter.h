@@ -70,7 +70,7 @@ public:
      *  \param initialCovarianceMatrix Matrix representing the initial (estimated) covariance of the system. It is used as first
      *      a-priori estimate of the covariance matrix.
      *  \param isStateToBeIntegrated Boolean defining whether the system function needs to be integrated.
-     *  \param integrator Pointer to integrator to be used to propagate state.
+     *  \param integratorSettings Settings for the numerical integrator to be used to propagate state.
      */
     FilterSettings( const AvailableFilteringTechniques filteringTechnique,
                     const DependentMatrix& systemUncertainty,
@@ -239,6 +239,7 @@ public:
  *  Function to create a filter object with the use of filter settings.
  *  \tparam IndependentVariableType Type of independent variable. Default is double.
  *  \tparam DependentVariableType Type of dependent variable. Default is double.
+ *  \param filterSettings Settings for the creation of the filter object.
  *  \param systemFunction Function returning the state as a function of time and state vector. Can be a differential
  *      equation if the integratorSettings is set (i.e., if it is not a nullptr).
  *  \param measurementFunction Function returning the measurement as a function of time and state.

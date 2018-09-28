@@ -46,7 +46,8 @@ namespace input_output
  * \param separators Separators used, every character in the string will be used as separators.
  *         (multiple seperators possible).
  * \param skipLinesCharacter Skip lines starting with this character.
- * \return The datamatrix.
+ * \param numberOfHeaderLines Number of header lines, i.e., number of lines to be skipped at the beginning of the file.
+ * \return The data matrix.
  */
 template< typename ScalarType = double >
 Eigen::Matrix< ScalarType, Eigen::Dynamic, Eigen::Dynamic > readMatrixFromFile(
