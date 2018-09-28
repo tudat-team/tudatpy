@@ -278,11 +278,6 @@ protected:
     bool setIntegratedResult_;
 };
 
-//extern template class DynamicsSimulator< double, double >;
-//extern template class DynamicsSimulator< long double, double >;
-//extern template class DynamicsSimulator< double, Time >;
-//extern template class DynamicsSimulator< long double, Time >;
-
 //! Class for performing full numerical integration of a dynamical system in a single arc.
 /*!
  *  Class for performing full numerical integration of a dynamical system in a single arc, i.e. the equations of motion
@@ -842,11 +837,6 @@ protected:
     std::shared_ptr< PropagationTerminationDetails > propagationTerminationReason_;
 
 };
-
-//extern template class SingleArcDynamicsSimulator< double, double >;
-//extern template class SingleArcDynamicsSimulator< long double, double >;
-//extern template class SingleArcDynamicsSimulator< double, Time >;
-//extern template class SingleArcDynamicsSimulator< long double, Time >;
 
 //! Function to get a vector of initial states from a vector of propagator settings
 /*!

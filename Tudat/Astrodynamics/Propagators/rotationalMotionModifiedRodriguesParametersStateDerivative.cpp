@@ -40,6 +40,14 @@ Eigen::Vector4d calculateModifiedRodriguesParametersDerivative(
     return modifiedRodriguesParametersDerivative;
 }
 
+template class RotationalMotionModifiedRodriguesParametersStateDerivative< double, double >;
+
+#if( BUILD_EXTENDED_PRECISION_PROPAGATION_TOOLS )
+template class RotationalMotionModifiedRodriguesParametersStateDerivative< long double, double >;
+template class RotationalMotionModifiedRodriguesParametersStateDerivative< double, Time >;
+template class RotationalMotionModifiedRodriguesParametersStateDerivative< long double, Time >;
+#endif
+
 } // namespace propagators
 
 } // namespace tudat

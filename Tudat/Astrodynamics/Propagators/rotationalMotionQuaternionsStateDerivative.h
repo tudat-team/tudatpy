@@ -196,6 +196,15 @@ private:
 
 };
 
+
+extern template class RotationalMotionQuaternionsStateDerivative< double, double >;
+
+#if( BUILD_EXTENDED_PRECISION_PROPAGATION_TOOLS )
+extern template class RotationalMotionQuaternionsStateDerivative< long double, double >;
+extern template class RotationalMotionQuaternionsStateDerivative< double, Time >;
+extern template class RotationalMotionQuaternionsStateDerivative< long double, Time >;
+#endif
+
 } // namespace propagators
 
 } // namespace tudat
