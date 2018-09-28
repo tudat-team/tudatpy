@@ -72,10 +72,11 @@ public:
      * Constructor.
      * \param torqueModelsPerBody List of torque models (first map key body undergoing acceleration, second map key body exerting
      * acceleration).
+     * \param propagatorType Type of propagator that is to be used (i.e. quaternions, etc.)
      * \param bodiesToPropagate List of names of bodies for which rotational state is to be propagated.
      * \param bodyInertiaTensorFunctions List of functions returning inertia tensors of bodiesToPropagate (in same order).
      * \param bodyInertiaTensorTimeDerivativeFunctions List of functions returning time derivatives of inertia tensors of
-     *  bodiesToPropagate (in same order). Default empty, denoting time-invariant inertia tensors.
+     * bodiesToPropagate (in same order). Default empty, denoting time-invariant inertia tensors.
      */
     RotationalMotionStateDerivative(
             const basic_astrodynamics::TorqueModelMap& torqueModelsPerBody,

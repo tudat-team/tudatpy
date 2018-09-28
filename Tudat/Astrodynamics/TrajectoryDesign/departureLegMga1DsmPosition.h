@@ -25,6 +25,7 @@
 
 namespace tudat
 {
+
 namespace transfer_trajectories
 {
 
@@ -57,6 +58,7 @@ public:
      *  \param dimensionlessRadiusDsm the dimensionless radius of the DSM manuever, see Musegaas, 2012 for the definition.
      *  \param inPlaneAngle the in plane angle of the DSM.
      *  \param outOfPlaneAngle the out of plane angle of the DSM.
+     *  \param includeArrivalDeltaV Boolean denoting whether to include the Delta V of arrival.
      */
     DepartureLegMga1DsmPosition ( const Eigen::Vector3d& departureBodyPosition,
                                   const Eigen::Vector3d& arrivalBodyPosition,
@@ -95,7 +97,6 @@ public:
      */
     void calculateLeg( Eigen::Vector3d& velocityBeforeArrivalBody,
                        double& deltaV );
-
 
     //! Calculate intermediate positions and their corresponding times.
     /*!
@@ -144,6 +145,7 @@ public:
 protected:
 
 private:
+
     //! The fraction of the time of flight of the DSM.
     /*!
      * The fraction of the time of flight of the corresponding leg at which the DSM is performed.
@@ -201,7 +203,9 @@ private:
     double deltaVDsm_;
 
 };
+
 } // namespace transfer_trajectories
+
 } // namespace tudat
 
 #endif // TUDAT_DEPARTURE_LEG_MGA_1DSM_POSITION_H

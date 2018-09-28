@@ -25,6 +25,7 @@
 
 namespace tudat
 {
+
 namespace transfer_trajectories
 {
 
@@ -58,6 +59,7 @@ public:
      *  \param excessVelocityMagnitude the magnitude of the hyperbolic excess velocity of the DSM.
      *  \param excessVelocityInPlaneAngle the in plane angle of the hyperbolic excess velocity.
      *  \param excessVelocityOutOfPlaneAngle the out of plane angle of the hyperbolic excess velocity.
+     *  \param includeArrivalDeltaV Boolean denoting whether to include the Delta V of arrival.
      */
     DepartureLegMga1DsmVelocity( const Eigen::Vector3d& departureBodyPosition,
                                  const Eigen::Vector3d& arrivalBodyPosition,
@@ -137,6 +139,7 @@ public:
 protected:
 
 private:
+
     //! The fraction of the time of flight of the DSM.
     /*!
      * The fraction of the time of flight of the corresponding leg at which the DSM is performed.
@@ -191,9 +194,11 @@ private:
      * The deltaV of the deep Space Maneuver.
      */
     double deltaVDsm_;
+
 };
 
 } // namespace transfer_trajectories
+
 } // namespace tudat
 
 #endif // TUDAT_DEPARTURE_LEG_MGA_1DSM_VELOCITY_H

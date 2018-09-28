@@ -38,18 +38,28 @@
 #include "Tudat/Basics/basicTypedefs.h"
 #include "Tudat/InputOutput/parsedDataVectorUtilities.h"
 
+#include "Tudat/Astrodynamics/Ephemerides/ephemeris.h"
 #include "Tudat/Astrodynamics/TrajectoryDesign/spaceLeg.h"
 #include "Tudat/Astrodynamics/TrajectoryDesign/departureLeg.h"
 #include "Tudat/Astrodynamics/TrajectoryDesign/captureLeg.h"
 
 namespace tudat
 {
+
 namespace transfer_trajectories
 {
 
 // Enumeration containing the different leg types that can be part of the trajectory.
-enum legTypes{ mga_Departure = 1, mga_Swingby, mga1DsmPosition_Departure, mga1DsmPosition_Swingby,
-               mga1DsmVelocity_Departure, mga1DsmVelocity_Swingby, capture };
+enum legTypes
+{
+    mga_Departure = 1,
+    mga_Swingby,
+    mga1DsmPosition_Departure,
+    mga1DsmPosition_Swingby,
+    mga1DsmVelocity_Departure,
+    mga1DsmVelocity_Swingby,
+    capture
+};
 
 //! Base class for computation of trajectories
 /*!
@@ -60,18 +70,21 @@ enum legTypes{ mga_Departure = 1, mga_Swingby, mga1DsmPosition_Departure, mga1Ds
 class Trajectory
 {
 public:
+
     //! Constructor with immediate definition of parameters.
     /*!
-     * Constructor with immediate definition of parameters.
-     * \param numberOfLegs the number of legs in the trajectory.
-     * \param legTypeVector vector containing the leg types.
-     * \param ephemerisVector vector of ephemeris pointers to the different planets.
-     * \param gravitationalParameterVector vector of the gravitational parameters of the visited planets.
-     * \param trajectoryVariableVector vector containing all the defining variables for the whole trajectory.
-     * \param centralBodyGravitationalParameter gravitational parameter of the central body.
-     * \param minimumPericenterRadiiVector vector containing the minimum distance between the spacecraft and body.
-     * \param semiMajorAxesVector vector containing the semi-major axes for the departure and capture leg.
-     * \param eccentricityVector vector containing the eccentricities for the departure and capture leg.
+     *  Constructor with immediate definition of parameters.
+     *  \param numberOfLegs the number of legs in the trajectory.
+     *  \param legTypeVector vector containing the leg types.
+     *  \param ephemerisVector vector of ephemeris pointers to the different planets.
+     *  \param gravitationalParameterVector vector of the gravitational parameters of the visited planets.
+     *  \param trajectoryVariableVector vector containing all the defining variables for the whole trajectory.
+     *  \param centralBodyGravitationalParameter gravitational parameter of the central body.
+     *  \param minimumPericenterRadiiVector vector containing the minimum distance between the spacecraft and body.
+     *  \param semiMajorAxesVector vector containing the semi-major axes for the departure and capture leg.
+     *  \param eccentricityVector vector containing the eccentricities for the departure and capture leg.
+     *  \param includeDepartureDeltaV Boolean denoting whether to include the Delta V of departure.
+     *  \param includeArrivalDeltaV Boolean denoting whether to include the Delta V of arrival.
      */
     Trajectory( const double numberOfLegs,
                 const std::vector< int >& legTypeVector,
@@ -126,11 +139,23 @@ public:
      */
     void calculateTrajectory( double& totalDeltaV );
 
+    //! Function to retrieve the value of the capture Delta V.
+    /*!
+     *  Function to retrieve the value of the capture Delta V.
+     *  \param captureDeltaV Double denoting the value of the capture Delta V.
+     *  \return Double denoting the value of the capture Delta V (returned by reference ).
+     */
     void getCaptureDeltaV( double& captureDeltaV )
     {
         captureLeg_->getCaptureDeltaV( captureDeltaV );
     }
 
+    //! Function to retrieve the value of the departure Delta V.
+    /*!
+     *  Function to retrieve the value of the departure Delta V.
+     *  \param captureDeltaV Double denoting the value of the departure Delta V.
+     *  \return Double denoting the value of the departure Delta V (returned by reference ).
+     */
     void getDepartureDeltaV( double& departureDeltaV )
     {
         departureLeg_->getEscapeDeltaV( departureDeltaV );
@@ -213,6 +238,7 @@ public:
 protected:
 
 private:
+
     //! The number of legs in the trajectory.
     /*!
      * The number of legs present in this trajectory.
@@ -275,9 +301,9 @@ private:
      */
     Eigen::VectorXd minimumPericenterRadiiVector_;
 
-    //! The semi major axes vector.
+    //! The semi-major axes vector.
     /*!
-     * In this vector the semi major axes of all the departure and capture orbits are stored.
+     * In this vector the semi-major axes of all the departure and capture orbits are stored.
      */
     Eigen::VectorXd semiMajorAxesVector_;
 
@@ -293,12 +319,16 @@ private:
      */
     double centralBodyGravitationalParameter_;
 
+    //! Boolean denoting whether to include the Delta V of departure.
     bool includeDepartureDeltaV_;
 
+    //! Pointer to the departure leg.
     std::shared_ptr< DepartureLeg > departureLeg_;
 
+    //! Boolean denoting whether to include the Delta V of arrival.
     bool includeArrivalDeltaV_;
 
+    //! Pointer to the capture leg.
     std::shared_ptr< CaptureLeg > captureLeg_;
 
     //! The interplanetary leg vector.
@@ -355,8 +385,11 @@ private:
      * Extracts the ephemeris data and stores it into the associated position and velocity vectors.
      */
     void extractEphemeris( );
+
 };
+
 } // namespace transfer_trajectories
+
 } // namespace tudat
 
 #endif // TUDAT_TRAJECTORY_H
