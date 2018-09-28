@@ -705,6 +705,15 @@ private:
     std::map< TimeType, unsigned int > cumulativeFunctionEvaluationCounter_;
 };
 
+extern template class DynamicsStateDerivativeModel< double, double >;
+
+#if( BUILD_EXTENDED_PRECISION_PROPAGATION_TOOLS )
+extern template class DynamicsStateDerivativeModel< Time, double >;
+extern template class DynamicsStateDerivativeModel< double, long double >;
+extern template class DynamicsStateDerivativeModel< Time, long double >;
+#endif
+
+
 //! Function to retrieve a single given acceleration model from a list of models
 /*!
  *  Function to retrieve a single given acceleration model, determined by

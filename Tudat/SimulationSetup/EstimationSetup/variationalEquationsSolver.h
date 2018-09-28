@@ -205,11 +205,6 @@ protected:
     std::shared_ptr< CombinedStateTransitionAndSensitivityMatrixInterface > stateTransitionInterface_;
 };
 
-//extern template class VariationalEquationsSolver< double, double >;
-//extern template class VariationalEquationsSolver< long double, double >;
-//extern template class VariationalEquationsSolver< double, Time >;
-//extern template class VariationalEquationsSolver< long double, Time >;
-
 //! Function to separate the time histories of the sensitivity and state transition matrices from a full numerical solution.
 /*!
  *  Function to separate the time histories of the sensitivity and state transition matrices from a full numerical solution,
@@ -852,12 +847,6 @@ private:
      */
     std::shared_ptr< DynamicsStateDerivativeModel< TimeType, StateScalarType > > dynamicsStateDerivative_;
 };
-
-
-//extern template class SingleArcVariationalEquationsSolver< double, double >;
-//extern template class SingleArcVariationalEquationsSolver< long double, double >;
-//extern template class SingleArcVariationalEquationsSolver< double, Time >;
-//extern template class SingleArcVariationalEquationsSolver< long double, Time >;
 
 
 //! Function to transfer the initial multi-arc states from propagator settings to associated initial state estimation parameters.

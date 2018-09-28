@@ -6,11 +6,6 @@ namespace tudat
 namespace propagators
 {
 
-template class DynamicsStateDerivativeModel< double, double >;
-template class DynamicsStateDerivativeModel< double, long double >;
-template class DynamicsStateDerivativeModel< Time, double >;
-template class DynamicsStateDerivativeModel< Time, long double >;
-
 //! Function to retrieve specific acceleration partial object from list of state derivative partials
 std::shared_ptr< acceleration_partials::AccelerationPartial > getAccelerationPartialForBody(
         const orbit_determination::StateDerivativePartialsMap& accelerationPartials,
@@ -66,6 +61,15 @@ std::shared_ptr< acceleration_partials::AccelerationPartial > getAccelerationPar
 
     return matchingAccelerationPartial;
 }
+
+template class DynamicsStateDerivativeModel< double, double >;
+
+#if( BUILD_EXTENDED_PRECISION_PROPAGATION_TOOLS )
+template class DynamicsStateDerivativeModel< Time, double >;
+template class DynamicsStateDerivativeModel< double, long double >;
+template class DynamicsStateDerivativeModel< Time, long double >;
+#endif
+
 
 } // namespace propagators
 
