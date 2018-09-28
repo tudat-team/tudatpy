@@ -413,6 +413,7 @@ extern template std::shared_ptr< acceleration_partials::AccelerationPartial > cr
         const simulation_setup::NamedBodyMap& bodyMap,
         const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > >
         parametersToEstimate );
+#if( BUILD_EXTENDED_PRECISION_PROPAGATION_TOOLS )
 extern template std::shared_ptr< acceleration_partials::AccelerationPartial > createAnalyticalAccelerationPartial< long double >(
         std::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > accelerationModel,
         const std::pair< std::string, std::shared_ptr< simulation_setup::Body > > acceleratedBody,
@@ -420,6 +421,7 @@ extern template std::shared_ptr< acceleration_partials::AccelerationPartial > cr
         const simulation_setup::NamedBodyMap& bodyMap,
         const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< long double > >
         parametersToEstimate );
+#endif
 
 //! This function creates acceleration partial objects for translational dynamics
 /*!
