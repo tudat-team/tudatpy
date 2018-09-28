@@ -25,12 +25,10 @@ template class ObservationManager< 2, double, Time >;
 template class ObservationManager< 2, long double, double >;
 template class ObservationManager< 2, long double, Time >;
 
-template class ObservationManager< 3, double, double >;
 template class ObservationManager< 3, double, Time >;
 template class ObservationManager< 3, long double, double >;
 template class ObservationManager< 3, long double, Time >;
 
-template class ObservationManager< 6, double, double >;
 template class ObservationManager< 6, double, Time >;
 template class ObservationManager< 6, long double, double >;
 template class ObservationManager< 6, long double, Time >;
