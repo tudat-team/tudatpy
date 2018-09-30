@@ -16,7 +16,6 @@
 #include <chrono>
 
 #include <boost/make_shared.hpp>
-#include <boost/assign/list_of.hpp>
 
 #include "Tudat/Basics/tudatTypeTraits.h"
 #include "Tudat/Basics/utilities.h"

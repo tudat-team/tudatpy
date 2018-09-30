@@ -178,7 +178,7 @@ BOOST_AUTO_TEST_CASE( test_ParameterPostFitResiduals )
         std::pair< std::shared_ptr< PodOutput< double > >, Eigen::VectorXd > estimationOutput =
                 determinePostfitParameterInfluence(
                     bodyMap, integratorSettings, propagatorSettings, perturbedParameterSettings,
-                    6.0 * 3600.0, boost::assign::list_of( -sunNormalizedJ2 ), boost::assign::list_of( 0 ) );
+                    6.0 * 3600.0, { -sunNormalizedJ2 }, { 0 } );
 
         // Get pre- and postfit residuals with RMS
         Eigen::VectorXd prefitResiduals = estimationOutput.first->residualHistory_.at( 0 );
@@ -355,7 +355,7 @@ BOOST_AUTO_TEST_CASE( test_ParameterPostFitResidualsApollo )
     std::pair< std::shared_ptr< PodOutput< double > >, Eigen::VectorXd > estimationOutput =
             determinePostfitParameterInfluence(
                 bodyMap, integratorSettings, propagatorSettings, perturbedParameterSettings,
-                1.0, boost::assign::list_of( -earthC20 ), boost::assign::list_of( 0 ) );
+                1.0, { -earthC20 }, { 0 } );
 
     // Get pre- and postfit residuals with RMS
     Eigen::VectorXd prefitResiduals = estimationOutput.first->residualHistory_.at( 0 );

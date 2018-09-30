@@ -68,7 +68,7 @@ BOOST_AUTO_TEST_CASE( testWindModelInPropagation )
 
     // Create Earth object
     std::map< std::string, std::shared_ptr< BodySettings > > defaultBodySettings =
-            getDefaultBodySettings( boost::assign::list_of( "Earth" ), -1.0E6, 1.0E6 );
+            getDefaultBodySettings( { "Earth" }, -1.0E6, 1.0E6 );
     defaultBodySettings[ "Earth" ]->ephemerisSettings = std::make_shared< ConstantEphemerisSettings >(
                 Eigen::Vector6d::Zero( ) );
     defaultBodySettings[ "Earth" ]->atmosphereSettings->setWindSettings(

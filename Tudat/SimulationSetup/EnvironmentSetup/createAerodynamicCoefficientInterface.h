@@ -11,7 +11,6 @@
 #ifndef TUDAT_CREATEAERODYNAMICCOEFFICIENTINTERFACE_H
 #define TUDAT_CREATEAERODYNAMICCOEFFICIENTINTERFACE_H
 
-#include <boost/assign/list_of.hpp>
 #include <memory>
 #include <boost/make_shared.hpp>
 
@@ -611,8 +610,7 @@ public:
             const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings = nullptr ) :
         TabulatedAerodynamicCoefficientSettingsBase(
             tabulated_coefficients, referenceLength, referenceArea,
-            lateralReferenceLength, momentReferencePoint,
-            boost::assign::list_of( independentVariableName ), areCoefficientsInAerodynamicFrame,
+            lateralReferenceLength, momentReferencePoint, { independentVariableName }, areCoefficientsInAerodynamicFrame,
             areCoefficientsInNegativeAxisDirection, interpolatorSettings )
     {
         if( forceCoefficients.size( ) != independentVariables.size( ) )
@@ -726,8 +724,7 @@ public:
             const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings = NULL ) :
         TabulatedAerodynamicCoefficientSettingsBase(
             tabulated_coefficients, TUDAT_NAN, referenceArea,
-            TUDAT_NAN, Eigen::Vector3d::Constant( TUDAT_NAN ),
-            boost::assign::list_of( independentVariableName ), areCoefficientsInAerodynamicFrame,
+            TUDAT_NAN, Eigen::Vector3d::Constant( TUDAT_NAN ), { independentVariableName }, areCoefficientsInAerodynamicFrame,
             areCoefficientsInNegativeAxisDirection, interpolatorSettings )
     {
         if( forceCoefficients.size( ) != independentVariables.size( ) )

@@ -114,9 +114,7 @@ BOOST_AUTO_TEST_CASE( testAerodynamicCoefficientsFromFile )
             aerodynamicCoefficientSettings->setControlSurfaceSettings(
                         simulation_setup::readTabulatedControlIncrementAerodynamicCoefficientsFromFiles(
                             controlSurfaceForceCoefficientFiles, controlSurfaceMomentCoefficientFiles,
-                            boost::assign::list_of( aerodynamics::mach_number_dependent )
-                            ( aerodynamics::angle_of_attack_dependent )
-                            ( aerodynamics::control_surface_deflection_dependent ) ),
+            { aerodynamics::mach_number_dependent, aerodynamics::angle_of_attack_dependent, aerodynamics::control_surface_deflection_dependent } ),
                         "TestSurface" );
         }
         else if( i == 2 )
@@ -124,9 +122,7 @@ BOOST_AUTO_TEST_CASE( testAerodynamicCoefficientsFromFile )
             aerodynamicCoefficientSettings->setControlSurfaceSettings(
                         simulation_setup::readTabulatedControlIncrementAerodynamicCoefficientsFromFiles(
                             controlSurfaceForceCoefficientFiles,
-                            boost::assign::list_of( aerodynamics::mach_number_dependent )
-                            ( aerodynamics::angle_of_attack_dependent )
-                            ( aerodynamics::control_surface_deflection_dependent ) ),
+            { aerodynamics::mach_number_dependent, aerodynamics::angle_of_attack_dependent, aerodynamics::control_surface_deflection_dependent } ),
                         "TestSurface" );
         }
 

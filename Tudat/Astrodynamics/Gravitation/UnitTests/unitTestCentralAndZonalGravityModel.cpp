@@ -26,7 +26,6 @@
 #include <map>
 #include <vector>
 
-#include <boost/assign/list_of.hpp>
 #include <boost/bind.hpp>
 #include <boost/lambda/lambda.hpp>
 #include <boost/make_shared.hpp>
@@ -48,7 +47,6 @@ namespace tudat
 namespace unit_tests
 {
 
-using namespace boost::assign;
 using namespace gravitation;
 
 typedef std::map< int, double > KeyIntValueDoubleMap;
@@ -354,9 +352,8 @@ BOOST_AUTO_TEST_CASE( testGravitationalAccelarationZonalMelman )
 
     // Set map of function pointers for zonal coefficients.
     std::map< int, GravitationalAccelerationPointer > zonalGravitationalAccelerationPointers
-            = map_list_of( 2, &computeGravitationalAccelerationDueToJ2 )
-            ( 3, &computeGravitationalAccelerationDueToJ3 )
-            ( 4, &computeGravitationalAccelerationDueToJ4 );
+            = { { 2, &computeGravitationalAccelerationDueToJ2 }, { 3, &computeGravitationalAccelerationDueToJ3 },
+                { 4, &computeGravitationalAccelerationDueToJ4 } };
 
     // Loop over all planet test data and recompute the results using Tudat code. Check that the
     // values computed match results obtained by (Melman, 2012).
@@ -402,9 +399,8 @@ BOOST_AUTO_TEST_CASE( testGravitationalAccelarationZonalRonse )
 
     // Set map of function pointers for zonal coefficients.
     std::map< int, GravitationalAccelerationPointer > zonalGravitationalAccelerationPointers
-            = map_list_of( 2, &computeGravitationalAccelerationDueToJ2 )
-            ( 3, &computeGravitationalAccelerationDueToJ3 )
-            ( 4, &computeGravitationalAccelerationDueToJ4 );
+            = { { 2, &computeGravitationalAccelerationDueToJ2 }, { 3, &computeGravitationalAccelerationDueToJ3 },
+                { 4, &computeGravitationalAccelerationDueToJ4 } };
 
     // Loop over all planet test data and recompute the results using Tudat code. Check that the
     // values computed match results obtained by (Ronse, 2012).

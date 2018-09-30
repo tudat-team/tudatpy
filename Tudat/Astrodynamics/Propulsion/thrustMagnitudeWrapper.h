@@ -111,7 +111,7 @@ public:
     CustomThrustMagnitudeWrapper(
             const std::function< double( const double ) > thrustMagnitudeFunction,
             const std::function< double( const double ) > specificImpulseFunction,
-            const std::function< bool( const double ) > isEngineOnFunction = []( const double ){ return true; } ,
+            const std::function< bool( const double ) > isEngineOnFunction = [ ]( const double ){ return true; } ,
             const std::function< void( const double ) > customThrustResetFunction = std::function< void( const double ) >( ) ):
         thrustMagnitudeFunction_( thrustMagnitudeFunction ),
         specificImpulseFunction_( specificImpulseFunction ),

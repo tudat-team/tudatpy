@@ -11,7 +11,6 @@
 
 #define BOOST_TEST_MAIN
 
-#include <boost/assign/list_of.hpp>
 #include <boost/test/unit_test.hpp>
 #include <boost/make_shared.hpp>
 #include <boost/bind.hpp>
@@ -57,7 +56,7 @@ BOOST_AUTO_TEST_CASE( testShapiroDelay )
 
     FirstOrderLightTimeCorrectionCalculator correctionCalculator(
                 perturbingBodyStateFunctions, perturbingBodyGravitationalParameterFunctions,
-                boost::assign::list_of( "Earth" ), "Satellite", "Earth" );
+                std::vector< std::string >{ "Earth" }, "Satellite", "Earth" );
 
     double classInterfaceCalculation = correctionCalculator.calculateLightTimeCorrection(
                 groundStationState, satelliteState, 0.0, 0.0 );

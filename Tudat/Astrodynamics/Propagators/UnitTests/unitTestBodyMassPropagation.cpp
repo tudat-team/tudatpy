@@ -55,14 +55,14 @@ BOOST_AUTO_TEST_CASE( testBodyMassPropagation )
     // Create mass rate model.
     std::map< std::string, std::shared_ptr< basic_astrodynamics::MassRateModel > > massRateModels;
     massRateModels[ "Vehicle" ] = std::make_shared< basic_astrodynamics::CustomMassRateModel >(
-                []( const double ){ return -0.01; } );
+                [ ]( const double ){ return -0.01; } );
 
     // Create settings for propagation
     Eigen::VectorXd initialMass = Eigen::VectorXd( 1 );
     initialMass( 0 ) = 500.0;
     std::shared_ptr< PropagatorSettings< double > > propagatorSettings =
             std::make_shared< MassPropagatorSettings< double > >(
-                boost::assign::list_of( "Vehicle" ), massRateModels, initialMass,
+                std::vector< std::string >{ "Vehicle" }, massRateModels, initialMass,
                 std::make_shared< PropagationTimeTerminationSettings >( 1000.0 ) );
 
     // Define numerical integrator settings.
@@ -111,7 +111,7 @@ BOOST_AUTO_TEST_CASE( testTwoBodyMassPropagation )
     initialMass( 1 ) = 1000.0;
     std::shared_ptr< PropagatorSettings< double > > propagatorSettings =
             std::make_shared< MassPropagatorSettings< double > >(
-                boost::assign::list_of( "Vehicle1" )( "Vehicle2" ), massRateModels, initialMass,
+                std::vector< std::string >{ "Vehicle1", "Vehicle2" }, massRateModels, initialMass,
                 std::make_shared< PropagationTimeTerminationSettings >( 1000.0 ) );
 
     // Define numerical integrator settings.

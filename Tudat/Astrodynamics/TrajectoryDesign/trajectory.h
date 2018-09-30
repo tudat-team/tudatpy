@@ -153,7 +153,7 @@ public:
     //! Function to retrieve the value of the departure Delta V.
     /*!
      *  Function to retrieve the value of the departure Delta V.
-     *  \param captureDeltaV Double denoting the value of the departure Delta V.
+     *  \param departureDeltaV Double denoting the value of the departure Delta V.
      *  \return Double denoting the value of the departure Delta V (returned by reference ).
      */
     void getDepartureDeltaV( double& departureDeltaV )

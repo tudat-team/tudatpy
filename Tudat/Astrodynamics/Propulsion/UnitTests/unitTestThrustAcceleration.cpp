@@ -83,7 +83,7 @@ BOOST_AUTO_TEST_CASE( testConstantThrustAcceleration )
     std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfVehicle;
     accelerationsOfVehicle[ "Vehicle" ].push_back( std::make_shared< ThrustAccelerationSettings >(
                                                        std::make_shared< CustomThrustDirectionSettings >(
-                                                           [&]( const double ){ return thrustDirection; } ),
+                                                           [ & ]( const double ){ return thrustDirection; } ),
                                                        std::make_shared< ConstantThrustEngineSettings >(
                                                            thrustMagnitude, specificImpulse ) ) );
 
@@ -136,7 +136,7 @@ BOOST_AUTO_TEST_CASE( testConstantThrustAcceleration )
 
         std::shared_ptr< SingleArcPropagatorSettings< double > > massPropagatorSettings =
                 std::make_shared< MassPropagatorSettings< double > >(
-                    boost::assign::list_of( "Vehicle" ), massRateModels,
+                    std::vector< std::string >{ "Vehicle" }, massRateModels,
                     ( Eigen::Matrix< double, 1, 1 >( ) << vehicleMass ).finished( ), terminationSettings );
 
         std::vector< std::shared_ptr< SingleArcPropagatorSettings< double > > > propagatorSettingsVector;
@@ -243,7 +243,7 @@ BOOST_AUTO_TEST_CASE( testFromEngineThrustAcceleration )
         {
             accelerationsOfVehicle[ "Vehicle" ].push_back( std::make_shared< ThrustAccelerationSettings >(
                                                                std::make_shared< CustomThrustDirectionSettings >(
-                                                                   [&]( const double ){ return thrustDirection; } ),
+                                                                   [ & ]( const double ){ return thrustDirection; } ),
                                                                std::make_shared< FromBodyThrustEngineSettings >(
                                                                    1, "" ) ) );
             accelerationMap[ "Vehicle" ] = accelerationsOfVehicle;
@@ -253,7 +253,7 @@ BOOST_AUTO_TEST_CASE( testFromEngineThrustAcceleration )
         {
             accelerationsOfVehicle[ "Vehicle" ].push_back( std::make_shared< ThrustAccelerationSettings >(
                                                                std::make_shared< CustomThrustDirectionSettings >(
-                                                                   [&]( const double ){ return thrustDirection; } ),
+                                                                   [ & ]( const double ){ return thrustDirection; } ),
                                                                std::make_shared< FromBodyThrustEngineSettings >(
                                                                    0, "Engine1" ) ) );
             accelerationMap[ "Vehicle" ] = accelerationsOfVehicle;
@@ -263,7 +263,7 @@ BOOST_AUTO_TEST_CASE( testFromEngineThrustAcceleration )
         {
             accelerationsOfVehicle[ "Vehicle" ].push_back( std::make_shared< ThrustAccelerationSettings >(
                                                                std::make_shared< CustomThrustDirectionSettings >(
-                                                                   [&]( const double ){ return thrustDirection; } ),
+                                                                   [ & ]( const double ){ return thrustDirection; } ),
                                                                std::make_shared< FromBodyThrustEngineSettings >(
                                                                    0, "Engine2" ) ) );
             accelerationMap[ "Vehicle" ] = accelerationsOfVehicle;
@@ -273,12 +273,12 @@ BOOST_AUTO_TEST_CASE( testFromEngineThrustAcceleration )
         {
             accelerationsOfVehicle[ "Vehicle" ].push_back( std::make_shared< ThrustAccelerationSettings >(
                                                                std::make_shared< CustomThrustDirectionSettings >(
-                                                                   [&](  const double  ){ return thrustDirection; } ),
+                                                                   [ & ](  const double  ){ return thrustDirection; } ),
                                                                std::make_shared< FromBodyThrustEngineSettings >(
                                                                    0, "Engine1" ) ) );
             accelerationsOfVehicle[ "Vehicle" ].push_back( std::make_shared< ThrustAccelerationSettings >(
                                                                std::make_shared< CustomThrustDirectionSettings >(
-                                                                   [&](  const double  ){ return thrustDirection; } ),
+                                                                   [ & ](  const double  ){ return thrustDirection; } ),
                                                                std::make_shared< FromBodyThrustEngineSettings >(
                                                                    0, "Engine2" ) ) );
             accelerationMap[ "Vehicle" ] = accelerationsOfVehicle;
@@ -352,7 +352,7 @@ BOOST_AUTO_TEST_CASE( testFromEngineThrustAcceleration )
 
         std::shared_ptr< SingleArcPropagatorSettings< double > > massPropagatorSettings =
                 std::make_shared< MassPropagatorSettings< double > >(
-                    boost::assign::list_of( "Vehicle" ), massRateModels,
+                    std::vector< std::string >{ "Vehicle" }, massRateModels,
                     ( Eigen::Matrix< double, 1, 1 >( ) << vehicleMass ).finished( ), terminationSettings );
 
         std::vector< std::shared_ptr< SingleArcPropagatorSettings< double > > > propagatorSettingsVector;
@@ -899,9 +899,7 @@ BOOST_AUTO_TEST_CASE( testConcurrentThrustAndAerodynamicAcceleration )
             Eigen::Matrix3d currentRotationFromAerodynamicToBodyFixedFrame =
                     getMatrixFromVectorRotationRepresentation( variableIterator->second.segment( 45, 9 ) );
 
-            vehicelCoefficientInterface->updateCurrentCoefficients(
-                        boost::assign::list_of( currentMachNumber )(
-                            currentAngleOfAttack )( currentAngleOfSideSlip ) );
+            vehicelCoefficientInterface->updateCurrentCoefficients( { currentMachNumber, currentAngleOfAttack, currentAngleOfSideSlip } );
             aerodynamicCoefficients = vehicelCoefficientInterface->getCurrentForceCoefficients( );
 
 
@@ -1064,7 +1062,7 @@ BOOST_AUTO_TEST_CASE( testInterpolatedThrustVector )
 
         std::shared_ptr< ThrustAccelerationSettings > thrustSettings =
                 std::make_shared< ThrustAccelerationSettings >(
-                    thrustDataInterpolation, [&](  const double ){ return 300.0; },
+                    thrustDataInterpolation, [ & ](  const double ){ return 300.0; },
                     testCase == 0 ? inertial_thurst_frame : lvlh_thrust_frame, "Earth" );
 
         accelerationsOfAsterix[ "Asterix" ].push_back( thrustSettings );
@@ -1472,7 +1470,7 @@ BOOST_AUTO_TEST_CASE( testConcurrentThrustAndAerodynamicAccelerationWithEnvironm
 
         std::shared_ptr< MassPropagatorSettings< double > > massPropagatorSettings =
                 std::make_shared< MassPropagatorSettings< double > >(
-                    boost::assign::list_of( "Apollo" ), massRateModels,
+                    std::vector< std::string >{ "Apollo" }, massRateModels,
                     ( Eigen::Matrix< double, 1, 1 >( ) << vehicleMass ).finished( ),
                     std::make_shared< propagators::PropagationTimeTerminationSettings >( simulationEndEpoch ) );
 
@@ -1708,7 +1706,7 @@ BOOST_AUTO_TEST_CASE( testAccelerationLimitedGuidedThrust )
 
     std::shared_ptr< MassPropagatorSettings< double > > massPropagatorSettings =
             std::make_shared< MassPropagatorSettings< double > >(
-                boost::assign::list_of( "Apollo" ), massRateModels,
+                std::vector< std::string >{ "Apollo" }, massRateModels,
                 ( Eigen::Matrix< double, 1, 1 >( ) << vehicleMass ).finished( ),
                 std::make_shared< propagators::PropagationTimeTerminationSettings >( simulationEndEpoch ) );
 
@@ -1827,7 +1825,7 @@ BOOST_AUTO_TEST_CASE( testMeeCostateBasedThrust )
 
         std::shared_ptr< ThrustDirectionGuidanceSettings > thrustDirectionGuidanceSettings =
                 std::make_shared< MeeCostateBasedThrustDirectionSettings >(
-                    "Asterix", "Earth", [&]( const double ){ return costates; } );
+                    "Asterix", "Earth", [ & ]( const double ){ return costates; } );
         std::shared_ptr< ThrustEngineSettings > thrustMagnitudeSettings =
                 std::make_shared< ConstantThrustEngineSettings >( 1.0E4, 30000.0 );
 
@@ -1869,7 +1867,7 @@ BOOST_AUTO_TEST_CASE( testMeeCostateBasedThrust )
                     bodyMap, accelerationModelMap );
         std::shared_ptr< MassPropagatorSettings< double > > massPropagatorSettings =
                 std::make_shared< MassPropagatorSettings< double > >(
-                    boost::assign::list_of( "Asterix" ), massRateModels,
+                    std::vector< std::string >{ "Asterix" }, massRateModels,
                     ( Eigen::Matrix< double, 1, 1 >( ) << vehicleMass ).finished( ),
                     std::make_shared< propagators::PropagationTimeTerminationSettings >( simulationEndEpoch ) );
         std::vector< std::shared_ptr< SingleArcPropagatorSettings< double > > > propagatorSettingsVector;

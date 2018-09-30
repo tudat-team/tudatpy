@@ -16,7 +16,6 @@
 #include <Eigen/Core>
 
 #include <boost/bind.hpp>
-#include <boost/assign/list_of.hpp>
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/accelerationModel.h"
 

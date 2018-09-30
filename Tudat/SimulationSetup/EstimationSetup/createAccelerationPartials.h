@@ -49,7 +49,6 @@ std::vector< std::shared_ptr< orbit_determination::TidalLoveNumberPartialInterfa
         const NamedBodyMap& bodyMap,
         const std::string& acceleratingBodyName );
 
-
 //! Function to create a single acceleration partial derivative object.
 /*!
  *  Function to create a single acceleration partial derivative object.

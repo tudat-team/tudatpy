@@ -15,7 +15,6 @@
 
 #include <functional>
 #include <memory>
-#include <boost/assign/list_of.hpp>
 
 #include <Eigen/Core>
 
@@ -213,11 +212,10 @@ public:
     std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixToBaseFrameWrParameter(
             const double time )
     {
-        return boost::assign::list_of(
-                    calculatePartialOfRotationMatrixFromLocalFrameWrtConstantRotationRate(
+        return { calculatePartialOfRotationMatrixFromLocalFrameWrtConstantRotationRate(
                         bodyRotationModel_->getInitialRotationToTargetFrame( ).inverse( ),
                         bodyRotationModel_->getRotationRate( ),
-                        time - bodyRotationModel_->getInitialSecondsSinceEpoch( ) ) );
+                        time - bodyRotationModel_->getInitialSecondsSinceEpoch( ) ) };
     }
 
     //! Function to calculate partial of rotation matrix derivative from the body-fixed to inertial frame wrt a rotation rate.
@@ -231,11 +229,10 @@ public:
     std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixDerivativeToBaseFrameWrParameter(
             const double time )
     {
-        return boost::assign::list_of(
-        calculatePartialOfRotationMatrixFromLocalFrameDerivativeWrtConstantRotationRate(
+        return { calculatePartialOfRotationMatrixFromLocalFrameDerivativeWrtConstantRotationRate(
                         bodyRotationModel_->getRotationToBaseFrame( time ).toRotationMatrix( ),
                         bodyRotationModel_->getRotationRate( ),
-                        time - bodyRotationModel_->getInitialSecondsSinceEpoch( ) ) );
+                        time - bodyRotationModel_->getInitialSecondsSinceEpoch( ) ) };
     }
 
 private:
@@ -297,8 +294,8 @@ public:
             const double time )
     {
         return calculatePartialOfRotationMatrixFromLocalFrameDerivativeWrtPoleOrientation(
-                            bodyRotationModel_->getInitialEulerAngles( ),
-                            bodyRotationModel_->getRotationRate( ), time - bodyRotationModel_->getInitialSecondsSinceEpoch( ) );
+                    bodyRotationModel_->getInitialEulerAngles( ),
+                    bodyRotationModel_->getRotationRate( ), time - bodyRotationModel_->getInitialSecondsSinceEpoch( ) );
 
     }
 

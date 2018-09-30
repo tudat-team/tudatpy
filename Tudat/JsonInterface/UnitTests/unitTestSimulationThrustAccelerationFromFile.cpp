@@ -167,7 +167,7 @@ BOOST_AUTO_TEST_CASE( test_json_simulationThrustAccelerationFromFile_main )
     // Create settings for propagating the mass of the vehicle
     std::shared_ptr< MassPropagatorSettings< double > > massPropagatorSettings =
             std::make_shared< MassPropagatorSettings< double > >(
-                boost::assign::list_of( "Vehicle" ), massRateModels,
+                std::vector< std::string >{ "Vehicle" }, massRateModels,
                 ( Eigen::Matrix< double, 1, 1 >( ) << vehicleMass ).finished( ),
                 terminationSettings );
 
