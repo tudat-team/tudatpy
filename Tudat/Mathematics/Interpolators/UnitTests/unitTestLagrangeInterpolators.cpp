@@ -12,7 +12,6 @@
 #define BOOST_TEST_MAIN
 
 #include <boost/make_shared.hpp>
-#include <boost/assign/list_of.hpp>
 #include <boost/test/unit_test.hpp>
 
 #include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"

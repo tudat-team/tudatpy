@@ -11,7 +11,6 @@
 
 #define BOOST_TEST_MAIN
 
-#include <boost/assign/list_of.hpp>
 #include <boost/test/unit_test.hpp>
 #include <boost/make_shared.hpp>
 #include <boost/bind.hpp>

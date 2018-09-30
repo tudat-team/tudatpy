@@ -389,7 +389,7 @@ public:
     FromFunctionThrustEngineSettings(
             const std::function< double( const double ) > thrustMagnitudeFunction,
             const std::function< double( const double ) > specificImpulseFunction,
-            const std::function< bool( const double ) > isEngineOnFunction = []( const double ){ return true; },
+            const std::function< bool( const double ) > isEngineOnFunction = [ ]( const double ){ return true; },
             const std::function< Eigen::Vector3d( ) > bodyFixedThrustDirection =
             [ ]( ){ return  Eigen::Vector3d::UnitX( ); },
             const std::function< void( const double ) > customThrustResetFunction = std::function< void( const double ) >( ) ):

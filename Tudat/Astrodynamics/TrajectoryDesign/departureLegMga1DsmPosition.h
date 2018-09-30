@@ -58,7 +58,7 @@ public:
      *  \param dimensionlessRadiusDsm the dimensionless radius of the DSM manuever, see Musegaas, 2012 for the definition.
      *  \param inPlaneAngle the in plane angle of the DSM.
      *  \param outOfPlaneAngle the out of plane angle of the DSM.
-     *  \param includeArrivalDeltaV Boolean denoting whether to include the Delta V of arrival.
+     *  \param includeDepartureDeltaV Boolean denoting whether to include the Delta V of departure.
      */
     DepartureLegMga1DsmPosition ( const Eigen::Vector3d& departureBodyPosition,
                                   const Eigen::Vector3d& arrivalBodyPosition,

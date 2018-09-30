@@ -61,6 +61,7 @@ public:
     //! Constructor.
     /*!
      *  Constructor.
+     *  \param filteringTechnique Enumeration denoting the type of filtering technique.
      *  \param systemUncertainty Matrix defining the uncertainty in modeling of the system.
      *  \param measurementUncertainty Matrix defining the uncertainty in modeling of the measurements.
      *  \param filteringStepSize Scalar representing the value of the constant filtering time step.
@@ -69,7 +70,6 @@ public:
      *      a-priori estimate of the state vector.
      *  \param initialCovarianceMatrix Matrix representing the initial (estimated) covariance of the system. It is used as first
      *      a-priori estimate of the covariance matrix.
-     *  \param isStateToBeIntegrated Boolean defining whether the system function needs to be integrated.
      *  \param integratorSettings Settings for the numerical integrator to be used to propagate state.
      */
     FilterSettings( const AvailableFilteringTechniques filteringTechnique,

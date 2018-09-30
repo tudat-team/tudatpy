@@ -14,7 +14,6 @@
 
 #include <boost/test/unit_test.hpp>
 #include <boost/make_shared.hpp>
-#include <boost/assign/list_of.hpp>
 
 #include <Eigen/Core>
 
@@ -335,7 +334,7 @@ BOOST_AUTO_TEST_CASE( test_radiationPressureAcceleration )
 
     // Set vehicle mass
     double bodyMass = 500.0;
-    bodyMap[ "Vehicle" ]->setBodyMassFunction( [&]( const double ){ return bodyMass; } );
+    bodyMap[ "Vehicle" ]->setBodyMassFunction( [ & ]( const double ){ return bodyMass; } );
     bodyMap[ "Vehicle" ]->updateMass( testTime );
 
     // Update environment to current time.
@@ -468,7 +467,7 @@ BOOST_AUTO_TEST_CASE( test_aerodynamicAccelerationModelSetup )
 
         // Set vehicle mass
         double bodyMass = 500.0;
-        bodyMap[ "Vehicle" ]->setBodyMassFunction( [&]( const double ){ return bodyMass; } );
+        bodyMap[ "Vehicle" ]->setBodyMassFunction( [ & ]( const double ){ return bodyMass; } );
         bodyMap[ "Vehicle" ]->updateMass( testTime );
 
         // Update flight conditions.
@@ -608,7 +607,7 @@ BOOST_AUTO_TEST_CASE( test_aerodynamicAccelerationModelSetupWithCoefficientIndep
     double bodyMass = 500.0;
 
     // Set vehicle mass
-    bodyMap[ "Vehicle" ]->setBodyMassFunction( [&]( const double ){ return bodyMass; } );
+    bodyMap[ "Vehicle" ]->setBodyMassFunction( [ & ]( const double ){ return bodyMass; } );
     bodyMap[ "Vehicle" ]->updateMass( testTime );
 
     // Test aerodynamic coefficients for various cases of independent variables.

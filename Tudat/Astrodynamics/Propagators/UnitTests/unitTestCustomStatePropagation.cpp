@@ -280,12 +280,12 @@ BOOST_AUTO_TEST_CASE( testMultiTypeCustomStatePropagation )
     // Create mass rate model and mass propagation settings
     std::map< std::string, std::shared_ptr< basic_astrodynamics::MassRateModel > > massRateModels;
     massRateModels[ "Vehicle" ] = std::make_shared< basic_astrodynamics::CustomMassRateModel >(
-                []( const double ){ return -0.01; } );
+                [ ]( const double ){ return -0.01; } );
     Eigen::VectorXd initialMass = Eigen::VectorXd( 1 );
     initialMass( 0 ) = 500.0;
     std::shared_ptr< SingleArcPropagatorSettings< double > > massPropagatorSettings =
             std::make_shared< MassPropagatorSettings< double > >(
-                boost::assign::list_of( "Asterix" ), massRateModels, initialMass,
+                std::vector< std::string >{ "Asterix" }, massRateModels, initialMass,
                 std::make_shared< PropagationTimeTerminationSettings >( simulationEndEpoch ) );
 
     // Create custom state derivative model settings

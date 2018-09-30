@@ -388,7 +388,7 @@ public:
                     std::bind( &FullThrustInterpolationInterface::getThrustDirection, interpolatorInterface_, std::placeholders::_1 ) );
         thrustMagnitudeSettings_ =  std::make_shared< FromFunctionThrustEngineSettings >(
                     std::bind( &FullThrustInterpolationInterface::getThrustMagnitude, interpolatorInterface_, std::placeholders::_1 ),
-                    specificImpulseFunction, []( const double ){ return true; },
+                    specificImpulseFunction, [ ]( const double ){ return true; },
                     [ ]( ){ return  Eigen::Vector3d::UnitX( ); },
                     std::bind( &FullThrustInterpolationInterface::resetTime, interpolatorInterface_, std::placeholders::_1 ) );
     }

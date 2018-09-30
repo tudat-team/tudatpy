@@ -121,7 +121,7 @@ BOOST_AUTO_TEST_CASE( testNWayRangeModel )
             downlinkLinkEnds[ receiver ] = std::make_pair( "Earth" , "EarthStation2" );
 
             // Create light-time correction settings.
-            std::vector< std::string > lightTimePerturbingBodies = boost::assign::list_of( "Sun" );
+            std::vector< std::string > lightTimePerturbingBodies = { "Sun" };
             std::vector< std::shared_ptr< LightTimeCorrectionSettings > > lightTimeCorrectionSettings;
             lightTimeCorrectionSettings.push_back( std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >(
                                                        lightTimePerturbingBodies ) );
@@ -268,7 +268,7 @@ BOOST_AUTO_TEST_CASE( testNWayRangeModel )
             fourthlinkLinkEnds[ receiver ] = std::make_pair( "Mars" , "MarsStation" );
 
             // Create light-time correction settings.
-            std::vector< std::string > lightTimePerturbingBodies = boost::assign::list_of( "Sun" );
+            std::vector< std::string > lightTimePerturbingBodies = { "Sun" };
             std::vector< std::shared_ptr< LightTimeCorrectionSettings > > lightTimeCorrectionSettings;
             lightTimeCorrectionSettings.push_back( std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >(
                                                        lightTimePerturbingBodies ) );

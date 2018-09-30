@@ -52,7 +52,7 @@ public:
      *  \param departureBodyGravitationalParameter gravitational parameter of the departure body.
      *  \param semiMajorAxis semi-major axis of the orbit after the capture is performed.
      *  \param eccentricity eccentricity of the orbit after the capture is performed.
-     *  \param includeArrivalDeltaV Boolean denoting whether to include the Delta V of arrival.
+     *  \param includeDepartureDeltaV Boolean denoting whether to include the Delta V of departure.
      */
     DepartureLegMga( const Eigen::Vector3d& departureBodyPosition,
                      const Eigen::Vector3d& arrivalBodyPosition,

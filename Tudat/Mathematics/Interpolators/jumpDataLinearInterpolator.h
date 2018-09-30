@@ -107,14 +107,18 @@ public:
      *  variables and dependent variables. A look-up scheme can be provided to
      *  override the given default.
      *  \param independentValues Vector of values of independent variables that are used, must be
-     *  sorted in ascending order.
+     *      sorted in ascending order.
      *  \param dependentValues Vector of values of dependent variables that are used.
      *  \param maximumAllowableVariation Maximum allowable deviation between two dependent variable values, above which a jump is
-     *          identified.
+     *      identified.
      *  \param jumpSize Magnitude of jumps in dependent variable data.
      *  \param selectedLookupScheme Identifier of lookupscheme from enum. This algorithm is used
-     *  to find the nearest lower data point in the independent variables when requesting
+     *      to find the nearest lower data point in the independent variables when requesting
      *  interpolation.
+     *  \param boundaryHandling Boundary handling method, in case the independent variable is outside the
+     *      specified range.
+     *  \param defaultExtrapolationValue Pair of default values to be used for extrapolation, in case
+     *      of use_default_value or use_default_value_with_warning as methods for boundaryHandling.
      */
     JumpDataLinearInterpolator( const std::vector< IndependentVariableType > independentValues,
                                 const std::vector< DependentVariableType > dependentValues,

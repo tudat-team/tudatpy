@@ -59,7 +59,7 @@ public:
      *  \param excessVelocityMagnitude the magnitude of the hyperbolic excess velocity of the DSM.
      *  \param excessVelocityInPlaneAngle the in plane angle of the hyperbolic excess velocity.
      *  \param excessVelocityOutOfPlaneAngle the out of plane angle of the hyperbolic excess velocity.
-     *  \param includeArrivalDeltaV Boolean denoting whether to include the Delta V of arrival.
+     *  \param includeDepartureDeltaV Boolean denoting whether to include the Delta V of departure.
      */
     DepartureLegMga1DsmVelocity( const Eigen::Vector3d& departureBodyPosition,
                                  const Eigen::Vector3d& arrivalBodyPosition,

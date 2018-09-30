@@ -285,7 +285,7 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForSphericalHarmonicCentralBodies )
                                                 < double, Eigen::Vector6d  > >( ), "Earth", "J2000" ) );
         std::shared_ptr< RadiationPressureInterfaceSettings > vehicleRadiationPressureSettings =
                 std::make_shared< CannonBallRadiationPressureInterfaceSettings >(
-                    "Sun", 4.0, 1.2, boost::assign::list_of( "Earth" )( "Moon" ) );
+                    "Sun", 4.0, 1.2, std::vector< std::string >{ "Earth", "Moon" } );
         bodyMap[ "Vehicle" ]->setRadiationPressureInterface(
                     "Sun", createRadiationPressureInterface(
                         vehicleRadiationPressureSettings, "Vehicle", bodyMap ) );
