@@ -17,7 +17,9 @@
 #include "Tudat/Astrodynamics/BasicAstrodynamics/torqueModelTypes.h"
 #include "Tudat/Astrodynamics/Gravitation/gravityFieldVariations.h"
 #include "Tudat/Astrodynamics/ReferenceFrames/aerodynamicAngleCalculator.h"
+#if( BUILD_WITH_ESTIMATION_TOOLS )
 #include "Tudat/Astrodynamics/OrbitDetermination/stateDerivativePartial.h"
+#endif
 
 namespace tudat
 {
@@ -492,8 +494,10 @@ public:
     //! Variable denoting whether to print the list and vector entries of dependent variables when propagating.
     bool printDependentVariableTypes_;
 
+#if( BUILD_WITH_ESTIMATION_TOOLS )
     //! Map of state derivative partials, to be used when saving state derivative partials as dependent variables
     std::map< propagators::IntegratedStateType, orbit_determination::StateDerivativePartialsMap > stateDerivativePartials_;
+#endif
 
 };
 

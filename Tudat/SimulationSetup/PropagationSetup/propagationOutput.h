@@ -908,6 +908,7 @@ std::pair< std::function< Eigen::VectorXd( ) >, int > getVectorDependentVariable
         parameterSize = 3;
         break;
     }
+#if( BUILD_WITH_ESTIMATION_TOOLS )
     case acceleration_partial_wrt_body_translational_state:
     {
         std::shared_ptr< AccelerationPartialWrtStateSaveSettings > accelerationPartialVariableSettings =
@@ -950,6 +951,7 @@ std::pair< std::function< Eigen::VectorXd( ) >, int > getVectorDependentVariable
         }
         break;
     }
+#endif
     default:
         std::string errorMessage =
                 "Error, did not recognize vector dependent variable type when making variable function: " +
@@ -1499,16 +1501,26 @@ std::pair< std::function< Eigen::VectorXd( ) >, std::map< int, std::string > > c
         // Create double parameter
         if( getDependentVariableSaveSize( variable ) == 1 )
         {
+#if( BUILD_WITH_ESTIMATION_TOOLS )
             std::function< double( ) > doubleFunction =
                     getDoubleDependentVariableFunction( variable, bodyMap, stateDerivativeModels,
                                                         saveSettings->stateDerivativePartials_ );
+#else
+            std::function< double( ) > doubleFunction =
+                    getDoubleDependentVariableFunction( variable, bodyMap, stateDerivativeModels );
+#endif
             vectorFunction = std::make_pair( std::bind( &getVectorFromDoubleFunction, doubleFunction ), 1 );
         }
         // Create vector parameter
         else
         {
+#if( BUILD_WITH_ESTIMATION_TOOLS )
             vectorFunction = getVectorDependentVariableFunction(
                         variable, bodyMap, stateDerivativeModels, saveSettings->stateDerivativePartials_ );
+#else
+            vectorFunction =
+                    getVectorDependentVariableFunction( variable, bodyMap, stateDerivativeModels );
+#endif
         }
         vectorFunctionList.push_back( vectorFunction );
         vectorVariableList.push_back( std::make_pair( getDependentVariableId( variable ), vectorFunction.second ) );
