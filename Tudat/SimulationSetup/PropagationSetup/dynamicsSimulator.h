@@ -335,8 +335,6 @@ public:
         setIntegratedResult_ = setIntegratedResult;
     }
 
-protected:
-
     //! This function updates the environment with the numerical solution of the propagation.
     /*!
      *  This function updates the environment with the numerical solution of the propagation. For instance, it sets
@@ -344,6 +342,8 @@ protected:
      *  propagated. This function is pure virtual and must be implemented in the derived class.
      */
     virtual void processNumericalEquationsOfMotionSolution( ) = 0;
+
+protected:
 
     //!  Map of bodies (with names) of all bodies in integration.
     simulation_setup::NamedBodyMap bodyMap_;
@@ -814,8 +814,6 @@ public:
                             integratorSettings_->initialTimeStep_ );
     }
 
-protected:
-
     //! This function updates the environment with the numerical solution of the propagation.
     /*!
      *  This function updates the environment with the numerical solution of the propagation. It sets
@@ -841,6 +839,8 @@ protected:
             bodyIterator->second->updateConstantEphemerisDependentMemberQuantities( );
         }
     }
+
+protected:
 
     //! List of object (per dynamics type) that process the integrated numerical solution by updating the environment
     std::map< IntegratedStateType, std::vector< std::shared_ptr<
@@ -936,11 +936,6 @@ protected:
     std::shared_ptr< PropagationTerminationDetails > propagationTerminationReason_;
 
 };
-
-//extern template class SingleArcDynamicsSimulator< double, double >;
-//extern template class SingleArcDynamicsSimulator< long double, double >;
-//extern template class SingleArcDynamicsSimulator< double, Time >;
-//extern template class SingleArcDynamicsSimulator< long double, Time >;
 
 //! Function to get a vector of initial states from a vector of propagator settings
 /*!
@@ -1426,9 +1421,6 @@ public:
         return true;
     }
 
-
-protected:
-
     //! This function updates the environment with the numerical solution of the propagation.
     /*!
      *  This function updates the environment with the numerical solution of the propagation. It sets
@@ -1450,6 +1442,8 @@ protected:
             equationsOfMotionNumericalSolution_.clear( );
         }
     }
+
+protected:
 
     //! List of maps of state history of numerically integrated states.
     /*!
@@ -1514,7 +1508,8 @@ public:
             const std::vector< double > arcStartTimes,
             const bool areEquationsOfMotionToBeIntegrated = true,
             const bool clearNumericalSolutions = true,
-            const bool setIntegratedResult = true ):
+            const bool setIntegratedResult = true,
+            const bool addSingleArcBodiesToMultiArcDynamics = false ):
         DynamicsSimulator< StateScalarType, TimeType >(
             bodyMap, clearNumericalSolutions, setIntegratedResult )
     {       

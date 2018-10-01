@@ -681,13 +681,15 @@ struct PodOutput
 
 
 extern template class PodInput< double, double >;
+extern template struct PodOutput< double >;
+
+#if( BUILD_EXTENDED_PRECISION_PROPAGATION_TOOLS )
 extern template class PodInput< long double, double >;
 extern template class PodInput< double, Time >;
 extern template class PodInput< long double, Time >;
 
-extern template struct PodOutput< double >;
 extern template struct PodOutput< long double >;
-
+#endif
 
 }
 

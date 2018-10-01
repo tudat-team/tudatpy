@@ -107,6 +107,15 @@ Eigen::Vector7d computeStateDerivativeForUnifiedStateModelExponentialMap(
                     currentCartesianState ) * accelerationsInInertialFrame, centralBodyGravitationalParameter );
 }
 
+template class NBodyUnifiedStateModelExponentialMapStateDerivative< double, double >;
+
+#if( BUILD_EXTENDED_PRECISION_PROPAGATION_TOOLS )
+template class NBodyUnifiedStateModelExponentialMapStateDerivative< long double, double >;
+template class NBodyUnifiedStateModelExponentialMapStateDerivative< double, Time >;
+template class NBodyUnifiedStateModelExponentialMapStateDerivative< long double, Time >;
+#endif
+
+
 } // namespace propagators
 
 } // namespace tudat

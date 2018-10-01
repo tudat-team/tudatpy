@@ -85,6 +85,7 @@ extern template class Interpolator< double, Eigen::VectorXd >;
 extern template class Interpolator< double, Eigen::Vector6d >;
 extern template class Interpolator< double, Eigen::MatrixXd >;
 
+#if( BUILD_EXTENDED_PRECISION_PROPAGATION_TOOLS )
 extern template class Interpolator< Time, Eigen::VectorXd >;
 extern template class Interpolator< Time, Eigen::Vector6d >;
 extern template class Interpolator< Time, Eigen::MatrixXd >;
@@ -96,7 +97,7 @@ extern template class Interpolator< double, Eigen::Matrix< long double, Eigen::D
 extern template class Interpolator< Time, Eigen::Matrix< long double, Eigen::Dynamic, 1 > >;
 extern template class Interpolator< Time, Eigen::Matrix< long double, Eigen::Dynamic, 6 > >;
 extern template class Interpolator< Time, Eigen::Matrix< long double, Eigen::Dynamic, Eigen::Dynamic > >;
-
+#endif
 
 } // namespace interpolators
 

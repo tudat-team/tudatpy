@@ -261,9 +261,12 @@ bool isDynamicalParameterSingleArc(
 
 }
 
-extern template class EstimatableParameter< double >;
-extern template class EstimatableParameter< Eigen::VectorXd >;
-extern template class EstimatableParameter< Eigen::Matrix< long double, Eigen::Dynamic, 1 > >;
+//extern template class EstimatableParameter< double >;
+//extern template class EstimatableParameter< Eigen::VectorXd >;
+
+//#if( BUILD_EXTENDED_PRECISION_PROPAGATION_TOOLS )
+//extern template class EstimatableParameter< Eigen::Matrix< long double, Eigen::Dynamic, 1 > >;
+//#endif
 
 //! Container class for all parameters that are to be estimated.
 /*!
@@ -789,9 +792,6 @@ std::shared_ptr< estimatable_parameters::EstimatableParameterSet< StateScalarTyp
                     parametersToEstimate->getEstimatedMultiArcInitialStateParameters( )  );
     }
 }
-
-extern template class EstimatableParameterSet< double >;
-extern template class EstimatableParameterSet< long double >;
 
 template< typename InitialStateParameterType >
 void printEstimatableParameterEntries(

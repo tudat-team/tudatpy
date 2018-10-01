@@ -592,6 +592,12 @@ extern template std::vector< std::shared_ptr< SingleStateTypeDerivative< double,
         const std::shared_ptr< SingleArcPropagatorSettings< double > > propagatorSettings,
         const simulation_setup::NamedBodyMap& bodyMap,
         const double propagationStartTime );
+extern template std::shared_ptr< SingleStateTypeDerivative< double, double > > createStateDerivativeModel< double, double >(
+        const std::shared_ptr< SingleArcPropagatorSettings< double > > propagatorSettings,
+        const simulation_setup::NamedBodyMap& bodyMap,
+        const double propagationStartTime );
+
+#if( BUILD_EXTENDED_PRECISION_PROPAGATION_TOOLS )
 extern template std::vector< std::shared_ptr< SingleStateTypeDerivative< long double, double > > > createStateDerivativeModels< long double, double >(
         const std::shared_ptr< SingleArcPropagatorSettings< long double > > propagatorSettings,
         const simulation_setup::NamedBodyMap& bodyMap,
@@ -604,11 +610,6 @@ extern template std::vector< std::shared_ptr< SingleStateTypeDerivative< long do
         const std::shared_ptr< SingleArcPropagatorSettings< long double > > propagatorSettings,
         const simulation_setup::NamedBodyMap& bodyMap,
         const Time propagationStartTime );
-
-extern template std::shared_ptr< SingleStateTypeDerivative< double, double > > createStateDerivativeModel< double, double >(
-        const std::shared_ptr< SingleArcPropagatorSettings< double > > propagatorSettings,
-        const simulation_setup::NamedBodyMap& bodyMap,
-        const double propagationStartTime );
 extern template std::shared_ptr< SingleStateTypeDerivative< long double, double > > createStateDerivativeModel< long double, double >(
         const std::shared_ptr< SingleArcPropagatorSettings< long double > > propagatorSettings,
         const simulation_setup::NamedBodyMap& bodyMap,
@@ -621,7 +622,7 @@ extern template std::shared_ptr< SingleStateTypeDerivative< long double, Time > 
         const std::shared_ptr< SingleArcPropagatorSettings< long double > > propagatorSettings,
         const simulation_setup::NamedBodyMap& bodyMap,
         const Time propagationStartTime );
-
+#endif
 
 //! Function to convert a list of state derivative models to a map sorted by state type
 /*!
