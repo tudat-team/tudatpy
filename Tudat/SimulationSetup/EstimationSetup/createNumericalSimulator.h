@@ -163,7 +163,7 @@ createHybridArcVariationalEquationsSolver(
     return std::make_shared< propagators::HybridArcVariationalEquationsSolver< StateScalarType, TimeType > >(
                 bodyMap, integratorSettings, propagatorSettings, parametersToEstimate, arcStartTimes,
                 integrateDynamicalAndVariationalEquationsConcurrently,
-                clearNumericalSolution, intrgrateEquationsOnCreation );
+                clearNumericalSolution, integrateEquationsOnCreation );
 }
 
 //! Function to create variational equations solver object

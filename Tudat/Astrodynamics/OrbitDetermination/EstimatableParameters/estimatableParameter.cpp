@@ -271,14 +271,16 @@ bool isParameterTidalProperty( const EstimatebleParametersEnum parameterType )
     return flag;
 }
 
+//#if( BUILD_EXTENDED_PRECISION_PROPAGATION_TOOLS )
+//template class EstimatableParameter< Eigen::VectorXd >;
+//template class EstimatableParameter< Eigen::Matrix< long double, Eigen::Dynamic, 1 > >;
+//#endif
 
-template class EstimatableParameter< double >;
-template class EstimatableParameter< Eigen::VectorXd >;
-template class EstimatableParameter< Eigen::Matrix< long double, Eigen::Dynamic, 1 > >;
+//template class EstimatableParameterSet< double >;
 
-
-template class EstimatableParameterSet< double >;
-template class EstimatableParameterSet< long double >;
+//#if( BUILD_EXTENDED_PRECISION_PROPAGATION_TOOLS )
+//template class EstimatableParameterSet< long double >;
+//#endif
 
 }
 

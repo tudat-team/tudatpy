@@ -112,6 +112,8 @@ extern template std::map< propagators::IntegratedStateType, orbit_determination:
         const simulation_setup::NamedBodyMap& bodyMap,
         const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > >
         parametersToEstimate );
+
+#if( BUILD_EXTENDED_PRECISION_PROPAGATION_TOOLS )
 extern template std::map< propagators::IntegratedStateType, orbit_determination::StateDerivativePartialsMap > createStateDerivativePartials< long double, double >(
         const std::unordered_map< propagators::IntegratedStateType,
         std::vector< std::shared_ptr< propagators::SingleStateTypeDerivative< long double, double > > > >
@@ -133,6 +135,7 @@ extern template std::map< propagators::IntegratedStateType, orbit_determination:
         const simulation_setup::NamedBodyMap& bodyMap,
         const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< long double > >
         parametersToEstimate );
+#endif
 
 } // namespace simulation_setup
 

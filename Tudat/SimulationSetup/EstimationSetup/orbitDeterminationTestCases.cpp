@@ -24,6 +24,8 @@ template std::pair< std::shared_ptr< PodOutput< double > >, Eigen::VectorXd > ex
         Eigen::VectorXd parameterPerturbation,
         Eigen::MatrixXd inverseAPrioriCovariance,
         const double weight );
+
+#if( BUILD_EXTENDED_PRECISION_PROPAGATION_TOOLS )
 template std::pair< std::shared_ptr< PodOutput< long double > >, Eigen::VectorXd > executePlanetaryParameterEstimation< double, long double >(
         const int observableType,
         Eigen::VectorXd parameterPerturbation,
@@ -39,6 +41,7 @@ template std::pair< std::shared_ptr< PodOutput< long double, Time > >, Eigen::Ve
         Eigen::VectorXd parameterPerturbation,
         Eigen::MatrixXd inverseAPrioriCovariance,
         const double weight );
+#endif
 
 template Eigen::VectorXd executeEarthOrbiterParameterEstimation< double, double >(
         std::pair< std::shared_ptr< PodOutput< double > > , std::shared_ptr< PodInput< double, double > > >& podData,

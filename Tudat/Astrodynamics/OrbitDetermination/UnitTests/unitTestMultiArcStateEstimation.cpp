@@ -276,6 +276,7 @@ BOOST_AUTO_TEST_CASE( test_MultiArcStateEstimation )
     // Execute test for linked arcs and separate arcs.
     for( unsigned int testCase = 0; testCase < 2; testCase++ )
     {
+#if( BUILD_EXTENDED_PRECISION_PROPAGATION_TOOLS )
         Eigen::VectorXd parameterError = executeParameterEstimation< long double, tudat::Time, long double >(
                     testCase );
         int numberOfEstimatedArcs = ( parameterError.rows( ) - 3 ) / 6;
@@ -293,6 +294,25 @@ BOOST_AUTO_TEST_CASE( test_MultiArcStateEstimation )
         BOOST_CHECK_SMALL( std::fabs( parameterError( parameterError.rows( ) - 3 ) ), 1.0E-20 );
         BOOST_CHECK_SMALL( std::fabs( parameterError( parameterError.rows( ) - 2 ) ), 1.0E-12 );
         BOOST_CHECK_SMALL( std::fabs( parameterError( parameterError.rows( ) - 1 ) ), 1.0E-12 );
+#else
+        Eigen::VectorXd parameterError = executeParameterEstimation< double, double double >(
+                    testCase );
+        int numberOfEstimatedArcs = ( parameterError.rows( ) - 3 ) / 6;
+
+        std::cout << parameterError.transpose( ) << std::endl;
+        for( int i = 0; i < numberOfEstimatedArcs; i++ )
+        {
+            for( unsigned int j = 0; j < 3; j++ )
+            {
+                BOOST_CHECK_SMALL( std::fabs( parameterError( i * 6 + j ) ), 1E-1 );
+                BOOST_CHECK_SMALL( std::fabs( parameterError( i * 6 + j + 3 ) ), 1.0E-7  );
+            }
+        }
+
+        BOOST_CHECK_SMALL( std::fabs( parameterError( parameterError.rows( ) - 3 ) ), 1.0E-17 );
+        BOOST_CHECK_SMALL( std::fabs( parameterError( parameterError.rows( ) - 2 ) ), 1.0E-9 );
+        BOOST_CHECK_SMALL( std::fabs( parameterError( parameterError.rows( ) - 1 ) ), 1.0E-9 );
+#endif
     }
 
 }

@@ -463,9 +463,12 @@ protected:
 };
 
 extern template class NBodyStateDerivative< double, double >;
+
+#if( BUILD_EXTENDED_PRECISION_PROPAGATION_TOOLS )
 extern template class NBodyStateDerivative< long double, double >;
 extern template class NBodyStateDerivative< double, Time >;
 extern template class NBodyStateDerivative< long double, Time >;
+#endif
 
 } // namespace propagators
 

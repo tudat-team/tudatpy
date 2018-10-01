@@ -70,7 +70,7 @@ target_link_libraries(test_CentralBodyData tudat_propagators tudat_basic_mathema
 
 if(USE_CSPICE)
 
-if( COMPILE_PROPAGATION_TESTS )
+if( BUILD_PROPAGATION_TESTS )
 
 add_executable(test_CowellStateDerivative "${SRCROOT}${PROPAGATORSDIR}/UnitTests/unitTestCowellStateDerivative.cpp")
 setup_custom_test_program(test_CowellStateDerivative "${SRCROOT}${PROPAGATORSDIR}")

@@ -302,9 +302,12 @@ private:
 };
 
 extern template class NBodyEnckeStateDerivative< double, double >;
+
+#if( BUILD_EXTENDED_PRECISION_PROPAGATION_TOOLS )
 extern template class NBodyEnckeStateDerivative< long double, double >;
 extern template class NBodyEnckeStateDerivative< double, Time >;
 extern template class NBodyEnckeStateDerivative< long double, Time >;
+#endif
 
 } // namespace propagators
 

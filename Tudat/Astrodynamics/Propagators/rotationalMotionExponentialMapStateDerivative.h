@@ -194,6 +194,14 @@ private:
 
 };
 
+extern template class RotationalMotionExponentialMapStateDerivative< double, double >;
+
+#if( BUILD_EXTENDED_PRECISION_PROPAGATION_TOOLS )
+extern template class RotationalMotionExponentialMapStateDerivative< long double, double >;
+extern template class RotationalMotionExponentialMapStateDerivative< double, Time >;
+extern template class RotationalMotionExponentialMapStateDerivative< long double, Time >;
+#endif
+
 } // namespace propagators
 
 } // namespace tudat

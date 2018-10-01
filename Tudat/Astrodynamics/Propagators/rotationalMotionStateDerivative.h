@@ -54,36 +54,6 @@ Eigen::Vector3d evaluateRotationalEquationsOfMotion(
         const Eigen::Vector3d& angularVelocityVector,
         const Eigen::Matrix3d& inertiaTensorTimeDerivative = Eigen::Matrix3d::Zero( ) );
 
-//! Function to obtain the matrix by which a quaternion vector is to be pre-multiplied to obtain this quaternion's time-derivative
-/*!
- * Function to obtain the matrix by which a quaternion vector (representing body-fixed to inertial frame rotation) is to be
- * pre-multiplied to obtain this quaternion's time-derivative
- * \param angularVelocityVectorInBodyFixedFrame  Current angular velocity vector of body, expressed in its body-fixed frame
- * \return Matrix by which a quaternion vector (representing body-fixed to inertial frame rotation) is to be
- * pre-multiplied to obtain this quaternion's time-derivative
- */
-Eigen::Matrix4d getQuaterionToQuaternionRateMatrix( const Eigen::Vector3d& angularVelocityVectorInBodyFixedFrame );
-
-//! Function to obtain the matrix by which an angular velocity vector is to be pre-multiplied to get quaternion's time-derivative
-/*!
- *  Function to obtain the matrix by which a body-fixed angular velocity vector is to be pre-multiplied to get the associated
- *  quaternion's (body-fixed to inertial) time-derivative
- *  \param quaternionVector  Current quaternion in vector representation
- *  \return Matrix by which an angular velocity vector is to be pre-multiplied to get quaternion's time-derivative
- */
-Eigen::Matrix< double, 4, 3 > getAngularVelocityToQuaternionRateMatrix( const Eigen::Vector4d& quaternionVector );
-
-//! Function to obtain the time derivative of a quaternion (in vector representation) of body-fixed to inertial frame
-/*!
- * Function to obtain the time derivative of a quaternion (in vector representation) of body-fixed to inertial frame
- * \param currentQuaternionToBaseFrame Quaternion (in vector representation) that defined the rotation from body-fixed to inertial
- * frame.
- * \param angularVelocityVectorInBodyFixedFrame Current angular velocity vector of body, expressed in its body-fixed frame
- * \return Time derivative of a quaternion (in vector representation) of body-fixed to inertial frame
- */
-Eigen::Vector4d calculateQuaternionDerivative(
-        const Eigen::Vector4d& currentQuaternionToBaseFrame, const Eigen::Vector3d& angularVelocityVectorInBodyFixedFrame );
-
 //! Class for computing the state derivative for rotational dynamics of N bodies.
 /*!
  *  Class for computing the state derivative for rotational dynamics of N bodies., using quaternion from body-fixed to inertial
@@ -384,6 +354,15 @@ protected:
     basic_astrodynamics::SingleBodyTorqueModelMap::iterator innerTorqueIterator;
 
 };
+
+
+extern template class RotationalMotionStateDerivative< double, double >;
+
+#if( BUILD_EXTENDED_PRECISION_PROPAGATION_TOOLS )
+extern template class RotationalMotionStateDerivative< long double, double >;
+extern template class RotationalMotionStateDerivative< double, Time >;
+extern template class RotationalMotionStateDerivative< long double, Time >;
+#endif
 
 } // namespace propagators
 

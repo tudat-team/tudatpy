@@ -385,10 +385,12 @@ std::shared_ptr< Ephemeris > createReferencePointEphemeris(
 }
 
 extern template class CompositeEphemeris< double, double >;
+
+#if( BUILD_EXTENDED_PRECISION_PROPAGATION_TOOLS )
 extern template class CompositeEphemeris< Time, long double >;
 extern template class CompositeEphemeris< double, double >;
 extern template class CompositeEphemeris< Time, long double >;
-
+#endif
 } // namespace ephemerides
 
 } // namespace tudat
