@@ -35,7 +35,7 @@ namespace json_interface
  * \param integratedStateType The integrated state type for which the associated key is requested.
  * \return The associated key for the integrated state.
  */
-std::string getAssociatedKey( const propagators::IntegratedStateType integratedStateType )
+inline std::string getAssociatedKey( const propagators::IntegratedStateType integratedStateType )
 {
     switch ( integratedStateType )
     {
