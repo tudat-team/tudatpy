@@ -90,15 +90,15 @@ BOOST_AUTO_TEST_CASE( testOtherConstants )
                                 std::numeric_limits< double >::epsilon( ) );
     BOOST_CHECK_CLOSE_FRACTION( VACUUM_PERMITTIVITY, 1.0 /
                                 ( 4.0 * mathematical_constants::PI * 1.0E-7 * std::pow( SPEED_OF_LIGHT, 2.0 ) ),
-                                  std::numeric_limits< double >::epsilon( ) );
+                                std::numeric_limits< double >::epsilon( ) );
 
-            // Test for Stefan-Boltzmann constant relation (derived from Planck and Boltzmann constants).
-            BOOST_CHECK_CLOSE_FRACTION( STEFAN_BOLTZMANN_CONSTANT, 2.0 * std::pow(
-                                            mathematical_constants::PI, 5.0 ) *
-                                        std::pow( BOLTZMANN_CONSTANT, 4.0 ) /
-                                        ( 15.0 * SPEED_OF_LIGHT * SPEED_OF_LIGHT *
-                                          PLANCK_CONSTANT * PLANCK_CONSTANT * PLANCK_CONSTANT ),
-                                        std::numeric_limits< double >::epsilon( ) );
+    // Test for Stefan-Boltzmann constant relation (derived from Planck and Boltzmann constants).
+    BOOST_CHECK_CLOSE_FRACTION( STEFAN_BOLTZMANN_CONSTANT, 2.0 * physical_constants::compile_time_pow(
+                                    mathematical_constants::PI, 5 ) *
+                                physical_constants::compile_time_pow( BOLTZMANN_CONSTANT, 4 ) /
+                                ( 15.0 * SPEED_OF_LIGHT * SPEED_OF_LIGHT *
+                                  PLANCK_CONSTANT * PLANCK_CONSTANT * PLANCK_CONSTANT ),
+                                std::numeric_limits< double >::epsilon( ) );
 
     // Test for Stefan-boltzmann constant value (NIST, 2013)
     BOOST_CHECK_CLOSE_FRACTION( STEFAN_BOLTZMANN_CONSTANT, 5.670373E-8, 1.0E-7 );
