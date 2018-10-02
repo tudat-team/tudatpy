@@ -218,6 +218,11 @@ const std::string Keys::Body::GravityFieldVariation::minimumDegree = "minimumDeg
 const std::string Keys::Body::GravityFieldVariation::minimumOrder = "minimumOrder";
 const std::string Keys::Body::GravityFieldVariation::interpolator = "interpolator";
 
+// // Body::GroundStation
+const std::string Keys::Body::groundStation = "groundStation";
+const std::string Keys::Body::GroundStation::stationPosition = "stationPosition";
+const std::string Keys::Body::GroundStation::positionElementType = "positionElementType";
+const std::string Keys::Body::GroundStation::stationName = "stationName";
 
 //  Variable
 const std::string Keys::Variable::type = "type";

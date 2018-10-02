@@ -267,6 +267,7 @@ ValueType getValue( const nlohmann::json& jsonObject, const KeyPath& keyPath )
     }
     catch ( const UnknownEnumError& )
     {
+        std::cout<<"Test A"<<std::endl;
         // Could not convert string to enum
         throw IllegalValueError( canonicalKeyPath, currentObject, typeid( ValueType ) );
     }
