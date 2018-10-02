@@ -225,6 +225,14 @@ struct Keys
             static const std::string minimumOrder;
             static const std::string interpolator;
         };
+
+        static const std::string groundStation;
+        struct GroundStation
+        {
+            static const std::string stationPosition;
+            static const std::string positionElementType;
+            static const std::string stationName;
+        };
     };
 
 

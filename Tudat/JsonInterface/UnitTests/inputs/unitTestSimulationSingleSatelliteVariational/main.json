@@ -62,6 +62,10 @@
       "centralBody": "Earth",
       "frameOrientation": "ECLIPJ2000",
       "parameterType": "initialBodyState"
+    },
+    {
+      "associatedBody": "Earth",
+      "parameterType": "gravitationalParameter"
     } 
   ] 
 }

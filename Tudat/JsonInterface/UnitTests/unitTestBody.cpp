@@ -12,6 +12,7 @@
 
 #include "Tudat/JsonInterface/UnitTests/unitTestSupport.h"
 #include "Tudat/JsonInterface/Environment/body.h"
+#include "Tudat/Mathematics/BasicMathematics/coordinateConversions.h"
 
 namespace tudat
 {
@@ -58,8 +59,28 @@ BOOST_AUTO_TEST_CASE( test_json_body_settings )
             std::make_shared< RotationModelSettings >( spice_rotation_model, "A", "B" );
     manualSettings->shapeModelSettings = std::make_shared< SphericalBodyShapeSettings >( 5.0e6 );
 
+    Eigen::Vector3d testCartesianPosition( 1917032.190, 6029782.349, -801376.113 );
+    Eigen::Vector3d testGeodeticPosition(
+                -63.667,  unit_conversions::convertDegreesToRadians( -7.26654999 ),
+                unit_conversions::convertDegreesToRadians( 72.36312094 ) );
+    Eigen::Vector3d testSphericalPosition = coordinate_conversions::convertCartesianToSpherical(
+                testCartesianPosition );
+    testSphericalPosition( 1 ) = mathematical_constants::PI / 2.0 - testSphericalPosition( 1 );
+
+    manualSettings->groundStationSettings.push_back(
+                std::make_shared< GroundStationSettings >(
+                    "Station1", testCartesianPosition, coordinate_conversions::cartesian_position  ) );
+    manualSettings->groundStationSettings.push_back(
+                std::make_shared< GroundStationSettings >(
+                    "Station2", testSphericalPosition, coordinate_conversions::spherical_position ) );
+    manualSettings->groundStationSettings.push_back(
+                std::make_shared< GroundStationSettings >(
+                    "Station3", testGeodeticPosition, coordinate_conversions::geodetic_position ) );
+
     // Compare
     BOOST_CHECK_EQUAL_JSON( fromFileSettings, manualSettings );
+
+
 }
 
 BOOST_AUTO_TEST_SUITE_END( )

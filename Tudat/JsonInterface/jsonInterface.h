@@ -12,7 +12,6 @@
 #define TUDAT_JSONINTERFACE_H
 
 #include "Tudat/SimulationSetup/tudatSimulationHeader.h"
-#include "Tudat/SimulationSetup/EstimationSetup/createEstimatableParameters.h"
 
 #include "Support/deserialization.h"
 #include "Support/valueAccess.h"
@@ -20,7 +19,6 @@
 
 #include "Tudat/JsonInterface/Environment/spice.h"
 #include "Tudat/JsonInterface/Environment/body.h"
-#include "Tudat/JsonInterface/Estimation/parameter.h"
 #include "Tudat/JsonInterface/Propagation/propagator.h"
 #include "Tudat/JsonInterface/Mathematics/integrator.h"
 #include "Tudat/JsonInterface/Propagation/export.h"
@@ -156,12 +154,7 @@ public:
         resetApplicationOptions( );
     }
 
-    virtual void updateSettingsDerived( )
-    {
-
-    }
-
-    virtual void parseSettingsObjects( )
+    void parseSettingsObjects( )
     {
         if( simulationType_ == equations_of_motion_propagation )
         {
@@ -173,10 +166,10 @@ public:
         }
     }
 
-    virtual void updateSettings( )
+    void updateSettings( )
     {
         updateSettingsBase( );
-        updateSettingsDerived( );
+        resetDerivedClassSettings( );
         parseSettingsObjects( );
     }
 
@@ -554,7 +547,8 @@ protected:
      * Tries to infer the initial states from the body ephemeris if not provided.
      * Creates the integrated state models using bodyMap_
      */
-    virtual void resetPropagatorSettings( )
+    virtual void
+    resetPropagatorSettings( )
     {
         // Update jsonObject_ by determining initial states if not provided directly to the propagator settings:
         // * By obtaining the initial states from body properties (and transforming to Cartesian if necessary)
@@ -691,114 +685,6 @@ protected:
 
 };
 
-template< typename TimeType = double, typename StateScalarType = double >
-class JsonVariationalEquationsSimulationManager: public JsonSimulationManager< TimeType, StateScalarType >
-{
-public:
-
-    using JsonSimulationManager< TimeType, StateScalarType >::jsonObject_;
-    using JsonSimulationManager< TimeType, StateScalarType >::initialClockTime_;
-    using JsonSimulationManager< TimeType, StateScalarType >::dynamicsSimulator_;
-    using JsonSimulationManager< TimeType, StateScalarType >::bodyMap_;
-    using JsonSimulationManager< TimeType, StateScalarType >::integratorSettings_;
-    using JsonSimulationManager< TimeType, StateScalarType >::propagatorSettings_;
-    using JsonSimulationManager< TimeType, StateScalarType >::exportAsJson;
-    using JsonSimulationManager< TimeType, StateScalarType >::profiling;
-    using JsonSimulationManager< TimeType, StateScalarType >::exportSettingsVector_;
-
-
-
-    JsonVariationalEquationsSimulationManager(
-            const std::string& inputFilePath,
-            const std::chrono::steady_clock::time_point initialClockTime = std::chrono::steady_clock::now( ) )
-        : JsonSimulationManager< TimeType, StateScalarType >( inputFilePath, initialClockTime ){ }
-
-    //! Constructor from JSON object.
-    /*!
-     * Constructor.
-     * \param jsonObject The root JSON object.
-     * \param initialClockTime Initial clock time from which the cumulative CPU time during the propagation will be
-     * computed. Default is the moment at which the constructor was called.
-     */
-    JsonVariationalEquationsSimulationManager(
-            const nlohmann::json& jsonObject,
-            const std::chrono::steady_clock::time_point initialClockTime = std::chrono::steady_clock::now( ) )
-        : JsonSimulationManager< TimeType, StateScalarType >( jsonObject, initialClockTime ){ }
-
-    ~JsonVariationalEquationsSimulationManager( ){ }
-
-
-    void resetVariationalEquationsSolver( )
-    {
-        variationalEquationsSolver_ =
-                std::make_shared< propagators::SingleArcVariationalEquationsSolver< StateScalarType, TimeType > >(
-                    bodyMap_, integratorSettings_, propagatorSettings_, parametersToEstimate_, true,
-                    std::shared_ptr< numerical_integrators::IntegratorSettings< double > >( ), false, false, false );
-        dynamicsSimulator_ = variationalEquationsSolver_->getDynamicsSimulator( );
-
-        if ( profiling )
-        {
-            std::cout << "resetVariationalEquationsSolver: " << std::chrono::duration_cast< std::chrono::milliseconds >(
-                             std::chrono::steady_clock::now( ) - initialClockTime_ ).count( ) * 1.0e-3 << " s" << std::endl;
-            initialClockTime_ = std::chrono::steady_clock::now( );
-        }
-    }
-
-
-    void setDerivedClassPropagationObjects( )
-    {
-
-        variationalEquationsSolver_->integrateVariationalAndDynamicalEquations(
-                    propagatorSettings_->getInitialStates( ) , true );
-    }
-
-    virtual void resetDerivedClassPropagation( )
-    {
-        resetVariationalEquationsSolver( );
-    }
-
-
-    void resetDerivedClassSettings( )
-    {
-        resetParameterSettings( );
-    }
-
-    void resetParameterSettings( )
-    {
-        updateFromJSON( parameterSettings_, jsonObject_, Keys::parametersToEstimate );
-        parametersToEstimate_ = simulation_setup::createParametersToEstimate(
-                    parameterSettings_, bodyMap_, propagators::getAccelerationMapFromPropagatorSettings< StateScalarType >(
-                        propagatorSettings_)  );
-
-        if ( profiling )
-        {
-
-            std::cout << "resetParameterSettings: " << std::chrono::duration_cast< std::chrono::milliseconds >(
-                             std::chrono::steady_clock::now( ) - initialClockTime_ ).count( ) * 1.0e-3 << " s" << std::endl;
-            initialClockTime_ = std::chrono::steady_clock::now( );
-        }
-    }
-
-    std::shared_ptr< propagators::SingleArcVariationalEquationsSolver< StateScalarType, TimeType > > getVariationalEquationsSolver( ) const
-    {
-        return variationalEquationsSolver_;
-    }
-
-    void exportDerivedClassVariables( )
-    {
-        exportResultsOfVariationalEquations( variationalEquationsSolver_, exportSettingsVector_ );
-    }
-
-
-protected:
-    std::shared_ptr< propagators::SingleArcVariationalEquationsSolver< StateScalarType, TimeType > > variationalEquationsSolver_;
-
-    std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettings > > parameterSettings_;
-
-    std::shared_ptr< estimatable_parameters::EstimatableParameterSet< StateScalarType > > parametersToEstimate_;
-
-};
-
 extern template class JsonSimulationManager< double, double >;
 
 #if( BUILD_EXTENDED_PRECISION_PROPAGATION_TOOLS )
@@ -806,6 +692,7 @@ extern template class JsonSimulationManager< Time, long double >;
 extern template class JsonSimulationManager< double, double >;
 extern template class JsonSimulationManager< Time, long double >;
 #endif
+
 //! Function to create a `json` object from a Simulation object.
 template< typename TimeType, typename StateScalarType >
 void to_json( nlohmann::json& jsonObject,

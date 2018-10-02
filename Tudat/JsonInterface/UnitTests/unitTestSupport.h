@@ -24,12 +24,12 @@ namespace tudat
 namespace json_interface
 {
 
-boost::filesystem::path currentDirectory( )
+inline boost::filesystem::path currentDirectory( )
 {
     return boost::filesystem::path( __FILE__ ).parent_path( );
 }
 
-boost::filesystem::path inputDirectory( )
+inline boost::filesystem::path inputDirectory( )
 {
     boost::filesystem::path matlabInputDirectory = currentDirectory( ) / "matlab_inputs";
     if ( boost::filesystem::exists( matlabInputDirectory ) )
@@ -128,7 +128,7 @@ void checkCloseIntegrationResultsMatrix( const std::map< double, ContainerType >
     }
 }
 
-void checkCloseIntegrationResults( const std::map< double, Eigen::VectorXd >& results1,
+inline void checkCloseIntegrationResults( const std::map< double, Eigen::VectorXd >& results1,
                                    const std::map< double, Eigen::VectorXd >& results2,
                                    const std::vector< unsigned int > indices,
                                    const std::vector< unsigned int > sizes,

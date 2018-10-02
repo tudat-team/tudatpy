@@ -17,7 +17,7 @@
 #include "Tudat/JsonInterface/Estimation/parameter.h"
 #include "Tudat/JsonInterface/Estimation/orbitDetermination.h"
 #include "Tudat/JsonInterface/Support/valueConversions.h"
-#include "Tudat/JsonInterface/jsonInterface.h"
+#include "Tudat/JsonInterface/jsonInterfaceVariational.h"
 
 #include "Tudat/SimulationSetup/tudatEstimationHeader.h"
 
@@ -78,8 +78,10 @@ public:
 
     virtual ~JsonEstimationManager( ){ }
 
-    virtual void updateSettingsDerived( )
+    virtual void resetDerivedClassSettings( )
     {
+        JsonVariationalEquationsSimulationManager< TimeType, StateScalarType >::resetDerivedClassSettings( );
+
         resetObservationSettings( );
         resetEstimationSettings( );
     }
@@ -147,7 +149,8 @@ protected:
 
     virtual void resetObservationSettings( )
     {
-        from_json( jsonObject_, observationSettingsMap_ );
+        observationSettingsMap_ = getValue< observation_models::ObservationSettingsListPerLinkEnd >(
+            jsonObject_, Keys::observations );
 
         if ( profiling )
         {
@@ -160,7 +163,7 @@ protected:
 
     void resetEstimationSettings( )
     {
-        updatePodSettingsFromJSON( jsonObject_[ "estimation" ], podSettings_, parametersToEstimate_->getParameterSetSize( )  );
+        updatePodSettingsFromJSON( jsonObject_[ Keys::estimationSettings ], podSettings_, parametersToEstimate_->getParameterSetSize( )  );
 
         if ( profiling )
         {
@@ -177,15 +180,15 @@ protected:
      */
     virtual void resetDynamicsSimulator( )
     {
-        parseSettingsObjects( );
+        this->parseSettingsObjects( );
     }
 
     virtual void resetVariationalEquationsSolver( )
     {
-        parseSettingsObjects( );
+        this->parseSettingsObjects( );
     }
 
-    virtual void parseSettingsObjects( )
+    virtual void resetDerivedClassPropagation( )
     {
         orbitDeterminationManager_ =
                 std::make_shared< simulation_setup::OrbitDeterminationManager< StateScalarType, TimeType > >(
@@ -207,6 +210,14 @@ private:
     std::shared_ptr< simulation_setup::PodSettings< StateScalarType, TimeType > > podSettings_;
 
 };
+
+extern template class JsonEstimationManager< double, double >;
+
+#if( BUILD_EXTENDED_PRECISION_PROPAGATION_TOOLS )
+extern template class JsonEstimationManager< Time, long double >;
+extern template class JsonEstimationManager< double, double >;
+extern template class JsonEstimationManager< Time, long double >;
+#endif
 
 
 } // namespace json_interface
