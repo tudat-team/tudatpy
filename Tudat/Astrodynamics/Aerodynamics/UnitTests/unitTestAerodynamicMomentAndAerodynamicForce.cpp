@@ -400,7 +400,7 @@ void testAerodynamicForceDirection( const bool includeThrustForce,
                             std::make_shared< ThrustAccelerationSettings >(
                                 std::make_shared< ThrustDirectionGuidanceSettings >(
                                     thrust_direction_from_existing_body_orientation, "Earth" ),
-                                std::make_shared< ConstantThrustEngineSettings >(
+                                std::make_shared< ConstantThrustMagnitudeSettings >(
                                     thrustMagnitude, specificImpulse, bodyFixedThrustDirection ) ) );
             }
             else
@@ -410,7 +410,7 @@ void testAerodynamicForceDirection( const bool includeThrustForce,
                                 std::make_shared< CustomThrustOrientationSettings >(
                                     std::bind( spice_interface::computeRotationQuaternionBetweenFrames,
                                                      "IAU_Mars", "IAU_Earth", std::placeholders::_1 ) ),
-                                std::make_shared< ConstantThrustEngineSettings >(
+                                std::make_shared< ConstantThrustMagnitudeSettings >(
                                     thrustMagnitude, specificImpulse, bodyFixedThrustDirection ) ) );
             }
         }
