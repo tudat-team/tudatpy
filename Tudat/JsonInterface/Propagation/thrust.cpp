@@ -84,10 +84,10 @@ void from_json( const nlohmann::json& jsonObject, std::shared_ptr< ThrustDirecti
 }
 
 
-// ThrustEngineSettings
+// ThrustMagnitudeSettings
 
-//! Create a `json` object from a shared pointer to a `ThrustEngineSettings` object.
-void to_json( nlohmann::json& jsonObject, const std::shared_ptr< ThrustEngineSettings >& magnitudeSettings )
+//! Create a `json` object from a shared pointer to a `ThrustMagnitudeSettings` object.
+void to_json( nlohmann::json& jsonObject, const std::shared_ptr< ThrustMagnitudeSettings >& magnitudeSettings )
 {
     if ( ! magnitudeSettings )
     {
@@ -103,8 +103,8 @@ void to_json( nlohmann::json& jsonObject, const std::shared_ptr< ThrustEngineSet
     switch ( magnitudeType ) {
     case constant_thrust_magnitude:
     {
-        std::shared_ptr< ConstantThrustEngineSettings > contantMagnitudeSettings
-                = std::dynamic_pointer_cast< ConstantThrustEngineSettings >( magnitudeSettings );
+        std::shared_ptr< ConstantThrustMagnitudeSettings > contantMagnitudeSettings
+                = std::dynamic_pointer_cast< ConstantThrustMagnitudeSettings >( magnitudeSettings );
         assertNonnullptrPointer( contantMagnitudeSettings );
         jsonObject[ K::constantMagnitude ] = contantMagnitudeSettings->thrustMagnitude_;
         jsonObject[ K::specificImpulse ] = contantMagnitudeSettings->specificImpulse_;
@@ -113,8 +113,8 @@ void to_json( nlohmann::json& jsonObject, const std::shared_ptr< ThrustEngineSet
     }
     case from_engine_properties_thrust_magnitude:
     {
-        std::shared_ptr< FromBodyThrustEngineSettings > fromBodyMagnitudeSettings
-                = std::dynamic_pointer_cast< FromBodyThrustEngineSettings >( magnitudeSettings );
+        std::shared_ptr< FromBodyThrustMagnitudeSettings > fromBodyMagnitudeSettings
+                = std::dynamic_pointer_cast< FromBodyThrustMagnitudeSettings >( magnitudeSettings );
         assertNonnullptrPointer( fromBodyMagnitudeSettings );
         jsonObject[ K::useAllEngines ] = fromBodyMagnitudeSettings->useAllEngines_;
         return;
@@ -124,8 +124,8 @@ void to_json( nlohmann::json& jsonObject, const std::shared_ptr< ThrustEngineSet
     }
 }
 
-//! Create a shared pointer to a `ThrustEngineSettings` object from a `json` object.
-void from_json( const nlohmann::json& jsonObject, std::shared_ptr< ThrustEngineSettings >& magnitudeSettings )
+//! Create a shared pointer to a `ThrustMagnitudeSettings` object from a `json` object.
+void from_json( const nlohmann::json& jsonObject, std::shared_ptr< ThrustMagnitudeSettings >& magnitudeSettings )
 {
     using namespace json_interface;
     using K = Keys::Propagator::Acceleration::Thrust::Magnitude;
@@ -135,8 +135,8 @@ void from_json( const nlohmann::json& jsonObject, std::shared_ptr< ThrustEngineS
     switch ( magnitudeType ) {
     case constant_thrust_magnitude:
     {
-        ConstantThrustEngineSettings defaults( TUDAT_NAN, TUDAT_NAN );
-        magnitudeSettings = std::make_shared< ConstantThrustEngineSettings >(
+        ConstantThrustMagnitudeSettings defaults( TUDAT_NAN, TUDAT_NAN );
+        magnitudeSettings = std::make_shared< ConstantThrustMagnitudeSettings >(
                     getValue< double >( jsonObject, K::constantMagnitude ),
                     getValue< double >( jsonObject, K::specificImpulse ),
                     getValue( jsonObject, K::bodyFixedDirection, defaults.bodyFixedThrustDirection_ ) );
@@ -144,8 +144,8 @@ void from_json( const nlohmann::json& jsonObject, std::shared_ptr< ThrustEngineS
     }
     case from_engine_properties_thrust_magnitude:
     {
-        FromBodyThrustEngineSettings defaults;
-        magnitudeSettings = std::make_shared< FromBodyThrustEngineSettings >(
+        FromBodyThrustMagnitudeSettings defaults;
+        magnitudeSettings = std::make_shared< FromBodyThrustMagnitudeSettings >(
                     getValue( jsonObject, K::useAllEngines, defaults.useAllEngines_ ),
                     getValue( jsonObject, K::originID, defaults.thrustOriginId_ ) );
         return;
@@ -205,7 +205,7 @@ void from_json( const nlohmann::json& jsonObject, std::shared_ptr< ThrustAcceler
     {
         thrustAccelerationSettings = std::make_shared< ThrustAccelerationSettings >(
                     getValue< std::shared_ptr< ThrustDirectionGuidanceSettings > >( jsonObject, K::direction ),
-                    getValue< std::shared_ptr< ThrustEngineSettings > >( jsonObject, K::magnitude ) );
+                    getValue< std::shared_ptr< ThrustMagnitudeSettings > >( jsonObject, K::magnitude ) );
     }
 }
 
