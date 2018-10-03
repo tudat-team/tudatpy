@@ -61,8 +61,8 @@ BOOST_AUTO_TEST_CASE( test_json_thrust_directionMagnitude )
     // Create ThrustAccelerationSettings manually
     const std::shared_ptr< ThrustDirectionFromStateGuidanceSettings > directionSettings =
             std::make_shared< ThrustDirectionFromStateGuidanceSettings >( "Mercury", true, false );
-    const std::shared_ptr< FromBodyThrustEngineSettings > magnitudeSettings =
-            std::make_shared< FromBodyThrustEngineSettings >( false, "booster" );
+    const std::shared_ptr< FromBodyThrustMagnitudeSettings > magnitudeSettings =
+            std::make_shared< FromBodyThrustMagnitudeSettings >( false, "booster" );
     const std::shared_ptr< ThrustAccelerationSettings > manualSettings =
             std::make_shared< ThrustAccelerationSettings >( directionSettings,
                                                               magnitudeSettings);
