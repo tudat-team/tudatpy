@@ -78,63 +78,27 @@ public:
 
     virtual ~JsonEstimationManager( ){ }
 
-    virtual void resetDerivedClassSettings( )
+    virtual void updateSettings( )
     {
-        JsonVariationalEquationsSimulationManager< TimeType, StateScalarType >::resetDerivedClassSettings( );
+        std::cout<<"T1"<<std::endl;
+        JsonVariationalEquationsSimulationManager< TimeType, StateScalarType >::updateSettings( );
+        std::cout<<"T2"<<std::endl;
 
         resetObservationSettings( );
+        std::cout<<"T3"<<std::endl;
+
         resetEstimationSettings( );
+        std::cout<<"T4"<<std::endl;
+        createSimulationObjects( );
+        std::cout<<"T5"<<std::endl;
+
     }
 
-    virtual void runEstimation( )
+    virtual void runJsonSimulation( )
     {
-        // Check if any keys in jsonObject_ haven't been used
-        checkUnusedKeys( jsonObject_, applicationOptions_->unusedKey_ );
-
-        if ( profiling )
-        {
-            std::cout << "checkUnusedKeys: " << std::chrono::duration_cast< std::chrono::milliseconds >(
-                             std::chrono::steady_clock::now( ) - initialClockTime_ ).count( ) * 1.0e-3 << " s" << std::endl;
-            initialClockTime_ = std::chrono::steady_clock::now( );
-        }
-
-        // Export full settings JSON file if requested
-        if ( ! applicationOptions_->fullSettingsFile_.empty( ) )
-        {
-            exportAsJson( applicationOptions_->fullSettingsFile_ );
-        }
-
-        // Print message on propagation start if requested
-        if ( applicationOptions_->notifyOnPropagationStart_ )
-        {
-            std::cout << "Estimation of file " << inputFilePath_ << " started." << std::endl;
-        }
-
-        orbitDeterminationManager_->estimateParameters(
-                    podSettings_ );
-
-//        // Print message on propagation termination if requested
-//        if ( applicationOptions_->notifyOnPropagationTermination_ )
-//        {
-//            if ( dynamicsSimulator_->integrationCompletedSuccessfully( ) )
-//            {
-//                std::cout << "SUCCESS: propagation of file " << inputFilePath_ << " terminated with no errors."
-//                          << std::endl;
-//            }
-//            else
-//            {
-//                std::cout << "FAILURE: propagation of file " << inputFilePath_ << " terminated with errors."
-//                          << std::endl;
-//            }
-//        }
-
-        if ( profiling )
-        {
-            std::cout << "run: " << std::chrono::duration_cast< std::chrono::milliseconds >(
-                             std::chrono::steady_clock::now( ) - initialClockTime_ ).count( ) * 1.0e-3 << " s" << std::endl;
-            initialClockTime_ = std::chrono::steady_clock::now( );
-        }
+        estimationOutput_ = orbitDeterminationManager_->estimateParameters( podSettings_ );
     }
+
 
     //! Export the results of the dynamics simulation according to the export settings.
     /*!
@@ -147,10 +111,11 @@ public:
 
 protected:
 
-    virtual void resetObservationSettings( )
+    void resetObservationSettings( )
     {
         observationSettingsMap_ = getValue< observation_models::ObservationSettingsListPerLinkEnd >(
             jsonObject_, Keys::observations );
+        std::cout<<"Size of obs. settings "<<observationSettingsMap_.size( )<<std::endl;
 
         if ( profiling )
         {
@@ -180,15 +145,15 @@ protected:
      */
     virtual void resetDynamicsSimulator( )
     {
-        this->parseSettingsObjects( );
+        this->createSimulationObjects( );
     }
 
     virtual void resetVariationalEquationsSolver( )
     {
-        this->parseSettingsObjects( );
+        this->createSimulationObjects( );
     }
 
-    virtual void resetDerivedClassPropagation( )
+    virtual void createSimulationObjects( )
     {
         orbitDeterminationManager_ =
                 std::make_shared< simulation_setup::OrbitDeterminationManager< StateScalarType, TimeType > >(
@@ -199,6 +164,8 @@ protected:
                 std::dynamic_pointer_cast< propagators::SingleArcVariationalEquationsSolver< StateScalarType, TimeType > >(
                     orbitDeterminationManager_->getVariationalEquationsSolver( ) );
         dynamicsSimulator_ = variationalEquationsSolver_->getDynamicsSimulator( );
+        std::cout<<"check NULL "<<( variationalEquationsSolver_ == NULL )<<" "<<
+                   ( orbitDeterminationManager_->getVariationalEquationsSolver( ) == NULL )<<std::endl;
     }
 
 private:
@@ -208,6 +175,8 @@ private:
     std::shared_ptr< simulation_setup::OrbitDeterminationManager< StateScalarType, TimeType > > orbitDeterminationManager_;
 
     std::shared_ptr< simulation_setup::PodSettings< StateScalarType, TimeType > > podSettings_;
+
+    std::shared_ptr< simulation_setup::PodOutput< StateScalarType, TimeType > > estimationOutput_;
 
 };
 

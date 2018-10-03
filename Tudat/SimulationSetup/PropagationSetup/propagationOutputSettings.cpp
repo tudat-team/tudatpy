@@ -29,6 +29,10 @@ std::string getVariableName( const VariableType variableType )
         return "Integrated state ";
     case dependentVariable:
         return "Dependent variable ";
+    case stateTransitionMatrix:
+        return "State transition matrix ";
+    case sensitivityMatrix:
+        return "Sensitivity matrix ";
     default:
         throw std::runtime_error( "Error, variable " +
                                   std::to_string( variableType ) +

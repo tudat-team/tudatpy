@@ -206,7 +206,7 @@ void from_json( const nlohmann::json& jsonObject, std::shared_ptr< IntegratorSet
     case rungeKuttaVariableStepSize:
     {
         // Check which constructor to use
-        if ( getValue< bool >( jsonObject, K::areTolerancesDefinedAsScalar ) )
+        if ( getValue< bool >( jsonObject, K::areTolerancesDefinedAsScalar, true ) )
         {
             // Scalar tolerances
             RungeKuttaVariableStepSizeSettingsScalarTolerances< TimeType > defaults(

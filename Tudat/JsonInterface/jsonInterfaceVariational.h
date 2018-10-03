@@ -37,8 +37,6 @@ public:
     using JsonSimulationManager< TimeType, StateScalarType >::profiling;
     using JsonSimulationManager< TimeType, StateScalarType >::exportSettingsVector_;
 
-
-
     JsonVariationalEquationsSimulationManager(
             const std::string& inputFilePath,
             const std::chrono::steady_clock::time_point initialClockTime = std::chrono::steady_clock::now( ) )
@@ -58,6 +56,10 @@ public:
 
     virtual ~JsonVariationalEquationsSimulationManager( ){ }
 
+    std::shared_ptr< propagators::SingleArcVariationalEquationsSolver< StateScalarType, TimeType > > getVariationalEquationsSolver( ) const
+    {
+        return variationalEquationsSolver_;
+    }
 
     void resetVariationalEquationsSolver( )
     {
@@ -76,23 +78,6 @@ public:
     }
 
 
-    void setDerivedClassPropagationObjects( )
-    {
-        variationalEquationsSolver_->integrateVariationalAndDynamicalEquations(
-                    propagatorSettings_->getInitialStates( ) , true );
-    }
-
-    virtual void resetDerivedClassPropagation( )
-    {
-        resetVariationalEquationsSolver( );
-    }
-
-
-    void resetDerivedClassSettings( )
-    {               
-        resetParameterSettings( );
-    }
-
     void resetParameterSettings( )
     {
         updateFromJSON( parameterSettings_, jsonObject_, Keys::parametersToEstimate );
@@ -109,13 +94,35 @@ public:
         }
     }
 
-    std::shared_ptr< propagators::SingleArcVariationalEquationsSolver< StateScalarType, TimeType > > getVariationalEquationsSolver( ) const
+    virtual void runJsonSimulation( )
     {
-        return variationalEquationsSolver_;
+        variationalEquationsSolver_->integrateVariationalAndDynamicalEquations(
+                    propagatorSettings_->getInitialStates( ) , true );
     }
 
-    void exportDerivedClassVariables( )
+    virtual void createSimulationObjects( )
     {
+        resetVariationalEquationsSolver( );
+    }
+
+
+    virtual void updateSettings( )
+    {
+        std::cout<<"S1"<<std::endl;
+        JsonSimulationManager< TimeType, StateScalarType >::updateSettings( );
+        std::cout<<"S2"<<std::endl;
+        resetParameterSettings( );
+        std::cout<<"S3"<<std::endl;
+        if( this->simulationType_ == variational_equations_propagation )
+        {
+            createSimulationObjects( );
+        }
+        std::cout<<"S4"<<std::endl;
+    }
+
+    virtual void exportResults( )
+    {
+        JsonSimulationManager< TimeType, StateScalarType >::exportResults( );
         exportResultsOfVariationalEquations( variationalEquationsSolver_, exportSettingsVector_ );
     }
 
