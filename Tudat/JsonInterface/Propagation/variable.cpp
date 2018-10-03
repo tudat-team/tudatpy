@@ -50,6 +50,16 @@ void to_json( nlohmann::json& jsonObject, const std::shared_ptr< VariableSetting
         jsonObject = std::dynamic_pointer_cast< SingleDependentVariableSaveSettings >( variableSettings );
         return;
     }
+    case stateTransitionMatrix:
+    {
+        jsonObject[ K::type ] = variableType;
+        return;
+    }
+    case sensitivityMatrix:
+    {
+        jsonObject[ K::type ] = variableType;
+        return;
+    }
     default:
         handleUnimplementedEnumValue( variableType, variableTypes, unsupportedVariableTypes );
     }
@@ -77,6 +87,16 @@ void from_json( const nlohmann::json& jsonObject, std::shared_ptr< VariableSetti
     case dependentVariable:
     {
         variableSettings = getAs< std::shared_ptr< SingleDependentVariableSaveSettings > >( jsonObject );
+        return;
+    }
+    case stateTransitionMatrix:
+    {
+        variableSettings = std::make_shared< VariableSettings >( variableType );
+        return;
+    }
+    case sensitivityMatrix:
+    {
+        variableSettings = std::make_shared< VariableSettings >( variableType );
         return;
     }
     default:

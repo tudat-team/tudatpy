@@ -289,9 +289,9 @@ add_executable(test_JsonInterfaceSimulationSingleSatelliteVariational "${JSON_TE
 setup_custom_test_program(test_JsonInterfaceSimulationSingleSatelliteVariational "")
 target_link_libraries(test_JsonInterfaceSimulationSingleSatelliteVariational ${JSON_PROPAGATION_LIBRARIES})
 
-#add_executable(test_JsonInterfaceSimulationSingleSatelliteEstimation "${JSON_TESTS_DIR}/unitTestSimulationSingleSatelliteEstimation.cpp")
-#setup_custom_test_program(test_JsonInterfaceSimulationSingleSatelliteEstimation "")
-#target_link_libraries(test_JsonInterfaceSimulationSingleSatelliteEstimation ${JSON_PROPAGATION_LIBRARIES})
+add_executable(test_JsonInterfaceSimulationSingleSatelliteEstimation "${JSON_TESTS_DIR}/unitTestSimulationSingleSatelliteEstimation.cpp")
+setup_custom_test_program(test_JsonInterfaceSimulationSingleSatelliteEstimation "")
+target_link_libraries(test_JsonInterfaceSimulationSingleSatelliteEstimation ${JSON_PROPAGATION_LIBRARIES})
 endif( )
 
 

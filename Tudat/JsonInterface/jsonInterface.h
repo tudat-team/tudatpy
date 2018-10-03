@@ -42,14 +42,17 @@ enum JsonSimulationTypes
 static std::map< JsonSimulationTypes, std::string > simulationTypes =
 {
     { equations_of_motion_propagation, "EoM" },
-    { variational_equations_propagation, "Variational" }
+    { variational_equations_propagation, "Variational" },
+    { state_estimation, "Estimation" }
 };
 
 //! Map of `ObservableType` string representations.
 static std::map< std::string, JsonSimulationTypes > simulationTypesInverse =
 {
     { "EoM", equations_of_motion_propagation },
-    { "Variational", variational_equations_propagation }
+    { "Variational", variational_equations_propagation },
+    { "Estimation", state_estimation }
+
 };
 
 //! Convert `ObservableType` to `json`.
@@ -125,8 +128,12 @@ public:
         originalJsonObject_ = jsonObject_;
     }
 
-    //! Update all the settings (objects) from the JSON object.
-    void updateSettingsBase( )
+    virtual void createSimulationObjects( )
+    {
+        resetDynamicsSimulator( );
+    }
+
+    virtual void updateSettings( )
     {
         // Clear global variable keeping track of the keys that have been accessed
         clearAccessHistory( );
@@ -146,31 +153,11 @@ public:
         resetBodies( );              // must be called after resetIntegratorSettings and resetSpice
         resetExportSettings( );
         resetPropagatorSettings( );  // must be called after resetBodies and resetExportSettings
-        if( simulationType_ != equations_of_motion_propagation )
-        {
-            resetDerivedClassSettings( );
-        }
-
         resetApplicationOptions( );
-    }
-
-    void parseSettingsObjects( )
-    {
         if( simulationType_ == equations_of_motion_propagation )
         {
-            resetDynamicsSimulator( );
+            createSimulationObjects( );
         }
-        else if( simulationType_ == variational_equations_propagation )
-        {
-            resetDerivedClassPropagation( );
-        }
-    }
-
-    void updateSettings( )
-    {
-        updateSettingsBase( );
-        resetDerivedClassSettings( );
-        parseSettingsObjects( );
     }
 
     //! Run the propagation.
@@ -209,15 +196,7 @@ public:
             std::cout << "Propagation of file " << inputFilePath_ << " started." << std::endl;
         }
 
-        // Run simulation
-        if( simulationType_ == equations_of_motion_propagation )
-        {
-            dynamicsSimulator_->integrateEquationsOfMotion( propagatorSettings_->getInitialStates( ) );
-        }
-        else
-        {
-            setDerivedClassPropagationObjects( );
-        }
+        runJsonSimulation( );
 
         // Print message on propagation termination if requested
         if ( applicationOptions_->notifyOnPropagationTermination_ )
@@ -259,12 +238,7 @@ public:
         }
 
         exportResultsOfDynamicsSimulator( dynamicsSimulator_, exportSettingsVector_,
-                                          !( simulationType_ != equations_of_motion_propagation ) );
-
-        if( simulationType_ == variational_equations_propagation || simulationType_ == state_estimation )
-        {
-            exportDerivedClassVariables( );
-        }
+                                          !( simulationType_ == equations_of_motion_propagation ) );
 
         if ( profiling )
         {
@@ -274,24 +248,9 @@ public:
         }
     }
 
-    virtual void resetDerivedClassSettings( )
+    virtual void runJsonSimulation( )
     {
-
-    }
-
-    virtual void exportDerivedClassVariables( )
-    {
-
-    }
-
-    virtual void setDerivedClassPropagationObjects( )
-    {
-
-    }
-
-    virtual void resetDerivedClassPropagation( )
-    {
-
+        dynamicsSimulator_->integrateEquationsOfMotion( propagatorSettings_->getInitialStates( ) );
     }
 
 
@@ -476,7 +435,7 @@ protected:
      */
     virtual void resetIntegratorSettings( )
     {
-        updateFromJSON( integratorSettings_, jsonObject_, Keys::integrator );
+        updateFromJSON( this->integratorSettings_, jsonObject_, Keys::integrator );
 
         if ( profiling )
         {

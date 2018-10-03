@@ -29,7 +29,9 @@ static std::map< VariableType, std::string > variableTypes =
     { independentVariable, "independent" },
     { cpuTimeVariable, "cpuTime" },
     { stateVariable, "state" },
-    { dependentVariable, "dependent" }
+    { dependentVariable, "dependent" },
+    { stateTransitionMatrix, "stateTransitionMatrix" },
+    { sensitivityMatrix, "sensitivityMatrix" }
 };
 
 //! `VariableType`s not supported by `json_interface`.

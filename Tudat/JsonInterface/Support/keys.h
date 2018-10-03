@@ -35,7 +35,7 @@ struct SpecialKeys
 //! Keys recognised by json_interface.
 struct Keys
 {
-     static const std::string simulationType;
+    static const std::string simulationType;
     static const std::string initialEpoch;
     static const std::string finalEpoch;
     static const std::string globalFrameOrigin;
