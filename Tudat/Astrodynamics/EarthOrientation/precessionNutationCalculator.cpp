@@ -28,6 +28,7 @@ PrecessionNutationCalculator::PrecessionNutationCalculator(
         basic_astrodynamics::IAUConventions precessionNutationTheory,
         std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Vector2d > >
         dailyCorrectionInterpolator ):
+    precessionNutationTheory_( precessionNutationTheory ),
     dailyCorrectionInterpolator_( dailyCorrectionInterpolator )
 {
     // Link selected SOFA function wrapper for direct calculation of precession-nutation.

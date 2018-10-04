@@ -76,6 +76,12 @@ public:
         return dailyCorrectionInterpolator_;
     }
 
+    basic_astrodynamics::IAUConventions getPrecessionNutationTheory( )
+    {
+        return precessionNutationTheory_;
+    }
+
+
 private:
 
     //! Interpolator for daily measured values of precession-nutation corrections.
@@ -93,6 +99,7 @@ private:
      */
     std::function< std::pair< Eigen::Vector2d, double > ( const double ) > nominalCipPositionFunction_;
 
+    basic_astrodynamics::IAUConventions precessionNutationTheory_;
 };
 
 }

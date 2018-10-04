@@ -136,7 +136,8 @@ std::shared_ptr< ephemerides::RotationalEphemeris > createRotationModel(
                     std::make_shared< earth_orientation::EarthOrientationAnglesCalculator >(
                         polarMotionCalculator, precessionNutationCalculator, terrestrialTimeScaleConverter );
             rotationalEphemeris = std::make_shared< ephemerides::GcrsToItrsRotationModel >(
-                        earthOrientationCalculator, gcrsToItrsRotationSettings->getInputTimeScale( ) );
+                        earthOrientationCalculator, gcrsToItrsRotationSettings->getInputTimeScale( ),
+                        gcrsToItrsRotationSettings->getOriginalFrame( ) );
 
             break;
         }

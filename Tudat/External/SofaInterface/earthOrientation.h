@@ -96,6 +96,10 @@ double calculateEarthRotationAngle(
 template< typename TimeType >
 double calculateEarthRotationAngleTemplated( const TimeType currentUt1 );
 
+Eigen::Matrix3d getFrameBias(
+        const double julianDaysSinceReference,
+        const basic_astrodynamics::IAUConventions precessionNutationTheory = basic_astrodynamics::iau_2006,
+        const double referenceJulianDay = basic_astrodynamics::JULIAN_DAY_ON_J2000 );
 }
 
 }
