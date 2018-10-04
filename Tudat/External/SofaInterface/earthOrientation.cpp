@@ -119,6 +119,7 @@ double calculateEarthRotationAngleTemplated< Time >(
                                         basic_astrodynamics::JULIAN_DAY_ON_J2000 + fullDaysSinceEpoch );
 }
 
+//! Function to compute the rotation matrix from GCRS to J2000 at epoch
 Eigen::Matrix3d getFrameBias(
         const double julianDaysSinceReference,
         const basic_astrodynamics::IAUConventions precessionNutationTheory,

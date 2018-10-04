@@ -86,11 +86,11 @@ public:
         }
     }
 
-    //! Function to calculate the rotation quaternion from ITRS to GCRS
+    //! Function to calculate the rotation quaternion from ITRS to base frame
     /*!
-     *  Function to calculate the rotation quaternion from ITRS to GCRS at specified time, to be implemented by derived class.
+     *  Function to calculate the rotation quaternion from ITRS to base frame at specified time.
      *  \param ephemerisTime Time at which rotation is to be calculated.
-     *  \return Rotation quaternion from ITRS to GCRS at specified time.
+     *  \return Rotation quaternion from ITRS to base frame at specified time.
      */
     Eigen::Quaterniond getRotationToBaseFrame( const double ephemerisTime )
     {
@@ -99,6 +99,13 @@ public:
                     ephemerisTime );
     }
 
+    //! Function to calculate the rotation quaternion from ITRS to base frame
+    /*!
+     *  Function to calculate the rotation quaternion from ITRS to base frame at specified time, in extended (e.g. Time class)
+     *  format.
+     *  \param ephemerisTime Time at which rotation is to be calculated.
+     *  \return Rotation quaternion from ITRS to base frame at specified time.
+     */
     Eigen::Quaterniond getRotationToBaseFrameFromExtendedTime( const Time ephemerisTime )
     {
         return Eigen::Quaterniond( frameBias_ ) * earth_orientation::calculateRotationFromItrsToGcrs< Time >(
@@ -107,12 +114,24 @@ public:
     }
 
 
-
+    //! Function to calculate the rotation quaternion from base frame to ITRS
+    /*!
+     *  Function to calculate the rotation quaternion from base frame to ITRS at specified time.
+     *  \param ephemerisTime Time at which rotation is to be calculated.
+     *  \return Rotation quaternion from base frame to ITRS at specified time.
+     */
     Eigen::Quaterniond getRotationToTargetFrame( const double ephemerisTime )
     {
         return getRotationToBaseFrame( ephemerisTime ).inverse( );
     }
 
+    //! Function to calculate the rotation quaternion from base frame to ITRS
+    /*!
+     *  Function to calculate the rotation quaternion from base frame to ITRS at specified time, in extended (e.g. Time class)
+     *  formats
+     *  \param ephemerisTime Time at which rotation is to be calculated.
+     *  \return Rotation quaternion from base frame to ITRS at specified time.
+     */
     Eigen::Quaterniond getRotationToTargetFrameFromExtendedTime( const Time ephemerisTime )
     {
         return getRotationToBaseFrameFromExtendedTime( ephemerisTime ).inverse( );
@@ -120,11 +139,11 @@ public:
 
 
 
-    //! Function to calculate the derivative of the rotation matrix from ITRS to GCRS
+    //! Function to calculate the derivative of the rotation matrix from ITRS to base frame
     /*!
-     *  Function to calculate the derivative of the rotation matrix from ITRS to GCRS at specified time,
+     *  Function to calculate the derivative of the rotation matrix from ITRS to base frame at specified time,
      *  \param ephemerisTime Time at which derivative of rotation is to be calculated.
-     *  \return Derivative of rotation from ITRS to GCRS at specified time.
+     *  \return Derivative of rotation from ITRS to base frame at specified time.
      */
     Eigen::Matrix3d getDerivativeOfRotationToBaseFrame( const double ephemerisTime )
     {
@@ -132,16 +151,32 @@ public:
                                                                                  ephemerisTime );
     }
 
+    //! Function to calculate the derivative of the rotation matrix from base frame to ITRS
+    /*!
+     *  Function to calculate the derivative of the rotation matrix from base frame to ITRS at specified time,
+     *  \param ephemerisTime Time at which derivative of rotation is to be calculated.
+     *  \return Derivative of rotation from base frame to ITRS at specified time.
+     */
     Eigen::Matrix3d getDerivativeOfRotationToTargetFrame( const double ephemerisTime )
     {
         return getDerivativeOfRotationToBaseFrame( ephemerisTime ).transpose( );
     }
 
+    //! Function to retrieve object responsible for computing the various rotation angles (precession, nutation, polar motion, etc.)
+    /*!
+     * Function to retrieve object responsible for computing the various rotation angles (precession, nutation, polar motion, etc.)
+     * \return object responsible for computing the various rotation angles (precession, nutation, polar motion, etc.)
+     */
     std::shared_ptr< earth_orientation::EarthOrientationAnglesCalculator > getAnglesCalculator( )
     {
         return anglesCalculator_;
     }
 
+    //! Function to retrieve time scale in which the input time for class functions are interpreted
+    /*!
+     * Function to retrieve time scale in which the input time for class functions are interpreted
+     * \return Time scale in which the input time for class functions are interpreted
+     */
     basic_astrodynamics::TimeScales getInputTimeScale( )
     {
         return inputTimeScale_;
@@ -158,10 +193,20 @@ private:
      */
     std::function< std::pair< Eigen::Vector5d, double >( const double& ) > functionToGetRotationAngles;
 
+    //! Object responsible for computing the various rotation angles (precession, nutation, polar motion, etc.)
+    /*!
+     *  Object responsible for computing the various rotation angles (precession, nutation, polar motion, etc.), as per IERS 2010
+     *  conventions.
+     */
     std::shared_ptr< earth_orientation::EarthOrientationAnglesCalculator > anglesCalculator_;
 
+    //! Time scale in which the input time for class functions are interpreted
     basic_astrodynamics::TimeScales inputTimeScale_;
 
+    //! Frame rotation from GCRS to base frame
+    /*!
+     * Frame rotation from GCRS to base frame. If base frame is J2000, this is the standard frame bias, as computed from Spice.
+     */
     Eigen::Matrix3d frameBias_;
 };
 
