@@ -66,13 +66,24 @@ public:
      *  needed for correct input to EarthOrientationAnglesCalculator::getRotationAnglesFromItrsToGcrs.
      */
     GcrsToItrsRotationModel( const std::shared_ptr< earth_orientation::EarthOrientationAnglesCalculator > anglesCalculator,
-                             const basic_astrodynamics::TimeScales inputTimeScale  = basic_astrodynamics::tdb_scale ):
-        RotationalEphemeris( "GCRS", "ITRS" ), anglesCalculator_( anglesCalculator ), inputTimeScale_( inputTimeScale )
+                             const basic_astrodynamics::TimeScales inputTimeScale  = basic_astrodynamics::tdb_scale,
+                             const std::string& baseFrame = "GCRS" ):
+        RotationalEphemeris( baseFrame, "ITRS" ), anglesCalculator_( anglesCalculator ), inputTimeScale_( inputTimeScale ),
+        frameBias_( Eigen::Matrix3d::Identity( ) )
 
     {
         functionToGetRotationAngles = std::bind(
                     &earth_orientation::EarthOrientationAnglesCalculator::getRotationAnglesFromItrsToGcrs< double >,
                     anglesCalculator, std::placeholders::_1, inputTimeScale );
+        if( baseFrame == "J2000" )
+        {
+            frameBias_ = sofa_interface::getFrameBias(
+                        0.0, anglesCalculator->getPrecessionNutationCalculator( )->getPrecessionNutationTheory( ) );
+        }
+        else if( baseFrame != "GCRS" )
+        {
+            throw std::runtime_error( "Error in GCRS<->ITRS model, base frame not recognized" );
+        }
     }
 
     //! Function to calculate the rotation quaternion from ITRS to GCRS
@@ -83,14 +94,14 @@ public:
      */
     Eigen::Quaterniond getRotationToBaseFrame( const double ephemerisTime )
     {
-        return earth_orientation::calculateRotationFromItrsToGcrs< double >(
+        return Eigen::Quaterniond( frameBias_ ) * earth_orientation::calculateRotationFromItrsToGcrs< double >(
                     anglesCalculator_->getRotationAnglesFromItrsToGcrs< double >( ephemerisTime, inputTimeScale_ ),
                     ephemerisTime );
     }
 
     Eigen::Quaterniond getRotationToBaseFrameFromExtendedTime( const Time ephemerisTime )
     {
-        return earth_orientation::calculateRotationFromItrsToGcrs< Time >(
+        return Eigen::Quaterniond( frameBias_ ) * earth_orientation::calculateRotationFromItrsToGcrs< Time >(
                     anglesCalculator_->getRotationAnglesFromItrsToGcrs< Time >( ephemerisTime, inputTimeScale_ ),
                     ephemerisTime );
     }
@@ -117,7 +128,7 @@ public:
      */
     Eigen::Matrix3d getDerivativeOfRotationToBaseFrame( const double ephemerisTime )
     {
-        return earth_orientation::calculateRotationRateFromItrsToGcrs< double >( functionToGetRotationAngles( ephemerisTime ),
+        return frameBias_ * earth_orientation::calculateRotationRateFromItrsToGcrs< double >( functionToGetRotationAngles( ephemerisTime ),
                                                                                  ephemerisTime );
     }
 
@@ -150,6 +161,8 @@ private:
     std::shared_ptr< earth_orientation::EarthOrientationAnglesCalculator > anglesCalculator_;
 
     basic_astrodynamics::TimeScales inputTimeScale_;
+
+    Eigen::Matrix3d frameBias_;
 };
 
 }

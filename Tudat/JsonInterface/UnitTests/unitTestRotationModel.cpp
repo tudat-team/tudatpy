@@ -86,6 +86,28 @@ BOOST_AUTO_TEST_CASE( test_json_rotationModel_spice )
     BOOST_CHECK_EQUAL_JSON( fromFileSettings, manualSettings );
 }
 
+// Test 3: Spice GCRS<->ITRS rotation model
+BOOST_AUTO_TEST_CASE( test_json_rotationModel_gcrs_itrs )
+{
+    using namespace simulation_setup;
+    using namespace json_interface;
+
+    // Create RotationModelSettings from JSON file
+    const std::shared_ptr< RotationModelSettings > fromFileSettings =
+            parseJSONFile< std::shared_ptr< RotationModelSettings > >( INPUT( "gcrsItrs" ) );
+
+    // Create RotationModelSettings manually
+    const std::string originalFrame = "J2000";
+    const std::string targetFrame = "GCRS";
+    const basic_astrodynamics::IAUConventions iauConvention = basic_astrodynamics::iau_2000_b;
+
+    const std::shared_ptr< RotationModelSettings > manualSettings =
+            std::make_shared< GcrsToItrsRotationModelSettings >(
+                iauConvention, originalFrame );
+
+    // Compare
+    BOOST_CHECK_EQUAL_JSON( fromFileSettings, manualSettings );
+}
 BOOST_AUTO_TEST_SUITE_END( )
 
 } // namespace unit_tests
