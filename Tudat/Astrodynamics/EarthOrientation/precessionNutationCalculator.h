@@ -70,11 +70,27 @@ public:
             const double terrestrialTime,
             const double utc );
 
+    //! Function to retrieve the interpolator for daily measured values of precession-nutation corrections.
+    /*!
+     * Function to retrieve the interpolator for daily measured values of precession-nutation corrections.
+     * \return Interpolator for daily measured values of precession-nutation corrections.
+     */
     std::shared_ptr< interpolators::OneDimensionalInterpolator
     < double, Eigen::Vector2d > > getDailyCorrectionInterpolator( )
     {
         return dailyCorrectionInterpolator_;
     }
+
+    //! Function to retrieve the IAU precession-nutation theory that is to be used.
+    /*!
+     * Function to retrieve the IAU precession-nutation theory that is to be used.
+     * \return IAU precession-nutation theory that is to be used.
+     */
+    basic_astrodynamics::IAUConventions getPrecessionNutationTheory( )
+    {
+        return precessionNutationTheory_;
+    }
+
 
 private:
 
@@ -93,6 +109,8 @@ private:
      */
     std::function< std::pair< Eigen::Vector2d, double > ( const double ) > nominalCipPositionFunction_;
 
+    //! IAU precession-nutation theory that is to be used.
+    basic_astrodynamics::IAUConventions precessionNutationTheory_;
 };
 
 }

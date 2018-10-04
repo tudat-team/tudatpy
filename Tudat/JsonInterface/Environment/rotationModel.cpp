@@ -46,6 +46,15 @@ void to_json( nlohmann::json& jsonObject, const std::shared_ptr< RotationModelSe
     }
     case spice_rotation_model:
         return;
+    case gcrs_to_itrs_rotation_model:
+    {
+        std::cerr<<"Warning when writing GCRS to ITRS rotation model to JSON, only precession-nutation theory and base frame are saved, rest is kept at default values"<<std::endl;
+
+        std::shared_ptr< GcrsToItrsRotationModelSettings > simpleRotationModelSettings =
+                std::dynamic_pointer_cast< GcrsToItrsRotationModelSettings >( rotationModelSettings );
+        assertNonnullptrPointer( simpleRotationModelSettings );
+        jsonObject[ K::precessionNutationTheory ] = simpleRotationModelSettings->getNutationTheory( );
+    }
     default:
         handleUnimplementedEnumValue( rotationModelType, rotationModelTypes, unsupportedRotationModelTypes );
     }
@@ -60,7 +69,16 @@ void from_json( const nlohmann::json& jsonObject, std::shared_ptr< RotationModel
     // Base class settings
     const RotationModelType rotationModelType = getValue< RotationModelType >( jsonObject, K::type );
     const std::string originalFrame = getValue< std::string >( jsonObject, K::originalFrame );
-    const std::string targetFrame = getValue< std::string >( jsonObject, K::targetFrame );
+
+    std::string targetFrame = "";
+    if( rotationModelType != gcrs_to_itrs_rotation_model )
+    {
+        targetFrame = getValue< std::string >( jsonObject, K::targetFrame );
+    }
+    else
+    {
+       targetFrame = "GCRS";
+    }
 
     switch ( rotationModelType ) {
     case simple_rotation_model:
@@ -92,6 +110,14 @@ void from_json( const nlohmann::json& jsonObject, std::shared_ptr< RotationModel
     {
         rotationModelSettings = std::make_shared< RotationModelSettings >(
                     rotationModelType, originalFrame, targetFrame );
+        return;
+    }
+    case gcrs_to_itrs_rotation_model:
+    {
+        rotationModelSettings = std::make_shared< GcrsToItrsRotationModelSettings >(
+                     getValue< basic_astrodynamics::IAUConventions >(
+                        jsonObject, K::precessionNutationTheory, basic_astrodynamics::iau_2006 ),
+                    originalFrame );
         return;
     }
     default:
