@@ -30,7 +30,7 @@ namespace mathematical_constants
  * The constant E is base of the natural logarithm, and is also known as Napier's constant.
  * \sa Wolfram MathWorld, Constant: http://mathworld.wolfram.com/e.html.
  */
-const static double E = std::exp( 1.0 );
+constexpr static double E = 2.7182818284590452353602874;
 
 //! The Golden ratio \f$\approx\f$ 1.6180.
 /*!
@@ -39,13 +39,13 @@ const static double E = std::exp( 1.0 );
  * the pentagon, pentagram, decagon and dodecahedron.
  * \sa Wolfram MathWorld, Constant: http://mathworld.wolfram.com/GoldenRatio.html.
  */
-const static double GOLDEN_RATIO = 0.5 * ( 1.0 + std::sqrt( 5.0 ) );
+constexpr static double GOLDEN_RATIO = 1.6180339887498948482;
 
 //! Independent root of -1, typically denoted i.
 /*!
  *  Independent root of -1, typically denoted i.
  */
-const static std::complex< double > COMPLEX_I = std::complex< double >( 0.0, 1.0 );
+constexpr static std::complex< double > COMPLEX_I = std::complex< double >( 0.0, 1.0 );
 
 //! The constant PI \f$\approx\f$ 3.14159.
 /*!
@@ -54,12 +54,12 @@ const static std::complex< double > COMPLEX_I = std::complex< double >( 0.0, 1.0
  * \sa Wolfram MathWorld, Constant: http://mathworld.wolfram.com/Pi.html.
  */
 #ifdef M_PI
-const static double PI = M_PI;
+constexpr static double PI = M_PI;
 #else
-const static double PI = 3.14159265358979323846; // 18 digits.
+constexpr static double PI = 3.14159265358979323846; // 18 digits.
 #endif
 
-const static long double LONG_PI = 3.14159265358979323846264338328L;
+constexpr static long double LONG_PI = 3.14159265358979323846264338328L;
 
 //! Not-a-number (NaN).
 /*!
@@ -110,7 +110,7 @@ constexpr ScalarType getFloatingFraction( const int numerator, const int denomin
  * \return Pi in requested floating point representation.
  */
 template< typename ScalarType  >
-ScalarType getPi( )
+constexpr ScalarType getPi( )
 {
     return static_cast< ScalarType >( LONG_PI );
 }

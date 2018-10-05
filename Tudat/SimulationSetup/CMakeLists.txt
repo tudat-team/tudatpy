@@ -13,13 +13,17 @@ set(ENVIRONMENTSETUPDIR "${SIMULATIONSETUPDIR}/EnvironmentSetup")
 set(PROPAGATIONSETUPSDIR "${SIMULATIONSETUPDIR}/PropagationSetup")
 
 # Add subdirectories.
-add_subdirectory("${SRCROOT}${ESTIMATIONSETUPSDIR}")
+if( BUILD_WITH_ESTIMATION_TOOLS )
+    add_subdirectory("${SRCROOT}${ESTIMATIONSETUPSDIR}")
+endif( )
 add_subdirectory("${SRCROOT}${ENVIRONMENTSETUPDIR}")
 add_subdirectory("${SRCROOT}${PROPAGATIONSETUPSDIR}")
 
 # Get target properties for static libraries.
 get_target_property(SIMULATION_ENVIRONMENT_SETUP_SOURCES tudat_environment_setup SOURCES)
-get_target_property(SIMULATION_ESTIMATION_SETUP_SOURCES tudat_estimation_setup SOURCES)
+if( BUILD_WITH_ESTIMATION_TOOLS )
+    get_target_property(SIMULATION_ESTIMATION_SETUP_SOURCES tudat_estimation_setup SOURCES)
+endif( )
 get_target_property(SIMULATION_PROPAGATION_SETUP_SOURCES tudat_propagation_setup SOURCES)
 
 # Add unit tests.

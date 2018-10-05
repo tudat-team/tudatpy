@@ -82,7 +82,7 @@ double calculateGreenwichMeanSiderealTime(
                           referenceJulianDay, terrestrialTime / physical_constants::JULIAN_DAY );
         break;
     default:
-       throw std::runtime_error( "Warning, iau convention for GMST calculation not recongnized" );
+        throw std::runtime_error( "Warning, iau convention for GMST calculation not recongnized" );
 
     }
 
@@ -116,9 +116,29 @@ double calculateEarthRotationAngleTemplated< Time >(
 
 
     return calculateEarthRotationAngle( currentUt1.getSecondsIntoFullPeriod( ) + hoursIntoCurrentDay * 3600.0,
-                                      basic_astrodynamics::JULIAN_DAY_ON_J2000 + fullDaysSinceEpoch );
+                                        basic_astrodynamics::JULIAN_DAY_ON_J2000 + fullDaysSinceEpoch );
 }
 
+//! Function to compute the rotation matrix from GCRS to J2000 at epoch
+Eigen::Matrix3d getFrameBias(
+        const double julianDaysSinceReference,
+        const basic_astrodynamics::IAUConventions precessionNutationTheory,
+        const double referenceJulianDay )
+{
+    double rb[3][3], rp[3][3], rbp[3][3];
+    if( precessionNutationTheory == basic_astrodynamics::iau_2006 )
+    {
+        iauBp06( referenceJulianDay, julianDaysSinceReference, rb, rp, rbp );
+    }
+    else
+    {
+        iauBp00( referenceJulianDay, julianDaysSinceReference, rb, rp, rbp );
+    }
+    return ( Eigen::Matrix3d( )<< rb[ 0 ][ 0 ], rb[ 0 ][ 1 ], rb[ 0 ][ 2 ],
+            rb[ 1 ][ 0 ], rb[ 1 ][ 1 ], rb[ 1 ][ 2 ],
+            rb[ 2 ][ 0 ], rb[ 2 ][ 1 ], rb[ 2 ][ 2 ] ).finished( );
+
+}
 
 }
 

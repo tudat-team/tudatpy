@@ -75,6 +75,14 @@ Eigen::Vector4d calculateQuaternionDerivative( const Eigen::Vector4d& currentQua
     return getQuaterionToQuaternionRateMatrix( angularVelocityVectorInBodyFixedFrame ) * currentQuaternionsToBaseFrame;
 }
 
+template class RotationalMotionQuaternionsStateDerivative< double, double >;
+
+#if( BUILD_EXTENDED_PRECISION_PROPAGATION_TOOLS )
+template class RotationalMotionQuaternionsStateDerivative< long double, double >;
+template class RotationalMotionQuaternionsStateDerivative< double, Time >;
+template class RotationalMotionQuaternionsStateDerivative< long double, Time >;
+#endif
+
 } // namespace propagators
 
 } // namespace tudat

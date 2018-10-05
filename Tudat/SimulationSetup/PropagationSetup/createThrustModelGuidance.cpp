@@ -238,7 +238,7 @@ Eigen::Vector3d getCombinedThrustDirection(
 
 //! Function to create a function that returns the thrust direction in the body-fixed frame.
 std::function< Eigen::Vector3d( ) > getBodyFixedThrustDirection(
-        const std::shared_ptr< ThrustEngineSettings > thrustMagnitudeSettings,
+        const std::shared_ptr< ThrustMagnitudeSettings > thrustMagnitudeSettings,
         const NamedBodyMap& bodyMap,
         const std::string bodyName )
 {
@@ -250,8 +250,8 @@ std::function< Eigen::Vector3d( ) > getBodyFixedThrustDirection(
     case constant_thrust_magnitude:
     {
         // Check input consistency
-        std::shared_ptr< ConstantThrustEngineSettings > constantThrustMagnitudeSettings =
-                std::dynamic_pointer_cast< ConstantThrustEngineSettings >( thrustMagnitudeSettings );
+        std::shared_ptr< ConstantThrustMagnitudeSettings > constantThrustMagnitudeSettings =
+                std::dynamic_pointer_cast< ConstantThrustMagnitudeSettings >( thrustMagnitudeSettings );
         if( constantThrustMagnitudeSettings == nullptr )
         {
             throw std::runtime_error( "Error when creating body-fixed thrust direction of type constant_thrust_magnitude, input is inconsistent" );
@@ -265,8 +265,8 @@ std::function< Eigen::Vector3d( ) > getBodyFixedThrustDirection(
     case from_engine_properties_thrust_magnitude:
     {
         // Check input consistency
-        std::shared_ptr< FromBodyThrustEngineSettings > fromEngineThrustMagnitudeSettings =
-                std::dynamic_pointer_cast< FromBodyThrustEngineSettings >( thrustMagnitudeSettings );
+        std::shared_ptr< FromBodyThrustMagnitudeSettings > fromEngineThrustMagnitudeSettings =
+                std::dynamic_pointer_cast< FromBodyThrustMagnitudeSettings >( thrustMagnitudeSettings );
         if( fromEngineThrustMagnitudeSettings == nullptr )
         {
             throw std::runtime_error( "Error when creating body-fixed thrust direction of type from_engine_properties_thrust_magnitude, input is inconsistent" );
@@ -331,8 +331,8 @@ std::function< Eigen::Vector3d( ) > getBodyFixedThrustDirection(
     case thrust_magnitude_from_time_function:
     {
         // Check input consistency
-        std::shared_ptr< FromFunctionThrustEngineSettings > fromFunctionThrustMagnitudeSettings =
-                std::dynamic_pointer_cast< FromFunctionThrustEngineSettings >( thrustMagnitudeSettings );
+        std::shared_ptr< FromFunctionThrustMagnitudeSettings > fromFunctionThrustMagnitudeSettings =
+                std::dynamic_pointer_cast< FromFunctionThrustMagnitudeSettings >( thrustMagnitudeSettings );
         if( fromFunctionThrustMagnitudeSettings == nullptr )
         {
             throw std::runtime_error( "Error when creating body-fixed thrust direction of type thrust_magnitude_from_time_function, input is inconsistent" );
@@ -367,7 +367,7 @@ std::function< Eigen::Vector3d( ) > getBodyFixedThrustDirection(
 
 //! Function to create a wrapper object that computes the thrust magnitude
 std::shared_ptr< propulsion::ThrustMagnitudeWrapper > createThrustMagnitudeWrapper(
-        const std::shared_ptr< ThrustEngineSettings > thrustMagnitudeSettings,
+        const std::shared_ptr< ThrustMagnitudeSettings > thrustMagnitudeSettings,
         const NamedBodyMap& bodyMap,
         const std::string& nameOfBodyWithGuidance,
         std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > >& magnitudeUpdateSettings )
@@ -380,8 +380,8 @@ std::shared_ptr< propulsion::ThrustMagnitudeWrapper > createThrustMagnitudeWrapp
     case constant_thrust_magnitude:
     {
         // Check input consistency
-        std::shared_ptr< ConstantThrustEngineSettings > constantThrustMagnitudeSettings =
-                std::dynamic_pointer_cast< ConstantThrustEngineSettings >( thrustMagnitudeSettings );
+        std::shared_ptr< ConstantThrustMagnitudeSettings > constantThrustMagnitudeSettings =
+                std::dynamic_pointer_cast< ConstantThrustMagnitudeSettings >( thrustMagnitudeSettings );
         if( constantThrustMagnitudeSettings == nullptr )
         {
             throw std::runtime_error( "Error when creating constant thrust magnitude wrapper, input is inconsistent" );
@@ -396,8 +396,8 @@ std::shared_ptr< propulsion::ThrustMagnitudeWrapper > createThrustMagnitudeWrapp
     case from_engine_properties_thrust_magnitude:
     {
         // Check input consistency
-        std::shared_ptr< FromBodyThrustEngineSettings > fromEngineThrustMagnitudeSettings =
-                std::dynamic_pointer_cast< FromBodyThrustEngineSettings >( thrustMagnitudeSettings );
+        std::shared_ptr< FromBodyThrustMagnitudeSettings > fromEngineThrustMagnitudeSettings =
+                std::dynamic_pointer_cast< FromBodyThrustMagnitudeSettings >( thrustMagnitudeSettings );
         if( fromEngineThrustMagnitudeSettings == nullptr )
         {
             throw std::runtime_error( "Error when creating from-engine thrust magnitude wrapper, input is inconsistent" );
@@ -440,8 +440,8 @@ std::shared_ptr< propulsion::ThrustMagnitudeWrapper > createThrustMagnitudeWrapp
     case thrust_magnitude_from_time_function:
     {
         // Check input consistency
-        std::shared_ptr< FromFunctionThrustEngineSettings > fromFunctionThrustMagnitudeSettings =
-                std::dynamic_pointer_cast< FromFunctionThrustEngineSettings >( thrustMagnitudeSettings );
+        std::shared_ptr< FromFunctionThrustMagnitudeSettings > fromFunctionThrustMagnitudeSettings =
+                std::dynamic_pointer_cast< FromFunctionThrustMagnitudeSettings >( thrustMagnitudeSettings );
         if( fromFunctionThrustMagnitudeSettings == nullptr )
         {
             throw std::runtime_error( "Error when creating from-function thrust magnitude wrapper, input is inconsistent" );

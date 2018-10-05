@@ -22,7 +22,7 @@
 
 #include "Tudat/Mathematics/Interpolators/lookupScheme.h"
 #include "Tudat/Mathematics/Interpolators/linearInterpolator.h"
-
+#include "Tudat/Basics/timeType.h"
 #include "Tudat/Astrodynamics/Ephemerides/rotationalEphemeris.h"
 
 namespace tudat
@@ -221,6 +221,14 @@ private:
     Eigen::Quaternion< StateScalarType > currentRotationToBaseFrame_;
 
 };
+
+extern template class TabulatedRotationalEphemeris< double, double >;
+
+#if( BUILD_EXTENDED_PRECISION_PROPAGATION_TOOLS )
+extern template class TabulatedRotationalEphemeris< long double, double >;
+extern template class TabulatedRotationalEphemeris< double, Time >;
+extern template class TabulatedRotationalEphemeris< long double, Time >;
+#endif
 
 }
 

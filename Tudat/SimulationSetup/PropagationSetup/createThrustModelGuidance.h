@@ -48,7 +48,7 @@ Eigen::Vector3d getCombinedThrustDirection(
  * \return Function that returns the thrust direction in the body-fixed frame.
  */
 std::function< Eigen::Vector3d( ) > getBodyFixedThrustDirection(
-        const std::shared_ptr< ThrustEngineSettings > thrustMagnitudeSettings,
+        const std::shared_ptr< ThrustMagnitudeSettings > thrustMagnitudeSettings,
         const NamedBodyMap& bodyMap,
         const std::string bodyName );
 
@@ -63,7 +63,7 @@ std::function< Eigen::Vector3d( ) > getBodyFixedThrustDirection(
  * \return Object used during propagation to compute the thrust direction
  */
 std::shared_ptr< propulsion::ThrustMagnitudeWrapper > createThrustMagnitudeWrapper(
-        const std::shared_ptr< ThrustEngineSettings > thrustMagnitudeSettings,
+        const std::shared_ptr< ThrustMagnitudeSettings > thrustMagnitudeSettings,
         const NamedBodyMap& bodyMap,
         const std::string& nameOfBodyWithGuidance,
         std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > >& magnitudeUpdateSettings );

@@ -768,7 +768,7 @@ DependentVariableType, IndependentVariableStepType > > createIntegrator(
     }
 
     // Check that assignment of integrator went well
-    if ( integrator == NULL )
+    if ( integrator == nullptr )
     {
         throw std::runtime_error( "Error while creating integrator. The resulting integrator pointer is null." );
     }

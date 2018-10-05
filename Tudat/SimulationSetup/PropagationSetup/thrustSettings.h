@@ -83,7 +83,7 @@ public:
     */
     ThrustDirectionGuidanceSettings(
             const ThrustDirectionGuidanceTypes thrustDirectionType,
-            const std::string relativeBody ):
+            const std::string relativeBody = "" ):
         thrustDirectionType_( thrustDirectionType ), relativeBody_( relativeBody ){ }
 
     //! Destructor.
@@ -155,7 +155,7 @@ public:
 //! Class for defining custom orientation of thrust (i.e. predefined body-fixed-to-propagation rotation as function of time)
 /*!
  *  Class for defining custom orientation of thrust (i.e. predefined body-fixed-to-propagation rotation as function of time).
- *  Thrust is then computed from body-fixed direction of thrust (defined in ThrustEngineSettings).
+ *  Thrust is then computed from body-fixed direction of thrust (defined in ThrustMagnitudeSettings).
  */
 class CustomThrustOrientationSettings: public ThrustDirectionGuidanceSettings
 {
@@ -278,7 +278,7 @@ enum ThrustMagnitudeTypes
  *  settings of thrust magnitude that require no information in addition to their type.
  *  Classes defining settings for thrust magnitude requiring additional information must be derived from this class.
  */
-class ThrustEngineSettings
+class ThrustMagnitudeSettings
 {
 public:
 
@@ -288,14 +288,14 @@ public:
      * \param thrustMagnitudeGuidanceType Type of thrust magnitude guidance that is to be used
      * \param thrustOriginId Reference id of thrust origin that is to be used (empty if N/A).
      */
-    ThrustEngineSettings(
+    ThrustMagnitudeSettings(
             const ThrustMagnitudeTypes thrustMagnitudeGuidanceType,
             const std::string& thrustOriginId ):
         thrustMagnitudeGuidanceType_( thrustMagnitudeGuidanceType ),
         thrustOriginId_( thrustOriginId ){ }
 
     //! Destructor
-    virtual ~ThrustEngineSettings( ){ }
+    virtual ~ThrustMagnitudeSettings( ){ }
 
     //! Type of thrust magnitude guidance that is to be used
     ThrustMagnitudeTypes thrustMagnitudeGuidanceType_;
@@ -305,7 +305,7 @@ public:
 };
 
 //! Class to define settigns for constant thrust settings.
-class ConstantThrustEngineSettings: public ThrustEngineSettings
+class ConstantThrustMagnitudeSettings: public ThrustMagnitudeSettings
 {
 public:
 
@@ -316,16 +316,16 @@ public:
      * \param specificImpulse Constant specific impulse that is to be used
      * \param bodyFixedThrustDirection Direction of thrust force in body-fixed frame (along longitudinal axis by default).
      */
-    ConstantThrustEngineSettings(
+    ConstantThrustMagnitudeSettings(
             const double thrustMagnitude,
             const double specificImpulse,
             const Eigen::Vector3d bodyFixedThrustDirection = Eigen::Vector3d::UnitX( ) ):
-        ThrustEngineSettings( constant_thrust_magnitude, "" ),
+        ThrustMagnitudeSettings( constant_thrust_magnitude, "" ),
         thrustMagnitude_( thrustMagnitude ), specificImpulse_( specificImpulse ),
         bodyFixedThrustDirection_( bodyFixedThrustDirection ){ }
 
     //! Destructor
-    ~ConstantThrustEngineSettings( ){ }
+    ~ConstantThrustMagnitudeSettings( ){ }
 
     //! Constant thrust magnitude that is to be used.
     double thrustMagnitude_;
@@ -339,7 +339,7 @@ public:
 };
 
 //! Class to define thrust magnitude  to be taken directly from an engine model
-class FromBodyThrustEngineSettings: public ThrustEngineSettings
+class FromBodyThrustMagnitudeSettings: public ThrustMagnitudeSettings
 {
 public:
 
@@ -351,10 +351,10 @@ public:
      * \param thrustOrigin Name of engine model from which thrust is to be derived (must be empty if
      * useAllThrustModels is set to true)
      */
-    FromBodyThrustEngineSettings(
+    FromBodyThrustMagnitudeSettings(
             const bool useAllEngines = 1,
             const std::string& thrustOrigin = "" ):
-        ThrustEngineSettings( from_engine_properties_thrust_magnitude, thrustOrigin ),
+        ThrustMagnitudeSettings( from_engine_properties_thrust_magnitude, thrustOrigin ),
         useAllEngines_( useAllEngines ){ }
 
     //! Boolean denoting whether all engines of the associated body are to be combined into a single thrust magnitude
@@ -371,7 +371,7 @@ public:
  * clear physical meaning (e.g. dynamic pressure, Mach number, freestream density, etc.), the
  * ParameterizedThrustMagnitudeSettings settings object can be used.
  */
-class FromFunctionThrustEngineSettings: public ThrustEngineSettings
+class FromFunctionThrustMagnitudeSettings: public ThrustMagnitudeSettings
 {
 public:
 
@@ -386,14 +386,14 @@ public:
      * \param customThrustResetFunction Custom function that is to be called when signalling that a new time step is
      * being started (empty by default)
      */
-    FromFunctionThrustEngineSettings(
+    FromFunctionThrustMagnitudeSettings(
             const std::function< double( const double ) > thrustMagnitudeFunction,
             const std::function< double( const double ) > specificImpulseFunction,
             const std::function< bool( const double ) > isEngineOnFunction = [ ]( const double ){ return true; },
             const std::function< Eigen::Vector3d( ) > bodyFixedThrustDirection =
             [ ]( ){ return  Eigen::Vector3d::UnitX( ); },
             const std::function< void( const double ) > customThrustResetFunction = std::function< void( const double ) >( ) ):
-        ThrustEngineSettings( thrust_magnitude_from_time_function, "" ),
+        ThrustMagnitudeSettings( thrust_magnitude_from_time_function, "" ),
         thrustMagnitudeFunction_( thrustMagnitudeFunction ),
         specificImpulseFunction_( specificImpulseFunction ),
         isEngineOnFunction_( isEngineOnFunction ),
@@ -401,7 +401,7 @@ public:
         customThrustResetFunction_( customThrustResetFunction ){ }
 
     //! Destructor.
-    ~FromFunctionThrustEngineSettings( ){ }
+    ~FromFunctionThrustMagnitudeSettings( ){ }
 
     //! Function returning thrust magnitude as a function of time.
     std::function< double( const double) > thrustMagnitudeFunction_;
@@ -725,7 +725,7 @@ private:
  *  is assumed to define the maximum possible thrust, which is then multiplied by the function defining the
  *  throttle_dependent_thrust.
  */
-class ParameterizedThrustMagnitudeSettings: public ThrustEngineSettings
+class ParameterizedThrustMagnitudeSettings: public ThrustMagnitudeSettings
 {
 public:
 
@@ -765,7 +765,7 @@ public:
             std::vector< std::function< double( ) > >( ),
             const std::function< void( const double) > inputUpdateFunction = std::function< void( const double) >( ),
             const Eigen::Vector3d bodyFixedThrustDirection = Eigen::Vector3d::UnitX( ) ):
-        ThrustEngineSettings( thrust_magnitude_from_dependent_variables, "" ),
+        ThrustMagnitudeSettings( thrust_magnitude_from_dependent_variables, "" ),
         thrustMagnitudeFunction_( std::bind( &interpolators::Interpolator< double, double >::interpolate,
                                                thrustMagnitudeInterpolator, std::placeholders::_1 ) ),
         specificImpulseFunction_( std::bind( &interpolators::Interpolator< double, double >::interpolate,
@@ -806,7 +806,7 @@ public:
             std::vector< std::function< double( ) > >( ),
             const std::function< void( const double ) > inputUpdateFunction = std::function< void( const double) >( ),
             const Eigen::Vector3d bodyFixedThrustDirection = Eigen::Vector3d::UnitX( ) ):
-        ThrustEngineSettings( thrust_magnitude_from_dependent_variables, "" ),
+        ThrustMagnitudeSettings( thrust_magnitude_from_dependent_variables, "" ),
         thrustMagnitudeFunction_( std::bind( &interpolators::Interpolator< double, double >::interpolate,
                                                thrustMagnitudeInterpolator, std::placeholders::_1 ) ),
         specificImpulseFunction_( [ = ]( const std::vector< double >& ){ return constantSpecificImpulse; } ),

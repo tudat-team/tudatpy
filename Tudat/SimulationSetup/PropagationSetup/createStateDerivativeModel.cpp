@@ -71,6 +71,12 @@ template std::vector< std::shared_ptr< SingleStateTypeDerivative< double, double
         const std::shared_ptr< SingleArcPropagatorSettings< double > > propagatorSettings,
         const simulation_setup::NamedBodyMap& bodyMap,
         const double propagationStartTime );
+template std::shared_ptr< SingleStateTypeDerivative< double, double > > createStateDerivativeModel< double, double >(
+        const std::shared_ptr< SingleArcPropagatorSettings< double > > propagatorSettings,
+        const simulation_setup::NamedBodyMap& bodyMap,
+        const double propagationStartTime );
+
+#if( BUILD_EXTENDED_PRECISION_PROPAGATION_TOOLS )
 template std::vector< std::shared_ptr< SingleStateTypeDerivative< long double, double > > > createStateDerivativeModels< long double, double >(
         const std::shared_ptr< SingleArcPropagatorSettings< long double > > propagatorSettings,
         const simulation_setup::NamedBodyMap& bodyMap,
@@ -83,11 +89,6 @@ template std::vector< std::shared_ptr< SingleStateTypeDerivative< long double, T
         const std::shared_ptr< SingleArcPropagatorSettings< long double > > propagatorSettings,
         const simulation_setup::NamedBodyMap& bodyMap,
         const Time propagationStartTime );
-
-template std::shared_ptr< SingleStateTypeDerivative< double, double > > createStateDerivativeModel< double, double >(
-        const std::shared_ptr< SingleArcPropagatorSettings< double > > propagatorSettings,
-        const simulation_setup::NamedBodyMap& bodyMap,
-        const double propagationStartTime );
 template std::shared_ptr< SingleStateTypeDerivative< long double, double > > createStateDerivativeModel< long double, double >(
         const std::shared_ptr< SingleArcPropagatorSettings< long double > > propagatorSettings,
         const simulation_setup::NamedBodyMap& bodyMap,
@@ -100,6 +101,8 @@ template std::shared_ptr< SingleStateTypeDerivative< long double, Time > > creat
         const std::shared_ptr< SingleArcPropagatorSettings< long double > > propagatorSettings,
         const simulation_setup::NamedBodyMap& bodyMap,
         const Time propagationStartTime );
+#endif
+
 }
 
 }

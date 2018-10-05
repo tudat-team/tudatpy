@@ -205,11 +205,6 @@ protected:
     std::shared_ptr< CombinedStateTransitionAndSensitivityMatrixInterface > stateTransitionInterface_;
 };
 
-//extern template class VariationalEquationsSolver< double, double >;
-//extern template class VariationalEquationsSolver< long double, double >;
-//extern template class VariationalEquationsSolver< double, Time >;
-//extern template class VariationalEquationsSolver< long double, Time >;
-
 //! Function to separate the time histories of the sensitivity and state transition matrices from a full numerical solution.
 /*!
  *  Function to separate the time histories of the sensitivity and state transition matrices from a full numerical solution,
@@ -305,6 +300,13 @@ bool checkPropagatorSettingsAndParameterEstimationConsistency(
         std::vector< std::string > propagatedBodies = translationalPropagatorSettings->bodiesToIntegrate_;
         std::vector< std::string > estimatedBodies = estimatable_parameters::getListOfBodiesWithTranslationalStateToEstimate(
                     parametersToEstimate );
+
+        if( static_cast< unsigned int >( translationalPropagatorSettings->getPropagatedStateSize( ) ) !=
+                propagatedBodies.size( ) * 6 )
+        {
+            throw std::runtime_error( "Error when propagating variational equations, tranbbslational state vectors not of size 6." );
+        }
+
         if( propagatedBodies.size( ) != estimatedBodies.size( ) )
         {
             std::string errorMessage = "Error, propagated and estimated body vector sizes are inconsistent " +
@@ -845,12 +847,6 @@ private:
      */
     std::shared_ptr< DynamicsStateDerivativeModel< TimeType, StateScalarType > > dynamicsStateDerivative_;
 };
-
-
-//extern template class SingleArcVariationalEquationsSolver< double, double >;
-//extern template class SingleArcVariationalEquationsSolver< long double, double >;
-//extern template class SingleArcVariationalEquationsSolver< double, Time >;
-//extern template class SingleArcVariationalEquationsSolver< long double, Time >;
 
 
 //! Function to transfer the initial multi-arc states from propagator settings to associated initial state estimation parameters.
@@ -1444,20 +1440,22 @@ private:
 };
 
 extern template class VariationalEquationsSolver< double, double >;
+extern template class SingleArcVariationalEquationsSolver< double, double >;
+extern template class MultiArcVariationalEquationsSolver< double, double >;
+
+#if( BUILD_EXTENDED_PRECISION_PROPAGATION_TOOLS )
 extern template class VariationalEquationsSolver< long double, double >;
 extern template class VariationalEquationsSolver< double, Time >;
 extern template class VariationalEquationsSolver< long double, Time >;
 
-extern template class SingleArcVariationalEquationsSolver< double, double >;
 extern template class SingleArcVariationalEquationsSolver< long double, double >;
 extern template class SingleArcVariationalEquationsSolver< double, Time >;
 extern template class SingleArcVariationalEquationsSolver< long double, Time >;
 
-extern template class MultiArcVariationalEquationsSolver< double, double >;
 extern template class MultiArcVariationalEquationsSolver< long double, double >;
 extern template class MultiArcVariationalEquationsSolver< double, Time >;
 extern template class MultiArcVariationalEquationsSolver< long double, Time >;
-
+#endif
 } // namespace propagators
 
 } // namespace tudat

@@ -355,7 +355,7 @@ public:
      */
     ThrustAccelerationSettings(
             const std::shared_ptr< ThrustDirectionGuidanceSettings > thrustDirectionGuidanceSettings,
-            const std::shared_ptr< ThrustEngineSettings > thrustMagnitudeSettings ):
+            const std::shared_ptr< ThrustMagnitudeSettings > thrustMagnitudeSettings ):
         AccelerationSettings( basic_astrodynamics::thrust_acceleration ),
         thrustDirectionGuidanceSettings_( thrustDirectionGuidanceSettings ),
         thrustMagnitudeSettings_( thrustMagnitudeSettings ),
@@ -386,7 +386,7 @@ public:
                     interpolators::createOneDimensionalInterpolator( dataInterpolationSettings ) );
         thrustDirectionGuidanceSettings_ = std::make_shared< CustomThrustDirectionSettings >(
                     std::bind( &FullThrustInterpolationInterface::getThrustDirection, interpolatorInterface_, std::placeholders::_1 ) );
-        thrustMagnitudeSettings_ =  std::make_shared< FromFunctionThrustEngineSettings >(
+        thrustMagnitudeSettings_ =  std::make_shared< FromFunctionThrustMagnitudeSettings >(
                     std::bind( &FullThrustInterpolationInterface::getThrustMagnitude, interpolatorInterface_, std::placeholders::_1 ),
                     specificImpulseFunction, [ ]( const double ){ return true; },
                     [ ]( ){ return  Eigen::Vector3d::UnitX( ); },
@@ -427,7 +427,7 @@ public:
     std::shared_ptr< ThrustDirectionGuidanceSettings > thrustDirectionGuidanceSettings_;
 
     //! Settings for the magnitude of the thrust
-    std::shared_ptr< ThrustEngineSettings > thrustMagnitudeSettings_;
+    std::shared_ptr< ThrustMagnitudeSettings > thrustMagnitudeSettings_;
 
     //! Constant specific impulse used when determining the direction and magnitude of thrust from an interpolator.
     //! NaN if the specific impulse is not constant (i.e. is defined using a std::function).

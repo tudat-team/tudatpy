@@ -157,7 +157,7 @@ createUnivariateTabulatedCoefficientAerodynamicCoefficientInterface(
         // Retrieve or generate interpolation settings
         std::shared_ptr< OneDimensionalInterpolator< double, Eigen::Vector3d > > forceInterpolator;
         std::shared_ptr< OneDimensionalInterpolator< double, Eigen::Vector3d > > momentInterpolator;
-        if ( tabulatedCoefficientSettings->getInterpolatorSettings( ) == NULL )
+        if ( tabulatedCoefficientSettings->getInterpolatorSettings( ) == nullptr )
         {
             forceInterpolator = createOneDimensionalInterpolator( tabulatedCoefficientSettings->getForceCoefficients( ),
                                                                   std::make_shared< InterpolatorSettings >( linear_interpolator ) );
