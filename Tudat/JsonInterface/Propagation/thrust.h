@@ -93,13 +93,13 @@ inline void from_json( const nlohmann::json& jsonObject, ThrustMagnitudeTypes& t
 }
 
 
-// ThrustEngineSettings
+// ThrustMagnitudeSettings
 
-//! Create a `json` object from a shared pointer to a `ThrustEngineSettings` object.
-void to_json( nlohmann::json& jsonObject, const std::shared_ptr< ThrustEngineSettings >& magnitudeSettings );
+//! Create a `json` object from a shared pointer to a `ThrustMagnitudeSettings` object.
+void to_json( nlohmann::json& jsonObject, const std::shared_ptr< ThrustMagnitudeSettings >& magnitudeSettings );
 
 //! Create a shared pointer to a `AccelerationSettings` object from a `json` object.
-void from_json( const nlohmann::json& jsonObject, std::shared_ptr< ThrustEngineSettings >& magnitudeSettings );
+void from_json( const nlohmann::json& jsonObject, std::shared_ptr< ThrustMagnitudeSettings >& magnitudeSettings );
 
 
 // ThrustFrames

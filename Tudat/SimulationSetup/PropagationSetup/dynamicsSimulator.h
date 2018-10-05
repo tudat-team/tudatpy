@@ -277,11 +277,6 @@ protected:
     bool setIntegratedResult_;
 };
 
-//extern template class DynamicsSimulator< double, double >;
-//extern template class DynamicsSimulator< long double, double >;
-//extern template class DynamicsSimulator< double, Time >;
-//extern template class DynamicsSimulator< long double, Time >;
-
 //! Class for performing full numerical integration of a dynamical system in a single arc.
 /*!
  *  Class for performing full numerical integration of a dynamical system in a single arc, i.e. the equations of motion
@@ -336,16 +331,16 @@ public:
         printNumberOfFunctionEvaluations_( printNumberOfFunctionEvaluations ), initialClockTime_( initialClockTime ),
         propagationTerminationReason_( std::make_shared< PropagationTerminationDetails >( propagation_never_run ) )
     {
-        if( propagatorSettings == NULL )
+        if( propagatorSettings == nullptr )
         {
             throw std::runtime_error( "Error in dynamics simulator, propagator settings not defined." );
         }
-        else if( std::dynamic_pointer_cast< SingleArcPropagatorSettings< StateScalarType > >( propagatorSettings ) == NULL )
+        else if( std::dynamic_pointer_cast< SingleArcPropagatorSettings< StateScalarType > >( propagatorSettings ) == nullptr )
         {
             throw std::runtime_error( "Error in dynamics simulator, input must be single-arc." );
         }
 
-        if( integratorSettings == NULL )
+        if( integratorSettings == nullptr )
         {
             throw std::runtime_error( "Error in dynamics simulator, integrator settings not defined." );
         }
@@ -376,7 +371,7 @@ public:
         propagationTerminationCondition_ = createPropagationTerminationConditions(
                     propagatorSettings_->getTerminationSettings( ), bodyMap_, integratorSettings->initialTimeStep_ );
 
-        if( propagatorSettings_->getDependentVariablesToSave( ) != NULL )
+        if( propagatorSettings_->getDependentVariablesToSave( ) != nullptr )
         {
             std::pair< std::function< Eigen::VectorXd( ) >, std::map< int, std::string > > dependentVariableData =
                     createDependentVariableListFunction< TimeType, StateScalarType >(
@@ -843,11 +838,6 @@ protected:
 
 };
 
-//extern template class SingleArcDynamicsSimulator< double, double >;
-//extern template class SingleArcDynamicsSimulator< long double, double >;
-//extern template class SingleArcDynamicsSimulator< double, Time >;
-//extern template class SingleArcDynamicsSimulator< long double, Time >;
-
 //! Function to get a vector of initial states from a vector of propagator settings
 /*!
  *  Function to get a vector of initial states from a vector of propagator settings.
@@ -969,7 +959,7 @@ public:
     {
         multiArcPropagatorSettings_ =
                 std::dynamic_pointer_cast< MultiArcPropagatorSettings< StateScalarType > >( propagatorSettings );
-        if( multiArcPropagatorSettings_ == NULL )
+        if( multiArcPropagatorSettings_ == nullptr )
         {
             throw std::runtime_error( "Error when creating multi-arc dynamics simulator, input is not multi arc" );
         }
@@ -1033,7 +1023,7 @@ public:
     {
         multiArcPropagatorSettings_ =
                 std::dynamic_pointer_cast< MultiArcPropagatorSettings< StateScalarType > >( propagatorSettings );
-        if( multiArcPropagatorSettings_ == NULL )
+        if( multiArcPropagatorSettings_ == nullptr )
         {
             throw std::runtime_error( "Error when creating multi-arc dynamics simulator, input is not multi arc" );
         }
@@ -1380,19 +1370,22 @@ protected:
 };
 
 extern template class DynamicsSimulator< double, double >;
+extern template class SingleArcDynamicsSimulator< double, double >;
+extern template class MultiArcDynamicsSimulator< double, double >;
+
+#if( BUILD_EXTENDED_PRECISION_PROPAGATION_TOOLS )
 extern template class DynamicsSimulator< long double, double >;
 extern template class DynamicsSimulator< double, Time >;
 extern template class DynamicsSimulator< long double, Time >;
 
-extern template class SingleArcDynamicsSimulator< double, double >;
 extern template class SingleArcDynamicsSimulator< long double, double >;
 extern template class SingleArcDynamicsSimulator< double, Time >;
 extern template class SingleArcDynamicsSimulator< long double, Time >;
 
-extern template class MultiArcDynamicsSimulator< double, double >;
 extern template class MultiArcDynamicsSimulator< long double, double >;
 extern template class MultiArcDynamicsSimulator< double, Time >;
 extern template class MultiArcDynamicsSimulator< long double, Time >;
+#endif
 
 } // namespace propagators
 

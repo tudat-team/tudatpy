@@ -84,7 +84,7 @@ BOOST_AUTO_TEST_CASE( testConstantThrustAcceleration )
     accelerationsOfVehicle[ "Vehicle" ].push_back( std::make_shared< ThrustAccelerationSettings >(
                                                        std::make_shared< CustomThrustDirectionSettings >(
                                                            [ & ]( const double ){ return thrustDirection; } ),
-                                                       std::make_shared< ConstantThrustEngineSettings >(
+                                                       std::make_shared< ConstantThrustMagnitudeSettings >(
                                                            thrustMagnitude, specificImpulse ) ) );
 
     accelerationMap[ "Vehicle" ] = accelerationsOfVehicle;
@@ -244,7 +244,7 @@ BOOST_AUTO_TEST_CASE( testFromEngineThrustAcceleration )
             accelerationsOfVehicle[ "Vehicle" ].push_back( std::make_shared< ThrustAccelerationSettings >(
                                                                std::make_shared< CustomThrustDirectionSettings >(
                                                                    [ & ]( const double ){ return thrustDirection; } ),
-                                                               std::make_shared< FromBodyThrustEngineSettings >(
+                                                               std::make_shared< FromBodyThrustMagnitudeSettings >(
                                                                    1, "" ) ) );
             accelerationMap[ "Vehicle" ] = accelerationsOfVehicle;
             break;
@@ -254,7 +254,7 @@ BOOST_AUTO_TEST_CASE( testFromEngineThrustAcceleration )
             accelerationsOfVehicle[ "Vehicle" ].push_back( std::make_shared< ThrustAccelerationSettings >(
                                                                std::make_shared< CustomThrustDirectionSettings >(
                                                                    [ & ]( const double ){ return thrustDirection; } ),
-                                                               std::make_shared< FromBodyThrustEngineSettings >(
+                                                               std::make_shared< FromBodyThrustMagnitudeSettings >(
                                                                    0, "Engine1" ) ) );
             accelerationMap[ "Vehicle" ] = accelerationsOfVehicle;
             break;
@@ -264,7 +264,7 @@ BOOST_AUTO_TEST_CASE( testFromEngineThrustAcceleration )
             accelerationsOfVehicle[ "Vehicle" ].push_back( std::make_shared< ThrustAccelerationSettings >(
                                                                std::make_shared< CustomThrustDirectionSettings >(
                                                                    [ & ]( const double ){ return thrustDirection; } ),
-                                                               std::make_shared< FromBodyThrustEngineSettings >(
+                                                               std::make_shared< FromBodyThrustMagnitudeSettings >(
                                                                    0, "Engine2" ) ) );
             accelerationMap[ "Vehicle" ] = accelerationsOfVehicle;
             break;
@@ -274,12 +274,12 @@ BOOST_AUTO_TEST_CASE( testFromEngineThrustAcceleration )
             accelerationsOfVehicle[ "Vehicle" ].push_back( std::make_shared< ThrustAccelerationSettings >(
                                                                std::make_shared< CustomThrustDirectionSettings >(
                                                                    [ & ](  const double  ){ return thrustDirection; } ),
-                                                               std::make_shared< FromBodyThrustEngineSettings >(
+                                                               std::make_shared< FromBodyThrustMagnitudeSettings >(
                                                                    0, "Engine1" ) ) );
             accelerationsOfVehicle[ "Vehicle" ].push_back( std::make_shared< ThrustAccelerationSettings >(
                                                                std::make_shared< CustomThrustDirectionSettings >(
                                                                    [ & ](  const double  ){ return thrustDirection; } ),
-                                                               std::make_shared< FromBodyThrustEngineSettings >(
+                                                               std::make_shared< FromBodyThrustMagnitudeSettings >(
                                                                    0, "Engine2" ) ) );
             accelerationMap[ "Vehicle" ] = accelerationsOfVehicle;
             break;
@@ -447,7 +447,7 @@ BOOST_AUTO_TEST_CASE( testRadialAndVelocityThrustAcceleration )
         accelerationsOfVehicle[ "Vehicle" ].push_back( std::make_shared< ThrustAccelerationSettings >(
                                                            std::make_shared< ThrustDirectionFromStateGuidanceSettings >(
                                                                "Earth", isThurstInVelocityDirection, 1  ),
-                                                           std::make_shared< ConstantThrustEngineSettings >(
+                                                           std::make_shared< ConstantThrustMagnitudeSettings >(
                                                                thrustMagnitude, specificImpulse ) ) );
         if( i == 1 )
         {
@@ -615,7 +615,7 @@ BOOST_AUTO_TEST_CASE( testThrustAccelerationFromExistingRotation )
     accelerationsOfVehicle[ "Vehicle" ].push_back( std::make_shared< ThrustAccelerationSettings >(
                                                        std::make_shared< ThrustDirectionGuidanceSettings >(
                                                            thrust_direction_from_existing_body_orientation, "Earth" ),
-                                                       std::make_shared< ConstantThrustEngineSettings >(
+                                                       std::make_shared< ConstantThrustMagnitudeSettings >(
                                                            thrustMagnitude, specificImpulse, bodyFixedThrustDirection ) ) );
     accelerationsOfVehicle[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( central_gravity ) );
 
@@ -772,7 +772,7 @@ BOOST_AUTO_TEST_CASE( testConcurrentThrustAndAerodynamicAcceleration )
         accelerationsOfApollo[ "Apollo" ].push_back( std::make_shared< ThrustAccelerationSettings >(
                                                          std::make_shared< ThrustDirectionGuidanceSettings >(
                                                              thrust_direction_from_existing_body_orientation, "Earth" ),
-                                                         std::make_shared< ConstantThrustEngineSettings >(
+                                                         std::make_shared< ConstantThrustMagnitudeSettings >(
                                                              thrustMagnitude, specificImpulse ) ) );
 
         accelerationMap[ "Apollo" ] = accelerationsOfApollo;
@@ -1826,8 +1826,8 @@ BOOST_AUTO_TEST_CASE( testMeeCostateBasedThrust )
         std::shared_ptr< ThrustDirectionGuidanceSettings > thrustDirectionGuidanceSettings =
                 std::make_shared< MeeCostateBasedThrustDirectionSettings >(
                     "Asterix", "Earth", [ & ]( const double ){ return costates; } );
-        std::shared_ptr< ThrustEngineSettings > thrustMagnitudeSettings =
-                std::make_shared< ConstantThrustEngineSettings >( 1.0E4, 30000.0 );
+        std::shared_ptr< ThrustMagnitudeSettings > thrustMagnitudeSettings =
+                std::make_shared< ConstantThrustMagnitudeSettings >( 1.0E4, 30000.0 );
 
         accelerationsOfAsterix[ "Asterix" ].push_back(
                     std::make_shared< ThrustAccelerationSettings >(

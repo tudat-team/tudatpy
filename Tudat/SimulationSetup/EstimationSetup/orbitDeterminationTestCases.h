@@ -288,11 +288,14 @@ std::pair< std::shared_ptr< PodOutput< StateScalarType > >, Eigen::VectorXd > ex
                              truthParameters .template cast< double >( ) ) );
 }
 
+
 extern template std::pair< std::shared_ptr< PodOutput< double > >, Eigen::VectorXd > executePlanetaryParameterEstimation< double, double >(
         const int observableType,
         Eigen::VectorXd parameterPerturbation,
         Eigen::MatrixXd inverseAPrioriCovariance,
         const double weight );
+
+#if( BUILD_EXTENDED_PRECISION_PROPAGATION_TOOLS )
 extern template std::pair< std::shared_ptr< PodOutput< long double > >, Eigen::VectorXd > executePlanetaryParameterEstimation< double, long double >(
         const int observableType,
         Eigen::VectorXd parameterPerturbation,
@@ -308,6 +311,7 @@ extern template std::pair< std::shared_ptr< PodOutput< long double > >, Eigen::V
         Eigen::VectorXd parameterPerturbation,
         Eigen::MatrixXd inverseAPrioriCovariance,
         const double weight );
+#endif
 
 
 template< typename TimeType = double, typename StateScalarType = double >

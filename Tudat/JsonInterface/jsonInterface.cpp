@@ -12,62 +12,20 @@
 
 #include "Tudat/JsonInterface/jsonInterface.h"
 
-void printHelp( )
+namespace tudat
 {
-    std::cout <<
-                 "Usage:\n"
-                 "\n"
-                 "tudat [options] [path]\n"
-                 "\n"
-                 "path: absolute or relative path to a JSON input file or directory containing a main.json file. "
-                 "If not provided, a main.json file will be looked for in the current directory.\n"
-                 "\n"
-                 "Options:\n"
-                 "-h, --help       Show help\n"
-              << std::endl;
-    exit( EXIT_FAILURE );
+
+namespace json_interface
+{
+
+template class JsonSimulationManager< double, double >;
+
+#if( BUILD_EXTENDED_PRECISION_PROPAGATION_TOOLS )
+template class JsonSimulationManager< Time, long double >;
+template class JsonSimulationManager< double, double >;
+template class JsonSimulationManager< Time, long double >;
+#endif
+
 }
 
-//! Execute propagation of orbit of Asterix around the Earth.
-int main( int argumentCount, char* arguments[ ] )
-{
-    int currentOption;
-    int optionCount = 0;
-    const char* const shortOptions = "h";
-    const option longOptions[ ] =
-    {
-        { "help", no_argument, nullptr, 'h' },
-        { nullptr, 0, nullptr, 0 }
-    };
-
-    while ( ( currentOption = getopt_long( argumentCount, arguments, shortOptions, longOptions, nullptr ) ) != -1 )
-    {
-        switch ( currentOption )
-        {
-        case 'h':
-        case '?':
-        default:
-            printHelp( );
-        }
-        optionCount++;
-    }
-
-    const int nonOptionArgumentCount = argumentCount - optionCount - 1;
-    if ( nonOptionArgumentCount > 1 )
-    {
-        printHelp( );
-    }
-    const std::string inputPath = nonOptionArgumentCount == 1 ? arguments[ argumentCount - 1 ] : "";
-
-    // FIXME: Get binary path (not working on Mac OS)
-    // boost::filesystem::path full_path( boost::filesystem::initial_path< boost::filesystem::path >( ) );
-    // full_path = boost::filesystem::system_complete( boost::filesystem::path( arguments[ 0 ] ) );
-    // std::cout << full_path << std::endl;
-
-    tudat::json_interface::JsonSimulationManager< > jsonSimulationManager( inputPath );
-    jsonSimulationManager.updateSettings( );
-    jsonSimulationManager.runPropagation( );
-    jsonSimulationManager.exportResults( );
-
-    return EXIT_SUCCESS;
 }

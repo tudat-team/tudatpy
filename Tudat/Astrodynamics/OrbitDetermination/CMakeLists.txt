@@ -39,7 +39,7 @@ set(ORBIT_DETERMINATION_HEADERS
 add_library(tudat_orbit_determination STATIC ${ORBIT_DETERMINATION_SOURCES} ${ORBIT_DETERMINATION_HEADERS})
 setup_tudat_library_target(tudat_orbit_determination "${SRCROOT}{ORBITDETERMINATIONDIR}")
 
-if( COMPILE_PROPAGATION_TESTS )
+if( BUILD_PROPAGATION_TESTS )
 
 add_executable(test_EstimationFromPositionDoubleDouble "${SRCROOT}${ORBITDETERMINATIONDIR}/UnitTests/unitTestEstimationFromIdealDataDoubleDouble.cpp")
 setup_custom_test_program(test_EstimationFromPositionDoubleDouble "${SRCROOT}${ORBITDETERMINATIONDIR}")
@@ -54,7 +54,7 @@ add_executable(test_TidalPropertyEstimation "${SRCROOT}${ORBITDETERMINATIONDIR}/
 setup_custom_test_program(test_TidalPropertyEstimation "${SRCROOT}${ORBITDETERMINATIONDIR}")
 target_link_libraries(test_TidalPropertyEstimation ${TUDAT_ESTIMATION_LIBRARIES} ${Boost_LIBRARIES})
 
-if( COMPILE_HIGH_ACCURACY_ESTIMATION_TESTS )
+if( BUILD_EXTENDED_PRECISION_PROPAGATION_TOOLS )
 
     add_executable(test_EstimationFromPositionDoubleLongDouble "${SRCROOT}${ORBITDETERMINATIONDIR}/UnitTests/unitTestEstimationFromIdealDataDoubleLongDouble.cpp")
     setup_custom_test_program(test_EstimationFromPositionDoubleLongDouble "${SRCROOT}${ORBITDETERMINATIONDIR}")
@@ -82,5 +82,4 @@ if( COMPILE_HIGH_ACCURACY_ESTIMATION_TESTS )
 endif( )
 
 endif( )
-
 

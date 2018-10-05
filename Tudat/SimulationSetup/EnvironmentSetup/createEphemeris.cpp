@@ -103,7 +103,7 @@ std::shared_ptr< ephemerides::Ephemeris > createBodyEphemeris(
                 {
                     inputName += " Barycenter";
                     std::cerr << "Warning, position of " << bodyName << " taken as barycenter of that body's "
-                            << "planetary system." << std::endl;
+                              << "planetary system." << std::endl;
                 }
 
                 // Create corresponding ephemeris object.
@@ -120,6 +120,8 @@ std::shared_ptr< ephemerides::Ephemeris > createBodyEphemeris(
                 }
                 else
                 {
+#if( BUILD_EXTENDED_PRECISION_PROPAGATION_TOOLS )
+
                     ephemeris = createTabulatedEphemerisFromSpice< long double, double >(
                                 inputName,
                                 static_cast< long double >( interpolatedEphemerisSettings->getInitialTime( ) ),
@@ -128,6 +130,9 @@ std::shared_ptr< ephemerides::Ephemeris > createBodyEphemeris(
                                 interpolatedEphemerisSettings->getFrameOrigin( ),
                                 interpolatedEphemerisSettings->getFrameOrientation( ),
                                 interpolatedEphemerisSettings->getInterpolatorSettings( ) );
+#else
+                    throw std::runtime_error( "Error, long double compilation is turned off; requested long doubel tabulated ephemeris" );
+#endif
                 }
             }
             break;
@@ -159,6 +164,8 @@ std::shared_ptr< ephemerides::Ephemeris > createBodyEphemeris(
                 }
                 else
                 {
+#if( BUILD_EXTENDED_PRECISION_PROPAGATION_TOOLS )
+
                     // Cast input history to required type.
                     std::map< double, Eigen::Vector6d > originalStateHistory =
                             tabulatedEphemerisSettings->getBodyStateHistory( );
@@ -178,6 +185,9 @@ std::shared_ptr< ephemerides::Ephemeris > createBodyEphemeris(
                                     tabulatedEphemerisSettings->getFrameOrigin( ),
                                     tabulatedEphemerisSettings->getFrameOrientation( ) );
                     }
+#else
+                    throw std::runtime_error( "Error, long double compilation is turned off; requested long doubel tabulated ephemeris" );
+#endif
                 }
             }
             break;

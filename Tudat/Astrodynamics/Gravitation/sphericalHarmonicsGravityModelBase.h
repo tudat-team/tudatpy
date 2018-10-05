@@ -113,8 +113,8 @@ public:
     void updateBaseMembers( )
     {
         this->gravitationalParameter = this->gravitationalParameterFunction( );
-        this->positionOfBodySubjectToAcceleration = this->subjectPositionFunction( );
-        this->positionOfBodyExertingAcceleration  = this->sourcePositionFunction( );
+        this->positionOfBodySubjectToAcceleration = std::move( this->subjectPositionFunction( ) );
+        this->positionOfBodyExertingAcceleration  = std::move( this->sourcePositionFunction( ) );
     }
 
     //! Function to return the function returning the relevant gravitational parameter.

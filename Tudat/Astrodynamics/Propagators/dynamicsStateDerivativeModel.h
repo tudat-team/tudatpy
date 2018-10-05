@@ -705,6 +705,15 @@ private:
     std::map< TimeType, unsigned int > cumulativeFunctionEvaluationCounter_;
 };
 
+extern template class DynamicsStateDerivativeModel< double, double >;
+
+#if( BUILD_EXTENDED_PRECISION_PROPAGATION_TOOLS )
+extern template class DynamicsStateDerivativeModel< Time, double >;
+extern template class DynamicsStateDerivativeModel< double, long double >;
+extern template class DynamicsStateDerivativeModel< Time, long double >;
+#endif
+
+
 //! Function to retrieve a single given acceleration model from a list of models
 /*!
  *  Function to retrieve a single given acceleration model, determined by
@@ -952,7 +961,7 @@ std::shared_ptr< BodyMassStateDerivative< StateScalarType, TimeType > > getBodyM
             std::shared_ptr< BodyMassStateDerivative< StateScalarType, TimeType > > massRateModel =
                     std::dynamic_pointer_cast< BodyMassStateDerivative< StateScalarType, TimeType > >(
                         stateDerivativeModels.at( propagators::body_mass_state ).at( i ) );
-            if( massRateModel == NULL )
+            if( massRateModel == nullptr )
             {
                 throw std::runtime_error( "Error when finding body's mass rate model, model type is inconsistent" );
             }
@@ -987,6 +996,7 @@ std::shared_ptr< BodyMassStateDerivative< StateScalarType, TimeType > > getBodyM
     return modelForBody;
 }
 
+#if( BUILD_WITH_ESTIMATION_TOOLS )
 //! Function to retrieve specific acceleration partial object from list of state derivative partials
 /*!
  * Function to retrieve specific acceleration partial object from list of state derivative partials
@@ -1003,6 +1013,7 @@ std::shared_ptr< acceleration_partials::AccelerationPartial > getAccelerationPar
         const std::string& bodyExertingAcceleration,
         const std::string& bodyUndergoignAcceleration,
         const std::string& centralBody = "" );
+#endif
 
 template< typename TimeType = double, typename StateScalarType = double,
           typename ConversionClassType = DynamicsStateDerivativeModel< TimeType, StateScalarType > >

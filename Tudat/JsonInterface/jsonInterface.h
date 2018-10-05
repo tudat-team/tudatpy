@@ -283,7 +283,7 @@ public:
     //! Get maximum simulation end epoch. Returns `TUDAT_NAN` if there is no time termination condition.
     TimeType getEndEpoch( ) const
     {
-        TimeType endEpoch = getTerminationEpoch< TimeType >( propagatorSettings_ );
+        TimeType endEpoch = getTerminationEpoch< TimeType >( propagatorSettings_->getTerminationSettings( ) );
         if ( ! isNaN( endEpoch ) )
         {
             return endEpoch;
@@ -587,6 +587,13 @@ private:
 };
 
 
+extern template class JsonSimulationManager< double, double >;
+
+#if( BUILD_EXTENDED_PRECISION_PROPAGATION_TOOLS )
+extern template class JsonSimulationManager< Time, long double >;
+extern template class JsonSimulationManager< double, double >;
+extern template class JsonSimulationManager< Time, long double >;
+#endif
 //! Function to create a `json` object from a Simulation object.
 template< typename TimeType, typename StateScalarType >
 void to_json( nlohmann::json& jsonObject,

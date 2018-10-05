@@ -96,6 +96,18 @@ double calculateEarthRotationAngle(
 template< typename TimeType >
 double calculateEarthRotationAngleTemplated( const TimeType currentUt1 );
 
+//! Function to compute the rotation matrix from GCRS to J2000 at epoch
+/*!
+ * Function to compute the rotation matrix from GCRS to J2000 at epoch, e.g. frame bias
+ * \param julianDaysSinceReference Days since reference epoch at which the frame bias is to be determined
+ * \param precessionNutationTheory IAU precession theory to use
+ * \param referenceJulianDay Reference Julian day for julianDaysSinceReference
+ * \return
+ */
+Eigen::Matrix3d getFrameBias(
+        const double julianDaysSinceReference,
+        const basic_astrodynamics::IAUConventions precessionNutationTheory = basic_astrodynamics::iau_2006,
+        const double referenceJulianDay = basic_astrodynamics::JULIAN_DAY_ON_J2000 );
 }
 
 }

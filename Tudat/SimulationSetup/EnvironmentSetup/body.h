@@ -154,7 +154,7 @@ protected:
      */
     Eigen::Matrix< double, 6, 1 > getBaseFrameDoubleState( const double time )
     {
-        return static_cast< double >( stateMultiplier_ ) * stateFunction_( time ).template cast< double >( );
+        return static_cast< double >( stateMultiplier_ ) * std::move( stateFunction_( time ) ).template cast< double >( );
     }
 
     //! Function through which the state of baseFrameId_ in the inertial frame can be determined
@@ -166,7 +166,7 @@ protected:
      */
     Eigen::Matrix< long double, 6, 1 > getBaseFrameLongDoubleState( const double time )
     {
-        return static_cast< long double >( stateMultiplier_ ) * stateFunction_( time ).template cast< long double >( );
+        return static_cast< long double >( stateMultiplier_ ) * std::move( stateFunction_( time ) ).template cast< long double >( );
     }
 
     //! Function through which the state of baseFrameId_ in the inertial frame can be determined
@@ -190,7 +190,7 @@ protected:
      */
     Eigen::Matrix< long double, 6, 1 > getBaseFrameLongDoubleState( const Time& time )
     {
-        return static_cast< long double >( stateMultiplier_ ) * stateFunction_( time ).template cast< long double >( );
+        return static_cast< long double >( stateMultiplier_ ) * std::move( stateFunction_( time ) ).template cast< long double >( );
     }
 
 private:
@@ -229,7 +229,7 @@ public:
           currentRotationToLocalFrame_( Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) ) ),
           currentRotationToLocalFrameDerivative_( Eigen::Matrix3d::Zero( ) ),
           currentAngularVelocityVectorInGlobalFrame_( Eigen::Vector3d::Zero( ) ),
-          bodyMassFunction_( NULL ),
+          bodyMassFunction_( nullptr ),
           bodyInertiaTensor_( Eigen::Matrix3d::Zero( ) )
     {
         currentLongState_ = currentState_.cast< long double >( );
@@ -464,11 +464,11 @@ public:
      */
     void setCurrentRotationToLocalFrameFromEphemeris( const double time )
     {
-        if( rotationalEphemeris_!= NULL )
+        if( rotationalEphemeris_!= nullptr )
         {
             currentRotationToLocalFrame_ = rotationalEphemeris_->getRotationToTargetFrame( time );
         }
-        else if( dependentOrientationCalculator_ != NULL )
+        else if( dependentOrientationCalculator_ != nullptr )
         {
             currentRotationToLocalFrame_ = dependentOrientationCalculator_->computeAndGetRotationToLocalFrame( time );
         }
@@ -487,12 +487,12 @@ public:
      */
     void setCurrentRotationToLocalFrameDerivativeFromEphemeris( const double time )
     {
-        if( rotationalEphemeris_!= NULL )
+        if( rotationalEphemeris_!= nullptr )
         {
             currentRotationToLocalFrameDerivative_
                     = rotationalEphemeris_->getDerivativeOfRotationToTargetFrame( time );
         }
-        else if( dependentOrientationCalculator_ != NULL )
+        else if( dependentOrientationCalculator_ != nullptr )
         {
             currentRotationToLocalFrameDerivative_.setZero( );
         }
@@ -511,12 +511,12 @@ public:
      */
     void setCurrentAngularVelocityVectorInGlobalFrame( const double time )
     {
-        if( rotationalEphemeris_!= NULL )
+        if( rotationalEphemeris_!= nullptr )
         {
             currentAngularVelocityVectorInGlobalFrame_
                     = rotationalEphemeris_->getRotationalVelocityVectorInBaseFrame( time );
         }
-        else if( dependentOrientationCalculator_ != NULL )
+        else if( dependentOrientationCalculator_ != nullptr )
         {
             currentAngularVelocityVectorInGlobalFrame_.setZero( );
         }
@@ -537,13 +537,13 @@ public:
     template< typename TimeType >
     void setCurrentRotationalStateToLocalFrameFromEphemeris( const TimeType time )
     {
-        if( rotationalEphemeris_ != NULL )
+        if( rotationalEphemeris_ != nullptr )
         {
             rotationalEphemeris_->getFullRotationalQuantitiesToTargetFrameTemplated< TimeType >(
                         currentRotationToLocalFrame_, currentRotationToLocalFrameDerivative_,
                         currentAngularVelocityVectorInGlobalFrame_, time );
         }
-        else if( dependentOrientationCalculator_ != NULL )
+        else if( dependentOrientationCalculator_ != nullptr )
         {
             currentRotationToLocalFrame_ = dependentOrientationCalculator_->computeAndGetRotationToLocalFrame( time );
             currentRotationToLocalFrameDerivative_.setZero( );
@@ -691,7 +691,7 @@ public:
         gravityFieldModel_ = gravityFieldModel;
 
         // Update current mass of body, provide warning
-        if( bodyMassFunction_ != NULL )
+        if( bodyMassFunction_ != nullptr )
         {
             std::cerr << "Warning when settings gravity field model for body, mass function already found: resetting" << std::endl;
         }
@@ -720,7 +720,7 @@ public:
     void setRotationalEphemeris(
             const std::shared_ptr< ephemerides::RotationalEphemeris > rotationalEphemeris )
     {
-        if( dependentOrientationCalculator_ != NULL )
+        if( dependentOrientationCalculator_ != nullptr )
         {
             std::cerr << "Warning when setting rotational ephemeris, dependentOrientationCalculator_ already found, NOT setting closure" << std::endl;
         }
@@ -737,14 +737,14 @@ public:
             const std::shared_ptr< reference_frames::DependentOrientationCalculator > dependentOrientationCalculator )
     {
         // Check if object already exists
-        if( dependentOrientationCalculator_ != NULL )
+        if( dependentOrientationCalculator_ != nullptr )
         {
             // Try to create closure between new and existing objects (i.e ensure that they end up computing the same rotation
             // in differen manenrs.
             if( ( std::dynamic_pointer_cast< reference_frames::AerodynamicAngleCalculator >(
-                      dependentOrientationCalculator ) != NULL ) &&
+                      dependentOrientationCalculator ) != nullptr ) &&
                     ( std::dynamic_pointer_cast< reference_frames::AerodynamicAngleCalculator >(
-                          dependentOrientationCalculator_ ) == NULL ) )
+                          dependentOrientationCalculator_ ) == nullptr ) )
             {
                 reference_frames::setAerodynamicDependentOrientationCalculatorClosure(
                             dependentOrientationCalculator_,
@@ -752,9 +752,9 @@ public:
                                 dependentOrientationCalculator ) );
             }
             else if( ( std::dynamic_pointer_cast< reference_frames::AerodynamicAngleCalculator >(
-                           dependentOrientationCalculator_ ) != NULL ) &&
+                           dependentOrientationCalculator_ ) != nullptr ) &&
                      ( std::dynamic_pointer_cast< reference_frames::AerodynamicAngleCalculator >(
-                           dependentOrientationCalculator ) == NULL ) )
+                           dependentOrientationCalculator ) == nullptr ) )
             {
                 reference_frames::setAerodynamicDependentOrientationCalculatorClosure(
                             dependentOrientationCalculator,
@@ -806,7 +806,7 @@ public:
         aerodynamicFlightConditions_ = aerodynamicFlightConditions;
 
         // If dependentOrientationCalculator_ object already exists, provide a warning and create closure between the two
-        if( dependentOrientationCalculator_ != NULL )
+        if( dependentOrientationCalculator_ != nullptr )
         {
             reference_frames::setAerodynamicDependentOrientationCalculatorClosure(
                         dependentOrientationCalculator_, aerodynamicFlightConditions_->getAerodynamicAngleCalculator( ) );
@@ -817,7 +817,7 @@ public:
         }
 
         // Create closure between rotational ephemeris and aerodynamic angle calculator.
-        if( rotationalEphemeris_ != NULL )
+        if( rotationalEphemeris_ != nullptr )
         {
             reference_frames::setAerodynamicDependentOrientationCalculatorClosure(
                         rotationalEphemeris_, aerodynamicFlightConditions_->getAerodynamicAngleCalculator( )  );
@@ -982,7 +982,7 @@ public:
 
     //! Function to set container object with hardware systems present on/in body
     /*!
-     * Function to set container object with hardware systems present on/in body (typically only non-NULL for a vehicle).
+     * Function to set container object with hardware systems present on/in body (typically only non-nullptr for a vehicle).
      * \param vehicleSystems Container object with hardware systems present on/in body.
      */
     void setVehicleSystems( const std::shared_ptr< system_models::VehicleSystems > vehicleSystems )
@@ -1028,7 +1028,7 @@ public:
      */
     void updateMass( const double time )
     {
-        if( bodyMassFunction_ != NULL )
+        if( bodyMassFunction_ != nullptr )
         {
             currentMass_ = bodyMassFunction_( time );
         }
@@ -1115,7 +1115,7 @@ public:
     void updateConstantEphemerisDependentMemberQuantities( )
     {
         if( std::dynamic_pointer_cast< gravitation::TimeDependentSphericalHarmonicsGravityField >(
-                    gravityFieldModel_ ) != NULL )
+                    gravityFieldModel_ ) != nullptr )
         {
             std::dynamic_pointer_cast< gravitation::TimeDependentSphericalHarmonicsGravityField >(
                         gravityFieldModel_ )->updateCorrectionFunctions( );
@@ -1236,7 +1236,7 @@ private:
     //! List of ground station objects on Body
     std::map< std::string, std::shared_ptr< ground_stations::GroundStation > > groundStationMap;
 
-    //! Container object with hardware systems present on/in body (typically only non-NULL for a vehicle).
+    //! Container object with hardware systems present on/in body (typically only non-nullptr for a vehicle).
     std::shared_ptr< system_models::VehicleSystems > vehicleSystems_;
 
 };

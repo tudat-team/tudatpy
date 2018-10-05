@@ -170,7 +170,6 @@ BOOST_AUTO_TEST_CASE( testSofaEarthRotation )
     BOOST_CHECK_SMALL( std::fabs( directEarthRotationAngle - earthRotationAngle ), 1.0E-12 );
 }
 
-
 BOOST_AUTO_TEST_SUITE_END( )
 
 } // namespace unit_tests

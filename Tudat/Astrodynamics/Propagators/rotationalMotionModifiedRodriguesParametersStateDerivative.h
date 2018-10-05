@@ -195,6 +195,14 @@ private:
 
 };
 
+extern template class RotationalMotionModifiedRodriguesParametersStateDerivative< double, double >;
+
+#if( BUILD_EXTENDED_PRECISION_PROPAGATION_TOOLS )
+extern template class RotationalMotionModifiedRodriguesParametersStateDerivative< long double, double >;
+extern template class RotationalMotionModifiedRodriguesParametersStateDerivative< double, Time >;
+extern template class RotationalMotionModifiedRodriguesParametersStateDerivative< long double, Time >;
+#endif
+
 } // namespace propagators
 
 } // namespace tudat
