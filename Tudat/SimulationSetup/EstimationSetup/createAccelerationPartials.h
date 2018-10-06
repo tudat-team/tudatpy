@@ -11,7 +11,7 @@
 #ifndef TUDAT_CREATEACCELERATIONPARTIALS_H
 #define TUDAT_CREATEACCELERATIONPARTIALS_H
 
-#include <boost/make_shared.hpp>
+#include <memory.h>
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/accelerationModel.h"
 
@@ -30,7 +30,6 @@
 #include "Tudat/SimulationSetup/EstimationSetup/createCartesianStatePartials.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/accelerationModelTypes.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/AccelerationPartials/tidalLoveNumberPartialInterface.h"
-
 
 namespace tudat
 {
