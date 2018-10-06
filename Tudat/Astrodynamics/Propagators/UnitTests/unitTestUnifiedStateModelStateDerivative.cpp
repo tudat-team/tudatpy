@@ -380,7 +380,7 @@ BOOST_AUTO_TEST_CASE( testUnifiedStateModelPopagatorForSphericalHarmonicCentralB
                 accelerationsOfVehicle[ "Sun" ].push_back( std::make_shared< AccelerationSettings >(
                                                                basic_astrodynamics::cannon_ball_radiation_pressure ) );
             }
-            accelerationMap[  "Vehicle" ] = accelerationsOfVehicle;
+            accelerationMap[ "Vehicle" ] = accelerationsOfVehicle;
             bodiesToPropagate.push_back( "Vehicle" );
             centralBodies.push_back( "Earth" );
             basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
