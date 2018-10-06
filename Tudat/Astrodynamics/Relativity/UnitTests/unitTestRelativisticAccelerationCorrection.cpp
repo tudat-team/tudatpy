@@ -268,7 +268,7 @@ BOOST_AUTO_TEST_CASE( testLenseThirring )
             accelerationsOfAsterix[ "Earth" ].push_back( std::make_shared< RelativisticAccelerationCorrectionSettings >(
                                                              false, false, true, "Sun" ) );
         }
-        accelerationMap[  "Asterix" ] = accelerationsOfAsterix;
+        accelerationMap[ "Asterix" ] = accelerationsOfAsterix;
 
         // Create acceleration models and propagation settings.
         basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
