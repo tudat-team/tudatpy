@@ -213,7 +213,6 @@ public:
     //! Constructor
     /*!
      * \param baseFrameName Name of base frame (typically GCRS, which is default)
-     * \param targetFrameName baseFrameName Target of base frame (typically ITRS, which is default)
      * \param timeScale Time scale in which input to the rotation model class is provided, default TDB
      * \param nutationTheory IAU precession-nutation theory that is to be used.
      * \param eopFile Name of EOP file that is to be used
@@ -224,7 +223,6 @@ public:
     GcrsToItrsRotationModelSettings(
             const basic_astrodynamics::IAUConventions nutationTheory = basic_astrodynamics::iau_2006,
             const std::string baseFrameName = "GCRS",
-            const std::string targetFrameName = "ITRS",
             const std::string& eopFile = input_output::getEarthOrientationDataFilesPath( ) + "eopc04_08_IAU2000.62-now.txt",
             const basic_astrodynamics::TimeScales inputTimeScale = basic_astrodynamics::tdb_scale,
             const std::shared_ptr< EopCorrectionSettings > ut1CorrectionSettings =
@@ -249,7 +247,7 @@ public:
                     "polarMotionLibrationFundamentalArgumentMultipliersQuasiDiurnalOnly.txt",
                     input_output::getEarthOrientationDataFilesPath( ) +
                     "polarMotionOceanTidesFundamentalArgumentMultipliers.txt" } ) ):
-        RotationModelSettings( gcrs_to_itrs_rotation_model, baseFrameName, targetFrameName ),
+        RotationModelSettings( gcrs_to_itrs_rotation_model, baseFrameName, "ITRS" ),
         inputTimeScale_( inputTimeScale ), nutationTheory_( nutationTheory ), eopFile_( eopFile ),
         eopFileFormat_( "C04" ), ut1CorrectionSettings_( ut1CorrectionSettings ),
         polarMotionCorrectionSettings_( polarMotionCorrectionSettings ){ }
