@@ -75,24 +75,24 @@ set(JSONINTERFACE_HEADERS
 )
 
 if( BUILD_WITH_ESTIMATION_TOOLS )
-    set(JSONINTERFACE_SOURCES
-        ${JSONINTERFACE_SOURCES}
-        "${SRCROOT}${JSONINTERFACEDIR}/Estimation/parameter.cpp"
-        "${SRCROOT}${JSONINTERFACEDIR}/Estimation/observation.cpp"
-        "${SRCROOT}${JSONINTERFACEDIR}/Estimation/orbitDetermination.cpp"
+#    set(JSONINTERFACE_SOURCES
+#        ${JSONINTERFACE_SOURCES}
+#        "${SRCROOT}${JSONINTERFACEDIR}/Estimation/parameter.cpp"
+#        "${SRCROOT}${JSONINTERFACEDIR}/Estimation/observation.cpp"
+#        "${SRCROOT}${JSONINTERFACEDIR}/Estimation/orbitDetermination.cpp"
         "${SRCROOT}${JSONINTERFACEDIR}/jsonInterfaceVariational.cpp"
-        "${SRCROOT}${JSONINTERFACEDIR}/jsonEstimationInterface.cpp"
-    )
+#        "${SRCROOT}${JSONINTERFACEDIR}/jsonEstimationInterface.cpp"
+#    )
 
-    # Set the header files.
-    set(JSONINTERFACE_HEADERS
-        ${JSONINTERFACE_HEADERS}
-        "${SRCROOT}${JSONINTERFACEDIR}/Estimation/parameter.h"
-        "${SRCROOT}${JSONINTERFACEDIR}/Estimation/observation.h"
-        "${SRCROOT}${JSONINTERFACEDIR}/Estimation/orbitDetermination.h"
+#    # Set the header files.
+#    set(JSONINTERFACE_HEADERS
+#        ${JSONINTERFACE_HEADERS}
+#        "${SRCROOT}${JSONINTERFACEDIR}/Estimation/parameter.h"
+#        "${SRCROOT}${JSONINTERFACEDIR}/Estimation/observation.h"
+#        "${SRCROOT}${JSONINTERFACEDIR}/Estimation/orbitDetermination.h"
         "${SRCROOT}${JSONINTERFACEDIR}/jsonInterfaceVariational.h"
-        "${SRCROOT}${JSONINTERFACEDIR}/jsonEstimationInterface.h"
-    )
+#        "${SRCROOT}${JSONINTERFACEDIR}/jsonEstimationInterface.h"
+#    )
 endif( )
 
 # Add static libraries.
@@ -113,14 +113,6 @@ endmacro()
 add_executable(json_interface "${SRCROOT}${JSONINTERFACEDIR}/jsonInterfaceExecute.cpp")
 setup_executable_target(json_interface)
 target_link_libraries(json_interface ${JSON_PROPAGATION_LIBRARIES})
-
-if( BUILD_WITH_ESTIMATION_TOOLS )
-
-#   add_executable(json_estimation_interface "${SRCROOT}${JSONINTERFACEDIR}/jsonEstimationInterface.cpp")
-#   setup_executable_target(json_estimation_interface)
-#   target_link_libraries(json_estimation_interface ${JSON_PROPAGATION_LIBRARIES})
-
-endif( )
 
 # Add unit tests.
 
@@ -277,21 +269,21 @@ setup_custom_test_program(test_JsonInterfaceVariable "")
 target_link_libraries(test_JsonInterfaceVariable ${JSON_PROPAGATION_LIBRARIES})
 
 if( BUILD_WITH_ESTIMATION_TOOLS )
-add_executable(test_JsonInterfaceObservation "${JSON_TESTS_DIR}/unitTestObservation.cpp")
-setup_custom_test_program(test_JsonInterfaceObservation "")
-target_link_libraries(test_JsonInterfaceObservation ${JSON_PROPAGATION_LIBRARIES})
+#add_executable(test_JsonInterfaceObservation "${JSON_TESTS_DIR}/unitTestObservation.cpp")
+#setup_custom_test_program(test_JsonInterfaceObservation "")
+#target_link_libraries(test_JsonInterfaceObservation ${JSON_PROPAGATION_LIBRARIES})
 
-add_executable(test_JsonInterfaceParameter "${JSON_TESTS_DIR}/unitTestParameter.cpp")
-setup_custom_test_program(test_JsonInterfaceParameter "")
-target_link_libraries(test_JsonInterfaceParameter ${JSON_PROPAGATION_LIBRARIES})
+#add_executable(test_JsonInterfaceParameter "${JSON_TESTS_DIR}/unitTestParameter.cpp")
+#setup_custom_test_program(test_JsonInterfaceParameter "")
+#target_link_libraries(test_JsonInterfaceParameter ${JSON_PROPAGATION_LIBRARIES})
 
 add_executable(test_JsonInterfaceSimulationSingleSatelliteVariational "${JSON_TESTS_DIR}/unitTestSimulationSingleSatelliteVariational.cpp")
 setup_custom_test_program(test_JsonInterfaceSimulationSingleSatelliteVariational "")
 target_link_libraries(test_JsonInterfaceSimulationSingleSatelliteVariational ${JSON_PROPAGATION_LIBRARIES})
 
-add_executable(test_JsonInterfaceSimulationSingleSatelliteEstimation "${JSON_TESTS_DIR}/unitTestSimulationSingleSatelliteEstimation.cpp")
-setup_custom_test_program(test_JsonInterfaceSimulationSingleSatelliteEstimation "")
-target_link_libraries(test_JsonInterfaceSimulationSingleSatelliteEstimation ${JSON_PROPAGATION_LIBRARIES})
+#add_executable(test_JsonInterfaceSimulationSingleSatelliteEstimation "${JSON_TESTS_DIR}/unitTestSimulationSingleSatelliteEstimation.cpp")
+#setup_custom_test_program(test_JsonInterfaceSimulationSingleSatelliteEstimation "")
+#target_link_libraries(test_JsonInterfaceSimulationSingleSatelliteEstimation ${JSON_PROPAGATION_LIBRARIES})
 endif( )
 
 

@@ -405,12 +405,6 @@ public:
             std::make_shared< EstimationConvergenceChecker >( ) )
 
     {
-        if( std::dynamic_pointer_cast< PodSettings< ObservationScalarType, TimeType > >( podInput ) != nullptr )
-        {
-            convergenceChecker = std::dynamic_pointer_cast< PodSettings< ObservationScalarType, TimeType > >( podInput )->
-                    getConvergenceChecker( );
-        }
-
         currentParameterEstimate_ = parametersToEstimate_->template getFullParameterValues< ObservationScalarType >( );
 
         // Get size of parameter vector and number of observations (total and per type)
