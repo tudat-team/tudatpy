@@ -68,7 +68,7 @@ public:
      * interpolation.
      * \param boundaryHandling Boundary handling method, in case the independent variable is outside the
      * specified range.
-     * \param defaultExtrapolationValue Pairs of default values to be used for extrapolation, in case
+     * \param defaultExtrapolationValue Pair of default values to be used for extrapolation, in case
      * of use_default_value or use_default_value_with_warning as methods for boundaryHandling.
      */
     LinearInterpolator( const std::map< IndependentVariableType, DependentVariableType >& dataMap,
@@ -139,10 +139,10 @@ public:
      *  \param selectedLookupScheme Identifier of lookupscheme from enum. This algorithm is used
      *  to find the nearest lower data point in the independent variables when requesting
      *  interpolation.
-     * \param boundaryHandling Boundary handling method, in case the independent variable is outside the
-     * specified range.
-     * \param defaultExtrapolationValue Pairs of default values to be used for extrapolation, in case
-     * of use_default_value or use_default_value_with_warning as methods for boundaryHandling.
+     *  \param boundaryHandling Boundary handling method, in case the independent variable is outside the
+     *  specified range.
+     *  \param defaultExtrapolationValue Pair of default values to be used for extrapolation, in case
+     *  of use_default_value or use_default_value_with_warning as methods for boundaryHandling.
      */
     LinearInterpolator( const std::vector< IndependentVariableType >& independentValues,
                         const std::vector< DependentVariableType >& dependentValues,
@@ -186,10 +186,10 @@ public:
      *  \param selectedLookupScheme Identifier of lookupscheme from enum. This algorithm is used
      *  to find the nearest lower data point in the independent variables when requesting
      *  interpolation.
-     * \param boundaryHandling Boundary handling method, in case the independent variable is outside the
-     * specified range.
-     * \param defaultExtrapolationValue Default value to be used for extrapolation, in case
-     * of use_default_value or use_default_value_with_warning as methods for boundaryHandling.
+     *  \param boundaryHandling Boundary handling method, in case the independent variable is outside the
+     *  specified range.
+     *  \param defaultExtrapolationValue Default value to be used for extrapolation, in case
+     *  of use_default_value or use_default_value_with_warning as methods for boundaryHandling.
      */
     LinearInterpolator( const std::vector< IndependentVariableType >& independentValues,
                         const std::vector< DependentVariableType >& dependentValues,

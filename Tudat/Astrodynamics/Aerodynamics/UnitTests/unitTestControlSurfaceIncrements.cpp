@@ -15,7 +15,6 @@
 #include <memory>
 #include <boost/test/floating_point_comparison.hpp>
 #include <boost/test/unit_test.hpp>
-#include <boost/assign/list_of.hpp>
 
 #include <Eigen/Core>
 
@@ -121,7 +120,8 @@ BOOST_AUTO_TEST_CASE( testControlSurfaceIncrementInterface )
             getApolloCoefficientInterface( );
     std::shared_ptr< ControlSurfaceIncrementAerodynamicInterface > controlSurfaceInterface =
             std::make_shared< CustomControlSurfaceIncrementAerodynamicInterface >(
-                &dummyControlIncrements, boost::assign::list_of( angle_of_attack_dependent )( control_surface_deflection_dependent ) );
+                &dummyControlIncrements,
+                std::vector< AerodynamicCoefficientsIndependentVariables >{ angle_of_attack_dependent, control_surface_deflection_dependent } );
     std::map< std::string, std::shared_ptr< ControlSurfaceIncrementAerodynamicInterface >  > controlSurfaceList;
     controlSurfaceList[ "TestSurface" ] = controlSurfaceInterface;
     coefficientInterfaceWithIncrements->setControlSurfaceIncrements( controlSurfaceList );
@@ -246,7 +246,7 @@ BOOST_AUTO_TEST_CASE( testControlSurfaceIncrementInterfaceInPropagation )
     std::shared_ptr< ControlSurfaceIncrementAerodynamicInterface > controlSurfaceInterface =
             std::make_shared< CustomControlSurfaceIncrementAerodynamicInterface >(
                 &dummyControlIncrements,
-                boost::assign::list_of( angle_of_attack_dependent )( control_surface_deflection_dependent ) );
+                std::vector< AerodynamicCoefficientsIndependentVariables >{ angle_of_attack_dependent, control_surface_deflection_dependent } );
     std::map< std::string, std::shared_ptr< ControlSurfaceIncrementAerodynamicInterface >  > controlSurfaceList;
     controlSurfaceList[ "TestSurface" ] = controlSurfaceInterface;
     bodyMap[ "Apollo" ]->getAerodynamicCoefficientInterface( )->setControlSurfaceIncrements( controlSurfaceList );

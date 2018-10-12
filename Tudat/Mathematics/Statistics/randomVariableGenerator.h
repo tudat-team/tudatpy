@@ -113,7 +113,7 @@ private:
  *  Function to create a random number generating function from a continuous univariate distribution implemented in boost
  *  \param boostDistribution Type of distribution of which a random variable class is to be generated
  *  \param parameters Free parameters of requested distribution (for instance mean and standard deviation for Gaussian
- *  distribution, see implementation for order of parameters, if relevant)     * \param seed Seed of random number generator.
+ *  distribution, see implementation for order of parameters, if relevant).
  *  \param seed Seed of random number generator.
  *  \return Random number generator according to given distribution.
  */
@@ -127,7 +127,7 @@ std::function< double( ) > createBoostContinuousRandomVariableGeneratorFunction(
  *  Function to create a random number generator from a continuous univariate distribution implemented in boost
  *  \param boostDistribution Type of distribution of which a random variable class is to be generated
  *  \param parameters Free parameters of requested distribution (for instance mean and standard deviation for Gaussian
- *  distribution, see implementation for order of parameters, if relevant)     * \param seed Seed of random number generator.
+ *  distribution, see implementation for order of parameters, if relevant).
  *  \param seed Seed of random number generator.
  *  \return Random number generator according to given distribution.
  */

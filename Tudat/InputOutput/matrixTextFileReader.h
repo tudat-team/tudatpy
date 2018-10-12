@@ -46,7 +46,8 @@ namespace input_output
  * \param separators Separators used, every character in the string will be used as separators.
  *         (multiple seperators possible).
  * \param skipLinesCharacter Skip lines starting with this character.
- * \return The datamatrix.
+ * \param numberOfHeaderLines Number of header lines, i.e., number of lines to be skipped at the beginning of the file.
+ * \return The data matrix.
  */
 template< typename ScalarType = double >
 Eigen::Matrix< ScalarType, Eigen::Dynamic, Eigen::Dynamic > readMatrixFromFile(
@@ -106,7 +107,7 @@ Eigen::Matrix< ScalarType, Eigen::Dynamic, Eigen::Dynamic > readMatrixFromFile(
     // If there are no lines, return an empty matrix.
     if ( lines_.empty( ) )
     {
-        return Eigen::MatrixXd( );
+        return Eigen::Matrix< ScalarType, Eigen::Dynamic, Eigen::Dynamic >( );
     }
 
     const std::string realSeparators = std::string( separators ) + " ";
@@ -119,7 +120,7 @@ Eigen::Matrix< ScalarType, Eigen::Dynamic, Eigen::Dynamic > readMatrixFromFile(
 
     // Initialize the matrix with sizes obtained from the number of lines and the entries in the
     // first line.
-    Eigen::MatrixXd dataMatrix_( lines_.size( ), numberOfColumns );
+    Eigen::Matrix< ScalarType, Eigen::Dynamic, Eigen::Dynamic > dataMatrix_( lines_.size( ), numberOfColumns );
     for ( int rowIndex = 0; rowIndex < dataMatrix_.rows( ); rowIndex++ )
     {
         lineSplit_.clear( );

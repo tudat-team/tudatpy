@@ -8,7 +8,6 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-
 #ifndef TUDAT_TABULATEDGRAVITYFIELDVARIATIONS_H
 #define TUDAT_TABULATEDGRAVITYFIELDVARIATIONS_H
 
@@ -134,6 +133,7 @@ private:
      */
     std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > >
     variationInterpolator_;
+
 };
 
 } // namespace gravitation
