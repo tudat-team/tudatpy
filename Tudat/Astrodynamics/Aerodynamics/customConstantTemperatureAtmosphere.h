@@ -113,7 +113,7 @@ public:
 
     //! Typedef for density function.
     typedef std::function< double( const double, const double,
-                                     const double, const double ) > DensityFunction;
+                                   const double, const double ) > DensityFunction;
 
     //! Default constructor.
     /*!

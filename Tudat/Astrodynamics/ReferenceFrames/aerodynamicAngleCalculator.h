@@ -361,7 +361,7 @@ getAerodynamicForceTransformationFunction(
         const std::shared_ptr< AerodynamicAngleCalculator > aerodynamicAngleCalculator,
         const AerodynamicsReferenceFrames accelerationFrame,
         const std::function< Eigen::Quaterniond( ) > bodyFixedToInertialFrameFunction =
-        [](){ return Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) ); },
+        [ ]( ){ return Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) ); },
         const AerodynamicsReferenceFrames propagationFrame = inertial_frame );
 
 //! Wrapper class to set closure between an imposed orientation of a body and its bank, sideslip and attack angles.
@@ -446,6 +446,7 @@ private:
 
     //! Current rotation matrix from body-fixed to trajectory, as computed by last call to updateAngles function.
      Eigen::Matrix3d currentRotationFromBodyToTrajectoryFrame_;
+
 };
 
 //! Function to make aerodynamic angle computation consistent with imposed body-fixed to inertial rotation.
@@ -484,4 +485,5 @@ void setAerodynamicDependentOrientationCalculatorClosure(
 } // namespace reference_frames
 
 } // namespace tudat
+
 #endif // TUDAT_AERODYNAMICANGLECALCULATOR_H

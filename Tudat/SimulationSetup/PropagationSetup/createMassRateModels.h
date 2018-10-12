@@ -134,7 +134,6 @@ std::shared_ptr< basic_astrodynamics::MassRateModel > createMassRateModel(
  * environment models.
  * \param bodyMap List of pointers to body objects; defines the full simulation environment.
  * \param massRateModelSettings Settings for the mass rate models that are to be created (key is body id).
- * \param bodyMap List of pointers to body objects; defines the full simulation environment.
  * \param accelerationModels List of acceleration models that are used during numerical propagation (empty by default).
  * \return Mass rate models that are to be used during numerical propagation (key is body id)..
  */

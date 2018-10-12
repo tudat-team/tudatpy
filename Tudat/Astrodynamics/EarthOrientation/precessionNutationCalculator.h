@@ -94,6 +94,9 @@ public:
 
 private:
 
+    //! IAU precession-nutation theory that is to be used.
+    basic_astrodynamics::IAUConventions precessionNutationTheory_;
+
     //! Interpolator for daily measured values of precession-nutation corrections.
     /*!
      *  Interpolator taking UTC time since J2000 as input and returning
@@ -109,8 +112,6 @@ private:
      */
     std::function< std::pair< Eigen::Vector2d, double > ( const double ) > nominalCipPositionFunction_;
 
-    //! IAU precession-nutation theory that is to be used.
-    basic_astrodynamics::IAUConventions precessionNutationTheory_;
 };
 
 }

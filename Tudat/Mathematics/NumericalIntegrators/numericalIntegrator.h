@@ -17,7 +17,6 @@
 
 #include <functional>
 #include <memory>
-#include <boost/lambda/lambda.hpp>
 
 #include <Eigen/Core>
 
@@ -61,7 +60,9 @@ public:
      * \param stateDerivativeFunction State derivative function.
      */
     NumericalIntegrator( const StateDerivativeFunction& stateDerivativeFunction ) :
-        stateDerivativeFunction_( stateDerivativeFunction ) { }
+        stateDerivativeFunction_( stateDerivativeFunction ),
+        propagationTerminationFunction_( [ = ]( const double, const double ){ return false; } )
+    { }
 
     //! Default virtual destructor.
     /*!
@@ -254,7 +255,8 @@ protected:
      *  By default, this function evaluates always to false, so the propagation termination conditions will not be
      *  checked during the integration subteps.
      */
-    std::function< bool( const double, const double ) > propagationTerminationFunction_ = boost::lambda::constant( false );
+    std::function< bool( const double, const double ) > propagationTerminationFunction_;
+
 };
 
 

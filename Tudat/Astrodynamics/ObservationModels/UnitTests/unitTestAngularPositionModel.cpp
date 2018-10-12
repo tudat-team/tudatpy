@@ -72,7 +72,7 @@ BOOST_AUTO_TEST_CASE( testAngularPositionModel )
     linkEnds[ receiver ] = std::make_pair( "Mars" , ""  );
 
     // Create light-time correction settings
-    std::vector< std::string > lightTimePerturbingBodies = boost::assign::list_of( "Sun" );
+    std::vector< std::string > lightTimePerturbingBodies = { "Sun" };
     std::vector< std::shared_ptr< LightTimeCorrectionSettings > > lightTimeCorrectionSettings;
     lightTimeCorrectionSettings.push_back( std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >(
                                                 lightTimePerturbingBodies ) );

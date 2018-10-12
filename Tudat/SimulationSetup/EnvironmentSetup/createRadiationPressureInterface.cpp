@@ -120,7 +120,7 @@ std::shared_ptr< electro_magnetism::RadiationPressureInterface > createRadiation
         }
         else
         {
-            radiatedPowerFunction = [=](){ return
+            radiatedPowerFunction = [ = ]( ){ return
                         defaultRadiatedPowerValues.at(
                             radiationPressureInterfaceSettings->getSourceBody( ) ); };
         }

@@ -12,7 +12,6 @@
 #define TUDAT_CREATEFLIGHTCONDITIONS_H
 
 #include <boost/multi_array.hpp>
-#include <boost/assign/list_of.hpp>
 
 #include <vector>
 

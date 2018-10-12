@@ -124,9 +124,9 @@ BOOST_AUTO_TEST_CASE( testShapeModels )
 
         calculatedAltitute = getAltitudeFromNonBodyFixedPositionFunctions(
                     shapeModel, dummyTestRotation * inertialTestCartesianPosition,
-                    [&]( ){ return
+                    [ & ]( ){ return
                         Eigen::Vector3d( dummyTestRotation * bodyPosition ); },
-                    [&]( ){ return dummyTestRotation.inverse( ); } );
+                    [ & ]( ){ return dummyTestRotation.inverse( ); } );
         BOOST_CHECK_SMALL( calculatedAltitute - testGeodeticPosition.x( ), 1.0E-4 );
 
     }

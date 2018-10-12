@@ -17,7 +17,6 @@
 #include <iostream>
 #include <unordered_map>
 
-#include <boost/make_shared.hpp>
 #include <Eigen/Core>
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/accelerationModelTypes.h"
@@ -166,15 +165,14 @@ public:
             std::shared_ptr< DependentVariableSaveSettings >( ),
                                  const double printInterval = TUDAT_NAN ):
         PropagatorSettings< StateScalarType >( initialBodyStates, false ),
-        stateType_( stateType ),
-        terminationSettings_( terminationSettings ), dependentVariablesToSave_( dependentVariablesToSave ),
-        printInterval_( printInterval){ }
+        stateType_( stateType ), terminationSettings_( terminationSettings ),
+        dependentVariablesToSave_( dependentVariablesToSave ), printInterval_( printInterval)
+    { }
 
     //! Virtual destructor.
     virtual ~SingleArcPropagatorSettings( ){ }
 
-
-    //!Type of state being propagated
+    //! Type of state being propagated.
     IntegratedStateType getStateType( )
     {
         return stateType_;
@@ -281,11 +279,11 @@ int getConcatenatedStateSize(
     return vectorSize;
 }
 
-//! Function to concatenate the initial states for a list of single-arc propagations into a single list
+//! Function to concatenate the initial states for a list of single-arc propagations into a single list.
 /*!
- *  Function to concatenate the initial states for a list of single-arc propagations into a single list
+ *  Function to concatenate the initial states for a list of single-arc propagations into a single list.
  *  \param singleArcPropagatorSettings List of single-arc propagation settings for which the initial states are to be
- *  concatenated into a single vector
+ *  concatenated into a single vector.
  *  \return Vector with concatenated initial states from singleArcPropagatorSettings.
  */
 template< typename StateScalarType = double >

@@ -767,7 +767,7 @@ public:
             dynamicsSimulator_->integrateEquationsOfMotion( initialStateEstimate );
 
             // Integrate variational equations.
-            dynamicsStateDerivative_->setPropagationSettings( boost::assign::list_of( translational_state ), 0, 1 );
+            dynamicsStateDerivative_->setPropagationSettings( { translational_state }, 0, 1 );
             dynamicsStateDerivative_->resetFunctionEvaluationCounter( );
 
             Eigen::MatrixXd initialVariationalState = this->createInitialVariationalEquationsSolution( );
@@ -1352,7 +1352,7 @@ public:
             {
                 // Propagate only variational equations
                 singleArcDynamicsSimulators.at( i )->getDynamicsStateDerivative( )->setPropagationSettings(
-                            boost::assign::list_of( translational_state ), 0, 1 );
+                { translational_state }, 0, 1 );
 
                 // Get initial state for variational equations (single arc)
                 MatrixType initialVariationalState = this->createInitialVariationalEquationsSolution( ).

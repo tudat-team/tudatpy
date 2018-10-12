@@ -104,8 +104,6 @@ public:
      *      will be given the default constant values for Earth, unless they are included in the file map.
      *  \param independentVariablesNames List of independent parameters describing the atmosphere.
      *  \param dependentVariablesNames List of dependent parameters output by the atmosphere.
-     *  \param specificGasConstant The constant specific gas constant of the atmosphere.
-     *  \param ratioOfSpecificHeats The constant ratio of specific heats of the atmosphere.
      *  \param boundaryHandling Method for interpolation behavior when independent variable is out of range.
      *  \param defaultExtrapolationValue Default value to be used for extrapolation, in case of use_default_value or
      *      use_default_value_with_warning as methods for boundaryHandling.
@@ -129,6 +127,9 @@ public:
      *  \param dependentVariablesNames List of dependent parameters output by the atmosphere.
      *  \param specificGasConstant The constant specific gas constant of the atmosphere.
      *  \param ratioOfSpecificHeats The constant ratio of specific heats of the atmosphere.
+     *  \param boundaryHandling Method for interpolation behavior when independent variable is out of range.
+     *  \param defaultExtrapolationValue Default value to be used for extrapolation, in case of use_default_value or
+     *      use_default_value_with_warning as methods for boundaryHandling.
      */
     TabulatedAtmosphere(
             const std::string& atmosphereTableFile,

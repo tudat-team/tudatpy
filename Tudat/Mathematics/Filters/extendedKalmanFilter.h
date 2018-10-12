@@ -90,7 +90,8 @@ public:
         if ( this->isStateToBeIntegrated_ )
         {
             discreteTimeStateJacobians_ = std::bind( &ExtendedKalmanFilter< IndependentVariableType,
-                                                       DependentVariableType >::generateDiscreteTimeSystemJacobians, this, std::placeholders::_1 );
+                                                     DependentVariableType >::generateDiscreteTimeSystemJacobians, this,
+                                                     std::placeholders::_1 );
         }
     }
 

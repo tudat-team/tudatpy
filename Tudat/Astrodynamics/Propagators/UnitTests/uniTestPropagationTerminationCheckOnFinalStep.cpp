@@ -131,7 +131,7 @@ BOOST_AUTO_TEST_CASE( testAssessPropagationTerminationConditionDuringIntegration
         accelerationsOfAsterix[ "Earth" ].push_back( std::make_shared< AccelerationSettings >(
                                                          basic_astrodynamics::aerodynamic ) );
 
-        accelerationMap[  "Asterix" ] = accelerationsOfAsterix;
+        accelerationMap[ "Asterix" ] = accelerationsOfAsterix;
         bodiesToPropagate.push_back( "Asterix" );
         centralBodies.push_back( "Earth" );
 
@@ -294,7 +294,7 @@ BOOST_AUTO_TEST_CASE( testAssessPropagationTerminationConditionDuringIntegration
         accelerationsOfAsterix[ "Earth" ].push_back( std::make_shared< AccelerationSettings >(
                                                          basic_astrodynamics::aerodynamic ) );
 
-        accelerationMap[  "Asterix" ] = accelerationsOfAsterix;
+        accelerationMap[ "Asterix" ] = accelerationsOfAsterix;
         bodiesToPropagate.push_back( "Asterix" );
         centralBodies.push_back( "Earth" );
 

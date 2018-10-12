@@ -18,10 +18,6 @@
 
 #include <Eigen/Core>
 
-#include <boost/function.hpp>
-#include <boost/shared_ptr.hpp>
-#include <boost/make_shared.hpp>
-
 #include "Tudat/Mathematics/NumericalIntegrators/createNumericalIntegrator.h"
 
 #include "Tudat/Mathematics/Filters/extendedKalmanFilter.h"
@@ -65,6 +61,7 @@ public:
     //! Constructor.
     /*!
      *  Constructor.
+     *  \param filteringTechnique Enumeration denoting the type of filtering technique.
      *  \param systemUncertainty Matrix defining the uncertainty in modeling of the system.
      *  \param measurementUncertainty Matrix defining the uncertainty in modeling of the measurements.
      *  \param filteringStepSize Scalar representing the value of the constant filtering time step.
@@ -73,8 +70,7 @@ public:
      *      a-priori estimate of the state vector.
      *  \param initialCovarianceMatrix Matrix representing the initial (estimated) covariance of the system. It is used as first
      *      a-priori estimate of the covariance matrix.
-     *  \param isStateToBeIntegrated Boolean defining whether the system function needs to be integrated.
-     *  \param integrator Pointer to integrator to be used to propagate state.
+     *  \param integratorSettings Settings for the numerical integrator to be used to propagate state.
      */
     FilterSettings( const AvailableFilteringTechniques filteringTechnique,
                     const DependentMatrix& systemUncertainty,
@@ -243,6 +239,7 @@ public:
  *  Function to create a filter object with the use of filter settings.
  *  \tparam IndependentVariableType Type of independent variable. Default is double.
  *  \tparam DependentVariableType Type of dependent variable. Default is double.
+ *  \param filterSettings Settings for the creation of the filter object.
  *  \param systemFunction Function returning the state as a function of time and state vector. Can be a differential
  *      equation if the integratorSettings is set (i.e., if it is not a nullptr).
  *  \param measurementFunction Function returning the measurement as a function of time and state.
@@ -299,8 +296,8 @@ createFilter( const std::shared_ptr< FilterSettings< IndependentVariableType, De
         }
 
         // Check that optional inputs are present
-        if ( stateJacobianFunction == nullptr || stateNoiseJacobianFunction == nullptr ||
-             measurementJacobianFunction == nullptr || measurementNoiseJacobianFunction == nullptr )
+        if ( ( stateJacobianFunction == nullptr ) || ( stateNoiseJacobianFunction == nullptr ) ||
+             ( measurementJacobianFunction == nullptr ) || ( measurementNoiseJacobianFunction == nullptr ) )
         {
             throw std::runtime_error( "Error while creating extended Kalman filter object. An ExtendedKalmanFilter object "
                                       "requires the input of the four Jacobian functions for state and measurement (including noise)." );

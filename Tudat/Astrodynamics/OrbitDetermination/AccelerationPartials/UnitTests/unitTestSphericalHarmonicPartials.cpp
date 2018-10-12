@@ -497,8 +497,7 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicAccelerationPartial )
     NamedBodyMap bodyMap;
     bodyMap[ "Earth" ] = earth;
     bodyMap[ "Vehicle" ] = vehicle;
-    bodyMap[ "Moon" ] = createBodies( getDefaultBodySettings(
-                                          boost::assign::list_of( "Moon" ) ) ).at( "Moon" );
+    bodyMap[ "Moon" ] = createBodies( getDefaultBodySettings( { "Moon" } ) ).at( "Moon" );
 
     std::shared_ptr< ephemerides::SimpleRotationalEphemeris > simpleRotationalEphemeris =
             std::make_shared< ephemerides::SimpleRotationalEphemeris >(
@@ -594,13 +593,13 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicAccelerationPartial )
                                   2, 1, 5, 4, "Earth", spherical_harmonics_sine_coefficient_block ) );
 
     parameterNames.push_back( std::make_shared< SingleDegreeVariableTidalLoveNumberEstimatableParameterSettings >(
-                                  "Earth", 2, boost::assign::list_of( 2 )( 0 )( 1 ), "", false ) );
+                                  "Earth", 2, std::vector< int >{ 2, 0, 1 }, "", false ) );
     parameterNames.push_back( std::make_shared< FullDegreeTidalLoveNumberEstimatableParameterSettings >(
                                   "Earth", 2, "Moon", true ) );
     parameterNames.push_back( std::make_shared< FullDegreeTidalLoveNumberEstimatableParameterSettings >(
                                   "Earth", 3, "", false ) );
     parameterNames.push_back( std::make_shared< SingleDegreeVariableTidalLoveNumberEstimatableParameterSettings >(
-                                  "Earth", 3, boost::assign::list_of( 0 )( 3 ), "", true ) );
+                                  "Earth", 3, std::vector< int >{ 0, 3 }, "", true ) );
 
     std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > parameterSet =
             createParametersToEstimate( parameterNames, bodyMap );
@@ -611,7 +610,7 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicAccelerationPartial )
         std::vector< std::shared_ptr< EstimatableParameterSettings > > wrongParameterNames;
         wrongParameterNames.resize( 1 );
         wrongParameterNames[ 0 ] = std::make_shared< SingleDegreeVariableTidalLoveNumberEstimatableParameterSettings >(
-                    "Earth", 2, boost::assign::list_of( 2 )( 0 )( 1 ), "Sun", false );
+                    "Earth", 2, std::vector< int >{ 2, 0, 1 }, "Sun", false );
         try
         {
             std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > parameterSet =
@@ -628,7 +627,7 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicAccelerationPartial )
         deformingBodyNames.push_back( "Sun" );
 
         wrongParameterNames[ 0 ] = std::make_shared< SingleDegreeVariableTidalLoveNumberEstimatableParameterSettings >(
-                    "Earth", 2, boost::assign::list_of( 2 )( 0 )( 1 ), deformingBodyNames, false );
+                    "Earth", 2, std::vector< int >{ 2, 0, 1 }, deformingBodyNames, false );
         isExceptionCaught = false;
         try
         {
