@@ -65,7 +65,7 @@ BOOST_AUTO_TEST_CASE( testSecondDegreeGravitationalTorquePartials )
     NamedBodyMap bodyMap;
     bodyMap[ "Mars" ] = std::make_shared< Body >( );
     bodyMap[ "Mars" ]->setEphemeris( std::make_shared< ephemerides::ConstantEphemeris >(
-                                         boost::lambda::constant( Eigen::Vector6d::Zero( ) ) ) );
+                                         [ = ]( ){ return Eigen::Vector6d::Zero( ); } ) );
     bodyMap[ "Mars" ]->setGravityFieldModel(
                 std::make_shared< gravitation::GravityFieldModel >(
                     spice_interface::getBodyGravitationalParameter( "Mars" ) ) );
@@ -325,7 +325,7 @@ BOOST_AUTO_TEST_CASE( testInertialTorquePartials )
     NamedBodyMap bodyMap;
     bodyMap[ "Mars" ] = std::make_shared< Body >( );
     bodyMap[ "Mars" ]->setEphemeris( std::make_shared< ephemerides::ConstantEphemeris >(
-                                         boost::lambda::constant( Eigen::Vector6d::Zero( ) ) ) );
+                                         [ = ]( ){ return Eigen::Vector6d::Zero( ); } ) );
     bodyMap[ "Mars" ]->setGravityFieldModel(
                 std::make_shared< gravitation::GravityFieldModel >(
                     spice_interface::getBodyGravitationalParameter( "Mars" ) ) );
@@ -639,7 +639,7 @@ BOOST_AUTO_TEST_CASE( testConstantTorquePartials )
     NamedBodyMap bodyMap;
     bodyMap[ "Mars" ] = std::make_shared< Body >( );
     bodyMap[ "Mars" ]->setEphemeris( std::make_shared< ephemerides::ConstantEphemeris >(
-                                         boost::lambda::constant( Eigen::Vector6d::Zero( ) ) ) );
+                                         [ = ]( ){ return Eigen::Vector6d::Zero( ); } ) );
     bodyMap[ "Mars" ]->setGravityFieldModel(
                 std::make_shared< gravitation::GravityFieldModel >(
                     spice_interface::getBodyGravitationalParameter( "Mars" ) ) );

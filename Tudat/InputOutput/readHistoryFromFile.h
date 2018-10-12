@@ -31,7 +31,7 @@ namespace input_output
  *  Function to read a time history of Eigen MatrixXd data from a file, as a map with time (key) and associated MatrixXd (value)
  *  \param singleMatrixRows Number of rows per matrix
  *  \param singleMatrixColumns Number of columns per matrix
- *  \param singleMatrixColumns File name to load
+ *  \param fileName File name to load
  *  \return Matrix history from file.
  */
 template< typename TimeType, typename StateScalarType >

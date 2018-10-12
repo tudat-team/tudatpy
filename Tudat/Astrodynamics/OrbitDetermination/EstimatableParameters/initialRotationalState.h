@@ -32,7 +32,8 @@ public:
     /*!
      * Constructor, sets initial value of rotational state.
      * \param associatedBody Body for which initial state is to be estimated.
-     * \param initialRotationalState Current value of initial state (w.r.t. centralBody)
+     * \param initialRotationalState Current value of initial state (w.r.t. centralBody).
+     * \param inertiaTensorFunction Function returning the value of the inertia tensor.
      * \param centralBody Body w.r.t. which the initial state is to be estimated.
      * \param frameOrientation Orientation of the frame in which the state is defined.
      */

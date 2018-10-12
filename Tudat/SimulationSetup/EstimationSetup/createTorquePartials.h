@@ -47,6 +47,7 @@ std::shared_ptr< acceleration_partials::TorquePartial > createConstantTorqueRota
  *  \param torqueModel Torque model for which a partial derivative is to be computed.
  *  \param acceleratedBody Pair of name and object of body undergoing torque
  *  \param acceleratingBody Pair of name and object of body exerting torque
+ *  \param torqueVector List of torques exerted on body
  *  \param bodyMap List of all body objects
  *  \param parametersToEstimate List of parameters that are to be estimated. Empty by default, only required for selected
  *  types of partials (e.g. spherical harmonic torque w.r.t. rotational parameters).

@@ -141,7 +141,7 @@ Eigen::VectorXd getZeroProperModeRotationalState(
             std::make_shared< basic_astrodynamics::DissipativeTorqueModel >(
                 std::bind( &simulation_setup::Body::getCurrentAngularVelocityVectorInLocalFrame,
                            bodyMap.at( torqueModelMap.begin( )->first ) ),
-                boost::lambda::constant( Eigen::Matrix3d::Zero( ) ),
+                [ = ]( ){ return Eigen::Matrix3d::Zero( ); },
                 bodyMeanRotationRate );
     torqueModelMap[ torqueModelMap.begin( )->first ][ torqueModelMap.begin( )->first ].push_back(
                 dissipativeTorque );

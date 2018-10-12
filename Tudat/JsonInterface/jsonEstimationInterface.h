@@ -182,11 +182,11 @@ private:
 
 extern template class JsonEstimationManager< double, double >;
 
-#if( BUILD_EXTENDED_PRECISION_PROPAGATION_TOOLS )
-extern template class JsonEstimationManager< Time, long double >;
-extern template class JsonEstimationManager< double, double >;
-extern template class JsonEstimationManager< Time, long double >;
-#endif
+//#if( BUILD_EXTENDED_PRECISION_PROPAGATION_TOOLS )
+//extern template class JsonEstimationManager< Time, long double >;
+//extern template class JsonEstimationManager< double, double >;
+//extern template class JsonEstimationManager< Time, long double >;
+//#endif
 
 
 } // namespace json_interface

@@ -622,7 +622,7 @@ executePhobosRotationSimulation(
     NamedBodyMap bodyMap;
     bodyMap[ "Mars" ] = std::make_shared< Body >( );
     bodyMap[ "Mars" ]->setEphemeris( std::make_shared< ephemerides::ConstantEphemeris >(
-                                         boost::lambda::constant( Eigen::Vector6d::Zero( ) ) ) );
+                                         [ = ]( ){ return Eigen::Vector6d::Zero( ); } ) );
     bodyMap[ "Mars" ]->setRotationalEphemeris(
                 simulation_setup::createRotationModel( simulation_setup::getDefaultRotationModelSettings(
                                                            "Mars", initialEphemerisTime, finalEphemerisTime ), "Mars" ) );

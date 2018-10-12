@@ -1122,9 +1122,8 @@ public:
     /*!
      * Function to (re)set the body moment-of-inertia tensor and scaled mean-moment of inertia.
      * \param bodyInertiaTensor Body moment-of-inertia tensor.
-     * \param bodyInertiaTensor Body scaled mean-moment of inertia
+     * \param scaledMeanMomentOfInertia Body scaled mean-moment of inertia
      */
-
     void setBodyInertiaTensor( const Eigen::Matrix3d& bodyInertiaTensor, const double scaledMeanMomentOfInertia )
     {
         bodyInertiaTensor_ = bodyInertiaTensor;
