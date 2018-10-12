@@ -13,7 +13,7 @@
 
 #include <vector>
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include <Eigen/Core>
 
@@ -124,9 +124,9 @@ public:
      * \param numberOfParameters Total number of estimated parameters (initial states and other parameters).
      */
     SingleArcCombinedStateTransitionAndSensitivityMatrixInterface(
-            const boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > >
+            const std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > >
             stateTransitionMatrixInterpolator,
-            const boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > >
+            const std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > >
             sensitivityMatrixInterpolator,
             const int numberOfInitialDynamicalParameters,
             const int numberOfParameters ):
@@ -148,9 +148,9 @@ public:
      * \param sensitivityMatrixInterpolator New interpolator returning the sensitivity matrix as a function of time.
      */
     void updateMatrixInterpolators(
-            const boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > >
+            const std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > >
             stateTransitionMatrixInterpolator,
-            const boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > >
+            const std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > >
             sensitivityMatrixInterpolator );
 
     //! Function to get the interpolator returning the state transition matrix as a function of time.
@@ -158,7 +158,7 @@ public:
      * Function to get the interpolator returning the state transition matrix as a function of time.
      * \return Interpolator returning the state transition matrix as a function of time.
      */
-    boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > >
+    std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > >
     getStateTransitionMatrixInterpolator( )
     {
         return stateTransitionMatrixInterpolator_;
@@ -169,7 +169,7 @@ public:
      * Function to get the interpolator returning the sensitivity matrix as a function of time.
      * \return Interpolator returning the sensitivity matrix as a function of time.
      */
-    boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > >
+    std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > >
     getSensitivityMatrixInterpolator( )
     {
         return sensitivityMatrixInterpolator_;
@@ -211,11 +211,11 @@ private:
     Eigen::MatrixXd combinedStateTransitionMatrix_;
 
     //! Interpolator returning the state transition matrix as a function of time.
-    boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > >
+    std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > >
     stateTransitionMatrixInterpolator_;
 
     //! Interpolator returning the sensitivity matrix as a function of time.
-    boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > >
+    std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > >
     sensitivityMatrixInterpolator_;
 };
 
@@ -238,9 +238,9 @@ public:
      * \param numberOfParameters Total number of estimated parameters (initial states and other parameters).
      */
     MultiArcCombinedStateTransitionAndSensitivityMatrixInterface(
-            const std::vector< boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > > >
+            const std::vector< std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > > >
             stateTransitionMatrixInterpolators,
-            const std::vector< boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > > >
+            const std::vector< std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > > >
             sensitivityMatrixInterpolators,
             const std::vector< double >& arcStartTimes,
             const int numberOfInitialDynamicalParameters,
@@ -258,9 +258,9 @@ public:
      * \param arcStartTimes Times at which the multiple arcs start.
      */
     void updateMatrixInterpolators(
-            const std::vector< boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > > >
+            const std::vector< std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > > >
             stateTransitionMatrixInterpolators,
-            const std::vector< boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > > >
+            const std::vector< std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > > >
             sensitivityMatrixInterpolators,
             const std::vector< double >& arcStartTimes );
 
@@ -269,7 +269,7 @@ public:
      * Function to get the vector of interpolators returning the state transition matrix as a function of time.
      * \return Vector of interpolators returning the state transition matrix as a function of time.
      */
-    std::vector< boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > > >
+    std::vector< std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > > >
     getStateTransitionMatrixInterpolators( )
     {
         return stateTransitionMatrixInterpolators_;
@@ -280,7 +280,7 @@ public:
      * Function to get the vector of interpolators returning the sensitivity matrix as a function of time.
      * \return Vector of interpolators returning the sensitivity matrix as a function of time.
      */
-    std::vector< boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > > >
+    std::vector< std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > > >
     getSensitivityMatrixInterpolator( )
     {
         return sensitivityMatrixInterpolators_;
@@ -318,11 +318,11 @@ public:
 private:
 
     //! List of interpolators returning the state transition matrix as a function of time.
-    std::vector< boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > > >
+    std::vector< std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > > >
     stateTransitionMatrixInterpolators_;
 
     //! List of interpolators returning the sensitivity matrix as a function of time.
-    std::vector< boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > > >
+    std::vector< std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > > >
     sensitivityMatrixInterpolators_;
 
     //! Times at which the multiple arcs start
@@ -332,7 +332,7 @@ private:
     int numberOfStateArcs_;
 
     //! Look-up algorithm to determine the arc of a given time.
-    boost::shared_ptr< interpolators::HuntingAlgorithmLookupScheme< double > > lookUpscheme_;
+    std::shared_ptr< interpolators::HuntingAlgorithmLookupScheme< double > > lookUpscheme_;
 
 };
 

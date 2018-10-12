@@ -14,9 +14,6 @@
 #include <string>
 #include <vector>
 
-#include <boost/assign/list_of.hpp>
-
-
 #include "Tudat/SimulationSetup/EnvironmentSetup/body.h"
 #include "Tudat/Astrodynamics/Gravitation/gravityFieldVariations.h"
 #include "Tudat/Mathematics/Interpolators/createInterpolator.h"
@@ -51,12 +48,12 @@ public:
             const double initialTime = 0.0,
             const double finalTime = 0.0,
             const double timeStep = 0.0,
-            const boost::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings =
-            boost::make_shared< interpolators::LagrangeInterpolatorSettings >( 6 ) ):
+            const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings =
+            std::make_shared< interpolators::LagrangeInterpolatorSettings >( 6 ) ):
         interpolatorSettings_( interpolatorSettings ), initialTime_( initialTime ),
         finalTime_( finalTime ), timeStep_( timeStep ){ }
 
-    boost::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings_;
+    std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings_;
 
     //! Start time for interpolator.
     double initialTime_;
@@ -84,10 +81,10 @@ public:
      * \param bodyDeformationType Type of gravity field variation to be used.
      * \param interpolatorSettings Settings that are to be used to create an interpolator for the
      * gravity field variations immediately upon creation (to be used during propagation). Default
-     * is NULL, in which no interpolation is used, and the model is evaluated during propagation.
+     * is nullptr, in which no interpolation is used, and the model is evaluated during propagation.
      */
     GravityFieldVariationSettings( const gravitation::BodyDeformationTypes bodyDeformationType,
-                                   const boost::shared_ptr< ModelInterpolationSettings > interpolatorSettings = NULL ):
+                                   const std::shared_ptr< ModelInterpolationSettings > interpolatorSettings = nullptr ):
         bodyDeformationType_( bodyDeformationType ),
         interpolatorSettings_( interpolatorSettings ){ }
 
@@ -107,9 +104,9 @@ public:
      * \brief Function to retrieve settings that are to be used to create an interpolator for the
      * gravity field variations
      * \return Settings that are to be used to create an interpolator for the gravity field
-     * variations (if not NULL)
+     * variations (if not nullptr)
      */
-    boost::shared_ptr< ModelInterpolationSettings > getInterpolatorSettings( ){ return interpolatorSettings_; }
+    std::shared_ptr< ModelInterpolationSettings > getInterpolatorSettings( ){ return interpolatorSettings_; }
 
 protected:
 
@@ -119,10 +116,10 @@ protected:
     //! Settings that are to be used to create an interpolator for the gravity field variations
     /*!
      * Settings that are to be used to create an interpolator for the gravity field variations
-     * immediately upon creation. If NULL, no interpolation is used, and the model is evaluated
+     * immediately upon creation. If nullptr, no interpolation is used, and the model is evaluated
      * during propagation.
      */
-    boost::shared_ptr< ModelInterpolationSettings > interpolatorSettings_;
+    std::shared_ptr< ModelInterpolationSettings > interpolatorSettings_;
 
 };
 
@@ -142,13 +139,13 @@ public:
      * \param bodyReferenceRadius Reference (typically equatorial) radius of body being deformed
      * \param interpolatorSettings Settings that are to be used to create an interpolator for the
      * gravity field variations immediately upon creation (to be used during propagation). Default
-     * is NULL, in which no interpolation is used, and the model is evaluated during propagation.
+     * is nullptr, in which no interpolation is used, and the model is evaluated during propagation.
      */
     BasicSolidBodyGravityFieldVariationSettings(
             const std::vector< std::string > deformingBodies,
             const std::vector< std::vector< std::complex< double > > > loveNumbers,
             const double bodyReferenceRadius,
-            const boost::shared_ptr< ModelInterpolationSettings > interpolatorSettings = NULL ):
+            const std::shared_ptr< ModelInterpolationSettings > interpolatorSettings = nullptr ):
         GravityFieldVariationSettings( gravitation::basic_solid_body, interpolatorSettings ),
         deformingBodies_( deformingBodies ), loveNumbers_( loveNumbers ),
                 bodyReferenceRadius_( bodyReferenceRadius ){ }
@@ -217,9 +214,9 @@ public:
             const std::map< double, Eigen::MatrixXd > cosineCoefficientCorrections,
             const std::map< double, Eigen::MatrixXd > sineCoefficientCorrections,
             const int minimumDegree, const int minimumOrder,
-            const boost::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings ):
+            const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings ):
         GravityFieldVariationSettings(
-            gravitation::tabulated_variation, boost::make_shared< ModelInterpolationSettings >(
+            gravitation::tabulated_variation, std::make_shared< ModelInterpolationSettings >(
                 TUDAT_NAN, TUDAT_NAN, TUDAT_NAN, interpolatorSettings ) ),
         cosineCoefficientCorrections_( cosineCoefficientCorrections ),
         sineCoefficientCorrections_( sineCoefficientCorrections ),
@@ -289,10 +286,10 @@ private:
  * \param gravityFieldVariationSettings List of settings for gravity field variations
  * \return Interface class containing list of GravityFieldVariations.
  */
-boost::shared_ptr< gravitation::GravityFieldVariationsSet > createGravityFieldModelVariationsSet(
+std::shared_ptr< gravitation::GravityFieldVariationsSet > createGravityFieldModelVariationsSet(
         const std::string& body,
         const NamedBodyMap& bodyMap,
-        const std::vector< boost::shared_ptr< GravityFieldVariationSettings > >&
+        const std::vector< std::shared_ptr< GravityFieldVariationSettings > >&
             gravityFieldVariationSettings );
 
 //! Function to create a single gravity field variation object.
@@ -306,8 +303,8 @@ boost::shared_ptr< gravitation::GravityFieldVariationsSet > createGravityFieldMo
  * \param bodyMap List of body objects in simulations.
  * \return Single gravity field variation object.
  */
-boost::shared_ptr< gravitation::GravityFieldVariations > createGravityFieldVariationsModel(
-        const boost::shared_ptr< GravityFieldVariationSettings > gravityFieldVariationSettings,
+std::shared_ptr< gravitation::GravityFieldVariations > createGravityFieldVariationsModel(
+        const std::shared_ptr< GravityFieldVariationSettings > gravityFieldVariationSettings,
         const std::string body,
         const NamedBodyMap& bodyMap );
 

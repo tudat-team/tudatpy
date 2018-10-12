@@ -12,7 +12,7 @@
 #ifndef TUDAT_SPHERICAL_HARMONICS_GRAVITATIONAL_ACCELERATION_MODEL_BASE_H
 #define TUDAT_SPHERICAL_HARMONICS_GRAVITATIONAL_ACCELERATION_MODEL_BASE_H
 
-#include <boost/function.hpp>
+#include <functional>
 
 namespace tudat
 {
@@ -33,7 +33,7 @@ class SphericalHarmonicsGravitationalAccelerationModelBase
 protected:
 
     //! Typedef for a position-returning function.
-    typedef boost::function< StateMatrix( ) > StateFunction;
+    typedef std::function< StateMatrix( ) > StateFunction;
 
 public:
 
@@ -61,7 +61,7 @@ public:
             const StateFunction positionOfBodyExertingAccelerationFunction,
             const bool isMutualAttractionUsed )
         : subjectPositionFunction( positionOfBodySubjectToAccelerationFunction ),
-          gravitationalParameterFunction( boost::lambda::constant( aGravitationalParameter ) ),
+          gravitationalParameterFunction( [ = ]( ){ return aGravitationalParameter; } ),
           sourcePositionFunction( positionOfBodyExertingAccelerationFunction ),
           isMutualAttractionUsed_( isMutualAttractionUsed )
     { }
@@ -87,7 +87,7 @@ public:
      */
     SphericalHarmonicsGravitationalAccelerationModelBase(
             const StateFunction positionOfBodySubjectToAccelerationFunction,
-            const boost::function< double( ) > aGravitationalParameterFunction,
+            const std::function< double( ) > aGravitationalParameterFunction,
             const StateFunction positionOfBodyExertingAccelerationFunction,
             const bool isMutualAttractionUsed )
         : subjectPositionFunction( positionOfBodySubjectToAccelerationFunction ),
@@ -113,8 +113,8 @@ public:
     void updateBaseMembers( )
     {
         this->gravitationalParameter = this->gravitationalParameterFunction( );
-        this->positionOfBodySubjectToAcceleration = this->subjectPositionFunction( );
-        this->positionOfBodyExertingAcceleration  = this->sourcePositionFunction( );
+        this->positionOfBodySubjectToAcceleration = std::move( this->subjectPositionFunction( ) );
+        this->positionOfBodyExertingAcceleration  = std::move( this->sourcePositionFunction( ) );
     }
 
     //! Function to return the function returning the relevant gravitational parameter.
@@ -122,7 +122,7 @@ public:
      * Function to return the function returning the relevant gravitational parameter.
      * \return Function returning the gravitational parameter used in the computations.
      */
-    boost::function< double( ) > getGravitationalParameterFunction( )
+    std::function< double( ) > getGravitationalParameterFunction( )
     { return gravitationalParameterFunction; }
 
     //! Function to return the function returning position of body exerting acceleration.
@@ -130,7 +130,7 @@ public:
      * Function to return the function returning position of body exerting acceleration.
      * \return Function returning position of body exerting acceleration.
      */
-    boost::function< StateMatrix( ) > getStateFunctionOfBodyExertingAcceleration( )
+    std::function< StateMatrix( ) > getStateFunctionOfBodyExertingAcceleration( )
     { return sourcePositionFunction; }
 
     //! Function to return the function returning position of body subject to acceleration.
@@ -138,7 +138,7 @@ public:
      * Function to return the function returning position of body subject to acceleration.
      * \return Function returning position of body subject to acceleration.
      */
-    boost::function< StateMatrix( ) > getStateFunctionOfBodyUndergoingAcceleration( )
+    std::function< StateMatrix( ) > getStateFunctionOfBodyUndergoingAcceleration( )
     { return subjectPositionFunction; }
 
     //! Function to return whether the mutual attraction is used.
@@ -201,7 +201,7 @@ protected:
     /*!
      * Function returning current gravitational parameter of body exerting acceleration [m^3 s^-2].
      */
-    const boost::function< double( ) > gravitationalParameterFunction;
+    const std::function< double( ) > gravitationalParameterFunction;
 
     //! Gravitational parameter [m^3 s^-2].
     /*!

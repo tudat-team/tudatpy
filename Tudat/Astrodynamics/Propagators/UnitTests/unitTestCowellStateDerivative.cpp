@@ -79,7 +79,7 @@ BOOST_AUTO_TEST_CASE( testCowellPopagatorCentralBodies )
     double buffer = 5.0 * maximumTimeStep;
 
     // Create bodies needed in simulation
-    std::map< std::string, boost::shared_ptr< BodySettings > > bodySettings =
+    std::map< std::string, std::shared_ptr< BodySettings > > bodySettings =
             getDefaultBodySettings( bodyNames, initialEphemerisTime - buffer, finalEphemerisTime + buffer );
     bodySettings[ "Mars" ]->ephemerisSettings->resetFrameOrigin( "Earth" );
     bodySettings[ "Earth" ]->ephemerisSettings->resetFrameOrigin( "Sun" );
@@ -92,28 +92,28 @@ BOOST_AUTO_TEST_CASE( testCowellPopagatorCentralBodies )
 
     // Set accelerations between bodies that are to be taken into account (mutual point mass gravity between all bodies).
     SelectedAccelerationMap accelerationMap;
-    std::map< std::string, std::vector< boost::shared_ptr< AccelerationSettings > > > accelerationsOfEarth;
-    accelerationsOfEarth[ "Sun" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );
-    accelerationsOfEarth[ "Moon" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );
-    accelerationsOfEarth[ "Mars" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );
+    std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfEarth;
+    accelerationsOfEarth[ "Sun" ].push_back( std::make_shared< AccelerationSettings >( central_gravity ) );
+    accelerationsOfEarth[ "Moon" ].push_back( std::make_shared< AccelerationSettings >( central_gravity ) );
+    accelerationsOfEarth[ "Mars" ].push_back( std::make_shared< AccelerationSettings >( central_gravity ) );
     accelerationMap[ "Earth" ] = accelerationsOfEarth;
 
-    std::map< std::string, std::vector< boost::shared_ptr< AccelerationSettings > > > accelerationsOfSun;
-    accelerationsOfSun[ "Moon" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );
-    accelerationsOfSun[ "Earth" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );
-    accelerationsOfSun[ "Mars" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );
+    std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfSun;
+    accelerationsOfSun[ "Moon" ].push_back( std::make_shared< AccelerationSettings >( central_gravity ) );
+    accelerationsOfSun[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( central_gravity ) );
+    accelerationsOfSun[ "Mars" ].push_back( std::make_shared< AccelerationSettings >( central_gravity ) );
     accelerationMap[ "Sun" ] = accelerationsOfSun;
 
-    std::map< std::string, std::vector< boost::shared_ptr< AccelerationSettings > > > accelerationsOfMoon;
-    accelerationsOfMoon[ "Sun" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );
-    accelerationsOfMoon[ "Earth" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );
-    accelerationsOfMoon[ "Mars" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );
+    std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfMoon;
+    accelerationsOfMoon[ "Sun" ].push_back( std::make_shared< AccelerationSettings >( central_gravity ) );
+    accelerationsOfMoon[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( central_gravity ) );
+    accelerationsOfMoon[ "Mars" ].push_back( std::make_shared< AccelerationSettings >( central_gravity ) );
     accelerationMap[ "Moon" ] = accelerationsOfMoon;
 
-    std::map< std::string, std::vector< boost::shared_ptr< AccelerationSettings > > > accelerationsOfMars;
-    accelerationsOfMars[ "Sun" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );
-    accelerationsOfMars[ "Earth" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );
-    accelerationsOfMars[ "Moon" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );
+    std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfMars;
+    accelerationsOfMars[ "Sun" ].push_back( std::make_shared< AccelerationSettings >( central_gravity ) );
+    accelerationsOfMars[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( central_gravity ) );
+    accelerationsOfMars[ "Moon" ].push_back( std::make_shared< AccelerationSettings >( central_gravity ) );
     accelerationMap[ "Mars" ] = accelerationsOfMars;
 
     // Define list of bodies to propagate
@@ -125,8 +125,8 @@ BOOST_AUTO_TEST_CASE( testCowellPopagatorCentralBodies )
     unsigned int numberOfNumericalBodies = bodiesToIntegrate.size( );
 
     // Define numerical integrator settings.
-    boost::shared_ptr< IntegratorSettings< > > integratorSettings =
-            boost::make_shared< IntegratorSettings< > >
+    std::shared_ptr< IntegratorSettings< > > integratorSettings =
+            std::make_shared< IntegratorSettings< > >
             ( rungeKutta4, initialEphemerisTime, 200.0 );
 
     // Define central bodies to use in propagation (all w.r.t SSB).
@@ -146,8 +146,8 @@ BOOST_AUTO_TEST_CASE( testCowellPopagatorCentralBodies )
     // Create acceleration models and propagation settings.
     AccelerationMap accelerationModelMap = createAccelerationModelsMap(
                 bodyMap, accelerationMap, centralBodyMap );
-    boost::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
-            boost::make_shared< TranslationalStatePropagatorSettings< double > >
+    std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
+            std::make_shared< TranslationalStatePropagatorSettings< double > >
             ( centralBodies, accelerationModelMap, bodiesToIntegrate, systemInitialState, finalEphemerisTime );
 
     // Create simulation object and propagate dynamics.
@@ -171,8 +171,8 @@ BOOST_AUTO_TEST_CASE( testCowellPopagatorCentralBodies )
     // Create new acceleration models and propagation settings.
     AccelerationMap accelerationModelMap2 = createAccelerationModelsMap(
                 bodyMap, accelerationMap, centralBodyMap );
-    boost::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings2 =
-            boost::make_shared< TranslationalStatePropagatorSettings< double > >
+    std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings2 =
+            std::make_shared< TranslationalStatePropagatorSettings< double > >
             ( centralBodies, accelerationModelMap2, bodiesToIntegrate, systemInitialState, finalEphemerisTime );
 
 
@@ -185,11 +185,11 @@ BOOST_AUTO_TEST_CASE( testCowellPopagatorCentralBodies )
     // Create integration and propagation settings for reverse in time propagation
     std::map< double, Eigen::VectorXd >::iterator solutionSetIterator = (--solutionSet2.end( ) );
     Eigen::VectorXd systemFinalState = solutionSetIterator->second;
-    boost::shared_ptr< IntegratorSettings< > > integratorSettings2 =
-            boost::make_shared< IntegratorSettings< > >
+    std::shared_ptr< IntegratorSettings< > > integratorSettings2 =
+            std::make_shared< IntegratorSettings< > >
             ( rungeKutta4, solutionSetIterator->first, -200.0 );
-    boost::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings3 =
-            boost::make_shared< TranslationalStatePropagatorSettings< double > >
+    std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings3 =
+            std::make_shared< TranslationalStatePropagatorSettings< double > >
             ( centralBodies, accelerationModelMap2, bodiesToIntegrate, systemFinalState, initialEphemerisTime );
 
     // Create new simulation object and propagate dynamics backwards in time.
@@ -198,12 +198,12 @@ BOOST_AUTO_TEST_CASE( testCowellPopagatorCentralBodies )
     std::map< double, Eigen::VectorXd > solutionSet3 = dynamicsSimulator3.getEquationsOfMotionNumericalSolution( );
 
     // Create interpolators from three numerical solutions (first one is inertial; second and third are non-inertial)
-    boost::shared_ptr< LagrangeInterpolator< double, Eigen::VectorXd > > interpolator1 =
-            boost::make_shared< LagrangeInterpolator< double, Eigen::VectorXd > >( solutionSet1, 8 );
-    boost::shared_ptr< LagrangeInterpolator< double, Eigen::VectorXd > > interpolator2 =
-            boost::make_shared< LagrangeInterpolator< double, Eigen::VectorXd > >( solutionSet2, 8 );
-    boost::shared_ptr< LagrangeInterpolator< double, Eigen::VectorXd > > interpolator3 =
-            boost::make_shared< LagrangeInterpolator< double, Eigen::VectorXd > >( solutionSet3, 8 );
+    std::shared_ptr< LagrangeInterpolator< double, Eigen::VectorXd > > interpolator1 =
+            std::make_shared< LagrangeInterpolator< double, Eigen::VectorXd > >( solutionSet1, 8 );
+    std::shared_ptr< LagrangeInterpolator< double, Eigen::VectorXd > > interpolator2 =
+            std::make_shared< LagrangeInterpolator< double, Eigen::VectorXd > >( solutionSet2, 8 );
+    std::shared_ptr< LagrangeInterpolator< double, Eigen::VectorXd > > interpolator3 =
+            std::make_shared< LagrangeInterpolator< double, Eigen::VectorXd > >( solutionSet3, 8 );
 
     // Define step size to be out of sync with integration step size.
     double stepSize = 2001.1 + mathematical_constants::PI;
@@ -222,12 +222,12 @@ BOOST_AUTO_TEST_CASE( testCowellPopagatorCentralBodies )
     Eigen::VectorXd stateDifference = Eigen::VectorXd::Zero( 6 * numberOfNumericalBodies );
 
     // Test numerical output against results with SSB as origin for ech body,
-    boost::shared_ptr< ephemerides::Ephemeris > sunEphemeris = bodyMap[ "Sun" ]->getEphemeris( );
-    boost::shared_ptr< ephemerides::Ephemeris > earthEphemeris = bodyMap[ "Earth" ]->getEphemeris( );
-    boost::shared_ptr< ephemerides::Ephemeris > marsEphemeris = bodyMap[ "Mars" ]->getEphemeris( );
-    boost::shared_ptr< ephemerides::Ephemeris > moonEphemeris = bodyMap[ "Moon" ]->getEphemeris( );
+    std::shared_ptr< ephemerides::Ephemeris > sunEphemeris = bodyMap[ "Sun" ]->getEphemeris( );
+    std::shared_ptr< ephemerides::Ephemeris > earthEphemeris = bodyMap[ "Earth" ]->getEphemeris( );
+    std::shared_ptr< ephemerides::Ephemeris > marsEphemeris = bodyMap[ "Mars" ]->getEphemeris( );
+    std::shared_ptr< ephemerides::Ephemeris > moonEphemeris = bodyMap[ "Moon" ]->getEphemeris( );
 
-    boost::shared_ptr< LagrangeInterpolator< double, Eigen::VectorXd > > currentInterpolator;
+    std::shared_ptr< LagrangeInterpolator< double, Eigen::VectorXd > > currentInterpolator;
 
     while( currentTime < finalEphemerisTime - stepSize )
     {
@@ -355,19 +355,19 @@ void testCowellPropagationOfKeplerOrbit( )
     double buffer = 5.0 * maximumTimeStep;
 
     // Create bodies needed in simulation
-    std::map< std::string, boost::shared_ptr< BodySettings > > bodySettings =
+    std::map< std::string, std::shared_ptr< BodySettings > > bodySettings =
             getDefaultBodySettings( bodyNames, initialEphemerisTime - buffer, finalEphemerisTime + buffer );
 
     if( std::is_same< long double, StateScalarType >::value )
     {
-        boost::dynamic_pointer_cast< InterpolatedSpiceEphemerisSettings >(
+        std::dynamic_pointer_cast< InterpolatedSpiceEphemerisSettings >(
                     bodySettings[ "Moon" ]->ephemerisSettings )->setUseLongDoubleStates( 1 );
     }
 
     // Change ephemeris settings of Moon and Earth to make test results analysis more transparent.
-    boost::dynamic_pointer_cast< InterpolatedSpiceEphemerisSettings >( bodySettings[ "Moon" ]->ephemerisSettings )->
+    std::dynamic_pointer_cast< InterpolatedSpiceEphemerisSettings >( bodySettings[ "Moon" ]->ephemerisSettings )->
             resetFrameOrigin( "Earth" );
-    bodySettings[ "Earth" ]->ephemerisSettings = boost::make_shared< ConstantEphemerisSettings >(
+    bodySettings[ "Earth" ]->ephemerisSettings = std::make_shared< ConstantEphemerisSettings >(
                 Eigen::Vector6d::Zero( ), "SSB", "ECLIPJ2000" );
 
     NamedBodyMap bodyMap = createBodies( bodySettings );
@@ -375,8 +375,8 @@ void testCowellPropagationOfKeplerOrbit( )
 
     // Set accelerations between bodies that are to be taken into account.
     SelectedAccelerationMap accelerationMap;
-    std::map< std::string, std::vector< boost::shared_ptr< AccelerationSettings > > > accelerationsOfMoon;
-    accelerationsOfMoon[ "Earth" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );
+    std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfMoon;
+    accelerationsOfMoon[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( central_gravity ) );
     accelerationMap[ "Moon" ] = accelerationsOfMoon;
 
     // Propagate the moon only
@@ -385,8 +385,8 @@ void testCowellPropagationOfKeplerOrbit( )
     unsigned int numberOfNumericalBodies = bodiesToIntegrate.size( );
 
     // Define settings for numerical integrator.
-    boost::shared_ptr< IntegratorSettings< TimeType > > integratorSettings =
-            boost::make_shared< IntegratorSettings< TimeType > >
+    std::shared_ptr< IntegratorSettings< TimeType > > integratorSettings =
+            std::make_shared< IntegratorSettings< TimeType > >
             ( rungeKutta4, initialEphemerisTime, 120.0 );
 
     // Run test where Moon gravity is/is not taken into account.
@@ -441,8 +441,8 @@ void testCowellPropagationOfKeplerOrbit( )
         // Create acceleration models and propagation settings.
         AccelerationMap accelerationModelMap = createAccelerationModelsMap(
                     bodyMap, accelerationMap, bodiesToIntegrate, centralBodies );
-        boost::shared_ptr< TranslationalStatePropagatorSettings< StateScalarType > > propagatorSettings =
-                boost::make_shared< TranslationalStatePropagatorSettings< StateScalarType > >
+        std::shared_ptr< TranslationalStatePropagatorSettings< StateScalarType > > propagatorSettings =
+                std::make_shared< TranslationalStatePropagatorSettings< StateScalarType > >
                 ( centralBodies, accelerationModelMap, bodiesToIntegrate, systemInitialState, finalEphemerisTime );
 
         // Create dynamics simulation object.
@@ -455,7 +455,7 @@ void testCowellPropagationOfKeplerOrbit( )
 
 
         // Compare numerical state and kepler orbit at each time step.
-        boost::shared_ptr< Ephemeris > moonEphemeris = bodyMap.at( "Moon" )->getEphemeris( );
+        std::shared_ptr< Ephemeris > moonEphemeris = bodyMap.at( "Moon" )->getEphemeris( );
         double currentTime = initialEphemerisTime + buffer;
         while( currentTime < finalEphemerisTime - buffer )
         {
@@ -482,9 +482,12 @@ void testCowellPropagationOfKeplerOrbit( )
 BOOST_AUTO_TEST_CASE( testCowellPropagatorKeplerCompare )
 {
     testCowellPropagationOfKeplerOrbit< double, double >( );
+
+    #if( BUILD_EXTENDED_PRECISION_PROPAGATION_TOOLS )
     testCowellPropagationOfKeplerOrbit< double, long double >( );
     testCowellPropagationOfKeplerOrbit< Time, double >( );
     testCowellPropagationOfKeplerOrbit< Time, long double >( );
+    #endif
 
 }
 

@@ -19,7 +19,7 @@
 
 #include <string>
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include <Eigen/Core>
 
@@ -104,8 +104,6 @@ public:
      *      will be given the default constant values for Earth, unless they are included in the file map.
      *  \param independentVariablesNames List of independent parameters describing the atmosphere.
      *  \param dependentVariablesNames List of dependent parameters output by the atmosphere.
-     *  \param specificGasConstant The constant specific gas constant of the atmosphere.
-     *  \param ratioOfSpecificHeats The constant ratio of specific heats of the atmosphere.
      *  \param boundaryHandling Method for interpolation behavior when independent variable is out of range.
      *  \param defaultExtrapolationValue Default value to be used for extrapolation, in case of use_default_value or
      *      use_default_value_with_warning as methods for boundaryHandling.
@@ -129,6 +127,9 @@ public:
      *  \param dependentVariablesNames List of dependent parameters output by the atmosphere.
      *  \param specificGasConstant The constant specific gas constant of the atmosphere.
      *  \param ratioOfSpecificHeats The constant ratio of specific heats of the atmosphere.
+     *  \param boundaryHandling Method for interpolation behavior when independent variable is out of range.
+     *  \param defaultExtrapolationValue Default value to be used for extrapolation, in case of use_default_value or
+     *      use_default_value_with_warning as methods for boundaryHandling.
      */
     TabulatedAtmosphere(
             const std::string& atmosphereTableFile,
@@ -137,7 +138,7 @@ public:
             const double specificGasConstant = physical_constants::SPECIFIC_GAS_CONSTANT_AIR,
             const double ratioOfSpecificHeats = 1.4,
             const interpolators::BoundaryInterpolationType boundaryHandling = interpolators::use_boundary_value,
-            const double defaultExtrapolationValue = IdentityElement< double >::getAdditionIdentity( ) ) :
+            const double defaultExtrapolationValue = IdentityElement::getAdditionIdentity< double >( ) ) :
         TabulatedAtmosphere( { { 0, atmosphereTableFile } }, { altitude_dependent_atmosphere },
                              dependentVariablesNames, specificGasConstant, ratioOfSpecificHeats, { boundaryHandling },
                              std::vector< std::vector< std::pair< double, double > > >(
@@ -180,8 +181,8 @@ public:
                 }
                 else
                 {
-                    defaultExtrapolationValue_.at( i ).push_back( std::make_pair( IdentityElement< double >::getAdditionIdentity( ),
-                                                                                  IdentityElement< double >::getAdditionIdentity( ) ) );
+                    defaultExtrapolationValue_.at( i ).push_back( std::make_pair( IdentityElement::getAdditionIdentity< double >( ),
+                                                                                  IdentityElement::getAdditionIdentity< double >( ) ) );
                 }
             }
         }
@@ -525,22 +526,22 @@ private:
     double ratioOfSpecificHeats_;
 
     //! Interpolation for density. Note that type of interpolator depends on number of independent variables specified.
-    boost::shared_ptr< interpolators::Interpolator< double, double > > interpolatorForDensity_;
+    std::shared_ptr< interpolators::Interpolator< double, double > > interpolatorForDensity_;
 
     //! Interpolation for pressure. Note that type of interpolator depends on number of independent variables specified.
-    boost::shared_ptr< interpolators::Interpolator< double, double > > interpolatorForPressure_;
+    std::shared_ptr< interpolators::Interpolator< double, double > > interpolatorForPressure_;
 
     //! Interpolation for temperature. Note that type of interpolator depends on number of independent variables specified.
-    boost::shared_ptr< interpolators::Interpolator< double, double > > interpolatorForTemperature_;
+    std::shared_ptr< interpolators::Interpolator< double, double > > interpolatorForTemperature_;
 
     //! Interpolation for specific gas constant. Note that type of interpolator depends on number of independent variables specified.
-    boost::shared_ptr< interpolators::Interpolator< double, double > > interpolatorForGasConstant_;
+    std::shared_ptr< interpolators::Interpolator< double, double > > interpolatorForGasConstant_;
 
     //! Interpolation for ratio of specific heats. Note that type of interpolator depends on number of independent variables specified.
-    boost::shared_ptr< interpolators::Interpolator< double, double > > interpolatorForSpecificHeatRatio_;
+    std::shared_ptr< interpolators::Interpolator< double, double > > interpolatorForSpecificHeatRatio_;
 
     //! Interpolation for molar mass. Note that type of interpolator depends on number of independent variables specified.
-    boost::shared_ptr< interpolators::Interpolator< double, double > > interpolatorForMolarMass_;
+    std::shared_ptr< interpolators::Interpolator< double, double > > interpolatorForMolarMass_;
 
     //! Behavior of interpolator when independent variable is outside range.
     std::vector< interpolators::BoundaryInterpolationType > boundaryHandling_;
@@ -557,7 +558,7 @@ private:
 };
 
 //! Typedef for shared-pointer to TabulatedAtmosphere object.
-typedef boost::shared_ptr< TabulatedAtmosphere > TabulatedAtmospherePointer;
+typedef std::shared_ptr< TabulatedAtmosphere > TabulatedAtmospherePointer;
 
 } // namespace aerodynamics
 

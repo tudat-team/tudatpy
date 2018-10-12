@@ -15,8 +15,8 @@
 #ifndef TUDAT_APPARENT_ACCELERATION_MODEL_H
 #define TUDAT_APPARENT_ACCELERATION_MODEL_H
 
-#include <boost/function.hpp>
-#include <boost/shared_ptr.hpp>
+#include <functional>
+#include <memory>
 
 #include <Eigen/Dense>
 
@@ -144,7 +144,7 @@ class ApparentAccelerationModel : public basic_astrodynamics::AccelerationModel<
 private:
 
     //! Typedef for Eigen::Vector3d returning function.
-    typedef boost::function< Eigen::Vector3d( ) > Vector3dReturningFunction;
+    typedef std::function< Eigen::Vector3d( ) > Vector3dReturningFunction;
 
 public:
 
@@ -206,7 +206,7 @@ public:
     /*!
      * Function to update member variables used by this acceleration model. The variables
      * that are required as input for the evaluation of the accelerations are retrieved from
-     * boost::functions that may or may not give constant return values, depending on the
+     * std::functions that may or may not give constant return values, depending on the
      * user input. This function sets the member variables using these functions.
      * \param currentTime Time at which acceleration model is to be updated.
      */
@@ -283,7 +283,7 @@ private:
 };
 
 //! Typedef for shared-pointer to ApparentAccelerationModel object.
-typedef boost::shared_ptr< ApparentAccelerationModel > ApparentAccelerationModelPointer;
+typedef std::shared_ptr< ApparentAccelerationModel > ApparentAccelerationModelPointer;
 
 }   // namespace reference_frames
 }   // namespace tudat

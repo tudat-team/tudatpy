@@ -16,7 +16,8 @@
 #include <iostream>
 
 #include <boost/lexical_cast.hpp>
-#include <boost/shared_ptr.hpp>
+
+#include <memory>
 
 #include "Tudat/Mathematics/Interpolators/lookupScheme.h"
 #include "Tudat/Mathematics/Interpolators/interpolator.h"
@@ -48,14 +49,14 @@ public:
      *  Constructor.
      *  \param boundaryHandling Boundary handling method, in case the independent variable is outside the
      *      specified range.
-     *  \param defaultExtrapolationValue Pairs of default values to be used for extrapolation, in case
+     *  \param defaultExtrapolationValue Pair of default values to be used for extrapolation, in case
      *      of use_default_value or use_default_value_with_warning as methods for boundaryHandling.
      */
     OneDimensionalInterpolator(
             const BoundaryInterpolationType boundaryHandling = extrapolate_at_boundary,
             const std::pair< DependentVariableType, DependentVariableType >& defaultExtrapolationValue =
-            std::make_pair( IdentityElement< DependentVariableType >::getAdditionIdentity( ),
-                            IdentityElement< DependentVariableType >::getAdditionIdentity( ) ) ):
+            std::make_pair( IdentityElement::getAdditionIdentity< DependentVariableType >( ),
+                            IdentityElement::getAdditionIdentity< DependentVariableType >( ) ) ):
         boundaryHandling_( boundaryHandling ), defaultExtrapolationValue_( defaultExtrapolationValue )
     { }
 
@@ -140,7 +141,7 @@ public:
      *  Function to return the lookup scheme used by the interpolator.
      *  \return The lookup scheme used by the interpolator.
      */
-    boost::shared_ptr< LookUpScheme< IndependentVariableType > > getLookUpScheme( )
+    std::shared_ptr< LookUpScheme< IndependentVariableType > > getLookUpScheme( )
     {
         return lookUpScheme_;
     }
@@ -312,7 +313,7 @@ protected:
         case binarySearch:
         {
             // Create binary search look up scheme.
-            lookUpScheme_ = boost::shared_ptr< LookUpScheme< IndependentVariableType > >
+            lookUpScheme_ = std::shared_ptr< LookUpScheme< IndependentVariableType > >
                     ( new BinarySearchLookupScheme< IndependentVariableType >
                       ( independentValues_ ) );
             break;
@@ -320,7 +321,7 @@ protected:
         case huntingAlgorithm:
         {
             // Create hunting scheme, which uses an intial guess from previous look-ups.
-            lookUpScheme_ = boost::shared_ptr< LookUpScheme< IndependentVariableType > >
+            lookUpScheme_ = std::shared_ptr< LookUpScheme< IndependentVariableType > >
                     ( new HuntingAlgorithmLookupScheme< IndependentVariableType >
                       ( independentValues_ ) );
             break;
@@ -335,7 +336,7 @@ protected:
      * Pointer to the lookup scheme that is used to determine in which interval the requested
      * independent variable value falls.
      */
-    boost::shared_ptr< LookUpScheme< IndependentVariableType > > lookUpScheme_;
+    std::shared_ptr< LookUpScheme< IndependentVariableType > > lookUpScheme_;
 
     //! Vector with independent variables.
     /*!

@@ -15,8 +15,8 @@
 #include <map>
 #include <string>
 
-#include <boost/shared_ptr.hpp>
-#include <boost/function.hpp>
+#include <memory>
+#include <functional>
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/accelerationModel.h"
 
@@ -59,7 +59,7 @@ enum TranslationalPropagatorType
  *  model.
  * \return Functions returning the gravitational parameters of the central terms that were removed.
  */
-std::vector< boost::function< double( ) > > removeCentralGravityAccelerations(
+std::vector< std::function< double( ) > > removeCentralGravityAccelerations(
         const std::vector< std::string >& centralBodies, const std::vector< std::string >& bodiesToIntegrate,
         basic_astrodynamics::AccelerationMap& accelerationModelsPerBody );
 
@@ -109,7 +109,7 @@ public:
      *  \param bodiesToIntegrate List of names of bodies that are to be integrated numerically.
      */
     NBodyStateDerivative( const basic_astrodynamics::AccelerationMap& accelerationModelsPerBody,
-                          const boost::shared_ptr< CentralBodyData< StateScalarType, TimeType > > centralBodyData,
+                          const std::shared_ptr< CentralBodyData< StateScalarType, TimeType > > centralBodyData,
                           const TranslationalPropagatorType propagatorType,
                           const std::vector< std::string >& bodiesToIntegrate ):
         propagators::SingleStateTypeDerivative< StateScalarType, TimeType >(
@@ -246,7 +246,7 @@ public:
      * global origins.
      * \return Object providing the current integration origins from the global origins.
      */
-    boost::shared_ptr< CentralBodyData< StateScalarType, TimeType > > getCentralBodyData( )
+    std::shared_ptr< CentralBodyData< StateScalarType, TimeType > > getCentralBodyData( )
     {
         return centralBodyData_;
     }
@@ -437,10 +437,10 @@ protected:
     basic_astrodynamics::AccelerationMap accelerationModelsPerBody_;
 
     //! Vector of acceleration models, containing all entries of accelerationModelsPerBody_.
-    std::vector< boost::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > > accelerationModelList_;
+    std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > > accelerationModelList_;
 
     //! Object responsible for providing the current integration origins from the global origins.
-    boost::shared_ptr< CentralBodyData< StateScalarType, TimeType > > centralBodyData_;
+    std::shared_ptr< CentralBodyData< StateScalarType, TimeType > > centralBodyData_;
 
     //! Type of propagator that is to be used (i.e. Cowell, Encke, etc.)
     TranslationalPropagatorType propagatorType_;
@@ -452,16 +452,24 @@ protected:
 
     //! Predefined iterator to save (de-)allocation time.
     std::unordered_map< std::string, std::vector<
-    boost::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > > >::iterator innerAccelerationIterator;
+    std::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > > >::iterator innerAccelerationIterator;
 
     //! Predefined iterator to save (de-)allocation time.
     std::unordered_map< std::string, std::unordered_map< std::string, std::vector<
-    boost::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > > > >::iterator outerAccelerationIterator;
+    std::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > > > >::iterator outerAccelerationIterator;
 
     //! List of states of the central bodies of the propagated bodies.
     std::vector< Eigen::Matrix< StateScalarType, 6, 1 >  > centralBodyStatesWrtGlobalOrigin_;
 
 };
+
+extern template class NBodyStateDerivative< double, double >;
+
+#if( BUILD_EXTENDED_PRECISION_PROPAGATION_TOOLS )
+extern template class NBodyStateDerivative< long double, double >;
+extern template class NBodyStateDerivative< double, Time >;
+extern template class NBodyStateDerivative< long double, Time >;
+#endif
 
 } // namespace propagators
 

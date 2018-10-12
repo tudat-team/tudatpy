@@ -20,7 +20,7 @@
 #include "Tudat/Astrodynamics/ObservationModels/observationManager.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/podInputOutputTypes.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/initialTranslationalState.h"
-#include "Tudat/SimulationSetup/PropagationSetup/variationalEquationsSolver.h"
+#include "Tudat/SimulationSetup/EstimationSetup/variationalEquationsSolver.h"
 #include "Tudat/SimulationSetup/EstimationSetup/createObservationManager.h"
 
 namespace tudat
@@ -37,7 +37,7 @@ namespace simulation_setup
  *  \param weightsData Weights sorted by link ends and observation type
  *  \return Concatenated vector of weights
  */
-template< typename ObservationScalarType = double, typename TimeType = double >
+template< typename ObservationScalarType = double >
 Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > getConcatenatedWeightsVector(
         const typename std::map< observation_models::ObservableType, std::map<
         observation_models::LinkEnds, Eigen::VectorXd > >& weightsData )
@@ -56,7 +56,7 @@ Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > getConcatenatedWeights
             totalNumberOfObservations += dataIterator->second.rows( );
         }
     }
-    Eigen::VectorXd concatenatedWeights = Eigen::VectorXd::Zero( totalNumberOfObservations, 1 );
+    Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > concatenatedWeights = Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >::Zero( totalNumberOfObservations, 1 );
 
     // Iterate over all observations and concatenate the weight vectors.
     int currentIndex = 0;
@@ -66,7 +66,8 @@ Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > getConcatenatedWeights
         for( typename std::map< observation_models::LinkEnds, Eigen::VectorXd >::const_iterator dataIterator =
              observablesIterator->second.begin( ); dataIterator != observablesIterator->second.end( ); dataIterator++  )
         {
-            concatenatedWeights.segment( currentIndex, dataIterator->second.rows( ) ) = dataIterator->second;
+            concatenatedWeights.segment( currentIndex, dataIterator->second.rows( ) ) =
+                    dataIterator->second.template cast< ObservationScalarType >( );
             currentIndex += dataIterator->second.rows( );
         }
     }
@@ -158,7 +159,8 @@ protected:
  *  estimation itself is performed by providing measurement data and related metadata (as PodInput) to the estimateParameters
  *  function.
  */
-template< typename ObservationScalarType = double, typename TimeType = double >
+template< typename ObservationScalarType = double, typename TimeType = double,
+          typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type = 0 >
 class OrbitDeterminationManager
 {
 public:
@@ -195,11 +197,11 @@ public:
      */
     OrbitDeterminationManager(
             const NamedBodyMap &bodyMap,
-            const boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< ObservationScalarType > >
+            const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< ObservationScalarType > >
             parametersToEstimate,
             const observation_models::SortedObservationSettingsMap& observationSettingsMap,
-            const boost::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings,
-            const boost::shared_ptr< propagators::PropagatorSettings< ObservationScalarType > > propagatorSettings ):
+            const std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings,
+            const std::shared_ptr< propagators::PropagatorSettings< ObservationScalarType > > propagatorSettings ):
         parametersToEstimate_( parametersToEstimate )
     {
         initializeOrbitDeterminationManager( bodyMap, observationSettingsMap, integratorSettings, propagatorSettings );
@@ -218,11 +220,11 @@ public:
      */
     OrbitDeterminationManager(
             const NamedBodyMap &bodyMap,
-            const boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< ObservationScalarType > >
+            const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< ObservationScalarType > >
             parametersToEstimate,
             const observation_models::ObservationSettingsMap& observationSettingsMap,
-            const boost::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings,
-            const boost::shared_ptr< propagators::PropagatorSettings< ObservationScalarType > > propagatorSettings ):
+            const std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings,
+            const std::shared_ptr< propagators::PropagatorSettings< ObservationScalarType > > propagatorSettings ):
         parametersToEstimate_( parametersToEstimate )
     {
         initializeOrbitDeterminationManager( bodyMap, observation_models::convertUnsortedToSortedObservationSettingsMap(
@@ -236,7 +238,7 @@ public:
      *  \return Map of observation managers for all observable types involved in current orbit determination.
      */
     std::map< observation_models::ObservableType,
-    boost::shared_ptr< observation_models::ObservationManagerBase< ObservationScalarType, TimeType > > >
+    std::shared_ptr< observation_models::ObservationManagerBase< ObservationScalarType, TimeType > > >
     getObservationManagers( ) const
     {
         return observationManagers_;
@@ -250,14 +252,14 @@ public:
      *  \return Map of observation simulators for all observable types involved in current orbit determination.
      */
     std::map< observation_models::ObservableType,
-    boost::shared_ptr< observation_models::ObservationSimulatorBase< ObservationScalarType, TimeType > > >
+    std::shared_ptr< observation_models::ObservationSimulatorBase< ObservationScalarType, TimeType > > >
     getObservationSimulators( ) const
     {
         std::map< observation_models::ObservableType,
-                boost::shared_ptr< observation_models::ObservationSimulatorBase< ObservationScalarType, TimeType > > > observationSimulators;
+                std::shared_ptr< observation_models::ObservationSimulatorBase< ObservationScalarType, TimeType > > > observationSimulators;
 
         for( typename std::map< observation_models::ObservableType,
-             boost::shared_ptr< observation_models::ObservationManagerBase< ObservationScalarType, TimeType > > >::const_iterator
+             std::shared_ptr< observation_models::ObservationManagerBase< ObservationScalarType, TimeType > > >::const_iterator
              managerIterator = observationManagers_.begin( ); managerIterator != observationManagers_.end( );
              managerIterator++ )
         {
@@ -456,10 +458,10 @@ public:
      *  \param convergenceChecker Object used to check convergence/termination of algorithm
      *  \return Object containing estimated parameter value and associateed data, such as residuals and observation partials.
      */
-    boost::shared_ptr< PodOutput< ObservationScalarType > > estimateParameters(
-            const boost::shared_ptr< PodInput< ObservationScalarType, TimeType > >& podInput,
-            const boost::shared_ptr< EstimationConvergenceChecker > convergenceChecker =
-            boost::make_shared< EstimationConvergenceChecker >( ) )
+    std::shared_ptr< PodOutput< ObservationScalarType > > estimateParameters(
+            const std::shared_ptr< PodInput< ObservationScalarType, TimeType > >& podInput,
+            const std::shared_ptr< EstimationConvergenceChecker > convergenceChecker =
+            std::make_shared< EstimationConvergenceChecker >( ) )
     {
         currentParameterEstimate_ = parametersToEstimate_->template getFullParameterValues< ObservationScalarType >( );
 
@@ -555,10 +557,10 @@ public:
             try
             {
                 leastSquaresOutput =
-                        linear_algebra::performLeastSquaresAdjustmentFromInformationMatrix(
+                        std::move( linear_algebra::performLeastSquaresAdjustmentFromInformationMatrix(
                             residualsAndPartials.second.block( 0, 0, residualsAndPartials.second.rows( ), numberOfEstimatedParameters ),
                             residualsAndPartials.first, getConcatenatedWeightsVector( podInput->getWeightsMatrixDiagonals( ) ),
-                            normalizedInverseAprioriCovarianceMatrix );
+                            normalizedInverseAprioriCovarianceMatrix ) );
             }
             catch( std::runtime_error )
             {
@@ -606,15 +608,15 @@ public:
             if( residualRms < bestResidual || !( bestResidual == bestResidual ) )
             {
                 bestResidual = residualRms;
-                bestParameterEstimate = oldParameterEstimate;
-                bestResiduals = residualsAndPartials.first;
+                bestParameterEstimate = std::move( oldParameterEstimate );
+                bestResiduals = std::move( residualsAndPartials.first );
                 if( podInput->getSaveInformationMatrix( ) )
                 {
-                    bestInformationMatrix = residualsAndPartials.second;
+                    bestInformationMatrix = std::move( residualsAndPartials.second );
                 }
-                bestWeightsMatrixDiagonal = getConcatenatedWeightsVector( podInput->getWeightsMatrixDiagonals( ) );
-                bestTransformationData = transformationData;
-                bestInverseNormalizedCovarianceMatrix = leastSquaresOutput.second;
+                bestWeightsMatrixDiagonal = std::move( getConcatenatedWeightsVector( podInput->getWeightsMatrixDiagonals( ) ) );
+                bestTransformationData = std::move( transformationData );
+                bestInverseNormalizedCovarianceMatrix = std::move( leastSquaresOutput.second );
             }
 
 
@@ -629,7 +631,7 @@ public:
             std::cout << "Final residual: " << bestResidual << std::endl;
         }
 
-        return boost::make_shared< PodOutput< ObservationScalarType > >(
+        return std::make_shared< PodOutput< ObservationScalarType > >(
                     bestParameterEstimate, bestResiduals, bestInformationMatrix, bestWeightsMatrixDiagonal, bestTransformationData,
                     bestInverseNormalizedCovarianceMatrix, bestResidual, residualHistory, parameterHistory, exceptionDuringInversion,
                     exceptionDuringPropagation );
@@ -710,7 +712,7 @@ public:
      *  Function to retrieve the object to numerical integrate and update the variational equations and equations of motion
      *  \return Object to numerical integrate and update the variational equations and equations of motion
      */
-    boost::shared_ptr< propagators::VariationalEquationsSolver< ObservationScalarType, TimeType > >
+    std::shared_ptr< propagators::VariationalEquationsSolver< ObservationScalarType, TimeType > >
     getVariationalEquationsSolver( ) const
     {
         return variationalEquationsSolver_;
@@ -723,7 +725,7 @@ public:
      *  \param observableType Type of observable for which manager is to be retrieved.
      *  \return Observation manager for given observable type.
      */
-    boost::shared_ptr< observation_models::ObservationManagerBase< ObservationScalarType, TimeType > > getObservationManager(
+    std::shared_ptr< observation_models::ObservationManagerBase< ObservationScalarType, TimeType > > getObservationManager(
             const observation_models::ObservableType observableType ) const
     {
         // Check if manager exists for requested observable type.
@@ -753,7 +755,7 @@ public:
      *  equations/dynamics.
      *  \return Object used to propagate/process the numerical solution of the variational equations/dynamics.
      */
-    boost::shared_ptr< propagators::CombinedStateTransitionAndSensitivityMatrixInterface >
+    std::shared_ptr< propagators::CombinedStateTransitionAndSensitivityMatrixInterface >
     getStateTransitionAndSensitivityMatrixInterface( )
     {
         return stateTransitionAndSensitivityMatrixInterface_;
@@ -774,8 +776,8 @@ protected:
     void initializeOrbitDeterminationManager(
             const NamedBodyMap &bodyMap,
             const observation_models::SortedObservationSettingsMap& observationSettingsMap,
-            const boost::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings,
-            const boost::shared_ptr< propagators::PropagatorSettings< ObservationScalarType > > propagatorSettings )
+            const std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings,
+            const std::shared_ptr< propagators::PropagatorSettings< ObservationScalarType > > propagatorSettings )
     {
         using namespace numerical_integrators;
         using namespace orbit_determination;
@@ -795,7 +797,7 @@ protected:
             integrateAndEstimateOrbit_ = false;
         }
 
-        if( boost::dynamic_pointer_cast< propagators::MultiArcPropagatorSettings< ObservationScalarType > >( propagatorSettings ) != NULL )
+        if( std::dynamic_pointer_cast< propagators::MultiArcPropagatorSettings< ObservationScalarType > >( propagatorSettings ) != NULL )
         {
             dynamicsIsMultiArc_ = true;
 
@@ -803,10 +805,10 @@ protected:
             {
                 std::vector< double > arcStartTimes = estimatable_parameters::getMultiArcStateEstimationArcStartTimes(
                             parametersToEstimate_ );
-                variationalEquationsSolver_ = boost::make_shared< propagators::MultiArcVariationalEquationsSolver
+                variationalEquationsSolver_ =  std::make_shared< propagators::MultiArcVariationalEquationsSolver
                         < ObservationScalarType, TimeType > >(
                             bodyMap, integratorSettings, propagatorSettings, parametersToEstimate_, arcStartTimes, 1,
-                            boost::shared_ptr< numerical_integrators::IntegratorSettings< double > >( ), 0, 1 );
+                            std::shared_ptr< numerical_integrators::IntegratorSettings< double > >( ), 0, 1 );
             }
         }
         else
@@ -815,10 +817,10 @@ protected:
 
             if( integrateAndEstimateOrbit_ )
             {
-                variationalEquationsSolver_ = boost::make_shared< propagators::SingleArcVariationalEquationsSolver
+                variationalEquationsSolver_ = std::make_shared< propagators::SingleArcVariationalEquationsSolver
                         < ObservationScalarType, TimeType > >(
                             bodyMap, integratorSettings, propagatorSettings, parametersToEstimate_, 1,
-                            boost::shared_ptr< numerical_integrators::IntegratorSettings< double > >( ), 0, 1 );
+                            std::shared_ptr< numerical_integrators::IntegratorSettings< double > >( ), 0, 1 );
             }
         }
 
@@ -830,18 +832,18 @@ protected:
         {
             if( !dynamicsIsMultiArc_ )
             {
-                stateTransitionAndSensitivityMatrixInterface_ = boost::make_shared<
+                stateTransitionAndSensitivityMatrixInterface_ = std::make_shared<
                         propagators::SingleArcCombinedStateTransitionAndSensitivityMatrixInterface >(
-                            boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > >( ),
-                            boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > >( ),
+                            std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > >( ),
+                            std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > >( ),
                             0, parametersToEstimate_->getParameterSetSize( ) );
             }
             else
             {
-                stateTransitionAndSensitivityMatrixInterface_ = boost::make_shared<
+                stateTransitionAndSensitivityMatrixInterface_ = std::make_shared<
                         propagators::MultiArcCombinedStateTransitionAndSensitivityMatrixInterface >(
-                            std::vector< boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > > >( ),
-                            std::vector< boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > > >( ),
+                            std::vector< std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > > >( ),
+                            std::vector< std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > > >( ),
                             std::vector< double >( ),
                             0, parametersToEstimate_->getParameterSetSize( ) );
             }
@@ -865,9 +867,9 @@ protected:
         // Set current parameter estimate from body initial states and parameter set.
         currentParameterEstimate_ = parametersToEstimate_->template getFullParameterValues< ObservationScalarType >( );
 
-        //        std::map< int, boost::shared_ptr< estimatable_parameters::EstimatableParameter< double > > > doubleParameters =
+        //        std::map< int, std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > > doubleParameters =
         //                parametersToEstimate_->getDoubleParameters( );
-        //        for( std::map< int, boost::shared_ptr< estimatable_parameters::EstimatableParameter< double > > >::iterator
+        //        for( std::map< int, std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > >::iterator
         //             parameterIterator = doubleParameters.begin( ); parameterIterator != doubleParameters.end( ); parameterIterator++ )
         //        {
         //            if( estimatable_parameters::isParameterObservationLinkProperty(
@@ -877,9 +879,9 @@ protected:
         //            }
         //        }
 
-        //        std::map< int, boost::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > > vectorParameters =
+        //        std::map< int, std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > > vectorParameters =
         //                parametersToEstimate_->getVectorParameters( );
-        //        for( std::map< int, boost::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > >::iterator
+        //        for( std::map< int, std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > >::iterator
         //             parameterIterator = vectorParameters.begin( ); parameterIterator != vectorParameters.end( ); parameterIterator++ )
         //        {
         //            if( estimatable_parameters::isParameterObservationLinkProperty(
@@ -898,15 +900,15 @@ protected:
     bool integrateAndEstimateOrbit_;
 
     //! Object used to propagate/process the numerical solution of the variational equations/dynamics
-    boost::shared_ptr< propagators::VariationalEquationsSolver< ObservationScalarType, TimeType > >
+    std::shared_ptr< propagators::VariationalEquationsSolver< ObservationScalarType, TimeType > >
     variationalEquationsSolver_;
 
     //! List of object that compute the values/partials of the observables
     std::map< observation_models::ObservableType,
-    boost::shared_ptr< observation_models::ObservationManagerBase< ObservationScalarType, TimeType > > > observationManagers_;
+    std::shared_ptr< observation_models::ObservationManagerBase< ObservationScalarType, TimeType > > > observationManagers_;
 
     //! Container object for all parameters that are to be estimated
-    boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< ObservationScalarType > > parametersToEstimate_;
+    std::shared_ptr< estimatable_parameters::EstimatableParameterSet< ObservationScalarType > > parametersToEstimate_;
 
     //! Current values of the vector of estimated parameters
     ParameterVectorType currentParameterEstimate_;
@@ -914,12 +916,27 @@ protected:
     //std::vector< int > observationLinkParameterIndices_;
 
     //! Object used to interpolate the numerically integrated result of the state transition/sensitivity matrices.
-    boost::shared_ptr< propagators::CombinedStateTransitionAndSensitivityMatrixInterface >
+    std::shared_ptr< propagators::CombinedStateTransitionAndSensitivityMatrixInterface >
     stateTransitionAndSensitivityMatrixInterface_;
 
     bool dynamicsIsMultiArc_;
 
 };
+
+extern template class OrbitDeterminationManager< double, double >;
+
+#if( BUILD_EXTENDED_PRECISION_PROPAGATION_TOOLS )
+extern template class OrbitDeterminationManager< double, Time >;
+extern template class OrbitDeterminationManager< long double, double >;
+extern template class OrbitDeterminationManager< long double, Time >;
+#endif
+
+extern template Eigen::Matrix< double, Eigen::Dynamic, 1 > getConcatenatedWeightsVector< double >(
+        const typename std::map< observation_models::ObservableType, std::map<
+        observation_models::LinkEnds, Eigen::VectorXd > >& weightsData );
+extern template Eigen::Matrix< long double, Eigen::Dynamic, 1 > getConcatenatedWeightsVector< long double >(
+        const typename std::map< observation_models::ObservableType, std::map<
+        observation_models::LinkEnds, Eigen::VectorXd > >& weightsData );
 
 
 

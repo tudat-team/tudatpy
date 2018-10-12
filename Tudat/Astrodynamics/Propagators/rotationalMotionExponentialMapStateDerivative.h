@@ -26,17 +26,17 @@ namespace propagators
 //! Function to obtain the time derivative of an exponential map (in vector representation) of body-fixed to inertial frame
 /*!
  * Function to obtain the time derivative of an exponential map (in vector representation) of body-fixed to inertial frame
- * \param currentExponentialMapToBaseFrame ExponentialMap (in vector representation) that defined the rotation from body-fixed to inertial
- * frame.
+ * \param currentExponentialMapToBaseFrame ExponentialMap (in vector representation) that define the rotation from body-fixed to
+ * inertial frame.
  * \param angularVelocityVectorInBodyFixedFrame Current angular velocity vector of body, expressed in its body-fixed frame
  * \return Time derivative of an exponential map (in vector representation) of body-fixed to inertial frame
  */
-Eigen::Vector4d calculateExponentialMapDerivative( const Eigen::Vector4d& currentExponantialMapToBaseFrame,
+Eigen::Vector4d calculateExponentialMapDerivative( const Eigen::Vector4d& currentExponentialMapToBaseFrame,
                                                    const Eigen::Vector3d& angularVelocityVectorInBodyFixedFrame );
 
 //! Class for computing the state derivative for rotational dynamics of N bodies.
 /*!
- *  Class for computing the state derivative for rotational dynamics of N bodies., using exponential map from body-fixed to inertial
+ *  Class for computing the state derivative for rotational dynamics of N bodies, using exponential map from body-fixed to inertial
  *  frame (in exponential map format) and angular velocity-vector of body expressed in body-fixed frame as the rotational state of a
  *  single body
  */
@@ -58,9 +58,9 @@ public:
     RotationalMotionExponentialMapStateDerivative(
             const basic_astrodynamics::TorqueModelMap& torqueModelsPerBody,
             const std::vector< std::string >& bodiesToPropagate,
-            std::vector< boost::function< Eigen::Matrix3d( ) > > bodyInertiaTensorFunctions,
-            std::vector< boost::function< Eigen::Matrix3d( ) > > bodyInertiaTensorTimeDerivativeFunctions =
-            std::vector< boost::function< Eigen::Matrix3d( ) > >( ) ):
+            std::vector< std::function< Eigen::Matrix3d( ) > > bodyInertiaTensorFunctions,
+            std::vector< std::function< Eigen::Matrix3d( ) > > bodyInertiaTensorTimeDerivativeFunctions =
+            std::vector< std::function< Eigen::Matrix3d( ) > >( ) ):
         RotationalMotionStateDerivative< StateScalarType, TimeType >(
             torqueModelsPerBody, exponential_map, bodiesToPropagate, bodyInertiaTensorFunctions,
             bodyInertiaTensorTimeDerivativeFunctions )
@@ -193,6 +193,14 @@ public:
 private:
 
 };
+
+extern template class RotationalMotionExponentialMapStateDerivative< double, double >;
+
+#if( BUILD_EXTENDED_PRECISION_PROPAGATION_TOOLS )
+extern template class RotationalMotionExponentialMapStateDerivative< long double, double >;
+extern template class RotationalMotionExponentialMapStateDerivative< double, Time >;
+extern template class RotationalMotionExponentialMapStateDerivative< long double, Time >;
+#endif
 
 } // namespace propagators
 

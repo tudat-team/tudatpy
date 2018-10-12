@@ -27,7 +27,7 @@
 #include <limits>
 
 #include <boost/make_shared.hpp>
-#include <boost/shared_ptr.hpp>
+#include <memory>
 #include <boost/lambda/lambda.hpp>
 #include <boost/test/floating_point_comparison.hpp>
 #include <boost/test/unit_test.hpp>
@@ -155,10 +155,10 @@ BOOST_AUTO_TEST_CASE( testAerodynamicForceAndAcceleration )
         // Create aaerodynamic acceleration model class, no inverted coefficients, direct mass
         // and reference area.
         AerodynamicAccelerationPointer accelerationClass
-                = boost::make_shared< AerodynamicAcceleration >(
-                    boost::lambda::constant( forceCoefficients ),
-                    boost::lambda::constant( density ),
-                    boost::lambda::constant( airSpeed ),
+                = std::make_shared< AerodynamicAcceleration >(
+                    [ & ]( ){ return forceCoefficients; },
+                    [ & ]( ){ return density; },
+                    [ & ]( ){ return airSpeed; },
                     mass, referenceArea, false );
         accelerationClass->updateMembers( );
         Eigen::Vector3d force = accelerationClass->getAcceleration( ) * mass;
@@ -167,14 +167,14 @@ BOOST_AUTO_TEST_CASE( testAerodynamicForceAndAcceleration )
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION( expectedForce, force, tolerance );
 
         // Create aerodynamic acceleration model class, no inverted coefficients, mass and
-        // reference area set through boost::functions.
+        // reference area set through std::functions.
         AerodynamicAccelerationPointer accelerationClass2 =
-                boost::make_shared< AerodynamicAcceleration >(
-                    boost::lambda::constant( forceCoefficients ),
-                    boost::lambda::constant( density ),
-                    boost::lambda::constant( airSpeed ),
-                    boost::lambda::constant( mass ),
-                    boost::lambda::constant( referenceArea ),
+                std::make_shared< AerodynamicAcceleration >(
+                    [ & ]( ){ return forceCoefficients; },
+                    [ & ]( ){ return density; },
+                    [ & ]( ){ return airSpeed; },
+                    [ & ]( ){ return mass; },
+                    [ & ]( ){ return referenceArea; },
                     false );
         accelerationClass2->updateMembers( );
         force = accelerationClass2->getAcceleration( ) * mass;
@@ -188,10 +188,10 @@ BOOST_AUTO_TEST_CASE( testAerodynamicForceAndAcceleration )
         // Create aaerodynamic acceleration model class, inverted coefficients, direct mass
         // and reference area.
         AerodynamicAccelerationPointer accelerationClass =
-                boost::make_shared< AerodynamicAcceleration >(
-                    boost::lambda::constant( -forceCoefficients ),
-                    boost::lambda::constant( density ),
-                    boost::lambda::constant( airSpeed ),
+                std::make_shared< AerodynamicAcceleration >(
+                    [ & ]( ){ return -forceCoefficients; },
+                    [ & ]( ){ return density; },
+                    [ & ]( ){ return airSpeed; },
                     mass, referenceArea, true );
         accelerationClass->updateMembers( );
         Eigen::Vector3d force = accelerationClass->getAcceleration( ) * mass;
@@ -200,14 +200,14 @@ BOOST_AUTO_TEST_CASE( testAerodynamicForceAndAcceleration )
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION( expectedForce, force, tolerance );
 
         // Create aerodynamic acceleration model class, inverted coefficients, mass and
-        // reference area set through boost::functions.
+        // reference area set through std::functions.
         AerodynamicAccelerationPointer accelerationClass2 =
-                boost::make_shared< AerodynamicAcceleration >(
-                    boost::lambda::constant( -forceCoefficients ),
-                    boost::lambda::constant( density ),
-                    boost::lambda::constant( airSpeed ),
-                    boost::lambda::constant( mass ),
-                    boost::lambda::constant( referenceArea ),
+                std::make_shared< AerodynamicAcceleration >(
+                    [ & ]( ){ return -forceCoefficients; },
+                    [ & ]( ){ return density; },
+                    [ & ]( ){ return airSpeed; },
+                    [ & ]( ){ return mass; },
+                    [ & ]( ){ return referenceArea; },
                     true );
         accelerationClass2->updateMembers( );
         force = accelerationClass2->getAcceleration( ) * mass;
@@ -322,25 +322,25 @@ void testAerodynamicForceDirection( const bool includeThrustForce,
     for( unsigned int i = 0; i < maximumIndex; i++ )
     {
         // Create Earth object
-        std::map< std::string, boost::shared_ptr< BodySettings > > defaultBodySettings =
-                getDefaultBodySettings( boost::assign::list_of( "Earth" ), -1.0E6, 1.0E6 );
-        defaultBodySettings[ "Earth" ]->ephemerisSettings = boost::make_shared< ConstantEphemerisSettings >(
+        std::map< std::string, std::shared_ptr< BodySettings > > defaultBodySettings =
+                getDefaultBodySettings( std::vector< std::string >{ "Earth" }, -1.0E6, 1.0E6 );
+        defaultBodySettings[ "Earth" ]->ephemerisSettings = std::make_shared< ConstantEphemerisSettings >(
                     Eigen::Vector6d::Zero( ) );
         NamedBodyMap bodyMap = createBodies( defaultBodySettings );
 
         // Create vehicle objects.
         double vehicleMass = 5.0E3;
-        bodyMap[ "Vehicle" ] = boost::make_shared< simulation_setup::Body >( );
+        bodyMap[ "Vehicle" ] = std::make_shared< simulation_setup::Body >( );
         bodyMap[ "Vehicle" ]->setConstantBodyMass( vehicleMass );
         bodyMap[ "Vehicle" ]->setEphemeris(
-                    boost::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
-                        boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Vector6d  > >( ),
+                    std::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
+                        std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Vector6d  > >( ),
                         "Earth" ) );
 
         if( i < 4 && !imposeThrustDirection )
         {
             bodyMap[ "Vehicle" ]->setRotationalEphemeris(
-                        boost::make_shared< ephemerides::SpiceRotationalEphemeris >( "ECLIPJ2000", "IAU_MOON" ) );
+                        std::make_shared< ephemerides::SpiceRotationalEphemeris >( "ECLIPJ2000", "IAU_MOON" ) );
         }
 
         bool areCoefficientsInAerodynamicFrame;
@@ -364,8 +364,8 @@ void testAerodynamicForceDirection( const bool includeThrustForce,
 
         }
 
-        boost::shared_ptr< AerodynamicCoefficientSettings > aerodynamicCoefficientSettings =
-                boost::make_shared< ConstantAerodynamicCoefficientSettings >(
+        std::shared_ptr< AerodynamicCoefficientSettings > aerodynamicCoefficientSettings =
+                std::make_shared< ConstantAerodynamicCoefficientSettings >(
                     2.0, 4.0, 1.5, Eigen::Vector3d::Zero( ), aerodynamicCoefficients, Eigen::Vector3d::Zero( ),
                     areCoefficientsInAerodynamicFrame, 1 );
         bodyMap[ "Vehicle" ]->setAerodynamicCoefficientInterface(
@@ -382,12 +382,12 @@ void testAerodynamicForceDirection( const bool includeThrustForce,
         std::vector< std::string > centralBodies;
 
         // Define acceleration model settings.
-        std::map< std::string, std::vector< boost::shared_ptr< AccelerationSettings > > > accelerationsOfVehicle;
-        accelerationsOfVehicle[ "Earth" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );
+        std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfVehicle;
+        accelerationsOfVehicle[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( central_gravity ) );
 
         if( swapCreationOrder )
         {
-            accelerationsOfVehicle[ "Earth" ].push_back( boost::make_shared< AccelerationSettings >( aerodynamic ) );
+            accelerationsOfVehicle[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( aerodynamic ) );
         }
 
         Eigen::Vector3d bodyFixedThrustDirection = ( Eigen::Vector3d( ) << 1.4, 3.1, -0.5 ).finished( ).normalized( );
@@ -397,27 +397,27 @@ void testAerodynamicForceDirection( const bool includeThrustForce,
             if( !imposeThrustDirection )
             {
                 accelerationsOfVehicle[ "Vehicle" ].push_back(
-                            boost::make_shared< ThrustAccelerationSettings >(
-                                boost::make_shared< ThrustDirectionGuidanceSettings >(
+                            std::make_shared< ThrustAccelerationSettings >(
+                                std::make_shared< ThrustDirectionGuidanceSettings >(
                                     thrust_direction_from_existing_body_orientation, "Earth" ),
-                                boost::make_shared< ConstantThrustEngineSettings >(
+                                std::make_shared< ConstantThrustMagnitudeSettings >(
                                     thrustMagnitude, specificImpulse, bodyFixedThrustDirection ) ) );
             }
             else
             {
                 accelerationsOfVehicle[ "Vehicle" ].push_back(
-                            boost::make_shared< ThrustAccelerationSettings >(
-                                boost::make_shared< CustomThrustOrientationSettings >(
-                                    boost::bind( spice_interface::computeRotationQuaternionBetweenFrames,
-                                                     "IAU_Mars", "IAU_Earth", _1 ) ),
-                                boost::make_shared< ConstantThrustEngineSettings >(
+                            std::make_shared< ThrustAccelerationSettings >(
+                                std::make_shared< CustomThrustOrientationSettings >(
+                                    std::bind( spice_interface::computeRotationQuaternionBetweenFrames,
+                                                     "IAU_Mars", "IAU_Earth", std::placeholders::_1 ) ),
+                                std::make_shared< ConstantThrustMagnitudeSettings >(
                                     thrustMagnitude, specificImpulse, bodyFixedThrustDirection ) ) );
             }
         }
 
         if( !swapCreationOrder )
         {
-            accelerationsOfVehicle[ "Earth" ].push_back( boost::make_shared< AccelerationSettings >( aerodynamic ) );
+            accelerationsOfVehicle[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( aerodynamic ) );
         }
 
 
@@ -437,8 +437,8 @@ void testAerodynamicForceDirection( const bool includeThrustForce,
         basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
                     bodyMap, accelerationMap, bodiesToPropagate, centralBodies );
 
-        boost::shared_ptr< DummyAngleCalculator > testAngles =
-                boost::make_shared< DummyAngleCalculator >( );
+        std::shared_ptr< DummyAngleCalculator > testAngles =
+                std::make_shared< DummyAngleCalculator >( );
 
         if( !( i < 4 ) )
         {
@@ -448,57 +448,57 @@ void testAerodynamicForceDirection( const bool includeThrustForce,
             }
             else
             {
-                boost::shared_ptr< reference_frames::AerodynamicAngleCalculator > angleCalculator =
+                std::shared_ptr< reference_frames::AerodynamicAngleCalculator > angleCalculator =
                         bodyMap[ "Vehicle" ]->getFlightConditions( )->getAerodynamicAngleCalculator( );
                 angleCalculator->setOrientationAngleFunctions(
-                            boost::bind( &DummyAngleCalculator::getDummyAngleOfAttack, testAngles ),
-                            boost::bind( &DummyAngleCalculator::getDummyAngleOfSideslip, testAngles ),
-                            boost::bind( &DummyAngleCalculator::getDummyBankAngle, testAngles ),
-                            boost::bind( &DummyAngleCalculator::updateGuidance, testAngles, _1 ) );
+                            std::bind( &DummyAngleCalculator::getDummyAngleOfAttack, testAngles ),
+                            std::bind( &DummyAngleCalculator::getDummyAngleOfSideslip, testAngles ),
+                            std::bind( &DummyAngleCalculator::getDummyBankAngle, testAngles ),
+                            std::bind( &DummyAngleCalculator::updateGuidance, testAngles, std::placeholders::_1 ) );
             }
         }
 
 
-        boost::shared_ptr< DependentVariableSaveSettings > dependentVariableSaveSettings;
+        std::shared_ptr< DependentVariableSaveSettings > dependentVariableSaveSettings;
 
-        std::vector< boost::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariables;
+        std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariables;
 
         dependentVariables.push_back(
-                    boost::make_shared< SingleAccelerationDependentVariableSaveSettings >(
+                    std::make_shared< SingleAccelerationDependentVariableSaveSettings >(
                         aerodynamic, "Vehicle", "Earth", 0 ) );
         dependentVariables.push_back(
-                    boost::make_shared< IntermediateAerodynamicRotationVariableSaveSettings >(
+                    std::make_shared< IntermediateAerodynamicRotationVariableSaveSettings >(
                         "Vehicle", reference_frames::inertial_frame, reference_frames::aerodynamic_frame ) );
         dependentVariables.push_back(
-                    boost::make_shared< IntermediateAerodynamicRotationVariableSaveSettings >(
+                    std::make_shared< IntermediateAerodynamicRotationVariableSaveSettings >(
                         "Vehicle", reference_frames::inertial_frame, reference_frames::body_frame ) );
         dependentVariables.push_back(
-                    boost::make_shared< IntermediateAerodynamicRotationVariableSaveSettings >(
+                    std::make_shared< IntermediateAerodynamicRotationVariableSaveSettings >(
                         "Vehicle", reference_frames::inertial_frame, reference_frames::corotating_frame ) );
         dependentVariables.push_back(
-                    boost::make_shared< IntermediateAerodynamicRotationVariableSaveSettings >(
+                    std::make_shared< IntermediateAerodynamicRotationVariableSaveSettings >(
                         "Vehicle", reference_frames::inertial_frame, reference_frames::trajectory_frame ) );
         dependentVariables.push_back(
-                    boost::make_shared< SingleDependentVariableSaveSettings >(
+                    std::make_shared< SingleDependentVariableSaveSettings >(
                         body_fixed_airspeed_based_velocity_variable, "Vehicle" ) );
         if( includeThrustForce )
         {
             dependentVariables.push_back(
-                        boost::make_shared< SingleAccelerationDependentVariableSaveSettings >(
+                        std::make_shared< SingleAccelerationDependentVariableSaveSettings >(
                             thrust_acceleration, "Vehicle", "Vehicle", 0 ) );
         }
 
-        dependentVariableSaveSettings = boost::make_shared< DependentVariableSaveSettings >( dependentVariables );
+        dependentVariableSaveSettings = std::make_shared< DependentVariableSaveSettings >( dependentVariables );
 
 
-        boost::shared_ptr< PropagationTimeTerminationSettings > terminationSettings =
-                boost::make_shared< propagators::PropagationTimeTerminationSettings >( 1000.0 );
-        boost::shared_ptr< TranslationalStatePropagatorSettings< double > > translationalPropagatorSettings =
-                boost::make_shared< TranslationalStatePropagatorSettings< double > >
+        std::shared_ptr< PropagationTimeTerminationSettings > terminationSettings =
+                std::make_shared< propagators::PropagationTimeTerminationSettings >( 1000.0 );
+        std::shared_ptr< TranslationalStatePropagatorSettings< double > > translationalPropagatorSettings =
+                std::make_shared< TranslationalStatePropagatorSettings< double > >
                 ( centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState, terminationSettings,
                   cowell, dependentVariableSaveSettings );
-        boost::shared_ptr< IntegratorSettings< > > integratorSettings =
-                boost::make_shared< IntegratorSettings< > >
+        std::shared_ptr< IntegratorSettings< > > integratorSettings =
+                std::make_shared< IntegratorSettings< > >
                 ( rungeKutta4, 0.0, 5.0 );
 
         // Create simulation object and propagate dynamics.
@@ -509,7 +509,7 @@ void testAerodynamicForceDirection( const bool includeThrustForce,
         std::map< double, Eigen::Matrix< double, Eigen::Dynamic, 1 > > dependentVariableOutput =
                 dynamicsSimulator.getDependentVariableHistory( );
 
-        boost::shared_ptr< ephemerides::RotationalEphemeris > rotationalEphemeris =
+        std::shared_ptr< ephemerides::RotationalEphemeris > rotationalEphemeris =
                 bodyMap.at( "Vehicle" )->getRotationalEphemeris( );
 
         double thrustAcceleration = thrustMagnitude / vehicleMass;

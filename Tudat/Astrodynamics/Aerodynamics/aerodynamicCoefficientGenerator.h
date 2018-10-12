@@ -20,8 +20,7 @@
 #include <vector>
 
 #include <boost/multi_array.hpp>
-#include <boost/make_shared.hpp>
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include <Eigen/Core>
 
@@ -176,7 +175,7 @@ public:
     //! Save aerodynamic coefficients to file.
     /*!
      *  Save aerodynamic coefficients to file.
-     *  \param fileName Map of paths to files where aerodynamics coefficients are to be saved.
+     *  \param fileNamesMap Map of paths to files where aerodynamics coefficients are to be saved.
      */
     void saveAerodynamicCoefficientsTables( const std::map< unsigned int, std::string >& fileNamesMap )
     {
@@ -262,7 +261,7 @@ protected:
     {
         // Create interpolator for coefficients.
         coefficientInterpolator_ =
-                boost::make_shared< interpolators::MultiLinearInterpolator< double,
+                std::make_shared< interpolators::MultiLinearInterpolator< double,
                 Eigen::Vector6d, 3 > >
                 ( dataPointsOfIndependentVariables_, aerodynamicCoefficients_ );
     }
@@ -288,7 +287,7 @@ protected:
 
     //! Interpolator producing continuous aerodynamic coefficients from the discrete calculations
     //! contained in aerodynamicCoefficients_.
-    boost::shared_ptr< interpolators::Interpolator< double, Eigen::Vector6d > >
+    std::shared_ptr< interpolators::Interpolator< double, Eigen::Vector6d > >
             coefficientInterpolator_;
 };
 

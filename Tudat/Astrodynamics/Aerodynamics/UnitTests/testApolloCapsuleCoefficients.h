@@ -24,12 +24,12 @@ using Eigen::Vector6d;
 using mathematical_constants::PI;
 using namespace aerodynamics;
 
-boost::shared_ptr< HypersonicLocalInclinationAnalysis > getApolloCoefficientInterface( )
+std::shared_ptr< HypersonicLocalInclinationAnalysis > getApolloCoefficientInterface( )
 {
 
     // Create test capsule.
-    boost::shared_ptr< geometric_shapes::Capsule > capsule
-            = boost::make_shared< geometric_shapes::Capsule >(
+    std::shared_ptr< geometric_shapes::Capsule > capsule
+            = std::make_shared< geometric_shapes::Capsule >(
                 4.694, 1.956, 2.662, -1.0 * 33.0 * PI / 180.0, 0.196 );
 
     std::vector< int > numberOfLines;
@@ -87,7 +87,7 @@ boost::shared_ptr< HypersonicLocalInclinationAnalysis > getApolloCoefficientInte
     selectedMethods[ 1 ][ 3 ] = 3;
 
     // Create analysis object and capsule database.
-    return boost::make_shared< HypersonicLocalInclinationAnalysis >(
+    return std::make_shared< HypersonicLocalInclinationAnalysis >(
                 independentVariableDataPoints, capsule, numberOfLines, numberOfPoints,
                 invertOrders, selectedMethods, PI * pow( capsule->getMiddleRadius( ), 2.0 ),
                 3.9116, momentReference );

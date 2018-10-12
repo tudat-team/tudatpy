@@ -28,7 +28,7 @@
 #include <string>
 #include <vector>
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include <Eigen/Core>
 
@@ -298,7 +298,7 @@ private:
 };
 
 //! Typedef for shared-pointer to TwoLineElementData object.
-typedef boost::shared_ptr< TwoLineElementData > TwoLineElementDataPointer;
+typedef std::shared_ptr< TwoLineElementData > TwoLineElementDataPointer;
 
 } // namespace input_output
 } // namespace tudat

@@ -12,7 +12,7 @@
 #define TUDAT_CREATENUMERICALINTEGRATOR_H
 
 #include <boost/make_shared.hpp>
-#include <boost/shared_ptr.hpp>
+#include <memory>
 #include <boost/lexical_cast.hpp>
 
 #include "Tudat/Mathematics/NumericalIntegrators/bulirschStoerVariableStepsizeIntegrator.h"
@@ -129,6 +129,8 @@ public:
     //! Default constructor.
     /*!
      *  Constructor for variable step RK integrator base settings.
+     *  \param areTolerancesDefinedAsScalar Boolean denoting whether the relative and absolute error tolerances are
+     *      defined as a scalar. Alternatively, they can be defined as a vector.
      *  \param initialTime Start time (independent variable) of numerical integration.
      *  \param initialTimeStep Initial time (independent variable) step used in numerical integration. Adapted during integration.
      *  \param coefficientSet Coefficient set (butcher tableau) to use in integration.
@@ -561,15 +563,15 @@ public:
  */
 template< typename IndependentVariableType, typename DependentVariableType,
           typename IndependentVariableStepType = IndependentVariableType >
-boost::shared_ptr< numerical_integrators::NumericalIntegrator< IndependentVariableType, DependentVariableType,
+std::shared_ptr< numerical_integrators::NumericalIntegrator< IndependentVariableType, DependentVariableType,
 DependentVariableType, IndependentVariableStepType > > createIntegrator(
-        boost::function< DependentVariableType(
+        std::function< DependentVariableType(
             const IndependentVariableType, const DependentVariableType& ) > stateDerivativeFunction,
         const DependentVariableType initialState,
-        boost::shared_ptr< IntegratorSettings< IndependentVariableType > > integratorSettings )
+        std::shared_ptr< IntegratorSettings< IndependentVariableType > > integratorSettings )
 {
     // Declare eventual output
-    boost::shared_ptr< NumericalIntegrator
+    std::shared_ptr< NumericalIntegrator
             < IndependentVariableType, DependentVariableType, DependentVariableType, IndependentVariableStepType > > integrator;
 
     // Retrieve requested type of integrator
@@ -578,7 +580,7 @@ DependentVariableType, IndependentVariableStepType > > createIntegrator(
     case euler:
     {
         // Create Euler integrator
-        integrator = boost::make_shared< EulerIntegrator
+        integrator = std::make_shared< EulerIntegrator
                 < IndependentVariableType, DependentVariableType, DependentVariableType, IndependentVariableStepType > >
                 ( stateDerivativeFunction, integratorSettings->initialTime_, initialState ) ;
         break;
@@ -586,7 +588,7 @@ DependentVariableType, IndependentVariableStepType > > createIntegrator(
     case rungeKutta4:
     {
         // Create Runge-Kutta 4 integrator
-        integrator = boost::make_shared< RungeKutta4Integrator
+        integrator = std::make_shared< RungeKutta4Integrator
                 < IndependentVariableType, DependentVariableType, DependentVariableType, IndependentVariableStepType > >
                 ( stateDerivativeFunction, integratorSettings->initialTime_, initialState ) ;
         break;
@@ -594,8 +596,8 @@ DependentVariableType, IndependentVariableStepType > > createIntegrator(
     case rungeKuttaVariableStepSize:
     {
         // Cast integrator
-        boost::shared_ptr< RungeKuttaVariableStepSizeBaseSettings< IndependentVariableType > >
-                variableStepIntegratorSettings = boost::dynamic_pointer_cast< RungeKuttaVariableStepSizeBaseSettings<
+        std::shared_ptr< RungeKuttaVariableStepSizeBaseSettings< IndependentVariableType > >
+                variableStepIntegratorSettings = std::dynamic_pointer_cast< RungeKuttaVariableStepSizeBaseSettings<
                 IndependentVariableType > >( integratorSettings );
 
         // Check input consistency
@@ -613,8 +615,8 @@ DependentVariableType, IndependentVariableStepType > > createIntegrator(
         if ( variableStepIntegratorSettings->areTolerancesDefinedAsScalar_ )
         {
             // Settings with scalar tolerances
-            boost::shared_ptr< RungeKuttaVariableStepSizeSettingsScalarTolerances< IndependentVariableType > >
-                    scalarTolerancesIntegratorSettings = boost::dynamic_pointer_cast<
+            std::shared_ptr< RungeKuttaVariableStepSizeSettingsScalarTolerances< IndependentVariableType > >
+                    scalarTolerancesIntegratorSettings = std::dynamic_pointer_cast<
                     RungeKuttaVariableStepSizeSettingsScalarTolerances< IndependentVariableType > >( variableStepIntegratorSettings );
 
             // Check input consistency
@@ -625,7 +627,7 @@ DependentVariableType, IndependentVariableStepType > > createIntegrator(
             }
 
             // Create Runge-Kutta integrator with scalar tolerances
-            integrator = boost::make_shared< RungeKuttaVariableStepSizeIntegrator
+            integrator = std::make_shared< RungeKuttaVariableStepSizeIntegrator
                     < IndependentVariableType, DependentVariableType, DependentVariableType, IndependentVariableStepType > >
                     ( coefficients, stateDerivativeFunction, integratorSettings->initialTime_, initialState,
                       static_cast< IndependentVariableStepType >( scalarTolerancesIntegratorSettings->minimumStepSize_ ),
@@ -639,8 +641,8 @@ DependentVariableType, IndependentVariableStepType > > createIntegrator(
         else
         {
             // Settings with vector tolerances
-            boost::shared_ptr< RungeKuttaVariableStepSizeSettingsVectorTolerances< IndependentVariableType, DependentVariableType > >
-                    vectorTolerancesIntegratorSettings = boost::dynamic_pointer_cast<
+            std::shared_ptr< RungeKuttaVariableStepSizeSettingsVectorTolerances< IndependentVariableType, DependentVariableType > >
+                    vectorTolerancesIntegratorSettings = std::dynamic_pointer_cast<
                     RungeKuttaVariableStepSizeSettingsVectorTolerances< IndependentVariableType, DependentVariableType > >(
                         variableStepIntegratorSettings );
 
@@ -668,7 +670,7 @@ DependentVariableType, IndependentVariableStepType > > createIntegrator(
             }
 
             // Create Runge-Kutta integrator with vector tolerances
-            integrator = boost::make_shared< RungeKuttaVariableStepSizeIntegrator
+            integrator = std::make_shared< RungeKuttaVariableStepSizeIntegrator
                     < IndependentVariableType, DependentVariableType, DependentVariableType, IndependentVariableStepType > >
                     ( coefficients, stateDerivativeFunction, integratorSettings->initialTime_, initialState,
                       static_cast< IndependentVariableStepType >( vectorTolerancesIntegratorSettings->minimumStepSize_ ),
@@ -683,12 +685,12 @@ DependentVariableType, IndependentVariableStepType > > createIntegrator(
     case bulirschStoer:
     {
         // Check input consistency
-        boost::shared_ptr< BulirschStoerIntegratorSettings< IndependentVariableType > > bulirschStoerIntegratorSettings =
-                boost::dynamic_pointer_cast< BulirschStoerIntegratorSettings< IndependentVariableType > >(
+        std::shared_ptr< BulirschStoerIntegratorSettings< IndependentVariableType > > bulirschStoerIntegratorSettings =
+                std::dynamic_pointer_cast< BulirschStoerIntegratorSettings< IndependentVariableType > >(
                     integratorSettings );
 
         // Check that integrator type has been cast properly
-        if ( bulirschStoerIntegratorSettings == NULL )
+        if ( bulirschStoerIntegratorSettings == nullptr )
         {
             throw std::runtime_error( "Error, type of integrator settings (bulirschStoer) not compatible with "
                                       "selected integrator (derived class of IntegratorSettings must be BulirschStoerIntegratorSettings "
@@ -696,7 +698,7 @@ DependentVariableType, IndependentVariableStepType > > createIntegrator(
         }
         else
         {
-            integrator = boost::make_shared< BulirschStoerVariableStepSizeIntegrator
+            integrator = std::make_shared< BulirschStoerVariableStepSizeIntegrator
                     < IndependentVariableType, DependentVariableType, DependentVariableType, IndependentVariableStepType > >
                     ( getBulirschStoerStepSequence( bulirschStoerIntegratorSettings->extrapolationSequence_,
                                                     bulirschStoerIntegratorSettings->maximumNumberOfSteps_ ),
@@ -714,12 +716,12 @@ DependentVariableType, IndependentVariableStepType > > createIntegrator(
     case adamsBashforthMoulton:
     {
         // Check input consistency
-        boost::shared_ptr< AdamsBashforthMoultonSettings< IndependentVariableType > > adamsBashforthMoultonIntegratorSettings =
-                boost::dynamic_pointer_cast< AdamsBashforthMoultonSettings< IndependentVariableType > >(
+        std::shared_ptr< AdamsBashforthMoultonSettings< IndependentVariableType > > adamsBashforthMoultonIntegratorSettings =
+                std::dynamic_pointer_cast< AdamsBashforthMoultonSettings< IndependentVariableType > >(
                     integratorSettings );
 
         // Check that integrator type has been cast properly
-        if ( adamsBashforthMoultonIntegratorSettings == NULL )
+        if ( adamsBashforthMoultonIntegratorSettings == nullptr )
         {
             throw std::runtime_error( "Error, type of integrator settings (AdamsBashforthMoultonSettings) not compatible with "
                                       "selected integrator (derived class of IntegratorSettings must be AdamsBashforthMoultonSettings "
@@ -728,7 +730,7 @@ DependentVariableType, IndependentVariableStepType > > createIntegrator(
         else
         {
             // Create integrator
-            integrator = boost::make_shared< AdamsBashforthMoultonIntegrator
+            integrator = std::make_shared< AdamsBashforthMoultonIntegrator
                     < IndependentVariableType, DependentVariableType, DependentVariableType, IndependentVariableStepType > >
                     ( stateDerivativeFunction, integratorSettings->initialTime_, initialState,
                       static_cast< IndependentVariableStepType >( adamsBashforthMoultonIntegratorSettings->minimumStepSize_ ),
@@ -737,16 +739,16 @@ DependentVariableType, IndependentVariableStepType > > createIntegrator(
                       adamsBashforthMoultonIntegratorSettings->absoluteErrorTolerance_ ,
                       static_cast< IndependentVariableStepType >( adamsBashforthMoultonIntegratorSettings->bandwidth_ ) );
 
-            boost::dynamic_pointer_cast< AdamsBashforthMoultonIntegrator
+            std::dynamic_pointer_cast< AdamsBashforthMoultonIntegrator
                     < IndependentVariableType, DependentVariableType, DependentVariableType, IndependentVariableStepType > >(
                         integrator )->setMinimumOrder( adamsBashforthMoultonIntegratorSettings->minimumOrder_ );
-            boost::dynamic_pointer_cast< AdamsBashforthMoultonIntegrator
+            std::dynamic_pointer_cast< AdamsBashforthMoultonIntegrator
                     < IndependentVariableType, DependentVariableType, DependentVariableType, IndependentVariableStepType > >(
                         integrator )->setMaximumOrder( adamsBashforthMoultonIntegratorSettings->maximumOrder_ );
 
             if ( adamsBashforthMoultonIntegratorSettings->minimumOrder_ == adamsBashforthMoultonIntegratorSettings->maximumOrder_ )
             {
-                boost::dynamic_pointer_cast< AdamsBashforthMoultonIntegrator
+                std::dynamic_pointer_cast< AdamsBashforthMoultonIntegrator
                         < IndependentVariableType, DependentVariableType, DependentVariableType, IndependentVariableStepType > >(
                             integrator )->setFixedOrder( true );
             }
@@ -754,7 +756,7 @@ DependentVariableType, IndependentVariableStepType > > createIntegrator(
             if ( adamsBashforthMoultonIntegratorSettings->minimumStepSize_ ==
                  adamsBashforthMoultonIntegratorSettings->maximumStepSize_ )
             {
-                boost::dynamic_pointer_cast< AdamsBashforthMoultonIntegrator
+                std::dynamic_pointer_cast< AdamsBashforthMoultonIntegrator
                         < IndependentVariableType, DependentVariableType, DependentVariableType, IndependentVariableStepType > >(
                             integrator )->setFixedStepSize( true );
             }
@@ -766,7 +768,7 @@ DependentVariableType, IndependentVariableStepType > > createIntegrator(
     }
 
     // Check that assignment of integrator went well
-    if ( integrator == NULL )
+    if ( integrator == nullptr )
     {
         throw std::runtime_error( "Error while creating integrator. The resulting integrator pointer is null." );
     }

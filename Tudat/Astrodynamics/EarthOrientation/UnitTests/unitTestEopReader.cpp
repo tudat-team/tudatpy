@@ -36,7 +36,7 @@ BOOST_AUTO_TEST_SUITE( test_eop_reader )
 //! Tests whether EOP data is properly read and processed, and whether data in correctly interpolated (linearly)
 BOOST_AUTO_TEST_CASE( testEopReaderData )
 {
-    boost::shared_ptr< EOPReader > eopReader = boost::make_shared< EOPReader >(
+    std::shared_ptr< EOPReader > eopReader = std::make_shared< EOPReader >(
                 tudat::input_output::getEarthOrientationDataFilesPath( ) + "eopc04_08_IAU2000.62-now.txt",
                 "C04", basic_astrodynamics::iau_2000_a );
 
@@ -60,19 +60,19 @@ BOOST_AUTO_TEST_CASE( testEopReaderData )
     double expecteddY = -0.000280 * arcSecondToRadian;
 
     // Create interpolator for x_{p} and y_{p} (polar motion) and retrieve current value
-    boost::shared_ptr< OneDimensionalInterpolator< double, Eigen::Vector2d > > cipInItrsInterpolator =
+    std::shared_ptr< OneDimensionalInterpolator< double, Eigen::Vector2d > > cipInItrsInterpolator =
             tudat::earth_orientation::createStandardEarthOrientationCalculator( eopReader )->getPolarMotionCalculator( )->
             getDailyIersValueInterpolator( );
     Eigen::Vector2d cipInItrs = cipInItrsInterpolator->interpolate( utcSecondsSinceJ2000 );
 
     // Create interpolator for dX and dY (nutation correction) and retrieve current value
-    boost::shared_ptr< OneDimensionalInterpolator< double, Eigen::Vector2d > > cipInGcrsCorrectionInterpolator =
+    std::shared_ptr< OneDimensionalInterpolator< double, Eigen::Vector2d > > cipInGcrsCorrectionInterpolator =
             tudat::earth_orientation::createStandardEarthOrientationCalculator( eopReader )->getPrecessionNutationCalculator( )->
             getDailyCorrectionInterpolator( );
     Eigen::Vector2d cipInGcrs = cipInGcrsCorrectionInterpolator->interpolate( utcSecondsSinceJ2000 );
 
     // Create interpolator for d(UT1-UTC) correction  and retrieve current value
-    boost::shared_ptr< OneDimensionalInterpolator< double, double > > ut1MinusUtcInterpolator =
+    std::shared_ptr< OneDimensionalInterpolator< double, double > > ut1MinusUtcInterpolator =
             createDefaultTimeConverter( eopReader )->getDailyUtcUt1CorrectionInterpolator( );
     double utcMinusUt1 = ut1MinusUtcInterpolator->interpolate( utcSecondsSinceJ2000 );
 
@@ -154,10 +154,10 @@ BOOST_AUTO_TEST_CASE( testEopReaderData )
 BOOST_AUTO_TEST_CASE( testLeapSecondIdentification )
 {
     // Read EOP file and get UT1-UTC interpolator
-    boost::shared_ptr< EOPReader > eopReader = boost::make_shared< EOPReader >(
+    std::shared_ptr< EOPReader > eopReader = std::make_shared< EOPReader >(
                 tudat::input_output::getEarthOrientationDataFilesPath( ) + "eopc04_08_IAU2000.62-now.txt",
                 "C04", basic_astrodynamics::iau_2000_a );
-    boost::shared_ptr< OneDimensionalInterpolator< double, double > > ut1MinusUtcInterpolator =
+    std::shared_ptr< OneDimensionalInterpolator< double, double > > ut1MinusUtcInterpolator =
             createDefaultTimeConverter( eopReader )->getDailyUtcUt1CorrectionInterpolator( );
 
     // Define list of leap seconds

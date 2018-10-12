@@ -16,13 +16,13 @@
 #include <map>
 #include <vector>
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include <Eigen/Core>
 
 #include "Tudat/Mathematics/Interpolators/lookupScheme.h"
 #include "Tudat/Mathematics/Interpolators/linearInterpolator.h"
-
+#include "Tudat/Basics/timeType.h"
 #include "Tudat/Astrodynamics/Ephemerides/rotationalEphemeris.h"
 
 namespace tudat
@@ -58,7 +58,7 @@ public:
      * \param targetFrameOrientation Target frame identifier.
      */
     TabulatedRotationalEphemeris(
-            const boost::shared_ptr< interpolators::OneDimensionalInterpolator< TimeType, StateType > >
+            const std::shared_ptr< interpolators::OneDimensionalInterpolator< TimeType, StateType > >
             interpolator,
             const std::string& baseFrameOrientation = "ECLIPJ2000",
             const std::string& targetFrameOrientation = "" ):
@@ -76,7 +76,7 @@ public:
      *  frame, and body's angular velocity vector, expressed in its body-fixed frame (target frame).The quaternion is normalized
      *  to 1 before being set as the current rotation. Other properties of the rotation are derived from these two quantities.
      */
-    void reset( const boost::shared_ptr< interpolators::OneDimensionalInterpolator< TimeType, StateType > > interpolator )
+    void reset( const std::shared_ptr< interpolators::OneDimensionalInterpolator< TimeType, StateType > > interpolator )
     {
         interpolator_ = interpolator;
     }
@@ -88,7 +88,7 @@ public:
      *  The interpolated data must consist of the four entries (w,x,y,z) of the quaternion from the target frame to the base
      *  frame, and body's angular velocity vector, expressed in its body-fixed frame (target frame).
      */
-    boost::shared_ptr< interpolators::OneDimensionalInterpolator< TimeType, StateType > > getInterpolator( )
+    std::shared_ptr< interpolators::OneDimensionalInterpolator< TimeType, StateType > > getInterpolator( )
     {
         return interpolator_;
     }
@@ -206,7 +206,7 @@ private:
      * The interpolated data must consist of the four entries (w,x,y,z) of the quaternion from the target frame to the base
      * frame, and body's angular velocity vector, expressed in its body-fixed frame (target frame).
      */
-    boost::shared_ptr< interpolators::OneDimensionalInterpolator< TimeType, StateType > > interpolator_;
+    std::shared_ptr< interpolators::OneDimensionalInterpolator< TimeType, StateType > > interpolator_;
 
     //! Last time at which the updateInterpolator function was called
     double currentTime_;
@@ -221,6 +221,14 @@ private:
     Eigen::Quaternion< StateScalarType > currentRotationToBaseFrame_;
 
 };
+
+extern template class TabulatedRotationalEphemeris< double, double >;
+
+#if( BUILD_EXTENDED_PRECISION_PROPAGATION_TOOLS )
+extern template class TabulatedRotationalEphemeris< long double, double >;
+extern template class TabulatedRotationalEphemeris< double, Time >;
+extern template class TabulatedRotationalEphemeris< long double, Time >;
+#endif
 
 }
 

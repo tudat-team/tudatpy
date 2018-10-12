@@ -39,12 +39,12 @@ BOOST_AUTO_TEST_CASE( test_json_acceleration_sphericalHarmonicGravity )
     using namespace tudat::json_interface;
 
     // Create AccelerationSettings from JSON file
-    const boost::shared_ptr< AccelerationSettings > fromFileSettings =
-            parseJSONFile< boost::shared_ptr< AccelerationSettings > >( INPUT( "sphericalHarmonicGravity" ) );
+    const std::shared_ptr< AccelerationSettings > fromFileSettings =
+            parseJSONFile< std::shared_ptr< AccelerationSettings > >( INPUT( "sphericalHarmonicGravity" ) );
 
     // Create AccelerationSettings manually
-    const boost::shared_ptr< AccelerationSettings > manualSettings =
-            boost::make_shared< SphericalHarmonicAccelerationSettings >( 7, 2 );
+    const std::shared_ptr< AccelerationSettings > manualSettings =
+            std::make_shared< SphericalHarmonicAccelerationSettings >( 7, 2 );
 
     // Compare
     BOOST_CHECK_EQUAL_JSON( fromFileSettings, manualSettings );
@@ -57,8 +57,8 @@ BOOST_AUTO_TEST_CASE( test_json_acceleration_mutualSphericalHarmonicGravity )
     using namespace tudat::json_interface;
 
     // Create AccelerationSettings from JSON file
-    const boost::shared_ptr< AccelerationSettings > fromFileSettings =
-            parseJSONFile< boost::shared_ptr< AccelerationSettings > >( INPUT( "mutualSphericalHarmonicGravity" ) );
+    const std::shared_ptr< AccelerationSettings > fromFileSettings =
+            parseJSONFile< std::shared_ptr< AccelerationSettings > >( INPUT( "mutualSphericalHarmonicGravity" ) );
 
     // Create AccelerationSettings manually
     const unsigned int maximumDegreeOfBodyExertingAcceleration = 7;
@@ -67,8 +67,8 @@ BOOST_AUTO_TEST_CASE( test_json_acceleration_mutualSphericalHarmonicGravity )
     const unsigned int maximumOrderOfBodyUndergoingAcceleration = 2;
     const unsigned int maximumDegreeOfCentralBody = 5;
     const unsigned int maximumOrderOfCentralBody = 4;
-    const boost::shared_ptr< AccelerationSettings > manualSettings =
-            boost::make_shared< MutualSphericalHarmonicAccelerationSettings >(
+    const std::shared_ptr< AccelerationSettings > manualSettings =
+            std::make_shared< MutualSphericalHarmonicAccelerationSettings >(
                 maximumDegreeOfBodyExertingAcceleration,
                 maximumOrderOfBodyExertingAcceleration,
                 maximumDegreeOfBodyUndergoingAcceleration,
@@ -87,8 +87,8 @@ BOOST_AUTO_TEST_CASE( test_json_acceleration_relativisticCorrection )
     using namespace tudat::json_interface;
 
     // Create AccelerationSettings from JSON file
-    const boost::shared_ptr< AccelerationSettings > fromFileSettings =
-            parseJSONFile< boost::shared_ptr< AccelerationSettings > >( INPUT( "relativisticCorrection" ) );
+    const std::shared_ptr< AccelerationSettings > fromFileSettings =
+            parseJSONFile< std::shared_ptr< AccelerationSettings > >( INPUT( "relativisticCorrection" ) );
 
     // Create AccelerationSettings manually
     const bool calculateSchwarzschildCorrection = true;
@@ -96,8 +96,8 @@ BOOST_AUTO_TEST_CASE( test_json_acceleration_relativisticCorrection )
     const bool calculateDeSitterCorrection = true;
     const std::string primaryBody = "Mars";
     const Eigen::Vector3d centralBodyAngularMomentum = ( Eigen::Vector3d( ) << 7.0E-9, 8.0E-10, 5.0E-5 ).finished( );
-    const boost::shared_ptr< AccelerationSettings > manualSettings =
-            boost::make_shared< RelativisticAccelerationCorrectionSettings >( calculateSchwarzschildCorrection,
+    const std::shared_ptr< AccelerationSettings > manualSettings =
+            std::make_shared< RelativisticAccelerationCorrectionSettings >( calculateSchwarzschildCorrection,
                                                                               calculateLenseThirringCorrection,
                                                                               calculateDeSitterCorrection,
                                                                               primaryBody,
@@ -114,15 +114,15 @@ BOOST_AUTO_TEST_CASE( test_json_acceleration_empirical )
     using namespace tudat::json_interface;
 
     // Create AccelerationSettings from JSON file
-    const boost::shared_ptr< AccelerationSettings > fromFileSettings =
-            parseJSONFile< boost::shared_ptr< AccelerationSettings > >( INPUT( "empirical" ) );
+    const std::shared_ptr< AccelerationSettings > fromFileSettings =
+            parseJSONFile< std::shared_ptr< AccelerationSettings > >( INPUT( "empirical" ) );
 
     // Create AccelerationSettings manually
     const Eigen::Vector3d constantAcceleration = ( Eigen::Vector3d( ) << 0.4, -0.1, 0.05 ).finished( );
     const Eigen::Vector3d sineAcceleration = ( Eigen::Vector3d( ) << 0.0, 0.02, 0.0 ).finished( );
     const Eigen::Vector3d cosineAcceleration = ( Eigen::Vector3d( ) << -0.01, 0.0, 0.0 ).finished( );
-    const boost::shared_ptr< AccelerationSettings > manualSettings =
-            boost::make_shared< EmpiricalAccelerationSettings >( constantAcceleration,
+    const std::shared_ptr< AccelerationSettings > manualSettings =
+            std::make_shared< EmpiricalAccelerationSettings >( constantAcceleration,
                                                                  sineAcceleration,
                                                                  cosineAcceleration );
 

@@ -21,11 +21,11 @@ namespace tudat
 namespace propagators
 {
 
-//! Function to obtain the time derivative of modified Rodrigues parameters (in vector representation) of body-fixed to inertial frame
+//! Function to obtain the time derivative of modified Rodrigues parameters (in vector representation) of body-fixed to inertial frame.
 /*!
- * Function to obtain the time derivative of modified Rodrigues parameters (in vector representation) of body-fixed to inertial frame
- * \param currentQuaternionToBaseFrame Quaternion (in vector representation) that defined the rotation from body-fixed to inertial
- * frame.
+ * Function to obtain the time derivative of modified Rodrigues parameters (in vector representation) of body-fixed to inertial frame.
+ * \param currentModiefiedRodriguesParametersToBaseFrame Modified Rodrigues parameters (in vector representation) that define the rotation
+ * from body-fixed to inertial frame.
  * \param angularVelocityVectorInBodyFixedFrame Current angular velocity vector of body, expressed in its body-fixed frame
  * \return Time derivative of modified Rodrigues parameters (in vector representation) of body-fixed to inertial frame
  */
@@ -35,7 +35,7 @@ Eigen::Vector4d calculateModifiedRodriguesParametersDerivative(
 
 //! Class for computing the state derivative for rotational dynamics of N bodies.
 /*!
- *  Class for computing the state derivative for rotational dynamics of N bodies., using modified Rodrigues parameters from body-fixed to inertial
+ *  Class for computing the state derivative for rotational dynamics of N bodies, using modified Rodrigues parameters from body-fixed to inertial
  *  frame (in modified Rodrigues parameters format) and angular velocity-vector of body expressed in body-fixed frame as the rotational state of a
  *  single body
  */
@@ -57,9 +57,9 @@ public:
     RotationalMotionModifiedRodriguesParametersStateDerivative(
             const basic_astrodynamics::TorqueModelMap& torqueModelsPerBody,
             const std::vector< std::string >& bodiesToPropagate,
-            std::vector< boost::function< Eigen::Matrix3d( ) > > bodyInertiaTensorFunctions,
-            std::vector< boost::function< Eigen::Matrix3d( ) > > bodyInertiaTensorTimeDerivativeFunctions =
-            std::vector< boost::function< Eigen::Matrix3d( ) > >( ) ):
+            std::vector< std::function< Eigen::Matrix3d( ) > > bodyInertiaTensorFunctions,
+            std::vector< std::function< Eigen::Matrix3d( ) > > bodyInertiaTensorTimeDerivativeFunctions =
+            std::vector< std::function< Eigen::Matrix3d( ) > >( ) ):
         RotationalMotionStateDerivative< StateScalarType, TimeType >(
             torqueModelsPerBody, modified_rodrigues_parameters, bodiesToPropagate, bodyInertiaTensorFunctions,
             bodyInertiaTensorTimeDerivativeFunctions )
@@ -194,6 +194,14 @@ public:
 private:
 
 };
+
+extern template class RotationalMotionModifiedRodriguesParametersStateDerivative< double, double >;
+
+#if( BUILD_EXTENDED_PRECISION_PROPAGATION_TOOLS )
+extern template class RotationalMotionModifiedRodriguesParametersStateDerivative< long double, double >;
+extern template class RotationalMotionModifiedRodriguesParametersStateDerivative< double, Time >;
+extern template class RotationalMotionModifiedRodriguesParametersStateDerivative< long double, Time >;
+#endif
 
 } // namespace propagators
 

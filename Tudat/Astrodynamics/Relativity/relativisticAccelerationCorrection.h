@@ -11,7 +11,7 @@
 #ifndef TUDAT_RELATIVISTICACCELERATIONCORRECTION_H
 #define TUDAT_RELATIVISTICACCELERATIONCORRECTION_H
 
-#include <boost/function.hpp>
+#include <functional>
 #include <boost/lambda/lambda.hpp>
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/physicalConstants.h"
@@ -173,15 +173,15 @@ public:
      * \param calculateSchwarzschildCorrection Boolean denoting whether the schwarzschild term is to be used.
      */
     RelativisticAccelerationCorrection(
-            boost::function< Eigen::Vector6d( ) > stateFunctionOfAcceleratedBody,
-            boost::function< Eigen::Vector6d( ) > stateFunctionOfCentralBody,
-            boost::function< Eigen::Vector6d( ) > stateFunctionOfPrimaryBody,
-            boost::function< double( ) > gravitationalParameterFunctionOfCentralBody,
-            boost::function< double( ) > gravitationalParameterFunctionOfPrimaryBody,
+            std::function< Eigen::Vector6d( ) > stateFunctionOfAcceleratedBody,
+            std::function< Eigen::Vector6d( ) > stateFunctionOfCentralBody,
+            std::function< Eigen::Vector6d( ) > stateFunctionOfPrimaryBody,
+            std::function< double( ) > gravitationalParameterFunctionOfCentralBody,
+            std::function< double( ) > gravitationalParameterFunctionOfPrimaryBody,
             std::string primaryBodyName,
-            boost::function< Eigen::Vector3d( ) > centalBodyAngularMomentumFunction = boost::function< Eigen::Vector3d( ) >( ),
-            boost::function< double( ) > ppnParameterGammaFunction = boost::lambda::constant( 1.0 ),
-            boost::function< double( ) > ppnParameterBetaFunction = boost::lambda::constant( 1.0 ),
+            std::function< Eigen::Vector3d( ) > centalBodyAngularMomentumFunction = std::function< Eigen::Vector3d( ) >( ),
+            std::function< double( ) > ppnParameterGammaFunction = [ ]( ){ return 1.0; },
+            std::function< double( ) > ppnParameterBetaFunction = [ ]( ){ return 1.0; },
             const bool calculateSchwarzschildCorrection = true ):
         AccelerationModel< Eigen::Vector3d >( ),
         stateFunctionOfAcceleratedBody_( stateFunctionOfAcceleratedBody ),
@@ -195,7 +195,7 @@ public:
         ppnParameterBetaFunction_( ppnParameterBetaFunction ),
         calculateSchwarzschildCorrection_( calculateSchwarzschildCorrection ),
         calculateDeSitterCorrection_( true ),
-        calculateLenseThirringCorrection_( !centalBodyAngularMomentumFunction.empty( ) )
+        calculateLenseThirringCorrection_( !( centalBodyAngularMomentumFunction == nullptr ) )
     { }
 
     //! Constructor, used when including Lense-Thirring, but not de Sitter, acceleration
@@ -212,12 +212,12 @@ public:
      * \param calculateSchwarzschildCorrection Boolean denoting whether the schwarzschild term is to be used.
      */
     RelativisticAccelerationCorrection(
-            boost::function< Eigen::Vector6d( ) > stateFunctionOfAcceleratedBody,
-            boost::function< Eigen::Vector6d( ) > stateFunctionOfCentralBody,
-            boost::function< double( ) > gravitationalParameterFunctionOfCentralBody,
-            boost::function< Eigen::Vector3d( ) > centalBodyAngularMomentumFunction,
-            boost::function< double( ) > ppnParameterGammaFunction = boost::lambda::constant( 1.0 ),
-            boost::function< double( ) > ppnParameterBetaFunction = boost::lambda::constant( 1.0 ),
+            std::function< Eigen::Vector6d( ) > stateFunctionOfAcceleratedBody,
+            std::function< Eigen::Vector6d( ) > stateFunctionOfCentralBody,
+            std::function< double( ) > gravitationalParameterFunctionOfCentralBody,
+            std::function< Eigen::Vector3d( ) > centalBodyAngularMomentumFunction,
+            std::function< double( ) > ppnParameterGammaFunction = [ ]( ){ return 1.0; },
+            std::function< double( ) > ppnParameterBetaFunction = [ ]( ){ return 1.0; },
             const bool calculateSchwarzschildCorrection = true ):
         AccelerationModel< Eigen::Vector3d >( ),
         stateFunctionOfAcceleratedBody_( stateFunctionOfAcceleratedBody ),
@@ -242,11 +242,11 @@ public:
      * \param ppnParameterBetaFunction Function returning the PPN parameter beta (default 1)
      */
     RelativisticAccelerationCorrection(
-            boost::function< Eigen::Vector6d( ) > stateFunctionOfAcceleratedBody,
-            boost::function< Eigen::Vector6d( ) > stateFunctionOfCentralBody,
-            boost::function< double( ) > gravitationalParameterFunctionOfCentralBody,
-            boost::function< double( ) > ppnParameterGammaFunction = boost::lambda::constant( 1.0 ),
-            boost::function< double( ) > ppnParameterBetaFunction = boost::lambda::constant( 1.0 ) ):
+            std::function< Eigen::Vector6d( ) > stateFunctionOfAcceleratedBody,
+            std::function< Eigen::Vector6d( ) > stateFunctionOfCentralBody,
+            std::function< double( ) > gravitationalParameterFunctionOfCentralBody,
+            std::function< double( ) > ppnParameterGammaFunction = [ ]( ){ return 1.0; },
+            std::function< double( ) > ppnParameterBetaFunction = [ ]( ){ return 1.0; } ):
         AccelerationModel< Eigen::Vector3d >( ),
         stateFunctionOfAcceleratedBody_( stateFunctionOfAcceleratedBody ),
         stateFunctionOfCentralBody_( stateFunctionOfCentralBody ),
@@ -357,7 +357,7 @@ public:
      * Function to return the current state of the body undergoing acceleration
      * \return Current state of the body undergoing acceleration
      */
-    boost::function< Eigen::Vector6d( ) > getStateFunctionOfAcceleratedBody( )
+    std::function< Eigen::Vector6d( ) > getStateFunctionOfAcceleratedBody( )
     { return stateFunctionOfAcceleratedBody_; }
 
     //! Function to return the current state of the main body exerting acceleration
@@ -365,7 +365,7 @@ public:
      * Function to return the current state of the main body exerting acceleration
      * \return Current state of the main body exerting acceleration
      */
-    boost::function< Eigen::Vector6d( ) > getStateFunctionOfCentralBody( )
+    std::function< Eigen::Vector6d( ) > getStateFunctionOfCentralBody( )
     { return stateFunctionOfCentralBody_; }
 
     //! Function to return the current gravitational parameter of central body
@@ -373,7 +373,7 @@ public:
      * Function to return the current gravitational parameter of central body
      * \return Current gravitational parameter of central body
      */
-    boost::function< double( ) > getGravitationalParameterFunctionOfCentralBody( )
+    std::function< double( ) > getGravitationalParameterFunctionOfCentralBody( )
     { return gravitationalParameterFunctionOfCentralBody_; }
 
     //! Function to return the current PPN parameter gamma
@@ -381,7 +381,7 @@ public:
      * Function to return the current PPN parameter gamma
      * \return Current PPN parameter gamma
      */
-    boost::function< double( ) > getPpnParameterGammaFunction_( )
+    std::function< double( ) > getPpnParameterGammaFunction_( )
     { return ppnParameterGammaFunction_; }
 
     //! Function to return the current PPN parameter beta
@@ -389,7 +389,7 @@ public:
      * Function to return the current PPN parameter beta
      * \return Current PPN parameter beta
      */
-    boost::function< double( ) > getPpnParameterBetaFunction_( )
+    std::function< double( ) > getPpnParameterBetaFunction_( )
     { return ppnParameterBetaFunction_; }
 
     //! Function to return the boolean denoting wheter the Schwarzschild term is used.
@@ -423,32 +423,32 @@ private:
 
 
     //! State function of vehicle undergoing acceleration
-    boost::function< Eigen::Vector6d( ) > stateFunctionOfAcceleratedBody_;
+    std::function< Eigen::Vector6d( ) > stateFunctionOfAcceleratedBody_;
 
     //! State function of main body exerting acceleration (e.g. Earth for an Earth-orbiting satellite).
-    boost::function< Eigen::Vector6d( ) > stateFunctionOfCentralBody_;
+    std::function< Eigen::Vector6d( ) > stateFunctionOfCentralBody_;
 
     //! State function of large body primarily responsible for motion of central body (e.g. Sun for acceleration acting on
     //! an Earth-orbiting satellite).
-    boost::function< Eigen::Vector6d( ) > stateFunctionOfPrimaryBody_;
+    std::function< Eigen::Vector6d( ) > stateFunctionOfPrimaryBody_;
 
     //! Function returning the gravitational parameter of the central body
-    boost::function< double( ) > gravitationalParameterFunctionOfCentralBody_;
+    std::function< double( ) > gravitationalParameterFunctionOfCentralBody_;
 
     //! Function returning the gravitational parameter of the primary body
-    boost::function< double( ) > gravitationalParameterFunctionOfPrimaryBody_;
+    std::function< double( ) > gravitationalParameterFunctionOfPrimaryBody_;
 
     //! Name of primary body (e.g. Sun for acceleration acting on an Earth-orbiting satellite)
     std::string primaryBodyName_;
 
     //! Function returning the angular momenum of the central body (expressed in the propagation frame)
-    boost::function< Eigen::Vector3d( ) > centalBodyAngularMomentumFunction_;
+    std::function< Eigen::Vector3d( ) > centalBodyAngularMomentumFunction_;
 
     //! Function returning the PPN parameter gamma
-    boost::function< double( ) > ppnParameterGammaFunction_;
+    std::function< double( ) > ppnParameterGammaFunction_;
 
     //! Function returning the PPN parameter beta
-    boost::function< double( ) > ppnParameterBetaFunction_;
+    std::function< double( ) > ppnParameterBetaFunction_;
 
 
 

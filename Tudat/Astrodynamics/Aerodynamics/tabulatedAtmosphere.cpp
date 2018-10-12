@@ -127,8 +127,8 @@ void TabulatedAtmosphere::createAtmosphereInterpolators( )
         defaultExtrapolationValue_ = std::vector< std::vector< std::pair< double, double > > >(
                     numberOfDependentVariables, std::vector< std::pair< double, double > >(
                         numberOfIndependentVariables_, std::make_pair(
-                            IdentityElement< double >::getAdditionIdentity( ),
-                            IdentityElement< double >::getAdditionIdentity( ) ) ) );
+                            IdentityElement::getAdditionIdentity< double >( ),
+                            IdentityElement::getAdditionIdentity< double >( ) ) ) );
     }
     else
     {
@@ -150,6 +150,7 @@ void TabulatedAtmosphere::createAtmosphereInterpolators( )
         // Extract information on file size
         unsigned int numberOfColumnsInFile = tabulatedAtmosphereData.cols( );
         unsigned int numberOfRowsInFile = tabulatedAtmosphereData.rows( );
+
 
         // Check whether data is present in the file.
         if ( numberOfRowsInFile < 1 || numberOfColumnsInFile < 1 )
@@ -186,32 +187,32 @@ void TabulatedAtmosphere::createAtmosphereInterpolators( )
         }
 
         // Create interpolators for density, pressure and temperature
-        interpolatorForDensity_ = boost::make_shared< CubicSplineInterpolatorDouble >(
+        interpolatorForDensity_ = std::make_shared< CubicSplineInterpolatorDouble >(
                     independentVariablesData_.at( 0 ), dependentVariablesData.at( dependentVariableIndices_.at( 0 ) ),
                     huntingAlgorithm, boundaryHandling_.at( 0 ), defaultExtrapolationValue_.at( dependentVariableIndices_.at( 0 ) ).at( 0 ) );
-        interpolatorForPressure_ = boost::make_shared< CubicSplineInterpolatorDouble >(
+        interpolatorForPressure_ = std::make_shared< CubicSplineInterpolatorDouble >(
                     independentVariablesData_.at( 0 ), dependentVariablesData.at( dependentVariableIndices_.at( 1 ) ),
                     huntingAlgorithm, boundaryHandling_.at( 0 ), defaultExtrapolationValue_.at( dependentVariableIndices_.at( 1 ) ).at( 0 ) );
-        interpolatorForTemperature_ = boost::make_shared< CubicSplineInterpolatorDouble >(
+        interpolatorForTemperature_ = std::make_shared< CubicSplineInterpolatorDouble >(
                     independentVariablesData_.at( 0 ), dependentVariablesData.at( dependentVariableIndices_.at( 2 ) ),
                     huntingAlgorithm, boundaryHandling_.at( 0 ), defaultExtrapolationValue_.at( dependentVariableIndices_.at( 2 ) ).at( 0 ) );
 
         // Create remaining interpolators, if requested by user
         if ( dependentVariablesDependency_.at( 3 ) )
         {
-            interpolatorForGasConstant_ = boost::make_shared< CubicSplineInterpolatorDouble >(
+            interpolatorForGasConstant_ = std::make_shared< CubicSplineInterpolatorDouble >(
                         independentVariablesData_.at( 0 ), dependentVariablesData.at( dependentVariableIndices_.at( 3 ) ),
                         huntingAlgorithm, boundaryHandling_.at( 0 ), defaultExtrapolationValue_.at( dependentVariableIndices_.at( 3 ) ).at( 0 ) );
         }
         if ( dependentVariablesDependency_.at( 4 ) )
         {
-            interpolatorForSpecificHeatRatio_ = boost::make_shared< CubicSplineInterpolatorDouble >(
+            interpolatorForSpecificHeatRatio_ = std::make_shared< CubicSplineInterpolatorDouble >(
                         independentVariablesData_.at( 0 ), dependentVariablesData.at( dependentVariableIndices_.at( 4 ) ),
                         huntingAlgorithm, boundaryHandling_.at( 0 ), defaultExtrapolationValue_.at( dependentVariableIndices_.at( 4 ) ).at( 0 ) );
         }
         if ( dependentVariablesDependency_.at( 5 ) )
         {
-            interpolatorForMolarMass_ = boost::make_shared< CubicSplineInterpolatorDouble >(
+            interpolatorForMolarMass_ = std::make_shared< CubicSplineInterpolatorDouble >(
                         independentVariablesData_.at( 0 ), dependentVariablesData.at( dependentVariableIndices_.at( 5 ) ),
                         huntingAlgorithm, boundaryHandling_.at( 0 ), defaultExtrapolationValue_.at( dependentVariableIndices_.at( 5 ) ).at( 0 ) );
         }
@@ -232,6 +233,8 @@ void TabulatedAtmosphere::createAtmosphereInterpolators( )
         createMultiDimensionalAtmosphereInterpolators< 4 >( );
         break;
     }
+    default:
+        throw std::runtime_error( "Error, multi-dimensional atmosphere with N>4 not yet implemented" );
     }
 }
 
@@ -252,15 +255,15 @@ void TabulatedAtmosphere::createMultiDimensionalAtmosphereInterpolators( )
 
     // Create interpolators for density, pressure and temperature
     interpolatorForDensity_ =
-            boost::make_shared< MultiLinearInterpolator< double, double, NumberOfIndependentVariables > >(
+            std::make_shared< MultiLinearInterpolator< double, double, NumberOfIndependentVariables > >(
                 independentVariablesData_, tabulatedAtmosphereData.first.at( dependentVariableIndices_.at( 0 ) ),
                 huntingAlgorithm, boundaryHandling_, defaultExtrapolationValue_.at( dependentVariableIndices_.at( 0 ) ) );
     interpolatorForPressure_ =
-            boost::make_shared< MultiLinearInterpolator< double, double, NumberOfIndependentVariables > >(
+            std::make_shared< MultiLinearInterpolator< double, double, NumberOfIndependentVariables > >(
                 independentVariablesData_, tabulatedAtmosphereData.first.at( dependentVariableIndices_.at( 1 ) ),
                 huntingAlgorithm, boundaryHandling_, defaultExtrapolationValue_.at( dependentVariableIndices_.at( 1 ) ) );
     interpolatorForTemperature_ =
-            boost::make_shared< MultiLinearInterpolator< double, double, NumberOfIndependentVariables > >(
+            std::make_shared< MultiLinearInterpolator< double, double, NumberOfIndependentVariables > >(
                 independentVariablesData_, tabulatedAtmosphereData.first.at( dependentVariableIndices_.at( 2 ) ),
                 huntingAlgorithm, boundaryHandling_, defaultExtrapolationValue_.at( dependentVariableIndices_.at( 2 ) ) );
 
@@ -268,21 +271,21 @@ void TabulatedAtmosphere::createMultiDimensionalAtmosphereInterpolators( )
     if ( dependentVariablesDependency_.at( 3 ) )
     {
         interpolatorForGasConstant_ =
-                boost::make_shared< MultiLinearInterpolator< double, double, NumberOfIndependentVariables > >(
+                std::make_shared< MultiLinearInterpolator< double, double, NumberOfIndependentVariables > >(
                     independentVariablesData_, tabulatedAtmosphereData.first.at( dependentVariableIndices_.at( 3 ) ),
                     huntingAlgorithm, boundaryHandling_, defaultExtrapolationValue_.at( dependentVariableIndices_.at( 3 ) ) );
     }
     if ( dependentVariablesDependency_.at( 4 ) )
     {
         interpolatorForSpecificHeatRatio_ =
-                boost::make_shared< MultiLinearInterpolator< double, double, NumberOfIndependentVariables > >(
+                std::make_shared< MultiLinearInterpolator< double, double, NumberOfIndependentVariables > >(
                     independentVariablesData_, tabulatedAtmosphereData.first.at( dependentVariableIndices_.at( 4 ) ),
                     huntingAlgorithm, boundaryHandling_, defaultExtrapolationValue_.at( dependentVariableIndices_.at( 4 ) ) );
     }
     if ( dependentVariablesDependency_.at( 5 ) )
     {
         interpolatorForMolarMass_ =
-                boost::make_shared< MultiLinearInterpolator< double, double, NumberOfIndependentVariables > >(
+                std::make_shared< MultiLinearInterpolator< double, double, NumberOfIndependentVariables > >(
                     independentVariablesData_, tabulatedAtmosphereData.first.at( dependentVariableIndices_.at( 5 ) ),
                     huntingAlgorithm, boundaryHandling_, defaultExtrapolationValue_.at( dependentVariableIndices_.at( 5 ) ) );
     }

@@ -57,12 +57,12 @@ public:
     SphericalHarmonicsGravityPartial(
             const std::string& acceleratedBody,
             const std::string& acceleratingBody,
-            const boost::shared_ptr< gravitation::SphericalHarmonicsGravitationalAccelerationModel > accelerationModel,
+            const std::shared_ptr< gravitation::SphericalHarmonicsGravitationalAccelerationModel > accelerationModel,
             const observation_partials::RotationMatrixPartialNamedList& rotationMatrixPartials =
             observation_partials::RotationMatrixPartialNamedList( ),
-            const std::vector< boost::shared_ptr< orbit_determination::TidalLoveNumberPartialInterface > >&
+            const std::vector< std::shared_ptr< orbit_determination::TidalLoveNumberPartialInterface > >&
             tidalLoveNumberPartialInterfaces =
-            std::vector< boost::shared_ptr< orbit_determination::TidalLoveNumberPartialInterface > >( ) );
+            std::vector< std::shared_ptr< orbit_determination::TidalLoveNumberPartialInterface > >( ) );
 
     //! Destructor
     ~SphericalHarmonicsGravityPartial( ){ }
@@ -145,8 +145,8 @@ public:
      *  \param parameter Parameter w.r.t. which partial is to be taken.
      *  \return Pair of parameter partial function and number of columns in partial (0 for no dependency, 1 otherwise).
      */
-    std::pair< boost::function< void( Eigen::MatrixXd& ) >, int >
-    getParameterPartialFunction( boost::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter );
+    std::pair< std::function< void( Eigen::MatrixXd& ) >, int >
+    getParameterPartialFunction( std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter );
 
     //! Function for setting up and retrieving a function returning a partial w.r.t. a vector parameter.
     /*!
@@ -155,8 +155,8 @@ public:
      *  \param parameter Parameter w.r.t. which partial is to be taken.
      *  \return Pair of parameter partial function and number of columns in partial (0 for no dependency).
      */
-    std::pair< boost::function< void( Eigen::MatrixXd& ) >, int > getParameterPartialFunction(
-            boost::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter );
+    std::pair< std::function< void( Eigen::MatrixXd& ) >, int > getParameterPartialFunction(
+            std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter );
 
     //! Function to create a function returning the current partial w.r.t. a gravitational parameter.
     /*!
@@ -166,7 +166,7 @@ public:
      * if the parameterId input represents the gravitational parameter of acceleratingBody_ (or acceleratedBody_ if
      * accelerationUsesMutualAttraction_ is true).
      */
-    std::pair< boost::function< void( Eigen::MatrixXd& ) >, int > getGravitationalParameterPartialFunction(
+    std::pair< std::function< void( Eigen::MatrixXd& ) >, int > getGravitationalParameterPartialFunction(
             const estimatable_parameters::EstimatebleParameterIdentifier& parameterId );
 
     //! Function for updating the partial object to current state and time.
@@ -293,7 +293,7 @@ protected:
      * (returned by reference)
      */
     void wrtTidalModelParameter(
-            const boost::function< std::vector< Eigen::Matrix< double, 2, Eigen::Dynamic > >( ) > coefficientPartialFunctions,
+            const std::function< std::vector< Eigen::Matrix< double, 2, Eigen::Dynamic > >( ) > coefficientPartialFunctions,
             const int degree,
             const std::vector< int >& orders,
             const bool sumOrders,
@@ -301,32 +301,32 @@ protected:
             Eigen::MatrixXd& accelerationPartial );
 
     //! Function to return the gravitational parameter used for calculating the acceleration.
-    boost::function< double( ) > gravitationalParameterFunction_;
+    std::function< double( ) > gravitationalParameterFunction_;
 
     //! Function to return the reference radius used for calculating the acceleration.
-    boost::function< double( ) > bodyReferenceRadius_;
+    std::function< double( ) > bodyReferenceRadius_;
 
     //! Function to return the current cosine coefficients of the spherical harmonic gravity field.
-    boost::function< Eigen::MatrixXd( ) > cosineCoefficients_;
+    std::function< Eigen::MatrixXd( ) > cosineCoefficients_;
 
     //! Function to return the current sine coefficients of the spherical harmonic gravity field.
-    boost::function< Eigen::MatrixXd( ) > sineCoefficients_;
+    std::function< Eigen::MatrixXd( ) > sineCoefficients_;
 
     //! Cache object used for storing calculated values at current time and state for spherical harmonic gravity
     //! calculations.
-    boost::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicCache_;
+    std::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicCache_;
 
     //! Function returning position of body undergoing acceleration.
-    boost::function< Eigen::Vector3d( ) > positionFunctionOfAcceleratedBody_;
+    std::function< Eigen::Vector3d( ) > positionFunctionOfAcceleratedBody_;
 
     //! Function returning position of body exerting acceleration.
-    boost::function< Eigen::Vector3d( ) > positionFunctionOfAcceleratingBody_;
+    std::function< Eigen::Vector3d( ) > positionFunctionOfAcceleratingBody_;
 
     //! Function return current rotation from inertial frame to frame fixed to body exerting acceleration.
-    boost::function< Eigen::Matrix3d( ) > fromBodyFixedToIntegrationFrameRotation_;
+    std::function< Eigen::Matrix3d( ) > fromBodyFixedToIntegrationFrameRotation_;
 
     //! Function to retrieve the current spherical harmonic acceleration.
-    boost::function< Eigen::Matrix< double, 3, 1 >( ) > accelerationFunction_;
+    std::function< Eigen::Matrix< double, 3, 1 >( ) > accelerationFunction_;
 
     //! Function to update the acceleration to the current state and time.
     /*!
@@ -334,7 +334,7 @@ protected:
      *  Called when updating an object of this class with the update( time ) function,
      *  in case the partial is called before the acceleration model in the current iteration of the numerical integration.
      */
-    boost::function< void( const double ) > updateFunction_;
+    std::function< void( const double ) > updateFunction_;
 
     //! Current cosine coefficients of the spherical harmonic gravity field.
     /*!
@@ -414,7 +414,7 @@ protected:
      * List of objects to compute partials of tidal gravity field variations, one per corresponding variation object in
      * acceleratedBody.
      */
-    std::vector< boost::shared_ptr< orbit_determination::TidalLoveNumberPartialInterface > > tidalLoveNumberPartialInterfaces_;
+    std::vector< std::shared_ptr< orbit_determination::TidalLoveNumberPartialInterface > > tidalLoveNumberPartialInterfaces_;
 
     //! Boolean denoting whether the mutual attraction between the bodies is taken into account
     /*!

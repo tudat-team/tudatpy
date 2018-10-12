@@ -19,18 +19,18 @@ namespace simulation_setup
 {
 
 //! Function to create a list of objects that can be used to compute partials of tidal gravity field variations
-std::vector< boost::shared_ptr< orbit_determination::TidalLoveNumberPartialInterface > > createTidalLoveNumberInterfaces(
+std::vector< std::shared_ptr< orbit_determination::TidalLoveNumberPartialInterface > > createTidalLoveNumberInterfaces(
         const NamedBodyMap& bodyMap,
         const std::string& acceleratingBodyName )
 {
     // Create return map.
-    std::vector< boost::shared_ptr< orbit_determination::TidalLoveNumberPartialInterface > > loveNumberInterfaces;
+    std::vector< std::shared_ptr< orbit_determination::TidalLoveNumberPartialInterface > > loveNumberInterfaces;
 
     // Check if any gravity field variations are present
-    if( bodyMap.at( acceleratingBodyName )->getGravityFieldVariationSet( ) != NULL )
+    if( bodyMap.at( acceleratingBodyName )->getGravityFieldVariationSet( ) != nullptr )
     {
         // Get list of tidal gravity field variations.
-        std::vector< boost::shared_ptr< gravitation::BasicSolidBodyTideGravityFieldVariations > >  variationObjectList =
+        std::vector< std::shared_ptr< gravitation::BasicSolidBodyTideGravityFieldVariations > >  variationObjectList =
                 utilities::dynamicCastSVectorToTVector< gravitation::GravityFieldVariations,
                 gravitation::BasicSolidBodyTideGravityFieldVariations >(
                     bodyMap.at( acceleratingBodyName )->getGravityFieldVariationSet( )->
@@ -40,28 +40,28 @@ std::vector< boost::shared_ptr< orbit_determination::TidalLoveNumberPartialInter
         if( variationObjectList.size( ) > 0 )
         {
             // Get state/rotation functions for deformed body
-            boost::function< Eigen::Vector3d( ) > deformedBodyPositionFunction =
-                    boost::bind( &Body::getPosition, bodyMap.at( acceleratingBodyName ) );
-            boost::function< Eigen::Quaterniond( ) > rotationToDeformedBodyFrameFrameFunction =
-                    boost::bind( &Body::getCurrentRotationToLocalFrame, bodyMap.at( acceleratingBodyName ) );
+            std::function< Eigen::Vector3d( ) > deformedBodyPositionFunction =
+                    std::bind( &Body::getPosition, bodyMap.at( acceleratingBodyName ) );
+            std::function< Eigen::Quaterniond( ) > rotationToDeformedBodyFrameFrameFunction =
+                    std::bind( &Body::getCurrentRotationToLocalFrame, bodyMap.at( acceleratingBodyName ) );
 
             for( unsigned int i = 0; i < variationObjectList.size( ); i++ )
             {
-                if( variationObjectList.at( i ) != NULL )
+                if( variationObjectList.at( i ) != nullptr )
                 {
                     // Get state/rotation functions for deforming bodyies
-                    std::vector< boost::function< Eigen::Vector3d( ) > > deformingBodyStateFunctions;
+                    std::vector< std::function< Eigen::Vector3d( ) > > deformingBodyStateFunctions;
                     std::vector< std::string > deformingBodies = variationObjectList.at( i )->getDeformingBodies( );
                     for( unsigned int i = 0; i < deformingBodies.size( ); i++ )
                     {
                         deformingBodyStateFunctions.push_back(
-                                    boost::bind( &Body::getPosition, bodyMap.at( deformingBodies.at( i ) ) ) );
+                                    std::bind( &Body::getPosition, bodyMap.at( deformingBodies.at( i ) ) ) );
                     }
                     // Get state/rotation functions for deformed body
 
                     // Create partial object
                     loveNumberInterfaces.push_back(
-                                boost::make_shared< orbit_determination::TidalLoveNumberPartialInterface >(
+                                std::make_shared< orbit_determination::TidalLoveNumberPartialInterface >(
                                     variationObjectList.at( i ),
                                     deformedBodyPositionFunction,
                                     deformingBodyStateFunctions,
@@ -73,6 +73,35 @@ std::vector< boost::shared_ptr< orbit_determination::TidalLoveNumberPartialInter
     }
     return loveNumberInterfaces;
 }
+
+template std::shared_ptr< acceleration_partials::AccelerationPartial > createAnalyticalAccelerationPartial< double >(
+        std::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > accelerationModel,
+        const std::pair< std::string, std::shared_ptr< simulation_setup::Body > > acceleratedBody,
+        const std::pair< std::string, std::shared_ptr< simulation_setup::Body > > acceleratingBody,
+        const simulation_setup::NamedBodyMap& bodyMap,
+        const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > >
+        parametersToEstimate );
+
+#if( BUILD_EXTENDED_PRECISION_PROPAGATION_TOOLS )
+template std::shared_ptr< acceleration_partials::AccelerationPartial > createAnalyticalAccelerationPartial< long double >(
+        std::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > accelerationModel,
+        const std::pair< std::string, std::shared_ptr< simulation_setup::Body > > acceleratedBody,
+        const std::pair< std::string, std::shared_ptr< simulation_setup::Body > > acceleratingBody,
+        const simulation_setup::NamedBodyMap& bodyMap,
+        const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< long double > >
+        parametersToEstimate );
+#endif
+
+template orbit_determination::StateDerivativePartialsMap createAccelerationPartialsMap< double >(
+        const basic_astrodynamics::AccelerationMap& accelerationMap,
+        const simulation_setup::NamedBodyMap& bodyMap,
+        const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > >
+        parametersToEstimate );
+        template orbit_determination::StateDerivativePartialsMap createAccelerationPartialsMap< long double >(
+                const basic_astrodynamics::AccelerationMap& accelerationMap,
+                const simulation_setup::NamedBodyMap& bodyMap,
+                const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< long double > >
+                parametersToEstimate );
 
 }
 

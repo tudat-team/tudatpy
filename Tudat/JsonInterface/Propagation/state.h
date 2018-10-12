@@ -67,7 +67,7 @@ inline void from_json( const nlohmann::json& jsonObject, StateType& stateType )
  * Empty if \p jsonObject is already the array/object (default value).
  * \param centralBody Associated central body from which the central gravitational parameter, average radius, ephemeris,
  * etc. are retrieved when converting certain elements types to Cartesian. This information can also be provided in the
- * \p jsonObject, in which case this can be set to `NULL` (default value).
+ * \p jsonObject, in which case this can be set to `nullptr` (default value).
  * \param epoch The associated epoch for converting from spherical to Cartesian elements. This information can also be
  * provided in the \p jsonObject, in which case this can be set to `TUDAT_NAN` (default value).
  */
@@ -75,7 +75,7 @@ template< typename StateScalarType >
 Eigen::Matrix< StateScalarType, 6, 1 > getCartesianState(
         const nlohmann::json& jsonObject,
         const KeyPath& keyPath = KeyPath( ),
-        const boost::shared_ptr< simulation_setup::Body >& centralBody = NULL,
+        const std::shared_ptr< simulation_setup::Body >& centralBody = nullptr,
         double epoch = TUDAT_NAN )
 {
     using namespace basic_astrodynamics;
@@ -274,7 +274,7 @@ Eigen::Matrix< StateScalarType, 6, 1 > getCartesianState(
         }
         case sphericalElements:
         {
-            assertNonNullPointer( centralBody );
+            assertNonnullptrPointer( centralBody );
 
             double radius;
             if ( isDefined( jsonState, K::altitude ) )
@@ -319,7 +319,7 @@ Eigen::Matrix< StateScalarType, 6, 1 > getCartesianState(
             }
             else if ( centralBody )
             {
-                if ( ! boost::dynamic_pointer_cast< SphericalBodyShapeModel >( centralBody->getShapeModel( ) ) )
+                if ( ! std::dynamic_pointer_cast< SphericalBodyShapeModel >( centralBody->getShapeModel( ) ) )
                 {
                     std::cerr << "Using average radius of a non-spherical body "
                                  "to determine the initial Cartesian state of body." << std::endl;

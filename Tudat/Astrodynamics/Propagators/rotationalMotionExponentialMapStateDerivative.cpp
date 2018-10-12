@@ -17,7 +17,7 @@ namespace tudat
 namespace propagators
 {
 
-//! Function to obtain the time derivative of exponantial map of body-fixed to inertial frame
+//! Function to obtain the time derivative of exponantial map of body-fixed to inertial frame.
 Eigen::Vector4d calculateExponentialMapDerivative( const Eigen::Vector4d& currentExponentialMapToBaseFrame,
                                                    const Eigen::Vector3d& angularVelocityVectorInBodyFixedFrame )
 {
@@ -58,6 +58,14 @@ Eigen::Vector4d calculateExponentialMapDerivative( const Eigen::Vector4d& curren
     // Give output
     return exponentialMapDerivative;
 }
+
+template class RotationalMotionExponentialMapStateDerivative< double, double >;
+
+#if( BUILD_EXTENDED_PRECISION_PROPAGATION_TOOLS )
+template class RotationalMotionExponentialMapStateDerivative< long double, double >;
+template class RotationalMotionExponentialMapStateDerivative< double, Time >;
+template class RotationalMotionExponentialMapStateDerivative< long double, Time >;
+#endif
 
 } // namespace propagators
 

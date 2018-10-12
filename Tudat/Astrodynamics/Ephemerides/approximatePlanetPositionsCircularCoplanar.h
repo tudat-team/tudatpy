@@ -22,7 +22,7 @@
 #ifndef TUDAT_APPROXIMATE_PLANET_POSITIONS_CIRCULAR_COPLANAR_H
 #define TUDAT_APPROXIMATE_PLANET_POSITIONS_CIRCULAR_COPLANAR_H
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include "Tudat/Astrodynamics/Ephemerides/approximatePlanetPositionsBase.h"
 
@@ -90,7 +90,7 @@ private:
 };
 
 //! Typedef for shared-pointer to ApproximatePlanetPositionsCircularCoplanar object.
-typedef boost::shared_ptr< ApproximatePlanetPositionsCircularCoplanar >
+typedef std::shared_ptr< ApproximatePlanetPositionsCircularCoplanar >
 ApproximatePlanetPositionsCircularCoplanarPointer;
 
 } // namespace ephemerides

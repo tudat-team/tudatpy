@@ -31,7 +31,7 @@ namespace simulation_setup
  *  (not currently used by this function, but included for consistency).
  *  \return Default settings for a body's atmosphere model.
  */
-boost::shared_ptr< AtmosphereSettings > getDefaultAtmosphereModelSettings(
+std::shared_ptr< AtmosphereSettings > getDefaultAtmosphereModelSettings(
         const std::string& bodyName,
         const double initialTime,
         const double finalTime );
@@ -42,7 +42,7 @@ boost::shared_ptr< AtmosphereSettings > getDefaultAtmosphereModelSettings(
  *  \param bodyName Name of body for which default ephemeris settings are to be retrieved.
  *  \return Default settings for a body's ephemeris.
  */
-boost::shared_ptr< EphemerisSettings > getDefaultEphemerisSettings(
+std::shared_ptr< EphemerisSettings > getDefaultEphemerisSettings(
         const std::string& bodyName );
 
 //! Function to create default settings for a body's ephemeris.
@@ -55,7 +55,7 @@ boost::shared_ptr< EphemerisSettings > getDefaultEphemerisSettings(
  *  \param timeStep Time step with which interpolated data from Spice should be created.
  *  \return Default settings for a body's ephemeris.
  */
-boost::shared_ptr< EphemerisSettings > getDefaultEphemerisSettings(
+std::shared_ptr< EphemerisSettings > getDefaultEphemerisSettings(
         const std::string& bodyName,
         const double initialTime,
         const double finalTime,
@@ -72,7 +72,7 @@ boost::shared_ptr< EphemerisSettings > getDefaultEphemerisSettings(
  *  (not currently used by this function, but included for consistency).
  *  \return Default settings for a body's gravity field model.
  */
-boost::shared_ptr< GravityFieldSettings > getDefaultGravityFieldSettings(
+std::shared_ptr< GravityFieldSettings > getDefaultGravityFieldSettings(
         const std::string& bodyName,
         const double initialTime,
         const double finalTime );
@@ -88,7 +88,7 @@ boost::shared_ptr< GravityFieldSettings > getDefaultGravityFieldSettings(
  *  (not currently used by this function, but included for consistency).
  *  \return Default settings for a body's rotation model.
  */
-boost::shared_ptr< RotationModelSettings > getDefaultRotationModelSettings(
+std::shared_ptr< RotationModelSettings > getDefaultRotationModelSettings(
         const std::string& bodyName,
         const double initialTime,
         const double finalTime );
@@ -97,33 +97,13 @@ boost::shared_ptr< RotationModelSettings > getDefaultRotationModelSettings(
 /*!
  *  Function to create default settings for a body's shape model. Currently set to
  *  a spherical model, with the radius taken from Spice
- *  \param body Name of body for which default shape model settings are to be retrieved.
+ *  \param bodyName Name of body for which default shape model settings are to be retrieved.
  *  \param initialTime Start time at which environment models in body are to be created
  *  (not currently used by this function, but included for consistency).
  *  \param finalTime End time up to which environment models in body are to be created
  *  (not currently used by this function, but included for consistency).
  */
-boost::shared_ptr< BodyShapeSettings > getDefaultBodyShapeSettings(
-        const std::string& body,
-        const double initialTime, const double finalTime );
-
-
-//! Function to create default settings from which to create a single body object.
-/*!
- *  Function to create default settings from which to create a single body object using
- *  the code in createBodies.h/.cpp. This function is included to streamline and simplify the
- *  creation of typical celestial bodies. The default settings for the various
- *  environment models of the body are defined in the various functions defined in this file.
- *  \param bodyName Name of body for which default settings are to be retrieved.
- *  \param initialTime Start time at which environment models in body are to be created
- *  (included as some environment models require e.g., interpolators to be created over
- *  a certain time period).
- *  \param finalTime End time up to which environment models in body are to be created
- *  (included as some environment models require e.g., interpolators to be created over
- *  a certain time period).
- *  \return Default settings from which to create a single body object.
- */
-boost::shared_ptr< RotationModelSettings > getDefaultRotationModelSettings(
+std::shared_ptr< BodyShapeSettings > getDefaultBodyShapeSettings(
         const std::string& bodyName,
         const double initialTime,
         const double finalTime );
@@ -143,7 +123,7 @@ boost::shared_ptr< RotationModelSettings > getDefaultRotationModelSettings(
  *  a certain time period).
  *  \param timeStep Time step with which interpolated data from Spice should be created.
  */
-boost::shared_ptr< BodySettings > getDefaultSingleBodySettings(
+std::shared_ptr< BodySettings > getDefaultSingleBodySettings(
         const std::string& body,
         const double initialTime,
         const double finalTime,
@@ -165,7 +145,7 @@ boost::shared_ptr< BodySettings > getDefaultSingleBodySettings(
  *  \param timeStep Time step with which interpolated data from Spice should be created.
  *  \return Default settings from which to create a set of body objects.
  */
-std::map< std::string, boost::shared_ptr< BodySettings > > getDefaultBodySettings(
+std::map< std::string, std::shared_ptr< BodySettings > > getDefaultBodySettings(
         const std::vector< std::string >& bodies,
         const double initialTime,
         const double finalTime,
@@ -181,7 +161,7 @@ std::map< std::string, boost::shared_ptr< BodySettings > > getDefaultBodySetting
  *  \param bodies List of bodies for which default settings are to be retrieved.
  *  \return Default settings from which to create a set of body objects.
  */
-std::map< std::string, boost::shared_ptr< BodySettings > > getDefaultBodySettings(
+std::map< std::string, std::shared_ptr< BodySettings > > getDefaultBodySettings(
         const std::vector< std::string >& bodies );
 
 } // namespace simulation_setup

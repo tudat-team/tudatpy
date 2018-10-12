@@ -16,7 +16,6 @@
 #include <Eigen/Core>
 
 #include <boost/bind.hpp>
-#include <boost/assign/list_of.hpp>
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/accelerationModel.h"
 
@@ -64,14 +63,14 @@ public:
      * \param integratedStateType Type of propagated state.
      * \return Pair with function, returning partial derivative, and number of columns in partial vector,
      */
-    std::pair< boost::function< void( Eigen::Block< Eigen::MatrixXd > ) >, int >
+    std::pair< std::function< void( Eigen::Block< Eigen::MatrixXd > ) >, int >
     getDerivativeFunctionWrtStateOfIntegratedBody(
             const std::pair< std::string, std::string >& stateReferencePoint,
             const propagators::IntegratedStateType integratedStateType )
     {
         // Initialize to empty function; 0 parameter size.
-        std::pair< boost::function< void( Eigen::Block< Eigen::MatrixXd > ) >, int >
-                partialFunction = std::make_pair( boost::function< void( Eigen::Block< Eigen::MatrixXd > ) >( ), 0 );
+        std::pair< std::function< void( Eigen::Block< Eigen::MatrixXd > ) >, int >
+                partialFunction = std::make_pair( std::function< void( Eigen::Block< Eigen::MatrixXd > ) >( ), 0 );
 
         // Check if state dependency exists
         switch( integratedStateType )
@@ -86,16 +85,16 @@ public:
             // Check if propagated body corresponds to accelerated, accelerating, ro relevant third body.
             else if( stateReferencePoint.first == acceleratedBody_ )
             {
-                partialFunction = std::make_pair( boost::bind( &AccelerationPartial::wrtStateOfAcceleratedBody, this, _1 ), 3 );
+                partialFunction = std::make_pair( std::bind( &AccelerationPartial::wrtStateOfAcceleratedBody, this, std::placeholders::_1 ), 3 );
             }
             else if( stateReferencePoint.first == acceleratingBody_ )
             {
-                partialFunction = std::make_pair( boost::bind( &AccelerationPartial::wrtStateOfAcceleratingBody, this, _1 ), 3 );
+                partialFunction = std::make_pair( std::bind( &AccelerationPartial::wrtStateOfAcceleratingBody, this, std::placeholders::_1 ), 3 );
             }
-            else if( isAccelerationPartialWrtAdditionalBodyNonNull( stateReferencePoint.first ) )
+            else if( isAccelerationPartialWrtAdditionalBodyNonnullptr( stateReferencePoint.first ) )
             {
-                partialFunction = std::make_pair( boost::bind( &AccelerationPartial::wrtStateOfAdditionalBody,
-                                                               this, _1, stateReferencePoint.first ), 3 );
+                partialFunction = std::make_pair( std::bind( &AccelerationPartial::wrtStateOfAdditionalBody,
+                                                               this, std::placeholders::_1, stateReferencePoint.first ), 3 );
             }
             break;
         }
@@ -108,8 +107,8 @@ public:
             }
             else if( isStateDerivativeDependentOnIntegratedNonTranslationalState( stateReferencePoint, integratedStateType ) )
             {
-                partialFunction = std::make_pair( boost::bind( &AccelerationPartial::wrtNonTranslationalStateOfAdditionalBody,
-                                                               this, _1, stateReferencePoint, integratedStateType ), 1 );
+                partialFunction = std::make_pair( std::bind( &AccelerationPartial::wrtNonTranslationalStateOfAdditionalBody,
+                                                               this, std::placeholders::_1, stateReferencePoint, integratedStateType ), 1 );
             }
         }
         case propagators::custom_state:
@@ -169,7 +168,7 @@ public:
 
             // Check if propagated body corresponds to accelerated, accelerating, ro relevant third body.
             else if( stateReferencePoint.first == acceleratedBody_ || stateReferencePoint.first == acceleratingBody_ ||
-                     isAccelerationPartialWrtAdditionalBodyNonNull( stateReferencePoint.first ) )
+                     isAccelerationPartialWrtAdditionalBodyNonnullptr( stateReferencePoint.first ) )
             {
                 isDependent = 1;
             }
@@ -331,7 +330,7 @@ public:
      * \param bodyName Name of third body.
      * \return True if third body dependency exists, false otherwise.
      */
-    virtual bool isAccelerationPartialWrtAdditionalBodyNonNull( const std::string& bodyName )
+    virtual bool isAccelerationPartialWrtAdditionalBodyNonnullptr( const std::string& bodyName )
     {
         return 0;
     }

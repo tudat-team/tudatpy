@@ -8,12 +8,13 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-
 #ifndef TUDAT_DEPENDENTORIENTATIONCALCULATOR_H
 #define TUDAT_DEPENDENTORIENTATIONCALCULATOR_H
 
 #include <Eigen/Core>
 #include <Eigen/Geometry>
+
+#include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
 
 namespace tudat
 {
@@ -45,7 +46,6 @@ public:
      */
     virtual Eigen::Quaterniond getRotationToLocalFrame( ) = 0;
 
-
     //! Function to get the current rotation from the local (body-fixed) to the global (propagation/inertial) frame.
     /*!
      * Function to get the current rotation from the local (body-fixed) to the global (propagation/inertial) frame.
@@ -68,7 +68,7 @@ public:
      * \param currentTime Time to which angle calculator is to be updated.
      * \return Current rotation from the global (propagation/inertial) to the local (body-fixed) frame.
      */
-    Eigen::Quaterniond getRotationToLocalFrame( const double currentTime )
+    Eigen::Quaterniond computeAndGetRotationToLocalFrame( const double currentTime )
     {
         updateCalculator( currentTime );
         return getRotationToLocalFrame( );
@@ -112,6 +112,7 @@ protected:
 
     //! Current simulation time.
     double currentTime_;
+
 };
 
 } // namespace reference_frames

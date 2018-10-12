@@ -109,7 +109,7 @@ PropagationHistory getGTOPBenchmarkData( )
     // x = 1.5e11, V_y = 6.0e4 for a period of 100 days four times consecutively. Since GTOP does
     // not work with similar Keplerian orbital elements, the cartesian elements resulting from that
     // are converted to Keplerian elements first. These initial starting coordinates correspond to
-    // a semi major axis of -7.24873e+010 meters and an eccentricity of 3.06933.
+    // a semi-major axis of -7.24873e+010 meters and an eccentricity of 3.06933.
     Eigen::Vector6d stateInCartesianElements, stateInKeplerianElements;
 
     stateInCartesianElements << 1.5e11, 0.0, 0.0, 0.0, 6.0e4, 0.0;

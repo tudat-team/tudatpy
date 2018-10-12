@@ -70,13 +70,13 @@ BOOST_AUTO_TEST_CASE( test_json_simulationThrustAlongVelocityVector_main )
     bodiesToCreate.push_back( "Moon" );
 
     // Create body objects.
-    std::map< std::string, boost::shared_ptr< BodySettings > > bodySettings =
+    std::map< std::string, std::shared_ptr< BodySettings > > bodySettings =
             getDefaultBodySettings( bodiesToCreate );
 
     NamedBodyMap bodyMap = createBodies( bodySettings );
     // Create vehicle objects.
     double vehicleMass = 5.0E3;
-    bodyMap[ "Vehicle" ] = boost::make_shared< simulation_setup::Body >( );
+    bodyMap[ "Vehicle" ] = std::make_shared< simulation_setup::Body >( );
     bodyMap[ "Vehicle" ]->setConstantBodyMass( vehicleMass );
 
     // Finalize body creation.
@@ -94,21 +94,21 @@ BOOST_AUTO_TEST_CASE( test_json_simulationThrustAlongVelocityVector_main )
     // Define thrust settings
     double thrustMagnitude = 25.0;
     double specificImpulse = 5000.0;
-    boost::shared_ptr< ThrustDirectionGuidanceSettings > thrustDirectionGuidanceSettings =
-            boost::make_shared< ThrustDirectionFromStateGuidanceSettings >(
+    std::shared_ptr< ThrustDirectionGuidanceSettings > thrustDirectionGuidanceSettings =
+            std::make_shared< ThrustDirectionFromStateGuidanceSettings >(
                 "Earth", true, false );
-    boost::shared_ptr< ThrustEngineSettings > thrustMagnitudeSettings =
-            boost::make_shared< ConstantThrustEngineSettings >(
+    std::shared_ptr< ThrustMagnitudeSettings > thrustMagnitudeSettings =
+            std::make_shared< ConstantThrustMagnitudeSettings >(
                 thrustMagnitude, specificImpulse );
 
 
     // Define acceleration model settings.
-    std::map< std::string, std::vector< boost::shared_ptr< AccelerationSettings > > > accelerationsOfVehicle;
+    std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfVehicle;
     accelerationsOfVehicle[ "Vehicle" ].push_back(
-                boost::make_shared< ThrustAccelerationSettings >( thrustDirectionGuidanceSettings, thrustMagnitudeSettings) );
-    accelerationsOfVehicle[ "Earth" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );
-    accelerationsOfVehicle[ "Moon" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );
-    accelerationsOfVehicle[ "Sun" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );
+                std::make_shared< ThrustAccelerationSettings >( thrustDirectionGuidanceSettings, thrustMagnitudeSettings) );
+    accelerationsOfVehicle[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( central_gravity ) );
+    accelerationsOfVehicle[ "Moon" ].push_back( std::make_shared< AccelerationSettings >( central_gravity ) );
+    accelerationsOfVehicle[ "Sun" ].push_back( std::make_shared< AccelerationSettings >( central_gravity ) );
     accelerationMap[ "Vehicle" ] = accelerationsOfVehicle;
     bodiesToPropagate.push_back( "Vehicle" );
     centralBodies.push_back( "Earth" );
@@ -128,19 +128,19 @@ BOOST_AUTO_TEST_CASE( test_json_simulationThrustAlongVelocityVector_main )
     systemInitialState( 4 ) = 7.5E3;
 
     // Define propagation termination conditions (stop after 1 hour).
-    boost::shared_ptr< PropagationTimeTerminationSettings > terminationSettings =
-        boost::make_shared< propagators::PropagationTimeTerminationSettings >( 3600.0 );
+    std::shared_ptr< PropagationTimeTerminationSettings > terminationSettings =
+        std::make_shared< propagators::PropagationTimeTerminationSettings >( 3600.0 );
 
     // Define settings for propagation of translational dynamics.
-    boost::shared_ptr< TranslationalStatePropagatorSettings< double > > translationalPropagatorSettings =
-            boost::make_shared< TranslationalStatePropagatorSettings< double > >
+    std::shared_ptr< TranslationalStatePropagatorSettings< double > > translationalPropagatorSettings =
+            std::make_shared< TranslationalStatePropagatorSettings< double > >
             ( centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState, terminationSettings,
               cowell );
 
     // Create mass rate models
-    boost::shared_ptr< MassRateModelSettings > massRateModelSettings =
-            boost::make_shared< FromThrustMassModelSettings >( true );
-    std::map< std::string, boost::shared_ptr< basic_astrodynamics::MassRateModel > > massRateModels;
+    std::shared_ptr< MassRateModelSettings > massRateModelSettings =
+            std::make_shared< FromThrustMassModelSettings >( true );
+    std::map< std::string, std::shared_ptr< basic_astrodynamics::MassRateModel > > massRateModels;
     massRateModels[ "Vehicle" ] = createMassRateModel(
                 "Vehicle", massRateModelSettings, bodyMap, accelerationModelMap );
 
@@ -151,23 +151,23 @@ BOOST_AUTO_TEST_CASE( test_json_simulationThrustAlongVelocityVector_main )
     Eigen::VectorXd initialBodyMasses = Eigen::VectorXd( 1 );
     initialBodyMasses( 0 ) = vehicleMass;
 
-    boost::shared_ptr< SingleArcPropagatorSettings< double > > massPropagatorSettings =
-            boost::make_shared< MassPropagatorSettings< double > >(
+    std::shared_ptr< SingleArcPropagatorSettings< double > > massPropagatorSettings =
+            std::make_shared< MassPropagatorSettings< double > >(
                 bodiesWithMassToPropagate, massRateModels, initialBodyMasses, terminationSettings );
 
     // Create list of propagation settings.
-    std::vector< boost::shared_ptr< SingleArcPropagatorSettings< double > > > propagatorSettingsVector;
+    std::vector< std::shared_ptr< SingleArcPropagatorSettings< double > > > propagatorSettingsVector;
     propagatorSettingsVector.push_back( translationalPropagatorSettings );
     propagatorSettingsVector.push_back( massPropagatorSettings );
 
     // Create propagation settings for mass and translational dynamics concurrently
-    boost::shared_ptr< PropagatorSettings< double > > propagatorSettings =
-            boost::make_shared< MultiTypePropagatorSettings< double > >(
+    std::shared_ptr< PropagatorSettings< double > > propagatorSettings =
+            std::make_shared< MultiTypePropagatorSettings< double > >(
                 propagatorSettingsVector, terminationSettings );
 
     // Define integrator settings
-    boost::shared_ptr< IntegratorSettings< > > integratorSettings =
-            boost::make_shared< IntegratorSettings< > >
+    std::shared_ptr< IntegratorSettings< > > integratorSettings =
+            std::make_shared< IntegratorSettings< > >
             ( rungeKutta4, 0.0, 30.0 );
 
 
@@ -176,8 +176,8 @@ BOOST_AUTO_TEST_CASE( test_json_simulationThrustAlongVelocityVector_main )
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     // Create simulation object and propagate dynamics.
-    const boost::shared_ptr< SingleArcDynamicsSimulator< > > dynamicsSimulator =
-            boost::make_shared< SingleArcDynamicsSimulator< > >( bodyMap, integratorSettings, propagatorSettings );
+    const std::shared_ptr< SingleArcDynamicsSimulator< > > dynamicsSimulator =
+            std::make_shared< SingleArcDynamicsSimulator< > >( bodyMap, integratorSettings, propagatorSettings );
     const std::map< double, Eigen::VectorXd > results = dynamicsSimulator->getEquationsOfMotionNumericalSolution( );
 
 

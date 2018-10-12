@@ -11,7 +11,7 @@
 #ifndef TUDAT_RELATIVISTICACCELERATIONPARTIAL_H
 #define TUDAT_RELATIVISTICACCELERATIONPARTIAL_H
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/physicalConstants.h"
 
@@ -42,7 +42,6 @@ void computePartialOfSchwarzschildAccelerationCorrectionWrtPosition(
 /*!
  * Function to compute partial of Schwarzschild acceleration correction w.r.t. velocity of body undergoing acceleration
  * \param relativeState Cartesian state of body undergoing, w.r.t. body exerting, acceleration.
- * \param relativeState Current Schwarzschild acceleration correction
  * \param partialMatrix Requested (returnd by reference)
  * \param gravitationalParameter Gravitational parameter of body exerting acceleration.
  * \param ppnParameterGamma PPN parameter gamma
@@ -102,7 +101,7 @@ public:
      *  \param acceleratingBody Body exerting acceleration.
      */
     RelativisticAccelerationPartial(
-            const boost::shared_ptr< relativity::RelativisticAccelerationCorrection > accelerationModel,
+            const std::shared_ptr< relativity::RelativisticAccelerationCorrection > accelerationModel,
             const std::string& acceleratedBody,
             const std::string& acceleratingBody ):
         AccelerationPartial( acceleratedBody, acceleratingBody, basic_astrodynamics::relativistic_correction_acceleration )
@@ -118,7 +117,7 @@ public:
         ppnGammaParameterFunction_ = accelerationModel->getPpnParameterGammaFunction_( );
         ppnBetaParameterFunction_ = accelerationModel->getPpnParameterBetaFunction_( );
         centralBodyGravitationalParameterFunction_ = accelerationModel->getGravitationalParameterFunctionOfCentralBody( );
-        currentAccelerationFunction_ = boost::bind( &relativity::RelativisticAccelerationCorrection::getAcceleration,
+        currentAccelerationFunction_ = std::bind( &relativity::RelativisticAccelerationCorrection::getAcceleration,
                                                     accelerationModel );
     }
 
@@ -250,8 +249,8 @@ public:
      *  \param parameter Parameter w.r.t. which partial is to be taken.
      *  \return Pair of parameter partial function and number of columns in partial (0 for no dependency, 1 otherwise).
      */
-    std::pair< boost::function< void( Eigen::MatrixXd& ) >, int >
-    getParameterPartialFunction( boost::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter );
+    std::pair< std::function< void( Eigen::MatrixXd& ) >, int >
+    getParameterPartialFunction( std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter );
 
     //! Function for setting up and retrieving a function returning a partial w.r.t. a vector parameter.
     /*!
@@ -260,10 +259,10 @@ public:
      *  \param parameter Parameter w.r.t. which partial is to be taken.
      *  \return Pair of parameter partial function and number of columns in partial (0 for no dependency).
      */
-    std::pair< boost::function< void( Eigen::MatrixXd& ) >, int >
-    getParameterPartialFunction( boost::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter )
+    std::pair< std::function< void( Eigen::MatrixXd& ) >, int >
+    getParameterPartialFunction( std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter )
     {
-        boost::function< void( Eigen::MatrixXd& ) > partialFunction;
+        std::function< void( Eigen::MatrixXd& ) > partialFunction;
         return std::make_pair( partialFunction, 0 );
     }
 
@@ -313,22 +312,22 @@ public:
 private:
 
     //! Function to retrieve current state of body exerting acceleration.
-    boost::function< Eigen::Vector6d( ) > centralBodyState_;
+    std::function< Eigen::Vector6d( ) > centralBodyState_;
 
     //! Function to retrieve current state of body undergoing acceleration.
-    boost::function< Eigen::Vector6d( ) > acceleratedBodyState_;
+    std::function< Eigen::Vector6d( ) > acceleratedBodyState_;
 
     //! Function to retrieve PPN parameter gamma
-    boost::function< double( ) > ppnGammaParameterFunction_;
+    std::function< double( ) > ppnGammaParameterFunction_;
 
     //! Function to retrieve PPN parameter beta
-    boost::function< double( ) > ppnBetaParameterFunction_;
+    std::function< double( ) > ppnBetaParameterFunction_;
 
     //! Function to retrieve current gravitational parameter of central body.
-    boost::function< double( ) > centralBodyGravitationalParameterFunction_;
+    std::function< double( ) > centralBodyGravitationalParameterFunction_;
 
     //! Function to retrieve current relativistic acceleration correction.
-    boost::function< Eigen::Vector3d( ) > currentAccelerationFunction_;
+    std::function< Eigen::Vector3d( ) > currentAccelerationFunction_;
 
     //! Current partial of relativistic acceleration correction w.r.t. position of body undergoing acceleration
     /*!

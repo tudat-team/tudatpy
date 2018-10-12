@@ -17,7 +17,7 @@ namespace tudat
 namespace propagators
 {
 
-//! Function to obtain the time derivative of modified Rodrigues parameters of body-fixed to inertial frame
+//! Function to obtain the time derivative of modified Rodrigues parameters of body-fixed to inertial frame.
 Eigen::Vector4d calculateModifiedRodriguesParametersDerivative(
         const Eigen::Vector4d& currentModifiedRodriguesParametersToBaseFrame,
         const Eigen::Vector3d& angularVelocityVectorInBodyFixedFrame )
@@ -39,6 +39,14 @@ Eigen::Vector4d calculateModifiedRodriguesParametersDerivative(
     // Give output
     return modifiedRodriguesParametersDerivative;
 }
+
+template class RotationalMotionModifiedRodriguesParametersStateDerivative< double, double >;
+
+#if( BUILD_EXTENDED_PRECISION_PROPAGATION_TOOLS )
+template class RotationalMotionModifiedRodriguesParametersStateDerivative< long double, double >;
+template class RotationalMotionModifiedRodriguesParametersStateDerivative< double, Time >;
+template class RotationalMotionModifiedRodriguesParametersStateDerivative< long double, Time >;
+#endif
 
 } // namespace propagators
 

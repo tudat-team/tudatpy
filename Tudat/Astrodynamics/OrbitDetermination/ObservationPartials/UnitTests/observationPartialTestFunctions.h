@@ -54,43 +54,43 @@ NamedBodyMap setupEnvironment( const std::vector< LinkEndId > groundStations,
                                const double gravitationalParameterScaling = 1.0 );
 
 //! Function to create estimated parameters for general observation partial tests.
-boost::shared_ptr< EstimatableParameterSet< double > > createEstimatableParameters(
+std::shared_ptr< EstimatableParameterSet< double > > createEstimatableParameters(
         const NamedBodyMap& bodyMap, const double initialTime,
         const bool useEquivalencePrincipleParameter = false );
 
 //! Function to compute numerical partials w.r.t. constant body states for general observation partial tests.
 Eigen::Matrix< double, Eigen::Dynamic, 3 > calculatePartialWrtConstantBodyState(
         const std::string& bodyName, const NamedBodyMap& bodyMap, const Eigen::Vector3d& bodyPositionVariation,
-        const boost::function< Eigen::VectorXd( const double ) > observationFunction,
+        const std::function< Eigen::VectorXd( const double ) > observationFunction,
         const double observationTime, const int observableSize );
 
 //! Function to compute numerical partials w.r.t. constant body states for general observation partial tests.
 Eigen::Matrix< double, Eigen::Dynamic, 3 > calculatePartialWrtConstantBodyVelocity(
         const std::string& bodyName, const NamedBodyMap& bodyMap, const Eigen::Vector3d& bodyVelocityVariation,
-        const boost::function< Eigen::VectorXd( const double ) > observationFunction, const double observationTime,
+        const std::function< Eigen::VectorXd( const double ) > observationFunction, const double observationTime,
         const int observableSize );
 
 //! Function to compute numerical partials w.r.t. double parameters for general observation partial tests.
 std::vector< Eigen::VectorXd > calculateNumericalPartialsWrtDoubleParameters(
-        const std::vector< boost::shared_ptr< EstimatableParameter< double > > >& doubleParameters,
-        const std::vector< boost::function< void( ) > > updateFunctions,
+        const std::vector< std::shared_ptr< EstimatableParameter< double > > >& doubleParameters,
+        const std::vector< std::function< void( ) > > updateFunctions,
         const std::vector< double >& parameterPerturbations,
-        const boost::function< Eigen::VectorXd( const double ) > observationFunction,
+        const std::function< Eigen::VectorXd( const double ) > observationFunction,
         const double observationTime );
 
 //! Function to compute numerical partials w.r.t. vector parameters for general observation partial tests.
 std::vector< Eigen::MatrixXd > calculateNumericalPartialsWrtVectorParameters(
-        const std::vector< boost::shared_ptr< EstimatableParameter< Eigen::VectorXd > > >& vectorParameters,
-        const std::vector< boost::function< void( ) > > updateFunctions,
+        const std::vector< std::shared_ptr< EstimatableParameter< Eigen::VectorXd > > >& vectorParameters,
+        const std::vector< std::function< void( ) > > updateFunctions,
         const std::vector< Eigen::VectorXd >& parameterPerturbations,
-        const boost::function< Eigen::VectorXd( const double ) > observationFunction,
+        const std::function< Eigen::VectorXd( const double ) > observationFunction,
         const double observationTime );
 
 //! Function to compute analytical partials w.r.t. estimated parameters for general observation partial tests.
 template< int ObservableSize >
 std::vector< std::vector< std::pair< Eigen::Matrix< double, ObservableSize, Eigen::Dynamic >, double > > >
 calculateAnalyticalPartials(
-        const std::map< std::pair< int, int >, boost::shared_ptr< ObservationPartial< ObservableSize > > >& partialObjectList,
+        const std::map< std::pair< int, int >, std::shared_ptr< ObservationPartial< ObservableSize > > >& partialObjectList,
         const std::vector< Eigen::Vector6d >& states,
         const std::vector< double >& times,
         const LinkEndType linkEndOfFixedTime )
@@ -98,7 +98,7 @@ calculateAnalyticalPartials(
     std::vector< std::vector< std::pair< Eigen::Matrix< double, ObservableSize, Eigen::Dynamic >, double > > > partialList;
 
     for( typename std::map< std::pair< int, int >,
-         boost::shared_ptr< ObservationPartial< ObservableSize > > >::const_iterator partialIterator =
+         std::shared_ptr< ObservationPartial< ObservableSize > > >::const_iterator partialIterator =
          partialObjectList.begin( ); partialIterator != partialObjectList.end( ); partialIterator++ )
     {
         partialList.push_back( partialIterator->second->calculatePartial( states, times, linkEndOfFixedTime ) );
@@ -111,14 +111,14 @@ std::vector< std::vector< double > > getAnalyticalPartialEvaluationTimes(
         const LinkEnds& linkEnds,
         const ObservableType observableType,
         const std::vector< double >& linkEndTimes,
-        const boost::shared_ptr< EstimatableParameterSet< double > >& estimatedParameters );
+        const std::shared_ptr< EstimatableParameterSet< double > >& estimatedParameters );
 
 //! Generalized test function for partial derivatives of observations
 template< int ObservableSize = 1 >
-inline void testObservationPartials(
-        const boost::shared_ptr< ObservationModel< ObservableSize, double, double > > observationModel,
+void testObservationPartials(
+        const std::shared_ptr< ObservationModel< ObservableSize, double, double > > observationModel,
         NamedBodyMap& bodyMap,
-        const boost::shared_ptr< EstimatableParameterSet< double > > fullEstimatableParameterSet,
+        const std::shared_ptr< EstimatableParameterSet< double > > fullEstimatableParameterSet,
         const LinkEnds& linkEnds, const ObservableType observableType,
         const double tolerance = 1.0E-6,
         const bool testPositionPartial = 1,
@@ -129,21 +129,21 @@ inline void testObservationPartials(
     // Retrieve double and vector parameters and estimate body states
     std::vector< std::string > bodiesWithEstimatedState = estimatable_parameters::getListOfBodiesToEstimate(
                 fullEstimatableParameterSet );
-    std::vector< boost::shared_ptr< EstimatableParameter< double > > > doubleParameterVector =
+    std::vector< std::shared_ptr< EstimatableParameter< double > > > doubleParameterVector =
             fullEstimatableParameterSet->getEstimatedDoubleParameters( );
-    std::vector< boost::shared_ptr< EstimatableParameter< Eigen::VectorXd > > > vectorParameterVector =
+    std::vector< std::shared_ptr< EstimatableParameter< Eigen::VectorXd > > > vectorParameterVector =
             fullEstimatableParameterSet->getEstimatedVectorParameters( );
 
     // Create observation partials.
-    std::map< LinkEnds, boost::shared_ptr< ObservationModel< ObservableSize > > > observationModelList;
+    std::map< LinkEnds, std::shared_ptr< ObservationModel< ObservableSize > > > observationModelList;
     observationModelList[ linkEnds ] = observationModel;
-    boost::shared_ptr< ObservationPartialCreator< ObservableSize, double, double > > observationPartialCreator =
-        boost::make_shared< ObservationPartialCreator< ObservableSize, double, double > >( );
-    std::pair< std::map< std::pair< int, int >, boost::shared_ptr< ObservationPartial< ObservableSize > > >,
-            boost::shared_ptr< PositionPartialScaling > > fullAnalyticalPartialSet =
+    std::shared_ptr< ObservationPartialCreator< ObservableSize, double, double > > observationPartialCreator =
+        std::make_shared< ObservationPartialCreator< ObservableSize, double, double > >( );
+    std::pair< std::map< std::pair< int, int >, std::shared_ptr< ObservationPartial< ObservableSize > > >,
+            std::shared_ptr< PositionPartialScaling > > fullAnalyticalPartialSet =
             observationPartialCreator->createObservationPartials(
                 observableType, observationModelList, bodyMap, fullEstimatableParameterSet ).begin( )->second;
-    boost::shared_ptr< PositionPartialScaling > positionPartialScaler = fullAnalyticalPartialSet.second;
+    std::shared_ptr< PositionPartialScaling > positionPartialScaler = fullAnalyticalPartialSet.second;
 
     // Iterate over link ends, compute and test partials for observable referenced at each link end.
     for( LinkEnds::const_iterator linkEndIterator = linkEnds.begin( ); linkEndIterator != linkEnds.end( );
@@ -212,9 +212,9 @@ inline void testObservationPartials(
         }
 
         // Define observation function for current observable/link end
-        boost::function< Eigen::VectorXd( const double ) > observationFunction = boost::bind(
+        std::function< Eigen::VectorXd( const double ) > observationFunction = std::bind(
                     &ObservationModel< ObservableSize, double, double >::computeObservations,
-                    observationModel, _1, linkEndIterator->first );
+                    observationModel, std::placeholders::_1, linkEndIterator->first );
 
         if( testPositionPartial )
         {
@@ -270,10 +270,10 @@ inline void testObservationPartials(
             // Test double parameter partials
             {
                 // Settings for parameter partial functions.
-                std::vector< double > parameterPerturbations = boost::assign::list_of
-                        ( 1.0E-10 * parameterPerturbationMultipliers( 0 ) )( 1.0E-10 * parameterPerturbationMultipliers( 1 ) )
-                        ( 1.0E8 * parameterPerturbationMultipliers( 2 ) );
-                std::vector< boost::function< void( ) > > updateFunctionList;
+                std::vector< double > parameterPerturbations = { 1.0E-10 * parameterPerturbationMultipliers( 0 ),
+                                                                 1.0E-10 * parameterPerturbationMultipliers( 1 ),
+                                                                 1.0E8 * parameterPerturbationMultipliers( 2 ) };
+                std::vector< std::function< void( ) > > updateFunctionList;
                 updateFunctionList.push_back( emptyVoidFunction );
                 updateFunctionList.push_back( emptyVoidFunction );
                 updateFunctionList.push_back( emptyVoidFunction );
@@ -309,16 +309,16 @@ inline void testObservationPartials(
 
             // Test vector parameter partials
             {
-                boost::function< Eigen::VectorXd( const double ) > vectorObservationFunction = boost::bind(
+                std::function< Eigen::VectorXd( const double ) > vectorObservationFunction = std::bind(
                             &ObservationModel< ObservableSize, double, double >::computeObservations,
-                            observationModel, _1, linkEndIterator->first );
+                            observationModel, std::placeholders::_1, linkEndIterator->first );
 
                 // Settings for parameter partial functions.
                 std::vector< Eigen::VectorXd > parameterPerturbations;
                 parameterPerturbations.push_back( Eigen::Vector2d::Constant( 1.0E-4 * parameterPerturbationMultipliers( 3 ) ) );
                 parameterPerturbations.push_back( Eigen::Vector2d::Constant( 1.0E-4 * parameterPerturbationMultipliers( 3 ) ) );
 
-                std::vector< boost::function< void( ) > > updateFunctionList;
+                std::vector< std::function< void( ) > > updateFunctionList;
                 updateFunctionList.push_back( emptyVoidFunction );
                 updateFunctionList.push_back( emptyVoidFunction );
 
@@ -354,6 +354,29 @@ inline void testObservationPartials(
         }
     }
 }
+
+extern template void testObservationPartials< 1 >(
+        const std::shared_ptr< ObservationModel< 1, double, double > > observationModel,
+        NamedBodyMap& bodyMap,
+        const std::shared_ptr< EstimatableParameterSet< double > > fullEstimatableParameterSet,
+        const LinkEnds& linkEnds, const ObservableType observableType,
+        const double tolerance,
+        const bool testPositionPartial,
+        const bool testParameterPartial,
+        const double positionPerturbationMultiplier,
+        const Eigen::VectorXd parameterPerturbationMultipliers );
+
+extern template void testObservationPartials< 2 >(
+        const std::shared_ptr< ObservationModel< 2, double, double > > observationModel,
+        NamedBodyMap& bodyMap,
+        const std::shared_ptr< EstimatableParameterSet< double > > fullEstimatableParameterSet,
+        const LinkEnds& linkEnds, const ObservableType observableType,
+        const double tolerance,
+        const bool testPositionPartial,
+        const bool testParameterPartial,
+        const double positionPerturbationMultiplier,
+        const Eigen::VectorXd parameterPerturbationMultipliers );
+
 
 }
 

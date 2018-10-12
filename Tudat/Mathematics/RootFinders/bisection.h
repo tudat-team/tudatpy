@@ -24,7 +24,7 @@
 
 #include <boost/bind.hpp>
 #include <boost/make_shared.hpp>
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include "Tudat/Basics/utilityMacros.h"
 #include "Tudat/Mathematics/RootFinders/rootFinder.h"
@@ -98,11 +98,12 @@ public:
     BisectionCore( const DataType relativeXTolerance, const unsigned int maxIterations,
                    const DataType lowerBound = -1.0, const DataType upperBound = 1.0 ) :
         RootFinderCore< DataType >(
-            boost::bind(
+            std::bind(
                 &termination_conditions::RootRelativeToleranceTerminationCondition< DataType >::
-                checkTerminationCondition, boost::make_shared<
+                checkTerminationCondition, std::make_shared<
                 termination_conditions::RootRelativeToleranceTerminationCondition< DataType > >(
-                    relativeXTolerance, maxIterations ), _1, _2, _3, _4, _5 ) ),
+                    relativeXTolerance, maxIterations ), std::placeholders::_1, std::placeholders::_2,
+                std::placeholders::_3, std::placeholders::_4, std::placeholders::_5 ) ),
         lowerBound_( lowerBound ), upperBound_( upperBound )
     { }
 
@@ -223,7 +224,7 @@ private:
 
 // Some handy typedefs.
 typedef BisectionCore< double > Bisection;
-typedef boost::shared_ptr< Bisection > BisectionPointer;
+typedef std::shared_ptr< Bisection > BisectionPointer;
 
 } // namespace root_finders
 

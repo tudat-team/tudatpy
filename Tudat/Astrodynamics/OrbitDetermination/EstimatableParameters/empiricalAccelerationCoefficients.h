@@ -41,7 +41,7 @@ public:
      *  shape of acceleration, value is list of components.
      */
     EmpiricalAccelerationCoefficientsParameter(
-            const boost::shared_ptr< basic_astrodynamics::EmpiricalAcceleration > empiricalAcceleration,
+            const std::shared_ptr< basic_astrodynamics::EmpiricalAcceleration > empiricalAcceleration,
             const std::string& associatedBody,
             const std::map< basic_astrodynamics::EmpiricalAccelerationComponents,
             std::vector< basic_astrodynamics::EmpiricalAccelerationFunctionalShapes > > componentsToEstimate ):
@@ -201,7 +201,7 @@ protected:
 private:
 
     //! Class defining properties of empirical acceleration used in propagation.
-    boost::shared_ptr< basic_astrodynamics::EmpiricalAcceleration > empiricalAcceleration_;
+    std::shared_ptr< basic_astrodynamics::EmpiricalAcceleration > empiricalAcceleration_;
 
     //! Number of empirical acceleration components that are to be estimated
     int parameterSize_;
@@ -231,7 +231,7 @@ public:
      *  estimated
      */
     ArcWiseEmpiricalAccelerationCoefficientsParameter(
-            const boost::shared_ptr< basic_astrodynamics::EmpiricalAcceleration > empiricalAcceleration,
+            const std::shared_ptr< basic_astrodynamics::EmpiricalAcceleration > empiricalAcceleration,
             const std::string& associatedBody,
             const std::map< basic_astrodynamics::EmpiricalAccelerationComponents,
             std::vector< basic_astrodynamics::EmpiricalAccelerationFunctionalShapes > > componentsToEstimate,
@@ -281,14 +281,14 @@ public:
         }
 
         // Create piecewise constant interpolator for empirical acceleration
-        empiricalAccelerationInterpolator_ = boost::make_shared<
+        empiricalAccelerationInterpolator_ = std::make_shared<
                 interpolators::PiecewiseConstantInterpolator< double, Eigen::Matrix3d > >(
                     arcStartTimeList_, empiricalAccelerationList_ );
         typedef interpolators::OneDimensionalInterpolator< double, Eigen::Matrix3d > LocalInterpolator;
 
         empiricalAccelerationFunction_ =
-                boost::bind( static_cast< Eigen::Matrix3d( LocalInterpolator::* )( const double ) >
-                             ( &LocalInterpolator::interpolate ), empiricalAccelerationInterpolator_, _1 );
+                std::bind( static_cast< Eigen::Matrix3d( LocalInterpolator::* )( const double ) >
+                             ( &LocalInterpolator::interpolate ), empiricalAccelerationInterpolator_, std::placeholders::_1 );
 
     }
 
@@ -398,7 +398,7 @@ public:
         return accelerationIndices_;
     }
 
-    boost::shared_ptr< interpolators::LookUpScheme< double > > getArcTimeLookupScheme( )
+    std::shared_ptr< interpolators::LookUpScheme< double > > getArcTimeLookupScheme( )
     {
         return empiricalAccelerationInterpolator_->getLookUpScheme( );
     }
@@ -408,14 +408,14 @@ protected:
 private:
 
     //! Class defining properties of empirical acceleration used in propagation.
-    boost::shared_ptr< basic_astrodynamics::EmpiricalAcceleration > empiricalAcceleration_;
+    std::shared_ptr< basic_astrodynamics::EmpiricalAcceleration > empiricalAcceleration_;
 
     //! Interpolator to compute the empirical acceleration as a function of time
-    boost::shared_ptr< interpolators::PiecewiseConstantInterpolator< double, Eigen::Matrix3d > >
+    std::shared_ptr< interpolators::PiecewiseConstantInterpolator< double, Eigen::Matrix3d > >
     empiricalAccelerationInterpolator_;
 
     //! Function returning the empirical acceleration as a function of time (linked to empiricalAccelerationInterpolator_)
-    boost::function< Eigen::Matrix3d( const double ) > empiricalAccelerationFunction_;
+    std::function< Eigen::Matrix3d( const double ) > empiricalAccelerationFunction_;
 
     //! List of components in empirical accelerations that are to be estimated for every arc.
     std::map< basic_astrodynamics::EmpiricalAccelerationFunctionalShapes, std::vector< int > > accelerationIndices_;

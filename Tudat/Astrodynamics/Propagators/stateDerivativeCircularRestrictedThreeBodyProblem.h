@@ -15,7 +15,7 @@
 #ifndef TUDAT_STATE_DERIVATIVE_CIRCULAR_RESTRICTED_THREE_BODY_PROBLEM_H
 #define TUDAT_STATE_DERIVATIVE_CIRCULAR_RESTRICTED_THREE_BODY_PROBLEM_H
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include <Eigen/Core>
 
@@ -64,7 +64,7 @@ private:
 };
 
 //! Typedef for shared-pointer to StateDerivativeCircularRestrictedThreeBodyProblem object.
-typedef boost::shared_ptr< StateDerivativeCircularRestrictedThreeBodyProblem >
+typedef std::shared_ptr< StateDerivativeCircularRestrictedThreeBodyProblem >
 StateDerivativeCircularRestrictedThreeBodyProblemPointer;
 
 } // namespace propagators

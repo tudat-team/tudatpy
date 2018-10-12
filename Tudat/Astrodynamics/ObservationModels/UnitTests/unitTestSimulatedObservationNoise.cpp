@@ -40,7 +40,7 @@ using namespace tudat::statistics;
 BOOST_AUTO_TEST_SUITE( test_observation_noise_models )
 
 // Function to conver
-double ignoreInputeVariable( boost::function< double( ) > inputFreeFunction, const double dummyInput )
+double ignoreInputeVariable( std::function< double( ) > inputFreeFunction, const double dummyInput )
 {
     return inputFreeFunction( );
 }
@@ -61,9 +61,9 @@ BOOST_AUTO_TEST_CASE( testObservationNoiseModels )
     double finalEphemerisTime = double( 1.0E7 + 3.0 * physical_constants::JULIAN_DAY );
 
     // Create bodies needed in simulation
-    std::map< std::string, boost::shared_ptr< BodySettings > > bodySettings =
+    std::map< std::string, std::shared_ptr< BodySettings > > bodySettings =
             getDefaultBodySettings( bodyNames, initialEphemerisTime - 3600.0, finalEphemerisTime + 3600.0 );
-    bodySettings[ "Earth" ]->rotationModelSettings = boost::make_shared< SimpleRotationModelSettings >(
+    bodySettings[ "Earth" ]->rotationModelSettings = std::make_shared< SimpleRotationModelSettings >(
                 "ECLIPJ2000", "IAU_Earth",
                 spice_interface::computeRotationQuaternionBetweenFrames(
                     "ECLIPJ2000", "IAU_Earth", initialEphemerisTime ),
@@ -129,30 +129,30 @@ BOOST_AUTO_TEST_CASE( testObservationNoiseModels )
         for( unsigned int i = 0; i < currentLinkEndsList.size( ); i++ )
         {
             // Add range bias for first two 1-way range observations
-            boost::shared_ptr< ObservationBiasSettings > biasSettings;
+            std::shared_ptr< ObservationBiasSettings > biasSettings;
             if( ( currentObservable == one_way_range ) && ( i == 0 ) )
             {
-                biasSettings = boost::make_shared< ConstantObservationBiasSettings >(
+                biasSettings = std::make_shared< ConstantObservationBiasSettings >(
                             Eigen::Vector1d::Constant( rangeBias1 ), false );
             }
             else if( ( currentObservable == one_way_range ) && ( i == 1 ) )
             {
-                biasSettings = boost::make_shared< ConstantObservationBiasSettings >(
+                biasSettings = std::make_shared< ConstantObservationBiasSettings >(
                             Eigen::Vector1d::Constant( rangeBias2 ), false );
             }
 
             // Create observation settings
             observationSettingsMap.insert(
                         std::make_pair( currentLinkEndsList.at( i ),
-                                        boost::make_shared< ObservationSettings >(
-                                            currentObservable, boost::shared_ptr< LightTimeCorrectionSettings >( ),
+                                        std::make_shared< ObservationSettings >(
+                                            currentObservable, std::shared_ptr< LightTimeCorrectionSettings >( ),
                                             biasSettings ) ) );
         }
     }
 
     // Create observation simulators
     std::map< ObservableType,
-            boost::shared_ptr< ObservationSimulatorBase< double, double > > >  observationSimulators =
+            std::shared_ptr< ObservationSimulatorBase< double, double > > >  observationSimulators =
             createObservationSimulators( observationSettingsMap, bodyMap );
 
     // Define osbervation times. NOTE: These times are not checked w.r.t. visibility and are used for testing purposes only.
@@ -169,7 +169,7 @@ BOOST_AUTO_TEST_CASE( testObservationNoiseModels )
     }
 
     // Define observation simulation settings (observation type, link end, times and reference link end)
-    std::map< ObservableType, std::map< LinkEnds, boost::shared_ptr< ObservationSimulationTimeSettings< double > > > >
+    std::map< ObservableType, std::map< LinkEnds, std::shared_ptr< ObservationSimulationTimeSettings< double > > > >
             measurementSimulationInput;
     for( std::map< ObservableType, std::vector< LinkEnds > >::iterator linkEndIterator = linkEndsPerObservable.begin( );
          linkEndIterator != linkEndsPerObservable.end( ); linkEndIterator++ )
@@ -179,7 +179,7 @@ BOOST_AUTO_TEST_CASE( testObservationNoiseModels )
         for( unsigned int i = 0; i < currentLinkEndsList.size( ); i++ )
         {
             measurementSimulationInput[ currentObservable ][ currentLinkEndsList.at( i ) ] =
-                    boost::make_shared< TabulatedObservationSimulationTimeSettings< double > >(
+                    std::make_shared< TabulatedObservationSimulationTimeSettings< double > >(
                         receiver, baseTimeList );
         }
     }
@@ -205,11 +205,11 @@ BOOST_AUTO_TEST_CASE( testObservationNoiseModels )
         double constantStandardDeviation = 0.5;
 
         // Create noise function
-        boost::function< double( ) > inputFreeNoiseFunction = createBoostContinuousRandomVariableGeneratorFunction(
-                    normal_boost_distribution, boost::assign::list_of( constantOffset )( constantStandardDeviation ), 0.0 );
-        boost::function< double( const double ) > noiseFunction =
-                boost::bind( &utilities::evaluateFunctionWithoutInputArgumentDependency< double, const double >,
-                             inputFreeNoiseFunction, _1 );
+        std::function< double( ) > inputFreeNoiseFunction = createBoostContinuousRandomVariableGeneratorFunction(
+                    normal_boost_distribution, { constantOffset, constantStandardDeviation }, 0.0 );
+        std::function< double( const double ) > noiseFunction =
+                std::bind( &utilities::evaluateFunctionWithoutInputArgumentDependency< double, const double >,
+                           inputFreeNoiseFunction, std::placeholders::_1 );
 
         // Simulate noisy observables
         PodInputDataType constantNoiseObservationsAndTimes = simulateObservationsWithNoise< double, double >(
@@ -256,16 +256,16 @@ BOOST_AUTO_TEST_CASE( testObservationNoiseModels )
         constantStandardDeviations[ angular_position ] = 6.3E-6;
 
         // Create noise function for each observable
-        std::map< ObservableType, boost::function< double( const double ) > > noiseFunctionPerObservable;
+        std::map< ObservableType, std::function< double( const double ) > > noiseFunctionPerObservable;
         for( std::map< ObservableType, double >::const_iterator typeIterator = constantOffsets.begin( );
              typeIterator != constantOffsets.end( ); typeIterator++ )
         {
             noiseFunctionPerObservable[ typeIterator->first ] =
-                    boost::bind( &utilities::evaluateFunctionWithoutInputArgumentDependency< double, const double >,
-                                 createBoostContinuousRandomVariableGeneratorFunction(
-                                     normal_boost_distribution,
-                                     boost::assign::list_of( constantOffsets.at( typeIterator->first ) )
-                                     ( constantStandardDeviations.at( typeIterator->first ) ), 0.0 ), _1 );
+                    std::bind( &utilities::evaluateFunctionWithoutInputArgumentDependency< double, const double >,
+                               createBoostContinuousRandomVariableGeneratorFunction(
+                                   normal_boost_distribution,
+            { constantOffsets.at( typeIterator->first ), constantStandardDeviations.at( typeIterator->first ) },
+                                   0.0 ), std::placeholders::_1 );
         }
 
         // Simulate noisy observables
@@ -326,8 +326,8 @@ BOOST_AUTO_TEST_CASE( testObservationNoiseModels )
         constantStandardDeviationsStation[ angular_position ][ linkEndsPerObservable[ angular_position ].at( 1 ) ] = 4.3E-10;
 
         // Create noise function for each observable and link ends combination
-        std::map< ObservableType, boost::function< double( const double ) > > noiseFunctionPerObservable;
-        std::map< ObservableType, std::map< LinkEnds, boost::function< double( const double ) > > > noiseFunctionPerLinkEnd;
+        std::map< ObservableType, std::function< double( const double ) > > noiseFunctionPerObservable;
+        std::map< ObservableType, std::map< LinkEnds, std::function< double( const double ) > > > noiseFunctionPerLinkEnd;
         for( std::map< ObservableType, std::map< LinkEnds, double > >::const_iterator
              typeIterator = constantOffsetsPerStation.begin( );
              typeIterator != constantOffsetsPerStation.end( );
@@ -337,13 +337,11 @@ BOOST_AUTO_TEST_CASE( testObservationNoiseModels )
                  linkEndIterator != typeIterator->second.end( ); linkEndIterator++ )
             {
                 noiseFunctionPerLinkEnd[ typeIterator->first ][ linkEndIterator->first ] =
-                        boost::bind( &utilities::evaluateFunctionWithoutInputArgumentDependency< double, const double >,
-                                     createBoostContinuousRandomVariableGeneratorFunction(
-                                         normal_boost_distribution,
-                                         boost::assign::list_of
-                                         ( constantOffsetsPerStation.at( typeIterator->first ).at( linkEndIterator->first ) )
-                                         ( constantStandardDeviationsStation.at( typeIterator->first ).at( linkEndIterator->first ) ),
-                                         0.0 ), _1 );
+                        std::bind( &utilities::evaluateFunctionWithoutInputArgumentDependency< double, const double >,
+                                   createBoostContinuousRandomVariableGeneratorFunction(
+                                       normal_boost_distribution,
+                { constantOffsetsPerStation.at( typeIterator->first ).at( linkEndIterator->first ), constantStandardDeviationsStation.at( typeIterator->first ).at( linkEndIterator->first ) },
+                                       0.0 ), std::placeholders::_1 );
             }
         }
 

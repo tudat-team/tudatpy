@@ -14,7 +14,7 @@
 #include <map>
 #include <iostream>
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include "Tudat/Astrodynamics/SystemModels/engineModel.h"
 
@@ -26,7 +26,7 @@ namespace system_models
 
 //! Wrapper class that contains the relevant hardware systems of a vehicle.
 /*!
- *  Wrapper class that contains the relevant hardware systems of a vehicle. Not all member objects need to be set; NULL
+ *  Wrapper class that contains the relevant hardware systems of a vehicle. Not all member objects need to be set; nullptr
  *  member objects denote that the vehicle does not contain the associated hardware.
  */
 class VehicleSystems
@@ -49,7 +49,7 @@ public:
      * Function to retrieve the engine models
      * \return Named list of engine models in the vehicle
      */
-    std::map< std::string, boost::shared_ptr< EngineModel > > getEngineModels( )
+    std::map< std::string, std::shared_ptr< EngineModel > > getEngineModels( )
     {
         return engineModels_;
     }
@@ -62,7 +62,7 @@ public:
      * \param engineName Reference id of the engine that is to be set.
      */
     void setEngineModel(
-            const boost::shared_ptr< EngineModel > engineModel, const std::string engineName = "" )
+            const std::shared_ptr< EngineModel > engineModel, const std::string engineName = "" )
     {
         // Check if engine with this name already exists.
         if( engineModels_.count( engineName ) )
@@ -150,7 +150,7 @@ public:
 private:
 
     //! Named list of engine models in the vehicle
-    std::map< std::string, boost::shared_ptr< EngineModel > > engineModels_;
+    std::map< std::string, std::shared_ptr< EngineModel > > engineModels_;
 
     //! Total dry mass of the vehicle
     double dryMass_;

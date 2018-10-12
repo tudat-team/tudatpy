@@ -47,8 +47,8 @@ public:
      *  observable, i.e. deviations from the physically ideal observable between reference points (default none).
      */
     AngularPositionObservationModel(
-            const boost::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > > lightTimeCalculator,
-            const boost::shared_ptr< ObservationBias< 2 > > observationBiasCalculator = NULL ):
+            const std::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > > lightTimeCalculator,
+            const std::shared_ptr< ObservationBias< 2 > > observationBiasCalculator = nullptr ):
         ObservationModel< 2, ObservationScalarType, TimeType >( angular_position, observationBiasCalculator ),
         lightTimeCalculator_( lightTimeCalculator ) { }
 
@@ -132,7 +132,7 @@ public:
     /*!
      * Function to get the object to calculate light time.
      * \return Object to calculate light time.
-     */    boost::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > > getLightTimeCalculator( )
+     */    std::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > > getLightTimeCalculator( )
     {
         return lightTimeCalculator_;
     }
@@ -143,7 +143,7 @@ private:
     /*!
      *  Object to calculate light time, including possible corrections from troposphere, relativistic corrections, etc.
      */
-    boost::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > > lightTimeCalculator_;
+    std::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > > lightTimeCalculator_;
 };
 
 } // namespace observation_models

@@ -17,6 +17,7 @@
 #include "Tudat/Basics/testMacros.h"
 #include "Tudat/Basics/basicTypedefs.h"
 #include "Tudat/InputOutput/basicInputOutput.h"
+#include "Tudat/InputOutput/matrixTextFileReader.h"
 
 #include "Tudat/Mathematics/Statistics/basicStatistics.h"
 #include "Tudat/Mathematics/Filters/extendedKalmanFilter.h"
@@ -97,27 +98,34 @@ BOOST_AUTO_TEST_CASE( testExtendedKalmanFilterFirstCase )
     measurementUncertainty[ 0 ] = 100.0;
 
     // Set integrator settings
-    boost::shared_ptr< numerical_integrators::IntegratorSettings< > > integratorSettings =
-            boost::make_shared< numerical_integrators::IntegratorSettings< > > (
+    std::shared_ptr< numerical_integrators::IntegratorSettings< > > integratorSettings =
+            std::make_shared< numerical_integrators::IntegratorSettings< > > (
                 numerical_integrators::euler, initialTime, timeStep );
 
     // Create control class
-    boost::shared_ptr< ControlWrapper< double, double, 2 > > control =
-            boost::make_shared< ControlWrapper< double, double, 2 > >( boost::lambda::constant( Eigen::Vector2d::Zero( ) ) );
+    std::shared_ptr< ControlWrapper< double, double, 2 > > control =
+            std::make_shared< ControlWrapper< double, double, 2 > >(
+                [ & ]( const double, const Eigen::Vector2d& ){ return Eigen::Vector2d::Zero( ); } );
 
     // Create extended Kalman filter object
-    KalmanFilterDoublePointer extendedFilter = boost::make_shared< ExtendedKalmanFilterDouble >(
-                boost::bind( &stateFunction1, _1, _2,
-                             boost::bind( &ControlWrapper< double, double, 2 >::getCurrentControlVector, control ) ),
-                boost::bind( &measurementFunction1, _1, _2 ),
-                boost::bind( &stateJacobianFunction1, _1, _2,
-                             boost::bind( &ControlWrapper< double, double, 2 >::getCurrentControlVector, control ) ),
-                boost::lambda::constant( Eigen::Matrix2d::Identity( ) ),
-                boost::bind( &measurementJacobianFunction1, _1, _2 ),
-                boost::lambda::constant( Eigen::Vector1d::Identity( ) ),
+    KalmanFilterDoublePointer extendedFilter = std::make_shared< ExtendedKalmanFilterDouble >(
+                std::bind( &stateFunction1, std::placeholders::_1, std::placeholders::_2,
+                             std::bind( &ControlWrapper< double, double, 2 >::getCurrentControlVector, control ) ),
+                std::bind( &measurementFunction1, std::placeholders::_1, std::placeholders::_2 ),
+                std::bind( &stateJacobianFunction1, std::placeholders::_1, std::placeholders::_2,
+                             std::bind( &ControlWrapper< double, double, 2 >::getCurrentControlVector, control ) ),
+                [ & ]( const double, const Eigen::Vector2d& ){ return Eigen::Matrix2d::Identity( ); },
+                std::bind( &measurementJacobianFunction1, std::placeholders::_1, std::placeholders::_2 ),
+                [ & ]( const double, const Eigen::Vector2d& ){ return Eigen::Vector1d::Identity( ); },
                 systemUncertainty, measurementUncertainty, timeStep,
                 initialTime, initialEstimatedStateVector, initialEstimatedStateCovarianceMatrix,
                 integratorSettings );
+
+    // Load noise from file
+    Eigen::MatrixXd systemNoise = input_output::readMatrixFromFile( tudat::input_output::getTudatRootPath( ) +
+                                                                    "/Mathematics/Filters/UnitTests/noiseData/ekfSystemNoise1.dat" );
+    Eigen::MatrixXd measurementNoise = input_output::readMatrixFromFile( tudat::input_output::getTudatRootPath( ) +
+                                                                         "/Mathematics/Filters/UnitTests/noiseData/ekfMeasurementNoise1.dat" );
 
     // Loop over each time step
     const bool showProgress = false;
@@ -132,9 +140,8 @@ BOOST_AUTO_TEST_CASE( testExtendedKalmanFilterFirstCase )
     {
         // Compute actual values and perturb them
         currentActualStateVector += ( stateFunction1( currentTime, currentActualStateVector, currentControlVector ) +
-                                      extendedFilter->produceSystemNoise( ) ) * timeStep;
-        currentMeasurementVector = measurementFunction1( currentTime, currentActualStateVector ) +
-                extendedFilter->produceMeasurementNoise( );
+                                      systemNoise.col( i ) ) * timeStep;
+        currentMeasurementVector = measurementFunction1( currentTime, currentActualStateVector ) + measurementNoise.col( i );
 
         // Update control class
         control->setCurrentControlVector( currentTime, extendedFilter->getCurrentStateEstimate( ) );
@@ -161,21 +168,8 @@ BOOST_AUTO_TEST_CASE( testExtendedKalmanFilterFirstCase )
     expectedFinalState << 4.972005968275564, -18.516511373319734;
     for ( int i = 0; i < expectedFinalState.rows( ); i++ )
     {
-        BOOST_CHECK_SMALL( extendedFilter->getCurrentStateEstimate( )[ i ] - expectedFinalState[ i ],
-                           100.0 * std::numeric_limits< double >::epsilon( ) );
+        BOOST_CHECK_SMALL( extendedFilter->getCurrentStateEstimate( )[ i ] - expectedFinalState[ i ], 1.0e-10 );
     }
-
-    // Check that noise is actually normally distributed (within 5 %)
-    std::pair< std::vector< Eigen::VectorXd >, std::vector< Eigen::VectorXd > > noiseHistory = extendedFilter->getNoiseHistory( );
-    Eigen::MatrixXd systemNoise = utilities::convertStlVectorToEigenMatrix( noiseHistory.first );
-    Eigen::MatrixXd measurementNoise = utilities::convertStlVectorToEigenMatrix( noiseHistory.second );
-    for ( unsigned int i = 0; i < 2; i++ )
-    {
-        BOOST_CHECK_CLOSE_FRACTION( statistics::computeStandardDeviationOfVectorComponents( systemNoise.row( i ) ),
-                                    std::sqrt( systemUncertainty( i, i ) ), 5.0e-2 );
-    }
-    BOOST_CHECK_CLOSE_FRACTION( statistics::computeStandardDeviationOfVectorComponents( measurementNoise.row( 0 ) ),
-                                std::sqrt( measurementUncertainty( 0, 0 ) ), 5.0e-2 );
 }
 
 // Constant parameters for example
@@ -256,27 +250,34 @@ BOOST_AUTO_TEST_CASE( testExtendedKalmanFilterSecondCase )
     measurementUncertainty[ 0 ] = std::pow( 25.0, 2 );
 
     // Set integrator settings
-    boost::shared_ptr< numerical_integrators::IntegratorSettings< > > integratorSettings =
-            boost::make_shared< numerical_integrators::IntegratorSettings< > > (
+    std::shared_ptr< numerical_integrators::IntegratorSettings< > > integratorSettings =
+            std::make_shared< numerical_integrators::IntegratorSettings< > > (
                 numerical_integrators::euler, initialTime, timeStep );
 
     // Create control class
-    boost::shared_ptr< ControlWrapper< double, double, 3 > > control =
-            boost::make_shared< ControlWrapper< double, double, 3 > >( boost::lambda::constant( Eigen::Vector3d::Zero( ) ) );
+    std::shared_ptr< ControlWrapper< double, double, 3 > > control =
+            std::make_shared< ControlWrapper< double, double, 3 > >(
+                [ & ]( const double, const Eigen::Vector3d& ){ return Eigen::Vector3d::Zero( ); } );
 
     // Create extended Kalman filter object
-    KalmanFilterDoublePointer extendedFilter = boost::make_shared< ExtendedKalmanFilterDouble >(
-                boost::bind( &stateFunction2, _1, _2,
-                             boost::bind( &ControlWrapper< double, double, 3 >::getCurrentControlVector, control ) ),
-                boost::bind( &measurementFunction2, _1, _2 ),
-                boost::bind( &stateJacobianFunction2, _1, _2,
-                             boost::bind( &ControlWrapper< double, double, 3 >::getCurrentControlVector, control ) ),
-                boost::lambda::constant( Eigen::Matrix3d::Zero( ) ),
-                boost::bind( &measurementJacobianFunction2, _1, _2 ),
-                boost::lambda::constant( Eigen::Vector1d::Zero( ) ),
+    KalmanFilterDoublePointer extendedFilter = std::make_shared< ExtendedKalmanFilterDouble >(
+                std::bind( &stateFunction2, std::placeholders::_1, std::placeholders::_2,
+                             std::bind( &ControlWrapper< double, double, 3 >::getCurrentControlVector, control ) ),
+                std::bind( &measurementFunction2, std::placeholders::_1, std::placeholders::_2 ),
+                std::bind( &stateJacobianFunction2, std::placeholders::_1, std::placeholders::_2,
+                             std::bind( &ControlWrapper< double, double, 3 >::getCurrentControlVector, control ) ),
+                [ & ]( const double, const Eigen::Vector3d& ){ return Eigen::Matrix3d::Identity( ); },
+                std::bind( &measurementJacobianFunction2, std::placeholders::_1, std::placeholders::_2 ),
+                [ & ]( const double, const Eigen::Vector3d& ){ return Eigen::Vector1d::Identity( ); },
                 systemUncertainty, measurementUncertainty, timeStep,
                 initialTime, initialEstimatedStateVector, initialEstimatedStateCovarianceMatrix,
                 integratorSettings );
+
+    // Load noise from file
+    Eigen::MatrixXd systemNoise = input_output::readMatrixFromFile( tudat::input_output::getTudatRootPath( ) +
+                                                                    "/Mathematics/Filters/UnitTests/noiseData/ekfSystemNoise2.dat" );
+    Eigen::MatrixXd measurementNoise = input_output::readMatrixFromFile( tudat::input_output::getTudatRootPath( ) +
+                                                                         "/Mathematics/Filters/UnitTests/noiseData/ekfMeasurementNoise2.dat" );
 
     // Loop over each time step
     const bool showProgress = false;
@@ -291,9 +292,8 @@ BOOST_AUTO_TEST_CASE( testExtendedKalmanFilterSecondCase )
     {
         // Compute actual values and perturb them
         currentActualStateVector += ( stateFunction2( currentTime, currentActualStateVector, currentControlVector ) +
-                                      extendedFilter->produceSystemNoise( ) ) * timeStep;
-        currentMeasurementVector = measurementFunction2( currentTime, currentActualStateVector ) +
-                extendedFilter->produceMeasurementNoise( );
+                                      systemNoise.col( i ) ) * timeStep;
+        currentMeasurementVector = measurementFunction2( currentTime, currentActualStateVector ) + measurementNoise.col( i );
 
         // Update control class
         control->setCurrentControlVector( currentTime, extendedFilter->getCurrentStateEstimate( ) );
@@ -317,24 +317,11 @@ BOOST_AUTO_TEST_CASE( testExtendedKalmanFilterSecondCase )
 
     // Check that final state is as expected
     Eigen::Vector3d expectedFinalState = Eigen::Vector3d::Zero( );
-    expectedFinalState << 25228.771361929019, -3314.8978688868333, 495.59792918566092;
+    expectedFinalState << 25202.174591778028, -3327.344292984541, 498.97471055815663;
     for ( int i = 0; i < expectedFinalState.rows( ); i++ )
     {
-        BOOST_CHECK_SMALL( extendedFilter->getCurrentStateEstimate( )[ i ] - expectedFinalState[ i ],
-                           100.0 * std::numeric_limits< double >::epsilon( ) );
+        BOOST_CHECK_SMALL( extendedFilter->getCurrentStateEstimate( )[ i ] - expectedFinalState[ i ], 1.0e-10 );
     }
-
-    // Check that noise is actually normally distributed (within 5 %)
-    std::pair< std::vector< Eigen::VectorXd >, std::vector< Eigen::VectorXd > > noiseHistory = extendedFilter->getNoiseHistory( );
-    Eigen::MatrixXd systemNoise = utilities::convertStlVectorToEigenMatrix( noiseHistory.first );
-    Eigen::MatrixXd measurementNoise = utilities::convertStlVectorToEigenMatrix( noiseHistory.second );
-    for ( unsigned int i = 0; i < 2; i++ )
-    {
-        BOOST_CHECK_CLOSE_FRACTION( statistics::computeStandardDeviationOfVectorComponents( systemNoise.row( i ) ),
-                                    std::sqrt( systemUncertainty( i, i ) ), 5.0e-2 );
-    }
-    BOOST_CHECK_CLOSE_FRACTION( statistics::computeStandardDeviationOfVectorComponents( measurementNoise.row( 0 ) ),
-                                std::sqrt( measurementUncertainty( 0, 0 ) ), 5.0e-2 );
 }
 
 BOOST_AUTO_TEST_SUITE_END( )

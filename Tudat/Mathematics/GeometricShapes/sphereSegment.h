@@ -12,7 +12,7 @@
 #ifndef TUDAT_SPHERE_SEGMENT_H
 #define TUDAT_SPHERE_SEGMENT_H
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include <Eigen/Core>
 
@@ -157,7 +157,7 @@ private:
 };
 
 //! Typedef for shared-pointer to SphereSegment object.
-typedef boost::shared_ptr< SphereSegment > SphereSegmentPointer;
+typedef std::shared_ptr< SphereSegment > SphereSegmentPointer;
 
 } // namespace geometric_shapes
 } // namespace tudat

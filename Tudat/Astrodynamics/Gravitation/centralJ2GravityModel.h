@@ -13,7 +13,7 @@
 #define TUDAT_CENTRAL_J2_GRAVITY_MODEL_H
 
 #include <boost/lambda/lambda.hpp>
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/accelerationModel.h"
 #include "Tudat/Astrodynamics/Gravitation/centralGravityModel.h"
@@ -101,8 +101,8 @@ public:
             const double aGravitationalParameter,
             const double anEquatorialRadius,
             const double aJ2GravityCoefficient,
-            const Base::StateFunction positionOfBodyExertingAccelerationFunction
-            = boost::lambda::constant( Eigen::Vector3d::Zero( ) ) )
+            const Base::StateFunction positionOfBodyExertingAccelerationFunction =
+            [ ]( ){ return Eigen::Vector3d::Zero( ); } )
         : Base( positionOfBodySubjectToAccelerationFunction,
                 aGravitationalParameter,
                 positionOfBodyExertingAccelerationFunction, false ),
@@ -155,7 +155,7 @@ private:
 };
 
 //! Typedef for shared-pointer to CentralJ2GravitationalAccelerationModel.
-typedef boost::shared_ptr< CentralJ2GravitationalAccelerationModel >
+typedef std::shared_ptr< CentralJ2GravitationalAccelerationModel >
 CentralJ2GravitationalAccelerationModelPointer;
 
 } // namespace gravitation

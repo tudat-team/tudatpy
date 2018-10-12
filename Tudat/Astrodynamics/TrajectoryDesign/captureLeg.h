@@ -18,7 +18,7 @@
 #define TUDAT_CAPTURE_LEG_H
 
 #include <boost/make_shared.hpp>
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include <Tudat/Mathematics/BasicMathematics/mathematicalConstants.h>
 
@@ -44,21 +44,22 @@ public:
     /*!
      *  Constructor, sets objects and functions from which relevant environment and state variables
      *  are retrieved.
-     *  \param departureBodyPosition location of the departure body.
+     *  \param departureBodyPosition Location of the departure body.
      *  \param timeOfFlight Length of the leg.
-     *  \param departureBodyVelocity velocity of the departure body.
-     *  \param centralBodyGravitationalParameter gravitational parameter of the cebtral body (most cases the Sun).
-     *  \param captureBodyGravitationalParameter gravitational parameter of the capture body.
-     *  \param velocityBeforeDepartureBodyPtr pointer to the velocity before arriving at the departure body.
-     *  \param semiMajorAxis semi-major axis of the orbit after the capture is performed.
-     *  \param eccentricity eccentricity of the orbit after the capture is performed.
+     *  \param departureBodyVelocity Velocity of the departure body.
+     *  \param centralBodyGravitationalParameter Gravitational parameter of the cebtral body (most cases the Sun).
+     *  \param captureBodyGravitationalParameter Gravitational parameter of the capture body.
+     *  \param velocityBeforeDepartureBodyPtr Pointer to the velocity before arriving at the departure body.
+     *  \param semiMajorAxis Semi-major axis of the orbit after the capture is performed.
+     *  \param eccentricity Eccentricity of the orbit after the capture is performed.
+     *  \param includeArrivalDeltaV Boolean denoting whether to include the Delta V of arrival.
      */
     CaptureLeg( const Eigen::Vector3d& departureBodyPosition,
                 const double timeOfFlight,
                 const Eigen::Vector3d& departureBodyVelocity,
                 const double centralBodyGravitationalParameter,
                 const double captureBodyGravitationalParameter,
-                boost::shared_ptr< Eigen::Vector3d > velocityBeforeDepartureBodyPtr,
+                std::shared_ptr< Eigen::Vector3d > velocityBeforeDepartureBodyPtr,
                 const double semiMajorAxis,
                 const double eccentricity,
                 const bool includeArrivalDeltaV = true ):
@@ -129,13 +130,19 @@ public:
 
     //! Update the defining variables.
     /*!
-     * Sets the trajectory defining variables to the newly specified values. Required for re-using
-     * the class, without re-initializing it. For this leg: time of flight.
+     *  Sets the trajectory defining variables to the newly specified values. Required for re-using
+     *  the class, without re-initializing it. For this leg: time of flight.
      *  \param variableVector the new variable vector.
      */
     void updateDefiningVariables( const Eigen::VectorXd& variableVector );
 
-    void getCaptureDeltaV( double captureDeltaV )
+    //! Function to retrieve the value of the capture Delta V.
+    /*!
+     *  Function to retrieve the value of the capture Delta V.
+     *  \param captureDeltaV Double denoting the value of the capture Delta V.
+     *  \return Double denoting the value of the capture Delta V (returned by reference ).
+     */
+    void getCaptureDeltaV( double& captureDeltaV )
     {
         captureDeltaV = deltaV_;
     }
@@ -146,21 +153,21 @@ private:
 
     //! The capture body gravitational parameter.
     /*!
-     * The gravitational parameter of the capture body in the leg.
+     *  The gravitational parameter of the capture body in the leg.
      */
     double captureBodyGravitationalParameter_;
 
     //! The velocity of the spacecraft before capture.
     /*!
-     * The heliocentric velocity before the capture maneuver. This is passed using a pointer,
-     * because this parameter is dependent on the previous leg. The result of the previous leg is
-     * not necessarily known when this leg is initiated.
+     *  The heliocentric velocity before the capture maneuver. This is passed using a pointer,
+     *  because this parameter is dependent on the previous leg. The result of the previous leg is
+     *  not necessarily known when this leg is initiated.
      */
-    boost::shared_ptr< Eigen::Vector3d > velocityBeforeDepartureBodyPtr_;
+    std::shared_ptr< Eigen::Vector3d > velocityBeforeDepartureBodyPtr_;
 
-    //! The capture orbit semi major axis.
+    //! The capture orbit semi-major axis.
     /*!
-     * The semi major axis of the intended capture orbit.
+     *  The semi-major axis of the intended capture orbit.
      */
     double semiMajorAxis_;
 
@@ -170,10 +177,13 @@ private:
      */
     double eccentricity_;
 
+    //! Boolean denoting whether to include the Delta V of arrival.
     bool includeArrivalDeltaV_;
 
 };
+
 } // namespace transfer_trajectories
+
 } // namespace tudat
 
 #endif // TUDAT_CAPTURE_LEG_H

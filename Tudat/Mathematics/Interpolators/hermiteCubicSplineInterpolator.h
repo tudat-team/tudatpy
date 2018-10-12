@@ -39,15 +39,15 @@ public:
     //! Constructor.
     /*!
      *  Constructor for the hermite cubic spline interpolator with (in)dependent data defined in a vector.
-     *  \param independentVariables Vector with the independent variable values, must be
+     *  \param independentValues Vector with the independent variable values, must be
      *      sorted in ascending order.
-     *  \param dependentVariables Vector with the dependent variable values.
-     *  \param derivativeValues
+     *  \param dependentValues Vector with the dependent variable values.
+     *  \param derivativeValues Vector with the derivative values.
      *  \param selectedLookupScheme Look-up scheme that is to be used when finding interval
      *      of requested independent variable value.
      *  \param boundaryHandling Boundary handling method, in case the independent variable is outside the
      *      specified range.
-     *  \param defaultExtrapolationValue Pairs of default values to be used for extrapolation, in case
+     *  \param defaultExtrapolationValue Pair of default values to be used for extrapolation, in case
      *      of use_default_value or use_default_value_with_warning as methods for boundaryHandling.
      */
     HermiteCubicSplineInterpolator(
@@ -57,8 +57,8 @@ public:
             const AvailableLookupScheme selectedLookupScheme = huntingAlgorithm,
             const BoundaryInterpolationType boundaryHandling = extrapolate_at_boundary,
             const std::pair< DependentVariableType, DependentVariableType >& defaultExtrapolationValue =
-            std::make_pair( IdentityElement< DependentVariableType >::getAdditionIdentity( ),
-                            IdentityElement< DependentVariableType >::getAdditionIdentity( ) ) ):
+            std::make_pair( IdentityElement::getAdditionIdentity< DependentVariableType >( ),
+                            IdentityElement::getAdditionIdentity< DependentVariableType >( ) ) ):
         OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >( boundaryHandling,
                                                                                       defaultExtrapolationValue )
     {
@@ -75,9 +75,9 @@ public:
                 "Error: derivative values incompatible in Hermite interpolator." );
         }
 
-        independentValues_ = independentValues;
-        dependentValues_ = dependentValues;
-        derivativeValues_ = derivativeValues;
+        independentValues_ = std::move( independentValues );
+        dependentValues_ = std::move( dependentValues );
+        derivativeValues_ = std::move( derivativeValues );
 
         // Check if data is in ascending order
         if( !std::is_sorted( independentValues_.begin( ), independentValues_.end( ) ) )
@@ -102,7 +102,7 @@ public:
      *      of requested independent variable value.
      *  \param boundaryHandling Boundary handling method, in case the independent variable is outside the
      *      specified range.
-     *  \param defaultExtrapolationValue Pairs of default values to be used for extrapolation, in case
+     *  \param defaultExtrapolationValue Pair of default values to be used for extrapolation, in case
      *      of use_default_value or use_default_value_with_warning as methods for boundaryHandling.
      */
     HermiteCubicSplineInterpolator(
@@ -111,8 +111,8 @@ public:
             const AvailableLookupScheme selectedLookupScheme = huntingAlgorithm,
             const BoundaryInterpolationType boundaryHandling = extrapolate_at_boundary,
             const std::pair< DependentVariableType, DependentVariableType >& defaultExtrapolationValue =
-            std::make_pair( IdentityElement< DependentVariableType >::getAdditionIdentity( ),
-                            IdentityElement< DependentVariableType >::getAdditionIdentity( ) ) ):
+            std::make_pair( IdentityElement::getAdditionIdentity< DependentVariableType >( ),
+                            IdentityElement::getAdditionIdentity< DependentVariableType >( ) ) ):
         OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >( boundaryHandling,
                                                                                       defaultExtrapolationValue )
     {
@@ -126,8 +126,8 @@ public:
         for( typename std::map< IndependentVariableType, DependentVariableType >::const_iterator
              mapIterator = dataMap.begin( ); mapIterator != dataMap.end( ); mapIterator++ )
         {
-            independentValues_.push_back( mapIterator->first );
-            dependentValues_.push_back( mapIterator->second );
+            independentValues_.push_back( std::move( mapIterator->first ) );
+            dependentValues_.push_back( std::move( mapIterator->second ) );
         }
 
         derivativeValues_ = derivativeValues;

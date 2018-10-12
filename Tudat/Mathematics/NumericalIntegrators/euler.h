@@ -14,7 +14,7 @@
 #ifndef TUDAT_EULER_INTEGRATOR_H
 #define TUDAT_EULER_INTEGRATOR_H
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include <Eigen/Core>
 
@@ -252,14 +252,14 @@ typedef EulerIntegrator< double, double, double > EulerIntegratord;
  * Typedef for a shared-pointer to an Euler integrator with VectorXds as state and state derivative and double
  * as independent variable.
  */
-typedef boost::shared_ptr< EulerIntegratorXd > EulerIntegratorXdPointer;
+typedef std::shared_ptr< EulerIntegratorXd > EulerIntegratorXdPointer;
 
 //! Typedef of pointer to a scalar Euler integrator.
 /*!
  * Typedef of pointer to an Euler integrator with doubles as state and state derivative and
  * independent variable.
  */
-typedef boost::shared_ptr< EulerIntegratord > EulerIntegratordPointer;
+typedef std::shared_ptr< EulerIntegratord > EulerIntegratordPointer;
 
 } // namespace numerical_integrators
 } // namespace tudat

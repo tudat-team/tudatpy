@@ -33,7 +33,7 @@ ParsedDataVectorPtr filterMapKey( ParsedDataVectorPtr datavector, int nrFields, 
     va_start( argumentList, nrFields );   
 
     // Create a new datavector for the filtered data.
-    ParsedDataVectorPtr newDataVector = boost::make_shared< ParsedDataVector >( );
+    ParsedDataVectorPtr newDataVector = std::make_shared< ParsedDataVector >( );
 
     // Make a simple list to iterate over from all the FieldType arguments.
     std::vector< FieldType > checkForFieldTypes;
@@ -92,7 +92,7 @@ ParsedDataVectorPtr filterMapKeyValue( ParsedDataVectorPtr datavector, int nrFie
     va_start( argumentList, nrFields );
 
     // Create a new data vector for the filtered data.
-    ParsedDataVectorPtr newDataVector = boost::make_shared< ParsedDataVector>( );
+    ParsedDataVectorPtr newDataVector = std::make_shared< ParsedDataVector>( );
 
     // Make a simple list to iterate over with the FieldType arguments and respective regex
     // expressions.

@@ -14,7 +14,7 @@
 #include <cmath>
 #include <vector>
 
-#include <boost/function.hpp>
+#include <functional>
 #include <boost/lambda/lambda.hpp>
 
 #include <Eigen/Core>
@@ -56,12 +56,12 @@ public:
      *  for the space-time curvature due to a unit rest mass (default 1.0; value from GR)
      */
     FirstOrderLightTimeCorrectionCalculator(
-            const std::vector< boost::function< Eigen::Vector6d( const double ) > >& perturbingBodyStateFunctions,
-            const std::vector< boost::function< double( ) > >& perturbingBodyGravitationalParameterFunctions,
+            const std::vector< std::function< Eigen::Vector6d( const double ) > >& perturbingBodyStateFunctions,
+            const std::vector< std::function< double( ) > >& perturbingBodyGravitationalParameterFunctions,
             const std::vector< std::string > perturbingBodyNames,
             const std::string transmittingBody,
             const std::string receivingBody,
-            const boost::function< double( ) >& ppnParameterGammaFunction = boost::lambda::constant( 1.0 ) ):
+            const std::function< double( ) >& ppnParameterGammaFunction = [ ]( ){ return 1.0; } ):
         LightTimeCorrection( first_order_relativistic ),
         perturbingBodyStateFunctions_( perturbingBodyStateFunctions ),
         perturbingBodyGravitationalParameterFunctions_( perturbingBodyGravitationalParameterFunctions ),
@@ -164,7 +164,7 @@ public:
      * Function to get the set of functions returning the gravitational parameters of the gravitating bodies.
      * \return Set of functions returning the gravitational parameters of the gravitating bodies.
      */
-    std::vector< boost::function< double( ) > > getPerturbingBodyGravitationalParameterFunctions( )
+    std::vector< std::function< double( ) > > getPerturbingBodyGravitationalParameterFunctions( )
     {
         return perturbingBodyGravitationalParameterFunctions_;
     }
@@ -198,7 +198,7 @@ public:
      * Function to get the function returning the parametric post-Newtonian parameter gamma
      * \return Function returning the parametric post-Newtonian parameter gamma
      */
-    boost::function< double( ) > getPpnParameterGammaFunction_( )
+    std::function< double( ) > getPpnParameterGammaFunction_( )
     {
         return ppnParameterGammaFunction_;
     }
@@ -206,10 +206,10 @@ public:
 private:
 
     //! Set of function returning the state of the gravitating bodies as a function of time.
-    std::vector< boost::function< Eigen::Vector6d( const double ) > > perturbingBodyStateFunctions_;
+    std::vector< std::function< Eigen::Vector6d( const double ) > > perturbingBodyStateFunctions_;
 
     //! Set of functions returning the gravitational parameters of the gravitating bodies.
-    std::vector< boost::function< double( ) > > perturbingBodyGravitationalParameterFunctions_;
+    std::vector< std::function< double( ) > > perturbingBodyGravitationalParameterFunctions_;
 
     //! Names of bodies causing light-time correction.
     std::vector< std::string > perturbingBodyNames_;
@@ -219,7 +219,7 @@ private:
      *  Function returning the parametric post-Newtonian parameter gamma, a measure for the space-time curvature due to a
      *  unit rest mass (1.0 in GR)
      */
-    boost::function< double( ) > ppnParameterGammaFunction_;
+    std::function< double( ) > ppnParameterGammaFunction_;
 
     //! List of values (between 0 and 1) of how far into the light-time the state of each perturbing body is to be evaluated.
     std::vector< double > lightTimeEvaluationContribution_;

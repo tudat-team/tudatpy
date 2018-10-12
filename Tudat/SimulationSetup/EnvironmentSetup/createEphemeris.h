@@ -14,7 +14,7 @@
 #include <string>
 #include <map>
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include "Tudat/InputOutput/matrixTextFileReader.h"
 #include "Tudat/Astrodynamics/Ephemerides/ephemeris.h"
@@ -256,8 +256,8 @@ public:
                                         double timeStep,
                                         std::string frameOrigin = "SSB",
                                         std::string frameOrientation = "ECLIPJ2000",
-                                        boost::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings =
-            boost::make_shared< interpolators::LagrangeInterpolatorSettings >( 6 ) ):
+                                        std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings =
+            std::make_shared< interpolators::LagrangeInterpolatorSettings >( 6 ) ):
         DirectSpiceEphemerisSettings( frameOrigin, frameOrientation, 0, 0, 0,
                                       interpolated_spice ),
         initialTime_( initialTime ), finalTime_( finalTime ), timeStep_( timeStep ),
@@ -290,7 +290,7 @@ public:
      *  \return Settings to be used for the state interpolation.
      */
 
-    boost::shared_ptr< interpolators::InterpolatorSettings > getInterpolatorSettings( )
+    std::shared_ptr< interpolators::InterpolatorSettings > getInterpolatorSettings( )
     {
         return interpolatorSettings_;
     }
@@ -317,7 +317,7 @@ private:
     double timeStep_;
 
     //! Settings to be used for the state interpolation.
-    boost::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings_;
+    std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings_;
 
     bool useLongDoubleStates_;
 };
@@ -432,7 +432,7 @@ public:
      * \param frameOrigin Origin of frame in which ephemeris data is defined.
      * \param frameOrientation Orientation of frame in which ephemeris data is defined.
      */
-    CustomEphemerisSettings( const boost::function< Eigen::Vector6d( const double ) > customStateFunction,
+    CustomEphemerisSettings( const std::function< Eigen::Vector6d( const double ) > customStateFunction,
                                const std::string& frameOrigin = "SSB",
                                const std::string& frameOrientation = "ECLIPJ2000" ):
         EphemerisSettings( custom_ephemeris,
@@ -444,7 +444,7 @@ public:
      *  Function to return the function returning the state as a function of time
      *  \return  Function returning the state as a function of time
      */
-    boost::function< Eigen::Vector6d( const double ) > getCustomStateFunction( )
+    std::function< Eigen::Vector6d( const double ) > getCustomStateFunction( )
     {
         return customStateFunction_;
     }
@@ -452,7 +452,7 @@ public:
 private:
 
     //! Function returning the state as a function of time
-    boost::function< Eigen::Vector6d( const double ) > customStateFunction_;
+    std::function< Eigen::Vector6d( const double ) > customStateFunction_;
 };
 
 //! EphemerisSettings derived class for defining settings of an ephemeris representing an ideal
@@ -645,15 +645,15 @@ private:
  * \return Tabulated ephemeris using data from Spice.
  */
 template< typename StateScalarType = double, typename TimeType = double >
-boost::shared_ptr< ephemerides::Ephemeris > createTabulatedEphemerisFromSpice(
+std::shared_ptr< ephemerides::Ephemeris > createTabulatedEphemerisFromSpice(
         const std::string& body,
         const TimeType initialTime,
         const TimeType endTime,
         const TimeType timeStep,
         const std::string& observerName,
         const std::string& referenceFrameName,
-        boost::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings =
-        boost::make_shared< interpolators::LagrangeInterpolatorSettings >( 8 ) )
+        std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings =
+        std::make_shared< interpolators::LagrangeInterpolatorSettings >( 8 ) )
 {
     using namespace interpolators;
 
@@ -670,12 +670,12 @@ boost::shared_ptr< ephemerides::Ephemeris > createTabulatedEphemerisFromSpice(
     }
 
     // Create interpolator.
-    boost::shared_ptr< OneDimensionalInterpolator< TimeType, Eigen::Matrix< StateScalarType, 6, 1 > > > interpolator =
+    std::shared_ptr< OneDimensionalInterpolator< TimeType, Eigen::Matrix< StateScalarType, 6, 1 > > > interpolator =
             interpolators::createOneDimensionalInterpolator(
                 timeHistoryOfState, interpolatorSettings );
 
     // Create ephemeris and return.
-    return boost::make_shared< ephemerides::TabulatedCartesianEphemeris< StateScalarType, TimeType > >(
+    return std::make_shared< ephemerides::TabulatedCartesianEphemeris< StateScalarType, TimeType > >(
                 interpolator, observerName, referenceFrameName );
 }
 #endif
@@ -688,8 +688,8 @@ boost::shared_ptr< ephemerides::Ephemeris > createTabulatedEphemerisFromSpice(
  *  \param bodyName Name of the body for which the ephemeris model is to be created.
  *  \return Ephemeris model created according to settings in ephemerisSettings.
  */
-boost::shared_ptr< ephemerides::Ephemeris > createBodyEphemeris(
-        const boost::shared_ptr< EphemerisSettings > ephemerisSettings,
+std::shared_ptr< ephemerides::Ephemeris > createBodyEphemeris(
+        const std::shared_ptr< EphemerisSettings > ephemerisSettings,
         const std::string& bodyName );
 
 //! Function that retrieves the time interval at which an ephemeris can be safely interrogated
@@ -700,7 +700,7 @@ boost::shared_ptr< ephemerides::Ephemeris > createBodyEphemeris(
  * \param ephemerisModel Ephemeris model for which the interval is to be determined.
  * \return The time interval at which the ephemeris can be safely interrogated
  */
-std::pair< double, double > getSafeInterpolationInterval( const boost::shared_ptr< ephemerides::Ephemeris > ephemerisModel );
+std::pair< double, double > getSafeInterpolationInterval( const std::shared_ptr< ephemerides::Ephemeris > ephemerisModel );
 
 } // namespace simulation_setup
 

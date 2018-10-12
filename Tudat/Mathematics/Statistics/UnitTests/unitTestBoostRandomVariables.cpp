@@ -51,7 +51,7 @@ BOOST_AUTO_TEST_CASE( testContinuousBoostDistribution )
         parameters.push_back( -1.0 );
         parameters.push_back( 2.5 );
 
-        boost::shared_ptr< statistics::InvertibleContinuousProbabilityDistribution< double > > randomVariable =
+        std::shared_ptr< statistics::InvertibleContinuousProbabilityDistribution< double > > randomVariable =
                 statistics::createBoostRandomVariable(
                     statistics::uniform_boost_distribution, parameters );
         boost::math::uniform_distribution< > manualDistribution( parameters.at( 0 ), parameters.at( 1 ) );
@@ -81,7 +81,7 @@ BOOST_AUTO_TEST_CASE( testContinuousBoostDistribution )
         parameters.push_back( -1.0 );
         parameters.push_back( 2.5 );
 
-        boost::shared_ptr< statistics::InvertibleContinuousProbabilityDistribution< double > > randomVariable =
+        std::shared_ptr< statistics::InvertibleContinuousProbabilityDistribution< double > > randomVariable =
                 statistics::createBoostRandomVariable(
                     statistics::normal_boost_distribution, parameters );
         boost::math::normal_distribution< > manualDistribution( parameters.at( 0 ), parameters.at( 1 ) );
@@ -112,7 +112,7 @@ BOOST_AUTO_TEST_CASE( testContinuousBoostDistribution )
         std::vector< double > parameters;
         parameters.push_back( 2.5 );
 
-        boost::shared_ptr< statistics::InvertibleContinuousProbabilityDistribution< double > > randomVariable =
+        std::shared_ptr< statistics::InvertibleContinuousProbabilityDistribution< double > > randomVariable =
                 statistics::createBoostRandomVariable(
                     statistics::exponential_boost_distribution, parameters );
         boost::math::exponential_distribution< > manualDistribution( parameters.at( 0 ) );
@@ -144,7 +144,7 @@ BOOST_AUTO_TEST_CASE( testContinuousBoostDistribution )
         parameters.push_back( 1.0 );
         parameters.push_back( 2.5 );
 
-        boost::shared_ptr< statistics::InvertibleContinuousProbabilityDistribution< double > > randomVariable =
+        std::shared_ptr< statistics::InvertibleContinuousProbabilityDistribution< double > > randomVariable =
                 statistics::createBoostRandomVariable(
                     statistics::gamma_boost_distribution, parameters );
         boost::math::gamma_distribution< > manualDistribution( parameters.at( 0 ), parameters.at( 1 ) );
@@ -175,7 +175,7 @@ BOOST_AUTO_TEST_CASE( testContinuousBoostDistribution )
         parameters.push_back( -1.0 );
         parameters.push_back( 2.5 );
 
-        boost::shared_ptr< statistics::InvertibleContinuousProbabilityDistribution< double > > randomVariable =
+        std::shared_ptr< statistics::InvertibleContinuousProbabilityDistribution< double > > randomVariable =
                 statistics::createBoostRandomVariable(
                     statistics::lognormal_boost_distribution, parameters );
         boost::math::lognormal_distribution< > manualDistribution( parameters.at( 0 ), parameters.at( 1 ) );
@@ -206,7 +206,7 @@ BOOST_AUTO_TEST_CASE( testContinuousBoostDistribution )
         parameters.push_back( 1.0 );
         parameters.push_back( 2.5 );
 
-        boost::shared_ptr< statistics::InvertibleContinuousProbabilityDistribution< double > > randomVariable =
+        std::shared_ptr< statistics::InvertibleContinuousProbabilityDistribution< double > > randomVariable =
                 statistics::createBoostRandomVariable(
                     statistics::beta_boost_distribution, parameters );
         boost::math::beta_distribution< > manualDistribution( parameters.at( 0 ), parameters.at( 1 ) );

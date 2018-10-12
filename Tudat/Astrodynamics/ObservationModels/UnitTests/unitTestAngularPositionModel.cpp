@@ -57,7 +57,7 @@ BOOST_AUTO_TEST_CASE( testAngularPositionModel )
     double buffer = 10.0 * maximumTimeStep;
 
     // Create bodies settings needed in simulation
-    std::map< std::string, boost::shared_ptr< BodySettings > > defaultBodySettings =
+    std::map< std::string, std::shared_ptr< BodySettings > > defaultBodySettings =
             getDefaultBodySettings(
                 bodiesToCreate, initialEphemerisTime - buffer, finalEphemerisTime + buffer );
 
@@ -72,22 +72,22 @@ BOOST_AUTO_TEST_CASE( testAngularPositionModel )
     linkEnds[ receiver ] = std::make_pair( "Mars" , ""  );
 
     // Create light-time correction settings
-    std::vector< std::string > lightTimePerturbingBodies = boost::assign::list_of( "Sun" );
-    std::vector< boost::shared_ptr< LightTimeCorrectionSettings > > lightTimeCorrectionSettings;
-    lightTimeCorrectionSettings.push_back( boost::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >(
+    std::vector< std::string > lightTimePerturbingBodies = { "Sun" };
+    std::vector< std::shared_ptr< LightTimeCorrectionSettings > > lightTimeCorrectionSettings;
+    lightTimeCorrectionSettings.push_back( std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >(
                                                 lightTimePerturbingBodies ) );
 
     // Create observation settings
-    boost::shared_ptr< ObservationSettings > observableSettings = boost::make_shared< ObservationSettings >
+    std::shared_ptr< ObservationSettings > observableSettings = std::make_shared< ObservationSettings >
             ( angular_position, lightTimeCorrectionSettings,
-              boost::make_shared< ConstantObservationBiasSettings >(
+              std::make_shared< ConstantObservationBiasSettings >(
                   ( Eigen::Vector2d( ) << 3.2E-9, -1.5E-8 ).finished( ), true ) );
 
     // Create observation model.
-    boost::shared_ptr< ObservationModel< 2, double, double > > observationModel =
+    std::shared_ptr< ObservationModel< 2, double, double > > observationModel =
            ObservationModelCreator< 2, double, double >::createObservationModel(
                 linkEnds, observableSettings, bodyMap );
-    boost::shared_ptr< ObservationBias< 2 > > observationBias = observationModel->getObservationBiasCalculator( );
+    std::shared_ptr< ObservationBias< 2 > > observationBias = observationModel->getObservationBiasCalculator( );
 
 
     // Compute observation separately with two functions.
@@ -102,7 +102,7 @@ BOOST_AUTO_TEST_CASE( testAngularPositionModel )
     BOOST_CHECK_EQUAL( linkEndStates.size( ), 2 );
 
     // Manually create and compute light time corrections
-    boost::shared_ptr< LightTimeCorrection > lightTimeCorrectionCalculator =
+    std::shared_ptr< LightTimeCorrection > lightTimeCorrectionCalculator =
             createLightTimeCorrections(
                 lightTimeCorrectionSettings.at( 0 ), bodyMap, linkEnds[ transmitter ], linkEnds[ receiver ] );
     double lightTimeCorrection = lightTimeCorrectionCalculator->calculateLightTimeCorrection(

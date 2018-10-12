@@ -79,13 +79,13 @@ BOOST_AUTO_TEST_CASE( testCompositeEphemeris )
     setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );
 
     // Retrieve Earth state/rotation objects
-    boost::shared_ptr< Ephemeris > earthEphemeris = bodyMap.at( "Earth" )->getEphemeris( );
-    boost::shared_ptr< RotationalEphemeris > rotationModel = bodyMap.at( "Earth" )->getRotationalEphemeris( );
+    std::shared_ptr< Ephemeris > earthEphemeris = bodyMap.at( "Earth" )->getEphemeris( );
+    std::shared_ptr< RotationalEphemeris > rotationModel = bodyMap.at( "Earth" )->getRotationalEphemeris( );
 
     // Create reference point CompositeEphemeris objects (double and long double state scalars).
-    boost::shared_ptr< Ephemeris > ephemeris1 = createReferencePointEphemeris< double, double >(
+    std::shared_ptr< Ephemeris > ephemeris1 = createReferencePointEphemeris< double, double >(
                 earthEphemeris, rotationModel, &getGroundStationPosition );
-    boost::shared_ptr< Ephemeris > ephemeris2 = createReferencePointEphemeris< double, long double >(
+    std::shared_ptr< Ephemeris > ephemeris2 = createReferencePointEphemeris< double, long double >(
                 earthEphemeris, rotationModel, &getGroundStationPosition );
     double testTime = 1.05E7;
 

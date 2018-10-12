@@ -56,10 +56,10 @@ inline void from_json( const nlohmann::json& jsonObject, ThrustDirectionGuidance
 // ThrustDirectionGuidanceSettings
 
 //! Create a `json` object from a shared pointer to a `ThrustDirectionGuidanceSettings` object.
-void to_json( nlohmann::json& jsonObject, const boost::shared_ptr< ThrustDirectionGuidanceSettings >& directionSettings );
+void to_json( nlohmann::json& jsonObject, const std::shared_ptr< ThrustDirectionGuidanceSettings >& directionSettings );
 
 //! Create a shared pointer to a `AccelerationSettings` object from a `json` object.
-void from_json( const nlohmann::json& jsonObject, boost::shared_ptr< ThrustDirectionGuidanceSettings >& directionSettings );
+void from_json( const nlohmann::json& jsonObject, std::shared_ptr< ThrustDirectionGuidanceSettings >& directionSettings );
 
 
 // ThrustMagnitudeTypes
@@ -93,13 +93,13 @@ inline void from_json( const nlohmann::json& jsonObject, ThrustMagnitudeTypes& t
 }
 
 
-// ThrustEngineSettings
+// ThrustMagnitudeSettings
 
-//! Create a `json` object from a shared pointer to a `ThrustEngineSettings` object.
-void to_json( nlohmann::json& jsonObject, const boost::shared_ptr< ThrustEngineSettings >& magnitudeSettings );
+//! Create a `json` object from a shared pointer to a `ThrustMagnitudeSettings` object.
+void to_json( nlohmann::json& jsonObject, const std::shared_ptr< ThrustMagnitudeSettings >& magnitudeSettings );
 
 //! Create a shared pointer to a `AccelerationSettings` object from a `json` object.
-void from_json( const nlohmann::json& jsonObject, boost::shared_ptr< ThrustEngineSettings >& magnitudeSettings );
+void from_json( const nlohmann::json& jsonObject, std::shared_ptr< ThrustMagnitudeSettings >& magnitudeSettings );
 
 
 // ThrustFrames
@@ -134,10 +134,10 @@ inline void from_json( const nlohmann::json& jsonObject, ThrustFrames& thrustFra
 // Thrust
 
 //! Create a `json` object from a shared pointer to a `ThrustAccelerationSettings` object.
-void to_json( nlohmann::json& jsonObject, const boost::shared_ptr< ThrustAccelerationSettings >& thrustAccelerationSettings );
+void to_json( nlohmann::json& jsonObject, const std::shared_ptr< ThrustAccelerationSettings >& thrustAccelerationSettings );
 
 //! Create a shared pointer to a `ThrustAccelerationSettings` object from a `json` object.
-void from_json( const nlohmann::json& jsonObject, boost::shared_ptr< ThrustAccelerationSettings >& thrustAccelerationSettings );
+void from_json( const nlohmann::json& jsonObject, std::shared_ptr< ThrustAccelerationSettings >& thrustAccelerationSettings );
 
 } // namespace simulation_setup
 

@@ -38,10 +38,10 @@ namespace observation_models
 template< int ObservationSize = 1, typename ObservationScalarType = double, typename TimeType = double >
 std::pair< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >, bool > simulateObservationWithCheck(
         const TimeType& observationTime,
-        const boost::shared_ptr< ObservationModel< ObservationSize, ObservationScalarType, TimeType > > observationModel,
+        const std::shared_ptr< ObservationModel< ObservationSize, ObservationScalarType, TimeType > > observationModel,
         const LinkEndType linkEndAssociatedWithTime,
-        const std::vector< boost::shared_ptr< ObservationViabilityCalculator > > linkViabilityCalculators =
-        std::vector< boost::shared_ptr< ObservationViabilityCalculator > >( ) )
+        const std::vector< std::shared_ptr< ObservationViabilityCalculator > > linkViabilityCalculators =
+        std::vector< std::shared_ptr< ObservationViabilityCalculator > >( ) )
 {
     // Initialize vector with reception times.
     bool observationFeasible = 1;
@@ -74,10 +74,10 @@ template< int ObservationSize = 1, typename ObservationScalarType = double, type
 std::pair< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >, std::vector< TimeType > >
 simulateObservationsWithCheck(
         const std::vector< TimeType >& observationTimes,
-        const boost::shared_ptr< ObservationModel< ObservationSize, ObservationScalarType, TimeType > > observationModel,
+        const std::shared_ptr< ObservationModel< ObservationSize, ObservationScalarType, TimeType > > observationModel,
         const LinkEndType linkEndAssociatedWithTime,
-        const std::vector< boost::shared_ptr< ObservationViabilityCalculator > > linkViabilityCalculators =
-        std::vector< boost::shared_ptr< ObservationViabilityCalculator > >( ) )
+        const std::vector< std::shared_ptr< ObservationViabilityCalculator > > linkViabilityCalculators =
+        std::vector< std::shared_ptr< ObservationViabilityCalculator > >( ) )
 {
     std::map< TimeType, Eigen::Matrix< ObservationScalarType, ObservationSize, 1 > > observations;
     std::pair< Eigen::Matrix< ObservationScalarType, ObservationSize, 1 >, bool > simulatedObservation;
@@ -115,10 +115,10 @@ template< int ObservationSize = 1, typename ObservationScalarType = double, type
 std::pair< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >, std::pair< std::vector< TimeType >, LinkEndType > >
 simulateObservationsWithCheckAndLinkEndIdOutput(
         const std::vector< TimeType >& observationTimes,
-        const boost::shared_ptr< ObservationModel< ObservationSize, ObservationScalarType, TimeType > > observationModel,
+        const std::shared_ptr< ObservationModel< ObservationSize, ObservationScalarType, TimeType > > observationModel,
         const LinkEndType linkEndAssociatedWithTime,
-        const std::vector< boost::shared_ptr< ObservationViabilityCalculator > > linkViabilityCalculators =
-        std::vector< boost::shared_ptr< ObservationViabilityCalculator > >( ) )
+        const std::vector< std::shared_ptr< ObservationViabilityCalculator > > linkViabilityCalculators =
+        std::vector< std::shared_ptr< ObservationViabilityCalculator > >( ) )
 {
     std::pair< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >, std::vector< TimeType > > simulatedObservations =
             simulateObservationsWithCheck( observationTimes, observationModel, linkEndAssociatedWithTime, linkViabilityCalculators );
@@ -226,7 +226,7 @@ public:
      * \param viabilityCalculators List of observation viability calculators, sorted by LinkEnds.
      */
     void setViabilityCalculators(
-            const std::map< LinkEnds, std::vector< boost::shared_ptr< ObservationViabilityCalculator > > >&
+            const std::map< LinkEnds, std::vector< std::shared_ptr< ObservationViabilityCalculator > > >&
                                   viabilityCalculators )
     {
         viabilityCalculators_ = viabilityCalculators;
@@ -239,7 +239,7 @@ public:
      *  \return Observation viability calculators for requestred single set of link ends (empty vector if no calculators for
      *  requested link ends are given in this object)
      */
-    std::vector< boost::shared_ptr< ObservationViabilityCalculator > > getLinkViabilityCalculators(
+    std::vector< std::shared_ptr< ObservationViabilityCalculator > > getLinkViabilityCalculators(
             const LinkEnds& linkEnds )
     {
         if( viabilityCalculators_.count( linkEnds ) > 0 )
@@ -248,7 +248,7 @@ public:
         }
         else
         {
-            return std::vector< boost::shared_ptr< ObservationViabilityCalculator > >( );
+            return std::vector< std::shared_ptr< ObservationViabilityCalculator > >( );
         }
     }
 
@@ -259,7 +259,7 @@ protected:
     ObservableType observableType_;
 
     //! List of observation viability calculators, sorted by LinkEnds.
-    std::map< LinkEnds, std::vector< boost::shared_ptr< ObservationViabilityCalculator > > > viabilityCalculators_;
+    std::map< LinkEnds, std::vector< std::shared_ptr< ObservationViabilityCalculator > > > viabilityCalculators_;
 };
 
 //! Objects used to simulate a set of observations of a given kind
@@ -277,7 +277,7 @@ public:
      */
     ObservationSimulator(
             const ObservableType observableType,
-            const std::map< LinkEnds, boost::shared_ptr< ObservationModel< ObservationSize,
+            const std::map< LinkEnds, std::shared_ptr< ObservationModel< ObservationSize,
             ObservationScalarType, TimeType > > >& observationModels ):
         ObservationSimulatorBase< ObservationScalarType, TimeType >( observableType ), observationModels_( observationModels ){ }
 
@@ -303,7 +303,7 @@ public:
      * Function to get the observation model for a given set of link ends
      * \return Observation model for a given set of link ends
      */
-    boost::shared_ptr< ObservationModel< ObservationSize, ObservationScalarType, TimeType > > getObservationModel(
+    std::shared_ptr< ObservationModel< ObservationSize, ObservationScalarType, TimeType > > getObservationModel(
             const LinkEnds linkEnds )
     {
         if( observationModels_.count( linkEnds ) == 0 )
@@ -320,7 +320,7 @@ public:
      * Function to get the full list of observation models
      * \return Full list of observation models
      */
-    std::map< LinkEnds, boost::shared_ptr< ObservationModel< ObservationSize, ObservationScalarType, TimeType > > >
+    std::map< LinkEnds, std::shared_ptr< ObservationModel< ObservationSize, ObservationScalarType, TimeType > > >
     getObservationModels( )
     {
         return observationModels_;
@@ -378,9 +378,9 @@ public:
                         "Error when simulating observtions, could not find observation model for given linke ends" );
         }
 
-        boost::shared_ptr< ObservationModel< ObservationSize, ObservationScalarType, TimeType > > selectedObservationModel =
+        std::shared_ptr< ObservationModel< ObservationSize, ObservationScalarType, TimeType > > selectedObservationModel =
                 observationModels_.at( linkEnds );
-        std::vector< boost::shared_ptr< ObservationViabilityCalculator > > currentLinkViabilityCalculators;
+        std::vector< std::shared_ptr< ObservationViabilityCalculator > > currentLinkViabilityCalculators;
         if( checkTimes == true && this->viabilityCalculators_.count( linkEnds ) > 0 )
         {
             currentLinkViabilityCalculators = this->viabilityCalculators_.at( linkEnds );
@@ -408,7 +408,7 @@ public:
     {
         std::pair< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >, std::vector< TimeType > > simulatedObservations =
                 simulateObservations( observationTimes, linkEnds, linkEndAssociatedWithTime, checkTimes );
-        std::vector< boost::shared_ptr< ObservationViabilityCalculator > > currentLinkViabilityCalculators;
+        std::vector< std::shared_ptr< ObservationViabilityCalculator > > currentLinkViabilityCalculators;
         if( checkTimes == true && this->viabilityCalculators_.count( linkEnds ) > 0 )
         {
             currentLinkViabilityCalculators = this->viabilityCalculators_.at( linkEnds );
@@ -421,9 +421,37 @@ public:
 protected:
 
     //! List of observation models of type observableType
-    std::map< LinkEnds, boost::shared_ptr< ObservationModel< ObservationSize, ObservationScalarType, TimeType > > >
+    std::map< LinkEnds, std::shared_ptr< ObservationModel< ObservationSize, ObservationScalarType, TimeType > > >
     observationModels_;
 };
+
+extern template class ObservationSimulatorBase< double, double >;
+extern template class ObservationSimulator< 1, double, double >;
+extern template class ObservationSimulator< 2, double, double >;
+extern template class ObservationSimulator< 3, double, double >;
+extern template class ObservationSimulator< 6, double, double >;
+
+#if( BUILD_EXTENDED_PRECISION_PROPAGATION_TOOLS )
+extern template class ObservationSimulatorBase< double, Time >;
+extern template class ObservationSimulatorBase< long double, double >;
+extern template class ObservationSimulatorBase< long double, Time >;
+
+extern template class ObservationSimulator< 1, double, Time >;
+extern template class ObservationSimulator< 1, long double, double >;
+extern template class ObservationSimulator< 1, long double, Time >;
+
+extern template class ObservationSimulator< 2, double, Time >;
+extern template class ObservationSimulator< 2, long double, double >;
+extern template class ObservationSimulator< 2, long double, Time >;
+
+extern template class ObservationSimulator< 3, double, Time >;
+extern template class ObservationSimulator< 3, long double, double >;
+extern template class ObservationSimulator< 3, long double, Time >;
+
+extern template class ObservationSimulator< 6, double, Time >;
+extern template class ObservationSimulator< 6, long double, double >;
+extern template class ObservationSimulator< 6, long double, Time >;
+#endif
 
 }
 

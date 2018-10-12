@@ -22,13 +22,13 @@ namespace simulation_setup
 {
 
 //! Function to create a body shape model.
-boost::shared_ptr< basic_astrodynamics::BodyShapeModel > createBodyShapeModel(
-        const boost::shared_ptr< BodyShapeSettings > shapeSettings,
+std::shared_ptr< basic_astrodynamics::BodyShapeModel > createBodyShapeModel(
+        const std::shared_ptr< BodyShapeSettings > shapeSettings,
         const std::string& body )
 {
     using namespace tudat::basic_astrodynamics;
 
-    boost::shared_ptr< BodyShapeModel > shapeModel;
+    std::shared_ptr< BodyShapeModel > shapeModel;
 
     // Check body shape type
     switch( shapeSettings->getBodyShapeType( ) )
@@ -36,16 +36,16 @@ boost::shared_ptr< basic_astrodynamics::BodyShapeModel > createBodyShapeModel(
     case spherical:
     {
         // Check input consistency
-        boost::shared_ptr< SphericalBodyShapeSettings > sphericalShapeSettings =
-                boost::dynamic_pointer_cast< SphericalBodyShapeSettings >( shapeSettings );
-        if( sphericalShapeSettings == NULL )
+        std::shared_ptr< SphericalBodyShapeSettings > sphericalShapeSettings =
+                std::dynamic_pointer_cast< SphericalBodyShapeSettings >( shapeSettings );
+        if( sphericalShapeSettings == nullptr )
         {
             throw std::runtime_error( "Error, expected spherical shape settings for body " + body );
         }
         else
         {
             // Creat spherical shape model
-            shapeModel = boost::make_shared< SphericalBodyShapeModel >(
+            shapeModel = std::make_shared< SphericalBodyShapeModel >(
                 sphericalShapeSettings->getRadius( ) );
         }
         break;
@@ -53,16 +53,16 @@ boost::shared_ptr< basic_astrodynamics::BodyShapeModel > createBodyShapeModel(
     case oblate_spheroid:
     {
         // Check input consistency
-        boost::shared_ptr< OblateSphericalBodyShapeSettings > oblateSpheroidShapeSettings =
-                boost::dynamic_pointer_cast< OblateSphericalBodyShapeSettings >( shapeSettings );
-        if( oblateSpheroidShapeSettings == NULL )
+        std::shared_ptr< OblateSphericalBodyShapeSettings > oblateSpheroidShapeSettings =
+                std::dynamic_pointer_cast< OblateSphericalBodyShapeSettings >( shapeSettings );
+        if( oblateSpheroidShapeSettings == nullptr )
         {
            throw std::runtime_error( "Error, expected oblate spherical shape settings for body " + body );
         }
         else
         {
             // Creat oblate spheroid shape model
-            shapeModel = boost::make_shared< OblateSpheroidBodyShapeModel >(
+            shapeModel = std::make_shared< OblateSpheroidBodyShapeModel >(
                         oblateSpheroidShapeSettings->getEquatorialRadius( ),
                         oblateSpheroidShapeSettings->getFlattening( ) );
         }
@@ -72,7 +72,7 @@ boost::shared_ptr< basic_astrodynamics::BodyShapeModel > createBodyShapeModel(
     case spherical_spice:
     {
         // Retrieve radius from Spice and create spherical shape model.
-        shapeModel = boost::make_shared< SphericalBodyShapeModel >(
+        shapeModel = std::make_shared< SphericalBodyShapeModel >(
                     spice_interface::getAverageRadius( body ) );
         break;
     }

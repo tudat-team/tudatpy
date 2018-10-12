@@ -14,6 +14,10 @@
 
 #include <vector>
 
+#include "Tudat/Basics/timeType.h"
+#include "Tudat/Basics/basicTypedefs.h"
+#include "Tudat/Basics/identityElements.h"
+
 namespace tudat
 {
 
@@ -38,13 +42,13 @@ enum BoundaryInterpolationType
 
 //! Base class for interpolator.
 /*!
- *  Base class for the interpolators included in Tudat, the dependent and independent variable
- *  types are specified as user parameters, as are the number of dimensions. The number of
- *  dimensions is chosen as a template parameter, so that a boost multi_array of this
- *  dimension can be used as a member variable of derived classes.
- *  \tparam IndependentVariableType Type of independent variable(s).
- *  \tparam IndependentVariableType Type of dependent variable.
- *  \tparam numberOfDimensions Number of independent directions for independent variables.
+ * Base class for the interpolators included in Tudat, the dependent and independent variable
+ * types are specified as user parameters, as are the number of dimensions. The number of
+ * dimensions is chosen as a template parameter, so that a boost multi_array of this
+ * dimension can be used as a member variable of derived classes.
+ * \tparam IndependentVariableType Type of independent variable(s).
+ * \tparam IndependentVariableType Type of dependent variable.
+ * \tparam numberOfDimensions Number of independent directions for independent variables.
  */
 template< typename IndependentVariableType, typename DependentVariableType >
 class Interpolator
@@ -76,6 +80,24 @@ public:
     virtual int getNumberOfDimensions( ) = 0;
 
 };
+
+extern template class Interpolator< double, Eigen::VectorXd >;
+extern template class Interpolator< double, Eigen::Vector6d >;
+extern template class Interpolator< double, Eigen::MatrixXd >;
+
+#if( BUILD_EXTENDED_PRECISION_PROPAGATION_TOOLS )
+extern template class Interpolator< Time, Eigen::VectorXd >;
+extern template class Interpolator< Time, Eigen::Vector6d >;
+extern template class Interpolator< Time, Eigen::MatrixXd >;
+
+extern template class Interpolator< double, Eigen::Matrix< long double, Eigen::Dynamic, 1 > >;
+extern template class Interpolator< double, Eigen::Matrix< long double, Eigen::Dynamic, 6 > >;
+extern template class Interpolator< double, Eigen::Matrix< long double, Eigen::Dynamic,  Eigen::Dynamic > >;
+
+extern template class Interpolator< Time, Eigen::Matrix< long double, Eigen::Dynamic, 1 > >;
+extern template class Interpolator< Time, Eigen::Matrix< long double, Eigen::Dynamic, 6 > >;
+extern template class Interpolator< Time, Eigen::Matrix< long double, Eigen::Dynamic, Eigen::Dynamic > >;
+#endif
 
 } // namespace interpolators
 

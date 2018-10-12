@@ -12,8 +12,8 @@
 #ifndef TUDAT_DIRECTTIDALDISSIPATIONACCELERATION_H
 #define TUDAT_DIRECTTIDALDISSIPATIONACCELERATION_H
 
-#include <boost/function.hpp>
-#include <boost/shared_ptr.hpp>
+#include <functional>
+#include <memory>
 #include <boost/lambda/lambda.hpp>
 
 #include "Tudat/Basics/basicTypedefs.h"
@@ -88,10 +88,10 @@ public:
      * \param includeDirectRadialComponent  True if term independent of time lag is to be included, false otherwise
      */
     DirectTidalDissipationAcceleration(
-            const boost::function< Eigen::Vector6d( ) > stateFunctionOfBodyExertingTide,
-            const boost::function< Eigen::Vector6d( ) > stateFunctionOfBodyUndergoingTide,
-            const boost::function< double( ) > gravitationalParameterFunctionOfBodyUndergoingTide,
-            const boost::function< Eigen::Vector3d( ) > angularVelocityVectorOfBodyUndergoingTide,
+            const std::function< Eigen::Vector6d( ) > stateFunctionOfBodyExertingTide,
+            const std::function< Eigen::Vector6d( ) > stateFunctionOfBodyUndergoingTide,
+            const std::function< double( ) > gravitationalParameterFunctionOfBodyUndergoingTide,
+            const std::function< Eigen::Vector3d( ) > angularVelocityVectorOfBodyUndergoingTide,
             const double k2LoveNumber,
             const double timeLag,
             const double equatorialRadiusOfBodyUndergoingTide,
@@ -123,10 +123,10 @@ public:
      * \param includeDirectRadialComponent  True if term independent of time lag is to be included, false otherwise
      */
     DirectTidalDissipationAcceleration(
-            const boost::function< Eigen::Vector6d( ) > stateFunctionOfBodyExertingTide,
-            const boost::function< Eigen::Vector6d( ) > stateFunctionOfBodyUndergoingTide,
-            const boost::function< double( ) > gravitationalParameterFunctionOfBodyExertingTide,
-            const boost::function< double( ) > gravitationalParameterFunctionOfBodyUndergoingTide,
+            const std::function< Eigen::Vector6d( ) > stateFunctionOfBodyExertingTide,
+            const std::function< Eigen::Vector6d( ) > stateFunctionOfBodyUndergoingTide,
+            const std::function< double( ) > gravitationalParameterFunctionOfBodyExertingTide,
+            const std::function< double( ) > gravitationalParameterFunctionOfBodyUndergoingTide,
             const double k2LoveNumber,
             const double timeLag,
             const double equatorialRadiusOfBodyUndergoingTide,
@@ -135,7 +135,7 @@ public:
         stateFunctionOfBodyUndergoingTide_( stateFunctionOfBodyUndergoingTide ),
         gravitationalParameterFunctionOfBodyExertingTide_( gravitationalParameterFunctionOfBodyExertingTide ),
         gravitationalParameterFunctionOfBodyUndergoingTide_( gravitationalParameterFunctionOfBodyUndergoingTide ),
-        angularVelocityVectorOfBodyUndergoingTide_( boost::lambda::constant( Eigen::Vector3d::Constant( TUDAT_NAN ) ) ),
+        angularVelocityVectorOfBodyUndergoingTide_( [ = ]( ){ return Eigen::Vector3d::Constant( TUDAT_NAN ); } ),
         k2LoveNumber_( k2LoveNumber ), timeLag_( timeLag ),
         equatorialRadiusOfBodyUndergoingTide_( equatorialRadiusOfBodyUndergoingTide ),
         includeDirectRadialComponent_( includeDirectRadialComponent ), modelTideOnPlanet_( false )
@@ -234,7 +234,7 @@ public:
      * Function to retrieve the function returning the gravitational parameter of the planet
      * \return Function returning the gravitational parameter of the planet
      */
-    boost::function< double( ) > getGravitationalParameterFunctionOfBodyExertingTide( )
+    std::function< double( ) > getGravitationalParameterFunctionOfBodyExertingTide( )
     {
         return gravitationalParameterFunctionOfBodyExertingTide_;
     }
@@ -244,7 +244,7 @@ public:
      * Function to retrieve the function returning the gravitational parameter of the satellite
      * \return
      */
-    boost::function< double( ) > getGravitationalParameterFunctionOfBodyUndergoingTide( )
+    std::function< double( ) > getGravitationalParameterFunctionOfBodyUndergoingTide( )
     {
         return gravitationalParameterFunctionOfBodyUndergoingTide_;
     }
@@ -342,19 +342,19 @@ private:
 
 
     //! Function returning the state of the satellite
-    boost::function< Eigen::Vector6d( ) > stateFunctionOfBodyExertingTide_;
+    std::function< Eigen::Vector6d( ) > stateFunctionOfBodyExertingTide_;
 
     //! Function returning the state of the planet
-    boost::function< Eigen::Vector6d( ) > stateFunctionOfBodyUndergoingTide_;
+    std::function< Eigen::Vector6d( ) > stateFunctionOfBodyUndergoingTide_;
 
     //! Function returning the gravitational parameter of the planet
-    boost::function< double( ) > gravitationalParameterFunctionOfBodyExertingTide_;
+    std::function< double( ) > gravitationalParameterFunctionOfBodyExertingTide_;
 
     //! Function returning the gravitational parameter of the satellite
-    boost::function< double( ) > gravitationalParameterFunctionOfBodyUndergoingTide_;
+    std::function< double( ) > gravitationalParameterFunctionOfBodyUndergoingTide_;
 
     //! Function returning the angular velocity vector of the planet
-    boost::function< Eigen::Vector3d( ) > angularVelocityVectorOfBodyUndergoingTide_;
+    std::function< Eigen::Vector3d( ) > angularVelocityVectorOfBodyUndergoingTide_;
 
     //! Static k2 Love number of the planet/satellite
     double k2LoveNumber_;
@@ -399,7 +399,7 @@ private:
  * \return All DirectTidalDissipationAcceleration from an accelerationModelList, for specific bodyBeingDeformed and
  * bodiesCausingDeformation
  */
-std::vector< boost::shared_ptr< DirectTidalDissipationAcceleration > > getTidalDissipationAccelerationModels(
+std::vector< std::shared_ptr< DirectTidalDissipationAcceleration > > getTidalDissipationAccelerationModels(
         const basic_astrodynamics::AccelerationMap accelerationModelList, const std::string bodyBeingDeformed,
         const std::vector< std::string >& bodiesCausingDeformation );
 

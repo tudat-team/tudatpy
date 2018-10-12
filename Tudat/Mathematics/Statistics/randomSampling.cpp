@@ -27,7 +27,7 @@ namespace statistics
 //! Generate sample of random vectors, with entries of each vector independently, but not identically, distributed.
 std::vector< Eigen::VectorXd > generateRandomSampleFromGenerator(
         const int numberOfSamples,
-        const std::vector< boost::shared_ptr< RandomVariableGenerator< double > > > randomVariableGenerators )
+        const std::vector< std::shared_ptr< RandomVariableGenerator< double > > > randomVariableGenerators )
 {
     std::vector< Eigen::VectorXd > randomSamples;
     Eigen::VectorXd randomSample( randomVariableGenerators.size( ) );
@@ -48,9 +48,9 @@ std::vector< Eigen::VectorXd > generateRandomSampleFromGenerator(
 //! Generate sample of random vectors, with entries of each vector independently and identically distributed.
 std::vector< Eigen::VectorXd > generateRandomSampleFromGenerator(
         const int numberOfSamples, const int numberOfDimensions,
-        const boost::shared_ptr< RandomVariableGenerator< double > > randomVariableGenerator )
+        const std::shared_ptr< RandomVariableGenerator< double > > randomVariableGenerator )
 {
-    std::vector< boost::shared_ptr< RandomVariableGenerator< double > > > randomVariableGenerators;
+    std::vector< std::shared_ptr< RandomVariableGenerator< double > > > randomVariableGenerators;
     for( int i = 0; i < numberOfDimensions; i++ )
     {
         randomVariableGenerators.push_back( randomVariableGenerator );
@@ -72,7 +72,7 @@ std::vector< Eigen::VectorXd > generateUniformRandomSample(
     }
 
     // Create distributions
-    std::vector< boost::shared_ptr< RandomVariableGenerator< double > > > randomVariableGenerators;
+    std::vector< std::shared_ptr< RandomVariableGenerator< double > > > randomVariableGenerators;
     std::vector< double > currentParameters;
     for( int i = 0; i < lowerBound.rows( ); i++ )
     {
@@ -110,7 +110,7 @@ std::vector< Eigen::VectorXd > generateGaussianRandomSample(
     }
 
     // Create distributions
-    std::vector< boost::shared_ptr< RandomVariableGenerator< double > > > randomVariableGenerators;
+    std::vector< std::shared_ptr< RandomVariableGenerator< double > > > randomVariableGenerators;
     std::vector< double > currentParameters;
     for( int i = 0; i < mean.rows( ); i++ )
     {

@@ -92,7 +92,7 @@ BOOST_AUTO_TEST_CASE( keplerStateExtractor_Extract )
 
     // Create a new pointer to data map.
     parsed_data_vector_utilities::ParsedDataLineMapPtr testDataMap =
-            boost::make_shared< parsed_data_vector_utilities::ParsedDataLineMap >(
+            std::make_shared< parsed_data_vector_utilities::ParsedDataLineMap >(
                 std::map< input_output::FieldType,
                 parsed_data_vector_utilities::FieldValuePtr >( ) );
 
@@ -114,7 +114,7 @@ BOOST_AUTO_TEST_CASE( keplerStateExtractor_Extract )
     KeplerStateExtractor testKeplerStateExtractor;
 
     // Extract test data map.
-    boost::shared_ptr< Vector6d > returnedKeplerianElements =
+    std::shared_ptr< Vector6d > returnedKeplerianElements =
             testKeplerStateExtractor.extract( testDataMap );
 
     // Verify that the returned values correspond to the expected values.
@@ -186,7 +186,7 @@ BOOST_AUTO_TEST_CASE( keplerStateExtractor_ExtractWithMeanAnomaly )
 
     // Create a new pointer to data map.
     parsed_data_vector_utilities::ParsedDataLineMapPtr testDataMap =
-            boost::make_shared< parsed_data_vector_utilities::ParsedDataLineMap >(
+            std::make_shared< parsed_data_vector_utilities::ParsedDataLineMap >(
                 std::map< input_output::FieldType,
                 parsed_data_vector_utilities::FieldValuePtr >( ) );
 
@@ -208,7 +208,7 @@ BOOST_AUTO_TEST_CASE( keplerStateExtractor_ExtractWithMeanAnomaly )
     KeplerStateExtractor testKeplerStateExtractor;
 
     // Extract test data map.
-    boost::shared_ptr< Vector6d > returnedKeplerianElements =
+    std::shared_ptr< Vector6d > returnedKeplerianElements =
             testKeplerStateExtractor.extract( testDataMap );
 
     // Verify that the returned values correspond to the expected values.
@@ -266,7 +266,7 @@ BOOST_AUTO_TEST_CASE( keplerStateExtractor_MissingSemiMajorAxis )
 
     // Create a new pointer to data map.
     parsed_data_vector_utilities::ParsedDataLineMapPtr testDataMap =
-            boost::make_shared< parsed_data_vector_utilities::ParsedDataLineMap >(
+            std::make_shared< parsed_data_vector_utilities::ParsedDataLineMap >(
                 std::map< input_output::FieldType,
                 parsed_data_vector_utilities::FieldValuePtr >( ) );
 
@@ -292,7 +292,7 @@ BOOST_AUTO_TEST_CASE( keplerStateExtractor_MissingSemiMajorAxis )
     try
     {
         // Extract test data map.
-        boost::shared_ptr< Vector6d > returnedKeplerianElements =
+        std::shared_ptr< Vector6d > returnedKeplerianElements =
                 testKeplerStateExtractor.extract( testDataMap );
     }
 
@@ -344,7 +344,7 @@ BOOST_AUTO_TEST_CASE( keplerStateExtractor_MissingEccentricity )
 
     // Create a new pointer to data map.
     parsed_data_vector_utilities::ParsedDataLineMapPtr testDataMap =
-            boost::make_shared< parsed_data_vector_utilities::ParsedDataLineMap >(
+            std::make_shared< parsed_data_vector_utilities::ParsedDataLineMap >(
                 std::map< input_output::FieldType,
                           parsed_data_vector_utilities::FieldValuePtr >( ) );
 
@@ -370,7 +370,7 @@ BOOST_AUTO_TEST_CASE( keplerStateExtractor_MissingEccentricity )
     try
     {
         // Extract test data map.
-        boost::shared_ptr< Vector6d > returnedKeplerianElements =
+        std::shared_ptr< Vector6d > returnedKeplerianElements =
                 testKeplerStateExtractor.extract( testDataMap );
     }
 
@@ -422,7 +422,7 @@ BOOST_AUTO_TEST_CASE( keplerStateExtractor_MissingInclination )
 
     // Create a new pointer to data map.
     parsed_data_vector_utilities::ParsedDataLineMapPtr testDataMap =
-            boost::make_shared< parsed_data_vector_utilities::ParsedDataLineMap >(
+            std::make_shared< parsed_data_vector_utilities::ParsedDataLineMap >(
                 std::map< input_output::FieldType,
                           parsed_data_vector_utilities::FieldValuePtr >( ) );
 
@@ -448,7 +448,7 @@ BOOST_AUTO_TEST_CASE( keplerStateExtractor_MissingInclination )
     try
     {
         // Extract test data map.
-        boost::shared_ptr< Vector6d > returnedKeplerianElements =
+        std::shared_ptr< Vector6d > returnedKeplerianElements =
                 testKeplerStateExtractor.extract( testDataMap );
     }
 
@@ -500,7 +500,7 @@ BOOST_AUTO_TEST_CASE( keplerStateExtractor_MissingLongitudeOfAscendingNode )
 
     // Create a new pointer to data map.
     parsed_data_vector_utilities::ParsedDataLineMapPtr testDataMap =
-            boost::make_shared< parsed_data_vector_utilities::ParsedDataLineMap >(
+            std::make_shared< parsed_data_vector_utilities::ParsedDataLineMap >(
                 std::map< input_output::FieldType,
                           parsed_data_vector_utilities::FieldValuePtr >( ) );
 
@@ -526,7 +526,7 @@ BOOST_AUTO_TEST_CASE( keplerStateExtractor_MissingLongitudeOfAscendingNode )
     try
     {
         // Extract test data map.
-        boost::shared_ptr< Vector6d > returnedKeplerianElements =
+        std::shared_ptr< Vector6d > returnedKeplerianElements =
                 testKeplerStateExtractor.extract( testDataMap );
     }
 
@@ -578,7 +578,7 @@ BOOST_AUTO_TEST_CASE( keplerStateExtractor_MissingArgumentOfPeriapsis )
 
     // Create a new pointer to data map.
     parsed_data_vector_utilities::ParsedDataLineMapPtr testDataMap =
-            boost::make_shared< parsed_data_vector_utilities::ParsedDataLineMap >(
+            std::make_shared< parsed_data_vector_utilities::ParsedDataLineMap >(
                 std::map< input_output::FieldType,
                           parsed_data_vector_utilities::FieldValuePtr >( ) );
 
@@ -604,7 +604,7 @@ BOOST_AUTO_TEST_CASE( keplerStateExtractor_MissingArgumentOfPeriapsis )
     try
     {
         // Extract test data map.
-        boost::shared_ptr< Vector6d > returnedKeplerianElements =
+        std::shared_ptr< Vector6d > returnedKeplerianElements =
                 testKeplerStateExtractor.extract( testDataMap );
     }
 
@@ -656,7 +656,7 @@ BOOST_AUTO_TEST_CASE( keplerStateExtractor_MissingTrueOrMeanAnomaly )
 
     // Create a new pointer to data map.
     parsed_data_vector_utilities::ParsedDataLineMapPtr testDataMap =
-            boost::make_shared< parsed_data_vector_utilities::ParsedDataLineMap >(
+            std::make_shared< parsed_data_vector_utilities::ParsedDataLineMap >(
                 std::map< input_output::FieldType,
                           parsed_data_vector_utilities::FieldValuePtr >( ) );
 
@@ -682,7 +682,7 @@ BOOST_AUTO_TEST_CASE( keplerStateExtractor_MissingTrueOrMeanAnomaly )
     try
     {
         // Extract test data map.
-        boost::shared_ptr< Vector6d > returnedKeplerianElements =
+        std::shared_ptr< Vector6d > returnedKeplerianElements =
                 testKeplerStateExtractor.extract( testDataMap );
     }
 

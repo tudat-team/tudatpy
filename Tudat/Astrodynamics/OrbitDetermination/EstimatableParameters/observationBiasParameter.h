@@ -45,8 +45,8 @@ public:
      * \param biasIsAbsolute Boolean denoting whether the bias is absolute or relative
      */
     ConstantObservationBiasParameter(
-            const boost::function< Eigen::VectorXd( ) > getCurrentBias,
-            const boost::function< void( const Eigen::VectorXd& ) > resetCurrentBias,
+            const std::function< Eigen::VectorXd( ) > getCurrentBias,
+            const std::function< void( const Eigen::VectorXd& ) > resetCurrentBias,
             const observation_models::LinkEnds linkEnds,
             const observation_models::ObservableType observableType,
             const bool biasIsAbsolute ):
@@ -66,7 +66,7 @@ public:
      */
     Eigen::VectorXd getParameterValue( )
     {
-        if( !getCurrentBias_.empty( ) )
+        if( !( getCurrentBias_ == nullptr ) )
         {
             return getCurrentBias_( );
         }
@@ -104,11 +104,11 @@ public:
      * \param resetCurrentBias New function to reset the current observation bias
      */
     void setObservationBiasFunctions(
-            const boost::function< Eigen::VectorXd( ) > getCurrentBias,
-            const boost::function< void( const Eigen::VectorXd& ) > resetCurrentBias )
+            const std::function< Eigen::VectorXd( ) > getCurrentBias,
+            const std::function< void( const Eigen::VectorXd& ) > resetCurrentBias )
     {
         // Check if functions already exist
-        if( !getCurrentBias_.empty( ) || !resetCurrentBias_.empty( ) )
+        if( !( getCurrentBias_ == nullptr ) || !( resetCurrentBias_ == nullptr ) )
         {
             std::cerr << "Warning when resetting observation bias in estimation object, existing contents not empty" << std::endl;
         }
@@ -150,10 +150,10 @@ protected:
 private:
 
     //! Function to retrieve the current observation bias.
-    boost::function< Eigen::VectorXd( ) > getCurrentBias_;
+    std::function< Eigen::VectorXd( ) > getCurrentBias_;
 
     //! Function to reset the current observation bia
-    boost::function< void( const Eigen::VectorXd& ) > resetCurrentBias_;
+    std::function< void( const Eigen::VectorXd& ) > resetCurrentBias_;
 
     //! Observation link ends for which the bias is active.
     observation_models::LinkEnds linkEnds_;
@@ -190,8 +190,8 @@ public:
      */
     ArcWiseObservationBiasParameter(
             const std::vector< double > arcStartTimes,
-            const boost::function< std::vector< Eigen::VectorXd >( ) > getBiasList,
-            const boost::function< void( const std::vector< Eigen::VectorXd >& ) > resetBiasList,
+            const std::function< std::vector< Eigen::VectorXd >( ) > getBiasList,
+            const std::function< void( const std::vector< Eigen::VectorXd >& ) > resetBiasList,
             const int linkEndIndex,
             const observation_models::LinkEnds linkEnds,
             const observation_models::ObservableType observableType,
@@ -216,7 +216,7 @@ public:
      */
     Eigen::VectorXd getParameterValue( )
     {
-        if( !getBiasList_.empty( ) )
+        if( !( getBiasList_ == nullptr ) )
         {
             std::vector< Eigen::VectorXd > observationBiases = getBiasList_( );
             Eigen::VectorXd currentParameterSet = Eigen::VectorXd::Zero(
@@ -268,11 +268,11 @@ public:
      * \param resetBiasList New function to reset the current observation bias list
      */
     void setObservationBiasFunctions(
-            const boost::function< std::vector< Eigen::VectorXd >( ) > getBiasList,
-            const boost::function< void( const std::vector< Eigen::VectorXd >& ) > resetBiasList )
+            const std::function< std::vector< Eigen::VectorXd >( ) > getBiasList,
+            const std::function< void( const std::vector< Eigen::VectorXd >& ) > resetBiasList )
     {
         // Check if functions already exist
-        if( !getBiasList_.empty( ) || !resetBiasList_.empty( ) )
+        if( !( getBiasList_ == nullptr ) || !( resetBiasList_ == nullptr ) )
         {
             std::cerr << "Warning when resetting arc-wise observation bias in estimation object, existing contents not empty" << std::endl;
         }
@@ -333,7 +333,7 @@ public:
      * Function to retrieve object used to determine the current arc, based on the current time.
      * \return Object used to determine the current arc, based on the current time.
      */
-    boost::shared_ptr< interpolators::LookUpScheme< double > > getLookupScheme( )
+    std::shared_ptr< interpolators::LookUpScheme< double > > getLookupScheme( )
     {
         return lookupScheme_;
     }
@@ -343,7 +343,7 @@ public:
      * Function to reset object used to determine the current arc, based on the current time.
      * \param lookupScheme Object used to determine the current arc, based on the current time.
      */
-    void setLookupScheme( const boost::shared_ptr< interpolators::LookUpScheme< double > > lookupScheme )
+    void setLookupScheme( const std::shared_ptr< interpolators::LookUpScheme< double > > lookupScheme )
     {
         lookupScheme_ = lookupScheme;
     }
@@ -356,10 +356,10 @@ private:
     const std::vector< double > arcStartTimes_;
 
     //! Function to retrieve the current observation bias list.
-    boost::function< std::vector< Eigen::VectorXd >( ) > getBiasList_;
+    std::function< std::vector< Eigen::VectorXd >( ) > getBiasList_;
 
     //! Function to reset the current observation bias list
-    boost::function< void( const std::vector< Eigen::VectorXd >& ) > resetBiasList_;
+    std::function< void( const std::vector< Eigen::VectorXd >& ) > resetBiasList_;
 
     //! Link end index from which the 'current time' is determined
     int linkEndIndex_;
@@ -377,7 +377,7 @@ private:
     int numberOfArcs_;
 
     //! Object used to determine the current arc, based on the current time.
-    boost::shared_ptr< interpolators::LookUpScheme< double > > lookupScheme_;
+    std::shared_ptr< interpolators::LookUpScheme< double > > lookupScheme_;
 };
 
 } // namespace estimatable_parameters

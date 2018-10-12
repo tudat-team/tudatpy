@@ -13,9 +13,12 @@
 
 #include <map>
 #include <vector>
+#include <iostream>
 
 #include <Eigen/Core>
+#include <Eigen/LU>
 
+#include "Tudat/Basics/timeType.h"
 #include "Tudat/Astrodynamics/ObservationModels/linkTypeDefs.h"
 #include "Tudat/Astrodynamics/ObservationModels/observableTypes.h"
 
@@ -526,6 +529,18 @@ struct PodOutput
     //! Boolean denoting whether an exception was caught during (re)propagation of equations of motion (and variational equations)
     bool exceptionDuringPropagation_;
 };
+
+
+extern template class PodInput< double, double >;
+extern template struct PodOutput< double >;
+
+#if( BUILD_EXTENDED_PRECISION_PROPAGATION_TOOLS )
+extern template class PodInput< long double, double >;
+extern template class PodInput< double, Time >;
+extern template class PodInput< long double, Time >;
+
+extern template struct PodOutput< long double >;
+#endif
 
 }
 

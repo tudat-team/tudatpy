@@ -11,7 +11,7 @@
 #ifndef TUDAT_BASICSOLIDBODYTIDEGRAVITYFIELDVARIATIONS_H
 #define TUDAT_BASICSOLIDBODYTIDEGRAVITYFIELDVARIATIONS_H
 
-#include <boost/function.hpp>
+#include <functional>
 #include <boost/multi_array.hpp>
 #include <boost/bind.hpp>
 
@@ -150,15 +150,15 @@ public:
      *  \param deformingBodies List of names of bodies causing deformation
      */
     BasicSolidBodyTideGravityFieldVariations(
-            const boost::function< Eigen::Vector6d( const double ) >
+            const std::function< Eigen::Vector6d( const double ) >
             deformedBodyStateFunction,
-            const boost::function< Eigen::Quaterniond( const double ) >
+            const std::function< Eigen::Quaterniond( const double ) >
             deformedBodyOrientationFunction,
-            const std::vector< boost::function< Eigen::Vector6d( const double ) > >
+            const std::vector< std::function< Eigen::Vector6d( const double ) > >
             deformingBodyStateFunctions,
             const double deformedBodyReferenceRadius,
-            const boost::function< double( ) > deformedBodyMass,
-            const std::vector< boost::function< double( ) > > deformingBodyMasses,
+            const std::function< double( ) > deformedBodyMass,
+            const std::vector< std::function< double( ) > > deformingBodyMasses,
             const std::vector< std::vector< std::complex< double > > > loveNumbers,
             const std::vector< std::string > deformingBodies ):
         GravityFieldVariations( 2, 0, 2 + loveNumbers.size( ) - 1, 2 + loveNumbers.size( ) - 1 ),
@@ -173,9 +173,9 @@ public:
     {
         // Set basic deformation functon as function to be evaluated when requesting variations.
         correctionFunctions.push_back(
-                    boost::bind(
+                    std::bind(
                         &BasicSolidBodyTideGravityFieldVariations::addBasicSolidBodyTideCorrections,
-                        this, _1, _2 ) );
+                        this, std::placeholders::_1, std::placeholders::_2 ) );
         currentCosineCorrections_ = Eigen::MatrixXd::Zero(
                     maximumDegree_ - minimumDegree_ + 1, maximumOrder_ - minimumOrder_ + 1 );
         currentSineCorrections_ = Eigen::MatrixXd::Zero(
@@ -282,7 +282,7 @@ public:
      *  Function to return the mass function of the deformed body.
      *  \return Mass function of the deformed body.
      */
-    boost::function< double( ) > getDeformedBodyMassFunction( )
+    std::function< double( ) > getDeformedBodyMassFunction( )
     {
         return deformedBodyMass_;
     }
@@ -292,7 +292,7 @@ public:
      *  Function to return list of the mass functions of the bodies causing the deformation.
      *  \return List of the mass functions of the bodies causing the deformation.
      */
-    std::vector< boost::function< double( ) > > getDeformingBodyMasses( )
+    std::vector< std::function< double( ) > > getDeformingBodyMasses( )
     {
         return deformingBodyMasses_;
     }
@@ -312,7 +312,7 @@ public:
      *  Function to return the state function of the deformed body.
      *  \return State function of the deformed body.
      */
-    boost::function< Eigen::Vector6d( const double ) > getDeformedBodyStateFunction( )
+    std::function< Eigen::Vector6d( const double ) > getDeformedBodyStateFunction( )
     {
         return deformedBodyStateFunction_;
     }
@@ -324,7 +324,7 @@ public:
      *  body.
      *  \return Orientation function (rotation to body-fixed frame) of the deformed body.
      */
-    boost::function< Eigen::Quaterniond( const double ) > getDeformedBodyOrientationFunction( )
+    std::function< Eigen::Quaterniond( const double ) > getDeformedBodyOrientationFunction( )
     {
         return deformedBodyOrientationFunction_;
     }
@@ -334,7 +334,7 @@ public:
      *  Function to return list of the state functions of the bodies causing the deformation.
      *  \return List of the state functions of the bodies causing the deformation.
      */
-    std::vector< boost::function< Eigen::Vector6d( const double ) > >
+    std::vector< std::function< Eigen::Vector6d( const double ) > >
     getDeformingBodyStateFunctions( )
     {
         return deformingBodyStateFunctions_;
@@ -393,7 +393,7 @@ protected:
      *  modifies MatrixXd arguments (cosine, sine) as they are passed by reference, and adds
      *  the required (tidal) correction.
      */
-    std::vector< boost::function< void( Eigen::MatrixXd&, Eigen::MatrixXd& ) > >
+    std::vector< std::function< void( Eigen::MatrixXd&, Eigen::MatrixXd& ) > >
     correctionFunctions;
 
     //! Calculates basic solid body gravity field corrections due to single body.
@@ -441,19 +441,19 @@ protected:
     /*!
      *  Function returning state of body being deformed.
      */
-    boost::function< Eigen::Vector6d( const double ) > deformedBodyStateFunction_;
+    std::function< Eigen::Vector6d( const double ) > deformedBodyStateFunction_;
 
     //! Function providing rotation from inertial to body being deformed-fixed frame
     /*!
      *  Function providing rotation from inertial to body being deformed-fixed frame.
      */
-    boost::function< Eigen::Quaterniond( const double ) > deformedBodyOrientationFunction_;
+    std::function< Eigen::Quaterniond( const double ) > deformedBodyOrientationFunction_;
 
     //! List of state functions of body causing deformations.
     /*!
      *  List of state functions of body causing deformations.
      */
-    std::vector< boost::function< Eigen::Vector6d( const double ) > >
+    std::vector< std::function< Eigen::Vector6d( const double ) > >
     deformingBodyStateFunctions_;
 
     //! Reference radius (typically equatorial) of body being deformed's spherical harmonic
@@ -468,13 +468,13 @@ protected:
     /*!
      *  Function returning mass of body being deformed.
      */
-    boost::function< double( ) > deformedBodyMass_;
+    std::function< double( ) > deformedBodyMass_;
 
     //! List of functions returning masses of bodies causing deformation.
     /*!
      *  List of functions returning masses of bodies causing deformation.
      */
-    std::vector< boost::function< double( ) > > deformingBodyMasses_;
+    std::vector< std::function< double( ) > > deformingBodyMasses_;
 
     //! List of love numbers for each degree and order
     /*!

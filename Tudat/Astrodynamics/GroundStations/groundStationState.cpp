@@ -1,5 +1,3 @@
-#include <boost/assign/list_of.hpp>
-
 #include "Tudat/Mathematics/BasicMathematics/coordinateConversions.h"
 #include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
 
@@ -50,7 +48,7 @@ std::vector< Eigen::Vector3d > getGeocentricLocalUnitVectors(
 GroundStationState::GroundStationState(
         const Eigen::Vector3d stationPosition,
         const coordinate_conversions::PositionElementTypes inputElementType,
-        const boost::shared_ptr< basic_astrodynamics::BodyShapeModel > bodySurface ):
+        const std::shared_ptr< basic_astrodynamics::BodyShapeModel > bodySurface ):
     bodySurface_( bodySurface )
 {
     resetGroundStationPositionAtEpoch( stationPosition, inputElementType );
@@ -103,7 +101,7 @@ void GroundStationState::setTransformationAndUnitVectors( )
 
 //! Function to calculate the rotation from a body-fixed to a topocentric frame.
 Eigen::Quaterniond getRotationQuaternionFromBodyFixedToTopocentricFrame(
-        const boost::shared_ptr< basic_astrodynamics::BodyShapeModel > bodyShapeModel,
+        const std::shared_ptr< basic_astrodynamics::BodyShapeModel > bodyShapeModel,
         const double geocentricLatitude,
         const double geocentricLongitude,
         const Eigen::Vector3d localPoint )
@@ -114,16 +112,16 @@ Eigen::Quaterniond getRotationQuaternionFromBodyFixedToTopocentricFrame(
     bool isSurfaceModelRecognized = 1;
 
     // Identify type of body shape model
-    if( boost::dynamic_pointer_cast< basic_astrodynamics::SphericalBodyShapeModel >( bodyShapeModel ) != NULL )
+    if( std::dynamic_pointer_cast< basic_astrodynamics::SphericalBodyShapeModel >( bodyShapeModel ) != nullptr )
     {
         // For a sphere the topocentric and geocentric frames are equal.
         topocentricUnitVectors = getGeocentricLocalUnitVectors(
                     geocentricLatitude, geocentricLongitude );
     }
-    else if( boost::dynamic_pointer_cast< basic_astrodynamics::OblateSpheroidBodyShapeModel >( bodyShapeModel ) != NULL )
+    else if( std::dynamic_pointer_cast< basic_astrodynamics::OblateSpheroidBodyShapeModel >( bodyShapeModel ) != nullptr )
     {
-        boost::shared_ptr< basic_astrodynamics::OblateSpheroidBodyShapeModel > oblateSphericalShapeModel =
-                boost::dynamic_pointer_cast< basic_astrodynamics::OblateSpheroidBodyShapeModel >( bodyShapeModel );
+        std::shared_ptr< basic_astrodynamics::OblateSpheroidBodyShapeModel > oblateSphericalShapeModel =
+                std::dynamic_pointer_cast< basic_astrodynamics::OblateSpheroidBodyShapeModel >( bodyShapeModel );
 
         // Calculate geodetic latitude.
         double flattening = oblateSphericalShapeModel->getFlattening( );
