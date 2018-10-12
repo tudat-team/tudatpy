@@ -59,11 +59,11 @@ void testAerodynamicAngleCalculation(
 {
     // Create angle calculator
     AerodynamicAngleCalculator aerodynamicAngleCalculator(
-                [&](){ return testState; },
-                [&](){ return Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) ); }, "", 1,
-                [&](){ return angleOfAttack; },
-                [&](){ return angleOfSideslip; },
-                [&](){ return bankAngle; } );
+                [ & ]( ){ return testState; },
+                [ & ]( ){ return Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) ); }, "", 1,
+                [ & ]( ){ return angleOfAttack; },
+                [ & ]( ){ return angleOfSideslip; },
+                [ & ]( ){ return bankAngle; } );
 
     // Update angle calculator.
     aerodynamicAngleCalculator.update( 0.0, true );

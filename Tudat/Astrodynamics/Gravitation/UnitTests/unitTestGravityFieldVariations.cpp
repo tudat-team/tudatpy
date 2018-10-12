@@ -13,7 +13,6 @@
 #include <limits>
 #include <boost/test/floating_point_comparison.hpp>
 #include <boost/test/unit_test.hpp>
-#include <boost/assign/list_of.hpp>
 #include <boost/bind.hpp>
 
 #include <Eigen/Core>
@@ -186,10 +185,9 @@ std::shared_ptr< GravityFieldVariationsSet > getTestGravityFieldVariations( )
 
     // Create and return full gravity field variations object.
     return std::make_shared< GravityFieldVariationsSet >(
-                boost::assign::list_of( solidBodyGravityFieldVariations )
-                ( tabulatedGravityFieldVariations ),
-                boost::assign::list_of( basic_solid_body )( tabulated_variation ),
-                boost::assign::list_of( "BasicTidal" )( "Tabulated" ) );
+                std::vector< std::shared_ptr< GravityFieldVariations > >{ solidBodyGravityFieldVariations, tabulatedGravityFieldVariations },
+                std::vector< BodyDeformationTypes >{ basic_solid_body, tabulated_variation },
+                std::vector< std::string >{ "BasicTidal", "Tabulated" } );
 }
 
 BOOST_AUTO_TEST_CASE( testGravityFieldVariations )

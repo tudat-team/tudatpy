@@ -99,7 +99,7 @@ public:
             const std::function< Eigen::Vector6d( ) > bodyStateFunction,
             const std::function< double( ) > centralBodyGravitationalParameterFunction,
             const std::function< Eigen::Vector6d( ) > centralBodyStateFunction =
-            []( ){ return Eigen::Vector6d::Zero( ); } ):
+            [ ]( ){ return Eigen::Vector6d::Zero( ); } ):
         bodyStateFunction_( bodyStateFunction ), centralBodyStateFunction_( centralBodyStateFunction ),
         centralBodyGravitationalParameterFunction_( centralBodyGravitationalParameterFunction )
     {
@@ -108,7 +108,7 @@ public:
         accelerationComponents.block( 0, 0, 3, 1 ) = constantAcceleration;
         accelerationComponents.block( 0, 1, 3, 1 ) = sineAcceleration;
         accelerationComponents.block( 0, 2, 3, 1 ) = cosineAcceleration;
-        accelerationComponentsFunction_ = [=]( const double ){ return accelerationComponents; };
+        accelerationComponentsFunction_ = [ = ]( const double ){ return accelerationComponents; };
 
         updateAccelerationComponents( 0.0 );
         areAccelerationComponentsTimeDependent_ = 0;
@@ -221,7 +221,7 @@ public:
         }
 
         areAccelerationComponentsTimeDependent_ = 0;
-        accelerationComponentsFunction_ = [=]( const double ){ return newAccelerationComponents; };
+        accelerationComponentsFunction_ = [ = ]( const double ){ return newAccelerationComponents; };
 
     }
 

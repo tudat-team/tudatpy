@@ -21,7 +21,6 @@
 
 #include <vector>
 
-#include <boost/assign/list_of.hpp>
 #include <boost/bind.hpp>
 #include <boost/make_shared.hpp>
 #include <memory>
@@ -44,7 +43,6 @@ namespace unit_tests
 
 using basic_astrodynamics::AccelerationModel;
 using basic_astrodynamics::updateAndGetAcceleration;
-using boost::assign::list_of;
 
 BOOST_AUTO_TEST_SUITE( test_accelerationModel )
 
@@ -224,8 +222,7 @@ BOOST_AUTO_TEST_CASE( test_derived1iAccelerationModel )
     computedAccelerations.at( 2 ) = updateAndGetAcceleration( accelerationModeli1 );
 
     // Set expected accelerations.
-    const std::vector< int > expectedAccelerations
-            = list_of( 20 / ( 2 * 2 ) )( 90 / ( -3 * -3 ) )( 16 / ( 4 * 4 ) );
+    const std::vector< int > expectedAccelerations = { 20 / ( 2 * 2 ), 90 / ( -3 * -3 ), 16 / ( 4 * 4 ) };
 
     // Check that the acceleration vectors before and after the update match expected values.
     for ( unsigned int i = 0; i < computedAccelerations.size( ); i++ )

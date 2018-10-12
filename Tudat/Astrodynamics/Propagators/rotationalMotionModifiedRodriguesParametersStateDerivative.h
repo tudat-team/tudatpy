@@ -21,11 +21,11 @@ namespace tudat
 namespace propagators
 {
 
-//! Function to obtain the time derivative of modified Rodrigues parameters (in vector representation) of body-fixed to inertial frame
+//! Function to obtain the time derivative of modified Rodrigues parameters (in vector representation) of body-fixed to inertial frame.
 /*!
- * Function to obtain the time derivative of modified Rodrigues parameters (in vector representation) of body-fixed to inertial frame
- * \param currentQuaternionToBaseFrame Quaternion (in vector representation) that defined the rotation from body-fixed to inertial
- * frame.
+ * Function to obtain the time derivative of modified Rodrigues parameters (in vector representation) of body-fixed to inertial frame.
+ * \param currentModiefiedRodriguesParametersToBaseFrame Modified Rodrigues parameters (in vector representation) that define the rotation
+ * from body-fixed to inertial frame.
  * \param angularVelocityVectorInBodyFixedFrame Current angular velocity vector of body, expressed in its body-fixed frame
  * \return Time derivative of modified Rodrigues parameters (in vector representation) of body-fixed to inertial frame
  */
@@ -35,7 +35,7 @@ Eigen::Vector4d calculateModifiedRodriguesParametersDerivative(
 
 //! Class for computing the state derivative for rotational dynamics of N bodies.
 /*!
- *  Class for computing the state derivative for rotational dynamics of N bodies., using modified Rodrigues parameters from body-fixed to inertial
+ *  Class for computing the state derivative for rotational dynamics of N bodies, using modified Rodrigues parameters from body-fixed to inertial
  *  frame (in modified Rodrigues parameters format) and angular velocity-vector of body expressed in body-fixed frame as the rotational state of a
  *  single body
  */

@@ -285,7 +285,7 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForSphericalHarmonicCentralBodies )
                                                 < double, Eigen::Vector6d  > >( ), "Earth", "J2000" ) );
         std::shared_ptr< RadiationPressureInterfaceSettings > vehicleRadiationPressureSettings =
                 std::make_shared< CannonBallRadiationPressureInterfaceSettings >(
-                    "Sun", 4.0, 1.2, boost::assign::list_of( "Earth" )( "Moon" ) );
+                    "Sun", 4.0, 1.2, std::vector< std::string >{ "Earth", "Moon" } );
         bodyMap[ "Vehicle" ]->setRadiationPressureInterface(
                     "Sun", createRadiationPressureInterface(
                         vehicleRadiationPressureSettings, "Vehicle", bodyMap ) );
@@ -330,7 +330,7 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForSphericalHarmonicCentralBodies )
             accelerationsOfVehicle[ "Sun" ].push_back( std::make_shared< AccelerationSettings >(
                                                            basic_astrodynamics::cannon_ball_radiation_pressure ) );
         }
-        accelerationMap[  "Vehicle" ] = accelerationsOfVehicle;
+        accelerationMap[ "Vehicle" ] = accelerationsOfVehicle;
         bodiesToPropagate.push_back( "Vehicle" );
         centralBodies.push_back( "Earth" );
         basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
@@ -476,7 +476,7 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForHighEccentricities )
         std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfAsterix;
         accelerationsOfAsterix[ "Earth" ].push_back( std::make_shared< AccelerationSettings >(
                                                          basic_astrodynamics::central_gravity ) );
-        accelerationMap[  "Asterix" ] = accelerationsOfAsterix;
+        accelerationMap[ "Asterix" ] = accelerationsOfAsterix;
         bodiesToPropagate.push_back( "Asterix" );
         centralBodies.push_back( "Earth" );
 

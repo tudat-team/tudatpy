@@ -67,7 +67,8 @@ void from_json( const nlohmann::json& jsonObject, std::shared_ptr< InterpolatorS
     const InterpolatorTypes interpolatorType =
             getValue< InterpolatorTypes >( jsonObject, K::type );
 
-    switch ( interpolatorType ) {
+    switch ( interpolatorType )
+    {
     case linear_interpolator:
     case cubic_spline_interpolator:
     case hermite_spline_interpolator:

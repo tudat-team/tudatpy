@@ -16,7 +16,6 @@
 #include <chrono>
 
 #include <boost/make_shared.hpp>
-#include <boost/assign/list_of.hpp>
 
 #include "Tudat/Basics/tudatTypeTraits.h"
 #include "Tudat/Basics/utilities.h"
@@ -198,7 +197,7 @@ Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > getInitialRotationalStateOfB
         const TimeType initialTime )
 {
     return getInitialRotationalStatesOfBodies< TimeType, StateScalarType >(
-                boost::assign::list_of( bodyToIntegrate ), boost::assign::list_of( baseOrientation ), bodyMap, initialTime );
+               { bodyToIntegrate }, { baseOrientation }, bodyMap, initialTime );
 }
 
 
@@ -388,6 +387,7 @@ public:
      *  at the end of propagation.
      *  \param initialClockTime Initial clock time from which to determine cumulative computation time.
      *  By default now( ), i.e. the moment at which this function is called.
+     *  \param stateDerivativeModels List of state derivative models used in the simulation.
      */
     SingleArcDynamicsSimulator(
             const simulation_setup::NamedBodyMap& bodyMap,

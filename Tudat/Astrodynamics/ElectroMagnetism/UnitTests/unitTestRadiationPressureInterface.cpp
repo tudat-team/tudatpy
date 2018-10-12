@@ -47,11 +47,11 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureCalculation )
     // Test calculation of radiation pressure from class interface.
     std::shared_ptr< electro_magnetism::RadiationPressureInterface > radiationPressureInterface =
             std::make_shared< electro_magnetism::RadiationPressureInterface >(
-                [&]( ){ return totalSolarPower; },
-                [&]( ){ return
+                [ & ]( ){ return totalSolarPower; },
+                [ & ]( ){ return
                     ( Eigen::Vector3d( ) <<
                       0.0, physical_constants::ASTRONOMICAL_UNIT / std::sqrt( 2.0 ), 0.0 ).finished( ); },
-                [&]( ){ return
+                [ & ]( ){ return
                     ( Eigen::Vector3d( ) <<
                       physical_constants::ASTRONOMICAL_UNIT / std::sqrt( 2.0 ), 0.0, 0.0 ).finished( ); },
                 1.0, 1.0 );
@@ -78,7 +78,7 @@ BOOST_AUTO_TEST_CASE( testShadowFunctionLink )
     const double occultingBodyRadius = 6378.137e3; // WGS-84.
 
     std::vector< std::function< Eigen::Vector3d( ) > > occultingBodyPositionFunctions;
-    occultingBodyPositionFunctions.push_back( [&]( ){ return occultingBodyPosition; } );
+    occultingBodyPositionFunctions.push_back( [ & ]( ){ return occultingBodyPosition; } );
     std::vector< double > occultingBodyRadii;
     occultingBodyRadii.push_back( occultingBodyRadius );
 
@@ -91,9 +91,9 @@ BOOST_AUTO_TEST_CASE( testShadowFunctionLink )
     std::shared_ptr< electro_magnetism::RadiationPressureInterface >
             occultedRadiationPressureInterface =
             std::make_shared< electro_magnetism::RadiationPressureInterface >(
-                [&]( ){ return totalSolarPower; },
-                [&]( ){ return occultedBodyPosition; },
-                [&]( ){ return satellitePosition; },
+                [ & ]( ){ return totalSolarPower; },
+                [ & ]( ){ return occultedBodyPosition; },
+                [ & ]( ){ return satellitePosition; },
                 1.0, 1.0, occultingBodyPositionFunctions, occultingBodyRadii,
                 occultedBodyRadius );
     occultedRadiationPressureInterface->updateInterface( );
@@ -102,9 +102,9 @@ BOOST_AUTO_TEST_CASE( testShadowFunctionLink )
     std::shared_ptr< electro_magnetism::RadiationPressureInterface >
             unoccultedRadiationPressureInterface =
             std::make_shared< electro_magnetism::RadiationPressureInterface >(
-                [&]( ){ return totalSolarPower; },
-                [&]( ){ return occultedBodyPosition; },
-                [&]( ){ return satellitePosition; },
+                [ & ]( ){ return totalSolarPower; },
+                [ & ]( ){ return occultedBodyPosition; },
+                [ & ]( ){ return satellitePosition; },
                 1.0, 1.0 );
     unoccultedRadiationPressureInterface->updateInterface( );
 

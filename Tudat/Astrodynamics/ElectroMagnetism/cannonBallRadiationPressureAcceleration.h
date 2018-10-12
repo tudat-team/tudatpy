@@ -131,9 +131,9 @@ public:
           acceleratedBodyPositionFunction_( acceleratedBodyPositionFunction ),
           radiationPressureFunction_( radiationPressureFunction ),
           radiationPressureCoefficientFunction_(
-              [=]( ){ return radiationPressureCoefficient; } ),
-          areaFunction_( [=]( ){ return area; } ),
-          massFunction_( [=]( ){ return mass; } )
+              [ = ]( ){ return radiationPressureCoefficient; } ),
+          areaFunction_( [ = ]( ){ return area; } ),
+          massFunction_( [ = ]( ){ return mass; } )
     {
         this->updateMembers( );
     }

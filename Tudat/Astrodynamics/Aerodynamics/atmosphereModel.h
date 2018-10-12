@@ -19,6 +19,7 @@
 
 namespace tudat
 {
+
 namespace aerodynamics
 {
 
@@ -145,6 +146,7 @@ private:
 typedef std::shared_ptr< AtmosphereModel > AtmosphereModelPointer;
 
 } // namespace aerodynamics
+
 } // namespace tudat
 
 #endif // TUDAT_ATMOSPHERE_MODEL_H

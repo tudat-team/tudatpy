@@ -71,7 +71,7 @@ BOOST_AUTO_TEST_CASE( testOneWayRangePartialsWrtLightTimeParameters )
 
         // Generate one-way range model
         std::vector< std::shared_ptr< LightTimeCorrectionSettings > > lightTimeCorrections;
-        std::vector< std::string > relativisticPerturbingBodies = boost::assign::list_of( "Sun" );
+        std::vector< std::string > relativisticPerturbingBodies = { "Sun" };
         lightTimeCorrections.push_back( std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >(
                                             relativisticPerturbingBodies ) );
         std::shared_ptr< ObservationSettings > observationSettings = std::make_shared<
@@ -109,8 +109,8 @@ BOOST_AUTO_TEST_CASE( testOneWayRangePartialsWrtLightTimeParameters )
 
 
         // Define numerical partial settings
-        std::vector< double > perturbations = boost::assign::list_of( 1.0E16 )( 1.0E8 );
-        std::vector< double > tolerances = boost::assign::list_of( 1.0E-4 )( 10E-4 );
+        std::vector< double > perturbations = { 1.0E16, 1.0E8 };
+        std::vector< double > tolerances = { 1.0E-4, 10E-4 };
 
         // Compute numerical partials for each parameter and compare to analytical result.
         std::function< double( const double ) > observationFunction = std::bind(
@@ -155,7 +155,7 @@ BOOST_AUTO_TEST_CASE( testOneWayRangePartialsWrtLightTimeParameters )
 
         // Generate one-way range model
         std::vector< std::shared_ptr< LightTimeCorrectionSettings > > lightTimeCorrections;
-        std::vector< std::string > perturbingBodyList = boost::assign::list_of( "Earth" )( "Sun" );
+        std::vector< std::string > perturbingBodyList = { "Earth", "Sun" };
         lightTimeCorrections.push_back( std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >(
                                             perturbingBodyList ) );
         std::shared_ptr< ObservationSettings > observationSettings = std::make_shared<
@@ -226,7 +226,7 @@ BOOST_AUTO_TEST_CASE( testOneWayRangePartialsWrtLightTimeParameters )
                         linkEndIterator->first );
 
             // Settings for parameter partial functions.
-            std::vector< double > parameterPerturbations = boost::assign::list_of( 1.0E19 )( 1.0E16 )( 1.0E15 )( 1.0E8 );
+            std::vector< double > parameterPerturbations = { 1.0E19, 1.0E16, 1.0E15, 1.0E8 };
             std::vector< std::function< void( ) > > updateFunctionList;
             updateFunctionList.push_back( emptyVoidFunction );
             updateFunctionList.push_back( emptyVoidFunction );

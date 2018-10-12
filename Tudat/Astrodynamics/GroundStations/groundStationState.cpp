@@ -1,5 +1,3 @@
-#include <boost/assign/list_of.hpp>
-
 #include "Tudat/Mathematics/BasicMathematics/coordinateConversions.h"
 #include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
 

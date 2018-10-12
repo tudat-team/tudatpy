@@ -64,7 +64,7 @@ public:
     void updateMembers( const double currentTime )
     {
         // Update the custom torque model
-        if( customUpdateFunction_ == nullptr )
+        if ( customUpdateFunction_ != nullptr )
         {
             customUpdateFunction_( currentTime );
         }

@@ -30,6 +30,7 @@
 
 namespace tudat
 {
+
 namespace gravitation
 {
 
@@ -64,7 +65,6 @@ Eigen::Vector3d computeGeodesyNormalizedGravitationalAccelerationSum(
     std::shared_ptr< basic_mathematics::LegendreCache > legendreCacheReference =
             sphericalHarmonicsCache->getLegendreCache( );
 
-
     // Compute gradient premultiplier.
     const double preMultiplier = gravitationalParameter / equatorialRadius;
 
@@ -72,7 +72,7 @@ Eigen::Vector3d computeGeodesyNormalizedGravitationalAccelerationSum(
     Eigen::Vector3d sphericalGradient = Eigen::Vector3d::Zero( );
 
     Eigen::Matrix3d transformationToCartesianCoordinates = coordinate_conversions::getSphericalToCartesianGradientMatrix(
-                   positionOfBodySubjectToAcceleration );
+                positionOfBodySubjectToAcceleration );
 
     // Loop through all degrees.
     for ( int degree = 0; degree < highestDegree; degree++ )
@@ -92,14 +92,14 @@ Eigen::Vector3d computeGeodesyNormalizedGravitationalAccelerationSum(
             {
                 accelerationPerTerm[ std::make_pair( degree, order ) ] =
                         basic_mathematics::computePotentialGradient(
-                                                   sphericalpositionOfBodySubjectToAcceleration,
-                                                   preMultiplier,
-                                                   degree,
-                                                   order,
-                                                   cosineHarmonicCoefficients( degree, order ),
-                                                   sineHarmonicCoefficients( degree, order ),
-                                                   legendrePolynomial,
-                                                   legendrePolynomialDerivative, sphericalHarmonicsCache );
+                            sphericalpositionOfBodySubjectToAcceleration,
+                            preMultiplier,
+                            degree,
+                            order,
+                            cosineHarmonicCoefficients( degree, order ),
+                            sineHarmonicCoefficients( degree, order ),
+                            legendrePolynomial,
+                            legendrePolynomialDerivative, sphericalHarmonicsCache );
                 sphericalGradient += accelerationPerTerm[ std::make_pair( degree, order ) ];
                 accelerationPerTerm[ std::make_pair( degree, order ) ] =
                         accelerationRotation * (
@@ -179,4 +179,5 @@ Eigen::Vector3d computeSingleGeodesyNormalizedGravitationalAcceleration(
 }
 
 } // namespace gravitation
+
 } // namespace tudat

@@ -91,7 +91,7 @@ std::map< double, Eigen::VectorXd > propagateKeplerOrbitAndMassState(
     std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfAsterix;
     accelerationsOfAsterix[ "Earth" ].push_back( std::make_shared< AccelerationSettings >(
                                                      basic_astrodynamics::central_gravity ) );
-    accelerationMap[  "Asterix" ] = accelerationsOfAsterix;
+    accelerationMap[ "Asterix" ] = accelerationsOfAsterix;
     bodiesToPropagate.push_back( "Asterix" );
     centralBodies.push_back( "Earth" );
 
@@ -126,12 +126,12 @@ std::map< double, Eigen::VectorXd > propagateKeplerOrbitAndMassState(
     // Create mass rate model and mass propagation settings
     std::map< std::string, std::shared_ptr< basic_astrodynamics::MassRateModel > > massRateModels;
     massRateModels[ "Vehicle" ] = std::make_shared< basic_astrodynamics::CustomMassRateModel >(
-                []( const double ){ return -0.01; } );
+                [ ]( const double ){ return -0.01; } );
     Eigen::VectorXd initialMass = Eigen::VectorXd( 1 );
     initialMass( 0 ) = 500.0;
     std::shared_ptr< SingleArcPropagatorSettings< double > > massPropagatorSettings =
             std::make_shared< MassPropagatorSettings< double > >(
-                boost::assign::list_of( "Asterix" ), massRateModels, initialMass,
+                std::vector< std::string >{ "Asterix" }, massRateModels, initialMass,
                 std::make_shared< PropagationTimeTerminationSettings >( simulationEndEpoch ) );
 
     // Create total propagator settings, depending on current case.

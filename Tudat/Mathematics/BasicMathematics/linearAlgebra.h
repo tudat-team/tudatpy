@@ -49,8 +49,13 @@ Eigen::Quaterniond getQuaternionFromVectorFormat( const Eigen::Vector4d& vector 
 //! Function to put a vector in 'quaternion format', i.e. a Quaterniond.
 /*!
  * Function to put a vector in 'quaternion format', i.e. a Quaterniond.
+<<<<<<< HEAD
  * \param vector format of input quaternion.
  * \return quaternion Quaternion that is to be put into vector format.
+=======
+ * \param vector Vector format of input quaternion.
+ * \return Quaternion that is to be put into vector format.
+>>>>>>> C++11Features
  */
 Eigen::Quaterniond convertVectorToQuaternionFormat( const Eigen::Vector4d& vector );
 

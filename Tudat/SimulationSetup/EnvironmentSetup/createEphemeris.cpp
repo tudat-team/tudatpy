@@ -226,9 +226,9 @@ std::shared_ptr< ephemerides::Ephemeris > createBodyEphemeris(
             {
                 // Create ephemeris
                 ephemeris = std::make_shared< ConstantEphemeris >(
-                            [=](){ return constantEphemerisSettings->getConstantState( ); },
-                constantEphemerisSettings->getFrameOrigin( ),
-                constantEphemerisSettings->getFrameOrientation( ) );
+                            [ = ]( ){ return constantEphemerisSettings->getConstantState( ); },
+                            constantEphemerisSettings->getFrameOrigin( ),
+                            constantEphemerisSettings->getFrameOrientation( ) );
             }
             break;
         }
