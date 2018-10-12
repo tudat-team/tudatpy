@@ -15,8 +15,8 @@
 #include <map>
 #include <string>
 
-#include <boost/shared_ptr.hpp>
-#include <boost/function.hpp>
+#include <memory>
+#include <functional>
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/massRateModel.h"
 #include "Tudat/Astrodynamics/Propagators/singleStateTypeDerivative.h"
@@ -47,13 +47,13 @@ public:
      * mass).
      */
     BodyMassStateDerivative(
-            const std::map< std::string, boost::shared_ptr< basic_astrodynamics::MassRateModel > >& massRateModels,
+            const std::map< std::string, std::shared_ptr< basic_astrodynamics::MassRateModel > >& massRateModels,
             const std::vector< std::string >& bodiesToIntegrate ):
         propagators::SingleStateTypeDerivative< StateScalarType, TimeType >(
             propagators::body_mass_state ),
         bodiesToIntegrate_( bodiesToIntegrate )
     {
-        for( std::map< std::string, boost::shared_ptr< basic_astrodynamics::MassRateModel > >::const_iterator modelIterator
+        for( std::map< std::string, std::shared_ptr< basic_astrodynamics::MassRateModel > >::const_iterator modelIterator
              = massRateModels.begin( ); modelIterator != massRateModels.end( ); modelIterator++ )
         {
            massRateModels_[ modelIterator->first ].push_back( modelIterator->second );
@@ -69,7 +69,7 @@ public:
      * mass).
      */
     BodyMassStateDerivative(
-            const std::map< std::string, std::vector< boost::shared_ptr< basic_astrodynamics::MassRateModel > > >&
+            const std::map< std::string, std::vector< std::shared_ptr< basic_astrodynamics::MassRateModel > > >&
             massRateModels,
             const std::vector< std::string >& bodiesToIntegrate ):
         propagators::SingleStateTypeDerivative< StateScalarType, TimeType >(
@@ -240,10 +240,10 @@ public:
 private:
 
     //! Map of models per body that are to be used for the mass rate computation.
-    std::map< std::string, std::vector< boost::shared_ptr< basic_astrodynamics::MassRateModel > > > massRateModels_;
+    std::map< std::string, std::vector< std::shared_ptr< basic_astrodynamics::MassRateModel > > > massRateModels_;
 
     //! Predefined iterator to save (de-)allocation time.
-    std::map< std::string, std::vector< boost::shared_ptr< basic_astrodynamics::MassRateModel > > >::const_iterator massRateModelIterator_;
+    std::map< std::string, std::vector< std::shared_ptr< basic_astrodynamics::MassRateModel > > >::const_iterator massRateModelIterator_;
 
     //! List of bodies for which the mass is to be propagated.
     /*!

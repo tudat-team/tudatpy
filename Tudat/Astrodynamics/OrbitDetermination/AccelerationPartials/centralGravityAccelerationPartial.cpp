@@ -59,13 +59,13 @@ Eigen::Vector3d computePartialOfCentralGravityWrtGravitationalParameter( const E
 
 //! Constructor
 CentralGravitationPartial::CentralGravitationPartial(
-        const boost::shared_ptr< gravitation::CentralGravitationalAccelerationModel3d > gravitationalAcceleration,
+        const std::shared_ptr< gravitation::CentralGravitationalAccelerationModel3d > gravitationalAcceleration,
         const std::string acceleratedBody,
         const std::string acceleratingBody ):
     AccelerationPartial( acceleratedBody, acceleratingBody, basic_astrodynamics::central_gravity )
 {
     accelerationUpdateFunction_ =
-            boost::bind( &basic_astrodynamics::AccelerationModel< Eigen::Vector3d>::updateMembers, gravitationalAcceleration, _1 );
+            std::bind( &basic_astrodynamics::AccelerationModel< Eigen::Vector3d>::updateMembers, gravitationalAcceleration, std::placeholders::_1 );
 
     gravitationalParameterFunction_ = gravitationalAcceleration->getGravitationalParameterFunction( );
     centralBodyState_ = gravitationalAcceleration->getStateFunctionOfBodyExertingAcceleration( );
@@ -74,12 +74,12 @@ CentralGravitationPartial::CentralGravitationPartial(
 }
 
 //! Function for setting up and retrieving a function returning a partial w.r.t. a double parameter.
-std::pair< boost::function< void( Eigen::MatrixXd& ) >, int >
+std::pair< std::function< void( Eigen::MatrixXd& ) >, int >
 CentralGravitationPartial::getParameterPartialFunction(
-        boost::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter )
+        std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter )
 
 {
-    std::pair< boost::function< void( Eigen::MatrixXd& ) >, int > partialFunctionPair;
+    std::pair< std::function< void( Eigen::MatrixXd& ) >, int > partialFunctionPair;
 
     // Check dependencies.
     if( parameter->getParameterName( ).first ==  estimatable_parameters::gravitational_parameter )
@@ -89,18 +89,18 @@ CentralGravitationPartial::getParameterPartialFunction(
     }
     else
     {
-        partialFunctionPair = std::make_pair( boost::function< void( Eigen::MatrixXd& ) >( ), 0 );
+        partialFunctionPair = std::make_pair( std::function< void( Eigen::MatrixXd& ) >( ), 0 );
     }
 
     return partialFunctionPair;
 }
 
 //! Function to create a function returning the current partial w.r.t. a gravitational parameter.
-std::pair< boost::function< void( Eigen::MatrixXd& ) >, int >
+std::pair< std::function< void( Eigen::MatrixXd& ) >, int >
 CentralGravitationPartial::getGravitationalParameterPartialFunction(
         const estimatable_parameters::EstimatebleParameterIdentifier& parameterId )
 {
-    boost::function< void( Eigen::MatrixXd& ) > partialFunction;
+    std::function< void( Eigen::MatrixXd& ) > partialFunction;
     int numberOfColumns = 0;
 
     // Check if parameter is gravitational parameter.
@@ -109,8 +109,8 @@ CentralGravitationPartial::getGravitationalParameterPartialFunction(
         // Check if parameter body is central body.
         if( parameterId.second.first == acceleratingBody_ )
         {
-            partialFunction = boost::bind( &CentralGravitationPartial::wrtGravitationalParameterOfCentralBody,
-                                           this, _1 );
+            partialFunction = std::bind( &CentralGravitationPartial::wrtGravitationalParameterOfCentralBody,
+                                           this, std::placeholders::_1 );
             numberOfColumns = 1;
 
         }
@@ -120,8 +120,8 @@ CentralGravitationPartial::getGravitationalParameterPartialFunction(
         {
             if( accelerationUsesMutualAttraction_ )
             {
-                partialFunction = boost::bind( &CentralGravitationPartial::wrtGravitationalParameterOfCentralBody,
-                                               this, _1 );
+                partialFunction = std::bind( &CentralGravitationPartial::wrtGravitationalParameterOfCentralBody,
+                                               this, std::placeholders::_1 );
                 numberOfColumns = 1;
             }
         }

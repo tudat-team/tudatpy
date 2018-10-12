@@ -28,39 +28,39 @@ namespace simulation_setup
 {
 
 //! Function to create an atmospheric flight conditions object
-boost::shared_ptr< aerodynamics::AtmosphericFlightConditions > createAtmosphericFlightConditions(
-        const boost::shared_ptr< Body > bodyWithFlightConditions,
-        const boost::shared_ptr< Body > centralBody,
+std::shared_ptr< aerodynamics::AtmosphericFlightConditions > createAtmosphericFlightConditions(
+        const std::shared_ptr< Body > bodyWithFlightConditions,
+        const std::shared_ptr< Body > centralBody,
         const std::string& nameOfBodyUndergoingAcceleration,
         const std::string& nameOfBodyExertingAcceleration,
-        const boost::function< double( ) > angleOfAttackFunction,
-        const boost::function< double( ) > angleOfSideslipFunction,
-        const boost::function< double( ) > bankAngleFunction,
-        const boost::function< void( const double ) > angleUpdateFunction )
+        const std::function< double( ) > angleOfAttackFunction,
+        const std::function< double( ) > angleOfSideslipFunction,
+        const std::function< double( ) > bankAngleFunction,
+        const std::function< void( const double ) > angleUpdateFunction )
 {
     // Check whether all required environment models are set.
-    if( centralBody->getAtmosphereModel( ) == NULL )
+    if( centralBody->getAtmosphereModel( ) == nullptr )
     {
         throw std::runtime_error(
                     "Error when making flight conditions, body " + nameOfBodyExertingAcceleration +
                     " has no atmosphere model." );
     }
 
-    if( centralBody->getShapeModel( ) == NULL )
+    if( centralBody->getShapeModel( ) == nullptr )
     {
         throw std::runtime_error(
                     "Error when making flight conditions, body " + nameOfBodyExertingAcceleration +
                     " has no shape model." );
     }
 
-    if( centralBody->getRotationalEphemeris( ) == NULL )
+    if( centralBody->getRotationalEphemeris( ) == nullptr )
     {
         throw std::runtime_error(
                     "Error when making flight conditions, body " + nameOfBodyExertingAcceleration +
                     " has no rotation model." );
     }
 
-    if( bodyWithFlightConditions->getAerodynamicCoefficientInterface( ) == NULL )
+    if( bodyWithFlightConditions->getAerodynamicCoefficientInterface( ) == nullptr )
     {
         throw std::runtime_error(
                     "Error when making flight conditions, body " + nameOfBodyUndergoingAcceleration +
@@ -69,32 +69,32 @@ boost::shared_ptr< aerodynamics::AtmosphericFlightConditions > createAtmospheric
 
 
     // Create function to rotate state from intertial to body-fixed frame.
-    boost::function< Eigen::Quaterniond( ) > rotationToFrameFunction =
-            boost::bind( &Body::getCurrentRotationToLocalFrame, centralBody );
-    boost::function< Eigen::Matrix3d( ) > rotationMatrixToFrameDerivativeFunction =
-            boost::bind( &Body::getCurrentRotationMatrixDerivativeToLocalFrame, centralBody );
+    std::function< Eigen::Quaterniond( ) > rotationToFrameFunction =
+            std::bind( &Body::getCurrentRotationToLocalFrame, centralBody );
+    std::function< Eigen::Matrix3d( ) > rotationMatrixToFrameDerivativeFunction =
+            std::bind( &Body::getCurrentRotationMatrixDerivativeToLocalFrame, centralBody );
 
-    boost::function< Eigen::Matrix< double, 6, 1 >( ) > bodyStateFunction = boost::bind( &Body::getState, bodyWithFlightConditions );
-    boost::function< Eigen::Matrix< double, 6, 1 >( ) > centralBodyStateFunction = boost::bind( &Body::getState, centralBody );
+    std::function< Eigen::Matrix< double, 6, 1 >( ) > bodyStateFunction = std::bind( &Body::getState, bodyWithFlightConditions );
+    std::function< Eigen::Matrix< double, 6, 1 >( ) > centralBodyStateFunction = std::bind( &Body::getState, centralBody );
 
-    boost::function< Eigen::Matrix< double, 6, 1 >( ) > relativeBodyFixedStateFunction =
-            boost::bind( &ephemerides::transformRelativeStateToFrame< double >,
+    std::function< Eigen::Matrix< double, 6, 1 >( ) > relativeBodyFixedStateFunction =
+            std::bind( &ephemerides::transformRelativeStateToFrame< double >,
                          bodyStateFunction, centralBodyStateFunction,
                          rotationToFrameFunction,
                          rotationMatrixToFrameDerivativeFunction );
 
     // Create aerodynamic angles calculator and set in flight conditions.
-    boost::shared_ptr< reference_frames::AerodynamicAngleCalculator > aerodynamicAngleCalculator =
-            boost::make_shared< reference_frames::AerodynamicAngleCalculator >(
+    std::shared_ptr< reference_frames::AerodynamicAngleCalculator > aerodynamicAngleCalculator =
+            std::make_shared< reference_frames::AerodynamicAngleCalculator >(
                 relativeBodyFixedStateFunction,
-                boost::bind( &simulation_setup::Body::getCurrentRotationToGlobalFrame, centralBody ),
+                std::bind( &simulation_setup::Body::getCurrentRotationToGlobalFrame, centralBody ),
                 nameOfBodyExertingAcceleration, 1,
                 angleOfAttackFunction, angleOfSideslipFunction, bankAngleFunction, angleUpdateFunction );
 
     // Add wind model if present
-    if( centralBody->getAtmosphereModel( )->getWindModel( ) != NULL )
+    if( centralBody->getAtmosphereModel( )->getWindModel( ) != nullptr )
     {
-        if( centralBody->getShapeModel( ) == NULL )
+        if( centralBody->getShapeModel( ) == nullptr )
         {
             std::cerr << "Warnning, body " << nameOfBodyExertingAcceleration << " has wind model, but no shape model, cannot compute wind as function of altitude " << std::endl;
         }
@@ -107,15 +107,15 @@ boost::shared_ptr< aerodynamics::AtmosphericFlightConditions > createAtmospheric
 
 
     // Create flight conditions.
-    boost::function< double( const std::string& )> controlSurfaceDeflectionFunction;
-    if( bodyWithFlightConditions->getVehicleSystems( ) != NULL )
+    std::function< double( const std::string& )> controlSurfaceDeflectionFunction;
+    if( bodyWithFlightConditions->getVehicleSystems( ) != nullptr )
     {
-        controlSurfaceDeflectionFunction = boost::bind(
+        controlSurfaceDeflectionFunction = std::bind(
                     &system_models::VehicleSystems::getCurrentControlSurfaceDeflection,
-                    bodyWithFlightConditions->getVehicleSystems( ), _1 );
+                    bodyWithFlightConditions->getVehicleSystems( ), std::placeholders::_1 );
     }
-    boost::shared_ptr< aerodynamics::AtmosphericFlightConditions > flightConditions =
-            boost::make_shared< aerodynamics::AtmosphericFlightConditions >(
+    std::shared_ptr< aerodynamics::AtmosphericFlightConditions > flightConditions =
+            std::make_shared< aerodynamics::AtmosphericFlightConditions >(
                 centralBody->getAtmosphereModel( ), centralBody->getShapeModel( ),
                 bodyWithFlightConditions->getAerodynamicCoefficientInterface( ), aerodynamicAngleCalculator,
                 controlSurfaceDeflectionFunction );
@@ -126,21 +126,21 @@ boost::shared_ptr< aerodynamics::AtmosphericFlightConditions > createAtmospheric
 }
 
 //! Function to create a flight conditions object
-boost::shared_ptr< aerodynamics::FlightConditions >  createFlightConditions(
-        const boost::shared_ptr< Body > bodyWithFlightConditions,
-        const boost::shared_ptr< Body > centralBody,
+std::shared_ptr< aerodynamics::FlightConditions >  createFlightConditions(
+        const std::shared_ptr< Body > bodyWithFlightConditions,
+        const std::shared_ptr< Body > centralBody,
         const std::string& nameOfBodyUndergoingAcceleration,
         const std::string& nameOfBodyExertingAcceleration )
 {
     // Check whether all required environment models are set.
-    if( centralBody->getShapeModel( ) == NULL )
+    if( centralBody->getShapeModel( ) == nullptr )
     {
         throw std::runtime_error(
                     "Error when making flight conditions, body " + nameOfBodyExertingAcceleration +
                     " has no shape model." );
     }
 
-    if( centralBody->getRotationalEphemeris( ) == NULL )
+    if( centralBody->getRotationalEphemeris( ) == nullptr )
     {
         throw std::runtime_error(
                     "Error when making flight conditions, body " + nameOfBodyExertingAcceleration +
@@ -148,94 +148,94 @@ boost::shared_ptr< aerodynamics::FlightConditions >  createFlightConditions(
     }
 
     // Create function to rotate state from intertial to body-fixed frame.
-    boost::function< Eigen::Quaterniond( ) > rotationToFrameFunction =
-            boost::bind( &Body::getCurrentRotationToLocalFrame, centralBody );
-    boost::function< Eigen::Matrix3d( ) > rotationMatrixToFrameDerivativeFunction =
-            boost::bind( &Body::getCurrentRotationMatrixDerivativeToLocalFrame, centralBody );
+    std::function< Eigen::Quaterniond( ) > rotationToFrameFunction =
+            std::bind( &Body::getCurrentRotationToLocalFrame, centralBody );
+    std::function< Eigen::Matrix3d( ) > rotationMatrixToFrameDerivativeFunction =
+            std::bind( &Body::getCurrentRotationMatrixDerivativeToLocalFrame, centralBody );
 
-    boost::function< Eigen::Matrix< double, 6, 1 >( ) > bodyStateFunction = boost::bind( &Body::getState, bodyWithFlightConditions );
-    boost::function< Eigen::Matrix< double, 6, 1 >( ) > centralBodyStateFunction = boost::bind( &Body::getState, centralBody );
+    std::function< Eigen::Matrix< double, 6, 1 >( ) > bodyStateFunction = std::bind( &Body::getState, bodyWithFlightConditions );
+    std::function< Eigen::Matrix< double, 6, 1 >( ) > centralBodyStateFunction = std::bind( &Body::getState, centralBody );
 
-    boost::function< Eigen::Matrix< double, 6, 1 >( ) > relativeBodyFixedStateFunction =
-            boost::bind( &ephemerides::transformRelativeStateToFrame< double >,
+    std::function< Eigen::Matrix< double, 6, 1 >( ) > relativeBodyFixedStateFunction =
+            std::bind( &ephemerides::transformRelativeStateToFrame< double >,
                          bodyStateFunction, centralBodyStateFunction,
                          rotationToFrameFunction,
                          rotationMatrixToFrameDerivativeFunction );
 
     // Create aerodynamic angles calculator and set in flight conditions.
-    boost::shared_ptr< reference_frames::AerodynamicAngleCalculator > aerodynamicAngleCalculator =
-            boost::make_shared< reference_frames::AerodynamicAngleCalculator >(
+    std::shared_ptr< reference_frames::AerodynamicAngleCalculator > aerodynamicAngleCalculator =
+            std::make_shared< reference_frames::AerodynamicAngleCalculator >(
                 relativeBodyFixedStateFunction,
-                boost::bind( &simulation_setup::Body::getCurrentRotationToGlobalFrame, centralBody ),
+                std::bind( &simulation_setup::Body::getCurrentRotationToGlobalFrame, centralBody ),
                 nameOfBodyExertingAcceleration, 1 );
 
-    return boost::make_shared< aerodynamics::FlightConditions >(
+    return std::make_shared< aerodynamics::FlightConditions >(
                 centralBody->getShapeModel( ), aerodynamicAngleCalculator );
 
 }
 
 
 //! Function to set the angle of attack to trimmed conditions.
-boost::shared_ptr< aerodynamics::TrimOrientationCalculator > setTrimmedConditions(
-        const boost::shared_ptr< aerodynamics::AtmosphericFlightConditions > flightConditions )
+std::shared_ptr< aerodynamics::TrimOrientationCalculator > setTrimmedConditions(
+        const std::shared_ptr< aerodynamics::AtmosphericFlightConditions > flightConditions )
 {
     // Create trim object.
-    boost::shared_ptr< aerodynamics::TrimOrientationCalculator > trimOrientation =
-            boost::make_shared< aerodynamics::TrimOrientationCalculator >(
+    std::shared_ptr< aerodynamics::TrimOrientationCalculator > trimOrientation =
+            std::make_shared< aerodynamics::TrimOrientationCalculator >(
                 flightConditions->getAerodynamicCoefficientInterface( ) );
 
     // Create angle-of-attack function from trim object.
-    boost::function< std::vector< double >( ) > untrimmedIndependentVariablesFunction =
-            boost::bind( &aerodynamics::AtmosphericFlightConditions::getAerodynamicCoefficientIndependentVariables,
+    std::function< std::vector< double >( ) > untrimmedIndependentVariablesFunction =
+            std::bind( &aerodynamics::AtmosphericFlightConditions::getAerodynamicCoefficientIndependentVariables,
                          flightConditions );
-    boost::function< std::map< std::string, std::vector< double > >( ) > untrimmedControlSurfaceIndependentVariableFunction =
-            boost::bind( &aerodynamics::AtmosphericFlightConditions::getControlSurfaceAerodynamicCoefficientIndependentVariables,
+    std::function< std::map< std::string, std::vector< double > >( ) > untrimmedControlSurfaceIndependentVariableFunction =
+            std::bind( &aerodynamics::AtmosphericFlightConditions::getControlSurfaceAerodynamicCoefficientIndependentVariables,
                          flightConditions );
 
     flightConditions->getAerodynamicAngleCalculator( )->setOrientationAngleFunctions(
-                boost::bind( &aerodynamics::TrimOrientationCalculator::findTrimAngleOfAttackFromFunction, trimOrientation,
+                std::bind( &aerodynamics::TrimOrientationCalculator::findTrimAngleOfAttackFromFunction, trimOrientation,
                              untrimmedIndependentVariablesFunction, untrimmedControlSurfaceIndependentVariableFunction ) );
 
     return trimOrientation;
 }
 
 //! Function to set the angle of attack to trimmed conditions.
-boost::shared_ptr< aerodynamics::TrimOrientationCalculator > setTrimmedConditions(
-        const boost::shared_ptr< Body > bodyWithFlightConditions )
+std::shared_ptr< aerodynamics::TrimOrientationCalculator > setTrimmedConditions(
+        const std::shared_ptr< Body > bodyWithFlightConditions )
 {
-    if( boost::dynamic_pointer_cast< aerodynamics::AtmosphericFlightConditions >(
-                bodyWithFlightConditions->getFlightConditions( ) ) == NULL )
+    if( std::dynamic_pointer_cast< aerodynamics::AtmosphericFlightConditions >(
+                bodyWithFlightConditions->getFlightConditions( ) ) == nullptr )
     {
         throw std::runtime_error( "Error, body does not have FlightConditions when setting trim conditions." );
     }
 
-    return setTrimmedConditions( boost::dynamic_pointer_cast< aerodynamics::AtmosphericFlightConditions >(
+    return setTrimmedConditions( std::dynamic_pointer_cast< aerodynamics::AtmosphericFlightConditions >(
                                      bodyWithFlightConditions->getFlightConditions( ) ));
 }
 
 //! Function that must be called to link the AerodynamicGuidance object to the simulation
 void setGuidanceAnglesFunctions(
-        const boost::shared_ptr< aerodynamics::AerodynamicGuidance > aerodynamicGuidance,
-        const boost::shared_ptr< reference_frames::AerodynamicAngleCalculator > angleCalculator )
+        const std::shared_ptr< aerodynamics::AerodynamicGuidance > aerodynamicGuidance,
+        const std::shared_ptr< reference_frames::AerodynamicAngleCalculator > angleCalculator )
 {
     angleCalculator->setOrientationAngleFunctions(
-                boost::bind( &aerodynamics::AerodynamicGuidance::getCurrentAngleOfAttack, aerodynamicGuidance ),
-                boost::bind( &aerodynamics::AerodynamicGuidance::getCurrentAngleOfSideslip, aerodynamicGuidance ),
-                boost::bind( &aerodynamics::AerodynamicGuidance::getCurrentBankAngle, aerodynamicGuidance ),
-                boost::bind( &aerodynamics::AerodynamicGuidance::updateGuidance, aerodynamicGuidance, _1 ) );
+                std::bind( &aerodynamics::AerodynamicGuidance::getCurrentAngleOfAttack, aerodynamicGuidance ),
+                std::bind( &aerodynamics::AerodynamicGuidance::getCurrentAngleOfSideslip, aerodynamicGuidance ),
+                std::bind( &aerodynamics::AerodynamicGuidance::getCurrentBankAngle, aerodynamicGuidance ),
+                std::bind( &aerodynamics::AerodynamicGuidance::updateGuidance, aerodynamicGuidance, std::placeholders::_1 ) );
 }
 
 //! Function that must be called to link the AerodynamicGuidance object to the simulation
 void setGuidanceAnglesFunctions(
-        const boost::shared_ptr< aerodynamics::AerodynamicGuidance > aerodynamicGuidance,
-        const boost::shared_ptr< simulation_setup::Body > bodyWithAngles )
+        const std::shared_ptr< aerodynamics::AerodynamicGuidance > aerodynamicGuidance,
+        const std::shared_ptr< simulation_setup::Body > bodyWithAngles )
 {
-    boost::shared_ptr< reference_frames::DependentOrientationCalculator >  orientationCalculator =
+    std::shared_ptr< reference_frames::DependentOrientationCalculator >  orientationCalculator =
             bodyWithAngles->getDependentOrientationCalculator( );
-    boost::shared_ptr< reference_frames::AerodynamicAngleCalculator > angleCalculator =
-            boost::dynamic_pointer_cast< reference_frames::AerodynamicAngleCalculator >( orientationCalculator );
+    std::shared_ptr< reference_frames::AerodynamicAngleCalculator > angleCalculator =
+            std::dynamic_pointer_cast< reference_frames::AerodynamicAngleCalculator >( orientationCalculator );
 
-    if( angleCalculator == NULL )
+    if( angleCalculator == nullptr )
     {
         throw std::runtime_error( "Error, body does not have AerodynamicAngleCalculator when setting aerodynamic guidance" );
     }

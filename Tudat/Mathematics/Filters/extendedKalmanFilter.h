@@ -78,7 +78,7 @@ public:
                           const IndependentVariableType initialTime,
                           const DependentVector& initialStateVector,
                           const DependentMatrix& initialCovarianceMatrix,
-                          const boost::shared_ptr< IntegratorSettings > integratorSettings = nullptr ) :
+                          const std::shared_ptr< IntegratorSettings > integratorSettings = nullptr ) :
         KalmanFilterBase< IndependentVariableType, DependentVariableType >( systemUncertainty, measurementUncertainty,
                                                                             filteringStepSize, initialTime, initialStateVector,
                                                                             initialCovarianceMatrix, integratorSettings ),
@@ -89,8 +89,9 @@ public:
         // Compute the discrete-time version of the system Jacobians
         if ( this->isStateToBeIntegrated_ )
         {
-            discreteTimeStateJacobians_ = boost::bind( &ExtendedKalmanFilter< IndependentVariableType,
-                                                       DependentVariableType >::generateDiscreteTimeSystemJacobians, this, _1 );
+            discreteTimeStateJacobians_ = std::bind( &ExtendedKalmanFilter< IndependentVariableType,
+                                                     DependentVariableType >::generateDiscreteTimeSystemJacobians, this,
+                                                     std::placeholders::_1 );
         }
     }
 
@@ -148,7 +149,7 @@ private:
     //! Function to create the function that defines the system model.
     /*!
      *  Function to create the function that defines the system model. The output of this function is then bound
-     *  to the systemFunction_ variable, via the boost::bind command.
+     *  to the systemFunction_ variable, via the std::bind command.
      *  \param currentTime Scalar representing the current time.
      *  \param currentStateVector Vector representing the current state.
      *  \return Vector representing the estimated state.
@@ -162,7 +163,7 @@ private:
     //! Function to create the function that defines the system model.
     /*!
      *  Function to create the function that defines the system model. The output of this function is then bound
-     *  to the measurementFunction_ variable, via the boost::bind command.
+     *  to the measurementFunction_ variable, via the std::bind command.
      *  \param currentTime Scalar representing the current time.
      *  \param currentStateVector Vector representing the current state.
      *  \return Vector representing the estimated measurement.
@@ -244,7 +245,7 @@ private:
      *  state itself and the state noise. Transformation to discrete-time is done with the function
      *  generateDiscreteTimeSystemJacobians.
      */
-    boost::function< std::pair< DependentMatrix, DependentMatrix >( const DependentVector& ) > discreteTimeStateJacobians_;
+    std::function< std::pair< DependentMatrix, DependentMatrix >( const DependentVector& ) > discreteTimeStateJacobians_;
 
 };
 
@@ -252,7 +253,7 @@ private:
 typedef ExtendedKalmanFilter< > ExtendedKalmanFilterDouble;
 
 //! Typedef for a shared-pointer to a filter with double data type.
-typedef boost::shared_ptr< ExtendedKalmanFilterDouble > ExtendedKalmanFilterDoublePointer;
+typedef std::shared_ptr< ExtendedKalmanFilterDouble > ExtendedKalmanFilterDoublePointer;
 
 } // namespace filters
 

@@ -65,7 +65,7 @@ public:
      * \param massRateFunction Function returning the mass rate as a function of time.
      */
     CustomMassRateModelSettings(
-            const boost::function< double( const double ) > massRateFunction ):
+            const std::function< double( const double ) > massRateFunction ):
         MassRateModelSettings( basic_astrodynamics::custom_mass_rate_model ),
     massRateFunction_( massRateFunction ){ }
 
@@ -73,7 +73,7 @@ public:
     ~CustomMassRateModelSettings( ){ }
 
     //! Function returning the mass rate as a function of time.
-    boost::function< double( const double ) > massRateFunction_;
+    std::function< double( const double ) > massRateFunction_;
 
 };
 
@@ -109,7 +109,7 @@ public:
 };
 
 
-typedef std::map< std::string, std::vector< boost::shared_ptr< MassRateModelSettings > > > SelectedMassRateModelMap;
+typedef std::map< std::string, std::vector< std::shared_ptr< MassRateModelSettings > > > SelectedMassRateModelMap;
 
 
 //! Function to create a mass rate model
@@ -121,9 +121,9 @@ typedef std::map< std::string, std::vector< boost::shared_ptr< MassRateModelSett
  * \param accelerationModels List of acceleration models that are used during numerical propagation (empty by default).
  * \return Mass rate model that is to be used during numerical propagation.
  */
-boost::shared_ptr< basic_astrodynamics::MassRateModel > createMassRateModel(
+std::shared_ptr< basic_astrodynamics::MassRateModel > createMassRateModel(
         const std::string& bodyWithMassRate,
-        const boost::shared_ptr< MassRateModelSettings > massRateModelSettings,
+        const std::shared_ptr< MassRateModelSettings > massRateModelSettings,
         const NamedBodyMap& bodyMap,
         const basic_astrodynamics::AccelerationMap& accelerationModels = basic_astrodynamics::AccelerationMap( ) );
 
@@ -134,7 +134,6 @@ boost::shared_ptr< basic_astrodynamics::MassRateModel > createMassRateModel(
  * environment models.
  * \param bodyMap List of pointers to body objects; defines the full simulation environment.
  * \param massRateModelSettings Settings for the mass rate models that are to be created (key is body id).
- * \param bodyMap List of pointers to body objects; defines the full simulation environment.
  * \param accelerationModels List of acceleration models that are used during numerical propagation (empty by default).
  * \return Mass rate models that are to be used during numerical propagation (key is body id)..
  */

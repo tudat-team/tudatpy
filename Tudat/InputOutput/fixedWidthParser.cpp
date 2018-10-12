@@ -113,7 +113,7 @@ void FixedWidthParser::parseLine( std::string& line )
         FieldType type ( typeList.at( currentFieldNumber ) );
 
         // Define unit transformer
-        boost::shared_ptr< FieldTransform > transformer;
+        std::shared_ptr< FieldTransform > transformer;
 
         // If type corresponds to one of the entries of the unit transformation map
         if ( unitTransformationMap_.find( type ) != unitTransformationMap_.end( ) )
@@ -125,7 +125,7 @@ void FixedWidthParser::parseLine( std::string& line )
         else
         {
             // Else, do nothing.
-            transformer = boost::shared_ptr< FieldTransform >( );
+            transformer = std::shared_ptr< FieldTransform >( );
         }
 
         // Store the resulting string.

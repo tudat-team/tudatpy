@@ -50,7 +50,7 @@ public:
      *      interpolation.
      *  \param boundaryHandling Boundary handling method, in case the independent variable is outside the
      *      specified range.
-     *  \param defaultExtrapolationValue Pairs of default values to be used for extrapolation, in case
+     *  \param defaultExtrapolationValue Pair of default values to be used for extrapolation, in case
      *      of use_default_value or use_default_value_with_warning as methods for boundaryHandling.
      */
     PiecewiseConstantInterpolator( const std::vector< IndependentVariableType > independentVariables,
@@ -58,8 +58,8 @@ public:
                                    const AvailableLookupScheme selectedLookupScheme = huntingAlgorithm,
                                    const BoundaryInterpolationType boundaryHandling = extrapolate_at_boundary,
                                    const std::pair< DependentVariableType, DependentVariableType >& defaultExtrapolationValue =
-            std::make_pair( IdentityElement< DependentVariableType >::getAdditionIdentity( ),
-                            IdentityElement< DependentVariableType >::getAdditionIdentity( ) ) ):
+            std::make_pair( IdentityElement::getAdditionIdentity< DependentVariableType >( ),
+                            IdentityElement::getAdditionIdentity< DependentVariableType >( ) ) ):
         OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >( boundaryHandling,
                                                                                       defaultExtrapolationValue )
     {
@@ -87,15 +87,15 @@ public:
      *      interpolation.
      *  \param boundaryHandling Boundary handling method, in case the independent variable is outside the
      *      specified range.
-     *  \param defaultExtrapolationValue Pairs of default values to be used for extrapolation, in case
+     *  \param defaultExtrapolationValue Pair of default values to be used for extrapolation, in case
      *      of use_default_value or use_default_value_with_warning as methods for boundaryHandling.
      */
     PiecewiseConstantInterpolator( const std::map< IndependentVariableType, DependentVariableType > dataMap,
                                    const AvailableLookupScheme selectedLookupScheme = huntingAlgorithm,
                                    const BoundaryInterpolationType boundaryHandling = extrapolate_at_boundary,
                                    const std::pair< DependentVariableType, DependentVariableType >& defaultExtrapolationValue =
-            std::make_pair( IdentityElement< DependentVariableType >::getAdditionIdentity( ),
-                            IdentityElement< DependentVariableType >::getAdditionIdentity( ) ) ):
+            std::make_pair( IdentityElement::getAdditionIdentity< DependentVariableType >( ),
+                            IdentityElement::getAdditionIdentity< DependentVariableType >( ) ) ):
         OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >( boundaryHandling,
                                                                                       defaultExtrapolationValue )
     {

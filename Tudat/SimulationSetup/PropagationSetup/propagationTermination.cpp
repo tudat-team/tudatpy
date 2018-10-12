@@ -114,12 +114,12 @@ bool HybridPropagationTerminationCondition::checkStopCondition( const double tim
 
 
 //! Function to create propagation termination conditions from associated settings
-boost::shared_ptr< PropagationTerminationCondition > createPropagationTerminationConditions(
-        const boost::shared_ptr< PropagationTerminationSettings > terminationSettings,
+std::shared_ptr< PropagationTerminationCondition > createPropagationTerminationConditions(
+        const std::shared_ptr< PropagationTerminationSettings > terminationSettings,
         const simulation_setup::NamedBodyMap& bodyMap,
         const double initialTimeStep )
 {
-    boost::shared_ptr< PropagationTerminationCondition > propagationTerminationCondition;
+    std::shared_ptr< PropagationTerminationCondition > propagationTerminationCondition;
 
     // Check termination type.
     switch( terminationSettings->terminationType_ )
@@ -127,9 +127,9 @@ boost::shared_ptr< PropagationTerminationCondition > createPropagationTerminatio
     case time_stopping_condition:
     {
         // Create stopping time termination condition.
-        boost::shared_ptr< PropagationTimeTerminationSettings > timeTerminationSettings =
-                boost::dynamic_pointer_cast< PropagationTimeTerminationSettings >( terminationSettings );
-        propagationTerminationCondition = boost::make_shared< FixedTimePropagationTerminationCondition >(
+        std::shared_ptr< PropagationTimeTerminationSettings > timeTerminationSettings =
+                std::dynamic_pointer_cast< PropagationTimeTerminationSettings >( terminationSettings );
+        propagationTerminationCondition = std::make_shared< FixedTimePropagationTerminationCondition >(
                     timeTerminationSettings->terminationTime_, ( initialTimeStep > 0 ),
                     timeTerminationSettings->terminateExactlyOnFinalCondition_ );
         break;
@@ -137,19 +137,19 @@ boost::shared_ptr< PropagationTerminationCondition > createPropagationTerminatio
     case cpu_time_stopping_condition:
     {
         // Create stopping time termination condition.
-        boost::shared_ptr< PropagationCPUTimeTerminationSettings > cpuTimeTerminationSettings =
-                boost::dynamic_pointer_cast< PropagationCPUTimeTerminationSettings >( terminationSettings );
-        propagationTerminationCondition = boost::make_shared< FixedCPUTimePropagationTerminationCondition >(
+        std::shared_ptr< PropagationCPUTimeTerminationSettings > cpuTimeTerminationSettings =
+                std::dynamic_pointer_cast< PropagationCPUTimeTerminationSettings >( terminationSettings );
+        propagationTerminationCondition = std::make_shared< FixedCPUTimePropagationTerminationCondition >(
                     cpuTimeTerminationSettings->cpuTerminationTime_ );
         break;
     }
     case dependent_variable_stopping_condition:
     {
-        boost::shared_ptr< PropagationDependentVariableTerminationSettings > dependentVariableTerminationSettings =
-                boost::dynamic_pointer_cast< PropagationDependentVariableTerminationSettings >( terminationSettings );
+        std::shared_ptr< PropagationDependentVariableTerminationSettings > dependentVariableTerminationSettings =
+                std::dynamic_pointer_cast< PropagationDependentVariableTerminationSettings >( terminationSettings );
 
         // Get dependent variable function
-        boost::function< double( ) > dependentVariableFunction;
+        std::function< double( ) > dependentVariableFunction;
         if( getDependentVariableSaveSize( dependentVariableTerminationSettings->dependentVariableSettings_ ) == 1 )
         {
             dependentVariableFunction =
@@ -162,7 +162,7 @@ boost::shared_ptr< PropagationTerminationCondition > createPropagationTerminatio
         }
 
         // Create dependent variable termination condition.
-        propagationTerminationCondition = boost::make_shared< SingleVariableLimitPropagationTerminationCondition >(
+        propagationTerminationCondition = std::make_shared< SingleVariableLimitPropagationTerminationCondition >(
                     dependentVariableTerminationSettings->dependentVariableSettings_,
                     dependentVariableFunction, dependentVariableTerminationSettings->limitValue_,
                     dependentVariableTerminationSettings->useAsLowerLimit_,
@@ -172,22 +172,22 @@ boost::shared_ptr< PropagationTerminationCondition > createPropagationTerminatio
     }
     case custom_stopping_condition:
     {
-        boost::shared_ptr< PropagationCustomTerminationSettings > customTerminationSettings =
-                boost::dynamic_pointer_cast< PropagationCustomTerminationSettings >( terminationSettings );
+        std::shared_ptr< PropagationCustomTerminationSettings > customTerminationSettings =
+                std::dynamic_pointer_cast< PropagationCustomTerminationSettings >( terminationSettings );
 
         // Create dependent variable termination condition.
-        propagationTerminationCondition = boost::make_shared< CustomTerminationCondition >(
+        propagationTerminationCondition = std::make_shared< CustomTerminationCondition >(
                     customTerminationSettings->checkStopCondition_,
                     customTerminationSettings->terminateExactlyOnFinalCondition_ );
         break;
     }
     case hybrid_stopping_condition:
     {
-        boost::shared_ptr< PropagationHybridTerminationSettings > hybridTerminationSettings =
-                boost::dynamic_pointer_cast< PropagationHybridTerminationSettings >( terminationSettings );
+        std::shared_ptr< PropagationHybridTerminationSettings > hybridTerminationSettings =
+                std::dynamic_pointer_cast< PropagationHybridTerminationSettings >( terminationSettings );
 
         // Recursively create termination condition list.
-        std::vector< boost::shared_ptr< PropagationTerminationCondition > > propagationTerminationConditionList;
+        std::vector< std::shared_ptr< PropagationTerminationCondition > > propagationTerminationConditionList;
         for( unsigned int i = 0; i < hybridTerminationSettings->terminationSettings_.size( ); i++ )
         {
             propagationTerminationConditionList.push_back(
@@ -195,7 +195,7 @@ boost::shared_ptr< PropagationTerminationCondition > createPropagationTerminatio
                             hybridTerminationSettings->terminationSettings_.at( i ),
                             bodyMap, initialTimeStep ) );
         }
-        propagationTerminationCondition = boost::make_shared< HybridPropagationTerminationCondition >(
+        propagationTerminationCondition = std::make_shared< HybridPropagationTerminationCondition >(
                     propagationTerminationConditionList, hybridTerminationSettings->fulfillSingleCondition_,
                     hybridTerminationSettings->terminateExactlyOnFinalCondition_ );
         break;

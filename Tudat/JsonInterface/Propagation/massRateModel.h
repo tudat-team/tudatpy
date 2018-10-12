@@ -55,10 +55,10 @@ namespace simulation_setup
 {
 
 //! Create a `json` object from a shared pointer to a `MassRateModelSettings` object.
-void to_json( nlohmann::json& jsonObject, const boost::shared_ptr< MassRateModelSettings >& massRateModelSettings );
+void to_json( nlohmann::json& jsonObject, const std::shared_ptr< MassRateModelSettings >& massRateModelSettings );
 
 //! Create a shared pointer to a `MassRateModelSettings` object from a `json` object.
-void from_json( const nlohmann::json& jsonObject, boost::shared_ptr< MassRateModelSettings >& massRateModelSettings );
+void from_json( const nlohmann::json& jsonObject, std::shared_ptr< MassRateModelSettings >& massRateModelSettings );
 
 } // namespace simulation_setup
 

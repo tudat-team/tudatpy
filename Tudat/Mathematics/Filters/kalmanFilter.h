@@ -50,8 +50,7 @@ public:
      *      a-priori estimate of the state vector.
      *  \param initialCovarianceMatrix Matrix representing the initial (estimated) covariance of the system. It is used as first
      *      a-priori estimate of the covariance matrix.
-     *  \param isStateToBeIntegrated Boolean defining whether the system function needs to be integrated.
-     *  \param integrator Pointer to integrator to be used to propagate state.
+     *  \param integratorSettings Settings for the numerical integrator to be used to propagate state.
      */
     KalmanFilterBase( const DependentMatrix& systemUncertainty,
                       const DependentMatrix& measurementUncertainty,
@@ -59,7 +58,7 @@ public:
                       const IndependentVariableType initialTime,
                       const DependentVector& initialStateVector,
                       const DependentMatrix& initialCovarianceMatrix,
-                      const boost::shared_ptr< IntegratorSettings > integratorSettings ) :
+                      const std::shared_ptr< IntegratorSettings > integratorSettings ) :
         FilterBase< IndependentVariableType, DependentVariableType >( systemUncertainty, measurementUncertainty,
                                                                       filteringStepSize, initialTime, initialStateVector,
                                                                       initialCovarianceMatrix, integratorSettings )
@@ -135,7 +134,7 @@ private:
 typedef KalmanFilterBase< > KalmanFilterDouble;
 
 //! Typedef for a shared-pointer to a filter with double data type.
-typedef boost::shared_ptr< KalmanFilterDouble > KalmanFilterDoublePointer;
+typedef std::shared_ptr< KalmanFilterDouble > KalmanFilterDoublePointer;
 
 } // namespace filters
 

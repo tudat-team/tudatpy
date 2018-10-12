@@ -262,8 +262,16 @@ else()
  endif( )
 endif()
 
-option(COMPILE_HIGH_ACCURACY_ESTIMATION_TESTS  "Compiling unit tests for state estimation. These may cause excessive (>3 GB)) RAM usage with gcc/mingw." ON)
-option(COMPILE_PROPAGATION_TESTS "Compiling unit tests involving long (> 30 s) propagations. Total unit test run time may be > 5-10 minutes." ON)
+option(BUILD_EXTENDED_PRECISION_PROPAGATION_TOOLS  "Compiling unit tests for state estimation. These may cause excessive (>3 GB)) RAM usage with gcc/mingw." ON)
+if(NOT BUILD_EXTENDED_PRECISION_PROPAGATION_TOOLS)
+ message(STATUS "Extended precision propagation disabled!")
+ add_definitions(-DBUILD_EXTENDED_PRECISION_PROPAGATION_TOOLS=0)
+else()
+    message(STATUS "Extended precision propagation enabled!")
+ add_definitions(-DBUILD_EXTENDED_PRECISION_PROPAGATION_TOOLS=1)
+endif()
+
+option(BUILD_PROPAGATION_TESTS "Compiling unit tests involving long (> 30 s) propagations. Total unit test run time may be > 5-10 minutes." ON)
 
 # Create lists of static libraries for ease of use
 list(APPEND TUDAT_EXTERNAL_LIBRARIES "")
@@ -294,19 +302,22 @@ if(USE_GSL)
 endif()
 
 
-list(APPEND TUDAT_PROPAGATION_LIBRARIES tudat_trajectory_design tudat_simulation_setup tudat_ground_stations tudat_propagators
+list(APPEND TUDAT_PROPAGATION_LIBRARIES tudat_trajectory_design tudat_propagation_setup tudat_environment_setup tudat_ground_stations tudat_propagators
     tudat_aerodynamics tudat_system_models tudat_geometric_shapes tudat_relativity tudat_gravitation tudat_mission_segments
     tudat_electro_magnetism tudat_propulsion tudat_ephemerides ${TUDAT_ITRS_LIBRARIES} tudat_numerical_integrators tudat_reference_frames
-    tudat_statistics tudat_propagators ${TUDAT_EXTERNAL_INTERFACE_LIBRARIES} tudat_basic_astrodynamics tudat_root_finders tudat_filters
+    tudat_statistics tudat_propagators ${TUDAT_EXTERNAL_INTERFACE_LIBRARIES} tudat_basic_astrodynamics tudat_interpolators tudat_root_finders tudat_filters
     tudat_basic_mathematics tudat_input_output tudat_basics ${TUDAT_EXTERNAL_LIBRARIES})
 
-list(APPEND TUDAT_ESTIMATION_LIBRARIES tudat_trajectory_design tudat_simulation_setup tudat_observation_models tudat_ground_stations tudat_acceleration_partials
-    tudat_observation_partials tudat_estimatable_parameters tudat_orbit_determination  tudat_propagators
+if( BUILD_WITH_ESTIMATION_TOOLS )
+
+list(APPEND TUDAT_ESTIMATION_LIBRARIES tudat_trajectory_design tudat_estimation_setup tudat_propagation_setup tudat_environment_setup  tudat_observation_models tudat_ground_stations tudat_acceleration_partials
+    tudat_observation_partials tudat_orbit_determination tudat_estimatable_parameters tudat_propagators
     tudat_aerodynamics tudat_system_models tudat_geometric_shapes tudat_relativity tudat_gravitation tudat_mission_segments
     tudat_electro_magnetism tudat_propulsion tudat_ephemerides ${TUDAT_ITRS_LIBRARIES} tudat_numerical_integrators tudat_reference_frames
-    tudat_statistics tudat_propagators ${TUDAT_EXTERNAL_INTERFACE_LIBRARIES} tudat_basic_astrodynamics tudat_root_finders tudat_filters
+    tudat_statistics tudat_propagators ${TUDAT_EXTERNAL_INTERFACE_LIBRARIES} tudat_basic_astrodynamics tudat_interpolators tudat_root_finders tudat_filters
     tudat_basic_mathematics tudat_input_output tudat_basics ${TUDAT_EXTERNAL_LIBRARIES})
 
+endif( )
 
 # Set sub-directories.
 set(SUBDIRS ${APPLICATIONSDIR} ${ASTRODYNAMICSDIR} ${BASICSDIR} ${INPUTOUTPUTDIR} ${MATHEMATICSDIR} ${EXTERNALDIR} ${SIMULATIONSETUPDIR})

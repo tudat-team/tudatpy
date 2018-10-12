@@ -21,10 +21,9 @@
 
 #include <vector>
 
-#include <boost/assign/list_of.hpp>
 #include <boost/bind.hpp>
 #include <boost/make_shared.hpp>
-#include <boost/shared_ptr.hpp>
+#include <memory>
 #include <boost/test/unit_test.hpp>
 #include <boost/test/floating_point_comparison.hpp>
 
@@ -44,7 +43,6 @@ namespace unit_tests
 
 using basic_astrodynamics::AccelerationModel;
 using basic_astrodynamics::updateAndGetAcceleration;
-using boost::assign::list_of;
 
 BOOST_AUTO_TEST_SUITE( test_accelerationModel )
 
@@ -56,19 +54,19 @@ BOOST_AUTO_TEST_CASE( test_derived3dAccelerationModel )
 
     // Shortcuts.
     typedef TestBody< 3, double > TestBody3d;
-    typedef boost::shared_ptr< TestBody3d > TestBody3dPointer;
+    typedef std::shared_ptr< TestBody3d > TestBody3dPointer;
     typedef DerivedAccelerationModel< > DerivedAccelerationModel3d;
 
     // Create body with initial state and time.
-    TestBody3dPointer body = boost::make_shared< TestBody3d >(
+    TestBody3dPointer body = std::make_shared< TestBody3d >(
                 ( Eigen::Vector6d( ) << 1.1, 2.2, 3.3, -0.1, 0.2, 0.3 ).finished( ), 2.0 );
 
     // Create acceleration model using DerivedAccelerationModel class, and pass pointers to
     // functions in body.
     AccelerationModel3dPointer accelerationModel3d
-            = boost::make_shared< DerivedAccelerationModel3d >(
-                boost::bind( &TestBody3d::getCurrentPosition, body ),
-                boost::bind( &TestBody3d::getCurrentTime, body ) );
+            = std::make_shared< DerivedAccelerationModel3d >(
+                std::bind( &TestBody3d::getCurrentPosition, body ),
+                std::bind( &TestBody3d::getCurrentTime, body ) );
 
     // Declare container of computed accelerations.
     std::vector< Eigen::Vector3d > computedAccelerations( 3 );
@@ -119,23 +117,23 @@ BOOST_AUTO_TEST_CASE( test_derived2fAccelerationModel )
 
     // Shortcuts.
     typedef TestBody< 2, float > TestBody2f;
-    typedef boost::shared_ptr< TestBody2f > TestBody2fPointer;
+    typedef std::shared_ptr< TestBody2f > TestBody2fPointer;
     typedef AccelerationModel< Eigen::Vector2f > AccelerationModel2f;
-    typedef boost::shared_ptr< AccelerationModel2f > AccelerationModel2fPointer;
+    typedef std::shared_ptr< AccelerationModel2f > AccelerationModel2fPointer;
     typedef AnotherDerivedAccelerationModel< Eigen::Vector2f, Eigen::Vector2f,
             Eigen::Vector2f, float > AnotherDerivedAccelerationModel2f;
 
     // Create body with initial state and time.
-    TestBody2fPointer body = boost::make_shared< TestBody2f >(
+    TestBody2fPointer body = std::make_shared< TestBody2f >(
                 ( Eigen::VectorXf( 4 ) << -0.3f, 4.5f, 0.1f, 0.2f ).finished( ), -2.3f );
 
     // Create acceleration model using AnotherDerivedAccelerationModel class, and pass pointers to
     // functions in body.
     AccelerationModel2fPointer accelerationModel2f
-            = boost::make_shared< AnotherDerivedAccelerationModel2f >(
-                boost::bind( &TestBody2f::getCurrentPosition, body ),
-                boost::bind( &TestBody2f::getCurrentVelocity, body ),
-                boost::bind( &TestBody2f::getCurrentTime, body ) );
+            = std::make_shared< AnotherDerivedAccelerationModel2f >(
+                std::bind( &TestBody2f::getCurrentPosition, body ),
+                std::bind( &TestBody2f::getCurrentVelocity, body ),
+                std::bind( &TestBody2f::getCurrentTime, body ) );
 
     // Declare container of computed accelerations.
     std::vector< Eigen::Vector2f > computedAccelerations( 3 );
@@ -187,20 +185,20 @@ BOOST_AUTO_TEST_CASE( test_derived1iAccelerationModel )
 {
     // Shortcuts.
     typedef TestBody< 1, int > TestBody1i;
-    typedef boost::shared_ptr< TestBody1i > TestBody1iPointer;
+    typedef std::shared_ptr< TestBody1i > TestBody1iPointer;
     typedef AccelerationModel< int > AccelerationModel1i;
-    typedef boost::shared_ptr< AccelerationModel1i > AccelerationModel1iPointer;
+    typedef std::shared_ptr< AccelerationModel1i > AccelerationModel1iPointer;
     typedef DerivedAccelerationModel< int, int, int > DerivedAccelerationModel1i;
 
     // Create body with initial state and time.
-    TestBody1iPointer body = boost::make_shared< TestBody1i >( Eigen::Vector2i( 20, 1 ), 2 );
+    TestBody1iPointer body = std::make_shared< TestBody1i >( Eigen::Vector2i( 20, 1 ), 2 );
 
     // Create acceleration model using DerivedAccelerationModel class, and pass pointers to
     // functions in body.
     AccelerationModel1iPointer accelerationModeli1
-            = boost::make_shared< DerivedAccelerationModel1i >(
-                boost::bind( ( &TestBody1i::getCurrentPosition ), body ),
-                boost::bind( ( &TestBody1i::getCurrentTime ), body ) );
+            = std::make_shared< DerivedAccelerationModel1i >(
+                std::bind( ( &TestBody1i::getCurrentPosition ), body ),
+                std::bind( ( &TestBody1i::getCurrentTime ), body ) );
 
     // Declare container of computed accelerations.
     std::vector< int > computedAccelerations( 3 );
@@ -224,8 +222,7 @@ BOOST_AUTO_TEST_CASE( test_derived1iAccelerationModel )
     computedAccelerations.at( 2 ) = updateAndGetAcceleration( accelerationModeli1 );
 
     // Set expected accelerations.
-    const std::vector< int > expectedAccelerations
-            = list_of( 20 / ( 2 * 2 ) )( 90 / ( -3 * -3 ) )( 16 / ( 4 * 4 ) );
+    const std::vector< int > expectedAccelerations = { 20 / ( 2 * 2 ), 90 / ( -3 * -3 ), 16 / ( 4 * 4 ) };
 
     // Check that the acceleration vectors before and after the update match expected values.
     for ( unsigned int i = 0; i < computedAccelerations.size( ); i++ )

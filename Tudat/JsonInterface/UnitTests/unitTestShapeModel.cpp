@@ -39,13 +39,13 @@ BOOST_AUTO_TEST_CASE( test_json_shapeModel_spherical )
     using namespace json_interface;
 
     // Create BodyShapeSettings from JSON file
-    const boost::shared_ptr< BodyShapeSettings > fromFileSettings =
-            parseJSONFile< boost::shared_ptr< BodyShapeSettings > >( INPUT( "spherical" ) );
+    const std::shared_ptr< BodyShapeSettings > fromFileSettings =
+            parseJSONFile< std::shared_ptr< BodyShapeSettings > >( INPUT( "spherical" ) );
 
     // Create BodyShapeSettings manually
     const double radius = 6.4e6;
-    const boost::shared_ptr< BodyShapeSettings > manualSettings =
-            boost::make_shared< SphericalBodyShapeSettings >( radius );
+    const std::shared_ptr< BodyShapeSettings > manualSettings =
+            std::make_shared< SphericalBodyShapeSettings >( radius );
 
     // Compare
     BOOST_CHECK_EQUAL_JSON( fromFileSettings, manualSettings );
@@ -58,12 +58,12 @@ BOOST_AUTO_TEST_CASE( test_json_shapeModel_sphericalSpice )
     using namespace json_interface;
 
     // Create BodyShapeSettings from JSON file
-    const boost::shared_ptr< BodyShapeSettings > fromFileSettings =
-            parseJSONFile< boost::shared_ptr< BodyShapeSettings > >( INPUT( "sphericalSpice" ) );
+    const std::shared_ptr< BodyShapeSettings > fromFileSettings =
+            parseJSONFile< std::shared_ptr< BodyShapeSettings > >( INPUT( "sphericalSpice" ) );
 
     // Create BodyShapeSettings manually
-    const boost::shared_ptr< BodyShapeSettings > manualSettings =
-            boost::make_shared< BodyShapeSettings >( spherical_spice );
+    const std::shared_ptr< BodyShapeSettings > manualSettings =
+            std::make_shared< BodyShapeSettings >( spherical_spice );
 
     // Compare
     BOOST_CHECK_EQUAL_JSON( fromFileSettings, manualSettings );
@@ -76,14 +76,14 @@ BOOST_AUTO_TEST_CASE( test_json_shapeModel_oblateSpherical )
     using namespace json_interface;
 
     // Create BodyShapeSettings from JSON file
-    const boost::shared_ptr< BodyShapeSettings > fromFileSettings =
-            parseJSONFile< boost::shared_ptr< BodyShapeSettings > >( INPUT( "oblateSpherical" ) );
+    const std::shared_ptr< BodyShapeSettings > fromFileSettings =
+            parseJSONFile< std::shared_ptr< BodyShapeSettings > >( INPUT( "oblateSpherical" ) );
 
     // Create BodyShapeSettings manually
     const double equatorialRadius = 6.378e6;
     const double flattening = 0.0034;
-    const boost::shared_ptr< BodyShapeSettings > manualSettings =
-            boost::make_shared< OblateSphericalBodyShapeSettings >( equatorialRadius,
+    const std::shared_ptr< BodyShapeSettings > manualSettings =
+            std::make_shared< OblateSphericalBodyShapeSettings >( equatorialRadius,
                                                                     flattening );
 
     // Compare

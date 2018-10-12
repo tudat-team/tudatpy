@@ -33,6 +33,7 @@ set(JSONINTERFACE_SOURCES
     "${SRCROOT}${JSONINTERFACEDIR}/Mathematics/interpolation.cpp"
     "${SRCROOT}${JSONINTERFACEDIR}/Propagation/export.cpp"
     "${SRCROOT}${JSONINTERFACEDIR}/Support/options.cpp"
+    "${SRCROOT}${JSONINTERFACEDIR}/jsonInterface.cpp"
 )
 
 # Set the header files.
@@ -86,7 +87,7 @@ endmacro()
 
 # Add JSON-based application.
 
-add_executable(json_interface "${SRCROOT}${JSONINTERFACEDIR}/jsonInterface.cpp")
+add_executable(json_interface "${SRCROOT}${JSONINTERFACEDIR}/jsonInterfaceExecute.cpp")
 setup_executable_target(json_interface)
 target_link_libraries(json_interface ${JSON_PROPAGATION_LIBRARIES})
 

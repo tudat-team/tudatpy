@@ -14,7 +14,7 @@
 #include <vector>
 #include <map>
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include <Eigen/Core>
 
@@ -44,7 +44,7 @@ namespace observation_partials
  *  \param bodyToEstimate Name of body wrt the position of which partials are to be created.
  *  \return Map of position partial objects, one entry for each link end corresponding to the bodyToEstimate.
  */
-std::map< observation_models::LinkEndType, boost::shared_ptr< CartesianStatePartial > > createCartesianStatePartialsWrtBodyState(
+std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartial > > createCartesianStatePartialsWrtBodyState(
         const observation_models::LinkEnds& linkEnds,
         const simulation_setup::NamedBodyMap& bodyMap,
         const std::string bodyToEstimate );
@@ -61,10 +61,10 @@ std::map< observation_models::LinkEndType, boost::shared_ptr< CartesianStatePart
  *  \param parameterToEstimate Parameter object wrt which partials are to be calculated.
  *  \return Map of position partial objects, one entry for each link end corresponding to the parameterToEstimate.
  */
-std::map< observation_models::LinkEndType, boost::shared_ptr< CartesianStatePartial > > createCartesianStatePartialsWrtParameter(
+std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartial > > createCartesianStatePartialsWrtParameter(
         const observation_models::LinkEnds linkEnds,
         const simulation_setup::NamedBodyMap& bodyMap,
-        const boost::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameterToEstimate );
+        const std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameterToEstimate );
 
 //! Function to return partial object(s) of position of reference point w.r.t. a (vector) parameter.
 /*!
@@ -78,10 +78,10 @@ std::map< observation_models::LinkEndType, boost::shared_ptr< CartesianStatePart
  *  \param parameterToEstimate Parameter object wrt which partials are to be calculated.
  *  \return Map of position partial objects, one entry for each link end corresponding to the parameterToEstimate.
  */
-std::map< observation_models::LinkEndType, boost::shared_ptr< CartesianStatePartial > > createCartesianStatePartialsWrtParameter(
+std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartial > > createCartesianStatePartialsWrtParameter(
         const observation_models::LinkEnds linkEnds,
         const simulation_setup::NamedBodyMap& bodyMap,
-        const boost::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameterToEstimate );
+        const std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameterToEstimate );
 
 //! Function to create partial object(s) of rotation matrix wrt a (double) parameter.
 /*!
@@ -90,9 +90,9 @@ std::map< observation_models::LinkEndType, boost::shared_ptr< CartesianStatePart
  *  \param parameterToEstimate Parameter wrt which rotation matrix partial object is to be created.
  *  \return Requested rotation matrix partial object.
  */
-boost::shared_ptr< RotationMatrixPartial > createRotationMatrixPartialsWrtParameter(
+std::shared_ptr< RotationMatrixPartial > createRotationMatrixPartialsWrtParameter(
         const simulation_setup::NamedBodyMap& bodyMap,
-        const boost::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameterToEstimate );
+        const std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameterToEstimate );
 
 //! Function to create partial object(s) of rotation matrix wrt a (vector) parameter.
 /*!
@@ -101,9 +101,9 @@ boost::shared_ptr< RotationMatrixPartial > createRotationMatrixPartialsWrtParame
  *  \param parameterToEstimate Parameter wrt which rotation matrix partial object is to be created.
  *  \return Requested rotation matrix partial object.
  */
-boost::shared_ptr< RotationMatrixPartial > createRotationMatrixPartialsWrtParameter(
+std::shared_ptr< RotationMatrixPartial > createRotationMatrixPartialsWrtParameter(
         const simulation_setup::NamedBodyMap& bodyMap,
-        const boost::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameterToEstimate );
+        const std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameterToEstimate );
 
 //! Function to create rotation matrix partial objects for all rotation model parameters of given body in given set of
 //! parameters.
@@ -119,23 +119,23 @@ boost::shared_ptr< RotationMatrixPartial > createRotationMatrixPartialsWrtParame
  */
 template< typename ParameterType >
 RotationMatrixPartialNamedList createRotationMatrixPartials(
-        const boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< ParameterType > > parametersToEstimate,
+        const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< ParameterType > > parametersToEstimate,
         const std::string& bodyName, const simulation_setup::NamedBodyMap& bodyMap )
 
 {
     // Declare map to return.
     std::map< std::pair< estimatable_parameters::EstimatebleParametersEnum, std::string >,
-            boost::shared_ptr< RotationMatrixPartial > >
+            std::shared_ptr< RotationMatrixPartial > >
             rotationMatrixPartials;
 
     // Retrieve double and vector parameters from total set of parameters.
-    std::map< int, boost::shared_ptr< estimatable_parameters::EstimatableParameter< double > > > doubleParameters =
+    std::map< int, std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > > doubleParameters =
             parametersToEstimate->getDoubleParameters( );
-    std::map< int, boost::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > > vectorParameters =
+    std::map< int, std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > > vectorParameters =
             parametersToEstimate->getVectorParameters( );
 
     // Iterate over double parameters.
-    for( std::map< int, boost::shared_ptr< estimatable_parameters::EstimatableParameter< double > > >::iterator
+    for( std::map< int, std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > >::iterator
          parameterIterator = doubleParameters.begin( ); parameterIterator != doubleParameters.end( ); parameterIterator++ )
     {
         // Check parameter is rotational property of requested body.
@@ -152,7 +152,7 @@ RotationMatrixPartialNamedList createRotationMatrixPartials(
     }
 
     // Iterate over vector parameters.
-    for( std::map< int, boost::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > >::iterator
+    for( std::map< int, std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > >::iterator
          parameterIterator = vectorParameters.begin( ); parameterIterator != vectorParameters.end( ); parameterIterator++ )
     {
         // Check parameter is rotational property of requested body.
@@ -173,7 +173,7 @@ RotationMatrixPartialNamedList createRotationMatrixPartials(
 
 //! Typedef of list of RotationMatrixPartial objects, ordered by parameter.
 typedef std::map< std::pair< estimatable_parameters::EstimatebleParametersEnum, std::string >,
-boost::shared_ptr< RotationMatrixPartial > > RotationMatrixPartialNamedList;
+std::shared_ptr< RotationMatrixPartial > > RotationMatrixPartialNamedList;
 
 //! Function to create an objects that computes the partial derivatives of a three-dimensional position observable w.r.t.
 //! the position of a body.
@@ -186,11 +186,11 @@ boost::shared_ptr< RotationMatrixPartial > > RotationMatrixPartialNamedList;
  *  \param positionObservableScaler Object that scales position partial to observable partial.
  *  \return Single object that computes partial of given observable w.r.t. given parameter.
  */
-boost::shared_ptr< PositionObervationPartial > createPositionObservablePartialWrtPosition(
+std::shared_ptr< PositionObervationPartial > createPositionObservablePartialWrtPosition(
         const observation_models::LinkEnds linkEnds,
         const simulation_setup::NamedBodyMap& bodyMap,
         const std::string bodyToEstimate,
-        const boost::shared_ptr< PositionObservationScaling > positionObservableScaler );
+        const std::shared_ptr< PositionObservationScaling > positionObservableScaler );
 
 //! Function to create a list of objects that compute the partial derivatives of a three-dimensional position observable.
 /*!
@@ -204,17 +204,17 @@ boost::shared_ptr< PositionObervationPartial > createPositionObservablePartialWr
  *  scaling object to be used for all partials.
  */
 template< typename ParameterType >
-std::pair< SingleLinkObservationThreePartialList, boost::shared_ptr< PositionPartialScaling > >
+std::pair< SingleLinkObservationThreePartialList, std::shared_ptr< PositionPartialScaling > >
 createPositionObservablePartials(
         const observation_models::LinkEnds positionObservableLinkEnds,
         const simulation_setup::NamedBodyMap& bodyMap,
-        const boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< ParameterType > > parametersToEstimate )
+        const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< ParameterType > > parametersToEstimate )
 
 {
     // Create scaling object, to be used for each partial created here (i.e. same scaling for different parameters but same
     // observable).
-    boost::shared_ptr< PositionObservationScaling > positionObservableScaling =
-            boost::make_shared< PositionObservationScaling >( );
+    std::shared_ptr< PositionObservationScaling > positionObservableScaling =
+            std::make_shared< PositionObservationScaling >( );
 
     SingleLinkObservationThreePartialList positionObservablePartials;
 
@@ -222,29 +222,29 @@ createPositionObservablePartials(
     int currentIndex = 0;
     std::pair< int, int > currentPair = std::pair< int, int >( currentIndex, 1 );
 
-    std::vector< boost::shared_ptr< estimatable_parameters::EstimatableParameter<
+    std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameter<
             Eigen::Matrix< ParameterType, Eigen::Dynamic, 1 > > > > initialDynamicalParameters =
             parametersToEstimate->getEstimatedInitialStateParameters( );
 
     // Iterate over list of bodies of which the partials of the accelerations acting on them are required.
     for( unsigned int i = 0; i < initialDynamicalParameters.size( ); i++ )
     {
-        if( boost::dynamic_pointer_cast< estimatable_parameters::InitialTranslationalStateParameter< ParameterType > >(
-                    initialDynamicalParameters.at( i ) ) != NULL )
+        if( std::dynamic_pointer_cast< estimatable_parameters::InitialTranslationalStateParameter< ParameterType > >(
+                    initialDynamicalParameters.at( i ) ) != nullptr )
         {
 
             // Retrieve name of body w.r.t. position of which partial is to be taken.
-            std::string acceleratedBody = boost::dynamic_pointer_cast<
+            std::string acceleratedBody = std::dynamic_pointer_cast<
                     estimatable_parameters::InitialTranslationalStateParameter< ParameterType > >(
                         initialDynamicalParameters.at( i ) )->getParameterName( ).second.first;
 
             // Create partial (if needed)
-            boost::shared_ptr< PositionObervationPartial > currentObservablePartial =
+            std::shared_ptr< PositionObervationPartial > currentObservablePartial =
                     createPositionObservablePartialWrtPosition(
                         positionObservableLinkEnds, bodyMap, acceleratedBody, positionObservableScaling );
 
             // If partial exists, then dependency exists and parameter must be added.
-            if( currentObservablePartial != NULL )
+            if( currentObservablePartial != nullptr )
             {
                 currentPair = std::pair< int, int >( currentIndex, 6 );
                 positionObservablePartials[ currentPair ] = currentObservablePartial;
@@ -272,14 +272,14 @@ createPositionObservablePartials(
  */
 template< typename ParameterType >
 std::map< observation_models::LinkEnds,
-std::pair< SingleLinkObservationThreePartialList, boost::shared_ptr< PositionPartialScaling > > >
+std::pair< SingleLinkObservationThreePartialList, std::shared_ptr< PositionPartialScaling > > >
 createPositionObservablePartials(
         const std::vector<  observation_models::LinkEnds > linkEnds,
         const simulation_setup::NamedBodyMap& bodyMap,
-        const boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< ParameterType > > parametersToEstimate )
+        const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< ParameterType > > parametersToEstimate )
 {
     std::map< observation_models::LinkEnds, std::pair< SingleLinkObservationThreePartialList,
-            boost::shared_ptr< PositionPartialScaling > > > positionObservablePartials;
+            std::shared_ptr< PositionPartialScaling > > > positionObservablePartials;
 
     for( unsigned int i = 0; i < linkEnds.size( ); i++ )
     {

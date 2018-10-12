@@ -48,12 +48,12 @@ namespace simulation_setup
  *  settings.
  *  \return Direct gravitational acceleration model of requested settings.
  */
-boost::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > createDirectGravitationalAcceleration(
-        const boost::shared_ptr< Body > bodyUndergoingAcceleration,
-        const boost::shared_ptr< Body > bodyExertingAcceleration,
+std::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > createDirectGravitationalAcceleration(
+        const std::shared_ptr< Body > bodyUndergoingAcceleration,
+        const std::shared_ptr< Body > bodyExertingAcceleration,
         const std::string& nameOfBodyUndergoingAcceleration,
         const std::string& nameOfBodyExertingAcceleration,
-        const boost::shared_ptr< AccelerationSettings > accelerationSettings,
+        const std::shared_ptr< AccelerationSettings > accelerationSettings,
         const std::string& nameOfCentralBody = "",
         const bool isCentralBody = 0 );
 
@@ -71,14 +71,14 @@ boost::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > c
  *  \param accelerationSettings Settings object for the gravitational acceleration.
  *  \return Third-body gravitational acceleration model of requested settings.
  */
-boost::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > createThirdBodyGravitationalAcceleration(
-        const boost::shared_ptr< Body > bodyUndergoingAcceleration,
-        const boost::shared_ptr< Body > bodyExertingAcceleration,
-        const boost::shared_ptr< Body > centralBody,
+std::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > createThirdBodyGravitationalAcceleration(
+        const std::shared_ptr< Body > bodyUndergoingAcceleration,
+        const std::shared_ptr< Body > bodyExertingAcceleration,
+        const std::shared_ptr< Body > centralBody,
         const std::string& nameOfBodyUndergoingAcceleration,
         const std::string& nameOfBodyExertingAcceleration,
         const std::string& nameOfCentralBody,
-        const boost::shared_ptr< AccelerationSettings > accelerationSettings );
+        const std::shared_ptr< AccelerationSettings > accelerationSettings );
 
 //! Function to create gravitational acceleration (of any type)
 /*!
@@ -92,16 +92,15 @@ boost::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > c
  *  \param nameOfBodyExertingAcceleration Name of body that is exerting the gravitational acceleration.
  *  \param nameOfCentralBody Name of central body in frame centered at which acceleration is to
  *  be calculated.
- *  \param accelerationSettings Settings object for the gravitational acceleration.
  *  \return Gravitational acceleration model of requested settings.
  */
-boost::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > createGravitationalAccelerationModel(
-        const boost::shared_ptr< Body > bodyUndergoingAcceleration,
-        const boost::shared_ptr< Body > bodyExertingAcceleration,
-        const boost::shared_ptr< AccelerationSettings > accelerationSettings,
+std::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > createGravitationalAccelerationModel(
+        const std::shared_ptr< Body > bodyUndergoingAcceleration,
+        const std::shared_ptr< Body > bodyExertingAcceleration,
+        const std::shared_ptr< AccelerationSettings > accelerationSettings,
         const std::string& nameOfBodyUndergoingAcceleration,
         const std::string& nameOfBodyExertingAcceleration,
-        const boost::shared_ptr< Body > centralBody,
+        const std::shared_ptr< Body > centralBody,
         const std::string& nameOfCentralBody );
 
 //! Function to create central gravity acceleration model.
@@ -121,10 +120,10 @@ boost::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > c
  *  acceleration.
  *  \return Central gravity acceleration model pointer.
  */
-boost::shared_ptr< gravitation::CentralGravitationalAccelerationModel3d >
+std::shared_ptr< gravitation::CentralGravitationalAccelerationModel3d >
 createCentralGravityAcceleratioModel(
-        const boost::shared_ptr< Body > bodyUndergoingAcceleration,
-        const boost::shared_ptr< Body > bodyExertingAcceleration,
+        const std::shared_ptr< Body > bodyUndergoingAcceleration,
+        const std::shared_ptr< Body > bodyExertingAcceleration,
         const std::string& nameOfBodyUndergoingAcceleration,
         const std::string& nameOfBodyExertingAcceleration,
         const bool useCentralBodyFixedFrame );
@@ -148,13 +147,13 @@ createCentralGravityAcceleratioModel(
  *  acceleration.
  *  \return Spherical harmonic gravity acceleration model pointer.
  */
-boost::shared_ptr< gravitation::SphericalHarmonicsGravitationalAccelerationModel >
+std::shared_ptr< gravitation::SphericalHarmonicsGravitationalAccelerationModel >
 createSphericalHarmonicsGravityAcceleration(
-        const boost::shared_ptr< Body > bodyUndergoingAcceleration,
-        const boost::shared_ptr< Body > bodyExertingAcceleration,
+        const std::shared_ptr< Body > bodyUndergoingAcceleration,
+        const std::shared_ptr< Body > bodyExertingAcceleration,
         const std::string& nameOfBodyUndergoingAcceleration,
         const std::string& nameOfBodyExertingAcceleration,
-        const boost::shared_ptr< AccelerationSettings > accelerationSettings,
+        const std::shared_ptr< AccelerationSettings > accelerationSettings,
         const bool useCentralBodyFixedFrame );
 
 //! Function to create mutual spherical harmonic gravity acceleration model.
@@ -178,13 +177,13 @@ createSphericalHarmonicsGravityAcceleration(
  *  for a third-body acceleration, of which the return object of this funciton is one of the sub-parts.
  *  \return Mutual spherical harmonic gravity acceleration model pointer.
  */
-boost::shared_ptr< gravitation::MutualSphericalHarmonicsGravitationalAccelerationModel >
+std::shared_ptr< gravitation::MutualSphericalHarmonicsGravitationalAccelerationModel >
 createMutualSphericalHarmonicsGravityAcceleration(
-        const boost::shared_ptr< Body > bodyUndergoingAcceleration,
-        const boost::shared_ptr< Body > bodyExertingAcceleration,
+        const std::shared_ptr< Body > bodyUndergoingAcceleration,
+        const std::shared_ptr< Body > bodyExertingAcceleration,
         const std::string& nameOfBodyUndergoingAcceleration,
         const std::string& nameOfBodyExertingAcceleration,
-        const boost::shared_ptr< AccelerationSettings > accelerationSettings,
+        const std::shared_ptr< AccelerationSettings > accelerationSettings,
         const bool useCentralBodyFixedFrame,
         const bool acceleratedBodyIsCentralBody );
 
@@ -204,11 +203,11 @@ createMutualSphericalHarmonicsGravityAcceleration(
  *  be calculated.
  *  \return Pointer to object for calculating central gravity acceleration between bodies.
  */
-boost::shared_ptr< gravitation::ThirdBodyCentralGravityAcceleration >
+std::shared_ptr< gravitation::ThirdBodyCentralGravityAcceleration >
 createThirdBodyCentralGravityAccelerationModel(
-        const boost::shared_ptr< Body > bodyUndergoingAcceleration,
-        const boost::shared_ptr< Body > bodyExertingAcceleration,
-        const boost::shared_ptr< Body > centralBody,
+        const std::shared_ptr< Body > bodyUndergoingAcceleration,
+        const std::shared_ptr< Body > bodyExertingAcceleration,
+        const std::shared_ptr< Body > centralBody,
         const std::string& nameOfBodyUndergoingAcceleration,
         const std::string& nameOfBodyExertingAcceleration,
         const std::string& nameOfCentralBody );
@@ -231,15 +230,15 @@ createThirdBodyCentralGravityAccelerationModel(
  *  be of derived type associated with spherical harmonic acceleration).
  *  \return Pointer to object for calculating third-body spheric harmonic gravity acceleration between bodies.
  */
-boost::shared_ptr< gravitation::ThirdBodySphericalHarmonicsGravitationalAccelerationModel >
+std::shared_ptr< gravitation::ThirdBodySphericalHarmonicsGravitationalAccelerationModel >
 createThirdBodySphericalHarmonicGravityAccelerationModel(
-        const boost::shared_ptr< Body > bodyUndergoingAcceleration,
-        const boost::shared_ptr< Body > bodyExertingAcceleration,
-        const boost::shared_ptr< Body > centralBody,
+        const std::shared_ptr< Body > bodyUndergoingAcceleration,
+        const std::shared_ptr< Body > bodyExertingAcceleration,
+        const std::shared_ptr< Body > centralBody,
         const std::string& nameOfBodyUndergoingAcceleration,
         const std::string& nameOfBodyExertingAcceleration,
         const std::string& nameOfCentralBody,
-        const boost::shared_ptr< AccelerationSettings > accelerationSettings );
+        const std::shared_ptr< AccelerationSettings > accelerationSettings );
 
 //! Function to create a third body mutual spheric harmonic gravity acceleration model.
 /*!
@@ -259,15 +258,15 @@ createThirdBodySphericalHarmonicGravityAccelerationModel(
  *  be of derived type associated with mutual spherical harmonic acceleration).
  *  \return Pointer to object for calculating third-body mutual spheric harmonic gravity acceleration between bodies.
  */
-boost::shared_ptr< gravitation::ThirdBodyMutualSphericalHarmonicsGravitationalAccelerationModel >
+std::shared_ptr< gravitation::ThirdBodyMutualSphericalHarmonicsGravitationalAccelerationModel >
 createThirdBodyMutualSphericalHarmonicGravityAccelerationModel(
-        const boost::shared_ptr< Body > bodyUndergoingAcceleration,
-        const boost::shared_ptr< Body > bodyExertingAcceleration,
-        const boost::shared_ptr< Body > centralBody,
+        const std::shared_ptr< Body > bodyUndergoingAcceleration,
+        const std::shared_ptr< Body > bodyExertingAcceleration,
+        const std::shared_ptr< Body > centralBody,
         const std::string& nameOfBodyUndergoingAcceleration,
         const std::string& nameOfBodyExertingAcceleration,
         const std::string& nameOfCentralBody,
-        const boost::shared_ptr< AccelerationSettings > accelerationSettings );
+        const std::shared_ptr< AccelerationSettings > accelerationSettings );
 
 //! Function to create an aerodynamic acceleration model.
 /*!
@@ -280,10 +279,10 @@ createThirdBodyMutualSphericalHarmonicGravityAccelerationModel(
  *  \param nameOfBodyExertingAcceleration Name of object of body that is exerting the acceleration.
  *  \return Pointer to object for calculating aerodynamic acceleration.
  */
-boost::shared_ptr< aerodynamics::AerodynamicAcceleration >
+std::shared_ptr< aerodynamics::AerodynamicAcceleration >
 createAerodynamicAcceleratioModel(
-        const boost::shared_ptr< Body > bodyUndergoingAcceleration,
-        const boost::shared_ptr< Body > bodyExertingAcceleration,
+        const std::shared_ptr< Body > bodyUndergoingAcceleration,
+        const std::shared_ptr< Body > bodyExertingAcceleration,
         const std::string& nameOfBodyUndergoingAcceleration,
         const std::string& nameOfBodyExertingAcceleration );
 
@@ -298,10 +297,10 @@ createAerodynamicAcceleratioModel(
  *  \param nameOfBodyExertingAcceleration Name of object of body that is exerting the acceleration.
  *  \return Pointer to object for calculating cannonball radiation pressures acceleration.
  */
-boost::shared_ptr< electro_magnetism::CannonBallRadiationPressureAcceleration >
+std::shared_ptr< electro_magnetism::CannonBallRadiationPressureAcceleration >
 createCannonballRadiationPressureAcceleratioModel(
-        const boost::shared_ptr< Body > bodyUndergoingAcceleration,
-        const boost::shared_ptr< Body > bodyExertingAcceleration,
+        const std::shared_ptr< Body > bodyUndergoingAcceleration,
+        const std::shared_ptr< Body > bodyExertingAcceleration,
         const std::string& nameOfBodyUndergoingAcceleration,
         const std::string& nameOfBodyExertingAcceleration );
 
@@ -315,9 +314,9 @@ createCannonballRadiationPressureAcceleratioModel(
  *  \param nameOfBodyUndergoingThrust Name of body that is undergoing the thrust acceleration
  *  \return Pointer to object for calculating thrust acceleration.
  */
-boost::shared_ptr< propulsion::ThrustAcceleration >
+std::shared_ptr< propulsion::ThrustAcceleration >
 createThrustAcceleratioModel(
-        const boost::shared_ptr< AccelerationSettings > accelerationSettings,
+        const std::shared_ptr< AccelerationSettings > accelerationSettings,
         const NamedBodyMap& bodyMap,
         const std::string& nameOfBodyUndergoingThrust );
 
@@ -331,12 +330,12 @@ createThrustAcceleratioModel(
  *  \param accelerationSettings Settings for the acceleration model
  *  \return Pointer to object for calculating acceleration.
  */
-boost::shared_ptr< gravitation::DirectTidalDissipationAcceleration > createDirectTidalDissipationAcceleration(
-        const boost::shared_ptr< Body > bodyUndergoingAcceleration,
-        const boost::shared_ptr< Body > bodyExertingAcceleration,
+std::shared_ptr< gravitation::DirectTidalDissipationAcceleration > createDirectTidalDissipationAcceleration(
+        const std::shared_ptr< Body > bodyUndergoingAcceleration,
+        const std::shared_ptr< Body > bodyExertingAcceleration,
         const std::string& nameOfBodyUndergoingAcceleration,
         const std::string& nameOfBodyExertingAcceleration,
-        const  boost::shared_ptr< AccelerationSettings > accelerationSettings );
+        const  std::shared_ptr< AccelerationSettings > accelerationSettings );
 
 //! Function to create an orbiter relativistic correction acceleration model
 /*!
@@ -347,17 +346,16 @@ boost::shared_ptr< gravitation::DirectTidalDissipationAcceleration > createDirec
  *  around the Earth).
  *  \param nameOfBodyUndergoingAcceleration Name of object of body that is being accelerated.
  *  \param nameOfBodyExertingAcceleration Name of object of body that is exerting the acceleration
- *  \param accelerationSettings Settings for the acceleration model
- *  \param accelerationSettings Settings for the acceleration model
+ *  \param accelerationSettings Settings for the acceleration model.
  *  \param bodyMap List of pointers to bodies that comprise the full environment.
  *  \return Pointer to object for calculating relativistic correction acceleration.
  */
-boost::shared_ptr< relativity::RelativisticAccelerationCorrection > createRelativisticCorrectionAcceleration(
-        const boost::shared_ptr< Body > bodyUndergoingAcceleration,
-        const boost::shared_ptr< Body > bodyExertingAcceleration,
+std::shared_ptr< relativity::RelativisticAccelerationCorrection > createRelativisticCorrectionAcceleration(
+        const std::shared_ptr< Body > bodyUndergoingAcceleration,
+        const std::shared_ptr< Body > bodyExertingAcceleration,
         const std::string& nameOfBodyUndergoingAcceleration,
         const std::string& nameOfBodyExertingAcceleration,
-        const boost::shared_ptr< AccelerationSettings > accelerationSettings,
+        const std::shared_ptr< AccelerationSettings > accelerationSettings,
         const NamedBodyMap& bodyMap );
 
 //! Function to create empirical acceleration model.
@@ -371,12 +369,12 @@ boost::shared_ptr< relativity::RelativisticAccelerationCorrection > createRelati
  *  \param accelerationSettings Object containing additional settings for acceleration model, must be of type EmpiricalAccelerationSettings
  *  \return Pointer to object for calculating empiricalt acceleration.
  */
-boost::shared_ptr< basic_astrodynamics::EmpiricalAcceleration > createEmpiricalAcceleration(
-        const boost::shared_ptr< Body > bodyUndergoingAcceleration,
-        const boost::shared_ptr< Body > bodyExertingAcceleration,
+std::shared_ptr< basic_astrodynamics::EmpiricalAcceleration > createEmpiricalAcceleration(
+        const std::shared_ptr< Body > bodyUndergoingAcceleration,
+        const std::shared_ptr< Body > bodyExertingAcceleration,
         const std::string& nameOfBodyUndergoingAcceleration,
         const std::string& nameOfBodyExertingAcceleration,
-        const boost::shared_ptr< AccelerationSettings > accelerationSettings );
+        const std::shared_ptr< AccelerationSettings > accelerationSettings );
 
 
 //! Function to create acceleration model object.
@@ -396,14 +394,14 @@ boost::shared_ptr< basic_astrodynamics::EmpiricalAcceleration > createEmpiricalA
  *  objects.
  *  \return Acceleration model pointer.
  */
-boost::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > >
+std::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > >
 createAccelerationModel(
-        const boost::shared_ptr< Body > bodyUndergoingAcceleration,
-        const boost::shared_ptr< Body > bodyExertingAcceleration,
-        const boost::shared_ptr< AccelerationSettings > accelerationSettings,
+        const std::shared_ptr< Body > bodyUndergoingAcceleration,
+        const std::shared_ptr< Body > bodyExertingAcceleration,
+        const std::shared_ptr< AccelerationSettings > accelerationSettings,
         const std::string& nameOfBodyUndergoingAcceleration,
         const std::string& nameOfBodyExertingAcceleration,
-        const boost::shared_ptr< Body > centralBody = boost::shared_ptr< Body >( ),
+        const std::shared_ptr< Body > centralBody = std::shared_ptr< Body >( ),
         const std::string& nameOfCentralBody = "",
         const NamedBodyMap& bodyMap = NamedBodyMap( ) );
 

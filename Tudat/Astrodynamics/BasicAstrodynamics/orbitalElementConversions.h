@@ -20,7 +20,7 @@
 #ifndef TUDAT_ORBITAL_ELEMENT_CONVERSIONS_H
 #define TUDAT_ORBITAL_ELEMENT_CONVERSIONS_H
 
-#include <boost/function.hpp>
+#include <functional>
 #include <boost/math/special_functions/atanh.hpp>
 
 #include <cmath>
@@ -447,8 +447,8 @@ Eigen::Matrix< ScalarType, 6, 1 > convertCartesianToKeplerianElements(
  */
 template< typename ScalarType = double >
 Eigen::Matrix< ScalarType, 6, 1 > convertCartesianToKeplerianElementsFromFunctions(
-        const boost::function< Eigen::Matrix< ScalarType, 6, 1 >( ) > cartesianElementsFunction,
-        const boost::function< ScalarType( ) > centralBodyGravitationalParameterFunction )
+        const std::function< Eigen::Matrix< ScalarType, 6, 1 >( ) > cartesianElementsFunction,
+        const std::function< ScalarType( ) > centralBodyGravitationalParameterFunction )
 {
     return convertCartesianToKeplerianElements(
                 cartesianElementsFunction( ), centralBodyGravitationalParameterFunction( ) );
@@ -1039,7 +1039,7 @@ ScalarType convertSemiMajorAxisToEllipticalMeanMotion(
     // Check if semi-major axis is invalid and throw error if true.
     if ( semiMajorAxis < mathematical_constants::getFloatingInteger< ScalarType >( 0 ) )
     {
-        throw std::runtime_error( "Semi-major axis is invalid when converting semi major axis to elliptical mean motion." );
+        throw std::runtime_error( "Semi-major axis is invalid when converting semi-major axis to elliptical mean motion." );
     }
 
     // Else compute and return elliptical mean motion.

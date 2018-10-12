@@ -11,7 +11,7 @@
 #ifndef TUDAT_NWAYRANGEPARTIAL_H
 #define TUDAT_NWAYRANGEPARTIAL_H
 
-#include <boost/function.hpp>
+#include <functional>
 
 #include <Eigen/Core>
 
@@ -46,7 +46,7 @@ public:
      * \param constituentRangeScalings Map of consitutent one-way range scaling objects, with link end index as map key
      * \param numberOfLinkEnds Number of link ends in observable
      */
-    NWayRangeScaling( const std::map< int, boost::shared_ptr< OneWayRangeScaling > >& constituentRangeScalings,
+    NWayRangeScaling( const std::map< int, std::shared_ptr< OneWayRangeScaling > >& constituentRangeScalings,
                       const int numberOfLinkEnds ):
         constituentRangeScalings_( constituentRangeScalings ),
         numberOfLinkEnds_( numberOfLinkEnds ){ }
@@ -81,10 +81,10 @@ public:
 private:
 
     //! Map of consitutent one-way range scaling objects, with link index as map key
-    std::map< int, boost::shared_ptr< OneWayRangeScaling > > constituentRangeScalings_;
+    std::map< int, std::shared_ptr< OneWayRangeScaling > > constituentRangeScalings_;
 
     //! Predeclared iterator (for efficiencty)
-    std::map< int, boost::shared_ptr< OneWayRangeScaling > >::iterator constituentRangeScalingIterator_;
+    std::map< int, std::shared_ptr< OneWayRangeScaling > >::iterator constituentRangeScalingIterator_;
 
     //! List of values by which to scale constituent one-way ranges partials for it to be put into n-way range partial.
     std::map< int, double > projectedRelativeVelocityRatios_;
@@ -109,8 +109,8 @@ public:
      * \param parameterIdentifier Id of parameter for which instance of class computes partial derivatives.
      * \param numberOfLinkEnds Number of link ends in n-way observable
      */
-    NWayRangePartial( const boost::shared_ptr< NWayRangeScaling > nWayRangeScaler,
-                      const std::map< int, boost::shared_ptr< ObservationPartial< 1 > > >& rangePartialList,
+    NWayRangePartial( const std::shared_ptr< NWayRangeScaling > nWayRangeScaler,
+                      const std::map< int, std::shared_ptr< ObservationPartial< 1 > > >& rangePartialList,
                       const estimatable_parameters::EstimatebleParameterIdentifier parameterIdentifier,
                       const int numberOfLinkEnds ):
         ObservationPartial< 1 >( parameterIdentifier ), nWayRangeScaler_( nWayRangeScaler ), rangePartialList_( rangePartialList ),
@@ -139,13 +139,13 @@ public:
 protected:
 
     //! Scaling object used for mapping partials of one-way ranges to partials of observable
-    boost::shared_ptr< NWayRangeScaling > nWayRangeScaler_;
+    std::shared_ptr< NWayRangeScaling > nWayRangeScaler_;
 
     //! List of one-way range partials per link index.
-    std::map< int, boost::shared_ptr< ObservationPartial< 1 > > > rangePartialList_;
+    std::map< int, std::shared_ptr< ObservationPartial< 1 > > > rangePartialList_;
 
     //! Predeclared iterator
-    std::map< int, boost::shared_ptr< ObservationPartial< 1 > > >::iterator rangePartialIterator_;
+    std::map< int, std::shared_ptr< ObservationPartial< 1 > > >::iterator rangePartialIterator_;
 
     //! Number of link ends in n-way observable
     int numberOfLinkEnds_;

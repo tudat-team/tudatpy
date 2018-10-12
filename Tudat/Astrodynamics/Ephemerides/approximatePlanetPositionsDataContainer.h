@@ -19,7 +19,7 @@
 #include <iostream>
 #include <string>
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 namespace tudat
 {
@@ -230,7 +230,7 @@ private:
 };
 
 //! Typedef for shared-pointer to ApproximatePlanetPositionsDataContainer object.
-typedef boost::shared_ptr< ApproximatePlanetPositionsDataContainer >
+typedef std::shared_ptr< ApproximatePlanetPositionsDataContainer >
 ApproximatePlanetPositionsDataContainerPointer;
 
 } // namespace ephemerides

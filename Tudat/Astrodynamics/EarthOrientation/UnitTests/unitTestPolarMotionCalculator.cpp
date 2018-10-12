@@ -33,15 +33,15 @@ BOOST_AUTO_TEST_SUITE( test_polar_motion_calculator )
 BOOST_AUTO_TEST_CASE( testPolarMotionCalculator )
 {
     // Retrieve polar motion calculator
-    boost::shared_ptr< EarthOrientationAnglesCalculator > standardEarthRotationModel =
+    std::shared_ptr< EarthOrientationAnglesCalculator > standardEarthRotationModel =
             createStandardEarthOrientationCalculator( );
-    boost::shared_ptr< PolarMotionCalculator > standardPolarMotionCalculator =
+    std::shared_ptr< PolarMotionCalculator > standardPolarMotionCalculator =
             standardEarthRotationModel->getPolarMotionCalculator( );
 
     // Get constituent polar motion calculation objects.
-    boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Vector2d > >
+    std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Vector2d > >
         dailyPolarMotionValueInterpolator = standardPolarMotionCalculator->getDailyIersValueInterpolator( );
-    boost::shared_ptr< ShortPeriodEarthOrientationCorrectionCalculator< Eigen::Vector2d > > shortPeriodPolarMotionCalculator =
+    std::shared_ptr< ShortPeriodEarthOrientationCorrectionCalculator< Eigen::Vector2d > > shortPeriodPolarMotionCalculator =
             getDefaultPolarMotionCorrectionCalculator( );
 
     // Define test time
@@ -49,7 +49,7 @@ BOOST_AUTO_TEST_CASE( testPolarMotionCalculator )
     double testUtc = sofa_interface::convertTTtoUTC( testEphemerisTime );
 
     // Compute fundamental arguments
-    Eigen::Vector6d fundamentalArguments = sofa_interface::calculateDelaunayFundamentalArgumentsWithGmst( testEphemerisTime );
+    Eigen::Vector6d fundamentalArguments = sofa_interface::calculateApproximateDelaunayFundamentalArgumentsWithGmst( testEphemerisTime );
 
     // Compute polar motion from both interfaces (time and arguments)
     Eigen::Vector2d totalPolarMotionFromTime =

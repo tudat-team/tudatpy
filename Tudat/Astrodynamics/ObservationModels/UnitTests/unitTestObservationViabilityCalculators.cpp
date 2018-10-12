@@ -44,7 +44,7 @@ std::vector< double > getBodyLinkElevationAngles(
         const std::vector< double > linkEndTimes,
         const NamedBodyMap& bodyMap )
 {
-    boost::shared_ptr< ground_stations::PointingAnglesCalculator > currentPointingAnglesCalculator;
+    std::shared_ptr< ground_stations::PointingAnglesCalculator > currentPointingAnglesCalculator;
     std::vector< double > elevationAngles;
     switch( observableType )
     {
@@ -367,17 +367,17 @@ BOOST_AUTO_TEST_CASE( testObservationViabilityCalculators )
     bodyNames.push_back( "Sun" );
     bodyNames.push_back( "Moon" );
 
-    std::map< std::string, boost::shared_ptr< BodySettings > > bodySettings =
+    std::map< std::string, std::shared_ptr< BodySettings > > bodySettings =
             getDefaultBodySettings( bodyNames );
 
     // Set simplified rotation models for Earth/Mars (spice rotation retrieval is slow)
-    bodySettings[ "Earth" ]->rotationModelSettings = boost::make_shared< SimpleRotationModelSettings >(
+    bodySettings[ "Earth" ]->rotationModelSettings = std::make_shared< SimpleRotationModelSettings >(
                 "ECLIPJ2000", "IAU_Earth",
                 spice_interface::computeRotationQuaternionBetweenFrames(
                     "ECLIPJ2000", "IAU_Earth", 0.0 ),
                 0.0, 2.0 * mathematical_constants::PI /
                 ( physical_constants::JULIAN_DAY ) );
-    bodySettings[ "Mars" ]->rotationModelSettings = boost::make_shared< SimpleRotationModelSettings >(
+    bodySettings[ "Mars" ]->rotationModelSettings = std::make_shared< SimpleRotationModelSettings >(
                 "ECLIPJ2000", "IAU_Mars",
                 spice_interface::computeRotationQuaternionBetweenFrames(
                     "ECLIPJ2000", "IAU_Mars", 0.0 ),
@@ -386,7 +386,7 @@ BOOST_AUTO_TEST_CASE( testObservationViabilityCalculators )
 
     // Set unrealistically large radius of Moon to make iss occultation mode significant
     double moonRadius = 1.0E9;
-    bodySettings[ "Moon" ]->shapeModelSettings = boost::make_shared< SphericalBodyShapeSettings >( moonRadius );
+    bodySettings[ "Moon" ]->shapeModelSettings = std::make_shared< SphericalBodyShapeSettings >( moonRadius );
 
     // Create list of body objects
     NamedBodyMap bodyMap = createBodies( bodySettings );
@@ -464,9 +464,9 @@ BOOST_AUTO_TEST_CASE( testObservationViabilityCalculators )
     int unconstrainedNumberOfObservations = unconstrainedObservationTimes.size( );
 
     // Create observation model and observation time settings for all observables
-    std::map< ObservableType, std::map< LinkEnds, boost::shared_ptr< ObservationSimulationTimeSettings< double > > > >
+    std::map< ObservableType, std::map< LinkEnds, std::shared_ptr< ObservationSimulationTimeSettings< double > > > >
             observationTimeSettings;
-    typedef std::map< ObservableType, std::map< LinkEnds, boost::shared_ptr< ObservationSettings > > > SortedObservationSettingsMap;
+    typedef std::map< ObservableType, std::map< LinkEnds, std::shared_ptr< ObservationSettings > > > SortedObservationSettingsMap;
     SortedObservationSettingsMap observationSettingsMap;
     for( std::map< ObservableType, std::vector< LinkEnds > >::const_iterator observableIterator = testLinkEndsList.begin( );
          observableIterator != testLinkEndsList.end( ); observableIterator++ )
@@ -476,24 +476,24 @@ BOOST_AUTO_TEST_CASE( testObservationViabilityCalculators )
             if( observableIterator->first == one_way_differenced_range )
             {
                 observationSettingsMap[ observableIterator->first ][ observableIterator->second.at( i ) ] =
-                        boost::make_shared< OneWayDifferencedRangeRateObservationSettings >(
-                            boost::lambda::constant( 60.0 ), boost::shared_ptr< LightTimeCorrectionSettings > ( ) );
+                        std::make_shared< OneWayDifferencedRangeRateObservationSettings >(
+                            [ ]( const double ){ return 60.0; }, std::shared_ptr< LightTimeCorrectionSettings > ( ) );
             }
             else if( observableIterator->first == n_way_range )
             {
                 observationSettingsMap[ observableIterator->first ][ observableIterator->second.at( i ) ] =
-                        boost::make_shared< NWayRangeObservationSettings >(
-                            boost::shared_ptr< LightTimeCorrectionSettings >( ), observableIterator->second.at( i ).size( ) );
+                        std::make_shared< NWayRangeObservationSettings >(
+                            std::shared_ptr< LightTimeCorrectionSettings >( ), observableIterator->second.at( i ).size( ) );
             }
             else
             {
                 observationSettingsMap[ observableIterator->first ][ observableIterator->second.at( i ) ] =
-                        boost::make_shared< ObservationSettings >(
-                            observableIterator->first, boost::shared_ptr< LightTimeCorrectionSettings >( ) );
+                        std::make_shared< ObservationSettings >(
+                            observableIterator->first, std::shared_ptr< LightTimeCorrectionSettings >( ) );
 
             }
             observationTimeSettings[ observableIterator->first ][ observableIterator->second.at( i ) ] =
-                    boost::make_shared< TabulatedObservationSimulationTimeSettings< double > >(
+                    std::make_shared< TabulatedObservationSimulationTimeSettings< double > >(
                         referenceLinkEnd, unconstrainedObservationTimes );
         }
     }
@@ -508,20 +508,20 @@ BOOST_AUTO_TEST_CASE( testObservationViabilityCalculators )
 
 
     // Create observation viability settings
-    std::vector< boost::shared_ptr< ObservationViabilitySettings > > observationViabilitySettings;
-    observationViabilitySettings.push_back( boost::make_shared< ObservationViabilitySettings >(
+    std::vector< std::shared_ptr< ObservationViabilitySettings > > observationViabilitySettings;
+    observationViabilitySettings.push_back( std::make_shared< ObservationViabilitySettings >(
                                                 minimum_elevation_angle, std::make_pair( "Earth", "" ), "",
                                                 earthMinimumElevationAngle ) );
-    observationViabilitySettings.push_back( boost::make_shared< ObservationViabilitySettings >(
+    observationViabilitySettings.push_back( std::make_shared< ObservationViabilitySettings >(
                                                 minimum_elevation_angle, std::make_pair( "Mars", "" ), "",
                                                 marsMinimumElevationAngle ) );
-    observationViabilitySettings.push_back( boost::make_shared< ObservationViabilitySettings >(
+    observationViabilitySettings.push_back( std::make_shared< ObservationViabilitySettings >(
                                                 body_avoidance_angle, std::make_pair( "Earth", "" ), "Sun",
                                                 earthSunAvoidanceAngle ) );
-    observationViabilitySettings.push_back( boost::make_shared< ObservationViabilitySettings >(
+    observationViabilitySettings.push_back( std::make_shared< ObservationViabilitySettings >(
                                                 body_avoidance_angle, std::make_pair( "Mars", "" ), "Sun",
                                                 marsSunAvoidanceAngle ) );
-    observationViabilitySettings.push_back( boost::make_shared< ObservationViabilitySettings >(
+    observationViabilitySettings.push_back( std::make_shared< ObservationViabilitySettings >(
                                                 body_occultation, std::make_pair( "Earth", "" ), "Moon" ) );
 
     // Create observation viability calculators
@@ -529,7 +529,7 @@ BOOST_AUTO_TEST_CASE( testObservationViabilityCalculators )
                 bodyMap, testLinkEndsList, observationViabilitySettings );
 
     // Create osbervation simulatos
-    std::map< ObservableType,  boost::shared_ptr< ObservationSimulatorBase< double, double > > > observationSimulators =
+    std::map< ObservableType,  std::shared_ptr< ObservationSimulatorBase< double, double > > > observationSimulators =
             createObservationSimulators( observationSettingsMap , bodyMap );
 
     // Simulate observations without constraints directly from simulateObservations function
@@ -548,7 +548,7 @@ BOOST_AUTO_TEST_CASE( testObservationViabilityCalculators )
             unconstrainedSimulatedObservablesFromObjects;
     std::map< ObservableType, std::map< LinkEnds,  std::pair< Eigen::VectorXd, std::vector< double > > > >
             constrainedSimulatedObservablesFromObjects;
-    for( std::map< ObservableType,  boost::shared_ptr< ObservationSimulatorBase< double, double > > >::iterator
+    for( std::map< ObservableType,  std::shared_ptr< ObservationSimulatorBase< double, double > > >::iterator
          simulatorIterator = observationSimulators.begin( ); simulatorIterator != observationSimulators.end( );
          simulatorIterator++ )
     {
@@ -625,7 +625,7 @@ BOOST_AUTO_TEST_CASE( testObservationViabilityCalculators )
 
         ObservableType currentObservable = unconstrainedIterator->first;
 
-        boost::shared_ptr< ObservationSimulatorBase< double, double > > currentObservationSimulator =
+        std::shared_ptr< ObservationSimulatorBase< double, double > > currentObservationSimulator =
                 observationSimulators.at( currentObservable );
 
         // Iterate over all link ends of current observables.
@@ -633,7 +633,7 @@ BOOST_AUTO_TEST_CASE( testObservationViabilityCalculators )
         {
             LinkEnds currentLinkEnds = unconstrainedLinkIterator->first;
 
-            std::vector< boost::shared_ptr< ObservationViabilityCalculator > > currentViabilityCalculators =
+            std::vector< std::shared_ptr< ObservationViabilityCalculator > > currentViabilityCalculators =
                     viabilityCalculators.at( currentObservable ).at( currentLinkEnds );
 
             // Check consistency of simulated observations from ObservationSimulator objects/simulateObservations function

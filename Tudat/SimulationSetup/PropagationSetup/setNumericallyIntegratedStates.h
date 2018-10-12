@@ -34,7 +34,7 @@ namespace propagators
  * \return Lagrange interpolator (order 6) that produces the required continuous state.
  */
 template< typename TimeType, typename StateScalarType >
-boost::shared_ptr< interpolators::OneDimensionalInterpolator< TimeType, Eigen::Matrix< StateScalarType, 6, 1 > > >
+std::shared_ptr< interpolators::OneDimensionalInterpolator< TimeType, Eigen::Matrix< StateScalarType, 6, 1 > > >
 createStateInterpolator(
         const std::map< TimeType, Eigen::Matrix< StateScalarType, 6, 1 > >& stateMap );
 
@@ -47,13 +47,13 @@ createStateInterpolator(
 template< typename StateTimeType, typename StateScalarType, typename EphemerisTimeType, typename EphemerisScalarType  >
 void resetIntegratedEphemerisOfBody(
         const std::map< StateTimeType, Eigen::Matrix< StateScalarType, 6, 1 > >& ephemerisInput,
-        const boost::shared_ptr< ephemerides::TabulatedCartesianEphemeris< EphemerisScalarType, EphemerisTimeType > > tabulatedEphemeris )
+        const std::shared_ptr< ephemerides::TabulatedCartesianEphemeris< EphemerisScalarType, EphemerisTimeType > > tabulatedEphemeris )
 {
     std::map< EphemerisTimeType, Eigen::Matrix< EphemerisScalarType, 6, 1 > > castEphemerisInput;
     utilities::castMatrixMap< StateTimeType, StateScalarType, EphemerisTimeType, EphemerisScalarType, 6, 1 >(
                 ephemerisInput, castEphemerisInput );
     
-    boost::shared_ptr< interpolators::OneDimensionalInterpolator< EphemerisTimeType, Eigen::Matrix< EphemerisScalarType, 6, 1 > > >
+    std::shared_ptr< interpolators::OneDimensionalInterpolator< EphemerisTimeType, Eigen::Matrix< EphemerisScalarType, 6, 1 > > >
             ephemerisInterpolator = createStateInterpolator( castEphemerisInput );
     tabulatedEphemeris->resetInterpolator( ephemerisInterpolator );
 }
@@ -76,7 +76,7 @@ void resetIntegratedEphemerisOfBody(
     using namespace tudat::ephemerides;
     
     // If body does not have ephemeris, give error message.
-    if( bodyMap.at( bodyToIntegrate )->getEphemeris( ) == NULL )
+    if( bodyMap.at( bodyToIntegrate )->getEphemeris( ) == nullptr )
     {
         throw std::runtime_error( "Error when resetting integrated ephemeris of body " +
                                   bodyToIntegrate + "no ephemeris found" );
@@ -93,44 +93,44 @@ void resetIntegratedEphemerisOfBody(
     else
     {
         std::cerr << "Warning, tabulated ephemeris is being reset using data at different precision" << std::endl;
-        if( boost::dynamic_pointer_cast< TabulatedCartesianEphemeris< StateScalarType, TimeType > >(
-                    bodyMap.at( bodyToIntegrate )->getEphemeris( ) ) != NULL )
+        if( std::dynamic_pointer_cast< TabulatedCartesianEphemeris< StateScalarType, TimeType > >(
+                    bodyMap.at( bodyToIntegrate )->getEphemeris( ) ) != nullptr )
         {
-            boost::shared_ptr< OneDimensionalInterpolator< TimeType, Eigen::Matrix< StateScalarType, 6, 1 > > >
+            std::shared_ptr< OneDimensionalInterpolator< TimeType, Eigen::Matrix< StateScalarType, 6, 1 > > >
                     ephemerisInterpolator = createStateInterpolator( ephemerisInput );
-            boost::shared_ptr< TabulatedCartesianEphemeris< StateScalarType, TimeType > > tabulatedEphemeris =
-                    boost::dynamic_pointer_cast< TabulatedCartesianEphemeris< StateScalarType, TimeType > >(
+            std::shared_ptr< TabulatedCartesianEphemeris< StateScalarType, TimeType > > tabulatedEphemeris =
+                    std::dynamic_pointer_cast< TabulatedCartesianEphemeris< StateScalarType, TimeType > >(
                         bodyMap.at( bodyToIntegrate )->getEphemeris( ) );
             tabulatedEphemeris->resetInterpolator( ephemerisInterpolator );
         }
         else
         {
-            if( boost::dynamic_pointer_cast< TabulatedCartesianEphemeris< double, double > >(
-                        bodyMap.at( bodyToIntegrate )->getEphemeris( ) ) != NULL )
+            if( std::dynamic_pointer_cast< TabulatedCartesianEphemeris< double, double > >(
+                        bodyMap.at( bodyToIntegrate )->getEphemeris( ) ) != nullptr )
             {
                 resetIntegratedEphemerisOfBody(
-                            ephemerisInput, boost::dynamic_pointer_cast< TabulatedCartesianEphemeris< double, double > >(
+                            ephemerisInput, std::dynamic_pointer_cast< TabulatedCartesianEphemeris< double, double > >(
                                 bodyMap.at( bodyToIntegrate )->getEphemeris( ) ) );
             }
-            else if( boost::dynamic_pointer_cast< TabulatedCartesianEphemeris< long double, double > >(
-                         bodyMap.at( bodyToIntegrate )->getEphemeris( ) ) != NULL )
+            else if( std::dynamic_pointer_cast< TabulatedCartesianEphemeris< long double, double > >(
+                         bodyMap.at( bodyToIntegrate )->getEphemeris( ) ) != nullptr )
             {
                 resetIntegratedEphemerisOfBody(
-                            ephemerisInput, boost::dynamic_pointer_cast< TabulatedCartesianEphemeris< long double, double > >(
+                            ephemerisInput, std::dynamic_pointer_cast< TabulatedCartesianEphemeris< long double, double > >(
                                 bodyMap.at( bodyToIntegrate )->getEphemeris( ) ) );
             }
-            else if( boost::dynamic_pointer_cast< TabulatedCartesianEphemeris< double, Time > >(
-                         bodyMap.at( bodyToIntegrate )->getEphemeris( ) ) != NULL )
+            else if( std::dynamic_pointer_cast< TabulatedCartesianEphemeris< double, Time > >(
+                         bodyMap.at( bodyToIntegrate )->getEphemeris( ) ) != nullptr )
             {
                 resetIntegratedEphemerisOfBody(
-                            ephemerisInput, boost::dynamic_pointer_cast< TabulatedCartesianEphemeris< double, Time > >(
+                            ephemerisInput, std::dynamic_pointer_cast< TabulatedCartesianEphemeris< double, Time > >(
                                 bodyMap.at( bodyToIntegrate )->getEphemeris( ) ) );
             }
-            else if( boost::dynamic_pointer_cast< TabulatedCartesianEphemeris< long double, Time > >(
-                         bodyMap.at( bodyToIntegrate )->getEphemeris( ) ) != NULL )
+            else if( std::dynamic_pointer_cast< TabulatedCartesianEphemeris< long double, Time > >(
+                         bodyMap.at( bodyToIntegrate )->getEphemeris( ) ) != nullptr )
             {
                 resetIntegratedEphemerisOfBody(
-                            ephemerisInput, boost::dynamic_pointer_cast< TabulatedCartesianEphemeris< long double, Time > >(
+                            ephemerisInput, std::dynamic_pointer_cast< TabulatedCartesianEphemeris< long double, Time > >(
                                 bodyMap.at( bodyToIntegrate )->getEphemeris( ) ) );
             }
             else
@@ -163,8 +163,8 @@ void convertNumericalSolutionToEphemerisInput(
         const std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >&
         equationsOfMotionNumericalSolution,
         std::map< TimeType, Eigen::Matrix< StateScalarType, 6, 1 > >& ephemerisTable,
-        const boost::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType ) >
-        integrationToEphemerisFrameFunction = NULL )
+        const std::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType ) >
+        integrationToEphemerisFrameFunction = nullptr )
 {
     // If no integrationToEphemerisFrameFunction is provided, origin is already correct; only
     // extract required indices.
@@ -214,9 +214,9 @@ void getSingleBodyStateHistoryFromPropagationOutpiut(
         const std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >& equationsOfMotionNumericalSolution,
         std::map< TimeType, Eigen::Matrix< StateScalarType, 6, 1 > >& ephemerisInput,
         int& bodyIndex,
-        const std::map< std::string, boost::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType ) > >&
+        const std::map< std::string, std::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType ) > >&
         integrationToEphemerisFrameFunctions =
-        std::map< std::string, boost::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType ) > >( ) )
+        std::map< std::string, std::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType ) > >( ) )
 {
     // Get index of current body to be updated in bodiesToIntegrate.
     std::vector< std::string >::const_iterator bodyFindIterator = std::find(
@@ -229,7 +229,7 @@ void getSingleBodyStateHistoryFromPropagationOutpiut(
     bodyIndex = std::distance( bodiesToIntegrate.begin( ), bodyFindIterator );
     
     // Get frame origin function if applicable
-    boost::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType ) > integrationToEphemerisFrameFunction = NULL;
+    std::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType ) > integrationToEphemerisFrameFunction = nullptr;
     if( integrationToEphemerisFrameFunctions.count( bodiesToIntegrate.at( bodyIndex ) ) > 0 )
     {
         integrationToEphemerisFrameFunction =
@@ -262,9 +262,9 @@ void createAndSetInterpolatorsForEphemerides(
         const int startIndex,
         const std::vector< std::string >& ephemerisUpdateOrder,
         const std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >& equationsOfMotionNumericalSolution,
-        const std::map< std::string, boost::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType ) > >&
+        const std::map< std::string, std::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType ) > >&
         integrationToEphemerisFrameFunctions =
-        std::map< std::string, boost::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType ) > >( ) )
+        std::map< std::string, std::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType ) > >( ) )
 {
     using namespace tudat::interpolators;
     
@@ -305,9 +305,9 @@ void resetIntegratedEphemerides(
         const std::vector< std::string >& bodiesToIntegrate,
         const std::pair< unsigned int, unsigned int > startIndexAndSize,
         std::vector< std::string > ephemerisUpdateOrder = std::vector< std::string >( ),
-        const std::map< std::string, boost::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType ) > >&
+        const std::map< std::string, std::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType ) > >&
         integrationToEphemerisFrameFunctions =
-        std::map< std::string, boost::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType ) > >( ) )
+        std::map< std::string, std::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType ) > >( ) )
 {
     // Set update order arbitrarily if no order is provided.
     if( ephemerisUpdateOrder.size( ) == 0 )
@@ -363,9 +363,9 @@ void resetMultiArcIntegratedEphemerides(
         const std::vector< std::string >& bodiesToIntegrate,
         const std::pair< unsigned int, unsigned int > startIndexAndSize,
         std::vector< std::string > ephemerisUpdateOrder = std::vector< std::string >( ),
-        const std::map< std::string, boost::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType ) > >&
+        const std::map< std::string, std::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType ) > >&
         integrationToEphemerisFrameFunctions =
-        std::map< std::string, boost::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType ) > >( ) )
+        std::map< std::string, std::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType ) > >( ) )
 {
     using namespace tudat::interpolators;
     using namespace tudat::ephemerides;
@@ -386,20 +386,20 @@ void resetMultiArcIntegratedEphemerides(
         
         
         // Check environment consistency
-        boost::shared_ptr< MultiArcEphemeris > currentBodyEphemeris =
-                boost::dynamic_pointer_cast< MultiArcEphemeris >(
+        std::shared_ptr< MultiArcEphemeris > currentBodyEphemeris =
+                std::dynamic_pointer_cast< MultiArcEphemeris >(
                     bodyMap.at( bodiesToIntegrate.at( bodyIndex ) )->getEphemeris( ) );
-        if( currentBodyEphemeris == NULL )
+        if( currentBodyEphemeris == nullptr )
         {
             throw std::runtime_error( "Error when resetting ephemeris of body " + bodiesToIntegrate.at( bodyIndex ) +
                                       ", original ephemeris is of incompatible type" );
         }
         
-        std::vector< boost::shared_ptr< Ephemeris > > arcEphemerisList;
+        std::vector< std::shared_ptr< Ephemeris > > arcEphemerisList;
         for( unsigned int j = 0; j < arcStartTimes.size( ); j++ )
         {
-            boost::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType ) >
-                    integrationToEphemerisFrameFunction = NULL;
+            std::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType ) >
+                    integrationToEphemerisFrameFunction = nullptr;
             
             // Create transformation function, if needed.
             if( integrationToEphemerisFrameFunctions.count( bodiesToIntegrate.at( bodyIndex ) ) > 0 )
@@ -414,10 +414,10 @@ void resetMultiArcIntegratedEphemerides(
                         equationsOfMotionNumericalSolution.at( j ), currentArcSolution, integrationToEphemerisFrameFunction );
             
             // Create interpolator.
-            boost::shared_ptr< OneDimensionalInterpolator< TimeType, Eigen::Matrix< StateScalarType, 6, 1 > > >
+            std::shared_ptr< OneDimensionalInterpolator< TimeType, Eigen::Matrix< StateScalarType, 6, 1 > > >
                     ephemerisInterpolator = createStateInterpolator( currentArcSolution );
             
-            arcEphemerisList.push_back( boost::make_shared< TabulatedCartesianEphemeris< StateScalarType, TimeType > >(
+            arcEphemerisList.push_back( std::make_shared< TabulatedCartesianEphemeris< StateScalarType, TimeType > >(
                                             ephemerisInterpolator, currentBodyEphemeris->getReferenceFrameOrigin( ),
                                             currentBodyEphemeris->getReferenceFrameOrientation( ) ) );
         }
@@ -443,21 +443,21 @@ void resetMultiArcIntegratedEphemerides(
 template< typename TimeType, typename StateScalarType >
 void resetIntegratedRotationalEphemerisOfBody(
         const simulation_setup::NamedBodyMap& bodyMap,
-        const boost::shared_ptr< interpolators::OneDimensionalInterpolator< TimeType, Eigen::Matrix< StateScalarType, 7, 1 > > >
+        const std::shared_ptr< interpolators::OneDimensionalInterpolator< TimeType, Eigen::Matrix< StateScalarType, 7, 1 > > >
         rotationalEphemerisInterpolator,
         const std::string bodyToIntegrate )
 {
     using namespace tudat::interpolators;
     using namespace tudat::ephemerides;
     
-    if( bodyMap.at( bodyToIntegrate )->getRotationalEphemeris( ) == NULL )
+    if( bodyMap.at( bodyToIntegrate )->getRotationalEphemeris( ) == nullptr )
     {
         throw std::runtime_error( "Error, no rotational ephemeris detected for body " +
                                   bodyToIntegrate + " when resetting ephemeris" );
     }
     // If current ephemeris is not already a tabulated ephemeris, create new ephemeris.
-    else if( boost::dynamic_pointer_cast< TabulatedRotationalEphemeris< StateScalarType, TimeType > >(
-                 bodyMap.at( bodyToIntegrate )->getRotationalEphemeris( ) ) == NULL )
+    else if( std::dynamic_pointer_cast< TabulatedRotationalEphemeris< StateScalarType, TimeType > >(
+                 bodyMap.at( bodyToIntegrate )->getRotationalEphemeris( ) ) == nullptr )
     {
         throw std::runtime_error( "Error when resetting integrated rotational ephemeris of body, rotation model type is incompatible " );
         
@@ -465,8 +465,8 @@ void resetIntegratedRotationalEphemerisOfBody(
     // Else, update existing tabulated ephemeris
     else
     {
-        boost::shared_ptr< TabulatedRotationalEphemeris< StateScalarType, TimeType > > tabulatedEphemeris =
-                boost::dynamic_pointer_cast< TabulatedRotationalEphemeris<  StateScalarType, TimeType > >(
+        std::shared_ptr< TabulatedRotationalEphemeris< StateScalarType, TimeType > > tabulatedEphemeris =
+                std::dynamic_pointer_cast< TabulatedRotationalEphemeris<  StateScalarType, TimeType > >(
                     bodyMap.at( bodyToIntegrate )->getRotationalEphemeris( ) );
         tabulatedEphemeris->reset( rotationalEphemerisInterpolator );
     }
@@ -505,7 +505,7 @@ void convertNumericalSolutionToRotationalEphemerisInput(
  * \return Lagrange interpolator (order 6) that produces the required continuous state.
  */
 template< typename TimeType, typename StateScalarType >
-boost::shared_ptr< interpolators::OneDimensionalInterpolator< TimeType, Eigen::Matrix< StateScalarType, 6, 1 > > >
+std::shared_ptr< interpolators::OneDimensionalInterpolator< TimeType, Eigen::Matrix< StateScalarType, 6, 1 > > >
 createStateInterpolator(
         const std::map< TimeType, Eigen::Matrix< StateScalarType, 6, 1 > >& stateMap );
 
@@ -516,7 +516,7 @@ createStateInterpolator(
  * \return Lagrange interpolator (order 6) that produces the required continuous rotational state.
  */
 template< typename TimeType, typename StateScalarType >
-boost::shared_ptr< interpolators::OneDimensionalInterpolator< TimeType, Eigen::Matrix< StateScalarType, 7, 1 > > >
+std::shared_ptr< interpolators::OneDimensionalInterpolator< TimeType, Eigen::Matrix< StateScalarType, 7, 1 > > >
 createRotationalStateInterpolator(
         const std::map< TimeType, Eigen::Matrix< StateScalarType, 7, 1 > >& stateMap );
 
@@ -544,7 +544,7 @@ void createAndSetInterpolatorsForRotationalEphemerides(
         convertNumericalSolutionToRotationalEphemerisInput( startIndex, i, ephemerisInput, equationsOfMotionNumericalSolution );
 
         // Create interpolator.
-        boost::shared_ptr< OneDimensionalInterpolator< TimeType, Eigen::Matrix< StateScalarType, 7, 1 > > >
+        std::shared_ptr< OneDimensionalInterpolator< TimeType, Eigen::Matrix< StateScalarType, 7, 1 > > >
                 ephemerisInterpolator = createRotationalStateInterpolator(
                     ephemerisInput );
         
@@ -623,10 +623,10 @@ void resetIntegratedBodyMass(
         
         // Create and set interpolator.
         bodyMap.at( bodiesToIntegrate.at( i ) )->setBodyMassFunction(
-                    boost::bind(
+                    std::bind(
                         static_cast< double( LocalInterpolator::* )( const double ) >
                         ( &LocalInterpolator::interpolate ),
-                        boost::make_shared< interpolators::LagrangeInterpolatorDouble >( currentBodyMassMap, 6 ), _1 ) );
+                        std::make_shared< interpolators::LagrangeInterpolatorDouble >( currentBodyMassMap, 6 ), std::placeholders::_1 ) );
     }
 }
 
@@ -707,7 +707,7 @@ public:
             const simulation_setup::NamedBodyMap& bodyMap,
             const std::vector< std::string >& bodiesToIntegrate,
             const std::vector< std::string >& centralBodies,
-            const boost::shared_ptr< ephemerides::ReferenceFrameManager > frameManager ):
+            const std::shared_ptr< ephemerides::ReferenceFrameManager > frameManager ):
         IntegratedStateProcessor< TimeType, StateScalarType >(
             translational_state, std::make_pair( startIndex, 6 * bodiesToIntegrate.size( ) ) ),
         bodyMap_( bodyMap ), bodiesToIntegrate_( bodiesToIntegrate )
@@ -778,7 +778,7 @@ private:
     
     //! Function to provide the states of the ephemeris origins of each body w.r.t. their respective
     //! integration origins.
-    std::map< std::string, boost::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType ) > >
+    std::map< std::string, std::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType ) > >
     integrationToEphemerisFrameFunctions_;
 };
 
@@ -940,14 +940,14 @@ void checkTranslationalStatesFeasibility(
  */
 template< typename TimeType, typename StateScalarType >
 std::map< IntegratedStateType,
-std::vector< boost::shared_ptr< IntegratedStateProcessor< TimeType, StateScalarType > > > >
+std::vector< std::shared_ptr< IntegratedStateProcessor< TimeType, StateScalarType > > > >
 createIntegratedStateProcessors(
-        const boost::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > propagatorSettings,
+        const std::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > propagatorSettings,
         const simulation_setup::NamedBodyMap& bodyMap,
-        const boost::shared_ptr< ephemerides::ReferenceFrameManager > frameManager,
+        const std::shared_ptr< ephemerides::ReferenceFrameManager > frameManager,
         const int startIndex = 0 )
 {
-    std::map< IntegratedStateType, std::vector< boost::shared_ptr< IntegratedStateProcessor
+    std::map< IntegratedStateType, std::vector< std::shared_ptr< IntegratedStateProcessor
             < TimeType, StateScalarType > > > > integratedStateProcessors;
     
     // Check dynamics type.
@@ -956,19 +956,19 @@ createIntegratedStateProcessors(
     case hybrid:
     {
         // Check input consistency
-        boost::shared_ptr< MultiTypePropagatorSettings< StateScalarType > > multiTypePropagatorSettings =
-                boost::dynamic_pointer_cast< MultiTypePropagatorSettings< StateScalarType > >( propagatorSettings );
-        if( multiTypePropagatorSettings == NULL )
+        std::shared_ptr< MultiTypePropagatorSettings< StateScalarType > > multiTypePropagatorSettings =
+                std::dynamic_pointer_cast< MultiTypePropagatorSettings< StateScalarType > >( propagatorSettings );
+        if( multiTypePropagatorSettings == nullptr )
         {
             throw std::runtime_error( "Error, multi-type propagator settings are inconsistent when make state processors" );
         }
         
         // Iterate over each propagated state type
-        std::map< IntegratedStateType, std::vector< boost::shared_ptr< IntegratedStateProcessor< TimeType, StateScalarType > > > >
+        std::map< IntegratedStateType, std::vector< std::shared_ptr< IntegratedStateProcessor< TimeType, StateScalarType > > > >
                 singleTypeIntegratedStateProcessors;
         int currentStartIndex = 0;
         for( typename std::map< IntegratedStateType,
-             std::vector< boost::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > > >::const_iterator
+             std::vector< std::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > > >::const_iterator
              typeIterator = multiTypePropagatorSettings->propagatorSettingsMap_.begin( );
              typeIterator != multiTypePropagatorSettings->propagatorSettingsMap_.end( ); typeIterator++ )
         {
@@ -977,7 +977,7 @@ createIntegratedStateProcessors(
             {
                 for( unsigned int i = 0; i < typeIterator->second.size( ); i++ )
                 {
-                    if(  typeIterator->second.at( i ) == NULL )
+                    if(  typeIterator->second.at( i ) == nullptr )
                     {
                         std::string errorMessage = "Error in when processing hybrid propagator settings, propagator entry " +
                                 std::to_string( i ) + " is not defined.";
@@ -1024,10 +1024,10 @@ createIntegratedStateProcessors(
     case translational_state:
     {
         // Check input feasibility
-        boost::shared_ptr< TranslationalStatePropagatorSettings< StateScalarType > >
-                translationalPropagatorSettings = boost::dynamic_pointer_cast
+        std::shared_ptr< TranslationalStatePropagatorSettings< StateScalarType > >
+                translationalPropagatorSettings = std::dynamic_pointer_cast
                 < TranslationalStatePropagatorSettings< StateScalarType > >( propagatorSettings );
-        if( translationalPropagatorSettings == NULL )
+        if( translationalPropagatorSettings == nullptr )
         {
             throw std::runtime_error( "Error, input type is inconsistent in createIntegratedStateProcessors" );
         }
@@ -1036,35 +1036,35 @@ createIntegratedStateProcessors(
         
         // Create state processors
         integratedStateProcessors[ translational_state ].push_back(
-                    boost::make_shared< TranslationalStateIntegratedStateProcessor< TimeType, StateScalarType > >(
+                    std::make_shared< TranslationalStateIntegratedStateProcessor< TimeType, StateScalarType > >(
                         startIndex, bodyMap, translationalPropagatorSettings->bodiesToIntegrate_,
                         translationalPropagatorSettings->centralBodies_, frameManager ) );
         break;
     }
     case rotational_state:
     {
-        boost::shared_ptr< RotationalStatePropagatorSettings< StateScalarType > > rotationalPropagatorSettings =
-                boost::dynamic_pointer_cast< RotationalStatePropagatorSettings< StateScalarType > >( propagatorSettings );
+        std::shared_ptr< RotationalStatePropagatorSettings< StateScalarType > > rotationalPropagatorSettings =
+                std::dynamic_pointer_cast< RotationalStatePropagatorSettings< StateScalarType > >( propagatorSettings );
         
         integratedStateProcessors[ rotational_state ].push_back(
-                    boost::make_shared< RotationalStateIntegratedStateProcessor< TimeType, StateScalarType > >(
+                    std::make_shared< RotationalStateIntegratedStateProcessor< TimeType, StateScalarType > >(
                         startIndex, bodyMap, rotationalPropagatorSettings->bodiesToIntegrate_ ) );
         break;
     }
     case body_mass_state:
     {
         // Check input feasibility
-        boost::shared_ptr< MassPropagatorSettings< StateScalarType > >
-                massPropagatorSettings = boost::dynamic_pointer_cast
+        std::shared_ptr< MassPropagatorSettings< StateScalarType > >
+                massPropagatorSettings = std::dynamic_pointer_cast
                 < MassPropagatorSettings< StateScalarType > >( propagatorSettings );
-        if( massPropagatorSettings == NULL )
+        if( massPropagatorSettings == nullptr )
         {
             throw std::runtime_error( "Error, input type is inconsistent in createIntegratedStateProcessors" );
         }
         
         // Create mass processors.
         integratedStateProcessors[ body_mass_state ].push_back(
-                    boost::make_shared< BodyMassIntegratedStateProcessor< TimeType, StateScalarType > >(
+                    std::make_shared< BodyMassIntegratedStateProcessor< TimeType, StateScalarType > >(
                         startIndex, bodyMap, massPropagatorSettings->bodiesWithMassToPropagate_ ) );
         break;
     }
@@ -1093,10 +1093,10 @@ createIntegratedStateProcessors(
 template< typename TimeType, typename StateScalarType >
 void resetIntegratedStates(
         const std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >& equationsOfMotionNumericalSolution,
-        const std::map< IntegratedStateType, std::vector< boost::shared_ptr<
+        const std::map< IntegratedStateType, std::vector< std::shared_ptr<
         IntegratedStateProcessor< TimeType, StateScalarType > > > >  integratedStateProcessors )
 {
-    for( typename std::map< IntegratedStateType, std::vector< boost::shared_ptr< IntegratedStateProcessor<
+    for( typename std::map< IntegratedStateType, std::vector< std::shared_ptr< IntegratedStateProcessor<
          TimeType, StateScalarType > > > >::const_iterator updateIterator = integratedStateProcessors.begin( );
          updateIterator != integratedStateProcessors.end( ); updateIterator++ )
     {
@@ -1124,12 +1124,12 @@ void resetIntegratedMultiArcStatesWithEqualArcDynamics(
         const std::vector< std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > >&
         equationsOfMotionNumericalSolution,
         const std::map< IntegratedStateType,
-        std::vector< boost::shared_ptr< IntegratedStateProcessor< TimeType, StateScalarType > > > >
+        std::vector< std::shared_ptr< IntegratedStateProcessor< TimeType, StateScalarType > > > >
         integratedStateProcessors,
         const std::vector< double >& arcStartTimes )
 {
     for( typename std::map< IntegratedStateType,
-         std::vector< boost::shared_ptr< IntegratedStateProcessor< TimeType, StateScalarType > > > >:: const_iterator
+         std::vector< std::shared_ptr< IntegratedStateProcessor< TimeType, StateScalarType > > > >:: const_iterator
          updateIterator = integratedStateProcessors.begin( );
          updateIterator != integratedStateProcessors.end( ); updateIterator++ )
     {

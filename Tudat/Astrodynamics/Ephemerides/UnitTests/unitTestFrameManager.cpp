@@ -37,39 +37,39 @@ BOOST_AUTO_TEST_CASE( test_FrameManager )
     //Load spice kernels.
     spice_interface::loadStandardSpiceKernels( );
 
-    std::map< std::string, boost::shared_ptr< Ephemeris > > ephemerisList;
+    std::map< std::string, std::shared_ptr< Ephemeris > > ephemerisList;
 
     Eigen::Vector6d barycentricSunState = getBodyCartesianStateAtEpoch( "Sun", getBaseFrameName( ), "ECLIPJ2000", "NONE", 0.0 );
-    ephemerisList[ "Sun" ] = boost::make_shared< ConstantEphemeris >( barycentricSunState, getBaseFrameName( ), "ECLIPJ2000" );
+    ephemerisList[ "Sun" ] = std::make_shared< ConstantEphemeris >( barycentricSunState, getBaseFrameName( ), "ECLIPJ2000" );
 
     Eigen::Vector6d sunCentricEarthState = getBodyCartesianStateAtEpoch( "Earth", "Sun", "ECLIPJ2000", "NONE", 0.0 );
-    ephemerisList[ "Earth" ] = boost::make_shared< ConstantEphemeris >( sunCentricEarthState, "Sun", "ECLIPJ2000" );
+    ephemerisList[ "Earth" ] = std::make_shared< ConstantEphemeris >( sunCentricEarthState, "Sun", "ECLIPJ2000" );
 
     Eigen::Vector6d earthCentricMoonState = getBodyCartesianStateAtEpoch( "Moon", "Earth", "ECLIPJ2000", "NONE", 0.0 );
-    ephemerisList[ "Moon" ] = boost::make_shared< ConstantEphemeris >( earthCentricMoonState, "Earth", "ECLIPJ2000" );
+    ephemerisList[ "Moon" ] = std::make_shared< ConstantEphemeris >( earthCentricMoonState, "Earth", "ECLIPJ2000" );
 
     Eigen::Vector6d earthCentricLageosState = Eigen::Vector6d::Zero( );
     earthCentricLageosState( 1 ) = 2.5E6;
     earthCentricLageosState( 2 ) = 4.0E6;
-    ephemerisList[ "LAGEOS" ] = boost::make_shared< ConstantEphemeris >( earthCentricLageosState, "Earth", "ECLIPJ2000" );
+    ephemerisList[ "LAGEOS" ] = std::make_shared< ConstantEphemeris >( earthCentricLageosState, "Earth", "ECLIPJ2000" );
 
     Eigen::Vector6d moonCentricLroState = Eigen::Vector6d::Zero( );
     moonCentricLroState( 0 ) = 1.0E6;
     moonCentricLroState( 1 ) = 2.0E6;
 
-    ephemerisList[ "LRO" ] = boost::make_shared< ConstantEphemeris >( moonCentricLroState, "Moon", "ECLIPJ2000" );
+    ephemerisList[ "LRO" ] = std::make_shared< ConstantEphemeris >( moonCentricLroState, "Moon", "ECLIPJ2000" );
 
     Eigen::Vector6d sunCentricMarsState = getBodyCartesianStateAtEpoch( "Mars", "Sun", "ECLIPJ2000", "NONE", 0.0 );
-    ephemerisList[ "Mars" ] = boost::make_shared< ConstantEphemeris >( sunCentricMarsState, "Sun", "ECLIPJ2000" );
+    ephemerisList[ "Mars" ] = std::make_shared< ConstantEphemeris >( sunCentricMarsState, "Sun", "ECLIPJ2000" );
 
     Eigen::Vector6d marsCentricPhobosState = Eigen::Vector6d::Zero( );
     marsCentricPhobosState( 0 ) = 2.3E5;
     marsCentricPhobosState( 1 ) = 2.9E4;
     marsCentricPhobosState( 2 ) = 600;
 
-    ephemerisList[ "Phobos" ] = boost::make_shared< ConstantEphemeris >( marsCentricPhobosState, "Mars", "ECLIPJ2000" );
+    ephemerisList[ "Phobos" ] = std::make_shared< ConstantEphemeris >( marsCentricPhobosState, "Mars", "ECLIPJ2000" );
 
-    boost::shared_ptr< ReferenceFrameManager > frameManager = boost::make_shared< ReferenceFrameManager >( ephemerisList );
+    std::shared_ptr< ReferenceFrameManager > frameManager = std::make_shared< ReferenceFrameManager >( ephemerisList );
 
     std::map< std::string, int > expectedFrameLevel;
     expectedFrameLevel[ "Sun" ] = 0;

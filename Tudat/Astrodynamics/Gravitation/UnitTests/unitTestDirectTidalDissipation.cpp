@@ -65,44 +65,46 @@ std::pair< double, double > computeKeplerElementRatesDueToDissipation(
 
     // Define propagation settings.
     const double fixedStepSize = 450.0;
-    boost::shared_ptr< IntegratorSettings< > > integratorSettings =
-            boost::make_shared< RungeKuttaVariableStepSizeSettings< > >
-            ( 0.0, fixedStepSize, RungeKuttaCoefficients::rungeKuttaFehlberg78, fixedStepSize, fixedStepSize, 1.0, 1.0 );
+    std::shared_ptr< IntegratorSettings< > > integratorSettings =
+            std::make_shared< RungeKuttaVariableStepSizeSettings< > >
+            ( 0.0, fixedStepSize,
+              RungeKuttaCoefficients::rungeKuttaFehlberg78, fixedStepSize, fixedStepSize, 1.0, 1.0);
 
     std::map< double, Eigen::VectorXd > integrationResultWithDissipation;
     std::map< double, Eigen::VectorXd > integrationResultWithDissipationKepler;
 
     std::map< double, double > semiMajorAxes, eccentricities;
     {
-        std::map< std::string, std::vector< boost::shared_ptr< AccelerationSettings > > > accelerationsOfIo;
-        accelerationsOfIo[ "Jupiter" ].push_back( boost::make_shared< AccelerationSettings >(
+        std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfIo;
+        accelerationsOfIo[ "Jupiter" ].push_back( std::make_shared< AccelerationSettings >(
                                                       basic_astrodynamics::central_gravity ) );
-        accelerationsOfIo[ "Jupiter" ].push_back( boost::make_shared< DirectTidalDissipationAccelerationSettings >(
+        accelerationsOfIo[ "Jupiter" ].push_back( std::make_shared< DirectTidalDissipationAccelerationSettings >(
                                                       k2LoveNumber, tidalTimeLag, false, usePlanetDissipation ) );
         accelerationMap[ satelliteToPropagate ] = accelerationsOfIo;
         basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
                     bodyMap, accelerationMap, bodiesToPropagate, centralBodies );
 
+
         // Save dependent variables
-        std::vector< boost::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariablesToSave;
+        std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariablesToSave;
         if( usePlanetDissipation )
         {
             dependentVariablesToSave.push_back(
-                        boost::make_shared< SingleAccelerationDependentVariableSaveSettings >(
+                        std::make_shared< SingleAccelerationDependentVariableSaveSettings >(
                             direct_tidal_dissipation_in_central_body_acceleration, satelliteToPropagate, "Jupiter" ) );
         }
         else
         {
             dependentVariablesToSave.push_back(
-                        boost::make_shared< SingleAccelerationDependentVariableSaveSettings >(
+                        std::make_shared< SingleAccelerationDependentVariableSaveSettings >(
                             direct_tidal_dissipation_in_orbiting_body_acceleration, satelliteToPropagate, "Jupiter" ) );
         }
 
-        boost::shared_ptr< DependentVariableSaveSettings > dependentVariableSaveSettings =
-                boost::make_shared< DependentVariableSaveSettings >( dependentVariablesToSave, 0 ) ;
+        std::shared_ptr< DependentVariableSaveSettings > dependentVariableSaveSettings =
+                std::make_shared< DependentVariableSaveSettings >( dependentVariablesToSave, 0 ) ;
 
-        boost::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
-                boost::make_shared< TranslationalStatePropagatorSettings< double > >
+        std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
+                std::make_shared< TranslationalStatePropagatorSettings< double > >
                 ( centralBodies, accelerationModelMap, bodiesToPropagate, getInitialStatesOfBodies(
                       bodiesToPropagate, centralBodies, bodyMap, initialTime ), finalTime, cowell,
                   dependentVariableSaveSettings );
@@ -136,9 +138,9 @@ std::pair< double, double > computeKeplerElementRatesDueToDissipation(
     //                                          satelliteToPropagate + ".dat" );
 
     std::vector< double > semiMajorAxisFit = linear_algebra::getLeastSquaresPolynomialFit(
-                semiMajorAxes, boost::assign::list_of( 0 )( 1 ) );
+                semiMajorAxes, { 0, 1 } );
     std::vector< double > eccentricityFit = linear_algebra::getLeastSquaresPolynomialFit(
-                eccentricities, boost::assign::list_of( 0 )( 1 ) );
+                eccentricities, { 0, 1 } );
 
     intialKeplerElements = integrationResultWithDissipationKepler.begin( )->second;
     meanMotion = basic_astrodynamics::computeKeplerMeanMotion(
@@ -167,7 +169,7 @@ BOOST_AUTO_TEST_CASE( testTidalDissipationInPlanetAndSatellite )
     double finalTime = 1.0 * physical_constants::JULIAN_YEAR;
 
     // Get body settings.
-    std::map< std::string, boost::shared_ptr< BodySettings > > bodySettings =
+    std::map< std::string, std::shared_ptr< BodySettings > > bodySettings =
             getDefaultBodySettings( bodyNames, initialTime - 86400.0, finalTime + 86400.0 );
 
     std::vector< std::string > galileanSatellites = { "Io", "Europa", "Ganymede" };
@@ -175,30 +177,30 @@ BOOST_AUTO_TEST_CASE( testTidalDissipationInPlanetAndSatellite )
     Eigen::MatrixXd cosineCoefficients = Eigen::MatrixXd::Zero( 3, 3 );
     cosineCoefficients( 0, 0 ) = 1.0;
     Eigen::MatrixXd sineCoefficients = Eigen::MatrixXd::Zero( 3, 3 );
-    bodySettings[ "Jupiter" ]->gravityFieldSettings = boost::make_shared< SphericalHarmonicsGravityFieldSettings >
+    bodySettings[ "Jupiter" ]->gravityFieldSettings = std::make_shared< SphericalHarmonicsGravityFieldSettings >
             ( getBodyGravitationalParameter( "Jupiter" ), getAverageRadius( "Jupiter" ),
               cosineCoefficients, sineCoefficients, "IAU_Jupiter" );
-    bodySettings[ "Jupiter" ]->rotationModelSettings = boost::make_shared< SimpleRotationModelSettings >(
+    bodySettings[ "Jupiter" ]->rotationModelSettings = std::make_shared< SimpleRotationModelSettings >(
                 "ECLIPJ2000", "IAU_Jupiter", Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) ),
                 0.0, 2.0 * mathematical_constants::PI / ( 9.925 * 3600.0 ) );
 
     for( unsigned int i = 0; i < galileanSatellites.size( ); i++ )
     {
-        bodySettings[ galileanSatellites.at( i ) ]->gravityFieldSettings = boost::make_shared< SphericalHarmonicsGravityFieldSettings >
+        bodySettings[ galileanSatellites.at( i ) ]->gravityFieldSettings = std::make_shared< SphericalHarmonicsGravityFieldSettings >
                 ( getBodyGravitationalParameter( galileanSatellites.at( i ) ), getAverageRadius( galileanSatellites.at( i ) ),
                   cosineCoefficients, sineCoefficients, "IAU_" + galileanSatellites.at( i )  );
     }
 
-    bodySettings[ "Io" ]->ephemerisSettings = boost::make_shared< KeplerEphemerisSettings >(
+    bodySettings[ "Io" ]->ephemerisSettings = std::make_shared< KeplerEphemerisSettings >(
                 ( Eigen::Vector6d( ) << 1.0 * 421.8E6, 1.0 * 0.004, 0.0, 0.0, 0.0, 0.0 ).finished( ), 0.0,
                 getBodyGravitationalParameter( "Jupiter" ) + getBodyGravitationalParameter( "Io" ), "Jupiter", "ECLIPJ2000" );
-    bodySettings[ "Europa" ]->ephemerisSettings = boost::make_shared< KeplerEphemerisSettings >(
+    bodySettings[ "Europa" ]->ephemerisSettings = std::make_shared< KeplerEphemerisSettings >(
                 ( Eigen::Vector6d( ) << 671.1E6, 0.009, 0.0, 0.0, 0.0, 0.0 ).finished( ), 0.0,
                 getBodyGravitationalParameter( "Jupiter" ) + getBodyGravitationalParameter( "Europa" ), "Jupiter", "ECLIPJ2000" );
-    bodySettings[ "Ganymede" ]->ephemerisSettings = boost::make_shared< KeplerEphemerisSettings >(
+    bodySettings[ "Ganymede" ]->ephemerisSettings = std::make_shared< KeplerEphemerisSettings >(
                 ( Eigen::Vector6d( ) << 1070.400E6, 0.0013, 0.0, 0.0, 0.0, 0.0 ).finished( ), 0.0,
                 getBodyGravitationalParameter( "Jupiter" ) + getBodyGravitationalParameter( "Ganymede" ), "Jupiter", "ECLIPJ2000" );
-    //    bodySettings[ "Callisto" ]->ephemerisSettings = boost::make_shared< KeplerEphemerisSettings >(
+    //    bodySettings[ "Callisto" ]->ephemerisSettings = std::make_shared< KeplerEphemerisSettings >(
     //                ( Eigen::Vector6d( ) << 1882.700E6, 0.0074, 0.0, 0.0, 0.0, 0.0 ).finished( ), 0.0,
     //                getBodyGravitationalParameter( "Jupiter" ) + getBodyGravitationalParameter( "Callisto" ), "Jupiter", "ECLIPJ2000" );
 

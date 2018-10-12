@@ -13,7 +13,7 @@
 
 #include <ctime>
 
-#include <boost/function.hpp>
+#include <functional>
 #include <boost/random.hpp>
 #include <boost/random/mersenne_twister.hpp>
 #include <boost/make_shared.hpp>
@@ -77,7 +77,7 @@ public:
      * \param seed Seed of random number generator.
      */
     ContinuousRandomVariableGenerator(
-            const boost::shared_ptr< InvertibleContinuousProbabilityDistribution< double > > randomVariable,
+            const std::shared_ptr< InvertibleContinuousProbabilityDistribution< double > > randomVariable,
             const double seed ):
         RandomVariableGenerator< double >( seed ), randomVariable_( randomVariable ),
         randomUniformCdfGenerator_( randomNumberGenerator_ ){ }
@@ -97,7 +97,7 @@ public:
 private:
 
     //! Probability distribution from which random number is generated.
-    boost::shared_ptr< InvertibleContinuousProbabilityDistribution< double > > randomVariable_;
+    std::shared_ptr< InvertibleContinuousProbabilityDistribution< double > > randomVariable_;
 
     //! Random number generator in uniform (0,1) distribution, representing a random probability value.
     /*!
@@ -113,11 +113,11 @@ private:
  *  Function to create a random number generating function from a continuous univariate distribution implemented in boost
  *  \param boostDistribution Type of distribution of which a random variable class is to be generated
  *  \param parameters Free parameters of requested distribution (for instance mean and standard deviation for Gaussian
- *  distribution, see implementation for order of parameters, if relevant)     * \param seed Seed of random number generator.
+ *  distribution, see implementation for order of parameters, if relevant).
  *  \param seed Seed of random number generator.
  *  \return Random number generator according to given distribution.
  */
-boost::function< double( ) > createBoostContinuousRandomVariableGeneratorFunction(
+std::function< double( ) > createBoostContinuousRandomVariableGeneratorFunction(
         const ContinuousBoostStatisticalDistributions boostDistribution,
         const std::vector< double >& parameters,
         const double seed );
@@ -127,11 +127,11 @@ boost::function< double( ) > createBoostContinuousRandomVariableGeneratorFunctio
  *  Function to create a random number generator from a continuous univariate distribution implemented in boost
  *  \param boostDistribution Type of distribution of which a random variable class is to be generated
  *  \param parameters Free parameters of requested distribution (for instance mean and standard deviation for Gaussian
- *  distribution, see implementation for order of parameters, if relevant)     * \param seed Seed of random number generator.
+ *  distribution, see implementation for order of parameters, if relevant).
  *  \param seed Seed of random number generator.
  *  \return Random number generator according to given distribution.
  */
-boost::shared_ptr< RandomVariableGenerator< double > > createBoostContinuousRandomVariableGenerator(
+std::shared_ptr< RandomVariableGenerator< double > > createBoostContinuousRandomVariableGenerator(
         const ContinuousBoostStatisticalDistributions boostDistribution,
         const std::vector< double >& parameters,
         const double seed );

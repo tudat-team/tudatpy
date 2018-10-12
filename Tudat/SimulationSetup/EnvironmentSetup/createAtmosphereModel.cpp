@@ -28,11 +28,11 @@ namespace simulation_setup
 {
 
 //! Function to create a wind model.
-boost::shared_ptr< aerodynamics::WindModel > createWindModel(
-        const boost::shared_ptr< WindModelSettings > windSettings,
+std::shared_ptr< aerodynamics::WindModel > createWindModel(
+        const std::shared_ptr< WindModelSettings > windSettings,
         const std::string& body )
 {
-    boost::shared_ptr< aerodynamics::WindModel > windModel;
+    std::shared_ptr< aerodynamics::WindModel > windModel;
 
     // Check wind model type and create requested model
     switch( windSettings->getWindModelType( ) )
@@ -40,13 +40,14 @@ boost::shared_ptr< aerodynamics::WindModel > createWindModel(
     case custom_wind_model:
     {
         // Check input consistency
-        boost::shared_ptr< CustomWindModelSettings > customWindModelSettings =
-                boost::dynamic_pointer_cast< CustomWindModelSettings >( windSettings );
+        std::shared_ptr< CustomWindModelSettings > customWindModelSettings =
+                std::dynamic_pointer_cast< CustomWindModelSettings >( windSettings );
+
         if( customWindModelSettings == nullptr )
         {
             throw std::runtime_error( "Error when making custom wind model for body " + body + ", input is incompatible" );
         }
-        windModel = boost::make_shared< aerodynamics::CustomWindModel >(
+        windModel = std::make_shared< aerodynamics::CustomWindModel >(
                     customWindModelSettings->getWindFunction( ) );
         break;
     }
@@ -59,14 +60,14 @@ boost::shared_ptr< aerodynamics::WindModel > createWindModel(
 }
 
 //! Function to create an atmosphere model.
-boost::shared_ptr< aerodynamics::AtmosphereModel > createAtmosphereModel(
-        const boost::shared_ptr< AtmosphereSettings > atmosphereSettings,
+std::shared_ptr< aerodynamics::AtmosphereModel > createAtmosphereModel(
+        const std::shared_ptr< AtmosphereSettings > atmosphereSettings,
         const std::string& body )
 {
     using namespace tudat::aerodynamics;
 
     // Declare return object.
-    boost::shared_ptr< AtmosphereModel > atmosphereModel;
+    std::shared_ptr< AtmosphereModel > atmosphereModel;
 
     // Check which type of atmosphere model is to be created.
     switch( atmosphereSettings->getAtmosphereType( ) )
@@ -74,8 +75,9 @@ boost::shared_ptr< aerodynamics::AtmosphereModel > createAtmosphereModel(
     case exponential_atmosphere:
     {
         // Check whether settings for atmosphere are consistent with its type.
-        boost::shared_ptr< ExponentialAtmosphereSettings > exponentialAtmosphereSettings =
-                boost::dynamic_pointer_cast< ExponentialAtmosphereSettings >( atmosphereSettings );
+        std::shared_ptr< ExponentialAtmosphereSettings > exponentialAtmosphereSettings =
+                std::dynamic_pointer_cast< ExponentialAtmosphereSettings >( atmosphereSettings );
+
         if( exponentialAtmosphereSettings == nullptr )
         {
             throw std::runtime_error( "Error, expected exponential atmosphere settings for body " + body );
@@ -83,10 +85,10 @@ boost::shared_ptr< aerodynamics::AtmosphereModel > createAtmosphereModel(
         else
         {
             // Create and initialize exponential atmosphere model.
-            boost::shared_ptr< ExponentialAtmosphere > exponentialAtmosphereModel;
+            std::shared_ptr< ExponentialAtmosphere > exponentialAtmosphereModel;
             if ( exponentialAtmosphereSettings->getBodyName( ) == undefined_body )
             {
-                exponentialAtmosphereModel = boost::make_shared< ExponentialAtmosphere >(
+                exponentialAtmosphereModel = std::make_shared< ExponentialAtmosphere >(
                             exponentialAtmosphereSettings->getDensityScaleHeight( ) ,
                             exponentialAtmosphereSettings->getConstantTemperature( ),
                             exponentialAtmosphereSettings->getDensityAtZeroAltitude( ),
@@ -95,7 +97,7 @@ boost::shared_ptr< aerodynamics::AtmosphereModel > createAtmosphereModel(
             }
             else
             {
-                exponentialAtmosphereModel = boost::make_shared< ExponentialAtmosphere >(
+                exponentialAtmosphereModel = std::make_shared< ExponentialAtmosphere >(
                             exponentialAtmosphereSettings->getBodyName( ) );
             }
             atmosphereModel = exponentialAtmosphereModel;
@@ -105,8 +107,8 @@ boost::shared_ptr< aerodynamics::AtmosphereModel > createAtmosphereModel(
     case custom_constant_temperature_atmosphere:
     {
         // Check whether settings for atmosphere are consistent with its type.
-        boost::shared_ptr< CustomConstantTemperatureAtmosphereSettings > customConstantTemperatureAtmosphereSettings =
-                boost::dynamic_pointer_cast< CustomConstantTemperatureAtmosphereSettings >( atmosphereSettings );
+        std::shared_ptr< CustomConstantTemperatureAtmosphereSettings > customConstantTemperatureAtmosphereSettings =
+                std::dynamic_pointer_cast< CustomConstantTemperatureAtmosphereSettings >( atmosphereSettings );
         if( customConstantTemperatureAtmosphereSettings == nullptr )
         {
             throw std::runtime_error( "Error, expected exponential atmosphere settings for body " + body );
@@ -114,10 +116,10 @@ boost::shared_ptr< aerodynamics::AtmosphereModel > createAtmosphereModel(
         else
         {
             // Create and initialize exponential atmosphere model.
-            boost::shared_ptr< CustomConstantTemperatureAtmosphere > customConstantTemperatureAtmosphereModel;
+            std::shared_ptr< CustomConstantTemperatureAtmosphere > customConstantTemperatureAtmosphereModel;
             if ( customConstantTemperatureAtmosphereSettings->getModelSpecificParameters( ).empty( ) )
             {
-                customConstantTemperatureAtmosphereModel = boost::make_shared< CustomConstantTemperatureAtmosphere >(
+                customConstantTemperatureAtmosphereModel = std::make_shared< CustomConstantTemperatureAtmosphere >(
                             customConstantTemperatureAtmosphereSettings->getDensityFunction( ) ,
                             customConstantTemperatureAtmosphereSettings->getConstantTemperature( ),
                             customConstantTemperatureAtmosphereSettings->getSpecificGasConstant( ),
@@ -125,7 +127,7 @@ boost::shared_ptr< aerodynamics::AtmosphereModel > createAtmosphereModel(
             }
             else
             {
-                customConstantTemperatureAtmosphereModel = boost::make_shared< CustomConstantTemperatureAtmosphere >(
+                customConstantTemperatureAtmosphereModel = std::make_shared< CustomConstantTemperatureAtmosphere >(
                             customConstantTemperatureAtmosphereSettings->getDensityFunctionType( ),
                             customConstantTemperatureAtmosphereSettings->getConstantTemperature( ),
                             customConstantTemperatureAtmosphereSettings->getSpecificGasConstant( ),
@@ -139,8 +141,8 @@ boost::shared_ptr< aerodynamics::AtmosphereModel > createAtmosphereModel(
     case tabulated_atmosphere:
     {
         // Check whether settings for atmosphere are consistent with its type
-        boost::shared_ptr< TabulatedAtmosphereSettings > tabulatedAtmosphereSettings =
-                boost::dynamic_pointer_cast< TabulatedAtmosphereSettings >( atmosphereSettings );
+        std::shared_ptr< TabulatedAtmosphereSettings > tabulatedAtmosphereSettings =
+                std::dynamic_pointer_cast< TabulatedAtmosphereSettings >( atmosphereSettings );
         if( tabulatedAtmosphereSettings == nullptr )
         {
             throw std::runtime_error( "Error, expected tabulated atmosphere settings for body " + body );
@@ -148,7 +150,7 @@ boost::shared_ptr< aerodynamics::AtmosphereModel > createAtmosphereModel(
         else
         {
             // Create and initialize tabulated atmosphere model.
-            atmosphereModel = boost::make_shared< TabulatedAtmosphere >(
+            atmosphereModel = std::make_shared< TabulatedAtmosphere >(
                         tabulatedAtmosphereSettings->getAtmosphereFile( ),
                         tabulatedAtmosphereSettings->getIndependentVariables( ),
                         tabulatedAtmosphereSettings->getDependentVariables( ),
@@ -163,8 +165,9 @@ boost::shared_ptr< aerodynamics::AtmosphereModel > createAtmosphereModel(
     case nrlmsise00:
     {
         std::string spaceWeatherFilePath;
-        boost::shared_ptr< NRLMSISE00AtmosphereSettings > nrlmsise00AtmosphereSettings =
-                boost::dynamic_pointer_cast< NRLMSISE00AtmosphereSettings >( atmosphereSettings );
+        std::shared_ptr< NRLMSISE00AtmosphereSettings > nrlmsise00AtmosphereSettings =
+                std::dynamic_pointer_cast< NRLMSISE00AtmosphereSettings >( atmosphereSettings );
+
         if( nrlmsise00AtmosphereSettings == nullptr )
         {
             // Use default space weather file stored in tudatBundle.
@@ -180,9 +183,11 @@ boost::shared_ptr< aerodynamics::AtmosphereModel > createAtmosphereModel(
                 tudat::input_output::solar_activity::readSolarActivityData( spaceWeatherFilePath ) ;
 
         // Create atmosphere model using NRLMISE00 input function
-        boost::function< tudat::aerodynamics::NRLMSISE00Input (double,double,double,double) > inputFunction =
-                boost::bind(&tudat::aerodynamics::nrlmsiseInputFunction,_1,_2,_3,_4, solarActivityData , false , TUDAT_NAN );
-        atmosphereModel = boost::make_shared< aerodynamics::NRLMSISE00Atmosphere >( inputFunction );
+        std::function< tudat::aerodynamics::NRLMSISE00Input( double, double, double, double ) > inputFunction =
+                std::bind( &tudat::aerodynamics::nrlmsiseInputFunction,
+                           std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4,
+                           solarActivityData, false, TUDAT_NAN );
+        atmosphereModel = std::make_shared< aerodynamics::NRLMSISE00Atmosphere >( inputFunction );
         break;
     }
 #endif

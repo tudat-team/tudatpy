@@ -90,8 +90,8 @@ BOOST_AUTO_TEST_CASE( testShapeModels )
 
     // Test free function altitude calculations
     {
-        boost::shared_ptr< OblateSpheroidBodyShapeModel > shapeModel =
-                boost::make_shared< OblateSpheroidBodyShapeModel >(
+        std::shared_ptr< OblateSpheroidBodyShapeModel > shapeModel =
+                std::make_shared< OblateSpheroidBodyShapeModel >(
                     equatorialRadius, flattening );
 
         Eigen::Vector3d bodyPosition =
@@ -124,9 +124,9 @@ BOOST_AUTO_TEST_CASE( testShapeModels )
 
         calculatedAltitute = getAltitudeFromNonBodyFixedPositionFunctions(
                     shapeModel, dummyTestRotation * inertialTestCartesianPosition,
-                    boost::lambda::constant(
-                        Eigen::Vector3d( dummyTestRotation * bodyPosition ) ),
-                    boost::lambda::constant( dummyTestRotation.inverse( ) ) );
+                    [ & ]( ){ return
+                        Eigen::Vector3d( dummyTestRotation * bodyPosition ); },
+                    [ & ]( ){ return dummyTestRotation.inverse( ); } );
         BOOST_CHECK_SMALL( calculatedAltitute - testGeodeticPosition.x( ), 1.0E-4 );
 
     }

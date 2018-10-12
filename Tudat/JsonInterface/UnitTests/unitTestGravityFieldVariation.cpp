@@ -39,8 +39,8 @@ BOOST_AUTO_TEST_CASE( test_json_gravityFieldVariation_basicSolidBody )
     using namespace json_interface;
 
     // Create GravityFieldVariationSettings from JSON file
-    const boost::shared_ptr< GravityFieldVariationSettings > fromFileSettings =
-            parseJSONFile< boost::shared_ptr< GravityFieldVariationSettings > >( INPUT( "basicSolidBody" ) );
+    const std::shared_ptr< GravityFieldVariationSettings > fromFileSettings =
+            parseJSONFile< std::shared_ptr< GravityFieldVariationSettings > >( INPUT( "basicSolidBody" ) );
 
     // Create GravityFieldVariationSettings manually
     const std::vector< std::string > deformingBodies = { "Moon" };
@@ -51,8 +51,8 @@ BOOST_AUTO_TEST_CASE( test_json_gravityFieldVariation_basicSolidBody )
         { std::complex< double >( -3.0, 0.0 ), std::complex< double >( -5.0, 1.0 ), std::complex< double >( 6.0, 0.5 ) }
     };
     const double referenceRadius = 6.4e6;
-    const boost::shared_ptr< GravityFieldVariationSettings > manualSettings =
-            boost::make_shared< BasicSolidBodyGravityFieldVariationSettings >( deformingBodies,
+    const std::shared_ptr< GravityFieldVariationSettings > manualSettings =
+            std::make_shared< BasicSolidBodyGravityFieldVariationSettings >( deformingBodies,
                                                                                loveNumbers,
                                                                                referenceRadius );
 
@@ -68,8 +68,8 @@ BOOST_AUTO_TEST_CASE( test_json_gravityFieldVariation_tabulated )
     using namespace json_interface;
 
     // Create GravityFieldVariationSettings from JSON file
-    const boost::shared_ptr< GravityFieldVariationSettings > fromFileSettings =
-            parseJSONFile< boost::shared_ptr< GravityFieldVariationSettings > >( INPUT( "tabulated" ) );
+    const std::shared_ptr< GravityFieldVariationSettings > fromFileSettings =
+            parseJSONFile< std::shared_ptr< GravityFieldVariationSettings > >( INPUT( "tabulated" ) );
 
     // Create GravityFieldVariationSettings manually
     const std::map< double, Eigen::MatrixXd > cosineCoefficientCorrections =
@@ -84,10 +84,10 @@ BOOST_AUTO_TEST_CASE( test_json_gravityFieldVariation_tabulated )
     };
     const int minimumDegree = 4;
     const int minimumOrder = 2;
-    const boost::shared_ptr< InterpolatorSettings > interpolatorSettings =
-            boost::make_shared< InterpolatorSettings >( cubic_spline_interpolator );
-    const boost::shared_ptr< GravityFieldVariationSettings > manualSettings =
-            boost::make_shared< TabulatedGravityFieldVariationSettings >( cosineCoefficientCorrections,
+    const std::shared_ptr< InterpolatorSettings > interpolatorSettings =
+            std::make_shared< InterpolatorSettings >( cubic_spline_interpolator );
+    const std::shared_ptr< GravityFieldVariationSettings > manualSettings =
+            std::make_shared< TabulatedGravityFieldVariationSettings >( cosineCoefficientCorrections,
                                                                           sineCoefficientCorrections,
                                                                           minimumDegree,
                                                                           minimumOrder,

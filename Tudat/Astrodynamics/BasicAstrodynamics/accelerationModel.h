@@ -16,7 +16,7 @@
 #include <map>
 #include <unordered_map>
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include <Eigen/Core>
 
@@ -100,16 +100,17 @@ private:
 typedef AccelerationModel< > AccelerationModel3d;
 
 //! Typedef for shared-pointer to a 3D acceleration model.
-typedef boost::shared_ptr< AccelerationModel3d > AccelerationModel3dPointer;
+typedef std::shared_ptr< AccelerationModel3d > AccelerationModel3dPointer;
+
 
 //! Typedef to a 2D acceleration model.
 typedef AccelerationModel< Eigen::Vector2d > AccelerationModel2d;
 
 //! Typedef for shared-pointer to a 2D acceleration model.
-typedef boost::shared_ptr< AccelerationModel2d > AccelerationModel2dPointer;
+typedef std::shared_ptr< AccelerationModel2d > AccelerationModel2dPointer;
 
-//extern template class AccelerationModel< Eigen::Vector3d >;
-//extern template class AccelerationModel< Eigen::Vector2d >;
+extern template class AccelerationModel< Eigen::Vector3d >;
+
 
 //! Update the members of an acceleration model and evaluate the acceleration.
 /*!
@@ -122,9 +123,9 @@ typedef boost::shared_ptr< AccelerationModel2d > AccelerationModel2dPointer;
  * \param currentTime Time at which acceleration model is to be updated.
  * \return Acceleration that is obtained following the member update.
  */
-template< typename AccelerationDataType >
+template < typename AccelerationDataType >
 AccelerationDataType updateAndGetAcceleration(
-        const boost::shared_ptr< AccelerationModel< AccelerationDataType > > accelerationModel,
+        const std::shared_ptr< AccelerationModel< AccelerationDataType > > accelerationModel,
         const double currentTime = TUDAT_NAN )
 {
     // Update members.
@@ -137,8 +138,9 @@ AccelerationDataType updateAndGetAcceleration(
 //! Typedef defining a list of accelerations acting on a single body, key is the name of each
 //! body exerting a acceletation, value is a list of accelerations exerted by that body.
 typedef std::unordered_map< std::string, std::vector<
-boost::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > > >
+std::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > > >
 SingleBodyAccelerationMap;
+
 
 //! Typedef defining a list of accelerations acting on a set of bodies, key is the name of each
 //! body undergoing an acceletation, value is SingleBodyAccelerationMap, defining all accelerations

@@ -13,7 +13,7 @@
 #define TUDAT_ONEWAYDOPPLERPARTIAL_H
 
 
-#include <boost/function.hpp>
+#include <functional>
 
 #include <Eigen/Core>
 
@@ -104,7 +104,7 @@ public:
      * which this object computes the proper time partials is fixed to the perturbing body.
      */
     OneWayDopplerDirectFirstOrderProperTimeComponentScaling(
-            const boost::shared_ptr< observation_models::DirectFirstOrderDopplerProperTimeRateInterface > properTimeRateModel,
+            const std::shared_ptr< observation_models::DirectFirstOrderDopplerProperTimeRateInterface > properTimeRateModel,
             const observation_models::LinkEndType linkEndWithPartial,
             const bool computeStatePartials ):
         OneWayDopplerProperTimeComponentScaling( linkEndWithPartial ),
@@ -173,7 +173,7 @@ public:
 private:
 
     //! Object used to compute proper time rate
-    boost::shared_ptr< observation_models::DirectFirstOrderDopplerProperTimeRateInterface > properTimeRateModel_;
+    std::shared_ptr< observation_models::DirectFirstOrderDopplerProperTimeRateInterface > properTimeRateModel_;
 
     //! Partial of proper time rate w.r.t. position, as computed by last call to update function.
     Eigen::Matrix< double, 1, 3 > partialWrPosition_;
@@ -218,10 +218,10 @@ public:
      * \param receiverProperTimePartials Object used to compute the contribution of transmitter proper time rate to the scaling
      */
     OneWayDopplerScaling(
-            const boost::function< Eigen::Vector3d( const double ) > transmitterAccelerationFunction,
-            const boost::function< Eigen::Vector3d( const double ) > receiverAccelerationFunction,
-            const boost::shared_ptr< OneWayDopplerProperTimeComponentScaling > transmitterProperTimePartials = NULL,
-            const boost::shared_ptr< OneWayDopplerProperTimeComponentScaling > receiverProperTimePartials = NULL ):
+            const std::function< Eigen::Vector3d( const double ) > transmitterAccelerationFunction,
+            const std::function< Eigen::Vector3d( const double ) > receiverAccelerationFunction,
+            const std::shared_ptr< OneWayDopplerProperTimeComponentScaling > transmitterProperTimePartials = nullptr,
+            const std::shared_ptr< OneWayDopplerProperTimeComponentScaling > receiverProperTimePartials = nullptr ):
         transmitterAccelerationFunction_( transmitterAccelerationFunction ),
         receiverAccelerationFunction_( receiverAccelerationFunction ),
         transmitterProperTimePartials_( transmitterProperTimePartials ),
@@ -287,7 +287,7 @@ public:
      * Function to return object used to compute the contribution of transmitter proper time rate to the scaling
      * \return Object used to compute the contribution of transmitter proper time rate to the scaling
      */
-    boost::shared_ptr< OneWayDopplerProperTimeComponentScaling > getTransmitterProperTimePartials( )
+    std::shared_ptr< OneWayDopplerProperTimeComponentScaling > getTransmitterProperTimePartials( )
     {
         return transmitterProperTimePartials_;
     }
@@ -297,7 +297,7 @@ public:
      * Function to return object used to compute the contribution of receiver proper time rate to the scaling
      * \return Object used to compute the contribution of receiver proper time rate to the scaling
      */
-    boost::shared_ptr< OneWayDopplerProperTimeComponentScaling > getReceiverProperTimePartials( )
+    std::shared_ptr< OneWayDopplerProperTimeComponentScaling > getReceiverProperTimePartials( )
     {
         return receiverProperTimePartials_;
     }
@@ -345,16 +345,16 @@ private:
     observation_models::LinkEndType currentLinkEndType_;
 
     //! Function returning the Cartesian acceleration of the transmitter as a function of time.
-    boost::function< Eigen::Vector3d( const double ) > transmitterAccelerationFunction_;
+    std::function< Eigen::Vector3d( const double ) > transmitterAccelerationFunction_;
 
     //! Function returning the Cartesian acceleration of the receiver as a function of time.
-    boost::function< Eigen::Vector3d( const double ) > receiverAccelerationFunction_;
+    std::function< Eigen::Vector3d( const double ) > receiverAccelerationFunction_;
 
     //! Object used to compute the contribution of receiver proper time rate to the scaling
-    boost::shared_ptr< OneWayDopplerProperTimeComponentScaling > transmitterProperTimePartials_;
+    std::shared_ptr< OneWayDopplerProperTimeComponentScaling > transmitterProperTimePartials_;
 
     //! Object used to compute the contribution of transmitter proper time rate to the scaling
-    boost::shared_ptr< OneWayDopplerProperTimeComponentScaling > receiverProperTimePartials_;
+    std::shared_ptr< OneWayDopplerProperTimeComponentScaling > receiverProperTimePartials_;
 };
 
 //! Function to computed the derivative of the unit vector from transmitter to receiver w.r.t. the observation time
@@ -412,12 +412,12 @@ public:
      * \param lighTimeCorrectionPartials List if light-time correction partial objects.
      */
     OneWayDopplerPartial(
-            const boost::shared_ptr< OneWayDopplerScaling > oneWayDopplerScaler,
-            const std::map< observation_models::LinkEndType, boost::shared_ptr< CartesianStatePartial > >& positionPartialList,
+            const std::shared_ptr< OneWayDopplerScaling > oneWayDopplerScaler,
+            const std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartial > >& positionPartialList,
             const estimatable_parameters::EstimatebleParameterIdentifier parameterIdentifier,
-            const std::vector< boost::shared_ptr< observation_partials::LightTimeCorrectionPartial > >&
+            const std::vector< std::shared_ptr< observation_partials::LightTimeCorrectionPartial > >&
             lighTimeCorrectionPartials =
-            std::vector< boost::shared_ptr< observation_partials::LightTimeCorrectionPartial > >( ) );
+            std::vector< std::shared_ptr< observation_partials::LightTimeCorrectionPartial > >( ) );
 
     //! Destructor.
     ~OneWayDopplerPartial( ) { }
@@ -444,7 +444,7 @@ public:
      * Function to get scaling object used for mapping partials of positions to partials of observable
      * \return
      */
-    boost::shared_ptr< OneWayDopplerScaling > getOneWayDopplerScaler( )
+    std::shared_ptr< OneWayDopplerScaling > getOneWayDopplerScaler( )
     {
         return oneWayDopplerScaler_;
     }
@@ -462,21 +462,21 @@ public:
 protected:
 
     //! Scaling object used for mapping partials of positions to partials of observable
-    boost::shared_ptr< OneWayDopplerScaling > oneWayDopplerScaler_;
+    std::shared_ptr< OneWayDopplerScaling > oneWayDopplerScaler_;
 
     //! List of position partials per link end.
-    std::map< observation_models::LinkEndType, boost::shared_ptr< CartesianStatePartial > > positionPartialList_;
+    std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartial > > positionPartialList_;
 
     //! Iterator over list of position partials per link end.
-    std::map< observation_models::LinkEndType, boost::shared_ptr< CartesianStatePartial > >::iterator positionPartialIterator_;
+    std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartial > >::iterator positionPartialIterator_;
 
     //! List of light-time correction partial functions.
-    std::vector< boost::function< SingleOneWayDopplerPartialReturnType(
+    std::vector< std::function< SingleOneWayDopplerPartialReturnType(
             const std::vector< Eigen::Vector6d >&, const std::vector< double >& ) > >
     lighTimeCorrectionPartialsFunctions_;
 
     //! List of light-time correction partial objects.
-    std::vector< boost::shared_ptr< observation_partials::LightTimeCorrectionPartial > > lighTimeCorrectionPartials_;
+    std::vector< std::shared_ptr< observation_partials::LightTimeCorrectionPartial > > lighTimeCorrectionPartials_;
 
     //! Pre-declared state variable to be used in calculatePartial function.
     Eigen::Vector6d currentState_;

@@ -17,17 +17,17 @@ namespace propagators
 {
 
 //! Function to remove the central gravity acceleration from an AccelerationMap
-std::vector< boost::function< double( ) > > removeCentralGravityAccelerations(
+std::vector< std::function< double( ) > > removeCentralGravityAccelerations(
         const std::vector< std::string >& centralBodies, const std::vector< std::string >& bodiesToIntegrate,
         basic_astrodynamics::AccelerationMap& accelerationModelsPerBody )
 {
     using namespace basic_astrodynamics;
     using namespace gravitation;
 
-    std::vector< boost::function< double( ) > > centralBodyGravitationalParameters;
+    std::vector< std::function< double( ) > > centralBodyGravitationalParameters;
     centralBodyGravitationalParameters.resize( bodiesToIntegrate.size( ) );
 
-    std::vector< boost::shared_ptr< AccelerationModel< Eigen::Vector3d > > > listOfAccelerations;
+    std::vector< std::shared_ptr< AccelerationModel< Eigen::Vector3d > > > listOfAccelerations;
 
     // Iterate over all central bodies.
     for( unsigned int i = 0; i < centralBodies.size( ); i++ )
@@ -102,7 +102,7 @@ std::vector< boost::function< double( ) > > removeCentralGravityAccelerations(
                 {
                     // Set central body gravitational parameter (used for Kepler orbit propagation)
                     centralBodyGravitationalParameters.at( i ) =
-                            boost::dynamic_pointer_cast< CentralGravitationalAccelerationModel3d >(
+                            std::dynamic_pointer_cast< CentralGravitationalAccelerationModel3d >(
                                 listOfAccelerations.at( lastCandidate ) )->getGravitationalParameterFunction( );
 
                     // Remove central acceleration from list of accelerations that are evaluated at each time step.
@@ -113,14 +113,14 @@ std::vector< boost::function< double( ) > > removeCentralGravityAccelerations(
                 }
                 else
                 {
-                    boost::shared_ptr< SphericalHarmonicsGravitationalAccelerationModel > originalAcceleration =
-                            boost::dynamic_pointer_cast< SphericalHarmonicsGravitationalAccelerationModel >(
+                    std::shared_ptr< SphericalHarmonicsGravitationalAccelerationModel > originalAcceleration =
+                            std::dynamic_pointer_cast< SphericalHarmonicsGravitationalAccelerationModel >(
                                 listOfAccelerations.at( lastCandidate ) );
                     centralBodyGravitationalParameters.at( i ) = originalAcceleration->getGravitationalParameterFunction( );
 
                     // Create 'additional' acceleration model which subtracts central gravity term.
                     accelerationModelsPerBody[ bodiesToIntegrate.at( i ) ][ centralBodies.at( i ) ].push_back(
-                                boost::make_shared< CentralGravitationalAccelerationModel3d >
+                                std::make_shared< CentralGravitationalAccelerationModel3d >
                                 ( originalAcceleration->getStateFunctionOfBodyExertingAcceleration( ),
                                   originalAcceleration->getGravitationalParameterFunction( ),
                                   originalAcceleration->getStateFunctionOfBodyUndergoingAcceleration( ) ) );
@@ -226,6 +226,14 @@ std::vector< std::string > determineEphemerisUpdateorder( std::vector< std::stri
 
     return updateOrder;
 }
+
+template class NBodyStateDerivative< double, double >;
+
+#if( BUILD_EXTENDED_PRECISION_PROPAGATION_TOOLS )
+template class NBodyStateDerivative< long double, double >;
+template class NBodyStateDerivative< double, Time >;
+template class NBodyStateDerivative< long double, Time >;
+#endif
 
 }
 

@@ -19,7 +19,7 @@
 #include <iostream>
 
 #include <boost/make_shared.hpp>
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include <Eigen/Core>
 
@@ -63,7 +63,7 @@ Capsule::Capsule( const double noseRadius,
                                     / ( noseRadius_ - sideRadius_ ) );
 
     // Create nose sphere.
-    boost::shared_ptr< SphereSegment > noseSphere_ = boost::make_shared< SphereSegment >(
+    std::shared_ptr< SphereSegment > noseSphere_ = std::make_shared< SphereSegment >(
                 noseRadius_, 0, 2 * PI, 0, noseSphereAngle_ );
 
     // Declare translation vector.
@@ -79,7 +79,7 @@ Capsule::Capsule( const double noseRadius,
     setSingleSurfaceGeometry( noseSphere_, 0 );
 
     // Create rear cone, fully revolved.
-    boost::shared_ptr< ConicalFrustum > cone_ = boost::make_shared< ConicalFrustum >(
+    std::shared_ptr< ConicalFrustum > cone_ = std::make_shared< ConicalFrustum >(
                 rearAngle_, middleRadius_ - sideRadius_ * ( 1.0 - cos( rearAngle_ ) ),
                 rearLength_ );
 
@@ -98,7 +98,7 @@ Capsule::Capsule( const double noseRadius,
     double rearNoseRadius_ = endRadius_ / cos( -rearAngle_ );
 
     // Create rear sphere ( "end cap" ), fully revolved.
-    boost::shared_ptr< SphereSegment > rearSphere_ = boost::make_shared< SphereSegment >(
+    std::shared_ptr< SphereSegment > rearSphere_ = std::make_shared< SphereSegment >(
                 rearNoseRadius_, 0.0, 2.0 * PI, PI / 2.0 - rearAngle_, PI );
 
     // Set translation vector of rear sphere.
@@ -109,7 +109,7 @@ Capsule::Capsule( const double noseRadius,
 
     // Create torus section of capsule.
     double torusMajorRadius_ = ( noseRadius_ - sideRadius_ ) * sin( noseSphereAngle_ );
-    boost::shared_ptr< Torus > torus_ = boost::make_shared< Torus >(
+    std::shared_ptr< Torus > torus_ = std::make_shared< Torus >(
        torusMajorRadius_, sideRadius_, 0.0, 2.0 * PI, PI / 2.0 - noseSphereAngle_, rearAngle_ );
 
     // Set translation vector of rear sphere.

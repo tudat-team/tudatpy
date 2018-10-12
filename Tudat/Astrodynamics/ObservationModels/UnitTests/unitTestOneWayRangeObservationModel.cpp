@@ -57,7 +57,7 @@ BOOST_AUTO_TEST_CASE( testOneWayRangeModel )
     double buffer = 10.0 * maximumTimeStep;
 
     // Create bodies settings needed in simulation
-    std::map< std::string, boost::shared_ptr< BodySettings > > defaultBodySettings =
+    std::map< std::string, std::shared_ptr< BodySettings > > defaultBodySettings =
             getDefaultBodySettings(
                 bodiesToCreate );
 
@@ -72,23 +72,23 @@ BOOST_AUTO_TEST_CASE( testOneWayRangeModel )
     linkEnds[ receiver ] = std::make_pair( "Mars" , ""  );
 
     // Create light-time correction settings.
-    std::vector< std::string > lightTimePerturbingBodies = boost::assign::list_of( "Sun" );
-    std::vector< boost::shared_ptr< LightTimeCorrectionSettings > > lightTimeCorrectionSettings;
-    lightTimeCorrectionSettings.push_back( boost::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >(
+    std::vector< std::string > lightTimePerturbingBodies = { "Sun" };
+    std::vector< std::shared_ptr< LightTimeCorrectionSettings > > lightTimeCorrectionSettings;
+    lightTimeCorrectionSettings.push_back( std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >(
                                                lightTimePerturbingBodies ) );
 
 
     // Create observation settings
-    boost::shared_ptr< ObservationSettings > observableSettings = boost::make_shared< ObservationSettings >
+    std::shared_ptr< ObservationSettings > observableSettings = std::make_shared< ObservationSettings >
             ( one_way_range, lightTimeCorrectionSettings,
-              boost::make_shared< ConstantObservationBiasSettings >(
+              std::make_shared< ConstantObservationBiasSettings >(
                   ( Eigen::Matrix< double, 1, 1 >( ) << 2.56294 ).finished( ), true ) );
 
     // Create observation model.
-    boost::shared_ptr< ObservationModel< 1, double, double > > observationModel =
+    std::shared_ptr< ObservationModel< 1, double, double > > observationModel =
             ObservationModelCreator< 1, double, double >::createObservationModel(
                 linkEnds, observableSettings, bodyMap );
-    boost::shared_ptr< ObservationBias< 1 > > observationBias = observationModel->getObservationBiasCalculator( );
+    std::shared_ptr< ObservationBias< 1 > > observationBias = observationModel->getObservationBiasCalculator( );
 
 
 
@@ -104,7 +104,7 @@ BOOST_AUTO_TEST_CASE( testOneWayRangeModel )
     BOOST_CHECK_EQUAL( linkEndStates.size( ), 2 );
 
     // Manually create and compute light time corrections
-    boost::shared_ptr< LightTimeCorrection > lightTimeCorrectionCalculator =
+    std::shared_ptr< LightTimeCorrection > lightTimeCorrectionCalculator =
             createLightTimeCorrections(
                 lightTimeCorrectionSettings.at( 0 ), bodyMap, linkEnds[ transmitter ], linkEnds[ receiver ] );
     double lightTimeCorrection = lightTimeCorrectionCalculator->calculateLightTimeCorrection(
@@ -201,13 +201,13 @@ BOOST_AUTO_TEST_CASE( testOneWayRangeModel )
         {
             linkEndForTime = receiver;
         }
-        boost::shared_ptr< ObservationSettings > arcWiseBiasedObservableSettings = boost::make_shared< ObservationSettings >
+        std::shared_ptr< ObservationSettings > arcWiseBiasedObservableSettings = std::make_shared< ObservationSettings >
                 ( one_way_range, lightTimeCorrectionSettings,
-                  boost::make_shared< ArcWiseConstantObservationBiasSettings >(
+                  std::make_shared< ArcWiseConstantObservationBiasSettings >(
                       observationTimes, observationBiases, linkEndForTime, true ) );
 
         // Create observation model.
-        boost::shared_ptr< ObservationModel< 1, double, double > > arcwiseBiasedObservationModel =
+        std::shared_ptr< ObservationModel< 1, double, double > > arcwiseBiasedObservationModel =
                 ObservationModelCreator< 1, double, double >::createObservationModel(
                     linkEnds, arcWiseBiasedObservableSettings, bodyMap );
 

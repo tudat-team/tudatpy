@@ -24,11 +24,11 @@ void emptyVoidFunction( ){ }
 
 //! Function to compute numerical partial derivative of double observable w.r.t. double parameter.
 Eigen::Matrix< double, 1, 1 > calculateNumericalObservationParameterPartial(
-        boost::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter,
+        std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter,
         const double parameterPerturbation,
-        boost::function< double( const double ) > observationFunction,
+        std::function< double( const double ) > observationFunction,
         const double evaluationTime,
-        boost::function< void( ) > updateFunction )
+        std::function< void( ) > updateFunction )
 {
 
     double unperturbedParameterValue = parameter->getParameterValue( );
@@ -51,11 +51,11 @@ Eigen::Matrix< double, 1, 1 > calculateNumericalObservationParameterPartial(
 
 //! Function to compute numerical partial derivative of vector observable w.r.t. double parameter.
 Eigen::Matrix< double, Eigen::Dynamic, 1 > calculateNumericalObservationParameterPartial(
-        boost::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter,
+        std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter,
         const double parameterPerturbation,
-        boost::function< Eigen::VectorXd( const double ) > observationFunction,
+        std::function< Eigen::VectorXd( const double ) > observationFunction,
         const double evaluationTime,
-        boost::function< void( ) > updateFunction )
+        std::function< void( ) > updateFunction )
 {
 
     double unperturbedParameterValue = parameter->getParameterValue( );
@@ -76,11 +76,11 @@ Eigen::Matrix< double, Eigen::Dynamic, 1 > calculateNumericalObservationParamete
 
 //! Function to compute numerical partial derivative of vector observable w.r.t. vector parameter.
 Eigen::MatrixXd calculateNumericalObservationParameterPartial(
-        boost::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter,
+        std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter,
         const Eigen::VectorXd parameterPerturbation,
-        boost::function< Eigen::VectorXd( const double ) > observationFunction,
+        std::function< Eigen::VectorXd( const double ) > observationFunction,
         const double evaluationTime,
-        boost::function< void( ) > updateFunction )
+        std::function< void( ) > updateFunction )
 {
     Eigen::MatrixXd parameterPartial = Eigen::MatrixXd::Zero( observationFunction( evaluationTime ).rows( ),
                                                               parameter->getParameterSize( ) );

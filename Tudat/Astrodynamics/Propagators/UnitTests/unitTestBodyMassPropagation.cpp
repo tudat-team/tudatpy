@@ -50,24 +50,24 @@ BOOST_AUTO_TEST_CASE( testBodyMassPropagation )
 {
     // Crate bodyMap
     NamedBodyMap bodyMap;
-    bodyMap[ "Vehicle" ] = boost::make_shared< Body >( );
+    bodyMap[ "Vehicle" ] = std::make_shared< Body >( );
 
     // Create mass rate model.
-    std::map< std::string, boost::shared_ptr< basic_astrodynamics::MassRateModel > > massRateModels;
-    massRateModels[ "Vehicle" ] = boost::make_shared< basic_astrodynamics::CustomMassRateModel >(
-                boost::lambda::constant( -0.01 ) );
+    std::map< std::string, std::shared_ptr< basic_astrodynamics::MassRateModel > > massRateModels;
+    massRateModels[ "Vehicle" ] = std::make_shared< basic_astrodynamics::CustomMassRateModel >(
+                [ ]( const double ){ return -0.01; } );
 
     // Create settings for propagation
     Eigen::VectorXd initialMass = Eigen::VectorXd( 1 );
     initialMass( 0 ) = 500.0;
-    boost::shared_ptr< PropagatorSettings< double > > propagatorSettings =
-            boost::make_shared< MassPropagatorSettings< double > >(
-                boost::assign::list_of( "Vehicle" ), massRateModels, initialMass,
-                boost::make_shared< PropagationTimeTerminationSettings >( 1000.0 ) );
+    std::shared_ptr< PropagatorSettings< double > > propagatorSettings =
+            std::make_shared< MassPropagatorSettings< double > >(
+                std::vector< std::string >{ "Vehicle" }, massRateModels, initialMass,
+                std::make_shared< PropagationTimeTerminationSettings >( 1000.0 ) );
 
     // Define numerical integrator settings.
-    boost::shared_ptr< IntegratorSettings< > > integratorSettings =
-            boost::make_shared< IntegratorSettings< > >( rungeKutta4, 0.0, 1.0 );
+    std::shared_ptr< IntegratorSettings< > > integratorSettings =
+            std::make_shared< IntegratorSettings< > >( rungeKutta4, 0.0, 1.0 );
 
     // Create dynamics simulation object.
     SingleArcDynamicsSimulator< double, double > dynamicsSimulator(
@@ -88,35 +88,35 @@ BOOST_AUTO_TEST_CASE( testTwoBodyMassPropagation )
 {
     // Crate bodyMap
     NamedBodyMap bodyMap;
-    bodyMap[ "Vehicle1" ] = boost::make_shared< Body >( );
-    bodyMap[ "Vehicle2" ] = boost::make_shared< Body >( );
+    bodyMap[ "Vehicle1" ] = std::make_shared< Body >( );
+    bodyMap[ "Vehicle2" ] = std::make_shared< Body >( );
 
     // Create mass rate models.
-    std::map< std::string, boost::shared_ptr< basic_astrodynamics::MassRateModel > > massRateModels;
-    massRateModels[ "Vehicle1" ] = boost::make_shared< basic_astrodynamics::CustomMassRateModel >(
-                boost::bind( &getDummyMassRate1, bodyMap ) );
-    massRateModels[ "Vehicle2" ] = boost::make_shared< basic_astrodynamics::CustomMassRateModel >(
-                boost::bind( &getDummyMassRate2, bodyMap ) );
-    bodyMap[ "Earth" ] = boost::make_shared< Body >( );
-    bodyMap[ "Earth" ]->setEphemeris( boost::make_shared< ephemerides::ConstantEphemeris >(
-                                          boost::lambda::constant( Eigen::Vector6d::Zero( ) ) ) );
-    bodyMap[ "Vehicle1" ]->setEphemeris( boost::make_shared< ephemerides::ConstantEphemeris >(
-                                          boost::lambda::constant( Eigen::Vector6d::Zero( ) ), "Earth" ) );
-    bodyMap[ "Vehicle2" ]->setEphemeris( boost::make_shared< ephemerides::ConstantEphemeris >(
-                                          boost::lambda::constant( Eigen::Vector6d::Zero( ) ), "Earth" ) );
+    std::map< std::string, std::shared_ptr< basic_astrodynamics::MassRateModel > > massRateModels;
+    massRateModels[ "Vehicle1" ] = std::make_shared< basic_astrodynamics::CustomMassRateModel >(
+                std::bind( &getDummyMassRate1, bodyMap ) );
+    massRateModels[ "Vehicle2" ] = std::make_shared< basic_astrodynamics::CustomMassRateModel >(
+                std::bind( &getDummyMassRate2, bodyMap ) );
+    bodyMap[ "Earth" ] = std::make_shared< Body >( );
+    bodyMap[ "Earth" ]->setEphemeris( std::make_shared< ephemerides::ConstantEphemeris >(
+                                          [ ]( ){ return Eigen::Vector6d::Zero( ); } ) );
+    bodyMap[ "Vehicle1" ]->setEphemeris( std::make_shared< ephemerides::ConstantEphemeris >(
+                                          [ ]( ){ return Eigen::Vector6d::Zero( ); }, "Earth" ) );
+    bodyMap[ "Vehicle2" ]->setEphemeris( std::make_shared< ephemerides::ConstantEphemeris >(
+                                          [ ]( ){ return Eigen::Vector6d::Zero( ); }, "Earth" ) );
 
     // Create settings for propagation
     Eigen::VectorXd initialMass = Eigen::VectorXd( 2 );
     initialMass( 0 ) = 500.0;
     initialMass( 1 ) = 1000.0;
-    boost::shared_ptr< PropagatorSettings< double > > propagatorSettings =
-            boost::make_shared< MassPropagatorSettings< double > >(
-                boost::assign::list_of( "Vehicle1" )( "Vehicle2" ), massRateModels, initialMass,
-                boost::make_shared< PropagationTimeTerminationSettings >( 1000.0 ) );
+    std::shared_ptr< PropagatorSettings< double > > propagatorSettings =
+            std::make_shared< MassPropagatorSettings< double > >(
+                std::vector< std::string >{ "Vehicle1", "Vehicle2" }, massRateModels, initialMass,
+                std::make_shared< PropagationTimeTerminationSettings >( 1000.0 ) );
 
     // Define numerical integrator settings.
-    boost::shared_ptr< IntegratorSettings< > > integratorSettings =
-            boost::make_shared< IntegratorSettings< > >( rungeKutta4, 0.0, 1.0 );
+    std::shared_ptr< IntegratorSettings< > > integratorSettings =
+            std::make_shared< IntegratorSettings< > >( rungeKutta4, 0.0, 1.0 );
 
     // Create dynamics simulation object.
     SingleArcDynamicsSimulator< double, double > dynamicsSimulator(

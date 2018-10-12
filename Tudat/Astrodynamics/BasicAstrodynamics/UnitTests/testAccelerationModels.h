@@ -12,7 +12,7 @@
 #ifndef TUDAT_TEST_ACCELERATION_MODELS_H
 #define TUDAT_TEST_ACCELERATION_MODELS_H
 
-#include <boost/function.hpp>
+#include <functional>
 
 #include <Eigen/Core>
 
@@ -44,10 +44,10 @@ class DerivedAccelerationModel
 private:
 
     //! Typedef for a pointer to a function that returns a position.
-    typedef boost::function< PositionDataType( ) > PositionReturningFunction;
+    typedef std::function< PositionDataType( ) > PositionReturningFunction;
 
     //! Typedef for a pointer to a function that returns a time.
-    typedef boost::function< TimeDataType( ) > TimeReturningFunction;
+    typedef std::function< TimeDataType( ) > TimeReturningFunction;
 
 public:
 
@@ -140,13 +140,13 @@ class AnotherDerivedAccelerationModel
 public:
 
     //! Typedef for a pointer to a function that returns a position.
-    typedef boost::function< PositionDataType( ) > PositionReturningFunction;
+    typedef std::function< PositionDataType( ) > PositionReturningFunction;
 
     //! Typedef for a pointer to a function that returns a position.
-    typedef boost::function< VelocityDataType( ) > VelocityReturningFunction;
+    typedef std::function< VelocityDataType( ) > VelocityReturningFunction;
 
     //! Typedef for a pointer to a function that returns a time.
-    typedef boost::function< TimeDataType( ) > TimeReturningFunction;
+    typedef std::function< TimeDataType( ) > TimeReturningFunction;
 
     //! Default constructor.
     /*!

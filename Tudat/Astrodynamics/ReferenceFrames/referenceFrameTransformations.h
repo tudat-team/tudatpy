@@ -11,7 +11,6 @@
  *      Mooij, E. The Motion of a vehicle in a Planetary Atmosphere, TU Delft, 1997.
  *      Seidelmann, P. K. (Ed.). (2005). Explanatory supplement to the astronomical almanac.
  *              Univ Science Books.
- *
  */
 
 #ifndef TUDAT_REFERENCE_FRAME_TRANSFORMATIONS_H
@@ -20,7 +19,7 @@
 #include <cmath>
 #include <vector>
 
-#include <boost/function.hpp>
+#include <functional>
 
 #include <Eigen/Core>
 #include <Eigen/Geometry>
@@ -31,6 +30,7 @@
 
 namespace tudat
 {
+
 namespace reference_frames
 {
 
@@ -62,7 +62,7 @@ Eigen::Vector3d calculateInertialToPlanetFixedRotationAnglesFromMatrix(
  */
 Eigen::Vector3d transformVectorFromQuaternionFunction(
         const Eigen::Vector3d& originalVector,
-        const boost::function< Eigen::Quaterniond( ) > rotation );
+        const std::function< Eigen::Quaterniond( ) > rotation );
 
 //! Wrapper function to transform a vector to a different frame from a single transformation function.
 /*!
@@ -72,8 +72,8 @@ Eigen::Vector3d transformVectorFromQuaternionFunction(
  * \return Vector originalVector, transformed to new frame.
  */
 Eigen::Vector3d transformVectorFunctionFromVectorFunctions(
-        const boost::function< Eigen::Vector3d( ) > originalVector,
-        const boost::function< Eigen::Vector3d( const Eigen::Vector3d& ) > transformationFunction );
+        const std::function< Eigen::Vector3d( ) > originalVector,
+        const std::function< Eigen::Vector3d( const Eigen::Vector3d& ) > transformationFunction );
 
 //! Wrapper function to transform a vector to a different frame from a list of transformation function.
 /*!
@@ -85,7 +85,7 @@ Eigen::Vector3d transformVectorFunctionFromVectorFunctions(
  */
 Eigen::Vector3d transformVectorFromVectorFunctions(
         const Eigen::Vector3d& originalVector,
-        const std::vector< boost::function< Eigen::Vector3d( const Eigen::Vector3d& ) > >& rotationsList );
+        const std::vector< std::function< Eigen::Vector3d( const Eigen::Vector3d& ) > >& rotationsList );
 
 //! Get rotating planetocentric (R) to inertial (I) reference frame transformation matrix.
 /*!
@@ -174,8 +174,8 @@ Eigen::Matrix3d getVelocityBasedLvlhToInertialRotation(const Eigen::Vector6d& ve
  * \return Velocity based LVLH to inertial (I) frame transformation matrix.
  */
 Eigen::Matrix3d getVelocityBasedLvlhToInertialRotationFromFunctions(
-        const boost::function< Eigen::Vector6d( ) >& vehicleStateFunction,
-        const boost::function< Eigen::Vector6d( ) >& centralBodyStateFunction,
+        const std::function< Eigen::Vector6d( ) >& vehicleStateFunction,
+        const std::function< Eigen::Vector6d( ) >& centralBodyStateFunction,
         bool doesNaxisPointAwayFromCentralBody = true );
 
 //! Get rotation from velocity based LVLH frame to planet-fixed frame.
@@ -569,9 +569,9 @@ Eigen::Matrix3d getDerivativeOfZAxisRotationWrtAngle( const Eigen::Matrix3d& rot
  * \return Body-fixed relative cartesian position
  */
 Eigen::Vector3d getBodyFixedCartesianPosition(
-        const boost::function< Eigen::Vector3d( ) > positionFunctionOfCentralBody,
-        const boost::function< Eigen::Vector3d( ) > positionFunctionOfRelativeBody,
-        const boost::function< Eigen::Quaterniond( ) > orientationFunctionOfCentralBody );
+        const std::function< Eigen::Vector3d( ) > positionFunctionOfCentralBody,
+        const std::function< Eigen::Vector3d( ) > positionFunctionOfRelativeBody,
+        const std::function< Eigen::Quaterniond( ) > orientationFunctionOfCentralBody );
 
 //! Function to compute a body-fixed relative spherical position
 /*!
@@ -582,9 +582,9 @@ Eigen::Vector3d getBodyFixedCartesianPosition(
  * \return Body-fixed relative sphericall position
  */
 Eigen::Vector3d getBodyFixedSphericalPosition(
-        const boost::function< Eigen::Vector3d( ) > positionFunctionOfCentralBody,
-        const boost::function< Eigen::Vector3d( ) > positionFunctionOfRelativeBody,
-        const boost::function< Eigen::Quaterniond( ) > orientationFunctionOfCentralBody );
+        const std::function< Eigen::Vector3d( ) > positionFunctionOfCentralBody,
+        const std::function< Eigen::Vector3d( ) > positionFunctionOfRelativeBody,
+        const std::function< Eigen::Quaterniond( ) > orientationFunctionOfCentralBody );
 
 } // namespace reference_frames
 

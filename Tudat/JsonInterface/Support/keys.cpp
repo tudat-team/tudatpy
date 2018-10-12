@@ -137,7 +137,11 @@ const std::string Keys::Body::Atmosphere::densityScaleHeight = "densityScaleHeig
 const std::string Keys::Body::Atmosphere::constantTemperature = "constantTemperature";
 const std::string Keys::Body::Atmosphere::densityAtZeroAltitude = "densityAtZeroAltitude";
 const std::string Keys::Body::Atmosphere::specificGasConstant = "specificGasConstant";
+const std::string Keys::Body::Atmosphere::ratioOfSpecificHeats = "ratioOfSpecificHeats";
 const std::string Keys::Body::Atmosphere::file = "file";
+const std::string Keys::Body::Atmosphere::independentVariablesNames = "independentVariablesNames";
+const std::string Keys::Body::Atmosphere::dependentVariablesNames = "dependentVariablesNames";
+const std::string Keys::Body::Atmosphere::boundaryHandling = "boundaryHandling";
 const std::string Keys::Body::Atmosphere::spaceWeatherFile = "spaceWeatherFile";
 
 // //  Body::Ephemeris
@@ -196,6 +200,7 @@ const std::string Keys::Body::RotationModel::targetFrame = "targetFrame";
 const std::string Keys::Body::RotationModel::initialOrientation = "initialOrientation";
 const std::string Keys::Body::RotationModel::initialTime = "initialTime";
 const std::string Keys::Body::RotationModel::rotationRate = "rotationRate";
+const std::string Keys::Body::RotationModel::precessionNutationTheory = "precessionNutationTheory";
 
 // //  Body::ShapeModel
 const std::string Keys::Body::shapeModel = "shapeModel";

@@ -57,14 +57,14 @@ using namespace tudat;
 BOOST_AUTO_TEST_SUITE( test_forwards_backwards_rpopagation )
 
 template< typename TimeType >
-boost::shared_ptr< IntegratorSettings< TimeType > > getIntegrationSettings(
+std::shared_ptr< IntegratorSettings< TimeType > > getIntegrationSettings(
         const int integratorCase, const int initialTime, const bool propagateForwards )
 {
     double initialTimeMultiplier = ( propagateForwards ? 1.0 : -1.0 );
-    boost::shared_ptr< IntegratorSettings< TimeType > > integratorSettings;
+    std::shared_ptr< IntegratorSettings< TimeType > > integratorSettings;
     if( integratorCase == 0 )
     {
-        integratorSettings = boost::make_shared< IntegratorSettings< TimeType > >
+        integratorSettings = std::make_shared< IntegratorSettings< TimeType > >
                 ( rungeKutta4, initialTime, initialTimeMultiplier * 300.0 );
     }
     else if( integratorCase < 5 )
@@ -89,7 +89,7 @@ boost::shared_ptr< IntegratorSettings< TimeType > > getIntegrationSettings(
             coefficientSet = RungeKuttaCoefficients::rungeKutta87DormandPrince;
 
         }
-        integratorSettings = boost::make_shared< RungeKuttaVariableStepSizeSettings< TimeType > >
+        integratorSettings = std::make_shared< RungeKuttaVariableStepSizeSettings< TimeType > >
                 ( initialTime, initialTimeMultiplier * 300.0, coefficientSet, 1.0E-3, 3600.0 );
     }
     return integratorSettings;
@@ -118,18 +118,18 @@ Eigen::Matrix< StateScalarType, 6, 1 > propagateForwardBackwards( const int inte
     double buffer = 3600.0;
 
     // Create bodies needed in simulation
-    std::map< std::string, boost::shared_ptr< BodySettings > > bodySettings =
+    std::map< std::string, std::shared_ptr< BodySettings > > bodySettings =
             getDefaultBodySettings( bodyNames, initialEphemerisTime - 2.0 * buffer, finalEphemerisTime + 2.0 * buffer );
-    boost::dynamic_pointer_cast< InterpolatedSpiceEphemerisSettings >( bodySettings[ "Moon" ]->ephemerisSettings )->
+    std::dynamic_pointer_cast< InterpolatedSpiceEphemerisSettings >( bodySettings[ "Moon" ]->ephemerisSettings )->
             resetFrameOrigin( "Earth" );
     NamedBodyMap bodyMap = createBodies( bodySettings );
     setGlobalFrameBodyEphemerides( bodyMap, "Earth", "ECLIPJ2000" );
 
     // Set accelerations between bodies that are to be taken into account.
     SelectedAccelerationMap accelerationMap;
-    std::map< std::string, std::vector< boost::shared_ptr< AccelerationSettings > > > accelerationsOfMoon;
-    accelerationsOfMoon[ "Earth" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );
-    accelerationsOfMoon[ "Sun" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );
+    std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfMoon;
+    accelerationsOfMoon[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( central_gravity ) );
+    accelerationsOfMoon[ "Sun" ].push_back( std::make_shared< AccelerationSettings >( central_gravity ) );
     accelerationMap[ "Moon" ] = accelerationsOfMoon;
 
     // Propagate the moon only
@@ -139,7 +139,7 @@ Eigen::Matrix< StateScalarType, 6, 1 > propagateForwardBackwards( const int inte
     centralBodies.push_back( "Earth" );
 
     // Define settings for numerical integrator.
-    boost::shared_ptr< IntegratorSettings< TimeType > > integratorSettings = getIntegrationSettings< TimeType >(
+    std::shared_ptr< IntegratorSettings< TimeType > > integratorSettings = getIntegrationSettings< TimeType >(
                 integratorCase, initialEphemerisTime, true );
 
     // Propagate forwards
@@ -153,8 +153,8 @@ Eigen::Matrix< StateScalarType, 6, 1 > propagateForwardBackwards( const int inte
                 template cast< StateScalarType >( );
         AccelerationMap accelerationModelMap = createAccelerationModelsMap(
                     bodyMap, accelerationMap, bodiesToIntegrate, centralBodies );
-        boost::shared_ptr< TranslationalStatePropagatorSettings< StateScalarType > > propagatorSettings =
-                boost::make_shared< TranslationalStatePropagatorSettings< StateScalarType > >
+        std::shared_ptr< TranslationalStatePropagatorSettings< StateScalarType > > propagatorSettings =
+                std::make_shared< TranslationalStatePropagatorSettings< StateScalarType > >
                 ( centralBodies, accelerationModelMap, bodiesToIntegrate, systemInitialState, finalEphemerisTime + buffer );
 
         // Create dynamics simulation object.
@@ -177,8 +177,8 @@ Eigen::Matrix< StateScalarType, 6, 1 > propagateForwardBackwards( const int inte
                 template cast< StateScalarType >( );
         AccelerationMap accelerationModelMap = createAccelerationModelsMap(
                     bodyMap, accelerationMap, bodiesToIntegrate, centralBodies );
-        boost::shared_ptr< TranslationalStatePropagatorSettings< StateScalarType > > propagatorSettings =
-                boost::make_shared< TranslationalStatePropagatorSettings< StateScalarType > >
+        std::shared_ptr< TranslationalStatePropagatorSettings< StateScalarType > > propagatorSettings =
+                std::make_shared< TranslationalStatePropagatorSettings< StateScalarType > >
                 ( centralBodies, accelerationModelMap, bodiesToIntegrate, systemInitialState, initialEphemerisTime - buffer );
 
         // Create dynamics simulation object.

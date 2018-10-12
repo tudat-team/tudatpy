@@ -47,16 +47,16 @@ BOOST_AUTO_TEST_CASE( test_json_aerodynamics_dragCoefficient )
     using namespace json_interface;
 
     // Create AerodynamicCoefficientSettings from JSON file
-    const boost::shared_ptr< AerodynamicCoefficientSettings > fromFileSettings =
-            parseJSONFile< boost::shared_ptr< AerodynamicCoefficientSettings > >( INPUT( "dragCoefficient" ) );
+    const std::shared_ptr< AerodynamicCoefficientSettings > fromFileSettings =
+            parseJSONFile< std::shared_ptr< AerodynamicCoefficientSettings > >( INPUT( "dragCoefficient" ) );
 
     // Create AerodynamicCoefficientSettings manually
     const double referenceArea = 10.5;
     const double dragCoefficient = 2.2;
     Eigen::Vector3d forceCoefficients = Eigen::Vector3d::Zero( );
     forceCoefficients( 0 ) = dragCoefficient;
-    const boost::shared_ptr< AerodynamicCoefficientSettings > manualSettings =
-            boost::make_shared< ConstantAerodynamicCoefficientSettings >( referenceArea,
+    const std::shared_ptr< AerodynamicCoefficientSettings > manualSettings =
+            std::make_shared< ConstantAerodynamicCoefficientSettings >( referenceArea,
                                                                           forceCoefficients );
 
     // Compare
@@ -70,8 +70,8 @@ BOOST_AUTO_TEST_CASE( test_json_aerodynamics_constant )
     using namespace json_interface;
 
     // Create AerodynamicCoefficientSettings from JSON file
-    const boost::shared_ptr< AerodynamicCoefficientSettings > fromFileSettings =
-            parseJSONFile< boost::shared_ptr< AerodynamicCoefficientSettings > >( INPUT( "constant" ) );
+    const std::shared_ptr< AerodynamicCoefficientSettings > fromFileSettings =
+            parseJSONFile< std::shared_ptr< AerodynamicCoefficientSettings > >( INPUT( "constant" ) );
 
     // Create AerodynamicCoefficientSettings manually
     const double referenceLength = 5.0;
@@ -82,8 +82,8 @@ BOOST_AUTO_TEST_CASE( test_json_aerodynamics_constant )
     const Eigen::Vector3d momentCoefficients = ( Eigen::Vector3d( ) << 0.0, 1.0e-3, -0.1 ).finished( );
     const bool areCoefficientsInAerodynamicFrame = true;
     const bool areCoefficientsInNegativeAxisDirection = false;
-    const boost::shared_ptr< AerodynamicCoefficientSettings > manualSettings =
-            boost::make_shared< ConstantAerodynamicCoefficientSettings >( referenceLength,
+    const std::shared_ptr< AerodynamicCoefficientSettings > manualSettings =
+            std::make_shared< ConstantAerodynamicCoefficientSettings >( referenceLength,
                                                                           referenceArea,
                                                                           lateralReferenceLength,
                                                                           momentReferencePoint,
@@ -105,8 +105,8 @@ BOOST_AUTO_TEST_CASE( test_json_aerodynamics_tabulated1 )
     using namespace json_interface;
 
     // Create AerodynamicCoefficientSettings from JSON file
-    const boost::shared_ptr< AerodynamicCoefficientSettings > fromFileSettings =
-            parseJSONFile< boost::shared_ptr< AerodynamicCoefficientSettings > >( INPUT( "tabulated1" ) );
+    const std::shared_ptr< AerodynamicCoefficientSettings > fromFileSettings =
+            parseJSONFile< std::shared_ptr< AerodynamicCoefficientSettings > >( INPUT( "tabulated1" ) );
 
     // Create AerodynamicCoefficientSettings manually
     const std::vector< double > independentVariables = { 0.0, 1.0, 2.0, 3.0 };
@@ -129,12 +129,12 @@ BOOST_AUTO_TEST_CASE( test_json_aerodynamics_tabulated1 )
     const double lateralReferenceLength = 4.0;
     const Eigen::Vector3d momentReferencePoint = ( Eigen::Vector3d( ) << 0.7, 0.8, 0.9 ).finished( );
     const AerodynamicCoefficientsIndependentVariables independentVariableName = angle_of_sideslip_dependent;
-    const boost::shared_ptr< InterpolatorSettings > interpolatorSettings =
-            boost::make_shared< InterpolatorSettings >( cubic_spline_interpolator );
+    const std::shared_ptr< InterpolatorSettings > interpolatorSettings =
+            std::make_shared< InterpolatorSettings >( cubic_spline_interpolator );
     const bool areCoefficientsInAerodynamicFrame = false;
     const bool areCoefficientsInNegativeAxisDirection = false;
-    const boost::shared_ptr< AerodynamicCoefficientSettings > manualSettings =
-            boost::make_shared< TabulatedAerodynamicCoefficientSettings< 1 > >( independentVariables,
+    const std::shared_ptr< AerodynamicCoefficientSettings > manualSettings =
+            std::make_shared< TabulatedAerodynamicCoefficientSettings< 1 > >( independentVariables,
                                                                                 forceCoefficients,
                                                                                 momentCoefficients,
                                                                                 referenceLength,
@@ -159,8 +159,8 @@ BOOST_AUTO_TEST_CASE( test_json_aerodynamics_tabulatedN )
     using namespace json_interface;
 
     // Create AerodynamicCoefficientSettings from JSON file
-    const boost::shared_ptr< AerodynamicCoefficientSettings > fromFileSettings =
-            parseJSONFile< boost::shared_ptr< AerodynamicCoefficientSettings > >( INPUT( "tabulatedN" ) );
+    const std::shared_ptr< AerodynamicCoefficientSettings > fromFileSettings =
+            parseJSONFile< std::shared_ptr< AerodynamicCoefficientSettings > >( INPUT( "tabulatedN" ) );
 
     // Create AerodynamicCoefficientSettings manually
     const std::map< int, std::string > forceCoefficientsFiles = { { 0, "aurora_CD.txt" }, { 2, "aurora_CL.txt" } };
@@ -173,7 +173,7 @@ BOOST_AUTO_TEST_CASE( test_json_aerodynamics_tabulatedN )
     { mach_number_dependent, angle_of_attack_dependent };
     const bool areCoefficientsInAerodynamicFrame = true;
     const bool areCoefficientsInNegativeAxisDirection = true;
-    const boost::shared_ptr< AerodynamicCoefficientSettings > manualSettings =
+    const std::shared_ptr< AerodynamicCoefficientSettings > manualSettings =
             readTabulatedAerodynamicCoefficientsFromFiles(
                                         forceCoefficientsFiles,
                                         momentCoefficientsFiles,

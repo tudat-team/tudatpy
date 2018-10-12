@@ -16,8 +16,8 @@
 #include <map>
 #include <string>
 
-#include <boost/shared_ptr.hpp>
-#include <boost/function.hpp>
+#include <memory>
+#include <functional>
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/torqueModel.h"
 
@@ -56,7 +56,7 @@ Eigen::Vector3d evaluateRotationalEquationsOfMotion(
 
 //! Class for computing the state derivative for rotational dynamics of N bodies.
 /*!
- *  Class for computing the state derivative for rotational dynamics of N bodies., using quaternion from body-fixed to inertial
+ *  Class for computing the state derivative for rotational dynamics of N bodies, using quaternion from body-fixed to inertial
  *  frame (in quaternion format) and angular velocity-vector of body expressed in body-fixed frame as the rotational state of a
  *  single body
  */
@@ -72,18 +72,19 @@ public:
      * Constructor.
      * \param torqueModelsPerBody List of torque models (first map key body undergoing acceleration, second map key body exerting
      * acceleration).
+     * \param propagatorType Type of propagator that is to be used (i.e. quaternions, etc.)
      * \param bodiesToPropagate List of names of bodies for which rotational state is to be propagated.
      * \param bodyInertiaTensorFunctions List of functions returning inertia tensors of bodiesToPropagate (in same order).
      * \param bodyInertiaTensorTimeDerivativeFunctions List of functions returning time derivatives of inertia tensors of
-     *  bodiesToPropagate (in same order). Default empty, denoting time-invariant inertia tensors.
+     * bodiesToPropagate (in same order). Default empty, denoting time-invariant inertia tensors.
      */
     RotationalMotionStateDerivative(
             const basic_astrodynamics::TorqueModelMap& torqueModelsPerBody,
             const RotationalPropagatorType propagatorType,
             const std::vector< std::string >& bodiesToPropagate,
-            std::vector< boost::function< Eigen::Matrix3d( ) > > bodyInertiaTensorFunctions,
-            std::vector< boost::function< Eigen::Matrix3d( ) > > bodyInertiaTensorTimeDerivativeFunctions =
-            std::vector< boost::function< Eigen::Matrix3d( ) > >( ) ):
+            std::vector< std::function< Eigen::Matrix3d( ) > > bodyInertiaTensorFunctions,
+            std::vector< std::function< Eigen::Matrix3d( ) > > bodyInertiaTensorTimeDerivativeFunctions =
+            std::vector< std::function< Eigen::Matrix3d( ) > >( ) ):
         propagators::SingleStateTypeDerivative< StateScalarType, TimeType >(
             propagators::rotational_state ),
         torqueModelsPerBody_( torqueModelsPerBody ),
@@ -103,7 +104,7 @@ public:
         {
             for( unsigned int i = 0; i < bodiesToPropagate.size( ); i++ )
             {
-                bodyInertiaTensorTimeDerivativeFunctions_.push_back( boost::lambda::constant( Eigen::Matrix3d::Zero( ) ) );
+                bodyInertiaTensorTimeDerivativeFunctions_.push_back( [ ]( ){ return Eigen::Matrix3d::Zero( ); } );
             }
         }
         else if( bodiesToPropagate_.size( ) != bodyInertiaTensorTimeDerivativeFunctions_.size( ) )
@@ -333,10 +334,10 @@ protected:
     std::vector< std::string > bodiesToPropagate_;
 
     //! List of functions returning inertia tensors of bodiesToPropagate (in same order)
-    std::vector< boost::function< Eigen::Matrix3d( ) > > bodyInertiaTensorFunctions_;
+    std::vector< std::function< Eigen::Matrix3d( ) > > bodyInertiaTensorFunctions_;
 
     //!  List of functions returning time derivatives of inertia tensors of bodiesToPropagate (in same order)
-    std::vector< boost::function< Eigen::Matrix3d( ) > > bodyInertiaTensorTimeDerivativeFunctions_;
+    std::vector< std::function< Eigen::Matrix3d( ) > > bodyInertiaTensorTimeDerivativeFunctions_;
 
     //! Predefined iterator to save (de-)allocation time.
     basic_astrodynamics::TorqueModelMap::iterator torqueModelMapIterator;
@@ -345,6 +346,15 @@ protected:
     basic_astrodynamics::SingleBodyTorqueModelMap::iterator innerTorqueIterator;
 
 };
+
+
+extern template class RotationalMotionStateDerivative< double, double >;
+
+#if( BUILD_EXTENDED_PRECISION_PROPAGATION_TOOLS )
+extern template class RotationalMotionStateDerivative< long double, double >;
+extern template class RotationalMotionStateDerivative< double, Time >;
+extern template class RotationalMotionStateDerivative< long double, Time >;
+#endif
 
 } // namespace propagators
 

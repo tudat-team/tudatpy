@@ -22,9 +22,9 @@
 #include <stdexcept>
 
 #include <boost/bind.hpp>
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
-#include "Tudat/Mathematics/NumericalIntegrators/rungeKutta4Integrator.h"
+//#include "Tudat/Mathematics/NumericalIntegrators/rungeKutta4Integrator.h"
 
 #include "Tudat/Mathematics/BasicMathematics/function.h"
 
@@ -125,8 +125,8 @@ private:
     //! typedef for a Function that relates a Dependent Variable to an IndependentVariable.
     typedef Function< IndependentVariable, DependentVariable >          Parent;
     //! typedef for a Runge-Kutta 4 integration scheme.
-    typedef numerical_integrators::RungeKutta4Integrator<
-    IndependentVariable, DependentVariable, DependentVariable >         Integrator;
+//    typedef numerical_integrators::RungeKutta4Integrator<
+//    IndependentVariable, DependentVariable, DependentVariable >         Integrator;
 };
 
 // TODO: Remove when using external derivative code.
@@ -135,7 +135,7 @@ const double BasicFunction< IndependentVariable, DependentVariable >::sqrt_epsil
 = std::numeric_limits< double >::epsilon( );
 
 // Some handy typedefs.
-typedef boost::shared_ptr< BasicFunction< double, double > > BasicFunctionPointer;
+typedef std::shared_ptr< BasicFunction< double, double > > BasicFunctionPointer;
 
 } // namespace basic_mathematics
 } // namespace tudat

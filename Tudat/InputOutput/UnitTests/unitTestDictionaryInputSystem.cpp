@@ -47,17 +47,16 @@ BOOST_AUTO_TEST_SUITE( test_dictionary_input_system )
 input_output::dictionary::DictionaryPointer getExampleDictionary( )
 {
     using namespace input_output::dictionary;
-    using boost::assign::list_of;
-    using boost::make_shared;
+    using std::make_shared;
 
     // Create new dictionary.
-    DictionaryPointer dictionary = boost::make_shared< Dictionary >( );
+    DictionaryPointer dictionary = std::make_shared< Dictionary >( );
 
     // Insert example entries.
     addEntry( dictionary, "stringParameter",             true,  false                       );
-    addEntry( dictionary, "stringParameterWithSynonym",  false, true, list_of( "sParam" )   );
+    addEntry( dictionary, "stringParameterWithSynonym",  false, true, { "sParam" }          );
     addEntry( dictionary, "doubleParameter",             false, false                       );
-    addEntry( dictionary, "integerParameterWithSynonym", true,  true, list_of( "intParam" ) );
+    addEntry( dictionary, "integerParameterWithSynonym", true,  true, { "intParam" }        );
     addEntry( dictionary, "missingOptionalParameter",    false, false                       );
     addEntry( dictionary, "missingRequiredParameter",    true,  false                       );
 
@@ -128,7 +127,6 @@ BOOST_AUTO_TEST_CASE( testInputFileParsingUsingDictionary )
     using namespace input_output::parsed_data_vector_utilities;
     using namespace input_output::dictionary;
     using unit_conversions::convertKilometersToMeters;
-    using boost::assign::list_of;
 
     // Set input file.
     const std::string inputFile = input_output::getTudatRootPath( )

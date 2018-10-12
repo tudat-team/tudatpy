@@ -20,7 +20,7 @@ namespace interpolators
 // InterpolatorSettings
 
 //! Create a `json` object from a shared pointer to a `InterpolatorSettings` object.
-void to_json( nlohmann::json& jsonObject, const boost::shared_ptr< InterpolatorSettings >& interpolatorSettings )
+void to_json( nlohmann::json& jsonObject, const std::shared_ptr< InterpolatorSettings >& interpolatorSettings )
 {
     if ( ! interpolatorSettings )
     {
@@ -44,9 +44,9 @@ void to_json( nlohmann::json& jsonObject, const boost::shared_ptr< InterpolatorS
         return;
     case lagrange_interpolator:
     {
-        boost::shared_ptr< LagrangeInterpolatorSettings > lagrangeInterpolatorSettings =
-                boost::dynamic_pointer_cast< LagrangeInterpolatorSettings >( interpolatorSettings );
-        assertNonNullPointer( lagrangeInterpolatorSettings );
+        std::shared_ptr< LagrangeInterpolatorSettings > lagrangeInterpolatorSettings =
+                std::dynamic_pointer_cast< LagrangeInterpolatorSettings >( interpolatorSettings );
+        assertNonnullptrPointer( lagrangeInterpolatorSettings );
         jsonObject[ K::order ] = lagrangeInterpolatorSettings->getInterpolatorOrder( );
         jsonObject[ K::lagrangeBoundaryHandling ] = lagrangeInterpolatorSettings->getLagrangeBoundaryHandling( );
         return;
@@ -58,7 +58,7 @@ void to_json( nlohmann::json& jsonObject, const boost::shared_ptr< InterpolatorS
 }
 
 //! Create a shared pointer to a `InterpolatorSettings` object from a `json` object.
-void from_json( const nlohmann::json& jsonObject, boost::shared_ptr< InterpolatorSettings >& interpolatorSettings )
+void from_json( const nlohmann::json& jsonObject, std::shared_ptr< InterpolatorSettings >& interpolatorSettings )
 {
     using namespace json_interface;
     using K = Keys::Interpolation::Interpolator;
@@ -67,14 +67,15 @@ void from_json( const nlohmann::json& jsonObject, boost::shared_ptr< Interpolato
     const InterpolatorTypes interpolatorType =
             getValue< InterpolatorTypes >( jsonObject, K::type );
 
-    switch ( interpolatorType ) {
+    switch ( interpolatorType )
+    {
     case linear_interpolator:
     case cubic_spline_interpolator:
     case hermite_spline_interpolator:
     case piecewise_constant_interpolator:
     {
         InterpolatorSettings defaults( linear_interpolator );
-        interpolatorSettings = boost::make_shared< InterpolatorSettings >(
+        interpolatorSettings = std::make_shared< InterpolatorSettings >(
                     interpolatorType,
                     getValue( jsonObject, K::lookupScheme, defaults.getSelectedLookupScheme( ) ),
                     getValue( jsonObject, K::useLongDoubleTimeStep, defaults.getUseLongDoubleTimeStep( ) ),
@@ -84,7 +85,7 @@ void from_json( const nlohmann::json& jsonObject, boost::shared_ptr< Interpolato
     case lagrange_interpolator:
     {
         LagrangeInterpolatorSettings defaults( 0 );
-        interpolatorSettings = boost::make_shared< LagrangeInterpolatorSettings >(
+        interpolatorSettings = std::make_shared< LagrangeInterpolatorSettings >(
                     getValue< double >( jsonObject, K::order ),
                     getValue( jsonObject, K::useLongDoubleTimeStep, defaults.getUseLongDoubleTimeStep( ) ),
                     getValue( jsonObject, K::lookupScheme, defaults.getSelectedLookupScheme( ) ),
@@ -106,7 +107,7 @@ namespace simulation_setup
 // ModelInterpolationSettings
 
 //! Create a `json` object from a shared pointer to a `ModelInterpolationSettings` object.
-void to_json( nlohmann::json& jsonObject, const boost::shared_ptr< ModelInterpolationSettings >& modelInterpolationSettings )
+void to_json( nlohmann::json& jsonObject, const std::shared_ptr< ModelInterpolationSettings >& modelInterpolationSettings )
 {
     if ( ! modelInterpolationSettings )
     {
@@ -122,13 +123,13 @@ void to_json( nlohmann::json& jsonObject, const boost::shared_ptr< ModelInterpol
 }
 
 //! Create a shared pointer to a `ModelInterpolationSettings` object from a `json` object.
-void from_json( const nlohmann::json& jsonObject, boost::shared_ptr< ModelInterpolationSettings >& modelInterpolationSettings )
+void from_json( const nlohmann::json& jsonObject, std::shared_ptr< ModelInterpolationSettings >& modelInterpolationSettings )
 {
     using namespace json_interface;
     using K = Keys::Interpolation::ModelInterpolation;
 
     ModelInterpolationSettings defaults;
-    modelInterpolationSettings = boost::make_shared< ModelInterpolationSettings >(
+    modelInterpolationSettings = std::make_shared< ModelInterpolationSettings >(
                 getValue( jsonObject, K::initialTime, defaults.initialTime_ ),
                 getValue( jsonObject, K::finalTime, defaults.finalTime_ ),
                 getValue( jsonObject, K::timeStep, defaults.timeStep_ ),

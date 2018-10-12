@@ -75,7 +75,7 @@ inline void from_json( const nlohmann::json& jsonObject, RungeKuttaCoefficients:
 
 //! Create a `json` object from a shared pointer to an `IntegratorSettings` object.
 template< typename TimeType >
-void to_json( nlohmann::json& jsonObject, const boost::shared_ptr< IntegratorSettings< TimeType > >& integratorSettings )
+void to_json( nlohmann::json& jsonObject, const std::shared_ptr< IntegratorSettings< TimeType > >& integratorSettings )
 {
     if ( ! integratorSettings )
     {
@@ -101,16 +101,16 @@ void to_json( nlohmann::json& jsonObject, const boost::shared_ptr< IntegratorSet
     case rungeKuttaVariableStepSize:
     {
         // Create Runge-Kutta base object
-        boost::shared_ptr< RungeKuttaVariableStepSizeBaseSettings< TimeType > > rungeKuttaVariableStepSizeSettings =
-                boost::dynamic_pointer_cast< RungeKuttaVariableStepSizeBaseSettings< TimeType > >( integratorSettings );
-        assertNonNullPointer( rungeKuttaVariableStepSizeSettings );
+        std::shared_ptr< RungeKuttaVariableStepSizeBaseSettings< TimeType > > rungeKuttaVariableStepSizeSettings =
+                std::dynamic_pointer_cast< RungeKuttaVariableStepSizeBaseSettings< TimeType > >( integratorSettings );
+        assertNonnullptrPointer( rungeKuttaVariableStepSizeSettings );
 
         // Check which integrator settings is requested
         if ( rungeKuttaVariableStepSizeSettings->areTolerancesDefinedAsScalar_ )
         {
             // Integrator with scalar tolerances
-            boost::shared_ptr< RungeKuttaVariableStepSizeSettingsScalarTolerances< TimeType > > scalarTolerancesIntegratorSettings =
-                    boost::dynamic_pointer_cast< RungeKuttaVariableStepSizeSettingsScalarTolerances< TimeType > >( integratorSettings );
+            std::shared_ptr< RungeKuttaVariableStepSizeSettingsScalarTolerances< TimeType > > scalarTolerancesIntegratorSettings =
+                    std::dynamic_pointer_cast< RungeKuttaVariableStepSizeSettingsScalarTolerances< TimeType > >( integratorSettings );
 
             jsonObject[ K::rungeKuttaCoefficientSet ] =
                     stringFromEnum( scalarTolerancesIntegratorSettings->coefficientSet_, rungeKuttaCoefficientSets );
@@ -135,9 +135,9 @@ void to_json( nlohmann::json& jsonObject, const boost::shared_ptr< IntegratorSet
     }
     case adamsBashforthMoulton:
     {
-        boost::shared_ptr< AdamsBashforthMoultonSettings< TimeType > > adamsBashforthMoultonSettings =
-                boost::dynamic_pointer_cast< AdamsBashforthMoultonSettings< TimeType > >( integratorSettings );
-        assertNonNullPointer( adamsBashforthMoultonSettings );
+        std::shared_ptr< AdamsBashforthMoultonSettings< TimeType > > adamsBashforthMoultonSettings =
+                std::dynamic_pointer_cast< AdamsBashforthMoultonSettings< TimeType > >( integratorSettings );
+        assertNonnullptrPointer( adamsBashforthMoultonSettings );
         jsonObject[ K::initialStepSize ] = adamsBashforthMoultonSettings->initialTimeStep_;
         jsonObject[ K::minimumStepSize ] = adamsBashforthMoultonSettings->minimumStepSize_;
         jsonObject[ K::maximumStepSize ] = adamsBashforthMoultonSettings->maximumStepSize_;
@@ -150,9 +150,9 @@ void to_json( nlohmann::json& jsonObject, const boost::shared_ptr< IntegratorSet
     }
     case bulirschStoer:
     {
-        boost::shared_ptr< BulirschStoerIntegratorSettings< TimeType > > bulirschStoerSettings =
-                boost::dynamic_pointer_cast< BulirschStoerIntegratorSettings< TimeType > >( integratorSettings );
-        assertNonNullPointer( bulirschStoerSettings );
+        std::shared_ptr< BulirschStoerIntegratorSettings< TimeType > > bulirschStoerSettings =
+                std::dynamic_pointer_cast< BulirschStoerIntegratorSettings< TimeType > >( integratorSettings );
+        assertNonnullptrPointer( bulirschStoerSettings );
         jsonObject[ K::initialStepSize ] = bulirschStoerSettings->initialTimeStep_;
         jsonObject[ K::minimumStepSize ] = bulirschStoerSettings->minimumStepSize_;
         jsonObject[ K::maximumStepSize ] = bulirschStoerSettings->maximumStepSize_;
@@ -176,7 +176,7 @@ void to_json( nlohmann::json& jsonObject, const boost::shared_ptr< IntegratorSet
 
 //! Create a `json` object from a shared pointer to an `IntegratorSettings` object.
 template< typename TimeType >
-void from_json( const nlohmann::json& jsonObject, boost::shared_ptr< IntegratorSettings< TimeType > >& integratorSettings )
+void from_json( const nlohmann::json& jsonObject, std::shared_ptr< IntegratorSettings< TimeType > >& integratorSettings )
 {
     using namespace json_interface;
     using RungeKuttaCoefficientSet = RungeKuttaCoefficients::CoefficientSets;
@@ -194,7 +194,7 @@ void from_json( const nlohmann::json& jsonObject, boost::shared_ptr< IntegratorS
     case rungeKutta4:
     {
         IntegratorSettings< TimeType > defaults( integratorType, 0.0, 0.0 );
-        integratorSettings = boost::make_shared< IntegratorSettings< TimeType > >(
+        integratorSettings = std::make_shared< IntegratorSettings< TimeType > >(
                     integratorType,
                     initialTime,
                     getValue< TimeType >( jsonObject, K::stepSize ),
@@ -212,7 +212,7 @@ void from_json( const nlohmann::json& jsonObject, boost::shared_ptr< IntegratorS
             RungeKuttaVariableStepSizeSettingsScalarTolerances< TimeType > defaults(
                         0.0, 0.0, RungeKuttaCoefficientSet::rungeKuttaFehlberg45, 0.0, 0.0 );
 
-            integratorSettings = boost::make_shared< RungeKuttaVariableStepSizeSettingsScalarTolerances< TimeType > >(
+            integratorSettings = std::make_shared< RungeKuttaVariableStepSizeSettingsScalarTolerances< TimeType > >(
                         initialTime,
                         getValue< TimeType >( jsonObject, K::initialStepSize ),
                         getValue< RungeKuttaCoefficientSet >( jsonObject, K::rungeKuttaCoefficientSet ),
@@ -242,7 +242,7 @@ void from_json( const nlohmann::json& jsonObject, boost::shared_ptr< IntegratorS
         AdamsBashforthMoultonSettings< TimeType > defaults(
                     0.0, 0.0, 0.0, 0.0 );
 
-        integratorSettings = boost::make_shared< AdamsBashforthMoultonSettings< TimeType > >(
+        integratorSettings = std::make_shared< AdamsBashforthMoultonSettings< TimeType > >(
                     initialTime,
                     getValue< TimeType >( jsonObject, K::initialStepSize ),
                     getValue< TimeType >( jsonObject, K::minimumStepSize ),
@@ -264,7 +264,7 @@ void from_json( const nlohmann::json& jsonObject, boost::shared_ptr< IntegratorS
                     0.0, 0.0, bulirsch_stoer_sequence, 6, std::numeric_limits< double >::epsilon( ),
                     std::numeric_limits< double >::infinity( ) );
 
-        integratorSettings = boost::make_shared< BulirschStoerIntegratorSettings< TimeType > >(
+        integratorSettings = std::make_shared< BulirschStoerIntegratorSettings< TimeType > >(
                     initialTime,
                     getValue< TimeType >( jsonObject, K::initialStepSize ),
                     getValue( jsonObject, K::extrapolationSequence, defaults.extrapolationSequence_ ),

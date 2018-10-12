@@ -58,9 +58,9 @@ BOOST_AUTO_TEST_CASE( testOneWayRangePartialsWrtLightTimeParameters )
         double ephemerisEvaluationTime = basic_astrodynamics::calculateJulianDaySinceEpoch< double >(
                     boost::gregorian::date( 2002, 8, 10 ), 0.0 ) * physical_constants::JULIAN_DAY;
 
-        boost::dynamic_pointer_cast< ConstantEphemeris >( bodyMap[ "Earth" ]->getEphemeris( ) )->updateConstantState(
+        std::dynamic_pointer_cast< ConstantEphemeris >( bodyMap[ "Earth" ]->getEphemeris( ) )->updateConstantState(
                     getBodyCartesianStateAtEpoch( "Earth", "SSB", "ECLIPJ2000", "NONE", ephemerisEvaluationTime ) );
-        boost::dynamic_pointer_cast< ConstantEphemeris >( bodyMap[ "Mars" ]->getEphemeris( ) )->updateConstantState(
+        std::dynamic_pointer_cast< ConstantEphemeris >( bodyMap[ "Mars" ]->getEphemeris( ) )->updateConstantState(
                     getBodyCartesianStateAtEpoch( "Mars", "SSB", "ECLIPJ2000", "NONE", ephemerisEvaluationTime ) );
 
 
@@ -70,32 +70,32 @@ BOOST_AUTO_TEST_CASE( testOneWayRangePartialsWrtLightTimeParameters )
         linkEnds[ receiver ] = groundStations[ 0 ];
 
         // Generate one-way range model
-        std::vector< boost::shared_ptr< LightTimeCorrectionSettings > > lightTimeCorrections;
-        std::vector< std::string > relativisticPerturbingBodies = boost::assign::list_of( "Sun" );
-        lightTimeCorrections.push_back( boost::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >(
+        std::vector< std::shared_ptr< LightTimeCorrectionSettings > > lightTimeCorrections;
+        std::vector< std::string > relativisticPerturbingBodies = { "Sun" };
+        lightTimeCorrections.push_back( std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >(
                                             relativisticPerturbingBodies ) );
-        boost::shared_ptr< ObservationSettings > observationSettings = boost::make_shared<
+        std::shared_ptr< ObservationSettings > observationSettings = std::make_shared<
                 ObservationSettings >( one_way_range, lightTimeCorrections );
-        boost::shared_ptr< OneWayRangeObservationModel< double, double > > oneWayRangeModel =
-                boost::dynamic_pointer_cast< OneWayRangeObservationModel< double, double > >(
+        std::shared_ptr< OneWayRangeObservationModel< double, double > > oneWayRangeModel =
+                std::dynamic_pointer_cast< OneWayRangeObservationModel< double, double > >(
                     observation_models::ObservationModelCreator< 1, double, double >::createObservationModel(
                         linkEnds, observationSettings, bodyMap ) );
 
 
         // Create parameters for which partials are to be computed
-        std::vector< boost::shared_ptr< estimatable_parameters::EstimatableParameterSettings > > parameterSettings;
-        parameterSettings.push_back( boost::make_shared< estimatable_parameters::EstimatableParameterSettings >(
+        std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettings > > parameterSettings;
+        parameterSettings.push_back( std::make_shared< estimatable_parameters::EstimatableParameterSettings >(
                                          "Sun", gravitational_parameter ) );
-        parameterSettings.push_back( boost::make_shared< estimatable_parameters::EstimatableParameterSettings >(
+        parameterSettings.push_back( std::make_shared< estimatable_parameters::EstimatableParameterSettings >(
                                          "global_metric", ppn_parameter_gamma ) );
-        boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > parametersToEstimate =
+        std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > parametersToEstimate =
                 createParametersToEstimate( parameterSettings, bodyMap );
 
         // Create partial objects.
-        std::pair< SingleLinkObservationPartialList, boost::shared_ptr< PositionPartialScaling > > partialList =
+        std::pair< SingleLinkObservationPartialList, std::shared_ptr< PositionPartialScaling > > partialList =
                 createOneWayRangePartials( linkEnds, bodyMap, parametersToEstimate,
                                            oneWayRangeModel->getLightTimeCalculator( )->getLightTimeCorrection( ) );
-        boost::shared_ptr< PositionPartialScaling > positionPartialScaler = partialList.second;
+        std::shared_ptr< PositionPartialScaling > positionPartialScaler = partialList.second;
 
         // Compute current observation and link end times/states
         std::vector< double > linkEndTimes;
@@ -109,12 +109,12 @@ BOOST_AUTO_TEST_CASE( testOneWayRangePartialsWrtLightTimeParameters )
 
 
         // Define numerical partial settings
-        std::vector< double > perturbations = boost::assign::list_of( 1.0E16 )( 1.0E8 );
-        std::vector< double > tolerances = boost::assign::list_of( 1.0E-4 )( 10E-4 );
+        std::vector< double > perturbations = { 1.0E16, 1.0E8 };
+        std::vector< double > tolerances = { 1.0E-4, 10E-4 };
 
         // Compute numerical partials for each parameter and compare to analytical result.
-        boost::function< double( const double ) > observationFunction = boost::bind(
-                    &ObservationModel< 1, double, double >::computeObservationEntry, oneWayRangeModel, _1, transmitter, 0 );
+        std::function< double( const double ) > observationFunction = std::bind(
+                    &ObservationModel< 1, double, double >::computeObservationEntry, oneWayRangeModel, std::placeholders::_1, transmitter, 0 );
         for( SingleLinkObservationPartialList::iterator partialIterator = partialList.first.begin( ); partialIterator != partialList.first.end( );
              partialIterator++ )
         {
@@ -154,40 +154,40 @@ BOOST_AUTO_TEST_CASE( testOneWayRangePartialsWrtLightTimeParameters )
         linkEnds[ receiver ] = groundStations[ 0 ];
 
         // Generate one-way range model
-        std::vector< boost::shared_ptr< LightTimeCorrectionSettings > > lightTimeCorrections;
-        std::vector< std::string > perturbingBodyList = boost::assign::list_of( "Earth" )( "Sun" );
-        lightTimeCorrections.push_back( boost::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >(
+        std::vector< std::shared_ptr< LightTimeCorrectionSettings > > lightTimeCorrections;
+        std::vector< std::string > perturbingBodyList = { "Earth", "Sun" };
+        lightTimeCorrections.push_back( std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >(
                                             perturbingBodyList ) );
-        boost::shared_ptr< ObservationSettings > observationSettings = boost::make_shared<
+        std::shared_ptr< ObservationSettings > observationSettings = std::make_shared<
                 ObservationSettings >( one_way_range, lightTimeCorrections );
-        boost::shared_ptr< ObservationModel< 1 > > oneWayRangeModel =
+        std::shared_ptr< ObservationModel< 1 > > oneWayRangeModel =
                 observation_models::ObservationModelCreator< 1, double, double >::createObservationModel(
                     linkEnds, observationSettings, bodyMap  );
 
-        std::map< LinkEnds, boost::shared_ptr< ObservationModel< 1 > > > oneWayRangeModelMap;
+        std::map< LinkEnds, std::shared_ptr< ObservationModel< 1 > > > oneWayRangeModelMap;
         oneWayRangeModelMap[ linkEnds ] = oneWayRangeModel;
 
         // Create parameter objects.
-        std::vector< boost::shared_ptr< EstimatableParameterSettings > > parameterNames;
-        parameterNames.push_back( boost::make_shared< EstimatableParameterSettings >( "Sun", gravitational_parameter ) );
-        parameterNames.push_back( boost::make_shared< EstimatableParameterSettings >( "Earth", gravitational_parameter ) );
-        parameterNames.push_back( boost::make_shared< estimatable_parameters::EstimatableParameterSettings >(
+        std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames;
+        parameterNames.push_back( std::make_shared< EstimatableParameterSettings >( "Sun", gravitational_parameter ) );
+        parameterNames.push_back( std::make_shared< EstimatableParameterSettings >( "Earth", gravitational_parameter ) );
+        parameterNames.push_back( std::make_shared< estimatable_parameters::EstimatableParameterSettings >(
                                       "global_metric", ppn_parameter_gamma ) );
-        parameterNames.push_back( boost::make_shared< EstimatableParameterSettings >( "Mars", gravitational_parameter ) );
-        boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > parametersToEstimate =
+        parameterNames.push_back( std::make_shared< EstimatableParameterSettings >( "Mars", gravitational_parameter ) );
+        std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > parametersToEstimate =
                 createParametersToEstimate< double >( parameterNames, bodyMap );
-        std::vector< boost::shared_ptr< EstimatableParameter< double > > > doubleParameterVector =
+        std::vector< std::shared_ptr< EstimatableParameter< double > > > doubleParameterVector =
                 parametersToEstimate->getEstimatedDoubleParameters( );
 
         // Create observation partials.
-        boost::shared_ptr< ObservationPartialCreator< 1, double, double > > observationPartialCreator =
-                boost::make_shared< ObservationPartialCreator< 1, double, double > >( );
-        std::pair< std::map< std::pair< int, int >, boost::shared_ptr< ObservationPartial< 1 > > >,
-                boost::shared_ptr< PositionPartialScaling > > fullAnalyticalPartialSet =
+        std::shared_ptr< ObservationPartialCreator< 1, double, double > > observationPartialCreator =
+                std::make_shared< ObservationPartialCreator< 1, double, double > >( );
+        std::pair< std::map< std::pair< int, int >, std::shared_ptr< ObservationPartial< 1 > > >,
+                std::shared_ptr< PositionPartialScaling > > fullAnalyticalPartialSet =
                 observationPartialCreator->createObservationPartials(
                     one_way_range, oneWayRangeModelMap, bodyMap, parametersToEstimate ).begin( )->second;
 
-        boost::shared_ptr< PositionPartialScaling > positionPartialScaler = fullAnalyticalPartialSet.second;
+        std::shared_ptr< PositionPartialScaling > positionPartialScaler = fullAnalyticalPartialSet.second;
 
         // Compute partials for each refernce link end.
         for( LinkEnds::const_iterator linkEndIterator = linkEnds.begin( ); linkEndIterator != linkEnds.end( );
@@ -221,13 +221,13 @@ BOOST_AUTO_TEST_CASE( testOneWayRangePartialsWrtLightTimeParameters )
             }
 
             // Settings for body state partials
-            boost::function< Eigen::VectorXd( const double ) > observationFunction = boost::bind(
-                        &ObservationModel< 1, double, double >::computeObservations, oneWayRangeModel, _1,
+            std::function< Eigen::VectorXd( const double ) > observationFunction = std::bind(
+                        &ObservationModel< 1, double, double >::computeObservations, oneWayRangeModel, std::placeholders::_1,
                         linkEndIterator->first );
 
             // Settings for parameter partial functions.
-            std::vector< double > parameterPerturbations = boost::assign::list_of( 1.0E19 )( 1.0E16 )( 1.0E15 )( 1.0E8 );
-            std::vector< boost::function< void( ) > > updateFunctionList;
+            std::vector< double > parameterPerturbations = { 1.0E19, 1.0E16, 1.0E15, 1.0E8 };
+            std::vector< std::function< void( ) > > updateFunctionList;
             updateFunctionList.push_back( emptyVoidFunction );
             updateFunctionList.push_back( emptyVoidFunction );
             updateFunctionList.push_back( emptyVoidFunction );

@@ -12,7 +12,6 @@
 #define TUDAT_CREATEFLIGHTCONDITIONS_H
 
 #include <boost/multi_array.hpp>
-#include <boost/assign/list_of.hpp>
 
 #include <vector>
 
@@ -43,15 +42,15 @@ namespace simulation_setup
  * \param angleUpdateFunction Function to update the aerodynamic angles to the current time (default none).
  * \return Flight conditions object for given bodies and settings.
  */
-boost::shared_ptr< aerodynamics::AtmosphericFlightConditions >  createAtmosphericFlightConditions(
-        const boost::shared_ptr< Body > bodyWithFlightConditions,
-        const boost::shared_ptr< Body > centralBody,
+std::shared_ptr< aerodynamics::AtmosphericFlightConditions >  createAtmosphericFlightConditions(
+        const std::shared_ptr< Body > bodyWithFlightConditions,
+        const std::shared_ptr< Body > centralBody,
         const std::string& nameOfBodyUndergoingAcceleration,
         const std::string& nameOfBodyExertingAcceleration,
-        const boost::function< double( ) > angleOfAttackFunction = boost::function< double( ) >( ),
-        const boost::function< double( ) > angleOfSideslipFunction = boost::function< double( ) >( ),
-        const boost::function< double( ) > bankAngleFunction = boost::function< double( ) >( ),
-        const boost::function< void( const double ) > angleUpdateFunction = boost::function< void( const double ) >( ) );
+        const std::function< double( ) > angleOfAttackFunction = std::function< double( ) >( ),
+        const std::function< double( ) > angleOfSideslipFunction = std::function< double( ) >( ),
+        const std::function< double( ) > bankAngleFunction = std::function< double( ) >( ),
+        const std::function< void( const double ) > angleUpdateFunction = std::function< void( const double ) >( ) );
 
 //! Function to create a flight conditions object
 /*!
@@ -63,9 +62,9 @@ boost::shared_ptr< aerodynamics::AtmosphericFlightConditions >  createAtmospheri
  * \param nameOfBodyExertingAcceleration Name of body with the atmosphere causing acceleration.
  * \return Flight conditions object for given bodies and settings.
  */
-boost::shared_ptr< aerodynamics::FlightConditions >  createFlightConditions(
-        const boost::shared_ptr< Body > bodyWithFlightConditions,
-        const boost::shared_ptr< Body > centralBody,
+std::shared_ptr< aerodynamics::FlightConditions >  createFlightConditions(
+        const std::shared_ptr< Body > bodyWithFlightConditions,
+        const std::shared_ptr< Body > centralBody,
         const std::string& nameOfBodyUndergoingAcceleration,
         const std::string& nameOfBodyExertingAcceleration );
 
@@ -75,8 +74,8 @@ boost::shared_ptr< aerodynamics::FlightConditions >  createFlightConditions(
  * interface to be dependent on the angle of attack.
  * \param flightConditions Flight conditions for body that is to have trimmed conditions.
  */
-boost::shared_ptr< aerodynamics::TrimOrientationCalculator > setTrimmedConditions(
-        const boost::shared_ptr< aerodynamics::AtmosphericFlightConditions > flightConditions );
+std::shared_ptr< aerodynamics::TrimOrientationCalculator > setTrimmedConditions(
+        const std::shared_ptr< aerodynamics::AtmosphericFlightConditions > flightConditions );
 
 
 //! Function to set the angle of attack to trimmed conditions.
@@ -85,8 +84,8 @@ boost::shared_ptr< aerodynamics::TrimOrientationCalculator > setTrimmedCondition
  * interface to be dependent on the angle of attack.
  * \param bodyWithFlightConditions Body for which trimmed conditions are to be imposed.
  */
-boost::shared_ptr< aerodynamics::TrimOrientationCalculator > setTrimmedConditions(
-        const boost::shared_ptr< Body > bodyWithFlightConditions );
+std::shared_ptr< aerodynamics::TrimOrientationCalculator > setTrimmedConditions(
+        const std::shared_ptr< Body > bodyWithFlightConditions );
 
 
 //! Function that must be called to link the AerodynamicGuidance object to the simulation
@@ -96,8 +95,8 @@ boost::shared_ptr< aerodynamics::TrimOrientationCalculator > setTrimmedCondition
  * \param angleCalculator Object that handles all aerodynamic angles in the numerical propagation
  */
 void setGuidanceAnglesFunctions(
-        const boost::shared_ptr< aerodynamics::AerodynamicGuidance > aerodynamicGuidance,
-        const boost::shared_ptr< reference_frames::AerodynamicAngleCalculator > angleCalculator );
+        const std::shared_ptr< aerodynamics::AerodynamicGuidance > aerodynamicGuidance,
+        const std::shared_ptr< reference_frames::AerodynamicAngleCalculator > angleCalculator );
 
 //! Function that must be called to link the AerodynamicGuidance object to the simulation
 /*!
@@ -106,8 +105,8 @@ void setGuidanceAnglesFunctions(
  * \param bodyWithAngles Body for which the orientation is to be controlled.
  */
 void setGuidanceAnglesFunctions(
-        const boost::shared_ptr< aerodynamics::AerodynamicGuidance > aerodynamicGuidance,
-        const boost::shared_ptr< simulation_setup::Body > bodyWithAngles );
+        const std::shared_ptr< aerodynamics::AerodynamicGuidance > aerodynamicGuidance,
+        const std::shared_ptr< simulation_setup::Body > bodyWithAngles );
 
 } // namespace simulation_setup
 

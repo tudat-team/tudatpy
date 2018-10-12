@@ -28,7 +28,7 @@ class ExportSettings
 public:
     //! Constructor.
     ExportSettings( const boost::filesystem::path& outputFile,
-                    const std::vector< boost::shared_ptr< propagators::VariableSettings > >& variables ) :
+                    const std::vector< std::shared_ptr< propagators::VariableSettings > >& variables ) :
         outputFile_( outputFile ), variables_( variables ) { }
 
     //! Destructor.
@@ -46,7 +46,7 @@ public:
     //! Variables to export.
     //! The variables will be exported to a table in which each row corresponds to an epoch,
     //! and the columns contain the values of the variables specified in this vector in the provided order.
-    std::vector< boost::shared_ptr< propagators::VariableSettings > > variables_;
+    std::vector< std::shared_ptr< propagators::VariableSettings > > variables_;
 
     //! Header to be included in the first line of the output file. If empty, no header will be added.
     std::string header_ = "";
@@ -65,10 +65,10 @@ public:
 };
 
 //! Create a `json` object from a shared pointer to a `ExportSettings` object.
-void to_json( nlohmann::json& jsonObject, const boost::shared_ptr< ExportSettings >& saveSettings );
+void to_json( nlohmann::json& jsonObject, const std::shared_ptr< ExportSettings >& saveSettings );
 
 //! Create a shared pointer to a `ExportSettings` object from a `json` object.
-void from_json( const nlohmann::json& jsonObject, boost::shared_ptr< ExportSettings >& saveSettings );
+void from_json( const nlohmann::json& jsonObject, std::shared_ptr< ExportSettings >& saveSettings );
 
 
 //! Export results of \p dynamicsSimulator according to the settings specified in \p exportSettingsVector.
@@ -81,8 +81,8 @@ void from_json( const nlohmann::json& jsonObject, boost::shared_ptr< ExportSetti
  */
 template< typename TimeType = double, typename StateScalarType = double >
 void exportResultsOfDynamicsSimulator(
-        const boost::shared_ptr< propagators::SingleArcDynamicsSimulator< StateScalarType, TimeType > >& singleArcDynamicsSimulator,
-        const std::vector< boost::shared_ptr< ExportSettings > >& exportSettingsVector )
+        const std::shared_ptr< propagators::SingleArcDynamicsSimulator< StateScalarType, TimeType > >& singleArcDynamicsSimulator,
+        const std::vector< std::shared_ptr< ExportSettings > >& exportSettingsVector )
 {
     using namespace propagators;
     using namespace input_output;
@@ -94,16 +94,16 @@ void exportResultsOfDynamicsSimulator(
     std::map< TimeType, double > cpuTimes =
             singleArcDynamicsSimulator->getCumulativeComputationTimeHistory( );
 
-    for ( boost::shared_ptr< ExportSettings > exportSettings : exportSettingsVector )
+    for ( std::shared_ptr< ExportSettings > exportSettings : exportSettingsVector )
     {
-        std::vector< boost::shared_ptr< VariableSettings > > variables;
+        std::vector< std::shared_ptr< VariableSettings > > variables;
         std::vector< unsigned int > variableSizes;
         std::vector< unsigned int > variableIndices;
 
         // Determine number of columns (not including first column = epoch).
         unsigned int cols = 0;
 
-        for ( boost::shared_ptr< VariableSettings > variable : exportSettings->variables_ )
+        for ( std::shared_ptr< VariableSettings > variable : exportSettings->variables_ )
         {
             unsigned int variableSize = 0;
             unsigned int variableIndex = 0;
@@ -122,9 +122,9 @@ void exportResultsOfDynamicsSimulator(
             }
             case dependentVariable:
             {
-                const boost::shared_ptr< SingleDependentVariableSaveSettings > dependentVar =
-                        boost::dynamic_pointer_cast< SingleDependentVariableSaveSettings >( variable );
-                assertNonNullPointer( dependentVar );
+                const std::shared_ptr< SingleDependentVariableSaveSettings > dependentVar =
+                        std::dynamic_pointer_cast< SingleDependentVariableSaveSettings >( variable );
+                assertNonnullptrPointer( dependentVar );
                 try
                 {
                     const std::string variableID = getDependentVariableId( dependentVar );
@@ -194,7 +194,7 @@ void exportResultsOfDynamicsSimulator(
             Eigen::VectorXd result = Eigen::VectorXd::Zero( cols );
             for ( unsigned int i = 0; i < variables.size( ); ++i )
             {
-                const boost::shared_ptr< VariableSettings > variable = variables.at( i );
+                const std::shared_ptr< VariableSettings > variable = variables.at( i );
                 const unsigned int variableSize = variableSizes.at( i );
 
                 switch ( variable->variableType_ )

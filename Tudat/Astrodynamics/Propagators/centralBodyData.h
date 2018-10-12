@@ -14,7 +14,7 @@
 #include <vector>
 #include <map>
 
-#include <boost/function.hpp>
+#include <functional>
 
 #include <Eigen/Core>
 
@@ -58,9 +58,9 @@ public:
     CentralBodyData( const std::vector< std::string >& centralBodies,
                      const std::vector< std::string >& bodiesToIntegrate,
                      const std::map< std::string,
-                     boost::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType ) > >&
+                     std::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType ) > >&
                      bodyStateFunctions,
-                     const boost::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType ) >
+                     const std::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType ) >
                      globalFrameOriginBarycentricStateFunction,
                      const std::string globalFrameOrigin ):
         centralBodies_( centralBodies ), globalFrameOriginBarycentricStateFunction_( globalFrameOriginBarycentricStateFunction )
@@ -242,7 +242,7 @@ private:
     //! index.
     std::vector< std::string > centralBodies_;
 
-    boost::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType ) > globalFrameOriginBarycentricStateFunction_;
+    std::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType ) > globalFrameOriginBarycentricStateFunction_;
 
     //! Order in which the body states are to be called when getting global states (taking into
     //! account frame origin dependencies).
@@ -252,7 +252,7 @@ private:
     std::vector< OriginType > bodyOriginType_;
 
     //!  List of functions for the origins of selected bodies.
-    std::map< int, boost::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType ) > >
+    std::map< int, std::function< Eigen::Matrix< StateScalarType, 6, 1 >( const TimeType ) > >
         centralBodiesFromEphemerides_;
 
     //! Map defining frame origin body index, for bodies having one of the other propagated bodies

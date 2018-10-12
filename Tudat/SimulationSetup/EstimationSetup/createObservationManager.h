@@ -15,7 +15,7 @@
 #include <vector>
 #include <map>
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include "Tudat/Astrodynamics/ObservationModels/observationManager.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/observationBiasParameter.h"
@@ -37,8 +37,8 @@ namespace observation_models
  */
 template< int ObservationSize = 1 >
 void performObservationParameterEstimationClosureForSingleModelSet(
-        const boost::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter,
-        const boost::shared_ptr< ObservationBias< ObservationSize > > observationBias,
+        const std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter,
+        const std::shared_ptr< ObservationBias< ObservationSize > > observationBias,
         const LinkEnds linkEnds,
         const ObservableType observableType )
 {
@@ -48,9 +48,9 @@ void performObservationParameterEstimationClosureForSingleModelSet(
     if( biasType == multiple_observation_biases )
     {
         // Test input consistency
-        boost::shared_ptr< MultiTypeObservationBias< ObservationSize > > multiTypeBias =
-                boost::dynamic_pointer_cast< MultiTypeObservationBias< ObservationSize > >( observationBias );
-        if( multiTypeBias == NULL )
+        std::shared_ptr< MultiTypeObservationBias< ObservationSize > > multiTypeBias =
+                std::dynamic_pointer_cast< MultiTypeObservationBias< ObservationSize > >( observationBias );
+        if( multiTypeBias == nullptr )
         {
             throw std::runtime_error( "Error, cannot perform bias closure for multi-type bias, inconsistent bias types" );
         }
@@ -70,28 +70,28 @@ void performObservationParameterEstimationClosureForSingleModelSet(
         case estimatable_parameters::constant_additive_observation_bias:
         {
             // Test input consistency
-            boost::shared_ptr< estimatable_parameters::ConstantObservationBiasParameter > biasParameter =
-                    boost::dynamic_pointer_cast< estimatable_parameters::ConstantObservationBiasParameter >(
+            std::shared_ptr< estimatable_parameters::ConstantObservationBiasParameter > biasParameter =
+                    std::dynamic_pointer_cast< estimatable_parameters::ConstantObservationBiasParameter >(
                         parameter );
-            if( biasParameter == NULL )
+            if( biasParameter == nullptr )
             {
                 throw std::runtime_error( "Error, cannot perform bias closure for additive bias, inconsistent bias types" );
             }
 
             // Check if bias object is of same type as estimated parameter
-            boost::shared_ptr< ConstantObservationBias< ObservationSize > > constantBiasObject =
-                    boost::dynamic_pointer_cast< ConstantObservationBias< ObservationSize > >( observationBias );
-            if( constantBiasObject != NULL )
+            std::shared_ptr< ConstantObservationBias< ObservationSize > > constantBiasObject =
+                    std::dynamic_pointer_cast< ConstantObservationBias< ObservationSize > >( observationBias );
+            if( constantBiasObject != nullptr )
             {
                 // Check if bias and parameter link properties are equal
                 if( linkEnds == biasParameter->getLinkEnds( ) &&
                         observableType == biasParameter->getObservableType( ) )
                 {
                     biasParameter->setObservationBiasFunctions(
-                                boost::bind( &ConstantObservationBias< ObservationSize >::getTemplateFreeConstantObservationBias,
+                                std::bind( &ConstantObservationBias< ObservationSize >::getTemplateFreeConstantObservationBias,
                                              constantBiasObject ),
-                                boost::bind( &ConstantObservationBias< ObservationSize >::resetConstantObservationBiasTemplateFree,
-                                             constantBiasObject, _1 ) );
+                                std::bind( &ConstantObservationBias< ObservationSize >::resetConstantObservationBiasTemplateFree,
+                                             constantBiasObject, std::placeholders::_1 ) );
                 }
             }
             break;
@@ -100,18 +100,18 @@ void performObservationParameterEstimationClosureForSingleModelSet(
         {
 
             // Test input consistency
-            boost::shared_ptr< estimatable_parameters::ArcWiseObservationBiasParameter > biasParameter =
-                    boost::dynamic_pointer_cast< estimatable_parameters::ArcWiseObservationBiasParameter >(
+            std::shared_ptr< estimatable_parameters::ArcWiseObservationBiasParameter > biasParameter =
+                    std::dynamic_pointer_cast< estimatable_parameters::ArcWiseObservationBiasParameter >(
                         parameter );
-            if( biasParameter == NULL )
+            if( biasParameter == nullptr )
             {
                 throw std::runtime_error( "Error, cannot perform bias closure for arc-wise additive bias, inconsistent bias types" );
             }
 
             // Check if bias object is of same type as estimated parameter
-            boost::shared_ptr< ConstantArcWiseObservationBias< ObservationSize > > constantBiasObject =
-                    boost::dynamic_pointer_cast< ConstantArcWiseObservationBias< ObservationSize > >( observationBias );
-            if( constantBiasObject != NULL )
+            std::shared_ptr< ConstantArcWiseObservationBias< ObservationSize > > constantBiasObject =
+                    std::dynamic_pointer_cast< ConstantArcWiseObservationBias< ObservationSize > >( observationBias );
+            if( constantBiasObject != nullptr )
             {
                 // Check if bias and parameter link properties are equal
                 if( ( linkEnds == biasParameter->getLinkEnds( ) ) &&
@@ -134,10 +134,10 @@ void performObservationParameterEstimationClosureForSingleModelSet(
                     if( doTimesMatch == true )
                     {
                         biasParameter->setObservationBiasFunctions(
-                                    boost::bind( &ConstantArcWiseObservationBias< ObservationSize >::getTemplateFreeConstantObservationBias,
+                                    std::bind( &ConstantArcWiseObservationBias< ObservationSize >::getTemplateFreeConstantObservationBias,
                                                  constantBiasObject ),
-                                    boost::bind( &ConstantArcWiseObservationBias< ObservationSize >::resetConstantObservationBiasTemplateFree,
-                                                 constantBiasObject, _1 ) );
+                                    std::bind( &ConstantArcWiseObservationBias< ObservationSize >::resetConstantObservationBiasTemplateFree,
+                                                 constantBiasObject, std::placeholders::_1 ) );
                         biasParameter->setLookupScheme( constantBiasObject->getLookupScheme( ) );
                     }
                 }
@@ -147,28 +147,28 @@ void performObservationParameterEstimationClosureForSingleModelSet(
         case estimatable_parameters::constant_relative_observation_bias:
         {
             // Test input consistency
-            boost::shared_ptr< estimatable_parameters::ConstantObservationBiasParameter > biasParameter =
-                    boost::dynamic_pointer_cast< estimatable_parameters::ConstantObservationBiasParameter >(
+            std::shared_ptr< estimatable_parameters::ConstantObservationBiasParameter > biasParameter =
+                    std::dynamic_pointer_cast< estimatable_parameters::ConstantObservationBiasParameter >(
                         parameter );
-            if( biasParameter == NULL )
+            if( biasParameter == nullptr )
             {
                 throw std::runtime_error( "Error, cannot perform bias closure for additive bias, inconsistent bias types" );
             }
 
             // Check if bias object is of same type as estimated parameter
-            boost::shared_ptr< ConstantRelativeObservationBias< ObservationSize > > constantBiasObject =
-                    boost::dynamic_pointer_cast< ConstantRelativeObservationBias< ObservationSize > >( observationBias );
-            if( constantBiasObject != NULL )
+            std::shared_ptr< ConstantRelativeObservationBias< ObservationSize > > constantBiasObject =
+                    std::dynamic_pointer_cast< ConstantRelativeObservationBias< ObservationSize > >( observationBias );
+            if( constantBiasObject != nullptr )
             {
                 // Check if bias and parameter link properties are equal
                 if( linkEnds == biasParameter->getLinkEnds( ) &&
                         observableType == biasParameter->getObservableType( ) )
                 {
                     biasParameter->setObservationBiasFunctions(
-                                boost::bind( &ConstantRelativeObservationBias< ObservationSize >::getTemplateFreeConstantObservationBias,
+                                std::bind( &ConstantRelativeObservationBias< ObservationSize >::getTemplateFreeConstantObservationBias,
                                              constantBiasObject ),
-                                boost::bind( &ConstantRelativeObservationBias< ObservationSize >::resetConstantObservationBiasTemplateFree,
-                                             constantBiasObject, _1 ) );
+                                std::bind( &ConstantRelativeObservationBias< ObservationSize >::resetConstantObservationBiasTemplateFree,
+                                             constantBiasObject, std::placeholders::_1 ) );
                 }
             }
             break;
@@ -177,18 +177,18 @@ void performObservationParameterEstimationClosureForSingleModelSet(
         {
 
             // Test input consistency
-            boost::shared_ptr< estimatable_parameters::ArcWiseObservationBiasParameter > biasParameter =
-                    boost::dynamic_pointer_cast< estimatable_parameters::ArcWiseObservationBiasParameter >(
+            std::shared_ptr< estimatable_parameters::ArcWiseObservationBiasParameter > biasParameter =
+                    std::dynamic_pointer_cast< estimatable_parameters::ArcWiseObservationBiasParameter >(
                         parameter );
-            if( biasParameter == NULL )
+            if( biasParameter == nullptr )
             {
                 throw std::runtime_error( "Error, cannot perform bias closure for arc-wise relative bias, inconsistent bias types" );
             }
 
             // Check if bias object is of same type as estimated parameter
-            boost::shared_ptr< ConstantRelativeArcWiseObservationBias< ObservationSize > > constantBiasObject =
-                    boost::dynamic_pointer_cast< ConstantRelativeArcWiseObservationBias< ObservationSize > >( observationBias );
-            if( constantBiasObject != NULL )
+            std::shared_ptr< ConstantRelativeArcWiseObservationBias< ObservationSize > > constantBiasObject =
+                    std::dynamic_pointer_cast< ConstantRelativeArcWiseObservationBias< ObservationSize > >( observationBias );
+            if( constantBiasObject != nullptr )
             {
                 // Check if bias and parameter link properties are equal
                 if( ( linkEnds == biasParameter->getLinkEnds( ) ) &&
@@ -211,10 +211,10 @@ void performObservationParameterEstimationClosureForSingleModelSet(
                     if( doTimesMatch == true )
                     {
                         biasParameter->setObservationBiasFunctions(
-                                    boost::bind( &ConstantRelativeArcWiseObservationBias< ObservationSize >::getTemplateFreeConstantObservationBias,
+                                    std::bind( &ConstantRelativeArcWiseObservationBias< ObservationSize >::getTemplateFreeConstantObservationBias,
                                                  constantBiasObject ),
-                                    boost::bind( &ConstantRelativeArcWiseObservationBias< ObservationSize >::resetConstantObservationBiasTemplateFree,
-                                                 constantBiasObject, _1 ) );
+                                    std::bind( &ConstantRelativeArcWiseObservationBias< ObservationSize >::resetConstantObservationBiasTemplateFree,
+                                                 constantBiasObject, std::placeholders::_1 ) );
                         biasParameter->setLookupScheme( constantBiasObject->getLookupScheme( ) );
                     }
                 }
@@ -238,18 +238,18 @@ void performObservationParameterEstimationClosureForSingleModelSet(
  */
 template< int ObservationSize = 1, typename ObservationScalarType = double, typename TimeType = double >
 void performObservationParameterEstimationClosure(
-        boost::shared_ptr< ObservationSimulator< ObservationSize, ObservationScalarType, TimeType > > observationSimulator ,
-        const boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< ObservationScalarType > >
+        std::shared_ptr< ObservationSimulator< ObservationSize, ObservationScalarType, TimeType > > observationSimulator ,
+        const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< ObservationScalarType > >
         parametersToEstimate )
 {
     // Retrieve observation models and parameter
-    std::map< LinkEnds, boost::shared_ptr< ObservationModel< ObservationSize, ObservationScalarType, TimeType > > >
+    std::map< LinkEnds, std::shared_ptr< ObservationModel< ObservationSize, ObservationScalarType, TimeType > > >
             observationModels = observationSimulator->getObservationModels( );
-    std::vector< boost::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > > vectorParameters =
+    std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > > vectorParameters =
             parametersToEstimate->getEstimatedVectorParameters( );
 
     // Retrieve estimated bias parameters.
-    std::vector< boost::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > > vectorBiasParameters;
+    std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > > vectorBiasParameters;
     for( unsigned int i = 0; i < vectorParameters.size( ); i++ )
     {
         if( estimatable_parameters::isParameterObservationLinkProperty( vectorParameters.at( i )->getParameterName( ).first ) )
@@ -261,13 +261,13 @@ void performObservationParameterEstimationClosure(
     if( vectorBiasParameters.size( ) > 0 )
     {
         // Retrieve bias objects
-        std::map< LinkEnds, boost::shared_ptr< ObservationBias< ObservationSize > > > observationBiases =
+        std::map< LinkEnds, std::shared_ptr< ObservationBias< ObservationSize > > > observationBiases =
                 extractObservationBiasList( observationModels );
 
         // Iterate over all combinations of parameters and biases and perform closure for each (if needed)
         for( unsigned int i = 0; i < vectorBiasParameters.size( ); i++ )
         {
-            for( typename std::map< LinkEnds, boost::shared_ptr< ObservationBias< ObservationSize > > >::const_iterator
+            for( typename std::map< LinkEnds, std::shared_ptr< ObservationBias< ObservationSize > > >::const_iterator
                  biasIterator = observationBiases.begin( ); biasIterator != observationBiases.end( ); biasIterator++ )
             {
                 performObservationParameterEstimationClosureForSingleModelSet(
@@ -290,20 +290,20 @@ void performObservationParameterEstimationClosure(
  *  \return Object that simulates the observations of a given type and associated partials
  */
 template< int ObservationSize = 1, typename ObservationScalarType, typename TimeType >
-boost::shared_ptr< ObservationManagerBase< ObservationScalarType, TimeType > > createObservationManager(
+std::shared_ptr< ObservationManagerBase< ObservationScalarType, TimeType > > createObservationManager(
         const ObservableType observableType,
-        const std::map< LinkEnds, boost::shared_ptr< ObservationSettings  > > settingsPerLinkEnds,
+        const std::map< LinkEnds, std::shared_ptr< ObservationSettings  > > settingsPerLinkEnds,
         const simulation_setup::NamedBodyMap &bodyMap,
-        const boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< ObservationScalarType > >
+        const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< ObservationScalarType > >
         parametersToEstimate,
-        const boost::shared_ptr< propagators::CombinedStateTransitionAndSensitivityMatrixInterface >
+        const std::shared_ptr< propagators::CombinedStateTransitionAndSensitivityMatrixInterface >
         stateTransitionMatrixInterface )
 {
     using namespace observation_models;
     using namespace observation_partials;
 
     // Create observation simulator
-    boost::shared_ptr< ObservationSimulator< ObservationSize, ObservationScalarType, TimeType > > observationSimulator =
+    std::shared_ptr< ObservationSimulator< ObservationSize, ObservationScalarType, TimeType > > observationSimulator =
             createObservationSimulator< ObservationSize, ObservationScalarType, TimeType >(
                 observableType, settingsPerLinkEnds, bodyMap );
 
@@ -312,12 +312,12 @@ boost::shared_ptr< ObservationManagerBase< ObservationScalarType, TimeType > > c
                 observationSimulator, parametersToEstimate );
 
     // Create observation partials for all link ends/parameters
-    boost::shared_ptr< ObservationPartialCreator< ObservationSize, ObservationScalarType, TimeType > > observationPartialCreator =
-            boost::make_shared< ObservationPartialCreator< ObservationSize, ObservationScalarType, TimeType > >( );
+    std::shared_ptr< ObservationPartialCreator< ObservationSize, ObservationScalarType, TimeType > > observationPartialCreator =
+            std::make_shared< ObservationPartialCreator< ObservationSize, ObservationScalarType, TimeType > >( );
     std::map< LinkEnds, std::pair< std::map< std::pair< int, int >,
-            boost::shared_ptr< ObservationPartial< ObservationSize > > >,
-            boost::shared_ptr< PositionPartialScaling > > > observationPartialsAndScaler;
-    if( parametersToEstimate != NULL )
+            std::shared_ptr< ObservationPartial< ObservationSize > > >,
+            std::shared_ptr< PositionPartialScaling > > > observationPartialsAndScaler;
+    if( parametersToEstimate != nullptr )
     {
         observationPartialsAndScaler =
                 observationPartialCreator->createObservationPartials(
@@ -326,12 +326,12 @@ boost::shared_ptr< ObservationManagerBase< ObservationScalarType, TimeType > > c
 
     // Split position partial scaling and observation partial objects.
     std::map< LinkEnds, std::map< std::pair< int, int >,
-            boost::shared_ptr< observation_partials::ObservationPartial< ObservationSize > > > > observationPartials;
-    std::map< LinkEnds, boost::shared_ptr< observation_partials::PositionPartialScaling  > > observationPartialScalers;
+            std::shared_ptr< observation_partials::ObservationPartial< ObservationSize > > > > observationPartials;
+    std::map< LinkEnds, std::shared_ptr< observation_partials::PositionPartialScaling  > > observationPartialScalers;
     splitObservationPartialsAndScalers( observationPartialsAndScaler, observationPartials, observationPartialScalers );
 
 
-    return boost::make_shared< ObservationManager< ObservationSize, ObservationScalarType, TimeType > >(
+    return std::make_shared< ObservationManager< ObservationSize, ObservationScalarType, TimeType > >(
                 observableType, observationSimulator, observationPartials,
                 observationPartialScalers, stateTransitionMatrixInterface );
 }
@@ -349,14 +349,14 @@ boost::shared_ptr< ObservationManagerBase< ObservationScalarType, TimeType > > c
  *  \return Object that simulates the observations of a given type and associated partials
  */
 template< typename ObservationScalarType, typename TimeType >
-boost::shared_ptr< ObservationManagerBase< ObservationScalarType, TimeType > > createObservationManagerBase(
+std::shared_ptr< ObservationManagerBase< ObservationScalarType, TimeType > > createObservationManagerBase(
         const ObservableType observableType,
-        const std::map< LinkEnds, boost::shared_ptr< ObservationSettings  > > settingsPerLinkEnds,
+        const std::map< LinkEnds, std::shared_ptr< ObservationSettings  > > settingsPerLinkEnds,
         const simulation_setup::NamedBodyMap &bodyMap,
-        const boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< ObservationScalarType > > parametersToEstimate,
-        const boost::shared_ptr< propagators::CombinedStateTransitionAndSensitivityMatrixInterface > stateTransitionMatrixInterface )
+        const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< ObservationScalarType > > parametersToEstimate,
+        const std::shared_ptr< propagators::CombinedStateTransitionAndSensitivityMatrixInterface > stateTransitionMatrixInterface )
 {
-    boost::shared_ptr< ObservationManagerBase< ObservationScalarType, TimeType > > observationManager;
+    std::shared_ptr< ObservationManagerBase< ObservationScalarType, TimeType > > observationManager;
     switch( observableType )
     {
     case one_way_range:
@@ -401,6 +401,115 @@ boost::shared_ptr< ObservationManagerBase< ObservationScalarType, TimeType > > c
     }
     return observationManager;
 }
+
+//extern template std::shared_ptr< ObservationManagerBase< double, double > > createObservationManagerBase< double, double >(
+//        const ObservableType observableType,
+//        const std::map< LinkEnds, std::shared_ptr< ObservationSettings  > > settingsPerLinkEnds,
+//        const simulation_setup::NamedBodyMap &bodyMap,
+//        const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > parametersToEstimate,
+//        const std::shared_ptr< propagators::CombinedStateTransitionAndSensitivityMatrixInterface > stateTransitionMatrixInterface );
+
+//extern template std::shared_ptr< ObservationManagerBase< double, double > > createObservationManager< 1, double, double >(
+//        const ObservableType observableType,
+//        const std::map< LinkEnds, std::shared_ptr< ObservationSettings  > > settingsPerLinkEnds,
+//        const simulation_setup::NamedBodyMap &bodyMap,
+//        const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > parametersToEstimate,
+//        const std::shared_ptr< propagators::CombinedStateTransitionAndSensitivityMatrixInterface > stateTransitionMatrixInterface );
+
+//extern template std::shared_ptr< ObservationManagerBase< double, double > > createObservationManager< 2, double, double >(
+//        const ObservableType observableType,
+//        const std::map< LinkEnds, std::shared_ptr< ObservationSettings  > > settingsPerLinkEnds,
+//        const simulation_setup::NamedBodyMap &bodyMap,
+//        const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > parametersToEstimate,
+//        const std::shared_ptr< propagators::CombinedStateTransitionAndSensitivityMatrixInterface > stateTransitionMatrixInterface );
+
+//extern template std::shared_ptr< ObservationManagerBase< double, double > > createObservationManager< 3, double, double >(
+//        const ObservableType observableType,
+//        const std::map< LinkEnds, std::shared_ptr< ObservationSettings  > > settingsPerLinkEnds,
+//        const simulation_setup::NamedBodyMap &bodyMap,
+//        const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > parametersToEstimate,
+//        const std::shared_ptr< propagators::CombinedStateTransitionAndSensitivityMatrixInterface > stateTransitionMatrixInterface );
+
+//#if( BUILD_EXTENDED_PRECISION_PROPAGATION_TOOLS )
+
+//extern template std::shared_ptr< ObservationManagerBase< double, Time > > createObservationManager< 3, double, Time >(
+//        const ObservableType observableType,
+//        const std::map< LinkEnds, std::shared_ptr< ObservationSettings  > > settingsPerLinkEnds,
+//        const simulation_setup::NamedBodyMap &bodyMap,
+//        const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > parametersToEstimate,
+//        const std::shared_ptr< propagators::CombinedStateTransitionAndSensitivityMatrixInterface > stateTransitionMatrixInterface );
+//extern template std::shared_ptr< ObservationManagerBase< long double, double > > createObservationManager< 3, long double, double >(
+//        const ObservableType observableType,
+//        const std::map< LinkEnds, std::shared_ptr< ObservationSettings  > > settingsPerLinkEnds,
+//        const simulation_setup::NamedBodyMap &bodyMap,
+//        const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< long double > > parametersToEstimate,
+//        const std::shared_ptr< propagators::CombinedStateTransitionAndSensitivityMatrixInterface > stateTransitionMatrixInterface );
+//extern template std::shared_ptr< ObservationManagerBase< long double, Time > > createObservationManager< 3, long double, Time >(
+//        const ObservableType observableType,
+//        const std::map< LinkEnds, std::shared_ptr< ObservationSettings  > > settingsPerLinkEnds,
+//        const simulation_setup::NamedBodyMap &bodyMap,
+//        const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< long double > > parametersToEstimate,
+//        const std::shared_ptr< propagators::CombinedStateTransitionAndSensitivityMatrixInterface > stateTransitionMatrixInterface );
+
+//extern template std::shared_ptr< ObservationManagerBase< double, Time > > createObservationManager< 2, double, Time >(
+//        const ObservableType observableType,
+//        const std::map< LinkEnds, std::shared_ptr< ObservationSettings  > > settingsPerLinkEnds,
+//        const simulation_setup::NamedBodyMap &bodyMap,
+//        const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > parametersToEstimate,
+//        const std::shared_ptr< propagators::CombinedStateTransitionAndSensitivityMatrixInterface > stateTransitionMatrixInterface );
+//extern template std::shared_ptr< ObservationManagerBase< long double, double > > createObservationManager< 2, long double, double >(
+//        const ObservableType observableType,
+//        const std::map< LinkEnds, std::shared_ptr< ObservationSettings  > > settingsPerLinkEnds,
+//        const simulation_setup::NamedBodyMap &bodyMap,
+//        const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< long double > > parametersToEstimate,
+//        const std::shared_ptr< propagators::CombinedStateTransitionAndSensitivityMatrixInterface > stateTransitionMatrixInterface );
+//extern template std::shared_ptr< ObservationManagerBase< long double, Time > > createObservationManager< 2, long double, Time >(
+//        const ObservableType observableType,
+//        const std::map< LinkEnds, std::shared_ptr< ObservationSettings  > > settingsPerLinkEnds,
+//        const simulation_setup::NamedBodyMap &bodyMap,
+//        const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< long double > > parametersToEstimate,
+//        const std::shared_ptr< propagators::CombinedStateTransitionAndSensitivityMatrixInterface > stateTransitionMatrixInterface );
+
+//extern template std::shared_ptr< ObservationManagerBase< double, Time > > createObservationManager< 1, double, Time >(
+//        const ObservableType observableType,
+//        const std::map< LinkEnds, std::shared_ptr< ObservationSettings  > > settingsPerLinkEnds,
+//        const simulation_setup::NamedBodyMap &bodyMap,
+//        const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > parametersToEstimate,
+//        const std::shared_ptr< propagators::CombinedStateTransitionAndSensitivityMatrixInterface > stateTransitionMatrixInterface );
+//extern template std::shared_ptr< ObservationManagerBase< long double, double > > createObservationManager< 1, long double, double >(
+//        const ObservableType observableType,
+//        const std::map< LinkEnds, std::shared_ptr< ObservationSettings  > > settingsPerLinkEnds,
+//        const simulation_setup::NamedBodyMap &bodyMap,
+//        const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< long double > > parametersToEstimate,
+//        const std::shared_ptr< propagators::CombinedStateTransitionAndSensitivityMatrixInterface > stateTransitionMatrixInterface );
+//extern template std::shared_ptr< ObservationManagerBase< long double, Time > > createObservationManager< 1, long double, Time >(
+//        const ObservableType observableType,
+//        const std::map< LinkEnds, std::shared_ptr< ObservationSettings  > > settingsPerLinkEnds,
+//        const simulation_setup::NamedBodyMap &bodyMap,
+//        const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< long double > > parametersToEstimate,
+//        const std::shared_ptr< propagators::CombinedStateTransitionAndSensitivityMatrixInterface > stateTransitionMatrixInterface );
+
+//extern template std::shared_ptr< ObservationManagerBase< double, Time > > createObservationManagerBase< double, Time >(
+//        const ObservableType observableType,
+//        const std::map< LinkEnds, std::shared_ptr< ObservationSettings  > > settingsPerLinkEnds,
+//        const simulation_setup::NamedBodyMap &bodyMap,
+//        const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > parametersToEstimate,
+//        const std::shared_ptr< propagators::CombinedStateTransitionAndSensitivityMatrixInterface > stateTransitionMatrixInterface );
+//extern template std::shared_ptr< ObservationManagerBase< long double, double > > createObservationManagerBase< long double, double >(
+//        const ObservableType observableType,
+//        const std::map< LinkEnds, std::shared_ptr< ObservationSettings  > > settingsPerLinkEnds,
+//        const simulation_setup::NamedBodyMap &bodyMap,
+//        const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< long double > > parametersToEstimate,
+//        const std::shared_ptr< propagators::CombinedStateTransitionAndSensitivityMatrixInterface > stateTransitionMatrixInterface );
+//extern template std::shared_ptr< ObservationManagerBase< long double, Time > > createObservationManagerBase< long double, Time >(
+//        const ObservableType observableType,
+//        const std::map< LinkEnds, std::shared_ptr< ObservationSettings  > > settingsPerLinkEnds,
+//        const simulation_setup::NamedBodyMap &bodyMap,
+//        const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< long double > > parametersToEstimate,
+//        const std::shared_ptr< propagators::CombinedStateTransitionAndSensitivityMatrixInterface > stateTransitionMatrixInterface );
+
+//#endif
+
 
 }
 

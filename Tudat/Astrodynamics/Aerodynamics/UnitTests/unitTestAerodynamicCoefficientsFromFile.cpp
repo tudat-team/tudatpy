@@ -68,10 +68,10 @@ BOOST_AUTO_TEST_CASE( testAerodynamicCoefficientsFromFile )
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
         // Define simulation body settings.
-        std::map< std::string, boost::shared_ptr< BodySettings > > bodySettings =
+        std::map< std::string, std::shared_ptr< BodySettings > > bodySettings =
                 getDefaultBodySettings( { "Earth" }, simulationStartEpoch - 10.0 * fixedStepSize,
                                         simulationEndEpoch + 10.0 * fixedStepSize );
-        bodySettings[ "Earth" ]->ephemerisSettings = boost::make_shared< ConstantEphemerisSettings >(
+        bodySettings[ "Earth" ]->ephemerisSettings = std::make_shared< ConstantEphemerisSettings >(
                     Eigen::Vector6d::Zero( ), "SSB", "J2000" );
         bodySettings[ "Earth" ]->rotationModelSettings->resetOriginalFrame( "J2000" );
 
@@ -83,8 +83,8 @@ BOOST_AUTO_TEST_CASE( testAerodynamicCoefficientsFromFile )
         ///////////////////////             CREATE VEHICLE            /////////////////////////////////////////////////////////
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         // Create vehicle objects.
-        bodyMap[ "SpacePlane" ] = boost::make_shared< simulation_setup::Body >( );
-        bodyMap[ "SpacePlane" ]->setVehicleSystems( boost::make_shared< system_models::VehicleSystems >( ) );
+        bodyMap[ "SpacePlane" ] = std::make_shared< simulation_setup::Body >( );
+        bodyMap[ "SpacePlane" ]->setVehicleSystems( std::make_shared< system_models::VehicleSystems >( ) );
         bodyMap[ "SpacePlane" ]->getVehicleSystems( )->setCurrentControlSurfaceDeflection( "TestSurface", 0.1 );
 
         // Create vehicle  coefficients
@@ -104,19 +104,17 @@ BOOST_AUTO_TEST_CASE( testAerodynamicCoefficientsFromFile )
                 + "/Astrodynamics/Aerodynamics/UnitTests/dCDwTest.txt";
 
 
-        boost::shared_ptr< AerodynamicCoefficientSettings > aerodynamicCoefficientSettings =
+        std::shared_ptr< AerodynamicCoefficientSettings > aerodynamicCoefficientSettings =
                 simulation_setup::readTabulatedAerodynamicCoefficientsFromFiles(
                     forceCoefficientFiles, momentCoefficientFiles, 60.734, 600.0, 60.734, Eigen::Vector3d::Zero( ),
-                    boost::assign::list_of( aerodynamics::mach_number_dependent )( aerodynamics::angle_of_attack_dependent ),
+        { aerodynamics::mach_number_dependent, aerodynamics::angle_of_attack_dependent },
                     true, true );
         if( i == 1 )
         {
             aerodynamicCoefficientSettings->setControlSurfaceSettings(
                         simulation_setup::readTabulatedControlIncrementAerodynamicCoefficientsFromFiles(
                             controlSurfaceForceCoefficientFiles, controlSurfaceMomentCoefficientFiles,
-                            boost::assign::list_of( aerodynamics::mach_number_dependent )
-                            ( aerodynamics::angle_of_attack_dependent )
-                            ( aerodynamics::control_surface_deflection_dependent ) ),
+            { aerodynamics::mach_number_dependent, aerodynamics::angle_of_attack_dependent, aerodynamics::control_surface_deflection_dependent } ),
                         "TestSurface" );
         }
         else if( i == 2 )
@@ -124,9 +122,7 @@ BOOST_AUTO_TEST_CASE( testAerodynamicCoefficientsFromFile )
             aerodynamicCoefficientSettings->setControlSurfaceSettings(
                         simulation_setup::readTabulatedControlIncrementAerodynamicCoefficientsFromFiles(
                             controlSurfaceForceCoefficientFiles,
-                            boost::assign::list_of( aerodynamics::mach_number_dependent )
-                            ( aerodynamics::angle_of_attack_dependent )
-                            ( aerodynamics::control_surface_deflection_dependent ) ),
+            { aerodynamics::mach_number_dependent, aerodynamics::angle_of_attack_dependent, aerodynamics::control_surface_deflection_dependent } ),
                         "TestSurface" );
         }
 
@@ -162,25 +158,25 @@ BOOST_AUTO_TEST_CASE( testAerodynamicCoefficientsFromFile )
 
         // Use multilinear interpolation to find Thrust and specific impulse from tables at current values
         // of thrustdpendent variables
-        boost::shared_ptr< interpolators::Interpolator< double, double > > thrustMagnitudeInterpolator =
-                boost::make_shared< interpolators::MultiLinearInterpolator< double, double, 2 > >(
+        std::shared_ptr< interpolators::Interpolator< double, double > > thrustMagnitudeInterpolator =
+                std::make_shared< interpolators::MultiLinearInterpolator< double, double, 2 > >(
                     thrustValues.second, thrustValues.first );
-        boost::shared_ptr< interpolators::Interpolator< double, double > > specificImpulseInterpolator =
-                boost::make_shared< interpolators::MultiLinearInterpolator< double, double, 2 > >(
+        std::shared_ptr< interpolators::Interpolator< double, double > > specificImpulseInterpolator =
+                std::make_shared< interpolators::MultiLinearInterpolator< double, double, 2 > >(
                     specificImpulseValues.second, specificImpulseValues.first );
 
         //////////////////////////////////////// End Variable thrust calculations /////////////////////////////////////////////
 
 
         // Define acceleration model settings.
-        std::map< std::string, std::vector< boost::shared_ptr< AccelerationSettings > > > accelerationsOfSpacePlane;
-        accelerationsOfSpacePlane[ "Earth" ].push_back( boost::make_shared< SphericalHarmonicAccelerationSettings >( 2, 0 ) );
-        accelerationsOfSpacePlane[ "Earth" ].push_back( boost::make_shared< AccelerationSettings >( aerodynamic ) );
+        std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfSpacePlane;
+        accelerationsOfSpacePlane[ "Earth" ].push_back( std::make_shared< SphericalHarmonicAccelerationSettings >( 2, 0 ) );
+        accelerationsOfSpacePlane[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( aerodynamic ) );
 
-        accelerationsOfSpacePlane[ "SpacePlane" ].push_back( boost::make_shared< ThrustAccelerationSettings >(
-                                                                 boost::make_shared< ThrustDirectionGuidanceSettings >(
+        accelerationsOfSpacePlane[ "SpacePlane" ].push_back( std::make_shared< ThrustAccelerationSettings >(
+                                                                 std::make_shared< ThrustDirectionGuidanceSettings >(
                                                                      thrust_direction_from_existing_body_orientation, "Earth" ),
-                                                                 boost::make_shared< ParameterizedThrustMagnitudeSettings >(
+                                                                 std::make_shared< ParameterizedThrustMagnitudeSettings >(
                                                                      thrustMagnitudeInterpolator, thrustDependencies,
                                                                      specificImpulseInterpolator, thrustDependencies ) ) );
 
@@ -214,58 +210,58 @@ BOOST_AUTO_TEST_CASE( testAerodynamicCoefficientsFromFile )
 
 
         // Define list of dependent variables to save.
-        std::vector< boost::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariables;
+        std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariables;
         dependentVariables.push_back(
-                    boost::make_shared< SingleDependentVariableSaveSettings >( mach_number_dependent_variable, "SpacePlane" ) );
+                    std::make_shared< SingleDependentVariableSaveSettings >( mach_number_dependent_variable, "SpacePlane" ) );
         dependentVariables.push_back(
-                    boost::make_shared< BodyAerodynamicAngleVariableSaveSettings >(
+                    std::make_shared< BodyAerodynamicAngleVariableSaveSettings >(
                         "SpacePlane", reference_frames::angle_of_attack ) );
         dependentVariables.push_back(
-                    boost::make_shared< BodyAerodynamicAngleVariableSaveSettings >(
+                    std::make_shared< BodyAerodynamicAngleVariableSaveSettings >(
                         "SpacePlane", reference_frames::angle_of_sideslip ) );
         dependentVariables.push_back(
-                    boost::make_shared< BodyAerodynamicAngleVariableSaveSettings >(
+                    std::make_shared< BodyAerodynamicAngleVariableSaveSettings >(
                         "SpacePlane", reference_frames::bank_angle ) );
         if( i > 0 )
         {
             dependentVariables.push_back(
-                        boost::make_shared< SingleDependentVariableSaveSettings >(
+                        std::make_shared< SingleDependentVariableSaveSettings >(
                             control_surface_deflection_dependent_variable, "SpacePlane", "TestSurface" ) );
         }
         dependentVariables.push_back(
-                    boost::make_shared< SingleDependentVariableSaveSettings >(
+                    std::make_shared< SingleDependentVariableSaveSettings >(
                         aerodynamic_moment_coefficients_dependent_variable, "SpacePlane" ) );
         dependentVariables.push_back(
-                    boost::make_shared< SingleDependentVariableSaveSettings >(
+                    std::make_shared< SingleDependentVariableSaveSettings >(
                         aerodynamic_force_coefficients_dependent_variable, "SpacePlane" ) );
 
         // Create total propagatortermination settings.
-        boost::shared_ptr< PropagationTerminationSettings > propagationTerminationSettings;
+        std::shared_ptr< PropagationTerminationSettings > propagationTerminationSettings;
 
-        std::vector< boost::shared_ptr< PropagationTerminationSettings > >  propagationTerminationSettingsList;
+        std::vector< std::shared_ptr< PropagationTerminationSettings > >  propagationTerminationSettingsList;
         propagationTerminationSettingsList.push_back(
-                    boost::make_shared< PropagationDependentVariableTerminationSettings >(
-                        boost::make_shared< SingleDependentVariableSaveSettings >(
+                    std::make_shared< PropagationDependentVariableTerminationSettings >(
+                        std::make_shared< SingleDependentVariableSaveSettings >(
                             altitude_dependent_variable, "SpacePlane", "Earth" ), 120.0E3, false ) );
         propagationTerminationSettingsList.push_back(
-                    boost::make_shared< PropagationDependentVariableTerminationSettings >(
-                        boost::make_shared< SingleDependentVariableSaveSettings >(
+                    std::make_shared< PropagationDependentVariableTerminationSettings >(
+                        std::make_shared< SingleDependentVariableSaveSettings >(
                             altitude_dependent_variable, "SpacePlane", "Earth" ), 1.0E3, true ) );
         propagationTerminationSettingsList.push_back(
-                    boost::make_shared< PropagationTimeTerminationSettings >( simulationEndEpoch ) );
+                    std::make_shared< PropagationTimeTerminationSettings >( simulationEndEpoch ) );
 
         \
-        propagationTerminationSettings = boost::make_shared< PropagationHybridTerminationSettings >(
+        propagationTerminationSettings = std::make_shared< PropagationHybridTerminationSettings >(
                     propagationTerminationSettingsList, true );
 
         // Create propagation settings.
-        boost::shared_ptr< TranslationalStatePropagatorSettings < double > > propagatorSettings =
-                boost::make_shared< TranslationalStatePropagatorSettings< double > >
+        std::shared_ptr< TranslationalStatePropagatorSettings < double > > propagatorSettings =
+                std::make_shared< TranslationalStatePropagatorSettings< double > >
                 ( centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState, propagationTerminationSettings,
-                  cowell, boost::make_shared< DependentVariableSaveSettings >( dependentVariables ) );
+                  cowell, std::make_shared< DependentVariableSaveSettings >( dependentVariables ) );
 
-        boost::shared_ptr< IntegratorSettings< > > integratorSettings =
-                boost::make_shared< IntegratorSettings< > >
+        std::shared_ptr< IntegratorSettings< > > integratorSettings =
+                std::make_shared< IntegratorSettings< > >
                 ( rungeKutta4, simulationStartEpoch, fixedStepSize );
 
 
@@ -285,36 +281,36 @@ BOOST_AUTO_TEST_CASE( testAerodynamicCoefficientsFromFile )
                 dynamicsSimulator.getDependentVariableHistory( );
 
         // Iterate over results for dependent variables, and check against manually retrieved values.
-        boost::shared_ptr< aerodynamics::AerodynamicCoefficientInterface > apolloCoefficientInterface =
+        std::shared_ptr< aerodynamics::AerodynamicCoefficientInterface > apolloCoefficientInterface =
                 bodyMap.at( "SpacePlane" )->getAerodynamicCoefficientInterface( );
 
 
         std::pair< boost::multi_array< double, 2 >, std::vector< std::vector< double > > > cdMuliArray =
                 tudat::input_output::MultiArrayFileReader< 2 >::readMultiArrayAndIndependentVariables(
                     tudat::input_output::getTudatRootPath( ) + "/Astrodynamics/Aerodynamics/UnitTests/aurora_CD.txt" );
-        boost::shared_ptr< interpolators::Interpolator< double, double > > cdInterpolator =
-                boost::make_shared< interpolators::MultiLinearInterpolator< double, double, 2 > >(
+        std::shared_ptr< interpolators::Interpolator< double, double > > cdInterpolator =
+                std::make_shared< interpolators::MultiLinearInterpolator< double, double, 2 > >(
                     cdMuliArray.second, cdMuliArray.first );
 
         std::pair< boost::multi_array< double, 2 >, std::vector< std::vector< double > > > clMuliArray =
                 tudat::input_output::MultiArrayFileReader< 2 >::readMultiArrayAndIndependentVariables(
                     tudat::input_output::getTudatRootPath( ) + "/Astrodynamics/Aerodynamics/UnitTests/aurora_CL.txt" );
-        boost::shared_ptr< interpolators::Interpolator< double, double > > clInterpolator =
-                boost::make_shared< interpolators::MultiLinearInterpolator< double, double, 2 > >(
+        std::shared_ptr< interpolators::Interpolator< double, double > > clInterpolator =
+                std::make_shared< interpolators::MultiLinearInterpolator< double, double, 2 > >(
                     clMuliArray.second, clMuliArray.first );
 
         std::pair< boost::multi_array< double, 2 >, std::vector< std::vector< double > > >  cmMuliArray =
                 tudat::input_output::MultiArrayFileReader< 2 >::readMultiArrayAndIndependentVariables(
                     tudat::input_output::getTudatRootPath( ) + "/Astrodynamics/Aerodynamics/UnitTests/aurora_Cm.txt" );
-        boost::shared_ptr< interpolators::Interpolator< double, double > > cmInterpolator =
-                boost::make_shared< interpolators::MultiLinearInterpolator< double, double, 2 > >(
+        std::shared_ptr< interpolators::Interpolator< double, double > > cmInterpolator =
+                std::make_shared< interpolators::MultiLinearInterpolator< double, double, 2 > >(
                     cmMuliArray.second, cmMuliArray.first );
 
         std::pair< boost::multi_array< double, 3 >, std::vector< std::vector< double > > >  controlSurfaceIncrementMuliArray =
                 tudat::input_output::MultiArrayFileReader< 3 >::readMultiArrayAndIndependentVariables(
                     tudat::input_output::getTudatRootPath( ) + "/Astrodynamics/Aerodynamics/UnitTests/dCDwTest.txt" );
-        boost::shared_ptr< interpolators::Interpolator< double, double > > controlSurfaceIncrementinterpolator =
-                boost::make_shared< interpolators::MultiLinearInterpolator< double, double, 3 > >(
+        std::shared_ptr< interpolators::Interpolator< double, double > > controlSurfaceIncrementinterpolator =
+                std::make_shared< interpolators::MultiLinearInterpolator< double, double, 3 > >(
                     controlSurfaceIncrementMuliArray.second, controlSurfaceIncrementMuliArray.first );
 
         int parameterAddition = 0;

@@ -16,7 +16,7 @@
 #ifndef TUDAT_LAWGS_PART_GEOMETRY_H
 #define TUDAT_LAWGS_PART_GEOMETRY_H
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include <Eigen/Core>
 
@@ -59,7 +59,7 @@ public:
      * \param numberOfPoints Number of points to be sampled from 2nd
      *          independent variable.
      */
-    void setMesh( boost::shared_ptr< SingleSurfaceGeometry > originalSurface,
+    void setMesh( std::shared_ptr< SingleSurfaceGeometry > originalSurface,
                   int numberOfLines, int numberOfPoints );
 
     //! Copy constructor.
@@ -151,7 +151,7 @@ private:
 };
 
 //! Typedef for shared-pointer to LawgsPartGeometry object.
-typedef boost::shared_ptr< LawgsPartGeometry > LawgsPartGeometryPointer;
+typedef std::shared_ptr< LawgsPartGeometry > LawgsPartGeometryPointer;
 
 } // namespace geometric_shapes
 } // namespace tudat

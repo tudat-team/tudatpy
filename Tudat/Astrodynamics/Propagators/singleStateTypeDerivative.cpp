@@ -58,6 +58,14 @@ int getSingleIntegrationDifferentialEquationOrder( const IntegratedStateType sta
     return singleStateSize;
 }
 
+template class SingleStateTypeDerivative< double, double >;
+
+#if( BUILD_EXTENDED_PRECISION_PROPAGATION_TOOLS )
+template class SingleStateTypeDerivative< long double, double >;
+template class SingleStateTypeDerivative< double, Time >;
+template class SingleStateTypeDerivative< long double, Time >;
+#endif
+
 }
 
 }

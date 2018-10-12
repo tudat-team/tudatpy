@@ -15,7 +15,7 @@
 
 #include <Eigen/Core>
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include "Tudat/Mathematics/Statistics/randomVariableGenerator.h"
 
@@ -37,7 +37,7 @@ namespace statistics
  */
 std::vector< Eigen::VectorXd > generateRandomSampleFromGenerator(
         const int numberOfSamples,
-        const std::vector< boost::shared_ptr< RandomVariableGenerator< double > > > randomVariableGenerators );
+        const std::vector< std::shared_ptr< RandomVariableGenerator< double > > > randomVariableGenerators );
 
 //! Generate sample of random vectors, with entries of each vector independently and identically distributed.
 /*!
@@ -50,7 +50,7 @@ std::vector< Eigen::VectorXd > generateRandomSampleFromGenerator(
  */
 std::vector< Eigen::VectorXd > generateRandomSampleFromGenerator(
         const int numberOfSamples, const int numberOfDimensions,
-        const boost::shared_ptr< RandomVariableGenerator< double > > randomVariableGenerator );
+        const std::shared_ptr< RandomVariableGenerator< double > > randomVariableGenerator );
 
 
 

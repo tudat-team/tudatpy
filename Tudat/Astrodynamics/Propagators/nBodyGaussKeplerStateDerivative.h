@@ -101,7 +101,7 @@ public:
      *  \param bodiesToIntegrate List of names of bodies that are to be integrated numerically.
      */
     NBodyGaussKeplerStateDerivative( const basic_astrodynamics::AccelerationMap& accelerationModelsPerBody,
-                               const boost::shared_ptr< CentralBodyData< StateScalarType, TimeType > > centralBodyData,
+                               const std::shared_ptr< CentralBodyData< StateScalarType, TimeType > > centralBodyData,
                                const std::vector< std::string >& bodiesToIntegrate ):
         NBodyStateDerivative< StateScalarType, TimeType >(
             accelerationModelsPerBody, centralBodyData, gauss_keplerian, bodiesToIntegrate )
@@ -245,10 +245,10 @@ public:
 private:
 
     //!  Gravitational parameters of central bodies used to convert Cartesian to Keplerian orbits, and vice versa
-    std::vector< boost::function< double( ) > > centralBodyGravitationalParameters_;
+    std::vector< std::function< double( ) > > centralBodyGravitationalParameters_;
 
     //! Central body accelerations for each propagated body, which has been removed from accelerationModelsPerBody_
-    std::vector< boost::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > >
+    std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > >
     centralAccelerations_;
 
     //! List of acceleration models, including the central body accelerations that are removed in this propagation scheme.
@@ -266,6 +266,13 @@ private:
 
 };
 
+extern template class NBodyGaussKeplerStateDerivative< double, double >;
+
+#if( BUILD_EXTENDED_PRECISION_PROPAGATION_TOOLS )
+extern template class NBodyGaussKeplerStateDerivative< long double, double >;
+extern template class NBodyGaussKeplerStateDerivative< double, Time >;
+extern template class NBodyGaussKeplerStateDerivative< long double, Time >;
+#endif
 
 } // namespace propagators
 

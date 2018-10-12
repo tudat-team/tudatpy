@@ -23,7 +23,7 @@ TabulatedGravityFieldVariations::TabulatedGravityFieldVariations(
         const std::map< double, Eigen::MatrixXd >& cosineCoefficientCorrections,
         const std::map< double, Eigen::MatrixXd >& sineCoefficientCorrections,
         const int minimumDegree, const int minimumOrder,
-        const boost::shared_ptr< interpolators::InterpolatorSettings >interpolatorType ):
+        const std::shared_ptr< interpolators::InterpolatorSettings >interpolatorType ):
     GravityFieldVariations( minimumDegree, minimumOrder,
                             minimumDegree + cosineCoefficientCorrections.begin( )->second.rows( ) - 1,
                             minimumOrder + cosineCoefficientCorrections.begin( )->second.cols( ) - 1 ),

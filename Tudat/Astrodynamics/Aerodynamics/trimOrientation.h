@@ -13,8 +13,8 @@
 #ifndef TUDAT_TRIMORIENTATION_H
 #define TUDAT_TRIMORIENTATION_H
 
-#include <boost/function.hpp>
-#include <boost/shared_ptr.hpp>
+#include <functional>
+#include <memory>
 
 #include <Eigen/Core>
 
@@ -46,8 +46,8 @@ public:
      * angle of attack for which the pitch moment is zero.
      */
     TrimOrientationCalculator(
-            const boost::shared_ptr< AerodynamicCoefficientInterface > coefficientInterface,
-            const boost::shared_ptr< root_finders::RootFinderCore< double > > rootFinder = NULL );
+            const std::shared_ptr< AerodynamicCoefficientInterface > coefficientInterface,
+            const std::shared_ptr< root_finders::RootFinderCore< double > > rootFinder = nullptr );
 
     //! Function to find the trimmed angle of attack for a given set of independent  variables
     /*!
@@ -80,8 +80,8 @@ public:
      * \return Trimmed angle of attack.
      */
     double findTrimAngleOfAttackFromFunction(
-            const boost::function< std::vector< double >( ) > untrimmedIndependentVariablesFunction,
-            const boost::function< std::map< std::string, std::vector< double > >( ) >
+            const std::function< std::vector< double >( ) > untrimmedIndependentVariablesFunction,
+            const std::function< std::map< std::string, std::vector< double > >( ) >
             untrimmedControlSurfaceIndependentVariablesFunction )
     {
         return findTrimAngleOfAttack( untrimmedIndependentVariablesFunction( ),
@@ -107,11 +107,11 @@ private:
             const std::map< std::string, std::vector< double > > unperturbedControlSurfaceIndependentVariables );
 
     //! Object containing used to retrieve aerodynamic coefficients as function of independent variables.
-    boost::shared_ptr< AerodynamicCoefficientInterface > coefficientInterface_;
+    std::shared_ptr< AerodynamicCoefficientInterface > coefficientInterface_;
 
     //! Object to iteratively find the root of the equations C_m(alpha)=0, i.e. to determine the
     //!  angle of attack for which the pitch moment is zero.
-    boost::shared_ptr< root_finders::RootFinderCore< double > > rootFinder_;
+    std::shared_ptr< root_finders::RootFinderCore< double > > rootFinder_;
 
     //! Index in independent variable list of coefficientInterface_ corresponding to the angle of attack.
     int variableIndex_;

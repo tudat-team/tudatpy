@@ -20,7 +20,6 @@
 #include <vector>
 #include <utility>
 
-#include <boost/assign/list_of.hpp>
 #include <boost/bind.hpp>
 #include <boost/test/unit_test.hpp>
 
@@ -32,15 +31,14 @@
 
 #include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
 
-
 namespace tudat
 {
+
 namespace unit_tests
 {
 
 //! Test NRLMSISE00 atmosphere model.
 BOOST_AUTO_TEST_SUITE( test_nrlmsise00_atmosphere )
-
 
 using tudat::aerodynamics::NRLMSISE00Input;
 using tudat::aerodynamics::NRLMSISE00Atmosphere;
@@ -52,7 +50,7 @@ NRLMSISE00Input data;
 
 // Define input data generic (or almost completely) for all tests.
 NRLMSISE00Input gen_data(0, 172, 29000.0, 16.0, 150.0, 150.0, 4.0);
-std::vector< double > gen_input = boost::assign::list_of(400.0E3)(-70.0*PI/180.0)(60.0*PI/180.0)(0.0);
+std::vector< double > gen_input = { 400.0E3, -70.0*PI/180.0, 60.0*PI/180.0, 0.0 };
 
 //! Test function to update the NRLMSISE00 iunput data as a function of time and geometry.
 NRLMSISE00Input function( double altitude, double longitude,
@@ -89,7 +87,7 @@ BOOST_AUTO_TEST_CASE( testNRLMSISE00AtmosphereTestFunctions )
     double tolerance = 1.0E-18;
 
     // Create the model
-    NRLMSISE00Atmosphere model( boost::bind( &function, _1, _2, _3, _4, false, false ) );
+    NRLMSISE00Atmosphere model( std::bind( &function, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, false, false ) );
 
     // Create local copy of input and define variations
     data = gen_data;
@@ -120,7 +118,7 @@ BOOST_AUTO_TEST_CASE( testNRLMSISE00AtmosphereTestFunctions )
 BOOST_AUTO_TEST_CASE( testNRLMSISE00AtmosphereTestHashing )
 {
     // Create the model
-    NRLMSISE00Atmosphere model( boost::bind( &function, _1, _2, _3, _4, false, false ) );
+    NRLMSISE00Atmosphere model( std::bind( &function, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, false, false ) );
 
     // Create local copy of input and define variations
     data = gen_data;
@@ -148,7 +146,7 @@ BOOST_AUTO_TEST_CASE( testNRLMSISE00AtmosphereTestHashing )
 
     // And indeed observe a new density is calculated and is not equal
     // anymore to the old one.
-    BOOST_CHECK_PREDICATE(std::not_equal_to<double>( ), (density1)(density3));
+    BOOST_CHECK_PREDICATE( std::not_equal_to< double >( ), ( density1 )( density3 ) );
 
     // Recalculate density1, to "reset" the internal state of the
     // model , for the next demo
@@ -181,14 +179,13 @@ BOOST_AUTO_TEST_CASE( testNRLMSISE00AtmosphereTest1 )
 {
     // Define verification data for specific test and tolerance
     double tolerance = 1.0E-12;
-    std::vector< double > verificationData = boost::assign::list_of
-            (6.665176904952E+05)(1.138805559752E+08)(1.998210925573E+07)
-            (4.022763585713E+05)(3.557464994516E+03)(4.074713532757E-15)
-            (3.475312399717E+04)(4.095913268293E+06)(2.667273209336E+04)
-            (1.250539943561E+03)(1.241416130019E+03);
+    std::vector< double > verificationData = { 6.665176904952E+05, 1.138805559752E+08, 1.998210925573E+07,
+            4.022763585713E+05, 3.557464994516E+03, 4.074713532757E-15,
+            3.475312399717E+04, 4.095913268293E+06, 2.667273209336E+04,
+            1.250539943561E+03, 1.241416130019E+03 };
 
     // Create the model
-    NRLMSISE00Atmosphere model( boost::bind( &function, _1, _2, _3, _4, false, false ) );
+    NRLMSISE00Atmosphere model( std::bind( &function, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, false, false ) );
 
     // Create local copy of input and define variations
     data = gen_data;
@@ -221,14 +218,13 @@ BOOST_AUTO_TEST_CASE( testNRLMSISE00AtmosphereTest2 )
 {
     // Define verification data for specific test and tolerance
     double tolerance = 1.0E-12;
-    std::vector< double > verificationData = boost::assign::list_of
-            (3.407293223161E+06)(1.586333369569E+08)(1.391117365461E+07)
-            (3.262559509596E+05)(1.559618150501E+03)(5.001845729072E-15)
-            (4.854208463340E+04)(4.380966712899E+06)(6.956681955942E+03)
-            (1.166754383757E+03)(1.161710451887E+03);
+    std::vector< double > verificationData = { 3.407293223161E+06, 1.586333369569E+08, 1.391117365461E+07,
+            3.262559509596E+05, 1.559618150501E+03, 5.001845729072E-15,
+            4.854208463340E+04, 4.380966712899E+06, 6.956681955942E+03,
+            1.166754383757E+03, 1.161710451887E+03 };
 
     // Create the model
-    NRLMSISE00Atmosphere model( boost::bind( &function, _1, _2, _3, _4, false, false ) );
+    NRLMSISE00Atmosphere model( std::bind( &function, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, false, false ) );
 
     // Create local copy of input and define variations
     data = gen_data;
@@ -265,14 +261,13 @@ BOOST_AUTO_TEST_CASE( testNRLMSISE00AtmosphereTest3 )
 {
     // Define verification data for specific test and tolerance
     double tolerance = 1.0E-12;
-    std::vector< double > verificationData = boost::assign::list_of
-            (1.123767244038E+05)(6.934130086761E+04)(4.247105217477E+01)
-            (1.322750141475E-01)(2.618848418232E-05)(2.756772319269E-18)
-            (2.016749854321E+04)(5.741255934147E+03)(2.374394151990E+04)
-            (1.239892111717E+03)(1.239890640133E+03);
+    std::vector< double > verificationData = { 1.123767244038E+05, 6.934130086761E+04, 4.247105217477E+01,
+            1.322750141475E-01, 2.618848418232E-05, 2.756772319269E-18,
+            2.016749854321E+04, 5.741255934147E+03, 2.374394151990E+04,
+            1.239892111717E+03, 1.239890640133E+03 };
 
     // Create the model
-    NRLMSISE00Atmosphere model( boost::bind( &function, _1, _2, _3, _4, false, false ) );
+    NRLMSISE00Atmosphere model( std::bind( &function, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, false, false ) );
 
     // Create local copy of input and define variations
     data = gen_data;
@@ -310,14 +305,13 @@ BOOST_AUTO_TEST_CASE( testNRLMSISE00AtmosphereTest4 )
 {
     // Define verification data for specific test and tolerance
     double tolerance = 1.0E-12;
-    std::vector< double > verificationData = boost::assign::list_of
-            (5.411554379937E+07)(1.918893443939E+11)(6.115825598225E+12)
-            (1.225201051740E+12)(6.023211973085E+10)(3.584426304113E-10)
-            (1.059879697741E+07)(2.615736693705E+05)(2.819879355928E-42)
-            (1.027318464900E+03)(2.068877764036E+02);
+    std::vector< double > verificationData = { 5.411554379937E+07, 1.918893443939E+11, 6.115825598225E+12,
+            1.225201051740E+12, 6.023211973085E+10, 3.584426304113E-10,
+            1.059879697741E+07, 2.615736693705E+05, 2.819879355928E-42,
+            1.027318464900E+03, 2.068877764036E+02 };
 
     // Create the model
-    NRLMSISE00Atmosphere model( boost::bind( &function, _1, _2, _3, _4, false, false ) );
+    NRLMSISE00Atmosphere model( std::bind( &function, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, false, false ) );
 
     // Create local copy of input and define variations
     data = gen_data;
@@ -355,14 +349,13 @@ BOOST_AUTO_TEST_CASE( testNRLMSISE00AtmosphereTest5 )
 {
     // Define verification data for specific test and tolerance
     double tolerance = 1.0E-12;
-    std::vector< double > verificationData = boost::assign::list_of
-            (1.851122486193E+06)(1.476554837927E+08)(1.579356228264E+07)
-            (2.633794977312E+05)(1.588781398384E+03)(4.809630239407E-15)
-            (5.816166780787E+04)(5.478984479069E+06)(1.264445941761E+03)
-            (1.212396152121E+03)(1.208135425212E+03);
+    std::vector< double > verificationData = { 1.851122486193E+06, 1.476554837927E+08, 1.579356228264E+07,
+            2.633794977312E+05, 1.588781398384E+03, 4.809630239407E-15,
+            5.816166780787E+04, 5.478984479069E+06, 1.264445941761E+03,
+            1.212396152121E+03, 1.208135425212E+03 };
 
     // Create the model
-    NRLMSISE00Atmosphere model( boost::bind( &function, _1, _2, _3, _4, false, false ) );
+    NRLMSISE00Atmosphere model( std::bind( &function, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, false, false ) );
 
     // Create local copy of input and define variations
     data = gen_data;
@@ -400,14 +393,13 @@ BOOST_AUTO_TEST_CASE( testNRLMSISE00AtmosphereTest6 )
 {
     // Define verification data for specific test and tolerance
     double tolerance = 1.0E-12;
-    std::vector< double > verificationData = boost::assign::list_of
-            (8.673095233906E+05)(1.278861768014E+08)(1.822576627172E+07)
-            (2.922214190618E+05)(2.402962436424E+03)(4.355865642645E-15)
-            (3.686389243751E+04)(3.897275503727E+06)(2.667273209336E+04)
-            (1.220146417915E+03)(1.212712083212E+03);
+    std::vector< double > verificationData = { 8.673095233906E+05, 1.278861768014E+08, 1.822576627172E+07,
+            2.922214190618E+05, 2.402962436424E+03, 4.355865642645E-15,
+            3.686389243751E+04, 3.897275503727E+06, 2.667273209336E+04,
+            1.220146417915E+03, 1.212712083212E+03 };
 
     // Create the model
-    NRLMSISE00Atmosphere model( boost::bind( &function, _1, _2, _3, _4, false, false ) );
+    NRLMSISE00Atmosphere model( std::bind( &function, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, false, false ) );
 
     // Create local copy of input and define variations
     data = gen_data;
@@ -445,14 +437,13 @@ BOOST_AUTO_TEST_CASE( testNRLMSISE00AtmosphereTest7 )
 {
     // Define verification data for specific test and tolerance
     double tolerance = 1.0E-12;
-    std::vector< double > verificationData = boost::assign::list_of
-            (5.776251216023E+05)(6.979138693660E+07)(1.236813559822E+07)
-            (2.492867715429E+05)(1.405738674178E+03)(2.470651391663E-15)
-            (5.291985567067E+04)(1.069814109367E+06)(2.667273209336E+04)
-            (1.116385376043E+03)(1.112998568217E+03);
+    std::vector< double > verificationData = { 5.776251216023E+05, 6.979138693660E+07, 1.236813559822E+07,
+            2.492867715429E+05, 1.405738674178E+03, 2.470651391663E-15,
+            5.291985567067E+04, 1.069814109367E+06, 2.667273209336E+04,
+            1.116385376043E+03, 1.112998568217E+03 };
 
     // Create the model
-    NRLMSISE00Atmosphere model( boost::bind( &function, _1, _2, _3, _4, false, false ) );
+    NRLMSISE00Atmosphere model( std::bind( &function, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, false, false ) );
 
     // Create local copy of input and define variations
     data = gen_data;
@@ -490,14 +481,13 @@ BOOST_AUTO_TEST_CASE( testNRLMSISE00AtmosphereTest8 )
 {
     // Define verification data for specific test and tolerance
     double tolerance = 1.0E-12;
-    std::vector< double > verificationData = boost::assign::list_of
-            (3.740304105508E+05)(4.782720123611E+07)(5.240380033324E+06)
-            (1.759874640391E+05)(5.501648779570E+02)(1.571888739255E-15)
-            (8.896775722935E+04)(1.979740836233E+06)(9.121814875991E+03)
-            (1.031247440715E+03)(1.024848492213E+03);
+    std::vector< double > verificationData = { 3.740304105508E+05, 4.782720123611E+07, 5.240380033324E+06,
+            1.759874640391E+05, 5.501648779570E+02, 1.571888739255E-15,
+            8.896775722935E+04, 1.979740836233E+06, 9.121814875991E+03,
+            1.031247440715E+03, 1.024848492213E+03 };
     
     // Create the model
-    NRLMSISE00Atmosphere model( boost::bind( &function, _1, _2, _3, _4, false, false ) );
+    NRLMSISE00Atmosphere model( std::bind( &function, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, false, false ) );
 
     // Create local copy of input and define variations
     data = gen_data;
@@ -535,14 +525,13 @@ BOOST_AUTO_TEST_CASE( testNRLMSISE00AtmosphereTest9 )
 {
     // Define verification data for specific test and tolerance
     double tolerance = 1.0E-12;
-    std::vector< double > verificationData = boost::assign::list_of
-            (6.748338766624E+05)(1.245315260444E+08)(2.369009541053E+07)
-            (4.911583154750E+05)(4.578781099054E+03)(4.564420245361E-15)
-            (3.244594775161E+04)(5.370833087086E+06)(2.667273209336E+04)
-            (1.306052042027E+03)(1.293374040390E+03);
+    std::vector< double > verificationData = { 6.748338766624E+05, 1.245315260444E+08, 2.369009541053E+07,
+            4.911583154750E+05, 4.578781099054E+03, 4.564420245361E-15,
+            3.244594775161E+04, 5.370833087086E+06, 2.667273209336E+04,
+            1.306052042027E+03, 1.293374040390E+03 };
 
     // Create the model
-    NRLMSISE00Atmosphere model( boost::bind( &function, _1, _2, _3, _4, false, false ) );
+    NRLMSISE00Atmosphere model( std::bind( &function, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, false, false ) );
 
     // Create local copy of input and define variations
     data = gen_data;
@@ -580,14 +569,13 @@ BOOST_AUTO_TEST_CASE( testNRLMSISE00AtmosphereTest10 )
 {
     // Define verification data for specific test and tolerance
     double tolerance = 1.0E-12;
-    std::vector< double > verificationData = boost::assign::list_of
-            (5.528600841645E+05)(1.198041324041E+08)(3.495797764558E+07)
-            (9.339618355028E+05)(1.096254765493E+04)(4.974543110322E-15)
-            (2.686427856260E+04)(4.889974232971E+06)(2.805444837126E+04)
-            (1.361868020785E+03)(1.347389183730E+03);
+    std::vector< double > verificationData = { 5.528600841645E+05, 1.198041324041E+08, 3.495797764558E+07,
+            9.339618355028E+05, 1.096254765493E+04, 4.974543110322E-15,
+            2.686427856260E+04, 4.889974232971E+06, 2.805444837126E+04,
+            1.361868020785E+03, 1.347389183730E+03 };
 
     // Create the model
-    NRLMSISE00Atmosphere model( boost::bind( &function, _1, _2, _3, _4, false, false ) );
+    NRLMSISE00Atmosphere model( std::bind( &function, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, false, false ) );
 
     // Create local copy of input and define variations
     data = gen_data;
@@ -625,14 +613,13 @@ BOOST_AUTO_TEST_CASE( testNRLMSISE00AtmosphereTest11 )
 {
     // Define verification data for specific test and tolerance
     double tolerance = 1.0E-12;
-    std::vector< double > verificationData = boost::assign::list_of
-            (1.375487584186E+14)(0.000000000000E+00)(2.049687044291E+19)
-            (5.498695433719E+18)(2.451733158028E+17)(1.261065661119E-03)
-            (0.000000000000E+00)(0.000000000000E+00)(0.000000000000E+00)
-            (1.027318464900E+03)(2.814647576632E+02);
+    std::vector< double > verificationData = { 1.375487584186E+14, 0.000000000000E+00, 2.049687044291E+19,
+            5.498695433719E+18, 2.451733158028E+17, 1.261065661119E-03,
+            0.000000000000E+00, 0.000000000000E+00, 0.000000000000E+00,
+            1.027318464900E+03, 2.814647576632E+02 };
     
     // Create the model
-    NRLMSISE00Atmosphere model( boost::bind( &function, _1, _2, _3, _4, false, false ) );
+    NRLMSISE00Atmosphere model( std::bind( &function, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, false, false ) );
 
     // Create local copy of input and define variations
     data = gen_data;
@@ -670,14 +657,13 @@ BOOST_AUTO_TEST_CASE( testNRLMSISE00AtmosphereTest12 )
 {
     // Define verification data for specific test and tolerance
     double tolerance = 1.0E-12;
-    std::vector< double > verificationData = boost::assign::list_of
-            (4.427442587677E+13)(0.000000000000E+00)(6.597567157737E+18)
-            (1.769929341406E+18)(7.891679955727E+16)(4.059139375799E-04)
-            (0.000000000000E+00)(0.000000000000E+00)(0.000000000000E+00)
-            (1.027318464900E+03)(2.274179808273E+02);
+    std::vector< double > verificationData = { 4.427442587677E+13, 0.000000000000E+00, 6.597567157737E+18,
+            1.769929341406E+18, 7.891679955727E+16, 4.059139375799E-04,
+            0.000000000000E+00, 0.000000000000E+00, 0.000000000000E+00,
+            1.027318464900E+03, 2.274179808273E+02 };
 
     // Create the model
-    NRLMSISE00Atmosphere model( boost::bind( &function, _1, _2, _3, _4, false, false ) );
+    NRLMSISE00Atmosphere model( std::bind( &function, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, false, false ) );
 
     // Create local copy of input and define variations
     data = gen_data;
@@ -715,14 +701,13 @@ BOOST_AUTO_TEST_CASE( testNRLMSISE00AtmosphereTest13 )
 {
     // Define verification data for specific test and tolerance
     double tolerance = 1.0E-12;
-    std::vector< double > verificationData = boost::assign::list_of
-            (2.127828756207E+12)(0.000000000000E+00)(3.170790550354E+17)
-            (8.506279809435E+16)(3.792741116806E+15)(1.950822245176E-05)
-            (0.000000000000E+00)(0.000000000000E+00)(0.000000000000E+00)
-            (1.027318464900E+03)(2.374389145877E+02);
+    std::vector< double > verificationData = { 2.127828756207E+12, 0.000000000000E+00, 3.170790550354E+17,
+            8.506279809435E+16, 3.792741116806E+15, 1.950822245176E-05,
+            0.000000000000E+00, 0.000000000000E+00, 0.000000000000E+00,
+            1.027318464900E+03, 2.374389145877E+02 };
 
     // Create the model
-    NRLMSISE00Atmosphere model( boost::bind( &function, _1, _2, _3, _4, false, false ) );
+    NRLMSISE00Atmosphere model( std::bind( &function, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, false, false ) );
 
     // Create local copy of input and define variations
     data = gen_data;
@@ -760,14 +745,13 @@ BOOST_AUTO_TEST_CASE( testNRLMSISE00AtmosphereTest14 )
 {
     // Define verification data for specific test and tolerance
     double tolerance = 1.0E-12;
-    std::vector< double > verificationData = boost::assign::list_of
-            (1.412183545593E+11)(0.000000000000E+00)(2.104369643783E+16)
-            (5.645392443377E+15)(2.517141749411E+14)(1.294709015929E-06)
-            (0.000000000000E+00)(0.000000000000E+00)(0.000000000000E+00)
-            (1.027318464900E+03)(2.795551129541E+02);
+    std::vector< double > verificationData = { 1.412183545593E+11, 0.000000000000E+00, 2.104369643783E+16,
+            5.645392443377E+15, 2.517141749411E+14, 1.294709015929E-06,
+            0.000000000000E+00, 0.000000000000E+00, 0.000000000000E+00,
+            1.027318464900E+03, 2.795551129541E+02 };
     
     // Create the model
-    NRLMSISE00Atmosphere model( boost::bind( &function, _1, _2, _3, _4, false, false ) );
+    NRLMSISE00Atmosphere model( std::bind( &function, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, false, false ) );
 
     // Create local copy of input and define variations
     data = gen_data;
@@ -805,14 +789,13 @@ BOOST_AUTO_TEST_CASE( testNRLMSISE00AtmosphereTest15 )
 {
     // Define verification data for specific test and tolerance
     double tolerance = 1.0E-12;
-    std::vector< double > verificationData = boost::assign::list_of
-            (1.254884400273E+10)(0.000000000000E+00)(1.874532829219E+15)
-            (4.923050980785E+14)(2.239685413856E+13)(1.147667671512E-07)
-            (0.000000000000E+00)(0.000000000000E+00)(0.000000000000E+00)
-            (1.027318464900E+03)(2.190732313642E+02);
+    std::vector< double > verificationData = { 1.254884400273E+10, 0.000000000000E+00, 1.874532829219E+15,
+            4.923050980785E+14, 2.239685413856E+13, 1.147667671512E-07,
+            0.000000000000E+00, 0.000000000000E+00, 0.000000000000E+00,
+            1.027318464900E+03, 2.190732313642E+02 };
 
     // Create the model
-    NRLMSISE00Atmosphere model( boost::bind( &function, _1, _2, _3, _4, false, false ) );
+    NRLMSISE00Atmosphere model( std::bind( &function, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, false, false ) );
 
     // Create local copy of input and define variations
     data = gen_data;
@@ -850,14 +833,13 @@ BOOST_AUTO_TEST_CASE( testNRLMSISE00AtmosphereTest16 )
 {
     // Define verification data for specific test and tolerance
     double tolerance = 1.0E-12;
-    std::vector< double > verificationData = boost::assign::list_of
-            (5.196477402973E+05)(1.274494072960E+08)(4.850449869853E+07)
-            (1.720837982575E+06)(2.354486590544E+04)(5.881940448652E-15)
-            (2.500078391081E+04)(6.279209825019E+06)(2.667273209336E+04)
-            (1.426411662282E+03)(1.408607795553E+03);
+    std::vector< double > verificationData = { 5.196477402973E+05, 1.274494072960E+08, 4.850449869853E+07,
+            1.720837982575E+06, 2.354486590544E+04, 5.881940448652E-15,
+            2.500078391081E+04, 6.279209825019E+06, 2.667273209336E+04,
+            1.426411662282E+03, 1.408607795553E+03 };
 
     // Create the model
-    NRLMSISE00Atmosphere model( boost::bind( &function, _1, _2, _3, _4, false, false ) );
+    NRLMSISE00Atmosphere model( std::bind( &function, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, false, false ) );
 
     // Create local copy of input and define variations
     data = gen_data;
@@ -896,14 +878,13 @@ BOOST_AUTO_TEST_CASE( testNRLMSISE00AtmosphereTest17 )
 {
     // Define verification data for specific test and tolerance
     double tolerance = 1.0E-12;
-    std::vector< double > verificationData = boost::assign::list_of
-            (4.260859748794E+07)(1.241342015549E+11)(4.929561542488E+12)
-            (1.048406749093E+12)(4.993465083056E+10)(2.914303550309E-10)
-            (8.831228592572E+06)(2.252515508626E+05)(2.415245929649E-42)
-            (1.027318464900E+03)(1.934071062577E+02);
+    std::vector< double > verificationData = { 4.260859748794E+07, 1.241342015549E+11, 4.929561542488E+12,
+            1.048406749093E+12, 4.993465083056E+10, 2.914303550309E-10,
+            8.831228592572E+06, 2.252515508626E+05, 2.415245929649E-42,
+            1.027318464900E+03, 1.934071062577E+02 };
 
     // Create the model
-    NRLMSISE00Atmosphere model( boost::bind( &function, _1, _2, _3, _4, false, false ) );
+    NRLMSISE00Atmosphere model( std::bind( &function, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, false, false ) );
 
     // Create local copy of input and define variations
     data = gen_data;
@@ -941,7 +922,7 @@ BOOST_AUTO_TEST_CASE( testNRLMSISE00AtmosphereTest17 )
 BOOST_AUTO_TEST_CASE( testSpeedOfSound )
 {
     // Construct model with default properties
-    NRLMSISE00Atmosphere model( boost::bind( &function, _1, _2, _3, _4, false, false ) );
+    NRLMSISE00Atmosphere model( std::bind( &function, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, false, false ) );
 
     double altitude = 0.0 ;
     double longitude = 0.0 ;
@@ -979,7 +960,7 @@ BOOST_AUTO_TEST_CASE( testSpeedOfSound )
 BOOST_AUTO_TEST_CASE( testMolarMass )
 {
     // Construct model with default properties
-    NRLMSISE00Atmosphere model( boost::bind( &function, _1, _2, _3, _4, false, false ) );
+    NRLMSISE00Atmosphere model( std::bind( &function, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, false, false ) );
 
     double altitude = 0.0 ;
     double longitude = 0.0 ;
@@ -1004,7 +985,7 @@ BOOST_AUTO_TEST_CASE( testMolarMass )
 BOOST_AUTO_TEST_CASE( testMeanFreePath )
 {
     // Construct model with default properties
-    NRLMSISE00Atmosphere model( boost::bind( &function, _1, _2, _3, _4, false, false ) );
+    NRLMSISE00Atmosphere model( std::bind( &function, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, false, false ) );
 
     double altitude = 20.0E3 ;
     double longitude = 0.5 ;
@@ -1043,7 +1024,7 @@ BOOST_AUTO_TEST_CASE( test_nrlmise_InputFunction_no_adjustment )
     double time = tudat::basic_astrodynamics::convertJulianDayToSecondsSinceEpoch(
                     julianDate , tudat::basic_astrodynamics::JULIAN_DAY_ON_J2000) ;
 
-    // std::vector< double > gen_input = boost::assign::list_of(400.0)(-70.0)(60.0)(0.0);
+    // std::vector< double > gen_input = { 400.0, -70.0, 60.0, 0.0 };
     double altitude     = 400.0E3       ; // km
     double longitude    = -70.0 * PI / 180.0  ;
     double latitude     = 60.0 * PI / 180.0  ;
@@ -1058,18 +1039,18 @@ BOOST_AUTO_TEST_CASE( test_nrlmise_InputFunction_no_adjustment )
 
     // Create atmosphere model using NRLMISE00 input function
     // Local solar time is set to 16.0 to correspond with testing data!
-    boost::function< tudat::aerodynamics::NRLMSISE00Input (double,double,double,double) > inputFunction =
-            boost::bind(&tudat::aerodynamics::nrlmsiseInputFunction,_1,_2,_3,_4, solarActivityData , true , 16.0 );
+    std::function< tudat::aerodynamics::NRLMSISE00Input (double,double,double,double) > inputFunction =
+            std::bind( &tudat::aerodynamics::nrlmsiseInputFunction, std::placeholders::_1, std::placeholders::_2,
+                      std::placeholders::_3, std::placeholders::_4, solarActivityData , true , 16.0 );
 
     // Create Pointer to NRLMSISE model
     tudat::aerodynamics::NRLMSISE00Atmosphere atmosphereModel( inputFunction );
 
     // Verification data
-    std::vector<double> verificationData = boost::assign::list_of
-            (6.665176904952E+05)(1.138805559752E+08)(1.998210925573E+07)
-            (4.022763585713E+05)(3.557464994516E+03)(4.074713532757E-15)
-            (3.475312399717E+04)(4.095913268293E+06)(2.667273209336E+04)
-            (1.250539943561E+03)(1.241416130019E+03);
+    std::vector<double> verificationData = { 6.665176904952E+05, 1.138805559752E+08, 1.998210925573E+07,
+            4.022763585713E+05, 3.557464994516E+03, 4.074713532757E-15,
+            3.475312399717E+04, 4.095913268293E+06, 2.667273209336E+04,
+            1.250539943561E+03, 1.241416130019E+03 };
 
     double computedDensity = atmosphereModel.getDensity( altitude , longitude, latitude , time ) ;
 
@@ -1088,7 +1069,7 @@ BOOST_AUTO_TEST_CASE( test_nrlmise_InputFunction_with_adjustment )
     double time = tudat::basic_astrodynamics::convertJulianDayToSecondsSinceEpoch(
                     julianDate , tudat::basic_astrodynamics::JULIAN_DAY_ON_J2000) ;
 
-    // std::vector< double > gen_input = boost::assign::list_of(400.0)(-70.0)(60.0)(0.0);
+    // std::vector< double > gen_input = { 400.0, -70.0, 60.0, 0.0 };
     double altitude     = 400.0E3       ; // km
     double longitude    = -70.0 * PI / 180.0  ;
     double latitude     = 60.0 * PI / 180.0  ;
@@ -1103,18 +1084,18 @@ BOOST_AUTO_TEST_CASE( test_nrlmise_InputFunction_with_adjustment )
 
     // Create atmosphere model using NRLMISE00 input function
     // Local solar time is set to 16.0 to correspond with testing data!
-    boost::function< tudat::aerodynamics::NRLMSISE00Input (double,double,double,double) > inputFunction =
-            boost::bind(&tudat::aerodynamics::nrlmsiseInputFunction,_1,_2,_3,_4, solarActivityData , true , 16.0 );
+    std::function< tudat::aerodynamics::NRLMSISE00Input (double,double,double,double) > inputFunction =
+            std::bind(&tudat::aerodynamics::nrlmsiseInputFunction, std::placeholders::_1, std::placeholders::_2,
+                      std::placeholders::_3, std::placeholders::_4, solarActivityData , true , 16.0 );
 
     // Create Pointer to NRLMSISE model
     tudat::aerodynamics::NRLMSISE00Atmosphere atmosphereModel( inputFunction );
 
     // Verification data
-    std::vector<double> verificationData = boost::assign::list_of
-            (6.665176904952E+05)(1.138805559752E+08)(1.998210925573E+07)
-            (4.022763585713E+05)(3.557464994516E+03)(4.074713532757E-15)
-            (3.475312399717E+04)(4.095913268293E+06)(2.667273209336E+04)
-            (1.250539943561E+03)(1.241416130019E+03);
+    std::vector<double> verificationData = { 6.665176904952E+05, 1.138805559752E+08, 1.998210925573E+07,
+            4.022763585713E+05, 3.557464994516E+03, 4.074713532757E-15,
+            3.475312399717E+04, 4.095913268293E+06, 2.667273209336E+04,
+            1.250539943561E+03, 1.241416130019E+03 };
 
     double computedDensity = atmosphereModel.getDensity( altitude , longitude, latitude , time ) ;
 
@@ -1124,4 +1105,5 @@ BOOST_AUTO_TEST_CASE( test_nrlmise_InputFunction_with_adjustment )
 BOOST_AUTO_TEST_SUITE_END( )
 
 } // namespace unit_tests
+
 } // namespace tudat

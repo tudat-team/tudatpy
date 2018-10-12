@@ -11,8 +11,8 @@
 #ifndef TUDAT_THRUSTMAGNITUDEWRAPPER_H
 #define TUDAT_THRUSTMAGNITUDEWRAPPER_H
 
-#include <boost/shared_ptr.hpp>
-#include <boost/function.hpp>
+#include <memory>
+#include <functional>
 #include <boost/lambda/lambda.hpp>
 
 #include "Tudat/Astrodynamics/SystemModels/engineModel.h"
@@ -109,10 +109,10 @@ public:
      * being started (empty by default)
      */
     CustomThrustMagnitudeWrapper(
-            const boost::function< double( const double ) > thrustMagnitudeFunction,
-            const boost::function< double( const double ) > specificImpulseFunction,
-            const boost::function< bool( const double ) > isEngineOnFunction = boost::lambda::constant( true ) ,
-            const boost::function< void( const double ) > customThrustResetFunction = boost::function< void( const double ) >( ) ):
+            const std::function< double( const double ) > thrustMagnitudeFunction,
+            const std::function< double( const double ) > specificImpulseFunction,
+            const std::function< bool( const double ) > isEngineOnFunction = [ ]( const double ){ return true; } ,
+            const std::function< void( const double ) > customThrustResetFunction = std::function< void( const double ) >( ) ):
         thrustMagnitudeFunction_( thrustMagnitudeFunction ),
         specificImpulseFunction_( specificImpulseFunction ),
         isEngineOnFunction_( isEngineOnFunction ),
@@ -185,7 +185,7 @@ public:
      */
     virtual void resetDerivedClassCurrentTime( const double currentTime = TUDAT_NAN )
     {
-        if( !( customThrustResetFunction_.empty( ) ) )
+        if( !( customThrustResetFunction_ == nullptr ) )
         {
             customThrustResetFunction_( currentTime );\
         }
@@ -194,13 +194,13 @@ public:
 private:
 
     //! Function returning thrust as a function of time..
-    boost::function< double( const double ) > thrustMagnitudeFunction_;
+    std::function< double( const double ) > thrustMagnitudeFunction_;
 
     //! Function returning specific impulse as a function of time.
-    boost::function< double( const double ) > specificImpulseFunction_;
+    std::function< double( const double ) > specificImpulseFunction_;
 
     //! Function returning whether the function is on (returns true if so) at a given time.
-    boost::function< bool( const double ) > isEngineOnFunction_;
+    std::function< bool( const double ) > isEngineOnFunction_;
 
     //! Current thrust magnitude, as computed by last call to update member function.
     double currentThrustMagnitude_;
@@ -208,7 +208,7 @@ private:
     //! Current specific impulse, as computed by last call to update member function.
     double currentSpecificImpulse_;
 
-    boost::function< void( const double ) > customThrustResetFunction_;
+    std::function< void( const double ) > customThrustResetFunction_;
 
 };
 
@@ -224,7 +224,7 @@ public:
      * \param engineModel Engine model used to compute thrust/mass rate.
      */
     ThrustMagnitudeFromEngineWrapper(
-            const boost::shared_ptr< system_models::EngineModel > engineModel ):
+            const std::shared_ptr< system_models::EngineModel > engineModel ):
         currentThrust_( TUDAT_NAN ), currentMassRate_( TUDAT_NAN )
     {
         engineModels_.push_back( engineModel );
@@ -236,7 +236,7 @@ public:
      * \param engineModels List of engine models used to compute thrust/mass rate.
      */
     ThrustMagnitudeFromEngineWrapper(
-            const std::vector< boost::shared_ptr< system_models::EngineModel > > engineModels ):
+            const std::vector< std::shared_ptr< system_models::EngineModel > > engineModels ):
         engineModels_( engineModels ), currentThrust_( TUDAT_NAN ), currentMassRate_( TUDAT_NAN )
     { }
 
@@ -295,7 +295,7 @@ public:
 protected:
 
     //! List of engine models used to compute thrust/mass rate.
-    std::vector< boost::shared_ptr< system_models::EngineModel > > engineModels_;
+    std::vector< std::shared_ptr< system_models::EngineModel > > engineModels_;
 
     //! Current thrust magnitude, as computed by last call to update member function.
     double currentThrust_;
@@ -349,20 +349,18 @@ public:
      * the thrustMagnitudeFunction function.
      * \param specificImpulseDependentVariables List of identifiers for the physical meaning of each of the entries of the
      * input to the specificImpulseDependentVariables function.
-     * \param specificImpulseDependentVariables List of identifiers for the physical meaning of each of the entries of the
-     * input to the specificImpulseDependentVariables function.
      * \param inputUpdateFunction Function that is called to update the user-defined guidance to the current time
      * (empty by default).
      */
     ParameterizedThrustMagnitudeWrapper(
-            const boost::function< double( const std::vector< double >& ) > thrustMagnitudeFunction,
-            const boost::function< double( const std::vector< double >& ) > specificImpulseFunction,
-            const std::vector< boost::function< double( ) > > thrustInputVariableFunctions,
-            const std::vector< boost::function< double( ) > > specificImpulseInputVariableFunctions,
+            const std::function< double( const std::vector< double >& ) > thrustMagnitudeFunction,
+            const std::function< double( const std::vector< double >& ) > specificImpulseFunction,
+            const std::vector< std::function< double( ) > > thrustInputVariableFunctions,
+            const std::vector< std::function< double( ) > > specificImpulseInputVariableFunctions,
             const std::vector< propulsion::ThrustIndependentVariables > thrustIndependentVariables,
             const std::vector< propulsion::ThrustIndependentVariables > specificImpulseDependentVariables,
-            const boost::function< void( const double) > inputUpdateFunction =
-            boost::function< void( const double) >( ) ):
+            const std::function< void( const double) > inputUpdateFunction =
+            std::function< void( const double) >( ) ):
         thrustMagnitudeFunction_( thrustMagnitudeFunction ),
         specificImpulseFunction_( specificImpulseFunction ),
         thrustInputVariableFunctions_( thrustInputVariableFunctions ),
@@ -399,7 +397,7 @@ public:
     {
         if( !( currentTime_ == time ) )
         {
-            if( !inputUpdateFunction_.empty( ) )
+            if( !( inputUpdateFunction_ == nullptr ) )
             {
                 inputUpdateFunction_( time );
             }
@@ -431,7 +429,7 @@ public:
      */
     virtual void resetDerivedClassCurrentTime( const double currentTime = TUDAT_NAN )
     {
-        if( !( inputUpdateFunction_.empty( ) ) )
+        if( !( inputUpdateFunction_ == nullptr ) )
         {
             inputUpdateFunction_( currentTime );
         }
@@ -461,16 +459,16 @@ public:
 private:
 
     //! Function returning the current thrust as a function of its independent variables
-    boost::function< double( const std::vector< double >& ) > thrustMagnitudeFunction_;
+    std::function< double( const std::vector< double >& ) > thrustMagnitudeFunction_;
 
     //! Function returning the current specific impulse as a function of its independent variables
-    boost::function< double( const std::vector< double >& ) > specificImpulseFunction_;
+    std::function< double( const std::vector< double >& ) > specificImpulseFunction_;
 
     //!  List of functions returning input variables for thrustMagnitudeFunction_.
-    std::vector< boost::function< double( ) > > thrustInputVariableFunctions_;
+    std::vector< std::function< double( ) > > thrustInputVariableFunctions_;
 
     //!  List of functions returning input variables for specificImpulseFunction_.
-    std::vector< boost::function< double( ) > > specificImpulseInputVariableFunctions_;
+    std::vector< std::function< double( ) > > specificImpulseInputVariableFunctions_;
 
     //! List of identifiers for the physical meaning of each of the entries of the input to the thrustMagnitudeFunction
     //! function.
@@ -488,7 +486,7 @@ private:
 
 
     //! Function that is called to update the user-defined guidance to the current time
-    const boost::function< void( const double) > inputUpdateFunction_;
+    const std::function< void( const double) > inputUpdateFunction_;
 
     //! Current thrust magnitude, as computed by last call to update member function.
     double currentThrustMagnitude_;

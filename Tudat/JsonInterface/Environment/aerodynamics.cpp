@@ -20,7 +20,7 @@ namespace simulation_setup
 {
 
 //! Create a `json` object from a shared pointer to a `AerodynamicCoefficientSettings` object.
-void to_json( nlohmann::json& jsonObject, const boost::shared_ptr< AerodynamicCoefficientSettings >& aerodynamicSettings )
+void to_json( nlohmann::json& jsonObject, const std::shared_ptr< AerodynamicCoefficientSettings >& aerodynamicSettings )
 {
     if ( ! aerodynamicSettings )
     {
@@ -37,9 +37,9 @@ void to_json( nlohmann::json& jsonObject, const boost::shared_ptr< AerodynamicCo
     switch ( aerodynamicCoefficientType ) {
     case constant_aerodynamic_coefficients:
     {
-        boost::shared_ptr< ConstantAerodynamicCoefficientSettings > constantAerodynamicSettings =
-                boost::dynamic_pointer_cast< ConstantAerodynamicCoefficientSettings >( aerodynamicSettings );
-        assertNonNullPointer( constantAerodynamicSettings );
+        std::shared_ptr< ConstantAerodynamicCoefficientSettings > constantAerodynamicSettings =
+                std::dynamic_pointer_cast< ConstantAerodynamicCoefficientSettings >( aerodynamicSettings );
+        assertNonnullptrPointer( constantAerodynamicSettings );
         jsonObject[ K::forceCoefficients ] = constantAerodynamicSettings->getConstantForceCoefficient( );
 
         // Moments
@@ -59,13 +59,13 @@ void to_json( nlohmann::json& jsonObject, const boost::shared_ptr< AerodynamicCo
     }
     case tabulated_coefficients:
     {
-        boost::shared_ptr< TabulatedAerodynamicCoefficientSettingsBase > fromFileAerodynamicCoefficientSettings =
-                boost::dynamic_pointer_cast< TabulatedAerodynamicCoefficientSettingsBase >( aerodynamicSettings );
-        assertNonNullPointer( fromFileAerodynamicCoefficientSettings );
+        std::shared_ptr< TabulatedAerodynamicCoefficientSettingsBase > fromFileAerodynamicCoefficientSettings =
+                std::dynamic_pointer_cast< TabulatedAerodynamicCoefficientSettingsBase >( aerodynamicSettings );
+        assertNonnullptrPointer( fromFileAerodynamicCoefficientSettings );
         const bool hasMoments = ! isNaN( fromFileAerodynamicCoefficientSettings->getReferenceLength( ) );
 
-        boost::shared_ptr< TabulatedAerodynamicCoefficientSettings< 1 > > tabulated1AerodynamicSettings =
-                boost::dynamic_pointer_cast< TabulatedAerodynamicCoefficientSettings< 1 > >( aerodynamicSettings );
+        std::shared_ptr< TabulatedAerodynamicCoefficientSettings< 1 > > tabulated1AerodynamicSettings =
+                std::dynamic_pointer_cast< TabulatedAerodynamicCoefficientSettings< 1 > >( aerodynamicSettings );
         if ( tabulated1AerodynamicSettings )  // uni-dimensional
         {
             jsonObject[ K::independentVariableValues ] =
@@ -127,7 +127,7 @@ void to_json( nlohmann::json& jsonObject, const boost::shared_ptr< AerodynamicCo
 }
 
 //! Create a `json` object from a shared pointer to a `AerodynamicCoefficientSettings` object.
-void from_json( const nlohmann::json& jsonObject, boost::shared_ptr< AerodynamicCoefficientSettings >& aerodynamicSettings )
+void from_json( const nlohmann::json& jsonObject, std::shared_ptr< AerodynamicCoefficientSettings >& aerodynamicSettings )
 {
     using namespace aerodynamics;
     using namespace interpolators;
@@ -161,7 +161,7 @@ void from_json( const nlohmann::json& jsonObject, boost::shared_ptr< Aerodynamic
         {
             ConstantAerodynamicCoefficientSettings defaults( TUDAT_NAN, TUDAT_NAN, TUDAT_NAN,
                                                              Eigen::Vector3d( ), Eigen::Vector3d( ) );
-            aerodynamicSettings = boost::make_shared< ConstantAerodynamicCoefficientSettings >(
+            aerodynamicSettings = std::make_shared< ConstantAerodynamicCoefficientSettings >(
                         getValue< double >( jsonObject, K::referenceLength ),
                         referenceArea,
                         getValue< double >( jsonObject, K::lateralReferenceLength ),
@@ -176,7 +176,7 @@ void from_json( const nlohmann::json& jsonObject, boost::shared_ptr< Aerodynamic
         else  // no moments
         {
             ConstantAerodynamicCoefficientSettings defaults( TUDAT_NAN, Eigen::Vector3d( ) );
-            aerodynamicSettings = boost::make_shared< ConstantAerodynamicCoefficientSettings >(
+            aerodynamicSettings = std::make_shared< ConstantAerodynamicCoefficientSettings >(
                         referenceArea,
                         forceCoefficients,
                         getValue( jsonObject, K::areCoefficientsInAerodynamicFrame,
@@ -269,7 +269,7 @@ void from_json( const nlohmann::json& jsonObject, boost::shared_ptr< Aerodynamic
         {
             if ( useMoments )
             {
-                aerodynamicSettings = boost::make_shared< TabulatedAerodynamicCoefficientSettings< 1 > >(
+                aerodynamicSettings = std::make_shared< TabulatedAerodynamicCoefficientSettings< 1 > >(
                             getValue< std::vector< double > >( jsonObject, K::independentVariableValues ),
                             forceCoefficients,
                             momentCoefficients,
@@ -280,18 +280,18 @@ void from_json( const nlohmann::json& jsonObject, boost::shared_ptr< Aerodynamic
                             independentVariableNames.front( ),
                             areCoefficientsInAerodynamicFrame,
                             areCoefficientsInNegativeAxisDirection,
-                            getValue< boost::shared_ptr< InterpolatorSettings > >( jsonObject, K::interpolator ) );
+                            getValue< std::shared_ptr< InterpolatorSettings > >( jsonObject, K::interpolator ) );
             }
             else
             {
-                aerodynamicSettings = boost::make_shared< TabulatedAerodynamicCoefficientSettings< 1 > >(
+                aerodynamicSettings = std::make_shared< TabulatedAerodynamicCoefficientSettings< 1 > >(
                             getValue< std::vector< double > >( jsonObject, K::independentVariableValues ),
                             forceCoefficients,
                             referenceArea,
                             independentVariableNames.front( ),
                             areCoefficientsInAerodynamicFrame,
                             areCoefficientsInNegativeAxisDirection,
-                            getValue< boost::shared_ptr< InterpolatorSettings > >( jsonObject, K::interpolator ) );
+                            getValue< std::shared_ptr< InterpolatorSettings > >( jsonObject, K::interpolator ) );
             }
         }
         return;

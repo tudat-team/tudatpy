@@ -39,19 +39,21 @@ BOOST_AUTO_TEST_CASE( test_json_atmosphere_exponential )
     using namespace json_interface;
 
     // Create AtmosphereSettings from JSON file
-    const boost::shared_ptr< AtmosphereSettings > fromFileSettings =
-            parseJSONFile< boost::shared_ptr< AtmosphereSettings > >( INPUT( "exponential" ) );
+    const std::shared_ptr< AtmosphereSettings > fromFileSettings =
+            parseJSONFile< std::shared_ptr< AtmosphereSettings > >( INPUT( "exponential" ) );
 
     // Create AtmosphereSettings manually
     const double densityScaleHeight = 5.0;
     const double constantTemperature = 290.0;
     const double densityAtZeroAltitude = 1.0;
     const double specificGasConstant = 3.0;
-    const boost::shared_ptr< AtmosphereSettings > manualSettings =
-            boost::make_shared< ExponentialAtmosphereSettings >( densityScaleHeight,
-                                                                 constantTemperature,
-                                                                 densityAtZeroAltitude,
-                                                                 specificGasConstant );
+    const double ratioOfSpecificHeats = -10.0;
+    const std::shared_ptr< AtmosphereSettings > manualSettings =
+            std::make_shared< ExponentialAtmosphereSettings >( densityScaleHeight,
+                                                               constantTemperature,
+                                                               densityAtZeroAltitude,
+                                                               specificGasConstant,
+                                                               ratioOfSpecificHeats );
 
     // Compare
     BOOST_CHECK_EQUAL_JSON( fromFileSettings, manualSettings );
@@ -64,12 +66,24 @@ BOOST_AUTO_TEST_CASE( test_json_atmosphere_tabulated )
     using namespace json_interface;
 
     // Create AtmosphereSettings from JSON file
-    const boost::shared_ptr< AtmosphereSettings > fromFileSettings =
-            parseJSONFile< boost::shared_ptr< AtmosphereSettings > >( INPUT( "tabulated" ) );
+    const std::shared_ptr< AtmosphereSettings > fromFileSettings =
+            parseJSONFile< std::shared_ptr< AtmosphereSettings > >( INPUT( "tabulated" ) );
 
     // Create AtmosphereSettings manually
-    const boost::shared_ptr< AtmosphereSettings > manualSettings =
-            boost::make_shared< TabulatedAtmosphereSettings >( "atmosphereTable.foo" );
+    std::map< int, std::string > atmosphereTableFile;
+    atmosphereTableFile[ 0 ] = "atmosphereTable.foo";
+    std::vector< AtmosphereIndependentVariables > independentVariablesNames = { altitude_dependent_atmosphere, time_dependent_atmosphere };
+    std::vector< AtmosphereDependentVariables > dependentVariablesNames = { temperature_dependent_atmosphere,
+                                                                            gas_constant_dependent_atmosphere,
+                                                                            density_dependent_atmosphere,
+                                                                            pressure_dependent_atmosphere };
+    const double specificGasConstant = 10.0;
+    const double ratioOfSpecificHeats = 3.0;
+    std::vector< interpolators::BoundaryInterpolationType > boundaryHandling = { interpolators::use_boundary_value,
+                                                                                 interpolators::throw_exception_at_boundary };
+    const std::shared_ptr< AtmosphereSettings > manualSettings = std::make_shared< TabulatedAtmosphereSettings >(
+                atmosphereTableFile, independentVariablesNames, dependentVariablesNames,
+                specificGasConstant, ratioOfSpecificHeats, boundaryHandling );
 
     // Compare
     BOOST_CHECK_EQUAL_JSON( fromFileSettings, manualSettings );
@@ -82,12 +96,12 @@ BOOST_AUTO_TEST_CASE( test_json_atmosphere_nrlmsise00 )
     using namespace json_interface;
 
     // Create AtmosphereSettings from JSON file
-    const boost::shared_ptr< AtmosphereSettings > fromFileSettings =
-            parseJSONFile< boost::shared_ptr< AtmosphereSettings > >( INPUT( "nrlmsise00" ) );
+    const std::shared_ptr< AtmosphereSettings > fromFileSettings =
+            parseJSONFile< std::shared_ptr< AtmosphereSettings > >( INPUT( "nrlmsise00" ) );
 
     // Create AtmosphereSettings manually
-    const boost::shared_ptr< AtmosphereSettings > manualSettings =
-            boost::make_shared< AtmosphereSettings >( nrlmsise00 );
+    const std::shared_ptr< AtmosphereSettings > manualSettings =
+            std::make_shared< AtmosphereSettings >( nrlmsise00 );
 
     // Compare
     BOOST_CHECK_EQUAL_JSON( fromFileSettings, manualSettings );
@@ -100,12 +114,12 @@ BOOST_AUTO_TEST_CASE( test_json_atmosphere_nrlmsise00_custom )
     using namespace json_interface;
 
     // Create AtmosphereSettings from JSON file
-    const boost::shared_ptr< AtmosphereSettings > fromFileSettings =
-            parseJSONFile< boost::shared_ptr< AtmosphereSettings > >( INPUT( "nrlmsise00_custom" ) );
+    const std::shared_ptr< AtmosphereSettings > fromFileSettings =
+            parseJSONFile< std::shared_ptr< AtmosphereSettings > >( INPUT( "nrlmsise00_custom" ) );
 
     // Create AtmosphereSettings manually
-    const boost::shared_ptr< AtmosphereSettings > manualSettings =
-            boost::make_shared< NRLMSISE00AtmosphereSettings >( "spaceWeatherFile.foo" );
+    const std::shared_ptr< AtmosphereSettings > manualSettings =
+            std::make_shared< NRLMSISE00AtmosphereSettings >( "spaceWeatherFile.foo" );
 
     // Compare
     BOOST_CHECK_EQUAL_JSON( fromFileSettings, manualSettings );

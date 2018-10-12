@@ -1,20 +1,24 @@
 #include "Tudat/Astrodynamics/Propagators/dynamicsStateDerivativeModel.h"
+
+#if( BUILD_WITH_ESTIMATION_TOOLS )
 #include "Tudat/Astrodynamics/OrbitDetermination/AccelerationPartials/thirdBodyGravityPartial.h"
+#endif
 
 namespace tudat
 {
 namespace propagators
 {
 
+#if( BUILD_WITH_ESTIMATION_TOOLS )
 //! Function to retrieve specific acceleration partial object from list of state derivative partials
-boost::shared_ptr< acceleration_partials::AccelerationPartial > getAccelerationPartialForBody(
+std::shared_ptr< acceleration_partials::AccelerationPartial > getAccelerationPartialForBody(
         const orbit_determination::StateDerivativePartialsMap& accelerationPartials,
         const basic_astrodynamics::AvailableAcceleration accelerationType,
         const std::string& bodyExertingAcceleration,
         const std::string& bodyUndergoignAcceleration,
         const std::string& centralBody )
 {
-    boost::shared_ptr< acceleration_partials::AccelerationPartial > matchingAccelerationPartial;
+    std::shared_ptr< acceleration_partials::AccelerationPartial > matchingAccelerationPartial;
 
     // Iterate over all partials
     for( unsigned int i = 0; i < accelerationPartials.size( ); i++ )
@@ -22,8 +26,8 @@ boost::shared_ptr< acceleration_partials::AccelerationPartial > getAccelerationP
         for( unsigned int j = 0; j < accelerationPartials.at( i ).size( ); j++ )
         {
             // Check id state derivative type is acceleration
-            boost::shared_ptr< acceleration_partials::AccelerationPartial > accelerationPartial =
-                    boost::dynamic_pointer_cast< acceleration_partials::AccelerationPartial >(
+            std::shared_ptr< acceleration_partials::AccelerationPartial > accelerationPartial =
+                    std::dynamic_pointer_cast< acceleration_partials::AccelerationPartial >(
                         accelerationPartials.at( i ).at( j ) );
             if( accelerationPartial != NULL )
             {
@@ -61,6 +65,16 @@ boost::shared_ptr< acceleration_partials::AccelerationPartial > getAccelerationP
 
     return matchingAccelerationPartial;
 }
+#endif
+
+template class DynamicsStateDerivativeModel< double, double >;
+
+#if( BUILD_EXTENDED_PRECISION_PROPAGATION_TOOLS )
+template class DynamicsStateDerivativeModel< Time, double >;
+template class DynamicsStateDerivativeModel< double, long double >;
+template class DynamicsStateDerivativeModel< Time, long double >;
+#endif
+
 
 } // namespace propagators
 

@@ -12,10 +12,9 @@
 
 #include <boost/array.hpp>
 #include <boost/make_shared.hpp>
-#include <boost/shared_ptr.hpp>
+#include <memory>
 #include <boost/test/floating_point_comparison.hpp>
 #include <boost/test/unit_test.hpp>
-#include <boost/assign/list_of.hpp>
 
 #include <Eigen/Core>
 
@@ -43,16 +42,16 @@ class DummyGuidanceSystem
 {
 public:
     DummyGuidanceSystem(
-            const boost::function< void( const std::string&, const double ) > controlSurfaceFunction,
-            const boost::shared_ptr< reference_frames::AerodynamicAngleCalculator > angleCalculator ):
+            const std::function< void( const std::string&, const double ) > controlSurfaceFunction,
+            const std::shared_ptr< reference_frames::AerodynamicAngleCalculator > angleCalculator ):
         controlSurfaceFunction_( controlSurfaceFunction ), angleCalculator_( angleCalculator ),
         currentAngleOfAttack_( 0.0 ), currentSurfaceDeflection_( 0.0 )
     {
         angleCalculator_->setOrientationAngleFunctions(
-                    boost::bind( &DummyGuidanceSystem::getCurrentAngleOfAttack, this ),
-                    boost::function< double( ) >( ),
-                    boost::function< double( ) >( ),
-                    boost::bind( &DummyGuidanceSystem::updateGuidance, this, _1 ) );
+                    std::bind( &DummyGuidanceSystem::getCurrentAngleOfAttack, this ),
+                    std::function< double( ) >( ),
+                    std::function< double( ) >( ),
+                    std::bind( &DummyGuidanceSystem::updateGuidance, this, std::placeholders::_1 ) );
 
         controlSurfaceFunction_( "TestSurface", 0.2 );
     }
@@ -77,9 +76,9 @@ public:
     }
 
 private:
-    boost::function< void( const std::string&, const double ) > controlSurfaceFunction_;
+    std::function< void( const std::string&, const double ) > controlSurfaceFunction_;
 
-    boost::shared_ptr< reference_frames::AerodynamicAngleCalculator > angleCalculator_;
+    std::shared_ptr< reference_frames::AerodynamicAngleCalculator > angleCalculator_;
 
     double currentAngleOfAttack_;
 
@@ -113,16 +112,17 @@ Eigen::Vector6d dummyControlIncrements(
 BOOST_AUTO_TEST_CASE( testControlSurfaceIncrementInterface )
 {
     // Create aerodynamic coefficient interface without control increments.
-    boost::shared_ptr< AerodynamicCoefficientInterface > coefficientInterfaceWithoutIncrements =
+    std::shared_ptr< AerodynamicCoefficientInterface > coefficientInterfaceWithoutIncrements =
             getApolloCoefficientInterface( );
 
     // Create aerodynamic coefficient interface with control increments.
-    boost::shared_ptr< AerodynamicCoefficientInterface > coefficientInterfaceWithIncrements =
+    std::shared_ptr< AerodynamicCoefficientInterface > coefficientInterfaceWithIncrements =
             getApolloCoefficientInterface( );
-    boost::shared_ptr< ControlSurfaceIncrementAerodynamicInterface > controlSurfaceInterface =
-            boost::make_shared< CustomControlSurfaceIncrementAerodynamicInterface >(
-                &dummyControlIncrements, boost::assign::list_of( angle_of_attack_dependent )( control_surface_deflection_dependent ) );
-    std::map< std::string, boost::shared_ptr< ControlSurfaceIncrementAerodynamicInterface >  > controlSurfaceList;
+    std::shared_ptr< ControlSurfaceIncrementAerodynamicInterface > controlSurfaceInterface =
+            std::make_shared< CustomControlSurfaceIncrementAerodynamicInterface >(
+                &dummyControlIncrements,
+                std::vector< AerodynamicCoefficientsIndependentVariables >{ angle_of_attack_dependent, control_surface_deflection_dependent } );
+    std::map< std::string, std::shared_ptr< ControlSurfaceIncrementAerodynamicInterface >  > controlSurfaceList;
     controlSurfaceList[ "TestSurface" ] = controlSurfaceInterface;
     coefficientInterfaceWithIncrements->setControlSurfaceIncrements( controlSurfaceList );
 
@@ -228,36 +228,36 @@ BOOST_AUTO_TEST_CASE( testControlSurfaceIncrementInterfaceInPropagation )
                 getBodyGravitationalParameter( "Earth" ) );
 
     // Define simulation body settings.
-    std::map< std::string, boost::shared_ptr< BodySettings > > bodySettings =
+    std::map< std::string, std::shared_ptr< BodySettings > > bodySettings =
             getDefaultBodySettings( { "Earth", "Moon" }, simulationStartEpoch - 10.0 * fixedStepSize,
                                     simulationEndEpoch + 10.0 * fixedStepSize );
     bodySettings[ "Earth" ]->gravityFieldSettings =
-            boost::make_shared< simulation_setup::GravityFieldSettings >( central_spice );
+            std::make_shared< simulation_setup::GravityFieldSettings >( central_spice );
 
     // Create Earth object
     simulation_setup::NamedBodyMap bodyMap = simulation_setup::createBodies( bodySettings );
 
     // Create vehicle objects.
-    bodyMap[ "Apollo" ] = boost::make_shared< simulation_setup::Body >( );
+    bodyMap[ "Apollo" ] = std::make_shared< simulation_setup::Body >( );
 
     // Create vehicle aerodynamic coefficients
     bodyMap[ "Apollo" ]->setAerodynamicCoefficientInterface(
                 unit_tests::getApolloCoefficientInterface( ) );
-    boost::shared_ptr< ControlSurfaceIncrementAerodynamicInterface > controlSurfaceInterface =
-            boost::make_shared< CustomControlSurfaceIncrementAerodynamicInterface >(
+    std::shared_ptr< ControlSurfaceIncrementAerodynamicInterface > controlSurfaceInterface =
+            std::make_shared< CustomControlSurfaceIncrementAerodynamicInterface >(
                 &dummyControlIncrements,
-                boost::assign::list_of( angle_of_attack_dependent )( control_surface_deflection_dependent ) );
-    std::map< std::string, boost::shared_ptr< ControlSurfaceIncrementAerodynamicInterface >  > controlSurfaceList;
+                std::vector< AerodynamicCoefficientsIndependentVariables >{ angle_of_attack_dependent, control_surface_deflection_dependent } );
+    std::map< std::string, std::shared_ptr< ControlSurfaceIncrementAerodynamicInterface >  > controlSurfaceList;
     controlSurfaceList[ "TestSurface" ] = controlSurfaceInterface;
     bodyMap[ "Apollo" ]->getAerodynamicCoefficientInterface( )->setControlSurfaceIncrements( controlSurfaceList );
 
 
     bodyMap[ "Apollo" ]->setConstantBodyMass( 5.0E3 );
     bodyMap[ "Apollo" ]->setEphemeris(
-                boost::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
-                    boost::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Vector6d  > >( ),
+                std::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
+                    std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Vector6d  > >( ),
                     "Earth" ) );
-    boost::shared_ptr< system_models::VehicleSystems > apolloSystems = boost::make_shared< system_models::VehicleSystems >( );
+    std::shared_ptr< system_models::VehicleSystems > apolloSystems = std::make_shared< system_models::VehicleSystems >( );
     bodyMap[ "Apollo" ]->setVehicleSystems( apolloSystems );
 
 
@@ -270,10 +270,10 @@ BOOST_AUTO_TEST_CASE( testControlSurfaceIncrementInterfaceInPropagation )
     std::vector< std::string > centralBodies;
 
     // Define acceleration model settings.
-    std::map< std::string, std::vector< boost::shared_ptr< AccelerationSettings > > > accelerationsOfApollo;
-    accelerationsOfApollo[ "Earth" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );
-    accelerationsOfApollo[ "Earth" ].push_back( boost::make_shared< AccelerationSettings >( aerodynamic ) );
-    accelerationsOfApollo[ "Moon" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );
+    std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfApollo;
+    accelerationsOfApollo[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( central_gravity ) );
+    accelerationsOfApollo[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( aerodynamic ) );
+    accelerationsOfApollo[ "Moon" ].push_back( std::make_shared< AccelerationSettings >( central_gravity ) );
     accelerationMap[ "Apollo" ] = accelerationsOfApollo;
 
     bodiesToPropagate.push_back( "Apollo" );
@@ -283,24 +283,24 @@ BOOST_AUTO_TEST_CASE( testControlSurfaceIncrementInterfaceInPropagation )
     Eigen::Vector6d systemInitialState = apolloInitialState;
 
     // Define list of dependent variables to save.
-    std::vector< boost::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariables;
+    std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariables;
     dependentVariables.push_back(
-                boost::make_shared< SingleDependentVariableSaveSettings >(
+                std::make_shared< SingleDependentVariableSaveSettings >(
                     mach_number_dependent_variable, "Apollo" ) );
     dependentVariables.push_back(
-                boost::make_shared< BodyAerodynamicAngleVariableSaveSettings >(
+                std::make_shared< BodyAerodynamicAngleVariableSaveSettings >(
                     "Apollo", reference_frames::angle_of_attack ) );
     dependentVariables.push_back(
-                boost::make_shared< BodyAerodynamicAngleVariableSaveSettings >(
+                std::make_shared< BodyAerodynamicAngleVariableSaveSettings >(
                     "Apollo", reference_frames::angle_of_sideslip ) );
     dependentVariables.push_back(
-                boost::make_shared< SingleDependentVariableSaveSettings >(
+                std::make_shared< SingleDependentVariableSaveSettings >(
                     control_surface_deflection_dependent_variable, "Apollo", "TestSurface" ) );
     dependentVariables.push_back(
-                boost::make_shared< SingleDependentVariableSaveSettings >(
+                std::make_shared< SingleDependentVariableSaveSettings >(
                     aerodynamic_moment_coefficients_dependent_variable, "Apollo" ) );
     dependentVariables.push_back(
-                boost::make_shared< SingleDependentVariableSaveSettings >(
+                std::make_shared< SingleDependentVariableSaveSettings >(
                     aerodynamic_force_coefficients_dependent_variable, "Apollo" ) );
 
 
@@ -309,18 +309,18 @@ BOOST_AUTO_TEST_CASE( testControlSurfaceIncrementInterfaceInPropagation )
                 bodyMap, accelerationMap, bodiesToPropagate, centralBodies );
 
     // Set update function for body orientation and control surface deflections
-    boost::shared_ptr< DummyGuidanceSystem > dummyGuidanceSystem = boost::make_shared< DummyGuidanceSystem >(
-                boost::bind( &system_models::VehicleSystems::setCurrentControlSurfaceDeflection, apolloSystems, _1, _2 ),
+    std::shared_ptr< DummyGuidanceSystem > dummyGuidanceSystem = std::make_shared< DummyGuidanceSystem >(
+                std::bind( &system_models::VehicleSystems::setCurrentControlSurfaceDeflection, apolloSystems, std::placeholders::_1, std::placeholders::_2 ),
             bodyMap[ "Apollo" ]->getFlightConditions( )->getAerodynamicAngleCalculator( ) );
 
     // Create propagation and integrtion settings.
-    boost::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
-            boost::make_shared< TranslationalStatePropagatorSettings< double > >
+    std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
+            std::make_shared< TranslationalStatePropagatorSettings< double > >
             ( centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState,
-              boost::make_shared< propagators::PropagationTimeTerminationSettings >( 1000.0 ), cowell,
-              boost::make_shared< DependentVariableSaveSettings >( dependentVariables ) );
-    boost::shared_ptr< IntegratorSettings< > > integratorSettings =
-            boost::make_shared< IntegratorSettings< > >
+              std::make_shared< propagators::PropagationTimeTerminationSettings >( 1000.0 ), cowell,
+              std::make_shared< DependentVariableSaveSettings >( dependentVariables ) );
+    std::shared_ptr< IntegratorSettings< > > integratorSettings =
+            std::make_shared< IntegratorSettings< > >
             ( rungeKutta4, simulationStartEpoch, fixedStepSize );
 
     // Create simulation object and propagate dynamics.
@@ -346,7 +346,7 @@ BOOST_AUTO_TEST_CASE( testControlSurfaceIncrementInterfaceInPropagation )
     currentAerodynamicsControlIndependentVariables[ "TestSurface" ].resize( 2 );
 
     // Iterate over saved variables and compare to expected values
-    boost::shared_ptr< AerodynamicCoefficientInterface > coefficientInterface =
+    std::shared_ptr< AerodynamicCoefficientInterface > coefficientInterface =
             bodyMap[ "Apollo" ]->getAerodynamicCoefficientInterface( );
     for( std::map< double, Eigen::VectorXd >::iterator variableIterator = dependentVariableSolution.begin( );
          variableIterator != dependentVariableSolution.end( ); variableIterator++ )

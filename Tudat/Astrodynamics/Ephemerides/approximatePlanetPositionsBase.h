@@ -20,7 +20,7 @@
 #include <map>
 #include <string>
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include <Eigen/Core>
 
@@ -162,7 +162,7 @@ private:
 };
 
 //! Typedef for shared-pointer to ApproximatePlanetPositionsBase object.
-typedef boost::shared_ptr< ApproximatePlanetPositionsBase > ApproximatePlanetPositionsBasePointer;
+typedef std::shared_ptr< ApproximatePlanetPositionsBase > ApproximatePlanetPositionsBasePointer;
 
 } // namespace ephemerides
 } // namespace tudat

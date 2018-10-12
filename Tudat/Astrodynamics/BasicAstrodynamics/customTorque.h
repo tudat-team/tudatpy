@@ -36,8 +36,8 @@ public:
      *  \param customUpdateFunction Function to update the value of the custom torque based on the current time (which is the
      *      only input).
      */
-    CustomTorque( const boost::function< Eigen::Vector3d( ) >& customTorqueFunction,
-                  const boost::function< void( const double ) >& customUpdateFunction = boost::function< void( const double ) >( ) ) :
+    CustomTorque( const std::function< Eigen::Vector3d( ) >& customTorqueFunction,
+                  const std::function< void( const double ) >& customUpdateFunction = std::function< void( const double ) >( ) ) :
         customTorqueFunction_( customTorqueFunction ), customUpdateFunction_( customUpdateFunction )
     { }
 
@@ -64,7 +64,7 @@ public:
     void updateMembers( const double currentTime )
     {
         // Update the custom torque model
-        if( !customUpdateFunction_.empty( ) )
+        if ( customUpdateFunction_ != nullptr )
         {
             customUpdateFunction_( currentTime );
         }
@@ -75,10 +75,10 @@ protected:
 private:
 
     //! Function to be used to retrieve the torque.
-    const boost::function< Eigen::Vector3d( ) > customTorqueFunction_;
+    const std::function< Eigen::Vector3d( ) > customTorqueFunction_;
 
     //! Function to be used to update the torque.
-    const boost::function< void( const double ) > customUpdateFunction_;
+    const std::function< void( const double ) > customUpdateFunction_;
 
 };
 

@@ -17,17 +17,17 @@ namespace propagators
 {
 
 //! Function to create an integrator to propagate the dynamics (in normalized units) in CR3BP
-boost::shared_ptr< numerical_integrators::NumericalIntegrator< double, Eigen::Vector6d > > createCR3BPIntegrator(
-        const boost::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings,
+std::shared_ptr< numerical_integrators::NumericalIntegrator< double, Eigen::Vector6d > > createCR3BPIntegrator(
+        const std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings,
         const double massParameter,
         const Eigen::Vector6d& initialState )
 {
     // Create state derivative model
-    boost::shared_ptr< StateDerivativeCircularRestrictedThreeBodyProblem > stateDerivativeModel =
-            boost::make_shared< StateDerivativeCircularRestrictedThreeBodyProblem  >( massParameter );
-    boost::function< Eigen::Vector6d( const double, const Eigen::Vector6d& ) > stateDerivativeFunction =
-            boost::bind( &StateDerivativeCircularRestrictedThreeBodyProblem::computeStateDerivative, stateDerivativeModel,
-                         _1, _2 );
+    std::shared_ptr< StateDerivativeCircularRestrictedThreeBodyProblem > stateDerivativeModel =
+            std::make_shared< StateDerivativeCircularRestrictedThreeBodyProblem  >( massParameter );
+    std::function< Eigen::Vector6d( const double, const Eigen::Vector6d& ) > stateDerivativeFunction =
+            std::bind( &StateDerivativeCircularRestrictedThreeBodyProblem::computeStateDerivative, stateDerivativeModel,
+                       std::placeholders::_1, std::placeholders::_2 );
 
     // Create integrator object
     return numerical_integrators::createIntegrator< double, Eigen::Vector6d >(
@@ -36,13 +36,13 @@ boost::shared_ptr< numerical_integrators::NumericalIntegrator< double, Eigen::Ve
 
 //! Function to propagate the dynamics (in normalized units) in CR3BP
 std::map< double, Eigen::Vector6d > performCR3BPIntegration(
-        const boost::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings,
+        const std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings,
         const double massParameter,
         const Eigen::Vector6d& initialState,
         const double finalTime )
 {
     // Create integrator object
-    boost::shared_ptr< numerical_integrators::NumericalIntegrator< double, Eigen::Vector6d > > integrator =
+    std::shared_ptr< numerical_integrators::NumericalIntegrator< double, Eigen::Vector6d > > integrator =
             createCR3BPIntegrator( integratorSettings, massParameter, initialState );
 
     // Initialize return data map
@@ -66,6 +66,42 @@ std::map< double, Eigen::Vector6d > performCR3BPIntegration(
     return stateHistory;
 
 }
+
+template std::vector< std::shared_ptr< SingleStateTypeDerivative< double, double > > > createStateDerivativeModels< double, double >(
+        const std::shared_ptr< SingleArcPropagatorSettings< double > > propagatorSettings,
+        const simulation_setup::NamedBodyMap& bodyMap,
+        const double propagationStartTime );
+template std::shared_ptr< SingleStateTypeDerivative< double, double > > createStateDerivativeModel< double, double >(
+        const std::shared_ptr< SingleArcPropagatorSettings< double > > propagatorSettings,
+        const simulation_setup::NamedBodyMap& bodyMap,
+        const double propagationStartTime );
+
+#if( BUILD_EXTENDED_PRECISION_PROPAGATION_TOOLS )
+template std::vector< std::shared_ptr< SingleStateTypeDerivative< long double, double > > > createStateDerivativeModels< long double, double >(
+        const std::shared_ptr< SingleArcPropagatorSettings< long double > > propagatorSettings,
+        const simulation_setup::NamedBodyMap& bodyMap,
+        const double propagationStartTime );
+template std::vector< std::shared_ptr< SingleStateTypeDerivative< double, Time > > > createStateDerivativeModels< double, Time >(
+        const std::shared_ptr< SingleArcPropagatorSettings< double > > propagatorSettings,
+        const simulation_setup::NamedBodyMap& bodyMap,
+        const Time propagationStartTime );
+template std::vector< std::shared_ptr< SingleStateTypeDerivative< long double, Time > > > createStateDerivativeModels< long double, Time >(
+        const std::shared_ptr< SingleArcPropagatorSettings< long double > > propagatorSettings,
+        const simulation_setup::NamedBodyMap& bodyMap,
+        const Time propagationStartTime );
+template std::shared_ptr< SingleStateTypeDerivative< long double, double > > createStateDerivativeModel< long double, double >(
+        const std::shared_ptr< SingleArcPropagatorSettings< long double > > propagatorSettings,
+        const simulation_setup::NamedBodyMap& bodyMap,
+        const double propagationStartTime );
+template std::shared_ptr< SingleStateTypeDerivative< double, Time > > createStateDerivativeModel< double, Time >(
+        const std::shared_ptr< SingleArcPropagatorSettings< double > > propagatorSettings,
+        const simulation_setup::NamedBodyMap& bodyMap,
+        const Time propagationStartTime );
+template std::shared_ptr< SingleStateTypeDerivative< long double, Time > > createStateDerivativeModel< long double, Time >(
+        const std::shared_ptr< SingleArcPropagatorSettings< long double > > propagatorSettings,
+        const simulation_setup::NamedBodyMap& bodyMap,
+        const Time propagationStartTime );
+#endif
 
 }
 

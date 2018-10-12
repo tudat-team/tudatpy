@@ -12,7 +12,7 @@
 #ifndef TUDAT_LAMBERT_TARGETER_GOODING_H
 #define TUDAT_LAMBERT_TARGETER_GOODING_H
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include <Eigen/Core>
 
@@ -104,7 +104,7 @@ private:
 };
 
 //! Typedef for shared-pointer to LambertTargeterGooding object.
-typedef boost::shared_ptr< LambertTargeterGooding > LambertTargeterGoodingPointer;
+typedef std::shared_ptr< LambertTargeterGooding > LambertTargeterGoodingPointer;
 
 } // namespace mission_segments
 } // namespace tudat

@@ -81,8 +81,8 @@ BOOST_AUTO_TEST_CASE( testVelocitiesUnpoweredGravityAssist )
     // Set velocity before departure body.
     const Eigen::Vector3d velocityBeforePlanet1 ( 28586.0252553367, -17610.9003149933,
                                                   -1915.53135757897 );
-    boost::shared_ptr< Eigen::Vector3d > pointerToVelocityBeforePlanet1
-            = boost::make_shared< Eigen::Vector3d > ( velocityBeforePlanet1 );
+    std::shared_ptr< Eigen::Vector3d > pointerToVelocityBeforePlanet1
+            = std::make_shared< Eigen::Vector3d > ( velocityBeforePlanet1 );
 
     // Set the time of flight, which has to be converted from JD (in GTOP) to seconds (in Tudat).
     const double timeOfFlight = 180.510754824 * physical_constants::JULIAN_DAY;
@@ -147,8 +147,8 @@ BOOST_AUTO_TEST_CASE( testUpdatingVariables )
     // Set velocity before departure body.
     const Eigen::Vector3d velocityBeforePlanet1 ( 28586.0252553367, -17610.9003149933,
                                                   -1915.53135757897 );
-    boost::shared_ptr< Eigen::Vector3d > pointerToVelocityBeforePlanet1
-            = boost::make_shared< Eigen::Vector3d > ( velocityBeforePlanet1 );
+    std::shared_ptr< Eigen::Vector3d > pointerToVelocityBeforePlanet1
+            = std::make_shared< Eigen::Vector3d > ( velocityBeforePlanet1 );
 
     // Set the dummy time of flight.
     const double dummyTimeOfFlight = TUDAT_NAN;
@@ -235,8 +235,8 @@ BOOST_AUTO_TEST_CASE( testIntermediatePoints )
     // Set velocity before departure body.
     const Eigen::Vector3d velocityBeforePlanet1 ( 28586.0252553367, -17610.9003149933,
                                                   -1915.53135757897 );
-    boost::shared_ptr< Eigen::Vector3d > pointerToVelocityBeforePlanet1
-            = boost::make_shared< Eigen::Vector3d > ( velocityBeforePlanet1 );
+    std::shared_ptr< Eigen::Vector3d > pointerToVelocityBeforePlanet1
+            = std::make_shared< Eigen::Vector3d > ( velocityBeforePlanet1 );
 
     // Set the time of flight, which has to be converted from JD (in GTOP) to seconds (in Tudat).
     const double timeOfFlight = 180.510754824 * physical_constants::JULIAN_DAY;

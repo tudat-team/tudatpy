@@ -39,16 +39,16 @@ BOOST_AUTO_TEST_CASE( test_json_radiationPressure_cannonBall )
     using namespace json_interface;
 
     // Create RadiationPressureInterfaceSettings from JSON file
-    const boost::shared_ptr< RadiationPressureInterfaceSettings > fromFileSettings =
-            parseJSONFile< boost::shared_ptr< RadiationPressureInterfaceSettings > >( INPUT( "cannonBall" ) );
+    const std::shared_ptr< RadiationPressureInterfaceSettings > fromFileSettings =
+            parseJSONFile< std::shared_ptr< RadiationPressureInterfaceSettings > >( INPUT( "cannonBall" ) );
 
     // Create RadiationPressureInterfaceSettings manually
     const std::string sourceBody = "Sun";
     const double referenceArea = 2.0;
     const double radiationPressureCoefficient = 1.5;
     const std::vector< std::string > occultingBodies = { "Earth", "Moon" };
-    const boost::shared_ptr< RadiationPressureInterfaceSettings > manualSettings =
-            boost::make_shared< CannonBallRadiationPressureInterfaceSettings >( sourceBody,
+    const std::shared_ptr< RadiationPressureInterfaceSettings > manualSettings =
+            std::make_shared< CannonBallRadiationPressureInterfaceSettings >( sourceBody,
                                                                                 referenceArea,
                                                                                 radiationPressureCoefficient,
                                                                                 occultingBodies );

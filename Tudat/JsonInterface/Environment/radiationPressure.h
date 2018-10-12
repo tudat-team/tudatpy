@@ -44,11 +44,11 @@ inline void from_json( const nlohmann::json& jsonObject, RadiationPressureType& 
 
 //! Create a `json` object from a shared pointer to a `RadiationPressureInterfaceSettings` object.
 void to_json( nlohmann::json& jsonObject,
-              const boost::shared_ptr< RadiationPressureInterfaceSettings >& radiationPressureInterfaceSettings );
+              const std::shared_ptr< RadiationPressureInterfaceSettings >& radiationPressureInterfaceSettings );
 
 //! Create a `json` object from a shared pointer to a `RadiationPressureInterfaceSettings` object.
 void from_json( const nlohmann::json& jsonObject,
-                boost::shared_ptr< RadiationPressureInterfaceSettings >& radiationPressureInterfaceSettings );
+                std::shared_ptr< RadiationPressureInterfaceSettings >& radiationPressureInterfaceSettings );
 
 } // namespace simulation_setup
 

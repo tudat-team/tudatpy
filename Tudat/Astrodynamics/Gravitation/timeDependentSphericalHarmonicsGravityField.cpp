@@ -20,7 +20,7 @@ namespace gravitation
 
 //! Function to (re)set the gravity field variations
 void TimeDependentSphericalHarmonicsGravityField::setFieldVariationSettings(
-        const boost::shared_ptr< GravityFieldVariationsSet > gravityFieldVariationUpdateSettings,
+        const std::shared_ptr< GravityFieldVariationsSet > gravityFieldVariationUpdateSettings,
         const bool updateCorrections )
 {
     // Set new variation set.
@@ -36,7 +36,7 @@ void TimeDependentSphericalHarmonicsGravityField::setFieldVariationSettings(
 //! Function to clear all gravity field variations
 void TimeDependentSphericalHarmonicsGravityField::clearVariations( )
 {
-    gravityFieldVariationsSet_ = boost::shared_ptr< GravityFieldVariationsSet >( );
+    gravityFieldVariationsSet_ = std::shared_ptr< GravityFieldVariationsSet >( );
     correctionFunctions_.clear( );
 }
 

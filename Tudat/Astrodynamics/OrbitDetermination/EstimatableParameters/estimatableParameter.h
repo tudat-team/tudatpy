@@ -17,8 +17,7 @@
 #include <vector>
 #include <map>
 
-#include <boost/shared_ptr.hpp>
-#include <boost/assign/list_of.hpp>
+#include <memory>
 #include <Eigen/Geometry>
 
 #include "Tudat/Astrodynamics/Propagators/singleStateTypeDerivative.h"
@@ -190,6 +189,13 @@ protected:
     EstimatebleParameterIdentifier parameterName_;
 };
 
+//extern template class EstimatableParameter< double >;
+//extern template class EstimatableParameter< Eigen::VectorXd >;
+
+//#if( BUILD_EXTENDED_PRECISION_PROPAGATION_TOOLS )
+//extern template class EstimatableParameter< Eigen::Matrix< long double, Eigen::Dynamic, 1 > >;
+//#endif
+
 //! Container class for all parameters that are to be estimated.
 /*!
  *  Container class for all parameters that are to be estimated. Class is templated with the scalar type used for the
@@ -208,11 +214,11 @@ public:
      *  \param estimateInitialStateParameters List of initial dynamical states that are to be estimated.
      */
     EstimatableParameterSet(
-            const std::vector< boost::shared_ptr< EstimatableParameter< double > > >& estimatedDoubleParameters,
-            const std::vector< boost::shared_ptr< EstimatableParameter< Eigen::VectorXd > > >& estimatedVectorParameters,
-            const std::vector< boost::shared_ptr< EstimatableParameter< Eigen::Matrix
+            const std::vector< std::shared_ptr< EstimatableParameter< double > > >& estimatedDoubleParameters,
+            const std::vector< std::shared_ptr< EstimatableParameter< Eigen::VectorXd > > >& estimatedVectorParameters,
+            const std::vector< std::shared_ptr< EstimatableParameter< Eigen::Matrix
             < InitialStateParameterType, Eigen::Dynamic, 1 > > > >& estimateInitialStateParameters =
-            ( std::vector< boost::shared_ptr< EstimatableParameter< Eigen::Matrix
+            ( std::vector< std::shared_ptr< EstimatableParameter< Eigen::Matrix
               < InitialStateParameterType, Eigen::Dynamic, 1 > > > >( ) ) ):
         estimatedDoubleParameters_( estimatedDoubleParameters ), estimatedVectorParameters_( estimatedVectorParameters ),
         estimateInitialStateParameters_( estimateInitialStateParameters )
@@ -376,7 +382,7 @@ public:
      *  Function to retrieve double parameter objects.
      *  \return Vector containing all double parameter objects
      */
-    std::map< int, boost::shared_ptr< EstimatableParameter< double > > > getDoubleParameters( )
+    std::map< int, std::shared_ptr< EstimatableParameter< double > > > getDoubleParameters( )
     {
         return doubleParameters_;
     }
@@ -386,22 +392,22 @@ public:
      *  Function to retrieve vector parameter objects.
      *  \return Vector containing all vector parameter objects
      */
-    std::map< int, boost::shared_ptr< EstimatableParameter< Eigen::VectorXd > > > getVectorParameters( )
+    std::map< int, std::shared_ptr< EstimatableParameter< Eigen::VectorXd > > > getVectorParameters( )
     {
         return vectorParameters_;
     }
 
-    std::map< int, boost::shared_ptr< EstimatableParameter< Eigen::VectorXd > > > getInitialStateParameters( )
+    std::map< int, std::shared_ptr< EstimatableParameter< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > > > getInitialStateParameters( )
     {
         return initialStateParameters_;
     }
 
-    std::vector< boost::shared_ptr< EstimatableParameter< double > > > getEstimatedDoubleParameters( )
+    std::vector< std::shared_ptr< EstimatableParameter< double > > > getEstimatedDoubleParameters( )
     {
         return estimatedDoubleParameters_;
     }
 
-    std::vector< boost::shared_ptr< EstimatableParameter< Eigen::VectorXd > > > getEstimatedVectorParameters( )
+    std::vector< std::shared_ptr< EstimatableParameter< Eigen::VectorXd > > > getEstimatedVectorParameters( )
     {
         return estimatedVectorParameters_;
     }
@@ -412,7 +418,7 @@ public:
      *  Function to get list of initial dynamical states that are to be estimated.
      *  \return List of initial dynamical states that are to be estimated.
      */
-    std::vector< boost::shared_ptr< EstimatableParameter< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > > >
+    std::vector< std::shared_ptr< EstimatableParameter< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > > >
     getEstimatedInitialStateParameters( )
     {
         return estimateInitialStateParameters_;
@@ -448,55 +454,61 @@ protected:
     std::vector< std::pair< int, int > > parameterIndices_;
 
     //! List of double parameters that are to be estimated.
-    std::vector< boost::shared_ptr< EstimatableParameter< double > > > estimatedDoubleParameters_;
+    std::vector< std::shared_ptr< EstimatableParameter< double > > > estimatedDoubleParameters_;
 
     //! List of vector parameters that are to be estimated.
-    std::vector< boost::shared_ptr< EstimatableParameter< Eigen::VectorXd > > > estimatedVectorParameters_;
+    std::vector< std::shared_ptr< EstimatableParameter< Eigen::VectorXd > > > estimatedVectorParameters_;
 
     //! List of initial dynamical states that are to be estimated.
-    std::vector< boost::shared_ptr< EstimatableParameter< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > > >
+    std::vector< std::shared_ptr< EstimatableParameter< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > > >
     estimateInitialStateParameters_;
 
     //! Map of double parameters that are to be estimated, with start index in total parameter vector as key.
-    std::map< int, boost::shared_ptr< EstimatableParameter< double > > > doubleParameters_;
+    std::map< int, std::shared_ptr< EstimatableParameter< double > > > doubleParameters_;
 
     //! Map of vector parameters that are to be estimated, with start index in total parameter vector as key.
-    std::map< int, boost::shared_ptr< EstimatableParameter< Eigen::VectorXd > > > vectorParameters_;
+    std::map< int, std::shared_ptr< EstimatableParameter< Eigen::VectorXd > > > vectorParameters_;
 
     //! Map of initial dynamical states that are to be estimated, with start index in total parameter vector as key.
-    std::map< int, boost::shared_ptr<
+    std::map< int, std::shared_ptr<
     EstimatableParameter< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > > > initialStateParameters_;
 
 };
 
+//extern template class EstimatableParameterSet< double >;
+
+//#if( BUILD_EXTENDED_PRECISION_PROPAGATION_TOOLS )
+//extern template class EstimatableParameterSet< long double >;
+//#endif
+
 template< typename InitialStateParameterType >
 void printEstimatableParameterEntries(
-        const boost::shared_ptr< EstimatableParameterSet< InitialStateParameterType > > estimatableParameters )
+        const std::shared_ptr< EstimatableParameterSet< InitialStateParameterType > > estimatableParameters )
 {
-    std::map< int, boost::shared_ptr<
+    std::map< int, std::shared_ptr<
             EstimatableParameter< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > > > initialStateParameters =
             estimatableParameters->getInitialStateParameters( );
-    std::map< int, boost::shared_ptr<
+    std::map< int, std::shared_ptr<
             EstimatableParameter< double > > > doubleParameters = estimatableParameters->getDoubleParameters( );
-    std::map< int, boost::shared_ptr<
+    std::map< int, std::shared_ptr<
             EstimatableParameter< Eigen::VectorXd > > > vectorParameters = estimatableParameters->getVectorParameters( );
 
     std::cout << "Parameter start index, Parameter definition" << std::endl;
-    for( typename  std::map< int, boost::shared_ptr<  EstimatableParameter< Eigen::Matrix<
+    for( typename  std::map< int, std::shared_ptr<  EstimatableParameter< Eigen::Matrix<
          InitialStateParameterType, Eigen::Dynamic, 1 > > > >::const_iterator parameterIterator = initialStateParameters.begin( );
          parameterIterator != initialStateParameters.end( ); parameterIterator++ )
     {
         std::cout << parameterIterator->first << ", " << parameterIterator->second->getParameterDescription( ) << std::endl;
     }
 
-    for( typename  std::map< int, boost::shared_ptr<  EstimatableParameter< double > > >::const_iterator
+    for( typename  std::map< int, std::shared_ptr<  EstimatableParameter< double > > >::const_iterator
          parameterIterator = doubleParameters.begin( );
          parameterIterator != doubleParameters.end( ); parameterIterator++ )
     {
         std::cout << parameterIterator->first << ", " << parameterIterator->second->getParameterDescription( ) << std::endl;
     }
 
-    for( typename  std::map< int, boost::shared_ptr<  EstimatableParameter< Eigen::VectorXd > > >::const_iterator
+    for( typename  std::map< int, std::shared_ptr<  EstimatableParameter< Eigen::VectorXd > > >::const_iterator
          parameterIterator = vectorParameters.begin( );
          parameterIterator != vectorParameters.end( ); parameterIterator++ )
     {
@@ -513,12 +525,12 @@ void printEstimatableParameterEntries(
  */
 template< typename InitialStateParameterType >
 std::vector< std::string > getListOfBodiesWithTranslationalStateToEstimate(
-        const boost::shared_ptr< EstimatableParameterSet< InitialStateParameterType > > estimatableParameters )
+        const std::shared_ptr< EstimatableParameterSet< InitialStateParameterType > > estimatableParameters )
 {
     std::vector< std::string > bodiesToEstimate;
 
     // Retrieve initial dynamical parameters.
-    std::vector< boost::shared_ptr< EstimatableParameter<
+    std::vector< std::shared_ptr< EstimatableParameter<
             Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > > > initialDynamicalParameters =
             estimatableParameters->getEstimatedInitialStateParameters( );
 
@@ -541,16 +553,16 @@ std::vector< std::string > getListOfBodiesWithTranslationalStateToEstimate(
  * \return List of parameters (with body names as keys) used for the multi-arc estimation of initial translational state
  */
 template< typename InitialStateParameterType >
-std::map< std::string, boost::shared_ptr< EstimatableParameter<
+std::map< std::string, std::shared_ptr< EstimatableParameter<
 Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 >  > > >
 getListOfBodiesWithTranslationalMultiArcStateToEstimate(
-        const boost::shared_ptr< EstimatableParameterSet< InitialStateParameterType > > estimatableParameters )
+        const std::shared_ptr< EstimatableParameterSet< InitialStateParameterType > > estimatableParameters )
 {
-    std::map< std::string, boost::shared_ptr< EstimatableParameter<
+    std::map< std::string, std::shared_ptr< EstimatableParameter<
             Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 >  > > > bodiesToEstimate;
 
     // Retrieve initial dynamical parameters.
-    std::vector< boost::shared_ptr< EstimatableParameter<
+    std::vector< std::shared_ptr< EstimatableParameter<
             Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > > > initialDynamicalParameters =
             estimatableParameters->getEstimatedInitialStateParameters( );
 
@@ -575,11 +587,11 @@ getListOfBodiesWithTranslationalMultiArcStateToEstimate(
  */
 template< typename InitialStateParameterType >
 std::vector< std::string > getListOfBodiesToEstimate(
-        const boost::shared_ptr< EstimatableParameterSet< InitialStateParameterType > > estimatableParameters )
+        const std::shared_ptr< EstimatableParameterSet< InitialStateParameterType > > estimatableParameters )
 {
     std::vector< std::string > bodiesToEstimate;
 
-    std::vector< boost::shared_ptr< EstimatableParameter<
+    std::vector< std::shared_ptr< EstimatableParameter<
             Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > > > initialDynamicalParameters =
             estimatableParameters->getEstimatedInitialStateParameters( );
 
@@ -606,10 +618,10 @@ std::vector< std::string > getListOfBodiesToEstimate(
 template< typename InitialStateParameterType >
 std::map< propagators::IntegratedStateType, std::vector< std::pair< std::string, std::string > > >
 getListOfInitialDynamicalStateParametersEstimate(
-        const boost::shared_ptr< EstimatableParameterSet< InitialStateParameterType > > estimatableParameters )
+        const std::shared_ptr< EstimatableParameterSet< InitialStateParameterType > > estimatableParameters )
 {
     // Retrieve initial dynamical parameters.
-    std::vector< boost::shared_ptr< EstimatableParameter<
+    std::vector< std::shared_ptr< EstimatableParameter<
             Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > > > initialDynamicalParameters =
             estimatableParameters->getEstimatedInitialStateParameters( );
 
@@ -637,10 +649,10 @@ getListOfInitialDynamicalStateParametersEstimate(
  */
 template< typename InitialStateParameterType = double >
 Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > getInitialStateVectorOfBodiesToEstimate(
-        const boost::shared_ptr< EstimatableParameterSet< InitialStateParameterType > > estimatableParameters )
+        const std::shared_ptr< EstimatableParameterSet< InitialStateParameterType > > estimatableParameters )
 {
     // Retrieve initial dynamical parameters.
-    std::vector< boost::shared_ptr< EstimatableParameter<
+    std::vector< std::shared_ptr< EstimatableParameter<
             Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > > > initialDynamicalParameters =
             estimatableParameters->getEstimatedInitialStateParameters( );
 

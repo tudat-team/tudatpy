@@ -10,7 +10,7 @@
 #ifndef TUDAT_CUSTOMSTATEDERIVATIVE_H
 #define TUDAT_CUSTOMSTATEDERIVATIVE_H
 
-#include <boost/function.hpp>
+#include <functional>
 
 #include "Tudat/Astrodynamics/Propagators/singleStateTypeDerivative.h"
 
@@ -36,7 +36,7 @@ public:
      * \param stateSize Size of the custom state that is propagated.
      */
     CustomStateDerivative(
-            const boost::function< StateVectorType( const TimeType, const StateVectorType& )> stateDerivativeModel,
+            const std::function< StateVectorType( const TimeType, const StateVectorType& )> stateDerivativeModel,
             const int stateSize ):
         SingleStateTypeDerivative< StateScalarType, TimeType >( custom_state ),
         stateDerivativeModel_( stateDerivativeModel ), stateSize_( stateSize ){ }
@@ -106,7 +106,7 @@ public:
 private:
 
     //! Function to compute the state derivative, as a function of current time and state
-    boost::function< StateVectorType( const TimeType, const StateVectorType& )> stateDerivativeModel_;
+    std::function< StateVectorType( const TimeType, const StateVectorType& )> stateDerivativeModel_;
 
     //! Size of the custom state that is propagated.
     int stateSize_;

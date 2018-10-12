@@ -66,8 +66,8 @@ BOOST_AUTO_TEST_SUITE( test_acceleration_partials )
 BOOST_AUTO_TEST_CASE( testCentralGravityPartials )
 {
     // Create empty bodies, earth and sun.
-    boost::shared_ptr< Body > earth = boost::make_shared< Body >( );
-    boost::shared_ptr< Body > sun = boost::make_shared< Body >( );
+    std::shared_ptr< Body > earth = std::make_shared< Body >( );
+    std::shared_ptr< Body > sun = std::make_shared< Body >( );
 
     NamedBodyMap bodyMap;
     bodyMap[ "Earth" ] = earth;
@@ -82,27 +82,27 @@ BOOST_AUTO_TEST_CASE( testCentralGravityPartials )
 
     // Get sun gravitational parameter and set gravity field model.
     double sunsGravitationalParameter = getBodyGravitationalParameter( "Sun" );
-    boost::shared_ptr< GravityFieldModel > sunGravityFieldModel =
-            boost::make_shared< GravityFieldModel >( sunsGravitationalParameter );
+    std::shared_ptr< GravityFieldModel > sunGravityFieldModel =
+            std::make_shared< GravityFieldModel >( sunsGravitationalParameter );
     sun->setGravityFieldModel( sunGravityFieldModel );
     double earthGravitationalParameter = getBodyGravitationalParameter( "Earth" );
-    boost::shared_ptr< GravityFieldModel > earthGravityFieldModel =
-            boost::make_shared< GravityFieldModel >( earthGravitationalParameter );
+    std::shared_ptr< GravityFieldModel > earthGravityFieldModel =
+            std::make_shared< GravityFieldModel >( earthGravitationalParameter );
     earth->setGravityFieldModel( earthGravityFieldModel );
 
     // Create acceleration due to sun on earth.
-    boost::shared_ptr< CentralGravitationalAccelerationModel3d > gravitationalAcceleration =\
+    std::shared_ptr< CentralGravitationalAccelerationModel3d > gravitationalAcceleration =\
             createCentralGravityAcceleratioModel( earth, sun, "Earth", "Sun", 1 );
 
     // Create central gravity partial.
-    boost::shared_ptr< AccelerationPartial > centralGravitationPartial =
+    std::shared_ptr< AccelerationPartial > centralGravitationPartial =
             createAnalyticalAccelerationPartial( gravitationalAcceleration, std::make_pair( "Earth", earth ),
                                                  std::make_pair( "Sun", sun ), bodyMap );
 
     // Create gravitational parameter object.
-    boost::shared_ptr< EstimatableParameter< double > > sunGravitationalParameterParameter = boost::make_shared<
+    std::shared_ptr< EstimatableParameter< double > > sunGravitationalParameterParameter = std::make_shared<
             GravitationalParameter >( sunGravityFieldModel, "Sun" );
-    boost::shared_ptr< EstimatableParameter< double > > earthGravitationalParameterParameter = boost::make_shared<
+    std::shared_ptr< EstimatableParameter< double > > earthGravitationalParameterParameter = std::make_shared<
             GravitationalParameter >( earthGravityFieldModel, "Earth" );
 
     // Calculate analytical partials.
@@ -133,14 +133,14 @@ BOOST_AUTO_TEST_CASE( testCentralGravityPartials )
     velocityPerturbation << 1.0, 1.0, 1.0;
 
     // Create state access/modification functions for bodies.
-    boost::function< void( Eigen::Vector6d ) > earthStateSetFunction =
-            boost::bind( &Body::setState, earth, _1 );
-    boost::function< void( Eigen::Vector6d ) > sunStateSetFunction =
-            boost::bind( &Body::setState, sun, _1 );
-    boost::function< Eigen::Vector6d ( ) > earthStateGetFunction =
-            boost::bind( &Body::getState, earth );
-    boost::function< Eigen::Vector6d ( ) > sunStateGetFunction =
-            boost::bind( &Body::getState, sun );
+    std::function< void( Eigen::Vector6d ) > earthStateSetFunction =
+            std::bind( &Body::setState, earth, std::placeholders::_1 );
+    std::function< void( Eigen::Vector6d ) > sunStateSetFunction =
+            std::bind( &Body::setState, sun, std::placeholders::_1 );
+    std::function< Eigen::Vector6d ( ) > earthStateGetFunction =
+            std::bind( &Body::getState, earth );
+    std::function< Eigen::Vector6d ( ) > sunStateGetFunction =
+            std::bind( &Body::getState, sun );
 
     // Calculate numerical partials.
     testPartialWrtEarthPosition = calculateAccelerationWrtStatePartials(
@@ -177,9 +177,9 @@ BOOST_AUTO_TEST_CASE( testCentralGravityPartials )
 BOOST_AUTO_TEST_CASE( testRadiationPressureAccelerationPartials )
 {
     // Create empty bodies, earth and sun.
-    boost::shared_ptr< Body > vehicle = boost::make_shared< Body >( );
+    std::shared_ptr< Body > vehicle = std::make_shared< Body >( );
     vehicle->setConstantBodyMass( 400.0 );
-    boost::shared_ptr< Body > sun = boost::make_shared< Body >( );
+    std::shared_ptr< Body > sun = std::make_shared< Body >( );
 
     NamedBodyMap bodyMap;
     bodyMap[ "Vehicle" ] = vehicle;
@@ -193,42 +193,42 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAccelerationPartials )
     vehicle->setState( getBodyCartesianStateAtEpoch(  "Earth", "SSB", "J2000", "NONE", 1.0E6 ) );
 
     // Create links to set and get state functions of bodies.
-    boost::function< void( Eigen::Vector6d ) > sunStateSetFunction =
-            boost::bind( &Body::setState, sun, _1 );
-    boost::function< void( Eigen::Vector6d ) > vehicleStateSetFunction =
-            boost::bind( &Body::setState, vehicle, _1 );
-    boost::function< Eigen::Vector6d( ) > sunStateGetFunction =
-            boost::bind( &Body::getState, sun );
-    boost::function< Eigen::Vector6d( ) > vehicleStateGetFunction =
-            boost::bind( &Body::getState, vehicle );
+    std::function< void( Eigen::Vector6d ) > sunStateSetFunction =
+            std::bind( &Body::setState, sun, std::placeholders::_1 );
+    std::function< void( Eigen::Vector6d ) > vehicleStateSetFunction =
+            std::bind( &Body::setState, vehicle, std::placeholders::_1 );
+    std::function< Eigen::Vector6d( ) > sunStateGetFunction =
+            std::bind( &Body::getState, sun );
+    std::function< Eigen::Vector6d( ) > vehicleStateGetFunction =
+            std::bind( &Body::getState, vehicle );
 
     // Create radiation pressure properties of vehicle
-    boost::shared_ptr< RadiationPressureInterface > radiationPressureInterface =
-            createRadiationPressureInterface( boost::make_shared< CannonBallRadiationPressureInterfaceSettings >(
+    std::shared_ptr< RadiationPressureInterface > radiationPressureInterface =
+            createRadiationPressureInterface( std::make_shared< CannonBallRadiationPressureInterfaceSettings >(
                                                   "Sun", mathematical_constants::PI * 0.3 * 0.3, 1.2 ), "Vehicle", bodyMap );
     radiationPressureInterface->updateInterface( 0.0 );
     vehicle->setRadiationPressureInterface( "Sun", radiationPressureInterface );
 
     // Create acceleration model.
-    boost::shared_ptr< CannonBallRadiationPressureAcceleration > accelerationModel =
-            boost::make_shared< CannonBallRadiationPressureAcceleration >(
-                boost::bind( &Body::getPosition, sun ),
-                boost::bind( &Body::getPosition, vehicle ),
-                boost::bind( &RadiationPressureInterface::getCurrentRadiationPressure,
-                             radiationPressureInterface ),
-                boost::bind( &RadiationPressureInterface::getRadiationPressureCoefficient, radiationPressureInterface ),
-                boost::bind( &RadiationPressureInterface::getArea, radiationPressureInterface ),
-                boost::bind( &Body::getBodyMass, vehicle ) );
+    std::shared_ptr< CannonBallRadiationPressureAcceleration > accelerationModel =
+            std::make_shared< CannonBallRadiationPressureAcceleration >(
+                std::bind( &Body::getPosition, sun ),
+                std::bind( &Body::getPosition, vehicle ),
+                std::bind( &RadiationPressureInterface::getCurrentRadiationPressure,
+                           radiationPressureInterface ),
+                std::bind( &RadiationPressureInterface::getRadiationPressureCoefficient, radiationPressureInterface ),
+                std::bind( &RadiationPressureInterface::getArea, radiationPressureInterface ),
+                std::bind( &Body::getBodyMass, vehicle ) );
 
     // Create partial-calculating object.
-    boost::shared_ptr< AccelerationPartial > accelerationPartial =
+    std::shared_ptr< AccelerationPartial > accelerationPartial =
             createAnalyticalAccelerationPartial( accelerationModel, std::make_pair( "Vehicle", vehicle ),
                                                  std::make_pair( "Sun", sun ), bodyMap );
 
     // Create parameter object
     std::string vehicleName = "Vehicle";
-    boost::shared_ptr< EstimatableParameter< double > > radiationPressureCoefficient =
-            boost::make_shared< RadiationPressureCoefficient >( radiationPressureInterface, vehicleName );
+    std::shared_ptr< EstimatableParameter< double > > radiationPressureCoefficient =
+            std::make_shared< RadiationPressureCoefficient >( radiationPressureInterface, vehicleName );
 
     std::vector< double > timeLimits;
     timeLimits.push_back( 0.0 );
@@ -236,8 +236,8 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAccelerationPartials )
     timeLimits.push_back( 7200.0 );
     timeLimits.push_back( 10800.0 );
 
-    boost::shared_ptr< EstimatableParameter< Eigen::VectorXd > > arcWiseRadiationPressureCoefficient =
-            boost::make_shared< ArcWiseRadiationPressureCoefficient >( radiationPressureInterface, timeLimits, vehicleName );
+    std::shared_ptr< EstimatableParameter< Eigen::VectorXd > > arcWiseRadiationPressureCoefficient =
+            std::make_shared< ArcWiseRadiationPressureCoefficient >( radiationPressureInterface, timeLimits, vehicleName );
 
 
     // Calculate analytical partials.
@@ -345,8 +345,8 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAccelerationPartials )
     velocityPerturbation << 1.0, 1.0, 1.0;
 
     // Calculate numerical partials.
-    boost::function< void( ) > updateFunction =
-            boost::bind( &RadiationPressureInterface::updateInterface, radiationPressureInterface, 0.0 );
+    std::function< void( ) > updateFunction =
+            std::bind( &RadiationPressureInterface::updateInterface, radiationPressureInterface, 0.0 );
     testPartialWrtSunPosition = calculateAccelerationWrtStatePartials(
                 sunStateSetFunction, accelerationModel, sun->getState( ), positionPerturbation, 0, updateFunction );
     testPartialWrtVehiclePosition = calculateAccelerationWrtStatePartials(
@@ -375,9 +375,9 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAccelerationPartials )
 BOOST_AUTO_TEST_CASE( testThirdBodyGravityPartials )
 {
     // Create empty bodies, earth and sun.
-    boost::shared_ptr< Body > earth = boost::make_shared< Body >( );
-    boost::shared_ptr< Body > sun = boost::make_shared< Body >( );
-    boost::shared_ptr< Body > moon = boost::make_shared< Body >( );
+    std::shared_ptr< Body > earth = std::make_shared< Body >( );
+    std::shared_ptr< Body > sun = std::make_shared< Body >( );
+    std::shared_ptr< Body > moon = std::make_shared< Body >( );
 
     NamedBodyMap bodyMap;
     bodyMap[ "Earth" ] = earth;
@@ -394,36 +394,36 @@ BOOST_AUTO_TEST_CASE( testThirdBodyGravityPartials )
 
     // Get sun gravitational parameter and set gravity field model.
     double sunsGravitationalParameter = getBodyGravitationalParameter( "Sun" );
-    boost::shared_ptr< GravityFieldModel > sunGravityFieldModel =
-            boost::make_shared< GravityFieldModel >( sunsGravitationalParameter );
+    std::shared_ptr< GravityFieldModel > sunGravityFieldModel =
+            std::make_shared< GravityFieldModel >( sunsGravitationalParameter );
     sun->setGravityFieldModel( sunGravityFieldModel );
 
     double moonsGravitationalParameter = getBodyGravitationalParameter( "Moon" );
-    boost::shared_ptr< GravityFieldModel > moonGravityFieldModel =
-            boost::make_shared< GravityFieldModel >( moonsGravitationalParameter );
+    std::shared_ptr< GravityFieldModel > moonGravityFieldModel =
+            std::make_shared< GravityFieldModel >( moonsGravitationalParameter );
     moon->setGravityFieldModel( moonGravityFieldModel );
 
     double earthGravitationalParameter = getBodyGravitationalParameter( "Earth" );
-    boost::shared_ptr< GravityFieldModel > earthGravityFieldModel =
-            boost::make_shared< GravityFieldModel >( earthGravitationalParameter );
+    std::shared_ptr< GravityFieldModel > earthGravityFieldModel =
+            std::make_shared< GravityFieldModel >( earthGravitationalParameter );
     earth->setGravityFieldModel( earthGravityFieldModel );
 
     // Create acceleration due to moon on earth.
-    boost::shared_ptr< ThirdBodyCentralGravityAcceleration > gravitationalAcceleration =
+    std::shared_ptr< ThirdBodyCentralGravityAcceleration > gravitationalAcceleration =
             createThirdBodyCentralGravityAccelerationModel(
                 moon, sun, earth, "Moon", "Sun", "Earth" );
 
     // Create central gravity partial.
-    boost::shared_ptr< AccelerationPartial > thirdBodyGravitationPartial =
+    std::shared_ptr< AccelerationPartial > thirdBodyGravitationPartial =
             createAnalyticalAccelerationPartial( gravitationalAcceleration, std::make_pair( "Moon", moon ),
                                                  std::make_pair( "Sun", sun ), bodyMap );
 
     // Create gravitational parameter object.
-    boost::shared_ptr< EstimatableParameter< double > > gravitationalParameterParameter = boost::make_shared<
+    std::shared_ptr< EstimatableParameter< double > > gravitationalParameterParameter = std::make_shared<
             GravitationalParameter >( sunGravityFieldModel, "Sun" );
-    boost::shared_ptr< EstimatableParameter< double > > moonGravitationalParameterParameter = boost::make_shared<
+    std::shared_ptr< EstimatableParameter< double > > moonGravitationalParameterParameter = std::make_shared<
             GravitationalParameter >( moonGravityFieldModel, "Moon" );
-    boost::shared_ptr< EstimatableParameter< double > > earthGravitationalParameterParameter = boost::make_shared<
+    std::shared_ptr< EstimatableParameter< double > > earthGravitationalParameterParameter = std::make_shared<
             GravitationalParameter >( earthGravityFieldModel, "Earth" );
 
     // Calculate analytical partials.
@@ -463,12 +463,12 @@ BOOST_AUTO_TEST_CASE( testThirdBodyGravityPartials )
     velocityPerturbation << 1.0, 1.0, 1.0;
 
     // Create state access/modification functions for bodies.
-    boost::function< void( Eigen::Vector6d ) > moonStateSetFunction =
-            boost::bind( &Body::setState, moon, _1 );
-    boost::function< void( Eigen::Vector6d ) > sunStateSetFunction =
-            boost::bind( &Body::setState, sun, _1 );
-    boost::function< void( Eigen::Vector6d ) > earthStateSetFunction =
-            boost::bind( &Body::setState, earth, _1 );
+    std::function< void( Eigen::Vector6d ) > moonStateSetFunction =
+            std::bind( &Body::setState, moon, std::placeholders::_1 );
+    std::function< void( Eigen::Vector6d ) > sunStateSetFunction =
+            std::bind( &Body::setState, sun, std::placeholders::_1 );
+    std::function< void( Eigen::Vector6d ) > earthStateSetFunction =
+            std::bind( &Body::setState, earth, std::placeholders::_1 );
 
     // Calculate numerical partials.
     testPartialWrtMoonPosition = calculateAccelerationWrtStatePartials(
@@ -513,7 +513,7 @@ BOOST_AUTO_TEST_CASE( testThirdBodyGravityPartials )
 
 
 void updateFlightConditionsWithPerturbedState(
-        const boost::shared_ptr< aerodynamics::FlightConditions > flightConditions,
+        const std::shared_ptr< aerodynamics::FlightConditions > flightConditions,
         const double timeToUpdate )
 {
     flightConditions->resetCurrentTime( TUDAT_NAN );
@@ -528,23 +528,23 @@ BOOST_AUTO_TEST_CASE( testAerodynamicAccelerationPartials )
 
     using namespace tudat;
     // Create Earth object
-    std::map< std::string, boost::shared_ptr< BodySettings > > defaultBodySettings =
-            getDefaultBodySettings( boost::assign::list_of( "Earth" ) );
-    defaultBodySettings[ "Earth" ]->ephemerisSettings = boost::make_shared< ConstantEphemerisSettings >(
+    std::map< std::string, std::shared_ptr< BodySettings > > defaultBodySettings =
+            getDefaultBodySettings( { "Earth" } );
+    defaultBodySettings[ "Earth" ]->ephemerisSettings = std::make_shared< ConstantEphemerisSettings >(
                 Eigen::Vector6d::Zero( ) );
     NamedBodyMap bodyMap = createBodies( defaultBodySettings );
 
     // Create vehicle objects.
     double vehicleMass = 5.0E3;
-    bodyMap[ "Vehicle" ] = boost::make_shared< simulation_setup::Body >( );
+    bodyMap[ "Vehicle" ] = std::make_shared< simulation_setup::Body >( );
     bodyMap[ "Vehicle" ]->setConstantBodyMass( vehicleMass );
 
 
     bool areCoefficientsInAerodynamicFrame = 1;
     Eigen::Vector3d aerodynamicCoefficients = ( Eigen::Vector3d( ) << 2.5, -0.1, 0.5 ).finished( );
 
-    boost::shared_ptr< AerodynamicCoefficientSettings > aerodynamicCoefficientSettings =
-            boost::make_shared< ConstantAerodynamicCoefficientSettings >(
+    std::shared_ptr< AerodynamicCoefficientSettings > aerodynamicCoefficientSettings =
+            std::make_shared< ConstantAerodynamicCoefficientSettings >(
                 2.0, 4.0, 1.5, Eigen::Vector3d::Zero( ), aerodynamicCoefficients, Eigen::Vector3d::Zero( ),
                 areCoefficientsInAerodynamicFrame, 1 );
     bodyMap[ "Vehicle" ]->setAerodynamicCoefficientInterface(
@@ -574,20 +574,20 @@ BOOST_AUTO_TEST_CASE( testAerodynamicAccelerationPartials )
     bodyMap.at( "Vehicle" )->setState( systemInitialState );
 
 
-    boost::shared_ptr< basic_astrodynamics::AccelerationModel3d > accelerationModel =
+    std::shared_ptr< basic_astrodynamics::AccelerationModel3d > accelerationModel =
             simulation_setup::createAerodynamicAcceleratioModel(
                 bodyMap[ "Vehicle" ], bodyMap[ "Earth" ], "Vehicle", "Earth" );
     bodyMap.at( "Vehicle" )->getFlightConditions( )->updateConditions( 0.0 );
     accelerationModel->updateMembers( 0.0 );
 
-    boost::shared_ptr< AccelerationPartial > aerodynamicAccelerationPartial =
+    std::shared_ptr< AccelerationPartial > aerodynamicAccelerationPartial =
             createAnalyticalAccelerationPartial(
                 accelerationModel, std::make_pair( "Vehicle", bodyMap[ "Vehicle" ] ),
             std::make_pair( "Earth", bodyMap[ "Earth" ] ), bodyMap );
 
     // Create gravitational parameter object.
-    boost::shared_ptr< EstimatableParameter< double > > dragCoefficientParameter = boost::make_shared<
-            ConstantDragCoefficient >( boost::dynamic_pointer_cast< aerodynamics::CustomAerodynamicCoefficientInterface >(
+    std::shared_ptr< EstimatableParameter< double > > dragCoefficientParameter = std::make_shared<
+            ConstantDragCoefficient >( std::dynamic_pointer_cast< aerodynamics::CustomAerodynamicCoefficientInterface >(
                                            bodyMap[ "Vehicle" ]->getAerodynamicCoefficientInterface( ) ), "Vehicle" );
 
     // Calculate analytical partials.
@@ -610,8 +610,8 @@ BOOST_AUTO_TEST_CASE( testAerodynamicAccelerationPartials )
     Eigen::Matrix3d testPartialWrtEarthPosition = Eigen::Matrix3d::Zero( );
     Eigen::Matrix3d testPartialWrtEarthVelocity = Eigen::Matrix3d::Zero( );
 
-    boost::function< void( ) > environmentUpdateFunction =
-            boost::bind( &updateFlightConditionsWithPerturbedState, bodyMap.at( "Vehicle" )->getFlightConditions( ), 0.0 );
+    std::function< void( ) > environmentUpdateFunction =
+            std::bind( &updateFlightConditionsWithPerturbedState, bodyMap.at( "Vehicle" )->getFlightConditions( ), 0.0 );
 
     // Declare perturbations in position for numerical partial/
     Eigen::Vector3d positionPerturbation;
@@ -620,14 +620,14 @@ BOOST_AUTO_TEST_CASE( testAerodynamicAccelerationPartials )
     velocityPerturbation << 1.0E-3, 1.0E-3, 1.0E-3;
 
     // Create state access/modification functions for bodies.
-    boost::function< void( Eigen::Vector6d ) > vehicleStateSetFunction =
-            boost::bind( &Body::setState, bodyMap.at( "Vehicle" ), _1 );
-    boost::function< void( Eigen::Vector6d ) > earthStateSetFunction =
-            boost::bind( &Body::setState, bodyMap.at( "Earth" ), _1 );
-    boost::function< Eigen::Vector6d ( ) > vehicleStateGetFunction =
-            boost::bind( &Body::getState, bodyMap.at( "Vehicle" ) );
-    boost::function< Eigen::Vector6d ( ) > earthStateGetFunction =
-            boost::bind( &Body::getState, bodyMap.at( "Earth" ) );
+    std::function< void( Eigen::Vector6d ) > vehicleStateSetFunction =
+            std::bind( &Body::setState, bodyMap.at( "Vehicle" ), std::placeholders::_1 );
+    std::function< void( Eigen::Vector6d ) > earthStateSetFunction =
+            std::bind( &Body::setState, bodyMap.at( "Earth" ), std::placeholders::_1 );
+    std::function< Eigen::Vector6d ( ) > vehicleStateGetFunction =
+            std::bind( &Body::getState, bodyMap.at( "Vehicle" ) );
+    std::function< Eigen::Vector6d ( ) > earthStateGetFunction =
+            std::bind( &Body::getState, bodyMap.at( "Earth" ) );
 
     // Calculate numerical partials.
     testPartialWrtVehiclePosition = calculateAccelerationWrtStatePartials(
@@ -664,18 +664,18 @@ BOOST_AUTO_TEST_CASE( testAerodynamicAccelerationPartials )
 BOOST_AUTO_TEST_CASE( testRelativisticAccelerationPartial )
 {
     // Create earth and vehicle bodies.
-    boost::shared_ptr< Body > earth = boost::make_shared< Body >( );
-    boost::shared_ptr< Body > vehicle = boost::make_shared< Body >( );
+    std::shared_ptr< Body > earth = std::make_shared< Body >( );
+    std::shared_ptr< Body > vehicle = std::make_shared< Body >( );
 
     // Create links to set and get state functions of bodies.
-    boost::function< void( Eigen::Vector6d ) > earthStateSetFunction =
-            boost::bind( &Body::setState, earth, _1  );
-    boost::function< void( Eigen::Vector6d ) > vehicleStateSetFunction =
-            boost::bind( &Body::setState, vehicle, _1  );
-    boost::function< Eigen::Vector6d( ) > earthStateGetFunction =
-            boost::bind( &Body::getState, earth );
-    boost::function< Eigen::Vector6d( ) > vehicleStateGetFunction =
-            boost::bind( &Body::getState, vehicle );
+    std::function< void( Eigen::Vector6d ) > earthStateSetFunction =
+            std::bind( &Body::setState, earth, std::placeholders::_1  );
+    std::function< void( Eigen::Vector6d ) > vehicleStateSetFunction =
+            std::bind( &Body::setState, vehicle, std::placeholders::_1  );
+    std::function< Eigen::Vector6d( ) > earthStateGetFunction =
+            std::bind( &Body::getState, earth );
+    std::function< Eigen::Vector6d( ) > vehicleStateGetFunction =
+            std::bind( &Body::getState, vehicle );
 
     // Load spice kernel.
     spice_interface::loadStandardSpiceKernels( );
@@ -694,31 +694,31 @@ BOOST_AUTO_TEST_CASE( testRelativisticAccelerationPartial )
     bodyMap[ "Earth" ] = earth;
 
     // Create gravity field.
-    boost::shared_ptr< GravityFieldSettings > gravityFieldSettings = boost::make_shared< GravityFieldSettings >( central_spice );
-    boost::shared_ptr< gravitation::GravityFieldModel > earthGravityField =
+    std::shared_ptr< GravityFieldSettings > gravityFieldSettings = std::make_shared< GravityFieldSettings >( central_spice );
+    std::shared_ptr< gravitation::GravityFieldModel > earthGravityField =
             createGravityFieldModel( gravityFieldSettings, "Earth", bodyMap );
     earth->setGravityFieldModel( earthGravityField );
 
     // Create acceleration model.
-    boost::function< double( ) > ppnParameterGammaFunction = boost::bind( &PPNParameterSet::getParameterGamma, ppnParameterSet );
-    boost::function< double( ) > ppnParameterBetaFunction = boost::bind( &PPNParameterSet::getParameterBeta, ppnParameterSet );
-    boost::shared_ptr< RelativisticAccelerationCorrection > accelerationModel =
-            boost::make_shared< RelativisticAccelerationCorrection >
-            ( boost::bind( &Body::getState, vehicle ),
-              boost::bind( &Body::getState, earth ),
-              boost::bind( &GravityFieldModel::getGravitationalParameter, earthGravityField ),
+    std::function< double( ) > ppnParameterGammaFunction = std::bind( &PPNParameterSet::getParameterGamma, ppnParameterSet );
+    std::function< double( ) > ppnParameterBetaFunction = std::bind( &PPNParameterSet::getParameterBeta, ppnParameterSet );
+    std::shared_ptr< RelativisticAccelerationCorrection > accelerationModel =
+            std::make_shared< RelativisticAccelerationCorrection >
+            ( std::bind( &Body::getState, vehicle ),
+              std::bind( &Body::getState, earth ),
+              std::bind( &GravityFieldModel::getGravitationalParameter, earthGravityField ),
               ppnParameterGammaFunction, ppnParameterBetaFunction );
 
     // Create acceleration partial object.
-    boost::shared_ptr< RelativisticAccelerationPartial > accelerationPartial = boost::make_shared< RelativisticAccelerationPartial >(
+    std::shared_ptr< RelativisticAccelerationPartial > accelerationPartial = std::make_shared< RelativisticAccelerationPartial >(
                 accelerationModel, "Vehicle", "Earth" );
 
     // Create parameter objects.
-    boost::shared_ptr< EstimatableParameter< double > > gravitationalParameterParameter = boost::make_shared<
+    std::shared_ptr< EstimatableParameter< double > > gravitationalParameterParameter = std::make_shared<
             GravitationalParameter >( earthGravityField, "Earth" );
-    boost::shared_ptr< EstimatableParameter< double > > ppnParameterGamma = boost::make_shared<
+    std::shared_ptr< EstimatableParameter< double > > ppnParameterGamma = std::make_shared<
             PPNParameterGamma >( ppnParameterSet );
-    boost::shared_ptr< EstimatableParameter< double > > ppnParameterBeta = boost::make_shared<
+    std::shared_ptr< EstimatableParameter< double > > ppnParameterBeta = std::make_shared<
             PPNParameterBeta >( ppnParameterSet );
 
     // Calculate analytical partials.
@@ -791,18 +791,18 @@ BOOST_AUTO_TEST_CASE( testEmpiricalAccelerationPartial )
 {
 
     // Create earth and vehicle bodies.
-    boost::shared_ptr< Body > earth = boost::make_shared< Body >( );
-    boost::shared_ptr< Body > vehicle = boost::make_shared< Body >( );
+    std::shared_ptr< Body > earth = std::make_shared< Body >( );
+    std::shared_ptr< Body > vehicle = std::make_shared< Body >( );
 
     // Create links to set and get state functions of bodies.
-    boost::function< void( Eigen::Vector6d ) > earthStateSetFunction =
-            boost::bind( &Body::setState, earth, _1  );
-    boost::function< void( Eigen::Vector6d ) > vehicleStateSetFunction =
-            boost::bind( &Body::setState, vehicle, _1  );
-    boost::function< Eigen::Vector6d( ) > earthStateGetFunction =
-            boost::bind( &Body::getState, earth );
-    boost::function< Eigen::Vector6d( ) > vehicleStateGetFunction =
-            boost::bind( &Body::getState, vehicle );
+    std::function< void( Eigen::Vector6d ) > earthStateSetFunction =
+            std::bind( &Body::setState, earth, std::placeholders::_1  );
+    std::function< void( Eigen::Vector6d ) > vehicleStateSetFunction =
+            std::bind( &Body::setState, vehicle, std::placeholders::_1  );
+    std::function< Eigen::Vector6d( ) > earthStateGetFunction =
+            std::bind( &Body::getState, earth );
+    std::function< Eigen::Vector6d( ) > vehicleStateGetFunction =
+            std::bind( &Body::getState, vehicle );
 
     // Load spice kernel.
     spice_interface::loadStandardSpiceKernels( );
@@ -821,14 +821,14 @@ BOOST_AUTO_TEST_CASE( testEmpiricalAccelerationPartial )
     bodyMap[ "Earth" ] = earth;
 
     // Create gravity field.
-    boost::shared_ptr< GravityFieldSettings > gravityFieldSettings = boost::make_shared< GravityFieldSettings >( central_spice );
-    boost::shared_ptr< gravitation::GravityFieldModel > earthGravityField =
+    std::shared_ptr< GravityFieldSettings > gravityFieldSettings = std::make_shared< GravityFieldSettings >( central_spice );
+    std::shared_ptr< gravitation::GravityFieldModel > earthGravityField =
             createGravityFieldModel( gravityFieldSettings, "Earth", bodyMap );
     earth->setGravityFieldModel( earthGravityField );
 
     // Create rotation model
-    boost::shared_ptr< ephemerides::SimpleRotationalEphemeris > simpleRotationalEphemeris =
-            boost::make_shared< ephemerides::SimpleRotationalEphemeris >(
+    std::shared_ptr< ephemerides::SimpleRotationalEphemeris > simpleRotationalEphemeris =
+            std::make_shared< ephemerides::SimpleRotationalEphemeris >(
                 spice_interface::computeRotationQuaternionBetweenFrames( "ECLIPJ2000" , "IAU_Earth", 0.0 ),
                 2.0 * mathematical_constants::PI / 86400.0,
                 1.0E7,
@@ -842,15 +842,15 @@ BOOST_AUTO_TEST_CASE( testEmpiricalAccelerationPartial )
     Eigen::Vector3d cosineAcceleration = Eigen::Vector3d( -0.0024785, 1.839, -0.73288 );
 
     // Create acceleration model.
-    boost::shared_ptr< EmpiricalAcceleration > accelerationModel =
-            boost::make_shared< EmpiricalAcceleration >
+    std::shared_ptr< EmpiricalAcceleration > accelerationModel =
+            std::make_shared< EmpiricalAcceleration >
             ( constantAcceleration, sineAcceleration, cosineAcceleration,
-              boost::bind( &Body::getState, vehicle ),
-              boost::bind( &GravityFieldModel::getGravitationalParameter, earthGravityField ),
-              boost::bind( &Body::getState, earth ) );
+              std::bind( &Body::getState, vehicle ),
+              std::bind( &GravityFieldModel::getGravitationalParameter, earthGravityField ),
+              std::bind( &Body::getState, earth ) );
 
     // Create acceleration partial object.
-    boost::shared_ptr< EmpiricalAccelerationPartial > accelerationPartial = boost::make_shared< EmpiricalAccelerationPartial >(
+    std::shared_ptr< EmpiricalAccelerationPartial > accelerationPartial = std::make_shared< EmpiricalAccelerationPartial >(
                 accelerationModel, "Vehicle", "Earth" );
 
     // Define list of empirical accelerations w.r.t. which partials are to be computed
@@ -867,7 +867,7 @@ BOOST_AUTO_TEST_CASE( testEmpiricalAccelerationPartial )
     empiricalComponentsToEstimate[ basic_astrodynamics::across_track_empirical_acceleration_component ] = allEmpiricalShapesVector;
 
     // Create time-independent empirical acceleration object.
-    boost::shared_ptr< EmpiricalAccelerationCoefficientsParameter > empiricalAccelerationParameter = boost::make_shared<
+    std::shared_ptr< EmpiricalAccelerationCoefficientsParameter > empiricalAccelerationParameter = std::make_shared<
             EmpiricalAccelerationCoefficientsParameter >( accelerationModel, "Vehicle", empiricalComponentsToEstimate );
 
     {
@@ -930,7 +930,7 @@ BOOST_AUTO_TEST_CASE( testEmpiricalAccelerationPartial )
     arcStartTimes.push_back( 2.0E4 );
     arcStartTimes.push_back( 3.0E4 );
     arcStartTimes.push_back( 7.0E4 );
-    boost::shared_ptr< ArcWiseEmpiricalAccelerationCoefficientsParameter > arcWiseEmpiricalAccelerationParameter = boost::make_shared<
+    std::shared_ptr< ArcWiseEmpiricalAccelerationCoefficientsParameter > arcWiseEmpiricalAccelerationParameter = std::make_shared<
             ArcWiseEmpiricalAccelerationCoefficientsParameter >( accelerationModel, "Vehicle", empiricalComponentsToEstimate, arcStartTimes );
 
     // Define list of times at which to test empirical acceleration
@@ -1018,18 +1018,18 @@ BOOST_AUTO_TEST_CASE( testDirectDissipationAccelerationPartial )
 {
 
     // Create bodies
-    boost::shared_ptr< Body > jupiter = boost::make_shared< Body >( );
-    boost::shared_ptr< Body > io = boost::make_shared< Body >( );
+    std::shared_ptr< Body > jupiter = std::make_shared< Body >( );
+    std::shared_ptr< Body > io = std::make_shared< Body >( );
 
     // Create links to set and get state functions of bodies.
-    boost::function< void( Eigen::Vector6d ) > ioStateSetFunction =
-            boost::bind( &Body::setState, io, _1  );
-    boost::function< void( Eigen::Vector6d ) > jupiterStateSetFunction =
-            boost::bind( &Body::setState, jupiter, _1  );
-    boost::function< Eigen::Vector6d( ) > ioStateGetFunction =
-            boost::bind( &Body::getState, io );
-    boost::function< Eigen::Vector6d( ) > jupiterStateGetFunction =
-            boost::bind( &Body::getState, jupiter );
+    std::function< void( Eigen::Vector6d ) > ioStateSetFunction =
+            std::bind( &Body::setState, io, std::placeholders::_1  );
+    std::function< void( Eigen::Vector6d ) > jupiterStateSetFunction =
+            std::bind( &Body::setState, jupiter, std::placeholders::_1  );
+    std::function< Eigen::Vector6d( ) > ioStateGetFunction =
+            std::bind( &Body::getState, io );
+    std::function< Eigen::Vector6d( ) > jupiterStateGetFunction =
+            std::bind( &Body::getState, jupiter );
 
     // Load spice kernel.
     spice_interface::loadStandardSpiceKernels( );
@@ -1053,24 +1053,24 @@ BOOST_AUTO_TEST_CASE( testDirectDissipationAccelerationPartial )
     Eigen::MatrixXd sineCoefficients = Eigen::MatrixXd::Zero( 3, 3 );
 
     // Create jupiter gravity field.
-    boost::shared_ptr< GravityFieldSettings > jupiterGravityFieldSettings = boost::make_shared< SphericalHarmonicsGravityFieldSettings >
+    std::shared_ptr< GravityFieldSettings > jupiterGravityFieldSettings = std::make_shared< SphericalHarmonicsGravityFieldSettings >
             ( getBodyGravitationalParameter( "Jupiter" ), getAverageRadius( "Jupiter" ),
               cosineCoefficients, sineCoefficients, "IAU_Jupiter" );
-    boost::shared_ptr< gravitation::GravityFieldModel > jupiterGravityField =
+    std::shared_ptr< gravitation::GravityFieldModel > jupiterGravityField =
             createGravityFieldModel( jupiterGravityFieldSettings, "Jupiter", bodyMap );
     jupiter->setGravityFieldModel( jupiterGravityField );
 
     // Create io gravity field.
-    boost::shared_ptr< GravityFieldSettings > ioGravityFieldSettings = boost::make_shared< SphericalHarmonicsGravityFieldSettings >
+    std::shared_ptr< GravityFieldSettings > ioGravityFieldSettings = std::make_shared< SphericalHarmonicsGravityFieldSettings >
             ( getBodyGravitationalParameter( "Io" ), getAverageRadius( "Io" ),
               cosineCoefficients, sineCoefficients, "IAU_Io" );
-    boost::shared_ptr< gravitation::GravityFieldModel > ioGravityField =
+    std::shared_ptr< gravitation::GravityFieldModel > ioGravityField =
             createGravityFieldModel( ioGravityFieldSettings, "Io", bodyMap );
     io->setGravityFieldModel( ioGravityField );
 
     // Create rotation model
-    boost::shared_ptr< ephemerides::SimpleRotationalEphemeris > simpleRotationalEphemeris =
-            boost::make_shared< ephemerides::SimpleRotationalEphemeris >(
+    std::shared_ptr< ephemerides::SimpleRotationalEphemeris > simpleRotationalEphemeris =
+            std::make_shared< ephemerides::SimpleRotationalEphemeris >(
                 Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) ),
                 2.0 * mathematical_constants::PI / ( 9.925 * 3600.0 ), 0.0,
                 "ECLIPJ2000" , "IAU_Jupiter" );
@@ -1085,24 +1085,25 @@ BOOST_AUTO_TEST_CASE( testDirectDissipationAccelerationPartial )
         {
 
             // Create acceleration model.
-            boost::shared_ptr< gravitation::DirectTidalDissipationAcceleration > accelerationModel =
-                    boost::dynamic_pointer_cast<  gravitation::DirectTidalDissipationAcceleration >(
+            std::shared_ptr< gravitation::DirectTidalDissipationAcceleration > accelerationModel =
+                    std::dynamic_pointer_cast<  gravitation::DirectTidalDissipationAcceleration >(
                         simulation_setup::createAccelerationModel(
-                            io, jupiter, boost::make_shared< simulation_setup::DirectTidalDissipationAccelerationSettings >(
+                            io, jupiter, std::make_shared< simulation_setup::DirectTidalDissipationAccelerationSettings >(
                                 loveNumber, timeLag, useRadialTerm, usePlanetTide ) , "Io", "Jupiter" ) );
 
             // Create acceleration partial object.
-            boost::shared_ptr< acceleration_partials::DirectTidalDissipationAccelerationPartial > accelerationPartial =
-                    boost::make_shared< acceleration_partials::DirectTidalDissipationAccelerationPartial >(
+            std::shared_ptr< acceleration_partials::DirectTidalDissipationAccelerationPartial > accelerationPartial =
+                    std::make_shared< acceleration_partials::DirectTidalDissipationAccelerationPartial >(
                         accelerationModel, "Io", "Jupiter" );
 
             // Create gravitational parameter object.
-            boost::shared_ptr< EstimatableParameter< double > > jupiterGravitationalParameterParameter = boost::make_shared<
+            std::shared_ptr< EstimatableParameter< double > > jupiterGravitationalParameterParameter = std::make_shared<
                     GravitationalParameter >( jupiterGravityField, "Jupiter" );
-            boost::shared_ptr< EstimatableParameter< double > > ioGravitationalParameterParameter = boost::make_shared<
+            std::shared_ptr< EstimatableParameter< double > > ioGravitationalParameterParameter = std::make_shared<
                     GravitationalParameter >( ioGravityField, "Io" );
-            boost::shared_ptr< EstimatableParameter< double > > tidalTimeLagParameter = boost::make_shared<
-                    DirectTidalTimeLag >( boost::assign::list_of( accelerationModel ), ( usePlanetTide ) ? "Jupiter" : "Io" );
+            std::shared_ptr< EstimatableParameter< double > > tidalTimeLagParameter = std::make_shared< DirectTidalTimeLag >(
+                        std::vector< std::shared_ptr< gravitation::DirectTidalDissipationAcceleration > >{ accelerationModel },
+                        usePlanetTide ? "Jupiter" : "Io" );
 
 
             {
@@ -1176,9 +1177,9 @@ BOOST_AUTO_TEST_CASE( testDirectDissipationAccelerationPartial )
                                                    partialWrtTidalTimeLag, 1.0e-6 );
 
 
-//                std::cout << testPartialWrtTidalTimeLag << std::endl << std::endl << partialWrtTidalTimeLag
-//                        << std::endl << std::endl << ( partialWrtTidalTimeLag  - testPartialWrtTidalTimeLag ).cwiseQuotient(
-//                              testPartialWrtTidalTimeLag ) << std::endl << std::endl << std::endl;
+                //                std::cout << testPartialWrtTidalTimeLag << std::endl << std::endl << partialWrtTidalTimeLag
+                //                        << std::endl << std::endl << ( partialWrtTidalTimeLag  - testPartialWrtTidalTimeLag ).cwiseQuotient(
+                //                              testPartialWrtTidalTimeLag ) << std::endl << std::endl << std::endl;
 
 
             }

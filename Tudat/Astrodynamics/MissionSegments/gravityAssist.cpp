@@ -169,16 +169,16 @@ double gravityAssist( const double centralBodyGravitationalParameter,
                                                                    bendingAngle );
 
         // Create an object containing the function of which we whish to obtain the root from.
-        UnivariateProxyPointer rootFunction = boost::make_shared< UnivariateProxy >(
-                    boost::bind( &EccentricityFindingFunctions::
+        UnivariateProxyPointer rootFunction = std::make_shared< UnivariateProxy >(
+                    std::bind( &EccentricityFindingFunctions::
                                  computeIncomingEccentricityFunction,
-                                 eccentricityFindingFunctions, _1 ) );
+                                 eccentricityFindingFunctions, std::placeholders::_1 ) );
 
         // Add the first derivative of the root function.
-        rootFunction->addBinding( -1, boost::bind(
+        rootFunction->addBinding( -1, std::bind(
                                       &EccentricityFindingFunctions::
                                       computeFirstDerivativeIncomingEccentricityFunction,
-                                      eccentricityFindingFunctions, _1 ) );
+                                      eccentricityFindingFunctions, std::placeholders::_1 ) );
 
         // Initialize incoming eccentricity.
         double incomingEccentricity = TUDAT_NAN;
@@ -197,7 +197,7 @@ double gravityAssist( const double centralBodyGravitationalParameter,
             catch(std::runtime_error)
             {
                 root_finders::RootFinderPointer rootFinder_temp
-                  = boost::make_shared< root_finders::Bisection >( 1.0e-12, 1000 ) ;
+                  = std::make_shared< root_finders::Bisection >( 1.0e-12, 1000 ) ;
                 incomingEccentricity = rootFinder_temp->execute( rootFunction, 1.0 + 1.0e-2 );
 
             }
@@ -215,7 +215,7 @@ double gravityAssist( const double centralBodyGravitationalParameter,
             catch(std::runtime_error)
             {
                 root_finders::RootFinderPointer rootFinder_temp
-                  = boost::make_shared< root_finders::Bisection >( 1.0e-12, 1000 ) ;
+                  = std::make_shared< root_finders::Bisection >( 1.0e-12, 1000 ) ;
                 incomingEccentricity = rootFinder_temp->execute( rootFunction, 1.0 + 1.0e-10 );
 
             }
@@ -242,7 +242,7 @@ double gravityAssist( const double centralBodyGravitationalParameter,
     // parameter.
     else
     {
-        // Compute semi-major axis of hyperbolic legs. This is the absolute semi major axis, because
+        // Compute semi-major axis of hyperbolic legs. This is the absolute semi-major axis, because
         // it will otherwisely result in the root of a negative function for various cases during
         // the rootfinding process.
         const double absoluteIncomingSemiMajorAxis = 1.0 * centralBodyGravitationalParameter /
@@ -258,14 +258,14 @@ double gravityAssist( const double centralBodyGravitationalParameter,
                                                                bendingAngle);
 
         // Create an object containing the function of which we whish to obtain the root from.
-        UnivariateProxyPointer rootFunction = boost::make_shared< UnivariateProxy >(
-                    boost::bind( &PericenterFindingFunctions::computePericenterRadiusFunction,
-                                 pericenterFindingFunctions, _1 ) );
+        UnivariateProxyPointer rootFunction = std::make_shared< UnivariateProxy >(
+                    std::bind( &PericenterFindingFunctions::computePericenterRadiusFunction,
+                                 pericenterFindingFunctions, std::placeholders::_1 ) );
 
         // Add the first derivative of the root function.
-        rootFunction->addBinding( -1, boost::bind( &PericenterFindingFunctions::
+        rootFunction->addBinding( -1, std::bind( &PericenterFindingFunctions::
                                                    computeFirstDerivativePericenterRadiusFunction,
-                                                   pericenterFindingFunctions, _1 ) );
+                                                   pericenterFindingFunctions, std::placeholders::_1 ) );
 
         // Set pericenter radius based on result of Newton-Raphson root-finding algorithm.
         std::cout<<"here3"<<std::endl;

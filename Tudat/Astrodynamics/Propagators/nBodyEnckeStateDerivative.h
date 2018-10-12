@@ -68,7 +68,7 @@ public:
      *  \param initialTime Time at which the initialKeplerElements provide the orbital state.
      */
     NBodyEnckeStateDerivative( const basic_astrodynamics::AccelerationMap& accelerationModelsPerBody,
-                               const boost::shared_ptr< CentralBodyData< StateScalarType, TimeType > > centralBodyData,
+                               const std::shared_ptr< CentralBodyData< StateScalarType, TimeType > > centralBodyData,
                                const std::vector< std::string >& bodiesToIntegrate,
                                const std::vector< Eigen::Matrix< StateScalarType, 6, 1 > >& initialKeplerElements,
                                const TimeType& initialTime ):
@@ -90,14 +90,14 @@ public:
                     this->accelerationModelsPerBody_ );
 
         // Create root-finder for Kepler orbit propagation
-        rootFinder_ = boost::make_shared< root_finders::NewtonRaphsonCore< StateScalarType > >(
-                    boost::bind( &root_finders::termination_conditions::
+        rootFinder_ = std::make_shared< root_finders::NewtonRaphsonCore< StateScalarType > >(
+                    std::bind( &root_finders::termination_conditions::
                                  RootAbsoluteToleranceTerminationCondition< StateScalarType >::
                                  checkTerminationCondition,
-                                 boost::make_shared< root_finders::termination_conditions::
+                                 std::make_shared< root_finders::termination_conditions::
                                  RootAbsoluteToleranceTerminationCondition< StateScalarType > >(
                                      20.0 * std::numeric_limits< StateScalarType >::epsilon( ), 1000 ),
-                                 _1, _2, _3, _4, _5 ) );
+                                 std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5 ) );
         this->createAccelerationModelList( );
     }
 
@@ -273,7 +273,7 @@ private:
     }
 
     //!  Gravitational parameters of central bodies used to convert Cartesian to Keplerian orbits, and vice versa
-    std::vector< boost::function< double( ) > > centralBodyGravitationalParameters_;
+    std::vector< std::function< double( ) > > centralBodyGravitationalParameters_;
 
     //!  Kepler elements of bodiesToIntegrate, valid at initialTime_.
     std::vector< Eigen::Matrix< StateScalarType, 6, 1 > > initialKeplerElements_;
@@ -282,11 +282,11 @@ private:
     TimeType initialTime_ ;
 
     //! Central body accelerations for each propagated body, which has been removed from accelerationModelsPerBody_/
-    std::vector< boost::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > >
+    std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > >
     centralAccelerations_;
 
     //! Root finder used to propagate Kepler orbit.
-    boost::shared_ptr< root_finders::RootFinderCore< StateScalarType > > rootFinder_;
+    std::shared_ptr< root_finders::RootFinderCore< StateScalarType > > rootFinder_;
 
     //! Current Cartesian states of reference Kepler orbits, valid at currentKeplerOrbitTime_, computed by
     //! calculateKeplerTrajectoryCartesianStates
@@ -301,6 +301,13 @@ private:
 
 };
 
+extern template class NBodyEnckeStateDerivative< double, double >;
+
+#if( BUILD_EXTENDED_PRECISION_PROPAGATION_TOOLS )
+extern template class NBodyEnckeStateDerivative< long double, double >;
+extern template class NBodyEnckeStateDerivative< double, Time >;
+extern template class NBodyEnckeStateDerivative< long double, Time >;
+#endif
 
 } // namespace propagators
 

@@ -97,7 +97,7 @@ public:
                            const IndependentVariableType initialTime,
                            const DependentVector& initialStateVector,
                            const DependentMatrix& initialCovarianceMatrix,
-                           const boost::shared_ptr< IntegratorSettings > integratorSettings = nullptr,
+                           const std::shared_ptr< IntegratorSettings > integratorSettings = nullptr,
                            const ConstantParameterReferences constantValueReference = reference_Wan_and_Van_der_Merwe,
                            const std::pair< DependentVariableType, DependentVariableType > customConstantParameters =
             std::make_pair( static_cast< DependentVariableType >( TUDAT_NAN ),
@@ -227,7 +227,7 @@ private:
     //! Function to create the function that defines the system model.
     /*!
      *  Function to create the function that defines the system model. The output of this function is then bound
-     *  to the systemFunction_ variable, via the boost::bind command.
+     *  to the systemFunction_ variable, via the std::bind command.
      *  \param currentTime Scalar representing the current time.
      *  \param currentStateVector Vector representing the current state.
      *  \return Vector representing the estimated state.
@@ -242,7 +242,7 @@ private:
     //! Function to create the function that defines the system model.
     /*!
      *  Function to create the function that defines the system model. The output of this function is then bound
-     *  to the measurementFunction_ variable, via the boost::bind command.
+     *  to the measurementFunction_ variable, via the std::bind command.
      *  \param currentTime Scalar representing the current time.
      *  \param currentStateVector Vector representing the current state.
      *  \return Vector representing the estimated measurement.
@@ -489,7 +489,7 @@ private:
 typedef UnscentedKalmanFilter< > UnscentedKalmanFilterDouble;
 
 //! Typedef for a shared-pointer to a filter with double data type.
-typedef boost::shared_ptr< UnscentedKalmanFilterDouble > UnscentedKalmanFilterDoublePointer;
+typedef std::shared_ptr< UnscentedKalmanFilterDouble > UnscentedKalmanFilterDoublePointer;
 
 //! Function to set the values of the constant parameters.
 template< typename IndependentVariableType, typename DependentVariableType >

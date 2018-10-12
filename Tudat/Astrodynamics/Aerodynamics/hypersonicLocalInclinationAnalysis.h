@@ -24,7 +24,7 @@
 
 #include <boost/array.hpp>
 #include <boost/multi_array.hpp>
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include <Eigen/Core>
 
@@ -102,7 +102,7 @@ public:
      */
     HypersonicLocalInclinationAnalysis(
             const std::vector< std::vector< double > >& dataPointsOfIndependentVariables,
-            const boost::shared_ptr< SurfaceGeometry > inputVehicleSurface,
+            const std::shared_ptr< SurfaceGeometry > inputVehicleSurface,
             const std::vector< int >& numberOfLines,
             const std::vector< int >& numberOfPoints,
             const std::vector< bool >& invertOrders,
@@ -155,11 +155,12 @@ public:
      * \param vehicleIndex Index in vehicleParts_ to be retrieved.
      * \return Requested vehicle part.
      */
-    boost::shared_ptr< geometric_shapes::LawgsPartGeometry > getVehiclePart(
-            const int vehicleIndex ) const
-    {
-        return vehicleParts_[ vehicleIndex ];
-    }
+     std::shared_ptr< geometric_shapes::LawgsPartGeometry > getVehiclePart(
+             const int vehicleIndex ) const
+     {
+         return vehicleParts_[ vehicleIndex ];
+     }
+
 
     //! Overload ostream to print class information.
     /*!
@@ -254,7 +255,7 @@ private:
     /*!
      * Array of vehicle parts.
      */
-    std::vector< boost::shared_ptr< geometric_shapes::LawgsPartGeometry > > vehicleParts_;
+    std::vector< std::shared_ptr< geometric_shapes::LawgsPartGeometry > > vehicleParts_;
 
     //! Multi-array as which indicates which coefficients have been calculated already.
     /*!
@@ -306,7 +307,7 @@ private:
 };
 
 //! Typedef for shared-pointer to HypersonicLocalInclinationAnalysis object.
-typedef boost::shared_ptr< HypersonicLocalInclinationAnalysis >
+typedef std::shared_ptr< HypersonicLocalInclinationAnalysis >
 HypersonicLocalInclinationAnalysisPointer;
 
 } // namespace aerodynamics

@@ -14,7 +14,7 @@
 #include <limits>
 
 #include <boost/make_shared.hpp>
-#include <boost/shared_ptr.hpp>
+#include <memory>
 #include <boost/lambda/lambda.hpp>
 #include <boost/test/floating_point_comparison.hpp>
 #include <boost/test/unit_test.hpp>
@@ -33,6 +33,7 @@
 #include "Tudat/SimulationSetup/EnvironmentSetup/body.h"
 #include "Tudat/SimulationSetup/PropagationSetup/createNumericalSimulator.h"
 #include "Tudat/SimulationSetup/EnvironmentSetup/defaultBodies.h"
+
 namespace tudat
 {
 
@@ -66,23 +67,23 @@ BOOST_AUTO_TEST_CASE( testWindModelInPropagation )
     spice_interface::loadStandardSpiceKernels( );
 
     // Create Earth object
-    std::map< std::string, boost::shared_ptr< BodySettings > > defaultBodySettings =
-            getDefaultBodySettings( boost::assign::list_of( "Earth" ), -1.0E6, 1.0E6 );
-    defaultBodySettings[ "Earth" ]->ephemerisSettings = boost::make_shared< ConstantEphemerisSettings >(
+    std::map< std::string, std::shared_ptr< BodySettings > > defaultBodySettings =
+            getDefaultBodySettings( { "Earth" }, -1.0E6, 1.0E6 );
+    defaultBodySettings[ "Earth" ]->ephemerisSettings = std::make_shared< ConstantEphemerisSettings >(
                 Eigen::Vector6d::Zero( ) );
     defaultBodySettings[ "Earth" ]->atmosphereSettings->setWindSettings(
-                boost::make_shared< CustomWindModelSettings >(
-                    boost::bind( &getCustomWindVector, _1, _2, _3, _4 ) ) );
+                std::make_shared< CustomWindModelSettings >(
+                    std::bind( &getCustomWindVector, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4 ) ) );
     NamedBodyMap bodyMap = createBodies( defaultBodySettings );
 
     // Create vehicle object.
     double vehicleMass = 5.0E3;
-    bodyMap[ "Vehicle" ] = boost::make_shared< simulation_setup::Body >( );
+    bodyMap[ "Vehicle" ] = std::make_shared< simulation_setup::Body >( );
     bodyMap[ "Vehicle" ]->setConstantBodyMass( vehicleMass );
 
     // Set aerodynamic coefficients.
-    boost::shared_ptr< AerodynamicCoefficientSettings > aerodynamicCoefficientSettings =
-            boost::make_shared< ConstantAerodynamicCoefficientSettings >(
+    std::shared_ptr< AerodynamicCoefficientSettings > aerodynamicCoefficientSettings =
+            std::make_shared< ConstantAerodynamicCoefficientSettings >(
                 2.0, 4.0, 1.5, Eigen::Vector3d::Zero( ), Eigen::Vector3d::UnitX( ), Eigen::Vector3d::Zero( ), 1, 1 );
     bodyMap[ "Vehicle" ]->setAerodynamicCoefficientInterface(
                 createAerodynamicCoefficientInterface( aerodynamicCoefficientSettings, "Vehicle" ) );
@@ -94,9 +95,9 @@ BOOST_AUTO_TEST_CASE( testWindModelInPropagation )
     SelectedAccelerationMap accelerationMap;
     std::vector< std::string > bodiesToPropagate;
     std::vector< std::string > centralBodies;
-    std::map< std::string, std::vector< boost::shared_ptr< AccelerationSettings > > > accelerationsOfVehicle;
-    accelerationsOfVehicle[ "Earth" ].push_back( boost::make_shared< AccelerationSettings >( central_gravity ) );
-    accelerationsOfVehicle[ "Earth" ].push_back( boost::make_shared< AccelerationSettings >( aerodynamic ) );
+    std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfVehicle;
+    accelerationsOfVehicle[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( central_gravity ) );
+    accelerationsOfVehicle[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( aerodynamic ) );
     accelerationMap[ "Vehicle" ] = accelerationsOfVehicle;
     bodiesToPropagate.push_back( "Vehicle" );
     centralBodies.push_back( "Earth" );
@@ -111,43 +112,43 @@ BOOST_AUTO_TEST_CASE( testWindModelInPropagation )
                 bodyMap, accelerationMap, bodiesToPropagate, centralBodies );
 
     // Set variables to save
-    boost::shared_ptr< DependentVariableSaveSettings > dependentVariableSaveSettings;
-    std::vector< boost::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariables;
+    std::shared_ptr< DependentVariableSaveSettings > dependentVariableSaveSettings;
+    std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariables;
     dependentVariables.push_back(
-                boost::make_shared< SingleDependentVariableSaveSettings >(
+                std::make_shared< SingleDependentVariableSaveSettings >(
                     altitude_dependent_variable, "Vehicle", "Earth" ) );
     dependentVariables.push_back(
-                boost::make_shared< BodyAerodynamicAngleVariableSaveSettings >(
+                std::make_shared< BodyAerodynamicAngleVariableSaveSettings >(
                     "Vehicle", reference_frames::longitude_angle ) );
     dependentVariables.push_back(
-                boost::make_shared< BodyAerodynamicAngleVariableSaveSettings >(
+                std::make_shared< BodyAerodynamicAngleVariableSaveSettings >(
                     "Vehicle", reference_frames::latitude_angle ) );
     dependentVariables.push_back(
-                boost::make_shared< SingleDependentVariableSaveSettings >(
+                std::make_shared< SingleDependentVariableSaveSettings >(
                     local_density_dependent_variable, "Vehicle", "Earth" ) );
     dependentVariables.push_back(
-                boost::make_shared< SingleDependentVariableSaveSettings >(
+                std::make_shared< SingleDependentVariableSaveSettings >(
                     airspeed_dependent_variable, "Vehicle", "Earth" ) );
     dependentVariables.push_back(
-                boost::make_shared< SingleDependentVariableSaveSettings >(
+                std::make_shared< SingleDependentVariableSaveSettings >(
                     body_fixed_airspeed_based_velocity_variable, "Vehicle" ) );
     dependentVariables.push_back(
-                boost::make_shared< SingleDependentVariableSaveSettings >(
+                std::make_shared< SingleDependentVariableSaveSettings >(
                     body_fixed_groundspeed_based_velocity_variable, "Vehicle" ) );
     dependentVariables.push_back(
-                boost::make_shared< SingleAccelerationDependentVariableSaveSettings >(
+                std::make_shared< SingleAccelerationDependentVariableSaveSettings >(
                     aerodynamic, "Vehicle", "Earth", 0 ) );
-    dependentVariableSaveSettings = boost::make_shared< DependentVariableSaveSettings >( dependentVariables );
+    dependentVariableSaveSettings = std::make_shared< DependentVariableSaveSettings >( dependentVariables );
 
     // Set propagation/integration settings
-    boost::shared_ptr< PropagationTimeTerminationSettings > terminationSettings =
-            boost::make_shared< propagators::PropagationTimeTerminationSettings >( 1000.0 );
-    boost::shared_ptr< TranslationalStatePropagatorSettings< double > > translationalPropagatorSettings =
-            boost::make_shared< TranslationalStatePropagatorSettings< double > >
+    std::shared_ptr< PropagationTimeTerminationSettings > terminationSettings =
+            std::make_shared< propagators::PropagationTimeTerminationSettings >( 1000.0 );
+    std::shared_ptr< TranslationalStatePropagatorSettings< double > > translationalPropagatorSettings =
+            std::make_shared< TranslationalStatePropagatorSettings< double > >
             ( centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState, terminationSettings,
               cowell, dependentVariableSaveSettings );
-    boost::shared_ptr< IntegratorSettings< > > integratorSettings =
-            boost::make_shared< IntegratorSettings< > >
+    std::shared_ptr< IntegratorSettings< > > integratorSettings =
+            std::make_shared< IntegratorSettings< > >
             ( rungeKutta4, 0.0, 5.0 );
 
     // Create simulation object and propagate dynamics.
@@ -162,12 +163,12 @@ BOOST_AUTO_TEST_CASE( testWindModelInPropagation )
 
 
     // Get function to transform aerodynamic coefficients to inertial frame
-    boost::function< Eigen::Vector3d( const Eigen::Vector3d& ) > toPropagationFrameTransformation;
+    std::function< Eigen::Vector3d( const Eigen::Vector3d& ) > toPropagationFrameTransformation;
     toPropagationFrameTransformation =
             reference_frames::getAerodynamicForceTransformationFunction(
                 bodyMap.at( "Vehicle" )->getFlightConditions( )->getAerodynamicAngleCalculator( ),
                 reference_frames::aerodynamic_frame,
-                boost::bind( &Body::getCurrentRotationToGlobalFrame, bodyMap.at( "Earth" ) ),
+                std::bind( &Body::getCurrentRotationToGlobalFrame, bodyMap.at( "Earth" ) ),
                 reference_frames::inertial_frame );
 
     // Iterate over all time steps and compute test quantities
@@ -197,7 +198,7 @@ BOOST_AUTO_TEST_CASE( testWindModelInPropagation )
         // Manually compute aerodynamic acceleration vector
         Eigen::Vector3d airSpeedVelocityUnitVectorInInertialFrame =
                 reference_frames::transformVectorFunctionFromVectorFunctions(
-                    boost::lambda::constant( Eigen::Vector3d::UnitX( ) ), toPropagationFrameTransformation );
+                    [ & ]( ){ return Eigen::Vector3d::UnitX( ); }, toPropagationFrameTransformation );
         Eigen::Vector3d expectedAerodynamicAcceleration = -0.5 * localDensity * airspeed * airspeed *
                 airSpeedVelocityUnitVectorInInertialFrame * 4.0 / vehicleMass;
 

@@ -57,7 +57,7 @@ public:
                    const Eigen::Vector3d& departureBodyVelocity,
                    const double centralBodyGravitationalParameter,
                    double swingbyBodyGravitationalParameter,
-                   boost::shared_ptr< Eigen::Vector3d > velocityBeforeDepartureBodyPtr,
+                   std::shared_ptr< Eigen::Vector3d > velocityBeforeDepartureBodyPtr,
                    const double minimumPericenterRadius
                    ):
         SwingbyLeg( departureBodyPosition,

@@ -12,7 +12,6 @@
 
 #include <boost/make_shared.hpp>
 #include <boost/lambda/lambda.hpp>
-#include <boost/assign/list_of.hpp>
 
 #include "Tudat/Mathematics/BasicMathematics/coordinateConversions.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/physicalConstants.h"
@@ -30,13 +29,13 @@ using namespace ephemerides;
 using namespace gravitation;
 
 //! Function that determines the order in which bodies are to be created
-std::vector< std::pair< std::string, boost::shared_ptr< BodySettings > > > determineBodyCreationOrder(
-        const std::map< std::string, boost::shared_ptr< BodySettings > >& bodySettings )
+std::vector< std::pair< std::string, std::shared_ptr< BodySettings > > > determineBodyCreationOrder(
+        const std::map< std::string, std::shared_ptr< BodySettings > >& bodySettings )
 {
-    std::vector< std::pair< std::string, boost::shared_ptr< BodySettings > > > outputVector;
+    std::vector< std::pair< std::string, std::shared_ptr< BodySettings > > > outputVector;
 
     // Create vector of pairs (body name and body settings) that is to be created.
-    for( std::map< std::string, boost::shared_ptr< BodySettings > >::const_iterator bodyIterator
+    for( std::map< std::string, std::shared_ptr< BodySettings > >::const_iterator bodyIterator
          = bodySettings.begin( );
          bodyIterator != bodySettings.end( ); bodyIterator ++ )
     {
@@ -49,9 +48,9 @@ std::vector< std::pair< std::string, boost::shared_ptr< BodySettings > > > deter
 
 //! Function to create a map of bodies objects.
 NamedBodyMap createBodies(
-        const std::map< std::string, boost::shared_ptr< BodySettings > >& bodySettings )
+        const std::map< std::string, std::shared_ptr< BodySettings > >& bodySettings )
 {
-    std::vector< std::pair< std::string, boost::shared_ptr< BodySettings > > > orderedBodySettings
+    std::vector< std::pair< std::string, std::shared_ptr< BodySettings > > > orderedBodySettings
             = determineBodyCreationOrder( bodySettings );
 
     // Declare map of bodies that is to be returned.
@@ -60,7 +59,7 @@ NamedBodyMap createBodies(
     // Create empty body objects.
     for( unsigned int i = 0; i < orderedBodySettings.size( ); i++ )
     {
-        bodyMap[ orderedBodySettings.at( i ).first ] = boost::make_shared< Body >( );
+        bodyMap[ orderedBodySettings.at( i ).first ] = std::make_shared< Body >( );
     }
 
     // Define constant mass for each body (if required).
@@ -76,7 +75,7 @@ NamedBodyMap createBodies(
     // Create ephemeris objects for each body (if required).
     for( unsigned int i = 0; i < orderedBodySettings.size( ); i++ )
     {
-        if( orderedBodySettings.at( i ).second->ephemerisSettings != NULL )
+        if( orderedBodySettings.at( i ).second->ephemerisSettings != nullptr )
         {
             bodyMap[ orderedBodySettings.at( i ).first ]->setEphemeris(
                         createBodyEphemeris( orderedBodySettings.at( i ).second->ephemerisSettings,
@@ -87,7 +86,7 @@ NamedBodyMap createBodies(
     // Create atmosphere model objects for each body (if required).
     for( unsigned int i = 0; i < orderedBodySettings.size( ); i++ )
     {
-        if( orderedBodySettings.at( i ).second->atmosphereSettings != NULL )
+        if( orderedBodySettings.at( i ).second->atmosphereSettings != nullptr )
         {
             bodyMap[ orderedBodySettings.at( i ).first ]->setAtmosphereModel(
                         createAtmosphereModel( orderedBodySettings.at( i ).second->atmosphereSettings,
@@ -98,7 +97,7 @@ NamedBodyMap createBodies(
     // Create body shape model objects for each body (if required).
     for( unsigned int i = 0; i < orderedBodySettings.size( ); i++ )
     {
-        if( orderedBodySettings.at( i ).second->shapeModelSettings != NULL )
+        if( orderedBodySettings.at( i ).second->shapeModelSettings != nullptr )
         {
             bodyMap[ orderedBodySettings.at( i ).first ]->setShapeModel(
                         createBodyShapeModel( orderedBodySettings.at( i ).second->shapeModelSettings,
@@ -109,7 +108,7 @@ NamedBodyMap createBodies(
     // Create rotation model objects for each body (if required).
     for( unsigned int i = 0; i < orderedBodySettings.size( ); i++ )
     {
-        if( orderedBodySettings.at( i ).second->rotationModelSettings != NULL )
+        if( orderedBodySettings.at( i ).second->rotationModelSettings != nullptr )
         {
             bodyMap[ orderedBodySettings.at( i ).first ]->setRotationalEphemeris(
                         createRotationModel( orderedBodySettings.at( i ).second->rotationModelSettings,
@@ -120,7 +119,7 @@ NamedBodyMap createBodies(
     // Create gravity field model objects for each body (if required).
     for( unsigned int i = 0; i < orderedBodySettings.size( ); i++ )
     {
-        if( orderedBodySettings.at( i ).second->gravityFieldSettings != NULL )
+        if( orderedBodySettings.at( i ).second->gravityFieldSettings != nullptr )
         {
             bodyMap[ orderedBodySettings.at( i ).first ]->setGravityFieldModel(
                         createGravityFieldModel( orderedBodySettings.at( i ).second->gravityFieldSettings,
@@ -143,7 +142,7 @@ NamedBodyMap createBodies(
     // Create aerodynamic coefficient interface objects for each body (if required).
     for( unsigned int i = 0; i < orderedBodySettings.size( ); i++ )
     {
-        if( orderedBodySettings.at( i ).second->aerodynamicCoefficientSettings != NULL )
+        if( orderedBodySettings.at( i ).second->aerodynamicCoefficientSettings != nullptr )
         {
             bodyMap[ orderedBodySettings.at( i ).first ]->setAerodynamicCoefficientInterface(
                         createAerodynamicCoefficientInterface(
@@ -156,10 +155,10 @@ NamedBodyMap createBodies(
     // Create radiation pressure coefficient objects for each body (if required).
     for( unsigned int i = 0; i < orderedBodySettings.size( ); i++ )
     {
-        std::map< std::string, boost::shared_ptr< RadiationPressureInterfaceSettings > >
+        std::map< std::string, std::shared_ptr< RadiationPressureInterfaceSettings > >
                 radiationPressureSettings
                 = orderedBodySettings.at( i ).second->radiationPressureSettings;
-        for( std::map< std::string, boost::shared_ptr< RadiationPressureInterfaceSettings > >::iterator
+        for( std::map< std::string, std::shared_ptr< RadiationPressureInterfaceSettings > >::iterator
              radiationPressureSettingsIterator = radiationPressureSettings.begin( );
              radiationPressureSettingsIterator != radiationPressureSettings.end( );
              radiationPressureSettingsIterator++ )

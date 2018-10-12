@@ -55,16 +55,16 @@ BOOST_AUTO_TEST_CASE( test_json_thrust_directionMagnitude )
     using namespace tudat::json_interface;
 
     // Create ThrustAccelerationSettings from JSON file
-    const boost::shared_ptr< ThrustAccelerationSettings > fromFileSettings =
-            parseJSONFile< boost::shared_ptr< ThrustAccelerationSettings > >( INPUT( "directionMagnitude" ) );
+    const std::shared_ptr< ThrustAccelerationSettings > fromFileSettings =
+            parseJSONFile< std::shared_ptr< ThrustAccelerationSettings > >( INPUT( "directionMagnitude" ) );
 
     // Create ThrustAccelerationSettings manually
-    const boost::shared_ptr< ThrustDirectionFromStateGuidanceSettings > directionSettings =
-            boost::make_shared< ThrustDirectionFromStateGuidanceSettings >( "Mercury", true, false );
-    const boost::shared_ptr< FromBodyThrustEngineSettings > magnitudeSettings =
-            boost::make_shared< FromBodyThrustEngineSettings >( false, "booster" );
-    const boost::shared_ptr< ThrustAccelerationSettings > manualSettings =
-            boost::make_shared< ThrustAccelerationSettings >( directionSettings,
+    const std::shared_ptr< ThrustDirectionFromStateGuidanceSettings > directionSettings =
+            std::make_shared< ThrustDirectionFromStateGuidanceSettings >( "Mercury", true, false );
+    const std::shared_ptr< FromBodyThrustMagnitudeSettings > magnitudeSettings =
+            std::make_shared< FromBodyThrustMagnitudeSettings >( false, "booster" );
+    const std::shared_ptr< ThrustAccelerationSettings > manualSettings =
+            std::make_shared< ThrustAccelerationSettings >( directionSettings,
                                                               magnitudeSettings);
 
     // Compare
@@ -79,8 +79,8 @@ BOOST_AUTO_TEST_CASE( test_json_thrust_interpolated )
     using namespace tudat::json_interface;
 
     // Create ThrustAccelerationSettings from JSON file
-    const boost::shared_ptr< ThrustAccelerationSettings > fromFileSettings =
-            parseJSONFile< boost::shared_ptr< ThrustAccelerationSettings > >( INPUT( "interpolated" ) );
+    const std::shared_ptr< ThrustAccelerationSettings > fromFileSettings =
+            parseJSONFile< std::shared_ptr< ThrustAccelerationSettings > >( INPUT( "interpolated" ) );
 
     // Create ThrustAccelerationSettings manually
     const std::map< double, Eigen::Vector3d > mapDependentVariables =
@@ -95,16 +95,16 @@ BOOST_AUTO_TEST_CASE( test_json_thrust_interpolated )
         ( Eigen::Vector3d( ) <<  0.1, -0.1, 0.0 ).finished( ),
         ( Eigen::Vector3d( ) << -0.02, 0.0, 0.0 ).finished( )
     };
-    const boost::shared_ptr< DataInterpolationSettings< double, Eigen::Vector3d > > dataInterpolation =
-            boost::make_shared< DataInterpolationSettings< double, Eigen::Vector3d > >(
-                boost::make_shared< HermiteDataSettings< double, Eigen::Vector3d > >(
+    const std::shared_ptr< DataInterpolationSettings< double, Eigen::Vector3d > > dataInterpolation =
+            std::make_shared< DataInterpolationSettings< double, Eigen::Vector3d > >(
+                std::make_shared< HermiteDataSettings< double, Eigen::Vector3d > >(
                     mapDependentVariables, vectorDependentVariablesDerivatives ),
-                boost::make_shared< InterpolatorSettings >( hermite_spline_interpolator ) );
+                std::make_shared< InterpolatorSettings >( hermite_spline_interpolator ) );
     const double specificImpulse = 3000.0;
     const ThrustFrames thrustFrame = inertial_thurst_frame;
     const std::string centralBody = "Moon";
-    const boost::shared_ptr< ThrustAccelerationSettings > manualSettings =
-            boost::make_shared< ThrustAccelerationSettings >( dataInterpolation,
+    const std::shared_ptr< ThrustAccelerationSettings > manualSettings =
+            std::make_shared< ThrustAccelerationSettings >( dataInterpolation,
                                                               specificImpulse,
                                                               thrustFrame,
                                                               centralBody );

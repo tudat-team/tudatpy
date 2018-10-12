@@ -115,7 +115,7 @@ calculateSphericalHarmonicCoefficientsPartialWrtRealTidalLoveNumbers(
 
 //! Function to set a dependency of this partial object w.r.t. a given double parameter.
 std::pair< int, std::pair< int, int > > TidalLoveNumberPartialInterface::setParameterPartialFunction(
-        const boost::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter,
+        const std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter,
         const int maximumDegree,
         const int maximumOrder )
 {
@@ -124,7 +124,7 @@ std::pair< int, std::pair< int, int > > TidalLoveNumberPartialInterface::setPara
 
 //! Function to set a dependency of this partial object w.r.t. a given vector parameter.
 std::pair< int, std::pair< int, int > > TidalLoveNumberPartialInterface::setParameterPartialFunction(
-        const boost::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter,
+        const std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter,
         const int maximumDegree,
         const int maximumOrder )
 {
@@ -143,9 +143,9 @@ std::pair< int, std::pair< int, int > > TidalLoveNumberPartialInterface::setPara
         case full_degree_tidal_love_number:
         {
             // Cast parameter object to required type.
-            boost::shared_ptr< FullDegreeTidalLoveNumber > coefficientsParameter =
-                    boost::dynamic_pointer_cast< FullDegreeTidalLoveNumber >( parameter );
-            if( coefficientsParameter == NULL )
+            std::shared_ptr< FullDegreeTidalLoveNumber > coefficientsParameter =
+                    std::dynamic_pointer_cast< FullDegreeTidalLoveNumber >( parameter );
+            if( coefficientsParameter == nullptr )
             {
                 throw std::runtime_error(
                             "Error when setting partil function of full_degree_tidal_love_number in TidalLoveNumberPartialInterface, input is inconsistent" );
@@ -174,7 +174,7 @@ std::pair< int, std::pair< int, int > > TidalLoveNumberPartialInterface::setPara
                             // Calculate partials for complex love number
                               parameterVectorPartialFunctions_[ std::make_pair(
                                         parameter, std::make_pair( maximumUsedDegree, maximumUsedOrder ) ) ] =
-                                    boost::bind( &TidalLoveNumberPartialInterface::
+                                    std::bind( &TidalLoveNumberPartialInterface::
                                                  calculateSphericalHarmonicCoefficientsPartialWrtComplexTidalLoveNumber, this,
                                                  coefficientsParameter->getDegree( ), selectedDeformingBodies,
                                                  maximumUsedDegree, maximumUsedOrder );
@@ -184,7 +184,7 @@ std::pair< int, std::pair< int, int > > TidalLoveNumberPartialInterface::setPara
                             // Calculate partial for real love number
                             parameterVectorPartialFunctions_[ std::make_pair(
                                         parameter, std::make_pair( maximumUsedDegree, maximumUsedOrder ) ) ] =
-                                    boost::bind( &TidalLoveNumberPartialInterface::
+                                    std::bind( &TidalLoveNumberPartialInterface::
                                                  calculateSphericalHarmonicCoefficientsPartialWrtRealTidalLoveNumber, this,
                                                  coefficientsParameter->getDegree( ), selectedDeformingBodies,
                                                  maximumUsedDegree, maximumUsedOrder );
@@ -200,9 +200,9 @@ std::pair< int, std::pair< int, int > > TidalLoveNumberPartialInterface::setPara
         case single_degree_variable_tidal_love_number:
         {
             // Cast parameter object to required type.
-            boost::shared_ptr< SingleDegreeVariableTidalLoveNumber > coefficientsParameter =
-                    boost::dynamic_pointer_cast< SingleDegreeVariableTidalLoveNumber >( parameter );
-            if( coefficientsParameter == NULL )
+            std::shared_ptr< SingleDegreeVariableTidalLoveNumber > coefficientsParameter =
+                    std::dynamic_pointer_cast< SingleDegreeVariableTidalLoveNumber >( parameter );
+            if( coefficientsParameter == nullptr )
             {
                 throw std::runtime_error(
                             "Error when setting partil function of single_degree_variable_tidal_love_number in TidalLoveNumberPartialInterface, input is inconsistent" );
@@ -230,7 +230,7 @@ std::pair< int, std::pair< int, int > > TidalLoveNumberPartialInterface::setPara
                             // Calculate partials for complex love number
                             parameterVectorPartialFunctions_[ std::make_pair(
                                         parameter, std::make_pair( maximumUsedDegree, maximumUsedOrder ) ) ] =
-                                    boost::bind( &TidalLoveNumberPartialInterface::
+                                    std::bind( &TidalLoveNumberPartialInterface::
                                                  calculateSphericalHarmonicCoefficientsPartialWrtComplexTidalLoveNumbers, this,
                                                  coefficientsParameter->getDegree( ), coefficientsParameter->getOrders( ),
                                                  selectedDeformingBodies, maximumUsedDegree, maximumUsedOrder );
@@ -240,7 +240,7 @@ std::pair< int, std::pair< int, int > > TidalLoveNumberPartialInterface::setPara
                             // Calculate partial for real love number
                             parameterVectorPartialFunctions_[ std::make_pair(
                                         parameter, std::make_pair( maximumUsedDegree, maximumUsedOrder ) ) ] =
-                                    boost::bind( &TidalLoveNumberPartialInterface::
+                                    std::bind( &TidalLoveNumberPartialInterface::
                                                  calculateSphericalHarmonicCoefficientsPartialWrtRealTidalLoveNumbers, this,
                                                  coefficientsParameter->getDegree( ), coefficientsParameter->getOrders( ),
                                                  selectedDeformingBodies, maximumUsedDegree, maximumUsedOrder );

@@ -15,7 +15,7 @@
 #ifndef TUDAT_RUNGE_KUTTA_COEFFICIENTS_H
 #define TUDAT_RUNGE_KUTTA_COEFFICIENTS_H
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include <Eigen/Core>
 
@@ -109,7 +109,7 @@ struct RungeKuttaCoefficients
 };
 
 //! Typedef for shared-pointer to RungeKuttaCoefficients object.
-typedef boost::shared_ptr< RungeKuttaCoefficients > RungeKuttaCoefficientsPointer;
+typedef std::shared_ptr< RungeKuttaCoefficients > RungeKuttaCoefficientsPointer;
 
 } // namespace numerical_integrators
 } // namespace tudat

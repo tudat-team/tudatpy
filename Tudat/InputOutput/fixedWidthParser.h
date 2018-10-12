@@ -47,7 +47,7 @@ public:
 
     //! Set unit transformation map.
     void setUnitTransformationMap (
-            std::map< FieldType, boost::shared_ptr< FieldTransform > > unitTransformationMap )
+            std::map< FieldType, std::shared_ptr< FieldTransform > > unitTransformationMap )
     {
         unitTransformationMap_ = unitTransformationMap;
     }
@@ -81,7 +81,7 @@ private:
 };
 
 //! Typedef for shared-pointer to FixedWidthParser object.
-typedef boost::shared_ptr< FixedWidthParser > FixedWidthParserPointer;
+typedef std::shared_ptr< FixedWidthParser > FixedWidthParserPointer;
 
 } // namespace input_output
 } // namespace tudat

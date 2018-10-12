@@ -16,7 +16,7 @@
 
 #include <map>
 
-#include <boost/function.hpp>
+#include <functional>
 
 #include <Eigen/Core>
 #include <Eigen/SVD>
@@ -41,8 +41,8 @@ Eigen::Vector4d convertQuaternionToVectorFormat( const Eigen::Quaterniond& quate
 //! Function to put a vector in 'quaternion format', i.e. a Quaterniond.
 /*!
  * Function to put a vector in 'quaternion format', i.e. a Quaterniond.
- * \param Vector format of input quaternion.
- * \return quaternion Quaternion that is to be put into vector format.
+ * \param vector Vector format of input quaternion.
+ * \return Quaternion that is to be put into vector format.
  */
 Eigen::Quaterniond convertVectorToQuaternionFormat( const Eigen::Vector4d& vector );
 
@@ -131,7 +131,7 @@ double getVectorNorm( const Eigen::Vector3d& vector );
  * \param vectorFunction Function returning the vector for which the norm is to be computed
  * \return Vector norm
  */
-double getVectorNormFromFunction( const boost::function< Eigen::Vector3d( ) > vectorFunction );
+double getVectorNormFromFunction( const std::function< Eigen::Vector3d( ) > vectorFunction );
 
 //! Flip matrix rows.
 /*!
@@ -156,7 +156,7 @@ static inline void flipMatrixRows( Eigen::MatrixXd& matrixToFlip )
 }
 
 Eigen::Vector3d evaluateSecondBlockInStateVector(
-        const boost::function< Eigen::Vector6d( const double ) > stateFunction,
+        const std::function< Eigen::Vector6d( const double ) > stateFunction,
         const double time );
 
 double computeNormOfVectorDifference( const Eigen::Vector3d& vector0,

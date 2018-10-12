@@ -10,7 +10,7 @@
 #ifndef TUDAT_CONSTANTEPHEMERIS_H
 #define TUDAT_CONSTANTEPHEMERIS_H
 
-#include <boost/function.hpp>
+#include <functional>
 #include <boost/lambda/lambda.hpp>
 
 #include "Tudat/Astrodynamics/Ephemerides/ephemeris.h"
@@ -36,7 +36,7 @@ public:
      *  \param referenceFrameOrigin Origin of reference frame in which state is defined.
      *  \param referenceFrameOrientation Orientation of reference frame in which state is defined.
      */
-    ConstantEphemeris( const boost::function< Eigen::Vector6d( ) > constantStateFunction,
+    ConstantEphemeris( const std::function< Eigen::Vector6d( ) > constantStateFunction,
                        const std::string& referenceFrameOrigin = "SSB",
                        const std::string& referenceFrameOrientation = "ECLIPJ2000" ):
         Ephemeris( referenceFrameOrigin, referenceFrameOrientation ),
@@ -53,7 +53,7 @@ public:
                        const std::string& referenceFrameOrigin = "SSB",
                        const std::string& referenceFrameOrientation = "ECLIPJ2000" ):
         Ephemeris( referenceFrameOrigin, referenceFrameOrientation )
-        { constantStateFunction_ = boost::lambda::constant( constantState ); }
+        { constantStateFunction_ = [ = ]( ){ return constantState; }; }
 
     //! Get state from ephemeris.
     /*!
@@ -75,7 +75,7 @@ public:
      */
     void updateConstantState( const Eigen::Vector6d& newState )
     {
-        constantStateFunction_ = boost::lambda::constant( newState );
+        constantStateFunction_ = [ = ]( ){ return newState; };
     }
 
 private:
@@ -84,7 +84,7 @@ private:
     /*!
      *  Function that returns a constant cartesian state.
      */
-    boost::function< Eigen::Vector6d( ) > constantStateFunction_;
+    std::function< Eigen::Vector6d( ) > constantStateFunction_;
 
 };
 

@@ -310,29 +310,29 @@ private:
 };
 
 
-// NULL POINTERS
+// nullptr POINTERS
 
-//! Class for errors generated when a pointer that should not be `NULL` is `NULL`.
+//! Class for errors generated when a pointer that should not be `nullptr` is `nullptr`.
 /*!
- * Class for errors generated when a pointer to an object of type `T` that should not be `NULL` is `NULL`.
+ * Class for errors generated when a pointer to an object of type `T` that should not be `nullptr` is `nullptr`.
  */
 template< typename T >
-class NullPointerError : public AutoReportableBugError
+class nullptrPointerError : public AutoReportableBugError
 {
 public:
     //! Constructor
     /*!
      * Empty constructor.
      */
-    NullPointerError( ) : AutoReportableBugError( )
+    nullptrPointerError( ) : AutoReportableBugError( )
     {
         const std::string typeName = boost::core::demangled_name( typeid( T ) );
         errorMessage =
-                "Null-pointer of type " + typeName +
-                " is not allowed to be NULL.\n"
+                "nullptr-pointer of type " + typeName +
+                " is not allowed to be nullptr.\n"
                 "If you think this is not your fault, consider reporting this bug by using this link: ";
 
-        const std::string title = "Null-pointer of type " + typeName;
+        const std::string title = "nullptr-pointer of type " + typeName;
         const std::string body =
                 "I encountered this error when using Tudat's `json_interface`:\n```\n" + errorMessage + "\n```\n";
 
@@ -340,14 +340,14 @@ public:
     }
 };
 
-//! Check that a pointer is not `NULL`.
+//! Check that a pointer is not `nullptr`.
 /*!
- * Check that a pointer to an object of type `T` is not `NULL`.
- * \param pointer The pointer that is not allowed to be `NULL`.
- * \throws NullPointerError<T> If \p pointer is `NULL`.
+ * Check that a pointer to an object of type `T` is not `nullptr`.
+ * \param pointer The pointer that is not allowed to be `nullptr`.
+ * \throws nullptrPointerError< T > If \p pointer is `nullptr`.
  */
 template< typename T >
-void assertNonNullPointer( const boost::shared_ptr< T >& pointer )
+void assertNonnullptrPointer( const std::shared_ptr< T >& pointer )
 {
     if ( pointer )
     {
@@ -355,7 +355,7 @@ void assertNonNullPointer( const boost::shared_ptr< T >& pointer )
     }
     else
     {
-        throw NullPointerError< T >( );
+        throw nullptrPointerError< T >( );
     }
 }
 

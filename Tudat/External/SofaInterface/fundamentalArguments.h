@@ -132,7 +132,7 @@ Eigen::Vector6d  calculateDelaunayFundamentalArgumentsWithGmst(
  * \param tdbTime Time in TDB at which the arguments are to be calculated, in seconds since J2000.
  * \return Delaunay fundamental arguments and (GMST + pi) at the requested time.
  */
-Eigen::Vector6d  calculateDelaunayFundamentalArgumentsWithGmst(
+Eigen::Vector6d  calculateApproximateDelaunayFundamentalArgumentsWithGmst(
         const double tdbTime );
 
 //! Function to calculate the Doodson arguments at the requested time.

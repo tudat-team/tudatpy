@@ -12,8 +12,8 @@
 #ifndef TUDAT_PRECESSIONNUTATIONCALCULATOR_H
 #define TUDAT_PRECESSIONNUTATIONCALCULATOR_H
 
-#include <boost/shared_ptr.hpp>
-#include <boost/function.hpp>
+#include <memory>
+#include <functional>
 
 #include "Tudat/Mathematics/Interpolators/oneDimensionalInterpolator.h"
 #include "Tudat/External/SofaInterface/earthOrientation.h"
@@ -44,7 +44,7 @@ public:
      */
     PrecessionNutationCalculator(
             const basic_astrodynamics::IAUConventions precessionNutationTheory,
-            const boost::shared_ptr< interpolators::OneDimensionalInterpolator < double, Eigen::Vector2d > >
+            const std::shared_ptr< interpolators::OneDimensionalInterpolator < double, Eigen::Vector2d > >
             dailyCorrectionInterpolator );
 
     //! Function to calculate the position of CIP in GCRS (CIO-based precession-nutation) and CIO-locator.
@@ -70,20 +70,39 @@ public:
             const double terrestrialTime,
             const double utc );
 
-    boost::shared_ptr< interpolators::OneDimensionalInterpolator
+    //! Function to retrieve the interpolator for daily measured values of precession-nutation corrections.
+    /*!
+     * Function to retrieve the interpolator for daily measured values of precession-nutation corrections.
+     * \return Interpolator for daily measured values of precession-nutation corrections.
+     */
+    std::shared_ptr< interpolators::OneDimensionalInterpolator
     < double, Eigen::Vector2d > > getDailyCorrectionInterpolator( )
     {
         return dailyCorrectionInterpolator_;
     }
 
+    //! Function to retrieve the IAU precession-nutation theory that is to be used.
+    /*!
+     * Function to retrieve the IAU precession-nutation theory that is to be used.
+     * \return IAU precession-nutation theory that is to be used.
+     */
+    basic_astrodynamics::IAUConventions getPrecessionNutationTheory( )
+    {
+        return precessionNutationTheory_;
+    }
+
+
 private:
+
+    //! IAU precession-nutation theory that is to be used.
+    basic_astrodynamics::IAUConventions precessionNutationTheory_;
 
     //! Interpolator for daily measured values of precession-nutation corrections.
     /*!
      *  Interpolator taking UTC time since J2000 as input and returning
      *  interpolated daily measured values of precession-nutation corrections.
      */
-    boost::shared_ptr< interpolators::OneDimensionalInterpolator
+    std::shared_ptr< interpolators::OneDimensionalInterpolator
     < double, Eigen::Vector2d > > dailyCorrectionInterpolator_;
 
     //! Function pointer returning the nominal CIP position  in the GCRS  and CIO locator.
@@ -91,7 +110,7 @@ private:
      *  Function pointer returning the nominal CIP position in the GCRS (X and Y, see IERS Conventions 2010),
      *  first pair argument, and CIO locator (s, see IERS Conventions 2010), second pair argument.
      */
-    boost::function< std::pair< Eigen::Vector2d, double > ( const double ) > nominalCipPositionFunction_;
+    std::function< std::pair< Eigen::Vector2d, double > ( const double ) > nominalCipPositionFunction_;
 
 };
 
