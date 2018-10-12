@@ -289,7 +289,8 @@ std::shared_ptr< estimatable_parameters::EstimatableParameterSet< InitialStatePa
 /*!
  *  Function to get the multi-arc parameter equivalent of a single-arc initial state parameter. The initial state arcs are
  *  provided as input to this function.
- *  \param singleArcParameter Single-arc parameter object for which the multi-arc equivalent is to b created
+ *  \param singleArcParameter Single-arc parameter object for which the multi-arc equivalent is to be created.
+ *  \param arcStartTimes Vector of start times for separate arcs.
  *  \return Multi-arc parameter equivalent of single-arc initial state parameter input
  */
 template< typename StateScalarType >

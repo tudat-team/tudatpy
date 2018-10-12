@@ -594,18 +594,20 @@ public:
      *  \param clearNumericalSolution Boolean to determine whether to clear the raw numerical solution member variables
      *  (default true) after propagation and resetting of state transition interface.
      *  \param integrateEquationsOnCreation Boolean to denote whether equations should be integrated immediately at the
-     *  end of this contructor.
+     *  end of this contructor (default true).
+     *  \param setIntegratedResult Boolean to determine whether to automatically use the integrated results to set
+     *  ephemerides (default true).
      */
     SingleArcVariationalEquationsSolver(
             const simulation_setup::NamedBodyMap& bodyMap,
             const std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings,
             const std::shared_ptr< PropagatorSettings< StateScalarType > > propagatorSettings,
             const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< StateScalarType > > parametersToEstimate,
-            const bool integrateDynamicalAndVariationalEquationsConcurrently = 1,
+            const bool integrateDynamicalAndVariationalEquationsConcurrently = true,
             const std::shared_ptr< numerical_integrators::IntegratorSettings< double > > variationalOnlyIntegratorSettings
             = std::shared_ptr< numerical_integrators::IntegratorSettings< double > >( ),
-            const bool clearNumericalSolution = 1,
-            const bool integrateEquationsOnCreation = 1,
+            const bool clearNumericalSolution = true,
+            const bool integrateEquationsOnCreation = true,
             const bool setIntegratedResult = true ):
         VariationalEquationsSolver< StateScalarType, TimeType >(
             bodyMap, parametersToEstimate, clearNumericalSolution ),
@@ -644,7 +646,7 @@ public:
                 propagatorSettings_->getDependentVariablesToSave( )->stateDerivativePartials_ = stateDerivativePartials;
             }
 
-            dynamicsSimulator_ =  std::make_shared< SingleArcDynamicsSimulator< StateScalarType, TimeType > >(
+            dynamicsSimulator_ = std::make_shared< SingleArcDynamicsSimulator< StateScalarType, TimeType > >(
                         bodyMap, integratorSettings, propagatorSettings_, false, clearNumericalSolution, setIntegratedResult, false,
                         std::chrono::steady_clock::now( ),
                         stateDerivativeModels );
@@ -1029,7 +1031,9 @@ public:
      *  \param clearNumericalSolution Boolean to determine whether to clear the raw numerical solution member variables
      *  (default true) after propagation and resetting of state transition interface.
      *  \param integrateEquationsOnCreation Boolean to denote whether equations should be integrated immediately at the
-     *  end of this contructor.
+     *  end of this contructor (default false).
+     *  \param resetMultiArcDynamicsAfterPropagation Boolean denoting whether to reset the multi-arc dynamics after
+     *  propagation (default true).
      */
     MultiArcVariationalEquationsSolver(
             const simulation_setup::NamedBodyMap& bodyMap,
@@ -1541,6 +1545,7 @@ private:
     //! Number of arcs over which propagation is to be performed.
     int numberOfArcs_;
 
+    //! Boolean denoting whether to reset the multi-arc dynamics after propagation.
     const bool resetMultiArcDynamicsAfterPropagation_;
 
 };
@@ -1576,8 +1581,6 @@ public:
      *  \param arcStartTimes Start times for separate arcs
      *  \param integrateDynamicalAndVariationalEquationsConcurrently Boolean defining whether variational and dynamical
      *  equations are to be propagated concurrently (if true) or sequentially (of false)
-     *  \param variationalOnlyIntegratorSettings Settings for numerical integrator when integrating only variational
-     *  equations.
      *  \param clearNumericalSolution Boolean to determine whether to clear the raw numerical solution member variables
      *  (default true) after propagation and resetting of state transition interface.
      *  \param integrateEquationsOnCreation Boolean to denote whether equations should be integrated immediately at the

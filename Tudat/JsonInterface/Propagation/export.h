@@ -77,6 +77,7 @@ void from_json( const nlohmann::json& jsonObject, std::shared_ptr< ExportSetting
  * @copybrief exportResultsOfDynamicsSimulator
  * \param singleArcDynamicsSimulator The dynamics simulator containing the results.
  * \param exportSettingsVector The vector containing export settings (each element represents a file to be exported).
+ * \param variationalEquationsAreSaved Boolean denoting whether to save the variational equations (default is false).
  * \throws std::exception If any of the requested variables is not recognized or was not stored in the results of
  * \p dynamicsSimulator.
  */

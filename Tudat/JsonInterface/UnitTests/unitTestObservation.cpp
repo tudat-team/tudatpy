@@ -194,7 +194,7 @@ BOOST_AUTO_TEST_CASE( test_json_acceleration_sphericalHarmonicGravity )
             else if( currentObservable == one_way_differenced_range )
             {
                 currentObservationSettings = std::make_shared< OneWayDifferencedRangeRateObservationSettings >(
-                            boost::lambda::constant( 60.0 ) );
+                            [ = ]( const double ){ return 60.0; } );
 
             }
             else if( currentObservable == n_way_range )
@@ -204,7 +204,7 @@ BOOST_AUTO_TEST_CASE( test_json_acceleration_sphericalHarmonicGravity )
                 if( i == 0 )
                 {
                     currentObservationSettings = std::make_shared< NWayRangeObservationSettings >(
-                                lightTimeCorrections, 3, boost::lambda::constant( retransmissionTimes ), biasSettings );
+                                lightTimeCorrections, 3, [ = ]( const double ){ return retransmissionTimes; }, biasSettings );
                 }
                 else if( i == 1 )
                 {
@@ -221,7 +221,7 @@ BOOST_AUTO_TEST_CASE( test_json_acceleration_sphericalHarmonicGravity )
                                         Eigen::Vector1d::Constant( 1.0 ), true ) ) );
 
                     currentObservationSettings = std::make_shared< NWayRangeObservationSettings >(
-                                oneWayRangeObsevationSettings, boost::lambda::constant( retransmissionTimes ), biasSettings );
+                                oneWayRangeObsevationSettings, [ = ]( const double ){ return retransmissionTimes; }, biasSettings );
                 }
             }
             else

@@ -151,7 +151,7 @@ void from_json( const nlohmann::json& jsonObject,
                     jsonObject, K::constantIntegrationTime );
 
         observationSettings = std::make_shared< OneWayDifferencedRangeRateObservationSettings >(
-                    boost::lambda::constant( constantIntegrationTime ),
+                    [ = ]( const double ){ return constantIntegrationTime; },
                     lightTimeCorrectionsList,
                     biasSettings );
         return;
@@ -176,7 +176,7 @@ void from_json( const nlohmann::json& jsonObject,
                         jsonObject, K::retransmissionTimes,
                         std::vector< double >( ) );
             observationSettings = std::make_shared< NWayRangeObservationSettings >(
-                        oneWayRangeObsevationSettings, boost::lambda::constant( retransmissionTimes ),
+                        oneWayRangeObsevationSettings, [ = ]( const double ){ return retransmissionTimes; },
                         biasSettings );
         }
         return;

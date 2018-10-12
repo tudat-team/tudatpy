@@ -224,6 +224,8 @@ public:
     /*!
      *  This function updates all state derivative models to the current time and state.
      *  \param currentTime Time to  which the system is to be updated.
+     *  \param currentStatesPerTypeInConventionalRepresentation Current states, in conventional representation
+     *  (e.g. transformed from specific propagator) sorted per state type.
      */
     template< typename StateScalarType >
     void updatePartials( const double currentTime,
@@ -578,7 +580,7 @@ private:
     //! Total matrix of partial derivatives of state derivatives w.r.t. parameter vectors.
     Eigen::MatrixXd variationalParameterMatrix_;
 
-    //! Current states, in conventional representation (e.g. transformed from specific propagator) sorted per state type
+    //! Current states, in conventional representation (e.g. transformed from specific propagator) sorted per state type.
     std::unordered_map< IntegratedStateType, Eigen::VectorXd > currentStatesPerTypeInConventionalRepresentation_;
 };
 

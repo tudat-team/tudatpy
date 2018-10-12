@@ -138,11 +138,11 @@ protected:
 
 extern template class JsonVariationalEquationsSimulationManager< double, double >;
 
-#if( BUILD_EXTENDED_PRECISION_PROPAGATION_TOOLS )
-extern template class JsonVariationalEquationsSimulationManager< Time, long double >;
-extern template class JsonVariationalEquationsSimulationManager< double, double >;
-extern template class JsonVariationalEquationsSimulationManager< Time, long double >;
-#endif
+//#if( BUILD_EXTENDED_PRECISION_PROPAGATION_TOOLS )
+//extern template class JsonVariationalEquationsSimulationManager< Time, long double >;
+//extern template class JsonVariationalEquationsSimulationManager< double, double >;
+//extern template class JsonVariationalEquationsSimulationManager< Time, long double >;
+//#endif
 
 } // namespace json_interface
 
