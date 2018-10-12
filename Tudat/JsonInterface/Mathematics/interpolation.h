@@ -74,6 +74,7 @@ inline void from_json( const nlohmann::json& jsonObject, AvailableLookupScheme& 
     availableLookupScheme = json_interface::enumFromString( jsonObject, lookupSchemeTypes );
 }
 
+
 // BoundaryHandling
 
 //! Map of `AvailableLookupScheme`s string representations.
@@ -83,13 +84,12 @@ static std::map< BoundaryInterpolationType, std::string > boundaryInterpolationT
     { use_boundary_value, "boundaryValue" },
     { use_boundary_value_with_warning, "boundaryValueWithWarning" },
     { extrapolate_at_boundary, "extrapolate" },
-    { extrapolate_at_boundary_with_warning, "extrapolateWithWarning" },
-    { use_default_value, "defaultValue" },
-    { use_default_value_with_warning, "defaultValueWithWarning" }
+    { extrapolate_at_boundary_with_warning, "extrapolateWithWarning" }
 };
 
 //! `BoundaryInterpolationType`s not supported by `json_interface`.
-static std::vector< BoundaryInterpolationType > unsupportedBoundaryInterpolationTypes = { };
+static std::vector< BoundaryInterpolationType > unsupportedBoundaryInterpolationTypes =
+{ use_default_value, use_default_value_with_warning };
 
 //! Convert `BoundaryInterpolationType` to `json`.
 inline void to_json( nlohmann::json& jsonObject, const BoundaryInterpolationType& boundaryHandling )
@@ -102,6 +102,7 @@ inline void from_json( const nlohmann::json& jsonObject, BoundaryInterpolationTy
 {
     boundaryHandling = json_interface::enumFromString( jsonObject, boundaryInterpolationTypes );
 }
+
 
 // LagrangeInterpolatorBoundaryHandling
 

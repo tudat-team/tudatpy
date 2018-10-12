@@ -419,11 +419,11 @@ BOOST_AUTO_TEST_CASE( test_LoveNumberEstimationFromOrbiterData )
                 std::make_shared< InitialTranslationalStateEstimatableParameterSettings< double > >(
                     "Vehicle", systemInitialState, "Earth" ) );
     parameterNames.push_back( std::make_shared< SingleDegreeVariableTidalLoveNumberEstimatableParameterSettings >(
-                                  "Earth", 2, boost::assign::list_of( 2 ), "Moon", true ) );
+                                  "Earth", 2, std::vector< int >{ 2 }, "Moon", true ) );
     parameterNames.push_back( std::make_shared< SingleDegreeVariableTidalLoveNumberEstimatableParameterSettings >(
-                                  "Earth", 2, boost::assign::list_of( 2 ), "Sun", true ) );
+                                  "Earth", 2, std::vector< int >{ 2 }, "Sun", true ) );
     parameterNames.push_back( std::make_shared< SingleDegreeVariableTidalLoveNumberEstimatableParameterSettings >(
-                                  "Earth", 2, boost::assign::list_of( 0 )( 1 ), "Moon", false ) );
+                                  "Earth", 2, std::vector< int >{ 0, 1 }, "Moon", false ) );
     parameterNames.push_back( std::make_shared< FullDegreeTidalLoveNumberEstimatableParameterSettings >(
                                   "Earth", 3, "Moon", true ) );
 

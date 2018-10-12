@@ -71,7 +71,7 @@ NamedBodyMap getTestBodyMap( const double phobosSemiMajorAxis,
     NamedBodyMap bodyMap;
     bodyMap[ "Mars" ] = std::make_shared< Body >( );
     bodyMap[ "Mars" ]->setEphemeris( std::make_shared< ephemerides::ConstantEphemeris >(
-                                         [&]( ){ return Eigen::Vector6d::Zero( ); } ) );
+                                         [ & ]( ){ return Eigen::Vector6d::Zero( ); } ) );
     bodyMap[ "Phobos" ] = std::make_shared< Body >( );
 
     Eigen::Matrix3d phobosInertiaTensor = Eigen::Matrix3d::Zero( );
@@ -633,7 +633,7 @@ BOOST_AUTO_TEST_CASE( testRotationalAndTranslationalDynamicsPropagation )
             std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfApollo;
             accelerationsOfApollo[ "Earth" ].push_back( std::make_shared< SphericalHarmonicAccelerationSettings >( 4, 0 ) );
             accelerationsOfApollo[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( aerodynamic ) );
-            accelerationMap[  "Apollo" ] = accelerationsOfApollo;
+            accelerationMap[ "Apollo" ] = accelerationsOfApollo;
 
             bodiesToPropagate.push_back( "Apollo" );
             centralBodies.push_back( "Earth" );

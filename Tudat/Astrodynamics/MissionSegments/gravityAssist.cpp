@@ -242,7 +242,7 @@ double gravityAssist( const double centralBodyGravitationalParameter,
     // parameter.
     else
     {
-        // Compute semi-major axis of hyperbolic legs. This is the absolute semi major axis, because
+        // Compute semi-major axis of hyperbolic legs. This is the absolute semi-major axis, because
         // it will otherwisely result in the root of a negative function for various cases during
         // the rootfinding process.
         const double absoluteIncomingSemiMajorAxis = 1.0 * centralBodyGravitationalParameter /

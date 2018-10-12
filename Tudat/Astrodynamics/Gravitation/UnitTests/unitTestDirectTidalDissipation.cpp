@@ -138,9 +138,9 @@ std::pair< double, double > computeKeplerElementRatesDueToDissipation(
     //                                          satelliteToPropagate + ".dat" );
 
     std::vector< double > semiMajorAxisFit = linear_algebra::getLeastSquaresPolynomialFit(
-                semiMajorAxes, boost::assign::list_of( 0 )( 1 ) );
+                semiMajorAxes, { 0, 1 } );
     std::vector< double > eccentricityFit = linear_algebra::getLeastSquaresPolynomialFit(
-                eccentricities, boost::assign::list_of( 0 )( 1 ) );
+                eccentricities, { 0, 1 } );
 
     intialKeplerElements = integrationResultWithDissipationKepler.begin( )->second;
     meanMotion = basic_astrodynamics::computeKeplerMeanMotion(

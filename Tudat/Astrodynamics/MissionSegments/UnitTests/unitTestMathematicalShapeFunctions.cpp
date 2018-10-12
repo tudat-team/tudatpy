@@ -66,8 +66,8 @@ BOOST_AUTO_TEST_CASE( ImprovedInversePolynomialWall )
 
     // Initialize mathematical function.
     mission_segments::ImprovedInversePolynomialWall myFunctionCase1(
-                [&](){ return timeDepParameter; } ,
-                [&](){ return inversePolynomialParameters; } );
+                [ & ]( ){ return timeDepParameter; } ,
+                [ & ]( ){ return inversePolynomialParameters; } );
 
     // Calculate function value and derivatives.
     double functionValue = myFunctionCase1.evaluate( azimuthalAngle );
@@ -111,8 +111,8 @@ BOOST_AUTO_TEST_CASE( ImprovedInversePolynomialWall )
 
     // Initialize mathematical function.
     mission_segments::ImprovedInversePolynomialWall myFunctionCase2(
-                [&](){ return timeDepParameter; } ,
-                [&](){ return inversePolynomialParameters; } );
+                [ & ]( ){ return timeDepParameter; } ,
+                [ & ]( ){ return inversePolynomialParameters; } );
 
     // Calculate function value and derivatives.
     functionValue = myFunctionCase2.evaluate( azimuthalAngle );
@@ -154,8 +154,8 @@ BOOST_AUTO_TEST_CASE( ImprovedInversePolynomialWall )
 
     // Initialize mathematical function.
     mission_segments::ImprovedInversePolynomialWall myFunctionCase3(
-                [&](){ return timeDepParameter; } ,
-                [&](){ return inversePolynomialParameters; } );
+                [ & ]( ){ return timeDepParameter; } ,
+                [ & ]( ){ return inversePolynomialParameters; } );
 
     // Calculate function value and derivatives.
     functionValue = myFunctionCase3.evaluate( azimuthalAngle );
@@ -211,7 +211,7 @@ BOOST_AUTO_TEST_CASE( OscillatingFunctionNovak )
 
     // Initialize mathematical function.
     mission_segments::OscillatingFunctionNovak myFunctionCase1(
-                [&](){ return oscillatingFunctionParameters; } );
+                [ & ]( ){ return oscillatingFunctionParameters; } );
 
     // Calculate function value and derivatives.
     double functionValue = myFunctionCase1.evaluate( azimuthalAngle );
@@ -265,7 +265,7 @@ BOOST_AUTO_TEST_CASE( OscillatingFunctionNovak )
 
     // Initialize mathematical function.
     mission_segments::OscillatingFunctionNovak myFunctionCase2(
-                [&](){ return oscillatingFunctionParameters; } );
+                [ & ]( ){ return oscillatingFunctionParameters; } );
 
     // Calculate function value and derivatives.
     functionValue = myFunctionCase2.evaluate( azimuthalAngle );
@@ -311,11 +311,11 @@ BOOST_AUTO_TEST_CASE( wrongRequestMathematicalFunctions )
 
     // Initialize mathematical functions.
     mission_segments::ImprovedInversePolynomialWall myInversePolynomial(
-                [&](){ return timeDepParameter ; },
-                [&](){ return inversePolynomialParameters; } );
+                [ & ]( ){ return timeDepParameter ; },
+                [ & ]( ){ return inversePolynomialParameters; } );
 
     mission_segments::OscillatingFunctionNovak myOscillatingFunction(
-                [&](){ return OscillatingShapeParameters; } );
+                [ & ]( ){ return OscillatingShapeParameters; } );
 
     // Set flags.
     bool isFourthDerivativeInversePolynomial = true;

@@ -175,7 +175,7 @@ public:
     //! Save aerodynamic coefficients to file.
     /*!
      *  Save aerodynamic coefficients to file.
-     *  \param fileName Map of paths to files where aerodynamics coefficients are to be saved.
+     *  \param fileNamesMap Map of paths to files where aerodynamics coefficients are to be saved.
      */
     void saveAerodynamicCoefficientsTables( const std::map< unsigned int, std::string >& fileNamesMap )
     {

@@ -84,7 +84,7 @@ public:
         {
             //NOTE: Should generalize to long double state type.
             ephemerisBetweenFrames = std::make_shared< ConstantEphemeris >(
-                        [=]( ){ return Eigen::Vector6d::Zero( ); }, origin, "ECLIPJ2000" );
+                        [ = ]( ){ return Eigen::Vector6d::Zero( ); }, origin, "ECLIPJ2000" );
         }
         else
         {

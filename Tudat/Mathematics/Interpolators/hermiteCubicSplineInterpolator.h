@@ -39,15 +39,15 @@ public:
     //! Constructor.
     /*!
      *  Constructor for the hermite cubic spline interpolator with (in)dependent data defined in a vector.
-     *  \param independentVariables Vector with the independent variable values, must be
+     *  \param independentValues Vector with the independent variable values, must be
      *      sorted in ascending order.
-     *  \param dependentVariables Vector with the dependent variable values.
-     *  \param derivativeValues
+     *  \param dependentValues Vector with the dependent variable values.
+     *  \param derivativeValues Vector with the derivative values.
      *  \param selectedLookupScheme Look-up scheme that is to be used when finding interval
      *      of requested independent variable value.
      *  \param boundaryHandling Boundary handling method, in case the independent variable is outside the
      *      specified range.
-     *  \param defaultExtrapolationValue Pairs of default values to be used for extrapolation, in case
+     *  \param defaultExtrapolationValue Pair of default values to be used for extrapolation, in case
      *      of use_default_value or use_default_value_with_warning as methods for boundaryHandling.
      */
     HermiteCubicSplineInterpolator(
@@ -102,7 +102,7 @@ public:
      *      of requested independent variable value.
      *  \param boundaryHandling Boundary handling method, in case the independent variable is outside the
      *      specified range.
-     *  \param defaultExtrapolationValue Pairs of default values to be used for extrapolation, in case
+     *  \param defaultExtrapolationValue Pair of default values to be used for extrapolation, in case
      *      of use_default_value or use_default_value_with_warning as methods for boundaryHandling.
      */
     HermiteCubicSplineInterpolator(

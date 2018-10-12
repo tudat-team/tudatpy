@@ -99,7 +99,7 @@ std::shared_ptr< CentralBodyData< StateScalarType, TimeType > > createCentralBod
         }
         else
         {
-            bodyStateFunctions[ centralBodiesToUse.at( i ) ] = []( const TimeType ){ return
+            bodyStateFunctions[ centralBodiesToUse.at( i ) ] = [ ]( const TimeType ){ return
                         Eigen::Matrix< StateScalarType, 6, 1 >::Zero( ); };
         }
     }
@@ -109,7 +109,7 @@ std::shared_ptr< CentralBodyData< StateScalarType, TimeType > > createCentralBod
     std::string globalFrameOrigin = simulation_setup::getGlobalFrameOrigin( bodyMap );
     if( globalFrameOrigin == "SSB" )
     {
-        globalFrameOriginBarycentricFunction = []( const TimeType ){ return
+        globalFrameOriginBarycentricFunction = [ ]( const TimeType ){ return
                     Eigen::Matrix< StateScalarType, 6, 1 >::Zero( ); };
     }
     else
