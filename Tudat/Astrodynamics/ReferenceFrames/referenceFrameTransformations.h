@@ -270,8 +270,24 @@ Eigen::Matrix3d getRotatingPlanetocentricToLocalVerticalFrameTransformationMatri
  * \param latitude The latitude in the planetocentric reference frame in [rad].
  * \return Transformation quaternion from Planetocentric (R) to the local vertical (V) frame.
  */
-Eigen::Quaterniond getRotatingPlanetocentricToLocalVerticalFrameTransformationQuaternion(
-        const double longitude, const double latitude );
+template< typename AngleScalarType = double >
+Eigen::Quaternion< AngleScalarType > getRotatingPlanetocentricToLocalVerticalFrameTransformationQuaternion(
+        const AngleScalarType longitude, const AngleScalarType latitude )
+{
+    // Compute transformation quaternion.
+    // Note the sign change, because how angleAxisd is defined.
+    Eigen::AngleAxis< AngleScalarType > RotationAroundZaxis = Eigen::AngleAxis< AngleScalarType >(
+                -longitude, Eigen::Matrix< AngleScalarType, 3, 1 >::UnitZ( ) );
+    Eigen::AngleAxis< AngleScalarType > RotationAroundYaxis = Eigen::AngleAxis< AngleScalarType >(
+                -( -latitude - mathematical_constants::getPi< AngleScalarType >( ) /
+                   mathematical_constants::getFloatingInteger< AngleScalarType >( 2 ) ),
+                Eigen::Matrix< AngleScalarType, 3, 1 >::UnitY( ) );
+    Eigen::Quaternion< AngleScalarType > frameTransformationQuaternion = Eigen::Quaternion< AngleScalarType >(
+                ( RotationAroundYaxis * RotationAroundZaxis ) );
+
+    // Return transformation quaternion.
+    return frameTransformationQuaternion;
+}
 
 //! Get transformation matrix from local vertical (V) to the Planetocentric frame (R).
 /*!
@@ -298,8 +314,14 @@ Eigen::Matrix3d getLocalVerticalToRotatingPlanetocentricFrameTransformationMatri
  * \param latitude The latitude in the planetocentric reference frame in [rad].
  * \return Transformation quaternion from local vertical (V) to the Planetocentric (R) frame.
  */
-Eigen::Quaterniond getLocalVerticalToRotatingPlanetocentricFrameTransformationQuaternion(
-        const double longitude, const double latitude );
+template< typename AngleScalarType = double >
+Eigen::Quaternion< AngleScalarType > getLocalVerticalToRotatingPlanetocentricFrameTransformationQuaternion(
+        const AngleScalarType longitude, const AngleScalarType latitude )
+{
+    return getRotatingPlanetocentricToLocalVerticalFrameTransformationQuaternion(
+            longitude, latitude ).inverse( );
+}
+
 
 //! Get transformation matrix from the TA/TG to the V-frame.
 /*!
