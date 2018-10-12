@@ -281,7 +281,8 @@ getSphericalHarmonicAccelerationForDependentVariables(
  *  environment and/or state derivative models.
  *  \param dependentVariableSettings Settings for dependent variable that is to be returned by function created here.
  *  \param bodyMap List of bodies to use in simulations (containing full environment).
- *  \param stateDerivativeModels List of state derivative models used in simulations (sorted by dynamics type as key)
+ *  \param stateDerivativeModels List of state derivative models used in simulations (sorted by dynamics type as key).
+ *  \param stateDerivativePartials List of state derivative partials used in simulations (sorted by dynamics type as key).
  *  \return Function returning requested dependent variable. NOTE: The environment and state derivative models need to
  *  be updated to current state and independent variable before computation is performed.
  */
@@ -448,7 +449,7 @@ std::pair< std::function< Eigen::VectorXd( ) >, int > getVectorDependentVariable
         {
             std::function< Eigen::VectorXd( const Eigen::MatrixXd&, const Eigen::MatrixXd& ) > accelerationFunction =
                     std::bind( &gravitation::SphericalHarmonicsGravitationalAccelerationModel::getAccelerationWithAlternativeCoefficients,
-                                 sphericalHarmonicAcceleration, std::placeholders::_1,std::placeholders::_2 );
+                                 sphericalHarmonicAcceleration, std::placeholders::_1, std::placeholders::_2 );
             std::function< Eigen::MatrixXd( ) > cosineCorrectionFunction =
                     std::bind( &gravitation::TimeDependentSphericalHarmonicsGravityField::getTotalCosineCoefficientCorrection,
                                  timeDependentGravityField,
@@ -496,7 +497,7 @@ std::pair< std::function< Eigen::VectorXd( ) >, int > getVectorDependentVariable
             {
                 std::function< Eigen::VectorXd( const Eigen::MatrixXd&, const Eigen::MatrixXd& ) > accelerationFunction =
                         std::bind( &gravitation::SphericalHarmonicsGravitationalAccelerationModel::getAccelerationWithAlternativeCoefficients,
-                                     sphericalHarmonicAcceleration, std::placeholders::_1,std::placeholders::_2 );
+                                     sphericalHarmonicAcceleration, std::placeholders::_1, std::placeholders::_2 );
 
                 std::shared_ptr< gravitation::GravityFieldVariations > gravityFieldVatiation =
                         timeDependentGravityField->getGravityFieldVariationsSet( )->getGravityFieldVariation(
@@ -548,7 +549,7 @@ std::pair< std::function< Eigen::VectorXd( ) >, int > getVectorDependentVariable
                 std::function< Eigen::VectorXd( const Eigen::MatrixXd&, const Eigen::MatrixXd& ) > accelerationFunction =
                         std::bind( &gravitation::SphericalHarmonicsGravitationalAccelerationModel::
                                      getAccelerationComponentsWithAlternativeCoefficients,
-                                     sphericalHarmonicAcceleration, std::placeholders::_1,std::placeholders::_2, accelerationVariableSettings->componentIndices_ );
+                                     sphericalHarmonicAcceleration, std::placeholders::_1, std::placeholders::_2, accelerationVariableSettings->componentIndices_ );
 
                 std::shared_ptr< gravitation::GravityFieldVariations > gravityFieldVatiation =
                         timeDependentGravityField->getGravityFieldVariationsSet( )->getGravityFieldVariation(
@@ -687,7 +688,7 @@ std::pair< std::function< Eigen::VectorXd( ) >, int > getVectorDependentVariable
 
         if( ephemerides::isFrameInertial( dependentVariableSettings->secondaryBody_ ) )
         {
-            centralBodyStateFunction =  [](){ return Eigen::Vector6d::Zero( ); };
+            centralBodyStateFunction =  [ ]( ){ return Eigen::Vector6d::Zero( ); };
         }
         else
         {
@@ -953,12 +954,11 @@ std::pair< std::function< Eigen::VectorXd( ) >, int > getVectorDependentVariable
 
             if( partialFunction.second == 0 )
             {
-                variableFunction = boost::lambda::constant( Eigen::VectorXd::Zero( 18 ) );
+                variableFunction = [ = ]( ){ return Eigen::VectorXd::Zero( 18 ); };
             }
             else
             {
-                variableFunction = std::bind(
-                            &getVectorFunctionFromBlockFunction, partialFunction.first, 3, 6 );
+                variableFunction = std::bind( &getVectorFunctionFromBlockFunction, partialFunction.first, 3, 6 );
             }
 
             parameterSize = 18;
@@ -993,7 +993,8 @@ inline double elementAtIndexFunction( const std::function< Eigen::VectorXd( ) >&
  *  environment and/or state derivative models.
  *  \param dependentVariableSettings Settings for dependent variable that is to be returned by function created here.
  *  \param bodyMap List of bodies to use in simulations (containing full environment).
- *  \param stateDerivativeModels List of state derivative models used in simulations (sorted by dynamics type as key)
+ *  \param stateDerivativeModels List of state derivative models used in simulations (sorted by dynamics type as key).
+ *  \param stateDerivativePartials List of state derivative partials used in simulations (sorted by dynamics type as key).
  *  \return Function returning requested dependent variable. NOTE: The environment and state derivative models need to
  *  be updated to current state and independent variable before computation is performed.
  */

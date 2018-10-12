@@ -215,7 +215,7 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAccelerationPartials )
                 std::bind( &Body::getPosition, sun ),
                 std::bind( &Body::getPosition, vehicle ),
                 std::bind( &RadiationPressureInterface::getCurrentRadiationPressure,
-                             radiationPressureInterface ),
+                           radiationPressureInterface ),
                 std::bind( &RadiationPressureInterface::getRadiationPressureCoefficient, radiationPressureInterface ),
                 std::bind( &RadiationPressureInterface::getArea, radiationPressureInterface ),
                 std::bind( &Body::getBodyMass, vehicle ) );
@@ -529,7 +529,7 @@ BOOST_AUTO_TEST_CASE( testAerodynamicAccelerationPartials )
     using namespace tudat;
     // Create Earth object
     std::map< std::string, std::shared_ptr< BodySettings > > defaultBodySettings =
-            getDefaultBodySettings( boost::assign::list_of( "Earth" ) );
+            getDefaultBodySettings( { "Earth" } );
     defaultBodySettings[ "Earth" ]->ephemerisSettings = std::make_shared< ConstantEphemerisSettings >(
                 Eigen::Vector6d::Zero( ) );
     NamedBodyMap bodyMap = createBodies( defaultBodySettings );
@@ -1101,8 +1101,9 @@ BOOST_AUTO_TEST_CASE( testDirectDissipationAccelerationPartial )
                     GravitationalParameter >( jupiterGravityField, "Jupiter" );
             std::shared_ptr< EstimatableParameter< double > > ioGravitationalParameterParameter = std::make_shared<
                     GravitationalParameter >( ioGravityField, "Io" );
-            std::shared_ptr< EstimatableParameter< double > > tidalTimeLagParameter = std::make_shared<
-                    DirectTidalTimeLag >( boost::assign::list_of( accelerationModel ), ( usePlanetTide ) ? "Jupiter" : "Io" );
+            std::shared_ptr< EstimatableParameter< double > > tidalTimeLagParameter = std::make_shared< DirectTidalTimeLag >(
+                        std::vector< std::shared_ptr< gravitation::DirectTidalDissipationAcceleration > >{ accelerationModel },
+                        usePlanetTide ? "Jupiter" : "Io" );
 
 
             {

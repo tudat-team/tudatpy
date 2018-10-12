@@ -155,8 +155,8 @@ public:
             const double aJ2GravityCoefficient,
             const double aJ3GravityCoefficient,
             const double aJ4GravityCoefficient,
-            const StateFunction positionOfBodyExertingAccelerationFunction
-            = [](){ return Eigen::Vector3d::Zero( ); } )
+            const StateFunction positionOfBodyExertingAccelerationFunction =
+            [ ]( ){ return Eigen::Vector3d::Zero( ); } )
         : Base( positionOfBodySubjectToAccelerationFunction,
                 aGravitationalParameter,
                 positionOfBodyExertingAccelerationFunction, false ),

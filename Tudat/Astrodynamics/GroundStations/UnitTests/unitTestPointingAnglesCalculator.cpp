@@ -51,7 +51,7 @@ BOOST_AUTO_TEST_CASE( test_PointingAnglesCalculator )
         std::shared_ptr< GroundStationState > stationState = std::make_shared< GroundStationState >(
                     groundStationPosition, coordinate_conversions::cartesian_position, bodyShape );
         std::shared_ptr< PointingAnglesCalculator > pointAnglesCalculator = std::make_shared< PointingAnglesCalculator >(
-                    [&]( const double ){ return Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) ); },
+                    [ & ]( const double ){ return Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) ); },
                     std::bind( &GroundStationState::getRotationFromBodyFixedToTopocentricFrame, stationState, std::placeholders::_1 ) );
 
         // Define state of viewed point
@@ -79,7 +79,7 @@ BOOST_AUTO_TEST_CASE( test_PointingAnglesCalculator )
             std::shared_ptr< GroundStationState > stationState = std::make_shared< GroundStationState >(
                         groundStationPosition, coordinate_conversions::cartesian_position, bodyShape );
             std::shared_ptr< PointingAnglesCalculator > pointAnglesCalculator = std::make_shared< PointingAnglesCalculator >(
-                        [&]( const double ){ return Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) ); },
+                        [ & ]( const double ){ return Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) ); },
                         std::bind( &GroundStationState::getRotationFromBodyFixedToTopocentricFrame, stationState, std::placeholders::_1 ) );
 
             // Define state of viewed point
@@ -107,7 +107,7 @@ BOOST_AUTO_TEST_CASE( test_PointingAnglesCalculator )
             std::shared_ptr< GroundStationState > stationState = std::make_shared< GroundStationState >(
                         groundStationPosition, coordinate_conversions::cartesian_position, bodyShape );
             std::shared_ptr< PointingAnglesCalculator > pointAnglesCalculator = std::make_shared< PointingAnglesCalculator >(
-                        [&]( const double ){ return Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) ); },
+                        [ & ]( const double ){ return Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) ); },
                         std::bind( &GroundStationState::getRotationFromBodyFixedToTopocentricFrame, stationState, std::placeholders::_1 ) );
 
             // Define state of viewed point
@@ -150,7 +150,7 @@ BOOST_AUTO_TEST_CASE( test_PointingAnglesCalculator )
         std::shared_ptr< GroundStationState > stationState = std::make_shared< GroundStationState >(
                     groundStationPosition, coordinate_conversions::cartesian_position, bodyShape );
         std::shared_ptr< PointingAnglesCalculator > pointAnglesCalculator = std::make_shared< PointingAnglesCalculator >(
-                    [&]( const double ){ return inertialToBodyFixedFrame; },
+                    [ & ]( const double ){ return inertialToBodyFixedFrame; },
                     std::bind( &GroundStationState::getRotationFromBodyFixedToTopocentricFrame, stationState, std::placeholders::_1 ) );
 
         // Define state of viewed point

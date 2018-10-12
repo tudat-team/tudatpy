@@ -106,8 +106,8 @@ public:
             const double anEquatorialRadius,
             const double aJ2GravityCoefficient,
             const double aJ3GravityCoefficient,
-            const StateFunction positionOfBodyExertingAccelerationFunction
-            = [](){ return Eigen::Vector3d::Zero( ); } )
+            const StateFunction positionOfBodyExertingAccelerationFunction =
+            [ ]( ){ return Eigen::Vector3d::Zero( ); } )
         : Base( positionOfBodySubjectToAccelerationFunction,
                 aGravitationalParameter,
                 positionOfBodyExertingAccelerationFunction, false ),

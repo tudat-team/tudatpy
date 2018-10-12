@@ -335,7 +335,7 @@ BOOST_AUTO_TEST_CASE( testUnifiedStateModelPopagatorForSphericalHarmonicCentralB
                                                     < double, Eigen::Vector6d  > >( ), "Earth", "J2000" ) );
             std::shared_ptr< RadiationPressureInterfaceSettings > vehicleRadiationPressureSettings =
                     std::make_shared< CannonBallRadiationPressureInterfaceSettings >(
-                        "Sun", 4.0, 1.2, boost::assign::list_of( "Earth" ) );
+                        "Sun", 4.0, 1.2, std::vector< std::string >{ "Earth" } );
             bodyMap[ "Vehicle" ]->setRadiationPressureInterface(
                         "Sun", createRadiationPressureInterface(
                             vehicleRadiationPressureSettings, "Vehicle", bodyMap ) );
@@ -380,7 +380,7 @@ BOOST_AUTO_TEST_CASE( testUnifiedStateModelPopagatorForSphericalHarmonicCentralB
                 accelerationsOfVehicle[ "Sun" ].push_back( std::make_shared< AccelerationSettings >(
                                                                basic_astrodynamics::cannon_ball_radiation_pressure ) );
             }
-            accelerationMap[  "Vehicle" ] = accelerationsOfVehicle;
+            accelerationMap[ "Vehicle" ] = accelerationsOfVehicle;
             bodiesToPropagate.push_back( "Vehicle" );
             centralBodies.push_back( "Earth" );
             basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(

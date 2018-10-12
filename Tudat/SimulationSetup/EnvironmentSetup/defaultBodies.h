@@ -97,33 +97,13 @@ std::shared_ptr< RotationModelSettings > getDefaultRotationModelSettings(
 /*!
  *  Function to create default settings for a body's shape model. Currently set to
  *  a spherical model, with the radius taken from Spice
- *  \param body Name of body for which default shape model settings are to be retrieved.
+ *  \param bodyName Name of body for which default shape model settings are to be retrieved.
  *  \param initialTime Start time at which environment models in body are to be created
  *  (not currently used by this function, but included for consistency).
  *  \param finalTime End time up to which environment models in body are to be created
  *  (not currently used by this function, but included for consistency).
  */
 std::shared_ptr< BodyShapeSettings > getDefaultBodyShapeSettings(
-        const std::string& body,
-        const double initialTime, const double finalTime );
-
-
-//! Function to create default settings from which to create a single body object.
-/*!
- *  Function to create default settings from which to create a single body object using
- *  the code in createBodies.h/.cpp. This function is included to streamline and simplify the
- *  creation of typical celestial bodies. The default settings for the various
- *  environment models of the body are defined in the various functions defined in this file.
- *  \param bodyName Name of body for which default settings are to be retrieved.
- *  \param initialTime Start time at which environment models in body are to be created
- *  (included as some environment models require e.g., interpolators to be created over
- *  a certain time period).
- *  \param finalTime End time up to which environment models in body are to be created
- *  (included as some environment models require e.g., interpolators to be created over
- *  a certain time period).
- *  \return Default settings from which to create a single body object.
- */
-std::shared_ptr< RotationModelSettings > getDefaultRotationModelSettings(
         const std::string& bodyName,
         const double initialTime,
         const double finalTime );

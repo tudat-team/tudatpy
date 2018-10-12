@@ -47,11 +47,13 @@ BOOST_AUTO_TEST_CASE( test_json_atmosphere_exponential )
     const double constantTemperature = 290.0;
     const double densityAtZeroAltitude = 1.0;
     const double specificGasConstant = 3.0;
+    const double ratioOfSpecificHeats = -10.0;
     const std::shared_ptr< AtmosphereSettings > manualSettings =
             std::make_shared< ExponentialAtmosphereSettings >( densityScaleHeight,
-                                                                 constantTemperature,
-                                                                 densityAtZeroAltitude,
-                                                                 specificGasConstant );
+                                                               constantTemperature,
+                                                               densityAtZeroAltitude,
+                                                               specificGasConstant,
+                                                               ratioOfSpecificHeats );
 
     // Compare
     BOOST_CHECK_EQUAL_JSON( fromFileSettings, manualSettings );
@@ -68,8 +70,20 @@ BOOST_AUTO_TEST_CASE( test_json_atmosphere_tabulated )
             parseJSONFile< std::shared_ptr< AtmosphereSettings > >( INPUT( "tabulated" ) );
 
     // Create AtmosphereSettings manually
-    const std::shared_ptr< AtmosphereSettings > manualSettings =
-            std::make_shared< TabulatedAtmosphereSettings >( "atmosphereTable.foo" );
+    std::map< int, std::string > atmosphereTableFile;
+    atmosphereTableFile[ 0 ] = "atmosphereTable.foo";
+    std::vector< AtmosphereIndependentVariables > independentVariablesNames = { altitude_dependent_atmosphere, time_dependent_atmosphere };
+    std::vector< AtmosphereDependentVariables > dependentVariablesNames = { temperature_dependent_atmosphere,
+                                                                            gas_constant_dependent_atmosphere,
+                                                                            density_dependent_atmosphere,
+                                                                            pressure_dependent_atmosphere };
+    const double specificGasConstant = 10.0;
+    const double ratioOfSpecificHeats = 3.0;
+    std::vector< interpolators::BoundaryInterpolationType > boundaryHandling = { interpolators::use_boundary_value,
+                                                                                 interpolators::throw_exception_at_boundary };
+    const std::shared_ptr< AtmosphereSettings > manualSettings = std::make_shared< TabulatedAtmosphereSettings >(
+                atmosphereTableFile, independentVariablesNames, dependentVariablesNames,
+                specificGasConstant, ratioOfSpecificHeats, boundaryHandling );
 
     // Compare
     BOOST_CHECK_EQUAL_JSON( fromFileSettings, manualSettings );

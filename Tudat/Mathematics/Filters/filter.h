@@ -21,11 +21,8 @@
 #include <Eigen/LU>
 #include <unsupported/Eigen/MatrixFunctions>
 
-#include <boost/bind.hpp>
-#include <boost/function.hpp>
-#include <boost/shared_ptr.hpp>
-#include <boost/make_shared.hpp>
-#include <boost/lambda/lambda.hpp>
+#include <memory>
+#include <functional>
 
 #include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
 #include "Tudat/Mathematics/NumericalIntegrators/createNumericalIntegrator.h"
@@ -81,8 +78,7 @@ public:
      *      a-priori estimate of the state vector.
      *  \param initialCovarianceMatrix Matrix representing the initial (estimated) covariance of the system. It is used as first
      *      a-priori estimate of the covariance matrix.
-     *  \param isStateToBeIntegrated Boolean defining whether the system function needs to be integrated.
-     *  \param integrator Pointer to integrator to be used to propagate state.
+     *  \param integratorSettings Settings for the numerical integrator to be used to propagate state.
      */
     FilterBase( const DependentMatrix& systemUncertainty,
                 const DependentMatrix& measurementUncertainty,
@@ -116,9 +112,9 @@ public:
 
         // Create system and measurement functions based on input parameters// Get time step information
         systemFunction_ = std::bind( &FilterBase< IndependentVariableType, DependentVariableType >::createSystemFunction,
-                                       this, std::placeholders::_1, std::placeholders::_2 );
+                                     this, std::placeholders::_1, std::placeholders::_2 );
         measurementFunction_ = std::bind( &FilterBase< IndependentVariableType, DependentVariableType >::createMeasurementFunction,
-                                            this, std::placeholders::_1, std::placeholders::_2 );
+                                          this, std::placeholders::_1, std::placeholders::_2 );
 
         // Create numerical integrator
         isStateToBeIntegrated_ = integratorSettings != nullptr;
@@ -253,12 +249,12 @@ public:
         return std::make_pair( systemNoiseHistory_, measurementNoiseHistory_ );
     }
 
-    //! Function to reset the step size for filtering.
+    //! Function to modify the step size for filtering.
     /*!
-     *  Function to reset the step size for filtering, without interrupting the filtering process.
+     *  Function to modify the step size for filtering, without interrupting the filtering process.
      *  \param newFilteringStepSize Double denoting the new step size for filtering.
      */
-    void resetFilteringStepSize( const double newFilteringStepSize )
+    void modifyFilteringStepSize( const double newFilteringStepSize )
     {
         filteringStepSize_ = newFilteringStepSize;
     }
@@ -266,7 +262,7 @@ public:
     //! Function to modify the current time.
     /*!
      *  Function to modify the current time, without interrupting the filtering process.
-     *  \param newFilteringStepSize Double denoting the new current time.
+     *  \param newCurrentTime Double denoting the new current time.
      */
     void modifyCurrentTime( const double newCurrentTime )
     {

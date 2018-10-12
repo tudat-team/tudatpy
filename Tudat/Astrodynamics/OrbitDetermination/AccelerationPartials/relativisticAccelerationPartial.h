@@ -42,7 +42,6 @@ void computePartialOfSchwarzschildAccelerationCorrectionWrtPosition(
 /*!
  * Function to compute partial of Schwarzschild acceleration correction w.r.t. velocity of body undergoing acceleration
  * \param relativeState Cartesian state of body undergoing, w.r.t. body exerting, acceleration.
- * \param relativeState Current Schwarzschild acceleration correction
  * \param partialMatrix Requested (returnd by reference)
  * \param gravitationalParameter Gravitational parameter of body exerting acceleration.
  * \param ppnParameterGamma PPN parameter gamma

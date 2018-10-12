@@ -15,7 +15,6 @@
 #include <map>
 
 #include <memory>
-#include <boost/assign/list_of.hpp>
 
 #include <Eigen/Core>
 

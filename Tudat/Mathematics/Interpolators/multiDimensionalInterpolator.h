@@ -202,12 +202,13 @@ protected:
      *  on the method specified in boundaryHandling_.
      *  \param currentDimension Value of current dimension.
      *  \param useValue Boolean denoting whether the value given by this function needs to be used.
-     *  \param independentVariable Value of current independent variable.
+     *  \param currentIndependentVariable Value of current independent variable.
      *  \param dependentVariable Value of current dependent variable, in case the independent variable is out-of-range
-     *  and the selected method is use_default_value or use_default_value_with_warning.
+     *      and the selected method is use_default_value or use_default_value_with_warning.
      */
     void checkBoundaryCase(
-            const unsigned int currentDimension, bool& useValue,
+            const unsigned int currentDimension,
+            bool& useValue,
             IndependentVariableType& currentIndependentVariable,
             DependentVariableType& dependentVariable )
     {

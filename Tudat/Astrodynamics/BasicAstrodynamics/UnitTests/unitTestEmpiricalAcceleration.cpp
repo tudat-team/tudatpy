@@ -115,7 +115,7 @@ BOOST_AUTO_TEST_CASE( testEmpiricalAccelerations )
                                                              empiricalAccelerationNorm * Eigen::Vector3d::UnitY( ),
                                                              empiricalAccelerationNorm * Eigen::Vector3d::UnitZ( ) ) );
         }
-        accelerationMap[  "Asterix" ] = accelerationsOfAsterix;
+        accelerationMap[ "Asterix" ] = accelerationsOfAsterix;
         bodiesToPropagate.push_back( "Asterix" );
         centralBodies.push_back( "Earth" );
 

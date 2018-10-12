@@ -62,6 +62,8 @@ Eigen::Matrix< double, 7, 1 > convertKeplerianToUnifiedStateModelQuaternionsElem
  *         unifiedStateModelElements( 5 ) = epsilon3 quaternion element,                        [-]
  *         unifiedStateModelElements( 6 ) = eta quaternion element.                             [-]
  * \param centralBodyGravitationalParameter Gravitational parameter of central body.      [m^3/s^2]
+ * \param forceQuaternionNormalization Boolean denoting whether the normalization of the quaternion
+ * vector has to be forced.
  * \return convertedKeplerianElements Converted state in Keplerian elements. The order of elements is fixed!
  *         convertedKeplerianElements( 0 ) = semi-major axis,                                   [m]
  *         convertedKeplerianElements( 1 ) = eccentricity,                                      [-]
@@ -102,18 +104,20 @@ Eigen::Matrix< double, 7, 1 > convertCartesianToUnifiedStateModelQuaternionsElem
 
 //! Convert unified state model elements with quaternions to Cartesian elements.
 /*!
-* Converts unified state model elements with quaternions to Cartesian elements.
-* \param unifiedStateModelElements Vector containing unified state model elements with quaternions.
-*        Order of elements is important!
-*         unifiedStateModelElements( 0 ) = C hodograph element,                              [m/s]
-*         unifiedStateModelElements( 1 ) = Rf1 hodograph element,                            [m/s]
-*         unifiedStateModelElements( 2 ) = Rf1 hodograph element,                            [m/s]
-*         unifiedStateModelElements( 3 ) = epsilon1 quaternion element,                        [-]
-*         unifiedStateModelElements( 4 ) = epsilon2 quaternion element,                        [-]
-*         unifiedStateModelElements( 5 ) = epsilon3 quaternion element,                        [-]
-*         unifiedStateModelElements( 6 ) = eta quaternion element.                             [-]
-* \param centralBodyGravitationalParameter Gravitational parameter of central body.      [m^3/s^2]
-* \return convertedCartesianElements Converted state in Cartesian elements. The order of elements is fixed!
+ * Converts unified state model elements with quaternions to Cartesian elements.
+ * \param unifiedStateModelElements Vector containing unified state model elements with quaternions.
+ *        Order of elements is important!
+ *         unifiedStateModelElements( 0 ) = C hodograph element,                              [m/s]
+ *         unifiedStateModelElements( 1 ) = Rf1 hodograph element,                            [m/s]
+ *         unifiedStateModelElements( 2 ) = Rf1 hodograph element,                            [m/s]
+ *         unifiedStateModelElements( 3 ) = epsilon1 quaternion element,                        [-]
+ *         unifiedStateModelElements( 4 ) = epsilon2 quaternion element,                        [-]
+ *         unifiedStateModelElements( 5 ) = epsilon3 quaternion element,                        [-]
+ *         unifiedStateModelElements( 6 ) = eta quaternion element.                             [-]
+ * \param centralBodyGravitationalParameter Gravitational parameter of central body.      [m^3/s^2]
+ * \param forceQuaternionNormalization Boolean denoting whether the normalization of the quaternion
+ * vector has to be forced.
+ * \return convertedCartesianElements Converted state in Cartesian elements. The order of elements is fixed!
  *         convertedCartesianElements( 0 ) = x-position coordinate,                            [m]
  *         convertedCartesianElements( 1 ) = y-position coordinate,                            [m]
  *         convertedCartesianElements( 2 ) = z-position coordinate,                            [m]

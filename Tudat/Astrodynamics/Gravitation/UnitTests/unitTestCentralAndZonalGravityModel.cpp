@@ -26,7 +26,6 @@
 #include <map>
 #include <vector>
 
-#include <boost/assign/list_of.hpp>
 #include <boost/bind.hpp>
 #include <boost/lambda/lambda.hpp>
 #include <boost/make_shared.hpp>
@@ -48,7 +47,6 @@ namespace tudat
 namespace unit_tests
 {
 
-using namespace boost::assign;
 using namespace gravitation;
 
 typedef std::map< int, double > KeyIntValueDoubleMap;
@@ -208,10 +206,10 @@ BOOST_AUTO_TEST_CASE( testGravitationalAccelerationZonalSumWrapperClassesMatlab 
                     // Declare central acceleration wrapper class object.
                     CentralGravitationalAccelerationModel3dPointer centralGravity
                             = std::make_shared< CentralGravitationalAccelerationModel3d >(
-                                [&]( ){ return
+                                [ & ]( ){ return
                                     planetData.at( planet ).body2Positions.at( body2 ); },
                                 planetData.at( planet ).gravitationalParameter,
-                                [&]( ){ return
+                                [ & ]( ){ return
                                     planetData.at( planet ).body1Positions.at( body1 ); } );
 
                     // Compute central gravitational acceleration term [m s^-2].
@@ -233,12 +231,12 @@ BOOST_AUTO_TEST_CASE( testGravitationalAccelerationZonalSumWrapperClassesMatlab 
                     // Declare central + J2 acceleration wrapper class object.
                     CentralJ2GravitationalAccelerationModelPointer centralJ2Gravity
                             = std::make_shared< CentralJ2GravitationalAccelerationModel >(
-                                [&]( ){ return
+                                [ & ]( ){ return
                                     planetData.at( planet ).body2Positions.at( body2 ); },
                                 planetData.at( planet ).gravitationalParameter,
                                 planetData.at( planet ).equatorialRadius,
                                 planetData.at( planet ).zonalCoefficients[ 2 ],
-                            [&]( ){ return
+                            [ & ]( ){ return
                                 planetData.at( planet ).body1Positions.at( body1 ); } );
 
                     // Compute gravitational acceleration sum [m s^-2].
@@ -260,13 +258,13 @@ BOOST_AUTO_TEST_CASE( testGravitationalAccelerationZonalSumWrapperClassesMatlab 
                     // Declare central + J2 + J3 acceleration wrapper class object.
                     CentralJ2J3GravitationalAccelerationModelPointer centralJ2J3Gravity
                             = std::make_shared< CentralJ2J3GravitationalAccelerationModel >(
-                                [&]( ){ return
+                                [ & ]( ){ return
                                     planetData.at( planet ).body2Positions.at( body2 ); },
                                 planetData.at( planet ).gravitationalParameter,
                                 planetData.at( planet ).equatorialRadius,
                                 planetData.at( planet ).zonalCoefficients[ 2 ],
                             planetData.at( planet ).zonalCoefficients[ 3 ],
-                            [&]( ){ return
+                            [ & ]( ){ return
                                 planetData.at( planet ).body1Positions.at( body1 ); } );
 
                     // Compute gravitational acceleration sum [m s^-2].
@@ -294,14 +292,14 @@ BOOST_AUTO_TEST_CASE( testGravitationalAccelerationZonalSumWrapperClassesMatlab 
                         // Declare central + J2 + J3 + J4 acceleration wrapper class object.
                         centralJ2J3J4Gravity = std::make_shared<
                                 CentralJ2J3J4GravitationalAccelerationModel >(
-                                    [&]( ){ return
+                                    [ & ]( ){ return
                                         planetData.at( planet ).body2Positions.at( body2 ); },
                                     planetData.at( planet ).gravitationalParameter,
                                     planetData.at( planet ).equatorialRadius,
                                     planetData.at( planet ).zonalCoefficients[ 2 ],
                                 0.0,
                                 planetData.at( planet ).zonalCoefficients[ 4 ],
-                                [&]( ){ return
+                                [ & ]( ){ return
                                     planetData.at( planet ).body1Positions.at( body1 ); } );
                     }
 
@@ -311,14 +309,14 @@ BOOST_AUTO_TEST_CASE( testGravitationalAccelerationZonalSumWrapperClassesMatlab 
                         // Declare central + J2 + J3 + J4 acceleration wrapper class object.
                         centralJ2J3J4Gravity = std::make_shared<
                                 CentralJ2J3J4GravitationalAccelerationModel >(
-                                    [&]( ){ return
+                                    [ & ]( ){ return
                                         planetData.at( planet ).body2Positions.at( body2 ); },
                                     planetData.at( planet ).gravitationalParameter,
                                     planetData.at( planet ).equatorialRadius,
                                     planetData.at( planet ).zonalCoefficients[ 2 ],
                                 planetData.at( planet ).zonalCoefficients[ 3 ],
                                 planetData.at( planet ).zonalCoefficients[ 4 ],
-                                [&]( ){ return
+                                [ & ]( ){ return
                                     planetData.at( planet ).body1Positions.at( body1 ); } );
                     }
 
@@ -354,9 +352,8 @@ BOOST_AUTO_TEST_CASE( testGravitationalAccelarationZonalMelman )
 
     // Set map of function pointers for zonal coefficients.
     std::map< int, GravitationalAccelerationPointer > zonalGravitationalAccelerationPointers
-            = map_list_of( 2, &computeGravitationalAccelerationDueToJ2 )
-            ( 3, &computeGravitationalAccelerationDueToJ3 )
-            ( 4, &computeGravitationalAccelerationDueToJ4 );
+            = { { 2, &computeGravitationalAccelerationDueToJ2 }, { 3, &computeGravitationalAccelerationDueToJ3 },
+                { 4, &computeGravitationalAccelerationDueToJ4 } };
 
     // Loop over all planet test data and recompute the results using Tudat code. Check that the
     // values computed match results obtained by (Melman, 2012).
@@ -402,9 +399,8 @@ BOOST_AUTO_TEST_CASE( testGravitationalAccelarationZonalRonse )
 
     // Set map of function pointers for zonal coefficients.
     std::map< int, GravitationalAccelerationPointer > zonalGravitationalAccelerationPointers
-            = map_list_of( 2, &computeGravitationalAccelerationDueToJ2 )
-            ( 3, &computeGravitationalAccelerationDueToJ3 )
-            ( 4, &computeGravitationalAccelerationDueToJ4 );
+            = { { 2, &computeGravitationalAccelerationDueToJ2 }, { 3, &computeGravitationalAccelerationDueToJ3 },
+                { 4, &computeGravitationalAccelerationDueToJ4 } };
 
     // Loop over all planet test data and recompute the results using Tudat code. Check that the
     // values computed match results obtained by (Ronse, 2012).

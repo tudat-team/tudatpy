@@ -1039,7 +1039,7 @@ ScalarType convertSemiMajorAxisToEllipticalMeanMotion(
     // Check if semi-major axis is invalid and throw error if true.
     if ( semiMajorAxis < mathematical_constants::getFloatingInteger< ScalarType >( 0 ) )
     {
-        throw std::runtime_error( "Semi-major axis is invalid when converting semi major axis to elliptical mean motion." );
+        throw std::runtime_error( "Semi-major axis is invalid when converting semi-major axis to elliptical mean motion." );
     }
 
     // Else compute and return elliptical mean motion.

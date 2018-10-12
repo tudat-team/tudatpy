@@ -130,7 +130,7 @@ public:
     //! Function to reset the use of long double type for time step.
     /*!
      * Function to reset the use of long double type for time step.
-     * \param Boolean denoting whether time step is to be a long double.
+     * \param useLongDoubleTimeStep Boolean denoting whether time step is to be a long double.
      */
     void resetUseLongDoubleTimeStep( const bool useLongDoubleTimeStep )
     {
@@ -185,7 +185,10 @@ public:
      * \param useLongDoubleTimeStep Boolean denoting whether time step is to be a long double,
      * time step is a double if false.
      * \param selectedLookupScheme Selected type of lookup scheme for independent variables.
-     * \param boundaryHandling Variable denoting the method by which the boundary interpolation is handled.
+     * \param lagrangeBoundaryHandling Lagrange boundary handling method, in case the independent variable is outside the
+     * specified range.
+     * \param boundaryHandling Boundary handling method, in case the independent variable is outside the
+     * specified range.
      */
     LagrangeInterpolatorSettings(
             const int interpolatorOrder,
@@ -427,18 +430,18 @@ public:
     std::shared_ptr< InterpolatorSettings > interpolatorSettings_;
 };
 
-
-
 //! Function to create a one-dimensional interpolator
 /*!
  *  Function to create a one-dimensional interpolator from the data that is to be interpolated,
  *  as well as the settings that are to be used to create the interpolator.
  *  \param dataToInterpolate Map providing data that is to be interpolated (key = independent
- *  variables, value = dependent variables)
- *  \param interpolatorSettings Settings that are to be used to create interpolator
+ *      variables, value = dependent variables).
+ *  \param interpolatorSettings Settings that are to be used to create interpolator.
+ *  \param defaultExtrapolationValue Pair of default values to be used for extrapolation, in case
+        of use_default_value or use_default_value_with_warning as methods for boundaryHandling.
  *  \param firstDerivativeOfDependentVariables First derivative of dependent variables w.r.t. independent variable at
- *  independent variables values in values of dataToInterpolate. By default, this vector is empty, it only needs to
- *  be supplied if the selected interpolator requires this data (e.g. Hermite spline).
+ *      independent variables values in values of dataToInterpolate. By default, this vector is empty, it only needs to
+ *      be supplied if the selected interpolator requires this data (e.g. Hermite spline).
  *  \return Interpolator created from dataToInterpolate using interpolatorSettings.
  */
 template< typename IndependentVariableType, typename DependentVariableType >
@@ -556,7 +559,9 @@ createOneDimensionalInterpolator(
 /*!
  *  Function to create an interpolator from DataInterpolationSettings
  *  \param dataInterpolationSettings Object containing the data that is to be interpolated and settings that are to be
- *  used to create the interpolator.
+ *      used to create the interpolator.
+ *  \param defaultExtrapolationValue Pair of default values to be used for extrapolation, in case
+        of use_default_value or use_default_value_with_warning as methods for boundaryHandling.
  *  \return Interpolator created from dataToInterpolate using interpolatorSettings.
  */
 template< typename IndependentType, typename DependentType >
@@ -585,10 +590,12 @@ std::shared_ptr< OneDimensionalInterpolator< IndependentType, DependentType > > 
  *  Function to create a multi-dimensional interpolator from the data that is to be interpolated,
  *  as well as the settings that are to be used to create the interpolator.
  *  \param independentValues Vector of vectors containing data points of independent variables,
- *  each must be sorted in ascending order.
+ *      each must be sorted in ascending order.
  *  \param dependentData Multi-dimensional array of dependent data at each point of
- *  hyper-rectangular grid formed by independent variable points.
- *  \param interpolatorSettings Settings that are to be used to create interpolator
+ *      hyper-rectangular grid formed by independent variable points.
+ *  \param interpolatorSettings Settings that are to be used to create interpolator.
+ *  \param defaultExtrapolationValue Pair of default values to be used for extrapolation, in case
+        of use_default_value or use_default_value_with_warning as methods for boundaryHandling.
  *  \return Interpolator created from independentValues and dependentData using interpolatorSettings.
  */
 template< typename IndependentVariableType, typename DependentVariableType, unsigned int NumberOfDimensions >
