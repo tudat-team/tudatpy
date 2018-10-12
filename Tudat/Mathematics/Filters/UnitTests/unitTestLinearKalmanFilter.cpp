@@ -13,9 +13,10 @@
 
 #include <boost/test/unit_test.hpp>
 
+#include "Tudat/Basics/basicTypedefs.h"
 #include "Tudat/Basics/testMacros.h"
 #include "Tudat/InputOutput/basicInputOutput.h"
-#include "Tudat/Basics/basicTypedefs.h"
+#include "Tudat/InputOutput/matrixTextFileReader.h"
 
 #include "Tudat/Mathematics/Filters/linearKalmanFilter.h"
 #include "Tudat/Mathematics/NumericalIntegrators/createNumericalIntegrator.h"
@@ -85,6 +86,12 @@ BOOST_AUTO_TEST_CASE( testLinearKalmanFilter )
                 systemUncertainty, measurementUncertainty, timeStep,
                 initialTime, initialEstimatedStateVector, initialEstimatedStateCovarianceMatrix );
 
+    // Load noise from file
+    Eigen::MatrixXd systemNoise = input_output::readMatrixFromFile( tudat::input_output::getTudatRootPath( ) +
+                                                                    "/Mathematics/Filters/UnitTests/noiseData/lkfSystemNoise1.dat" );
+    Eigen::MatrixXd measurementNoise = input_output::readMatrixFromFile( tudat::input_output::getTudatRootPath( ) +
+                                                                         "/Mathematics/Filters/UnitTests/noiseData/lkfMeasurementNoise1.dat" );
+
     // Loop over each time step
     const bool showProgress = false;
     double currentTime = initialTime;
@@ -98,8 +105,8 @@ BOOST_AUTO_TEST_CASE( testLinearKalmanFilter )
     {
         // Compute actual values and perturb them
         currentStateVector = stateTransitionMatrix * currentStateVector + controlMatrix * currentControlVector +
-                linearFilter->produceSystemNoise( );
-        currentMeasurementVector = measurementMatrix * currentStateVector + linearFilter->produceMeasurementNoise( );
+                systemNoise.col( i );
+        currentMeasurementVector = measurementMatrix * currentStateVector + measurementNoise.col( i );
 
         // Update filter
         linearFilter->updateFilter( currentMeasurementVector );
@@ -123,8 +130,7 @@ BOOST_AUTO_TEST_CASE( testLinearKalmanFilter )
     expectedFinalState << -7.415393533447765, -12.421405468923618, -8.9114310345206711;
     for ( unsigned int i = 0; i < expectedFinalState.rows( ); i++ )
     {
-        BOOST_CHECK_SMALL( linearFilter->getCurrentStateEstimate( )[ i ] - expectedFinalState[ i ],
-                           std::numeric_limits< double >::epsilon( ) );
+        BOOST_CHECK_SMALL( linearFilter->getCurrentStateEstimate( )[ i ] - expectedFinalState[ i ], 1.0e-10 );
     }
 }
 
