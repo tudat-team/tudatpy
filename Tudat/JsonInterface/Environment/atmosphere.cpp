@@ -11,6 +11,8 @@
 
 #include "Tudat/JsonInterface/Environment/atmosphere.h"
 
+#include "Tudat/JsonInterface/Mathematics/interpolation.h"
+
 namespace tudat
 {
 
@@ -42,6 +44,7 @@ void to_json( nlohmann::json& jsonObject, const std::shared_ptr< AtmosphereSetti
         jsonObject[ K::constantTemperature ] = exponentialAtmosphereSettings->getConstantTemperature( );
         jsonObject[ K::densityAtZeroAltitude ] = exponentialAtmosphereSettings->getDensityAtZeroAltitude( );
         jsonObject[ K::specificGasConstant ] = exponentialAtmosphereSettings->getSpecificGasConstant( );
+        jsonObject[ K::ratioOfSpecificHeats ] = exponentialAtmosphereSettings->getRatioOfSpecificHeats( );
         return;
     }
     case tabulated_atmosphere:
@@ -49,7 +52,12 @@ void to_json( nlohmann::json& jsonObject, const std::shared_ptr< AtmosphereSetti
         std::shared_ptr< TabulatedAtmosphereSettings > tabulatedAtmosphereSettings =
                 std::dynamic_pointer_cast< TabulatedAtmosphereSettings >( atmosphereSettings );
         assertNonnullptrPointer( tabulatedAtmosphereSettings );
-        jsonObject[ K::file ] = boost::filesystem::path( tabulatedAtmosphereSettings->getAtmosphereFile( 0 ) );
+        jsonObject[ K::file ] = tabulatedAtmosphereSettings->getAtmosphereFile( );
+        jsonObject[ K::independentVariablesNames ] = tabulatedAtmosphereSettings->getIndependentVariables( );
+        jsonObject[ K::dependentVariablesNames ] = tabulatedAtmosphereSettings->getDependentVariables( );
+        jsonObject[ K::specificGasConstant ] = tabulatedAtmosphereSettings->getSpecificGasConstant( );
+        jsonObject[ K::ratioOfSpecificHeats ] = tabulatedAtmosphereSettings->getRatioOfSpecificHeats( );
+        jsonObject[ K::boundaryHandling ] = tabulatedAtmosphereSettings->getBoundaryHandling( );
         return;
     }
     case nrlmsise00:
@@ -81,17 +89,28 @@ void from_json( const nlohmann::json& jsonObject, std::shared_ptr< AtmosphereSet
     switch ( atmosphereType ) {
     case exponential_atmosphere:
     {
+        ExponentialAtmosphereSettings defaults( 0.0, 0.0, 0.0 );
         atmosphereSettings = std::make_shared< ExponentialAtmosphereSettings >(
                     getValue< double >( jsonObject, K::densityScaleHeight ),
                     getValue< double >( jsonObject, K::constantTemperature ),
                     getValue< double >( jsonObject, K::densityAtZeroAltitude ),
-                    getValue< double >( jsonObject, K::specificGasConstant ) );
+                    getValue< double >( jsonObject, K::specificGasConstant, defaults.getSpecificGasConstant( ) ),
+                    getValue< double >( jsonObject, K::ratioOfSpecificHeats, defaults.getRatioOfSpecificHeats( ) ) );
         return;
     }
     case tabulated_atmosphere:
     {
+        TabulatedAtmosphereSettings defaults( getValue< std::map< int, std::string > >( jsonObject, K::file ) );
         atmosphereSettings = std::make_shared< TabulatedAtmosphereSettings >(
-                    getValue< boost::filesystem::path >( jsonObject, K::file ).string( ) );
+                    getValue< std::map< int, std::string > >( jsonObject, K::file ),
+                    getValue< std::vector< AtmosphereIndependentVariables > >( jsonObject, K::independentVariablesNames,
+                                                                               defaults.getIndependentVariables( ) ),
+                    getValue< std::vector< AtmosphereDependentVariables > >( jsonObject, K::dependentVariablesNames,
+                                                                             defaults.getDependentVariables( ) ),
+                    getValue< double >( jsonObject, K::specificGasConstant, defaults.getSpecificGasConstant( ) ),
+                    getValue< double >( jsonObject, K::ratioOfSpecificHeats, defaults.getRatioOfSpecificHeats( ) ),
+                    getValue< std::vector< interpolators::BoundaryInterpolationType > >( jsonObject, K::boundaryHandling,
+                                                                                         defaults.getBoundaryHandling( ) ) );
         return;
     }
     case nrlmsise00:

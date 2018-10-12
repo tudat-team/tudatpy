@@ -11,7 +11,7 @@
 #ifndef TUDAT_CREATEACCELERATIONPARTIALS_H
 #define TUDAT_CREATEACCELERATIONPARTIALS_H
 
-#include <boost/make_shared.hpp>
+#include <memory.h>
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/accelerationModel.h"
 
@@ -31,7 +31,6 @@
 #include "Tudat/Astrodynamics/BasicAstrodynamics/accelerationModelTypes.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/AccelerationPartials/tidalLoveNumberPartialInterface.h"
 
-
 namespace tudat
 {
 
@@ -48,7 +47,6 @@ namespace simulation_setup
 std::vector< std::shared_ptr< orbit_determination::TidalLoveNumberPartialInterface > > createTidalLoveNumberInterfaces(
         const NamedBodyMap& bodyMap,
         const std::string& acceleratingBodyName );
-
 
 //! Function to create a single acceleration partial derivative object.
 /*!

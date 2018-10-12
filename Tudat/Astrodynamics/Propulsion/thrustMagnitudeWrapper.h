@@ -111,7 +111,7 @@ public:
     CustomThrustMagnitudeWrapper(
             const std::function< double( const double ) > thrustMagnitudeFunction,
             const std::function< double( const double ) > specificImpulseFunction,
-            const std::function< bool( const double ) > isEngineOnFunction = []( const double ){ return true; } ,
+            const std::function< bool( const double ) > isEngineOnFunction = [ ]( const double ){ return true; } ,
             const std::function< void( const double ) > customThrustResetFunction = std::function< void( const double ) >( ) ):
         thrustMagnitudeFunction_( thrustMagnitudeFunction ),
         specificImpulseFunction_( specificImpulseFunction ),
@@ -347,8 +347,6 @@ public:
      * as entries of this vector.
      * \param thrustIndependentVariables List of identifiers for the physical meaning of each of the entries of the input to
      * the thrustMagnitudeFunction function.
-     * \param specificImpulseDependentVariables List of identifiers for the physical meaning of each of the entries of the
-     * input to the specificImpulseDependentVariables function.
      * \param specificImpulseDependentVariables List of identifiers for the physical meaning of each of the entries of the
      * input to the specificImpulseDependentVariables function.
      * \param inputUpdateFunction Function that is called to update the user-defined guidance to the current time

@@ -133,7 +133,11 @@ struct Keys
             static const std::string constantTemperature;
             static const std::string densityAtZeroAltitude;
             static const std::string specificGasConstant;
+            static const std::string ratioOfSpecificHeats;
             static const std::string file;
+            static const std::string independentVariablesNames;
+            static const std::string dependentVariablesNames;
+            static const std::string boundaryHandling;
             static const std::string spaceWeatherFile;
         };
 

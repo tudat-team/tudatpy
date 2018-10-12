@@ -270,9 +270,9 @@ void testObservationPartials(
             // Test double parameter partials
             {
                 // Settings for parameter partial functions.
-                std::vector< double > parameterPerturbations = boost::assign::list_of
-                        ( 1.0E-10 * parameterPerturbationMultipliers( 0 ) )( 1.0E-10 * parameterPerturbationMultipliers( 1 ) )
-                        ( 1.0E8 * parameterPerturbationMultipliers( 2 ) );
+                std::vector< double > parameterPerturbations = { 1.0E-10 * parameterPerturbationMultipliers( 0 ),
+                                                                 1.0E-10 * parameterPerturbationMultipliers( 1 ),
+                                                                 1.0E8 * parameterPerturbationMultipliers( 2 ) };
                 std::vector< std::function< void( ) > > updateFunctionList;
                 updateFunctionList.push_back( emptyVoidFunction );
                 updateFunctionList.push_back( emptyVoidFunction );

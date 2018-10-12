@@ -23,9 +23,9 @@
 
 namespace tudat
 {
+
 namespace ephemerides
 {
-
 
 //! Ephemeris base class.
 /*!
@@ -143,6 +143,7 @@ protected:
      * reference frame, the origin is defined by the referenceFrameOrigin_ variable.
      */
     std::string referenceFrameOrientation_;
+
 };
 
 //! Typedef for shared-pointer to Ephemeris object.
@@ -163,6 +164,7 @@ void getRelativeState(
         const std::function< Eigen::Vector6d( ) > stateFunctionOfCentralBody );
 
 } // namespace ephemerides
+
 } // namespace tudat
 
 #endif // TUDAT_EPHEMERIS_H

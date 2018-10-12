@@ -98,7 +98,8 @@ void determineInitialStates(
                                 integratorSettings->initialTime_ );
                     jsonPropagator[ K::initialStates ] = initialStates;
                     usedEphemeris = true;
-                } catch ( ... ) { }
+                }
+                catch ( ... ) { }
             }
         }
     }

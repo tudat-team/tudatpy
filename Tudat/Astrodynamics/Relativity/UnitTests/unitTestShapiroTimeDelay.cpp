@@ -11,7 +11,6 @@
 
 #define BOOST_TEST_MAIN
 
-#include <boost/assign/list_of.hpp>
 #include <boost/test/unit_test.hpp>
 #include <boost/make_shared.hpp>
 #include <boost/bind.hpp>
@@ -41,7 +40,7 @@ BOOST_AUTO_TEST_CASE( testShapiroDelay )
     Eigen::Vector6d centralBodyPosition = Eigen::Vector6d::Zero( );
 
     std::shared_ptr< ConstantEphemeris > ephemeris = std::make_shared< ConstantEphemeris >(
-                [&](){ return centralBodyPosition; } );
+                [ & ]( ){ return centralBodyPosition; } );
 
     double earthGravitationalParameter = 398600.44189E9;
 
@@ -53,11 +52,11 @@ BOOST_AUTO_TEST_CASE( testShapiroDelay )
     std::vector< std::function< double( ) > > perturbingBodyGravitationalParameterFunctions;
 
     perturbingBodyStateFunctions.push_back( std::bind( &Ephemeris::getCartesianState, ephemeris, std::placeholders::_1 ) );
-    perturbingBodyGravitationalParameterFunctions.push_back( [&](){ return earthGravitationalParameter; } );
+    perturbingBodyGravitationalParameterFunctions.push_back( [ & ]( ){ return earthGravitationalParameter; } );
 
     FirstOrderLightTimeCorrectionCalculator correctionCalculator(
                 perturbingBodyStateFunctions, perturbingBodyGravitationalParameterFunctions,
-                boost::assign::list_of( "Earth" ), "Satellite", "Earth" );
+                std::vector< std::string >{ "Earth" }, "Satellite", "Earth" );
 
     double classInterfaceCalculation = correctionCalculator.calculateLightTimeCorrection(
                 groundStationState, satelliteState, 0.0, 0.0 );

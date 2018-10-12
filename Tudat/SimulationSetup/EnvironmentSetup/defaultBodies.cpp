@@ -104,6 +104,9 @@ std::shared_ptr< RotationModelSettings > getDefaultRotationModelSettings(
         const double initialTime,
         const double finalTime )
 {
+    TUDAT_UNUSED_PARAMETER( initialTime );
+    TUDAT_UNUSED_PARAMETER( finalTime );
+
 #if USE_CSPICE
     // Create settings for a rotation model taken directly from Spice.
     return std::make_shared< RotationModelSettings >(
@@ -115,20 +118,24 @@ std::shared_ptr< RotationModelSettings > getDefaultRotationModelSettings(
 
 //! Function to create default settings for a body's shape model.
 std::shared_ptr< BodyShapeSettings > getDefaultBodyShapeSettings(
-        const std::string& body,
-        const double initialTime, const double finalTime )
+        const std::string& bodyName,
+        const double initialTime,
+        const double finalTime )
 {
+    TUDAT_UNUSED_PARAMETER( initialTime );
+    TUDAT_UNUSED_PARAMETER( finalTime );
+
 #if USE_CSPICE
     return std::make_shared< SphericalBodyShapeSettings >(
-                spice_interface::getAverageRadius( body ) );
+                spice_interface::getAverageRadius( bodyName ) );
 #else
-    throw std::runtime_error( "Default body settings can only be used together with the SPICE library" );
+    throw std::runtime_error( "Default bodyName settings can only be used together with the SPICE library" );
 #endif
 }
 
 //! Function to create default settings for a body's rotation model.
 std::shared_ptr< BodySettings > getDefaultSingleBodySettings(
-        const std::string& body,
+        const std::string& bodyName,
         const double initialTime,
         const double finalTime,
         const double timeStep )
@@ -137,9 +144,9 @@ std::shared_ptr< BodySettings > getDefaultSingleBodySettings(
 
     // Get default settings for each of the environment models in the body.
     singleBodySettings->atmosphereSettings = getDefaultAtmosphereModelSettings(
-                body, initialTime, finalTime );
+                bodyName, initialTime, finalTime );
     singleBodySettings->rotationModelSettings = getDefaultRotationModelSettings(
-                body, initialTime, finalTime );
+                bodyName, initialTime, finalTime );
 
     if( ( !( initialTime == initialTime ) && ( finalTime == finalTime ) ) ||
             ( ( initialTime == initialTime ) && !( finalTime == finalTime ) ) )
@@ -149,17 +156,17 @@ std::shared_ptr< BodySettings > getDefaultSingleBodySettings(
     else if( !( initialTime == initialTime ) )
     {
         singleBodySettings->ephemerisSettings = getDefaultEphemerisSettings(
-                    body );
+                    bodyName );
     }
     else
     {
         singleBodySettings->ephemerisSettings = getDefaultEphemerisSettings(
-                    body, initialTime, finalTime, timeStep );
+                    bodyName, initialTime, finalTime, timeStep );
     }
     singleBodySettings->gravityFieldSettings = getDefaultGravityFieldSettings(
-                body, initialTime, finalTime );
+                bodyName, initialTime, finalTime );
     singleBodySettings->shapeModelSettings = getDefaultBodyShapeSettings(
-                body, initialTime, finalTime );
+                bodyName, initialTime, finalTime );
 
     return singleBodySettings;
 }

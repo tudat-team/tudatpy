@@ -14,7 +14,6 @@
 
 #include <boost/test/unit_test.hpp>
 #include <boost/make_shared.hpp>
-#include <boost/assign/list_of.hpp>
 
 #include <Eigen/Core>
 
@@ -335,7 +334,7 @@ BOOST_AUTO_TEST_CASE( test_radiationPressureAcceleration )
 
     // Set vehicle mass
     double bodyMass = 500.0;
-    bodyMap[ "Vehicle" ]->setBodyMassFunction( [&]( const double ){ return bodyMass; } );
+    bodyMap[ "Vehicle" ]->setBodyMassFunction( [ & ]( const double ){ return bodyMass; } );
     bodyMap[ "Vehicle" ]->updateMass( testTime );
 
     // Update environment to current time.
@@ -443,9 +442,9 @@ BOOST_AUTO_TEST_CASE( test_aerodynamicAccelerationModelSetup )
         std::shared_ptr< aerodynamics::FlightConditions > vehicleFlightConditions =
                 bodyMap[ "Vehicle" ]->getFlightConditions( );
         vehicleFlightConditions->getAerodynamicAngleCalculator( )->setOrientationAngleFunctions(
-                    [&](){ return angleOfAttack; },
-                    [&](){ return angleOfSideslip; },
-                    [&](){ return bankAngle; } );
+                    [ & ]( ){ return angleOfAttack; },
+                    [ & ]( ){ return angleOfSideslip; },
+                    [ & ]( ){ return bankAngle; } );
 
         // Set vehicle body-fixed state (see testAerodynamicAngleCalculator)
         Eigen::Vector6d vehicleBodyFixedState =
@@ -468,7 +467,7 @@ BOOST_AUTO_TEST_CASE( test_aerodynamicAccelerationModelSetup )
 
         // Set vehicle mass
         double bodyMass = 500.0;
-        bodyMap[ "Vehicle" ]->setBodyMassFunction( [&]( const double ){ return bodyMass; } );
+        bodyMap[ "Vehicle" ]->setBodyMassFunction( [ & ]( const double ){ return bodyMass; } );
         bodyMap[ "Vehicle" ]->updateMass( testTime );
 
         // Update flight conditions.
@@ -597,9 +596,9 @@ BOOST_AUTO_TEST_CASE( test_aerodynamicAccelerationModelSetupWithCoefficientIndep
     double angleOfSideslip = -0.00322;
     double bankAngle = 2.323432;
     vehicleFlightConditions->getAerodynamicAngleCalculator( )->setOrientationAngleFunctions(
-                [&](){ return angleOfAttack; },
-                [&](){ return angleOfSideslip; },
-                [&](){ return bankAngle; } );
+                [ & ]( ){ return angleOfAttack; },
+                [ & ]( ){ return angleOfSideslip; },
+                [ & ]( ){ return bankAngle; } );
 
     // Update environment to current time.
     double testTime = 0.5E7;
@@ -608,7 +607,7 @@ BOOST_AUTO_TEST_CASE( test_aerodynamicAccelerationModelSetupWithCoefficientIndep
     double bodyMass = 500.0;
 
     // Set vehicle mass
-    bodyMap[ "Vehicle" ]->setBodyMassFunction( [&]( const double ){ return bodyMass; } );
+    bodyMap[ "Vehicle" ]->setBodyMassFunction( [ & ]( const double ){ return bodyMass; } );
     bodyMap[ "Vehicle" ]->updateMass( testTime );
 
     // Test aerodynamic coefficients for various cases of independent variables.
@@ -641,9 +640,9 @@ BOOST_AUTO_TEST_CASE( test_aerodynamicAccelerationModelSetupWithCoefficientIndep
             angleOfSideslip += 0.00123;
         }
         vehicleFlightConditions->getAerodynamicAngleCalculator( )->setOrientationAngleFunctions(
-                    [&](){ return angleOfAttack; },
-                    [&](){ return angleOfSideslip; },
-                    [&](){ return bankAngle; } );
+                    [ & ]( ){ return angleOfAttack; },
+                    [ & ]( ){ return angleOfSideslip; },
+                    [ & ]( ){ return bankAngle; } );
 
         // Update flight conditions
         vehicleFlightConditions->resetCurrentTime( TUDAT_NAN );

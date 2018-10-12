@@ -344,7 +344,7 @@ public:
 /*!
  * Check that a pointer to an object of type `T` is not `nullptr`.
  * \param pointer The pointer that is not allowed to be `nullptr`.
- * \throws nullptrPointerError<T> If \p pointer is `nullptr`.
+ * \throws nullptrPointerError< T > If \p pointer is `nullptr`.
  */
 template< typename T >
 void assertNonnullptrPointer( const std::shared_ptr< T >& pointer )

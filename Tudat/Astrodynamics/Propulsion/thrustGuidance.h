@@ -15,7 +15,9 @@
 
 #include "Tudat/Astrodynamics/ReferenceFrames/referenceFrameTransformations.h"
 #include "Tudat/Astrodynamics/ReferenceFrames/dependentOrientationCalculator.h"
+
 #include "Tudat/Basics/basicTypedefs.h"
+#include "Tudat/Mathematics/BasicMathematics/linearAlgebra.h"
 
 namespace tudat
 {
@@ -140,20 +142,20 @@ class DirectionBasedForceGuidance: public BodyFixedForceDirectionGuidance
 {
 public:
 
-    //! Constructor
+    //! Constructor.
     /*!
-     * Constructor
-     * \param forceDirectionFunction Function returning thrust-direction (represented in the relevant propagation frame)
-     * as a function of time.
-     * \param centralBody Name of central body
-     * \param bodyFixedForceDirection Function returning the unit-vector of the force direction in a body-fixed frame (e.g.
-     * engine thrust pointing in body-fixed frame).
+     *  Constructor.
+     *  \param forceDirectionFunction Function returning thrust-direction (represented in the relevant propagation frame)
+     *      as a function of time.
+     *  \param centralBody Name of central body
+     *  \param bodyFixedForceDirection Function returning the unit-vector of the force direction in a body-fixed frame (e.g.
+     *      engine thrust pointing in body-fixed frame).
      */
     DirectionBasedForceGuidance(
             const std::function< Eigen::Vector3d( const double ) > forceDirectionFunction,
             const std::string& centralBody,
             const std::function< Eigen::Vector3d( ) > bodyFixedForceDirection =
-            [](){ return  Eigen::Vector3d::UnitX( ); } ):
+            [ ]( ){ return Eigen::Vector3d::UnitX( ); } ):
         BodyFixedForceDirectionGuidance ( bodyFixedForceDirection ),
         forceDirectionFunction_( forceDirectionFunction ),
         centralBody_( centralBody ){ }
@@ -175,7 +177,7 @@ public:
      */
     Eigen::Quaterniond getRotationToGlobalFrame( )
     {
-        return Eigen::Quaterniond( Eigen::AngleAxisd( 0, currentForceDirection_ ) );
+        throw std::runtime_error( "Error, body-fixed frame to propagation frame not yet implemented for DirectionBasedForceGuidance." );
     }
 
     //! Function to return the name of the central body.
@@ -227,7 +229,7 @@ public:
     OrientationBasedForceGuidance(
             const std::function< Eigen::Quaterniond( const double ) > bodyFixedFrameToBaseFrameFunction,
             const std::function< Eigen::Vector3d( ) > bodyFixedForceDirection =
-            [](){ return  Eigen::Vector3d::UnitX( ); } ):
+            [ ]( ){ return  Eigen::Vector3d::UnitX( ); } ):
         BodyFixedForceDirectionGuidance ( bodyFixedForceDirection ),
         bodyFixedFrameToBaseFrameFunction_( bodyFixedFrameToBaseFrameFunction ){  }
 

@@ -12,7 +12,6 @@
 
 #include <boost/make_shared.hpp>
 #include <boost/lambda/lambda.hpp>
-#include <boost/assign/list_of.hpp>
 
 #include "Tudat/Mathematics/BasicMathematics/coordinateConversions.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/physicalConstants.h"

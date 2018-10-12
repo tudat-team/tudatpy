@@ -17,6 +17,7 @@
 #include "Tudat/Basics/testMacros.h"
 #include "Tudat/Basics/basicTypedefs.h"
 #include "Tudat/InputOutput/basicInputOutput.h"
+#include "Tudat/InputOutput/matrixTextFileReader.h"
 
 #include "Tudat/Mathematics/Statistics/basicStatistics.h"
 #include "Tudat/Mathematics/Filters/unscentedKalmanFilter.h"
@@ -86,16 +87,23 @@ BOOST_AUTO_TEST_CASE( testUnscentedKalmanFilterFirstCase )
 
     // Create control class
     std::shared_ptr< ControlWrapper< double, double, 2 > > control =
-            std::make_shared< ControlWrapper< double, double, 2 > >( boost::lambda::constant( Eigen::Vector2d::Zero( ) ) );
+            std::make_shared< ControlWrapper< double, double, 2 > >(
+                [ & ]( const double, const Eigen::Vector2d& ){ return Eigen::Vector2d::Zero( ); } );
 
     // Create unscented Kalman filter object
     UnscentedKalmanFilterDoublePointer unscentedFilter = std::make_shared< UnscentedKalmanFilterDouble >(
                 std::bind( &stateFunction1, std::placeholders::_1, std::placeholders::_2,
-                             std::bind( &ControlWrapper< double, double, 2 >::getCurrentControlVector, control ) ),
+                           std::bind( &ControlWrapper< double, double, 2 >::getCurrentControlVector, control ) ),
                 std::bind( &measurementFunction1, std::placeholders::_1, std::placeholders::_2 ),
                 systemUncertainty, measurementUncertainty, timeStep,
                 initialTime, initialEstimatedStateVector, initialEstimatedStateCovarianceMatrix,
                 integratorSettings );
+
+    // Load noise from file
+    Eigen::MatrixXd systemNoise = input_output::readMatrixFromFile( tudat::input_output::getTudatRootPath( ) +
+                                                                    "/Mathematics/Filters/UnitTests/noiseData/ukfSystemNoise1.dat" );
+    Eigen::MatrixXd measurementNoise = input_output::readMatrixFromFile( tudat::input_output::getTudatRootPath( ) +
+                                                                         "/Mathematics/Filters/UnitTests/noiseData/ukfMeasurementNoise1.dat" );
 
     // Loop over each time step
     const bool showProgress = false;
@@ -110,9 +118,8 @@ BOOST_AUTO_TEST_CASE( testUnscentedKalmanFilterFirstCase )
     {
         // Compute actual values and perturb them
         currentActualStateVector += ( stateFunction1( currentTime, currentActualStateVector, currentControlVector ) +
-                                      unscentedFilter->produceSystemNoise( ) ) * timeStep;
-        currentMeasurementVector = measurementFunction1( currentTime, currentActualStateVector ) +
-                unscentedFilter->produceMeasurementNoise( );
+                                      systemNoise.col( i ) ) * timeStep;
+        currentMeasurementVector = measurementFunction1( currentTime, currentActualStateVector ) + measurementNoise.col( i );
 
         // Update control class
         control->setCurrentControlVector( currentTime, unscentedFilter->getCurrentStateEstimate( ) );
@@ -136,25 +143,11 @@ BOOST_AUTO_TEST_CASE( testUnscentedKalmanFilterFirstCase )
 
     // Check that final state is as expected
     Eigen::Vector2d expectedFinalState = Eigen::Vector2d::Zero( );
-    expectedFinalState << 5.04684539050115, -10.9757030087281;
-    Eigen::Vector2d tolerances;
-    tolerances << 0.05, 0.3;
+    expectedFinalState << 4.9650721756454104, -12.853194315262826;
     for ( int i = 0; i < expectedFinalState.rows( ); i++ )
     {
-        BOOST_CHECK_CLOSE_FRACTION( unscentedFilter->getCurrentStateEstimate( )[ i ], expectedFinalState[ i ], tolerances[ i ] );
+        BOOST_CHECK_SMALL( unscentedFilter->getCurrentStateEstimate( )[ i ] - expectedFinalState[ i ], 1.0e-10 );
     }
-
-    // Check that noise is actually normally distributed (within 5 %)
-    std::pair< std::vector< Eigen::VectorXd >, std::vector< Eigen::VectorXd > > noiseHistory = unscentedFilter->getNoiseHistory( );
-    Eigen::MatrixXd systemNoise = utilities::convertStlVectorToEigenMatrix< double >( noiseHistory.first );
-    Eigen::MatrixXd measurementNoise = utilities::convertStlVectorToEigenMatrix< double >( noiseHistory.second );
-    for ( unsigned int i = 0; i < 2; i++ )
-    {
-        BOOST_CHECK_CLOSE_FRACTION( statistics::computeStandardDeviationOfVectorComponents( systemNoise.row( i ) ),
-                                    std::sqrt( systemUncertainty( i, i ) ), 5.0e-2 );
-    }
-    BOOST_CHECK_CLOSE_FRACTION( statistics::computeStandardDeviationOfVectorComponents( measurementNoise.row( 0 ) ),
-                                std::sqrt( measurementUncertainty( 0, 0 ) ), 5.0e-2 );
 }
 
 //! Typedefs.
@@ -212,17 +205,23 @@ BOOST_AUTO_TEST_CASE( testUnscentedKalmanFilterSecondCase )
     // Create control class
     std::shared_ptr< ControlWrapper< long double, long double, 3 > > control =
             std::make_shared< ControlWrapper< long double, long double, 3 > >(
-                boost::lambda::constant( Vector3ld::Zero( ) ) );
+                [ & ]( const double, const Vector3ld& ){ return Vector3ld::Zero( ); } );
 
     // Create unscented Kalman filter object
     std::shared_ptr< KalmanFilterBase< long double, long double > > unscentedFilter =
             std::make_shared< UnscentedKalmanFilter< long double, long double > >(
                 std::bind( &stateFunction2, std::placeholders::_1, std::placeholders::_2,
-                             std::bind( &ControlWrapper< long double, long double, 3 >::getCurrentControlVector, control ) ),
+                           std::bind( &ControlWrapper< long double, long double, 3 >::getCurrentControlVector, control ) ),
                 std::bind( &measurementFunction2, std::placeholders::_1, std::placeholders::_2 ),
                 systemUncertainty, measurementUncertainty, timeStep,
                 initialTime, initialEstimatedStateVector, initialEstimatedStateCovarianceMatrix,
                 integratorSettings, custom_parameters, std::make_pair( 0.001, 0.0 ) );
+
+    // Load noise from file
+    Eigen::MatrixXld systemNoise = input_output::readMatrixFromFile< long double >(
+                tudat::input_output::getTudatRootPath( ) + "/Mathematics/Filters/UnitTests/noiseData/ukfSystemNoise2.dat" );
+    Eigen::MatrixXld measurementNoise = input_output::readMatrixFromFile< long double >(
+                tudat::input_output::getTudatRootPath( ) + "/Mathematics/Filters/UnitTests/noiseData/ukfMeasurementNoise2.dat" );
 
     // Loop over each time step
     const bool showProgress = false;
@@ -237,9 +236,8 @@ BOOST_AUTO_TEST_CASE( testUnscentedKalmanFilterSecondCase )
     {
         // Compute actual values and perturb them
         currentActualStateVector = stateFunction2( currentTime, currentActualStateVector, currentControlVector ) +
-                unscentedFilter->produceSystemNoise( );
-        currentMeasurementVector = measurementFunction2( currentTime, currentActualStateVector ) +
-                unscentedFilter->produceMeasurementNoise( );
+                systemNoise.col( i );
+        currentMeasurementVector = measurementFunction2( currentTime, currentActualStateVector ) + measurementNoise.col( i );
 
         // Update control class
         control->setCurrentControlVector( currentTime, unscentedFilter->getCurrentStateEstimate( ) );
@@ -330,16 +328,23 @@ BOOST_AUTO_TEST_CASE( testUnscentedKalmanFilterThirdCase )
 
     // Create control class
     std::shared_ptr< ControlWrapper< double, double, 3 > > control =
-            std::make_shared< ControlWrapper< double, double, 3 > >( boost::lambda::constant( Eigen::Vector3d::Zero( ) ) );
+            std::make_shared< ControlWrapper< double, double, 3 > >(
+                [ & ]( const double, const Eigen::Vector3d& ){ return Eigen::Vector3d::Zero( ); } );
 
     // Create unscented Kalman filter object
     UnscentedKalmanFilterDoublePointer unscentedFilter = std::make_shared< UnscentedKalmanFilterDouble >(
                 std::bind( &stateFunction3, std::placeholders::_1, std::placeholders::_2,
-                             std::bind( &ControlWrapper< double, double, 3 >::getCurrentControlVector, control ) ),
+                           std::bind( &ControlWrapper< double, double, 3 >::getCurrentControlVector, control ) ),
                 std::bind( &measurementFunction3, std::placeholders::_1, std::placeholders::_2 ),
                 systemUncertainty, measurementUncertainty, timeStep,
                 initialTime, initialEstimatedStateVector, initialEstimatedStateCovarianceMatrix,
                 integratorSettings );
+
+    // Load noise from file
+    Eigen::MatrixXd systemNoise = input_output::readMatrixFromFile( tudat::input_output::getTudatRootPath( ) +
+                                                                    "/Mathematics/Filters/UnitTests/noiseData/ukfSystemNoise3.dat" );
+    Eigen::MatrixXd measurementNoise = input_output::readMatrixFromFile(
+                tudat::input_output::getTudatRootPath( ) + "/Mathematics/Filters/UnitTests/noiseData/ukfMeasurementNoise3.dat" );
 
     // Loop over each time step
     const bool showProgress = false;
@@ -354,9 +359,8 @@ BOOST_AUTO_TEST_CASE( testUnscentedKalmanFilterThirdCase )
     {
         // Compute actual values and perturb them
         currentActualStateVector += ( stateFunction3( currentTime, currentActualStateVector, currentControlVector ) +
-                                      unscentedFilter->produceSystemNoise( ) ) * timeStep;
-        currentMeasurementVector = measurementFunction3( currentTime, currentActualStateVector ) +
-                unscentedFilter->produceMeasurementNoise( );
+                                      systemNoise.col( i ) ) * timeStep;
+        currentMeasurementVector = measurementFunction3( currentTime, currentActualStateVector ) + measurementNoise.col( i );
 
         // Update control class
         control->setCurrentControlVector( currentTime, unscentedFilter->getCurrentStateEstimate( ) );
@@ -383,21 +387,8 @@ BOOST_AUTO_TEST_CASE( testUnscentedKalmanFilterThirdCase )
     expectedFinalState << 25200.383066001908, -3334.8971957588378, 502.3444368942321;
     for ( int i = 0; i < expectedFinalState.rows( ); i++ )
     {
-        BOOST_CHECK_SMALL( unscentedFilter->getCurrentStateEstimate( )[ i ] - expectedFinalState[ i ],
-                           100.0 * std::numeric_limits< double >::epsilon( ) );
+        BOOST_CHECK_SMALL( unscentedFilter->getCurrentStateEstimate( )[ i ] - expectedFinalState[ i ], 1.0e-10 );
     }
-
-    // Check that noise is actually normally distributed (within 5 %)
-    std::pair< std::vector< Eigen::VectorXd >, std::vector< Eigen::VectorXd > > noiseHistory = unscentedFilter->getNoiseHistory( );
-    Eigen::MatrixXd systemNoise = utilities::convertStlVectorToEigenMatrix( noiseHistory.first );
-    Eigen::MatrixXd measurementNoise = utilities::convertStlVectorToEigenMatrix( noiseHistory.second );
-    for ( unsigned int i = 0; i < 2; i++ )
-    {
-        BOOST_CHECK_CLOSE_FRACTION( statistics::computeStandardDeviationOfVectorComponents( systemNoise.row( i ) ),
-                                    std::sqrt( systemUncertainty( i, i ) ), 5.0e-2 );
-    }
-    BOOST_CHECK_CLOSE_FRACTION( statistics::computeStandardDeviationOfVectorComponents( measurementNoise.row( 0 ) ),
-                                std::sqrt( measurementUncertainty( 0, 0 ) ), 5.0e-2 );
 }
 
 BOOST_AUTO_TEST_SUITE_END( )

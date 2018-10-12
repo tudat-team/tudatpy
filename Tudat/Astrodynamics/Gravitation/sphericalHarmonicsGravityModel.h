@@ -201,11 +201,11 @@ public:
             const double anEquatorialRadius,
             const Eigen::MatrixXd aCosineHarmonicCoefficientMatrix,
             const Eigen::MatrixXd aSineHarmonicCoefficientMatrix,
-            const StateFunction positionOfBodyExertingAccelerationFunction
-            = []( ){ return Eigen::Vector3d::Zero( ); },
+            const StateFunction positionOfBodyExertingAccelerationFunction =
+            [ ]( ){ return Eigen::Vector3d::Zero( ); },
             const std::function< Eigen::Quaterniond( ) >
             rotationFromBodyFixedToIntegrationFrameFunction =
-            []( ){ return Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) ); },
+            [ ]( ){ return Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) ); },
             const bool isMutualAttractionUsed = 0,
             std::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache =
             std::make_shared< basic_mathematics::SphericalHarmonicsCache >( ) )
@@ -214,8 +214,8 @@ public:
                 positionOfBodyExertingAccelerationFunction,
                 isMutualAttractionUsed ),
           equatorialRadius( anEquatorialRadius ),
-          getCosineHarmonicsCoefficients( [=]( ){ return aCosineHarmonicCoefficientMatrix; } ),
-          getSineHarmonicsCoefficients( [=]( ){ return aSineHarmonicCoefficientMatrix; } ),
+          getCosineHarmonicsCoefficients( [ = ]( ){ return aCosineHarmonicCoefficientMatrix; } ),
+          getSineHarmonicsCoefficients( [ = ]( ){ return aSineHarmonicCoefficientMatrix; } ),
           rotationFromBodyFixedToIntegrationFrameFunction_(
               rotationFromBodyFixedToIntegrationFrameFunction ),
           sphericalHarmonicsCache_( sphericalHarmonicsCache ),
@@ -266,10 +266,10 @@ public:
             const CoefficientMatrixReturningFunction cosineHarmonicCoefficientsFunction,
             const CoefficientMatrixReturningFunction sineHarmonicCoefficientsFunction,
             const StateFunction positionOfBodyExertingAccelerationFunction
-            = []( ){ return Eigen::Vector3d::Zero( ); },
+            = [ ]( ){ return Eigen::Vector3d::Zero( ); },
             const std::function< Eigen::Quaterniond( ) >
             rotationFromBodyFixedToIntegrationFrameFunction =
-            []( ){ return Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) ); },
+            [ ]( ){ return Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) ); },
             const bool isMutualAttractionUsed = 0,
             std::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache
             = std::make_shared< basic_mathematics::SphericalHarmonicsCache >( ) )

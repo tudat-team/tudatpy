@@ -791,7 +791,6 @@ std::vector< std::shared_ptr< basic_astrodynamics::TorqueModel > > getTorqueBetw
         const std::unordered_map< IntegratedStateType,
         std::vector< std::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > > >& stateDerivativeModels,
         const basic_astrodynamics::AvailableTorque torqueModelType )
-
 {
     std::vector< std::shared_ptr< basic_astrodynamics::TorqueModel > >
             listOfSuitableTorqueModels;

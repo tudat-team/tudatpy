@@ -123,16 +123,16 @@ BOOST_AUTO_TEST_CASE( testComputationOfThirdBodyPerturbation )
         // Create central gravity acceleration objects.
         gravitation::CentralGravitationalAccelerationModel3dPointer directAccelerationModel =
                 std::make_shared< gravitation::CentralGravitationalAccelerationModel3d >(
-                    [&]( ){ return positionOfBodyForTestCase[ 0 ]; },
+                    [ & ]( ){ return positionOfBodyForTestCase[ 0 ]; },
                     gravitationalParameterOfPerturbingBodyForTestCase[ i ],
-                    [&]( ){ return positionOfBodyForTestCase[ i ]; } );
+                    [ & ]( ){ return positionOfBodyForTestCase[ i ]; } );
 
         gravitation::CentralGravitationalAccelerationModel3dPointer
                 centralBodyAccelerationModel =
                 std::make_shared< gravitation::CentralGravitationalAccelerationModel3d >(
-                    [&]( ){ return Eigen::Vector3d::Zero( ); },
+                    [ & ]( ){ return Eigen::Vector3d::Zero( ); },
                     gravitationalParameterOfPerturbingBodyForTestCase[ i ],
-                    [&]( ){ return positionOfBodyForTestCase[ i ]; } );
+                    [ & ]( ){ return positionOfBodyForTestCase[ i ]; } );
 
         // Create third body gravity acceleration objects.
         std::shared_ptr<
@@ -259,16 +259,16 @@ BOOST_AUTO_TEST_CASE( testRealisticThirdBodyPerturbation )
     // Create central gravity acceleration objects.
     gravitation::CentralGravitationalAccelerationModel3dPointer directAccelerationModel =
             std::make_shared< gravitation::CentralGravitationalAccelerationModel3d >(
-                [&]( ){ return realisticTestPosition; },
+                [ & ]( ){ return realisticTestPosition; },
                 realisticGravitationalParameterOfPerturbingBody,
-                [&]( ){ return realisticPerturberPosition; } );
+                [ & ]( ){ return realisticPerturberPosition; } );
 
     gravitation::CentralGravitationalAccelerationModel3dPointer
             centralBodyAccelerationModel =
             std::make_shared< gravitation::CentralGravitationalAccelerationModel3d >(
-                [&]( ){ return barycentricEarthPosition; },
+                [ & ]( ){ return barycentricEarthPosition; },
                 realisticGravitationalParameterOfPerturbingBody,
-                [&]( ){ return realisticPerturberPosition; } );
+                [ & ]( ){ return realisticPerturberPosition; } );
 
     // Create third body gravity acceleration objects.
     std::shared_ptr<

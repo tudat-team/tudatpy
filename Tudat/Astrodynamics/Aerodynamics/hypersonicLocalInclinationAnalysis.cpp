@@ -21,7 +21,6 @@
 #include <boost/make_shared.hpp>
 #include <boost/pointer_cast.hpp>
 #include <memory>
-#include <boost/assign/list_of.hpp>
 
 #include <Eigen/Geometry>
 
@@ -551,7 +550,7 @@ void HypersonicLocalInclinationAnalysis::updateExpansionPressures( const double 
             break;
 
         case 1:
-            pressureFunction = []( ){ return 0.0; };
+            pressureFunction = [ ]( ){ return 0.0; };
             break;
 
         case 4:

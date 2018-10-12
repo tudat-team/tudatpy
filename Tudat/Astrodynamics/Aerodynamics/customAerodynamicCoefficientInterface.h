@@ -168,7 +168,7 @@ public:
         {
             throw std::runtime_error( "Error when setting constant aerodynamic coefficients, numberOfIndependentVariables_ is not equal to 0 " );
         }
-        coefficientFunction_ = [=]( const std::vector< double >& ){ return constantCoefficients; };
+        coefficientFunction_ = [ = ]( const std::vector< double >& ){ return constantCoefficients; };
     }
 
 private:
