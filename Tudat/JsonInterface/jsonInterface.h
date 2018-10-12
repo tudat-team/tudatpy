@@ -590,9 +590,9 @@ private:
 extern template class JsonSimulationManager< double, double >;
 
 #if( BUILD_EXTENDED_PRECISION_PROPAGATION_TOOLS )
-extern template class JsonSimulationManager< Time, long double >;
-extern template class JsonSimulationManager< double, double >;
-extern template class JsonSimulationManager< Time, long double >;
+//extern template class JsonSimulationManager< Time, long double >;
+//extern template class JsonSimulationManager< double, double >;
+//extern template class JsonSimulationManager< Time, long double >;
 #endif
 //! Function to create a `json` object from a Simulation object.
 template< typename TimeType, typename StateScalarType >
