@@ -76,8 +76,47 @@ Eigen::Vector6d convertCartesianToSphericalOrbitalState(
  * always w.r.t. the same velocity vector.
  * \return Cartesian state representation of sphericalOrbitalState (in same frame).
  */
-Eigen::Vector6d convertSphericalOrbitalToCartesianState(
-        const Eigen::Vector6d& sphericalOrbitalState );
+template< typename StateScalarType = double >
+Eigen::Matrix< StateScalarType, 6, 1 > convertSphericalOrbitalToCartesianState(
+        const Eigen::Matrix< StateScalarType, 6, 1 >& sphericalOrbitalState )
+{
+    Eigen::Matrix< StateScalarType, 6, 1 > cartesianState;
+
+    // Compute Cartesian position
+    Eigen::Matrix< StateScalarType, 3, 1 > sphericalPosition = sphericalOrbitalState.segment( 0, 3 );
+    sphericalPosition( 1 ) = mathematical_constants::getPi< StateScalarType >( ) /
+            mathematical_constants::getFloatingInteger< StateScalarType >( 2 ) - sphericalOrbitalState( 1 );
+    cartesianState.segment( 0, 3 ) = coordinate_conversions::convertSphericalToCartesian< StateScalarType >(
+                sphericalPosition );
+
+    // Check whether flight path angle and heading angle are valid (corresponding velocity components are zero otherwise)
+    bool isFlightPathAngleValid = ( sphericalOrbitalState( flightPathIndex ) == sphericalOrbitalState( flightPathIndex ) );
+    bool isHeadingAngleValid = ( sphericalOrbitalState( headingAngleIndex ) == sphericalOrbitalState( headingAngleIndex ) );
+
+    // Compute velocity in vertical frame.
+    Eigen::Matrix< StateScalarType, 3, 1 > velocityInVerticalFrame = Eigen::Matrix< StateScalarType, 3, 1 >::Zero( );
+    if( isFlightPathAngleValid && isHeadingAngleValid )
+    {
+        velocityInVerticalFrame( 0 ) = sphericalOrbitalState( speedIndex ) *
+                std::cos( sphericalOrbitalState( flightPathIndex ) ) *
+                std::cos( sphericalOrbitalState( headingAngleIndex ) );
+        velocityInVerticalFrame( 1 ) = sphericalOrbitalState( speedIndex ) *
+                std::cos( sphericalOrbitalState( flightPathIndex ) ) *
+                std::sin( sphericalOrbitalState( headingAngleIndex ) );
+    }
+
+    if( isFlightPathAngleValid )
+    {
+        velocityInVerticalFrame( 2 ) = -sphericalOrbitalState( speedIndex ) *
+                std::sin( sphericalOrbitalState( flightPathIndex ) );
+    }
+
+    // Set velocity in body-fixed frame.
+    cartesianState.segment( 3, 3 ) = reference_frames::getLocalVerticalToRotatingPlanetocentricFrameTransformationQuaternion(
+                sphericalOrbitalState( longitudeIndex ), sphericalOrbitalState( latitudeIndex ) ) * velocityInVerticalFrame;
+
+    return cartesianState;
+}
 
 } // namespace orbital_element_conversions
 

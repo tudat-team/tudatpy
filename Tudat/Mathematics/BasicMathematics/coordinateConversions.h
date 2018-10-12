@@ -46,7 +46,28 @@ namespace coordinate_conversions
  * \param sphericalCoordinates Vector containing radius, zenith and azimuth (in that order).
  * \return Vector containing Cartesian coordinates, as calculated from sphericalCoordinates.
  */
-Eigen::Vector3d convertSphericalToCartesian( const Eigen::Vector3d& sphericalCoordinates );
+template< typename StateScalarType = double >
+Eigen::Matrix< StateScalarType, 3, 1 > convertSphericalToCartesian(
+        const Eigen::Matrix< StateScalarType, 3, 1 >& sphericalCoordinates )
+{
+    // Create local variables.
+    double radius_ = sphericalCoordinates( 0 );
+    double zenithAngle_ = sphericalCoordinates( 1 );
+    double azimuthAngle_ = sphericalCoordinates( 2 );
+
+    // Declaring sine which has multiple usages to save computation time.
+    double sineOfZenithAngle_ = std::sin( sphericalCoordinates( 1 ) );
+
+    // Create output Vector
+    Eigen::Matrix< StateScalarType, 3, 1 > convertedCartesianCoordinates_ = Eigen::Matrix< StateScalarType, 3, 1 >::Zero( 3 );
+
+    // Perform transformation.
+    convertedCartesianCoordinates_( 0 ) = radius_ * std::cos( azimuthAngle_ ) * sineOfZenithAngle_;
+    convertedCartesianCoordinates_( 1 ) = radius_ * std::sin( azimuthAngle_ ) * sineOfZenithAngle_;
+    convertedCartesianCoordinates_( 2 ) = radius_ * std::cos( zenithAngle_ );
+
+    return convertedCartesianCoordinates_;
+}
 
 //! Convert Cartesian (x,y,z) to spherical (radius, zenith, azimuth) coordinates.
 /*!

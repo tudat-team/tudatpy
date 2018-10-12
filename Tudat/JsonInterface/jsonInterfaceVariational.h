@@ -81,7 +81,7 @@ public:
     void resetParameterSettings( )
     {
         updateFromJSON( parameterSettings_, jsonObject_, Keys::parametersToEstimate );
-        parametersToEstimate_ = simulation_setup::createParametersToEstimate(
+        parametersToEstimate_ = simulation_setup::createParametersToEstimate< StateScalarType >(
                     parameterSettings_, bodyMap_, propagators::getAccelerationMapFromPropagatorSettings< StateScalarType >(
                         propagatorSettings_)  );
 
@@ -108,11 +108,8 @@ public:
 
     virtual void updateSettings( )
     {
-        std::cout<<"S1"<<std::endl;
         JsonSimulationManager< TimeType, StateScalarType >::updateSettings( );
-        std::cout<<"S2"<<std::endl;
         resetParameterSettings( );
-        std::cout<<"S3"<<std::endl;
         if( this->simulationType_ == variational_equations_propagation )
         {
             createSimulationObjects( );
@@ -139,9 +136,9 @@ protected:
 extern template class JsonVariationalEquationsSimulationManager< double, double >;
 
 #if( BUILD_EXTENDED_PRECISION_PROPAGATION_TOOLS )
-extern template class JsonVariationalEquationsSimulationManager< Time, long double >;
-extern template class JsonVariationalEquationsSimulationManager< double, double >;
-extern template class JsonVariationalEquationsSimulationManager< Time, long double >;
+//extern template class JsonVariationalEquationsSimulationManager< Time, double >;
+extern template class JsonVariationalEquationsSimulationManager< double, long double >;
+//extern template class JsonVariationalEquationsSimulationManager< Time, long double >;
 #endif
 
 } // namespace json_interface
