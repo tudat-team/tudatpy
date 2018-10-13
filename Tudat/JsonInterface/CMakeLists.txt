@@ -99,7 +99,11 @@ endif( )
 add_library(json_interface_library STATIC ${JSONINTERFACE_SOURCES} ${JSONINTERFACE_HEADERS})
 setup_tudat_library_target(json_interface_library "")
 
-list(APPEND JSON_PROPAGATION_LIBRARIES json_interface_library ${TUDAT_ESTIMATION_LIBRARIES} ${Boost_LIBRARIES})
+if( BUILD_WITH_ESTIMATION_TOOLS )
+   list(APPEND JSON_PROPAGATION_LIBRARIES json_interface_library ${TUDAT_ESTIMATION_LIBRARIES} ${Boost_LIBRARIES})
+else( )
+   list(APPEND JSON_PROPAGATION_LIBRARIES json_interface_library ${TUDAT_PROPAGATION_LIBRARIES} ${Boost_LIBRARIES})
+endif( )
 
 # Set the global macros for setting up targets.
 macro(setup_executable_target target_name)
