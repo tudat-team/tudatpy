@@ -146,7 +146,7 @@ BOOST_AUTO_TEST_CASE( testUnscentedKalmanFilterFirstCase )
     expectedFinalState << 4.9650721756454104, -12.853194315262826;
     for ( int i = 0; i < expectedFinalState.rows( ); i++ )
     {
-        BOOST_CHECK_SMALL( unscentedFilter->getCurrentStateEstimate( )[ i ] - expectedFinalState[ i ], 1.0e-10 );
+        BOOST_CHECK_SMALL( unscentedFilter->getCurrentStateEstimate( )[ i ] - expectedFinalState[ i ], 1.0e-8 );
     }
 }
 
