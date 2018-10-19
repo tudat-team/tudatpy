@@ -33,13 +33,6 @@ Eigen::Vector4d convertQuaternionToVectorFormat( const Eigen::Quaterniond& quate
     return vector;
 }
 
-//! Function to retrieve a quaternion from its 'vector format', e.g. a Vector4d with entries (w,x,y,z) of the quaternion.
-Eigen::Quaterniond getQuaternionFromVectorFormat( const Eigen::Vector4d& vector )
-{
-    Eigen::Quaterniond quaternion;
-    return quaternion;
-}
-
 //! Function to put a vector in 'quaternion format', i.e. a Quaterniond.
 Eigen::Quaterniond convertVectorToQuaternionFormat( const Eigen::Vector4d& vector )
 {

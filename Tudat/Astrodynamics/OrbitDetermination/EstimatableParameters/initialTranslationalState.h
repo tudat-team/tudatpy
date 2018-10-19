@@ -306,6 +306,7 @@ int getSingleArcInitialDynamicalStateParameterSetSize(
  *  Function to get arc start times from list of estimated parameters. Function throws an error if multiple arc-wise
  *  estimations are found, but arc times are not compatible
  *  \param estimatableParameters List of estimated parameters
+ *  \param throwErrorOnSingleArcDynamics Boolean denoting whether to throw an exception if single arc dynamics are used (default true)
  *  \return Start times for estimation arcs
  */
 template< typename InitialStateParameterType >

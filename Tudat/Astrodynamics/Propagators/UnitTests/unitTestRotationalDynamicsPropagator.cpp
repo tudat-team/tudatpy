@@ -72,11 +72,9 @@ NamedBodyMap getTestBodyMap( const double phobosSemiMajorAxis,
     bodyMap[ "Mars" ] = std::make_shared< Body >( );
     bodyMap[ "Mars" ]->setEphemeris( std::make_shared< ephemerides::ConstantEphemeris >(
                                          [ & ]( ){ return Eigen::Vector6d::Zero( ); } ) );
-
     bodyMap[ "Mars" ]->setGravityFieldModel(
                 std::make_shared< gravitation::GravityFieldModel >(
                     spice_interface::getBodyGravitationalParameter( "Mars" ) ) );
-
     bodyMap[ "Phobos" ] = std::make_shared< Body >( );
 
 

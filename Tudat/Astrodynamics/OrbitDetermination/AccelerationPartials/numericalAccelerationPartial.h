@@ -50,7 +50,7 @@ void emptyTimeFunction( const double time );
  * \param startIndex Start index in the state vector from where the statePerturbation is to be added (i.e. 0 if
  * function is to compute partial w.r.t. position, 3 if w.r.t velocity).
  * \param updateFunction Function to update the required environment models following the change of the body state.
- * \param evaluationTim e Time at which partial is to be evaluated (default NaN).
+ * \param evaluationTime Time at which partial is to be evaluated (default NaN).
  * \return Numerical partial of the acceleration w.r.t. position or velocity (depending on function input).
  */
 Eigen::Matrix3d calculateAccelerationWrtStatePartials(
@@ -69,9 +69,10 @@ Eigen::Matrix3d calculateAccelerationWrtStatePartials(
  * \param setBodyRotationalState Function to reset the current rotational state w.r.t. which the partial is to be computed.
  * \param torqueModel Torque model for which the partial derivative is to be computed.
  * \param originalRotationalState Nominal rotational state at which the partial derivative is to be computed.
- * \param statePerturbation Perturbation to the states that is to be used
+ * \param statePerturbations Perturbation to the states that is to be used
  * \param startIndex Start index in the state vector from where the statePerturbation is to be added (i.e. 0 if
- * function is to compute partial w.r.t. quaternion, 4 if w.r.t anfular velocity).
+ * function is to compute partial w.r.t. quaternion, 4 if w.r.t angular velocity).
+ * \param numberOfEntries Integer denoting the number of entries.
  * \param updateFunction Function to update the required environment models following the change of the body state.
  * \param evaluationTime Time at which partial is to be evaluated (default NaN).
  * \return Numerical partial of the torque w.r.t. body rotational state elements

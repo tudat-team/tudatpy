@@ -184,7 +184,7 @@ Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > getInitialStateOfBody(
 /*!
 * Function to get the rotational states state of a body, at the requested time..
 * \param bodyToIntegrate Body for which to retrieve rotational state.
-* \param bodyToIntegrate Reference base frame orientation
+* \param baseOrientation Reference base frame orientation
 * \param bodyMap List of bodies to use in simulations.
 * \param initialTime Time at which to retrieve states.
 * \return Initial rotational state vector (with 7 elements: 4 for quaternion; 3 for angular velocity)
@@ -193,11 +193,11 @@ template< typename TimeType = double, typename StateScalarType = double >
 Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > getInitialRotationalStateOfBody(
         const std::string& bodyToIntegrate,
         const std::string& baseOrientation,
-        const  simulation_setup::NamedBodyMap& bodyMap,
+        const simulation_setup::NamedBodyMap& bodyMap,
         const TimeType initialTime )
 {
     return getInitialRotationalStatesOfBodies< TimeType, StateScalarType >(
-               { bodyToIntegrate }, { baseOrientation }, bodyMap, initialTime );
+                std::vector< std::string >{ bodyToIntegrate }, std::vector< std::string >{ baseOrientation }, bodyMap, initialTime );
 }
 
 
@@ -783,8 +783,8 @@ public:
 
     //! Function to reset initial propagation time
     /*!
-     *  Function to reset initial propagation time
-     * \param New initial propagation time
+     * Function to reset initial propagation time
+     * \param initialPropagationTime New initial propagation time
      */
     void resetInitialPropagationTime( const double initialPropagationTime )
     {
@@ -1500,6 +1500,8 @@ public:
      *  after propagation and resetting ephemerides (default true).
      *  \param setIntegratedResult Boolean to determine whether to automatically use the integrated results to set
      *  ephemerides (default true).
+     *  \param addSingleArcBodiesToMultiArcDynamics Boolean denoting whether to add single arc bodies to multi-arc
+     *  dynamics (default false).
      */
     HybridArcDynamicsSimulator(
             const simulation_setup::NamedBodyMap& bodyMap,
@@ -1527,7 +1529,8 @@ public:
         {
             if( !setIntegratedResult )
             {
-                std::cerr<<"Warning in hybrid dynamics simulator, setIntegratedResult is false, but single arc propagation will result will be set in environment for consistency with multi-arc "<<std::endl;
+                std::cerr << "Warning in hybrid dynamics simulator, setIntegratedResult is false, but single arc propagation "
+                             "result will be set in environment for consistency with multi-arc " << std::endl;
             }
             singleArcDynamicsSimulator_ = std::make_shared< SingleArcDynamicsSimulator< StateScalarType, TimeType > >(
                         bodyMap, integratorSettings, hybridPropagatorSettings->getSingleArcPropagatorSettings( ),
@@ -1554,7 +1557,7 @@ public:
     /*!
      *  This function numerically (re-)integrates the equations of motion, using the settings set through the constructor
      *  and a new initial state vector provided here. The raw results are set in the equationsOfMotionNumericalSolution_
-     *  \param concatenatedInitialStates Initial state vector that is to be used for numerical integration. Note that this state
+     *  \param initialGlobalStates Initial state vector that is to be used for numerical integration. Note that this state
      *  should be in the correct frame (i.e. corresponding to centralBodies in propagatorSettings_), but not in the propagator-
      *  specific form (i.e Encke, Gauss, etc. for translational dynamics). The states for all arcs must be concatenated in
      *  order into a single Eigen Vector, starting with the single-arc states, followed by the mulit-arc states

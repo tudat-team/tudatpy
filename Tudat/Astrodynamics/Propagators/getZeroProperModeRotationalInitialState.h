@@ -115,7 +115,8 @@ void integrateForwardWithDissipationAndBackwardsWithout(
  *  Rambaux et al. (2012). Using this method, the dynamics is propagated forward in time with an artificial damping, and backwards
  *  in time without this damping. The process is repeated for an ever increasing value of the dissipation time. Using this
  *  function, the numerical state and dependent variables at each of the iterations is returned (by reference) by the function.
- *  Additionally, the results can be written to files after each iteration
+ *  Additionally, the results can be written to files after each iteration.
+ *  \param bodyMap Map of bodies in the propagation, with keys the names of the bodies.
  *  \param integratorSettings Settings for the numerical integration scheme
  *  \param propagatorSettings Settings for the propagator, must include rotational dynamics of only a single body, but may also
  *  include translational dynamics.
@@ -199,7 +200,7 @@ Eigen::VectorXd getZeroProperModeRotationalState(
             std::make_shared< basic_astrodynamics::DissipativeTorqueModel >(
                 std::bind( &simulation_setup::Body::getCurrentAngularVelocityVectorInLocalFrame,
                            bodyMap.at( torqueModelMap.begin( )->first ) ),
-                boost::lambda::constant( Eigen::Matrix3d::Zero( ) ),
+                [ = ]( ){ return Eigen::Matrix3d::Zero( ); },
                 bodyMeanRotationRate );
     torqueModelMap[ torqueModelMap.begin( )->first ][ torqueModelMap.begin( )->first ].push_back(
                 dissipativeTorque );
@@ -301,6 +302,7 @@ Eigen::VectorXd getZeroProperModeRotationalState(
  *  Function to determine the initial rotational state for which the free mode is fully damped, using the approach of
  *  Rambaux et al. (2012). Using this method, the dynamics is propagated forward in time with an artificial damping, and backwards
  *  in time without this damping. The process is repeated for an ever increasing value of the dissipation time
+ *  \param bodyMap Map of bodies in the propagation, with keys the names of the bodies.
  *  \param integratorSettings Settings for the numerical integration scheme
  *  \param propagatorSettings Settings for the propagator, must include rotational dynamics of only a single body, but may also
  *  include translational dynamics.
