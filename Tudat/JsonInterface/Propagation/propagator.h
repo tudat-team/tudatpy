@@ -144,33 +144,6 @@ void determineInitialStates(
         }
     }
 
-    //    // Update propagators at jsonObject with initial states retrieved from bodies ephemeris
-    //    bool usedEphemeris = false;
-    //    if ( jsonPropagators.size( ) == 1 )
-    //    {
-    //        nlohmann::json& jsonPropagator = jsonPropagators.front( );
-    //        if ( ! isDefined( jsonPropagator, K::initialStates ) )
-    //        {
-    //            const IntegratedStateType integratedStateType =
-    //                    getValue( jsonPropagator, K::integratedStateType, translational_state );
-
-    //            if ( integratedStateType == translational_state )
-    //            {
-    //                try
-    //                {
-    //                    const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > initialStates =
-    //                            getInitialStatesOfBodies< TimeType, StateScalarType >(
-    //                                getValue< std::vector< std::string > >( jsonPropagator, K::bodiesToPropagate ),
-    //                                getValue< std::vector< std::string > >( jsonPropagator, K::centralBodies ),
-    //                                bodyMap,
-    //                                integratorSettings->initialTime_ );
-    //                    jsonPropagator[ K::initialStates ] = initialStates;
-    //                    usedEphemeris = true;
-    //                } catch ( ... ) { }
-    //            }
-    //        }
-    //    }
-
     jsonObject[ Keys::propagators ] = jsonPropagators;
 }
 

@@ -57,39 +57,40 @@ add_executable(test_TidalPropertyEstimation "${SRCROOT}${ORBITDETERMINATIONDIR}/
 setup_custom_test_program(test_TidalPropertyEstimation "${SRCROOT}${ORBITDETERMINATIONDIR}")
 target_link_libraries(test_TidalPropertyEstimation ${TUDAT_ESTIMATION_LIBRARIES} ${Boost_LIBRARIES})
 
+add_executable(test_MultiArcStateEstimation "${SRCROOT}${ORBITDETERMINATIONDIR}/UnitTests/unitTestMultiArcStateEstimation.cpp")
+setup_custom_test_program(test_MultiArcStateEstimation "${SRCROOT}${ORBITDETERMINATIONDIR}")
+target_link_libraries(test_MultiArcStateEstimation ${TUDAT_ESTIMATION_LIBRARIES} ${Boost_LIBRARIES})
+
+add_executable(test_HybridArcStateEstimation "${SRCROOT}${ORBITDETERMINATIONDIR}/UnitTests/unitTestHybridArcStateEstimation.cpp")
+setup_custom_test_program(test_HybridArcStateEstimation "${SRCROOT}${ORBITDETERMINATIONDIR}")
+target_link_libraries(test_HybridArcStateEstimation ${TUDAT_ESTIMATION_LIBRARIES} ${Boost_LIBRARIES})
+
+add_executable(test_ParameterInfluenceDetermination "${SRCROOT}${ORBITDETERMINATIONDIR}/UnitTests/unitTestParameterInfluenceDetermination.cpp")
+setup_custom_test_program(test_ParameterInfluenceDetermination "${SRCROOT}${ORBITDETERMINATIONDIR}")
+target_link_libraries(test_ParameterInfluenceDetermination ${TUDAT_ESTIMATION_LIBRARIES} ${Boost_LIBRARIES})
+
+add_executable(test_BiasEstimation "${SRCROOT}${ORBITDETERMINATIONDIR}/UnitTests/unitTestBiasEstimation.cpp")
+setup_custom_test_program(test_BiasEstimation "${SRCROOT}${ORBITDETERMINATIONDIR}")
+target_link_libraries(test_BiasEstimation ${TUDAT_ESTIMATION_LIBRARIES} ${Boost_LIBRARIES})
+
+add_executable(test_RotationalStateEstimation "${SRCROOT}${ORBITDETERMINATIONDIR}/UnitTests/unitTestRotationalStateEstimation.cpp")
+setup_custom_test_program(test_RotationalStateEstimation "${SRCROOT}${ORBITDETERMINATIONDIR}")
+target_link_libraries(test_RotationalStateEstimation ${TUDAT_ESTIMATION_LIBRARIES} ${Boost_LIBRARIES})
+
 if( BUILD_EXTENDED_PRECISION_PROPAGATION_TOOLS )
 
-    add_executable(test_EstimationFromPositionDoubleLongDouble "${SRCROOT}${ORBITDETERMINATIONDIR}/UnitTests/unitTestEstimationFromIdealDataDoubleLongDouble.cpp")
-    setup_custom_test_program(test_EstimationFromPositionDoubleLongDouble "${SRCROOT}${ORBITDETERMINATIONDIR}")
-    target_link_libraries(test_EstimationFromPositionDoubleLongDouble ${TUDAT_ESTIMATION_LIBRARIES} ${Boost_LIBRARIES})
+add_executable(test_EstimationFromPositionDoubleLongDouble "${SRCROOT}${ORBITDETERMINATIONDIR}/UnitTests/unitTestEstimationFromIdealDataDoubleLongDouble.cpp")
+setup_custom_test_program(test_EstimationFromPositionDoubleLongDouble "${SRCROOT}${ORBITDETERMINATIONDIR}")
+target_link_libraries(test_EstimationFromPositionDoubleLongDouble ${TUDAT_ESTIMATION_LIBRARIES} ${Boost_LIBRARIES})
 
-    add_executable(test_EstimationFromPositionTimeDouble "${SRCROOT}${ORBITDETERMINATIONDIR}/UnitTests/unitTestEstimationFromIdealDataTimeDouble.cpp")
-    setup_custom_test_program(test_EstimationFromPositionTimeDouble "${SRCROOT}${ORBITDETERMINATIONDIR}")
-    target_link_libraries(test_EstimationFromPositionTimeDouble ${TUDAT_ESTIMATION_LIBRARIES} ${Boost_LIBRARIES})
+add_executable(test_EstimationFromPositionTimeDouble "${SRCROOT}${ORBITDETERMINATIONDIR}/UnitTests/unitTestEstimationFromIdealDataTimeDouble.cpp")
+setup_custom_test_program(test_EstimationFromPositionTimeDouble "${SRCROOT}${ORBITDETERMINATIONDIR}")
+target_link_libraries(test_EstimationFromPositionTimeDouble ${TUDAT_ESTIMATION_LIBRARIES} ${Boost_LIBRARIES})
 
-    add_executable(test_EstimationFromPositionTimeLongDouble "${SRCROOT}${ORBITDETERMINATIONDIR}/UnitTests/unitTestEstimationFromIdealDataTimeLongDouble.cpp")
-    setup_custom_test_program(test_EstimationFromPositionTimeLongDouble "${SRCROOT}${ORBITDETERMINATIONDIR}")
-    target_link_libraries(test_EstimationFromPositionTimeLongDouble ${TUDAT_ESTIMATION_LIBRARIES} ${Boost_LIBRARIES})
+add_executable(test_EstimationFromPositionTimeLongDouble "${SRCROOT}${ORBITDETERMINATIONDIR}/UnitTests/unitTestEstimationFromIdealDataTimeLongDouble.cpp")
+setup_custom_test_program(test_EstimationFromPositionTimeLongDouble "${SRCROOT}${ORBITDETERMINATIONDIR}")
+target_link_libraries(test_EstimationFromPositionTimeLongDouble ${TUDAT_ESTIMATION_LIBRARIES} ${Boost_LIBRARIES})
 
-    add_executable(test_MultiArcStateEstimation "${SRCROOT}${ORBITDETERMINATIONDIR}/UnitTests/unitTestMultiArcStateEstimation.cpp")
-    setup_custom_test_program(test_MultiArcStateEstimation "${SRCROOT}${ORBITDETERMINATIONDIR}")
-    target_link_libraries(test_MultiArcStateEstimation ${TUDAT_ESTIMATION_LIBRARIES} ${Boost_LIBRARIES})
-
-    add_executable(test_HybridArcStateEstimation "${SRCROOT}${ORBITDETERMINATIONDIR}/UnitTests/unitTestHybridArcStateEstimation.cpp")
-    setup_custom_test_program(test_HybridArcStateEstimation "${SRCROOT}${ORBITDETERMINATIONDIR}")
-    target_link_libraries(test_HybridArcStateEstimation ${TUDAT_ESTIMATION_LIBRARIES} ${Boost_LIBRARIES})
-
-    add_executable(test_ParameterInfluenceDetermination "${SRCROOT}${ORBITDETERMINATIONDIR}/UnitTests/unitTestParameterInfluenceDetermination.cpp")
-    setup_custom_test_program(test_ParameterInfluenceDetermination "${SRCROOT}${ORBITDETERMINATIONDIR}")
-    target_link_libraries(test_ParameterInfluenceDetermination ${TUDAT_ESTIMATION_LIBRARIES} ${Boost_LIBRARIES})
-
-    add_executable(test_BiasEstimation "${SRCROOT}${ORBITDETERMINATIONDIR}/UnitTests/unitTestBiasEstimation.cpp")
-    setup_custom_test_program(test_BiasEstimation "${SRCROOT}${ORBITDETERMINATIONDIR}")
-    target_link_libraries(test_BiasEstimation ${TUDAT_ESTIMATION_LIBRARIES} ${Boost_LIBRARIES})
-
-    add_executable(test_RotationalStateEstimation "${SRCROOT}${ORBITDETERMINATIONDIR}/UnitTests/unitTestRotationalStateEstimation.cpp")
-    setup_custom_test_program(test_RotationalStateEstimation "${SRCROOT}${ORBITDETERMINATIONDIR}")
-    target_link_libraries(test_RotationalStateEstimation ${TUDAT_ESTIMATION_LIBRARIES} ${Boost_LIBRARIES})
 endif( )
 
 endif( )

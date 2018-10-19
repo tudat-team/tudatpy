@@ -96,7 +96,7 @@ public:
 
     virtual void runJsonSimulation( )
     {
-        estimationOutput_ = orbitDeterminationManager_->estimateParameters( podSettings_ );
+        estimationOutput_ = orbitDeterminationManager_->estimateParameters( estimationInput_, convergenceChecker_ );
     }
 
 
@@ -128,7 +128,8 @@ protected:
 
     void resetEstimationSettings( )
     {
-        updatePodSettingsFromJSON( jsonObject_[ Keys::estimationSettings ], podSettings_, parametersToEstimate_->getParameterSetSize( )  );
+        updatePodSettingsFromJSON(
+                    jsonObject_[ Keys::estimationSettings ], estimationInput_, convergenceChecker_, parametersToEstimate_->getParameterSetSize( )  );
 
         if ( profiling )
         {
@@ -174,7 +175,11 @@ private:
 
     std::shared_ptr< simulation_setup::OrbitDeterminationManager< StateScalarType, TimeType > > orbitDeterminationManager_;
 
-    std::shared_ptr< simulation_setup::PodSettings< StateScalarType, TimeType > > podSettings_;
+
+    std::shared_ptr< simulation_setup::EstimationConvergenceChecker > convergenceChecker_;
+
+    std::shared_ptr< simulation_setup::PodInput< StateScalarType, TimeType > > estimationInput_;
+
 
     std::shared_ptr< simulation_setup::PodOutput< StateScalarType, TimeType > > estimationOutput_;
 

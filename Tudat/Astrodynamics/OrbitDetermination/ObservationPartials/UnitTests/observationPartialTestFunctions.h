@@ -362,6 +362,7 @@ void testObservationPartials(
                 {
                     parameterPerturbations.push_back( 1.0E8 * parameterPerturbationMultipliers( 2 ) );
                 }
+
                 std::vector< std::function< void( ) > > updateFunctionList;
 
                 updateFunctionList.push_back( emptyVoidFunction );

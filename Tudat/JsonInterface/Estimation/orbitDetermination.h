@@ -21,13 +21,6 @@ namespace tudat
 namespace simulation_setup
 {
 
-//! Create a `json` object from a shared pointer to a `EstimatableParameterSettings` object.
-template< typename ObservationScalarType = double, typename TimeType = double >
-void to_json( nlohmann::json& jsonObject, const std::shared_ptr< PodSettings< ObservationScalarType, TimeType > >& parameterSettings )
-{
-
-}
-
 void updateInverseAPrioriCovarianceFromJSON(
         const nlohmann::json& jsonObject, const int numberOfParameters, Eigen::MatrixXd& inverseAprioriCovariance );
 
@@ -36,7 +29,8 @@ void updateInverseAPrioriCovarianceFromJSON(
 template< typename ObservationScalarType = double, typename TimeType = double >
 void updatePodSettingsFromJSON(
         const nlohmann::json& jsonObject,
-        std::shared_ptr< PodSettings< ObservationScalarType, TimeType > >& parameterSettings,
+        std::shared_ptr< simulation_setup::PodInput< ObservationScalarType, TimeType > > estimationInput,
+        std::shared_ptr< simulation_setup::EstimationConvergenceChecker > convergenceChecker,
         const int numberOfEstimatedParameters )
 {
     using namespace json_interface;
@@ -67,13 +61,18 @@ void updatePodSettingsFromJSON(
 
     Eigen::MatrixXd inverseAprioriCovariance;
     updateInverseAPrioriCovarianceFromJSON(
-           jsonObject, numberOfEstimatedParameters, inverseAprioriCovariance );
-    parameterSettings = std::make_shared< PodSettings< ObservationScalarType, TimeType > >(
-                numberOfEstimatedParameters, inverseAprioriCovariance, Eigen::VectorXd::Zero( numberOfEstimatedParameters ),
-                std::make_shared< EstimationConvergenceChecker >(
-                    maximumNumberOfIterations, minimumResidualChange, minimumResidual, numberOfIterationsWithoutImprovement ),
+                jsonObject, numberOfEstimatedParameters, inverseAprioriCovariance );
+
+    estimationInput = std::make_shared< PodInput< ObservationScalarType, TimeType > >(
+                typename PodInput< ObservationScalarType, TimeType >::PodInputDataType( ),
+                numberOfEstimatedParameters, inverseAprioriCovariance, Eigen::VectorXd::Zero( numberOfEstimatedParameters ) );
+
+    estimationInput->defineEstimationSettings(
                 reintegrateEquationsOnFirstIteration, reintegrateVariationalEquations, saveInformationMatrix,
                 printOutput, saveResidualsAndParametersFromEachIteration, saveStateHistoryForEachIteration );
+
+    convergenceChecker = std::make_shared< EstimationConvergenceChecker >(
+                maximumNumberOfIterations, minimumResidualChange, minimumResidual, numberOfIterationsWithoutImprovement );
 }
 
 void updateObservationWeightsFromJSON(
