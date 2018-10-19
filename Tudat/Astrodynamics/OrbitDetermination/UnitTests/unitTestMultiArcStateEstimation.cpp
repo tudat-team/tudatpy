@@ -295,7 +295,7 @@ BOOST_AUTO_TEST_CASE( test_MultiArcStateEstimation )
         BOOST_CHECK_SMALL( std::fabs( parameterError( parameterError.rows( ) - 2 ) ), 1.0E-12 );
         BOOST_CHECK_SMALL( std::fabs( parameterError( parameterError.rows( ) - 1 ) ), 1.0E-12 );
 #else
-        Eigen::VectorXd parameterError = executeParameterEstimation< double, double double >(
+        Eigen::VectorXd parameterError = executeParameterEstimation< double, double, double >(
                     testCase );
         int numberOfEstimatedArcs = ( parameterError.rows( ) - 3 ) / 6;
 

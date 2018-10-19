@@ -405,12 +405,6 @@ public:
             std::make_shared< EstimationConvergenceChecker >( ) )
 
     {
-        if( std::dynamic_pointer_cast< PodSettings< ObservationScalarType, TimeType > >( podInput ) != nullptr )
-        {
-            convergenceChecker = std::dynamic_pointer_cast< PodSettings< ObservationScalarType, TimeType > >( podInput )->
-                    getConvergenceChecker( );
-        }
-
         currentParameterEstimate_ = parametersToEstimate_->template getFullParameterValues< ObservationScalarType >( );
 
         // Get size of parameter vector and number of observations (total and per type)
@@ -467,9 +461,10 @@ public:
                                 variationalEquationsSolver_->getDynamicsSimulatorBase( )->getDependentVariableNumericalSolutionBase( ) );
                 }
             }
-            catch( std::runtime_error )
+            catch( std::runtime_error& error )
             {
-                std::cerr<<"Error when resetting parameters during parameter estimation, terminating estimation"<<std::endl;
+                std::cerr<<"Error when resetting parameters during parameter estimation: "<<std::endl<<
+                           error.what( )<<std::endl<<"Terminating estimation"<<std::endl;
                 exceptionDuringPropagation = true;
                 break;
             }
@@ -518,9 +513,10 @@ public:
                     leastSquaresOutput.first.conservativeResize( parameterVectorSize );
                 }
             }
-            catch( std::runtime_error )
+            catch( std::runtime_error& error )
             {
-                std::cerr<<"Error when solving normal equations during parameter estimation, terminating estimation"<<std::endl;
+                std::cerr<<"Error when solving normal equations during parameter estimation: "<<std::endl<<error.what( )<<
+                           std::endl<<"Terminating estimation"<<std::endl;
                 exceptionDuringInversion = true;
                 break;
             }

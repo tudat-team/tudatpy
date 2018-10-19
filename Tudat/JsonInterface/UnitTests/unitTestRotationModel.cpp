@@ -98,7 +98,6 @@ BOOST_AUTO_TEST_CASE( test_json_rotationModel_gcrs_itrs )
 
     // Create RotationModelSettings manually
     const std::string originalFrame = "J2000";
-    const std::string targetFrame = "GCRS";
     const basic_astrodynamics::IAUConventions iauConvention = basic_astrodynamics::iau_2000_b;
 
     const std::shared_ptr< RotationModelSettings > manualSettings =
