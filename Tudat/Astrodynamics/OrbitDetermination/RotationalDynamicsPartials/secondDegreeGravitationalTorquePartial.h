@@ -163,7 +163,7 @@ protected:
     //! Function to compute partial of torque w.r.t. gravitational parameter
     /*!
      * Function to compute partial of torque w.r.t. gravitational parameter
-     * \param momentOfInertiaPartial Computed partial of torque w.r.t. gravitational parameter (returned by reference)
+     * \param gravitationalParameterPartial Computed partial of torque w.r.t. gravitational parameter (returned by reference)
      */
     void wrtGravitationalParameterOfCentralBody( Eigen::MatrixXd& gravitationalParameterPartial );
 

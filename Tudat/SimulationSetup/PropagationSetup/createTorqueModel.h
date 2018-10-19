@@ -109,6 +109,8 @@ std::shared_ptr< basic_astrodynamics::TorqueModel > createTorqueModel(
  *  objects.
  *  \param selectedTorquePerBody List identifying which bodies exert which type of
  *  torque(s) on which bodies.
+ *  \param propagatedBodies List of bodies that are to be propagated.
+ *  \return Torque models for the input map of bodies, based on the torque model settings.
  */
 basic_astrodynamics::TorqueModelMap createTorqueModelsMap(
         const NamedBodyMap& bodyMap,

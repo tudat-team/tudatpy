@@ -38,24 +38,11 @@ namespace linear_algebra
  */
 Eigen::Vector4d convertQuaternionToVectorFormat( const Eigen::Quaterniond& quaternion );
 
-//! Function to retrieve a quaternion from its 'vector format', e.g. a Vector4d with entries (w,x,y,z) of the quaternion.
-/*!
- * Function to retrieve a quaternion from its 'vector format', e.g. a Vector4d with entries (w,x,y,z) of the quaternion.
- * \param quaternion Vector format of quaternion.
- * \return Quaternion vector, converted to quaternion object
- */
-Eigen::Quaterniond getQuaternionFromVectorFormat( const Eigen::Vector4d& vector );
-
 //! Function to put a vector in 'quaternion format', i.e. a Quaterniond.
 /*!
  * Function to put a vector in 'quaternion format', i.e. a Quaterniond.
-<<<<<<< HEAD
- * \param vector format of input quaternion.
- * \return quaternion Quaternion that is to be put into vector format.
-=======
  * \param vector Vector format of input quaternion.
  * \return Quaternion that is to be put into vector format.
->>>>>>> C++11Features
  */
 Eigen::Quaterniond convertVectorToQuaternionFormat( const Eigen::Vector4d& vector );
 

@@ -1177,7 +1177,7 @@ public:
  *  \param singleArcSettings Single-arc settings that are to be added (to the head of the list of propagated bodies) of the input
  *  multi-arc settings.
  *  \param multiArcSettings Multi-arc settings that are to be extended
- *  \param singleArcSettings Number of arcs in which the single-arc dynamics is to be split
+ *  \param numberofArcs Number of arcs in which the single-arc dynamics is to be split
  *  \return Multi-arc propagator settings by merging an existing multi-arc with single-arc settings
  */
 template< typename StateScalarType = double >

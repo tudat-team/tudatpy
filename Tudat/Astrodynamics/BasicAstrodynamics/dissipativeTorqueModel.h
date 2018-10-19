@@ -69,12 +69,12 @@ public:
 
     //! Function to modify the damping matrix
     /*!
-     * \Function to modify the damping matrix
+     * Function to modify the damping matrix
      * \param dampingMatrix New damping matrix
      */
     void setDampingMatrixFunction( const Eigen::Matrix3d& dampingMatrix )
     {
-        dampingMatrixFunction_ = boost::lambda::constant( dampingMatrix );
+        dampingMatrixFunction_ = [ = ]( ){ return dampingMatrix; };
     }
 
 protected:

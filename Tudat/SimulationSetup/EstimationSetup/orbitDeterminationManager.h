@@ -461,9 +461,10 @@ public:
                                 variationalEquationsSolver_->getDynamicsSimulatorBase( )->getDependentVariableNumericalSolutionBase( ) );
                 }
             }
-            catch( std::runtime_error )
+            catch( std::runtime_error& error )
             {
-                std::cerr<<"Error when resetting parameters during parameter estimation, terminating estimation"<<std::endl;
+                std::cerr<<"Error when resetting parameters during parameter estimation: "<<std::endl<<
+                           error.what( )<<std::endl<<"Terminating estimation"<<std::endl;
                 exceptionDuringPropagation = true;
                 break;
             }
@@ -512,9 +513,10 @@ public:
                     leastSquaresOutput.first.conservativeResize( parameterVectorSize );
                 }
             }
-            catch( std::runtime_error )
+            catch( std::runtime_error& error )
             {
-                std::cerr<<"Error when solving normal equations during parameter estimation, terminating estimation"<<std::endl;
+                std::cerr<<"Error when solving normal equations during parameter estimation: "<<std::endl<<error.what( )<<
+                           std::endl<<"Terminating estimation"<<std::endl;
                 exceptionDuringInversion = true;
                 break;
             }

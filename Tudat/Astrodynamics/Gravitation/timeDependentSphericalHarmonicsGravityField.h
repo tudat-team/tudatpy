@@ -56,6 +56,8 @@ public:
      *  coefficients.
      *  \param fixedReferenceFrame Identifier for body-fixed reference frame to which the field is
      *  fixed (optional).
+     *  \param updateInertiaTensor Function that is to be called to update the inertia tensor (typicaly in Body class; default
+     *  empty)
      */
     TimeDependentSphericalHarmonicsGravityField(
             const double gravitationalParameter, const double referenceRadius,

@@ -89,7 +89,6 @@ void determineInitialStates(
             const unsigned int stateSize = getSingleIntegrationSize( integratedStateType );
             const std::string stateKey = getAssociatedKey( integratedStateType );
 
-
             // Bodies to propagate
             const std::vector< std::string > bodiesToPropagate =
                     getValue< std::vector< std::string > >( jsonPropagator, K::bodiesToPropagate );

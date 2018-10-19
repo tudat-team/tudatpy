@@ -31,8 +31,8 @@ public:
     /*!
      *  Constructor
      *  \param constantState Constant state value.
-     *  \param referenceFrameOrigin Origin of reference frame in which state is defined.
-     *  \param referenceFrameOrientation Orientation of reference frame in which state is defined.
+     *  \param baseFrameOrientation Origin of reference frame in which state is defined.
+     *  \param targetFrameOrientation Orientation of reference frame in which state is defined.
      */
     ConstantRotationalEphemeris( const Eigen::Vector7d constantState,
                                  const std::string& baseFrameOrientation = "",
