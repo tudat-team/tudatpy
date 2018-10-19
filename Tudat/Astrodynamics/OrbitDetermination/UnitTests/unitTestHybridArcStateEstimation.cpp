@@ -353,10 +353,10 @@ Eigen::VectorXd  executeParameterEstimation(
     std::shared_ptr< PodOutput< StateScalarType > > podOutput = orbitDeterminationManager.estimateParameters(
                 podInput );
 
-    input_output::writeMatrixToFile( podOutput->normalizedInformationMatrix_, "hybridArcPartials.dat" );
-    input_output::writeMatrixToFile( podOutput->informationMatrixTransformationDiagonal_, "hybridArcNormalization.dat" );
-    input_output::writeMatrixToFile( podOutput->inverseNormalizedCovarianceMatrix_, "hybridArcNormalizedInverseCovariance.dat" );
-    input_output::writeMatrixToFile( podOutput->getResidualHistoryMatrix( ), "hybridArcResidualHistory.dat" );
+//    input_output::writeMatrixToFile( podOutput->normalizedInformationMatrix_, "hybridArcPartials.dat" );
+//    input_output::writeMatrixToFile( podOutput->informationMatrixTransformationDiagonal_, "hybridArcNormalization.dat" );
+//    input_output::writeMatrixToFile( podOutput->inverseNormalizedCovarianceMatrix_, "hybridArcNormalizedInverseCovariance.dat" );
+//    input_output::writeMatrixToFile( podOutput->getResidualHistoryMatrix( ), "hybridArcResidualHistory.dat" );
 
     return ( podOutput->parameterEstimate_ - truthParameters ).template cast< double >( );
 }
