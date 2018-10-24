@@ -57,6 +57,7 @@ struct Keys
     {
         static const std::string useDefaultSettings;
         static const std::string initialState;
+        static const std::string initialStateOrigin;
         static const std::string mass;
         static const std::string rotationalState;
         static const std::string referenceArea;

@@ -67,6 +67,7 @@ const std::string Keys::bodies = "bodies";
 
 const std::string Keys::Body::useDefaultSettings = "useDefaultSettings";
 const std::string Keys::Body::initialState = "initialState";
+const std::string Keys::Body::initialStateOrigin = "initialStateOrigin";
 const std::string Keys::Body::mass = "mass";
 const std::string Keys::Body::rotationalState = "rotationalState";
 const std::string Keys::Body::referenceArea = "referenceArea";
