@@ -91,6 +91,8 @@ class NBodyUnifiedStateModelModifiedRodriguesParametersStateDerivative: public N
 {
 public:
 
+    using SingleStateTypeDerivative< StateScalarType, TimeType >::postProcessState;
+
     //! Constructor
     /*!
      * Constructor

@@ -89,6 +89,8 @@ class NBodyUnifiedStateModelQuaternionsStateDerivative: public NBodyStateDerivat
 {
 public:
 
+    using SingleStateTypeDerivative< StateScalarType, TimeType >::postProcessState;
+
     //! Constructor
     /*!
      * Constructor

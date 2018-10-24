@@ -91,6 +91,8 @@ class NBodyUnifiedStateModelExponentialMapStateDerivative: public NBodyStateDeri
 {
 public:
 
+    using SingleStateTypeDerivative< StateScalarType, TimeType >::postProcessState;
+
     //! Constructor
     /*!
      * Constructor
