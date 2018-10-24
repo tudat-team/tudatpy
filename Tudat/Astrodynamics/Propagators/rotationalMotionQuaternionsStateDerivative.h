@@ -65,6 +65,8 @@ class RotationalMotionQuaternionsStateDerivative: public RotationalMotionStateDe
 {
 public:
 
+    using SingleStateTypeDerivative< StateScalarType, TimeType >::postProcessState;
+
     //! Constructor.
     /*!
      * Constructor.

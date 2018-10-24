@@ -44,6 +44,8 @@ class RotationalMotionModifiedRodriguesParametersStateDerivative: public Rotatio
 {
 public:
 
+    using SingleStateTypeDerivative< StateScalarType, TimeType >::postProcessState;
+
     //! Constructor.
     /*!
      * Constructor.

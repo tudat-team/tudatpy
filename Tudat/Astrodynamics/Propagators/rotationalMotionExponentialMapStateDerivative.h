@@ -45,6 +45,8 @@ class RotationalMotionExponentialMapStateDerivative: public RotationalMotionStat
 {
 public:
 
+    using SingleStateTypeDerivative< StateScalarType, TimeType >::postProcessState;
+
     //! Constructor.
     /*!
      * Constructor.

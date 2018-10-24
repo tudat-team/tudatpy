@@ -10,31 +10,7 @@
 
 #define BOOST_TEST_MAIN
 
-#include <limits>
-#include <string>
-#include "Tudat/Basics/testMacros.h"
-#include "Tudat/Astrodynamics/BasicAstrodynamics/orbitalElementConversions.h"
-#include "Tudat/Astrodynamics/BasicAstrodynamics/unitConversions.h"
-#include "Tudat/Mathematics/BasicMathematics/coordinateConversions.h"
-
-#include <boost/test/unit_test.hpp>
-#include <boost/make_shared.hpp>
-#include <boost/lambda/lambda.hpp>
-
-#include "Tudat/Astrodynamics/Aerodynamics/exponentialAtmosphere.h"
-#include "Tudat/Astrodynamics/Gravitation/centralGravityModel.h"
-#include "Tudat/External/SpiceInterface/spiceInterface.h"
-#include "Tudat/InputOutput/basicInputOutput.h"
-#include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/gravitationalParameter.h"
-#include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/initialTranslationalState.h"
-#include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/radiationPressureCoefficient.h"
-#include "Tudat/Astrodynamics/OrbitDetermination/AccelerationPartials/numericalAccelerationPartial.h"
-#include "Tudat/Astrodynamics/OrbitDetermination/AccelerationPartials/sphericalHarmonicPartialFunctions.h"
-#include "Tudat/SimulationSetup/EstimationSetup/createAccelerationPartials.h"
-#include "Tudat/SimulationSetup/EnvironmentSetup/createBodies.h"
-#include "Tudat/SimulationSetup/PropagationSetup/createAccelerationModels.h"
-#include "Tudat/SimulationSetup/EstimationSetup/createEstimatableParameters.h"
-#include "Tudat/SimulationSetup/EnvironmentSetup/defaultBodies.h"
+#include "Tudat/SimulationSetup/tudatEstimationHeader.h"
 
 namespace tudat
 {
