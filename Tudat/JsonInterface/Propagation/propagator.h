@@ -107,11 +107,47 @@ void determineInitialStates(
                 {
                     if ( integratedStateType == translational_state )
                     {
+                        Eigen::Matrix< StateScalarType, 6, 1 > stateToAdd;
+                        std::string initialStateOrigin;
+
+                        stateToAdd.setZero( );
+
                         const std::string centralBodyName = getValue< std::vector< std::string > >(
                                     jsonPropagator, K::centralBodies ).at( i );
+                        try
+                        {
+                            const nlohmann::json jsonState = getValue< nlohmann::json >( jsonObject, stateKeyPath );
+                            initialStateOrigin = getValue< std::string >(
+                                        jsonState, Keys::Body::initialStateOrigin );
+
+                            if( initialStateOrigin != centralBodyName )
+                            {
+                                if( centralBodyName == "SSB" )
+                                {
+                                    std::cerr<<"Error, found SSB as propagation origin, but not as initial state origin when reading JSON file. This is currently unsupported"<<std::endl;
+                                }
+                                stateToAdd = getInitialStateOfBody< TimeType, StateScalarType >(
+                                            initialStateOrigin, centralBodyName,
+                                            bodyMap, integratorSettings->initialTime_ );
+                            }
+                        }
+                        catch( ... )
+                        {
+                            initialStateOrigin = centralBodyName;
+                        }
+
+                        std::shared_ptr< simulation_setup::Body > stateOriginBody;
+                        if( bodyMap.count( initialStateOrigin ) == 0 )
+                        {
+                            stateOriginBody = nullptr;
+                        }
+                        else
+                        {
+                            stateOriginBody = bodyMap.at( initialStateOrigin );
+                        }
                         bodyState = getCartesianState< StateScalarType >(
-                                    jsonObject, stateKeyPath, bodyMap.at( centralBodyName ),
-                                    integratorSettings->initialTime_ );
+                                    jsonObject, stateKeyPath, stateOriginBody,
+                                    integratorSettings->initialTime_ ) + stateToAdd;
                     }
                     else
                     {
