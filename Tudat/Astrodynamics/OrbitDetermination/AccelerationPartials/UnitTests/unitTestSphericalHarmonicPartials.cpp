@@ -10,6 +10,10 @@
 
 #define BOOST_TEST_MAIN
 
+#include <boost/test/unit_test.hpp>
+
+#include "Tudat/Basics/testMacros.h"
+
 #include "Tudat/SimulationSetup/tudatEstimationHeader.h"
 
 namespace tudat
