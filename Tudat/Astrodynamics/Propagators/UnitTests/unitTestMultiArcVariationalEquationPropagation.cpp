@@ -30,7 +30,7 @@
 #include "Tudat/SimulationSetup/EstimationSetup/variationalEquationsSolver.h"
 #include "Tudat/SimulationSetup/EnvironmentSetup/defaultBodies.h"
 #include "Tudat/SimulationSetup/EnvironmentSetup/createBodies.h"
-#include "Tudat/SimulationSetup/PropagationSetup/createNumericalSimulator.h"
+#include "Tudat/SimulationSetup/EstimationSetup/createNumericalSimulator.h"
 #include "Tudat/SimulationSetup/EstimationSetup/createEstimatableParameters.h"
 
 namespace tudat
@@ -397,9 +397,6 @@ BOOST_AUTO_TEST_CASE( testEarthMoonMultiArcVariationalEquationCalculation )
                                 ( upPerturbedState[ arc ] - downPerturbedState[ arc ] ) / ( 2.0 * parameterPerturbation( j ) );
                     }
                 }
-
-                std::cout << manualPartial.at( 1 ) << std::endl << std::endl
-                          << stateTransitionAndSensitivityMatrixAtEpoch.at( 1 ) << std::endl;
 
                 // Check results
                 for( unsigned int arc = 0; arc < manualPartial.size( ); arc++ )

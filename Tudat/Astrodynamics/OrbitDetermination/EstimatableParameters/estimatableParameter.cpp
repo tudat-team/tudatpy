@@ -27,6 +27,9 @@ std::string getParameterTypeString( const EstimatebleParametersEnum parameterTyp
     case initial_body_state:
         parameterDescription = "translational state ";
         break;
+    case initial_rotational_body_state:
+        parameterDescription = "rotational state ";
+        break;
     case gravitational_parameter:
         parameterDescription = "gravitational parameter ";
         break;
@@ -90,6 +93,9 @@ std::string getParameterTypeString( const EstimatebleParametersEnum parameterTyp
     case direct_dissipation_tidal_time_lag:
         parameterDescription = " direct tidal time-lag ";
         break;
+    case mean_moment_of_inertia:
+        parameterDescription = " mean moment of inertia ";
+        break;
     default:
         std::string errorMessage = "Error when getting parameter string, did not recognize parameter " +
                 std::to_string( parameterType );
@@ -108,6 +114,9 @@ bool isParameterDynamicalPropertyInitialState( const EstimatebleParametersEnum p
         flag = true;
         break;
     case initial_body_state:
+        flag = true;
+        break;
+    case initial_rotational_body_state:
         flag = true;
         break;
     default:
@@ -186,6 +195,9 @@ bool isDoubleParameter( const EstimatebleParametersEnum parameterType )
     case direct_dissipation_tidal_time_lag:
          isDoubleParameter = true;
         break;
+    case mean_moment_of_inertia:
+         isDoubleParameter = true;
+        break;
     default:
         throw std::runtime_error( "Error, parameter type " + std::to_string( parameterType ) +
                                   " not found when getting parameter type" );
@@ -203,6 +215,9 @@ bool isParameterRotationMatrixProperty( const EstimatebleParametersEnum paramete
         flag = true;
         break;
     case rotation_pole_position:
+        flag = true;
+        break;
+    case initial_rotational_body_state:
         flag = true;
         break;
     default:
@@ -255,8 +270,6 @@ bool isParameterTidalProperty( const EstimatebleParametersEnum parameterType )
     }
     return flag;
 }
-
-//template class EstimatableParameter< double >;
 
 //#if( BUILD_EXTENDED_PRECISION_PROPAGATION_TOOLS )
 //template class EstimatableParameter< Eigen::VectorXd >;

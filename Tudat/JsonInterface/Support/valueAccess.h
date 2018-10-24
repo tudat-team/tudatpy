@@ -195,6 +195,7 @@ ValueType getValue( const nlohmann::json& jsonObject, const KeyPath& keyPath )
     if ( ! contains( currentKeyPath, SpecialKeys::keyPath ) )
     {
         canonicalKeyPath = currentKeyPath.canonical( getKeyPath( currentObject ) );
+
         if ( ! contains( currentKeyPath, SpecialKeys::rootObject ) )
         {
             if ( isDefined( currentObject, SpecialKeys::rootObject ) )
@@ -266,6 +267,7 @@ ValueType getValue( const nlohmann::json& jsonObject, const KeyPath& keyPath )
     }
     catch ( const UnknownEnumError& )
     {
+        std::cout<<"Test A"<<std::endl;
         // Could not convert string to enum
         throw IllegalValueError( canonicalKeyPath, currentObject, typeid( ValueType ) );
     }

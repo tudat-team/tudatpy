@@ -1,4 +1,0 @@
-The directory is added to the CMake modules path by the top level CMakeLists.txt of this project. 
-Files within are automatically available to any CMakeLists.txt file within the project. 
-Be aware that if this project itself is included from within another project (e.g. tudatBundle),
-the cmake files of the parent project might to precendent over files found here. 

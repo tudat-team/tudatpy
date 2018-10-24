@@ -29,7 +29,9 @@ static std::map< BodyDeformationTypes, std::string > bodyDeformationTypes =
 };
 
 //! `BodyDeformationTypes` not supported by `json_interface`.
-static std::vector< BodyDeformationTypes > unsupportedBodyDeformationTypes = { };
+static std::vector< BodyDeformationTypes > unsupportedBodyDeformationTypes =
+{
+};
 
 //! Convert `BodyDeformationTypes` to `json`.
 inline void to_json( nlohmann::json& jsonObject, const BodyDeformationTypes& bodyDeformationType )

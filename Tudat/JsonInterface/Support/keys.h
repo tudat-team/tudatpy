@@ -35,7 +35,7 @@ struct SpecialKeys
 //! Keys recognised by json_interface.
 struct Keys
 {
-    // static const std::string simulationType;
+    static const std::string simulationType;
     static const std::string initialEpoch;
     static const std::string finalEpoch;
     static const std::string globalFrameOrigin;
@@ -57,6 +57,7 @@ struct Keys
     {
         static const std::string useDefaultSettings;
         static const std::string initialState;
+        static const std::string initialStateOrigin;
         static const std::string mass;
         static const std::string rotationalState;
         static const std::string referenceArea;
@@ -230,6 +231,14 @@ struct Keys
             static const std::string minimumOrder;
             static const std::string interpolator;
         };
+
+        static const std::string groundStation;
+        struct GroundStation
+        {
+            static const std::string stationPosition;
+            static const std::string positionElementType;
+            static const std::string stationName;
+        };
     };
 
 
@@ -256,6 +265,100 @@ struct Keys
         static const std::string thirdBody;
     };
 
+    static const std::string parametersToEstimate;
+    struct Parameter
+    {
+        static const std::string parameterType;
+        static const std::string associatedBody;
+        static const std::string secondaryIdentifier;
+
+        static const std::string initialStateValue;
+        static const std::string centralBody;
+        static const std::string frameOrientation;
+        static const std::string arcStartTimes;
+
+        static const std::string coefficientIndices;
+        static const std::string maximumDegree;
+        static const std::string minimumDegree;
+        static const std::string maximumOrder;
+        static const std::string minimumOrder;
+
+        static const std::string deformingBodies;
+
+        static const std::string observableType;
+        static const std::string linkEnds;
+        static const std::string referenceLinkEnd;
+
+        static const std::string componentsToEstimate;        
+
+        static const std::string degree;
+        static const std::string orders;
+        static const std::string useComplexValue;
+    };
+
+    static const std::string observations;
+    struct Observation
+    {
+        static const std::string observableType;
+        static const std::string lightTimeCorrectionSettingsList;
+        static const std::string biasSettings;
+
+        static const std::string transmitterProperTimeRateSettings;
+        static const std::string receiverProperTimeRateSettings;
+
+        static const std::string constantIntegrationTime;
+
+        static const std::string oneWayRangeObsevationSettings;
+        static const std::string retransmissionTimes;
+
+        static const std::string uplinkOneWayDopplerSettings;
+        static const std::string downlinkOneWayDopplerSettings;
+
+        static const std::string properTimeRateType;
+        static const std::string centralBody;
+
+        static const std::string lightTimeCorrectionType;
+        static const std::string perturbingBodies;
+
+        static const std::string observationSimulationTimesType;
+        static const std::string observationSimulationTimesList;
+
+        static const std::string observableViabilityType;
+        static const std::string associatedLinkEnd;
+        static const std::string doubleParameter;
+        static const std::string stringParameter;
+    };
+
+    static const std::string estimationSettings;
+    struct Estimation
+    {
+        static const std::string inverseAprioriCovariance;
+        static const std::string reintegrateEquationsOnFirstIteration;
+        static const std::string reintegrateVariationalEquations;
+        static const std::string saveInformationMatrix;
+        static const std::string printOutput;
+        static const std::string saveResidualsAndParametersFromEachIteration;
+        static const std::string saveStateHistoryForEachIteration;
+
+        static const std::string maximumNumberOfIterations;
+        static const std::string minimumResidualChange;
+        static const std::string minimumResidual;
+        static const std::string numberOfIterationsWithoutImprovement;
+
+        static const std::string dataWeights;
+    };
+
+    struct ObservationBias
+    {
+        static const std::string biasType;
+        static const std::string multipleBiasesList;
+        static const std::string constantBias;
+
+        static const std::string arcWiseBiasList;
+        static const std::string arcStartTimes;
+        static const std::string referenceLinkEnd;
+
+    };
 
     static const std::string propagators;
     struct Propagator

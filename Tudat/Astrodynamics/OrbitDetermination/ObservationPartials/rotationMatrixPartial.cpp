@@ -121,6 +121,11 @@ Eigen::Matrix< double, 3, Eigen::Dynamic > RotationMatrixPartial::calculateParti
         const double time,
         const Eigen::Vector3d vectorInLocalFrame )
 {
+    if( rotationModel_ == nullptr )
+    {
+        throw std::runtime_error( "Error when caling RotationMatrixPartial::calculatePartialOfInertialVelocityWrtParameter, rotation model is nullptr" );
+    }
+
     // Compute rotation matrix (derivative) partials
     std::vector< Eigen::Matrix3d > rotationMatrixPartials =
             calculatePartialOfRotationMatrixToBaseFrameWrParameter( time );

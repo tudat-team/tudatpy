@@ -33,7 +33,9 @@ enum VariableType
     independentVariable,
     cpuTimeVariable,
     stateVariable,
-    dependentVariable // -> derivedVariable ?
+    dependentVariable,  // -> derivedVariable ?
+    stateTransitionMatrix,
+    sensitivityMatrix
 };
 
 //! Functional base class for defining settings for variables
@@ -108,7 +110,8 @@ enum PropagationDependentVariables
     single_gravity_field_variation_acceleration_terms = 39,
     acceleration_partial_wrt_body_translational_state = 40,
     local_dynamic_pressure_dependent_variable = 41,
-    local_aerodynamic_heat_rate_dependent_variable = 42
+    local_aerodynamic_heat_rate_dependent_variable = 42,
+    euler_angles_to_body_fixed_313 = 43
 };
 
 //! Functional base class for defining settings for dependent variables that are to be saved during propagation

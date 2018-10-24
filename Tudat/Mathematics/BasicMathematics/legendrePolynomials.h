@@ -31,8 +31,10 @@
 #define TUDAT_LEGENDRE_POLYNOMIALS_H
 
 #include <cstddef>
-#include <boost/bind.hpp>
 
+#include <Eigen/Core>
+
+#include <boost/bind.hpp>
 #include <boost/circular_buffer.hpp>
 #include <functional>
 #include <memory>
@@ -636,6 +638,47 @@ double calculateLegendreGeodesyNormalizationFactor( const int degree, const int 
 //! Predefine boost function for unnormalized Legendre polynomial.
 const LegendreCache::LegendrePolynomialFunction regularLegendrePolynomialFunction =
         std::bind( &computeLegendrePolynomialFromCache, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3 );
+
+//! Function to convert unnormalized to geodesy-normalized (4-pi normalized) spherical harmonic coefficients
+/*!
+ * Function to convert unnormalized to geodesy-normalized (4-pi normalized) spherical harmonic coefficients
+ * \param unnormalizedCosineCoefficients Original, unnormalized, cosine coefficients
+ * \param unnormalizedSineCoefficients Original, unnormalized, sine coefficients
+ * \param normalizedCosineCoefficients Transformed, normalized, cosine coefficients (returned by reference)
+ * \param normalizedSineCoefficients Transformed, normalized, sine coefficients (returned by reference)
+ */
+void convertUnnormalizedToGeodesyNormalizedCoefficients(
+        const Eigen::MatrixXd& unnormalizedCosineCoefficients,
+        const Eigen::MatrixXd& unnormalizedSineCoefficients,
+        Eigen::MatrixXd& normalizedCosineCoefficients,
+        Eigen::MatrixXd& normalizedSineCoefficients );
+
+//! Function to convert geodesy-normalized (4-pi normalized) to unnormalized spherical harmonic coefficients
+/*!
+ * Function to convert geodesy-normalized (4-pi normalized) to unnormalized spherical harmonic coefficients
+ * \param normalizedCosineCoefficients Original, normalized, cosine coefficients
+ * \param normalizedSineCoefficients Original, normalized, sine coefficients
+ * \param unnormalizedCosineCoefficients Transformed, unnormalized, cosine coefficients (returned by reference)
+ * \param unnormalizedSineCoefficients Transformed, unnormalized, sine coefficients (returned by reference)
+ */
+void convertGeodesyNormalizedToUnnormalizedCoefficients(
+        const Eigen::MatrixXd& normalizedCosineCoefficients,
+        const Eigen::MatrixXd& normalizedSineCoefficients,
+        Eigen::MatrixXd& unnormalizedCosineCoefficients,
+        Eigen::MatrixXd& unnormalizedSineCoefficients );
+
+//! Function to convert unnormalized to geodesy-normalized (4-pi normalized) spherical harmonic coefficients
+/*!
+ * Function to convert unnormalized to geodesy-normalized (4-pi normalized) spherical harmonic coefficients, by modifying input
+ * coefficients
+ * \param cosineCoefficients Original, unnormalized, cosine coefficients, to be transformed to normalized coefficients (returned
+ * by reference)
+ * \param sineCoefficients Original, unnormalized, cosine coefficients, to be transformed to normalized coefficients (returned
+ * by reference)
+ */
+void geodesyNormalizeUnnormalizedCoefficients(
+        Eigen::MatrixXd& cosineCoefficients,
+        Eigen::MatrixXd& sineCoefficients );
 
 } // namespace basic_mathematics
 } // namespace tudat

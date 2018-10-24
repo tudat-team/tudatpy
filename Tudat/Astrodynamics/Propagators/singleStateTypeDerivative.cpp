@@ -50,6 +50,9 @@ int getSingleIntegrationDifferentialEquationOrder( const IntegratedStateType sta
     case body_mass_state:
         singleStateSize = 1;
         break;
+    case rotational_state:
+        singleStateSize = 1;
+        break;
     default:
         std::string errorMessage =
                 "Did not recognize state type " + std::to_string( stateType ) + "when getting order";
@@ -57,6 +60,30 @@ int getSingleIntegrationDifferentialEquationOrder( const IntegratedStateType sta
     }
     return singleStateSize;
 }
+
+//! Function to get the size of the generalized acceleration for a given state type
+int getGeneralizedAccelerationSize( const IntegratedStateType stateType )
+{
+    int accelerationSize = 0;
+    switch( stateType )
+    {
+    case translational_state:
+        accelerationSize = 3;
+        break;
+    case body_mass_state:
+        accelerationSize = 1;
+        break;
+    case rotational_state:
+        accelerationSize = 3;
+        break;
+    default:
+        std::string errorMessage =
+                "Did not recognize state type " + std::to_string( stateType ) + "when getting acceleration sizw";
+       throw std::runtime_error( errorMessage );
+    }
+    return accelerationSize;
+}
+
 
 template class SingleStateTypeDerivative< double, double >;
 

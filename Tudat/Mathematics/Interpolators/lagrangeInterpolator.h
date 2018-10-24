@@ -314,7 +314,7 @@ public:
                 }
 
                 // Evaluate interpolating polynomial at requested data point.
-                for( int i = 0; i <=  2 *offsetEntries_ + 1; i++ )
+                for( int i = 0; i < numberOfStages_; i++ )
                 {
                     j = i + lowerEntry - offsetEntries_;
                     interpolatedValue += dependentValues_[ j ]  *
@@ -368,7 +368,7 @@ private:
         // Iterate over all intervals and calculate denominators
         int currentIterationStart;
         denominators.resize( numberOfIndependentValues_ );
-        for( int i = offsetEntries_; i <= numberOfIndependentValues_ - offsetEntries_; i++ )
+        for( int i = offsetEntries_; i < numberOfIndependentValues_ - offsetEntries_ - 1 ; i++ )
         {
             // Determine start index in independent variables for current polynomial
             currentIterationStart = i - offsetEntries_;
@@ -376,12 +376,12 @@ private:
             denominators[ i ].resize( 2 * offsetEntries_ + 2 );
 
             // Calculate all denominators for single interval.
-            for( int j = 0; j <= 2 * offsetEntries_ + 1; j++ )
+            for( int j = 0; j < numberOfStages_; j++ )
             {
                 denominators[ i ][ j ] =
                         mathematical_constants::getFloatingInteger< ScalarType >( 1 );
 
-                for( int k = 0; k <= 2 * offsetEntries_ + 1; k++ )
+                for( int k = 0; k < numberOfStages_; k++ )
                 {
                     if( k != j )
                     {
@@ -422,13 +422,13 @@ private:
             std::map< IndependentVariableType, DependentVariableType > startMap;
             for( int i = 0; i <= cubicSplineInputSize; i++ )
             {
-                startMap[ independentValues_[ i ] ] = dependentValues_[ i ];
+                startMap[ independentValues_.at( i ) ] = dependentValues_.at( i );
             }
             std::map< IndependentVariableType, DependentVariableType > endMap;
             for( int i = numberOfIndependentValues_ - cubicSplineInputSize - 1;
                  i < numberOfIndependentValues_; i++ )
             {
-                endMap[ independentValues_[ i ] ] = dependentValues_[ i ];
+                endMap[ independentValues_.at( i ) ] = dependentValues_.at( i );
             }
 
             // Create cubic spline interpolators

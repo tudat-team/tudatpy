@@ -27,9 +27,13 @@ namespace basic_astrodynamics
  */
 enum AvailableTorque
 {
+    torque_free = -2,
     underfined_torque = -1,
     second_order_gravitational_torque = 0,
-    aerodynamic_torque = 1
+    aerodynamic_torque = 1,
+    spherical_harmonic_gravitational_torque = 2,
+    inertial_torque = 3,
+    dissipative_torque = 4
 };
 
 //! Function to identify the derived class type of a torque model.

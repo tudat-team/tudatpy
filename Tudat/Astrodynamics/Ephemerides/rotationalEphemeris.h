@@ -20,6 +20,7 @@
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/timeConversions.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/physicalConstants.h"
+#include "Tudat/Mathematics/BasicMathematics/linearAlgebra.h"
 #include "Tudat/Basics/basicTypedefs.h"
 #include "Tudat/Basics/timeType.h"
 
@@ -217,7 +218,7 @@ public:
      */
     template< typename TimeType >
     Eigen::Quaterniond getRotationToBaseFrameTemplated(
-                const TimeType timeSinceEpoch );
+            const TimeType timeSinceEpoch );
 
     //! Get rotation quaternion to target frame from base frame.
     /*!
@@ -288,7 +289,7 @@ public:
      */
     template< typename TimeType >
     Eigen::Matrix3d getDerivativeOfRotationToBaseFrameTemplated(
-                const TimeType timeSinceEpoch );
+            const TimeType timeSinceEpoch );
 
     //! Function to calculate the derivative of the rotation matrix from original frame to target frame.
     /*!
@@ -421,6 +422,22 @@ public:
             Eigen::Matrix3d& currentRotationToLocalFrameDerivative,
             Eigen::Vector3d& currentAngularVelocityVectorInGlobalFrame,
             const TimeType timeSinceEpoch );
+
+    //! Function to retrieve the current rotation as a state vector
+    /*!
+     * Function to retrieve the current rotation as a state vector (quaternion entries of body-fixed to base frame, and
+     * angular velocity vector in body-fixed frame.
+     * \param time Seconds since epoch at which ephemeris is to be evaluated.
+     * \return Current rotation as a state vector
+     */
+    Eigen::Vector7d getRotationStateVector( const double time )
+    {
+        Eigen::Vector7d rotationalState;
+        rotationalState.segment( 0, 4 ) = linear_algebra::convertQuaternionToVectorFormat(
+                    getRotationToBaseFrame( time ) );
+        rotationalState.segment( 4, 3 ) = getRotationalVelocityVectorInTargetFrame( time );
+        return rotationalState;
+    }
 
     //! Get base reference frame orientation.
     /*!

@@ -87,6 +87,8 @@ BOOST_AUTO_TEST_CASE( testOneWayRangePartials )
                     oneWayRangeModel, bodyMap, fullEstimatableParameterSet, linkEnds, one_way_range, 1.0E-6, true, true );
     }
 
+    std::cout<<" **************************************************************************************** "<<std::endl;
+
     // Test partials with real ephemerides (without test of position partials)
     {
         // Create environment
@@ -110,6 +112,37 @@ BOOST_AUTO_TEST_CASE( testOneWayRangePartials )
         // Create parameter objects.
         std::shared_ptr< EstimatableParameterSet< double > > fullEstimatableParameterSet =
                 createEstimatableParameters( bodyMap, 1.1E7 );
+
+        testObservationPartials< 1 >(
+                    oneWayRangeModel, bodyMap, fullEstimatableParameterSet, linkEnds, one_way_range, 1.0E-6, false, true );
+    }
+
+    std::cout<<" **************************************************************************************** "<<std::endl;
+
+    // Test partials with constant rotational ephemerides (with test of rotation state partial)
+    {
+
+        // Create environment
+        NamedBodyMap bodyMap = setupEnvironment( groundStations, 1.0E7, 1.2E7, 1.1E7, false, 1.0, true );
+
+        // Set link ends for observation model
+        LinkEnds linkEnds;
+        linkEnds[ transmitter ] = groundStations[ 1 ];
+        linkEnds[ receiver ] = groundStations[ 0 ];
+
+        // Generate one-way range model
+        std::vector< std::string > perturbingBodies;
+        perturbingBodies.push_back( "Earth" );
+        std::shared_ptr< ObservationModel< 1 > > oneWayRangeModel =
+                observation_models::ObservationModelCreator< 1, double, double >::createObservationModel(
+                    linkEnds, std::make_shared< observation_models::ObservationSettings >(
+                        observation_models::one_way_range,
+                        std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >(
+         perturbingBodies ) ), bodyMap  );
+
+        // Create parameter objects.
+        std::shared_ptr< EstimatableParameterSet< double > > fullEstimatableParameterSet =
+                createEstimatableParameters( bodyMap, 1.1E7, false, true );
 
         testObservationPartials< 1 >(
                     oneWayRangeModel, bodyMap, fullEstimatableParameterSet, linkEnds, one_way_range, 1.0E-6, false, true );

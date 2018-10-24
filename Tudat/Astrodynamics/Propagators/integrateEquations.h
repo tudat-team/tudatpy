@@ -482,6 +482,7 @@ std::shared_ptr< PropagationTerminationDetails > integrateEquationsFromIntegrato
     // Set initial time step and total integration time.
     TimeStepType timeStep = initialTimeStep;
     TimeType previousTime = currentTime;
+    TimeType previousPrintTime = TUDAT_NAN;
 
     int saveIndex = 0;
 
@@ -552,13 +553,13 @@ std::shared_ptr< PropagationTerminationDetails > integrateEquationsFromIntegrato
             // Print solutions
             if( printInterval == printInterval )
             {
-                if( ( static_cast< int >( std::fabs( static_cast< double >( currentTime - initialTime ) ) ) %
-                      static_cast< int >( printInterval ) ) <=
-                        ( static_cast< int >( std::fabs( static_cast< double >( previousTime - initialTime ) ) ) %
-                          static_cast< int >( printInterval ) ) )
+                if( !( previousPrintTime == previousPrintTime ) ||
+                        std::fabs( static_cast< double >( currentTime - previousPrintTime ) ) > printInterval )
                 {
-                    std::cout << "Current time and state in integration: " << std::setprecision( 10 ) <<
-                                 timeStep << " " << currentTime << " " << newState.transpose( ) << std::endl;
+                    previousPrintTime = currentTime;
+                    std::cout << "Current time: "<<currentTime<<"; time since initial time: "<<currentTime - initialTime<<std::endl;
+                    std::cout << "Current time step: "<<timeStep<<std::endl;
+                    std::cout << "Current state (transposed): "<<newState.transpose( ) <<std::endl<<std::endl;
                 }
             }
 

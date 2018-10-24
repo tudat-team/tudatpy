@@ -59,6 +59,7 @@ set(GRAVITATION_HEADERS
   "${SRCROOT}${GRAVITATIONDIR}/mutualSphericalHarmonicGravityModel.h"
   "${SRCROOT}${GRAVITATIONDIR}/secondDegreeGravitationalTorque.h"
   "${SRCROOT}${GRAVITATIONDIR}/directTidalDissipationAcceleration.h"
+  "${SRCROOT}${GRAVITATIONDIR}/sphericalHarmonicGravitationalTorque.h"
 )
 
 # Add static libraries.
@@ -106,6 +107,7 @@ add_executable(test_DirectTidalDissipationAcceleration "${SRCROOT}${GRAVITATIOND
 setup_custom_test_program(test_DirectTidalDissipationAcceleration "${SRCROOT}${GRAVITATIONDIR}")
 target_link_libraries(test_DirectTidalDissipationAcceleration ${TUDAT_PROPAGATION_LIBRARIES} ${Boost_LIBRARIES})
 
+
 if(USE_CSPICE)
 add_executable(test_GravityFieldVariations "${SRCROOT}${GRAVITATIONDIR}/UnitTests/unitTestGravityFieldVariations.cpp")
 setup_custom_test_program(test_GravityFieldVariations "${SRCROOT}${GRAVITATIONDIR}")
@@ -114,4 +116,9 @@ target_link_libraries(test_GravityFieldVariations tudat_gravitation tudat_interp
 add_executable(test_MutualSphericalHarmonicsGravityModel "${SRCROOT}${GRAVITATIONDIR}/UnitTests/unitTestMutualSphericalHarmonicAcceleration.cpp")
 setup_custom_test_program(test_MutualSphericalHarmonicsGravityModel "${SRCROOT}${GRAVITATIONDIR}")
 target_link_libraries(test_MutualSphericalHarmonicsGravityModel ${TUDAT_PROPAGATION_LIBRARIES} ${Boost_LIBRARIES})
+
+add_executable(test_GravitationalTorques "${SRCROOT}${GRAVITATIONDIR}/UnitTests/unitTestGravitationalTorques.cpp")
+setup_custom_test_program(test_GravitationalTorques "${SRCROOT}${GRAVITATIONDIR}")
+target_link_libraries(test_GravitationalTorques ${TUDAT_PROPAGATION_LIBRARIES} ${Boost_LIBRARIES})
+
 endif()

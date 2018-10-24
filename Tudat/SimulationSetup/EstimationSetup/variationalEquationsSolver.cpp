@@ -48,11 +48,16 @@ void createStateTransitionAndSensitivityMatrixInterpolator(
         variationalEquationsSolution[ 0 ].clear( );
     }
 
+//    std::cout<<"State trans. size "<<variationalEquationsSolution[ 0 ].size( )<<std::endl;
+//    std::cout<<"State trans. matrix "<<variationalEquationsSolution[ 0 ].begin( )->second<<std::endl;
+
     // Create interpolator for sensitivity matrix.
     sensitivityMatrixInterpolator =
             std::make_shared< interpolators::LagrangeInterpolator< double, Eigen::MatrixXd > >(
                 utilities::createVectorFromMapKeys< Eigen::MatrixXd, double >( variationalEquationsSolution[ 1 ] ),
                 utilities::createVectorFromMapValues< Eigen::MatrixXd, double >( variationalEquationsSolution[ 1 ] ), 4 );
+
+    //std::cout<<"State trans "<<stateTransitionMatrixInterpolator->interpolate( 20000.0 )<<std::endl;
 
     if( clearRawSolution )
     {
@@ -78,6 +83,13 @@ template class MultiArcVariationalEquationsSolver< long double, double >;
 template class MultiArcVariationalEquationsSolver< double, Time >;
 template class MultiArcVariationalEquationsSolver< long double, Time >;
 #endif
+
+template class HybridArcVariationalEquationsSolver< double, double >;
+template class HybridArcVariationalEquationsSolver< long double, double >;
+template class HybridArcVariationalEquationsSolver< double, Time >;
+template class HybridArcVariationalEquationsSolver< long double, Time >;
+
+
 
 }
 

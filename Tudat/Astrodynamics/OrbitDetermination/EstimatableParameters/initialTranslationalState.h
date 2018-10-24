@@ -21,8 +21,7 @@ namespace estimatable_parameters
 
 //! Interface class for the estimation of an initial translational state.
 template< typename InitialStateParameterType = double >
-class InitialTranslationalStateParameter: public EstimatableParameter<
-        Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > >
+class InitialTranslationalStateParameter: public EstimatableParameter< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > >
 {
 public:
 
@@ -82,6 +81,16 @@ public:
     std::string getCentralBody( )
     {
         return centralBody_;
+    }
+
+    //! Function to get the orientation of the frame in which the state is defined.
+    /*!
+     * Function to get the orientation of the frame in which the state is defined.
+     * \return Orientation of the frame in which the state is defined.
+     */
+    std::string getFrameOrientation( )
+    {
+        return frameOrientation_;
     }
 
 private:
@@ -266,7 +275,8 @@ int getSingleArcParameterSetSize(
                     ( std::dynamic_pointer_cast< ArcWiseInitialTranslationalStateParameter< InitialStateParameterType > >(
                         initialStateParameters.at( i ) )->getNumberOfStateArcs( ) - 1 ) * 6;
         }
-        else if( ( initialStateParameters.at( i )->getParameterName( ).first != initial_body_state ) )
+        else if( ( initialStateParameters.at( i )->getParameterName( ).first != initial_body_state ) &&
+                 ( initialStateParameters.at( i )->getParameterName( ).first != initial_rotational_body_state ))
         {
             throw std::runtime_error(
                         "Error when getting single arc paramater vector, did not recognize initial state parameter " +
@@ -296,11 +306,14 @@ int getSingleArcInitialDynamicalStateParameterSetSize(
  *  Function to get arc start times from list of estimated parameters. Function throws an error if multiple arc-wise
  *  estimations are found, but arc times are not compatible
  *  \param estimatableParameters List of estimated parameters
+ *  \param throwErrorOnSingleArcDynamics Boolean denoting whether to throw an exception if single arc dynamics are used (default true)
  *  \return Start times for estimation arcs
  */
 template< typename InitialStateParameterType >
 std::vector< double > getMultiArcStateEstimationArcStartTimes(
-        const std::shared_ptr< EstimatableParameterSet< InitialStateParameterType > > estimatableParameters )
+        const std::shared_ptr< EstimatableParameterSet< InitialStateParameterType > > estimatableParameters,
+        const bool throwErrorOnSingleArcDynamics = true )
+
 {
     // Retrieve initial dynamical parameters.
     std::vector< std::shared_ptr< EstimatableParameter<
@@ -351,7 +364,10 @@ std::vector< double > getMultiArcStateEstimationArcStartTimes(
         }
         else
         {
+            if( throwErrorOnSingleArcDynamics )
+            {
             throw std::runtime_error( "Error when getting arc times from estimated parameters, soingle arc dynamics found" );
+            }
         }
     }
 

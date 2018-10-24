@@ -232,9 +232,6 @@ BOOST_AUTO_TEST_CASE( testTidalDissipationInPlanetAndSatellite )
                     getBodyGravitationalParameter( "Jupiter" ), getAverageRadius( "Jupiter" ) / intialKeplerElements( 0 ),
                     intialKeplerElements( 1 ), meanMotion );
 
-        std::cout << elementRates.first / theoreticalSemiMajorAxisRateFromJupiterTide << std::endl;
-        std::cout << elementRates.second / theoreticaEccentricityRateFromJupiterTide << std::endl;
-
         BOOST_CHECK_CLOSE_FRACTION( elementRates.first, theoreticalSemiMajorAxisRateFromJupiterTide, 2.0E-3 );
         BOOST_CHECK_CLOSE_FRACTION( elementRates.second, theoreticaEccentricityRateFromJupiterTide, 1.0E-1 );
     }
@@ -262,9 +259,6 @@ BOOST_AUTO_TEST_CASE( testTidalDissipationInPlanetAndSatellite )
         double theoreticaEccentricityRateFromIoTide =  - 21.0 / 2.0 * satelliteLoveNumber / satelliteQualityFactor * getBodyGravitationalParameter( "Jupiter" ) /
                 getBodyGravitationalParameter( galileanSatellites.at( i ) ) * std::pow( getAverageRadius( galileanSatellites.at( i ) ) / intialKeplerElements( 0 ), 5.0 ) *
                 intialKeplerElements( 1 ) * meanMotion;
-
-        std::cout << elementRates.first / theoreticalSemiMajorAxisRateFromIoTide << std::endl;
-        std::cout << elementRates.second / theoreticaEccentricityRateFromIoTide << std::endl;
 
         // Increase tolerance for more distance moons
         double toleranceMultiplier = 1.0;

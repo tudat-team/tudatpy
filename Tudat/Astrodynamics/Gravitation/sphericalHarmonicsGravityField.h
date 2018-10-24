@@ -25,8 +25,8 @@
 #include <Eigen/Geometry>
 
 #include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
-
 #include "Tudat/Mathematics/BasicMathematics/legendrePolynomials.h"
+#include "Tudat/Astrodynamics/BasicAstrodynamics/physicalConstants.h"
 #include "Tudat/Astrodynamics/Gravitation/gravityFieldModel.h"
 #include "Tudat/Astrodynamics/Gravitation/sphericalHarmonicsGravityModel.h"
 
@@ -76,15 +76,17 @@ public:
      *  \param cosineCoefficients Cosine spherical harmonic coefficients (geodesy normalized)
      *  \param sineCoefficients Sine spherical harmonic coefficients (geodesy normalized)
      *  \param fixedReferenceFrame Identifier for body-fixed reference frame to which the field is fixed (optional).
+     *  \param updateInertiaTensor Function that is to be called to update the inertia tensor (typicaly in Body class; default
+     *  empty)
      */
-    SphericalHarmonicsGravityField( const double gravitationalParameter,
-                                    const double referenceRadius,
-                                    const Eigen::MatrixXd& cosineCoefficients =
-            Eigen::MatrixXd::Identity( 1, 1 ),
-                                    const Eigen::MatrixXd& sineCoefficients =
-            Eigen::MatrixXd::Zero( 1, 1 ),
-                                    const std::string& fixedReferenceFrame = "" )
-        : GravityFieldModel( gravitationalParameter ), referenceRadius_( referenceRadius ),
+    SphericalHarmonicsGravityField(
+            const double gravitationalParameter,
+            const double referenceRadius,
+            const Eigen::MatrixXd& cosineCoefficients = Eigen::MatrixXd::Identity( 1, 1 ),
+            const Eigen::MatrixXd& sineCoefficients = Eigen::MatrixXd::Zero( 1, 1 ),
+            const std::string& fixedReferenceFrame = "",
+            const std::function< void( ) > updateInertiaTensor = std::function< void( ) > ( ) )
+        : GravityFieldModel( gravitationalParameter, updateInertiaTensor ), referenceRadius_( referenceRadius ),
           cosineCoefficients_( cosineCoefficients ), sineCoefficients_( sineCoefficients ),
           fixedReferenceFrame_( fixedReferenceFrame )
     {
@@ -137,6 +139,11 @@ public:
     void setCosineCoefficients( const Eigen::MatrixXd& cosineCoefficients )
     {
         cosineCoefficients_ = cosineCoefficients;
+
+        if( !( updateInertiaTensor_ == nullptr ) )
+        {
+            updateInertiaTensor_( );
+        }
     }
 
     //! Function to reset the cosine spherical harmonic coefficients (geodesy normalized)
@@ -147,6 +154,10 @@ public:
     void setSineCoefficients( const Eigen::MatrixXd& sineCoefficients )
     {
         sineCoefficients_ = sineCoefficients;
+        if( !( updateInertiaTensor_ == nullptr ) )
+        {
+            updateInertiaTensor_( );
+        }
     }
 
     //! Function to get a cosine spherical harmonic coefficient block (geodesy normalized)
@@ -284,6 +295,26 @@ public:
         return fixedReferenceFrame_;
     }
 
+    //! Function to retrieve if spherical harmonic coefficients are normalized
+    /*!
+     * Function to retrieve if spherical harmonic coefficients are normalized
+     * \return Boolean stating whether spherical harmonic coefficients are normalized
+     */
+    bool areCoefficientsGeodesyNormalized( )
+    {
+        return true;
+    }
+
+    //! Function to get inertia tensor normalization factor
+    /*!
+     * Function to get inertia tensor normalization factor (M*R^2)
+     * \return Inertia tensor normalization factor (M*R^2)
+     */
+    double getInertiaTensorNormalizationFactor( )
+    {
+        return gravitationalParameter_ * referenceRadius_ * referenceRadius_ / physical_constants::GRAVITATIONAL_CONSTANT;
+    }
+
 protected:
 
     //! Reference radius of spherical harmonic field expansion
@@ -313,6 +344,78 @@ protected:
     //! Cache object for potential calculations.
     std::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache_;
 };
+
+//! Function to determine a body's inertia tensor from its degree two unnormalized gravity field coefficients
+/*!
+ * Function to determine a body's inertia tensor from its degree two unnormalized gravity field coefficients, and the mean
+ * moment of inertia.
+ * \param c20Coefficient Degree 2, order 0, unnormalized cosine spherical harmonic gravity field coefficient
+ * \param c21Coefficient Degree 2, order 1, unnormalized cosine spherical harmonic gravity field coefficient
+ * \param c22Coefficient Degree 2, order 2, unnormalized cosine spherical harmonic gravity field coefficient
+ * \param s21Coefficient Degree 2, order 1, unnormalized sine spherical harmonic gravity field coefficient
+ * \param s22Coefficient Degree 2, order 2, unnormalized sine spherical harmonic gravity field coefficient
+ * \param scaledMeanMomentOfInertia  Mean moment of inertial, divided by (M*R^2)
+ * \param bodyMass Mass M of body
+ * \param referenceRadius Reference radius R of the spherical harmonic coefficients
+ * \return Inertia tensor of body
+ */
+Eigen::Matrix3d getInertiaTensor(
+        const double c20Coefficient,
+        const double c21Coefficient,
+        const double c22Coefficient,
+        const double s21Coefficient,
+        const double s22Coefficient,
+        const double scaledMeanMomentOfInertia,
+        const double bodyMass,
+        const double referenceRadius );
+
+//! Function to determine a body's inertia tensor from its unnormalized gravity field coefficients
+/*!
+ * Function to determine a body's inertia tensor from unnormalized gravity field coefficients, and the mean
+ * moment of inertia.
+ * \param unnormalizedCosineCoefficients Block of cosine spherical harmonic coefficients, degree/order stored in row/column
+ * \param unnormalizedSineCoefficients Block of sine spherical harmonic coefficients, degree/order stored in row/column
+ * \param scaledMeanMomentOfInertia  Mean moment of inertial, divided by (M*R^2)
+ * \param bodyMass Mass M of body
+ * \param referenceRadius Reference radius R of the spherical harmonic coefficients
+ * \return Inertia tensor of body
+ */
+Eigen::Matrix3d getInertiaTensor(
+        const Eigen::MatrixXd& unnormalizedCosineCoefficients,
+        const Eigen::MatrixXd& unnormalizedSineCoefficients,
+        const double scaledMeanMomentOfInertia,
+        const double bodyMass,
+        const double referenceRadius );
+
+//! Function to determine a body's inertia tensor from its gravity field model
+/*!
+ * Function to determine a body's inertia tensor from its gravity field model, and the mean
+ * moment of inertia.
+ * \param sphericalHarmonicGravityField Spherical harmonic gravity field from which the inertia tensor is to be computed
+ * \param scaledMeanMomentOfInertia  Mean moment of inertial, divided by (M*R^2), with M the mass of the body and R the
+ * reference radius of the gravity field
+ * \return Inertia tensor of body
+ */
+Eigen::Matrix3d getInertiaTensor(
+        const std::shared_ptr< SphericalHarmonicsGravityField > sphericalHarmonicGravityField,
+        const double scaledMeanMomentOfInertia );
+
+//! Retrieve degree 2 spherical harmonic coefficients from inertia tensor and assiciated parameters
+/*!
+ * Retrieve degree 2 spherical harmonic coefficients from inertia tensor and assiciated parameters
+ * \param inertiaTensor Inertia tensor
+ * \param bodyGravitationalParameter Gravitational paramater of gravity field
+ * \param referenceRadius Reference radius of gravity field
+ * \param useNormalizedCoefficients Boolean stating whether spherical harmonic coefficients are normalized
+ * \param cosineCoefficients Cosine coefficients of  of gravity field (returned by reference)
+ * \param sineCoefficients Sine coefficients of  of gravity field (returned by reference)
+ * \param scaledMeanMomentOfInertia Scaled mean moment of inertia (returned by reference)
+ */
+void getDegreeTwoSphericalHarmonicCoefficients(
+        const Eigen::Matrix3d inertiaTensor, const double bodyGravitationalParameter, const double referenceRadius,
+        const bool useNormalizedCoefficients,
+        Eigen::MatrixXd& cosineCoefficients, Eigen::MatrixXd& sineCoefficients, double& scaledMeanMomentOfInertia );
+
 
 } // namespace gravitation
 

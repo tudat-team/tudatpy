@@ -18,6 +18,8 @@
 
 #define BOOST_TEST_MAIN
 
+#include <iostream>
+
 #include <boost/test/unit_test.hpp>
 
 #include <Eigen/Core>
@@ -610,13 +612,13 @@ void testIsIdentityMatrix( const Eigen::Matrix3d matrixToTest )
 void testIsRotationMatrixRightHanded( const Eigen::Matrix3d matrixToTest )
 {
     Eigen::Vector3d expectedUnitVectorZ =
-           ( Eigen::Vector3d( matrixToTest.block( 0, 0, 3, 1 ) ) ).cross(
+            ( Eigen::Vector3d( matrixToTest.block( 0, 0, 3, 1 ) ) ).cross(
                 Eigen::Vector3d( matrixToTest.block( 0, 1, 3, 1 ) ) );
     Eigen::Vector3d expectedUnitVectorX =
-           ( Eigen::Vector3d( matrixToTest.block( 0, 1, 3, 1 ) ) ).cross(
+            ( Eigen::Vector3d( matrixToTest.block( 0, 1, 3, 1 ) ) ).cross(
                 Eigen::Vector3d( matrixToTest.block( 0, 2, 3, 1 ) ) );
     Eigen::Vector3d expectedUnitVectorY  =
-           ( Eigen::Vector3d( matrixToTest.block( 0, 2, 3, 1 ) ) ).cross(
+            ( Eigen::Vector3d( matrixToTest.block( 0, 2, 3, 1 ) ) ).cross(
                 Eigen::Vector3d( matrixToTest.block( 0, 0, 3, 1 ) ) );
 
     for( unsigned int i = 0; i < 3; i++ )\
@@ -914,7 +916,7 @@ BOOST_AUTO_TEST_CASE( testVelocityBasedLvlhFrameTransformations )
 
         Eigen::Matrix3d rotationMatrixFromCartesianElements =
                 reference_frames::getVelocityBasedLvlhToInertialRotation(
-                                    vehicleStateCartesian, Eigen::Vector6d::Zero( ), false );
+                    vehicleStateCartesian, Eigen::Vector6d::Zero( ), false );
 
         for( unsigned int i = 0; i < 3; i++ )
         {
@@ -930,25 +932,6 @@ BOOST_AUTO_TEST_CASE( testVelocityBasedLvlhFrameTransformations )
 }
 
 
-BOOST_AUTO_TEST_CASE( testEulerAngleRetrieval )
-{
-    const double angleX = 2.1;
-    const double angleZ = -0.3;
-    const double angleY = 1.45;
-
-    Eigen::Matrix3d rotationMatrix =
-            ( Eigen::AngleAxisd( -angleX, Eigen::Vector3d::UnitX( ) ) *
-              Eigen::AngleAxisd( -angleZ, Eigen::Vector3d::UnitZ( ) ) *
-              Eigen::AngleAxisd( -angleY, Eigen::Vector3d::UnitY( ) ) ).toRotationMatrix( );
-
-    Eigen::Vector3d eulerAngles = reference_frames::get132EulerAnglesFromRotationMatrix(
-                rotationMatrix );
-
-    BOOST_CHECK_CLOSE_FRACTION( angleX, eulerAngles( 0 ), 1.0E-15 );
-    BOOST_CHECK_CLOSE_FRACTION( angleZ, eulerAngles( 1 ), 1.0E-15 );
-    BOOST_CHECK_CLOSE_FRACTION( angleY, eulerAngles( 2 ), 1.0E-15 );
-
-}
 
 BOOST_AUTO_TEST_SUITE_END( )
 

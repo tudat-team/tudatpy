@@ -11,6 +11,7 @@
 
 #define BOOST_TEST_MAIN
 
+#include <iostream>
 #include <cmath>
 
 #include <boost/test/floating_point_comparison.hpp>
@@ -24,6 +25,74 @@ namespace tudat
 
 namespace unit_tests
 {
+
+Eigen::Matrix3d getTestRotationMatrix(
+        const double psiPerturbation,
+        const double thetaPerturbation,
+        const double phiPerturbation )
+{
+    return ( Eigen::AngleAxisd( 1.2 + psiPerturbation, Eigen::Vector3d::UnitZ( ) ) *
+             Eigen::AngleAxisd( 0.3 + thetaPerturbation, Eigen::Vector3d::UnitX( ) ) *
+             Eigen::AngleAxisd( -0.4 + phiPerturbation, Eigen::Vector3d::UnitZ( ) ) ).toRotationMatrix( );
+}
+
+Eigen::Quaterniond perturbQuaternionEntry(
+        const Eigen::Quaterniond originalQuaternion,
+        const int index,
+        const double perturbation )
+{
+    double perturbedValue, newq0;
+    Eigen::Quaterniond newQuaternion;
+    if( index == 1 )
+    {
+        perturbedValue = originalQuaternion.x( ) + perturbation;
+        newq0 = std::sqrt( 1.0 - perturbedValue * perturbedValue -
+                           originalQuaternion.y( ) * originalQuaternion.y( ) -
+                           originalQuaternion.z( ) * originalQuaternion.z( ) );
+        newQuaternion = Eigen::Quaterniond( newq0, perturbedValue, originalQuaternion.y( ), originalQuaternion.z( ) );
+
+    }
+    else if( index == 2 )
+    {
+        perturbedValue = originalQuaternion.y( ) + perturbation;
+        newq0 = std::sqrt( 1.0 - perturbedValue * perturbedValue -
+                           originalQuaternion.x( ) * originalQuaternion.x( ) -
+                           originalQuaternion.z( ) * originalQuaternion.z( ) );
+        newQuaternion = Eigen::Quaterniond( newq0, originalQuaternion.x( ), perturbedValue, originalQuaternion.z( ) );
+    }
+    else if( index == 3 )
+    {
+        perturbedValue = originalQuaternion.z( ) + perturbation;
+        newq0 = std::sqrt( 1.0 - perturbedValue * perturbedValue -
+                           originalQuaternion.y( ) * originalQuaternion.y( ) -
+                           originalQuaternion.x( ) * originalQuaternion.x( ) );
+        newQuaternion = Eigen::Quaterniond( newq0, originalQuaternion.x( ), originalQuaternion.y( ), perturbedValue );
+
+    }
+    return newQuaternion;
+}
+
+Eigen::Matrix3d getTestRotationMatrix(
+        const double perturbation,
+        const int angleIndex )
+{
+    if( angleIndex == 0 )
+    {
+        return getTestRotationMatrix( perturbation, 0.0, 0.0 );
+    }
+    else if( angleIndex == 1 )
+    {
+        return getTestRotationMatrix( 0.0, perturbation, 0.0 );
+    }
+    else if( angleIndex == 2 )
+    {
+        return getTestRotationMatrix( 0.0, 0.0, perturbation );
+    }
+    else
+    {
+        return Eigen::Matrix3d::Zero( );
+    }
+}
 
 //! Test suite for unit conversion functions.
 BOOST_AUTO_TEST_SUITE( test_unit_conversions )
@@ -191,6 +260,48 @@ BOOST_AUTO_TEST_CASE( testAngleBetweenVectorFunctions )
         BOOST_CHECK_CLOSE_FRACTION( cosineOfAngle, 0.603178944723925,
                                     std::numeric_limits< double >::epsilon( ) );
         BOOST_CHECK_CLOSE_FRACTION( angle, 0.923315587553074, 1.0e-15 );
+    }
+}
+
+//! Test whether rotation matrix partial derivatives are correctly implemented
+BOOST_AUTO_TEST_CASE( testRotationMatrixDerivatives )
+{
+    using namespace tudat::linear_algebra;
+    Eigen::Matrix3d nominalMatrix = getTestRotationMatrix( 0.3, 0.2, 0.6 );
+    Eigen::Quaterniond nominalQuaternion = Eigen::Quaterniond( nominalMatrix );
+    Eigen::Vector4d nominalQuaternionVector = convertQuaternionToVectorFormat(
+                nominalQuaternion );
+
+    std::vector< Eigen::Matrix3d > partialDerivatives;
+    partialDerivatives.resize( 4 );
+    computePartialDerivativeOfRotationMatrixWrtQuaternion(
+                nominalQuaternionVector, partialDerivatives );
+
+    double quaternionPerturbation = 1.0E-7;
+
+    for( unsigned int i = 1; i < 4; i++ )
+    {
+        Eigen::Quaterniond perturbedQuaternion = perturbQuaternionEntry(
+                    nominalQuaternion, i, quaternionPerturbation );
+        Eigen::Vector4d perturbedQuaternionVector = convertQuaternionToVectorFormat(
+                    perturbedQuaternion );
+        Eigen::Matrix3d perturbedRotationMatrix = perturbedQuaternion.toRotationMatrix( );
+
+        Eigen::Matrix3d rotationMatrixChange = perturbedRotationMatrix - nominalMatrix;
+
+        Eigen::Matrix3d computedRotationMatrixChange =
+                partialDerivatives[ 0 ] * ( perturbedQuaternionVector[ 0 ] - nominalQuaternionVector[ 0 ] ) +
+                partialDerivatives[ i ] * ( perturbedQuaternionVector[ i ] - nominalQuaternionVector[ i ] );
+
+        Eigen::Matrix3d rotationMatrixChangeError = rotationMatrixChange - computedRotationMatrixChange;
+
+        for( unsigned int j = 0; j < 3; j++ )
+        {
+            for( unsigned int k = 0; k < 3; k++ )
+            {
+                BOOST_CHECK_SMALL( std::fabs( rotationMatrixChangeError( j, k ) ), 1.0E-6 * quaternionPerturbation );
+            }
+        }
     }
 }
 

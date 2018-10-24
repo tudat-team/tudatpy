@@ -63,7 +63,7 @@ public:
      * Function to retrieve the initial state used as input for numerical integration
      * \return Initial state used as input for numerical integration
      */
-    Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > getInitialStates( )
+    virtual Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > getInitialStates( )
     {
         return initialStates_;
     }
@@ -343,6 +343,7 @@ public:
                                     singleArcSettings_.at( i )->getConventionalStateSize( ), TUDAT_NAN ) );
                 }
             }
+
             initialStateList_.push_back( singleArcSettings_.at( i )->getInitialStates( ) );
         }
         if( transferInitialStateInformationPerArc )
@@ -456,7 +457,112 @@ protected:
 
     //! List of initial states for each arc in propagation.
     std::vector< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > initialStateList_;
+};
 
+//! Class for defining setting of a propagator for a combination of single- and multi-arc dynamics
+template< typename StateScalarType = double >
+class HybridArcPropagatorSettings: public PropagatorSettings< StateScalarType >
+{
+public:
+
+    //! Constructor
+    /*!
+     * Constructor
+     * \param singleArcPropagatorSettings Settings for single-arc propagation component
+     * \param multiArcPropagatorSettings Settings for multi-arc propagation component
+     */
+    HybridArcPropagatorSettings(
+            const std::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > singleArcPropagatorSettings,
+            const std::shared_ptr< MultiArcPropagatorSettings< StateScalarType > > multiArcPropagatorSettings ):
+        PropagatorSettings< StateScalarType >(
+            Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >::Zero( 0 ), false ),
+        singleArcPropagatorSettings_( singleArcPropagatorSettings ),
+        multiArcPropagatorSettings_( multiArcPropagatorSettings )
+    {
+        // Set initial states
+        this->initialStates_ =
+                Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >(
+                    singleArcPropagatorSettings->getPropagatedStateSize( ) +
+                    multiArcPropagatorSettings->getPropagatedStateSize( ) );
+        setInitialStatesFromConstituents( );
+
+        // Set initial state sizes
+        this->stateSize_ = this->initialStates_.rows( );
+        singleArcStateSize_ = singleArcPropagatorSettings_->getPropagatedStateSize( );
+        multiArcStateSize_ = multiArcPropagatorSettings_->getPropagatedStateSize( );
+    }
+
+    //! Function to reset the initial state used as input for numerical integration
+    /*!
+     * Function to reset the initial state used as input for numerical integration
+     * \param initialBodyStates New initial state used as input for numerical integration
+     */
+    void resetInitialStates(
+            const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& initialBodyStates )
+    {
+        this->initialStates_ = initialBodyStates;
+        this->stateSize_ = this->initialStates_.rows( );
+
+        singleArcPropagatorSettings_->resetInitialStates(
+                    this->initialStates_.segment( 0, singleArcStateSize_ ) );
+        multiArcPropagatorSettings_->resetInitialStates(
+                    this->initialStates_.segment( singleArcStateSize_, multiArcStateSize_ ) );
+    }
+
+    //! Function to retrieve settings for single-arc propagation component
+    /*!
+     * Function to retrieve settings for single-arc propagation component
+     * \return Settings for single-arc propagation component
+     */
+    std::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > getSingleArcPropagatorSettings( )
+    {
+        return singleArcPropagatorSettings_;
+    }
+
+    //! Function to retrieve settings for multi-arc propagation component
+    /*!
+     * Function to retrieve settings for multi-arc propagation component
+     * \return Settings for multi-arc propagation component
+     */
+    std::shared_ptr< MultiArcPropagatorSettings< StateScalarType > > getMultiArcPropagatorSettings( )
+    {
+        return multiArcPropagatorSettings_;
+    }
+
+    //! Function that sets initial states from single- and multi-arc initial states
+    void setInitialStatesFromConstituents( )
+    {
+        this->initialStates_.segment( 0, singleArcPropagatorSettings_->getPropagatedStateSize( ) ) =
+                singleArcPropagatorSettings_->getInitialStates( );
+        this->initialStates_.segment(
+                    singleArcPropagatorSettings_->getPropagatedStateSize( ), multiArcPropagatorSettings_->getPropagatedStateSize( ) ) =
+                multiArcPropagatorSettings_->getInitialStates( );
+    }
+
+    //! Function to create the integrated state models (e.g. acceleration/torque/mass-rate models).
+    /*!
+     * Function to create the integrated state models (e.g. acceleration/torque/mass-rate models) from associated settings objects.
+     * \param bodyMap Map of bodies in the propagation, with keys the names of the bodies.
+     */
+    void resetIntegratedStateModels( const simulation_setup::NamedBodyMap& bodyMap )
+    {
+        singleArcPropagatorSettings_->resetIntegratedStateModels( bodyMap );
+        multiArcPropagatorSettings_->resetIntegratedStateModels( bodyMap );
+    }
+
+protected:
+
+    //! Settings for single-arc propagation component
+    std::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > singleArcPropagatorSettings_;
+
+    //! Settings for multi-arc propagation component
+    std::shared_ptr< MultiArcPropagatorSettings< StateScalarType > > multiArcPropagatorSettings_;
+
+    //! Size of total single-arc initial state
+    int singleArcStateSize_;
+
+    //! Size of total multi-arc initial state
+    int multiArcStateSize_;
 };
 
 //! Class for defining settings for propagating translational dynamics.
@@ -762,7 +868,7 @@ public:
      */
     virtual void resetIntegratedStateModels( const simulation_setup::NamedBodyMap& bodyMap )
     {
-        torqueModelMap_ = simulation_setup::createTorqueModelsMap( bodyMap, torqueSettingsMap_ );
+        torqueModelMap_ = simulation_setup::createTorqueModelsMap( bodyMap, torqueSettingsMap_, bodiesToIntegrate_ );
     }
 
     //! Function to get the torque settings map.
@@ -790,6 +896,11 @@ public:
         return torqueModelMap_;
     }
 
+
+    void resetTorqueModelsMap( const basic_astrodynamics::TorqueModelMap& torqueModelMap )
+    {
+        torqueModelMap_ = torqueModelMap;
+    }
 
 private:
 
@@ -1058,6 +1169,135 @@ public:
     }
 };
 
+//! Function to create multi-arc propagator settings by merging an existing multi-arc with single-arc settings
+/*!
+ *  Function to create multi-arc propagator settings by merging an existing multi-arc with single-arc settings. The single-arc
+ *  settings are converted to multi-arc, and the single-arc propagated bodies are appended at the beginning of the vector
+ *  of propagated bodies. Currently, only translational dynamics is supported.
+ *  \param singleArcSettings Single-arc settings that are to be added (to the head of the list of propagated bodies) of the input
+ *  multi-arc settings.
+ *  \param multiArcSettings Multi-arc settings that are to be extended
+ *  \param numberofArcs Number of arcs in which the single-arc dynamics is to be split
+ *  \return Multi-arc propagator settings by merging an existing multi-arc with single-arc settings
+ */
+template< typename StateScalarType = double >
+std::shared_ptr< MultiArcPropagatorSettings< StateScalarType > > getExtendedMultiPropagatorSettings(
+        const std::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > singleArcSettings,
+        const std::shared_ptr< MultiArcPropagatorSettings< StateScalarType > > multiArcSettings,
+        const int numberofArcs )
+{
+    std::vector< std::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > > constituentSingleArcSettings;
+
+    // Check parameter type
+    switch( singleArcSettings->getStateType( ) )
+    {
+    case translational_state:
+    {
+        // Check single-arc consistency
+        std::shared_ptr< TranslationalStatePropagatorSettings< StateScalarType > > singleArcTranslationalSettings =
+                std::dynamic_pointer_cast< TranslationalStatePropagatorSettings< StateScalarType > >( singleArcSettings );
+        if( singleArcTranslationalSettings == nullptr )
+        {
+            throw std::runtime_error(
+                        "Error when making multi-arc propagator settings from single arc. Translational input not consistent." );
+        }
+
+        // Check multi-arc consistency
+        std::shared_ptr< TranslationalStatePropagatorSettings< StateScalarType > > firstArcTranslationalSettings =
+                std::dynamic_pointer_cast< TranslationalStatePropagatorSettings< StateScalarType > >(
+                    multiArcSettings->getSingleArcSettings( ).at( 0 ) );
+        if( firstArcTranslationalSettings == nullptr )
+        {
+            throw std::runtime_error(
+                        "Error when making multi-arc propagator settings from single arc. Multi-arc input not consistent with single-arc (translational)." );
+        }
+
+        // Create full list of central bodies
+        std::vector< std::string > multiArcCentralBodies = firstArcTranslationalSettings->centralBodies_;
+        std::vector< std::string > fullCentralBodies = singleArcTranslationalSettings->centralBodies_;
+        fullCentralBodies.insert( fullCentralBodies.end( ), multiArcCentralBodies.begin( ), multiArcCentralBodies.end( ) );
+
+        // Create full accelerations map
+        basic_astrodynamics::AccelerationMap multiArcAccelerationsMap = firstArcTranslationalSettings->getAccelerationsMap( );
+        basic_astrodynamics::AccelerationMap fullAccelerationsMap = singleArcTranslationalSettings->getAccelerationsMap( );
+        fullAccelerationsMap.insert( multiArcAccelerationsMap.begin( ), multiArcAccelerationsMap.end( ) );
+
+        // Create full list of propagated bodies
+        std::vector< std::string > multiArcBodiesToIntegrate = firstArcTranslationalSettings->bodiesToIntegrate_;
+        std::vector< std::string > fullBodiesToIntegrate = singleArcTranslationalSettings->bodiesToIntegrate_;
+        fullBodiesToIntegrate.insert( fullBodiesToIntegrate.end( ), multiArcBodiesToIntegrate.begin( ), multiArcBodiesToIntegrate.end( ) );
+
+        // Create full initial state list
+        int fullSingleArcSize = 6 * fullCentralBodies.size( );
+        int singleArcSize = 6 * singleArcTranslationalSettings->centralBodies_.size( );
+        std::vector< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > initialBodyStatesList;
+        for( int i = 0; i < numberofArcs; i++ )
+        {
+            Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1  > currentArcInitialStates =
+                    Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1  >::Zero( fullSingleArcSize );
+
+            // Get single arc initial states (NaN if not first arc)
+            if( i == 0 )
+            {
+                currentArcInitialStates.segment( 0, singleArcSize ) = singleArcTranslationalSettings->getInitialStates( );
+            }
+            else
+            {
+                currentArcInitialStates.segment( 0, singleArcSize ) =
+                        Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1  >::Constant( 6, TUDAT_NAN );
+            }
+
+            // Get existing multi-arc initial states
+            currentArcInitialStates.segment( singleArcSize, fullSingleArcSize - singleArcSize ) =
+                    multiArcSettings->getSingleArcSettings( ).at( i )->getInitialStates( );
+            initialBodyStatesList.push_back( currentArcInitialStates );
+        }
+
+        TranslationalPropagatorType propagatorToUse = firstArcTranslationalSettings->propagator_;
+
+        // Retrieve dependent variables that are to be saved.
+        std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > multiArcDependentVariablesToSave;
+        if( firstArcTranslationalSettings->getDependentVariablesToSave( ) != nullptr )
+        {
+            multiArcDependentVariablesToSave  = firstArcTranslationalSettings->getDependentVariablesToSave( )->dependentVariables_;
+        }
+        std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > fullDependentVariablesToSave;
+        if( singleArcTranslationalSettings->getDependentVariablesToSave( ) != nullptr )
+        {
+            fullDependentVariablesToSave = singleArcTranslationalSettings->getDependentVariablesToSave( )->dependentVariables_;
+        }
+        fullDependentVariablesToSave.insert(
+                    fullDependentVariablesToSave.end( ), multiArcDependentVariablesToSave.begin( ),
+                    multiArcDependentVariablesToSave.end( ) );
+
+        // Create dependent variables object
+        std::shared_ptr< DependentVariableSaveSettings > fullDependentVariablesObject;
+        if( fullDependentVariablesToSave.size( ) > 0 )
+        {
+            fullDependentVariablesObject = std::make_shared< DependentVariableSaveSettings >(
+                        fullDependentVariablesToSave, true );
+        }
+
+        // Create list of single-arc settings
+        for( int i = 0; i < numberofArcs; i++ )
+        {
+            constituentSingleArcSettings.push_back(
+                        std::make_shared< TranslationalStatePropagatorSettings< StateScalarType > >(
+                            fullCentralBodies, fullAccelerationsMap, fullBodiesToIntegrate,
+                            initialBodyStatesList.at( i ),
+                            multiArcSettings->getSingleArcSettings( ).at( i )->getTerminationSettings( ), propagatorToUse,
+                            fullDependentVariablesObject, singleArcTranslationalSettings->getPrintInterval( ) ) );
+        }
+
+        break;
+    }
+    default:
+        throw std::runtime_error( "Error when making multi-arc propagator settings from single arc. Input not recognized." );
+    }
+
+    return std::make_shared< MultiArcPropagatorSettings< StateScalarType > >( constituentSingleArcSettings );
+}
+
 //! Function to retrieve the state size for a list of propagator settings.
 /*!
  *  Function to retrieve the initial state for a list of propagator settings.
@@ -1152,7 +1392,7 @@ public:
             terminationSettings, dependentVariablesToSave, printInterval ),
         propagatorSettingsMap_( propagatorSettingsMap )
     {
-
+        this->stateSize_ = getMultiTypePropagatorStateSize( propagatorSettingsMap_ );
     }
 
     //! Constructor.
@@ -1182,6 +1422,8 @@ public:
         }
 
         this->initialStates_ = createCombinedInitialState< StateScalarType >( propagatorSettingsMap_ );
+        this->stateSize_ = getMultiTypePropagatorStateSize( propagatorSettingsMap_ );
+
     }
 
     //! Destructor
@@ -1240,7 +1482,6 @@ public:
      * List of propagator settings to use (state type as key). List of propagator settigns
      * per type given as vector in map value.
      */
-
     std::map< IntegratedStateType, std::vector< std::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > > >
     propagatorSettingsMap_;
 
@@ -1323,6 +1564,54 @@ extern template class CustomStatePropagatorSettings< long double >;
 extern template class CustomStatePropagatorSettings< double, Time >;
 extern template class CustomStatePropagatorSettings< long double, Time >;
 #endif
+
+//! Function to retrieve list of accelerations from propagator settings
+/*!
+ *  Function to retrieve list of accelerations from propagator settings. Extracts the translational dynamics elements, and
+ *  the associated acceleration models
+ *  \param singleArcPropagatorSettings Propagator settings
+ *  \return List of acceleration models
+ */
+template< typename StateScalarType = double >
+basic_astrodynamics::AccelerationMap getAccelerationMapFromPropagatorSettings(
+        const std::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > singleArcPropagatorSettings )
+{
+    basic_astrodynamics::AccelerationMap accelerationMap;
+
+    switch( singleArcPropagatorSettings->getStateType( ) )
+    {
+    case hybrid:
+    {
+        std::shared_ptr< MultiTypePropagatorSettings< StateScalarType > > multiTypePropagatorSettings =
+                std::dynamic_pointer_cast< MultiTypePropagatorSettings< StateScalarType > >( singleArcPropagatorSettings );
+        if( multiTypePropagatorSettings->propagatorSettingsMap_.count( translational_state ) > 0 )
+        {
+            if( multiTypePropagatorSettings->propagatorSettingsMap_.at( translational_state ).size( ) == 1 )
+            {
+                accelerationMap = getAccelerationMapFromPropagatorSettings(
+                            multiTypePropagatorSettings->propagatorSettingsMap_.at( translational_state ).at( 0 ) );
+            }
+            else
+            {
+                throw std::runtime_error( "Error when get accelerations map from propagator settings, multi-type cannot be parsed properly" );
+            }
+        }
+
+        break;
+    }
+    case translational_state:
+    {
+        accelerationMap = std::dynamic_pointer_cast< TranslationalStatePropagatorSettings< StateScalarType > >(
+                    singleArcPropagatorSettings )->getAccelerationsMap( );
+
+        break;
+    }
+    default:
+        break;
+    }
+
+    return accelerationMap;
+}
 
 //! Function to retrieve the list of integrated state types and reference ids
 /*!

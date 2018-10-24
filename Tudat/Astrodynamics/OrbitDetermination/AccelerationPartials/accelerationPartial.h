@@ -98,6 +98,19 @@ public:
             }
             break;
         }
+        case propagators::rotational_state:
+        {
+            // Check if reference id is consistent.
+            if( stateReferencePoint.second != "" )
+            {
+                throw std::runtime_error( "Error when getting state derivative partial acceleration model, cannot have reference point on body for body mass" );
+            }
+            else if( isStateDerivativeDependentOnIntegratedAdditionalStateTypes( stateReferencePoint, integratedStateType ) )
+            {
+                partialFunction = std::make_pair( std::bind( &AccelerationPartial::wrtNonTranslationalStateOfAdditionalBody,
+                                                               this, std::placeholders::_1, stateReferencePoint, integratedStateType, true ), 1 );
+            }
+        }
         case propagators::body_mass_state:
         {
             // Check if reference id is consistent.
@@ -105,10 +118,10 @@ public:
             {
                 throw std::runtime_error( "Error when getting state derivative partial acceleration model, cannot have reference point on body for body mass" );
             }
-            else if( isStateDerivativeDependentOnIntegratedNonTranslationalState( stateReferencePoint, integratedStateType ) )
+            else if( isStateDerivativeDependentOnIntegratedAdditionalStateTypes( stateReferencePoint, integratedStateType ) )
             {
                 partialFunction = std::make_pair( std::bind( &AccelerationPartial::wrtNonTranslationalStateOfAdditionalBody,
-                                                               this, std::placeholders::_1, stateReferencePoint, integratedStateType ), 1 );
+                                                               this, std::placeholders::_1, stateReferencePoint, integratedStateType, true ), 1 );
             }
         }
         case propagators::custom_state:
@@ -135,12 +148,13 @@ public:
      *  \param integratedStateType Type of propagated state for which dependency is to be determined.
      *  \return True if dependency exists (non-zero partial), false otherwise.
      */
-    virtual bool isStateDerivativeDependentOnIntegratedNonTranslationalState(
+    virtual bool isStateDerivativeDependentOnIntegratedAdditionalStateTypes(
             const std::pair< std::string, std::string >& stateReferencePoint,
             const propagators::IntegratedStateType integratedStateType )
     {
         return false;
     }
+
 
     //! Function to check whether a partial w.r.t. some integrated state is non-zero.
     /*!
@@ -175,7 +189,7 @@ public:
             break;
         }
         default:
-            isDependent = isStateDerivativeDependentOnIntegratedNonTranslationalState( stateReferencePoint, integratedStateType );
+            isDependent = isStateDerivativeDependentOnIntegratedAdditionalStateTypes( stateReferencePoint, integratedStateType );
             break;
         }
         return isDependent;
@@ -317,11 +331,13 @@ public:
      *  \param partialMatrix Block of partial derivatives of where current partial is to be added.
      *  \param stateReferencePoint Reference point id of propagated state
      *  \param integratedStateType Type of propagated state for which partial is to be computed.
+     *  \param addContribution Variable denoting whether to return the partial itself (true) or the negative partial (false).
      */
     virtual void wrtNonTranslationalStateOfAdditionalBody(
             Eigen::Block< Eigen::MatrixXd > partialMatrix,
             const std::pair< std::string, std::string >& stateReferencePoint,
-            const propagators::IntegratedStateType integratedStateType ){ }
+            const propagators::IntegratedStateType integratedStateType,
+            const bool addContribution = true ){ }
 
     //! Function to check whether the partial derivative w.r.t. the translational state of a third body is non-zero.
     /*!

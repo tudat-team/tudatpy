@@ -76,82 +76,107 @@ void determineInitialStates(
     // Get propagators
     nlohmann::json jsonPropagators = jsonObject.at( Keys::propagators );
 
-    // Update propagators at jsonObject with initial states retrieved from bodies ephemeris
-    bool usedEphemeris = false;
-    if ( jsonPropagators.size( ) == 1 )
+    // Update propagators at jsonObject with initial states stored at JSON bodies settings
+    for ( nlohmann::json& jsonPropagator : jsonPropagators )
     {
-        nlohmann::json& jsonPropagator = jsonPropagators.front( );
         if ( ! isDefined( jsonPropagator, K::initialStates ) )
         {
+            // Integrated state type
             const IntegratedStateType integratedStateType =
                     getValue( jsonPropagator, K::integratedStateType, translational_state );
 
-            if ( integratedStateType == translational_state )
+            // State size and associated stateKey
+            const unsigned int stateSize = getSingleIntegrationSize( integratedStateType );
+            const std::string stateKey = getAssociatedKey( integratedStateType );
+
+            // Bodies to propagate
+            const std::vector< std::string > bodiesToPropagate =
+                    getValue< std::vector< std::string > >( jsonPropagator, K::bodiesToPropagate );
+
+            // System initial state
+            Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > initialStates =
+                    Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >::Zero(
+                        stateSize * bodiesToPropagate.size( ), 1 );
+
+            // Get state for each body
+            for ( unsigned int i = 0; i < bodiesToPropagate.size( ); ++i )
             {
+                const KeyPath stateKeyPath = Keys::bodies / bodiesToPropagate.at( i ) / stateKey;
+                Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > bodyState;
                 try
                 {
-                    const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > initialStates =
-                            getInitialStatesOfBodies< TimeType, StateScalarType >(
-                                getValue< std::vector< std::string > >( jsonPropagator, K::bodiesToPropagate ),
-                                getValue< std::vector< std::string > >( jsonPropagator, K::centralBodies ),
-                                bodyMap,
-                                integratorSettings->initialTime_ );
-                    jsonPropagator[ K::initialStates ] = initialStates;
-                    usedEphemeris = true;
-                }
-                catch ( ... ) { }
-            }
-        }
-    }
-
-    if ( ! usedEphemeris )
-    {
-        // Update propagators at jsonObject with initial states stored at JSON bodies settings
-        for ( nlohmann::json& jsonPropagator : jsonPropagators )
-        {
-            if ( ! isDefined( jsonPropagator, K::initialStates ) )
-            {
-                // Integrated state type
-                const IntegratedStateType integratedStateType =
-                        getValue( jsonPropagator, K::integratedStateType, translational_state );
-
-                // State size and associated stateKey
-                const unsigned int stateSize = getSingleIntegrationSize( integratedStateType );
-                const std::string stateKey = getAssociatedKey( integratedStateType );
-
-                // Bodies to propagate
-                const std::vector< std::string > bodiesToPropagate =
-                        getValue< std::vector< std::string > >( jsonPropagator, K::bodiesToPropagate );
-
-                // System initial state
-                Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > initialStates =
-                        Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >::Zero(
-                            stateSize * bodiesToPropagate.size( ), 1 );
-
-                // Get state for each body
-                for ( unsigned int i = 0; i < bodiesToPropagate.size( ); ++i )
-                {
-                    const KeyPath stateKeyPath = Keys::bodies / bodiesToPropagate.at( i ) / stateKey;
-                    Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > bodyState;
                     if ( integratedStateType == translational_state )
                     {
+                        Eigen::Matrix< StateScalarType, 6, 1 > stateToAdd;
+                        std::string initialStateOrigin;
+
+                        stateToAdd.setZero( );
+
                         const std::string centralBodyName = getValue< std::vector< std::string > >(
                                     jsonPropagator, K::centralBodies ).at( i );
+                        try
+                        {
+                            const nlohmann::json jsonState = getValue< nlohmann::json >( jsonObject, stateKeyPath );
+                            initialStateOrigin = getValue< std::string >(
+                                        jsonState, Keys::Body::initialStateOrigin );
+
+                            if( initialStateOrigin != centralBodyName )
+                            {
+                                if( centralBodyName == "SSB" )
+                                {
+                                    std::cerr<<"Error, found SSB as propagation origin, but not as initial state origin when reading JSON file. This is currently unsupported"<<std::endl;
+                                }
+                                stateToAdd = getInitialStateOfBody< TimeType, StateScalarType >(
+                                            initialStateOrigin, centralBodyName,
+                                            bodyMap, integratorSettings->initialTime_ );
+                            }
+                        }
+                        catch( ... )
+                        {
+                            initialStateOrigin = centralBodyName;
+                        }
+
+                        std::shared_ptr< simulation_setup::Body > stateOriginBody;
+                        if( bodyMap.count( initialStateOrigin ) == 0 )
+                        {
+                            stateOriginBody = nullptr;
+                        }
+                        else
+                        {
+                            stateOriginBody = bodyMap.at( initialStateOrigin );
+                        }
                         bodyState = getCartesianState< StateScalarType >(
-                                    jsonObject, stateKeyPath, bodyMap.at( centralBodyName ),
-                                    integratorSettings->initialTime_ );
+                                    jsonObject, stateKeyPath, stateOriginBody,
+                                    integratorSettings->initialTime_ ) + stateToAdd;
                     }
                     else
                     {
                         bodyState = getValue< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >(
                                     jsonObject, stateKeyPath );
                     }
-                    initialStates.segment( i * stateSize, stateSize ) = bodyState;
                 }
-
-                // Update system initial states
-                jsonPropagator[ K::initialStates ] = initialStates;
+                catch( ... )
+                {
+                    if ( integratedStateType == translational_state )
+                    {
+                        bodyState =
+                                getInitialStateOfBody< TimeType, StateScalarType >(
+                                    bodiesToPropagate.at( i ),
+                                    getValue< std::vector< std::string > >( jsonPropagator, K::centralBodies ).at( i ),
+                                    bodyMap,
+                                    integratorSettings->initialTime_ );
+                        jsonPropagator[ K::initialStates ] = initialStates;
+                    }
+                    else
+                    {
+                        throw std::runtime_error( "Error when getting initial state from JSON file, state type not recognized" );
+                    }
+                }
+                initialStates.segment( i * stateSize, stateSize ) = bodyState;
             }
+
+            // Update system initial states
+            jsonPropagator[ K::initialStates ] = initialStates;
         }
     }
 
@@ -346,6 +371,7 @@ void to_json( nlohmann::json& jsonObject,
     }
 }
 
+
 //! Create a shared pointer to a `MultiTypePropagatorSettings` object from a `json` object.
 template< typename StateScalarType >
 void from_json( const nlohmann::json& jsonObject,
@@ -411,6 +437,15 @@ void from_json( const nlohmann::json& jsonObject,
 
 // SingleArcPropagatorSettings
 
+////! Create a `json` object from a shared pointer to a `MultiTypePropagatorSettings` object.
+//template< typename StateScalarType >
+//void to_json( nlohmann::json& jsonObject,
+//              const std::shared_ptr< MultiTypePropagatorSettings< StateScalarType > >& multiTypePropagatorSettings )
+//{
+
+//}
+
+
 //! Create a `json` object from a shared pointer to a `SingleArcPropagatorSettings` object.
 template< typename StateScalarType >
 void to_json( nlohmann::json& jsonObject,
@@ -424,57 +459,81 @@ void to_json( nlohmann::json& jsonObject,
     using namespace json_interface;
     using K = Keys::Propagator;
 
-    // Common keys
-    const IntegratedStateType integratedStateType = singleArcPropagatorSettings->getStateType( );
-    jsonObject[ K::integratedStateType ] = integratedStateType;
-    if ( singleArcPropagatorSettings->getInitialStates( ).rows( ) > 0 )
+    if( singleArcPropagatorSettings->getStateType( ) == hybrid )
     {
-        jsonObject[ K::initialStates ] = singleArcPropagatorSettings->getInitialStates( );
-    }
+        std::shared_ptr< MultiTypePropagatorSettings< StateScalarType > > multiTypePropagatorSettings =
+                std::dynamic_pointer_cast< MultiTypePropagatorSettings< StateScalarType > >( singleArcPropagatorSettings );
+        if ( ! multiTypePropagatorSettings )
+        {
+            return;
+        }
+        using namespace simulation_setup;
+        using namespace json_interface;
 
-    switch ( integratedStateType )
-    {
-    case translational_state:
-    {
-        std::shared_ptr< TranslationalStatePropagatorSettings< StateScalarType > >
-                translationalStatePropagatorSettings = std::dynamic_pointer_cast<
-                TranslationalStatePropagatorSettings< StateScalarType > >( singleArcPropagatorSettings );
-        assertNonnullptrPointer( translationalStatePropagatorSettings );
-        jsonObject[ K::type ] = translationalStatePropagatorSettings->propagator_;
-        jsonObject[ K::centralBodies ] = translationalStatePropagatorSettings->centralBodies_;
-        jsonObject[ K::bodiesToPropagate ] = translationalStatePropagatorSettings->bodiesToIntegrate_;
-        jsonObject[ K::accelerations ] = translationalStatePropagatorSettings->getAccelerationSettingsMap( );
-        return;
+        jsonObject[ Keys::propagators ] = getFlattenedMapValues< std::map, IntegratedStateType,
+                std::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > >(
+                    multiTypePropagatorSettings->propagatorSettingsMap_ );
+        jsonObject[ Keys::termination ] = multiTypePropagatorSettings->getTerminationSettings( );
+        if ( ! isNaN( multiTypePropagatorSettings->getPrintInterval( ) ) )
+        {
+            jsonObject[ Keys::options ][ Keys::Options::printInterval ] = multiTypePropagatorSettings->getPrintInterval( );
+        }
     }
-    case body_mass_state:
+    else
     {
-        std::shared_ptr< MassPropagatorSettings< StateScalarType > > massPropagatorSettings =
-                std::dynamic_pointer_cast< MassPropagatorSettings< StateScalarType > >( singleArcPropagatorSettings );
-        assertNonnullptrPointer( massPropagatorSettings );
-        jsonObject[ K::bodiesToPropagate ] = massPropagatorSettings->bodiesWithMassToPropagate_;
-        jsonObject[ K::massRateModels ] = massPropagatorSettings->getMassRateSettingsMap( );
-        return;
-    }
-    case rotational_state:
-    {
-        std::shared_ptr< RotationalStatePropagatorSettings< StateScalarType > > rotationalStatePropagatorSettings =
-                std::dynamic_pointer_cast< RotationalStatePropagatorSettings< StateScalarType > >(
-                    singleArcPropagatorSettings );
 
-        assertNonnullptrPointer( rotationalStatePropagatorSettings );
-        jsonObject[ K::type ] = rotationalStatePropagatorSettings->propagator_;
-        jsonObject[ K::bodiesToPropagate ] = rotationalStatePropagatorSettings->bodiesToIntegrate_;
-        jsonObject[ K::torques ] = rotationalStatePropagatorSettings->getTorqueSettingsMap( );
-        return;
-    }
-    case hybrid:
-    {
-        std::cerr << "Multitype (hybrid) propagation is implicitly supported by providing a list of propagators, "
-                  << "but multitype propagators cannot be nested inside multitype propagators." << std::endl;
-        throw;
-    }
-    default:
-        handleUnimplementedEnumValue( integratedStateType, integratedStateTypes, unsupportedIntegratedStateTypes );
+        // Common keys
+        const IntegratedStateType integratedStateType = singleArcPropagatorSettings->getStateType( );
+        jsonObject[ K::integratedStateType ] = integratedStateType;
+        if ( singleArcPropagatorSettings->getInitialStates( ).rows( ) > 0 )
+        {
+            jsonObject[ K::initialStates ] = singleArcPropagatorSettings->getInitialStates( );
+        }
+
+        switch ( integratedStateType )
+        {
+        case translational_state:
+        {
+            std::shared_ptr< TranslationalStatePropagatorSettings< StateScalarType > >
+                    translationalStatePropagatorSettings = std::dynamic_pointer_cast<
+                    TranslationalStatePropagatorSettings< StateScalarType > >( singleArcPropagatorSettings );
+            assertNonnullptrPointer( translationalStatePropagatorSettings );
+            jsonObject[ K::type ] = translationalStatePropagatorSettings->propagator_;
+            jsonObject[ K::centralBodies ] = translationalStatePropagatorSettings->centralBodies_;
+            jsonObject[ K::bodiesToPropagate ] = translationalStatePropagatorSettings->bodiesToIntegrate_;
+            jsonObject[ K::accelerations ] = translationalStatePropagatorSettings->getAccelerationSettingsMap( );
+            return;
+        }
+        case body_mass_state:
+        {
+            std::shared_ptr< MassPropagatorSettings< StateScalarType > > massPropagatorSettings =
+                    std::dynamic_pointer_cast< MassPropagatorSettings< StateScalarType > >( singleArcPropagatorSettings );
+            assertNonnullptrPointer( massPropagatorSettings );
+            jsonObject[ K::bodiesToPropagate ] = massPropagatorSettings->bodiesWithMassToPropagate_;
+            jsonObject[ K::massRateModels ] = massPropagatorSettings->getMassRateSettingsMap( );
+            return;
+        }
+        case rotational_state:
+        {
+            std::shared_ptr< RotationalStatePropagatorSettings< StateScalarType > > rotationalStatePropagatorSettings =
+                    std::dynamic_pointer_cast< RotationalStatePropagatorSettings< StateScalarType > >(
+                        singleArcPropagatorSettings );
+
+            assertNonnullptrPointer( rotationalStatePropagatorSettings );
+            jsonObject[ K::type ] = rotationalStatePropagatorSettings->propagator_;
+            jsonObject[ K::bodiesToPropagate ] = rotationalStatePropagatorSettings->bodiesToIntegrate_;
+            jsonObject[ K::torques ] = rotationalStatePropagatorSettings->getTorqueSettingsMap( );
+            return;
+        }
+        case hybrid:
+        {
+            std::cerr << "Multitype (hybrid) propagation is implicitly supported by providing a list of propagators, "
+                      << "but multitype propagators cannot be nested inside multitype propagators." << std::endl;
+            throw;
+        }
+        default:
+            handleUnimplementedEnumValue( integratedStateType, integratedStateTypes, unsupportedIntegratedStateTypes );
+        }
     }
 }
 

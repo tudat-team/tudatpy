@@ -22,8 +22,7 @@ Eigen::Vector3d evaluateRotationalEquationsOfMotion(
         const Eigen::Vector3d& angularVelocityVector,
         const Eigen::Matrix3d& inertiaTensorTimeDerivative )
 {
-    return inertiaTensor.inverse( ) * ( totalTorque - angularVelocityVector.cross( inertiaTensor * angularVelocityVector ) -
-                                        inertiaTensorTimeDerivative * angularVelocityVector );
+    return inertiaTensor.inverse( ) * ( totalTorque );
 }
 
 template class RotationalMotionStateDerivative< double, double >;

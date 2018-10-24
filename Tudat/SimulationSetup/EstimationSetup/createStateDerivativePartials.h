@@ -15,7 +15,9 @@
 #include "Tudat/SimulationSetup/PropagationSetup/propagationSettings.h"
 #include "Tudat/Astrodynamics/Propagators/singleStateTypeDerivative.h"
 #include "Tudat/Astrodynamics/Propagators/nBodyStateDerivative.h"
+#include "Tudat/Astrodynamics/Propagators/rotationalMotionStateDerivative.h"
 #include "Tudat/SimulationSetup/EstimationSetup/createAccelerationPartials.h"
+#include "Tudat/SimulationSetup/EstimationSetup/createTorquePartials.h"
 
 namespace tudat
 {
@@ -74,12 +76,32 @@ std::map< propagators::IntegratedStateType, orbit_determination::StateDerivative
             }
             break;
         }
+        case propagators::rotational_state:
+        {
+            if( stateDerivativeIterator->second.size( ) > 1 )
+            {
+                throw std::runtime_error(
+                            "Error, cannot yet process multiple separate same type propagators when making partial derivatives of rotational state." );
+            }
+            else
+            {
+                // Retrieve acceleration models and create partials
+                basic_astrodynamics::TorqueModelMap torqueModelList =
+                        std::dynamic_pointer_cast< propagators::RotationalMotionStateDerivative< StateScalarType, TimeType > >(
+                            stateDerivativeIterator->second.at( 0 ) )->getTorquesMap( );
+                stateDerivativePartials[ propagators::rotational_state ] =
+                        createTorquePartialsMap< StateScalarType >(
+                            torqueModelList, bodyMap, parametersToEstimate );
+            }
+            break;
+        }
         default:
             std::string errorMessage = "Cannot yet create state derivative partial models for type " +
                     std::to_string( stateDerivativeIterator->first );
             throw std::runtime_error( errorMessage );
         }
     }
+
     return stateDerivativePartials;
 }
 

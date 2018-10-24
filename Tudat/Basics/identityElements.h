@@ -49,7 +49,7 @@ public:
      *  \return Addition identity of integer and floating point types.
      */
     template< typename VariableType, typename std::enable_if< ( std::is_integral< VariableType >::value ||
-                                       std::is_floating_point< VariableType >::value ), int >::type = 0 >
+                                                              std::is_floating_point< VariableType >::value ), int >::type = 0 >
     static VariableType getAdditionIdentity( )
     {
         return tudat::mathematical_constants::getFloatingInteger< VariableType >( 0 );
@@ -65,8 +65,9 @@ public:
     {
         if( VariableType::RowsAtCompileTime == VariableType::ColsAtCompileTime )
         {
-            return VariableType::Identity( ( VariableType::RowsAtCompileTime > 0 ) ? VariableType::RowsAtCompileTime : 0,
-                                           ( VariableType::ColsAtCompileTime > 0 ) ? VariableType::ColsAtCompileTime : 0 );
+            return VariableType::Identity(
+                        VariableType::RowsAtCompileTime < 0 ? 0 : VariableType::RowsAtCompileTime,
+                        VariableType::ColsAtCompileTime < 0 ? 0 : VariableType::ColsAtCompileTime );
         }
         else
         {
@@ -80,7 +81,7 @@ public:
      *  \return Multiplication identity of integer and floating point types.
      */
     template< typename VariableType, typename std::enable_if< ( std::is_integral< VariableType >::value ||
-                                       std::is_floating_point< VariableType >::value ), int >::type = 0 >
+                                                              std::is_floating_point< VariableType >::value ), int >::type = 0 >
     static VariableType getMultiplicationIdentity( )
     {
         return tudat::mathematical_constants::getFloatingInteger< VariableType >( 1 );

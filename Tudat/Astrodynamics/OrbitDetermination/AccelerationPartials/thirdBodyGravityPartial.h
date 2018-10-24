@@ -273,18 +273,20 @@ public:
      *  \param partialMatrix Block of partial derivatives of where current partial is to be added.
      *  \param stateReferencePoint Reference point id of propagated state
      *  \param integratedStateType Type of propagated state for which partial is to be computed.
+     *  \param addContribution Variable denoting whether to return the partial itself (true) or the negative partial (false).
      */
     void wrtNonTranslationalStateOfAdditionalBody(
             Eigen::Block< Eigen::MatrixXd > partialMatrix,
             const std::pair< std::string, std::string >& stateReferencePoint,
-            const propagators::IntegratedStateType integratedStateType )
+            const propagators::IntegratedStateType integratedStateType,
+            const bool addContribution = true )
     {
         partialOfDirectGravityOnCentralBody_->
                         wrtNonTranslationalStateOfAdditionalBody(
-                            partialMatrix, stateReferencePoint, integratedStateType );
+                            partialMatrix, stateReferencePoint, integratedStateType, true );
         partialOfDirectGravityOnBodyUndergoingAcceleration_->
                         wrtNonTranslationalStateOfAdditionalBody(
-                            partialMatrix, stateReferencePoint, integratedStateType );
+                            partialMatrix, stateReferencePoint, integratedStateType, false );
     }
 
     //! Function for determining if the acceleration is dependent on a non-translational integrated state.
@@ -294,15 +296,15 @@ public:
      *  \param integratedStateType Type of propagated state for which dependency is to be determined.
      *  \return True if dependency exists (non-zero partial), false otherwise.
      */
-    bool isStateDerivativeDependentOnIntegratedNonTranslationalState(
+    bool isStateDerivativeDependentOnIntegratedAdditionalStateTypes(
             const std::pair< std::string, std::string >& stateReferencePoint,
             const propagators::IntegratedStateType integratedStateType )
     {
         if( partialOfDirectGravityOnCentralBody_->
-                isStateDerivativeDependentOnIntegratedNonTranslationalState(
+                isStateDerivativeDependentOnIntegratedAdditionalStateTypes(
                     stateReferencePoint, integratedStateType ) ||
                 partialOfDirectGravityOnBodyUndergoingAcceleration_->
-                isStateDerivativeDependentOnIntegratedNonTranslationalState(
+                isStateDerivativeDependentOnIntegratedAdditionalStateTypes(
                     stateReferencePoint, integratedStateType ) )
         {
             return true;

@@ -312,6 +312,9 @@ int getDependentVariableSize(
     case body_fixed_relative_spherical_position:
         variableSize = 3;
         break;
+    case euler_angles_to_body_fixed_313:
+        variableSize = 3;
+        break;
     case total_gravity_field_variation_acceleration:
         variableSize = 3;
         break;
@@ -336,6 +339,7 @@ int getDependentVariableSize(
     case acceleration_partial_wrt_body_translational_state:
         variableSize = 18;
         break;
+
     default:
         std::string errorMessage = "Error, did not recognize dependent variable size of type: " +
                 std::to_string( dependentVariableSettings->dependentVariableType_ );

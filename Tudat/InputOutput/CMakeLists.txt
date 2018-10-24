@@ -62,6 +62,7 @@ set(INPUTOUTPUT_HEADERS
   "${SRCROOT}${INPUTOUTPUTDIR}/multiDimensionalArrayReader.h"
   "${SRCROOT}${INPUTOUTPUTDIR}/multiDimensionalArrayWriter.h"
   "${SRCROOT}${INPUTOUTPUTDIR}/aerodynamicCoefficientReader.h"
+  "${SRCROOT}${INPUTOUTPUTDIR}/readHistoryFromFile.h"
   "${SRCROOT}${INPUTOUTPUTDIR}/tabulatedAtmosphereReader.h"
 )
 

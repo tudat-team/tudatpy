@@ -11,6 +11,7 @@
 # Add source files.
 set(NUMERICALINTEGRATORS_SOURCES
   "${SRCROOT}${NUMERICALINTEGRATORSDIR}/rungeKuttaCoefficients.cpp"
+  "${SRCROOT}${NUMERICALINTEGRATORSDIR}/createNumericalIntegrator.cpp"
   "${SRCROOT}${NUMERICALINTEGRATORSDIR}/bulirschStoerVariableStepsizeIntegrator.cpp"
   "${SRCROOT}${NUMERICALINTEGRATORSDIR}/UnitTests/numericalIntegratorTests.cpp"
   "${SRCROOT}${NUMERICALINTEGRATORSDIR}/numericalIntegrator.cpp"

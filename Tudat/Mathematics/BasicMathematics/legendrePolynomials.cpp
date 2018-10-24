@@ -9,6 +9,7 @@
  *
  */
 
+#include <iostream>
 #include <sstream>
 #include <stdexcept>
 
@@ -38,7 +39,8 @@ LegendreCache::LegendreCache( const bool useGeodesyNormalization )
         legendrePolynomialFunction_ = regularLegendrePolynomialFunction;
     }
 
-    resetMaximumDegreeAndOrder( 0, 0 );
+    resetMaximumDegreeAndOrder( 1, 1 );
+
     computeSecondDerivatives_ = 0;
 
 }
@@ -772,6 +774,74 @@ double calculateLegendreGeodesyNormalizationFactor( const int degree, const int 
                 / ( ( 2.0 - deltaFunction ) * ( 2.0 * static_cast< double >( degree ) + 1.0 )
                     * boost::math::factorial< double >( static_cast< double >( degree - order ) ) ) );
     return 1.0 / factor;
+}
+
+//! Function to convert unnormalized to geodesy-normalized (4-pi normalized) spherical harmonic coefficients
+void convertUnnormalizedToGeodesyNormalizedCoefficients(
+        const Eigen::MatrixXd& unnormalizedCosineCoefficients,
+        const Eigen::MatrixXd& unnormalizedSineCoefficients,
+        Eigen::MatrixXd& normalizedCosineCoefficients,
+        Eigen::MatrixXd& normalizedSineCoefficients )
+{
+    normalizedCosineCoefficients.setZero( unnormalizedCosineCoefficients.rows( ), unnormalizedCosineCoefficients.cols( ) );
+    normalizedSineCoefficients.setZero( unnormalizedSineCoefficients.rows( ), unnormalizedCosineCoefficients.cols( ) );
+
+    double normalizationFactor;
+
+    for( unsigned degree = 0 ; degree < unnormalizedCosineCoefficients.rows( ); degree++ )
+    {
+        for( unsigned order = 0 ; ( order < unnormalizedCosineCoefficients.cols( ) && order <= degree ); order++ )
+        {
+            normalizationFactor = calculateLegendreGeodesyNormalizationFactor( degree, order );
+            normalizedCosineCoefficients( degree, order ) = unnormalizedCosineCoefficients( degree, order ) /
+                    normalizationFactor;
+            normalizedSineCoefficients( degree, order ) = unnormalizedSineCoefficients( degree, order ) /
+                    normalizationFactor;
+        }
+    }
+}
+
+//! Function to convert geodesy-normalized (4-pi normalized) to unnormalized spherical harmonic coefficients
+void convertGeodesyNormalizedToUnnormalizedCoefficients(
+        const Eigen::MatrixXd& normalizedCosineCoefficients,
+        const Eigen::MatrixXd& normalizedSineCoefficients,
+        Eigen::MatrixXd& unnormalizedCosineCoefficients,
+        Eigen::MatrixXd& unnormalizedSineCoefficients )
+{
+    unnormalizedCosineCoefficients.setZero( normalizedCosineCoefficients.rows( ), normalizedCosineCoefficients.cols( ) );
+    unnormalizedSineCoefficients.setZero( normalizedSineCoefficients.rows( ), normalizedSineCoefficients.cols( ) );
+
+    double normalizationFactor;
+
+    for( unsigned degree = 0 ; degree < unnormalizedCosineCoefficients.rows( ); degree++ )
+    {
+        for( unsigned order = 0 ; ( order < unnormalizedCosineCoefficients.cols( ) && order <= degree ); order++ )
+        {
+            normalizationFactor = calculateLegendreGeodesyNormalizationFactor( degree, order );
+            unnormalizedCosineCoefficients( degree, order ) = normalizedCosineCoefficients( degree, order ) *
+                    normalizationFactor;
+            unnormalizedSineCoefficients( degree, order ) = normalizedSineCoefficients( degree, order ) *
+                    normalizationFactor;
+        }
+    }
+}
+
+//! Function to convert unnormalized to geodesy-normalized (4-pi normalized) spherical harmonic coefficients
+void geodesyNormalizeUnnormalizedCoefficients(
+        Eigen::MatrixXd& cosineCoefficients,
+        Eigen::MatrixXd& sineCoefficients )
+{
+    double normalizationFactor;
+
+    for( unsigned degree = 0 ; degree < cosineCoefficients.rows( ); degree++ )
+    {
+        for( unsigned order = 0 ; ( order < sineCoefficients.cols( ) && order <= degree ); order++ )
+        {
+            normalizationFactor = calculateLegendreGeodesyNormalizationFactor( degree, order );
+            cosineCoefficients( degree, order ) /=  normalizationFactor;
+            sineCoefficients( degree, order ) /=  normalizationFactor;
+        }
+    }
 }
 
 } // namespace basic_mathematics

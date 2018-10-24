@@ -35,9 +35,11 @@ public:
     /*!
      * Default constructor.
      * \param gravitationalParameter Gravitational parameter associated with gravity field
+     * \param updateInertiaTensor Function that is to be called to update the inertia tensor (typicaly in Body class; default none)
      */
-    GravityFieldModel( const double gravitationalParameter ):
-        gravitationalParameter_( gravitationalParameter )
+    GravityFieldModel( const double gravitationalParameter,
+                       const std::function< void( ) > updateInertiaTensor = std::function< void( ) > ( ) ):
+        gravitationalParameter_( gravitationalParameter ), updateInertiaTensor_( updateInertiaTensor )
     { }
 
     //! Default destructor.
@@ -54,6 +56,10 @@ public:
     void resetGravitationalParameter( const double gravitationalParameter )
     {
         gravitationalParameter_ = gravitationalParameter;
+        if( !( updateInertiaTensor_ == nullptr ) )
+        {
+            updateInertiaTensor_( );
+        }
     }
 
     //! Get the gravitational parameter.
@@ -97,6 +103,8 @@ protected:
      */
     double gravitationalParameter_;
 
+    //!  Function that is to be called to update the inertia tensor (typicaly in Body class)
+    std::function< void( ) > updateInertiaTensor_;
 
 private:
 };

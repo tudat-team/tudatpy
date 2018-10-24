@@ -37,11 +37,16 @@ std::shared_ptr< ephemerides::ReferenceFrameManager > createFrameManager(
 template class DynamicsSimulator< double, double >;
 template class SingleArcDynamicsSimulator< double, double >;
 template class MultiArcDynamicsSimulator< double, double >;
+template class HybridArcDynamicsSimulator< double, double >;
 
 #if( BUILD_EXTENDED_PRECISION_PROPAGATION_TOOLS )
 template class MultiArcDynamicsSimulator< long double, double >;
 template class MultiArcDynamicsSimulator< double, Time >;
 template class MultiArcDynamicsSimulator< long double, Time >;
+
+template class HybridArcDynamicsSimulator< long double, double >;
+template class HybridArcDynamicsSimulator< double, Time >;
+template class HybridArcDynamicsSimulator< long double, Time >;
 
 template class SingleArcDynamicsSimulator< long double, double >;
 template class SingleArcDynamicsSimulator< double, Time >;

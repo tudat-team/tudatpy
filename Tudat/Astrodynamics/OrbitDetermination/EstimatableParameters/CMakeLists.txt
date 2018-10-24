@@ -20,6 +20,7 @@ set(ESTIMATABLE_PARAMETERS_HEADERS
   "${SRCROOT}${ESTIMATABLEPARAMETERSDIR}/estimatableParameter.h"
   "${SRCROOT}${ESTIMATABLEPARAMETERSDIR}/gravitationalParameter.h"
   "${SRCROOT}${ESTIMATABLEPARAMETERSDIR}/initialTranslationalState.h"
+  "${SRCROOT}${ESTIMATABLEPARAMETERSDIR}/initialRotationalState.h"
   "${SRCROOT}${ESTIMATABLEPARAMETERSDIR}/radiationPressureCoefficient.h"
   "${SRCROOT}${ESTIMATABLEPARAMETERSDIR}/sphericalHarmonicSineCoefficients.h"
   "${SRCROOT}${ESTIMATABLEPARAMETERSDIR}/sphericalHarmonicCosineCoefficients.h"
@@ -33,6 +34,7 @@ set(ESTIMATABLE_PARAMETERS_HEADERS
   "${SRCROOT}${ESTIMATABLEPARAMETERSDIR}/empiricalAccelerationCoefficients.h"
   "${SRCROOT}${ESTIMATABLEPARAMETERSDIR}/tidalLoveNumber.h"
   "${SRCROOT}${ESTIMATABLEPARAMETERSDIR}/directTidalTimeLag.h"
+  "${SRCROOT}${ESTIMATABLEPARAMETERSDIR}/meanMomentOfInertiaParameter.h"
 )
 
 # Add static libraries.

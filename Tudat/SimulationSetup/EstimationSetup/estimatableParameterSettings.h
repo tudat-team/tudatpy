@@ -103,7 +103,8 @@ public:
     SphericalHarmonicEstimatableParameterSettings( const std::vector< std::pair< int, int > > blockIndices,
                                                    const std::string associatedBody,
                                                    const EstimatebleParametersEnum parameterType ):
-        EstimatableParameterSettings( associatedBody, parameterType ), blockIndices_( blockIndices )
+        EstimatableParameterSettings( associatedBody, parameterType ), blockIndices_( blockIndices ),
+        minimumDegree_( -1 ), minimumOrder_( -1 ), maximumDegree_( -1 ), maximumOrder_( -1 )
     {
         if( ( parameterType != spherical_harmonics_cosine_coefficient_block ) &&
                 ( parameterType != spherical_harmonics_sine_coefficient_block ) )
@@ -131,7 +132,9 @@ public:
                                                    const int maximumOrder,
                                                    const std::string associatedBody,
                                                    const EstimatebleParametersEnum parameterType ):
-        EstimatableParameterSettings( associatedBody, parameterType )
+        EstimatableParameterSettings( associatedBody, parameterType ),
+        minimumDegree_( minimumDegree ), minimumOrder_( minimumOrder ), maximumDegree_( maximumDegree ),
+        maximumOrder_( maximumOrder )
     {
         if( ( parameterType != spherical_harmonics_cosine_coefficient_block ) &&
                 ( parameterType != spherical_harmonics_sine_coefficient_block ) )
@@ -144,6 +147,18 @@ public:
 
     //! List of degrees and orders that are to estimated (first and second of each entry are degree and order.
     std::vector< std::pair< int, int > > blockIndices_;
+
+    //!  Minimum degree of field that is to be estimated.
+    int minimumDegree_;
+
+    //! Minimum order of field that is to be estimated.
+    int minimumOrder_;
+
+    //! Maximum degree of field that is to be estimated.
+    int maximumDegree_;
+
+    //! Maximum order of field that is to be estimated.
+    int maximumOrder_;
 };
 
 //! Class to define settings for estimation of constant observation biases (absolute or relative)
@@ -201,7 +216,7 @@ public:
             linkEnds.begin( )->second.first,
             isBiasAdditive ? arcwise_constant_additive_observation_bias : arcwise_constant_relative_observation_bias,
             linkEnds.begin( )->second.second ), linkEnds_( linkEnds ), observableType_( observableType ),
-    arcStartTimes_( arcStartTimes ), linkEndForTime_( linkEndForTime ){ }
+        arcStartTimes_( arcStartTimes ), linkEndForTime_( linkEndForTime ){ }
 
     //! Destructor
     ~ArcWiseConstantObservationBiasEstimatableParameterSettings( ){ }
@@ -330,6 +345,59 @@ public:
     bool isStateSet_;
 
 };
+
+//! Class to define settings for estimating an initial rotational state.
+template< typename InitialStateParameterType = double >
+class InitialRotationalStateEstimatableParameterSettings: public EstimatableParameterSettings
+{
+public:
+
+    //! Constructor, sets initial value of rotational state.
+    /*!
+     * Constructor, sets initial value of rotational state.
+     * \param associatedBody Body for which initial state is to be estimated.
+     * \param initialStateValue Current value of initial state (w.r.t. baseOrientation)
+     * \param baseOrientation Orientation w.r.t. which the initial state is to be estimated.
+     * \param frameOrientation Orientation of the frame in which the state is defined.
+     */
+    InitialRotationalStateEstimatableParameterSettings(
+            const std::string& associatedBody,
+            const Eigen::Matrix< InitialStateParameterType, 7, 1 > initialStateValue,
+            const std::string& baseOrientation = "SSB", const std::string& frameOrientation = "ECLIPJ2000" ):
+        EstimatableParameterSettings( associatedBody, initial_rotational_body_state ), initialTime_( TUDAT_NAN ),
+        initialStateValue_( initialStateValue ),
+        baseOrientation_( baseOrientation ), frameOrientation_( frameOrientation ){ }
+
+    //! Constructor, without initial value of rotational state.
+    /*!
+     * Constructor, without initial value of rotational state. Current initial state is retrieved from environment
+     * (ephemeris objects) during creation of parameter object.
+     * \param associatedBody Body for which initial state is to be estimated.
+     * \param initialTime Time at which initial state is defined.
+     * \param baseOrientation Orientation w.r.t. which the initial state is to be estimated.
+     * \param frameOrientation Orientation of the frame in which the state is defined.
+     */
+    InitialRotationalStateEstimatableParameterSettings(
+            const std::string& associatedBody,
+            const double initialTime,
+            const std::string& baseOrientation = "SSB", const std::string& frameOrientation = "ECLIPJ2000" ):
+        EstimatableParameterSettings( associatedBody, initial_rotational_body_state ), initialTime_( initialTime ),
+        baseOrientation_( baseOrientation ), frameOrientation_( frameOrientation ){ }
+
+    //! Time at which initial state is defined (NaN for user-defined initial state value).
+    double initialTime_;
+
+    //! Current value of initial state (w.r.t. baseOrientation), set manually by used.
+    Eigen::Matrix< InitialStateParameterType, 7, 1 > initialStateValue_;
+
+    //! Orientation w.r.t. which the initial state is to be estimated.
+    std::string baseOrientation_;
+
+    //! Orientation of the frame in which the state is defined.
+    std::string frameOrientation_;
+
+};
+
 
 //! Class to define settings for estimating time-independent empirical acceleration components
 class EmpiricalAccelerationEstimatableParameterSettings: public EstimatableParameterSettings

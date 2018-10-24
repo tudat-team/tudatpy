@@ -30,16 +30,6 @@ namespace tudat
 namespace reference_frames
 {
 
-//! Get classical 1-3-2 Euler angles set from rotation matrix
-Eigen::Vector3d get132EulerAnglesFromRotationMatrix(
-        const Eigen::Matrix3d& rotationMatrix )
-{
-    Eigen::Vector3d eulerAngles;
-    eulerAngles( 0 ) = std::atan2( -rotationMatrix( 2, 1 ), rotationMatrix( 1, 1 ) );
-    eulerAngles( 1 ) = std::asin( rotationMatrix( 0, 1 ) );
-    eulerAngles( 2 ) = std::atan2( -rotationMatrix( 0, 2 ), rotationMatrix( 0, 0 ) );
-    return eulerAngles;
-}
 
 //! Function to compute pole right ascension and declination, as well as prime meridian of date, from rotation matrix
 Eigen::Vector3d calculateInertialToPlanetFixedRotationAnglesFromMatrix(
@@ -308,38 +298,12 @@ Eigen::Matrix3d getRotatingPlanetocentricToLocalVerticalFrameTransformationMatri
                 longitude, latitude ).toRotationMatrix( );
 }
 
-//! Get transformation quaternion from Planetocentric (R) to the Local vertical (V) frame.
-Eigen::Quaterniond getRotatingPlanetocentricToLocalVerticalFrameTransformationQuaternion(
-        const double longitude, const double latitude )
-{
-    // Compute transformation quaternion.
-    // Note the sign change, because how angleAxisd is defined.
-    Eigen::AngleAxisd RotationAroundZaxis = Eigen::AngleAxisd(
-                -1.0 * longitude, Eigen::Vector3d::UnitZ( ) );
-    Eigen::AngleAxisd RotationAroundYaxis = Eigen::AngleAxisd(
-                -1.0 * ( -latitude - mathematical_constants::PI / 2.0 ),
-                Eigen::Vector3d::UnitY( ) );
-    Eigen::Quaterniond frameTransformationQuaternion = Eigen::Quaterniond(
-                ( RotationAroundYaxis * RotationAroundZaxis ) );
-
-    // Return transformation quaternion.
-    return frameTransformationQuaternion;
-}
-
 //! Get transformation matrix from local vertical (V) to the Planetocentric frame (R).
 Eigen::Matrix3d getLocalVerticalToRotatingPlanetocentricFrameTransformationMatrix(
         const double longitude, const double latitude )
 {
     return getRotatingPlanetocentricToLocalVerticalFrameTransformationMatrix(
                 longitude, latitude ).transpose( );
-}
-
-//! Get transformation quaternion from local vertical (V) to the Planetocentric frame (R).
-Eigen::Quaterniond getLocalVerticalToRotatingPlanetocentricFrameTransformationQuaternion(
-        const double longitude, const double latitude )
-{
-    return getRotatingPlanetocentricToLocalVerticalFrameTransformationQuaternion(
-                longitude, latitude ).inverse( );
 }
 
 //! Get transformation matrix from the TA/TG to the V-frame.

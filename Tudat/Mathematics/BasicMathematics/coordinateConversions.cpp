@@ -32,30 +32,6 @@ namespace tudat
 namespace coordinate_conversions
 {
 
-
-//! Convert spherical (radius_, zenith, azimuth) to Cartesian (x,y,z) coordinates.
-Eigen::Vector3d convertSphericalToCartesian( const Eigen::Vector3d& sphericalCoordinates )
-{
-    // Create local variables.
-    double radius_ = sphericalCoordinates( 0 );
-    double zenithAngle_ = sphericalCoordinates( 1 );
-    double azimuthAngle_ = sphericalCoordinates( 2 );
-
-    // Declaring sine which has multiple usages to save computation time.
-    double sineOfZenithAngle_ = std::sin( sphericalCoordinates( 1 ) );
-
-    // Create output Vector3d.
-    Eigen::Vector3d convertedCartesianCoordinates_ = Eigen::Vector3d::Zero( 3 );
-
-    // Perform transformation.
-    convertedCartesianCoordinates_( 0 ) = radius_ * std::cos( azimuthAngle_ ) * sineOfZenithAngle_;
-    convertedCartesianCoordinates_( 1 ) = radius_ * std::sin( azimuthAngle_ ) * sineOfZenithAngle_;
-    convertedCartesianCoordinates_( 2 ) = radius_ * std::cos( zenithAngle_ );
-
-    return convertedCartesianCoordinates_;
-}
-
-
 //! Convert cylindrical to Cartesian coordinates.
 Eigen::Vector3d convertCylindricalToCartesian( const double radius,
                                                const double azimuthAngle, const double z )

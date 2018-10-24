@@ -268,7 +268,6 @@ double gravityAssist( const double centralBodyGravitationalParameter,
                                                    pericenterFindingFunctions, std::placeholders::_1 ) );
 
         // Set pericenter radius based on result of Newton-Raphson root-finding algorithm.
-        std::cout<<"here3"<<std::endl;
         const double pericenterRadius = rootFinder->execute( rootFunction,
                                                              smallestPeriapsisDistance );
 

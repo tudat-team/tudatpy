@@ -36,7 +36,7 @@ namespace observation_partials
 /*!
  *  Function to return partial(s) of position of reference point w.r.t state of a single body. A set of link ends and the
  *  name  of the body wrt the position of which the partials are to be created. A map is returned, with the LinkEndType as
- *  key and  pointer to position partial as value. An entry for the map is created for each link end which corresponds to
+ *  key and  pointer to state partial as value. An entry for the map is created for each link end which corresponds to
  *  the body wrt the position of which the partial is to be taken.
  *  \param linkEnds Set of link ends, for each entry of this map, it is checked whether the body corresponds to the
  *  requested body and, if so, a partial object is created.
@@ -48,6 +48,23 @@ std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartia
         const observation_models::LinkEnds& linkEnds,
         const simulation_setup::NamedBodyMap& bodyMap,
         const std::string bodyToEstimate );
+
+//! Function to return partial(s) of position of ground station(s) w.r.t. rotational state of a single body.
+/*!
+ *  Function to return partial(s) of position of reference point w.r.t rotational state of a single body. A set of link ends
+ *  and the name of the body wrt the position of which the partials are to be created. A map is returned, with the LinkEndType as
+ *  key and pointer to state partial as value. An entry for the map is created for each link end which corresponds to
+ *  the body wrt the position of which the partial is to be taken.
+ *  \param linkEnds Set of link ends, for each entry of this map, it is checked whether the body corresponds to the
+ *  requested body and, if so, a partial object is created.
+ *  \param bodyMap Map of body objects, used in the creation of the partials.
+ *  \param bodyToEstimate Name of body wrt the position of which partials are to be created.
+ *  \return Map of position partial objects, one entry for each link end corresponding to the bodyToEstimate.
+ */
+std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartial > > createCartesianStatePartialsWrtBodyRotationalState(
+        const observation_models::LinkEnds& linkEnds,
+        const simulation_setup::NamedBodyMap& bodyMap,
+        const std::string& bodyToEstimate );
 
 //! Function to return partial object(s) of position of reference point w.r.t. a (double) parameter.
 /*!
@@ -82,6 +99,51 @@ std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartia
         const observation_models::LinkEnds linkEnds,
         const simulation_setup::NamedBodyMap& bodyMap,
         const std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameterToEstimate );
+
+
+
+//! Function to create partial object(s) of rotation matrix wrt a state parameter
+/*!
+ *  Function to create partial object(s) of rotation matrix wrt a state parameter
+ *  \param bodyMap Map of body objects, used in the creation of the partials.
+ *  \param parameterToEstimate Parameter object wrt which partials are to be calculated.
+ *  \return Rotation matrix partial object
+ */
+template< typename InitialStateParameterType >
+std::shared_ptr< RotationMatrixPartial > createRotationMatrixPartialsWrtStateParameter(
+        const simulation_setup::NamedBodyMap& bodyMap,
+        const std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::Matrix<
+        InitialStateParameterType, Eigen::Dynamic, 1 > > > parameterToEstimate )
+{
+    using namespace simulation_setup;
+    using namespace ephemerides;
+
+    // Declare return object.
+    std::shared_ptr< RotationMatrixPartial >  rotationMatrixPartial;
+
+    // Get body for rotation of which partial is to be created.
+    std::shared_ptr< Body > currentBody = bodyMap.at( parameterToEstimate->getParameterName( ).second.first );
+
+    // Check for which rotation model parameter the partial object is to be created.
+    switch( parameterToEstimate->getParameterName( ).first )
+    {
+    case estimatable_parameters::initial_rotational_body_state:
+
+        // Create rotation matrix partial object
+        rotationMatrixPartial = std::make_shared< RotationMatrixPartialWrtQuaternion >(
+                    std::bind( &Body::getCurrentRotationToGlobalFrame, currentBody ) );
+        break;
+
+    default:
+        std::string errorMessage = "Warning, rotation matrix partial not implemented for state parameter " +
+                std::to_string( parameterToEstimate->getParameterName( ).first );
+        throw std::runtime_error( errorMessage );
+        break;
+    }
+
+    return rotationMatrixPartial;
+
+}
 
 //! Function to create partial object(s) of rotation matrix wrt a (double) parameter.
 /*!
@@ -123,16 +185,38 @@ RotationMatrixPartialNamedList createRotationMatrixPartials(
         const std::string& bodyName, const simulation_setup::NamedBodyMap& bodyMap )
 
 {
+    //std::vector< std::shared_ptr< EstimatableParameter< Eigen:: > > >
+    //getEstimatedInitialStateParameters( )
+
     // Declare map to return.
     std::map< std::pair< estimatable_parameters::EstimatebleParametersEnum, std::string >,
             std::shared_ptr< RotationMatrixPartial > >
             rotationMatrixPartials;
 
     // Retrieve double and vector parameters from total set of parameters.
+   std::map< int, std::shared_ptr< estimatable_parameters::EstimatableParameter<
+            Eigen::Matrix< ParameterType, Eigen::Dynamic, 1 > > > > stateParameters =
+            parametersToEstimate->getInitialStateParameters( );
     std::map< int, std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > > doubleParameters =
             parametersToEstimate->getDoubleParameters( );
     std::map< int, std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > > vectorParameters =
             parametersToEstimate->getVectorParameters( );
+
+    for( auto parameterIterator = stateParameters.begin( ); parameterIterator != stateParameters.end( );
+         parameterIterator++ )
+    {
+        // Check parameter is rotational property of requested body.
+        if( ( parameterIterator->second->getParameterName( ).second.first == bodyName ) &&
+                ( estimatable_parameters::isParameterRotationMatrixProperty(
+                      parameterIterator->second->getParameterName( ).first ) ) )
+        {
+            // Create partial object.
+            rotationMatrixPartials[ std::make_pair(
+                        parameterIterator->second->getParameterName( ).first,
+                        parameterIterator->second->getSecondaryIdentifier( ) ) ] =
+                    createRotationMatrixPartialsWrtStateParameter( bodyMap, parameterIterator->second );
+        }
+    }
 
     // Iterate over double parameters.
     for( std::map< int, std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > >::iterator

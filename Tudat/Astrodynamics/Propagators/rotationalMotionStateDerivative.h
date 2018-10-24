@@ -112,6 +112,15 @@ public:
             throw std::runtime_error(
                         "Error when making rotational state derivative model, inertia tensor time derivative list is of incompatible size" );
         }
+
+        for( unsigned int i = 0; i < bodiesToPropagate.size( ); i++ )
+        {
+            if( torqueModelsPerBody_.count( bodiesToPropagate.at( i ) ) == 0 )
+            {
+                torqueModelsPerBody_[ bodiesToPropagate.at( i ) ][ bodiesToPropagate.at( i ) ] =
+                        std::vector< std::shared_ptr< basic_astrodynamics::TorqueModel > >( );
+            }
+        }
     }
 
     //! Destructor

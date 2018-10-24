@@ -29,7 +29,7 @@
 #include "Tudat/SimulationSetup/PropagationSetup/dynamicsSimulator.h"
 #include "Tudat/SimulationSetup/EnvironmentSetup/defaultBodies.h"
 #include "Tudat/SimulationSetup/EnvironmentSetup/createBodies.h"
-#include "Tudat/SimulationSetup/PropagationSetup/createNumericalSimulator.h"
+#include "Tudat/SimulationSetup/EstimationSetup/createNumericalSimulator.h"
 #include "Tudat/Mathematics/NumericalIntegrators/createNumericalIntegrator.h"
 
 namespace tudat
@@ -343,18 +343,6 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForSphericalHarmonicCentralBodies )
                         BOOST_CHECK_EQUAL( ( dependentVariableHistory.begin( )->second( 0 ) - 8.7E6 ) > 100.0, true );
                     }
                 }
-
-                //                std::cout<<"First time/altitude: "<<std::setprecision( 12 )<<dependentVariableHistory.begin( )->first<<" "<<
-                //                           dependentVariableHistory.begin( )->second<<std::endl;
-                //                std::cout<<"Final time/altitude: "<<std::setprecision( 12 )<<dependentVariableHistory.rbegin( )->first<<" "<<
-                //                           dependentVariableHistory.rbegin( )->second<<std::endl;
-                //                std::cout<<"Final time/state: "<<std::setprecision( 12 )<<stateHistory.rbegin( )->first<<" "<<
-                //                           stateHistory.rbegin( )->second.transpose( )<<std::endl;
-                //                for( std::map< double, Eigen::VectorXd >::const_iterator it = dependentVariableHistory.begin( );
-                //                     it != dependentVariableHistory.end( ); it++ )
-                //                {
-                //                    std::cout<<"Time/altitude: "<<it->first<<" "<<it->second<<std::endl;
-                //                }
             }
         }
     }

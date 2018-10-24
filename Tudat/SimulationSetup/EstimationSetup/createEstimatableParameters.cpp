@@ -23,6 +23,7 @@
 #include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/equivalencePrincipleViolationParameter.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/tidalLoveNumber.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/directTidalTimeLag.h"
+#include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/meanMomentOfInertiaParameter.h"
 #include "Tudat/Astrodynamics/Relativity/metric.h"
 #include "Tudat/SimulationSetup/EstimationSetup/createEstimatableParameters.h"
 
@@ -193,6 +194,22 @@ std::shared_ptr< EstimatableParameter< double > > createDoubleParameterToEstimat
                     throw std::runtime_error(
                                 "Error, expected DirectTidalDissipationAcceleration list for tidal time lag" );
                 }
+            }
+            break;
+        }
+        case mean_moment_of_inertia:
+        {
+            if( currentBody == nullptr )
+            {
+                std::string errorMessage = "Error, body is nullptr when making mean moment of inertia parameter.";
+                throw std::runtime_error( errorMessage );
+            }
+            else
+            {
+                doubleParameterToEstimate = std::make_shared< MeanMomentOfInertiaParameter >
+                        ( std::bind( &simulation_setup::Body::getScaledMeanMomentOfInertia, currentBody ),
+                          std::bind( &simulation_setup::Body::setScaledMeanMomentOfInertia, currentBody, std::placeholders::_1 ),
+                          currentBodyName );
             }
             break;
         }

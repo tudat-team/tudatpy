@@ -105,6 +105,29 @@ public:
                     partialMatrix, !addContribution, startRow, startColumn );
     }
 
+    //! Function for calculating the partial of the acceleration w.r.t. a non-translational integrated state
+    /*!
+     *  Function for calculating the partial of the acceleration w.r.t. a non-translational integrated state
+     *  and adding it to the existing partial block. Function calls constituent spherical harmonic model functions
+     *  \param partialMatrix Block of partial derivatives of where current partial is to be added.
+     *  \param stateReferencePoint Reference point id of propagated state
+     *  \param integratedStateType Type of propagated state for which partial is to be computed.
+     *  \param addContribution Variable denoting whether to return the partial itself (true) or the negative partial (false).
+     */
+    void wrtNonTranslationalStateOfAdditionalBody(
+            Eigen::Block< Eigen::MatrixXd > partialMatrix,
+            const std::pair< std::string, std::string >& stateReferencePoint,
+            const propagators::IntegratedStateType integratedStateType,
+            const bool addContribution )
+    {
+        accelerationPartialOfShExpansionOfBodyExertingAcceleration_->
+                        wrtNonTranslationalStateOfAdditionalBody(
+                            partialMatrix, stateReferencePoint, integratedStateType, true );
+        accelerationPartialOfShExpansionOfBodyUndergoingAcceleration_->
+                        wrtNonTranslationalStateOfAdditionalBody(
+                            partialMatrix, stateReferencePoint, integratedStateType, false );
+    }
+
     //! Function for determining if the acceleration is dependent on a non-translational integrated state.
     /*!
      *  Function for determining if the acceleration is dependent on a non-translational integrated state.
@@ -114,17 +137,21 @@ public:
      *  \param integratedStateType Type of propagated state for which dependency is to be determined.
      *  \return True if dependency exists (non-zero partial), false otherwise.
      */
-    bool isStateDerivativeDependentOnIntegratedNonTranslationalState(
+    bool isStateDerivativeDependentOnIntegratedAdditionalStateTypes(
                 const std::pair< std::string, std::string >& stateReferencePoint,
                 const propagators::IntegratedStateType integratedStateType )
     {
-        if( ( ( stateReferencePoint.first == acceleratingBody_ ||
-              ( stateReferencePoint.first == acceleratedBody_  && accelerationUsesMutualAttraction_ ) )
-              && integratedStateType == propagators::body_mass_state ) )
+        if( accelerationPartialOfShExpansionOfBodyExertingAcceleration_->
+                isStateDerivativeDependentOnIntegratedAdditionalStateTypes( stateReferencePoint, integratedStateType ) ||
+                accelerationPartialOfShExpansionOfBodyUndergoingAcceleration_->
+                isStateDerivativeDependentOnIntegratedAdditionalStateTypes( stateReferencePoint, integratedStateType ) )
         {
-            throw std::runtime_error( "Warning, dependency of central gravity on body masses not yet implemented" );
+            return true;
         }
-        return 0;
+        else
+        {
+            return false;
+        }
     }
 
     //! Function for setting up and retrieving a function returning a partial w.r.t. a double parameter.

@@ -2,5 +2,7 @@
   "independent",
   "cpuTime",
   "state",
-  "dependent"
+  "dependent",
+  "stateTransitionMatrix",
+  "sensitivityMatrix"
 ]

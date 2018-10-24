@@ -268,7 +268,7 @@ Eigen::Matrix< StateScalarType, 6, 1 > getCartesianState(
             keplerianElements( trueAnomalyIndex ) = trueAnomaly;
 
             // Convert to Cartesian elements
-            bodyState = convertKeplerianToCartesianElements( keplerianElements, centralBodyGravitationalParameter );
+            bodyState = convertKeplerianToCartesianElements< StateScalarType >( keplerianElements, centralBodyGravitationalParameter );
 
             break;
         }
@@ -300,7 +300,7 @@ Eigen::Matrix< StateScalarType, 6, 1 > getCartesianState(
             {
                 epoch = getValue< StateScalarType >( jsonState, K::epoch );
             }
-            bodyState = tudat::ephemerides::transformStateToGlobalFrame(
+            bodyState = tudat::ephemerides::transformStateToGlobalFrame< StateScalarType >(
                         convertSphericalOrbitalToCartesianState( sphericalElements ),
                         epoch, centralBody->getRotationalEphemeris( ) );
 

@@ -34,16 +34,6 @@ namespace tudat
 namespace reference_frames
 {
 
-//! Get classical 1-3-2 Euler angles set from rotation matrix
-/*!
- * Get classical 1-3-2 Euler angles set from rotation matrix R. That is, the Euler angles x, y, z are returned such that
- * R = R_{1}(x)R_{3}(y)R_{2}(z)
- * \param rotationMatrix Rotation matrix for which the equivalent Euler angles are to be computed.
- * \return Euler angles x,y,z (about 1, 3 and 2 axes, respectively).
- */
-Eigen::Vector3d get132EulerAnglesFromRotationMatrix(
-        const Eigen::Matrix3d& rotationMatrix );
-
 //! Function to compute pole right ascension and declination, as well as prime meridian of date, from rotation matrix
 /*!
  *  Function to compute pole right ascension and declination, as well as prime meridian of date, from rotation matrix
@@ -280,8 +270,24 @@ Eigen::Matrix3d getRotatingPlanetocentricToLocalVerticalFrameTransformationMatri
  * \param latitude The latitude in the planetocentric reference frame in [rad].
  * \return Transformation quaternion from Planetocentric (R) to the local vertical (V) frame.
  */
-Eigen::Quaterniond getRotatingPlanetocentricToLocalVerticalFrameTransformationQuaternion(
-        const double longitude, const double latitude );
+template< typename AngleScalarType = double >
+Eigen::Quaternion< AngleScalarType > getRotatingPlanetocentricToLocalVerticalFrameTransformationQuaternion(
+        const AngleScalarType longitude, const AngleScalarType latitude )
+{
+    // Compute transformation quaternion.
+    // Note the sign change, because how angleAxisd is defined.
+    Eigen::AngleAxis< AngleScalarType > RotationAroundZaxis = Eigen::AngleAxis< AngleScalarType >(
+                -longitude, Eigen::Matrix< AngleScalarType, 3, 1 >::UnitZ( ) );
+    Eigen::AngleAxis< AngleScalarType > RotationAroundYaxis = Eigen::AngleAxis< AngleScalarType >(
+                -( -latitude - mathematical_constants::getPi< AngleScalarType >( ) /
+                   mathematical_constants::getFloatingInteger< AngleScalarType >( 2 ) ),
+                Eigen::Matrix< AngleScalarType, 3, 1 >::UnitY( ) );
+    Eigen::Quaternion< AngleScalarType > frameTransformationQuaternion = Eigen::Quaternion< AngleScalarType >(
+                ( RotationAroundYaxis * RotationAroundZaxis ) );
+
+    // Return transformation quaternion.
+    return frameTransformationQuaternion;
+}
 
 //! Get transformation matrix from local vertical (V) to the Planetocentric frame (R).
 /*!
@@ -308,8 +314,14 @@ Eigen::Matrix3d getLocalVerticalToRotatingPlanetocentricFrameTransformationMatri
  * \param latitude The latitude in the planetocentric reference frame in [rad].
  * \return Transformation quaternion from local vertical (V) to the Planetocentric (R) frame.
  */
-Eigen::Quaterniond getLocalVerticalToRotatingPlanetocentricFrameTransformationQuaternion(
-        const double longitude, const double latitude );
+template< typename AngleScalarType = double >
+Eigen::Quaternion< AngleScalarType > getLocalVerticalToRotatingPlanetocentricFrameTransformationQuaternion(
+        const AngleScalarType longitude, const AngleScalarType latitude )
+{
+    return getRotatingPlanetocentricToLocalVerticalFrameTransformationQuaternion(
+            longitude, latitude ).inverse( );
+}
+
 
 //! Get transformation matrix from the TA/TG to the V-frame.
 /*!

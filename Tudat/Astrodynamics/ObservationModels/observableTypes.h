@@ -13,6 +13,8 @@
 
 #include <string>
 
+#include <Eigen/Core>
+
 #include "Tudat/Astrodynamics/ObservationModels/linkTypeDefs.h"
 
 namespace tudat
@@ -31,7 +33,8 @@ enum ObservableType
     one_way_doppler = 3,
     one_way_differenced_range = 4,
     n_way_range = 5,
-    two_way_doppler = 6
+    two_way_doppler = 6,
+    euler_angle_313_observable = 7
 };
 
 //! Function to get the name (string) associated with a given observable type.
@@ -69,6 +72,10 @@ int getObservableSize( const ObservableType observableType );
  */
 std::vector< int > getLinkEndIndicesForLinkEndTypeAtObservable(
         const ObservableType observableType, const LinkEndType linkEndType, const int numberOfLinkEnds );
+
+void checkObservationResidualDiscontinuities(
+        Eigen::Block< Eigen::VectorXd > observationBlock,
+        const ObservableType observableType );
 
 } // namespace observation_models
 

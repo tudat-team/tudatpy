@@ -14,9 +14,13 @@
  *
  */
 
+#include <iomanip>
+
+#include "Tudat/Astrodynamics/BasicAstrodynamics/physicalConstants.h"
 #include "Tudat/Astrodynamics/Gravitation/sphericalHarmonicsGravityField.h"
 #include "Tudat/Mathematics/BasicMathematics/coordinateConversions.h"
 #include "Tudat/Mathematics/BasicMathematics/basicMathematicsFunctions.h"
+#include "Tudat/Mathematics/BasicMathematics/legendrePolynomials.h"
 
 namespace tudat
 {
@@ -93,6 +97,103 @@ double calculateSphericalHarmonicGravitationalPotential(
 
     // Multiply by central term and return
     return potential * gravitationalParameter / bodyFixedPosition.norm( );
+}
+
+//! Function to determine a body's inertia tensor from its degree two unnormalized gravity field coefficients
+Eigen::Matrix3d getInertiaTensor(
+        const double c20Coefficient,
+        const double c21Coefficient,
+        const double c22Coefficient,
+        const double s21Coefficient,
+        const double s22Coefficient,
+        const double scaledMeanMomentOfInertia,
+        const double bodyMass,
+        const double referenceRadius )
+{
+    // Compute inertia tensor
+    double scalingConstant = bodyMass * referenceRadius * referenceRadius;
+    Eigen::Matrix3d inertiaTensor =
+            ( Eigen::Matrix3d( )<< c20Coefficient / 3.0 - 2.0 * c22Coefficient, -2.0 * s22Coefficient, -c21Coefficient,
+              -2.0 * s22Coefficient, c20Coefficient / 3.0 + 2.0 * c22Coefficient, -s21Coefficient,
+              -c21Coefficient, -s21Coefficient, -2.0 * c20Coefficient / 3.0 ).finished( );
+
+    return scalingConstant * ( inertiaTensor + Eigen::Matrix3d::Identity( ) * scaledMeanMomentOfInertia );
+}
+
+//! Function to determine a body's inertia tensor from its unnormalized gravity field coefficients
+Eigen::Matrix3d getInertiaTensor(
+        const Eigen::MatrixXd& unnormalizedCosineCoefficients,
+        const Eigen::MatrixXd& unnormalizedSineCoefficients,
+        const double scaledMeanMomentOfInertia,
+        const double bodyMass,
+        const double referenceRadius )
+{
+    return getInertiaTensor(
+                unnormalizedCosineCoefficients( 2, 0 ), unnormalizedCosineCoefficients( 2, 1 ),
+                unnormalizedCosineCoefficients( 2, 2 ),
+                unnormalizedSineCoefficients( 2, 1 ), unnormalizedSineCoefficients( 2, 2 ),
+                scaledMeanMomentOfInertia, bodyMass, referenceRadius );
+}
+
+//! Function to determine a body's inertia tensor from its gravity field model
+Eigen::Matrix3d getInertiaTensor(
+        const std::shared_ptr< SphericalHarmonicsGravityField > sphericalHarmonicGravityField,
+        const double scaledMeanMomentOfInertia )
+{
+    // Denormalize coefficients if needed, and compute inertia tensor
+    if( sphericalHarmonicGravityField->areCoefficientsGeodesyNormalized( ) )
+    {
+        Eigen::MatrixXd normalizedCosineCoefficients = Eigen::Matrix3d::Zero( );
+        Eigen::MatrixXd normalizedSineCoefficient = Eigen::Matrix3d::Zero( );
+        basic_mathematics::convertGeodesyNormalizedToUnnormalizedCoefficients(
+                    sphericalHarmonicGravityField->getCosineCoefficients( ).block( 0, 0, 3, 3 ),
+                    sphericalHarmonicGravityField->getSineCoefficients( ).block( 0, 0, 3, 3 ),
+                    normalizedCosineCoefficients,
+                    normalizedSineCoefficient );
+
+        return getInertiaTensor(
+                    normalizedCosineCoefficients, normalizedSineCoefficient,
+                    scaledMeanMomentOfInertia,
+                    sphericalHarmonicGravityField->getGravitationalParameter( ) / physical_constants::GRAVITATIONAL_CONSTANT,
+                    sphericalHarmonicGravityField->getReferenceRadius( ) );
+    }
+    else
+    {
+        return getInertiaTensor(
+                    sphericalHarmonicGravityField->getCosineCoefficients( ),
+                    sphericalHarmonicGravityField->getSineCoefficients( ),
+                    scaledMeanMomentOfInertia,
+                    sphericalHarmonicGravityField->getGravitationalParameter( ) / physical_constants::GRAVITATIONAL_CONSTANT,
+                    sphericalHarmonicGravityField->getReferenceRadius( ) );
+    }
+}
+
+//! Retrieve degree 2 spherical harmonic coefficients from inertia tensor and assiciated parameters
+void getDegreeTwoSphericalHarmonicCoefficients(
+        const Eigen::Matrix3d inertiaTensor, const double bodyGravitationalParameter, const double referenceRadius,
+        const bool useNormalizedCoefficients,
+        Eigen::MatrixXd& cosineCoefficients, Eigen::MatrixXd& sineCoefficients, double& scaledMeanMomentOfInertia )
+{
+    double scalingTerm = bodyGravitationalParameter * referenceRadius * referenceRadius /
+            physical_constants::GRAVITATIONAL_CONSTANT;
+
+    cosineCoefficients.setZero( );
+    cosineCoefficients( 0, 0 ) = 1.0;
+    sineCoefficients.setZero( );
+
+    cosineCoefficients( 2, 0 ) = ( 0.5 * inertiaTensor( 0, 0 ) + 0.5 * inertiaTensor( 1, 1 ) - inertiaTensor( 2, 2 ) ) / scalingTerm;
+    cosineCoefficients( 2, 2 ) = ( -0.25 * inertiaTensor( 0, 0 ) + 0.25 * inertiaTensor( 1, 1 ) ) / scalingTerm;
+    cosineCoefficients( 2, 1 ) = -inertiaTensor( 2, 0 ) / scalingTerm;
+    sineCoefficients( 2, 1 ) = -inertiaTensor( 2, 1 ) / scalingTerm;
+    sineCoefficients( 2, 2 ) = -0.5 * inertiaTensor( 1, 0 ) / scalingTerm;
+
+    if( useNormalizedCoefficients )
+    {
+        basic_mathematics::geodesyNormalizeUnnormalizedCoefficients(
+                    cosineCoefficients, sineCoefficients );
+    }
+
+    scaledMeanMomentOfInertia = ( inertiaTensor( 0, 0 ) + inertiaTensor( 1, 1 ) + inertiaTensor( 2, 2 ) ) / 3.0;
 }
 
 } // namespace gravitation

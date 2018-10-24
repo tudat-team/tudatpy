@@ -57,6 +57,52 @@ std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartia
     return partialMap;
 }
 
+//! Function to return partial(s) of position of ground station(s) w.r.t. rotational state of a single body.
+std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartial > > createCartesianStatePartialsWrtBodyRotationalState(
+        const observation_models::LinkEnds& linkEnds,
+        const simulation_setup::NamedBodyMap& bodyMap,
+        const std::string& bodyToEstimate )
+{
+    // Declare data map to return.
+    std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartial > > partialMap;
+
+    // Declare local variable to use in loop
+    std::string currentBodyName;
+
+    // Iterate over all like ends.
+    for( observation_models::LinkEnds::const_iterator linkEndIterator = linkEnds.begin( );
+         linkEndIterator != linkEnds.end( ); linkEndIterator++ )
+    {
+        // Check if current link end is on body that is requested.
+        currentBodyName = linkEndIterator->second.first;
+        if( bodyToEstimate == currentBodyName )
+        {
+            std::shared_ptr< simulation_setup::Body > currentBody = bodyMap.at( currentBodyName );
+
+            if( currentBody->getGroundStationMap( ).count( linkEndIterator->second.second ) == 0 )
+            {
+                throw std::runtime_error(
+                            "Error when making cartesian state partial w.r.t. rotation parameter, ground station " +
+                            linkEndIterator->second.second + " not found on body " + linkEndIterator->second.first );
+            }
+
+            // Set ground station position function
+            std::function< Eigen::Vector3d( const double ) > groundStationPositionFunction =
+                    std::bind( &ground_stations::GroundStationState::getCartesianPositionInTime,
+                                 currentBody->getGroundStation( linkEndIterator->second.second )->getNominalStationState( ),
+                                 std::placeholders::_1, basic_astrodynamics::JULIAN_DAY_ON_J2000 );
+
+            // Create partial
+            partialMap[ linkEndIterator->first ] = std::make_shared< CartesianStatePartialWrtRotationMatrixParameter >(
+                        std::make_shared< RotationMatrixPartialWrtRotationalState >(
+                            std::bind( &ephemerides::RotationalEphemeris::getRotationToBaseFrame,
+                                         currentBody->getRotationalEphemeris( ), std::placeholders::_1 ) ), groundStationPositionFunction );
+        }
+    }
+
+    return partialMap;
+}
+
 //! Function to return partial object(s) of position of reference point w.r.t. a (double) parameter.
 std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartial > > createCartesianStatePartialsWrtParameter(
         const observation_models::LinkEnds linkEnds,
@@ -114,6 +160,10 @@ std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartia
                 case estimatable_parameters::radiation_pressure_coefficient:
                     break;
 
+
+                case estimatable_parameters::mean_moment_of_inertia:
+                    break;
+
                 default:
 
                     std::string errorMessage =
@@ -161,10 +211,17 @@ std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartia
             // with the rotation matrix partial created from createRotationMatrixPartialsWrtParameter function.
             if( estimatable_parameters::isParameterRotationMatrixProperty( parameterToEstimate->getParameterName( ).first ) )
             {
+                if( currentBody->getGroundStationMap( ).count( linkEndIterator->second.second ) == 0 )
+                {
+                    throw std::runtime_error(
+                                "Error when making cartesian state partial w.r.t. rotation parameter, ground station " +
+                                linkEndIterator->second.second + " not found on body " + linkEndIterator->second.first );
+                }
+
                 // Set ground station position function
                 std::function< Eigen::Vector3d( const double ) > groundStationPositionFunction =
                         std::bind( &ground_stations::GroundStationState::getCartesianPositionInTime,
-                                     ( currentBody )->getGroundStation( linkEndIterator->second.second )
+                                     currentBody->getGroundStation( linkEndIterator->second.second )
                                      ->getNominalStationState( ), std::placeholders::_1, basic_astrodynamics::JULIAN_DAY_ON_J2000 );
 
                 // Create parameter partial object.
@@ -220,6 +277,7 @@ std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartia
     }
     return partialMap;
 }
+
 
 //! Function to create partial object(s) of rotation matrix wrt a (double) parameter.
 std::shared_ptr< RotationMatrixPartial > createRotationMatrixPartialsWrtParameter(

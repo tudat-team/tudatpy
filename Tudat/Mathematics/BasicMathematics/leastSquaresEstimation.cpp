@@ -101,15 +101,55 @@ std::pair< Eigen::VectorXd, Eigen::MatrixXd > performLeastSquaresAdjustmentFromI
         const Eigen::VectorXd& diagonalOfWeightMatrix,
         const Eigen::MatrixXd& inverseOfAPrioriCovarianceMatrix,
         const bool checkConditionNumber,
-        const double maximumAllowedConditionNumber )
+        const double maximumAllowedConditionNumber,
+        const Eigen::MatrixXd& constraintMultiplier,
+        const Eigen::VectorXd& constraintRightHandside )
 {
+//    std::cout<<"Residuals "<<observationResiduals.transpose( )<<std::endl;
+//    std::cout<<"Weight diag. "<<diagonalOfWeightMatrix.transpose( )<<std::endl;
+//    std::cout<<"Partials "<<informationMatrix.transpose( )<<std::endl;
+
     Eigen::VectorXd rightHandSide = informationMatrix.transpose( ) *
             ( diagonalOfWeightMatrix.cwiseProduct( observationResiduals ) );
     Eigen::MatrixXd inverseOfCovarianceMatrix = calculateInverseOfUpdatedCovarianceMatrix(
                 informationMatrix, diagonalOfWeightMatrix, inverseOfAPrioriCovarianceMatrix );
-    return std::make_pair( solveSystemOfEquationsWithSvd( inverseOfCovarianceMatrix, rightHandSide,
-                                                          checkConditionNumber, maximumAllowedConditionNumber ),
+
+    // Add constraints to inverse covariance matrix if required
+    if( constraintMultiplier.rows( ) != 0 )
+    {
+        if( constraintMultiplier.rows( ) != constraintRightHandside.rows( ) )
+        {
+            throw std::runtime_error( "Error when performing constrained least-squares, constraints are incompatible" );
+        }
+
+        if( constraintMultiplier.cols( ) != informationMatrix.cols( ) )
+        {
+            throw std::runtime_error( "Error when performing constrained least-squares, constraints are incompatible with partials" );
+        }
+
+        int numberOfConstraints = constraintMultiplier.rows( );
+        int numberOfParameters = constraintMultiplier.cols( );
+
+        inverseOfCovarianceMatrix.conservativeResize(
+                    numberOfParameters + numberOfConstraints, numberOfParameters + numberOfConstraints );
+        inverseOfCovarianceMatrix.block( numberOfParameters, 0, numberOfConstraints, numberOfParameters ) =
+               constraintMultiplier;
+        inverseOfCovarianceMatrix.block( 0, numberOfParameters, numberOfParameters, numberOfConstraints ) =
+               constraintMultiplier.transpose( );
+        inverseOfCovarianceMatrix.block(
+                    numberOfParameters, numberOfParameters, numberOfConstraints, numberOfConstraints ).setZero( );
+
+        rightHandSide.conservativeResize( numberOfParameters + numberOfConstraints );
+        rightHandSide.segment( numberOfParameters, numberOfConstraints ) = constraintRightHandside;
+    }
+
+//    std::cout<<"RHS "<<rightHandSide.transpose( )<<std::endl;
+//    std::cout<<"Inv cov "<<inverseOfCovarianceMatrix<<std::endl;
+
+    return std::make_pair( solveSystemOfEquationsWithSvd(
+                               inverseOfCovarianceMatrix, rightHandSide, checkConditionNumber, maximumAllowedConditionNumber ),
                            inverseOfCovarianceMatrix );
+
 }
 
 //! Function to perform an iteration least squares estimation from information matrix, weights and residuals
@@ -252,14 +292,11 @@ Eigen::VectorXd nonLinearLeastSquaresFit(
             levenbergMarquardtDampingParameter *= scalingParameterUpdate;
             scalingParameterUpdate *= 2.0;
         }
-//        std::cout << "Iter: " << iteration + 1 << ". Update: " << updateInEstimate.transpose( ) << ". "
-//                  << ( ( levenbergMarquardtGainRatio > 0 ) ? "Accepted." : "Rejected." ) << std::endl;
 
         // Increase iteration counter
         iteration++;
     }
     while ( ( updateInEstimate.norm( ) > convergenceTolerance ) && ( iteration <= maximumNumberOfIterations ) );
-//    std::cout << "Final: " << currentEstimate.transpose( ) << ". Iterations: " << iteration << std::endl;
 
     // Warn user of exceeded maximum number of iterations
     if ( iteration > maximumNumberOfIterations )

@@ -149,7 +149,8 @@ void from_json( const nlohmann::json& jsonObject, std::shared_ptr< EphemerisSett
     {
         TabulatedEphemerisSettings defaults( ( std::map< double, Eigen::Vector6d >( ) ) );
         TabulatedEphemerisSettings tabulatedEphemerisSettings(
-                    getValue< std::map< double, Eigen::Vector6d > >( jsonObject, K::bodyStateHistory ) );
+                    getValue< std::map< double, Eigen::Vector6d > >(
+                        jsonObject, K::bodyStateHistory, defaults.getBodyStateHistory( ) ) );
         tabulatedEphemerisSettings.setUseLongDoubleStates(
                     getValue( jsonObject, K::useLongDoubleStates, defaults.getUseLongDoubleStates( ) ) );
         ephemerisSettings = std::make_shared< TabulatedEphemerisSettings >( tabulatedEphemerisSettings );

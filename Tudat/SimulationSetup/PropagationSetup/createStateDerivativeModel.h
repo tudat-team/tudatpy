@@ -436,6 +436,7 @@ void setMultiTypePropagationClosure(
     // Cast to multi-type settings, and perform closure if
     std::shared_ptr< MultiTypePropagatorSettings< StateScalarType > > multiTypePropagatorSettings =
             std::dynamic_pointer_cast< MultiTypePropagatorSettings< StateScalarType > >( propagatorSettings );
+
     if( multiTypePropagatorSettings != nullptr )
     {
         // Perform closure for the case where both translational and rotational states are propagated
@@ -455,6 +456,7 @@ void setMultiTypePropagationClosure(
                         std::dynamic_pointer_cast< TranslationalStatePropagatorSettings< StateScalarType > >(
                             translationalStateSettings.at( i ) );
                 basic_astrodynamics::AccelerationMap currentAccelerationsMap = currentTranslationalState->getAccelerationsMap( );
+
                 for( basic_astrodynamics::AccelerationMap::const_iterator accelerationIterator = currentAccelerationsMap.begin( );
                      accelerationIterator != currentAccelerationsMap.end( ); accelerationIterator++ )
                 {
@@ -508,13 +510,13 @@ void setMultiTypePropagationClosure(
             }
 
             // Ensure that vehicle orientation is correctly set for aerodynamic acceleration/torque
-            for( unsigned int i = 0; i < bodiesWithPropagatedRotation.size( ); i++ )
+            for( unsigned int i = 0; i < bodiesWithAerodynamicRotationalClosure.size( ); i++ )
             {
                 std::shared_ptr< aerodynamics::FlightConditions > currentFlightConditions =
-                        bodyMap.at( bodiesWithPropagatedRotation.at( i ) )->getFlightConditions( );
+                        bodyMap.at( bodiesWithAerodynamicRotationalClosure.at( i ) )->getFlightConditions( );
                 reference_frames::setAerodynamicDependentOrientationCalculatorClosure(
                             std::bind( &simulation_setup::Body::getCurrentRotationToLocalFrame,
-                                       bodyMap.at( bodiesWithPropagatedRotation.at( i ) ) ),
+                                         bodyMap.at( bodiesWithAerodynamicRotationalClosure.at( i ) ) ),
                             currentFlightConditions->getAerodynamicAngleCalculator( ) );
             }
         }
