@@ -22,7 +22,7 @@
 #include "Tudat/SimulationSetup/EstimationSetup/createDopplerPartials.h"
 #include "Tudat/SimulationSetup/EstimationSetup/createDifferencedOneWayRangeRatePartials.h"
 #include "Tudat/SimulationSetup/EstimationSetup/createNWayRangePartials.h"
-
+#include "Tudat/SimulationSetup/EstimationSetup/createEulerAngleObservationPartials.h"
 namespace tudat
 {
 
@@ -147,6 +147,10 @@ PerLinkEndPerLightTimeSolutionCorrections getLightTimeCorrectionsList(
                 break;
             }
             case observation_models::position_observable:
+            {
+                break;
+            }
+            case observation_models::euler_angle_313_observable:
             {
                 break;
             }
@@ -406,6 +410,10 @@ public:
         {
         case observation_models::position_observable:
             observationPartialList = createPositionObservablePartials< ObservationScalarType >(
+                        utilities::createVectorFromMapKeys( observationModelList ), bodyMap, parametersToEstimate );
+            break;
+        case observation_models::euler_angle_313_observable:
+            observationPartialList = createEulerAngleObservablePartials< ObservationScalarType >(
                         utilities::createVectorFromMapKeys( observationModelList ), bodyMap, parametersToEstimate );
             break;
         default:

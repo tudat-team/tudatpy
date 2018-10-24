@@ -11,6 +11,7 @@
 
 #include "Tudat/JsonInterface/Environment/body.h"
 
+#include "Tudat/JsonInterface/Environment/groundStations.h"
 #include "Tudat/JsonInterface/Environment/atmosphere.h"
 #include "Tudat/JsonInterface/Environment/ephemeris.h"
 #include "Tudat/JsonInterface/Environment/gravityField.h"
@@ -45,6 +46,7 @@ void to_json( nlohmann::json& jsonObject, const std::shared_ptr< BodySettings >&
     assignIfNotEmpty( jsonObject, K::radiationPressure, bodySettings->radiationPressureSettings );
     assignIfNotnullptr( jsonObject, K::aerodynamics, bodySettings->aerodynamicCoefficientSettings );
     assignIfNotEmpty( jsonObject, K::gravityFieldVariation, bodySettings->gravityFieldVariationSettings );
+    assignIfNotEmpty( jsonObject, K::groundStation, bodySettings->groundStationSettings );
 }
 
 } // namespace simulation_setup
@@ -77,6 +79,7 @@ void updateBodySettings( std::shared_ptr< simulation_setup::BodySettings >& body
     updateFromJSONIfDefined( bodySettings->radiationPressureSettings, jsonObject, K::radiationPressure );
     updateFromJSONIfDefined( bodySettings->aerodynamicCoefficientSettings, jsonObject, K::aerodynamics );
     updateFromJSONIfDefined( bodySettings->gravityFieldVariationSettings, jsonObject, K::gravityFieldVariation );
+    updateFromJSONIfDefined( bodySettings->groundStationSettings, jsonObject, K::groundStation );
 }
 
 } // namespace json_interface

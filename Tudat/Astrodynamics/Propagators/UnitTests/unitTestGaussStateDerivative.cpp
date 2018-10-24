@@ -299,7 +299,6 @@ BOOST_AUTO_TEST_CASE( testGaussPopagatorForSphericalHarmonicCentralBodies )
         {
             std::cout << "Simulation case : " << simulationCase << std::endl << std::endl;
 
-
             // Define body settings for simulation.
             std::vector< std::string > bodiesToCreate;
             bodiesToCreate.push_back( "Sun" );
@@ -446,7 +445,6 @@ BOOST_AUTO_TEST_CASE( testGaussPopagatorForSphericalHarmonicCentralBodies )
             std::map< double, Eigen::Matrix< double, 6, 1 > >::iterator cowellIterator = cowellIntegrationResults.begin( );
             for( unsigned int i = 0; i < gaussIntegrationResults.size( ); i++ )
             {
-                //std::cout << ( gaussIterator->second - cowellIterator->second ).transpose( ) << std::endl;
                 for( int j= 0; j< 3; j++ )
                 {
                     BOOST_CHECK_SMALL( ( gaussIterator->second - cowellIterator->second )( j ), 0.02 );

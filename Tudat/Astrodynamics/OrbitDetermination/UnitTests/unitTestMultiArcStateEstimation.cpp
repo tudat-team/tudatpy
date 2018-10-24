@@ -242,7 +242,6 @@ Eigen::VectorXd  executeParameterEstimation(
 
 
     Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > truthParameters = initialParameterEstimate;
-    std::cout << "Truth " << std::setprecision( 16 ) << truthParameters.transpose( ) << std::endl;
 
     for( unsigned int i = 0; i < numberOfNumericalBodies * integrationArcStartTimes.size( ); i++ )
     {
@@ -265,7 +264,7 @@ Eigen::VectorXd  executeParameterEstimation(
             std::make_shared< PodInput< ObservationScalarType, TimeType > >(
                 observationsAndTimes, ( initialParameterEstimate ).rows( ) );
 
-    std::shared_ptr< PodOutput< StateScalarType > > podOutput = orbitDeterminationManager.estimateParameters(
+    std::shared_ptr< PodOutput< StateScalarType, TimeType > > podOutput = orbitDeterminationManager.estimateParameters(
                 podInput );
 
     return ( podOutput->parameterEstimate_ - truthParameters ).template cast< double >( );
@@ -282,7 +281,7 @@ BOOST_AUTO_TEST_CASE( test_MultiArcStateEstimation )
                     testCase );
         int numberOfEstimatedArcs = ( parameterError.rows( ) - 3 ) / 6;
 
-        std::cout << parameterError.transpose( ) << std::endl;
+        std::cout <<"Estimation error: "<< parameterError.transpose( ) << std::endl;
         for( int i = 0; i < numberOfEstimatedArcs; i++ )
         {
             for( unsigned int j = 0; j < 3; j++ )
@@ -296,7 +295,7 @@ BOOST_AUTO_TEST_CASE( test_MultiArcStateEstimation )
         BOOST_CHECK_SMALL( std::fabs( parameterError( parameterError.rows( ) - 2 ) ), 1.0E-12 );
         BOOST_CHECK_SMALL( std::fabs( parameterError( parameterError.rows( ) - 1 ) ), 1.0E-12 );
 #else
-        Eigen::VectorXd parameterError = executeParameterEstimation< double, double double >(
+        Eigen::VectorXd parameterError = executeParameterEstimation< double, double, double >(
                     testCase );
         int numberOfEstimatedArcs = ( parameterError.rows( ) - 3 ) / 6;
 

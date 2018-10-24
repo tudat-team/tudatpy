@@ -27,6 +27,7 @@
 #include "Tudat/Astrodynamics/ObservationModels/oneWayDifferencedRangeRateObservationModel.h"
 #include "Tudat/Astrodynamics/ObservationModels/angularPositionObservationModel.h"
 #include "Tudat/Astrodynamics/ObservationModels/positionObservationModel.h"
+#include "Tudat/Astrodynamics/ObservationModels/eulerAngleObservationModel.h"
 #include "Tudat/Astrodynamics/ObservationModels/observationSimulator.h"
 #include "Tudat/Astrodynamics/ObservationModels/observationViabilityCalculator.h"
 #include "Tudat/SimulationSetup/EnvironmentSetup/body.h"
@@ -561,14 +562,25 @@ typedef std::map< ObservableType, std::map< LinkEnds, std::shared_ptr< Observati
 //! since this typedef represents a multimap.
 typedef std::multimap< LinkEnds, std::shared_ptr< ObservationSettings > > ObservationSettingsMap;
 
-//! Function to create list of observation models sorted by observable type and link ends from list only sorted in link ends.
+typedef std::map< LinkEnds, std::vector< std::shared_ptr< ObservationSettings > > > ObservationSettingsListPerLinkEnd;
+
+//! Function to create list of observation models sorted by observable type and link ends from list only sorted in link ends (as multimap).
 /*!
- * Function to create list of observation models sorted by observable type and link ends from list only sorted in link ends.
+ * Function to create list of observation models sorted by observable type and link ends from list only sorted in link ends (as multimap).
  * \param unsortedObservationSettingsMap List (multimap_) of observation models sorted link ends
  * \return List (map of maps) of observation models sorted by observable type and link ends
  */
 SortedObservationSettingsMap convertUnsortedToSortedObservationSettingsMap(
         const ObservationSettingsMap& unsortedObservationSettingsMap );
+
+//! Function to create list of observation models sorted by observable type and link ends from list only sorted in link ends (as map).
+/*!
+ * Function to create list of observation models sorted by observable type and link ends from list only sorted in link ends (as map).
+ * \param unsortedObservationSettingsMap List (map_) of observation models sorted link ends
+ * \return List (map of maps) of observation models sorted by observable type and link ends
+ */
+SortedObservationSettingsMap convertUnsortedToSortedObservationSettingsMap(
+        const ObservationSettingsListPerLinkEnd& unsortedObservationSettingsMap );
 
 
 //! Function to create an object that computes an observation bias
@@ -1274,6 +1286,60 @@ public:
                                      ObservationScalarType, TimeType >,
                                      bodyMap.at( linkEnds.at( observed_body ).first ), std::placeholders::_1 ),
                         observationBias );
+
+            break;
+        }
+        case euler_angle_313_observable:
+        {
+            // Check consistency input.
+            if( linkEnds.size( ) != 1 )
+            {
+                std::string errorMessage =
+                        "Error when making euler angle observable model, " +
+                        std::to_string( linkEnds.size( ) ) + " link ends found";
+                throw std::runtime_error( errorMessage );
+            }
+
+            if( linkEnds.count( observed_body ) == 0 )
+            {
+                throw std::runtime_error( "Error when making euler angle observable model, no observed_body found" );
+            }
+
+            if( observationSettings->lightTimeCorrectionsList_.size( ) > 0 )
+            {
+                throw std::runtime_error( "Error when making euler angle observable model, found light time corrections" );
+            }
+            if( linkEnds.at( observed_body ).second != "" )
+            {
+                throw std::runtime_error( "Error, cannot yet create euler angle function for reference point" );
+            }
+
+            std::shared_ptr< ObservationBias< 3 > > observationBias;
+            if( observationSettings->biasSettings_ != nullptr )
+            {
+                observationBias =
+                        createObservationBiasCalculator< 3 >(
+                            linkEnds, observationSettings->observableType_, observationSettings->biasSettings_, bodyMap );
+            }
+
+            std::function< Eigen::Quaterniond( const TimeType ) > toBodyFixedFrameFunction;
+            if( bodyMap.at( linkEnds.at( observed_body ).first )->getRotationalEphemeris( ) == nullptr )
+            {
+                throw std::runtime_error( "Error, cannot euler angle observable; no rotation model found" );
+            }
+            else
+            {
+                toBodyFixedFrameFunction = std::bind(
+                            &ephemerides::RotationalEphemeris::getRotationToTargetFrameTemplated< TimeType >,
+                            bodyMap.at( linkEnds.at( observed_body ).first )->getRotationalEphemeris( ),
+                            std::placeholders::_1 );
+            }
+
+
+            // Create observation model
+            observationModel = std::make_shared< EulerAngle313ObservationModel<
+                    ObservationScalarType, TimeType > >(
+                        toBodyFixedFrameFunction, observationBias );
 
             break;
         }

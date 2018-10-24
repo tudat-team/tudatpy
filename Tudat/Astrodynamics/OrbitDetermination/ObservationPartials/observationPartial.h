@@ -148,7 +148,7 @@ public:
         observableType_( observableType ), linkEnds_( linkEnds )
     {
         // Compute partial (vector of ObservationSize with 1.0 entries).
-        constantPartial_ = Eigen::Matrix< double, ObservationSize, 1 >::Constant( 1.0 );
+        constantPartial_ = Eigen::Matrix< double, ObservationSize, ObservationSize >::Identity( );
     }
 
     //! Destructor
@@ -183,7 +183,7 @@ private:
     observation_models::LinkEnds linkEnds_;
 
     //! Observation partial: constant for all conditions.
-    Eigen::Matrix< double, ObservationSize, 1 > constantPartial_;
+    Eigen::Matrix< double, ObservationSize, ObservationSize > constantPartial_;
 
 };
 
@@ -219,8 +219,9 @@ public:
         observableType_( observableType ), linkEnds_( linkEnds ), arcLookupScheme_( arcLookupScheme ),
         linkEndIndex_( linkEndIndex ), numberOfArcs_( numberOfArcs )
     {
-        constantPartial_ = Eigen::Matrix< double, ObservationSize, 1 >::Constant( 1.0 );
-        totalPartial_ = Eigen::VectorXd::Zero( ObservationSize * numberOfArcs_ );
+        constantPartial_ = Eigen::Matrix< double, ObservationSize, ObservationSize >::Identity( );
+        totalPartial_ = Eigen::Matrix< double, ObservationSize, Eigen::Dynamic >::Zero(
+                    ObservationSize, ObservationSize * numberOfArcs_ );
     }
 
     //! Destructor
@@ -246,7 +247,7 @@ public:
         int currentIndex = arcLookupScheme_->findNearestLowerNeighbour( times.at( linkEndIndex_ ) );
 
         totalPartial_.setZero( );
-        totalPartial_.segment( currentIndex * ObservationSize, ObservationSize ) = constantPartial_;
+        totalPartial_.block( 0, currentIndex * ObservationSize, ObservationSize, ObservationSize ) = constantPartial_;
 
         return { std::make_pair( totalPartial_, times.at( linkEndIndex_ ) ) };
     }
@@ -269,10 +270,10 @@ private:
     int numberOfArcs_;
 
        //! Observation partial for singe arc: constant for all conditions.
-    Eigen::Matrix< double, ObservationSize, 1 > constantPartial_;
+    Eigen::Matrix< double, ObservationSize, ObservationSize > constantPartial_;
 
     //! Pre-allocated partial vector
-    Eigen::VectorXd totalPartial_;
+    Eigen::Matrix< double, ObservationSize, Eigen::Dynamic > totalPartial_;
 
 };
 

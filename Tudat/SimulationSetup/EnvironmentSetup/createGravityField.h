@@ -140,6 +140,14 @@ public:
      */
     double getGravitationalParameter( ){ return gravitationalParameter_; }
 
+    //! Function to reset gravitational parameter for gravity field.
+    /*!
+     *  Function to reset gravitational parameter for gravity field.
+     *  \param gravitationalParameter New gravitational parameter for gravity field.
+     */
+    void resetGravitationalParameter( const double gravitationalParameter )
+    { gravitationalParameter_ = gravitationalParameter; }
+
     //! Function to return reference radius of spherical harmonic field expansion
     /*!
      *  Function to return reference radius of spherical harmonic field expansion

@@ -22,6 +22,7 @@
 #include "Tudat/SimulationSetup/EnvironmentSetup/body.h"
 #include "Tudat/SimulationSetup/PropagationSetup/propagationOutputSettings.h"
 #include "Tudat/SimulationSetup/PropagationSetup/propagationSettings.h"
+#include "Tudat/Mathematics/BasicMathematics/rotationRepresentations.h"
 
 namespace tudat
 {
@@ -908,6 +909,19 @@ std::pair< std::function< Eigen::VectorXd( ) >, int > getVectorDependentVariable
                     positionFunctionOfRelativeBody, orientationFunctionOfCentralBody );
         parameterSize = 3;
         break;
+    }
+    case euler_angles_to_body_fixed_313:
+    {
+        std::function< Eigen::Quaterniond( ) > orientationFunctionOfBody =
+                std::bind( &simulation_setup::Body::getCurrentRotationToLocalFrame, bodyMap.at( bodyWithProperty ) );
+
+        std::function< Eigen::Vector3d( const Eigen::Quaterniond ) > eulerAngleFunction =
+                std::bind( &basic_mathematics::get313EulerAnglesFromQuaternion, std::placeholders::_1 );
+
+        variableFunction = std::bind(
+                    &evaluateReferenceFunction< Eigen::Vector3d, Eigen::Quaterniond >,
+                    eulerAngleFunction, orientationFunctionOfBody );
+        parameterSize = 3;
     }
 #if( BUILD_WITH_ESTIMATION_TOOLS )
     case acceleration_partial_wrt_body_translational_state:

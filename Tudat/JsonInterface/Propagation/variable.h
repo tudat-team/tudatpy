@@ -29,7 +29,9 @@ static std::map< VariableType, std::string > variableTypes =
     { independentVariable, "independent" },
     { cpuTimeVariable, "cpuTime" },
     { stateVariable, "state" },
-    { dependentVariable, "dependent" }
+    { dependentVariable, "dependent" },
+    { stateTransitionMatrix, "stateTransitionMatrix" },
+    { sensitivityMatrix, "sensitivityMatrix" }
 };
 
 //! `VariableType`s not supported by `json_interface`.
@@ -99,7 +101,10 @@ static std::map< PropagationDependentVariables, std::string > dependentVariableT
 };
 
 //! `PropagationDependentVariables` not supported by `json_interface`.
-static std::vector< PropagationDependentVariables > unsupportedDependentVariableTypes = { };
+static std::vector< PropagationDependentVariables > unsupportedDependentVariableTypes =
+{
+
+};
 
 //! Convert `PropagationDependentVariables` to `json`.
 inline void to_json( nlohmann::json& jsonObject, const PropagationDependentVariables& dependentVariable )

@@ -41,7 +41,6 @@
 #include "Tudat/Astrodynamics/Gravitation/centralGravityModel.h"
 #include "Tudat/SimulationSetup/EnvironmentSetup/defaultBodies.h"
 #include "Tudat/SimulationSetup/EnvironmentSetup/createBodies.h"
-#include "Tudat/SimulationSetup/PropagationSetup/createNumericalSimulator.h"
 #include "Tudat/Mathematics/NumericalIntegrators/createNumericalIntegrator.h"
 #include "Tudat/SimulationSetup/PropagationSetup/propagationSettings.h"
 #include "Tudat/SimulationSetup/PropagationSetup/dynamicsSimulator.h"
@@ -53,6 +52,7 @@ namespace unit_tests
 {
 
 //Using declarations.
+using namespace tudat;
 using namespace tudat::ephemerides;
 using namespace tudat::interpolators;
 using namespace tudat::numerical_integrators;
@@ -72,7 +72,11 @@ NamedBodyMap getTestBodyMap( const double phobosSemiMajorAxis,
     bodyMap[ "Mars" ] = std::make_shared< Body >( );
     bodyMap[ "Mars" ]->setEphemeris( std::make_shared< ephemerides::ConstantEphemeris >(
                                          [ & ]( ){ return Eigen::Vector6d::Zero( ); } ) );
+    bodyMap[ "Mars" ]->setGravityFieldModel(
+                std::make_shared< gravitation::GravityFieldModel >(
+                    spice_interface::getBodyGravitationalParameter( "Mars" ) ) );
     bodyMap[ "Phobos" ] = std::make_shared< Body >( );
+
 
     Eigen::Matrix3d phobosInertiaTensor = Eigen::Matrix3d::Zero( );
     phobosInertiaTensor( 0, 0 ) = 0.3615;
@@ -84,8 +88,27 @@ NamedBodyMap getTestBodyMap( const double phobosSemiMajorAxis,
         phobosInertiaTensor( 0, 0 ) = phobosInertiaTensor( 1, 1 );
     }
 
-    phobosInertiaTensor *= (11.27E3 * 11.27E3 * 1.0659E16 );
+    double phobosReferenceRadius = 11.27E3;
+    double phobosMass = 1.0659E16;
+
+    phobosInertiaTensor *= (phobosReferenceRadius * phobosReferenceRadius * phobosMass );
     bodyMap[ "Phobos" ]->setBodyInertiaTensor( phobosInertiaTensor );
+
+    double phobosGravitationalParameter = phobosMass * physical_constants::GRAVITATIONAL_CONSTANT;
+
+    Eigen::MatrixXd phobosCosineGravityFieldCoefficients = Eigen::Matrix3d::Zero( ),
+            phobosSineGravityFieldCoefficients = Eigen::Matrix3d::Zero( );
+    double phobosScaledMeanMomentOfInertia;
+    gravitation::getDegreeTwoSphericalHarmonicCoefficients(
+                phobosInertiaTensor, phobosGravitationalParameter, phobosReferenceRadius, true,
+                phobosCosineGravityFieldCoefficients, phobosSineGravityFieldCoefficients, phobosScaledMeanMomentOfInertia );
+
+    bodyMap[ "Phobos" ]->setGravityFieldModel(
+                std::make_shared< gravitation::SphericalHarmonicsGravityField >(
+                    phobosGravitationalParameter, phobosReferenceRadius, phobosCosineGravityFieldCoefficients,
+                    phobosSineGravityFieldCoefficients, "Phobos_Fixed" ) );
+
+
 
     Eigen::Quaterniond noRotationQuaternion = Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) );
     Eigen::Matrix< double, 7, 1 > unitRotationState = Eigen::Matrix< double, 7, 1 >::Zero( );
@@ -102,6 +125,13 @@ NamedBodyMap getTestBodyMap( const double phobosSemiMajorAxis,
             std::make_shared< interpolators::LinearInterpolator< double, Eigen::Matrix< double, 7, 1 > > >( dummyRotationMap );
     bodyMap[ "Phobos" ]->setRotationalEphemeris( std::make_shared< TabulatedRotationalEphemeris< double, double > >(
                                                      dummyInterpolator, "ECLIPJ2000", "Phobos_Fixed" ) );
+
+    Eigen::Vector6d phobosKeplerElements = Eigen::Vector6d::Zero( );
+    phobosKeplerElements( 0 ) = phobosSemiMajorAxis;
+
+    bodyMap[ "Phobos" ]->setEphemeris( std::make_shared< ephemerides::KeplerEphemeris >(
+                                           phobosKeplerElements, 0.0, spice_interface::getBodyGravitationalParameter( "Mars" ),
+                                           "Mars", "ECLIPJ2000" ) );
 
 
     return bodyMap;
@@ -150,7 +180,7 @@ BOOST_AUTO_TEST_CASE( testSimpleRotationalDynamicsPropagation )
 
             // Create torque models
             basic_astrodynamics::TorqueModelMap torqueModelMap = createTorqueModelsMap(
-                        bodyMap, torqueMap );
+                        bodyMap, torqueMap, bodiesToIntegrate );
 
             // Define propagator settings.
             std::shared_ptr< RotationalStatePropagatorSettings< double > > propagatorSettings =
@@ -423,7 +453,7 @@ BOOST_AUTO_TEST_CASE( testSimpleRotationalDynamicsPropagationWithObliquity )
 
         // Create torque models
         basic_astrodynamics::TorqueModelMap torqueModelMap = createTorqueModelsMap(
-                    bodyMap, torqueMap );
+                    bodyMap, torqueMap, bodiesToIntegrate );
 
         // Define integrator settings.
         std::shared_ptr< numerical_integrators::IntegratorSettings< > > integratorSettings =
@@ -677,7 +707,8 @@ BOOST_AUTO_TEST_CASE( testRotationalAndTranslationalDynamicsPropagation )
             }
 
             basic_astrodynamics::TorqueModelMap torqueModelMap = createTorqueModelsMap(
-                        bodyMap, selectedTorqueModelMap );
+                        bodyMap, selectedTorqueModelMap, bodiesToPropagate );
+
 
             // Define list of dependent variables to save.
             std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariablesList;
@@ -871,6 +902,123 @@ BOOST_AUTO_TEST_CASE( testRotationalAndTranslationalDynamicsPropagation )
                     }
                 }
             }
+        }
+    }
+}
+
+//! Test if rotational dynamics propagation correctly produces in-plane libration
+BOOST_AUTO_TEST_CASE( testSimpleRotationalDynamicsPropagationWithLibration )
+{
+    //Load spice kernels.
+    spice_interface::loadStandardSpiceKernels( );
+
+    // Retrieve list of body objects.
+    NamedBodyMap bodyMap = getTestBodyMap( 9376.0E3, 0 );
+    setGlobalFrameBodyEphemerides( bodyMap, "Mars", "ECLIPJ2000" );
+
+    // Define time range of test.
+    double initialEphemerisTime = 0.0;
+    double finalEphemerisTime = initialEphemerisTime + 86400.0;
+
+    // Set torques between bodies that are to be taken into account.
+    std::vector< std::string > bodiesToIntegrate;
+    bodiesToIntegrate.push_back( "Phobos" );
+
+    // Define mean motion (equal to rotation rate).
+    double phobosSemiMajorAxis = 9376.0E3;
+    double marsGravitationalParameter = bodyMap.at( "Mars" )->getGravityFieldModel( )->getGravitationalParameter( );
+    double meanMotion = std::sqrt( marsGravitationalParameter /
+                                   std::pow( phobosSemiMajorAxis, 3.0 ) );
+
+    // Define initial rotational state
+    double initialAnglePerturbation = 1.0E-6;
+    double initialRotationRatePerturbation = 1.0E-6;
+
+    Eigen::Quaterniond nominalInitialRotation =
+            Eigen::Quaterniond( Eigen::AngleAxisd( -initialAnglePerturbation, Eigen::Vector3d::UnitZ( ) ) );
+    Eigen::VectorXd systemInitialState = Eigen::VectorXd::Zero( 7 );
+    systemInitialState.segment( 0, 4 ) = linear_algebra::convertQuaternionToVectorFormat( nominalInitialRotation );
+    systemInitialState( 6 ) = meanMotion * ( 1.0 + initialRotationRatePerturbation );
+
+    Eigen::Matrix3d phobosInertiaTensor = bodyMap.at( "Phobos" )->getBodyInertiaTensor( );
+
+    double frequencySquared = 3.0 * marsGravitationalParameter / std::pow(
+                phobosSemiMajorAxis, 3.0 ) * ( phobosInertiaTensor( 1, 1 ) - phobosInertiaTensor( 0, 0 ) ) /
+            phobosInertiaTensor( 2, 2 );
+
+    double beta = std::atan2( -meanMotion * initialRotationRatePerturbation,
+                              -std::sqrt( frequencySquared ) * initialAnglePerturbation );
+    double alpha = -initialAnglePerturbation / std::cos( beta );
+
+    // Test code for different propagation schemes
+    for( int propagatorType = 0; propagatorType < 3; propagatorType++ )
+    {
+        // Create torque models
+        for( int torqueType = 0; torqueType < 2; torqueType++ )
+        {
+            SelectedTorqueMap torqueMap;
+            if( torqueType ==  0 )
+            {
+                torqueMap[ "Phobos" ][ "Mars" ].push_back(
+                            std::make_shared< TorqueSettings >( second_order_gravitational_torque ) );
+            }
+            else
+            {
+                torqueMap[ "Phobos" ][ "Mars" ].push_back(
+                            std::make_shared< SphericalHarmonicTorqueSettings >( 2, 2 ) );
+            }
+
+            // Create torque models
+            basic_astrodynamics::TorqueModelMap torqueModelMap = createTorqueModelsMap(
+                        bodyMap, torqueMap, bodiesToIntegrate );
+
+            // Define integrator settings.
+            std::shared_ptr< IntegratorSettings< > > integratorSettings =
+                    std::make_shared< IntegratorSettings< > >
+                    ( rungeKutta4, initialEphemerisTime, 10.0 );
+
+            // Define propagator settings.
+            std::shared_ptr< RotationalStatePropagatorSettings< double > > propagatorSettings =
+                    std::make_shared< RotationalStatePropagatorSettings< double > >
+                    ( torqueModelMap, bodiesToIntegrate, systemInitialState, std::make_shared< PropagationTimeTerminationSettings >(
+                          finalEphemerisTime ) );
+
+            // Propagate dynamics
+            SingleArcDynamicsSimulator< double > dynamicsSimulator(
+                        bodyMap, integratorSettings, propagatorSettings, true, false, true );
+
+            // Retrieve Phobos rotation model with reset rotational state
+            std::shared_ptr< RotationalEphemeris > phobosRotationalEphemeris = bodyMap[ "Phobos" ]->getRotationalEphemeris( );
+
+            // Declare vectors/matrices to be used in test
+            Eigen::Vector3d currentRotationalVelocityInBaseFrame, currentRotationalVelocityInTargetFrame;
+
+            //    Eigen::Vector3d eulerAngles, calculatedEulerAngleRates, expectedEulerAngleRates;
+            //    double eulerPhase = 0.0;
+
+            // Compare expected and true rotational state for list of times
+            double startTime = initialEphemerisTime;
+            double endTime = finalEphemerisTime - 3600.0;
+            double currentTime = startTime;
+            double timeStep = ( endTime - startTime ) / 1000.0;
+
+
+            currentTime += timeStep;
+            while ( currentTime < endTime )
+            {
+                currentRotationalVelocityInTargetFrame =
+                        phobosRotationalEphemeris->getRotationalVelocityVectorInTargetFrame( currentTime );
+                currentRotationalVelocityInBaseFrame = phobosRotationalEphemeris->getRotationalVelocityVectorInBaseFrame( currentTime );
+
+                double expectedRotationRateDeviation = -alpha * std::sqrt( frequencySquared ) * std::sin(
+                            std::sqrt( frequencySquared ) * currentTime + beta );
+
+                BOOST_CHECK_SMALL( std::fabs( currentRotationalVelocityInTargetFrame( 2 ) - meanMotion - expectedRotationRateDeviation ),
+                                   1.0E-16 );
+
+                currentTime += timeStep;
+            }
+
         }
     }
 }

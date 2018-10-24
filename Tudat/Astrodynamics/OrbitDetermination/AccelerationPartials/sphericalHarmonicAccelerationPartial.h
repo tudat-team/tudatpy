@@ -125,17 +125,22 @@ public:
      *  \param integratedStateType Type of propagated state for which dependency is to be determined.
      *  \return True if dependency exists (non-zero partial), false otherwise.
      */
-    bool isStateDerivativeDependentOnIntegratedNonTranslationalState(
+    bool isStateDerivativeDependentOnIntegratedAdditionalStateTypes(
                 const std::pair< std::string, std::string >& stateReferencePoint,
                 const propagators::IntegratedStateType integratedStateType )
     {
+        bool doesDependencyExist = false;
         if( ( ( stateReferencePoint.first == acceleratingBody_ ||
               ( stateReferencePoint.first == acceleratedBody_  && accelerationUsesMutualAttraction_ ) )
               && integratedStateType == propagators::body_mass_state ) )
         {
             throw std::runtime_error( "Warning, dependency of central gravity on body masses not yet implemented" );
         }
-        return 0;
+        else if( stateReferencePoint.first == acceleratingBody_ && integratedStateType == propagators::rotational_state )
+        {
+            doesDependencyExist = true;
+        }
+        return doesDependencyExist;
     }
 
     //! Function for setting up and retrieving a function returning a partial w.r.t. a double parameter.
@@ -157,6 +162,29 @@ public:
      */
     std::pair< std::function< void( Eigen::MatrixXd& ) >, int > getParameterPartialFunction(
             std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter );
+
+    //! Function for calculating the partial of the acceleration w.r.t. a non-translational integrated state
+    /*!
+     *  Function for calculating the partial of the acceleration w.r.t. a non-translational integrated state
+     *  and adding it to the existing partial block. Function calls constituent spherical harmonic model functions
+     *  \param partialMatrix Block of partial derivatives of where current partial is to be added.
+     *  \param stateReferencePoint Reference point id of propagated state
+     *  \param integratedStateType Type of propagated state for which partial is to be computed.
+     *  \param addContribution Variable denoting whether to return the partial itself (true) or the negative partial (false).
+     */
+    void wrtNonTranslationalStateOfAdditionalBody(
+            Eigen::Block< Eigen::MatrixXd > partialMatrix,
+            const std::pair< std::string, std::string >& stateReferencePoint,
+            const propagators::IntegratedStateType integratedStateType,
+            const bool addContribution = true )
+    {
+        if( stateReferencePoint.first == acceleratingBody_ && integratedStateType == propagators::rotational_state )
+        {
+            Eigen::MatrixXd tempMatrix = Eigen::MatrixXd::Zero( 3, 7 );
+            wrtRotationModelParameter( tempMatrix, estimatable_parameters::initial_rotational_body_state, "" );
+            partialMatrix.block( 0, 0, 3, 7 ) = ( addContribution ? 1.0 : -1.0 ) * tempMatrix;
+        }
+    }
 
     //! Function to create a function returning the current partial w.r.t. a gravitational parameter.
     /*!
@@ -211,6 +239,28 @@ public:
         {
             throw std::runtime_error( "Error cannot compute partial of spherical harminic gravity w.r.t mu for zero value" );
         }
+    }
+
+    //! Function to retrieve partial of acceleration wrt the position of body undergoing acceleration, in inertial coordinates.
+    /*!
+     * Function to retrieve the current partial of the acceleration wrt the position of the body undergoing the acceleration,
+     * in inertial coordinates
+     * \return Current partial of the acceleration wrt the position of the body undergoing the acceleration, in inertial coordinates.
+     */
+    Eigen::Matrix3d getCurrentPartialWrtPosition( )
+    {
+        return currentPartialWrtPosition_;
+    }
+
+    //! Function to retrieve partial of acceleration wrt the position of body undergoing acceleration, in body-fixed coordinates.
+    /*!
+     * Function to retrieve the current partial of the acceleration wrt the position of the body undergoing the acceleration,
+     * in body-fixed coordinates
+     * \return Current partial of the acceleration wrt the position of the body undergoing the acceleration, in body-fixed coordinates.
+     */
+    Eigen::Matrix3d getCurrentBodyFixedPartialWrtPosition( )
+    {
+        return currentBodyFixedPartialWrtPosition_;
     }
 
 protected:

@@ -145,6 +145,8 @@ createCentralGravityAcceleratioModel(
  *  Should be set to true in case the body undergoing acceleration is a celestial body
  *  (with gravity field) and integration is performed in the frame centered at the body exerting
  *  acceleration.
+ *  \param useDegreeZeroTerm Boolean denoting whether to manually remove the C(0,0) term from
+ *  cosine coefficients (default true).
  *  \return Spherical harmonic gravity acceleration model pointer.
  */
 std::shared_ptr< gravitation::SphericalHarmonicsGravitationalAccelerationModel >
@@ -154,7 +156,8 @@ createSphericalHarmonicsGravityAcceleration(
         const std::string& nameOfBodyUndergoingAcceleration,
         const std::string& nameOfBodyExertingAcceleration,
         const std::shared_ptr< AccelerationSettings > accelerationSettings,
-        const bool useCentralBodyFixedFrame );
+        const bool useCentralBodyFixedFrame,
+        const bool useDegreeZeroTerm = true );
 
 //! Function to create mutual spherical harmonic gravity acceleration model.
 /*!

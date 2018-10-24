@@ -22,6 +22,7 @@
 #include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/initialTranslationalState.h"
 #include "Tudat/SimulationSetup/EstimationSetup/variationalEquationsSolver.h"
 #include "Tudat/SimulationSetup/EstimationSetup/createObservationManager.h"
+#include "Tudat/SimulationSetup/EstimationSetup/createNumericalSimulator.h"
 
 namespace tudat
 {
@@ -75,83 +76,6 @@ Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > getConcatenatedWeights
     return concatenatedWeights;
 }
 
-//! Class that is used during the orbit determination/parameter estimation to determine whether the estimation is converged.
-class EstimationConvergenceChecker
-{
-public:
-
-    //! Constructor
-    /*!
-     * Constructor, sets a number of values for stopping conditions. The estimation stops if one of these is met.
-     * \param maximumNumberOfIterations Maximum number of allowed iterations for estimation
-     * \param minimumResidualChange Minimum required change in residual between two iterations
-     * \param minimumResidual Minimum value of observation residual below which estimation is converged
-     * \param numberOfIterationsWithoutImprovement Number of iterations without reduction of residual
-     */
-    EstimationConvergenceChecker(
-            const unsigned int maximumNumberOfIterations = 5,
-            const double minimumResidualChange = 0.0,
-            const double minimumResidual = 1.0E-20,
-            const int numberOfIterationsWithoutImprovement = 2 ):
-        maximumNumberOfIterations_( maximumNumberOfIterations ), minimumResidualChange_( minimumResidualChange ),
-        minimumResidual_( minimumResidual ),
-        numberOfIterationsWithoutImprovement_( numberOfIterationsWithoutImprovement )
-    {
-
-    }
-
-    //! Function to determine whether the estimation is deemed to be converged
-    /*!
-     * Function to determine whether the estimation is deemed to be converged (i.e. if it should terminate)
-     * \param numberOfIterations Number of iterations of estimation procedure that have been completed
-     * \param rmsResidualHistory Rms residuals at current and all previous iterations
-     * \return True if estimation is to be terminated
-     */
-    bool isEstimationConverged( const int numberOfIterations, const std::vector< double > rmsResidualHistory )
-    {
-        bool isConverged = 0;
-        if( numberOfIterations >= maximumNumberOfIterations_ )
-        {
-            std::cout << "Maximum number of iterations reached" << std::endl;
-            isConverged = 1;
-        }
-        if( rmsResidualHistory[ rmsResidualHistory.size( ) - 1 ] < minimumResidual_ )
-        {
-            std::cout << "Required residual level achieved" << std::endl;
-            isConverged = 1;
-        }
-        if( ( std::distance( rmsResidualHistory.begin( ), std::max_element(
-                                 rmsResidualHistory.begin( ), rmsResidualHistory.end( ) ) ) - rmsResidualHistory.size( ) ) <
-                numberOfIterationsWithoutImprovement_ )
-        {
-            std::cout << "Too many iterations without parameter improvement" << std::endl;
-            isConverged = 1;
-        }
-        if( rmsResidualHistory.size( ) > 1 )
-        {
-            if( std::fabs( rmsResidualHistory.at( rmsResidualHistory.size( )  - 1 ) -
-                           rmsResidualHistory.at( rmsResidualHistory.size( )  - 2 ) ) < minimumResidualChange_ )
-            {
-                isConverged = 1;
-            }
-        }
-        return isConverged;
-    }
-protected:
-
-    //! Maximum number of allowed iterations for estimation
-    int maximumNumberOfIterations_;
-
-    //! Minimum required change in residual between two iterations
-    double minimumResidualChange_;
-
-    //! Minimum value of observation residual below which estimation is converged
-    double minimumResidual_;
-
-    //!  Number of iterations without reduction of residual
-    unsigned int numberOfIterationsWithoutImprovement_;
-};
-
 //! Top-level class for performing orbit determination.
 /*!
  *  Top-level class for performing orbit determination. All required propagation/estimation settings are provided to
@@ -194,6 +118,8 @@ public:
      *  (through estimateParameters function)
      *  \param integratorSettings Settings for numerical integrator.
      *  \param propagatorSettings Settings for propagator.
+     *  \param propagateOnCreation Boolean denoting whether initial propagatoon is to be performed upon object creation (default
+     *  true)
      */
     OrbitDeterminationManager(
             const NamedBodyMap &bodyMap,
@@ -201,10 +127,12 @@ public:
             parametersToEstimate,
             const observation_models::SortedObservationSettingsMap& observationSettingsMap,
             const std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings,
-            const std::shared_ptr< propagators::PropagatorSettings< ObservationScalarType > > propagatorSettings ):
+            const std::shared_ptr< propagators::PropagatorSettings< ObservationScalarType > > propagatorSettings,
+            const bool propagateOnCreation = true ):
         parametersToEstimate_( parametersToEstimate )
     {
-        initializeOrbitDeterminationManager( bodyMap, observationSettingsMap, integratorSettings, propagatorSettings );
+        initializeOrbitDeterminationManager( bodyMap, observationSettingsMap, integratorSettings, propagatorSettings,
+                                             propagateOnCreation );
     }
 
     //! Constructor
@@ -217,6 +145,8 @@ public:
      *  (through estimateParameters function)
      *  \param integratorSettings Settings for numerical integrator.
      *  \param propagatorSettings Settings for propagator.
+     *  \param propagateOnCreation Boolean denoting whether initial propagatoon is to be performed upon object creation (default
+     *  true)
      */
     OrbitDeterminationManager(
             const NamedBodyMap &bodyMap,
@@ -224,11 +154,13 @@ public:
             parametersToEstimate,
             const observation_models::ObservationSettingsMap& observationSettingsMap,
             const std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings,
-            const std::shared_ptr< propagators::PropagatorSettings< ObservationScalarType > > propagatorSettings ):
+            const std::shared_ptr< propagators::PropagatorSettings< ObservationScalarType > > propagatorSettings,
+            const bool propagateOnCreation = true ):
         parametersToEstimate_( parametersToEstimate )
     {
         initializeOrbitDeterminationManager( bodyMap, observation_models::convertUnsortedToSortedObservationSettingsMap(
-                                                 observationSettingsMap ), integratorSettings, propagatorSettings );
+                                                 observationSettingsMap ), integratorSettings, propagatorSettings,
+                                             propagateOnCreation );
     }
 
     //! Function to retrieve map of all observation managers
@@ -357,6 +289,8 @@ public:
         for( typename PodInputType::const_iterator observablesIterator = observationsAndTimes.begin( );
              observablesIterator != observationsAndTimes.end( ); observablesIterator++ )
         {
+            int observableStartIndex = startIndex;
+
             // Iterate over all link ends for current observable type in observationsAndTimes
             for( typename SingleObservablePodInputType::const_iterator dataIterator = observablesIterator->second.begin( );
                  dataIterator != observablesIterator->second.end( ); dataIterator++  )
@@ -374,7 +308,6 @@ public:
                 residualsAndPartials.first.segment( startIndex, dataIterator->second.first.size( ) ) =
                         ( dataIterator->second.first - observationsWithPartials.first ).template cast< double >( );
 
-
                 // Set current observation partials in matrix of all partials
                 residualsAndPartials.second.block( startIndex, 0, dataIterator->second.first.size( ), parameterVectorSize ) =
                         observationsWithPartials.second;
@@ -383,8 +316,16 @@ public:
                 startIndex += dataIterator->second.first.size( );
 
             }
+
+            int currentObservableSize = startIndex - observableStartIndex;
+            observation_models::checkObservationResidualDiscontinuities(
+                        residualsAndPartials.first.block( observableStartIndex, 0, currentObservableSize, 1 ),
+                        observablesIterator->first );
         }
+
     }
+
+
 
     //! Function to normalize the matrix of partial derivatives so that each column is in the range [-1,1]
     /*!
@@ -458,10 +399,11 @@ public:
      *  \param convergenceChecker Object used to check convergence/termination of algorithm
      *  \return Object containing estimated parameter value and associateed data, such as residuals and observation partials.
      */
-    std::shared_ptr< PodOutput< ObservationScalarType > > estimateParameters(
-            const std::shared_ptr< PodInput< ObservationScalarType, TimeType > >& podInput,
-            const std::shared_ptr< EstimationConvergenceChecker > convergenceChecker =
+    std::shared_ptr< PodOutput< ObservationScalarType, TimeType > > estimateParameters(
+            const std::shared_ptr< PodInput< ObservationScalarType, TimeType > > podInput,
+            std::shared_ptr< EstimationConvergenceChecker > convergenceChecker =
             std::make_shared< EstimationConvergenceChecker >( ) )
+
     {
         currentParameterEstimate_ = parametersToEstimate_->template getFullParameterValues< ObservationScalarType >( );
 
@@ -519,9 +461,10 @@ public:
                                 variationalEquationsSolver_->getDynamicsSimulatorBase( )->getDependentVariableNumericalSolutionBase( ) );
                 }
             }
-            catch( std::runtime_error )
+            catch( std::runtime_error& error )
             {
-                std::cerr<<"Error when resetting parameters during parameter estimation, terminating estimation"<<std::endl;
+                std::cerr<<"Error when resetting parameters during parameter estimation: "<<std::endl<<
+                           error.what( )<<std::endl<<"Terminating estimation"<<std::endl;
                 exceptionDuringPropagation = true;
                 break;
             }
@@ -556,27 +499,41 @@ public:
             std::pair< Eigen::VectorXd, Eigen::MatrixXd > leastSquaresOutput;
             try
             {
+                Eigen::MatrixXd constraintStateMultiplier;
+                Eigen::VectorXd constraintRightHandSide;
+                parametersToEstimate_->getConstraints( constraintStateMultiplier, constraintRightHandSide );
                 leastSquaresOutput =
                         std::move( linear_algebra::performLeastSquaresAdjustmentFromInformationMatrix(
-                            residualsAndPartials.second.block( 0, 0, residualsAndPartials.second.rows( ), numberOfEstimatedParameters ),
-                            residualsAndPartials.first, getConcatenatedWeightsVector( podInput->getWeightsMatrixDiagonals( ) ),
-                            normalizedInverseAprioriCovarianceMatrix ) );
+                                       residualsAndPartials.second.block( 0, 0, residualsAndPartials.second.rows( ), numberOfEstimatedParameters ),
+                                       residualsAndPartials.first, getConcatenatedWeightsVector( podInput->getWeightsMatrixDiagonals( ) ),
+                                       normalizedInverseAprioriCovarianceMatrix, 1, 1.0E8, constraintStateMultiplier, constraintRightHandSide ) );
+
+                if( constraintStateMultiplier.rows( ) > 0 )
+                {
+                    leastSquaresOutput.first.conservativeResize( parameterVectorSize );
+                }
             }
-            catch( std::runtime_error )
+            catch( std::runtime_error& error )
             {
-                std::cerr<<"Error when solving normal equations during parameter estimation, terminating estimation"<<std::endl;
+                std::cerr<<"Error when solving normal equations during parameter estimation: "<<std::endl<<error.what( )<<
+                           std::endl<<"Terminating estimation"<<std::endl;
                 exceptionDuringInversion = true;
                 break;
             }
-
 
             ParameterVectorType parameterAddition =
                     ( leastSquaresOutput.first.cwiseQuotient( transformationData.segment( 0, numberOfEstimatedParameters ) ) ).
                     template cast< ObservationScalarType >( );
 
+            //            std::cout<<"LSQ: "<<leastSquaresOutput.first<<std::endl<<
+            //                       transformationData.segment( 0, numberOfEstimatedParameters ).transpose( )<<std::endl;
+
+
 
             // Update value of parameter vector
             newParameterEstimate = oldParameterEstimate + parameterAddition;
+            parametersToEstimate_->template resetParameterValues< ObservationScalarType >( newParameterEstimate );
+            newParameterEstimate = parametersToEstimate_->template getFullParameterValues< ObservationScalarType >( );
 
             if( podInput->getSaveResidualsAndParametersFromEachIteration( ) )
             {
@@ -631,10 +588,20 @@ public:
             std::cout << "Final residual: " << bestResidual << std::endl;
         }
 
-        return std::make_shared< PodOutput< ObservationScalarType > >(
+
+        std::shared_ptr< PodOutput< ObservationScalarType, TimeType > > podOutput =
+                std::make_shared< PodOutput< ObservationScalarType, TimeType > >(
                     bestParameterEstimate, bestResiduals, bestInformationMatrix, bestWeightsMatrixDiagonal, bestTransformationData,
                     bestInverseNormalizedCovarianceMatrix, bestResidual, residualHistory, parameterHistory, exceptionDuringInversion,
                     exceptionDuringPropagation );
+
+        if( podInput->getSaveStateHistoryForEachIteration( ) )
+        {
+            podOutput->setStateHistories(
+                        dynamicsHistoryPerIteration, dependentVariableHistoryPerIteration );
+        }
+
+        return podOutput;
     }
 
     //! Function to reset the current parameter estimate.
@@ -772,12 +739,15 @@ protected:
      *  (through estimateParameters function)
      *  \param integratorSettings Settings for numerical integrator.
      *  \param propagatorSettings Settings for propagator.
+     *  \param propagateOnCreation Boolean denoting whether initial propagatoon is to be performed upon object creation (default
+     *  true)
      */
     void initializeOrbitDeterminationManager(
             const NamedBodyMap &bodyMap,
             const observation_models::SortedObservationSettingsMap& observationSettingsMap,
             const std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings,
-            const std::shared_ptr< propagators::PropagatorSettings< ObservationScalarType > > propagatorSettings )
+            const std::shared_ptr< propagators::PropagatorSettings< ObservationScalarType > > propagatorSettings,
+            const bool propagateOnCreation = true )
     {
         using namespace numerical_integrators;
         using namespace orbit_determination;
@@ -797,58 +767,24 @@ protected:
             integrateAndEstimateOrbit_ = false;
         }
 
-        if( std::dynamic_pointer_cast< propagators::MultiArcPropagatorSettings< ObservationScalarType > >( propagatorSettings ) != NULL )
+        if( integrateAndEstimateOrbit_ )
         {
-            dynamicsIsMultiArc_ = true;
-
-            if( integrateAndEstimateOrbit_ )
-            {
-                std::vector< double > arcStartTimes = estimatable_parameters::getMultiArcStateEstimationArcStartTimes(
-                            parametersToEstimate_ );
-                variationalEquationsSolver_ =  std::make_shared< propagators::MultiArcVariationalEquationsSolver
-                        < ObservationScalarType, TimeType > >(
-                            bodyMap, integratorSettings, propagatorSettings, parametersToEstimate_, arcStartTimes, 1,
-                            std::shared_ptr< numerical_integrators::IntegratorSettings< double > >( ), 0, 1 );
-            }
-        }
-        else
-        {
-            dynamicsIsMultiArc_ = false;
-
-            if( integrateAndEstimateOrbit_ )
-            {
-                variationalEquationsSolver_ = std::make_shared< propagators::SingleArcVariationalEquationsSolver
-                        < ObservationScalarType, TimeType > >(
-                            bodyMap, integratorSettings, propagatorSettings, parametersToEstimate_, 1,
-                            std::shared_ptr< numerical_integrators::IntegratorSettings< double > >( ), 0, 1 );
-            }
+            variationalEquationsSolver_ =
+                    simulation_setup::createVariationalEquationsSolver(
+                        bodyMap, integratorSettings, propagatorSettings, parametersToEstimate_, 1,
+                        std::shared_ptr< numerical_integrators::IntegratorSettings< double > >( ), 0, propagateOnCreation );
         }
 
         if( integrateAndEstimateOrbit_ )
         {
             stateTransitionAndSensitivityMatrixInterface_ = variationalEquationsSolver_->getStateTransitionMatrixInterface( );
         }
-        else if( propagatorSettings == NULL )
+        else if( propagatorSettings == nullptr )
         {
-            if( !dynamicsIsMultiArc_ )
-            {
-                stateTransitionAndSensitivityMatrixInterface_ = std::make_shared<
-                        propagators::SingleArcCombinedStateTransitionAndSensitivityMatrixInterface >(
-                            std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > >( ),
-                            std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > >( ),
-                            0, parametersToEstimate_->getParameterSetSize( ) );
-            }
-            else
-            {
-                stateTransitionAndSensitivityMatrixInterface_ = std::make_shared<
-                        propagators::MultiArcCombinedStateTransitionAndSensitivityMatrixInterface >(
-                            std::vector< std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > > >( ),
-                            std::vector< std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > > >( ),
-                            std::vector< double >( ),
-                            0, parametersToEstimate_->getParameterSetSize( ) );
-            }
+            stateTransitionAndSensitivityMatrixInterface_ = createStateTransitionAndSensitivityMatrixInterface(
+                        propagatorSettings, 0, parametersToEstimate_->getParameterSetSize( ) );
         }
-        else if( propagatorSettings != NULL )
+        else
         {
             throw std::runtime_error( "Error, cannot parse propagator settings without estimating dynamics in OrbitDeterminationManager" );
         }
@@ -918,8 +854,6 @@ protected:
     //! Object used to interpolate the numerically integrated result of the state transition/sensitivity matrices.
     std::shared_ptr< propagators::CombinedStateTransitionAndSensitivityMatrixInterface >
     stateTransitionAndSensitivityMatrixInterface_;
-
-    bool dynamicsIsMultiArc_;
 
 };
 

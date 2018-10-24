@@ -33,6 +33,7 @@ set(OBSERVATION_PARTIALS_HEADERS
   "${SRCROOT}${OBSERVATIONPARTIALSDIR}/oneWayDopplerPartial.h"
   "${SRCROOT}${OBSERVATIONPARTIALSDIR}/twoWayDopplerPartial.h"
   "${SRCROOT}${OBSERVATIONPARTIALSDIR}/observationPartial.h"
+  "${SRCROOT}${OBSERVATIONPARTIALSDIR}/eulerAngleObservablePartials.h"
   "${SRCROOT}${LIGHTTIMECORRECTIONPARTIALSDIR}/lightTimeCorrectionPartial.h"
   "${SRCROOT}${LIGHTTIMECORRECTIONPARTIALSDIR}/firstOrderRelativisticLightTimeCorrectionPartial.h"
 )
@@ -82,6 +83,10 @@ target_link_libraries(test_AngularPositionPartials tudat_observation_partials_te
 add_executable(test_PositionPartials "${SRCROOT}${OBSERVATIONPARTIALSDIR}/UnitTests/unitTestPositionPartials.cpp")
 setup_custom_test_program(test_PositionPartials "${SRCROOT}${OBSERVATIONPARTIALSDIR}")
 target_link_libraries(test_PositionPartials tudat_observation_partials_test_functions ${TUDAT_ESTIMATION_LIBRARIES} ${Boost_LIBRARIES})
+
+add_executable(test_EulerAngleObservationPartials "${SRCROOT}${OBSERVATIONPARTIALSDIR}/UnitTests/unitTestEulerAngleObservationPartials.cpp")
+setup_custom_test_program(test_EulerAngleObservationPartials "${SRCROOT}${OBSERVATIONPARTIALSDIR}")
+target_link_libraries(test_EulerAngleObservationPartials tudat_observation_partials_test_functions ${TUDAT_ESTIMATION_LIBRARIES} ${Boost_LIBRARIES})
 
 add_executable(test_RotationMatrixPartials "${SRCROOT}${OBSERVATIONPARTIALSDIR}/UnitTests/unitTestRotationMatrixPartials.cpp")
 setup_custom_test_program(test_RotationMatrixPartials "${SRCROOT}${OBSERVATIONPARTIALSDIR}")

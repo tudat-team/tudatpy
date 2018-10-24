@@ -284,6 +284,17 @@ std::shared_ptr< gravitation::GravityFieldModel > createGravityFieldModel(
         }
         else
         {
+            std::function< void( ) > inertiaTensorUpdateFunction;
+            if( bodyMap.count( body ) == 0 )
+            {
+                inertiaTensorUpdateFunction = std::function< void( ) >( );
+            }
+            else
+            {
+                inertiaTensorUpdateFunction =
+                    std::bind( &Body::setBodyInertiaTensorFromGravityFieldAndExistingMeanMoment, bodyMap.at( body ), true );
+            }
+
             // Check consistency of cosine and sine coefficients.
             if( ( sphericalHarmonicFieldSettings->getCosineCoefficients( ).rows( ) !=
                   sphericalHarmonicFieldSettings->getSineCoefficients( ).rows( ) ) ||
@@ -306,7 +317,8 @@ std::shared_ptr< gravitation::GravityFieldModel > createGravityFieldModel(
                                 sphericalHarmonicFieldSettings->getReferenceRadius( ),
                                 sphericalHarmonicFieldSettings->getCosineCoefficients( ),
                                 sphericalHarmonicFieldSettings->getSineCoefficients( ),
-                                sphericalHarmonicFieldSettings->getAssociatedReferenceFrame( ) );
+                                sphericalHarmonicFieldSettings->getAssociatedReferenceFrame( ),
+                                inertiaTensorUpdateFunction );
                 }
                 else
                 {
@@ -323,7 +335,8 @@ std::shared_ptr< gravitation::GravityFieldModel > createGravityFieldModel(
                                 sphericalHarmonicFieldSettings->getReferenceRadius( ),
                                 sphericalHarmonicFieldSettings->getCosineCoefficients( ),
                                 sphericalHarmonicFieldSettings->getSineCoefficients( ),
-                                sphericalHarmonicFieldSettings->getAssociatedReferenceFrame( ) );
+                                sphericalHarmonicFieldSettings->getAssociatedReferenceFrame( ),
+                                inertiaTensorUpdateFunction );
                 }
 
 

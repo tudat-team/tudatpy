@@ -20,6 +20,7 @@ set(BASICMATHEMATICS_SOURCES
   "${SRCROOT}${BASICMATHEMATICSDIR}/coordinateConversions.cpp"
   "${SRCROOT}${BASICMATHEMATICSDIR}/linearAlgebra.cpp"
   "${SRCROOT}${BASICMATHEMATICSDIR}/leastSquaresEstimation.cpp"
+  "${SRCROOT}${BASICMATHEMATICSDIR}/rotationRepresentations.cpp"
 )
 
 # Add header files.
@@ -40,6 +41,7 @@ set(BASICMATHEMATICS_HEADERS
   "${SRCROOT}${BASICMATHEMATICSDIR}/linearAlgebra.h"
   "${SRCROOT}${BASICMATHEMATICSDIR}/mathematicalConstants.h"
   "${SRCROOT}${BASICMATHEMATICSDIR}/leastSquaresEstimation.h"
+  "${SRCROOT}${BASICMATHEMATICSDIR}/rotationRepresentations.h"
 )
 
 # Add static libraries.
@@ -78,3 +80,7 @@ target_link_libraries(test_SphericalHarmonics tudat_basic_mathematics ${Boost_LI
 add_executable(test_RotationAboutArbitraryAxis "${SRCROOT}${BASICMATHEMATICSDIR}/UnitTests/unitTestRotationAboutArbitraryAxis.cpp")
 setup_custom_test_program(test_RotationAboutArbitraryAxis "${SRCROOT}${MATHEMATICSDIR}/BasicMathematics")
 target_link_libraries(test_RotationAboutArbitraryAxis tudat_basic_mathematics ${Boost_LIBRARIES})
+
+add_executable(test_RotationPartials "${SRCROOT}${MATHEMATICSDIR}/BasicMathematics/UnitTests/unitTestRotationPartials.cpp")
+setup_custom_test_program(test_RotationPartials "${SRCROOT}${MATHEMATICSDIR}/BasicMathematics")
+target_link_libraries(test_RotationPartials tudat_reference_frames tudat_basic_mathematics ${Boost_LIBRARIES})

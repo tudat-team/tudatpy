@@ -11,6 +11,7 @@
 #ifndef TUDAT_THRUSTGUIDANCE_H
 #define TUDAT_THRUSTGUIDANCE_H
 
+#include <iostream>
 #include <functional>
 
 #include "Tudat/Astrodynamics/ReferenceFrames/referenceFrameTransformations.h"
@@ -158,7 +159,8 @@ public:
             [ ]( ){ return Eigen::Vector3d::UnitX( ); } ):
         BodyFixedForceDirectionGuidance ( bodyFixedForceDirection ),
         forceDirectionFunction_( forceDirectionFunction ),
-        centralBody_( centralBody ){ }
+        centralBody_( centralBody ),
+        hasWarningBeenGiven_( false ){ }
 
     //! Function returning the current force direction, as computed by last call to updateCalculator/updateForceDirection.
     /*!
@@ -177,7 +179,14 @@ public:
      */
     Eigen::Quaterniond getRotationToGlobalFrame( )
     {
-        throw std::runtime_error( "Error, body-fixed frame to propagation frame not yet implemented for DirectionBasedForceGuidance." );
+        if ( !hasWarningBeenGiven_ )
+        {
+            hasWarningBeenGiven_ = true;
+            std::cerr << "Warning, body-fixed frame to propagation frame not yet implemented for "
+                         "DirectionBasedForceGuidance. The function will return a unit rotation to represent the "
+                         "rotation from body-fixed to inertial frame." << std::endl;
+        }
+        return Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) );
     }
 
     //! Function to return the name of the central body.
@@ -210,6 +219,11 @@ protected:
 
     //! Name of central body
     std::string centralBody_;
+
+private:
+
+    //! Boolean denoting whether user has been warned of incomplete function.
+    bool hasWarningBeenGiven_;
 
 };
 

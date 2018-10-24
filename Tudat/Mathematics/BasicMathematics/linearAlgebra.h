@@ -206,6 +206,17 @@ bool doesMatrixHaveNanEntries( const Eigen::Matrix< StateScalarType, NumberOfRow
  */
 double getVectorEntryRootMeanSquare( const Eigen::VectorXd& inputVector );
 
+//! Function to compute the partial derivative of a rotation matrix w.r.t. its associated quaterion elements
+/*!
+ * Function to compute the partial derivative of a rotation matrix w.r.t. its associated quaterion elements
+ * \param quaternionVector Rotation quaternion in vector format
+ * \param partialDerivatives List of required partial derivatives (returned by reference)
+ */
+void computePartialDerivativeOfRotationMatrixWrtQuaternion(
+        const Eigen::Vector4d quaternionVector,
+        std::vector< Eigen::Matrix3d >& partialDerivatives );
+
+
 } // namespace linear_algebra
 
 } // namespace tudat

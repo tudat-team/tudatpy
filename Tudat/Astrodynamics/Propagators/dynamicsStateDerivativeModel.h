@@ -219,7 +219,7 @@ public:
         // If variational equations are to be integrated: evaluate and set.
         if( evaluateVariationalEquations_ )
         {
-            variationalEquations_->updatePartials( time );
+            variationalEquations_->updatePartials( time, currentStatesPerTypeInConventionalRepresentation_ );
 
             variationalEquations_->evaluateVariationalEquations< StateScalarType >(
                         time, state.block( 0, 0, totalConventionalStateSize_, variationalEquations_->getNumberOfParameterValues( ) ),
@@ -231,6 +231,7 @@ public:
         cumulativeFunctionEvaluationCounter_[ time ] = functionEvaluationCounter_;
 
         return stateDerivative_;
+
     }
 
     //! Function to calculate the system state derivative with double precision, regardless of template arguments.
@@ -625,12 +626,9 @@ private:
                             currentStatesPerTypeInConventionalRepresentation_.at(
                                 stateDerivativeModelsIterator_->first ).block(
                                 currentStateTypeSize, 0, currentConventionalIndices.second, 1 ) );
-//                std::cout << "Computing Cart. state: " <<currentStatesPerTypeInConventionalRepresentation_.at(
-//                                 stateDerivativeModelsIterator_->first ).transpose( ) << std::endl;
 
             }
         }
-//        std::cout<<std::endl;
     }
 
     std::function<

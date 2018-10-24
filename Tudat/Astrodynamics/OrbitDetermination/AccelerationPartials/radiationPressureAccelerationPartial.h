@@ -126,18 +126,20 @@ public:
      *  \param partialMatrix Block of partial derivatives of where current partial is to be added.
      *  \param stateReferencePoint Reference point id of propagated state
      *  \param integratedStateType Type of propagated state for which partial is to be computed.
+     *  \param addContribution Variable denoting whether to return the partial itself (true) or the negative partial (false).
      */
     void wrtNonTranslationalStateOfAdditionalBody(
             Eigen::Block< Eigen::MatrixXd > partialMatrix,
             const std::pair< std::string, std::string >& stateReferencePoint,
-            const propagators::IntegratedStateType integratedStateType )
+            const propagators::IntegratedStateType integratedStateType,
+            const bool addContribution = true )
     {
         if( stateReferencePoint.first == acceleratedBody_ && integratedStateType == propagators::body_mass_state )
         {
             partialMatrix.block( 0, 0, 3, 1 ) +=
-                    radiationPressureFunction_( ) * areaFunction_( ) * radiationPressureCoefficientFunction_( ) *
+                   ( addContribution ? 1.0 : -1.0 ) * ( radiationPressureFunction_( ) * areaFunction_( ) * radiationPressureCoefficientFunction_( ) *
                     ( sourceBodyState_( ) - acceleratedBodyState_( ) ).normalized( ) /
-                    ( acceleratedBodyMassFunction_( ) * acceleratedBodyMassFunction_( ) );
+                    ( acceleratedBodyMassFunction_( ) * acceleratedBodyMassFunction_( ) ) );
         }
     }
 
@@ -148,7 +150,7 @@ public:
      *  \param integratedStateType Type of propagated state for which dependency is to be determined.
      *  \return True if dependency exists (non-zero partial), false otherwise.
      */
-    bool isStateDerivativeDependentOnIntegratedNonTranslationalState(
+    bool isStateDerivativeDependentOnIntegratedAdditionalStateTypes(
             const std::pair< std::string, std::string >& stateReferencePoint,
             const propagators::IntegratedStateType integratedStateType )
     {

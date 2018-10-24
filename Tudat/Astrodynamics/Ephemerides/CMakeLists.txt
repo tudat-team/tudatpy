@@ -44,6 +44,7 @@ set(EPHEMERIDES_HEADERS
   "${SRCROOT}${EPHEMERIDESDIR}/itrsToGcrsRotationModel.h"
   "${SRCROOT}${EPHEMERIDESDIR}/compositeEphemeris.h"
   "${SRCROOT}${EPHEMERIDESDIR}/constantEphemeris.h"
+  "${SRCROOT}${EPHEMERIDESDIR}/constantRotationalEphemeris.h"
   "${SRCROOT}${EPHEMERIDESDIR}/multiArcEphemeris.h"
   "${SRCROOT}${EPHEMERIDESDIR}/tabulatedRotationalEphemeris.h"
 )

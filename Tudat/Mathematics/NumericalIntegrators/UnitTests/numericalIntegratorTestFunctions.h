@@ -42,7 +42,6 @@ static inline Eigen::VectorXd computeConstantStateDerivative( const double time,
 {
     Eigen::VectorXd stateDerivative = Eigen::VectorXd::Zero( state.rows( ) );
     stateDerivative( 0 ) = 1.0;
-    //std::cout<<"State der: "<<time<<" "<<stateDerivative.transpose( )<<" "<<std::endl<<state.transpose( )<<std::endl;
     return stateDerivative;
 }
 

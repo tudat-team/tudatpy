@@ -31,12 +31,12 @@ template std::pair< std::shared_ptr< PodOutput< long double > >, Eigen::VectorXd
         Eigen::VectorXd parameterPerturbation,
         Eigen::MatrixXd inverseAPrioriCovariance,
         const double weight );
-template std::pair< std::shared_ptr< PodOutput< double > >, Eigen::VectorXd > executePlanetaryParameterEstimation< Time, double >(
+template std::pair< std::shared_ptr< PodOutput< double, Time > >, Eigen::VectorXd > executePlanetaryParameterEstimation< Time, double >(
         const int observableType ,
         Eigen::VectorXd parameterPerturbation,
         Eigen::MatrixXd inverseAPrioriCovariance,
         const double weight );
-template std::pair< std::shared_ptr< PodOutput< long double > >, Eigen::VectorXd > executePlanetaryParameterEstimation< Time, long double >(
+template std::pair< std::shared_ptr< PodOutput< long double, Time > >, Eigen::VectorXd > executePlanetaryParameterEstimation< Time, long double >(
         const int observableType,
         Eigen::VectorXd parameterPerturbation,
         Eigen::MatrixXd inverseAPrioriCovariance,

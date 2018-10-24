@@ -39,6 +39,21 @@ nlohmann::json jsonFromMap( const MapType< KeyType, ValueType >& map )
     return jsonObject;
 }
 
+template< template < typename ... > class VectorType, typename ValueType >
+nlohmann::json jsonFromVector( const VectorType< ValueType >& vector )
+{
+    nlohmann::json jsonObject;
+
+    for ( unsigned int i = 0; i < vector.size( ); i++ )
+    {
+        jsonObject.push_back( vector.at( i ) );
+    }
+    return jsonObject;
+}
+
+
+
+
 //! Template used by from_json methods for std::unodered_map and std::map.
 //! Use of this function outside those methods is discouraged.
 template< template< typename ... > class MapType, typename KeyType, typename ValueType >
@@ -100,12 +115,18 @@ void from_json( const nlohmann::json& jsonObject, map< KeyType, ValueType >& ord
 
 // STD::VECTOR
 
+//! Create a `json` object from a `std::map` with arbitrary key type.
+template< typename ValueType >
+void to_json( nlohmann::json& jsonObject, const vector< ValueType >& vectorInput )
+{
+    jsonObject = tudat::json_interface::jsonFromVector< vector, ValueType >( vectorInput );
+}
+
 //! Create a `std::vector` from a `json` object.
 template< typename ValueType >
 void from_json( const nlohmann::json& jsonObject, vector< ValueType >& myVector )
 {
     using namespace tudat::json_interface;
-
     const nlohmann::json jsonArray = getAsArray( jsonObject );
     if ( jsonArray.is_array( ) )
     {
@@ -275,3 +296,4 @@ inline void from_json( const nlohmann::json& jsonObject, Quaterniond& quaternion
 }  // namespace Eigen
 
 #endif // TUDAT_JSONINTERFACE_VALUECONVERSIONS_H
+

@@ -50,6 +50,33 @@ std::shared_ptr< OneWayRangePartial > createOneWayRangePartialWrtBodyPosition(
     return oneWayRangePartial;
 }
 
+//! Function to generate one-way range partial wrt an initial position of a body.
+std::shared_ptr< OneWayRangePartial > createOneWayRangePartialWrtBodyRotationalState(
+        const observation_models::LinkEnds oneWayRangeLinkEnds,
+        const simulation_setup::NamedBodyMap& bodyMap,
+        const std::string bodyToEstimate,
+        const std::shared_ptr< OneWayRangeScaling > oneWayRangeScaler,
+        const std::vector< std::shared_ptr< observation_partials::LightTimeCorrectionPartial > >&
+        lightTimeCorrectionPartialObjects  )
+{
+    // Create position partials of link ends for current body position
+    std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartial > > positionPartials =
+            createCartesianStatePartialsWrtBodyRotationalState( oneWayRangeLinkEnds, bodyMap, bodyToEstimate );
+
+    // Create one-range partials if any position partials are created (i.e. if any dependency exists).
+    std::shared_ptr< OneWayRangePartial > oneWayRangePartial;
+    if( positionPartials.size( ) > 0 )
+    {
+        oneWayRangePartial = std::make_shared< OneWayRangePartial >(
+                    oneWayRangeScaler, positionPartials, std::make_pair(
+                        estimatable_parameters::initial_body_state, std::make_pair( bodyToEstimate, "" ) ),
+                    lightTimeCorrectionPartialObjects );
+    }
+
+    // Return range partial object (nullptr if no dependency exists).
+    return oneWayRangePartial;
+}
+
 
 }
 

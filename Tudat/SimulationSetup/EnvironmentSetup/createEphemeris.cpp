@@ -153,37 +153,58 @@ std::shared_ptr< ephemerides::Ephemeris > createBodyEphemeris(
                 // Create corresponding ephemeris object.
                 if( !tabulatedEphemerisSettings->getUseLongDoubleStates( ) )
                 {
-                    ephemeris = std::make_shared< TabulatedCartesianEphemeris< > >(
-                                std::make_shared<
-                                interpolators::LagrangeInterpolator< double, Eigen::Vector6d > >
-                                ( tabulatedEphemerisSettings->getBodyStateHistory( ), 6,
-                                  interpolators::huntingAlgorithm,
-                                  interpolators::lagrange_cubic_spline_boundary_interpolation ),
-                                tabulatedEphemerisSettings->getFrameOrigin( ),
-                                tabulatedEphemerisSettings->getFrameOrientation( ) );
+                    if( tabulatedEphemerisSettings->getBodyStateHistory( ).size( ) != 0 )
+                    {
+                        ephemeris = std::make_shared< TabulatedCartesianEphemeris< > >(
+                                    std::make_shared<
+                                    interpolators::LagrangeInterpolator< double, Eigen::Vector6d > >
+                                    ( tabulatedEphemerisSettings->getBodyStateHistory( ), 6,
+                                      interpolators::huntingAlgorithm,
+                                      interpolators::lagrange_cubic_spline_boundary_interpolation ),
+                                    tabulatedEphemerisSettings->getFrameOrigin( ),
+                                    tabulatedEphemerisSettings->getFrameOrientation( ) );
+                    }
+                    else
+                    {
+                        ephemeris = std::make_shared< TabulatedCartesianEphemeris< > >(
+                                    std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Vector6d > >( ),
+                                      tabulatedEphemerisSettings->getFrameOrigin( ),
+                                      tabulatedEphemerisSettings->getFrameOrientation( ) );
+                    }
                 }
                 else
                 {
 #if( BUILD_EXTENDED_PRECISION_PROPAGATION_TOOLS )
 
                     // Cast input history to required type.
-                    std::map< double, Eigen::Vector6d > originalStateHistory =
-                            tabulatedEphemerisSettings->getBodyStateHistory( );
-                    std::map< double, Eigen::Matrix< long double, 6, 1 > > longStateHistory;
-
-                    for( std::map< double, Eigen::Vector6d >::const_iterator stateIterator =
-                         originalStateHistory.begin( ); stateIterator != originalStateHistory.end( ); stateIterator++ )
+                    if( tabulatedEphemerisSettings->getBodyStateHistory( ).size( ) != 0 )
                     {
-                        longStateHistory[ stateIterator->first ] = stateIterator->second.cast< long double >( );
-                        ephemeris =
-                                std::make_shared< TabulatedCartesianEphemeris< long double, double > >(
-                                    std::make_shared< interpolators::LagrangeInterpolator<
-                                    double, Eigen::Matrix< long double, 6, 1 > > >
-                                    ( longStateHistory, 6,
-                                      interpolators::huntingAlgorithm,
-                                      interpolators::lagrange_cubic_spline_boundary_interpolation ),
-                                    tabulatedEphemerisSettings->getFrameOrigin( ),
-                                    tabulatedEphemerisSettings->getFrameOrientation( ) );
+                        std::map< double, Eigen::Vector6d > originalStateHistory =
+                                tabulatedEphemerisSettings->getBodyStateHistory( );
+                        std::map< double, Eigen::Matrix< long double, 6, 1 > > longStateHistory;
+
+                        for( std::map< double, Eigen::Vector6d >::const_iterator stateIterator =
+                             originalStateHistory.begin( ); stateIterator != originalStateHistory.end( ); stateIterator++ )
+                        {
+                            longStateHistory[ stateIterator->first ] = stateIterator->second.cast< long double >( );
+                            ephemeris =
+                                    std::make_shared< TabulatedCartesianEphemeris< long double, double > >(
+                                        std::make_shared< interpolators::LagrangeInterpolator<
+                                        double, Eigen::Matrix< long double, 6, 1 > > >
+                                        ( longStateHistory, 6,
+                                          interpolators::huntingAlgorithm,
+                                          interpolators::lagrange_cubic_spline_boundary_interpolation ),
+                                        tabulatedEphemerisSettings->getFrameOrigin( ),
+                                        tabulatedEphemerisSettings->getFrameOrientation( ) );
+                        }
+                    }
+                    else
+                    {
+                        ephemeris = std::make_shared< TabulatedCartesianEphemeris< long double, double > >(
+                                    std::shared_ptr< interpolators::OneDimensionalInterpolator<
+                                    double, Eigen::Matrix< long double, 6, 1 > > >( ),
+                                      tabulatedEphemerisSettings->getFrameOrigin( ),
+                                      tabulatedEphemerisSettings->getFrameOrientation( ) );
                     }
 #else
                     throw std::runtime_error( "Error, long double compilation is turned off; requested long doubel tabulated ephemeris" );

@@ -223,12 +223,31 @@ createRotationalEquationsOfMotionEnvironmentUpdaterSettings(
                 switch( currentTorqueModelType )
                 {
                 case second_order_gravitational_torque:
+                    singleTorqueUpdateNeeds[ body_translational_state_update ].push_back(
+                                torqueModelIterator->first );
+                    singleTorqueUpdateNeeds[ body_translational_state_update ].push_back(
+                                acceleratedBodyIterator->first );
                     break;
+                case spherical_harmonic_gravitational_torque:
+                    singleTorqueUpdateNeeds[ body_translational_state_update ].push_back(
+                                torqueModelIterator->first );
+                    singleTorqueUpdateNeeds[ body_translational_state_update ].push_back(
+                                acceleratedBodyIterator->first );
+                    singleTorqueUpdateNeeds[ spherical_harmonic_gravity_field_update ].push_back(
+                                acceleratedBodyIterator->first );
+                    break;
+
                 case aerodynamic_torque:
+                    singleTorqueUpdateNeeds[ body_translational_state_update ].push_back(
+                                torqueModelIterator->first );
+                    singleTorqueUpdateNeeds[ body_translational_state_update ].push_back(
+                                acceleratedBodyIterator->first );
                     singleTorqueUpdateNeeds[ body_rotational_state_update ].push_back(
                                 torqueModelIterator->first );
                     singleTorqueUpdateNeeds[ vehicle_flight_conditions_update ].push_back(
                                 acceleratedBodyIterator->first );
+                    break;
+                case inertial_torque:
                     break;
                 default:
                     std::cerr << "Error, update information not found for torque model " << currentTorqueModelType << std::endl;
@@ -712,6 +731,9 @@ std::vector< std::string > > createEnvironmentUpdaterSettingsForDependentVariabl
         variablesToUpdate[ body_translational_state_update ].push_back( dependentVariableSaveSettings->associatedBody_ );
         variablesToUpdate[ body_translational_state_update ].push_back( dependentVariableSaveSettings->secondaryBody_ );
         variablesToUpdate[ body_rotational_state_update ].push_back( dependentVariableSaveSettings->secondaryBody_ );
+        break;
+    case euler_angles_to_body_fixed_313:
+        variablesToUpdate[ body_rotational_state_update ].push_back( dependentVariableSaveSettings->associatedBody_ );
         break;
     case lvlh_to_inertial_frame_rotation_dependent_variable:
         variablesToUpdate[ body_translational_state_update ].push_back( dependentVariableSaveSettings->associatedBody_ );

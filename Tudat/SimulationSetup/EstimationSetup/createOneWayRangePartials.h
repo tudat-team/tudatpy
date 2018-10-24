@@ -99,6 +99,26 @@ std::shared_ptr< OneWayRangePartial > createOneWayRangePartialWrtBodyPosition(
         lightTimeCorrectionPartialObjects =
         std::vector< std::shared_ptr< observation_partials::LightTimeCorrectionPartial > >( ) );
 
+//! Function to generate one-way range partial wrt a rotational state of a body.
+/*!
+ *  Function to generate one-way range partial wrt a rotational state of a body, for a single link ends (which must contain a
+ *  transmitter and receiever  linkEndType).
+ *  \param oneWayRangeLinkEnds Link ends (transmitter and receiever) for which one-way range partials are to be calculated
+ *  (i.e. for which one-way range observations are to be processed).
+ *  \param bodyMap List of all bodies, for creating one-way range partial.
+ *  \param bodyToEstimate Name of body wrt rotational state of which a partial is to be created.
+ *  \param oneWayRangeScaler Object scale position partials to one-way range partials for current link ends.
+ *  \param lightTimeCorrectionPartialObjects List of light time correction partials to be used (empty by default)
+ *  \return One-way range partial object wrt a current rotational state of a body (is nullptr if no parameter dependency exists).
+ */
+std::shared_ptr< OneWayRangePartial > createOneWayRangePartialWrtBodyRotationalState(
+        const observation_models::LinkEnds oneWayRangeLinkEnds,
+        const simulation_setup::NamedBodyMap& bodyMap,
+        const std::string bodyToEstimate,
+        const std::shared_ptr< OneWayRangeScaling > oneWayRangeScaler,
+        const std::vector< std::shared_ptr< observation_partials::LightTimeCorrectionPartial > >&
+        lightTimeCorrectionPartialObjects  );
+
 //! Function to generate one-way range partials and associated scaler for single link ends.
 /*!
  *  Function to generate one-way range partials and associated scaler for all parameters that are to be estimated,
@@ -108,8 +128,7 @@ std::shared_ptr< OneWayRangePartial > createOneWayRangePartialWrtBodyPosition(
  *  \param oneWayRangeLinkEnds Link ends (transmitter and receiever) for which one-way range partials are to be calculated
  *  (i.e. for which one-way range observations are to be processed).
  *  \param bodyMap List of all bodies, for creating one-way range partials.
- *  \param parametersToEstimate Set of parameters that are to be estimated (in addition to initial states of
- *  requested bodies)
+ *  \param parametersToEstimate Set of parameters that are to be estimated
  *  \param lightTimeCorrections List of light time correction partials to be used (empty by default)
  *  \param useBiasPartials Boolean to denote whether this function should create partials w.r.t. observation bias parameters
  *  \return Set of observation partials with associated indices in complete vector of parameters that are estimated,
@@ -149,36 +168,50 @@ std::pair< SingleLinkObservationPartialList, std::shared_ptr< PositionPartialSca
     for( unsigned int i = 0; i < initialDynamicalParameters.size( ); i++ )
     {
         std::string acceleratedBody;
-        if( initialDynamicalParameters.at( i )->getParameterName( ).first == estimatable_parameters::initial_body_state )
+        if( initialDynamicalParameters.at( i )->getParameterName( ).first == estimatable_parameters::initial_body_state ||
+                initialDynamicalParameters.at( i )->getParameterName( ).first == estimatable_parameters::arc_wise_initial_body_state )
         {
             acceleratedBody = initialDynamicalParameters.at( i )->getParameterName( ).second.first;
-        }
-        else if( initialDynamicalParameters.at( i )->getParameterName( ).first == estimatable_parameters::arc_wise_initial_body_state )
+
+            // Create position one-way range partial for current body
+            std::shared_ptr< OneWayRangePartial > currentRangePartial = createOneWayRangePartialWrtBodyPosition(
+                        oneWayRangeLinkEnds, bodyMap, acceleratedBody, oneWayRangeScaling, lightTimeCorrectionPartialObjects );
+
+            // Check if partial is non-null (i.e. whether dependency exists between current range and current body)
+            if( currentRangePartial != nullptr )
+            {
+                // Add partial to the list.
+                currentPair = std::pair< int, int >( currentIndex, 6 );
+                rangePartials[ currentPair ] = currentRangePartial;
+            }
+
+            // Increment current index by size of body initial state (6).
+            currentIndex += 6;
+        }        
+        else if( initialDynamicalParameters.at( i )->getParameterName( ).first == estimatable_parameters::initial_rotational_body_state )
         {
             acceleratedBody = initialDynamicalParameters.at( i )->getParameterName( ).second.first;
+
+            // Create position one-way range partial for current body
+            std::shared_ptr< OneWayRangePartial > currentRangePartial = createOneWayRangePartialWrtBodyRotationalState(
+                        oneWayRangeLinkEnds, bodyMap, acceleratedBody, oneWayRangeScaling, lightTimeCorrectionPartialObjects );
+
+            // Check if partial is non-null (i.e. whether dependency exists between current range and current body)
+            if( currentRangePartial != nullptr )
+            {
+                // Add partial to the list.
+                currentPair = std::pair< int, int >( currentIndex, 7 );
+                rangePartials[ currentPair ] = currentRangePartial;
+            }
+
+            // Increment current index by size of body initial state (6).
+            currentIndex += 7;
         }
         else
         {
             throw std::runtime_error( "Error when making one way range partials, could not identify parameter " +
-                       std::to_string(
-                                          initialDynamicalParameters.at( i )->getParameterName( ).first ) );
+                       std::to_string( initialDynamicalParameters.at( i )->getParameterName( ).first ) );
         }
-
-
-        // Create position one-way range partial for current body
-        std::shared_ptr< OneWayRangePartial > currentRangePartial = createOneWayRangePartialWrtBodyPosition(
-                    oneWayRangeLinkEnds, bodyMap, acceleratedBody, oneWayRangeScaling, lightTimeCorrectionPartialObjects );
-
-        // Check if partial is non-nullptr (i.e. whether dependency exists between current range and current body)
-        if( currentRangePartial != nullptr )
-        {
-            // Add partial to the list.
-            currentPair = std::pair< int, int >( currentIndex, 6 );
-            rangePartials[ currentPair ] = currentRangePartial;
-        }
-
-        // Increment current index by size of body initial state (6).
-        currentIndex += 6;
     }
 
     // Iterate over all double parameters that are to be estimated.

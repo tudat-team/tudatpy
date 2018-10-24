@@ -21,7 +21,7 @@
 #include <Eigen/Core>
 
 #include "Tudat/Mathematics/Interpolators/lookupScheme.h"
-#include "Tudat/Mathematics/Interpolators/linearInterpolator.h"
+#include "Tudat/Mathematics/Interpolators/createInterpolator.h"
 #include "Tudat/Basics/timeType.h"
 #include "Tudat/Astrodynamics/Ephemerides/rotationalEphemeris.h"
 
@@ -62,7 +62,8 @@ public:
             interpolator,
             const std::string& baseFrameOrientation = "ECLIPJ2000",
             const std::string& targetFrameOrientation = "" ):
-        RotationalEphemeris( baseFrameOrientation, targetFrameOrientation ), interpolator_( interpolator ){  }
+        RotationalEphemeris( baseFrameOrientation, targetFrameOrientation ), interpolator_( interpolator ),
+    currentTime_( TUDAT_NAN ){  }
 
     //! Destructor
     ~TabulatedRotationalEphemeris( ){ }
@@ -180,7 +181,7 @@ private:
      */
     void updateInterpolator( const double time )
     {
-        if( ! ( time == currentTime_ ) )
+        if( !( time == currentTime_ ) )
         {
             // Retrieve data from interpolator
             currentRotationalState_ = interpolator_->interpolate( time );
@@ -221,6 +222,44 @@ private:
     Eigen::Quaternion< StateScalarType > currentRotationToBaseFrame_;
 
 };
+
+//! Create a tabulated rotation model from a given rotation model and interpolation settings
+/*!
+ * Create a tabulated rotation model from a given rotation model and interpolation settings
+ * \param ephemerisToInterrogate Rotation model from which the tabulated model is tpo be synthesized
+ * \param startTime Start time for tabulated model
+ * \param endTime End time for tabulated model
+ * \param timeStep Constant time step for tabulated model
+ * \param interpolatorSettings Interpolation settings for tabulated model
+ * \return Tabulated rotation model, as synthesized from a given rotation model and interpolation settings
+ */
+template< typename StateScalarType = double, typename TimeType = double >
+std::shared_ptr< RotationalEphemeris > getTabulatedRotationalEphemeris(
+        const std::shared_ptr< RotationalEphemeris > ephemerisToInterrogate,
+        const TimeType startTime,
+        const TimeType endTime,
+        const TimeType timeStep,
+        const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings =
+        std::make_shared< interpolators::LagrangeInterpolatorSettings >( 8 ) )
+{
+    typedef Eigen::Matrix< StateScalarType, 7, 1 > StateType;
+
+    // Create state map that is to be interpolated
+    std::map< TimeType, StateType >  stateMap;
+    TimeType currentTime = startTime;
+    while( currentTime <= endTime )
+    {
+        stateMap[ currentTime ] = ephemerisToInterrogate->getRotationStateVector( currentTime );
+        currentTime += timeStep;
+    }
+
+    // Create tabulated ephemeris model
+    return std::make_shared< TabulatedRotationalEphemeris< StateScalarType, TimeType > >(
+                interpolators::createOneDimensionalInterpolator( stateMap, interpolatorSettings ),
+                ephemerisToInterrogate->getBaseFrameOrientation( ),
+                ephemerisToInterrogate->getTargetFrameOrientation( ) );
+
+}
 
 extern template class TabulatedRotationalEphemeris< double, double >;
 

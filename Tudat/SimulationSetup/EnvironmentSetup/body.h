@@ -229,8 +229,10 @@ public:
           currentRotationToLocalFrame_( Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) ) ),
           currentRotationToLocalFrameDerivative_( Eigen::Matrix3d::Zero( ) ),
           currentAngularVelocityVectorInGlobalFrame_( Eigen::Vector3d::Zero( ) ),
+          currentAngularVelocityVectorInLocalFrame_( Eigen::Vector3d::Zero( ) ),
           bodyMassFunction_( nullptr ),
-          bodyInertiaTensor_( Eigen::Matrix3d::Zero( ) )
+          bodyInertiaTensor_( Eigen::Matrix3d::Zero( ) ),
+          scaledMeanMomentOfInertia_( TUDAT_NAN )
     {
         currentLongState_ = currentState_.cast< long double >( );
     }
@@ -365,15 +367,15 @@ public:
     template< typename StateScalarType = double, typename TimeType = double >
     Eigen::Matrix< StateScalarType, 6, 1 > getStateInBaseFrameFromEphemeris( const TimeType time )
     {
-       setStateFromEphemeris< StateScalarType, TimeType >( time );
-       if( sizeof( StateScalarType ) == 8 )
-       {
-           return currentState_.template cast< StateScalarType >( );
-       }
-       else
-       {
-           return currentLongState_.template cast< StateScalarType >( );
-       }
+        setStateFromEphemeris< StateScalarType, TimeType >( time );
+        if( sizeof( StateScalarType ) == 8 )
+        {
+            return currentState_.template cast< StateScalarType >( );
+        }
+        else
+        {
+            return currentLongState_.template cast< StateScalarType >( );
+        }
     }
 
     //! Templated function to get the current berycentric state of the body from its ephemeris andcglobal-to-ephemeris-frame
@@ -412,6 +414,21 @@ public:
      * \return Current state.
      */
     Eigen::Vector6d getState( ) { return currentState_; }
+
+    //! Get current rotational state.
+    /*!
+     * Returns the internally stored current rotational state vector.
+     * \return Current rotational state.
+     */
+    Eigen::Vector7d getRotationalStateVector( )
+    {
+        Eigen::Vector7d rotationalStateVector;
+
+        rotationalStateVector.segment( 0, 4 ) =
+                linear_algebra::convertQuaternionToVectorFormat( Eigen::Quaterniond( currentRotationToLocalFrame_.inverse( ) ) );
+        rotationalStateVector.segment( 4, 3 ) = currentAngularVelocityVectorInLocalFrame_;
+        return rotationalStateVector;
+    }
 
     //! Get current position.
     /*!
@@ -499,7 +516,7 @@ public:
         else
         {
             throw std::runtime_error(
-                   "Error, no rotationalEphemeris_ found in Body::setCurrentRotationToLocalFrameDerivativeFromEphemeris" );
+                        "Error, no rotationalEphemeris_ found in Body::setCurrentRotationToLocalFrameDerivativeFromEphemeris" );
         }
     }
 
@@ -515,10 +532,13 @@ public:
         {
             currentAngularVelocityVectorInGlobalFrame_
                     = rotationalEphemeris_->getRotationalVelocityVectorInBaseFrame( time );
+            currentAngularVelocityVectorInLocalFrame_ = currentRotationToLocalFrame_ * currentAngularVelocityVectorInGlobalFrame_;
+
         }
         else if( dependentOrientationCalculator_ != nullptr )
         {
             currentAngularVelocityVectorInGlobalFrame_.setZero( );
+            currentAngularVelocityVectorInLocalFrame_.setZero( );
         }
         else
         {
@@ -542,12 +562,14 @@ public:
             rotationalEphemeris_->getFullRotationalQuantitiesToTargetFrameTemplated< TimeType >(
                         currentRotationToLocalFrame_, currentRotationToLocalFrameDerivative_,
                         currentAngularVelocityVectorInGlobalFrame_, time );
+            currentAngularVelocityVectorInLocalFrame_ = currentRotationToLocalFrame_ * currentAngularVelocityVectorInGlobalFrame_;
         }
         else if( dependentOrientationCalculator_ != nullptr )
         {
             currentRotationToLocalFrame_ = dependentOrientationCalculator_->computeAndGetRotationToLocalFrame( time );
             currentRotationToLocalFrameDerivative_.setZero( );
             currentAngularVelocityVectorInGlobalFrame_.setZero( );
+            currentAngularVelocityVectorInLocalFrame_.setZero( );
         }
         else
         {
@@ -576,6 +598,7 @@ public:
         currentRotationToLocalFrame_ = currentRotationToGlobalFrame.inverse( );
         currentAngularVelocityVectorInGlobalFrame_ =
                 currentRotationToGlobalFrame * currentRotationalStateFromLocalToGlobalFrame.block( 4, 0, 3, 1 );
+        currentAngularVelocityVectorInLocalFrame_ = currentRotationalStateFromLocalToGlobalFrame.block( 4, 0, 3, 1 );
 
         Eigen::Matrix3d currentRotationMatrixToLocalFrame = ( currentRotationToLocalFrame_ ).toRotationMatrix( );
         currentRotationToLocalFrameDerivative_ = linear_algebra::getCrossProductMatrix(
@@ -665,7 +688,7 @@ public:
      */
     Eigen::Vector3d getCurrentAngularVelocityVectorInLocalFrame( )
     {
-        return getCurrentRotationToLocalFrame( ) * currentAngularVelocityVectorInGlobalFrame_;
+        return currentAngularVelocityVectorInLocalFrame_;
     }
 
     //! Function to set the ephemeris of the body.
@@ -833,7 +856,7 @@ public:
     void setRadiationPressureInterface(
             const std::string& radiatingBody,
             const std::shared_ptr< electro_magnetism::RadiationPressureInterface >
-                radiationPressureInterface )
+            radiationPressureInterface )
     {
         radiationPressureInterfaces_[ radiatingBody ] = radiationPressureInterface;
     }
@@ -845,7 +868,7 @@ public:
      */
     void setGravityFieldVariationSet(
             const std::shared_ptr< gravitation::GravityFieldVariationsSet >
-                gravityFieldVariationSet )
+            gravityFieldVariationSet )
     {
         gravityFieldVariationSet_ = gravityFieldVariationSet;
     }
@@ -953,9 +976,9 @@ public:
      *  \return Object describing requested variation in the gravity field of this body.
      */
     std::pair< bool, std::shared_ptr< gravitation::GravityFieldVariations > >
-            getGravityFieldVariation(
-                const gravitation::BodyDeformationTypes& deformationType,
-                const std::string identifier = "" )
+    getGravityFieldVariation(
+            const gravitation::BodyDeformationTypes& deformationType,
+            const std::string identifier = "" )
     {
         return gravityFieldVariationSet_->getGravityFieldVariation( deformationType, identifier );
     }
@@ -1058,6 +1081,34 @@ public:
         return bodyInertiaTensor_;
     }
 
+    //! Function to retrieve body scaled mean moment of inertia
+    /*!
+     *  Function to retrieve body scaled mean moment of inertia
+     * \return Body scaled mean moment of inertia
+     */
+    double getScaledMeanMomentOfInertia( )
+    {
+        return scaledMeanMomentOfInertia_;
+    }
+
+    //! Function to reset body scaled mean moment of inertia
+    /*!
+     *  Function to reset body scaled mean moment of inertia, and update associated inertia tensor
+     *  \param scaledMeanMomentOfInertia New body scaled mean moment of inertia
+     */
+    void setScaledMeanMomentOfInertia( const double scaledMeanMomentOfInertia )
+    {
+        double oldScaledMeanMomentOfInertia = scaledMeanMomentOfInertia_;
+        double oldMeanMomentOfInertia =
+                ( bodyInertiaTensor_( 0, 0 ) + bodyInertiaTensor_( 1, 1 ) + bodyInertiaTensor_( 2, 2 ) ) / 3.0;
+        scaledMeanMomentOfInertia_ = scaledMeanMomentOfInertia;
+        double meanMomentOfInertia = scaledMeanMomentOfInertia_/ oldScaledMeanMomentOfInertia * oldMeanMomentOfInertia;
+        bodyInertiaTensor_( 0, 0 ) += meanMomentOfInertia - oldMeanMomentOfInertia;
+        bodyInertiaTensor_( 1, 1 ) += meanMomentOfInertia - oldMeanMomentOfInertia;
+        bodyInertiaTensor_( 2, 2 ) += meanMomentOfInertia - oldMeanMomentOfInertia;
+
+    }
+
     //! Function to (re)set the body moment-of-inertia tensor.
     /*!
      * Function to (re)set the body moment-of-inertia tensor.
@@ -1066,6 +1117,73 @@ public:
     void setBodyInertiaTensor( const Eigen::Matrix3d& bodyInertiaTensor )
     {
         bodyInertiaTensor_ = bodyInertiaTensor;
+    }
+    //! Function to (re)set the body moment-of-inertia tensor and scaled mean-moment of inertia.
+    /*!
+     * Function to (re)set the body moment-of-inertia tensor and scaled mean-moment of inertia.
+     * \param bodyInertiaTensor Body moment-of-inertia tensor.
+     * \param scaledMeanMomentOfInertia Body scaled mean-moment of inertia
+     */
+    void setBodyInertiaTensor( const Eigen::Matrix3d& bodyInertiaTensor, const double scaledMeanMomentOfInertia )
+    {
+        bodyInertiaTensor_ = bodyInertiaTensor;
+        scaledMeanMomentOfInertia_ = scaledMeanMomentOfInertia;
+    }
+
+    //! Function to (re)set the body moment-of-inertia tensor from the gravity field.
+    /*!
+     * Function to (re)set the body moment-of-inertia tensor from the gravity field, requires only a mean moment of inertia
+     * (scaled by mass times reference radius squared). Other data are taken from this body's spherical harmonic gravity field
+     * \param scaledMeanMomentOfInertia  Mean moment of inertial, divided by (M*R^2), with M the mass of the body and R the
+     * reference radius of the gravity field.
+     */
+    void setBodyInertiaTensorFromGravityField( const double scaledMeanMomentOfInertia )
+    {
+        if( std::dynamic_pointer_cast< gravitation::SphericalHarmonicsGravityField >( gravityFieldModel_ ) == nullptr )
+        {
+            throw std::runtime_error( "Error when setting inertia tensor from mean moments of inertia, gravity field model is not spherical harmonic" );
+        }
+        else
+        {
+            scaledMeanMomentOfInertia_ = scaledMeanMomentOfInertia;
+            bodyInertiaTensor_ = gravitation::getInertiaTensor(
+                        std::dynamic_pointer_cast< gravitation::SphericalHarmonicsGravityField >( gravityFieldModel_ ),
+                        scaledMeanMomentOfInertia );
+        }
+    }
+
+    //! Function to (re)set the body moment-of-inertia tensor from existing gravity field and mean moment of inertia.
+    /*!
+     * Function to (re)set the body moment-of-inertia tensor from existing gravity field and mean moment of inertia.
+     * \param printWarningIfNotSet  Boolean to denote whether a warning is to be printed if scaled mean moment is not defined.
+     */
+    void setBodyInertiaTensorFromGravityFieldAndExistingMeanMoment(
+            const bool printWarningIfNotSet = true )
+    {
+        if( !( scaledMeanMomentOfInertia_ == scaledMeanMomentOfInertia_ ) )
+        {
+            std::shared_ptr< gravitation::SphericalHarmonicsGravityField > sphericalHarmonicGravityField =
+                    std::dynamic_pointer_cast< gravitation::SphericalHarmonicsGravityField >( gravityFieldModel_ );
+            if( sphericalHarmonicGravityField != nullptr )
+            {
+                double normalizationFactor =
+                        sphericalHarmonicGravityField->getGravitationalParameter( ) *
+                        sphericalHarmonicGravityField->getReferenceRadius( ) *
+                        sphericalHarmonicGravityField->getReferenceRadius( ) / physical_constants::GRAVITATIONAL_CONSTANT;
+                scaledMeanMomentOfInertia_ =
+                        ( bodyInertiaTensor_( 0, 0 ) + bodyInertiaTensor_( 1, 1 ) + bodyInertiaTensor_( 2, 2 ) ) /
+                        ( 3.0 * normalizationFactor );
+            }
+            else if( printWarningIfNotSet )
+            {
+                std::cerr<<"Warning when setting body inertia tensor, mean moment of inertia set to zero. "<<std::endl;
+            }
+        }
+
+        if( scaledMeanMomentOfInertia_ == scaledMeanMomentOfInertia_ )
+        {
+            setBodyInertiaTensorFromGravityField( scaledMeanMomentOfInertia_ );
+        }
     }
 
     //! Function to add a ground station to the body
@@ -1188,6 +1306,10 @@ private:
     //! Current angular velocity vector for body's rotation, expressed in the global frame.
     Eigen::Vector3d currentAngularVelocityVectorInGlobalFrame_;
 
+    //! Current angular velocity vector for body's rotation, expressed in the body-fixed frame.
+    Eigen::Vector3d currentAngularVelocityVectorInLocalFrame_;
+
+
     //! Mass of body (default set to zero, calculated from GravityFieldModel when it is set).
     double currentMass_;
 
@@ -1196,6 +1318,10 @@ private:
 
     //! Body moment-of-inertia tensor.
     Eigen::Matrix3d bodyInertiaTensor_;
+
+    //! Body scaled mean moment of inertia
+    double scaledMeanMomentOfInertia_;
+
 
     //! Ephemeris of body.
     std::shared_ptr< ephemerides::Ephemeris > bodyEphemeris_;
@@ -1226,11 +1352,11 @@ private:
 
     //! List of radiation pressure models for the body, with the sources bodies as key
     std::map< std::string, std::shared_ptr< electro_magnetism::RadiationPressureInterface > >
-            radiationPressureInterfaces_;
+    radiationPressureInterfaces_;
 
     //! Predefined iterator for efficiency purposes.
     std::map< std::string,
-              std::shared_ptr< electro_magnetism::RadiationPressureInterface > >::iterator
+    std::shared_ptr< electro_magnetism::RadiationPressureInterface > >::iterator
     radiationPressureIterator_;
 
     //! List of ground station objects on Body

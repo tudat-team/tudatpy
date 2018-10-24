@@ -26,7 +26,7 @@
 #include "Tudat/InputOutput/basicInputOutput.h"
 #include "Tudat/InputOutput/multiDimensionalArrayReader.h"
 #include "Tudat/SimulationSetup/EnvironmentSetup/body.h"
-#include "Tudat/SimulationSetup/PropagationSetup/createNumericalSimulator.h"
+#include "Tudat/SimulationSetup/EstimationSetup/createNumericalSimulator.h"
 #include "Tudat/SimulationSetup/PropagationSetup/createMassRateModels.h"
 #include "Tudat/SimulationSetup/EnvironmentSetup/defaultBodies.h"
 #include <limits>
@@ -1944,10 +1944,6 @@ BOOST_AUTO_TEST_CASE( testMeeCostateBasedThrust )
         {
             BOOST_CHECK_EQUAL( ( std::fabs( finalModifiedEquinoctialElementsError( 4 ) ) < 0.005 ), true );
         }
-
-//        std::cout<<finalModifiedEquinoctialElementsError.transpose( )<<std::endl;
-//        input_output::writeDataMapToTextFile( dependentVariableSolution, "meeThrustDep_" + std::to_string( i ) + ".dat" );
-//        input_output::writeDataMapToTextFile( numericalSolution, "meeThrustState_" + std::to_string( i ) + ".dat" );
     }
 }
 

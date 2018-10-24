@@ -35,7 +35,6 @@ void compareAnalyticalAndNumericalDerivative( const Eigen::VectorXd& input,
                                               DerivativeCallback analyticalCallback,
                                               FunctionEvaluationCallback numericalCallback )
 {
-    std::cout << std::numeric_limits< double >::epsilon( ) << std::endl;
     using numerical_derivatives::computeCentralDifference;
 
     // Compute the expected partial.

@@ -45,7 +45,7 @@ const std::vector< std::string > SpecialKeys::all =
 
 // Keys recognised by json_interface.
 
-// const std::string Keys::simulationType = "simulationType";
+ const std::string Keys::simulationType = "simulationType";
 const std::string Keys::initialEpoch = "initialEpoch";
 const std::string Keys::finalEpoch = "finalEpoch";
 const std::string Keys::globalFrameOrigin = "globalFrameOrigin";
@@ -67,6 +67,7 @@ const std::string Keys::bodies = "bodies";
 
 const std::string Keys::Body::useDefaultSettings = "useDefaultSettings";
 const std::string Keys::Body::initialState = "initialState";
+const std::string Keys::Body::initialStateOrigin = "initialStateOrigin";
 const std::string Keys::Body::mass = "mass";
 const std::string Keys::Body::rotationalState = "rotationalState";
 const std::string Keys::Body::referenceArea = "referenceArea";
@@ -223,6 +224,11 @@ const std::string Keys::Body::GravityFieldVariation::minimumDegree = "minimumDeg
 const std::string Keys::Body::GravityFieldVariation::minimumOrder = "minimumOrder";
 const std::string Keys::Body::GravityFieldVariation::interpolator = "interpolator";
 
+// // Body::GroundStation
+const std::string Keys::Body::groundStation = "groundStation";
+const std::string Keys::Body::GroundStation::stationPosition = "stationPosition";
+const std::string Keys::Body::GroundStation::positionElementType = "positionElementType";
+const std::string Keys::Body::GroundStation::stationName = "stationName";
 
 //  Variable
 const std::string Keys::Variable::type = "type";
@@ -244,6 +250,95 @@ const std::string Keys::Variable::deformationType = "deformationType";
 const std::string Keys::Variable::identifier = "identifier";
 const std::string Keys::Variable::derivativeWrtBody = "derivativeWrtBody";
 const std::string Keys::Variable::thirdBody = "thirdBody";
+
+
+// Parameter
+const std::string Keys::parametersToEstimate = "parametersToEstimate";
+
+const std::string Keys::Parameter::parameterType = "parameterType";
+const std::string Keys::Parameter::associatedBody = "associatedBody";
+const std::string Keys::Parameter::secondaryIdentifier = "secondaryIdentifier";
+
+const std::string Keys::Parameter::initialStateValue = "initialStateValue";
+const std::string Keys::Parameter::centralBody = "centralBody";
+const std::string Keys::Parameter::frameOrientation = "frameOrientation";
+const std::string Keys::Parameter::arcStartTimes = "arcStartTimes";
+
+const std::string Keys::Parameter::coefficientIndices = "coefficientIndices";
+const std::string Keys::Parameter::maximumDegree = "maximumDegree";
+const std::string Keys::Parameter::minimumDegree = "minimumDegree";
+const std::string Keys::Parameter::maximumOrder = "maximumOrder";
+const std::string Keys::Parameter::minimumOrder = "minimumOrder";
+
+const std::string Keys::Parameter::deformingBodies = "deformingBodies";
+
+const std::string Keys::Parameter::componentsToEstimate = "componentsToEstimate";
+
+const std::string Keys::Parameter::observableType = "observableType";
+const std::string Keys::Parameter::linkEnds = "linkEnds";
+const std::string Keys::Parameter::referenceLinkEnd = "referenceLinkEnd";
+
+const std::string Keys::Parameter::degree = "degree";
+const std::string Keys::Parameter::orders = "orders";
+const std::string Keys::Parameter::useComplexValue = "useComplexValue";
+
+const std::string Keys::estimationSettings = "estimation";
+
+const std::string Keys::Estimation::inverseAprioriCovariance = "inverseAprioriCovariance";
+const std::string Keys::Estimation::reintegrateEquationsOnFirstIteration = "reintegrateOnFirstIteration";
+const std::string Keys::Estimation::reintegrateVariationalEquations = "reintegrateVariationalEquations";
+const std::string Keys::Estimation::saveInformationMatrix = "savePartials";
+const std::string Keys::Estimation::printOutput = "printOutput";
+const std::string Keys::Estimation::saveResidualsAndParametersFromEachIteration = "saveEstimationHistory";
+const std::string Keys::Estimation::saveStateHistoryForEachIteration = "saveStateHistory";
+
+const std::string Keys::Estimation::maximumNumberOfIterations = "maximumIteration";
+const std::string Keys::Estimation::minimumResidualChange = "minimumResidualChange";
+const std::string Keys::Estimation::minimumResidual = "minimumResidual";
+const std::string Keys::Estimation::numberOfIterationsWithoutImprovement = "numberOfUnimprovedIterations";
+
+const std::string Keys::Estimation::dataWeights = "dataWeights";
+
+// Observation
+const std::string Keys::observations = "observations";
+const std::string Keys::Observation::observableType = "observableType";
+const std::string Keys::Observation::lightTimeCorrectionSettingsList = "lightTimeCorrections";
+const std::string Keys::Observation::biasSettings = "bias";
+
+const std::string Keys::Observation::transmitterProperTimeRateSettings = "transmitterProperTimeRate";
+const std::string Keys::Observation::receiverProperTimeRateSettings = "receiverProperTimeRate";
+
+const std::string Keys::Observation::constantIntegrationTime = "constantIntegrationTime";
+
+const std::string Keys::Observation::oneWayRangeObsevationSettings = "oneWayRangeObsevation";
+const std::string Keys::Observation::retransmissionTimes = "retransmissionTimes";
+
+const std::string Keys::Observation::uplinkOneWayDopplerSettings = "uplinkOneWayDoppler";
+const std::string Keys::Observation::downlinkOneWayDopplerSettings = "downlinkOneWayDoppler";
+
+const std::string Keys::Observation::properTimeRateType = "properTimeRateType";
+const std::string Keys::Observation::centralBody = "centralBody";
+
+const std::string Keys::Observation::lightTimeCorrectionType = "lightTimeCorrectionType";
+const std::string Keys::Observation::perturbingBodies = "perturbingBodies";
+
+const std::string Keys::Observation::observationSimulationTimesType = "observationSimulationTimesType";
+const std::string Keys::Observation::observationSimulationTimesList = "observationSimulationTimesList";
+
+const std::string Keys::Observation::observableViabilityType = "viabilityType";
+const std::string Keys::Observation::associatedLinkEnd = "associatedLinkEnd";
+const std::string Keys::Observation::doubleParameter = "doubleParameter";
+const std::string Keys::Observation::stringParameter = "stringParameter";
+
+
+// ObservationBias
+const std::string Keys::ObservationBias::biasType = "biasType";
+const std::string Keys::ObservationBias::multipleBiasesList = "multipleBiasesList";
+const std::string Keys::ObservationBias::constantBias = "constantBias";
+
+const std::string Keys::ObservationBias::arcWiseBiasList = "arcWiseBiasList";
+const std::string Keys::ObservationBias::arcStartTimes = "arcStartTimes";
+const std::string Keys::ObservationBias::referenceLinkEnd = "referenceLinkEnd";
 
 
 //  Propagator

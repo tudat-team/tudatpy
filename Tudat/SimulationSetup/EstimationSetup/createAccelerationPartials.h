@@ -84,7 +84,7 @@ std::shared_ptr< acceleration_partials::AccelerationPartial > createAnalyticalAc
     case central_gravity:
 
         // Check if identifier is consistent with type.
-        if( std::dynamic_pointer_cast< CentralGravitationalAccelerationModel3d >( accelerationModel ) == NULL )
+        if( std::dynamic_pointer_cast< CentralGravitationalAccelerationModel3d >( accelerationModel ) == nullptr )
         {
             throw std::runtime_error( "Acceleration class type does not match acceleration type (central_gravity) "
                                       "when making acceleration partial." );
@@ -100,7 +100,7 @@ std::shared_ptr< acceleration_partials::AccelerationPartial > createAnalyticalAc
     case relativistic_correction_acceleration:
 
         // Check if identifier is consistent with type.
-        if( std::dynamic_pointer_cast< relativity::RelativisticAccelerationCorrection >( accelerationModel ) == NULL )
+        if( std::dynamic_pointer_cast< relativity::RelativisticAccelerationCorrection >( accelerationModel ) == nullptr )
         {
             throw std::runtime_error( "Acceleration class type does not match acceleration type "
                                       "(relativistic_correction_acceleration) when making acceleration partial." );
@@ -116,7 +116,7 @@ std::shared_ptr< acceleration_partials::AccelerationPartial > createAnalyticalAc
     case direct_tidal_dissipation_in_central_body_acceleration:
     {
         // Check if identifier is consistent with type.
-        if( std::dynamic_pointer_cast< gravitation::DirectTidalDissipationAcceleration >( accelerationModel ) == NULL )
+        if( std::dynamic_pointer_cast< gravitation::DirectTidalDissipationAcceleration >( accelerationModel ) == nullptr )
         {
             throw std::runtime_error( "Acceleration class type does not match acceleration type "
                                       "(direct_tidal_dissipation_acceleration) when making acceleration partial." );
@@ -133,7 +133,7 @@ std::shared_ptr< acceleration_partials::AccelerationPartial > createAnalyticalAc
     case direct_tidal_dissipation_in_orbiting_body_acceleration:
     {
         // Check if identifier is consistent with type.
-        if( std::dynamic_pointer_cast< gravitation::DirectTidalDissipationAcceleration >( accelerationModel ) == NULL )
+        if( std::dynamic_pointer_cast< gravitation::DirectTidalDissipationAcceleration >( accelerationModel ) == nullptr )
         {
             throw std::runtime_error( "Acceleration class type does not match acceleration type "
                                       "(direct_tidal_dissipation_acceleration) when making acceleration partial." );
@@ -149,7 +149,7 @@ std::shared_ptr< acceleration_partials::AccelerationPartial > createAnalyticalAc
     }
     case third_body_central_gravity:
         // Check if identifier is consistent with type.
-        if( std::dynamic_pointer_cast< ThirdBodyCentralGravityAcceleration >( accelerationModel ) == NULL )
+        if( std::dynamic_pointer_cast< ThirdBodyCentralGravityAcceleration >( accelerationModel ) == nullptr )
         {
             throw std::runtime_error( "Acceleration class type does not match acceleration type (third_body_central_gravity) "
                                       "when making acceleration partial." );
@@ -186,7 +186,7 @@ std::shared_ptr< acceleration_partials::AccelerationPartial > createAnalyticalAc
         // Check if identifier is consistent with type.
         std::shared_ptr< SphericalHarmonicsGravitationalAccelerationModel > sphericalHarmonicAcceleration =
                 std::dynamic_pointer_cast< SphericalHarmonicsGravitationalAccelerationModel >( accelerationModel );
-        if( sphericalHarmonicAcceleration == NULL )
+        if( sphericalHarmonicAcceleration == nullptr )
         {
             throw std::runtime_error(
                         "Acceleration class type does not match acceleration type enum (spher. harm. grav.) set when making "
@@ -202,7 +202,7 @@ std::shared_ptr< acceleration_partials::AccelerationPartial > createAnalyticalAc
             // If body has gravity field variations, create partial objects
             std::vector< std::shared_ptr< orbit_determination::TidalLoveNumberPartialInterface > >
                     currentBodyLoveNumberPartialInterfaces;
-            if( acceleratingBody.second->getGravityFieldVariationSet( ) != NULL )
+            if( acceleratingBody.second->getGravityFieldVariationSet( ) != nullptr )
             {
                 currentBodyLoveNumberPartialInterfaces = createTidalLoveNumberInterfaces(
                             bodyMap, acceleratingBody.first );
@@ -217,7 +217,7 @@ std::shared_ptr< acceleration_partials::AccelerationPartial > createAnalyticalAc
     }
     case third_body_spherical_harmonic_gravity:
         // Check if identifier is consistent with type.
-        if( std::dynamic_pointer_cast< ThirdBodySphericalHarmonicsGravitationalAccelerationModel >( accelerationModel ) == NULL )
+        if( std::dynamic_pointer_cast< ThirdBodySphericalHarmonicsGravitationalAccelerationModel >( accelerationModel ) == nullptr )
         {
             throw std::runtime_error( "Acceleration class type does not match acceleration type "
                                       "(third_body_spherical_harmonic_gravity) when making acceleration partia.l" );
@@ -255,7 +255,7 @@ std::shared_ptr< acceleration_partials::AccelerationPartial > createAnalyticalAc
         // Check if identifier is consistent with type.
         std::shared_ptr< MutualSphericalHarmonicsGravitationalAccelerationModel > mutualSphericalHarmonicAcceleration =
                 std::dynamic_pointer_cast< MutualSphericalHarmonicsGravitationalAccelerationModel >( accelerationModel );
-        if( mutualSphericalHarmonicAcceleration == NULL )
+        if( mutualSphericalHarmonicAcceleration == nullptr )
         {
             throw std::runtime_error( "Acceleration class type does not match acceleration type enum (mut. spher. harm. grav.) "
                                       "set when making acceleration partial." );
@@ -282,7 +282,7 @@ std::shared_ptr< acceleration_partials::AccelerationPartial > createAnalyticalAc
     case third_body_mutual_spherical_harmonic_gravity:
     {
         // Check if identifier is consistent with type.
-        if( std::dynamic_pointer_cast< ThirdBodyMutualSphericalHarmonicsGravitationalAccelerationModel >( accelerationModel ) == NULL )
+        if( std::dynamic_pointer_cast< ThirdBodyMutualSphericalHarmonicsGravitationalAccelerationModel >( accelerationModel ) == nullptr )
         {
             throw std::runtime_error( "Acceleration class type does not match acceleration type "
                                       "(third_body_mutual_spherical_harmonic_gravity) enum set when making acceleration partial." );
@@ -317,7 +317,7 @@ std::shared_ptr< acceleration_partials::AccelerationPartial > createAnalyticalAc
         // Check if identifier is consistent with type.
         std::shared_ptr< CannonBallRadiationPressureAcceleration > radiationPressureAcceleration =
                 std::dynamic_pointer_cast< CannonBallRadiationPressureAcceleration >( accelerationModel );
-        if( radiationPressureAcceleration == NULL )
+        if( radiationPressureAcceleration == nullptr )
         {
             throw std::runtime_error( "Acceleration class type does not match acceleration type (cannon_ball_radiation_pressure) "
                                       "when making acceleration partial." );
@@ -349,7 +349,7 @@ std::shared_ptr< acceleration_partials::AccelerationPartial > createAnalyticalAc
         // Check if identifier is consistent with type.
         std::shared_ptr< AerodynamicAcceleration > aerodynamicAcceleration =
                 std::dynamic_pointer_cast< AerodynamicAcceleration >( accelerationModel );
-        if( aerodynamicAcceleration == NULL )
+        if( aerodynamicAcceleration == nullptr )
         {
             throw std::runtime_error( "Acceleration class type does not match acceleration type (aerodynamic) when making "
                                       "acceleration partial." );
@@ -360,7 +360,7 @@ std::shared_ptr< acceleration_partials::AccelerationPartial > createAnalyticalAc
                     std::dynamic_pointer_cast< AtmosphericFlightConditions >(
                         acceleratedBody.second->getFlightConditions( ) );
 
-            if( flightConditions == NULL )
+            if( flightConditions == nullptr )
             {
                 throw std::runtime_error( "No flight conditions found when making acceleration partial." );
             }
@@ -381,7 +381,7 @@ std::shared_ptr< acceleration_partials::AccelerationPartial > createAnalyticalAc
     {
         std::shared_ptr< EmpiricalAcceleration > empiricalAcceleration =
                 std::dynamic_pointer_cast< EmpiricalAcceleration >( accelerationModel );
-        if( empiricalAcceleration == NULL )
+        if( empiricalAcceleration == nullptr )
         {
             std::cerr << "Acceleration class type does not match acceleration type enum (rel. corr.) "
                          "set when making acceleration partial." << std::endl;
@@ -447,10 +447,11 @@ orbit_determination::StateDerivativePartialsMap createAccelerationPartialsMap(
 
     std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameter<
             Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > > > initialDynamicalParameters =
-            parametersToEstimate->getEstimatedInitialStateParameters( );
+            getListOfTranslationalStateParametersToEstimate( parametersToEstimate );
     accelerationPartialsList.resize( initialDynamicalParameters.size( ) );
 
     // Iterate over list of bodies of which the partials of the accelerations acting on them are required.
+    int bodyCounter = 0;
     for( basic_astrodynamics::AccelerationMap::const_iterator accelerationIterator = accelerationMap.begin( );
          accelerationIterator != accelerationMap.end( ); accelerationIterator++ )
     {
@@ -504,6 +505,7 @@ orbit_determination::StateDerivativePartialsMap createAccelerationPartialsMap(
                     // Add partials of current body's accelerations to vector.
                     accelerationPartialsList[ i ] = accelerationPartialVector;
 
+                    bodyCounter++;
                 }
             }
         }

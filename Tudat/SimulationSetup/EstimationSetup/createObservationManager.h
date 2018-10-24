@@ -307,7 +307,6 @@ std::shared_ptr< ObservationManagerBase< ObservationScalarType, TimeType > > cre
             createObservationSimulator< ObservationSize, ObservationScalarType, TimeType >(
                 observableType, settingsPerLinkEnds, bodyMap );
 
-
     performObservationParameterEstimationClosure(
                 observationSimulator, parametersToEstimate );
 
@@ -390,6 +389,11 @@ std::shared_ptr< ObservationManagerBase< ObservationScalarType, TimeType > > cre
                     stateTransitionMatrixInterface );
         break;
     case position_observable:
+        observationManager = createObservationManager< 3, ObservationScalarType, TimeType >(
+                    observableType, settingsPerLinkEnds, bodyMap, parametersToEstimate,
+                    stateTransitionMatrixInterface );
+        break;
+    case euler_angle_313_observable:
         observationManager = createObservationManager< 3, ObservationScalarType, TimeType >(
                     observableType, settingsPerLinkEnds, bodyMap, parametersToEstimate,
                     stateTransitionMatrixInterface );

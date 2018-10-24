@@ -38,6 +38,24 @@ SortedObservationSettingsMap convertUnsortedToSortedObservationSettingsMap(
     return sortedObservationSettingsMap;
 }
 
+//! Function to create list of observation models sorted by observable type and link ends from list only sorted in link ends (as map).
+SortedObservationSettingsMap convertUnsortedToSortedObservationSettingsMap(
+        const ObservationSettingsListPerLinkEnd& unsortedObservationSettingsMap )
+{
+    SortedObservationSettingsMap sortedObservationSettingsMap;
+
+    for( ObservationSettingsListPerLinkEnd::const_iterator iterator = unsortedObservationSettingsMap.begin( );
+         iterator != unsortedObservationSettingsMap.end( ); iterator++ )
+    {
+        for( unsigned int i = 0; i < iterator->second.size( ); i++ )
+        {
+            sortedObservationSettingsMap[ iterator->second.at( i )->observableType_ ][ iterator->first ] =
+                    iterator->second.at( i );
+        }
+    }
+    return sortedObservationSettingsMap;
+}
+
 //! Function to filter list of observationViabilitySettings, so that only those relevant for single set of link ends are retained
 ObservationViabilitySettingsList filterObservationViabilitySettings(
         const ObservationViabilitySettingsList& observationViabilitySettings,
@@ -198,6 +216,11 @@ std::vector< std::pair< int, int > > getLinkEndIndicesForObservationViability(
 
         throw std::runtime_error( "Error, parsed irrelevant position observable viability indices" );
         break;
+
+    case euler_angle_313_observable:
+
+        throw std::runtime_error( "Error, parsed irrelevant euler angle observable viability indices" );
+        break;
     default:
         throw std::runtime_error( "Error, observable type " + std::to_string(
                                       observableType ) + " not recognized when making viability link ends" );
@@ -309,6 +332,11 @@ std::shared_ptr< OccultationCalculator > createOccultationCalculator(
                          bodyMap.at( observationViabilitySettings->getStringParameter( ) ), std::placeholders::_1 );
 
     // Create check object
+    if( bodyMap.at( observationViabilitySettings->getStringParameter( ) )->getShapeModel( ) == nullptr )
+    {
+        throw std::runtime_error( "Error when makig occultation calculator, no shape model found for " +
+                                  observationViabilitySettings->getStringParameter( ) );
+    }
     double occultingBodyRadius =
             bodyMap.at( observationViabilitySettings->getStringParameter( ) )->getShapeModel( )->getAverageRadius( );
     return std::make_shared< OccultationCalculator >(

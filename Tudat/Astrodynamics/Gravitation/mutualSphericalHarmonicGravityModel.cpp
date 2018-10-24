@@ -15,7 +15,7 @@ namespace tudat
 namespace gravitation
 {
 
-//! Function to manually remove the C(0,0) term from cosine coefficients,
+//! Function to manually remove the C(0,0) term from cosine coefficients.
 Eigen::MatrixXd setDegreeAndOrderCoefficientToZero(
         const std::function< Eigen::MatrixXd( ) > originalCosineCoefficientFunction )
 {

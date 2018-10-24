@@ -42,7 +42,7 @@ using namespace tudat::coordinate_conversions;
 Eigen::VectorXd getDefaultInitialParameterPerturbation( );
 
 template< typename TimeType = double, typename StateScalarType  = double >
-std::pair< std::shared_ptr< PodOutput< StateScalarType > >, Eigen::VectorXd > executePlanetaryParameterEstimation(
+std::pair< std::shared_ptr< PodOutput< StateScalarType, TimeType > >, Eigen::VectorXd > executePlanetaryParameterEstimation(
         const int observableType = 1,
         Eigen::VectorXd parameterPerturbation = getDefaultInitialParameterPerturbation( ),
         Eigen::MatrixXd inverseAPrioriCovariance  = Eigen::MatrixXd::Zero( 7, 7 ),
@@ -280,7 +280,7 @@ std::pair< std::shared_ptr< PodOutput< StateScalarType > >, Eigen::VectorXd > ex
     podInput->defineEstimationSettings( true, true, false, false, false );
 
     // Perform estimation
-    std::shared_ptr< PodOutput< StateScalarType > > podOutput = orbitDeterminationManager.estimateParameters(
+    std::shared_ptr< PodOutput< StateScalarType, TimeType > > podOutput = orbitDeterminationManager.estimateParameters(
                 podInput, std::make_shared< EstimationConvergenceChecker >( ) );
 
     return std::make_pair( podOutput,
@@ -301,12 +301,12 @@ extern template std::pair< std::shared_ptr< PodOutput< long double > >, Eigen::V
         Eigen::VectorXd parameterPerturbation,
         Eigen::MatrixXd inverseAPrioriCovariance,
         const double weight );
-extern template std::pair< std::shared_ptr< PodOutput< double > >, Eigen::VectorXd > executePlanetaryParameterEstimation< Time, double >(
+extern template std::pair< std::shared_ptr< PodOutput< double, Time > >, Eigen::VectorXd > executePlanetaryParameterEstimation< Time, double >(
         const int observableType ,
         Eigen::VectorXd parameterPerturbation,
         Eigen::MatrixXd inverseAPrioriCovariance,
         const double weight );
-extern template std::pair< std::shared_ptr< PodOutput< long double > >, Eigen::VectorXd > executePlanetaryParameterEstimation< Time, long double >(
+extern template std::pair< std::shared_ptr< PodOutput< long double, Time > >, Eigen::VectorXd > executePlanetaryParameterEstimation< Time, long double >(
         const int observableType,
         Eigen::VectorXd parameterPerturbation,
         Eigen::MatrixXd inverseAPrioriCovariance,
@@ -628,7 +628,7 @@ Eigen::VectorXd executeEarthOrbiterParameterEstimation(
                 podInput, std::make_shared< EstimationConvergenceChecker >( numberOfIterations ) );
 
     Eigen::VectorXd estimationError = podOutput->parameterEstimate_ - truthParameters;
-    std::cout << ( estimationError ).transpose( ) << std::endl;
+    std::cout <<"Estimation error: "<< ( estimationError ).transpose( ) << std::endl;
 
     podData = std::make_pair( podOutput, podInput );
 
@@ -1083,7 +1083,7 @@ std::pair< Eigen::VectorXd, bool > executeEarthOrbiterBiasEstimation(
                 podInput, std::make_shared< EstimationConvergenceChecker >( numberOfIterations ) );
 
     Eigen::VectorXd estimationError = podOutput->parameterEstimate_ - truthParameters;
-    std::cout << ( estimationError ).transpose( ) << std::endl<< std::endl;
+    std::cout <<"Estimation error: "<< ( estimationError ).transpose( ) << std::endl<< std::endl;
 
     return std::make_pair( estimationError,
                            ( podOutput->exceptionDuringInversion_ ||

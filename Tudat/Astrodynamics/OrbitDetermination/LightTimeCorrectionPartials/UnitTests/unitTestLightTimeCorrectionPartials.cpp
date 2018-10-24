@@ -237,7 +237,6 @@ BOOST_AUTO_TEST_CASE( testOneWayRangePartialsWrtLightTimeParameters )
             std::vector< Eigen::VectorXd > numericalPartialsWrtDoubleParameters = calculateNumericalPartialsWrtDoubleParameters(
                         doubleParameterVector, updateFunctionList, parameterPerturbations, observationFunction, observationTime );
 
-            std::cout << "Partials" << std::endl;
             // Compare analytical and numerical partials
             for( unsigned int i = 0; i < analyticalObservationPartials.size( ); i++ )
             {
@@ -249,7 +248,6 @@ BOOST_AUTO_TEST_CASE( testOneWayRangePartialsWrtLightTimeParameters )
 
                 }
 
-                std::cout << "Diff: " << ( currentParameterPartial - numericalPartialsWrtDoubleParameters.at( i ).x( ) ) / currentParameterPartial << std::endl;
                 BOOST_CHECK_CLOSE_FRACTION( currentParameterPartial, numericalPartialsWrtDoubleParameters.at( i ).x( ), 1.0E-4 );
             }
 

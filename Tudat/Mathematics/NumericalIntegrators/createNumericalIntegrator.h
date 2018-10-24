@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2017, Delft University of Technology
+/*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rigths reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -15,6 +15,7 @@
 #include <memory>
 #include <boost/lexical_cast.hpp>
 
+#include "Tudat/Basics/timeType.h"
 #include "Tudat/Mathematics/NumericalIntegrators/bulirschStoerVariableStepsizeIntegrator.h"
 #include "Tudat/Mathematics/NumericalIntegrators/numericalIntegrator.h"
 #include "Tudat/Mathematics/NumericalIntegrators/rungeKutta4Integrator.h"
@@ -777,6 +778,28 @@ DependentVariableType, IndependentVariableStepType > > createIntegrator(
     return integrator;
 }
 
+
+extern template std::shared_ptr< numerical_integrators::NumericalIntegrator< double, Eigen::VectorXd,
+Eigen::VectorXd, double > > createIntegrator< double, Eigen::VectorXd, double >(
+        std::function< Eigen::VectorXd( const double, const Eigen::VectorXd& ) > stateDerivativeFunction,
+        const Eigen::VectorXd initialState, std::shared_ptr< IntegratorSettings< double > > integratorSettings );
+
+extern template std::shared_ptr< numerical_integrators::NumericalIntegrator< double, Eigen::Matrix< long double, Eigen::Dynamic, 1 >,
+Eigen::Matrix< long double, Eigen::Dynamic, 1 >, double > > createIntegrator< double, Eigen::Matrix< long double, Eigen::Dynamic, 1 >, double >(
+        std::function< Eigen::Matrix< long double, Eigen::Dynamic, 1 >(
+            const double, const Eigen::Matrix< long double, Eigen::Dynamic, 1 >& ) > stateDerivativeFunction,
+        const Eigen::Matrix< long double, Eigen::Dynamic, 1 > initialState, std::shared_ptr< IntegratorSettings< double > > integratorSettings );
+
+extern template std::shared_ptr< numerical_integrators::NumericalIntegrator< Time, Eigen::VectorXd,
+Eigen::VectorXd, long double > > createIntegrator< Time, Eigen::VectorXd, long double >(
+        std::function< Eigen::VectorXd( const Time, const Eigen::VectorXd& ) > stateDerivativeFunction,
+        const Eigen::VectorXd initialState, std::shared_ptr< IntegratorSettings< Time > > integratorSettings );
+
+extern template std::shared_ptr< numerical_integrators::NumericalIntegrator< Time, Eigen::Matrix< long double, Eigen::Dynamic, 1 >,
+Eigen::Matrix< long double, Eigen::Dynamic, 1 >, long double > > createIntegrator< Time, Eigen::Matrix< long double, Eigen::Dynamic, 1 >, long double >(
+        std::function< Eigen::Matrix< long double, Eigen::Dynamic, 1 >(
+            const Time, const Eigen::Matrix< long double, Eigen::Dynamic, 1 >& ) > stateDerivativeFunction,
+        const Eigen::Matrix< long double, Eigen::Dynamic, 1 > initialState, std::shared_ptr< IntegratorSettings< Time > > integratorSettings );
 } // namespace numerical_integrators
 
 } // namespace tudat

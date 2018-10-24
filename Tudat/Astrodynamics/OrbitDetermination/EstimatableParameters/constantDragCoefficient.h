@@ -55,7 +55,7 @@ public:
      */
     double getParameterValue( )
     {
-        return coefficientInterface_->getCurrentForceCoefficients( )( 0 );
+        return coefficientInterface_->getConstantCoefficients( )( 0 );
     }
 
     //! Function to reset the value of the constant drag coefficient that is to be estimated.

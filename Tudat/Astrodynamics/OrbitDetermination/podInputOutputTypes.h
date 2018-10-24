@@ -14,6 +14,7 @@
 #include <map>
 #include <vector>
 #include <iostream>
+#include <memory>
 
 #include <Eigen/Core>
 #include <Eigen/LU>
@@ -32,7 +33,6 @@ namespace simulation_setup
 template< typename ObservationScalarType = double, typename TimeType = double >
 class PodInput
 {
-
 public:
 
     //! Typedef of vector of observations of a single type
@@ -43,7 +43,7 @@ public:
     typedef std::map< observation_models::LinkEnds, std::pair< ObservationVectorType,
     std::pair< std::vector< TimeType >, observation_models::LinkEndType > > > SingleObservablePodInputType;
 
-        //! List of SingleObservablePodInputType per observation type
+    //! List of SingleObservablePodInputType per observation type
     typedef std::map< observation_models::ObservableType, SingleObservablePodInputType > PodInputDataType;
 
     //! Constructor
@@ -94,6 +94,9 @@ public:
         setConstantWeightsMatrix( 1.0 );
     }
 
+    //! Destructor
+    virtual ~PodInput( ){ }
+
     //! Function to set a constant values for all observation weights
     /*!
      * Function to set a constant values for all observation weights
@@ -102,7 +105,7 @@ public:
     void setConstantWeightsMatrix( const double constantWeight = 1.0 )
     {
         std::map< observation_models::ObservableType,
-                    std::map< observation_models::LinkEnds, double > > weightPerObservableAndLinkEnds;
+                std::map< observation_models::LinkEnds, double > > weightPerObservableAndLinkEnds;
         for( typename PodInputDataType::const_iterator observablesIterator = observationsAndTimes_.begin( );
              observablesIterator != observationsAndTimes_.end( ); observablesIterator++ )
         {
@@ -350,8 +353,84 @@ private:
 
 };
 
+//! Class that is used during the orbit determination/parameter estimation to determine whether the estimation is converged.
+class EstimationConvergenceChecker
+{
+public:
+
+    //! Constructor
+    /*!
+     * Constructor, sets a number of values for stopping conditions. The estimation stops if one of these is met.
+     * \param maximumNumberOfIterations Maximum number of allowed iterations for estimation
+     * \param minimumResidualChange Minimum required change in residual between two iterations
+     * \param minimumResidual Minimum value of observation residual below which estimation is converged
+     * \param numberOfIterationsWithoutImprovement Number of iterations without reduction of residual
+     */
+    EstimationConvergenceChecker(
+            const unsigned int maximumNumberOfIterations = 5,
+            const double minimumResidualChange = 0.0,
+            const double minimumResidual = 1.0E-20,
+            const int numberOfIterationsWithoutImprovement = 2 ):
+        maximumNumberOfIterations_( maximumNumberOfIterations ), minimumResidualChange_( minimumResidualChange ),
+        minimumResidual_( minimumResidual ),
+        numberOfIterationsWithoutImprovement_( numberOfIterationsWithoutImprovement )
+    { }
+
+    //! Function to determine whether the estimation is deemed to be converged
+    /*!
+     * Function to determine whether the estimation is deemed to be converged (i.e. if it should terminate)
+     * \param numberOfIterations Number of iterations of estimation procedure that have been completed
+     * \param rmsResidualHistory Rms residuals at current and all previous iterations
+     * \return True if estimation is to be terminated
+     */
+    bool isEstimationConverged( const int numberOfIterations, const std::vector< double > rmsResidualHistory )
+    {
+        bool isConverged = 0;
+        if( numberOfIterations >= maximumNumberOfIterations_ )
+        {
+            std::cout << "Maximum number of iterations reached" << std::endl;
+            isConverged = 1;
+        }
+        if( rmsResidualHistory[ rmsResidualHistory.size( ) - 1 ] < minimumResidual_ )
+        {
+            std::cout << "Required residual level achieved" << std::endl;
+            isConverged = 1;
+        }
+        if( ( std::distance( rmsResidualHistory.begin( ), std::max_element(
+                                 rmsResidualHistory.begin( ), rmsResidualHistory.end( ) ) ) - rmsResidualHistory.size( ) ) <
+                numberOfIterationsWithoutImprovement_ )
+        {
+            std::cout << "Too many iterations without parameter improvement" << std::endl;
+            isConverged = 1;
+        }
+        if( rmsResidualHistory.size( ) > 1 )
+        {
+            if( std::fabs( rmsResidualHistory.at( rmsResidualHistory.size( )  - 1 ) -
+                           rmsResidualHistory.at( rmsResidualHistory.size( )  - 2 ) ) < minimumResidualChange_ )
+            {
+                isConverged = 1;
+            }
+        }
+        return isConverged;
+    }
+protected:
+
+    //! Maximum number of allowed iterations for estimation
+    int maximumNumberOfIterations_;
+
+    //! Minimum required change in residual between two iterations
+    double minimumResidualChange_;
+
+    //! Minimum value of observation residual below which estimation is converged
+    double minimumResidual_;
+
+    //!  Number of iterations without reduction of residual
+    unsigned int numberOfIterationsWithoutImprovement_;
+};
+
+
 //! Data structure through which the output of the orbit determination is communicated
-template< typename ObservationScalarType = double >
+template< typename ObservationScalarType = double, typename TimeType = double  >
 struct PodOutput
 {
 
@@ -384,7 +463,6 @@ struct PodOutput
                const std::vector< Eigen::VectorXd >& parameterHistory = std::vector< Eigen::VectorXd >( ),
                const bool exceptionDuringInversion = false,
                const bool exceptionDuringPropagation = false ):
-
         parameterEstimate_( parameterEstimate ), residuals_( residuals ),
         normalizedInformationMatrix_( normalizedInformationMatrix ), weightsMatrixDiagonal_( weightsMatrixDiagonal ),
         informationMatrixTransformationDiagonal_( informationMatrixTransformationDiagonal ),
@@ -496,6 +574,20 @@ struct PodOutput
         }
     }
 
+    //! Function to set the full state histories of numerical solutions and dependent variables
+    /*!
+     * Function to set the full state histories of numerical solutions and dependent variables
+     * \param dynamicsHistoryPerIteration List of numerical solutions of dynamics (per iteration, per arc)
+     * \param dependentVariableHistoryPerIteration List of numerical solutions of dependent variables (per iteration, per arc)
+     */
+    void setStateHistories(
+            std::vector< std::vector< std::map< TimeType, Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > > >
+            dynamicsHistoryPerIteration,
+            std::vector< std::vector< std::map< TimeType, Eigen::VectorXd > > > dependentVariableHistoryPerIteration )
+    {
+        dynamicsHistoryPerIteration_ = dynamicsHistoryPerIteration;
+        dependentVariableHistoryPerIteration_ = dependentVariableHistoryPerIteration;
+    }
     //! Vector of estimated parameter values.
     Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > parameterEstimate_;
 
@@ -522,6 +614,12 @@ struct PodOutput
 
     //! Vector of parameter vectors per iteration (entry 0 is pre-estimation values)
     std::vector< Eigen::VectorXd > parameterHistory_;
+
+    //! List of numerical solutions of dynamics (per iteration, per arc)
+    std::vector< std::vector< std::map< TimeType, Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > > > dynamicsHistoryPerIteration_;
+
+    //! List of numerical solutions of dependent variables (per iteration, per arc)
+    std::vector< std::vector< std::map< TimeType, Eigen::VectorXd > > > dependentVariableHistoryPerIteration_;
 
     //! Boolean denoting whether an exception was caught during inversion of normal equations
     bool exceptionDuringInversion_;

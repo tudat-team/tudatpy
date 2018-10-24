@@ -26,7 +26,7 @@
 #include "Tudat/Astrodynamics/BasicAstrodynamics/stateVectorIndices.h"
 #include "Tudat/External/SpiceInterface/spiceInterface.h"
 #include "Tudat/SimulationSetup/EnvironmentSetup/body.h"
-#include "Tudat/SimulationSetup/PropagationSetup/createNumericalSimulator.h"
+#include "Tudat/SimulationSetup/EstimationSetup/createNumericalSimulator.h"
 #include "Tudat/SimulationSetup/EnvironmentSetup/defaultBodies.h"
 #include "Tudat/InputOutput/basicInputOutput.h"
 #include <limits>
@@ -904,7 +904,7 @@ BOOST_AUTO_TEST_CASE( test_GravityFieldVariationAccelerationSaving )
     // Create integrator settings
     std::shared_ptr< IntegratorSettings< double > > integratorSettings =
             std::make_shared< RungeKuttaVariableStepSizeSettings< double > >
-            ( rungeKuttaVariableStepSize, double( initialEphemerisTime ), 300.0,
+            ( double( initialEphemerisTime ), 300.0,
               RungeKuttaCoefficients::CoefficientSets::rungeKuttaFehlberg78,
               300.0, 300.0, 1.0, 1.0 );
 

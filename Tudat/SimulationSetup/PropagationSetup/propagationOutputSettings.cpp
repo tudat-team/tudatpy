@@ -29,6 +29,10 @@ std::string getVariableName( const VariableType variableType )
         return "Integrated state ";
     case dependentVariable:
         return "Dependent variable ";
+    case stateTransitionMatrix:
+        return "State transition matrix ";
+    case sensitivityMatrix:
+        return "Sensitivity matrix ";
     default:
         throw std::runtime_error( "Error, variable " +
                                   std::to_string( variableType ) +
@@ -174,6 +178,9 @@ std::string getDependentVariableName( const PropagationDependentVariables propag
         break;
     case body_fixed_relative_spherical_position:
         variableName = "Body-fixed relative spherical position ";
+        break;
+    case euler_angles_to_body_fixed_313:
+        variableName = "313 Euler angles to body-fixed frame ";
         break;
     case total_gravity_field_variation_acceleration:
         variableName = "Total time-variable gravity field acceleration correction ";

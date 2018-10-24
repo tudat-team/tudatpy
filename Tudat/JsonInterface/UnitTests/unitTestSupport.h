@@ -13,6 +13,7 @@
 
 #include <boost/test/unit_test.hpp>
 
+#include "Tudat/Basics/testMacros.h"
 #include "Tudat/JsonInterface/Support/deserialization.h"
 #include "Tudat/JsonInterface/Support/utilities.h"
 #include "Tudat/SimulationSetup/PropagationSetup/dynamicsSimulator.h"
@@ -23,12 +24,12 @@ namespace tudat
 namespace json_interface
 {
 
-boost::filesystem::path currentDirectory( )
+inline boost::filesystem::path currentDirectory( )
 {
     return boost::filesystem::path( __FILE__ ).parent_path( );
 }
 
-boost::filesystem::path inputDirectory( )
+inline boost::filesystem::path inputDirectory( )
 {
     boost::filesystem::path matlabInputDirectory = currentDirectory( ) / "matlab_inputs";
     if ( boost::filesystem::exists( matlabInputDirectory ) )
@@ -90,47 +91,67 @@ void checkConsistentEnum( const std::string& filename,
 #define BOOST_CHECK_EQUAL_ENUM( filename, stringValues, usupportedValues ) \
     tudat::json_interface::checkConsistentEnum( filename, stringValues, usupportedValues )
 
+template< typename ContainerType >
+void checkCloseIntegrationResultsMatrix( const std::map< double, ContainerType >& results1,
+                                         const std::map< double, ContainerType >& results2,
+                                         const std::vector< std::pair< unsigned int, unsigned int > > indices,
+                                         const std::vector< std::pair< unsigned int, unsigned int > > sizes,
+                                         const std::vector< double > absoluteTolerances )
+{
+    // Check size of maps
+    BOOST_CHECK_EQUAL( results1.size( ), results2.size( ) );
 
-void checkCloseIntegrationResults( const std::map< double, Eigen::VectorXd >& results1,
+    auto it1 = results1.begin( );
+    auto it2 = results2.begin( );
+
+    for( unsigned int i = 0; i < results1.size( ); i++ )
+    {
+        BOOST_CHECK_SMALL( std::fabs( it1->first - it2->first ),
+                           2.0 * it1->first * std::numeric_limits< double >::epsilon( ) );
+        const Eigen::MatrixXd state1 = it1->second;
+        const Eigen::MatrixXd state2 = it2->second;
+
+        for ( unsigned int i = 0; i < indices.size( ); ++i )
+        {
+            for( unsigned int row = 0; row < sizes.at( i ).first; row++ )
+            {
+                for( unsigned int col = 0; col < sizes.at( i ).second; col++ )
+                {
+                    BOOST_CHECK_SMALL(
+                                std::fabs(
+                                    state1( indices.at( i ).first + row, indices.at( i ).second + col ) -
+                                    state2( indices.at( i ).first + row, indices.at( i ).second + col ) ), absoluteTolerances.at( i ) );
+                }
+            }
+        }
+
+    }
+}
+
+inline void checkCloseIntegrationResults( const std::map< double, Eigen::VectorXd >& results1,
                                    const std::map< double, Eigen::VectorXd >& results2,
                                    const std::vector< unsigned int > indices,
                                    const std::vector< unsigned int > sizes,
                                    const double tolerance )
 {
-    // Check size of maps
-    BOOST_CHECK_EQUAL( results1.size( ), results2.size( ) );
+    std::vector< std::pair< unsigned int, unsigned int > > indicesFull;
+    std::vector< std::pair< unsigned int, unsigned int > > sizesFull;
+    std::vector< double > absoluteTolerancesFull;
 
-    // Check initial epochs
-    const double initialEpoch1 = results1.begin( )->first;
-    const double initialEpoch2 = results2.begin( )->first;
-    BOOST_CHECK_SMALL( std::fabs( initialEpoch1 - initialEpoch2 ), tolerance );
-
-    // Check final epochs
-    const double finalEpoch1 = ( --results1.end( ) )->first;
-    const double finalEpoch2 = ( --results2.end( ) )->first;
-    BOOST_CHECK_SMALL( std::fabs( finalEpoch1 - finalEpoch2 ), tolerance );
-
-    // Check norm of requested vector segments
-    const Eigen::VectorXd initialState1 = results1.begin( )->second;
-    const Eigen::VectorXd initialState2 = results2.begin( )->second;
-    const Eigen::VectorXd finalState1 = ( --results1.end( ) )->second;
-    const Eigen::VectorXd finalState2 = ( --results2.end( ) )->second;
-    for ( unsigned int i = 0; i < indices.size( ); ++i )
+    for( unsigned int i = 0 ; i < indices.size( ); i++ )
     {
-        // Initial step
-        const double initialNorm1 = initialState1.segment( indices.at( i ), sizes.at( i ) ).norm( );
-        const double initialNorm2 = initialState2.segment( indices.at( i ), sizes.at( i ) ).norm( );
-        BOOST_CHECK_CLOSE_FRACTION( initialNorm1, initialNorm2, tolerance );
-
-        // Final step
-        const double finalNorm1 = finalState1.segment( indices.at( i ), sizes.at( i ) ).norm( );
-        const double finalNorm2 = finalState2.segment( indices.at( i ), sizes.at( i ) ).norm( );
-        BOOST_CHECK_CLOSE_FRACTION( finalNorm1, finalNorm2, tolerance );
+        indicesFull.push_back( std::make_pair( indices.at( i ), 0 ) ) ;
+        sizesFull.push_back( std::make_pair( sizes.at( i ), 1 ) ) ;
+        absoluteTolerancesFull.push_back( tolerance );
     }
+    checkCloseIntegrationResultsMatrix< Eigen::VectorXd >( results1, results2, indicesFull, sizesFull, absoluteTolerancesFull );
 }
 
 #define BOOST_CHECK_CLOSE_INTEGRATION_RESULTS( results1, results2, indices, sizes, tolerance ) \
     tudat::json_interface::checkCloseIntegrationResults( results1, results2, indices, sizes, tolerance )
+
+#define BOOST_CHECK_CLOSE_INTEGRATION_MATRIX_RESULTS( results1, results2, indices, sizes, tolerance ) \
+    tudat::json_interface::checkCloseIntegrationResultsMatrix< Eigen::MatrixXd >( results1, results2, indices, sizes, tolerance );
 
 } // namespace json_interface
 

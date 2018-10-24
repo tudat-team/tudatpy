@@ -50,6 +50,14 @@ int getSingleIntegrationSize( const IntegratedStateType stateType );
  */
 int getSingleIntegrationDifferentialEquationOrder( const IntegratedStateType stateType );
 
+//! Function to get the size of the generalized acceleration for a given state type
+/*!
+ * Function to get the size of the generalized acceleration (e.g. acceleration for translational dynamics, torque for rotational
+ * dynamics, mass rate for mass) for a given state type
+ * \param stateType State type for which generalized acceleration size is to be determined
+ * \return Generalized acceleration size
+ */
+int getGeneralizedAccelerationSize( const IntegratedStateType stateType );
 
 //! Base class for calculating the state derivative model for a single type of dynamics.
 /*!
@@ -242,6 +250,7 @@ extern template class SingleStateTypeDerivative< long double, Time >;
 
 } // namespace tudat
 
+
 namespace std
 {
 
@@ -259,6 +268,7 @@ struct hash< tudat::propagators::IntegratedStateType >
     }
 };
 
-}
+} // namespace std
+
 
 #endif // TUDAT_STATEDERIVATIVE_H

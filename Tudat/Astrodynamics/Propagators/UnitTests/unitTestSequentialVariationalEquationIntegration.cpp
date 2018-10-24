@@ -29,7 +29,7 @@
 
 #include "Tudat/SimulationSetup/EnvironmentSetup/defaultBodies.h"
 #include "Tudat/SimulationSetup/EnvironmentSetup/createBodies.h"
-#include "Tudat/SimulationSetup/PropagationSetup/createNumericalSimulator.h"
+#include "Tudat/SimulationSetup/EstimationSetup/createNumericalSimulator.h"
 #include "Tudat/SimulationSetup/EstimationSetup/createEstimatableParameters.h"
 #include "Tudat/SimulationSetup/EstimationSetup/variationalEquationsSolver.h"
 

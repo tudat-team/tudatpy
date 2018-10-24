@@ -310,8 +310,11 @@ protected:
             const LinkEndType linkEndAssociatedWithTime,
             const Eigen::Matrix< ObservationScalarType, ObservationSize, 1 > currentObservation)
     {
-        observationPartialScalers_.at( linkEnds )->update( states, times, linkEndAssociatedWithTime,
-                                                           currentObservation.template cast< double >( ) );
+        if( observationPartialScalers_.at( linkEnds ) != nullptr )
+        {
+            observationPartialScalers_.at( linkEnds )->update( states, times, linkEndAssociatedWithTime,
+                                                               currentObservation.template cast< double >( ) );
+        }
     }
 
     //! Function to calculate range partials at given states between link ends and reception and transmission time.
@@ -362,6 +365,9 @@ protected:
             // can consist of multiple partial matrices, associated at different times)
             std::vector< std::pair< Eigen::Matrix< double, ObservationSize, Eigen::Dynamic >, double > > singlePartialSet =
                     partialIterator->second->calculatePartial( states, times, linkEndAssociatedWithTime, currentObservation.template cast< double >( ) );
+
+//            std::cout<<"Obs. "<<currentObservation.transpose( )<<std::endl;
+//            std::cout<<"Partial "<<singlePartialSet.at( 0 ).first<<std::endl<<std::endl;
 
             // If start index is smaller than size of state transition,
             // current partial is w.r.t. to a body to be estimated current state.

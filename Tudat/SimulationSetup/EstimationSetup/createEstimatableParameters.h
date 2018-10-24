@@ -15,6 +15,7 @@
 
 #include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/estimatableParameter.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/initialTranslationalState.h"
+#include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/initialRotationalState.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/accelerationModelTypes.h"
 #include "Tudat/SimulationSetup/EstimationSetup/estimatableParameterSettings.h"
 #include "Tudat/SimulationSetup/PropagationSetup/dynamicsSimulator.h"
@@ -139,6 +140,51 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::Matrix
                 }
             }
             break;
+        case initial_rotational_body_state:
+
+            // Check consistency of input.
+            if( std::dynamic_pointer_cast<
+                    InitialRotationalStateEstimatableParameterSettings< InitialStateParameterType > >(
+                        parameterSettings ) == nullptr )
+            {
+                throw std::runtime_error( "Error when making body initial state parameter, settings type is incompatible" );
+            }
+            else
+            {
+                std::shared_ptr< InitialRotationalStateEstimatableParameterSettings< InitialStateParameterType > >
+                        initialStateSettings = std::dynamic_pointer_cast<
+                        InitialRotationalStateEstimatableParameterSettings< InitialStateParameterType > >(
+                            parameterSettings );
+
+                Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > initialRotationalState;
+
+                // If initial time is not defined, use preset initial state
+                if( ! ( initialStateSettings->initialTime_ == initialStateSettings->initialTime_  ) )
+                {
+                    initialRotationalState = initialStateSettings->initialStateValue_;
+
+
+                }
+                // Compute initial state from environment
+                else
+                {
+                    initialRotationalState = propagators::getInitialRotationalStateOfBody
+                            < double, InitialStateParameterType >(
+                                initialStateSettings->parameterType_.second.first, initialStateSettings->baseOrientation_,
+                                bodyMap, initialStateSettings->initialTime_ );
+
+                }
+
+                // Create rotational state estimation interface object
+                initialStateParameterToEstimate =
+                        std::make_shared< InitialRotationalStateParameter< InitialStateParameterType > >(
+                            initialStateSettings->parameterType_.second.first, initialRotationalState,
+                            std::bind( &Body::getBodyInertiaTensor,
+                                         bodyMap.at( initialStateSettings->parameterType_.second.first ) ),
+                            initialStateSettings->baseOrientation_,
+                            initialStateSettings->frameOrientation_ );
+            }
+            break;
         default:
             std::string errorMessage = "Error, could not create parameter for initial state of type " +
                     std::to_string( parameterSettings->parameterType_.first );
@@ -237,6 +283,67 @@ std::shared_ptr< estimatable_parameters::EstimatableParameterSet< InitialStatePa
 
     return std::make_shared< EstimatableParameterSet< InitialStateParameterType > >(
                 doubleParametersToEstimate, vectorParametersToEstimate, initialDynamicalParametersToEstimate );
+}
+
+//! Function to get the multi-arc parameter equivalent of a single-arc initial state parameter
+/*!
+ *  Function to get the multi-arc parameter equivalent of a single-arc initial state parameter. The initial state arcs are
+ *  provided as input to this function.
+ *  \param singleArcParameter Single-arc parameter object for which the multi-arc equivalent is to be created.
+ *  \param arcStartTimes Vector of start times for separate arcs.
+ *  \return Multi-arc parameter equivalent of single-arc initial state parameter input
+ */
+template< typename StateScalarType >
+std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > >
+getAssociatedMultiArcParameter(
+        const std::shared_ptr< estimatable_parameters::EstimatableParameter<
+        Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > > singleArcParameter,
+        const std::vector< double >& arcStartTimes )
+{
+    std::shared_ptr< estimatable_parameters::EstimatableParameter<
+            Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > >  multiArcParameter;
+
+    // Check state type
+    switch( singleArcParameter->getParameterName( ).first )
+    {
+    case estimatable_parameters::initial_body_state:
+    {
+        // Check input consistency
+        std::shared_ptr< estimatable_parameters::InitialTranslationalStateParameter< StateScalarType > >
+                singleArcTranslationalStateParameter =
+                std::dynamic_pointer_cast< estimatable_parameters::InitialTranslationalStateParameter< StateScalarType > >(
+                    singleArcParameter );
+        if( singleArcTranslationalStateParameter == nullptr )
+        {
+            throw std::runtime_error(
+                        "Error when getting multi-arc parameter from single-arc equivalent, single-arc translational state is inconsistent " );
+        }
+
+        // Retrieve single-arc initial state
+        Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > singleArcInitialState =
+                singleArcTranslationalStateParameter->getParameterValue( );
+
+        // Create multi-arc initial states. First arc initial state is taken from single-arc, other initial states set to zero.
+        Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > multiArcInitialStates =
+                Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >::Zero( 6 * arcStartTimes.size( ) );
+        multiArcInitialStates.segment( 0, 6 ) = singleArcInitialState;
+
+        // Creater multi-arc parameter
+        multiArcParameter = std::make_shared< estimatable_parameters::ArcWiseInitialTranslationalStateParameter<
+                StateScalarType > >(
+                    singleArcTranslationalStateParameter->getParameterName( ).second.first,
+                    arcStartTimes,
+                    multiArcInitialStates,
+                    singleArcTranslationalStateParameter->getCentralBody( ),
+                    singleArcTranslationalStateParameter->getFrameOrientation( ) );
+        break;
+    }
+    default:
+        throw std::runtime_error( "Error when getting multi-arc parameter from single-arc equivalent, parameter type " +
+                                  boost::lexical_cast< std::string >( singleArcParameter->getParameterName( ).first ) +
+                                  " not recognized." );
+    }
+    return multiArcParameter;
 }
 
 

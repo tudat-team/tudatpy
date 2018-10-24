@@ -40,6 +40,7 @@ set(OBSERVATION_MODELS_HEADERS
   "${SRCROOT}${OBSERVATIONMODELSDIR}/simulateObservations.h"
   "${SRCROOT}${OBSERVATIONMODELSDIR}/positionObservationModel.h"
   "${SRCROOT}${OBSERVATIONMODELSDIR}/twoWayDopplerObservationModel.h"
+  "${SRCROOT}${OBSERVATIONMODELSDIR}/eulerAngleObservationModel.h"
   "${SRCROOT}${OBSERVATIONMODELSDIR}/UnitTests/testLightTimeCorrections.h"
   "${SRCROOT}${OBSERVATIONMODELSDIR}/observationViabilityCalculator.h"
   "${SRCROOT}${OBSERVABLECORRECTIONSDIR}/lightTimeCorrection.h"
@@ -76,6 +77,10 @@ if(USE_CSPICE)
     add_executable(test_PositionObservationModel "${SRCROOT}${OBSERVATIONMODELSDIR}/UnitTests/unitTestPositionObservationModel.cpp")
     setup_custom_test_program(test_PositionObservationModel "${SRCROOT}${OBSERVATIONMODELSDIR}")
     target_link_libraries(test_PositionObservationModel ${TUDAT_ESTIMATION_LIBRARIES} ${Boost_LIBRARIES})
+
+    add_executable(test_EulerAngleObservationModel "${SRCROOT}${OBSERVATIONMODELSDIR}/UnitTests/unitTestEulerAngleObservationModel.cpp")
+    setup_custom_test_program(test_EulerAngleObservationModel "${SRCROOT}${OBSERVATIONMODELSDIR}")
+    target_link_libraries(test_EulerAngleObservationModel ${TUDAT_ESTIMATION_LIBRARIES} ${Boost_LIBRARIES})
 
     add_executable(test_ObservationNoiseSimulation "${SRCROOT}${OBSERVATIONMODELSDIR}/UnitTests/unitTestSimulatedObservationNoise.cpp")
     setup_custom_test_program(test_ObservationNoiseSimulation "${SRCROOT}${OBSERVATIONMODELSDIR}")

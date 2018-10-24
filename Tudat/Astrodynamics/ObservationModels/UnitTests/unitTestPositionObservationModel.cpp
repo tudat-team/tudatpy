@@ -21,7 +21,6 @@
 #include "Tudat/InputOutput/basicInputOutput.h"
 
 #include "Tudat/SimulationSetup/EnvironmentSetup/body.h"
-#include "Tudat/Astrodynamics/ObservationModels/angularPositionObservationModel.h"
 #include "Tudat/SimulationSetup/EstimationSetup/createObservationModel.h"
 #include "Tudat/SimulationSetup/EnvironmentSetup/defaultBodies.h"
 #include "Tudat/SimulationSetup/EnvironmentSetup/createBodies.h"
