@@ -89,7 +89,7 @@ target_link_libraries(test_JacobiEnergy tudat_gravitation tudat_mission_segments
 
 add_executable(test_LibrationPoints "${SRCROOT}${GRAVITATIONDIR}/UnitTests/unitTestLibrationPoints.cpp")
 setup_custom_test_program(test_LibrationPoints "${SRCROOT}${GRAVITATIONDIR}")
-target_link_libraries(test_LibrationPoints tudat_ephemerides tudat_root_finders tudat_gravitation c tudat_input_output ${Boost_LIBRARIES})
+target_link_libraries(test_LibrationPoints tudat_ephemerides tudat_root_finders tudat_gravitation tudat_input_output ${Boost_LIBRARIES})
 
 add_executable(test_SphericalHarmonicsGravityModel "${SRCROOT}${GRAVITATIONDIR}/UnitTests/unitTestSphericalHarmonicsGravityModel.cpp")
 setup_custom_test_program(test_SphericalHarmonicsGravityModel "${SRCROOT}${GRAVITATIONDIR}")
