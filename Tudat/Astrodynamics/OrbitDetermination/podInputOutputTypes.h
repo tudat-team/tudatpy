@@ -67,7 +67,8 @@ public:
         reintegrateVariationalEquations_( true ),
         saveInformationMatrix_( true ),
         printOutput_( true ),
-        saveResidualsAndParametersFromEachIteration_( true )
+        saveResidualsAndParametersFromEachIteration_( true ),
+        saveStateHistoryForEachIteration_( false )
     {
         if( inverseOfAprioriCovariance_.rows( ) == 0 )
         {

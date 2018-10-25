@@ -20,6 +20,8 @@
 #include <memory>
 
 #include <Eigen/Core>
+#include <Eigen/Geometry>
+#include <Eigen/Dense>
 
 #include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
 
