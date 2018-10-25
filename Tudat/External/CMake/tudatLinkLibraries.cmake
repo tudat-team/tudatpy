@@ -49,7 +49,7 @@
      tudat_statistics tudat_propagators ${TUDAT_EXTERNAL_INTERFACE_LIBRARIES} tudat_basic_astrodynamics tudat_interpolators tudat_root_finders tudat_filters
      tudat_basic_mathematics tudat_input_output tudat_basics ${TUDAT_EXTERNAL_LIBRARIES})
 
- if( BUILD_WITH_ESTIMATION_TOOLS )
+if( BUILD_WITH_ESTIMATION_TOOLS )
 
  list(APPEND TUDAT_ESTIMATION_LIBRARIES tudat_trajectory_design tudat_estimation_setup tudat_propagation_setup tudat_environment_setup  tudat_observation_models tudat_ground_stations tudat_acceleration_partials
     tudat_torque_partials  tudat_observation_partials tudat_orbit_determination tudat_estimatable_parameters tudat_propagators
@@ -58,4 +58,6 @@
      tudat_statistics tudat_propagators ${TUDAT_EXTERNAL_INTERFACE_LIBRARIES} tudat_basic_astrodynamics tudat_interpolators tudat_root_finders tudat_filters
      tudat_basic_mathematics tudat_input_output tudat_basics ${TUDAT_EXTERNAL_LIBRARIES})
 
- endif( )
+else( )
+    list(APPEND TUDAT_ESTIMATION_LIBRARIES ${TUDAT_PROPAGATION_LIBRARIES})
+endif( )
