@@ -204,6 +204,10 @@ BOOST_AUTO_TEST_CASE( testDegreeTwoGravitationalTorque )
 
         Eigen::Vector3d currentTorque = secondDegreeGravitationalTorque->getTorque( );
         Eigen::Vector3d torqueError = ( currentTorque - manualTorque );
+
+        std::cout<<"Current torques "<<currentTorque.transpose( )<<std::endl<<
+                   torqueError<<std::endl;
+
         for( unsigned int i = 0; i < 3; i++ )
         {
             BOOST_CHECK_SMALL( std::fabs( torqueError( i ) ), 1.0E-14 * currentTorque.norm( ) );

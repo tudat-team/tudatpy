@@ -281,9 +281,6 @@ public:
             const ObservationScalarType tolerance =
             ( getDefaultLightTimeTolerance< ObservationScalarType >( ) ) )
     {
-        using physical_constants::SPEED_OF_LIGHT;
-        using std::fabs;
-
         // Initialize reception and transmission times and states to initial guess (zero light time)
         TimeType receptionTime = time;
         TimeType transmissionTime = time;
@@ -339,7 +336,7 @@ public:
             newLightTimeCalculation = calculateNewLightTimeEstime( receiverState, transmitterState );
 
             // Check for convergence.
-            if( fabs( newLightTimeCalculation - previousLightTimeCalculation ) < tolerance )
+            if( std::fabs( newLightTimeCalculation - previousLightTimeCalculation ) < tolerance )
             {
                 // If convergence reached, but light-time corrections not iterated,
                 // perform 1 more iteration to check for change in correction.
@@ -362,7 +359,7 @@ public:
                     std::string errorMessage  =
                             "Warning, light time unconverged at level " +
                             std::to_string(
-                                fabs( newLightTimeCalculation - previousLightTimeCalculation ) ) +
+                                std::fabs( newLightTimeCalculation - previousLightTimeCalculation ) ) +
                             "; current light-time corrections are: "  +
                             std::to_string( currentCorrection_ ) + " and input time was " +
                             std::to_string( static_cast< double >( time ) );
