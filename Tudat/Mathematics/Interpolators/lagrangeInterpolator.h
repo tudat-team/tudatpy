@@ -234,8 +234,6 @@ public:
      */
     DependentVariableType interpolate( const IndependentVariableType targetIndependentVariableValue )
     {
-        using std::pow;
-
         // Check whether boundary handling needs to be applied, if independent variable is beyond its defined range.
         DependentVariableType interpolatedValue = zeroEntry_;
         bool useValue = false;

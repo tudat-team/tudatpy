@@ -17,6 +17,7 @@
 #include <map>
 
 #include <functional>
+#include <vector>
 
 #include <Eigen/Core>
 #include <Eigen/SVD>
