@@ -127,6 +127,7 @@ Eigen::Matrix< ScalarType, 6, 1 > convertKeplerianToCartesianElements(
         const Eigen::Matrix< ScalarType, 6, 1 >& keplerianElements,
         const ScalarType centralBodyGravitationalParameter )
 {
+
     // Set tolerance.
     const ScalarType tolerance_ = std::numeric_limits< ScalarType >::epsilon( );
 
@@ -461,7 +462,6 @@ ScalarType convertTrueAnomalyToEllipticalEccentricAnomaly(
         const ScalarType trueAnomaly, const ScalarType eccentricity )
 
 {
-
     if ( eccentricity >= mathematical_constants::getFloatingInteger< ScalarType >( 1 ) ||
          eccentricity < mathematical_constants::getFloatingInteger< ScalarType >( 0 ) )
     {
@@ -480,7 +480,7 @@ ScalarType convertTrueAnomalyToEllipticalEccentricAnomaly(
                     eccentricity * std::cos( trueAnomaly ) );
 
         // Return elliptic eccentric anomaly.
-        return atan2( sineOfEccentricAnomaly_, cosineOfEccentricAnomaly_ );
+        return std::atan2( sineOfEccentricAnomaly_, cosineOfEccentricAnomaly_ );
     }
 }
 
@@ -511,14 +511,14 @@ ScalarType convertTrueAnomalyToHyperbolicEccentricAnomaly( const ScalarType true
                 ( mathematical_constants::getFloatingInteger< ScalarType >( 1 ) +
                   std::cos( trueAnomaly ) );
 
-        ScalarType hyperbolicCosineOfHyperbolicEccentricAnomaly_
+        ScalarType hyperboliccosineOfHyperbolicEccentricAnomaly_
                 = ( std::cos( trueAnomaly ) + eccentricity ) /
                 ( mathematical_constants::getFloatingInteger< ScalarType >( 1 ) +
                   std::cos( trueAnomaly ) );
 
         // Return hyperbolic eccentric anomaly.
         return boost::math::atanh( hyperbolicSineOfHyperbolicEccentricAnomaly_
-                                   / hyperbolicCosineOfHyperbolicEccentricAnomaly_ );
+                                   / hyperboliccosineOfHyperbolicEccentricAnomaly_ );
     }
 }
 
