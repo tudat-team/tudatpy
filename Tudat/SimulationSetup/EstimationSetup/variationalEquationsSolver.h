@@ -2045,6 +2045,7 @@ extern template class HybridArcVariationalEquationsSolver< double, Time >;
 extern template class HybridArcVariationalEquationsSolver< long double, Time >;
 
 #endif
+
 } // namespace propagators
 
 } // namespace tudat

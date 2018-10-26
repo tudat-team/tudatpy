@@ -907,7 +907,7 @@ BOOST_AUTO_TEST_CASE( testPhobosRotationVariationalEquationCalculation )
 
             Eigen::VectorXd stateDifferenceUp = upPerturbedState - nominalState;
 
-            std::cout<<"Test output "<<test<<" "<<k<<"stateDifferenceUp"<<std::endl<<
+            std::cout<<"Test output "<<test<<" "<<j<<"stateDifferenceUp"<<std::endl<<
                        stateDifferenceUp<<std::endl<<std::endl<<
                        "stateTransitionAndSensitivityMatrixAtEpoch"<<std::endl<<
                                               stateTransitionAndSensitivityMatrixAtEpoch<<std::endl<<std::endl<<
