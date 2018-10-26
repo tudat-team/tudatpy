@@ -232,7 +232,7 @@ BOOST_AUTO_TEST_CASE( test_ParameterPostFitResiduals )
             for( unsigned int index = 0; index < 3; index++ )
             {
                 BOOST_CHECK_SMALL( std::fabs( mercuryPositionAdjustmentDifference( index ) ), 2.0E-1 );
-                BOOST_CHECK_SMALL( std::fabs( mercuryPositionAdjustmentDifference( index + 3 ) ), 1.0E-7 );
+                BOOST_CHECK_SMALL( std::fabs( mercuryPositionAdjustmentDifference( index + 3 ) ), 2.0E-7 );
                 BOOST_CHECK_SMALL( std::fabs( marsPositionAdjustmentDifference( index ) ), 1.0E-1 );
                 BOOST_CHECK_SMALL( std::fabs( marsPositionAdjustmentDifference( index + 3 ) ), 1.0E-7 );
             }
