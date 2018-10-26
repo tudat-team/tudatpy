@@ -922,6 +922,7 @@ std::pair< std::function< Eigen::VectorXd( ) >, int > getVectorDependentVariable
                     &evaluateReferenceFunction< Eigen::Vector3d, Eigen::Quaterniond >,
                     eulerAngleFunction, orientationFunctionOfBody );
         parameterSize = 3;
+        break;
     }
 #if( BUILD_WITH_ESTIMATION_TOOLS )
     case acceleration_partial_wrt_body_translational_state:

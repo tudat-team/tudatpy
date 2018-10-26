@@ -54,6 +54,7 @@ void to_json( nlohmann::json& jsonObject, const std::shared_ptr< RotationModelSe
                 std::dynamic_pointer_cast< GcrsToItrsRotationModelSettings >( rotationModelSettings );
         assertNonnullptrPointer( simpleRotationModelSettings );
         jsonObject[ K::precessionNutationTheory ] = simpleRotationModelSettings->getNutationTheory( );
+        return;
     }
     default:
         handleUnimplementedEnumValue( rotationModelType, rotationModelTypes, unsupportedRotationModelTypes );

@@ -60,7 +60,6 @@ void to_json( nlohmann::json& jsonObject,
             {
                 jsonObject[ K::receiverProperTimeRateSettings ] = oneWayDopplerObservationSettings->receiverProperTimeRateSettings_ ;
             }
-            return;
         }
         return;
     }
@@ -88,9 +87,8 @@ void to_json( nlohmann::json& jsonObject,
                 std::cerr<<"Warning, assuming constant delay times of n-way range when parsing to JSON, correctness not ensured"<<std::endl;
                 jsonObject[ K::retransmissionTimes ] = retransmissionTimes;
             }
-
-            return;
         }
+        return;
     }
     case two_way_doppler:
     {
@@ -100,8 +98,8 @@ void to_json( nlohmann::json& jsonObject,
         {
             jsonObject[ K::uplinkOneWayDopplerSettings ] = twoWayDopplerObservationSettings->uplinkOneWayDopplerSettings_;
             jsonObject[ K::downlinkOneWayDopplerSettings ] = twoWayDopplerObservationSettings->downlinkOneWayDopplerSettings_;
-            return;
         }
+        return;
     }
     default:
     {
