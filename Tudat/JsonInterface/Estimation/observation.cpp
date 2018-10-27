@@ -18,7 +18,6 @@ namespace tudat
 
 namespace observation_models
 {
-// SingleDependentVariableSaveSettings
 
 //! Create a `json` object from a shared pointer to a `SingleDependentVariableSaveSettings` object.
 void to_json( nlohmann::json& jsonObject,
