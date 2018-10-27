@@ -34,7 +34,7 @@ bool DictionaryComparer::operator( )(
     return ( !dictionaryEntry->parameterName.compare( parameterName )
              || !( dictionaryEntry->synonyms.find( parameterName )
                    == dictionaryEntry->synonyms.end( ) ) )
-            || ( !isCaseSensitive *
+            || ( !isCaseSensitive &&
                  ( boost::iequals( dictionaryEntry->parameterName, parameterName )
                    || !( std::find_if( dictionaryEntry->synonyms.begin( ),
                                        dictionaryEntry->synonyms.end( ),
