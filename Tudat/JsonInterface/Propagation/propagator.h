@@ -122,10 +122,6 @@ void determineInitialStates(
 
                             if( initialStateOrigin != centralBodyName )
                             {
-                                if( centralBodyName == "SSB" )
-                                {
-                                    std::cerr<<"Error, found SSB as propagation origin, but not as initial state origin when reading JSON file. This is currently unsupported"<<std::endl;
-                                }
                                 stateToAdd = getInitialStateOfBody< TimeType, StateScalarType >(
                                             initialStateOrigin, centralBodyName,
                                             bodyMap, integratorSettings->initialTime_ );
