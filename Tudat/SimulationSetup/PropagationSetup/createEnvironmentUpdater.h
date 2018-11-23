@@ -145,11 +145,13 @@ template< typename StateScalarType >
 std::map< propagators::EnvironmentModelsToUpdate,
 std::vector< std::string > > createEnvironmentUpdaterSettings(
         const std::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > propagatorSettings,
-        const simulation_setup::NamedBodyMap& bodyMap )
+        const simulation_setup::NamedBodyMap& bodyMap,
+        const bool isPartOfMultiTypePropagation = false )
 {
     std::map< propagators::EnvironmentModelsToUpdate,
             std::vector< std::string > > environmentModelsToUpdate;
 
+    std::cout<<"Type "<<propagatorSettings->getStateType( )<<std::endl;
     // Check dynamics type
     switch( propagatorSettings->getStateType( ) )
     {
@@ -173,10 +175,9 @@ std::vector< std::string > > createEnvironmentUpdaterSettings(
                 if( typeIterator->first != hybrid )
                 {
                     singleAccelerationUpdateNeeds = createEnvironmentUpdaterSettings< StateScalarType >(
-                                typeIterator->second.at( i ), bodyMap );
+                                typeIterator->second.at( i ), bodyMap, true );
 
                     // Add single model environment model update settings to full list
-                    checkValidityOfRequiredEnvironmentUpdates( singleAccelerationUpdateNeeds, bodyMap );
                     addEnvironmentUpdates( environmentModelsToUpdate, singleAccelerationUpdateNeeds );
                 }
                 else
@@ -236,9 +237,12 @@ std::vector< std::string > > createEnvironmentUpdaterSettings(
     addEnvironmentUpdates( environmentModelsToUpdate, environmentModelsToUpdateForTerminationConditions );
 
     // Remove variables from environment updates that are numerically propagated.
-    removePropagatedStatesFomEnvironmentUpdates(
-                environmentModelsToUpdate, getIntegratedTypeAndBodyList( propagatorSettings ) );
-    checkValidityOfRequiredEnvironmentUpdates( environmentModelsToUpdate, bodyMap );
+    if( !isPartOfMultiTypePropagation )
+    {
+        removePropagatedStatesFomEnvironmentUpdates(
+                    environmentModelsToUpdate, getIntegratedTypeAndBodyList( propagatorSettings ) );
+        checkValidityOfRequiredEnvironmentUpdates( environmentModelsToUpdate, bodyMap );
+    }
 
 
     return environmentModelsToUpdate;
@@ -292,7 +296,8 @@ extern template std::shared_ptr< propagators::EnvironmentUpdater< double, double
 
 extern template std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > createEnvironmentUpdaterSettings< double >(
         const std::shared_ptr< SingleArcPropagatorSettings< double > > propagatorSettings,
-        const simulation_setup::NamedBodyMap& bodyMap );
+        const simulation_setup::NamedBodyMap& bodyMap,
+        const bool isPartOfMultiTypePropagation );
 
 #if( BUILD_EXTENDED_PRECISION_PROPAGATION_TOOLS )
 extern template std::shared_ptr< propagators::EnvironmentUpdater< double, Time > > createEnvironmentUpdaterForDynamicalEquations< double, Time >(
@@ -306,7 +311,8 @@ extern template std::shared_ptr< propagators::EnvironmentUpdater< long double, T
         const simulation_setup::NamedBodyMap& bodyMap );
 extern template std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > createEnvironmentUpdaterSettings< long double >(
         const std::shared_ptr< SingleArcPropagatorSettings< long double > > propagatorSettings,
-        const simulation_setup::NamedBodyMap& bodyMap );
+        const simulation_setup::NamedBodyMap& bodyMap,
+        const bool isPartOfMultiTypePropagation );
 #endif
 } // namespace propagators
 

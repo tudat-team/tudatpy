@@ -255,7 +255,6 @@ createRotationalEquationsOfMotionEnvironmentUpdaterSettings(
                 }
             }
 
-            checkValidityOfRequiredEnvironmentUpdates( singleTorqueUpdateNeeds, bodyMap );
             addEnvironmentUpdates( environmentModelsToUpdate, singleTorqueUpdateNeeds );
         }
     }
@@ -472,9 +471,6 @@ createTranslationalEquationsOfMotionEnvironmentUpdaterSettings(
 
             }
 
-            // Check whether requested updates are possible.
-            checkValidityOfRequiredEnvironmentUpdates( singleAccelerationUpdateNeeds, bodyMap );
-
             // Add requested updates of current acceleration model to
             // full list of environment updates.
             addEnvironmentUpdates( environmentModelsToUpdate, singleAccelerationUpdateNeeds );
@@ -520,9 +516,6 @@ createMassPropagationEnvironmentUpdaterSettings(
                                           std::to_string( currentAccelerationModelType ) );
 
             }
-
-            // Check whether requested updates are possible.
-            checkValidityOfRequiredEnvironmentUpdates( singleRateModelUpdateNeeds, bodyMap );
 
             // Add requested updates of current acceleration model to
             // full list of environment updates.
@@ -917,7 +910,8 @@ template std::shared_ptr< propagators::EnvironmentUpdater< double, double > > cr
 
 template std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > createEnvironmentUpdaterSettings< double >(
         const std::shared_ptr< SingleArcPropagatorSettings< double > > propagatorSettings,
-        const simulation_setup::NamedBodyMap& bodyMap );
+        const simulation_setup::NamedBodyMap& bodyMap,
+        const bool isPartOfMultiTypePropagation );
 
 #if( BUILD_EXTENDED_PRECISION_PROPAGATION_TOOLS )
 template std::shared_ptr< propagators::EnvironmentUpdater< double, Time > > createEnvironmentUpdaterForDynamicalEquations< double, Time >(
@@ -931,7 +925,8 @@ template std::shared_ptr< propagators::EnvironmentUpdater< long double, Time > >
         const simulation_setup::NamedBodyMap& bodyMap );
 template std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > createEnvironmentUpdaterSettings< long double >(
         const std::shared_ptr< SingleArcPropagatorSettings< long double > > propagatorSettings,
-        const simulation_setup::NamedBodyMap& bodyMap );
+        const simulation_setup::NamedBodyMap& bodyMap,
+        const bool isPartOfMultiTypePropagation );
 #endif
 } // namespace propagators
 
