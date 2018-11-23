@@ -517,6 +517,7 @@ struct Keys
         static const std::string onlyInitialStep;
         static const std::string onlyFinalStep;
         static const std::string numericalPrecision;
+        static const std::string printVariableIndicesToTerminal;
     };
 
     static const std::string options;
