@@ -33,6 +33,7 @@ void to_json( nlohmann::json& jsonObject, const std::shared_ptr< ExportSettings 
     jsonObject[ K::onlyInitialStep ] = exportSettings->onlyInitialStep_;
     jsonObject[ K::onlyFinalStep ] = exportSettings->onlyFinalStep_;
     jsonObject[ K::numericalPrecision ] = exportSettings->numericalPrecision_;
+    jsonObject[ K::printVariableIndicesToTerminal ] = exportSettings->printVariableIndicesToTerminal_;
 }
 
 //! Create a shared pointer to a `ExportSettings` object from a `json` object.
@@ -49,6 +50,8 @@ void from_json( const nlohmann::json& jsonObject, std::shared_ptr< ExportSetting
     updateFromJSONIfDefined( exportSettings->onlyInitialStep_, jsonObject, K::onlyInitialStep );
     updateFromJSONIfDefined( exportSettings->onlyFinalStep_, jsonObject, K::onlyFinalStep );
     updateFromJSONIfDefined( exportSettings->numericalPrecision_, jsonObject, K::numericalPrecision );
+    updateFromJSONIfDefined( exportSettings->printVariableIndicesToTerminal_, jsonObject, K::printVariableIndicesToTerminal );
+
 }
 
 } // namespace simulation_setup
