@@ -62,6 +62,42 @@ double convertDimensionlessTimeToDimensionalTime(
                                                      + gravitationalParameterOfSecondaryBody ) );
 }
 
+//! Convert dimensional Cartesian state to dimensionless state.
+Eigen::VectorXd convertDimensionalCartesianStateToDimensionlessState(
+        const Eigen::Vector6d &dimensionalCartesianState,
+        const double gravitationalParameterOfPrimaryBody,
+        const double gravitationalParameterOfSecondaryBody,
+        const double distanceBetweenPrimaries )
+{
+    // Declare dimensional Cartesian state.
+    Eigen::Vector6d dimensionlessCartesianState;
+
+    // Convert position to dimensional units.
+    dimensionlessCartesianState.segment( 0, 3 )
+            = dimensionalCartesianState.segment( 0, 3 ) / distanceBetweenPrimaries;
+
+    // Convert velocity to dimensional units.
+    dimensionlessCartesianState.segment( 3, 3 )
+            = dimensionalCartesianState.segment( 3, 3 )
+            * std::sqrt( distanceBetweenPrimaries /
+                         ( gravitationalParameterOfPrimaryBody + gravitationalParameterOfSecondaryBody ) );
+
+    // Return state in dimensional units.
+    return dimensionlessCartesianState;
+}
+
+//! Convert dimensional time to dimensionless
+double convertDimensionalTimeToDimensionlessTime(
+        const double dimensionalTime,
+        const double gravitationalParameterOfPrimaryBody,
+        const double gravitationalParameterOfSecondaryBody,
+        const double distanceBetweenPrimaries){
+
+    return dimensionalTime * std::sqrt((gravitationalParameterOfPrimaryBody + gravitationalParameterOfSecondaryBody)
+                                       / std::pow( distanceBetweenPrimaries, 3.0 ));
+
+}
+
 } // namespace circular_restricted_three_body_problem
 } // namespace gravitation
 } // namespace tudat
