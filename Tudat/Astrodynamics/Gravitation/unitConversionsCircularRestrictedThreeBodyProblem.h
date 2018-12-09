@@ -68,6 +68,46 @@ double convertDimensionlessTimeToDimensionalTime(
         const double gravitationalParameterOfSecondaryBody,
         const double distanceBetweenPrimaries );
 
+
+//! Convert dimensional Cartesian state to dimensionless state.
+/*!
+ * Convert dimensional Cartesian state to dimensionless state.
+ * \param dimensionalCartesianState Dimensional Cartesian state vector.                       [m]
+ *          Order is important!
+ *          dimensionalCartesianState( 0 ) = x-position coordinate,                           [m]
+ *          dimensionalCartesianState( 1 ) = y-position coordinate,                           [m]
+ *          dimensionalCartesianState( 2 ) = z-position coordinate,                           [m]
+ *          dimensionalCartesianState( 3 ) = x-velocity coordinate,                         [m/s]
+ *          dimensionalCartesianState( 4 ) = y-velocity coordinate,                         [m/s]
+ *          dimensionalCartesianState( 5 ) = z-velocity coordinate.                         [m/s]
+ * \param gravitationalParameterOfPrimaryBody Gravitational parameter of primary body.   [m^3 s^-2]
+ * \param gravitationalParameterOfSecondaryBody Gravitational parameter of secondary body.
+ *                                                                                       [m^3 s^-2]
+ * \param distanceBetweenPrimaries Distance between primaries.
+ * \return Dimensionless Cartesian state.
+ */
+Eigen::VectorXd convertDimensionalCartesianStateToDimensionlessState(
+        const Eigen::Vector6d& dimensionalCartesianState,
+        const double gravitationalParameterOfPrimaryBody,
+        const double gravitationalParameterOfSecondaryBody,
+        const double distanceBetweenPrimaries );
+
+//! Convert dimensional time to dimensionless time.
+/*!
+ * Convert dimensional time to dimensionless time.
+ * \param timeDimensional Time in dimensional units                                             [s]
+ * \param gravitationalParameterOfPrimaryBody Gravitational parameter of primary body.   [m^3 s^-2]
+ * \param gravitationalParameterOfSecondaryBody Gravitational parameter of secondary body.
+ *                                                                                       [m^3 s^-2]
+ * \param distanceBetweenPrimaries Distance between primaries.                                  [m]
+ * \return Adimensional time.
+ */
+double convertDimensionalTimeToDimensionlessTime(
+        const double dimensionalTime,
+        const double gravitationalParameterOfPrimaryBody,
+        const double gravitationalParameterOfSecondaryBody,
+        const double distanceBetweenPrimaries);
+
 } // namespace circular_restricted_three_body_problem
 } // namespace gravitation
 } // namespace tudat
