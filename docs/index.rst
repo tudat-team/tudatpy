@@ -3,8 +3,14 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to tudatpy's documentation!
-===================================
+.. include:: _templates/style.rst
+
+********************************
+:cyan:`Tudat`:blu:`P`:yellow:`y`
+********************************
+
+Welcome to :cyan:`Tudat`:blu:`P`:yellow:`y`'s documentation!
+============================================================
 
 .. toctree::
    :maxdepth: 2
