@@ -6,6 +6,12 @@
 
 .. raw:: html
 
-    <style> .yellow <color:	#FFD700; font-weight:bold} </style>
+    <style> .yellow {color:#FFD700; font-weight:bold} </style>
 
 .. role:: yellow
+
+.. raw:: html
+
+    <style> .blu {color:#1E90FF; font-weight:bold} </style>
+
+.. role:: blu
