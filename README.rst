@@ -1,5 +1,5 @@
-.. include::docs/_templates/style.rst
+.. include:: docs/_templates/style.rst
 
-*************************
-:cyan:`TudatP`:yellow:`y`
-*************************
+*********************************
+:cyan:`Tudat`:blu:`P`:yellow:`y`
+*********************************
