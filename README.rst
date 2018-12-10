@@ -1,5 +1,9 @@
-.. include:: docs/_templates/style.rst
 
-*********************************
-:cyan:`Tudat`:blu:`P`:yellow:`y`
-*********************************
+
+.. image:: docs/_static/tudatPy.png
+   :width: 150px
+   :align: center
+
+*************************************
+Welcome to the Tudat Python Interface
+*************************************
