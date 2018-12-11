@@ -25,8 +25,7 @@
 
 namespace tudat
 {
-namespace gravitation
-{
+
 namespace circular_restricted_three_body_problem
 {
 
@@ -109,7 +108,6 @@ double convertDimensionalTimeToDimensionlessTime(
         const double distanceBetweenPrimaries);
 
 } // namespace circular_restricted_three_body_problem
-} // namespace gravitation
 } // namespace tudat
 
 #endif // TUDAT_UNIT_CONVERSIONS_CIRCULAR_RESTRICTED_THREE_BODY_PROBLEM_H
