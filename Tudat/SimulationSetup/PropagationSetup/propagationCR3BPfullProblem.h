@@ -38,6 +38,13 @@ basic_astrodynamics::AccelerationMap setupAccelerationMapCR3BP(
         const simulation_setup::NamedBodyMap& bodyMap );
 
 
+Eigen::Vector6d propagateCR3BPFromEnvironment(
+        const double initialTime,
+        const double finalPropagationTime,
+        const Eigen::Vector6d& initialState,
+        const std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings,
+        simulation_setup::NamedBodyMap& bodyMap,
+        const std::vector < std::string >& bodiesCR3BP );
 
 //! Function to simultaneously propagate the dynamics in the CR3BP and in the full dynamics problem
 //! and compute the difference in state at the end of the propagation
