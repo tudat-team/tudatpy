@@ -17,8 +17,6 @@
 
 
 
-using namespace tudat;
-
 
 //! Get path for output directory.
 static inline std::string getOutputPath(
@@ -45,96 +43,98 @@ static inline std::string getOutputPath(
     return outputPath;
 }
 
+namespace tudat
+{
+
+namespace propagators
+{
+
 
 //!Function to transform normalized co-rotating coordinates into cartesian ones
-Eigen::Vector6d convertCorotatingNormalizedToCartesianCoordinates(double gravitationalParameterPrimary, double gravitationalParameterSecondary, double distancePrimarySecondary, Eigen::Vector6d normalizedState, double normalizedTime)
+Eigen::Vector6d convertCorotatingNormalizedToCartesianCoordinates(
+        const double gravitationalParameterPrimary,
+        const double gravitationalParameterSecondary,
+        const double distancePrimarySecondary,
+        const Eigen::Vector6d& normalizedState,
+        const double normalizedTime )
 {
-    Eigen::Vector3d normalizedPosition = normalizedState.segment(0,3);
-    Eigen::Vector3d normalizedVelocity = normalizedState.segment(3,3);
+    Eigen::Vector3d normalizedPosition = normalizedState.segment( 0, 3 );
+    Eigen::Vector3d normalizedVelocity = normalizedState.segment( 3, 3 );
 
     Eigen::Matrix3d rotationMatrix;
+    rotationMatrix.setZero( );
     Eigen::Matrix3d derivativeRotationMatrix;
+    derivativeRotationMatrix.setZero( );
 
-   rotationMatrix(0,0) = cos(normalizedTime);
-   rotationMatrix(0,1) = - sin(normalizedTime);
-   rotationMatrix(0,2) = 0.0;
-   rotationMatrix(1,0) = sin(normalizedTime);
-   rotationMatrix(1,1) = cos(normalizedTime);
-   rotationMatrix(1,2) = 0.0;
-   rotationMatrix(2,0) = 0.0;
-   rotationMatrix(2,1) = 0.0;
-   rotationMatrix(2,2) = 1.0;
+    rotationMatrix( 0, 0 ) = std::cos( normalizedTime );
+    rotationMatrix( 0, 1 ) = - std::sin( normalizedTime );
+    rotationMatrix( 1, 0 ) = std::sin( normalizedTime );
+    rotationMatrix( 1, 1 ) = std::cos( normalizedTime );
 
-   derivativeRotationMatrix(0,0) = - sin(normalizedTime);
-   derivativeRotationMatrix(0,1) = - cos(normalizedTime);
-   derivativeRotationMatrix(0,2) = 0;
-   derivativeRotationMatrix(1,0) = cos(normalizedTime);
-   derivativeRotationMatrix(1,1) = - sin(normalizedTime);
-   derivativeRotationMatrix(1,2) = 0;
-   derivativeRotationMatrix(2,0) = 0;
-   derivativeRotationMatrix(2,1) = 0;
-   derivativeRotationMatrix(2,2) = 0;
+    derivativeRotationMatrix( 0, 0 ) = - std::sin( normalizedTime );
+    derivativeRotationMatrix( 0, 1 ) = - std::cos( normalizedTime );
+    derivativeRotationMatrix( 1, 0 ) = std::cos( normalizedTime );
+    derivativeRotationMatrix( 1, 1 ) = - std::sin( normalizedTime );
 
-   Eigen::Vector6d inertialNormalizedState;
-   inertialNormalizedState.segment(0,3) = rotationMatrix * normalizedPosition;
-   inertialNormalizedState.segment(3,3) = derivativeRotationMatrix * normalizedPosition + rotationMatrix * normalizedVelocity;
-   Eigen::Vector6d cartesianState = gravitation::circular_restricted_three_body_problem::convertDimensionlessCartesianStateToDimensionalUnits(inertialNormalizedState, gravitationalParameterPrimary, gravitationalParameterSecondary, distancePrimarySecondary);
+    Eigen::Vector6d inertialNormalizedState;
+    inertialNormalizedState.segment( 0, 3 ) = rotationMatrix * normalizedPosition;
+    inertialNormalizedState.segment( 3, 3 ) = derivativeRotationMatrix * normalizedPosition + rotationMatrix * normalizedVelocity;
+    Eigen::Vector6d cartesianState = circular_restricted_three_body_problem::convertDimensionlessCartesianStateToDimensionalUnits(inertialNormalizedState, gravitationalParameterPrimary, gravitationalParameterSecondary, distancePrimarySecondary);
 
-   return cartesianState;
+    return cartesianState;
 }
 
 
 
 //! Function to transform cartesian coordinates into co-rotating normalized ones
-Eigen::Vector6d convertCartesianToCorotatingNormalizedCoordinates(double gravitationalParameterPrimary, double gravitationalParameterSecondary, double distancePrimarySecondary, Eigen::Vector6d cartesianState, double time)
+Eigen::Vector6d convertCartesianToCorotatingNormalizedCoordinates(
+        const double gravitationalParameterPrimary,
+        const double gravitationalParameterSecondary,
+        const double distancePrimarySecondary,
+        const Eigen::Vector6d& cartesianState,
+        const double time )
 {
-    Eigen::Vector3d cartesianPosition = cartesianState.segment(0,3);
-    Eigen::Vector3d cartesianVelocity = cartesianState.segment(3,3);
+    Eigen::Vector3d cartesianPosition = cartesianState.segment( 0, 3 );
+    Eigen::Vector3d cartesianVelocity = cartesianState.segment( 3, 3 );
 
-    double n = std::sqrt(( gravitationalParameterPrimary + gravitationalParameterSecondary ) / std::pow(distancePrimarySecondary,3));
+    double meanMotion = std::sqrt( ( gravitationalParameterPrimary + gravitationalParameterSecondary ) /
+                                   std::pow( distancePrimarySecondary, 3 ) );
 
     Eigen::Matrix3d rotationMatrix;
-    rotationMatrix(0,0) = cos( n * time );
-    rotationMatrix(0,1) = sin( n * time );
-    rotationMatrix(0,2) = 0.0;
-    rotationMatrix(1,0) = - sin( n * time );
-    rotationMatrix(1,1) = cos( n * time );
-    rotationMatrix(1,2) = 0.0;
-    rotationMatrix(2,0) = 0.0;
-    rotationMatrix(2,1) = 0.0;
-    rotationMatrix(2,2) = 1.0;
+    rotationMatrix.setZero( );
+    rotationMatrix( 0, 0 ) = std::cos( meanMotion * time );
+    rotationMatrix( 0, 1 ) = std::sin( meanMotion * time );
+    rotationMatrix( 1, 0 ) = -std::sin( meanMotion * time );
+    rotationMatrix( 1, 1 ) = std::cos( meanMotion * time );
 
     Eigen::Matrix3d derivativeRotationMatrix;
-    derivativeRotationMatrix(0,0) = - sin( n * time );
-    derivativeRotationMatrix(0,1) = cos( n * time );
-    derivativeRotationMatrix(0,2) = 0;
-    derivativeRotationMatrix(1,0) = - cos( n * time );
-    derivativeRotationMatrix(1,1) = - sin( n * time );
-    derivativeRotationMatrix(1,2) = 0.0;
-    derivativeRotationMatrix(2,0) = 0.0;
-    derivativeRotationMatrix(2,1) = 0.0;
-    derivativeRotationMatrix(2,2) = 0.0;
-    derivativeRotationMatrix = n * derivativeRotationMatrix;
+    derivativeRotationMatrix.setZero( );
+    derivativeRotationMatrix( 0, 0 ) = -std::sin( meanMotion * time );
+    derivativeRotationMatrix( 0, 1 ) = std::cos( meanMotion * time );
+    derivativeRotationMatrix( 1, 0 ) = -std::cos( meanMotion * time );
+    derivativeRotationMatrix( 1, 1 ) = -std::sin( meanMotion * time );
+    derivativeRotationMatrix = meanMotion * derivativeRotationMatrix;
 
-   Eigen::Vector6d corotatingDimensionalState;
-   corotatingDimensionalState.segment(0,3) = rotationMatrix * cartesianPosition;
-   corotatingDimensionalState.segment(3,3) = derivativeRotationMatrix * cartesianPosition + rotationMatrix * cartesianVelocity;
+    Eigen::Vector6d corotatingDimensionalState;
+    corotatingDimensionalState.segment( 0, 3 ) = rotationMatrix * cartesianPosition;
+    corotatingDimensionalState.segment( 3, 3 ) = derivativeRotationMatrix * cartesianPosition + rotationMatrix * cartesianVelocity;
 
-   Eigen::Vector6d normalizedState = gravitation::circular_restricted_three_body_problem::convertDimensionalCartesianStateToDimensionlessState(corotatingDimensionalState, gravitationalParameterPrimary, gravitationalParameterSecondary, distancePrimarySecondary);
+    Eigen::Vector6d normalizedState = circular_restricted_three_body_problem::convertDimensionalCartesianStateToDimensionlessState(
+                corotatingDimensionalState, gravitationalParameterPrimary, gravitationalParameterSecondary, distancePrimarySecondary );
 
-   return normalizedState;
+    return normalizedState;
 }
 
 
 
 //! Function to directly setup CR3BP bodyMap
 simulation_setup::NamedBodyMap setupBodyMapCR3BPBodyMap(
-        double distancePrimarySecondary,
-        std::string namePrimaryBody,
-        std::string nameSecondaryBody,
-        std::string nameBodyToPropagate,
-        double initialTime
-            ){
+        const double distancePrimarySecondary,
+        const std::string& namePrimaryBody,
+        const std::string& nameSecondaryBody,
+        const std::string& nameBodyToPropagate,
+        const double initialTime )
+{
 
     spice_interface::loadStandardSpiceKernels( );
 
@@ -143,85 +143,84 @@ simulation_setup::NamedBodyMap setupBodyMapCR3BPBodyMap(
     double gravitationalParameterSecondary;
 
     // retrieve the gravitational parameter of the primary
-    if (namePrimaryBody == "Earth" || namePrimaryBody == "Mars" || namePrimaryBody == "Moon"){
-        std::shared_ptr< simulation_setup::GravityFieldSettings > gravityFieldSettings = simulation_setup::getDefaultGravityFieldSettings(namePrimaryBody, 0.0, 1.0);
+    if ( namePrimaryBody == "Earth" || namePrimaryBody == "Mars" || namePrimaryBody == "Moon")
+    {
+        std::shared_ptr< simulation_setup::GravityFieldSettings > gravityFieldSettings = simulation_setup::getDefaultGravityFieldSettings( namePrimaryBody, 0.0, 1.0);
         std::shared_ptr< simulation_setup::FromFileSphericalHarmonicsGravityFieldSettings > modelGravityFieldSettings =
                 std::dynamic_pointer_cast< simulation_setup::FromFileSphericalHarmonicsGravityFieldSettings >( gravityFieldSettings );
-        gravitationalParameterPrimary = modelGravityFieldSettings->getGravitationalParameter();
+        gravitationalParameterPrimary = modelGravityFieldSettings->getGravitationalParameter( );
     }
-    else{
-        gravitationalParameterPrimary = spice_interface::getBodyGravitationalParameter(namePrimaryBody);
+    else
+    {
+        gravitationalParameterPrimary = spice_interface::getBodyGravitationalParameter( namePrimaryBody );
     }
 
 
     // retrieve the gravitational parameter of the secondary
-    if (nameSecondaryBody == "Earth" || nameSecondaryBody == "Mars" || nameSecondaryBody == "Moon"){
-        std::shared_ptr< simulation_setup::GravityFieldSettings > gravityFieldSettings = simulation_setup::getDefaultGravityFieldSettings(nameSecondaryBody, 0.0, 1.0);
+    if ( nameSecondaryBody == "Earth" || nameSecondaryBody == "Mars" || nameSecondaryBody == "Moon")
+    {
+        std::shared_ptr< simulation_setup::GravityFieldSettings > gravityFieldSettings = simulation_setup::getDefaultGravityFieldSettings( nameSecondaryBody, 0.0, 1.0);
         std::shared_ptr< simulation_setup::FromFileSphericalHarmonicsGravityFieldSettings > modelGravityFieldSettings =
                 std::dynamic_pointer_cast< simulation_setup::FromFileSphericalHarmonicsGravityFieldSettings >( gravityFieldSettings );
-        gravitationalParameterSecondary = modelGravityFieldSettings->getGravitationalParameter();
+        gravitationalParameterSecondary = modelGravityFieldSettings->getGravitationalParameter( );
     }
-    else{
-        gravitationalParameterSecondary = spice_interface::getBodyGravitationalParameter(nameSecondaryBody);
+    else
+    {
+        gravitationalParameterSecondary = spice_interface::getBodyGravitationalParameter( nameSecondaryBody );
     }
 
 
 
-    double massParameter = gravitation::circular_restricted_three_body_problem::computeMassParameter(
-        gravitationalParameterPrimary, gravitationalParameterSecondary );
+    double massParameter = circular_restricted_three_body_problem::computeMassParameter(
+                gravitationalParameterPrimary, gravitationalParameterSecondary );
 
-    std::string frameOrigin = "SSB";
     std::string frameOrientation = "J2000";
 
     // Initial state for the primary
-    Eigen::Vector6d initialStateInKeplerianElementsPrimary;
+    Eigen::Vector6d initialStateInKeplerianElementsPrimary = Eigen::Vector6d::Zero( );
     initialStateInKeplerianElementsPrimary(orbital_element_conversions::semiMajorAxisIndex) = massParameter * distancePrimarySecondary;
-    initialStateInKeplerianElementsPrimary(orbital_element_conversions::eccentricityIndex) = 0.0;
-    initialStateInKeplerianElementsPrimary(orbital_element_conversions::inclinationIndex) = 0.0;
-    initialStateInKeplerianElementsPrimary(orbital_element_conversions::argumentOfPeriapsisIndex) = 0.0;
-    initialStateInKeplerianElementsPrimary(orbital_element_conversions::longitudeOfAscendingNodeIndex) = 0.0;
     initialStateInKeplerianElementsPrimary(orbital_element_conversions::trueAnomalyIndex) = mathematical_constants::PI;
 
 
     // Initial state for the secondary
-    Eigen::Vector6d initialStateInKeplerianElementsSecondary;
-    initialStateInKeplerianElementsSecondary(orbital_element_conversions::semiMajorAxisIndex) = (1 - massParameter) * distancePrimarySecondary;
-    initialStateInKeplerianElementsSecondary(orbital_element_conversions::eccentricityIndex) = 0.0;
-    initialStateInKeplerianElementsSecondary(orbital_element_conversions::inclinationIndex) = 0.0;
-    initialStateInKeplerianElementsSecondary(orbital_element_conversions::argumentOfPeriapsisIndex) = 0.0;
-    initialStateInKeplerianElementsSecondary(orbital_element_conversions::longitudeOfAscendingNodeIndex) = 0.0;
-    initialStateInKeplerianElementsSecondary(orbital_element_conversions::trueAnomalyIndex) = 0.0;
+    Eigen::Vector6d initialStateInKeplerianElementsSecondary = Eigen::Vector6d::Zero( );
+    initialStateInKeplerianElementsSecondary(orbital_element_conversions::semiMajorAxisIndex) =
+            ( 1.0 - massParameter) * distancePrimarySecondary;
 
 
     // Create body objects.
     std::vector< std::string > bodiesToCreate;
 
-    bodiesToCreate.push_back(namePrimaryBody);
-    bodiesToCreate.push_back(nameSecondaryBody);
+    bodiesToCreate.push_back( namePrimaryBody );
+    bodiesToCreate.push_back( nameSecondaryBody );
 
     std::map< std::string, std::shared_ptr< simulation_setup::BodySettings > > bodySettings =
-                simulation_setup::getDefaultBodySettings( bodiesToCreate);
+            simulation_setup::getDefaultBodySettings( bodiesToCreate );
 
     double sumGravitationalParameter = gravitationalParameterPrimary + gravitationalParameterSecondary;
     double distanceBarycenterPrimary = gravitationalParameterSecondary * distancePrimarySecondary / ( sumGravitationalParameter );
     double distanceBarycenterSecondary = distancePrimarySecondary - distanceBarycenterPrimary;
-    double gravitationalParameterPrimaryTwoBodyProblem = std::pow(distanceBarycenterPrimary, 3) * sumGravitationalParameter / std::pow(distanceBarycenterPrimary + distanceBarycenterSecondary, 3);
-    double gravitationalParameterSecondaryTwoBodyProblem = std::pow(distanceBarycenterSecondary, 3) * sumGravitationalParameter / std::pow(distanceBarycenterPrimary + distanceBarycenterSecondary, 3);
+    double gravitationalParameterPrimaryTwoBodyProblem =
+            std::pow(distanceBarycenterPrimary, 3 ) * sumGravitationalParameter /
+            std::pow(distanceBarycenterPrimary + distanceBarycenterSecondary, 3 );
+    double gravitationalParameterSecondaryTwoBodyProblem =
+            std::pow(distanceBarycenterSecondary, 3 ) * sumGravitationalParameter /
+            std::pow(distanceBarycenterPrimary + distanceBarycenterSecondary, 3 );
 
     // Primary ephemeris
     bodySettings[ namePrimaryBody ]->ephemerisSettings = std::make_shared< simulation_setup::KeplerEphemerisSettings >(
-        initialStateInKeplerianElementsPrimary, initialTime, gravitationalParameterPrimaryTwoBodyProblem, "SSB", frameOrientation );
+                initialStateInKeplerianElementsPrimary, initialTime, gravitationalParameterPrimaryTwoBodyProblem, "SSB", frameOrientation );
 
     // Secondary ephemeris
     bodySettings[ nameSecondaryBody ]->ephemerisSettings = std::make_shared< simulation_setup::KeplerEphemerisSettings >(
-        initialStateInKeplerianElementsSecondary, initialTime, gravitationalParameterSecondaryTwoBodyProblem, "SSB", frameOrientation );
+                initialStateInKeplerianElementsSecondary, initialTime, gravitationalParameterSecondaryTwoBodyProblem, "SSB", frameOrientation );
 
 
 
     for( unsigned int j = 0; j < bodiesToCreate.size( ); j++ )
     {
-        bodySettings[ bodiesToCreate.at( j ) ]->ephemerisSettings->resetFrameOrientation( "J2000" );
-        bodySettings[ bodiesToCreate.at( j ) ]->rotationModelSettings->resetOriginalFrame( "J2000" );
+        bodySettings[ bodiesToCreate.at( j ) ]->ephemerisSettings->resetFrameOrientation( frameOrientation );
+        bodySettings[ bodiesToCreate.at( j ) ]->rotationModelSettings->resetOriginalFrame( frameOrientation );
     }
 
 
@@ -230,10 +229,10 @@ simulation_setup::NamedBodyMap setupBodyMapCR3BPBodyMap(
 
     bodyMap[ nameBodyToPropagate ] = std::make_shared< simulation_setup::Body >( );
     bodyMap[ nameBodyToPropagate ]->setEphemeris( std::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
-                std::shared_ptr< interpolators::OneDimensionalInterpolator
-                < double, Eigen::Vector6d > >( ), "SSB", "J2000" ) );
+                                                      std::shared_ptr< interpolators::OneDimensionalInterpolator
+                                                      < double, Eigen::Vector6d > >( ), "SSB", frameOrientation ) );
 
-    setGlobalFrameBodyEphemerides( bodyMap, "SSB", "J2000" );
+    setGlobalFrameBodyEphemerides( bodyMap, "SSB", frameOrientation );
 
     return bodyMap;
 
@@ -242,24 +241,24 @@ simulation_setup::NamedBodyMap setupBodyMapCR3BPBodyMap(
 
 //! Function to directly setup CR3BP acceleration map
 basic_astrodynamics::AccelerationMap setupAccelerationMapCR3BP(
-        std::string namePrimaryBody,
-        std::string nameSecondaryBody,
-        std::string nameBodyToPropagate,
-        std::vector< std::string > bodiesToPropagate,
-        std::vector< std::string > centralBodies,
-        simulation_setup::NamedBodyMap bodyMap
-        ){
+        const std::string& namePrimaryBody,
+        const std::string& nameSecondaryBody,
+        const std::string& nameBodyToPropagate,
+        const std::vector< std::string >& bodiesToPropagate,
+        const std::vector< std::string >& centralBodies,
+        const simulation_setup::NamedBodyMap& bodyMap )
+{
 
     std::map< std::string, std::vector< std::shared_ptr< simulation_setup::AccelerationSettings > > > bodyToPropagateAccelerations;
     bodyToPropagateAccelerations[ namePrimaryBody ].push_back(std::make_shared< simulation_setup::AccelerationSettings >(
-                                                          basic_astrodynamics::central_gravity ) );
+                                                                  basic_astrodynamics::central_gravity ) );
     bodyToPropagateAccelerations[ nameSecondaryBody ].push_back(std::make_shared< simulation_setup::AccelerationSettings >(
-                                                  basic_astrodynamics::central_gravity ) );
+                                                                    basic_astrodynamics::central_gravity ) );
     simulation_setup::SelectedAccelerationMap accelerationMap;
     accelerationMap[ nameBodyToPropagate ] = bodyToPropagateAccelerations;
 
     basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
-                        bodyMap, accelerationMap, bodiesToPropagate, centralBodies );
+                bodyMap, accelerationMap, bodiesToPropagate, centralBodies );
 
     return accelerationModelMap;
 
@@ -270,25 +269,23 @@ basic_astrodynamics::AccelerationMap setupAccelerationMapCR3BP(
 //! Function to simultaneously propagate the dynamics in the CR3BP and in the full dynamics problem
 //! and compute the difference in state at the end of the propagation
 Eigen::Vector6d propagateCR3BPandFullDynamicsProblem(
-        double initialTime,
-        double finalTime,
-        Eigen::Vector6d initialState,
-        std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings,
-        basic_astrodynamics::AccelerationMap accelerationModelMap,
-        std::vector< std::string > bodiesToPropagate,
-        std::vector< std::string > centralBodies,
-        simulation_setup::NamedBodyMap bodyMap,
-        std::vector < std::string > bodiesCR3BP){
-
-
-    using std::cout;
-    cout.precision(15);
+        const double initialTime,
+        const double finalTime,
+        const Eigen::Vector6d& initialState,
+        const std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings,
+        const basic_astrodynamics::AccelerationMap& accelerationModelMap,
+        const std::vector< std::string >& bodiesToPropagate,
+        const std::vector< std::string >& centralBodies,
+        simulation_setup::NamedBodyMap& bodyMap,
+        const std::vector < std::string >& bodiesCR3BP )
+{
 
 
     // propagator definition (define new final propagation time longer than the expected final time for interpolation purposes)
-
     double initialIntegratorStepSize = integratorSettings->initialTimeStep_;
-    double finalPropagationTime = finalTime + 3 * initialIntegratorStepSize;
+//    double finalPropagationTime = finalTime + 3 * initialIntegratorStepSize;
+
+    //    double finalPropagationTime = finalTime + 3.0 * initialIntegratorStepSize;
 
 
     // Create barycenter object to retrieve the position of the primary and secondary.
@@ -297,73 +294,76 @@ Eigen::Vector6d propagateCR3BPandFullDynamicsProblem(
                                               ( Eigen::Vector6d( ) << 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 ).finished( ), "SSB", "J2000" ) );
     setGlobalFrameBodyEphemerides( bodyMap, "SSB", "J2000" );
 
-    std::vector< std::shared_ptr< tudat::propagators::SingleDependentVariableSaveSettings > > dependentVariablesList;
-    dependentVariablesList.push_back( std::make_shared< tudat::propagators::SingleDependentVariableSaveSettings >(
-                                          tudat::propagators::relative_position_dependent_variable, bodiesCR3BP[0], "barycenter" ) );
-    dependentVariablesList.push_back( std::make_shared< tudat::propagators::SingleDependentVariableSaveSettings >(
-                                          tudat::propagators::relative_velocity_dependent_variable, bodiesCR3BP[0], "barycenter" ) );
-    dependentVariablesList.push_back( std::make_shared< tudat::propagators::SingleDependentVariableSaveSettings >(
-                                          tudat::propagators::relative_position_dependent_variable, bodiesCR3BP[1], "barycenter" ) );
-    dependentVariablesList.push_back( std::make_shared< tudat::propagators::SingleDependentVariableSaveSettings >(
-                                          tudat::propagators::relative_velocity_dependent_variable, bodiesCR3BP[1], "barycenter" ) );
-    std::shared_ptr< tudat::propagators::DependentVariableSaveSettings > dependentVariablesToSave =
-            std::make_shared< tudat::propagators::DependentVariableSaveSettings >( dependentVariablesList );
+    std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariablesList;
+    dependentVariablesList.push_back( std::make_shared< SingleDependentVariableSaveSettings >(
+                                          relative_position_dependent_variable, bodiesCR3BP.at( 0 ), "barycenter" ) );
+    dependentVariablesList.push_back( std::make_shared< SingleDependentVariableSaveSettings >(
+                                          relative_velocity_dependent_variable, bodiesCR3BP.at( 0 ), "barycenter" ) );
+    dependentVariablesList.push_back( std::make_shared< SingleDependentVariableSaveSettings >(
+                                          relative_position_dependent_variable, bodiesCR3BP.at( 1 ), "barycenter" ) );
+    dependentVariablesList.push_back( std::make_shared< SingleDependentVariableSaveSettings >(
+                                          relative_velocity_dependent_variable, bodiesCR3BP.at( 1 ), "barycenter" ) );
+    std::shared_ptr< DependentVariableSaveSettings > dependentVariablesToSave =
+            std::make_shared< DependentVariableSaveSettings >( dependentVariablesList );
+    std::shared_ptr< TranslationalStatePropagatorSettings< double> > propagatorSettings =
+            std::make_shared< TranslationalStatePropagatorSettings< double > >
+            ( centralBodies, accelerationModelMap, bodiesToPropagate, initialState,
+              std::make_shared< PropagationTimeTerminationSettings >( finalTime, true ), cowell,
+              dependentVariablesToSave );
 
-    std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double> > propagatorSettings =
-        std::make_shared< propagators::TranslationalStatePropagatorSettings< double > >
-            ( centralBodies, accelerationModelMap, bodiesToPropagate, initialState, finalPropagationTime, propagators::cowell, dependentVariablesToSave);
-
-
-
-    // Create interpolator settings
     std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings =
             std::make_shared< interpolators::LagrangeInterpolatorSettings >( 8 );
 
+
     // Propagate the full problem
-    propagators::SingleArcDynamicsSimulator< > dynamicsSimulator(bodyMap, integratorSettings, propagatorSettings );
+    SingleArcDynamicsSimulator< > dynamicsSimulator(bodyMap, integratorSettings, propagatorSettings );
     std::map< double, Eigen::VectorXd > stateHistoryFullProblem = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
+        double finalPropagationTime = stateHistoryFullProblem.rbegin( )->first;
 
+    //    Eigen::VectorXd finalPropagatedStateFullProblem = stateHistoryFullProblem.rbegin( )->second;
+    //    Eigen::VectorXd initialStateBodies = stateHistoryFullProblem.begin( )->second;
 
-
-    // Interpolation of the full problem state history
-    std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::VectorXd > > interpolatorFullProblem =
-            interpolators::createOneDimensionalInterpolator( stateHistoryFullProblem, interpolatorSettings );
-    Eigen::Vector6d finalPropagatedStateFullProblem = interpolatorFullProblem->interpolate(finalTime);
-
-    std::map< double, Eigen::VectorXd > stateHistoryBodies = dynamicsSimulator.getDependentVariableHistory();
-    Eigen::VectorXd initialStateBodies = stateHistoryBodies[0];
-
+    Eigen::Vector6d finalPropagatedStateFullProblem = stateHistoryFullProblem.rbegin( )->second.transpose( );
+    Eigen::VectorXd initialStateBodies = dynamicsSimulator.getDependentVariableHistory( ).begin( )->second;
 
 
     // CR3BP definition
-
     double gravitationalParameterPrimary;
     double gravitationalParameterSecondary;
     Eigen::Vector6d initialStatePrimary;
     Eigen::Vector6d initialStateSecondary;
 
-    if (bodyMap[bodiesCR3BP[0]]->getBodyMass() > bodyMap[bodiesCR3BP[1]]->getBodyMass()){
-        gravitationalParameterPrimary = bodyMap[bodiesCR3BP[0]]->getGravityFieldModel()->getGravitationalParameter();
-        initialStatePrimary = initialStateBodies.segment(0,6);
-        gravitationalParameterSecondary = bodyMap[bodiesCR3BP[1]]->getGravityFieldModel()->getGravitationalParameter();
-        initialStateSecondary = initialStateBodies.segment(6,6);
+    if( bodyMap[bodiesCR3BP.at( 0 ) ]->getBodyMass( ) > bodyMap[bodiesCR3BP.at( 1 ) ]->getBodyMass( ) )
+    {
+        gravitationalParameterPrimary = bodyMap[bodiesCR3BP.at( 0 ) ]->getGravityFieldModel( )->getGravitationalParameter( );
+        initialStatePrimary = initialStateBodies.segment( 0, 6 );
+        gravitationalParameterSecondary = bodyMap[bodiesCR3BP.at( 1 ) ]->getGravityFieldModel( )->getGravitationalParameter( );
+        initialStateSecondary = initialStateBodies.segment( 6, 6 );
+    }
+    else
+    {
+        gravitationalParameterPrimary = bodyMap[bodiesCR3BP.at( 1 ) ]->getGravityFieldModel( )->getGravitationalParameter( );
+        initialStatePrimary = initialStateBodies.segment( 6, 6 );
+        gravitationalParameterSecondary = bodyMap[bodiesCR3BP.at( 0 ) ]->getGravityFieldModel( )->getGravitationalParameter( );
+        initialStateSecondary = initialStateBodies.segment( 0, 6 );
     }
 
-    else{
-        gravitationalParameterPrimary = bodyMap[bodiesCR3BP[1]]->getGravityFieldModel()->getGravitationalParameter();
-        initialStatePrimary = initialStateBodies.segment(6,6);
-        gravitationalParameterSecondary = bodyMap[bodiesCR3BP[0]]->getGravityFieldModel()->getGravitationalParameter();
-        initialStateSecondary = initialStateBodies.segment(0,6);
-    }
 
+    double massParameter = circular_restricted_three_body_problem::computeMassParameter(
+                gravitationalParameterPrimary, gravitationalParameterSecondary );
+    double distanceBetweenPrimaries = std::sqrt( std::pow( initialStateSecondary( 0 ) - initialStatePrimary( 0 ), 2 ) +
+                                                 std::pow( initialStateSecondary( 1 ) - initialStatePrimary( 1 ), 2 ) +
+                                                 std::pow( initialStateSecondary( 2 ) - initialStatePrimary( 2 ), 2 ) );
 
-    double massParameter = gravitation::circular_restricted_three_body_problem::computeMassParameter(gravitationalParameterPrimary, gravitationalParameterSecondary);
-    double distanceBetweenPrimaries = std::sqrt( std::pow(initialStateSecondary[0] - initialStatePrimary[0], 2) + std::pow( initialStateSecondary[1] - initialStatePrimary[1], 2) + std::pow( initialStateSecondary[2] - initialStatePrimary[2], 2) );
-
-    double normalizedInitialTime = gravitation::circular_restricted_three_body_problem::convertDimensionalTimeToDimensionlessTime(initialTime, gravitationalParameterPrimary, gravitationalParameterSecondary, distanceBetweenPrimaries);
-    double normalizedFinalTime = gravitation::circular_restricted_three_body_problem::convertDimensionalTimeToDimensionlessTime(finalTime, gravitationalParameterPrimary, gravitationalParameterSecondary, distanceBetweenPrimaries);
-    double normalizedFinalPropagationTime = gravitation::circular_restricted_three_body_problem::convertDimensionalTimeToDimensionlessTime(finalPropagationTime, gravitationalParameterPrimary, gravitationalParameterSecondary, distanceBetweenPrimaries);
-    Eigen::Vector6d normalizedInitialState = convertCartesianToCorotatingNormalizedCoordinates(gravitationalParameterSecondary, gravitationalParameterPrimary, distanceBetweenPrimaries, initialState, initialTime);
+    double normalizedInitialTime = circular_restricted_three_body_problem::convertDimensionalTimeToDimensionlessTime(
+                initialTime, gravitationalParameterPrimary, gravitationalParameterSecondary, distanceBetweenPrimaries);
+    double normalizedFinalTime = circular_restricted_three_body_problem::convertDimensionalTimeToDimensionlessTime(
+                finalTime, gravitationalParameterPrimary, gravitationalParameterSecondary, distanceBetweenPrimaries);
+    double normalizedFinalPropagationTime = circular_restricted_three_body_problem::convertDimensionalTimeToDimensionlessTime(
+                finalPropagationTime, gravitationalParameterPrimary, gravitationalParameterSecondary, distanceBetweenPrimaries);
+    Eigen::Vector6d normalizedInitialState = convertCartesianToCorotatingNormalizedCoordinates(
+                gravitationalParameterSecondary, gravitationalParameterPrimary,
+                distanceBetweenPrimaries, initialState, initialTime );
 
 
 
@@ -371,23 +371,26 @@ Eigen::Vector6d propagateCR3BPandFullDynamicsProblem(
     std::shared_ptr< numerical_integrators::IntegratorSettings< double > > CR3BPintegratorSettings = integratorSettings;
     CR3BPintegratorSettings->initialTime_ = normalizedInitialTime;
     double initialTimeStepIntegrator = integratorSettings->initialTimeStep_;
-    CR3BPintegratorSettings->initialTimeStep_ = gravitation::circular_restricted_three_body_problem::convertDimensionalTimeToDimensionlessTime(initialTimeStepIntegrator, gravitationalParameterPrimary, gravitationalParameterSecondary, distanceBetweenPrimaries);
+    CR3BPintegratorSettings->initialTimeStep_ = circular_restricted_three_body_problem::convertDimensionalTimeToDimensionlessTime(
+                initialTimeStepIntegrator, gravitationalParameterPrimary, gravitationalParameterSecondary, distanceBetweenPrimaries);
 
-    std::map< double, Eigen::Vector6d > stateHistoryCR3BP = propagators::performCR3BPIntegration(CR3BPintegratorSettings, massParameter, normalizedInitialState, normalizedFinalPropagationTime );
+    std::map< double, Eigen::Vector6d > stateHistoryCR3BP = performCR3BPIntegration(
+                CR3BPintegratorSettings, massParameter, normalizedInitialState, normalizedFinalPropagationTime );
 
 
     // Interpolation of the CR3BP state history
+    //    std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings =
+    //            std::make_shared< interpolators::LagrangeInterpolatorSettings >( 8 );
     std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Vector6d > > interpolatorCR3BP =
             interpolators::createOneDimensionalInterpolator( stateHistoryCR3BP, interpolatorSettings );
 
-    Eigen::Vector6d normalizedFinalPropagatedStateCR3BP = interpolatorCR3BP->interpolate(normalizedFinalTime);
+    Eigen::Vector6d normalizedFinalPropagatedStateCR3BP = interpolatorCR3BP->interpolate( normalizedFinalTime );
     double normalizedFinalPropagationTimeCR3BP = normalizedFinalTime;
 
-
-
     // Transformation to inertial coordinates
-    Eigen::Vector6d finalPropagatedStateCR3BP = convertCorotatingNormalizedToCartesianCoordinates(gravitationalParameterPrimary, gravitationalParameterSecondary, distanceBetweenPrimaries, normalizedFinalPropagatedStateCR3BP, normalizedFinalPropagationTimeCR3BP);
-
+    Eigen::Vector6d finalPropagatedStateCR3BP = convertCorotatingNormalizedToCartesianCoordinates(
+                gravitationalParameterPrimary, gravitationalParameterSecondary, distanceBetweenPrimaries,
+                normalizedFinalPropagatedStateCR3BP, normalizedFinalPropagationTimeCR3BP);
 
     // Difference between the two propagated states at finalTime
     Eigen::Vector6d finalStateDifference = finalPropagatedStateCR3BP - finalPropagatedStateFullProblem;
@@ -397,14 +400,19 @@ Eigen::Vector6d propagateCR3BPandFullDynamicsProblem(
 
 }
 
+}
+
+}
 
 
 
+int main( ){
+
+    using namespace tudat;
+    using namespace propagators;
 
 
-int main(){
-
-    std::cout.precision(20);
+    std::cout.precision( 20);
 
     double initialTime = 0.0;
     double finalTime = 120000000.0;
@@ -413,10 +421,11 @@ int main(){
     bodiesCR3BP.push_back("Sun");
     bodiesCR3BP.push_back("Earth");
 
-    simulation_setup::NamedBodyMap bodyMap = setupBodyMapCR3BPBodyMap(physical_constants::ASTRONOMICAL_UNIT, "Sun", "Earth", "spacecraft", 0.0);
+    simulation_setup::NamedBodyMap bodyMap = setupBodyMapCR3BPBodyMap(
+                physical_constants::ASTRONOMICAL_UNIT, "Sun", "Earth", "spacecraft", 0.0);
 
     // Spacecraft properties
-    bodyMap[ "spacecraft" ]->setConstantBodyMass(100.0);
+    bodyMap[ "spacecraft" ]->setConstantBodyMass( 100.0);
 
     // Initialization of the spacecraft state
     Eigen::Vector6d initialState;
@@ -435,7 +444,8 @@ int main(){
     bodiesToPropagate.push_back( "spacecraft" );
     centralBodies.push_back( "SSB" );
 
-    basic_astrodynamics::AccelerationMap accelerationModelMap = setupAccelerationMapCR3BP("Sun", "Earth", "spacecraft", bodiesToPropagate, centralBodies, bodyMap);
+    basic_astrodynamics::AccelerationMap accelerationModelMap = setupAccelerationMapCR3BP(
+                "Sun", "Earth", "spacecraft", bodiesToPropagate, centralBodies, bodyMap);
 
 
 
@@ -443,15 +453,15 @@ int main(){
     const double fixedStepSize = 1000;
 
     std::shared_ptr< numerical_integrators::IntegratorSettings< > > integratorSettings =
-                std::make_shared < numerical_integrators::IntegratorSettings < > >
-                    ( numerical_integrators::rungeKutta4, initialTime, fixedStepSize);
+            std::make_shared < numerical_integrators::IntegratorSettings < > >
+            ( numerical_integrators::rungeKutta4, initialTime, fixedStepSize);
 
 
     // calculate the difference between CR3BP and full problem
     Eigen::Vector6d stateDifference = propagateCR3BPandFullDynamicsProblem(initialTime, finalTime, initialState,
-                                                                                        integratorSettings, accelerationModelMap,
-                                                                                        bodiesToPropagate, centralBodies,
-                                                                                        bodyMap, bodiesCR3BP);
+                                                                           integratorSettings, accelerationModelMap,
+                                                                           bodiesToPropagate, centralBodies,
+                                                                           bodyMap, bodiesCR3BP);
 
     std::cout << "stateDifference: " << stateDifference << "\n\n";
 
