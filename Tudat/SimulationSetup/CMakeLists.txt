@@ -35,8 +35,4 @@ if(USE_CSPICE)
     add_executable(test_AccelerationModelCreation "${SRCROOT}${SIMULATIONSETUPDIR}/UnitTests/unitTestAccelerationModelSetup.cpp")
     setup_custom_test_program(test_AccelerationModelCreation "${SRCROOT}${SIMULATIONSETUPDIR}/")
     target_link_libraries(test_AccelerationModelCreation ${TUDAT_PROPAGATION_LIBRARIES} ${Boost_LIBRARIES})
-
-    add_executable(CR3BP_fullProblem "${SRCROOT}${SIMULATIONSETUPDIR}/CR3BP/propagationCR3BPfullProblem.cpp")
-    setup_custom_test_program(CR3BP_fullProblem "${SRCROOT}${SIMULATIONSETUPDIR}/")
-    target_link_libraries(CR3BP_fullProblem ${TUDAT_PROPAGATION_LIBRARIES} ${Boost_LIBRARIES})
 endif()

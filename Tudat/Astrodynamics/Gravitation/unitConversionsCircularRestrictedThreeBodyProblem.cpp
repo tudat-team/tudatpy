@@ -97,5 +97,83 @@ double convertDimensionalTimeToDimensionlessTime(
 
 }
 
+
+//!Function to transform normalized co-rotating coordinates into cartesian ones
+Eigen::Vector6d convertCorotatingNormalizedToCartesianCoordinates(
+        const double gravitationalParameterPrimary,
+        const double gravitationalParameterSecondary,
+        const double distancePrimarySecondary,
+        const Eigen::Vector6d& normalizedState,
+        const double normalizedTime )
+{
+    Eigen::Vector3d normalizedPosition = normalizedState.segment( 0, 3 );
+    Eigen::Vector3d normalizedVelocity = normalizedState.segment( 3, 3 );
+
+    Eigen::Matrix3d rotationMatrix;
+    rotationMatrix.setZero( );
+    Eigen::Matrix3d derivativeRotationMatrix;
+    derivativeRotationMatrix.setZero( );
+
+    rotationMatrix( 0, 0 ) = std::cos( normalizedTime );
+    rotationMatrix( 0, 1 ) = - std::sin( normalizedTime );
+    rotationMatrix( 1, 0 ) = std::sin( normalizedTime );
+    rotationMatrix( 1, 1 ) = std::cos( normalizedTime );
+
+    derivativeRotationMatrix( 0, 0 ) = - std::sin( normalizedTime );
+    derivativeRotationMatrix( 0, 1 ) = - std::cos( normalizedTime );
+    derivativeRotationMatrix( 1, 0 ) = std::cos( normalizedTime );
+    derivativeRotationMatrix( 1, 1 ) = - std::sin( normalizedTime );
+
+    Eigen::Vector6d inertialNormalizedState;
+    inertialNormalizedState.segment( 0, 3 ) = rotationMatrix * normalizedPosition;
+    inertialNormalizedState.segment( 3, 3 ) = derivativeRotationMatrix * normalizedPosition + rotationMatrix * normalizedVelocity;
+    Eigen::Vector6d cartesianState = circular_restricted_three_body_problem::convertDimensionlessCartesianStateToDimensionalUnits(inertialNormalizedState, gravitationalParameterPrimary, gravitationalParameterSecondary, distancePrimarySecondary);
+
+    return cartesianState;
+}
+
+
+
+//! Function to transform cartesian coordinates into co-rotating normalized ones
+Eigen::Vector6d convertCartesianToCorotatingNormalizedCoordinates(
+        const double gravitationalParameterPrimary,
+        const double gravitationalParameterSecondary,
+        const double distancePrimarySecondary,
+        const Eigen::Vector6d& cartesianState,
+        const double time )
+{
+    Eigen::Vector3d cartesianPosition = cartesianState.segment( 0, 3 );
+    Eigen::Vector3d cartesianVelocity = cartesianState.segment( 3, 3 );
+
+    double meanMotion = std::sqrt( ( gravitationalParameterPrimary + gravitationalParameterSecondary ) /
+                                   std::pow( distancePrimarySecondary, 3 ) );
+
+    Eigen::Matrix3d rotationMatrix;
+    rotationMatrix.setZero( );
+    rotationMatrix( 0, 0 ) = std::cos( meanMotion * time );
+    rotationMatrix( 0, 1 ) = std::sin( meanMotion * time );
+    rotationMatrix( 1, 0 ) = -std::sin( meanMotion * time );
+    rotationMatrix( 1, 1 ) = std::cos( meanMotion * time );
+
+    Eigen::Matrix3d derivativeRotationMatrix;
+    derivativeRotationMatrix.setZero( );
+    derivativeRotationMatrix( 0, 0 ) = -std::sin( meanMotion * time );
+    derivativeRotationMatrix( 0, 1 ) = std::cos( meanMotion * time );
+    derivativeRotationMatrix( 1, 0 ) = -std::cos( meanMotion * time );
+    derivativeRotationMatrix( 1, 1 ) = -std::sin( meanMotion * time );
+    derivativeRotationMatrix = meanMotion * derivativeRotationMatrix;
+
+    Eigen::Vector6d corotatingDimensionalState;
+    corotatingDimensionalState.segment( 0, 3 ) = rotationMatrix * cartesianPosition;
+    corotatingDimensionalState.segment( 3, 3 ) = derivativeRotationMatrix * cartesianPosition + rotationMatrix * cartesianVelocity;
+
+    Eigen::Vector6d normalizedState = circular_restricted_three_body_problem::convertDimensionalCartesianStateToDimensionlessState(
+                corotatingDimensionalState, gravitationalParameterPrimary, gravitationalParameterSecondary, distancePrimarySecondary );
+
+    return normalizedState;
+}
+
+
+
 } // namespace circular_restricted_three_body_problem
 } // namespace tudat
