@@ -597,20 +597,44 @@ std::vector< std::string > > createEnvironmentUpdaterSettingsForDependentVariabl
         variablesToUpdate[ body_translational_state_update ].push_back( dependentVariableSaveSettings->secondaryBody_ );
         break;
     case relative_speed_dependent_variable:
-        variablesToUpdate[ body_translational_state_update ].push_back( dependentVariableSaveSettings->associatedBody_ );
-        variablesToUpdate[ body_translational_state_update ].push_back( dependentVariableSaveSettings->secondaryBody_ );
+        if( dependentVariableSaveSettings->associatedBody_ != "SSB" )
+        {
+            variablesToUpdate[ body_translational_state_update ].push_back( dependentVariableSaveSettings->associatedBody_ );
+        }
+        if( dependentVariableSaveSettings->secondaryBody_ != "SSB" )
+        {
+            variablesToUpdate[ body_translational_state_update ].push_back( dependentVariableSaveSettings->secondaryBody_ );
+        }
         break;
     case relative_position_dependent_variable:
-        variablesToUpdate[ body_translational_state_update ].push_back( dependentVariableSaveSettings->associatedBody_ );
-        variablesToUpdate[ body_translational_state_update ].push_back( dependentVariableSaveSettings->secondaryBody_ );
+        if( dependentVariableSaveSettings->associatedBody_ != "SSB" )
+        {
+            variablesToUpdate[ body_translational_state_update ].push_back( dependentVariableSaveSettings->associatedBody_ );
+        }
+        if( dependentVariableSaveSettings->secondaryBody_ != "SSB" )
+        {
+            variablesToUpdate[ body_translational_state_update ].push_back( dependentVariableSaveSettings->secondaryBody_ );
+        }
         break;
     case relative_distance_dependent_variable:
-        variablesToUpdate[ body_translational_state_update ].push_back( dependentVariableSaveSettings->associatedBody_ );
-        variablesToUpdate[ body_translational_state_update ].push_back( dependentVariableSaveSettings->secondaryBody_ );
+        if( dependentVariableSaveSettings->associatedBody_ != "SSB" )
+        {
+            variablesToUpdate[ body_translational_state_update ].push_back( dependentVariableSaveSettings->associatedBody_ );
+        }
+        if( dependentVariableSaveSettings->secondaryBody_ != "SSB" )
+        {
+            variablesToUpdate[ body_translational_state_update ].push_back( dependentVariableSaveSettings->secondaryBody_ );
+        }
         break;
     case relative_velocity_dependent_variable:
-        variablesToUpdate[ body_translational_state_update ].push_back( dependentVariableSaveSettings->associatedBody_ );
-        variablesToUpdate[ body_translational_state_update ].push_back( dependentVariableSaveSettings->secondaryBody_ );
+        if( dependentVariableSaveSettings->associatedBody_ != "SSB" )
+        {
+            variablesToUpdate[ body_translational_state_update ].push_back( dependentVariableSaveSettings->associatedBody_ );
+        }
+        if( dependentVariableSaveSettings->secondaryBody_ != "SSB" )
+        {
+            variablesToUpdate[ body_translational_state_update ].push_back( dependentVariableSaveSettings->secondaryBody_ );
+        }
         break;
     case total_acceleration_norm_dependent_variable:
         break;
