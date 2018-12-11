@@ -22,8 +22,7 @@
 
 namespace tudat
 {
-namespace gravitation
-{
+
 namespace circular_restricted_three_body_problem
 {
 
@@ -99,5 +98,4 @@ double convertDimensionalTimeToDimensionlessTime(
 }
 
 } // namespace circular_restricted_three_body_problem
-} // namespace gravitation
 } // namespace tudat
