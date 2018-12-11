@@ -10,11 +10,20 @@
 
 #include "Tudat/SimulationSetup/PropagationSetup/createStateDerivativeModel.h"
 
+#include <Tudat/SimulationSetup/tudatEstimationHeader.h>
+
+#include "Tudat/Astrodynamics/Gravitation/librationPoint.h"
+#include "Tudat/Astrodynamics/Gravitation/unitConversionsCircularRestrictedThreeBodyProblem.h"
+#include "Tudat/Mathematics/Interpolators/createInterpolator.h"
+#include "Tudat/Astrodynamics/BasicAstrodynamics/celestialBodyConstants.h"
+
 namespace tudat
 {
 
 namespace propagators
 {
+
+using namespace tudat::simulation_setup;
 
 //! Function to create an integrator to propagate the dynamics (in normalized units) in CR3BP
 std::shared_ptr< numerical_integrators::NumericalIntegrator< double, Eigen::Vector6d > > createCR3BPIntegrator(
@@ -66,6 +75,7 @@ std::map< double, Eigen::Vector6d > performCR3BPIntegration(
     return stateHistory;
 
 }
+
 
 template std::vector< std::shared_ptr< SingleStateTypeDerivative< double, double > > > createStateDerivativeModels< double, double >(
         const std::shared_ptr< SingleArcPropagatorSettings< double > > propagatorSettings,
