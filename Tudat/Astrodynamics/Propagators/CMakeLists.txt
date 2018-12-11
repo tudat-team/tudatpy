@@ -176,3 +176,7 @@ add_executable(test_StateDerivativeRestrictedThreeBodyProblem "${SRCROOT}${PROPA
 setup_custom_test_program(test_StateDerivativeRestrictedThreeBodyProblem "${SRCROOT}${PROPAGATORSDIR}")
 target_link_libraries(test_StateDerivativeRestrictedThreeBodyProblem tudat_mission_segments tudat_root_finders tudat_propagators tudat_numerical_integrators tudat_basic_astrodynamics tudat_input_output ${Boost_LIBRARIES})
 
+add_executable(test_FullPropagationRestrictedThreeBodyProblem "${SRCROOT}${PROPAGATORSDIR}/UnitTests/unitTestFullPropagationCircularRestrictedThreeBodyProblem.cpp")
+setup_custom_test_program(test_FullPropagationRestrictedThreeBodyProblem "${SRCROOT}${PROPAGATORSDIR}")
+target_link_libraries(test_FullPropagationRestrictedThreeBodyProblem ${TUDAT_PROPAGATION_LIBRARIES} ${Boost_LIBRARIES})
+

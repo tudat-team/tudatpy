@@ -107,6 +107,23 @@ double convertDimensionalTimeToDimensionlessTime(
         const double gravitationalParameterOfSecondaryBody,
         const double distanceBetweenPrimaries);
 
+
+//!Function to transform normalized co-rotating coordinates into cartesian ones
+Eigen::Vector6d convertCorotatingNormalizedToCartesianCoordinates(
+        const double gravitationalParameterPrimary,
+        const double gravitationalParameterSecondary,
+        const double distancePrimarySecondary,
+        const Eigen::Vector6d& normalizedState,
+        const double normalizedTime );
+
+//! Function to transform cartesian coordinates into co-rotating normalized ones
+Eigen::Vector6d convertCartesianToCorotatingNormalizedCoordinates(
+        const double gravitationalParameterPrimary,
+        const double gravitationalParameterSecondary,
+        const double distancePrimarySecondary,
+        const Eigen::Vector6d& cartesianState,
+        const double time );
+
 } // namespace circular_restricted_three_body_problem
 } // namespace tudat
 
