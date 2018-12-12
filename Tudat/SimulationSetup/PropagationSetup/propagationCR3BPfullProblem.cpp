@@ -217,7 +217,7 @@ Eigen::Vector6d propagateCR3BPandFullDynamicsProblem(
     std::map< double, Eigen::VectorXd > stateHistoryFullProblem = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
     double finalPropagationTime = stateHistoryFullProblem.rbegin( )->first;
 
-    Eigen::Vector6d finalPropagatedStateFullProblem = stateHistoryFullProblem.rbegin( )->second.transpose( );
+    Eigen::Vector6d finalPropagatedStateFullProblem = stateHistoryFullProblem.rbegin( )->second;
 
     Eigen::Vector6d finalPropagatedStateCR3BP = propagateCR3BPFromEnvironment(
                 initialTime, finalPropagationTime, initialState, integratorSettings, bodyMap,
