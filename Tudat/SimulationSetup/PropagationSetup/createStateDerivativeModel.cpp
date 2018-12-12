@@ -83,8 +83,10 @@ std::map< double, Eigen::Vector6d > performCR3BPIntegration(
 
         stateHistory.erase( currentTime );
         integrator->rollbackToPreviousState( );
+
         currentState = integrator->performIntegrationStep( finalTimeStep );
         currentTime = integrator->getCurrentIndependentVariable( );
+        stateHistory[ currentTime ] = currentState;
     }
     return stateHistory;
 

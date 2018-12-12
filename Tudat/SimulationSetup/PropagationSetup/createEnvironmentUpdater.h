@@ -151,7 +151,6 @@ std::vector< std::string > > createEnvironmentUpdaterSettings(
     std::map< propagators::EnvironmentModelsToUpdate,
             std::vector< std::string > > environmentModelsToUpdate;
 
-    std::cout<<"Type "<<propagatorSettings->getStateType( )<<std::endl;
     // Check dynamics type
     switch( propagatorSettings->getStateType( ) )
     {

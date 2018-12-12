@@ -73,7 +73,7 @@ BOOST_AUTO_TEST_CASE( testFullPropagationCircularRestrictedThreeBodyProblem )
 
 
     // Create integrator settings
-    const double fixedStepSize = 1000;
+    const double fixedStepSize = 1000.0;
     std::shared_ptr< numerical_integrators::IntegratorSettings< > > integratorSettings =
             std::make_shared < numerical_integrators::IntegratorSettings < > >
             ( numerical_integrators::rungeKutta4, initialTime, fixedStepSize );
