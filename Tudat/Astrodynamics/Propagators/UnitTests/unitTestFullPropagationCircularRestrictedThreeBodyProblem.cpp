@@ -46,7 +46,7 @@ BOOST_AUTO_TEST_CASE( testFullPropagationCircularRestrictedThreeBodyProblem )
     bodiesCR3BP.push_back( "Sun" );
     bodiesCR3BP.push_back( "Earth" );
 
-    simulation_setup::NamedBodyMap bodyMap = setupBodyMapCR3BPBodyMap(
+    simulation_setup::NamedBodyMap bodyMap = setupBodyMapCR3BP(
                 physical_constants::ASTRONOMICAL_UNIT, "Sun", "Earth", "Spacecraft", 0.0 );
 
     // Spacecraft properties
@@ -80,7 +80,7 @@ BOOST_AUTO_TEST_CASE( testFullPropagationCircularRestrictedThreeBodyProblem )
 
 
     // calculate the difference between CR3BP and full problem
-    Eigen::Vector6d stateDifference = propagateCR3BPandFullDynamicsProblem(
+    Eigen::Vector6d stateDifference = getFinalStateDifferenceFullPropagationWrtCR3BP(
                 initialTime, finalTime, initialState, integratorSettings, accelerationModelMap,
                 bodiesToPropagate, centralBodies,bodyMap, bodiesCR3BP );
 
