@@ -22,8 +22,8 @@ namespace propagators
 
 //! Setup CR3BP body map.
 /*!
- * Setup CR3BP body map. The two primaries are declared in the body map. They are in circular orbit about their barycenter, orbiting it with
- * the same mean motion and thus stay aligned during the propagation. The third, smaller body to be propagated in the CR3BP is defined as well.
+ * Setup CR3BP body map. The two primaries, as well as the third, smaller body to be propagated are defined in the body map. The two primaries
+ * are in circular orbit about their barycenter, orbiting it with the same mean motion, so that they stay aligned during propagation.
  * \param distancePrimarySecondary Distance between primaries    [m].
  * \param namePrimaryBody Name of the primary body.
  * \param nameSecondaryBody Name of the secondary body.
@@ -40,7 +40,8 @@ simulation_setup::NamedBodyMap setupBodyMapCR3BPBodyMap(
 
 //! Setup CR3BP acceleration map.
 /*!
- * Setup CR3BP acceleration map. Define the acceleration map for the CR3BP, from the corresponding body map.
+ * Setup CR3BP acceleration map. Define the acceleration map for the CR3BP, from the corresponding body map. The only accelerations
+ * acting on the system are point-mass gravity from the two primaries.
  * \param namePrimaryBody Name of the primary body.
  * \param nameSecondaryBody Name of the secondary body.
  * \param nameBodyToPropagate Name of the third, smaller body to be propagated.
