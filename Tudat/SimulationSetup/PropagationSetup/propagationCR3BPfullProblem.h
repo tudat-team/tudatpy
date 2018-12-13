@@ -24,10 +24,10 @@ namespace propagators
 /*!
  * Setup CR3BP body map. The two primaries are declared in the body map. They are in circular orbit about their barycenter, orbiting it with
  * the same mean motion and thus stay aligned during the propagation. The third, smaller body to be propagated in the CR3BP is defined as well.
- * \param distancePrimarySecondary Distance between primaries.   [m]
+ * \param distancePrimarySecondary Distance between primaries    [m].
  * \param namePrimaryBody Name of the primary body.
  * \param nameSecondaryBody Name of the secondary body.
- * \param nameBodyToPropagate Name of the third, massless body to be propagated.
+ * \param nameBodyToPropagate Name of the third, smaller body to be propagated.
  * \return Body Map modelling the CR3BP.
  */
 simulation_setup::NamedBodyMap setupBodyMapCR3BPBodyMap(
@@ -43,7 +43,7 @@ simulation_setup::NamedBodyMap setupBodyMapCR3BPBodyMap(
  * Setup CR3BP acceleration map. Define the acceleration map for the CR3BP, from the corresponding body map.
  * \param namePrimaryBody Name of the primary body.
  * \param nameSecondaryBody Name of the secondary body.
- * \param nameBodyToPropagate Name of the third, massless body to be propagated.
+ * \param nameBodyToPropagate Name of the third, smaller body to be propagated.
  * \param bodiesToPropagate Bodies to be propagated.
  * \param centralBodies Central bodies for the propagation.
  * \param bodyMap CR3BP body map.
@@ -62,9 +62,9 @@ basic_astrodynamics::AccelerationMap setupAccelerationMapCR3BP(
 //! Propagate CR3BP from CR3BP environment
 /*!
  * Propagate CR3BP from CR3BP environment.
- * \param initialTime Initial time for the propagation.  [s]
- * \param finalPropagationTime Final time at which the propagation ends. [s]
- * \param initialState Initial state of the third, massless body to be propagated (x-position coordinate [m], y-position coordinate [m],
+ * \param initialTime Initial time for the propagation  [s].
+ * \param finalPropagationTime Final time at which the propagation ends [s].
+ * \param initialState Initial state of the third, smaller body to be propagated (x-position coordinate [m], y-position coordinate [m],
  *   z-position coordinate [m], x-velocity coordinate [m/s], y-velocity coordinate [m/s], z-velocity coordinate [m/s]).
  * \param integratorSettings Integrator settings for the propagation (the initial time and time-step have to be defined as dimensional times,
  * their conversion to adimensional times is implemented within the function).
@@ -93,7 +93,7 @@ Eigen::Vector6d propagateCR3BPFromEnvironment(
  * Propagate the CR3BP and the full dynamics problem, and compute the state difference at the end of the propagation.
  * \param initialTime Initial time for the propagation [s].
  * \param finalTime Final time at which the propagation ends [s].
- * \param initialState Initial state of the third, massless body to be propagated (x-position coordinate [m], y-position coordinate [m],
+ * \param initialState Initial state of the third, smaller body to be propagated (x-position coordinate [m], y-position coordinate [m],
  *   z-position coordinate [m], x-velocity coordinate [m/s], y-velocity coordinate [m/s], z-velocity coordinate [m/s]).
  * \param integratorSettings Integrator settings for the propagation (the initial time and time-step have to be defined as dimensional times,
  * their conversion to adimensional times is implemented within the function).

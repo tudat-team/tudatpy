@@ -21,7 +21,7 @@ namespace propagators
 
 
 
-//! Function to directly setup CR3BP bodyMap
+//! Setup CR3BP body map.
 simulation_setup::NamedBodyMap setupBodyMapCR3BPBodyMap(
         const double distancePrimarySecondary,
         const std::string& namePrimaryBody,
@@ -96,7 +96,7 @@ simulation_setup::NamedBodyMap setupBodyMapCR3BPBodyMap(
 }
 
 
-//! Function to directly setup CR3BP acceleration map
+//! Setup CR3BP acceleration map.
 basic_astrodynamics::AccelerationMap setupAccelerationMapCR3BP(
         const std::string& namePrimaryBody,
         const std::string& nameSecondaryBody,
@@ -122,8 +122,8 @@ basic_astrodynamics::AccelerationMap setupAccelerationMapCR3BP(
 }
 
 
-//! Function to simultaneously propagate the dynamics in the CR3BP and in the full dynamics problem
-//! and compute the difference in state at the end of the propagation
+
+//! Propagate CR3BP from CR3BP environment
 Eigen::Vector6d propagateCR3BPFromEnvironment(
         const double initialTime,
         const double finalPropagationTime,
@@ -195,8 +195,7 @@ Eigen::Vector6d propagateCR3BPFromEnvironment(
 
 
 
-//! Function to simultaneously propagate the dynamics in the CR3BP and in the full dynamics problem
-//! and compute the difference in state at the end of the propagation
+//! Propagate the CR3BP and the full dynamics problem and compute the state difference at the end of the propagation.
 Eigen::Vector6d propagateCR3BPandFullDynamicsProblem(
         const double initialTime,
         const double finalTime,

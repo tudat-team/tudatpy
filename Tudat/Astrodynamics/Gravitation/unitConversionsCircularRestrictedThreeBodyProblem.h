@@ -71,18 +71,18 @@ double convertDimensionlessTimeToDimensionalTime(
 //! Convert dimensional Cartesian state to dimensionless state.
 /*!
  * Convert dimensional Cartesian state to dimensionless state.
- * \param dimensionalCartesianState Dimensional Cartesian state vector.                         [m]
+ * \param dimensionalCartesianState Dimensional Cartesian state vector                          [m].
  *          Order is important!
- *          dimensionalCartesianState( 0 ) = x-position coordinate,                             [m]
- *          dimensionalCartesianState( 1 ) = y-position coordinate,                             [m]
- *          dimensionalCartesianState( 2 ) = z-position coordinate,                             [m]
- *          dimensionalCartesianState( 3 ) = x-velocity coordinate,                           [m/s]
- *          dimensionalCartesianState( 4 ) = y-velocity coordinate,                           [m/s]
- *          dimensionalCartesianState( 5 ) = z-velocity coordinate.                           [m/s]
- * \param gravitationalParameterOfPrimaryBody Gravitational parameter of primary body.   [m^3 s^-2]
- * \param gravitationalParameterOfSecondaryBody Gravitational parameter of secondary body.
- *                                                                                       [m^3 s^-2]
- * \param distanceBetweenPrimaries Distance between primaries.                                  [m]
+ *          dimensionalCartesianState( 0 ) = x-position coordinate                              [m],
+ *          dimensionalCartesianState( 1 ) = y-position coordinate                              [m],
+ *          dimensionalCartesianState( 2 ) = z-position coordinate                              [m],
+ *          dimensionalCartesianState( 3 ) = x-velocity coordinate                            [m/s],
+ *          dimensionalCartesianState( 4 ) = y-velocity coordinate                            [m/s],
+ *          dimensionalCartesianState( 5 ) = z-velocity coordinate                            [m/s].
+ * \param gravitationalParameterOfPrimaryBody Gravitational parameter of primary body    [m^3 s^-2].
+ * \param gravitationalParameterOfSecondaryBody Gravitational parameter of secondary body
+ *                                                                                       [m^3 s^-2].
+ * \param distanceBetweenPrimaries Distance between primaries                                   [m].
  * \return Dimensionless Cartesian state.
  */
 Eigen::VectorXd convertDimensionalCartesianStateToDimensionlessState(
@@ -96,11 +96,11 @@ Eigen::VectorXd convertDimensionalCartesianStateToDimensionlessState(
 //! Convert dimensional time to dimensionless time.
 /*!
  * Convert dimensional time to dimensionless time.
- * \param timeDimensional Time in dimensional units                                             [s]
- * \param gravitationalParameterOfPrimaryBody Gravitational parameter of primary body.   [m^3 s^-2]
- * \param gravitationalParameterOfSecondaryBody Gravitational parameter of secondary body.
- *                                                                                       [m^3 s^-2]
- * \param distanceBetweenPrimaries Distance between primaries.                                  [m]
+ * \param dimensionalTime Time in dimensional units                                             [s].
+ * \param gravitationalParameterOfPrimaryBody Gravitational parameter of primary body    [m^3 s^-2].
+ * \param gravitationalParameterOfSecondaryBody Gravitational parameter of secondary body
+ *                                                                                       [m^3 s^-2].
+ * \param distanceBetweenPrimaries Distance between primaries                                   [m].
  * \return Adimensional time.
  */
 double convertDimensionalTimeToDimensionlessTime(
@@ -113,10 +113,10 @@ double convertDimensionalTimeToDimensionlessTime(
 
 //! Convert corotating normalized state to inertial cartesian state.
 /*!
- * Convert corotating normalized state to inertial cartesian state.
- * \param gravitationalParameterPrimary Gravitational parameter of primary body.       [m^3 s^-2]
- * \param gravitationalParameterSecondary Gravitational parameter of secondary body.   [m^3 s^-2]
- * \param distancePrimarySecondary Distance between primaries.                                [m]
+ * Convert corotating normalized state to inertial cartesian state
+ * \param gravitationalParameterPrimary Gravitational parameter of primary body        [m^3 s^-2].
+ * \param gravitationalParameterSecondary Gravitational parameter of secondary body    [m^3 s^-2].
+ * \param distancePrimarySecondary Distance between primaries                                 [m].
  * \param normalizedState Co-rotating normalized state.
  * \param normalizedTime Adimensional time.
  * \return Inertial cartesian state.
@@ -137,14 +137,14 @@ Eigen::Vector6d convertCorotatingNormalizedToCartesianCoordinates(
 
 
 
-//! Convert corotating normalized state to inertial cartesian state.
+//! Convert inertial cartesian state to co-rotating normalized state.
 /*!
- * Convert corotating normalized state to inertial cartesian state.
- * \param gravitationalParameterPrimary Gravitational parameter of primary body.       [m^3 s^-2]
- * \param gravitationalParameterSecondary Gravitational parameter of secondary body.   [m^3 s^-2]
- * \param distancePrimarySecondary Distance between primaries.                                [m]
- * \param cartesianState Inertial cartesian state.                                            [m]
- * \param time Dimensional time.                                                              [s]
+ * Convert inertial cartesian state to co-rotating normalized state.
+ * \param gravitationalParameterPrimary Gravitational parameter of primary body       [m^3 s^-2].
+ * \param gravitationalParameterSecondary Gravitational parameter of secondary body   [m^3 s^-2].
+ * \param distancePrimarySecondary Distance between primaries                                [m].
+ * \param cartesianState Inertial cartesian state (x-position coordinate [m], y-position coordinate [m], z-position coordinate [m], x-velocity coordinate [m/s], y-velocity coordinate [m/s], z-velocity coordinate [m/s]).
+ * \param time Dimensional time                                                              [s].
  * \return Co-rotating normalized state.
  */
 Eigen::Vector6d convertCartesianToCorotatingNormalizedCoordinates(
