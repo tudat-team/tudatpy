@@ -21,7 +21,10 @@
 #include "Tudat/Astrodynamics/Ephemerides/tabulatedEphemeris.h"
 #include "Tudat/Astrodynamics/Ephemerides/approximatePlanetPositionsBase.h"
 #include "Tudat/Mathematics/Interpolators/createInterpolator.h"
+
+#if USE_CSPICE
 #include "Tudat/External/SpiceInterface/spiceInterface.h"
+#endif
 
 namespace tudat
 {
