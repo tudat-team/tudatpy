@@ -26,8 +26,7 @@ simulation_setup::NamedBodyMap setupBodyMapCR3BPBodyMap(
         const double distancePrimarySecondary,
         const std::string& namePrimaryBody,
         const std::string& nameSecondaryBody,
-        const std::string& nameBodyToPropagate,
-        const double initialTime )
+        const std::string& nameBodyToPropagate )
 {
     spice_interface::loadStandardSpiceKernels( );
 
@@ -75,9 +74,9 @@ simulation_setup::NamedBodyMap setupBodyMapCR3BPBodyMap(
     // Define body ephemeris settings
     std::string frameOrientation = "J2000";
     bodySettings[ namePrimaryBody ]->ephemerisSettings = std::make_shared< simulation_setup::KeplerEphemerisSettings >(
-                initialStateInKeplerianElementsPrimary, initialTime, gravitationalParameterPrimaryTwoBodyProblem, "SSB", frameOrientation );
+                initialStateInKeplerianElementsPrimary, 0.0, gravitationalParameterPrimaryTwoBodyProblem, "SSB", frameOrientation );
     bodySettings[ nameSecondaryBody ]->ephemerisSettings = std::make_shared< simulation_setup::KeplerEphemerisSettings >(
-                initialStateInKeplerianElementsSecondary, initialTime, gravitationalParameterSecondaryTwoBodyProblem, "SSB", frameOrientation );
+                initialStateInKeplerianElementsSecondary, 0.0, gravitationalParameterSecondaryTwoBodyProblem, "SSB", frameOrientation );
     for( unsigned int j = 0; j < bodiesToCreate.size( ); j++ )
     {
         bodySettings[ bodiesToCreate.at( j ) ]->ephemerisSettings->resetFrameOrientation( frameOrientation );
@@ -193,6 +192,8 @@ Eigen::Vector6d propagateCR3BPFromEnvironment(
                 gravitationalParameterPrimary, gravitationalParameterSecondary, distanceBetweenPrimaries,
                 normalizedFinalPropagatedStateCR3BP, normalizedFinalPropagationTimeCR3BP );
 }
+
+
 
 //! Function to simultaneously propagate the dynamics in the CR3BP and in the full dynamics problem
 //! and compute the difference in state at the end of the propagation
