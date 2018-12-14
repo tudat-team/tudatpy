@@ -85,7 +85,9 @@ Eigen::VectorXd convertDimensionalCartesianStateToDimensionlessState(
     return dimensionlessCartesianState;
 }
 
-//! Convert dimensional time to dimensionless
+
+
+//! Convert dimensional time to dimensionless time.
 double convertDimensionalTimeToDimensionlessTime(
         const double dimensionalTime,
         const double gravitationalParameterOfPrimaryBody,
@@ -98,7 +100,7 @@ double convertDimensionalTimeToDimensionlessTime(
 }
 
 
-//!Function to transform normalized co-rotating coordinates into cartesian ones
+//! Convert corotating normalized state to inertial cartesian state.
 Eigen::Vector6d convertCorotatingNormalizedToCartesianCoordinates(
         const double gravitationalParameterPrimary,
         const double gravitationalParameterSecondary,
@@ -134,7 +136,7 @@ Eigen::Vector6d convertCorotatingNormalizedToCartesianCoordinates(
 
 
 
-//! Function to transform cartesian coordinates into co-rotating normalized ones
+//! Convert inertial cartesian state to co-rotating normalized state.
 Eigen::Vector6d convertCartesianToCorotatingNormalizedCoordinates(
         const double gravitationalParameterPrimary,
         const double gravitationalParameterSecondary,
