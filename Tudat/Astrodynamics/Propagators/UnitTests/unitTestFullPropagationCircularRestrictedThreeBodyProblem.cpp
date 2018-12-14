@@ -23,7 +23,7 @@
 
 #include "Tudat/SimulationSetup/tudatSimulationHeader.h"
 #include "Tudat/Basics/testMacros.h"
-#include "Tudat/SimulationSetup/PropagationSetup/propagationCR3BPfullProblem.h"
+#include "Tudat/SimulationSetup/PropagationSetup/propagationCR3BPFullProblem.h"
 
 
 namespace tudat
@@ -47,7 +47,7 @@ BOOST_AUTO_TEST_CASE( testFullPropagationCircularRestrictedThreeBodyProblem )
     bodiesCR3BP.push_back( "Earth" );
 
     simulation_setup::NamedBodyMap bodyMap = setupBodyMapCR3BP(
-                physical_constants::ASTRONOMICAL_UNIT, "Sun", "Earth", "Spacecraft", 0.0 );
+                physical_constants::ASTRONOMICAL_UNIT, "Sun", "Earth", "Spacecraft" );
 
     // Spacecraft properties
     bodyMap[ "Spacecraft" ]->setConstantBodyMass( 100.0 );
