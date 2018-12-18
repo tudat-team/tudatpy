@@ -26,7 +26,7 @@ namespace unit_tests
 
 using namespace tudat;
 
-//! Test if state derivative for circular restricted three-body problem is computed correctly.
+//! Test if the difference between the Lambert targeter solution and the full dynamics problem is computed correctly.
 BOOST_AUTO_TEST_CASE( testFullPropagationLambertTargeter )
 {
 
@@ -51,7 +51,7 @@ BOOST_AUTO_TEST_CASE( testFullPropagationLambertTargeter )
     // Define the body map.
     simulation_setup::NamedBodyMap bodyMap = propagators::setupBodyMapLambertTargeter("Earth", "spacecraft");
     basic_astrodynamics::AccelerationMap accelerationModelMap = propagators::setupAccelerationMapLambertTargeter(
-                "Earth", "spacecraft", bodiesToPropagate, centralBodies, bodyMap);
+                "Earth", "spacecraft", bodyMap);
 
 
    // Compute the difference in state between the full problem and the Lambert targeter solution at departure and at arrival

@@ -12,7 +12,6 @@
 #include "Tudat/Astrodynamics/MissionSegments/lambertTargeter.h"
 #include "Tudat/Astrodynamics/MissionSegments/lambertTargeterIzzo.h"
 #include "Tudat/Astrodynamics/MissionSegments/lambertRoutines.h"
-//#include "Tudat/SimulationSetup/PropagationSetup/fullPropagationLambertTargeter.h"
 #include "Tudat/SimulationSetup/EnvironmentSetup/defaultBodies.h"
 #include "Tudat/SimulationSetup/PropagationSetup/createAccelerationModels.h"
 #include <Tudat/SimulationSetup/tudatEstimationHeader.h>
@@ -28,7 +27,7 @@ namespace propagators
 {
 
 
-//! Function to directly setup CR3BP bodyMap
+//! Function to directly setup a body map corresponding to the assumptions of the Lambert targeter.
 simulation_setup::NamedBodyMap setupBodyMapLambertTargeter(
         const std::string& nameCentralBody,
         const std::string& nameBodyToPropagate)
@@ -73,15 +72,17 @@ simulation_setup::NamedBodyMap setupBodyMapLambertTargeter(
 
 
 
-//! Function to directly setup CR3BP acceleration map
+//! Function to directly setup an acceleration map for the Lambert targeter.
 basic_astrodynamics::AccelerationMap setupAccelerationMapLambertTargeter(
         const std::string& nameCentralBody,
         const std::string& nameBodyToPropagate,
-        const std::vector< std::string >& bodiesToPropagate,
-        const std::vector< std::string >& centralBodies,
         const simulation_setup::NamedBodyMap& bodyMap )
 {
 
+    std::vector< std::string > bodiesToPropagate;
+    bodiesToPropagate.push_back( nameBodyToPropagate );
+    std::vector< std::string > centralBodies;
+    centralBodies.push_back( nameCentralBody );
 
     std::map< std::string, std::vector< std::shared_ptr< simulation_setup::AccelerationSettings > > > bodyToPropagateAccelerations;
     bodyToPropagateAccelerations[nameCentralBody].push_back(std::make_shared< simulation_setup::AccelerationSettings >(
@@ -99,6 +100,7 @@ basic_astrodynamics::AccelerationMap setupAccelerationMapLambertTargeter(
 }
 
 
+//! Function to determine the cartesian state at a given time for a keplerian orbit, based on the initial state.
 Eigen::Vector6d propagateLambertTargeterSolution(
         const Eigen::Vector6d& initialState,
         const double finalPropagationTime,
@@ -134,7 +136,8 @@ Eigen::Vector6d propagateLambertTargeterSolution(
 
 
 
-//! Function to propagate the full dynamics problem and compare it with Lambert targeter
+
+//! Function to propagate the full dynamics problem and the Lambert targeter solution.
 void propagateLambertTargeterAndFullProblem( const Eigen::Vector3d cartesianPositionAtDeparture,
         const Eigen::Vector3d& cartesianPositionAtArrival,
         const double timeOfFlight,
@@ -178,7 +181,6 @@ void propagateLambertTargeterAndFullProblem( const Eigen::Vector3d cartesianPosi
     double meanAnomalyAtDeparture = orbital_element_conversions::convertEccentricAnomalyToMeanAnomaly(
                 orbital_element_conversions::convertTrueAnomalyToEccentricAnomaly(trueAnomalyAtDeparture, eccentricity),
                 eccentricity);
-
 
 
     // Calculate the true anomaly at half the time of flight.
@@ -232,7 +234,6 @@ void propagateLambertTargeterAndFullProblem( const Eigen::Vector3d cartesianPosi
     }
 
 
-
     // Define backward propagator settings variables.
     integratorSettings->initialTimeStep_ = -1 * integratorSettings->initialTimeStep_;
     integratorSettings->initialTime_ = 0.0;
@@ -264,7 +265,8 @@ void propagateLambertTargeterAndFullProblem( const Eigen::Vector3d cartesianPosi
 }
 
 
-
+//! Function to compute the difference in cartesian state between Lambert targeter solution and full dynamics problem, both at departure
+//! and at arrival.
 std::pair< Eigen::Vector6d, Eigen::Vector6d > getDifferenceFullPropagationWrtLambertTargeterAtDepartureAndArrival(
         const Eigen::Vector3d& cartesianPositionAtDeparture,
         const Eigen::Vector3d& cartesianPositionAtArrival,
@@ -272,7 +274,7 @@ std::pair< Eigen::Vector6d, Eigen::Vector6d > getDifferenceFullPropagationWrtLam
         simulation_setup::NamedBodyMap& bodyMap,
         const basic_astrodynamics::AccelerationMap& accelerationModelMap,
         const std::vector< std::string >& bodiesToPropagate,
-        const std::vector< std::string >& centralBody,
+        const std::vector< std::string >& centralBodies,
         const std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings)
 
 {
@@ -281,7 +283,7 @@ std::pair< Eigen::Vector6d, Eigen::Vector6d > getDifferenceFullPropagationWrtLam
 
     // compute full problem and Lambert targeter solution both at departure and arrival.
     propagateLambertTargeterAndFullProblem(cartesianPositionAtDeparture, cartesianPositionAtArrival, timeOfFlight,
-                                           bodyMap, accelerationModelMap, bodiesToPropagate, centralBody, integratorSettings,
+                                           bodyMap, accelerationModelMap, bodiesToPropagate, centralBodies, integratorSettings,
                                            lambertTargeterResult, fullProblemResult);
 
     Eigen::Vector6d stateLambertTargeterAtDeparture = lambertTargeterResult.begin( )->second;
