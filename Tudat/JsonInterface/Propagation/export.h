@@ -63,6 +63,10 @@ public:
 
     //! Whether to print only the values corresponding to the final integration step.
     bool onlyFinalStep_ = false;
+
+    //! Whether to show, in the terminal, the indices in the output vector where variables are saved
+    bool printVariableIndicesToTerminal_ = false;
+
 };
 
 //! Create a `json` object from a shared pointer to a `ExportSettings` object.
@@ -105,6 +109,13 @@ void exportResultsOfDynamicsSimulator(
 
         // Determine number of columns (not including first column = epoch).
         unsigned int cols = 0;
+
+        if( exportSettings->printVariableIndicesToTerminal_ )
+        {
+            std::cout<<"Printing data to file: "<<exportSettings->outputFile_.filename( ).string( )<<
+                       "  output vectors contain:"<<std::endl;
+            std::cout<<"Vector entry, Vector contents"<<std::endl;
+        }
 
         for ( std::shared_ptr< VariableSettings > variable : exportSettings->variables_ )
         {
@@ -190,8 +201,18 @@ void exportResultsOfDynamicsSimulator(
                 variableSizes.push_back( variableSize );
                 variableIndices.push_back( variableIndex );
 
+                if( exportSettings->printVariableIndicesToTerminal_ )
+                {
+                    std::cout<<cols<<", "<<getVariableId( variable )<<std::endl;
+                }
+
                 cols += variableSize;
             }
+        }
+
+        if( exportSettings->printVariableIndicesToTerminal_ )
+        {
+            std::cout<<std::endl;
         }
 
         // Concatenate requested results
@@ -252,6 +273,7 @@ void exportResultsOfDynamicsSimulator(
                 default:
                     break;
                 }
+
                 currentIndex += variableSize;
             }
             results[ epoch ] = result;

@@ -693,7 +693,9 @@ std::map< double, Eigen::Vector6d > performCR3BPIntegration(
         const std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings,
         const double massParameter,
         const Eigen::Vector6d& initialState,
-        const double finalTime  );
+        const double finalTime,
+        const bool propagateToExactFinalTime = false );
+
 
 } // namespace propagators
 

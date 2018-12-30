@@ -55,14 +55,6 @@ BOOST_AUTO_TEST_SUITE( test_reference_frame_transformations )
 // Test inertial to rotating planetocentric frame transformations.
 BOOST_AUTO_TEST_CASE( testRotatingPlanetocentricFrameTransformations )
 {
-    // Using declarations.
-    using std::atan2;
-    using std::cos;
-    using std::sin;
-    using std::pow;
-    using std::sqrt;
-
-
     // Test 1: Test Inertial to rotating planetocentric frame transformation.
     {
         // Initialize initial location vector in inertial frame.
@@ -71,11 +63,11 @@ BOOST_AUTO_TEST_CASE( testRotatingPlanetocentricFrameTransformations )
         startLocation( 1 ) = 1.0;
         startLocation( 2 ) = 5.0;
 
-        double horizontalStartLocationSize = sqrt( pow( startLocation( 0 ), 2.0 )
-                                                   + pow( startLocation( 1 ), 2.0 ) );
+        double horizontalStartLocationSize = sqrt( std::pow( startLocation( 0 ), 2.0 )
+                                                   + std::pow( startLocation( 1 ), 2.0 ) );
 
         // Declare and initialize angle between vector and XR-axis.
-        double startAngle = atan2( startLocation( 1 ), startLocation( 0 ) );
+        double startAngle = std::atan2( startLocation( 1 ), startLocation( 0 ) );
 
         // Rotate by 10 degrees around the positive Z-axis
         double angleInTime = convertDegreesToRadians( 10.0 );
@@ -85,8 +77,8 @@ BOOST_AUTO_TEST_CASE( testRotatingPlanetocentricFrameTransformations )
 
         // Declare the expected location of the point in the planetocentric reference frame.
         Eigen::Vector3d expectedLocation;
-        expectedLocation( 0 ) = horizontalStartLocationSize * cos( endAngle );
-        expectedLocation( 1 ) = horizontalStartLocationSize * sin( endAngle );
+        expectedLocation( 0 ) = horizontalStartLocationSize * std::cos( endAngle );
+        expectedLocation( 1 ) = horizontalStartLocationSize * std::sin( endAngle );
         expectedLocation( 2 ) = startLocation( 2 );
 
         // Compute location of the point in the rotating frame subject to the transformation
@@ -129,13 +121,6 @@ BOOST_AUTO_TEST_CASE( testRotatingPlanetocentricFrameTransformations )
 
 BOOST_AUTO_TEST_CASE( testRotatingPlanetocentricFrameTransformationQuaternion )
 {
-    // Using declarations.
-    using std::atan2;
-    using std::cos;
-    using std::sin;
-    using std::pow;
-    using std::sqrt;
-
 
     // Test 3: Same test as Test 1 for the transformation quaternion.
     // Compute location of the point in the Rotating frame subject to the transformation matrix.
@@ -146,11 +131,11 @@ BOOST_AUTO_TEST_CASE( testRotatingPlanetocentricFrameTransformationQuaternion )
         startLocation( 1 ) = 1.0;
         startLocation( 2 ) = 5.0;
 
-        double horizontalStartLocationSize = sqrt( pow( startLocation( 0 ), 2.0 )
-                                                   + pow( startLocation( 1 ), 2.0 ) );
+        double horizontalStartLocationSize = sqrt( std::pow( startLocation( 0 ), 2.0 )
+                                                   + std::pow( startLocation( 1 ), 2.0 ) );
 
         // Declare and initialize angle between vector and XR-axis.
-        double startAngle = atan2( startLocation( 1 ), startLocation( 0 ) );
+        double startAngle = std::atan2( startLocation( 1 ), startLocation( 0 ) );
 
         // Rotate by 10 degrees around the positive Z-axis
         double angleInTime = convertDegreesToRadians( 10.0 );
@@ -160,8 +145,8 @@ BOOST_AUTO_TEST_CASE( testRotatingPlanetocentricFrameTransformationQuaternion )
 
         // Declare the expected location of the point in the planetocentric reference frame.
         Eigen::Vector3d expectedLocation;
-        expectedLocation( 0 ) = horizontalStartLocationSize * cos( endAngle );
-        expectedLocation( 1 ) = horizontalStartLocationSize * sin( endAngle );
+        expectedLocation( 0 ) = horizontalStartLocationSize * std::cos( endAngle );
+        expectedLocation( 1 ) = horizontalStartLocationSize * std::sin( endAngle );
         expectedLocation( 2 ) = startLocation( 2 );
 
         // Compute location of the point in the rotating frame subject to the transformation matrix.
@@ -203,11 +188,6 @@ BOOST_AUTO_TEST_CASE( testRotatingPlanetocentricFrameTransformationQuaternion )
 
 BOOST_AUTO_TEST_CASE( testAirspeedBasedAerodynamicToBodyFrameTransformation )
 {
-    // Using declarations.
-    using std::atan2;
-    using std::cos;
-
-
     // Test 5: Test airspeed-Based Aerodynamic to body frame transformation.
     // Declare and initialize the start location and angles.
     {
@@ -223,9 +203,9 @@ BOOST_AUTO_TEST_CASE( testAirspeedBasedAerodynamicToBodyFrameTransformation )
         // Compute expected location.
         // As there is only an angle of attack, the following simplified equations can be used.
         Eigen::Vector3d expectedLocation;
-        expectedLocation( 0 ) = startLocation( 0 ) * cos( angleOfSideslip ) * cos( angleOfAttack );
-        expectedLocation( 1 ) = startLocation( 0 ) * sin( angleOfSideslip );
-        expectedLocation( 2 ) = startLocation( 0 ) * cos( angleOfSideslip ) * sin( angleOfAttack );
+        expectedLocation( 0 ) = startLocation( 0 ) * std::cos( angleOfSideslip ) * std::cos( angleOfAttack );
+        expectedLocation( 1 ) = startLocation( 0 ) * std::sin( angleOfSideslip );
+        expectedLocation( 2 ) = startLocation( 0 ) * std::cos( angleOfSideslip ) * std::sin( angleOfAttack );
 
         // Compute location of the point in the rotating frame subject to the transformation matrix.
         Eigen::Vector3d transformedLocation;
@@ -240,12 +220,6 @@ BOOST_AUTO_TEST_CASE( testAirspeedBasedAerodynamicToBodyFrameTransformation )
 
 BOOST_AUTO_TEST_CASE( testRotatingPlanetocentricToLocalVerticalFrameTransformationQuaternion )
 {
-    // Using declarations.
-    using std::atan2;
-    using std::cos;
-    using std::sin;
-
-
     // Test 6: Test Rotating planetocentric to local vertical frame transformation quaternion.
     {
         // Initialize initial location vector.
@@ -262,15 +236,15 @@ BOOST_AUTO_TEST_CASE( testRotatingPlanetocentricToLocalVerticalFrameTransformati
 
         // Declare the expected location of the point in the planet reference frame.
         Eigen::Vector3d expectedLocation;
-        expectedLocation( 0 ) = -cos( longitude ) * sin( latitude ) * startLocation( 0 ) -
-                sin( longitude ) * sin( latitude ) * startLocation( 1 )  +
-                cos( latitude ) * startLocation( 2 );
-        expectedLocation( 1 ) = -sin( longitude ) * startLocation( 0 ) +
-                cos( longitude ) * startLocation( 1 ) +
+        expectedLocation( 0 ) = -std::cos( longitude ) * std::sin( latitude ) * startLocation( 0 ) -
+                std::sin( longitude ) * std::sin( latitude ) * startLocation( 1 )  +
+                std::cos( latitude ) * startLocation( 2 );
+        expectedLocation( 1 ) = -std::sin( longitude ) * startLocation( 0 ) +
+                std::cos( longitude ) * startLocation( 1 ) +
                 0.0;
-        expectedLocation( 2 ) = -cos( longitude ) * cos( latitude ) * startLocation( 0 ) -
-                sin( longitude ) * cos( latitude ) * startLocation( 1 )  -
-                sin( latitude ) * startLocation( 2 );
+        expectedLocation( 2 ) = -std::cos( longitude ) * std::cos( latitude ) * startLocation( 0 ) -
+                std::sin( longitude ) * std::cos( latitude ) * startLocation( 1 )  -
+                std::sin( latitude ) * startLocation( 2 );
 
         // Compute location of the point in the rotating frame subject to the transformation matrix.
         Eigen::Vector3d transformedLocation;
@@ -370,11 +344,6 @@ BOOST_AUTO_TEST_CASE( testRotatingPlanetocentricWithEquatorChangeFrameTransforma
 
 BOOST_AUTO_TEST_CASE( testTrajectoryToLocalVerticalFrameTransformations )
 {
-    // Using declarations.
-    using std::cos;
-    using std::sin;
-
-
     // Test 8: Test trajectory to local vertical frame and inverse transformations.
     {
         // Initialize initial location vector.
@@ -395,15 +364,15 @@ BOOST_AUTO_TEST_CASE( testTrajectoryToLocalVerticalFrameTransformations )
                 // Declare the expected location of the point in the V-frame (per Mooij 1997).
                 Eigen::Vector3d expectedLocation;
                 Eigen::Matrix3d rotation;
-                rotation << cos( headingAngle ) * cos( flightPathAngle ),
-                        -sin( headingAngle ),
-                        cos( headingAngle ) * sin( flightPathAngle ),
-                        sin( headingAngle ) * cos( flightPathAngle ),
-                        cos( headingAngle ),
-                        sin( headingAngle ) * sin( flightPathAngle ),
-                        -sin( flightPathAngle ),
+                rotation << std::cos( headingAngle ) * std::cos( flightPathAngle ),
+                        -std::sin( headingAngle ),
+                        std::cos( headingAngle ) * std::sin( flightPathAngle ),
+                        std::sin( headingAngle ) * std::cos( flightPathAngle ),
+                        std::cos( headingAngle ),
+                        std::sin( headingAngle ) * std::sin( flightPathAngle ),
+                        -std::sin( flightPathAngle ),
                         0.0,
-                        cos( flightPathAngle );
+                        std::cos( flightPathAngle );
                 expectedLocation = rotation * startLocation;
 
                 // Compute location of the point in the V-frame using the tested function.
@@ -447,11 +416,6 @@ BOOST_AUTO_TEST_CASE( testTrajectoryToLocalVerticalFrameTransformations )
 
 BOOST_AUTO_TEST_CASE( testTrajectoryToAerodynamicFrameTransformations )
 {
-    // Using declarations.
-    using std::cos;
-    using std::sin;
-
-
     // Test 9: Test trajectory to aerodynamic and inverse transformations.
     {
         // Initialize initial location vector.
@@ -470,8 +434,8 @@ BOOST_AUTO_TEST_CASE( testTrajectoryToAerodynamicFrameTransformations )
             Eigen::Vector3d expectedLocation;
             Eigen::Matrix3d rotation;
             rotation << 1.0, 0.0, 0.0,
-                    0.0, cos( bankAngle ), -sin( bankAngle ),
-                    0.0, sin( bankAngle ), cos( bankAngle );
+                    0.0, std::cos( bankAngle ), -std::sin( bankAngle ),
+                    0.0, std::sin( bankAngle ), std::cos( bankAngle );
             expectedLocation = rotation * startLocation;
 
             // Compute location of the point in the rotating frame subject to the
@@ -510,11 +474,6 @@ BOOST_AUTO_TEST_CASE( testTrajectoryToAerodynamicFrameTransformations )
 
 BOOST_AUTO_TEST_CASE( testAerodynamicToBodyFrameTransformations )
 {
-    // Using declarations.
-    using std::cos;
-    using std::sin;
-
-
     // Test 10: Test body to airspeed-based aerodynamic frame and inverse transformations.
     {
         // Initialize initial location vector.
@@ -536,15 +495,15 @@ BOOST_AUTO_TEST_CASE( testAerodynamicToBodyFrameTransformations )
                 // (per Mooij 1997).
                 Eigen::Vector3d expectedLocation;
                 Eigen::Matrix3d rotation;
-                rotation << cos( angleOfAttack ) * cos( angleOfSideslip ),
-                        sin( angleOfSideslip ),
-                        sin( angleOfAttack ) * cos( angleOfSideslip ),
-                        -cos( angleOfAttack ) * sin( angleOfSideslip ),
-                        cos( angleOfSideslip ),
-                        -sin( angleOfAttack ) * sin( angleOfSideslip ),
-                        -sin( angleOfAttack ),
+                rotation << std::cos( angleOfAttack ) * std::cos( angleOfSideslip ),
+                        std::sin( angleOfSideslip ),
+                        std::sin( angleOfAttack ) * std::cos( angleOfSideslip ),
+                        -std::cos( angleOfAttack ) * std::sin( angleOfSideslip ),
+                        std::cos( angleOfSideslip ),
+                        -std::sin( angleOfAttack ) * std::sin( angleOfSideslip ),
+                        -std::sin( angleOfAttack ),
                         0.0,
-                        cos( angleOfAttack );
+                        std::cos( angleOfAttack );
                 expectedLocation = rotation * startLocation;
 
                 // Compute location of the point in the AA-frame using the tested function.
@@ -635,13 +594,6 @@ void testIsRotationMatrixRightHanded( const Eigen::Matrix3d matrixToTest )
 // Test velocity based LVLH frame transformation.
 BOOST_AUTO_TEST_CASE( testVelocityBasedLvlhFrameTransformations )
 {
-    // Using declarations.
-    using std::atan2;
-    using std::cos;
-    using std::sin;
-    using std::pow;
-    using std::sqrt;
-
     // Test 11: Test velocity=based LVLH frame to inertial (I) frame transformation: for arbitrary state vectors,
     // test all expected properties of rotation matrices
     {
@@ -861,13 +813,13 @@ BOOST_AUTO_TEST_CASE( testVelocityBasedLvlhFrameTransformations )
         centralBodyStateCartesian << 0.0, 2.0, 0.0, -0.5, 0.0, 0.0;
 
         // Compute angle between positive T axis and negative y axis
-        double angle = atan2( ( vehicleStateCartesian( 3 ) - centralBodyStateCartesian( 3 ) ),
+        double angle = std::atan2( ( vehicleStateCartesian( 3 ) - centralBodyStateCartesian( 3 ) ),
                               ( vehicleStateCartesian( 4 ) - centralBodyStateCartesian( 4 ) ) );
 
         // Declare the expected thrust vector in the inertial (I) reference frame.
         Eigen::Vector3d expectedThrustVector;
-        expectedThrustVector( 0 ) = startThrustVector( 0 ) * sin( angle ) + startThrustVector( 1 ) * cos( angle );
-        expectedThrustVector( 1 ) = startThrustVector( 0 ) * cos( angle ) - startThrustVector( 1 ) * sin( angle );
+        expectedThrustVector( 0 ) = startThrustVector( 0 ) * std::sin( angle ) + startThrustVector( 1 ) * std::cos( angle );
+        expectedThrustVector( 1 ) = startThrustVector( 0 ) * std::cos( angle ) - startThrustVector( 1 ) * std::sin( angle );
         expectedThrustVector( 2 ) = -startThrustVector( 2 ); // z direction
 
         // Compute location of the point in the rotating frame subject to the transformation

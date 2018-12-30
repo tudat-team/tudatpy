@@ -279,6 +279,7 @@ std::vector< int > getLinkEndIndicesForLinkEndTypeAtObservable(
                     std::to_string( observableType );
             throw std::runtime_error( errorMessage );
         }
+        break;
     case euler_angle_313_observable:
         if( linkEndType == observed_body )
         {
@@ -292,6 +293,7 @@ std::vector< int > getLinkEndIndicesForLinkEndTypeAtObservable(
                     std::to_string( observableType );
             throw std::runtime_error( errorMessage );
         }
+        break;
     case n_way_range:
         if( numberOfLinkEnds < 2 )
         {

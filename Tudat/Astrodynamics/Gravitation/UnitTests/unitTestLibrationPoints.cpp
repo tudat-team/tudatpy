@@ -40,7 +40,6 @@ namespace tudat
 namespace unit_tests
 {
 
-namespace crtbp = gravitation::circular_restricted_three_body_problem;
 using namespace root_finders;
 
 BOOST_AUTO_TEST_SUITE( test_libration_points )
@@ -59,7 +58,7 @@ BOOST_AUTO_TEST_CASE( testComputationOfMassParameter )
     const double moonGravitationalParameter = earthGravitationalParameter / 81.30059;
 
     // Compute mass parameter.
-    const double computedMassParameter = crtbp::computeMassParameter(
+    const double computedMassParameter = circular_restricted_three_body_problem::computeMassParameter(
                 earthGravitationalParameter, moonGravitationalParameter );
 
     // Check if computed value corresponds to expected mass parameter.
@@ -77,11 +76,11 @@ BOOST_AUTO_TEST_CASE( testComputationOfLocationOfL1LibrationPoint )
 
     // Declare L1 libration point object with Earth-Moon mass parameter and Newton-Raphson method
     // with 1000 iterations as maximum and 1.0e-14 relative X-tolerance.
-    crtbp::LibrationPoint librationPointL1( earthMoonMassParameter,
+    circular_restricted_three_body_problem::LibrationPoint librationPointL1( earthMoonMassParameter,
                                             std::make_shared< NewtonRaphson >( 1.0e-14, 1000 ) );
 
     // Compute location of Lagrange libration point.
-    librationPointL1.computeLocationOfLibrationPoint( crtbp::LibrationPoint::l1 );
+    librationPointL1.computeLocationOfLibrationPoint( circular_restricted_three_body_problem::LibrationPoint::l1 );
 
     // Determine location of libration point in Earth-Moon system.
     const Eigen::Vector3d positionOflibrationPointL1
@@ -106,11 +105,11 @@ BOOST_AUTO_TEST_CASE( testComputationOfLocationOfL2LibrationPoint )
 
     // Declare L2 libration point object with Earth-Moon mass parameter and Newton-Raphson method
     // with 1000 iterations as maximum and 1.0e-14 relative X-tolerance.
-    crtbp::LibrationPoint librationPointL2( earthMoonMassParameter,
+    circular_restricted_three_body_problem::LibrationPoint librationPointL2( earthMoonMassParameter,
                                             std::make_shared< NewtonRaphson >( 1.0e-14, 1000 ) );
 
     // Compute location of Lagrange libration point.
-    librationPointL2.computeLocationOfLibrationPoint( crtbp::LibrationPoint::l2 );
+    librationPointL2.computeLocationOfLibrationPoint( circular_restricted_three_body_problem::LibrationPoint::l2 );
 
     // Determine location of libration point in Earth-Moon system.
     const Eigen::Vector3d positionOflibrationPointL2
@@ -136,11 +135,11 @@ BOOST_AUTO_TEST_CASE( testComputationOfLocationOfL3LibrationPoint )
 
     // Declare L3 libration point object with Earth-Moon mass parameter and Newton-Raphson method
     // with 1000 iterations as maximum and 1.0e-14 relative X-tolerance.
-    crtbp::LibrationPoint librationPointL3( earthMoonMassParameter,
+    circular_restricted_three_body_problem::LibrationPoint librationPointL3( earthMoonMassParameter,
                                             std::make_shared< NewtonRaphson >( 1.0e-14, 1000 ) );
 
     // Compute location of Lagrange libration point.
-    librationPointL3.computeLocationOfLibrationPoint( crtbp::LibrationPoint::l3 );
+    librationPointL3.computeLocationOfLibrationPoint( circular_restricted_three_body_problem::LibrationPoint::l3 );
 
     // Determine location of libration point in Earth-Moon system.
     const Eigen::Vector3d positionOflibrationPointL3
@@ -165,11 +164,11 @@ BOOST_AUTO_TEST_CASE( testComputationOfLocationOfL4LibrationPoint )
 
     // Declare L4 libration point object with Earth-Moon mass parameter and Newton-Raphson method
     // with 1000 iterations as maximum and 1.0e-14 relative X-tolerance.
-    crtbp::LibrationPoint librationPointL4( earthMoonMassParameter,
+    circular_restricted_three_body_problem::LibrationPoint librationPointL4( earthMoonMassParameter,
                                             std::make_shared< NewtonRaphson >( 1.0e-14, 1000 ) );
 
     // Compute location of Lagrange libration point.
-    librationPointL4.computeLocationOfLibrationPoint( crtbp::LibrationPoint::l4 );
+    librationPointL4.computeLocationOfLibrationPoint( circular_restricted_three_body_problem::LibrationPoint::l4 );
 
     // Determine location of libration point in Earth-Moon system.
     const Eigen::Vector3d positionOflibrationPointL4
@@ -196,11 +195,11 @@ BOOST_AUTO_TEST_CASE( testComputationOfLocationOfL5LibrationPoint )
 
     // Declare L5 libration point object with Earth-Moon mass parameter and Newton-Raphson method
     // with 1000 iterations as maximum and 1.0e-14 relative X-tolerance.
-    crtbp::LibrationPoint librationPointL5( earthMoonMassParameter,
+    circular_restricted_three_body_problem::LibrationPoint librationPointL5( earthMoonMassParameter,
                                             std::make_shared< NewtonRaphson >( 1.0e-14, 1000 ) );
 
     // Compute location of Lagrange libration point.
-    librationPointL5.computeLocationOfLibrationPoint( crtbp::LibrationPoint::l5 );
+    librationPointL5.computeLocationOfLibrationPoint( circular_restricted_three_body_problem::LibrationPoint::l5 );
 
     // Determine location of libration point in Earth-Moon system.
     const Eigen::Vector3d positionOflibrationPointL5
