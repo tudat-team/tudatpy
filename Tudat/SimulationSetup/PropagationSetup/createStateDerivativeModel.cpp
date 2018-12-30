@@ -10,11 +10,20 @@
 
 #include "Tudat/SimulationSetup/PropagationSetup/createStateDerivativeModel.h"
 
+#include <Tudat/SimulationSetup/tudatEstimationHeader.h>
+
+#include "Tudat/Astrodynamics/Gravitation/librationPoint.h"
+#include "Tudat/Astrodynamics/Gravitation/unitConversionsCircularRestrictedThreeBodyProblem.h"
+#include "Tudat/Mathematics/Interpolators/createInterpolator.h"
+#include "Tudat/Astrodynamics/BasicAstrodynamics/celestialBodyConstants.h"
+
 namespace tudat
 {
 
 namespace propagators
 {
+
+using namespace tudat::simulation_setup;
 
 //! Function to create an integrator to propagate the dynamics (in normalized units) in CR3BP
 std::shared_ptr< numerical_integrators::NumericalIntegrator< double, Eigen::Vector6d > > createCR3BPIntegrator(
@@ -39,7 +48,8 @@ std::map< double, Eigen::Vector6d > performCR3BPIntegration(
         const std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings,
         const double massParameter,
         const Eigen::Vector6d& initialState,
-        const double finalTime )
+        const double finalTime,
+        const bool propagateToExactFinalTime )
 {
     // Create integrator object
     std::shared_ptr< numerical_integrators::NumericalIntegrator< double, Eigen::Vector6d > > integrator =
@@ -50,6 +60,8 @@ std::map< double, Eigen::Vector6d > performCR3BPIntegration(
 
     // Store initial state and time
     double currentTime = integratorSettings->initialTime_;
+    double secondToLastTime = integratorSettings->initialTime_;
+
     Eigen::Vector6d currentState = initialState;
     stateHistory[ currentTime ] = currentState;
 
@@ -57,15 +69,29 @@ std::map< double, Eigen::Vector6d > performCR3BPIntegration(
     double timeStep = integratorSettings->initialTimeStep_;
     while( currentTime <= finalTime )
     {
+        secondToLastTime = currentTime;
         currentState = integrator->performIntegrationStep( timeStep );
         currentTime = integrator->getCurrentIndependentVariable( );
         timeStep = integrator->getNextStepSize( );
         stateHistory[ currentTime ] = currentState;
     }
 
+    if( propagateToExactFinalTime )
+    {
+        // Determine final time step and propagate
+        double finalTimeStep = finalTime - secondToLastTime;
+
+        stateHistory.erase( currentTime );
+        integrator->rollbackToPreviousState( );
+
+        currentState = integrator->performIntegrationStep( finalTimeStep );
+        currentTime = integrator->getCurrentIndependentVariable( );
+        stateHistory[ currentTime ] = currentState;
+    }
     return stateHistory;
 
 }
+
 
 template std::vector< std::shared_ptr< SingleStateTypeDerivative< double, double > > > createStateDerivativeModels< double, double >(
         const std::shared_ptr< SingleArcPropagatorSettings< double > > propagatorSettings,

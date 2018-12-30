@@ -45,8 +45,6 @@ BOOST_AUTO_TEST_CASE( testCartesianStateConversionCircularRestrictedThreeBodyPro
     // Test 1: conversion of dimensionless to dimensional Cartesian state vector for test particle
     // in Sun-Jupiter system [m, m/s] (Koon, 2006).
     {
-        namespace crtbp = gravitation::circular_restricted_three_body_problem;
-
         // Set distance between Sun and Jupiter [m] [NASA, 2010].
         double distanceSunJupiter = 7.784e11;
 
@@ -81,7 +79,7 @@ BOOST_AUTO_TEST_CASE( testCartesianStateConversionCircularRestrictedThreeBodyPro
         // Convert dimensionless to dimensional Cartesian state vector for test particle [m, m/s].
         Eigen::VectorXd computedDimensionalStateOfTestParticle( 6 );
         computedDimensionalStateOfTestParticle =
-                crtbp::convertDimensionlessCartesianStateToDimensionalUnits(
+                circular_restricted_three_body_problem::convertDimensionlessCartesianStateToDimensionalUnits(
                     dimensionlessStateOfTestParticle, gravitationalParameterSun,
                     gravitationalParameterJupiter, distanceSunJupiter );
 
@@ -98,7 +96,6 @@ BOOST_AUTO_TEST_CASE( testCartesianStateConversionCircularRestrictedThreeBodyPro
 //! Test if time conversion for CRTBP is computed correctly.
 BOOST_AUTO_TEST_CASE( testTimeConversionCircularRestrictedThreeBodyProblem )
 {
-    namespace crtbp = gravitation::circular_restricted_three_body_problem;
     using mathematical_constants::PI;
 
     // Test 1: conversion of dimensionless to dimensional time for test particle in Sun-Jupiter
@@ -115,7 +112,7 @@ BOOST_AUTO_TEST_CASE( testTimeConversionCircularRestrictedThreeBodyProblem )
 
         // Compute dimensional time for one complete orbit.
         double computedDimensionalTime =
-                crtbp::convertDimensionlessTimeToDimensionalTime(
+                circular_restricted_three_body_problem::convertDimensionlessTimeToDimensionalTime(
                     2.0 * PI, gravitationalParameterSun, gravitationalParameterJupiter,
                     distanceSunJupiter );
 

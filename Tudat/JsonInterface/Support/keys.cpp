@@ -478,7 +478,7 @@ const std::string Keys::Export::epochsInFirstColumn = "epochsInFirstColumn";
 const std::string Keys::Export::onlyInitialStep = "onlyInitialStep";
 const std::string Keys::Export::onlyFinalStep = "onlyFinalStep";
 const std::string Keys::Export::numericalPrecision = "numericalPrecision";
-
+const std::string Keys::Export::printVariableIndicesToTerminal = "printVariableIndicesToTerminal";
 
 //  Options
 const std::string Keys::options = "options";

@@ -162,7 +162,7 @@ BOOST_AUTO_TEST_CASE( test_RotationalDynamicsEstimationFromLanderData )
     Eigen::VectorXd systemInitialState = Eigen::VectorXd::Zero( 7 );
     systemInitialState.segment( 0, 4 ) = linear_algebra::convertQuaternionToVectorFormat( nominalInitialRotation );
     systemInitialState( 6 ) = meanMotion * ( 1.0 + initialRotationRatePerturbation );
-    Eigen::Matrix3d phobosInertiaTensor = bodyMap.at( "Phobos" )->getBodyInertiaTensor( );
+//    Eigen::Matrix3d phobosInertiaTensor = bodyMap.at( "Phobos" )->getBodyInertiaTensor( );
 
     // Create torque models
     std::vector< std::string > bodiesToIntegrate;

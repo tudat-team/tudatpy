@@ -262,7 +262,7 @@ else()
  endif( )
 endif()
 
-option(BUILD_EXTENDED_PRECISION_PROPAGATION_TOOLS  "Compiling unit tests for state estimation. These may cause excessive (>3 GB)) RAM usage with gcc/mingw." ON)
+option(BUILD_EXTENDED_PRECISION_PROPAGATION_TOOLS  "Compiling unit tests for state estimation. These may cause excessive (>3 GB)) RAM usage with gcc/mingw." OFF)
 if(NOT BUILD_EXTENDED_PRECISION_PROPAGATION_TOOLS)
  message(STATUS "Extended precision propagation disabled!")
  add_definitions(-DBUILD_EXTENDED_PRECISION_PROPAGATION_TOOLS=0)

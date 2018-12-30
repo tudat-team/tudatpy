@@ -134,7 +134,7 @@ BOOST_AUTO_TEST_CASE( testEulerAngles )
                 Eigen::AngleAxisd( -eulerAngles( 0 ), Eigen::Vector3d::UnitZ( ) ) *
                 Eigen::AngleAxisd( -eulerAngles( 1 ), Eigen::Vector3d::UnitX( ) ) *
                 Eigen::AngleAxisd( -eulerAngles( 2 ), Eigen::Vector3d::UnitZ( ) ) );
-    Eigen::Matrix3d rotationMatrix = manualQuaternion.toRotationMatrix( );
+//    Eigen::Matrix3d rotationMatrix = manualQuaternion.toRotationMatrix( );
 
     Eigen::Vector3d newEulerAngles = get313EulerAnglesFromQuaternion( recomputedQuaternion );
 //    std::cout<<eulerAngles.transpose( )<<std::endl;
