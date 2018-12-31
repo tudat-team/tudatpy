@@ -621,6 +621,17 @@ std::vector< T > sliceStlVector( const std::vector< T >& vectorToBeSliced, unsig
     return slicedVector;
 }
 
+template< typename KeyType, typename ScalarType, int FixedSize >
+void castDynamicToFixedSizeEigenVectorMap(
+        std::map< KeyType, Eigen::Matrix< ScalarType, Eigen::Dynamic, 1 > >& originalMap,
+        std::map< KeyType, Eigen::Matrix< ScalarType, FixedSize, 1 > >& fixedSizeMap )
+{
+    for( auto mapIterator : originalMap )
+    {
+        fixedSizeMap[ mapIterator.first ] = mapIterator.second;
+    }
+}
+
 } // namespace utilities
 
 } // namespace tudat

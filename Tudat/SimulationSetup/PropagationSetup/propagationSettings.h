@@ -737,6 +737,15 @@ public:
                     bodyMap, accelerationSettingsMap_, bodiesToIntegrate_, centralBodies_ );
     }
 
+    void resetAccelerationModelsMap(
+            const simulation_setup::SelectedAccelerationMap accelerationSettingsMap,
+            const simulation_setup::NamedBodyMap& bodyMap )
+    {
+        accelerationSettingsMap_ = accelerationSettingsMap;
+        accelerationsMap_ = simulation_setup::createAccelerationModelsMap(
+                    bodyMap, accelerationSettingsMap_, bodiesToIntegrate_, centralBodies_ );
+    }
+
     //! Function to get the acceleration settings map.
     /*!
      * Function to get the acceleration settings map.

@@ -28,8 +28,7 @@
 
 namespace tudat
 {
-namespace gravitation
-{
+
 namespace circular_restricted_three_body_problem
 {
 
@@ -220,7 +219,6 @@ private:
 typedef std::shared_ptr< LibrationPoint > LibrationPointPointer;
 
 } // namespace circular_restricted_three_body_problem
-} // namespace gravitation
 } // namespace tudat
 
 #endif // TUDAT_LIBRATION_POINT_H

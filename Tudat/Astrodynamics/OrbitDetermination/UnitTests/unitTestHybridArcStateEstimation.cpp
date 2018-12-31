@@ -385,7 +385,7 @@ BOOST_AUTO_TEST_CASE( test_HybridArcStateEstimation )
         for( unsigned int j = 0; j < 3; j++ )
         {
             BOOST_CHECK_SMALL( std::fabs( parameterError( ( i + 1 )* 6 + j ) ), 1E-1 );
-            BOOST_CHECK_SMALL( std::fabs( parameterError( ( i + 1 ) * 6 + j + 3 ) ), 1.0E-5  );
+            BOOST_CHECK_SMALL( std::fabs( parameterError( ( i + 1 ) * 6 + j + 3 ) ), 2.0E-5  );
         }
     }
 

@@ -25,8 +25,7 @@
 
 namespace tudat
 {
-namespace gravitation
-{
+
 namespace circular_restricted_three_body_problem
 {
 
@@ -68,8 +67,94 @@ double convertDimensionlessTimeToDimensionalTime(
         const double gravitationalParameterOfSecondaryBody,
         const double distanceBetweenPrimaries );
 
+
+//! Convert dimensional Cartesian state to dimensionless state.
+/*!
+ * Convert dimensional Cartesian state to dimensionless state.
+ * \param dimensionalCartesianState Dimensional Cartesian state vector                          [m].
+ *          Order is important!
+ *          dimensionalCartesianState( 0 ) = x-position coordinate                              [m],
+ *          dimensionalCartesianState( 1 ) = y-position coordinate                              [m],
+ *          dimensionalCartesianState( 2 ) = z-position coordinate                              [m],
+ *          dimensionalCartesianState( 3 ) = x-velocity coordinate                            [m/s],
+ *          dimensionalCartesianState( 4 ) = y-velocity coordinate                            [m/s],
+ *          dimensionalCartesianState( 5 ) = z-velocity coordinate                            [m/s].
+ * \param gravitationalParameterOfPrimaryBody Gravitational parameter of primary body    [m^3 s^-2].
+ * \param gravitationalParameterOfSecondaryBody Gravitational parameter of secondary body
+ *                                                                                       [m^3 s^-2].
+ * \param distanceBetweenPrimaries Distance between primaries                                   [m].
+ * \return Dimensionless Cartesian state.
+ */
+Eigen::VectorXd convertDimensionalCartesianStateToDimensionlessState(
+        const Eigen::Vector6d& dimensionalCartesianState,
+        const double gravitationalParameterOfPrimaryBody,
+        const double gravitationalParameterOfSecondaryBody,
+        const double distanceBetweenPrimaries );
+
+
+
+//! Convert dimensional time to dimensionless time.
+/*!
+ * Convert dimensional time to dimensionless time.
+ * \param dimensionalTime Time in dimensional units                                             [s].
+ * \param gravitationalParameterOfPrimaryBody Gravitational parameter of primary body    [m^3 s^-2].
+ * \param gravitationalParameterOfSecondaryBody Gravitational parameter of secondary body
+ *                                                                                       [m^3 s^-2].
+ * \param distanceBetweenPrimaries Distance between primaries                                   [m].
+ * \return Adimensional time.
+ */
+double convertDimensionalTimeToDimensionlessTime(
+        const double dimensionalTime,
+        const double gravitationalParameterOfPrimaryBody,
+        const double gravitationalParameterOfSecondaryBody,
+        const double distanceBetweenPrimaries);
+
+
+
+//! Convert corotating normalized state to inertial cartesian state.
+/*!
+ * Convert corotating normalized state to inertial cartesian state
+ * \param gravitationalParameterPrimary Gravitational parameter of primary body        [m^3 s^-2].
+ * \param gravitationalParameterSecondary Gravitational parameter of secondary body    [m^3 s^-2].
+ * \param distancePrimarySecondary Distance between primaries                                 [m].
+ * \param normalizedState Co-rotating normalized state.
+ * \param normalizedTime Adimensional time.
+ * \return Inertial cartesian state.
+ *          Order is important!
+ *          x-position coordinate                 [m],
+ *          y-position coordinate                 [m],
+ *          z-position coordinate                 [m],
+ *          x-velocity coordinate               [m/s],
+ *          y-velocity coordinate               [m/s],
+ *          z-velocity coordinate               [m/s].
+ */
+Eigen::Vector6d convertCorotatingNormalizedToCartesianCoordinates(
+        const double gravitationalParameterPrimary,
+        const double gravitationalParameterSecondary,
+        const double distancePrimarySecondary,
+        const Eigen::Vector6d& normalizedState,
+        const double normalizedTime );
+
+
+
+//! Convert inertial cartesian state to co-rotating normalized state.
+/*!
+ * Convert inertial cartesian state to co-rotating normalized state.
+ * \param gravitationalParameterPrimary Gravitational parameter of primary body       [m^3 s^-2].
+ * \param gravitationalParameterSecondary Gravitational parameter of secondary body   [m^3 s^-2].
+ * \param distancePrimarySecondary Distance between primaries                                [m].
+ * \param cartesianState Inertial cartesian state (x-position coordinate [m], y-position coordinate [m], z-position coordinate [m], x-velocity coordinate [m/s], y-velocity coordinate [m/s], z-velocity coordinate [m/s]).
+ * \param time Dimensional time                                                              [s].
+ * \return Co-rotating normalized state.
+ */
+Eigen::Vector6d convertCartesianToCorotatingNormalizedCoordinates(
+        const double gravitationalParameterPrimary,
+        const double gravitationalParameterSecondary,
+        const double distancePrimarySecondary,
+        const Eigen::Vector6d& cartesianState,
+        const double time );
+
 } // namespace circular_restricted_three_body_problem
-} // namespace gravitation
 } // namespace tudat
 
 #endif // TUDAT_UNIT_CONVERSIONS_CIRCULAR_RESTRICTED_THREE_BODY_PROBLEM_H
