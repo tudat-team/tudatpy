@@ -180,3 +180,8 @@ add_executable(test_FullPropagationRestrictedThreeBodyProblem "${SRCROOT}${PROPA
 setup_custom_test_program(test_FullPropagationRestrictedThreeBodyProblem "${SRCROOT}${PROPAGATORSDIR}")
 target_link_libraries(test_FullPropagationRestrictedThreeBodyProblem ${TUDAT_PROPAGATION_LIBRARIES} ${Boost_LIBRARIES})
 
+add_executable(test_FullPropagationLambertTargeter "${SRCROOT}${PROPAGATORSDIR}/UnitTests/unitTestFullPropagationLambertTargeter.cpp")
+setup_custom_test_program(test_FullPropagationLambertTargeter "${SRCROOT}${PROPAGATORSDIR}")
+target_link_libraries(test_FullPropagationLambertTargeter ${TUDAT_PROPAGATION_LIBRARIES} ${Boost_LIBRARIES})
+
+
