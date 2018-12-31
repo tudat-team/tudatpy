@@ -110,6 +110,7 @@ public:
                 partialFunction = std::make_pair( std::bind( &AccelerationPartial::wrtNonTranslationalStateOfAdditionalBody,
                                                                this, std::placeholders::_1, stateReferencePoint, integratedStateType, true ), 1 );
             }
+            break;
         }
         case propagators::body_mass_state:
         {
@@ -123,6 +124,7 @@ public:
                 partialFunction = std::make_pair( std::bind( &AccelerationPartial::wrtNonTranslationalStateOfAdditionalBody,
                                                                this, std::placeholders::_1, stateReferencePoint, integratedStateType, true ), 1 );
             }
+            break;
         }
         case propagators::custom_state:
         {

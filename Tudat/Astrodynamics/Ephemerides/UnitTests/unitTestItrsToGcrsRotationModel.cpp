@@ -60,6 +60,7 @@ BOOST_AUTO_TEST_CASE( test_ItrsToGcrsRotationAgainstSpice )
         // Check whether Spice and Tudat give same result. Note that Spice model is not accurate up to IERS standards. Comparison
         // is done at 10 cm position difference on Earth surface (per component).
         double tolerance = 0.1 / 6378.0E3;
+
         for( unsigned int i = 0; i < 3; i++ )
         {
             for( unsigned int j = 0; j < 3; j++ )
