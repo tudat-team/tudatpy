@@ -10,6 +10,13 @@
 
 #include "Tudat/SimulationSetup/PropagationSetup/createStateDerivativeModel.h"
 
+#include <Tudat/SimulationSetup/tudatEstimationHeader.h>
+
+#include "Tudat/Astrodynamics/Gravitation/librationPoint.h"
+#include "Tudat/Astrodynamics/Gravitation/unitConversionsCircularRestrictedThreeBodyProblem.h"
+#include "Tudat/Mathematics/Interpolators/createInterpolator.h"
+#include "Tudat/Astrodynamics/BasicAstrodynamics/celestialBodyConstants.h"
+
 
 namespace tudat
 {
