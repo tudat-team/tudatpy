@@ -100,7 +100,10 @@ void propagateLambertTargeterAndFullProblem(
         const std::vector< std::string >& centralBodies,
         const std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings,
         const std::map< double, Eigen::Vector6d >& lambertTargeterResult,
-        const std::map< double, Eigen::Vector6d >& fullProblemResult);
+        const std::map< double, Eigen::Vector6d >& fullProblemResult,
+        const std::vector<std::string>& arrivalAndDepartureBodies,
+        const bool arrivalAndDepartureInitialisationFromEphemerides = false,
+        const bool terminationSettings = false);
 
 
 
@@ -130,7 +133,8 @@ std::pair< Eigen::Vector6d, Eigen::Vector6d > getDifferenceFullPropagationWrtLam
         const basic_astrodynamics::AccelerationMap& accelerationModelMap,
         const std::vector< std::string >& bodiesToPropagate,
         const std::vector< std::string >& centralBodies,
-        const std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings);
+        const std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings,
+        const std::vector< std::string >& departureAndArrivalBodies);
 
 
 } // namespace propagators
