@@ -137,6 +137,24 @@ std::pair< Eigen::Vector6d, Eigen::Vector6d > getDifferenceFullPropagationWrtLam
         const std::vector< std::string >& departureAndArrivalBodies);
 
 
+
+
+std::map< double, Eigen::Vector6d > fullPropagationMGA(
+        const int numberOfLegs,
+        const std::vector< std::string >& nameBodiesTrajectory,
+        const std::vector< std::string >& centralBody,
+        const std::vector< std::string >& bodyToPropagate,
+        const std::vector< int >& legTypeVector,
+        const std::vector< ephemerides::EphemerisPointer >& ephemerisVector,
+        const Eigen::VectorXd& gravitationalParameterVector,
+        const Eigen::VectorXd& trajectoryVariableVector,
+        const double centralBodyGravitationalParameter,
+        const Eigen::VectorXd& minimumPericenterRadiiVector,
+        const Eigen::VectorXd& semiMajorAxesVector,
+        const Eigen::VectorXd& eccentricitiesVector,
+        const std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings);
+
+
 } // namespace propagators
 
 } // namespace tudat
