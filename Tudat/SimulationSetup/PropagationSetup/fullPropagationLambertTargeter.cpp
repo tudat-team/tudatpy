@@ -415,7 +415,8 @@ std::pair< Eigen::Vector6d, Eigen::Vector6d > getDifferenceFullPropagationWrtLam
 
 
 
-std::map< double, Eigen::Vector6d > fullPropagationMGA(
+//std::map< double, std::pair<Eigen::Vector6d, Eigen::Vector6d> >
+void fullPropagationMGA(
         const int numberOfLegs,
         const std::vector< std::string >& nameBodiesTrajectory,
         const std::vector< std::string >& centralBody,
@@ -428,7 +429,9 @@ std::map< double, Eigen::Vector6d > fullPropagationMGA(
         const Eigen::VectorXd& minimumPericenterRadiiVector,
         const Eigen::VectorXd& semiMajorAxesVector,
         const Eigen::VectorXd& eccentricitiesVector,
-        const std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings){
+        const std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings,
+        std::map< int, std::map< double, Eigen::Vector6d > >& lambertTargeterResultForEachLeg,
+        std::map< int, std::map< double, Eigen::Vector6d > >& fullProblemResultForEachLeg){
 
 
     // Calculate the MGA trajectory
@@ -437,66 +440,21 @@ std::map< double, Eigen::Vector6d > fullPropagationMGA(
                                                          centralBodyGravitationalParameter, minimumPericenterRadiiVector,
                                                          semiMajorAxesVector, eccentricitiesVector );
 
-    int numberLegsIncludingDSM = 9;
-    std::cout << "numberLegsIncludingDSM: " << (trajectoryVariableVector.size()-1-numberOfLegs)/4.0 << "\n\n";
+    int numberLegsIncludingDSM = ((trajectoryVariableVector.size()-1-numberOfLegs)/4.0) + numberOfLegs ;
 
     std::vector< Eigen::Vector3d > positionVector;
     std::vector< double > timeVector;
     std::vector< double > deltaVVector;
     double totalDeltaV;
 
+    std::map< double, std::pair<Eigen::Vector6d, Eigen::Vector6d> > stateDifferenceAtDepartureAndArrival;
+
     // Calculate the orbits
     trajectory.calculateTrajectory( totalDeltaV );
     trajectory.maneuvers( positionVector, timeVector, deltaVVector );
 
-//    std::cout << " Cassini Mission: " << std::endl;
-//    std::cout << " Total Delta V needed: " << totalDeltaV <<std::endl;
-//    std::cout << " Time of Earth departure: " << timeVector[ 0 ]
-//              << ". Delta V needed at Earth: " << deltaVVector[ 0 ] << std::endl;
-//    std::cout << "Position at Earth: " << positionVector[0] << std::endl;
-//    std::cout << " Time of Venus visit: " << timeVector[ 1 ]
-//              << ". Delta V needed at Venus: " << deltaVVector[ 1 ] << std::endl;
-//    std::cout << "Position at Venus (first visit): " << positionVector[1] << std::endl;
-//    std::cout << " Time of second Venus visit: " << timeVector[ 2 ]
-//              << ". Delta V needed at Venus: " << deltaVVector[ 2 ] << std::endl;
-//    std::cout << "Position at Venus (second visit): " << positionVector[2] << std::endl;
-//    std::cout << " Time of Earth visit: " << timeVector[ 3 ]
-//              << ". Delta V needed at Earth: " << deltaVVector[ 3 ] << std::endl;
-//    std::cout << "Position at Earth: " << positionVector[3] << std::endl;
-//    std::cout << " Time of Jupiter visit: " << timeVector[ 4 ]
-//              << ". Delta V needed at Jupiter: " << deltaVVector[ 4 ] << std::endl;
-//    std::cout << "Position at Jupiter: " << positionVector[4] << std::endl;
-//    std::cout << " Time of Saturn capture: " << timeVector[ 5 ]
-//              << ". Delta V needed at Saturn: " << deltaVVector[ 5 ] << std::endl;
-//    std::cout << "Position at Saturn: " << positionVector[5] << std::endl;
-
-
-    std::cout << " Messenger Mission: " << std::endl;
-    std::cout << " Total Delta V: " << totalDeltaV <<std::endl;
-
-//    std::cout << " Time of 1st DSM: " << timeVector[ 1 ]
-//              << ". Delta V needed for 1st DSM: " << deltaVVector[ 1 ] << std::endl;
-//    std::cout << " Time of second Earth visit: " << timeVector[ 2 ]
-//              << ". Delta V needed at Earth: " << deltaVVector[ 2 ] << std::endl;
-//    std::cout << " Time of 2nd DSM: " << timeVector[ 3 ]
-//              << ". Delta V needed for 2nd DSM: " << deltaVVector[ 3 ] << std::endl;
-//    std::cout << " Time of Venus visit: " << timeVector[ 4 ]
-//              << ". Delta V needed at Venus: " << deltaVVector[ 4 ] << std::endl;
-//    std::cout << " Time of 3d DSM: " << timeVector[ 5 ]
-//              << ". Delta V needed for 3d DSM: " << deltaVVector[ 5 ] << std::endl;
-//    std::cout << " Time of second Venus visit: " << timeVector[ 6 ]
-//              << ". Delta V needed at Venus: " << deltaVVector[ 6 ] << std::endl;
-//    std::cout << " Time of 4th DSM: " << timeVector[ 7 ]
-//              << ". Delta V needed for 4th DSM: " << deltaVVector[ 7 ] << std::endl;
-//    std::cout << " Time of Mercury capture: " << timeVector[ 8 ]
-//              << ". Delta V needed at Mercury: " << deltaVVector[ 8 ] << std::endl;
-
     std::map< int, Eigen::Vector3d > cartesianPositionAtDepartureLambertTargeter;
     std::map< int, Eigen::Vector3d > cartesianPositionAtArrivalLambertTargeter;
-    for (int i = 0 ; i < numberLegsIncludingDSM -1  ; i++){
-        cartesianPositionAtDepartureLambertTargeter[ i ] = positionVector[i];
-        cartesianPositionAtArrivalLambertTargeter[ i ] = positionVector[i+1];
-    }
 
 
     integratorSettings->initialTimeStep_ = 1000.0;
@@ -505,118 +463,138 @@ std::map< double, Eigen::Vector6d > fullPropagationMGA(
     basic_astrodynamics::AccelerationMap accelerationMap = setupAccelerationMapLambertTargeter(centralBody[0],
                                                                                                bodyToPropagate[0], bodyMap);
     double timeOfFlight;
-    int counterLegWithoutDSM = 0;
+    int counterLegTotal = 0;
     int counterLegWithDSM = 0;
-    bool firstPartDSM = true;
     std::vector< double > timeOfFlightVector;
 
 
-    for (int i = 0 ; i<numberOfLegs ; i ++){
+
+    // Calculate the time of flight for each leg (one leg with a deep-space manoeuvre is divided into two sub-legs)
+
+    for (int i = 0 ; i < numberOfLegs - 1 ; i ++){
 
         if (legTypeVector[i] == transfer_trajectories::mga_Departure ||
-                legTypeVector[i] == transfer_trajectories::mga_Swingby ||
-                legTypeVector[i] == transfer_trajectories::capture){
+                legTypeVector[i] == transfer_trajectories::mga_Swingby ){
 
-            timeOfFlight = trajectoryVariableVector[1 + counterLegWithoutDSM];
+            timeOfFlight = trajectoryVariableVector[1 + counterLegTotal];
             timeOfFlightVector.push_back( timeOfFlight );
-            counterLegWithoutDSM++;
+            counterLegTotal++;
 
         }
+
         else {
-//            std::cout << "detection DSM" << "\n\n";
-//                std::cout << "detection first part DSM: " << "\n\n";
-//                std::cout << "time of flight total arc: " << trajectoryVariableVector[counterLegWithoutDSM + 1] << "\n\n";
-//                std::cout << "fraction DSM: " << trajectoryVariableVector[numberOfLegs + 1+ counterLegWithDSM] << "\n\n";
-//                std::cout << "counter error leg 2: " << numberOfLegs + 1 + counterLegWithDSM * 4 << "\n\n";
-//                std::cout << "counter number legs: " << counterLegWithDSM << "\n\n";
+
                 timeOfFlight = trajectoryVariableVector[numberOfLegs + 1 + counterLegWithDSM * 4]
-                        * trajectoryVariableVector[counterLegWithoutDSM + 1];
+                        * trajectoryVariableVector[counterLegTotal + 1];
                 timeOfFlightVector.push_back( timeOfFlight );
 
                 timeOfFlight = (1 - trajectoryVariableVector[numberOfLegs + 1 + counterLegWithDSM * 4])
-                        * trajectoryVariableVector[counterLegWithoutDSM + 1];
+                        * trajectoryVariableVector[counterLegTotal + 1];
                 timeOfFlightVector.push_back( timeOfFlight );
                 counterLegWithDSM++;
-                counterLegWithoutDSM++;
+                counterLegTotal++;
         }
-
 
     }
 
-    for( std::map< int, Eigen::Vector3d >::iterator itr = cartesianPositionAtDepartureLambertTargeter.begin( );
-         itr != cartesianPositionAtDepartureLambertTargeter.end( ); itr++ ){
+
+
+    for (int i = 0; i<numberLegsIncludingDSM-1 ; i++)
+    {
+
+        cartesianPositionAtDepartureLambertTargeter[ i ] = positionVector[i];
+        cartesianPositionAtArrivalLambertTargeter[ i ] = positionVector[i+1];
 
         std::vector< std::string > departureAndArrivalBodies;
-        departureAndArrivalBodies.push_back( nameBodiesTrajectory[itr->first] );
-        departureAndArrivalBodies.push_back( nameBodiesTrajectory[1 + itr->first]);
+        departureAndArrivalBodies.push_back( nameBodiesTrajectory[i] );
+        departureAndArrivalBodies.push_back( nameBodiesTrajectory[1 + i]);
 
-        Eigen::Vector3d cartesianPositionAtDeparture = cartesianPositionAtDepartureLambertTargeter[itr->first];
-        Eigen::Vector3d cartesianPositionAtArrival = cartesianPositionAtArrivalLambertTargeter[itr->first];
-
-
-        std::cout << "number of legs: " << itr->first << "\n\n";
-//        std::cout << "time of flights test: " << timeOfFlight << "\n\n";
-        std::cout << " Time of swingby or DSM: " << timeVector[ itr->first ]
-                  << ". Delta V needed either at the swingby or for DSM: " << deltaVVector[ itr->first ] << std::endl;
-        std::cout << "position at swingby or DSM: " << positionVector[ itr->first ] << "\n\n";
-        std::cout << "departure body: " << departureAndArrivalBodies[0] << "\n\n";
-        std::cout << "arrival body: " << departureAndArrivalBodies[1] << "\n\n";
-        std::cout << "position at departure: " << cartesianPositionAtDepartureLambertTargeter[itr->first] << "\n\n";
-        std::cout <<"position at arrival: " << cartesianPositionAtArrivalLambertTargeter[ itr->first ] << "\n\n";
-        std::cout << "time of flight: " << timeOfFlightVector[itr->first] << "\n\n";
+        Eigen::Vector3d cartesianPositionAtDeparture = cartesianPositionAtDepartureLambertTargeter[i];
+        Eigen::Vector3d cartesianPositionAtArrival = cartesianPositionAtArrivalLambertTargeter[i];
 
 
        // Compute the difference in state between the full problem and the Lambert targeter solution at departure and at arrival
-        std::pair< Eigen::Vector6d, Eigen::Vector6d > differenceState =
-                getDifferenceFullPropagationWrtLambertTargeterAtDepartureAndArrival(cartesianPositionAtDeparture,
-                 cartesianPositionAtArrival, timeOfFlightVector[itr->first], bodyMap, accelerationMap,
-                bodyToPropagate, centralBody, integratorSettings, departureAndArrivalBodies);
-
-        Eigen::Vector6d differenceStateAtDeparture = differenceState.first;
-        Eigen::Vector6d differenceStateAtArrival = differenceState.second;
-
-
-        std::cout << "difference state at departure: " << differenceStateAtDeparture << "\n\n";
-        std::cout << "difference state at arrival: " << differenceStateAtArrival << "\n\n";
+        std::map< double, Eigen::Vector6d > lambertTargeterResultForOneLeg;
+        std::map< double, Eigen::Vector6d > fullProblemResultForOneLeg;
+        propagateLambertTargeterAndFullProblem( cartesianPositionAtDeparture, cartesianPositionAtArrival,
+                timeOfFlightVector[i], bodyMap, accelerationMap, bodyToPropagate, centralBody,
+                integratorSettings, lambertTargeterResultForOneLeg, fullProblemResultForOneLeg,
+                departureAndArrivalBodies, true, true);
 
 
-//        Eigen::Vector3d cartesianDepartureTest (-1.0413e+011, -1.08287e+011, -1.13456e+009);
-//        Eigen::Vector3d cartesianArrivalTest (-2.84598e+010, 1.03672e+011, 3.06437e+009);
-//        double timeOfFlightTest = 1.55961e+007;
-//        std::vector< std::string > departureAndArrivalBodiesTest;
-//        departureAndArrivalBodiesTest.push_back("DSM2");
-//        departureAndArrivalBodiesTest.push_back("Venus");
-
-//        std::pair< Eigen::Vector6d, Eigen::Vector6d > differenceStateTest =
-//                getDifferenceFullPropagationWrtLambertTargeterAtDepartureAndArrival(cartesianDepartureTest,
-//                 cartesianArrivalTest, timeOfFlightTest, bodyMap, accelerationMap,
-//                bodyToPropagate, centralBody, integratorSettings, departureAndArrivalBodiesTest);
-
-//        std::cout << "difference state at departure test: " << differenceStateTest.first << "\n\n";
-//        std::cout << "difference state at arrival test: " << differenceStateTest.second << "\n\n";
-
-
+        lambertTargeterResultForEachLeg[i] = lambertTargeterResultForOneLeg;
+        fullProblemResultForEachLeg[i] = fullProblemResultForOneLeg;
 
 
     }
 
-    for (int i = 0 ; i<9 ; i++){
-        std::cout <<"total vector times of flight: " << timeOfFlightVector[i] << "\n\n";
-    }
-
-        std::cout << " Time of Mercury capture: " << timeVector[ 8 ]
-                  << ". Delta V needed at Mercury: " << deltaVVector[ 8 ] << std::endl;
-        std::cout << "position at capture by Mercury: " << positionVector[8] << "\n\n";
-
-
-
-
-
-
-    std::map< double, Eigen::Vector6d > output;
-    return output;
 
 }
+
+
+
+
+std::map< int, std::pair< Eigen::Vector6d, Eigen::Vector6d > > getDifferenceFullPropagationWrtLambertTargeterMGA(
+        const int numberOfLegs,
+        const std::vector< std::string >& nameBodiesTrajectory,
+        const std::vector< std::string >& centralBody,
+        const std::vector< std::string >& bodyToPropagate,
+        const std::vector< int >& legTypeVector,
+        const std::vector< ephemerides::EphemerisPointer >& ephemerisVector,
+        const Eigen::VectorXd& gravitationalParameterVector,
+        const Eigen::VectorXd& trajectoryVariableVector,
+        const double centralBodyGravitationalParameter,
+        const Eigen::VectorXd& minimumPericenterRadiiVector,
+        const Eigen::VectorXd& semiMajorAxesVector,
+        const Eigen::VectorXd& eccentricitiesVector,
+        const std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings)
+{
+
+    int numberLegsIncludingDSM = ((trajectoryVariableVector.size()-1-numberOfLegs)/4.0) + numberOfLegs ;
+
+
+    std::map< int, std::map< double, Eigen::Vector6d > > lambertTargeterResultForEachLeg;
+    std::map< int, std::map< double, Eigen::Vector6d > > fullProblemResultForEachLeg;
+
+    // compute full problem and Lambert targeter solution both at departure and arrival.
+
+      fullPropagationMGA(numberOfLegs, nameBodiesTrajectory, centralBody, bodyToPropagate, legTypeVector,
+                       ephemerisVector, gravitationalParameterVector, trajectoryVariableVector,
+                       centralBodyGravitationalParameter, minimumPericenterRadiiVector, semiMajorAxesVector,
+                       eccentricitiesVector, integratorSettings, lambertTargeterResultForEachLeg,
+                       fullProblemResultForEachLeg);
+
+
+    std::map< int, std::pair< Eigen::Vector6d, Eigen::Vector6d > > stateDifferenceAtArrivalAndDepartureForEachLeg;
+
+    for (int i = 0 ; i< numberLegsIncludingDSM-1 ; i++){
+
+        std::map< double, Eigen::Vector6d > lambertTargeterResultCurrentLeg = lambertTargeterResultForEachLeg[i];
+        std::map< double, Eigen::Vector6d > fullProblemResultCurrentLeg = fullProblemResultForEachLeg[i];
+
+        Eigen::Vector6d stateLambertTargeterAtDepartureForOneLeg = lambertTargeterResultCurrentLeg.begin( )->second;
+        Eigen::Vector6d stateFullProblemAtDepartureForOneLeg = fullProblemResultCurrentLeg.begin( )->second;
+        Eigen::Vector6d stateLambertTargeterAtArrivalForOneLeg = lambertTargeterResultCurrentLeg.rbegin( )->second;
+        Eigen::Vector6d stateFullProblemAtArrivalForOneLeg = fullProblemResultCurrentLeg.rbegin( )->second;
+
+        stateDifferenceAtArrivalAndDepartureForEachLeg[i] = std::make_pair( stateLambertTargeterAtDepartureForOneLeg -
+                                                                            stateFullProblemAtDepartureForOneLeg,
+                                                                            stateLambertTargeterAtArrivalForOneLeg -
+                                                                            stateFullProblemAtArrivalForOneLeg);
+
+
+
+    }
+
+
+    return stateDifferenceAtArrivalAndDepartureForEachLeg;
+
+}
+
+
+
+
+
 
 
 

@@ -12,6 +12,7 @@
 
 #include <Tudat/SimulationSetup/tudatEstimationHeader.h>
 #include "Tudat/SimulationSetup/PropagationSetup/fullPropagationLambertTargeter.h"
+#include "Tudat/SimulationSetup/PropagationSetup/fullPropagationMGAtrajectory.h"
 #include <boost/test/floating_point_comparison.hpp>
 #include <boost/test/unit_test.hpp>
 #include <Eigen/Core>
@@ -33,67 +34,24 @@ namespace unit_tests
 
 using namespace tudat;
 
-//! Test if the difference between the Lambert targeter solution and the full dynamics problem is computed correctly.
-BOOST_AUTO_TEST_CASE( testFullPropagationLambertTargeter )
+//! Test of the full propagation of a trajectory
+BOOST_AUTO_TEST_SUITE( testFullPropagationTrajectory )
+
+//! Test of the full propagation of a MGA trajectory
+BOOST_AUTO_TEST_CASE( testFullPropagationMGA )
 {
+
+    std::cout << "Cassini trajectory: " << "\n\n";
 
     std::cout.precision(20);
 
     double initialTime = 0.0;
-    double fixedStepSize = 1.0;
-
-    Eigen::Vector3d cartesianPositionAtDeparture ( 2.0 * 6.378136e6, 0.0, 0.0 );
-    Eigen::Vector3d cartesianPositionAtArrival ( 2.0 * 6.378136e6, 2.0 * std::sqrt( 3.0 ) * 6.378136e6, 0.0 );
-
-    double timeOfFlight = 806.78 * 5.0;
-
-    std::vector< std::string > bodiesToPropagate; bodiesToPropagate.push_back("spacecraft");
-    std::vector< std::string > centralBodies; centralBodies.push_back("Earth");
+    double fixedStepSize = 10000.0;
 
     // Define integrator settings.
     std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings =
             std::make_shared < numerical_integrators::IntegratorSettings < > >
                 ( numerical_integrators::rungeKutta4, initialTime, fixedStepSize);
-
-    // Define the body map.
-    simulation_setup::NamedBodyMap bodyMap = propagators::setupBodyMapLambertTargeter("Earth", "spacecraft");
-    basic_astrodynamics::AccelerationMap accelerationModelMap = propagators::setupAccelerationMapLambertTargeter(
-                "Earth", "spacecraft", bodyMap);
-
-    std::vector< std::string > departureAndArrivalBodies;
-    departureAndArrivalBodies.push_back("Earth");
-    departureAndArrivalBodies.push_back("Mars");
-
-   // Compute the difference in state between the full problem and the Lambert targeter solution at departure and at arrival
-   std::pair< Eigen::Vector6d, Eigen::Vector6d > differenceState =
-            propagators::getDifferenceFullPropagationWrtLambertTargeterAtDepartureAndArrival(cartesianPositionAtDeparture,
-             cartesianPositionAtArrival, timeOfFlight, bodyMap, accelerationModelMap, bodiesToPropagate,
-             centralBodies, integratorSettings, departureAndArrivalBodies);
-
-    Eigen::Vector6d differenceStateAtDeparture = differenceState.first;
-    Eigen::Vector6d differenceStateAtArrival = differenceState.second;
-
-    std::cout << "differenceStateAtDeparture: " << differenceStateAtDeparture << "\n\n";
-    std::cout << "differenceStateAtArrival: " << differenceStateAtArrival << "\n\n";
-
-
-    for( int i = 0; i < 3; i++ )
-    {
-        BOOST_CHECK_SMALL( std::fabs( differenceStateAtDeparture( i ) ), 1.0 );
-        BOOST_CHECK_SMALL( std::fabs( differenceStateAtDeparture( i + 3 ) ), 1.0E-6 );
-        BOOST_CHECK_SMALL( std::fabs( differenceStateAtArrival( i ) ), 1.0 );
-        BOOST_CHECK_SMALL( std::fabs( differenceStateAtArrival( i + 3 ) ), 1.0E-6 );
-    }
-
-
-
-
-    //// TEST MGA TRAJECTORY
-
-
-    int test = 2;
-
-    if (test == 1){
 
     // Specify required parameters
     // Specify the number of legs and type of legs.
@@ -178,11 +136,38 @@ BOOST_AUTO_TEST_CASE( testFullPropagationLambertTargeter )
         std::cout << "state difference departure: " << differenceStateArrivalAndDeparturePerLeg[itr->first].first << "\n\n";
         std::cout << "state difference arrival: " << differenceStateArrivalAndDeparturePerLeg[itr->first].second << "\n\n";
 
-    }
+        for( int i = 0; i < 3; i++ )
+        {
+            BOOST_CHECK_SMALL( std::fabs( differenceStateArrivalAndDeparturePerLeg[itr->first].first( i ) ), 1.0 );
+            BOOST_CHECK_SMALL( std::fabs( differenceStateArrivalAndDeparturePerLeg[itr->first].first( i + 3 ) ), 1.0E-6 );
+            BOOST_CHECK_SMALL( std::fabs( differenceStateArrivalAndDeparturePerLeg[itr->first].second( i ) ), 1.0 );
+            BOOST_CHECK_SMALL( std::fabs( differenceStateArrivalAndDeparturePerLeg[itr->first].second( i + 3 ) ), 1.0E-6 );
+        }
 
     }
 
-    else if (test == 2){
+//    propagators::fullPropagationMGA(numberOfLegs, nameBodiesTrajectory,
+//                                                                                     centralBody, bodyToPropagate,
+//                                                                                   legTypeVector, ephemerisVector,
+//                                                                                   gravitationalParameterVector,
+//                                                                                   variableVector, sunGravitationalParameter,
+//                                                                                   minimumPericenterRadii, semiMajorAxes,
+//                                                                                   eccentricities, integratorSettings,
+//                                                                                   lambertTargeterResultForEachLeg, fullProblemResultForEachLeg);
+
+//    std::cout << "approximate position Earth: " << ephemerisVector[1]->getCartesianState( (-789.8117 + 158.302027105278) * physical_constants::JULIAN_DAY) << "\n\n";
+
+
+
+
+}
+
+
+//! Test of the full propagation of a MGA trajectory including deep-space manoeuvres
+BOOST_AUTO_TEST_CASE( testFullPropagationMGAwithDSM )
+{
+
+    std::cout << "Messenger trajectory: " << "\n\n";
 
     // Specify required parameters
     // Specify the number of legs and type of legs.
@@ -257,6 +242,15 @@ BOOST_AUTO_TEST_CASE( testFullPropagationLambertTargeter )
     eccentricities << 0.0, 0.0;
 
 
+    double initialTime = 0.0;
+    double fixedStepSize = 10000.0;
+
+    // Define integrator settings.
+    std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings =
+            std::make_shared < numerical_integrators::IntegratorSettings < > >
+                ( numerical_integrators::rungeKutta4, initialTime, fixedStepSize);
+
+
     std::vector< std::string > centralBody;
     centralBody.push_back( "Sun" );
     std::vector< std::string > bodyToPropagate;
@@ -280,10 +274,34 @@ BOOST_AUTO_TEST_CASE( testFullPropagationLambertTargeter )
         std::cout << "state difference departure: " << differenceStateArrivalAndDeparturePerLeg[itr->first].first << "\n\n";
         std::cout << "state difference arrival: " << differenceStateArrivalAndDeparturePerLeg[itr->first].second << "\n\n";
 
-    }
+
+        for( int i = 0; i < 3; i++ )
+        {
+            BOOST_CHECK_SMALL( std::fabs( differenceStateArrivalAndDeparturePerLeg[itr->first].first( i ) ), 1.0 );
+            BOOST_CHECK_SMALL( std::fabs( differenceStateArrivalAndDeparturePerLeg[itr->first].first( i + 3 ) ), 1.0E-6 );
+            BOOST_CHECK_SMALL( std::fabs( differenceStateArrivalAndDeparturePerLeg[itr->first].second( i ) ), 1.0 );
+            BOOST_CHECK_SMALL( std::fabs( differenceStateArrivalAndDeparturePerLeg[itr->first].second( i + 3 ) ), 1.0E-6 );
+        }
 
 
     }
+
+
+
+
+    // First leg
+//    Eigen::Vector6d stateDifferenceAtEarth = outputTest[0].first;
+//    Eigen::Vector6d stateDifferenceDSM1 = outputTest[0].second;
+
+    //Second leg
+
+//    std::cout << "error first leg 1: " << stateDifferenceAtEarth << "\n\n";
+//    std::cout << "error first leg 2: " << stateDifferenceDSM1 << "\n\n";
+
+//    std::cout << "approximate position Earth: " << ephemerisVector[4]->getCartesianState( 1.9265e+08) << "\n\n";
+
+
+}
 
 
 
