@@ -63,6 +63,9 @@ set(PROPAGATORS_HEADERS
 add_library(tudat_propagators STATIC ${PROPAGATORS_SOURCES} ${PROPAGATORS_HEADERS})
 setup_tudat_library_target(tudat_propagators "${SRCROOT}${PROPAGATORSDIR}")
 
+
+include(tudatLinkLibraries)
+
 # Add unit tests.
 add_executable(test_CentralBodyData "${SRCROOT}${PROPAGATORSDIR}/UnitTests/unitTestCentralBodyData.cpp")
 setup_custom_test_program(test_CentralBodyData "${SRCROOT}${PROPAGATORSDIR}")
@@ -182,6 +185,6 @@ target_link_libraries(test_FullPropagationRestrictedThreeBodyProblem ${TUDAT_PRO
 
 add_executable(test_FullPropagationLambertTargeter "${SRCROOT}${PROPAGATORSDIR}/UnitTests/unitTestFullPropagationLambertTargeter.cpp")
 setup_custom_test_program(test_FullPropagationLambertTargeter "${SRCROOT}${PROPAGATORSDIR}")
-target_link_libraries(test_FullPropagationLambertTargeter ${TUDAT_PROPAGATION_LIBRARIES} ${Boost_LIBRARIES})
+target_link_libraries(test_FullPropagationLambertTargeter tudat_trajectory_design tudat_mission_segments tudat_ephemerides tudat_basic_astrodynamics tudat_basic_mathematics ${TUDAT_PROPAGATION_LIBRARIES} ${Boost_LIBRARIES})
 
 
