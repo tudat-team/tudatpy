@@ -46,7 +46,7 @@ BOOST_AUTO_TEST_CASE( testFullPropagationMGA )
     std::cout.precision(20);
 
     double initialTime = 0.0;
-    double fixedStepSize = 10000.0;
+    double fixedStepSize = 1000.0;
 
     // Define integrator settings.
     std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings =
@@ -146,20 +146,6 @@ BOOST_AUTO_TEST_CASE( testFullPropagationMGA )
 
     }
 
-//    propagators::fullPropagationMGA(numberOfLegs, nameBodiesTrajectory,
-//                                                                                     centralBody, bodyToPropagate,
-//                                                                                   legTypeVector, ephemerisVector,
-//                                                                                   gravitationalParameterVector,
-//                                                                                   variableVector, sunGravitationalParameter,
-//                                                                                   minimumPericenterRadii, semiMajorAxes,
-//                                                                                   eccentricities, integratorSettings,
-//                                                                                   lambertTargeterResultForEachLeg, fullProblemResultForEachLeg);
-
-//    std::cout << "approximate position Earth: " << ephemerisVector[1]->getCartesianState( (-789.8117 + 158.302027105278) * physical_constants::JULIAN_DAY) << "\n\n";
-
-
-
-
 }
 
 
@@ -243,7 +229,7 @@ BOOST_AUTO_TEST_CASE( testFullPropagationMGAwithDSM )
 
 
     double initialTime = 0.0;
-    double fixedStepSize = 10000.0;
+    double fixedStepSize = 1000.0;
 
     // Define integrator settings.
     std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings =
@@ -285,21 +271,6 @@ BOOST_AUTO_TEST_CASE( testFullPropagationMGAwithDSM )
 
 
     }
-
-
-
-
-    // First leg
-//    Eigen::Vector6d stateDifferenceAtEarth = outputTest[0].first;
-//    Eigen::Vector6d stateDifferenceDSM1 = outputTest[0].second;
-
-    //Second leg
-
-//    std::cout << "error first leg 1: " << stateDifferenceAtEarth << "\n\n";
-//    std::cout << "error first leg 2: " << stateDifferenceDSM1 << "\n\n";
-
-//    std::cout << "approximate position Earth: " << ephemerisVector[4]->getCartesianState( 1.9265e+08) << "\n\n";
-
 
 }
 

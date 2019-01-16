@@ -77,11 +77,6 @@ void fullPropagationMGA(
     std::map< int, Eigen::Vector3d > cartesianPositionAtArrivalLambertTargeter;
 
 
-    integratorSettings->initialTimeStep_ = 1000.0;
-
-    simulation_setup::NamedBodyMap bodyMap = setupBodyMapLambertTargeter(centralBody[0], bodyToPropagate[0]);
-    basic_astrodynamics::AccelerationMap accelerationMap = setupAccelerationMapLambertTargeter(centralBody[0],
-                                                                                               bodyToPropagate[0], bodyMap);
     double timeOfFlight;
     int counterLegTotal = 0;
     int counterLegWithDSM = 0;
@@ -129,17 +124,24 @@ void fullPropagationMGA(
         departureAndArrivalBodies.push_back( nameBodiesTrajectory[i] );
         departureAndArrivalBodies.push_back( nameBodiesTrajectory[1 + i]);
 
+        // create body map
+        simulation_setup::NamedBodyMap bodyMap = setupBodyMapLambertTargeter(centralBody[0], bodyToPropagate[0], false,
+                departureAndArrivalBodies);
+        basic_astrodynamics::AccelerationMap accelerationMap = setupAccelerationMapLambertTargeter(centralBody[0],
+                                                                                                   bodyToPropagate[0], bodyMap);
+
         Eigen::Vector3d cartesianPositionAtDeparture = cartesianPositionAtDepartureLambertTargeter[i];
         Eigen::Vector3d cartesianPositionAtArrival = cartesianPositionAtArrivalLambertTargeter[i];
 
+        double initialTime = 0.0;
 
        // Compute the difference in state between the full problem and the Lambert targeter solution at departure and at arrival
         std::map< double, Eigen::Vector6d > lambertTargeterResultForOneLeg;
         std::map< double, Eigen::Vector6d > fullProblemResultForOneLeg;
         propagateLambertTargeterAndFullProblem( cartesianPositionAtDeparture, cartesianPositionAtArrival,
-                timeOfFlightVector[i], bodyMap, accelerationMap, bodyToPropagate, centralBody,
+                timeOfFlightVector[i], initialTime, bodyMap, accelerationMap, bodyToPropagate, centralBody,
                 integratorSettings, lambertTargeterResultForOneLeg, fullProblemResultForOneLeg,
-                departureAndArrivalBodies, true, true);
+                departureAndArrivalBodies);
 
 
         lambertTargeterResultForEachLeg[i] = lambertTargeterResultForOneLeg;
