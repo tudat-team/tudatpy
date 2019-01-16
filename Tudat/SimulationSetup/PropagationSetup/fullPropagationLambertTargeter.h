@@ -38,7 +38,9 @@ namespace propagators
  */
 simulation_setup::NamedBodyMap setupBodyMapLambertTargeter(
         const std::string& nameCentralBody,
-        const std::string& nameBodyToPropagate);
+        const std::string& nameBodyToPropagate,
+        const bool arrivalAndDepartureInitialisationFromEphemerides = false,
+        const std::vector< std::string >& departureAndArrivalBodies = std::vector< std::string >( ));
 
 
 
@@ -91,19 +93,20 @@ Eigen::Vector6d propagateLambertTargeterSolution(
  *  within the function).
  */
 void propagateLambertTargeterAndFullProblem(
-        const Eigen::Vector3d& cartesianPositionAtDeparture,
-        const Eigen::Vector3d& cartesianPositionAtArrival,
+        Eigen::Vector3d cartesianPositionAtDeparture,
+        Eigen::Vector3d cartesianPositionAtArrival,
         const double timeOfFlight,
+        const double initialTime,
         simulation_setup::NamedBodyMap& bodyMap,
         const basic_astrodynamics::AccelerationMap& accelerationModelMap,
-        const std::vector< std::string >& bodiesToPropagate,
-        const std::vector< std::string >& centralBodies,
+        const std::vector<std::string>& bodiesToPropagate,
+        const std::vector<std::string>& centralBody,
         const std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings,
-        const std::map< double, Eigen::Vector6d >& lambertTargeterResult,
-        const std::map< double, Eigen::Vector6d >& fullProblemResult,
-        const std::vector<std::string>& arrivalAndDepartureBodies,
+        std::map< double, Eigen::Vector6d >& lambertTargeterResult,
+        std::map< double, Eigen::Vector6d >& fullProblemResult,
+        const std::vector<std::string>& departureAndArrivalBodies,
         const bool arrivalAndDepartureInitialisationFromEphemerides = false,
-        const bool terminationSettings = false);
+        const bool terminationSphereOfInfluence = false);
 
 
 
@@ -129,6 +132,7 @@ std::pair< Eigen::Vector6d, Eigen::Vector6d > getDifferenceFullPropagationWrtLam
         const Eigen::Vector3d& cartesianPositionAtDeparture,
         const Eigen::Vector3d& cartesianPositionAtArrival,
         const double timeOfFlight,
+        const double initialTime,
         simulation_setup::NamedBodyMap& bodyMap,
         const basic_astrodynamics::AccelerationMap& accelerationModelMap,
         const std::vector< std::string >& bodiesToPropagate,
@@ -140,38 +144,38 @@ std::pair< Eigen::Vector6d, Eigen::Vector6d > getDifferenceFullPropagationWrtLam
 
 
 //std::map< double, std::pair<Eigen::Vector6d, Eigen::Vector6d> >
-void fullPropagationMGA(
-        const int numberOfLegs,
-        const std::vector< std::string >& nameBodiesTrajectory,
-        const std::vector< std::string >& centralBody,
-        const std::vector< std::string >& bodyToPropagate,
-        const std::vector< int >& legTypeVector,
-        const std::vector< ephemerides::EphemerisPointer >& ephemerisVector,
-        const Eigen::VectorXd& gravitationalParameterVector,
-        const Eigen::VectorXd& trajectoryVariableVector,
-        const double centralBodyGravitationalParameter,
-        const Eigen::VectorXd& minimumPericenterRadiiVector,
-        const Eigen::VectorXd& semiMajorAxesVector,
-        const Eigen::VectorXd& eccentricitiesVector,
-        const std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings,
-        std::map< int, std::map< double, Eigen::Vector6d > >& lambertTargeterResultForEachLeg,
-        std::map< int, std::map< double, Eigen::Vector6d > >& fullProblemResultForEachLeg);
+//void fullPropagationMGA(
+//        const int numberOfLegs,
+//        const std::vector< std::string >& nameBodiesTrajectory,
+//        const std::vector< std::string >& centralBody,
+//        const std::vector< std::string >& bodyToPropagate,
+//        const std::vector< int >& legTypeVector,
+//        const std::vector< ephemerides::EphemerisPointer >& ephemerisVector,
+//        const Eigen::VectorXd& gravitationalParameterVector,
+//        const Eigen::VectorXd& trajectoryVariableVector,
+//        const double centralBodyGravitationalParameter,
+//        const Eigen::VectorXd& minimumPericenterRadiiVector,
+//        const Eigen::VectorXd& semiMajorAxesVector,
+//        const Eigen::VectorXd& eccentricitiesVector,
+//        const std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings,
+//        std::map< int, std::map< double, Eigen::Vector6d > >& lambertTargeterResultForEachLeg,
+//        std::map< int, std::map< double, Eigen::Vector6d > >& fullProblemResultForEachLeg);
 
 
-std::map< int, std::pair< Eigen::Vector6d, Eigen::Vector6d > > getDifferenceFullPropagationWrtLambertTargeterMGA(
-        const int numberOfLegs,
-        const std::vector< std::string >& nameBodiesTrajectory,
-        const std::vector< std::string >& centralBody,
-        const std::vector< std::string >& bodyToPropagate,
-        const std::vector< int >& legTypeVector,
-        const std::vector< ephemerides::EphemerisPointer >& ephemerisVector,
-        const Eigen::VectorXd& gravitationalParameterVector,
-        const Eigen::VectorXd& trajectoryVariableVector,
-        const double centralBodyGravitationalParameter,
-        const Eigen::VectorXd& minimumPericenterRadiiVector,
-        const Eigen::VectorXd& semiMajorAxesVector,
-        const Eigen::VectorXd& eccentricitiesVector,
-        const std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings);
+//std::map< int, std::pair< Eigen::Vector6d, Eigen::Vector6d > > getDifferenceFullPropagationWrtLambertTargeterMGA(
+//        const int numberOfLegs,
+//        const std::vector< std::string >& nameBodiesTrajectory,
+//        const std::vector< std::string >& centralBody,
+//        const std::vector< std::string >& bodyToPropagate,
+//        const std::vector< int >& legTypeVector,
+//        const std::vector< ephemerides::EphemerisPointer >& ephemerisVector,
+//        const Eigen::VectorXd& gravitationalParameterVector,
+//        const Eigen::VectorXd& trajectoryVariableVector,
+//        const double centralBodyGravitationalParameter,
+//        const Eigen::VectorXd& minimumPericenterRadiiVector,
+//        const Eigen::VectorXd& semiMajorAxesVector,
+//        const Eigen::VectorXd& eccentricitiesVector,
+//        const std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings);
 
 
 } // namespace propagators
