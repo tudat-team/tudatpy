@@ -215,7 +215,7 @@ bool Trajectory::incorrectSize( )
     // Check the legTypeVector is of the correct size.
     if ( legTypeVector_.size( ) != numberOfLegs_ )
     {
-        std::cerr << "\nIncorrect size of legtypeVector.";
+        std::cerr << "\nIncorrect size of legtypeVector."<<" "<<legTypeVector_.size( )<<" "<<numberOfLegs_;
         return true;
     }
 
@@ -233,6 +233,12 @@ bool Trajectory::incorrectSize( )
         return true;
     }
 
+    if ( minimumPericenterRadiiVector_.size( ) != numberOfLegs_ )
+    {
+        std::cerr << "\nIncorrect size of minimumPericenterRadiiVector_.";
+        return true;
+    }
+
     // Check the size of the trajectoryDefiningParameterVector.
     if ( trajectoryVariableVector_.size( ) != checkTrajectoryVariableVectorSize( ) )
     {
@@ -240,6 +246,8 @@ bool Trajectory::incorrectSize( )
                      trajectoryVariableVector_.size( )<<std::endl;;
         return true;
     }
+
+
     return false;
 }
 
