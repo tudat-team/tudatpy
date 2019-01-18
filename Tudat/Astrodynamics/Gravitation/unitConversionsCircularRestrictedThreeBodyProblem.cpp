@@ -120,6 +120,7 @@ Eigen::Vector6d convertCorotatingNormalizedToCartesianCoordinates(
     rotationMatrix( 0, 1 ) = - std::sin( normalizedTime );
     rotationMatrix( 1, 0 ) = std::sin( normalizedTime );
     rotationMatrix( 1, 1 ) = std::cos( normalizedTime );
+    rotationMatrix( 2, 2 ) = 1.0;
 
     derivativeRotationMatrix( 0, 0 ) = - std::sin( normalizedTime );
     derivativeRotationMatrix( 0, 1 ) = - std::cos( normalizedTime );
@@ -129,7 +130,8 @@ Eigen::Vector6d convertCorotatingNormalizedToCartesianCoordinates(
     Eigen::Vector6d inertialNormalizedState;
     inertialNormalizedState.segment( 0, 3 ) = rotationMatrix * normalizedPosition;
     inertialNormalizedState.segment( 3, 3 ) = derivativeRotationMatrix * normalizedPosition + rotationMatrix * normalizedVelocity;
-    Eigen::Vector6d cartesianState = circular_restricted_three_body_problem::convertDimensionlessCartesianStateToDimensionalUnits(inertialNormalizedState, gravitationalParameterPrimary, gravitationalParameterSecondary, distancePrimarySecondary);
+    Eigen::Vector6d cartesianState = circular_restricted_three_body_problem::convertDimensionlessCartesianStateToDimensionalUnits(
+                inertialNormalizedState, gravitationalParameterPrimary, gravitationalParameterSecondary, distancePrimarySecondary);
 
     return cartesianState;
 }
@@ -156,6 +158,7 @@ Eigen::Vector6d convertCartesianToCorotatingNormalizedCoordinates(
     rotationMatrix( 0, 1 ) = std::sin( meanMotion * time );
     rotationMatrix( 1, 0 ) = -std::sin( meanMotion * time );
     rotationMatrix( 1, 1 ) = std::cos( meanMotion * time );
+    rotationMatrix( 2, 2 ) = 1.0;
 
     Eigen::Matrix3d derivativeRotationMatrix;
     derivativeRotationMatrix.setZero( );

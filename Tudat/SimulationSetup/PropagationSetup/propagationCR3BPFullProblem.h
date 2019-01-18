@@ -20,6 +20,14 @@ namespace tudat
 namespace propagators
 {
 
+std::map< std::string, std::shared_ptr< simulation_setup::BodySettings > > setupBodySettingsCR3BP(
+        const double distancePrimarySecondary,
+        const std::string& namePrimaryBody,
+        const std::string& nameSecondaryBody,
+        const std::string& frameOrientation = "ECLIPJ2000",
+        const double primaryGravitationalParameter = TUDAT_NAN,
+        const double secondaryGravitationalParameter = TUDAT_NAN );
+
 //! Setup CR3BP body map.
 /*!
  * Setup CR3BP body map. The two primaries, as well as the third, smaller body to be propagated are defined in the body map.
@@ -35,7 +43,10 @@ simulation_setup::NamedBodyMap setupBodyMapCR3BP(
         const double distancePrimarySecondary,
         const std::string& namePrimaryBody,
         const std::string& nameSecondaryBody,
-        const std::string& nameBodyToPropagate );
+        const std::string& nameBodyToPropagate,
+        const std::string& frameOrientation = "ECLIPJ2000",
+        const double primaryGravitationalParameter = TUDAT_NAN,
+        const double secondaryGravitationalParameter = TUDAT_NAN );
 
 //! Setup CR3BP acceleration map.
 /*!
@@ -53,8 +64,7 @@ basic_astrodynamics::AccelerationMap setupAccelerationMapCR3BP(
         const std::string& namePrimaryBody,
         const std::string& nameSecondaryBody,
         const std::string& nameBodyToPropagate,
-        const std::vector< std::string >& bodiesToPropagate,
-        const std::vector< std::string >& centralBodies,
+        const std::string& centralBody,
         const simulation_setup::NamedBodyMap& bodyMap );
 
 //! Propagate CR3BP from CR3BP environment
