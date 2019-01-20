@@ -50,7 +50,7 @@ namespace transfer_trajectories
 {
 
 // Enumeration containing the different leg types that can be part of the trajectory.
-enum legTypes
+enum TransferLegType
 {
     mga_Departure = 1,
     mga_Swingby,
@@ -87,9 +87,8 @@ public:
      *  \param includeArrivalDeltaV Boolean denoting whether to include the Delta V of arrival.
      */
     Trajectory( const double numberOfLegs,
-                const std::vector< int >& legTypeVector,
-                const std::vector< ephemerides::EphemerisPointer >&
-                        ephemerisVector,
+                const std::vector< TransferLegType >& legTypeVector,
+                const std::vector< ephemerides::EphemerisPointer >& ephemerisVector,
                 const Eigen::VectorXd& gravitationalParameterVector,
                 const Eigen::VectorXd& trajectoryVariableVector,
                 const double centralBodyGravitationalParameter,
@@ -250,7 +249,7 @@ private:
      * The different interplanetary leg types for this trajectory. These are stored in this vector,
      * such that the appropriate leg types can be created for the different legs.
      */
-    std::vector< int > legTypeVector_;
+    std::vector< TransferLegType > legTypeVector_;
 
     //! The vector containing the Ephemeris objects.
     /*!
