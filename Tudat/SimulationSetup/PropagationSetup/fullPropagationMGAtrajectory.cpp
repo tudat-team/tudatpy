@@ -123,15 +123,20 @@ void fullPropagationMGA(
         std::vector< std::string > departureAndArrivalBodies;
         departureAndArrivalBodies.push_back( nameBodiesTrajectory[i] );
         departureAndArrivalBodies.push_back( nameBodiesTrajectory[1 + i]);
+        std::cout << "departure and arrival bodies: " << departureAndArrivalBodies[0] << "\n\n";
+        std::cout << "departure and arrival bodies: " << departureAndArrivalBodies[1] << "\n\n";
 
-        // create body map
-        simulation_setup::NamedBodyMap bodyMap = setupBodyMapLambertTargeter(centralBody[0], bodyToPropagate[0], false,
-                departureAndArrivalBodies);
-        basic_astrodynamics::AccelerationMap accelerationMap = setupAccelerationMapLambertTargeter(centralBody[0],
-                                                                                                   bodyToPropagate[0], bodyMap);
 
         Eigen::Vector3d cartesianPositionAtDeparture = cartesianPositionAtDepartureLambertTargeter[i];
         Eigen::Vector3d cartesianPositionAtArrival = cartesianPositionAtArrivalLambertTargeter[i];
+
+        // create body map
+        simulation_setup::NamedBodyMap bodyMap = setupBodyMapLambertTargeter(centralBody[0], bodyToPropagate[0], departureAndArrivalBodies,
+                cartesianPositionAtDeparture, cartesianPositionAtArrival, false);
+        basic_astrodynamics::AccelerationMap accelerationMap = setupAccelerationMapLambertTargeter(centralBody[0],
+                                                                                                   bodyToPropagate[0], bodyMap);
+
+
 
         double initialTime = 0.0;
 
@@ -141,7 +146,7 @@ void fullPropagationMGA(
         propagateLambertTargeterAndFullProblem( cartesianPositionAtDeparture, cartesianPositionAtArrival,
                 timeOfFlightVector[i], initialTime, bodyMap, accelerationMap, bodyToPropagate, centralBody,
                 integratorSettings, lambertTargeterResultForOneLeg, fullProblemResultForOneLeg,
-                departureAndArrivalBodies);
+                departureAndArrivalBodies, false, false);
 
 
         lambertTargeterResultForEachLeg[i] = lambertTargeterResultForOneLeg;
