@@ -57,12 +57,13 @@ BOOST_AUTO_TEST_CASE( testFullPropagationLambertTargeter )
 
 
     std::vector< std::string > departureAndArrivalBodies;
-    departureAndArrivalBodies.push_back("Earth");
-    departureAndArrivalBodies.push_back("Mars");
+    departureAndArrivalBodies.push_back("departure");
+    departureAndArrivalBodies.push_back("arrival");
 
     // Define the body map.
-    simulation_setup::NamedBodyMap bodyMap = propagators::setupBodyMapLambertTargeter("Earth", "spacecraft",
-                                                                                      true, departureAndArrivalBodies);
+    simulation_setup::NamedBodyMap bodyMap = propagators::setupBodyMapLambertTargeter("Earth", "spacecraft", departureAndArrivalBodies,
+                                                                                      cartesianPositionAtDeparture, cartesianPositionAtArrival,
+                                                                                      false);
     basic_astrodynamics::AccelerationMap accelerationModelMap = propagators::setupAccelerationMapLambertTargeter(
                 "Earth", "spacecraft", bodyMap);
 
@@ -71,7 +72,7 @@ BOOST_AUTO_TEST_CASE( testFullPropagationLambertTargeter )
    std::pair< Eigen::Vector6d, Eigen::Vector6d > differenceState =
             propagators::getDifferenceFullPropagationWrtLambertTargeterAtDepartureAndArrival(cartesianPositionAtDeparture,
              cartesianPositionAtArrival, timeOfFlight, initialTime, bodyMap, accelerationModelMap, bodiesToPropagate,
-             centralBodies, integratorSettings, departureAndArrivalBodies);
+             centralBodies, integratorSettings, departureAndArrivalBodies, true, false);
 
     Eigen::Vector6d differenceStateAtDeparture = differenceState.first;
     Eigen::Vector6d differenceStateAtArrival = differenceState.second;

@@ -39,8 +39,10 @@ namespace propagators
 simulation_setup::NamedBodyMap setupBodyMapLambertTargeter(
         const std::string& nameCentralBody,
         const std::string& nameBodyToPropagate,
-        const bool arrivalAndDepartureInitialisationFromEphemerides = false,
-        const std::vector< std::string >& departureAndArrivalBodies = std::vector< std::string >( ));
+        const std::vector< std::string >& departureAndArrivalBodies,
+        const Eigen::Vector3d& cartesianStateAtDeparture,
+        const Eigen::Vector3d& cartesianStateAtArrival,
+        const bool departureAndArrivalInitialisationFromEphemerides = false);
 
 
 
@@ -106,7 +108,10 @@ void propagateLambertTargeterAndFullProblem(
         std::map< double, Eigen::Vector6d >& fullProblemResult,
         const std::vector<std::string>& departureAndArrivalBodies,
         const bool arrivalAndDepartureInitialisationFromEphemerides = false,
-        const bool terminationSphereOfInfluence = false);
+        const bool terminationSphereOfInfluence = false,
+        const double departureBodyGravitationalParameter = TUDAT_NAN,
+        const double arrivalBodyGravitationalParameter = TUDAT_NAN,
+        const double centralBodyGravitationalParameter = TUDAT_NAN);
 
 
 
@@ -138,7 +143,9 @@ std::pair< Eigen::Vector6d, Eigen::Vector6d > getDifferenceFullPropagationWrtLam
         const std::vector< std::string >& bodiesToPropagate,
         const std::vector< std::string >& centralBodies,
         const std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings,
-        const std::vector< std::string >& departureAndArrivalBodies);
+        const std::vector< std::string >& departureAndArrivalBodies,
+        const bool arrivalAndDepartureInitialisationFromEphemerides = false,
+        const bool terminationSphereOfInfluence = false);
 
 
 
