@@ -34,6 +34,42 @@ transfer_trajectories::Trajectory createTransferTrajectoryObject(
         const double arrivalSemiMajorAxis,
         const double arrivalEccentricity );
 
+
+void fullPropagationMGA(
+        simulation_setup::NamedBodyMap& bodyMap,
+        const basic_astrodynamics::AccelerationMap& accelerationMap,
+        const int numberOfLegs,
+        const std::vector< std::string >& transferBodyOrder,
+        const std::vector< std::string >& bodiesAndManoeuvresOrder,
+        const std::vector< std::string >& centralBody,
+        const std::vector< std::string >& bodyToPropagate,
+        const std::vector< transfer_trajectories::TransferLegType>& legTypeVector,
+        const Eigen::VectorXd& trajectoryVariableVector,
+        const Eigen::VectorXd& minimumPericenterRadiiVector,
+        const Eigen::VectorXd& semiMajorAxesVector,
+        const Eigen::VectorXd& eccentricitiesVector,
+        const std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings,
+        std::map< int, std::map< double, Eigen::Vector6d > >& lambertTargeterResultForEachLeg,
+        std::map< int, std::map< double, Eigen::Vector6d > >& fullProblemResultForEachLeg);
+
+
+std::map< int, std::pair< Eigen::Vector6d, Eigen::Vector6d > > getDifferenceFullPropagationWrtLambertTargeterMGA(
+        simulation_setup::NamedBodyMap& bodyMap,
+        const basic_astrodynamics::AccelerationMap& accelerationMap,
+        const int numberOfLegs,
+        const std::vector< std::string >& transferBodyOrder,
+        const std::vector< std::string >& bodiesAndManoeuvresOrder,
+        const std::vector< std::string >& centralBody,
+        const std::vector< std::string >& bodyToPropagate,
+        const std::vector< transfer_trajectories::TransferLegType >& legTypeVector,
+        const Eigen::VectorXd& trajectoryVariableVector,
+        const Eigen::VectorXd& minimumPericenterRadiiVector,
+        const Eigen::VectorXd& semiMajorAxesVector,
+        const Eigen::VectorXd& eccentricitiesVector,
+        const std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings);
+
+
+
 }
 
 }
