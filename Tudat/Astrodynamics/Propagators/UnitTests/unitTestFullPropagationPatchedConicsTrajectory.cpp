@@ -11,15 +11,13 @@
 #define BOOST_TEST_MAIN
 
 #include <Tudat/SimulationSetup/tudatEstimationHeader.h>
-#include "Tudat/SimulationSetup/PropagationSetup/fullPropagationLambertTargeter.h"
-#include "Tudat/SimulationSetup/PropagationSetup/fullPropagationMGAtrajectory.h"
 #include <boost/test/floating_point_comparison.hpp>
 #include <boost/test/unit_test.hpp>
 #include <Eigen/Core>
 #include "Tudat/Basics/testMacros.h"
 
-
-// required for the MGA
+#include "Tudat/SimulationSetup/PropagationSetup/propagationLambertTargeterFullProblem.h"
+#include "Tudat/SimulationSetup/PropagationSetup/propagationPatchedConicFullProblem.h"
 #include "Tudat/Astrodynamics/Ephemerides/approximatePlanetPositions.h"
 #include "Tudat/Astrodynamics/TrajectoryDesign/trajectory.h"
 #include "Tudat/Astrodynamics/TrajectoryDesign/exportTrajectory.h"

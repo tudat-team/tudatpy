@@ -187,8 +187,8 @@ add_executable(test_FullPropagationLambertTargeter "${SRCROOT}${PROPAGATORSDIR}/
 setup_custom_test_program(test_FullPropagationLambertTargeter "${SRCROOT}${PROPAGATORSDIR}")
 target_link_libraries(test_FullPropagationLambertTargeter tudat_trajectory_design tudat_mission_segments tudat_ephemerides tudat_basic_astrodynamics tudat_basic_mathematics ${TUDAT_PROPAGATION_LIBRARIES} ${Boost_LIBRARIES})
 
-add_executable(test_FullPropagationMGAtrajectory "${SRCROOT}${PROPAGATORSDIR}/UnitTests/unitTestFullPropagationMGAtrajectory.cpp")
-setup_custom_test_program(test_FullPropagationMGAtrajectory "${SRCROOT}${PROPAGATORSDIR}")
-target_link_libraries(test_FullPropagationMGAtrajectory tudat_trajectory_design tudat_mission_segments tudat_ephemerides tudat_basic_astrodynamics tudat_basic_mathematics ${TUDAT_PROPAGATION_LIBRARIES} ${Boost_LIBRARIES})
+add_executable(test_FullPropagationPatchedConicsTrajectory "${SRCROOT}${PROPAGATORSDIR}/UnitTests/unitTestFullPropagationPatchedConicsTrajectory.cpp")
+setup_custom_test_program(test_FullPropagationPatchedConicsTrajectory "${SRCROOT}${PROPAGATORSDIR}")
+target_link_libraries(test_FullPropagationPatchedConicsTrajectory tudat_trajectory_design tudat_mission_segments tudat_ephemerides tudat_basic_astrodynamics tudat_basic_mathematics ${TUDAT_PROPAGATION_LIBRARIES} ${Boost_LIBRARIES})
 
 
