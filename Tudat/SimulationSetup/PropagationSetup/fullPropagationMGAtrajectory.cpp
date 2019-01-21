@@ -38,16 +38,14 @@ namespace propagators
 
 void fullPropagationMGA(
         simulation_setup::NamedBodyMap& bodyMap,
+        const basic_astrodynamics::AccelerationMap& accelerationMap,
         const int numberOfLegs,
         const std::vector< std::string >& transferBodyOrder,
         const std::vector< std::string >& bodiesAndManoeuvresOrder,
         const std::vector< std::string >& centralBody,
         const std::vector< std::string >& bodyToPropagate,
         const std::vector< transfer_trajectories::TransferLegType>& legTypeVector,
-        const std::vector< ephemerides::EphemerisPointer >& ephemerisVector,
-        const Eigen::VectorXd& gravitationalParameterVector,
         const Eigen::VectorXd& trajectoryVariableVector,
-        const double centralBodyGravitationalParameter,
         const Eigen::VectorXd& minimumPericenterRadiiVector,
         const Eigen::VectorXd& semiMajorAxesVector,
         const Eigen::VectorXd& eccentricitiesVector,
@@ -56,20 +54,11 @@ void fullPropagationMGA(
         std::map< int, std::map< double, Eigen::Vector6d > >& fullProblemResultForEachLeg){
 
 
-    // calculate trajectory with other function
-
+    // calculate the patched conic trajectory from the body map
     transfer_trajectories::Trajectory trajectory = propagators::createTransferTrajectoryObject(
             bodyMap, transferBodyOrder, centralBody[0], legTypeVector, utilities::convertEigenVectorToStlVector(trajectoryVariableVector),
             utilities::convertEigenVectorToStlVector(minimumPericenterRadiiVector), true, semiMajorAxesVector[0], eccentricitiesVector[0],
             true, semiMajorAxesVector[1], eccentricitiesVector[1]);
-
-
-
-    // Calculate the MGA trajectory
-    tudat::transfer_trajectories::Trajectory trajectory2( numberOfLegs, legTypeVector, ephemerisVector,
-                                                         gravitationalParameterVector, trajectoryVariableVector,
-                                                         centralBodyGravitationalParameter, minimumPericenterRadiiVector,
-                                                         semiMajorAxesVector, eccentricitiesVector );
 
 
     int numberLegsIncludingDSM = ((trajectoryVariableVector.size()-1-numberOfLegs)/4.0) + numberOfLegs ;
@@ -144,10 +133,6 @@ void fullPropagationMGA(
         Eigen::Vector3d cartesianPositionAtArrival = cartesianPositionAtArrivalLambertTargeter[i];
 
 
-        basic_astrodynamics::AccelerationMap accelerationMap = setupAccelerationMapLambertTargeter(centralBody[0],
-                                                                                                   bodyToPropagate[0], bodyMap);
-
-
 
         double initialTime = 0.0;
 
@@ -174,16 +159,14 @@ void fullPropagationMGA(
 
 std::map< int, std::pair< Eigen::Vector6d, Eigen::Vector6d > > getDifferenceFullPropagationWrtLambertTargeterMGA(
         simulation_setup::NamedBodyMap& bodyMap,
+        const basic_astrodynamics::AccelerationMap& accelerationMap,
         const int numberOfLegs,
         const std::vector< std::string >& transferBodyOrder,
         const std::vector< std::string >& bodiesAndManoeuvresOrder,
         const std::vector< std::string >& centralBody,
         const std::vector< std::string >& bodyToPropagate,
         const std::vector< transfer_trajectories::TransferLegType >& legTypeVector,
-        const std::vector< ephemerides::EphemerisPointer >& ephemerisVector,
-        const Eigen::VectorXd& gravitationalParameterVector,
         const Eigen::VectorXd& trajectoryVariableVector,
-        const double centralBodyGravitationalParameter,
         const Eigen::VectorXd& minimumPericenterRadiiVector,
         const Eigen::VectorXd& semiMajorAxesVector,
         const Eigen::VectorXd& eccentricitiesVector,
@@ -198,11 +181,9 @@ std::map< int, std::pair< Eigen::Vector6d, Eigen::Vector6d > > getDifferenceFull
 
     // compute full problem and Lambert targeter solution both at departure and arrival.
 
-      fullPropagationMGA(bodyMap, numberOfLegs, transferBodyOrder, bodiesAndManoeuvresOrder, centralBody, bodyToPropagate, legTypeVector,
-                       ephemerisVector, gravitationalParameterVector, trajectoryVariableVector,
-                       centralBodyGravitationalParameter, minimumPericenterRadiiVector, semiMajorAxesVector,
-                       eccentricitiesVector, integratorSettings, lambertTargeterResultForEachLeg,
-                       fullProblemResultForEachLeg);
+      fullPropagationMGA(bodyMap, accelerationMap, numberOfLegs, transferBodyOrder, bodiesAndManoeuvresOrder, centralBody, bodyToPropagate, legTypeVector,
+                       trajectoryVariableVector, minimumPericenterRadiiVector, semiMajorAxesVector, eccentricitiesVector, integratorSettings,
+                         lambertTargeterResultForEachLeg, fullProblemResultForEachLeg);
 
 
     std::map< int, std::pair< Eigen::Vector6d, Eigen::Vector6d > > stateDifferenceAtArrivalAndDepartureForEachLeg;
