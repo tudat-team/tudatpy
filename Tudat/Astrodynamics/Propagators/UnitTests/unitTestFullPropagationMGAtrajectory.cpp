@@ -103,6 +103,7 @@ BOOST_AUTO_TEST_CASE( testFullPropagationMGA )
     // Create body map.
     simulation_setup::NamedBodyMap bodyMap = createBodies( bodySettings );
 
+    // ephemeris
     bodyMap["Earth"] = std::make_shared< simulation_setup::Body >( );
     bodyMap["Earth"]->setEphemeris( std::make_shared< ephemerides::ApproximatePlanetPositions >(
                                         ephemerides::ApproximatePlanetPositionsBase::BodiesWithEphemerisData::earthMoonBarycenter ));
@@ -116,6 +117,8 @@ BOOST_AUTO_TEST_CASE( testFullPropagationMGA )
     bodyMap["Saturn"]->setEphemeris( std::make_shared< ephemerides::ApproximatePlanetPositions >(
                                         ephemerides::ApproximatePlanetPositionsBase::BodiesWithEphemerisData::saturn ));
 
+
+    // gravity field
     bodyMap["Earth"]->setGravityFieldModel( simulation_setup::createGravityFieldModel( simulation_setup::getDefaultGravityFieldSettings(
                         "Earth", TUDAT_NAN, TUDAT_NAN ), "Earth", bodyMap ) );
 
@@ -136,32 +139,10 @@ BOOST_AUTO_TEST_CASE( testFullPropagationMGA )
 
     setGlobalFrameBodyEphemerides( bodyMap, frameOrigin, frameOrientation );
 
+    // create acceleration map
+    basic_astrodynamics::AccelerationMap accelerationMap = propagators::setupAccelerationMapLambertTargeter(centralBody[0],
+                                                                                               bodyToPropagate[0], bodyMap);
 
-
-
-
-
-
-
-    // Create the ephemeris vector.
-    std::vector< ephemerides::EphemerisPointer >
-            ephemerisVector( numberOfLegs );
-    ephemerisVector[ 0 ] = std::make_shared< ephemerides::ApproximatePlanetPositions >(
-                ephemerides::ApproximatePlanetPositionsBase::BodiesWithEphemerisData::earthMoonBarycenter );
-    ephemerisVector[ 1 ] = std::make_shared< ephemerides::ApproximatePlanetPositions >(
-                ephemerides::ApproximatePlanetPositionsBase::BodiesWithEphemerisData::venus );
-    ephemerisVector[ 2 ] = std::make_shared< ephemerides::ApproximatePlanetPositions >(
-                ephemerides::ApproximatePlanetPositionsBase::BodiesWithEphemerisData::venus );
-    ephemerisVector[ 3 ] = std::make_shared< ephemerides::ApproximatePlanetPositions >(
-                ephemerides::ApproximatePlanetPositionsBase::BodiesWithEphemerisData::earthMoonBarycenter );
-    ephemerisVector[ 4 ] = std::make_shared< ephemerides::ApproximatePlanetPositions >(
-                ephemerides::ApproximatePlanetPositionsBase::BodiesWithEphemerisData::jupiter );
-    ephemerisVector[ 5 ] = std::make_shared< ephemerides::ApproximatePlanetPositions >(
-                ephemerides::ApproximatePlanetPositionsBase::BodiesWithEphemerisData::saturn );
-
-    // Create gravitational parameter vector
-    Eigen::VectorXd gravitationalParameterVector( numberOfLegs );
-    gravitationalParameterVector << 3.9860119e14, 3.24860e14, 3.24860e14, 3.9860119e14, 1.267e17, 3.79e16;
 
     // Create variable vector.
     Eigen::VectorXd variableVector( numberOfLegs + 1 );
@@ -174,8 +155,6 @@ BOOST_AUTO_TEST_CASE( testFullPropagationMGA )
     semiMajorAxes << std::numeric_limits< double >::infinity( ), 1.0895e8 / 0.02;
     eccentricities << 0.0, 0.98;
 
-    // Sun gravitational parameter
-    const double sunGravitationalParameter = 1.32712428e20;
 
     // Create minimum pericenter radii vector
     Eigen::VectorXd minimumPericenterRadii( numberOfLegs );
@@ -187,10 +166,9 @@ BOOST_AUTO_TEST_CASE( testFullPropagationMGA )
     std::map< int, std::map< double, Eigen::Vector6d > > fullProblemResultForEachLeg;
 
     std::map< int, std::pair< Eigen::Vector6d, Eigen::Vector6d > > differenceStateArrivalAndDeparturePerLeg =
-            propagators::getDifferenceFullPropagationWrtLambertTargeterMGA( bodyMap, numberOfLegs, nameBodiesTrajectory, nameBodiesTrajectory,
-            centralBody, bodyToPropagate, legTypeVector, ephemerisVector, gravitationalParameterVector,
-            variableVector, sunGravitationalParameter, minimumPericenterRadii, semiMajorAxes,
-            eccentricities, integratorSettings);
+            propagators::getDifferenceFullPropagationWrtLambertTargeterMGA( bodyMap, accelerationMap, numberOfLegs, nameBodiesTrajectory,
+                            nameBodiesTrajectory, centralBody, bodyToPropagate, legTypeVector, variableVector, minimumPericenterRadii,
+                            semiMajorAxes, eccentricities, integratorSettings);
 
     for( std::map< int, std::pair< Eigen::Vector6d, Eigen::Vector6d > >::iterator
          itr = differenceStateArrivalAndDeparturePerLeg.begin( );
@@ -275,6 +253,7 @@ BOOST_AUTO_TEST_CASE( testFullPropagationMGAwithDSM )
     // Create body map.
     simulation_setup::NamedBodyMap bodyMap = createBodies( bodySettings );
 
+    // ephemeris
     bodyMap["Earth"] = std::make_shared< simulation_setup::Body >( );
     bodyMap["Earth"]->setEphemeris( std::make_shared< ephemerides::ApproximatePlanetPositions >(
                                         ephemerides::ApproximatePlanetPositionsBase::BodiesWithEphemerisData::earthMoonBarycenter ));
@@ -286,6 +265,7 @@ BOOST_AUTO_TEST_CASE( testFullPropagationMGAwithDSM )
                                         ephemerides::ApproximatePlanetPositionsBase::BodiesWithEphemerisData::mercury ));
 
 
+    // gravity field
     bodyMap["Earth"]->setGravityFieldModel( simulation_setup::createGravityFieldModel( simulation_setup::getDefaultGravityFieldSettings(
                         "Earth", TUDAT_NAN, TUDAT_NAN ), "Earth", bodyMap ) );
 
@@ -305,24 +285,9 @@ BOOST_AUTO_TEST_CASE( testFullPropagationMGAwithDSM )
 
 
 
-
-
-    // Create the ephemeris vector.
-    std::vector< ephemerides::EphemerisPointer > ephemerisVector( numberOfLegs );
-    ephemerisVector[ 0 ] = std::make_shared< ephemerides::ApproximatePlanetPositions >(
-                ephemerides::ApproximatePlanetPositionsBase::BodiesWithEphemerisData::earthMoonBarycenter );
-    ephemerisVector[ 1 ] = std::make_shared< ephemerides::ApproximatePlanetPositions >(
-                ephemerides::ApproximatePlanetPositionsBase::BodiesWithEphemerisData::earthMoonBarycenter );
-    ephemerisVector[ 2 ] = std::make_shared< ephemerides::ApproximatePlanetPositions >(
-                ephemerides::ApproximatePlanetPositionsBase::BodiesWithEphemerisData::venus );
-    ephemerisVector[ 3 ] = std::make_shared< ephemerides::ApproximatePlanetPositions >(
-                ephemerides::ApproximatePlanetPositionsBase::BodiesWithEphemerisData::venus );
-    ephemerisVector[ 4 ] = std::make_shared< ephemerides::ApproximatePlanetPositions >(
-                ephemerides::ApproximatePlanetPositionsBase::BodiesWithEphemerisData::mercury );
-
-    // Create gravitational parameter vector
-    Eigen::VectorXd gravitationalParameterVector( numberOfLegs );
-    gravitationalParameterVector << 3.9860119e14, 3.9860119e14, 3.24860e14, 3.24860e14, 2.2321e13;
+    // create acceleration map
+    basic_astrodynamics::AccelerationMap accelerationMap = propagators::setupAccelerationMapLambertTargeter(centralBody[0],
+                                                                                               bodyToPropagate[0], bodyMap);
 
     // Create variable vector.
     Eigen::VectorXd variableVector;
@@ -343,8 +308,6 @@ BOOST_AUTO_TEST_CASE( testFullPropagationMGAwithDSM )
             0.829948744508, 1.09554368115, 3.04129845698 * 6.052e6, 0.0, // 3rd leg.
             0.317174785637, 1.34317576594, 1.10000000891 * 6.052e6, 0.0; // 4th leg.
 
-    // Sun gravitational parameter
-    const double sunGravitationalParameter = 1.32712428e20;
 
     // Create minimum pericenter radii vector
     Eigen::VectorXd minimumPericenterRadii( numberOfLegs );
@@ -371,10 +334,9 @@ BOOST_AUTO_TEST_CASE( testFullPropagationMGAwithDSM )
     std::map< int, std::map< double, Eigen::Vector6d > > fullProblemResultForEachLeg;
 
     std::map< int, std::pair< Eigen::Vector6d, Eigen::Vector6d > > differenceStateArrivalAndDeparturePerLeg =
-            propagators::getDifferenceFullPropagationWrtLambertTargeterMGA( bodyMap, numberOfLegs, transferBodyTrajectory, nameBodiesAndManoeuvresTrajectory,
-            centralBody, bodyToPropagate, legTypeVector, ephemerisVector, gravitationalParameterVector,
-            variableVector, sunGravitationalParameter, minimumPericenterRadii, semiMajorAxes,
-            eccentricities, integratorSettings);
+            propagators::getDifferenceFullPropagationWrtLambertTargeterMGA( bodyMap, accelerationMap, numberOfLegs, transferBodyTrajectory,
+                               nameBodiesAndManoeuvresTrajectory, centralBody, bodyToPropagate, legTypeVector, variableVector, minimumPericenterRadii,
+                               semiMajorAxes, eccentricities, integratorSettings);
 
     for( std::map< int, std::pair< Eigen::Vector6d, Eigen::Vector6d > >::iterator
          itr = differenceStateArrivalAndDeparturePerLeg.begin( );
