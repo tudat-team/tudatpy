@@ -56,7 +56,7 @@ BOOST_AUTO_TEST_CASE( testFullPropagationMGA )
     // Specify required parameters
     // Specify the number of legs and type of legs.
     int numberOfLegs = 6;
-    std::vector< int > legTypeVector;
+    std::vector< transfer_trajectories::TransferLegType > legTypeVector;
     legTypeVector.resize( numberOfLegs );
     legTypeVector[ 0 ] = transfer_trajectories::mga_Departure;
     legTypeVector[ 1 ] = transfer_trajectories::mga_Swingby;
@@ -73,6 +73,75 @@ BOOST_AUTO_TEST_CASE( testFullPropagationMGA )
     nameBodiesTrajectory.push_back("Earth");
     nameBodiesTrajectory.push_back("Jupiter");
     nameBodiesTrajectory.push_back("Saturn");
+
+
+
+    std::vector< std::string > centralBody;
+    centralBody.push_back( "Sun" );
+    std::vector< std::string > bodyToPropagate;
+    bodyToPropagate.push_back( "spacecraft" );
+
+
+    spice_interface::loadStandardSpiceKernels( );
+
+
+
+    std::map< std::string, std::shared_ptr< simulation_setup::BodySettings > > bodySettings =
+                    simulation_setup::getDefaultBodySettings( centralBody );
+
+    // Define central body ephemeris settings.
+    std::string frameOrigin = "SSB";
+    std::string frameOrientation = "J2000";
+    bodySettings[ centralBody[0] ]->ephemerisSettings = std::make_shared< simulation_setup::ConstantEphemerisSettings >(
+            ( Eigen::Vector6d( ) << 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 ).finished( ), frameOrigin, frameOrientation );
+
+    bodySettings[ centralBody[0] ]->ephemerisSettings->resetFrameOrientation( frameOrientation );
+    bodySettings[ centralBody[0] ]->rotationModelSettings->resetOriginalFrame( frameOrientation );
+
+
+
+    // Create body map.
+    simulation_setup::NamedBodyMap bodyMap = createBodies( bodySettings );
+
+    bodyMap["Earth"] = std::make_shared< simulation_setup::Body >( );
+    bodyMap["Earth"]->setEphemeris( std::make_shared< ephemerides::ApproximatePlanetPositions >(
+                                        ephemerides::ApproximatePlanetPositionsBase::BodiesWithEphemerisData::earthMoonBarycenter ));
+    bodyMap["Venus"] = std::make_shared< simulation_setup::Body >( );
+    bodyMap["Venus"]->setEphemeris( std::make_shared< ephemerides::ApproximatePlanetPositions >(
+                                        ephemerides::ApproximatePlanetPositionsBase::BodiesWithEphemerisData::venus ));
+    bodyMap["Jupiter"] = std::make_shared< simulation_setup::Body >( );
+    bodyMap["Jupiter"]->setEphemeris( std::make_shared< ephemerides::ApproximatePlanetPositions >(
+                                        ephemerides::ApproximatePlanetPositionsBase::BodiesWithEphemerisData::jupiter ));
+    bodyMap["Saturn"] = std::make_shared< simulation_setup::Body >( );
+    bodyMap["Saturn"]->setEphemeris( std::make_shared< ephemerides::ApproximatePlanetPositions >(
+                                        ephemerides::ApproximatePlanetPositionsBase::BodiesWithEphemerisData::saturn ));
+
+    bodyMap["Earth"]->setGravityFieldModel( simulation_setup::createGravityFieldModel( simulation_setup::getDefaultGravityFieldSettings(
+                        "Earth", TUDAT_NAN, TUDAT_NAN ), "Earth", bodyMap ) );
+
+    bodyMap["Venus"]->setGravityFieldModel( simulation_setup::createGravityFieldModel( simulation_setup::getDefaultGravityFieldSettings(
+                        "Venus", TUDAT_NAN, TUDAT_NAN ), "Venus", bodyMap ) );
+
+    bodyMap["Jupiter"]->setGravityFieldModel( simulation_setup::createGravityFieldModel( simulation_setup::getDefaultGravityFieldSettings(
+                        "Jupiter", TUDAT_NAN, TUDAT_NAN ), "Jupiter", bodyMap ) );
+
+    bodyMap["Saturn"]->setGravityFieldModel( simulation_setup::createGravityFieldModel( simulation_setup::getDefaultGravityFieldSettings(
+                        "Saturn", TUDAT_NAN, TUDAT_NAN ), "Saturn", bodyMap ) );
+
+
+    bodyMap[ bodyToPropagate[0] ] = std::make_shared< simulation_setup::Body >( );
+    bodyMap[ bodyToPropagate[0] ]->setEphemeris( std::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
+                    std::shared_ptr< interpolators::OneDimensionalInterpolator
+                    < double, Eigen::Vector6d > >( ), frameOrigin, frameOrientation ) );
+
+    setGlobalFrameBodyEphemerides( bodyMap, frameOrigin, frameOrientation );
+
+
+
+
+
+
+
 
     // Create the ephemeris vector.
     std::vector< ephemerides::EphemerisPointer >
@@ -97,7 +166,7 @@ BOOST_AUTO_TEST_CASE( testFullPropagationMGA )
     // Create variable vector.
     Eigen::VectorXd variableVector( numberOfLegs + 1 );
     variableVector << -789.8117, 158.302027105278, 449.385873819743, 54.7489684339665,
-            1024.36205846918, 4552.30796805542, 1/*dummy*/;
+            1024.36205846918, 4552.30796805542, 1;
     variableVector *= physical_constants::JULIAN_DAY;
 
     // Create departure and capture variables.
@@ -113,16 +182,12 @@ BOOST_AUTO_TEST_CASE( testFullPropagationMGA )
     minimumPericenterRadii << 6778000.0, 6351800.0, 6351800.0, 6778000.0, 600000000.0, 600000000.0;
 
 
-    std::vector< std::string > centralBody;
-    centralBody.push_back( "Sun" );
-    std::vector< std::string > bodyToPropagate;
-    bodyToPropagate.push_back( "spacecraft" );
 
     std::map< int, std::map< double, Eigen::Vector6d > > lambertTargeterResultForEachLeg;
     std::map< int, std::map< double, Eigen::Vector6d > > fullProblemResultForEachLeg;
 
     std::map< int, std::pair< Eigen::Vector6d, Eigen::Vector6d > > differenceStateArrivalAndDeparturePerLeg =
-            propagators::getDifferenceFullPropagationWrtLambertTargeterMGA( numberOfLegs, nameBodiesTrajectory,
+            propagators::getDifferenceFullPropagationWrtLambertTargeterMGA( bodyMap, numberOfLegs, nameBodiesTrajectory, nameBodiesTrajectory,
             centralBody, bodyToPropagate, legTypeVector, ephemerisVector, gravitationalParameterVector,
             variableVector, sunGravitationalParameter, minimumPericenterRadii, semiMajorAxes,
             eccentricities, integratorSettings);
@@ -158,7 +223,7 @@ BOOST_AUTO_TEST_CASE( testFullPropagationMGAwithDSM )
     // Specify required parameters
     // Specify the number of legs and type of legs.
     int numberOfLegs = 5;
-    std::vector< int > legTypeVector;
+    std::vector< transfer_trajectories::TransferLegType > legTypeVector;
     legTypeVector.resize( numberOfLegs );
     legTypeVector[ 0 ] = transfer_trajectories::mga1DsmVelocity_Departure;
     legTypeVector[ 1 ] = transfer_trajectories::mga1DsmVelocity_Swingby;
@@ -167,16 +232,80 @@ BOOST_AUTO_TEST_CASE( testFullPropagationMGAwithDSM )
     legTypeVector[ 4 ] = transfer_trajectories::capture;
 
     // Name of the bodies involved in the trajectory
-    std::vector< std::string > nameBodiesTrajectory;
-    nameBodiesTrajectory.push_back("Earth");
-    nameBodiesTrajectory.push_back("DSM1");
-    nameBodiesTrajectory.push_back("Earth");
-    nameBodiesTrajectory.push_back("DSM2");
-    nameBodiesTrajectory.push_back("Venus");
-    nameBodiesTrajectory.push_back("DSM3");
-    nameBodiesTrajectory.push_back("Venus");
-    nameBodiesTrajectory.push_back("DSM4");
-    nameBodiesTrajectory.push_back("Mercury");
+    std::vector< std::string > nameBodiesAndManoeuvresTrajectory;
+    nameBodiesAndManoeuvresTrajectory.push_back("Earth");
+    nameBodiesAndManoeuvresTrajectory.push_back("DSM1");
+    nameBodiesAndManoeuvresTrajectory.push_back("Earth");
+    nameBodiesAndManoeuvresTrajectory.push_back("DSM2");
+    nameBodiesAndManoeuvresTrajectory.push_back("Venus");
+    nameBodiesAndManoeuvresTrajectory.push_back("DSM3");
+    nameBodiesAndManoeuvresTrajectory.push_back("Venus");
+    nameBodiesAndManoeuvresTrajectory.push_back("DSM4");
+    nameBodiesAndManoeuvresTrajectory.push_back("Mercury");
+
+    std::vector< std::string > transferBodyTrajectory;
+    transferBodyTrajectory.push_back("Earth");
+    transferBodyTrajectory.push_back("Earth");
+    transferBodyTrajectory.push_back("Venus");
+    transferBodyTrajectory.push_back("Venus");
+    transferBodyTrajectory.push_back("Mercury");
+
+
+
+    std::vector< std::string > centralBody;
+    centralBody.push_back( "Sun" );
+    std::vector< std::string > bodyToPropagate;
+    bodyToPropagate.push_back( "spacecraft" );
+
+    spice_interface::loadStandardSpiceKernels( );
+
+    std::map< std::string, std::shared_ptr< simulation_setup::BodySettings > > bodySettings =
+                    simulation_setup::getDefaultBodySettings( centralBody );
+
+    // Define central body ephemeris settings.
+    std::string frameOrigin = "SSB";
+    std::string frameOrientation = "J2000";
+    bodySettings[ centralBody[0] ]->ephemerisSettings = std::make_shared< simulation_setup::ConstantEphemerisSettings >(
+            ( Eigen::Vector6d( ) << 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 ).finished( ), frameOrigin, frameOrientation );
+
+    bodySettings[ centralBody[0] ]->ephemerisSettings->resetFrameOrientation( frameOrientation );
+    bodySettings[ centralBody[0] ]->rotationModelSettings->resetOriginalFrame( frameOrientation );
+
+
+    // Create body map.
+    simulation_setup::NamedBodyMap bodyMap = createBodies( bodySettings );
+
+    bodyMap["Earth"] = std::make_shared< simulation_setup::Body >( );
+    bodyMap["Earth"]->setEphemeris( std::make_shared< ephemerides::ApproximatePlanetPositions >(
+                                        ephemerides::ApproximatePlanetPositionsBase::BodiesWithEphemerisData::earthMoonBarycenter ));
+    bodyMap["Venus"] = std::make_shared< simulation_setup::Body >( );
+    bodyMap["Venus"]->setEphemeris( std::make_shared< ephemerides::ApproximatePlanetPositions >(
+                                        ephemerides::ApproximatePlanetPositionsBase::BodiesWithEphemerisData::venus ));
+    bodyMap["Mercury"] = std::make_shared< simulation_setup::Body >( );
+    bodyMap["Mercury"]->setEphemeris( std::make_shared< ephemerides::ApproximatePlanetPositions >(
+                                        ephemerides::ApproximatePlanetPositionsBase::BodiesWithEphemerisData::mercury ));
+
+
+    bodyMap["Earth"]->setGravityFieldModel( simulation_setup::createGravityFieldModel( simulation_setup::getDefaultGravityFieldSettings(
+                        "Earth", TUDAT_NAN, TUDAT_NAN ), "Earth", bodyMap ) );
+
+    bodyMap["Venus"]->setGravityFieldModel( simulation_setup::createGravityFieldModel( simulation_setup::getDefaultGravityFieldSettings(
+                        "Venus", TUDAT_NAN, TUDAT_NAN ), "Venus", bodyMap ) );
+
+    bodyMap["Mercury"]->setGravityFieldModel( simulation_setup::createGravityFieldModel( simulation_setup::getDefaultGravityFieldSettings(
+                        "Mercury", TUDAT_NAN, TUDAT_NAN ), "Mercury", bodyMap ) );
+
+
+    bodyMap[ bodyToPropagate[0] ] = std::make_shared< simulation_setup::Body >( );
+    bodyMap[ bodyToPropagate[0] ]->setEphemeris( std::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
+                    std::shared_ptr< interpolators::OneDimensionalInterpolator
+                    < double, Eigen::Vector6d > >( ), frameOrigin, frameOrientation ) );
+
+    setGlobalFrameBodyEphemerides( bodyMap, frameOrigin, frameOrientation );
+
+
+
+
 
     // Create the ephemeris vector.
     std::vector< ephemerides::EphemerisPointer > ephemerisVector( numberOfLegs );
@@ -237,16 +366,12 @@ BOOST_AUTO_TEST_CASE( testFullPropagationMGAwithDSM )
                 ( numerical_integrators::rungeKutta4, initialTime, fixedStepSize);
 
 
-    std::vector< std::string > centralBody;
-    centralBody.push_back( "Sun" );
-    std::vector< std::string > bodyToPropagate;
-    bodyToPropagate.push_back( "spacecraft" );
 
     std::map< int, std::map< double, Eigen::Vector6d > > lambertTargeterResultForEachLeg;
     std::map< int, std::map< double, Eigen::Vector6d > > fullProblemResultForEachLeg;
 
     std::map< int, std::pair< Eigen::Vector6d, Eigen::Vector6d > > differenceStateArrivalAndDeparturePerLeg =
-            propagators::getDifferenceFullPropagationWrtLambertTargeterMGA( numberOfLegs, nameBodiesTrajectory,
+            propagators::getDifferenceFullPropagationWrtLambertTargeterMGA( bodyMap, numberOfLegs, transferBodyTrajectory, nameBodiesAndManoeuvresTrajectory,
             centralBody, bodyToPropagate, legTypeVector, ephemerisVector, gravitationalParameterVector,
             variableVector, sunGravitationalParameter, minimumPericenterRadii, semiMajorAxes,
             eccentricities, integratorSettings);
@@ -255,8 +380,8 @@ BOOST_AUTO_TEST_CASE( testFullPropagationMGAwithDSM )
          itr = differenceStateArrivalAndDeparturePerLeg.begin( );
             itr != differenceStateArrivalAndDeparturePerLeg.end( ); itr++ ){
 
-        std::cout << "Departure body: " << nameBodiesTrajectory[itr->first] << "\n\n";
-        std::cout << "Arrival body: " << nameBodiesTrajectory[itr->first + 1] << "\n\n";
+        std::cout << "Departure body: " << nameBodiesAndManoeuvresTrajectory[itr->first] << "\n\n";
+        std::cout << "Arrival body: " << nameBodiesAndManoeuvresTrajectory[itr->first + 1] << "\n\n";
         std::cout << "state difference departure: " << differenceStateArrivalAndDeparturePerLeg[itr->first].first << "\n\n";
         std::cout << "state difference arrival: " << differenceStateArrivalAndDeparturePerLeg[itr->first].second << "\n\n";
 

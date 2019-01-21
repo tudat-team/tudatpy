@@ -22,6 +22,7 @@
 #include "Tudat/Astrodynamics/MissionSegments/lambertTargeter.h"
 #include "Tudat/Astrodynamics/MissionSegments/lambertTargeterIzzo.h"
 #include "Tudat/Astrodynamics/MissionSegments/lambertRoutines.h"
+#include "Tudat/Astrodynamics/TrajectoryDesign/trajectory.h"
 
 namespace tudat
 {
@@ -30,11 +31,13 @@ namespace propagators
 {
 
 void fullPropagationMGA(
+        simulation_setup::NamedBodyMap& bodyMap,
         const int numberOfLegs,
-        const std::vector< std::string >& nameBodiesTrajectory,
+        const std::vector< std::string >& transferBodyOrder,
+        const std::vector< std::string >& bodiesAndManoeuvresOrder,
         const std::vector< std::string >& centralBody,
         const std::vector< std::string >& bodyToPropagate,
-        const std::vector< int >& legTypeVector,
+        const std::vector< transfer_trajectories::TransferLegType>& legTypeVector,
         const std::vector< ephemerides::EphemerisPointer >& ephemerisVector,
         const Eigen::VectorXd& gravitationalParameterVector,
         const Eigen::VectorXd& trajectoryVariableVector,
@@ -48,11 +51,13 @@ void fullPropagationMGA(
 
 
 std::map< int, std::pair< Eigen::Vector6d, Eigen::Vector6d > > getDifferenceFullPropagationWrtLambertTargeterMGA(
+        simulation_setup::NamedBodyMap& bodyMap,
         const int numberOfLegs,
-        const std::vector< std::string >& nameBodiesTrajectory,
+        const std::vector< std::string >& transferBodyOrder,
+        const std::vector< std::string >& bodiesAndManoeuvresOrder,
         const std::vector< std::string >& centralBody,
         const std::vector< std::string >& bodyToPropagate,
-        const std::vector< int >& legTypeVector,
+        const std::vector< transfer_trajectories::TransferLegType >& legTypeVector,
         const std::vector< ephemerides::EphemerisPointer >& ephemerisVector,
         const Eigen::VectorXd& gravitationalParameterVector,
         const Eigen::VectorXd& trajectoryVariableVector,
