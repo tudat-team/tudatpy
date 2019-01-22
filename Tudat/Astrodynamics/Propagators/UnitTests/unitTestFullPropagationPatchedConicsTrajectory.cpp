@@ -74,10 +74,8 @@ BOOST_AUTO_TEST_CASE( testFullPropagationMGA )
 
 
 
-    std::vector< std::string > centralBody;
-    centralBody.push_back( "Sun" );
-    std::vector< std::string > bodyToPropagate;
-    bodyToPropagate.push_back( "spacecraft" );
+    std::vector< std::string > centralBody; centralBody.push_back( "Sun" );
+    std::string bodyToPropagate = "spacecraft";
 
 
     spice_interface::loadStandardSpiceKernels( );
@@ -130,8 +128,8 @@ BOOST_AUTO_TEST_CASE( testFullPropagationMGA )
                         "Saturn", TUDAT_NAN, TUDAT_NAN ), "Saturn", bodyMap ) );
 
 
-    bodyMap[ bodyToPropagate[0] ] = std::make_shared< simulation_setup::Body >( );
-    bodyMap[ bodyToPropagate[0] ]->setEphemeris( std::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
+    bodyMap[ bodyToPropagate ] = std::make_shared< simulation_setup::Body >( );
+    bodyMap[ bodyToPropagate ]->setEphemeris( std::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
                     std::shared_ptr< interpolators::OneDimensionalInterpolator
                     < double, Eigen::Vector6d > >( ), frameOrigin, frameOrientation ) );
 
@@ -139,24 +137,27 @@ BOOST_AUTO_TEST_CASE( testFullPropagationMGA )
 
     // create acceleration map
     basic_astrodynamics::AccelerationMap accelerationMap = propagators::setupAccelerationMapLambertTargeter(centralBody[0],
-                                                                                               bodyToPropagate[0], bodyMap);
+                                                                                               bodyToPropagate, bodyMap);
 
 
     // Create variable vector.
-    Eigen::VectorXd variableVector( numberOfLegs + 1 );
-    variableVector << -789.8117, 158.302027105278, 449.385873819743, 54.7489684339665,
-            1024.36205846918, 4552.30796805542, 1;
-    variableVector *= physical_constants::JULIAN_DAY;
+    std::vector< double > variableVector;//( numberOfLegs + 1 );
+    variableVector.push_back(-789.8117 * physical_constants::JULIAN_DAY); variableVector.push_back(158.302027105278 * physical_constants::JULIAN_DAY);
+    variableVector.push_back(449.385873819743 * physical_constants::JULIAN_DAY); variableVector.push_back(54.7489684339665 * physical_constants::JULIAN_DAY);
+    variableVector.push_back(1024.36205846918 * physical_constants::JULIAN_DAY); variableVector.push_back(4552.30796805542 * physical_constants::JULIAN_DAY);
+    variableVector.push_back(1.0 * physical_constants::JULIAN_DAY);
 
     // Create departure and capture variables.
-    Eigen::VectorXd semiMajorAxes( 2 ), eccentricities( 2 );
-    semiMajorAxes << std::numeric_limits< double >::infinity( ), 1.0895e8 / 0.02;
-    eccentricities << 0.0, 0.98;
+    std::vector< double > semiMajorAxes;
+    semiMajorAxes.push_back( std::numeric_limits< double >::infinity( ) ); semiMajorAxes.push_back( 1.0895e8 / 0.02 );
+    std::vector< double > eccentricities;
+    eccentricities.push_back( 0.0 ); eccentricities.push_back( 0.98 );
 
 
     // Create minimum pericenter radii vector
-    Eigen::VectorXd minimumPericenterRadii( numberOfLegs );
-    minimumPericenterRadii << 6778000.0, 6351800.0, 6351800.0, 6778000.0, 600000000.0, 600000000.0;
+    std::vector< double > minimumPericenterRadii;
+    minimumPericenterRadii.push_back( 6778000.0 ); minimumPericenterRadii.push_back( 6351800.0 ); minimumPericenterRadii.push_back( 6351800.0 );
+    minimumPericenterRadii.push_back( 6778000.0 ); minimumPericenterRadii.push_back( 600000000.0 ); minimumPericenterRadii.push_back( 600000000.0 );
 
 
 
@@ -164,8 +165,8 @@ BOOST_AUTO_TEST_CASE( testFullPropagationMGA )
     std::map< int, std::map< double, Eigen::Vector6d > > fullProblemResultForEachLeg;
 
     std::map< int, std::pair< Eigen::Vector6d, Eigen::Vector6d > > differenceStateArrivalAndDeparturePerLeg =
-            propagators::getDifferenceFullPropagationWrtLambertTargeterMGA( bodyMap, accelerationMap, numberOfLegs, nameBodiesTrajectory,
-                            nameBodiesTrajectory, centralBody, bodyToPropagate, legTypeVector, variableVector, minimumPericenterRadii,
+            propagators::getDifferenceFullPropagationWrtLambertTargeterMGA( bodyMap, accelerationMap, nameBodiesTrajectory,
+                            centralBody[0], bodyToPropagate, legTypeVector, variableVector, minimumPericenterRadii,
                             semiMajorAxes, eccentricities, integratorSettings);
 
     for( std::map< int, std::pair< Eigen::Vector6d, Eigen::Vector6d > >::iterator
@@ -228,10 +229,8 @@ BOOST_AUTO_TEST_CASE( testFullPropagationMGAwithDSM )
 
 
 
-    std::vector< std::string > centralBody;
-    centralBody.push_back( "Sun" );
-    std::vector< std::string > bodyToPropagate;
-    bodyToPropagate.push_back( "spacecraft" );
+    std::vector< std::string > centralBody; centralBody.push_back( "Sun" );
+    std::string bodyToPropagate = "spacecraft";
 
     spice_interface::loadStandardSpiceKernels( );
 
@@ -274,8 +273,8 @@ BOOST_AUTO_TEST_CASE( testFullPropagationMGAwithDSM )
                         "Mercury", TUDAT_NAN, TUDAT_NAN ), "Mercury", bodyMap ) );
 
 
-    bodyMap[ bodyToPropagate[0] ] = std::make_shared< simulation_setup::Body >( );
-    bodyMap[ bodyToPropagate[0] ]->setEphemeris( std::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
+    bodyMap[ bodyToPropagate ] = std::make_shared< simulation_setup::Body >( );
+    bodyMap[ bodyToPropagate ]->setEphemeris( std::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
                     std::shared_ptr< interpolators::OneDimensionalInterpolator
                     < double, Eigen::Vector6d > >( ), frameOrigin, frameOrientation ) );
 
@@ -285,37 +284,52 @@ BOOST_AUTO_TEST_CASE( testFullPropagationMGAwithDSM )
 
     // create acceleration map
     basic_astrodynamics::AccelerationMap accelerationMap = propagators::setupAccelerationMapLambertTargeter(centralBody[0],
-                                                                                               bodyToPropagate[0], bodyMap);
+                                                                                               bodyToPropagate, bodyMap);
 
     // Create variable vector.
-    Eigen::VectorXd variableVector;
-    variableVector.resize( numberOfLegs /*time of flight*/ + 1 /*start epoch*/ +
-                           4 * ( numberOfLegs - 1 ) /*additional variables for model, except the final capture leg*/ );
+    std::vector< double > variableVector;
 
     // Add the time of flight and start epoch, which are in JD.
-    variableVector << 1171.64503236 * physical_constants::JULIAN_DAY,
-            399.999999715 * physical_constants::JULIAN_DAY,
-            178.372255301 * physical_constants::JULIAN_DAY,
-            299.223139512 * physical_constants::JULIAN_DAY,
-            180.510754824 * physical_constants::JULIAN_DAY,
-            1, // The capture time is irrelevant for the final leg.
-            // Add the additional variables.
-            0.234594654679, 1408.99421278, 0.37992647165 * 2 * 3.14159265358979,
-            std::acos(  2 * 0.498004040298 - 1. ) - 3.14159265358979 / 2, // 1st leg.
-            0.0964769387134, 1.35077257078, 1.80629232251 * 6.378e6, 0.0, // 2nd leg.
-            0.829948744508, 1.09554368115, 3.04129845698 * 6.052e6, 0.0, // 3rd leg.
-            0.317174785637, 1.34317576594, 1.10000000891 * 6.052e6, 0.0; // 4th leg.
+    variableVector.push_back( 1171.64503236 * physical_constants::JULIAN_DAY);
+    variableVector.push_back( 399.999999715 * physical_constants::JULIAN_DAY);
+    variableVector.push_back( 178.372255301 * physical_constants::JULIAN_DAY);
+    variableVector.push_back( 299.223139512 * physical_constants::JULIAN_DAY);
+    variableVector.push_back( 180.510754824 * physical_constants::JULIAN_DAY);
+    variableVector.push_back( 1.0); // The capture time is irrelevant for the final leg.
+
+    // Add the additional variables.
+    // 1st leg.
+    variableVector.push_back( 0.234594654679 );
+    variableVector.push_back( 1408.99421278 );
+    variableVector.push_back( 0.37992647165 * 2 * 3.14159265358979 );
+    variableVector.push_back( std::acos(  2 * 0.498004040298 - 1. ) - 3.14159265358979 / 2 );
+    // 2nd leg.
+    variableVector.push_back( 0.0964769387134 );
+    variableVector.push_back( 1.35077257078 );
+    variableVector.push_back( 1.80629232251 * 6.378e6 );
+    variableVector.push_back( 0.0 );
+    // 3rd leg.
+    variableVector.push_back( 0.829948744508);
+    variableVector.push_back( 1.09554368115 );
+    variableVector.push_back( 3.04129845698 * 6.052e6 );
+    variableVector.push_back( 0.0 );
+    // 4th leg.
+    variableVector.push_back( 0.317174785637 );
+    variableVector.push_back( 1.34317576594 );
+    variableVector.push_back( 1.10000000891 * 6.052e6 );
+    variableVector.push_back( 0.0 );
 
 
     // Create minimum pericenter radii vector
-    Eigen::VectorXd minimumPericenterRadii( numberOfLegs );
-    minimumPericenterRadii << TUDAT_NAN, TUDAT_NAN, TUDAT_NAN, TUDAT_NAN, TUDAT_NAN;
+    std::vector< double > minimumPericenterRadii;
+    minimumPericenterRadii.push_back( TUDAT_NAN ); minimumPericenterRadii.push_back( TUDAT_NAN ); minimumPericenterRadii.push_back( TUDAT_NAN );
+    minimumPericenterRadii.push_back( TUDAT_NAN ); minimumPericenterRadii.push_back( TUDAT_NAN );
 
     // Create departure and capture variables.
-    Eigen::VectorXd semiMajorAxes( 2 ), eccentricities( 2 );
-    semiMajorAxes << std::numeric_limits< double >::infinity( ),
-            std::numeric_limits< double >::infinity( );
-    eccentricities << 0.0, 0.0;
+    std::vector< double > semiMajorAxes;
+    semiMajorAxes.push_back( std::numeric_limits< double >::infinity( ) ); semiMajorAxes.push_back( std::numeric_limits< double >::infinity( ) );
+    std::vector< double > eccentricities;
+    eccentricities.push_back( 0.0 ); eccentricities.push_back( 0.0 );
 
 
     double initialTime = 0.0;
@@ -332,8 +346,8 @@ BOOST_AUTO_TEST_CASE( testFullPropagationMGAwithDSM )
     std::map< int, std::map< double, Eigen::Vector6d > > fullProblemResultForEachLeg;
 
     std::map< int, std::pair< Eigen::Vector6d, Eigen::Vector6d > > differenceStateArrivalAndDeparturePerLeg =
-            propagators::getDifferenceFullPropagationWrtLambertTargeterMGA( bodyMap, accelerationMap, numberOfLegs, transferBodyTrajectory,
-                               nameBodiesAndManoeuvresTrajectory, centralBody, bodyToPropagate, legTypeVector, variableVector, minimumPericenterRadii,
+            propagators::getDifferenceFullPropagationWrtLambertTargeterMGA( bodyMap, accelerationMap, transferBodyTrajectory,
+                               centralBody[0], bodyToPropagate, legTypeVector, variableVector, minimumPericenterRadii,
                                semiMajorAxes, eccentricities, integratorSettings);
 
     for( std::map< int, std::pair< Eigen::Vector6d, Eigen::Vector6d > >::iterator
