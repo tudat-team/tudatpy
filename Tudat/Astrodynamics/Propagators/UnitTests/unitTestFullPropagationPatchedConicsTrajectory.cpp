@@ -161,11 +161,12 @@ BOOST_AUTO_TEST_CASE( testFullPropagationMGA )
 
 
 
+
     std::map< int, std::map< double, Eigen::Vector6d > > lambertTargeterResultForEachLeg;
     std::map< int, std::map< double, Eigen::Vector6d > > fullProblemResultForEachLeg;
 
     std::map< int, std::pair< Eigen::Vector6d, Eigen::Vector6d > > differenceStateArrivalAndDeparturePerLeg =
-            propagators::getDifferenceFullPropagationWrtLambertTargeterMGA( bodyMap, accelerationMap, nameBodiesTrajectory,
+            propagators::getDifferenceFullPropagationWrtLambertTargeterMGAUniqueAcceleration(bodyMap, accelerationMap, nameBodiesTrajectory,
                             centralBody[0], bodyToPropagate, legTypeVector, variableVector, minimumPericenterRadii,
                             semiMajorAxes, eccentricities, integratorSettings);
 
@@ -341,12 +342,11 @@ BOOST_AUTO_TEST_CASE( testFullPropagationMGAwithDSM )
                 ( numerical_integrators::rungeKutta4, initialTime, fixedStepSize);
 
 
-
     std::map< int, std::map< double, Eigen::Vector6d > > lambertTargeterResultForEachLeg;
     std::map< int, std::map< double, Eigen::Vector6d > > fullProblemResultForEachLeg;
 
     std::map< int, std::pair< Eigen::Vector6d, Eigen::Vector6d > > differenceStateArrivalAndDeparturePerLeg =
-            propagators::getDifferenceFullPropagationWrtLambertTargeterMGA( bodyMap, accelerationMap, transferBodyTrajectory,
+            propagators::getDifferenceFullPropagationWrtLambertTargeterMGAUniqueAcceleration(bodyMap, accelerationMap, transferBodyTrajectory,
                                centralBody[0], bodyToPropagate, legTypeVector, variableVector, minimumPericenterRadii,
                                semiMajorAxes, eccentricities, integratorSettings);
 

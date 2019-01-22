@@ -70,7 +70,7 @@ transfer_trajectories::Trajectory createTransferTrajectoryObject(
 
 void fullPropagationMGA(
         simulation_setup::NamedBodyMap& bodyMap,
-        const basic_astrodynamics::AccelerationMap& accelerationMap,
+        const std::vector< basic_astrodynamics::AccelerationMap >& accelerationMap,
         const std::vector< std::string >& transferBodyOrder,
         const std::string& centralBody,
         const std::string& bodyToPropagate,
@@ -101,6 +101,8 @@ void fullPropagationMGA(
 
     std::map< double, std::pair<Eigen::Vector6d, Eigen::Vector6d> > stateDifferenceAtDepartureAndArrival;
 
+    std::vector< basic_astrodynamics::AccelerationMap > accelerationMapForEachLeg;
+
     // Calculate the trajectory
     trajectory.calculateTrajectory( totalDeltaV );
     trajectory.maneuvers( positionVector, timeVector, deltaVVector );
@@ -127,11 +129,14 @@ void fullPropagationMGA(
     for (int i = 0 ; i < numberOfLegs ; i++){
 
         bodiesAndManoeuvresOrder.push_back(transferBodyOrder[i]);
+        accelerationMapForEachLeg.push_back( accelerationMap[i] );
 
         if (legTypeVector[i] != transfer_trajectories::mga_Departure &&
                 legTypeVector[i] != transfer_trajectories::mga_Swingby){
 
             bodiesAndManoeuvresOrder.push_back("DSM" + std::to_string(counterDSMs));
+            accelerationMapForEachLeg.push_back( accelerationMap[i] );
+
             counterDSMs++;
 
         }
@@ -213,7 +218,7 @@ void fullPropagationMGA(
         integratorSettings->initialTime_ = initialTime;
 
         propagateLambertTargeterAndFullProblem( cartesianPositionAtDeparture, cartesianPositionAtArrival,
-                timeOfFlightVector[i], initialTime, bodyMap, accelerationMap, bodyToPropagate, centralBody,
+                timeOfFlightVector[i], initialTime, bodyMap, accelerationMapForEachLeg[i], bodyToPropagate, centralBody,
                 integratorSettings, lambertTargeterResultForOneLeg, fullProblemResultForOneLeg,
                 departureAndArrivalBodies, false, false);
 
@@ -228,10 +233,42 @@ void fullPropagationMGA(
 }
 
 
-
-
-std::map< int, std::pair< Eigen::Vector6d, Eigen::Vector6d > > getDifferenceFullPropagationWrtLambertTargeterMGA(simulation_setup::NamedBodyMap& bodyMap,
+void fullPropagationMGAUniqueAcceleration(
+        simulation_setup::NamedBodyMap& bodyMap,
         const basic_astrodynamics::AccelerationMap& accelerationMap,
+        const std::vector< std::string >& transferBodyOrder,
+        const std::string& centralBody,
+        const std::string& bodyToPropagate,
+        const std::vector< transfer_trajectories::TransferLegType>& legTypeVector,
+        const std::vector< double >& trajectoryVariableVector,
+        const std::vector< double >& minimumPericenterRadiiVector,
+        const std::vector< double >& semiMajorAxesVector,
+        const std::vector< double >& eccentricitiesVector,
+        const std::shared_ptr< numerical_integrators::IntegratorSettings< double > >& integratorSettings,
+        std::map< int, std::map< double, Eigen::Vector6d > >& lambertTargeterResultForEachLeg,
+        std::map< int, std::map< double, Eigen::Vector6d > >& fullProblemResultForEachLeg){
+
+    std::vector< basic_astrodynamics::AccelerationMap > accelerationMapForEachLeg;
+    int numberOfLegs = legTypeVector.size(  );
+
+    for (int i = 0 ; i < numberOfLegs; i++){
+
+        accelerationMapForEachLeg.push_back( accelerationMap );
+
+    }
+
+    fullPropagationMGA(bodyMap, accelerationMapForEachLeg, transferBodyOrder, centralBody, bodyToPropagate, legTypeVector, trajectoryVariableVector,
+                       minimumPericenterRadiiVector, semiMajorAxesVector, eccentricitiesVector, integratorSettings, lambertTargeterResultForEachLeg,
+                       fullProblemResultForEachLeg);
+
+}
+
+
+
+
+std::map< int, std::pair< Eigen::Vector6d, Eigen::Vector6d > > getDifferenceFullPropagationWrtLambertTargeterMGA(
+        simulation_setup::NamedBodyMap& bodyMap,
+        const std::vector< basic_astrodynamics::AccelerationMap >& accelerationMap,
         const std::vector< std::string >& transferBodyOrder,
         const std::string& centralBody,
         const std::string& bodyToPropagate,
@@ -280,6 +317,44 @@ std::map< int, std::pair< Eigen::Vector6d, Eigen::Vector6d > > getDifferenceFull
 
 
     return stateDifferenceAtArrivalAndDepartureForEachLeg;
+
+}
+
+
+
+std::map< int, std::pair< Eigen::Vector6d, Eigen::Vector6d > > getDifferenceFullPropagationWrtLambertTargeterMGAUniqueAcceleration(
+        simulation_setup::NamedBodyMap& bodyMap,
+        const basic_astrodynamics::AccelerationMap& accelerationMap,
+        const std::vector< std::string >& transferBodyOrder,
+        const std::string& centralBody,
+        const std::string& bodyToPropagate,
+        const std::vector< transfer_trajectories::TransferLegType >& legTypeVector,
+        const std::vector<double>& trajectoryVariableVector,
+        const std::vector<double>& minimumPericenterRadiiVector,
+        const std::vector<double>& semiMajorAxesVector,
+        const std::vector<double>& eccentricitiesVector,
+        const std::shared_ptr< numerical_integrators::IntegratorSettings< double > >& integratorSettings)
+{
+
+    std::vector< basic_astrodynamics::AccelerationMap > accelerationMapForEachLeg;
+    int numberOfLegs = legTypeVector.size(  );
+
+    for (int i = 0 ; i < numberOfLegs; i++){
+
+        accelerationMapForEachLeg.push_back( accelerationMap );
+
+    }
+
+    std::map< int, std::pair< Eigen::Vector6d, Eigen::Vector6d > > stateDifferenceAtArrivalAndDepartureForEachLeg;
+
+    stateDifferenceAtArrivalAndDepartureForEachLeg = getDifferenceFullPropagationWrtLambertTargeterMGA(bodyMap, accelerationMapForEachLeg,
+                                                                                                       transferBodyOrder, centralBody, bodyToPropagate,
+                                                                                                       legTypeVector, trajectoryVariableVector,
+                                                                                                       minimumPericenterRadiiVector, semiMajorAxesVector,
+                                                                                                       eccentricitiesVector, integratorSettings);
+
+    return stateDifferenceAtArrivalAndDepartureForEachLeg;
+
 
 }
 
