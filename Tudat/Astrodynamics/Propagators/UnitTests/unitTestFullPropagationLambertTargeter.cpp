@@ -59,9 +59,9 @@ BOOST_AUTO_TEST_CASE( testFullPropagationLambertTargeter )
     departureAndArrivalBodies.push_back("arrival");
 
     // Define the body map.
-    simulation_setup::NamedBodyMap bodyMap = propagators::setupBodyMapLambertTargeter("Earth", "spacecraft", departureAndArrivalBodies,
-                                                                                      cartesianPositionAtDeparture, cartesianPositionAtArrival,
-                                                                                      false);
+    simulation_setup::NamedBodyMap bodyMap = propagators::setupBodyMapFromUserDefinedStatesForLambertTargeter("Earth", "spacecraft", departureAndArrivalBodies,
+                                                                                      cartesianPositionAtDeparture, cartesianPositionAtArrival);
+
     basic_astrodynamics::AccelerationMap accelerationModelMap = propagators::setupAccelerationMapLambertTargeter(
                 "Earth", "spacecraft", bodyMap);
 
