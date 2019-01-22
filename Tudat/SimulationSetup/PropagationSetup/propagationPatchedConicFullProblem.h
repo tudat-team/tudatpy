@@ -35,8 +35,9 @@ transfer_trajectories::Trajectory createTransferTrajectoryObject(
         const double arrivalEccentricity );
 
 
-void fullPropagationMGA(simulation_setup::NamedBodyMap& bodyMap,
-        const basic_astrodynamics::AccelerationMap& accelerationMap,
+void fullPropagationMGA(
+        simulation_setup::NamedBodyMap& bodyMap,
+        const std::vector< basic_astrodynamics::AccelerationMap >& accelerationMap,
         const std::vector< std::string >& transferBodyOrder,
         const std::string& centralBody,
         const std::string& bodyToPropagate,
@@ -49,9 +50,25 @@ void fullPropagationMGA(simulation_setup::NamedBodyMap& bodyMap,
         std::map< int, std::map< double, Eigen::Vector6d > >& lambertTargeterResultForEachLeg,
         std::map< int, std::map< double, Eigen::Vector6d > >& fullProblemResultForEachLeg);
 
-
-std::map< int, std::pair< Eigen::Vector6d, Eigen::Vector6d > > getDifferenceFullPropagationWrtLambertTargeterMGA(simulation_setup::NamedBodyMap& bodyMap,
+void fullPropagationMGAUniqueAcceleration(
+        simulation_setup::NamedBodyMap& bodyMap,
         const basic_astrodynamics::AccelerationMap& accelerationMap,
+        const std::vector< std::string >& transferBodyOrder,
+        const std::string& centralBody,
+        const std::string& bodyToPropagate,
+        const std::vector< transfer_trajectories::TransferLegType>& legTypeVector,
+        const std::vector< double >& trajectoryVariableVector,
+        const std::vector< double >& minimumPericenterRadiiVector,
+        const std::vector< double >& semiMajorAxesVector,
+        const std::vector< double >& eccentricitiesVector,
+        const std::shared_ptr< numerical_integrators::IntegratorSettings< double > >& integratorSettings,
+        std::map< int, std::map< double, Eigen::Vector6d > >& lambertTargeterResultForEachLeg,
+        std::map< int, std::map< double, Eigen::Vector6d > >& fullProblemResultForEachLeg);
+
+
+std::map< int, std::pair< Eigen::Vector6d, Eigen::Vector6d > > getDifferenceFullPropagationWrtLambertTargeterMGA(
+        simulation_setup::NamedBodyMap& bodyMap,
+        const std::vector< basic_astrodynamics::AccelerationMap >& accelerationMap,
         const std::vector< std::string >& transferBodyOrder,
         const std::string& centralBody,
         const std::string& bodyToPropagate,
@@ -62,6 +79,18 @@ std::map< int, std::pair< Eigen::Vector6d, Eigen::Vector6d > > getDifferenceFull
         const std::vector< double >& eccentricitiesVector,
         const std::shared_ptr<numerical_integrators::IntegratorSettings<double> > &integratorSettings);
 
+std::map< int, std::pair< Eigen::Vector6d, Eigen::Vector6d > > getDifferenceFullPropagationWrtLambertTargeterMGAUniqueAcceleration(
+        simulation_setup::NamedBodyMap& bodyMap,
+        const basic_astrodynamics::AccelerationMap& accelerationMap,
+        const std::vector< std::string >& transferBodyOrder,
+        const std::string& centralBody,
+        const std::string& bodyToPropagate,
+        const std::vector< transfer_trajectories::TransferLegType >& legTypeVector,
+        const std::vector<double>& trajectoryVariableVector,
+        const std::vector<double>& minimumPericenterRadiiVector,
+        const std::vector<double>& semiMajorAxesVector,
+        const std::vector<double>& eccentricitiesVector,
+        const std::shared_ptr< numerical_integrators::IntegratorSettings< double > >& integratorSettings);
 
 
 }
