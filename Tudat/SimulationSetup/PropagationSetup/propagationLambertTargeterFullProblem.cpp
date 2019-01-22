@@ -186,14 +186,14 @@ Eigen::Vector6d propagateLambertTargeterSolution(
 
 
 //! Function to propagate the full dynamics problem and the Lambert targeter solution.
-void propagateLambertTargeterAndFullProblem( Eigen::Vector3d cartesianPositionAtDeparture,
+void propagateLambertTargeterAndFullProblem(Eigen::Vector3d cartesianPositionAtDeparture,
         Eigen::Vector3d cartesianPositionAtArrival,
         const double timeOfFlight,
         const double initialTime,
         simulation_setup::NamedBodyMap& bodyMap,
         const basic_astrodynamics::AccelerationMap& accelerationModelMap,
-        const std::vector<std::string>& bodiesToPropagate,
-        const std::vector<std::string>& centralBody,
+        const std::string& bodyToPropagate,
+        const std::string& centralBody,
         const std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings,
         std::map< double, Eigen::Vector6d >& lambertTargeterResult,
         std::map< double, Eigen::Vector6d >& fullProblemResult,
@@ -212,10 +212,10 @@ void propagateLambertTargeterAndFullProblem( Eigen::Vector3d cartesianPositionAt
     // Retrieve the gravitational parameter of the main body.
     double gravitationalParameterCentralBody = ( centralBodyGravitationalParameter == centralBodyGravitationalParameter ) ?
                     centralBodyGravitationalParameter :
-                    bodyMap[ centralBody[0] ]->getGravityFieldModel()->getGravitationalParameter();
+                    bodyMap[ centralBody ]->getGravityFieldModel()->getGravitationalParameter();
 
 
-//    double gravitationalParameter = bodyMap[centralBody[0]]->getGravityFieldModel()->getGravitationalParameter();
+
 
     // Get halved value of the time of flight, used as initial time for the propagation.
     double halvedTimeOfFlight = timeOfFlight / 2.0;
@@ -245,9 +245,9 @@ void propagateLambertTargeterAndFullProblem( Eigen::Vector3d cartesianPositionAt
 
     if (terminationSphereOfInfluence == true) {
 
-        double distanceDepartureToCentralBodies = ( bodyMap[ centralBody[0] ]->getState().segment(0,3) -
+        double distanceDepartureToCentralBodies = ( bodyMap[ centralBody ]->getState().segment(0,3) -
                 cartesianPositionAtDeparture.segment(0,3) ).norm();
-        double distanceArrivalToCentralBodies = ( bodyMap[ centralBody[0] ]->getState().segment(0,3) -
+        double distanceArrivalToCentralBodies = ( bodyMap[ centralBody ]->getState().segment(0,3) -
                 cartesianPositionAtArrival.segment(0,3) ).norm();
 
 
@@ -328,6 +328,9 @@ void propagateLambertTargeterAndFullProblem( Eigen::Vector3d cartesianPositionAt
     std::vector< std::string > centralBodiesPropagation;
     centralBodiesPropagation.push_back( "SSB" );
 
+    std::vector< std::string > bodiesToPropagate;
+    bodiesToPropagate.push_back(bodyToPropagate);
+
     Eigen::Vector6d cartesianStateLambertSolution;
 
 
@@ -350,7 +353,7 @@ void propagateLambertTargeterAndFullProblem( Eigen::Vector3d cartesianPositionAt
         // Termination settings if the forward propagation stops at the sphere of influence of the arrival body
         std::shared_ptr< SingleDependentVariableSaveSettings > terminationDependentVariableAtArrival =
                 std::make_shared< SingleDependentVariableSaveSettings >(
-              relative_distance_dependent_variable, bodiesToPropagate[0], departureAndArrivalBodies[1] );
+              relative_distance_dependent_variable, bodyToPropagate, departureAndArrivalBodies[1] );
 
         std::shared_ptr< PropagationTerminationSettings > forwardPropagationTerminationSettings =
             std::make_shared< PropagationDependentVariableTerminationSettings >( terminationDependentVariableAtArrival,
@@ -405,7 +408,7 @@ void propagateLambertTargeterAndFullProblem( Eigen::Vector3d cartesianPositionAt
         // Termination settings if the backward propagation stops at the sphere of influence of the departure body
         std::shared_ptr< SingleDependentVariableSaveSettings > terminationDependentVariableAtDeparture =
                 std::make_shared< SingleDependentVariableSaveSettings >(
-                      relative_distance_dependent_variable, bodiesToPropagate[0], departureAndArrivalBodies[0] );
+                      relative_distance_dependent_variable, bodyToPropagate, departureAndArrivalBodies[0] );
         std::shared_ptr< PropagationTerminationSettings > backwardPropagationTerminationSettings =
                 std::make_shared< PropagationDependentVariableTerminationSettings >( terminationDependentVariableAtDeparture,
                                                                                          radiusSphereOfInfluenceDeparture, false);
@@ -447,8 +450,8 @@ std::pair< Eigen::Vector6d, Eigen::Vector6d > getDifferenceFullPropagationWrtLam
         const double initialTime,
         simulation_setup::NamedBodyMap& bodyMap,
         const basic_astrodynamics::AccelerationMap& accelerationModelMap,
-        const std::vector< std::string >& bodiesToPropagate,
-        const std::vector< std::string >& centralBodies,
+        const std::string& bodyToPropagate,
+        const std::string& centralBody,
         const std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings,
         const std::vector< std::string >& departureAndArrivalBodies,
         const bool arrivalAndDepartureInitialisationFromEphemerides = false,
@@ -460,7 +463,7 @@ std::pair< Eigen::Vector6d, Eigen::Vector6d > getDifferenceFullPropagationWrtLam
 
     // compute full problem and Lambert targeter solution both at departure and arrival.
     propagateLambertTargeterAndFullProblem(cartesianPositionAtDeparture, cartesianPositionAtArrival, timeOfFlight, initialTime,
-                                           bodyMap, accelerationModelMap, bodiesToPropagate, centralBodies, integratorSettings,
+                                           bodyMap, accelerationModelMap, bodyToPropagate, centralBody, integratorSettings,
                                            lambertTargeterResult, fullProblemResult, departureAndArrivalBodies,
                                            arrivalAndDepartureInitialisationFromEphemerides, terminationSphereOfInfluence);
 

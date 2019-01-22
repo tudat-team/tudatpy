@@ -71,29 +71,27 @@ transfer_trajectories::Trajectory createTransferTrajectoryObject(
 void fullPropagationMGA(
         simulation_setup::NamedBodyMap& bodyMap,
         const basic_astrodynamics::AccelerationMap& accelerationMap,
-        const int numberOfLegs,
         const std::vector< std::string >& transferBodyOrder,
-        const std::vector< std::string >& bodiesAndManoeuvresOrder,
-        const std::vector< std::string >& centralBody,
-        const std::vector< std::string >& bodyToPropagate,
+        const std::string& centralBody,
+        const std::string& bodyToPropagate,
         const std::vector< transfer_trajectories::TransferLegType>& legTypeVector,
-        const Eigen::VectorXd& trajectoryVariableVector,
-        const Eigen::VectorXd& minimumPericenterRadiiVector,
-        const Eigen::VectorXd& semiMajorAxesVector,
-        const Eigen::VectorXd& eccentricitiesVector,
-        const std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings,
+        const std::vector< double >& trajectoryVariableVector,
+        const std::vector< double >& minimumPericenterRadiiVector,
+        const std::vector< double >& semiMajorAxesVector,
+        const std::vector< double >& eccentricitiesVector,
+        const std::shared_ptr< numerical_integrators::IntegratorSettings< double > >& integratorSettings,
         std::map< int, std::map< double, Eigen::Vector6d > >& lambertTargeterResultForEachLeg,
         std::map< int, std::map< double, Eigen::Vector6d > >& fullProblemResultForEachLeg){
 
 
     // calculate the patched conic trajectory from the body map
     transfer_trajectories::Trajectory trajectory = propagators::createTransferTrajectoryObject(
-            bodyMap, transferBodyOrder, centralBody[0], legTypeVector, utilities::convertEigenVectorToStlVector(trajectoryVariableVector),
-            utilities::convertEigenVectorToStlVector(minimumPericenterRadiiVector), true, semiMajorAxesVector[0], eccentricitiesVector[0],
-            true, semiMajorAxesVector[1], eccentricitiesVector[1]);
+            bodyMap, transferBodyOrder, centralBody, legTypeVector, trajectoryVariableVector, minimumPericenterRadiiVector, true,
+            semiMajorAxesVector[0], eccentricitiesVector[0], true, semiMajorAxesVector[1], eccentricitiesVector[1]);
 
 
-    int numberLegsIncludingDSM = ((trajectoryVariableVector.size()-1-numberOfLegs)/4.0) + numberOfLegs ;
+    int numberOfLegs = legTypeVector.size();
+    int numberLegsIncludingDSM = ((trajectoryVariableVector.size() - 1 - numberOfLegs) / 4.0) + numberOfLegs ;
 
     std::vector< Eigen::Vector3d > positionVector;
     std::vector< double > timeVector;
@@ -122,8 +120,29 @@ void fullPropagationMGA(
 
 
 
-    // Calculate the time of flight for each leg (one leg with a deep-space manoeuvre is divided into two sub-legs)
+    // Include manoeuvres between transfer bodies when required
+    std::vector< std::string > bodiesAndManoeuvresOrder;
 
+    int counterDSMs = 1;
+    for (int i = 0 ; i < numberOfLegs ; i++){
+
+        bodiesAndManoeuvresOrder.push_back(transferBodyOrder[i]);
+
+        if (legTypeVector[i] != transfer_trajectories::mga_Departure &&
+                legTypeVector[i] != transfer_trajectories::mga_Swingby){
+
+            bodiesAndManoeuvresOrder.push_back("DSM" + std::to_string(counterDSMs));
+            counterDSMs++;
+
+        }
+
+    }
+
+
+
+
+
+    // Calculate the time of flight for each leg (considering that a deep space manoeuvre divides a leg into two smaller ones)
     for (int i = 0 ; i < numberOfLegs - 1 ; i ++){
 
         if (legTypeVector[i] == transfer_trajectories::mga_Departure ||
@@ -164,6 +183,9 @@ void fullPropagationMGA(
         }
 
     }
+
+    std::string testString = "DSM" + std::to_string(1);
+    std::cout << "testString: " << testString << "\n\n";
 
 
     for (int i = 0; i<numberLegsIncludingDSM-1 ; i++)
@@ -208,22 +230,20 @@ void fullPropagationMGA(
 
 
 
-std::map< int, std::pair< Eigen::Vector6d, Eigen::Vector6d > > getDifferenceFullPropagationWrtLambertTargeterMGA(
-        simulation_setup::NamedBodyMap& bodyMap,
+std::map< int, std::pair< Eigen::Vector6d, Eigen::Vector6d > > getDifferenceFullPropagationWrtLambertTargeterMGA(simulation_setup::NamedBodyMap& bodyMap,
         const basic_astrodynamics::AccelerationMap& accelerationMap,
-        const int numberOfLegs,
         const std::vector< std::string >& transferBodyOrder,
-        const std::vector< std::string >& bodiesAndManoeuvresOrder,
-        const std::vector< std::string >& centralBody,
-        const std::vector< std::string >& bodyToPropagate,
+        const std::string& centralBody,
+        const std::string& bodyToPropagate,
         const std::vector< transfer_trajectories::TransferLegType >& legTypeVector,
-        const Eigen::VectorXd& trajectoryVariableVector,
-        const Eigen::VectorXd& minimumPericenterRadiiVector,
-        const Eigen::VectorXd& semiMajorAxesVector,
-        const Eigen::VectorXd& eccentricitiesVector,
-        const std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings)
+        const std::vector<double>& trajectoryVariableVector,
+        const std::vector<double>& minimumPericenterRadiiVector,
+        const std::vector<double>& semiMajorAxesVector,
+        const std::vector<double>& eccentricitiesVector,
+        const std::shared_ptr< numerical_integrators::IntegratorSettings< double > >& integratorSettings)
 {
 
+    int numberOfLegs = legTypeVector.size();
     int numberLegsIncludingDSM = ((trajectoryVariableVector.size()-1-numberOfLegs)/4.0) + numberOfLegs ;
 
 
@@ -232,7 +252,7 @@ std::map< int, std::pair< Eigen::Vector6d, Eigen::Vector6d > > getDifferenceFull
 
 
 
-      fullPropagationMGA(bodyMap, accelerationMap, numberOfLegs, transferBodyOrder, bodiesAndManoeuvresOrder, centralBody, bodyToPropagate,
+    fullPropagationMGA(bodyMap, accelerationMap, transferBodyOrder, centralBody, bodyToPropagate,
                          legTypeVector, trajectoryVariableVector, minimumPericenterRadiiVector, semiMajorAxesVector, eccentricitiesVector,
                          integratorSettings, lambertTargeterResultForEachLeg, fullProblemResultForEachLeg);
 
