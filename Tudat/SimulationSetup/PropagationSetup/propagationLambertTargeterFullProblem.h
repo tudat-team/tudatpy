@@ -36,14 +36,17 @@ namespace propagators
  * \param nameBodyToPropagate Name of the body to be propagated.
  * \return
  */
-simulation_setup::NamedBodyMap setupBodyMapLambertTargeter(
+simulation_setup::NamedBodyMap setupBodyMapFromEphemeridesForLambertTargeter(
+        const std::string& nameCentralBody,
+        const std::string& nameBodyToPropagate,
+        const std::vector< std::string >& departureAndArrivalBodies );
+
+simulation_setup::NamedBodyMap setupBodyMapFromUserDefinedStatesForLambertTargeter(
         const std::string& nameCentralBody,
         const std::string& nameBodyToPropagate,
         const std::vector< std::string >& departureAndArrivalBodies,
-        const Eigen::Vector3d& cartesianStateAtDeparture,
-        const Eigen::Vector3d& cartesianStateAtArrival,
-        const bool departureAndArrivalInitialisationFromEphemerides = false);
-
+        const Eigen::Vector3d& cartesianPositionAtDeparture,
+        const Eigen::Vector3d& cartesianPositionAtArrival );
 
 
 //! Function to directly setup an acceleration map for the Lambert targeter.

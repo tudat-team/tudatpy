@@ -34,15 +34,61 @@ namespace propagators
 {
 
 //! Function to directly setup a body map corresponding to the assumptions of the Lambert targeter.
-simulation_setup::NamedBodyMap setupBodyMapLambertTargeter(
+simulation_setup::NamedBodyMap setupBodyMapFromEphemeridesForLambertTargeter(
+        const std::string& nameCentralBody,
+        const std::string& nameBodyToPropagate,
+        const std::vector< std::string >& departureAndArrivalBodies )
+{
+
+    spice_interface::loadStandardSpiceKernels( );
+
+    // Create central, departure and arrival bodies.
+    std::vector< std::string > bodiesToCreate;
+    bodiesToCreate.push_back( nameCentralBody );
+    bodiesToCreate.push_back( departureAndArrivalBodies[0] );
+    bodiesToCreate.push_back( departureAndArrivalBodies[1] );
+
+
+    std::map< std::string, std::shared_ptr< simulation_setup::BodySettings > > bodySettings =
+                    simulation_setup::getDefaultBodySettings( bodiesToCreate );
+
+    std::string frameOrigin = "SSB";
+    std::string frameOrientation = "ECLIPJ2000";
+
+
+    // Define central body ephemeris settings.
+    bodySettings[ nameCentralBody ]->ephemerisSettings = std::make_shared< simulation_setup::ConstantEphemerisSettings >(
+            ( Eigen::Vector6d( ) << 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 ).finished( ), frameOrigin, frameOrientation );
+
+    bodySettings[ nameCentralBody ]->ephemerisSettings->resetFrameOrientation( frameOrientation );
+    bodySettings[ nameCentralBody ]->rotationModelSettings->resetOriginalFrame( frameOrientation );
+
+
+    // Create body map.
+    simulation_setup::NamedBodyMap bodyMap = createBodies( bodySettings );
+
+    bodyMap[ nameBodyToPropagate ] = std::make_shared< simulation_setup::Body >( );
+    bodyMap[ nameBodyToPropagate ]->setEphemeris( std::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
+                    std::shared_ptr< interpolators::OneDimensionalInterpolator
+                    < double, Eigen::Vector6d > >( ), frameOrigin, frameOrientation ) );
+
+
+    setGlobalFrameBodyEphemerides( bodyMap, frameOrigin, frameOrientation );
+
+
+    return bodyMap;
+}
+
+
+
+//! Function to directly setup a body map corresponding to the assumptions of the Lambert targeter.
+simulation_setup::NamedBodyMap setupBodyMapFromUserDefinedStatesForLambertTargeter(
         const std::string& nameCentralBody,
         const std::string& nameBodyToPropagate,
         const std::vector< std::string >& departureAndArrivalBodies,
         const Eigen::Vector3d& cartesianPositionAtDeparture,
-        const Eigen::Vector3d& cartesianPositionAtArrival,
-        const bool departureAndArrivalInitialisationFromEphemerides = false )
+        const Eigen::Vector3d& cartesianPositionAtArrival )
 {
-
 
     spice_interface::loadStandardSpiceKernels( );
 
@@ -51,19 +97,13 @@ simulation_setup::NamedBodyMap setupBodyMapLambertTargeter(
     std::vector< std::string > bodiesToCreate;
     bodiesToCreate.push_back( nameCentralBody );
 
-    // If we use direct ephemerides for the departure and arrival bodies
-    if ( departureAndArrivalInitialisationFromEphemerides == true ){
-        bodiesToCreate.push_back( departureAndArrivalBodies[0] );
-        bodiesToCreate.push_back( departureAndArrivalBodies[1] );
-    }
-
-
     std::map< std::string, std::shared_ptr< simulation_setup::BodySettings > > bodySettings =
                     simulation_setup::getDefaultBodySettings( bodiesToCreate );
 
-    // Define central body ephemeris settings.
     std::string frameOrigin = "SSB";
     std::string frameOrientation = "ECLIPJ2000";
+
+    // Define central body ephemeris settings.
     bodySettings[ nameCentralBody ]->ephemerisSettings = std::make_shared< simulation_setup::ConstantEphemerisSettings >(
             ( Eigen::Vector6d( ) << 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 ).finished( ), frameOrigin, frameOrientation );
 
@@ -72,15 +112,8 @@ simulation_setup::NamedBodyMap setupBodyMapLambertTargeter(
 
 
 
-
-
-
-
-
     // Create body map.
     simulation_setup::NamedBodyMap bodyMap = createBodies( bodySettings );
-
-    std::cout << "detection location error after body map " << "\n\n";
 
     bodyMap[ nameBodyToPropagate ] = std::make_shared< simulation_setup::Body >( );
     bodyMap[ nameBodyToPropagate ]->setEphemeris( std::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
@@ -88,33 +121,31 @@ simulation_setup::NamedBodyMap setupBodyMapLambertTargeter(
                     < double, Eigen::Vector6d > >( ), frameOrigin, frameOrientation ) );
 
 
-    // constant ephemerides for departure and arrival bodies
-    if (departureAndArrivalInitialisationFromEphemerides == false){ // (and if direct ephemerides not available?)
-        bodyMap[ departureAndArrivalBodies[0] ] = std::make_shared< simulation_setup::Body >( );
-        Eigen::Vector6d cartesianStateAtDeparture;
-        cartesianStateAtDeparture.segment(0,3) = cartesianPositionAtDeparture;
-        cartesianStateAtDeparture.segment(3,3) = Eigen::Vector3d::Zero();
-        bodyMap[ departureAndArrivalBodies[0] ]->setEphemeris( std::make_shared< ephemerides::ConstantEphemeris >( cartesianStateAtDeparture,
-                                                                                                                  frameOrigin, frameOrientation ));
 
-        bodyMap[ departureAndArrivalBodies[1] ] = std::make_shared< simulation_setup::Body >( );
-        Eigen::Vector6d cartesianStateAtArrival;
-        cartesianStateAtArrival.segment(0,3) = cartesianPositionAtArrival;
-        cartesianStateAtArrival.segment(3,3) = Eigen::Vector3d::Zero();
-        bodyMap[ departureAndArrivalBodies[1] ]->setEphemeris( std::make_shared< ephemerides::ConstantEphemeris >( cartesianStateAtArrival,
-                                                                                                                  frameOrigin, frameOrientation ));
-    }
+    // Define ephemeris for departure and arrival bodies from their cartesian positions provided as inputs.
 
-
+    // departure body
+    bodyMap[ departureAndArrivalBodies[0] ] = std::make_shared< simulation_setup::Body >( );
+    Eigen::Vector6d cartesianStateAtDeparture;
+    cartesianStateAtDeparture.segment(0,3) = cartesianPositionAtDeparture;
+    cartesianStateAtDeparture.segment(3,3) = Eigen::Vector3d::Zero();
+    bodyMap[ departureAndArrivalBodies[0] ]->setEphemeris( std::make_shared< ephemerides::ConstantEphemeris >( cartesianStateAtDeparture,
+                                                                                                              frameOrigin, frameOrientation ));
+    // arrival body
+    bodyMap[ departureAndArrivalBodies[1] ] = std::make_shared< simulation_setup::Body >( );
+    Eigen::Vector6d cartesianStateAtArrival;
+    cartesianStateAtArrival.segment(0,3) = cartesianPositionAtArrival;
+    cartesianStateAtArrival.segment(3,3) = Eigen::Vector3d::Zero();
+    bodyMap[ departureAndArrivalBodies[1] ]->setEphemeris( std::make_shared< ephemerides::ConstantEphemeris >( cartesianStateAtArrival,
+                                                                                                              frameOrigin, frameOrientation ));
 
     setGlobalFrameBodyEphemerides( bodyMap, frameOrigin, frameOrientation );
 
-
-
     return bodyMap;
 
-
 }
+
+
 
 //! Function to directly setup an acceleration map for the Lambert targeter.
 basic_astrodynamics::AccelerationMap setupAccelerationMapLambertTargeter(
