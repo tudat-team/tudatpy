@@ -18,6 +18,7 @@ namespace propagators
 {
 
 
+//! Function to create the trajectory from the body map.
 transfer_trajectories::Trajectory createTransferTrajectoryObject(
         const simulation_setup::NamedBodyMap& bodyMap,
         const std::vector< std::string >& transferBodyOrder,
@@ -68,6 +69,8 @@ transfer_trajectories::Trajectory createTransferTrajectoryObject(
 
 
 
+
+//! Function to calculate the patched conics trajectory and to propagate the corresponding full problem.
 void fullPropagationPatchedConicsTrajectory(
         simulation_setup::NamedBodyMap& bodyMap,
         const std::vector< basic_astrodynamics::AccelerationMap >& accelerationMap,
@@ -204,6 +207,10 @@ void fullPropagationPatchedConicsTrajectory(
 }
 
 
+
+
+//! Function to calculate the patched conics trajectory and to propagate the corresponding full problem
+//! with the same acceleration map for every leg.
 void fullPropagationPatchedConicsTrajectorySingleAccelerationMap(
         simulation_setup::NamedBodyMap& bodyMap,
         const basic_astrodynamics::AccelerationMap& accelerationMap,
@@ -237,6 +244,8 @@ void fullPropagationPatchedConicsTrajectorySingleAccelerationMap(
 
 
 
+//! Function to compute the difference in cartesian state between patched conics trajectory and full dynamics problem,
+//! at both departure and arrival positions for each leg.
 std::map< int, std::pair< Eigen::Vector6d, Eigen::Vector6d > > getDifferenceFullProblemWrtPatchedConicsTrajectory(
         simulation_setup::NamedBodyMap& bodyMap,
         const std::vector< basic_astrodynamics::AccelerationMap >& accelerationMap,
@@ -289,6 +298,9 @@ std::map< int, std::pair< Eigen::Vector6d, Eigen::Vector6d > > getDifferenceFull
 
 
 
+
+//! Function to compute the difference in cartesian state between patched conics trajectory and full dynamics problem,
+//! at both departure and arrival positions for each leg when using the same accelerations for each leg.
 std::map< int, std::pair< Eigen::Vector6d, Eigen::Vector6d > > getDifferenceFullProblemWrtPatchedConicsTrajectoryWithSingleAccelerationMap(
         simulation_setup::NamedBodyMap& bodyMap,
         const basic_astrodynamics::AccelerationMap& accelerationMap,

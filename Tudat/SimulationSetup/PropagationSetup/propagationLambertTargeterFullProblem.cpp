@@ -33,7 +33,8 @@ namespace tudat
 namespace propagators
 {
 
-//! Function to directly setup a body map corresponding to the assumptions of the Lambert targeter.
+//! Function to setup a body map corresponding to the assumptions of the Lambert targeter,
+//! retrieving positions of departure and arrival bodies from ephemerides.
 simulation_setup::NamedBodyMap setupBodyMapFromEphemeridesForLambertTargeter(
         const std::string& nameCentralBody,
         const std::string& nameBodyToPropagate,
@@ -80,8 +81,8 @@ simulation_setup::NamedBodyMap setupBodyMapFromEphemeridesForLambertTargeter(
 }
 
 
-
-//! Function to directly setup a body map corresponding to the assumptions of the Lambert targeter.
+//! Function to setup a body map corresponding to the assumptions of the Lambert targeter,
+//! the positions of departure and arrival bodies being provided as inputs.
 simulation_setup::NamedBodyMap setupBodyMapFromUserDefinedStatesForLambertTargeter(
         const std::string& nameCentralBody,
         const std::string& nameBodyToPropagate,
@@ -217,11 +218,12 @@ Eigen::Vector6d computeCartesianStateFromKeplerianOrbit(
 }
 
 
+
+//! Function to compute the cartesian state at half of the time of flight for a Lambert targeter.
 Eigen::Vector6d computeCartesianStateHalfTimeOfFlightLambertTargeter(
         const Eigen::Vector6d& cartesianStateAtDeparture,
         const double gravitationalParameterCentralBody,
-        const double timeOfFlight,
-        mission_segments::LambertTargeterIzzo& LambertTargeter){
+        const double timeOfFlight){
 
     double halvedTimeOfFlight = timeOfFlight / 2.0;
 
@@ -229,7 +231,7 @@ Eigen::Vector6d computeCartesianStateHalfTimeOfFlightLambertTargeter(
     Eigen::Vector6d keplerianStateAtDeparture = tudat::orbital_element_conversions::convertCartesianToKeplerianElements(
                 cartesianStateAtDeparture, gravitationalParameterCentralBody);
 
-    double semiMajorAxis = LambertTargeter.getSemiMajorAxis();
+    double semiMajorAxis = keplerianStateAtDeparture( orbital_element_conversions::semiMajorAxisIndex );
     double eccentricity = keplerianStateAtDeparture( orbital_element_conversions::eccentricityIndex );
 
     double trueAnomalyAtDeparture = keplerianStateAtDeparture(orbital_element_conversions::trueAnomalyIndex);
@@ -384,7 +386,7 @@ void propagateLambertTargeterAndFullProblem(Eigen::Vector3d cartesianPositionAtD
 
     // Compute cartesian state at halved time of flight.
     Eigen::Vector6d initialStatePropagationCartesianElements = computeCartesianStateHalfTimeOfFlightLambertTargeter(
-                cartesianStateAtDeparture, gravitationalParameterCentralBody, timeOfFlight, LambertTargeter);
+                cartesianStateAtDeparture, gravitationalParameterCentralBody, timeOfFlight);
 
 
 
