@@ -35,7 +35,7 @@ transfer_trajectories::Trajectory createTransferTrajectoryObject(
         const double arrivalEccentricity );
 
 
-void fullPropagationMGA(
+void fullPropagationPatchedConicsTrajectory(
         simulation_setup::NamedBodyMap& bodyMap,
         const std::vector< basic_astrodynamics::AccelerationMap >& accelerationMap,
         const std::vector< std::string >& transferBodyOrder,
@@ -50,7 +50,7 @@ void fullPropagationMGA(
         std::map< int, std::map< double, Eigen::Vector6d > >& lambertTargeterResultForEachLeg,
         std::map< int, std::map< double, Eigen::Vector6d > >& fullProblemResultForEachLeg);
 
-void fullPropagationMGAUniqueAcceleration(
+void fullPropagationPatchedConicsTrajectorySingleAccelerationMap(
         simulation_setup::NamedBodyMap& bodyMap,
         const basic_astrodynamics::AccelerationMap& accelerationMap,
         const std::vector< std::string >& transferBodyOrder,
@@ -66,7 +66,7 @@ void fullPropagationMGAUniqueAcceleration(
         std::map< int, std::map< double, Eigen::Vector6d > >& fullProblemResultForEachLeg);
 
 
-std::map< int, std::pair< Eigen::Vector6d, Eigen::Vector6d > > getDifferenceFullPropagationWrtLambertTargeterMGA(
+std::map< int, std::pair< Eigen::Vector6d, Eigen::Vector6d > > getDifferenceFullProblemWrtPatchedConicsTrajectory(
         simulation_setup::NamedBodyMap& bodyMap,
         const std::vector< basic_astrodynamics::AccelerationMap >& accelerationMap,
         const std::vector< std::string >& transferBodyOrder,
@@ -79,7 +79,7 @@ std::map< int, std::pair< Eigen::Vector6d, Eigen::Vector6d > > getDifferenceFull
         const std::vector< double >& eccentricitiesVector,
         const std::shared_ptr<numerical_integrators::IntegratorSettings<double> > &integratorSettings);
 
-std::map< int, std::pair< Eigen::Vector6d, Eigen::Vector6d > > getDifferenceFullPropagationWrtLambertTargeterMGAUniqueAcceleration(
+std::map< int, std::pair< Eigen::Vector6d, Eigen::Vector6d > > getDifferenceFullProblemWrtPatchedConicsTrajectoryWithSingleAccelerationMap(
         simulation_setup::NamedBodyMap& bodyMap,
         const basic_astrodynamics::AccelerationMap& accelerationMap,
         const std::vector< std::string >& transferBodyOrder,

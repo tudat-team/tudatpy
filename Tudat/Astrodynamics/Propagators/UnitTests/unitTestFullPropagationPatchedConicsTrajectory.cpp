@@ -39,20 +39,12 @@ BOOST_AUTO_TEST_SUITE( testFullPropagationTrajectory )
 BOOST_AUTO_TEST_CASE( testFullPropagationMGA )
 {
 
-    std::cout << "Cassini trajectory: " << "\n\n";
-
     std::cout.precision(20);
 
-    double initialTime = 0.0;
-    double fixedStepSize = 1000.0;
+    std::cout << "Cassini trajectory: " << "\n\n";
 
-    // Define integrator settings.
-    std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings =
-            std::make_shared < numerical_integrators::IntegratorSettings < > >
-                ( numerical_integrators::rungeKutta4, initialTime, fixedStepSize);
 
-    // Specify required parameters
-    // Specify the number of legs and type of legs.
+    // Specify number and type of legs.
     int numberOfLegs = 6;
     std::vector< transfer_trajectories::TransferLegType > legTypeVector;
     legTypeVector.resize( numberOfLegs );
@@ -80,10 +72,9 @@ BOOST_AUTO_TEST_CASE( testFullPropagationMGA )
 
     spice_interface::loadStandardSpiceKernels( );
 
-
-
     std::map< std::string, std::shared_ptr< simulation_setup::BodySettings > > bodySettings =
                     simulation_setup::getDefaultBodySettings( centralBody );
+
 
     // Define central body ephemeris settings.
     std::string frameOrigin = "SSB";
@@ -95,11 +86,11 @@ BOOST_AUTO_TEST_CASE( testFullPropagationMGA )
     bodySettings[ centralBody[0] ]->rotationModelSettings->resetOriginalFrame( frameOrientation );
 
 
-
     // Create body map.
     simulation_setup::NamedBodyMap bodyMap = createBodies( bodySettings );
 
-    // ephemeris
+
+    // Define ephemeris for each transfer body.
     bodyMap["Earth"] = std::make_shared< simulation_setup::Body >( );
     bodyMap["Earth"]->setEphemeris( std::make_shared< ephemerides::ApproximatePlanetPositions >(
                                         ephemerides::ApproximatePlanetPositionsBase::BodiesWithEphemerisData::earthMoonBarycenter ));
@@ -114,7 +105,7 @@ BOOST_AUTO_TEST_CASE( testFullPropagationMGA )
                                         ephemerides::ApproximatePlanetPositionsBase::BodiesWithEphemerisData::saturn ));
 
 
-    // gravity field
+    // Define gravity field for each transfer body.
     bodyMap["Earth"]->setGravityFieldModel( simulation_setup::createGravityFieldModel( simulation_setup::getDefaultGravityFieldSettings(
                         "Earth", TUDAT_NAN, TUDAT_NAN ), "Earth", bodyMap ) );
 
@@ -128,20 +119,23 @@ BOOST_AUTO_TEST_CASE( testFullPropagationMGA )
                         "Saturn", TUDAT_NAN, TUDAT_NAN ), "Saturn", bodyMap ) );
 
 
+    // Define ephemeris for body to propagate.
     bodyMap[ bodyToPropagate ] = std::make_shared< simulation_setup::Body >( );
     bodyMap[ bodyToPropagate ]->setEphemeris( std::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
                     std::shared_ptr< interpolators::OneDimensionalInterpolator
                     < double, Eigen::Vector6d > >( ), frameOrigin, frameOrientation ) );
 
+
     setGlobalFrameBodyEphemerides( bodyMap, frameOrigin, frameOrientation );
 
-    // create acceleration map
-    basic_astrodynamics::AccelerationMap accelerationMap = propagators::setupAccelerationMapLambertTargeter(centralBody[0],
-                                                                                               bodyToPropagate, bodyMap);
+
+
+    // Create acceleration map.
+    basic_astrodynamics::AccelerationMap accelerationMap = propagators::setupAccelerationMapLambertTargeter(centralBody[0], bodyToPropagate, bodyMap);
 
 
     // Create variable vector.
-    std::vector< double > variableVector;//( numberOfLegs + 1 );
+    std::vector< double > variableVector;
     variableVector.push_back(-789.8117 * physical_constants::JULIAN_DAY); variableVector.push_back(158.302027105278 * physical_constants::JULIAN_DAY);
     variableVector.push_back(449.385873819743 * physical_constants::JULIAN_DAY); variableVector.push_back(54.7489684339665 * physical_constants::JULIAN_DAY);
     variableVector.push_back(1024.36205846918 * physical_constants::JULIAN_DAY); variableVector.push_back(4552.30796805542 * physical_constants::JULIAN_DAY);
@@ -153,20 +147,25 @@ BOOST_AUTO_TEST_CASE( testFullPropagationMGA )
     std::vector< double > eccentricities;
     eccentricities.push_back( 0.0 ); eccentricities.push_back( 0.98 );
 
-
     // Create minimum pericenter radii vector
     std::vector< double > minimumPericenterRadii;
     minimumPericenterRadii.push_back( 6778000.0 ); minimumPericenterRadii.push_back( 6351800.0 ); minimumPericenterRadii.push_back( 6351800.0 );
     minimumPericenterRadii.push_back( 6778000.0 ); minimumPericenterRadii.push_back( 600000000.0 ); minimumPericenterRadii.push_back( 600000000.0 );
 
 
+    // Define integrator settings.
+    double initialTime = 0.0;
+    double fixedStepSize = 1000.0;
+    std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings =
+       std::make_shared < numerical_integrators::IntegratorSettings < > > ( numerical_integrators::rungeKutta4, initialTime, fixedStepSize);
 
 
+    // Compute difference between patched conics trajectory and full problem at departure and at arrival for each leg.
     std::map< int, std::map< double, Eigen::Vector6d > > lambertTargeterResultForEachLeg;
     std::map< int, std::map< double, Eigen::Vector6d > > fullProblemResultForEachLeg;
 
     std::map< int, std::pair< Eigen::Vector6d, Eigen::Vector6d > > differenceStateArrivalAndDeparturePerLeg =
-            propagators::getDifferenceFullPropagationWrtLambertTargeterMGAUniqueAcceleration(bodyMap, accelerationMap, nameBodiesTrajectory,
+            propagators::getDifferenceFullProblemWrtPatchedConicsTrajectoryWithSingleAccelerationMap(bodyMap, accelerationMap, nameBodiesTrajectory,
                             centralBody[0], bodyToPropagate, legTypeVector, variableVector, minimumPericenterRadii,
                             semiMajorAxes, eccentricities, integratorSettings);
 
@@ -198,8 +197,7 @@ BOOST_AUTO_TEST_CASE( testFullPropagationMGAwithDSM )
 
     std::cout << "Messenger trajectory: " << "\n\n";
 
-    // Specify required parameters
-    // Specify the number of legs and type of legs.
+    // Specify number and type of legs.
     int numberOfLegs = 5;
     std::vector< transfer_trajectories::TransferLegType > legTypeVector;
     legTypeVector.resize( numberOfLegs );
@@ -208,6 +206,7 @@ BOOST_AUTO_TEST_CASE( testFullPropagationMGAwithDSM )
     legTypeVector[ 2 ] = transfer_trajectories::mga1DsmVelocity_Swingby;
     legTypeVector[ 3 ] = transfer_trajectories::mga1DsmVelocity_Swingby;
     legTypeVector[ 4 ] = transfer_trajectories::capture;
+
 
     // Name of the bodies involved in the trajectory
     std::vector< std::string > nameBodiesAndManoeuvresTrajectory;
@@ -229,7 +228,6 @@ BOOST_AUTO_TEST_CASE( testFullPropagationMGAwithDSM )
     transferBodyTrajectory.push_back("Mercury");
 
 
-
     std::vector< std::string > centralBody; centralBody.push_back( "Sun" );
     std::string bodyToPropagate = "spacecraft";
 
@@ -237,6 +235,8 @@ BOOST_AUTO_TEST_CASE( testFullPropagationMGAwithDSM )
 
     std::map< std::string, std::shared_ptr< simulation_setup::BodySettings > > bodySettings =
                     simulation_setup::getDefaultBodySettings( centralBody );
+
+
 
     // Define central body ephemeris settings.
     std::string frameOrigin = "SSB";
@@ -251,7 +251,8 @@ BOOST_AUTO_TEST_CASE( testFullPropagationMGAwithDSM )
     // Create body map.
     simulation_setup::NamedBodyMap bodyMap = createBodies( bodySettings );
 
-    // ephemeris
+
+    // Define ephemeris for each transfer body.
     bodyMap["Earth"] = std::make_shared< simulation_setup::Body >( );
     bodyMap["Earth"]->setEphemeris( std::make_shared< ephemerides::ApproximatePlanetPositions >(
                                         ephemerides::ApproximatePlanetPositionsBase::BodiesWithEphemerisData::earthMoonBarycenter ));
@@ -263,7 +264,7 @@ BOOST_AUTO_TEST_CASE( testFullPropagationMGAwithDSM )
                                         ephemerides::ApproximatePlanetPositionsBase::BodiesWithEphemerisData::mercury ));
 
 
-    // gravity field
+    // Define gravity field for each transfer body
     bodyMap["Earth"]->setGravityFieldModel( simulation_setup::createGravityFieldModel( simulation_setup::getDefaultGravityFieldSettings(
                         "Earth", TUDAT_NAN, TUDAT_NAN ), "Earth", bodyMap ) );
 
@@ -274,6 +275,7 @@ BOOST_AUTO_TEST_CASE( testFullPropagationMGAwithDSM )
                         "Mercury", TUDAT_NAN, TUDAT_NAN ), "Mercury", bodyMap ) );
 
 
+    // Define ephemeris for body to propagate.
     bodyMap[ bodyToPropagate ] = std::make_shared< simulation_setup::Body >( );
     bodyMap[ bodyToPropagate ]->setEphemeris( std::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
                     std::shared_ptr< interpolators::OneDimensionalInterpolator
@@ -283,14 +285,14 @@ BOOST_AUTO_TEST_CASE( testFullPropagationMGAwithDSM )
 
 
 
-    // create acceleration map
-    basic_astrodynamics::AccelerationMap accelerationMap = propagators::setupAccelerationMapLambertTargeter(centralBody[0],
-                                                                                               bodyToPropagate, bodyMap);
+    // Create acceleration map.
+    basic_astrodynamics::AccelerationMap accelerationMap = propagators::setupAccelerationMapLambertTargeter(centralBody[0], bodyToPropagate, bodyMap);
+
 
     // Create variable vector.
     std::vector< double > variableVector;
 
-    // Add the time of flight and start epoch, which are in JD.
+    // Add the time of flight and start epoch.
     variableVector.push_back( 1171.64503236 * physical_constants::JULIAN_DAY);
     variableVector.push_back( 399.999999715 * physical_constants::JULIAN_DAY);
     variableVector.push_back( 178.372255301 * physical_constants::JULIAN_DAY);
@@ -321,6 +323,7 @@ BOOST_AUTO_TEST_CASE( testFullPropagationMGAwithDSM )
     variableVector.push_back( 0.0 );
 
 
+
     // Create minimum pericenter radii vector
     std::vector< double > minimumPericenterRadii;
     minimumPericenterRadii.push_back( TUDAT_NAN ); minimumPericenterRadii.push_back( TUDAT_NAN ); minimumPericenterRadii.push_back( TUDAT_NAN );
@@ -333,22 +336,23 @@ BOOST_AUTO_TEST_CASE( testFullPropagationMGAwithDSM )
     eccentricities.push_back( 0.0 ); eccentricities.push_back( 0.0 );
 
 
+    // Define integrator settings.
     double initialTime = 0.0;
     double fixedStepSize = 1000.0;
-
-    // Define integrator settings.
     std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings =
-            std::make_shared < numerical_integrators::IntegratorSettings < > >
-                ( numerical_integrators::rungeKutta4, initialTime, fixedStepSize);
+        std::make_shared < numerical_integrators::IntegratorSettings < > > ( numerical_integrators::rungeKutta4, initialTime, fixedStepSize);
 
 
+
+    // Compute difference between patched conics trajectory and full problem at departure and at arrival for each leg.
     std::map< int, std::map< double, Eigen::Vector6d > > lambertTargeterResultForEachLeg;
     std::map< int, std::map< double, Eigen::Vector6d > > fullProblemResultForEachLeg;
 
     std::map< int, std::pair< Eigen::Vector6d, Eigen::Vector6d > > differenceStateArrivalAndDeparturePerLeg =
-            propagators::getDifferenceFullPropagationWrtLambertTargeterMGAUniqueAcceleration(bodyMap, accelerationMap, transferBodyTrajectory,
-                               centralBody[0], bodyToPropagate, legTypeVector, variableVector, minimumPericenterRadii,
-                               semiMajorAxes, eccentricities, integratorSettings);
+            propagators::getDifferenceFullProblemWrtPatchedConicsTrajectoryWithSingleAccelerationMap(bodyMap, accelerationMap, transferBodyTrajectory,
+                               centralBody[0], bodyToPropagate, legTypeVector, variableVector, minimumPericenterRadii, semiMajorAxes, eccentricities,
+                               integratorSettings);
+
 
     for( std::map< int, std::pair< Eigen::Vector6d, Eigen::Vector6d > >::iterator
          itr = differenceStateArrivalAndDeparturePerLeg.begin( );
