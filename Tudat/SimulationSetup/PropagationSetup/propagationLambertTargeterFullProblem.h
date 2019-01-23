@@ -73,10 +73,17 @@ basic_astrodynamics::AccelerationMap setupAccelerationMapLambertTargeter(
  * \param gravitationalParameter Gravitation parameter defining the keplerian orbit [m^3 s^-2].
  * \return
  */
-Eigen::Vector6d propagateLambertTargeterSolution(
+Eigen::Vector6d computeCartesianStateFromKeplerianOrbit(
         const Eigen::Vector6d& initialState,
         const double finalPropagationTime,
         const double gravitationalParameter);
+
+
+Eigen::Vector6d computeCartesianStateHalfTimeOfFlightLambertTargeter(
+        const Eigen::Vector6d& cartesianStateAtDeparture,
+        const double gravitationalParameterCentralBody,
+        const double timeOfFlight,
+        mission_segments::LambertTargeterIzzo& LambertTargeter);
 
 
 
