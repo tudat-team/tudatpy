@@ -33,6 +33,13 @@ simulation_setup::NamedBodyMap setupBodyMapFromUserDefinedStatesForPatchedConics
         const std::vector< std::string >& nameTransferBodies,
         const std::vector<ephemerides::EphemerisPointer> &ephemerisVector, const std::vector<double>& gravitationalParametersTransferBodies);
 
+//! Function to directly setup a vector of acceleration maps for patched conics trajectory.
+std::vector < basic_astrodynamics::AccelerationMap > setupAccelerationMapPatchedConicsTrajectory(
+        const double numberOfLegs,
+        const std::string& nameCentralBody,
+        const std::string& nameBodyToPropagate,
+        const simulation_setup::NamedBodyMap& bodyMap );
+
 
 //! Function to create the trajectory from the body map.
 /*!

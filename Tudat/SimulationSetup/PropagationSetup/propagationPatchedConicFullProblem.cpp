@@ -127,6 +127,45 @@ simulation_setup::NamedBodyMap setupBodyMapFromUserDefinedStatesForPatchedConics
 
 
 
+//! Function to directly setup a vector of acceleration maps for patched conics trajectory.
+std::vector < basic_astrodynamics::AccelerationMap > setupAccelerationMapPatchedConicsTrajectory(
+        const double numberOfLegs,
+        const std::string& nameCentralBody,
+        const std::string& nameBodyToPropagate,
+        const simulation_setup::NamedBodyMap& bodyMap )
+{
+
+    std::vector< basic_astrodynamics::AccelerationMap > accelerationMapsVector;
+
+    for (int i = 0 ; i < numberOfLegs ; i++){
+
+        accelerationMapsVector.push_back( setupAccelerationMapLambertTargeter(nameCentralBody, nameBodyToPropagate, bodyMap) );
+
+    }
+//    std::vector< std::string > bodiesToPropagate;
+//    bodiesToPropagate.push_back( nameBodyToPropagate );
+//    std::vector< std::string > centralBodies;
+//    centralBodies.push_back( nameCentralBody );
+
+//    // Acceleration from the central body.
+//    std::map< std::string, std::vector< std::shared_ptr< simulation_setup::AccelerationSettings > > > bodyToPropagateAccelerations;
+//    bodyToPropagateAccelerations[nameCentralBody].push_back(std::make_shared< simulation_setup::AccelerationSettings >(
+//                                                          basic_astrodynamics::central_gravity ) );
+
+//    simulation_setup::SelectedAccelerationMap accelerationMap;
+//    accelerationMap[ nameBodyToPropagate ] = bodyToPropagateAccelerations;
+
+//    // Create the acceleration map.
+//    basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
+//                        bodyMap, accelerationMap, bodiesToPropagate, centralBodies );
+
+
+    return accelerationMapsVector;
+
+}
+
+
+
 
 //! Function to create the trajectory from the body map.
 transfer_trajectories::Trajectory createTransferTrajectoryObject(
