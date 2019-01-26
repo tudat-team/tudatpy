@@ -34,7 +34,7 @@ namespace propagators
 {
 
 //! Function to setup a body map corresponding to the assumptions of the Lambert targeter,
-//! retrieving positions of departure and arrival bodies from ephemerides.
+//! using default ephemerides for the central, departure and arrival bodies.
 simulation_setup::NamedBodyMap setupBodyMapFromEphemeridesForLambertTargeter(
         const std::string& nameCentralBody,
         const std::string& nameBodyToPropagate,
@@ -81,8 +81,9 @@ simulation_setup::NamedBodyMap setupBodyMapFromEphemeridesForLambertTargeter(
 }
 
 
+
 //! Function to setup a body map corresponding to the assumptions of the Lambert targeter,
-//! the positions of departure and arrival bodies being provided as inputs.
+//! using default ephemerides for the central body only, while the positions of departure and arrival bodies are provided as inputs.
 simulation_setup::NamedBodyMap setupBodyMapFromUserDefinedStatesForLambertTargeter(
         const std::string& nameCentralBody,
         const std::string& nameBodyToPropagate,
