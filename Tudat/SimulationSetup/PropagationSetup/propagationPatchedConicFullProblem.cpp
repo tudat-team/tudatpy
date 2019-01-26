@@ -18,6 +18,116 @@ namespace propagators
 {
 
 
+//! Function to setup a body map corresponding to the assumptions of the patched conics trajectory,
+//! retrieving positions of the transfer bodies from ephemerides.
+simulation_setup::NamedBodyMap setupBodyMapFromEphemeridesForPatchedConicsTrajectory(
+        const std::string& nameCentralBody,
+        const std::string& nameBodyToPropagate,
+        const std::vector< std::string >& nameTransferBodies)
+{
+    spice_interface::loadStandardSpiceKernels( );
+
+    // Create central and transfer bodies.
+    std::vector< std::string > bodiesToCreate;
+    bodiesToCreate.push_back( nameCentralBody );
+    for (int i = 0 ; i < nameTransferBodies.size() ; i++ ){
+        bodiesToCreate.push_back( nameTransferBodies[i] );
+    }
+
+
+    std::map< std::string, std::shared_ptr< simulation_setup::BodySettings > > bodySettings =
+                    simulation_setup::getDefaultBodySettings( bodiesToCreate );
+
+    std::string frameOrigin = "SSB";
+    std::string frameOrientation = "ECLIPJ2000";
+
+
+    // Define central body ephemeris settings.
+    bodySettings[ nameCentralBody ]->ephemerisSettings = std::make_shared< simulation_setup::ConstantEphemerisSettings >(
+            ( Eigen::Vector6d( ) << 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 ).finished( ), frameOrigin, frameOrientation );
+
+    bodySettings[ nameCentralBody ]->ephemerisSettings->resetFrameOrientation( frameOrientation );
+    bodySettings[ nameCentralBody ]->rotationModelSettings->resetOriginalFrame( frameOrientation );
+
+
+    // Create body map.
+    simulation_setup::NamedBodyMap bodyMap = createBodies( bodySettings );
+
+
+    // Define body to propagate.
+    bodyMap[ nameBodyToPropagate ] = std::make_shared< simulation_setup::Body >( );
+    bodyMap[ nameBodyToPropagate ]->setEphemeris( std::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
+                    std::shared_ptr< interpolators::OneDimensionalInterpolator
+                    < double, Eigen::Vector6d > >( ), frameOrigin, frameOrientation ) );
+
+
+    setGlobalFrameBodyEphemerides( bodyMap, frameOrigin, frameOrientation );
+
+
+    return bodyMap;
+}
+
+
+
+//! Function to setup a body map corresponding to the assumptions of the patched conics trajectory,
+//! the positions of the transfer bodies being provided as inputs.
+simulation_setup::NamedBodyMap setupBodyMapFromUserDefinedStatesForPatchedConicsTrajectory(
+        const std::string& nameCentralBody,
+        const std::string& nameBodyToPropagate,
+        const std::vector< std::string >& nameTransferBodies,
+        const std::vector< ephemerides::EphemerisPointer >& ephemerisVector,
+        const std::vector< double >& gravitationalParametersTransferBodies)
+{
+
+    spice_interface::loadStandardSpiceKernels( );
+
+
+    // Create central body object.
+    std::vector< std::string > bodiesToCreate;
+    bodiesToCreate.push_back( nameCentralBody );
+
+    std::map< std::string, std::shared_ptr< simulation_setup::BodySettings > > bodySettings =
+                    simulation_setup::getDefaultBodySettings( bodiesToCreate );
+
+    std::string frameOrigin = "SSB";
+    std::string frameOrientation = "J2000";
+
+    // Define central body ephemeris settings.
+    bodySettings[ nameCentralBody ]->ephemerisSettings = std::make_shared< simulation_setup::ConstantEphemerisSettings >(
+            ( Eigen::Vector6d( ) << 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 ).finished( ), frameOrigin, frameOrientation );
+
+    bodySettings[ nameCentralBody ]->ephemerisSettings->resetFrameOrientation( frameOrientation );
+    bodySettings[ nameCentralBody ]->rotationModelSettings->resetOriginalFrame( frameOrientation );
+
+
+    // Create body map.
+    simulation_setup::NamedBodyMap bodyMap = createBodies( bodySettings );
+
+    bodyMap[ nameBodyToPropagate ] = std::make_shared< simulation_setup::Body >( );
+    bodyMap[ nameBodyToPropagate ]->setEphemeris( std::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
+                    std::shared_ptr< interpolators::OneDimensionalInterpolator
+                    < double, Eigen::Vector6d > >( ), frameOrigin, frameOrientation ) );
+
+
+    // Define ephemeris and gravity field for the transfer bodies.
+    for (int i = 0 ; i < nameTransferBodies.size() ; i++){
+
+        bodyMap[ nameTransferBodies[i] ] = std::make_shared< simulation_setup::Body >( );
+        bodyMap[ nameTransferBodies[i] ]->setEphemeris( ephemerisVector[i] );
+        bodyMap[ nameTransferBodies[i] ]->setGravityFieldModel( simulation_setup::createGravityFieldModel(
+                                   std::make_shared< simulation_setup::CentralGravityFieldSettings >( gravitationalParametersTransferBodies[i] ),
+                                                                    nameTransferBodies[i] ) );
+    }
+
+    setGlobalFrameBodyEphemerides( bodyMap, frameOrigin, frameOrientation );
+
+    return bodyMap;
+
+}
+
+
+
+
 //! Function to create the trajectory from the body map.
 transfer_trajectories::Trajectory createTransferTrajectoryObject(
         const simulation_setup::NamedBodyMap& bodyMap,
@@ -66,6 +176,7 @@ transfer_trajectories::Trajectory createTransferTrajectoryObject(
                 semiMajorAxesVector, eccentricityVector, includeDepartureDeltaV, includeArrivalDeltaV );
 
 }
+
 
 
 
