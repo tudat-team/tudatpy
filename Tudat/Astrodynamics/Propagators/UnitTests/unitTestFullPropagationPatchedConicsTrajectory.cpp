@@ -119,7 +119,7 @@ BOOST_AUTO_TEST_CASE( testFullPropagationMGA )
 
 
     // Create body map.
-    simulation_setup::NamedBodyMap bodyMap = propagators::setupBodyMapFromUserDefinedStatesForPatchedConicsTrajectory(centralBody[0],
+    simulation_setup::NamedBodyMap bodyMap = propagators::setupBodyMapFromUserDefinedEphemeridesForPatchedConicsTrajectory(centralBody[0],
             bodyToPropagate, nameBodiesTrajectory, ephemerisVectorTransferBodies, gravitationalParametersTransferBodies);
 
     // Create acceleration map.
