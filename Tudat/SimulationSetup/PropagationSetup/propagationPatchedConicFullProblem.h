@@ -20,6 +20,20 @@ namespace tudat
 namespace propagators
 {
 
+//! Function to setup a body map corresponding to the assumptions of the patched conics trajectory,
+//! retrieving positions of the transfer bodies from ephemerides.
+simulation_setup::NamedBodyMap setupBodyMapFromEphemeridesForPatchedConicsTrajectory(const std::string& nameCentralBody,
+        const std::string& nameBodyToPropagate,
+        const std::vector< std::string >& nameTransferBodies );
+
+//! Function to setup a body map corresponding to the assumptions of the patched conics trajectory,
+//! the positions of the transfer bodies being provided as inputs.
+simulation_setup::NamedBodyMap setupBodyMapFromUserDefinedStatesForPatchedConicsTrajectory(const std::string& nameCentralBody,
+        const std::string& nameBodyToPropagate,
+        const std::vector< std::string >& nameTransferBodies,
+        const std::vector<ephemerides::EphemerisPointer> &ephemerisVector, const std::vector<double>& gravitationalParametersTransferBodies);
+
+
 //! Function to create the trajectory from the body map.
 /*!
  * Function to create the trajectory from the body map.

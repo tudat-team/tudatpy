@@ -72,66 +72,21 @@ BOOST_AUTO_TEST_CASE( testFullPropagationMGA )
 
     spice_interface::loadStandardSpiceKernels( );
 
-    std::map< std::string, std::shared_ptr< simulation_setup::BodySettings > > bodySettings =
-                    simulation_setup::getDefaultBodySettings( centralBody );
 
-
-    // Define central body ephemeris settings.
-    std::string frameOrigin = "SSB";
-    std::string frameOrientation = "J2000";
-    bodySettings[ centralBody[0] ]->ephemerisSettings = std::make_shared< simulation_setup::ConstantEphemerisSettings >(
-            ( Eigen::Vector6d( ) << 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 ).finished( ), frameOrigin, frameOrientation );
-
-    bodySettings[ centralBody[0] ]->ephemerisSettings->resetFrameOrientation( frameOrientation );
-    bodySettings[ centralBody[0] ]->rotationModelSettings->resetOriginalFrame( frameOrientation );
-
-
-    // Create body map.
-    simulation_setup::NamedBodyMap bodyMap = createBodies( bodySettings );
-
-
-    // Define ephemeris for each transfer body.
-    bodyMap["Earth"] = std::make_shared< simulation_setup::Body >( );
-    bodyMap["Earth"]->setEphemeris( std::make_shared< ephemerides::ApproximatePlanetPositions >(
-                                        ephemerides::ApproximatePlanetPositionsBase::BodiesWithEphemerisData::earthMoonBarycenter ));
-    bodyMap["Venus"] = std::make_shared< simulation_setup::Body >( );
-    bodyMap["Venus"]->setEphemeris( std::make_shared< ephemerides::ApproximatePlanetPositions >(
-                                        ephemerides::ApproximatePlanetPositionsBase::BodiesWithEphemerisData::venus ));
-    bodyMap["Jupiter"] = std::make_shared< simulation_setup::Body >( );
-    bodyMap["Jupiter"]->setEphemeris( std::make_shared< ephemerides::ApproximatePlanetPositions >(
-                                        ephemerides::ApproximatePlanetPositionsBase::BodiesWithEphemerisData::jupiter ));
-    bodyMap["Saturn"] = std::make_shared< simulation_setup::Body >( );
-    bodyMap["Saturn"]->setEphemeris( std::make_shared< ephemerides::ApproximatePlanetPositions >(
-                                        ephemerides::ApproximatePlanetPositionsBase::BodiesWithEphemerisData::saturn ));
-
-
-    // Define gravity field for each transfer body.
-    bodyMap["Earth"]->setGravityFieldModel( simulation_setup::createGravityFieldModel( simulation_setup::getDefaultGravityFieldSettings(
-                        "Earth", TUDAT_NAN, TUDAT_NAN ), "Earth", bodyMap ) );
-
-    bodyMap["Venus"]->setGravityFieldModel( simulation_setup::createGravityFieldModel( simulation_setup::getDefaultGravityFieldSettings(
-                        "Venus", TUDAT_NAN, TUDAT_NAN ), "Venus", bodyMap ) );
-
-    bodyMap["Jupiter"]->setGravityFieldModel( simulation_setup::createGravityFieldModel( simulation_setup::getDefaultGravityFieldSettings(
-                        "Jupiter", TUDAT_NAN, TUDAT_NAN ), "Jupiter", bodyMap ) );
-
-    bodyMap["Saturn"]->setGravityFieldModel( simulation_setup::createGravityFieldModel( simulation_setup::getDefaultGravityFieldSettings(
-                        "Saturn", TUDAT_NAN, TUDAT_NAN ), "Saturn", bodyMap ) );
-
-
-    // Define ephemeris for body to propagate.
-    bodyMap[ bodyToPropagate ] = std::make_shared< simulation_setup::Body >( );
-    bodyMap[ bodyToPropagate ]->setEphemeris( std::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
-                    std::shared_ptr< interpolators::OneDimensionalInterpolator
-                    < double, Eigen::Vector6d > >( ), frameOrigin, frameOrientation ) );
-
-
-    setGlobalFrameBodyEphemerides( bodyMap, frameOrigin, frameOrientation );
-
-
-
-    // Create acceleration map.
-    basic_astrodynamics::AccelerationMap accelerationMap = propagators::setupAccelerationMapLambertTargeter(centralBody[0], bodyToPropagate, bodyMap);
+    // Define gravitational parameter for each transfer body.
+    std::vector< double > gravitationalParametersTransferBodies;
+    gravitationalParametersTransferBodies.push_back( simulation_setup::createGravityFieldModel( simulation_setup::getDefaultGravityFieldSettings(
+                                           "Earth", TUDAT_NAN, TUDAT_NAN), "Earth")->getGravitationalParameter());
+    gravitationalParametersTransferBodies.push_back( simulation_setup::createGravityFieldModel( simulation_setup::getDefaultGravityFieldSettings(
+                                           "Venus", TUDAT_NAN, TUDAT_NAN), "Venus")->getGravitationalParameter());
+    gravitationalParametersTransferBodies.push_back( simulation_setup::createGravityFieldModel( simulation_setup::getDefaultGravityFieldSettings(
+                                           "Venus", TUDAT_NAN, TUDAT_NAN), "Venus")->getGravitationalParameter());
+    gravitationalParametersTransferBodies.push_back( simulation_setup::createGravityFieldModel( simulation_setup::getDefaultGravityFieldSettings(
+                                           "Earth", TUDAT_NAN, TUDAT_NAN), "Earth")->getGravitationalParameter());
+    gravitationalParametersTransferBodies.push_back( simulation_setup::createGravityFieldModel( simulation_setup::getDefaultGravityFieldSettings(
+                                           "Jupiter", TUDAT_NAN, TUDAT_NAN), "Jupiter")->getGravitationalParameter());
+    gravitationalParametersTransferBodies.push_back( simulation_setup::createGravityFieldModel( simulation_setup::getDefaultGravityFieldSettings(
+                                           "Saturn", TUDAT_NAN, TUDAT_NAN), "Saturn")->getGravitationalParameter());
 
 
     // Create variable vector.
@@ -140,6 +95,38 @@ BOOST_AUTO_TEST_CASE( testFullPropagationMGA )
     variableVector.push_back(449.385873819743 * physical_constants::JULIAN_DAY); variableVector.push_back(54.7489684339665 * physical_constants::JULIAN_DAY);
     variableVector.push_back(1024.36205846918 * physical_constants::JULIAN_DAY); variableVector.push_back(4552.30796805542 * physical_constants::JULIAN_DAY);
     variableVector.push_back(1.0 * physical_constants::JULIAN_DAY);
+
+    double initialTime = variableVector[0];
+
+
+
+    // Define ephemerides for the transfer bodies
+    std::vector< ephemerides::EphemerisPointer > ephemerisVectorTransferBodies;
+    ephemerides::EphemerisPointer ephemerisEarth = std::make_shared< ephemerides::ApproximatePlanetPositions>(
+                ephemerides::ApproximatePlanetPositionsBase::BodiesWithEphemerisData::earthMoonBarycenter) ;
+    ephemerides::EphemerisPointer ephemerisVenus = std::make_shared< ephemerides::ApproximatePlanetPositions>(
+                ephemerides::ApproximatePlanetPositionsBase::BodiesWithEphemerisData::venus) ;
+    ephemerides::EphemerisPointer ephemerisJupiter = std::make_shared< ephemerides::ApproximatePlanetPositions>(
+                ephemerides::ApproximatePlanetPositionsBase::BodiesWithEphemerisData::jupiter) ;
+    ephemerides::EphemerisPointer ephemerisSaturn = std::make_shared< ephemerides::ApproximatePlanetPositions>(
+                ephemerides::ApproximatePlanetPositionsBase::BodiesWithEphemerisData::saturn) ;
+    ephemerisVectorTransferBodies.push_back( ephemerisEarth );
+    ephemerisVectorTransferBodies.push_back( ephemerisVenus );
+    ephemerisVectorTransferBodies.push_back( ephemerisVenus );
+    ephemerisVectorTransferBodies.push_back( ephemerisEarth );
+    ephemerisVectorTransferBodies.push_back( ephemerisJupiter );
+    ephemerisVectorTransferBodies.push_back( ephemerisSaturn );
+
+
+    // Create body map.
+    simulation_setup::NamedBodyMap bodyMap = propagators::setupBodyMapFromUserDefinedStatesForPatchedConicsTrajectory(centralBody[0],
+            bodyToPropagate, nameBodiesTrajectory, ephemerisVectorTransferBodies, gravitationalParametersTransferBodies);
+
+    // Create acceleration map.
+    basic_astrodynamics::AccelerationMap accelerationMap = propagators::setupAccelerationMapLambertTargeter(centralBody[0], bodyToPropagate,
+            bodyMap);
+
+
 
     // Create departure and capture variables.
     std::vector< double > semiMajorAxes;
@@ -154,7 +141,6 @@ BOOST_AUTO_TEST_CASE( testFullPropagationMGA )
 
 
     // Define integrator settings.
-    double initialTime = 0.0;
     double fixedStepSize = 1000.0;
     std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings =
        std::make_shared < numerical_integrators::IntegratorSettings < > > ( numerical_integrators::rungeKutta4, initialTime, fixedStepSize);
@@ -231,58 +217,10 @@ BOOST_AUTO_TEST_CASE( testFullPropagationMGAwithDSM )
     std::vector< std::string > centralBody; centralBody.push_back( "Sun" );
     std::string bodyToPropagate = "spacecraft";
 
-    spice_interface::loadStandardSpiceKernels( );
-
-    std::map< std::string, std::shared_ptr< simulation_setup::BodySettings > > bodySettings =
-                    simulation_setup::getDefaultBodySettings( centralBody );
-
-
-
-    // Define central body ephemeris settings.
-    std::string frameOrigin = "SSB";
-    std::string frameOrientation = "J2000";
-    bodySettings[ centralBody[0] ]->ephemerisSettings = std::make_shared< simulation_setup::ConstantEphemerisSettings >(
-            ( Eigen::Vector6d( ) << 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 ).finished( ), frameOrigin, frameOrientation );
-
-    bodySettings[ centralBody[0] ]->ephemerisSettings->resetFrameOrientation( frameOrientation );
-    bodySettings[ centralBody[0] ]->rotationModelSettings->resetOriginalFrame( frameOrientation );
-
 
     // Create body map.
-    simulation_setup::NamedBodyMap bodyMap = createBodies( bodySettings );
-
-
-    // Define ephemeris for each transfer body.
-    bodyMap["Earth"] = std::make_shared< simulation_setup::Body >( );
-    bodyMap["Earth"]->setEphemeris( std::make_shared< ephemerides::ApproximatePlanetPositions >(
-                                        ephemerides::ApproximatePlanetPositionsBase::BodiesWithEphemerisData::earthMoonBarycenter ));
-    bodyMap["Venus"] = std::make_shared< simulation_setup::Body >( );
-    bodyMap["Venus"]->setEphemeris( std::make_shared< ephemerides::ApproximatePlanetPositions >(
-                                        ephemerides::ApproximatePlanetPositionsBase::BodiesWithEphemerisData::venus ));
-    bodyMap["Mercury"] = std::make_shared< simulation_setup::Body >( );
-    bodyMap["Mercury"]->setEphemeris( std::make_shared< ephemerides::ApproximatePlanetPositions >(
-                                        ephemerides::ApproximatePlanetPositionsBase::BodiesWithEphemerisData::mercury ));
-
-
-    // Define gravity field for each transfer body
-    bodyMap["Earth"]->setGravityFieldModel( simulation_setup::createGravityFieldModel( simulation_setup::getDefaultGravityFieldSettings(
-                        "Earth", TUDAT_NAN, TUDAT_NAN ), "Earth", bodyMap ) );
-
-    bodyMap["Venus"]->setGravityFieldModel( simulation_setup::createGravityFieldModel( simulation_setup::getDefaultGravityFieldSettings(
-                        "Venus", TUDAT_NAN, TUDAT_NAN ), "Venus", bodyMap ) );
-
-    bodyMap["Mercury"]->setGravityFieldModel( simulation_setup::createGravityFieldModel( simulation_setup::getDefaultGravityFieldSettings(
-                        "Mercury", TUDAT_NAN, TUDAT_NAN ), "Mercury", bodyMap ) );
-
-
-    // Define ephemeris for body to propagate.
-    bodyMap[ bodyToPropagate ] = std::make_shared< simulation_setup::Body >( );
-    bodyMap[ bodyToPropagate ]->setEphemeris( std::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
-                    std::shared_ptr< interpolators::OneDimensionalInterpolator
-                    < double, Eigen::Vector6d > >( ), frameOrigin, frameOrientation ) );
-
-    setGlobalFrameBodyEphemerides( bodyMap, frameOrigin, frameOrientation );
-
+    simulation_setup::NamedBodyMap bodyMap = propagators::setupBodyMapFromEphemeridesForPatchedConicsTrajectory(centralBody[0],
+            bodyToPropagate, transferBodyTrajectory);
 
 
     // Create acceleration map.
