@@ -123,8 +123,8 @@ BOOST_AUTO_TEST_CASE( testFullPropagationMGA )
             bodyToPropagate, nameBodiesTrajectory, ephemerisVectorTransferBodies, gravitationalParametersTransferBodies);
 
     // Create acceleration map.
-    basic_astrodynamics::AccelerationMap accelerationMap = propagators::setupAccelerationMapLambertTargeter(centralBody[0], bodyToPropagate,
-            bodyMap);
+    std::vector< basic_astrodynamics::AccelerationMap > accelerationMap = propagators::setupAccelerationMapPatchedConicsTrajectory(
+                nameBodiesTrajectory.size(), centralBody[0], bodyToPropagate, bodyMap);
 
 
 
@@ -151,7 +151,7 @@ BOOST_AUTO_TEST_CASE( testFullPropagationMGA )
     std::map< int, std::map< double, Eigen::Vector6d > > fullProblemResultForEachLeg;
 
     std::map< int, std::pair< Eigen::Vector6d, Eigen::Vector6d > > differenceStateArrivalAndDeparturePerLeg =
-            propagators::getDifferenceFullProblemWrtPatchedConicsTrajectoryWithSingleAccelerationMap(bodyMap, accelerationMap, nameBodiesTrajectory,
+            propagators::getDifferenceFullProblemWrtPatchedConicsTrajectory(bodyMap, accelerationMap, nameBodiesTrajectory,
                             centralBody[0], bodyToPropagate, legTypeVector, variableVector, minimumPericenterRadii,
                             semiMajorAxes, eccentricities, integratorSettings);
 
@@ -224,7 +224,8 @@ BOOST_AUTO_TEST_CASE( testFullPropagationMGAwithDSM )
 
 
     // Create acceleration map.
-    basic_astrodynamics::AccelerationMap accelerationMap = propagators::setupAccelerationMapLambertTargeter(centralBody[0], bodyToPropagate, bodyMap);
+    std::vector< basic_astrodynamics::AccelerationMap > accelerationMap = propagators::setupAccelerationMapPatchedConicsTrajectory(
+                transferBodyTrajectory.size(), centralBody[0], bodyToPropagate, bodyMap);
 
 
     // Create variable vector.
@@ -287,7 +288,7 @@ BOOST_AUTO_TEST_CASE( testFullPropagationMGAwithDSM )
     std::map< int, std::map< double, Eigen::Vector6d > > fullProblemResultForEachLeg;
 
     std::map< int, std::pair< Eigen::Vector6d, Eigen::Vector6d > > differenceStateArrivalAndDeparturePerLeg =
-            propagators::getDifferenceFullProblemWrtPatchedConicsTrajectoryWithSingleAccelerationMap(bodyMap, accelerationMap, transferBodyTrajectory,
+            propagators::getDifferenceFullProblemWrtPatchedConicsTrajectory(bodyMap, accelerationMap, transferBodyTrajectory,
                                centralBody[0], bodyToPropagate, legTypeVector, variableVector, minimumPericenterRadii, semiMajorAxes, eccentricities,
                                integratorSettings);
 
