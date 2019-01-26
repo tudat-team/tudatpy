@@ -18,8 +18,8 @@ namespace propagators
 {
 
 
-//! Function to setup a body map corresponding to the assumptions of the patched conics trajectory,
-//! retrieving positions of the transfer bodies from ephemerides.
+//! Function to setup a body map corresponding to the assumptions of a patched conics trajectory,
+//! using default ephemerides for the central and transfer bodies.
 simulation_setup::NamedBodyMap setupBodyMapFromEphemeridesForPatchedConicsTrajectory(
         const std::string& nameCentralBody,
         const std::string& nameBodyToPropagate,
@@ -70,12 +70,11 @@ simulation_setup::NamedBodyMap setupBodyMapFromEphemeridesForPatchedConicsTrajec
 
 
 //! Function to setup a body map corresponding to the assumptions of the patched conics trajectory,
-//! the positions of the transfer bodies being provided as inputs.
-simulation_setup::NamedBodyMap setupBodyMapFromUserDefinedStatesForPatchedConicsTrajectory(
-        const std::string& nameCentralBody,
+//! the ephemerides of the transfer bodies being provided as inputs.
+simulation_setup::NamedBodyMap setupBodyMapFromUserDefinedStatesForPatchedConicsTrajectory(const std::string& nameCentralBody,
         const std::string& nameBodyToPropagate,
         const std::vector< std::string >& nameTransferBodies,
-        const std::vector< ephemerides::EphemerisPointer >& ephemerisVector,
+        const std::vector< ephemerides::EphemerisPointer >& ephemerisVectorTransferBodies,
         const std::vector< double >& gravitationalParametersTransferBodies)
 {
 
@@ -113,7 +112,7 @@ simulation_setup::NamedBodyMap setupBodyMapFromUserDefinedStatesForPatchedConics
     for (int i = 0 ; i < nameTransferBodies.size() ; i++){
 
         bodyMap[ nameTransferBodies[i] ] = std::make_shared< simulation_setup::Body >( );
-        bodyMap[ nameTransferBodies[i] ]->setEphemeris( ephemerisVector[i] );
+        bodyMap[ nameTransferBodies[i] ]->setEphemeris( ephemerisVectorTransferBodies[i] );
         bodyMap[ nameTransferBodies[i] ]->setGravityFieldModel( simulation_setup::createGravityFieldModel(
                                    std::make_shared< simulation_setup::CentralGravityFieldSettings >( gravitationalParametersTransferBodies[i] ),
                                                                     nameTransferBodies[i] ) );
@@ -127,7 +126,7 @@ simulation_setup::NamedBodyMap setupBodyMapFromUserDefinedStatesForPatchedConics
 
 
 
-//! Function to directly setup a vector of acceleration maps for patched conics trajectory.
+//! Function to directly setup a vector of acceleration maps for a patched conics trajectory.
 std::vector < basic_astrodynamics::AccelerationMap > setupAccelerationMapPatchedConicsTrajectory(
         const double numberOfLegs,
         const std::string& nameCentralBody,

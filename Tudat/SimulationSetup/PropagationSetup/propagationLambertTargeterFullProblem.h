@@ -30,10 +30,10 @@ namespace propagators
 {
 
 //! Function to setup a body map corresponding to the assumptions of the Lambert targeter,
-//! retrieving positions of departure and arrival bodies from ephemerides.
+//! using default ephemerides for the central, departure and arrival bodies.
 /*!
- * Function to setup Lambert targeter map. The body map only contains the central body and the body to be propagated.
- * The positions of the departure and arrival bodies are directly retrived from ephemerides.
+ * Function to setup Lambert targeter map. The body map contains the central body, the body to be propagated and the departure and
+ * arrival bodies. The positions of the departure and arrival bodies are directly retrived from ephemerides.
  * \param nameCentralBody Name of the central body.
  * \param nameBodyToPropagate Name of the body to be propagated.
  * \param departureAndArrivalBodies Vector containing the names of the departure and arrival bodies.
@@ -47,9 +47,9 @@ simulation_setup::NamedBodyMap setupBodyMapFromEphemeridesForLambertTargeter(
 
 
 //! Function to setup a body map corresponding to the assumptions of the Lambert targeter,
-//! the positions of departure and arrival bodies being provided as inputs.
+//! using default ephemerides for the central body only, while the positions of departure and arrival bodies are provided as inputs.
 /*!
- * Function to setup Lambert targeter map. The body map only contains the central body and the body to be propagated.
+ * Function to setup a Lambert targeter map. The body map contains the central, departure and arrival bodies and the body to be propagated.
  * The positions of the departure and arrival bodies are defined by the user and provided as inputs.
  * \param nameCentralBody Name of the central body.
  * \param nameBodyToPropagate Name of the body to be propagated.
