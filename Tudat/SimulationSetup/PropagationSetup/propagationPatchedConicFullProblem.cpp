@@ -211,7 +211,7 @@ void fullPropagationPatchedConicsTrajectory(
 
 //! Function to calculate the patched conics trajectory and to propagate the corresponding full problem
 //! with the same acceleration map for every leg.
-void fullPropagationPatchedConicsTrajectorySingleAccelerationMap(
+void fullPropagationPatchedConicsTrajectory(
         simulation_setup::NamedBodyMap& bodyMap,
         const basic_astrodynamics::AccelerationMap& accelerationMap,
         const std::vector< std::string >& transferBodyOrder,
@@ -301,7 +301,7 @@ std::map< int, std::pair< Eigen::Vector6d, Eigen::Vector6d > > getDifferenceFull
 
 //! Function to compute the difference in cartesian state between patched conics trajectory and full dynamics problem,
 //! at both departure and arrival positions for each leg when using the same accelerations for each leg.
-std::map< int, std::pair< Eigen::Vector6d, Eigen::Vector6d > > getDifferenceFullProblemWrtPatchedConicsTrajectoryWithSingleAccelerationMap(
+std::map< int, std::pair< Eigen::Vector6d, Eigen::Vector6d > > getDifferenceFullProblemWrtPatchedConicsTrajectoryWith(
         simulation_setup::NamedBodyMap& bodyMap,
         const basic_astrodynamics::AccelerationMap& accelerationMap,
         const std::vector< std::string >& transferBodyOrder,

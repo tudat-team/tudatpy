@@ -10,6 +10,14 @@
  #    References
  #
 
+ if(NOT USE_CSPICE)
+  message(STATUS "SPICE disabled!")
+  add_definitions(-DUSE_CSPICE=0)
+ else()
+  message(STATUS "SPICE enabled!")
+ add_definitions(-DUSE_CSPICE=1)
+endif()
+
  # Create lists of static libraries for ease of use
  list(APPEND TUDAT_EXTERNAL_LIBRARIES "")
  list(APPEND TUDAT_EXTERNAL_INTERFACE_LIBRARIES "")
