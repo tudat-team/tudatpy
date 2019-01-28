@@ -104,7 +104,7 @@ void fullPropagationPatchedConicsTrajectory(
  * \param lambertTargeterResultForEachLeg Lambert Targeter results along each leg.
  * \param fullProblemResultForEachLeg Full problem propagation results along each leg.
  */
-void fullPropagationPatchedConicsTrajectorySingleAccelerationMap(
+void fullPropagationPatchedConicsTrajectory(
         simulation_setup::NamedBodyMap& bodyMap,
         const basic_astrodynamics::AccelerationMap& accelerationMap,
         const std::vector< std::string >& transferBodyOrder,
@@ -172,7 +172,7 @@ std::map< int, std::pair< Eigen::Vector6d, Eigen::Vector6d > > getDifferenceFull
  * \return Map of vector pairs. Each vector pair contains the difference in cartesian state between patched conics trajectory and full problem for a given leg,
  * at departure and arrival respectively.
  */
-std::map< int, std::pair< Eigen::Vector6d, Eigen::Vector6d > > getDifferenceFullProblemWrtPatchedConicsTrajectoryWithSingleAccelerationMap(
+std::map< int, std::pair< Eigen::Vector6d, Eigen::Vector6d > > getDifferenceFullProblemWrtPatchedConicsTrajectory(
         simulation_setup::NamedBodyMap& bodyMap,
         const basic_astrodynamics::AccelerationMap& accelerationMap,
         const std::vector< std::string >& transferBodyOrder,
