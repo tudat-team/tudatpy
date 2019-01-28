@@ -70,7 +70,7 @@ BOOST_AUTO_TEST_CASE( testFullPropagationLambertTargeter )
    std::pair< Eigen::Vector6d, Eigen::Vector6d > differenceState =
             propagators::getDifferenceFullPropagationWrtLambertTargeterAtDepartureAndArrival(cartesianPositionAtDeparture,
              cartesianPositionAtArrival, timeOfFlight, initialTime, bodyMap, accelerationModelMap, bodyToPropagate,
-             centralBody, integratorSettings, departureAndArrivalBodies, true, false);
+             centralBody, integratorSettings, departureAndArrivalBodies, false);
 
     Eigen::Vector6d differenceStateAtDeparture = differenceState.first;
     Eigen::Vector6d differenceStateAtArrival = differenceState.second;
