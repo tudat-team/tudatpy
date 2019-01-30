@@ -172,7 +172,7 @@ void fullPropagationPatchedConicsTrajectory(
         const std::shared_ptr< numerical_integrators::IntegratorSettings< double > >& integratorSettings,
         const bool terminationSphereOfInfluence,
         std::map< int, std::map< double, Eigen::Vector6d > >& lambertTargeterResultForEachLeg,
-        std::map< int, std::map< double, Eigen::Vector6d > >& fullProblemResultForEachLeg);
+        std::map< int, std::map< double, Eigen::Vector6d > >& fullProblemResultForEachLeg );
 
 
 

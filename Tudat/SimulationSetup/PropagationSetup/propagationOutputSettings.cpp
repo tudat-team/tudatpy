@@ -194,6 +194,9 @@ std::string getDependentVariableName( const PropagationDependentVariables propag
     case acceleration_partial_wrt_body_translational_state:
         variableName = "Acceleration partial w.r.t body state ";
         break;
+    case current_body_mass_dependent_variable:
+        variableName = "Current body mass ";
+        break;
     default:
         std::string errorMessage = "Error, dependent variable " +
                 std::to_string( propagationDependentVariables ) +

@@ -259,13 +259,13 @@ void fullPropagationPatchedConicsTrajectory(
     std::vector< basic_astrodynamics::AccelerationMap > accelerationMapForEachLeg;
 
     int counterDSMs = 1;
-    for (int i = 0 ; i < numberOfLegs ; i++){
-
+    for (int i = 0 ; i < numberOfLegs ; i++)
+    {
         bodiesAndManoeuvresOrder.push_back(transferBodyOrder[i]);
         accelerationMapForEachLeg.push_back( accelerationMap[i] );
 
-        if (legTypeVector[i] != transfer_trajectories::mga_Departure && legTypeVector[i] != transfer_trajectories::mga_Swingby){
-
+        if (legTypeVector[i] != transfer_trajectories::mga_Departure && legTypeVector[i] != transfer_trajectories::mga_Swingby)
+        {
             bodiesAndManoeuvresOrder.push_back("DSM" + std::to_string(counterDSMs));
             accelerationMapForEachLeg.push_back( accelerationMap[i] );
 
@@ -273,10 +273,7 @@ void fullPropagationPatchedConicsTrajectory(
         }
     }
 
-
-
     // Compute swing-by (or DSM) time and corresponding time of flight for each leg.
-
     double timeOfFlight;
     int counterLegTotal = 0;
     int counterLegWithDSM = 0;
@@ -286,10 +283,10 @@ void fullPropagationPatchedConicsTrajectory(
     std::vector< double > absoluteTimeVector; absoluteTimeVector.push_back(initialTime);
     std::vector< double > timeOfFlightVector;
 
-    for (int i = 0 ; i < numberOfLegs - 1 ; i ++){
-
-        if (legTypeVector[i] == transfer_trajectories::mga_Departure || legTypeVector[i] == transfer_trajectories::mga_Swingby ){
-
+    for (int i = 0 ; i < numberOfLegs - 1 ; i ++)
+    {
+        if (legTypeVector[i] == transfer_trajectories::mga_Departure || legTypeVector[i] == transfer_trajectories::mga_Swingby )
+        {
             timeOfFlight = trajectoryVariableVector[1 + counterLegTotal];
             timeOfFlightVector.push_back( timeOfFlight );
 
@@ -298,10 +295,9 @@ void fullPropagationPatchedConicsTrajectory(
 
             counterLegTotal++;
         }
-
-
-        else { // If a DSM is performed in the current leg
-
+        // If a DSM is performed in the current leg
+        else
+        {
             // First part of the leg (from departure to DSM)
             timeOfFlight = trajectoryVariableVector[numberOfLegs + 1 + counterLegWithDSM * 4]
                     * trajectoryVariableVector[counterLegTotal + 1];
@@ -324,9 +320,6 @@ void fullPropagationPatchedConicsTrajectory(
         }
     }
 
-
-
-
     for (int i = 0; i < numberLegsIncludingDSM - 1 ; i++)
     {
         std::vector< std::string > departureAndArrivalBodies;
@@ -336,7 +329,6 @@ void fullPropagationPatchedConicsTrajectory(
         // Define cartesian position at departure and arrival for the current leg.
         Eigen::Vector3d cartesianPositionAtDepartureCurrentLeg = positionVector[i]; //cartesianPositionAtDepartureForEachLeg[i];
         Eigen::Vector3d cartesianPositionAtArrivalCurrentLeg = positionVector[i+1]; //cartesianPositionAtArrivalForEachLeg[i];
-
 
         // Compute the difference in state between the full problem and the Lambert targeter solution for the current leg.
         std::map< double, Eigen::Vector6d > lambertTargeterResultCurrentLeg;
