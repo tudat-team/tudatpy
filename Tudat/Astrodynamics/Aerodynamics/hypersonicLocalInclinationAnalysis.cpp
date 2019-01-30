@@ -30,6 +30,7 @@
 #include "Tudat/Astrodynamics/Aerodynamics/hypersonicLocalInclinationAnalysis.h"
 #include "Tudat/Mathematics/GeometricShapes/compositeSurfaceGeometry.h"
 #include "Tudat/Mathematics/GeometricShapes/surfaceGeometry.h"
+#include "Tudat/InputOutput/basicInputOutput.h"
 
 namespace tudat
 {
@@ -114,6 +115,57 @@ std::vector< double > getDefaultHypersonicLocalInclinationAngleOfSideslipPoints(
 
     return angleOfSideslipPoints;
 }
+
+void saveVehicleMeshToFile(
+        const std::shared_ptr< HypersonicLocalInclinationAnalysis > localInclinationAnalysis )
+{
+    std::vector< boost::multi_array< Eigen::Vector3d, 2 > > meshPoints =
+            localInclinationAnalysis->getMeshPoints( );
+    std::vector< boost::multi_array< Eigen::Vector3d, 2 > > meshSurfaceNormals =
+            localInclinationAnalysis->getPanelSurfaceNormals( );
+
+
+    boost::array< int, 3 > independentVariables;
+    independentVariables[ 0 ] = 0;
+    independentVariables[ 1 ] = 6;
+    independentVariables[ 2 ] = 0;
+
+    std::vector< std::vector< std::vector< double > > > pressureCoefficients =
+            localInclinationAnalysis->getPressureCoefficientList( independentVariables );
+
+    int counter = 0;
+    std::map< int, Eigen::Vector3d > meshPointsList;
+    std::map< int, Eigen::Vector3d > surfaceNormalsList;
+    std::map< int, Eigen::Vector1d > pressureCoefficientsList;
+
+    for( unsigned int i = 0; i < meshPoints.size( ); i++ )
+    {
+        for( unsigned int j = 0; j < meshPoints.at( i ).shape( )[ 0 ]; j++ )
+        {
+            for( unsigned int k = 0; k < meshPoints.at( i ).shape( )[ 1 ]; k++ )
+            {
+                meshPointsList[ counter ] = meshPoints[ i ][ j ][ k ];
+                surfaceNormalsList[ counter ] = meshSurfaceNormals[ i ][ j ][ k ];
+                pressureCoefficientsList[ counter ] = ( Eigen::Vector1d( ) << pressureCoefficients[ i ][ j ][ k ] ).finished( );
+                counter++;
+            }
+        }
+    }
+
+    input_output::writeDataMapToTextFile(
+                meshPointsList, "shapeFile.dat",
+                "/home/dominic/Software/tudatBundleTest/tudatBundle/tudatApplications/PropagationOptimizationAssignments/SimulationOutput/ShapeOptimization" );
+
+    input_output::writeDataMapToTextFile(
+                surfaceNormalsList, "surfaceNormalFile.dat",
+                "/home/dominic/Software/tudatBundleTest/tudatBundle/tudatApplications/PropagationOptimizationAssignments/SimulationOutput/ShapeOptimization" );
+
+    input_output::writeDataMapToTextFile(
+                pressureCoefficientsList, "pressureCoefficientFile.dat",
+                "/home/dominic/Software/tudatBundleTest/tudatBundle/tudatApplications/PropagationOptimizationAssignments/SimulationOutput/ShapeOptimization" );
+
+}
+
 
 //! Default constructor.
 HypersonicLocalInclinationAnalysis::HypersonicLocalInclinationAnalysis(
@@ -283,6 +335,8 @@ void HypersonicLocalInclinationAnalysis::determineVehicleCoefficients(
     {
         coefficients += determinePartCoefficients( i, independentVariableIndices );
     }
+
+    pressureCoefficientList_[ independentVariableIndices ] = pressureCoefficient_;
 
     aerodynamicCoefficients_( independentVariableIndices ) = coefficients;
     isCoefficientGenerated_( independentVariableIndices ) = 1;
@@ -467,7 +521,7 @@ void HypersonicLocalInclinationAnalysis::updateCompressionPressures( const doubl
     case 1:
         pressureFunction =
                 std::bind( aerodynamics::computeModifiedNewtonianPressureCoefficient, std::placeholders::_1,
-                             stagnationPressureCoefficient );
+                           stagnationPressureCoefficient );
         break;
 
     case 2:
@@ -481,37 +535,37 @@ void HypersonicLocalInclinationAnalysis::updateCompressionPressures( const doubl
     case 4:
         pressureFunction =
                 std::bind( aerodynamics::computeEmpiricalTangentWedgePressureCoefficient, std::placeholders::_1,
-                             machNumber );
+                           machNumber );
         break;
 
     case 5:
         pressureFunction =
                 std::bind( aerodynamics::computeEmpiricalTangentConePressureCoefficient, std::placeholders::_1,
-                             machNumber );
+                           machNumber );
         break;
 
     case 6:
         pressureFunction =
                 std::bind( aerodynamics::computeModifiedDahlemBuckPressureCoefficient, std::placeholders::_1,
-                             machNumber );
+                           machNumber );
         break;
 
     case 7:
         pressureFunction =
                 std::bind( aerodynamics::computeVanDykeUnifiedPressureCoefficient, std::placeholders::_1,
-                             machNumber, ratioOfSpecificHeats, 1 );
+                           machNumber, ratioOfSpecificHeats, 1 );
         break;
 
     case 8:
         pressureFunction =
                 std::bind( aerodynamics::computeSmythDeltaWingPressureCoefficient, std::placeholders::_1,
-                             machNumber );
+                           machNumber );
         break;
 
     case 9:
         pressureFunction =
                 std::bind( aerodynamics::computeHankeyFlatSurfacePressureCoefficient, std::placeholders::_1,
-                             machNumber );
+                           machNumber );
         break;
 
     default:
@@ -546,7 +600,7 @@ void HypersonicLocalInclinationAnalysis::updateExpansionPressures( const double 
         {
         case 0:
             pressureFunction = std::bind( &aerodynamics::computeVacuumPressureCoefficient,
-                                            machNumber, ratioOfSpecificHeats );
+                                          machNumber, ratioOfSpecificHeats );
             break;
 
         case 1:
@@ -555,7 +609,7 @@ void HypersonicLocalInclinationAnalysis::updateExpansionPressures( const double 
 
         case 4:
             pressureFunction = std::bind( &aerodynamics::computeHighMachBasePressure,
-                                            machNumber );
+                                          machNumber );
             break;
 
         }
@@ -593,19 +647,19 @@ void HypersonicLocalInclinationAnalysis::updateExpansionPressures( const double 
                         machNumber, ratioOfSpecificHeats );
             pressureFunction =
                     std::bind( &aerodynamics::computePrandtlMeyerFreestreamPressureCoefficient,
-                                 std::placeholders::_1, machNumber, ratioOfSpecificHeats,
-                                 freestreamPrandtlMeyerFunction );
+                               std::placeholders::_1, machNumber, ratioOfSpecificHeats,
+                               freestreamPrandtlMeyerFunction );
             break;
 
         case 5:
             pressureFunction =
                     std::bind( &aerodynamics::computePrandtlMeyerFreestreamPressureCoefficient,
-                                 std::placeholders::_1, machNumber, ratioOfSpecificHeats, -1 );
+                               std::placeholders::_1, machNumber, ratioOfSpecificHeats, -1 );
             break;
 
         case 6:
             pressureFunction = std::bind( &aerodynamics::computeAcmEmpiricalPressureCoefficient,
-                                            std::placeholders::_1, machNumber );
+                                          std::placeholders::_1, machNumber );
             break;
         }
 
