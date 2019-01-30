@@ -175,7 +175,7 @@ void propagateCR3BPFromEnvironment(
 
     double massParameter = circular_restricted_three_body_problem::computeMassParameter(
                 gravitationalParameterPrimary, gravitationalParameterSecondary );
-    double distanceBetweenPrimaries = ( initialStateSecondary - initialStatePrimary ).norm( );
+    double distanceBetweenPrimaries = ( initialStateSecondary.segment(0,3) - initialStatePrimary.segment(0,3) ).norm( );
 
     double normalizedInitialTime = circular_restricted_three_body_problem::convertDimensionalTimeToDimensionlessTime(
                 initialTime, gravitationalParameterPrimary, gravitationalParameterSecondary, distanceBetweenPrimaries);
