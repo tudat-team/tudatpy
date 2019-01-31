@@ -117,7 +117,9 @@ std::vector< double > getDefaultHypersonicLocalInclinationAngleOfSideslipPoints(
 }
 
 void saveVehicleMeshToFile(
-        const std::shared_ptr< HypersonicLocalInclinationAnalysis > localInclinationAnalysis )
+        const std::shared_ptr< HypersonicLocalInclinationAnalysis > localInclinationAnalysis,
+        const std::string directory,
+        const std::string filePrefix )
 {
     std::vector< boost::multi_array< Eigen::Vector3d, 2 > > meshPoints =
             localInclinationAnalysis->getMeshPoints( );
@@ -125,45 +127,40 @@ void saveVehicleMeshToFile(
             localInclinationAnalysis->getPanelSurfaceNormals( );
 
 
-    boost::array< int, 3 > independentVariables;
-    independentVariables[ 0 ] = 0;
-    independentVariables[ 1 ] = 6;
-    independentVariables[ 2 ] = 0;
+//    boost::array< int, 3 > independentVariables;
+//    independentVariables[ 0 ] = 0;
+//    independentVariables[ 1 ] = 6;
+//    independentVariables[ 2 ] = 0;
 
-    std::vector< std::vector< std::vector< double > > > pressureCoefficients =
-            localInclinationAnalysis->getPressureCoefficientList( independentVariables );
+//    std::vector< std::vector< std::vector< double > > > pressureCoefficients =
+//            localInclinationAnalysis->getPressureCoefficientList( independentVariables );
 
     int counter = 0;
     std::map< int, Eigen::Vector3d > meshPointsList;
     std::map< int, Eigen::Vector3d > surfaceNormalsList;
-    std::map< int, Eigen::Vector1d > pressureCoefficientsList;
+//    std::map< int, Eigen::Vector1d > pressureCoefficientsList;
 
     for( unsigned int i = 0; i < meshPoints.size( ); i++ )
     {
-        for( unsigned int j = 0; j < meshPoints.at( i ).shape( )[ 0 ]; j++ )
+        for( unsigned int j = 0; j < meshPoints.at( i ).shape( )[ 0 ] - 1; j++ )
         {
-            for( unsigned int k = 0; k < meshPoints.at( i ).shape( )[ 1 ]; k++ )
+            for( unsigned int k = 0; k < meshPoints.at( i ).shape( )[ 1 ] - 1; k++ )
             {
                 meshPointsList[ counter ] = meshPoints[ i ][ j ][ k ];
                 surfaceNormalsList[ counter ] = meshSurfaceNormals[ i ][ j ][ k ];
-                pressureCoefficientsList[ counter ] = ( Eigen::Vector1d( ) << pressureCoefficients[ i ][ j ][ k ] ).finished( );
+//                pressureCoefficientsList[ counter ] = ( Eigen::Vector1d( ) << pressureCoefficients[ i ][ j ][ k ] ).finished( );
                 counter++;
             }
         }
     }
 
     input_output::writeDataMapToTextFile(
-                meshPointsList, "shapeFile.dat",
-                "/home/dominic/Software/tudatBundleTest/tudatBundle/tudatApplications/PropagationOptimizationAssignments/SimulationOutput/ShapeOptimization" );
-
+                meshPointsList, filePrefix + "ShapeFile.dat", directory );
     input_output::writeDataMapToTextFile(
-                surfaceNormalsList, "surfaceNormalFile.dat",
-                "/home/dominic/Software/tudatBundleTest/tudatBundle/tudatApplications/PropagationOptimizationAssignments/SimulationOutput/ShapeOptimization" );
+                surfaceNormalsList, filePrefix + "SurfaceNormalFile.dat", directory );
 
-    input_output::writeDataMapToTextFile(
-                pressureCoefficientsList, "pressureCoefficientFile.dat",
-                "/home/dominic/Software/tudatBundleTest/tudatBundle/tudatApplications/PropagationOptimizationAssignments/SimulationOutput/ShapeOptimization" );
-
+//    input_output::writeDataMapToTextFile(
+//                pressureCoefficientsList, filePrefix + "pressureCoefficientFile.dat", directory );
 }
 
 
@@ -177,13 +174,15 @@ HypersonicLocalInclinationAnalysis::HypersonicLocalInclinationAnalysis(
         const std::vector< std::vector< int > >& selectedMethods,
         const double referenceArea,
         const double referenceLength,
-        const Eigen::Vector3d& momentReferencePoint )
+        const Eigen::Vector3d& momentReferencePoint,
+        const bool savePressureCoefficients )
     : AerodynamicCoefficientGenerator< 3, 6 >(
           dataPointsOfIndependentVariables, referenceLength, referenceArea, referenceLength,
           momentReferencePoint, { mach_number_dependent, angle_of_attack_dependent, angle_of_sideslip_dependent },true, false ),
       stagnationPressureCoefficient( 2.0 ),
       ratioOfSpecificHeats( 1.4 ),
-      selectedMethods_( selectedMethods )
+      selectedMethods_( selectedMethods ),
+      savePressureCoefficients_( savePressureCoefficients )
 {
     // Set geometry if it is a single surface.
     if ( std::dynamic_pointer_cast< SingleSurfaceGeometry > ( inputVehicleSurface ) !=
@@ -336,7 +335,10 @@ void HypersonicLocalInclinationAnalysis::determineVehicleCoefficients(
         coefficients += determinePartCoefficients( i, independentVariableIndices );
     }
 
-    pressureCoefficientList_[ independentVariableIndices ] = pressureCoefficient_;
+    if( savePressureCoefficients_ )
+    {
+        pressureCoefficientList_[ independentVariableIndices ] = pressureCoefficient_;
+    }
 
     aerodynamicCoefficients_( independentVariableIndices ) = coefficients;
     isCoefficientGenerated_( independentVariableIndices ) = 1;
