@@ -165,6 +165,8 @@ BOOST_AUTO_TEST_CASE( testFullPropagationMGA )
         std::cout << "state difference departure: " << differenceStateArrivalAndDeparturePerLeg[itr->first].first << "\n\n";
         std::cout << "state difference arrival: " << differenceStateArrivalAndDeparturePerLeg[itr->first].second << "\n\n";
 
+
+
         for( int i = 0; i < 3; i++ )
         {
             BOOST_CHECK_SMALL( std::fabs( differenceStateArrivalAndDeparturePerLeg[itr->first].first( i ) ), 1.0 );
@@ -174,6 +176,26 @@ BOOST_AUTO_TEST_CASE( testFullPropagationMGA )
         }
 
     }
+
+//    std::map< int, std::map< double, Eigen::Vector6d > > patchedConicsTrajectory;
+//    std::map< int, std::map< double, Eigen::Vector6d > > fullProblemTrajectory;
+
+//    propagators::fullPropagationPatchedConicsTrajectory( bodyMap, accelerationMap, nameBodiesTrajectory, centralBody[0], bodyToPropagate,
+//            legTypeVector, variableVector, minimumPericenterRadii, semiMajorAxes, eccentricities, integratorSettings, false,
+//            patchedConicsTrajectory, fullProblemTrajectory);
+
+//    for( std::map< int, std::map< double, Eigen::Vector6d > >::iterator itr = patchedConicsTrajectory.begin( );
+//         itr != patchedConicsTrajectory.end( ); itr++ ){
+
+//        input_output::writeDataMapToTextFile( patchedConicsTrajectory[itr->first],
+//                                              "fullProblemInterplanetaryTrajectory_0_leg_" + std::to_string(itr->first) + ".dat",
+//                                              "Tudat/",
+//                                              "",
+//                                              std::numeric_limits< double >::digits10,
+//                                              std::numeric_limits< double >::digits10,
+//                                              "," );
+
+//    }
 
 }
 

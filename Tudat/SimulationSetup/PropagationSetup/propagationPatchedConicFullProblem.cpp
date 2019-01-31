@@ -227,6 +227,10 @@ void fullPropagationPatchedConicsTrajectory(
                 bodyMap, transferBodyOrder, centralBody, legTypeVector, trajectoryVariableVector, minimumPericenterRadiiVector, true,
                 semiMajorAxesVector[0], eccentricitiesVector[0], true, semiMajorAxesVector[1], eccentricitiesVector[1]);
 
+    // Clear output maps.
+    lambertTargeterResultForEachLeg.clear();
+    fullProblemResultForEachLeg.clear();
+
     // Calculate the trajectory.
     std::vector< Eigen::Vector3d > positionVector;
     std::vector< double > timeVector;
@@ -319,7 +323,6 @@ void fullPropagationPatchedConicsTrajectory(
         // Define cartesian position at departure and arrival for the current leg.
         Eigen::Vector3d cartesianPositionAtDepartureCurrentLeg = positionVector[i]; //cartesianPositionAtDepartureForEachLeg[i];
         Eigen::Vector3d cartesianPositionAtArrivalCurrentLeg = positionVector[i+1]; //cartesianPositionAtArrivalForEachLeg[i];
-
 
         // Compute the difference in state between the full problem and the Lambert targeter solution for the current leg.
         std::map< double, Eigen::Vector6d > lambertTargeterResultCurrentLeg;
