@@ -435,6 +435,7 @@ void propagateLambertTargeterAndFullProblem(
         fullProblemResult[ itr->first ] = itr->second;
     }
 
+
     // Define backward propagator settings variables.
     integratorSettings->initialTimeStep_ = -integratorSettings->initialTimeStep_;
     integratorSettings->initialTime_ = initialTime + halvedTimeOfFlight;
@@ -456,6 +457,9 @@ void propagateLambertTargeterAndFullProblem(
         fullProblemResult[ itr->first ] = itr->second;
 
     }
+
+    integratorSettings->initialTimeStep_ = -integratorSettings->initialTimeStep_;
+
 }
 
 
