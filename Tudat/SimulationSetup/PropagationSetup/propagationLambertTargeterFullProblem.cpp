@@ -374,6 +374,9 @@ void propagateLambertTargeterAndFullProblem(
         cartesianPositionAtArrivalForLambertTargeter = cartesianPositionAtArrival;
     }
 
+    cartesianPositionAtArrivalForLambertTargeter = cartesianPositionAtArrival;
+    cartesianPositionAtDepartureForLambertTargeter = cartesianPositionAtDeparture;
+
     // Run the Lambert targeter.
     mission_segments::LambertTargeterIzzo lambertTargeter(
                 cartesianPositionAtDepartureForLambertTargeter, cartesianPositionAtArrivalForLambertTargeter,
@@ -432,6 +435,7 @@ void propagateLambertTargeterAndFullProblem(
         fullProblemResult[ itr->first ] = itr->second;
     }
 
+
     // Define backward propagator settings variables.
     integratorSettings->initialTimeStep_ = -integratorSettings->initialTimeStep_;
     integratorSettings->initialTime_ = initialTime + halvedTimeOfFlight;
@@ -453,6 +457,9 @@ void propagateLambertTargeterAndFullProblem(
         fullProblemResult[ itr->first ] = itr->second;
 
     }
+
+    integratorSettings->initialTimeStep_ = -integratorSettings->initialTimeStep_;
+
 }
 
 
@@ -480,12 +487,7 @@ void propagateLambertTargeterAndFullProblem(
     double gravitationalParameterCentralBody = ( centralBodyGravitationalParameter == centralBodyGravitationalParameter ) ?
                 centralBodyGravitationalParameter :
                 bodyMap.at( centralBody )->getGravityFieldModel( )->getGravitationalParameter( );
-    double gravitationalParameterDepartureBody = ( departureBodyGravitationalParameter == departureBodyGravitationalParameter ) ?
-                departureBodyGravitationalParameter :
-                bodyMap.at( departureAndArrivalBodies[0] )->getGravityFieldModel( )->getGravitationalParameter( );
-    double gravitationalParameterArrivalBody = ( arrivalBodyGravitationalParameter == arrivalBodyGravitationalParameter ) ?
-                arrivalBodyGravitationalParameter :
-                bodyMap.at( departureAndArrivalBodies[1] )->getGravityFieldModel( )->getGravitationalParameter( );
+
 
 
     // Calculate radii sphere of influence about departure and arrival bodies
@@ -497,6 +499,13 @@ void propagateLambertTargeterAndFullProblem(
 
     if (terminationSphereOfInfluence == true)
     {
+
+    double gravitationalParameterDepartureBody = ( departureBodyGravitationalParameter == departureBodyGravitationalParameter ) ?
+                departureBodyGravitationalParameter :
+                bodyMap.at( departureAndArrivalBodies[0] )->getGravityFieldModel( )->getGravitationalParameter( );
+    double gravitationalParameterArrivalBody = ( arrivalBodyGravitationalParameter == arrivalBodyGravitationalParameter ) ?
+                arrivalBodyGravitationalParameter :
+                bodyMap.at( departureAndArrivalBodies[1] )->getGravityFieldModel( )->getGravitationalParameter( );
         double distanceDepartureToCentralBodies =
                 bodyMap.at( centralBody )->getEphemeris( )->getCartesianState(
                     initialTime ).segment( 0, 3 ).norm( ) - cartesianPositionAtDeparture.segment( 0, 3 ).norm( );
@@ -513,12 +522,6 @@ void propagateLambertTargeterAndFullProblem(
         radiusSphereOfInfluenceArrival = tudat::mission_geometry::computeSphereOfInfluence(
                     distanceArrivalToCentralBodies, gravitationalParameterArrivalBody, gravitationalParameterCentralBody);
 
-        terminationSettings = std::make_pair(
-                    std::make_shared< propagators::PropagationTimeTerminationSettings >( initialTime ),
-                    std::make_shared< propagators::PropagationTimeTerminationSettings >( initialTime + timeOfFlight ) );
-    }
-    else
-    {
         std::shared_ptr< SingleDependentVariableSaveSettings > terminationDependentVariableAtArrival =
                 std::make_shared< SingleDependentVariableSaveSettings >(
                     relative_distance_dependent_variable, bodyToPropagate, departureAndArrivalBodies[ 1 ] );
@@ -535,6 +538,16 @@ void propagateLambertTargeterAndFullProblem(
                     terminationDependentVariableAtDeparture, radiusSphereOfInfluenceDeparture, false);
 
         terminationSettings = std::make_pair( backwardPropagationTerminationSettings, forwardPropagationTerminationSettings );
+
+
+    }
+    else
+    {
+
+
+        terminationSettings = std::make_pair(
+                    std::make_shared< propagators::PropagationTimeTerminationSettings >( initialTime ),
+                    std::make_shared< propagators::PropagationTimeTerminationSettings >( initialTime + timeOfFlight ) );
     }
 
     propagateLambertTargeterAndFullProblem(
