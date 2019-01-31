@@ -141,23 +141,6 @@ std::vector < basic_astrodynamics::AccelerationMap > setupAccelerationMapPatched
         accelerationMapsVector.push_back( setupAccelerationMapLambertTargeter(nameCentralBody, nameBodyToPropagate, bodyMap) );
 
     }
-    //    std::vector< std::string > bodiesToPropagate;
-    //    bodiesToPropagate.push_back( nameBodyToPropagate );
-    //    std::vector< std::string > centralBodies;
-    //    centralBodies.push_back( nameCentralBody );
-
-    //    // Acceleration from the central body.
-    //    std::map< std::string, std::vector< std::shared_ptr< simulation_setup::AccelerationSettings > > > bodyToPropagateAccelerations;
-    //    bodyToPropagateAccelerations[nameCentralBody].push_back(std::make_shared< simulation_setup::AccelerationSettings >(
-    //                                                          basic_astrodynamics::central_gravity ) );
-
-    //    simulation_setup::SelectedAccelerationMap accelerationMap;
-    //    accelerationMap[ nameBodyToPropagate ] = bodyToPropagateAccelerations;
-
-    //    // Create the acceleration map.
-    //    basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
-    //                        bodyMap, accelerationMap, bodiesToPropagate, centralBodies );
-
 
     return accelerationMapsVector;
 
@@ -243,6 +226,10 @@ void fullPropagationPatchedConicsTrajectory(
     transfer_trajectories::Trajectory trajectory = propagators::createTransferTrajectoryObject(
                 bodyMap, transferBodyOrder, centralBody, legTypeVector, trajectoryVariableVector, minimumPericenterRadiiVector, true,
                 semiMajorAxesVector[0], eccentricitiesVector[0], true, semiMajorAxesVector[1], eccentricitiesVector[1]);
+
+    // Clear output maps.
+    lambertTargeterResultForEachLeg.clear();
+    fullProblemResultForEachLeg.clear();
 
     // Calculate the trajectory.
     std::vector< Eigen::Vector3d > positionVector;
