@@ -109,7 +109,8 @@ public:
             const std::vector< std::vector< int > >& selectedMethods,
             const double referenceArea,
             const double referenceLength,
-            const Eigen::Vector3d& momentReferencePoint );
+            const Eigen::Vector3d& momentReferencePoint,
+            const bool savePressureCoefficients = false );
 
     //! Default destructor.
     /*!
@@ -337,11 +338,15 @@ private:
      * second index represents vehicle part.
      */
     std::vector< std::vector< int > > selectedMethods_;
+
+    bool savePressureCoefficients_;
 };
 
 
 void saveVehicleMeshToFile(
-        const std::shared_ptr< HypersonicLocalInclinationAnalysis > localInclinationAnalysis );
+        const std::shared_ptr< HypersonicLocalInclinationAnalysis > localInclinationAnalysis,
+        const std::string directory,
+        const std::string filePrefix );
 
 
 //! Typedef for shared-pointer to HypersonicLocalInclinationAnalysis object.
