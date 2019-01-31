@@ -78,6 +78,11 @@ Capsule::Capsule( const double noseRadius,
     // Set noseSphere_ in singleSurfaceList_.
     setSingleSurfaceGeometry( noseSphere_, 0 );
 
+    //Calculate noseSphere volume
+    double noseSphereHeight_ = noseRadius_ * (1.0 - cos( noseSphereAngle_ ));
+    double noseSphereVolume_ = (PI / 3.0) * pow(noseSphereHeight_, 2.0) * (
+                3.0 * noseRadius - noseSphereHeight_ );
+
     // Create rear cone, fully revolved.
     std::shared_ptr< ConicalFrustum > cone_ = std::make_shared< ConicalFrustum >(
                 rearAngle_, middleRadius_ - sideRadius_ * ( 1.0 - cos( rearAngle_ ) ),
@@ -91,8 +96,17 @@ Capsule::Capsule( const double noseRadius,
     // Set cone in singleSurfaceList_.
     setSingleSurfaceGeometry( cone_, 1 );
 
+    // Obtain start radius of cone.
+    double startRadius_ = cone_->getStartRadius( );
+
     // Calculate end radius of cone.
-    double endRadius_ = cone_->getStartRadius( ) + rearLength_ * tan( rearAngle_ );
+    double endRadius_ = startRadius_ + rearLength_ * tan( rearAngle_ );
+
+    // Calculate volume of cone.
+    double fullConeLength_ = rearLength_ + endRadius_ / tan( -rearAngle_ );
+    double coneVolume_ = (PI / 3.0) *
+            ( pow(startRadius_, 2.0) * fullConeLength_ -
+              pow(endRadius_, 2.0) * ( fullConeLength_ - rearLength_ ));
 
     // Calculate rear sphere radius.
     double rearNoseRadius_ = endRadius_ / cos( -rearAngle_ );
@@ -107,10 +121,41 @@ Capsule::Capsule( const double noseRadius,
     rearSphere_->setOffset( translationVector_ );
     setSingleSurfaceGeometry( rearSphere_, 2 );
 
+    // Calcualte volume of rear sphere
+    double rearSphereHeight_ = rearNoseRadius_ * ( 1.0 - cos( (PI / 2.0) + rearAngle));
+    double rearSphereVolume_ = (PI / 3.0 ) * pow( rearSphereHeight_, 2.0 ) * (
+                3.0 * rearNoseRadius_ - rearSphereHeight_);
+
+
     // Create torus section of capsule.
     double torusMajorRadius_ = ( noseRadius_ - sideRadius_ ) * sin( noseSphereAngle_ );
     std::shared_ptr< Torus > torus_ = std::make_shared< Torus >(
        torusMajorRadius_, sideRadius_, 0.0, 2.0 * PI, PI / 2.0 - noseSphereAngle_, rearAngle_ );
+
+    //Calculate torus volume
+    double minimumDiskRadius_ = middleRadius_ - sideRadius_;
+    double integrationLowerLimit_ = -1.0 * sideRadius_ * cos( noseSphereAngle_ );
+    double integrationUpperLimit_ = sideRadius_ * sin( -rearAngle_ );
+    double torusVolume_ = PI * (
+            pow( minimumDiskRadius_, 2.0 ) * (integrationUpperLimit_ - integrationLowerLimit_ )
+            + minimumDiskRadius_ * pow( sideRadius_, 2.0 ) * (
+                (asin( integrationUpperLimit_ / sideRadius_) + 0.5* sin( 2* asin(integrationUpperLimit_ / sideRadius_)))
+                - (asin( integrationLowerLimit_ / sideRadius_) + 0.5* sin( 2* asin(integrationLowerLimit_ / sideRadius_)))
+                )
+            + pow( sideRadius_, 2.0 ) * ( integrationUpperLimit_ - integrationLowerLimit_ )
+            - (pow( integrationUpperLimit_, 3.0 ) - pow( integrationLowerLimit_, 3.0 )) / 3.0
+                );
+
+
+    //Calculate total capsule volume
+    capsuleVolume_ = noseSphereVolume_ + coneVolume_ + rearSphereVolume_ + torusVolume_;
+
+    //Calculate total capsule length
+    totalLength_ = noseSphereHeight_ - integrationLowerLimit_ + integrationUpperLimit_ +
+            rearLength_ + rearSphereHeight_;
+
+    //Calculate frontal area
+    frontalArea_ = PI * pow( middleRadius_, 2.0 );
 
     // Set translation vector of rear sphere.
     translationVector_( 0 ) = -cos( noseSphereAngle_ ) * sideRadius_;
