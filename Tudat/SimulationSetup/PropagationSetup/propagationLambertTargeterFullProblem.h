@@ -113,8 +113,6 @@ Eigen::Vector6d computeCartesianStateHalfTimeOfFlightLambertTargeter(
 
 
 void propagateLambertTargeterAndFullProblem(
-        const Eigen::Vector3d& cartesianPositionAtDeparture,
-        const Eigen::Vector3d& cartesianPositionAtArrival,
         const double timeOfFlight,
         const double initialTime,
         const simulation_setup::NamedBodyMap& bodyMap,
@@ -127,7 +125,9 @@ void propagateLambertTargeterAndFullProblem(
         std::map< double, Eigen::Vector6d >& lambertTargeterResult,
         std::map< double, Eigen::Vector6d >& fullProblemResult,
         const std::vector<std::string>& departureAndArrivalBodies,
-        const double centralBodyGravitationalParameter = TUDAT_NAN );
+        const double centralBodyGravitationalParameter,
+        const Eigen::Vector3d& cartesianPositionAtDeparture,
+        const Eigen::Vector3d& cartesianPositionAtArrival);
 
 //! Function to propagate the full dynamics problem and the Lambert targeter solution.
 /*!
@@ -159,8 +159,6 @@ void propagateLambertTargeterAndFullProblem(
  * the body map.
  */
 void propagateLambertTargeterAndFullProblem(
-        const Eigen::Vector3d& cartesianPositionAtDeparture,
-        const Eigen::Vector3d& cartesianPositionAtArrival,
         const double timeOfFlight,
         const double initialTime,
         const simulation_setup::NamedBodyMap& bodyMap,
@@ -171,10 +169,12 @@ void propagateLambertTargeterAndFullProblem(
         std::map< double, Eigen::Vector6d >& lambertTargeterResult,
         std::map< double, Eigen::Vector6d >& fullProblemResult,
         const std::vector<std::string>& departureAndArrivalBodies,
-        const bool terminationSphereOfInfluence = false,
-        const double departureBodyGravitationalParameter = TUDAT_NAN,
-        const double arrivalBodyGravitationalParameter = TUDAT_NAN,
-        const double centralBodyGravitationalParameter = TUDAT_NAN );
+        const bool terminationSphereOfInfluence,
+        const Eigen::Vector3d& cartesianPositionAtDeparture,
+        const Eigen::Vector3d& cartesianPositionAtArrival,
+        const double departureBodyGravitationalParameter,
+        const double arrivalBodyGravitationalParameter,
+        const double centralBodyGravitationalParameter);
 
 //! Function to compute the difference in cartesian state between Lambert targeter solution and full dynamics problem, both at departure
 //! and at arrival.

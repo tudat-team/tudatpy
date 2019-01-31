@@ -333,10 +333,10 @@ void fullPropagationPatchedConicsTrajectory(
         integratorSettings->initialTime_ = absoluteTimeVector[i];
 
         propagateLambertTargeterAndFullProblem(
-                    cartesianPositionAtDepartureCurrentLeg, cartesianPositionAtArrivalCurrentLeg,
                     timeOfFlightVector[i], absoluteTimeVector[i], bodyMap, accelerationMapForEachLeg[i], bodyToPropagate, centralBody,
-                    terminationSettings, integratorSettings, lambertTargeterResultCurrentLeg, fullProblemResultCurrentLeg, departureAndArrivalBodies,
-                    bodyMap[ centralBody ]->getGravityFieldModel()->getGravitationalParameter());
+                    terminationSettings, integratorSettings, lambertTargeterResultCurrentLeg, fullProblemResultCurrentLeg,
+                    departureAndArrivalBodies, bodyMap[ centralBody ]->getGravityFieldModel()->getGravitationalParameter(),
+                    cartesianPositionAtDepartureCurrentLeg, cartesianPositionAtArrivalCurrentLeg);
 
         lambertTargeterResultForEachLeg[i] = lambertTargeterResultCurrentLeg;
         fullProblemResultForEachLeg[i] = fullProblemResultCurrentLeg;
@@ -476,10 +476,10 @@ void fullPropagationPatchedConicsTrajectory(
         integratorSettings->initialTime_ = absoluteTimeVector[i];
 
         propagateLambertTargeterAndFullProblem(
-                    cartesianPositionAtDepartureCurrentLeg, cartesianPositionAtArrivalCurrentLeg,
-                    timeOfFlightVector[i], absoluteTimeVector[i], bodyMap, accelerationMapForEachLeg[i], bodyToPropagate, centralBody,
-                    integratorSettings, lambertTargeterResultCurrentLeg, fullProblemResultCurrentLeg, departureAndArrivalBodies,
-                    terminationSphereOfInfluence);
+            timeOfFlightVector[i], absoluteTimeVector[i], bodyMap, accelerationMapForEachLeg[i], bodyToPropagate, centralBody,
+            integratorSettings, lambertTargeterResultCurrentLeg, fullProblemResultCurrentLeg, departureAndArrivalBodies,
+            terminationSphereOfInfluence, cartesianPositionAtDepartureCurrentLeg, cartesianPositionAtArrivalCurrentLeg, TUDAT_NAN,
+            TUDAT_NAN, TUDAT_NAN);
 
         lambertTargeterResultForEachLeg[i] = lambertTargeterResultCurrentLeg;
         fullProblemResultForEachLeg[i] = fullProblemResultCurrentLeg;
