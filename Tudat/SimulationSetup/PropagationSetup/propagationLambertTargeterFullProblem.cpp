@@ -480,7 +480,7 @@ void propagateLambertTargeterAndFullProblem(
         const bool terminationSphereOfInfluence,
         const double departureBodyGravitationalParameter,
         const double arrivalBodyGravitationalParameter,
-        const double centralBodyGravitationalParameter )
+        const double centralBodyGravitationalParameter)
 {
 
     // Retrieve the gravitational parameter of the relevant bodies.
@@ -522,20 +522,51 @@ void propagateLambertTargeterAndFullProblem(
         radiusSphereOfInfluenceArrival = tudat::mission_geometry::computeSphereOfInfluence(
                     distanceArrivalToCentralBodies, gravitationalParameterArrivalBody, gravitationalParameterCentralBody);
 
-        std::shared_ptr< SingleDependentVariableSaveSettings > terminationDependentVariableAtArrival =
-                std::make_shared< SingleDependentVariableSaveSettings >(
-                    relative_distance_dependent_variable, bodyToPropagate, departureAndArrivalBodies[ 1 ] );
+        // Calculate the synodic period.
+        double orbitalPeriodDepartureBody = basic_astrodynamics::computeKeplerOrbitalPeriod(
+              orbital_element_conversions::convertCartesianToKeplerianElements( bodyMap.at( departureAndArrivalBodies[0] )->
+              getEphemeris()->getCartesianState(initialTime), gravitationalParameterCentralBody)[ orbital_element_conversions::semiMajorAxisIndex ],
+              gravitationalParameterCentralBody, gravitationalParameterDepartureBody);
+
+        double orbitalPeriodArrivalBody = basic_astrodynamics::computeKeplerOrbitalPeriod(
+              orbital_element_conversions::convertCartesianToKeplerianElements( bodyMap.at( departureAndArrivalBodies[1] )->
+              getEphemeris()->getCartesianState(initialTime), gravitationalParameterCentralBody)[ orbital_element_conversions::semiMajorAxisIndex ],
+              gravitationalParameterCentralBody, gravitationalParameterArrivalBody);
+
+        double synodicPeriod;
+        if (orbitalPeriodDepartureBody < orbitalPeriodArrivalBody){
+            synodicPeriod = basic_astrodynamics::computeSynodicPeriod(orbitalPeriodDepartureBody, orbitalPeriodArrivalBody);
+        }
+        else {
+            synodicPeriod = basic_astrodynamics::computeSynodicPeriod(orbitalPeriodArrivalBody, orbitalPeriodDepartureBody);
+        }
+
+
+        // Create total propagator termination settings.
+        std::vector< std::shared_ptr< PropagationTerminationSettings > >  forwardPropagationTerminationSettingsList;
+        forwardPropagationTerminationSettingsList.push_back(
+                    std::make_shared< PropagationDependentVariableTerminationSettings >(
+                        std::make_shared< SingleDependentVariableSaveSettings >(
+                            relative_distance_dependent_variable, bodyToPropagate, departureAndArrivalBodies[ 1 ] ), radiusSphereOfInfluenceArrival, false ) );
+        forwardPropagationTerminationSettingsList.push_back(
+                    std::make_shared< PropagationTimeTerminationSettings >( 2 * synodicPeriod ) );
+
+
         std::shared_ptr< PropagationTerminationSettings > forwardPropagationTerminationSettings =
-                std::make_shared< PropagationDependentVariableTerminationSettings >(
-                    terminationDependentVariableAtArrival, radiusSphereOfInfluenceArrival, false );
+                std::make_shared< PropagationHybridTerminationSettings >( forwardPropagationTerminationSettingsList, true );
 
 
-        std::shared_ptr< SingleDependentVariableSaveSettings > terminationDependentVariableAtDeparture =
+        std::vector< std::shared_ptr< PropagationTerminationSettings > >  backwardPropagationTerminationSettingsList;
+        backwardPropagationTerminationSettingsList.push_back(
+            std::make_shared< PropagationDependentVariableTerminationSettings >(
                 std::make_shared< SingleDependentVariableSaveSettings >(
-                    relative_distance_dependent_variable, bodyToPropagate, departureAndArrivalBodies[ 0 ] );
+                    relative_distance_dependent_variable, bodyToPropagate, departureAndArrivalBodies[ 0 ] ), radiusSphereOfInfluenceDeparture, false ) );
+        backwardPropagationTerminationSettingsList.push_back(
+                    std::make_shared< PropagationTimeTerminationSettings >( 2 * synodicPeriod ) );
+
+        \
         std::shared_ptr< PropagationTerminationSettings > backwardPropagationTerminationSettings =
-                std::make_shared< PropagationDependentVariableTerminationSettings >(
-                    terminationDependentVariableAtDeparture, radiusSphereOfInfluenceDeparture, false);
+                std::make_shared< PropagationHybridTerminationSettings >( backwardPropagationTerminationSettingsList, true );
 
         terminationSettings = std::make_pair( backwardPropagationTerminationSettings, forwardPropagationTerminationSettings );
 
