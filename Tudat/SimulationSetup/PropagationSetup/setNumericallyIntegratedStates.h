@@ -92,7 +92,7 @@ void resetIntegratedEphemerisOfBody(
     // Else, update existing tabulated ephemeris
     else
     {
-        std::cerr << "Warning, tabulated ephemeris is being reset using data at different precision" << std::endl;
+//        std::cerr << "Warning, tabulated ephemeris is being reset using data at different precision" << std::endl;
         if( std::dynamic_pointer_cast< TabulatedCartesianEphemeris< StateScalarType, TimeType > >(
                     bodyMap.at( bodyToIntegrate )->getEphemeris( ) ) != nullptr )
         {
