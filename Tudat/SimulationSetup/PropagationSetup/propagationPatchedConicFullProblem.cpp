@@ -403,6 +403,14 @@ void fullPropagationPatchedConicsTrajectory(
     trajectory.calculateTrajectory( totalDeltaV );
     trajectory.maneuvers( positionVector, timeVector, deltaVVector );
 
+    std::cout << "resulting Delta V Messenger: " << totalDeltaV << "\n\n";
+    for (int i = 0 ; i < numberLegsIncludingDSM ; i++){
+        std::cout << "leg " << i << ": " << "\n\n";
+        std::cout << "positionVectorMessenger: " << positionVector[i] << "\n\n";
+        std::cout << "timeVectorMessenger: " << timeVector[i] << "\n\n";
+        std::cout << "deltaVVectorMessenger: " << deltaVVector[i] << "\n\n";
+    }
+
 
     // Include manoeuvres between transfer bodies when required and associate acceleration maps
     //            (considering that a deep space manoeuvre divides a leg into two smaller ones).
@@ -497,6 +505,12 @@ void fullPropagationPatchedConicsTrajectory(
         timeOfFlightVector[i] = timeVector[i+1] - timeVector[i];
         absoluteTimeVector[i] = timeVector[i];
 
+        std::cout << "LEG " << i << ": " << "\n\n";
+        std::cout << "cartesian position at departure: " << cartesianPositionAtDepartureCurrentLeg << "\n\n";
+        std::cout << "cartesian position at arrival: " << cartesianPositionAtArrivalCurrentLeg << "\n\n";
+        std::cout << "time of flight: " << timeOfFlightVector[i] << "\n\n";
+        std::cout << "absolute time vector: " << absoluteTimeVector[i] << "\n\n";
+
         propagateLambertTargeterAndFullProblem(
             timeOfFlightVector[i], absoluteTimeVector[i], bodyMap, accelerationMapForEachLeg[i], bodyToPropagate, centralBody,
             integratorSettings, lambertTargeterResultCurrentLeg, fullProblemResultCurrentLeg, departureAndArrivalBodies,
@@ -582,9 +596,15 @@ void fullPropagationPatchedConicsTrajectoryNewVersion(
     double deltaV;
     Eigen::Vector3d velocityBeforeArrival;
 
+    Eigen::Vector3d departureBodyPosition;
+    Eigen::Vector3d departureBodyVelocity;
+    Eigen::Vector3d velocityAfterDeparture;
+
     for (int i = 0 ; i < numberOfLegs - 1 ; i++){
 
-        if (legTypeVector[i] == transfer_trajectories::mga_Departure && legTypeVector[i] == transfer_trajectories::mga_Swingby){
+        std::cout << "LEG " << i << ": " << "\n\n";
+
+        if (legTypeVector[i] == transfer_trajectories::mga_Departure || legTypeVector[i] == transfer_trajectories::mga_Swingby){
 
             std::vector< std::string > departureAndArrivalBodies;
             departureAndArrivalBodies.push_back( bodiesAndManoeuvresOrder[counterLegs] );
@@ -613,11 +633,7 @@ void fullPropagationPatchedConicsTrajectoryNewVersion(
 
         }
 
-        else {
-
-        Eigen::Vector3d departureBodyPosition;
-        Eigen::Vector3d departureBodyVelocity;
-        Eigen::Vector3d velocityAfterDeparture;
+        if ( legTypeVector[i] == transfer_trajectories::mga1DsmVelocity_Departure || legTypeVector[i] == transfer_trajectories::mga1DsmVelocity_Swingby ){
 
         std::vector< std::string > departureAndArrivalBodies;
         departureAndArrivalBodies.push_back( bodiesAndManoeuvresOrder[counterLegs] );
@@ -726,6 +742,130 @@ void fullPropagationPatchedConicsTrajectoryNewVersion(
             counterLegWithDSM++;
 
         }
+
+        if (legTypeVector[i] == transfer_trajectories::mga1DsmPosition_Departure
+                        || legTypeVector[i] == transfer_trajectories::mga1DsmPosition_Swingby) {
+
+
+            std::vector< std::string > departureAndArrivalBodies;
+            departureAndArrivalBodies.push_back( bodiesAndManoeuvresOrder[counterLegs] );
+            departureAndArrivalBodies.push_back( bodiesAndManoeuvresOrder[counterLegs+1]);
+
+            // Define cartesian position at departure and arrival for the current leg.
+            Eigen::Vector3d cartesianPositionAtDepartureCurrentLeg = positionVector[counterLegs];
+            Eigen::Vector3d cartesianPositionAtArrivalCurrentLeg = positionVector[counterLegs+1];
+
+
+            if (legTypeVector[i] == transfer_trajectories::mga1DsmPosition_Departure){ // && legTypeVector[i] != transfer_trajectories::mga_Swingby){
+
+                std::shared_ptr< transfer_trajectories::MissionLeg > missionLeg;
+                std::shared_ptr< transfer_trajectories::DepartureLegMga1DsmPosition > departureLegMga1DsmPosition =
+                        std::make_shared< transfer_trajectories::DepartureLegMga1DsmPosition >(
+                             positionVector[ counterLegs ], positionVector[ counterLegs + 2], trajectoryVariableVector[ counterLegs + 1 ],
+                             bodyMap[ departureAndArrivalBodies[0] ]->getEphemeris()->getCartesianState(timeVector[counterLegs]).segment(3,3),
+                             bodyMap[ centralBody ]->getGravityFieldModel()->getGravitationalParameter(),
+                             bodyMap[ departureAndArrivalBodies[0] ]->getGravityFieldModel()->getGravitationalParameter(),
+                             semiMajorAxesVector[0], eccentricitiesVector[0],
+                             trajectoryVariableVector[ numberOfLegs + 1 + (counterLegWithDSM * 4) ],
+                             trajectoryVariableVector[ numberOfLegs + 2 + (counterLegWithDSM * 4) ],
+                             trajectoryVariableVector[ numberOfLegs + 3 + (counterLegWithDSM * 4) ],
+                             trajectoryVariableVector[ numberOfLegs + 4 + (counterLegWithDSM * 4) ], true  );
+
+                departureLegMga1DsmPosition->calculateLeg( velocityBeforeArrival, deltaV );
+
+                departureLegMga1DsmPosition->returnDepartureVariables( departureBodyPosition, departureBodyVelocity, velocityAfterDeparture );
+
+            }
+
+            if (legTypeVector[i] == transfer_trajectories::mga1DsmPosition_Swingby){
+
+
+                Eigen::Vector3d velocityBeforePlanet = velocityBeforeArrival;
+
+                std::shared_ptr< Eigen::Vector3d > pointerToVelocityBeforePlanet = std::make_shared< Eigen::Vector3d > ( velocityBeforePlanet );
+
+
+                std::shared_ptr< transfer_trajectories::MissionLeg > missionLeg;
+                std::shared_ptr< transfer_trajectories::SwingbyLegMga1DsmPosition > swingbyLegMga1DsmPosition =
+                        std::make_shared< transfer_trajectories::SwingbyLegMga1DsmPosition >(
+                             positionVector[ counterLegs ], positionVector[ counterLegs + 2], trajectoryVariableVector[ i + 1 ],
+                             bodyMap[ departureAndArrivalBodies[0] ]->getEphemeris()->getCartesianState(timeVector[counterLegs]).segment(3,3),
+                             bodyMap[ centralBody ]->getGravityFieldModel()->getGravitationalParameter(),
+                             bodyMap[ departureAndArrivalBodies[0] ]->getGravityFieldModel()->getGravitationalParameter(),
+                             pointerToVelocityBeforePlanet, minimumPericenterRadiiVector[i],
+                             trajectoryVariableVector[ numberOfLegs + 1 + (counterLegWithDSM * 4) ],
+                             trajectoryVariableVector[ numberOfLegs + 2 + (counterLegWithDSM * 4) ],
+                             trajectoryVariableVector[ numberOfLegs + 3 + (counterLegWithDSM * 4) ],
+                             trajectoryVariableVector[ numberOfLegs + 4 + (counterLegWithDSM * 4) ] );
+
+                swingbyLegMga1DsmPosition->calculateLeg( velocityBeforeArrival, deltaV );
+
+                swingbyLegMga1DsmPosition->returnDepartureVariables( departureBodyPosition, departureBodyVelocity, velocityAfterDeparture );
+
+
+            }
+
+
+
+            // FIRST PART OF THE LEG: FROM DEPARTURE BODY TO DSM
+
+            std::map< double, Eigen::Vector6d > lambertTargeterResultCurrentLeg;
+            std::map< double, Eigen::Vector6d > fullProblemResultCurrentLeg;
+
+//            std::vector< std::string > departureAndArrivalBodies;
+//            departureAndArrivalBodies.push_back( bodiesAndManoeuvresOrder[counterLegs] );
+//            departureAndArrivalBodies.push_back( bodiesAndManoeuvresOrder[counterLegs+1]);
+
+//            // Define cartesian position at departure and arrival for the current leg.
+//            Eigen::Vector3d cartesianPositionAtDepartureCurrentLeg = positionVector[counterLegs];
+//            Eigen::Vector3d cartesianPositionAtArrivalCurrentLeg = positionVector[counterLegs+1];
+
+            integratorSettings->initialTime_ = timeVector[counterLegs];
+
+            propagateLambertTargeterAndFullProblem(
+                timeVector[counterLegs+1] - timeVector[counterLegs], timeVector[counterLegs], bodyMap, accelerationMapForEachLeg[i],
+                bodyToPropagate, centralBody, integratorSettings, lambertTargeterResultCurrentLeg, fullProblemResultCurrentLeg,
+                departureAndArrivalBodies, terminationSphereOfInfluence, cartesianPositionAtDepartureCurrentLeg,
+                cartesianPositionAtArrivalCurrentLeg, TUDAT_NAN, TUDAT_NAN, TUDAT_NAN);
+
+            lambertTargeterResultForEachLeg[counterLegs] = lambertTargeterResultCurrentLeg;
+            fullProblemResultForEachLeg[counterLegs] = fullProblemResultCurrentLeg;
+
+            counterLegs++;
+
+
+
+            // SECOND PART OF THE LEG: FROM DSM TO ARRIVAL BODY
+
+            // Compute the difference in state between the full problem and the Lambert targeter solution for the current leg.
+            departureAndArrivalBodies.clear();
+            departureAndArrivalBodies.push_back( bodiesAndManoeuvresOrder[counterLegs] );
+            departureAndArrivalBodies.push_back( bodiesAndManoeuvresOrder[counterLegs+1]);
+
+            cartesianPositionAtDepartureCurrentLeg = positionVector[counterLegs];
+            cartesianPositionAtArrivalCurrentLeg = positionVector[counterLegs+1];
+
+            lambertTargeterResultCurrentLeg.clear();
+            fullProblemResultCurrentLeg.clear();
+
+            integratorSettings->initialTime_ = timeVector[counterLegs];
+
+
+            propagateLambertTargeterAndFullProblem(
+                timeVector[counterLegs+1] - timeVector[counterLegs], timeVector[counterLegs], bodyMap, accelerationMapForEachLeg[i],
+                bodyToPropagate, centralBody, integratorSettings, lambertTargeterResultCurrentLeg, fullProblemResultCurrentLeg,
+                departureAndArrivalBodies, terminationSphereOfInfluence, cartesianPositionAtDepartureCurrentLeg,
+                cartesianPositionAtArrivalCurrentLeg, TUDAT_NAN, TUDAT_NAN, TUDAT_NAN);
+
+            lambertTargeterResultForEachLeg[counterLegs] = lambertTargeterResultCurrentLeg;
+            fullProblemResultForEachLeg[counterLegs] = fullProblemResultCurrentLeg;
+
+
+            counterLegs++;
+            counterLegWithDSM++;
+
+        }
+
     }
 }
 
@@ -1162,7 +1302,7 @@ std::map< int, std::pair< Eigen::Vector6d, Eigen::Vector6d > > getDifferenceFull
     std::map< int, std::map< double, Eigen::Vector6d > > lambertTargeterResultForEachLeg;
     std::map< int, std::map< double, Eigen::Vector6d > > fullProblemResultForEachLeg;
 
-    fullPropagationPatchedConicsTrajectory(
+    fullPropagationPatchedConicsTrajectoryNewVersion(
                 bodyMap, accelerationMap, transferBodyOrder, centralBody, bodyToPropagate, legTypeVector,
                 trajectoryVariableVector, minimumPericenterRadiiVector, semiMajorAxesVector, eccentricitiesVector,
                 integratorSettings, terminationSphereOfInfluence, lambertTargeterResultForEachLeg, fullProblemResultForEachLeg );
