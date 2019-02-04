@@ -262,12 +262,15 @@ Eigen::Vector6d computeCartesianStateHalfTimeOfFlightLambertTargeter(
     double meanAnomalyAtDeparture;
     if( eccentricity < 1.0 )
     {
+        std::cout << "eccentricity inferior to 1" << "\n\n";
         meanAnomalyAtDeparture = orbital_element_conversions::convertEccentricAnomalyToMeanAnomaly(
                     orbital_element_conversions::convertTrueAnomalyToEccentricAnomaly(trueAnomalyAtDeparture, eccentricity),
                     eccentricity);
     }
     else
     {
+        std::cout << "eccentricity larger than 1" << "\n\n";
+        std::cout << "eccentricity: " << eccentricity << "\n\n";
         meanAnomalyAtDeparture = orbital_element_conversions::convertHyperbolicEccentricAnomalyToMeanAnomaly(
                     orbital_element_conversions::convertTrueAnomalyToHyperbolicEccentricAnomaly(trueAnomalyAtDeparture, eccentricity),
                     eccentricity);
@@ -376,6 +379,11 @@ void propagateLambertTargeterAndFullProblem(
 
 
     // Run the Lambert targeter.
+    std::cout << "Inside Lambert targeter, inputs: " << "\n\n";
+    std::cout << "cartesian position at departure: " << cartesianPositionAtDepartureForLambertTargeter << "\n\n";
+    std::cout << "cartesian position at arrival: " << cartesianPositionAtArrivalForLambertTargeter << "\n\n";
+    std::cout << "time of flight: " << timeOfFlight << "\n\n";
+    std::cout << "gravitational parameter central body: " << gravitationalParameterCentralBody << "\n\n";
     mission_segments::LambertTargeterIzzo lambertTargeter(
                 cartesianPositionAtDepartureForLambertTargeter, cartesianPositionAtArrivalForLambertTargeter,
                 timeOfFlight, gravitationalParameterCentralBody );
@@ -385,10 +393,23 @@ void propagateLambertTargeterAndFullProblem(
     Eigen::Vector6d cartesianStateAtDeparture;
     cartesianStateAtDeparture.segment(0,3) = cartesianPositionAtDepartureForLambertTargeter;
     cartesianStateAtDeparture.segment(3,3) = cartesianVelocityAtDeparture;
+    std::cout << "cartesian velocity at departure: " << cartesianVelocityAtDeparture << "\n\n";
 
-    // Compute cartesian state at halved time of flight.
-    Eigen::Vector6d initialStatePropagationCartesianElements = computeCartesianStateHalfTimeOfFlightLambertTargeter(
-                cartesianStateAtDeparture, gravitationalParameterCentralBody, timeOfFlight);
+//    // Compute cartesian state at halved time of flight.
+//    Eigen::Vector6d initialStatePropagationCartesianElements = computeCartesianStateHalfTimeOfFlightLambertTargeter(
+//                cartesianStateAtDeparture, gravitationalParameterCentralBody, timeOfFlight);
+
+    // Convert into keplerian elements
+    Eigen::Vector6d keplerianStateAtDeparture = orbital_element_conversions::convertCartesianToKeplerianElements(
+                cartesianStateAtDeparture, gravitationalParameterCentralBody );
+
+    // Propagate the keplerian elements until half of the time of flight.
+    Eigen::Vector6d keplerianStateAtHalvedTimeOfFlight = orbital_element_conversions::propagateKeplerOrbit( keplerianStateAtDeparture,
+                halvedTimeOfFlight, gravitationalParameterCentralBody );
+
+    // Convert the keplerian elements back into Cartesian elements.
+    Eigen::Vector6d initialStatePropagationCartesianElements = orbital_element_conversions::convertKeplerianToCartesianElements(
+                keplerianStateAtHalvedTimeOfFlight, gravitationalParameterCentralBody );
 
 
 
