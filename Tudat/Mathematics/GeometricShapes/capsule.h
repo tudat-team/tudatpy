@@ -92,6 +92,28 @@ public:
      */
     double getSideRadius( ) { return sideRadius_; }
 
+    //! Get capsule volume (from analytical expressions).
+    /*!
+     * Returns the capsule volume.
+     * \return capsule volume.
+     */
+    double getVolume( ) { return capsuleVolume_; }
+
+    //! Get capsule frontal area (reference area).
+    /*!
+     * Returns the capsule frontal area.
+     * \return capsule volume.
+     */
+    double getFrontalArea( ) { return frontalArea_; }
+
+    //! Get capsule length (from tip of nose sphere to tip of rear sphere).
+    /*!
+     * Returns the total capsule length.
+     * \return side radius.
+     */
+
+    double getLength( ) { return totalLength_; }
+
     //! Overload ostream to print class information.
     /*!
      * Overloads ostream to print class information, prints the class type,
@@ -135,6 +157,24 @@ private:
      * Rear angle.
      */
     double rearAngle_;
+
+    //! Capsule volume.
+    /*!
+     *  Capsule volume.
+     */
+    double capsuleVolume_;
+
+    //! Frontal area.
+    /*!
+     *  Frontal area.
+     */
+    double frontalArea_;
+
+    //! Total capsule length.
+    /*!
+     *  Total capsule length.
+     */
+    double totalLength_;
 };
 
 //! Typedef for shared-pointer to Capsule object.

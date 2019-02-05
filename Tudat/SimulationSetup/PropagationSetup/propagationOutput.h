@@ -1452,6 +1452,12 @@ std::function< double( ) > getDoubleDependentVariableFunction(
                                             functionToEvaluate, firstInput, secondInput, thirdInput );
             break;
         }
+        case current_body_mass_dependent_variable:
+        {
+            variableFunction = std::bind(
+                        &simulation_setup::Body::getBodyMass, bodyMap.at( bodyWithProperty ) );
+            break;
+        }
         default:
             std::string errorMessage =
                     "Error, did not recognize double dependent variable type when making variable function: " +

@@ -109,7 +109,8 @@ public:
             const std::vector< std::vector< int > >& selectedMethods,
             const double referenceArea,
             const double referenceLength,
-            const Eigen::Vector3d& momentReferencePoint );
+            const Eigen::Vector3d& momentReferencePoint,
+            const bool savePressureCoefficients = false );
 
     //! Default destructor.
     /*!
@@ -173,6 +174,37 @@ public:
     friend std::ostream& operator << ( std::ostream& stream,
                                        HypersonicLocalInclinationAnalysis&
                                        hypersonicLocalInclinationAnalysis );
+
+    std::vector< boost::multi_array< Eigen::Vector3d, 2 > > getMeshPoints( )
+    {
+        std::vector< boost::multi_array< Eigen::Vector3d, 2 > > meshPointsList;
+        for( unsigned int i = 0; i < vehicleParts_.size( ); i++ )
+        {
+            meshPointsList.push_back( vehicleParts_.at( i )->getMeshPoints( ) );
+        }
+        return meshPointsList;
+    }
+
+    //! Panel centroids.
+    /*!
+     * 2-Dimensional array containing panel centroid locations.
+     */
+    std::vector< boost::multi_array< Eigen::Vector3d, 2 > > getPanelSurfaceNormals( )
+    {
+        std::vector< boost::multi_array< Eigen::Vector3d, 2 > > paneSurfaceNormalList;
+        for( unsigned int i = 0; i < vehicleParts_.size( ); i++ )
+        {
+            paneSurfaceNormalList.push_back( vehicleParts_.at( i )->getPanelSurfaceNormals( ) );
+        }
+        return paneSurfaceNormalList;
+    }
+
+    std::vector< std::vector< std::vector< double > > > getPressureCoefficientList(
+            const boost::array< int, 3 > independentVariables )
+    {
+        return pressureCoefficientList_.at( independentVariables );
+    }
+
 
 private:
 
@@ -283,7 +315,9 @@ private:
      * Three-dimensional array of panel pressure coefficients at current values
      * of independent variables. Indices indicate part-line-point.
      */
-    std::vector< std::vector< std::vector< double > > > pressureCoefficient_;
+     std::vector< std::vector< std::vector< double > > > pressureCoefficient_;
+
+     std::map< boost::array< int, 3 >,  std::vector< std::vector< std::vector< double > > > > pressureCoefficientList_;
 
     //! Stagnation pressure coefficient.
     /*!
@@ -304,7 +338,16 @@ private:
      * second index represents vehicle part.
      */
     std::vector< std::vector< int > > selectedMethods_;
+
+    bool savePressureCoefficients_;
 };
+
+
+void saveVehicleMeshToFile(
+        const std::shared_ptr< HypersonicLocalInclinationAnalysis > localInclinationAnalysis,
+        const std::string directory,
+        const std::string filePrefix );
+
 
 //! Typedef for shared-pointer to HypersonicLocalInclinationAnalysis object.
 typedef std::shared_ptr< HypersonicLocalInclinationAnalysis >

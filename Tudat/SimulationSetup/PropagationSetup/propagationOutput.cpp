@@ -339,7 +339,9 @@ int getDependentVariableSize(
     case acceleration_partial_wrt_body_translational_state:
         variableSize = 18;
         break;
-
+    case current_body_mass_dependent_variable:
+        variableSize = 1;
+        break;
     default:
         std::string errorMessage = "Error, did not recognize dependent variable size of type: " +
                 std::to_string( dependentVariableSettings->dependentVariableType_ );
