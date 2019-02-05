@@ -17,6 +17,55 @@ namespace tudat
 namespace propagators
 {
 
+std::vector< double > getDefaultMinimumPericenterRadii( const std::vector< std::string >& bodyNames )
+{
+   std::vector< double > pericenterRadii;
+   for( unsigned int i = 0; i < bodyNames.size( ); i++ )
+   {
+       if( bodyNames.at( i ) == "Mercury" )
+       {
+            pericenterRadii.push_back( 2639.7E3 );
+       }
+       else if( bodyNames.at( i ) == "Venus" )
+       {
+           pericenterRadii.push_back( 6251.8E3 );
+       }
+       else if( bodyNames.at( i ) == "Earth" )
+       {
+           pericenterRadii.push_back( 6578.1E3 );
+       }
+       else if( bodyNames.at( i ) == "Mars" )
+       {
+           pericenterRadii.push_back( 3596.2E3 );
+       }
+       else if( bodyNames.at( i ) == "Jupiter" )
+       {
+           pericenterRadii.push_back( 72000.0E3 );
+       }
+       else if( bodyNames.at( i ) == "Saturn" )
+       {
+           pericenterRadii.push_back( 61000.0E3 );
+       }
+       else if( bodyNames.at( i ) == "Uranus" )
+       {
+           pericenterRadii.push_back( 26000.0E3 );
+       }
+       else if( bodyNames.at( i ) == "Neptune" )
+       {
+           pericenterRadii.push_back( 25000.0E3 );
+       }
+       else if( bodyNames.at( i ) == "Pluto" )
+       {
+           pericenterRadii.push_back( 1395.0E3 );
+       }
+       else
+       {
+           throw std::runtime_error( "Error, could not recognize body " + bodyNames.at( i ) + " when getting minimum periapsis radius" );
+       }
+   }
+   return pericenterRadii;
+}
+
 
 transfer_trajectories::Trajectory createTransferTrajectoryObject(
         const simulation_setup::NamedBodyMap& bodyMap,

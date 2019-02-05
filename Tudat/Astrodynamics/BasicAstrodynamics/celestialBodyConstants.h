@@ -32,6 +32,8 @@
 #ifndef TUDAT_CELESTIAL_BODY_CONSTANTS_H
 #define TUDAT_CELESTIAL_BODY_CONSTANTS_H
 
+#include <map>
+
 namespace tudat
 {
 namespace celestial_body_constants
@@ -121,6 +123,34 @@ const static double NEPTUNE_GRAVITATIONAL_PARAMETER = SUN_GRAVITATIONAL_PARAMETE
  * Gravitational constant of Pluto, derived from Sun/Pluto mass ratio [m^3 s^-2] (JPL, 2012).
  */
 const static double PLUTO_GRAVITATIONAL_PARAMETER = SUN_GRAVITATIONAL_PARAMETER / 1.35e8;
+
+static std::map< int, std::string > planetNames =
+{
+    { 0, "Sun" },
+    { 1, "Mercury" },
+    { 2, "Venus" },
+    { 3, "Earth" },
+    { 4, "Mars" },
+    { 5, "Jupiter" },
+    { 6, "Saturn" },
+    { 7, "Uranus" },
+    { 8, "Neptune" },
+    { 9, "Pluto" }
+};
+
+static std::map< std::string, int > planetIdNumbers =
+{
+    { "Sun", 0 },
+    { "Mercury", 1 },
+    { "Venus", 2 },
+    { "Earth", 3 },
+    { "Mars", 4 },
+    { "Jupiter", 5 },
+    { "Saturn", 6 },
+    { "Uranus", 7 },
+    { "Neptune", 8 },
+    { "Pluto", 9 }
+};
 
 } // namespace celestial_body_constants
 

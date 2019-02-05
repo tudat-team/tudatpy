@@ -317,13 +317,14 @@ ScalarType convertMeanAnomalyToHyperbolicEccentricAnomaly(
     // Required because the make_shared in the function definition gives problems for MSVC.
     if ( !rootFinder.get( ) )
     {
+        double toleranceMultiplier = ( eccentricity - 1.0 ) < 1.0E-3 ? 10.0 : 1.0;
         rootFinder = std::make_shared< NewtonRaphsonCore< ScalarType > >(
                     std::bind(
                         &RootAbsoluteToleranceTerminationCondition< ScalarType >::
                         checkTerminationCondition,
                         std::make_shared<
                         RootAbsoluteToleranceTerminationCondition< ScalarType > >(
-                            25.0 * std::numeric_limits< ScalarType >::epsilon( ), 1000 ),
+                            toleranceMultiplier * 25.0 * std::numeric_limits< ScalarType >::epsilon( ), 1000 ),
                         std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5 ) );
     }
     // Declare hyperbolic eccentric anomaly.
