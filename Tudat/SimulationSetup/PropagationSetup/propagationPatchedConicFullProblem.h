@@ -251,6 +251,33 @@ void propagateMga1DsmVelocityAndFullProblem(
         const double semiMajorAxis,
         const double eccentricity);
 
+void propagateMga1DsmPositionAndFullProblem(
+        simulation_setup::NamedBodyMap& bodyMap,
+        const basic_astrodynamics::AccelerationMap& accelerationMap,
+        const std::vector< std::string > departureAndArrivalBodies,
+        const std::string dsm,
+        const std::string centralBody,
+        const std::string bodyToPropagate,
+        const Eigen::Vector3d cartesianPositionAtDeparture,
+        const Eigen::Vector3d cartesianPositionDSM,
+        const Eigen::Vector3d cartesianPositionAtArrival,
+        const double initialTime,
+        const double timeDsm,
+        const double timeArrival,
+        const transfer_trajectories::TransferLegType& legType,
+        const std::vector< double >& trajectoryVariableVector,
+        const std::shared_ptr< numerical_integrators::IntegratorSettings< double > >& integratorSettings,
+        const bool terminationSphereOfInfluence,
+        std::map< double, Eigen::Vector6d >& patchedConicsResultFromDepartureToDsm,
+        std::map< double, Eigen::Vector6d >& fullProblemResultFromDepartureToDsm,
+        std::map< double, Eigen::Vector6d >& patchedConicsResultFromDsmToArrival,
+        std::map< double, Eigen::Vector6d >& fullProblemResultFromDsmToArrival,
+        Eigen::Vector3d& velocityBeforeArrival,
+        Eigen::Vector3d& velocityAfterDeparture,
+        const double minimumPericenterRadius,
+        const double semiMajorAxis,
+        const double eccentricity);
+
 void propagatePatchedConicsLegAndFullProblem(
         const double timeOfFlight,
         const double initialTime,
