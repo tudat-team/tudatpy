@@ -45,8 +45,8 @@ BOOST_AUTO_TEST_CASE( testFullPropagationLambertTargeter )
 
     double timeOfFlight = 806.78 * 5.0;
 
-    std::vector< std::string > bodiesToPropagate; bodiesToPropagate.push_back("spacecraft");
-    std::vector< std::string > centralBodies; centralBodies.push_back("Earth");
+    std::string bodyToPropagate = "spacecraft" ;
+    std::string centralBody = "Earth";
 
     // Define integrator settings.
     std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings =
@@ -59,9 +59,9 @@ BOOST_AUTO_TEST_CASE( testFullPropagationLambertTargeter )
     departureAndArrivalBodies.push_back("arrival");
 
     // Define the body map.
-    simulation_setup::NamedBodyMap bodyMap = propagators::setupBodyMapLambertTargeter("Earth", "spacecraft", departureAndArrivalBodies,
-                                                                                      cartesianPositionAtDeparture, cartesianPositionAtArrival,
-                                                                                      false);
+    simulation_setup::NamedBodyMap bodyMap = propagators::setupBodyMapFromUserDefinedStatesForLambertTargeter("Earth", "spacecraft", departureAndArrivalBodies,
+                                                                                      cartesianPositionAtDeparture, cartesianPositionAtArrival);
+
     basic_astrodynamics::AccelerationMap accelerationModelMap = propagators::setupAccelerationMapLambertTargeter(
                 "Earth", "spacecraft", bodyMap);
 
@@ -69,8 +69,8 @@ BOOST_AUTO_TEST_CASE( testFullPropagationLambertTargeter )
    // Compute the difference in state between the full problem and the Lambert targeter solution at departure and at arrival
    std::pair< Eigen::Vector6d, Eigen::Vector6d > differenceState =
             propagators::getDifferenceFullPropagationWrtLambertTargeterAtDepartureAndArrival(cartesianPositionAtDeparture,
-             cartesianPositionAtArrival, timeOfFlight, initialTime, bodyMap, accelerationModelMap, bodiesToPropagate,
-             centralBodies, integratorSettings, departureAndArrivalBodies, true, false);
+             cartesianPositionAtArrival, timeOfFlight, initialTime, bodyMap, accelerationModelMap, bodyToPropagate,
+             centralBody, integratorSettings, departureAndArrivalBodies, false);
 
     Eigen::Vector6d differenceStateAtDeparture = differenceState.first;
     Eigen::Vector6d differenceStateAtArrival = differenceState.second;
