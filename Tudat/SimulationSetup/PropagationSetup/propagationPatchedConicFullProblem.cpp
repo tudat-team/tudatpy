@@ -538,8 +538,9 @@ void fullPropagationPatchedConicsTrajectoryNewVersion(
         const std::vector< double >& minimumPericenterRadiiVector,
         const std::vector< double >& semiMajorAxesVector,
         const std::vector< double >& eccentricitiesVector,
+        const std::vector< std::pair< std::shared_ptr< propagators::PropagationTerminationSettings >,
+        std::shared_ptr< propagators::PropagationTerminationSettings > > > terminationSettings,
         const std::shared_ptr< numerical_integrators::IntegratorSettings< double > >& integratorSettings,
-        const bool terminationSphereOfInfluence,
         std::map< int, std::map< double, Eigen::Vector6d > >& lambertTargeterResultForEachLeg,
         std::map< int, std::map< double, Eigen::Vector6d > >& fullProblemResultForEachLeg)
 {
@@ -572,18 +573,18 @@ void fullPropagationPatchedConicsTrajectoryNewVersion(
     // Include manoeuvres between transfer bodies when required and associate acceleration maps
     //            (considering that a deep space manoeuvre divides a leg into two smaller ones).
     std::vector< std::string > bodiesAndManoeuvresOrder;
-    std::vector< basic_astrodynamics::AccelerationMap > accelerationMapForEachLeg;
+//    std::vector< basic_astrodynamics::AccelerationMap > accelerationMapForEachLeg;
 
     int counterDSMs = 1;
     for (int i = 0 ; i < numberOfLegs ; i++){
 
         bodiesAndManoeuvresOrder.push_back(transferBodyOrder[i]);
-        accelerationMapForEachLeg.push_back( accelerationMap[i] );
+//        accelerationMapForEachLeg.push_back( accelerationMap[i] );
 
         if (legTypeVector[i] != transfer_trajectories::mga_Departure && legTypeVector[i] != transfer_trajectories::mga_Swingby){
 
             bodiesAndManoeuvresOrder.push_back("DSM" + std::to_string(counterDSMs));
-            accelerationMapForEachLeg.push_back( accelerationMap[i] );
+//            accelerationMapForEachLeg.push_back( accelerationMap[i] );
 
             counterDSMs++;
         }
@@ -615,9 +616,9 @@ void fullPropagationPatchedConicsTrajectoryNewVersion(
             std::map< double, Eigen::Vector6d > lambertTargeterResultCurrentLeg;
             std::map< double, Eigen::Vector6d > fullProblemResultCurrentLeg;
 
-            propagators::propagateMgaWithoutDsmAndFullProblem(bodyMap, accelerationMapForEachLeg[i], departureAndArrivalBodies, centralBody,
+            propagators::propagateMgaWithoutDsmAndFullProblem(bodyMap, accelerationMap[i], departureAndArrivalBodies, centralBody,
                          bodyToPropagate, positionVector[counterLegs], positionVector[counterLegs+1], timeVector[counterLegs], timeVector[counterLegs+1]
-                         - timeVector[counterLegs], integratorSettings, terminationSphereOfInfluence, lambertTargeterResultCurrentLeg,
+                         - timeVector[counterLegs], terminationSettings[i], integratorSettings, lambertTargeterResultCurrentLeg,
                          fullProblemResultCurrentLeg);
 
             lambertTargeterResultForEachLeg[counterLegs] = lambertTargeterResultCurrentLeg;
@@ -644,10 +645,10 @@ void fullPropagationPatchedConicsTrajectoryNewVersion(
         std::map< double, Eigen::Vector6d > patchedConicsResultFromDsmToArrival;
         std::map< double, Eigen::Vector6d > fullProblemResultFromDsmToArrival;
 
-        propagators::propagateMga1DsmVelocityAndFullProblem( bodyMap, accelerationMapForEachLeg[i], departureAndArrivalBodies,
+        propagators::propagateMga1DsmVelocityAndFullProblem( bodyMap, accelerationMap[i], departureAndArrivalBodies,
                bodiesAndManoeuvresOrder[counterLegs+1], centralBody, bodyToPropagate, positionVector[counterLegs], positionVector[counterLegs+1],
                positionVector[counterLegs+2], timeVector[counterLegs], timeVector[counterLegs+1], timeVector[counterLegs+2],
-               legTypeVector[i], trajectoryVariableVectorLeg, integratorSettings, terminationSphereOfInfluence, patchedConicsResultFromDepartureToDsm,
+               legTypeVector[i], trajectoryVariableVectorLeg, terminationSettings[i], integratorSettings, patchedConicsResultFromDepartureToDsm,
                fullProblemResultFromDepartureToDsm, patchedConicsResultFromDsmToArrival, fullProblemResultFromDsmToArrival, velocityBeforeArrival,
                velocityAfterDeparture, semiMajorAxesVector[0], eccentricitiesVector[0]);
 
@@ -686,10 +687,10 @@ void fullPropagationPatchedConicsTrajectoryNewVersion(
             std::map< double, Eigen::Vector6d > patchedConicsResultFromDsmToArrival;
             std::map< double, Eigen::Vector6d > fullProblemResultFromDsmToArrival;
 
-            propagators::propagateMga1DsmPositionAndFullProblem( bodyMap, accelerationMapForEachLeg[i], departureAndArrivalBodies,
+            propagators::propagateMga1DsmPositionAndFullProblem( bodyMap, accelerationMap[i], departureAndArrivalBodies,
                    bodiesAndManoeuvresOrder[counterLegs+1], centralBody, bodyToPropagate, positionVector[counterLegs], positionVector[counterLegs+1],
                    positionVector[counterLegs+2], timeVector[counterLegs], timeVector[counterLegs+1], timeVector[counterLegs+2],
-                   legTypeVector[i], trajectoryVariableVectorLeg, integratorSettings, terminationSphereOfInfluence, patchedConicsResultFromDepartureToDsm,
+                   legTypeVector[i], trajectoryVariableVectorLeg, terminationSettings[i], integratorSettings, patchedConicsResultFromDepartureToDsm,
                    fullProblemResultFromDepartureToDsm, patchedConicsResultFromDsmToArrival, fullProblemResultFromDsmToArrival, velocityBeforeArrival,
                    velocityAfterDeparture, minimumPericenterRadiiVector[i], semiMajorAxesVector[0], eccentricitiesVector[0]);
 
@@ -709,6 +710,166 @@ void fullPropagationPatchedConicsTrajectoryNewVersion(
     }
 }
 
+void fullPropagationPatchedConicsTrajectoryNewVersion(
+        simulation_setup::NamedBodyMap& bodyMap,
+        const std::vector< basic_astrodynamics::AccelerationMap >& accelerationMap,
+        const std::vector< std::string >& transferBodyOrder,
+        const std::string& centralBody,
+        const std::string& bodyToPropagate,
+        const std::vector< transfer_trajectories::TransferLegType>& legTypeVector,
+        const std::vector< double >& trajectoryVariableVector,
+        const std::vector< double >& minimumPericenterRadiiVector,
+        const std::vector< double >& semiMajorAxesVector,
+        const std::vector< double >& eccentricitiesVector,
+        const std::shared_ptr< numerical_integrators::IntegratorSettings< double > >& integratorSettings,
+        const bool terminationSphereOfInfluence,
+        std::map< int, std::map< double, Eigen::Vector6d > >& lambertTargeterResultForEachLeg,
+        std::map< int, std::map< double, Eigen::Vector6d > >& fullProblemResultForEachLeg)
+{
+
+    // Retrieve the gravitational parameter of the relevant bodies.
+    double gravitationalParameterCentralBody = bodyMap.at( centralBody )->getGravityFieldModel( )->getGravitationalParameter( );
+
+    double absoluteTime = trajectoryVariableVector[0];
+    double initialTime = trajectoryVariableVector[0];
+    double finalTime = initialTime;
+
+    std::vector< std::pair< std::shared_ptr< propagators::PropagationTerminationSettings >,
+            std::shared_ptr< propagators::PropagationTerminationSettings > > > terminationSettings;
+
+    for (int i = 0 ; i < legTypeVector.size() - 1 ; i++){
+
+        finalTime = initialTime + trajectoryVariableVector[i+1];
+
+        // Retrieve positions of departure and arrival bodies from ephemerides if not defined as inputs.
+        Eigen::Vector3d cartesianPositionAtDeparture, cartesianPositionAtArrival;
+
+
+
+        // Cartesian state at departure
+        if ( bodyMap.at( transferBodyOrder[i] )->getEphemeris( ) == nullptr)
+        {
+            throw std::runtime_error( "Ephemeris not defined for departure body." );
+        }
+        else
+        {
+            Eigen::Vector6d cartesianStateDepartureBody =
+                    bodyMap.at( transferBodyOrder[i] )->getEphemeris( )->getCartesianState( initialTime);
+            cartesianPositionAtDeparture = cartesianStateDepartureBody.segment(0,3);
+        }
+
+
+
+        // Cartesian state at arrival
+        if ( bodyMap.at( transferBodyOrder[i+1] )->getEphemeris( ) == nullptr){
+            throw std::runtime_error( "Ephemeris not defined for arrival body." );
+        }
+        else{
+            Eigen::Vector6d cartesianStateArrivalBody =
+                    bodyMap.at( transferBodyOrder[i+1] )->getEphemeris( )->getCartesianState( finalTime );
+            cartesianPositionAtArrival =  cartesianStateArrivalBody.segment(0,3);
+        }
+
+
+
+        // Calculate radii sphere of influence about departure and arrival bodies
+        double radiusSphereOfInfluenceDeparture;
+        double radiusSphereOfInfluenceArrival;
+
+        if (terminationSphereOfInfluence == true)
+        {
+
+            double gravitationalParameterDepartureBody = bodyMap.at( transferBodyOrder[i] )->getGravityFieldModel( )->getGravitationalParameter( );
+            double gravitationalParameterArrivalBody = bodyMap.at( transferBodyOrder[i+1] )->getGravityFieldModel( )->getGravitationalParameter( );
+
+            double distanceDepartureToCentralBodies =
+                    bodyMap.at( centralBody )->getEphemeris( )->getCartesianState(
+                        initialTime ).segment( 0, 3 ).norm( ) - cartesianPositionAtDeparture.segment( 0, 3 ).norm( );
+            double distanceArrivalToCentralBodies =
+                    bodyMap.at( centralBody )->getEphemeris( )->getCartesianState(
+                        finalTime ).segment( 0, 3 ).norm( ) - cartesianPositionAtArrival.segment( 0, 3 ).norm( );
+
+
+            // Calculate radius sphere of influence for departure body.
+            radiusSphereOfInfluenceDeparture = tudat::mission_geometry::computeSphereOfInfluence(
+                        distanceDepartureToCentralBodies, gravitationalParameterDepartureBody, gravitationalParameterCentralBody);
+
+            // Calculate radius sphere of influence for arrival body.
+            radiusSphereOfInfluenceArrival = tudat::mission_geometry::computeSphereOfInfluence(
+                        distanceArrivalToCentralBodies, gravitationalParameterArrivalBody, gravitationalParameterCentralBody);
+
+            // Calculate the synodic period.
+            double orbitalPeriodDepartureBody = basic_astrodynamics::computeKeplerOrbitalPeriod(
+                  orbital_element_conversions::convertCartesianToKeplerianElements( bodyMap.at( transferBodyOrder[i] )->
+                  getEphemeris()->getCartesianState(initialTime), gravitationalParameterCentralBody)[ orbital_element_conversions::semiMajorAxisIndex ],
+                  gravitationalParameterCentralBody, gravitationalParameterDepartureBody);
+
+            double orbitalPeriodArrivalBody = basic_astrodynamics::computeKeplerOrbitalPeriod(
+                  orbital_element_conversions::convertCartesianToKeplerianElements( bodyMap.at( transferBodyOrder[i+1] )->
+                  getEphemeris()->getCartesianState(initialTime), gravitationalParameterCentralBody)[ orbital_element_conversions::semiMajorAxisIndex ],
+                  gravitationalParameterCentralBody, gravitationalParameterArrivalBody);
+
+            double synodicPeriod;
+            if (orbitalPeriodDepartureBody < orbitalPeriodArrivalBody){
+                synodicPeriod = basic_astrodynamics::computeSynodicPeriod(orbitalPeriodDepartureBody, orbitalPeriodArrivalBody);
+            }
+            else {
+                synodicPeriod = basic_astrodynamics::computeSynodicPeriod(orbitalPeriodArrivalBody, orbitalPeriodDepartureBody);
+            }
+
+
+            // Create total propagator termination settings.
+            std::vector< std::shared_ptr< PropagationTerminationSettings > >  forwardPropagationTerminationSettingsList;
+            forwardPropagationTerminationSettingsList.push_back(
+                        std::make_shared< PropagationDependentVariableTerminationSettings >(
+                            std::make_shared< SingleDependentVariableSaveSettings >(
+                                relative_distance_dependent_variable, bodyToPropagate, transferBodyOrder[i+1] ), radiusSphereOfInfluenceArrival, false ) );
+            forwardPropagationTerminationSettingsList.push_back(
+                        std::make_shared< PropagationTimeTerminationSettings >( 2 * synodicPeriod ) );
+
+
+            std::shared_ptr< PropagationTerminationSettings > forwardPropagationTerminationSettings =
+                    std::make_shared< PropagationHybridTerminationSettings >( forwardPropagationTerminationSettingsList, true );
+
+
+            std::vector< std::shared_ptr< PropagationTerminationSettings > >  backwardPropagationTerminationSettingsList;
+            backwardPropagationTerminationSettingsList.push_back(
+                std::make_shared< PropagationDependentVariableTerminationSettings >(
+                    std::make_shared< SingleDependentVariableSaveSettings >(
+                        relative_distance_dependent_variable, bodyToPropagate, transferBodyOrder[i] ), radiusSphereOfInfluenceDeparture, false ) );
+            backwardPropagationTerminationSettingsList.push_back(
+                        std::make_shared< PropagationTimeTerminationSettings >( 2 * synodicPeriod ) );
+
+            \
+            std::shared_ptr< PropagationTerminationSettings > backwardPropagationTerminationSettings =
+                    std::make_shared< PropagationHybridTerminationSettings >( backwardPropagationTerminationSettingsList, true );
+
+            terminationSettings.push_back(std::make_pair( backwardPropagationTerminationSettings, forwardPropagationTerminationSettings ));
+
+
+        }
+        else
+        {
+
+
+            terminationSettings.push_back(std::make_pair(
+                        std::make_shared< propagators::PropagationTimeTerminationSettings >( initialTime ),
+                        std::make_shared< propagators::PropagationTimeTerminationSettings >( finalTime ) ));
+        }
+
+        initialTime = finalTime;
+
+    }
+
+
+    fullPropagationPatchedConicsTrajectoryNewVersion( bodyMap, accelerationMap, transferBodyOrder, centralBody, bodyToPropagate, legTypeVector,
+                                                      trajectoryVariableVector, minimumPericenterRadiiVector, semiMajorAxesVector,
+                                                      eccentricitiesVector, terminationSettings, integratorSettings, lambertTargeterResultForEachLeg,
+                                                      fullProblemResultForEachLeg );
+
+
+}
+
 void propagateMgaWithoutDsmAndFullProblem(
         simulation_setup::NamedBodyMap& bodyMap,
         const basic_astrodynamics::AccelerationMap& accelerationMap,
@@ -719,21 +880,21 @@ void propagateMgaWithoutDsmAndFullProblem(
         const Eigen::Vector3d cartesianPositionAtArrival,
         const double initialTime,
         const double timeOfFlight,
+        const std::pair< std::shared_ptr< propagators::PropagationTerminationSettings >,
+        std::shared_ptr< propagators::PropagationTerminationSettings > > terminationSettings,
         const std::shared_ptr< numerical_integrators::IntegratorSettings< double > >& integratorSettings,
-        const bool terminationSphereOfInfluence,
         std::map< double, Eigen::Vector6d >& patchedConicsResult,
-        std::map< double, Eigen::Vector6d >& fullProblemResult
-        ){
+        std::map< double, Eigen::Vector6d >& fullProblemResult)
+        {
 
     integratorSettings->initialTime_ = initialTime;
 
     // Compute the difference in state between the full problem and the Lambert targeter solution for the current leg.
-    propagators::propagateLambertTargeterAndFullProblem(
-        timeOfFlight, initialTime, bodyMap, accelerationMap, bodyToPropagate, centralBody, integratorSettings,
-        patchedConicsResult, fullProblemResult,
-        departureAndArrivalBodies, terminationSphereOfInfluence, cartesianPositionAtDeparture,
-        cartesianPositionAtArrival, TUDAT_NAN, TUDAT_NAN, TUDAT_NAN);
-
+    propagators::propagateLambertTargeterAndFullProblem( timeOfFlight, initialTime, bodyMap, accelerationMap,
+                                                        bodyToPropagate, centralBody, terminationSettings, integratorSettings,
+                                                        patchedConicsResult, fullProblemResult, departureAndArrivalBodies,
+                                                        bodyMap[ centralBody ]->getGravityFieldModel()->getGravitationalParameter() ,
+                                                        cartesianPositionAtDeparture, cartesianPositionAtArrival);
 }
 
 void propagateMga1DsmVelocityAndFullProblem(
@@ -751,8 +912,9 @@ void propagateMga1DsmVelocityAndFullProblem(
         const double timeArrival,
         const transfer_trajectories::TransferLegType& legType,
         const std::vector< double >& trajectoryVariableVector,
+        const std::pair< std::shared_ptr< propagators::PropagationTerminationSettings >,
+        std::shared_ptr< propagators::PropagationTerminationSettings > > terminationSettings,
         const std::shared_ptr< numerical_integrators::IntegratorSettings< double > >& integratorSettings,
-        const bool terminationSphereOfInfluence,
         std::map< double, Eigen::Vector6d >& patchedConicsResultFromDepartureToDsm,
         std::map< double, Eigen::Vector6d >& fullProblemResultFromDepartureToDsm,
         std::map< double, Eigen::Vector6d >& patchedConicsResultFromDsmToArrival,
@@ -823,12 +985,11 @@ void propagateMga1DsmVelocityAndFullProblem(
         legDepartureAndArrival.push_back( departureAndArrivalBodies[0] );
         legDepartureAndArrival.push_back( dsm );
 
-        propagatePatchedConicsLegAndFullProblem(
-            timeDsm - initialTime, initialTime, bodyMap, accelerationMap, bodyToPropagate, centralBody, integratorSettings,
-            patchedConicsResultFromDepartureToDsm, fullProblemResultFromDepartureToDsm,
-            legDepartureAndArrival, terminationSphereOfInfluence, cartesianPositionAtDeparture,
-            cartesianPositionDSM, TUDAT_NAN, TUDAT_NAN, TUDAT_NAN, velocityAfterDeparture);
-
+        propagatePatchedConicsLegAndFullProblem( timeDsm - initialTime, initialTime, bodyMap, accelerationMap, bodyToPropagate, centralBody,
+                                                 terminationSettings, integratorSettings, patchedConicsResultFromDepartureToDsm,
+                                                 fullProblemResultFromDepartureToDsm, legDepartureAndArrival,
+                                                 bodyMap[ centralBody ]->getGravityFieldModel()->getGravitationalParameter(),
+                                                 cartesianPositionAtDeparture, cartesianPositionDSM, velocityAfterDeparture);
 
         // SECOND PART OF THE LEG: FROM DSM TO ARRIVAL BODY
 
@@ -839,11 +1000,11 @@ void propagateMga1DsmVelocityAndFullProblem(
         integratorSettings->initialTime_ = timeDsm;
 
 
-        propagateLambertTargeterAndFullProblem(
-            timeArrival - timeDsm, timeDsm, bodyMap, accelerationMap, bodyToPropagate, centralBody, integratorSettings,
-            patchedConicsResultFromDsmToArrival, fullProblemResultFromDsmToArrival,
-            legDepartureAndArrival, terminationSphereOfInfluence, cartesianPositionDSM,
-            cartesianPositionAtArrival, TUDAT_NAN, TUDAT_NAN, TUDAT_NAN);
+        propagateLambertTargeterAndFullProblem( timeArrival - timeDsm, timeDsm, bodyMap, accelerationMap, bodyToPropagate, centralBody,
+                                                terminationSettings, integratorSettings, patchedConicsResultFromDsmToArrival,
+                                                fullProblemResultFromDsmToArrival, legDepartureAndArrival,
+                                                bodyMap[centralBody]->getGravityFieldModel()->getGravitationalParameter(),
+                                                cartesianPositionDSM, cartesianPositionAtArrival);
 
 }
 
@@ -864,8 +1025,9 @@ void propagateMga1DsmPositionAndFullProblem(
         const double timeArrival,
         const transfer_trajectories::TransferLegType& legType,
         const std::vector< double >& trajectoryVariableVector,
+        const std::pair< std::shared_ptr< propagators::PropagationTerminationSettings >,
+        std::shared_ptr< propagators::PropagationTerminationSettings > > terminationSettings,
         const std::shared_ptr< numerical_integrators::IntegratorSettings< double > >& integratorSettings,
-        const bool terminationSphereOfInfluence,
         std::map< double, Eigen::Vector6d >& patchedConicsResultFromDepartureToDsm,
         std::map< double, Eigen::Vector6d >& fullProblemResultFromDepartureToDsm,
         std::map< double, Eigen::Vector6d >& patchedConicsResultFromDsmToArrival,
@@ -938,11 +1100,11 @@ void propagateMga1DsmPositionAndFullProblem(
         legDepartureAndArrival.push_back( departureAndArrivalBodies[0] );
         legDepartureAndArrival.push_back( dsm );
 
-        propagateLambertTargeterAndFullProblem(
-            timeDsm - initialTime, initialTime, bodyMap, accelerationMap,
-            bodyToPropagate, centralBody, integratorSettings, patchedConicsResultFromDepartureToDsm, fullProblemResultFromDepartureToDsm,
-            legDepartureAndArrival, terminationSphereOfInfluence, cartesianPositionAtDeparture,
-            cartesianPositionDSM, TUDAT_NAN, TUDAT_NAN, TUDAT_NAN);
+        propagateLambertTargeterAndFullProblem( timeDsm - initialTime, initialTime, bodyMap, accelerationMap, bodyToPropagate, centralBody,
+                                                terminationSettings, integratorSettings, patchedConicsResultFromDepartureToDsm,
+                                                fullProblemResultFromDepartureToDsm, legDepartureAndArrival,
+                                                bodyMap[centralBody]->getGravityFieldModel()->getGravitationalParameter(),
+                                                cartesianPositionAtDeparture, cartesianPositionDSM);
 
 
         // SECOND PART OF THE LEG: FROM DSM TO ARRIVAL BODY
@@ -953,11 +1115,11 @@ void propagateMga1DsmPositionAndFullProblem(
 
         integratorSettings->initialTime_ = timeDsm;
 
-        propagateLambertTargeterAndFullProblem(
-            timeArrival - timeDsm, timeDsm, bodyMap, accelerationMap,
-            bodyToPropagate, centralBody, integratorSettings, patchedConicsResultFromDsmToArrival, fullProblemResultFromDsmToArrival,
-            legDepartureAndArrival, terminationSphereOfInfluence, cartesianPositionDSM,
-            cartesianPositionAtArrival, TUDAT_NAN, TUDAT_NAN, TUDAT_NAN);
+        propagateLambertTargeterAndFullProblem( timeArrival - timeDsm, timeDsm, bodyMap, accelerationMap, bodyToPropagate, centralBody,
+                                                terminationSettings, integratorSettings, patchedConicsResultFromDsmToArrival,
+                                                fullProblemResultFromDsmToArrival, legDepartureAndArrival,
+                                                bodyMap[centralBody]->getGravityFieldModel()->getGravitationalParameter(),
+                                                cartesianPositionDSM, cartesianPositionAtArrival);
 
 }
 
@@ -1128,171 +1290,171 @@ void propagatePatchedConicsLegAndFullProblem(
 }
 
 
-//! Function to propagate the full dynamics problem and the Lambert targeter solution.
-void propagatePatchedConicsLegAndFullProblem(
-        const double timeOfFlight,
-        const double initialTime,
-        const simulation_setup::NamedBodyMap& bodyMap,
-        const basic_astrodynamics::AccelerationMap& accelerationModelMap,
-        const std::string& bodyToPropagate,
-        const std::string& centralBody,
-        const std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings,
-        std::map< double, Eigen::Vector6d >& lambertTargeterResult,
-        std::map< double, Eigen::Vector6d >& fullProblemResult,
-        const std::vector<std::string>& departureAndArrivalBodies,
-        const bool terminationSphereOfInfluence,
-        const Eigen::Vector3d& cartesianPositionAtDeparture,
-        const Eigen::Vector3d& cartesianPositionAtArrival,
-        const double departureBodyGravitationalParameter,
-        const double arrivalBodyGravitationalParameter,
-        const double centralBodyGravitationalParameter,
-        const Eigen::Vector3d& velocityAfterDeparture)
-{
+////! Function to propagate the full dynamics problem and the Lambert targeter solution.
+//void propagatePatchedConicsLegAndFullProblem(
+//        const double timeOfFlight,
+//        const double initialTime,
+//        const simulation_setup::NamedBodyMap& bodyMap,
+//        const basic_astrodynamics::AccelerationMap& accelerationModelMap,
+//        const std::string& bodyToPropagate,
+//        const std::string& centralBody,
+//        const std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings,
+//        std::map< double, Eigen::Vector6d >& lambertTargeterResult,
+//        std::map< double, Eigen::Vector6d >& fullProblemResult,
+//        const std::vector<std::string>& departureAndArrivalBodies,
+//        const bool terminationSphereOfInfluence,
+//        const Eigen::Vector3d& cartesianPositionAtDeparture,
+//        const Eigen::Vector3d& cartesianPositionAtArrival,
+//        const double departureBodyGravitationalParameter,
+//        const double arrivalBodyGravitationalParameter,
+//        const double centralBodyGravitationalParameter,
+//        const Eigen::Vector3d& velocityAfterDeparture)
+//{
 
-    // Retrieve the gravitational parameter of the relevant bodies.
-    double gravitationalParameterCentralBody = ( centralBodyGravitationalParameter == centralBodyGravitationalParameter ) ?
-                centralBodyGravitationalParameter :
-                bodyMap.at( centralBody )->getGravityFieldModel( )->getGravitationalParameter( );
-
-
-    // Retrieve positions of departure and arrival bodies from ephemerides if not defined as inputs.
-    Eigen::Vector3d cartesianPositionAtDepartureForLambertTargeter, cartesianPositionAtArrivalForLambertTargeter;
-    if ( cartesianPositionAtDeparture != cartesianPositionAtDeparture )
-    {
-        // Cartesian state at departure
-        if ( bodyMap.at( departureAndArrivalBodies.at( 0 ) )->getEphemeris( ) == nullptr)
-        {
-            throw std::runtime_error( "Ephemeris not defined for departure body." );
-        }
-        else
-        {
-            Eigen::Vector6d cartesianStateDepartureBody =
-                    bodyMap.at( departureAndArrivalBodies.at( 0 ) )->getEphemeris( )->getCartesianState( initialTime);
-            cartesianPositionAtDepartureForLambertTargeter = cartesianStateDepartureBody.segment(0,3);
-        }
-    }
-    else
-    {
-        cartesianPositionAtDepartureForLambertTargeter = cartesianPositionAtDeparture;
-    }
-
-    if( cartesianPositionAtArrival != cartesianPositionAtArrival )
-    {
-
-        // Cartesian state at arrival
-        if ( bodyMap.at( departureAndArrivalBodies.at( 1 ) )->getEphemeris( ) == nullptr){
-            throw std::runtime_error( "Ephemeris not defined for arrival body." );
-        }
-        else{
-            Eigen::Vector6d cartesianStateArrivalBody =
-                    bodyMap.at( departureAndArrivalBodies.at( 1 ) )->getEphemeris( )->getCartesianState( initialTime + timeOfFlight );
-            cartesianPositionAtArrivalForLambertTargeter =  cartesianStateArrivalBody.segment(0,3);
-        }
-    }
-    else
-    {
-        cartesianPositionAtArrivalForLambertTargeter = cartesianPositionAtArrival;
-    }
+//    // Retrieve the gravitational parameter of the relevant bodies.
+//    double gravitationalParameterCentralBody = ( centralBodyGravitationalParameter == centralBodyGravitationalParameter ) ?
+//                centralBodyGravitationalParameter :
+//                bodyMap.at( centralBody )->getGravityFieldModel( )->getGravitationalParameter( );
 
 
+//    // Retrieve positions of departure and arrival bodies from ephemerides if not defined as inputs.
+//    Eigen::Vector3d cartesianPositionAtDepartureForLambertTargeter, cartesianPositionAtArrivalForLambertTargeter;
+//    if ( cartesianPositionAtDeparture != cartesianPositionAtDeparture )
+//    {
+//        // Cartesian state at departure
+//        if ( bodyMap.at( departureAndArrivalBodies.at( 0 ) )->getEphemeris( ) == nullptr)
+//        {
+//            throw std::runtime_error( "Ephemeris not defined for departure body." );
+//        }
+//        else
+//        {
+//            Eigen::Vector6d cartesianStateDepartureBody =
+//                    bodyMap.at( departureAndArrivalBodies.at( 0 ) )->getEphemeris( )->getCartesianState( initialTime);
+//            cartesianPositionAtDepartureForLambertTargeter = cartesianStateDepartureBody.segment(0,3);
+//        }
+//    }
+//    else
+//    {
+//        cartesianPositionAtDepartureForLambertTargeter = cartesianPositionAtDeparture;
+//    }
 
-    // Calculate radii sphere of influence about departure and arrival bodies
-    double radiusSphereOfInfluenceDeparture;
-    double radiusSphereOfInfluenceArrival;
+//    if( cartesianPositionAtArrival != cartesianPositionAtArrival )
+//    {
 
-    std::pair< std::shared_ptr< propagators::PropagationTerminationSettings >,
-            std::shared_ptr< propagators::PropagationTerminationSettings > > terminationSettings;
-
-    if (terminationSphereOfInfluence == true)
-    {
-
-        double gravitationalParameterDepartureBody = ( departureBodyGravitationalParameter == departureBodyGravitationalParameter ) ?
-                    departureBodyGravitationalParameter :
-                    bodyMap.at( departureAndArrivalBodies[0] )->getGravityFieldModel( )->getGravitationalParameter( );
-        double gravitationalParameterArrivalBody = ( arrivalBodyGravitationalParameter == arrivalBodyGravitationalParameter ) ?
-                    arrivalBodyGravitationalParameter :
-                    bodyMap.at( departureAndArrivalBodies[1] )->getGravityFieldModel( )->getGravitationalParameter( );
-
-        double distanceDepartureToCentralBodies =
-                bodyMap.at( centralBody )->getEphemeris( )->getCartesianState(
-                    initialTime ).segment( 0, 3 ).norm( ) - cartesianPositionAtDepartureForLambertTargeter.segment( 0, 3 ).norm( );
-        double distanceArrivalToCentralBodies =
-                bodyMap.at( centralBody )->getEphemeris( )->getCartesianState(
-                    initialTime + timeOfFlight ).segment( 0, 3 ).norm( ) - cartesianPositionAtArrivalForLambertTargeter.segment( 0, 3 ).norm( );
-
-
-        // Calculate radius sphere of influence for departure body.
-        radiusSphereOfInfluenceDeparture = tudat::mission_geometry::computeSphereOfInfluence(
-                    distanceDepartureToCentralBodies, gravitationalParameterDepartureBody, gravitationalParameterCentralBody);
-
-        // Calculate radius sphere of influence for arrival body.
-        radiusSphereOfInfluenceArrival = tudat::mission_geometry::computeSphereOfInfluence(
-                    distanceArrivalToCentralBodies, gravitationalParameterArrivalBody, gravitationalParameterCentralBody);
-
-        // Calculate the synodic period.
-        double orbitalPeriodDepartureBody = basic_astrodynamics::computeKeplerOrbitalPeriod(
-              orbital_element_conversions::convertCartesianToKeplerianElements( bodyMap.at( departureAndArrivalBodies[0] )->
-              getEphemeris()->getCartesianState(initialTime), gravitationalParameterCentralBody)[ orbital_element_conversions::semiMajorAxisIndex ],
-              gravitationalParameterCentralBody, gravitationalParameterDepartureBody);
-
-        double orbitalPeriodArrivalBody = basic_astrodynamics::computeKeplerOrbitalPeriod(
-              orbital_element_conversions::convertCartesianToKeplerianElements( bodyMap.at( departureAndArrivalBodies[1] )->
-              getEphemeris()->getCartesianState(initialTime), gravitationalParameterCentralBody)[ orbital_element_conversions::semiMajorAxisIndex ],
-              gravitationalParameterCentralBody, gravitationalParameterArrivalBody);
-
-        double synodicPeriod;
-        if (orbitalPeriodDepartureBody < orbitalPeriodArrivalBody){
-            synodicPeriod = basic_astrodynamics::computeSynodicPeriod(orbitalPeriodDepartureBody, orbitalPeriodArrivalBody);
-        }
-        else {
-            synodicPeriod = basic_astrodynamics::computeSynodicPeriod(orbitalPeriodArrivalBody, orbitalPeriodDepartureBody);
-        }
+//        // Cartesian state at arrival
+//        if ( bodyMap.at( departureAndArrivalBodies.at( 1 ) )->getEphemeris( ) == nullptr){
+//            throw std::runtime_error( "Ephemeris not defined for arrival body." );
+//        }
+//        else{
+//            Eigen::Vector6d cartesianStateArrivalBody =
+//                    bodyMap.at( departureAndArrivalBodies.at( 1 ) )->getEphemeris( )->getCartesianState( initialTime + timeOfFlight );
+//            cartesianPositionAtArrivalForLambertTargeter =  cartesianStateArrivalBody.segment(0,3);
+//        }
+//    }
+//    else
+//    {
+//        cartesianPositionAtArrivalForLambertTargeter = cartesianPositionAtArrival;
+//    }
 
 
-        // Create total propagator termination settings.
-        std::vector< std::shared_ptr< PropagationTerminationSettings > >  forwardPropagationTerminationSettingsList;
-        forwardPropagationTerminationSettingsList.push_back(
-                    std::make_shared< PropagationDependentVariableTerminationSettings >(
-                        std::make_shared< SingleDependentVariableSaveSettings >(
-                            relative_distance_dependent_variable, bodyToPropagate, departureAndArrivalBodies[ 1 ] ), radiusSphereOfInfluenceArrival, false ) );
-        forwardPropagationTerminationSettingsList.push_back(
-                    std::make_shared< PropagationTimeTerminationSettings >( 2 * synodicPeriod ) );
+
+//    // Calculate radii sphere of influence about departure and arrival bodies
+//    double radiusSphereOfInfluenceDeparture;
+//    double radiusSphereOfInfluenceArrival;
+
+//    std::pair< std::shared_ptr< propagators::PropagationTerminationSettings >,
+//            std::shared_ptr< propagators::PropagationTerminationSettings > > terminationSettings;
+
+//    if (terminationSphereOfInfluence == true)
+//    {
+
+//        double gravitationalParameterDepartureBody = ( departureBodyGravitationalParameter == departureBodyGravitationalParameter ) ?
+//                    departureBodyGravitationalParameter :
+//                    bodyMap.at( departureAndArrivalBodies[0] )->getGravityFieldModel( )->getGravitationalParameter( );
+//        double gravitationalParameterArrivalBody = ( arrivalBodyGravitationalParameter == arrivalBodyGravitationalParameter ) ?
+//                    arrivalBodyGravitationalParameter :
+//                    bodyMap.at( departureAndArrivalBodies[1] )->getGravityFieldModel( )->getGravitationalParameter( );
+
+//        double distanceDepartureToCentralBodies =
+//                bodyMap.at( centralBody )->getEphemeris( )->getCartesianState(
+//                    initialTime ).segment( 0, 3 ).norm( ) - cartesianPositionAtDepartureForLambertTargeter.segment( 0, 3 ).norm( );
+//        double distanceArrivalToCentralBodies =
+//                bodyMap.at( centralBody )->getEphemeris( )->getCartesianState(
+//                    initialTime + timeOfFlight ).segment( 0, 3 ).norm( ) - cartesianPositionAtArrivalForLambertTargeter.segment( 0, 3 ).norm( );
 
 
-        std::shared_ptr< PropagationTerminationSettings > forwardPropagationTerminationSettings =
-                std::make_shared< PropagationHybridTerminationSettings >( forwardPropagationTerminationSettingsList, true );
+//        // Calculate radius sphere of influence for departure body.
+//        radiusSphereOfInfluenceDeparture = tudat::mission_geometry::computeSphereOfInfluence(
+//                    distanceDepartureToCentralBodies, gravitationalParameterDepartureBody, gravitationalParameterCentralBody);
+
+//        // Calculate radius sphere of influence for arrival body.
+//        radiusSphereOfInfluenceArrival = tudat::mission_geometry::computeSphereOfInfluence(
+//                    distanceArrivalToCentralBodies, gravitationalParameterArrivalBody, gravitationalParameterCentralBody);
+
+//        // Calculate the synodic period.
+//        double orbitalPeriodDepartureBody = basic_astrodynamics::computeKeplerOrbitalPeriod(
+//              orbital_element_conversions::convertCartesianToKeplerianElements( bodyMap.at( departureAndArrivalBodies[0] )->
+//              getEphemeris()->getCartesianState(initialTime), gravitationalParameterCentralBody)[ orbital_element_conversions::semiMajorAxisIndex ],
+//              gravitationalParameterCentralBody, gravitationalParameterDepartureBody);
+
+//        double orbitalPeriodArrivalBody = basic_astrodynamics::computeKeplerOrbitalPeriod(
+//              orbital_element_conversions::convertCartesianToKeplerianElements( bodyMap.at( departureAndArrivalBodies[1] )->
+//              getEphemeris()->getCartesianState(initialTime), gravitationalParameterCentralBody)[ orbital_element_conversions::semiMajorAxisIndex ],
+//              gravitationalParameterCentralBody, gravitationalParameterArrivalBody);
+
+//        double synodicPeriod;
+//        if (orbitalPeriodDepartureBody < orbitalPeriodArrivalBody){
+//            synodicPeriod = basic_astrodynamics::computeSynodicPeriod(orbitalPeriodDepartureBody, orbitalPeriodArrivalBody);
+//        }
+//        else {
+//            synodicPeriod = basic_astrodynamics::computeSynodicPeriod(orbitalPeriodArrivalBody, orbitalPeriodDepartureBody);
+//        }
 
 
-        std::vector< std::shared_ptr< PropagationTerminationSettings > >  backwardPropagationTerminationSettingsList;
-        backwardPropagationTerminationSettingsList.push_back(
-            std::make_shared< PropagationDependentVariableTerminationSettings >(
-                std::make_shared< SingleDependentVariableSaveSettings >(
-                    relative_distance_dependent_variable, bodyToPropagate, departureAndArrivalBodies[ 0 ] ), radiusSphereOfInfluenceDeparture, false ) );
-        backwardPropagationTerminationSettingsList.push_back(
-                    std::make_shared< PropagationTimeTerminationSettings >( 2 * synodicPeriod ) );
-
-        \
-        std::shared_ptr< PropagationTerminationSettings > backwardPropagationTerminationSettings =
-                std::make_shared< PropagationHybridTerminationSettings >( backwardPropagationTerminationSettingsList, true );
-
-        terminationSettings = std::make_pair( backwardPropagationTerminationSettings, forwardPropagationTerminationSettings );
+//        // Create total propagator termination settings.
+//        std::vector< std::shared_ptr< PropagationTerminationSettings > >  forwardPropagationTerminationSettingsList;
+//        forwardPropagationTerminationSettingsList.push_back(
+//                    std::make_shared< PropagationDependentVariableTerminationSettings >(
+//                        std::make_shared< SingleDependentVariableSaveSettings >(
+//                            relative_distance_dependent_variable, bodyToPropagate, departureAndArrivalBodies[ 1 ] ), radiusSphereOfInfluenceArrival, false ) );
+//        forwardPropagationTerminationSettingsList.push_back(
+//                    std::make_shared< PropagationTimeTerminationSettings >( 2 * synodicPeriod ) );
 
 
-    }
-    else
-    {
+//        std::shared_ptr< PropagationTerminationSettings > forwardPropagationTerminationSettings =
+//                std::make_shared< PropagationHybridTerminationSettings >( forwardPropagationTerminationSettingsList, true );
 
 
-        terminationSettings = std::make_pair(
-                    std::make_shared< propagators::PropagationTimeTerminationSettings >( initialTime ),
-                    std::make_shared< propagators::PropagationTimeTerminationSettings >( initialTime + timeOfFlight ) );
-    }
+//        std::vector< std::shared_ptr< PropagationTerminationSettings > >  backwardPropagationTerminationSettingsList;
+//        backwardPropagationTerminationSettingsList.push_back(
+//            std::make_shared< PropagationDependentVariableTerminationSettings >(
+//                std::make_shared< SingleDependentVariableSaveSettings >(
+//                    relative_distance_dependent_variable, bodyToPropagate, departureAndArrivalBodies[ 0 ] ), radiusSphereOfInfluenceDeparture, false ) );
+//        backwardPropagationTerminationSettingsList.push_back(
+//                    std::make_shared< PropagationTimeTerminationSettings >( 2 * synodicPeriod ) );
 
-    propagatePatchedConicsLegAndFullProblem(
-            timeOfFlight, initialTime, bodyMap, accelerationModelMap, bodyToPropagate, centralBody, terminationSettings,
-            integratorSettings, lambertTargeterResult, fullProblemResult, departureAndArrivalBodies,
-            centralBodyGravitationalParameter, cartesianPositionAtDeparture, cartesianPositionAtArrival, velocityAfterDeparture );
-}
+//        \
+//        std::shared_ptr< PropagationTerminationSettings > backwardPropagationTerminationSettings =
+//                std::make_shared< PropagationHybridTerminationSettings >( backwardPropagationTerminationSettingsList, true );
+
+//        terminationSettings = std::make_pair( backwardPropagationTerminationSettings, forwardPropagationTerminationSettings );
+
+
+//    }
+//    else
+//    {
+
+
+//        terminationSettings = std::make_pair(
+//                    std::make_shared< propagators::PropagationTimeTerminationSettings >( initialTime ),
+//                    std::make_shared< propagators::PropagationTimeTerminationSettings >( initialTime + timeOfFlight ) );
+//    }
+
+//    propagatePatchedConicsLegAndFullProblem(
+//            timeOfFlight, initialTime, bodyMap, accelerationModelMap, bodyToPropagate, centralBody, terminationSettings,
+//            integratorSettings, lambertTargeterResult, fullProblemResult, departureAndArrivalBodies,
+//            centralBodyGravitationalParameter, cartesianPositionAtDeparture, cartesianPositionAtArrival, velocityAfterDeparture );
+//}
 
 
 
