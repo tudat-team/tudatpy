@@ -204,6 +204,23 @@ void fullPropagationPatchedConicsTrajectoryNewVersion(
         const std::vector< double >& minimumPericenterRadiiVector,
         const std::vector< double >& semiMajorAxesVector,
         const std::vector< double >& eccentricitiesVector,
+        const std::vector< std::pair< std::shared_ptr< propagators::PropagationTerminationSettings >,
+        std::shared_ptr< propagators::PropagationTerminationSettings > > > terminationSettings,
+        const std::shared_ptr< numerical_integrators::IntegratorSettings< double > >& integratorSettings,
+        std::map< int, std::map< double, Eigen::Vector6d > >& lambertTargeterResultForEachLeg,
+        std::map< int, std::map< double, Eigen::Vector6d > >& fullProblemResultForEachLeg);
+
+void fullPropagationPatchedConicsTrajectoryNewVersion(
+        simulation_setup::NamedBodyMap& bodyMap,
+        const std::vector< basic_astrodynamics::AccelerationMap >& accelerationMap,
+        const std::vector< std::string >& transferBodyOrder,
+        const std::string& centralBody,
+        const std::string& bodyToPropagate,
+        const std::vector< transfer_trajectories::TransferLegType>& legTypeVector,
+        const std::vector< double >& trajectoryVariableVector,
+        const std::vector< double >& minimumPericenterRadiiVector,
+        const std::vector< double >& semiMajorAxesVector,
+        const std::vector< double >& eccentricitiesVector,
         const std::shared_ptr< numerical_integrators::IntegratorSettings< double > >& integratorSettings,
         const bool terminationSphereOfInfluence,
         std::map< int, std::map< double, Eigen::Vector6d > >& lambertTargeterResultForEachLeg,
@@ -219,11 +236,11 @@ void propagateMgaWithoutDsmAndFullProblem(
         const Eigen::Vector3d cartesianPositionAtArrival,
         const double initialTime,
         const double timeOfFlight,
+        const std::pair< std::shared_ptr< propagators::PropagationTerminationSettings >,
+        std::shared_ptr< propagators::PropagationTerminationSettings > > terminationSettings,
         const std::shared_ptr< numerical_integrators::IntegratorSettings< double > >& integratorSettings,
-        const bool terminationSphereOfInfluence,
         std::map< double, Eigen::Vector6d >& patchedConicsResult,
-        std::map< double, Eigen::Vector6d >& fullProblemResult
-        );
+        std::map< double, Eigen::Vector6d >& fullProblemResult);
 
 void propagateMga1DsmVelocityAndFullProblem(
         simulation_setup::NamedBodyMap& bodyMap,
@@ -240,8 +257,9 @@ void propagateMga1DsmVelocityAndFullProblem(
         const double timeArrival,
         const transfer_trajectories::TransferLegType& legType,
         const std::vector< double >& trajectoryVariableVector,
+        const std::pair< std::shared_ptr< propagators::PropagationTerminationSettings >,
+        std::shared_ptr< propagators::PropagationTerminationSettings > > terminationSettings,
         const std::shared_ptr< numerical_integrators::IntegratorSettings< double > >& integratorSettings,
-        const bool terminationSphereOfInfluence,
         std::map< double, Eigen::Vector6d >& patchedConicsResultFromDepartureToDsm,
         std::map< double, Eigen::Vector6d >& fullProblemResultFromDepartureToDsm,
         std::map< double, Eigen::Vector6d >& patchedConicsResultFromDsmToArrival,
@@ -266,8 +284,9 @@ void propagateMga1DsmPositionAndFullProblem(
         const double timeArrival,
         const transfer_trajectories::TransferLegType& legType,
         const std::vector< double >& trajectoryVariableVector,
+        const std::pair< std::shared_ptr< propagators::PropagationTerminationSettings >,
+        std::shared_ptr< propagators::PropagationTerminationSettings > > terminationSettings,
         const std::shared_ptr< numerical_integrators::IntegratorSettings< double > >& integratorSettings,
-        const bool terminationSphereOfInfluence,
         std::map< double, Eigen::Vector6d >& patchedConicsResultFromDepartureToDsm,
         std::map< double, Eigen::Vector6d >& fullProblemResultFromDepartureToDsm,
         std::map< double, Eigen::Vector6d >& patchedConicsResultFromDsmToArrival,
@@ -297,24 +316,24 @@ void propagatePatchedConicsLegAndFullProblem(
         const Eigen::Vector3d& velocityAfterDeparture);
 
 //! Function to propagate the full dynamics problem and the Lambert targeter solution.
-void propagatePatchedConicsLegAndFullProblem(
-        const double timeOfFlight,
-        const double initialTime,
-        const simulation_setup::NamedBodyMap& bodyMap,
-        const basic_astrodynamics::AccelerationMap& accelerationModelMap,
-        const std::string& bodyToPropagate,
-        const std::string& centralBody,
-        const std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings,
-        std::map< double, Eigen::Vector6d >& lambertTargeterResult,
-        std::map< double, Eigen::Vector6d >& fullProblemResult,
-        const std::vector<std::string>& departureAndArrivalBodies,
-        const bool terminationSphereOfInfluence,
-        const Eigen::Vector3d& cartesianPositionAtDeparture,
-        const Eigen::Vector3d& cartesianPositionAtArrival,
-        const double departureBodyGravitationalParameter,
-        const double arrivalBodyGravitationalParameter,
-        const double centralBodyGravitationalParameter,
-        const Eigen::Vector3d& velocityAfterDeparture);
+//void propagatePatchedConicsLegAndFullProblem(
+//        const double timeOfFlight,
+//        const double initialTime,
+//        const simulation_setup::NamedBodyMap& bodyMap,
+//        const basic_astrodynamics::AccelerationMap& accelerationModelMap,
+//        const std::string& bodyToPropagate,
+//        const std::string& centralBody,
+//        const std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings,
+//        std::map< double, Eigen::Vector6d >& lambertTargeterResult,
+//        std::map< double, Eigen::Vector6d >& fullProblemResult,
+//        const std::vector<std::string>& departureAndArrivalBodies,
+//        const bool terminationSphereOfInfluence,
+//        const Eigen::Vector3d& cartesianPositionAtDeparture,
+//        const Eigen::Vector3d& cartesianPositionAtArrival,
+//        const double departureBodyGravitationalParameter,
+//        const double arrivalBodyGravitationalParameter,
+//        const double centralBodyGravitationalParameter,
+//        const Eigen::Vector3d& velocityAfterDeparture);
 
 
 //! Function to compute the difference in cartesian state between patched conics trajectory and full dynamics problem,
