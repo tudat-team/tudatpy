@@ -763,12 +763,14 @@ void fullPropagationPatchedConicsTrajectoryNewVersion(
     // Retrieve the gravitational parameter of the relevant bodies.
     double gravitationalParameterCentralBody = bodyMap.at( centralBody )->getGravityFieldModel( )->getGravitationalParameter( );
 
-    double absoluteTime = timeVector[0];
+//    double absoluteTime = timeVector[0];
     double initialTime;// = timeVector[0];
     double finalTime;// = timeVector;
 
     std::vector< std::pair< std::shared_ptr< propagators::PropagationTerminationSettings >,
             std::shared_ptr< propagators::PropagationTerminationSettings > > > terminationSettings;
+
+//    bool detectionDsm = false;
 
 
     if (numberOfLegsIncludingDsm != numberOfLegs){
@@ -783,135 +785,145 @@ void fullPropagationPatchedConicsTrajectoryNewVersion(
 
         }
 
+        if (terminationSphereOfInfluence == true){
+
+            std::cerr << "Warning, the option to terminate on the sphere of influence is not yet available for trajectories including DSMs. "
+                         "The backward and forward propagations stop at departure and arrival bodies respectively." << std::endl;
+
+        }
+
     }
 
     else{
 
-    for (int i = 0 ; i < numberOfLegs - 1 ; i++){
+        for (int i = 0 ; i < numberOfLegs - 1 ; i++){
 
-        initialTime = timeVector[i];
-        finalTime = timeVector[i+1];
-//        finalTime = initialTime + trajectoryVariableVector[i+1];
-
-        // Retrieve positions of departure and arrival bodies from ephemerides if not defined as inputs.
-        Eigen::Vector3d cartesianPositionAtDeparture, cartesianPositionAtArrival;
+            initialTime = timeVector[i];
+            finalTime = timeVector[i+1];
+    //        finalTime = initialTime + trajectoryVariableVector[i+1];
 
 
+            if (terminationSphereOfInfluence == true)
+            {
 
-        // Cartesian state at departure
-        if ( bodyMap.at( transferBodyOrder[i] )->getEphemeris( ) == nullptr)
-        {
-            throw std::runtime_error( "Ephemeris not defined for departure body." );
-        }
-        else
-        {
-            Eigen::Vector6d cartesianStateDepartureBody =
-                    bodyMap.at( transferBodyOrder[i] )->getEphemeris( )->getCartesianState( initialTime);
-            cartesianPositionAtDeparture = cartesianStateDepartureBody.segment(0,3);
-        }
+                // Retrieve positions of departure and arrival bodies from ephemerides if not defined as inputs.
+                Eigen::Vector3d cartesianPositionAtDeparture, cartesianPositionAtArrival;
 
 
 
-        // Cartesian state at arrival
-        if ( bodyMap.at( transferBodyOrder[i+1] )->getEphemeris( ) == nullptr){
-            throw std::runtime_error( "Ephemeris not defined for arrival body." );
-        }
-        else{
-            Eigen::Vector6d cartesianStateArrivalBody =
-                    bodyMap.at( transferBodyOrder[i+1] )->getEphemeris( )->getCartesianState( finalTime );
-            cartesianPositionAtArrival =  cartesianStateArrivalBody.segment(0,3);
-        }
+                // Cartesian state at departure
+                if ( bodyMap.at( transferBodyOrder[i] )->getEphemeris( ) == nullptr)
+                {
+                    throw std::runtime_error( "Ephemeris not defined for departure body." );
+                }
+                else
+                {
+                    Eigen::Vector6d cartesianStateDepartureBody =
+                            bodyMap.at( transferBodyOrder[i] )->getEphemeris( )->getCartesianState( initialTime);
+                    cartesianPositionAtDeparture = cartesianStateDepartureBody.segment(0,3);
+                }
 
 
 
-        // Calculate radii sphere of influence about departure and arrival bodies
-        double radiusSphereOfInfluenceDeparture;
-        double radiusSphereOfInfluenceArrival;
-
-        if (terminationSphereOfInfluence == true)
-        {
-
-            double gravitationalParameterDepartureBody = bodyMap.at( transferBodyOrder[i] )->getGravityFieldModel( )->getGravitationalParameter( );
-            double gravitationalParameterArrivalBody = bodyMap.at( transferBodyOrder[i+1] )->getGravityFieldModel( )->getGravitationalParameter( );
-
-            double distanceDepartureToCentralBodies =
-                    bodyMap.at( centralBody )->getEphemeris( )->getCartesianState(
-                        initialTime ).segment( 0, 3 ).norm( ) - cartesianPositionAtDeparture.segment( 0, 3 ).norm( );
-            double distanceArrivalToCentralBodies =
-                    bodyMap.at( centralBody )->getEphemeris( )->getCartesianState(
-                        finalTime ).segment( 0, 3 ).norm( ) - cartesianPositionAtArrival.segment( 0, 3 ).norm( );
+                // Cartesian state at arrival
+                if ( bodyMap.at( transferBodyOrder[i+1] )->getEphemeris( ) == nullptr){
+                    throw std::runtime_error( "Ephemeris not defined for arrival body." );
+                }
+                else{
+                    Eigen::Vector6d cartesianStateArrivalBody =
+                            bodyMap.at( transferBodyOrder[i+1] )->getEphemeris( )->getCartesianState( finalTime );
+                    cartesianPositionAtArrival =  cartesianStateArrivalBody.segment(0,3);
+                }
 
 
-            // Calculate radius sphere of influence for departure body.
-            radiusSphereOfInfluenceDeparture = tudat::mission_geometry::computeSphereOfInfluence(
-                        distanceDepartureToCentralBodies, gravitationalParameterDepartureBody, gravitationalParameterCentralBody);
 
-            // Calculate radius sphere of influence for arrival body.
-            radiusSphereOfInfluenceArrival = tudat::mission_geometry::computeSphereOfInfluence(
-                        distanceArrivalToCentralBodies, gravitationalParameterArrivalBody, gravitationalParameterCentralBody);
+                // Calculate radii sphere of influence about departure and arrival bodies
+                double radiusSphereOfInfluenceDeparture;
+                double radiusSphereOfInfluenceArrival;
 
-            // Calculate the synodic period.
-            double orbitalPeriodDepartureBody = basic_astrodynamics::computeKeplerOrbitalPeriod(
-                  orbital_element_conversions::convertCartesianToKeplerianElements( bodyMap.at( transferBodyOrder[i] )->
-                  getEphemeris()->getCartesianState(initialTime), gravitationalParameterCentralBody)[ orbital_element_conversions::semiMajorAxisIndex ],
-                  gravitationalParameterCentralBody, gravitationalParameterDepartureBody);
 
-            double orbitalPeriodArrivalBody = basic_astrodynamics::computeKeplerOrbitalPeriod(
-                  orbital_element_conversions::convertCartesianToKeplerianElements( bodyMap.at( transferBodyOrder[i+1] )->
-                  getEphemeris()->getCartesianState(initialTime), gravitationalParameterCentralBody)[ orbital_element_conversions::semiMajorAxisIndex ],
-                  gravitationalParameterCentralBody, gravitationalParameterArrivalBody);
 
-            double synodicPeriod;
-            if (orbitalPeriodDepartureBody < orbitalPeriodArrivalBody){
-                synodicPeriod = basic_astrodynamics::computeSynodicPeriod(orbitalPeriodDepartureBody, orbitalPeriodArrivalBody);
+                double gravitationalParameterDepartureBody = bodyMap.at( transferBodyOrder[i] )->getGravityFieldModel( )->getGravitationalParameter( );
+                double gravitationalParameterArrivalBody = bodyMap.at( transferBodyOrder[i+1] )->getGravityFieldModel( )->getGravitationalParameter( );
+
+                double distanceDepartureToCentralBodies =
+                        bodyMap.at( centralBody )->getEphemeris( )->getCartesianState(
+                            initialTime ).segment( 0, 3 ).norm( ) - cartesianPositionAtDeparture.segment( 0, 3 ).norm( );
+                double distanceArrivalToCentralBodies =
+                        bodyMap.at( centralBody )->getEphemeris( )->getCartesianState(
+                            finalTime ).segment( 0, 3 ).norm( ) - cartesianPositionAtArrival.segment( 0, 3 ).norm( );
+
+
+                // Calculate radius sphere of influence for departure body.
+                radiusSphereOfInfluenceDeparture = tudat::mission_geometry::computeSphereOfInfluence(
+                            distanceDepartureToCentralBodies, gravitationalParameterDepartureBody, gravitationalParameterCentralBody);
+
+                // Calculate radius sphere of influence for arrival body.
+                radiusSphereOfInfluenceArrival = tudat::mission_geometry::computeSphereOfInfluence(
+                            distanceArrivalToCentralBodies, gravitationalParameterArrivalBody, gravitationalParameterCentralBody);
+
+                // Calculate the synodic period.
+                double orbitalPeriodDepartureBody = basic_astrodynamics::computeKeplerOrbitalPeriod(
+                      orbital_element_conversions::convertCartesianToKeplerianElements( bodyMap.at( transferBodyOrder[i] )->
+                      getEphemeris()->getCartesianState(initialTime), gravitationalParameterCentralBody)[ orbital_element_conversions::semiMajorAxisIndex ],
+                      gravitationalParameterCentralBody, gravitationalParameterDepartureBody);
+
+                double orbitalPeriodArrivalBody = basic_astrodynamics::computeKeplerOrbitalPeriod(
+                      orbital_element_conversions::convertCartesianToKeplerianElements( bodyMap.at( transferBodyOrder[i+1] )->
+                      getEphemeris()->getCartesianState(initialTime), gravitationalParameterCentralBody)[ orbital_element_conversions::semiMajorAxisIndex ],
+                      gravitationalParameterCentralBody, gravitationalParameterArrivalBody);
+
+                double synodicPeriod;
+                if (orbitalPeriodDepartureBody < orbitalPeriodArrivalBody){
+                    synodicPeriod = basic_astrodynamics::computeSynodicPeriod(orbitalPeriodDepartureBody, orbitalPeriodArrivalBody);
+                }
+                else {
+                    synodicPeriod = basic_astrodynamics::computeSynodicPeriod(orbitalPeriodArrivalBody, orbitalPeriodDepartureBody);
+                }
+
+
+                // Create total propagator termination settings.
+                std::vector< std::shared_ptr< PropagationTerminationSettings > >  forwardPropagationTerminationSettingsList;
+                forwardPropagationTerminationSettingsList.push_back(
+                            std::make_shared< PropagationDependentVariableTerminationSettings >(
+                                std::make_shared< SingleDependentVariableSaveSettings >(
+                                    relative_distance_dependent_variable, bodyToPropagate, transferBodyOrder[i+1] ), radiusSphereOfInfluenceArrival, false ) );
+                forwardPropagationTerminationSettingsList.push_back(
+                            std::make_shared< PropagationTimeTerminationSettings >( 2 * synodicPeriod ) );
+
+
+                std::shared_ptr< PropagationTerminationSettings > forwardPropagationTerminationSettings =
+                        std::make_shared< PropagationHybridTerminationSettings >( forwardPropagationTerminationSettingsList, true );
+
+
+                std::vector< std::shared_ptr< PropagationTerminationSettings > >  backwardPropagationTerminationSettingsList;
+                backwardPropagationTerminationSettingsList.push_back(
+                    std::make_shared< PropagationDependentVariableTerminationSettings >(
+                        std::make_shared< SingleDependentVariableSaveSettings >(
+                            relative_distance_dependent_variable, bodyToPropagate, transferBodyOrder[i] ), radiusSphereOfInfluenceDeparture, false ) );
+                backwardPropagationTerminationSettingsList.push_back(
+                            std::make_shared< PropagationTimeTerminationSettings >( 2 * synodicPeriod ) );
+
+                \
+                std::shared_ptr< PropagationTerminationSettings > backwardPropagationTerminationSettings =
+                        std::make_shared< PropagationHybridTerminationSettings >( backwardPropagationTerminationSettingsList, true );
+
+                terminationSettings.push_back(std::make_pair( backwardPropagationTerminationSettings, forwardPropagationTerminationSettings ));
+
+
             }
-            else {
-                synodicPeriod = basic_astrodynamics::computeSynodicPeriod(orbitalPeriodArrivalBody, orbitalPeriodDepartureBody);
+            else
+            {
+
+
+                terminationSettings.push_back(std::make_pair(
+                            std::make_shared< propagators::PropagationTimeTerminationSettings >( initialTime ),
+                            std::make_shared< propagators::PropagationTimeTerminationSettings >( finalTime ) ));
             }
 
-
-            // Create total propagator termination settings.
-            std::vector< std::shared_ptr< PropagationTerminationSettings > >  forwardPropagationTerminationSettingsList;
-            forwardPropagationTerminationSettingsList.push_back(
-                        std::make_shared< PropagationDependentVariableTerminationSettings >(
-                            std::make_shared< SingleDependentVariableSaveSettings >(
-                                relative_distance_dependent_variable, bodyToPropagate, transferBodyOrder[i+1] ), radiusSphereOfInfluenceArrival, false ) );
-            forwardPropagationTerminationSettingsList.push_back(
-                        std::make_shared< PropagationTimeTerminationSettings >( 2 * synodicPeriod ) );
-
-
-            std::shared_ptr< PropagationTerminationSettings > forwardPropagationTerminationSettings =
-                    std::make_shared< PropagationHybridTerminationSettings >( forwardPropagationTerminationSettingsList, true );
-
-
-            std::vector< std::shared_ptr< PropagationTerminationSettings > >  backwardPropagationTerminationSettingsList;
-            backwardPropagationTerminationSettingsList.push_back(
-                std::make_shared< PropagationDependentVariableTerminationSettings >(
-                    std::make_shared< SingleDependentVariableSaveSettings >(
-                        relative_distance_dependent_variable, bodyToPropagate, transferBodyOrder[i] ), radiusSphereOfInfluenceDeparture, false ) );
-            backwardPropagationTerminationSettingsList.push_back(
-                        std::make_shared< PropagationTimeTerminationSettings >( 2 * synodicPeriod ) );
-
-            \
-            std::shared_ptr< PropagationTerminationSettings > backwardPropagationTerminationSettings =
-                    std::make_shared< PropagationHybridTerminationSettings >( backwardPropagationTerminationSettingsList, true );
-
-            terminationSettings.push_back(std::make_pair( backwardPropagationTerminationSettings, forwardPropagationTerminationSettings ));
-
+    //        initialTime = finalTime;
 
         }
-        else
-        {
-
-
-            terminationSettings.push_back(std::make_pair(
-                        std::make_shared< propagators::PropagationTimeTerminationSettings >( initialTime ),
-                        std::make_shared< propagators::PropagationTimeTerminationSettings >( finalTime ) ));
-        }
-
-//        initialTime = finalTime;
-
-    }
     }
 
 
