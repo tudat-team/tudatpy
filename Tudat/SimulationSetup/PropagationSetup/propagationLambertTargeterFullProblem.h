@@ -121,6 +121,8 @@ void propagateLambertTargeterAndFullProblem(
         const std::string& centralBody,
         const std::pair< std::shared_ptr< propagators::PropagationTerminationSettings >,
         std::shared_ptr< propagators::PropagationTerminationSettings > > terminationSettings,
+        std::pair< std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > >,
+        std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > > > propagatorSettings,
         const std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings,
         std::map< double, Eigen::Vector6d >& lambertTargeterResult,
         std::map< double, Eigen::Vector6d >& fullProblemResult,
@@ -174,7 +176,9 @@ void propagateLambertTargeterAndFullProblem(
         const Eigen::Vector3d& cartesianPositionAtArrival,
         const double departureBodyGravitationalParameter,
         const double arrivalBodyGravitationalParameter,
-        const double centralBodyGravitationalParameter);
+        const double centralBodyGravitationalParameter,
+        const std::shared_ptr< DependentVariableSaveSettings > dependentVariablesToSave = std::shared_ptr< DependentVariableSaveSettings >( ),
+        const TranslationalPropagatorType propagator = cowell);
 
 //! Function to compute the difference in cartesian state between Lambert targeter solution and full dynamics problem, both at departure
 //! and at arrival.
@@ -210,7 +214,9 @@ std::pair< Eigen::Vector6d, Eigen::Vector6d > getDifferenceFullPropagationWrtLam
         const std::string& centralBody,
         const std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings,
         const std::vector< std::string >& departureAndArrivalBodies,
-        const bool terminationSphereOfInfluence = false);
+        const bool terminationSphereOfInfluence,
+        const std::shared_ptr< DependentVariableSaveSettings > dependentVariablesToSave = std::shared_ptr< DependentVariableSaveSettings >( ),
+        const TranslationalPropagatorType propagator = cowell);
 
 
 

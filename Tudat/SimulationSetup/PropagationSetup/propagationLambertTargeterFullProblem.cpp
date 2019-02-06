@@ -315,6 +315,8 @@ void propagateLambertTargeterAndFullProblem(
         const std::string& centralBody,
         const std::pair< std::shared_ptr< propagators::PropagationTerminationSettings >,
         std::shared_ptr< propagators::PropagationTerminationSettings > > terminationSettings,
+        std::pair< std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > >,
+        std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > > > propagatorSettings,
         const std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings,
         std::map< double, Eigen::Vector6d >& lambertTargeterResult,
         std::map< double, Eigen::Vector6d >& fullProblemResult,
@@ -436,6 +438,16 @@ void propagateLambertTargeterAndFullProblem(
                 centralBodiesPropagation, accelerationModelMap, bodiesToPropagate, initialStatePropagationCartesianElements,
                 terminationSettings.first );
 
+    propagatorSettingsForwardPropagation = propagatorSettings.second;
+    propagatorSettingsForwardPropagation->bodiesToIntegrate_ = bodiesToPropagate;
+    propagatorSettingsForwardPropagation->centralBodies_ = centralBodiesPropagation;
+    propagatorSettingsForwardPropagation->resetInitialStates( initialStatePropagationCartesianElements );
+//    propagatorSettings.first->resetAccelerationModelsMap(accelerationMap, bodyMap);
+
+    propagatorSettingsBackwardPropagation = propagatorSettings.first;
+    propagatorSettingsBackwardPropagation->bodiesToIntegrate_ = bodiesToPropagate;
+    propagatorSettingsBackwardPropagation->centralBodies_ = centralBodiesPropagation;
+    propagatorSettingsBackwardPropagation->resetInitialStates( initialStatePropagationCartesianElements );
 
     // Perform forward propagation.
     propagators::SingleArcDynamicsSimulator< > dynamicsSimulatorIntegrationForwards(
@@ -499,7 +511,9 @@ void propagateLambertTargeterAndFullProblem(
         const Eigen::Vector3d& cartesianPositionAtArrival,
         const double departureBodyGravitationalParameter,
         const double arrivalBodyGravitationalParameter,
-        const double centralBodyGravitationalParameter)
+        const double centralBodyGravitationalParameter,
+        const std::shared_ptr< DependentVariableSaveSettings > dependentVariablesToSave = std::shared_ptr< DependentVariableSaveSettings >( ),
+        const TranslationalPropagatorType propagator = cowell)
 {
 
     // Retrieve the gravitational parameter of the relevant bodies.
@@ -641,8 +655,24 @@ void propagateLambertTargeterAndFullProblem(
                     std::make_shared< propagators::PropagationTimeTerminationSettings >( initialTime + timeOfFlight ) );
     }
 
+    Eigen::Vector6d initialState;
+
+    std::pair< std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > >,
+    std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > > > propagatorSettings;
+
+    std::vector< std::string > centralBodyPropagation; centralBodyPropagation.push_back( centralBody );
+    std::vector< std::string > bodyToPropagatePropagation; bodyToPropagatePropagation.push_back( bodyToPropagate );
+
+    propagatorSettings.first = std::make_shared< TranslationalStatePropagatorSettings< double > >(
+        centralBodyPropagation, accelerationModelMap, bodyToPropagatePropagation, initialState,
+        terminationSettings.first, propagator, dependentVariablesToSave );
+
+    propagatorSettings.second = std::make_shared< TranslationalStatePropagatorSettings< double > >(
+        centralBodyPropagation, accelerationModelMap, bodyToPropagatePropagation, initialState,
+        terminationSettings.second, propagator, dependentVariablesToSave );
+
     propagateLambertTargeterAndFullProblem(
-            timeOfFlight, initialTime, bodyMap, accelerationModelMap, bodyToPropagate, centralBody, terminationSettings,
+            timeOfFlight, initialTime, bodyMap, accelerationModelMap, bodyToPropagate, centralBody, terminationSettings, propagatorSettings,
             integratorSettings, lambertTargeterResult, fullProblemResult, departureAndArrivalBodies,
             centralBodyGravitationalParameter, cartesianPositionAtDeparture, cartesianPositionAtArrival );
 }
@@ -663,7 +693,9 @@ std::pair< Eigen::Vector6d, Eigen::Vector6d > getDifferenceFullPropagationWrtLam
         const std::string& centralBody,
         const std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings,
         const std::vector< std::string >& departureAndArrivalBodies,
-        const bool terminationSphereOfInfluence )
+        const bool terminationSphereOfInfluence,
+        const std::shared_ptr< DependentVariableSaveSettings > dependentVariablesToSave = std::shared_ptr< DependentVariableSaveSettings >( ),
+        const TranslationalPropagatorType propagator = cowell)
 
 {
     std::map< double, Eigen::Vector6d > lambertTargeterResult;
@@ -673,7 +705,8 @@ std::pair< Eigen::Vector6d, Eigen::Vector6d > getDifferenceFullPropagationWrtLam
     propagateLambertTargeterAndFullProblem(
                 timeOfFlight, initialTime, bodyMap, accelerationModelMap, bodyToPropagate, centralBody, integratorSettings,
                 lambertTargeterResult, fullProblemResult, departureAndArrivalBodies,
-                terminationSphereOfInfluence, cartesianPositionAtDeparture, cartesianPositionAtArrival, TUDAT_NAN, TUDAT_NAN, TUDAT_NAN );
+                terminationSphereOfInfluence, cartesianPositionAtDeparture, cartesianPositionAtArrival, TUDAT_NAN, TUDAT_NAN, TUDAT_NAN,
+                dependentVariablesToSave, propagator );
 
     Eigen::Vector6d stateLambertTargeterAtDeparture = lambertTargeterResult.begin( )->second;
     Eigen::Vector6d propagatedStateFullProblemAtDeparture = fullProblemResult.begin( )->second;
