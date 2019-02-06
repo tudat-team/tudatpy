@@ -45,6 +45,11 @@ simulation_setup::NamedBodyMap setupBodyMapFromEphemeridesForLambertTargeter(
         const std::vector< std::string >& departureAndArrivalBodies );
 
 
+simulation_setup::NamedBodyMap setupBodyMapFromUserDefinedEphemeridesForLambertTargeter(
+        const std::string& nameCentralBody,
+        const std::string& nameBodyToPropagate,
+        const std::vector< std::string >& departureAndArrivalBodies,
+        const std::vector< ephemerides::EphemerisPointer >& ephemerisVectorDepartureAndArrivalBodies);
 
 //! Function to setup a body map corresponding to the assumptions of the Lambert targeter,
 //! using default ephemerides for the central body only, while the positions of departure and arrival bodies are provided as inputs.
