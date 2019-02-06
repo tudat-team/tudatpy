@@ -226,6 +226,22 @@ void fullPropagationPatchedConicsTrajectoryNewVersion(
         std::map< int, std::map< double, Eigen::Vector6d > >& lambertTargeterResultForEachLeg,
         std::map< int, std::map< double, Eigen::Vector6d > >& fullProblemResultForEachLeg);
 
+void fullPropagationPatchedConicsTrajectoryNewVersion(
+        simulation_setup::NamedBodyMap& bodyMap,
+        const basic_astrodynamics::AccelerationMap& accelerationMap,
+        const std::vector< std::string >& transferBodyOrder,
+        const std::string& centralBody,
+        const std::string& bodyToPropagate,
+        const std::vector< transfer_trajectories::TransferLegType>& legTypeVector,
+        const std::vector< double >& trajectoryVariableVector,
+        const std::vector< double >& minimumPericenterRadiiVector,
+        const std::vector< double >& semiMajorAxesVector,
+        const std::vector< double >& eccentricitiesVector,
+        const std::shared_ptr< numerical_integrators::IntegratorSettings< double > >& integratorSettings,
+        const bool terminationSphereOfInfluence,
+        std::map< int, std::map< double, Eigen::Vector6d > >& lambertTargeterResultForEachLeg,
+        std::map< int, std::map< double, Eigen::Vector6d > >& fullProblemResultForEachLeg);
+
 void propagateMgaWithoutDsmAndFullProblem(
         simulation_setup::NamedBodyMap& bodyMap,
         const basic_astrodynamics::AccelerationMap& accelerationMap,
@@ -258,7 +274,9 @@ void propagateMga1DsmVelocityAndFullProblem(
         const transfer_trajectories::TransferLegType& legType,
         const std::vector< double >& trajectoryVariableVector,
         const std::pair< std::shared_ptr< propagators::PropagationTerminationSettings >,
-        std::shared_ptr< propagators::PropagationTerminationSettings > > terminationSettings,
+        std::shared_ptr< propagators::PropagationTerminationSettings > > terminationSettingsBeforeDsm,
+        const std::pair< std::shared_ptr< propagators::PropagationTerminationSettings >,
+        std::shared_ptr< propagators::PropagationTerminationSettings > > terminationSettingsAfterDsm,
         const std::shared_ptr< numerical_integrators::IntegratorSettings< double > >& integratorSettings,
         std::map< double, Eigen::Vector6d >& patchedConicsResultFromDepartureToDsm,
         std::map< double, Eigen::Vector6d >& fullProblemResultFromDepartureToDsm,
@@ -285,7 +303,9 @@ void propagateMga1DsmPositionAndFullProblem(
         const transfer_trajectories::TransferLegType& legType,
         const std::vector< double >& trajectoryVariableVector,
         const std::pair< std::shared_ptr< propagators::PropagationTerminationSettings >,
-        std::shared_ptr< propagators::PropagationTerminationSettings > > terminationSettings,
+        std::shared_ptr< propagators::PropagationTerminationSettings > > terminationSettingsBeforeDsm,
+        const std::pair< std::shared_ptr< propagators::PropagationTerminationSettings >,
+        std::shared_ptr< propagators::PropagationTerminationSettings > > terminationSettingsAfterDsm,
         const std::shared_ptr< numerical_integrators::IntegratorSettings< double > >& integratorSettings,
         std::map< double, Eigen::Vector6d >& patchedConicsResultFromDepartureToDsm,
         std::map< double, Eigen::Vector6d >& fullProblemResultFromDepartureToDsm,
@@ -404,6 +424,22 @@ std::map< int, std::pair< Eigen::Vector6d, Eigen::Vector6d > > getDifferenceFull
 
 
 }
+
+
+std::map< int, std::pair< Eigen::Vector6d, Eigen::Vector6d > > getDifferenceFullProblemWrtPatchedConicsTrajectory(
+        simulation_setup::NamedBodyMap& bodyMap,
+        const std::vector< basic_astrodynamics::AccelerationMap >& accelerationMap,
+        const std::vector< std::string >& transferBodyOrder,
+        const std::string& centralBody,
+        const std::string& bodyToPropagate,
+        const std::vector< transfer_trajectories::TransferLegType >& legTypeVector,
+        const std::vector<double>& trajectoryVariableVector,
+        const std::vector<double>& minimumPericenterRadiiVector,
+        const std::vector<double>& semiMajorAxesVector,
+        const std::vector<double>& eccentricitiesVector,
+        const std::vector< std::pair< std::shared_ptr< propagators::PropagationTerminationSettings >,
+        std::shared_ptr< propagators::PropagationTerminationSettings > > > terminationSettings,
+        const std::shared_ptr< numerical_integrators::IntegratorSettings< double > >& integratorSettings);
 
 }
 
