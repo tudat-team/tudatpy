@@ -29,25 +29,13 @@ void DepartureLegMga1DsmPosition::calculateLeg( Eigen::Vector3d& velocityBeforeA
     // times.
 
 
-    std::cout << "Inside departure leg, imputs: " << "\n\n";
-    std::cout << "first part of the leg: from departure body to DSM" << "\n\n";
-    std::cout << "departure position: " << departureBodyPosition_ << "\n\n";
-    std::cout << "cartesian position: " << dsmLocation_ << "\n\n";
-    std::cout << "dsm time: " << dsmTime_ << "\n\n";
-    std::cout << "gravitational parameter: " << centralBodyGravitationalParameter_ << "\n\n";
     mission_segments::solveLambertProblemIzzo( departureBodyPosition_, dsmLocation_, dsmTime_,
                                                centralBodyGravitationalParameter_,
                                                velocityAfterDeparture_, velocityBeforeDsm_ );
-    std::cout << "velocity at departure: " << velocityAfterDeparture_ << "\n\n";
-    std::cout << "second part of the leg: from DSM to arrival" << "\n\n";
-    std::cout << "departure position: " << dsmLocation_ << "\n\n";
-    std::cout << "cartesian position: " << arrivalBodyPosition_ << "\n\n";
-    std::cout << "dsm time: " << timeOfFlight_ - dsmTime_ << "\n\n";
-    std::cout << "gravitational parameter: " << centralBodyGravitationalParameter_ << "\n\n";
+
     mission_segments::solveLambertProblemIzzo( dsmLocation_, arrivalBodyPosition_, timeOfFlight_ -
                                                dsmTime_, centralBodyGravitationalParameter_,
                                                velocityAfterDsm_, velocityBeforeArrivalBody );
-    std::cout << "velocity at departure: " << velocityAfterDsm_ << "\n\n";
 
     // Calculate the deltaV originating from the departure maneuver and the DSM.
     escapeDeltaV_ = mission_segments::computeEscapeOrCaptureDeltaV(

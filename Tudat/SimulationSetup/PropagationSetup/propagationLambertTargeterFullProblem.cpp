@@ -275,68 +275,6 @@ Eigen::Vector6d computeCartesianStateFromKeplerianOrbit(
 
 
 
-//! Function to compute the cartesian state at half of the time of flight for a Lambert targeter.
-Eigen::Vector6d computeCartesianStateHalfTimeOfFlightLambertTargeter(
-        const Eigen::Vector6d& cartesianStateAtDeparture,
-        const double gravitationalParameterCentralBody,
-        const double timeOfFlight){
-
-    double halvedTimeOfFlight = timeOfFlight / 2.0;
-
-    // Keplerian state at departure.
-    Eigen::Vector6d keplerianStateAtDeparture = tudat::orbital_element_conversions::convertCartesianToKeplerianElements(
-                cartesianStateAtDeparture, gravitationalParameterCentralBody);
-
-    double semiMajorAxis = keplerianStateAtDeparture( orbital_element_conversions::semiMajorAxisIndex );
-    double eccentricity = keplerianStateAtDeparture( orbital_element_conversions::eccentricityIndex );
-
-    double trueAnomalyAtDeparture = keplerianStateAtDeparture(orbital_element_conversions::trueAnomalyIndex);
-    double meanAnomalyAtDeparture;
-    if( eccentricity < 1.0 )
-    {
-        std::cout << "eccentricity inferior to 1" << "\n\n";
-        meanAnomalyAtDeparture = orbital_element_conversions::convertEccentricAnomalyToMeanAnomaly(
-                    orbital_element_conversions::convertTrueAnomalyToEccentricAnomaly(trueAnomalyAtDeparture, eccentricity),
-                    eccentricity);
-    }
-    else
-    {
-        std::cout << "eccentricity larger than 1" << "\n\n";
-        std::cout << "eccentricity: " << eccentricity << "\n\n";
-        meanAnomalyAtDeparture = orbital_element_conversions::convertHyperbolicEccentricAnomalyToMeanAnomaly(
-                    orbital_element_conversions::convertTrueAnomalyToHyperbolicEccentricAnomaly(trueAnomalyAtDeparture, eccentricity),
-                    eccentricity);
-    }
-
-
-    // Calculate the true anomaly at half the time of flight.
-    double meanAnomalyChangeHalfTimeOfFlight = orbital_element_conversions::convertElapsedTimeToMeanAnomalyChange(halvedTimeOfFlight,
-                                                                                                                  gravitationalParameterCentralBody, semiMajorAxis);
-
-    double meanAnomalyHalfTimeOfFlight = meanAnomalyChangeHalfTimeOfFlight + meanAnomalyAtDeparture;
-    double trueAnomalyHalfTimeOfFlight;
-    if( eccentricity < 1.0 )
-    {
-        trueAnomalyHalfTimeOfFlight = orbital_element_conversions::convertEccentricAnomalyToTrueAnomaly(
-                    orbital_element_conversions::convertMeanAnomalyToEccentricAnomaly( eccentricity, meanAnomalyHalfTimeOfFlight ), eccentricity);
-    }
-    else
-    {
-        trueAnomalyHalfTimeOfFlight = orbital_element_conversions::convertHyperbolicEccentricAnomalyToTrueAnomaly(
-                    orbital_element_conversions::convertMeanAnomalyToHyperbolicEccentricAnomaly( eccentricity, meanAnomalyHalfTimeOfFlight ), eccentricity);
-    }
-
-    // Define the state at half of the time of flight (initial state for the propagation).
-    Eigen::Vector6d keplerianStateHalfTimeOfFlight;
-    keplerianStateHalfTimeOfFlight.segment(0,5) = keplerianStateAtDeparture.segment(0,5);
-    keplerianStateHalfTimeOfFlight[orbital_element_conversions::trueAnomalyIndex] = trueAnomalyHalfTimeOfFlight;
-
-    Eigen::Vector6d cartesianStateHalfTimeOfFlight = orbital_element_conversions::convertKeplerianToCartesianElements(
-                keplerianStateHalfTimeOfFlight, gravitationalParameterCentralBody);
-
-    return cartesianStateHalfTimeOfFlight;
-
-}
 
 void propagateLambertTargeterAndFullProblem(
         const double timeOfFlight,
@@ -345,8 +283,6 @@ void propagateLambertTargeterAndFullProblem(
         const basic_astrodynamics::AccelerationMap& accelerationModelMap,
         const std::string& bodyToPropagate,
         const std::string& centralBody,
-        const std::pair< std::shared_ptr< propagators::PropagationTerminationSettings >,
-        std::shared_ptr< propagators::PropagationTerminationSettings > > terminationSettings,
         std::pair< std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > >,
         std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > > > propagatorSettings,
         const std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings,
@@ -413,11 +349,6 @@ void propagateLambertTargeterAndFullProblem(
 
 
     // Run the Lambert targeter.
-    std::cout << "Inside Lambert targeter, inputs: " << "\n\n";
-    std::cout << "cartesian position at departure: " << cartesianPositionAtDepartureForLambertTargeter << "\n\n";
-    std::cout << "cartesian position at arrival: " << cartesianPositionAtArrivalForLambertTargeter << "\n\n";
-    std::cout << "time of flight: " << timeOfFlight << "\n\n";
-    std::cout << "gravitational parameter central body: " << gravitationalParameterCentralBody << "\n\n";
     mission_segments::LambertTargeterIzzo lambertTargeter(
                 cartesianPositionAtDepartureForLambertTargeter, cartesianPositionAtArrivalForLambertTargeter,
                 timeOfFlight, gravitationalParameterCentralBody );
@@ -427,11 +358,7 @@ void propagateLambertTargeterAndFullProblem(
     Eigen::Vector6d cartesianStateAtDeparture;
     cartesianStateAtDeparture.segment(0,3) = cartesianPositionAtDepartureForLambertTargeter;
     cartesianStateAtDeparture.segment(3,3) = cartesianVelocityAtDeparture;
-    std::cout << "cartesian velocity at departure: " << cartesianVelocityAtDeparture << "\n\n";
 
-//    // Compute cartesian state at halved time of flight.
-//    Eigen::Vector6d initialStatePropagationCartesianElements = computeCartesianStateHalfTimeOfFlightLambertTargeter(
-//                cartesianStateAtDeparture, gravitationalParameterCentralBody, timeOfFlight);
 
     // Convert into keplerian elements
     Eigen::Vector6d keplerianStateAtDeparture = orbital_element_conversions::convertCartesianToKeplerianElements(
@@ -463,18 +390,11 @@ void propagateLambertTargeterAndFullProblem(
     std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > > propagatorSettingsForwardPropagation;
     std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > > propagatorSettingsBackwardPropagation;
 
-    propagatorSettingsForwardPropagation = std::make_shared< propagators::TranslationalStatePropagatorSettings< double > > (
-                centralBodiesPropagation, accelerationModelMap, bodiesToPropagate, initialStatePropagationCartesianElements,
-                terminationSettings.second );
-    propagatorSettingsBackwardPropagation = std::make_shared< propagators::TranslationalStatePropagatorSettings< double > > (
-                centralBodiesPropagation, accelerationModelMap, bodiesToPropagate, initialStatePropagationCartesianElements,
-                terminationSettings.first );
 
     propagatorSettingsForwardPropagation = propagatorSettings.second;
     propagatorSettingsForwardPropagation->bodiesToIntegrate_ = bodiesToPropagate;
     propagatorSettingsForwardPropagation->centralBodies_ = centralBodiesPropagation;
     propagatorSettingsForwardPropagation->resetInitialStates( initialStatePropagationCartesianElements );
-//    propagatorSettings.first->resetAccelerationModelsMap(accelerationMap, bodyMap);
 
     propagatorSettingsBackwardPropagation = propagatorSettings.first;
     propagatorSettingsBackwardPropagation->bodiesToIntegrate_ = bodiesToPropagate;
@@ -704,7 +624,7 @@ void propagateLambertTargeterAndFullProblem(
         terminationSettings.second, propagator, dependentVariablesToSave );
 
     propagateLambertTargeterAndFullProblem(
-            timeOfFlight, initialTime, bodyMap, accelerationModelMap, bodyToPropagate, centralBody, terminationSettings, propagatorSettings,
+            timeOfFlight, initialTime, bodyMap, accelerationModelMap, bodyToPropagate, centralBody, propagatorSettings,
             integratorSettings, lambertTargeterResult, fullProblemResult, departureAndArrivalBodies,
             centralBodyGravitationalParameter, cartesianPositionAtDeparture, cartesianPositionAtArrival );
 }
