@@ -20,7 +20,12 @@ namespace tudat
 namespace propagators
 {
 
-
+//! Function to get default minimum pericenter radii for a list of bodies
+/*!
+ * Function to get default minimum pericenter radii for a list of bodies
+ * \param bodyNames List of names of bodies for which periapsis radii are to be returned (only the eight planets + Pluto supported)
+ * \return List of minimum pericenter radii
+ */
 std::vector< double > getDefaultMinimumPericenterRadii( const std::vector< std::string >& bodyNames );
 
 //! Function to setup a body map corresponding to the assumptions of a patched conics trajectory,
