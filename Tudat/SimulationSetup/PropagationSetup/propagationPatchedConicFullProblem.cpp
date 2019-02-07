@@ -161,7 +161,6 @@ std::vector < basic_astrodynamics::AccelerationMap > setupAccelerationMapPatched
 
 
 
-
 //! Function to create the trajectory from the body map.
 transfer_trajectories::Trajectory createTransferTrajectoryObject(
         const simulation_setup::NamedBodyMap& bodyMap,
@@ -300,7 +299,7 @@ void fullPropagationPatchedConicsTrajectory(
             departureAndArrivalBodies.push_back( bodiesAndManoeuvresOrder[counterLegs] );
             departureAndArrivalBodies.push_back( bodiesAndManoeuvresOrder[counterLegs+1]);
 
-            // Compute the difference in state between the full problem and the Lambert targeter solution for the current leg.
+            // Compute the difference in state between the full problem and the patched conics solution for the current leg.
             std::map< double, Eigen::Vector6d > patchedConicsResultCurrentLeg;
             std::map< double, Eigen::Vector6d > fullProblemResultCurrentLeg;
 
@@ -695,7 +694,7 @@ void fullPropagationPatchedConicsTrajectory(
         const std::vector< double >& semiMajorAxesVector,
         const std::vector< double >& eccentricitiesVector,
         const std::shared_ptr< numerical_integrators::IntegratorSettings< double > >& integratorSettings,
-        std::map< int, std::map< double, Eigen::Vector6d > >& lambertTargeterResultForEachLeg,
+        std::map< int, std::map< double, Eigen::Vector6d > >& patchedConicsResultForEachLeg,
         std::map< int, std::map< double, Eigen::Vector6d > >& fullProblemResultForEachLeg,
         const bool terminationSphereOfInfluence,
         const std::shared_ptr< DependentVariableSaveSettings > dependentVariablesToSave,
@@ -717,7 +716,7 @@ void fullPropagationPatchedConicsTrajectory(
     fullPropagationPatchedConicsTrajectory(
                 bodyMap, accelerationMapForEachLeg, transferBodyOrder, centralBody, bodyToPropagate, legTypeVector,
                 trajectoryVariableVector, minimumPericenterRadiiVector, semiMajorAxesVector, eccentricitiesVector,
-                integratorSettings, lambertTargeterResultForEachLeg, fullProblemResultForEachLeg, terminationSphereOfInfluence,
+                integratorSettings, patchedConicsResultForEachLeg, fullProblemResultForEachLeg, terminationSphereOfInfluence,
                 dependentVariablesToSaveForEachLeg, propagator);
 
 }
@@ -849,11 +848,11 @@ void propagateMga1DsmVelocityAndFullProblem(
         legDepartureAndArrival.push_back( departureAndArrivalBodies[0] );
         legDepartureAndArrival.push_back( dsm );
 
-        propagateKeplerianOrbitAndFullProblem(timeDsm - initialTime, initialTime, bodyMap, accelerationMap, bodyToPropagate, centralBody,
+        propagateKeplerianOrbitAndFullProblem(timeDsm - initialTime, initialTime, bodyMap, bodyToPropagate, centralBody,
                                               legDepartureAndArrival, velocityAfterDeparture, propagatorSettingsBeforeDsm, integratorSettings,
                                               patchedConicsResultFromDepartureToDsm, fullProblemResultFromDepartureToDsm,
                                               bodyMap[ centralBody ]->getGravityFieldModel()->getGravitationalParameter(),
-                                              cartesianPositionAtDeparture, cartesianPositionDSM);
+                                              cartesianPositionAtDeparture);
 
 
         // Second part of the leg: Lambert targeter from DSM location to arrival body.
@@ -979,7 +978,7 @@ void propagateMga1DsmPositionAndFullProblem(
                                                 cartesianPositionAtDeparture, cartesianPositionDSM);
 
 
-        // Second part of the leg: from DSM to arrival body (Lambert targeter).
+        // Second part of the leg: Lambert targeter from DSM to arrival body.
 
         legDepartureAndArrival.clear();
         legDepartureAndArrival.push_back( dsm );
@@ -1002,7 +1001,6 @@ void propagateKeplerianOrbitAndFullProblem(
         const double timeOfFlight,
         const double initialTime,
         const simulation_setup::NamedBodyMap& bodyMap,
-        const basic_astrodynamics::AccelerationMap& accelerationModelMap,
         const std::string& bodyToPropagate,
         const std::string& centralBody,
         const std::vector<std::string>& departureAndArrivalBodies,
@@ -1013,8 +1011,7 @@ void propagateKeplerianOrbitAndFullProblem(
         std::map< double, Eigen::Vector6d >& keplerianOrbitResult,
         std::map< double, Eigen::Vector6d >& fullProblemResult,
         const double centralBodyGravitationalParameter,
-        const Eigen::Vector3d& cartesianPositionAtDeparture,
-        const Eigen::Vector3d& cartesianPositionAtArrival)
+        const Eigen::Vector3d& cartesianPositionAtDeparture)
 {
     // Clear output maps
     keplerianOrbitResult.clear( );
@@ -1032,7 +1029,7 @@ void propagateKeplerianOrbitAndFullProblem(
     double finalTime = initialTime + timeOfFlight;
 
     // Retrieve positions of departure and arrival bodies from ephemerides
-    Eigen::Vector3d cartesianPositionAtDepartureForLambertTargeter, cartesianPositionAtArrivalForLambertTargeter;
+    Eigen::Vector3d cartesianPositionAtDepartureForPatchedConics;
     if ( cartesianPositionAtDeparture != cartesianPositionAtDeparture )
     {
         // Cartesian position at departure
@@ -1044,36 +1041,18 @@ void propagateKeplerianOrbitAndFullProblem(
         {
             Eigen::Vector6d cartesianStateDepartureBody =
                     bodyMap.at( departureAndArrivalBodies.at( 0 ) )->getEphemeris( )->getCartesianState( initialTime);
-            cartesianPositionAtDepartureForLambertTargeter = cartesianStateDepartureBody.segment(0,3);
+            cartesianPositionAtDepartureForPatchedConics = cartesianStateDepartureBody.segment(0,3);
         }
     }
     else
     {
-        cartesianPositionAtDepartureForLambertTargeter = cartesianPositionAtDeparture;
-    }
-
-    if( cartesianPositionAtArrival != cartesianPositionAtArrival )
-    {
-
-        // Cartesian position at arrival
-        if ( bodyMap.at( departureAndArrivalBodies.at( 1 ) )->getEphemeris( ) == nullptr){
-            throw std::runtime_error( "Ephemeris not defined for arrival body." );
-        }
-        else{
-            Eigen::Vector6d cartesianStateArrivalBody =
-                    bodyMap.at( departureAndArrivalBodies.at( 1 ) )->getEphemeris( )->getCartesianState(finalTime);
-            cartesianPositionAtArrivalForLambertTargeter =  cartesianStateArrivalBody.segment(0,3);
-        }
-    }
-    else
-    {
-        cartesianPositionAtArrivalForLambertTargeter = cartesianPositionAtArrival;
+        cartesianPositionAtDepartureForPatchedConics = cartesianPositionAtDeparture;
     }
 
 
     // Cartesian state at departure.
     Eigen::Vector6d cartesianStateAtDeparture;
-    cartesianStateAtDeparture.segment(0,3) = cartesianPositionAtDepartureForLambertTargeter;
+    cartesianStateAtDeparture.segment(0,3) = cartesianPositionAtDepartureForPatchedConics;
     cartesianStateAtDeparture.segment(3,3) = velocityAfterDeparture;
 
 
@@ -1124,7 +1103,7 @@ void propagateKeplerianOrbitAndFullProblem(
     std::map< double, Eigen::VectorXd > stateHistoryFullProblemForwardPropagation = dynamicsSimulatorIntegrationForwards.
             getEquationsOfMotionNumericalSolution( );
 
-    // Calculate the difference between the full problem and the Lambert targeter solution along the forward propagation direction.
+    // Calculate the difference between the full problem and the Keplerian orbit solution along the forward propagation direction.
     for( std::map< double, Eigen::VectorXd >::iterator itr = stateHistoryFullProblemForwardPropagation.begin( );
          itr != stateHistoryFullProblemForwardPropagation.end( ); itr++ )
     {
@@ -1150,7 +1129,7 @@ void propagateKeplerianOrbitAndFullProblem(
     std::map< double, Eigen::VectorXd > stateHistoryFullProblemBackwardPropagation =
             dynamicsSimulatorIntegrationBackwards.getEquationsOfMotionNumericalSolution( );
 
-    // Calculate the difference between the full problem and the Lambert targeter solution along the backward propagation direction.
+    // Calculate the difference between the full problem and the keplerian orbit solution along the backward propagation direction.
     for( std::map< double, Eigen::VectorXd >::iterator itr = stateHistoryFullProblemBackwardPropagation.begin( );
          itr != stateHistoryFullProblemBackwardPropagation.end( ); itr++ )
     {
@@ -1272,15 +1251,15 @@ std::map< int, std::pair< Eigen::Vector6d, Eigen::Vector6d > > getDifferenceFull
         std::map< double, Eigen::Vector6d > patchedConicsResultCurrentLeg = patchedConicsResultForEachLeg[i];
         std::map< double, Eigen::Vector6d > fullProblemResultCurrentLeg = fullProblemResultForEachLeg[i];
 
-        Eigen::Vector6d stateLambertTargeterAtDepartureForOneLeg = patchedConicsResultCurrentLeg.begin( )->second;
-        Eigen::Vector6d stateFullProblemAtDepartureForOneLeg = fullProblemResultCurrentLeg.begin( )->second;
-        Eigen::Vector6d stateLambertTargeterAtArrivalForOneLeg = patchedConicsResultCurrentLeg.rbegin( )->second;
-        Eigen::Vector6d stateFullProblemAtArrivalForOneLeg = fullProblemResultCurrentLeg.rbegin( )->second;
+        Eigen::Vector6d statePatchedConicsAtDeparture = patchedConicsResultCurrentLeg.begin( )->second;
+        Eigen::Vector6d stateFullProblemAtDeparture = fullProblemResultCurrentLeg.begin( )->second;
+        Eigen::Vector6d statePatchedConicsAtArrival = patchedConicsResultCurrentLeg.rbegin( )->second;
+        Eigen::Vector6d stateFullProblemAtArrival = fullProblemResultCurrentLeg.rbegin( )->second;
 
-        stateDifferenceAtArrivalAndDepartureForEachLeg[i] = std::make_pair( stateLambertTargeterAtDepartureForOneLeg -
-                                                                            stateFullProblemAtDepartureForOneLeg,
-                                                                            stateLambertTargeterAtArrivalForOneLeg -
-                                                                            stateFullProblemAtArrivalForOneLeg);
+        stateDifferenceAtArrivalAndDepartureForEachLeg[i] = std::make_pair( statePatchedConicsAtDeparture -
+                                                                            stateFullProblemAtDeparture,
+                                                                            statePatchedConicsAtArrival -
+                                                                            stateFullProblemAtArrival);
     }
 
     return stateDifferenceAtArrivalAndDepartureForEachLeg;
