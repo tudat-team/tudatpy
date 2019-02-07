@@ -116,6 +116,7 @@ std::vector< double > getDefaultHypersonicLocalInclinationAngleOfSideslipPoints(
     return angleOfSideslipPoints;
 }
 
+//! Function that saves the vehicle mesh data used for a HypersonicLocalInclinationAnalysis to a file
 void saveVehicleMeshToFile(
         const std::shared_ptr< HypersonicLocalInclinationAnalysis > localInclinationAnalysis,
         const std::string directory,

@@ -175,6 +175,11 @@ public:
                                        HypersonicLocalInclinationAnalysis&
                                        hypersonicLocalInclinationAnalysis );
 
+    //! Function to retrieve a list of mesh panel centroids for the full vehicle geometry
+    /*!
+     * Function to retrieve a list of mesh panel centroids for the full vehicle geometry
+     * \return List of mesh panel centroids for the full vehicle geometry
+     */
     std::vector< boost::multi_array< Eigen::Vector3d, 2 > > getMeshPoints( )
     {
         std::vector< boost::multi_array< Eigen::Vector3d, 2 > > meshPointsList;
@@ -185,9 +190,10 @@ public:
         return meshPointsList;
     }
 
-    //! Panel centroids.
+    //! Function to retrieve a list of mesh panel surface normals for the full vehicle geometry
     /*!
-     * 2-Dimensional array containing panel centroid locations.
+     * Function to retrieve a list of mesh panel surface normals for the full vehicle geometry
+     * \return List of mesh panel surface normals for the full vehicle geometry
      */
     std::vector< boost::multi_array< Eigen::Vector3d, 2 > > getPanelSurfaceNormals( )
     {
@@ -343,6 +349,19 @@ private:
 };
 
 
+//! Function that saves the vehicle mesh data used for a HypersonicLocalInclinationAnalysis to a file
+/*!
+ * Function that saves the vehicle mesh data used for a HypersonicLocalInclinationAnalysis to a file: specifically, the
+ * panel centroids and surface normals, to file names:
+ *
+ *     <directory>/<filePrefix>"ShapeFile.dat"
+ *     <directory>/<filePrefix>"SurfaceNormalFile.dat"
+ *
+ * with directory and filePrefix input variables.
+ * \param localInclinationAnalysis Aerodynamic analysis object
+ * \param directory Directory to which the files are to be saved
+ * \param filePrefix File name prefix that is to be used
+ */
 void saveVehicleMeshToFile(
         const std::shared_ptr< HypersonicLocalInclinationAnalysis > localInclinationAnalysis,
         const std::string directory,
