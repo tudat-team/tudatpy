@@ -102,19 +102,6 @@ Eigen::Vector6d computeCartesianStateFromKeplerianOrbit(
         const double gravitationalParameter);
 
 
-//! Function to compute the cartesian state at half of the time of flight for a Lambert targeter.
-/*!
- * Function to compute the cartesian state at half of the time of flight for a Lambert targeter.
- * \param cartesianStateAtDeparture Vector containing the cartesian state at departure (x-position coordinate [m], y-position coordinate [m],
- * z-position coordinate [m], x-velocity coordinate [m/s], y-velocity coordinate [m/s], z-velocity coordinate [m/s]).
- * \param gravitationalParameterCentralBody Gravitational parameter of the central body of the Lambert targeter [m^3 s^-2].
- * \param timeOfFlight Time of flight of the Lambert Targeter [s].
- * \return Vector containing the cartesian state at half of the time of flight.
- */
-Eigen::Vector6d computeCartesianStateHalfTimeOfFlightLambertTargeter(
-        const Eigen::Vector6d& cartesianStateAtDeparture,
-        const double gravitationalParameterCentralBody,
-        const double timeOfFlight);
 
 
 void propagateLambertTargeterAndFullProblem(
@@ -124,8 +111,6 @@ void propagateLambertTargeterAndFullProblem(
         const basic_astrodynamics::AccelerationMap& accelerationModelMap,
         const std::string& bodyToPropagate,
         const std::string& centralBody,
-        const std::pair< std::shared_ptr< propagators::PropagationTerminationSettings >,
-        std::shared_ptr< propagators::PropagationTerminationSettings > > terminationSettings,
         std::pair< std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > >,
         std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > > > propagatorSettings,
         const std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings,
