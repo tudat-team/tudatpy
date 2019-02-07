@@ -32,6 +32,7 @@ namespace tudat
 namespace propagators
 {
 
+//! Function to get default minimum pericenter radii for a list of bodiess
 std::vector< double > getDefaultMinimumPericenterRadii( const std::vector< std::string >& bodyNames )
 {
    std::vector< double > pericenterRadii;
@@ -75,7 +76,8 @@ std::vector< double > getDefaultMinimumPericenterRadii( const std::vector< std::
        }
        else
        {
-           throw std::runtime_error( "Error, could not recognize body " + bodyNames.at( i ) + " when getting minimum periapsis radius" );
+           throw std::runtime_error(
+                       "Error, could not recognize body " + bodyNames.at( i ) + " when getting minimum periapsis radius" );
        }
    }
    return pericenterRadii;
