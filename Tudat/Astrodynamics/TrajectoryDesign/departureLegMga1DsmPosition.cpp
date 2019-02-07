@@ -27,9 +27,12 @@ void DepartureLegMga1DsmPosition::calculateLeg( Eigen::Vector3d& velocityBeforeA
     // Calculate and set the spacecraft velocities after departure, before and after the DSM, and
     // before arrival using two lambert targeters and all the corresponding positions and flight
     // times.
+
+
     mission_segments::solveLambertProblemIzzo( departureBodyPosition_, dsmLocation_, dsmTime_,
                                                centralBodyGravitationalParameter_,
                                                velocityAfterDeparture_, velocityBeforeDsm_ );
+
     mission_segments::solveLambertProblemIzzo( dsmLocation_, arrivalBodyPosition_, timeOfFlight_ -
                                                dsmTime_, centralBodyGravitationalParameter_,
                                                velocityAfterDsm_, velocityBeforeArrivalBody );
