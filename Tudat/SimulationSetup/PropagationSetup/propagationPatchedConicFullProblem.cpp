@@ -221,7 +221,7 @@ transfer_trajectories::Trajectory createTransferTrajectoryObject(
 
 
 //! Function to calculate the patched conics trajectory and to propagate the corresponding full problem.
-void fullPropagationPatchedConicsTrajectoryNewVersion(
+void fullPropagationPatchedConicsTrajectory(
         simulation_setup::NamedBodyMap& bodyMap,
         const std::vector< basic_astrodynamics::AccelerationMap >& accelerationMap,
         const std::vector< std::string >& transferBodyOrder,
@@ -399,7 +399,7 @@ void fullPropagationPatchedConicsTrajectoryNewVersion(
     }
 }
 
-void fullPropagationPatchedConicsTrajectoryNewVersion(
+void fullPropagationPatchedConicsTrajectory(
         simulation_setup::NamedBodyMap& bodyMap,
         const std::vector< basic_astrodynamics::AccelerationMap >& accelerationMap,
         const std::vector< std::string >& transferBodyOrder,
@@ -679,7 +679,7 @@ void fullPropagationPatchedConicsTrajectoryNewVersion(
     }
 
 
-    fullPropagationPatchedConicsTrajectoryNewVersion( bodyMap, accelerationMap, transferBodyOrder, centralBody, bodyToPropagate, legTypeVector,
+    fullPropagationPatchedConicsTrajectory( bodyMap, accelerationMap, transferBodyOrder, centralBody, bodyToPropagate, legTypeVector,
                                                       trajectoryVariableVector, minimumPericenterRadiiVector, semiMajorAxesVector,
                                                       eccentricitiesVector, propagatorSettings, integratorSettings,
                                                       lambertTargeterResultForEachLeg, fullProblemResultForEachLeg );
@@ -688,7 +688,7 @@ void fullPropagationPatchedConicsTrajectoryNewVersion(
 }
 
 
-void fullPropagationPatchedConicsTrajectoryNewVersion(
+void fullPropagationPatchedConicsTrajectory(
         simulation_setup::NamedBodyMap& bodyMap,
         const basic_astrodynamics::AccelerationMap& accelerationMap,
         const std::vector< std::string >& transferBodyOrder,
@@ -718,7 +718,7 @@ void fullPropagationPatchedConicsTrajectoryNewVersion(
     }
 
     // Compute difference between patched conics trajectory and full problem.
-    fullPropagationPatchedConicsTrajectoryNewVersion(
+    fullPropagationPatchedConicsTrajectory(
                 bodyMap, accelerationMapForEachLeg, transferBodyOrder, centralBody, bodyToPropagate, legTypeVector,
                 trajectoryVariableVector, minimumPericenterRadiiVector, semiMajorAxesVector, eccentricitiesVector,
                 integratorSettings, terminationSphereOfInfluence, lambertTargeterResultForEachLeg, fullProblemResultForEachLeg,
@@ -1094,7 +1094,7 @@ void propagatePatchedConicsLegAndFullProblem(
 
     // Initialise variables for propagatation.
     std::vector< std::string > centralBodiesPropagation;
-    centralBodiesPropagation.push_back( "SSB" );
+    centralBodiesPropagation.push_back( centralBody );
     std::vector< std::string > bodiesToPropagate;
     bodiesToPropagate.push_back(bodyToPropagate);
 
@@ -1205,7 +1205,7 @@ std::map< int, std::pair< Eigen::Vector6d, Eigen::Vector6d > > getDifferenceFull
     std::map< int, std::map< double, Eigen::Vector6d > > lambertTargeterResultForEachLeg;
     std::map< int, std::map< double, Eigen::Vector6d > > fullProblemResultForEachLeg;
 
-    fullPropagationPatchedConicsTrajectoryNewVersion(
+    fullPropagationPatchedConicsTrajectory(
                 bodyMap, accelerationMap, transferBodyOrder, centralBody, bodyToPropagate, legTypeVector,
                 trajectoryVariableVector, minimumPericenterRadiiVector, semiMajorAxesVector, eccentricitiesVector,
                 integratorSettings, terminationSphereOfInfluence, lambertTargeterResultForEachLeg, fullProblemResultForEachLeg, dependentVariablesToSave,
@@ -1262,7 +1262,7 @@ std::map< int, std::pair< Eigen::Vector6d, Eigen::Vector6d > > getDifferenceFull
     std::map< int, std::map< double, Eigen::Vector6d > > lambertTargeterResultForEachLeg;
     std::map< int, std::map< double, Eigen::Vector6d > > fullProblemResultForEachLeg;
 
-    fullPropagationPatchedConicsTrajectoryNewVersion(
+    fullPropagationPatchedConicsTrajectory(
                 bodyMap, accelerationMap, transferBodyOrder, centralBody, bodyToPropagate, legTypeVector,
                 trajectoryVariableVector, minimumPericenterRadiiVector, semiMajorAxesVector, eccentricitiesVector,
                 propagatorSettings, integratorSettings, lambertTargeterResultForEachLeg, fullProblemResultForEachLeg );

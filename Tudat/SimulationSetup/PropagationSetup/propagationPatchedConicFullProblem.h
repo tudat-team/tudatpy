@@ -148,7 +148,7 @@ transfer_trajectories::Trajectory createTransferTrajectoryObject(
  */
 
 //! Function to calculate the patched conics trajectory and to propagate the corresponding full problem.
-void fullPropagationPatchedConicsTrajectoryNewVersion(
+void fullPropagationPatchedConicsTrajectory(
         simulation_setup::NamedBodyMap& bodyMap,
         const std::vector< basic_astrodynamics::AccelerationMap >& accelerationMap,
         const std::vector< std::string >& transferBodyOrder,
@@ -165,7 +165,7 @@ void fullPropagationPatchedConicsTrajectoryNewVersion(
         std::map< int, std::map< double, Eigen::Vector6d > >& lambertTargeterResultForEachLeg,
         std::map< int, std::map< double, Eigen::Vector6d > >& fullProblemResultForEachLeg);
 
-void fullPropagationPatchedConicsTrajectoryNewVersion(
+void fullPropagationPatchedConicsTrajectory(
         simulation_setup::NamedBodyMap& bodyMap,
         const std::vector< basic_astrodynamics::AccelerationMap >& accelerationMap,
         const std::vector< std::string >& transferBodyOrder,
@@ -184,7 +184,7 @@ void fullPropagationPatchedConicsTrajectoryNewVersion(
         std::vector < std::shared_ptr< DependentVariableSaveSettings > >( ) ,
         const TranslationalPropagatorType propagator = cowell);
 
-void fullPropagationPatchedConicsTrajectoryNewVersion(
+void fullPropagationPatchedConicsTrajectory(
         simulation_setup::NamedBodyMap& bodyMap,
         const basic_astrodynamics::AccelerationMap& accelerationMap,
         const std::vector< std::string >& transferBodyOrder,
