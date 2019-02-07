@@ -20,6 +20,9 @@ namespace tudat
 namespace propagators
 {
 
+
+std::vector< double > getDefaultMinimumPericenterRadii( const std::vector< std::string >& bodyNames );
+
 //! Function to setup a body map corresponding to the assumptions of a patched conics trajectory,
 //! using default ephemerides for the central and transfer bodies.
 /*!
