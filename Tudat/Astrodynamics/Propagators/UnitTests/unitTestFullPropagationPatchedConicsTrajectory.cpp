@@ -154,7 +154,7 @@ BOOST_AUTO_TEST_CASE( testFullPropagationMGA )
             propagators::getDifferenceFullProblemWrtPatchedConicsTrajectory(
                 bodyMap, accelerationMap, nameBodiesTrajectory,
                 centralBody[0], bodyToPropagate, legTypeVector, variableVector, minimumPericenterRadii,
-            semiMajorAxes, eccentricities, integratorSettings, false);
+            semiMajorAxes, eccentricities, integratorSettings);
 
     for( std::map< int, std::pair< Eigen::Vector6d, Eigen::Vector6d > >::iterator
          itr = differenceStateArrivalAndDeparturePerLeg.begin( );
@@ -312,10 +312,8 @@ BOOST_AUTO_TEST_CASE( testFullPropagationMGAwithDSM )
 
     std::map< int, std::pair< Eigen::Vector6d, Eigen::Vector6d > > differenceStateArrivalAndDeparturePerLeg =
             propagators::getDifferenceFullProblemWrtPatchedConicsTrajectory(
-                bodyMap, accelerationMap, transferBodyTrajectory,
-                centralBody[0], bodyToPropagate, legTypeVector, variableVector,
-            minimumPericenterRadii, semiMajorAxes, eccentricities,
-            integratorSettings, false );
+                bodyMap, accelerationMap, transferBodyTrajectory, centralBody[0], bodyToPropagate, legTypeVector, variableVector,
+            minimumPericenterRadii, semiMajorAxes, eccentricities, integratorSettings);
 
 
     for( std::map< int, std::pair< Eigen::Vector6d, Eigen::Vector6d > >::iterator
