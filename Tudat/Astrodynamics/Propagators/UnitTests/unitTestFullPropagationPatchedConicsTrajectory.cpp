@@ -147,14 +147,12 @@ BOOST_AUTO_TEST_CASE( testFullPropagationMGA )
 
 
     // Compute difference between patched conics trajectory and full problem at departure and at arrival for each leg.
-    std::map< int, std::map< double, Eigen::Vector6d > > lambertTargeterResultForEachLeg;
-    std::map< int, std::map< double, Eigen::Vector6d > > fullProblemResultForEachLeg;
 
     std::map< int, std::pair< Eigen::Vector6d, Eigen::Vector6d > > differenceStateArrivalAndDeparturePerLeg =
             propagators::getDifferenceFullProblemWrtPatchedConicsTrajectory(
                 bodyMap, accelerationMap, nameBodiesTrajectory,
                 centralBody[0], bodyToPropagate, legTypeVector, variableVector, minimumPericenterRadii,
-            semiMajorAxes, eccentricities, integratorSettings, false);
+            semiMajorAxes, eccentricities, integratorSettings);
 
     for( std::map< int, std::pair< Eigen::Vector6d, Eigen::Vector6d > >::iterator
          itr = differenceStateArrivalAndDeparturePerLeg.begin( );
@@ -176,26 +174,6 @@ BOOST_AUTO_TEST_CASE( testFullPropagationMGA )
         }
 
     }
-
-//    std::map< int, std::map< double, Eigen::Vector6d > > patchedConicsTrajectory;
-//    std::map< int, std::map< double, Eigen::Vector6d > > fullProblemTrajectory;
-
-//    propagators::fullPropagationPatchedConicsTrajectory( bodyMap, accelerationMap, nameBodiesTrajectory, centralBody[0], bodyToPropagate,
-//            legTypeVector, variableVector, minimumPericenterRadii, semiMajorAxes, eccentricities, integratorSettings, false,
-//            patchedConicsTrajectory, fullProblemTrajectory);
-
-//    for( std::map< int, std::map< double, Eigen::Vector6d > >::iterator itr = patchedConicsTrajectory.begin( );
-//         itr != patchedConicsTrajectory.end( ); itr++ ){
-
-//        input_output::writeDataMapToTextFile( patchedConicsTrajectory[itr->first],
-//                                              "fullProblemInterplanetaryTrajectory_0_leg_" + std::to_string(itr->first) + ".dat",
-//                                              "Tudat/",
-//                                              "",
-//                                              std::numeric_limits< double >::digits10,
-//                                              std::numeric_limits< double >::digits10,
-//                                              "," );
-
-//    }
 
 }
 
@@ -307,15 +285,11 @@ BOOST_AUTO_TEST_CASE( testFullPropagationMGAwithDSM )
 
 
     // Compute difference between patched conics trajectory and full problem at departure and at arrival for each leg.
-    std::map< int, std::map< double, Eigen::Vector6d > > lambertTargeterResultForEachLeg;
-    std::map< int, std::map< double, Eigen::Vector6d > > fullProblemResultForEachLeg;
 
     std::map< int, std::pair< Eigen::Vector6d, Eigen::Vector6d > > differenceStateArrivalAndDeparturePerLeg =
             propagators::getDifferenceFullProblemWrtPatchedConicsTrajectory(
-                bodyMap, accelerationMap, transferBodyTrajectory,
-                centralBody[0], bodyToPropagate, legTypeVector, variableVector,
-            minimumPericenterRadii, semiMajorAxes, eccentricities,
-            integratorSettings, false );
+                bodyMap, accelerationMap, transferBodyTrajectory, centralBody[0], bodyToPropagate, legTypeVector, variableVector,
+            minimumPericenterRadii, semiMajorAxes, eccentricities, integratorSettings);
 
 
     for( std::map< int, std::pair< Eigen::Vector6d, Eigen::Vector6d > >::iterator
