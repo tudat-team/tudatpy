@@ -264,7 +264,42 @@ void propagateMga1DsmPositionAndFullProblem(
         std::map< double, Eigen::Vector6d >& patchedConicsResultFromDsmToArrival,
         std::map< double, Eigen::Vector6d >& fullProblemResultFromDsmToArrival);
 
+std::shared_ptr< propagators::PropagationTerminationSettings > getSingleLegPartSphereOfInfluenceTerminationSettings(
+        simulation_setup::NamedBodyMap& bodyMap,
+        const std::string& bodyToPropagate,
+        const std::string& centralBody,
+        const std::string& departureBody,
+        const std::string& arrivalBody,
+        const double initialTimeCurrentLeg,
+        const double finalTimeCurrentLeg,
+        const bool useBackwardLegToDepartureBody );
 
+std::pair< std::shared_ptr< propagators::PropagationTerminationSettings >,
+std::shared_ptr< propagators::PropagationTerminationSettings > > getSingleLegSphereOfInfluenceTerminationSettings(
+        simulation_setup::NamedBodyMap& bodyMap,
+        const std::string& bodyToPropagate,
+        const std::string& centralBody,
+        const std::string& departureBody,
+        const std::string& arrivalBody,
+        const double initialTimeCurrentLeg,
+        const double finalTimeCurrentLeg );
+
+//! Function to calculate the patched conics trajectory and to propagate the corresponding full problem.
+std::vector< std::pair< std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > >,
+std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > > > > getPatchedConicPropagatorSettings(
+        simulation_setup::NamedBodyMap& bodyMap,
+        const std::vector< basic_astrodynamics::AccelerationMap >& accelerationMap,
+        const std::vector< std::string >& transferBodyOrder,
+        const std::string& centralBody,
+        const std::string& bodyToPropagate,
+        const std::vector< transfer_trajectories::TransferLegType>& legTypeVector,
+        const std::vector< double >& trajectoryVariableVector,
+        const std::vector< double >& minimumPericenterRadiiVector,
+        const std::vector< double >& semiMajorAxesVector,
+        const std::vector< double >& eccentricitiesVector,
+        const bool terminationSphereOfInfluence,
+        const std::vector< std::shared_ptr< DependentVariableSaveSettings > > dependentVariablesToSave,
+        const TranslationalPropagatorType propagator );
 
 
 //! Function to propagate the motion of a body over a trajectory leg, both along a keplerian orbit and in a full dynamics problem.
