@@ -323,8 +323,10 @@ void propagateMga1DsmVelocityAndFullProblem(
         const std::shared_ptr< numerical_integrators::IntegratorSettings< double > >& integratorSettings,
         std::map< double, Eigen::Vector6d >& patchedConicsResultFromDepartureToDsm,
         std::map< double, Eigen::Vector6d >& fullProblemResultFromDepartureToDsm,
+        std::map< double, Eigen::VectorXd >& dependentVariablesFromDepartureToDsm,
         std::map< double, Eigen::Vector6d >& patchedConicsResultFromDsmToArrival,
-        std::map< double, Eigen::Vector6d >& fullProblemResultFromDsmToArrival)
+        std::map< double, Eigen::Vector6d >& fullProblemResultFromDsmToArrival,
+        std::map< double, Eigen::VectorXd >& dependentVariablesFromDsmToArrival )
 {
 
     if( legType == transfer_trajectories::mga1DsmVelocity_Departure )
@@ -389,7 +391,7 @@ void propagateMga1DsmVelocityAndFullProblem(
     propagateKeplerianOrbitLegAndFullProblem(
                 timeDsm - initialTime, initialTime, bodyMap, centralBody,
                 legDepartureAndArrival, velocityAfterDeparture, propagatorSettingsBeforeDsm, integratorSettings,
-                patchedConicsResultFromDepartureToDsm, fullProblemResultFromDepartureToDsm,
+                patchedConicsResultFromDepartureToDsm, fullProblemResultFromDepartureToDsm, dependentVariablesFromDepartureToDsm,
                 bodyMap[ centralBody ]->getGravityFieldModel( )->getGravitationalParameter( ),
                 cartesianPositionAtDeparture );
 
@@ -400,12 +402,10 @@ void propagateMga1DsmVelocityAndFullProblem(
 
     integratorSettings->initialTime_ = timeDsm;
 
-    std::map< double, Eigen::VectorXd > dependentVariableResult;
-
     propagateLambertTargeterAndFullProblem( timeArrival - timeDsm, timeDsm, bodyMap, centralBody,
                                             propagatorSettingsAfterDsm, integratorSettings,
                                             patchedConicsResultFromDsmToArrival, fullProblemResultFromDsmToArrival,
-                                            dependentVariableResult, legDepartureAndArrival,
+                                            dependentVariablesFromDsmToArrival, legDepartureAndArrival,
                                             bodyMap[ centralBody]->getGravityFieldModel( )->getGravitationalParameter( ),
                                             cartesianPositionDSM, cartesianPositionAtArrival );
 
@@ -439,8 +439,10 @@ void propagateMga1DsmPositionAndFullProblem(
         const std::shared_ptr< numerical_integrators::IntegratorSettings< double > >& integratorSettings,
         std::map< double, Eigen::Vector6d >& patchedConicsResultFromDepartureToDsm,
         std::map< double, Eigen::Vector6d >& fullProblemResultFromDepartureToDsm,
+        std::map< double, Eigen::VectorXd >& dependentVariablesFromDepartureToDsm,
         std::map< double, Eigen::Vector6d >& patchedConicsResultFromDsmToArrival,
-        std::map< double, Eigen::Vector6d >& fullProblemResultFromDsmToArrival)
+        std::map< double, Eigen::Vector6d >& fullProblemResultFromDsmToArrival,
+        std::map< double, Eigen::VectorXd >& dependentVariablesFromDsmToArrival )
 {
     if( legType == transfer_trajectories::mga1DsmPosition_Departure )
     {
@@ -510,10 +512,9 @@ void propagateMga1DsmPositionAndFullProblem(
     legDepartureAndArrival.push_back( departureAndArrivalBodies[ 0 ] );
     legDepartureAndArrival.push_back( dsm );
 
-    std::map< double, Eigen::VectorXd > dependentVariableResultBeforeDsm;
     propagateLambertTargeterAndFullProblem( timeDsm - initialTime, initialTime, bodyMap, centralBody,
                                             propagatorSettingsBeforeDsm, integratorSettings, patchedConicsResultFromDepartureToDsm,
-                                            fullProblemResultFromDepartureToDsm, dependentVariableResultBeforeDsm, legDepartureAndArrival,
+                                            fullProblemResultFromDepartureToDsm, dependentVariablesFromDepartureToDsm, legDepartureAndArrival,
                                             bodyMap[ centralBody]->getGravityFieldModel( )->getGravitationalParameter( ),
                                             cartesianPositionAtDeparture, cartesianPositionDSM );
 
@@ -526,10 +527,9 @@ void propagateMga1DsmPositionAndFullProblem(
 
     integratorSettings->initialTime_ = timeDsm;
 
-    std::map< double, Eigen::VectorXd > dependentVariableResultAfterDsm;
     propagateLambertTargeterAndFullProblem( timeArrival - timeDsm, timeDsm, bodyMap, centralBody,
                                             propagatorSettingsAfterDsm, integratorSettings, patchedConicsResultFromDsmToArrival,
-                                            fullProblemResultFromDsmToArrival, dependentVariableResultAfterDsm, legDepartureAndArrival,
+                                            fullProblemResultFromDsmToArrival, dependentVariablesFromDsmToArrival, legDepartureAndArrival,
                                             bodyMap[ centralBody]->getGravityFieldModel( )->getGravitationalParameter( ),
                                             cartesianPositionDSM, cartesianPositionAtArrival );
 
@@ -550,12 +550,14 @@ void propagateKeplerianOrbitLegAndFullProblem(
         const std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings,
         std::map< double, Eigen::Vector6d >& keplerianOrbitResult,
         std::map< double, Eigen::Vector6d >& fullProblemResult,
+        std::map< double, Eigen::VectorXd >& dependentVariables,
         const double centralBodyGravitationalParameter,
         const Eigen::Vector3d& cartesianPositionAtDeparture )
 {
     // Clear output maps
     keplerianOrbitResult.clear( );
     fullProblemResult.clear( );
+    dependentVariables.clear( );
 
     // Retrieve the gravitational parameter of the relevant bodies.
     double gravitationalParameterCentralBody = ( centralBodyGravitationalParameter == centralBodyGravitationalParameter ) ?
@@ -634,6 +636,8 @@ void propagateKeplerianOrbitLegAndFullProblem(
                 bodyMap, integratorSettings, propagatorSettingsForwardPropagation );
     std::map< double, Eigen::VectorXd > stateHistoryFullProblemForwardPropagation = dynamicsSimulatorIntegrationForwards.
             getEquationsOfMotionNumericalSolution( );
+    std::map< double, Eigen::VectorXd > dependentVariableHistoryFullProblemForwardPropagation =
+            dynamicsSimulatorIntegrationForwards.getDependentVariableHistory( );
 
     // Calculate the difference between the full problem and the Keplerian orbit solution along the forward propagation direction.
     for( std::map< double, Eigen::VectorXd >::iterator itr = stateHistoryFullProblemForwardPropagation.begin( );
@@ -647,6 +651,7 @@ void propagateKeplerianOrbitLegAndFullProblem(
                         gravitationalParameterCentralBody ), gravitationalParameterCentralBody );
         keplerianOrbitResult[ itr->first ] = cartesianStateKeplerianOrbit;
         fullProblemResult[ itr->first ] = itr->second;
+        dependentVariables[ itr->first ] = dependentVariableHistoryFullProblemForwardPropagation[ itr->first ];
     }
 
     // Define backward propagator settings variables.
@@ -657,6 +662,8 @@ void propagateKeplerianOrbitLegAndFullProblem(
     propagators::SingleArcDynamicsSimulator< > dynamicsSimulatorIntegrationBackwards(bodyMap, integratorSettings, propagatorSettingsBackwardPropagation );
     std::map< double, Eigen::VectorXd > stateHistoryFullProblemBackwardPropagation =
             dynamicsSimulatorIntegrationBackwards.getEquationsOfMotionNumericalSolution( );
+    std::map< double, Eigen::VectorXd > dependentVariableHistoryFullProblemBackwardsPropagation =
+            dynamicsSimulatorIntegrationBackwards.getDependentVariableHistory( );
 
     // Calculate the difference between the full problem and the keplerian orbit solution along the backward propagation direction.
     for( std::map< double, Eigen::VectorXd >::iterator itr = stateHistoryFullProblemBackwardPropagation.begin( );
@@ -671,6 +678,8 @@ void propagateKeplerianOrbitLegAndFullProblem(
 
         keplerianOrbitResult[ itr->first ] = cartesianStateKeplerianOrbit;
         fullProblemResult[ itr->first ] = itr->second;
+        dependentVariables[ itr->first ] = dependentVariableHistoryFullProblemBackwardsPropagation[ itr->first ];
+
     }
 
     // Reset initial integrator settings
@@ -1116,8 +1125,11 @@ void fullPropagationPatchedConicsTrajectory(
 
             std::map< double, Eigen::Vector6d > patchedConicsResultFromDepartureToDsm;
             std::map< double, Eigen::Vector6d > fullProblemResultFromDepartureToDsm;
+            std::map< double, Eigen::VectorXd > dependentVariablesFromDepartureToDsm;
+
             std::map< double, Eigen::Vector6d > patchedConicsResultFromDsmToArrival;
             std::map< double, Eigen::Vector6d > fullProblemResultFromDsmToArrival;
+            std::map< double, Eigen::VectorXd > dependentVariablesFromDsmToArrival;
 
             // Compute patched conics and full problem results along the leg.
             propagators::propagateMga1DsmVelocityAndFullProblem(
@@ -1126,17 +1138,22 @@ void fullPropagationPatchedConicsTrajectory(
                     positionVector[ counterLegs+ 1 ], positionVector[ counterLegs + 2 ], timeVector[ counterLegs ], timeVector[ counterLegs+ 1 ],
                     timeVector[ counterLegs + 2 ], legTypeVector[ i ], trajectoryVariableVectorLeg, semiMajorAxesVector[ 0 ], eccentricitiesVector[ 0 ],
                     velocityAfterDeparture, velocityBeforeArrival, propagatorSettings[ counterLegs ], propagatorSettings[ counterLegs+ 1 ],
-                    integratorSettings, patchedConicsResultFromDepartureToDsm, fullProblemResultFromDepartureToDsm,
-                    patchedConicsResultFromDsmToArrival, fullProblemResultFromDsmToArrival);
+                    integratorSettings,
+                    patchedConicsResultFromDepartureToDsm, fullProblemResultFromDepartureToDsm, dependentVariablesFromDepartureToDsm,
+                    patchedConicsResultFromDsmToArrival, fullProblemResultFromDsmToArrival, dependentVariablesFromDsmToArrival );
 
             // Results for the first part of the leg (from departure body to DSM).
             patchedConicsResultForEachLeg[ counterLegs ] = patchedConicsResultFromDepartureToDsm;
             fullProblemResultForEachLeg[ counterLegs ] = fullProblemResultFromDepartureToDsm;
+            dependentVariableResultForEachLeg[ counterLegs ] = dependentVariablesFromDepartureToDsm;
+
             counterLegs++;
 
             // Results for the second part of the leg (from DSM to arrival body ).
             patchedConicsResultForEachLeg[ counterLegs ] = patchedConicsResultFromDsmToArrival;
             fullProblemResultForEachLeg[ counterLegs ] = fullProblemResultFromDsmToArrival;
+            dependentVariableResultForEachLeg[ counterLegs ] = dependentVariablesFromDsmToArrival;
+
             counterLegs++;
             counterLegWithDSM++;
         }
@@ -1157,8 +1174,12 @@ void fullPropagationPatchedConicsTrajectory(
 
             std::map< double, Eigen::Vector6d > patchedConicsResultFromDepartureToDsm;
             std::map< double, Eigen::Vector6d > fullProblemResultFromDepartureToDsm;
+            std::map< double, Eigen::VectorXd > dependentVariablesFromDepartureToDsm;
+
             std::map< double, Eigen::Vector6d > patchedConicsResultFromDsmToArrival;
             std::map< double, Eigen::Vector6d > fullProblemResultFromDsmToArrival;
+            std::map< double, Eigen::VectorXd > dependentVariablesFromDsmToArrival;
+
 
             // Compute patched conics and full problem results along the leg.
             propagators::propagateMga1DsmPositionAndFullProblem(
@@ -1168,17 +1189,19 @@ void fullPropagationPatchedConicsTrajectory(
                     timeVector[ counterLegs + 2 ], legTypeVector[ i ], trajectoryVariableVectorLeg, minimumPericenterRadiiVector[ i ],
                     semiMajorAxesVector[ 0 ], eccentricitiesVector[ 0 ], velocityAfterDeparture, velocityBeforeArrival,
                     propagatorSettings[ counterLegs ], propagatorSettings[ counterLegs+ 1 ], integratorSettings,
-                    patchedConicsResultFromDepartureToDsm, fullProblemResultFromDepartureToDsm, patchedConicsResultFromDsmToArrival,
-                    fullProblemResultFromDsmToArrival);
+                    patchedConicsResultFromDepartureToDsm, fullProblemResultFromDepartureToDsm, dependentVariablesFromDepartureToDsm,
+                    patchedConicsResultFromDsmToArrival, fullProblemResultFromDsmToArrival, dependentVariablesFromDsmToArrival );
 
             // Results for the first part of the leg (from departure body to DSM)
             patchedConicsResultForEachLeg[ counterLegs ] = patchedConicsResultFromDepartureToDsm;
             fullProblemResultForEachLeg[ counterLegs ] = fullProblemResultFromDepartureToDsm;
+            dependentVariableResultForEachLeg[ counterLegs ] = dependentVariablesFromDepartureToDsm;
             counterLegs++;
 
             // Results for the second part of the leg (from DSM to arrival body )
             patchedConicsResultForEachLeg[ counterLegs ] = patchedConicsResultFromDsmToArrival;
             fullProblemResultForEachLeg[ counterLegs ] = fullProblemResultFromDsmToArrival;
+            dependentVariableResultForEachLeg[ counterLegs ] = dependentVariablesFromDsmToArrival;
             counterLegs++;
             counterLegWithDSM++;
         }
