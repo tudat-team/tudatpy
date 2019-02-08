@@ -275,7 +275,7 @@ Eigen::Vector6d computeCartesianStateFromKeplerianOrbit(
 
 
 
-
+//! Function to propagate the full dynamics problem and the Lambert targeter solution.
 void propagateLambertTargeterAndFullProblem(
         const double timeOfFlight,
         const double initialTime,

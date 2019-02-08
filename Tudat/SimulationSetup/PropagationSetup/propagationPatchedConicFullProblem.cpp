@@ -405,6 +405,8 @@ void fullPropagationPatchedConicsTrajectory(
 }
 
 
+
+//! Function to calculate the patched conics trajectory and to propagate the corresponding full problem.
 void fullPropagationPatchedConicsTrajectory(
         simulation_setup::NamedBodyMap& bodyMap,
         const std::vector< basic_astrodynamics::AccelerationMap >& accelerationMap,
@@ -682,6 +684,8 @@ void fullPropagationPatchedConicsTrajectory(
 }
 
 
+//! Function to calculate the patched conics trajectory and to propagate the corresponding full problem
+//! with the same acceleration map for every leg.
 void fullPropagationPatchedConicsTrajectory(
         simulation_setup::NamedBodyMap& bodyMap,
         const basic_astrodynamics::AccelerationMap& accelerationMap,
@@ -725,7 +729,7 @@ void fullPropagationPatchedConicsTrajectory(
 
 
 
-
+//! Function to both calculate a patched conics leg without DSM and propagate the full dynamics problem.
 void propagateMgaWithoutDsmAndFullProblem(
         simulation_setup::NamedBodyMap& bodyMap,
         const basic_astrodynamics::AccelerationMap& accelerationMap,
@@ -753,6 +757,9 @@ void propagateMgaWithoutDsmAndFullProblem(
                                                         cartesianPositionAtDeparture, cartesianPositionAtArrival);
 }
 
+
+
+//! Function to both calculate a patched conics leg including a DSM and propagate the corresponding full dynamics problem.
 void propagateMga1DsmVelocityAndFullProblem(
         simulation_setup::NamedBodyMap& bodyMap,
         const basic_astrodynamics::AccelerationMap& accelerationMap,
@@ -848,7 +855,7 @@ void propagateMga1DsmVelocityAndFullProblem(
         legDepartureAndArrival.push_back( departureAndArrivalBodies[0] );
         legDepartureAndArrival.push_back( dsm );
 
-        propagateKeplerianOrbitAndFullProblem(timeDsm - initialTime, initialTime, bodyMap, bodyToPropagate, centralBody,
+        propagateKeplerianOrbitLegAndFullProblem(timeDsm - initialTime, initialTime, bodyMap, bodyToPropagate, centralBody,
                                               legDepartureAndArrival, velocityAfterDeparture, propagatorSettingsBeforeDsm, integratorSettings,
                                               patchedConicsResultFromDepartureToDsm, fullProblemResultFromDepartureToDsm,
                                               bodyMap[ centralBody ]->getGravityFieldModel()->getGravitationalParameter(),
@@ -873,6 +880,7 @@ void propagateMga1DsmVelocityAndFullProblem(
 
 
 
+//! Function to both calculate a patched conics leg including a DSM and propagate the corresponding full dynamics problem.
 void propagateMga1DsmPositionAndFullProblem(
         simulation_setup::NamedBodyMap& bodyMap,
         const basic_astrodynamics::AccelerationMap& accelerationMap,
@@ -996,8 +1004,8 @@ void propagateMga1DsmPositionAndFullProblem(
 
 
 
-
-void propagateKeplerianOrbitAndFullProblem(
+//! Function to propagate the motion of a body over a trajectory leg, both along a keplerian orbit and in a full dynamics problem.
+void propagateKeplerianOrbitLegAndFullProblem(
         const double timeOfFlight,
         const double initialTime,
         const simulation_setup::NamedBodyMap& bodyMap,
@@ -1269,7 +1277,7 @@ std::map< int, std::pair< Eigen::Vector6d, Eigen::Vector6d > > getDifferenceFull
 
 
 //! Function to compute the difference in cartesian state between patched conics trajectory and full dynamics problem,
-//! at both departure and arrival positions for each leg when using the same accelerations for each leg.
+//! at both departure and arrival positions for each leg, using the same accelerations for each leg.
 std::map< int, std::pair< Eigen::Vector6d, Eigen::Vector6d > > getDifferenceFullProblemWrtPatchedConicsTrajectory(
         simulation_setup::NamedBodyMap& bodyMap,
         const basic_astrodynamics::AccelerationMap& accelerationMap,
