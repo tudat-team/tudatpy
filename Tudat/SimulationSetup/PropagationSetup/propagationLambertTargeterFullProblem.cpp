@@ -286,14 +286,16 @@ void propagateLambertTargeterAndFullProblem(
         const std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings,
         std::map< double, Eigen::Vector6d >& lambertTargeterResult,
         std::map< double, Eigen::Vector6d >& fullProblemResult,
+        std::map< double, Eigen::VectorXd >& dependentVariableResult,
         const std::vector<std::string>& departureAndArrivalBodies,
         const double centralBodyGravitationalParameter,
         const Eigen::Vector3d& cartesianPositionAtDeparture,
-        const Eigen::Vector3d& cartesianPositionAtArrival)
+        const Eigen::Vector3d& cartesianPositionAtArrival )
 {
     // Clear output maps
     lambertTargeterResult.clear( );
     fullProblemResult.clear( );
+    dependentVariableResult.clear( );
 
     // Retrieve the gravitational parameter of the relevant bodies.
     double gravitationalParameterCentralBody = ( centralBodyGravitationalParameter == centralBodyGravitationalParameter ) ?
@@ -393,6 +395,8 @@ void propagateLambertTargeterAndFullProblem(
                 bodyMap, integratorSettings, propagatorSettingsForwardPropagation );
     std::map< double, Eigen::VectorXd > stateHistoryFullProblemForwardPropagation = dynamicsSimulatorIntegrationForwards.
             getEquationsOfMotionNumericalSolution( );
+    std::map< double, Eigen::VectorXd > dependentVariableHistoryForwardPropagation =
+            dynamicsSimulatorIntegrationForwards.getDependentVariableHistory( );
 
     // Calculate the difference between the full problem and the Lambert targeter solution along the forward propagation direction.
     for( std::map< double, Eigen::VectorXd >::iterator itr = stateHistoryFullProblemForwardPropagation.begin( );
@@ -403,6 +407,7 @@ void propagateLambertTargeterAndFullProblem(
                     gravitationalParameterCentralBody );
         lambertTargeterResult[ itr->first ] = cartesianStateLambertSolution;
         fullProblemResult[ itr->first ] = itr->second;
+        dependentVariableResult[ itr->first ] = dependentVariableHistoryForwardPropagation[ itr->first ];
     }
 
 
@@ -414,6 +419,8 @@ void propagateLambertTargeterAndFullProblem(
     propagators::SingleArcDynamicsSimulator< > dynamicsSimulatorIntegrationBackwards(bodyMap, integratorSettings, propagatorSettingsBackwardPropagation );
     std::map< double, Eigen::VectorXd > stateHistoryFullProblemBackwardPropagation =
             dynamicsSimulatorIntegrationBackwards.getEquationsOfMotionNumericalSolution( );
+    std::map< double, Eigen::VectorXd > dependentVariableHistoryBackwardPropagation =
+            dynamicsSimulatorIntegrationBackwards.getDependentVariableHistory( );
 
     // Calculate the difference between the full problem and the Lambert targeter solution along the backward propagation direction.
     for( std::map< double, Eigen::VectorXd >::iterator itr = stateHistoryFullProblemBackwardPropagation.begin( );
@@ -425,6 +432,7 @@ void propagateLambertTargeterAndFullProblem(
 
         lambertTargeterResult[ itr->first ] = cartesianStateLambertSolution;
         fullProblemResult[ itr->first ] = itr->second;
+        dependentVariableResult[ itr->first ] = dependentVariableHistoryBackwardPropagation[ itr->first ];
 
     }
 
@@ -452,6 +460,7 @@ void propagateLambertTargeterAndFullProblem(
         const std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings,
         std::map< double, Eigen::Vector6d >& lambertTargeterResult,
         std::map< double, Eigen::Vector6d >& fullProblemResult,
+        std::map< double, Eigen::VectorXd >& dependentVariableResult,
         const std::vector<std::string>& departureAndArrivalBodies,
         const bool terminationSphereOfInfluence,
         const Eigen::Vector3d& cartesianPositionAtDeparture,
@@ -620,11 +629,9 @@ void propagateLambertTargeterAndFullProblem(
 
     propagateLambertTargeterAndFullProblem(
             timeOfFlight, initialTime, bodyMap, centralBody, propagatorSettings,
-            integratorSettings, lambertTargeterResult, fullProblemResult, departureAndArrivalBodies,
+            integratorSettings, lambertTargeterResult, fullProblemResult, dependentVariableResult, departureAndArrivalBodies,
             centralBodyGravitationalParameter, cartesianPositionAtDeparture, cartesianPositionAtArrival );
 }
-
-
 
 
 //! Function to compute the difference in cartesian state between Lambert targeter solution and full dynamics problem, both at departure
@@ -647,11 +654,14 @@ std::pair< Eigen::Vector6d, Eigen::Vector6d > getDifferenceFullPropagationWrtLam
 {
     std::map< double, Eigen::Vector6d > lambertTargeterResult;
     std::map< double, Eigen::Vector6d > fullProblemResult;
+    std::map< double, Eigen::VectorXd > dependentVariableResult;
+
+
 
     // Compute full problem and Lambert targeter solution at both departure and arrival.
     propagateLambertTargeterAndFullProblem(
                 timeOfFlight, initialTime, bodyMap, accelerationModelMap, bodyToPropagate, centralBody, integratorSettings,
-                lambertTargeterResult, fullProblemResult, departureAndArrivalBodies,
+                lambertTargeterResult, fullProblemResult, dependentVariableResult, departureAndArrivalBodies,
                 terminationSphereOfInfluence, cartesianPositionAtDeparture, cartesianPositionAtArrival, TUDAT_NAN, TUDAT_NAN, TUDAT_NAN,
                 dependentVariablesToSave, propagator );
 
