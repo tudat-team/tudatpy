@@ -112,7 +112,211 @@ transfer_trajectories::Trajectory createTransferTrajectoryObject(
         const double arrivalSemiMajorAxis,
         const double arrivalEccentricity );
 
+//! Function to both calculate a patched conics leg without DSM and propagate the full dynamics problem.
+/*!
+ * Function to both calculate a patched conics leg without DSM and propagate the full dynamics problem.
+ * \param bodyMap Body map for the patched conics leg.
+ * \param accelerationMap Acceleration map corresponding to the patched conics leg, defining the accelerations to be considered in the full
+ * dynamics problem.
+ * \param departureAndArrivalBodies Vector containing the names of the departure and arrival bodies of the leg.
+ * \param centralBody Name of the central body of the patched conics trajectory.
+ * \param bodyToPropagate Name of the body to be propagated.
+ * \param cartesianPositionAtDeparture Cartesian position of the body to be propagated at the leg departure [m].
+ * \param cartesianPositionAtArrival Cartesian position of the body to be propagated at the leg arrival [m].
+ * \param initialTime Time at departure [s].
+ * \param timeOfFlight Time of flight for the leg [s].
+ * \param propagatorSettings Propagator settings for the propagation of the full dynamics problem.
+ * \param integratorSettings Integration settings for the full problem propagation.
+ * \param patchedConicsResult Patched conics solution for the leg.
+ * \param fullProblemResult Propagation results of the full problem over the leg.
+ */
+void propagateMgaWithoutDsmAndFullProblem(
+        simulation_setup::NamedBodyMap& bodyMap,
+        const basic_astrodynamics::AccelerationMap& accelerationMap,
+        const std::vector< std::string > departureAndArrivalBodies,
+        const std::string& centralBody,
+        const std::string& bodyToPropagate,
+        const Eigen::Vector3d cartesianPositionAtDeparture,
+        const Eigen::Vector3d cartesianPositionAtArrival,
+        const double initialTime,
+        const double timeOfFlight,
+        const std::pair< std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > >,
+        std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > > > propagatorSettings,
+        const std::shared_ptr< numerical_integrators::IntegratorSettings< double > >& integratorSettings,
+        std::map< double, Eigen::Vector6d >& patchedConicsResult,
+        std::map< double, Eigen::Vector6d >& fullProblemResult);
 
+
+
+
+//! Function to both calculate a patched conics leg including a DSM and propagate the corresponding full dynamics problem.
+/*!
+ * Function to both calculate a patched conics leg including a DSM and propagate the corresponding full dynamics problem. The patched
+ * conics leg with DSM is calculated using the velocity formulation.
+ * \param bodyMap Body map for the patched conics leg.
+ * \param accelerationMap Acceleration map corresponding to the patched conics leg, defining the accelerations to be considered in the full
+ * dynamics problem.
+ * \param departureAndArrivalBodies Vector containing the names of the departure and arrival bodies of the leg.
+ * \param dsm Name of the DSM.
+ * \param centralBody Name of the central body of the patched conics trajectory.
+ * \param bodyToPropagate Name of the body to be propagated.
+ * \param cartesianPositionAtDeparture Cartesian position of the body to be propagated at the leg departure [m].
+ * \param cartesianPositionDSM Cartesian position of the body to be propagated at the DSM location [m].
+ * \param cartesianPositionAtArrival Cartesian position of the body to be propagated at the leg arrival [m].
+ * \param initialTime Time at departure [s].
+ * \param timeDsm Time at which the DSM is to be performed [s].
+ * \param timeArrival Time at arrival [s].
+ * \param legType Type of the leg.
+ * \param trajectoryVariableVector Trajectory variable vector characterising the leg.
+ * \param semiMajorAxis Semi-major axis at trajectory departure (only used for a departure leg and not a swing-by one) [m].
+ * \param eccentricity Eccentricity at trajectory departure (only used for a departure leg and not a swing-by one).
+ * \param velocityAfterDeparture Velocity coordinates of the body to be propagated just after the swing-by it has performed about the
+ * departure body of the leg [m/s].
+ * \param velocityBeforeArrival  Velocity coordinates of the body to be propagated just before it reaches the arrival body of the leg [m/s].
+ * \param propagatorSettingsBeforeDsm Propagator settings for the full problem propagation from the departure body to the DSM location.
+ * \param propagatorSettingsAfterDsm Propagators settings for the full problem propagation from the DSM location to the arrival body.
+ * \param integratorSettings Integrator settings for the propagation of the full dynamics problem.
+ * \param patchedConicsResultFromDepartureToDsm Patched conics solution for the first part of the leg (from departure body to DSM).
+ * \param fullProblemResultFromDepartureToDsm Propagation results of the full dynamics problem for the first part of the leg (from
+ * departure body to DSM).
+ * \param patchedConicsResultFromDsmToArrival Patched conics solution for the second part of the leg (from DSM to arrival body).
+ * \param fullProblemResultFromDsmToArrival Propagation results of the full dynamics problem for the second part of the leg (from DSM
+ * to arrival body).
+ */
+void propagateMga1DsmVelocityAndFullProblem(
+        simulation_setup::NamedBodyMap& bodyMap,
+        const basic_astrodynamics::AccelerationMap& accelerationMap,
+        const std::vector< std::string > departureAndArrivalBodies,
+        const std::string& dsm,
+        const std::string& centralBody,
+        const std::string& bodyToPropagate,
+        const Eigen::Vector3d cartesianPositionAtDeparture,
+        const Eigen::Vector3d cartesianPositionDSM,
+        const Eigen::Vector3d cartesianPositionAtArrival,
+        const double initialTime,
+        const double timeDsm,
+        const double timeArrival,
+        const transfer_trajectories::TransferLegType& legType,
+        const std::vector< double >& trajectoryVariableVector,
+        const double semiMajorAxis,
+        const double eccentricity,
+        Eigen::Vector3d& velocityAfterDeparture,
+        Eigen::Vector3d& velocityBeforeArrival,
+        const std::pair< std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > >,
+        std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > > > propagatorSettingsBeforeDsm,
+        const std::pair< std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > >,
+        std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > > > propagatorSettingsAfterDsm,
+        const std::shared_ptr< numerical_integrators::IntegratorSettings< double > >& integratorSettings,
+        std::map< double, Eigen::Vector6d >& patchedConicsResultFromDepartureToDsm,
+        std::map< double, Eigen::Vector6d >& fullProblemResultFromDepartureToDsm,
+        std::map< double, Eigen::Vector6d >& patchedConicsResultFromDsmToArrival,
+        std::map< double, Eigen::Vector6d >& fullProblemResultFromDsmToArrival);
+
+
+
+//! Function to both calculate a patched conics leg including a DSM and propagate the corresponding full dynamics problem.
+/*!
+ * Function to both calculate a patched conics leg including a DSM and propagate the corresponding full dynamics problem. The patched
+ * conics leg with DSM is calculated using the position formulation.
+ * \param bodyMap bodyMap Body map for the patched conics leg.
+ * \param accelerationMap Acceleration map corresponding to the patched conics leg, defining the accelerations to be considered in the full
+ * dynamics problem.
+ * \param departureAndArrivalBodies Vector containing the names of the departure and arrival bodies of the leg.
+ * \param dsm Name of the DSM.
+ * \param centralBody Name of the central body of the patched conics trajectory.
+ * \param bodyToPropagate Name of the body to be propagated.
+ * \param cartesianPositionAtDeparture Cartesian position of the body to be propagated at the leg departure [m].
+ * \param cartesianPositionDSM Cartesian position of the body to be propagated at the DSM location [m].
+ * \param cartesianPositionAtArrival Cartesian position of the body to be propagated at the leg arrival [m].
+ * \param initialTime Time at departure [s].
+ * \param timeDsm Time at which the DSM is to be performed [s].
+ * \param timeArrival Time at arrival [s].
+ * \param legType Type of the leg.
+ * \param trajectoryVariableVector Trajectory variable vector characterising the leg.
+ * \param minimumPericenterRadius Minimum pericenter radius (only used for a swing-by leg and not a trajectory departure one).
+ * \param semiMajorAxis Semi-major axis at trajectory departure (only used for a departure leg and not a swing-by one) [m].
+ * \param eccentricity Eccentricity at trajectory departure (only used for a departure leg and not a swing-by one).
+ * \param velocityAfterDeparture Velocity coordinates of the body to be propagated just after the swing-by it has performed about the
+ * departure body of the leg [m/s].
+ * \param velocityBeforeArrival Velocity coordinates of the body to be propagated just before it reaches the arrival body of the leg [m/s].
+ * \param propagatorSettingsBeforeDsm Propagator settings for the full problem propagation from the departure body to the DSM location.
+ * \param propagatorSettingsAfterDsm Propagators settings for the full problem propagation from the DSM location to the arrival body.
+ * \param integratorSettings Integrator settings for the propagation of the full dynamics problem.
+ * \param patchedConicsResultFromDepartureToDsm Patched conics solution for the first part of the leg (from departure body to DSM).
+ * \param fullProblemResultFromDepartureToDsm Propagation results of the full dynamics problem for the first part of the leg (from
+ * departure body to DSM).
+ * \param patchedConicsResultFromDsmToArrival Patched conics solution for the second part of the leg (from DSM to arrival body).
+ * \param fullProblemResultFromDsmToArrival Propagation results of the full dynamics problem for the second part of the leg (from DSM
+ * to arrival body).
+ */
+void propagateMga1DsmPositionAndFullProblem(
+        simulation_setup::NamedBodyMap& bodyMap,
+        const basic_astrodynamics::AccelerationMap& accelerationMap,
+        const std::vector< std::string > departureAndArrivalBodies,
+        const std::string& dsm,
+        const std::string& centralBody,
+        const std::string& bodyToPropagate,
+        const Eigen::Vector3d cartesianPositionAtDeparture,
+        const Eigen::Vector3d cartesianPositionDSM,
+        const Eigen::Vector3d cartesianPositionAtArrival,
+        const double initialTime,
+        const double timeDsm,
+        const double timeArrival,
+        const transfer_trajectories::TransferLegType& legType,
+        const std::vector< double >& trajectoryVariableVector,
+        const double minimumPericenterRadius,
+        const double semiMajorAxis,
+        const double eccentricity,
+        Eigen::Vector3d& velocityAfterDeparture,
+        Eigen::Vector3d& velocityBeforeArrival,
+        const std::pair< std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > >,
+        std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > > > propagatorSettingsBeforeDsm,
+        const std::pair< std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > >,
+        std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > > > propagatorSettingsAfterDsm,
+        const std::shared_ptr< numerical_integrators::IntegratorSettings< double > >& integratorSettings,
+        std::map< double, Eigen::Vector6d >& patchedConicsResultFromDepartureToDsm,
+        std::map< double, Eigen::Vector6d >& fullProblemResultFromDepartureToDsm,
+        std::map< double, Eigen::Vector6d >& patchedConicsResultFromDsmToArrival,
+        std::map< double, Eigen::Vector6d >& fullProblemResultFromDsmToArrival);
+
+
+
+
+//! Function to propagate the motion of a body over a trajectory leg, both along a keplerian orbit and in a full dynamics problem.
+/*!
+ * Function to propagate the motion of a body over a trajectory leg, both along a keplerian orbit and in a full dynamics problem.
+ * \param timeOfFlight Time of flight during which the body has to be propagated [s]
+ * \param initialTime Initial time [s].
+ * \param bodyMap Body map defining the problem.
+ * \param bodyToPropagate Name of the body to be propagated.
+ * \param centralBody Name of the central body of the keplerian trajectory.
+ * \param departureAndArrivalBodies Name of the departure and arrival bodies of the leg.
+ * \param velocityAfterDeparture Velocity coordinates of the body to be propagated just after the swing-by it has performed about the
+ * departure body of the leg [m/s].
+ * \param propagatorSettings Propagator settings for the propagation of the full dynamics problem.
+ * \param integratorSettings Integrator settings for the propagation of the full dynamics problem.
+ * \param keplerianOrbitResult Keplerian orbit solution.
+ * \param fullProblemResult Propagation results of the full problem.
+ * \param centralBodyGravitationalParameter Gravitational parameter of the central body [m^3 s^-2]. If not provided as input, it is retrieved
+ * from the body map.
+ * \param cartesianPositionAtDeparture Cartesian position of the body to the propagated at the leg departure [m]. If not provided as input, it
+ * is retrieved from the ephemerides.
+ */
+void propagateKeplerianOrbitLegAndFullProblem(
+        const double timeOfFlight,
+        const double initialTime,
+        const simulation_setup::NamedBodyMap& bodyMap,
+        const std::string& bodyToPropagate,
+        const std::string& centralBody,
+        const std::vector<std::string>& departureAndArrivalBodies,
+        const Eigen::Vector3d& velocityAfterDeparture,
+        const std::pair< std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > >,
+        std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > > > propagatorSettings,
+        const std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings,
+        std::map< double, Eigen::Vector6d >& keplerianOrbitResult,
+        std::map< double, Eigen::Vector6d >& fullProblemResult,
+        const double centralBodyGravitationalParameter,
+        const Eigen::Vector3d& cartesianPositionAtDeparture);
 
 //! Function to calculate the patched conics trajectory and to propagate the corresponding full problem.
 /*!
@@ -240,215 +444,6 @@ void fullPropagationPatchedConicsTrajectory(
         const bool terminationSphereOfInfluence = false,
         const std::shared_ptr< DependentVariableSaveSettings > dependentVariablesToSave = std::shared_ptr< DependentVariableSaveSettings > ( ),
         const TranslationalPropagatorType propagator = cowell);
-
-
-
-//! Function to both calculate a patched conics leg without DSM and propagate the full dynamics problem.
-/*!
- * Function to both calculate a patched conics leg without DSM and propagate the full dynamics problem.
- * \param bodyMap Body map for the patched conics leg.
- * \param accelerationMap Acceleration map corresponding to the patched conics leg, defining the accelerations to be considered in the full
- * dynamics problem.
- * \param departureAndArrivalBodies Vector containing the names of the departure and arrival bodies of the leg.
- * \param centralBody Name of the central body of the patched conics trajectory.
- * \param bodyToPropagate Name of the body to be propagated.
- * \param cartesianPositionAtDeparture Cartesian position of the body to be propagated at the leg departure [m].
- * \param cartesianPositionAtArrival Cartesian position of the body to be propagated at the leg arrival [m].
- * \param initialTime Time at departure [s].
- * \param timeOfFlight Time of flight for the leg [s].
- * \param propagatorSettings Propagator settings for the propagation of the full dynamics problem.
- * \param integratorSettings Integration settings for the full problem propagation.
- * \param patchedConicsResult Patched conics solution for the leg.
- * \param fullProblemResult Propagation results of the full problem over the leg.
- */
-void propagateMgaWithoutDsmAndFullProblem(
-        simulation_setup::NamedBodyMap& bodyMap,
-        const basic_astrodynamics::AccelerationMap& accelerationMap,
-        const std::vector< std::string > departureAndArrivalBodies,
-        const std::string centralBody,
-        const std::string bodyToPropagate,
-        const Eigen::Vector3d cartesianPositionAtDeparture,
-        const Eigen::Vector3d cartesianPositionAtArrival,
-        const double initialTime,
-        const double timeOfFlight,
-        const std::pair< std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > >,
-        std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > > > propagatorSettings,
-        const std::shared_ptr< numerical_integrators::IntegratorSettings< double > >& integratorSettings,
-        std::map< double, Eigen::Vector6d >& patchedConicsResult,
-        std::map< double, Eigen::Vector6d >& fullProblemResult);
-
-
-
-
-//! Function to both calculate a patched conics leg including a DSM and propagate the corresponding full dynamics problem.
-/*!
- * Function to both calculate a patched conics leg including a DSM and propagate the corresponding full dynamics problem. The patched
- * conics leg with DSM is calculated using the velocity formulation.
- * \param bodyMap Body map for the patched conics leg.
- * \param accelerationMap Acceleration map corresponding to the patched conics leg, defining the accelerations to be considered in the full
- * dynamics problem.
- * \param departureAndArrivalBodies Vector containing the names of the departure and arrival bodies of the leg.
- * \param dsm Name of the DSM.
- * \param centralBody Name of the central body of the patched conics trajectory.
- * \param bodyToPropagate Name of the body to be propagated.
- * \param cartesianPositionAtDeparture Cartesian position of the body to be propagated at the leg departure [m].
- * \param cartesianPositionDSM Cartesian position of the body to be propagated at the DSM location [m].
- * \param cartesianPositionAtArrival Cartesian position of the body to be propagated at the leg arrival [m].
- * \param initialTime Time at departure [s].
- * \param timeDsm Time at which the DSM is to be performed [s].
- * \param timeArrival Time at arrival [s].
- * \param legType Type of the leg.
- * \param trajectoryVariableVector Trajectory variable vector characterising the leg.
- * \param semiMajorAxis Semi-major axis at trajectory departure (only used for a departure leg and not a swing-by one) [m].
- * \param eccentricity Eccentricity at trajectory departure (only used for a departure leg and not a swing-by one).
- * \param velocityAfterDeparture Velocity coordinates of the body to be propagated just after the swing-by it has performed about the
- * departure body of the leg [m/s].
- * \param velocityBeforeArrival  Velocity coordinates of the body to be propagated just before it reaches the arrival body of the leg [m/s].
- * \param propagatorSettingsBeforeDsm Propagator settings for the full problem propagation from the departure body to the DSM location.
- * \param propagatorSettingsAfterDsm Propagators settings for the full problem propagation from the DSM location to the arrival body.
- * \param integratorSettings Integrator settings for the propagation of the full dynamics problem.
- * \param patchedConicsResultFromDepartureToDsm Patched conics solution for the first part of the leg (from departure body to DSM).
- * \param fullProblemResultFromDepartureToDsm Propagation results of the full dynamics problem for the first part of the leg (from
- * departure body to DSM).
- * \param patchedConicsResultFromDsmToArrival Patched conics solution for the second part of the leg (from DSM to arrival body).
- * \param fullProblemResultFromDsmToArrival Propagation results of the full dynamics problem for the second part of the leg (from DSM
- * to arrival body).
- */
-void propagateMga1DsmVelocityAndFullProblem(
-        simulation_setup::NamedBodyMap& bodyMap,
-        const basic_astrodynamics::AccelerationMap& accelerationMap,
-        const std::vector< std::string > departureAndArrivalBodies,
-        const std::string dsm,
-        const std::string centralBody,
-        const std::string bodyToPropagate,
-        const Eigen::Vector3d cartesianPositionAtDeparture,
-        const Eigen::Vector3d cartesianPositionDSM,
-        const Eigen::Vector3d cartesianPositionAtArrival,
-        const double initialTime,
-        const double timeDsm,
-        const double timeArrival,
-        const transfer_trajectories::TransferLegType& legType,
-        const std::vector< double >& trajectoryVariableVector,
-        const double semiMajorAxis,
-        const double eccentricity,
-        Eigen::Vector3d& velocityAfterDeparture,
-        Eigen::Vector3d& velocityBeforeArrival,
-        const std::pair< std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > >,
-        std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > > > propagatorSettingsBeforeDsm,
-        const std::pair< std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > >,
-        std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > > > propagatorSettingsAfterDsm,
-        const std::shared_ptr< numerical_integrators::IntegratorSettings< double > >& integratorSettings,
-        std::map< double, Eigen::Vector6d >& patchedConicsResultFromDepartureToDsm,
-        std::map< double, Eigen::Vector6d >& fullProblemResultFromDepartureToDsm,
-        std::map< double, Eigen::Vector6d >& patchedConicsResultFromDsmToArrival,
-        std::map< double, Eigen::Vector6d >& fullProblemResultFromDsmToArrival);
-
-
-
-//! Function to both calculate a patched conics leg including a DSM and propagate the corresponding full dynamics problem.
-/*!
- * Function to both calculate a patched conics leg including a DSM and propagate the corresponding full dynamics problem. The patched
- * conics leg with DSM is calculated using the position formulation.
- * \param bodyMap bodyMap Body map for the patched conics leg.
- * \param accelerationMap Acceleration map corresponding to the patched conics leg, defining the accelerations to be considered in the full
- * dynamics problem.
- * \param departureAndArrivalBodies Vector containing the names of the departure and arrival bodies of the leg.
- * \param dsm Name of the DSM.
- * \param centralBody Name of the central body of the patched conics trajectory.
- * \param bodyToPropagate Name of the body to be propagated.
- * \param cartesianPositionAtDeparture Cartesian position of the body to be propagated at the leg departure [m].
- * \param cartesianPositionDSM Cartesian position of the body to be propagated at the DSM location [m].
- * \param cartesianPositionAtArrival Cartesian position of the body to be propagated at the leg arrival [m].
- * \param initialTime Time at departure [s].
- * \param timeDsm Time at which the DSM is to be performed [s].
- * \param timeArrival Time at arrival [s].
- * \param legType Type of the leg.
- * \param trajectoryVariableVector Trajectory variable vector characterising the leg.
- * \param minimumPericenterRadius Minimum pericenter radius (only used for a swing-by leg and not a trajectory departure one).
- * \param semiMajorAxis Semi-major axis at trajectory departure (only used for a departure leg and not a swing-by one) [m].
- * \param eccentricity Eccentricity at trajectory departure (only used for a departure leg and not a swing-by one).
- * \param velocityAfterDeparture Velocity coordinates of the body to be propagated just after the swing-by it has performed about the
- * departure body of the leg [m/s].
- * \param velocityBeforeArrival Velocity coordinates of the body to be propagated just before it reaches the arrival body of the leg [m/s].
- * \param propagatorSettingsBeforeDsm Propagator settings for the full problem propagation from the departure body to the DSM location.
- * \param propagatorSettingsAfterDsm Propagators settings for the full problem propagation from the DSM location to the arrival body.
- * \param integratorSettings Integrator settings for the propagation of the full dynamics problem.
- * \param patchedConicsResultFromDepartureToDsm Patched conics solution for the first part of the leg (from departure body to DSM).
- * \param fullProblemResultFromDepartureToDsm Propagation results of the full dynamics problem for the first part of the leg (from
- * departure body to DSM).
- * \param patchedConicsResultFromDsmToArrival Patched conics solution for the second part of the leg (from DSM to arrival body).
- * \param fullProblemResultFromDsmToArrival Propagation results of the full dynamics problem for the second part of the leg (from DSM
- * to arrival body).
- */
-void propagateMga1DsmPositionAndFullProblem(
-        simulation_setup::NamedBodyMap& bodyMap,
-        const basic_astrodynamics::AccelerationMap& accelerationMap,
-        const std::vector< std::string > departureAndArrivalBodies,
-        const std::string dsm,
-        const std::string centralBody,
-        const std::string bodyToPropagate,
-        const Eigen::Vector3d cartesianPositionAtDeparture,
-        const Eigen::Vector3d cartesianPositionDSM,
-        const Eigen::Vector3d cartesianPositionAtArrival,
-        const double initialTime,
-        const double timeDsm,
-        const double timeArrival,
-        const transfer_trajectories::TransferLegType& legType,
-        const std::vector< double >& trajectoryVariableVector,
-        const double minimumPericenterRadius,
-        const double semiMajorAxis,
-        const double eccentricity,
-        Eigen::Vector3d& velocityAfterDeparture,
-        Eigen::Vector3d& velocityBeforeArrival,
-        const std::pair< std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > >,
-        std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > > > propagatorSettingsBeforeDsm,
-        const std::pair< std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > >,
-        std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > > > propagatorSettingsAfterDsm,
-        const std::shared_ptr< numerical_integrators::IntegratorSettings< double > >& integratorSettings,
-        std::map< double, Eigen::Vector6d >& patchedConicsResultFromDepartureToDsm,
-        std::map< double, Eigen::Vector6d >& fullProblemResultFromDepartureToDsm,
-        std::map< double, Eigen::Vector6d >& patchedConicsResultFromDsmToArrival,
-        std::map< double, Eigen::Vector6d >& fullProblemResultFromDsmToArrival);
-
-
-
-
-//! Function to propagate the motion of a body over a trajectory leg, both along a keplerian orbit and in a full dynamics problem.
-/*!
- * Function to propagate the motion of a body over a trajectory leg, both along a keplerian orbit and in a full dynamics problem.
- * \param timeOfFlight Time of flight during which the body has to be propagated [s]
- * \param initialTime Initial time [s].
- * \param bodyMap Body map defining the problem.
- * \param bodyToPropagate Name of the body to be propagated.
- * \param centralBody Name of the central body of the keplerian trajectory.
- * \param departureAndArrivalBodies Name of the departure and arrival bodies of the leg.
- * \param velocityAfterDeparture Velocity coordinates of the body to be propagated just after the swing-by it has performed about the
- * departure body of the leg [m/s].
- * \param propagatorSettings Propagator settings for the propagation of the full dynamics problem.
- * \param integratorSettings Integrator settings for the propagation of the full dynamics problem.
- * \param keplerianOrbitResult Keplerian orbit solution.
- * \param fullProblemResult Propagation results of the full problem.
- * \param centralBodyGravitationalParameter Gravitational parameter of the central body [m^3 s^-2]. If not provided as input, it is retrieved
- * from the body map.
- * \param cartesianPositionAtDeparture Cartesian position of the body to the propagated at the leg departure [m]. If not provided as input, it
- * is retrieved from the ephemerides.
- */
-void propagateKeplerianOrbitLegAndFullProblem(
-        const double timeOfFlight,
-        const double initialTime,
-        const simulation_setup::NamedBodyMap& bodyMap,
-        const std::string& bodyToPropagate,
-        const std::string& centralBody,
-        const std::vector<std::string>& departureAndArrivalBodies,
-        const Eigen::Vector3d& velocityAfterDeparture,
-        const std::pair< std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > >,
-        std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > > > propagatorSettings,
-        const std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings,
-        std::map< double, Eigen::Vector6d >& keplerianOrbitResult,
-        std::map< double, Eigen::Vector6d >& fullProblemResult,
-        const double centralBodyGravitationalParameter,
-        const Eigen::Vector3d& cartesianPositionAtDeparture);
-
 
 
 //! Function to compute the difference in cartesian state between patched conics trajectory and full dynamics problem,
