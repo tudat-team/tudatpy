@@ -139,10 +139,8 @@ void propagateMgaWithoutDsmAndFullProblem(
         std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > > > propagatorSettings,
         const std::shared_ptr< numerical_integrators::IntegratorSettings< double > >& integratorSettings,
         std::map< double, Eigen::Vector6d >& patchedConicsResult,
-        std::map< double, Eigen::Vector6d >& fullProblemResult);
-
-
-
+        std::map< double, Eigen::Vector6d >& fullProblemResult,
+        std::map< double, Eigen::VectorXd >& dependentVariableResultCurrentLeg );
 
 //! Function to both calculate a patched conics leg including a DSM and propagate the corresponding full dynamics problem.
 /*!
@@ -199,8 +197,10 @@ void propagateMga1DsmVelocityAndFullProblem(
         const std::shared_ptr< numerical_integrators::IntegratorSettings< double > >& integratorSettings,
         std::map< double, Eigen::Vector6d >& patchedConicsResultFromDepartureToDsm,
         std::map< double, Eigen::Vector6d >& fullProblemResultFromDepartureToDsm,
+        std::map< double, Eigen::VectorXd >& dependentVariablesFromDepartureToDsm,
         std::map< double, Eigen::Vector6d >& patchedConicsResultFromDsmToArrival,
-        std::map< double, Eigen::Vector6d >& fullProblemResultFromDsmToArrival);
+        std::map< double, Eigen::Vector6d >& fullProblemResultFromDsmToArrival,
+        std::map< double, Eigen::VectorXd >& dependentVariablesFromDsmToArrival );
 
 
 
@@ -261,8 +261,10 @@ void propagateMga1DsmPositionAndFullProblem(
         const std::shared_ptr< numerical_integrators::IntegratorSettings< double > >& integratorSettings,
         std::map< double, Eigen::Vector6d >& patchedConicsResultFromDepartureToDsm,
         std::map< double, Eigen::Vector6d >& fullProblemResultFromDepartureToDsm,
+        std::map< double, Eigen::VectorXd >& dependentVariablesFromDepartureToDsm,
         std::map< double, Eigen::Vector6d >& patchedConicsResultFromDsmToArrival,
-        std::map< double, Eigen::Vector6d >& fullProblemResultFromDsmToArrival);
+        std::map< double, Eigen::Vector6d >& fullProblemResultFromDsmToArrival,
+        std::map< double, Eigen::VectorXd >& dependentVariablesFromDsmToArrival );
 
 std::shared_ptr< propagators::PropagationTerminationSettings > getSingleLegPartSphereOfInfluenceTerminationSettings(
         simulation_setup::NamedBodyMap& bodyMap,
@@ -336,6 +338,7 @@ void propagateKeplerianOrbitLegAndFullProblem(
         const std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings,
         std::map< double, Eigen::Vector6d >& keplerianOrbitResult,
         std::map< double, Eigen::Vector6d >& fullProblemResult,
+        std::map< double, Eigen::VectorXd >& dependentVariables,
         const double centralBodyGravitationalParameter,
         const Eigen::Vector3d& cartesianPositionAtDeparture);
 
