@@ -272,10 +272,8 @@ transfer_trajectories::Trajectory createTransferTrajectoryObject(
 //! Function to both calculate a patched conics leg without DSM and propagate the full dynamics problem.
 void propagateMgaWithoutDsmAndFullProblem(
         simulation_setup::NamedBodyMap& bodyMap,
-        const basic_astrodynamics::AccelerationMap& accelerationMap,
         const std::vector< std::string > departureAndArrivalBodies,
-        const std::string& centralBody,
-        const std::string& bodyToPropagate,
+        const std::string centralBody,
         const Eigen::Vector3d cartesianPositionAtDeparture,
         const Eigen::Vector3d cartesianPositionAtArrival,
         const double initialTime,
@@ -289,8 +287,8 @@ void propagateMgaWithoutDsmAndFullProblem(
     integratorSettings->initialTime_ = initialTime;
 
     // Compute the difference in state between the full problem and the Lambert targeter solution for the current leg.
-    propagators::propagateLambertTargeterAndFullProblem( timeOfFlight, initialTime, bodyMap, accelerationMap,
-                                                         bodyToPropagate, centralBody, propagatorSettings, integratorSettings,
+    propagators::propagateLambertTargeterAndFullProblem( timeOfFlight, initialTime, bodyMap, centralBody,
+                                                         propagatorSettings, integratorSettings,
                                                          patchedConicsResult, fullProblemResult, departureAndArrivalBodies,
                                                          bodyMap[ centralBody ]->getGravityFieldModel( )->getGravitationalParameter( ) ,
                                                          cartesianPositionAtDeparture, cartesianPositionAtArrival);
@@ -301,11 +299,9 @@ void propagateMgaWithoutDsmAndFullProblem(
 //! Function to both calculate a patched conics leg including a DSM and propagate the corresponding full dynamics problem.
 void propagateMga1DsmVelocityAndFullProblem(
         simulation_setup::NamedBodyMap& bodyMap,
-        const basic_astrodynamics::AccelerationMap& accelerationMap,
         const std::vector< std::string > departureAndArrivalBodies,
         const std::string& dsm,
         const std::string& centralBody,
-        const std::string& bodyToPropagate,
         const Eigen::Vector3d cartesianPositionAtDeparture,
         const Eigen::Vector3d cartesianPositionDSM,
         const Eigen::Vector3d cartesianPositionAtArrival,
@@ -389,7 +385,7 @@ void propagateMga1DsmVelocityAndFullProblem(
     legDepartureAndArrival.push_back( dsm );
 
     propagateKeplerianOrbitLegAndFullProblem(
-                timeDsm - initialTime, initialTime, bodyMap, bodyToPropagate, centralBody,
+                timeDsm - initialTime, initialTime, bodyMap, centralBody,
                 legDepartureAndArrival, velocityAfterDeparture, propagatorSettingsBeforeDsm, integratorSettings,
                 patchedConicsResultFromDepartureToDsm, fullProblemResultFromDepartureToDsm,
                 bodyMap[ centralBody ]->getGravityFieldModel( )->getGravitationalParameter( ),
@@ -402,7 +398,7 @@ void propagateMga1DsmVelocityAndFullProblem(
 
     integratorSettings->initialTime_ = timeDsm;
 
-    propagateLambertTargeterAndFullProblem( timeArrival - timeDsm, timeDsm, bodyMap, accelerationMap, bodyToPropagate, centralBody,
+    propagateLambertTargeterAndFullProblem( timeArrival - timeDsm, timeDsm, bodyMap, centralBody,
                                             propagatorSettingsAfterDsm, integratorSettings,
                                             patchedConicsResultFromDsmToArrival, fullProblemResultFromDsmToArrival, legDepartureAndArrival,
                                             bodyMap[ centralBody]->getGravityFieldModel( )->getGravitationalParameter( ),
@@ -415,11 +411,9 @@ void propagateMga1DsmVelocityAndFullProblem(
 //! Function to both calculate a patched conics leg including a DSM and propagate the corresponding full dynamics problem.
 void propagateMga1DsmPositionAndFullProblem(
         simulation_setup::NamedBodyMap& bodyMap,
-        const basic_astrodynamics::AccelerationMap& accelerationMap,
         const std::vector< std::string > departureAndArrivalBodies,
         const std::string& dsm,
         const std::string& centralBody,
-        const std::string& bodyToPropagate,
         const Eigen::Vector3d cartesianPositionAtDeparture,
         const Eigen::Vector3d cartesianPositionDSM,
         const Eigen::Vector3d cartesianPositionAtArrival,
@@ -511,7 +505,7 @@ void propagateMga1DsmPositionAndFullProblem(
     legDepartureAndArrival.push_back( departureAndArrivalBodies[ 0 ] );
     legDepartureAndArrival.push_back( dsm );
 
-    propagateLambertTargeterAndFullProblem( timeDsm - initialTime, initialTime, bodyMap, accelerationMap, bodyToPropagate, centralBody,
+    propagateLambertTargeterAndFullProblem( timeDsm - initialTime, initialTime, bodyMap, centralBody,
                                             propagatorSettingsBeforeDsm, integratorSettings, patchedConicsResultFromDepartureToDsm,
                                             fullProblemResultFromDepartureToDsm, legDepartureAndArrival,
                                             bodyMap[ centralBody]->getGravityFieldModel( )->getGravitationalParameter( ),
@@ -526,7 +520,7 @@ void propagateMga1DsmPositionAndFullProblem(
 
     integratorSettings->initialTime_ = timeDsm;
 
-    propagateLambertTargeterAndFullProblem( timeArrival - timeDsm, timeDsm, bodyMap, accelerationMap, bodyToPropagate, centralBody,
+    propagateLambertTargeterAndFullProblem( timeArrival - timeDsm, timeDsm, bodyMap, centralBody,
                                             propagatorSettingsAfterDsm, integratorSettings, patchedConicsResultFromDsmToArrival,
                                             fullProblemResultFromDsmToArrival, legDepartureAndArrival,
                                             bodyMap[ centralBody]->getGravityFieldModel( )->getGravitationalParameter( ),
@@ -541,7 +535,6 @@ void propagateKeplerianOrbitLegAndFullProblem(
         const double timeOfFlight,
         const double initialTime,
         const simulation_setup::NamedBodyMap& bodyMap,
-        const std::string& bodyToPropagate,
         const std::string& centralBody,
         const std::vector<std::string>& departureAndArrivalBodies,
         const Eigen::Vector3d& velocityAfterDeparture,
@@ -610,11 +603,7 @@ void propagateKeplerianOrbitLegAndFullProblem(
 
 
 
-    // Initialise variables for propagatation.
-    std::vector< std::string > centralBodiesPropagation;
-    centralBodiesPropagation.push_back( centralBody );
-    std::vector< std::string > bodiesToPropagate;
-    bodiesToPropagate.push_back(bodyToPropagate );
+
 
     Eigen::Vector6d cartesianStateKeplerianOrbit;
 
@@ -627,13 +616,9 @@ void propagateKeplerianOrbitLegAndFullProblem(
     std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > > propagatorSettingsBackwardPropagation;
 
     propagatorSettingsForwardPropagation = propagatorSettings.second;
-    propagatorSettingsForwardPropagation->bodiesToIntegrate_ = bodiesToPropagate;
-    propagatorSettingsForwardPropagation->centralBodies_ = centralBodiesPropagation;
     propagatorSettingsForwardPropagation->resetInitialStates( initialStatePropagation );
 
     propagatorSettingsBackwardPropagation = propagatorSettings.first;
-    propagatorSettingsBackwardPropagation->bodiesToIntegrate_ = bodiesToPropagate;
-    propagatorSettingsBackwardPropagation->centralBodies_ = centralBodiesPropagation;
     propagatorSettingsBackwardPropagation->resetInitialStates( initialStatePropagation );
 
 
@@ -688,10 +673,8 @@ void propagateKeplerianOrbitLegAndFullProblem(
 //! Function to calculate the patched conics trajectory and to propagate the corresponding full problem.
 void fullPropagationPatchedConicsTrajectory(
         simulation_setup::NamedBodyMap& bodyMap,
-        const std::vector< basic_astrodynamics::AccelerationMap >& accelerationMap,
         const std::vector< std::string >& transferBodyOrder,
-        const std::string& centralBody,
-        const std::string& bodyToPropagate,
+        const std::string& patchedConicCentralBody,
         const std::vector< transfer_trajectories::TransferLegType>& legTypeVector,
         const std::vector< double >& trajectoryVariableVector,
         const std::vector< double >& minimumPericenterRadiiVector,
@@ -707,7 +690,7 @@ void fullPropagationPatchedConicsTrajectory(
 
     // Define the patched conic trajectory from the body map.
     transfer_trajectories::Trajectory trajectory = propagators::createTransferTrajectoryObject(
-                bodyMap, transferBodyOrder, centralBody, legTypeVector, trajectoryVariableVector, minimumPericenterRadiiVector, true,
+                bodyMap, transferBodyOrder, patchedConicCentralBody, legTypeVector, trajectoryVariableVector, minimumPericenterRadiiVector, true,
                 semiMajorAxesVector[ 0 ], eccentricitiesVector[ 0 ], true, semiMajorAxesVector[ 1 ], eccentricitiesVector[ 1 ]);
 
     // Clear output maps.
@@ -758,8 +741,9 @@ void fullPropagationPatchedConicsTrajectory(
             std::map< double, Eigen::Vector6d > patchedConicsResultCurrentLeg;
             std::map< double, Eigen::Vector6d > fullProblemResultCurrentLeg;
 
-            propagators::propagateMgaWithoutDsmAndFullProblem(bodyMap, accelerationMap[ i ], departureAndArrivalBodies, centralBody,
-                                                              bodyToPropagate, positionVector[ counterLegs ], positionVector[ counterLegs+ 1 ], timeVector[ counterLegs ],
+            propagators::propagateMgaWithoutDsmAndFullProblem(
+                        bodyMap,  departureAndArrivalBodies, patchedConicCentralBody, positionVector[ counterLegs ], positionVector[ counterLegs+ 1 ],
+                    timeVector[ counterLegs ],
                     timeVector[ counterLegs+ 1 ] - timeVector[ counterLegs ], propagatorSettings[ counterLegs ], integratorSettings,
                     patchedConicsResultCurrentLeg, fullProblemResultCurrentLeg);
 
@@ -790,8 +774,8 @@ void fullPropagationPatchedConicsTrajectory(
 
             // Compute patched conics and full problem results along the leg.
             propagators::propagateMga1DsmVelocityAndFullProblem(
-                        bodyMap, accelerationMap[ i ], departureAndArrivalBodies,
-                        bodiesAndManoeuvresOrder[ counterLegs+ 1 ], centralBody, bodyToPropagate, positionVector[ counterLegs ],
+                        bodyMap, departureAndArrivalBodies,
+                        bodiesAndManoeuvresOrder[ counterLegs+ 1 ],  patchedConicCentralBody, positionVector[ counterLegs ],
                     positionVector[ counterLegs+ 1 ], positionVector[ counterLegs + 2 ], timeVector[ counterLegs ], timeVector[ counterLegs+ 1 ],
                     timeVector[ counterLegs + 2 ], legTypeVector[ i ], trajectoryVariableVectorLeg, semiMajorAxesVector[ 0 ], eccentricitiesVector[ 0 ],
                     velocityAfterDeparture, velocityBeforeArrival, propagatorSettings[ counterLegs ], propagatorSettings[ counterLegs+ 1 ],
@@ -831,8 +815,8 @@ void fullPropagationPatchedConicsTrajectory(
 
             // Compute patched conics and full problem results along the leg.
             propagators::propagateMga1DsmPositionAndFullProblem(
-                        bodyMap, accelerationMap[ i ], departureAndArrivalBodies,
-                        bodiesAndManoeuvresOrder[ counterLegs+ 1 ], centralBody, bodyToPropagate, positionVector[ counterLegs ],
+                        bodyMap, departureAndArrivalBodies,
+                        bodiesAndManoeuvresOrder[ counterLegs+ 1 ], patchedConicCentralBody, positionVector[ counterLegs ],
                     positionVector[ counterLegs+ 1 ], positionVector[ counterLegs + 2 ], timeVector[ counterLegs ], timeVector[ counterLegs+ 1 ],
                     timeVector[ counterLegs + 2 ], legTypeVector[ i ], trajectoryVariableVectorLeg, minimumPericenterRadiiVector[ i ],
                     semiMajorAxesVector[ 0 ], eccentricitiesVector[ 0 ], velocityAfterDeparture, velocityBeforeArrival,
@@ -1067,8 +1051,6 @@ void fullPropagationPatchedConicsTrajectory(
 
     for( int i = 0 ; i <  numberOfLegs - 1 ; i ++ )
     {
-
-
         if( dependentVariablesToSave.size( ) != 0 )
         {
             propagatorSettings.push_back(
@@ -1097,6 +1079,7 @@ void fullPropagationPatchedConicsTrajectory(
         {
             counterLegsIncludingDsm++;
         }
+
         else // If the leg includes one DSM, add another element to the propagator settings vector to take the second part of the leg into account.
         {
             counterLegsIncludingDsm++;
@@ -1128,7 +1111,7 @@ void fullPropagationPatchedConicsTrajectory(
     }
 
     // Calculate the patched conics trajectory and propagate the full dynamics problem.
-    fullPropagationPatchedConicsTrajectory( bodyMap, accelerationMap, transferBodyOrder, centralBody, bodyToPropagate, legTypeVector,
+    fullPropagationPatchedConicsTrajectory( bodyMap, transferBodyOrder, centralBody, legTypeVector,
                                             trajectoryVariableVector, minimumPericenterRadiiVector, semiMajorAxesVector,
                                             eccentricitiesVector, propagatorSettings, integratorSettings,
                                             patchedConicsResultForEachLeg, fullProblemResultForEachLeg );
@@ -1238,10 +1221,8 @@ std::map< int, std::pair< Eigen::Vector6d, Eigen::Vector6d > > getDifferenceFull
 //! at both departure and arrival positions for each leg.
 std::map< int, std::pair< Eigen::Vector6d, Eigen::Vector6d > > getDifferenceFullProblemWrtPatchedConicsTrajectory(
         simulation_setup::NamedBodyMap& bodyMap,
-        const std::vector< basic_astrodynamics::AccelerationMap >& accelerationMap,
         const std::vector< std::string >& transferBodyOrder,
         const std::string& centralBody,
-        const std::string& bodyToPropagate,
         const std::vector< transfer_trajectories::TransferLegType >& legTypeVector,
         const std::vector< double >& trajectoryVariableVector,
         const std::vector< double >& minimumPericenterRadiiVector,
@@ -1259,7 +1240,7 @@ std::map< int, std::pair< Eigen::Vector6d, Eigen::Vector6d > > getDifferenceFull
     std::map< int, std::map< double, Eigen::Vector6d > > fullProblemResultForEachLeg;
 
     fullPropagationPatchedConicsTrajectory(
-                bodyMap, accelerationMap, transferBodyOrder, centralBody, bodyToPropagate, legTypeVector,
+                bodyMap, transferBodyOrder, centralBody, legTypeVector,
                 trajectoryVariableVector, minimumPericenterRadiiVector, semiMajorAxesVector, eccentricitiesVector,
                 propagatorSettings, integratorSettings, patchedConicsResultForEachLeg, fullProblemResultForEachLeg );
 

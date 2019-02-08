@@ -280,8 +280,6 @@ void propagateLambertTargeterAndFullProblem(
         const double timeOfFlight,
         const double initialTime,
         const simulation_setup::NamedBodyMap& bodyMap,
-        const basic_astrodynamics::AccelerationMap& accelerationModelMap,
-        const std::string& bodyToPropagate,
         const std::string& centralBody,
         std::pair< std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > >,
         std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > > > propagatorSettings,
@@ -373,13 +371,6 @@ void propagateLambertTargeterAndFullProblem(
                 keplerianStateAtHalvedTimeOfFlight, gravitationalParameterCentralBody );
 
 
-
-    // Initialise variables for propagatation.
-    std::vector< std::string > centralBodiesPropagation;
-    centralBodiesPropagation.push_back( "SSB" );
-    std::vector< std::string > bodiesToPropagate;
-    bodiesToPropagate.push_back(bodyToPropagate);
-
     Eigen::Vector6d cartesianStateLambertSolution;
 
 
@@ -392,13 +383,9 @@ void propagateLambertTargeterAndFullProblem(
 
 
     propagatorSettingsForwardPropagation = propagatorSettings.second;
-    propagatorSettingsForwardPropagation->bodiesToIntegrate_ = bodiesToPropagate;
-    propagatorSettingsForwardPropagation->centralBodies_ = centralBodiesPropagation;
     propagatorSettingsForwardPropagation->resetInitialStates( initialStatePropagationCartesianElements );
 
     propagatorSettingsBackwardPropagation = propagatorSettings.first;
-    propagatorSettingsBackwardPropagation->bodiesToIntegrate_ = bodiesToPropagate;
-    propagatorSettingsBackwardPropagation->centralBodies_ = centralBodiesPropagation;
     propagatorSettingsBackwardPropagation->resetInitialStates( initialStatePropagationCartesianElements );
 
     // Perform forward propagation.
@@ -624,7 +611,7 @@ void propagateLambertTargeterAndFullProblem(
         terminationSettings.second, propagator, dependentVariablesToSave );
 
     propagateLambertTargeterAndFullProblem(
-            timeOfFlight, initialTime, bodyMap, accelerationModelMap, bodyToPropagate, centralBody, propagatorSettings,
+            timeOfFlight, initialTime, bodyMap, centralBody, propagatorSettings,
             integratorSettings, lambertTargeterResult, fullProblemResult, departureAndArrivalBodies,
             centralBodyGravitationalParameter, cartesianPositionAtDeparture, cartesianPositionAtArrival );
 }
