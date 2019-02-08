@@ -128,8 +128,6 @@ BOOST_AUTO_TEST_CASE( testFullPropagationMGA )
     std::vector< basic_astrodynamics::AccelerationMap > accelerationMap = propagators::setupAccelerationMapPatchedConicsTrajectory(
                 nameBodiesTrajectory.size(), centralBody[0], bodyToPropagate, bodyMap);
 
-
-
     // Create departure and capture variables.
     std::vector< double > semiMajorAxes;
     semiMajorAxes.push_back( std::numeric_limits< double >::infinity( ) ); semiMajorAxes.push_back( 1.0895e8 / 0.02 );
@@ -205,7 +203,7 @@ BOOST_AUTO_TEST_CASE( testFullPropagationMGA )
 
 //            std::cout<<std::setprecision( 16 )<<"State. "<<( legIterator->second.rbegin( )->second ).transpose( )<<std::endl; //Wrong
 //            std::cout<<std::setprecision( 16 )<<"State. "<<( nextLegIterator->second.begin( )->second ).transpose( )<<std::endl; //Correct
-//            std::cout<<std::setprecision( 16 )<<"Venus state. "<<ephemerisVenus->getCartesianState( nextLegIterator->second.begin( )->first ).transpose( )<<std::endl;
+//            std::cout<<std::setprecision( 16 )<<"Venus state. "<<ephemerisVenus->getCartesianState( nextLegIterator->second.begin( )->first ).transpose( )<<std::endl<<std::endl;
 
 //            std::cout<<"State diff. "<<legStateDifference.transpose( )<<std::endl<<std::endl;
 
