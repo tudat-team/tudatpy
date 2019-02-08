@@ -55,8 +55,7 @@ simulation_setup::NamedBodyMap setupBodyMapCR3BP(
  * \param namePrimaryBody Name of the primary body.
  * \param nameSecondaryBody Name of the secondary body.
  * \param nameBodyToPropagate Name of the third, smaller body to be propagated.
- * \param bodiesToPropagate Bodies to be propagated.
- * \param centralBodies Central bodies for the propagation.
+ * \param centralBody Central bodys for the propagation.
  * \param bodyMap CR3BP body map.
  * \return Acceleration map for the CR3BP.
  */
