@@ -53,6 +53,7 @@ bool SingleVariableLimitPropagationTerminationCondition::checkStopCondition( con
     {
         stopPropagation = true;
     }
+
     return stopPropagation;
 }
 

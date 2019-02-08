@@ -83,7 +83,7 @@ BOOST_AUTO_TEST_CASE( testMGATrajectory )
     // Specify required parameters
     // Specify the number of legs and type of legs.
     const int numberOfLegs = 6;
-    std::vector< int > legTypeVector;
+    std::vector< TransferLegType > legTypeVector;
     legTypeVector.resize( numberOfLegs );
     legTypeVector[ 0 ] = mga_Departure; legTypeVector[ 1 ] = mga_Swingby;
     legTypeVector[ 2 ] = mga_Swingby; legTypeVector[ 3 ] = mga_Swingby; legTypeVector[ 4 ] = mga_Swingby;
@@ -150,7 +150,7 @@ BOOST_AUTO_TEST_CASE( testMGA1DSMVFTrajectory1 )
     // Specify required parameters
     // Specify the number of legs and type of legs.
     const int numberOfLegs = 5;
-    std::vector< int > legTypeVector;
+    std::vector< TransferLegType > legTypeVector;
     legTypeVector.resize( numberOfLegs );
     legTypeVector[0] = mga1DsmVelocity_Departure; legTypeVector[1] = mga1DsmVelocity_Swingby;
     legTypeVector[2] = mga1DsmVelocity_Swingby; legTypeVector[3] = mga1DsmVelocity_Swingby;
@@ -229,7 +229,7 @@ BOOST_AUTO_TEST_CASE( testMGA1DSMVFTrajectory2 )
     // Specify required parameters
     // Specify the number of legs and type of legs.
     const int numberOfLegs = 6;
-    std::vector< int > legTypeVector;
+    std::vector< TransferLegType > legTypeVector;
     legTypeVector.resize( numberOfLegs );
     legTypeVector[0] = mga1DsmVelocity_Departure; legTypeVector[1] = mga1DsmVelocity_Swingby;
     legTypeVector[2] = mga1DsmVelocity_Swingby; legTypeVector[3] = mga1DsmVelocity_Swingby;
@@ -311,7 +311,7 @@ BOOST_AUTO_TEST_CASE( testUpdateMGATrajectory )
     // Specify required parameters
     // Specify the number of legs and type of legs.
     const int numberOfLegs = 6;
-    std::vector< int > legTypeVector;
+    std::vector< TransferLegType > legTypeVector;
     legTypeVector.resize( numberOfLegs );
     legTypeVector[0] = mga_Departure; legTypeVector[1] = mga_Swingby;
     legTypeVector[2] = mga_Swingby; legTypeVector[3] = mga_Swingby; legTypeVector[4] = mga_Swingby;
@@ -397,7 +397,7 @@ BOOST_AUTO_TEST_CASE( testUpdateMGA1DSMVFTrajectory )
     // Specify required parameters
     // Specify the number of legs and type of legs.
     const int numberOfLegs = 5;
-    std::vector< int > legTypeVector;
+    std::vector< TransferLegType > legTypeVector;
     legTypeVector.resize( numberOfLegs );
     legTypeVector[0] = mga1DsmVelocity_Departure; legTypeVector[1] = mga1DsmVelocity_Swingby;
     legTypeVector[2] = mga1DsmVelocity_Swingby; legTypeVector[3] = mga1DsmVelocity_Swingby;

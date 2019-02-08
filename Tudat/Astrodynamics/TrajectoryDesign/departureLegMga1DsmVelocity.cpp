@@ -66,6 +66,7 @@ void DepartureLegMga1DsmVelocity::calculateLeg( Eigen::Vector3d& velocityBeforeA
                                                dsmTime_, centralBodyGravitationalParameter_,
                                                velocityAfterDsm_, velocityBeforeArrivalBody );
 
+
     // Calculate the deltaV originating from the departure maneuver and the DSM.
     escapeDeltaV_ = mission_segments::computeEscapeOrCaptureDeltaV(
                 departureBodyGravitationalParameter_, semiMajorAxis_, eccentricity_,

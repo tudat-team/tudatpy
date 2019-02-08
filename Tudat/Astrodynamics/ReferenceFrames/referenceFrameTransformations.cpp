@@ -19,6 +19,7 @@
  *      clarity, or work with directional cosine matrices.
  */
 
+#include <iostream>
 #include "Tudat/Mathematics/BasicMathematics/coordinateConversions.h"
 #include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
 #include "Tudat/Mathematics/BasicMathematics/basicMathematicsFunctions.h"
@@ -59,7 +60,8 @@ Eigen::Vector3d transformVectorFunctionFromVectorFunctions(
         const std::function< Eigen::Vector3d( ) > originalVector,
         const std::function< Eigen::Vector3d( const Eigen::Vector3d& ) > transformationFunction )
 {
-    return transformationFunction( originalVector( ) );
+    Eigen::Vector3d original = originalVector( );
+    return transformationFunction( original );
 }
 
 //! Wrapper function to transform a vector to a different frame from a list of transformation function.

@@ -69,7 +69,7 @@ BOOST_AUTO_TEST_CASE( testFullPropagationCircularRestrictedThreeBodyProblem )
     centralBodies.push_back( "SSB" );
 
     basic_astrodynamics::AccelerationMap accelerationModelMap = setupAccelerationMapCR3BP(
-                "Sun", "Earth", "Spacecraft", bodiesToPropagate, centralBodies, bodyMap );
+                "Sun", "Earth", bodiesToPropagate.at( 0 ), centralBodies.at( 0 ), bodyMap );
 
 
     // Create integrator settings

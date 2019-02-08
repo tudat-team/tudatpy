@@ -20,24 +20,26 @@ namespace propagators
 {
 
 
-
-//! Function to directly setup CR3BP bodyMap
-simulation_setup::NamedBodyMap setupBodyMapCR3BP(
+std::map< std::string, std::shared_ptr< simulation_setup::BodySettings > > setupBodySettingsCR3BP(
         const double distancePrimarySecondary,
         const std::string& namePrimaryBody,
         const std::string& nameSecondaryBody,
-        const std::string& nameBodyToPropagate )
+        const std::string& frameOrientation,
+        const double primaryGravitationalParameter,
+        const double secondaryGravitationalParameter )
 {
     spice_interface::loadStandardSpiceKernels( );
 
-    double gravitationalParameterPrimary =
-            simulation_setup::createGravityFieldModel(
-                simulation_setup::getDefaultGravityFieldSettings( namePrimaryBody, TUDAT_NAN, TUDAT_NAN ),
-                namePrimaryBody )->getGravitationalParameter( );
-    double gravitationalParameterSecondary =
-            simulation_setup::createGravityFieldModel(
-                simulation_setup::getDefaultGravityFieldSettings( namePrimaryBody, TUDAT_NAN, TUDAT_NAN ),
-                nameSecondaryBody )->getGravitationalParameter( );
+    double gravitationalParameterPrimary = ( primaryGravitationalParameter == primaryGravitationalParameter ) ?
+                primaryGravitationalParameter :
+                simulation_setup::createGravityFieldModel(
+                    simulation_setup::getDefaultGravityFieldSettings( namePrimaryBody, TUDAT_NAN, TUDAT_NAN ),
+                    namePrimaryBody )->getGravitationalParameter( );
+    double gravitationalParameterSecondary =( secondaryGravitationalParameter == secondaryGravitationalParameter ) ?
+                secondaryGravitationalParameter :
+                simulation_setup::createGravityFieldModel(
+                    simulation_setup::getDefaultGravityFieldSettings( namePrimaryBody, TUDAT_NAN, TUDAT_NAN ),
+                    nameSecondaryBody )->getGravitationalParameter( );
     double massParameter = circular_restricted_three_body_problem::computeMassParameter(
                 gravitationalParameterPrimary, gravitationalParameterSecondary );
 
@@ -72,7 +74,6 @@ simulation_setup::NamedBodyMap setupBodyMapCR3BP(
 
 
     // Define body ephemeris settings
-    std::string frameOrientation = "J2000";
     bodySettings[ namePrimaryBody ]->ephemerisSettings = std::make_shared< simulation_setup::KeplerEphemerisSettings >(
                 initialStateInKeplerianElementsPrimary, 0.0, gravitationalParameterPrimaryTwoBodyProblem,
                 "SSB", frameOrientation );
@@ -85,8 +86,23 @@ simulation_setup::NamedBodyMap setupBodyMapCR3BP(
         bodySettings[ bodiesToCreate.at( j ) ]->rotationModelSettings->resetOriginalFrame( frameOrientation );
     }
 
+    return bodySettings;
+}
+
+//! Function to directly setup CR3BP bodyMap
+simulation_setup::NamedBodyMap setupBodyMapCR3BP(
+        const double distancePrimarySecondary,
+        const std::string& namePrimaryBody,
+        const std::string& nameSecondaryBody,
+        const std::string& nameBodyToPropagate,
+        const std::string& frameOrientation,
+        const double primaryGravitationalParameter,
+        const double secondaryGravitationalParameter )
+{
     // Create body map
-    simulation_setup::NamedBodyMap bodyMap = createBodies( bodySettings );
+    simulation_setup::NamedBodyMap bodyMap = createBodies(
+                setupBodySettingsCR3BP( distancePrimarySecondary, namePrimaryBody, nameSecondaryBody, frameOrientation,
+                                        primaryGravitationalParameter, secondaryGravitationalParameter ) );
     bodyMap[ nameBodyToPropagate ] = std::make_shared< simulation_setup::Body >( );
     bodyMap[ nameBodyToPropagate ]->setEphemeris( std::make_shared< ephemerides::TabulatedCartesianEphemeris< > >(
                                                       std::shared_ptr< interpolators::OneDimensionalInterpolator
@@ -103,8 +119,7 @@ basic_astrodynamics::AccelerationMap setupAccelerationMapCR3BP(
         const std::string& namePrimaryBody,
         const std::string& nameSecondaryBody,
         const std::string& nameBodyToPropagate,
-        const std::vector< std::string >& bodiesToPropagate,
-        const std::vector< std::string >& centralBodies,
+        const std::string& centralBody,
         const simulation_setup::NamedBodyMap& bodyMap )
 {
 
@@ -117,7 +132,7 @@ basic_astrodynamics::AccelerationMap setupAccelerationMapCR3BP(
     accelerationMap[ nameBodyToPropagate ] = bodyToPropagateAccelerations;
 
     basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
-                bodyMap, accelerationMap, bodiesToPropagate, centralBodies );
+                bodyMap, accelerationMap, { nameBodyToPropagate }, { centralBody } );
 
     return accelerationModelMap;
 
@@ -160,7 +175,7 @@ void propagateCR3BPFromEnvironment(
 
     double massParameter = circular_restricted_three_body_problem::computeMassParameter(
                 gravitationalParameterPrimary, gravitationalParameterSecondary );
-    double distanceBetweenPrimaries = ( initialStateSecondary - initialStatePrimary ).norm( );
+    double distanceBetweenPrimaries = ( initialStateSecondary.segment(0,3) - initialStatePrimary.segment(0,3) ).norm( );
 
     double normalizedInitialTime = circular_restricted_three_body_problem::convertDimensionalTimeToDimensionlessTime(
                 initialTime, gravitationalParameterPrimary, gravitationalParameterSecondary, distanceBetweenPrimaries);
@@ -186,8 +201,8 @@ void propagateCR3BPFromEnvironment(
     stateHistory.clear( );
     if( outputInNormalizedCoordinates )
     {
-    stateHistory = performCR3BPIntegration(
-                CR3BPintegratorSettings, massParameter, normalizedInitialState, normalizedFinalPropagationTime, true );
+        stateHistory = performCR3BPIntegration(
+                    CR3BPintegratorSettings, massParameter, normalizedInitialState, normalizedFinalPropagationTime, true );
     }
     else
     {
@@ -198,8 +213,8 @@ void propagateCR3BPFromEnvironment(
             stateHistory[ circular_restricted_three_body_problem::convertDimensionlessTimeToDimensionalTime(
                         it->first, gravitationalParameterPrimary, gravitationalParameterSecondary, distanceBetweenPrimaries ) ] =
                     circular_restricted_three_body_problem::convertCorotatingNormalizedToCartesianCoordinates(
-                                    gravitationalParameterPrimary, gravitationalParameterSecondary, distanceBetweenPrimaries,
-                                    it->second, it->first );
+                        gravitationalParameterPrimary, gravitationalParameterSecondary, distanceBetweenPrimaries,
+                        it->second, it->first );
         }
     }
 
@@ -229,15 +244,18 @@ void propagateCR3BPAndFullDynamicsProblem(
     // Propagate the full problem
     SingleArcDynamicsSimulator< > dynamicsSimulator( bodyMap, integratorSettings, propagatorSettings );
 
-     std::map< double, Eigen::VectorXd > stateHistory = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
+
+    std::map< double, Eigen::VectorXd > stateHistory = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
     utilities::castDynamicToFixedSizeEigenVectorMap< double, double, 6 >(
                 stateHistory, directPropagationResult );
+
     double finalPropagationTime = directPropagationResult.rbegin( )->first;
 
     cr3bpPropagationResult.clear( );
     propagateCR3BPFromEnvironment(
                 initialTime, finalPropagationTime, initialState, integratorSettings, bodyMap,
                 bodiesCR3BP, cr3bpPropagationResult, false );
+
 }
 
 //! Propagate the CR3BP and the full dynamics problem and compute the state difference at the end of the propagation.
