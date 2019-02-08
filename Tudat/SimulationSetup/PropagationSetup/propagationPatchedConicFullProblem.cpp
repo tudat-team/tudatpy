@@ -405,7 +405,7 @@ void propagateMga1DsmVelocityAndFullProblem(
     propagateLambertTargeterAndFullProblem( timeArrival - timeDsm, timeDsm, bodyMap, accelerationMap, bodyToPropagate, centralBody,
                                             propagatorSettingsAfterDsm, integratorSettings,
                                             patchedConicsResultFromDsmToArrival, fullProblemResultFromDsmToArrival, legDepartureAndArrival,
-                                            bodyMap[centralBody]->getGravityFieldModel( )->getGravitationalParameter( ),
+                                            bodyMap[ centralBody]->getGravityFieldModel( )->getGravitationalParameter( ),
                                             cartesianPositionDSM, cartesianPositionAtArrival);
 
 }
@@ -514,7 +514,7 @@ void propagateMga1DsmPositionAndFullProblem(
     propagateLambertTargeterAndFullProblem( timeDsm - initialTime, initialTime, bodyMap, accelerationMap, bodyToPropagate, centralBody,
                                             propagatorSettingsBeforeDsm, integratorSettings, patchedConicsResultFromDepartureToDsm,
                                             fullProblemResultFromDepartureToDsm, legDepartureAndArrival,
-                                            bodyMap[centralBody]->getGravityFieldModel( )->getGravitationalParameter( ),
+                                            bodyMap[ centralBody]->getGravityFieldModel( )->getGravitationalParameter( ),
                                             cartesianPositionAtDeparture, cartesianPositionDSM);
 
 
@@ -529,7 +529,7 @@ void propagateMga1DsmPositionAndFullProblem(
     propagateLambertTargeterAndFullProblem( timeArrival - timeDsm, timeDsm, bodyMap, accelerationMap, bodyToPropagate, centralBody,
                                             propagatorSettingsAfterDsm, integratorSettings, patchedConicsResultFromDsmToArrival,
                                             fullProblemResultFromDsmToArrival, legDepartureAndArrival,
-                                            bodyMap[centralBody]->getGravityFieldModel( )->getGravitationalParameter( ),
+                                            bodyMap[ centralBody]->getGravityFieldModel( )->getGravitationalParameter( ),
                                             cartesianPositionDSM, cartesianPositionAtArrival);
 
 }
@@ -746,20 +746,21 @@ void fullPropagationPatchedConicsTrajectory(
     Eigen::Vector3d velocityBeforeArrival;
     for( int i = 0 ; i < numberOfLegs - 1 ; i ++ )
     {
+        std::cout<<i<<" "<<counterLegs<<" "<<counterLegWithDSM<<std::endl;
         // If the leg does not include any DSM.
         if( legTypeVector[ i ] == transfer_trajectories::mga_Departure || legTypeVector[ i ] == transfer_trajectories::mga_Swingby )
         {
             std::vector< std::string > departureAndArrivalBodies;
             departureAndArrivalBodies.push_back( bodiesAndManoeuvresOrder[ counterLegs ] );
-            departureAndArrivalBodies.push_back( bodiesAndManoeuvresOrder[counterLegs+ 1 ]);
+            departureAndArrivalBodies.push_back( bodiesAndManoeuvresOrder[ counterLegs+ 1 ]);
 
             // Compute the difference in state between the full problem and the patched conics solution for the current leg.
             std::map< double, Eigen::Vector6d > patchedConicsResultCurrentLeg;
             std::map< double, Eigen::Vector6d > fullProblemResultCurrentLeg;
 
             propagators::propagateMgaWithoutDsmAndFullProblem(bodyMap, accelerationMap[ i ], departureAndArrivalBodies, centralBody,
-                                                              bodyToPropagate, positionVector[ counterLegs ], positionVector[counterLegs+ 1 ], timeVector[ counterLegs ],
-                    timeVector[counterLegs+ 1 ] - timeVector[ counterLegs ], propagatorSettings[ counterLegs ], integratorSettings,
+                                                              bodyToPropagate, positionVector[ counterLegs ], positionVector[ counterLegs+ 1 ], timeVector[ counterLegs ],
+                    timeVector[ counterLegs+ 1 ] - timeVector[ counterLegs ], propagatorSettings[ counterLegs ], integratorSettings,
                     patchedConicsResultCurrentLeg, fullProblemResultCurrentLeg);
 
             patchedConicsResultForEachLeg[ counterLegs ] = patchedConicsResultCurrentLeg;
@@ -774,7 +775,7 @@ void fullPropagationPatchedConicsTrajectory(
         {
             std::vector< std::string > departureAndArrivalBodies;
             departureAndArrivalBodies.push_back( bodiesAndManoeuvresOrder[ counterLegs ] );
-            departureAndArrivalBodies.push_back( bodiesAndManoeuvresOrder[counterLegs+2]);
+            departureAndArrivalBodies.push_back( bodiesAndManoeuvresOrder[ counterLegs + 2 ]);
 
             std::vector< double > trajectoryVariableVectorLeg;
             trajectoryVariableVectorLeg.push_back( trajectoryVariableVector[ numberOfLegs + 1 + (counterLegWithDSM * 4) ] );
@@ -790,10 +791,10 @@ void fullPropagationPatchedConicsTrajectory(
             // Compute patched conics and full problem results along the leg.
             propagators::propagateMga1DsmVelocityAndFullProblem(
                         bodyMap, accelerationMap[ i ], departureAndArrivalBodies,
-                        bodiesAndManoeuvresOrder[counterLegs+ 1 ], centralBody, bodyToPropagate, positionVector[ counterLegs ],
-                    positionVector[counterLegs+ 1 ], positionVector[counterLegs+2], timeVector[ counterLegs ], timeVector[counterLegs+ 1 ],
-                    timeVector[counterLegs+2], legTypeVector[ i ], trajectoryVariableVectorLeg, semiMajorAxesVector[ 0 ], eccentricitiesVector[ 0 ],
-                    velocityAfterDeparture, velocityBeforeArrival, propagatorSettings[ counterLegs ], propagatorSettings[counterLegs+ 1 ],
+                        bodiesAndManoeuvresOrder[ counterLegs+ 1 ], centralBody, bodyToPropagate, positionVector[ counterLegs ],
+                    positionVector[ counterLegs+ 1 ], positionVector[ counterLegs + 2 ], timeVector[ counterLegs ], timeVector[ counterLegs+ 1 ],
+                    timeVector[ counterLegs + 2 ], legTypeVector[ i ], trajectoryVariableVectorLeg, semiMajorAxesVector[ 0 ], eccentricitiesVector[ 0 ],
+                    velocityAfterDeparture, velocityBeforeArrival, propagatorSettings[ counterLegs ], propagatorSettings[ counterLegs+ 1 ],
                     integratorSettings, patchedConicsResultFromDepartureToDsm, fullProblemResultFromDepartureToDsm,
                     patchedConicsResultFromDsmToArrival, fullProblemResultFromDsmToArrival);
 
@@ -815,7 +816,7 @@ void fullPropagationPatchedConicsTrajectory(
         {
             std::vector< std::string > departureAndArrivalBodies;
             departureAndArrivalBodies.push_back( bodiesAndManoeuvresOrder[ counterLegs ] );
-            departureAndArrivalBodies.push_back( bodiesAndManoeuvresOrder[counterLegs+2]);
+            departureAndArrivalBodies.push_back( bodiesAndManoeuvresOrder[ counterLegs + 2 ]);
 
             std::vector< double > trajectoryVariableVectorLeg;
             trajectoryVariableVectorLeg.push_back( trajectoryVariableVector[ numberOfLegs + 1 + (counterLegWithDSM * 4) ] );
@@ -831,11 +832,11 @@ void fullPropagationPatchedConicsTrajectory(
             // Compute patched conics and full problem results along the leg.
             propagators::propagateMga1DsmPositionAndFullProblem(
                         bodyMap, accelerationMap[ i ], departureAndArrivalBodies,
-                        bodiesAndManoeuvresOrder[counterLegs+ 1 ], centralBody, bodyToPropagate, positionVector[ counterLegs ],
-                    positionVector[counterLegs+ 1 ], positionVector[counterLegs+2], timeVector[ counterLegs ], timeVector[counterLegs+ 1 ],
-                    timeVector[counterLegs+2], legTypeVector[ i ], trajectoryVariableVectorLeg, minimumPericenterRadiiVector[ i ],
+                        bodiesAndManoeuvresOrder[ counterLegs+ 1 ], centralBody, bodyToPropagate, positionVector[ counterLegs ],
+                    positionVector[ counterLegs+ 1 ], positionVector[ counterLegs + 2 ], timeVector[ counterLegs ], timeVector[ counterLegs+ 1 ],
+                    timeVector[ counterLegs + 2 ], legTypeVector[ i ], trajectoryVariableVectorLeg, minimumPericenterRadiiVector[ i ],
                     semiMajorAxesVector[ 0 ], eccentricitiesVector[ 0 ], velocityAfterDeparture, velocityBeforeArrival,
-                    propagatorSettings[ counterLegs ], propagatorSettings[counterLegs+ 1 ], integratorSettings,
+                    propagatorSettings[ counterLegs ], propagatorSettings[ counterLegs+ 1 ], integratorSettings,
                     patchedConicsResultFromDepartureToDsm, fullProblemResultFromDepartureToDsm, patchedConicsResultFromDsmToArrival,
                     fullProblemResultFromDsmToArrival);
 
@@ -1074,10 +1075,10 @@ void fullPropagationPatchedConicsTrajectory(
                         std::make_pair(
                             std::make_shared< TranslationalStatePropagatorSettings< double > >(
                                 centralBodyPropagation, accelerationMap[ i ], bodyToPropagatePropagation, initialState,
-                                terminationSettings[counterLegsIncludingDsm].first, propagator, dependentVariablesToSave[ i ] ),
+                                terminationSettings[ counterLegsIncludingDsm].first, propagator, dependentVariablesToSave[ i ] ),
                             std::make_shared< TranslationalStatePropagatorSettings< double > >(
                                 centralBodyPropagation, accelerationMap[ i ], bodyToPropagatePropagation, initialState,
-                                terminationSettings[counterLegsIncludingDsm].second, propagator, dependentVariablesToSave[ i ] ) ) );
+                                terminationSettings[ counterLegsIncludingDsm].second, propagator, dependentVariablesToSave[ i ] ) ) );
         }
         else
         {
@@ -1085,10 +1086,10 @@ void fullPropagationPatchedConicsTrajectory(
                         std::make_pair(
                             std::make_shared< TranslationalStatePropagatorSettings< double > >(
                                 centralBodyPropagation, accelerationMap[ i ], bodyToPropagatePropagation, initialState,
-                                terminationSettings[counterLegsIncludingDsm].first, propagator),
+                                terminationSettings[ counterLegsIncludingDsm].first, propagator),
                             std::make_shared< TranslationalStatePropagatorSettings< double > >(
                                 centralBodyPropagation, accelerationMap[ i ], bodyToPropagatePropagation, initialState,
-                                terminationSettings[counterLegsIncludingDsm].second, propagator ) ) );
+                                terminationSettings[ counterLegsIncludingDsm].second, propagator ) ) );
         }
 
         if( legTypeVector[ i ] == transfer_trajectories::mga_Departure ||
@@ -1105,10 +1106,10 @@ void fullPropagationPatchedConicsTrajectory(
                             std::make_pair(
                                 std::make_shared< TranslationalStatePropagatorSettings< double > >(
                                     centralBodyPropagation, accelerationMap[ i ], bodyToPropagatePropagation, initialState,
-                                    terminationSettings[counterLegsIncludingDsm].first, propagator, dependentVariablesToSave[ i ] ),
+                                    terminationSettings[ counterLegsIncludingDsm].first, propagator, dependentVariablesToSave[ i ] ),
                                 std::make_shared< TranslationalStatePropagatorSettings< double > >(
                                     centralBodyPropagation, accelerationMap[ i ], bodyToPropagatePropagation, initialState,
-                                    terminationSettings[counterLegsIncludingDsm].second, propagator, dependentVariablesToSave[ i ] ) ) );
+                                    terminationSettings[ counterLegsIncludingDsm].second, propagator, dependentVariablesToSave[ i ] ) ) );
             }
             else
             {
@@ -1116,10 +1117,10 @@ void fullPropagationPatchedConicsTrajectory(
                             std::make_pair(
                                 std::make_shared< TranslationalStatePropagatorSettings< double > >(
                                     centralBodyPropagation, accelerationMap[ i ], bodyToPropagatePropagation, initialState,
-                                    terminationSettings[counterLegsIncludingDsm].first, propagator ),
+                                    terminationSettings[ counterLegsIncludingDsm].first, propagator ),
                                 std::make_shared< TranslationalStatePropagatorSettings< double > >(
                                     centralBodyPropagation, accelerationMap[ i ], bodyToPropagatePropagation, initialState,
-                                    terminationSettings[counterLegsIncludingDsm].second, propagator ) ) );
+                                    terminationSettings[ counterLegsIncludingDsm].second, propagator ) ) );
 
             }
             counterLegsIncludingDsm++;
