@@ -63,8 +63,8 @@ simulation_setup::NamedBodyMap setupBodyMapFromUserDefinedEphemeridesForPatchedC
  * \param numberOfLegs Number of legs of the patched conics trajectory.
  * \param nameCentralBody Name of the central body.
  * \param nameBodyToPropagate Name of the body to be propagated.
- * \param bodyMap Body map for the Lambert targeter.
- * \return Acceleration map for the Lambert targeter.
+ * \param bodyMap Body map for the patched conics trajectory.
+ * \return Acceleration map for the patched conics trajectory.
  */
 std::vector < basic_astrodynamics::AccelerationMap > setupAccelerationMapPatchedConicsTrajectory(
         const double numberOfLegs,
