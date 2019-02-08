@@ -151,12 +151,13 @@ BOOST_AUTO_TEST_CASE( testFullPropagationMGA )
     {
         std::map< int, std::map< double, Eigen::Vector6d > > patchedConicsResultForEachLeg;
         std::map< int, std::map< double, Eigen::Vector6d > > fullProblemResultForEachLeg;
+        std::map< int, std::map< double, Eigen::VectorXd > > dependentVariableResultForEachLeg;
 
         propagators::fullPropagationPatchedConicsTrajectory(
                     bodyMap, accelerationMap, nameBodiesTrajectory,
                     centralBody[0], bodyToPropagate, legTypeVector, variableVector, minimumPericenterRadii,
                 semiMajorAxes, eccentricities, integratorSettings, patchedConicsResultForEachLeg, fullProblemResultForEachLeg,
-                static_cast< bool >( terminationType ) );
+                dependentVariableResultForEachLeg, static_cast< bool >( terminationType ) );
 
         for( auto itr : patchedConicsResultForEachLeg )
         {
@@ -328,11 +329,13 @@ BOOST_AUTO_TEST_CASE( testFullPropagationMGAwithDSM )
     {
         std::map< int, std::map< double, Eigen::Vector6d > > patchedConicsResultForEachLeg;
         std::map< int, std::map< double, Eigen::Vector6d > > fullProblemResultForEachLeg;
+        std::map< int, std::map< double, Eigen::VectorXd > > dependentVariableResultForEachLeg;
+
         //    std::map< int, std::pair< Eigen::Vector6d, Eigen::Vector6d > > differenceStateArrivalAndDeparturePerLeg =
         tudat::propagators::fullPropagationPatchedConicsTrajectory(
                     bodyMap, accelerationMap, transferBodyTrajectory, centralBody[0], bodyToPropagate, legTypeVector, variableVector,
                 minimumPericenterRadii, semiMajorAxes, eccentricities, integratorSettings, patchedConicsResultForEachLeg,
-                fullProblemResultForEachLeg,
+                fullProblemResultForEachLeg, dependentVariableResultForEachLeg,
                 static_cast< bool >( terminationType ) );
 
         for( auto itr : patchedConicsResultForEachLeg )

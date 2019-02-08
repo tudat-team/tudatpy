@@ -133,10 +133,11 @@ void propagateLambertTargeterAndFullProblem(
         const std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings,
         std::map< double, Eigen::Vector6d >& lambertTargeterResult,
         std::map< double, Eigen::Vector6d >& fullProblemResult,
+        std::map< double, Eigen::VectorXd >& dependentVariableResult,
         const std::vector<std::string>& departureAndArrivalBodies,
         const double centralBodyGravitationalParameter,
         const Eigen::Vector3d& cartesianPositionAtDeparture,
-        const Eigen::Vector3d& cartesianPositionAtArrival);
+        const Eigen::Vector3d& cartesianPositionAtArrival );
 
 
 
@@ -179,6 +180,7 @@ void propagateLambertTargeterAndFullProblem(
         const std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings,
         std::map< double, Eigen::Vector6d >& lambertTargeterResult,
         std::map< double, Eigen::Vector6d >& fullProblemResult,
+        std::map< double, Eigen::VectorXd >& dependentVariableResult,
         const std::vector<std::string>& departureAndArrivalBodies,
         const bool terminationSphereOfInfluence,
         const Eigen::Vector3d& cartesianPositionAtDeparture,
@@ -187,7 +189,7 @@ void propagateLambertTargeterAndFullProblem(
         const double arrivalBodyGravitationalParameter,
         const double centralBodyGravitationalParameter,
         const std::shared_ptr< DependentVariableSaveSettings > dependentVariablesToSave = std::shared_ptr< DependentVariableSaveSettings >( ),
-        const TranslationalPropagatorType propagator = cowell);
+        const TranslationalPropagatorType propagator = cowell );
 
 
 //! Function to compute the difference in cartesian state between Lambert targeter solution and full dynamics problem, both at departure
