@@ -163,7 +163,7 @@ BOOST_AUTO_TEST_CASE( testFullPropagationMGA )
 
         tudat::input_output::writeDataMapToTextFile(
                     fullProblemResultForEachLeg[ itr->first ],
-                "leg_0_" + std::to_string( itr->first ) + ".dat", "/home/dominic/Software/tudatBundleTest/" );
+                "leg_1_" + std::to_string( itr->first ) + ".dat", "/home/dominic/Software/tudatBundleTest/" );
 
 
         std::cout << "Departure body: " << nameBodiesTrajectory[ itr->first ] << "\n\n";
@@ -321,7 +321,7 @@ BOOST_AUTO_TEST_CASE( testFullPropagationMGAwithDSM )
 
         tudat::input_output::writeDataMapToTextFile(
                     fullProblemResultForEachLeg[ itr->first ],
-                "leg_DSM_0_" + std::to_string( itr->first ) + ".dat", "/home/dominic/Software/tudatBundleTest/" );
+                "leg_DSM_1_" + std::to_string( itr->first ) + ".dat", "/home/dominic/Software/tudatBundleTest/" );
 
 
         std::cout << "Departure body: " << nameBodiesAndManoeuvresTrajectory[ itr->first ] << "\n\n";
@@ -354,5 +354,4 @@ BOOST_AUTO_TEST_CASE( testFullPropagationMGAwithDSM )
 }
 
 }
-
 
