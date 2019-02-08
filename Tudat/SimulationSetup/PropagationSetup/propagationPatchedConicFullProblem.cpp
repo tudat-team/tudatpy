@@ -934,28 +934,31 @@ std::shared_ptr< propagators::PropagationTerminationSettings > getSingleLegPartS
     // Create total propagator termination settings.
     if( !useBackwardLegToDepartureBody )
     {
+        std::cout<<"Departure distance "<<radiusSphereOfInfluenceDeparture<<std::endl;
         std::vector< std::shared_ptr< PropagationTerminationSettings > >  forwardPropagationTerminationSettingsList;
         forwardPropagationTerminationSettingsList.push_back(
                     std::make_shared< PropagationDependentVariableTerminationSettings >(
                         std::make_shared< SingleDependentVariableSaveSettings >(
                             relative_distance_dependent_variable, bodyToPropagate, arrivalBody ),
-                        radiusSphereOfInfluenceArrival, false ) );
+                        radiusSphereOfInfluenceArrival, true ) );
         forwardPropagationTerminationSettingsList.push_back(
-                    std::make_shared< PropagationTimeTerminationSettings >( 2.0 * synodicPeriod ) );
+                    std::make_shared< PropagationTimeTerminationSettings >( finalTimeCurrentLeg + synodicPeriod ) );
 
         return std::make_shared< PropagationHybridTerminationSettings >( forwardPropagationTerminationSettingsList, true );
 
     }
     else
     {
+        std::cout<<"Arrival distance "<<radiusSphereOfInfluenceArrival<<std::endl;
+
         std::vector< std::shared_ptr< PropagationTerminationSettings > >  backwardPropagationTerminationSettingsList;
         backwardPropagationTerminationSettingsList.push_back(
                     std::make_shared< PropagationDependentVariableTerminationSettings >(
                         std::make_shared< SingleDependentVariableSaveSettings >(
                             relative_distance_dependent_variable, bodyToPropagate, departureBody ),
-                        radiusSphereOfInfluenceDeparture, false ) );
+                        radiusSphereOfInfluenceDeparture, true ) );
         backwardPropagationTerminationSettingsList.push_back(
-                    std::make_shared< PropagationTimeTerminationSettings >( 2.0 * synodicPeriod ) );
+                    std::make_shared< PropagationTimeTerminationSettings >( initialTimeCurrentLeg - synodicPeriod ) );
 
         return std::make_shared< PropagationHybridTerminationSettings >( backwardPropagationTerminationSettingsList, true );
     }
@@ -1046,8 +1049,8 @@ std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > > >
             {
                 terminationSettings.push_back(
                             std::make_pair(
-                                std::make_shared< propagators::PropagationTimeTerminationSettings >( initialTimeCurrentLeg ),
-                                std::make_shared< propagators::PropagationTimeTerminationSettings >( finalTimeCurrentLeg ) ) );
+                                std::make_shared< propagators::PropagationTimeTerminationSettings >( initialTimeCurrentLeg, true ),
+                                std::make_shared< propagators::PropagationTimeTerminationSettings >( finalTimeCurrentLeg, true ) ) );
             }
             else
             {
@@ -1072,8 +1075,8 @@ std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > > >
             {
                 terminationSettings.push_back(
                             std::make_pair(
-                                std::make_shared< propagators::PropagationTimeTerminationSettings >( initialTimeCurrentLegSegment ),
-                                std::make_shared< propagators::PropagationTimeTerminationSettings >( finalTimeCurrentLegSegment ) ) );
+                                std::make_shared< propagators::PropagationTimeTerminationSettings >( initialTimeCurrentLegSegment, true ),
+                                std::make_shared< propagators::PropagationTimeTerminationSettings >( finalTimeCurrentLegSegment, true ) ) );
             }
             else
             {
@@ -1083,7 +1086,7 @@ std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > > >
                                     bodyMap, bodyToPropagate, centralBody, transferBodyOrder.at( i ),
                                     transferBodyOrder.at( i + 1 ), initialTimeCurrentLeg,
                                     finalTimeCurrentLeg, true ),
-                                std::make_shared< propagators::PropagationTimeTerminationSettings >( finalTimeCurrentLegSegment ) ) );
+                                std::make_shared< propagators::PropagationTimeTerminationSettings >( finalTimeCurrentLegSegment, true ) ) );
             }
 
             counterLegsIncludingDsm++;
@@ -1095,14 +1098,14 @@ std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > > >
             {
                 terminationSettings.push_back(
                             std::make_pair(
-                                std::make_shared< propagators::PropagationTimeTerminationSettings >( initialTimeCurrentLegSegment ),
-                                std::make_shared< propagators::PropagationTimeTerminationSettings >( finalTimeCurrentLegSegment ) ) );
+                                std::make_shared< propagators::PropagationTimeTerminationSettings >( initialTimeCurrentLegSegment, true ),
+                                std::make_shared< propagators::PropagationTimeTerminationSettings >( finalTimeCurrentLegSegment, true ) ) );
             }
             else
             {
                 terminationSettings.push_back(
                             std::make_pair(
-                                std::make_shared< propagators::PropagationTimeTerminationSettings >( initialTimeCurrentLegSegment ),
+                                std::make_shared< propagators::PropagationTimeTerminationSettings >( initialTimeCurrentLegSegment, true ),
                                 getSingleLegPartSphereOfInfluenceTerminationSettings(
                                     bodyMap, bodyToPropagate, centralBody, transferBodyOrder.at( i ),
                                     transferBodyOrder.at( i + 1 ), initialTimeCurrentLeg,
