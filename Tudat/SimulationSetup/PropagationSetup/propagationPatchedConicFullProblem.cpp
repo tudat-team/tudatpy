@@ -1039,8 +1039,9 @@ std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > > >
                 legTypeVector[ i ] == transfer_trajectories::mga_Swingby ) ) )
         {
             double initialTimeCurrentLeg = timeVector[ counterLegsIncludingDsm ];
-            double finalTimeCurrentLeg = timeVector[ counterLegsIncludingDsm ];
+            double finalTimeCurrentLeg = timeVector[ counterLegsIncludingDsm + 1 ];
 
+            std::cout<<"Times "<<initialTimeCurrentLeg<<" "<<finalTimeCurrentLeg<<std::endl;
             if( terminationSphereOfInfluence == false )
             {
                 terminationSettings.push_back(
