@@ -109,7 +109,8 @@ public:
             const std::vector< std::vector< int > >& selectedMethods,
             const double referenceArea,
             const double referenceLength,
-            const Eigen::Vector3d& momentReferencePoint );
+            const Eigen::Vector3d& momentReferencePoint,
+            const bool savePressureCoefficients = false );
 
     //! Default destructor.
     /*!
@@ -173,6 +174,43 @@ public:
     friend std::ostream& operator << ( std::ostream& stream,
                                        HypersonicLocalInclinationAnalysis&
                                        hypersonicLocalInclinationAnalysis );
+
+    //! Function to retrieve a list of mesh panel centroids for the full vehicle geometry
+    /*!
+     * Function to retrieve a list of mesh panel centroids for the full vehicle geometry
+     * \return List of mesh panel centroids for the full vehicle geometry
+     */
+    std::vector< boost::multi_array< Eigen::Vector3d, 2 > > getMeshPoints( )
+    {
+        std::vector< boost::multi_array< Eigen::Vector3d, 2 > > meshPointsList;
+        for( unsigned int i = 0; i < vehicleParts_.size( ); i++ )
+        {
+            meshPointsList.push_back( vehicleParts_.at( i )->getMeshPoints( ) );
+        }
+        return meshPointsList;
+    }
+
+    //! Function to retrieve a list of mesh panel surface normals for the full vehicle geometry
+    /*!
+     * Function to retrieve a list of mesh panel surface normals for the full vehicle geometry
+     * \return List of mesh panel surface normals for the full vehicle geometry
+     */
+    std::vector< boost::multi_array< Eigen::Vector3d, 2 > > getPanelSurfaceNormals( )
+    {
+        std::vector< boost::multi_array< Eigen::Vector3d, 2 > > paneSurfaceNormalList;
+        for( unsigned int i = 0; i < vehicleParts_.size( ); i++ )
+        {
+            paneSurfaceNormalList.push_back( vehicleParts_.at( i )->getPanelSurfaceNormals( ) );
+        }
+        return paneSurfaceNormalList;
+    }
+
+    std::vector< std::vector< std::vector< double > > > getPressureCoefficientList(
+            const boost::array< int, 3 > independentVariables )
+    {
+        return pressureCoefficientList_.at( independentVariables );
+    }
+
 
 private:
 
@@ -283,7 +321,9 @@ private:
      * Three-dimensional array of panel pressure coefficients at current values
      * of independent variables. Indices indicate part-line-point.
      */
-    std::vector< std::vector< std::vector< double > > > pressureCoefficient_;
+     std::vector< std::vector< std::vector< double > > > pressureCoefficient_;
+
+     std::map< boost::array< int, 3 >,  std::vector< std::vector< std::vector< double > > > > pressureCoefficientList_;
 
     //! Stagnation pressure coefficient.
     /*!
@@ -304,7 +344,29 @@ private:
      * second index represents vehicle part.
      */
     std::vector< std::vector< int > > selectedMethods_;
+
+    bool savePressureCoefficients_;
 };
+
+
+//! Function that saves the vehicle mesh data used for a HypersonicLocalInclinationAnalysis to a file
+/*!
+ * Function that saves the vehicle mesh data used for a HypersonicLocalInclinationAnalysis to a file: specifically, the
+ * panel centroids and surface normals, to file names:
+ *
+ *     <directory>/<filePrefix>"ShapeFile.dat"
+ *     <directory>/<filePrefix>"SurfaceNormalFile.dat"
+ *
+ * with directory and filePrefix input variables.
+ * \param localInclinationAnalysis Aerodynamic analysis object
+ * \param directory Directory to which the files are to be saved
+ * \param filePrefix File name prefix that is to be used
+ */
+void saveVehicleMeshToFile(
+        const std::shared_ptr< HypersonicLocalInclinationAnalysis > localInclinationAnalysis,
+        const std::string directory,
+        const std::string filePrefix );
+
 
 //! Typedef for shared-pointer to HypersonicLocalInclinationAnalysis object.
 typedef std::shared_ptr< HypersonicLocalInclinationAnalysis >

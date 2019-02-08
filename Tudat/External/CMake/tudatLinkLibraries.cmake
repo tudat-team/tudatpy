@@ -10,6 +10,14 @@
  #    References
  #
 
+ if(NOT USE_CSPICE)
+  message(STATUS "SPICE disabled!")
+  add_definitions(-DUSE_CSPICE=0)
+ else()
+  message(STATUS "SPICE enabled!")
+ add_definitions(-DUSE_CSPICE=1)
+endif()
+
  # Create lists of static libraries for ease of use
  list(APPEND TUDAT_EXTERNAL_LIBRARIES "")
  list(APPEND TUDAT_EXTERNAL_INTERFACE_LIBRARIES "")
@@ -43,7 +51,7 @@
    list(APPEND TUDAT_EXTERNAL_LIBRARIES pthread)
  endif( )
 
- list(APPEND TUDAT_PROPAGATION_LIBRARIES tudat_trajectory_design tudat_propagation_setup tudat_environment_setup tudat_ground_stations tudat_propagators
+ list(APPEND TUDAT_PROPAGATION_LIBRARIES tudat_propagation_setup tudat_trajectory_design tudat_environment_setup tudat_ground_stations tudat_propagators
      tudat_aerodynamics tudat_system_models tudat_geometric_shapes tudat_relativity tudat_gravitation tudat_mission_segments
      tudat_electro_magnetism tudat_propulsion tudat_ephemerides ${TUDAT_ITRS_LIBRARIES} tudat_numerical_integrators tudat_reference_frames
      tudat_statistics tudat_propagators ${TUDAT_EXTERNAL_INTERFACE_LIBRARIES} tudat_basic_astrodynamics tudat_interpolators tudat_root_finders tudat_filters
@@ -51,7 +59,7 @@
 
 if( BUILD_WITH_ESTIMATION_TOOLS )
 
- list(APPEND TUDAT_ESTIMATION_LIBRARIES tudat_trajectory_design tudat_estimation_setup tudat_propagation_setup tudat_environment_setup  tudat_observation_models tudat_ground_stations tudat_acceleration_partials
+ list(APPEND TUDAT_ESTIMATION_LIBRARIES tudat_estimation_setup tudat_propagation_setup tudat_trajectory_design tudat_environment_setup  tudat_observation_models tudat_ground_stations tudat_acceleration_partials
     tudat_torque_partials  tudat_observation_partials tudat_orbit_determination tudat_estimatable_parameters tudat_propagators
      tudat_aerodynamics tudat_system_models tudat_geometric_shapes tudat_relativity tudat_gravitation tudat_mission_segments
      tudat_electro_magnetism tudat_propulsion tudat_ephemerides ${TUDAT_ITRS_LIBRARIES} tudat_numerical_integrators tudat_reference_frames

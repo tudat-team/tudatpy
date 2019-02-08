@@ -22,6 +22,7 @@ void SwingbyLegMga1DsmVelocity::calculateLeg( Eigen::Vector3d& velocityBeforeArr
     // Calculate the DSM time of application from the time of flight fraction.
     dsmTime_ = dsmTimeOfFlightFraction_ * timeOfFlight_;
 
+
     // Prepare the gravity assist propagator module.
     velocityAfterDeparture_ = mission_segments::gravityAssist( swingbyBodyGravitationalParameter_,
                                                                departureBodyVelocity_,

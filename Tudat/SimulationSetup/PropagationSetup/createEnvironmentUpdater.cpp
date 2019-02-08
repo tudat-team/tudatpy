@@ -775,6 +775,9 @@ std::vector< std::string > > createEnvironmentUpdaterSettingsForDependentVariabl
         break;
     case acceleration_partial_wrt_body_translational_state:
         break;
+    case current_body_mass_dependent_variable:
+        variablesToUpdate[ body_mass_update ].push_back( dependentVariableSaveSettings->associatedBody_ );
+        break;
     default:
         throw std::runtime_error( "Error when getting environment updates for dependent variables, parameter " +
                                   std::to_string( dependentVariableSaveSettings->dependentVariableType_ ) + " not found." );
