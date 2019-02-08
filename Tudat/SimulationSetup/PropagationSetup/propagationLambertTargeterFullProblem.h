@@ -111,8 +111,6 @@ Eigen::Vector6d computeCartesianStateFromKeplerianOrbit(
  * \param timeOfFlight Time of flight [s].
  * \param initialTime Initial time of the propagation [s].
  * \param bodyMap Body map.
- * \param accelerationModelMap Acceleration map.
- * \param bodyToPropagate Name of the body to be propagated.
  * \param centralBody Name of the central body for the Lambert targeter.
  * \param propagatorSettings Propagator settings for the full problem.
  * \param integratorSettings Integrator settings for the propagation.
@@ -122,10 +120,6 @@ Eigen::Vector6d computeCartesianStateFromKeplerianOrbit(
  *  within the function).
  * \param cartesianPositionAtDeparture Cartesian position of the body to be propagated at departure [m].
  * \param cartesianPositionAtArrival Cartesian position of the body to be propagated at arrival [m].
- * \param departureBodyGravitationalParameterParameter Gravitational parameter of the departure body [m^3 s^-2]. If not provided as input, it is retrieved from
- * the body map.
- * \param arrivalBodyGravitationalParameter Gravitational parameter of the arrival body [m^3 s^-2]. If not provided as input, it is retrieved from
- * the body map.
  * \param centralBodyGravitationalParameter Gravitational parameter of the central body [m^3 s^-2]. If not provided as input, it is retrieved from
  * the body map.
  */
@@ -166,7 +160,7 @@ void propagateLambertTargeterAndFullProblem(
  * of the departure and arrival body (true).
  * \param cartesianPositionAtDeparture Cartesian position of the body to be propagated at departure [m].
  * \param cartesianPositionAtArrival Cartesian position of the body to be propagated at arrival [m].
- * \param departureBodyGravitationalParameterParameter Gravitational parameter of the departure body [m^3 s^-2]. If not provided as input, it is retrieved from
+ * \param departureBodyGravitationalParameter Gravitational parameter of the departure body [m^3 s^-2]. If not provided as input, it is retrieved from
  * the body map.
  * \param arrivalBodyGravitationalParameter Gravitational parameter of the arrival body [m^3 s^-2]. If not provided as input, it is retrieved from
  * the body map.
@@ -208,8 +202,8 @@ void propagateLambertTargeterAndFullProblem(
  * \param initialTime Initial time of the propagation [s].
  * \param bodyMap Body map.
  * \param accelerationModelMap Acceleration map.
- * \param bodiesToPropagate Vector with the names of the bodies to be propagated.
- * \param centralBody Vector with the names of the central bodies.
+ * \param bodyToPropagate Names of the body to be propagated.
+ * \param centralBody  Names of the central body of propagation
  * \param integratorSettings Integrator settings for the propagation.
  * \param terminationSphereOfInfluence Boolean denoting whether the propagation stops at the position of the departure and arrival body (false)
  * or at the sphere of influence of the departure and arrival body (true).
