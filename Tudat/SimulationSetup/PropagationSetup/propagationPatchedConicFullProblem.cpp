@@ -837,15 +837,15 @@ void fullPropagationPatchedConicsTrajectory(
     }
 }
 
-std::pair< std::shared_ptr< propagators::PropagationTerminationSettings >,
-            std::shared_ptr< propagators::PropagationTerminationSettings > > getSingleLegSphereOfInfluenceTerminationSettings(
+std::shared_ptr< propagators::PropagationTerminationSettings > getSingleLegPartSphereOfInfluenceTerminationSettings(
         simulation_setup::NamedBodyMap& bodyMap,
         const std::string& bodyToPropagate,
         const std::string& centralBody,
         const std::string& departureBody,
         const std::string& arrivalBody,
         const double initialTimeCurrentLeg,
-        const double finalTimeCurrentLeg )
+        const double finalTimeCurrentLeg,
+        const bool useBackwardLegToDepartureBody )
 {
     // Retrieve positions of departure and arrival bodies.
     Eigen::Vector3d cartesianPositionAtDeparture, cartesianPositionAtArrival;
@@ -916,8 +916,8 @@ std::pair< std::shared_ptr< propagators::PropagationTerminationSettings >,
         double orbitalPeriodArrivalBody = basic_astrodynamics::computeKeplerOrbitalPeriod(
                     orbital_element_conversions::convertCartesianToKeplerianElements(
                         bodyMap.at( arrivalBody )->
-                    getEphemeris( )->getCartesianState( initialTimeCurrentLeg ), gravitationalParameterCentralBody )
-                [ orbital_element_conversions::semiMajorAxisIndex ],
+                        getEphemeris( )->getCartesianState( initialTimeCurrentLeg ), gravitationalParameterCentralBody )
+                    [ orbital_element_conversions::semiMajorAxisIndex ],
                 gravitationalParameterCentralBody, gravitationalParameterArrivalBody );
 
         if( orbitalPeriodDepartureBody < orbitalPeriodArrivalBody )
@@ -932,33 +932,56 @@ std::pair< std::shared_ptr< propagators::PropagationTerminationSettings >,
 
 
     // Create total propagator termination settings.
-    std::vector< std::shared_ptr< PropagationTerminationSettings > >  forwardPropagationTerminationSettingsList;
-    forwardPropagationTerminationSettingsList.push_back(
-                std::make_shared< PropagationDependentVariableTerminationSettings >(
-                    std::make_shared< SingleDependentVariableSaveSettings >(
-                        relative_distance_dependent_variable, bodyToPropagate, arrivalBody ),
-                radiusSphereOfInfluenceArrival, false ) );
-    forwardPropagationTerminationSettingsList.push_back(
-                std::make_shared< PropagationTimeTerminationSettings >( 2.0 * synodicPeriod ) );
+    if( !useBackwardLegToDepartureBody )
+    {
+        std::vector< std::shared_ptr< PropagationTerminationSettings > >  forwardPropagationTerminationSettingsList;
+        forwardPropagationTerminationSettingsList.push_back(
+                    std::make_shared< PropagationDependentVariableTerminationSettings >(
+                        std::make_shared< SingleDependentVariableSaveSettings >(
+                            relative_distance_dependent_variable, bodyToPropagate, arrivalBody ),
+                        radiusSphereOfInfluenceArrival, false ) );
+        forwardPropagationTerminationSettingsList.push_back(
+                    std::make_shared< PropagationTimeTerminationSettings >( 2.0 * synodicPeriod ) );
 
-    std::shared_ptr< PropagationTerminationSettings > forwardPropagationTerminationSettings =
-            std::make_shared< PropagationHybridTerminationSettings >( forwardPropagationTerminationSettingsList, true );
+        return std::make_shared< PropagationHybridTerminationSettings >( forwardPropagationTerminationSettingsList, true );
 
+    }
+    else
+    {
+        std::vector< std::shared_ptr< PropagationTerminationSettings > >  backwardPropagationTerminationSettingsList;
+        backwardPropagationTerminationSettingsList.push_back(
+                    std::make_shared< PropagationDependentVariableTerminationSettings >(
+                        std::make_shared< SingleDependentVariableSaveSettings >(
+                            relative_distance_dependent_variable, bodyToPropagate, departureBody ),
+                        radiusSphereOfInfluenceDeparture, false ) );
+        backwardPropagationTerminationSettingsList.push_back(
+                    std::make_shared< PropagationTimeTerminationSettings >( 2.0 * synodicPeriod ) );
 
-    std::vector< std::shared_ptr< PropagationTerminationSettings > >  backwardPropagationTerminationSettingsList;
-    backwardPropagationTerminationSettingsList.push_back(
-                std::make_shared< PropagationDependentVariableTerminationSettings >(
-                    std::make_shared< SingleDependentVariableSaveSettings >(
-                        relative_distance_dependent_variable, bodyToPropagate, departureBody ),
-                    radiusSphereOfInfluenceDeparture, false ) );
-    backwardPropagationTerminationSettingsList.push_back(
-                std::make_shared< PropagationTimeTerminationSettings >( 2.0 * synodicPeriod ) );
-
-    std::shared_ptr< PropagationTerminationSettings > backwardPropagationTerminationSettings =
-            std::make_shared< PropagationHybridTerminationSettings >( backwardPropagationTerminationSettingsList, true );
-
-    return std::make_pair( backwardPropagationTerminationSettings, forwardPropagationTerminationSettings );
+        return std::make_shared< PropagationHybridTerminationSettings >( backwardPropagationTerminationSettingsList, true );
+    }
 }
+
+
+std::pair< std::shared_ptr< propagators::PropagationTerminationSettings >,
+std::shared_ptr< propagators::PropagationTerminationSettings > > getSingleLegSphereOfInfluenceTerminationSettings(
+        simulation_setup::NamedBodyMap& bodyMap,
+        const std::string& bodyToPropagate,
+        const std::string& centralBody,
+        const std::string& departureBody,
+        const std::string& arrivalBody,
+        const double initialTimeCurrentLeg,
+        const double finalTimeCurrentLeg )
+{
+
+    return std::make_pair(
+                getSingleLegPartSphereOfInfluenceTerminationSettings(
+                    bodyMap, bodyToPropagate, centralBody, departureBody, arrivalBody, initialTimeCurrentLeg,
+                    finalTimeCurrentLeg, true ),
+                getSingleLegPartSphereOfInfluenceTerminationSettings(
+                    bodyMap, bodyToPropagate, centralBody, departureBody, arrivalBody, initialTimeCurrentLeg,
+                    finalTimeCurrentLeg, false ) );
+}
+
 
 //! Function to calculate the patched conics trajectory and to propagate the corresponding full problem.
 std::vector< std::pair< std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > >,
@@ -1004,83 +1027,106 @@ std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > > >
     std::vector< std::string > bodyToPropagatePropagation;
     bodyToPropagatePropagation.push_back( bodyToPropagate );
 
-    double initialTimeCurrentLeg;
-    double finalTimeCurrentLeg;
 
     std::vector< std::pair< std::shared_ptr< propagators::PropagationTerminationSettings >,
             std::shared_ptr< propagators::PropagationTerminationSettings > > > terminationSettings;
 
-    std::cout<<"Total: "<<numberOfLegsIncludingDsm<<" "<<numberOfLegs<<std::endl;
-    if( numberOfLegsIncludingDsm != numberOfLegs )
+    int counterLegsIncludingDsm = 0;
+    for( int i = 0 ; i < numberOfLegs - 1 ; i ++ )
     {
-        for( int i = 0 ; i < numberOfLegsIncludingDsm - 1 ; i ++ )
+        std::cout<<"Start"<<std::endl;
+        if( ( ( legTypeVector[ i ] == transfer_trajectories::mga_Departure ||
+                legTypeVector[ i ] == transfer_trajectories::mga_Swingby ) ) )
         {
-            initialTimeCurrentLeg = timeVector[ i ];
-            finalTimeCurrentLeg = timeVector[ i + 1 ];
+            double initialTimeCurrentLeg = timeVector[ counterLegsIncludingDsm ];
+            double finalTimeCurrentLeg = timeVector[ counterLegsIncludingDsm ];
 
-            std::cout<<i<<" "<<initialTimeCurrentLeg<<" "<<finalTimeCurrentLeg<<std::endl;
-
-            terminationSettings.push_back(
-                        std::make_pair(
-                            std::make_shared< propagators::PropagationTimeTerminationSettings >( initialTimeCurrentLeg ),
-                            std::make_shared< propagators::PropagationTimeTerminationSettings >( finalTimeCurrentLeg ) ) );
-        }
-
-        if( terminationSphereOfInfluence == true )
-        {
-            std::cerr << "Warning, the option to terminate on the sphere of influence is not yet available for trajectories including DSMs. "
-                         "The backward and forward propagations stop at departure and arrival bodies respectively." << std::endl;
-        }
-
-    }
-    else
-    {
-        for( int i = 0 ; i < numberOfLegs - 1 ; i ++ )
-        {
-            initialTimeCurrentLeg = timeVector[ i ];
-            initialTimeCurrentLeg = timeVector[ i + 1 ];
-
-            if( terminationSphereOfInfluence == true )
-            {
-                terminationSettings.push_back( getSingleLegSphereOfInfluenceTerminationSettings(
-                                                   bodyMap, bodyToPropagate, centralBody, transferBodyOrder.at( i ),
-                                                   transferBodyOrder.at( i + 1 ), initialTimeCurrentLeg, finalTimeCurrentLeg ) );
-            }
-            else
+            if( terminationSphereOfInfluence == false )
             {
                 terminationSettings.push_back(
                             std::make_pair(
                                 std::make_shared< propagators::PropagationTimeTerminationSettings >( initialTimeCurrentLeg ),
                                 std::make_shared< propagators::PropagationTimeTerminationSettings >( finalTimeCurrentLeg ) ) );
             }
+            else
+            {
+                terminationSettings.push_back(
+                            getSingleLegSphereOfInfluenceTerminationSettings(
+                                bodyMap, bodyToPropagate, centralBody, transferBodyOrder.at( i ),
+                                transferBodyOrder.at( i + 1 ), initialTimeCurrentLeg, finalTimeCurrentLeg ) );
+            }
+            counterLegsIncludingDsm++;
         }
+        else
+        {
+            std::cout<<i<<std::endl;
+            double initialTimeCurrentLegSegment = timeVector[ counterLegsIncludingDsm ];
+            double finalTimeCurrentLegSegment = timeVector[ counterLegsIncludingDsm + 1 ];
+
+            double initialTimeCurrentLeg = timeVector[ counterLegsIncludingDsm ];
+            double finalTimeCurrentLeg = timeVector[ counterLegsIncludingDsm + 2 ];
+
+
+            if( terminationSphereOfInfluence == false )
+            {
+                terminationSettings.push_back(
+                            std::make_pair(
+                                std::make_shared< propagators::PropagationTimeTerminationSettings >( initialTimeCurrentLegSegment ),
+                                std::make_shared< propagators::PropagationTimeTerminationSettings >( finalTimeCurrentLegSegment ) ) );
+            }
+            else
+            {
+                terminationSettings.push_back(
+                            std::make_pair(
+                                getSingleLegPartSphereOfInfluenceTerminationSettings(
+                                    bodyMap, bodyToPropagate, centralBody, transferBodyOrder.at( i ),
+                                    transferBodyOrder.at( i + 1 ), initialTimeCurrentLeg,
+                                    finalTimeCurrentLeg, true ),
+                                std::make_shared< propagators::PropagationTimeTerminationSettings >( finalTimeCurrentLegSegment ) ) );
+            }
+
+            counterLegsIncludingDsm++;
+
+            initialTimeCurrentLegSegment = timeVector[ counterLegsIncludingDsm ];
+            finalTimeCurrentLegSegment = timeVector[ counterLegsIncludingDsm + 1 ];
+
+            if( terminationSphereOfInfluence == false )
+            {
+                terminationSettings.push_back(
+                            std::make_pair(
+                                std::make_shared< propagators::PropagationTimeTerminationSettings >( initialTimeCurrentLegSegment ),
+                                std::make_shared< propagators::PropagationTimeTerminationSettings >( finalTimeCurrentLegSegment ) ) );
+            }
+            else
+            {
+                terminationSettings.push_back(
+                            std::make_pair(
+                                std::make_shared< propagators::PropagationTimeTerminationSettings >( initialTimeCurrentLegSegment ),
+                                getSingleLegPartSphereOfInfluenceTerminationSettings(
+                                    bodyMap, bodyToPropagate, centralBody, transferBodyOrder.at( i ),
+                                    transferBodyOrder.at( i + 1 ), initialTimeCurrentLeg,
+                                    finalTimeCurrentLeg, false ) ) );
+            }
+            counterLegsIncludingDsm++;
+
+            std::cout<<i<<" "<<terminationSettings.size( )<<std::endl;
+        }
+        std::cout<<"End"<<std::endl;
+
     }
+    std::cout<<"EndEnd"<<std::endl;
+
 
 
     // Create propagator settings.
-    int counterLegsIncludingDsm = 0;
+    counterLegsIncludingDsm = 0;
     Eigen::Vector6d initialState;
 
     for( int i = 0 ; i <  numberOfLegs - 1 ; i ++ )
     {
-
-        std::shared_ptr< DependentVariableSaveSettings > currentDependentVariablesToSave =
-                ( dependentVariablesToSave.size( ) != 0 ) ? dependentVariablesToSave.at( i ) : nullptr;
-
-        propagatorSettings.push_back(
-                    std::make_pair(
-                        std::make_shared< TranslationalStatePropagatorSettings< double > >(
-                            centralBodyPropagation, accelerationMap[ i ], bodyToPropagatePropagation, initialState,
-                            terminationSettings[ counterLegsIncludingDsm].first, propagator, currentDependentVariablesToSave ),
-                        std::make_shared< TranslationalStatePropagatorSettings< double > >(
-                            centralBodyPropagation, accelerationMap[ i ], bodyToPropagatePropagation, initialState,
-                            terminationSettings[ counterLegsIncludingDsm].second, propagator, currentDependentVariablesToSave ) ) );
-
-        counterLegsIncludingDsm++;
-
         // If the leg includes one DSM, add another element to the propagator settings vector to take the second part of the leg into account.
-        if( !( legTypeVector[ i ] == transfer_trajectories::mga_Departure ||
-               legTypeVector[ i ] == transfer_trajectories::mga_Swingby ) )
+        if( ( legTypeVector[ i ] == transfer_trajectories::mga_Departure ||
+              legTypeVector[ i ] == transfer_trajectories::mga_Swingby ) )
         {
             std::shared_ptr< DependentVariableSaveSettings > currentDependentVariablesToSave =
                     ( dependentVariablesToSave.size( ) != 0 ) ? dependentVariablesToSave.at( i ) : nullptr;
@@ -1093,7 +1139,37 @@ std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > > >
                             std::make_shared< TranslationalStatePropagatorSettings< double > >(
                                 centralBodyPropagation, accelerationMap[ i ], bodyToPropagatePropagation, initialState,
                                 terminationSettings[ counterLegsIncludingDsm ].second, propagator, currentDependentVariablesToSave ) ) );
+
             counterLegsIncludingDsm++;
+        }
+        else
+        {
+            std::cout<<i<<std::endl;
+            std::shared_ptr< DependentVariableSaveSettings > currentDependentVariablesToSave =
+                    ( dependentVariablesToSave.size( ) != 0 ) ? dependentVariablesToSave.at( i ) : nullptr;
+
+            propagatorSettings.push_back(
+                        std::make_pair(
+                            std::make_shared< TranslationalStatePropagatorSettings< double > >(
+                                centralBodyPropagation, accelerationMap[ i ], bodyToPropagatePropagation, initialState,
+                                terminationSettings[ counterLegsIncludingDsm ].first, propagator, currentDependentVariablesToSave ),
+                            std::make_shared< TranslationalStatePropagatorSettings< double > >(
+                                centralBodyPropagation, accelerationMap[ i ], bodyToPropagatePropagation, initialState,
+                                terminationSettings[ counterLegsIncludingDsm ].second, propagator, currentDependentVariablesToSave ) ) );
+            counterLegsIncludingDsm++;
+            std::cout<<i<<std::endl;
+
+            propagatorSettings.push_back(
+                        std::make_pair(
+                            std::make_shared< TranslationalStatePropagatorSettings< double > >(
+                                centralBodyPropagation, accelerationMap[ i ], bodyToPropagatePropagation, initialState,
+                                terminationSettings[ counterLegsIncludingDsm ].first, propagator, currentDependentVariablesToSave ),
+                            std::make_shared< TranslationalStatePropagatorSettings< double > >(
+                                centralBodyPropagation, accelerationMap[ i ], bodyToPropagatePropagation, initialState,
+                                terminationSettings[ counterLegsIncludingDsm ].second, propagator, currentDependentVariablesToSave ) ) );
+            counterLegsIncludingDsm++;
+            std::cout<<i<<std::endl;
+
         }
     }
 
