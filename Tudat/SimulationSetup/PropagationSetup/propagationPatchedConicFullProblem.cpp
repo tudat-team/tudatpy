@@ -934,7 +934,6 @@ std::shared_ptr< propagators::PropagationTerminationSettings > getSingleLegPartS
     // Create total propagator termination settings.
     if( !useBackwardLegToDepartureBody )
     {
-        std::cout<<"Departure distance "<<radiusSphereOfInfluenceDeparture<<std::endl;
         std::vector< std::shared_ptr< PropagationTerminationSettings > >  forwardPropagationTerminationSettingsList;
         forwardPropagationTerminationSettingsList.push_back(
                     std::make_shared< PropagationDependentVariableTerminationSettings >(
@@ -949,8 +948,6 @@ std::shared_ptr< propagators::PropagationTerminationSettings > getSingleLegPartS
     }
     else
     {
-        std::cout<<"Arrival distance "<<radiusSphereOfInfluenceArrival<<std::endl;
-
         std::vector< std::shared_ptr< PropagationTerminationSettings > >  backwardPropagationTerminationSettingsList;
         backwardPropagationTerminationSettingsList.push_back(
                     std::make_shared< PropagationDependentVariableTerminationSettings >(
@@ -1037,14 +1034,12 @@ std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > > >
     int counterLegsIncludingDsm = 0;
     for( int i = 0 ; i < numberOfLegs - 1 ; i ++ )
     {
-        std::cout<<"Start"<<std::endl;
         if( ( ( legTypeVector[ i ] == transfer_trajectories::mga_Departure ||
                 legTypeVector[ i ] == transfer_trajectories::mga_Swingby ) ) )
         {
             double initialTimeCurrentLeg = timeVector[ counterLegsIncludingDsm ];
             double finalTimeCurrentLeg = timeVector[ counterLegsIncludingDsm + 1 ];
 
-            std::cout<<"Times "<<initialTimeCurrentLeg<<" "<<finalTimeCurrentLeg<<std::endl;
             if( terminationSphereOfInfluence == false )
             {
                 terminationSettings.push_back(
@@ -1063,7 +1058,6 @@ std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > > >
         }
         else
         {
-            std::cout<<i<<std::endl;
             double initialTimeCurrentLegSegment = timeVector[ counterLegsIncludingDsm ];
             double finalTimeCurrentLegSegment = timeVector[ counterLegsIncludingDsm + 1 ];
 
@@ -1112,15 +1106,8 @@ std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > > >
                                     finalTimeCurrentLeg, false ) ) );
             }
             counterLegsIncludingDsm++;
-
-            std::cout<<i<<" "<<terminationSettings.size( )<<std::endl;
         }
-        std::cout<<"End"<<std::endl;
-
     }
-    std::cout<<"EndEnd"<<std::endl;
-
-
 
     // Create propagator settings.
     counterLegsIncludingDsm = 0;
@@ -1148,7 +1135,6 @@ std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > > >
         }
         else
         {
-            std::cout<<i<<std::endl;
             std::shared_ptr< DependentVariableSaveSettings > currentDependentVariablesToSave =
                     ( dependentVariablesToSave.size( ) != 0 ) ? dependentVariablesToSave.at( i ) : nullptr;
 
@@ -1161,7 +1147,6 @@ std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > > >
                                 centralBodyPropagation, accelerationMap[ i ], bodyToPropagatePropagation, initialState,
                                 terminationSettings[ counterLegsIncludingDsm ].second, propagator, currentDependentVariablesToSave ) ) );
             counterLegsIncludingDsm++;
-            std::cout<<i<<std::endl;
 
             propagatorSettings.push_back(
                         std::make_pair(
@@ -1172,8 +1157,6 @@ std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > > >
                                 centralBodyPropagation, accelerationMap[ i ], bodyToPropagatePropagation, initialState,
                                 terminationSettings[ counterLegsIncludingDsm ].second, propagator, currentDependentVariablesToSave ) ) );
             counterLegsIncludingDsm++;
-            std::cout<<i<<std::endl;
-
         }
     }
 
