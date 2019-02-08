@@ -132,10 +132,8 @@ transfer_trajectories::Trajectory createTransferTrajectoryObject(
  */
 void propagateMgaWithoutDsmAndFullProblem(
         simulation_setup::NamedBodyMap& bodyMap,
-        const basic_astrodynamics::AccelerationMap& accelerationMap,
         const std::vector< std::string > departureAndArrivalBodies,
-        const std::string& centralBody,
-        const std::string& bodyToPropagate,
+        const std::string centralBody,
         const Eigen::Vector3d cartesianPositionAtDeparture,
         const Eigen::Vector3d cartesianPositionAtArrival,
         const double initialTime,
@@ -185,11 +183,9 @@ void propagateMgaWithoutDsmAndFullProblem(
  */
 void propagateMga1DsmVelocityAndFullProblem(
         simulation_setup::NamedBodyMap& bodyMap,
-        const basic_astrodynamics::AccelerationMap& accelerationMap,
         const std::vector< std::string > departureAndArrivalBodies,
         const std::string& dsm,
         const std::string& centralBody,
-        const std::string& bodyToPropagate,
         const Eigen::Vector3d cartesianPositionAtDeparture,
         const Eigen::Vector3d cartesianPositionDSM,
         const Eigen::Vector3d cartesianPositionAtArrival,
@@ -219,12 +215,9 @@ void propagateMga1DsmVelocityAndFullProblem(
  * Function to both calculate a patched conics leg including a DSM and propagate the corresponding full dynamics problem. The patched
  * conics leg with DSM is calculated using the position formulation.
  * \param bodyMap bodyMap Body map for the patched conics leg.
- * \param accelerationMap Acceleration map corresponding to the patched conics leg, defining the accelerations to be considered in the full
- * dynamics problem.
  * \param departureAndArrivalBodies Vector containing the names of the departure and arrival bodies of the leg.
  * \param dsm Name of the DSM.
  * \param centralBody Name of the central body of the patched conics trajectory.
- * \param bodyToPropagate Name of the body to be propagated.
  * \param cartesianPositionAtDeparture Cartesian position of the body to be propagated at the leg departure [m].
  * \param cartesianPositionDSM Cartesian position of the body to be propagated at the DSM location [m].
  * \param cartesianPositionAtArrival Cartesian position of the body to be propagated at the leg arrival [m].
@@ -251,11 +244,9 @@ void propagateMga1DsmVelocityAndFullProblem(
  */
 void propagateMga1DsmPositionAndFullProblem(
         simulation_setup::NamedBodyMap& bodyMap,
-        const basic_astrodynamics::AccelerationMap& accelerationMap,
         const std::vector< std::string > departureAndArrivalBodies,
         const std::string& dsm,
         const std::string& centralBody,
-        const std::string& bodyToPropagate,
         const Eigen::Vector3d cartesianPositionAtDeparture,
         const Eigen::Vector3d cartesianPositionDSM,
         const Eigen::Vector3d cartesianPositionAtArrival,
@@ -306,7 +297,6 @@ void propagateKeplerianOrbitLegAndFullProblem(
         const double timeOfFlight,
         const double initialTime,
         const simulation_setup::NamedBodyMap& bodyMap,
-        const std::string& bodyToPropagate,
         const std::string& centralBody,
         const std::vector<std::string>& departureAndArrivalBodies,
         const Eigen::Vector3d& velocityAfterDeparture,
@@ -323,10 +313,8 @@ void propagateKeplerianOrbitLegAndFullProblem(
  * Function to calculate the patched conics trajectory and to propagate the corresponding full problem. The propagator settings to be used
  * for the propagation of the full dynamics problem are directly provided as inputs.
  * \param bodyMap Body map for the patched conics trajectory.
- * \param accelerationMap Vector of acceleration maps for each leg to propagate the full problem.
  * \param transferBodyOrder Vector containing the names of the transfer bodies involved in the trajectory.
- * \param centralBody Name of the central body of the patched conics trajectory.
- * \param bodyToPropagate Name of the body to be propagated.
+ * \param patchedConicCentralBody Name of the central body of the patched conics trajectory.
  * \param legTypeVector Vector containing the leg types.
  * \param trajectoryVariableVector Vector containing all the defining variables for the whole trajectory.
  * \param minimumPericenterRadiiVector Vector containing the minimum distance between the spacecraft and the body.
@@ -340,10 +328,8 @@ void propagateKeplerianOrbitLegAndFullProblem(
  */
 void fullPropagationPatchedConicsTrajectory(
         simulation_setup::NamedBodyMap& bodyMap,
-        const std::vector< basic_astrodynamics::AccelerationMap >& accelerationMap,
         const std::vector< std::string >& transferBodyOrder,
-        const std::string& centralBody,
-        const std::string& bodyToPropagate,
+        const std::string& patchedConicCentralBody,
         const std::vector< transfer_trajectories::TransferLegType>& legTypeVector,
         const std::vector< double >& trajectoryVariableVector,
         const std::vector< double >& minimumPericenterRadiiVector,
@@ -470,10 +456,8 @@ void fullPropagationPatchedConicsTrajectory(
  */
 std::map< int, std::pair< Eigen::Vector6d, Eigen::Vector6d > > getDifferenceFullProblemWrtPatchedConicsTrajectory(
         simulation_setup::NamedBodyMap& bodyMap,
-        const std::vector< basic_astrodynamics::AccelerationMap >& accelerationMap,
         const std::vector< std::string >& transferBodyOrder,
         const std::string& centralBody,
-        const std::string& bodyToPropagate,
         const std::vector< transfer_trajectories::TransferLegType >& legTypeVector,
         const std::vector<double>& trajectoryVariableVector,
         const std::vector<double>& minimumPericenterRadiiVector,
