@@ -998,7 +998,7 @@ std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > > >
         const std::vector< double >& eccentricitiesVector,
         const bool terminationSphereOfInfluence,
         const std::vector< std::shared_ptr< DependentVariableSaveSettings > > dependentVariablesToSave,
-        const TranslationalPropagatorType propagator)
+        const TranslationalPropagatorType propagator )
 {
 
     // Define the patched conic trajectory from the body map.
