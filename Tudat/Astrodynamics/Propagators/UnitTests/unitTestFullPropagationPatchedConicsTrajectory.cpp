@@ -10,6 +10,8 @@
 
 #define BOOST_TEST_MAIN
 
+#include <iomanip>
+
 #include <Tudat/SimulationSetup/tudatEstimationHeader.h>
 #include <boost/test/floating_point_comparison.hpp>
 #include <boost/test/unit_test.hpp>
@@ -41,7 +43,7 @@ BOOST_AUTO_TEST_CASE( testFullPropagationMGA )
 
     std::cout.precision(20);
 
-    std::cout << "Cassini trajectory: " << "\n\n";
+    //    std::cout << "Cassini trajectory: " << "\n\n";
 
 
     // Specify number and type of legs.
@@ -59,7 +61,7 @@ BOOST_AUTO_TEST_CASE( testFullPropagationMGA )
     std::vector< std::string > nameBodiesTrajectory;
     nameBodiesTrajectory.push_back("Earth");
     nameBodiesTrajectory.push_back("Venus");
-    nameBodiesTrajectory.push_back("Venus");
+    nameBodiesTrajectory.push_back("Mars");
     nameBodiesTrajectory.push_back("Earth");
     nameBodiesTrajectory.push_back("Jupiter");
     nameBodiesTrajectory.push_back("Saturn");
@@ -120,7 +122,7 @@ BOOST_AUTO_TEST_CASE( testFullPropagationMGA )
 
     // Create body map.
     simulation_setup::NamedBodyMap bodyMap = propagators::setupBodyMapFromUserDefinedEphemeridesForPatchedConicsTrajectory(centralBody[0],
-            bodyToPropagate, nameBodiesTrajectory, ephemerisVectorTransferBodies, gravitationalParametersTransferBodies);
+            bodyToPropagate, nameBodiesTrajectory, ephemerisVectorTransferBodies, gravitationalParametersTransferBodies );
 
     // Create acceleration map.
     std::vector< basic_astrodynamics::AccelerationMap > accelerationMap = propagators::setupAccelerationMapPatchedConicsTrajectory(
@@ -141,61 +143,77 @@ BOOST_AUTO_TEST_CASE( testFullPropagationMGA )
 
 
     // Define integrator settings.
-    double fixedStepSize = 1000.0;
+    double fixedStepSize = 3600.0;
     std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings =
             std::make_shared < numerical_integrators::IntegratorSettings < > > ( numerical_integrators::rungeKutta4, initialTime, fixedStepSize);
 
 
     // Compute difference between patched conics trajectory and full problem at departure and at arrival for each leg.
-
-    std::map< int, std::map< double, Eigen::Vector6d > > patchedConicsResultForEachLeg;
-    std::map< int, std::map< double, Eigen::Vector6d > > fullProblemResultForEachLeg;
-    //    std::map< int, std::pair< Eigen::Vector6d, Eigen::Vector6d > > differenceStateArrivalAndDeparturePerLeg =
-    propagators::fullPropagationPatchedConicsTrajectory(
-                bodyMap, accelerationMap, nameBodiesTrajectory,
-                centralBody[0], bodyToPropagate, legTypeVector, variableVector, minimumPericenterRadii,
-            semiMajorAxes, eccentricities, integratorSettings, patchedConicsResultForEachLeg, fullProblemResultForEachLeg, true );
-
-    for( auto
-         itr = patchedConicsResultForEachLeg.begin( );
-         itr != patchedConicsResultForEachLeg.end( ); itr++ )
+    for( int terminationType = 0; terminationType < 2; terminationType++ )
     {
+        std::map< int, std::map< double, Eigen::Vector6d > > patchedConicsResultForEachLeg;
+        std::map< int, std::map< double, Eigen::Vector6d > > fullProblemResultForEachLeg;
 
-        tudat::input_output::writeDataMapToTextFile(
-                    fullProblemResultForEachLeg[ itr->first ],
-                "leg_1_" + std::to_string( itr->first ) + ".dat", "/home/dominic/Software/tudatBundleTest/" );
+        propagators::fullPropagationPatchedConicsTrajectory(
+                    bodyMap, accelerationMap, nameBodiesTrajectory,
+                    centralBody[0], bodyToPropagate, legTypeVector, variableVector, minimumPericenterRadii,
+                semiMajorAxes, eccentricities, integratorSettings, patchedConicsResultForEachLeg, fullProblemResultForEachLeg,
+                static_cast< bool >( terminationType ) );
 
+        for( auto itr : patchedConicsResultForEachLeg )
+        {
+            for( auto innerItr : itr.second )
+            {
+                Eigen::Vector6d stateDifference = patchedConicsResultForEachLeg[ itr.first ][ innerItr.first ] -
+                        fullProblemResultForEachLeg[ itr.first ][ innerItr.first ];
+                for( int i = 0; i < 3; i++ )
+                {
+                    BOOST_CHECK_SMALL( std::fabs( stateDifference( i ) ), 1.0 );
+                    BOOST_CHECK_SMALL( std::fabs( stateDifference( i + 3 ) ), 1.0E-6 );
+                    BOOST_CHECK_SMALL( std::fabs( stateDifference( i ) ), 1.0 );
+                    BOOST_CHECK_SMALL( std::fabs( stateDifference( i + 3 ) ), 1.0E-6 );
+                }
+            }
+        }
 
-        std::cout << "Departure body: " << nameBodiesTrajectory[ itr->first ] << "\n\n";
-        std::cout << "Arrival body: " << nameBodiesTrajectory[itr->first + 1] << "\n\n";
-        //        std::cout << "state difference departure: " << differenceStateArrivalAndDeparturePerLeg[ itr->first ].first.transpose( ) << "\n\n";
-        //        std::cout << "state difference arrival: " << differenceStateArrivalAndDeparturePerLeg[ itr->first ].second.transpose( ) << "\n\n";
+        int numberOfLegs = patchedConicsResultForEachLeg.size( );
+        auto legIterator = patchedConicsResultForEachLeg.begin( );
+        auto nextLegIterator = patchedConicsResultForEachLeg.begin( );
+        nextLegIterator++;
 
-        std::cout << "state departure: " << fullProblemResultForEachLeg[ itr->first ].begin( )->second.transpose( ) << "\n\n";
-        std::cout << "state arrival: " << fullProblemResultForEachLeg[ itr->first ].rbegin( )->second.transpose( ) << "\n\n";
+        for( int i = 0; i < numberOfLegs - 1; i++ )
+        {
+            double legTimeDifference =
+                    nextLegIterator->second.begin( )->first - legIterator->second.rbegin( )->first;
+            Eigen::Vector6d legStateDifference =
+                    nextLegIterator->second.begin( )->second - legIterator->second.rbegin( )->second;
+
+            if( terminationType == 0 )
+            {
+                BOOST_CHECK_SMALL( std::fabs( legTimeDifference ), 1.0E-6 );
+                if( i != 1 )
+                {
+                    BOOST_CHECK_SMALL( std::fabs( legStateDifference.segment( 0, 3 ).norm( ) ), 1.0 );
+                }
+            }
+            else
+            {
+                BOOST_CHECK_EQUAL( std::fabs( legTimeDifference ) > 1.0E5, true );
+            }
+
+//            std::cout<<"Time diff. "<<legTimeDifference<<std::endl;
+
+//            std::cout<<std::setprecision( 16 )<<"State. "<<( legIterator->second.rbegin( )->second ).transpose( )<<std::endl; //Wrong
+//            std::cout<<std::setprecision( 16 )<<"State. "<<( nextLegIterator->second.begin( )->second ).transpose( )<<std::endl; //Correct
+//            std::cout<<std::setprecision( 16 )<<"Venus state. "<<ephemerisVenus->getCartesianState( nextLegIterator->second.begin( )->first ).transpose( )<<std::endl;
+
+//            std::cout<<"State diff. "<<legStateDifference.transpose( )<<std::endl<<std::endl;
+
+            legIterator++;
+            nextLegIterator++;
+        }
+//        std::cout<<std::endl<<std::endl;
     }
-
-    //    for( std::map< int, std::pair< Eigen::Vector6d, Eigen::Vector6d > >::iterator
-    //         itr = differenceStateArrivalAndDeparturePerLeg.begin( );
-    //         itr != differenceStateArrivalAndDeparturePerLeg.end( ); itr++ ){
-
-    //        std::cout << "Departure body: " << nameBodiesTrajectory[ itr->first ] << "\n\n";
-    //        std::cout << "Arrival body: " << nameBodiesTrajectory[itr->first + 1] << "\n\n";
-    //        std::cout << "state difference departure: " << differenceStateArrivalAndDeparturePerLeg[ itr->first ].first << "\n\n";
-    //        std::cout << "state difference arrival: " << differenceStateArrivalAndDeparturePerLeg[ itr->first ].second << "\n\n";
-
-
-
-    //        for( int i = 0; i < 3; i++ )
-    //        {
-    //            BOOST_CHECK_SMALL( std::fabs( differenceStateArrivalAndDeparturePerLeg[ itr->first ].first( i ) ), 1.0 );
-    //            BOOST_CHECK_SMALL( std::fabs( differenceStateArrivalAndDeparturePerLeg[ itr->first ].first( i + 3 ) ), 1.0E-6 );
-    //            BOOST_CHECK_SMALL( std::fabs( differenceStateArrivalAndDeparturePerLeg[ itr->first ].second( i ) ), 1.0 );
-    //            BOOST_CHECK_SMALL( std::fabs( differenceStateArrivalAndDeparturePerLeg[ itr->first ].second( i + 3 ) ), 1.0E-6 );
-    //        }
-
-    //    }
-
 }
 
 
@@ -203,7 +221,7 @@ BOOST_AUTO_TEST_CASE( testFullPropagationMGA )
 BOOST_AUTO_TEST_CASE( testFullPropagationMGAwithDSM )
 {
 
-    std::cout << "Messenger trajectory: " << "\n\n";
+    //    std::cout << "Messenger trajectory: " << "\n\n";
 
     // Specify number and type of legs.
     int numberOfLegs = 5;
@@ -301,53 +319,75 @@ BOOST_AUTO_TEST_CASE( testFullPropagationMGAwithDSM )
     double initialTime = 0.0;
     double fixedStepSize = 1000.0;
     std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings =
-            std::make_shared < numerical_integrators::IntegratorSettings < > > ( numerical_integrators::rungeKutta4, initialTime, fixedStepSize);
+            std::make_shared < numerical_integrators::IntegratorSettings < > >(
+                numerical_integrators::rungeKutta4, initialTime, fixedStepSize );
 
 
 
     // Compute difference between patched conics trajectory and full problem at departure and at arrival for each leg.
+    // Compute difference between patched conics trajectory and full problem at departure and at arrival for each leg.
+    for( int terminationType = 0; terminationType < 2; terminationType++ )
+    {
+        std::map< int, std::map< double, Eigen::Vector6d > > patchedConicsResultForEachLeg;
+        std::map< int, std::map< double, Eigen::Vector6d > > fullProblemResultForEachLeg;
+        //    std::map< int, std::pair< Eigen::Vector6d, Eigen::Vector6d > > differenceStateArrivalAndDeparturePerLeg =
+        tudat::propagators::fullPropagationPatchedConicsTrajectory(
+                    bodyMap, accelerationMap, transferBodyTrajectory, centralBody[0], bodyToPropagate, legTypeVector, variableVector,
+                minimumPericenterRadii, semiMajorAxes, eccentricities, integratorSettings, patchedConicsResultForEachLeg,
+                fullProblemResultForEachLeg,
+                static_cast< bool >( terminationType ) );
 
-    std::map< int, std::map< double, Eigen::Vector6d > > patchedConicsResultForEachLeg;
-    std::map< int, std::map< double, Eigen::Vector6d > > fullProblemResultForEachLeg;
-    //    std::map< int, std::pair< Eigen::Vector6d, Eigen::Vector6d > > differenceStateArrivalAndDeparturePerLeg =
-    tudat::propagators::fullPropagationPatchedConicsTrajectory(
-                bodyMap, accelerationMap, transferBodyTrajectory, centralBody[0], bodyToPropagate, legTypeVector, variableVector,
-            minimumPericenterRadii, semiMajorAxes, eccentricities, integratorSettings, patchedConicsResultForEachLeg,
-            fullProblemResultForEachLeg, true );
+        for( auto itr : patchedConicsResultForEachLeg )
+        {
+            for( auto innerItr : itr.second )
+            {
+                Eigen::Vector6d stateDifference = patchedConicsResultForEachLeg[ itr.first ][ innerItr.first ] -
+                        fullProblemResultForEachLeg[ itr.first ][ innerItr.first ];
+                for( int i = 0; i < 3; i++ )
+                {
+                    BOOST_CHECK_SMALL( std::fabs( stateDifference( i ) ), 1.0 );
+                    BOOST_CHECK_SMALL( std::fabs( stateDifference( i + 3 ) ), 1.0E-6 );
+                    BOOST_CHECK_SMALL( std::fabs( stateDifference( i ) ), 1.0 );
+                    BOOST_CHECK_SMALL( std::fabs( stateDifference( i + 3 ) ), 1.0E-6 );
+                }
+            }
+        }
 
-    for( auto
-         itr = patchedConicsResultForEachLeg.begin( );
-         itr != patchedConicsResultForEachLeg.end( ); itr++ ){
+        int numberOfLegs = patchedConicsResultForEachLeg.size( );
+        auto legIterator = patchedConicsResultForEachLeg.begin( );
+        auto nextLegIterator = patchedConicsResultForEachLeg.begin( );
+        nextLegIterator++;
 
-        tudat::input_output::writeDataMapToTextFile(
-                    fullProblemResultForEachLeg[ itr->first ],
-                "leg_DSM_1_" + std::to_string( itr->first ) + ".dat", "/home/dominic/Software/tudatBundleTest/" );
+        for( int i = 0; i < numberOfLegs - 1; i++ )
+        {
+            double legTimeDifference =
+                    nextLegIterator->second.begin( )->first - legIterator->second.rbegin( )->first;
+            Eigen::Vector6d legStateDifference =
+                    nextLegIterator->second.begin( )->second - legIterator->second.rbegin( )->second;
+//            std::cout<<"Time diff. "<<legTimeDifference<<std::endl;
+//            std::cout<<"State diff. "<<legStateDifference.transpose( )<<std::endl<<std::endl;
 
+            if( terminationType == 0 )
+            {
+                BOOST_CHECK_SMALL( std::fabs( legTimeDifference ), 1.0E-6 );
+                BOOST_CHECK_SMALL( std::fabs( legStateDifference.segment( 0, 3 ).norm( ) ), 1.0 );
+            }
+            else if( i % 2 == 0 )
+            {
+                BOOST_CHECK_SMALL( std::fabs( legTimeDifference ), 1.0E-6 );
+                BOOST_CHECK_SMALL( std::fabs( legStateDifference.segment( 0, 3 ).norm( ) ), 1.0 );
+            }
+            else
+            {
+                BOOST_CHECK_EQUAL( std::fabs( legTimeDifference ) > 1.0E5, true );
+            }
 
-        std::cout << "Departure body: " << nameBodiesAndManoeuvresTrajectory[ itr->first ] << "\n\n";
-        std::cout << "Arrival body: " << nameBodiesAndManoeuvresTrajectory[itr->first + 1] << "\n\n";
-        //        std::cout << "state difference departure: " << differenceStateArrivalAndDeparturePerLeg[ itr->first ].first.transpose( ) << "\n\n";
-        //        std::cout << "state difference arrival: " << differenceStateArrivalAndDeparturePerLeg[ itr->first ].second.transpose( ) << "\n\n";
-
-        std::cout << "state departure: " << fullProblemResultForEachLeg[ itr->first ].begin( )->second.transpose( ) << "\n\n";
-        std::cout << "state arrival: " << fullProblemResultForEachLeg[ itr->first ].rbegin( )->second.transpose( ) << "\n\n";
-
-
-
-        //        for( int i = 0; i < 3; i++ )
-        //        {
-        //            BOOST_CHECK_SMALL( std::fabs( differenceStateArrivalAndDeparturePerLeg[ itr->first ].first( i ) ), 1.0 );
-        //            BOOST_CHECK_SMALL( std::fabs( differenceStateArrivalAndDeparturePerLeg[ itr->first ].first( i + 3 ) ), 1.0E-6 );
-        //            BOOST_CHECK_SMALL( std::fabs( differenceStateArrivalAndDeparturePerLeg[ itr->first ].second( i ) ), 1.0 );
-        //            BOOST_CHECK_SMALL( std::fabs( differenceStateArrivalAndDeparturePerLeg[ itr->first ].second( i + 3 ) ), 1.0E-6 );
-        //        }
-
-
+            legIterator++;
+            nextLegIterator++;
+        }
+//        std::cout<<std::endl<<std::endl;
     }
-
 }
-
-
 
 }
 
