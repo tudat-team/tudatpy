@@ -428,6 +428,14 @@ void propagateLambertTargeterAndFullProblem(
 
     }
 
+//    std::cout<<"In loop: "<<std::endl<<std::setprecision( 16 )<<
+//               lambertTargeterResult.begin( )->second.segment( 0, 3 ).transpose( )<<std::endl<<
+//               cartesianPositionAtDeparture.transpose( )<<std::endl<<
+//               lambertTargeterResult.rbegin( )->second.segment( 0, 3 ).transpose( )<<std::endl<<
+//               cartesianPositionAtArrival.transpose( )<<std::endl<<std::endl;
+
+
+
     integratorSettings->initialTimeStep_ = -integratorSettings->initialTimeStep_;
 
 }
