@@ -103,7 +103,32 @@ Eigen::Vector6d computeCartesianStateFromKeplerianOrbit(
 
 
 
-
+//! Function to propagate the full dynamics problem and the Lambert targeter solution.
+/*!
+ * Function to propagate the full dynamics problem and the Lambert targeter solution. The function computes the cartesian state as a function of time in two
+ * different ways: from the Lambert targeter and from the propagation of the full dynamics problem. The propagator settings for the full problem
+ * propagation are directly provided as inputs.
+ * \param timeOfFlight Time of flight [s].
+ * \param initialTime Initial time of the propagation [s].
+ * \param bodyMap Body map.
+ * \param accelerationModelMap Acceleration map.
+ * \param bodyToPropagate Name of the body to be propagated.
+ * \param centralBody Name of the central body for the Lambert targeter.
+ * \param propagatorSettings Propagator settings for the full problem.
+ * \param integratorSettings Integrator settings for the propagation.
+ * \param lambertTargeterResult Map of the cartesian state obtained with the Lambert targeter as a function of time (modified within
+ * the function).
+ * \param fullProblemResult Map of the cartesian state obtained after propagation of the full dynamics problem as a function of time (modified
+ *  within the function).
+ * \param cartesianPositionAtDeparture Cartesian position of the body to be propagated at departure [m].
+ * \param cartesianPositionAtArrival Cartesian position of the body to be propagated at arrival [m].
+ * \param departureBodyGravitationalParameterParameter Gravitational parameter of the departure body [m^3 s^-2]. If not provided as input, it is retrieved from
+ * the body map.
+ * \param arrivalBodyGravitationalParameter Gravitational parameter of the arrival body [m^3 s^-2]. If not provided as input, it is retrieved from
+ * the body map.
+ * \param centralBodyGravitationalParameter Gravitational parameter of the central body [m^3 s^-2]. If not provided as input, it is retrieved from
+ * the body map.
+ */
 void propagateLambertTargeterAndFullProblem(
         const double timeOfFlight,
         const double initialTime,
@@ -121,12 +146,13 @@ void propagateLambertTargeterAndFullProblem(
         const Eigen::Vector3d& cartesianPositionAtDeparture,
         const Eigen::Vector3d& cartesianPositionAtArrival);
 
+
+
 //! Function to propagate the full dynamics problem and the Lambert targeter solution.
 /*!
  * Function to propagate the full dynamics problem and the Lambert targeter solution. The function computes the cartesian state as a function of time in two
- * different ways: from the Lambert targeter and from the propagation of the full dynamics problem.
- * \param cartesianPositionAtDeparture Cartesian position of the body to be propagated at departure [m].
- * \param cartesianPositionAtArrival Cartesian position of the body to be propagated at arrival [m].
+ * different ways: from the Lambert targeter and from the propagation of the full dynamics problem. The propagator settings are defined inside
+ * the function from the propagator type and dependent variables to save provided as inputs.
  * \param timeOfFlight Time of flight [s].
  * \param initialTime Initial time of the propagation [s].
  * \param bodyMap Body map.
@@ -138,17 +164,18 @@ void propagateLambertTargeterAndFullProblem(
  * the function).
  * \param fullProblemResult Map of the cartesian state obtained after propagation of the full dynamics problem as a function of time (modified
  *  within the function).
- * \param arrivalAndDepartureInitialisationFromEphemerides Boolean denoting whether the positions of the departure and arrival bodies are retrieved from
- * ephemerides (true) or defined by the input vectors cartesianPositionAtDeparture and cartesianPositionAtArrival (false). The default value of this boolean is
- * false.
- * \param terminationSphereOfInfluence Boolean denoting whether the propagation stops at the position of the arrival body (false) or at the sphere of influence
- * of the arrival body (true). The default value of this boolean is false.
+ * \param terminationSphereOfInfluence Boolean denoting whether the propagation stops at the position of the departure and arrival body (false) or at the sphere of influence
+ * of the departure and arrival body (true).
+ * \param cartesianPositionAtDeparture Cartesian position of the body to be propagated at departure [m].
+ * \param cartesianPositionAtArrival Cartesian position of the body to be propagated at arrival [m].
  * \param departureBodyGravitationalParameterParameter Gravitational parameter of the departure body [m^3 s^-2]. If not provided as input, it is retrieved from
  * the body map.
  * \param arrivalBodyGravitationalParameter Gravitational parameter of the arrival body [m^3 s^-2]. If not provided as input, it is retrieved from
  * the body map.
  * \param centralBodyGravitationalParameter Gravitational parameter of the central body [m^3 s^-2]. If not provided as input, it is retrieved from
  * the body map.
+ * \param dependentVariablesToSave List of dependent variables to be saved during the full problem propagation.
+ * \param propagator Type of propagator to be used for the propagation of the full dynamics problem.
  */
 void propagateLambertTargeterAndFullProblem(
         const double timeOfFlight,
@@ -170,6 +197,7 @@ void propagateLambertTargeterAndFullProblem(
         const std::shared_ptr< DependentVariableSaveSettings > dependentVariablesToSave = std::shared_ptr< DependentVariableSaveSettings >( ),
         const TranslationalPropagatorType propagator = cowell);
 
+
 //! Function to compute the difference in cartesian state between Lambert targeter solution and full dynamics problem, both at departure
 //! and at arrival.
 /*!
@@ -185,11 +213,8 @@ void propagateLambertTargeterAndFullProblem(
  * \param bodiesToPropagate Vector with the names of the bodies to be propagated.
  * \param centralBody Vector with the names of the central bodies.
  * \param integratorSettings Integrator settings for the propagation.
- * \param arrivalAndDepartureInitialisationFromEphemerides Boolean denoting whether the positions of the departure and arrival bodies are retrieved from
- * ephemerides (true) or defined by the input vectors cartesianPositionAtDeparture and cartesianPositionAtArrival (false). The default value of this boolean is
- * false.
- * \param terminationSphereOfInfluence Boolean denoting whether the propagation stops at the position of the arrival body (false) or at the sphere of influence
- * of the arrival body (true). The default value of this boolean is false.
+ * \param terminationSphereOfInfluence Boolean denoting whether the propagation stops at the position of the departure and arrival body (false)
+ * or at the sphere of influence of the departure and arrival body (true).
  * \return Pair of vectors containing the difference between the Lambert targeter and the full problem cartesian states
  * (at departure and at arrival respectively).
  */
