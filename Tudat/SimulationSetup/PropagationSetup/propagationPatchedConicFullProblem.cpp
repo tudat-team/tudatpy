@@ -795,10 +795,7 @@ std::shared_ptr< propagators::PropagationTerminationSettings > getSingleLegPartS
                             relative_distance_dependent_variable, bodyToPropagate, arrivalBody ),
                         terminationDistanceScaler * radiusSphereOfInfluenceArrival, true ) );
         forwardPropagationTerminationSettingsList.push_back(
-                    std::make_shared< PropagationTimeTerminationSettings >( finalTimeCurrentLeg + synodicPeriod ) );
-
-        std::cout<<"End A "<<( finalTimeCurrentLeg + synodicPeriod ) / ( 86400.0 * 365.0 )<<std::endl;
-        std::cout<<"End A "<<( synodicPeriod ) / ( 86400.0 * 365.0 )<<std::endl;
+                    std::make_shared< PropagationTimeTerminationSettings >( finalTimeCurrentLeg ) );
 
         return std::make_shared< PropagationHybridTerminationSettings >( forwardPropagationTerminationSettingsList, true );
 
@@ -812,10 +809,7 @@ std::shared_ptr< propagators::PropagationTerminationSettings > getSingleLegPartS
                             relative_distance_dependent_variable, bodyToPropagate, departureBody ),
                         terminationDistanceScaler * radiusSphereOfInfluenceDeparture, true ) );
         backwardPropagationTerminationSettingsList.push_back(
-                    std::make_shared< PropagationTimeTerminationSettings >( initialTimeCurrentLeg - synodicPeriod ) );
-
-        std::cout<<"End B "<<( initialTimeCurrentLeg - synodicPeriod ) / ( 86400.0 * 365.0 )<<std::endl;
-        std::cout<<"End B "<<( synodicPeriod ) / ( 86400.0 * 365.0 )<<std::endl;
+                    std::make_shared< PropagationTimeTerminationSettings >( initialTimeCurrentLeg ) );
 
         return std::make_shared< PropagationHybridTerminationSettings >( backwardPropagationTerminationSettingsList, true );
     }
