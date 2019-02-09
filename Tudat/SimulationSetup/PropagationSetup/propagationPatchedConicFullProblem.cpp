@@ -140,11 +140,13 @@ simulation_setup::NamedBodyMap setupBodyMapFromEphemeridesForPatchedConicsTrajec
 
 //! Function to setup a body map corresponding to the assumptions of the patched conics trajectory,
 //! the ephemerides of the transfer bodies being provided as inputs.
-simulation_setup::NamedBodyMap setupBodyMapFromUserDefinedEphemeridesForPatchedConicsTrajectory(const std::string& nameCentralBody,
-                                                                                                const std::string& nameBodyToPropagate,
-                                                                                                const std::vector< std::string >& nameTransferBodies,
-                                                                                                const std::vector< ephemerides::EphemerisPointer >& ephemerisVectorTransferBodies,
-                                                                                                const std::vector< double >& gravitationalParametersTransferBodies)
+simulation_setup::NamedBodyMap setupBodyMapFromUserDefinedEphemeridesForPatchedConicsTrajectory(
+        const std::string& nameCentralBody,
+        const std::string& nameBodyToPropagate,
+        const std::vector< std::string >& nameTransferBodies,
+        const std::vector< ephemerides::EphemerisPointer >& ephemerisVectorTransferBodies,
+        const std::vector< double >& gravitationalParametersTransferBodies,
+        const std::string& frameOrientation )
 {
 
     spice_interface::loadStandardSpiceKernels( );
@@ -158,7 +160,6 @@ simulation_setup::NamedBodyMap setupBodyMapFromUserDefinedEphemeridesForPatchedC
             simulation_setup::getDefaultBodySettings( bodiesToCreate );
 
     std::string frameOrigin = "SSB";
-    std::string frameOrientation = "J2000";
 
     // Define central body ephemeris settings.
     bodySettings[ nameCentralBody ]->ephemerisSettings = std::make_shared< simulation_setup::ConstantEphemerisSettings >(

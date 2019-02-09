@@ -222,6 +222,33 @@ void propagateCR3BPFromEnvironment(
     CR3BPintegratorSettings->initialTimeStep_ = originalInitialTimeStep;
 }
 
+void propagateCR3BPAndFullDynamicsProblem(
+        const double initialTime,
+        const std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings,
+        const std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > > propagatorSettings,
+        const simulation_setup::NamedBodyMap& bodyMap,
+        const std::vector < std::string >& bodiesCR3BP,
+        std::map< double, Eigen::Vector6d >& directPropagationResult,
+        std::map< double, Eigen::Vector6d >& cr3bpPropagationResult,
+        std::map< double, Eigen::VectorXd >& dependentVariableValues )
+{
+    // Propagate the full problem
+    SingleArcDynamicsSimulator< > dynamicsSimulator( bodyMap, integratorSettings, propagatorSettings );
+
+
+    std::map< double, Eigen::VectorXd > stateHistory = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
+    utilities::castDynamicToFixedSizeEigenVectorMap< double, double, 6 >(
+                stateHistory, directPropagationResult );
+    dependentVariableValues = dynamicsSimulator.getDependentVariableHistory( );
+
+    double finalPropagationTime = directPropagationResult.rbegin( )->first;
+
+    cr3bpPropagationResult.clear( );
+    propagateCR3BPFromEnvironment(
+                initialTime, finalPropagationTime, propagatorSettings->getInitialStates( ), integratorSettings, bodyMap,
+                bodiesCR3BP, cr3bpPropagationResult, false );
+}
+
 //! Propagate the CR3BP and the full dynamics problem
 void propagateCR3BPAndFullDynamicsProblem(
         const double initialTime,
@@ -241,20 +268,10 @@ void propagateCR3BPAndFullDynamicsProblem(
             ( centralBodies, accelerationModelMap, bodiesToPropagate, initialState,
               std::make_shared< PropagationTimeTerminationSettings >( finalTime, true ) );
 
-    // Propagate the full problem
-    SingleArcDynamicsSimulator< > dynamicsSimulator( bodyMap, integratorSettings, propagatorSettings );
-
-
-    std::map< double, Eigen::VectorXd > stateHistory = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
-    utilities::castDynamicToFixedSizeEigenVectorMap< double, double, 6 >(
-                stateHistory, directPropagationResult );
-
-    double finalPropagationTime = directPropagationResult.rbegin( )->first;
-
-    cr3bpPropagationResult.clear( );
-    propagateCR3BPFromEnvironment(
-                initialTime, finalPropagationTime, initialState, integratorSettings, bodyMap,
-                bodiesCR3BP, cr3bpPropagationResult, false );
+    std::map< double, Eigen::VectorXd > dependentVariableValues;
+    propagateCR3BPAndFullDynamicsProblem(
+            initialTime, integratorSettings, propagatorSettings, bodyMap, bodiesCR3BP, directPropagationResult,
+            cr3bpPropagationResult, dependentVariableValues );
 
 }
 

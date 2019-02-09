@@ -57,11 +57,13 @@ simulation_setup::NamedBodyMap setupBodyMapFromEphemeridesForPatchedConicsTrajec
  * \param gravitationalParametersTransferBodies Vector containing the gravitational parameters of the transfer bodies [m^3 s^-2].
  * \return Body map for the patched conics trajectory.
  */
-simulation_setup::NamedBodyMap setupBodyMapFromUserDefinedEphemeridesForPatchedConicsTrajectory(const std::string& nameCentralBody,
+simulation_setup::NamedBodyMap setupBodyMapFromUserDefinedEphemeridesForPatchedConicsTrajectory(
+        const std::string& nameCentralBody,
         const std::string& nameBodyToPropagate,
         const std::vector< std::string >& nameTransferBodies,
         const std::vector<ephemerides::EphemerisPointer> &ephemerisVectorTransferBodies,
-        const std::vector<double>& gravitationalParametersTransferBodies);
+        const std::vector<double>& gravitationalParametersTransferBodies,
+        const std::string& frameOrientation = "J2000" );
 
 
 //! Function to directly setup a vector of acceleration maps for a patched conics trajectory.

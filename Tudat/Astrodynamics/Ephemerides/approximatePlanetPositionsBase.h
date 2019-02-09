@@ -49,6 +49,52 @@ public:
         mercury, venus, earthMoonBarycenter, mars, jupiter, saturn, uranus, neptune, pluto
     };
 
+    static BodiesWithEphemerisData getBodiesWithEphemerisDataId( const std::string& bodyName )
+    {
+        BodiesWithEphemerisData bodyId;
+        if( bodyName == "Mercury" )
+        {
+            bodyId = mercury;
+        }
+        else if( bodyName == "Venus" )
+        {
+            bodyId = venus;
+        }
+        else if( bodyName == "Earth" )
+        {
+            bodyId = earthMoonBarycenter;
+        }
+        else if( bodyName == "Mars" )
+        {
+            bodyId = mars;
+        }
+        else if( bodyName == "Jupiter" )
+        {
+            bodyId = jupiter;
+        }
+        else if( bodyName == "Saturn" )
+        {
+            bodyId = saturn;
+        }
+        else if( bodyName == "Uranus" )
+        {
+            bodyId = uranus;
+        }
+        else if( bodyName == "Saturn" )
+        {
+            bodyId = neptune;
+        }
+        else if( bodyName == "Uranus" )
+        {
+            bodyId = pluto;
+        }
+        else
+        {
+            throw std::runtime_error( "Error, could find body " + bodyName + " when getting BodiesWithEphemerisData id." );
+        }
+        return bodyId;
+    }
+
     //! Default constructor.
     /*!
      * Default constructor of the base class, initializes the gravitational parameter of the Sun to
@@ -58,7 +104,7 @@ public:
      * \sa ApproximatePlanetPositions, ApproximatePlanetPositionsCircularCoplanar.
      */
     ApproximatePlanetPositionsBase( const double aSunGravitationalParameter )
-        : Ephemeris( "Sun", "J2000" ),
+        : Ephemeris( "Sun", "ECLIPJ2000" ),
           sunGravitationalParameter( aSunGravitationalParameter ),
           julianDate_( -0.0 ),
           meanLongitudeAtGivenJulianDate_( -0.0 ),
