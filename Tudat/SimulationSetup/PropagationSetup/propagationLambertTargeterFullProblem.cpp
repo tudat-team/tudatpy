@@ -20,7 +20,6 @@
 #include "Tudat/Astrodynamics/BasicAstrodynamics/celestialBodyConstants.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/missionGeometry.h"
 
-#include "Tudat/Astrodynamics/Ephemerides/approximatePlanetPositions.h"
 #include "Tudat/Astrodynamics/TrajectoryDesign/trajectory.h"
 #include "Tudat/Astrodynamics/TrajectoryDesign/exportTrajectory.h"
 #include "Tudat/Astrodynamics/TrajectoryDesign/planetTrajectory.h"

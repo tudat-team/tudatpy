@@ -68,7 +68,7 @@ BOOST_AUTO_TEST_CASE( test_centralGravityModelSetup )
     bodySettings[ "Sun" ]->gravityFieldSettings =
             std::make_shared< GravityFieldSettings >( central_spice );
     NamedBodyMap bodyMap = createBodies( bodySettings );
-    setGlobalFrameBodyEphemerides( bodyMap, "SSB", "J2000" );
+    setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );
 
     // Defins state of Sun to be all zero.
     std::map< double, Eigen::Vector6d > sunStateHistory;

@@ -122,7 +122,7 @@ BOOST_AUTO_TEST_CASE( testFullPropagationMGA )
 
     // Create body map.
     simulation_setup::NamedBodyMap bodyMap = propagators::setupBodyMapFromUserDefinedEphemeridesForPatchedConicsTrajectory(centralBody[0],
-            bodyToPropagate, nameBodiesTrajectory, ephemerisVectorTransferBodies, gravitationalParametersTransferBodies );
+            bodyToPropagate, nameBodiesTrajectory, ephemerisVectorTransferBodies, gravitationalParametersTransferBodies, "ECLIPJ2000" );
 
     // Create acceleration map.
     std::vector< basic_astrodynamics::AccelerationMap > accelerationMap = propagators::setupAccelerationMapPatchedConicsTrajectory(

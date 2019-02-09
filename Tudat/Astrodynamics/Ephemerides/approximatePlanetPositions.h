@@ -64,6 +64,21 @@ public:
         setPlanet( bodyWithEphemerisData );
     }
 
+    ApproximatePlanetPositions( const std::string& bodyName,
+                                const double aSunGravitationalParameter = 1.32712440018e20,
+                                const double referenceJulianDate = basic_astrodynamics::JULIAN_DAY_ON_J2000 )
+        : ApproximatePlanetPositionsBase( aSunGravitationalParameter ),
+          referenceJulianDate_( referenceJulianDate ),
+          eccentricAnomalyAtGivenJulianDate_( TUDAT_NAN ),
+          longitudeOfPerihelionAtGivenJulianDate_( TUDAT_NAN ),
+          meanAnomalyAtGivenJulianDate_( TUDAT_NAN ),
+          trueAnomalyAtGivenJulianData_( TUDAT_NAN )
+    {
+        BodiesWithEphemerisData bodyWithEphemerisData = ApproximatePlanetPositionsBase::getBodiesWithEphemerisDataId(
+                    bodyName );
+        setPlanet( bodyWithEphemerisData );
+    }
+
     //! Get cartesian state from ephemeris.
     /*!
      * Returns cartesian state from ephemeris.

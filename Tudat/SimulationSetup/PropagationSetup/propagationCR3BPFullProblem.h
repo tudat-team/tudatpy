@@ -89,6 +89,16 @@ void propagateCR3BPFromEnvironment(
         std::map< double, Eigen::Vector6d >& stateHistory,
         const bool outputInNormalizedCoordinates = false );
 
+void propagateCR3BPAndFullDynamicsProblem(
+        const double initialTime,
+        const std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings,
+        const std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > > propagatorSettings,
+        const simulation_setup::NamedBodyMap& bodyMap,
+        const std::vector < std::string >& bodiesCR3BP,
+        std::map< double, Eigen::Vector6d >& directPropagationResult,
+        std::map< double, Eigen::Vector6d >& cr3bpPropagationResult,
+        std::map< double, Eigen::VectorXd >& dependentVariableValues );
+
 //! Propagate the CR3BP and the full dynamics problem
 /*!
  * Propagate the CR3BP and the full dynamics problem
