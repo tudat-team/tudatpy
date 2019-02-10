@@ -315,9 +315,20 @@ std::pair< std::function< Eigen::VectorXd( ) >, int > getVectorDependentVariable
                 std::bind( &linear_algebra::computeVectorDifference< 3 >, std::placeholders::_1, std::placeholders::_2 );
         std::function< Eigen::Vector3d( ) > firstInput =
                 std::bind( &simulation_setup::Body::getPosition, bodyMap.at( bodyWithProperty ) );
-        std::function< Eigen::Vector3d( ) > secondInput =
-                std::bind( &simulation_setup::Body::getPosition, bodyMap.at( secondaryBody ) );
 
+        std::function< Eigen::Vector3d( ) > secondInput;
+        if( secondaryBody != "SSB" )
+        {
+            secondInput = std::bind( &simulation_setup::Body::getPosition, bodyMap.at( secondaryBody ) );
+        }
+        else if( simulation_setup::getGlobalFrameOrigin( bodyMap ) == "SSB" )
+        {
+            secondInput = []( ){ return Eigen::Vector3d::Zero( ); };
+        }
+        else
+        {
+            throw std::runtime_error( "Error, requested state of " + bodyWithProperty + " w.r.t. SSB, but SSB is not frame origin" );
+        }
         variableFunction = std::bind(
                     &evaluateBivariateReferenceFunction< Eigen::Vector3d, Eigen::Vector3d >,
                     functionToEvaluate, firstInput, secondInput );
@@ -331,8 +342,20 @@ std::pair< std::function< Eigen::VectorXd( ) >, int > getVectorDependentVariable
                 std::bind( &linear_algebra::computeVectorDifference< 3 >, std::placeholders::_1, std::placeholders::_2 );
         std::function< Eigen::Vector3d( ) > firstInput =
                 std::bind( &simulation_setup::Body::getVelocity, bodyMap.at( bodyWithProperty ) );
-        std::function< Eigen::Vector3d( ) > secondInput =
-                std::bind( &simulation_setup::Body::getVelocity, bodyMap.at( secondaryBody ) );
+
+        std::function< Eigen::Vector3d( ) > secondInput;
+        if( secondaryBody != "SSB" )
+        {
+            secondInput = std::bind( &simulation_setup::Body::getVelocity, bodyMap.at( secondaryBody ) );
+        }
+        else if( simulation_setup::getGlobalFrameOrigin( bodyMap ) == "SSB" )
+        {
+            secondInput = []( ){ return Eigen::Vector3d::Zero( ); };
+        }
+        else
+        {
+            throw std::runtime_error( "Error, requested state of " + bodyWithProperty + " w.r.t. SSB, but SSB is not frame origin" );
+        }
 
         variableFunction = std::bind(
                     &evaluateBivariateReferenceFunction< Eigen::Vector3d, Eigen::Vector3d >,
@@ -1115,8 +1138,20 @@ std::function< double( ) > getDoubleDependentVariableFunction(
                     std::bind( &linear_algebra::computeNormOfVectorDifference, std::placeholders::_1, std::placeholders::_2 );
             std::function< Eigen::Vector3d( ) > firstInput =
                     std::bind( &simulation_setup::Body::getPosition, bodyMap.at( bodyWithProperty ) );
-            std::function< Eigen::Vector3d( ) > secondInput =
-                    std::bind( &simulation_setup::Body::getPosition, bodyMap.at( secondaryBody ) );
+
+            std::function< Eigen::Vector3d( ) > secondInput;
+            if( secondaryBody != "SSB" )
+            {
+                secondInput = std::bind( &simulation_setup::Body::getPosition, bodyMap.at( secondaryBody ) );
+            }
+            else if( simulation_setup::getGlobalFrameOrigin( bodyMap ) == "SSB" )
+            {
+                secondInput = []( ){ return Eigen::Vector3d::Zero( ); };
+            }
+            else
+            {
+                throw std::runtime_error( "Error, requested state of " + bodyWithProperty + " w.r.t. SSB, but SSB is not frame origin" );
+            }
 
             variableFunction = std::bind(
                         &evaluateBivariateReferenceFunction< double, Eigen::Vector3d >, functionToEvaluate, firstInput, secondInput );
@@ -1129,8 +1164,21 @@ std::function< double( ) > getDoubleDependentVariableFunction(
                     std::bind( &linear_algebra::computeNormOfVectorDifference, std::placeholders::_1, std::placeholders::_2 );
             std::function< Eigen::Vector3d( ) > firstInput =
                     std::bind( &simulation_setup::Body::getVelocity, bodyMap.at( bodyWithProperty ) );
-            std::function< Eigen::Vector3d( ) > secondInput =
-                    std::bind( &simulation_setup::Body::getVelocity, bodyMap.at( secondaryBody ) );
+
+            std::function< Eigen::Vector3d( ) > secondInput;
+            if( secondaryBody != "SSB" )
+            {
+                secondInput = std::bind( &simulation_setup::Body::getVelocity, bodyMap.at( secondaryBody ) );
+            }
+            else if( simulation_setup::getGlobalFrameOrigin( bodyMap ) == "SSB" )
+            {
+                secondInput = []( ){ return Eigen::Vector3d::Zero( ); };
+            }
+            else
+            {
+                throw std::runtime_error( "Error, requested state of " + bodyWithProperty + " w.r.t. SSB, but SSB is not frame origin" );
+            }
+
 
             variableFunction = std::bind(
                         &evaluateBivariateReferenceFunction< double, Eigen::Vector3d >, functionToEvaluate, firstInput, secondInput );
