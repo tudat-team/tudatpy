@@ -35,7 +35,7 @@ Eigen::Vector6d ApproximatePlanetPositions::getCartesianState(
     return orbital_element_conversions::
             convertKeplerianToCartesianElements(
                 getKeplerianStateFromEphemeris( secondsSinceEpoch ),
-                sunGravitationalParameter );
+                sunGravitationalParameter_ + planetGravitationalParameter_ );
 }
 
 //! Get keplerian state from ephemeris.
@@ -49,7 +49,7 @@ Eigen::Vector6d ApproximatePlanetPositions::getKeplerianStateFromEphemeris(
 
     // Set Julian date.
     julianDate_ = basic_astrodynamics::convertSecondsSinceEpochToJulianDay(
-                secondsSinceEpoch, referenceJulianDate_ );
+                secondsSinceEpoch, basic_astrodynamics::JULIAN_DAY_ON_J2000 );
 
     // Compute number of centuries past J2000.
     numberOfCenturiesPastJ2000_ = ( julianDate_ - 2451545.0 ) / 36525.0;

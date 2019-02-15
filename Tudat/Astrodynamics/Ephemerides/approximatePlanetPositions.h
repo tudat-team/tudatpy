@@ -47,15 +47,12 @@ public:
      * members are initialized to default values (NAN).
      *
      * \param bodyWithEphemerisData The body for which the position is approximated.
-     * \param aSunGravitationalParameter The gravitational parameter of the Sun [m^3/s^2].
-     * \param referenceJulianDate Reference julian day w.r.t. which ephemeris is evaluated.
+     * \param sunGravitationalParameter The gravitational parameter of the Sun [m^3/s^2].
      * \sa BodiesWithEphemerisData, ApproximatePlanetPositionsBase.
      */
     ApproximatePlanetPositions( BodiesWithEphemerisData bodyWithEphemerisData,
-                                const double aSunGravitationalParameter = 1.32712440018e20,
-                                const double referenceJulianDate = basic_astrodynamics::JULIAN_DAY_ON_J2000 )
-        : ApproximatePlanetPositionsBase( aSunGravitationalParameter ),
-          referenceJulianDate_( referenceJulianDate ),
+                                const double sunGravitationalParameter = 1.32712440018e20 )
+        : ApproximatePlanetPositionsBase( sunGravitationalParameter ),
           eccentricAnomalyAtGivenJulianDate_( TUDAT_NAN ),
           longitudeOfPerihelionAtGivenJulianDate_( TUDAT_NAN ),
           meanAnomalyAtGivenJulianDate_( TUDAT_NAN ),
@@ -65,10 +62,8 @@ public:
     }
 
     ApproximatePlanetPositions( const std::string& bodyName,
-                                const double aSunGravitationalParameter = 1.32712440018e20,
-                                const double referenceJulianDate = basic_astrodynamics::JULIAN_DAY_ON_J2000 )
-        : ApproximatePlanetPositionsBase( aSunGravitationalParameter ),
-          referenceJulianDate_( referenceJulianDate ),
+                                const double sunGravitationalParameter = 1.32712440018e20 )
+        : ApproximatePlanetPositionsBase( sunGravitationalParameter ),
           eccentricAnomalyAtGivenJulianDate_( TUDAT_NAN ),
           longitudeOfPerihelionAtGivenJulianDate_( TUDAT_NAN ),
           meanAnomalyAtGivenJulianDate_( TUDAT_NAN ),
@@ -100,8 +95,6 @@ public:
 protected:
 
 private:
-
-    double referenceJulianDate_;
 
     //! Eccentric anomaly at given Julian date.
     /*!

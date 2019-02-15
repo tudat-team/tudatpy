@@ -53,15 +53,13 @@ public:
      * members are initialized to default values.
      *
      * \param bodyWithEphemerisData The body for which the position is approximated.
-     * \param aSunGravitationalParameter The gravitational parameter of the Sun [m^3/s^2].
-     * \param referenceJulianDate Reference julian day w.r.t. which ephemeris is evaluated.
+     * \param sunGravitationalParameter The gravitational parameter of the Sun [m^3/s^2].
      * \sa BodiesWithEphemerisData, ApproximatePlanetPositionsBase.
      */
     ApproximatePlanetPositionsCircularCoplanar(
             BodiesWithEphemerisData bodyWithEphemerisData,
-            const double aSunGravitationalParameter = 1.32712440018e20,
-            const double referenceJulianDate = basic_astrodynamics::JULIAN_DAY_ON_J2000 )
-        : ApproximatePlanetPositionsBase( aSunGravitationalParameter ),
+            const double sunGravitationalParameter = 1.32712440018e20 )
+        : ApproximatePlanetPositionsBase( sunGravitationalParameter ),
           constantOrbitalRadius_( -0.0 )
     {
         setPlanet( bodyWithEphemerisData );
