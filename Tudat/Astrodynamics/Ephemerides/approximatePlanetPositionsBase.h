@@ -100,12 +100,13 @@ public:
      * Default constructor of the base class, initializes the gravitational parameter of the Sun to
      * the input value, and all other private base class members to default values.
      *
-     * \param aSunGravitationalParameter The gravitational parameter of the Sun [m^3/s^2].
+     * \param sunGravitationalParameter The gravitational parameter of the Sun [m^3/s^2].
      * \sa ApproximatePlanetPositions, ApproximatePlanetPositionsCircularCoplanar.
      */
-    ApproximatePlanetPositionsBase( const double aSunGravitationalParameter )
+    ApproximatePlanetPositionsBase( const double sunGravitationalParameter )
         : Ephemeris( "Sun", "ECLIPJ2000" ),
-          sunGravitationalParameter( aSunGravitationalParameter ),
+          sunGravitationalParameter_( sunGravitationalParameter ),
+          planetGravitationalParameter_( 0.0 ),
           julianDate_( -0.0 ),
           meanLongitudeAtGivenJulianDate_( -0.0 ),
           numberOfCenturiesPastJ2000_( -0.0 ),
@@ -144,7 +145,7 @@ public:
      *  Returns the gravitational parameter of the Sun that is used in the calculations.
      *  \return Gravitational parameter of the Sun.
      */
-    double getSunGravitationalParameter( ){ return sunGravitationalParameter; }
+    double getSunGravitationalParameter( ){ return sunGravitationalParameter_; }
 
 protected:
 
@@ -159,7 +160,9 @@ protected:
     /*!
      *  Gravitational parameter of the Sun.
      */
-    const double sunGravitationalParameter;
+    const double sunGravitationalParameter_;
+
+    double planetGravitationalParameter_;
 
     //! Julian date.
     /*!
@@ -209,6 +212,11 @@ private:
 
 //! Typedef for shared-pointer to ApproximatePlanetPositionsBase object.
 typedef std::shared_ptr< ApproximatePlanetPositionsBase > ApproximatePlanetPositionsBasePointer;
+
+double getApproximatePlanetGravitationalParameter( const ApproximatePlanetPositionsBase::BodiesWithEphemerisData bodyId  );
+
+double getApproximatePlanetGravitationalParameter( const std::string& bodyName );
+
 
 } // namespace ephemerides
 } // namespace tudat

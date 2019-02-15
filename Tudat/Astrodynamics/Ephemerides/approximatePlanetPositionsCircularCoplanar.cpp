@@ -63,7 +63,7 @@ getCartesianState( const double secondsSinceEpoch )
                                  meanLongitudeAtGivenJulianDate_ ) );
 
     // Compute orbital velocity.
-    double circularOrbitalVelocity = std::sqrt( sunGravitationalParameter /
+    double circularOrbitalVelocity = std::sqrt( ( sunGravitationalParameter_ + planetGravitationalParameter_ ) /
                                                 constantOrbitalRadius_ );
 
     // Convert to Cartesian velocity.
