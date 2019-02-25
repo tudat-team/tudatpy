@@ -38,6 +38,7 @@ set(EPHEMERIDES_HEADERS
   "${SRCROOT}${EPHEMERIDESDIR}/keplerStateExtractor.h"
   "${SRCROOT}${EPHEMERIDESDIR}/keplerEphemeris.h"
   "${SRCROOT}${EPHEMERIDESDIR}/rotationalEphemeris.h"
+  "${SRCROOT}${EPHEMERIDESDIR}/constantRotationalEphemeris.h"
   "${SRCROOT}${EPHEMERIDESDIR}/simpleRotationalEphemeris.h"
   "${SRCROOT}${EPHEMERIDESDIR}/tabulatedEphemeris.h"
   "${SRCROOT}${EPHEMERIDESDIR}/frameManager.h"

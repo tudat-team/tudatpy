@@ -31,7 +31,8 @@ static const std::map< std::string, double > defaultRadiatedPowerValues =
 //! List of radiation pressure model types.
 enum RadiationPressureType
 {
-    cannon_ball
+    cannon_ball_radiation_pressure_interface,
+    panelled_radiation_pressure_interface
 };
 
 //! Base class for radiation pressure interface settings.
@@ -108,7 +109,7 @@ public:
     CannonBallRadiationPressureInterfaceSettings(
             const std::string& sourceBody, const double area, const double radiationPressureCoefficient,
             const std::vector< std::string >& occultingBodies = std::vector< std::string >( ) ):
-        RadiationPressureInterfaceSettings( cannon_ball, sourceBody, occultingBodies ),
+        RadiationPressureInterfaceSettings( cannon_ball_radiation_pressure_interface, sourceBody, occultingBodies ),
         area_( area ), radiationPressureCoefficient_( radiationPressureCoefficient ){ }
 
     //! Function to return surface area that undergoes radiation pressure.
@@ -142,6 +143,59 @@ private:
     double radiationPressureCoefficient_;
 };
 
+class PanelledRadiationPressureInterfaceSettings: public RadiationPressureInterfaceSettings
+{
+public:
+
+    /*! Constructor
+     * Constructor
+     * \param sourceBody Name of body emitting the radiation.
+     * \param area Surface area that undergoes radiation pressure.
+     * \param radiationPressureCoefficient Radiation pressure coefficient.
+     * \param occultingBodies List of bodies causing (partial) occultation.
+     */
+    PanelledRadiationPressureInterfaceSettings(
+            const std::string& sourceBody,
+            const std::vector< double >& emmisivities,
+            const std::vector< double >& areas,
+            const std::vector< double >& diffusionCoefficients,
+            const std::vector< Eigen::Vector3d >& surfaceNormalsInBodyFixedFrame,
+            const std::vector< std::string >& occultingBodies = std::vector< std::string >( ) ):
+        RadiationPressureInterfaceSettings( panelled_radiation_pressure_interface, sourceBody, occultingBodies ),
+        emmisivities_( emmisivities ), areas_( areas ),  diffusionCoefficients_( diffusionCoefficients ),
+        surfaceNormalsInBodyFixedFrame_( surfaceNormalsInBodyFixedFrame ){ }
+
+    std::vector< double > getEmmisivities( )
+    {
+        return emmisivities_;
+    }
+
+    std::vector< double > getAreas( )
+    {
+        return areas_;
+    }
+
+    std::vector< double > getDiffusionCoefficients( )
+    {
+        return diffusionCoefficients_;
+    }
+
+    std::vector< Eigen::Vector3d > getSurfaceNormalsInBodyFixedFrame( )
+    {
+        return surfaceNormalsInBodyFixedFrame_;
+    }
+
+private:
+
+    std::vector< double > emmisivities_;
+
+    std::vector< double > areas_;
+
+    std::vector< double > diffusionCoefficients_;
+
+    std::vector< Eigen::Vector3d > surfaceNormalsInBodyFixedFrame_;
+
+};
 //! Function to obtain (by reference) the position functions and radii of occulting bodies
 /*!
  * Function to obtain (by reference) the position functions and radii of occulting bodies.
