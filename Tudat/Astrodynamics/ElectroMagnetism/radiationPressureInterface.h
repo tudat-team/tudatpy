@@ -17,6 +17,7 @@
 #include <functional>
 #include <boost/lambda/lambda.hpp>
 
+#include <Eigen/Geometry>
 #include <Eigen/Core>
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/physicalConstants.h"
@@ -87,13 +88,22 @@ public:
     //! Destructor
     virtual ~RadiationPressureInterface( ){ }
 
+    //! Base class function to update the current properties of radiation pressure
+    /*!
+     *  Base class function to update the current properties of radiation pressure. This function is nominally called by the
+     *  updateInterface function, which may be overridden by derived classes.
+     *  \param currentTime Time at which acceleration model is to be updated.
+     */
+    void updateInterfaceBase(
+            const double currentTime );
+
     //! Function to update the current value of the radiation pressure
     /*!
      *  Function to update the current value of the radiation pressure, based on functions returning
      *  the positions of the bodies involved and the source power.
-     * \param currentTime Time at which acceleration model is to be updated.
+     *  \param currentTime Time at which acceleration model is to be updated.
      */
-    void updateInterface( const double currentTime = TUDAT_NAN );
+    virtual void updateInterface( const double currentTime = TUDAT_NAN );
 
     //! Function to return the current radiation pressure due to source at target (in N/m^2).
     /*!
@@ -272,7 +282,108 @@ protected:
     double currentTime_;
 };
 
+class PanelledRadiationPressureInterface: public RadiationPressureInterface
+{
+public:
+
+    PanelledRadiationPressureInterface(
+            const std::function< double( ) > sourcePower,
+            const std::function< Eigen::Vector3d( ) > sourcePositionFunction,
+            const std::function< Eigen::Vector3d( ) > targetPositionFunction,
+            const std::vector< std::function< Eigen::Vector3d( ) > > localFrameSurfaceNormals,
+            const std::vector< double > emmisivities,
+            const std::vector< double > areas,
+            const std::vector< double > diffusionCoefficients,
+            const std::function< Eigen::Quaterniond( ) > rotationFromLocalToPropagationFrame,
+            const std::vector< std::function< Eigen::Vector3d( ) > > occultingBodyPositions =
+            std::vector< std::function< Eigen::Vector3d( ) > >( ),
+            const std::vector< double > occultingBodyRadii = std::vector< double > ( ),
+            const double sourceRadius = 0.0 ):
+        RadiationPressureInterface(
+            sourcePower, sourcePositionFunction, targetPositionFunction, TUDAT_NAN, TUDAT_NAN,
+            occultingBodyPositions, occultingBodyRadii, sourceRadius ),
+        localFrameSurfaceNormals_( localFrameSurfaceNormals ), emmisivities_( emmisivities ),
+        areas_( areas ), diffusionCoefficients_( diffusionCoefficients ),
+        rotationFromLocalToPropagationFrame_( rotationFromLocalToPropagationFrame )
+    {
+        surfaceNormalsInPropagationFrame_.resize( localFrameSurfaceNormals_.size( ) );
+    }
+
+    void updateInterface( const double currentTime = TUDAT_NAN )
+    {
+        updateInterfaceBase( currentTime );
+
+        Eigen::Quaterniond rotationToPropagationFrame = rotationFromLocalToPropagationFrame_( );
+        for( unsigned int i = 0; i < surfaceNormalsInPropagationFrame_.size( ); i++ )
+        {
+            surfaceNormalsInPropagationFrame_[ i ] =
+                    rotationToPropagationFrame * localFrameSurfaceNormals_.at( i )( );
+        }
+    }
+
+    std::vector< double > getEmmisivities( )
+    {
+        return emmisivities_;
+    }
+
+    std::vector< double > getAreas( )
+    {
+        return areas_;
+    }
+
+    std::vector< double > getDiffusionCoefficients( )
+    {
+        return diffusionCoefficients_;
+    }
+
+    double getArea( const int index ) const
+    {
+        return areas_[ index ];
+    }
+
+    double getEmmisivity( const int index ) const
+    {
+        return emmisivities_[ index ];
+    }
+
+    double getDiffuseReflectionCoefficient( const int index ) const
+    {
+        return diffusionCoefficients_[ index ];
+    }
+
+    Eigen::Vector3d getCurrentSurfaceNormal( const int index ) const
+    {
+        return surfaceNormalsInPropagationFrame_[ index ];
+    }
+
+    std::vector< Eigen::Vector3d > getSurfaceNormalsInPropagationFrame( )
+    {
+        return surfaceNormalsInPropagationFrame_;
+    }
+
+    int getNumberOfPanels( )
+    {
+        return surfaceNormalsInPropagationFrame_.size( );
+    }
+
+private:
+
+    std::vector< std::function< Eigen::Vector3d( ) > > localFrameSurfaceNormals_;
+
+    std::vector< double > emmisivities_;
+
+    std::vector< double > areas_;
+
+    std::vector< double > diffusionCoefficients_;
+
+    std::function< Eigen::Quaterniond( ) > rotationFromLocalToPropagationFrame_;
+
+    std::vector< Eigen::Vector3d > surfaceNormalsInPropagationFrame_;
+
+};
+
 } // namespace electro_magnetism
+
 } // namespace tudat
 
 #endif // TUDAT_RADIATIONPRESSUREINTERFACE_H
