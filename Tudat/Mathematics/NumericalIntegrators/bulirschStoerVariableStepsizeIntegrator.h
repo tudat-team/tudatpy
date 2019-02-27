@@ -302,6 +302,7 @@ public:
                 }
             }
         }
+
         if( !stepSuccessful )
         {
             if( safetyFactorForNextStepSize_ * errorScaleTerm < minimumFactorDecreaseForNextStepSize_ )
@@ -325,15 +326,17 @@ public:
             if( errorScaleTerm > maximumFactorIncreaseForNextStepSize_ )
             {
                 this->stepSize_ = stepSize * maximumFactorIncreaseForNextStepSize_;
-                if(  std::fabs( this->stepSize_ ) >=  std::fabs( maximumStepSize_ ) )
-                {
-                   this->stepSize_ = stepSize / ( std::fabs( stepSize ) ) * maximumStepSize_ ;
-                }
             }
             else
             {
                 this->stepSize_ = stepSize * errorScaleTerm;
             }
+
+            if(  std::fabs( this->stepSize_ ) >=  std::fabs( maximumStepSize_ ) )
+            {
+               this->stepSize_ = stepSize / ( std::fabs( stepSize ) ) * maximumStepSize_ ;
+            }
+
         }
 
 
