@@ -61,8 +61,7 @@ public:
      */
     NumericalIntegrator( const StateDerivativeFunction& stateDerivativeFunction ) :
         stateDerivativeFunction_( stateDerivativeFunction ),
-        propagationTerminationFunction_( [ = ]( const double, const double ){ return false; } ),
-        warningIsGiven_( false )
+        propagationTerminationFunction_( [ = ]( const double, const double ){ return false; } )
     { }
 
     //! Default virtual destructor.
@@ -213,11 +212,8 @@ public:
         TUDAT_UNUSED_PARAMETER( newState );
         TUDAT_UNUSED_PARAMETER( allowRollback );
 
-        if( !warningIsGiven_ )
-        {
-            std::cerr<< "Error in numerical integrator. The function to modify the current state has not been implemented in this integrator, do not use this integrator when requiring a normalization step (e.g. USM and rotational dynamics)"<<std::endl;
-            warningIsGiven_ = true;
-        }
+        throw std::runtime_error(
+                    "Error in numerical integrator. The function to modify the current state has not been implemented" );
     }
 
     //! Modify the state and time for the current step.
@@ -261,9 +257,6 @@ protected:
      *  checked during the integration subteps.
      */
     std::function< bool( const double, const double ) > propagationTerminationFunction_;
-
-    bool warningIsGiven_;
-
 };
 
 
