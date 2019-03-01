@@ -227,7 +227,8 @@ public:
      *  \param independentVariables Independent variables of force and moment coefficient
      *  determination implemented by derived class
      */
-    virtual void updateCurrentCoefficients( const std::vector< double >& independentVariables )
+    virtual void updateCurrentCoefficients( const std::vector< double >& independentVariables,
+                                            const double currentTime = TUDAT_NAN )
     {
         // Check if the correct number of aerodynamic coefficients is provided.
         if( independentVariables.size( ) != numberOfIndependentVariables_ )
