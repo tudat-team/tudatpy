@@ -128,6 +128,8 @@ public:
         coefficientInterpolator_ = std::make_shared< interpolators::PiecewiseConstantInterpolator< double, Eigen::Vector6d > >(
                     timeLimits_, fullAerodynamicCoefficients_ );
 
+        setCoefficientInterfaceClosure( );
+
 //        typedef interpolators::OneDimensionalInterpolator< double, double > LocalInterpolator;
 //        coefficientInterface->resetDragCoefficientFunction(
 //                    std::bind(
