@@ -196,6 +196,11 @@ public:
         return coefficientInterpolator_->getLookUpScheme( );
     }
 
+    int getNumberOfArcs( )
+    {
+        return dragCoefficients_.size( );
+    }
+
 protected:
 
 private:
