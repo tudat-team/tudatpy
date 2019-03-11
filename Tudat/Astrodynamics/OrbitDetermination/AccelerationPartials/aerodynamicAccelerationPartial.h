@@ -220,7 +220,7 @@ public:
         std::function< void( Eigen::MatrixXd& ) > partialFunction;
         int numberOfColumns = 0;
 
-        if( parameter->getParameterName( ).first ==  estimatable_parameters::constant_drag_coefficient )
+        if( parameter->getParameterName( ).first ==  estimatable_parameters::arc_wise_constant_drag_coefficient )
         {
             // Check if parameter body is accelerated body,
             if( parameter->getParameterName( ).second.first == acceleratedBody_ )
@@ -232,6 +232,7 @@ public:
                                 this, std::placeholders::_1,
                                 std::dynamic_pointer_cast< estimatable_parameters::ArcWiseConstantDragCoefficient >( parameter ) );
                     numberOfColumns = parameter->getParameterSize( );
+
                 }
                 else
                 {
@@ -290,7 +291,7 @@ protected:
         }
 
         // Set partial
-        partial.setZero( );
+        partial.setZero( 3, parameter->getNumberOfArcs( ) );
         partial.block( 0, currentArc, 3, 1 ) = partialWrtSingleParameter;
     }
 
