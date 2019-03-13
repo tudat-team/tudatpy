@@ -99,7 +99,7 @@ public:
     //! Constructor.
     /*!
      * Constructor
-     * \param DragInterface Object containing the drag coefficient to be estimated.
+     * \param coefficientInterface Object containing the drag coefficient to be estimated.
      * \param timeLimits Times at which the arcs are to start.
      * \param associatedBody Name of body containing the coefficientInterface object
      */
@@ -129,31 +129,25 @@ public:
                     timeLimits_, fullAerodynamicCoefficients_ );
 
         setCoefficientInterfaceClosure( );
-
-//        typedef interpolators::OneDimensionalInterpolator< double, double > LocalInterpolator;
-//        coefficientInterface->resetDragCoefficientFunction(
-//                    std::bind(
-//                        static_cast< double( LocalInterpolator::* )( const double ) >
-//                        ( &LocalInterpolator::interpolate ), coefficientInterpolator_, std::placeholders::_1 ) );
     }
 
     //! Destructor.
     ~ArcWiseConstantDragCoefficient( ) { }
 
-    //! Function to get the current value of the drag coefficient that is to be estimated.
+    //! Function to get the current value of the arc-wise drag coefficient that is to be estimated.
     /*!
-     * Function to get the current value of the drag coefficient that is to be estimated.
-     * \return Current value of the drag coefficient that is to be estimated.
+     * Function to get the current value of the arc-wise drag coefficient that is to be estimated.
+     * \return Current value of the arc-wise drag coefficients that is to be estimated.
      */
     Eigen::VectorXd getParameterValue( )
     {
         return utilities::convertStlVectorToEigenVector( dragCoefficients_ );
     }
 
-    //! Function to reset the value of the drag coefficient that is to be estimated.
+    //! Function to reset the value of the arc-wise drag coefficient that is to be estimated.
     /*!
-     * Function to reset the value of the drag coefficient that is to be estimated.
-     * \param parameterValue New value of the drag coefficient that is to be estimated.
+     * Function to reset the value of the arc-wise drag coefficient that is to be estimated.
+     * \param parameterValue New value of the arc-wise drag coefficient that is to be estimated.
      */
     void setParameterValue( Eigen::VectorXd parameterValue )
     {

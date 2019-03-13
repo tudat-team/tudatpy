@@ -220,6 +220,7 @@ public:
         std::function< void( Eigen::MatrixXd& ) > partialFunction;
         int numberOfColumns = 0;
 
+        // Check if parameter is arc-wise constant drag coefficient
         if( parameter->getParameterName( ).first ==  estimatable_parameters::arc_wise_constant_drag_coefficient )
         {
             // Check if parameter body is accelerated body,
@@ -257,6 +258,10 @@ public:
 protected:
 
     //! Function to compute the partial derivative of the acceleration w.r.t. the drag coefficient
+    /*!
+     * Function to compute the partial derivative of the acceleration w.r.t. the drag coefficient
+     * \param accelerationPartial Derivative of acceleration w.r.t. drag coefficient (returned by reference).
+     */
     void computeAccelerationPartialWrtCurrentDragCoefficient( Eigen::MatrixXd& accelerationPartial )
     {
         Eigen::Quaterniond rotationToInertialFrame =
@@ -272,11 +277,16 @@ protected:
 
     }
 
+    //! Function to compute the partial derivative of the acceleration w.r.t. the arc-wise constant drag coefficient
+    /*!
+     * Function to compute the partial derivative of the acceleration w.r.t. the arc-wise constant drag coefficient
+     * \param accelerationPartial Derivative of acceleration w.r.t. arc-wise constant drag coefficient (returned by reference).
+     */
     void computeAccelerationPartialWrtArcwiseDragCoefficient(
             Eigen::MatrixXd& partial,
             const std::shared_ptr< estimatable_parameters::ArcWiseConstantDragCoefficient > parameter )
     {
-        // Get partial w.r.t. radiation pressure coefficient
+        // Get partial w.r.t. rdrag coefficient
         Eigen::MatrixXd partialWrtSingleParameter = Eigen::Vector3d::Zero( );
         this->computeAccelerationPartialWrtCurrentDragCoefficient( partialWrtSingleParameter );
 

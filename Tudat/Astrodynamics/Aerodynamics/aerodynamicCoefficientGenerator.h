@@ -226,6 +226,7 @@ public:
      *  numberOfIndependentVariables_
      *  \param independentVariables Independent variables of force and moment coefficient
      *  determination implemented by derived class
+     *  \param currentTime Time to which coefficients are to be updated (not used in this derived class).
      */
     virtual void updateCurrentCoefficients( const std::vector< double >& independentVariables,
                                             const double currentTime = TUDAT_NAN )
