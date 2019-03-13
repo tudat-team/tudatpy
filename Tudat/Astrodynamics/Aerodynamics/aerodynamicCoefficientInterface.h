@@ -128,6 +128,7 @@ public:
      *  (doubles) which represent the variables from which the coefficients are calculated
      *  \param independentVariables Independent variables of force and moment coefficient
      *  determination implemented by derived class
+     *  \param currentTime Time to which coefficients are to be updated
      */
     virtual void updateCurrentCoefficients(
             const std::vector< double >& independentVariables,
