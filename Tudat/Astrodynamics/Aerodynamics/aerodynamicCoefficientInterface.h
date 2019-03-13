@@ -128,9 +128,11 @@ public:
      *  (doubles) which represent the variables from which the coefficients are calculated
      *  \param independentVariables Independent variables of force and moment coefficient
      *  determination implemented by derived class
+     *  \param currentTime Time to which coefficients are to be updated
      */
     virtual void updateCurrentCoefficients(
-            const std::vector< double >& independentVariables ) = 0;
+            const std::vector< double >& independentVariables,
+            const double currentTime = TUDAT_NAN ) = 0;
 
     //! Compute the aerodynamic coefficients for a single control surface, and add to full configuration coefficients.
     /*!
@@ -168,9 +170,10 @@ public:
     void updateFullCurrentCoefficients(
             const std::vector< double >& independentVariables,
             const std::map< std::string, std::vector< double > >& controlSurfaceIndependentVariables =
-            std::map< std::string, std::vector< double > > ( ) )
+            std::map< std::string, std::vector< double > > ( ),
+            const double currentTime = TUDAT_NAN )
     {
-        updateCurrentCoefficients( independentVariables );
+        updateCurrentCoefficients( independentVariables, currentTime );
 
         for( std::map< std::string, std::vector< double > >::const_iterator controlSurfaceIterator =
              controlSurfaceIndependentVariables.begin( ); controlSurfaceIterator != controlSurfaceIndependentVariables.end( );

@@ -42,6 +42,9 @@ std::string getParameterTypeString( const EstimatebleParametersEnum parameterTyp
     case arc_wise_radiation_pressure_coefficient:
         parameterDescription = "arc-wise radiation pressure coefficient ";
         break;
+    case arc_wise_constant_drag_coefficient:
+        parameterDescription = "arc-wise drag coefficient ";
+        break;
     case spherical_harmonics_cosine_coefficient_block:
         parameterDescription = "cosine spherical harmonic coefficient block ";
         break;
@@ -142,6 +145,9 @@ bool isDoubleParameter( const EstimatebleParametersEnum parameterType )
         isDoubleParameter = true;
         break;
     case arc_wise_radiation_pressure_coefficient:
+        isDoubleParameter = false;
+        break;
+    case arc_wise_constant_drag_coefficient:
         isDoubleParameter = false;
         break;
     case spherical_harmonics_cosine_coefficient_block:

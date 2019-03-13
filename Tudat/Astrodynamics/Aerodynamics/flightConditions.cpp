@@ -142,7 +142,8 @@ void AtmosphericFlightConditions::updateConditions( const double currentTime )
 
         // Update aerodynamic coefficients.
         aerodynamicCoefficientInterface_->updateFullCurrentCoefficients(
-                    aerodynamicCoefficientIndependentVariables_, controlSurfaceAerodynamicCoefficientIndependentVariables_ );
+                    aerodynamicCoefficientIndependentVariables_, controlSurfaceAerodynamicCoefficientIndependentVariables_,
+                    currentTime_ );
     }
 }
 

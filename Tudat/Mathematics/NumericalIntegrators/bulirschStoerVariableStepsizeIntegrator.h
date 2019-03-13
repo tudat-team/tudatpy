@@ -386,6 +386,15 @@ public:
         return lastState_;
     }
 
+    void modifyCurrentState( const StateType& newState, const bool allowRollback = false )
+    {
+        currentState_ = newState;
+        if ( !allowRollback )
+        {
+            this->lastIndependentVariable_ = currentIndependentVariable_;
+        }
+    }
+
 private:
 
     //! Last used step size.
