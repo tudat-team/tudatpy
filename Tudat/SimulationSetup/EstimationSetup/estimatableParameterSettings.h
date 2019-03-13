@@ -486,6 +486,7 @@ public:
 
 };
 
+//! Class to define settings for estimating time-dependent (arcwise constant) drag coefficients
 class ArcWiseDragCoefficientEstimatableParameterSettings: public EstimatableParameterSettings
 {
 public:

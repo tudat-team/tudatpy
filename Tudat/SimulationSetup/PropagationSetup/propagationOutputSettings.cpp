@@ -197,6 +197,9 @@ std::string getDependentVariableName( const PropagationDependentVariables propag
     case current_body_mass_dependent_variable:
         variableName = "Current body mass ";
         break;
+    case radiation_pressure_coefficient_dependent_variable:
+        variableName = "Radiation pressure coefficient ";
+        break;
     default:
         std::string errorMessage = "Error, dependent variable " +
                 std::to_string( propagationDependentVariables ) +
