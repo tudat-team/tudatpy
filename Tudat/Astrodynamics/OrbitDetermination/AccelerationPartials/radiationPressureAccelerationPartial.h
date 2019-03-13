@@ -143,7 +143,7 @@ public:
         }
     }
 
-    //! Function for determining if the acceleration is dependent on a non-translational integrated state.
+    //! Function for determining if the azcceleration is dependent on a non-translational integrated state.
     /*!
      *  Function for determining if the acceleration is dependent on a non-translational integrated state.
      *  \param stateReferencePoint Reference point id of propagated state

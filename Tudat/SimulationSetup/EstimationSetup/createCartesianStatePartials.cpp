@@ -241,6 +241,8 @@ std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartia
                     break;
                 case estimatable_parameters::arc_wise_radiation_pressure_coefficient:
                     break;
+                case estimatable_parameters::arc_wise_constant_drag_coefficient:
+                    break;
                 case estimatable_parameters::ground_station_position:
 
                     // Check if current link end station is same station as that of which position is to be estimated.

@@ -597,6 +597,44 @@ std::shared_ptr< EstimatableParameter< Eigen::VectorXd > > createVectorParameter
             }
             break;
         }
+        case arc_wise_constant_drag_coefficient:
+        {
+            // Check input consistency
+            std::shared_ptr< ArcWiseDragCoefficientEstimatableParameterSettings > dragCoefficientSettings =
+                    std::dynamic_pointer_cast< ArcWiseDragCoefficientEstimatableParameterSettings >( vectorParameterName );
+            if( dragCoefficientSettings == nullptr )
+            {
+                throw std::runtime_error(
+                            "Error when trying to make arc-wise radiation pressure coefficients parameter, settings type inconsistent" );
+            }
+            else
+            {
+                if( currentBody->getAerodynamicCoefficientInterface( ) == nullptr )
+                {
+                    std::string errorMessage = "Error, no aerodynamic coefficient interfaces found in body " +
+                            currentBodyName + " when making arcwise Cd parameter.";
+                    throw std::runtime_error( errorMessage );
+                }
+                else if( std::dynamic_pointer_cast< aerodynamics::CustomAerodynamicCoefficientInterface >(
+                             currentBody->getAerodynamicCoefficientInterface( ) ) == nullptr )
+                {
+                    std::string errorMessage = "Error, incompatible aerodynamic coefficient interfaces found in body " +
+                            currentBodyName + " when making arcwise Cd parameter.";
+                    throw std::runtime_error( errorMessage );
+                }
+                else
+                {
+                    vectorParameterToEstimate = std::make_shared< ArcWiseConstantDragCoefficient >(
+                                std::dynamic_pointer_cast< aerodynamics::CustomAerodynamicCoefficientInterface >(
+                                                             currentBody->getAerodynamicCoefficientInterface( ) ),
+                                dragCoefficientSettings->arcStartTimeList_,
+                                currentBodyName );
+                }
+                break;
+            }
+            break;
+
+        }
         case arc_wise_empirical_acceleration_coefficients:
         {
             // Check input consistency
