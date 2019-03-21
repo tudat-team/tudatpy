@@ -1506,6 +1506,18 @@ std::function< double( ) > getDoubleDependentVariableFunction(
                         &simulation_setup::Body::getBodyMass, bodyMap.at( bodyWithProperty ) );
             break;
         }
+        case radiation_pressure_coefficient_dependent_variable:
+        {
+            if( bodyMap.at( bodyWithProperty )->getRadiationPressureInterfaces( ).count( secondaryBody ) == 0 )
+            {
+                std::string errorMessage = "Error, no radiation pressure interfaces when requesting radiation pressure output of " +
+                        bodyWithProperty + "w.r.t." + secondaryBody;
+                throw std::runtime_error( errorMessage );
+            }
+            variableFunction = std::bind( &electro_magnetism::RadiationPressureInterface::getRadiationPressureCoefficient,
+                                            bodyMap.at( bodyWithProperty )->getRadiationPressureInterfaces( ).at( secondaryBody ) );
+            break;
+        }
         default:
             std::string errorMessage =
                     "Error, did not recognize double dependent variable type when making variable function: " +
