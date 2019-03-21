@@ -786,6 +786,9 @@ std::vector< std::string > > createEnvironmentUpdaterSettingsForDependentVariabl
     case current_body_mass_dependent_variable:
         variablesToUpdate[ body_mass_update ].push_back( dependentVariableSaveSettings->associatedBody_ );
         break;
+    case radiation_pressure_coefficient_dependent_variable:
+        variablesToUpdate[ radiation_pressure_interface_update ].push_back( dependentVariableSaveSettings->associatedBody_ );
+        break;
     default:
         throw std::runtime_error( "Error when getting environment updates for dependent variables, parameter " +
                                   std::to_string( dependentVariableSaveSettings->dependentVariableType_ ) + " not found." );

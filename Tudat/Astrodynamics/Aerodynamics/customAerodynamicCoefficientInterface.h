@@ -135,8 +135,10 @@ public:
      *  numberOfIndependentVariables_
      *  \param independentVariables Independent variables of force and moment coefficient
      *  determination implemented by derived class
+     *  \param currentTime Time to which coefficients are to be updated (used in the case of arc-wise constant coefficients).
      */
-    virtual void updateCurrentCoefficients( const std::vector< double >& independentVariables )
+    virtual void updateCurrentCoefficients( const std::vector< double >& independentVariables,
+                                            const double currentTime = TUDAT_NAN )
     {
         // Check if the correct number of aerodynamic coefficients is provided.
         if( independentVariables.size( ) != numberOfIndependentVariables_ )
@@ -148,6 +150,11 @@ public:
         }
 
         // Update current coefficients.
+        if( timeUpdateFunction_ !=  nullptr )
+        {
+            timeUpdateFunction_( currentTime );
+        }
+
         Eigen::Vector6d currentCoefficients = coefficientFunction_(
                     independentVariables );
         currentForceCoefficients_ = currentCoefficients.segment( 0, 3 );
@@ -188,13 +195,27 @@ public:
        return coefficientFunction_( std::vector< double >( ) );
    }
 
+   //! Function to perform the closure for time-varying (arc-wise constant) coefficients
+   /*!
+    * Function to perform the closure for time-varying (arc-wise constant) coefficients
+    * \param coefficientFunction Function that returns the coefficients for the current arc
+    * \param timeUpdateFunction Function that sets the coefficients for the current arc (in an external class/function)
+    */
+   void setTimeDependentCoefficientClosure(
+           std::function< Eigen::Vector6d( ) > coefficientFunction,
+           std::function< void( const double ) > timeUpdateFunction )
+   {
+        coefficientFunction_ = [ = ]( const std::vector< double >& ){ return coefficientFunction( ); };
+        timeUpdateFunction_ = timeUpdateFunction;
+   }
 
 private:
 
-    //! Function returning the concatenated aerodynamic force and moment coefficients as function of
-    //! the set of independent variables.
-    std::function< Eigen::Vector6d( const std::vector< double >& ) >
-    coefficientFunction_;
+    //! Function returning the concatenated aerodynamic force and moment coefficients as function of the set of independent variables.
+    std::function< Eigen::Vector6d( const std::vector< double >& ) > coefficientFunction_;
+
+    //! Function that sets the coefficients for the current arc (in an external class/function)
+    std::function< void( const double ) > timeUpdateFunction_ =  nullptr;
 
 };
 

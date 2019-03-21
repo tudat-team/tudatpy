@@ -486,6 +486,29 @@ public:
 
 };
 
+//! Class to define settings for estimating time-dependent (arcwise constant) drag coefficients
+class ArcWiseDragCoefficientEstimatableParameterSettings: public EstimatableParameterSettings
+{
+public:
+
+    //! Constructor
+    /*!
+     * Constructor
+     * \param associatedBody Name of body undergoing acceleration
+     * \param arcStartTimeList List of times at which drag coefficient arcs are to start
+     */
+    ArcWiseDragCoefficientEstimatableParameterSettings(
+            const std::string associatedBody,
+            const std::vector< double > arcStartTimeList):
+        EstimatableParameterSettings( associatedBody, arc_wise_constant_drag_coefficient ),
+        arcStartTimeList_( arcStartTimeList ){ }
+
+    //! List of times at which drag coefficient arcs are to start
+    std::vector< double > arcStartTimeList_;
+
+
+};
+
 //! Class to define settings for estimating a Tidal Love number (k_{n}) at a single degree that is constant for all orders
 /*!
  *  Class to define settings for estimating a Tidal Love number (k_{n}) at a single degree that is constant for all orders.
