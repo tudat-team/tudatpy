@@ -24,6 +24,7 @@ set(EPHEMERIDES_SOURCES
   "${SRCROOT}${EPHEMERIDESDIR}/frameManager.cpp"
   "${SRCROOT}${EPHEMERIDESDIR}/compositeEphemeris.cpp"
   "${SRCROOT}${EPHEMERIDESDIR}/tabulatedRotationalEphemeris.cpp"
+  "${SRCROOT}${EPHEMERIDESDIR}/fullPlanetaryRotationModel.cpp"
 )
 
 # Set the header files.
@@ -47,6 +48,7 @@ set(EPHEMERIDES_HEADERS
   "${SRCROOT}${EPHEMERIDESDIR}/constantRotationalEphemeris.h"
   "${SRCROOT}${EPHEMERIDESDIR}/multiArcEphemeris.h"
   "${SRCROOT}${EPHEMERIDESDIR}/tabulatedRotationalEphemeris.h"
+  "${SRCROOT}${EPHEMERIDESDIR}/fullPlanetaryRotationModel.h"
 )
 
 # Add static libraries.
@@ -102,3 +104,7 @@ add_executable(test_GcrsToItrsRotation "${SRCROOT}${EPHEMERIDESDIR}/UnitTests/un
 setup_custom_test_program(test_GcrsToItrsRotation "${SRCROOT}${EPHEMERIDESDIR}")
 target_link_libraries(test_GcrsToItrsRotation tudat_ephemerides tudat_spice_interface tudat_reference_frames tudat_earth_orientation tudat_sofa_interface tudat_basic_astrodynamics tudat_basic_mathematics tudat_input_output cspice sofa ${Boost_LIBRARIES})
 endif( )
+
+add_executable(test_PlanetaryRotationModel "${SRCROOT}${EPHEMERIDESDIR}/UnitTests/unitTestPlanetaryRotationModel.cpp")
+setup_custom_test_program(test_PlanetaryRotationModel "${SRCROOT}${EPHEMERIDESDIR}")
+target_link_libraries(test_PlanetaryRotationModel ${TUDAT_PROPAGATION_LIBRARIES} ${Boost_LIBRARIES})
