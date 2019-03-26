@@ -62,7 +62,7 @@ public:
     /*!
      *  Constructor taking class calculating earth orientation angles directly
      *  \param anglesCalculator Class performing calculation to obtain earth orientation angle.
-     *  \param timeScale Time scale in which input to this class (in getRotationToBaseFrame, getDerivativeOfRotationFromFrame) is provided,
+     *  \param timeScale Time scale in which input to this class (in getRotationToBaseFrame, getDerivativeOfRotationToBaseFrame) is provided,
      *  needed for correct input to EarthOrientationAnglesCalculator::getRotationAnglesFromItrsToGcrs.
      */
     GcrsToItrsRotationModel( const std::shared_ptr< earth_orientation::EarthOrientationAnglesCalculator > anglesCalculator,
