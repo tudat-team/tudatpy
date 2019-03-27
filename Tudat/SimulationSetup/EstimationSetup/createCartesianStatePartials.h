@@ -313,14 +313,11 @@ createPositionObservablePartials(
     // Iterate over list of bodies of which the partials of the accelerations acting on them are required.
     for( unsigned int i = 0; i < initialDynamicalParameters.size( ); i++ )
     {
-        if( std::dynamic_pointer_cast< estimatable_parameters::InitialTranslationalStateParameter< ParameterType > >(
-                    initialDynamicalParameters.at( i ) ) != nullptr )
+        if( initialDynamicalParameters.at( i )->getParameterName( ).first == estimatable_parameters::initial_body_state ||
+                initialDynamicalParameters.at( i )->getParameterName( ).first == estimatable_parameters::arc_wise_initial_body_state )
         {
-
             // Retrieve name of body w.r.t. position of which partial is to be taken.
-            std::string acceleratedBody = std::dynamic_pointer_cast<
-                    estimatable_parameters::InitialTranslationalStateParameter< ParameterType > >(
-                        initialDynamicalParameters.at( i ) )->getParameterName( ).second.first;
+            std::string acceleratedBody = initialDynamicalParameters.at( i )->getParameterName( ).second.first;
 
             // Create partial (if needed)
             std::shared_ptr< PositionObervationPartial > currentObservablePartial =
