@@ -147,6 +147,8 @@ public:
      */
     double getSunGravitationalParameter( ){ return sunGravitationalParameter_; }
 
+    double getPlanetGravitationalParameter( ){ return planetGravitationalParameter_; }
+
 protected:
 
     //! Set planet.
