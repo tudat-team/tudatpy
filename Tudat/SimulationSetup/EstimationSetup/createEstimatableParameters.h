@@ -359,10 +359,6 @@ void setInitialStateVectorFromParameterSet(
         const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< InitialStateParameterType > > estimatableParameters,
         const std::shared_ptr< propagators::PropagatorSettings< InitialStateParameterType > > propagatorSettings )
 {
-
-//    std::cout<<"Initial states pre "<<propagatorSettings->getInitialStates( ).transpose( )<<std::endl<<std::endl;
-//    std::cout<<"Parameters pre "<<estimatableParameters->template getFullParameterValues< double >( ).transpose( )<<std::endl<<std::endl<<std::endl;
-
     typedef Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > VectorType;
 
     // Retrieve initial dynamical parameters.
@@ -420,9 +416,6 @@ void setInitialStateVectorFromParameterSet(
                     }
 
                     currentArcInitialStates[ propagators::translational_state ][ bodyIdentifier ] = currentParameterValue.segment( i * 6, 6 );
-//                    std::cout<<"Setting state "<<j<<" "<<std::endl<<
-//                                currentParameterValue.segment( j * 6, 6 ).transpose( )<<std::endl;
-
                     break;
                 }
                 default:
@@ -432,11 +425,31 @@ void setInitialStateVectorFromParameterSet(
             propagators::resetSingleArcInitialStates( singleArcSettings.at( i ), currentArcInitialStates );
             multiArcSettings->updateInitialStateFromConsituentSettings( );
         }
+    }
+    else if( std::dynamic_pointer_cast< propagators::HybridArcPropagatorSettings< InitialStateParameterType > >( propagatorSettings ) )
+    {
+        std::shared_ptr< propagators::HybridArcPropagatorSettings< InitialStateParameterType > > hybridArcSettings =
+                std::dynamic_pointer_cast< propagators::HybridArcPropagatorSettings< InitialStateParameterType > >( propagatorSettings );
+
+        std::shared_ptr< propagators::SingleArcPropagatorSettings< InitialStateParameterType > > singleArcSettings =
+                hybridArcSettings->getSingleArcPropagatorSettings( );
+        std::shared_ptr< propagators::MultiArcPropagatorSettings< InitialStateParameterType > > multiArcSettings =
+                hybridArcSettings->getMultiArcPropagatorSettings( );
+
+        setInitialStateVectorFromParameterSet< InitialStateParameterType >(
+                    std::make_shared< estimatable_parameters::EstimatableParameterSet< InitialStateParameterType > >(
+                        std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > >( ),
+                        std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > >( ),
+                    estimatableParameters->getEstimatedSingleArcInitialStateParameters( ) ), singleArcSettings );
+        setInitialStateVectorFromParameterSet< InitialStateParameterType >(
+                    std::make_shared< estimatable_parameters::EstimatableParameterSet< InitialStateParameterType > >(
+                        std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > >( ),
+                        std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > >( ),
+                    estimatableParameters->getEstimatedMultiArcInitialStateParameters( ) ), multiArcSettings );
+
+        hybridArcSettings->setInitialStatesFromConstituents( );
 
     }
-
-//    std::cout<<"Initial states post "<<propagatorSettings->getInitialStates( ).transpose( )<<std::endl<<std::endl;
-//    std::cout<<"Parameters post "<<estimatableParameters->template getFullParameterValues< double >( ).transpose( )<<std::endl<<std::endl<<std::endl;
 
 }
 
