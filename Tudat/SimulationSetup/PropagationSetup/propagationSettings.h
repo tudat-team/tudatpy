@@ -1815,12 +1815,6 @@ void resetSingleArcInitialStates(
     default:
         throw std::runtime_error( "Error, did not recognize state type " + std::to_string( propagatorSettings->getStateType( ) ) +
                                   " when resetting initial states from parameter data " );
-//    case hybrid:
-//        std::shared_ptr< MultiTypePropagatorSettings< StateScalarType > > multiTypePropagatorSettings =
-//                std::dynamic_pointer_cast< MultiTypePropagatorSettings< StateScalarType > >( propagatorSettings );
-
-////        std::map< IntegratedStateType, std::vector< std::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > > >  multiTypePropagatorSettings->propagatorSettingsMap_
-//        break;
     }
 
 }
