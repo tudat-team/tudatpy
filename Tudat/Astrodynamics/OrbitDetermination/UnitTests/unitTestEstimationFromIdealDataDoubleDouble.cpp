@@ -30,7 +30,7 @@ BOOST_AUTO_TEST_SUITE( test_estimation_from_positions )
 //! when simulating data, perturbing the dynamical parameters, and then retrieving the original parameters
 BOOST_AUTO_TEST_CASE( test_EstimationFromPosition )
 {
-    for( int simulationType = 0; simulationType < 5; simulationType++ )
+    for( int simulationType = 0; simulationType < 6; simulationType++ )
     {
 
         std::cout << "=============================================== Running Case: " << simulationType << std::endl;
