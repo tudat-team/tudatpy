@@ -20,6 +20,7 @@
 #include "Tudat/Astrodynamics/Propagators/environmentUpdateTypes.h"
 #include "Tudat/Astrodynamics/Propulsion/thrustGuidance.h"
 #include "Tudat/Astrodynamics/Propulsion/thrustMagnitudeWrapper.h"
+#include "Tudat/Mathematics/Interpolators/lookupScheme.h"
 
 namespace tudat
 {
@@ -254,6 +255,89 @@ protected:
      *  list is included here to account for versatility of dependencies of thrust model (guidance) algorithms.
      */
     std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > requiredModelUpdates_;
+
+};
+
+class MomentumWheelDesaturationThrust : public basic_astrodynamics::AccelerationModel< Eigen::Vector3d >
+{
+public:
+
+    MomentumWheelDesaturationThrust(
+            const std::vector< double > thrustMidTimes,
+            const std::vector< Eigen::Vector3d > deltaVValuesInRtwFrame,
+            const double totalManeuverTime,
+            const double maneuverRiseTime ):
+        basic_astrodynamics::AccelerationModel< Eigen::Vector3d >( ),
+    thrustMidTimes_( thrustMidTimes ),
+    deltaVValuesInRtwFrame_( deltaVValuesInRtwFrame ),
+    totalManeuverTime_( totalManeuverTime ),
+    maneuverRiseTime_( maneuverRiseTime ){ }
+
+    void updateMembers( const double currentTime = TUDAT_NAN )
+    {
+        // Check if update is needed
+        if( !( currentTime_ == currentTime ) )
+        {
+            int nearestTimeIndex = timeLookUpScheme_->findNearestLowerNeighbour( currentTime );
+            double currentThrustMidTime = thrustMidTimes_.at( nearestTimeIndex );
+
+            if( std::fabs( currentTime - currentThrustMidTime ) < 0.5 * totalManeuverTime_ )
+            {
+                if( std::fabs( currentTime - currentThrustMidTime ) < 0.5 * totalManeuverTime_ - maneuverRiseTime_ )
+                {
+                    currentAcceleration_ = accelerationValuesInRtwFrame_.at( nearestTimeIndex );
+                }
+                else if( currentTime < currentThrustMidTime )
+                {
+                    double timeSinceManeuverStart = currentTime - currentThrustMidTime + 0.5 * totalManeuverTime_;
+
+                    currentAcceleration_ = timeSinceManeuverStart * timeSinceManeuverStart * (
+                                polynomialTerms_.at( nearestTimeIndex ).first +
+                                timeSinceManeuverStart * polynomialTerms_.at( nearestTimeIndex ).second );
+
+                }
+                else
+                {
+                    double timeToManeuverEnd = currentTime - currentThrustMidTime - 0.5 * totalManeuverTime_;
+
+                    currentAcceleration_ = timeToManeuverEnd * timeToManeuverEnd * (
+                                polynomialTerms_.at( nearestTimeIndex ).first +
+                                timeToManeuverEnd * polynomialTerms_.at( nearestTimeIndex ).second );
+                }
+            }
+            else
+            {
+                currentAcceleration_.setZero( );
+            }
+
+
+            // Reset current time.
+            currentTime_ = currentTime;
+
+        }
+
+    }
+
+private:
+
+   std::vector< double > thrustMidTimes_;
+
+   std::vector< Eigen::Vector3d > deltaVValuesInRtwFrame_;
+
+   double totalManeuverTime_;
+
+   double maneuverRiseTime_;
+
+
+   std::vector< Eigen::Vector3d > accelerationValuesInRtwFrame_;
+
+   std::vector< std::pair< double, double > > polynomialTerms_;
+
+   std::shared_ptr< interpolators::LookUpScheme< double > > timeLookUpScheme_;
+
+
+
+    Eigen::Vector3d currentAcceleration_;
 
 };
 

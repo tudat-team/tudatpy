@@ -1178,6 +1178,28 @@ std::shared_ptr< gravitation::DirectTidalDissipationAcceleration > createDirectT
     }
 }
 
+
+std::shared_ptr< propulsion::MomentumWheelDesaturationThrust > createMomentumWheelDesaturationAcceleration(
+        const std::shared_ptr< Body > bodyUndergoingAcceleration,
+        const std::shared_ptr< Body > bodyExertingAcceleration,
+        const std::string& nameOfBodyUndergoingAcceleration,
+        const std::string& nameOfBodyExertingAcceleration,
+        const  std::shared_ptr< AccelerationSettings > accelerationSettings )
+{
+    // Check input consistency
+    std::shared_ptr< MomentumWheelDesaturationAccelerationSettings > tidalAccelerationSettings =
+            std::dynamic_pointer_cast< MomentumWheelDesaturationAccelerationSettings >( accelerationSettings );
+    if( tidalAccelerationSettings == nullptr )
+    {
+        throw std::runtime_error( "Error when creating momentum wheel desaturation acceleration, input is inconsistent" );
+    }
+
+    if( nameOfBodyUndergoingAcceleration != nameOfBodyExertingAcceleration )
+    {
+        throw std::runtime_error( "Error when creating momentum wheel desaturation acceleration, exerting and undergoing bodies are not the same" );
+    }
+}
+
 //! Function to create acceleration model object.
 std::shared_ptr< AccelerationModel< Eigen::Vector3d > > createAccelerationModel(
         const std::shared_ptr< Body > bodyUndergoingAcceleration,
@@ -1258,6 +1280,14 @@ std::shared_ptr< AccelerationModel< Eigen::Vector3d > > createAccelerationModel(
         break;
     case direct_tidal_dissipation_in_orbiting_body_acceleration:
         accelerationModelPointer = createDirectTidalDissipationAcceleration(
+                    bodyUndergoingAcceleration,
+                    bodyExertingAcceleration,
+                    nameOfBodyUndergoingAcceleration,
+                    nameOfBodyExertingAcceleration,
+                    accelerationSettings );
+        break;
+    case momentum_wheel_desaturation_acceleration:
+        accelerationModelPointer = createMomentumWheelDesaturationAcceleration(
                     bodyUndergoingAcceleration,
                     bodyExertingAcceleration,
                     nameOfBodyUndergoingAcceleration,

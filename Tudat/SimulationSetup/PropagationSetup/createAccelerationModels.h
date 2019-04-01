@@ -340,6 +340,13 @@ std::shared_ptr< gravitation::DirectTidalDissipationAcceleration > createDirectT
         const std::string& nameOfBodyExertingAcceleration,
         const  std::shared_ptr< AccelerationSettings > accelerationSettings );
 
+std::shared_ptr< propulsion::MomentumWheelDesaturationThrust > createMomentumWheelDesaturationAcceleration(
+        const std::shared_ptr< Body > bodyUndergoingAcceleration,
+        const std::shared_ptr< Body > bodyExertingAcceleration,
+        const std::string& nameOfBodyUndergoingAcceleration,
+        const std::string& nameOfBodyExertingAcceleration,
+        const  std::shared_ptr< AccelerationSettings > accelerationSettings );
+
 //! Function to create an orbiter relativistic correction acceleration model
 /*!
  *  Function to create an orbiter relativistic correction acceleration model (Schwarzschild, Lense-Thirring and/or
