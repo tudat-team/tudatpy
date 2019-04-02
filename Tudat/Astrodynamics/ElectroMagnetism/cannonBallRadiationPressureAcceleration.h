@@ -47,7 +47,7 @@ namespace electro_magnetism
  *          object.                                                                             [-]
  * \param area Area on which radiation pressure is assumed to act.                            [m^2]
  * \param radiationPressureCoefficient Coefficient to scale effective force. Equal to 1 +
- *          emmisivitty, assuming no diffuse reflection.                                        [-]
+ *          emissivitty, assuming no diffuse reflection.                                        [-]
  * \param mass Mass of accelerated body.                                                       [kg]
  * \return Acceleration due to radiation pressure.                                          [m/s^2]
  * \sa computeCannonBallRadiationPressureForce().

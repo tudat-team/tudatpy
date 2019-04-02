@@ -291,7 +291,7 @@ public:
             const std::function< Eigen::Vector3d( ) > sourcePositionFunction,
             const std::function< Eigen::Vector3d( ) > targetPositionFunction,
             const std::vector< std::function< Eigen::Vector3d( ) > > localFrameSurfaceNormals,
-            const std::vector< double > emmisivities,
+            const std::vector< double > emissivities,
             const std::vector< double > areas,
             const std::vector< double > diffusionCoefficients,
             const std::function< Eigen::Quaterniond( ) > rotationFromLocalToPropagationFrame,
@@ -302,7 +302,7 @@ public:
         RadiationPressureInterface(
             sourcePower, sourcePositionFunction, targetPositionFunction, TUDAT_NAN, TUDAT_NAN,
             occultingBodyPositions, occultingBodyRadii, sourceRadius ),
-        localFrameSurfaceNormals_( localFrameSurfaceNormals ), emmisivities_( emmisivities ),
+        localFrameSurfaceNormals_( localFrameSurfaceNormals ), emissivities_( emissivities ),
         areas_( areas ), diffusionCoefficients_( diffusionCoefficients ),
         rotationFromLocalToPropagationFrame_( rotationFromLocalToPropagationFrame )
     {
@@ -321,9 +321,9 @@ public:
         }
     }
 
-    std::vector< double > getEmmisivities( )
+    std::vector< double > getEmissivities( )
     {
-        return emmisivities_;
+        return emissivities_;
     }
 
     std::vector< double > getAreas( )
@@ -341,9 +341,9 @@ public:
         return areas_[ index ];
     }
 
-    double getEmmisivity( const int index ) const
+    double getEmissivity( const int index ) const
     {
-        return emmisivities_[ index ];
+        return emissivities_[ index ];
     }
 
     double getDiffuseReflectionCoefficient( const int index ) const
@@ -370,7 +370,7 @@ private:
 
     std::vector< std::function< Eigen::Vector3d( ) > > localFrameSurfaceNormals_;
 
-    std::vector< double > emmisivities_;
+    std::vector< double > emissivities_;
 
     std::vector< double > areas_;
 

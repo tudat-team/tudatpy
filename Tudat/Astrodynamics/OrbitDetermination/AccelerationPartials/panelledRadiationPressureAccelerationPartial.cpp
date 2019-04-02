@@ -33,7 +33,7 @@ void PanelledRadiationPressurePartial::update( const double currentTime )
             Eigen::Vector3d currentPanelNormal = Eigen::Vector3d::Zero( );
 
 
-            double currentPanelArea = 0.0, currentPanelEmmisivity = 0.0, cosineOfPanelInclination = 0.0;
+            double currentPanelArea = 0.0, currentPanelEmissivity = 0.0, cosineOfPanelInclination = 0.0;
 
             for( int i = 0; i < radiationPressureInterface_->getNumberOfPanels( ); i++ )
             {
@@ -46,14 +46,14 @@ void PanelledRadiationPressurePartial::update( const double currentTime )
 
                     currentPanelAcceleration = radiationPressureAcceleration_->getCurrentPanelAcceleration( i );
                     currentPanelArea = radiationPressureInterface_->getArea( i );
-                    currentPanelEmmisivity = radiationPressureInterface_->getEmmisivity( i );
+                    currentPanelEmissivity = radiationPressureInterface_->getEmissivity( i );
 
                     currentPartialWrtPosition_ +=
                             currentPanelAcceleration * currentCosineAnglePartial / cosineOfPanelInclination;
                     currentPartialWrtPosition_ -=
                             currentRadiationPressure / currentMass * currentPanelArea * cosineOfPanelInclination * (
-                                ( 1.0 - currentPanelEmmisivity ) * currentSourceUnitVectorPartial +
-                                2.0 * currentPanelEmmisivity * currentPanelNormal * currentCosineAnglePartial );
+                                ( 1.0 - currentPanelEmissivity ) * currentSourceUnitVectorPartial +
+                                2.0 * currentPanelEmissivity * currentPanelNormal * currentCosineAnglePartial );
 
                 }
             }

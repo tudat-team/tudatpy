@@ -37,17 +37,17 @@ namespace electro_magnetism
  *  \param normalizedVectorToSource Current normalized vector from accelerated body to source
  *  \param panelSurfaceNormal Panel surface normal vector, in the same frame as the normalizedVectorToSource vector
  *  \param panelArea Area of panel that is considered
- *  \param panelEmmisivitty Emmisivity of panel that is considered
+ *  \param panelEmissivitty Emissivity of panel that is considered
  *  \return The radiation pressure force on a single partially reflecting panel
  */
 Eigen::Vector3d computeSinglePanelNormalizedRadiationPressureForce(
         const Eigen::Vector3d& normalizedVectorToSource, const Eigen::Vector3d& panelSurfaceNormal,
-        const double panelArea, const double panelEmmisivitty, const double panelDiffuseReflectionCoefficient );
+        const double panelArea, const double panelEmissivitty, const double panelDiffuseReflectionCoefficient );
 
 //! Class for calculating the radiation pressure acceleration on a panelled body
 /*!
  *  Class for calculating the radiation pressure acceleration on a panelled body, with the force due to each panel calculated from
- *  its area, orientation and emmisivity. The emmisivity determines the fraction that is absorbed (modelled as a force in line with
+ *  its area, orientation and emissivity. The emissivity determines the fraction that is absorbed (modelled as a force in line with
  *  the vector to th source) and one from reflection (modelled as a force normal to the panel).
  */
 class PanelledRadiationPressureAcceleration: public basic_astrodynamics::AccelerationModel< Eigen::Vector3d >
@@ -60,7 +60,7 @@ public:
      *  \param sourcePositionFunction Function providing current position for the source body (i.e. the body from which the
      *  radiation originates)
      *  \param acceleratedBodyPositionFunction Function providing current position for the body on which the force is acting
-     *  \param panelEmmisivittyFunctions Vector of functions returning emmisivities for all panels
+     *  \param panelEmissivittyFunctions Vector of functions returning emissivities for all panels
      *  \param panelSurfaceNormalFunctions Vector of functions returning panel surface normal function, in the same frame as the
      *  position functions of the accelerated and radiating bodies.
      *  \param panelAreaFunctions Vector of functions returning areas for all panels
@@ -71,7 +71,7 @@ public:
     PanelledRadiationPressureAcceleration(
             const std::function< Eigen::Vector3d( ) > sourcePositionFunction,
             const std::function< Eigen::Vector3d( ) > acceleratedBodyPositionFunction,
-            const std::vector< std::function< double( ) > >& panelEmmisivittyFunctions,
+            const std::vector< std::function< double( ) > >& panelEmissivittyFunctions,
             const std::vector< std::function< double( ) > >& panelDiffuseReflectionCoefficientFunctions,
             const std::vector< std::function< Eigen::Vector3d( ) > >& panelSurfaceNormalFunctions,
             const std::vector< std::function< double( ) > >& panelAreaFunctions,
@@ -80,15 +80,15 @@ public:
         sourcePositionFunction_( sourcePositionFunction ),
         acceleratedBodyPositionFunction_( acceleratedBodyPositionFunction ),
         radiationPressureFunction_( radiationPressureFunction ),
-        panelEmmisivittyFunctions_( panelEmmisivittyFunctions ),
+        panelEmissivittyFunctions_( panelEmissivittyFunctions ),
         panelDiffuseReflectionCoefficientFunctions_( panelDiffuseReflectionCoefficientFunctions ),
         panelSurfaceNormalFunctions_( panelSurfaceNormalFunctions ),
         panelAreaFunctions_( panelAreaFunctions ),
         massFunction_( massFunction )
     {
         // Set number of panels and resize vector of panel accelerations.
-        currentPanelAccelerations_.resize( panelEmmisivittyFunctions_.size( ) );
-        numberOfPanels_ = panelEmmisivittyFunctions.size( );
+        currentPanelAccelerations_.resize( panelEmissivittyFunctions_.size( ) );
+        numberOfPanels_ = panelEmissivittyFunctions.size( );
     }
 
     //! Constructor for setting up the acceleration model, with input RadiationPressureInterface (and massFunction)
@@ -145,7 +145,7 @@ public:
                 {
                     currentPanelAccelerations_[ i ] = currentRadiationPressure_ / massFunction_( ) * computeSinglePanelNormalizedRadiationPressureForce(
                                 currentNormalizedVectorToSource_ , panelSurfaceNormalFunctions_[ i ]( ),  panelAreaFunctions_[ i ]( ),
-                                panelEmmisivittyFunctions_[ i ]( ), panelDiffuseReflectionCoefficientFunctions_[ i ]( ) );
+                                panelEmissivittyFunctions_[ i ]( ), panelDiffuseReflectionCoefficientFunctions_[ i ]( ) );
                     currentAcceleration_ += currentPanelAccelerations_[ i ];
                 }
             }
@@ -251,8 +251,8 @@ private:
      */
     std::function< double( ) > radiationPressureFunction_;
 
-    //! Vector of functions returning emmisivities for all panels
-    std::vector< std::function< double( ) > > panelEmmisivittyFunctions_;
+    //! Vector of functions returning emissivities for all panels
+    std::vector< std::function< double( ) > > panelEmissivittyFunctions_;
 
     //! Vector of functions returning diffuse reflection coefficients for all panels
     std::vector< std::function< double( ) > > panelDiffuseReflectionCoefficientFunctions_;

@@ -156,18 +156,18 @@ public:
      */
     PanelledRadiationPressureInterfaceSettings(
             const std::string& sourceBody,
-            const std::vector< double >& emmisivities,
+            const std::vector< double >& emissivities,
             const std::vector< double >& areas,
             const std::vector< double >& diffusionCoefficients,
             const std::vector< Eigen::Vector3d >& surfaceNormalsInBodyFixedFrame,
             const std::vector< std::string >& occultingBodies = std::vector< std::string >( ) ):
         RadiationPressureInterfaceSettings( panelled_radiation_pressure_interface, sourceBody, occultingBodies ),
-        emmisivities_( emmisivities ), areas_( areas ),  diffusionCoefficients_( diffusionCoefficients ),
+        emissivities_( emissivities ), areas_( areas ),  diffusionCoefficients_( diffusionCoefficients ),
         surfaceNormalsInBodyFixedFrame_( surfaceNormalsInBodyFixedFrame ){ }
 
-    std::vector< double > getEmmisivities( )
+    std::vector< double > getEmissivities( )
     {
-        return emmisivities_;
+        return emissivities_;
     }
 
     std::vector< double > getAreas( )
@@ -187,7 +187,7 @@ public:
 
 private:
 
-    std::vector< double > emmisivities_;
+    std::vector< double > emissivities_;
 
     std::vector< double > areas_;
 

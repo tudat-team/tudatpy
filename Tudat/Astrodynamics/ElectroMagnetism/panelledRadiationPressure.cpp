@@ -11,7 +11,7 @@ namespace electro_magnetism
 //! Function to calculate radiation pressure force on a single partially reflecting panel
 Eigen::Vector3d computeSinglePanelNormalizedRadiationPressureForce(
         const Eigen::Vector3d& normalizedVectorToSource, const Eigen::Vector3d& panelSurfaceNormal,
-        const double panelArea, const double panelEmmisivitty, const double panelDiffuseReflectionCoefficient )
+        const double panelArea, const double panelEmissivitty, const double panelDiffuseReflectionCoefficient )
 {
     // Calculate cosine of the angle between panel surface normal and vector from accelerated to radiating body
     double cosineOfPanelInclination = normalizedVectorToSource.dot( panelSurfaceNormal );
@@ -24,8 +24,8 @@ Eigen::Vector3d computeSinglePanelNormalizedRadiationPressureForce(
     {
         // Evaluate Eq. (3.72) of Montenbruck & Gill (2000)
         panelRadiationPressureForce = -cosineOfPanelInclination * panelArea * (
-                    ( 1.0 - panelEmmisivitty ) * normalizedVectorToSource + 2.0 * (
-                        panelEmmisivitty * cosineOfPanelInclination + panelDiffuseReflectionCoefficient / 3.0 ) * panelSurfaceNormal );
+                    ( 1.0 - panelEmissivitty ) * normalizedVectorToSource + 2.0 * (
+                        panelEmissivitty * cosineOfPanelInclination + panelDiffuseReflectionCoefficient / 3.0 ) * panelSurfaceNormal );
     }
 
     return panelRadiationPressureForce;
@@ -47,8 +47,8 @@ PanelledRadiationPressureAcceleration::PanelledRadiationPressureAcceleration(
 
     for( int i = 0; i < radiationPressureInterface->getNumberOfPanels( ); i++ )
     {
-        panelEmmisivittyFunctions_.push_back(
-                    std::bind( &PanelledRadiationPressureInterface::getEmmisivity, radiationPressureInterface, i ) );
+        panelEmissivittyFunctions_.push_back(
+                    std::bind( &PanelledRadiationPressureInterface::getEmissivity, radiationPressureInterface, i ) );
         panelDiffuseReflectionCoefficientFunctions_.push_back(
                     std::bind( &PanelledRadiationPressureInterface::getDiffuseReflectionCoefficient, radiationPressureInterface, i ) );
         panelSurfaceNormalFunctions_.push_back(
