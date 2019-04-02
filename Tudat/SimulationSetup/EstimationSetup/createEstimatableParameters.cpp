@@ -24,6 +24,7 @@
 #include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/tidalLoveNumber.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/directTidalTimeLag.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/meanMomentOfInertiaParameter.h"
+#include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/periodicSpinVariation.h"
 #include "Tudat/Astrodynamics/Relativity/metric.h"
 #include "Tudat/SimulationSetup/EstimationSetup/createEstimatableParameters.h"
 
@@ -807,6 +808,23 @@ std::shared_ptr< EstimatableParameter< Eigen::VectorXd > > createVectorParameter
                                     "Error, expected BasicSolidBodyTideGravityFieldVariations for variable tidal love number" );
                     }
                 }
+            }
+            break;
+        }
+        case periodic_spin_variation:
+        {
+            if( std::dynamic_pointer_cast< PlanetaryRotationModel >( currentBody->getRotationalEphemeris( ) ) == nullptr )
+            {
+                std::string errorMessage = "Warning, no full planetary rotational ephemeris" + currentBodyName +
+                        " when making periodic spin variation parameter";
+                throw std::runtime_error( errorMessage );
+            }
+            else
+            {
+
+                vectorParameterToEstimate = std::make_shared< PeriodicSpinVariation >
+                        ( std::dynamic_pointer_cast< PlanetaryRotationModel > ( currentBody->getRotationalEphemeris( ) ), currentBodyName);
+
             }
             break;
         }
