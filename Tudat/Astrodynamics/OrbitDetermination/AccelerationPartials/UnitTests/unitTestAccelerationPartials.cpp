@@ -1181,10 +1181,10 @@ BOOST_AUTO_TEST_CASE( testDirectDissipationAccelerationPartial )
 BOOST_AUTO_TEST_CASE( testPanelledRadiationPressureAccelerationPartials )
 {
     // Create empty bodies, earth and sun.
-    boost::shared_ptr< Body > vehicle = boost::make_shared< Body >( );
+    std::shared_ptr< Body > vehicle = std::make_shared< Body >( );
     double vehicleMass = 400.0;
     vehicle->setConstantBodyMass( vehicleMass );
-    boost::shared_ptr< Body > sun = boost::make_shared< Body >( );
+    std::shared_ptr< Body > sun = std::make_shared< Body >( );
     NamedBodyMap bodyMap;
     bodyMap[ "Vehicle" ] = vehicle;
     bodyMap[ "Sun" ] = sun;
@@ -1197,8 +1197,7 @@ BOOST_AUTO_TEST_CASE( testPanelledRadiationPressureAccelerationPartials )
     vehicle->setState(
                 ( Eigen::Vector6d( ) << 1.4E11, 1.0E11, 1.1E11, 0.0, 0.0, 0.0 ).finished( ) );//getBodyCartesianStateAtEpoch(  "Earth", "SSB", "J2000", "NONE", 1.0E6 ) );
     vehicle->setRotationalEphemeris(
-                boost::make_shared< tudat::ephemerides::SimpleRotationalEphemeris >(
-                    0.2, 0.4, -0.2, 1.0E-5, 0.0, "ECLIPJ2000", "VehicleFixed" ) );
+                std::make_shared< tudat::ephemerides::SimpleRotationalEphemeris >( 0.2, 0.4, -0.2, 1.0E-5, 0.0, "ECLIPJ2000", "VehicleFixed" ) );
     vehicle->setCurrentRotationalStateToLocalFrameFromEphemeris( 0.0 );
 
     // Create links to set and get state functions of bodies.
@@ -1249,24 +1248,23 @@ BOOST_AUTO_TEST_CASE( testPanelledRadiationPressureAccelerationPartials )
     panelSurfaceNormals.push_back( ( Eigen::Vector3d( ) << -0.5 * sqrt( 2.0 ), -0.5 * sqrt( 2.0 ), 0.0 ).finished( ) );
 
 
-    boost::shared_ptr< PanelledRadiationPressureInterface > radiationPressureInterface =
-            boost::dynamic_pointer_cast< PanelledRadiationPressureInterface >(
-                createRadiationPressureInterface(
-                    boost::make_shared< PanelledRadiationPressureInterfaceSettings >(
+    std::shared_ptr< PanelledRadiationPressureInterface > radiationPressureInterface =
+            std::dynamic_pointer_cast< PanelledRadiationPressureInterface >(
+                createRadiationPressureInterface( std::make_shared< PanelledRadiationPressureInterfaceSettings >(
                         "Sun", areas, emissivities, diffuseReflectionCoefficients, panelSurfaceNormals ), "Vehicle", bodyMap ) );
 
     radiationPressureInterface->updateInterface( 0.0 );
     vehicle->setRadiationPressureInterface( "Sun", radiationPressureInterface );
 
     // Create acceleration model.
-    boost::shared_ptr< PanelledRadiationPressureAcceleration > accelerationModel =
-            boost::make_shared< PanelledRadiationPressureAcceleration >(
-                radiationPressureInterface, boost::bind( &Body::getBodyMass, vehicle ) );
+    std::shared_ptr< PanelledRadiationPressureAcceleration > accelerationModel =
+            std::make_shared< PanelledRadiationPressureAcceleration >(
+                radiationPressureInterface, std::bind( &Body::getBodyMass, vehicle ) );
     accelerationModel->updateMembers( );
 
     // Create partial-calculating object.
-    boost::shared_ptr< PanelledRadiationPressurePartial > accelerationPartial =
-            boost::make_shared< PanelledRadiationPressurePartial >
+    std::shared_ptr< PanelledRadiationPressurePartial > accelerationPartial =
+            std::make_shared< PanelledRadiationPressurePartial >
             ( accelerationModel, radiationPressureInterface, "Vehicle", "Sun" );
 
 //    std::vector< int > panelIndices1 = boost::assign::list_of( 0 )( 6 );
@@ -1276,13 +1274,13 @@ BOOST_AUTO_TEST_CASE( testPanelledRadiationPressureAccelerationPartials )
     //    panelIndices.push_back( panelIndices2 );
     //    panelIndices.push_back( panelIndices1 );
 
-    //    boost::shared_ptr< EstimatableParameterSettings > panelEmmisivitiesSettings =
-    //            boost::make_shared< PanelRadiationEmmisivitiesParameterSettings >( "Vehicle", panelIndices );
+    //    boost::shared_ptr< EstimatableParameterSettings > panelEmissivitiesSettings =
+    //            boost::make_shared< PanelRadiationEmissivitiesParameterSettings >( "Vehicle", panelIndices );
     //    std::vector< boost::shared_ptr< EstimatableParameterSettings > > parameterSettingsVector;
-    //    parameterSettingsVector.push_back( panelEmmisivitiesSettings );
+    //    parameterSettingsVector.push_back( panelEmissivitiesSettings );
     //    boost::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > estimatableParameters = createParametersToEstimate(
     //                parameterSettingsVector, bodyMap );
-    //    boost::shared_ptr< EstimatableParameter< Eigen::VectorXd > > panelEmmisivitiesParameter =
+    //    boost::shared_ptr< EstimatableParameter< Eigen::VectorXd > > panelEmissivitiesParameter =
     //            estimatableParameters->getVectorParameters( ).begin( )->second;
 
     // Calculate analytical partials.
@@ -1299,26 +1297,26 @@ BOOST_AUTO_TEST_CASE( testPanelledRadiationPressureAccelerationPartials )
     Eigen::MatrixXd partialWrtVehicleVelocity = Eigen::Matrix3d::Zero( );
     accelerationPartial->wrtVelocityOfAcceleratedBody( partialWrtVehicleVelocity.block( 0, 0, 3, 3 ) );
 
-    //Eigen::MatrixXd partialWrtEmmisivities = accelerationPartial->wrtParameter( panelEmmisivitiesParameter );
+    //Eigen::MatrixXd partialWrtEmissivities = accelerationPartial->wrtParameter( panelEmissivitiesParameter );
 
     // Declare numerical partials.
     Eigen::Matrix3d testPartialWrtVehiclePosition = Eigen::Matrix3d::Zero( );
     Eigen::Matrix3d testPartialWrtVehicleVelocity = Eigen::Matrix3d::Zero( );
     Eigen::Matrix3d testPartialWrtSunPosition = Eigen::Matrix3d::Zero( );
     Eigen::Matrix3d testPartialWrtSunVelocity = Eigen::Matrix3d::Zero( );
-    Eigen::MatrixXd testPartialWrtEmmisivities = Eigen::MatrixXd::Zero( 3, 2 );
+    Eigen::MatrixXd testPartialWrtEmissivities = Eigen::MatrixXd::Zero( 3, 2 );
 
     // Declare perturbations in position for numerical partial/
     Eigen::Vector3d positionPerturbation;
     positionPerturbation<< 1000.0, 1000.0, 1000.0;
     Eigen::Vector3d velocityPerturbation;
     velocityPerturbation<< 0.1, 0.1, 0.1;
-    //    Eigen::VectorXd emmisivityPerturbations = Eigen::VectorXd::Zero( 2 );
-    //    emmisivityPerturbations( 0 ) = 1.0;
-    //    emmisivityPerturbations( 1 ) = 1.0;
+    //    Eigen::VectorXd emissivityPerturbations = Eigen::VectorXd::Zero( 2 );
+    //    emissivityPerturbations( 0 ) = 1.0;
+    //    emissivityPerturbations( 1 ) = 1.0;
 
     // Calculate numerical partials.
-    boost::function< void( ) > updateFunction = boost::bind( &RadiationPressureInterface::updateInterface,
+    std::function< void( ) > updateFunction = std::bind( &RadiationPressureInterface::updateInterface,
                                                              radiationPressureInterface, 0.0 );
     testPartialWrtSunPosition = calculateAccelerationWrtStatePartials(
                 sunStateSetFunction, accelerationModel, sun->getState( ), positionPerturbation, 0, updateFunction );
@@ -1328,8 +1326,8 @@ BOOST_AUTO_TEST_CASE( testPanelledRadiationPressureAccelerationPartials )
                 sunStateSetFunction, accelerationModel, sun->getState( ),velocityPerturbation, 3, updateFunction );
     testPartialWrtVehicleVelocity = calculateAccelerationWrtStatePartials(
                 vehicleStateSetFunction, accelerationModel, vehicle->getState( ), velocityPerturbation, 3, updateFunction );
-    //    testPartialWrtEmmisivities = calculateAccelerationWrtParameterPartials(
-    //                panelEmmisivitiesParameter, accelerationModel, emmisivityPerturbations );
+    //    testPartialWrtEmissivities = calculateAccelerationWrtParameterPartials(
+    //                panelEmissivitiesParameter, accelerationModel, emissivityPerturbations );
 
     // Compare numerical and analytical results.
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtSunPosition,
@@ -1340,8 +1338,8 @@ BOOST_AUTO_TEST_CASE( testPanelledRadiationPressureAccelerationPartials )
                                        partialWrtVehiclePosition, 1.0e-6 );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtVehicleVelocity,
                                        partialWrtVehicleVelocity, std::numeric_limits< double >::epsilon( ) );
-    //    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtEmmisivities,
-    //                                       partialWrtEmmisivities, 1.0e-14 );
+    //    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtEmissivities,
+    //                                       partialWrtEmissivities, 1.0e-14 );
 }
 
 

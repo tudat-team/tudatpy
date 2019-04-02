@@ -213,7 +213,7 @@ std::shared_ptr< electro_magnetism::RadiationPressureInterface > createRadiation
                     std::bind( &Body::getPosition, sourceBody ),
                     std::bind( &Body::getPosition, bodyMap.at( bodyName ) ),
                     localFrameSurfaceNormalFunctions,
-                    panelledSettings->getEmmisivities( ),
+                    panelledSettings->getEmissivities( ),
                     panelledSettings->getAreas( ),
                     panelledSettings->getDiffusionCoefficients( ),
                     std::bind( &Body::getCurrentRotationToGlobalFrame, bodyMap.at( bodyName ) ),
