@@ -184,6 +184,12 @@ namespace tudat
                 return angleIAtEpoch_;
             }
 
+            void resetRotationRateCorrections( std::map< double, std::pair< double, double > > rotationRateCorrections ){
+                rotationRateCorrections_ = rotationRateCorrections;
+            }
+
+
+
         private:
             
             void updateCorrections( const double ephemerisTime );

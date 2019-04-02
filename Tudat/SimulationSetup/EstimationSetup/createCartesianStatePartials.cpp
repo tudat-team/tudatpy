@@ -356,6 +356,20 @@ std::shared_ptr< RotationMatrixPartial > createRotationMatrixPartialsWrtParamete
                     std::dynamic_pointer_cast< SimpleRotationalEphemeris>( currentBody->getRotationalEphemeris( ) ) );
         break;
 
+    case estimatable_parameters::periodic_spin_variation:
+
+        if( std::dynamic_pointer_cast< ephemerides::PlanetaryRotationModel >(
+                    currentBody->getRotationalEphemeris() ) == nullptr ){
+            std::string errorMessage = "Warning, body's rotation model is not a full planetary rotational model when making"
+                                       "position w.r.t. periodic spin variation partial";
+            throw std::runtime_error( errorMessage );
+        }
+
+        // Create rotation matrix partial object
+        rotationMatrixPartial = std::make_shared< RotationMatrixPartialWrtPeriodicSpinVariations >(
+                    std::dynamic_pointer_cast< PlanetaryRotationModel >( currentBody->getRotationalEphemeris() ));
+        break;
+
     default:
         std::string errorMessage = "Warning, rotation matrix partial not implemented for parameter " +
                 std::to_string( parameterToEstimate->getParameterName( ).first );

@@ -99,6 +99,9 @@ std::string getParameterTypeString( const EstimatebleParametersEnum parameterTyp
     case mean_moment_of_inertia:
         parameterDescription = " mean moment of inertia ";
         break;
+    case periodic_spin_variation:
+        parameterDescription = " periodic spin variation for full planetary rotational model ";
+        break;
     default:
         std::string errorMessage = "Error when getting parameter string, did not recognize parameter " +
                 std::to_string( parameterType );
@@ -204,6 +207,9 @@ bool isDoubleParameter( const EstimatebleParametersEnum parameterType )
     case mean_moment_of_inertia:
          isDoubleParameter = true;
         break;
+    case periodic_spin_variation:
+        isDoubleParameter = false;
+        break;
     default:
         throw std::runtime_error( "Error, parameter type " + std::to_string( parameterType ) +
                                   " not found when getting parameter type" );
@@ -224,6 +230,9 @@ bool isParameterRotationMatrixProperty( const EstimatebleParametersEnum paramete
         flag = true;
         break;
     case initial_rotational_body_state:
+        flag = true;
+        break;
+    case periodic_spin_variation:
         flag = true;
         break;
     default:
