@@ -23,10 +23,10 @@ namespace tudat
 namespace estimatable_parameters
 {
 
-//! Interface class for estimation of a body's full rotational model orientation angles (angles psi, I and phi, as well as their time derivatives).
+//! Interface class for estimation of a body's periodic spin variation (for a full planetary rotational model).
 /*!
- *  Interface class for estimation of a body's full rotational model orientation angles (angles psi, I and phi, as well as their time derivatives).
- *  Interfaces the estimation with the orientation angles defining a PlanetaryRotationModel
+ *  Interface class for estimation of a body's periodic spin variation (for a full planetary rotational model).
+ *  Interfaces the estimation with the periodic spin variation (rotational rate corrections) of a PlanetaryRotationModel
  *  object
  */
 class PeriodicSpinVariation: public EstimatableParameter< Eigen::VectorXd >
@@ -37,7 +37,7 @@ public:
     //! Constructor
     /*!
      *  Constructor
-     *  \param rotationModel PlanetaryRotationModel object of which the periodic spin variation is a property
+     *  \param rotationModel PlanetaryRotationModel object of which the periodic spin variation is a property.
      *  \param associatedBody Name of body of which parameter is a property.
      */
     PeriodicSpinVariation(
@@ -50,10 +50,15 @@ public:
     //! Destructor
     ~PeriodicSpinVariation( ) { }
 
-    //! Get value of pole right ascension and declination (in that order)
+
+    //! Get value of the periodic spin variation coefficients (starting from the lowest order to the highest one, first cosinus
+    //! coefficient directly followed by sinus coefficient for each order) .
     /*!
-     *  Get value of pole right ascension and declination (in that order)
-     *  \return Right ascension and declination (in that order)
+     *  Get value of pole right ascension and declination (starting from the lowest order to the highest one, first cosinus
+    //! coefficient directly followed by sinus coefficient for each order) (eg. [cosinus coefficient lowest order,
+    //! sinus coefficient lowest order, cosinus coefficient second to lowest order, ...])
+     *  \return Periodic spin variation coefficients (starting from the lowest order to the highest one, first cosinus
+    //! coefficient directly followed by sinus coefficient for each order).
      */
     Eigen::VectorXd getParameterValue( )
     {
@@ -70,10 +75,13 @@ public:
         return ( utilities::convertStlVectorToEigenVector( parameterValues ) );
     }
 
-    //! Reset value of pole right ascension and declination (in that order)
+
+    //! Reset value of the periodic spin variation coefficients (starting from the lowest order to the highest one, first cosinus
+    //! coefficient directly followed by sinus coefficient for each order).
     /*!
-     *  Reset value of pole right ascension and declination (in that order)
-     *  \param parameterValue New right ascension and declination (in that order)
+     *  Reset value of the periodic spin variation coefficients (starting from the lowest order to the highest one, first cosinus
+    //! coefficient directly followed by sinus coefficient for each order).
+     *  \param parameterValue New values for periodic spin variation coefficients.
      */
     void setParameterValue( const Eigen::VectorXd parameterValue )
     {
@@ -102,7 +110,8 @@ public:
     //! Function to retrieve the size of the parameter
     /*!
      *  Function to retrieve the size of the parameter
-     *  \return Size of parameter value, 2 for this parameter
+     *  \return Size of parameter value, which is 2 times the maximum order of the periodic spin variation coefficients
+     *  for this parameter.
      */
     int getParameterSize( )
     {
@@ -113,7 +122,7 @@ protected:
 
 private:
 
-    //! PlanetaryRotationModel object of which rotation rate parameter is a property
+    //! PlanetaryRotationModel object of which periodic spin variation is a property
     std::shared_ptr< ephemerides::PlanetaryRotationModel > rotationModel_;
     int maxOrder_;
 };
