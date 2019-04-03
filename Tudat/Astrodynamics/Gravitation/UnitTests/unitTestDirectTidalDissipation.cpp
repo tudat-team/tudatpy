@@ -137,6 +137,10 @@ std::pair< double, double > computeKeplerElementRatesDueToDissipation(
     //                                          "keplerElements_"  + std::to_string( usePlanetDissipation ) +
     //                                          satelliteToPropagate + ".dat" );
 
+    input_output::writeDataMapToTextFile( integrationResultWithDissipationKepler,
+                                          "keplerElements_"  + std::to_string( usePlanetDissipation ) + "_" +
+                                          satelliteToPropagate + ".dat" );
+
     std::vector< double > semiMajorAxisFit = linear_algebra::getLeastSquaresPolynomialFit(
                 semiMajorAxes, { 0, 1 } );
     std::vector< double > eccentricityFit = linear_algebra::getLeastSquaresPolynomialFit(
@@ -206,7 +210,7 @@ BOOST_AUTO_TEST_CASE( testTidalDissipationInPlanetAndSatellite )
 
     // Create bodies needed in simulation
     NamedBodyMap bodyMap = createBodies( bodySettings );
-    setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );
+    setGlobalFrameBodyEphemerides( bodyMap, "Jupiter", "ECLIPJ2000" );
 
     // Define propagation settings.
     double jupiterLoveNumber = 0.1;

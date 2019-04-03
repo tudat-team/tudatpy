@@ -27,6 +27,11 @@ namespace tudat
 namespace ephemerides
 {
 
+Eigen::Vector6d getDifferenceBetweenStates(
+        const std::function< Eigen::Vector6d( const double ) > stateFunction,
+        const std::function< Eigen::Vector6d( const double ) > centralBodyStateFunction,
+        const double time );
+
 //! Ephemeris base class.
 /*!
  * Ephemeris base class.
@@ -61,6 +66,12 @@ public:
      */
     virtual Eigen::Vector6d getCartesianState(
             const double secondsSinceEpoch ) = 0;
+
+    Eigen::Vector3d getCartesianPosition(
+            const double secondsSinceEpoch )
+    {
+        return getCartesianState( secondsSinceEpoch ).segment( 0, 3 );
+    }
 
     //! Get state from ephemeris (with long double as state scalar).
     /*!

@@ -38,7 +38,7 @@ namespace tudat
 namespace orbital_element_conversions
 {
 
-//! Function to compute orbit semi-latus rectum.
+//! Function to compute orbit se0mi-latus rectum.
 /*!
  * Function to compute orbit semi-latus rectum.
  * \param eccentricity Eccentricity of orbit
@@ -574,6 +574,26 @@ ScalarType convertTrueAnomalyToEccentricAnomaly( const ScalarType trueAnomaly,
     return eccentricAnomaly_;
 }
 
+template< typename ScalarType = double >
+ScalarType getEccentricAnomalyFromCartesianElements(
+        const Eigen::Matrix< ScalarType, 6, 1 >& cartesianElements,
+        const ScalarType centralBodyGravitationalParameter )
+{
+    Eigen::Matrix< ScalarType, 6, 1 >  keplerElements = convertCartesianToKeplerianElements(
+                cartesianElements, centralBodyGravitationalParameter );
+    return convertTrueAnomalyToEccentricAnomaly(
+                keplerElements( trueAnomalyIndex ), keplerElements( eccentricityIndex ) );
+}
+
+template< typename ScalarType = double >
+ScalarType getEccentricAnomalyFromCartesianElementsFunction(
+        const std::function< Eigen::Matrix< ScalarType, 6, 1 >( ) > cartesianElementsFunction,
+        const std::function< ScalarType( ) > centralBodyGravitationalParameterFunction )
+{
+    return getEccentricAnomalyFromCartesianElements( cartesianElementsFunction( ), centralBodyGravitationalParameterFunction( ) );
+}
+
+
 //! Convert (elliptical) eccentric anomaly to true anomaly.
 /*!
  * Converts eccentric anomaly to true anomaly for elliptical orbits ( 0 <= eccentricity < 1.0 ).
@@ -792,6 +812,25 @@ ScalarType convertEccentricAnomalyToMeanAnomaly(
 
     // Return computed mean anomaly.
     return meanAnomaly_;
+}
+
+template< typename ScalarType = double >
+ScalarType getMeanAnomalyFromCartesianElements(
+        const Eigen::Matrix< ScalarType, 6, 1 >& cartesianElements,
+        const ScalarType centralBodyGravitationalParameter )
+{
+    Eigen::Matrix< ScalarType, 6, 1 >  keplerElements = convertCartesianToKeplerianElements(
+                cartesianElements, centralBodyGravitationalParameter );
+    return convertEccentricAnomalyToMeanAnomaly( convertTrueAnomalyToEccentricAnomaly(
+                keplerElements( trueAnomalyIndex ), keplerElements( eccentricityIndex ) ), keplerElements( eccentricityIndex ) );
+}
+
+template< typename ScalarType = double >
+ScalarType getMeanAnomalyFromCartesianElementsFunction(
+        const std::function< Eigen::Matrix< ScalarType, 6, 1 >( ) > cartesianElementsFunction,
+        const std::function< ScalarType( ) > centralBodyGravitationalParameterFunction )
+{
+    return getMeanAnomalyFromCartesianElements( cartesianElementsFunction( ), centralBodyGravitationalParameterFunction( ) );
 }
 
 //! Convert elapsed time to (elliptical) mean anomaly change.

@@ -29,6 +29,69 @@ namespace tudat
 namespace simulation_setup
 {
 
+template< typename StateScalarType = double, typename TimeType = double >
+std::map< observation_models::ObservableType, std::map< observation_models::LinkEnds,
+std::pair< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >, std::pair< std::vector< TimeType >, observation_models::LinkEndType > > > >
+mergeObservationsAndTimes(
+        std::map< observation_models::ObservableType, std::map< observation_models::LinkEnds,
+        std::pair< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >, std::pair< std::vector< TimeType >, observation_models::LinkEndType > > > > firstSet,
+        std::map< observation_models::ObservableType, std::map< observation_models::LinkEnds,
+        std::pair< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >, std::pair< std::vector< TimeType >, observation_models::LinkEndType > > > > secondSet )
+{
+    std::map< observation_models::ObservableType, std::map< observation_models::LinkEnds,
+    std::pair< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >, std::pair< std::vector< TimeType >, observation_models::LinkEndType > > > > mergedSet = firstSet;
+    for( auto observableIterator : secondSet )
+    {
+        for( auto linkEndIteror : observableIterator.second )
+        {
+            bool entryIsEmpty = true;
+            if(  mergedSet.count( observableIterator.first ) > 0 )
+            {
+                if(  mergedSet.at( observableIterator.first ).count( linkEndIteror.first ) > 0 )
+                {
+                    entryIsEmpty = false;
+                }
+
+            }
+
+            if( entryIsEmpty )
+            {
+                mergedSet[ observableIterator.first ][ linkEndIteror.first ] =  linkEndIteror.second;
+            }
+            else
+            {
+                std::pair< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >, std::pair< std::vector< TimeType >, observation_models::LinkEndType > >
+                        originalDataSet = mergedSet.at( observableIterator.first ).at( linkEndIteror.first );
+                std::pair< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >, std::pair< std::vector< TimeType >, observation_models::LinkEndType > >
+                        setToMerge = linkEndIteror.second;
+
+                if( originalDataSet.second.second != setToMerge.second.second )
+                {
+                    throw std::runtime_error( "Error when merging data sets, references are incompatible" );
+                }
+
+                Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > originalObservations =
+                      originalDataSet.first;
+                Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > newObservations =
+                      setToMerge.first;
+                Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > mergedObservations =
+                        Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >::Zero(
+                            originalObservations.rows( ) + newObservations.rows( ) );
+                mergedObservations.segment( 0, originalObservations.rows( ) ) = originalObservations;
+                mergedObservations.segment( originalObservations.rows( ), newObservations.rows( ) ) = newObservations;
+
+                std::vector< TimeType > newTimes = setToMerge.second.first;
+                std::vector< TimeType > originalTimes = originalDataSet.second.first;
+
+                originalTimes.insert( originalTimes.end( ), newTimes.begin( ), newTimes.end( ) );
+                mergedSet[ observableIterator.first ][ linkEndIteror.first ] =
+                        std::make_pair( mergedObservations, std::make_pair( originalTimes, setToMerge.second.second ) );
+            }
+        }
+    }
+    return mergedSet;
+}
+
 //! Data structure used to provide input to orbit determination procedure
 template< typename ObservationScalarType = double, typename TimeType = double >
 class PodInput
@@ -160,9 +223,9 @@ public:
             if( weightPerObservableAndLinkEnds.count( observablesIterator->first ) == 0 )
             {
                 std::string errorMessage =
-                        "Error when setting  weights per observable, observable " +
+                        "Warning when setting  weights per observable, observable " +
                         std::to_string( observablesIterator->first  ) + " not found";
-                throw std::runtime_error( errorMessage );
+                std::cerr<<errorMessage<<std::endl;
             }
             else
             {
@@ -188,6 +251,56 @@ public:
             }
         }
     }
+
+
+    void setTimeVaryingWeights(
+            const std::map< observation_models::ObservableType,
+            std::map< observation_models::LinkEnds, std::map< double, Eigen::VectorXd > > > observableWeights )
+    {
+        // Iterate over all observables
+        for( typename PodInputDataType::const_iterator observablesIterator = observationsAndTimes_.begin( );
+             observablesIterator != observationsAndTimes_.end( ); observablesIterator++ )
+        {
+            if( ! ( observableWeights.count( observablesIterator->first ) == 0 ) )
+            {
+                // Iterate over all link ends
+                int currentObservableSize = observation_models::getObservableSize(
+                            observablesIterator->first );
+                for( typename SingleObservablePodInputType::const_iterator linkEndIterator =
+                     observablesIterator->second.begin( ); linkEndIterator != observablesIterator->second.end( ); linkEndIterator++  )
+                {
+                    if( !( observableWeights.at( observablesIterator->first ).count( linkEndIterator->first ) == 0 ) )
+                    {
+                        // Retrieve list of observation times.
+                        std::vector< TimeType > observationTimes = linkEndIterator->second.second.first;
+
+                        // Retrieve list of weights to be set.
+                        std::map< double, Eigen::VectorXd > currentWeightsList =
+                                observableWeights.at( observablesIterator->first ).at( linkEndIterator->first );
+
+                        // Set weights to zero
+                        if( static_cast< int >(
+                                    weightsMatrixDiagonals_[ observablesIterator->first ][ linkEndIterator->first ].size( ) ) !=
+                                static_cast< int >( currentWeightsList.size( ) * currentObservableSize ) )
+                        {
+                            std::cout<<"Sizes when setting "<<weightsMatrixDiagonals_[ observablesIterator->first ][ linkEndIterator->first ].size( )<<" "<<
+                                currentWeightsList.size( ) * currentObservableSize<<" "<<currentObservableSize<<std::endl;
+                            throw std::runtime_error( "Error when setting time-varying weights, sizes are incompatible" );
+                        }
+
+                        // Set weights element-wise
+                        for( unsigned int i = 0; i < observationTimes.size( ); i++ )
+                        {
+                            weightsMatrixDiagonals_[ observablesIterator->first ][ linkEndIterator->first ].segment(
+                                        i * currentObservableSize, currentObservableSize ) =
+                                    currentWeightsList.at( observationTimes.at( i ) );
+                        }
+                    }
+                }
+            }
+        }
+    }
+
 
     //! Function to define specific settings for estimation process
     /*!

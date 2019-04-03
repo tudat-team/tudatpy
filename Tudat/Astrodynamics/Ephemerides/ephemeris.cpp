@@ -16,6 +16,14 @@ namespace tudat
 namespace ephemerides
 {
 
+Eigen::Vector6d getDifferenceBetweenStates(
+        const std::function< Eigen::Vector6d( const double ) > stateFunction,
+        const std::function< Eigen::Vector6d( const double ) > centralBodyStateFunction,
+        const double time )
+{
+    return stateFunction( time ) - centralBodyStateFunction( time );
+}
+
 //! Get state from ephemeris, with state scalar as template type (double specialization).
 template<  >
 Eigen::Matrix< double, 6, 1 > Ephemeris::getTemplatedStateFromEphemeris( const double& time )

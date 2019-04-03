@@ -517,6 +517,7 @@ public:
 
         // Integrate equations of motion numerically.
         resetPropagationTerminationConditions( );
+        simulation_setup::setAreBodiesInPropagation( bodyMap_, true );
         propagationTerminationReason_ =
                 EquationIntegrationInterface< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >, TimeType >::integrateEquations(
                     stateDerivativeFunction_, equationsOfMotionNumericalSolutionRaw_,
@@ -529,6 +530,7 @@ public:
                     statePostProcessingFunction_,
                     propagatorSettings_->getPrintInterval( ),
                     initialClockTime_ );
+        simulation_setup::setAreBodiesInPropagation( bodyMap_, false );
 
         // Convert numerical solution to conventional state
         dynamicsStateDerivative_->convertNumericalStateSolutionsToOutputSolutions(

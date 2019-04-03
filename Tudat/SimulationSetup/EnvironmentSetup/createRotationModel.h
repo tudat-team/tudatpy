@@ -38,7 +38,8 @@ enum RotationModelType
 {
     simple_rotation_model,
     spice_rotation_model,
-    gcrs_to_itrs_rotation_model
+    gcrs_to_itrs_rotation_model,
+    tidally_locked_rotation_model
 };
 
 //! Class for providing settings for rotation model.
@@ -337,6 +338,31 @@ private:
 };
 #endif
 
+
+class TidallyLockedRotationModelSettings: public RotationModelSettings
+{
+public:
+    TidallyLockedRotationModelSettings(
+            const std::string& centralBodyName,
+            const std::string& baseFrameOrientation,
+            const std::string& targetFrameOrientation ):
+        RotationModelSettings( tidally_locked_rotation_model, baseFrameOrientation, targetFrameOrientation ),
+        centralBodyName_( centralBodyName ){ }
+
+    std::string getCentralBodyName( )
+    {
+        return centralBodyName_;
+    }
+private:
+
+    std::string centralBodyName_;
+};
+
+std::function< Eigen::Vector6d( const double, bool ) > createRelativeStateFunction(
+        const NamedBodyMap& bodyMap,
+        const std::string orbitingBody,
+        const std::string centralBody );
+
 //! Function to create a rotation model.
 /*!
  *  Function to create a rotation model based on model-specific settings for the rotation.
@@ -347,7 +373,8 @@ private:
  */
 std::shared_ptr< ephemerides::RotationalEphemeris > createRotationModel(
         const std::shared_ptr< RotationModelSettings > rotationModelSettings,
-        const std::string& body );
+        const std::string& body,
+        const NamedBodyMap& bodyMap = NamedBodyMap( ) );
 
 } // namespace simulation_setup
 
