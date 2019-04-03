@@ -35,10 +35,11 @@ BOOST_AUTO_TEST_SUITE( test_locked_rotational_ephemeris )
 BOOST_AUTO_TEST_CASE( test_TidallyLockedRotationModel )
 {
 
-    tudat::spice_interface::loadStandardSpiceKernels( );
+    // Load Spice kernels
     tudat::spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "jup310_small.bsp" );
-    std::vector< std::string > bodyNames;
 
+    // Create relevant bodies
+    std::vector< std::string > bodyNames;
     bodyNames.push_back( "Io" );
     bodyNames.push_back( "Europa" );
     bodyNames.push_back( "Ganymede" );
@@ -50,7 +51,6 @@ BOOST_AUTO_TEST_CASE( test_TidallyLockedRotationModel )
     bodiesToTest.push_back( "Europa" );
     bodiesToTest.push_back( "Ganymede" );
 
-
     // Create bodies needed in simulation
     std::map< std::string, std::shared_ptr< BodySettings > > bodySettings =
             getDefaultBodySettings( bodyNames );
@@ -60,27 +60,31 @@ BOOST_AUTO_TEST_CASE( test_TidallyLockedRotationModel )
                     "Jupiter", "ECLIPJ2000", "IAU_" + bodiesToTest.at( i ) );
         bodySettings[ bodiesToTest.at( i ) ]->ephemerisSettings->resetFrameOrigin( "Jupiter" );
     }
-
     NamedBodyMap bodyMap = createBodies( bodySettings );
-
     setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );
 
-
+    // Test rotation model when body is in propagation, and outside of propagation
     for( unsigned int areBodiesInPropagation = 0; areBodiesInPropagation < 2; areBodiesInPropagation++ )
     {
         setAreBodiesInPropagation( bodyMap, areBodiesInPropagation );
 
+        // Test different bodies
         for( unsigned int i = 0; i < bodiesToTest.size( ); i++ )
         {
+            // Get tidally locked rotation model and ephemeris
             std::shared_ptr< TidallyLockedRotationalEphemeris > currentRotationalEphemeris =
                     std::dynamic_pointer_cast< TidallyLockedRotationalEphemeris >(
                         bodyMap.at( bodiesToTest.at( i ) )->getRotationalEphemeris( ) );
             std::shared_ptr< Ephemeris > currentEphemeris = bodyMap.at( bodiesToTest.at( i ) )->getEphemeris( );
+
+            // Test for various times (and anomalies)
             for( int j = 0; j < 100; j ++ )
             {
+                // Determine current test time
                 double testTime = 86400.0 * static_cast< double >( j );
-                Eigen::Vector6d currentSatelliteState;
 
+                // Compute current satellite state
+                Eigen::Vector6d currentSatelliteState;
                 if( !areBodiesInPropagation )
                 {
                     currentSatelliteState = currentEphemeris->getCartesianState( testTime );
@@ -89,13 +93,15 @@ BOOST_AUTO_TEST_CASE( test_TidallyLockedRotationModel )
                 {
                     bodyMap[ bodiesToTest.at( i ) ]->setStateFromEphemeris( testTime );
                     bodyMap[ "Jupiter" ]->setStateFromEphemeris( testTime );
-
                     currentSatelliteState = bodyMap[ bodiesToTest.at( i ) ]->getState( ) -
                              bodyMap[ "Jupiter" ]->getState(  );
-
                 }
+
+                // Retrieve rotation matrix
                 Eigen::Matrix3d currentRotationToBodyFixedFrame =
                         currentRotationalEphemeris->getRotationToTargetFrame( testTime ).toRotationMatrix( );
+
+                // Transform r, v and r x v vectors to body-fixed frame
                 Eigen::Vector3d bodyFixedRadialVector =
                         currentRotationToBodyFixedFrame * currentSatelliteState.segment( 0, 3 ).normalized( );
                 Eigen::Vector3d bodyFixedVelocityVector =
@@ -105,6 +111,7 @@ BOOST_AUTO_TEST_CASE( test_TidallyLockedRotationModel )
                         ( Eigen::Vector3d( currentSatelliteState.segment( 0, 3 ) ).cross(
                               Eigen::Vector3d( currentSatelliteState.segment( 3, 3 ) ) ) ).normalized( );
 
+                // Test vector magnitudes
                 BOOST_CHECK_SMALL( std::fabs( bodyFixedRadialVector( 0 ) + 1.0 ), 10.0 * std::numeric_limits< double >::epsilon( ) );
                 BOOST_CHECK_SMALL( std::fabs( bodyFixedRadialVector( 1 ) ), 10.0 * std::numeric_limits< double >::epsilon( ) );
                 BOOST_CHECK_SMALL( std::fabs( bodyFixedRadialVector( 2 ) ), 10.0 * std::numeric_limits< double >::epsilon( ) );

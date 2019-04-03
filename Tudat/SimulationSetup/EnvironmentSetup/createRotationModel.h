@@ -338,10 +338,19 @@ private:
 };
 #endif
 
-
+//! RotationModelSettings derived class for defining settings of a tidally locked rotational ephemeris (body-fixed x-axis always
+//! pointing to central body; z-axis along r x v (with r and v the position and velocity w.r.t. central body)
 class TidallyLockedRotationModelSettings: public RotationModelSettings
 {
 public:
+
+    //! Constructor
+    /*!
+     * Constructor
+     * \param centralBodyName Name of central body to which this body is locked.
+     * \param baseFrameOrientation Base frame of rotation model.
+     * \param targetFrameOrientation Target frame of rotation model.
+     */
     TidallyLockedRotationModelSettings(
             const std::string& centralBodyName,
             const std::string& baseFrameOrientation,
@@ -349,15 +358,36 @@ public:
         RotationModelSettings( tidally_locked_rotation_model, baseFrameOrientation, targetFrameOrientation ),
         centralBodyName_( centralBodyName ){ }
 
+    //! Function to retrieve name of central body to which this body is locked.
+    /*!
+     * Function to retrieve name of central body to which this body is locked.
+     * \return  Name of central body to which this body is locked.
+     */
     std::string getCentralBodyName( )
     {
         return centralBodyName_;
     }
+
 private:
 
+    //!  Name of central body to which this body is locked.
     std::string centralBodyName_;
 };
 
+Eigen::Vector6d getStateFromSelectedStateFunction(
+        const double currentTime,
+        const bool useFirstFunction,
+        const std::function< Eigen::Vector6d( const double ) > stateFunction1,
+        const std::function< Eigen::Vector6d( const double ) > stateFunction2 );
+
+//! Function to create a state function for a body, valid both during propagation, and outside propagation
+/*!
+ * Function to create a state function for a body, valid both during propagation, and outside propagation
+ * \param bodyMap List of body objects
+ * \param orbitingBody Body for which state function is to be created
+ * \param centralBody Central body w.r.t. which state function is to be created
+ * \return Required state function
+ */
 std::function< Eigen::Vector6d( const double, bool ) > createRelativeStateFunction(
         const NamedBodyMap& bodyMap,
         const std::string orbitingBody,

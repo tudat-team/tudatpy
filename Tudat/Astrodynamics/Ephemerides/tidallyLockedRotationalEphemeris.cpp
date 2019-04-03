@@ -12,27 +12,21 @@ namespace tudat
 namespace ephemerides
 {
 
-Eigen::Vector6d getStateFromSelectedStateFunction(
-        const double currentTime,
-        const bool useFirstFunction,
-        const std::function< Eigen::Vector6d( const double ) > stateFunction1,
-        const std::function< Eigen::Vector6d( const double ) > stateFunction2 )
-{
-    return ( useFirstFunction ) ? ( stateFunction1( currentTime ) ) : ( stateFunction2( currentTime ) );
-}
-
-
+//! Calculate rotation quaternion from target frame to base frame.
 Eigen::Quaterniond TidallyLockedRotationalEphemeris::getRotationToBaseFrame( const double currentTime )
 {
+    // Get rotation to RSW frame
     Eigen::Vector6d relativeState = relativeStateFunction_( currentTime, isBodyInPropagation_ );
-
     Eigen::Matrix3d rotationToBaseFrame = reference_frames::getInertialToRswSatelliteCenteredFrameRotationMatrix(
                 relativeState ).transpose( );
+
+    // Flip sign of x and y axes
     rotationToBaseFrame.block( 0, 0, 3, 2 ) *= -1.0;
 
     return Eigen::Quaterniond( rotationToBaseFrame );
 }
 
+//! Function to calculate the derivative of the rotation matrix from target frame to base frame.
 Eigen::Matrix3d TidallyLockedRotationalEphemeris::getDerivativeOfRotationToBaseFrame( const double currentTime )
 {
     if( !warningPrinted_ )

@@ -16,6 +16,7 @@ namespace tudat
 namespace ephemerides
 {
 
+//! Get relative state from body state function and central body state function
 Eigen::Vector6d getDifferenceBetweenStates(
         const std::function< Eigen::Vector6d( const double ) > stateFunction,
         const std::function< Eigen::Vector6d( const double ) > centralBodyStateFunction,

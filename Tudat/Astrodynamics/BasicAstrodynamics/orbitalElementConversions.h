@@ -38,7 +38,7 @@ namespace tudat
 namespace orbital_element_conversions
 {
 
-//! Function to compute orbit se0mi-latus rectum.
+//! Function to compute orbit semi-latus rectum.
 /*!
  * Function to compute orbit semi-latus rectum.
  * \param eccentricity Eccentricity of orbit
@@ -574,6 +574,14 @@ ScalarType convertTrueAnomalyToEccentricAnomaly( const ScalarType trueAnomaly,
     return eccentricAnomaly_;
 }
 
+//! Function to retrieve the eccentric anomaly from a Cartesian state
+/*!
+ *  Function to retrieve the eccentric anomaly from a Cartesian state. First converts Cartesian state to Keplerian state (with
+ *  true anomaly), and computes the eccentric anomaly.
+ *  \param cartesianElements Cartesian state that is to be converted
+ *  \param centralBodyGravitationalParameter Gravitational parameter of central body
+ *  \return Eccentric anomaly for current state
+ */
 template< typename ScalarType = double >
 ScalarType getEccentricAnomalyFromCartesianElements(
         const Eigen::Matrix< ScalarType, 6, 1 >& cartesianElements,
@@ -585,6 +593,14 @@ ScalarType getEccentricAnomalyFromCartesianElements(
                 keplerElements( trueAnomalyIndex ), keplerElements( eccentricityIndex ) );
 }
 
+//! Function to retrieve the eccentric anomaly from a function returning a Cartesian state
+/*!
+ *  Function to retrieve the eccentric anomaly from a function returning a Cartesian state. First converts Cartesian state to
+ *  Keplerian state (with true anomaly), and computes the eccentric anomaly.
+ *  \param cartesianElementsFunction Function that returns the Cartesian state that is to be converted
+ *  \param centralBodyGravitationalParameterFunction Function that returns the gravitational parameter of central body
+ *  \return Eccentric anomaly for current state
+ */
 template< typename ScalarType = double >
 ScalarType getEccentricAnomalyFromCartesianElementsFunction(
         const std::function< Eigen::Matrix< ScalarType, 6, 1 >( ) > cartesianElementsFunction,
@@ -814,6 +830,14 @@ ScalarType convertEccentricAnomalyToMeanAnomaly(
     return meanAnomaly_;
 }
 
+//! Function to retrieve the mean anomaly from a Cartesian state
+/*!
+ *  Function to retrieve the mean anomaly from a Cartesian state. First converts Cartesian state to Keplerian state (with
+ *  true anomaly), and computes the mean anomaly.
+ *  \param cartesianElements Cartesian state that is to be converted
+ *  \param centralBodyGravitationalParameter Gravitational parameter of central body
+ *  \return Mean anomaly for current state
+ */
 template< typename ScalarType = double >
 ScalarType getMeanAnomalyFromCartesianElements(
         const Eigen::Matrix< ScalarType, 6, 1 >& cartesianElements,
@@ -825,6 +849,14 @@ ScalarType getMeanAnomalyFromCartesianElements(
                 keplerElements( trueAnomalyIndex ), keplerElements( eccentricityIndex ) ), keplerElements( eccentricityIndex ) );
 }
 
+//! Function to retrieve the mean anomaly from a function returning a Cartesian state
+/*!
+ *  Function to retrieve the mean anomaly from a function returning a Cartesian state. First converts Cartesian state to
+ *  Keplerian state (with true anomaly), and computes the mean anomaly.
+ *  \param cartesianElementsFunction Function that returns the Cartesian state that is to be converted
+ *  \param centralBodyGravitationalParameterFunction Function that returns the gravitational parameter of central body
+ *  \return Mean anomaly for current state
+ */
 template< typename ScalarType = double >
 ScalarType getMeanAnomalyFromCartesianElementsFunction(
         const std::function< Eigen::Matrix< ScalarType, 6, 1 >( ) > cartesianElementsFunction,
