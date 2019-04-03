@@ -29,7 +29,8 @@ public:
         RotationalEphemeris( baseFrameOrientation, targetFrameOrientation ),
         relativeStateFunction_( relativeStateFunction ),
         isBodyInPropagation_( 0 ),
-        centralBodyName_( centralBodyName )
+        centralBodyName_( centralBodyName ),
+        warningPrinted_( false )
     { }
 
     ~TidallyLockedRotationalEphemeris( ){ }
@@ -63,6 +64,8 @@ private:
     bool isBodyInPropagation_;
 
     std::string centralBodyName_;
+
+    bool warningPrinted_;
 };
 
 }
