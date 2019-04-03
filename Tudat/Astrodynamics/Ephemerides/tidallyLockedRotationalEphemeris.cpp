@@ -35,7 +35,12 @@ Eigen::Quaterniond TidallyLockedRotationalEphemeris::getRotationToBaseFrame( con
 
 Eigen::Matrix3d TidallyLockedRotationalEphemeris::getDerivativeOfRotationToBaseFrame( const double currentTime )
 {
-    throw std::runtime_error( "Error, time-derivative of tidally-locked rotation matrix not yet implemented" );
+    if( !warningPrinted_ )
+    {
+        std::cerr<<"Warning, time-derivative of tidally-locked rotation matrix not yet implemented (using zero matrix)"<<std::endl;
+        warningPrinted_ = true;
+    }
+    return Eigen::Matrix3d::Zero( );
 }
 
 }
