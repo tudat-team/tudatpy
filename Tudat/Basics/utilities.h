@@ -27,6 +27,12 @@ namespace tudat
 namespace utilities
 {
 
+
+template <typename T> int sgn(T val) {
+    return (T(0) < val) - (val < T(0));
+}
+
+
 //! Function to recalculate map keys as a linear function of original map keys.
 /*!
  *  Function to recalculate map keys as a linear function of original map keys, i.e. new map key is constant * old key - offset or

@@ -8,6 +8,7 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
+#include "Tudat/Astrodynamics/Ephemerides/tidallyLockedRotationalEphemeris.h"
 #include "Tudat/SimulationSetup/EnvironmentSetup/body.h"
 
 namespace tudat
@@ -79,6 +80,17 @@ void Body::setTemplatedState( const Eigen::Matrix< long double, 6, 1 >& state )
     setLongState( state );
 }
 
+void Body::setIsBodyInPropagation( const bool isBodyInPropagation )
+{
+    isBodyInPropagation_ = isBodyInPropagation;
+    if( std::dynamic_pointer_cast< ephemerides::TidallyLockedRotationalEphemeris >( rotationalEphemeris_ ) != nullptr )
+    {
+        std::dynamic_pointer_cast< ephemerides::TidallyLockedRotationalEphemeris >( rotationalEphemeris_ ) ->setIsBodyInPropagation(
+                    isBodyInPropagation );
+    }
+}
+
+
 //! Function ot retrieve the common global translational state origin of the environment
 std::string getGlobalFrameOrigin( const NamedBodyMap& bodyMap )
 {
@@ -99,13 +111,21 @@ std::string getGlobalFrameOrigin( const NamedBodyMap& bodyMap )
             }
             else
             {
-               globalFrameOrigin = bodyIterator->first;
+                globalFrameOrigin = bodyIterator->first;
             }
         }
     }
     return globalFrameOrigin;
 }
 
+void setAreBodiesInPropagation( const NamedBodyMap& bodyMap,
+                                const bool areBodiesInPropagation )
+{
+    for( auto bodyIterator : bodyMap  )
+    {
+        bodyIterator.second->setIsBodyInPropagation( areBodiesInPropagation );
+    }
+}
 
 } // namespace simulation_setup
 

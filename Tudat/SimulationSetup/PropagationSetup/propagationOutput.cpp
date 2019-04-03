@@ -288,6 +288,12 @@ int getDependentVariableSize(
     case keplerian_state_dependent_variable:
         variableSize = 6;
         break;
+    case eccentric_anomaly_dependent_variable:
+        variableSize = 1;
+        break;
+    case mean_anomaly_dependent_variable:
+        variableSize = 1;
+        break;
     case spherical_harmonic_acceleration_terms_dependent_variable:
     {
         if( std::dynamic_pointer_cast< SphericalHarmonicAccelerationTermsDependentVariableSaveSettings >(
