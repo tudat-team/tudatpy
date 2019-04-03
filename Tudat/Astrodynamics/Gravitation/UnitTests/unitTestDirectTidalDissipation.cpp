@@ -204,13 +204,10 @@ BOOST_AUTO_TEST_CASE( testTidalDissipationInPlanetAndSatellite )
     bodySettings[ "Ganymede" ]->ephemerisSettings = std::make_shared< KeplerEphemerisSettings >(
                 ( Eigen::Vector6d( ) << 1070.400E6, 0.0013, 0.0, 0.0, 0.0, 0.0 ).finished( ), 0.0,
                 getBodyGravitationalParameter( "Jupiter" ) + getBodyGravitationalParameter( "Ganymede" ), "Jupiter", "ECLIPJ2000" );
-    //    bodySettings[ "Callisto" ]->ephemerisSettings = std::make_shared< KeplerEphemerisSettings >(
-    //                ( Eigen::Vector6d( ) << 1882.700E6, 0.0074, 0.0, 0.0, 0.0, 0.0 ).finished( ), 0.0,
-    //                getBodyGravitationalParameter( "Jupiter" ) + getBodyGravitationalParameter( "Callisto" ), "Jupiter", "ECLIPJ2000" );
 
     // Create bodies needed in simulation
     NamedBodyMap bodyMap = createBodies( bodySettings );
-    setGlobalFrameBodyEphemerides( bodyMap, "Jupiter", "ECLIPJ2000" );
+    setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );
 
     // Define propagation settings.
     double jupiterLoveNumber = 0.1;
