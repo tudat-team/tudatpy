@@ -1270,6 +1270,11 @@ public:
         bodyIsGlobalFrameOrigin_ = bodyIsGlobalFrameOrigin;
     }
 
+    //! Function to define whether the body is currently being propagated, or not
+    /*!
+     *  Function to define whether the body is currently being propagated, or not
+     *  \param isBodyInPropagation Boolean defining whether the body is currently being propagated, or not
+     */
     void setIsBodyInPropagation( const bool isBodyInPropagation );
 
 protected:
@@ -1367,6 +1372,7 @@ private:
     //! Container object with hardware systems present on/in body (typically only non-nullptr for a vehicle).
     std::shared_ptr< system_models::VehicleSystems > vehicleSystems_;
 
+    //!  Boolean defining whether the body is currently being propagated, or not
     bool isBodyInPropagation_ = false;
 };
 

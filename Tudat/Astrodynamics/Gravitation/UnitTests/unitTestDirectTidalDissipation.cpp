@@ -137,9 +137,9 @@ std::pair< double, double > computeKeplerElementRatesDueToDissipation(
     //                                          "keplerElements_"  + std::to_string( usePlanetDissipation ) +
     //                                          satelliteToPropagate + ".dat" );
 
-    input_output::writeDataMapToTextFile( integrationResultWithDissipationKepler,
-                                          "keplerElements_"  + std::to_string( usePlanetDissipation ) + "_" +
-                                          satelliteToPropagate + ".dat" );
+//    input_output::writeDataMapToTextFile( integrationResultWithDissipationKepler,
+//                                          "keplerElements_"  + std::to_string( usePlanetDissipation ) + "_" +
+//                                          satelliteToPropagate + ".dat" );
 
     std::vector< double > semiMajorAxisFit = linear_algebra::getLeastSquaresPolynomialFit(
                 semiMajorAxes, { 0, 1 } );

@@ -32,40 +32,59 @@ namespace tudat
 namespace simulation_setup
 {
 
+
+Eigen::Vector6d getStateFromSelectedStateFunction(
+        const double currentTime,
+        const bool useFirstFunction,
+        const std::function< Eigen::Vector6d( const double ) > stateFunction1,
+        const std::function< Eigen::Vector6d( const double ) > stateFunction2 )
+{
+    return ( useFirstFunction ) ? ( stateFunction1( currentTime ) ) : ( stateFunction2( currentTime ) );
+}
+
+
+//! Function to create a state function for a body, valid both during propagation, and outside propagation
 std::function< Eigen::Vector6d( const double, bool ) > createRelativeStateFunction(
         const NamedBodyMap& bodyMap,
         const std::string orbitingBody,
         const std::string centralBody )
 {
+    // Retrieve state functions for relevant bodies (obtained from current state of body objects)
     std::function< Eigen::Vector6d( const double ) > bodyInertialStateFunction =
             std::bind( &Body::getState, bodyMap.at( orbitingBody ) );
     std::function< Eigen::Vector6d( const double ) > centralBodyInertialStateFunction =
             std::bind( &Body::getState, bodyMap.at(  centralBody ) );
 
+    // Define relative state function from body object
     std::function< Eigen::Vector6d( const double ) > fromBodyStateFunction =
             std::bind(
-                &ephemerides::getDifferenceBetweenStates, bodyInertialStateFunction, centralBodyInertialStateFunction, std::placeholders::_1 );
+                &ephemerides::getDifferenceBetweenStates, bodyInertialStateFunction,
+                centralBodyInertialStateFunction, std::placeholders::_1 );
+
+    // Define state function from ephemeris
     std::function< Eigen::Vector6d( const double ) > fromEphemerisStateFunction;
 
     if( bodyMap.at( orbitingBody )->getEphemeris( )->getReferenceFrameOrigin( ) == centralBody )
     {
         fromEphemerisStateFunction = std::bind( &ephemerides::Ephemeris::getCartesianState,
-                                                  bodyMap.at( orbitingBody )->getEphemeris( ), std::placeholders::_1 );
+                                                bodyMap.at( orbitingBody )->getEphemeris( ), std::placeholders::_1 );
 
     }
     else
     {
         std::function< Eigen::Vector6d( const double ) > ephemerisInertialStateFunction =
-                std::bind( &Body::getStateInBaseFrameFromEphemeris< double, double >, bodyMap.at( orbitingBody ), std::placeholders::_1 );
+                std::bind( &Body::getStateInBaseFrameFromEphemeris< double, double >, bodyMap.at( orbitingBody ),
+                           std::placeholders::_1 );
         std::function< Eigen::Vector6d( const double ) > ephemerisCentralBodyInertialStateFunction =
-                std::bind( &Body::getStateInBaseFrameFromEphemeris< double, double >, bodyMap.at( centralBody ), std::placeholders::_1 );
+                std::bind( &Body::getStateInBaseFrameFromEphemeris< double, double >, bodyMap.at( centralBody ),
+                           std::placeholders::_1 );
         fromEphemerisStateFunction = std::bind(
                     &ephemerides::getDifferenceBetweenStates,
                     ephemerisInertialStateFunction,
                     ephemerisCentralBodyInertialStateFunction, std::placeholders::_1 );
     }
 
-    return std::bind( &ephemerides::getStateFromSelectedStateFunction, std::placeholders::_1, std::placeholders::_2,
+    return std::bind( &getStateFromSelectedStateFunction, std::placeholders::_1, std::placeholders::_2,
                       fromBodyStateFunction, fromEphemerisStateFunction );
 }
 
@@ -202,7 +221,7 @@ std::shared_ptr< ephemerides::RotationalEphemeris > createRotationModel(
                 std::dynamic_pointer_cast< TidallyLockedRotationModelSettings >( rotationModelSettings );
         if( tidallyLockedRotationSettings == NULL )
         {
-            std::cerr<<"Error, expected tidally locked rotation model settings for "<<body<<std::endl;
+            throw std::runtime_error( "Error, expected tidally locked rotation model settings for " + body );
         }
         else
         {
@@ -211,9 +230,10 @@ std::shared_ptr< ephemerides::RotationalEphemeris > createRotationModel(
                 if( bodyMap.at( body )->getEphemeris( )->getReferenceFrameOrientation( ) !=
                         tidallyLockedRotationSettings->getOriginalFrame( ) )
                 {
-                    std::cerr<<"Error, ephemeris of body "<<body<<" is in "<< bodyMap.at( body )->getEphemeris( )->getReferenceFrameOrientation( )<<
-                               " frame when making tidally locked rotation model, expected "<<
-                               tidallyLockedRotationSettings->getOriginalFrame( ) <<" frame."<<std::endl;
+                    throw std::runtime_error( "Error, ephemeris of body " + body + " is in " +
+                                              bodyMap.at( body )->getEphemeris( )->getReferenceFrameOrientation( ) +
+                                              " frame when making tidally locked rotation model, expected " +
+                                              tidallyLockedRotationSettings->getOriginalFrame( ) + " frame." );
                 }
             }
             std::shared_ptr< TidallyLockedRotationalEphemeris > lockedRotationalEphemeris = std::make_shared< TidallyLockedRotationalEphemeris >(

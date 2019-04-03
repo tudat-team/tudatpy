@@ -27,12 +27,6 @@ namespace tudat
 namespace utilities
 {
 
-
-template <typename T> int sgn(T val) {
-    return (T(0) < val) - (val < T(0));
-}
-
-
 //! Function to recalculate map keys as a linear function of original map keys.
 /*!
  *  Function to recalculate map keys as a linear function of original map keys, i.e. new map key is constant * old key - offset or
@@ -636,6 +630,16 @@ void castDynamicToFixedSizeEigenVectorMap(
     {
         fixedSizeMap[ mapIterator.first ] = mapIterator.second;
     }
+}
+
+//! Function to return the sign (+1 or -1) of a variable of type T
+/*!
+ *  \param Variable for which sign is to be determined
+ *  \return Sign of variable
+ */
+template < typename T > int sgn( const T& val )
+{
+    return ( T( 0 ) < val ) - ( val < T( 0 ) );
 }
 
 } // namespace utilities
