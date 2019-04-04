@@ -119,6 +119,7 @@ std::string getGlobalFrameOrigin( const NamedBodyMap& bodyMap )
     return globalFrameOrigin;
 }
 
+//! Function to set whether the bodies are currently being propagated, or not
 void setAreBodiesInPropagation( const NamedBodyMap& bodyMap,
                                 const bool areBodiesInPropagation )
 {
