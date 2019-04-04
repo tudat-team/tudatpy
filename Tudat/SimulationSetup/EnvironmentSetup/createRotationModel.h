@@ -374,6 +374,15 @@ private:
     std::string centralBodyName_;
 };
 
+//! Function to retrieve a state from one of two functions
+/*!
+ *  Function to retrieve a state from one of two functions, typically from an Ephemeris or a Body object.
+ *  \param currentTime Time at which state function is to be evaluated
+ *  \param useFirstFunctionFirst Boolena defining whether stateFunction1 or stateFunction2 is used
+ *  \param stateFunction1 First function returning state as function of time
+ *  \param stateFunction2 Second function returning state as function of time
+ *  \return
+ */
 Eigen::Vector6d getStateFromSelectedStateFunction(
         const double currentTime,
         const bool useFirstFunction,

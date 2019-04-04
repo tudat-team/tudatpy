@@ -32,7 +32,7 @@ namespace tudat
 namespace simulation_setup
 {
 
-
+//! Function to retrieve a state from one of two functions
 Eigen::Vector6d getStateFromSelectedStateFunction(
         const double currentTime,
         const bool useFirstFunction,

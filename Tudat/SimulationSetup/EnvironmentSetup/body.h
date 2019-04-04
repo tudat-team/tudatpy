@@ -1388,6 +1388,12 @@ typedef std::unordered_map< std::string, std::shared_ptr< Body > > NamedBodyMap;
  */
 std::string getGlobalFrameOrigin( const NamedBodyMap& bodyMap );
 
+//! Function to set whether the bodies are currently being propagated, or not
+/*!
+ * Function to set whether the bodies are currently being propagated, or not
+ * \param bodyMap List of body objects.
+ * \param areBodiesInPropagation Boolean defining whether the bodies are currently being propagated, or not
+ */
 void setAreBodiesInPropagation( const NamedBodyMap& bodyMap,
                                 const bool areBodiesInPropagation );
 
