@@ -36,6 +36,7 @@ BOOST_AUTO_TEST_CASE( test_TidallyLockedRotationModel )
 {
 
     // Load Spice kernels
+    tudat::spice_interface::loadStandardSpiceKernels( );
     tudat::spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "jup310_small.bsp" );
 
     // Create relevant bodies
