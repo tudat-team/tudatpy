@@ -1070,6 +1070,108 @@ BOOST_AUTO_TEST_CASE( test_groundStationCreation )
     }
 }
 
+
+#if USE_CSPICE
+//! Test set up of panelled radiation pressure interfacel environment models.
+BOOST_AUTO_TEST_CASE( test_panelledRadiationPressureInterfaceSetup )
+{
+
+    // Load Spice kernels
+    spice_interface::loadStandardSpiceKernels( );
+
+    // Define body settings.
+    std::map< std::string, std::shared_ptr< BodySettings > > bodySettings;
+    bodySettings[ "Earth" ] = getDefaultSingleBodySettings( "Earth", 0.0, 1.0E7 );
+    bodySettings[ "Sun" ] = getDefaultSingleBodySettings( "Sun", 0.0, 1.0E7 );
+
+    // Get settings for vehicle
+    Eigen::Vector6d initialKeplerElements =
+            ( Eigen::Vector6d( ) << 12000.0E3, 0.13, 0.3, 0.0, 0.0, 0.0 ).finished( );
+    bodySettings[ "Vehicle" ] = std::make_shared< BodySettings >( );
+    bodySettings[ "Vehicle" ]->ephemerisSettings = std::make_shared< KeplerEphemerisSettings >(
+                initialKeplerElements, 0.0, spice_interface::getBodyGravitationalParameter( "Earth" ), "Earth", "ECLIPJ2000" );
+
+
+    // Create radiation pressure properties
+    std::vector< double > areas;
+    areas.push_back( 4.0 );
+    areas.push_back( 6.0 );
+    areas.push_back( 2.3 );
+    areas.push_back( 2.3 );
+    areas.push_back( 5.3 );
+    areas.push_back( 2.7 );
+    areas.push_back( 4.1 );
+    areas.push_back( 2.7 );
+
+    std::vector< double > emissivities;
+    emissivities.push_back( 0.1 );
+    emissivities.push_back( 0.0 );
+    emissivities.push_back( 0.1 );
+    emissivities.push_back( 0.1 );
+    emissivities.push_back( 0.94 );
+    emissivities.push_back( 0.1 );
+    emissivities.push_back( 0.94 );
+    emissivities.push_back( 0.1 );
+
+    std::vector< double > diffuseReflectionCoefficients;
+    diffuseReflectionCoefficients.push_back( 0.46 );
+    diffuseReflectionCoefficients.push_back( 0.06 );
+    diffuseReflectionCoefficients.push_back( 0.46 );
+    diffuseReflectionCoefficients.push_back( 0.46 );
+    diffuseReflectionCoefficients.push_back( 0.06 );
+    diffuseReflectionCoefficients.push_back( 0.46 );
+    diffuseReflectionCoefficients.push_back( 0.06 );
+    diffuseReflectionCoefficients.push_back( 0.46 );
+
+    std::vector< Eigen::Vector3d > panelSurfaceNormals;
+    panelSurfaceNormals.push_back( Eigen::Vector3d::UnitZ( ) );
+    panelSurfaceNormals.push_back( - Eigen::Vector3d::UnitZ( ) );
+    panelSurfaceNormals.push_back( Eigen::Vector3d::UnitX( ) );
+    panelSurfaceNormals.push_back( - Eigen::Vector3d::UnitX( ) );
+    panelSurfaceNormals.push_back( Eigen::Vector3d::UnitY( ) );
+    panelSurfaceNormals.push_back( Eigen::Vector3d::UnitY( ) );
+    panelSurfaceNormals.push_back( - Eigen::Vector3d::UnitY( ) );
+    panelSurfaceNormals.push_back( - Eigen::Vector3d::UnitY( ) );
+
+
+
+    std::shared_ptr< PanelledRadiationPressureInterfaceSettings > radiationPressureInterfaceSettings =
+            std::make_shared< PanelledRadiationPressureInterfaceSettings >(
+                "Sun", emissivities, areas, diffuseReflectionCoefficients, panelSurfaceNormals );
+
+    bodySettings[ "Vehicle" ]->radiationPressureSettings[ "Sun" ] = radiationPressureInterfaceSettings;
+
+
+    // Create bodies
+    NamedBodyMap bodyMap = createBodies( bodySettings );
+    setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );
+
+    BOOST_CHECK_EQUAL( bodyMap[ "Vehicle" ]->getRadiationPressureInterfaces( ).size( ), 1 );
+    BOOST_CHECK_EQUAL( bodyMap[ "Vehicle" ]->getRadiationPressureInterfaces( ).count( "Sun" ), 1 );
+
+    double testTime = 0.5E7;
+
+    // Update environment to current time.
+    bodyMap[ "Sun" ]->setStateFromEphemeris< double, double >( testTime );
+    bodyMap[ "Earth" ]->setStateFromEphemeris< double, double >( testTime );
+    bodyMap[ "Vehicle" ]->setStateFromEphemeris< double, double >( testTime );
+
+    std::shared_ptr< electro_magnetism::RadiationPressureInterface > vehicleRadiationPressureInterface =
+            bodyMap[ "Vehicle" ]->getRadiationPressureInterfaces( ).at( "Sun" );
+
+    vehicleRadiationPressureInterface->updateInterface( testTime );
+    double sourceDistance = ( ( bodyMap[ "Vehicle" ]->getState( ) -  bodyMap[ "Sun" ]->getState( ) ).
+            segment( 0, 3 ) ).norm( );
+    double expectedRadiationPressure = electro_magnetism::calculateRadiationPressure(
+                defaultRadiatedPowerValues.at( "Sun" ), sourceDistance );
+
+    BOOST_CHECK_CLOSE_FRACTION( expectedRadiationPressure,
+                                vehicleRadiationPressureInterface->getCurrentRadiationPressure( ),
+                                std::numeric_limits< double >::epsilon( ) );
+
+}
+#endif
+
 BOOST_AUTO_TEST_SUITE_END( )
 
 } // namespace unit_tests
