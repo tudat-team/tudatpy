@@ -34,6 +34,9 @@ std::string getObservableName( const ObservableType observableType, const int nu
     case position_observable:
         observableName = "CartesianPosition";
         break;
+    case velocity_observable:
+        observableName = "CartesianVelocity";
+        break;
     case one_way_doppler:
         observableName = "OneWayDoppler";
         break;
@@ -103,6 +106,10 @@ ObservableType getObservableType( const std::string& observableName )
     {
         observableType = position_observable;
     }
+    else if( observableName == "CartesianVelocity" )
+    {
+        observableType = velocity_observable;
+    }
     else if( observableName ==  "OneWayDoppler" )
     {
         observableType = one_way_doppler;
@@ -143,6 +150,9 @@ int getObservableSize( const ObservableType observableType )
         observableSize = 2;
         break;
     case position_observable:
+        observableSize = 3;
+        break;
+    case velocity_observable:
         observableSize = 3;
         break;
     case one_way_doppler:
@@ -281,6 +291,20 @@ std::vector< int > getLinkEndIndicesForLinkEndTypeAtObservable(
         }
         break;
     case euler_angle_313_observable:
+        if( linkEndType == observed_body )
+        {
+            linkEndIndices.push_back( 0 );
+        }
+        else
+        {
+            std::string errorMessage =
+                    "Error, could not find link end type index for link end " +
+                    std::to_string( linkEndType ) + " of observable " +
+                    std::to_string( observableType );
+            throw std::runtime_error( errorMessage );
+        }
+        break;
+    case velocity_observable:
         if( linkEndType == observed_body )
         {
             linkEndIndices.push_back( 0 );

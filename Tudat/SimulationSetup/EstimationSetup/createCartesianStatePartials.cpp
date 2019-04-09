@@ -389,6 +389,28 @@ std::shared_ptr< PositionObervationPartial > createPositionObservablePartialWrtP
     return positionObervationPartial;
 }
 
+//! Function to create an objects that computes the partial derivatives of a three-dimensional position observable w.r.t.
+//! the Velocity of a body.
+std::shared_ptr< VelocityObervationPartial > createVelocityObservablePartialWrtVelocity(
+        const  observation_models::LinkEnds linkEnds,
+        const simulation_setup::NamedBodyMap& bodyMap,
+        const std::string bodyToEstimate,
+        const std::shared_ptr< VelocityObservationScaling > velocityObservableScaler )
+{
+    std::map<  observation_models::LinkEndType, std::shared_ptr< CartesianStatePartial > > velocityPartials =
+            createCartesianStatePartialsWrtBodyState( linkEnds, bodyMap, bodyToEstimate );
+    std::shared_ptr< VelocityObervationPartial > velocityObervationPartial;
+
+    if( velocityPartials.size( ) > 0 )
+    {
+        velocityObervationPartial = std::make_shared< VelocityObervationPartial >(
+                    velocityObservableScaler, velocityPartials, std::make_pair(
+                        estimatable_parameters::initial_body_state, std::make_pair( bodyToEstimate, "") ) );
+    }
+
+    return velocityObervationPartial;
+}
+
 }
 
 }
