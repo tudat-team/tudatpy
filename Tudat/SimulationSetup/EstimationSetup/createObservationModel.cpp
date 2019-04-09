@@ -216,10 +216,13 @@ std::vector< std::pair< int, int > > getLinkEndIndicesForObservationViability(
 
         throw std::runtime_error( "Error, parsed irrelevant position observable viability indices" );
         break;
-
     case euler_angle_313_observable:
 
         throw std::runtime_error( "Error, parsed irrelevant euler angle observable viability indices" );
+        break;
+    case velocity_observable:
+
+        throw std::runtime_error( "Error, parsed irrelevant position observable viability indices" );
         break;
     default:
         throw std::runtime_error( "Error, observable type " + std::to_string(

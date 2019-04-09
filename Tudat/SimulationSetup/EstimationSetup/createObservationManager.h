@@ -89,9 +89,9 @@ void performObservationParameterEstimationClosureForSingleModelSet(
                 {
                     biasParameter->setObservationBiasFunctions(
                                 std::bind( &ConstantObservationBias< ObservationSize >::getTemplateFreeConstantObservationBias,
-                                             constantBiasObject ),
+                                           constantBiasObject ),
                                 std::bind( &ConstantObservationBias< ObservationSize >::resetConstantObservationBiasTemplateFree,
-                                             constantBiasObject, std::placeholders::_1 ) );
+                                           constantBiasObject, std::placeholders::_1 ) );
                 }
             }
             break;
@@ -135,9 +135,9 @@ void performObservationParameterEstimationClosureForSingleModelSet(
                     {
                         biasParameter->setObservationBiasFunctions(
                                     std::bind( &ConstantArcWiseObservationBias< ObservationSize >::getTemplateFreeConstantObservationBias,
-                                                 constantBiasObject ),
+                                               constantBiasObject ),
                                     std::bind( &ConstantArcWiseObservationBias< ObservationSize >::resetConstantObservationBiasTemplateFree,
-                                                 constantBiasObject, std::placeholders::_1 ) );
+                                               constantBiasObject, std::placeholders::_1 ) );
                         biasParameter->setLookupScheme( constantBiasObject->getLookupScheme( ) );
                     }
                 }
@@ -166,9 +166,9 @@ void performObservationParameterEstimationClosureForSingleModelSet(
                 {
                     biasParameter->setObservationBiasFunctions(
                                 std::bind( &ConstantRelativeObservationBias< ObservationSize >::getTemplateFreeConstantObservationBias,
-                                             constantBiasObject ),
+                                           constantBiasObject ),
                                 std::bind( &ConstantRelativeObservationBias< ObservationSize >::resetConstantObservationBiasTemplateFree,
-                                             constantBiasObject, std::placeholders::_1 ) );
+                                           constantBiasObject, std::placeholders::_1 ) );
                 }
             }
             break;
@@ -212,9 +212,9 @@ void performObservationParameterEstimationClosureForSingleModelSet(
                     {
                         biasParameter->setObservationBiasFunctions(
                                     std::bind( &ConstantRelativeArcWiseObservationBias< ObservationSize >::getTemplateFreeConstantObservationBias,
-                                                 constantBiasObject ),
+                                               constantBiasObject ),
                                     std::bind( &ConstantRelativeArcWiseObservationBias< ObservationSize >::resetConstantObservationBiasTemplateFree,
-                                                 constantBiasObject, std::placeholders::_1 ) );
+                                               constantBiasObject, std::placeholders::_1 ) );
                         biasParameter->setLookupScheme( constantBiasObject->getLookupScheme( ) );
                     }
                 }
@@ -394,6 +394,11 @@ std::shared_ptr< ObservationManagerBase< ObservationScalarType, TimeType > > cre
                     stateTransitionMatrixInterface );
         break;
     case euler_angle_313_observable:
+        observationManager = createObservationManager< 3, ObservationScalarType, TimeType >(
+                    observableType, settingsPerLinkEnds, bodyMap, parametersToEstimate,
+                    stateTransitionMatrixInterface );
+        break;
+    case velocity_observable:
         observationManager = createObservationManager< 3, ObservationScalarType, TimeType >(
                     observableType, settingsPerLinkEnds, bodyMap, parametersToEstimate,
                     stateTransitionMatrixInterface );
