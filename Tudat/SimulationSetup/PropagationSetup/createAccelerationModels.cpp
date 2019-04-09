@@ -1179,7 +1179,7 @@ std::shared_ptr< gravitation::DirectTidalDissipationAcceleration > createDirectT
 }
 
 
-std::shared_ptr< propulsion::MomentumWheelDesaturationThrust > createMomentumWheelDesaturationAcceleration(
+std::shared_ptr< propulsion::MomentumWheelDesaturationThrustAcceleration > createMomentumWheelDesaturationAcceleration(
         const std::shared_ptr< Body > bodyUndergoingAcceleration,
         const std::shared_ptr< Body > bodyExertingAcceleration,
         const std::string& nameOfBodyUndergoingAcceleration,
@@ -1199,7 +1199,7 @@ std::shared_ptr< propulsion::MomentumWheelDesaturationThrust > createMomentumWhe
         throw std::runtime_error( "Error when creating momentum wheel desaturation acceleration, exerting and undergoing bodies are not the same" );
     }
 
-    return std::make_shared< propulsion::MomentumWheelDesaturationThrust >(
+    return std::make_shared< propulsion::MomentumWheelDesaturationThrustAcceleration >(
                 desaturationAccelerationSettings->thrustMidTimes_,
                 desaturationAccelerationSettings->deltaVValues_,
                 desaturationAccelerationSettings->totalManeuverTime_,
