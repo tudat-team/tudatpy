@@ -131,6 +131,11 @@ AvailableAcceleration getAccelerationModelType(
     {
         accelerationType = thrust_acceleration;
     }
+    else if( std::dynamic_pointer_cast< propulsion::MomentumWheelDesaturationThrust >(
+                 accelerationModel ) != nullptr )
+    {
+        accelerationType = momentum_wheel_desaturation_acceleration;
+    }
     else if( std::dynamic_pointer_cast< relativity::RelativisticAccelerationCorrection >(
                  accelerationModel ) != nullptr )
     {

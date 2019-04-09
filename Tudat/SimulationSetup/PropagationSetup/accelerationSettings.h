@@ -502,14 +502,14 @@ public:
 
     MomentumWheelDesaturationAccelerationSettings(
             const std::vector< double > thrustMidTimes,
-            const std::vector< Eigen::Vector3d > deltaVValuesInRtwFrame,
+            const std::vector< Eigen::Vector3d > deltaVValues,
             const double totalManeuverTime,
-            const double maneuverRiseTime ): AccelerationSettings( momentum_wheel_desaturation_acceleration ),
-        thrustMidTimes_( thrustMidTimes ), deltaVValuesInRtwFrame_( deltaVValuesInRtwFrame ),
+            const double maneuverRiseTime ): AccelerationSettings( basic_astrodynamics::momentum_wheel_desaturation_acceleration ),
+        thrustMidTimes_( thrustMidTimes ), deltaVValues_( deltaVValues ),
         totalManeuverTime_( totalManeuverTime ), maneuverRiseTime_( maneuverRiseTime ){ }
 
     std::vector< double > thrustMidTimes_;
-    std::vector< Eigen::Vector3d > deltaVValuesInRtwFrame_;
+    std::vector< Eigen::Vector3d > deltaVValues_;
     double totalManeuverTime_;
     double maneuverRiseTime_;
 };

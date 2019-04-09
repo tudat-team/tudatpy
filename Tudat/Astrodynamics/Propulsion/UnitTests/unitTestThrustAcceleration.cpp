@@ -1947,6 +1947,173 @@ BOOST_AUTO_TEST_CASE( testMeeCostateBasedThrust )
     }
 }
 
+//! Test to check whether the mee-costate based thrust guidance is working correctly
+BOOST_AUTO_TEST_CASE( testMomentumWheelDesaturationThrust )
+{
+    using namespace tudat;
+    using namespace ephemerides;
+    using namespace interpolators;
+    using namespace numerical_integrators;
+    using namespace spice_interface;
+    using namespace simulation_setup;
+    using namespace basic_astrodynamics;
+    using namespace orbital_element_conversions;
+    using namespace propagators;
+    using namespace aerodynamics;
+    using namespace basic_mathematics;
+    using namespace input_output;
+    using namespace unit_conversions;
+
+    // Load Spice kernels.
+    spice_interface::loadStandardSpiceKernels( );
+
+    // Set simulation start epoch.
+    const double simulationStartEpoch = 0.0;
+
+    // Set simulation end epoch.
+    const double simulationEndEpoch = 24.0 * 3600.0;
+
+    // Set numerical integration fixed step size.
+    const double fixedStepSize = 2.0;
+
+
+    // Create vehicle objects.
+    simulation_setup::NamedBodyMap bodyMap;
+    bodyMap[ "Asterix" ] = std::make_shared< simulation_setup::Body >( );
+
+    // Finalize body creation.
+    setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );
+
+    double vehicleMass = 5.0E5;
+
+    bodyMap[ "Asterix" ]->setConstantBodyMass( vehicleMass );
+
+    // Define propagator settings variables.
+    SelectedAccelerationMap accelerationMap;
+    std::vector< std::string > bodiesToPropagate;
+    std::vector< std::string > centralBodies;
+
+    std::vector< double > thrustMidTimes = { 2.0 * 3600.0, 8.0 * 3600.0, 14.0 * 3600.0 };
+    std::vector< Eigen::Vector3d > deltaVValues =
+    { 1.0E-3 * ( Eigen::Vector3d( ) << 0.3, -2.5, 3.4 ).finished( ),
+      1.0E-3 * ( Eigen::Vector3d( ) << 2.0, 5.9, -0.5 ).finished( ),
+      1.0E-3 * ( Eigen::Vector3d( ) << -1.6, 4.4, -5.8 ).finished( ) };
+    double totalManeuverTime = 90.0;
+    double maneuverRiseTime = 15.0;
+
+    // Define acceleration model settings.
+    std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfAsterix;
+    accelerationsOfAsterix[ "Asterix" ].push_back(
+                std::make_shared< MomentumWheelDesaturationAccelerationSettings >(
+                    thrustMidTimes, deltaVValues, totalManeuverTime, maneuverRiseTime ) );
+    accelerationMap[ "Asterix" ] = accelerationsOfAsterix;
+
+    bodiesToPropagate.push_back( "Asterix" );
+    centralBodies.push_back( "SSB" );
+
+    // Set initial state
+    Eigen::Vector6d systemInitialState = Eigen::Vector6d::Zero( );
+
+    // Create acceleration models and propagation settings.
+    basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
+                bodyMap, accelerationMap, bodiesToPropagate, centralBodies );
+
+    // Define list of dependent variables to save.
+    std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariables;
+    dependentVariables.push_back(
+                std::make_shared< SingleAccelerationDependentVariableSaveSettings >(
+                    momentum_wheel_desaturation_acceleration, "Asterix", "Asterix" ) );
+
+    // Create propagator/integrator settings
+    std::shared_ptr< TranslationalStatePropagatorSettings< double > > translationalPropagatorSettings =
+            std::make_shared< TranslationalStatePropagatorSettings< double > >
+            ( centralBodies, accelerationModelMap, bodiesToPropagate, systemInitialState,
+              std::make_shared< propagators::PropagationTimeTerminationSettings >( simulationEndEpoch ), cowell,
+              std::make_shared< DependentVariableSaveSettings >( dependentVariables ) );
+
+    std::shared_ptr< SingleArcPropagatorSettings< double > > propagatorSettings =
+            translationalPropagatorSettings;
+
+    std::shared_ptr< IntegratorSettings< > > integratorSettings =
+            std::make_shared< IntegratorSettings< > >
+            ( rungeKutta4, simulationStartEpoch + fixedStepSize / 9.0, fixedStepSize );
+
+    // Create simulation object and propagate dynamics.
+    SingleArcDynamicsSimulator< > dynamicsSimulator(
+                bodyMap, integratorSettings, propagatorSettings, true, false, false );
+
+    auto stateHistory = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
+    auto dependentVariableResult = dynamicsSimulator.getDependentVariableHistory( );
+
+    std::vector< double > thrustStartTimes;
+    for( int i = 0; i < thrustMidTimes.size( ); i++ )
+    {
+       thrustStartTimes.push_back( thrustMidTimes.at( i ) - totalManeuverTime / 2.0 );
+    }
+
+    std::shared_ptr< tudat::interpolators::LookUpScheme< double > > timeLookup =
+            std::make_shared< tudat::interpolators::HuntingAlgorithmLookupScheme< double > >(
+                thrustStartTimes );
+    for( auto variableIterator : dependentVariableResult )
+    {
+        double currentTime = variableIterator.first;
+        int currentNearestNeighbour = timeLookup->findNearestLowerNeighbour( currentTime );
+        double currentStartTime = thrustStartTimes.at( currentNearestNeighbour );
+
+        Eigen::Vector3d expectedAcceleration = Eigen::Vector3d::Zero( );
+        double scalingNorm = 0.0;
+        if( ( std::fabs( currentTime - currentStartTime ) < totalManeuverTime ) && ( currentTime > currentStartTime )  )
+        {
+            Eigen::Vector3d peakAcceleration = deltaVValues.at( currentNearestNeighbour ) /
+                    ( totalManeuverTime - maneuverRiseTime );
+            scalingNorm = peakAcceleration.norm( );
+
+            double timeSinceStart = currentTime - currentStartTime;
+
+            if( timeSinceStart < maneuverRiseTime )
+            {
+                double timeRatio = timeSinceStart / maneuverRiseTime;
+                expectedAcceleration = peakAcceleration * timeRatio * timeRatio * (
+                            3.0 - 2.0 * timeRatio );
+
+            }
+            else if( timeSinceStart < totalManeuverTime - maneuverRiseTime )
+            {
+                expectedAcceleration = peakAcceleration;
+            }
+            else
+            {
+                double timeRatio = ( totalManeuverTime - timeSinceStart ) / maneuverRiseTime;
+                expectedAcceleration = peakAcceleration * timeRatio * timeRatio * (
+                            3.0 - 2.0 * timeRatio );
+            }
+        }
+        else if( currentTime > currentStartTime )
+        {
+            Eigen::Vector3d expectedDeltaV = Eigen::Vector3d::Zero( );
+            for( int i = 0; i <= currentNearestNeighbour; i++ )
+            {
+                expectedDeltaV += deltaVValues.at( i );
+            }
+
+            Eigen::Vector3d currentVelocity = stateHistory.at( variableIterator.first ).segment( 3, 3 );
+
+            for( int i = 0; i < 3; i++ )
+            {
+                BOOST_CHECK_SMALL( std::fabs( expectedDeltaV( i ) - currentVelocity( i ) ), 1.0E-5 * currentVelocity.norm( ) );
+            }
+
+        }
+
+
+
+        for( int i = 0; i < 3; i++ )
+        {
+            BOOST_CHECK_SMALL( std::fabs( expectedAcceleration( i ) - variableIterator.second( i ) ),
+                               5.0 * std::numeric_limits< double >::epsilon( ) * scalingNorm );
+        }
+    }
+}
 BOOST_AUTO_TEST_SUITE_END( )
 
 } // namespace unit_tests
