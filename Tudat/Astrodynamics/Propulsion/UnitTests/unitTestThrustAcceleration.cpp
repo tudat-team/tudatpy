@@ -2080,8 +2080,6 @@ BOOST_AUTO_TEST_CASE( testMomentumWheelDesaturationThrust )
         double currentTime = variableIterator.first;
         int currentNearestNeighbour = timeLookup->findNearestLowerNeighbour( currentTime );
 
-//        std::cout<<"CURRENT NEAREST NEIGHBOUR "<<currentTime<<" "<<currentNearestNeighbour<<std::endl<<std::endl<<
-//                   thrustStartTimes.at( 0 )<<" "<<thrustStartTimes.at( 1 )<<" "<<thrustStartTimes.at( 2 )<<" "<<std::endl;
         double currentStartTime = thrustStartTimes.at( currentNearestNeighbour );
 
         Eigen::Vector3d expectedAcceleration = Eigen::Vector3d::Zero( );
@@ -2155,11 +2153,8 @@ BOOST_AUTO_TEST_CASE( testMomentumWheelDesaturationThrust )
         stateTransitionMatrix.block( 0, 3, 3, 3 ) = Eigen::Matrix3d::Zero( );
 
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                    stateTransitionMatrix, Eigen::Matrix6d::Zero( ),
+                    stateTransitionMatrix, Eigen::Matrix6d::Identity( ),
                     std::numeric_limits< double >::epsilon( ) );
-
-        std::cout<<currentTime<<std::endl;/*<<stateTransitionHistory.at( currentTime )<<std::endl<<
-                   sensitivityHistory.at( currentTime )<<std::endl<<std::endl;*/
     }
 }
 BOOST_AUTO_TEST_SUITE_END( )
