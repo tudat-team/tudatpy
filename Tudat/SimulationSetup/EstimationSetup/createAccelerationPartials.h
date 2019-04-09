@@ -26,6 +26,7 @@
 #include "Tudat/Astrodynamics/OrbitDetermination/AccelerationPartials/mutualSphericalHarmonicGravityPartial.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/AccelerationPartials/empiricalAccelerationPartial.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/AccelerationPartials/directTidalDissipationAccelerationPartial.h"
+#include "Tudat/Astrodynamics/OrbitDetermination/AccelerationPartials/thrustAccelerationPartial.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/ObservationPartials/rotationMatrixPartial.h"
 #include "Tudat/SimulationSetup/EstimationSetup/createCartesianStatePartials.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/accelerationModelTypes.h"
@@ -391,6 +392,23 @@ std::shared_ptr< acceleration_partials::AccelerationPartial > createAnalyticalAc
         {
             accelerationPartial = std::make_shared< EmpiricalAccelerationPartial >( empiricalAcceleration,
                                                                                     acceleratedBody.first, acceleratingBody.first );
+        }
+        break;
+    }
+    case momentum_wheel_desaturation_acceleration:
+    {
+        std::shared_ptr< propulsion::MomentumWheelDesaturationThrustAcceleration > thrustAcceleration =
+                std::dynamic_pointer_cast< propulsion::MomentumWheelDesaturationThrustAcceleration >( accelerationModel );
+        if( thrustAcceleration == nullptr )
+        {
+            std::cerr << "Acceleration class type does not match acceleration type enum (mom. wheel desat.) "
+                         "set when making acceleration partial." << std::endl;
+
+        }
+        else
+        {
+            accelerationPartial = std::make_shared< MomentumWheelDesaturationPartial >(
+                        thrustAcceleration, acceleratedBody.first );
         }
         break;
     }

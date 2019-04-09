@@ -340,7 +340,7 @@ std::shared_ptr< gravitation::DirectTidalDissipationAcceleration > createDirectT
         const std::string& nameOfBodyExertingAcceleration,
         const  std::shared_ptr< AccelerationSettings > accelerationSettings );
 
-std::shared_ptr< propulsion::MomentumWheelDesaturationThrust > createMomentumWheelDesaturationAcceleration(
+std::shared_ptr< propulsion::MomentumWheelDesaturationThrustAcceleration > createMomentumWheelDesaturationAcceleration(
         const std::shared_ptr< Body > bodyUndergoingAcceleration,
         const std::shared_ptr< Body > bodyExertingAcceleration,
         const std::string& nameOfBodyUndergoingAcceleration,
