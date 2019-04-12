@@ -290,7 +290,7 @@ public:
             const std::function< double( ) > sourcePower,
             const std::function< Eigen::Vector3d( ) > sourcePositionFunction,
             const std::function< Eigen::Vector3d( ) > targetPositionFunction,
-            const std::vector< std::function< Eigen::Vector3d( ) > > localFrameSurfaceNormals,
+            const std::vector< std::function< Eigen::Vector3d( /*const double*/ ) > > localFrameSurfaceNormals,
             const std::vector< double > emissivities,
             const std::vector< double > areas,
             const std::vector< double > diffusionCoefficients,
@@ -317,7 +317,7 @@ public:
         for( unsigned int i = 0; i < surfaceNormalsInPropagationFrame_.size( ); i++ )
         {
             surfaceNormalsInPropagationFrame_[ i ] =
-                    rotationToPropagationFrame * localFrameSurfaceNormals_.at( i )( );
+                    rotationToPropagationFrame * localFrameSurfaceNormals_.at( i )( /*currentTime*/ );
         }
     }
 
@@ -368,7 +368,7 @@ public:
 
 private:
 
-    std::vector< std::function< Eigen::Vector3d( ) > > localFrameSurfaceNormals_;
+    std::vector< std::function< Eigen::Vector3d( /*const double*/ ) > > localFrameSurfaceNormals_;
 
     std::vector< double > emissivities_;
 
