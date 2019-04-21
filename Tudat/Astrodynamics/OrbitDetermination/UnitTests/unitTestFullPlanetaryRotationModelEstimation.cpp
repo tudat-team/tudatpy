@@ -135,15 +135,6 @@ BOOST_AUTO_TEST_CASE( test_FullPlanetaryRotationalParameters )
     }
     integrationArcLimits.push_back( currentStartTime + arcOverlap );
 
-    // Set parameters that are to be estimated.
-    std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames;
-    parameterNames.push_back( std::make_shared< ArcWiseInitialTranslationalStateEstimatableParameterSettings< double > >(
-                                  "Earth", integrationArcStartTimes ) );
-    parameterNames.push_back(  std::make_shared< EstimatableParameterSettings >( "Mars", periodic_spin_variation ) );
-
-    std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > parametersToEstimate =
-            createParametersToEstimate< double >( parameterNames, bodyMap );
-
 
     // Define links in simulation.
     std::vector< LinkEnds > linkEnds; linkEnds.resize( 2 );
@@ -174,14 +165,8 @@ BOOST_AUTO_TEST_CASE( test_FullPlanetaryRotationalParameters )
     std::shared_ptr< PropagatorSettings< double > > propagatorSettings =
             std::make_shared< MultiArcPropagatorSettings< double > >( propagatorSettingsList, 1 );
 
-    // Create orbit determination object.
-    OrbitDeterminationManager< double, double > orbitDeterminationManager = OrbitDeterminationManager< double, double >(
-                bodyMap, parametersToEstimate, observationSettingsMap, integratorSettings, propagatorSettings );
 
-    Eigen::Matrix< double, Eigen::Dynamic, 1 > initialParameterEstimate =
-            parametersToEstimate->template getFullParameterValues< double >( );
-
-
+    // Define observation times.
     double observationTime;
     int numberOfObservationsPerArc = 5000;
     double timeBuffer = 9000.0;
@@ -211,48 +196,128 @@ BOOST_AUTO_TEST_CASE( test_FullPlanetaryRotationalParameters )
     measurementSimulationInput[ one_way_range ] = singleObservableSimulationInput;
 
 
-    typedef Eigen::Matrix< double, Eigen::Dynamic, 1 > ObservationVectorType;
-    typedef std::map< LinkEnds, std::pair< ObservationVectorType, std::pair< std::vector< double >, LinkEndType > > > SingleObservablePodInputType;
-    typedef std::map< ObservableType, SingleObservablePodInputType > PodInputDataType;
 
-    PodInputDataType observationsAndTimes = simulateObservations< double, double >(
-                measurementSimulationInput, orbitDeterminationManager.getObservationSimulators( )  );
+    // Set-up different cases with various parameters to estimate
+    for ( int testCase = 0 ; testCase < 3 ; testCase++ ){
 
+        // Set parameters that are to be estimated.
+        std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames;
+        parameterNames.push_back( std::make_shared< ArcWiseInitialTranslationalStateEstimatableParameterSettings< double > >(
+                                      "Earth", integrationArcStartTimes ) );
 
-    Eigen::Matrix< double, Eigen::Dynamic, 1 > truthParameters = initialParameterEstimate;
-    for (int i = 0 ; i < numberEstimationArcs ; i++){
-        initialParameterEstimate.segment( 0 + i * 6, 3 ) += 1.0E1 * Eigen::Vector3d::Identity();
-        initialParameterEstimate.segment( 3 + i * 6, 3 ) += 1.0E-3 * Eigen::Vector3d::Identity();
-    }
-    for( int i = 6 * numberEstimationArcs ; i < static_cast< int >( initialParameterEstimate.rows( ) ); i++ )
-    {
-        initialParameterEstimate[ i ] *= ( 1.0 + 1.0E-4 );
-    }
-
-    parametersToEstimate->resetParameterValues( initialParameterEstimate );
-
-    std::shared_ptr< PodInput< double, double > > podInput = std::make_shared< PodInput< double, double > >(
-                observationsAndTimes, ( initialParameterEstimate ).rows( ) );
-
-    std::shared_ptr< PodOutput< double, double > > podOutput = orbitDeterminationManager.estimateParameters( podInput );
-
-    Eigen::VectorXd parameterError = podOutput->parameterEstimate_ - truthParameters;
-
-    std::cout << "Initial parameter error: " << initialParameterEstimate - truthParameters << "\n\n";
-    std::cout << "Final parameter error: " << parameterError << "\n\n";
-
-    for( int i = 0; i < numberEstimationArcs; i++ )
-    {
-        for( unsigned int j = 0; j < 3; j++ )
-        {
-            BOOST_CHECK_SMALL( std::fabs( parameterError( i * 6 + j ) ), 1.0E-2 );
-            BOOST_CHECK_SMALL( std::fabs( parameterError( i * 6 + j + 3 ) ), 1.0E-8  );
+        // Estimate core factor and free core nutation rate
+        if ( testCase == 0 ){
+            parameterNames.push_back( std::make_shared< EstimatableParameterSettings >( "Mars", core_factor ) );
+            parameterNames.push_back( std::make_shared< EstimatableParameterSettings >( "Mars", free_core_nutation_rate ) );
         }
+
+        // Estimate periodic spin variation
+        else if ( testCase == 1 ){
+            parameterNames.push_back(  std::make_shared< EstimatableParameterSettings >( "Mars", periodic_spin_variation ) );
+        }
+
+        // Estimate polar motion amplitude
+        else if ( testCase == 2 ){
+            parameterNames.push_back(  std::make_shared< EstimatableParameterSettings >( "Mars", polar_motion_amplitude ) );
+        }
+
+
+        std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > parametersToEstimate =
+                createParametersToEstimate< double >( parameterNames, bodyMap );
+
+
+        // Create orbit determination object.
+        OrbitDeterminationManager< double, double > orbitDeterminationManager = OrbitDeterminationManager< double, double >(
+                    bodyMap, parametersToEstimate, observationSettingsMap, integratorSettings, propagatorSettings );
+
+
+        // Define initial parameter estimate.
+        Eigen::Matrix< double, Eigen::Dynamic, 1 > initialParameterEstimate =
+                parametersToEstimate->template getFullParameterValues< double >( );
+
+
+        typedef Eigen::Matrix< double, Eigen::Dynamic, 1 > ObservationVectorType;
+        typedef std::map< LinkEnds, std::pair< ObservationVectorType, std::pair< std::vector< double >, LinkEndType > > > SingleObservablePodInputType;
+        typedef std::map< ObservableType, SingleObservablePodInputType > PodInputDataType;
+
+        PodInputDataType observationsAndTimes = simulateObservations< double, double >(
+                    measurementSimulationInput, orbitDeterminationManager.getObservationSimulators( )  );
+
+
+        // Define perturbation of parameter estimate
+        Eigen::Matrix< double, Eigen::Dynamic, 1 > truthParameters = initialParameterEstimate;
+        for (int i = 0 ; i < numberEstimationArcs ; i++)
+        {
+            initialParameterEstimate.segment( 0 + i * 6, 3 ) += 1.0E1 * Eigen::Vector3d::Identity();
+            initialParameterEstimate.segment( 3 + i * 6, 3 ) += 1.0E-3 * Eigen::Vector3d::Identity();
+        }
+
+
+        if ( testCase == 0 ){
+            initialParameterEstimate[ 6 * numberEstimationArcs ] += 1.0E-4;
+            initialParameterEstimate[ 6 * numberEstimationArcs + 1 ] += 1.0E-8;
+        }
+
+        if ( testCase == 1 ){
+            for( int i = 6 * numberEstimationArcs + 0 ; i < static_cast< int >( initialParameterEstimate.rows( ) ) ; i++ )
+            {
+                initialParameterEstimate[ i ] += 1.0E-8;
+            }
+        }
+
+        if ( testCase == 2 ){
+            for( int i = 6 * numberEstimationArcs ; i < static_cast< int >( initialParameterEstimate.rows( ) ) ; i++ )
+            {
+                initialParameterEstimate[ i ] += 1.0E-9;
+            }
+        }
+
+        parametersToEstimate->resetParameterValues( initialParameterEstimate );
+
+        std::shared_ptr< PodInput< double, double > > podInput = std::make_shared< PodInput< double, double > >(
+                    observationsAndTimes, ( initialParameterEstimate ).rows( ) );
+
+        std::shared_ptr< PodOutput< double, double > > podOutput = orbitDeterminationManager.estimateParameters( podInput );
+
+        Eigen::VectorXd parameterError = podOutput->parameterEstimate_ - truthParameters;
+
+//        std::cout << "TEST " << testCase << ": " << "\n\n";
+//        std::cout << "truth parameter: " << truthParameters << "\n\n";
+//        std::cout << "Initial parameter error: " << ( initialParameterEstimate - truthParameters ).transpose() << "\n\n";
+//        std::cout << "Final parameter error: " << parameterError.transpose() << "\n\n";
+
+        for( int i = 0; i < numberEstimationArcs; i++ )
+        {
+            for( unsigned int j = 0; j < 3; j++ )
+            {
+                BOOST_CHECK_SMALL( std::fabs( parameterError( i * 6 + j ) ), 3.0E-2 );
+                BOOST_CHECK_SMALL( std::fabs( parameterError( i * 6 + j + 3 ) ), 1.0E-7  );
+            }
+        }
+
+
+        if ( testCase == 0 ) {
+
+            BOOST_CHECK_SMALL( std::fabs( parameterError( 6 * numberEstimationArcs ) ), 1.0E-5 );
+            BOOST_CHECK_SMALL( std::fabs( parameterError( 6 * numberEstimationArcs + 1 ) ), 1.0E-8 );
+
+        }
+        else {
+
+            for( int i = 6 * numberEstimationArcs ; i < static_cast< int >( initialParameterEstimate.rows( ) ); i++ )
+            {
+                if ( testCase == 1 ){
+                    BOOST_CHECK_SMALL( std::fabs( parameterError( i ) ), 1.0E-12 );
+                }
+                if ( testCase == 2 ){
+                    BOOST_CHECK_SMALL( std::fabs( parameterError( i ) ), 1.0E-6 );
+                }
+            }
+        }
+
     }
-    for( int i = 6 * numberEstimationArcs ; i < static_cast< int >( initialParameterEstimate.rows( ) ); i++ )
-    {
-        BOOST_CHECK_SMALL( std::fabs( parameterError( i ) ), 1.0E-12 );
-    }
+
+
 
 
 }
