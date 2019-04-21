@@ -199,12 +199,12 @@ std::shared_ptr< electro_magnetism::RadiationPressureInterface > createRadiation
                             radiationPressureInterfaceSettings->getSourceBody( ) ); };
         }
 
-        std::vector< std::function< Eigen::Vector3d( ) > > localFrameSurfaceNormalFunctions;
-        for( unsigned int i = 0; i < panelledSettings->getSurfaceNormalsInBodyFixedFrame( ).size( ); i++ )
-        {
-            localFrameSurfaceNormalFunctions.push_back(
-                        [ = ]( ){ return panelledSettings->getSurfaceNormalsInBodyFixedFrame( ).at( i ); } );
-        }
+        std::vector< std::function< Eigen::Vector3d( const double ) > > localFrameSurfaceNormalFunctions = panelledSettings->getSurfaceNormalsInBodyFixedFrameFunctions();
+//        for( unsigned int i = 0; i < panelledSettings->getSurfaceNormalsInBodyFixedFrame( ).size( ); i++ )
+//        {
+//            localFrameSurfaceNormalFunctions.push_back(
+//                        [ = ]( ){ return panelledSettings->getSurfaceNormalsInBodyFixedFrame( ).at( i ); } );
+//        }
 
         // Create radiation pressure interface.
         radiationPressureInterface =

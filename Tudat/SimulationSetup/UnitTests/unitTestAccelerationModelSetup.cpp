@@ -783,7 +783,7 @@ BOOST_AUTO_TEST_CASE( test_panelledRadiationPressureAcceleration )
         // Initialize force to zero
         Eigen::Vector3d radiationPressureAccelerationCurrentPanel = Eigen::Vector3d::Zero( );
 
-        // If cosineOfPanelInclination is larger than zero (i.e inclination is smaller than 90 degrees), calculated acceleration force (zero otherwise)
+        // If cosinusOfPanelInclination is larger than zero (i.e inclination is smaller than 90 degrees), calculated acceleration force (zero otherwise)
         if( cosinusCurrentPanelInclination > 0.0 )
         {
 
