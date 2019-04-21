@@ -230,13 +230,26 @@ std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixFromLocalFrameWrt
 
     std::vector< Eigen::Matrix3d > rotationMatrixPartials;
 
+    std::map< double, std::pair< double, double > > xPolarMotionCoefficients = planetaryOrientationCalculator->getXpolarMotionCoefficients();
+    std::map< double, std::pair< double, double > > yPolarMotionCoefficients = planetaryOrientationCalculator->getYpolarMotionCoefficients();
+
     std::map< double, std::pair< double, double > > rotationrateCorrections = planetaryOrientationCalculator->getRotationRateCorrections();
 
-    for( std::map< double, std::pair< double, double > >::iterator correctionIterator = rotationrateCorrections.begin( );
-         correctionIterator != rotationrateCorrections.end( ); correctionIterator++ )
+
+
+//    for( std::map< double, std::pair< double, double > >::iterator correctionIterator = rotationrateCorrections.begin( );
+//         correctionIterator != rotationrateCorrections.end( ); correctionIterator++ )
+
+    if ( xPolarMotionCoefficients.size() != yPolarMotionCoefficients.size() ){
+        throw std::runtime_error( "Error, unconsistent sizes when comparing x and y polar motion"
+                                  "amplitude coefficients." );
+    }
+
+    for( std::map< double, std::pair< double, double > >::iterator xPolarMotionCoefficientIterator = xPolarMotionCoefficients.begin( );
+            xPolarMotionCoefficientIterator != xPolarMotionCoefficients.end( ); xPolarMotionCoefficientIterator++ )
     {
         rotationMatrixPartials.push_back(
-                    -std::cos( correctionIterator->first * currentMeanAnomaly) *
+                    -std::cos( xPolarMotionCoefficientIterator->first * currentMeanAnomaly) *
                     RotationFromMeanOrbitToIcrf.toRotationMatrix( ) *
                     RotationFromBodyFixedToIntermediateInertialFrame.toRotationMatrix( ) *
                     ( Eigen::Matrix3d( ) << -std::sin( -PolarMotion.x( ) ), 0.0, std::cos( -PolarMotion.x( ) ),
@@ -245,7 +258,7 @@ std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixFromLocalFrameWrt
                     Eigen::AngleAxisd( -PolarMotion.y( ), Eigen::Vector3d::UnitX( ) ) );
 
         rotationMatrixPartials.push_back(
-                    -std::sin( correctionIterator->first * currentMeanAnomaly) *
+                    -std::sin( xPolarMotionCoefficientIterator->first * currentMeanAnomaly) *
                     RotationFromMeanOrbitToIcrf.toRotationMatrix( ) *
                     RotationFromBodyFixedToIntermediateInertialFrame.toRotationMatrix( ) *
                     ( Eigen::Matrix3d( ) << -std::sin( -PolarMotion.x( ) ), 0.0, std::cos( -PolarMotion.x( ) ),
@@ -254,7 +267,7 @@ std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixFromLocalFrameWrt
                     Eigen::AngleAxisd( -PolarMotion.y( ), Eigen::Vector3d::UnitX( ) ) );
 
         rotationMatrixPartials.push_back(
-                    -std::cos( correctionIterator->first * currentMeanAnomaly) *
+                    -std::cos( xPolarMotionCoefficientIterator->first * currentMeanAnomaly) *
                     RotationFromMeanOrbitToIcrf.toRotationMatrix( ) *
                     RotationFromBodyFixedToIntermediateInertialFrame.toRotationMatrix( ) *
                     Eigen::AngleAxisd( -PolarMotion.x( ), Eigen::Vector3d::UnitY( ) ) *
@@ -263,7 +276,7 @@ std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixFromLocalFrameWrt
                       0.0, std::cos( -PolarMotion.y( ) ), -std::sin( -PolarMotion.y( ) ) ).finished( ) );
 
         rotationMatrixPartials.push_back(
-                    -std::sin( correctionIterator->first * currentMeanAnomaly) *
+                    -std::sin( xPolarMotionCoefficientIterator->first * currentMeanAnomaly) *
                     RotationFromMeanOrbitToIcrf.toRotationMatrix( ) *
                     RotationFromBodyFixedToIntermediateInertialFrame.toRotationMatrix( ) *
                     Eigen::AngleAxisd( -PolarMotion.x( ), Eigen::Vector3d::UnitY( ) ) *

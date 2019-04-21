@@ -59,7 +59,10 @@ enum EstimatebleParametersEnum
     direct_dissipation_tidal_time_lag,
     mean_moment_of_inertia,
     arc_wise_constant_drag_coefficient,
-    periodic_spin_variation
+    periodic_spin_variation,
+    polar_motion_amplitude,
+    core_factor,
+    free_core_nutation_rate
 };
 
 std::string getParameterTypeString( const EstimatebleParametersEnum parameterType );

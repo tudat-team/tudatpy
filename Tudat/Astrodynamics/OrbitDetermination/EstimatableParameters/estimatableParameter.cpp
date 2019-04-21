@@ -102,6 +102,15 @@ std::string getParameterTypeString( const EstimatebleParametersEnum parameterTyp
     case periodic_spin_variation:
         parameterDescription = " periodic spin variation for full planetary rotational model ";
         break;
+    case polar_motion_amplitude:
+        parameterDescription = " polar motion amplitude for full planetary rotational model";
+        break;
+    case core_factor:
+        parameterDescription = " core factor of the celestial body ";
+        break;
+    case free_core_nutation_rate:
+        parameterDescription = " free core nutation rate of the celestial body";
+        break;
     default:
         std::string errorMessage = "Error when getting parameter string, did not recognize parameter " +
                 std::to_string( parameterType );
@@ -210,6 +219,15 @@ bool isDoubleParameter( const EstimatebleParametersEnum parameterType )
     case periodic_spin_variation:
         isDoubleParameter = false;
         break;
+    case polar_motion_amplitude:
+        isDoubleParameter = false;
+        break;
+    case core_factor:
+        isDoubleParameter = true;
+        break;
+    case free_core_nutation_rate:
+        isDoubleParameter = true;
+        break;
     default:
         throw std::runtime_error( "Error, parameter type " + std::to_string( parameterType ) +
                                   " not found when getting parameter type" );
@@ -233,6 +251,15 @@ bool isParameterRotationMatrixProperty( const EstimatebleParametersEnum paramete
         flag = true;
         break;
     case periodic_spin_variation:
+        flag = true;
+        break;
+    case polar_motion_amplitude:
+        flag = true;
+        break;
+    case core_factor:
+        flag = true;
+        break;
+    case free_core_nutation_rate:
         flag = true;
         break;
     default:

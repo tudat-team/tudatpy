@@ -36,6 +36,9 @@ set(ESTIMATABLE_PARAMETERS_HEADERS
   "${SRCROOT}${ESTIMATABLEPARAMETERSDIR}/directTidalTimeLag.h"
   "${SRCROOT}${ESTIMATABLEPARAMETERSDIR}/meanMomentOfInertiaParameter.h"
   "${SRCROOT}${ESTIMATABLEPARAMETERSDIR}/periodicSpinVariation.h"
+  "${SRCROOT}${ESTIMATABLEPARAMETERSDIR}/polarMotionAmplitude.h"
+  "${SRCROOT}${ESTIMATABLEPARAMETERSDIR}/coreFactor.h"
+  "${SRCROOT}${ESTIMATABLEPARAMETERSDIR}/freeCoreNutationRate.h"
 )
 
 # Add static libraries.

@@ -310,6 +310,36 @@ std::shared_ptr< RotationMatrixPartial > createRotationMatrixPartialsWrtParamete
         rotationMatrixPartial = std::make_shared< RotationMatrixPartialWrtConstantRotationRate >(
                     std::dynamic_pointer_cast< SimpleRotationalEphemeris>( currentBody->getRotationalEphemeris( ) ) );
         break;
+
+    case estimatable_parameters::core_factor:
+
+        if( std::dynamic_pointer_cast< ephemerides::PlanetaryRotationModel >(
+                    currentBody->getRotationalEphemeris() ) == nullptr ){
+            std::string errorMessage = "Warning, body's rotation model is not a full planetary rotational model when making"
+                                       "position w.r.t. core factor partial";
+            throw std::runtime_error( errorMessage );
+        }
+
+        // Create rotation matrix partial object
+        rotationMatrixPartial = std::make_shared< RotationMatrixPartialWrtCoreFactor >(
+                    std::dynamic_pointer_cast< PlanetaryRotationModel >( currentBody->getRotationalEphemeris() ));
+
+        break;
+
+    case estimatable_parameters::free_core_nutation_rate:
+
+        if( std::dynamic_pointer_cast< ephemerides::PlanetaryRotationModel >(
+                    currentBody->getRotationalEphemeris() ) == nullptr ){
+            std::string errorMessage = "Warning, body's rotation model is not a full planetary rotational model when making"
+                                       "position w.r.t. polar motion amplitude partial";
+            throw std::runtime_error( errorMessage );
+        }
+
+        // Create rotation matrix partial object
+        rotationMatrixPartial = std::make_shared< RotationMatrixPartialWrtFreeCoreNutationRate >(
+                    std::dynamic_pointer_cast< PlanetaryRotationModel >( currentBody->getRotationalEphemeris() ));
+
+        break;
     default:
         std::string errorMessage = "Warning, rotation matrix partial not implemented for parameter " +
                 std::to_string( parameterToEstimate->getParameterName( ).first );
@@ -368,6 +398,33 @@ std::shared_ptr< RotationMatrixPartial > createRotationMatrixPartialsWrtParamete
         // Create rotation matrix partial object
         rotationMatrixPartial = std::make_shared< RotationMatrixPartialWrtPeriodicSpinVariations >(
                     std::dynamic_pointer_cast< PlanetaryRotationModel >( currentBody->getRotationalEphemeris() ));
+        break;
+
+    case estimatable_parameters::polar_motion_amplitude:
+
+        if( std::dynamic_pointer_cast< ephemerides::PlanetaryRotationModel >(
+                    currentBody->getRotationalEphemeris() ) == nullptr ){
+            std::string errorMessage = "Warning, body's rotation model is not a full planetary rotational model when making"
+                                       "position w.r.t. polar motion amplitude partial";
+            throw std::runtime_error( errorMessage );
+        }
+        else{
+
+            if ( std::dynamic_pointer_cast< ephemerides::PlanetaryRotationModel >( currentBody->getRotationalEphemeris() )
+                 ->getPlanetaryOrientationAngleCalculator()->getXpolarMotionCoefficients().size()
+                 != std::dynamic_pointer_cast< ephemerides::PlanetaryRotationModel >( currentBody->getRotationalEphemeris() )
+                 ->getPlanetaryOrientationAngleCalculator()->getYpolarMotionCoefficients().size() ){
+
+                throw std::runtime_error( "Error, unconsistent sizes when comparing x and y polar motion"
+                                          "amplitude coefficients." );
+            }
+
+            // Create rotation matrix partial object
+            rotationMatrixPartial = std::make_shared< RotationMatrixPartialWrtPolarMotionAmplitude >(
+                        std::dynamic_pointer_cast< PlanetaryRotationModel >( currentBody->getRotationalEphemeris() ));
+
+        }
+
         break;
 
     default:

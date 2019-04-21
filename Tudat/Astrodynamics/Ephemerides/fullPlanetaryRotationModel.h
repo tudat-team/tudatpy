@@ -188,6 +188,32 @@ namespace tudat
                 rotationRateCorrections_ = rotationRateCorrections;
             }
 
+            std::map< double, std::pair< double, double > > getXpolarMotionCoefficients( )
+            {
+                return xPolarMotionCoefficients_;
+            }
+
+            std::map< double, std::pair< double, double > > getYpolarMotionCoefficients( )
+            {
+                return yPolarMotionCoefficients_;
+            }
+
+            void resetXpolarMotionCoefficients( std::map< double, std::pair< double, double > > xPolarMotionCoefficients ){
+                xPolarMotionCoefficients_ = xPolarMotionCoefficients;
+            }
+
+            void resetYpolarMotionCoefficients( std::map< double, std::pair< double, double > > yPolarMotionCoefficients ){
+                yPolarMotionCoefficients_ = yPolarMotionCoefficients;
+            }
+
+            void resetCoreFactor( const double coreFactor ){
+                coreFactor_ = coreFactor;
+            }
+
+            void resetFreeCoreNutationRate( const double freeCoreNutationRate ){
+                freeCoreNutationRate_ = freeCoreNutationRate;
+            }
+
 
 
         private:
