@@ -603,6 +603,203 @@ BOOST_AUTO_TEST_CASE( testPanelledRadiationPressureMontenbruckData )
 
 
 
+BOOST_AUTO_TEST_CASE( testPanelledRadiationPressureTimeVaryingPanelOrientation )
+{
+
+    //Load spice kernels.
+    spice_interface::loadStandardSpiceKernels( );
+
+    // Create bodies needed in simulation
+    double initialEphemerisTime = 0.0;
+    double finalEphemerisTime = 1.1 * 365.25 * 86400.0;
+    std::vector< std::string > bodyNames;
+    bodyNames.push_back( "Sun" );
+    NamedBodyMap bodyMap = createBodies(
+                getDefaultBodySettings( bodyNames,initialEphemerisTime, finalEphemerisTime ) );
+
+    // Create vehicle
+    double vehicleMass = 2000.0;
+    bodyMap[ "Vehicle" ] = std::make_shared< Body >( );
+    bodyMap[ "Vehicle" ]->setConstantBodyMass( vehicleMass );
+
+    std::vector< double > rightAscensionPole;
+    rightAscensionPole.push_back( 0.0 ); rightAscensionPole.push_back( 0.2 );
+    std::vector< double > declinationPole;
+    declinationPole.push_back( mathematical_constants::PI / 2.0 ); declinationPole.push_back( 0.4 );
+    std::vector< double > primeMeridianLongitude;
+    primeMeridianLongitude.push_back( - mathematical_constants::PI / 2.0 ); primeMeridianLongitude.push_back( - 0.2 );
+    std::vector< double > rotationalRate;
+    rotationalRate.push_back( 1.0E-5 ); rotationalRate.push_back( 1.0E-5 );
+    std::vector< double > numberSecondsSinceEpoch;
+    numberSecondsSinceEpoch.push_back( 0.0 ); numberSecondsSinceEpoch.push_back( 0.0 );
+
+
+
+    for ( int testCase = 0 ; testCase < 2 ; testCase++){
+
+        // Compute spacecraft orbital period, and compute test times
+        double orbitalPeriod = 2.0 * mathematical_constants::PI * std::sqrt( std::pow( physical_constants::ASTRONOMICAL_UNIT, 3.0 ) /
+                                                                             spice_interface::getBodyGravitationalParameter( "Sun" ) );
+        std::vector< double > testTimes = { 0.0, orbitalPeriod / 4.0, orbitalPeriod / 2.0, 3.0 * orbitalPeriod / 4.0 };
+
+        // Put vehicle on circular orbit around Sun
+        Eigen::Vector6d initialStateInKeplerianElements = Eigen::Vector6d::Zero( );
+        initialStateInKeplerianElements[ 0 ] = physical_constants::ASTRONOMICAL_UNIT;
+        bodyMap[ "Vehicle" ]->setEphemeris( std::make_shared< KeplerEphemeris >( initialStateInKeplerianElements, 0.0,
+                                                     spice_interface::getBodyGravitationalParameter( "Sun" ), "Sun", "ECLIPJ2000", 1 ) );
+
+
+        /// First calculation with simple rotational ephemeris and constant panel orientation
+
+        // Define simple rotational ephemeris.
+        bodyMap[ "Vehicle" ]->setRotationalEphemeris( std::make_shared< tudat::ephemerides::SimpleRotationalEphemeris >(
+                        rightAscensionPole[ testCase ], declinationPole[ testCase ],  primeMeridianLongitude[ testCase ],
+                        rotationalRate[ testCase ], numberSecondsSinceEpoch[ testCase ], "ECLIPJ2000", "VehicleFixed" ) );
+
+        setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );
+
+
+        // Create radiation pressure properties.
+        std::vector< double > areas;
+        areas.push_back( 2.0 );
+        areas.push_back( 4.0 );
+
+        std::vector< double > emissivities;
+        emissivities.push_back( 0.0 );
+        emissivities.push_back( 0.1 );
+
+        std::vector< double > diffuseReflectionCoefficients;
+        diffuseReflectionCoefficients.push_back( 0.06 );
+        diffuseReflectionCoefficients.push_back( 0.46 );
+
+        std::vector< Eigen::Vector3d > panelSurfaceNormals;
+        panelSurfaceNormals.push_back( Eigen::Vector3d::UnitX( ) );
+        panelSurfaceNormals.push_back( - Eigen::Vector3d::UnitX( ) );
+
+
+        // Create panelled radiation pressure interface.
+        std::shared_ptr< PanelledRadiationPressureInterfaceSettings > radiationPressureInterfaceSettings =
+                std::make_shared< PanelledRadiationPressureInterfaceSettings >(
+                    "Sun", emissivities, areas, diffuseReflectionCoefficients, panelSurfaceNormals );
+
+        std::shared_ptr< PanelledRadiationPressureInterface > radiationPressureInterface =
+                std::dynamic_pointer_cast< PanelledRadiationPressureInterface >(
+                    createRadiationPressureInterface( radiationPressureInterfaceSettings, "Vehicle", bodyMap ) );
+
+        bodyMap[ "Vehicle" ]->setRadiationPressureInterface( "Sun", radiationPressureInterface );
+
+
+        // Define accelerations.
+        SelectedAccelerationMap accelerationMap;
+        std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOnVehicle;
+        accelerationsOnVehicle[ "Sun" ].push_back( std::make_shared< AccelerationSettings >(
+                                                       panelled_radiation_pressure_acceleration ) );
+
+        accelerationMap[ "Vehicle" ] = accelerationsOnVehicle;
+
+        std::map< std::string, std::string > centralBodyMap; centralBodyMap[ "Vehicle" ] = "Sun";
+        AccelerationMap accelerationModelMap = createAccelerationModelsMap( bodyMap, accelerationMap, centralBodyMap );
+        std::shared_ptr< AccelerationModel< Eigen::Vector3d > > accelerationModel =
+                accelerationModelMap.at( "Vehicle" ).at( "Sun" ).at( 0 );
+
+
+        // Compute radiation pressure acceleration for different Sun positions.
+        std::vector< Eigen::Vector3d > calculatedAcceleration;
+
+        Eigen::Vector3d sunCenteredVehiclePosition;
+        std::shared_ptr< Ephemeris > vehicleEphemeris = bodyMap[ "Vehicle" ]->getEphemeris( );
+
+
+        for( unsigned int i = 0; i < testTimes.size( ) ; i++ )
+        {
+            // Update environment and acceleration
+            bodyMap[ "Sun" ]->setStateFromEphemeris( testTimes[ i ] );
+            bodyMap[ "Vehicle" ]->setStateFromEphemeris( testTimes[ i ] );
+            bodyMap[ "Vehicle" ]->setCurrentRotationToLocalFrameFromEphemeris( testTimes[ i ] );
+            radiationPressureInterface->updateInterface( testTimes[ i ] );
+            accelerationModel->updateMembers( testTimes[ i ] );
+
+            // Retrieve acceleration.
+            calculatedAcceleration.push_back( accelerationModel->getAcceleration( ) );
+
+        }
+
+
+
+        /// Second calculation with constant rotational ephemeris and time-varying panel orientation
+
+        // Define constant rotational ephemeris
+        Eigen::Vector7d rotationalStateVehicle;
+        rotationalStateVehicle.segment( 0, 4 ) = linear_algebra::convertQuaternionToVectorFormat( Eigen::Quaterniond( Eigen::Matrix3d::Identity() ));
+        rotationalStateVehicle.segment( 4, 3 ) = Eigen::Vector3d::Zero();
+        bodyMap[ "Vehicle" ]->setRotationalEphemeris( std::make_shared< ConstantRotationalEphemeris >( rotationalStateVehicle, "ECLIPJ2000",
+                                                                                                       "VehicleFixed" ) );
+
+        // Define time-varying panel orientation.
+        std::vector< std::function< Eigen::Vector3d ( const double ) > > timeVaryingPanelSurfaceNormals;
+        for ( int j = 0 ; j < panelSurfaceNormals.size() ; j++ ){
+
+            timeVaryingPanelSurfaceNormals.push_back( [ = ]( const double currentTime ){
+
+                Eigen::Vector3d currentPanelSurfaceOrientation = (reference_frames::getInertialToPlanetocentricFrameTransformationQuaternion( basic_mathematics::computeModulo(
+                          ( currentTime - numberSecondsSinceEpoch[ testCase ] ) * rotationalRate[ testCase ], 2.0 * mathematical_constants::PI ) )
+                          * reference_frames::getInertialToPlanetocentricFrameTransformationQuaternion(
+                          declinationPole[ testCase ], rightAscensionPole[ testCase ], primeMeridianLongitude[ testCase ] ) )
+                          .toRotationMatrix().inverse() * panelSurfaceNormals[ j ];
+
+                return currentPanelSurfaceOrientation; } );
+
+        }
+
+        // Create panelled radiation pressure interface.
+        std::shared_ptr< PanelledRadiationPressureInterfaceSettings > radiationPressureInterfaceSettingsWithTimeVaryingPanelSurfaceNormal =
+                std::make_shared< PanelledRadiationPressureInterfaceSettings >(
+                    "Sun", emissivities, areas, diffuseReflectionCoefficients, timeVaryingPanelSurfaceNormals );
+
+        std::shared_ptr< PanelledRadiationPressureInterface > radiationPressureInterfaceTimeVaryingSurfaceNormal =
+                std::dynamic_pointer_cast< PanelledRadiationPressureInterface >(
+                    createRadiationPressureInterface( radiationPressureInterfaceSettingsWithTimeVaryingPanelSurfaceNormal, "Vehicle", bodyMap ) );
+
+        bodyMap[ "Vehicle" ]->setRadiationPressureInterface( "Sun", radiationPressureInterfaceTimeVaryingSurfaceNormal );
+
+        accelerationModelMap = createAccelerationModelsMap( bodyMap, accelerationMap, centralBodyMap );
+
+        std::shared_ptr< AccelerationModel< Eigen::Vector3d > > accelerationModelTimeVaryingPanelSurfaceNormal =
+                accelerationModelMap.at( "Vehicle" ).at( "Sun" ).at( 0 );
+
+
+        // Compute radiation pressure acceleration for different Sun positions.
+        std::vector< Eigen::Vector3d > calculatedAccelerationTimeVaryingPanelOrientation;
+
+        for( unsigned int i = 0; i < testTimes.size( ) ; i++ )
+        {
+            // Update environment and acceleration
+            bodyMap[ "Sun" ]->setStateFromEphemeris( testTimes[ i ] );
+            bodyMap[ "Vehicle" ]->setStateFromEphemeris( testTimes[ i ] );
+            bodyMap[ "Vehicle" ]->setCurrentRotationToLocalFrameFromEphemeris( testTimes[ i ] );
+            radiationPressureInterfaceTimeVaryingSurfaceNormal->updateInterface( testTimes[ i ] );
+            accelerationModelTimeVaryingPanelSurfaceNormal->updateMembers( testTimes[ i ] );
+
+            // Retrieve acceleration.
+            calculatedAccelerationTimeVaryingPanelOrientation.push_back( accelerationModelTimeVaryingPanelSurfaceNormal->getAcceleration( ) );
+
+        }
+
+
+        for( unsigned int j = 0; j < testTimes.size() ; j++ )
+        {
+            for ( unsigned int i = 0 ; i < 3 ; i++ ){
+                BOOST_CHECK_SMALL( std::fabs(
+                                       calculatedAcceleration[ j ][ i ] - calculatedAccelerationTimeVaryingPanelOrientation[ j ][ i ] ), 3.0E-23 );
+            }
+        }
+    }
+
+}
+
+
+
+
 BOOST_AUTO_TEST_SUITE_END( )
 
 

@@ -162,24 +162,27 @@ public:
             const std::vector< Eigen::Vector3d >& surfaceNormalsInBodyFixedFrame,
             const std::vector< std::string >& occultingBodies = std::vector< std::string >( ) ):
         RadiationPressureInterfaceSettings( panelled_radiation_pressure_interface, sourceBody, occultingBodies ),
+        emissivities_( emissivities ), areas_( areas ),  diffusionCoefficients_( diffusionCoefficients )
+        {
+
+        for ( int i = 0 ; i < surfaceNormalsInBodyFixedFrame.size() ; i++ ){
+            surfaceNormalsInBodyFixedFrameFunctions_.push_back( [ = ]( const double ){ return surfaceNormalsInBodyFixedFrame[ i ]; } );
+        }
+
+    }
+
+
+    //! Constructor with time-varying surface normals in body-fixed frame
+    PanelledRadiationPressureInterfaceSettings(
+            const std::string& sourceBody,
+            const std::vector< double >& emissivities,
+            const std::vector< double >& areas,
+            const std::vector< double >& diffusionCoefficients,
+            const std::vector< std::function< Eigen::Vector3d( const double ) > >& surfaceNormalsInBodyFixedFrameFunctions,
+            const std::vector< std::string >& occultingBodies = std::vector< std::string >( ) ):
+        RadiationPressureInterfaceSettings( panelled_radiation_pressure_interface, sourceBody, occultingBodies ),
         emissivities_( emissivities ), areas_( areas ),  diffusionCoefficients_( diffusionCoefficients ),
-        surfaceNormalsInBodyFixedFrame_( surfaceNormalsInBodyFixedFrame )
-//        surfaceNormalsInBodyFixedFrameFunctions_( TUDAT_NAN )
-        { }
-
-
-//    //! Constructor with time-varying surface normals in body-fixed frame
-//    PanelledRadiationPressureInterfaceSettings(
-//            const std::string& sourceBody,
-//            const std::vector< double >& emissivities,
-//            const std::vector< double >& areas,
-//            const std::vector< double >& diffusionCoefficients,
-//            const std::vector< std::function< Eigen::Vector3d( const double ) > >& surfaceNormalsInBodyFixedFrameFunctions,
-//            const std::vector< std::string >& occultingBodies = std::vector< std::string >( ) ):
-//        RadiationPressureInterfaceSettings( panelled_radiation_pressure_interface, sourceBody, occultingBodies ),
-//        emissivities_( emissivities ), areas_( areas ),  diffusionCoefficients_( diffusionCoefficients ),
-//        surfaceNormalsInBodyFixedFrame_( TUDAT_NAN ),
-//        surfaceNormalsInBodyFixedFrameFunctions_( surfaceNormalsInBodyFixedFrameFunctions ){ }
+        surfaceNormalsInBodyFixedFrameFunctions_( surfaceNormalsInBodyFixedFrameFunctions ){ }
 
     std::vector< double > getEmissivities( )
     {
@@ -196,11 +199,6 @@ public:
         return diffusionCoefficients_;
     }
 
-    std::vector< Eigen::Vector3d > getSurfaceNormalsInBodyFixedFrame( )
-    {
-        return surfaceNormalsInBodyFixedFrame_;
-    }
-
     std::vector< std::function< Eigen::Vector3d( const double ) > > getSurfaceNormalsInBodyFixedFrameFunctions( )
     {
         return surfaceNormalsInBodyFixedFrameFunctions_;
@@ -213,8 +211,6 @@ private:
     std::vector< double > areas_;
 
     std::vector< double > diffusionCoefficients_;
-
-    std::vector< Eigen::Vector3d > surfaceNormalsInBodyFixedFrame_;
 
     std::vector< std::function< Eigen::Vector3d( const double ) > > surfaceNormalsInBodyFixedFrameFunctions_;
 
