@@ -197,7 +197,7 @@ BOOST_AUTO_TEST_CASE( test_FullPlanetaryRotationalParameters )
 
 
 
-    // Set-up different cases with various parameters to estimate
+    // Set-up different cases with various parameters to estimate.
     for ( int testCase = 0 ; testCase < 3 ; testCase++ ){
 
         // Set parameters that are to be estimated.
@@ -281,21 +281,17 @@ BOOST_AUTO_TEST_CASE( test_FullPlanetaryRotationalParameters )
 
         Eigen::VectorXd parameterError = podOutput->parameterEstimate_ - truthParameters;
 
-//        std::cout << "TEST " << testCase << ": " << "\n\n";
-//        std::cout << "truth parameter: " << truthParameters << "\n\n";
-//        std::cout << "Initial parameter error: " << ( initialParameterEstimate - truthParameters ).transpose() << "\n\n";
-//        std::cout << "Final parameter error: " << parameterError.transpose() << "\n\n";
-
         for( int i = 0; i < numberEstimationArcs; i++ )
         {
             for( unsigned int j = 0; j < 3; j++ )
             {
-                BOOST_CHECK_SMALL( std::fabs( parameterError( i * 6 + j ) ), 3.0E-2 );
-                BOOST_CHECK_SMALL( std::fabs( parameterError( i * 6 + j + 3 ) ), 1.0E-7  );
+                BOOST_CHECK_SMALL( std::fabs( parameterError( i * 6 + j ) ), 2.0E-2 );
+                BOOST_CHECK_SMALL( std::fabs( parameterError( i * 6 + j + 3 ) ), 1.0E-8  );
             }
         }
 
 
+        // Estimation of the core factor and free core nutation rate
         if ( testCase == 0 ) {
 
             BOOST_CHECK_SMALL( std::fabs( parameterError( 6 * numberEstimationArcs ) ), 1.0E-5 );
@@ -306,11 +302,14 @@ BOOST_AUTO_TEST_CASE( test_FullPlanetaryRotationalParameters )
 
             for( int i = 6 * numberEstimationArcs ; i < static_cast< int >( initialParameterEstimate.rows( ) ); i++ )
             {
+                // Estimation of the spin periodic variations.
                 if ( testCase == 1 ){
                     BOOST_CHECK_SMALL( std::fabs( parameterError( i ) ), 1.0E-12 );
                 }
+
+                // Estimation of the polar motion amplitude coefficients.
                 if ( testCase == 2 ){
-                    BOOST_CHECK_SMALL( std::fabs( parameterError( i ) ), 1.0E-6 );
+                    BOOST_CHECK_SMALL( std::fabs( parameterError( i ) ), 1.0E-10 );
                 }
             }
         }

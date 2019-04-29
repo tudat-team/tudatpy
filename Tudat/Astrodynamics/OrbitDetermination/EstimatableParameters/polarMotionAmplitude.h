@@ -106,13 +106,17 @@ public:
     void setParameterValue( const Eigen::VectorXd parameterValue )
     {
 
-
-        // Reset x polar motion amplitude coefficients.
+        // Retrieve current polar motion coefficients
         std::map< double, std::pair< double, double > > oldXpolarMotionAmplitudeCoefficients
-                = rotationModel_->getPlanetaryOrientationAngleCalculator()->getXpolarMotionCoefficients();
+                = rotationModel_->getPlanetaryOrientationAngleCalculator()->getXpolarMotionCoefficients(); 
+        std::map< double, std::pair< double, double > > oldYpolarMotionAmplitudeCoefficients
+                = rotationModel_->getPlanetaryOrientationAngleCalculator()->getYpolarMotionCoefficients();
+
         std::map< double, std::pair< double, double > > xPolarMotionAmplitudeCoefficients;
+        std::map< double, std::pair< double, double > > yPolarMotionAmplitudeCoefficients;
 
         int currentCoefficientIndex = 0;
+
         for ( std::map< double, std::pair< double, double > >::iterator oldCoefficientIterator = oldXpolarMotionAmplitudeCoefficients.begin() ;
               oldCoefficientIterator != oldXpolarMotionAmplitudeCoefficients.end() ; oldCoefficientIterator++ ){
 
@@ -120,24 +124,18 @@ public:
                     = std::make_pair( parameterValue[ currentCoefficientIndex ], parameterValue[ currentCoefficientIndex + 1 ] );
 
             currentCoefficientIndex += 2;
-        }
-        rotationModel_->getPlanetaryOrientationAngleCalculator()->resetXpolarMotionCoefficients( xPolarMotionAmplitudeCoefficients);
-
-
-        // Reset y polar motion amplitude coefficients.
-        std::map< double, std::pair< double, double > > oldYpolarMotionAmplitudeCoefficients
-                = rotationModel_->getPlanetaryOrientationAngleCalculator()->getYpolarMotionCoefficients();
-        std::map< double, std::pair< double, double > > yPolarMotionAmplitudeCoefficients;
-
-        currentCoefficientIndex = 0;
-        for ( std::map< double, std::pair< double, double > >::iterator oldCoefficientIterator = oldYpolarMotionAmplitudeCoefficients.begin() ;
-              oldCoefficientIterator != oldYpolarMotionAmplitudeCoefficients.end() ; oldCoefficientIterator++ ){
 
             yPolarMotionAmplitudeCoefficients[ oldCoefficientIterator->first ]
                     = std::make_pair( parameterValue[ currentCoefficientIndex ], parameterValue[ currentCoefficientIndex + 1 ] );
 
             currentCoefficientIndex += 2;
+
         }
+
+        // Reset x polar motion amplitude coefficients.
+        rotationModel_->getPlanetaryOrientationAngleCalculator()->resetXpolarMotionCoefficients( xPolarMotionAmplitudeCoefficients);
+
+        // Reset y polar motion amplitude coefficients.
         rotationModel_->getPlanetaryOrientationAngleCalculator()->resetYpolarMotionCoefficients( yPolarMotionAmplitudeCoefficients);
 
     }
