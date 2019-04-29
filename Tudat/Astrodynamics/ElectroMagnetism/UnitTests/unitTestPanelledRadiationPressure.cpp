@@ -59,9 +59,6 @@ BOOST_AUTO_TEST_CASE( testSimpleGeometryPanelledRadiationPressure )
     Eigen::Vector7d rotationalStateVehicle;
     rotationalStateVehicle.segment( 0, 4 ) = linear_algebra::convertQuaternionToVectorFormat( Eigen::Quaterniond( Eigen::Matrix3d::Identity() ));
     rotationalStateVehicle.segment( 4, 3 ) = Eigen::Vector3d::Zero();
-//    bodyMap[ "Vehicle" ]->setRotationalEphemeris(
-//                std::make_shared< ConstantRotationalEphemeris >(
-//                    Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) ), "ECLIPJ2000", "VehicleFixed" ) );
     bodyMap[ "Vehicle" ]->setRotationalEphemeris(
                 std::make_shared< ConstantRotationalEphemeris >(
                     rotationalStateVehicle, "ECLIPJ2000", "VehicleFixed" ) );
@@ -230,10 +227,10 @@ BOOST_AUTO_TEST_CASE( testSimpleGeometryPanelledRadiationPressure )
 }
 
 
-BOOST_AUTO_TEST_CASE( testPanelledRadiationPressureMontenbruckData )
+BOOST_AUTO_TEST_CASE( testPanelledRadiationPressureMontenbruckModel )
 {
 
-    // Box-and-wings model is obtained from Montenbruck, O., 2017.
+    // Box-and-wings model is partially obtained from Montenbruck, O., 2017.
     // Semi-analytical solar radiation pressure modeling for QZS-1 orbit-normal and yaw-steering attitude.
     // Advances in Space Research, 59(8), pp.2088-2100..
 
@@ -264,6 +261,8 @@ BOOST_AUTO_TEST_CASE( testPanelledRadiationPressureMontenbruckData )
             bodyMap[ "Vehicle" ]->setEphemeris( std::make_shared< KeplerEphemeris >( initialStateInKeplerianElements, 0.0,
                                                          spice_interface::getBodyGravitationalParameter( "Sun" ), "Sun", "ECLIPJ2000", 1 ) );
         }
+
+        // Polar orbit.
         else if ( testCase == 1 ){
             Eigen::Vector6d initialStateInKeplerianElements = Eigen::Vector6d::Zero( );
             initialStateInKeplerianElements[ 0 ] = physical_constants::ASTRONOMICAL_UNIT;
@@ -271,6 +270,8 @@ BOOST_AUTO_TEST_CASE( testPanelledRadiationPressureMontenbruckData )
             bodyMap[ "Vehicle" ]->setEphemeris( std::make_shared< KeplerEphemeris >( initialStateInKeplerianElements, 0.0,
                                                          spice_interface::getBodyGravitationalParameter( "Sun" ), "Sun", "ECLIPJ2000", 1 ) );
         }
+
+        // Arbitrary inclination.
         else if ( testCase == 2 ){
             Eigen::Vector6d initialStateInKeplerianElements = Eigen::Vector6d::Zero( );
             initialStateInKeplerianElements[ 0 ] = physical_constants::ASTRONOMICAL_UNIT;
@@ -279,8 +280,10 @@ BOOST_AUTO_TEST_CASE( testPanelledRadiationPressureMontenbruckData )
                                                          spice_interface::getBodyGravitationalParameter( "Sun" ), "Sun", "ECLIPJ2000", 1 ) );
         }
 
-        // Setup rotational ephemeris for vehicle.
+
+        // Set-up rotational ephemeris for vehicle.
         if ( testCase < 3 ){
+            // Constant rotational model
             Eigen::Vector7d rotationalStateVehicle;
             rotationalStateVehicle.segment( 0, 4 ) = linear_algebra::convertQuaternionToVectorFormat( Eigen::Quaterniond( Eigen::Matrix3d::Identity() ));
             rotationalStateVehicle.segment( 4, 3 ) = Eigen::Vector3d::Zero();
@@ -288,6 +291,7 @@ BOOST_AUTO_TEST_CASE( testPanelledRadiationPressureMontenbruckData )
                                                                                                            "VehicleFixed" ) );
         }
         else if ( testCase == 3 ){
+            // Simple rotational model
             bodyMap[ "Vehicle" ]->setRotationalEphemeris( std::make_shared< tudat::ephemerides::SimpleRotationalEphemeris >(
                             0.2, 0.4, -0.2, 1.0E-5, 0.0, "ECLIPJ2000", "VehicleFixed" ) );
         }
@@ -438,6 +442,7 @@ BOOST_AUTO_TEST_CASE( testPanelledRadiationPressureMontenbruckData )
                     .normalized();
 
 
+            // Equatorial orbit case.
             if ( testCase == 0 ){
                 if ( i == 0 ){
                     // Sun-Vehicle vector along +X-axis.
@@ -474,6 +479,7 @@ BOOST_AUTO_TEST_CASE( testPanelledRadiationPressureMontenbruckData )
             }
 
 
+            // Polar orbit case.
             if ( testCase == 1 ){
 
                 if ( i == 0 ){
@@ -509,6 +515,8 @@ BOOST_AUTO_TEST_CASE( testPanelledRadiationPressureMontenbruckData )
                 }
             }
 
+
+            // Arbitrary inclination case.
             if ( testCase == 2 ){
 
                 double cosinusPanelInclinationPositiveYaxis = expectedVehicleToSunNormalisedVector.dot( Eigen::Vector3d::UnitY() );
@@ -560,6 +568,8 @@ BOOST_AUTO_TEST_CASE( testPanelledRadiationPressureMontenbruckData )
                 }
             }
 
+
+            // Non constant rotational model for the spacecraft.
             if ( testCase == 3 ){
 
                Eigen::Quaterniond currentRotationToInertialFrame = bodyMap[ "Vehicle" ]->getRotationalEphemeris( )
@@ -622,16 +632,27 @@ BOOST_AUTO_TEST_CASE( testPanelledRadiationPressureTimeVaryingPanelOrientation )
     bodyMap[ "Vehicle" ] = std::make_shared< Body >( );
     bodyMap[ "Vehicle" ]->setConstantBodyMass( vehicleMass );
 
+
+    // Define rotational model parameters.
     std::vector< double > rightAscensionPole;
-    rightAscensionPole.push_back( 0.0 ); rightAscensionPole.push_back( 0.2 );
+    rightAscensionPole.push_back( 0.0 );
+    rightAscensionPole.push_back( 0.2 );
+
     std::vector< double > declinationPole;
-    declinationPole.push_back( mathematical_constants::PI / 2.0 ); declinationPole.push_back( 0.4 );
+    declinationPole.push_back( mathematical_constants::PI / 2.0 );
+    declinationPole.push_back( 0.4 );
+
     std::vector< double > primeMeridianLongitude;
-    primeMeridianLongitude.push_back( - mathematical_constants::PI / 2.0 ); primeMeridianLongitude.push_back( - 0.2 );
+    primeMeridianLongitude.push_back( - mathematical_constants::PI / 2.0 );
+    primeMeridianLongitude.push_back( - 0.2 );
+
     std::vector< double > rotationalRate;
-    rotationalRate.push_back( 1.0E-5 ); rotationalRate.push_back( 1.0E-5 );
+    rotationalRate.push_back( 1.0E-5 );
+    rotationalRate.push_back( 1.0E-5 );
+
     std::vector< double > numberSecondsSinceEpoch;
-    numberSecondsSinceEpoch.push_back( 0.0 ); numberSecondsSinceEpoch.push_back( 0.0 );
+    numberSecondsSinceEpoch.push_back( 0.0 );
+    numberSecondsSinceEpoch.push_back( 0.0 );
 
 
 
@@ -649,16 +670,6 @@ BOOST_AUTO_TEST_CASE( testPanelledRadiationPressureTimeVaryingPanelOrientation )
                                                      spice_interface::getBodyGravitationalParameter( "Sun" ), "Sun", "ECLIPJ2000", 1 ) );
 
 
-        /// First calculation with simple rotational ephemeris and constant panel orientation
-
-        // Define simple rotational ephemeris.
-        bodyMap[ "Vehicle" ]->setRotationalEphemeris( std::make_shared< tudat::ephemerides::SimpleRotationalEphemeris >(
-                        rightAscensionPole[ testCase ], declinationPole[ testCase ],  primeMeridianLongitude[ testCase ],
-                        rotationalRate[ testCase ], numberSecondsSinceEpoch[ testCase ], "ECLIPJ2000", "VehicleFixed" ) );
-
-        setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );
-
-
         // Create radiation pressure properties.
         std::vector< double > areas;
         areas.push_back( 2.0 );
@@ -672,6 +683,17 @@ BOOST_AUTO_TEST_CASE( testPanelledRadiationPressureTimeVaryingPanelOrientation )
         diffuseReflectionCoefficients.push_back( 0.06 );
         diffuseReflectionCoefficients.push_back( 0.46 );
 
+
+        /// First calculation with simple rotational ephemeris and constant panel orientation.
+
+        // Define simple rotational ephemeris.
+        bodyMap[ "Vehicle" ]->setRotationalEphemeris( std::make_shared< tudat::ephemerides::SimpleRotationalEphemeris >(
+                        rightAscensionPole[ testCase ], declinationPole[ testCase ],  primeMeridianLongitude[ testCase ],
+                        rotationalRate[ testCase ], numberSecondsSinceEpoch[ testCase ], "ECLIPJ2000", "VehicleFixed" ) );
+
+        setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );
+
+        // Define (constant) panel surface orientations.
         std::vector< Eigen::Vector3d > panelSurfaceNormals;
         panelSurfaceNormals.push_back( Eigen::Vector3d::UnitX( ) );
         panelSurfaceNormals.push_back( - Eigen::Vector3d::UnitX( ) );
@@ -741,10 +763,13 @@ BOOST_AUTO_TEST_CASE( testPanelledRadiationPressureTimeVaryingPanelOrientation )
 
             timeVaryingPanelSurfaceNormals.push_back( [ = ]( const double currentTime ){
 
-                Eigen::Vector3d currentPanelSurfaceOrientation = (reference_frames::getInertialToPlanetocentricFrameTransformationQuaternion( basic_mathematics::computeModulo(
-                          ( currentTime - numberSecondsSinceEpoch[ testCase ] ) * rotationalRate[ testCase ], 2.0 * mathematical_constants::PI ) )
-                          * reference_frames::getInertialToPlanetocentricFrameTransformationQuaternion(
-                          declinationPole[ testCase ], rightAscensionPole[ testCase ], primeMeridianLongitude[ testCase ] ) )
+                Eigen::Vector3d currentPanelSurfaceOrientation = (
+                            reference_frames::getInertialToPlanetocentricFrameTransformationQuaternion(
+                                basic_mathematics::computeModulo( ( currentTime - numberSecondsSinceEpoch[ testCase ] )
+                                                                  * rotationalRate[ testCase ], 2.0 * mathematical_constants::PI ) )
+                          * reference_frames::getInertialToPlanetocentricFrameTransformationQuaternion( declinationPole[ testCase ],
+                                                                                                        rightAscensionPole[ testCase ],
+                                                                                                        primeMeridianLongitude[ testCase ] ) )
                           .toRotationMatrix().inverse() * panelSurfaceNormals[ j ];
 
                 return currentPanelSurfaceOrientation; } );
