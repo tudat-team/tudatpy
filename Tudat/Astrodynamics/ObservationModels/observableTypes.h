@@ -34,7 +34,8 @@ enum ObservableType
     one_way_differenced_range = 4,
     n_way_range = 5,
     two_way_doppler = 6,
-    euler_angle_313_observable = 7
+    euler_angle_313_observable = 7,
+    velocity_observable = 8
 };
 
 //! Function to get the name (string) associated with a given observable type.

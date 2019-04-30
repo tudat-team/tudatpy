@@ -148,6 +148,12 @@ std::pair< std::shared_ptr< PodOutput< StateScalarType, TimeType > >, Eigen::Vec
         observationSettingsMap.insert( std::make_pair( linkEnds, std::make_shared< ObservationSettings >(
                                                            position_observable ) ) );
     }
+    else if( observableType == 5 )
+    {
+        linkEnds[ observed_body ] = std::make_pair( "Earth", "" );
+        observationSettingsMap.insert( std::make_pair( linkEnds, std::make_shared< ObservationSettings >(
+                                                          velocity_observable ) ) );
+    }
     else
     {
         linkEnds[ transmitter ] = std::make_pair( "Earth", "" );
@@ -211,6 +217,11 @@ std::pair< std::shared_ptr< PodOutput< StateScalarType, TimeType > >, Eigen::Vec
     {
         singleObservableSimulationInput[ linkEnds ] = std::make_pair( initialObservationTimes, observed_body );
         measurementSimulationInput[ position_observable ] = singleObservableSimulationInput;
+    }
+    else if( observableType == 5 )
+    {
+        singleObservableSimulationInput[ linkEnds ] = std::make_pair( initialObservationTimes, observed_body );
+        measurementSimulationInput[ velocity_observable ] = singleObservableSimulationInput;
     }
     else
     {

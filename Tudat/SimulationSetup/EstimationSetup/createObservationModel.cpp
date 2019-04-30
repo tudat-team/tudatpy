@@ -129,18 +129,21 @@ std::vector< std::pair< int, int > > getLinkEndIndicesForObservationViability(
         {
             linkEndIndices.push_back( std::make_pair( 0, 1 ) );
         }
-        else if( linkEnds.at( reflector1 ) == linkEndToCheck || ( ( linkEnds.at( reflector1 ).first == linkEndToCheck.first ) &&
+
+        if( linkEnds.at( reflector1 ) == linkEndToCheck || ( ( linkEnds.at( reflector1 ).first == linkEndToCheck.first ) &&
                                                                 linkEndToCheck.second == "" ) )
         {
             linkEndIndices.push_back( std::make_pair( 2, 3 ) );
             linkEndIndices.push_back( std::make_pair( 1, 0 ) );
         }
-        else if( linkEnds.at( receiver ) == linkEndToCheck || ( ( linkEnds.at( receiver ).first == linkEndToCheck.first ) &&
+
+        if( linkEnds.at( receiver ) == linkEndToCheck || ( ( linkEnds.at( receiver ).first == linkEndToCheck.first ) &&
                                                                 linkEndToCheck.second == "" ) )
         {
             linkEndIndices.push_back( std::make_pair( 3, 2 ) );
         }
-        else
+
+        if( linkEndIndices.size( ) == 0 )
         {
             throw std::runtime_error( "Error, parsed irrelevant 1-way doppler viability indices" );
         }
@@ -216,10 +219,13 @@ std::vector< std::pair< int, int > > getLinkEndIndicesForObservationViability(
 
         throw std::runtime_error( "Error, parsed irrelevant position observable viability indices" );
         break;
-
     case euler_angle_313_observable:
 
         throw std::runtime_error( "Error, parsed irrelevant euler angle observable viability indices" );
+        break;
+    case velocity_observable:
+
+        throw std::runtime_error( "Error, parsed irrelevant position observable viability indices" );
         break;
     default:
         throw std::runtime_error( "Error, observable type " + std::to_string(

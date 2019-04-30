@@ -450,6 +450,17 @@ public:
         }
     }
 
+    void updateInitialStateFromConsituentSettings( )
+    {
+        int currentIndex = 0;
+        for( unsigned int i = 0; i < singleArcSettings_.size( ); i++ )
+        {
+            this->initialStates_.segment( currentIndex, singleArcSettings_.at( i )->getConventionalStateSize( ) ) =
+                     singleArcSettings_.at( i )->getInitialStates( );
+            currentIndex += singleArcSettings_.at( i )->getConventionalStateSize( );
+        }
+    }
+
 protected:
 
     //! List of propagator settings for each arc in propagation.
@@ -1758,6 +1769,56 @@ std::map< IntegratedStateType, std::vector< std::pair< std::string, std::string 
 
     return integratedStateList;
 }
+
+template< typename StateScalarType >
+void resetSingleArcInitialStates(
+        const std::shared_ptr< SingleArcPropagatorSettings< StateScalarType > > propagatorSettings,
+        const std::map< propagators::IntegratedStateType, std::map< std::pair< std::string, std::string >,
+        Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > > currentArcInitialStates )
+{
+    typedef Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > VectorType;
+
+    switch( propagatorSettings->getStateType( ) )
+    {
+    case translational_state:
+    {
+        if( currentArcInitialStates.count( translational_state ) == 0 )
+        {
+            throw std::runtime_error( "Error when resetting initial translational state from sorted data, no data found." );
+        }
+        std::shared_ptr< TranslationalStatePropagatorSettings< StateScalarType > > translationalStateSettings =
+                std::dynamic_pointer_cast< TranslationalStatePropagatorSettings< StateScalarType > >( propagatorSettings );
+        std::vector< std::string > propagatedBodies = translationalStateSettings->bodiesToIntegrate_;
+
+        if( currentArcInitialStates.at( translational_state ).size( ) != propagatedBodies.size( ) )
+        {
+            throw std::runtime_error( "Error when resetting initial translational state from sorted data, body list size is incompatible." );
+        }
+
+        VectorType totalInitialState = VectorType( 6 * propagatedBodies.size( ) );
+
+        for( unsigned int i = 0; i < propagatedBodies.size( ); i++ )
+        {
+            if( currentArcInitialStates.at( translational_state ).count( std::make_pair( propagatedBodies.at( i ), "" ) ) == 0 )
+            {
+                    throw std::runtime_error(
+                            "Error when resetting initial translational state from sorted data, did not find body " + propagatedBodies.at( i ) );
+            }
+
+            totalInitialState.segment( i * 6, 6 ) =
+                    currentArcInitialStates.at( translational_state ).at( std::make_pair( propagatedBodies.at( i ), "" ) );
+        }
+        translationalStateSettings->resetInitialStates( totalInitialState );
+
+        break;
+    }
+    default:
+        throw std::runtime_error( "Error, did not recognize state type " + std::to_string( propagatorSettings->getStateType( ) ) +
+                                  " when resetting initial states from parameter data " );
+    }
+
+}
+
 
 extern template std::map< IntegratedStateType, std::vector< std::pair< std::string, std::string > > > getIntegratedTypeAndBodyList< double >(
         const std::shared_ptr< SingleArcPropagatorSettings< double > > propagatorSettings );
