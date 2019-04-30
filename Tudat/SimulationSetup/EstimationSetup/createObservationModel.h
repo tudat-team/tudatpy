@@ -28,6 +28,7 @@
 #include "Tudat/Astrodynamics/ObservationModels/angularPositionObservationModel.h"
 #include "Tudat/Astrodynamics/ObservationModels/positionObservationModel.h"
 #include "Tudat/Astrodynamics/ObservationModels/eulerAngleObservationModel.h"
+#include "Tudat/Astrodynamics/ObservationModels/velocityObservationModel.h"
 #include "Tudat/Astrodynamics/ObservationModels/observationSimulator.h"
 #include "Tudat/Astrodynamics/ObservationModels/observationViabilityCalculator.h"
 #include "Tudat/SimulationSetup/EnvironmentSetup/body.h"
@@ -521,8 +522,8 @@ std::shared_ptr< DopplerProperTimeRateInterface > createOneWayDopplerProperTimeC
                 // Retrieve gravitational parameter
                 std::function< double( ) > gravitationalParameterFunction =
                         std::bind( &gravitation::GravityFieldModel::getGravitationalParameter,
-                                     bodyMap.at( directFirstOrderDopplerProperTimeRateSettings->centralBodyName_ )->
-                                     getGravityFieldModel( ) );
+                                   bodyMap.at( directFirstOrderDopplerProperTimeRateSettings->centralBodyName_ )->
+                                   getGravityFieldModel( ) );
 
                 // Create calculation object.
                 LinkEndId referencePointId =
@@ -1283,8 +1284,8 @@ public:
             observationModel = std::make_shared< PositionObservationModel<
                     ObservationScalarType, TimeType > >(
                         std::bind( &simulation_setup::Body::getStateInBaseFrameFromEphemeris<
-                                     ObservationScalarType, TimeType >,
-                                     bodyMap.at( linkEnds.at( observed_body ).first ), std::placeholders::_1 ),
+                                   ObservationScalarType, TimeType >,
+                                   bodyMap.at( linkEnds.at( observed_body ).first ), std::placeholders::_1 ),
                         observationBias );
 
             break;
@@ -1340,6 +1341,50 @@ public:
             observationModel = std::make_shared< EulerAngle313ObservationModel<
                     ObservationScalarType, TimeType > >(
                         toBodyFixedFrameFunction, observationBias );
+
+            break;
+        }
+        case velocity_observable:
+        {
+            // Check consistency input.
+            if( linkEnds.size( ) != 1 )
+            {
+                std::string errorMessage =
+                        "Error when making velocity observable model, " + std::to_string( linkEnds.size( ) ) + " link ends found";
+                throw std::runtime_error( errorMessage );
+            }
+
+            if( linkEnds.count( observed_body ) == 0 )
+            {
+                throw std::runtime_error( "Error when making velocity observable model, no observed_body found" );
+            }
+
+            if( observationSettings->lightTimeCorrectionsList_.size( ) > 0 )
+            {
+
+                throw std::runtime_error( "Error when making velocity observable model, found light time corrections" );
+            }
+            if( linkEnds.at( observed_body ).second != "" )
+            {
+                throw std::runtime_error( "Error, cannot yet create velocity function for reference point" );
+            }
+
+            std::shared_ptr< ObservationBias< 3 > > observationBias;
+            if( observationSettings->biasSettings_ != NULL )
+            {
+                observationBias =
+                        createObservationBiasCalculator< 3 >(
+                            linkEnds, observationSettings->observableType_, observationSettings->biasSettings_,bodyMap );
+            }
+
+
+            // Create observation model
+            observationModel = std::make_shared< VelocityObservationModel<
+                    ObservationScalarType, TimeType > >(
+                        std::bind( &simulation_setup::Body::getStateInBaseFrameFromEphemeris<
+                                     ObservationScalarType, TimeType >,
+                                     bodyMap.at( linkEnds.at( observed_body ).first ), std::placeholders::_1 ),
+                        observationBias );
 
             break;
         }

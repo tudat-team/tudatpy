@@ -153,17 +153,20 @@ std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartia
                 {
                 case estimatable_parameters::gravitational_parameter:
                     break;
-
                 case estimatable_parameters::constant_drag_coefficient:
                     break;
-
                 case estimatable_parameters::radiation_pressure_coefficient:
                     break;
-
-
+                case estimatable_parameters::ppn_parameter_gamma:
+                    break;
+                case estimatable_parameters::ppn_parameter_beta:
+                    break;
+                case estimatable_parameters::equivalence_principle_lpi_violation_parameter:
+                    break;
                 case estimatable_parameters::mean_moment_of_inertia:
                     break;
-
+                case estimatable_parameters::direct_dissipation_tidal_time_lag:
+                    break;
                 default:
 
                     std::string errorMessage =
@@ -242,6 +245,22 @@ std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartia
                 case estimatable_parameters::arc_wise_radiation_pressure_coefficient:
                     break;
                 case estimatable_parameters::arc_wise_constant_drag_coefficient:
+                    break;
+                case estimatable_parameters::constant_additive_observation_bias:
+                    break;
+                case estimatable_parameters::arcwise_constant_additive_observation_bias:
+                    break;
+                case estimatable_parameters::constant_relative_observation_bias:
+                    break;
+                case estimatable_parameters::arcwise_constant_relative_observation_bias:
+                    break;
+                case estimatable_parameters::empirical_acceleration_coefficients:
+                    break;
+                case estimatable_parameters::arc_wise_empirical_acceleration_coefficients:
+                    break;
+                case estimatable_parameters::full_degree_tidal_love_number:
+                    break;
+                case estimatable_parameters::single_degree_variable_tidal_love_number:
                     break;
                 case estimatable_parameters::ground_station_position:
 
@@ -387,6 +406,28 @@ std::shared_ptr< PositionObervationPartial > createPositionObservablePartialWrtP
     }
 
     return positionObervationPartial;
+}
+
+//! Function to create an objects that computes the partial derivatives of a three-dimensional position observable w.r.t.
+//! the Velocity of a body.
+std::shared_ptr< VelocityObervationPartial > createVelocityObservablePartialWrtVelocity(
+        const  observation_models::LinkEnds linkEnds,
+        const simulation_setup::NamedBodyMap& bodyMap,
+        const std::string bodyToEstimate,
+        const std::shared_ptr< VelocityObservationScaling > velocityObservableScaler )
+{
+    std::map<  observation_models::LinkEndType, std::shared_ptr< CartesianStatePartial > > velocityPartials =
+            createCartesianStatePartialsWrtBodyState( linkEnds, bodyMap, bodyToEstimate );
+    std::shared_ptr< VelocityObervationPartial > velocityObervationPartial;
+
+    if( velocityPartials.size( ) > 0 )
+    {
+        velocityObervationPartial = std::make_shared< VelocityObervationPartial >(
+                    velocityObservableScaler, velocityPartials, std::make_pair(
+                        estimatable_parameters::initial_body_state, std::make_pair( bodyToEstimate, "") ) );
+    }
+
+    return velocityObervationPartial;
 }
 
 }
