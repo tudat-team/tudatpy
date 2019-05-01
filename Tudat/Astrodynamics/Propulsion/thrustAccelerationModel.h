@@ -20,6 +20,7 @@
 #include "Tudat/Astrodynamics/Propagators/environmentUpdateTypes.h"
 #include "Tudat/Astrodynamics/Propulsion/thrustGuidance.h"
 #include "Tudat/Astrodynamics/Propulsion/thrustMagnitudeWrapper.h"
+#include "Tudat/Mathematics/Interpolators/lookupScheme.h"
 
 namespace tudat
 {
@@ -254,6 +255,147 @@ protected:
      *  list is included here to account for versatility of dependencies of thrust model (guidance) algorithms.
      */
     std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > requiredModelUpdates_;
+
+};
+
+class MomentumWheelDesaturationThrustAcceleration : public basic_astrodynamics::AccelerationModel< Eigen::Vector3d >
+{
+public:
+
+    MomentumWheelDesaturationThrustAcceleration(
+            const std::vector< double > thrustMidTimes,
+            const std::vector< Eigen::Vector3d > deltaVValues,
+            const double totalManeuverTime,
+            const double maneuverRiseTime ):
+        basic_astrodynamics::AccelerationModel< Eigen::Vector3d >( ),
+        totalManeuverTime_( totalManeuverTime ),
+        maneuverRiseTime_( maneuverRiseTime ),
+        deltaVValues_( deltaVValues )
+    {
+        if( thrustMidTimes.size( ) != deltaVValues.size( ) )
+        {
+            throw std::runtime_error( "Error when making momentum wheel desaturation acceleration, input is inconsistent" );
+        }
+
+        for( unsigned int i = 0; i < deltaVValues.size( ); i++ )
+        {
+            accelerationValues_.push_back( deltaVValues.at( i ) / ( totalManeuverTime_ - maneuverRiseTime_ ) );
+            thrustStartTimes_.push_back( thrustMidTimes.at( i ) - totalManeuverTime_ / 2.0 );
+        }
+        thrustStartTimes_.push_back( std::numeric_limits< double >::max( ) );
+
+        timeLookUpScheme_ = std::make_shared< interpolators::HuntingAlgorithmLookupScheme< double > >(
+                    thrustStartTimes_ );
+    }
+
+    Eigen::Vector3d getAcceleration( )
+    {
+        return currentAcceleration_;
+    }
+
+    void updateMembers( const double currentTime = TUDAT_NAN )
+    {
+        // Check if update is needed
+        if( !( currentTime_ == currentTime ) )
+        {
+            nearestTimeIndex_ = timeLookUpScheme_->findNearestLowerNeighbour( currentTime );
+            double currentThrustStartTime = thrustStartTimes_.at( nearestTimeIndex_ );
+
+            if( std::fabs( currentTime - currentThrustStartTime ) < totalManeuverTime_ && ( currentTime > currentThrustStartTime ) )
+            {
+                currentThrustMultiplier_ = getDesaturationThrustMultiplier(
+                            currentTime - currentThrustStartTime );
+                currentAcceleration_ = currentThrustMultiplier_ * accelerationValues_.at( nearestTimeIndex_ );
+
+            }
+            else
+            {
+                currentThrustMultiplier_ = 0.0;
+                currentAcceleration_.setZero( );
+            }
+
+            // Reset current time.
+            currentTime_ = currentTime;
+
+        }
+
+    }
+
+    double getDesaturationThrustMultiplier( const double timeSinceThrustStart )
+    {
+        if( timeSinceThrustStart < maneuverRiseTime_ )
+        {
+            double timeRatio = timeSinceThrustStart / maneuverRiseTime_;
+            return timeRatio * timeRatio * ( 3.0 - 2.0 * timeRatio );
+        }
+        else if( timeSinceThrustStart < totalManeuverTime_ - maneuverRiseTime_ )
+        {
+            return 1.0;
+        }
+        else if( timeSinceThrustStart < totalManeuverTime_  )
+        {
+            return getDesaturationThrustMultiplier( totalManeuverTime_ - timeSinceThrustStart );
+        }
+        else
+        {
+            return 0.0;
+        }
+    }
+
+    int getCurrentNearestTimeIndex( )
+    {
+        return nearestTimeIndex_;
+    }
+
+    double getTotalManeuverTime( )
+    {
+        return totalManeuverTime_;
+    }
+
+    double getManeuverRiseTime( )
+    {
+        return maneuverRiseTime_;
+    }
+
+    std::vector< Eigen::Vector3d > getDeltaVValues( )
+    {
+        return deltaVValues_;
+    }
+
+    void setDeltaVValues( const std::vector< Eigen::Vector3d >& deltaVValues )
+    {
+        deltaVValues_ = deltaVValues;
+        for( unsigned int i = 0; i < deltaVValues.size( ); i++ )
+        {
+            accelerationValues_.push_back( deltaVValues.at( i ) / ( totalManeuverTime_ - maneuverRiseTime_ ) );
+        }
+    }
+
+    double getCurrentThrustMultiplier( )
+    {
+        return currentThrustMultiplier_;
+    }
+
+
+private:
+
+    double totalManeuverTime_;
+
+    double maneuverRiseTime_;
+
+    std::vector< Eigen::Vector3d > deltaVValues_;
+
+    std::vector< double > thrustStartTimes_;
+
+    std::vector< Eigen::Vector3d > accelerationValues_;
+
+    std::shared_ptr< interpolators::LookUpScheme< double > > timeLookUpScheme_;
+
+    int nearestTimeIndex_;
+
+    double currentThrustMultiplier_;
+
+    Eigen::Vector3d currentAcceleration_;
 
 };
 

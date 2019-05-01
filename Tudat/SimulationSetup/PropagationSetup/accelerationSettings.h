@@ -389,8 +389,8 @@ public:
         thrustMagnitudeSettings_ =  std::make_shared< FromFunctionThrustMagnitudeSettings >(
                     std::bind( &FullThrustInterpolationInterface::getThrustMagnitude, interpolatorInterface_, std::placeholders::_1 ),
                     specificImpulseFunction, [ ]( const double ){ return true; },
-                    [ ]( ){ return  Eigen::Vector3d::UnitX( ); },
-                    std::bind( &FullThrustInterpolationInterface::resetTime, interpolatorInterface_, std::placeholders::_1 ) );
+        [ ]( ){ return  Eigen::Vector3d::UnitX( ); },
+        std::bind( &FullThrustInterpolationInterface::resetTime, interpolatorInterface_, std::placeholders::_1 ) );
     }
 
     //! Constructor used for defining total thrust vector (in local or inertial frame) from interpolator using constant
@@ -412,8 +412,8 @@ public:
             const std::string centralBody = "" ):
         ThrustAccelerationSettings( dataInterpolationSettings,
                                     [ = ]( const double ){ return constantSpecificImpulse; },
-                                    thrustFrame,
-                                    centralBody )
+    thrustFrame,
+    centralBody )
     {
         constantSpecificImpulse_ = constantSpecificImpulse;
     }
@@ -494,6 +494,24 @@ public:
 
     //! True if acceleration model is to model tide raised on planet by satellite, false if vice versa
     bool useTideRaisedOnPlanet_;
+};
+
+class MomentumWheelDesaturationAccelerationSettings: public AccelerationSettings
+{
+public:
+
+    MomentumWheelDesaturationAccelerationSettings(
+            const std::vector< double > thrustMidTimes,
+            const std::vector< Eigen::Vector3d > deltaVValues,
+            const double totalManeuverTime,
+            const double maneuverRiseTime ): AccelerationSettings( basic_astrodynamics::momentum_wheel_desaturation_acceleration ),
+        thrustMidTimes_( thrustMidTimes ), deltaVValues_( deltaVValues ),
+        totalManeuverTime_( totalManeuverTime ), maneuverRiseTime_( maneuverRiseTime ){ }
+
+    std::vector< double > thrustMidTimes_;
+    std::vector< Eigen::Vector3d > deltaVValues_;
+    double totalManeuverTime_;
+    double maneuverRiseTime_;
 };
 
 //! Typedef defining a list of acceleration settings, set up in the same manner as the

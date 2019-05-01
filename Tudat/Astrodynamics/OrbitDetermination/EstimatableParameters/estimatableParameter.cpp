@@ -99,6 +99,9 @@ std::string getParameterTypeString( const EstimatebleParametersEnum parameterTyp
     case mean_moment_of_inertia:
         parameterDescription = " mean moment of inertia ";
         break;
+    case desaturation_delta_v_values:
+        parameterDescription = " momentum wheel desaturation Delta V ";
+        break;
     default:
         std::string errorMessage = "Error when getting parameter string, did not recognize parameter " +
                 std::to_string( parameterType );
@@ -204,6 +207,9 @@ bool isDoubleParameter( const EstimatebleParametersEnum parameterType )
     case mean_moment_of_inertia:
          isDoubleParameter = true;
         break;
+    case desaturation_delta_v_values:
+        isDoubleParameter = false;
+       break;
     default:
         throw std::runtime_error( "Error, parameter type " + std::to_string( parameterType ) +
                                   " not found when getting parameter type" );

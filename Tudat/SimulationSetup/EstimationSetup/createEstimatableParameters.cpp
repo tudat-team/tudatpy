@@ -24,6 +24,7 @@
 #include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/tidalLoveNumber.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/directTidalTimeLag.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/meanMomentOfInertiaParameter.h"
+#include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/desaturationDeltaV.h"
 #include "Tudat/Astrodynamics/Relativity/metric.h"
 #include "Tudat/SimulationSetup/EstimationSetup/createEstimatableParameters.h"
 
@@ -371,9 +372,9 @@ std::shared_ptr< EstimatableParameter< Eigen::VectorXd > > createVectorParameter
                 if( timeDependentShField == nullptr )
                 {
                     getCosineCoefficientsFunction = std::bind( &SphericalHarmonicsGravityField::getCosineCoefficients,
-                                                                 shGravityField );
+                                                               shGravityField );
                     setCosineCoefficientsFunction = std::bind( &SphericalHarmonicsGravityField::setCosineCoefficients,
-                                                                 shGravityField, std::placeholders::_1 );
+                                                               shGravityField, std::placeholders::_1 );
                 }
                 else
                 {
@@ -431,9 +432,9 @@ std::shared_ptr< EstimatableParameter< Eigen::VectorXd > > createVectorParameter
                 if( timeDependentShField == nullptr )
                 {
                     getSineCoefficientsFunction = std::bind( &SphericalHarmonicsGravityField::getSineCoefficients,
-                                                               shGravityField );
+                                                             shGravityField );
                     setSineCoefficientsFunction = std::bind( &SphericalHarmonicsGravityField::setSineCoefficients,
-                                                               shGravityField, std::placeholders::_1 );
+                                                             shGravityField, std::placeholders::_1 );
                 }
                 else
                 {
@@ -512,7 +513,7 @@ std::shared_ptr< EstimatableParameter< Eigen::VectorXd > > createVectorParameter
                 if( accelerationModelMap.count( empiricalAccelerationSettings->parameterType_.second.first ) == 0 )
                 {
                     std::string errorMessage =
-                            "Error, did not find accelerations on body " + 
+                            "Error, did not find accelerations on body " +
                             std::string( empiricalAccelerationSettings->parameterType_.second.first ) +
                             " when making constant empirical acceleration coefficients parameter";
                     throw std::runtime_error( errorMessage );
@@ -626,7 +627,7 @@ std::shared_ptr< EstimatableParameter< Eigen::VectorXd > > createVectorParameter
                 {
                     vectorParameterToEstimate = std::make_shared< ArcWiseConstantDragCoefficient >(
                                 std::dynamic_pointer_cast< aerodynamics::CustomAerodynamicCoefficientInterface >(
-                                                             currentBody->getAerodynamicCoefficientInterface( ) ),
+                                    currentBody->getAerodynamicCoefficientInterface( ) ),
                                 dragCoefficientSettings->arcStartTimeList_,
                                 currentBodyName );
                 }
@@ -806,6 +807,43 @@ std::shared_ptr< EstimatableParameter< Eigen::VectorXd > > createVectorParameter
                         throw std::runtime_error(
                                     "Error, expected BasicSolidBodyTideGravityFieldVariations for variable tidal love number" );
                     }
+                }
+            }
+            break;
+        }
+        case desaturation_delta_v_values:
+        {
+            std::string acceleratedBody = vectorParameterName->parameterType_.second.first;
+            if( accelerationModelMap.count( acceleratedBody ) == 0 )
+            {
+                throw std::runtime_error( "Error when making desaturation Delta V parameter, acceleration model not found in first entry" );
+            }
+            else if( accelerationModelMap.at( acceleratedBody ).count( acceleratedBody ) == 0 )
+            {
+                throw std::runtime_error( "Error when making desaturation Delta V parameter, acceleration model not found in second entry" );
+            }
+            else
+            {
+                std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > > desaturationAccelerationModels =
+                        basic_astrodynamics::getAccelerationModelsOfType(
+                            accelerationModelMap.at( acceleratedBody ).at( acceleratedBody ),
+                            basic_astrodynamics::momentum_wheel_desaturation_acceleration );
+
+                if( desaturationAccelerationModels.size( ) == 0 )
+                {
+                    throw std::runtime_error( "Error when making desaturation Delta V parameter, no acceleration models found in list" );
+
+                }
+                else if( desaturationAccelerationModels.size( ) > 1 )
+                {
+                    throw std::runtime_error( "Error when making desaturation Delta V parameter, multiple acceleration models found in list" );
+
+                }
+                else
+                {
+                    vectorParameterToEstimate = std::make_shared< DesaturationDeltaV >(
+                                std::dynamic_pointer_cast< propulsion::MomentumWheelDesaturationThrustAcceleration >(
+                                    desaturationAccelerationModels.at( 0 ) ), acceleratedBody );
                 }
             }
             break;
