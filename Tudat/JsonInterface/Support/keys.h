@@ -196,6 +196,7 @@ struct Keys
             static const std::string initialTime;
             static const std::string rotationRate;
             static const std::string precessionNutationTheory;
+            static const std::string centralBodyName;
         };
 
         static const std::string shapeModel;
