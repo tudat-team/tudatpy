@@ -589,10 +589,10 @@ BOOST_AUTO_TEST_CASE( testPanelledRadiationPressureMontenbruckModel )
                }
 
                expectedAcceleration = - radiationPressure / bodyMap[ "Vehicle" ]->getBodyMass()
-                       * ( areas[0] * abs(cosinusPanelInclinationPositiveXaxis) * ( ( 1 - emissivities[0] ) * expectedVehicleToSunNormalisedVector
+                       * ( areas[0] * fabs(cosinusPanelInclinationPositiveXaxis) * ( ( 1 - emissivities[0] ) * expectedVehicleToSunNormalisedVector
                        + 2.0 / 3.0 * diffuseReflectionCoefficients[0] * expectedPanelNormal )
-                       + areas[1] * abs(cosinusPanelInclinationPositiveXaxis) * ( ( 1 - emissivities[1] ) * expectedVehicleToSunNormalisedVector
-                       + ( 2.0 / 3.0 * diffuseReflectionCoefficients[1] + 2.0 * abs(cosinusPanelInclinationPositiveXaxis) * emissivities[1] )
+                       + areas[1] * fabs(cosinusPanelInclinationPositiveXaxis) * ( ( 1 - emissivities[1] ) * expectedVehicleToSunNormalisedVector
+                       + ( 2.0 / 3.0 * diffuseReflectionCoefficients[1] + 2.0 * fabs(cosinusPanelInclinationPositiveXaxis) * emissivities[1] )
                        * expectedPanelNormal ) );
             }
 
