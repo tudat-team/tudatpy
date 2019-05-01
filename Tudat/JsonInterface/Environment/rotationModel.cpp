@@ -44,6 +44,15 @@ void to_json( nlohmann::json& jsonObject, const std::shared_ptr< RotationModelSe
         jsonObject[ K::rotationRate ] = simpleRotationModelSettings->getRotationRate( );
         return;
     }
+    case  tidally_locked_rotation_model:
+    {
+        std::shared_ptr< TidallyLockedRotationModelSettings > tidallyLockedRotationModelSettings =
+                std::dynamic_pointer_cast< TidallyLockedRotationModelSettings >( rotationModelSettings );
+        assertNonnullptrPointer( tidallyLockedRotationModelSettings );
+
+        jsonObject[ K::centralBodyName ] = tidallyLockedRotationModelSettings->getCentralBodyName( );
+        return;
+    }
     case spice_rotation_model:
         return;
     case gcrs_to_itrs_rotation_model:
@@ -107,6 +116,14 @@ void from_json( const nlohmann::json& jsonObject, std::shared_ptr< RotationModel
                     getValue< double >( jsonObject, K::rotationRate ) );
         return;
     }
+    case  tidally_locked_rotation_model:
+    {
+        const std::string centralBody = getValue< std::string >( jsonObject, K::centralBodyName );
+        rotationModelSettings = std::make_shared< TidallyLockedRotationModelSettings >(
+                     centralBody, originalFrame, targetFrame );
+        return;
+    }
+
     case spice_rotation_model:
     {
         rotationModelSettings = std::make_shared< RotationModelSettings >(

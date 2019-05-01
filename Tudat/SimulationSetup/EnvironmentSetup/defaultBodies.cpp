@@ -86,6 +86,80 @@ std::shared_ptr< GravityFieldSettings > getDefaultGravityFieldSettings(
     {
         return std::make_shared< FromFileSphericalHarmonicsGravityFieldSettings >( jgmro120d );
     }
+    else if( bodyName == "Jupiter" )
+    {
+        double jupiterJ2 = 14.696572E-3;
+        double jupiterJ3 = -0.042E-6;
+        double jupiterJ4 = -586.609E-6;
+        double jupiterJ5 = -0.069E-6;
+        double jupiterJ6 = 34.198E-6;
+        double jupiterJ7 = 0.124E-6;
+        double jupiterJ8 = -2.426E-6;
+
+        Eigen::MatrixXd cosineCoefficients = Eigen::MatrixXd::Zero( 21, 21 );
+        Eigen::MatrixXd sineCoefficients = Eigen::MatrixXd::Zero( 21, 21 );
+
+        cosineCoefficients( 0, 0 ) = 1.0;
+        cosineCoefficients( 2, 0 ) =  -jupiterJ2 / basic_mathematics::calculateLegendreGeodesyNormalizationFactor( 2, 0 );
+        cosineCoefficients( 3, 0 ) =  -jupiterJ3 / basic_mathematics::calculateLegendreGeodesyNormalizationFactor( 3, 0 );
+        cosineCoefficients( 4, 0 ) =  -jupiterJ4 / basic_mathematics::calculateLegendreGeodesyNormalizationFactor( 4, 0 );
+        cosineCoefficients( 5, 0 ) =  -jupiterJ5 / basic_mathematics::calculateLegendreGeodesyNormalizationFactor( 5, 0 );
+        cosineCoefficients( 6, 0 ) =  -jupiterJ6 / basic_mathematics::calculateLegendreGeodesyNormalizationFactor( 6, 0 );
+        cosineCoefficients( 7, 0 ) =  -jupiterJ7 / basic_mathematics::calculateLegendreGeodesyNormalizationFactor( 7, 0 );
+        cosineCoefficients( 8, 0 ) =  -jupiterJ8 / basic_mathematics::calculateLegendreGeodesyNormalizationFactor( 8, 0 );
+
+        return std::make_shared< SphericalHarmonicsGravityFieldSettings >(
+                    1.266865341960128E17, 71492.0E3, cosineCoefficients, sineCoefficients, "IAU_Jupiter" );//Mass from jup329.cmt
+    }
+    else if( bodyName == "Io" )
+    {
+        Eigen::MatrixXd cosineCoefficients = Eigen::MatrixXd::Zero( 6, 6 );
+        Eigen::MatrixXd sineCoefficients = Eigen::MatrixXd::Zero( 6, 6 );
+
+        cosineCoefficients( 0, 0 ) = 1.0;
+        cosineCoefficients( 2, 0 ) =  -1845.9E-6 / basic_mathematics::calculateLegendreGeodesyNormalizationFactor( 2, 0 );
+        cosineCoefficients( 2, 2 ) =  553.7E-6 / basic_mathematics::calculateLegendreGeodesyNormalizationFactor( 2, 2 );
+
+        return std::make_shared< SphericalHarmonicsGravityFieldSettings >(
+                    5.959924010272514E+12, 1821.6E3, cosineCoefficients, sineCoefficients, "IAU_Io" );
+
+    }
+    else if( bodyName == "Europa" )
+    {
+        Eigen::MatrixXd cosineCoefficients = Eigen::MatrixXd::Zero( 6, 6 );
+        Eigen::MatrixXd sineCoefficients = Eigen::MatrixXd::Zero( 6, 6);
+
+        cosineCoefficients( 0, 0 ) = 1.0;
+        cosineCoefficients( 2, 0 ) =  -435.5E-6 / basic_mathematics::calculateLegendreGeodesyNormalizationFactor( 2, 0 );
+        cosineCoefficients( 2, 2 ) =  131.0E-6 / basic_mathematics::calculateLegendreGeodesyNormalizationFactor( 2, 2 );
+
+        return std::make_shared< SphericalHarmonicsGravityFieldSettings >(
+                    3.202739815114734E+12, 1565.0E3, cosineCoefficients, sineCoefficients, "IAU_Europa" );
+    }
+    else if( bodyName == "Ganymede" )
+    {
+        Eigen::MatrixXd cosineCoefficients = Eigen::MatrixXd::Zero( 6, 6 );
+        Eigen::MatrixXd sineCoefficients = Eigen::MatrixXd::Zero( 6, 6 );
+
+        cosineCoefficients( 0, 0 ) = 1.0;
+        cosineCoefficients( 2, 0 ) =  -127.8E-6 / basic_mathematics::calculateLegendreGeodesyNormalizationFactor( 2, 0 );
+        cosineCoefficients( 2, 2 ) =  38.3E-6 / basic_mathematics::calculateLegendreGeodesyNormalizationFactor( 2, 2 );
+
+        return std::make_shared< SphericalHarmonicsGravityFieldSettings >(
+                    9.887819980080976E+12, 2634.0E3, cosineCoefficients, sineCoefficients, "IAU_Ganymede" );
+    }
+    else if( bodyName == "Callisto" )
+    {
+        Eigen::MatrixXd cosineCoefficients = Eigen::MatrixXd::Zero( 6, 6 );
+        Eigen::MatrixXd sineCoefficients = Eigen::MatrixXd::Zero( 6, 6 );
+
+        cosineCoefficients( 0, 0 ) = 1.0;
+        cosineCoefficients( 2, 0 ) =  -32.7E-6 / basic_mathematics::calculateLegendreGeodesyNormalizationFactor( 2, 0 );
+        cosineCoefficients( 2, 2 ) =  10.2E-6 / basic_mathematics::calculateLegendreGeodesyNormalizationFactor( 2, 2 );
+
+        return std::make_shared< SphericalHarmonicsGravityFieldSettings >(
+                    7.179304867611079E+12, 2410.3E3, cosineCoefficients, sineCoefficients, "IAU_Callisto" );
+    }
     else
     {
 #if USE_CSPICE
