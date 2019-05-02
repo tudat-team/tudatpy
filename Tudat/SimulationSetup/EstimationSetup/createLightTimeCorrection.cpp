@@ -11,7 +11,7 @@
 #include "Tudat/SimulationSetup/EnvironmentSetup/body.h"
 #include "Tudat/SimulationSetup/EstimationSetup/createLightTimeCorrection.h"
 #include "Tudat/Astrodynamics/ObservationModels/ObservableCorrections/firstOrderRelativisticLightTimeCorrection.h"
-#include "Tudat/Astrodynamics/Relativity/metric.h"
+#include "Tudat/Astrodynamics/Relativity/relativisticParameters.h"
 
 namespace tudat
 {
