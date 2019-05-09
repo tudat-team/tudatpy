@@ -245,6 +245,7 @@ public:
             const std::vector< std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > > >
             sensitivityMatrixInterpolators,
             const std::vector< double >& arcStartTimes,
+            const std::vector< double >& arcEndTimes,
             const int numberOfInitialDynamicalParameters,
             const int numberOfParameters );
 
@@ -264,7 +265,8 @@ public:
             stateTransitionMatrixInterpolators,
             const std::vector< std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > > >
             sensitivityMatrixInterpolators,
-            const std::vector< double >& arcStartTimes );
+            const std::vector< double >& arcStartTimes,
+            const std::vector< double >& arcEndTimes);
 
     //! Function to get the vector of interpolators returning the state transition matrix as a function of time.
     /*!
@@ -347,6 +349,8 @@ private:
 
     //! Times at which the multiple arcs start
     std::vector< double > arcStartTimes_;
+
+    std::vector< double > arcEndTimes_;
 
     //! Number of arcs.
     int numberOfStateArcs_;

@@ -19,7 +19,7 @@
 #include "Tudat/Astrodynamics/ReferenceFrames/aerodynamicAngleCalculator.h"
 #include "Tudat/Astrodynamics/ReferenceFrames/referenceFrameTransformations.h"
 #include "Tudat/Astrodynamics/Relativity/relativisticAccelerationCorrection.h"
-#include "Tudat/Astrodynamics/Relativity/relativisticParameters.h"
+#include "Tudat/Astrodynamics/Relativity/metric.h"
 #include "Tudat/Basics/utilities.h"
 #include "Tudat/SimulationSetup/PropagationSetup/accelerationSettings.h"
 #include "Tudat/SimulationSetup/PropagationSetup/createAccelerationModels.h"
