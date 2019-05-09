@@ -158,19 +158,31 @@ executeHybridArcMarsAndOrbiterSensitivitySimulation(
 
     // Creater arc times
     std::vector< double > integrationArcStarts, integrationArcEnds;
-    double integrationStartTime = initialEphemerisTime;
-    double integrationEndTime = finalEphemerisTime - 1.0E4;
-    double currentStartTime = integrationStartTime;
-    double currentEndTime = integrationStartTime + arcDuration;
+    //    double integrationStartTime = initialEphemerisTime;
+    //    double integrationEndTime = finalEphemerisTime - 1.0E4;
+    //    double currentStartTime = integrationStartTime;
+    //    double currentEndTime = integrationStartTime + arcDuration;
+    //    do
+    //    {
+    //        integrationArcStarts.push_back( currentStartTime );
+    //        integrationArcEnds.push_back( currentEndTime );
+
+    //        currentStartTime = currentEndTime - arcOverlap;
+    //        currentEndTime = currentStartTime + arcDuration;
+    //    }
+    double timeBetweenArcs = 86400.0;
+    //    double arcDuration = 0.5E6;
+    double currentStartTime = initialEphemerisTime;
+    double currentEndTime = initialEphemerisTime + arcDuration;
     do
     {
         integrationArcStarts.push_back( currentStartTime );
         integrationArcEnds.push_back( currentEndTime );
 
-        currentStartTime = currentEndTime - arcOverlap;
-        currentEndTime = currentStartTime + arcDuration;
+        currentEndTime = currentStartTime + timeBetweenArcs + arcDuration;
+        currentStartTime = currentStartTime + timeBetweenArcs;
     }
-    while( currentEndTime < integrationEndTime );
+    while( currentEndTime < finalEphemerisTime );
 
     // Create list of multi-arc initial states
     unsigned int numberOfIntegrationArcs = integrationArcStarts.size( );
@@ -227,10 +239,13 @@ executeHybridArcMarsAndOrbiterSensitivitySimulation(
             std::make_shared< HybridArcPropagatorSettings< > >(
                 singleArcPropagatorSettings, multiArcPropagatorSettings );
 
-    std::shared_ptr< IntegratorSettings< > > integratorSettings =
+    std::shared_ptr< IntegratorSettings< > > singleArcIntegratorSettings =
             std::make_shared< IntegratorSettings< > >
             ( rungeKutta4, initialEphemerisTime, 60.0 );
 
+    std::shared_ptr< IntegratorSettings< > > multiArcIntegratorSettings =
+            std::make_shared< IntegratorSettings< > >
+            ( rungeKutta4, initialEphemerisTime, 45.0 );
 
 
     // Define parameters.
@@ -265,7 +280,8 @@ executeHybridArcMarsAndOrbiterSensitivitySimulation(
         // Create dynamics simulator
         HybridArcVariationalEquationsSolver< StateScalarType, TimeType > variationalEquations =
                 HybridArcVariationalEquationsSolver< StateScalarType, TimeType >(
-                    bodyMap, integratorSettings, hybridArcPropagatorSettings, parametersToEstimate, integrationArcStarts );
+                    bodyMap, singleArcIntegratorSettings, multiArcIntegratorSettings,
+                    hybridArcPropagatorSettings, parametersToEstimate, integrationArcStarts );
 
         // Propagate requested equations.
         if( propagateVariationalEquations )
@@ -300,6 +316,24 @@ executeHybridArcMarsAndOrbiterSensitivitySimulation(
             else
             {
                 results.second.push_back( testStates );
+            }
+
+            std::cout<<arc<<" "<<integrationArcEnds.size( )<<" "<<integrationArcStarts.at( arc  )<<" "<<integrationArcEnds.at( arc )<<std::endl;
+
+            if( arc <  integrationArcEnds.size( ) - 1 && propagateVariationalEquations )
+            {
+                if( integrationArcEnds.at( arc ) < integrationArcStarts.at( arc + 1 ) )
+                {
+                    testEpoch = integrationArcEnds.at( arc ) + ( integrationArcStarts.at( arc + 1 ) - integrationArcEnds.at( arc ) ) / 2.0;
+                    Eigen::MatrixXd combinedMatrixOutsideMultiArcTimes =
+                            variationalEquations.getStateTransitionMatrixInterface( )->
+                               getCombinedStateTransitionAndSensitivityMatrix( testEpoch );
+                    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                                ( combinedMatrixOutsideMultiArcTimes.block( 6, 0, 6, combinedMatrixOutsideMultiArcTimes.rows( ) ) ),
+                                Eigen::MatrixXd::Zero( 6, combinedMatrixOutsideMultiArcTimes.rows( ) ),
+                                std::numeric_limits< double >::epsilon( ) );
+
+                }
             }
         }
     }
@@ -347,7 +381,7 @@ BOOST_AUTO_TEST_CASE( testMarsAndOrbiterHybridArcVariationalEquationCalculation 
         }
 
 
-        for( unsigned int patchArcs = 0; patchArcs < 2; patchArcs++ )
+        for( unsigned int patchArcs = 0; patchArcs < 1; patchArcs++ )
         {
             // Test for all requested propagator types.
             for( unsigned int k = 0; k < 1; k++ )

@@ -1552,6 +1552,54 @@ public:
         }
     }
 
+    HybridArcDynamicsSimulator(
+            const simulation_setup::NamedBodyMap& bodyMap,
+            const std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > singleArcIntegratorSettings,
+            const std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > multiArcIntegratorSettings,
+            const std::shared_ptr< PropagatorSettings< StateScalarType > > propagatorSettings,
+            const std::vector< double > arcStartTimes,
+            const bool areEquationsOfMotionToBeIntegrated = true,
+            const bool clearNumericalSolutions = true,
+            const bool setIntegratedResult = true,
+            const bool addSingleArcBodiesToMultiArcDynamics = false ):
+        DynamicsSimulator< StateScalarType, TimeType >(
+            bodyMap, clearNumericalSolutions, setIntegratedResult )
+    {
+        std::shared_ptr< HybridArcPropagatorSettings< StateScalarType > > hybridPropagatorSettings =
+                std::dynamic_pointer_cast< HybridArcPropagatorSettings< StateScalarType > >( propagatorSettings );
+        if( hybridPropagatorSettings == nullptr )
+        {
+            throw std::runtime_error( "Error when making HybridArcDynamicsSimulator, propagator settings are incompatible" );
+        }
+
+        singleArcDynamicsSize_ = hybridPropagatorSettings->getSingleArcPropagatorSettings( )->getPropagatedStateSize( );
+        multiArcDynamicsSize_ = hybridPropagatorSettings->getMultiArcPropagatorSettings( )->getPropagatedStateSize( );
+
+        if( !addSingleArcBodiesToMultiArcDynamics )
+        {
+            if( !setIntegratedResult )
+            {
+                std::cerr << "Warning in hybrid dynamics simulator, setIntegratedResult is false, but single arc propagation "
+                             "result will be set in environment for consistency with multi-arc " << std::endl;
+            }
+            singleArcDynamicsSimulator_ = std::make_shared< SingleArcDynamicsSimulator< StateScalarType, TimeType > >(
+                        bodyMap, singleArcIntegratorSettings, hybridPropagatorSettings->getSingleArcPropagatorSettings( ),
+                        false, false, true );
+            multiArcDynamicsSimulator_ = std::make_shared< MultiArcDynamicsSimulator< StateScalarType, TimeType > >(
+                        bodyMap, multiArcIntegratorSettings, hybridPropagatorSettings->getMultiArcPropagatorSettings( ), arcStartTimes,
+                        false, false, setIntegratedResult );
+        }
+        else
+        {
+            throw std::runtime_error( "Cannot yet add single-arc bodies to multi-arc propagation" );
+        }
+
+        if( areEquationsOfMotionToBeIntegrated )
+        {
+            integrateEquationsOfMotion( hybridPropagatorSettings->getInitialStates( ) );
+        }
+    }
+
     //! Destructor
     ~HybridArcDynamicsSimulator( ){ }
 
