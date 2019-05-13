@@ -198,7 +198,7 @@ public:
             const bool biasIsAbsolute ):
         EstimatableParameter< Eigen::VectorXd >(
             biasIsAbsolute ? arcwise_constant_additive_observation_bias : arcwise_constant_relative_observation_bias,
-            linkEnds.begin( )->second. first ),
+            linkEnds.begin( )->second.first ),
         arcStartTimes_( arcStartTimes ), getBiasList_( getBiasList ), resetBiasList_( resetBiasList ),
         linkEndIndex_( linkEndIndex ), linkEnds_( linkEnds ), observableType_( observableType )
     {

@@ -113,8 +113,8 @@ std::shared_ptr< GravityFieldSettings > getDefaultGravityFieldSettings(
     }
     else if( bodyName == "Io" )
     {
-        Eigen::MatrixXd cosineCoefficients = Eigen::MatrixXd::Zero( 6, 6 );
-        Eigen::MatrixXd sineCoefficients = Eigen::MatrixXd::Zero( 6, 6 );
+        Eigen::MatrixXd cosineCoefficients = Eigen::MatrixXd::Zero( 13, 13 );
+        Eigen::MatrixXd sineCoefficients = Eigen::MatrixXd::Zero( 13, 13 );
 
         cosineCoefficients( 0, 0 ) = 1.0;
         cosineCoefficients( 2, 0 ) =  -1845.9E-6 / basic_mathematics::calculateLegendreGeodesyNormalizationFactor( 2, 0 );
@@ -126,8 +126,8 @@ std::shared_ptr< GravityFieldSettings > getDefaultGravityFieldSettings(
     }
     else if( bodyName == "Europa" )
     {
-        Eigen::MatrixXd cosineCoefficients = Eigen::MatrixXd::Zero( 6, 6 );
-        Eigen::MatrixXd sineCoefficients = Eigen::MatrixXd::Zero( 6, 6);
+        Eigen::MatrixXd cosineCoefficients = Eigen::MatrixXd::Zero( 13, 13 );
+        Eigen::MatrixXd sineCoefficients = Eigen::MatrixXd::Zero( 13, 13 );
 
         cosineCoefficients( 0, 0 ) = 1.0;
         cosineCoefficients( 2, 0 ) =  -435.5E-6 / basic_mathematics::calculateLegendreGeodesyNormalizationFactor( 2, 0 );
@@ -138,8 +138,8 @@ std::shared_ptr< GravityFieldSettings > getDefaultGravityFieldSettings(
     }
     else if( bodyName == "Ganymede" )
     {
-        Eigen::MatrixXd cosineCoefficients = Eigen::MatrixXd::Zero( 6, 6 );
-        Eigen::MatrixXd sineCoefficients = Eigen::MatrixXd::Zero( 6, 6 );
+        Eigen::MatrixXd cosineCoefficients = Eigen::MatrixXd::Zero( 13, 13 );
+        Eigen::MatrixXd sineCoefficients = Eigen::MatrixXd::Zero( 13, 13 );
 
         cosineCoefficients( 0, 0 ) = 1.0;
         cosineCoefficients( 2, 0 ) =  -127.8E-6 / basic_mathematics::calculateLegendreGeodesyNormalizationFactor( 2, 0 );
@@ -150,8 +150,8 @@ std::shared_ptr< GravityFieldSettings > getDefaultGravityFieldSettings(
     }
     else if( bodyName == "Callisto" )
     {
-        Eigen::MatrixXd cosineCoefficients = Eigen::MatrixXd::Zero( 6, 6 );
-        Eigen::MatrixXd sineCoefficients = Eigen::MatrixXd::Zero( 6, 6 );
+        Eigen::MatrixXd cosineCoefficients = Eigen::MatrixXd::Zero( 13, 13 );
+        Eigen::MatrixXd sineCoefficients = Eigen::MatrixXd::Zero( 13, 13 );
 
         cosineCoefficients( 0, 0 ) = 1.0;
         cosineCoefficients( 2, 0 ) =  -32.7E-6 / basic_mathematics::calculateLegendreGeodesyNormalizationFactor( 2, 0 );

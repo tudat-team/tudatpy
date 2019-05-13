@@ -16,6 +16,7 @@
 #include <functional>
 
 #include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/estimatableParameter.h"
+#include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/sphericalHarmonicCosineCoefficients.h"
 
 namespace tudat
 {
@@ -156,6 +157,10 @@ private:
     //! Number of coefficients that are to be estimated (i.e. length of blockIndices_ vector).
     int parameterSize_;
 };
+
+Eigen::VectorXd getKaulaConstraintVector(
+        const std::shared_ptr< SphericalHarmonicsSineCoefficients > parameter,
+        const double constraintMultiplier );
 
 } // namespace estimatable_parameters
 

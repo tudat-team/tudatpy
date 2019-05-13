@@ -476,7 +476,7 @@ public:
      */
     ArcWiseRadiationPressureCoefficientEstimatableParameterSettings(
             const std::string associatedBody,
-            const std::vector< double > arcStartTimeList):
+            const std::vector< double > arcStartTimeList ):
         EstimatableParameterSettings( associatedBody, arc_wise_radiation_pressure_coefficient ),
         arcStartTimeList_( arcStartTimeList ){ }
 

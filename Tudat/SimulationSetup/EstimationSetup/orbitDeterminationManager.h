@@ -131,6 +131,20 @@ public:
             const bool propagateOnCreation = true ):
         parametersToEstimate_( parametersToEstimate )
     {
+        initializeOrbitDeterminationManager( bodyMap, observationSettingsMap, { integratorSettings }, propagatorSettings,
+                                             propagateOnCreation );
+    }
+
+    OrbitDeterminationManager(
+            const NamedBodyMap &bodyMap,
+            const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< ObservationScalarType > >
+            parametersToEstimate,
+            const observation_models::SortedObservationSettingsMap& observationSettingsMap,
+            const std::vector< std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > > integratorSettings,
+            const std::shared_ptr< propagators::PropagatorSettings< ObservationScalarType > > propagatorSettings,
+            const bool propagateOnCreation = true ):
+        parametersToEstimate_( parametersToEstimate )
+    {
         initializeOrbitDeterminationManager( bodyMap, observationSettingsMap, integratorSettings, propagatorSettings,
                                              propagateOnCreation );
     }
@@ -154,6 +168,21 @@ public:
             parametersToEstimate,
             const observation_models::ObservationSettingsMap& observationSettingsMap,
             const std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings,
+            const std::shared_ptr< propagators::PropagatorSettings< ObservationScalarType > > propagatorSettings,
+            const bool propagateOnCreation = true ):
+        parametersToEstimate_( parametersToEstimate )
+    {
+        initializeOrbitDeterminationManager( bodyMap, observation_models::convertUnsortedToSortedObservationSettingsMap(
+                                                 observationSettingsMap ), { integratorSettings }, propagatorSettings,
+                                             propagateOnCreation );
+    }
+
+    OrbitDeterminationManager(
+            const NamedBodyMap &bodyMap,
+            const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< ObservationScalarType > >
+            parametersToEstimate,
+            const observation_models::ObservationSettingsMap& observationSettingsMap,
+            const std::vector< std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > > integratorSettings,
             const std::shared_ptr< propagators::PropagatorSettings< ObservationScalarType > > propagatorSettings,
             const bool propagateOnCreation = true ):
         parametersToEstimate_( parametersToEstimate )
@@ -745,7 +774,7 @@ protected:
     void initializeOrbitDeterminationManager(
             const NamedBodyMap &bodyMap,
             const observation_models::SortedObservationSettingsMap& observationSettingsMap,
-            const std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings,
+            const std::vector< std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > > integratorSettings,
             const std::shared_ptr< propagators::PropagatorSettings< ObservationScalarType > > propagatorSettings,
             const bool propagateOnCreation = true )
     {
