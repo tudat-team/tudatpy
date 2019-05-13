@@ -223,7 +223,9 @@ void calculateSphericalHarmonicGravityWrtCCoefficients(
         const std::vector< std::pair< int, int > >& blockIndices,
         const Eigen::Matrix3d& sphericalToCartesianGradientMatrix,
         const Eigen::Matrix3d& bodyFixedToIntegrationFrame,
-        Eigen::MatrixXd& partialsMatrix );
+        Eigen::MatrixXd& partialsMatrix,
+        const int maximumAccelerationDegree,
+        const int maximumAccelerationOrder );
 
 //! Calculate partial of spherical harmonic acceleration w.r.t. a set of sine coefficients
 /*!
@@ -249,7 +251,9 @@ void calculateSphericalHarmonicGravityWrtSCoefficients(
         const std::vector< std::pair< int, int > >& blockIndices,
         const Eigen::Matrix3d& sphericalToCartesianGradientMatrix,
         const Eigen::Matrix3d& bodyFixedToIntegrationFrame,
-        Eigen::MatrixXd& partialsMatrix  );
+        Eigen::MatrixXd& partialsMatrix,
+        const int maximumAccelerationDegree,
+        const int maximumAccelerationOrder  );
 
 } // namespace acceleration_partials
 

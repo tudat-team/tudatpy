@@ -367,7 +367,8 @@ void SphericalHarmonicsGravityPartial::wrtCosineCoefficientBlock(
                 bodyFixedSphericalPosition_, bodyReferenceRadius_( ), gravitationalParameterFunction_( ),
                 sphericalHarmonicCache_,
                 blockIndices, coordinate_conversions::getSphericalToCartesianGradientMatrix(
-                    bodyFixedPosition_ ), fromBodyFixedToIntegrationFrameRotation_( ), partialDerivatives );
+                    bodyFixedPosition_ ), fromBodyFixedToIntegrationFrameRotation_( ), partialDerivatives,
+                maximumDegree_, maximumOrder_ );
 }
 
 //! Function to calculate the partial of the acceleration wrt a set of sine coefficients.
@@ -379,7 +380,8 @@ void SphericalHarmonicsGravityPartial::wrtSineCoefficientBlock(
                 bodyFixedSphericalPosition_, bodyReferenceRadius_( ), gravitationalParameterFunction_( ),
                 sphericalHarmonicCache_,
                 blockIndices, coordinate_conversions::getSphericalToCartesianGradientMatrix(
-                    bodyFixedPosition_ ), fromBodyFixedToIntegrationFrameRotation_( ), partialDerivatives );
+                    bodyFixedPosition_ ), fromBodyFixedToIntegrationFrameRotation_( ), partialDerivatives,
+                maximumDegree_, maximumOrder_ );
 }
 
 //! Function to calculate an acceleration partial wrt a rotational parameter.
@@ -440,7 +442,8 @@ void SphericalHarmonicsGravityPartial::wrtTidalModelParameter(
                         bodyFixedSphericalPosition_, bodyReferenceRadius_( ), gravitationalParameterFunction_( ),
                         sphericalHarmonicCache_,
                         blockIndices, coordinate_conversions::getSphericalToCartesianGradientMatrix(
-                            bodyFixedPosition_ ), fromBodyFixedToIntegrationFrameRotation_( ), currentPartialContribution );
+                            bodyFixedPosition_ ), fromBodyFixedToIntegrationFrameRotation_( ), currentPartialContribution,
+                        maximumDegree_, maximumOrder_  );
 
             partialMatrix.block( 0, 0, 3, singleOrderPartialSize ) +=
                     currentPartialContribution * coefficientPartialsPerOrder_.at( i ).block( 0, 0, 1, singleOrderPartialSize );
@@ -451,7 +454,8 @@ void SphericalHarmonicsGravityPartial::wrtTidalModelParameter(
                         bodyFixedSphericalPosition_, bodyReferenceRadius_( ), gravitationalParameterFunction_( ),
                         sphericalHarmonicCache_,
                         blockIndices, coordinate_conversions::getSphericalToCartesianGradientMatrix(
-                            bodyFixedPosition_ ), fromBodyFixedToIntegrationFrameRotation_( ), currentPartialContribution );
+                            bodyFixedPosition_ ), fromBodyFixedToIntegrationFrameRotation_( ), currentPartialContribution,
+                        maximumDegree_, maximumOrder_  );
 
             partialMatrix.block( 0, 0, 3, singleOrderPartialSize ) +=
                     currentPartialContribution * coefficientPartialsPerOrder_.at( i ).block( 1, 0, 1, singleOrderPartialSize );
@@ -462,7 +466,8 @@ void SphericalHarmonicsGravityPartial::wrtTidalModelParameter(
                         bodyFixedSphericalPosition_, bodyReferenceRadius_( ), gravitationalParameterFunction_( ),
                         sphericalHarmonicCache_,
                         blockIndices, coordinate_conversions::getSphericalToCartesianGradientMatrix(
-                            bodyFixedPosition_ ), fromBodyFixedToIntegrationFrameRotation_( ), currentPartialContribution );
+                            bodyFixedPosition_ ), fromBodyFixedToIntegrationFrameRotation_( ), currentPartialContribution,
+                        maximumDegree_, maximumOrder_  );
 
             partialMatrix.block( 0, i * singleOrderPartialSize, 3, singleOrderPartialSize ) +=
                     currentPartialContribution * coefficientPartialsPerOrder_.at( i ).block( 0, 0, 1, singleOrderPartialSize );
@@ -471,7 +476,8 @@ void SphericalHarmonicsGravityPartial::wrtTidalModelParameter(
                         bodyFixedSphericalPosition_, bodyReferenceRadius_( ), gravitationalParameterFunction_( ),
                         sphericalHarmonicCache_,
                         blockIndices, coordinate_conversions::getSphericalToCartesianGradientMatrix(
-                            bodyFixedPosition_ ), fromBodyFixedToIntegrationFrameRotation_( ), currentPartialContribution );
+                            bodyFixedPosition_ ), fromBodyFixedToIntegrationFrameRotation_( ), currentPartialContribution,
+                        maximumDegree_, maximumOrder_  );
 
             partialMatrix.block( 0, i * singleOrderPartialSize, 3, singleOrderPartialSize ) +=
                         currentPartialContribution * coefficientPartialsPerOrder_.at( i ).block( 1, 0, 1, singleOrderPartialSize );

@@ -570,6 +570,46 @@ public:
         return estimatedVectorParameters_;
     }
 
+    std::vector< std::pair< int, int > > getIndicesForParameterType(
+            const EstimatebleParameterIdentifier requiredParameterId )
+    {
+        std::vector< std::pair< int, int > > typeIndices;
+
+        for( auto parameterIterator : initialSingleArcStateParameters_ )
+        {
+            if( parameterIterator.second->getParameterName( ) == requiredParameterId )
+            {
+                typeIndices.push_back( std::make_pair( parameterIterator.first, parameterIterator.second->getParameterSize( ) ) );
+            }
+        }
+
+        for( auto parameterIterator : initialMultiArcStateParameters_ )
+        {
+            if( parameterIterator.second->getParameterName( ) == requiredParameterId )
+            {
+                typeIndices.push_back( std::make_pair( parameterIterator.first, parameterIterator.second->getParameterSize( ) ) );
+            }
+        }
+
+        for( auto parameterIterator : doubleParameters_ )
+        {
+            if( parameterIterator.second->getParameterName( ) == requiredParameterId )
+            {
+                typeIndices.push_back( std::make_pair( parameterIterator.first, parameterIterator.second->getParameterSize( ) ) );
+            }
+        }
+
+        for( auto parameterIterator : vectorParameters_ )
+        {
+            if( parameterIterator.second->getParameterName( ) == requiredParameterId )
+            {
+                typeIndices.push_back( std::make_pair( parameterIterator.first, parameterIterator.second->getParameterSize( ) ) );
+            }
+        }
+
+        return typeIndices;
+    }
+
     //! Function to get list of initial dynamical states that are to be estimated.
     //!
     /*!

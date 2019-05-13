@@ -44,6 +44,12 @@ void SphericalHarmonicsSineCoefficients::setParameterValue( const Eigen::VectorX
     setSineCoefficients_( coefficients );
 }
 
+Eigen::VectorXd getKaulaConstraintVector(
+        const std::shared_ptr< SphericalHarmonicsSineCoefficients > parameter,
+        const double constraintMultiplier )
+{
+    return getKaulaConstraintVector( parameter->getBlockIndices( ), constraintMultiplier );
+}
 
 }
 

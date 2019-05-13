@@ -160,6 +160,13 @@ private:
     int parameterSize_;
 };
 
+Eigen::VectorXd getKaulaConstraintVector(
+        const std::vector< std::pair< int, int > > blockIndices,
+        const double constraintMultiplier );
+
+Eigen::VectorXd getKaulaConstraintVector(const std::shared_ptr< SphericalHarmonicsCosineCoefficients > parameter,
+        const double constraintMultiplier );
+
 } // namespace estimatable_parameters
 
 } // namespace tudat
