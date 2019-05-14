@@ -214,7 +214,7 @@ Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > getInitialRotationalStateOfB
 template< typename TimeType = double, typename StateScalarType = double >
 Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > getInitialArcWiseStateOfBody(
         const std::string& bodyToIntegrate,
-        const std::string& centralBody,
+        const std::vector< std::string >& centralBodies,
         const simulation_setup::NamedBodyMap& bodyMap,
         const std::vector< TimeType > arcStartTimes )
 {
@@ -223,7 +223,7 @@ Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > getInitialArcWiseStateOfBody
     for( unsigned int i = 0; i < arcStartTimes.size( ); i++ )
     {
         initialStates.block( 6 * i, 0, 6, 1 ) = getInitialStateOfBody< double, StateScalarType >(
-                    bodyToIntegrate, centralBody, bodyMap, arcStartTimes.at( i ) );
+                    bodyToIntegrate, centralBodies.at( i ), bodyMap, arcStartTimes.at( i ) );
     }
     return initialStates;
 }

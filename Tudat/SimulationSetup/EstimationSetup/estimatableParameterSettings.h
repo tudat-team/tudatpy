@@ -309,7 +309,22 @@ public:
             const std::vector< double >& arcStartTimes,
             const std::string& centralBody = "SSB", const std::string& frameOrientation = "ECLIPJ2000" ):
         EstimatableParameterSettings( associatedBody, arc_wise_initial_body_state ), initialStateValue_( initialStateValue ),
-        arcStartTimes_( arcStartTimes ), centralBody_( centralBody ), frameOrientation_( frameOrientation ),
+        arcStartTimes_( arcStartTimes ), frameOrientation_( frameOrientation ),
+        isStateSet_( 1 )
+    {
+        for( unsigned int i = 0; i < arcStartTimes.size( ); i++ )
+        {
+            centralBodies_.push_back( centralBody );
+        }
+    }
+
+    ArcWiseInitialTranslationalStateEstimatableParameterSettings(
+            const std::string& associatedBody,
+            const Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > initialStateValue,
+            const std::vector< double >& arcStartTimes,
+            const std::vector< std::string > centralBodies, const std::string& frameOrientation = "ECLIPJ2000" ):
+        EstimatableParameterSettings( associatedBody, arc_wise_initial_body_state ), initialStateValue_( initialStateValue ),
+        arcStartTimes_( arcStartTimes ), centralBodies_( centralBodies ), frameOrientation_( frameOrientation ),
         isStateSet_( 1 ){ }
 
     //! Constructor, without initial value of translational state.
@@ -326,7 +341,21 @@ public:
             const std::vector< double >& arcStartTimes,
             const std::string& centralBody = "SSB", const std::string& frameOrientation = "ECLIPJ2000" ):
         EstimatableParameterSettings( associatedBody, arc_wise_initial_body_state ),
-        arcStartTimes_( arcStartTimes ), centralBody_( centralBody ), frameOrientation_( frameOrientation ),
+        arcStartTimes_( arcStartTimes ), frameOrientation_( frameOrientation ),
+        isStateSet_( 0 )
+    {
+        for( int i = 0; i < arcStartTimes.size( ); i++ )
+        {
+            centralBodies_.push_back( centralBody );
+        }
+    }
+
+    ArcWiseInitialTranslationalStateEstimatableParameterSettings(
+            const std::string& associatedBody,
+            const std::vector< double >& arcStartTimes,
+            const std::vector< std::string > centralBodies, const std::string& frameOrientation = "ECLIPJ2000" ):
+        EstimatableParameterSettings( associatedBody, arc_wise_initial_body_state ),
+        arcStartTimes_( arcStartTimes ), centralBodies_( centralBodies ), frameOrientation_( frameOrientation ),
         isStateSet_( 0 ){ }
 
     //! Current value of initial arc states (concatenated in same order as arcs)
@@ -336,7 +365,7 @@ public:
     std::vector< double > arcStartTimes_;
 
     //! Body w.r.t. which the initial state is to be estimated.
-    std::string centralBody_;
+    std::vector< std::string > centralBodies_;
 
     //!Orientation of the frame in which the state is defined.
     std::string frameOrientation_;

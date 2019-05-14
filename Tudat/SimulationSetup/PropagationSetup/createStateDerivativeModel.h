@@ -516,7 +516,7 @@ void setMultiTypePropagationClosure(
                         bodyMap.at( bodiesWithAerodynamicRotationalClosure.at( i ) )->getFlightConditions( );
                 reference_frames::setAerodynamicDependentOrientationCalculatorClosure(
                             std::bind( &simulation_setup::Body::getCurrentRotationToLocalFrame,
-                                         bodyMap.at( bodiesWithAerodynamicRotationalClosure.at( i ) ) ),
+                                       bodyMap.at( bodiesWithAerodynamicRotationalClosure.at( i ) ) ),
                             currentFlightConditions->getAerodynamicAngleCalculator( ) );
             }
         }
@@ -664,7 +664,7 @@ createStateDerivativeModelMap(
         const TimeType propagationStartTime )
 {
     return getStateDerivativeModelMapFromVector( createStateDerivativeModels(
-                propagatorSettings, bodyMap, propagationStartTime ) );
+                                                     propagatorSettings, bodyMap, propagationStartTime ) );
 }
 
 //! Function to create an integrator to propagate the dynamics (in normalized units) in CR3BP

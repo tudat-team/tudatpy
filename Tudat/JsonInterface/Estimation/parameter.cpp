@@ -59,7 +59,7 @@ void to_json( nlohmann::json& jsonObject,
                     parameterSettings );
         assertNonnullptrPointer( stateEstimationSettings );
         jsonObject[ K::initialStateValue ] = stateEstimationSettings->initialStateValue_;
-        jsonObject[ K::centralBody ] = stateEstimationSettings->centralBody_;
+        jsonObject[ K::centralBody ] = stateEstimationSettings->centralBodies_;
         jsonObject[ K::arcStartTimes ] = stateEstimationSettings->arcStartTimes_;
         jsonObject[ K::frameOrientation ] = stateEstimationSettings->frameOrientation_;
 
