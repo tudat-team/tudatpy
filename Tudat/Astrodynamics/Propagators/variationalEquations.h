@@ -61,7 +61,8 @@ public:
             const std::map< IntegratedStateType, orbit_determination::StateDerivativePartialsMap >
             stateDerivativePartialList,
             const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< ParameterType > > parametersToEstimate,
-            const std::map< IntegratedStateType, int >& stateTypeStartIndices ):
+            const std::map< IntegratedStateType, int >& stateTypeStartIndices,
+            const int currentArcIndex = -1 ):
         stateDerivativePartialList_( stateDerivativePartialList ), stateTypeStartIndices_( stateTypeStartIndices )
     {
         dynamicalStatesToEstimate_ =
@@ -101,7 +102,7 @@ public:
 
         // Set parameter partial functions.
         setStatePartialFunctionList( );
-        setTranslationalStatePartialFrameScalingFunctions( parametersToEstimate );
+        setTranslationalStatePartialFrameScalingFunctions( parametersToEstimate, currentArcIndex );
         setRotationalStatePartialScalingFunctions( parametersToEstimate );
         setParameterPartialFunctionList( parametersToEstimate );
     }
@@ -418,7 +419,8 @@ private:
     template< typename ParameterType >
     void setTranslationalStatePartialFrameScalingFunctions(
             const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< ParameterType > >
-            parametersToEstimate )
+            parametersToEstimate,
+            const int currentArcIndex = -1 )
     {
         std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameter<
                 Eigen::Matrix< ParameterType, Eigen::Dynamic, 1 > > > > initialDynamicalParameters =
@@ -440,10 +442,14 @@ private:
             }
             else if( initialDynamicalParameters.at( i )->getParameterName( ).first == estimatable_parameters::arc_wise_initial_body_state )
             {
+                if( currentArcIndex < 0 )
+                {
+                    throw std::runtime_error( "Error in setTranslationalStatePartialFrameScalingFunctions, cpuld not find xurrent arc index " );
+                }
                 propagatedBodies.push_back(
                             initialDynamicalParameters.at( i )->getParameterName( ).second.first );
                 centralBodies.push_back( std::dynamic_pointer_cast< estimatable_parameters::ArcWiseInitialTranslationalStateParameter< ParameterType > >(
-                                             initialDynamicalParameters.at( i ) )->getCentralBody( ) );
+                                             initialDynamicalParameters.at( i ) )->getCentralBodies( ).at( currentArcIndex ) );
             }
         }
 

@@ -124,7 +124,7 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::Matrix
                                 initialStateSettings->parameterType_.second.first,
                                 initialStateSettings->arcStartTimes_,
                                 initialStateSettings->initialStateValue_,
-                                initialStateSettings->centralBody_,
+                                initialStateSettings->centralBodies_,
                                 initialStateSettings->frameOrientation_ );
                 }
                 else
@@ -134,9 +134,9 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::Matrix
                                 initialStateSettings->parameterType_.second.first, initialStateSettings->arcStartTimes_,
                                 propagators::getInitialArcWiseStateOfBody< double, InitialStateParameterType >(
                                     initialStateSettings->parameterType_.second.first,
-                                    initialStateSettings->centralBody_, bodyMap,
+                                    initialStateSettings->centralBodies_, bodyMap,
                                     initialStateSettings->arcStartTimes_ ),
-                                initialStateSettings->centralBody_, initialStateSettings->frameOrientation_ );
+                                initialStateSettings->centralBodies_, initialStateSettings->frameOrientation_ );
                 }
             }
             break;
@@ -329,12 +329,17 @@ getAssociatedMultiArcParameter(
         multiArcInitialStates.segment( 0, 6 ) = singleArcInitialState;
 
         // Creater multi-arc parameter
+        std::vector< std::string > centralBodyList;
+        for( unsigned int i = 0; i < arcStartTimes.size( ); i++ )
+        {
+            centralBodyList.push_back( singleArcTranslationalStateParameter->getCentralBody( ) );
+        }
         multiArcParameter = std::make_shared< estimatable_parameters::ArcWiseInitialTranslationalStateParameter<
                 StateScalarType > >(
                     singleArcTranslationalStateParameter->getParameterName( ).second.first,
                     arcStartTimes,
                     multiArcInitialStates,
-                    singleArcTranslationalStateParameter->getCentralBody( ),
+                    centralBodyList,
                     singleArcTranslationalStateParameter->getFrameOrientation( ) );
         break;
     }

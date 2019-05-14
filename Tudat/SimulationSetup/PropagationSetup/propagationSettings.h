@@ -1228,7 +1228,7 @@ std::shared_ptr< MultiArcPropagatorSettings< StateScalarType > > getExtendedMult
             // Check multi-arc consistency
             std::shared_ptr< TranslationalStatePropagatorSettings< StateScalarType > > currentArcTranslationalSettings =
                     std::dynamic_pointer_cast< TranslationalStatePropagatorSettings< StateScalarType > >(
-                        multiArcSettings->getSingleArcSettings( ).at( 0 ) );
+                        multiArcSettings->getSingleArcSettings( ).at( i ) );
             if( currentArcTranslationalSettings == nullptr )
             {
                 throw std::runtime_error(

@@ -1093,7 +1093,8 @@ public:
                         dynamicsStateDerivatives_.at( i )->getStateDerivativeModels( ), bodyMap, parametersToEstimate );
             std::shared_ptr< VariationalEquations > variationalEquationsObject_ =
                     std::make_shared< VariationalEquations >(
-                        stateDerivativePartials, parametersToEstimate_, dynamicsStateDerivatives_.at( i )->getStateTypeStartIndices( ) );
+                        stateDerivativePartials, parametersToEstimate_, dynamicsStateDerivatives_.at( i )->getStateTypeStartIndices( ),
+                        i );
 
             dynamicsStateDerivatives_.at( i )->addVariationalEquations( variationalEquationsObject_ );
             arcStartTimes_.push_back( arcStartTimes.at( i ) );
@@ -1714,6 +1715,7 @@ public:
         {
             throw std::runtime_error( "Error when making HybridArcVariationalEquationsSolver, input single arc is not translational" );
         }
+
         initialStatesFromSingleArcPropagation_ = std::bind(
                     &getInitialStatesOfBodiesFromFrameManager< TimeType, StateScalarType >,
                     singleArcPropagationSettings->bodiesToIntegrate_,

@@ -126,15 +126,20 @@ public:
             const std::string& associatedBody,
             const std::vector< double >& arcStartTimes,
             const std::vector< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > >& initialTranslationalState,
-            const std::string& centralBody = "SSB", const std::string& frameOrientation = "ECLIPJ2000" ):
+            const std::vector< std::string >& centralBodies, const std::string& frameOrientation = "ECLIPJ2000" ):
         EstimatableParameter< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > >(
             arc_wise_initial_body_state, associatedBody ),
-        arcStartTimes_( arcStartTimes ), centralBody_( centralBody ), frameOrientation_( frameOrientation )
+        arcStartTimes_( arcStartTimes ), centralBodies_( centralBodies ), frameOrientation_( frameOrientation )
     {
         if( arcStartTimes_.size( ) != initialTranslationalState.size( ) )
         {
             throw std::runtime_error(
                         "Error when creating arc-wise initial translational state parameters, incompatible sizes are found" );
+        }
+        else if( arcStartTimes_.size( ) != centralBodies_.size( ) )
+        {
+            throw std::runtime_error(
+                        "Error when creating arc-wise initial translational state parameters, incompatible sizes are found or central bodies" );
         }
         else
         {
@@ -158,12 +163,19 @@ public:
             const std::string& associatedBody,
             const std::vector< double >& arcStartTimes,
             const Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > initialTranslationalStates,
-            const std::string& centralBody = "SSB", const std::string& frameOrientation = "ECLIPJ2000" ):
+            const std::vector< std::string >& centralBodies, const std::string& frameOrientation = "ECLIPJ2000" ):
         EstimatableParameter< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > >(
             arc_wise_initial_body_state, associatedBody ),
         initialTranslationalState_( initialTranslationalStates ),
-        arcStartTimes_( arcStartTimes ), centralBody_( centralBody ), frameOrientation_( frameOrientation )
+        arcStartTimes_( arcStartTimes ), centralBodies_( centralBodies ), frameOrientation_( frameOrientation )
     {
+
+        if( arcStartTimes_.size( ) != centralBodies_.size( ) )
+        {
+            throw std::runtime_error(
+                        "Error when creating arc-wise initial translational state parameters, incompatible sizes are found or central bodies" );
+        }
+
         if( 6 * static_cast< int >( arcStartTimes_.size( ) ) != initialTranslationalStates.rows( ) )
         {
             throw std::runtime_error(
@@ -216,10 +228,11 @@ public:
      * Function to get the name of the body w.r.t. which the initial states are to be estimated.
      * \return Name of the body w.r.t. which the initial states are to be estimated.
      */
-    std::string getCentralBody( )
+    std::vector< std::string > getCentralBodies( )
     {
-        return centralBody_;
+        return centralBodies_;
     }
+
 
     //! Function to get the start times for separate arcs
     /*!
@@ -246,7 +259,7 @@ private:
     std::vector< double > arcStartTimes_;
 
     //! Body w.r.t. which the initial state is to be estimated.
-    std::string centralBody_;
+    std::vector< std::string > centralBodies_;
 
     //! Orientation of the frame in which the state is defined.
     std::string frameOrientation_;
@@ -273,7 +286,7 @@ int getSingleArcParameterSetSize(
         {
             totalParameterSetSize -=
                     ( std::dynamic_pointer_cast< ArcWiseInitialTranslationalStateParameter< InitialStateParameterType > >(
-                        initialStateParameters.at( i ) )->getNumberOfStateArcs( ) - 1 ) * 6;
+                          initialStateParameters.at( i ) )->getNumberOfStateArcs( ) - 1 ) * 6;
         }
         else if( ( initialStateParameters.at( i )->getParameterName( ).first != initial_body_state ) &&
                  ( initialStateParameters.at( i )->getParameterName( ).first != initial_rotational_body_state ))
@@ -328,7 +341,7 @@ std::vector< double > getMultiArcStateEstimationArcStartTimes(
         if( initialDynamicalParameters.at( i )->getParameterName( ).first == arc_wise_initial_body_state )
         {
             std::shared_ptr< ArcWiseInitialTranslationalStateParameter< InitialStateParameterType > > arcWiseStateParameter =
-            std::dynamic_pointer_cast< ArcWiseInitialTranslationalStateParameter< InitialStateParameterType > >(
+                    std::dynamic_pointer_cast< ArcWiseInitialTranslationalStateParameter< InitialStateParameterType > >(
                         initialDynamicalParameters.at( i ) );
             if( arcWiseStateParameter == nullptr )
             {
@@ -366,7 +379,7 @@ std::vector< double > getMultiArcStateEstimationArcStartTimes(
         {
             if( throwErrorOnSingleArcDynamics )
             {
-            throw std::runtime_error( "Error when getting arc times from estimated parameters, soingle arc dynamics found" );
+                throw std::runtime_error( "Error when getting arc times from estimated parameters, soingle arc dynamics found" );
             }
         }
     }
