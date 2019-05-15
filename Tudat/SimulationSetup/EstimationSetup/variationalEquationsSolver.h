@@ -1244,6 +1244,7 @@ public:
             // Integrate equations for all arcs.
             for( int i = 0; i < numberOfArcs_; i++ )
             {
+                std::cout<<"Integrating multi-arc "<<i<<" "<<numberOfArcs_<<std::endl;
                 // Retrieve integrator settings, and ensure correct initial time.
                 std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings =
                         singleArcDynamicsSimulators.at( i )->getIntegratorSettings( );
@@ -1756,9 +1757,12 @@ public:
 
         // Reset initial time and propagate multi-arc equations
         singleArcIntegratorSettings_->initialTime_ = singleArcInitialTime_;
+
+        std::cout<<"Pre single-arc"<<std::endl;
         singleArcSolver_->integrateVariationalAndDynamicalEquations(
                     initialStateEstimate.block( 0, 0, singleArcDynamicsSize_, 1 ),
                     integrateEquationsConcurrently );
+        std::cout<<"Post single-arc"<<std::endl;
 
 
         // Extract single arc state to update multi-arc initial states
@@ -1768,9 +1772,11 @@ public:
 
         // Reset initial time and propagate single-arc equations
         multiArcIntegratorSettings_->initialTime_ = arcStartTimes_.at( 0 );
+        std::cout<<"Pre multi-arc"<<std::endl;
         multiArcSolver_->integrateVariationalAndDynamicalEquations(
                     propagatorSettings_->getMultiArcPropagatorSettings( )->getInitialStates( ),
                     integrateEquationsConcurrently );
+        std::cout<<"Post multi-arc"<<std::endl;
 
         copyExtendedMultiArcInitialStatesToOriginalSettins( );
 
