@@ -474,7 +474,7 @@ public:
         int numberOfIterations = 0;
         do
         {
-            try
+//            try
             {
                 // Re-integrate equations of motion and variational equations with new parameter estimate.
                 if( ( numberOfIterations > 0 ) ||( podInput->getReintegrateEquationsOnFirstIteration( ) ) )
@@ -490,13 +490,13 @@ public:
                                 variationalEquationsSolver_->getDynamicsSimulatorBase( )->getDependentVariableNumericalSolutionBase( ) );
                 }
             }
-            catch( std::runtime_error& error )
-            {
-                std::cerr<<"Error when resetting parameters during parameter estimation: "<<std::endl<<
-                           error.what( )<<std::endl<<"Terminating estimation"<<std::endl;
-                exceptionDuringPropagation = true;
-                break;
-            }
+//            catch( std::runtime_error& error )
+//            {
+//                std::cerr<<"Error when resetting parameters during parameter estimation: "<<std::endl<<
+//                           error.what( )<<std::endl<<"Terminating estimation"<<std::endl;
+//                exceptionDuringPropagation = true;
+//                break;
+//            }
 
             oldParameterEstimate = newParameterEstimate;
 

@@ -32,7 +32,11 @@
    44905600.0
   ],
   "associatedBody": "Mars",
-  "centralBody": "Sun",
+  "centralBody": [
+   "Sun",
+   "Sun",
+   "Sun"
+  ],
   "frameOrientation": "ECLIPJ2000",
   "initialStateValue": [
    [
