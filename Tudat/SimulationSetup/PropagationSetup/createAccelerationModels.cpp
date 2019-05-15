@@ -785,6 +785,7 @@ createCannonballRadiationPressureAcceleratioModel(
 
 }
 
+//! Function to create a panelled radiation pressure acceleration model.
 std::shared_ptr< electro_magnetism::PanelledRadiationPressureAcceleration > createPanelledRadiationPressureAcceleration(
         const std::shared_ptr< Body > bodyUndergoingAcceleration,
         const std::shared_ptr< Body > bodyExertingAcceleration,
