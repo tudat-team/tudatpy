@@ -323,9 +323,9 @@ createThrustAcceleratioModel(
         const NamedBodyMap& bodyMap,
         const std::string& nameOfBodyUndergoingThrust );
 
-//! Function to create a direct tical acceleration model, according to approach of Lainey et al. (2007, 2009, ...)
+//! Function to create a direct tidal acceleration model, according to approach of Lainey et al. (2007, 2009, ...)
 /*!
- *  Function to create a direct tical acceleration model, according to approach of Lainey et al. (2007, 2009, ...).
+ *  Function to create a direct tidal acceleration model, according to approach of Lainey et al. (2007, 2009, ...).
  *  \param bodyUndergoingAcceleration Pointer to object of body that is being accelerated.
  *  \param bodyExertingAcceleration Pointer to object of main body that is exerting the acceleration
  *  \param nameOfBodyUndergoingAcceleration Name of object of body that is being accelerated.
@@ -340,6 +340,16 @@ std::shared_ptr< gravitation::DirectTidalDissipationAcceleration > createDirectT
         const std::string& nameOfBodyExertingAcceleration,
         const  std::shared_ptr< AccelerationSettings > accelerationSettings );
 
+//! Function to create a momentum wheel desaturation acceleration model.
+/*!
+ *  Function to create a momentum wheel desaturation acceleration model.
+ *  \param bodyUndergoingAcceleration Pointer to object of body that is being accelerated.
+ *  \param bodyExertingAcceleration Pointer to object of main body that is exerting the acceleration.
+ *  \param nameOfBodyUndergoingAcceleration Name of object of body that is being accelerated.
+ *  \param nameOfBodyExertingAcceleration Name of object of body that is exerting the acceleration.
+ *  \param accelerationSettings Settings for the acceleration model.
+ *  \return Pointer to object for calculating acceleration.
+ */
 std::shared_ptr< propulsion::MomentumWheelDesaturationThrustAcceleration > createMomentumWheelDesaturationAcceleration(
         const std::shared_ptr< Body > bodyUndergoingAcceleration,
         const std::shared_ptr< Body > bodyExertingAcceleration,

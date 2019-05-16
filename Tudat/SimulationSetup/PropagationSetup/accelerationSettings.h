@@ -496,10 +496,24 @@ public:
     bool useTideRaisedOnPlanet_;
 };
 
+
+//! Class for providing acceleration settings for a momentum wheel desaturation acceleration model.
+/*!
+ *  Class for providing acceleration settings for a momentum wheel desaturation acceleration model.
+ *  The deltaV values for each of the desaturation maneuvers are provided by the user.
+ */
 class MomentumWheelDesaturationAccelerationSettings: public AccelerationSettings
 {
 public:
 
+    //! Constructor.
+    /*!
+     * Constructor.
+     * \param thrustMidTimes Vector containing the midtime of each desaturation maneuver.
+     * \param deltaVValues Vector containing the deltaV values of the desaturation maneuvers.
+     * \param totalManeuverTime Total duration of the desaturation maneuvers.
+     * \param maneuverRiseTime Rise time of the desaturation maneuvers.
+     */
     MomentumWheelDesaturationAccelerationSettings(
             const std::vector< double > thrustMidTimes,
             const std::vector< Eigen::Vector3d > deltaVValues,
@@ -508,10 +522,18 @@ public:
         thrustMidTimes_( thrustMidTimes ), deltaVValues_( deltaVValues ),
         totalManeuverTime_( totalManeuverTime ), maneuverRiseTime_( maneuverRiseTime ){ }
 
+    //! Vector containing the midtime of each desaturation maneuver.
     std::vector< double > thrustMidTimes_;
+
+    //! Vector containing the deltaV values of the momentum wheel desaturation maneuvers.
     std::vector< Eigen::Vector3d > deltaVValues_;
+
+    //! Total desaturation maneuver time.
     double totalManeuverTime_;
+
+    //! Desaturation maneuvers rise time.
     double maneuverRiseTime_;
+
 };
 
 //! Typedef defining a list of acceleration settings, set up in the same manner as the

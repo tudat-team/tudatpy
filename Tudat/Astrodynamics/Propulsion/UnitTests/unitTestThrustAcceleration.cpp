@@ -1995,6 +1995,7 @@ BOOST_AUTO_TEST_CASE( testMomentumWheelDesaturationThrust )
     std::vector< std::string > bodiesToPropagate;
     std::vector< std::string > centralBodies;
 
+    // Define times and deltaV magnitudes for momentum wheel desaturation maneuvers.
     std::vector< double > thrustMidTimes = { 1.0 * 3600.0, 2.0 * 3600.0, 3.0 * 3600.0 };
     std::vector< Eigen::Vector3d > deltaVValues =
     { 1.0E-3 * ( Eigen::Vector3d( ) << 0.3, -2.5, 3.4 ).finished( ),
@@ -2063,7 +2064,7 @@ BOOST_AUTO_TEST_CASE( testMomentumWheelDesaturationThrust )
     auto stateTransitionHistory = dynamicsSimulator.getNumericalVariationalEquationsSolution( )[ 0 ];
     auto sensitivityHistory = dynamicsSimulator.getNumericalVariationalEquationsSolution( )[ 1 ];
 
-
+    // Compute thrust start times from maneuvers mid-times.
     std::vector< double > thrustStartTimes;
     for( int i = 0; i < thrustMidTimes.size( ); i++ )
     {
@@ -2071,11 +2072,14 @@ BOOST_AUTO_TEST_CASE( testMomentumWheelDesaturationThrust )
     }
     thrustStartTimes.push_back( std::numeric_limits< double >::max( ) );
 
+    // Create interpolator to look up maneuvers start times.
     std::shared_ptr< tudat::interpolators::LookUpScheme< double > > timeLookup =
             std::make_shared< tudat::interpolators::HuntingAlgorithmLookupScheme< double > >(
                 thrustStartTimes );
+
     for( auto variableIterator : dependentVariableResult )
     {
+        // Identify maneuver start time closest to current time.
         double currentTime = variableIterator.first;
         int currentNearestNeighbour = timeLookup->findNearestLowerNeighbour( currentTime );
 
@@ -2083,20 +2087,24 @@ BOOST_AUTO_TEST_CASE( testMomentumWheelDesaturationThrust )
 
         Eigen::Vector3d expectedAcceleration = Eigen::Vector3d::Zero( );
         double scalingNorm = 0.0;
+
+        // If maneuver still ongoing at current time.
         if( ( std::fabs( currentTime - currentStartTime ) < totalManeuverTime ) && ( currentTime > currentStartTime )  )
         {
+            // Compute peak desaturation acceleration.
             Eigen::Vector3d peakAcceleration = deltaVValues.at( currentNearestNeighbour ) /
                     ( totalManeuverTime - maneuverRiseTime );
             scalingNorm = peakAcceleration.norm( );
 
+            // Compute time elapsed since maneuver start.
             double timeSinceStart = currentTime - currentStartTime;
 
+            // Compute expected acceleration from peak acceleration and time elapsed since maneuver initiation.
             if( timeSinceStart < maneuverRiseTime )
             {
                 double timeRatio = timeSinceStart / maneuverRiseTime;
                 expectedAcceleration = peakAcceleration * timeRatio * timeRatio * (
                             3.0 - 2.0 * timeRatio );
-
             }
             else if( timeSinceStart < totalManeuverTime - maneuverRiseTime )
             {
@@ -2109,12 +2117,18 @@ BOOST_AUTO_TEST_CASE( testMomentumWheelDesaturationThrust )
                             3.0 - 2.0 * timeRatio );
             }
         }
+
+        // If maneuver already completed at current time.
         else if( currentTime > currentStartTime )
         {
             Eigen::Vector3d expectedDeltaV = Eigen::Vector3d::Zero( );
             for( int i = 0; i <= currentNearestNeighbour; i++ )
             {
+                // Compute expected deltaV.
                 expectedDeltaV += deltaVValues.at( i );
+
+                // Check that the sensivity matrix blocks which describe the velocity partials w.r.t. the deltaV values
+                // of all the maneuvers encountered until current time are almost identity blocks.
                 if( currentTime - currentStartTime > totalManeuverTime )
                 {
                     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
@@ -2123,6 +2137,8 @@ BOOST_AUTO_TEST_CASE( testMomentumWheelDesaturationThrust )
             }
             for( int i = currentNearestNeighbour + 1; i <= 2; i++ )
             {
+                // Check that the sensitivity matrix blocks which describe the velocity partials w.r.t. the deltaV values
+                // of the upcoming maneuvers are filled with zeros.
                 TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
                             sensitivityHistory.at( currentTime ).block( 3, i * 3, 3, 3 ), Eigen::Matrix3d::Zero( ),
                             std::numeric_limits< double >::epsilon( ) );
@@ -2130,6 +2146,7 @@ BOOST_AUTO_TEST_CASE( testMomentumWheelDesaturationThrust )
 
             Eigen::Vector3d currentVelocity = stateHistory.at( variableIterator.first ).segment( 3, 3 );
 
+            // Check deltaV values consistency.
             for( int i = 0; i < 3; i++ )
             {
                 BOOST_CHECK_SMALL( std::fabs( expectedDeltaV( i ) - currentVelocity( i ) ), 1.0E-5 * currentVelocity.norm( ) );
@@ -2137,12 +2154,17 @@ BOOST_AUTO_TEST_CASE( testMomentumWheelDesaturationThrust )
 
         }
 
+        // Check accelerations consistency.
         for( int i = 0; i < 3; i++ )
         {
             BOOST_CHECK_SMALL( std::fabs( expectedAcceleration( i ) - variableIterator.second( i ) ),
                                5.0 * std::numeric_limits< double >::epsilon( ) * scalingNorm );
         }
 
+
+        // Check state transition matrix consistency.
+        // The state transition matrix is expected to be equal to the identity matrix, expect for the current
+        // position partials w.r.t. the initial velocity, expected to show a linear time-dependence.
         Eigen::Matrix6d stateTransitionMatrix = stateTransitionHistory.at( currentTime );
 
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION(

@@ -1178,7 +1178,7 @@ std::shared_ptr< gravitation::DirectTidalDissipationAcceleration > createDirectT
     }
 }
 
-
+//! Function to create a momentum wheel desaturation acceleration model.
 std::shared_ptr< propulsion::MomentumWheelDesaturationThrustAcceleration > createMomentumWheelDesaturationAcceleration(
         const std::shared_ptr< Body > bodyUndergoingAcceleration,
         const std::shared_ptr< Body > bodyExertingAcceleration,
@@ -1199,6 +1199,7 @@ std::shared_ptr< propulsion::MomentumWheelDesaturationThrustAcceleration > creat
         throw std::runtime_error( "Error when creating momentum wheel desaturation acceleration, exerting and undergoing bodies are not the same" );
     }
 
+    // Return desaturation acceleration model.
     return std::make_shared< propulsion::MomentumWheelDesaturationThrustAcceleration >(
                 desaturationAccelerationSettings->thrustMidTimes_,
                 desaturationAccelerationSettings->deltaVValues_,

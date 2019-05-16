@@ -380,6 +380,7 @@ std::shared_ptr< acceleration_partials::AccelerationPartial > createAnalyticalAc
     }
     case empirical_acceleration:
     {
+        // Check if identifier is consistent with type.
         std::shared_ptr< EmpiricalAcceleration > empiricalAcceleration =
                 std::dynamic_pointer_cast< EmpiricalAcceleration >( accelerationModel );
         if( empiricalAcceleration == nullptr )
@@ -390,6 +391,7 @@ std::shared_ptr< acceleration_partials::AccelerationPartial > createAnalyticalAc
         }
         else
         {
+            // Create partial-calculating object.
             accelerationPartial = std::make_shared< EmpiricalAccelerationPartial >( empiricalAcceleration,
                                                                                     acceleratedBody.first, acceleratingBody.first );
         }
@@ -397,6 +399,7 @@ std::shared_ptr< acceleration_partials::AccelerationPartial > createAnalyticalAc
     }
     case momentum_wheel_desaturation_acceleration:
     {
+        // Check if identifier is consistent with type.
         std::shared_ptr< propulsion::MomentumWheelDesaturationThrustAcceleration > thrustAcceleration =
                 std::dynamic_pointer_cast< propulsion::MomentumWheelDesaturationThrustAcceleration >( accelerationModel );
         if( thrustAcceleration == nullptr )
@@ -407,6 +410,7 @@ std::shared_ptr< acceleration_partials::AccelerationPartial > createAnalyticalAc
         }
         else
         {
+            // Create partial-calculating object.
             accelerationPartial = std::make_shared< MomentumWheelDesaturationPartial >(
                         thrustAcceleration, acceleratedBody.first );
         }

@@ -813,6 +813,7 @@ std::shared_ptr< EstimatableParameter< Eigen::VectorXd > > createVectorParameter
         }
         case desaturation_delta_v_values:
         {
+            // Check input consistency.
             std::string acceleratedBody = vectorParameterName->parameterType_.second.first;
             if( accelerationModelMap.count( acceleratedBody ) == 0 )
             {
@@ -824,6 +825,7 @@ std::shared_ptr< EstimatableParameter< Eigen::VectorXd > > createVectorParameter
             }
             else
             {
+                // Retrieve acceleration model.
                 std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > > desaturationAccelerationModels =
                         basic_astrodynamics::getAccelerationModelsOfType(
                             accelerationModelMap.at( acceleratedBody ).at( acceleratedBody ),
@@ -841,6 +843,7 @@ std::shared_ptr< EstimatableParameter< Eigen::VectorXd > > createVectorParameter
                 }
                 else
                 {
+                    // Create desaturation deltaV values parameter.
                     vectorParameterToEstimate = std::make_shared< DesaturationDeltaV >(
                                 std::dynamic_pointer_cast< propulsion::MomentumWheelDesaturationThrustAcceleration >(
                                     desaturationAccelerationModels.at( 0 ) ), acceleratedBody );
