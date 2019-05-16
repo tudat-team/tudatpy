@@ -57,15 +57,15 @@ BOOST_AUTO_TEST_CASE( test_DesaturationDeltaVsEstimation )
         bodyNames.push_back( "Mars" );
 
         // Specify number of observation days.
-        int numberOfDaysOfData = 3;
+        int numberOfDaysOfData = 1;
 
         // Specify initial time
         double initialEphemerisTime = 1.0e7;
         double finalEphemerisTime = initialEphemerisTime + numberOfDaysOfData * 86400.0;
 
         // Define times and deltaV magnitudes for momentum wheel desaturation maneuvers.
-        std::vector< double > thrustMidTimes = { initialEphemerisTime + 1.0 * 3600.0, initialEphemerisTime + 2.0 * 3600.0,
-                                                 initialEphemerisTime + 3.0 * 3600.0 };
+        std::vector< double > thrustMidTimes = { initialEphemerisTime + 1.0 * 3600.0, initialEphemerisTime + 3.0 * 3600.0,
+                                                 initialEphemerisTime + 5.0 * 3600.0 };
         std::vector< Eigen::Vector3d > deltaVValues =
         { 1.0E-3 * ( Eigen::Vector3d( ) << 0.3, -2.5, 3.4 ).finished( ),
           1.0E-3 * ( Eigen::Vector3d( ) << 2.0, 5.9, -0.5 ).finished( ),
@@ -264,10 +264,10 @@ BOOST_AUTO_TEST_CASE( test_DesaturationDeltaVsEstimation )
         // Compute list of observation times.
         std::vector< double > baseTimeList;
         double observationTimeStart = initialEphemerisTime + 1000.0;
-        double  observationInterval = 20.0;
+        double  observationInterval = 60.0;
         for( int i = 0; i < numberOfDaysOfData; i++ )
         {
-            for( unsigned int j = 0; j < 1500; j++ )
+            for( unsigned int j = 0; j < 500; j++ )
             {
                 baseTimeList.push_back( observationTimeStart + static_cast< double >( i ) * 86400.0 +
                                         static_cast< double >( j ) * observationInterval );
@@ -304,8 +304,8 @@ BOOST_AUTO_TEST_CASE( test_DesaturationDeltaVsEstimation )
                 Eigen::Matrix< double, Eigen::Dynamic, 1 >::Zero( truthParameters.rows( ) );
 
         // Perturbe initial state estimate.
-//        parameterPerturbation.segment( 0, 3 ) = Eigen::Vector3d::Constant( 1.0 );
-//        parameterPerturbation.segment( 3, 3 ) = Eigen::Vector3d::Constant( 1.E-3 );
+        parameterPerturbation.segment( 0, 3 ) = Eigen::Vector3d::Constant( 1.0 );
+        parameterPerturbation.segment( 3, 3 ) = Eigen::Vector3d::Constant( 1.E-3 );
 
         // Perturb deltaVs estimate.
         for ( int i = 8 ; i < 8 + deltaVValues.size() * 3 ; i++){
@@ -313,8 +313,6 @@ BOOST_AUTO_TEST_CASE( test_DesaturationDeltaVsEstimation )
         }
 
         initialParameterEstimate += parameterPerturbation;
-
-        std::cout << "initial parameter estimate: " << initialParameterEstimate << "\n\n";
 
 
 
@@ -340,23 +338,42 @@ BOOST_AUTO_TEST_CASE( test_DesaturationDeltaVsEstimation )
         std::cout <<"Estimation error: "<< ( estimationError ).transpose( ) << std::endl;
 
 
-//        // Check if parameters are correctly estimated
-//        Eigen::VectorXd estimatedParametervalues = podOutput->parameterEstimate_;
-////        for( unsigned int i = 0; i < 3; i++ )
-////        {
-////            BOOST_CHECK_SMALL( std::fabs( truthParameters( i ) - podOutput->parameterEstimate_( i ) ), 0.1 );
-////            BOOST_CHECK_SMALL( std::fabs( truthParameters( i + 6 ) - podOutput->parameterEstimate_( i + 6 ) ), 0.1 );
-////            BOOST_CHECK_SMALL( std::fabs( truthParameters( i + 3 ) - podOutput->parameterEstimate_( i + 3 ) ), 1.0E-6 );
-////            BOOST_CHECK_SMALL( std::fabs( truthParameters( i + 9 ) - podOutput->parameterEstimate_( i + 9 ) ), 1.0E-6 );
-////        }
-////        BOOST_CHECK_SMALL( std::fabs( truthParameters( 12 ) - podOutput->parameterEstimate_( 12 ) ), 0.1 );
-////        BOOST_CHECK_SMALL( std::fabs( truthParameters( 13 ) - podOutput->parameterEstimate_( 13 ) ), 10.0 );
-////        BOOST_CHECK_SMALL( std::fabs( truthParameters( 14 ) - podOutput->parameterEstimate_( 14 ) ), 1.0E-3 );
+        // Check if parameters are correctly estimated
+        Eigen::VectorXd estimatedParametervalues = podOutput->parameterEstimate_;
 
-////            BOOST_CHECK_SMALL( std::fabs( truthParameters( 15 ) - podOutput->parameterEstimate_( 15 ) ), 1.0E-2 );
+        // Initial state.
+        for( unsigned int i = 0; i < 3; i++ )
+        {
+            BOOST_CHECK_SMALL( std::fabs( truthParameters( i ) - podOutput->parameterEstimate_( i ) ), 0.1 );
+            BOOST_CHECK_SMALL( std::fabs( truthParameters( i + 3 ) - podOutput->parameterEstimate_( i + 3 ) ), 1.0E-6 );
+        }
+        // Radiation pressure and drag coefficients.
+        BOOST_CHECK_SMALL( std::fabs( truthParameters( 6 ) - podOutput->parameterEstimate_( 6 ) ), 1.0e-4 );
+        BOOST_CHECK_SMALL( std::fabs( truthParameters( 7 ) - podOutput->parameterEstimate_( 7 ) ), 1.0e-4 );
 
+        // Momentum wheel desaturation deltaV values.
+        for ( unsigned int i = 8 ; i < 8 + deltaVValues.size() * 3 ; i++ )
+        {
+            BOOST_CHECK_SMALL( std::fabs( truthParameters( i ) - podOutput->parameterEstimate_( i ) ), 1.0E-10 );
+        }
 
-//        std::cout << "Parameter error: " << ( truthParameters -  podOutput->parameterEstimate_ ).transpose( ) << std::endl;
+        // Gravity field coefficients.
+        for ( unsigned int i = 17 ; i < 22 ; i++ ){
+            BOOST_CHECK_SMALL( std::fabs( truthParameters( i ) - podOutput->parameterEstimate_( i ) ), 1.0E-12 );
+        }
+
+        // Earth pole position.
+        for ( unsigned int i = 22 ; i < 24 ; i++ )
+        {
+            BOOST_CHECK_SMALL( std::fabs( truthParameters( i ) - podOutput->parameterEstimate_( i ) ), 1.0E-12 );
+        }
+
+        // Ground station position.
+        for ( unsigned int i = 24 ; i < 27 ; i++ )
+        {
+            BOOST_CHECK_SMALL( std::fabs( truthParameters( i ) - podOutput->parameterEstimate_( i ) ), 1.0E-6 );
+        }
+
     }
 
 }

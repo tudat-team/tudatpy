@@ -436,7 +436,7 @@ public:
         deltaVValues_ = deltaVValues;
         for( unsigned int i = 0; i < deltaVValues.size( ); i++ )
         {
-            accelerationValues_.push_back( deltaVValues.at( i ) / ( totalManeuverTime_ - maneuverRiseTime_ ) );
+            accelerationValues_[i] = ( deltaVValues.at( i ) / ( totalManeuverTime_ - maneuverRiseTime_ ) );
         }
     }
 
