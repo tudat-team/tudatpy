@@ -21,16 +21,22 @@ namespace tudat
 namespace acceleration_partials
 {
 
-
+//! Class to calculate the partials of the momentum wheel desaturation acceleration w.r.t. parameters and states.
 class MomentumWheelDesaturationPartial: public AccelerationPartial
 {
 public:
 
-
+    //! Constructor.
+    /*!
+     * Constructor.
+     * \param thrustAcceleration Momentum wheel desaturation thrust acceleration model.
+     * \param acceleratedBody Name of the body undergoing acceleration.
+     */
     MomentumWheelDesaturationPartial(
             const std::shared_ptr< propulsion::MomentumWheelDesaturationThrustAcceleration > thrustAcceleration,
             const std::string acceleratedBody );
 
+    //! Destructor.
     ~MomentumWheelDesaturationPartial( ){ }
 
     //! Function for calculating the partial of the acceleration w.r.t. the position of body undergoing acceleration..
@@ -102,6 +108,12 @@ public:
     std::pair< std::function< void( Eigen::MatrixXd& ) >, int > getParameterPartialFunction(
             std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter );
 
+    //! Function for updating partial w.r.t. the bodies' positions
+    /*!
+     *  Function for updating common blocks of partial to current state. For the momentum wheel
+     *  desaturation acceleration, only the thrust acceleration model is updated.
+     *  \param currentTime Time at which partials are to be calculated
+     */
     void update( const double currentTime = TUDAT_NAN )
     {
 
@@ -114,8 +126,14 @@ public:
 
 protected:
 
+    //! Function to compute the partial derivative w.r.t. the deltaV values of the momentum desaturation maneuvers
+    /*!
+     * Function to compute the partial derivative w.r.t. the deltaV values of the momentum desaturation maneuvers
+     * \param partial Partial derivative w.r.t. deltaV values of the momentum desaturation maneuvers
+     */
     void wrtDesaturationDeltaVValues( Eigen::MatrixXd& accelerationPartial );
 
+    //! Momentum wheel desaturation thrust acceleration.
     std::shared_ptr< propulsion::MomentumWheelDesaturationThrustAcceleration > thrustAcceleration_;
 
 

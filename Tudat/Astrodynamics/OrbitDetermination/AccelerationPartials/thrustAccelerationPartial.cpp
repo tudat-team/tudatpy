@@ -25,7 +25,7 @@ MomentumWheelDesaturationPartial::MomentumWheelDesaturationPartial(
     AccelerationPartial( acceleratedBody, acceleratedBody, basic_astrodynamics::momentum_wheel_desaturation_acceleration ),
     thrustAcceleration_( thrustAcceleration ){ }
 
-//! Function for setting up and retrieving a function returning a partial w.r.t. a double parameter.
+//! Function for setting up and retrieving a function returning a partial w.r.t. a vector parameter.
 std::pair< std::function< void( Eigen::MatrixXd& ) >, int >
 MomentumWheelDesaturationPartial::getParameterPartialFunction(
         std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter )
@@ -36,7 +36,7 @@ MomentumWheelDesaturationPartial::getParameterPartialFunction(
     // Check dependencies.
     if( parameter->getParameterName( ).first == estimatable_parameters::desaturation_delta_v_values )
     {
-        // If parameter is gravitational parameter, check and create dependency function .
+        // If parameter is desaturation deltaV values, check and create dependency function .
         partialFunctionPair = std::make_pair(
                     std::bind( &MomentumWheelDesaturationPartial::wrtDesaturationDeltaVValues, this, std::placeholders::_1 ),
                     parameter->getParameterSize( ) );
@@ -49,8 +49,11 @@ MomentumWheelDesaturationPartial::getParameterPartialFunction(
     return partialFunctionPair;
 }
 
+
+//! Function to compute the partial derivative w.r.t. the deltaV values of the momentum desaturation maneuvers
 void MomentumWheelDesaturationPartial::wrtDesaturationDeltaVValues( Eigen::MatrixXd& accelerationPartial )
 {
+    // Compute partials.
     accelerationPartial.setZero( );
     accelerationPartial.block( 0, 3 * thrustAcceleration_->getCurrentNearestTimeIndex( ), 3, 3 ) =
           Eigen::Matrix3d::Identity( ) * thrustAcceleration_->getCurrentThrustMultiplier( ) /

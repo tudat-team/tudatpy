@@ -179,9 +179,9 @@ public:
         return associatedThrustSource_;
     }
 
-    //! Function to retreieve the list of environment models that are to be updated before computing the acceleration.
+    //! Function to retrieve the list of environment models that are to be updated before computing the acceleration.
     /*!
-     * Function to retreieve the list of environment models that are to be updated before computing the acceleration.
+     * Function to retrieve the list of environment models that are to be updated before computing the acceleration.
      * \return List of environment models that are to be updated before computing the acceleration.
      */
     std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > getRequiredModelUpdates( )
@@ -258,10 +258,23 @@ protected:
 
 };
 
+
+//! Class used for computing an acceleration due to a momentum wheel desaturation.
+/*!
+ *  Class used for computing an acceleration due to a momentum wheel desaturation. The deltaV values for each of the
+ *  desaturation maneuvers are provided by the user.
+ */
 class MomentumWheelDesaturationThrustAcceleration : public basic_astrodynamics::AccelerationModel< Eigen::Vector3d >
 {
 public:
 
+    /*!
+     * Constructor.
+     * \param thrustMidTimes Vector containing the midtime of each desaturation maneuver.
+     * \param deltaVValues Vector containing the deltaV values of the desaturation maneuvers.
+     * \param totalManeuverTime Total duration of the desaturation maneuvers.
+     * \param maneuverRiseTime Rise time of the desaturation maneuvers.
+     */
     MomentumWheelDesaturationThrustAcceleration(
             const std::vector< double > thrustMidTimes,
             const std::vector< Eigen::Vector3d > deltaVValues,
@@ -279,7 +292,10 @@ public:
 
         for( unsigned int i = 0; i < deltaVValues.size( ); i++ )
         {
+            // Compute accelerations from desaturation deltaVs.
             accelerationValues_.push_back( deltaVValues.at( i ) / ( totalManeuverTime_ - maneuverRiseTime_ ) );
+
+            // Compute thrust start times.
             thrustStartTimes_.push_back( thrustMidTimes.at( i ) - totalManeuverTime_ / 2.0 );
         }
         thrustStartTimes_.push_back( std::numeric_limits< double >::max( ) );
@@ -288,21 +304,38 @@ public:
                     thrustStartTimes_ );
     }
 
+
+    //! Function to retrieve the current acceleration, as set by last call to updateMembers function.
+    /*!
+     * Function to retrieve the current acceleration, as set by last call to updateMembers function.
+     * \return Current momentum wheel desaturation acceleration.
+     */
     Eigen::Vector3d getAcceleration( )
     {
         return currentAcceleration_;
     }
 
+    //! Update member variables used by the momentum wheel desaturation acceleration model.
+    /*!
+     * Update member variables used by the momentum wheel desaturation acceleration model.
+     * Function pointers to retrieve the current values of quantities from which the
+     * acceleration is to be calculated are set by constructor. This function calls and combines their output to
+     * compute the acceleration.
+     * \param currentTime Time at which acceleration model is to be updated.
+     */
     void updateMembers( const double currentTime = TUDAT_NAN )
     {
         // Check if update is needed
         if( !( currentTime_ == currentTime ) )
         {
+            // Find maneuver start time closest to current time.
             nearestTimeIndex_ = timeLookUpScheme_->findNearestLowerNeighbour( currentTime );
             double currentThrustStartTime = thrustStartTimes_.at( nearestTimeIndex_ );
 
+            // Check if the maneuver is still ongoing.
             if( std::fabs( currentTime - currentThrustStartTime ) < totalManeuverTime_ && ( currentTime > currentThrustStartTime ) )
             {
+                // Retrieve desaturation thrust multiplier and compute acceleration.
                 currentThrustMultiplier_ = getDesaturationThrustMultiplier(
                             currentTime - currentThrustStartTime );
                 currentAcceleration_ = currentThrustMultiplier_ * accelerationValues_.at( nearestTimeIndex_ );
@@ -310,6 +343,7 @@ public:
             }
             else
             {
+                // Set acceleration to zero if the maneuver is over.
                 currentThrustMultiplier_ = 0.0;
                 currentAcceleration_.setZero( );
             }
@@ -321,47 +355,82 @@ public:
 
     }
 
+    //! Function to get the desaturation thrust multiplier, from time elapsed since maneuver initiation.
+    /*!
+     * Function to get the desaturation thrust multiplier, from time elapsed since maneuver initiation.
+     * \param timeSinceThrustStart Time elapsed since maneuver started.
+     * \return Desaturation thrust multiplier
+     */
     double getDesaturationThrustMultiplier( const double timeSinceThrustStart )
     {
+        // Check if the acceleration is still increasing (peak acceleration not achieved yet).
         if( timeSinceThrustStart < maneuverRiseTime_ )
         {
             double timeRatio = timeSinceThrustStart / maneuverRiseTime_;
             return timeRatio * timeRatio * ( 3.0 - 2.0 * timeRatio );
         }
+        // Check if the peak acceleration is achieved.
         else if( timeSinceThrustStart < totalManeuverTime_ - maneuverRiseTime_ )
         {
             return 1.0;
         }
+        // Check if the acceleration decreases after having reached its maximum.
         else if( timeSinceThrustStart < totalManeuverTime_  )
         {
             return getDesaturationThrustMultiplier( totalManeuverTime_ - timeSinceThrustStart );
         }
+        // Check if no maneuver is ongoing.
         else
         {
             return 0.0;
         }
     }
 
+    //! Function to get the index of the maneuver start time closest to current time.
+    /*!
+     * Function to get the index of the maneuver start time closest to current time.
+     * \return Index of the maneuver start time which is the closest to current time.
+     */
     int getCurrentNearestTimeIndex( )
     {
         return nearestTimeIndex_;
     }
 
+    //! Function to get the total desaturation maneuver time.
+    /*!
+     * Function to get the total desaturation maneuver time.
+     * \return Desaturation maneuver duration
+     */
     double getTotalManeuverTime( )
     {
         return totalManeuverTime_;
     }
 
+    //! Function to get the rise time of the desaturation maneuvers.
+    /*!
+     * Function to get the rise time of the desaturation maneuvers.
+     * \return Desaturation maneuver rise time.
+     */
     double getManeuverRiseTime( )
     {
         return maneuverRiseTime_;
     }
 
+    //! Function to get the deltaV values of the desaturation maneuvers.
+    /*!
+     * Function to get the deltaV values of the desaturation maneuvers.
+     * \return Vector containing the deltaV values of each of the desaturation maneuvers.
+     */
     std::vector< Eigen::Vector3d > getDeltaVValues( )
     {
         return deltaVValues_;
     }
 
+    //! Function to reset the deltaV values of the desaturation maneuvers.
+    /*!
+     * Function to reset the deltaV values of the desaturation maneuvers.
+     * \param deltaVValues Vector containing the new deltaV values of each of the desaturation maneuvers.
+     */
     void setDeltaVValues( const std::vector< Eigen::Vector3d >& deltaVValues )
     {
         deltaVValues_ = deltaVValues;
@@ -371,6 +440,11 @@ public:
         }
     }
 
+    //! Function to get the current desaturation thrust multiplier.
+    /*!
+     * Function to get the current desaturation thrust multiplier.
+     * \return Current thrust multiplier
+     */
     double getCurrentThrustMultiplier( )
     {
         return currentThrustMultiplier_;
@@ -379,22 +453,31 @@ public:
 
 private:
 
+    //! Total desaturation maneuver time.
     double totalManeuverTime_;
 
+    //! Desaturation maneuvers rise time.
     double maneuverRiseTime_;
 
+    //! Vector containing the deltaV values of the momentum wheel desaturation maneuvers.
     std::vector< Eigen::Vector3d > deltaVValues_;
 
+    //! Vector containing the start time of each desaturation maneuver.
     std::vector< double > thrustStartTimes_;
 
+    //! Vector containing the peak accelerations associated with each desaturation maneuver.
     std::vector< Eigen::Vector3d > accelerationValues_;
 
+    //! Pointer to interpolator object that looks for closest maneuvers start times
     std::shared_ptr< interpolators::LookUpScheme< double > > timeLookUpScheme_;
 
+    //! Index of the maneuver start time closest to current time.
     int nearestTimeIndex_;
 
+    //! Current desaturation thrust multiplier.
     double currentThrustMultiplier_;
 
+    //! Current acceleration vector.
     Eigen::Vector3d currentAcceleration_;
 
 };
