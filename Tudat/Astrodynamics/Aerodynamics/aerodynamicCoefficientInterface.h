@@ -166,6 +166,7 @@ public:
      *  \param independentVariables Independent variables of force and moment coefficient of body without control surfaces
      *  \param controlSurfaceIndependentVariables Map of independent variables of force and moment coefficient of
      *  control surfaces, with map key denoting the control surface identifier.
+     *  \param currentTime Time to which coefficients are to be updated.
      */
     void updateFullCurrentCoefficients(
             const std::vector< double >& independentVariables,
