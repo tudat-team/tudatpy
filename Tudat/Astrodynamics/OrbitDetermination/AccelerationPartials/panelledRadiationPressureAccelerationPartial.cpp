@@ -9,6 +9,7 @@ namespace tudat
 namespace acceleration_partials
 {
 
+//! Function for updating partial w.r.t. the bodies' positions.
 void PanelledRadiationPressurePartial::update( const double currentTime )
 {
     if( !( currentTime_ == currentTime ) )
