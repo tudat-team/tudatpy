@@ -138,8 +138,8 @@ std::shared_ptr< GravityFieldSettings > getDefaultGravityFieldSettings(
     }
     else if( bodyName == "Ganymede" )
     {
-        Eigen::MatrixXd cosineCoefficients = Eigen::MatrixXd::Zero( 13, 13 );
-        Eigen::MatrixXd sineCoefficients = Eigen::MatrixXd::Zero( 13, 13 );
+        Eigen::MatrixXd cosineCoefficients = Eigen::MatrixXd::Zero( 33, 33 );
+        Eigen::MatrixXd sineCoefficients = Eigen::MatrixXd::Zero( 33, 33 );
 
         cosineCoefficients( 0, 0 ) = 1.0;
         cosineCoefficients( 2, 0 ) =  -127.8E-6 / basic_mathematics::calculateLegendreGeodesyNormalizationFactor( 2, 0 );
