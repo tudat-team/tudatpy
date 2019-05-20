@@ -74,7 +74,7 @@ public:
     //! Function for calculating the partial of the acceleration w.r.t. the position of body undergoing acceleration..
     /*!
      *  Function for calculating the partial of the acceleration w.r.t. the position of body undergoing acceleration
-     *  and adding it to exting partial block.
+     *  and adding it to existing partial block.
      *  Update( ) function must have been called during current time step before calling this function.
      *  \param partialMatrix Block of partial derivatives of acceleration w.r.t. Cartesian position of body
      *  undergoing acceleration where current partial is to be added.

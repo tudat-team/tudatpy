@@ -1072,7 +1072,7 @@ BOOST_AUTO_TEST_CASE( test_groundStationCreation )
 
 
 #if USE_CSPICE
-//! Test set up of panelled radiation pressure interfacel environment models.
+//! Test set up of panelled radiation pressure interface environment models.
 BOOST_AUTO_TEST_CASE( test_panelledRadiationPressureInterfaceSetup )
 {
 
@@ -1159,9 +1159,11 @@ BOOST_AUTO_TEST_CASE( test_panelledRadiationPressureInterfaceSetup )
     std::shared_ptr< electro_magnetism::RadiationPressureInterface > vehicleRadiationPressureInterface =
             bodyMap[ "Vehicle" ]->getRadiationPressureInterfaces( ).at( "Sun" );
 
+    // Compute expected radiation pressure.
     vehicleRadiationPressureInterface->updateInterface( testTime );
     double sourceDistance = ( ( bodyMap[ "Vehicle" ]->getState( ) -  bodyMap[ "Sun" ]->getState( ) ).
             segment( 0, 3 ) ).norm( );
+
     double expectedRadiationPressure = electro_magnetism::calculateRadiationPressure(
                 defaultRadiatedPowerValues.at( "Sun" ), sourceDistance );
 

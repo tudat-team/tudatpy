@@ -44,7 +44,7 @@ class RadiationPressureInterfaceSettings
 {
 public:
 
-    //! Constructor
+    //! Constructor.
     /*!
      * Constructor.
      * \param radiationPressureType Type of radiation pressure interface that is to be made.
@@ -147,11 +147,13 @@ class PanelledRadiationPressureInterfaceSettings: public RadiationPressureInterf
 {
 public:
 
-    /*! Constructor
-     * Constructor
+    /*! Constructor with constant panels orientation in body-fixed frame.
+     * Constructor with constant panels orientation in body-fixed frame.
      * \param sourceBody Name of body emitting the radiation.
-     * \param area Surface area that undergoes radiation pressure.
-     * \param radiationPressureCoefficient Radiation pressure coefficient.
+     * \param emissivities Vector containing the panels emissivities.
+     * \param areas Vector containing the panels areas.
+     * \param diffusionCoefficients Vector containing the diffuse reflection coefficients of the panels.
+     * \param surfaceNormalsInBodyFixedFrame Vector containing the (constant) surface normals of the panels, expressed in the body-fixed frame.
      * \param occultingBodies List of bodies causing (partial) occultation.
      */
     PanelledRadiationPressureInterfaceSettings(
@@ -172,7 +174,16 @@ public:
     }
 
 
-    //! Constructor with time-varying surface normals in body-fixed frame
+    /*! Constructor with time-varying panels orientation in body-fixed frame.
+     * Constructor with time-varying panels orientation in body-fixed frame.
+     * \param sourceBody Name of body emitting the radiation.
+     * \param emissivities Vector containing the panels emissivities.
+     * \param areas Vector containing the panels areas.
+     * \param diffusionCoefficients Vector containing the diffuse reflection coefficients of the panels.
+     * \param surfaceNormalsInBodyFixedFrame Vector containing the functions describing the panels surface normals,
+     * which depend on time. The surface normals are expressed in the body-fixed frame.
+     * \param occultingBodies List of bodies causing (partial) occultation.
+     */
     PanelledRadiationPressureInterfaceSettings(
             const std::string& sourceBody,
             const std::vector< double >& emissivities,
@@ -184,21 +195,43 @@ public:
         emissivities_( emissivities ), areas_( areas ),  diffusionCoefficients_( diffusionCoefficients ),
         surfaceNormalsInBodyFixedFrameFunctions_( surfaceNormalsInBodyFixedFrameFunctions ){ }
 
+
+    //! Function to return the panels emissivity vector.
+    /*!
+     *  Function to return the panels emissivity vector.
+     *  \return Vector containing the panels emissivities.
+     */
     std::vector< double > getEmissivities( )
     {
         return emissivities_;
     }
 
+
+    //! Function to return the panels area vector.
+    /*!
+     *  Function to return the panels area vector.
+     *  \return Vector containing the panels areas.
+     */
     std::vector< double > getAreas( )
     {
         return areas_;
     }
 
+    //! Function to return the panels diffuse reflection coefficients vector.
+    /*!
+     *  Function to return the panels diffuse reflection coefficients vector.
+     *  \return Vector containing the panels diffuse reflection coefficients.
+     */
     std::vector< double > getDiffusionCoefficients( )
     {
         return diffusionCoefficients_;
     }
 
+    //! Function to return the panels surface normal vector.
+    /*!
+     *  Function to return the panels surface normal vector.
+     *  \return Vector containing the panels surface normals in body-fixed frame.
+     */
     std::vector< std::function< Eigen::Vector3d( const double ) > > getSurfaceNormalsInBodyFixedFrameFunctions( )
     {
         return surfaceNormalsInBodyFixedFrameFunctions_;
@@ -206,15 +239,23 @@ public:
 
 private:
 
+    //! Vector containing the emissivitie for all panels.
     std::vector< double > emissivities_;
 
+    //! Vector containing the area for all panels.
     std::vector< double > areas_;
 
+    //! Vector containing the diffuse reflection coefficient for all panels.
     std::vector< double > diffusionCoefficients_;
 
+    //! Vector containing the time-dependent functions that return the surface normal for each panel,
+    //! in body-fixed frame.
     std::vector< std::function< Eigen::Vector3d( const double ) > > surfaceNormalsInBodyFixedFrameFunctions_;
 
 };
+
+
+
 //! Function to obtain (by reference) the position functions and radii of occulting bodies
 /*!
  * Function to obtain (by reference) the position functions and radii of occulting bodies.
@@ -229,6 +270,7 @@ void getOccultingBodiesInformation(
         const NamedBodyMap& bodyMap, const std::vector< std::string >& occultingBodies,
         std::vector< std::function< Eigen::Vector3d( ) > >& occultingBodyPositions,
         std::vector< double >& occultingBodyRadii );
+
 
 //! Function to create a radiation pressure interface.
 /*!
