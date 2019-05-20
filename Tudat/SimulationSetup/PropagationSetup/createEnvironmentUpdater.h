@@ -139,6 +139,7 @@ std::vector< std::string > > createEnvironmentUpdaterSettings(
 * \param propagatorSettings Object providing the full settings for the
 * dynamics that are to be propagated.
 * \param bodyMap List of body objects used in the simulations.
+* \param isPartOfMultiTypePropagation Boolean denoting whether propagation uses multiple types of dynamics
 * \return List of updates required when propagating dynamics defined by propagatorSettings.
 */
 template< typename StateScalarType >

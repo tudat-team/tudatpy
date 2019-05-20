@@ -165,9 +165,10 @@ public:
             const std::vector< std::string >& occultingBodies = std::vector< std::string >( ) ):
         RadiationPressureInterfaceSettings( panelled_radiation_pressure_interface, sourceBody, occultingBodies ),
         emissivities_( emissivities ), areas_( areas ),  diffusionCoefficients_( diffusionCoefficients )
-        {
+    {
 
-        for ( int i = 0 ; i < surfaceNormalsInBodyFixedFrame.size() ; i++ ){
+        for ( unsigned int i = 0 ; i < surfaceNormalsInBodyFixedFrame.size() ; i++ )
+        {
             surfaceNormalsInBodyFixedFrameFunctions_.push_back( [ = ]( const double ){ return surfaceNormalsInBodyFixedFrame[ i ]; } );
         }
 
@@ -180,7 +181,7 @@ public:
      * \param emissivities Vector containing the panels emissivities.
      * \param areas Vector containing the panels areas.
      * \param diffusionCoefficients Vector containing the diffuse reflection coefficients of the panels.
-     * \param surfaceNormalsInBodyFixedFrame Vector containing the functions describing the panels surface normals,
+     * \param surfaceNormalsInBodyFixedFrameFunctions Vector containing the functions describing the panels surface normals,
      * which depend on time. The surface normals are expressed in the body-fixed frame.
      * \param occultingBodies List of bodies causing (partial) occultation.
      */
