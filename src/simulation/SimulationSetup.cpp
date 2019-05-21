@@ -47,7 +47,6 @@ using namespace tudat::simulation_setup;
 
 BOOST_PYTHON_MODULE(simulation_setup)
         {
-
             class_<BodySettings>("BodySettings")
                     .add_property("constant_mass", &BodySettings::constantMass)
                     .add_property("atmosphere_settings", &BodySettings::atmosphereSettings)

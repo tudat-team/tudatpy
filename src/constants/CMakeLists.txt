@@ -8,13 +8,9 @@
 #    http://tudat.tudelft.nl/LICENSE.
 #
 
-#PYTHON_ADD_MODULE(simulation_setup simulation/SimulationSetup.cpp)
-#FILE(COPY simulation/simulation_setup.py DESTINATION .)
-#ADD_TEST(NAME src COMMAND ${PYTHON_EXECUTABLE} simulation/simulation_setup.py)
-#
-#PYTHON_ADD_MODULE(constants constants/Constants.cpp)
-#FILE(COPY constants/constants.py DESTINATION .)
-#ADD_TEST(NAME src COMMAND ${PYTHON_EXECUTABLE} constants/constants.py)
+PYTHON_ADD_MODULE(constants Constants.cpp)
+FILE(COPY constants.py DESTINATION .)
+ADD_TEST(NAME src COMMAND ${PYTHON_EXECUTABLE} constants.py)
 
 #PYTHON_ADD_MODULE(simulation_setup SimulationSetup.cpp)
 #FILE(COPY simulation_setup.py DESTINATION .)
