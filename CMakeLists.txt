@@ -15,13 +15,19 @@ include(tudatLinkLibraries)
 
 include_directories(SYSTEM AFTER "${SPICE_INCLUDE_DIR}")
 #
+# TODO: Allow for choice between python 3.6 and python 2.7 for compilation.
+FIND_PACKAGE(PythonInterp 3.6 REQUIRED)
 
-FIND_PACKAGE(PythonInterp)
+# TODO: Boost component for python must only contain major. Modify and push
+# suggestion on github.
 
 if (PYTHONINTERP_FOUND)
     if (UNIX AND NOT APPLE)
         if (PYTHON_VERSION_MAJOR EQUAL 3)
-            FIND_PACKAGE(Boost COMPONENTS python${PYTHON_VERSION_SUFFIX})
+            # NOTE: As far as is known, building boost.python3 provides the lib files
+            # in the form of python3 and not python3.6 as is suggested by original
+            # code.
+            FIND_PACKAGE(Boost COMPONENTS python${PYTHON_VERSION_MAJOR})
             FIND_PACKAGE(PythonInterp 3)
             FIND_PACKAGE(PythonLibs 3 REQUIRED)
         else()
@@ -53,5 +59,5 @@ ENABLE_TESTING()
 INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIRS} ${PYTHON_INCLUDE_DIRS})
 LINK_LIBRARIES(${Boost_LIBRARIES} ${PYTHON_LIBRARIES}) # Deprecated but so convenient!
 
-
-ADD_SUBDIRECTORY(src)
+ADD_SUBDIRECTORY(src/constants)
+ADD_SUBDIRECTORY(src/simulation)
