@@ -10,6 +10,6 @@ using namespace tudat::physical_constants;
 
 BOOST_PYTHON_MODULE(constants)
         {
-                boost::python::scope().attr("JULIAN_DAY") = JULIAN_DAY;
+                boost::python::scope().attr("JULIAN_DAY") = 1;
         }
 
