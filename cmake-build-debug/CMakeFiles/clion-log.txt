@@ -1,13 +1,13 @@
 /home/ggarrett/Software/clion-2019.1.3/bin/cmake/linux/bin/cmake -DCMAKE_BUILD_TYPE=Debug -G "CodeBlocks - Unix Makefiles" /home/ggarrett/Repositories/tudatBundle/tudatpy
 -- << TudatPy (Debug - standalone) >>
 -- CMake Module path(s): /home/ggarrett/Repositories/tudatBundle/tudatpy/CMakeModules
-CMake Error at CMakeLists.txt:35 (include):
+CMake Error at CMakeLists.txt:34 (include):
   include could not find load file:
 
     compiler
 
 
-CMake Error at CMakeLists.txt:77 (find_package):
+CMake Error at CMakeLists.txt:76 (find_package):
   By not providing "FindEigen3.cmake" in CMAKE_MODULE_PATH this project has
   asked CMake to find a package configuration file provided by "Eigen3", but
   CMake did not find one.

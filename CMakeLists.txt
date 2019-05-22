@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 2.8.3)
 
 project(TudatPy)
-
-
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIC")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
 # Load UserSettings.txt
 if(${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_CURRENT_SOURCE_DIR})
   set(BUILD_STYLE "standalone")
@@ -95,19 +95,23 @@ if(NOT Boost_USE_STATIC_RUNTIME)
 endif()
 
 # Find Boost libraries on local system.
+
+set(BOOST_LIBRARYDIR ~/Software/boost_1_61_0/stage/lib/)
+set(BOOST_ROOT ~/Software/boost_1_61_0/)
 find_package(Boost 1.55.0
              COMPONENTS thread date_time system unit_test_framework filesystem regex python3 REQUIRED)
 
+
 # Include Boost directories.
 # Set CMake flag to suppress Boost warnings (platform-dependent solution).
-if(NOT APPLE OR APPLE_INCLUDE_FORCE)
-  include_directories(SYSTEM AFTER "${Boost_INCLUDE_DIRS}")
-else()
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -isystem \"${Boost_INCLUDE_DIRS}\"")
-endif()
+#if(NOT APPLE OR APPLE_INCLUDE_FORCE)
+#  include_directories(SYSTEM AFTER "${Boost_INCLUDE_DIRS}")
+#else()
+#  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -isystem \"${Boost_INCLUDE_DIRS}\"")
+#endif()
 
 # Find Tudat library on local system.
-find_package(Tudat 2.0 REQUIRED)
+find_package(Tudat 3.0 REQUIRED)
 
 # Include Tudat directories.
 # Set CMake flag to suppress Tudat warnings (platform-dependent solution).
