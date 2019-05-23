@@ -82,8 +82,7 @@ public:
     {
         updateFromJSON( parameterSettings_, jsonObject_, Keys::parametersToEstimate );
         parametersToEstimate_ = simulation_setup::createParametersToEstimate< StateScalarType >(
-                    parameterSettings_, bodyMap_, propagators::getAccelerationMapFromPropagatorSettings< StateScalarType >(
-                        propagatorSettings_)  );
+                    parameterSettings_, bodyMap_, propagatorSettings_  );
 
         if ( profiling )
         {
