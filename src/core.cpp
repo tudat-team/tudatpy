@@ -1,18 +1,16 @@
-//
-// Created by ggarrett on 22-5-19.
-//
-
-//
-// Created by ggarrett on 21-5-19.
-//
+// TODO: Disable warnings according to detected compiler. GCC/clang.
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wold-style-cast"
+#pragma GCC diagnostic ignored "-Wunused-local-typedefs"
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#pragma GCC diagnostic ignored "-Wint-in-bool-context"
 
 #include <boost/python.hpp>
 #include "Tudat/Astrodynamics/BasicAstrodynamics/physicalConstants.h"
 
-
 // TODO: Figure out why the below imports result in a symbol error.
 // Includes for BodySettings.
-//#include "Tudat/SimulationSetup/EnvironmentSetup/createBodies.h"
+#include "Tudat/SimulationSetup/EnvironmentSetup/createBodies.h"
 //
 //#include "Tudat/Astrodynamics/Ephemerides/ephemeris.h"
 //#include "Tudat/Astrodynamics/BasicAstrodynamics/accelerationModel.h"
@@ -51,15 +49,6 @@
 #include <boost/python/tuple.hpp>
 #include <boost/shared_ptr.hpp>
 
-#if defined(_MSC_VER)
-
-// Disable various warnings from MSVC.
-#pragma warning(disable : 4275)
-#pragma warning(disable : 4996)
-#pragma warning(disable : 4244)
-
-#endif
-
 using namespace boost::python;
 using namespace tudat::physical_constants;
 
@@ -94,3 +83,4 @@ BOOST_PYTHON_MODULE(core)
     boost::python::scope().attr("LG_TIME_RATE_TERM_LONG") = LG_TIME_RATE_TERM_LONG;
 }
 
+#pragma GCC diagnostic pop
