@@ -458,7 +458,6 @@ public:
 
     ~TidallyLockedRotationMatrixPartialWrtTranslationalState( ){ }
 
-
     std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixToBaseFrameWrParameter( const double time )
     {
         Eigen::Matrix3d currentRotationMatrix =
@@ -497,7 +496,7 @@ public:
                 linear_algebra::getCrossProductMatrix( wVector ) * rVectorDerivativeWrtPosition -
                 linear_algebra::getCrossProductMatrix( rVector ) * wVectorDerivativeWrtPosition;
         Eigen::Matrix3d sVectorDerivativeWrtVelocity =
-                -linear_algebra::getCrossProductMatrix( positionVector ) * wVectorDerivativeWrtVelocity;
+                -linear_algebra::getCrossProductMatrix( rVector ) * wVectorDerivativeWrtVelocity;
 
         std::vector< Eigen::Matrix3d > rotationMatrixPartials;
         rotationMatrixPartials.resize( 6 );

@@ -425,7 +425,7 @@ std::vector< std::shared_ptr< GravityFieldVariationSettings > > getEarthGravityF
 
     std::shared_ptr< GravityFieldVariationSettings > singleGravityFieldVariation =
             std::make_shared< BasicSolidBodyGravityFieldVariationSettings >( deformingBodies, loveNumbers,
-                                                                               6378137.0 );
+                                                                             6378137.0 );
     gravityFieldVariations.push_back( singleGravityFieldVariation );
     return gravityFieldVariations;
 }
@@ -522,8 +522,6 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicAccelerationPartial )
 
 
     vehicle->setState( asterixInitialState );
-
-
 
     // Create acceleration due to vehicle on earth.
     std::shared_ptr< SphericalHarmonicAccelerationSettings > accelerationSettings =
@@ -671,7 +669,7 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicAccelerationPartial )
 
     Eigen::MatrixXd partialWrtEarthOrientation = Eigen::MatrixXd::Zero( 3, 7 );
     accelerationPartial->wrtNonTranslationalStateOfAdditionalBody(
-            partialWrtEarthOrientation.block( 0, 0, 3, 7 ), std::make_pair( "Earth", "" ), propagators::rotational_state );
+                partialWrtEarthOrientation.block( 0, 0, 3, 7 ), std::make_pair( "Earth", "" ), propagators::rotational_state );
 
     // Calculate numerical partials.
     testPartialWrtVehiclePosition = calculateAccelerationWrtStatePartials(
@@ -727,7 +725,7 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicAccelerationPartial )
 
     std::function< void( ) > sphericalHarmonicFieldUpdate =
             std::bind( &tudat::gravitation::TimeDependentSphericalHarmonicsGravityField::update,
-                         std::dynamic_pointer_cast< TimeDependentSphericalHarmonicsGravityField >( earthGravityField ), testTime );
+                       std::dynamic_pointer_cast< TimeDependentSphericalHarmonicsGravityField >( earthGravityField ), testTime );
 
     Eigen::MatrixXd partialWrtCosineCoefficients = accelerationPartial->wrtParameter(
                 vectorParametersIterator->second );
@@ -822,9 +820,127 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicAccelerationPartial )
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( partialWrtDegreeThreeLoveNumber, testPartialWrtDegreeThreeLoveNumber, 1.0E-6 );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( partialWrtComplexDegreeThreeLoveNumberAtSeparateOrder, testPartialWrtComplexDegreeThreeLoveNumberAtSeparateOrder, 1.0E-6 );
 
-
 }
 
+BOOST_AUTO_TEST_CASE( testSphericalHarmonicAccelerationPartialWithTidallyLockedRotation )
+{
+    // Define bodies in simulation
+    std::vector< std::string > bodyNames;
+    bodyNames.push_back( "Earth" );
+    bodyNames.push_back( "Sun" );
+    bodyNames.push_back( "Moon" );
+
+    // Create bodies needed in simulation
+    std::map< std::string, std::shared_ptr< BodySettings > > bodySettings =
+            getDefaultBodySettings( bodyNames );
+    bodySettings[ "Earth" ]->rotationModelSettings =
+            std::make_shared< TidallyLockedRotationModelSettings >(
+                "Moon", "ECLIPJ2000", "IAU_Earth" );
+    NamedBodyMap bodyMap = createBodies( bodySettings );
+    std::shared_ptr< tudat::simulation_setup::Body > earth = bodyMap.at( "Earth" );
+    std::shared_ptr< tudat::simulation_setup::Body > moon = bodyMap.at( "Moon" );
+    std::dynamic_pointer_cast< tudat::ephemerides::TidallyLockedRotationalEphemeris >(
+                earth->getRotationalEphemeris( ) )->setIsBodyInPropagation( 1 );
+
+    setGlobalFrameBodyEphemerides( bodyMap, "Earth", "ECLIPJ2000" );
+
+    double testTime = 1.0E6;
+
+    earth->setStateFromEphemeris( testTime );
+    Eigen::Vector6d moonState = moon->getStateInBaseFrameFromEphemeris( testTime );
+    moon->setState( moonState * 0.1 );
+
+    earth->setCurrentRotationToLocalFrameFromEphemeris( testTime );
+    moon->setCurrentRotationToLocalFrameFromEphemeris( testTime );
+
+    std::shared_ptr< SphericalHarmonicAccelerationSettings > accelerationSettings =
+            std::make_shared< SphericalHarmonicAccelerationSettings >( 5, 5 );
+    std::shared_ptr< SphericalHarmonicsGravitationalAccelerationModel > gravitationalAcceleration =
+            std::dynamic_pointer_cast< SphericalHarmonicsGravitationalAccelerationModel >(
+                createAccelerationModel( moon, earth, accelerationSettings, "Moon", "Earth" ) );
+
+    gravitationalAcceleration->updateMembers( 0.0 );
+
+    // Declare numerical partials.
+    Eigen::Matrix3d testPartialWrtEarthPosition = Eigen::Matrix3d::Zero( );
+    Eigen::Matrix3d testPartialWrtEarthVelocity = Eigen::Matrix3d::Zero( );
+    Eigen::Matrix3d testPartialWrtMoonPosition = Eigen::Matrix3d::Zero( );
+    Eigen::Matrix3d testPartialWrtMoonVelocity = Eigen::Matrix3d::Zero( );
+
+    // Declare perturbations in position for numerical partial/
+    Eigen::Vector3d positionPerturbation;
+    positionPerturbation << 1000.0, 1000.0, 1000.0;
+    Eigen::Vector3d velocityPerturbation;
+    velocityPerturbation << 1.0, 1.0E-1, 1.0;
+
+    // Create state access/modification functions for bodies.
+    std::function< void( Eigen::Vector6d ) > earthStateSetFunction =
+            std::bind( &Body::setState, earth, std::placeholders::_1  );
+    std::function< void( Eigen::Vector6d ) > moonStateSetFunction =
+            std::bind( &Body::setState, moon, std::placeholders::_1  );
+    std::function< Eigen::Vector6d ( ) > earthStateGetFunction =
+            std::bind( &Body::getState, earth );
+    std::function< Eigen::Vector6d ( ) > moonStateGetFunction =
+            std::bind( &Body::getState, moon );
+
+
+
+    std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames;
+    parameterNames.push_back( std::make_shared< InitialRotationalStateEstimatableParameterSettings< double > >(
+                                  "Earth", 0.0, "ECLIPJ2000" ) );
+    parameterNames.push_back( std::make_shared< InitialRotationalStateEstimatableParameterSettings< double > >(
+                                  "Moon", 0.0, "ECLIPJ2000" ) );
+
+    std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > parameterSet =
+            createParametersToEstimate( parameterNames, bodyMap );
+
+
+    // Create acceleration partial object.
+    std::shared_ptr< SphericalHarmonicsGravityPartial > accelerationPartial =
+            std::dynamic_pointer_cast< SphericalHarmonicsGravityPartial > (
+                createAnalyticalAccelerationPartial(
+                    gravitationalAcceleration, std::make_pair( "Moon", moon ), std::make_pair( "Earth", earth ),
+                    bodyMap, parameterSet ) );
+
+
+    accelerationPartial->update( testTime );
+
+    Eigen::MatrixXd partialWrtMoonPosition = Eigen::Matrix3d::Zero( );
+    accelerationPartial->wrtPositionOfAcceleratedBody( partialWrtMoonPosition.block( 0, 0, 3, 3 ) );
+
+    Eigen::MatrixXd partialWrtMoonVelocity = Eigen::Matrix3d::Zero( );
+    accelerationPartial->wrtVelocityOfAcceleratedBody( partialWrtMoonVelocity.block( 0, 0, 3, 3 ), 1, 0, 0 );
+
+    Eigen::MatrixXd partialWrtEarthPosition = Eigen::Matrix3d::Zero( );
+    accelerationPartial->wrtPositionOfAcceleratingBody( partialWrtEarthPosition.block( 0, 0, 3, 3 ) );
+
+    Eigen::MatrixXd partialWrtEarthVelocity = Eigen::Matrix3d::Zero( );
+    accelerationPartial->wrtVelocityOfAcceleratingBody( partialWrtEarthVelocity.block( 0, 0, 3, 3 ), 1, 0, 0 );
+
+    // Calculate numerical partials.
+    std::function< void( ) > updateFunction =
+            std::bind( &Body::setCurrentRotationToLocalFrameFromEphemeris, bodyMap.at( "Earth" ), testTime );
+
+    testPartialWrtMoonPosition = calculateAccelerationWrtStatePartials(
+                moonStateSetFunction, gravitationalAcceleration, moon->getState( ), positionPerturbation, 0,
+                updateFunction );
+    testPartialWrtMoonVelocity = calculateAccelerationWrtStatePartials(
+                moonStateSetFunction, gravitationalAcceleration, moon->getState( ), velocityPerturbation, 3,
+                updateFunction );
+
+    testPartialWrtEarthPosition = calculateAccelerationWrtStatePartials(
+                earthStateSetFunction, gravitationalAcceleration, earth->getState( ), positionPerturbation, 0,
+                updateFunction );
+    testPartialWrtEarthVelocity = calculateAccelerationWrtStatePartials(
+                earthStateSetFunction, gravitationalAcceleration, earth->getState( ), velocityPerturbation, 3,
+                updateFunction );
+
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtMoonPosition, partialWrtMoonPosition, 1.0E-6 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtMoonVelocity, partialWrtMoonVelocity, 1.0E-4 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtEarthPosition, partialWrtEarthPosition, 1.0E-6 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtEarthVelocity, partialWrtEarthVelocity, 1.0E-4 );
+
+}
 BOOST_AUTO_TEST_SUITE_END( )
 
 } // namespace unit_tests

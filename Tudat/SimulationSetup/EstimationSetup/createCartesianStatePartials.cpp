@@ -299,6 +299,19 @@ std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartia
     return partialMap;
 }
 
+std::shared_ptr< RotationMatrixPartial > createRotationMatrixPartialsWrtTranslationalState(
+        const std::shared_ptr< simulation_setup::Body > currentBody )
+{
+    std::shared_ptr< RotationMatrixPartial > rotationMatrixPartial;
+    if( std::dynamic_pointer_cast< ephemerides::TidallyLockedRotationalEphemeris >(
+                currentBody->getRotationalEphemeris( ) ) != nullptr )
+    {
+        rotationMatrixPartial = std::make_shared< TidallyLockedRotationMatrixPartialWrtTranslationalState >(
+                    std::dynamic_pointer_cast< ephemerides::TidallyLockedRotationalEphemeris >(
+                        currentBody->getRotationalEphemeris( ) ) );
+    }
+    return rotationMatrixPartial;
+}
 
 //! Function to create partial object(s) of rotation matrix wrt a (double) parameter.
 std::shared_ptr< RotationMatrixPartial > createRotationMatrixPartialsWrtParameter(
