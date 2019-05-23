@@ -6,7 +6,89 @@ project(TudatPy)
 set (TudatPy_VERSION_MAJOR 0)
 set (TudatPy_VERSION_MINOR 0)
 set (TudatPy_VERSION_PATCH 1)
+
+#set (set(TUDATPY_INSTALL_PATH "${YACMA_PYTHON_MODULES_INSTALL_PATH}/pygmo"))
+include_directories ("${CMAKE_SOURCE_DIR}/tudat")
+include_directories ("${CMAKE_SOURCE_DIR}/eigen")
+include_directories ("${CMAKE_SOURCE_DIR}/cspice")
+find_package(Spice)
+find_package(Tudat 3 REQUIRED)
+include(tudatLinkLibraries)
+
+# set(CMAKE_CXX_FLAGS "-lpython3.6 -lboost_python")
+
+include_directories(SYSTEM AFTER "${SPICE_INCLUDE_DIR}")
+
+#cmake_minimum_required(VERSION 2.8.3)
+
+# TODO: Allow for choice between python 3.6 and python 2.7 for compilation.
+FIND_PACKAGE(PythonInterp 3 REQUIRED)
+
+# TODO: Boost component for python must only contain major. Modify and push
+# suggestion on github.
 #
+set(BOOST_LIBRARYDIR ~/Software/boost_1_61_0/stage/lib/)
+set(BOOST_ROOT ~/Software/boost_1_61_0/)
+#find_package(Boost 1.55.0
+#        COMPONENTS thread date_time system unit_test_framework filesystem regex python3 REQUIRED)
+
+#set(PYTHON_LIBRARY )
+#
+#PYTHON_VERSION=`python -c "import sys;t='{v[0]}.{v[1]}'.format(v=list(sys.version_info[:2]));sys.stdout.write(t)";`
+#PYTHON_LIBRARY=/usr/local/Frameworks/Python.framework/Versions/$PYTHON_VERSION/lib/libpython$PYTHON_VERSION.dylib
+#PYTHON_INCLUDE_DIR=/usr/local/Frameworks/Python.framework/Versions/$PYTHON_VERSION/Headers/
+#cmake -DPYTHON_LIBRARY=$PYTHON_LIBRARY -DPYTHON_INCLUDE_DIR=$PYTHON_INCLUDE_DIR -DCMAKE_BUILD_TYPE=DEBUG .. && make && make test
+
+#set(DPYTHON_LIBRARY /usr/lib/x86_64-linux-gnu/libpython3.6m.so)
+#set(DPYTHON_INCLUDE_DIR /usr/include/python3.6m)
+
+# Add local module path
+list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/CMakeModules")
+message(STATUS "CMake Module path(s): ${CMAKE_MODULE_PATH}")
+
+# Set compiler based on preferences (e.g. USE_CLANG) and system.
+include(compiler)
+
+if (PYTHONINTERP_FOUND)
+    if (UNIX AND NOT APPLE)
+        if (PYTHON_VERSION_MAJOR EQUAL 3)
+            # NOTE: As far as is known, building boost.python3 provides the lib files
+            # in the form of python3 and not python3.6 as is suggested by original
+            # code.
+            FIND_PACKAGE(Boost 1.61 COMPONENTS python${PYTHON_VERSION_MAJOR})
+            FIND_PACKAGE(PythonInterp 3)
+            FIND_PACKAGE(PythonLibs 3 REQUIRED)
+        else()
+            FIND_PACKAGE(Boost 1.61 COMPONENTS python)
+            FIND_PACKAGE(PythonInterp)
+            FIND_PACKAGE(PythonLibs REQUIRED)
+        endif()
+    else()
+        if (PYTHON_VERSION_MAJOR EQUAL 3)
+            FIND_PACKAGE(Boost 1.61 COMPONENTS python${PYTHON_VERSION_MAJOR}${PYTHON_VERSION_MINOR})
+            FIND_PACKAGE(PythonInterp 3)
+            FIND_PACKAGE(PythonLibs 3 REQUIRED)
+        else()
+            FIND_PACKAGE(Boost 1.61 COMPONENTS python${PYTHON_VERSION_MAJOR}${PYTHON_VERSION_MINOR})
+            FIND_PACKAGE(PythonInterp)
+            FIND_PACKAGE(PythonLibs REQUIRED)
+        endif()
+    endif()
+else()
+    message("Python not found")
+endif()
+
+message(STATUS "PYTHON_LIBRARIES = ${PYTHON_LIBRARIES}")
+message(STATUS "PYTHON_EXECUTABLE = ${PYTHON_EXECUTABLE}")
+message(STATUS "PYTHON_INCLUDE_DIRS = ${PYTHON_INCLUDE_DIRS}")
+message(STATUS "Boost_LIBRARIES = ${Boost_LIBRARIES}")
+#include(tudatLinkLibraries)
+
+ENABLE_TESTING()
+INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIRS} ${PYTHON_INCLUDE_DIRS})
+LINK_LIBRARIES(${Boost_LIBRARIES} ${PYTHON_LIBRARIES} ${}) # Deprecated but so convenient!
+
+
 ## Load UserSettings.txt
 #if(${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_CURRENT_SOURCE_DIR})
 #  set(BUILD_STYLE "standalone")
