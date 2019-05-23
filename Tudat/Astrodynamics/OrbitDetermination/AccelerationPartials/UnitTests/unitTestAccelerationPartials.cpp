@@ -868,7 +868,8 @@ BOOST_AUTO_TEST_CASE( testEmpiricalAccelerationPartial )
 
     // Create time-independent empirical acceleration object.
     std::shared_ptr< EmpiricalAccelerationCoefficientsParameter > empiricalAccelerationParameter = std::make_shared<
-            EmpiricalAccelerationCoefficientsParameter >( accelerationModel, "Vehicle", empiricalComponentsToEstimate );
+            EmpiricalAccelerationCoefficientsParameter >(
+    std::vector< std::shared_ptr< EmpiricalAcceleration > >( { accelerationModel } ), "Vehicle", empiricalComponentsToEstimate );
 
     {
         // Calculate analytical partials.
@@ -931,7 +932,9 @@ BOOST_AUTO_TEST_CASE( testEmpiricalAccelerationPartial )
     arcStartTimes.push_back( 3.0E4 );
     arcStartTimes.push_back( 7.0E4 );
     std::shared_ptr< ArcWiseEmpiricalAccelerationCoefficientsParameter > arcWiseEmpiricalAccelerationParameter = std::make_shared<
-            ArcWiseEmpiricalAccelerationCoefficientsParameter >( accelerationModel, "Vehicle", empiricalComponentsToEstimate, arcStartTimes );
+            ArcWiseEmpiricalAccelerationCoefficientsParameter >(
+                std::vector< std::shared_ptr< EmpiricalAcceleration > >( { accelerationModel } ), "Vehicle", "Earth",
+                empiricalComponentsToEstimate, arcStartTimes );
 
     // Define list of times at which to test empirical acceleration
     std::vector< double > evaluationTimes;

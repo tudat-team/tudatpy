@@ -127,6 +127,12 @@ BOOST_AUTO_TEST_CASE( test_DissipationParameterEstimation )
                     bodyMap, accelerationMap, bodiesToEstimate, centralBodies );
 
 
+        std::shared_ptr< PropagatorSettings< double > > propagatorSettings =
+                std::make_shared< TranslationalStatePropagatorSettings< double > >
+                ( centralBodies, accelerationModelMap, bodiesToEstimate,
+                  getInitialStatesOfBodies( bodiesToEstimate, centralBodies, bodyMap, initialEphemerisTime ),
+                  finalEphemerisTime );
+
         // Set parameters that are to be estimated.
         std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames;
         parameterNames.push_back(
@@ -159,7 +165,7 @@ BOOST_AUTO_TEST_CASE( test_DissipationParameterEstimation )
                             "Jupiter", "Europa" ) );
         }
         std::shared_ptr< tudat::estimatable_parameters::EstimatableParameterSet< double > > parametersToEstimate =
-                createParametersToEstimate< double >( parameterNames, bodyMap, accelerationModelMap );
+                createParametersToEstimate< double >( parameterNames, bodyMap, propagatorSettings );
 
 
         // Define links in simulation.
@@ -178,12 +184,6 @@ BOOST_AUTO_TEST_CASE( test_DissipationParameterEstimation )
                 std::make_shared< RungeKuttaVariableStepSizeSettings< > >
                 ( 0.0, fixedStepSize,
                   RungeKuttaCoefficients::rungeKuttaFehlberg78, fixedStepSize, fixedStepSize, 1.0, 1.0 );
-
-        std::shared_ptr< PropagatorSettings< double > > propagatorSettings =
-                std::make_shared< TranslationalStatePropagatorSettings< double > >
-                ( centralBodies, accelerationModelMap, bodiesToEstimate,
-                  getInitialStatesOfBodies( bodiesToEstimate, centralBodies, bodyMap, initialEphemerisTime ),
-                  finalEphemerisTime );
 
         // Create orbit determination object.
         OrbitDeterminationManager< double, double > orbitDeterminationManager =

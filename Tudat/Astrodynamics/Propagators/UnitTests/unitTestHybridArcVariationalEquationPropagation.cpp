@@ -656,7 +656,7 @@ BOOST_AUTO_TEST_CASE( testVaryingCentralBodyHybridArcVariationalEquations )
     }
 
     std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > parametersToEstimate =
-            createParametersToEstimate< double >( parameterNames, bodyMap, singleArcPropagatorSettings->getAccelerationsMap( ) );
+            createParametersToEstimate< double >( parameterNames, bodyMap, hybridArcPropagatorSettings );
     printEstimatableParameterEntries( parametersToEstimate );
 
     std::shared_ptr< IntegratorSettings< > > singleArcIntegratorSettings =
@@ -703,7 +703,7 @@ BOOST_AUTO_TEST_CASE( testVaryingCentralBodyHybridArcVariationalEquations )
         }
 
         std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > parametersToEstimatePerBody =
-                createParametersToEstimate< double >( parameterNamesPerBody, bodyMap, singleArcPropagatorSettings->getAccelerationsMap( ) );
+                createParametersToEstimate< double >( parameterNamesPerBody, bodyMap, hybridArcPerBodyPropagatorSettings );
         printEstimatableParameterEntries( parametersToEstimatePerBody );
 
         HybridArcVariationalEquationsSolver< > perCentralBodyVariationalEquations =

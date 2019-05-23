@@ -445,11 +445,8 @@ public:
             const std::string centralBody,
             const std::map< basic_astrodynamics::EmpiricalAccelerationComponents,
             std::vector< basic_astrodynamics::EmpiricalAccelerationFunctionalShapes > > componentsToEstimate ):
-        EstimatableParameterSettings( associatedBody, empirical_acceleration_coefficients ), centralBody_( centralBody ),
+        EstimatableParameterSettings( associatedBody, empirical_acceleration_coefficients, centralBody ),
         componentsToEstimate_( componentsToEstimate ){ }
-
-    //! Name of central body
-    std::string centralBody_;
 
     //!  List of components of empirical acceleration that are to be estimated.
     std::map< basic_astrodynamics::EmpiricalAccelerationComponents,
@@ -475,12 +472,9 @@ public:
             const std::string centralBody,
             const std::map< basic_astrodynamics::EmpiricalAccelerationComponents,
             std::vector< basic_astrodynamics::EmpiricalAccelerationFunctionalShapes > > componentsToEstimate,
-            const std::vector< double > arcStartTimeList):
-        EstimatableParameterSettings( associatedBody, arc_wise_empirical_acceleration_coefficients ), centralBody_( centralBody ),
+            const std::vector< double > arcStartTimeList ):
+        EstimatableParameterSettings( associatedBody, arc_wise_empirical_acceleration_coefficients, centralBody ),
         componentsToEstimate_( componentsToEstimate ), arcStartTimeList_( arcStartTimeList ){ }
-
-    //! Name of central body
-    std::string centralBody_;
 
     //! List of components of empirical acceleration that are to be estimated.
     std::map< basic_astrodynamics::EmpiricalAccelerationComponents,
