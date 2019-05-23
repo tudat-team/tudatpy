@@ -221,89 +221,77 @@ BOOST_AUTO_TEST_CASE( testSimpleRotationalEphemerisPartials )
 
 BOOST_AUTO_TEST_CASE( testTidallyLockedRotationPartials )
 {
-    Eigen::Vector6d currentState =
+    Eigen::Vector6d nominalState =
             tudat::spice_interface::getBodyCartesianStateAtEpoch(
-                "Mercury", "SSB", "J2000", "None", 0.0 );
-    Eigen::Vector3d positionVector = currentState.segment( 0, 3 );
-    Eigen::Vector3d velocityVector = currentState.segment( 3, 3 );
+                                       "Mercury", "SSB", "ECLIPJ2000", "None", 1.0E7 );
 
-    double positionNorm = positionVector.norm( );
+    Eigen::Vector6d currentState = nominalState;
+    std::function< Eigen::Vector6d( const double, bool ) > relativeStateFunction =
+            [ & ]( const double, bool ){ return currentState; };
 
-    Eigen::Matrix3d currentRotationMatrix = tudat::reference_frames::getInertialToRswSatelliteCenteredFrameRotationMatrix(
-                currentState ).transpose( );
+    std::shared_ptr< tudat::ephemerides::TidallyLockedRotationalEphemeris > tidallyLockedRotationModel =
+            std::make_shared< ephemerides::TidallyLockedRotationalEphemeris >(
+                relativeStateFunction, "SSB", "Mercury_Fixed", "ECLIPJ2000" );
 
-    Eigen::Vector3d rVector = currentRotationMatrix.block( 0, 0, 3, 1 );
-    Eigen::Vector3d sVector = currentRotationMatrix.block( 0, 1, 3, 1 );
-    Eigen::Vector3d wVector = currentRotationMatrix.block( 0, 2, 3, 1 );
-    Eigen::Vector3d unnormalizedWVector = currentState.segment< 3 >( 0 ).cross(
-                currentState.segment< 3 >( 3 ) );
-    double unnormalizedWVectorNorm = unnormalizedWVector.norm( );
 
-    std::cout<<"pos norm "<<positionNorm<<std::endl;
+    std::shared_ptr< RotationMatrixPartial > rotationMatrixPartialObject =
+            std::make_shared< TidallyLockedRotationMatrixPartialWrtTranslationalState >( tidallyLockedRotationModel );
 
-    Eigen::Matrix3d rVectorDerivativeWrtPosition =
-            Eigen::Matrix3d::Identity( ) / positionNorm - positionVector * positionVector.transpose( ) / (
-                positionNorm * positionNorm * positionNorm );
-    Eigen::Matrix3d unnormalizedWVectorDerivativeWrtPosition =
-            -linear_algebra::getCrossProductMatrix( currentState.segment( 3, 3 ) );
-    Eigen::Matrix3d unnormalizedWVectorDerivativeWrtVelocity =
-            linear_algebra::getCrossProductMatrix( positionVector );
-    Eigen::Matrix3d wPartialScalingTerm =
-            ( Eigen::Matrix3d::Identity( ) / unnormalizedWVectorNorm -
-              unnormalizedWVector * unnormalizedWVector.transpose( ) /
-              ( unnormalizedWVectorNorm * unnormalizedWVectorNorm * unnormalizedWVectorNorm ) );
-
-    Eigen::Matrix3d wVectorDerivativeWrtPosition =
-            wPartialScalingTerm * unnormalizedWVectorDerivativeWrtPosition;
-    Eigen::Matrix3d wVectorDerivativeWrtVelocity =
-            wPartialScalingTerm * unnormalizedWVectorDerivativeWrtVelocity;
-
-    Eigen::Matrix3d sVectorDerivativeWrtPosition =
-            linear_algebra::getCrossProductMatrix( wVector ) * rVectorDerivativeWrtPosition -
-            linear_algebra::getCrossProductMatrix( rVector ) * wVectorDerivativeWrtPosition;
-    Eigen::Matrix3d sVectorDerivativeWrtVelocity =
-            -linear_algebra::getCrossProductMatrix( positionVector ) * wVectorDerivativeWrtVelocity;
+    double testTime = 1.0E7;
+    std::vector< Eigen::Matrix3d > rotationMatrixPartials =
+            rotationMatrixPartialObject->calculatePartialOfRotationMatrixToBaseFrameWrParameter( testTime );
 
     double positionPerturbation = 10000.0;
-    double velocityPerturbation = 1.0;
-    Eigen::Vector6d nominalState = currentState;
-    Eigen::Matrix3d nominalRotationMatrix = currentRotationMatrix;
+    double velocityPerturbation = 0.1;
 
-    std::cout<<"R partials "<<std::endl<<
-               rVectorDerivativeWrtPosition<<std::endl<<std::endl;
-    std::cout<<"S partials "<<std::endl<<
-               sVectorDerivativeWrtPosition<<std::endl<<std::endl;
-    std::cout<<"W partials "<<std::endl<<
-               wVectorDerivativeWrtPosition<<std::endl<<std::endl;
-    std::cout<<"Unnormalized W partials "<<std::endl<<
-               unnormalizedWVectorDerivativeWrtPosition<<std::endl<<std::endl;
+
+
     for( int i = 0; i < 3; i++ )
     {
         currentState = nominalState;
         currentState( i ) += positionPerturbation;
-        Eigen::Matrix3d upPerturbedRotationMatrix =
-                tudat::reference_frames::getInertialToRswSatelliteCenteredFrameRotationMatrix(
-                                currentState ).transpose( );
-        Eigen::Vector3d upperturbedUnnormalizedWVector = currentState.segment< 3 >( 0 ).cross(
-                    currentState.segment< 3 >( 3 ) );
+        Eigen::Matrix3d upPerturbedRotationMatrix = tidallyLockedRotationModel->getRotationToBaseFrame(
+                    1.0E7 ).toRotationMatrix( );
 
         currentState = nominalState;
         currentState( i ) -= positionPerturbation;
-        Eigen::Matrix3d downPerturbedRotationMatrix =
-                tudat::reference_frames::getInertialToRswSatelliteCenteredFrameRotationMatrix(
-                                currentState ).transpose( );
-        Eigen::Vector3d downperturbedUnnormalizedWVector = currentState.segment< 3 >( 0 ).cross(
-                    currentState.segment< 3 >( 3 ) );
+        Eigen::Matrix3d downPerturbedRotationMatrix = tidallyLockedRotationModel->getRotationToBaseFrame(
+                    1.0E7 ).toRotationMatrix( );
 
+        Eigen::Matrix3d relativePartialError =
+                ( ( upPerturbedRotationMatrix - downPerturbedRotationMatrix ) / ( 2.0 * positionPerturbation ) -
+                rotationMatrixPartials.at( i ) ) / rotationMatrixPartials.at( i ).norm( );
 
-        std::cout<<"Numerical partial"<<std::endl<<
-                   ( upPerturbedRotationMatrix - downPerturbedRotationMatrix ) / ( 2.0 * positionPerturbation )
-                   <<std::endl<<std::endl;
-//        std::cout<<"Unnormalized w partial"<<std::endl<<
-//                   ( upperturbedUnnormalizedWVector - downperturbedUnnormalizedWVector ) / ( 2.0 * positionPerturbation )
-//                   <<std::endl<<std::endl;
+        for( int j = 0; j < 3; j++ )
+        {
+            for( int k = 0; k < 3; k++ )
+            {
+                BOOST_CHECK_SMALL( std::fabs( relativePartialError( j, k ) ), 1.0E-8 );
+            }
+        }
+
+        currentState = nominalState;
+        currentState( i + 3 ) += velocityPerturbation;
+        upPerturbedRotationMatrix = tidallyLockedRotationModel->getRotationToBaseFrame(
+                    1.0E7 ).toRotationMatrix( );
+
+        currentState = nominalState;
+        currentState( i + 3 ) -= velocityPerturbation;
+        downPerturbedRotationMatrix = tidallyLockedRotationModel->getRotationToBaseFrame(
+                    1.0E7 ).toRotationMatrix( );
+
+        relativePartialError =
+                        ( ( upPerturbedRotationMatrix - downPerturbedRotationMatrix ) / ( 2.0 * velocityPerturbation ) -
+                        rotationMatrixPartials.at( i + 3 ) ) / rotationMatrixPartials.at( i + 3 ).norm( );
+
+        for( int j = 0; j < 3; j++ )
+        {
+            for( int k = 0; k < 3; k++ )
+            {
+                BOOST_CHECK_SMALL( std::fabs( relativePartialError( j, k ) ), 1.0E-8 );
+            }
+        }
     }
-
 }
 
 BOOST_AUTO_TEST_SUITE_END( )

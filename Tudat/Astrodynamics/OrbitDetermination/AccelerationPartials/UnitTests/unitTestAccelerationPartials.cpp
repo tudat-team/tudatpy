@@ -869,7 +869,8 @@ BOOST_AUTO_TEST_CASE( testEmpiricalAccelerationPartial )
     // Create time-independent empirical acceleration object.
     std::shared_ptr< EmpiricalAccelerationCoefficientsParameter > empiricalAccelerationParameter = std::make_shared<
             EmpiricalAccelerationCoefficientsParameter >(
-    std::vector< std::shared_ptr< EmpiricalAcceleration > >( { accelerationModel } ), "Vehicle", empiricalComponentsToEstimate );
+    std::vector< std::shared_ptr< EmpiricalAcceleration > >( { accelerationModel } ), "Vehicle", "Earth",
+                empiricalComponentsToEstimate );
 
     {
         // Calculate analytical partials.

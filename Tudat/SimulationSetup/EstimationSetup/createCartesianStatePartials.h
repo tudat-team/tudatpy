@@ -101,6 +101,8 @@ std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartia
         const std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameterToEstimate );
 
 
+std::shared_ptr< RotationMatrixPartial > createRotationMatrixPartialsWrtTranslationalState(
+        const std::shared_ptr< simulation_setup::Body > currentBody );
 
 //! Function to create partial object(s) of rotation matrix wrt a state parameter
 /*!
@@ -194,13 +196,21 @@ RotationMatrixPartialNamedList createRotationMatrixPartials(
             rotationMatrixPartials;
 
     // Retrieve double and vector parameters from total set of parameters.
-   std::map< int, std::shared_ptr< estimatable_parameters::EstimatableParameter<
+    std::map< int, std::shared_ptr< estimatable_parameters::EstimatableParameter<
             Eigen::Matrix< ParameterType, Eigen::Dynamic, 1 > > > > stateParameters =
             parametersToEstimate->getInitialStateParameters( );
     std::map< int, std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > > doubleParameters =
             parametersToEstimate->getDoubleParameters( );
     std::map< int, std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > > vectorParameters =
             parametersToEstimate->getVectorParameters( );
+
+    std::shared_ptr< RotationMatrixPartial > rotationMatrixPartialWrtTranslationalState =
+            createRotationMatrixPartialsWrtTranslationalState( bodyMap.at( bodyName ) );
+    if( rotationMatrixPartialWrtTranslationalState != nullptr )
+    {
+        rotationMatrixPartials[ std::make_pair(
+                    estimatable_parameters::initial_body_state, "" ) ] = rotationMatrixPartialWrtTranslationalState;
+    }
 
     for( auto parameterIterator = stateParameters.begin( ); parameterIterator != stateParameters.end( );
          parameterIterator++ )
@@ -213,7 +223,7 @@ RotationMatrixPartialNamedList createRotationMatrixPartials(
             // Create partial object.
             rotationMatrixPartials[ std::make_pair(
                         parameterIterator->second->getParameterName( ).first,
-                        parameterIterator->second->getSecondaryIdentifier( ) ) ] =
+                        parameterIterator->second->getSecondaryIdentifier( )) ] =
                     createRotationMatrixPartialsWrtStateParameter( bodyMap, parameterIterator->second );
         }
     }
@@ -230,7 +240,7 @@ RotationMatrixPartialNamedList createRotationMatrixPartials(
             // Create partial object.
             rotationMatrixPartials[ std::make_pair(
                         parameterIterator->second->getParameterName( ).first,
-                        parameterIterator->second->getSecondaryIdentifier( ) ) ] =
+                        parameterIterator->second->getSecondaryIdentifier( )) ] =
                     createRotationMatrixPartialsWrtParameter( bodyMap, parameterIterator->second );
         }
     }
@@ -247,7 +257,7 @@ RotationMatrixPartialNamedList createRotationMatrixPartials(
             // Create partial object.
             rotationMatrixPartials[ std::make_pair(
                         parameterIterator->second->getParameterName( ).first,
-                        parameterIterator->second->getSecondaryIdentifier( ) ) ] =
+                        parameterIterator->second->getSecondaryIdentifier( )) ] =
                     createRotationMatrixPartialsWrtParameter( bodyMap, parameterIterator->second );
         }
     }
@@ -262,14 +272,14 @@ std::shared_ptr< RotationMatrixPartial > > RotationMatrixPartialNamedList;
 //! Function to create an objects that computes the partial derivatives of a three-dimensional position observable w.r.t.
 //! the position of a body.
 /*!
- *  Function to create an objects that computes the partial derivatives of a three-dimensional position observable w.r.t.
- *  the position of a body.
- *  \param linkEnds Set of link ends used for observation model of three-dimensional position
- *  \param bodyMap List of bodies that comprise the environment
- *  \param bodyToEstimate Name of body w.r.t. the position of which a partial is to be compured
- *  \param positionObservableScaler Object that scales position partial to observable partial.
- *  \return Single object that computes partial of given observable w.r.t. given parameter.
- */
+                *  Function to create an objects that computes the partial derivatives of a three-dimensional position observable w.r.t.
+                *  the position of a body.
+                *  \param linkEnds Set of link ends used for observation model of three-dimensional position
+                *  \param bodyMap List of bodies that comprise the environment
+                *  \param bodyToEstimate Name of body w.r.t. the position of which a partial is to be compured
+                *  \param positionObservableScaler Object that scales position partial to observable partial.
+                *  \return Single object that computes partial of given observable w.r.t. given parameter.
+                */
 std::shared_ptr< PositionObervationPartial > createPositionObservablePartialWrtPosition(
         const observation_models::LinkEnds linkEnds,
         const simulation_setup::NamedBodyMap& bodyMap,
@@ -278,15 +288,15 @@ std::shared_ptr< PositionObervationPartial > createPositionObservablePartialWrtP
 
 //! Function to create a list of objects that compute the partial derivatives of a three-dimensional position observable.
 /*!
- *  Function to create a list of objects that compute the partial derivatives of a three-dimensional position observable
- *  A single object is created for each parameter w.r.t. whih a partial derivative is to be taken. Note that the
- *  three-dimensional position observable is only sensitive to the position of the body under observation.
- *  \param positionObservableLinkEnds Set of link ends used for observation model of three-dimensional position
- *  \param bodyMap List of bodies that comprise the environment
- *  \param parametersToEstimate List of parameters that is to be estimated.
- *  \return Pair, first entry is map (key is start index and size of parameter; value is partial object), secod entry is
- *  scaling object to be used for all partials.
- */
+                *  Function to create a list of objects that compute the partial derivatives of a three-dimensional position observable
+                *  A single object is created for each parameter w.r.t. whih a partial derivative is to be taken. Note that the
+                *  three-dimensional position observable is only sensitive to the position of the body under observation.
+                *  \param positionObservableLinkEnds Set of link ends used for observation model of three-dimensional position
+                *  \param bodyMap List of bodies that comprise the environment
+                *  \param parametersToEstimate List of parameters that is to be estimated.
+                *  \return Pair, first entry is map (key is start index and size of parameter; value is partial object), secod entry is
+                *  scaling object to be used for all partials.
+                */
 template< typename ParameterType >
 std::pair< SingleLinkObservationThreePartialList, std::shared_ptr< PositionPartialScaling > >
 createPositionObservablePartials(
@@ -340,17 +350,17 @@ createPositionObservablePartials(
 
 //! Function to create a list of objects that compute the partial derivatives of a list of 3-dimensional position observable.
 /*!
- *  Function to create a list of objects that compute the partial derivatives of a list of 3-dimensional position observable
- *  A single object is created for each parameter w.r.t. whih a partial derivative is to be taken, separately for each set of
- *  link ends. Note that the three-dimensional position observable is only sensitive to the position of the body under
- * observation.
- *  \param linkEnds List of sets of link ends used for observation models of three-dimensional position
- *  \param bodyMap List of bodies that comprise the environment
- *  \param parametersToEstimate List of parameters that is to be estimated.
- *  \return For each set of link ends a single pair, containing:
- *  First entry is map (key is start index and size of parameter; value is partial object), secod entry is
- *  scaling object to be used for all partials.
- */
+                *  Function to create a list of objects that compute the partial derivatives of a list of 3-dimensional position observable
+                *  A single object is created for each parameter w.r.t. whih a partial derivative is to be taken, separately for each set of
+                *  link ends. Note that the three-dimensional position observable is only sensitive to the position of the body under
+                * observation.
+                *  \param linkEnds List of sets of link ends used for observation models of three-dimensional position
+                *  \param bodyMap List of bodies that comprise the environment
+                *  \param parametersToEstimate List of parameters that is to be estimated.
+                *  \return For each set of link ends a single pair, containing:
+                *  First entry is map (key is start index and size of parameter; value is partial object), secod entry is
+                *  scaling object to be used for all partials.
+                */
 template< typename ParameterType >
 std::map< observation_models::LinkEnds,
 std::pair< SingleLinkObservationThreePartialList, std::shared_ptr< PositionPartialScaling > > >
@@ -378,14 +388,14 @@ createPositionObservablePartials(
 //! Function to create an objects that computes the partial derivatives of a three-dimensional velocity observable w.r.t.
 //! the velocity of a body.
 /*!
- *  Function to create an objects that computes the partial derivatives of a three-dimensional velocity observable w.r.t.
- *  the velocity of a body.
- *  \param linkEnds Set of link ends used for observation model of three-dimensional velocity
- *  \param bodyMap List of bodies that comprise the environment
- *  \param bodyToEstimate Name of body w.r.t. the velocity of which a partial is to be compured
- *  \param velocityObservableScaler Object that scales velocity partial to observable partial.
- *  \return Single object that computes partial of given observable w.r.t. given parameter.
- */
+                *  Function to create an objects that computes the partial derivatives of a three-dimensional velocity observable w.r.t.
+                *  the velocity of a body.
+                *  \param linkEnds Set of link ends used for observation model of three-dimensional velocity
+                *  \param bodyMap List of bodies that comprise the environment
+                *  \param bodyToEstimate Name of body w.r.t. the velocity of which a partial is to be compured
+                *  \param velocityObservableScaler Object that scales velocity partial to observable partial.
+                *  \return Single object that computes partial of given observable w.r.t. given parameter.
+                */
 std::shared_ptr< VelocityObervationPartial > createVelocityObservablePartialWrtVelocity(
         const observation_models::LinkEnds linkEnds,
         const simulation_setup::NamedBodyMap& bodyMap,
@@ -394,15 +404,15 @@ std::shared_ptr< VelocityObervationPartial > createVelocityObservablePartialWrtV
 
 //! Function to create a list of objects that compute the partial derivatives of a three-dimensional velocity observable.
 /*!
- *  Function to create a list of objects that compute the partial derivatives of a three-dimensional velocity observable
- *  A single object is created for each parameter w.r.t. whih a partial derivative is to be taken. Note that the
- *  three-dimensional velocity observable is only sensitive to the velocity of the body under observation.
- *  \param velocityObservableLinkEnds Set of link ends used for observation model of three-dimensional velocity
- *  \param bodyMap List of bodies that comprise the environment
- *  \param parametersToEstimate List of parameters that is to be estimated.
- *  \return Pair, first entry is map (key is start index and size of parameter; value is partial object), secod entry is
- *  scaling object to be used for all partials.
- */
+                *  Function to create a list of objects that compute the partial derivatives of a three-dimensional velocity observable
+                *  A single object is created for each parameter w.r.t. whih a partial derivative is to be taken. Note that the
+                *  three-dimensional velocity observable is only sensitive to the velocity of the body under observation.
+                *  \param velocityObservableLinkEnds Set of link ends used for observation model of three-dimensional velocity
+                *  \param bodyMap List of bodies that comprise the environment
+                *  \param parametersToEstimate List of parameters that is to be estimated.
+                *  \return Pair, first entry is map (key is start index and size of parameter; value is partial object), secod entry is
+                *  scaling object to be used for all partials.
+                */
 template< typename ParameterType >
 std::pair< SingleLinkObservationThreePartialList, std::shared_ptr< PositionPartialScaling > >
 createVelocityObservablePartials(
@@ -459,17 +469,17 @@ createVelocityObservablePartials(
 
 //! Function to create a list of objects that compute the partial derivatives of a list of 3-dimensional velocity observable.
 /*!
- *  Function to create a list of objects that compute the partial derivatives of a list of 3-dimensional velocity observable
- *  A single object is created for each parameter w.r.t. whih a partial derivative is to be taken, separately for each set of
- *  link ends. Note that the three-dimensional velocity observable is only sensitive to the velocity of the body under
- * observation.
- *  \param linkEnds List of sets of link ends used for observation models of three-dimensional velocity
- *  \param bodyMap List of bodies that comprise the environment
- *  \param parametersToEstimate List of parameters that is to be estimated.
- *  \return For each set of link ends a single pair, containing:
- *  First entry is map (key is start index and size of parameter; value is partial object), secod entry is
- *  scaling object to be used for all partials.
- */
+                *  Function to create a list of objects that compute the partial derivatives of a list of 3-dimensional velocity observable
+                *  A single object is created for each parameter w.r.t. whih a partial derivative is to be taken, separately for each set of
+                *  link ends. Note that the three-dimensional velocity observable is only sensitive to the velocity of the body under
+                * observation.
+                *  \param linkEnds List of sets of link ends used for observation models of three-dimensional velocity
+                *  \param bodyMap List of bodies that comprise the environment
+                *  \param parametersToEstimate List of parameters that is to be estimated.
+                *  \return For each set of link ends a single pair, containing:
+                *  First entry is map (key is start index and size of parameter; value is partial object), secod entry is
+                *  scaling object to be used for all partials.
+                */
 template< typename ParameterType >
 std::map< observation_models::LinkEnds,
 std::pair< SingleLinkObservationThreePartialList, std::shared_ptr< PositionPartialScaling > > >
