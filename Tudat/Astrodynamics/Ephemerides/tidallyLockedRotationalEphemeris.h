@@ -110,6 +110,11 @@ public:
         isBodyInPropagation_ = isBodyInPropagation;
     }
 
+    Eigen::Vector6d getCurrentRelativeState( const double currentTime )
+    {
+        return relativeStateFunction_( currentTime, isBodyInPropagation_ );
+    }
+
 private:
 
     //! Function returning the current state of the body relative to the central body, in the base frame

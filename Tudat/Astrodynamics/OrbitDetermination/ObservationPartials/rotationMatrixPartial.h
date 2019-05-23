@@ -19,6 +19,7 @@
 #include <Eigen/Core>
 
 #include "Tudat/Astrodynamics/Ephemerides/simpleRotationalEphemeris.h"
+#include "Tudat/Astrodynamics/Ephemerides/tidallyLockedRotationalEphemeris.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/estimatableParameter.h"
 #include "Tudat/Mathematics/BasicMathematics/linearAlgebra.h"
 
@@ -439,6 +440,108 @@ private:
     //! List of rotation matrix partial derivatives w.r.t. rotational state vector, as last computed by
     //! calculatePartialOfRotationMatrixToBaseFrameWrParameter
     std::vector< Eigen::Matrix3d > currentQuaternionPartials_;
+};
+
+
+class TidallyLockedRotationMatrixPartialWrtTranslationalState: public RotationMatrixPartial
+{
+public:
+
+
+    TidallyLockedRotationMatrixPartialWrtTranslationalState(
+            const std::shared_ptr< ephemerides::TidallyLockedRotationalEphemeris > tidallyLockedRotationaModel ):
+        RotationMatrixPartial( tidallyLockedRotationaModel ),
+        tidallyLockedRotationaModel_( tidallyLockedRotationaModel )
+    {
+
+    }
+
+    ~TidallyLockedRotationMatrixPartialWrtTranslationalState( ){ }
+
+
+    std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixToBaseFrameWrParameter( const double time )
+    {
+        Eigen::Matrix3d currentRotationMatrix =
+                tidallyLockedRotationaModel_->getRotationToBaseFrame( time ).toRotationMatrix( );
+        Eigen::Vector6d currentState =
+                tidallyLockedRotationaModel_->getCurrentRelativeState( time );
+        Eigen::Vector3d positionVector = currentState.segment( 0, 3 );
+        Eigen::Vector3d velocityVector = currentState.segment( 3, 3 );
+
+        double positionNorm = positionVector.norm( );
+
+
+        Eigen::Vector3d rVector = -currentRotationMatrix.block( 0, 0, 3, 1 );
+        Eigen::Vector3d wVector = currentRotationMatrix.block( 0, 2, 3, 1 );
+        Eigen::Vector3d unnormalizedWVector = positionVector.cross( velocityVector );
+        double unnormalizedWVectorNorm = unnormalizedWVector.norm( );
+
+        Eigen::Matrix3d rVectorDerivativeWrtPosition =
+                Eigen::Matrix3d::Identity( ) / positionNorm - positionVector * positionVector.transpose( ) / (
+                    positionNorm * positionNorm * positionNorm );
+        Eigen::Matrix3d unnormalizedWVectorDerivativeWrtPosition =
+                -linear_algebra::getCrossProductMatrix( velocityVector );
+        Eigen::Matrix3d unnormalizedWVectorDerivativeWrtVelocity =
+                linear_algebra::getCrossProductMatrix( positionVector );
+        Eigen::Matrix3d wPartialScalingTerm =
+                ( Eigen::Matrix3d::Identity( ) / unnormalizedWVectorNorm -
+                  unnormalizedWVector * unnormalizedWVector.transpose( ) /
+                  ( unnormalizedWVectorNorm * unnormalizedWVectorNorm * unnormalizedWVectorNorm ) );
+
+        Eigen::Matrix3d wVectorDerivativeWrtPosition =
+                wPartialScalingTerm * unnormalizedWVectorDerivativeWrtPosition;
+        Eigen::Matrix3d wVectorDerivativeWrtVelocity =
+                wPartialScalingTerm * unnormalizedWVectorDerivativeWrtVelocity;
+
+        Eigen::Matrix3d sVectorDerivativeWrtPosition =
+                linear_algebra::getCrossProductMatrix( wVector ) * rVectorDerivativeWrtPosition -
+                linear_algebra::getCrossProductMatrix( rVector ) * wVectorDerivativeWrtPosition;
+        Eigen::Matrix3d sVectorDerivativeWrtVelocity =
+                -linear_algebra::getCrossProductMatrix( positionVector ) * wVectorDerivativeWrtVelocity;
+
+        std::vector< Eigen::Matrix3d > rotationMatrixPartials;
+        rotationMatrixPartials.resize( 6 );
+
+        for( int i = 0; i < 3; i++ )
+        {
+            rotationMatrixPartials[ i ].block( 0, 0, 3, 1 ) =
+                    -rVectorDerivativeWrtPosition.block( 0, i, 3, 1 );
+            rotationMatrixPartials[ i ].block( 0, 1, 3, 1 ) =
+                    -sVectorDerivativeWrtPosition.block( 0, i, 3, 1 );
+            rotationMatrixPartials[ i ].block( 0, 2, 3, 1 ) =
+                    wVectorDerivativeWrtPosition.block( 0, i, 3, 1 );
+
+            rotationMatrixPartials[ i + 3 ].block( 0, 0, 3, 1 ).setZero( );
+            rotationMatrixPartials[ i + 3 ].block( 0, 1, 3, 1 ) =
+                    -sVectorDerivativeWrtVelocity.block( 0, i, 3, 1 );
+            rotationMatrixPartials[ i + 3 ].block( 0, 2, 3, 1 ) =
+                    wVectorDerivativeWrtVelocity.block( 0, i, 3, 1 );
+        }
+
+        return rotationMatrixPartials;
+
+    }
+
+    //! Function to compute the required partial derivative of rotation matrix derivative.
+    /*!
+     * Function to compute the partial derivative of derivative of rotation matrix from a body-fixed to inertial frame w.r.t.
+     * the rotational state vector. NOTE: function not yet implemented
+     * \param time Time at which partials are to be computed
+     * \return Vector of size 7 containing partials of rotation matrix derivative from body-fixed to inertial frame w.r.t. the
+     * rotational state vector
+     */
+    std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixDerivativeToBaseFrameWrParameter(
+            const double time )
+    {
+        throw std::runtime_error( "Error when calling RotationMatrixPartialWrtQuaternion::calculatePartialOfRotationMatrixDerivativeToBaseFrameWrParameter, function not yet implemented." );
+
+    }
+
+
+private:
+
+    std::shared_ptr< ephemerides::TidallyLockedRotationalEphemeris > tidallyLockedRotationaModel_;
+
 };
 
 //! Typedef of list of RotationMatrixPartial objects, ordered by parameter.
