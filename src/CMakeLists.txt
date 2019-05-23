@@ -8,10 +8,16 @@
 #    http://tudat.tudelft.nl/LICENSE.
 #
 
-PYTHON_ADD_MODULE(constants Constants.cpp)
-FILE(COPY test/constants.py DESTINATION .)
-ADD_TEST(NAME Constants COMMAND ${PYTHON_EXECUTABLE} test/constants.py)
+# TODO: [@DominicDirkx] Setup the CMakelist.txt such that all .so objects are compiled under tudatpy/ and NOT tudatpy/src.
+# TODO: Setup the CMakelist.txt such that tudatPy is installed to the detected dist-packages of python library.
+# TODO: Setup the tests using the pyTest framework, or an alternative that works with "make test".
+FILE(COPY __init__.py DESTINATION ..)
+PYTHON_ADD_MODULE(core core.cpp)
 
-PYTHON_ADD_MODULE(simulation_setup SimulationSetup.cpp)
-FILE(COPY test/simulation_setup.py DESTINATION .)
-ADD_TEST(NAME SimulationSetup COMMAND ${PYTHON_EXECUTABLE} test/simulation_setup.py)
+# Constant value definition tests.
+FILE(COPY test/test_constants.py DESTINATION .)
+add_test(NAME constants COMMAND ${PYTHON_EXECUTABLE} -m pytest -rsv test_constants.py)
+
+## Simulation setup tests.
+#FILE(COPY test/simulation_setup.py DESTINATION .)
+#ADD_TEST(NAME SimulationSetup COMMAND ${PYTHON_EXECUTABLE}/simulation_setup.py)

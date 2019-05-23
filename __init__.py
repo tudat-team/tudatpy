@@ -1,2 +1,2 @@
-from src import constants
-from src import simulation_setup
+from . import constants
+from . import simulation_setup

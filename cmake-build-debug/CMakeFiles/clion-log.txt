@@ -1,6 +1,36 @@
 /home/ggarrett/Software/clion-2019.1.3/bin/cmake/linux/bin/cmake -DCMAKE_BUILD_TYPE=Debug -G "CodeBlocks - Unix Makefiles" /home/ggarrett/Repositories/tudatBundle/tudatpy
-CMake Error at src/simulation/CMakeLists.txt:11 (PYTHON_ADD_MODULE):
-  Unknown CMake command "PYTHON_ADD_MODULE".
+CMake Warning at CMakeLists.txt:14 (find_package):
+  By not providing "FindSpice.cmake" in CMAKE_MODULE_PATH this project has
+  asked CMake to find a package configuration file provided by "Spice", but
+  CMake did not find one.
+
+  Could not find a package configuration file provided by "Spice" with any of
+  the following names:
+
+    SpiceConfig.cmake
+    spice-config.cmake
+
+  Add the installation prefix of "Spice" to CMAKE_PREFIX_PATH or set
+  "Spice_DIR" to a directory containing one of the above files.  If "Spice"
+  provides a separate development package or SDK, be sure it has been
+  installed.
+
+
+CMake Error at CMakeLists.txt:15 (find_package):
+  By not providing "FindTudat.cmake" in CMAKE_MODULE_PATH this project has
+  asked CMake to find a package configuration file provided by "Tudat", but
+  CMake did not find one.
+
+  Could not find a package configuration file provided by "Tudat" (requested
+  version 3) with any of the following names:
+
+    TudatConfig.cmake
+    tudat-config.cmake
+
+  Add the installation prefix of "Tudat" to CMAKE_PREFIX_PATH or set
+  "Tudat_DIR" to a directory containing one of the above files.  If "Tudat"
+  provides a separate development package or SDK, be sure it has been
+  installed.
 
 
 -- Configuring incomplete, errors occurred!
