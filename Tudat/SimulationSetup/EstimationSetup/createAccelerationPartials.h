@@ -27,6 +27,7 @@
 #include "Tudat/Astrodynamics/OrbitDetermination/AccelerationPartials/empiricalAccelerationPartial.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/AccelerationPartials/directTidalDissipationAccelerationPartial.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/AccelerationPartials/panelledRadiationPressureAccelerationPartial.h"
+#include "Tudat/Astrodynamics/OrbitDetermination/AccelerationPartials/thrustAccelerationPartial.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/ObservationPartials/rotationMatrixPartial.h"
 #include "Tudat/SimulationSetup/EstimationSetup/createCartesianStatePartials.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/accelerationModelTypes.h"
@@ -380,6 +381,7 @@ std::shared_ptr< acceleration_partials::AccelerationPartial > createAnalyticalAc
     }
     case empirical_acceleration:
     {
+        // Check if identifier is consistent with type.
         std::shared_ptr< EmpiricalAcceleration > empiricalAcceleration =
                 std::dynamic_pointer_cast< EmpiricalAcceleration >( accelerationModel );
         if( empiricalAcceleration == nullptr )
@@ -390,8 +392,28 @@ std::shared_ptr< acceleration_partials::AccelerationPartial > createAnalyticalAc
         }
         else
         {
+            // Create partial-calculating object.
             accelerationPartial = std::make_shared< EmpiricalAccelerationPartial >( empiricalAcceleration,
                                                                                     acceleratedBody.first, acceleratingBody.first );
+        }
+        break;
+    }
+    case momentum_wheel_desaturation_acceleration:
+    {
+        // Check if identifier is consistent with type.
+        std::shared_ptr< propulsion::MomentumWheelDesaturationThrustAcceleration > thrustAcceleration =
+                std::dynamic_pointer_cast< propulsion::MomentumWheelDesaturationThrustAcceleration >( accelerationModel );
+        if( thrustAcceleration == nullptr )
+        {
+            std::cerr << "Acceleration class type does not match acceleration type enum (mom. wheel desat.) "
+                         "set when making acceleration partial." << std::endl;
+
+        }
+        else
+        {
+            // Create partial-calculating object.
+            accelerationPartial = std::make_shared< MomentumWheelDesaturationPartial >(
+                        thrustAcceleration, acceleratedBody.first );
         }
         break;
     }

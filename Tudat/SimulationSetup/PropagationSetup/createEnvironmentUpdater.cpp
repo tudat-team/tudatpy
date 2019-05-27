@@ -471,6 +471,8 @@ createTranslationalEquationsOfMotionEnvironmentUpdaterSettings(
                     break;
                 case empirical_acceleration:
                     break;
+                case momentum_wheel_desaturation_acceleration:
+                    break;
                 default:
                     throw std::runtime_error( std::string( "Error when setting acceleration model update needs, model type not recognized: " ) +
                                               std::to_string( currentAccelerationModelType ) );
@@ -738,6 +740,14 @@ std::vector< std::string > > createEnvironmentUpdaterSettingsForDependentVariabl
     case single_torque_dependent_variable:
         break;
     case keplerian_state_dependent_variable:
+        variablesToUpdate[ body_translational_state_update ].push_back( dependentVariableSaveSettings->associatedBody_ );
+        variablesToUpdate[ body_translational_state_update ].push_back( dependentVariableSaveSettings->secondaryBody_ );
+        break;
+    case eccentric_anomaly_dependent_variable:
+        variablesToUpdate[ body_translational_state_update ].push_back( dependentVariableSaveSettings->associatedBody_ );
+        variablesToUpdate[ body_translational_state_update ].push_back( dependentVariableSaveSettings->secondaryBody_ );
+        break;
+    case mean_anomaly_dependent_variable:
         variablesToUpdate[ body_translational_state_update ].push_back( dependentVariableSaveSettings->associatedBody_ );
         variablesToUpdate[ body_translational_state_update ].push_back( dependentVariableSaveSettings->secondaryBody_ );
         break;

@@ -13,12 +13,14 @@
 
 #if USE_CSPICE
 #include "Tudat/External/SpiceInterface/spiceRotationalEphemeris.h"
+#include "Tudat/External/SpiceInterface/spiceInterface.h"
 #endif
 
 #include "Tudat/SimulationSetup/EnvironmentSetup/createRotationModel.h"
 
 #if USE_SOFA
 #include "Tudat/Astrodynamics/Ephemerides/itrsToGcrsRotationModel.h"
+#include "Tudat/Astrodynamics/Ephemerides/tidallyLockedRotationalEphemeris.h"
 #include "Tudat/Astrodynamics/EarthOrientation/earthOrientationCalculator.h"
 #include "Tudat/Astrodynamics/EarthOrientation/shortPeriodEarthOrientationCorrectionCalculator.h"
 #include "Tudat/Mathematics/Interpolators/jumpDataLinearInterpolator.h"
@@ -30,10 +32,68 @@ namespace tudat
 namespace simulation_setup
 {
 
+//! Function to retrieve a state from one of two functions
+Eigen::Vector6d getStateFromSelectedStateFunction(
+        const double currentTime,
+        const bool useFirstFunction,
+        const std::function< Eigen::Vector6d( const double ) > stateFunction1,
+        const std::function< Eigen::Vector6d( const double ) > stateFunction2 )
+{
+    return ( useFirstFunction ) ? ( stateFunction1( currentTime ) ) : ( stateFunction2( currentTime ) );
+}
+
+
+//! Function to create a state function for a body, valid both during propagation, and outside propagation
+std::function< Eigen::Vector6d( const double, bool ) > createRelativeStateFunction(
+        const NamedBodyMap& bodyMap,
+        const std::string orbitingBody,
+        const std::string centralBody )
+{
+    // Retrieve state functions for relevant bodies (obtained from current state of body objects)
+    std::function< Eigen::Vector6d( const double ) > bodyInertialStateFunction =
+            std::bind( &Body::getState, bodyMap.at( orbitingBody ) );
+    std::function< Eigen::Vector6d( const double ) > centralBodyInertialStateFunction =
+            std::bind( &Body::getState, bodyMap.at(  centralBody ) );
+
+    // Define relative state function from body object
+    std::function< Eigen::Vector6d( const double ) > fromBodyStateFunction =
+            std::bind(
+                &ephemerides::getDifferenceBetweenStates, bodyInertialStateFunction,
+                centralBodyInertialStateFunction, std::placeholders::_1 );
+
+    // Define state function from ephemeris
+    std::function< Eigen::Vector6d( const double ) > fromEphemerisStateFunction;
+
+    if( bodyMap.at( orbitingBody )->getEphemeris( )->getReferenceFrameOrigin( ) == centralBody )
+    {
+        fromEphemerisStateFunction = std::bind( &ephemerides::Ephemeris::getCartesianState,
+                                                bodyMap.at( orbitingBody )->getEphemeris( ), std::placeholders::_1 );
+
+    }
+    else
+    {
+        std::function< Eigen::Vector6d( const double ) > ephemerisInertialStateFunction =
+                std::bind( &Body::getStateInBaseFrameFromEphemeris< double, double >, bodyMap.at( orbitingBody ),
+                           std::placeholders::_1 );
+        std::function< Eigen::Vector6d( const double ) > ephemerisCentralBodyInertialStateFunction =
+                std::bind( &Body::getStateInBaseFrameFromEphemeris< double, double >, bodyMap.at( centralBody ),
+                           std::placeholders::_1 );
+        fromEphemerisStateFunction = std::bind(
+                    &ephemerides::getDifferenceBetweenStates,
+                    ephemerisInertialStateFunction,
+                    ephemerisCentralBodyInertialStateFunction, std::placeholders::_1 );
+    }
+
+    return std::bind( &getStateFromSelectedStateFunction, std::placeholders::_1, std::placeholders::_2,
+                      fromBodyStateFunction, fromEphemerisStateFunction );
+}
+
+
 //! Function to create a rotation model.
 std::shared_ptr< ephemerides::RotationalEphemeris > createRotationModel(
         const std::shared_ptr< RotationModelSettings > rotationModelSettings,
-        const std::string& body )
+        const std::string& body,
+        const NamedBodyMap& bodyMap )
 {
     using namespace tudat::ephemerides;
 
@@ -155,6 +215,37 @@ std::shared_ptr< ephemerides::RotationalEphemeris > createRotationModel(
         break;
     }
 #endif
+    case tidally_locked_rotation_model:
+    {
+        std::shared_ptr< TidallyLockedRotationModelSettings > tidallyLockedRotationSettings =
+                std::dynamic_pointer_cast< TidallyLockedRotationModelSettings >( rotationModelSettings );
+        if( tidallyLockedRotationSettings == NULL )
+        {
+            throw std::runtime_error( "Error, expected tidally locked rotation model settings for " + body );
+        }
+        else
+        {
+            if( bodyMap.at( body )->getEphemeris( )->getReferenceFrameOrigin( ) == tidallyLockedRotationSettings->getCentralBodyName( ) )
+            {
+                if( bodyMap.at( body )->getEphemeris( )->getReferenceFrameOrientation( ) !=
+                        tidallyLockedRotationSettings->getOriginalFrame( ) )
+                {
+                    throw std::runtime_error( "Error, ephemeris of body " + body + " is in " +
+                                              bodyMap.at( body )->getEphemeris( )->getReferenceFrameOrientation( ) +
+                                              " frame when making tidally locked rotation model, expected " +
+                                              tidallyLockedRotationSettings->getOriginalFrame( ) + " frame." );
+                }
+            }
+            std::shared_ptr< TidallyLockedRotationalEphemeris > lockedRotationalEphemeris = std::make_shared< TidallyLockedRotationalEphemeris >(
+                        createRelativeStateFunction( bodyMap, body, tidallyLockedRotationSettings->getCentralBodyName( ) ),
+                        tidallyLockedRotationSettings->getCentralBodyName( ),
+                        tidallyLockedRotationSettings->getOriginalFrame( ),
+                        tidallyLockedRotationSettings->getTargetFrame( ) );
+
+            rotationalEphemeris = lockedRotationalEphemeris;
+        }
+        break;
+    }
     default:
         throw std::runtime_error(
                     "Error, did not recognize rotation model settings type " +
