@@ -137,6 +137,10 @@ std::pair< double, double > computeKeplerElementRatesDueToDissipation(
     //                                          "keplerElements_"  + std::to_string( usePlanetDissipation ) +
     //                                          satelliteToPropagate + ".dat" );
 
+//    input_output::writeDataMapToTextFile( integrationResultWithDissipationKepler,
+//                                          "keplerElements_"  + std::to_string( usePlanetDissipation ) + "_" +
+//                                          satelliteToPropagate + ".dat" );
+
     std::vector< double > semiMajorAxisFit = linear_algebra::getLeastSquaresPolynomialFit(
                 semiMajorAxes, { 0, 1 } );
     std::vector< double > eccentricityFit = linear_algebra::getLeastSquaresPolynomialFit(
@@ -200,9 +204,6 @@ BOOST_AUTO_TEST_CASE( testTidalDissipationInPlanetAndSatellite )
     bodySettings[ "Ganymede" ]->ephemerisSettings = std::make_shared< KeplerEphemerisSettings >(
                 ( Eigen::Vector6d( ) << 1070.400E6, 0.0013, 0.0, 0.0, 0.0, 0.0 ).finished( ), 0.0,
                 getBodyGravitationalParameter( "Jupiter" ) + getBodyGravitationalParameter( "Ganymede" ), "Jupiter", "ECLIPJ2000" );
-    //    bodySettings[ "Callisto" ]->ephemerisSettings = std::make_shared< KeplerEphemerisSettings >(
-    //                ( Eigen::Vector6d( ) << 1882.700E6, 0.0074, 0.0, 0.0, 0.0, 0.0 ).finished( ), 0.0,
-    //                getBodyGravitationalParameter( "Jupiter" ) + getBodyGravitationalParameter( "Callisto" ), "Jupiter", "ECLIPJ2000" );
 
     // Create bodies needed in simulation
     NamedBodyMap bodyMap = createBodies( bodySettings );

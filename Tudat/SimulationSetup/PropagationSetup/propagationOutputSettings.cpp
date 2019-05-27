@@ -167,6 +167,12 @@ std::string getDependentVariableName( const PropagationDependentVariables propag
     case keplerian_state_dependent_variable:
         variableName = "Kepler elements ";
         break;
+    case eccentric_anomaly_dependent_variable:
+        variableName = "Eccentric anomaly ";
+        break;
+    case mean_anomaly_dependent_variable:
+        variableName = "Mean anomaly ";
+        break;
     case modified_equinocial_state_dependent_variable:
         variableName = "Modified equinoctial elements ";
         break;

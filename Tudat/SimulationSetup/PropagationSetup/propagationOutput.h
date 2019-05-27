@@ -1518,6 +1518,122 @@ std::function< double( ) > getDoubleDependentVariableFunction(
                                             bodyMap.at( bodyWithProperty )->getRadiationPressureInterfaces( ).at( secondaryBody ) );
             break;
         }
+        case eccentric_anomaly_dependent_variable:
+        {
+            // Retrieve model responsible for computing accelerations of requested bodies.
+            std::string orbitingBody = dependentVariableSettings->associatedBody_;
+            std::string centralBody = dependentVariableSettings->secondaryBody_;
+
+            if( bodyMap.count( orbitingBody ) == 0 )
+            {
+                throw std::runtime_error( "Error when requesting eccentric anomaly as dependent variables, orbiting body: '" + orbitingBody + "' not found" );
+            }
+            else if( bodyMap.count( centralBody ) == 0 )
+            {
+                throw std::runtime_error( "Error when requesting eccentric anomaly as dependent variables, central body: '" + centralBody + "' not found" );
+            }
+
+            std::function< double( ) > centralBodyGravitationalParameter;
+            if( bodyMap.at( centralBody )->getGravityFieldModel( ) == nullptr )
+            {
+                throw std::runtime_error( "Error when requesting eccentric anomaly as dependent variables, central body: '" + centralBody + "' has no gravity field" );
+            }
+            else
+            {
+                centralBodyGravitationalParameter = std::bind( &gravitation::GravityFieldModel::getGravitationalParameter,
+                                                                 bodyMap.at( centralBody )->getGravityFieldModel( ) );
+            }
+
+            std::function< double( ) > orbitingBodyGravitationalParameter;
+            std::function< double( ) > effectiveGravitationalParameter;
+            if( bodyMap.at( orbitingBody )->getGravityFieldModel( ) != nullptr )
+            {
+                orbitingBodyGravitationalParameter = std::bind( &gravitation::GravityFieldModel::getGravitationalParameter,
+                                                                  bodyMap.at( orbitingBody )->getGravityFieldModel( ) );
+                effectiveGravitationalParameter = std::bind( &utilities::sumFunctionReturn< double >,
+                                                               orbitingBodyGravitationalParameter,
+                                                               centralBodyGravitationalParameter );
+
+            }
+            else
+            {
+                effectiveGravitationalParameter = centralBodyGravitationalParameter;
+            }
+
+            // Retrieve functions for positions of two bodies.
+            std::function< Eigen::Vector6d( const Eigen::Vector6d&, const Eigen::Vector6d& ) > functionToEvaluate =
+                    std::bind( &linear_algebra::computeVectorDifference< 6 >, std::placeholders::_1, std::placeholders::_2 );
+            std::function< Eigen::Vector6d( ) > firstInput =
+                    std::bind( &simulation_setup::Body::getState, bodyMap.at( orbitingBody ) );
+            std::function< Eigen::Vector6d( ) > secondInput =
+                    std::bind( &simulation_setup::Body::getState, bodyMap.at( centralBody ) );
+            std::function< Eigen::Vector6d( ) > relativeStateFunction = std::bind(
+                        &evaluateBivariateReferenceFunction< Eigen::Vector6d, Eigen::Vector6d >,
+                        functionToEvaluate, firstInput, secondInput );
+
+            variableFunction = std::bind( &orbital_element_conversions::getEccentricAnomalyFromCartesianElementsFunction< double >,
+                                            relativeStateFunction, effectiveGravitationalParameter );
+
+            break;
+        }
+        case mean_anomaly_dependent_variable:
+        {
+            // Retrieve model responsible for computing accelerations of requested bodies.
+            std::string orbitingBody = dependentVariableSettings->associatedBody_;
+            std::string centralBody = dependentVariableSettings->secondaryBody_;
+
+            if( bodyMap.count( orbitingBody ) == 0 )
+            {
+                throw std::runtime_error( "Error when requesting mean anomaly as dependent variables, orbiting body: '" + orbitingBody + "' not found" );
+            }
+            else if( bodyMap.count( centralBody ) == 0 )
+            {
+                throw std::runtime_error( "Error when requesting mean anomaly as dependent variables, central body: '" + centralBody + "' not found" );
+            }
+
+            std::function< double( ) > centralBodyGravitationalParameter;
+            if( bodyMap.at( centralBody )->getGravityFieldModel( ) == nullptr )
+            {
+                throw std::runtime_error( "Error when requesting mean anomaly as dependent variables, central body: '" + centralBody + "' has no gravity field" );
+            }
+            else
+            {
+                centralBodyGravitationalParameter = std::bind( &gravitation::GravityFieldModel::getGravitationalParameter,
+                                                                 bodyMap.at( centralBody )->getGravityFieldModel( ) );
+            }
+
+            std::function< double( ) > orbitingBodyGravitationalParameter;
+            std::function< double( ) > effectiveGravitationalParameter;
+            if( bodyMap.at( orbitingBody )->getGravityFieldModel( ) != nullptr )
+            {
+                orbitingBodyGravitationalParameter = std::bind( &gravitation::GravityFieldModel::getGravitationalParameter,
+                                                                  bodyMap.at( orbitingBody )->getGravityFieldModel( ) );
+                effectiveGravitationalParameter = std::bind( &utilities::sumFunctionReturn< double >,
+                                                               orbitingBodyGravitationalParameter,
+                                                               centralBodyGravitationalParameter );
+
+            }
+            else
+            {
+                effectiveGravitationalParameter = centralBodyGravitationalParameter;
+            }
+
+            // Retrieve functions for positions of two bodies.
+            std::function< Eigen::Vector6d( const Eigen::Vector6d&, const Eigen::Vector6d& ) > functionToEvaluate =
+                    std::bind( &linear_algebra::computeVectorDifference< 6 >, std::placeholders::_1, std::placeholders::_2 );
+            std::function< Eigen::Vector6d( ) > firstInput =
+                    std::bind( &simulation_setup::Body::getState, bodyMap.at( orbitingBody ) );
+            std::function< Eigen::Vector6d( ) > secondInput =
+                    std::bind( &simulation_setup::Body::getState, bodyMap.at( centralBody ) );
+            std::function< Eigen::Vector6d( ) > relativeStateFunction = std::bind(
+                        &evaluateBivariateReferenceFunction< Eigen::Vector6d, Eigen::Vector6d >,
+                        functionToEvaluate, firstInput, secondInput );
+
+            variableFunction = std::bind( &orbital_element_conversions::getMeanAnomalyFromCartesianElementsFunction< double >,
+                                            relativeStateFunction, effectiveGravitationalParameter );
+
+            break;
+        }
         default:
             std::string errorMessage =
                     "Error, did not recognize double dependent variable type when making variable function: " +

@@ -35,6 +35,7 @@ set(ESTIMATABLE_PARAMETERS_HEADERS
   "${SRCROOT}${ESTIMATABLEPARAMETERSDIR}/tidalLoveNumber.h"
   "${SRCROOT}${ESTIMATABLEPARAMETERSDIR}/directTidalTimeLag.h"
   "${SRCROOT}${ESTIMATABLEPARAMETERSDIR}/meanMomentOfInertiaParameter.h"
+  "${SRCROOT}${ESTIMATABLEPARAMETERSDIR}/desaturationDeltaV.h"
 )
 
 # Add static libraries.
