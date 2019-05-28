@@ -284,7 +284,7 @@ protected:
      * \param parameter Parameter object containing information on arcwise drag coefficient that is to be estimated
      */
     void computeAccelerationPartialWrtArcwiseDragCoefficient(
-            Eigen::MatrixXd& accelerationPartial,
+            Eigen::MatrixXd& partial,
             const std::shared_ptr< estimatable_parameters::ArcWiseConstantDragCoefficient > parameter )
     {
         // Get partial w.r.t. rdrag coefficient
