@@ -36,6 +36,7 @@
 #include "Tudat/Astrodynamics/Gravitation/timeDependentSphericalHarmonicsGravityField.h"
 #include "Tudat/Astrodynamics/Gravitation/basicSolidBodyTideGravityFieldVariations.h"
 #include "Tudat/Basics/testMacros.h"
+#include "Tudat/Astrodynamics/Ephemerides/tidallyLockedRotationalEphemeris.h"
 
 #if USE_CSPICE
 #include "Tudat/External/SpiceInterface/spiceEphemeris.h"
@@ -762,6 +763,65 @@ BOOST_AUTO_TEST_CASE( test_rotationModelSetup )
 
 }
 #endif
+
+#if USE_CSPICE
+//! Test set up of tidally locked rotation model.
+BOOST_AUTO_TEST_CASE( test_tidallyLockedRotationModelSetup )
+{
+
+    // Load Spice kernels
+    spice_interface::loadStandardSpiceKernels( );
+    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "jup310_small.bsp" );
+
+
+    // Create settings for tidally locked rotation model.
+
+    std::vector< std::string > bodiesToCreate;
+    bodiesToCreate.push_back( "Europa" );
+    bodiesToCreate.push_back( "Jupiter" );
+
+    // Create bodies needed in simulation
+    std::map< std::string, std::shared_ptr< BodySettings > > bodySettings =
+            getDefaultBodySettings( bodiesToCreate );
+
+    bodySettings[ "Europa" ]->rotationModelSettings = std::make_shared< TidallyLockedRotationModelSettings >( "Jupiter", "ECLIPJ2000", "IAU_Europa" );
+    bodySettings[ "Europa" ]->ephemerisSettings->resetFrameOrigin( "Jupiter" );
+
+    NamedBodyMap bodyMap = createBodies( bodySettings );
+    setGlobalFrameBodyEphemerides( bodyMap, "SSB", "ECLIPJ2000" );
+
+    std::shared_ptr< TidallyLockedRotationModelSettings > tidallyLockedRotationSettings
+            = std::dynamic_pointer_cast< TidallyLockedRotationModelSettings >( bodySettings[ "Europa" ]->rotationModelSettings );
+
+
+    // Create rotation model using setup function
+    std::shared_ptr< ephemerides::RotationalEphemeris > rotationalEphemerisFromRotationModelSettings =
+            createRotationModel( tidallyLockedRotationSettings, "Europa", bodyMap );
+
+
+    // Create tidally locked rotation model directly.
+    std::function< Eigen::Vector6d( const double, bool ) > relativeStateFunction = createRelativeStateFunction( bodyMap, "Europa", "Jupiter");
+
+    ephemerides::TidallyLockedRotationalEphemeris tidallyLockedRotationalEphemeris( relativeStateFunction, "Jupiter", "ECLIPJ2000", "IAU_Europa" );
+
+
+    // Verify equivalence of automatically set up and manual models.
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                ( Eigen::Matrix3d( tidallyLockedRotationalEphemeris.getRotationToBaseFrame(
+                                       4.0E7) ) ),
+                ( Eigen::Matrix3d( rotationalEphemerisFromRotationModelSettings->getRotationToBaseFrame(
+                                       4.0E7) ) ),
+                std::numeric_limits< double >::epsilon( ) );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                ( Eigen::Matrix3d( tidallyLockedRotationalEphemeris.getRotationToTargetFrame(
+                                       4.0E7) ) ),
+                ( Eigen::Matrix3d( rotationalEphemerisFromRotationModelSettings->getRotationToTargetFrame(
+                                       4.0E7) ) ),
+                std::numeric_limits< double >::epsilon( ) );
+
+}
+#endif
+
 
 #if USE_SOFA
 //! Test set up of GCRS<->ITRS rotation model
