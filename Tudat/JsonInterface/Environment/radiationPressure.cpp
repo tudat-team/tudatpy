@@ -34,7 +34,7 @@ void to_json( nlohmann::json& jsonObject,
 
     switch ( radiationPressureType )
     {
-    case cannon_ball:
+    case cannon_ball_radiation_pressure_interface:
     {
         std::shared_ptr< CannonBallRadiationPressureInterfaceSettings > cannonBallRadiationPressureInterfaceSettings =
                 std::dynamic_pointer_cast< CannonBallRadiationPressureInterfaceSettings >(
@@ -61,7 +61,7 @@ void from_json( const nlohmann::json& jsonObject,
     using K = Keys::Body::RadiationPressure;
 
     // Get radiation pressure coefficient type (cannonBall by default)
-    const RadiationPressureType radiationPressureType = getValue( jsonObject, K::type, cannon_ball );
+    const RadiationPressureType radiationPressureType = getValue( jsonObject, K::type, cannon_ball_radiation_pressure_interface );
 
     // Get name of source body
     std::string sourceBody;
@@ -84,7 +84,7 @@ void from_json( const nlohmann::json& jsonObject,
 
     switch ( radiationPressureType )
     {
-    case cannon_ball:
+    case cannon_ball_radiation_pressure_interface:
     {
         // Reference area (either from the current object or from the current object's parent's parent, i.e. the body)
         const double referenceArea = getValue< double >(
