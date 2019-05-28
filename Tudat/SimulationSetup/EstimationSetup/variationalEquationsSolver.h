@@ -258,9 +258,6 @@ void setVariationalEquationsSolution(
                                                      stateTransitionMatrixSize ) ).template cast< double >( );
         numericalIntegrationResult.erase( integrationIterator++ );
     }
-
-    std::cout<<"Post-set in func "<<variationalEquationsSolution.at( 0 ).size( )<<std::endl;
-
 }
 
 //! Function to create interpolators for state transition and sensitivity matrices from numerical results.
@@ -1253,7 +1250,6 @@ public:
             // Integrate equations for all arcs.
             for( int i = 0; i < numberOfArcs_; i++ )
             {
-                std::cout<<"Integrating multi-arc "<<i<<" "<<numberOfArcs_<<std::endl;
                 // Retrieve integrator settings, and ensure correct initial time.
                 std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings =
                         singleArcDynamicsSimulators.at( i )->getIntegratorSettings( );

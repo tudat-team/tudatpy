@@ -155,28 +155,6 @@ Eigen::MatrixXd MultiArcCombinedStateTransitionAndSensitivityMatrixInterface::ge
     return combinedStateTransitionMatrix;
 }
 
-////! Function to get the concatenated state transition matrices for each arc and sensitivity matrix at a given time.
-//Eigen::MatrixXd MultiArcCombinedStateTransitionAndSensitivityMatrixInterface::getFullCombinedStateTransitionAndSensitivityMatrix(
-//        const double evaluationTime )
-//{
-//    Eigen::MatrixXd combinedStateTransitionMatrix = Eigen::MatrixXd::Zero(
-//                stateTransitionMatrixSize_, numberOfStateArcs_ * stateTransitionMatrixSize_ + sensitivityMatrixSize_ );
-
-//    int currentArc = getCurrentArc( evaluationTime ).first;
-
-//    // Set Phi and S matrices of current arc.
-//    if( currentArc >= 0 )
-//    {
-//        combinedStateTransitionMatrix.block( 0, currentArc * stateTransitionMatrixSize_, stateTransitionMatrixSize_, stateTransitionMatrixSize_ ) =
-//                stateTransitionMatrixInterpolators_.at( currentArc )->interpolate( evaluationTime );
-
-//        combinedStateTransitionMatrix.block(
-//                    0, numberOfStateArcs_ * stateTransitionMatrixSize_, stateTransitionMatrixSize_, sensitivityMatrixSize_ ) =
-//                sensitivityMatrixInterpolators_.at( currentArc )->interpolate( evaluationTime );
-//    }
-//    return combinedStateTransitionMatrix;
-//}
-
 //! Function to get the concatenated state transition matrices for each arc and sensitivity matrix at a given time.
 Eigen::MatrixXd MultiArcCombinedStateTransitionAndSensitivityMatrixInterface::getFullCombinedStateTransitionAndSensitivityMatrix(
         const double evaluationTime )
@@ -196,7 +174,6 @@ Eigen::MatrixXd MultiArcCombinedStateTransitionAndSensitivityMatrixInterface::ge
         fullCombinedStateTransitionMatrix.block(
                     0, numberOfStateArcs_ * stateTransitionMatrixSize_, stateTransitionMatrixSize_, sensitivityMatrixSize_ ) =
                 combinedStateTransitionMatrix.block( 0, 0, stateTransitionMatrixSize_, stateTransitionMatrixSize_ );
-
     }
     return fullCombinedStateTransitionMatrix;
 }
@@ -244,11 +221,9 @@ Eigen::MatrixXd HybridArcCombinedStateTransitionAndSensitivityMatrixInterface::g
     {
         // Set multi-arc block
         combinedStateTransitionMatrix.block(
-                    singleArcStateSize_, singleArcStateSize_, originalMultiArcStateSize_,
-                    originalMultiArcStateSize_ ) =
+                    singleArcStateSize_, singleArcStateSize_, originalMultiArcStateSize_, originalMultiArcStateSize_ ) =
                 multiArcStateTransition.block(
-                    singleArcStateSize_, singleArcStateSize_, originalMultiArcStateSize_,
-                    originalMultiArcStateSize_ );
+                    singleArcStateSize_, singleArcStateSize_, originalMultiArcStateSize_, originalMultiArcStateSize_ );
 
         // Get single-arc matrices at current arc start
         Eigen::MatrixXd singleArcStateTransitionAtArcStart = singleArcInterface_->getCombinedStateTransitionAndSensitivityMatrix(
@@ -256,11 +231,10 @@ Eigen::MatrixXd HybridArcCombinedStateTransitionAndSensitivityMatrixInterface::g
 
         // Set coupled block
         combinedStateTransitionMatrix.block(
-                    singleArcStateSize_, 0, originalMultiArcStateSize_,
-                    singleArcStateSize_ ) =
+                    singleArcStateSize_, 0, originalMultiArcStateSize_, singleArcStateSize_ ) =
                 multiArcStateTransition.block(
-                    singleArcStateSize_, 0, originalMultiArcStateSize_,
-                    singleArcStateSize_ ) * singleArcStateTransitionAtArcStart.block(
+                    singleArcStateSize_, 0, originalMultiArcStateSize_, singleArcStateSize_ ) *
+                singleArcStateTransitionAtArcStart.block(
                     0, 0, singleArcStateSize_, singleArcStateSize_ );
 
         // Set multi-arc sensitivity block
@@ -275,64 +249,53 @@ Eigen::MatrixXd HybridArcCombinedStateTransitionAndSensitivityMatrixInterface::g
 
 }
 
-//! Function to get the full concatenated state transition and sensitivity matrix at a given time.
+//! Function to get the concatenated state transition matrices for each arc and sensitivity matrix at a given time.
 Eigen::MatrixXd HybridArcCombinedStateTransitionAndSensitivityMatrixInterface::getFullCombinedStateTransitionAndSensitivityMatrix(
         const double evaluationTime )
 {
-    Eigen::MatrixXd combinedStateTransitionMatrix = Eigen::MatrixXd::Zero(
-                stateTransitionMatrixSize_,
-                singleArcStateSize_ + numberOfMultiArcs_ * multiArcStateSize_ + sensitivityMatrixSize_ );
+    Eigen::MatrixXd combinedStateTransitionMatrix = getCombinedStateTransitionAndSensitivityMatrix( evaluationTime );
+    Eigen::MatrixXd fullCombinedStateTransitionMatrix = Eigen::MatrixXd::Zero(
+                stateTransitionMatrixSize_, singleArcStateSize_ + numberOfMultiArcs_ * originalMultiArcStateSize_ + sensitivityMatrixSize_ );
 
-    std::pair< int, double >  currentArc = multiArcInterface_->getCurrentArc( evaluationTime );
+    fullCombinedStateTransitionMatrix.block(
+                0, 0, singleArcStateSize_, singleArcStateSize_ ) =
+            combinedStateTransitionMatrix.block(
+                0, 0, singleArcStateSize_, singleArcStateSize_ );
 
-    // Get single-arc matrices
-    Eigen::MatrixXd singleArcStateTransition = singleArcInterface_->getCombinedStateTransitionAndSensitivityMatrix(
-                evaluationTime );
+    fullCombinedStateTransitionMatrix.block(
+                0, singleArcStateSize_ + numberOfMultiArcs_ * originalMultiArcStateSize_, singleArcStateSize_, sensitivityMatrixSize_ ) =
+            combinedStateTransitionMatrix.block(
+                0, multiArcStateSize_, singleArcStateSize_, sensitivityMatrixSize_ );
 
+    int currentArc = multiArcInterface_->getCurrentArc( evaluationTime ).first;
 
-    // Set single-arc block
-    combinedStateTransitionMatrix.block( 0, 0, singleArcStateSize_, singleArcStateSize_ ) =
-            singleArcStateTransition.block( 0, 0, singleArcStateSize_, singleArcStateSize_ );
-    combinedStateTransitionMatrix.block(
-                0, singleArcStateSize_ + numberOfMultiArcs_ * originalMultiArcStateSize_,
-                singleArcStateSize_, sensitivityMatrixSize_ ) =
-            singleArcStateTransition.block( 0, singleArcStateSize_, singleArcStateSize_, sensitivityMatrixSize_ );
-
-    if( !( currentArc.first < 0 ) )
+    // Set Phi and S matrices of current arc.
+    if( currentArc >= 0 )
     {
-        // Get single-arc matrices at current arc start
-        Eigen::MatrixXd singleArcStateTransitionAtArcStart = singleArcInterface_->getCombinedStateTransitionAndSensitivityMatrix(
-                    currentArc.second );
-
-        // Get multi-arc matrices
-        Eigen::MatrixXd multiArcStateTransition = multiArcInterface_->getCombinedStateTransitionAndSensitivityMatrix(
-                    evaluationTime );
 
         // Set multi-arc block
-        combinedStateTransitionMatrix.block(
-                    singleArcStateSize_, singleArcStateSize_ + currentArc.first * originalMultiArcStateSize_,
-                    originalMultiArcStateSize_,  originalMultiArcStateSize_ ) =
-                multiArcStateTransition.block(
-                    singleArcStateSize_, singleArcStateSize_,
-                    originalMultiArcStateSize_, originalMultiArcStateSize_ );
+        fullCombinedStateTransitionMatrix.block(
+                    singleArcStateSize_, singleArcStateSize_ + currentArc * originalMultiArcStateSize_,
+                    originalMultiArcStateSize_, originalMultiArcStateSize_ ) =
+                combinedStateTransitionMatrix.block(
+                    singleArcStateSize_, singleArcStateSize_, originalMultiArcStateSize_, originalMultiArcStateSize_ );
+
 
         // Set coupled block
-        combinedStateTransitionMatrix.block(
-                    singleArcStateSize_, 0,
-                    originalMultiArcStateSize_, singleArcStateSize_ ) =
-                multiArcStateTransition.block(
-                    singleArcStateSize_, 0,
-                    originalMultiArcStateSize_,  singleArcStateSize_ ) * singleArcStateTransitionAtArcStart.block(
-                    0, 0, singleArcStateSize_, singleArcStateSize_ );
+        fullCombinedStateTransitionMatrix.block(
+                    singleArcStateSize_, 0, originalMultiArcStateSize_, singleArcStateSize_ ) =
+                combinedStateTransitionMatrix.block(
+                    singleArcStateSize_, 0, originalMultiArcStateSize_, singleArcStateSize_ );
 
-        // Set sensitivity block
-        combinedStateTransitionMatrix.block(
+        // Set multi-arc sensitivity block
+        fullCombinedStateTransitionMatrix.block(
                     singleArcStateSize_, singleArcStateSize_ + numberOfMultiArcs_ * originalMultiArcStateSize_,
                     originalMultiArcStateSize_, sensitivityMatrixSize_ ) =
-                multiArcStateTransition.block(
+                combinedStateTransitionMatrix.block(
                     singleArcStateSize_, multiArcStateSize_, originalMultiArcStateSize_, sensitivityMatrixSize_ );
     }
-    return combinedStateTransitionMatrix;
+
+    return fullCombinedStateTransitionMatrix;
 }
 
 }

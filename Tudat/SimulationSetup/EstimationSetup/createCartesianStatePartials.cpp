@@ -42,16 +42,6 @@ std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartia
             partialMap[ linkEndIterator->first ] = std::make_shared< CartesianStatePartialWrtCartesianState >( );
 
         }
-        else
-        {
-            std::string observedBodyEphemerisOrigin =
-                    bodyMap.at( currentBodyName )->getEphemeris( )->getReferenceFrameOrigin( );
-            if( observedBodyEphemerisOrigin == bodyToEstimate )
-            {
-                partialMap[ linkEndIterator->first ] = std::make_shared< CartesianStatePartialWrtCartesianState >( );
-
-            }
-        }
     }
 
     return partialMap;

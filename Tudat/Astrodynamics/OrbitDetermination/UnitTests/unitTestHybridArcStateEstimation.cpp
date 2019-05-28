@@ -51,8 +51,6 @@ using namespace tudat::unit_conversions;
 template< typename ObservationScalarType = double , typename TimeType = double , typename StateScalarType  = double >
 Eigen::VectorXd  executeParameterEstimation(
         const Eigen::Matrix< StateScalarType, 12, 1 > initialStateDifference = Eigen::Matrix< StateScalarType, 12, 1 >::Zero( ),
-        const Eigen::VectorXd parameterPerturbation = Eigen::VectorXd::Zero( 2 ),
-        const bool propagateVariationalEquations = 1,
         const bool patchMultiArcs = 0,
         const std::vector< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > forcedMultiArcInitialStates =
         std::vector< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >( ),
@@ -351,7 +349,7 @@ Eigen::VectorXd  executeParameterEstimation(
 
     // Estimate parameters and return postfit error
     std::shared_ptr< PodOutput< StateScalarType > > podOutput = orbitDeterminationManager.estimateParameters(
-                podInput );
+                podInput, std::make_shared< EstimationConvergenceChecker >( 8 ) );
 
 //    input_output::writeMatrixToFile( podOutput->normalizedInformationMatrix_, "hybridArcPartials.dat" );
 //    input_output::writeMatrixToFile( podOutput->informationMatrixTransformationDiagonal_, "hybridArcNormalization.dat" );
