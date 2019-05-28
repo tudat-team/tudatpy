@@ -281,6 +281,11 @@ public:
     {
         return numberOfParameterValues_;
     }
+
+    std::vector< std::pair< int, int > > getStatePartialAdditionIndices( )
+    {
+        return statePartialAdditionIndices_;
+    }
     
 protected:
     

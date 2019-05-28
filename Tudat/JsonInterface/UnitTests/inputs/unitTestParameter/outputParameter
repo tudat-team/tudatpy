@@ -264,7 +264,8 @@
     "sine"
    ]
   },
-  "parameterType": "arcWiseEmpiricalAccelerationCoefficients"
+  "parameterType": "arcWiseEmpiricalAccelerationCoefficients",
+  "secondaryIdentifier": "Earth"
  },
  {
   "associatedBody": "Vehicle",
@@ -282,7 +283,8 @@
     "sine"
    ]
   },
-  "parameterType": "empiricalAccelerationCoefficients"
+  "parameterType": "empiricalAccelerationCoefficients",
+  "secondaryIdentifier": "Earth"
  },
  {
   "arcStartTimes": [
