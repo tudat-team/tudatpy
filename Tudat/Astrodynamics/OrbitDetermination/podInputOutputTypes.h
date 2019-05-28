@@ -648,6 +648,22 @@ struct PodOutput
         return getUnnormalizedInverseCovarianceMatrix( ).inverse( );
     }
 
+    Eigen::MatrixXd getUnnormalizedPartialDerivatives( )
+    {
+        Eigen::MatrixXd unnormalizedPartialDerivatives = Eigen::MatrixXd::Zero(
+                    normalizedInformationMatrix_.rows( ), normalizedInformationMatrix_.cols( ) );
+
+        for( int i = 0; i < informationMatrixTransformationDiagonal_.rows( ); i++ )
+        {
+            unnormalizedPartialDerivatives.block( 0, i, normalizedInformationMatrix_.rows( ), 1 ) =
+            normalizedInformationMatrix_.block( 0, i, normalizedInformationMatrix_.rows( ), 1 ) *
+                    informationMatrixTransformationDiagonal_( i );
+        }
+        return unnormalizedPartialDerivatives;
+
+    }
+
+
     //! Function to retrieve the unnormalized formal error vector of the estimation result.
     /*!
      * Function to retrieve the unnormalized formal error vector of the estimation result.

@@ -258,7 +258,7 @@ std::shared_ptr< propagators::CombinedStateTransitionAndSensitivityMatrixInterfa
                 propagators::SingleArcCombinedStateTransitionAndSensitivityMatrixInterface >(
                     std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > >( ),
                     std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > >( ),
-                    dynamicalStateSize, totalParameterSize );
+                    dynamicalStateSize, totalParameterSize, std::vector< std::pair< int, int > >( ) );
     }
     else if( std::dynamic_pointer_cast< propagators::MultiArcPropagatorSettings< StateScalarType > >( propagatorSettings ) != nullptr )
     {
@@ -268,7 +268,8 @@ std::shared_ptr< propagators::CombinedStateTransitionAndSensitivityMatrixInterfa
                     std::vector< std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::MatrixXd > > >( ),
                     std::vector< double >( ),
                     std::vector< double >( ),
-                    dynamicalStateSize, totalParameterSize );
+                    dynamicalStateSize, totalParameterSize,
+                    std::vector< std::vector< std::pair< int, int > > >( ));
     }
     else if( std::dynamic_pointer_cast< propagators::HybridArcPropagatorSettings< StateScalarType > >( propagatorSettings ) != nullptr )
     {

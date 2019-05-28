@@ -258,6 +258,9 @@ void setVariationalEquationsSolution(
                                                      stateTransitionMatrixSize ) ).template cast< double >( );
         numericalIntegrationResult.erase( integrationIterator++ );
     }
+
+    std::cout<<"Post-set in func "<<variationalEquationsSolution.at( 0 ).size( )<<std::endl;
+
 }
 
 //! Function to create interpolators for state transition and sensitivity matrices from numerical results.
@@ -682,7 +685,8 @@ public:
             {
                 stateTransitionInterface_ = std::make_shared< SingleArcCombinedStateTransitionAndSensitivityMatrixInterface >(
                             nullptr, nullptr,
-                            propagatorSettings_->getConventionalStateSize( ), parameterVectorSize_ );
+                            propagatorSettings_->getConventionalStateSize( ), parameterVectorSize_,
+                            variationalEquationsObject_->getStatePartialAdditionIndices( ) );
             }
         }
     }
@@ -895,13 +899,15 @@ private:
         {
             stateTransitionInterface_ = std::make_shared< SingleArcCombinedStateTransitionAndSensitivityMatrixInterface >(
                         stateTransitionMatrixInterpolator, sensitivityMatrixInterpolator,
-                        propagatorSettings_->getConventionalStateSize( ), parameterVectorSize_ );
+                        propagatorSettings_->getConventionalStateSize( ), parameterVectorSize_,
+                        variationalEquationsObject_->getStatePartialAdditionIndices( ) );
         }
         else
         {
             std::dynamic_pointer_cast< SingleArcCombinedStateTransitionAndSensitivityMatrixInterface >(
                         stateTransitionInterface_ )->updateMatrixInterpolators(
-                        stateTransitionMatrixInterpolator, sensitivityMatrixInterpolator );
+                        stateTransitionMatrixInterpolator, sensitivityMatrixInterpolator,
+                        variationalEquationsObject_->getStatePartialAdditionIndices( ) );
         }
     }
 
@@ -1098,6 +1104,9 @@ public:
 
             dynamicsStateDerivatives_.at( i )->addVariationalEquations( variationalEquationsObject_ );
             arcStartTimes_.push_back( arcStartTimes.at( i ) );
+            double currentEndTime = std::dynamic_pointer_cast<
+                    PropagationTimeTerminationSettings >(
+                        propagatorSettings_->getSingleArcSettings( ).at( i )->getTerminationSettings( ) )->terminationTime_;
         }
 
         numberOfArcs_ = dynamicsStateDerivatives_.size( );
@@ -1391,6 +1400,7 @@ public:
                             rawNumericalSolutions, variationalEquationsSolution_[ i ],
                             std::make_pair( 0, 0 ), std::make_pair( 0, stateTransitionMatrixSize_ ),
                             stateTransitionMatrixSize_, parameterVectorSize_ );
+
                 rawNumericalSolutions.clear( );
             }
 
@@ -1512,11 +1522,6 @@ private:
         arcEndTimes_.resize( variationalEquationsSolution_.size( ) );
         for( unsigned int i = 0; i < variationalEquationsSolution_.size( ); i++ )
         {
-            createStateTransitionAndSensitivityMatrixInterpolator(
-                        stateTransitionMatrixInterpolators[ i ],
-                        sensitivityMatrixInterpolators[ i ],
-                        variationalEquationsSolution_[ i ],
-                        this->clearNumericalSolution_ );
             if( dynamicsSimulator_->getSingleArcDynamicsSimulators( ).at( i )->getIntegratorSettings( )->initialTimeStep_ > 0.0 )
             {
                 arcEndTimes_[ i ] = variationalEquationsSolution_[ i ][ 0 ].rbegin( )->first;
@@ -1525,6 +1530,12 @@ private:
             {
                 arcEndTimes_[ i ] = variationalEquationsSolution_[ i ][ 0 ].begin( )->first;
             }
+
+            createStateTransitionAndSensitivityMatrixInterpolator(
+                        stateTransitionMatrixInterpolators[ i ],
+                        sensitivityMatrixInterpolators[ i ],
+                        variationalEquationsSolution_[ i ],
+                        this->clearNumericalSolution_ );
         }
 
         // Create stare transition matrix interface if needed, reset otherwise.
@@ -1535,15 +1546,26 @@ private:
                         arcStartTimes_,
                         arcEndTimes_,
                         propagatorSettings_->getSingleArcSettings( ).at( 0 )->getConventionalStateSize( ),
-                        parametersToEstimate_->getParameterSetSize( ) );
+                        parametersToEstimate_->getParameterSetSize( ), getArcWiseStatePartialAdditionIndices( ) );
         }
         else
         {
             std::dynamic_pointer_cast< MultiArcCombinedStateTransitionAndSensitivityMatrixInterface >(
                         stateTransitionInterface_ )->updateMatrixInterpolators(
                         stateTransitionMatrixInterpolators, sensitivityMatrixInterpolators,
-                        arcStartTimes_, arcEndTimes_ );
+                        arcStartTimes_, arcEndTimes_, getArcWiseStatePartialAdditionIndices( ) );
         }
+    }
+
+    std::vector< std::vector< std::pair< int, int > > > getArcWiseStatePartialAdditionIndices( )
+    {
+        std::vector< std::vector< std::pair< int, int > > > partialIndices;
+        for( unsigned int i = 0; i < dynamicsStateDerivatives_.size( ); i++ )
+        {
+            partialIndices.push_back(
+                        dynamicsStateDerivatives_.at( i )->getVariationalEquationsCalculator( )->getStatePartialAdditionIndices( ) );
+        }
+        return partialIndices;
     }
 
     //! Object to propagate the dynamics for all arcs.
@@ -1758,11 +1780,9 @@ public:
         // Reset initial time and propagate multi-arc equations
         singleArcIntegratorSettings_->initialTime_ = singleArcInitialTime_;
 
-        std::cout<<"Pre single-arc"<<std::endl;
         singleArcSolver_->integrateVariationalAndDynamicalEquations(
                     initialStateEstimate.block( 0, 0, singleArcDynamicsSize_, 1 ),
                     integrateEquationsConcurrently );
-        std::cout<<"Post single-arc"<<std::endl;
 
 
         // Extract single arc state to update multi-arc initial states
@@ -1772,11 +1792,9 @@ public:
 
         // Reset initial time and propagate single-arc equations
         multiArcIntegratorSettings_->initialTime_ = arcStartTimes_.at( 0 );
-        std::cout<<"Pre multi-arc"<<std::endl;
         multiArcSolver_->integrateVariationalAndDynamicalEquations(
                     propagatorSettings_->getMultiArcPropagatorSettings( )->getInitialStates( ),
                     integrateEquationsConcurrently );
-        std::cout<<"Post multi-arc"<<std::endl;
 
         copyExtendedMultiArcInitialStatesToOriginalSettins( );
 

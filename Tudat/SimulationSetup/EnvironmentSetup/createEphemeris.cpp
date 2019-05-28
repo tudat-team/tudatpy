@@ -76,8 +76,8 @@ std::shared_ptr< ephemerides::Ephemeris > createBodyEphemeris(
                         bodyName == "Uranus" || bodyName == "Neptune" )
                 {
                     inputName += " Barycenter";
-                    std::cerr << "Warning, position of " << bodyName << " taken as barycenter of that body's "
-                              << "planetary system." << std::endl;
+//                    std::cerr << "Warning, position of " << bodyName << " taken as barycenter of that body's "
+//                              << "planetary system." << std::endl;
                 }
                 // Create corresponding ephemeris object.
                 ephemeris = std::make_shared< SpiceEphemeris >(
@@ -112,8 +112,8 @@ std::shared_ptr< ephemerides::Ephemeris > createBodyEphemeris(
                         bodyName == "Uranus" || bodyName == "Neptune" )
                 {
                     inputName += " Barycenter";
-                    std::cerr << "Warning, position of " << bodyName << " taken as barycenter of that body's "
-                              << "planetary system." << std::endl;
+//                    std::cerr << "Warning, position of " << bodyName << " taken as barycenter of that body's "
+//                              << "planetary system." << std::endl;
                 }
 
                 // Create corresponding ephemeris object.

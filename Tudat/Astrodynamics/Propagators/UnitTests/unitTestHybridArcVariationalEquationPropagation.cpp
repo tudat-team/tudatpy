@@ -304,8 +304,8 @@ executeHybridArcMarsAndOrbiterSensitivitySimulation(
                     Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >::Zero( 12 );
             testStates.block( 0, 0, 6, 1 ) = bodyMap[ "Mars" ]->getStateInBaseFrameFromEphemeris( testEpoch );
 
-            testStates.block( 6, 0, 6, 1 ) = bodyMap[ "Orbiter" ]->getStateInBaseFrameFromEphemeris( testEpoch ) -
-                    testStates.block( 0, 0, 6, 1 );
+            testStates.block( 6, 0, 6, 1 ) = bodyMap[ "Orbiter" ]->getStateInBaseFrameFromEphemeris( testEpoch );/* -
+                    testStates.block( 0, 0, 6, 1 );*/
 
             if( propagateVariationalEquations )
             {
@@ -502,6 +502,11 @@ BOOST_AUTO_TEST_CASE( testMarsAndOrbiterHybridArcVariationalEquationCalculation 
                     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
                                 stateTransitionAndSensitivityMatrixAtEpoch.at( arc ).block( 6, 13, 6, 1 ),
                                 manualPartial.at( arc ).block( 6, 13, 6, 1 ), 5.0E-5 );
+
+                    std::cout<<"Arc: "<<arc<<std::endl<<stateTransitionAndSensitivityMatrixAtEpoch.at( arc )<<std::endl<<std::endl<<
+                               manualPartial.at( arc )<<std::endl<<std::endl<<
+                               ( stateTransitionAndSensitivityMatrixAtEpoch.at( arc ) - manualPartial.at( arc ) ).cwiseQuotient(
+                                manualPartial.at( arc ) )<<std::endl<<std::endl;
 
                 }
 

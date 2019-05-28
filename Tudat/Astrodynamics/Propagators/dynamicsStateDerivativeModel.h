@@ -575,6 +575,12 @@ public:
         cumulativeFunctionEvaluationCounter_.clear( );
     }
 
+    std::shared_ptr< VariationalEquations > getVariationalEquationsCalculator( )
+    {
+        return variationalEquations_;
+    }
+
+
 private:
 
     //! Function to convert the to the conventional form in the global frame per dynamics type.

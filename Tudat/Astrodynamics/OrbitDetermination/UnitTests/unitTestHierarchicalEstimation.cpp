@@ -8,37 +8,10 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#define BOOST_TEST_MAIN
-
 #include <string>
 #include <thread>
+#include <Tudat/SimulationSetup/tudatEstimationHeader.h>
 
-#include <boost/test/unit_test.hpp>
-#include <boost/make_shared.hpp>
-
-#include "Tudat/Basics/testMacros.h"
-#include "Tudat/Mathematics/BasicMathematics/linearAlgebra.h"
-#include "Tudat/Astrodynamics/BasicAstrodynamics/physicalConstants.h"
-#include "Tudat/Astrodynamics/BasicAstrodynamics/unitConversions.h"
-
-#include "Tudat/External/SpiceInterface/spiceInterface.h"
-#include "Tudat/Mathematics/NumericalIntegrators/rungeKuttaCoefficients.h"
-#include "Tudat/Astrodynamics/BasicAstrodynamics/accelerationModel.h"
-#include "Tudat/InputOutput/basicInputOutput.h"
-#include "Tudat/Astrodynamics/Ephemerides/keplerEphemeris.h"
-
-#include "Tudat/SimulationSetup/EnvironmentSetup/body.h"
-#include "Tudat/SimulationSetup/EstimationSetup/variationalEquationsSolver.h"
-#include "Tudat/SimulationSetup/EnvironmentSetup/defaultBodies.h"
-#include "Tudat/SimulationSetup/EnvironmentSetup/createBodies.h"
-#include "Tudat/SimulationSetup/EstimationSetup/createNumericalSimulator.h"
-#include "Tudat/SimulationSetup/EstimationSetup/createEstimatableParameters.h"
-
-namespace tudat
-{
-
-namespace unit_tests
-{
 
 //Using declarations.
 using namespace tudat;
@@ -53,18 +26,11 @@ using namespace tudat::orbital_element_conversions;
 using namespace tudat::ephemerides;
 using namespace tudat::propagators;
 
-BOOST_AUTO_TEST_SUITE( test_variational_equation_calculation )
-
-template< typename TimeType = double , typename StateScalarType  = double >
-        std::pair< std::vector< Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic > >,
-std::vector< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > >
+std::pair< std::vector< Eigen::MatrixXd >, std::vector< Eigen::VectorXd > >
 executeEarthMoonSimulation(
         const std::vector< std::string > centralBodies,
-        const Eigen::Matrix< StateScalarType, 12, 1 > initialStateDifference =
-        Eigen::Matrix< StateScalarType, 12, 1 >::Zero( ),
         const int propagationType = 0,
-        const Eigen::Vector3d parameterPerturbation = Eigen::Vector3d::Zero( ),
-        const bool propagateVariationalEquations = 1 )
+        const Eigen::Vector3d parameterPerturbation = Eigen::Vector3d::Zero( ) )
 {
 
     //Load spice kernels.
@@ -78,8 +44,8 @@ executeEarthMoonSimulation(
     bodyNames.push_back( "Mars" );
 
     // Specify initial time
-    TimeType initialEphemerisTime = TimeType( 1.0E7 );
-    TimeType finalEphemerisTime = initialEphemerisTime + 0.5E7;
+    double initialEphemerisTime = double( 1.0E7 );
+    double finalEphemerisTime = initialEphemerisTime + 0.5E7;
     double maximumTimeStep = 3600.0;
 
     double buffer = 10.0 * maximumTimeStep;
@@ -124,22 +90,22 @@ executeEarthMoonSimulation(
                 bodyMap, accelerationMap, centralBodyMap );
 
     // Create integrator settings
-    std::shared_ptr< IntegratorSettings< TimeType > > integratorSettings =
-            std::make_shared< IntegratorSettings< TimeType > >
-            ( rungeKutta4, TimeType( initialEphemerisTime ), 1800.0 );
+    std::shared_ptr< IntegratorSettings< double > > integratorSettings =
+            std::make_shared< IntegratorSettings< double > >
+            ( rungeKutta4, double( initialEphemerisTime ), 1800.0 );
 
 
     // Set initial states of bodies to integrate.
-    TimeType initialIntegrationTime = initialEphemerisTime;
+    double initialIntegrationTime = initialEphemerisTime;
 
     // Set (perturbed) initial state.
-    Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > initialTranslationalState;
-    initialTranslationalState = getInitialStatesOfBodies< TimeType, StateScalarType >(
+    Eigen::VectorXd initialTranslationalState;
+    initialTranslationalState = getInitialStatesOfBodies< double, double >(
                 bodiesToIntegrate, centralBodies, bodyMap, initialIntegrationTime );
     initialTranslationalState += initialStateDifference;
 
     // Create propagator settings
-    std::shared_ptr< TranslationalStatePropagatorSettings< StateScalarType > > propagatorSettings;
+    std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings;
     TranslationalPropagatorType propagatorType;
     if( propagationType == 0 )
     {
@@ -149,48 +115,48 @@ executeEarthMoonSimulation(
     {
         propagatorType = encke;
     }
-    propagatorSettings =  std::make_shared< TranslationalStatePropagatorSettings< StateScalarType > >
+    propagatorSettings =  std::make_shared< TranslationalStatePropagatorSettings< double > >
             ( centralBodies, accelerationModelMap, bodiesToIntegrate, initialTranslationalState,
-              TimeType( finalEphemerisTime ), propagatorType );
+              double( finalEphemerisTime ), propagatorType );
 
     // Define parameters.
     std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames;
     {
         parameterNames.push_back(
-                    std::make_shared< InitialTranslationalStateEstimatableParameterSettings< StateScalarType > >(
-                        "Moon", propagators::getInitialStateOfBody< TimeType, StateScalarType >(
-                            "Moon", centralBodies[ 0 ], bodyMap, TimeType( initialEphemerisTime ) ) +
+                    std::make_shared< InitialTranslationalStateEstimatableParameterSettings< double > >(
+                        "Moon", propagators::getInitialStateOfBody< double, double >(
+                            "Moon", centralBodies[ 0 ], bodyMap, double( initialEphemerisTime ) ) +
                     initialStateDifference.segment( 0, 6 ),
                     centralBodies[ 0 ] ) );
         parameterNames.push_back(
-                    std::make_shared< InitialTranslationalStateEstimatableParameterSettings< StateScalarType > >(
-                        "Earth", propagators::getInitialStateOfBody< TimeType, StateScalarType >(
-                            "Earth", centralBodies[ 1 ], bodyMap, TimeType( initialEphemerisTime ) ) +
+                    std::make_shared< InitialTranslationalStateEstimatableParameterSettings< double > >(
+                        "Earth", propagators::getInitialStateOfBody< double, double >(
+                            "Earth", centralBodies[ 1 ], bodyMap, double( initialEphemerisTime ) ) +
                     initialStateDifference.segment( 6, 6 ),
                     centralBodies[ 1 ] ) );
         parameterNames.push_back( std::make_shared< EstimatableParameterSettings >( "Moon", gravitational_parameter ) );
         parameterNames.push_back( std::make_shared< EstimatableParameterSettings >( "Earth", gravitational_parameter ) );
-        parameterNames.push_back( std::make_shared< EstimatableParameterSettings >( "Sun", gravitational_parameter ) );
+//        parameterNames.push_back( std::make_shared< EstimatableParameterSettings >( "Sun", gravitational_parameter ) );
 
     }
 
     // Create parameters
-    std::shared_ptr< estimatable_parameters::EstimatableParameterSet< StateScalarType > > parametersToEstimate =
+    std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > parametersToEstimate =
             createParametersToEstimate( parameterNames, bodyMap );
 
     // Perturb parameters.
-    Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > parameterVector =
-            parametersToEstimate->template getFullParameterValues< StateScalarType >( );
+    Eigen::VectorXd parameterVector =
+            parametersToEstimate->template getFullParameterValues< double >( );
     parameterVector.block( 12, 0, 3, 1 ) += parameterPerturbation;
     parametersToEstimate->resetParameterValues( parameterVector );
 
-    std::pair< std::vector< Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic > >,
-            std::vector< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > > results;
+    std::pair< std::vector< Eigen::MatrixXd >,
+            std::vector< Eigen::VectorXd > > results;
 
     {
         // Create dynamics simulator
-        SingleArcVariationalEquationsSolver< StateScalarType, TimeType > dynamicsSimulator =
-                SingleArcVariationalEquationsSolver< StateScalarType, TimeType >(
+        SingleArcVariationalEquationsSolver< double, double > dynamicsSimulator =
+                SingleArcVariationalEquationsSolver< double, double >(
                     bodyMap, integratorSettings, propagatorSettings, parametersToEstimate,
                     1, std::shared_ptr< numerical_integrators::IntegratorSettings< double > >( ), 1, 0 );
 
@@ -206,13 +172,13 @@ executeEarthMoonSimulation(
 
         // Retrieve test data
         double testEpoch = 1.4E7;
-        Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > testStates =
-                Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >::Zero( 12 );
+        Eigen::VectorXd testStates =
+                Eigen::VectorXd::Zero( 12 );
         testStates.block( 0, 0, 6, 1 ) = bodyMap[ "Moon" ]->getStateInBaseFrameFromEphemeris( testEpoch );
-//        if( centralBodyMap[ "Moon" ] == "Earth" )
-//        {
-//            testStates.block( 0, 0, 6, 1 ) -= bodyMap[ "Earth" ]->getStateInBaseFrameFromEphemeris( testEpoch );
-//        }
+        if( centralBodyMap[ "Moon" ] == "Earth" )
+        {
+            testStates.block( 0, 0, 6, 1 ) -= bodyMap[ "Earth" ]->getStateInBaseFrameFromEphemeris( testEpoch );
+        }
 
         testStates.block( 6, 0, 6, 1 ) = bodyMap[ "Earth" ]->getStateInBaseFrameFromEphemeris( testEpoch );
 
@@ -260,7 +226,7 @@ BOOST_AUTO_TEST_CASE( testEarthMoonVariationalEquationCalculation )
     Eigen::Vector3d parameterPerturbation;
 
 
-    for( unsigned int i = 0; i < centralBodiesSet.size( ); i++ )
+    for( unsigned int i = 1; i < centralBodiesSet.size( ); i++ )
     {
         // Define parameter perturbation
         parameterPerturbation  = ( Eigen::Vector3d( ) << 1.0E10, 1.0E10, 1.0E14 ).finished( );
@@ -283,7 +249,7 @@ BOOST_AUTO_TEST_CASE( testEarthMoonVariationalEquationCalculation )
         unsigned int maximumPropagatorType = 1;
         if( i == 1 )
         {
-            maximumPropagatorType = 1;
+            maximumPropagatorType = 2;
         }
 
         // Test for all requested propagator types.
@@ -331,8 +297,15 @@ BOOST_AUTO_TEST_CASE( testEarthMoonVariationalEquationCalculation )
                         ( upPerturbedState - downPerturbedState ) / ( 2.0 * parameterPerturbation( j ) );
             }
 
-            std::cout<<"Run "<<i<<std::endl<<stateTransitionAndSensitivityMatrixAtEpoch<<std::endl;
-            std::cout<<"Run "<<i<<std::endl<<manualPartial<<std::endl;
+            if( k == 0 )
+            {
+                std::cout<<"Manual "<<std::endl<<manualPartial.block( 0, 0, 12, 15 )<<std::endl<<std::endl;
+                std::cout<<"Analytical "<<std::endl<<stateTransitionAndSensitivityMatrixAtEpoch.block( 0, 0, 12, 15 )<<std::endl<<std::endl;
+                std::cout<<"Difference "<<std::endl<<( manualPartial.block( 0, 0, 12, 15 ) -
+                                                       stateTransitionAndSensitivityMatrixAtEpoch.block( 0, 0, 12, 15 ) ).cwiseQuotient(
+                               manualPartial.block( 0, 0, 12, 15 ) )<<std::endl<<std::endl;
+            }
+            sleep( 100000.0 );
 
             // Check results
             TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
@@ -343,12 +316,12 @@ BOOST_AUTO_TEST_CASE( testEarthMoonVariationalEquationCalculation )
     }
 }
 
-template< typename TimeType = double , typename StateScalarType  = double >
-std::pair< std::vector< Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic > >,
-std::vector< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > >
+template< typename double = double , typename double  = double >
+std::pair< std::vector< Eigen::MatrixXd >,
+std::vector< Eigen::VectorXd > >
 executeOrbiterSimulation(
-        const Eigen::Matrix< StateScalarType, 6, 1 > initialStateDifference =
-        Eigen::Matrix< StateScalarType, 6, 1 >::Zero( ),
+        const Eigen::Matrix< double, 6, 1 > initialStateDifference =
+        Eigen::Matrix< double, 6, 1 >::Zero( ),
         const Eigen::VectorXd parameterPerturbation = Eigen::VectorXd::Zero( 10 ),
         const bool propagateVariationalEquations = 1 )
 {
@@ -364,8 +337,8 @@ executeOrbiterSimulation(
     bodyNames.push_back( "Mars" );
 
     // Specify initial time
-    TimeType initialEphemerisTime = TimeType( 1.0E7 );
-    TimeType finalEphemerisTime = initialEphemerisTime + 4.0 * 3600.0;
+    double initialEphemerisTime = double( 1.0E7 );
+    double finalEphemerisTime = initialEphemerisTime + 4.0 * 3600.0;
 
     // Create bodies needed in simulation
     std::map< std::string, std::shared_ptr< BodySettings > > bodySettings =
@@ -435,9 +408,9 @@ executeOrbiterSimulation(
                 bodyMap, accelerationMap, bodiesToIntegrate, centralBodies );
 
     // Create integrator settings
-    std::shared_ptr< IntegratorSettings< TimeType > > integratorSettings =
-            std::make_shared< IntegratorSettings< TimeType > >
-            ( rungeKutta4, TimeType( initialEphemerisTime ), 5.0 );
+    std::shared_ptr< IntegratorSettings< double > > integratorSettings =
+            std::make_shared< IntegratorSettings< double > >
+            ( rungeKutta4, double( initialEphemerisTime ), 5.0 );
 
     // Set Keplerian elements for Asterix.
     Eigen::Vector6d asterixInitialStateInKeplerianElements;
@@ -453,21 +426,21 @@ executeOrbiterSimulation(
     double earthGravitationalParameter = bodyMap.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( );
 
     // Set (perturbed) initial state.
-    Eigen::Matrix< StateScalarType, 6, 1 > initialTranslationalState = convertKeplerianToCartesianElements(
+    Eigen::Matrix< double, 6, 1 > initialTranslationalState = convertKeplerianToCartesianElements(
                 asterixInitialStateInKeplerianElements, earthGravitationalParameter );
     initialTranslationalState += initialStateDifference;
 
     // Create propagator settings
-    std::shared_ptr< TranslationalStatePropagatorSettings< StateScalarType > > propagatorSettings =
-            std::make_shared< TranslationalStatePropagatorSettings< StateScalarType > >
+    std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
+            std::make_shared< TranslationalStatePropagatorSettings< double > >
             ( centralBodies, accelerationModelMap, bodiesToIntegrate, initialTranslationalState,
-              TimeType( finalEphemerisTime ), cowell );
+              double( finalEphemerisTime ), cowell );
 
     // Define parameters.
     std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames;
     {
         parameterNames.push_back(
-                    std::make_shared< InitialTranslationalStateEstimatableParameterSettings< StateScalarType > >(
+                    std::make_shared< InitialTranslationalStateEstimatableParameterSettings< double > >(
                         "Vehicle", initialTranslationalState, "Earth" ) );
 
         parameterNames.push_back( std::make_shared< EstimatableParameterSettings >( "Vehicle", radiation_pressure_coefficient ) );
@@ -481,23 +454,23 @@ executeOrbiterSimulation(
     }
 
     // Create parameters
-    std::shared_ptr< estimatable_parameters::EstimatableParameterSet< StateScalarType > > parametersToEstimate =
+    std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > parametersToEstimate =
             createParametersToEstimate( parameterNames, bodyMap );
 
     // Perturb parameters.
-    Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > parameterVector =
-            parametersToEstimate->template getFullParameterValues< StateScalarType >( );
+    Eigen::VectorXd parameterVector =
+            parametersToEstimate->template getFullParameterValues< double >( );
     parameterVector.block( 6, 0, numberOfParametersToEstimate, 1 ) += parameterPerturbation;
     parametersToEstimate->resetParameterValues( parameterVector );
 
 
-    std::pair< std::vector< Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic > >,
-            std::vector< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > > results;
+    std::pair< std::vector< Eigen::MatrixXd >,
+            std::vector< Eigen::VectorXd > > results;
 
     {
         // Create dynamics simulator
-        SingleArcVariationalEquationsSolver< StateScalarType, TimeType > dynamicsSimulator =
-                SingleArcVariationalEquationsSolver< StateScalarType, TimeType >(
+        SingleArcVariationalEquationsSolver< double, double > dynamicsSimulator =
+                SingleArcVariationalEquationsSolver< double, double >(
                     bodyMap, integratorSettings, propagatorSettings, parametersToEstimate,
                     1, std::shared_ptr< numerical_integrators::IntegratorSettings< double > >( ), 0, 0 );
 
@@ -513,8 +486,8 @@ executeOrbiterSimulation(
 
         // Retrieve test data
         double testEpoch = initialEphemerisTime + 3.5 * 3600.0;
-        Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > testStates =
-                Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >::Zero( 12 );
+        Eigen::VectorXd testStates =
+                Eigen::VectorXd::Zero( 12 );
         testStates.block( 0, 0, 6, 1 ) = bodyMap[ "Vehicle" ]->getEphemeris( )->getCartesianState( testEpoch );
 
         if( propagateVariationalEquations )
@@ -609,12 +582,12 @@ BOOST_AUTO_TEST_CASE( testEarthOrbiterVariationalEquationCalculation )
 
 }
 
-template< typename TimeType = double , typename StateScalarType  = double >
-        std::pair< std::vector< Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic > >,
-std::vector< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > >
+template< typename double = double , typename double  = double >
+std::pair< std::vector< Eigen::MatrixXd >,
+std::vector< Eigen::VectorXd > >
 executePhobosRotationSimulation(
-        const Eigen::Matrix< StateScalarType, 13, 1 > initialStateDifference,
-        Eigen::Matrix< StateScalarType, 13, 1 >& appliedStateDifference,
+        const Eigen::Matrix< double, 13, 1 > initialStateDifference,
+        Eigen::Matrix< double, 13, 1 >& appliedStateDifference,
         const Eigen::VectorXd parameterPerturbation = Eigen::VectorXd::Zero( 8 ),
         const bool propagateVariationalEquations = 1 )
 {
@@ -713,8 +686,8 @@ executePhobosRotationSimulation(
 
     SelectedAccelerationMap accelerationMap;
     std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfEarth;
-//    accelerationMap[ "Phobos" ][ "Mars" ].push_back( std::make_shared< AccelerationSettings >( central_gravity ) );
-   accelerationMap[ "Phobos" ][ "Mars" ].push_back( std::make_shared< MutualSphericalHarmonicAccelerationSettings >( 2, 2, 2, 2 ) );
+    //    accelerationMap[ "Phobos" ][ "Mars" ].push_back( std::make_shared< AccelerationSettings >( central_gravity ) );
+    accelerationMap[ "Phobos" ][ "Mars" ].push_back( std::make_shared< MutualSphericalHarmonicAccelerationSettings >( 2, 2, 2, 2 ) );
 
     std::vector< std::string > translationalBodiesToIntegrate;
     std::vector< std::string > translationalCentralBodies;
@@ -767,9 +740,9 @@ executePhobosRotationSimulation(
 
 
     // Create integrator settings
-    std::shared_ptr< IntegratorSettings< TimeType > > integratorSettings =
-            std::make_shared< IntegratorSettings< TimeType > >
-            ( rungeKutta4, TimeType( initialEphemerisTime ), 15.0 );
+    std::shared_ptr< IntegratorSettings< double > > integratorSettings =
+            std::make_shared< IntegratorSettings< double > >
+            ( rungeKutta4, double( initialEphemerisTime ), 15.0 );
 
     // Define parameters.
     std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames;
@@ -787,7 +760,7 @@ executePhobosRotationSimulation(
     }
 
     // Create parameters
-    std::shared_ptr< estimatable_parameters::EstimatableParameterSet< StateScalarType > > parametersToEstimate =
+    std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > parametersToEstimate =
             createParametersToEstimate( parameterNames, bodyMap );
 
     Eigen::MatrixXd constraintStateMultiplier;
@@ -805,23 +778,23 @@ executePhobosRotationSimulation(
                 std::numeric_limits< double >::epsilon( ) );
 
     // Perturb parameters.
-    Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > parameterVector =
-            parametersToEstimate->template getFullParameterValues< StateScalarType >( );
+    Eigen::VectorXd parameterVector =
+            parametersToEstimate->template getFullParameterValues< double >( );
     parameterVector.block( 13, 0, numberOfParametersToEstimate, 1 ) += parameterPerturbation;
-//    std::cout<<"Parameter perturbation "<<
-//               ( parametersToEstimate->template getFullParameterValues< StateScalarType >( ) -
-//                 parameterVector ).transpose( )<<std::endl<<
-//               parameterPerturbation.transpose( )<<std::endl;;
+    //    std::cout<<"Parameter perturbation "<<
+    //               ( parametersToEstimate->template getFullParameterValues< double >( ) -
+    //                 parameterVector ).transpose( )<<std::endl<<
+    //               parameterPerturbation.transpose( )<<std::endl;;
     parametersToEstimate->resetParameterValues( parameterVector );
 
 
-    std::pair< std::vector< Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic > >,
-            std::vector< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > > results;
+    std::pair< std::vector< Eigen::MatrixXd >,
+            std::vector< Eigen::VectorXd > > results;
 
     {
         // Create dynamics simulator
-        propagators::SingleArcVariationalEquationsSolver< StateScalarType, TimeType > dynamicsSimulator =
-                propagators::SingleArcVariationalEquationsSolver< StateScalarType, TimeType >(
+        propagators::SingleArcVariationalEquationsSolver< double, double > dynamicsSimulator =
+                propagators::SingleArcVariationalEquationsSolver< double, double >(
                     bodyMap, integratorSettings, propagatorSettings, parametersToEstimate,
                     1, std::shared_ptr< numerical_integrators::IntegratorSettings< double > >( ), 0, 0 );
 
@@ -844,8 +817,8 @@ executePhobosRotationSimulation(
 
         // Retrieve test data
         double testEpoch = initialEphemerisTime + 15.0 * 3600.0;
-        Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > testStates =
-                Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >::Zero( 13 );
+        Eigen::VectorXd testStates =
+                Eigen::VectorXd::Zero( 13 );
         testStates.segment( 6, 7 ) = bodyMap[ "Phobos" ]->getRotationalEphemeris( )->getRotationStateVector( testEpoch );
         testStates.segment( 0, 6 ) = bodyMap[ "Phobos" ]->getEphemeris( )->getCartesianState( testEpoch );
 
@@ -861,178 +834,3 @@ executePhobosRotationSimulation(
     }
     return results;
 }
-
-BOOST_AUTO_TEST_CASE( testPhobosRotationVariationalEquationCalculation )
-{
-    spice_interface::loadStandardSpiceKernels( );
-
-    std::pair< std::vector< Eigen::MatrixXd >, std::vector< Eigen::VectorXd > > currentOutput;
-
-    // Define variables for numerical differentiation
-    Eigen::Matrix< double, 13, 1 > perturbedState;
-    Eigen::Matrix< double, 13, 1 > statePerturbation;
-
-    // Define parameter perturbation
-    int numberOfParametersToEstimate = 8;
-    double sphericalHarmonicsPerturbation = 1.0E-4;
-    Eigen::Matrix< double, 8, 1 > perturbedParameter;
-    Eigen::Matrix< double, 8, 1 > parameterPerturbation;
-    parameterPerturbation = Eigen::Matrix< double, 8, 1 >::Constant( sphericalHarmonicsPerturbation );
-    parameterPerturbation( 0 ) = 1.0E-4;
-
-    // Compute state transition and sensitivity matrices
-    Eigen::Matrix< double, 13, 1 > appliedStateDifference;
-    currentOutput = executePhobosRotationSimulation< double, double >(
-                Eigen::Matrix< double, 13, 1 >::Zero( ), appliedStateDifference );
-    Eigen::MatrixXd stateTransitionAndSensitivityMatrixAtEpoch = currentOutput.first.at( 0 );
-    Eigen::VectorXd nominalState = currentOutput.second.at( 0 );
-
-    // Define state perturbation
-    statePerturbation = ( Eigen::Matrix< double, 13, 1>( ) <<
-                          10.0, 10.0, 10.0, 0.1, 0.01, 0.01,
-                          1.0E-5, 1.0E-5, 1.0E-5, 1.0E-5, 1.0E-7, 1.0E-7, 1.0E-7 ).finished( );
-
-    Eigen::MatrixXd manualPartial = Eigen::MatrixXd::Zero( 13, 13 + numberOfParametersToEstimate );
-
-    // Numerically compute state transition matrix
-    for( unsigned int test = 0; test < 2; test++ )
-    {
-        double perturbationMultiplier = ( test == 0 ? 1.0 : 1.0E-3 );
-        for( unsigned int j = 7; j < 10; j++ )
-        {
-            Eigen::Matrix< double, 13, 1 > appliedStateDifferenceUp, appliedStateDifferenceDown;
-
-            Eigen::VectorXd upPerturbedState, downPerturbedState;
-            perturbedState.setZero( );
-            perturbedState( j ) += perturbationMultiplier * statePerturbation( j );
-            upPerturbedState = executePhobosRotationSimulation< double, double >(
-                        perturbedState, appliedStateDifferenceUp, Eigen::Matrix< double, 8, 1 >::Zero( ), 0 ).second.at( 0 );
-
-            Eigen::VectorXd stateDifferenceUp = upPerturbedState - nominalState;
-
-//            std::cout<<"Test output "<<test<<" "<<j<<"stateDifferenceUp"<<std::endl<<
-//                       stateDifferenceUp<<std::endl<<std::endl<<
-//                       "stateTransitionAndSensitivityMatrixAtEpoch"<<std::endl<<
-//                                              stateTransitionAndSensitivityMatrixAtEpoch<<std::endl<<std::endl<<
-//                       "appliedStateDifferenceUp"<<std::endl<<
-//                                              appliedStateDifferenceUp<<std::endl<<std::endl<<
-//                       "( stateTransitionAndSensitivityMatrixAtEpoch * appliedStateDifferenceUp )"<<std::endl<<
-//                                              ( stateTransitionAndSensitivityMatrixAtEpoch * appliedStateDifferenceUp )<<std::endl<<std::endl;
-            if( test == 0 )
-            {
-                TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                            ( ( stateTransitionAndSensitivityMatrixAtEpoch.block( 0, 0, 13, 13 ) * appliedStateDifferenceUp ).segment( 0, 6 ) ),
-                            ( stateDifferenceUp.segment( 0, 6 ) ), 1.0E-3 );
-            }
-            else
-            {
-                TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                            ( ( stateTransitionAndSensitivityMatrixAtEpoch.block( 0, 0, 13, 13 ) * appliedStateDifferenceUp ).segment( 6, 7 ) ),
-                            ( stateDifferenceUp.segment( 6, 7 ) ), 1.0E-5 );
-            }
-        }
-    }
-
-    for( unsigned int j = 0; j < 6; j++ )
-    {
-        Eigen::Matrix< double, 13, 1 > appliedStateDifferenceUp, appliedStateDifferenceDown;
-
-        Eigen::VectorXd upPerturbedState, downPerturbedState;
-        perturbedState.setZero( );
-        perturbedState( j ) += statePerturbation( j );
-        upPerturbedState = executePhobosRotationSimulation< double, double >(
-                    perturbedState, appliedStateDifferenceUp, Eigen::Matrix< double, 8, 1 >::Zero( ), 0 ).second.at( 0 );
-
-        perturbedState.setZero( );
-        perturbedState( j ) -= statePerturbation( j );
-        downPerturbedState = executePhobosRotationSimulation< double, double >(
-                    perturbedState, appliedStateDifferenceDown, Eigen::Matrix< double, 8, 1 >::Zero( ), 0 ).second.at( 0 );
-
-        manualPartial.block( 0, j, 13, 1 ) =
-                ( upPerturbedState.segment( 0, 13 ) - downPerturbedState.segment( 0, 13 ) ) / ( 2.0 * statePerturbation( j ) );
-
-    }
-
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                ( manualPartial.block( 0, 0, 13, 6 ) ), ( stateTransitionAndSensitivityMatrixAtEpoch.block( 0, 0, 13, 6 ) ), 1.0E-4 );
-
-    for( unsigned int j = 10; j < 13; j++ )
-    {
-        Eigen::Matrix< double, 13, 1 > appliedStateDifferenceUp, appliedStateDifferenceDown;
-
-        Eigen::VectorXd upPerturbedState, downPerturbedState;
-        perturbedState.setZero( );
-        perturbedState( j ) += statePerturbation( j );
-        upPerturbedState = executePhobosRotationSimulation< double, double >(
-                    perturbedState, appliedStateDifferenceUp, Eigen::Matrix< double, 8, 1 >::Zero( ), 0 ).second.at( 0 );
-
-        perturbedState.setZero( );
-        perturbedState( j ) -= statePerturbation( j );
-        downPerturbedState = executePhobosRotationSimulation< double, double >(
-                    perturbedState, appliedStateDifferenceDown, Eigen::Matrix< double, 8, 1 >::Zero( ), 0 ).second.at( 0 );
-
-        manualPartial.block( 0, j, 13, 1 ) =
-                ( upPerturbedState.segment( 0, 13 ) - downPerturbedState.segment( 0, 13 ) ) / ( 2.0 * statePerturbation( j ) );
-
-    }
-
-    // Check element separately
-    BOOST_CHECK_SMALL( std::fabs( manualPartial( 3, 1 + 10 ) -
-                                  stateTransitionAndSensitivityMatrixAtEpoch( 3, 1 + 10 ) ), 1.0E-2 );
-    manualPartial( 3, 1 + 10 ) = stateTransitionAndSensitivityMatrixAtEpoch( 3, 1 + 10 );
-
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                ( manualPartial.block( 0, 10, 6, 3 ) ), ( stateTransitionAndSensitivityMatrixAtEpoch.block( 0, 10, 6, 3 ) ), 1.0E-3 );
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                ( manualPartial.block( 6, 10, 7, 3 ) ), ( stateTransitionAndSensitivityMatrixAtEpoch.block( 6, 10, 7, 3 ) ), 1.0E-5 );
-
-    // Numerically compute sensitivity matrix
-    for( int j = 0; j < numberOfParametersToEstimate; j ++ )
-    {
-        Eigen::Matrix< double, 13, 1 > appliedStateDifference;
-
-        Eigen::VectorXd upPerturbedState, downPerturbedState;
-        perturbedState.setZero( );
-        perturbedParameter.setZero( );
-        perturbedParameter( j ) += parameterPerturbation( j );
-
-        std::cout<<"Test "<<j<<" "<<perturbedParameter.transpose( )<<std::endl;
-
-        upPerturbedState = executePhobosRotationSimulation< double, double >(
-                    perturbedState, appliedStateDifference, perturbedParameter, 0 ).second.at( 0 );
-
-        perturbedParameter.setZero( );
-        perturbedParameter( j ) -= parameterPerturbation( j );
-        downPerturbedState = executePhobosRotationSimulation< double, double >(
-                    perturbedState, appliedStateDifference, perturbedParameter, 0 ).second.at( 0 );
-
-        manualPartial.block( 0, j + 13, 13, 1 ) =
-                ( upPerturbedState.segment( 0, 13 ) - downPerturbedState.segment( 0, 13 ) ) / ( 2.0 * parameterPerturbation( j ) );
-    }
-    std::cout<<manualPartial<<std::endl<<std::endl
-            <<stateTransitionAndSensitivityMatrixAtEpoch<<std::endl<<std::endl<<
-              ( manualPartial - stateTransitionAndSensitivityMatrixAtEpoch ).cwiseQuotient(
-                  stateTransitionAndSensitivityMatrixAtEpoch )<<std::endl;
-
-    // Check three values separately: could not find perturbations for which all partials are sufficiently within the linear regime
-
-    BOOST_CHECK_SMALL( std::fabs( manualPartial( 4, 5 + 13 ) -
-                                  stateTransitionAndSensitivityMatrixAtEpoch( 4, 5 + 13 ) ), 1.0E-4 );
-    BOOST_CHECK_SMALL( std::fabs( manualPartial( 11, 4 + 13 ) -
-                                  stateTransitionAndSensitivityMatrixAtEpoch( 11, 4 + 13 ) ), 1.0E-5 );
-    BOOST_CHECK_SMALL( std::fabs( manualPartial( 12, 3 + 13 ) -
-                                  stateTransitionAndSensitivityMatrixAtEpoch( 12, 3 + 13 ) ), 1.0E-2 );
-
-    manualPartial( 4, 5 + 13 ) =  stateTransitionAndSensitivityMatrixAtEpoch( 4, 5 + 13 );
-    manualPartial( 11, 4 + 13 ) =  stateTransitionAndSensitivityMatrixAtEpoch( 11, 4 + 13 );
-    manualPartial( 12, 3 + 13 ) =  stateTransitionAndSensitivityMatrixAtEpoch( 12, 3 + 13 );
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                ( manualPartial.block( 0, 13, 13, 8 ) ), ( stateTransitionAndSensitivityMatrixAtEpoch.block( 0, 13, 13, 8 ) ), 1.0E-4 );
-}
-
-BOOST_AUTO_TEST_SUITE_END( )
-
-}
-
-}
-
