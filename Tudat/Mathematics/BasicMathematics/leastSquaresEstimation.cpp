@@ -190,10 +190,6 @@ Eigen::VectorXd getLeastSquaresPolynomialFit(
                                   "variable vectors is not equal." );
     }
 
-    // Normalize independent variables to [-1, 1] (or smaller)
-    double normalizationFactor = independentValues.array( ).abs( ).maxCoeff( );
-
-    // Allocate partials matrix
     Eigen::MatrixXd informationMatrix = Eigen::MatrixXd::Zero( dependentValues.rows( ), polynomialPowers.size( ) );
 
     // Compute information matrix
@@ -201,18 +197,11 @@ Eigen::VectorXd getLeastSquaresPolynomialFit(
     {
         for( unsigned int j = 0; j < polynomialPowers.size( ); j++ )
         {
-            informationMatrix( i, j ) = std::pow( independentValues( i ) / normalizationFactor, polynomialPowers.at( j ) );
+            informationMatrix( i, j ) = std::pow( independentValues( i ), polynomialPowers.at( j ) );
         }
     }
 
-    // Unnormalize fit coefficients
-    Eigen::VectorXd polynomialFit = performLeastSquaresAdjustmentFromInformationMatrix( informationMatrix, dependentValues ).first;
-    for( int i = 0; i < polynomialFit.rows( ); i++ )
-    {
-        polynomialFit( i ) = polynomialFit( i ) / std::pow( normalizationFactor, polynomialPowers.at( i ) );
-    }
-
-    return polynomialFit;
+    return performLeastSquaresAdjustmentFromInformationMatrix( informationMatrix, dependentValues ).first;
 
 }
 

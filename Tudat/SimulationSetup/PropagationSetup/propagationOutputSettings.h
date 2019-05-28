@@ -113,9 +113,7 @@ enum PropagationDependentVariables
     local_aerodynamic_heat_rate_dependent_variable = 42,
     euler_angles_to_body_fixed_313 = 43,
     current_body_mass_dependent_variable = 44,
-    radiation_pressure_coefficient_dependent_variable = 45,
-    eccentric_anomaly_dependent_variable = 46,
-    mean_anomaly_dependent_variable = 47
+    radiation_pressure_coefficient_dependent_variable = 45
 };
 
 //! Functional base class for defining settings for dependent variables that are to be saved during propagation
