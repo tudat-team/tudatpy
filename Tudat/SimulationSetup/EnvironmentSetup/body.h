@@ -1270,13 +1270,6 @@ public:
         bodyIsGlobalFrameOrigin_ = bodyIsGlobalFrameOrigin;
     }
 
-    //! Function to define whether the body is currently being propagated, or not
-    /*!
-     *  Function to define whether the body is currently being propagated, or not
-     *  \param isBodyInPropagation Boolean defining whether the body is currently being propagated, or not
-     */
-    void setIsBodyInPropagation( const bool isBodyInPropagation );
-
 protected:
 
 private:
@@ -1372,8 +1365,6 @@ private:
     //! Container object with hardware systems present on/in body (typically only non-nullptr for a vehicle).
     std::shared_ptr< system_models::VehicleSystems > vehicleSystems_;
 
-    //!  Boolean defining whether the body is currently being propagated, or not
-    bool isBodyInPropagation_ = false;
 };
 
 //! Typdef for a list of body objects (as unordered_map for efficiency reasons)
@@ -1387,15 +1378,6 @@ typedef std::unordered_map< std::string, std::shared_ptr< Body > > NamedBodyMap;
  * \return Global translational state origin of the environment
  */
 std::string getGlobalFrameOrigin( const NamedBodyMap& bodyMap );
-
-//! Function to set whether the bodies are currently being propagated, or not
-/*!
- * Function to set whether the bodies are currently being propagated, or not
- * \param bodyMap List of body objects.
- * \param areBodiesInPropagation Boolean defining whether the bodies are currently being propagated, or not
- */
-void setAreBodiesInPropagation( const NamedBodyMap& bodyMap,
-                                const bool areBodiesInPropagation );
 
 
 //! Function to compute the acceleration of a body, using its ephemeris and finite differences
