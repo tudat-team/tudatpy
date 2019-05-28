@@ -14,6 +14,7 @@
 
 
 #include "Tudat/Astrodynamics/ElectroMagnetism/cannonBallRadiationPressureAcceleration.h"
+#include "Tudat/Astrodynamics/ElectroMagnetism/panelledRadiationPressure.h"
 #include "Tudat/Astrodynamics/Gravitation/centralGravityModel.h"
 #include "Tudat/Astrodynamics/Gravitation/sphericalHarmonicsGravityModel.h"
 #include "Tudat/Astrodynamics/Gravitation/mutualSphericalHarmonicGravityModel.h"
@@ -56,7 +57,8 @@ enum AvailableAcceleration
     relativistic_correction_acceleration,
     empirical_acceleration,
     direct_tidal_dissipation_in_central_body_acceleration,
-    direct_tidal_dissipation_in_orbiting_body_acceleration
+    direct_tidal_dissipation_in_orbiting_body_acceleration,
+    panelled_radiation_pressure_acceleration
 };
 
 //! Function to get a string representing a 'named identification' of an acceleration type
