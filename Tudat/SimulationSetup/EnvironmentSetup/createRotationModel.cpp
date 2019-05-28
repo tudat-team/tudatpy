@@ -20,7 +20,7 @@
 
 #if USE_SOFA
 #include "Tudat/Astrodynamics/Ephemerides/itrsToGcrsRotationModel.h"
-#include "Tudat/Astrodynamics/Ephemerides/tidallyLockedRotationalEphemeris.h"
+#include "Tudat/Astrodynamics/Ephemerides/synchronousRotationalEphemeris.h"
 #include "Tudat/Astrodynamics/EarthOrientation/earthOrientationCalculator.h"
 #include "Tudat/Astrodynamics/EarthOrientation/shortPeriodEarthOrientationCorrectionCalculator.h"
 #include "Tudat/Mathematics/Interpolators/jumpDataLinearInterpolator.h"
@@ -215,34 +215,34 @@ std::shared_ptr< ephemerides::RotationalEphemeris > createRotationModel(
         break;
     }
 #endif
-    case tidally_locked_rotation_model:
+    case synchronous_rotation_model:
     {
-        std::shared_ptr< TidallyLockedRotationModelSettings > tidallyLockedRotationSettings =
-                std::dynamic_pointer_cast< TidallyLockedRotationModelSettings >( rotationModelSettings );
-        if( tidallyLockedRotationSettings == NULL )
+        std::shared_ptr< SynchronousRotationModelSettings > synchronousRotationSettings =
+                std::dynamic_pointer_cast< SynchronousRotationModelSettings >( rotationModelSettings );
+        if( synchronousRotationSettings == NULL )
         {
-            throw std::runtime_error( "Error, expected tidally locked rotation model settings for " + body );
+            throw std::runtime_error( "Error, expected synchronous rotation model settings for " + body );
         }
         else
         {
-            if( bodyMap.at( body )->getEphemeris( )->getReferenceFrameOrigin( ) == tidallyLockedRotationSettings->getCentralBodyName( ) )
+            if( bodyMap.at( body )->getEphemeris( )->getReferenceFrameOrigin( ) == synchronousRotationSettings->getCentralBodyName( ) )
             {
                 if( bodyMap.at( body )->getEphemeris( )->getReferenceFrameOrientation( ) !=
-                        tidallyLockedRotationSettings->getOriginalFrame( ) )
+                        synchronousRotationSettings->getOriginalFrame( ) )
                 {
                     throw std::runtime_error( "Error, ephemeris of body " + body + " is in " +
                                               bodyMap.at( body )->getEphemeris( )->getReferenceFrameOrientation( ) +
-                                              " frame when making tidally locked rotation model, expected " +
-                                              tidallyLockedRotationSettings->getOriginalFrame( ) + " frame." );
+                                              " frame when making synchronous rotation model, expected " +
+                                              synchronousRotationSettings->getOriginalFrame( ) + " frame." );
                 }
             }
-            std::shared_ptr< TidallyLockedRotationalEphemeris > lockedRotationalEphemeris = std::make_shared< TidallyLockedRotationalEphemeris >(
-                        createRelativeStateFunction( bodyMap, body, tidallyLockedRotationSettings->getCentralBodyName( ) ),
-                        tidallyLockedRotationSettings->getCentralBodyName( ),
-                        tidallyLockedRotationSettings->getOriginalFrame( ),
-                        tidallyLockedRotationSettings->getTargetFrame( ) );
+            std::shared_ptr< SynchronousRotationalEphemeris > synchronousRotationalEphemeris = std::make_shared< SynchronousRotationalEphemeris >(
+                        createRelativeStateFunction( bodyMap, body, synchronousRotationSettings->getCentralBodyName( ) ),
+                        synchronousRotationSettings->getCentralBodyName( ),
+                        synchronousRotationSettings->getOriginalFrame( ),
+                        synchronousRotationSettings->getTargetFrame( ) );
 
-            rotationalEphemeris = lockedRotationalEphemeris;
+            rotationalEphemeris = synchronousRotationalEphemeris;
         }
         break;
     }
