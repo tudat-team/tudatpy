@@ -308,6 +308,9 @@ public:
         return sensitivityMatrixSize_ + numberOfStateArcs_ * stateTransitionMatrixSize_;
     }
 
+    Eigen::MatrixXd getCombinedStateTransitionAndSensitivityMatrix(
+            const double evaluationTime, const bool addCentralBodySensitivity = true );
+
     //! Function to get the concatenated single-arc state transition and sensitivity matrix at a given time.
     /*!
      *  Function to get the concatenated single-arc state transition and sensitivity matrix at a given time, evaluates matrices
@@ -316,6 +319,9 @@ public:
      *  \return Concatenated state transition and sensitivity matrices.
      */
     Eigen::MatrixXd getCombinedStateTransitionAndSensitivityMatrix( const double evaluationTime );
+
+    Eigen::MatrixXd getFullCombinedStateTransitionAndSensitivityMatrix(
+            const double evaluationTime, const bool addCentralBodySensitivity = true );
 
     //! Function to get the concatenated state transition matrices for each arc and sensitivity matrix at a given time.
     /*!
@@ -344,6 +350,13 @@ public:
     {
         return arcStartTimes_.size( );
     }
+
+    std::vector< std::pair< int, int > > getStatePartialAdditionIndices(
+            const int arcIndex )
+    {
+        return statePartialAdditionIndices_.at( arcIndex );
+    }
+
 
 private:
 

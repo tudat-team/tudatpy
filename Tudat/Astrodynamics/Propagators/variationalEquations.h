@@ -63,7 +63,8 @@ public:
             const std::shared_ptr< estimatable_parameters::EstimatableParameterSet< ParameterType > > parametersToEstimate,
             const std::map< IntegratedStateType, int >& stateTypeStartIndices,
             const int currentArcIndex = -1 ):
-        stateDerivativePartialList_( stateDerivativePartialList ), stateTypeStartIndices_( stateTypeStartIndices )
+        stateDerivativePartialList_( stateDerivativePartialList ), stateTypeStartIndices_( stateTypeStartIndices ),
+        couplingEntriesToSuppress_( -1 )
     {
         dynamicalStatesToEstimate_ =
                 estimatable_parameters::getListOfInitialDynamicalStateParametersEstimate< ParameterType >(
@@ -287,6 +288,11 @@ public:
         return statePartialAdditionIndices_;
     }
     
+    void suppressParameterCoupling( const int couplingEntriesToSuppress )
+    {
+        couplingEntriesToSuppress_ = couplingEntriesToSuppress;
+    }
+
 protected:
     
 private:
@@ -584,6 +590,8 @@ private:
     
     //! Total size of (single-arc) state vector of dynamics that is to be estimated.
     int totalDynamicalStateSize_;
+
+    int couplingEntriesToSuppress_;
 
     //! Total matrix of partial derivatives of state derivatives w.r.t. current states.
     Eigen::MatrixXd variationalMatrix_;
