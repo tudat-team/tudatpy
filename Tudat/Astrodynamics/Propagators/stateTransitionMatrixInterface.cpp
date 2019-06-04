@@ -129,7 +129,8 @@ void MultiArcCombinedStateTransitionAndSensitivityMatrixInterface::updateMatrixI
 
 //! Function to get the concatenated single-arc state transition and sensitivity matrix at a given time.
 Eigen::MatrixXd MultiArcCombinedStateTransitionAndSensitivityMatrixInterface::getCombinedStateTransitionAndSensitivityMatrix(
-        const double evaluationTime )
+        const double evaluationTime,
+        const bool addCentralBodySensitivity )
 {
     Eigen::MatrixXd combinedStateTransitionMatrix = Eigen::MatrixXd::Zero(
                 stateTransitionMatrixSize_, stateTransitionMatrixSize_ + sensitivityMatrixSize_ );
@@ -146,20 +147,31 @@ Eigen::MatrixXd MultiArcCombinedStateTransitionAndSensitivityMatrixInterface::ge
 
         for( unsigned int i = 0; i < statePartialAdditionIndices_.at( currentArc ).size( ); i++ )
         {
+            int indicesToAdd = addCentralBodySensitivity ?
+                        ( stateTransitionMatrixSize_ + sensitivityMatrixSize_ ) : stateTransitionMatrixSize_;
             combinedStateTransitionMatrix.block(
-                        statePartialAdditionIndices_.at( currentArc ).at( i ).first, 0, 6, stateTransitionMatrixSize_ + sensitivityMatrixSize_ ) +=
+                        statePartialAdditionIndices_.at( currentArc ).at( i ).first, 0, 6, indicesToAdd ) +=
                     combinedStateTransitionMatrix.block(
-                        statePartialAdditionIndices_.at( currentArc ).at( i ).second, 0, 6, stateTransitionMatrixSize_ + sensitivityMatrixSize_ );
+                        statePartialAdditionIndices_.at( currentArc ).at( i ).second, 0, 6, indicesToAdd );
         }
     }
     return combinedStateTransitionMatrix;
 }
 
-//! Function to get the concatenated state transition matrices for each arc and sensitivity matrix at a given time.
-Eigen::MatrixXd MultiArcCombinedStateTransitionAndSensitivityMatrixInterface::getFullCombinedStateTransitionAndSensitivityMatrix(
+//! Function to get the concatenated single-arc state transition and sensitivity matrix at a given time.
+Eigen::MatrixXd MultiArcCombinedStateTransitionAndSensitivityMatrixInterface::getCombinedStateTransitionAndSensitivityMatrix(
         const double evaluationTime )
 {
-    Eigen::MatrixXd combinedStateTransitionMatrix = getCombinedStateTransitionAndSensitivityMatrix( evaluationTime );
+    return getCombinedStateTransitionAndSensitivityMatrix( evaluationTime, true );
+}
+
+//! Function to get the concatenated state transition matrices for each arc and sensitivity matrix at a given time.
+Eigen::MatrixXd MultiArcCombinedStateTransitionAndSensitivityMatrixInterface::getFullCombinedStateTransitionAndSensitivityMatrix(
+        const double evaluationTime,
+        const bool addCentralBodySensitivity )
+{
+    Eigen::MatrixXd combinedStateTransitionMatrix = getCombinedStateTransitionAndSensitivityMatrix(
+                evaluationTime, addCentralBodySensitivity );
     Eigen::MatrixXd fullCombinedStateTransitionMatrix = Eigen::MatrixXd::Zero(
                 stateTransitionMatrixSize_, numberOfStateArcs_ * stateTransitionMatrixSize_ + sensitivityMatrixSize_ );
 
@@ -176,6 +188,13 @@ Eigen::MatrixXd MultiArcCombinedStateTransitionAndSensitivityMatrixInterface::ge
                 combinedStateTransitionMatrix.block( 0, 0, stateTransitionMatrixSize_, stateTransitionMatrixSize_ );
     }
     return fullCombinedStateTransitionMatrix;
+}
+
+//! Function to get the concatenated state transition matrices for each arc and sensitivity matrix at a given time.
+Eigen::MatrixXd MultiArcCombinedStateTransitionAndSensitivityMatrixInterface::getFullCombinedStateTransitionAndSensitivityMatrix(
+        const double evaluationTime )
+{
+    return getFullCombinedStateTransitionAndSensitivityMatrix( evaluationTime, true );
 }
 
 //! Function to retrieve the current arc for a given time
@@ -206,7 +225,7 @@ Eigen::MatrixXd HybridArcCombinedStateTransitionAndSensitivityMatrixInterface::g
 
     // Get multi-arc matrices
     Eigen::MatrixXd multiArcStateTransition = multiArcInterface_->getCombinedStateTransitionAndSensitivityMatrix(
-                evaluationTime );
+                evaluationTime, false );
     std::pair< int, double >  currentArc = multiArcInterface_->getCurrentArc( evaluationTime );
 
     // Set single-arc block
@@ -243,6 +262,19 @@ Eigen::MatrixXd HybridArcCombinedStateTransitionAndSensitivityMatrixInterface::g
                 multiArcStateTransition.block(
                     singleArcStateSize_, multiArcStateSize_, originalMultiArcStateSize_, sensitivityMatrixSize_ );
 
+        std::vector< std::pair< int, int > > statePartialAdditionIndices =
+                multiArcInterface_->getStatePartialAdditionIndices( currentArc.first );
+
+        for( unsigned int i = 0; i < statePartialAdditionIndices.size( ); i++ )
+        {
+            combinedStateTransitionMatrix.block(
+                        statePartialAdditionIndices.at( i ).first, multiArcStateSize_,
+                        6, sensitivityMatrixSize_ ) +=
+                    combinedStateTransitionMatrix.block(
+                        statePartialAdditionIndices.at( i ).second, multiArcStateSize_,
+                        6, sensitivityMatrixSize_ );
+
+        }
     }
 
     return combinedStateTransitionMatrix;
@@ -293,6 +325,7 @@ Eigen::MatrixXd HybridArcCombinedStateTransitionAndSensitivityMatrixInterface::g
                     originalMultiArcStateSize_, sensitivityMatrixSize_ ) =
                 combinedStateTransitionMatrix.block(
                     singleArcStateSize_, multiArcStateSize_, originalMultiArcStateSize_, sensitivityMatrixSize_ );
+
     }
 
     return fullCombinedStateTransitionMatrix;

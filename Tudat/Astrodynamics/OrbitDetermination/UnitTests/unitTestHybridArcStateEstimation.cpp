@@ -238,8 +238,8 @@ Eigen::VectorXd  executeParameterEstimation(
     parameterNames.push_back(
                 std::make_shared< InitialTranslationalStateEstimatableParameterSettings< StateScalarType > >(
                     singleArcBodiesToIntegrate.at( 0 ), singleArcInitialStates, singleArcCentralBodies.at( 0 ) ) );
-//    parameterNames.push_back( std::make_shared< EstimatableParameterSettings >( "Sun", gravitational_parameter ) );
-//    parameterNames.push_back( std::make_shared< EstimatableParameterSettings >( "Mars", gravitational_parameter ) );
+    parameterNames.push_back( std::make_shared< EstimatableParameterSettings >( "Sun", gravitational_parameter ) );
+    parameterNames.push_back( std::make_shared< EstimatableParameterSettings >( "Mars", gravitational_parameter ) );
     std::shared_ptr< estimatable_parameters::EstimatableParameterSet< StateScalarType > > parametersToEstimate =
             createParametersToEstimate< StateScalarType >( parameterNames, bodyMap );
 
@@ -330,11 +330,11 @@ Eigen::VectorXd  executeParameterEstimation(
         initialParameterEstimate[ 5 + 6 * i ] += 1E-3;
     }
 
-//    for( unsigned int i = 6 * ( 1 + multiArcBodiesToIntegrate.size( ) * integrationArcStarts.size( ) );
-//         i < static_cast< unsigned int >( initialParameterEstimate.rows( ) ); i++ )
-//    {
-//        initialParameterEstimate[ i ] *= ( 1.0 + 1.0E-6 );
-//    }
+    for( unsigned int i = 6 * ( 1 + multiArcBodiesToIntegrate.size( ) * integrationArcStarts.size( ) );
+         i < static_cast< unsigned int >( initialParameterEstimate.rows( ) ); i++ )
+    {
+        initialParameterEstimate[ i ] *= ( 1.0 + 1.0E-6 );
+    }
 
     parametersToEstimate->resetParameterValues( initialParameterEstimate );
 
@@ -349,7 +349,7 @@ Eigen::VectorXd  executeParameterEstimation(
 
     // Estimate parameters and return postfit error
     std::shared_ptr< PodOutput< StateScalarType > > podOutput = orbitDeterminationManager.estimateParameters(
-                podInput, std::make_shared< EstimationConvergenceChecker >( 8 ) );
+                podInput, std::make_shared< EstimationConvergenceChecker >( 6 ) );
 
 //    input_output::writeMatrixToFile( podOutput->normalizedInformationMatrix_, "hybridArcPartials.dat" );
 //    input_output::writeMatrixToFile( podOutput->informationMatrixTransformationDiagonal_, "hybridArcNormalization.dat" );

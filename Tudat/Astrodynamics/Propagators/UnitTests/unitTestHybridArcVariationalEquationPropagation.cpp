@@ -503,10 +503,14 @@ BOOST_AUTO_TEST_CASE( testMarsAndOrbiterHybridArcVariationalEquationCalculation 
                                 stateTransitionAndSensitivityMatrixAtEpoch.at( arc ).block( 6, 13, 6, 1 ),
                                 manualPartial.at( arc ).block( 6, 13, 6, 1 ), 5.0E-5 );
 
-                    std::cout<<"Arc: "<<arc<<std::endl<<stateTransitionAndSensitivityMatrixAtEpoch.at( arc )<<std::endl<<std::endl<<
-                               manualPartial.at( arc )<<std::endl<<std::endl<<
-                               ( stateTransitionAndSensitivityMatrixAtEpoch.at( arc ) - manualPartial.at( arc ) ).cwiseQuotient(
-                                manualPartial.at( arc ) )<<std::endl<<std::endl;
+//                    std::cout<<"Arc: "<<arc<<std::endl<<stateTransitionAndSensitivityMatrixAtEpoch.at( arc ).block( 6, 0, 6, 6 )<<std::endl<<std::endl<<
+//                               manualPartial.at( arc ).block( 6, 0, 6, 6 )<<std::endl<<std::endl<<
+//                               ( stateTransitionAndSensitivityMatrixAtEpoch.at( arc ) - manualPartial.at( arc ) ).block( 6, 0, 6, 6 ).cwiseQuotient(
+//                                manualPartial.at( arc ).block( 6, 0, 6, 6 ) )<<std::endl<<std::endl;
+                    std::cout<<"Arc: "<<arc<<std::endl<<stateTransitionAndSensitivityMatrixAtEpoch.at( arc ).block( 0, 12, 12, 2 )<<std::endl<<std::endl<<
+                               manualPartial.at( arc ).block( 0, 12, 12, 2 )<<std::endl<<std::endl<<
+                               ( stateTransitionAndSensitivityMatrixAtEpoch.at( arc ) - manualPartial.at( arc ) ).block( 0, 12, 12, 2 ).cwiseQuotient(
+                                manualPartial.at( arc ).block( 0, 12, 12, 2 ) )<<std::endl<<std::endl;
 
                 }
 

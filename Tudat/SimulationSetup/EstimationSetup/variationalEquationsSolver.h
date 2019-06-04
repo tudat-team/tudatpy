@@ -1491,6 +1491,11 @@ public:
         return arcStartTimes_;
     }
 
+    std::vector< std::shared_ptr< DynamicsStateDerivativeModel< TimeType, StateScalarType > > > getDynamicsStateDerivatives( )
+    {
+        return dynamicsStateDerivatives_;
+    }
+
 
 protected:
 
@@ -1725,6 +1730,12 @@ public:
                     multiArcParametersToEstimate_, arcStartTimes_, integrateDynamicalAndVariationalEquationsConcurrently,
                     std::shared_ptr< numerical_integrators::IntegratorSettings< double > >( ),
                     false, false, false );
+
+        for( unsigned int i = 0; i < multiArcSolver_->getDynamicsStateDerivatives( ).size( ); i++ )
+        {
+            multiArcSolver_->getDynamicsStateDerivatives( ).at( i )->getVariationalEquationsCalculator( )->suppressParameterCoupling(
+                        propagatorSettings_->getSingleArcPropagatorSettings( )->getPropagatedStateSize( ) );
+        }
 
         // Create function to retrieve single-arc initial states for extended multi-arc
         std::shared_ptr< TranslationalStatePropagatorSettings< StateScalarType > > singleArcPropagationSettings =
