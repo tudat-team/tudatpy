@@ -81,9 +81,9 @@ add_executable(test_ArcwiseEnvironmentEstimation "${SRCROOT}${ORBITDETERMINATION
 setup_custom_test_program(test_ArcwiseEnvironmentEstimation "${SRCROOT}${ORBITDETERMINATIONDIR}")
 target_link_libraries(test_ArcwiseEnvironmentEstimation ${TUDAT_ESTIMATION_LIBRARIES} ${Boost_LIBRARIES})
 
-add_executable(test_desaturationDeltaVsEstimation "${SRCROOT}${ORBITDETERMINATIONDIR}/UnitTests/unitTestDesaturationDeltaVs.cpp")
-setup_custom_test_program(test_desaturationDeltaVsEstimation "${SRCROOT}${ORBITDETERMINATIONDIR}")
-target_link_libraries(test_desaturationDeltaVsEstimation ${TUDAT_ESTIMATION_LIBRARIES} ${Boost_LIBRARIES})
+add_executable(test_DesaturationDeltaVsEstimation "${SRCROOT}${ORBITDETERMINATIONDIR}/UnitTests/unitTestDesaturationDeltaVsEstimation.cpp")
+setup_custom_test_program(test_DesaturationDeltaVsEstimation "${SRCROOT}${ORBITDETERMINATIONDIR}")
+target_link_libraries(test_DesaturationDeltaVsEstimation ${TUDAT_ESTIMATION_LIBRARIES} ${Boost_LIBRARIES})
 
 if( BUILD_EXTENDED_PRECISION_PROPAGATION_TOOLS )
 
