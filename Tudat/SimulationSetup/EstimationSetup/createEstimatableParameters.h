@@ -1293,6 +1293,7 @@ getAssociatedMultiArcParameter(
  *  Function to get initial state vector of estimated dynamical states (i.e. presently estimated state at propagation
  *  start time.
  *  \param estimatableParameters Object containing all parameters that are to be estimated.
+ *  \param propagatorSettings Object containing propagation settings to be used
  *  \return State vector of estimated dynamics at propagation start time.
  */
 template< typename InitialStateParameterType = double >
