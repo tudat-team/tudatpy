@@ -69,6 +69,7 @@ std::shared_ptr< ephemerides::Ephemeris > createBodyEphemeris(
             }
             else
             {
+
                 // Create corresponding ephemeris object.
                 ephemeris = std::make_shared< SpiceEphemeris >(
                             bodyName,
