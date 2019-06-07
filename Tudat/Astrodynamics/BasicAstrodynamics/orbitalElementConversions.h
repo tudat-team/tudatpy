@@ -574,7 +574,6 @@ ScalarType convertTrueAnomalyToEccentricAnomaly( const ScalarType trueAnomaly,
     return eccentricAnomaly_;
 }
 
-
 //! Convert (elliptical) eccentric anomaly to true anomaly.
 /*!
  * Converts eccentric anomaly to true anomaly for elliptical orbits ( 0 <= eccentricity < 1.0 ).

@@ -202,7 +202,6 @@ Eigen::VectorXd getLeastSquaresPolynomialFit(
     }
 
     return performLeastSquaresAdjustmentFromInformationMatrix( informationMatrix, dependentValues ).first;
-
 }
 
 //! Function to fit a univariate polynomial through a set of data
