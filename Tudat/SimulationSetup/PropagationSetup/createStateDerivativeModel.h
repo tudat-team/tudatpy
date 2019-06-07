@@ -687,6 +687,8 @@ std::shared_ptr< numerical_integrators::NumericalIntegrator< double, Eigen::Vect
  * \param massParameter Normalized mass parameter
  * \param initialState Initial normalized state
  * \param finalTime End time for the numerical integration
+ * \param propagateToExactFinalTime Boolean denoting whether to terminate exactly on the final time (if true), or on the first
+ * step that exceeds the final time
  * \return Propagated state history of normalized dynamics in CR3BP.
  */
 std::map< double, Eigen::Vector6d > performCR3BPIntegration(

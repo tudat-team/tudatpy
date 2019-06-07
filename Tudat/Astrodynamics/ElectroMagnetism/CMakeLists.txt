@@ -16,6 +16,7 @@ set(ELECTROMAGNETISM_SOURCES
   "${SRCROOT}${ELECTROMAGNETISMDIR}/lorentzStaticMagneticAcceleration.h"
   "${SRCROOT}${ELECTROMAGNETISMDIR}/radiationPressureInterface.h"
   "${SRCROOT}${ELECTROMAGNETISMDIR}/basicElectroMagnetism.h"
+  "${SRCROOT}${ELECTROMAGNETISMDIR}/panelledRadiationPressure.h"
 )
 
 # Set the header files.
@@ -25,6 +26,7 @@ set(ELECTROMAGNETISM_HEADERS
   "${SRCROOT}${ELECTROMAGNETISMDIR}/lorentzStaticMagneticForce.cpp"
   "${SRCROOT}${ELECTROMAGNETISMDIR}/lorentzStaticMagneticAcceleration.cpp"
   "${SRCROOT}${ELECTROMAGNETISMDIR}/radiationPressureInterface.cpp"
+  "${SRCROOT}${ELECTROMAGNETISMDIR}/panelledRadiationPressure.cpp"
 )
 
 # Add static libraries.
@@ -43,3 +45,7 @@ target_link_libraries(test_LorentzStaticMagneticAccelerationAndForce tudat_elect
 add_executable(test_RadiationPressureInterface "${SRCROOT}${ELECTROMAGNETISMDIR}/UnitTests/unitTestRadiationPressureInterface.cpp")
 setup_custom_test_program(test_RadiationPressureInterface "${SRCROOT}${ELECTROMAGNETISMDIR}")
 target_link_libraries(test_RadiationPressureInterface tudat_electro_magnetism tudat_basic_astrodynamics ${Boost_LIBRARIES})
+
+add_executable(test_PanelledRadiationPressure "${SRCROOT}${ELECTROMAGNETISMDIR}/UnitTests/unitTestPanelledRadiationPressure.cpp")
+setup_custom_test_program(test_PanelledRadiationPressure "${ELECTROMAGNETISMDIR}")
+target_link_libraries(test_PanelledRadiationPressure ${TUDAT_PROPAGATION_LIBRARIES} ${Boost_LIBRARIES})

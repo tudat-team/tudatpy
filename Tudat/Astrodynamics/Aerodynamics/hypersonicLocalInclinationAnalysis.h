@@ -99,6 +99,7 @@ public:
      *  and moments.
      *  \param referenceLength Reference length used to non-dimensionalize aerodynamic moments.
      *  \param momentReferencePoint Reference point wrt which aerodynamic moments are calculated.
+     *  \param savePressureCoefficients Boolean denoting whether to save the pressure coefficients that are computed to files
      */
     HypersonicLocalInclinationAnalysis(
             const std::vector< std::vector< double > >& dataPointsOfIndependentVariables,

@@ -281,9 +281,10 @@ protected:
     /*!
      * Function to compute the partial derivative of the acceleration w.r.t. the arc-wise constant drag coefficient
      * \param accelerationPartial Derivative of acceleration w.r.t. arc-wise constant drag coefficient (returned by reference).
+     * \param parameter Parameter object containing information on arcwise drag coefficient that is to be estimated
      */
     void computeAccelerationPartialWrtArcwiseDragCoefficient(
-            Eigen::MatrixXd& partial,
+            Eigen::MatrixXd& accelerationPartial,
             const std::shared_ptr< estimatable_parameters::ArcWiseConstantDragCoefficient > parameter )
     {
         // Get partial w.r.t. rdrag coefficient
