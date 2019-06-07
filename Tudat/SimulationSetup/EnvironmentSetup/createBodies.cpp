@@ -112,7 +112,7 @@ NamedBodyMap createBodies(
         {
             bodyMap[ orderedBodySettings.at( i ).first ]->setRotationalEphemeris(
                         createRotationModel( orderedBodySettings.at( i ).second->rotationModelSettings,
-                                             orderedBodySettings.at( i ).first, bodyMap ) );
+                                             orderedBodySettings.at( i ).first ) );
         }
     }
 

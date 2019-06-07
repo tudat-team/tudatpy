@@ -93,7 +93,7 @@ public:
 
     //! Calculate rotation quaternion from target frame to base frame.
     /*!
-     * Function that calculates the rotation quaternion from target frame to base
+     * Pure virtual function that calculates the rotation quaternion from target frame to base
      * frame at specified time.
      * \param secondsSinceEpoch Seconds since epoch at which ephemeris is to be evaluated.
      * \return Rotation quaternion computed.
@@ -104,7 +104,7 @@ public:
         return getRotationToTargetFrame( secondsSinceEpoch ).inverse( );
     }
 
-    //! Calculate rotation quaternion to target frame from base frame.
+    //! Get rotation quaternion to target frame from base frame.
     /*!
      * Returns the rotation quaternion to target frame from base frame at specified time.
      * \param secondsSinceEpoch Seconds since epoch at which ephemeris is to be evaluated.

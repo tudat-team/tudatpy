@@ -735,7 +735,6 @@ public:
             std::map< TimeType, MatrixType > rawNumericalSolution;
             std::map< TimeType, double > cumulativeComputationTimeHistory;
 
-            simulation_setup::setAreBodiesInPropagation( bodyMap_, true );
             EquationIntegrationInterface< MatrixType, TimeType >::integrateEquations(
                         dynamicsSimulator_->getStateDerivativeFunction( ), rawNumericalSolution,
                         initialVariationalState, integratorSettings_,
@@ -745,7 +744,6 @@ public:
                         dynamicsSimulator_->getDependentVariablesFunctions( ),
                         statePostProcessingFunction_,
                         propagatorSettings_->getPrintInterval( ) );
-            simulation_setup::setAreBodiesInPropagation( bodyMap_, false );
 
             std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > equationsOfMotionNumericalSolutionRaw;
             std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > equationsOfMotionNumericalSolution;
@@ -779,14 +777,11 @@ public:
             std::map< double, Eigen::VectorXd > dependentVariableHistory;
             std::map< double, double > cumulativeComputationTimeHistory;
 
-
-            simulation_setup::setAreBodiesInPropagation( bodyMap_, true );
             EquationIntegrationInterface< Eigen::MatrixXd, double >::integrateEquations(
                         dynamicsSimulator_->getDoubleStateDerivativeFunction( ), rawNumericalSolution, initialVariationalState,
                         variationalOnlyIntegratorSettings_,
                         dynamicsSimulator_->getPropagationTerminationCondition( ),
                         dependentVariableHistory, cumulativeComputationTimeHistory );
-            simulation_setup::setAreBodiesInPropagation( bodyMap_, false );
 
             setVariationalEquationsSolution< double, double >(
                         rawNumericalSolution, variationalEquationsSolution_, std::make_pair( 0, 0 ),
@@ -1281,8 +1276,6 @@ public:
                 // Integrate variational and state equations.
                 dynamicsSimulator_->getDynamicsStateDerivative( ).at( i )->resetFunctionEvaluationCounter( );
                 std::map< TimeType, MatrixType > rawNumericalSolution;
-
-                simulation_setup::setAreBodiesInPropagation( bodyMap_, true );
                 EquationIntegrationInterface< MatrixType, TimeType >::integrateEquations(
                             singleArcDynamicsSimulators.at( i )->getStateDerivativeFunction( ),
                             rawNumericalSolution,
@@ -1294,7 +1287,6 @@ public:
                             std::bind(
                                 &DynamicsStateDerivativeModel< TimeType, StateScalarType >::postProcessStateAndVariationalEquations,
                                 singleArcDynamicsSimulators.at( i )->getDynamicsStateDerivative( ), std::placeholders::_1 ) );
-                simulation_setup::setAreBodiesInPropagation( bodyMap_, false );
 
                 // Extract solution of equations of motion.
                 utilities::createVectorBlockMatrixHistory(
@@ -1374,15 +1366,12 @@ public:
 
                 // Integrate variational equations for current arc
                 dynamicsSimulator_->getDynamicsStateDerivative( ).at( i )->resetFunctionEvaluationCounter( );
-
-                simulation_setup::setAreBodiesInPropagation( bodyMap_, true );
                 EquationIntegrationInterface< MatrixType, TimeType >::integrateEquations(
                             singleArcDynamicsSimulators.at( i )->getStateDerivativeFunction( ),
                             rawNumericalSolutions, initialVariationalState,
                             singleArcDynamicsSimulators.at( i )->getIntegratorSettings( ),
                             singleArcDynamicsSimulators.at( i )->getPropagationTerminationCondition( ),
                             dummyDependentVariableHistorySolution, dummyCumulativeComputationTimeHistorySolution );
-                simulation_setup::setAreBodiesInPropagation( bodyMap_, false );
 
                 // Save state transition and sensitivity matrix solutions for current arc.
                 setVariationalEquationsSolution(

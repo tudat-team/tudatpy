@@ -38,8 +38,7 @@ enum RotationModelType
 {
     simple_rotation_model,
     spice_rotation_model,
-    gcrs_to_itrs_rotation_model,
-    tidally_locked_rotation_model
+    gcrs_to_itrs_rotation_model
 };
 
 //! Class for providing settings for rotation model.
@@ -338,70 +337,6 @@ private:
 };
 #endif
 
-//! RotationModelSettings derived class for defining settings of a tidally locked rotational ephemeris (body-fixed x-axis always
-//! pointing to central body; z-axis along r x v (with r and v the position and velocity w.r.t. central body)
-class TidallyLockedRotationModelSettings: public RotationModelSettings
-{
-public:
-
-    //! Constructor
-    /*!
-     * Constructor
-     * \param centralBodyName Name of central body to which this body is locked.
-     * \param baseFrameOrientation Base frame of rotation model.
-     * \param targetFrameOrientation Target frame of rotation model.
-     */
-    TidallyLockedRotationModelSettings(
-            const std::string& centralBodyName,
-            const std::string& baseFrameOrientation,
-            const std::string& targetFrameOrientation ):
-        RotationModelSettings( tidally_locked_rotation_model, baseFrameOrientation, targetFrameOrientation ),
-        centralBodyName_( centralBodyName ){ }
-
-    //! Function to retrieve name of central body to which this body is locked.
-    /*!
-     * Function to retrieve name of central body to which this body is locked.
-     * \return  Name of central body to which this body is locked.
-     */
-    std::string getCentralBodyName( )
-    {
-        return centralBodyName_;
-    }
-
-private:
-
-    //!  Name of central body to which this body is locked.
-    std::string centralBodyName_;
-};
-
-//! Function to retrieve a state from one of two functions
-/*!
- *  Function to retrieve a state from one of two functions, typically from an Ephemeris or a Body object.
- *  \param currentTime Time at which state function is to be evaluated
- *  \param useFirstFunctionFirst Boolena defining whether stateFunction1 or stateFunction2 is used
- *  \param stateFunction1 First function returning state as function of time
- *  \param stateFunction2 Second function returning state as function of time
- *  \return
- */
-Eigen::Vector6d getStateFromSelectedStateFunction(
-        const double currentTime,
-        const bool useFirstFunction,
-        const std::function< Eigen::Vector6d( const double ) > stateFunction1,
-        const std::function< Eigen::Vector6d( const double ) > stateFunction2 );
-
-//! Function to create a state function for a body, valid both during propagation, and outside propagation
-/*!
- * Function to create a state function for a body, valid both during propagation, and outside propagation
- * \param bodyMap List of body objects
- * \param orbitingBody Body for which state function is to be created
- * \param centralBody Central body w.r.t. which state function is to be created
- * \return Required state function
- */
-std::function< Eigen::Vector6d( const double, bool ) > createRelativeStateFunction(
-        const NamedBodyMap& bodyMap,
-        const std::string orbitingBody,
-        const std::string centralBody );
-
 //! Function to create a rotation model.
 /*!
  *  Function to create a rotation model based on model-specific settings for the rotation.
@@ -412,8 +347,7 @@ std::function< Eigen::Vector6d( const double, bool ) > createRelativeStateFuncti
  */
 std::shared_ptr< ephemerides::RotationalEphemeris > createRotationModel(
         const std::shared_ptr< RotationModelSettings > rotationModelSettings,
-        const std::string& body,
-        const NamedBodyMap& bodyMap = NamedBodyMap( ) );
+        const std::string& body );
 
 } // namespace simulation_setup
 
