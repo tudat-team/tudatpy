@@ -8,21 +8,57 @@
 
 #include <boost/python.hpp>
 #include <boost/python/numpy.hpp>
-//#include <boost/numpy.hpp>
 //#include <Eigen/Core>
 #include "Tudat/SimulationSetup/tudatSimulationHeader.h"
-//#include "util/conversion.h"
+#include "util/conversion.h"
 
 namespace bp = boost::python;
 namespace bpn = boost::python::numpy;
 namespace tss = tudat::simulation_setup;
 
+//bp::init<Eigen::Vector6d>()
+Eigen::Vector6d numpyToEigen6d(bpn::ndarray array) {
+    Eigen::Vector6d result;
+    result << array[1], array[2], array[3], array[4], array[5];
+    return result;
+};
+
+
+struct numpyToEigen6d {
+    static void *convertible(bpn::ndarray *obj_ptr) {
+        if (!obj_ptr->size() == 6) return 0;
+        return obj_ptr;
+    }
+
+    static void construct(
+            bpn::ndarray *obj_ptr,
+            boost::python::converter::rvalue_from_python_stage1_data *data
+    ) {
+        const Eigen::Vector6d result;
+        result <<
+               obj_ptr->operator[](0),
+                obj_ptr->operator[](1),
+                obj_ptr->operator[](2),
+                obj_ptr->operator[](3),
+                obj_ptr->operator[](4),
+                obj_ptr->operator[](5);
+
+    }
+
+};
+
+
 BOOST_PYTHON_MODULE (_body) {
 
-        bp::class_<tss::Body>("Body", bp::init<Eigen::Vector6d>())
-                .def("get_ephemeris_frame_to_base_frame", &tss::Body::getEphemerisFrameToBaseFrame)
-        ;
+        Py_Initialize();
+        bpn::initialize();
 
+        bp::object Body(
+        bp::class_<tss::Body>("Body", bp::init<Eigen::Vector6d>())
+        .def("get_ephemeris_frame_to_base_frame", &tss::Body::getEphemerisFrameToBaseFrame)
+        );
+
+//    object body_obj = Body(numpyToEigen6d())
 
 //        class_<Ctor>("Ctor", init<std::string>())
 //        .def(init<double, double>())
