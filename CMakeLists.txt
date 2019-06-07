@@ -5,33 +5,33 @@ project(tudatpy)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 # TudatPy Versioning.
-set (tudatpy_VERSION_MAJOR 0)
-set (tudatpy_VERSION_MINOR 0)
-set (tudatpy_VERSION_PATCH 1)
+set(tudatpy_VERSION_MAJOR 0)
+set(tudatpy_VERSION_MINOR 0)
+set(tudatpy_VERSION_PATCH 1)
 
 # `PyLong_Type' can not be used when making a shared object; recompile with -fPIC
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
 
 # Load UserSettings.txt
-if(${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_CURRENT_SOURCE_DIR})
+if (${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_CURRENT_SOURCE_DIR})
     set(BUILD_STYLE "standalone")
     include("${CMAKE_CURRENT_SOURCE_DIR}/UserSettings.txt" OPTIONAL)
-else()
+else ()
     set(BUILD_STYLE "part of ${CMAKE_PROJECT_NAME}")
     include("${CMAKE_CURRENT_SOURCE_DIR}/UserSettings.txt" OPTIONAL)
     include("${CMAKE_SOURCE_DIR}/UserSettings.txt" OPTIONAL)
     STRING(REGEX REPLACE ${CMAKE_SOURCE_DIR} "" RELATIVE_PROJECT_PATH ${CMAKE_CURRENT_SOURCE_DIR})
     set(RELATIVE_PROJECT_PATH "${RELATIVE_PROJECT_PATH}" CACHE STRING "Relative path wrt to project for function")
     # message(STATUS "Relative path (wrt to project): ${RELATIVE_PROJECT_PATH}")
-endif()
+endif ()
 
 # Set CMake build-type. If it not supplied by the user (either directly as an argument of through
 # the "UserSettings.txt" file, the default built type is "Release".
-if((NOT CMAKE_BUILD_TYPE) OR (CMAKE_BUILD_TYPE STREQUAL "Release"))
+if ((NOT CMAKE_BUILD_TYPE) OR (CMAKE_BUILD_TYPE STREQUAL "Release"))
     set(CMAKE_BUILD_TYPE Release)
-elseif(CMAKE_BUILD_TYPE STREQUAL "Debug")
+elseif (CMAKE_BUILD_TYPE STREQUAL "Debug")
     set(CMAKE_BUILD_TYPE Debug)
-endif()
+endif ()
 
 message(STATUS "<< ${PROJECT_NAME} (${CMAKE_BUILD_TYPE} - ${BUILD_STYLE}) >>")
 
@@ -52,12 +52,12 @@ set(CODEROOT "${CMAKE_CURRENT_SOURCE_DIR}/..")
 enable_testing()
 
 # Set lib and bin directories where static libraries and unit tests are built.
-if(NOT LIBROOT)
+if (NOT LIBROOT)
     set(LIBROOT "${CODEROOT}/lib")
-endif()
-if(NOT BINROOT)
+endif ()
+if (NOT BINROOT)
     set(BINROOT "${CODEROOT}/bin")
-endif()
+endif ()
 
 # Set the global macros for setting up targets.
 macro(setup_executable_target target_name CUSTOM_OUTPUT_PATH)
@@ -86,22 +86,22 @@ find_package(Eigen3 REQUIRED)
 
 # Include Eigen3 directories.
 # Set CMake flag to suppress Eigen warnings (platform-dependent solution).
-if(NOT APPLE OR APPLE_INCLUDE_FORCE)
+if (NOT APPLE OR APPLE_INCLUDE_FORCE)
     include_directories(SYSTEM AFTER "${EIGEN3_INCLUDE_DIR}")
-else()
+else ()
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -isystem \"${EIGEN3_INCLUDE_DIR}\"")
-endif()
+endif ()
 
 # Configure Boost libraries.
-if(NOT Boost_USE_STATIC_LIBS)
+if (NOT Boost_USE_STATIC_LIBS)
     set(Boost_USE_STATIC_LIBS ON)
-endif()
-if(NOT Boost_USE_MULTITHREADED)
+endif ()
+if (NOT Boost_USE_MULTITHREADED)
     set(Boost_USE_MULTITHREADED ON)
-endif()
-if(NOT Boost_USE_STATIC_RUNTIME)
+endif ()
+if (NOT Boost_USE_STATIC_RUNTIME)
     set(Boost_USE_STATIC_RUNTIME ON)
-endif()
+endif ()
 
 # Find Boost libraries on local system.
 find_package(Boost 1.55.0
@@ -109,49 +109,49 @@ find_package(Boost 1.55.0
 
 # Include Boost directories.
 # Set CMake flag to suppress Boost warnings (platform-dependent solution).
-if(NOT APPLE OR APPLE_INCLUDE_FORCE)
+if (NOT APPLE OR APPLE_INCLUDE_FORCE)
     include_directories(SYSTEM AFTER "${Boost_INCLUDE_DIRS}")
-else()
+else ()
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -isystem \"${Boost_INCLUDE_DIRS}\"")
-endif()
+endif ()
 
 # Find Tudat library on local system.
 find_package(Tudat 2.0 REQUIRED)
 
 # Include Tudat directories.
 # Set CMake flag to suppress Tudat warnings (platform-dependent solution).
-if(NOT APPLE OR APPLE_INCLUDE_FORCE)
+if (NOT APPLE OR APPLE_INCLUDE_FORCE)
     include_directories(SYSTEM AFTER "${TUDAT_INCLUDE_DIR}")
-else()
+else ()
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -isystem \"${TUDAT_INCLUDE_DIR}\"")
-endif()
+endif ()
 
 # Find CSPICE library on local system.
 find_package(Spice)
 
 # Include CSpice directories.
-if(NOT APPLE OR APPLE_INCLUDE_FORCE)
+if (NOT APPLE OR APPLE_INCLUDE_FORCE)
     include_directories(SYSTEM AFTER "${SPICE_INCLUDE_DIR}")
-else( )
+else ()
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -isystem \"${SPICE_INCLUDE_DIR}\"")
-endif( )
+endif ()
 
-if(NOT USE_NRLMSISE00)
+if (NOT USE_NRLMSISE00)
     message(STATUS "NRLMSISE-00 disabled!")
     add_definitions(-DUSE_NRLMSISE00=0)
-else()
+else ()
     message(STATUS "NRLMSISE-00 enabled!")
     add_definitions(-DUSE_NRLMSISE00=1)
     # Find USE_NRLMSISE00 library on local system.
     find_package(NRLMSISE00)
 
     # Include NRLMSISE00 directories.
-    if(NOT APPLE OR APPLE_INCLUDE_FORCE)
+    if (NOT APPLE OR APPLE_INCLUDE_FORCE)
         include_directories(SYSTEM AFTER "${NRLMSISE00_INCLUDE_DIR}")
-    else( )
+    else ()
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -isystem \"${NRLMSISE00_INCLUDE_DIR}\"")
-    endif( )
-endif( )
+    endif ()
+endif ()
 
 # Set compiler based on preferences (e.g. USE_CLANG) and system.
 include(tudatLinkLibraries)
@@ -168,25 +168,25 @@ if (PYTHONINTERP_FOUND)
             FIND_PACKAGE(Boost 1.61 COMPONENTS python${PYTHON_VERSION_MAJOR})
             FIND_PACKAGE(PythonInterp 3)
             FIND_PACKAGE(PythonLibs 3 REQUIRED)
-        else()
+        else ()
             FIND_PACKAGE(Boost 1.61 COMPONENTS python)
             FIND_PACKAGE(PythonInterp)
             FIND_PACKAGE(PythonLibs REQUIRED)
-        endif()
-    else()
+        endif ()
+    else ()
         if (PYTHON_VERSION_MAJOR EQUAL 3)
             FIND_PACKAGE(Boost 1.61 COMPONENTS python${PYTHON_VERSION_MAJOR}${PYTHON_VERSION_MINOR})
             FIND_PACKAGE(PythonInterp 3)
             FIND_PACKAGE(PythonLibs 3 REQUIRED)
-        else()
+        else ()
             FIND_PACKAGE(Boost 1.61 COMPONENTS python${PYTHON_VERSION_MAJOR}${PYTHON_VERSION_MINOR})
             FIND_PACKAGE(PythonInterp)
             FIND_PACKAGE(PythonLibs REQUIRED)
-        endif()
-    endif()
-else()
+        endif ()
+    endif ()
+else ()
     message("Python not found")
-endif()
+endif ()
 
 message(STATUS "PYTHON_LIBRARIES = ${PYTHON_LIBRARIES}")
 message(STATUS "PYTHON_EXECUTABLE = ${PYTHON_EXECUTABLE}")
@@ -195,7 +195,13 @@ message(STATUS "Boost_LIBRARIES = ${Boost_LIBRARIES}")
 
 ENABLE_TESTING()
 INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIRS} ${PYTHON_INCLUDE_DIRS})
-LINK_LIBRARIES(${Boost_LIBRARIES} ${PYTHON_LIBRARIES} ${tudat_basic_mathematics}) # Deprecated but so convenient!
+LINK_LIBRARIES(
+        ${Boost_SYSTEM_LIBRARY}
+        ${Boost_LIBRARIES}
+        ${PYTHON_LIBRARIES}
+        ${TUDAT_PROPAGATION_LIBRARIES}
+        ${tudat_basic_mathematics}
+) # Deprecated but so convenient!
 
 # TODO: Setup the CMakelist.txt such that tudatPy is installed to the detected dist-packages of python library.
 
