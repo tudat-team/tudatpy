@@ -413,7 +413,7 @@ std::function< Eigen::Vector6d( const double, bool ) > createRelativeStateFuncti
 std::shared_ptr< ephemerides::RotationalEphemeris > createRotationModel(
         const std::shared_ptr< RotationModelSettings > rotationModelSettings,
         const std::string& body,
-        const NamedBodyMap& bodyMap );
+        const NamedBodyMap& bodyMap = NamedBodyMap( ) );
 
 } // namespace simulation_setup
 
