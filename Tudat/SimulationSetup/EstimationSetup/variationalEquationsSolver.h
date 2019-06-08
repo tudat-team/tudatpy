@@ -780,7 +780,6 @@ public:
             std::map< double, Eigen::VectorXd > dependentVariableHistory;
             std::map< double, double > cumulativeComputationTimeHistory;
 
-
             simulation_setup::setAreBodiesInPropagation( bodyMap_, true );
             EquationIntegrationInterface< Eigen::MatrixXd, double >::integrateEquations(
                         dynamicsSimulator_->getDoubleStateDerivativeFunction( ), rawNumericalSolution, initialVariationalState,
@@ -1289,9 +1288,8 @@ public:
 
                 // Integrate variational and state equations.
                 dynamicsSimulator_->getDynamicsStateDerivative( ).at( i )->resetFunctionEvaluationCounter( );
-                std::map< TimeType, MatrixType > rawNumericalSolution;
-
                 simulation_setup::setAreBodiesInPropagation( bodyMap_, true );
+                std::map< TimeType, MatrixType > rawNumericalSolution;
                 EquationIntegrationInterface< MatrixType, TimeType >::integrateEquations(
                             singleArcDynamicsSimulators.at( i )->getStateDerivativeFunction( ),
                             rawNumericalSolution,
@@ -1383,7 +1381,6 @@ public:
 
                 // Integrate variational equations for current arc
                 dynamicsSimulator_->getDynamicsStateDerivative( ).at( i )->resetFunctionEvaluationCounter( );
-
                 simulation_setup::setAreBodiesInPropagation( bodyMap_, true );
                 EquationIntegrationInterface< MatrixType, TimeType >::integrateEquations(
                             singleArcDynamicsSimulators.at( i )->getStateDerivativeFunction( ),

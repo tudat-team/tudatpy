@@ -18,7 +18,7 @@
 
 #include "Tudat/Basics/testMacros.h"
 
-#include "Tudat/Astrodynamics/Ephemerides/tidallyLockedRotationalEphemeris.h"
+#include "Tudat/Astrodynamics/Ephemerides/synchronousRotationalEphemeris.h"
 #include "Tudat/SimulationSetup/tudatSimulationHeader.h"
 
 namespace tudat
@@ -30,9 +30,9 @@ using namespace ephemerides;
 using namespace simulation_setup;
 using namespace input_output;
 
-BOOST_AUTO_TEST_SUITE( test_locked_rotational_ephemeris )
+BOOST_AUTO_TEST_SUITE( test_synchronous_rotational_ephemeris )
 
-BOOST_AUTO_TEST_CASE( test_TidallyLockedRotationModel )
+BOOST_AUTO_TEST_CASE( test_SynchronousRotationModel )
 {
 
     // Load Spice kernels
@@ -55,9 +55,9 @@ BOOST_AUTO_TEST_CASE( test_TidallyLockedRotationModel )
     // Create bodies needed in simulation
     std::map< std::string, std::shared_ptr< BodySettings > > bodySettings =
             getDefaultBodySettings( bodyNames );
-    for( int i = 0; i < bodiesToTest.size( ); i++ )
+    for( unsigned int i = 0; i < bodiesToTest.size( ); i++ )
     {
-        bodySettings[ bodiesToTest.at( i ) ]->rotationModelSettings = std::make_shared< TidallyLockedRotationModelSettings >(
+        bodySettings[ bodiesToTest.at( i ) ]->rotationModelSettings = std::make_shared< SynchronousRotationModelSettings >(
                     "Jupiter", "ECLIPJ2000", "IAU_" + bodiesToTest.at( i ) );
         bodySettings[ bodiesToTest.at( i ) ]->ephemerisSettings->resetFrameOrigin( "Jupiter" );
     }
@@ -72,9 +72,9 @@ BOOST_AUTO_TEST_CASE( test_TidallyLockedRotationModel )
         // Test different bodies
         for( unsigned int i = 0; i < bodiesToTest.size( ); i++ )
         {
-            // Get tidally locked rotation model and ephemeris
-            std::shared_ptr< TidallyLockedRotationalEphemeris > currentRotationalEphemeris =
-                    std::dynamic_pointer_cast< TidallyLockedRotationalEphemeris >(
+            // Get synchronous rotation model and ephemeris
+            std::shared_ptr< SynchronousRotationalEphemeris > currentRotationalEphemeris =
+                    std::dynamic_pointer_cast< SynchronousRotationalEphemeris >(
                         bodyMap.at( bodiesToTest.at( i ) )->getRotationalEphemeris( ) );
             std::shared_ptr< Ephemeris > currentEphemeris = bodyMap.at( bodiesToTest.at( i ) )->getEphemeris( );
 

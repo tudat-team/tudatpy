@@ -219,7 +219,7 @@ BOOST_AUTO_TEST_CASE( testSimpleRotationalEphemerisPartials )
     }
 }
 
-BOOST_AUTO_TEST_CASE( testTidallyLockedRotationPartials )
+BOOST_AUTO_TEST_CASE( testSynchronousRotationPartials )
 {
     Eigen::Vector6d nominalState =
             tudat::spice_interface::getBodyCartesianStateAtEpoch(
@@ -229,13 +229,13 @@ BOOST_AUTO_TEST_CASE( testTidallyLockedRotationPartials )
     std::function< Eigen::Vector6d( const double, bool ) > relativeStateFunction =
             [ & ]( const double, bool ){ return currentState; };
 
-    std::shared_ptr< tudat::ephemerides::TidallyLockedRotationalEphemeris > tidallyLockedRotationModel =
-            std::make_shared< ephemerides::TidallyLockedRotationalEphemeris >(
+    std::shared_ptr< tudat::ephemerides::SynchronousRotationalEphemeris > synchronousRotationModel =
+            std::make_shared< ephemerides::SynchronousRotationalEphemeris >(
                 relativeStateFunction, "SSB", "Mercury_Fixed", "ECLIPJ2000" );
 
 
     std::shared_ptr< RotationMatrixPartial > rotationMatrixPartialObject =
-            std::make_shared< TidallyLockedRotationMatrixPartialWrtTranslationalState >( tidallyLockedRotationModel );
+            std::make_shared< SynchronousRotationMatrixPartialWrtTranslationalState >( synchronousRotationModel );
 
     double testTime = 1.0E7;
     std::vector< Eigen::Matrix3d > rotationMatrixPartials =
@@ -250,12 +250,12 @@ BOOST_AUTO_TEST_CASE( testTidallyLockedRotationPartials )
     {
         currentState = nominalState;
         currentState( i ) += positionPerturbation;
-        Eigen::Matrix3d upPerturbedRotationMatrix = tidallyLockedRotationModel->getRotationToBaseFrame(
+        Eigen::Matrix3d upPerturbedRotationMatrix = synchronousRotationModel->getRotationToBaseFrame(
                     1.0E7 ).toRotationMatrix( );
 
         currentState = nominalState;
         currentState( i ) -= positionPerturbation;
-        Eigen::Matrix3d downPerturbedRotationMatrix = tidallyLockedRotationModel->getRotationToBaseFrame(
+        Eigen::Matrix3d downPerturbedRotationMatrix = synchronousRotationModel->getRotationToBaseFrame(
                     1.0E7 ).toRotationMatrix( );
 
         Eigen::Matrix3d relativePartialError =
@@ -272,12 +272,12 @@ BOOST_AUTO_TEST_CASE( testTidallyLockedRotationPartials )
 
         currentState = nominalState;
         currentState( i + 3 ) += velocityPerturbation;
-        upPerturbedRotationMatrix = tidallyLockedRotationModel->getRotationToBaseFrame(
+        upPerturbedRotationMatrix = synchronousRotationModel->getRotationToBaseFrame(
                     1.0E7 ).toRotationMatrix( );
 
         currentState = nominalState;
         currentState( i + 3 ) -= velocityPerturbation;
-        downPerturbedRotationMatrix = tidallyLockedRotationModel->getRotationToBaseFrame(
+        downPerturbedRotationMatrix = synchronousRotationModel->getRotationToBaseFrame(
                     1.0E7 ).toRotationMatrix( );
 
         relativePartialError =

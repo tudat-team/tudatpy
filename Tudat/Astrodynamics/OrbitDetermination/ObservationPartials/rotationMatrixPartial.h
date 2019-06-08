@@ -19,7 +19,7 @@
 #include <Eigen/Core>
 
 #include "Tudat/Astrodynamics/Ephemerides/simpleRotationalEphemeris.h"
-#include "Tudat/Astrodynamics/Ephemerides/tidallyLockedRotationalEphemeris.h"
+#include "Tudat/Astrodynamics/Ephemerides/synchronousRotationalEphemeris.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/estimatableParameter.h"
 #include "Tudat/Mathematics/BasicMathematics/linearAlgebra.h"
 
@@ -443,27 +443,27 @@ private:
 };
 
 
-class TidallyLockedRotationMatrixPartialWrtTranslationalState: public RotationMatrixPartial
+class SynchronousRotationMatrixPartialWrtTranslationalState: public RotationMatrixPartial
 {
 public:
 
 
-    TidallyLockedRotationMatrixPartialWrtTranslationalState(
-            const std::shared_ptr< ephemerides::TidallyLockedRotationalEphemeris > tidallyLockedRotationaModel ):
-        RotationMatrixPartial( tidallyLockedRotationaModel ),
-        tidallyLockedRotationaModel_( tidallyLockedRotationaModel )
+    SynchronousRotationMatrixPartialWrtTranslationalState(
+            const std::shared_ptr< ephemerides::SynchronousRotationalEphemeris > synchronousRotationaModel ):
+        RotationMatrixPartial( synchronousRotationaModel ),
+        synchronousRotationaModel_( synchronousRotationaModel )
     {
 
     }
 
-    ~TidallyLockedRotationMatrixPartialWrtTranslationalState( ){ }
+    ~SynchronousRotationMatrixPartialWrtTranslationalState( ){ }
 
     std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixToBaseFrameWrParameter( const double time )
     {
         Eigen::Matrix3d currentRotationMatrix =
-                tidallyLockedRotationaModel_->getRotationToBaseFrame( time ).toRotationMatrix( );
+                synchronousRotationaModel_->getRotationToBaseFrame( time ).toRotationMatrix( );
         Eigen::Vector6d currentState =
-                tidallyLockedRotationaModel_->getCurrentRelativeState( time );
+                synchronousRotationaModel_->getCurrentRelativeState( time );
         Eigen::Vector3d positionVector = currentState.segment( 0, 3 );
         Eigen::Vector3d velocityVector = currentState.segment( 3, 3 );
 
@@ -539,7 +539,7 @@ public:
 
 private:
 
-    std::shared_ptr< ephemerides::TidallyLockedRotationalEphemeris > tidallyLockedRotationaModel_;
+    std::shared_ptr< ephemerides::SynchronousRotationalEphemeris > synchronousRotationaModel_;
 
 };
 

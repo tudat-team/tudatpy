@@ -296,14 +296,14 @@ protected:
                 parameter->getArcTimeLookupScheme( );
         int currentArc = currentArcIndexLookUp->findNearestLowerNeighbour( currentTime_ );
 
-        if( currentArc >= partial.cols( ) )
+        if( currentArc >= accelerationPartial.cols( ) )
         {
             throw std::runtime_error( "Error when getting arc-wise radiation pressure coefficient partials, data not consistent" );
         }
 
         // Set partial
-        partial.setZero( 3, parameter->getNumberOfArcs( ) );
-        partial.block( 0, currentArc, 3, 1 ) = partialWrtSingleParameter;
+        accelerationPartial.setZero( 3, parameter->getNumberOfArcs( ) );
+        accelerationPartial.block( 0, currentArc, 3, 1 ) = partialWrtSingleParameter;
     }
 
     //! Perturbations of Cartesian state used in the numerical (central difference) computation of

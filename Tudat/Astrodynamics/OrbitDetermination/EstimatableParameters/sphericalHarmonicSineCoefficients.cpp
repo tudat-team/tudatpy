@@ -24,7 +24,7 @@ Eigen::VectorXd SphericalHarmonicsSineCoefficients::getParameterValue( )
 
     Eigen::MatrixXd coefficientBlock = getSineCoefficients_( );
 
-    for(  unsigned int i = 0; i < blockIndices_.size( ); i++ )
+    for( unsigned int i = 0; i < blockIndices_.size( ); i++ )
     {
         parameterVector( i ) = coefficientBlock( blockIndices_.at( i ).first, blockIndices_.at( i ).second );
     }
@@ -37,7 +37,7 @@ void SphericalHarmonicsSineCoefficients::setParameterValue( const Eigen::VectorX
 {
     Eigen::MatrixXd coefficients = getSineCoefficients_( );
 
-    for(  unsigned int i = 0; i < blockIndices_.size( ); i++ )
+    for( unsigned int i = 0; i < blockIndices_.size( ); i++ )
     {
         coefficients( blockIndices_.at( i ).first, blockIndices_.at( i ).second ) = parameterValue( i );
     }

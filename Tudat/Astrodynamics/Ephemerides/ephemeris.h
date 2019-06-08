@@ -68,7 +68,7 @@ public:
 
     //! Get state from ephemeris.
     /*!
-     * Returns state from ephemeris at given time.
+     * Returns state from ephemeris at given time
      * \param secondsSinceEpoch Seconds since epoch at which ephemeris is to be evaluated.
      * \return State from ephemeris.
      */
@@ -77,7 +77,7 @@ public:
 
     //! Get position from ephemeris.
     /*!
-     * Returns position from ephemeris at given given.
+     * Returns position from ephemeris at given time.
      * \param secondsSinceEpoch Seconds since epoch at which ephemeris is to be evaluated.
      * \return Position from ephemeris.
      */
@@ -89,7 +89,7 @@ public:
 
     //! Get velocity from ephemeris.
     /*!
-     * Returns velocity from ephemeris at given given.
+     * Returns velocity from ephemeris at given time.
      * \param secondsSinceEpoch Seconds since epoch at which ephemeris is to be evaluated.
      * \return Velocity from ephemeris.
      */

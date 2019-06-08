@@ -39,7 +39,7 @@ enum RotationModelType
     simple_rotation_model,
     spice_rotation_model,
     gcrs_to_itrs_rotation_model,
-    tidally_locked_rotation_model
+    synchronous_rotation_model
 };
 
 //! Class for providing settings for rotation model.
@@ -338,9 +338,9 @@ private:
 };
 #endif
 
-//! RotationModelSettings derived class for defining settings of a tidally locked rotational ephemeris (body-fixed x-axis always
+//! RotationModelSettings derived class for defining settings of a synchronous rotational ephemeris (body-fixed x-axis always
 //! pointing to central body; z-axis along r x v (with r and v the position and velocity w.r.t. central body)
-class TidallyLockedRotationModelSettings: public RotationModelSettings
+class SynchronousRotationModelSettings: public RotationModelSettings
 {
 public:
 
@@ -351,11 +351,11 @@ public:
      * \param baseFrameOrientation Base frame of rotation model.
      * \param targetFrameOrientation Target frame of rotation model.
      */
-    TidallyLockedRotationModelSettings(
+    SynchronousRotationModelSettings(
             const std::string& centralBodyName,
             const std::string& baseFrameOrientation,
             const std::string& targetFrameOrientation ):
-        RotationModelSettings( tidally_locked_rotation_model, baseFrameOrientation, targetFrameOrientation ),
+        RotationModelSettings( synchronous_rotation_model, baseFrameOrientation, targetFrameOrientation ),
         centralBodyName_( centralBodyName ){ }
 
     //! Function to retrieve name of central body to which this body is locked.

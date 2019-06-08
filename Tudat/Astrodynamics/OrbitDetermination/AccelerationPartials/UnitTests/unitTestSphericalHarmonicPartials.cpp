@@ -822,7 +822,7 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicAccelerationPartial )
 
 }
 
-BOOST_AUTO_TEST_CASE( testSphericalHarmonicAccelerationPartialWithTidallyLockedRotation )
+BOOST_AUTO_TEST_CASE( testSphericalHarmonicAccelerationPartialWithSynchronousRotation )
 {
     // Define bodies in simulation
     std::vector< std::string > bodyNames;
@@ -834,12 +834,12 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicAccelerationPartialWithTidallyLockedR
     std::map< std::string, std::shared_ptr< BodySettings > > bodySettings =
             getDefaultBodySettings( bodyNames );
     bodySettings[ "Earth" ]->rotationModelSettings =
-            std::make_shared< TidallyLockedRotationModelSettings >(
+            std::make_shared< SynchronousRotationModelSettings >(
                 "Moon", "ECLIPJ2000", "IAU_Earth" );
     NamedBodyMap bodyMap = createBodies( bodySettings );
     std::shared_ptr< tudat::simulation_setup::Body > earth = bodyMap.at( "Earth" );
     std::shared_ptr< tudat::simulation_setup::Body > moon = bodyMap.at( "Moon" );
-    std::dynamic_pointer_cast< tudat::ephemerides::TidallyLockedRotationalEphemeris >(
+    std::dynamic_pointer_cast< tudat::ephemerides::SynchronousRotationalEphemeris >(
                 earth->getRotationalEphemeris( ) )->setIsBodyInPropagation( 1 );
 
     setGlobalFrameBodyEphemerides( bodyMap, "Earth", "ECLIPJ2000" );

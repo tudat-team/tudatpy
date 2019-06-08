@@ -79,9 +79,10 @@ std::shared_ptr< ephemerides::Ephemeris > createBodyEphemeris(
 //                    std::cerr << "Warning, position of " << bodyName << " taken as barycenter of that body's "
 //                              << "planetary system." << std::endl;
                 }
+
                 // Create corresponding ephemeris object.
                 ephemeris = std::make_shared< SpiceEphemeris >(
-                            inputName,
+                            bodyName,
                             directEphemerisSettings->getFrameOrigin( ),
                             directEphemerisSettings->getCorrectForStellarAberration( ),
                             directEphemerisSettings->getCorrectForLightTimeAberration( ),
