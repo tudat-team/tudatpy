@@ -36,7 +36,7 @@ void SphericalHarmonicsCosineCoefficients::setParameterValue( const Eigen::Vecto
 {
     Eigen::MatrixXd coefficients = getCosineCoefficients_( );
 
-    for(  unsigned int i = 0; i < blockIndices_.size( ); i++ )
+    for( unsigned int i = 0; i < blockIndices_.size( ); i++ )
     {
         coefficients( blockIndices_.at( i ).first, blockIndices_.at( i ).second ) = parameterValue( i );
     }
@@ -49,7 +49,7 @@ Eigen::VectorXd getKaulaConstraintVector(
 {
     Eigen::VectorXd constraints = Eigen::VectorXd::Zero( blockIndices.size( ) );
 
-    for( int i = 0; i < blockIndices.size( ); i++ )
+    for( unsigned int i = 0; i < blockIndices.size( ); i++ )
     {
         constraints( i ) = constraintMultiplier / ( blockIndices.at( i ).first * blockIndices.at( i ).first );
     }

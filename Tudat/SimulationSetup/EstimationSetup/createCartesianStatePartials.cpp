@@ -293,11 +293,11 @@ std::shared_ptr< RotationMatrixPartial > createRotationMatrixPartialsWrtTranslat
         const std::shared_ptr< simulation_setup::Body > currentBody )
 {
     std::shared_ptr< RotationMatrixPartial > rotationMatrixPartial;
-    if( std::dynamic_pointer_cast< ephemerides::TidallyLockedRotationalEphemeris >(
+    if( std::dynamic_pointer_cast< ephemerides::SynchronousRotationalEphemeris >(
                 currentBody->getRotationalEphemeris( ) ) != nullptr )
     {
-        rotationMatrixPartial = std::make_shared< TidallyLockedRotationMatrixPartialWrtTranslationalState >(
-                    std::dynamic_pointer_cast< ephemerides::TidallyLockedRotationalEphemeris >(
+        rotationMatrixPartial = std::make_shared< SynchronousRotationMatrixPartialWrtTranslationalState >(
+                    std::dynamic_pointer_cast< ephemerides::SynchronousRotationalEphemeris >(
                         currentBody->getRotationalEphemeris( ) ) );
     }
     return rotationMatrixPartial;

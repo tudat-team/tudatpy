@@ -9,8 +9,8 @@
  *
  */
 
-#ifndef TUDAT_TIDALLYLOCKEDROTATIONALEPHEMERIS_H
-#define TUDAT_TIDALLYLOCKEDROTATIONALEPHEMERIS_H
+#ifndef TUDAT_SYNCHRONOUSROTATIONALEPHEMERIS_H
+#define TUDAT_SYNCHRONOUSROTATIONALEPHEMERIS_H
 
 #include <functional>
 
@@ -23,13 +23,13 @@ namespace tudat
 namespace ephemerides
 {
 
-//! Class to define a fully tidally locked rotation model for a body
+//! Class to define a fully synchronous rotation model for a body
 /*!
- *  Class to define a fully tidally locked rotation model for a body. The body-fixed x-axis always points directly to the
+ *  Class to define a fully synchronous rotation model for a body. The body-fixed x-axis always points directly to the
  *  central body, and itts z-axis is along the orbital angular momentum vector (r x v).
  *  NOTE: The time derivative of the rotation matrix is not yet implemented.
  */
-class TidallyLockedRotationalEphemeris: public RotationalEphemeris
+class SynchronousRotationalEphemeris: public RotationalEphemeris
 {
 public:
 
@@ -42,7 +42,7 @@ public:
      * \param baseFrameOrientation Name of base frame
      * \param targetFrameOrientation Name of target frame
      */
-    TidallyLockedRotationalEphemeris(
+    SynchronousRotationalEphemeris(
             const std::function< Eigen::Vector6d( const double, bool ) > relativeStateFunction,
             const std::string& centralBodyName,
             const std::string& baseFrameOrientation,
@@ -55,7 +55,7 @@ public:
     { }
 
     //! Destructor
-    ~TidallyLockedRotationalEphemeris( ){ }
+    ~SynchronousRotationalEphemeris( ){ }
 
     //! Calculate rotation quaternion from target frame to base frame.
     /*!
@@ -135,4 +135,4 @@ private:
 }
 
 
-#endif // TUDAT_TIDALLYLOCKEDROTATIONALEPHEMERIS_H
+#endif // TUDAT_SYNCHRONOUSROTATIONALEPHEMERIS_H
