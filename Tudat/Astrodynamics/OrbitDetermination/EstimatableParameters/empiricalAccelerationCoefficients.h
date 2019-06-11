@@ -93,14 +93,15 @@ public:
     {
         Eigen::VectorXd parameter = Eigen::VectorXd::Zero( parameterSize_ );
 
-        // Iterate over all components and retrieve required values
+        // Iterate over all acceleration models
         for( unsigned int i = 0; i < empiricalAcceleration_.size( ); i++ )
         {
-            int currentIndex = 0;
 
             Eigen::VectorXd currentAccelerationParameter = Eigen::VectorXd::Zero( parameterSize_ );
 
+            // Iterate over all components and retrieve required values
             Eigen::Matrix3d accelerationComponents = empiricalAcceleration_.at( i )->getAccelerationComponents( );
+            int currentIndex = 0;
             for( std::map< basic_astrodynamics::EmpiricalAccelerationFunctionalShapes, std::vector< int > >::const_iterator
                  componentIterator = accelerationIndices_.begin( );
                  componentIterator != accelerationIndices_.end( ); componentIterator++ )

@@ -346,15 +346,17 @@ void SphericalHarmonicsGravityPartial::update( const double currentTime )
         currentPartialWrtVelocity_.setZero( );
         currentPartialWrtPosition_.setZero( );
 
+        // Compute partial w.r.t. position in inertial frame
         currentPartialWrtPosition_ +=
                 currentRotationToBodyFixedFrame_.inverse( ) * currentBodyFixedPartialWrtPosition_ * currentRotationToBodyFixedFrame_;
 
+        // If rotation matrix depends on translational state, add correction partials
         if( rotationMatrixPartials_.count(
                     std::make_pair( estimatable_parameters::initial_body_state, "" ) ) > 0 )
         {
+            // Compute the acceleration and body-fixed position partial, without the central term (to avoid numerical errors)
             Eigen::Vector3d nonCentralAcceleration = accelerationFunction_( );
             Eigen::Matrix3d nonCentralBodyFixedPartial = currentBodyFixedPartialWrtPosition_;
-
             if( currentCosineCoefficients_( 0 ) > 0.0 )
             {
                 nonCentralAcceleration -= gravitation::computeGravitationalAcceleration(
@@ -366,15 +368,13 @@ void SphericalHarmonicsGravityPartial::update( const double currentTime )
                         currentRotationToBodyFixedFrame_.inverse( );
             }
 
+            // Compute rotation matrix partials
             std::vector< Eigen::Matrix3d > rotationPositionPartials =
                     rotationMatrixPartials_.at(
                         std::make_pair( estimatable_parameters::initial_body_state, "" ) )->
                     calculatePartialOfRotationMatrixToBaseFrameWrParameter( currentTime );
 
-            Eigen::Matrix3d dummyPositionMatrix, dummyVelocityMatrix;
-            dummyPositionMatrix.setZero( );
-            dummyVelocityMatrix.setZero( );
-
+            // Add correction terms to position and velocity partials
             for( unsigned int i = 0; i < 3; i++ )
             {
                 currentPartialWrtPosition_.block( 0, i, 3, 1 ) -=

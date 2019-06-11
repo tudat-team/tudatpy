@@ -822,6 +822,7 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicAccelerationPartial )
 
 }
 
+//! Unit test to check working onf spherical harmonic state partial for synchronously rotating body (and rotation depending on state)
 BOOST_AUTO_TEST_CASE( testSphericalHarmonicAccelerationPartialWithSynchronousRotation )
 {
     // Define bodies in simulation
@@ -841,11 +842,10 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicAccelerationPartialWithSynchronousRot
     std::shared_ptr< tudat::simulation_setup::Body > moon = bodyMap.at( "Moon" );
     std::dynamic_pointer_cast< tudat::ephemerides::SynchronousRotationalEphemeris >(
                 earth->getRotationalEphemeris( ) )->setIsBodyInPropagation( 1 );
-
     setGlobalFrameBodyEphemerides( bodyMap, "Earth", "ECLIPJ2000" );
 
+    // Set translational and rotational state of bodies
     double testTime = 1.0E6;
-
     earth->setStateFromEphemeris( testTime );
     Eigen::Vector6d moonState = moon->getStateInBaseFrameFromEphemeris( testTime );
     moon->setState( moonState * 0.1 );
@@ -853,12 +853,12 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicAccelerationPartialWithSynchronousRot
     earth->setCurrentRotationToLocalFrameFromEphemeris( testTime );
     moon->setCurrentRotationToLocalFrameFromEphemeris( testTime );
 
+    // Create acceleration model
     std::shared_ptr< SphericalHarmonicAccelerationSettings > accelerationSettings =
             std::make_shared< SphericalHarmonicAccelerationSettings >( 5, 5 );
     std::shared_ptr< SphericalHarmonicsGravitationalAccelerationModel > gravitationalAcceleration =
             std::dynamic_pointer_cast< SphericalHarmonicsGravitationalAccelerationModel >(
                 createAccelerationModel( moon, earth, accelerationSettings, "Moon", "Earth" ) );
-
     gravitationalAcceleration->updateMembers( 0.0 );
 
     // Declare numerical partials.
@@ -884,13 +884,12 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicAccelerationPartialWithSynchronousRot
             std::bind( &Body::getState, moon );
 
 
-
+    // Define estimated parameters
     std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames;
     parameterNames.push_back( std::make_shared< InitialRotationalStateEstimatableParameterSettings< double > >(
                                   "Earth", 0.0, "ECLIPJ2000" ) );
     parameterNames.push_back( std::make_shared< InitialRotationalStateEstimatableParameterSettings< double > >(
                                   "Moon", 0.0, "ECLIPJ2000" ) );
-
     std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > parameterSet =
             createParametersToEstimate( parameterNames, bodyMap );
 
@@ -901,10 +900,9 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicAccelerationPartialWithSynchronousRot
                 createAnalyticalAccelerationPartial(
                     gravitationalAcceleration, std::make_pair( "Moon", moon ), std::make_pair( "Earth", earth ),
                     bodyMap, parameterSet ) );
-
-
     accelerationPartial->update( testTime );
 
+    // Calculate analytical partials.
     Eigen::MatrixXd partialWrtMoonPosition = Eigen::Matrix3d::Zero( );
     accelerationPartial->wrtPositionOfAcceleratedBody( partialWrtMoonPosition.block( 0, 0, 3, 3 ) );
 

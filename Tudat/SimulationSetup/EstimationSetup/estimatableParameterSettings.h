@@ -344,7 +344,7 @@ public:
         arcStartTimes_( arcStartTimes ), frameOrientation_( frameOrientation ),
         isStateSet_( 0 )
     {
-        for( int i = 0; i < arcStartTimes.size( ); i++ )
+        for( unsigned int i = 0; i < arcStartTimes.size( ); i++ )
         {
             centralBodies_.push_back( centralBody );
         }
