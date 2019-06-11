@@ -31,6 +31,7 @@
 #include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/tidalLoveNumber.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/directTidalTimeLag.h"
 #include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/meanMomentOfInertiaParameter.h"
+#include "Tudat/Astrodynamics/OrbitDetermination/EstimatableParameters/desaturationDeltaV.h"
 #include "Tudat/Astrodynamics/Relativity/metric.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/accelerationModelTypes.h"
 #include "Tudat/SimulationSetup/EstimationSetup/estimatableParameterSettings.h"
@@ -82,6 +83,10 @@ std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel3d > > getAc
                 }
             }
         }
+        if( accelerationModelList.size( ) == 0 )
+        {
+            throw std::runtime_error( "Error when getting acceleration model for parameter empirical_acceleration_coefficients, no acceleration model found." );
+        }
         break;
     }
     case arc_wise_empirical_acceleration_coefficients:
@@ -110,6 +115,10 @@ std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel3d > > getAc
                 }
             }
         }
+        if( accelerationModelList.size( ) == 0 )
+        {
+            throw std::runtime_error( "Error when getting acceleration model for parameter arc_wise_empirical_acceleration_coefficients, no acceleration model found." );
+        }
         break;
     }
     case direct_dissipation_tidal_time_lag:
@@ -132,6 +141,41 @@ std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel3d > > getAc
             }
 
         }
+
+        if( accelerationModelList.size( ) == 0 )
+        {
+            throw std::runtime_error( "Error when getting acceleration model for parameter direct_dissipation_tidal_time_lag, no acceleration model found." );
+        }
+    }
+    case desaturation_delta_v_values:
+    {
+        if( accelerationModelMap.count( parameterSettings->parameterType_.second.first ) != 0 )
+        {
+            if( accelerationModelMap.at( parameterSettings->parameterType_.second.first ).count(
+                        parameterSettings->parameterType_.second.first ) != 0 )
+
+            {
+                // Retrieve acceleration model.
+                std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > >
+                        accelerationModelListToCheck =
+                        accelerationModelMap.at( parameterSettings->parameterType_.second.first ).at(
+                            parameterSettings->parameterType_.second.first );
+                for( unsigned int i = 0; i < accelerationModelListToCheck.size( ); i++ )
+                {
+                    if( basic_astrodynamics::getAccelerationModelType( accelerationModelListToCheck[ i ] ) ==
+                            basic_astrodynamics::momentum_wheel_desaturation_acceleration )
+                    {
+                        accelerationModelList.push_back( accelerationModelListToCheck[ i ] );
+                    }
+                }
+            }
+        }
+
+        if( accelerationModelList.size( ) == 0 )
+        {
+            throw std::runtime_error( "Error when getting acceleration model for parameter desaturation_delta_v_values, no acceleration model found." );
+        }
+        break;
     }
     default:
         break;
@@ -1144,6 +1188,35 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd >
                     }
                 }
             }
+            break;
+        }
+        case desaturation_delta_v_values:
+        {
+            // Check input consistency.
+            std::string acceleratedBody = vectorParameterName->parameterType_.second.first;
+
+            // Retrieve acceleration model.
+            std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > > desaturationAccelerationModels =
+                    getAccelerationModelsListForParametersFromBase( propagatorSettings, vectorParameterName );
+
+            if( desaturationAccelerationModels.size( ) == 0 )
+            {
+                throw std::runtime_error( "Error when making desaturation Delta V parameter, no acceleration models found in list" );
+
+            }
+            else if( desaturationAccelerationModels.size( ) > 1 )
+            {
+                throw std::runtime_error( "Error when making desaturation Delta V parameter, multiple acceleration models found in list" );
+
+            }
+            else
+            {
+                // Create desaturation deltaV values parameter.
+                vectorParameterToEstimate = std::make_shared< DesaturationDeltaV >(
+                            std::dynamic_pointer_cast< propulsion::MomentumWheelDesaturationThrustAcceleration >(
+                                desaturationAccelerationModels.at( 0 ) ), acceleratedBody );
+            }
+
             break;
         }
         default:

@@ -92,6 +92,17 @@ public:
         }
     }
 
+    //! Function for calculating the partial of the acceleration w.r.t. the velocity of body undergoing acceleration..
+    /*!
+     *  Function for calculating the partial of the acceleration w.r.t. the velocity of body undergoing acceleration
+     *  and adding it to the existing partial block
+     *  Update( ) function must have been called during current time step before calling this function.
+     *  \param partialMatrix Block of partial derivatives of acceleration w.r.t. Cartesian velocity of body
+     *  undergoing acceleration where current partial is to be added.
+     *  \param addContribution Variable denoting whether to return the partial itself (true) or the negative partial (false).
+     *  \param startRow First row in partialMatrix block where the computed partial is to be added.
+     *  \param startColumn First column in partialMatrix block where the computed partial is to be added.
+     */
     void wrtVelocityOfAcceleratedBody(
             Eigen::Block< Eigen::MatrixXd > partialMatrix,
             const bool addContribution = 1, const int startRow = 0, const int startColumn = 3 )
@@ -130,6 +141,17 @@ public:
         }
     }
 
+    //! Function for calculating the partial of the acceleration w.r.t. the velocity of body exerting acceleration.
+    /*!
+     *  Function for calculating the partial of the acceleration w.r.t. the velocity of body exerting acceleration and
+     *  adding it to the existing partial block.
+     *  The update( ) function must have been called during current time step before calling this function.
+     *  \param partialMatrix Block of partial derivatives of acceleration w.r.t. Cartesian velocity of body
+     *  exerting acceleration where current partial is to be added.
+     *  \param addContribution Variable denoting whether to return the partial itself (true) or the negative partial (false).
+     *  \param startRow First row in partialMatrix block where the computed partial is to be added.
+     *  \param startColumn First column in partialMatrix block where the computed partial is to be added.
+     */
     void wrtVelocityOfAcceleratingBody( Eigen::Block< Eigen::MatrixXd > partialMatrix,
                                         const bool addContribution = 1, const int startRow = 0, const int startColumn = 0 )
     {

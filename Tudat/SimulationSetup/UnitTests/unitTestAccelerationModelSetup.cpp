@@ -776,7 +776,7 @@ BOOST_AUTO_TEST_CASE( test_panelledRadiationPressureAcceleration )
 
 
     // Manually calculate acceleration
-    for (int currentPanel = 0 ; currentPanel < areas.size() ; currentPanel++){
+    for ( unsigned int currentPanel = 0 ; currentPanel < areas.size() ; currentPanel++){
 
         double cosinusCurrentPanelInclination = expectedVehicleToSunNormalisedVector.dot( panelSurfaceNormals[ currentPanel ] );
 
