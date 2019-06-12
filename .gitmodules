@@ -1,0 +1,3 @@
+[submodule "external/boost_numpy_eigen"]
+	path = external/boost_numpy_eigen
+	url = https://github.com/personalrobotics/boost_numpy_eigen.git
