@@ -7,7 +7,8 @@
 #    a copy of the license with this file. If not, please or visit:
 #    http://tudat.tudelft.nl/LICENSE.
 #
-FILE(COPY __init__.py DESTINATION .)
-ADD_SUBDIRECTORY(body)
-#PYTHON_ADD_MODULE(body body.cpp)
-#PYTHON_ADD_MODULE(celestial celestial.cpp)
+
+file(COPY __init__.py DESTINATION .)
+python_add_module(physical physical.cpp)
+python_add_module(celestial celestial.cpp)
+

@@ -7,8 +7,5 @@
 #    a copy of the license with this file. If not, please or visit:
 #    http://tudat.tudelft.nl/LICENSE.
 #
-
 FILE(COPY __init__.py DESTINATION .)
-PYTHON_ADD_MODULE(physical physical.cpp)
-PYTHON_ADD_MODULE(celestial celestial.cpp)
-
+PYTHON_ADD_MODULE(_environment _environment.cpp)

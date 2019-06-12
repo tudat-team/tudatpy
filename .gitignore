@@ -1,1 +1,32 @@
+# Generated files
+lib/
+libs/
+CMakeFiles/
+_CPack_Packages/
+Makefile
+CMakeCache.txt
+CPackConfig.cmake
+CPackSourceConfig.cmake
+cmake_install.cmake
+install_manifest.txt
+boost-numpy-eigen-*-Linux.deb
+boost-numpy-eigen-*-Linux.sh
+boost-numpy-eigen-*-Linux.tar.Z
+boost-numpy-eigen-*-Linux.tar.gz
+*.o
+*.so
+
+# Common build output folders
 cmake-build-debug/
+cmake-build-release/
+build/
+.build/
+
+# IDE project files
+.idea/
+.project
+.cproject
+.settings/
+.pydevproject
+*.sublime-project
+*.sublime-workspace

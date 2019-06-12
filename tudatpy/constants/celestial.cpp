@@ -7,12 +7,27 @@
 
 #include <boost/python.hpp>
 #include "Tudat/Astrodynamics/BasicAstrodynamics/celestialBodyConstants.h"
-#include "util/conversion.h"
+#include "conversion.h"
 
 namespace bp = boost::python;
 namespace tbc = tudat::celestial_body_constants;
 
 BOOST_PYTHON_MODULE (celestial) {
+
+    bp::scope().attr("__doc__") = " EARTH_EQUATORIAL_RADIUS"
+                                  " EARTH_FLATTENING_FACTOR"
+                                  " EARTH_GEODESY_NORMALIZED_J2"
+                                  " SUN_GRAVITATIONAL_PARAMETER"
+                                  " MERCURY_GRAVITATIONAL_PARAMETER"
+                                  " VENUS_GRAVITATIONAL_PARAMETER"
+                                  " EARTH_GRAVITATIONAL_PARAMETER"
+                                  " MOON_GRAVITATIONAL_PARAMETER"
+                                  " MARS_GRAVITATIONAL_PARAMETER"
+                                  " JUPITER_GRAVITATIONAL_PARAMETER"
+                                  " SATURN_GRAVITATIONAL_PARAMETER"
+                                  " URANUS_GRAVITATIONAL_PARAMETER"
+                                  " NEPTUNE_GRAVITATIONAL_PARAMETER"
+                                  " PLUTO_GRAVITATIONAL_PARAMETER";
 
     // Definition of celestial body constants.
     bp::scope().attr("EARTH_EQUATORIAL_RADIUS") = tbc::EARTH_EQUATORIAL_RADIUS;
