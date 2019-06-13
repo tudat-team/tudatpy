@@ -83,10 +83,10 @@ std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel3d > > getAc
                 }
             }
         }
-        if( accelerationModelList.size( ) == 0 )
-        {
-            throw std::runtime_error( "Error when getting acceleration model for parameter empirical_acceleration_coefficients, no acceleration model found." );
-        }
+//        if( accelerationModelList.size( ) == 0 )
+//        {
+//            throw std::runtime_error( "Error when getting acceleration model for parameter empirical_acceleration_coefficients, no acceleration model found." );
+//        }
         break;
     }
     case arc_wise_empirical_acceleration_coefficients:
@@ -115,10 +115,10 @@ std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel3d > > getAc
                 }
             }
         }
-        if( accelerationModelList.size( ) == 0 )
-        {
-            throw std::runtime_error( "Error when getting acceleration model for parameter arc_wise_empirical_acceleration_coefficients, no acceleration model found." );
-        }
+//        if( accelerationModelList.size( ) == 0 )
+//        {
+//            throw std::runtime_error( "Error when getting acceleration model for parameter arc_wise_empirical_acceleration_coefficients, no acceleration model found." );
+//        }
         break;
     }
     case direct_dissipation_tidal_time_lag:
@@ -142,10 +142,11 @@ std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel3d > > getAc
 
         }
 
-        if( accelerationModelList.size( ) == 0 )
-        {
-            throw std::runtime_error( "Error when getting acceleration model for parameter direct_dissipation_tidal_time_lag, no acceleration model found." );
-        }
+//        if( accelerationModelList.size( ) == 0 )
+//        {
+//            throw std::runtime_error( "Error when getting acceleration model for parameter direct_dissipation_tidal_time_lag, no acceleration model found." );
+//        }
+        break;
     }
     case desaturation_delta_v_values:
     {
@@ -171,10 +172,10 @@ std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel3d > > getAc
             }
         }
 
-        if( accelerationModelList.size( ) == 0 )
-        {
-            throw std::runtime_error( "Error when getting acceleration model for parameter desaturation_delta_v_values, no acceleration model found." );
-        }
+//        if( accelerationModelList.size( ) == 0 )
+//        {
+//            throw std::runtime_error( "Error when getting acceleration model for parameter desaturation_delta_v_values, no acceleration model found." );
+//        }
         break;
     }
     default:
@@ -257,6 +258,13 @@ std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel3d > > getAc
                     std::dynamic_pointer_cast< propagators::HybridArcPropagatorSettings< StateScalarType > >( propagatorSettings ),
                     parameterSettings );
     }
+
+            if( accelerationModelList.size( ) == 0 )
+            {
+                throw std::runtime_error( "Error when getting acceleration model for parameter " +
+                                          std::to_string( parameterSettings->parameterType_.first ) + ", no acceleration model found." );
+            }
+
     return accelerationModelList;
 }
 
