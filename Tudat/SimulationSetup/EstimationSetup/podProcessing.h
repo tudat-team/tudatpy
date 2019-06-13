@@ -268,7 +268,7 @@ std::pair< Eigen::MatrixXd, std::vector< TimeType > > getTimeOrderedInformationM
  *  \return Covariance (map values) as a function of time (map keys) for the given estimation input settings and output times.
  */
 template< typename ObservationScalarType = double, typename TimeType = double >
-std::map< TimeType, Eigen::MatrixXd > calculateCovarianceMatrixAsFunctionOfTime(
+std::map< TimeType, Eigen::MatrixXd > calculateCovarianceUsingDataUpToEpoch(
         const typename OrbitDeterminationManager< ObservationScalarType, TimeType >::PodInputType& measurementData,
         const Eigen::MatrixXd& typeAndLinkSortedNormalizedInformationMatrix,
         const Eigen::VectorXd& normalizationFactors,
@@ -379,12 +379,12 @@ std::map< TimeType, Eigen::MatrixXd > calculateCovarianceMatrixAsFunctionOfTime(
  */
 template< typename ObservationScalarType = double, typename TimeType = double, typename StateScalarType = ObservationScalarType,
           typename ParameterScalarType = double >
-std::map< TimeType, Eigen::MatrixXd >  calculateCovarianceMatrixAsFunctionOfTime(
+std::map< TimeType, Eigen::MatrixXd >  calculateCovarianceUsingDataUpToEpoch(
         const std::shared_ptr< PodInput< ObservationScalarType, TimeType > >& podInputData,
         const std::shared_ptr< PodOutput< ParameterScalarType > >& podOutputData,
         const double outputTimeStep )
 {
-    return calculateCovarianceMatrixAsFunctionOfTime< ObservationScalarType, TimeType >(
+    return calculateCovarianceUsingDataUpToEpoch< ObservationScalarType, TimeType >(
                 podInputData->getObservationsAndTimes( ), podOutputData->normalizedInformationMatrix_,
                 podOutputData->informationMatrixTransformationDiagonal_, outputTimeStep,
                 podOutputData->weightsMatrixDiagonal_, podInputData->getInverseOfAprioriCovariance( ) );
