@@ -219,7 +219,6 @@ bool isDoubleParameter( const EstimatebleParametersEnum parameterType )
     case mean_moment_of_inertia:
          isDoubleParameter = true;
         break;
-<<<<<<< HEAD
     case periodic_spin_variation:
         isDoubleParameter = false;
         break;
@@ -232,11 +231,9 @@ bool isDoubleParameter( const EstimatebleParametersEnum parameterType )
     case free_core_nutation_rate:
         isDoubleParameter = true;
         break;
-=======
     case desaturation_delta_v_values:
         isDoubleParameter = false;
        break;
->>>>>>> master
     default:
         throw std::runtime_error( "Error, parameter type " + std::to_string( parameterType ) +
                                   " not found when getting parameter type" );

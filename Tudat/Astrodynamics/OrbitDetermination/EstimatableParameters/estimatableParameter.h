@@ -62,7 +62,7 @@ enum EstimatebleParametersEnum
     periodic_spin_variation,
     polar_motion_amplitude,
     core_factor,
-    free_core_nutation_rate
+    free_core_nutation_rate,
     desaturation_delta_v_values
 };
 

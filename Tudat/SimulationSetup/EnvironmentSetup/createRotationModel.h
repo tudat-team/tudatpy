@@ -39,7 +39,7 @@ enum RotationModelType
     simple_rotation_model,
     spice_rotation_model,
     gcrs_to_itrs_rotation_model,
-    planetary_rotation_model
+    planetary_rotation_model,
     synchronous_rotation_model
 };
 
