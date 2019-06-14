@@ -53,6 +53,9 @@ void resetMarsEphemeris(
 //! Test if hybrid-arc orbit propagation is done correctly (single-arc Mars w.r.t. SSB and multi-arc orbiter w.r.t. Mars)
 BOOST_AUTO_TEST_CASE( testHybridArcDynamics )
 {
+    // Run for 2 test cases:
+    //  Case 1: small arc overlap, same integrator settings for single-/multi-arc
+    //  Case 2: large arc overlap, different integrator settings for single-/multi-arc
     for( int testCase = 0; testCase < 2; testCase++ )
     {
         //Load spice kernels.
@@ -292,9 +295,6 @@ BOOST_AUTO_TEST_CASE( testHybridArcDynamics )
         BOOST_CHECK_EQUAL( multiArcSolutionFromHybrid.size( ), multiArcSolution.size( ) );
         for( unsigned int arc = 0; arc < multiArcSolutionFromHybrid.size( ); arc++ )
         {
-            std::cout<<"Arc times "<<multiArcSolutionFromHybrid.at( arc ).begin( )->first<<" "<<
-                       multiArcSolutionFromHybrid.at( arc ).rbegin( )->first<<std::endl;
-
             BOOST_CHECK_EQUAL( multiArcSolutionFromHybrid.at( arc ).size( ), multiArcSolution.at( arc ).size( ) );
 
 

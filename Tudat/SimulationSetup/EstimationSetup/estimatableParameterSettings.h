@@ -294,9 +294,9 @@ class ArcWiseInitialTranslationalStateEstimatableParameterSettings: public Estim
 public:
 
 
-    //! Constructor, sets initial value of translational state.
+    //! Constructor, sets initial value of translational state and a single central body.
     /*!
-     * Constructor, sets initial value of translational state.
+     * Constructor, sets initial value of translational state and a single central body
      * \param associatedBody Body for which initial state is to be estimated.
      * \param initialStateValue Current value of initial arc states (concatenated in same order as arcs)
      * \param arcStartTimes Start times for separate arcs
@@ -318,6 +318,15 @@ public:
         }
     }
 
+    //! Constructor, sets initial value of translational state and an arc-wise variable central body.
+    /*!
+     * Constructor, sets initial value of translational state and an arc-wise variable central body
+     * \param associatedBody Body for which initial state is to be estimated.
+     * \param initialStateValue Current value of initial arc states (concatenated in same order as arcs)
+     * \param arcStartTimes Start times for separate arcs
+     * \param centralBodies List of central bodies (per arc) w.r.t. which the initial state is to be estimated.
+     * \param frameOrientation Orientation of the frame in which the state is defined.
+     */
     ArcWiseInitialTranslationalStateEstimatableParameterSettings(
             const std::string& associatedBody,
             const Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > initialStateValue,
@@ -327,7 +336,7 @@ public:
         arcStartTimes_( arcStartTimes ), centralBodies_( centralBodies ), frameOrientation_( frameOrientation ),
         isStateSet_( 1 ){ }
 
-    //! Constructor, without initial value of translational state.
+    //! Constructor, without initial value of translational state, for a single central body
     /*!
      * Constructor, without initial value of translational state. Current initial state is retrieved from environment
      * (ephemeris objects) during creation of parameter object.
@@ -350,6 +359,16 @@ public:
         }
     }
 
+    //! Constructor, without initial value of translational state, for an arc-wise variable central body
+    /*!
+     * Constructor, without initial value of translational state, for an arc-wise variable central body.
+     * Current initial state is retrieved from environment
+     * (ephemeris objects) during creation of parameter object.
+     * \param associatedBody Body for which initial state is to be estimated.
+     * \param arcStartTimes Start times for separate arcs
+     * \param centralBodies List of central bodies (per arc) w.r.t. which the initial state is to be estimated.
+     * \param frameOrientation Orientation of the frame in which the state is defined.
+     */
     ArcWiseInitialTranslationalStateEstimatableParameterSettings(
             const std::string& associatedBody,
             const std::vector< double >& arcStartTimes,
@@ -364,7 +383,7 @@ public:
     //! Start times for separate arcs
     std::vector< double > arcStartTimes_;
 
-    //! Body w.r.t. which the initial state is to be estimated.
+    //! List of bodies (arc-wise) w.r.t. which the initial state is to be estimated.
     std::vector< std::string > centralBodies_;
 
     //!Orientation of the frame in which the state is defined.

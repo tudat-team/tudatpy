@@ -219,33 +219,36 @@ BOOST_AUTO_TEST_CASE( testSimpleRotationalEphemerisPartials )
     }
 }
 
+//! Test whether partial derivatives of rotation matrix computed by SynchronousRotationalEphemeris works correctly
 BOOST_AUTO_TEST_CASE( testSynchronousRotationPartials )
 {
+    // Define nominal state
     Eigen::Vector6d nominalState =
             tudat::spice_interface::getBodyCartesianStateAtEpoch(
                                        "Mercury", "SSB", "ECLIPJ2000", "None", 1.0E7 );
 
+    // Define nominal state function
     Eigen::Vector6d currentState = nominalState;
     std::function< Eigen::Vector6d( const double, bool ) > relativeStateFunction =
             [ & ]( const double, bool ){ return currentState; };
 
+    // Create rotation model
     std::shared_ptr< tudat::ephemerides::SynchronousRotationalEphemeris > synchronousRotationModel =
             std::make_shared< ephemerides::SynchronousRotationalEphemeris >(
                 relativeStateFunction, "SSB", "Mercury_Fixed", "ECLIPJ2000" );
 
-
+    // Create rotation partial model
     std::shared_ptr< RotationMatrixPartial > rotationMatrixPartialObject =
             std::make_shared< SynchronousRotationMatrixPartialWrtTranslationalState >( synchronousRotationModel );
 
+    // Define test settings
     double testTime = 1.0E7;
-    std::vector< Eigen::Matrix3d > rotationMatrixPartials =
-            rotationMatrixPartialObject->calculatePartialOfRotationMatrixToBaseFrameWrParameter( testTime );
-
     double positionPerturbation = 10000.0;
     double velocityPerturbation = 0.1;
 
-
-
+    // Test partials w.r.t. position and velocity components
+    std::vector< Eigen::Matrix3d > rotationMatrixPartials =
+            rotationMatrixPartialObject->calculatePartialOfRotationMatrixToBaseFrameWrParameter( testTime );
     for( int i = 0; i < 3; i++ )
     {
         currentState = nominalState;

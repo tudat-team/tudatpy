@@ -223,10 +223,10 @@ public:
         return arcStartTimes_.size( );
     }
 
-    //! Function to get the name of the body w.r.t. which the initial states are to be estimated.
+    //! Function to get the names of the bodies w.r.t. which the initial states are to be estimated.
     /*!
-     * Function to get the name of the body w.r.t. which the initial states are to be estimated.
-     * \return Name of the body w.r.t. which the initial states are to be estimated.
+     * Function to get the names of the bodie w.r.t. which the initial states are to be estimated.
+     * \return Names of the bodies w.r.t. which the initial states are to be estimated.
      */
     std::vector< std::string > getCentralBodies( )
     {
@@ -258,7 +258,7 @@ private:
     //! Start times for separate arcs
     std::vector< double > arcStartTimes_;
 
-    //! Body w.r.t. which the initial state is to be estimated.
+    //! Names of the bodies w.r.t. which the initial states are to be estimated.
     std::vector< std::string > centralBodies_;
 
     //! Orientation of the frame in which the state is defined.

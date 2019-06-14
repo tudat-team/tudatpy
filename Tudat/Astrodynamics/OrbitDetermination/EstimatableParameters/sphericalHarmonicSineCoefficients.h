@@ -158,6 +158,13 @@ private:
     int parameterSize_;
 };
 
+//! Function to get a list of Kaula constraint values for gravity field coefficients for given parameter
+/*!
+ * Function to get a list of Kaula constraint values for gravity field coefficients for given parameter
+ * \param parameter Parameter that defines the list of sine spherical harmonic coefficients
+ * \param constraintMultiplier Multiplier A for Kaula constraint, obtained from A/l^{2}, which l the current coefficient's degree
+ * \return Vector of Kaula constraint values on gravity field coefficients
+ */
 Eigen::VectorXd getKaulaConstraintVector(
         const std::shared_ptr< SphericalHarmonicsSineCoefficients > parameter,
         const double constraintMultiplier );

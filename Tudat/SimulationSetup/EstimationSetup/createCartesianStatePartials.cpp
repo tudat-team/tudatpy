@@ -289,6 +289,7 @@ std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartia
     return partialMap;
 }
 
+//! Function to create partial object(s) of rotation matrix wrt translational state
 std::shared_ptr< RotationMatrixPartial > createRotationMatrixPartialsWrtTranslationalState(
         const std::shared_ptr< simulation_setup::Body > currentBody )
 {
